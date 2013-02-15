@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2000-2012, AdaCore                     --
+--                     Copyright (C) 2000-2013, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -31,9 +31,13 @@
 --  are used to initialize the configuration objects. Users should not modify
 --  the values here, see AWS.Config.* API.
 
+with System;
+
 package AWS.Default is
 
    pragma Pure;
+
+   use System;
 
    --  All times are in seconds
 
@@ -150,5 +154,12 @@ package AWS.Default is
    Trusted_CA                      : constant String  := "";
    CRL_File                        : constant String  := "";
    Check_URL_Validity              : constant Boolean := True;
+
+   --  Priorities
+
+   Server_Priority                 : constant Any_Priority := Default_Priority;
+   WebSocket_Priority              : constant Any_Priority := Default_Priority;
+   Session_Cleaner_Priority        : constant Any_Priority := Default_Priority;
+   Service_Priority                : constant Any_Priority := Default_Priority;
 
 end AWS.Default;

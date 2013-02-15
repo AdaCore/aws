@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2000-2012, AdaCore                     --
+--                     Copyright (C) 2000-2013, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -74,6 +74,9 @@ package AWS.Config.Set is
 
    procedure Session_Name (O : in out Object; Value : String);
    --  Name of the cookie session
+
+   procedure Server_Priority (O : in out Object; Value : System.Any_Priority);
+   --  Set the priority used by the HTTP and WebSockets servers
 
    ----------------
    -- Connection --
@@ -328,6 +331,13 @@ package AWS.Config.Set is
    procedure Session_Id_Length (Value : Positive);
    --  Returns the length (number of characters) of the session id
 
+   procedure Session_Cleaner_Priority (Value : System.Any_Priority);
+   --  Set the priority used by the session cleaner task
+
+   procedure Service_Priority (Value : System.Any_Priority);
+   --  Set the priority used by the others services (SMTP server, Jabber
+   --  server, Push server...).
+
    procedure Transient_Cleanup_Interval (Value : Duration);
    --  Number of seconds between each run of the cleaner task to remove
    --  transient pages.
@@ -352,6 +362,9 @@ package AWS.Config.Set is
 
    procedure WebSocket_Origin (Value : String);
    --  This is regular expression to restrict WebSocket to a specific origin
+
+   procedure WebSocket_Priority (Value : System.Any_Priority);
+   --  Set the priority used by the WebSocket service
 
    procedure Input_Line_Size_Limit (Value : Positive);
    --  Maximum length of an HTTP parameter

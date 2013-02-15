@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2000-2012, AdaCore                     --
+--                     Copyright (C) 2000-2013, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -32,6 +32,7 @@ with Ada.Exceptions;
 with Ada.Finalization;
 with Ada.Real_Time;
 with Ada.Task_Attributes;
+with System;
 
 with AWS.Config;
 with AWS.Default;
@@ -427,7 +428,8 @@ private
    -- Line --
    ----------
 
-   task type Line (Stack_Size : Integer) is
+   task type Line (Priority : System.Any_Priority; Stack_Size : Integer) is
+      pragma Priority (Priority);
       pragma Storage_Size (Stack_Size);
       entry Start (Server : HTTP; Index : Positive);
    end Line;

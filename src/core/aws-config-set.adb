@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2000-2012, AdaCore                     --
+--                     Copyright (C) 2000-2013, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -520,6 +520,25 @@ package body AWS.Config.Set is
       O.P (Server_Port).Nat_Value := Value;
    end Server_Port;
 
+   ---------------------
+   -- Server_Priority --
+   ---------------------
+
+   procedure Server_Priority
+     (O : in out Object; Value : System.Any_Priority) is
+   begin
+      O.P (Server_Priority).Nat_Value := Value;
+   end Server_Priority;
+
+   ----------------------
+   -- Service_Priority --
+   ----------------------
+
+   procedure Service_Priority (Value : System.Any_Priority) is
+   begin
+      Process_Options (Service_Priority).Nat_Value := Value;
+   end Service_Priority;
+
    -------------
    -- Session --
    -------------
@@ -528,6 +547,15 @@ package body AWS.Config.Set is
    begin
       O.P (Session).Bool_Value := Value;
    end Session;
+
+   ------------------------------
+   -- Session_Cleaner_Priority --
+   ------------------------------
+
+   procedure Session_Cleaner_Priority (Value : System.Any_Priority) is
+   begin
+      Process_Options (Session_Cleaner_Priority).Nat_Value := Value;
+   end Session_Cleaner_Priority;
 
    ------------------------------
    -- Session_Cleanup_Interval --
@@ -650,6 +678,15 @@ package body AWS.Config.Set is
       Process_Options (WebSocket_Origin).Regexp_Str :=
         To_Unbounded_String (Value);
    end WebSocket_Origin;
+
+   ------------------------
+   -- WebSocket_Priority --
+   ------------------------
+
+   procedure WebSocket_Priority (Value : System.Any_Priority) is
+   begin
+      Process_Options (WebSocket_Priority).Nat_Value := Value;
+   end WebSocket_Priority;
 
    --------------
    -- WWW_Root --

@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2000-2012, AdaCore                     --
+--                     Copyright (C) 2000-2013, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -33,6 +33,7 @@
 --  return the default value as declared in AWS.Default.
 
 with Ada.Strings.Unbounded;
+with System;
 
 with GNAT.Regexp;
 
@@ -103,6 +104,10 @@ package AWS.Config is
    function Session_Name (O : Object) return String;
    pragma Inline (Session_Name);
    --  Name of the cookie session
+
+   function Server_Priority (O : Object) return System.Any_Priority;
+   pragma Inline (Server_Priority);
+   --  Set the priority used by the HTTP and WebSockets servers
 
    ----------------
    -- Connection --
@@ -388,6 +393,15 @@ package AWS.Config is
    pragma Inline (Session_Id_Length);
    --  Returns the length (number of characters) of the session id
 
+   function Session_Cleaner_Priority return System.Any_Priority;
+   pragma Inline (Session_Cleaner_Priority);
+   --  Set the priority used by the session cleaner task
+
+   function Service_Priority return System.Any_Priority;
+   pragma Inline (Service_Priority);
+   --  Set the priority used by the others services (SMTP server, Jabber
+   --  server, Push server...).
+
    function Transient_Cleanup_Interval return Duration;
    pragma Inline (Transient_Cleanup_Interval);
    --  Number of seconds between each run of the cleaner task to remove
@@ -431,6 +445,9 @@ package AWS.Config is
    --  This is the string regular expression to restrict WebSocket to a
    --  specific origin.
 
+   function WebSocket_Priority return System.Any_Priority;
+   --  Set the priority used by the WebSocket service
+
 private
 
    package SV renames AWS.Containers.String_Vectors;
@@ -448,6 +465,7 @@ private
       Protocol_Family,
       Server_Host,
       Server_Port,
+      Server_Priority,
       Security,
       Certificate,
       Key,
@@ -499,6 +517,8 @@ private
       Session_Cleanup_Interval,
       Session_Lifetime,
       Session_Id_Length,
+      Session_Cleaner_Priority,
+      Service_Priority,
       Transient_Cleanup_Interval,
       Transient_Lifetime,
       Input_Line_Size_Limit,
@@ -506,6 +526,7 @@ private
       Max_WebSocket_Handler,
       WebSocket_Message_Queue_Size,
       WebSocket_Origin,
+      WebSocket_Priority,
       Context_Lifetime);
 
    subtype Server_Parameter_Name is Parameter_Name
@@ -663,6 +684,9 @@ private
          Server_Port =>
            (Nat, Default.Server_Port),
 
+         Server_Priority =>
+           (Nat, Default.Server_Priority),
+
          Hotplug_Port =>
            (Pos, Default.Hotplug_Port),
 
@@ -730,6 +754,12 @@ private
          Session_Id_Length =>
            (Pos, Default.Session_Id_Length),
 
+         Session_Cleaner_Priority =>
+           (Nat, Default.Session_Cleaner_Priority),
+
+         Service_Priority =>
+           (Nat, Default.Service_Priority),
+
          Transient_Cleanup_Interval =>
            (Dur, Default.Transient_Cleanup_Interval),
 
@@ -750,6 +780,9 @@ private
 
          WebSocket_Origin =>
            (Regexp, False, Pattern => <>, Regexp_Str => Null_Unbounded_String),
+
+         WebSocket_Priority =>
+           (Nat, Default.WebSocket_Priority),
 
          Context_Lifetime =>
            (Dur, Default.Context_Lifetime));

@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2000-2012, AdaCore                     --
+--                     Copyright (C) 2000-2013, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -33,6 +33,7 @@ with Ada.Real_Time;
 with Ada.Text_IO;
 with Ada.Unchecked_Deallocation;
 
+with AWS.Config;
 with AWS.Messages;
 with AWS.MIME;
 with AWS.Net.Buffered;
@@ -186,6 +187,7 @@ package body AWS.Server.Push is
    end Waiter_Information;
 
    task Waiter is
+      pragma Priority (AWS.Config.Service_Priority);
       entry Resume;
    end Waiter;
 
@@ -1690,8 +1692,8 @@ package body AWS.Server.Push is
 
       Write_Set : Write_Sets.Socket_Set_Type;
 
-      use Write_Sets;
       use Real_Time;
+      use Write_Sets;
 
       R_Signal : aliased Net.Socket_Type'Class := Socket (Security => False);
       Bytes    : Stream_Element_Array (1 .. 32);

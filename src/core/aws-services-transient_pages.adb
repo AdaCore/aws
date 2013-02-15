@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2003-2012, AdaCore                     --
+--                     Copyright (C) 2003-2013, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -27,9 +27,9 @@
 --  covered by the  GNU Public License.                                     --
 ------------------------------------------------------------------------------
 
-with Ada.Real_Time;
 with Ada.Containers.Indefinite_Hashed_Maps;
 with Ada.Exceptions;
+with Ada.Real_Time;
 with Ada.Strings.Hash;
 with Ada.Text_IO;
 
@@ -286,7 +286,7 @@ package body AWS.Services.Transient_Pages is
    procedure Register
      (URI      : String;
       Resource : AWS.Resources.Streams.Stream_Access;
-      Lifetime : Duration := Default.Transient_Lifetime)
+      Lifetime : Duration := Config.Transient_Lifetime)
    is
       use Real_Time;
    begin

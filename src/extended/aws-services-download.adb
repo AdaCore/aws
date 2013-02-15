@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2005-2012, AdaCore                     --
+--                     Copyright (C) 2005-2013, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -48,10 +48,10 @@ with AWS.Utils;
 package body AWS.Services.Download is
 
    use Ada;
+   use Ada.Containers;
    use Ada.Exceptions;
    use Ada.Streams;
    use Ada.Strings.Unbounded;
-   use Ada.Containers;
 
    URI_Prefix : constant String := "$dm_prefix$";
    --  The URI prefix used for all the download manager request
@@ -88,7 +88,9 @@ package body AWS.Services.Download is
 
    --  The task that handles the downloads
 
-   task type Download_Manager;
+   task type Download_Manager is
+      pragma Priority (Config.Service_Priority);
+   end Download_Manager;
 
    type Download_Manager_Access is access Download_Manager;
 

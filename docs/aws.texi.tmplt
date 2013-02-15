@@ -1602,11 +1602,22 @@ port on the same machine, both being binded on different IP addresses.
 The name of the server. This can be used when calling
 @code{AWS.Server.Start}. The default is "@b{@_SERVER_NAME_@}".
 
+@item Server_Priority (natural)
+@cindex Server_Priority (natural)
+Priority of the task handling the HTTP protocol.
+The default is Default_Priority.
+
 @item Server_Port (integer)
 @cindex Server_Port
 The port where server will wait for incoming connections requests. This
 can be used when calling @code{AWS.Server.Start}. The default is
 @_SERVER_PORT_@.
+
+@item Service_Priority (natural)
+@cindex Service_Priority (natural)
+Priority of the tasks used by optional services like SMTP Server,
+Server Push, Jabber and the Transient Page cleaner.
+The default is Default_Priority.
 
 @item Session (boolean)
 @cindex Session
@@ -1635,6 +1646,11 @@ is @_SESSION_LIFETIME_@ seconds.
 Number of seconds between each run of the session cleanup task. This
 task will remove all session data that have been obsoleted. The
 default is @_SESSION_CLEANUP_INTERVAL_@ seconds.
+
+@item Session_Cleaner_Priority (natural)
+@cindex Session_Cleaner_Priority (natural)
+Priority of the task cleaning the session data.
+The default is Default_Priority.
 
 @item Status_Page (string)
 @cindex Status_Page
@@ -1681,6 +1697,11 @@ default value is @_WEBSOCKET_MESSAGE_QUEUE_SIZE_@.
 This is a regular expression which can be used to handle WebSockets
 originating from a specific domain. By default AWS handles WebSockets
 from any origins.
+
+@item WebSocket_Priority (natural)
+@cindex WebSocket_Priority (natural)
+Priority of the task handling the WebSockets.
+The default is Default_Priority.
 
 @item WWW_Root (string)
 @cindex WWW_Root

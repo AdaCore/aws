@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2000-2012, AdaCore                     --
+--                     Copyright (C) 2000-2013, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -568,6 +568,24 @@ package body AWS.Config is
       return O.P (Server_Port).Nat_Value;
    end Server_Port;
 
+   ---------------------
+   -- Server_Priority --
+   ---------------------
+
+   function Server_Priority (O : Object) return System.Any_Priority is
+   begin
+      return O.P (Server_Priority).Nat_Value;
+   end Server_Priority;
+
+   ----------------------
+   -- Service_Priority --
+   ----------------------
+
+   function Service_Priority return System.Any_Priority is
+   begin
+      return Process_Options (Service_Priority).Nat_Value;
+   end Service_Priority;
+
    -------------
    -- Session --
    -------------
@@ -576,6 +594,15 @@ package body AWS.Config is
    begin
       return O.P (Session).Bool_Value;
    end Session;
+
+   ------------------------------
+   -- Session_Cleaner_Priority --
+   ------------------------------
+
+   function Session_Cleaner_Priority return System.Any_Priority is
+   begin
+      return Process_Options (Session_Cleaner_Priority).Nat_Value;
+   end Session_Cleaner_Priority;
 
    ------------------------------
    -- Session_Cleanup_Interval --
@@ -702,6 +729,15 @@ package body AWS.Config is
    begin
       return To_String (Process_Options (WebSocket_Origin).Regexp_Str);
    end WebSocket_Origin;
+
+   ------------------------
+   -- WebSocket_Priority --
+   ------------------------
+
+   function WebSocket_Priority return System.Any_Priority is
+   begin
+      return Process_Options (WebSocket_Priority).Nat_Value;
+   end WebSocket_Priority;
 
    --------------
    -- WWW_Root --

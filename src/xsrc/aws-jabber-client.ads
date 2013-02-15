@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2008-2012, AdaCore                     --
+--                     Copyright (C) 2008-2013, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -29,6 +29,7 @@
 
 with Ada.Strings.Unbounded;
 
+private with AWS.Config;
 private with AWS.Net;
 
 package AWS.Jabber.Client is
@@ -151,7 +152,10 @@ private
    --  Mailbox. This task will terminate with the connection socket will be
    --  closed by the client.
 
-   task type Incoming_Stream (Account : Account_Access);
+   task type Incoming_Stream (Account : Account_Access) is
+      pragma Priority (Config.Service_Priority);
+   end Incoming_Stream;
+
    type Incoming_Stream_Access is access Incoming_Stream;
 
    type Connection_State is
