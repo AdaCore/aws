@@ -31,7 +31,7 @@
 
 with Ada.Calendar;
 
-with AWS.Config;
+private with AWS.Config;
 
 package AWS.Session is
 
