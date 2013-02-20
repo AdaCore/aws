@@ -107,7 +107,7 @@ package AWS.Config is
 
    function Server_Priority (O : Object) return System.Any_Priority;
    pragma Inline (Server_Priority);
-   --  Set the priority used by the HTTP and WebSockets servers
+   --  Returns the priority used by the HTTP and WebSockets servers
 
    ----------------
    -- Connection --
@@ -395,11 +395,11 @@ package AWS.Config is
 
    function Session_Cleaner_Priority return System.Any_Priority;
    pragma Inline (Session_Cleaner_Priority);
-   --  Set the priority used by the session cleaner task
+   --  Returns the priority used by the session cleaner task
 
    function Service_Priority return System.Any_Priority;
    pragma Inline (Service_Priority);
-   --  Set the priority used by the others services (SMTP server, Jabber
+   --  Returns the priority used by the others services (SMTP server, Jabber
    --  server, Push server...).
 
    function Transient_Cleanup_Interval return Duration;
