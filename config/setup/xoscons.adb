@@ -516,7 +516,7 @@ procedure XOSCons is
          Current_Line := Current_Line + 1;
          exit when Line (1 .. Last) = "@END_IF";
 
-         if Line (1 .. 4) = "@IF " then
+         if Last > 4 and then Line (1 .. 4) = "@IF " then
             Parse_Cond
               (Line (1 .. Last), Res,
                Tmpl_File, Ada_Ofile, C_Ofile, Current_Line);
