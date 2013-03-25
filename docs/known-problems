@@ -5,6 +5,11 @@ Known Problems fixed in AWS 3.1
               reclaim the memory associated with the LDAP structure.
   Workaround: Copy the LDAP stucture before calling Bind.
 
+- M325-036: Fix memory leak when handling malformed SOAP document
+  Problem: If an exception is raised while parsing a malformed SOAP
+           document, the corresponding XML tree is not properly freed.
+  Workaround: Make sure the SOAP document is valid.
+
 - LB19-029: Max-Age cookie attribute does non conform to RFC-6265
   Problem: Max-Age cookie attribute must be an integral number
            as specified in the RFC-6265 (2011). Note that the
