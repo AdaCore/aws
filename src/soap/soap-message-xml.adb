@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2000-2012, AdaCore                     --
+--                     Copyright (C) 2000-2013, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -28,15 +28,15 @@
 ------------------------------------------------------------------------------
 
 with Ada.Characters.Handling;
-with Ada.Strings.Fixed;
 with Ada.Exceptions;
+with Ada.Strings.Fixed;
 
 with AWS.Client.XML.Input_Sources;
 
-with Input_Sources.Strings;
-with Unicode.CES.Utf8;
 with DOM.Core.Nodes;
+with Input_Sources.Strings;
 with Sax.Readers;
+with Unicode.CES.Utf8;
 
 with SOAP.Message.Reader;
 with SOAP.Message.Response.Error;
@@ -538,8 +538,8 @@ package body SOAP.Message.XML is
       N    : DOM.Core.Node;
       S    : State) return Types.Object'Class
    is
-      use type DOM.Core.Node;
       use SOAP.Types;
+      use type DOM.Core.Node;
 
       function Item_Type (Name : String) return String;
       pragma Inline (Item_Type);
@@ -962,9 +962,9 @@ package body SOAP.Message.XML is
       N    : DOM.Core.Node;
       S    : State) return Types.Object'Class
    is
+      use SOAP.Types;
       use type DOM.Core.Node;
       use type DOM.Core.Node_Types;
-      use SOAP.Types;
 
       OS : Types.Object_Set (1 .. Max_Object_Size);
       K  : Natural := 0;
@@ -1130,8 +1130,8 @@ package body SOAP.Message.XML is
    -------------------
 
    procedure Parse_Wrapper (N : DOM.Core.Node; S : in out State) is
-      use type SOAP.Parameters.List;
       use type DOM.Core.Node_Types;
+      use type SOAP.Parameters.List;
 
       NL     : constant DOM.Core.Node_List      := Child_Nodes (N);
       Prefix : constant String                  := DOM.Core.Nodes.Prefix (N);
