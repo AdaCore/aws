@@ -1,9 +1,9 @@
 Known Problems fixed in AWS 3.1
 
-- LB06-009: Memory leak in AWS.Client.LDAP.Bind
-  Problem:    When the connection is rejected it is not possible to
-              reclaim the memory associated with the LDAP structure.
-  Workaround: Copy the LDAP stucture before calling Bind.
+- M325-036: Fix memory leak when handling malformed SOAP document
+  Problem: If an exception is raised while parsing a malformed SOAP
+           document, the corresponding XML tree is not properly freed.
+  Workaround: Make sure the SOAP document is valid.
 
 - LB19-029: Max-Age cookie attribute does non conform to RFC-6265
   Problem: Max-Age cookie attribute must be an integral number
@@ -11,3 +11,8 @@ Known Problems fixed in AWS 3.1
            definition has changed as previous RFCs 2109 (1997) and
            RFC-2965 (2000) were still defining Max-Age as delta-seconds.
   Workaround: Do not use Opera browser which enforces this rule.
+
+- LB06-009: Memory leak in AWS.Client.LDAP.Bind
+  Problem:    When the connection is rejected it is not possible to
+              reclaim the memory associated with the LDAP structure.
+  Workaround: Copy the LDAP structure before calling Bind.

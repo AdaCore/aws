@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2000-2012, AdaCore                     --
+--                     Copyright (C) 2000-2013, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -28,15 +28,15 @@
 ------------------------------------------------------------------------------
 
 with Ada.Characters.Handling;
-with Ada.Strings.Fixed;
 with Ada.Exceptions;
+with Ada.Strings.Fixed;
 
 with AWS.Client.XML.Input_Sources;
 
-with Input_Sources.Strings;
-with Unicode.CES.Utf8;
 with DOM.Core.Nodes;
+with Input_Sources.Strings;
 with Sax.Readers;
+with Unicode.CES.Utf8;
 
 with SOAP.Message.Reader;
 with SOAP.Message.Response.Error;
@@ -128,6 +128,12 @@ package body SOAP.Message.XML is
       NS        : Namespaces)
       return Type_State;
    --  Given the Type_Name and the namespaces return the proper type
+
+   procedure Load_XML
+     (Input : in out Input_Sources.Input_Source'Class;
+      S     : out State);
+   --  Load XML document, set State and ensure the document is freed when an
+   --  exception occurs. The Input source is closed before returning.
 
    procedure Parse_Namespaces
      (N  : DOM.Core.Node;
@@ -372,29 +378,16 @@ package body SOAP.Message.XML is
       use Input_Sources.Strings;
 
       Str    : aliased String := XML;
-
       Source : String_Input;
-      Reader : Tree_Reader;
       S      : State;
-      Doc    : DOM.Core.Document;
 
    begin
       Open (Str'Unchecked_Access,
             Unicode.CES.Utf8.Utf8_Encoding,
             Source);
 
-      --  If True, xmlns:* attributes will be reported in Start_Element
-      Set_Feature (Reader, Sax.Readers.Namespace_Prefixes_Feature, True);
-      Set_Feature (Reader, Sax.Readers.Validation_Feature, False);
-
-      Parse (Reader, Source);
+      Load_XML (Source, S);
       Close (Source);
-
-      Doc := Get_Tree (Reader);
-
-      Parse_Document (Doc, S);
-
-      Free (Doc);
 
       return Message.Payload.Build
         (To_String (S.Wrapper_Name), S.Parameters, S.Name_Space);
@@ -411,25 +404,13 @@ package body SOAP.Message.XML is
       use AWS.Client.XML.Input_Sources;
 
       Source : HTTP_Input;
-      Reader : Tree_Reader;
       S      : State;
-      Doc    : DOM.Core.Document;
 
    begin
       Create (Connection, Source);
 
-      --  If True, xmlns:* attributes will be reported in Start_Element
-      Set_Feature (Reader, Sax.Readers.Namespace_Prefixes_Feature, True);
-      Set_Feature (Reader, Sax.Readers.Validation_Feature, False);
-
-      Parse (Reader, Source);
+      Load_XML (Source, S);
       Close (Source);
-
-      Doc := Get_Tree (Reader);
-
-      Parse_Document (Doc, S);
-
-      Free (Doc);
 
       if SOAP.Parameters.Exist (S.Parameters, "faultcode") then
          return Message.Response.Error.Build
@@ -456,27 +437,15 @@ package body SOAP.Message.XML is
       use Input_Sources.Strings;
 
       Source : String_Input;
-      Reader : Tree_Reader;
       S      : State;
-      Doc    : DOM.Core.Document;
 
    begin
       Open (XML'Unrestricted_Access,
             Unicode.CES.Utf8.Utf8_Encoding,
             Source);
 
-      --  If True, xmlns:* attributes will be reported in Start_Element
-      Set_Feature (Reader, Sax.Readers.Namespace_Prefixes_Feature, True);
-      Set_Feature (Reader, Sax.Readers.Validation_Feature, False);
-
-      Parse (Reader, Source);
+      Load_XML (Source, S);
       Close (Source);
-
-      Doc := Get_Tree (Reader);
-
-      Parse_Document (Doc, S);
-
-      Free (Doc);
 
       if SOAP.Parameters.Exist (S.Parameters, "faultcode") then
          return Message.Response.Error.Build
@@ -516,6 +485,36 @@ package body SOAP.Message.XML is
       end;
    end Load_Response;
 
+   --------------
+   -- Load_XML --
+   --------------
+
+   procedure Load_XML
+     (Input : in out Input_Sources.Input_Source'Class;
+      S     : out State)
+   is
+      Reader : Tree_Reader;
+      Doc    : DOM.Core.Document;
+   begin
+      --  If True, xmlns:* attributes will be reported in Start_Element
+      Set_Feature (Reader, Sax.Readers.Namespace_Prefixes_Feature, True);
+      Set_Feature (Reader, Sax.Readers.Validation_Feature, False);
+
+      Parse (Reader, Input);
+
+      Doc := Get_Tree (Reader);
+
+      Parse_Document (Doc, S);
+
+      Free (Doc);
+
+   exception
+      when others =>
+      Doc := Get_Tree (Reader);
+      Free (Doc);
+      raise;
+   end Load_XML;
+
    --------------------
    -- Parse_Any_Type --
    --------------------
@@ -538,8 +537,8 @@ package body SOAP.Message.XML is
       N    : DOM.Core.Node;
       S    : State) return Types.Object'Class
    is
-      use type DOM.Core.Node;
       use SOAP.Types;
+      use type DOM.Core.Node;
 
       function Item_Type (Name : String) return String;
       pragma Inline (Item_Type);
@@ -962,9 +961,9 @@ package body SOAP.Message.XML is
       N    : DOM.Core.Node;
       S    : State) return Types.Object'Class
    is
+      use SOAP.Types;
       use type DOM.Core.Node;
       use type DOM.Core.Node_Types;
-      use SOAP.Types;
 
       OS : Types.Object_Set (1 .. Max_Object_Size);
       K  : Natural := 0;
@@ -1130,8 +1129,8 @@ package body SOAP.Message.XML is
    -------------------
 
    procedure Parse_Wrapper (N : DOM.Core.Node; S : in out State) is
-      use type SOAP.Parameters.List;
       use type DOM.Core.Node_Types;
+      use type SOAP.Parameters.List;
 
       NL     : constant DOM.Core.Node_List      := Child_Nodes (N);
       Prefix : constant String                  := DOM.Core.Nodes.Prefix (N);
