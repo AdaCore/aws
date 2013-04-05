@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2006-2012, AdaCore                     --
+--                     Copyright (C) 2006-2013, AdaCore                     --
 --                                                                          --
 --  This is free software;  you can redistribute it  and/or modify it       --
 --  under terms of the  GNU General Public License as published  by the     --
@@ -20,6 +20,8 @@ with Ada.Strings.Fixed;
 with Ada.Strings.Maps;
 with Ada.Strings.Unbounded;
 with Ada.Text_IO;
+
+with GNAT.OS_Lib;
 
 with AWS.MIME;
 with AWS.Net.Poll_Events;
@@ -301,8 +303,16 @@ package body USock is
       if Done then
          Last := Data'First - 1;
 
+         Text_IO.Put_Line ("Too many time on Receive, exit now!");
+         GNAT.OS_Lib.OS_Exit (1);
+
       else
          M_Index := M_Index + 1;
+
+         if M_Index > Message'Last then
+            Text_IO.Put_Line ("Too many time on Receive, exit now!");
+            GNAT.OS_Lib.OS_Exit (1);
+         end if;
 
          declare
             M : constant String := To_String (Message (M_Index));
