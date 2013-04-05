@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2006-2012, AdaCore                     --
+--                     Copyright (C) 2006-2013, AdaCore                     --
 --                                                                          --
 --  This is free software;  you can redistribute it  and/or modify it       --
 --  under terms of the  GNU General Public License as published  by the     --
@@ -30,7 +30,7 @@ procedure User_Sock is
    use Ada;
    use AWS;
 
-   WS   : Server.HTTP;
+   WS : Server.HTTP;
 
 begin
    Server.Set_Socket_Constructor (WS, USock.Socket'Access);
