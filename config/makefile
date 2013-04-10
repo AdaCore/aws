@@ -1,7 +1,7 @@
 ############################################################################
 #                              Ada Web Server                              #
 #                                                                          #
-#                     Copyright (C) 2003-2012, AdaCore                     #
+#                     Copyright (C) 2003-2013, AdaCore                     #
 #                                                                          #
 #  This is free software;  you can redistribute it  and/or modify it       #
 #  under terms of the  GNU General Public License as published  by the     #
@@ -34,11 +34,6 @@ endif
 
 $(SDIR)/src:
 	$(MKDIR) -p $(SDIR)/src
-
-ifeq ($(PRJ_TARGET)), vxworks)
-$(SDIR)/src:
-	$(MKDIR) -p $(SDIR)/src
-endif
 
 $(SDIR)/xoscons$(EXEEXT): $(SDIR)/src setup/xoscons.adb
 	-$(GPRBUILD) -p -XPRJ_BUILD=Debug -XLIBRARY_TYPE=static \
@@ -92,6 +87,10 @@ force: ;
 
 setup: $(SDIR)/src/aws-os_lib.ads setup_extlib
 
+ifeq (${PRJ_TARGET}, vxworks)
+$(SDIR)/src/aws-os_lib.ads: $(SDIR)/src force
+	$(CP) src/aws-os_lib__vxworks.ads $(SDIR)/src/aws-os_lib.ads
+else
 $(SDIR)/src/aws-os_lib.ads: $(SDIR)/src $(SDIR)/xoscons$(EXEEXT) force
 	echo Setup OS specific definitions
 	$(CP) setup/aws-os_lib-tmplt.c $(SDIR)/src
@@ -109,6 +108,7 @@ else
 		../xoscons aws-os_lib )
 endif
 	$(RM) -f $(SDIR)/src/aws-os_lib-tmplt*
+endif
 
 install:
 	$(CP) $(SDIR)/src/aws-os_lib.ads $(DESTDIR)$(I_INC)
