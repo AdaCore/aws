@@ -1,7 +1,7 @@
 ############################################################################
 #                              Ada Web Server                              #
 #                                                                          #
-#                     Copyright (C) 2003-2012, AdaCore                     #
+#                     Copyright (C) 2003-2013, AdaCore                     #
 #                                                                          #
 #  This is free software;  you can redistribute it  and/or modify it       #
 #  under terms of the  GNU General Public License as published  by the     #
@@ -17,6 +17,7 @@
 ############################################################################
 
 MAKEFILES = $(wildcard */makefile)
+MAKEFILES_CLEAN = ${MAKEFILES:%=%_clean}
 
 setup:
 
@@ -28,6 +29,11 @@ build: $(MAKEFILES)
 
 $(MAKEFILES): force
 	$(MAKE) -C $(dir $@)
+
+clean: $(MAKEFILES_CLEAN)
+
+$(MAKEFILES_CLEAN): force
+	$(MAKE) -C $(dir ${@:%_clean=%}) clean
 
 force:
 
