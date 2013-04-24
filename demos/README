@@ -17,4 +17,6 @@ the proper cross compiler to build the demo.
 
      $ cd demos/hello_world
 
-     $ i686-pc-mingw32-gnatmake -P hello_world
+     $ powerpc-wrs-vxworks-gnatmake -P hello_world
+or
+     $ gprbuild --target=powerpc-wrs-vxworks -P hello_world
