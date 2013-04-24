@@ -11,3 +11,10 @@ To clean-up:
      $ make clean
 
 To launch the demo just run the executable(s) produced.
+
+In cross-environment you'll need to enter each directory manually and call
+the proper cross compiler to build the demo.
+
+     $ cd demos/hello_world
+
+     $ i686-pc-mingw32-gnatmake -P hello_world

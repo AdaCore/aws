@@ -320,12 +320,6 @@ compiler. So, if you use @code{GNAT} you can build @code{AWS} just with:
 
 @AWSEXP {$ make setup build}
 
-@noindent
-If you want to build only the @code{AWS} libraries and tools and do not want
-to build the demos you can set @code{DEMOS} to "false" as in:
-
-@AWSEXP {$ make DEMOS=false setup}
-
 @c ----------------------------------------------------------------------
 
 @node Building on cross-platforms
@@ -342,6 +336,10 @@ the toolchain to use.
 For example, to build on VxWorks:
 
 @AWSEXP {$ make TARGET=powerpc-wrs-vxworks setup build}
+
+@noindent
+Note that on cross-environment one need to build the demos
+manually. See demos/README.
 
 @c ----------------------------------------------------------------------
 
