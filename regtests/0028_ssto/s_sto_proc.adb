@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2004-2012, AdaCore                     --
+--                     Copyright (C) 2004-2013, AdaCore                     --
 --                                                                          --
 --  This is free software;  you can redistribute it  and/or modify it       --
 --  under terms of the  GNU General Public License as published  by the     --
@@ -51,7 +51,7 @@ procedure S_STO_Proc (Security : Boolean) is
    procedure Check_Timeout (Span : Ada.Real_Time.Time_Span) is
       D : constant Duration := Ada.Real_Time.To_Duration (Span);
    begin
-      if not (D in 0.99 .. 1.1) then
+      if not (D in 0.98 .. 1.2) then
          Text_IO.Put_Line ("wrong timeout" & D'Img);
       end if;
    end Check_Timeout;
