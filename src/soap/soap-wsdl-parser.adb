@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2003-2012, AdaCore                     --
+--                     Copyright (C) 2003-2013, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -1247,6 +1247,10 @@ package body SOAP.WSDL.Parser is
             or else Utils.No_NS (DOM.Core.Nodes.Node_Name (R)) = "element"));
 
       P.NS := Get_Target_Name_Space (R);
+
+      if XML.Get_Attr_Value (R, "abstract", False) = "true" then
+         raise WSDL_Error with "abstract record not supported";
+      end if;
 
       declare
          Name : constant String := XML.Get_Attr_Value (R, "name", False);
