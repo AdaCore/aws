@@ -587,13 +587,22 @@ package body SOAP.WSDL.Parser is
       if Utils.No_NS (DOM.Core.Nodes.Node_Name (L)) = "complexType" then
          L := XML.First_Child (L);
 
-         if Utils.No_NS (DOM.Core.Nodes.Node_Name (L)) = "complexContent" then
+         if L /= null
+           and then
+             Utils.No_NS (DOM.Core.Nodes.Node_Name (L)) = "complexContent"
+         then
             L := XML.First_Child (L);
 
-            if Utils.No_NS (DOM.Core.Nodes.Node_Name (L)) = "restriction" then
+            if L /= null
+              and then
+                Utils.No_NS (DOM.Core.Nodes.Node_Name (L)) = "restriction"
+            then
                L := XML.First_Child (L);
 
-               if Utils.No_NS (DOM.Core.Nodes.Node_Name (L)) = "attribute" then
+               if L /= null
+                 and then
+                   Utils.No_NS (DOM.Core.Nodes.Node_Name (L)) = "attribute"
+               then
                   O.Self.Array_Elements := Array_Elements;
                   return True;
                end if;
