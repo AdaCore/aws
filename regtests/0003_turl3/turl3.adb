@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2000-2012, AdaCore                     --
+--                     Copyright (C) 2000-2013, AdaCore                     --
 --                                                                          --
 --  This is free software;  you can redistribute it  and/or modify it       --
 --  under terms of the  GNU General Public License as published  by the     --
@@ -74,4 +74,5 @@ begin
    Test ("http://:@www.myserver.com/app/request");
    Test ("http://:@www.myserver.com");
    Test ("https://me:pwd@www.myserver.com:89/app/request?p1=9&p2=toto");
+   Test ("http://me:pwd@www.myserver.com:89/app/request?wsdl");
 end Turl3;

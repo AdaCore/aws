@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2000-2012, AdaCore                     --
+--                     Copyright (C) 2000-2013, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -63,7 +63,12 @@ package body AWS.Parameters.Set is
       else
          Append (Parameter_List.Parameters, "&");
       end if;
-      Append (Parameter_List.Parameters, Name & "=" & Value);
+
+      if Value = "" then
+         Append (Parameter_List.Parameters, Name);
+      else
+         Append (Parameter_List.Parameters, Name & "=" & Value);
+      end if;
 
       if Decode then
          --  This is default behavior
@@ -212,7 +217,7 @@ package body AWS.Parameters.Set is
       P : String renames Parameters;
       C : Positive := P'First;
       I : Natural;
-      S : Positive := P'First;
+      S : Positive;
       E : Natural;
    begin
       --  Skip leading question mark if present
@@ -222,23 +227,32 @@ package body AWS.Parameters.Set is
          S := Positive'Succ (S);
       end if;
 
-      loop
-         I := Fixed.Index (P (C .. P'Last), "=");
-
-         exit when I = 0;
-
-         S := I + 1;
-
-         E := Fixed.Index (P (S .. P'Last), "&");
+      while C <= P'Last loop
+         E := Fixed.Index (P (C .. P'Last), "&");
 
          if E = 0 then
-            --  last parameter
-
-            Add (Name => P (C .. I - 1), Value => P (S .. P'Last));
-            exit;
-
+            --  Last parameter
+            E := P'Last;
          else
-            Add (Name => P (C .. I - 1), Value => P (S .. E - 1));
+            E := E - 1;
+         end if;
+
+         I := Fixed.Index (P (C .. E), "=");
+
+         if I = 0 then
+            --  No value for this parameter
+            S := E + 1;
+            I := E;
+         else
+            S := I + 1;
+            I := I - 1;
+         end if;
+
+         Add (Name => P (C .. I), Value => P (S .. E));
+
+         if E < P'Last then
+            C := E + 2;
+         else
             C := E + 1;
          end if;
       end loop;

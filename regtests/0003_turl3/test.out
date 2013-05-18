@@ -298,3 +298,28 @@ https://me:pwd@www.myserver.com:89/app/request?p1=9&p2=toto
    Parameters : ?p1=9&p2=toto
    Query      : p1=9&p2=toto
    URI        : /app/request?p1=9&p2=toto
+http://me:pwd@www.myserver.com:89/app/request?wsdl
+http://me:pwd@www.myserver.com:89/app/request?wsdl
+Protocol   : http
+User       : me
+Password   : pwd
+Server     : www.myserver.com
+Port       : 89
+Path       : /app/
+File       : request
+Pathname   : /app/request
+Parameters : ?wsdl
+Query      : wsdl
+URI        : /app/request?wsdl
+*
+Protocol   : http
+User       : me
+Password   : pwd
+Server     : www.myserver.com
+Port       : 89
+Path       : /app/
+File       : request
+Pathname   : /app/request
+Parameters : ?wsdl
+Query      : wsdl
+URI        : /app/request?wsdl
