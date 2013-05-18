@@ -224,7 +224,6 @@ package body AWS.Parameters.Set is
 
       if P /= "" and then P (C) = '?' then
          C := Positive'Succ (C);
-         S := Positive'Succ (S);
       end if;
 
       while C <= P'Last loop
