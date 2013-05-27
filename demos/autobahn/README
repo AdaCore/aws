@@ -1,0 +1,10 @@
+
+Testing
+
+- in one window:
+    make
+    ./obj/autobahn
+
+- in another window
+    cd autobahn
+    wstest -m fuzzingclient -s aws.json

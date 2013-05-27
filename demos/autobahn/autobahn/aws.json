@@ -1,0 +1,14 @@
+{
+   "options": {"failByDrop": false},
+   "outdir": "./reports/clients",
+
+     "servers": [
+                {"agent": "AWS",
+                 "url": "ws://localhost:8080/echo",
+                 "options": {"version": 18}}
+              ],
+
+   "cases": ["*"],
+   "exclude-cases": ["6.*"],
+   "exclude-agent-cases": {}
+}
