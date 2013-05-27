@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2000-2012, AdaCore                     --
+--                     Copyright (C) 2000-2013, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -31,7 +31,7 @@ package AWS is
 
    pragma Pure;
 
-   Version      : constant String := "3.0.0";
+   Version      : constant String := "3.0.2";
 
    HTTP_10      : constant String := "HTTP/1.0";
    HTTP_11      : constant String := "HTTP/1.1";
