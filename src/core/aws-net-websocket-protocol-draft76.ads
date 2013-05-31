@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                       Copyright (C) 2012, AdaCore                        --
+--                     Copyright (C) 2012-2013, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -32,15 +32,19 @@
 
 package AWS.Net.WebSocket.Protocol.Draft76 is
 
-   procedure Send
-     (Socket : Object;
-      Data   : Stream_Element_Array);
+   type State is new Protocol.State with null record;
+
+   overriding procedure Send
+     (Protocol : in out State;
+      Socket   : Object;
+      Data     : Stream_Element_Array);
    --  Encode and send data to the WebSocket
 
-   procedure Receive
-     (Socket : Object;
-      Data   : out Stream_Element_Array;
-      Last   : out Stream_Element_Offset);
+   overriding procedure Receive
+     (Protocol : in out State;
+      Socket   : Object;
+      Data     : out Stream_Element_Array;
+      Last     : out Stream_Element_Offset);
    --  Receive and decode WebSocket data
 
    procedure Send_Header

@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                       Copyright (C) 2012, AdaCore                        --
+--                     Copyright (C) 2012-2013, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -150,30 +150,21 @@ package AWS.Net.WebSocket is
 private
 
    type Internal_State is record
-      Remaining  : Stream_Element_Offset := -1;
-      Kind       : Kind_Type := Unknown;
-      Close_Sent : Boolean := False;
-      Errno      : Interfaces.Unsigned_16 := Interfaces.Unsigned_16'Last;
+      Kind  : Kind_Type := Unknown;
+      Errno : Interfaces.Unsigned_16 := Interfaces.Unsigned_16'Last;
    end record;
 
    type Internal_State_Access is access Internal_State;
 
-   type Send_Callback is access procedure
-     (Socket : Object;
-      Data   : Stream_Element_Array);
-
-   type Receive_Callback is access procedure
-     (Socket : Object;
-      Data   : out Stream_Element_Array;
-      Last   : out Stream_Element_Offset);
+   type Protocol_State;
+   type Protocol_State_Access is access Protocol_State;
 
    type Object is new Net.Socket_Type with record
-      Socket     : Net.Socket_Access;
-      Request    : AWS.Status.Data;
-      Version    : Natural;
-      Send_CB    : Send_Callback;
-      Receive_CB : Receive_Callback;
-      State      : Internal_State_Access;
+      Socket  : Net.Socket_Access;
+      Request : AWS.Status.Data;
+      Version : Natural;
+      State   : Internal_State_Access;
+      P_State : Protocol_State_Access;
    end record;
 
    --  Routines read/write from a WebSocket, this handles the WebSocket
@@ -229,12 +220,11 @@ private
    No_Object : constant Object'Class :=
                  Object'
                    (Net.Socket_Type with
-                    Socket      => null,
-                    Request     => <>,
-                    Version     => 0,
-                    Send_CB     => null,
-                    Receive_CB  => null,
-                    State       => null);
+                    Socket  => null,
+                    Request => <>,
+                    Version => 0,
+                    State   => null,
+                    P_State => null);
 
    --  Error codes corresponding to all errors
 

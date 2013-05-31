@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                       Copyright (C) 2012, AdaCore                        --
+--                     Copyright (C) 2012-2013, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -92,19 +92,21 @@ package body AWS.Net.WebSocket.Protocol.RFC6455 is
    for Masking_Key'Size use 32;
 
    procedure Send
-     (Socket : Object;
-      Opcd   : Opcode;
-      Data   : Stream_Element_Array);
+     (Protocol : in out State;
+      Socket   : Object;
+      Opcd     : Opcode;
+      Data     : Stream_Element_Array);
    --  Internal version
 
    -------------
    -- Receive --
    -------------
 
-   procedure Receive
-     (Socket : Object;
-      Data   : out Stream_Element_Array;
-      Last   : out Stream_Element_Offset)
+   overriding procedure Receive
+     (Protocol : in out State;
+      Socket   : Object;
+      Data     : out Stream_Element_Array;
+      Last     : out Stream_Element_Offset)
    is
       use GNAT;
       use System;
@@ -157,7 +159,7 @@ package body AWS.Net.WebSocket.Protocol.RFC6455 is
 
       --  if a new message is expected, read header
 
-      if Socket.State.Remaining = -1 then
+      if Protocol.Remaining = -1 then
          Socket.Socket.Receive (D_Header, Last);
 
          if Header.Payload_Length = 126 then
@@ -167,7 +169,7 @@ package body AWS.Net.WebSocket.Protocol.RFC6455 is
                Byte_Swapping.Swap2 (L_16'Address);
             end if;
 
-            Socket.State.Remaining := Stream_Element_Offset (L_16);
+            Protocol.Remaining := Stream_Element_Offset (L_16);
 
          elsif Header.Payload_Length = 127 then
             Socket.Socket.Receive (D_64, Last);
@@ -176,29 +178,33 @@ package body AWS.Net.WebSocket.Protocol.RFC6455 is
                Byte_Swapping.Swap8 (L_64'Address);
             end if;
 
-            Socket.State.Remaining := Stream_Element_Offset (L_64);
+            Protocol.Remaining := Stream_Element_Offset (L_64);
 
          else
-            Socket.State.Remaining :=
+            Protocol.Remaining :=
               Stream_Element_Offset (Header.Payload_Length);
          end if;
 
          if Header.Mask = 1 then
             Socket.Socket.Receive (Stream_Element_Array (Mask), Last);
          end if;
+
+         Protocol.Opcd := Integer (Header.Opcd);
+
+      else
+         Header.Opcd := Opcode (Protocol.Opcd);
       end if;
 
       --  Read payload data
 
-      To_Read := Stream_Element_Offset'Min
-        (Data'Length, Socket.State.Remaining);
+      To_Read := Stream_Element_Offset'Min (Data'Length, Protocol.Remaining);
 
-      if Data'Length >= Socket.State.Remaining then
+      if Data'Length >= Protocol.Remaining then
          --  Everything can be read now, next call will handle a new message
          --  frame.
-         Socket.State.Remaining := -1;
+         Protocol.Remaining := -1;
       else
-         Socket.State.Remaining := Socket.State.Remaining - To_Read;
+         Protocol.Remaining := Protocol.Remaining - To_Read;
       end if;
 
       case Header.Opcd is
@@ -237,12 +243,14 @@ package body AWS.Net.WebSocket.Protocol.RFC6455 is
 
             --  If needed send a close frame
 
-            if not Socket.State.Close_Sent then
-               Socket.State.Close_Sent := True;
+            if not Protocol.Close_Sent then
+               Protocol.Close_Sent := True;
 
                --  Just echo the status code we received as per RFC
 
-               Send (Socket, O_Connection_Close, Data (Data'First .. Last));
+               Send
+                 (Protocol,
+                  Socket, O_Connection_Close, Data (Data'First .. Last));
             end if;
 
             Socket.State.Kind := Connection_Close;
@@ -252,7 +260,7 @@ package body AWS.Net.WebSocket.Protocol.RFC6455 is
 
             --  Just echo with the application data
 
-               Send (Socket, O_Pong, Data (Data'First .. Last));
+            Send (Protocol, Socket, O_Pong, Data (Data'First .. Last));
 
          when O_Pong =>
             --  Nothing to do, this means we have sent a ping frame
@@ -273,10 +281,12 @@ package body AWS.Net.WebSocket.Protocol.RFC6455 is
    ----------
 
    procedure Send
-     (Socket : Object;
-      Opcd   : Opcode;
-      Data   : Stream_Element_Array)
+     (Protocol : in out State;
+      Socket   : Object;
+      Opcd     : Opcode;
+      Data     : Stream_Element_Array)
    is
+      pragma Unreferenced (Protocol);
       use GNAT;
       use System;
 
@@ -347,14 +357,15 @@ package body AWS.Net.WebSocket.Protocol.RFC6455 is
       Net.Buffered.Flush (Socket);
    end Send;
 
-   procedure Send
-     (Socket : Object;
-      Data   : Stream_Element_Array) is
+   overriding procedure Send
+     (Protocol : in out State;
+      Socket   : Object;
+      Data     : Stream_Element_Array) is
    begin
       if Socket.State.Kind = Text then
-         Send (Socket, O_Text, Data);
+         Send (Protocol, Socket, O_Text, Data);
       else
-         Send (Socket, O_Binary, Data);
+         Send (Protocol, Socket, O_Binary, Data);
       end if;
    end Send;
 
