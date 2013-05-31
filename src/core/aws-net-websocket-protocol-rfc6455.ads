@@ -54,9 +54,17 @@ private
 
    --  Protocol specific status
 
+   type Masking_Key is new Stream_Element_Array (0 .. 3);
+   for Masking_Key'Size use 32;
+
+   type Opcode is mod 15;
+   for Opcode'Size use 4;
+
    type State is new Protocol.State with record
       Remaining  : Stream_Element_Offset := -1;
-      Opcd       : Integer range 0 .. 15;
+      Opcd       : Opcode;
+      Has_Mask   : Boolean;
+      Mask       : Masking_Key;
       Close_Sent : Boolean := False;
    end record;
 

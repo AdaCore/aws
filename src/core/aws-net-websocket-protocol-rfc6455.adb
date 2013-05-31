@@ -44,9 +44,6 @@ package body AWS.Net.WebSocket.Protocol.RFC6455 is
    type Bit is range 0 .. 1;
    for Bit'Size use 1;
 
-   type Opcode is mod 15;
-   for Opcode'Size use 4;
-
    O_Continuation     : constant Opcode := 16#0#;
    O_Text             : constant Opcode := 16#1#;
    O_Binary           : constant Opcode := 16#2#;
@@ -88,9 +85,6 @@ package body AWS.Net.WebSocket.Protocol.RFC6455 is
 
    pragma Warnings (On);
 
-   type Masking_Key is new Stream_Element_Array (0 .. 3);
-   for Masking_Key'Size use 32;
-
    procedure Send
      (Protocol : in out State;
       Socket   : Object;
@@ -111,16 +105,14 @@ package body AWS.Net.WebSocket.Protocol.RFC6455 is
       use GNAT;
       use System;
 
-      procedure Read_Payload
-        (Length : Stream_Element_Offset; Mask : Boolean; Key : Masking_Key);
+      procedure Read_Payload (Length : Stream_Element_Offset);
       --  Read the Length bytes of the payload
 
       ------------------
       -- Read_Payload --
       ------------------
 
-      procedure Read_Payload
-        (Length : Stream_Element_Offset; Mask : Boolean; Key : Masking_Key) is
+      procedure Read_Payload (Length : Stream_Element_Offset) is
       begin
          Last := Data'First + Length - 1;
 
@@ -129,9 +121,10 @@ package body AWS.Net.WebSocket.Protocol.RFC6455 is
 
             --  If the message is masked, apply it
 
-            if Mask then
+            if Protocol.Has_Mask then
                for K in Data'First .. Last loop
-                  Data (K) := Data (K) xor Key ((K - Data'First) mod 4);
+                  Data (K) := Data (K)
+                    xor Protocol.Mask ((K - Data'First) mod 4);
                end loop;
             end if;
          end if;
@@ -151,7 +144,6 @@ package body AWS.Net.WebSocket.Protocol.RFC6455 is
       L_64     : Interfaces.Unsigned_64;
       for L_64'Address use D_64'Address;
 
-      Mask     : Masking_Key;
       To_Read  : Stream_Element_Offset;
    begin
       pragma Assert (Data'Length > 10);
@@ -186,13 +178,13 @@ package body AWS.Net.WebSocket.Protocol.RFC6455 is
          end if;
 
          if Header.Mask = 1 then
-            Socket.Socket.Receive (Stream_Element_Array (Mask), Last);
+            Socket.Socket.Receive (Stream_Element_Array (Protocol.Mask), Last);
          end if;
 
-         Protocol.Opcd := Integer (Header.Opcd);
+         --  Set corresponding data in protocol state
 
-      else
-         Header.Opcd := Opcode (Protocol.Opcd);
+         Protocol.Opcd     := Header.Opcd;
+         Protocol.Has_Mask := Header.Mask = 1;
       end if;
 
       --  Read payload data
@@ -207,17 +199,17 @@ package body AWS.Net.WebSocket.Protocol.RFC6455 is
          Protocol.Remaining := Protocol.Remaining - To_Read;
       end if;
 
-      case Header.Opcd is
+      case Protocol.Opcd is
          when O_Text =>
             Socket.State.Kind := Text;
-            Read_Payload (To_Read, Header.Mask = 1, Mask);
+            Read_Payload (To_Read);
 
          when O_Binary =>
             Socket.State.Kind := Binary;
-            Read_Payload (To_Read, Header.Mask = 1, Mask);
+            Read_Payload (To_Read);
 
          when O_Connection_Close =>
-            Read_Payload (To_Read, Header.Mask = 1, Mask);
+            Read_Payload (To_Read);
 
             --  Check the error code if any
 
@@ -256,7 +248,7 @@ package body AWS.Net.WebSocket.Protocol.RFC6455 is
             Socket.State.Kind := Connection_Close;
 
          when O_Ping =>
-            Read_Payload (To_Read, Header.Mask = 1, Mask);
+            Read_Payload (To_Read);
 
             --  Just echo with the application data
 
