@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2000-2012, AdaCore                     --
+--                     Copyright (C) 2000-2013, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -165,7 +165,7 @@ package body AWS.Translator is
       State : in out Decoding_State;
       Ch    : Character) is
    begin
-      if Ch = ASCII.LF or else Ch = ASCII.CR then
+      if Ch /= '=' and then Base64_Values (Ch) = 16#ffffffff# then
          null;
 
       else
