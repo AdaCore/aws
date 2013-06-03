@@ -306,7 +306,7 @@ package body AWS.Net.WebSocket.Protocol.RFC6455 is
       --  Compute proper message length, see RFC-6455 for a full description
       --
       --  <= 125    Payload_Length is the actual length
-      --  <= 65536  The actual length is in the 2 following bytes
+      --  <= 65535  The actual length is in the 2 following bytes
       --            and set payload length to 126
       --  otherwise The actual length is in the 8 following bytes
       --            and set payload length to 127
@@ -314,7 +314,7 @@ package body AWS.Net.WebSocket.Protocol.RFC6455 is
       if Data'Length <= 125 then
          Header.Payload_Length := Data'Length;
 
-      elsif Data'Length <= 65536 then
+      elsif Data'Length <= 65535 then
          Header.Payload_Length := 126;
          L_16 := Data'Length;
 
@@ -339,7 +339,7 @@ package body AWS.Net.WebSocket.Protocol.RFC6455 is
 
       if Data'Length <= 125 then
          null;
-      elsif Data'Length <= 65536 then
+      elsif Data'Length <= 65535 then
          Net.Buffered.Write (Socket, D_16);
       else
          Net.Buffered.Write (Socket, D_64);
