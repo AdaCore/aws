@@ -274,7 +274,7 @@ package body AWS.Net.WebSocket.Registry is
 
          FD_Set.Reset (Set);
 
-         --  Finaly send a On_Close message to all registered WebSocket
+         --  Finally send a On_Close message to all registered WebSocket
 
          Registered.Iterate (On_Close'Access);
          Registered.Clear;
@@ -287,7 +287,7 @@ package body AWS.Net.WebSocket.Registry is
       procedure Initialize is
       begin
          --  Create a signaling socket that will be used to exit from the
-         --  infinit wait when a new WebSocket arrives.
+         --  infinite wait when a new WebSocket arrives.
          Net.Std.Socket_Pair (Sig1, Sig2);
          FD_Set.Add (Set, Sig1, null, FD_Set.Input);
       end Initialize;
