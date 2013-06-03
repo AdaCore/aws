@@ -33,9 +33,9 @@ with Interfaces;
 
 with AWS.Headers;
 with AWS.Messages;
-with AWS.Translator;
 with AWS.Net.WebSocket.Protocol.Draft76;
 with AWS.Net.WebSocket.Protocol.RFC6455;
+with AWS.Translator;
 
 package body AWS.Net.WebSocket is
 
