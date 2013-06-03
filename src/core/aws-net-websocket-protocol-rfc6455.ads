@@ -65,7 +65,7 @@ private
 
    type State is new Protocol.State with record
       Remaining  : Stream_Element_Offset := 0;
-      Remaining  : Stream_Element_Offset := -1;
+      Read       : Stream_Element_Offset := 0;
       Opcd       : Opcode;
       Has_Mask   : Boolean;
       Mask       : Masking_Key;

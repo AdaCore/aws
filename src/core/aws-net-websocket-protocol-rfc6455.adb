@@ -133,9 +133,11 @@ package body AWS.Net.WebSocket.Protocol.RFC6455 is
             if Protocol.Has_Mask then
                for K in Data'First .. Last loop
                   Data (K) := Data (K)
-                    xor Protocol.Mask ((K - Data'First) mod 4);
+                    xor Protocol.Mask ((Protocol.Read + K - Data'First) mod 4);
                end loop;
             end if;
+
+            Protocol.Read      := Protocol.Read + (Last - Data'First + 1);
             Protocol.Remaining := Protocol.Remaining - (Last - Data'First + 1);
          end if;
       end Read_Payload;
@@ -195,6 +197,7 @@ package body AWS.Net.WebSocket.Protocol.RFC6455 is
 
          Protocol.Opcd     := Header.Opcd;
          Protocol.Has_Mask := Header.Mask = 1;
+         Protocol.Read     := 0;
       end if;
 
       --  Read payload data
