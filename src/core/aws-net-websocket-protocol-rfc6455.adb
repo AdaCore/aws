@@ -299,6 +299,9 @@ package body AWS.Net.WebSocket.Protocol.RFC6455 is
       Header.FIN := 1;
       Header.Opcd := Opcd;
       Header.Mask := 0;
+      Header.RSV1 := 0;
+      Header.RSV2 := 0;
+      Header.RSV3 := 0;
 
       --  Compute proper message length, see RFC-6455 for a full description
       --
