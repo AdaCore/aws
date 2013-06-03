@@ -31,6 +31,7 @@ with Ada.Containers.Indefinite_Ordered_Maps;
 with Ada.Containers.Ordered_Sets;
 with Ada.Exceptions;
 with Ada.Streams;
+with Ada.Strings.Unbounded;
 with Ada.Unchecked_Deallocation;
 
 with AWS.Config;
@@ -44,6 +45,7 @@ package body AWS.Net.WebSocket.Registry is
    use Ada;
    use Ada.Exceptions;
    use Ada.Streams;
+   use Ada.Strings.Unbounded;
 
    use AWS;
 
@@ -206,25 +208,31 @@ package body AWS.Net.WebSocket.Registry is
       WebSocket : Object_Class;
       Data      : Stream_Element_Array (1 .. 4_096);
       Last      : Stream_Element_Offset;
+      Message   : Unbounded_String;
    begin
       Handle_Message : loop
          begin
+            Message := Null_Unbounded_String;
+
             Message_Queue.Get (WebSocket);
 
             exit Handle_Message when WebSocket = null;
 
-            WebSocket.Receive (Data, Last);
+            loop
+               WebSocket.Receive (Data, Last);
+               Append
+                 (Message, Translator.To_String (Data (Data'First .. Last)));
+               exit when WebSocket.End_Of_Message;
+            end loop;
 
             case WebSocket.Kind is
                when Text | Binary =>
                   DB.Watch (WebSocket);
-                  WebSocket.On_Message
-                    (Translator.To_String (Data (Data'First .. Last)));
+                  WebSocket.On_Message (To_String (Message));
 
                when Connection_Close =>
                   DB.Unregister (WebSocket);
-                  WebSocket.On_Close
-                    (Translator.To_String (Data (Data'First .. Last)));
+                  WebSocket.On_Close (To_String (Message));
                   WebSocket.Shutdown;
 
                when Connection_Open | Unknown =>
