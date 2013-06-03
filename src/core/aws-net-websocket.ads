@@ -111,6 +111,9 @@ package AWS.Net.WebSocket is
    function Error (Socket : Object) return Error_Type;
    --  Returns the current error type
 
+   function End_Of_Message (Socket : Object) return Boolean;
+   --  Returns True if we have read a whole message
+
    --
    --  Socket's methods that must be overriden
    --

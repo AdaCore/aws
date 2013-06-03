@@ -44,6 +44,16 @@ package body AWS.Net.WebSocket.Protocol.Draft76 is
    use Ada.Exceptions;
    use Ada.Text_IO;
 
+   --------------------
+   -- End_Of_Message --
+   --------------------
+
+   overriding function End_Of_Message (Protocol : State) return Boolean is
+      pragma Unreferenced (Protocol);
+   begin
+      return True;
+   end End_Of_Message;
+
    -------------
    -- Receive --
    -------------

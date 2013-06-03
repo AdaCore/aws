@@ -46,6 +46,9 @@ package AWS.Net.WebSocket.Protocol.RFC6455 is
       Last     : out Stream_Element_Offset);
    --  Receive and decode WebSocket data
 
+   overriding function End_Of_Message (Protocol : State) return Boolean;
+   --  Returns True if we have read a whole message
+
    procedure Send_Header
      (Sock : Net.Socket_Type'Class; Request : AWS.Status.Data);
    --  Send specific header for this protocol
@@ -61,6 +64,7 @@ private
    for Opcode'Size use 4;
 
    type State is new Protocol.State with record
+      Remaining  : Stream_Element_Offset := 0;
       Remaining  : Stream_Element_Offset := -1;
       Opcd       : Opcode;
       Has_Mask   : Boolean;

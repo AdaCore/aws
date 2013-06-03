@@ -89,6 +89,15 @@ package body AWS.Net.WebSocket is
            P_State => new Protocol_State'(State => Protocol));
    end Create;
 
+   --------------------
+   -- End_Of_Message --
+   --------------------
+
+   function End_Of_Message (Socket : Object) return Boolean is
+   begin
+      return Socket.P_State.State.End_Of_Message;
+   end End_Of_Message;
+
    -----------
    -- Errno --
    -----------

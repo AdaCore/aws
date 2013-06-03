@@ -47,4 +47,7 @@ package AWS.Net.WebSocket.Protocol is
       Last     : out Stream_Element_Offset) is abstract;
    --  Receive and decode WebSocket data
 
+   function End_Of_Message (Protocol : State) return Boolean is abstract;
+   --  Returns True if we have read a whole message
+
 end AWS.Net.WebSocket.Protocol;

@@ -47,6 +47,9 @@ package AWS.Net.WebSocket.Protocol.Draft76 is
       Last     : out Stream_Element_Offset);
    --  Receive and decode WebSocket data
 
+   overriding function End_Of_Message (Protocol : State) return Boolean;
+   --  Returns True if we have read a whole message
+
    procedure Send_Header
      (Sock : Net.Socket_Type'Class; Request : AWS.Status.Data);
    --  Send specific header for this protocol

@@ -92,6 +92,15 @@ package body AWS.Net.WebSocket.Protocol.RFC6455 is
       Data     : Stream_Element_Array);
    --  Internal version
 
+   --------------------
+   -- End_Of_Message --
+   --------------------
+
+   overriding function End_Of_Message (Protocol : State) return Boolean is
+   begin
+      return Protocol.Remaining = 0;
+   end End_Of_Message;
+
    -------------
    -- Receive --
    -------------
@@ -127,6 +136,7 @@ package body AWS.Net.WebSocket.Protocol.RFC6455 is
                     xor Protocol.Mask ((K - Data'First) mod 4);
                end loop;
             end if;
+            Protocol.Remaining := Protocol.Remaining - (Last - Data'First + 1);
          end if;
       end Read_Payload;
 
@@ -151,7 +161,7 @@ package body AWS.Net.WebSocket.Protocol.RFC6455 is
 
       --  if a new message is expected, read header
 
-      if Protocol.Remaining = -1 then
+      if Protocol.Remaining = 0 then
          Socket.Socket.Receive (D_Header, Last);
 
          if Header.Payload_Length = 126 then
@@ -190,14 +200,6 @@ package body AWS.Net.WebSocket.Protocol.RFC6455 is
       --  Read payload data
 
       To_Read := Stream_Element_Offset'Min (Data'Length, Protocol.Remaining);
-
-      if Data'Length >= Protocol.Remaining then
-         --  Everything can be read now, next call will handle a new message
-         --  frame.
-         Protocol.Remaining := -1;
-      else
-         Protocol.Remaining := Protocol.Remaining - To_Read;
-      end if;
 
       case Protocol.Opcd is
          when O_Text =>
