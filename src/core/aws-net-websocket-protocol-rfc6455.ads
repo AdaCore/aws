@@ -64,12 +64,13 @@ private
    for Opcode'Size use 4;
 
    type State is new Protocol.State with record
-      Remaining  : Stream_Element_Offset := 0;
-      Read       : Stream_Element_Offset := 0;
-      Opcd       : Opcode;
-      Has_Mask   : Boolean;
-      Mask       : Masking_Key;
-      Close_Sent : Boolean := False;
+      Remaining     : Stream_Element_Offset := 0;
+      Read          : Stream_Element_Offset := 0;
+      Opcd          : Opcode;
+      Has_Mask      : Boolean;
+      Mask          : Masking_Key;
+      Close_Sent    : Boolean := False;
+      Last_Fragment : Boolean := False;
    end record;
 
 end AWS.Net.WebSocket.Protocol.RFC6455;

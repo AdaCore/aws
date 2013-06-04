@@ -98,7 +98,7 @@ package body AWS.Net.WebSocket.Protocol.RFC6455 is
 
    overriding function End_Of_Message (Protocol : State) return Boolean is
    begin
-      return Protocol.Remaining = 0;
+      return Protocol.Remaining = 0 and then Protocol.Last_Fragment;
    end End_Of_Message;
 
    -------------
@@ -228,9 +228,15 @@ package body AWS.Net.WebSocket.Protocol.RFC6455 is
 
          --  Set corresponding data in protocol state
 
-         Protocol.Opcd     := Header.Opcd;
-         Protocol.Has_Mask := Header.Mask = 1;
-         Protocol.Read     := 0;
+         --  In case of a continuation frame we reuse the previous code
+
+         if Header.Opcd /= O_Continuation then
+            Protocol.Opcd := Header.Opcd;
+         end if;
+
+         Protocol.Has_Mask      := Header.Mask = 1;
+         Protocol.Read          := 0;
+         Protocol.Last_Fragment := Header.FIN = 1;
       end if;
 
       --  Check for wrong headers
@@ -314,7 +320,8 @@ package body AWS.Net.WebSocket.Protocol.RFC6455 is
             Read_Payload (To_Read);
 
          when O_Continuation =>
-            --  Not yet implemented
+            --  Nothing to do in this case. Continuation frames are handled
+            --  above by changing the code to the proper one.
             null;
 
          when others =>
