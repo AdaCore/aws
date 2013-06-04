@@ -122,23 +122,38 @@ package body AWS.Net.WebSocket.Protocol.RFC6455 is
       ------------------
 
       procedure Read_Payload (Length : Stream_Element_Offset) is
+         Read_Before : constant Stream_Element_Offset := Protocol.Read;
+         Read        : Stream_Element_Offset;
+         First       : Stream_Element_Offset := Data'First;
+         Max         : Stream_Element_Offset;
       begin
          Last := Data'First + Length - 1;
 
+         Max := Stream_Element_Offset'Min (Data'Last, Last);
+
          if Length > 0 then
-            Socket.Socket.Receive (Data (Data'First .. Last), Last);
+            loop
+               Socket.Socket.Receive (Data (First .. Max), Last);
+
+               Read := Last - First + 1;
+
+               Protocol.Read      := Protocol.Read + Read;
+               Protocol.Remaining := Protocol.Remaining - Read;
+
+               exit when Protocol.Remaining = 0
+                 or else Last = Data'Last;
+
+               First := Last + 1;
+            end loop;
 
             --  If the message is masked, apply it
 
             if Protocol.Has_Mask then
                for K in Data'First .. Last loop
                   Data (K) := Data (K)
-                    xor Protocol.Mask ((Protocol.Read + K - Data'First) mod 4);
+                    xor Protocol.Mask ((Read_Before + K - Data'First) mod 4);
                end loop;
             end if;
-
-            Protocol.Read      := Protocol.Read + (Last - Data'First + 1);
-            Protocol.Remaining := Protocol.Remaining - (Last - Data'First + 1);
          end if;
       end Read_Payload;
 
