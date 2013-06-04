@@ -320,6 +320,7 @@ package body AWS.Net.WebSocket.Protocol.RFC6455 is
          when others =>
             --  Opcode for future enhancement of the protocol
             Socket.State.Kind := Unknown;
+            Socket.Shutdown;
       end case;
    end Receive;
 

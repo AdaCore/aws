@@ -60,7 +60,7 @@ private
    type Masking_Key is new Stream_Element_Array (0 .. 3);
    for Masking_Key'Size use 32;
 
-   type Opcode is mod 15;
+   type Opcode is mod 16;
    for Opcode'Size use 4;
 
    type State is new Protocol.State with record
