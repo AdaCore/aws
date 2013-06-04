@@ -236,12 +236,13 @@ package body AWS.Net.WebSocket.Registry is
 
             exit Handle_Message when WebSocket = null;
 
-            loop
+            Read_Message : loop
                WebSocket.Receive (Data, Last);
                Append
                  (Message, Translator.To_String (Data (Data'First .. Last)));
-               exit when WebSocket.End_Of_Message;
-            end loop;
+
+               exit Read_Message when WebSocket.End_Of_Message;
+            end loop Read_Message;
 
             case WebSocket.Kind is
                when Text | Binary =>
