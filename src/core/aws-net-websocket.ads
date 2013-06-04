@@ -92,7 +92,13 @@ package AWS.Net.WebSocket is
      (Socket    : in out Object;
       Message   : String;
       Is_Binary : Boolean := False);
-   --  This default implementation just send a text message to the client
+   --  This default implementation just send a message to the client
+
+   procedure Send
+     (Socket    : in out Object;
+      Message   : Stream_Element_Array;
+      Is_Binary : Boolean := True);
+   --  As above but default is a binary message
 
    --
    --  Simple accessors to WebSocket state
