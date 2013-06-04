@@ -66,6 +66,11 @@ package body AWS.Net.WebSocket.Registry is
    function "<" (Left, Right : Object_Class) return Boolean;
    --  Order on the socket file descriptor
 
+   procedure WebSocket_Exception
+     (WebSocket : Object_Class; Message : String);
+   --  Call when an exception is caught. In this case we want to send the
+   --  error message, the close message and shutdown the socket.
+
    package WebSocket_Set is new Containers.Ordered_Sets (Object_Class);
 
    --  The socket set with all sockets to wait for data
@@ -255,7 +260,7 @@ package body AWS.Net.WebSocket.Registry is
 
          exception
             when E : others =>
-               WebSocket.On_Error (Exception_Message (E));
+               WebSocket_Exception (WebSocket, Exception_Message (E));
          end;
       end loop Handle_Message;
    end Message_Reader;
@@ -382,7 +387,7 @@ package body AWS.Net.WebSocket.Registry is
                   WebSocket.Send (Message);
                exception
                   when E : others =>
-                     WebSocket.On_Error (Exception_Message (E));
+                     WebSocket_Exception (WebSocket, Exception_Message (E));
                end;
             end if;
          end Send_To;
@@ -608,5 +613,19 @@ package body AWS.Net.WebSocket.Registry is
       WS.State.Kind := Connection_Open;
       WS.On_Open ("AWS WebSocket connection open");
    end Watch_Data;
+
+   -------------------------
+   -- WebSocket_Exception --
+   -------------------------
+
+   procedure WebSocket_Exception
+     (WebSocket : Object_Class; Message : String) is
+   begin
+      DB.Unregister (WebSocket);
+      WebSocket.State.Errno := Error_Code (Protocol_Error);
+      WebSocket.On_Error (Message);
+      WebSocket.On_Close (Message);
+      WebSocket.Shutdown;
+   end WebSocket_Exception;
 
 end AWS.Net.WebSocket.Registry;
