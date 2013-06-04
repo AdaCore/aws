@@ -88,7 +88,10 @@ package AWS.Net.WebSocket is
    procedure On_Error (Socket : in out Object; Message : String) is null;
    --  As above but activated when a WebSocket error is detected
 
-   procedure Send (Socket : in out Object; Message : String);
+   procedure Send
+     (Socket    : in out Object;
+      Message   : String;
+      Is_Binary : Boolean := False);
    --  This default implementation just send a text message to the client
 
    --

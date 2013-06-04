@@ -295,9 +295,17 @@ package body AWS.Net.WebSocket is
       Socket.Socket.Send (Data, Last);
    end Send;
 
-   procedure Send (Socket : in out Object; Message : String) is
+   procedure Send
+     (Socket    : in out Object;
+      Message   : String;
+      Is_Binary : Boolean := False) is
    begin
-      Socket.State.Kind := Text;
+      if Is_Binary then
+         Socket.State.Kind := Binary;
+      else
+         Socket.State.Kind := Text;
+      end if;
+
       Socket.P_State.State.Send
         (Socket, Translator.To_Stream_Element_Array (Message));
    exception
