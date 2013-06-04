@@ -293,6 +293,7 @@ package body AWS.Net.WebSocket.Protocol.RFC6455 is
             if Header.Payload_Length <= 125 then
                Send (Protocol, Socket, O_Pong, Data (Data'First .. Last));
             else
+               Socket.State.Kind := Unknown;
                Socket.Shutdown;
             end if;
 

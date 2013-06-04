@@ -238,6 +238,14 @@ package body AWS.Net.WebSocket.Registry is
 
             Read_Message : loop
                WebSocket.Receive (Data, Last);
+
+               --  Exit now if the status is unknown, this is the case when
+               --  a protocol error is detected for example.
+
+               exit Read_Message when WebSocket.Kind = Unknown;
+
+               --  Append to message
+
                Append
                  (Message, Translator.To_String (Data (Data'First .. Last)));
 
