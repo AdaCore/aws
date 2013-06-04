@@ -141,6 +141,10 @@ package body AWS.Net.WebSocket.Registry is
         (To : Recipient; Message : String; Except_Peer : String);
       --  Send the given message to all matching WebSockets
 
+      procedure Close
+        (To : Recipient; Message : String; Except_Peer : String);
+      --  Close all matching Webockets
+
       procedure Register (WebSocket : Object_Class);
       --  Register a new WebSocket
 
@@ -270,6 +274,45 @@ package body AWS.Net.WebSocket.Registry is
    --------
 
    protected body DB is
+
+      ----------
+      -- Close --
+      ----------
+
+      procedure Close
+        (To : Recipient; Message : String; Except_Peer : String)
+      is
+
+         procedure Close_To (Position : WebSocket_Set.Cursor);
+
+         -------------
+         -- Close_To --
+         -------------
+
+         procedure Close_To (Position : WebSocket_Set.Cursor) is
+            WebSocket : constant Object_Class :=
+                          WebSocket_Set.Element (Position);
+         begin
+            if (Except_Peer = "" or else WebSocket.Peer_Addr /= Except_Peer)
+              and then
+                (not To.URI_Set
+                 or else GNAT.Regexp.Match (WebSocket.URI, To.URI))
+              and then
+                (not To.Origin_Set
+                 or else GNAT.Regexp.Match (WebSocket.Origin, To.Origin))
+            then
+               DB.Unregister (WebSocket);
+               WebSocket.State.Errno := Error_Code (Normal_Closure);
+               WebSocket.On_Close (Message);
+               WebSocket.Shutdown;
+            end if;
+         end Close_To;
+
+         Registered_Before : constant WebSocket_Set.Set := Registered;
+
+      begin
+         Registered_Before.Iterate (Close_To'Access);
+      end Close;
 
       --------------
       -- Finalize --
@@ -461,6 +504,22 @@ package body AWS.Net.WebSocket.Registry is
    begin
       return Left.Get_FD < Right.Get_FD;
    end "<";
+
+   -----------
+   -- Close --
+   -----------
+
+   procedure Close
+     (To          : Recipient;
+      Message     : String;
+      Except_Peer : String := "") is
+   begin
+      DB.Close (To, Message, Except_Peer);
+   exception
+      when others =>
+         --  Should never fails even if the WebSocket is closed by peer
+         null;
+   end Close;
 
    -----------------
    -- Constructor --
