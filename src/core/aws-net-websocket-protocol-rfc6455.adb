@@ -257,8 +257,11 @@ package body AWS.Net.WebSocket.Protocol.RFC6455 is
             Read_Payload (To_Read);
 
             --  Just echo with the application data
-
-            Send (Protocol, Socket, O_Pong, Data (Data'First .. Last));
+            if Header.Payload_Length <= 125 then
+               Send (Protocol, Socket, O_Pong, Data (Data'First .. Last));
+            else
+               Socket.Shutdown;
+            end if;
 
          when O_Pong =>
             Socket.State.Kind := Pong;
