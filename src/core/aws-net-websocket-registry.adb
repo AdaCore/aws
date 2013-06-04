@@ -177,13 +177,22 @@ package body AWS.Net.WebSocket.Registry is
             --  Queue all WebSocket having some data to read, skip the
             --  signaling socket.
 
-            for K in 2 .. FD_Set.Count (Set) loop
-               if FD_Set.Is_Read_Ready (Set, K) then
-                  WS := FD_Set.Get_Data (Set, K);
-                  DB.Remove (K);
-                  Message_Queue.Add (WS);
-               end if;
-            end loop;
+            declare
+               --  Skip first entry as it is not a websocket
+               K : FD_Set.Socket_Count := 2;
+            begin
+               while K <= FD_Set.Count (Set) loop
+                  if FD_Set.Is_Read_Ready (Set, K) then
+                     WS := FD_Set.Get_Data (Set, K);
+                     DB.Remove (K);
+                     Message_Queue.Add (WS);
+                     --  Don't increment K if we're removing FDs as it will get
+                     --  replaced with last value.
+                  else
+                     K := K + 1;
+                  end if;
+               end loop;
+            end;
 
          exception
             when E : others =>
@@ -411,6 +420,8 @@ package body AWS.Net.WebSocket.Registry is
 
          for K in 2 .. FD_Set.Count (Set) loop
             if FD_Set.Get_Data (Set, K) = WebSocket then
+               --  It's okay to remove from here because we immediately exit
+               --  the loop.
                Remove (K);
                Signal_Socket;
                exit;
