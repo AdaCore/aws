@@ -307,8 +307,10 @@ package body AWS.Net.WebSocket.Protocol.RFC6455 is
             Socket.State.Kind := Ping;
             Read_Payload (To_Read);
 
-            --  Just echo with the application data
-            if Header.Payload_Length <= 125 then
+            --  Just echo with the application data. Note that a control
+            --  message must not be fragmented.
+
+            if Header.Payload_Length <= 125 and then Header.FIN = 1 then
                Send (Protocol, Socket, O_Pong, Data (Data'First .. Last));
             else
                Socket.State.Kind := Unknown;
@@ -318,6 +320,13 @@ package body AWS.Net.WebSocket.Protocol.RFC6455 is
          when O_Pong =>
             Socket.State.Kind := Pong;
             Read_Payload (To_Read);
+
+            --  Note that a control message must not be fragmented
+
+            if Header.Payload_Length > 125 or else Header.FIN = 0 then
+               Socket.State.Kind := Unknown;
+               Socket.Shutdown;
+            end if;
 
          when O_Continuation =>
             --  Nothing to do in this case. Continuation frames are handled
