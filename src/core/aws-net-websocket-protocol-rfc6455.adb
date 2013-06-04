@@ -253,6 +253,7 @@ package body AWS.Net.WebSocket.Protocol.RFC6455 is
             Socket.State.Kind := Connection_Close;
 
          when O_Ping =>
+            Socket.State.Kind := Ping;
             Read_Payload (To_Read);
 
             --  Just echo with the application data
@@ -260,8 +261,8 @@ package body AWS.Net.WebSocket.Protocol.RFC6455 is
             Send (Protocol, Socket, O_Pong, Data (Data'First .. Last));
 
          when O_Pong =>
-            --  Nothing to do, this means we have sent a ping frame
-            null;
+            Socket.State.Kind := Pong;
+            Read_Payload (To_Read);
 
          when O_Continuation =>
             --  Not yet implemented

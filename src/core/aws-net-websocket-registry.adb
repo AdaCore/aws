@@ -235,6 +235,9 @@ package body AWS.Net.WebSocket.Registry is
                   WebSocket.On_Close (To_String (Message));
                   WebSocket.Shutdown;
 
+               when Ping | Pong =>
+                  DB.Watch (WebSocket);
+
                when Connection_Open | Unknown =>
                   --  Note that the On_Open message has been handled at the
                   --  time the WebSocket was registered.

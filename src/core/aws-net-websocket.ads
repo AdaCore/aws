@@ -41,7 +41,7 @@ package AWS.Net.WebSocket is
    No_Object : constant Object'Class;
 
    type Kind_Type
-     is (Unknown, Connection_Open, Text, Binary, Connection_Close);
+     is (Unknown, Connection_Open, Text, Binary, Ping, Pong, Connection_Close);
    --  Data Frame Kind
 
    type Error_Type is
