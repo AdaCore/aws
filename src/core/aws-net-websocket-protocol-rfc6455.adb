@@ -233,6 +233,18 @@ package body AWS.Net.WebSocket.Protocol.RFC6455 is
          Protocol.Read     := 0;
       end if;
 
+      --  Check for wrong headers
+
+      if Header.RSV1 /= 0
+        or else Header.RSV2 /= 0
+        or else Header.RSV3 /= 0
+      then
+         Socket.State.Kind := Unknown;
+         Last := 0;
+         Socket.Shutdown;
+         return;
+      end if;
+
       --  Read payload data
 
       To_Read := Stream_Element_Offset'Min (Data'Length, Protocol.Remaining);
