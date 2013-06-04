@@ -117,6 +117,24 @@ package body AWS.Net.WebSocket.Protocol.RFC6455 is
       procedure Read_Payload (Length : Stream_Element_Offset);
       --  Read the Length bytes of the payload
 
+      procedure Read_Data (Data : out Stream_Element_Array);
+      --  Read data from the socket to fill Data array
+
+      ---------------
+      -- Read_Data --
+      ---------------
+
+      procedure Read_Data (Data : out Stream_Element_Array) is
+         First : Stream_Element_Offset := Data'First;
+         Last  : Stream_Element_Offset;
+      begin
+         loop
+            Socket.Socket.Receive (Data (First .. Data'Last), Last);
+            exit when Last = Data'Last;
+            First := Last + 1;
+         end loop;
+      end Read_Data;
+
       ------------------
       -- Read_Payload --
       ------------------
@@ -179,10 +197,10 @@ package body AWS.Net.WebSocket.Protocol.RFC6455 is
       --  if a new message is expected, read header
 
       if Protocol.Remaining = 0 then
-         Socket.Socket.Receive (D_Header, Last);
+         Read_Data (D_Header);
 
          if Header.Payload_Length = 126 then
-            Socket.Socket.Receive (D_16, Last);
+            Read_Data (D_16);
 
             if Default_Bit_Order = Low_Order_First then
                Byte_Swapping.Swap2 (L_16'Address);
@@ -191,7 +209,7 @@ package body AWS.Net.WebSocket.Protocol.RFC6455 is
             Protocol.Remaining := Stream_Element_Offset (L_16);
 
          elsif Header.Payload_Length = 127 then
-            Socket.Socket.Receive (D_64, Last);
+            Read_Data (D_64);
 
             if Default_Bit_Order = Low_Order_First then
                Byte_Swapping.Swap8 (L_64'Address);
@@ -205,7 +223,7 @@ package body AWS.Net.WebSocket.Protocol.RFC6455 is
          end if;
 
          if Header.Mask = 1 then
-            Socket.Socket.Receive (Stream_Element_Array (Protocol.Mask), Last);
+            Read_Data (Stream_Element_Array (Protocol.Mask));
          end if;
 
          --  Set corresponding data in protocol state
