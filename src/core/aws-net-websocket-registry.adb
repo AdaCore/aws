@@ -234,6 +234,8 @@ package body AWS.Net.WebSocket.Registry is
 
             Message_Queue.Get (WebSocket);
 
+            --  A WebSocket is null when termination is requested
+
             exit Handle_Message when WebSocket = null;
 
             Read_Message : loop
