@@ -197,6 +197,7 @@ package body AWS.Net.WebSocket.Protocol.RFC6455 is
 
       L_State    : State := Protocol;
       Opcd       : Opcode;
+      Bad_Header : Boolean := False;
 
    begin
       pragma Assert (Data'Length > 10);
@@ -234,6 +235,16 @@ package body AWS.Net.WebSocket.Protocol.RFC6455 is
             Read_Data (Stream_Element_Array (L_State.Mask));
          end if;
 
+         --  Check for wrong headers:
+         --     - RSV? must be zero
+         --     - continuation frame when there is nothing to continue
+
+         Bad_Header := Header.RSV1 /= 0
+           or else Header.RSV2 /= 0
+           or else Header.RSV3 /= 0
+           or else (Header.Opcd = O_Continuation
+                    and then Protocol.Last_Fragment);
+
          --  Set corresponding data in protocol state.
          --  In case of a continuation frame we reuse the previous code.
 
@@ -241,6 +252,22 @@ package body AWS.Net.WebSocket.Protocol.RFC6455 is
             Opcd := L_State.Opcd;
          else
             Opcd := Header.Opcd;
+
+            --  In case we have a O_Text or O_Binary message that is in fact
+            --  a continuation of a message we must fail. The protocol requires
+            --  that a continuation frame must have O_Continuation.
+
+            Bad_Header := Bad_Header
+              or else
+                ((Header.Opcd = O_Text or else Header.Opcd = O_Binary)
+                 and then not Protocol.Last_Fragment);
+         end if;
+
+         if Bad_Header then
+            Socket.State.Kind := Unknown;
+            Last := 0;
+            Socket.Shutdown;
+            return;
          end if;
 
          L_State.Has_Mask      := Header.Mask = 1;
@@ -250,18 +277,6 @@ package body AWS.Net.WebSocket.Protocol.RFC6455 is
 
       else
          Opcd := L_State.Opcd;
-      end if;
-
-      --  Check for wrong headers
-
-      if Header.RSV1 /= 0
-        or else Header.RSV2 /= 0
-        or else Header.RSV3 /= 0
-      then
-         Socket.State.Kind := Unknown;
-         Last := 0;
-         Socket.Shutdown;
-         return;
       end if;
 
       --  Read payload data
@@ -349,7 +364,9 @@ package body AWS.Net.WebSocket.Protocol.RFC6455 is
             null;
 
          when others =>
-            --  Opcode for future enhancement of the protocol
+            --  Opcode for future enhancement of the protocol, they are
+            --  illegal at this stage and the connection is required to be
+            --  shutdown.
             Socket.State.Kind := Unknown;
             Socket.Shutdown;
       end case;

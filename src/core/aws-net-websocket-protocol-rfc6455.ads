@@ -66,11 +66,11 @@ private
    type State is new Protocol.State with record
       Remaining     : Stream_Element_Offset := 0;
       Read          : Stream_Element_Offset := 0;
-      Opcd          : Opcode;
+      Opcd          : Opcode := 0;
       Has_Mask      : Boolean;
       Mask          : Masking_Key;
       Close_Sent    : Boolean := False;
-      Last_Fragment : Boolean := False;
+      Last_Fragment : Boolean := True;
    end record;
 
 end AWS.Net.WebSocket.Protocol.RFC6455;
