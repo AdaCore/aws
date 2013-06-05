@@ -114,7 +114,8 @@ package body AWS.Net.WebSocket.Protocol.RFC6455 is
       use GNAT;
       use System;
 
-      procedure Read_Payload (Length : Stream_Element_Offset);
+      procedure Read_Payload
+        (Protocol : in out State; Length : Stream_Element_Offset);
       --  Read the Length bytes of the payload
 
       procedure Read_Data (Data : out Stream_Element_Array);
@@ -139,7 +140,10 @@ package body AWS.Net.WebSocket.Protocol.RFC6455 is
       -- Read_Payload --
       ------------------
 
-      procedure Read_Payload (Length : Stream_Element_Offset) is
+      procedure Read_Payload
+        (Protocol : in out State;
+         Length   : Stream_Element_Offset)
+      is
          Read_Before : constant Stream_Element_Offset := Protocol.Read;
          Read        : Stream_Element_Offset;
          First       : Stream_Element_Offset := Data'First;
@@ -190,13 +194,17 @@ package body AWS.Net.WebSocket.Protocol.RFC6455 is
       for L_64'Address use D_64'Address;
 
       To_Read  : Stream_Element_Offset;
+
+      L_State    : State := Protocol;
+      Opcd       : Opcode;
+
    begin
       pragma Assert (Data'Length > 10);
       --  This is to ease reading frame header data
 
       --  if a new message is expected, read header
 
-      if Protocol.Remaining = 0 then
+      if L_State.Remaining = 0 then
          Read_Data (D_Header);
 
          if Header.Payload_Length = 126 then
@@ -206,7 +214,7 @@ package body AWS.Net.WebSocket.Protocol.RFC6455 is
                Byte_Swapping.Swap2 (L_16'Address);
             end if;
 
-            Protocol.Remaining := Stream_Element_Offset (L_16);
+            L_State.Remaining := Stream_Element_Offset (L_16);
 
          elsif Header.Payload_Length = 127 then
             Read_Data (D_64);
@@ -215,28 +223,33 @@ package body AWS.Net.WebSocket.Protocol.RFC6455 is
                Byte_Swapping.Swap8 (L_64'Address);
             end if;
 
-            Protocol.Remaining := Stream_Element_Offset (L_64);
+            L_State.Remaining := Stream_Element_Offset (L_64);
 
          else
-            Protocol.Remaining :=
+            L_State.Remaining :=
               Stream_Element_Offset (Header.Payload_Length);
          end if;
 
          if Header.Mask = 1 then
-            Read_Data (Stream_Element_Array (Protocol.Mask));
+            Read_Data (Stream_Element_Array (L_State.Mask));
          end if;
 
-         --  Set corresponding data in protocol state
+         --  Set corresponding data in protocol state.
+         --  In case of a continuation frame we reuse the previous code.
 
-         --  In case of a continuation frame we reuse the previous code
-
-         if Header.Opcd /= O_Continuation then
-            Protocol.Opcd := Header.Opcd;
+         if Header.Opcd = O_Continuation then
+            Opcd := L_State.Opcd;
+         else
+            Opcd := Header.Opcd;
          end if;
 
-         Protocol.Has_Mask      := Header.Mask = 1;
-         Protocol.Read          := 0;
-         Protocol.Last_Fragment := Header.FIN = 1;
+         L_State.Has_Mask      := Header.Mask = 1;
+         L_State.Read          := 0;
+         L_State.Last_Fragment := Header.FIN = 1;
+         L_State.Opcd          := Opcd;
+
+      else
+         Opcd := L_State.Opcd;
       end if;
 
       --  Check for wrong headers
@@ -253,19 +266,21 @@ package body AWS.Net.WebSocket.Protocol.RFC6455 is
 
       --  Read payload data
 
-      To_Read := Stream_Element_Offset'Min (Data'Length, Protocol.Remaining);
+      To_Read := Stream_Element_Offset'Min (Data'Length, L_State.Remaining);
 
-      case Protocol.Opcd is
+      case Opcd is
          when O_Text =>
             Socket.State.Kind := Text;
-            Read_Payload (To_Read);
+            Read_Payload (L_State, To_Read);
+            Protocol := L_State;
 
          when O_Binary =>
             Socket.State.Kind := Binary;
-            Read_Payload (To_Read);
+            Read_Payload (L_State, To_Read);
+            Protocol := L_State;
 
          when O_Connection_Close =>
-            Read_Payload (To_Read);
+            Read_Payload (L_State, To_Read);
 
             --  Check the error code if any
 
@@ -305,7 +320,7 @@ package body AWS.Net.WebSocket.Protocol.RFC6455 is
 
          when O_Ping =>
             Socket.State.Kind := Ping;
-            Read_Payload (To_Read);
+            Read_Payload (L_State, To_Read);
 
             --  Just echo with the application data. Note that a control
             --  message must not be fragmented.
@@ -319,7 +334,7 @@ package body AWS.Net.WebSocket.Protocol.RFC6455 is
 
          when O_Pong =>
             Socket.State.Kind := Pong;
-            Read_Payload (To_Read);
+            Read_Payload (L_State, To_Read);
 
             --  Note that a control message must not be fragmented
 

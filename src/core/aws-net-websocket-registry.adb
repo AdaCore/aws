@@ -238,40 +238,43 @@ package body AWS.Net.WebSocket.Registry is
 
             exit Handle_Message when WebSocket = null;
 
+            --  A message can be sent in multiple chunks and/or multiple
+            --  frames with possibly some control frames in between text or
+            --  binary ones. This loop handles those cases.
+
             Read_Message : loop
                WebSocket.Receive (Data, Last);
 
-               --  Exit now if the status is unknown, this is the case when
-               --  a protocol error is detected for example.
+               case WebSocket.Kind is
+                  when Text | Binary =>
+                     Append
+                       (Message,
+                        Translator.To_String (Data (Data'First .. Last)));
 
-               exit Read_Message when WebSocket.Kind = Unknown;
+                     if WebSocket.End_Of_Message then
+                        WebSocket.On_Message (To_String (Message));
+                        DB.Watch (WebSocket);
+                        exit Read_Message;
+                     end if;
 
-               --  Append to message
+                  when Connection_Close =>
+                     DB.Unregister (WebSocket);
+                     WebSocket.On_Close (To_String (Message));
+                     WebSocket.Shutdown;
+                     exit Read_Message;
 
-               Append
-                 (Message, Translator.To_String (Data (Data'First .. Last)));
+                  when Ping | Pong =>
+                     if WebSocket.End_Of_Message then
+                        DB.Watch (WebSocket);
+                        exit Read_Message;
+                     end if;
 
-               exit Read_Message when WebSocket.End_Of_Message;
+                  when Connection_Open | Unknown =>
+                     --  Note that the On_Open message has been handled at the
+                     --  time the WebSocket was registered.
+                     exit Read_Message;
+               end case;
             end loop Read_Message;
-
-            case WebSocket.Kind is
-               when Text | Binary =>
-                  DB.Watch (WebSocket);
-                  WebSocket.On_Message (To_String (Message));
-
-               when Connection_Close =>
-                  DB.Unregister (WebSocket);
-                  WebSocket.On_Close (To_String (Message));
-                  WebSocket.Shutdown;
-
-               when Ping | Pong =>
-                  DB.Watch (WebSocket);
-
-               when Connection_Open | Unknown =>
-                  --  Note that the On_Open message has been handled at the
-                  --  time the WebSocket was registered.
-                  null;
-            end case;
 
          exception
             when E : others =>
