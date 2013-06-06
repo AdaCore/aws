@@ -1,21 +1,21 @@
 Known Problems fixed in AWS 3.1
 
 - M517-012: Fix parsing of URL parameters with no value
-  Problem: A parameter in an URL with no value is not correctly parsed if it
-           is the last parameter.
+  Problem:    A parameter in an URL with no value is not correctly parsed if
+              it is the last parameter.
   Workaround: Parse the URL manually or add the parameter manually after
               parsing.
 
 - M325-036: Fix memory leak when handling malformed SOAP document
-  Problem: If an exception is raised while parsing a malformed SOAP
-           document, the corresponding XML tree is not properly freed.
+  Problem:    If an exception is raised while parsing a malformed SOAP
+              document, the corresponding XML tree is not properly freed.
   Workaround: Make sure the SOAP document is valid.
 
 - LB19-029: Max-Age cookie attribute does non conform to RFC-6265
-  Problem: Max-Age cookie attribute must be an integral number
-           as specified in the RFC-6265 (2011). Note that the
-           definition has changed as previous RFCs 2109 (1997) and
-           RFC-2965 (2000) were still defining Max-Age as delta-seconds.
+  Problem:    Max-Age cookie attribute must be an integral number
+              as specified in the RFC-6265 (2011). Note that the
+              definition has changed as previous RFCs 2109 (1997) and
+              RFC-2965 (2000) were still defining Max-Age as delta-seconds.
   Workaround: Do not use Opera browser which enforces this rule.
 
 - LB06-009: Memory leak in AWS.Client.LDAP.Bind
