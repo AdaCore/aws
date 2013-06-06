@@ -1,5 +1,10 @@
 Known Problems fixed in AWS 3.1
 
+- M527-001: Better respect the WebSocket RFC
+  Problem:    WebSocket requests with large messages or sent in multiple
+              chunks are not handled properly.
+  Workaround: None
+
 - M517-012: Fix parsing of URL parameters with no value
   Problem:    A parameter in an URL with no value is not correctly parsed if
               it is the last parameter.
