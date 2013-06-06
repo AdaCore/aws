@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                       Copyright (C) 2012, AdaCore                        --
+--                     Copyright (C) 2012-2013, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -44,9 +44,6 @@ package body AWS.Net.WebSocket.Protocol.RFC6455 is
    type Bit is range 0 .. 1;
    for Bit'Size use 1;
 
-   type Opcode is mod 15;
-   for Opcode'Size use 4;
-
    O_Continuation     : constant Opcode := 16#0#;
    O_Text             : constant Opcode := 16#1#;
    O_Binary           : constant Opcode := 16#2#;
@@ -88,48 +85,95 @@ package body AWS.Net.WebSocket.Protocol.RFC6455 is
 
    pragma Warnings (On);
 
-   type Masking_Key is new Stream_Element_Array (0 .. 3);
-   for Masking_Key'Size use 32;
-
    procedure Send
-     (Socket : Object;
-      Opcd   : Opcode;
-      Data   : Stream_Element_Array);
+     (Protocol : in out State;
+      Socket   : Object;
+      Opcd     : Opcode;
+      Data     : Stream_Element_Array);
    --  Internal version
+
+   --------------------
+   -- End_Of_Message --
+   --------------------
+
+   overriding function End_Of_Message (Protocol : State) return Boolean is
+   begin
+      return Protocol.Remaining = 0 and then Protocol.Last_Fragment;
+   end End_Of_Message;
 
    -------------
    -- Receive --
    -------------
 
-   procedure Receive
-     (Socket : Object;
-      Data   : out Stream_Element_Array;
-      Last   : out Stream_Element_Offset)
+   overriding procedure Receive
+     (Protocol : in out State;
+      Socket   : Object;
+      Data     : out Stream_Element_Array;
+      Last     : out Stream_Element_Offset)
    is
       use GNAT;
       use System;
 
       procedure Read_Payload
-        (Length : Stream_Element_Offset; Mask : Boolean; Key : Masking_Key);
+        (Protocol : in out State; Length : Stream_Element_Offset);
       --  Read the Length bytes of the payload
+
+      procedure Read_Data (Data : out Stream_Element_Array);
+      --  Read data from the socket to fill Data array
+
+      ---------------
+      -- Read_Data --
+      ---------------
+
+      procedure Read_Data (Data : out Stream_Element_Array) is
+         First : Stream_Element_Offset := Data'First;
+         Last  : Stream_Element_Offset;
+      begin
+         loop
+            Socket.Socket.Receive (Data (First .. Data'Last), Last);
+            exit when Last = Data'Last;
+            First := Last + 1;
+         end loop;
+      end Read_Data;
 
       ------------------
       -- Read_Payload --
       ------------------
 
       procedure Read_Payload
-        (Length : Stream_Element_Offset; Mask : Boolean; Key : Masking_Key) is
+        (Protocol : in out State;
+         Length   : Stream_Element_Offset)
+      is
+         Read_Before : constant Stream_Element_Offset := Protocol.Read;
+         Read        : Stream_Element_Offset;
+         First       : Stream_Element_Offset := Data'First;
+         Max         : Stream_Element_Offset;
       begin
          Last := Data'First + Length - 1;
 
+         Max := Stream_Element_Offset'Min (Data'Last, Last);
+
          if Length > 0 then
-            Socket.Socket.Receive (Data (Data'First .. Last), Last);
+            loop
+               Socket.Socket.Receive (Data (First .. Max), Last);
+
+               Read := Last - First + 1;
+
+               Protocol.Read      := Protocol.Read + Read;
+               Protocol.Remaining := Protocol.Remaining - Read;
+
+               exit when Protocol.Remaining = 0
+                 or else Last = Data'Last;
+
+               First := Last + 1;
+            end loop;
 
             --  If the message is masked, apply it
 
-            if Mask then
+            if Protocol.Has_Mask then
                for K in Data'First .. Last loop
-                  Data (K) := Data (K) xor Key ((K - Data'First) mod 4);
+                  Data (K) := Data (K)
+                    xor Protocol.Mask ((Read_Before + K - Data'First) mod 4);
                end loop;
             end if;
          end if;
@@ -149,69 +193,109 @@ package body AWS.Net.WebSocket.Protocol.RFC6455 is
       L_64     : Interfaces.Unsigned_64;
       for L_64'Address use D_64'Address;
 
-      Mask     : Masking_Key;
       To_Read  : Stream_Element_Offset;
+
+      L_State    : State := Protocol;
+      Opcd       : Opcode;
+      Bad_Header : Boolean := False;
+
    begin
       pragma Assert (Data'Length > 10);
       --  This is to ease reading frame header data
 
       --  if a new message is expected, read header
 
-      if Socket.State.Remaining = -1 then
-         Socket.Socket.Receive (D_Header, Last);
+      if L_State.Remaining = 0 then
+         Read_Data (D_Header);
 
          if Header.Payload_Length = 126 then
-            Socket.Socket.Receive (D_16, Last);
+            Read_Data (D_16);
 
             if Default_Bit_Order = Low_Order_First then
                Byte_Swapping.Swap2 (L_16'Address);
             end if;
 
-            Socket.State.Remaining := Stream_Element_Offset (L_16);
+            L_State.Remaining := Stream_Element_Offset (L_16);
 
          elsif Header.Payload_Length = 127 then
-            Socket.Socket.Receive (D_64, Last);
+            Read_Data (D_64);
 
             if Default_Bit_Order = Low_Order_First then
                Byte_Swapping.Swap8 (L_64'Address);
             end if;
 
-            Socket.State.Remaining := Stream_Element_Offset (L_64);
+            L_State.Remaining := Stream_Element_Offset (L_64);
 
          else
-            Socket.State.Remaining :=
+            L_State.Remaining :=
               Stream_Element_Offset (Header.Payload_Length);
          end if;
 
          if Header.Mask = 1 then
-            Socket.Socket.Receive (Stream_Element_Array (Mask), Last);
+            Read_Data (Stream_Element_Array (L_State.Mask));
          end if;
+
+         --  Check for wrong headers:
+         --     - RSV? must be zero
+         --     - continuation frame when there is nothing to continue
+
+         Bad_Header := Header.RSV1 /= 0
+           or else Header.RSV2 /= 0
+           or else Header.RSV3 /= 0
+           or else (Header.Opcd = O_Continuation
+                    and then Protocol.Last_Fragment);
+
+         --  Set corresponding data in protocol state.
+         --  In case of a continuation frame we reuse the previous code.
+
+         if Header.Opcd = O_Continuation then
+            Opcd := L_State.Opcd;
+         else
+            Opcd := Header.Opcd;
+
+            --  In case we have a O_Text or O_Binary message that is in fact
+            --  a continuation of a message we must fail. The protocol requires
+            --  that a continuation frame must have O_Continuation.
+
+            Bad_Header := Bad_Header
+              or else
+                ((Header.Opcd = O_Text or else Header.Opcd = O_Binary)
+                 and then not Protocol.Last_Fragment);
+         end if;
+
+         if Bad_Header then
+            Socket.State.Kind := Unknown;
+            Last := 0;
+            Socket.Shutdown;
+            return;
+         end if;
+
+         L_State.Has_Mask      := Header.Mask = 1;
+         L_State.Read          := 0;
+         L_State.Last_Fragment := Header.FIN = 1;
+         L_State.Opcd          := Opcd;
+
+      else
+         Opcd := L_State.Opcd;
       end if;
 
       --  Read payload data
 
-      To_Read := Stream_Element_Offset'Min
-        (Data'Length, Socket.State.Remaining);
+      To_Read := Stream_Element_Offset'Min (Data'Length, L_State.Remaining);
 
-      if Data'Length >= Socket.State.Remaining then
-         --  Everything can be read now, next call will handle a new message
-         --  frame.
-         Socket.State.Remaining := -1;
-      else
-         Socket.State.Remaining := Socket.State.Remaining - To_Read;
-      end if;
-
-      case Header.Opcd is
+      case Opcd is
          when O_Text =>
             Socket.State.Kind := Text;
-            Read_Payload (To_Read, Header.Mask = 1, Mask);
+            Read_Payload (L_State, To_Read);
+            Protocol := L_State;
 
          when O_Binary =>
             Socket.State.Kind := Binary;
-            Read_Payload (To_Read, Header.Mask = 1, Mask);
+            Read_Payload (L_State, To_Read);
+            Protocol := L_State;
 
          when O_Connection_Close =>
-            Read_Payload (To_Read, Header.Mask = 1, Mask);
+            Read_Payload (L_State, To_Read);
 
             --  Check the error code if any
 
@@ -237,34 +321,54 @@ package body AWS.Net.WebSocket.Protocol.RFC6455 is
 
             --  If needed send a close frame
 
-            if not Socket.State.Close_Sent then
-               Socket.State.Close_Sent := True;
+            if not Protocol.Close_Sent then
+               Protocol.Close_Sent := True;
 
                --  Just echo the status code we received as per RFC
 
-               Send (Socket, O_Connection_Close, Data (Data'First .. Last));
+               Send
+                 (Protocol,
+                  Socket, O_Connection_Close, Data (Data'First .. Last));
             end if;
 
             Socket.State.Kind := Connection_Close;
 
          when O_Ping =>
-            Read_Payload (To_Read, Header.Mask = 1, Mask);
+            Socket.State.Kind := Ping;
+            Read_Payload (L_State, To_Read);
 
-            --  Just echo with the application data
+            --  Just echo with the application data. Note that a control
+            --  message must not be fragmented.
 
-               Send (Socket, O_Pong, Data (Data'First .. Last));
+            if Header.Payload_Length <= 125 and then Header.FIN = 1 then
+               Send (Protocol, Socket, O_Pong, Data (Data'First .. Last));
+            else
+               Socket.State.Kind := Unknown;
+               Socket.Shutdown;
+            end if;
 
          when O_Pong =>
-            --  Nothing to do, this means we have sent a ping frame
-            null;
+            Socket.State.Kind := Pong;
+            Read_Payload (L_State, To_Read);
+
+            --  Note that a control message must not be fragmented
+
+            if Header.Payload_Length > 125 or else Header.FIN = 0 then
+               Socket.State.Kind := Unknown;
+               Socket.Shutdown;
+            end if;
 
          when O_Continuation =>
-            --  Not yet implemented
+            --  Nothing to do in this case. Continuation frames are handled
+            --  above by changing the code to the proper one.
             null;
 
          when others =>
-            --  Opcode for future enhancement of the protocol
+            --  Opcode for future enhancement of the protocol, they are
+            --  illegal at this stage and the connection is required to be
+            --  shutdown.
             Socket.State.Kind := Unknown;
+            Socket.Shutdown;
       end case;
    end Receive;
 
@@ -273,10 +377,12 @@ package body AWS.Net.WebSocket.Protocol.RFC6455 is
    ----------
 
    procedure Send
-     (Socket : Object;
-      Opcd   : Opcode;
-      Data   : Stream_Element_Array)
+     (Protocol : in out State;
+      Socket   : Object;
+      Opcd     : Opcode;
+      Data     : Stream_Element_Array)
    is
+      pragma Unreferenced (Protocol);
       use GNAT;
       use System;
 
@@ -297,11 +403,14 @@ package body AWS.Net.WebSocket.Protocol.RFC6455 is
       Header.FIN := 1;
       Header.Opcd := Opcd;
       Header.Mask := 0;
+      Header.RSV1 := 0;
+      Header.RSV2 := 0;
+      Header.RSV3 := 0;
 
       --  Compute proper message length, see RFC-6455 for a full description
       --
       --  <= 125    Payload_Length is the actual length
-      --  <= 65536  The actual length is in the 2 following bytes
+      --  <= 65535  The actual length is in the 2 following bytes
       --            and set payload length to 126
       --  otherwise The actual length is in the 8 following bytes
       --            and set payload length to 127
@@ -309,7 +418,7 @@ package body AWS.Net.WebSocket.Protocol.RFC6455 is
       if Data'Length <= 125 then
          Header.Payload_Length := Data'Length;
 
-      elsif Data'Length <= 65536 then
+      elsif Data'Length <= 65535 then
          Header.Payload_Length := 126;
          L_16 := Data'Length;
 
@@ -334,7 +443,7 @@ package body AWS.Net.WebSocket.Protocol.RFC6455 is
 
       if Data'Length <= 125 then
          null;
-      elsif Data'Length <= 65536 then
+      elsif Data'Length <= 65535 then
          Net.Buffered.Write (Socket, D_16);
       else
          Net.Buffered.Write (Socket, D_64);
@@ -347,14 +456,15 @@ package body AWS.Net.WebSocket.Protocol.RFC6455 is
       Net.Buffered.Flush (Socket);
    end Send;
 
-   procedure Send
-     (Socket : Object;
-      Data   : Stream_Element_Array) is
+   overriding procedure Send
+     (Protocol : in out State;
+      Socket   : Object;
+      Data     : Stream_Element_Array) is
    begin
       if Socket.State.Kind = Text then
-         Send (Socket, O_Text, Data);
+         Send (Protocol, Socket, O_Text, Data);
       else
-         Send (Socket, O_Binary, Data);
+         Send (Protocol, Socket, O_Binary, Data);
       end if;
    end Send;
 

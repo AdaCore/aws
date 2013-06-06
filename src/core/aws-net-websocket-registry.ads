@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                       Copyright (C) 2012, AdaCore                        --
+--                     Copyright (C) 2012-2013, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -74,6 +74,12 @@ package AWS.Net.WebSocket.Registry is
       Message : String;
       Request : AWS.Status.Data);
    --  As above but filter out the client having set the given request
+
+   procedure Close
+      (To         : Recipient;
+      Message     : String;
+      Except_Peer : String := "");
+   --  Close connections
 
 private
 

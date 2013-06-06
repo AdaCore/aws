@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2002-2012, AdaCore                     --
+--                     Copyright (C) 2002-2013, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -396,7 +396,8 @@ package body AWS.Net.Buffered is
       Next_Last : constant Stream_Element_Offset := C.Last + Item'Length;
    begin
       if Next_Last > C.Max_Size then
-         Send (Socket, C.Buffer (1 .. C.Last) & Item);
+         Send (Socket, C.Buffer (1 .. C.Last));
+         Send (Socket, Item);
          C.Last := 0;
       else
          C.Buffer (C.Last + 1 .. Next_Last) := Item;

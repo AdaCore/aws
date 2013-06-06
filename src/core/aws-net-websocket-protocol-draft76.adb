@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                       Copyright (C) 2012, AdaCore                        --
+--                     Copyright (C) 2012-2013, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -44,15 +44,27 @@ package body AWS.Net.WebSocket.Protocol.Draft76 is
    use Ada.Exceptions;
    use Ada.Text_IO;
 
+   --------------------
+   -- End_Of_Message --
+   --------------------
+
+   overriding function End_Of_Message (Protocol : State) return Boolean is
+      pragma Unreferenced (Protocol);
+   begin
+      return True;
+   end End_Of_Message;
+
    -------------
    -- Receive --
    -------------
 
-   procedure Receive
-     (Socket : Object;
-      Data   : out Stream_Element_Array;
-      Last   : out Stream_Element_Offset)
+   overriding procedure Receive
+     (Protocol : in out State;
+      Socket   : Object;
+      Data     : out Stream_Element_Array;
+      Last     : out Stream_Element_Offset)
    is
+      pragma Unreferenced (Protocol);
       Byte    : Stream_Element_Array (1 .. 1);
       Ignored : Stream_Element_Offset;
    begin
@@ -84,10 +96,12 @@ package body AWS.Net.WebSocket.Protocol.Draft76 is
    -- Send --
    ----------
 
-   procedure Send
-     (Socket : Object;
-      Data   : Stream_Element_Array)
+   overriding procedure Send
+     (Protocol : in out State;
+      Socket   : Object;
+      Data     : Stream_Element_Array)
    is
+      pragma Unreferenced (Protocol);
       D_Header : constant Stream_Element_Array (1 .. 1) := (1 => 16#00#);
       D_Footer : constant Stream_Element_Array (1 .. 1) := (1 => 16#FF#);
    begin

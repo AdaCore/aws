@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                       Copyright (C) 2012, AdaCore                        --
+--                     Copyright (C) 2012-2013, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -33,13 +33,17 @@ with Interfaces;
 
 with AWS.Headers;
 with AWS.Messages;
-with AWS.Translator;
 with AWS.Net.WebSocket.Protocol.Draft76;
 with AWS.Net.WebSocket.Protocol.RFC6455;
+with AWS.Translator;
 
 package body AWS.Net.WebSocket is
 
    use Ada.Streams;
+
+   type Protocol_State is record
+      State : Net.WebSocket.Protocol.State_Class;
+   end record;
 
    ------------
    -- Create --
@@ -50,62 +54,49 @@ package body AWS.Net.WebSocket is
       Request : AWS.Status.Data) return Object'Class
    is
 
-      function Create_Internal
-        (Socket  : Socket_Access;
-         Request : AWS.Status.Data) return Object;
-      --  Main constructor
-
-      ---------------------
-      -- Create_Internal --
-      ---------------------
-
-      function Create_Internal
-        (Socket  : Socket_Access;
-         Request : AWS.Status.Data) return Object
-      is
-         Headers : constant AWS.Headers.List := AWS.Status.Header (Request);
-         Version : Natural := 0;
-         S_CB    : Send_Callback;
-         R_CB    : Receive_Callback;
-      begin
-         if Headers.Exist (Messages.Sec_WebSocket_Key1_Token)
-           and then Headers.Exist (Messages.Sec_WebSocket_Key2_Token)
-         then
-            S_CB := Protocol.Draft76.Send'Access;
-            R_CB := Protocol.Draft76.Receive'Access;
-         else
-            S_CB := Protocol.RFC6455.Send'Access;
-            R_CB := Protocol.RFC6455.Receive'Access;
-         end if;
-
-         if Headers.Exist (Messages.Sec_WebSocket_Version_Token) then
-            declare
-               Value : constant String :=
-                         Headers.Get (Messages.Sec_WebSocket_Version_Token);
-            begin
-               if Utils.Is_Number (Value) then
-                  Version := Natural'Value (Value);
-               end if;
-            end;
-         end if;
-
-         return Object'
-           (Net.Socket_Type with
-            Socket     => Socket,
-            Request    => Request,
-            Version    => Version,
-            Send_CB    => S_CB,
-            Receive_CB => R_CB,
-            State      => new Internal_State'
-              (Remaining  => -1,
-               Kind       => Unknown,
-               Close_Sent => False,
-               Errno      => Interfaces.Unsigned_16'Last));
-      end Create_Internal;
+      Headers  : constant AWS.Headers.List := AWS.Status.Header (Request);
+      Version  : Natural := 0;
+      Protocol : Net.WebSocket.Protocol.State_Class;
 
    begin
-      return Create_Internal (Socket, Request);
+      if Headers.Exist (Messages.Sec_WebSocket_Key1_Token)
+        and then Headers.Exist (Messages.Sec_WebSocket_Key2_Token)
+      then
+         Protocol := new Net.WebSocket.Protocol.Draft76.State;
+      else
+         Protocol := new Net.WebSocket.Protocol.RFC6455.State;
+      end if;
+
+      if Headers.Exist (Messages.Sec_WebSocket_Version_Token) then
+         declare
+            Value : constant String :=
+                      Headers.Get (Messages.Sec_WebSocket_Version_Token);
+         begin
+            if Utils.Is_Number (Value) then
+               Version := Natural'Value (Value);
+            end if;
+         end;
+      end if;
+
+      return Object'
+        (Net.Socket_Type with
+           Socket  => Socket,
+           Request => Request,
+           Version => Version,
+           State   => new Internal_State'
+                           (Kind  => Unknown,
+                            Errno => Interfaces.Unsigned_16'Last),
+           P_State => new Protocol_State'(State => Protocol));
    end Create;
+
+   --------------------
+   -- End_Of_Message --
+   --------------------
+
+   function End_Of_Message (Socket : Object) return Boolean is
+   begin
+      return Socket.P_State.State.End_Of_Message;
+   end End_Of_Message;
 
    -----------
    -- Errno --
@@ -153,9 +144,19 @@ package body AWS.Net.WebSocket is
    overriding procedure Free (Socket : in out Object) is
       procedure Unchecked_Free is
          new Unchecked_Deallocation (Internal_State, Internal_State_Access);
+      procedure Unchecked_Free is
+         new Unchecked_Deallocation (Protocol_State, Protocol_State_Access);
+      procedure Unchecked_Free is new Unchecked_Deallocation
+        (Net.WebSocket.Protocol.State'Class,
+         Net.WebSocket.Protocol.State_Class);
    begin
       Free (Socket.Socket);
       Unchecked_Free (Socket.State);
+
+      if Socket.P_State /= null then
+         Unchecked_Free (Socket.P_State.State);
+         Unchecked_Free (Socket.P_State);
+      end if;
    end Free;
 
    --------------
@@ -279,7 +280,7 @@ package body AWS.Net.WebSocket is
       Data   : out Stream_Element_Array;
       Last   : out Stream_Element_Offset) is
    begin
-      Socket.Receive_CB (Socket, Data, Last);
+      Socket.P_State.State.Receive (Socket, Data, Last);
    end Receive;
 
    ----------
@@ -294,10 +295,36 @@ package body AWS.Net.WebSocket is
       Socket.Socket.Send (Data, Last);
    end Send;
 
-   procedure Send (Socket : in out Object; Message : String) is
+   procedure Send
+     (Socket    : in out Object;
+      Message   : String;
+      Is_Binary : Boolean := False) is
    begin
-      Socket.State.Kind := Text;
-      Socket.Send_CB (Socket, Translator.To_Stream_Element_Array (Message));
+      if Is_Binary then
+         Socket.State.Kind := Binary;
+      else
+         Socket.State.Kind := Text;
+      end if;
+
+      Socket.P_State.State.Send
+        (Socket, Translator.To_Stream_Element_Array (Message));
+   exception
+      when E : others =>
+         Socket.On_Error (Exception_Message (E));
+   end Send;
+
+   procedure Send
+     (Socket    : in out Object;
+      Message   : Stream_Element_Array;
+      Is_Binary : Boolean := True) is
+   begin
+      if Is_Binary then
+         Socket.State.Kind := Binary;
+      else
+         Socket.State.Kind := Text;
+      end if;
+
+      Socket.P_State.State.Send (Socket, Message);
    exception
       when E : others =>
          Socket.On_Error (Exception_Message (E));

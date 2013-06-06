@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                       Copyright (C) 2012, AdaCore                        --
+--                     Copyright (C) 2012-2013, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -30,5 +30,24 @@
 --  Parent of all implemented protocols which are for internal use only
 
 package AWS.Net.WebSocket.Protocol is
+
+   type State is abstract tagged null record;
+   type State_Class is access all State'Class;
+
+   procedure Send
+     (Protocol : in out State;
+      Socket   : Object;
+      Data     : Stream_Element_Array) is abstract;
+   --  Encode and send data to the WebSocket
+
+   procedure Receive
+     (Protocol : in out State;
+      Socket   : Object;
+      Data     : out Stream_Element_Array;
+      Last     : out Stream_Element_Offset) is abstract;
+   --  Receive and decode WebSocket data
+
+   function End_Of_Message (Protocol : State) return Boolean is abstract;
+   --  Returns True if we have read a whole message
 
 end AWS.Net.WebSocket.Protocol;

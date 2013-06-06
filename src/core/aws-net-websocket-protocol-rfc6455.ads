@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                       Copyright (C) 2012, AdaCore                        --
+--                     Copyright (C) 2012-2013, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -31,19 +31,46 @@
 
 package AWS.Net.WebSocket.Protocol.RFC6455 is
 
-   procedure Send
-     (Socket : Object;
-      Data   : Stream_Element_Array);
+   type State is new Protocol.State with private;
+
+   overriding procedure Send
+     (Protocol : in out State;
+      Socket   : Object;
+      Data     : Stream_Element_Array);
    --  Encode and send data to the WebSocket
 
-   procedure Receive
-     (Socket : Object;
-      Data   : out Stream_Element_Array;
-      Last   : out Stream_Element_Offset);
+   overriding procedure Receive
+     (Protocol : in out State;
+      Socket   : Object;
+      Data     : out Stream_Element_Array;
+      Last     : out Stream_Element_Offset);
    --  Receive and decode WebSocket data
+
+   overriding function End_Of_Message (Protocol : State) return Boolean;
+   --  Returns True if we have read a whole message
 
    procedure Send_Header
      (Sock : Net.Socket_Type'Class; Request : AWS.Status.Data);
    --  Send specific header for this protocol
+
+private
+
+   --  Protocol specific status
+
+   type Masking_Key is new Stream_Element_Array (0 .. 3);
+   for Masking_Key'Size use 32;
+
+   type Opcode is mod 16;
+   for Opcode'Size use 4;
+
+   type State is new Protocol.State with record
+      Remaining     : Stream_Element_Offset := 0;
+      Read          : Stream_Element_Offset := 0;
+      Opcd          : Opcode := 0;
+      Has_Mask      : Boolean;
+      Mask          : Masking_Key;
+      Close_Sent    : Boolean := False;
+      Last_Fragment : Boolean := True;
+   end record;
 
 end AWS.Net.WebSocket.Protocol.RFC6455;

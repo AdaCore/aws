@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                       Copyright (C) 2012, AdaCore                        --
+--                     Copyright (C) 2012-2013, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -41,7 +41,7 @@ package AWS.Net.WebSocket is
    No_Object : constant Object'Class;
 
    type Kind_Type
-     is (Unknown, Connection_Open, Text, Binary, Connection_Close);
+     is (Unknown, Connection_Open, Text, Binary, Ping, Pong, Connection_Close);
    --  Data Frame Kind
 
    type Error_Type is
@@ -88,8 +88,17 @@ package AWS.Net.WebSocket is
    procedure On_Error (Socket : in out Object; Message : String) is null;
    --  As above but activated when a WebSocket error is detected
 
-   procedure Send (Socket : in out Object; Message : String);
-   --  This default implementation just send a text message to the client
+   procedure Send
+     (Socket    : in out Object;
+      Message   : String;
+      Is_Binary : Boolean := False);
+   --  This default implementation just send a message to the client
+
+   procedure Send
+     (Socket    : in out Object;
+      Message   : Stream_Element_Array;
+      Is_Binary : Boolean := True);
+   --  As above but default is a binary message
 
    --
    --  Simple accessors to WebSocket state
@@ -110,6 +119,9 @@ package AWS.Net.WebSocket is
 
    function Error (Socket : Object) return Error_Type;
    --  Returns the current error type
+
+   function End_Of_Message (Socket : Object) return Boolean;
+   --  Returns True if we have read a whole message
 
    --
    --  Socket's methods that must be overriden
@@ -150,30 +162,21 @@ package AWS.Net.WebSocket is
 private
 
    type Internal_State is record
-      Remaining  : Stream_Element_Offset := -1;
-      Kind       : Kind_Type := Unknown;
-      Close_Sent : Boolean := False;
-      Errno      : Interfaces.Unsigned_16 := Interfaces.Unsigned_16'Last;
+      Kind  : Kind_Type := Unknown;
+      Errno : Interfaces.Unsigned_16 := Interfaces.Unsigned_16'Last;
    end record;
 
    type Internal_State_Access is access Internal_State;
 
-   type Send_Callback is access procedure
-     (Socket : Object;
-      Data   : Stream_Element_Array);
-
-   type Receive_Callback is access procedure
-     (Socket : Object;
-      Data   : out Stream_Element_Array;
-      Last   : out Stream_Element_Offset);
+   type Protocol_State;
+   type Protocol_State_Access is access Protocol_State;
 
    type Object is new Net.Socket_Type with record
-      Socket     : Net.Socket_Access;
-      Request    : AWS.Status.Data;
-      Version    : Natural;
-      Send_CB    : Send_Callback;
-      Receive_CB : Receive_Callback;
-      State      : Internal_State_Access;
+      Socket  : Net.Socket_Access;
+      Request : AWS.Status.Data;
+      Version : Natural;
+      State   : Internal_State_Access;
+      P_State : Protocol_State_Access;
    end record;
 
    --  Routines read/write from a WebSocket, this handles the WebSocket
@@ -229,12 +232,11 @@ private
    No_Object : constant Object'Class :=
                  Object'
                    (Net.Socket_Type with
-                    Socket      => null,
-                    Request     => <>,
-                    Version     => 0,
-                    Send_CB     => null,
-                    Receive_CB  => null,
-                    State       => null);
+                    Socket  => null,
+                    Request => <>,
+                    Version => 0,
+                    State   => null,
+                    P_State => null);
 
    --  Error codes corresponding to all errors
 
