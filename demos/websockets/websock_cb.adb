@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                        Copyright (C) 2012, AdaCore                       --
+--                     Copyright (C) 2012-2013, AdaCore                     --
 --                                                                          --
 --  This is free software;  you can redistribute it  and/or modify it       --
 --  under terms of the  GNU General Public License as published  by the     --
@@ -111,7 +111,10 @@ package body WebSock_CB is
    -- Send --
    ----------
 
-   overriding procedure Send (Socket : in out Object; Message : String) is
+   overriding procedure Send
+     (Socket : in out Object; Message : String; Is_Binary : Boolean := False)
+   is
+      pragma Unreferenced (Is_Binary);
    begin
       --  This implementation just adds a counter after the message
       Socket.C := Socket.C + 1;

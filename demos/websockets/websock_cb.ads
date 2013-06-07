@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                        Copyright (C) 2012, AdaCore                       --
+--                     Copyright (C) 2012-2013, AdaCore                     --
 --                                                                          --
 --  This is free software;  you can redistribute it  and/or modify it       --
 --  under terms of the  GNU General Public License as published  by the     --
@@ -57,7 +57,8 @@ package WebSock_CB is
    overriding procedure On_Close (Socket : in out Object; Message : String);
    --  Close event received from the server
 
-   overriding procedure Send (Socket : in out Object; Message : String);
+   overriding procedure Send
+     (Socket : in out Object; Message : String; Is_Binary : Boolean := False);
    --  Send a message to the server
 
 private
