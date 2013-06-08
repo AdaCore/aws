@@ -104,7 +104,8 @@ package AWS.Net.WebSocket is
      (Socket    : in out Object;
       Message   : String;
       Is_Binary : Boolean := False);
-   --  This default implementation just send a message to the client
+   --  This default implementation just send a message to the client. The
+   --  message is sent in a single chunk (not fragmented).
 
    procedure Send
      (Socket    : in out Object;
