@@ -224,6 +224,15 @@ package body AWS.Net.WebSocket is
       return Socket.State.Kind;
    end Kind;
 
+   ----------------
+   -- On_Message --
+   ----------------
+
+   procedure On_Message (Socket : in out Object; Message : Unbounded_String) is
+   begin
+      On_Message (Object'Class (Socket), To_String (Message));
+   end On_Message;
+
    ------------
    -- Origin --
    ------------
