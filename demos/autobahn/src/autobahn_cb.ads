@@ -17,6 +17,7 @@
 ------------------------------------------------------------------------------
 
 with Ada.Streams;
+with Ada.Strings.Unbounded;
 
 with AWS.Net.Log;
 with AWS.Response;
@@ -27,6 +28,7 @@ with AWS.Net.WebSocket;
 package Autobahn_CB is
 
    use Ada.Streams;
+   use Ada.Strings.Unbounded;
    use AWS;
 
    function HW_CB (Request : Status.Data) return Response.Data;
@@ -43,7 +45,8 @@ package Autobahn_CB is
      (Socket  : Net.Socket_Access;
       Request : Status.Data) return Net.WebSocket.Object'Class;
 
-   overriding procedure On_Message (Socket : in out Object; Message : String);
+   overriding procedure On_Message
+     (Socket : in out Object; Message : Unbounded_String);
    overriding procedure On_Open (Socket : in out Object; Message : String);
    overriding procedure On_Close (Socket : in out Object; Message : String);
    overriding procedure On_Error (Socket : in out Object; Message : String);

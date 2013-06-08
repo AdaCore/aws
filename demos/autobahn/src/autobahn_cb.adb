@@ -61,7 +61,7 @@ package body Autobahn_CB is
    ----------------
 
    overriding procedure On_Message
-     (Socket : in out Object; Message : String) is
+     (Socket : in out Object; Message : Unbounded_String) is
    begin
       Socket.Send (Message, Is_Binary => Socket.Kind = Net.WebSocket.Binary);
    end On_Message;
