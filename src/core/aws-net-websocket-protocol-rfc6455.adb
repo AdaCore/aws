@@ -99,6 +99,12 @@ package body AWS.Net.WebSocket.Protocol.RFC6455 is
       Data     : Stream_Element_Array);
    --  Send the frame (header + data)
 
+   function Is_Library_Error (Code : Interfaces.Unsigned_16) return Boolean;
+   --  Returns True if Code is a valid library error code
+
+   function Is_Valid_Close_Code (Error : Error_Type) return Boolean;
+   --  Returns True if the Error code is valid
+
    --------------------
    -- End_Of_Message --
    --------------------
@@ -107,6 +113,32 @@ package body AWS.Net.WebSocket.Protocol.RFC6455 is
    begin
       return Protocol.Remaining = 0 and then Protocol.Last_Fragment;
    end End_Of_Message;
+
+   --------------------
+   -- Is_Error_Valid --
+   --------------------
+
+   function Is_Library_Error (Code : Interfaces.Unsigned_16) return Boolean is
+   begin
+      return Code in 3000 .. 4999;
+   end Is_Library_Error;
+
+   -------------------------
+   -- Is_Valid_Close_Code --
+   -------------------------
+
+   function Is_Valid_Close_Code (Error : Error_Type) return Boolean is
+   begin
+      case Error is
+         when Normal_Closure | Going_Away | Protocol_Error | Unsupported_Data
+           | Invalid_Frame_Payload_Data .. Internal_Server_Error
+           =>
+            return True;
+
+         when others =>
+            return False;
+      end case;
+   end Is_Valid_Close_Code;
 
    -------------
    -- Receive --
@@ -304,41 +336,68 @@ package body AWS.Net.WebSocket.Protocol.RFC6455 is
          when O_Connection_Close =>
             Read_Payload (L_State, To_Read);
 
-            --  Check the error code if any
+            --  A control frame must not be fragmented and have max 125
+            --  bytes payload.
 
-            if Last - Data'First >= 1 then
-               --  The first two bytes are the status code
-               declare
-                  D : Stream_Element_Array (1 .. 2) :=
-                        Data (Data'First .. Data'First + 1);
-                  E : Interfaces.Unsigned_16;
-                  for E'Address use D'Address;
-               begin
-                  if Default_Bit_Order = Low_Order_First then
-                     Byte_Swapping.Swap2 (E'Address);
-                  end if;
-                  Socket.State.Errno := E;
-               end;
+            if Header.Payload_Length <= 125 and then Header.FIN = 1 then
 
-               --  Remove the status code from the returned message
+               --  Check the error code if any
 
-               Data (Data'First .. Last - 2) := Data (Data'First + 2 .. Last);
-               Last := Last - 2;
+               if Last - Data'First >= 1 then
+                  --  The first two bytes are the status code
+                  declare
+                     D : Stream_Element_Array (1 .. 2) :=
+                           Data (Data'First .. Data'First + 1);
+                     E : Interfaces.Unsigned_16;
+                     for E'Address use D'Address;
+                  begin
+                     if Default_Bit_Order = Low_Order_First then
+                        Byte_Swapping.Swap2 (E'Address);
+                     end if;
+                     Socket.State.Errno := E;
+
+                     --  If we have a wrong code this is a Protocol_Error
+
+                     if Is_Library_Error (E)
+                       or else Is_Valid_Close_Code (Error (Socket))
+                     then
+                        E := Error_Code (Normal_Closure);
+                     else
+                        E := Error_Code (Protocol_Error);
+                     end if;
+
+                     --  Set back Errno
+
+                     Socket.State.Errno := E;
+
+                     if Default_Bit_Order = Low_Order_First then
+                        Byte_Swapping.Swap2 (E'Address);
+                     end if;
+
+                     --  And set the new error code in the payload
+
+                     Data (Data'First .. Data'First + 1) := D;
+                  end;
+               end if;
+
+               --  If needed send a close frame
+
+               if not Protocol.Close_Sent then
+                  Protocol.Close_Sent := True;
+
+                  --  Just echo the status code we received as per RFC
+
+                  Send_Frame
+                    (Protocol,
+                     Socket, O_Connection_Close, Data (Data'First .. Last));
+               end if;
+
+               Socket.State.Kind := Connection_Close;
+
+            else
+               Socket.State.Kind := Unknown;
+               Socket.Shutdown;
             end if;
-
-            --  If needed send a close frame
-
-            if not Protocol.Close_Sent then
-               Protocol.Close_Sent := True;
-
-               --  Just echo the status code we received as per RFC
-
-               Send_Frame
-                 (Protocol,
-                  Socket, O_Connection_Close, Data (Data'First .. Last));
-            end if;
-
-            Socket.State.Kind := Connection_Close;
 
          when O_Ping =>
             Socket.State.Kind := Ping;
