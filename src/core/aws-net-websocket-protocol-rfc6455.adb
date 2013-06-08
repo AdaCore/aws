@@ -85,12 +85,19 @@ package body AWS.Net.WebSocket.Protocol.RFC6455 is
 
    pragma Warnings (On);
 
-   procedure Send
+   procedure Send_Frame_Header
+     (Protocol    : in out State;
+      Socket      : Object;
+      Opcd        : Opcode;
+      Data_Length : Stream_Element_Offset);
+   --  Send the frame header only
+
+   procedure Send_Frame
      (Protocol : in out State;
       Socket   : Object;
       Opcd     : Opcode;
       Data     : Stream_Element_Array);
-   --  Internal version
+   --  Send the frame (header + data)
 
    --------------------
    -- End_Of_Message --
@@ -326,7 +333,7 @@ package body AWS.Net.WebSocket.Protocol.RFC6455 is
 
                --  Just echo the status code we received as per RFC
 
-               Send
+               Send_Frame
                  (Protocol,
                   Socket, O_Connection_Close, Data (Data'First .. Last));
             end if;
@@ -341,7 +348,8 @@ package body AWS.Net.WebSocket.Protocol.RFC6455 is
             --  message must not be fragmented.
 
             if Header.Payload_Length <= 125 and then Header.FIN = 1 then
-               Send (Protocol, Socket, O_Pong, Data (Data'First .. Last));
+               Send_Frame
+                 (Protocol, Socket, O_Pong, Data (Data'First .. Last));
             else
                Socket.State.Kind := Unknown;
                Socket.Shutdown;
@@ -376,11 +384,52 @@ package body AWS.Net.WebSocket.Protocol.RFC6455 is
    -- Send --
    ----------
 
-   procedure Send
+   overriding procedure Send
+     (Protocol : in out State;
+      Socket   : Object;
+      Data     : Stream_Element_Array) is
+   begin
+      if Socket.State.Kind = Text then
+         Send_Frame_Header (Protocol, Socket, O_Text, Data'Length);
+      else
+         Send_Frame_Header (Protocol, Socket, O_Binary, Data'Length);
+      end if;
+
+      --  Send payload
+
+      Net.Buffered.Write (Socket, Data);
+
+      Net.Buffered.Flush (Socket);
+   end Send;
+
+   ----------------
+   -- Send_Frame --
+   ----------------
+
+   procedure Send_Frame
      (Protocol : in out State;
       Socket   : Object;
       Opcd     : Opcode;
-      Data     : Stream_Element_Array)
+      Data     : Stream_Element_Array) is
+   begin
+      Send_Frame_Header (Protocol, Socket, Opcd, Data'Length);
+
+      --  Send payload
+
+      Net.Buffered.Write (Socket, Data);
+
+      Net.Buffered.Flush (Socket);
+   end Send_Frame;
+
+   -----------------------
+   -- Send_Frame_Header --
+   -----------------------
+
+   procedure Send_Frame_Header
+     (Protocol    : in out State;
+      Socket      : Object;
+      Opcd        : Opcode;
+      Data_Length : Stream_Element_Offset)
    is
       pragma Unreferenced (Protocol);
       use GNAT;
@@ -415,12 +464,12 @@ package body AWS.Net.WebSocket.Protocol.RFC6455 is
       --  otherwise The actual length is in the 8 following bytes
       --            and set payload length to 127
 
-      if Data'Length <= 125 then
-         Header.Payload_Length := Data'Length;
+      if Data_Length <= 125 then
+         Header.Payload_Length := Integer (Data_Length);
 
-      elsif Data'Length <= 65535 then
+      elsif Data_Length <= 65535 then
          Header.Payload_Length := 126;
-         L_16 := Data'Length;
+         L_16 := Interfaces.Unsigned_16 (Data_Length);
 
          if Default_Bit_Order = Low_Order_First then
             Byte_Swapping.Swap2 (L_16'Address);
@@ -428,7 +477,7 @@ package body AWS.Net.WebSocket.Protocol.RFC6455 is
 
       else
          Header.Payload_Length := 127;
-         L_64 := Data'Length;
+         L_64 := Interfaces.Unsigned_64 (Data_Length);
 
          if Default_Bit_Order = Low_Order_First then
             Byte_Swapping.Swap8 (L_64'Address);
@@ -441,32 +490,14 @@ package body AWS.Net.WebSocket.Protocol.RFC6455 is
 
       --  Send extended length if any
 
-      if Data'Length <= 125 then
+      if Data_Length <= 125 then
          null;
-      elsif Data'Length <= 65535 then
+      elsif Data_Length <= 65535 then
          Net.Buffered.Write (Socket, D_16);
       else
          Net.Buffered.Write (Socket, D_64);
       end if;
-
-      --  Send payload
-
-      Net.Buffered.Write (Socket, Data);
-
-      Net.Buffered.Flush (Socket);
-   end Send;
-
-   overriding procedure Send
-     (Protocol : in out State;
-      Socket   : Object;
-      Data     : Stream_Element_Array) is
-   begin
-      if Socket.State.Kind = Text then
-         Send (Protocol, Socket, O_Text, Data);
-      else
-         Send (Protocol, Socket, O_Binary, Data);
-      end if;
-   end Send;
+   end Send_Frame_Header;
 
    -----------------
    -- Send_Header --
