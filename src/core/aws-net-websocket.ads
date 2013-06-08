@@ -109,6 +109,13 @@ package AWS.Net.WebSocket is
 
    procedure Send
      (Socket    : in out Object;
+      Message   : Unbounded_String;
+      Is_Binary : Boolean := False);
+   --  Same as above but can be used for large messages. The message is
+   --  possibly sent fragmented.
+
+   procedure Send
+     (Socket    : in out Object;
       Message   : Stream_Element_Array;
       Is_Binary : Boolean := True);
    --  As above but default is a binary message

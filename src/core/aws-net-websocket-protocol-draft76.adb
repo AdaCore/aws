@@ -38,6 +38,7 @@ with GNAT.MD5;
 with AWS.Headers;
 with AWS.Messages;
 with AWS.Net.Buffered;
+with AWS.Translator;
 
 package body AWS.Net.WebSocket.Protocol.Draft76 is
 
@@ -113,6 +114,16 @@ package body AWS.Net.WebSocket.Protocol.Draft76 is
 
       Net.Buffered.Write (Socket, D_Footer);
       Net.Buffered.Flush (Socket);
+   end Send;
+
+   overriding procedure Send
+     (Protocol : in out State;
+      Socket   : Object;
+      Data     : Unbounded_String) is
+   begin
+      Send
+        (Protocol, Socket,
+         Translator.To_Stream_Element_Array (To_String (Data)));
    end Send;
 
    -----------------

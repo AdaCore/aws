@@ -324,6 +324,23 @@ package body AWS.Net.WebSocket is
 
    procedure Send
      (Socket    : in out Object;
+      Message   : Unbounded_String;
+      Is_Binary : Boolean := False) is
+   begin
+      if Is_Binary then
+         Socket.State.Kind := Binary;
+      else
+         Socket.State.Kind := Text;
+      end if;
+
+      Socket.P_State.State.Send (Socket, Message);
+   exception
+      when E : others =>
+         Socket.On_Error (Exception_Message (E));
+   end Send;
+
+   procedure Send
+     (Socket    : in out Object;
       Message   : Stream_Element_Array;
       Is_Binary : Boolean := True) is
    begin

@@ -387,6 +387,38 @@ package body AWS.Net.WebSocket.Protocol.RFC6455 is
    overriding procedure Send
      (Protocol : in out State;
       Socket   : Object;
+      Data     : Unbounded_String)
+   is
+      Chunk_Size : constant Positive := 4_096;
+      First      : Positive := 1;
+      Last       : Natural;
+   begin
+      if Socket.State.Kind = Text then
+         Send_Frame_Header
+           (Protocol, Socket, O_Text, Stream_Element_Offset (Length (Data)));
+      else
+         Send_Frame_Header
+           (Protocol, Socket, O_Binary, Stream_Element_Offset (Length (Data)));
+      end if;
+
+      Send_Data : loop
+         Last := Positive'Min (Length (Data), First + Chunk_Size - 1);
+
+         Net.Buffered.Write
+           (Socket,
+            Translator.To_Stream_Element_Array (Slice (Data, First, Last)));
+
+         exit Send_Data when Last = Length (Data);
+
+         First := Last + 1;
+      end loop Send_Data;
+
+      Net.Buffered.Flush (Socket);
+   end Send;
+
+   overriding procedure Send
+     (Protocol : in out State;
+      Socket   : Object;
       Data     : Stream_Element_Array) is
    begin
       if Socket.State.Kind = Text then
