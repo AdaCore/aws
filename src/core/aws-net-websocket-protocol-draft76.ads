@@ -40,6 +40,13 @@ package AWS.Net.WebSocket.Protocol.Draft76 is
       Data     : Stream_Element_Array);
    --  Encode and send data to the WebSocket
 
+   overriding procedure Send
+     (Protocol : in out State;
+      Socket   : Object;
+      Data     : Unbounded_String);
+   --  Same as above but for an Unbounded_String. This version supports large
+   --  messages possibly sent fragmented.
+
    overriding procedure Receive
      (Protocol : in out State;
       Socket   : Object;

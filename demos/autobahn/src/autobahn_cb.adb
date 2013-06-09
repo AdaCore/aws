@@ -43,6 +43,7 @@ package body Autobahn_CB is
    -----------
 
    function HW_CB (Request : Status.Data) return Response.Data is
+      pragma Unreferenced (Request);
    begin
       return Response.Build ("text/html", "<html><body></body></html>");
    end HW_CB;
@@ -52,6 +53,7 @@ package body Autobahn_CB is
    -------------
 
    overriding procedure On_Open (Socket : in out Object; Message : String) is
+      pragma Unreferenced (Socket);
    begin
       Text_IO.Put_Line ("On_Open : " & Message);
    end On_Open;
@@ -61,7 +63,7 @@ package body Autobahn_CB is
    ----------------
 
    overriding procedure On_Message
-     (Socket : in out Object; Message : String) is
+     (Socket : in out Object; Message : Unbounded_String) is
    begin
       Socket.Send (Message, Is_Binary => Socket.Kind = Net.WebSocket.Binary);
    end On_Message;
@@ -98,6 +100,8 @@ package body Autobahn_CB is
       Data      : Stream_Element_Array;
       Last      : Stream_Element_Offset)
    is
+      pragma Unreferenced (Socket);
+
       Max : constant := 6;
       Str : String (1 .. Max);
       I   : Natural := Str'First - 1;

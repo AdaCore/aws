@@ -224,6 +224,15 @@ package body AWS.Net.WebSocket is
       return Socket.State.Kind;
    end Kind;
 
+   ----------------
+   -- On_Message --
+   ----------------
+
+   procedure On_Message (Socket : in out Object; Message : Unbounded_String) is
+   begin
+      On_Message (Object'Class (Socket), To_String (Message));
+   end On_Message;
+
    ------------
    -- Origin --
    ------------
@@ -308,6 +317,23 @@ package body AWS.Net.WebSocket is
 
       Socket.P_State.State.Send
         (Socket, Translator.To_Stream_Element_Array (Message));
+   exception
+      when E : others =>
+         Socket.On_Error (Exception_Message (E));
+   end Send;
+
+   procedure Send
+     (Socket    : in out Object;
+      Message   : Unbounded_String;
+      Is_Binary : Boolean := False) is
+   begin
+      if Is_Binary then
+         Socket.State.Kind := Binary;
+      else
+         Socket.State.Kind := Text;
+      end if;
+
+      Socket.P_State.State.Send (Socket, Message);
    exception
       when E : others =>
          Socket.On_Error (Exception_Message (E));

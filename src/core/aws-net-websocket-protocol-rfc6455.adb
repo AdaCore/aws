@@ -85,12 +85,25 @@ package body AWS.Net.WebSocket.Protocol.RFC6455 is
 
    pragma Warnings (On);
 
-   procedure Send
+   procedure Send_Frame_Header
+     (Protocol    : in out State;
+      Socket      : Object;
+      Opcd        : Opcode;
+      Data_Length : Stream_Element_Offset);
+   --  Send the frame header only
+
+   procedure Send_Frame
      (Protocol : in out State;
       Socket   : Object;
       Opcd     : Opcode;
       Data     : Stream_Element_Array);
-   --  Internal version
+   --  Send the frame (header + data)
+
+   function Is_Library_Error (Code : Interfaces.Unsigned_16) return Boolean;
+   --  Returns True if Code is a valid library error code
+
+   function Is_Valid_Close_Code (Error : Error_Type) return Boolean;
+   --  Returns True if the Error code is valid
 
    --------------------
    -- End_Of_Message --
@@ -100,6 +113,32 @@ package body AWS.Net.WebSocket.Protocol.RFC6455 is
    begin
       return Protocol.Remaining = 0 and then Protocol.Last_Fragment;
    end End_Of_Message;
+
+   --------------------
+   -- Is_Error_Valid --
+   --------------------
+
+   function Is_Library_Error (Code : Interfaces.Unsigned_16) return Boolean is
+   begin
+      return Code in 3000 .. 4999;
+   end Is_Library_Error;
+
+   -------------------------
+   -- Is_Valid_Close_Code --
+   -------------------------
+
+   function Is_Valid_Close_Code (Error : Error_Type) return Boolean is
+   begin
+      case Error is
+         when Normal_Closure | Going_Away | Protocol_Error | Unsupported_Data
+           | Invalid_Frame_Payload_Data .. Internal_Server_Error
+           =>
+            return True;
+
+         when others =>
+            return False;
+      end case;
+   end Is_Valid_Close_Code;
 
    -------------
    -- Receive --
@@ -297,41 +336,68 @@ package body AWS.Net.WebSocket.Protocol.RFC6455 is
          when O_Connection_Close =>
             Read_Payload (L_State, To_Read);
 
-            --  Check the error code if any
+            --  A control frame must not be fragmented and have max 125
+            --  bytes payload.
 
-            if Last - Data'First >= 1 then
-               --  The first two bytes are the status code
-               declare
-                  D : Stream_Element_Array (1 .. 2) :=
-                        Data (Data'First .. Data'First + 1);
-                  E : Interfaces.Unsigned_16;
-                  for E'Address use D'Address;
-               begin
-                  if Default_Bit_Order = Low_Order_First then
-                     Byte_Swapping.Swap2 (E'Address);
-                  end if;
-                  Socket.State.Errno := E;
-               end;
+            if Header.Payload_Length <= 125 and then Header.FIN = 1 then
 
-               --  Remove the status code from the returned message
+               --  Check the error code if any
 
-               Data (Data'First .. Last - 2) := Data (Data'First + 2 .. Last);
-               Last := Last - 2;
+               if Last - Data'First >= 1 then
+                  --  The first two bytes are the status code
+                  declare
+                     D : Stream_Element_Array (1 .. 2) :=
+                           Data (Data'First .. Data'First + 1);
+                     E : Interfaces.Unsigned_16;
+                     for E'Address use D'Address;
+                  begin
+                     if Default_Bit_Order = Low_Order_First then
+                        Byte_Swapping.Swap2 (E'Address);
+                     end if;
+                     Socket.State.Errno := E;
+
+                     --  If we have a wrong code this is a Protocol_Error
+
+                     if Is_Library_Error (E)
+                       or else Is_Valid_Close_Code (Error (Socket))
+                     then
+                        E := Error_Code (Normal_Closure);
+                     else
+                        E := Error_Code (Protocol_Error);
+                     end if;
+
+                     --  Set back Errno
+
+                     Socket.State.Errno := E;
+
+                     if Default_Bit_Order = Low_Order_First then
+                        Byte_Swapping.Swap2 (E'Address);
+                     end if;
+
+                     --  And set the new error code in the payload
+
+                     Data (Data'First .. Data'First + 1) := D;
+                  end;
+               end if;
+
+               --  If needed send a close frame
+
+               if not Protocol.Close_Sent then
+                  Protocol.Close_Sent := True;
+
+                  --  Just echo the status code we received as per RFC
+
+                  Send_Frame
+                    (Protocol,
+                     Socket, O_Connection_Close, Data (Data'First .. Last));
+               end if;
+
+               Socket.State.Kind := Connection_Close;
+
+            else
+               Socket.State.Kind := Unknown;
+               Socket.Shutdown;
             end if;
-
-            --  If needed send a close frame
-
-            if not Protocol.Close_Sent then
-               Protocol.Close_Sent := True;
-
-               --  Just echo the status code we received as per RFC
-
-               Send
-                 (Protocol,
-                  Socket, O_Connection_Close, Data (Data'First .. Last));
-            end if;
-
-            Socket.State.Kind := Connection_Close;
 
          when O_Ping =>
             Socket.State.Kind := Ping;
@@ -341,7 +407,8 @@ package body AWS.Net.WebSocket.Protocol.RFC6455 is
             --  message must not be fragmented.
 
             if Header.Payload_Length <= 125 and then Header.FIN = 1 then
-               Send (Protocol, Socket, O_Pong, Data (Data'First .. Last));
+               Send_Frame
+                 (Protocol, Socket, O_Pong, Data (Data'First .. Last));
             else
                Socket.State.Kind := Unknown;
                Socket.Shutdown;
@@ -376,11 +443,84 @@ package body AWS.Net.WebSocket.Protocol.RFC6455 is
    -- Send --
    ----------
 
-   procedure Send
+   overriding procedure Send
+     (Protocol : in out State;
+      Socket   : Object;
+      Data     : Unbounded_String)
+   is
+      Chunk_Size : constant Positive := 4_096;
+      First      : Positive := 1;
+      Last       : Natural;
+   begin
+      if Socket.State.Kind = Text then
+         Send_Frame_Header
+           (Protocol, Socket, O_Text, Stream_Element_Offset (Length (Data)));
+      else
+         Send_Frame_Header
+           (Protocol, Socket, O_Binary, Stream_Element_Offset (Length (Data)));
+      end if;
+
+      Send_Data : loop
+         Last := Positive'Min (Length (Data), First + Chunk_Size - 1);
+
+         Net.Buffered.Write
+           (Socket,
+            Translator.To_Stream_Element_Array (Slice (Data, First, Last)));
+
+         exit Send_Data when Last = Length (Data);
+
+         First := Last + 1;
+      end loop Send_Data;
+
+      Net.Buffered.Flush (Socket);
+   end Send;
+
+   overriding procedure Send
+     (Protocol : in out State;
+      Socket   : Object;
+      Data     : Stream_Element_Array) is
+   begin
+      if Socket.State.Kind = Text then
+         Send_Frame_Header (Protocol, Socket, O_Text, Data'Length);
+      else
+         Send_Frame_Header (Protocol, Socket, O_Binary, Data'Length);
+      end if;
+
+      --  Send payload
+
+      Net.Buffered.Write (Socket, Data);
+
+      Net.Buffered.Flush (Socket);
+   end Send;
+
+   ----------------
+   -- Send_Frame --
+   ----------------
+
+   procedure Send_Frame
      (Protocol : in out State;
       Socket   : Object;
       Opcd     : Opcode;
-      Data     : Stream_Element_Array)
+      Data     : Stream_Element_Array) is
+   begin
+      Send_Frame_Header (Protocol, Socket, Opcd, Data'Length);
+
+      --  Send payload
+
+      Net.Buffered.Write (Socket, Data);
+
+      Net.Buffered.Flush (Socket);
+   end Send_Frame;
+
+   -----------------------
+   -- Send_Frame_Header --
+   -----------------------
+
+   procedure Send_Frame_Header
+     (Protocol    : in out State;
+      Socket      : Object;
+      Opcd        : Opcode;
+      Data_Length : Stream_Element_Offset)
    is
       pragma Unreferenced (Protocol);
       use GNAT;
@@ -415,12 +555,12 @@ package body AWS.Net.WebSocket.Protocol.RFC6455 is
       --  otherwise The actual length is in the 8 following bytes
       --            and set payload length to 127
 
-      if Data'Length <= 125 then
-         Header.Payload_Length := Data'Length;
+      if Data_Length <= 125 then
+         Header.Payload_Length := Integer (Data_Length);
 
-      elsif Data'Length <= 65535 then
+      elsif Data_Length <= 65535 then
          Header.Payload_Length := 126;
-         L_16 := Data'Length;
+         L_16 := Interfaces.Unsigned_16 (Data_Length);
 
          if Default_Bit_Order = Low_Order_First then
             Byte_Swapping.Swap2 (L_16'Address);
@@ -428,7 +568,7 @@ package body AWS.Net.WebSocket.Protocol.RFC6455 is
 
       else
          Header.Payload_Length := 127;
-         L_64 := Data'Length;
+         L_64 := Interfaces.Unsigned_64 (Data_Length);
 
          if Default_Bit_Order = Low_Order_First then
             Byte_Swapping.Swap8 (L_64'Address);
@@ -441,32 +581,14 @@ package body AWS.Net.WebSocket.Protocol.RFC6455 is
 
       --  Send extended length if any
 
-      if Data'Length <= 125 then
+      if Data_Length <= 125 then
          null;
-      elsif Data'Length <= 65535 then
+      elsif Data_Length <= 65535 then
          Net.Buffered.Write (Socket, D_16);
       else
          Net.Buffered.Write (Socket, D_64);
       end if;
-
-      --  Send payload
-
-      Net.Buffered.Write (Socket, Data);
-
-      Net.Buffered.Flush (Socket);
-   end Send;
-
-   overriding procedure Send
-     (Protocol : in out State;
-      Socket   : Object;
-      Data     : Stream_Element_Array) is
-   begin
-      if Socket.State.Kind = Text then
-         Send (Protocol, Socket, O_Text, Data);
-      else
-         Send (Protocol, Socket, O_Binary, Data);
-      end if;
-   end Send;
+   end Send_Frame_Header;
 
    -----------------
    -- Send_Header --

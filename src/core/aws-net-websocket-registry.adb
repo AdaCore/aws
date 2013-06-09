@@ -252,7 +252,7 @@ package body AWS.Net.WebSocket.Registry is
                         Translator.To_String (Data (Data'First .. Last)));
 
                      if WebSocket.End_Of_Message then
-                        WebSocket.On_Message (To_String (Message));
+                        WebSocket.On_Message (Message);
                         DB.Watch (WebSocket);
                         exit Read_Message;
                      end if;

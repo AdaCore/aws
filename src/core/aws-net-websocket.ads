@@ -29,11 +29,14 @@
 
 --  This implements the WebSocket protocol as defined in RFC-6455
 
+with Ada.Strings.Unbounded;
 with AWS.Status;
 
 private with Interfaces;
 
 package AWS.Net.WebSocket is
+
+   use Ada.Strings.Unbounded;
 
    type Object is new Net.Socket_Type with private;
    type Object_Class is access all Object'Class;
@@ -79,6 +82,15 @@ package AWS.Net.WebSocket is
    --  So the code inside this routine should be small and most importantly not
    --  wait for an event to occur otherwise other requests won't be served.
 
+   procedure On_Message (Socket : in out Object; Message : Unbounded_String);
+   --  Same a above but takes an Unbounded_String. This is supposed to be
+   --  overriden when handling large messages otherwise a stack-overflow could
+   --  be raised. The default implementation of this procedure to to call the
+   --  On_Message above with a string.
+   --
+   --  So either this version is overriden to handle the incoming messages or
+   --  the one above if the messages are known to be small.
+
    procedure On_Open (Socket : in out Object; Message : String) is null;
    --  As above but activated when a WebSocket is opened
 
@@ -92,7 +104,15 @@ package AWS.Net.WebSocket is
      (Socket    : in out Object;
       Message   : String;
       Is_Binary : Boolean := False);
-   --  This default implementation just send a message to the client
+   --  This default implementation just send a message to the client. The
+   --  message is sent in a single chunk (not fragmented).
+
+   procedure Send
+     (Socket    : in out Object;
+      Message   : Unbounded_String;
+      Is_Binary : Boolean := False);
+   --  Same as above but can be used for large messages. The message is
+   --  possibly sent fragmented.
 
    procedure Send
      (Socket    : in out Object;

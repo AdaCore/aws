@@ -40,6 +40,13 @@ package AWS.Net.WebSocket.Protocol is
       Data     : Stream_Element_Array) is abstract;
    --  Encode and send data to the WebSocket
 
+   procedure Send
+     (Protocol : in out State;
+      Socket   : Object;
+      Data     : Unbounded_String) is abstract;
+   --  Same as above but for an Unbounded_String. This version supports large
+   --  messages possibly sent fragmented.
+
    procedure Receive
      (Protocol : in out State;
       Socket   : Object;
