@@ -94,8 +94,8 @@ package body WebSock_CB is
       --  We have received a message from the client, echo this message
 
       Socket.Send
-        (Templates.Parse
-           ("echo.xml", (1 => Templates.ASSOC ("MESSAGE", Message))));
+        (String'(Templates.Parse
+                   ("echo.xml", (1 => Templates.ASSOC ("MESSAGE", Message)))));
    end On_Message;
 
    -------------
