@@ -29,9 +29,6 @@
 
 with Ada.Containers.Indefinite_Ordered_Maps;
 with Ada.Containers.Ordered_Sets;
-with Ada.Exceptions;
-with Ada.Streams;
-with Ada.Strings.Unbounded;
 with Ada.Unchecked_Deallocation;
 
 with AWS.Config;
@@ -42,12 +39,7 @@ with AWS.Utils;
 
 package body AWS.Net.WebSocket.Registry is
 
-   use Ada;
-   use Ada.Exceptions;
-   use Ada.Streams;
-   use Ada.Strings.Unbounded;
-
-   use AWS;
+   use GNAT;
 
    --  Containers for all registered constructors
 
@@ -252,8 +244,20 @@ package body AWS.Net.WebSocket.Registry is
                         Translator.To_String (Data (Data'First .. Last)));
 
                      if WebSocket.End_Of_Message then
-                        WebSocket.On_Message (Message);
-                        DB.Watch (WebSocket);
+
+                        --  Validate the message as being valid UTF-8 string
+
+                        if WebSocket.Kind = Text
+                          and then not Utils.Is_Valid_UTF8 (Message)
+                        then
+                           DB.Unregister (WebSocket);
+                           WebSocket.Shutdown;
+
+                        else
+                           WebSocket.On_Message (Message);
+                           DB.Watch (WebSocket);
+                        end if;
+
                         exit Read_Message;
                      end if;
 

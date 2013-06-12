@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2000-2012, AdaCore                     --
+--                     Copyright (C) 2000-2013, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -132,6 +132,12 @@ package AWS.Utils is
    pragma Inline (Match);
    --  Returns True if Pattern matches the begining of Str. The test is not
    --  case sensitive.
+
+   function Is_Valid_UTF8 (Value : String) return Boolean;
+   --  Returns True if Str is a valid UTF-8 sequence
+
+   function Is_Valid_UTF8 (Value : Unbounded_String) return Boolean;
+   --  Likewise for an unbounded string
 
    ---------------
    -- Semaphore --

@@ -358,8 +358,13 @@ package body AWS.Net.WebSocket.Protocol.RFC6455 is
 
                      --  If we have a wrong code this is a Protocol_Error
 
-                     if Is_Library_Error (E)
-                       or else Is_Valid_Close_Code (Error (Socket))
+                     if (Is_Library_Error (E)
+                         or else Is_Valid_Close_Code (Error (Socket)))
+                       and then
+                         --  A close message must be a valid UTF-8 string
+                         Utils.Is_Valid_UTF8
+                           (Translator.To_String
+                             (Data (Data'First + 2 .. Last)))
                      then
                         E := Error_Code (Normal_Closure);
                      else
