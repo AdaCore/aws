@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2000-2012, AdaCore                     --
+--                     Copyright (C) 2000-2013, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -37,6 +37,10 @@ with Ada.Strings.Fixed;
 with Ada.Strings.Maps.Constants;
 with Ada.Text_IO;
 
+pragma Warnings (Off);
+with Ada.Strings.Unbounded.Aux;
+pragma Warnings (On);
+
 with System;
 
 with AWS.OS_Lib;
@@ -56,6 +60,11 @@ package body AWS.Utils is
       Filename_Out : String);
    --  Compress or decompress (depending on the filter initialization)
    --  from Filename_In to Filename_Out.
+
+   function Is_Valid_UTF8
+     (Str : Aux.Big_String_Access; Last : Natural) return Boolean;
+   --  Returns True if the string pointed to by Str and terminating to Last
+   --  is well-formed UTF-8.
 
    Random_Generator : Integer_Random.Generator;
 
@@ -535,6 +544,158 @@ package body AWS.Utils is
       return Directories.Exists (Filename)
         and then Directories.Kind (Filename) = Directories.Ordinary_File;
    end Is_Regular_File;
+
+   -------------------
+   -- Is_Valid_UTF8 --
+   -------------------
+
+   function Is_Valid_UTF8
+     (Str : Aux.Big_String_Access; Last : Natural) return Boolean
+   is
+      --  Code points
+
+      subtype CP1 is Character
+        range Character'Val (16#00#) .. Character'Val (16#7F#);
+      subtype CP2 is Character
+        range Character'Val (16#C2#) .. Character'Val (16#DF#);
+      subtype CP3 is Character
+        range Character'Val (16#E0#) .. Character'Val (16#EF#);
+      subtype CP4 is Character
+        range Character'Val (16#F0#) .. Character'Val (16#F4#);
+
+      C80 : constant Character := Character'Val (16#80#);
+      C8F : constant Character := Character'Val (16#8F#);
+      C90 : constant Character := Character'Val (16#90#);
+      C9F : constant Character := Character'Val (16#9F#);
+      CA0 : constant Character := Character'Val (16#A0#);
+      CBF : constant Character := Character'Val (16#BF#);
+
+      procedure Read_C
+        (C              : in out Positive;
+         Res            : in out Boolean;
+         R_From, R_Last : Character);
+      pragma Inline (Read_C);
+      --  Read a single character, check that it is in the range
+      --  R_From .. R_Last and set Res accordingly. This routine moves C
+      --  to the next character then.
+
+      procedure Read_S2 (C : in out Positive; Res : in out Boolean);
+      pragma Inline (Read_S2);
+      --  Read an UTF-8 character with 2 bytes sequence
+
+      procedure Read_S3 (C : in out Positive; Res : in out Boolean);
+      pragma Inline (Read_S3);
+      --  Read an UTF-8 character with 3 bytes sequence
+
+      procedure Read_S4 (C : in out Positive; Res : in out Boolean);
+      pragma Inline (Read_S4);
+      --  Read an UTF-8 character with 4 bytes sequence
+
+      ------------
+      -- Read_C --
+      ------------
+
+      procedure Read_C
+        (C              : in out Positive;
+         Res            : in out Boolean;
+         R_From, R_Last : Character) is
+      begin
+         if Res
+           and then C < Last
+           and then Str (C + 1) in R_From .. R_Last
+         then
+            C := C + 1;
+            Res := True;
+
+         else
+            Res := False;
+         end if;
+      end Read_C;
+
+      -------------
+      -- Read_S2 --
+      -------------
+
+      procedure Read_S2 (C : in out Positive; Res : in out Boolean) is
+      begin
+         Read_C (C, Res, C80, CBF);
+      end Read_S2;
+
+      -------------
+      -- Read_S3 --
+      -------------
+
+      procedure Read_S3 (C : in out Positive; Res : in out Boolean) is
+         CE0 : constant Character := Character'Val (16#E0#);
+         CED : constant Character := Character'Val (16#ED#);
+      begin
+         case Str (C) is
+            when CE0 =>
+               Read_C (C, Res, CA0, CBF);
+            when CED =>
+               Read_C (C, Res, C80, C9F);
+            when others =>
+               Read_C (C, Res, C80, CBF);
+         end case;
+
+         Read_C (C, Res, C80, CBF);
+      end Read_S3;
+
+      -------------
+      -- Read_S4 --
+      -------------
+
+      procedure Read_S4 (C : in out Positive; Res : in out Boolean) is
+         CF0 : constant Character := Character'Val (16#F0#);
+         CF4 : constant Character := Character'Val (16#F4#);
+      begin
+         case Str (C) is
+            when CF0 =>
+               Read_C (C, Res, C90, CBF);
+            when CF4 =>
+               Read_C (C, Res, C80, C8F);
+            when others =>
+               Read_C (C, Res, C80, CBF);
+         end case;
+
+         Read_C (C, Res, C80, CBF);
+         Read_C (C, Res, C80, CBF);
+      end Read_S4;
+
+      C : Positive := 1;
+      R : Boolean := True;
+
+   begin
+      while R and then C <= Last loop
+         case Str (C) is
+            when CP1    => null;
+            when CP2    => Read_S2 (C, R);
+            when CP3    => Read_S3 (C, R);
+            when CP4    => Read_S4 (C, R);
+            when others => return False;
+         end case;
+
+         C := C + 1;
+      end loop;
+
+      return R;
+   end Is_Valid_UTF8;
+
+   function Is_Valid_UTF8 (Value : Unbounded_String) return Boolean is
+      Str  : Aux.Big_String_Access;
+      Last : Natural;
+   begin
+      Aux.Get_String (Value, Str, Last);
+      return Is_Valid_UTF8 (Str, Last);
+   end Is_Valid_UTF8;
+
+   function Is_Valid_UTF8 (Value : String) return Boolean is
+      X   : aliased Aux.Big_String;
+      for X'Address use Value'Address;
+      Str : constant Aux.Big_String_Access := X'Unchecked_Access;
+   begin
+      return Is_Valid_UTF8 (Str, Value'Last);
+   end Is_Valid_UTF8;
 
    ------------------
    -- Local_To_GMT --
