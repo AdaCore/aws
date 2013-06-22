@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2008-2012, AdaCore                     --
+--                     Copyright (C) 2008-2013, AdaCore                     --
 --                                                                          --
 --  This is free software;  you can redistribute it  and/or modify it       --
 --  under terms of the  GNU General Public License as published  by the     --
@@ -16,17 +16,17 @@
 --  to http://www.gnu.org/licenses for a complete copy of the license.      --
 ------------------------------------------------------------------------------
 
+with Ada.Exceptions;
 with Ada.Streams;
 with Ada.Strings.Fixed;
 with Ada.Text_IO;
-with Ada.Exceptions;
 
-with AWS.Log;
 with AWS.Client;
 with AWS.Config.Set;
 with AWS.Exceptions;
-with AWS.MIME;
+with AWS.Log;
 with AWS.Messages;
+with AWS.MIME;
 with AWS.Net;
 with AWS.Parameters;
 with AWS.Response;
