@@ -134,6 +134,7 @@ procedure Uplimit is
       Config.Set.Server_Port (Web_Config, 0);
       Config.Set.Upload_Directory (Web_Config, "./");
       Config.Set.Upload_Size_Limit (Web_Config, 11_000);
+      Config.Set.Max_Connection (Web_Config, 10);
 
       Server.Set_Unexpected_Exception_Handler
         (HTTP, Problem'Unrestricted_Access);
