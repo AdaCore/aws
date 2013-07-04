@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2000-2012, AdaCore                     --
+--                     Copyright (C) 2000-2013, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -143,7 +143,7 @@ package body AWS.SMTP.Client is
       Clear (Status);
 
       --  Open server
-      Sock := Net.Socket (Security => False);
+      Sock := Net.Socket (Security => Server.Secure);
 
       Sock.Connect
         (To_String (Server.Name), Server.Port, Family => Server.Family);

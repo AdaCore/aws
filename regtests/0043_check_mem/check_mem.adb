@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2003-2012, AdaCore                     --
+--                     Copyright (C) 2003-2013, AdaCore                     --
 --                                                                          --
 --  This is free software;  you can redistribute it  and/or modify it       --
 --  under terms of the  GNU General Public License as published  by the     --
@@ -37,6 +37,7 @@ with AWS.Server.Push;
 with AWS.Server.Status;
 with AWS.Session;
 with AWS.Services.Split_Pages;
+with AWS.SMTP.Client;
 with AWS.Status;
 with AWS.Templates;
 with AWS.Translator;
@@ -662,6 +663,47 @@ procedure Check_Mem is
 
    end Check_Reconnect;
 
+   ----------------
+   -- Check_SMTP --
+   ----------------
+
+   procedure Check_SMTP (Secure : Boolean) is
+      From      : AWS.SMTP.E_Mail_Data;
+      Recipient : AWS.SMTP.E_Mail_Data;
+      Server    : AWS.SMTP.Receiver;
+      Status    : AWS.SMTP.Status;
+
+      SMTP_Host : constant String := "bad_smtp_host";
+   begin
+      From := AWS.SMTP.E_Mail
+        (Name    => "Pascal Obry",
+         Address => "pascal@obry.net");
+
+      Recipient := AWS.SMTP.E_Mail
+        (Name    => "Somebody",
+         Address => "somebody@obry.net");
+
+      Server := AWS.SMTP.Client.Initialize
+        (Server_Name => SMTP_Host,
+         Secure      => Secure,
+         Port        => 25);
+
+      AWS.SMTP.Client.Send
+        (Server  => Server,
+         From    => From,
+         To      => Recipient,
+         Subject => "Test subject",
+         Message => "Test message",
+         Status  => Status);
+
+      if AWS.SMTP.Is_Ok (Status) then
+         Put_Line ("Status OK");
+      end if;
+   exception
+      when others =>
+         null;
+   end Check_SMTP;
+
    ------------------
    -- Check_Socket --
    ------------------
@@ -720,6 +762,8 @@ begin
       Check_Socket;
       Check_Reconnect (False);
       Check_Reconnect (True);
+      Check_SMTP (False);
+      Check_SMTP (True);
       Check_Server_Push;
    end loop;
 

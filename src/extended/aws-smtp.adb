@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2000-2012, AdaCore                     --
+--                     Copyright (C) 2000-2013, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -178,11 +178,12 @@ package body AWS.SMTP is
    function Initialize
      (Server_Name : String;
       Port        : Positive := Default_SMTP_Port;
+      Secure      : Boolean  := False;
       Family      : Net.Family_Type := Net.Family_Unspec;
       Credential  : access constant Authentication.Credential'Class := null)
       return Receiver is
    begin
-      return (Family, To_Unbounded_String (Server_Name), Port, null,
+      return (Family, To_Unbounded_String (Server_Name), Port, Secure, null,
               Credential);
    end Initialize;
 

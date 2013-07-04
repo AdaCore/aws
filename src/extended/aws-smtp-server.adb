@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2008-2012, AdaCore                     --
+--                     Copyright (C) 2008-2013, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -56,19 +56,26 @@ package body AWS.SMTP.Server is
 
    task body Mail_Handler is
       Message : Messages.Data;
-      Sock    : Net.Socket_Type'Class := Net.Socket (Security => False);
    begin
       accept Start;
 
-      loop
-         Net.Accept_Socket (Server.Host.Sock.all, Sock);
+      --  Server.Host.Secure could be used only after accept Start because
+      --  task created before Server.Host initialized.
 
-         Message := Get_Message (Sock);
+      declare
+         Sock : Net.Socket_Type'Class :=
+                  Net.Socket (Security => Server.Host.Secure);
+      begin
+         loop
+            AWS.Net.Accept_Socket (Server.Host.Sock.all, Sock);
 
-         Server.Action (Message);
+            Message := Get_Message (Sock);
 
-         Sock.Shutdown;
-      end loop;
+            Server.Action (Message);
+
+            Sock.Shutdown;
+         end loop;
+      end;
 
    exception
       when E : others =>
