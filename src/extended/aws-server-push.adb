@@ -1184,10 +1184,10 @@ package body AWS.Server.Push is
 
       begin
          Net.Buffered.Put_Line
-            (Holder.Socket.all,
-             "HTTP/1.1 200 OK" & New_Line
-               & "Server: AWS (Ada Web Server) v" & Version & New_Line
-               & Messages.Connection ("Close"));
+           (Holder.Socket.all,
+            "HTTP/1.1 200 OK" & New_Line
+            & "Server: AWS (Ada Web Server) v" & Version & New_Line
+            & Messages.Connection ("Close"));
 
          if Holder.Kind = Chunked then
             Net.Buffered.Put_Line
