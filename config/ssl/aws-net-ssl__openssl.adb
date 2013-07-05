@@ -594,6 +594,7 @@ package body AWS.Net.SSL is
                               TSSL.SSL_get_error (Socket.SSL, RC);
 
                Err_Code   : TSSL.Error_Code;
+               Err_No     : Integer;
 
                use type TSSL.Error_Code;
             begin
@@ -605,11 +606,20 @@ package body AWS.Net.SSL is
                      Socket_Write;
 
                   when TSSL.SSL_ERROR_SYSCALL =>
-                     Raise_Socket_Error
-                       (Socket,
-                        "System error ("
-                        & Utils.Image (Integer (OS_Lib.Socket_Errno))
-                        & ") on SSL send");
+                     Err_No := OS_Lib.Socket_Errno;
+
+                     if Err_No = 0 then
+                        Socket_Write;
+                        Last := Data'First - 1;
+
+                        return;
+
+                     else
+                        Raise_Socket_Error
+                          (Socket,
+                           "System error (" & Utils.Image (Err_No)
+                           & ") on SSL send");
+                     end if;
 
                   when others =>
                      Err_Code := TSSL.ERR_get_error;
