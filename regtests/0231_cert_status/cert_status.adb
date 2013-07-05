@@ -21,6 +21,7 @@
 --  secure version.
 
 with Ada.Calendar.Formatting;
+with Ada.Calendar.Time_Zones;
 with Ada.Exceptions;
 with Ada.Text_IO;
 
@@ -46,6 +47,8 @@ procedure Cert_Status is
    procedure Display_Certificate (Socket : Net.SSL.Socket_Type);
 
    procedure Display_Certificate (Cert : Net.SSL.Certificate.Object);
+
+   function Image (DT : Calendar.Time) return String;
 
    --------
    -- CB --
@@ -86,12 +89,10 @@ procedure Cert_Status is
            ("Issuer     : " & Net.SSL.Certificate.Issuer (Cert));
          Put_Line
            ("Activation : "
-            & Calendar.Formatting.Image
-              (Net.SSL.Certificate.Activation_Time (Cert)));
+            & Image (Net.SSL.Certificate.Activation_Time (Cert)));
          Put_Line
            ("Expiration : "
-            & Calendar.Formatting.Image
-              (Net.SSL.Certificate.Expiration_Time (Cert)));
+            & Image (Net.SSL.Certificate.Expiration_Time (Cert)));
          Put_Line
            ("Verified   : "
             & Boolean'Image (Net.SSL.Certificate.Verified (Cert)));
@@ -105,6 +106,16 @@ procedure Cert_Status is
       Display_Certificate (Cert);
       New_Line;
    end Display_Certificate;
+
+   -----------
+   -- Image --
+   -----------
+
+   function Image (DT : Calendar.Time) return String is
+   begin
+      return Calendar.Formatting.Image
+        (DT, Time_Zone => Calendar.Time_Zones.UTC_Time_Offset (DT));
+   end Image;
 
    -------------
    -- Request --
