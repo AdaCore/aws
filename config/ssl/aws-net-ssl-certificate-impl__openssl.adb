@@ -66,7 +66,7 @@ package body AWS.Net.SSL.Certificate.Impl is
 
       function To_Time
         (tm : access constant TSSL.ASN1_UTCTIME) return Calendar.Time;
-      --  Convert a ASN1_UCTIME to an Ada time
+      --  Convert a ASN1_UTCTIME to an Ada time
       --
       --  The format are either:
       --
