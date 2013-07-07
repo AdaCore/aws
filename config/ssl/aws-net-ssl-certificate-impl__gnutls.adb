@@ -157,12 +157,11 @@ package body AWS.Net.SSL.Certificate.Impl is
       -------------
 
       function To_Time (tv_sec : TSSL.time_t) return Calendar.Time is
+         use Ada.Calendar;
+         DT : constant Time := Conversions.To_Ada_Time (C.long (tv_sec));
       begin
-         return Calendar.Conversions.To_Ada_Time (C.long (tv_sec));
+         return DT - Duration (Time_Zones.UTC_Time_Offset (DT)) * 60.0;
       end To_Time;
-
-      TZ_Offset   : constant Duration :=
-                      Duration (Calendar.Time_Zones.UTC_Time_Offset) * 60.0;
 
       Buffer_Size : constant := 256;
       --  Buffer size for the subject and issuer
@@ -209,8 +208,8 @@ package body AWS.Net.SSL.Certificate.Impl is
               Issuer        => To_Unbounded_String
                                  (C.To_Ada (Issuer (1 .. Iss_Len), False)),
               Serial_Number => To_Hex (Serial, Serial_Len),
-              Activation    => To_Time (T_Activation) - TZ_Offset,
-              Expiration    => To_Time (T_Expiration) - TZ_Offset);
+              Activation    => To_Time (T_Activation),
+              Expiration    => To_Time (T_Expiration));
    end Read;
 
    ----------
