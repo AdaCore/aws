@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2004-2012, AdaCore                     --
+--                     Copyright (C) 2004-2013, AdaCore                     --
 --                                                                          --
 --  This is free software;  you can redistribute it  and/or modify it       --
 --  under terms of the  GNU General Public License as published  by the     --
@@ -123,10 +123,16 @@ begin
          when E : Socket_Error =>
             declare
                Text : constant String := Ada.Exceptions.Exception_Message (E);
+               Last : Positive := Text'Last;
             begin
-               if Text = "An unexpected TLS packet was received." & ASCII.LF
-                 or else Text = "1408F10B:SSL routines:SSL3_GET_RECORD:"
-                                &"wrong version number" & ASCII.LF -- OpenSSL
+               if Text (Last) = ASCII.LF then
+                  Last := Last - 1;
+               end if;
+
+               if Text (1 .. Last) = "An unexpected TLS packet was received."
+                 or else Text (1 .. Last)
+                         = "1408F10B:SSL routines:SSL3_GET_RECORD:"
+                           & "wrong version number" -- OpenSSL
                then
                   Put_Line ("Expected error about wrong data received");
                end if;
