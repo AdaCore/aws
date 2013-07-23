@@ -360,6 +360,11 @@ package body AWS.Net.WebSocket.Registry is
                           WebSocket_Set.Element (Position);
          begin
             WebSocket.State.Errno := Error_Code (Going_Away);
+
+            --  We do not want to block if the peer is not responding, just
+            --  allow 10 seconds for the close message to be accepted.
+
+            WebSocket.Set_Timeout (10.0);
             WebSocket.On_Close ("AWS server going down");
             WebSocket.Shutdown;
             WebSocket.Free;
