@@ -76,7 +76,7 @@ package AWS.Net.WebSocket.Registry is
    --  As above but filter out the client having set the given request
 
    procedure Close
-      (To         : Recipient;
+     (To          : Recipient;
       Message     : String;
       Except_Peer : String := "");
    --  Close connections
