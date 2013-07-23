@@ -62,7 +62,8 @@ package AWS.Net.WebSocket.Registry is
    procedure Send
      (To          : Recipient;
       Message     : String;
-      Except_Peer : String := "");
+      Except_Peer : String := "";
+      Timeout     : Duration := Forever);
    --  Send a message to the WebSocket designated by Origin and URI. Do not
    --  send this message to the peer whose address is given by Except_Peer.
    --  Except_Peer must be the address as reported by AWS.Net.Peer_Addr. It is
@@ -72,13 +73,15 @@ package AWS.Net.WebSocket.Registry is
    procedure Send
      (To      : Recipient;
       Message : String;
-      Request : AWS.Status.Data);
+      Request : AWS.Status.Data;
+      Timeout : Duration := Forever);
    --  As above but filter out the client having set the given request
 
    procedure Close
      (To          : Recipient;
       Message     : String;
-      Except_Peer : String := "");
+      Except_Peer : String := "";
+      Timeout     : Duration := Forever);
    --  Close connections
 
 private
