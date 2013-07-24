@@ -130,11 +130,17 @@ package body AWS.Net.WebSocket.Registry is
       --  Returns if the Set is not empty
 
       procedure Send
-        (To : Recipient; Message : String; Except_Peer : String);
+        (To          : Recipient;
+         Message     : String;
+         Except_Peer : String;
+         Timeout     : Duration := Forever);
       --  Send the given message to all matching WebSockets
 
       procedure Close
-        (To : Recipient; Message : String; Except_Peer : String);
+        (To          : Recipient;
+         Message     : String;
+         Except_Peer : String;
+         Timeout     : Duration := Forever);
       --  Close all matching Webockets
 
       procedure Register (WebSocket : Object_Class);
@@ -298,7 +304,10 @@ package body AWS.Net.WebSocket.Registry is
       ----------
 
       procedure Close
-        (To : Recipient; Message : String; Except_Peer : String)
+        (To          : Recipient;
+         Message     : String;
+         Except_Peer : String;
+         Timeout     : Duration := Forever)
       is
 
          procedure Close_To (Position : WebSocket_Set.Cursor);
@@ -321,6 +330,8 @@ package body AWS.Net.WebSocket.Registry is
             then
                DB.Unregister (WebSocket);
                WebSocket.State.Errno := Error_Code (Normal_Closure);
+
+               WebSocket.Set_Timeout (Timeout);
                WebSocket.On_Close (Message);
                WebSocket.Shutdown;
             end if;
@@ -349,6 +360,11 @@ package body AWS.Net.WebSocket.Registry is
                           WebSocket_Set.Element (Position);
          begin
             WebSocket.State.Errno := Error_Code (Going_Away);
+
+            --  We do not want to block if the peer is not responding, just
+            --  allow 10 seconds for the close message to be accepted.
+
+            WebSocket.Set_Timeout (10.0);
             WebSocket.On_Close ("AWS server going down");
             WebSocket.Shutdown;
             WebSocket.Free;
@@ -423,7 +439,10 @@ package body AWS.Net.WebSocket.Registry is
       ----------
 
       procedure Send
-        (To : Recipient; Message : String; Except_Peer : String)
+        (To          : Recipient;
+         Message     : String;
+         Except_Peer : String;
+         Timeout     : Duration := Forever)
       is
 
          procedure Send_To (Position : WebSocket_Set.Cursor);
@@ -445,6 +464,7 @@ package body AWS.Net.WebSocket.Registry is
                  or else GNAT.Regexp.Match (WebSocket.Origin, To.Origin))
             then
                begin
+                  WebSocket.Set_Timeout (Timeout);
                   WebSocket.Send (Message);
                exception
                   when E : others =>
@@ -530,9 +550,10 @@ package body AWS.Net.WebSocket.Registry is
    procedure Close
      (To          : Recipient;
       Message     : String;
-      Except_Peer : String := "") is
+      Except_Peer : String := "";
+      Timeout     : Duration := Forever) is
    begin
-      DB.Close (To, Message, Except_Peer);
+      DB.Close (To, Message, Except_Peer, Timeout);
    exception
       when others =>
          --  Should never fails even if the WebSocket is closed by peer
@@ -589,9 +610,10 @@ package body AWS.Net.WebSocket.Registry is
    procedure Send
      (To          : Recipient;
       Message     : String;
-      Except_Peer : String := "") is
+      Except_Peer : String := "";
+      Timeout     : Duration := Forever) is
    begin
-      DB.Send (To, Message, Except_Peer);
+      DB.Send (To, Message, Except_Peer, Timeout);
    exception
       when others =>
          --  Should never fails even if the WebSocket is closed by peer
@@ -601,9 +623,13 @@ package body AWS.Net.WebSocket.Registry is
    procedure Send
      (To      : Recipient;
       Message : String;
-      Request : AWS.Status.Data) is
+      Request : AWS.Status.Data;
+      Timeout : Duration := Forever) is
    begin
-      Send (To, Message, Except_Peer => AWS.Status.Socket (Request).Peer_Addr);
+      Send
+        (To, Message,
+         Except_Peer => AWS.Status.Socket (Request).Peer_Addr,
+         Timeout     => Timeout);
    end Send;
 
    --------------
