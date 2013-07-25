@@ -331,8 +331,17 @@ package body AWS.Net.WebSocket.Registry is
                DB.Unregister (WebSocket);
                WebSocket.State.Errno := Error_Code (Normal_Closure);
 
-               WebSocket.Set_Timeout (Timeout);
-               WebSocket.On_Close (Message);
+               --  If an error occurs, we don't want to fail, shutdown the
+               --  socket silently.
+
+               begin
+                  WebSocket.Set_Timeout (Timeout);
+                  WebSocket.On_Close (Message);
+               exception
+                  when others =>
+                     null;
+               end;
+
                WebSocket.Shutdown;
             end if;
          end Close_To;
@@ -363,9 +372,17 @@ package body AWS.Net.WebSocket.Registry is
 
             --  We do not want to block if the peer is not responding, just
             --  allow 10 seconds for the close message to be accepted.
+            --  In any case, we do not want to raise an exception. If an
+            --  error occurs just close the socket silently.
 
-            WebSocket.Set_Timeout (10.0);
-            WebSocket.On_Close ("AWS server going down");
+            begin
+               WebSocket.Set_Timeout (10.0);
+               WebSocket.On_Close ("AWS server going down");
+            exception
+               when others =>
+                  null;
+            end;
+
             WebSocket.Shutdown;
             WebSocket.Free;
          end On_Close;
