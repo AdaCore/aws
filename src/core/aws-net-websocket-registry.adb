@@ -723,15 +723,15 @@ package body AWS.Net.WebSocket.Registry is
    procedure Watch_Data (WebSocket : Object'Class) is
       WS : constant Object_Class := new Object'Class'(WebSocket);
    begin
-      --  Register WebSocket
-
-      DB.Register (WS);
-      DB.watch (WS);
-
       --  Send a Connection_Open message
 
       WS.State.Kind := Connection_Open;
       WS.On_Open ("AWS WebSocket connection open");
+
+      --  Register WebSocket
+
+      DB.Register (WS);
+      DB.watch (WS);
    end Watch_Data;
 
    -------------------------
