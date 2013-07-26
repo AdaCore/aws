@@ -288,6 +288,7 @@ package body AWS.Net.WebSocket.Registry is
 
          exception
             when E : others =>
+               DB.Unregister (WebSocket);
                WebSocket_Exception (WebSocket, Exception_Message (E));
          end;
       end loop Handle_Message;
@@ -485,6 +486,7 @@ package body AWS.Net.WebSocket.Registry is
                   WebSocket.Send (Message);
                exception
                   when E : others =>
+                     Unregister (WebSocket);
                      WebSocket_Exception (WebSocket, Exception_Message (E));
                end;
             end if;
@@ -741,7 +743,6 @@ package body AWS.Net.WebSocket.Registry is
    procedure WebSocket_Exception
      (WebSocket : Object_Class; Message : String) is
    begin
-      DB.Unregister (WebSocket);
       WebSocket.State.Errno := Error_Code (Protocol_Error);
       WebSocket.On_Error (Message);
       WebSocket.On_Close (Message);
