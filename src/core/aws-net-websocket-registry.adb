@@ -749,6 +749,10 @@ package body AWS.Net.WebSocket.Registry is
       WebSocket.On_Error (Message);
       WebSocket.On_Close (Message);
       WebSocket.Shutdown;
+   exception
+      when others =>
+         --  Never propagate an exception at this point
+         null;
    end WebSocket_Exception;
 
 end AWS.Net.WebSocket.Registry;
