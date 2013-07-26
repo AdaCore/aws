@@ -47,7 +47,7 @@ package body AWS.Net.WebSocket.Registry is
      new Containers.Indefinite_Ordered_Maps (String, Factory);
    Factories : Constructors.Map;
 
-   --  A queue for WebSocket we pending messages to be read
+   --  A queue for WebSocket with pending messages to be read
 
    package WebSocket_Queue is new Utils.Mailbox_G (Object_Class);
    type Queue_Ref is access WebSocket_Queue.Mailbox;
