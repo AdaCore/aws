@@ -492,8 +492,10 @@ package body AWS.Net.WebSocket.Registry is
             end if;
          end Send_To;
 
+         Registered_Before : constant WebSocket_Set.Set := Registered;
+
       begin
-         Registered.Iterate (Send_To'Access);
+         Registered_Before.Iterate (Send_To'Access);
       end Send;
 
       -------------------
