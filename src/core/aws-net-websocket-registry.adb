@@ -47,7 +47,7 @@ package body AWS.Net.WebSocket.Registry is
      new Containers.Indefinite_Ordered_Maps (String, Factory);
    Factories : Constructors.Map;
 
-   --  A queue for WebSocket we pending messages to be read
+   --  A queue for WebSocket with pending messages to be read
 
    package WebSocket_Queue is new Utils.Mailbox_G (Object_Class);
    type Queue_Ref is access WebSocket_Queue.Mailbox;
@@ -288,6 +288,7 @@ package body AWS.Net.WebSocket.Registry is
 
          exception
             when E : others =>
+               DB.Unregister (WebSocket);
                WebSocket_Exception (WebSocket, Exception_Message (E));
          end;
       end loop Handle_Message;
@@ -485,13 +486,16 @@ package body AWS.Net.WebSocket.Registry is
                   WebSocket.Send (Message);
                exception
                   when E : others =>
+                     Unregister (WebSocket);
                      WebSocket_Exception (WebSocket, Exception_Message (E));
                end;
             end if;
          end Send_To;
 
+         Registered_Before : constant WebSocket_Set.Set := Registered;
+
       begin
-         Registered.Iterate (Send_To'Access);
+         Registered_Before.Iterate (Send_To'Access);
       end Send;
 
       -------------------
@@ -741,11 +745,14 @@ package body AWS.Net.WebSocket.Registry is
    procedure WebSocket_Exception
      (WebSocket : Object_Class; Message : String) is
    begin
-      DB.Unregister (WebSocket);
       WebSocket.State.Errno := Error_Code (Protocol_Error);
       WebSocket.On_Error (Message);
       WebSocket.On_Close (Message);
       WebSocket.Shutdown;
+   exception
+      when others =>
+         --  Never propagate an exception at this point
+         null;
    end WebSocket_Exception;
 
 end AWS.Net.WebSocket.Registry;

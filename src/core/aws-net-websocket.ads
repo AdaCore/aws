@@ -39,7 +39,7 @@ package AWS.Net.WebSocket is
    use Ada.Strings.Unbounded;
 
    type Object is new Net.Socket_Type with private;
-   type Object_Class is access all Object'Class;
+   type Object_Class is access Object'Class;
 
    No_Object : constant Object'Class;
 
