@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2005-2012, AdaCore                     --
+--                     Copyright (C) 2005-2013, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -1064,10 +1064,8 @@ package body AWS.Client.HTTP_Utils is
 
          if Content_Encoding = "gzip" then
             Decode_Init (ZLib.GZip);
-
          elsif Content_Encoding = "deflate" then
             Decode_Init (ZLib.Default);
-
          end if;
       end;
 
@@ -1295,7 +1293,6 @@ package body AWS.Client.HTTP_Utils is
       declare
          Sock : Net.Socket_Type'Class renames Connection.Socket.all;
       begin
-
          if Content_Type /= No_Data then
             Send_Header (Sock, Messages.Content_Type (Content_Type));
          end if;
