@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                    Copyright (C) 2000-2012, AdaCore                      --
+--                    Copyright (C) 2000-2013, AdaCore                      --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -321,7 +321,8 @@ package AWS.Response is
 
    function Filename (D : Data) return String;
    pragma Inline (Filename);
-   --  Returns the filename which should be sent back
+   --  Returns the filename which should be sent back or the filename which
+   --  was containing the response for a server response.
 
    --------------------
    -- Authentication --
