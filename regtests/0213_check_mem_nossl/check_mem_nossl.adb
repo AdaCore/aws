@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2011-2012, AdaCore                     --
+--                     Copyright (C) 2011-2013, AdaCore                     --
 --                                                                          --
 --  This is free software;  you can redistribute it  and/or modify it       --
 --  under terms of the  GNU General Public License as published  by the     --
@@ -16,6 +16,7 @@
 --  to http://www.gnu.org/licenses for a complete copy of the license.      --
 ------------------------------------------------------------------------------
 
+with Ada.Calendar;
 with Ada.Command_Line;
 with Ada.Exceptions;
 with Ada.IO_Exceptions;
@@ -78,13 +79,16 @@ procedure Check_Mem_Nossl is
 
    procedure Check_Socket;
 
+   procedure Time_Tag (Label : String);
+
    task Server is
       entry Started;
       entry Stopped;
    end Server;
 
-   HTTP      : AWS.Server.HTTP;
-   Iteration : Positive;
+   HTTP       : AWS.Server.HTTP;
+   Iteration  : Positive;
+   Start_Time : Calendar.Time;
 
    -----------
    -- Check --
@@ -357,6 +361,7 @@ procedure Check_Mem_Nossl is
       end Request;
 
    begin
+      Time_Tag ("Client");
       Request ("/simple");
       Request ("/simple?p1=8&p2=azerty%20qwerty");
       Request ("/simple?p2=8&p1=azerty%20qwerty");
@@ -390,6 +395,7 @@ procedure Check_Mem_Nossl is
    procedure Check_Dynamic_Message (Encoding : Messages.Content_Encoding) is
       Answer : Response.Data;
    begin
+      Time_Tag ("Check_Dynamic_Message");
       Response.Set.Data_Encoding (Answer, Encoding);
 
       Response.Set.Message_Body
@@ -438,6 +444,7 @@ procedure Check_Mem_Nossl is
       end Test;
 
    begin
+      Time_Tag ("Check_Memory_Streams");
       ZLib.Inflate_Initialize (Unpack);
 
       Packed := Translator.Compress (Sample);
@@ -486,6 +493,7 @@ procedure Check_Mem_Nossl is
       end Test;
 
    begin
+      Time_Tag ("Check_Zlib");
       Test ("simple");
 
       Test ("A longer text to test the real factor compression which is "
@@ -512,6 +520,7 @@ procedure Check_Mem_Nossl is
 
       R : Response.Data;
    begin
+      Time_Tag ("Check_Transient");
       R := Services.Split_Pages.Parse ("cm2_split.tmplt", T1, T2, 2);
    end Check_Transient;
 
@@ -524,6 +533,7 @@ procedure Check_Mem_Nossl is
       R : Response.Data;
       Local_URL : constant String := AWS.Server.Status.Local_URL (HTTP);
    begin
+      Time_Tag ("Check_Zopen");
       R := AWS.Client.Get (Local_URL & "/filea.txt");
       R := AWS.Client.Get (Local_URL & "/fileb.txt");
       R := AWS.Client.Get (Local_URL & "/filec.txt");
@@ -566,6 +576,7 @@ procedure Check_Mem_Nossl is
       end Connector;
 
    begin
+      Time_Tag ("Check_Reconnect");
       Std.Bind (Server, 0);
       Std.Listen (Server);
 
@@ -600,6 +611,8 @@ procedure Check_Mem_Nossl is
 
       SMTP_Host : constant String := "bad_smtp_host";
    begin
+      Time_Tag ("Check_SMTP");
+
       From := AWS.SMTP.E_Mail
         (Name    => "Pascal Obry",
          Address => "pascal@obry.net");
@@ -634,6 +647,7 @@ procedure Check_Mem_Nossl is
 
    procedure Check_Socket is
    begin
+      Time_Tag ("Check_Socket");
       for K in 1 .. 10 loop
          declare
             S1 : Net.Std.Socket_Type;
@@ -644,6 +658,18 @@ procedure Check_Mem_Nossl is
       end loop;
    end Check_Socket;
 
+   --------------
+   -- Time_Tag --
+   --------------
+
+   procedure Time_Tag (Label : String) is
+      use type Calendar.Time;
+      Now : constant Calendar.Time := Calendar.Clock;
+   begin
+      Put_Line (Label & " : " & Utils.Image (Now - Start_Time));
+      Flush;
+   end Time_Tag;
+
 begin
    Put_Line ("Start main, wait for server to start...");
 
@@ -651,12 +677,15 @@ begin
 
    Server.Started;
 
+   Start_Time := Calendar.Clock;
+
    --  This is the main loop. Be sure to run everything inside this
    --  loop. Check_Mem is checked between 2 runs with a different number of
    --  iterations.
 
    for K in 1 ..  Iteration loop
 
+      Time_Tag ("Get");
       declare
          R : Response.Data;
       begin
@@ -676,6 +705,8 @@ begin
       Check_Socket;
       Check_Reconnect;
       Check_SMTP;
+
+      Time_Tag ("SOAP");
       declare
          Local_URL : constant string := AWS.Server.Status.Local_URL (HTTP);
       begin

@@ -1,3 +1,14 @@
+#
+# To run manually to debug:
+#
+#   $ ada2wsdl -q -f -o api2.wsdl api2.ads
+#   $ wsdl2aws -q -f -types api2 -cb api2.wsdl
+#   $ gnatmake -g -O0 -Pcheck_mem_nossl
+#   $ ./check_mem_nossl 2 > res1
+#   $ gnatmem 5 -i gmem.out ./check_mem_nossl > run1
+#   $ ./check_mem_nossl 5 > res2
+#   $ gnatmem 5 -i gmem.out ./check_mem_nossl > run2
+
 from test_support import *
 
 #  Generate WSDL
