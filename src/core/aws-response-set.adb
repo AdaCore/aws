@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2002-2012, AdaCore                     --
+--                     Copyright (C) 2002-2013, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -33,6 +33,7 @@ with Ada.Strings.Fixed;
 with AWS.Resources.Streams.ZLib;
 with AWS.Translator;
 with AWS.Headers.Set;
+with AWS.Headers.Values;
 with AWS.Digest;
 with AWS.Resources.Streams.Memory.ZLib;
 
@@ -444,6 +445,15 @@ package body AWS.Response.Set is
 
       D.Content_Type := To_Unbounded_String
         (Headers.Get (D.Header, Messages.Content_Type_Token));
+
+      --  Set the Filename if any
+
+      if AWS.Headers.Exist (D.Header, Messages.Content_Disposition_Token) then
+         D.Filename := To_Unbounded_String
+           (AWS.Headers.Values.Search
+             (AWS.Headers.Get
+               (D.Header, Messages.Content_Disposition_Token), "filename"));
+      end if;
    end Read_Header;
 
    -----------------
