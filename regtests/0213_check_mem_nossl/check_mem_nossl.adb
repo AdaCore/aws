@@ -29,15 +29,15 @@ with AWS.MIME;
 with AWS.Messages;
 with AWS.Net.Std;
 with AWS.Parameters;
-with AWS.Response.Set;
 with AWS.Resources.Streams.Disk;
 with AWS.Resources.Streams.Memory.ZLib;
 with AWS.Resources.Streams.ZLib;
+with AWS.Response.Set;
+with AWS.SMTP.Client;
 with AWS.Server.Status;
-with AWS.Session;
 with AWS.Services.Dispatchers.URI;
 with AWS.Services.Split_Pages;
-with AWS.SMTP.Client;
+with AWS.Session;
 with AWS.Status;
 with AWS.Templates;
 with AWS.Translator;
@@ -279,8 +279,8 @@ procedure Check_Mem_Nossl is
    -------------
 
    function SOAP_CB (Request : Status.Data) return Response.Data is
-      use SOAP.Types;
       use SOAP.Parameters;
+      use SOAP.Types;
 
       Payload      : constant SOAP.Message.Payload.Object :=
                        SOAP.Message.XML.Load_Payload
