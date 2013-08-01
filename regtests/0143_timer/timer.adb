@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2003-2012, AdaCore                     --
+--                     Copyright (C) 2003-2013, AdaCore                     --
 --                                                                          --
 --  This is free software;  you can redistribute it  and/or modify it       --
 --  under terms of the  GNU General Public License as published  by the     --
@@ -72,10 +72,13 @@ procedure Timer is
    R : Response.Data;
 
 begin
+   Services.Dispatchers.Timer.Register_Default_Callback
+     (Disp, Dispatchers.Callback.Create (DCB'Unrestricted_Access));
+
    loop
       Calendar.Formatting.Split
         (Now, Year, Month, Day, Hour, Minute, Second, Sub_Second);
-      exit when Second < 50;
+      exit when Second < 45;
 
       delay 1.0;
       Now := Calendar.Clock;
@@ -88,13 +91,10 @@ begin
    --  Dispatcher
 
    P1 := Services.Dispatchers.Timer.Minutely
-     (From_Second => Second, To_Second => Second + 2);
+     (From_Second => Second, To_Second => Second + 3);
 
    Services.Dispatchers.Timer.Register
      (Disp, "T1", P1, Dispatchers.Callback.Create (CB1'Unrestricted_Access));
-
-   Services.Dispatchers.Timer.Register_Default_Callback
-     (Disp, Dispatchers.Callback.Create (DCB'Unrestricted_Access));
 
    Server.Start (WS, Disp, Conf);
 
@@ -103,7 +103,7 @@ begin
    R := Client.Get (Server.Status.Local_URL (WS));
    Text_IO.Put_Line ("> " & Response.Message_Body (R));
 
-   delay 2.0;
+   delay 3.0;
 
    R := Client.Get (Server.Status.Local_URL (WS));
    Text_IO.Put_Line ("> " & Response.Message_Body (R));
