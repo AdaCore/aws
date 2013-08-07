@@ -264,7 +264,7 @@ procedure Check_Mem is
       select
          accept Stopped;
       or
-         delay 4.0 * Iteration;
+         delay 6.0 * Iteration;
          Put_Line ("Too much time to do the job !");
       end select;
 
