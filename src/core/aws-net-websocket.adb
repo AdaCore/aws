@@ -317,9 +317,6 @@ package body AWS.Net.WebSocket is
 
       Socket.P_State.State.Send
         (Socket, Translator.To_Stream_Element_Array (Message));
-   exception
-      when E : others =>
-         Object'Class (Socket).On_Error (Exception_Message (E));
    end Send;
 
    procedure Send
@@ -334,9 +331,6 @@ package body AWS.Net.WebSocket is
       end if;
 
       Socket.P_State.State.Send (Socket, Message);
-   exception
-      when E : others =>
-         Object'Class (Socket).On_Error (Exception_Message (E));
    end Send;
 
    procedure Send
@@ -351,9 +345,6 @@ package body AWS.Net.WebSocket is
       end if;
 
       Socket.P_State.State.Send (Socket, Message);
-   exception
-      when E : others =>
-         Object'Class (Socket).On_Error (Exception_Message (E));
    end Send;
 
    --------------
