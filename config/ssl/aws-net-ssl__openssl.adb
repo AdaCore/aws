@@ -537,41 +537,7 @@ package body AWS.Net.SSL is
       Data   : Stream_Element_Array;
       Last   : out Stream_Element_Offset)
    is
-
-      procedure Socket_Write;
-      --  Non blocking write from IO to socket
-
-      ------------------
-      -- Socket_Write --
-      ------------------
-
-      procedure Socket_Write is
-         use TSSL;
-
-         type Memory_Access is access all
-           Stream_Element_Array (1 .. Stream_Element_Offset'Last);
-
-         Data   : aliased Memory_Access;
-         Len    : constant Stream_Element_Offset :=
-                    Stream_Element_Offset
-                     (BIO_nread0 (Socket.IO, Data'Address));
-         Plain  : constant NSST := NSST (Socket);
-      begin
-         if Len <= 0 then
-            return;
-         end if;
-
-         Plain.Send (Data (1 .. Len));
-
-         if BIO_nread (Socket.IO, Data'Address, C.int (Len))
-           /= C.int (Len)
-         then
-            Raise_Socket_Error (Socket, "Socket write IO error");
-         end if;
-      end Socket_Write;
-
       RC : C.int;
-
    begin
       if not Check (Socket, (Input => False, Output => True)) (Output) then
          Last := Last_Index (Data'First, 0);
@@ -582,7 +548,7 @@ package body AWS.Net.SSL is
          RC := TSSL.SSL_write (Socket.SSL, Data'Address, Data'Length);
 
          if RC > 0 then
-            Socket_Write;
+            Socket_Write (Socket);
             Last  := Data'First + Stream_Element_Offset (RC) - 1;
 
             return;
@@ -602,13 +568,13 @@ package body AWS.Net.SSL is
                      Socket_Read (Socket);
 
                   when TSSL.SSL_ERROR_WANT_WRITE =>
-                     Socket_Write;
+                     Socket_Write (Socket);
 
                   when TSSL.SSL_ERROR_SYSCALL =>
                      Err_No := OS_Lib.Socket_Errno;
 
                      if Err_No = 0 then
-                        Socket_Write;
+                        Socket_Write (Socket);
                         Last := Data'First - 1;
 
                         return;
