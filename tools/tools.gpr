@@ -100,7 +100,12 @@ project Tools is
 
       case Shared.Build is
          when "Release" =>
-            for Default_Switches ("Ada") use ("-s");
+            case Shared.S_Target is
+               when "Darwin" =>
+                  null;
+               when others =>
+                  for Default_Switches ("Ada") use ("-s");
+            end case;
          when others =>
             null;
       end case;
