@@ -609,7 +609,7 @@ procedure Check_Mem_Nossl is
       Server    : AWS.SMTP.Receiver;
       Status    : AWS.SMTP.Status;
 
-      SMTP_Host : constant String := "example.com";
+      SMTP_Host : constant String := "bad_smtp_host";
    begin
       Time_Tag ("Check_SMTP");
 
@@ -689,9 +689,7 @@ begin
       declare
          R : Response.Data;
       begin
-         R := AWS.Client.Get
-                ("http://example.com/me/aws",
-                 Timeouts => AWS.Client.Timeouts (2.0, 2.0, 2.0, 2.0));
+         R := AWS.Client.Get ("http://www.nowayitexists.com/me/aws");
       exception
          when E : others =>
             Put_Line ("*** " & Exception_Message (E));
