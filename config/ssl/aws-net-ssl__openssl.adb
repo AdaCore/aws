@@ -537,42 +537,7 @@ package body AWS.Net.SSL is
       Data   : Stream_Element_Array;
       Last   : out Stream_Element_Offset)
    is
-
-      procedure Socket_Write;
-      --  Non blocking write from IO to socket
-
-      ------------------
-      -- Socket_Write --
-      ------------------
-
-      procedure Socket_Write is
-         use TSSL;
-
-         type Memory_Access is access all
-           Stream_Element_Array (1 .. Stream_Element_Offset'Last);
-
-         S_Last : Stream_Element_Offset;
-         Data   : aliased Memory_Access;
-         Len    : constant Stream_Element_Offset :=
-                    Stream_Element_Offset
-                      (BIO_nread0 (Socket.IO, Data'Address));
-      begin
-         if Len <= 0 then
-            return;
-         end if;
-
-         Net.Std.Send (NSST (Socket), Data (1 .. Len), S_Last);
-
-         if S_Last > 0
-           and then BIO_nread (Socket.IO, Data'Address, C.int (S_Last))
-                    /= C.int (S_Last)
-         then
-            Raise_Socket_Error (Socket, "Socket write IO error");
-         end if;
-      end Socket_Write;
-
       RC : C.int;
-
    begin
       if not Check (Socket, (Input => False, Output => True)) (Output) then
          Last := Last_Index (Data'First, 0);
@@ -583,7 +548,7 @@ package body AWS.Net.SSL is
          RC := TSSL.SSL_write (Socket.SSL, Data'Address, Data'Length);
 
          if RC > 0 then
-            Socket_Write;
+            Socket_Write (Socket);
             Last  := Data'First + Stream_Element_Offset (RC) - 1;
 
             return;
@@ -603,13 +568,13 @@ package body AWS.Net.SSL is
                      Socket_Read (Socket);
 
                   when TSSL.SSL_ERROR_WANT_WRITE =>
-                     Socket_Write;
+                     Socket_Write (Socket);
 
                   when TSSL.SSL_ERROR_SYSCALL =>
                      Err_No := OS_Lib.Socket_Errno;
 
                      if Err_No = 0 then
-                        Socket_Write;
+                        Socket_Write (Socket);
                         Last := Data'First - 1;
 
                         return;
