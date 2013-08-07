@@ -551,21 +551,20 @@ package body AWS.Net.SSL is
          type Memory_Access is access all
            Stream_Element_Array (1 .. Stream_Element_Offset'Last);
 
-         S_Last : Stream_Element_Offset;
          Data   : aliased Memory_Access;
          Len    : constant Stream_Element_Offset :=
                     Stream_Element_Offset
-                      (BIO_nread0 (Socket.IO, Data'Address));
+                     (BIO_nread0 (Socket.IO, Data'Address));
+         Plain  : constant NSST := NSST (Socket);
       begin
          if Len <= 0 then
             return;
          end if;
 
-         Net.Std.Send (NSST (Socket), Data (1 .. Len), S_Last);
+         Plain.Send (Data (1 .. Len));
 
-         if S_Last > 0
-           and then BIO_nread (Socket.IO, Data'Address, C.int (S_Last))
-                    /= C.int (S_Last)
+         if BIO_nread (Socket.IO, Data'Address, C.int (Len))
+           /= C.int (Len)
          then
             Raise_Socket_Error (Socket, "Socket write IO error");
          end if;
