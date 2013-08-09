@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2008-2013, AdaCore                     --
+--                       Copyright (C) 2013, AdaCore                        --
 --                                                                          --
 --  This is free software;  you can redistribute it  and/or modify it       --
 --  under terms of the  GNU General Public License as published  by the     --
@@ -22,10 +22,19 @@ with Ada.Text_IO;
 
 with AWS.Session.Control;
 
-procedure Sessions6 is
+procedure Session_Kind is
 
    use Ada;
+   use AWS;
    use AWS.Session;
+
+   type Context is record
+      S : String (1 .. 10);
+   end record;
+
+   Null_Context : constant Context := (S => "          ");
+
+   package Context_Session is new Session.Generic_Data (Context, Null_Context);
 
    procedure For_Each_Key_Value
      (N          : Positive;
@@ -50,9 +59,9 @@ procedure Sessions6 is
       Kind       : Value_Kind;
       Quit       : in out Boolean)
    is
-      pragma Unreferenced (N, Key, Value, Kind, Quit);
+      pragma Unreferenced (N, Quit);
    begin
-      null;
+      Text_IO.Put_Line (Key & '-' & Value & '-' & Value_Kind'Image (Kind));
    end For_Each_Key_Value;
 
    --------------------
@@ -80,21 +89,20 @@ procedure Sessions6 is
 
    SID : Id;
 
+   C   : constant Context := (S => (others => 'a'));
+
 begin
    Control.Start (0.1, Session_Lifetime => 0.5);
 
-   for J in 1 .. 1000 loop
-      SID := Create;
-      for K in 1 .. 100 loop
-         Set (SID, "K" & Integer'Image (K), Integer'Image (J));
-      end loop;
-   end loop;
+   SID := Create;
 
-   loop
-      Each_Session;
-      delay 0.1;
-      exit when Length = 0;
-   end loop;
+   Set (SID, "V1", "a value");
+   Set (SID, "V2", 12);
+   Set (SID, "V3", True);
+   Set (SID, "V4", 78.65);
+   Context_Session.Set (SID, "V5", C);
+
+   Each_Session;
 
    Control.Shutdown;
 
@@ -104,4 +112,4 @@ exception
    when E : others =>
       Text_IO.Put_Line (Ada.Exceptions.Exception_Information (E));
       Control.Shutdown;
-end Sessions6;
+end Session_Kind;

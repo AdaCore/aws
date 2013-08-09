@@ -37,6 +37,8 @@ package AWS.Session is
 
    type Id is private;
 
+   type Value_Kind is (Int, Str, Real, Bool, User);
+
    No_Session : constant Id;
 
    function Create return Id;
@@ -162,6 +164,7 @@ package AWS.Session is
       with procedure Action
         (N          : Positive;
          Key, Value : String;
+         Kind       : Value_Kind;
          Quit       : in out Boolean);
    procedure For_Every_Session_Data (SID : Id);
    --  Iterator which returns all the key/value pair defined for session SID.

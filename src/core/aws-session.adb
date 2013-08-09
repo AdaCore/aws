@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2000-2012, AdaCore                     --
+--                     Copyright (C) 2000-2013, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -55,6 +55,13 @@ package body AWS.Session is
                       Real_Time.To_Time_Span (Default.Session_Lifetime);
    --  A session is obsolete if not used after Session_Lifetime seconds
 
+   Kind_Code      : constant array (Value_Kind) of Character :=
+                      (Int  => 'I',
+                       Real => 'R',
+                       Bool => 'B',
+                       Str  => 'S',
+                       User => 'U');
+
    package Key_Value renames Containers.Key_Value;
    type Key_Value_Set_Access is access Key_Value.Map;
 
@@ -83,6 +90,9 @@ package body AWS.Session is
 
    type Expired_SID_Array is array (1 .. Max_Expired) of Id;
    --  Used by the task cleaner to get expired session from database
+
+   function V_Kind (K : Character) return Value_Kind;
+   --  Return the value kind for K (encoding in the string)
 
    ----------------------
    -- Session Callback --
@@ -754,12 +764,17 @@ package body AWS.Session is
          Cursor := Key_Value.First (Node.Root.all);
 
          while Key_Value.Has_Element (Cursor) loop
-            Action
-              (Order,
-               Key_Value.Key (Cursor),
-               Key_Value.Element (Cursor),
-               Quit);
-            exit when Quit;
+            declare
+               Value : constant String := Key_Value.Element (Cursor);
+            begin
+               Action
+                 (Order,
+                  Key_Value.Key (Cursor),
+                  Value (Value'First + 1 .. Value'Last),
+                  V_Kind (Value (Value'First)),
+                  Quit);
+               exit when Quit;
+            end;
 
             Order := Order + 1;
             Key_Value.Next (Cursor);
@@ -813,7 +828,8 @@ package body AWS.Session is
          Str : aliased Utils.Streams.Strings;
       begin
          Data'Write (Str'Access, Value);
-         Set (SID, Key, Utils.Streams.Value (Str'Access));
+         Database.Set_Value
+           (SID, Key, Kind_Code (User) & Utils.Streams.Value (Str'Access));
       end Set;
 
    end Generic_Data;
@@ -826,7 +842,12 @@ package body AWS.Session is
       Value : Unbounded_String;
    begin
       Database.Get_Value (SID, Key, Value);
-      return To_String (Value);
+
+      if Length (Value) > 1 then
+         return Slice (Value, 2, Length (Value));
+      else
+         return "";
+      end if;
    end Get;
 
    function Get (SID : Id; Key : String) return Integer is
@@ -1056,16 +1077,16 @@ package body AWS.Session is
 
    procedure Set (SID : Id; Key : String; Value : String) is
    begin
-      Database.Set_Value (SID, Key, Value);
+      Database.Set_Value (SID, Key, Kind_Code (Str) & Value);
    end Set;
 
    procedure Set (SID : Id; Key : String; Value : Integer) is
       V : constant String := Integer'Image (Value);
    begin
       if V (1) = ' ' then
-         Database.Set_Value (SID, Key, V (2 .. V'Last));
+         Database.Set_Value (SID, Key, Kind_Code (Int) & V (2 .. V'Last));
       else
-         Database.Set_Value (SID, Key, V);
+         Database.Set_Value (SID, Key, Kind_Code (Int) & V);
       end if;
    end Set;
 
@@ -1073,22 +1094,22 @@ package body AWS.Session is
       V : constant String := Float'Image (Value);
    begin
       if V (1) = ' ' then
-         Database.Set_Value (SID, Key, V (2 .. V'Last));
+         Database.Set_Value (SID, Key, Kind_Code (Real) & V (2 .. V'Last));
       else
-         Database.Set_Value (SID, Key, V);
+         Database.Set_Value (SID, Key, Kind_Code (Real) & V);
       end if;
    end Set;
 
    procedure Set (SID : Id; Key : String; Value : Boolean) is
-      V : String (1 .. 1);
+      V : Character;
    begin
       if Value then
-         V := "T";
+         V := 'T';
       else
-         V := "F";
+         V := 'F';
       end if;
 
-      Database.Set_Value (SID, Key, V);
+      Database.Set_Value (SID, Key, Kind_Code (Bool) & V);
    end Set;
 
    ------------------
@@ -1117,6 +1138,24 @@ package body AWS.Session is
    begin
       Database.Touch_Session (SID);
    end Touch;
+
+   ------------
+   -- V_Kind --
+   ------------
+
+   function V_Kind (K : Character) return Value_Kind is
+   begin
+      case K is
+         when 'I' => return Int;
+         when 'S' => return Str;
+         when 'R' => return Real;
+         when 'B' => return Bool;
+         when 'U' => return User;
+
+         when others =>
+            raise Constraint_Error;
+      end case;
+   end V_Kind;
 
    -----------
    -- Value --

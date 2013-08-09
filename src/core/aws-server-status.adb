@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2003-2012, AdaCore                     --
+--                     Copyright (C) 2003-2013, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -214,6 +214,7 @@ package body AWS.Server.Status is
          procedure For_Each_Key_Value
            (N          : Positive;
             Key, Value : String;
+            Kind       : Session.Value_Kind;
             Quit       : in out Boolean);
          --  add key/value pair to the list
 
@@ -231,9 +232,10 @@ package body AWS.Server.Status is
          procedure For_Each_Key_Value
            (N          : Positive;
             Key, Value : String;
+            Kind       : Session.Value_Kind;
             Quit       : in out Boolean)
          is
-            pragma Unreferenced (N, Quit);
+            pragma Unreferenced (N, Kind, Quit);
          begin
             Keys   := Keys & Key;
             Values := Values & Value;
