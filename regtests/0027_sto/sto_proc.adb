@@ -51,7 +51,7 @@ procedure STO_Proc (Security : Boolean) is
    procedure Check_Timeout (Span : Ada.Real_Time.Time_Span) is
       D : constant Duration := Ada.Real_Time.To_Duration (Span);
    begin
-      if not (D in 0.98 .. 1.2) then
+      if not (D in 0.98 .. 1.4) then
          Text_IO.Put_Line ("wrong timeout" & D'Img);
       end if;
    end Check_Timeout;
