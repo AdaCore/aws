@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2005-2012, AdaCore                     --
+--                     Copyright (C) 2005-2013, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -1234,7 +1234,7 @@ package body AWS.Server.HTTP_Utils is
 
       Status.Set.Request (C_Stat, Method, Resource, HTTP_Version);
 
-      Status.Set.Add_Parameters (C_Stat, Parameters);
+      Status.Set.Query (C_Stat, Parameters);
    end Parse_Request_Line;
 
    ----------
