@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2000-2012, AdaCore                     --
+--                     Copyright (C) 2000-2013, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -68,6 +68,9 @@ package AWS.Status.Set is
 
    procedure Session (D : in out Data);
    --  Generate new Session ID
+
+   procedure Session_Timed_Out (D : in out Data; Timed_Out : Boolean);
+   --  Set to true when the session has timed out.
 
    procedure Delete_Idle_Session (D : in out Data);
    --  If session just created and user callback has not used it to store data,

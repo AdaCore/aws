@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2000-2012, AdaCore                     --
+--                     Copyright (C) 2000-2013, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -495,7 +495,17 @@ package body AWS.Status.Set is
    begin
       D.Session_Id      := AWS.Session.Create;
       D.Session_Created := True;
+      D.Session_Timed_Out := False;
    end Session;
+
+   -----------------------
+   -- Session_Timed_Out --
+   -----------------------
+
+   procedure Session_Timed_Out (D : in out Data; Timed_Out : Boolean) is
+   begin
+      D.Session_Timed_Out := Timed_Out;
+   end Session_Timed_Out;
 
    ------------
    -- Socket --
