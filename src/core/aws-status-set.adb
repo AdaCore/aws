@@ -493,8 +493,8 @@ package body AWS.Status.Set is
 
    procedure Session (D : in out Data) is
    begin
-      D.Session_Id      := AWS.Session.Create;
-      D.Session_Created := True;
+      D.Session_Id        := AWS.Session.Create;
+      D.Session_Created   := True;
       D.Session_Timed_Out := False;
    end Session;
 
