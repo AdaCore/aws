@@ -332,6 +332,23 @@ package body AWS.Status.Set is
         (AWS.URL.Set.Parameters (D.URI'Access).all, D.Binary_Data.all);
    end Parameters_From_Body;
 
+   -----------
+   -- Query --
+   -----------
+
+   procedure Query (D : in out Data; Parameters : String) is
+      P : constant access AWS.Parameters.List :=
+            AWS.URL.Set.Parameters (D.URI'Access);
+   begin
+      if P.Count > 0 then
+         raise Program_Error with "Could not set HTTP Query twice";
+      end if;
+
+      D.Query := To_Unbounded_String (Parameters);
+
+      AWS.Parameters.Set.Add (P.all, Parameters);
+   end Query;
+
    ---------------
    -- Read_Body --
    ---------------
@@ -453,7 +470,7 @@ package body AWS.Status.Set is
 
       --  Parse URI and keep parameters case sensitivity flag
 
-      URL.Set.Parse (D.URI, URI, False, False);
+      AWS.URL.Set.Parse (D.URI, URI, False, False);
    end Request;
 
    -----------
@@ -465,6 +482,7 @@ package body AWS.Status.Set is
       Free (D);
 
       D.Method            := GET;
+      D.Query             := Null_Unbounded_String;
       D.HTTP_Version      := Null_Unbounded_String;
       D.Content_Length    := 0;
       D.Auth_Mode         := None;

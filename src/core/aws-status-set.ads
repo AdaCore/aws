@@ -117,6 +117,10 @@ package AWS.Status.Set is
    pragma Inline (Add_Parameters);
    --  Parse and add parameters into the internal parameters list
 
+   procedure Query (D : in out Data; Parameters : String);
+   pragma Inline (Query);
+   --  Query is a parameters only from request line (RFC-2616 3.2.2)
+
    procedure Binary (D : in out Data; Parameter : Stream_Element_Array);
    --  This procedure is used to store any binary data sent with the
    --  request. For example this will be used by the PUT method if a binary

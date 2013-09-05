@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2000-2012, AdaCore                     --
+--                     Copyright (C) 2000-2013, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -33,6 +33,7 @@ with Ada.Strings;
 with AWS.Digest;
 with AWS.Headers.Values;
 with AWS.Translator;
+with AWS.Utils;
 
 package body AWS.Status is
 
@@ -239,15 +240,16 @@ package body AWS.Status is
    is
       Nonce    : constant String := Authorization_Nonce (D);
       Auth_URI : constant String := To_String (D.Auth_URI);
-      Auth_URL : constant URL.Object
-        := URL.Parse (Auth_URI, Check_Validity => False, Normalize => True);
+      Auth_URL : constant AWS.URL.Object :=
+                   AWS.URL.Parse
+                     (Auth_URI, Check_Validity => False, Normalize => True);
 
-      Data_URL : URL.Object := D.URI;
+      Data_URL : AWS.URL.Object := D.URI;
 
    begin
-      URL.Normalize (Data_URL);
+      AWS.URL.Normalize (Data_URL);
 
-      if URL.Abs_Path (Data_URL) /= URL.Abs_Path (Auth_URL)
+      if AWS.URL.Abs_Path (Data_URL) /= AWS.URL.Abs_Path (Auth_URL)
         or else Nonce = ""
       then
          --  Bad request
@@ -793,13 +795,44 @@ package body AWS.Status is
 
    function URI (D : Data) return String is
    begin
-      return URL.Pathname (D.URI);
+      return AWS.URL.Pathname (D.URI);
    end URI;
 
-   function URI (D : Data) return URL.Object is
+   function URI (D : Data) return AWS.URL.Object is
    begin
       return D.URI;
    end URI;
+
+   ---------
+   -- URL --
+   ---------
+
+   function URL (D : Data) return String is
+      use AWS.URL;
+
+      function Get_Address return String;
+
+      -----------------
+      -- Get_Address --
+      -----------------
+
+      function Get_Address return String is
+         use type Net.Socket_Access;
+         S_Host : constant String := Host (D);
+      begin
+         if S_Host /= "" then
+            return S_Host;
+         elsif D.Socket /= null then
+            return D.Socket.Get_Addr & ':' & Utils.Image (D.Socket.Get_Port);
+         else
+            return Server_Name (D.URI) & Port_Not_Default (D.URI);
+         end if;
+      end Get_Address;
+
+   begin
+      return Protocol_Name (D.URI) & "://" & Get_Address & URI (D)
+        & '?' & To_String (D.Query);
+   end URL;
 
    ----------------
    -- User_Agent --

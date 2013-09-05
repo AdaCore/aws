@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2000-2012, AdaCore                     --
+--                     Copyright (C) 2000-2013, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -77,6 +77,10 @@ package AWS.Status is
    function URI                    (D : Data) return URL.Object;
    pragma Inline (URI);
    --  As above but return an URL object
+
+   function URL                    (D : Data) return String;
+   pragma Inline (URL);
+   --  Returns the requested URL
 
    function Parameters             (D : Data) return Parameters.List;
    pragma Inline (Parameters);
@@ -387,10 +391,11 @@ private
 
       --  Request
       Header            : Headers.List;
+      Query             : Unbounded_String;
       Method            : Request_Method        := GET;
       Method_String     : Unbounded_String;
       HTTP_Version      : Unbounded_String;
-      URI               : aliased URL.Object;
+      URI               : aliased AWS.URL.Object;
       Calendar_Time     : Ada.Calendar.Time;
       Monotonic_Time    : Ada.Real_Time.Time;
       Binary_Data       : Memory_Stream_Access;
