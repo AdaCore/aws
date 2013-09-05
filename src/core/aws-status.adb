@@ -240,9 +240,9 @@ package body AWS.Status is
    is
       Nonce    : constant String := Authorization_Nonce (D);
       Auth_URI : constant String := To_String (D.Auth_URI);
-      Auth_URL : constant AWS.URL.Object
-        := AWS.URL.Parse
-             (Auth_URI, Check_Validity => False, Normalize => True);
+      Auth_URL : constant AWS.URL.Object :=
+                   AWS.URL.Parse
+                     (Auth_URI, Check_Validity => False, Normalize => True);
 
       Data_URL : AWS.URL.Object := D.URI;
 
@@ -831,7 +831,7 @@ package body AWS.Status is
 
    begin
       return Protocol_Name (D.URI) & "://" & Get_Address & URI (D)
-             & '?' & To_String (D.Query);
+        & '?' & To_String (D.Query);
    end URL;
 
    ----------------
