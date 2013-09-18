@@ -1,0 +1,8 @@
+Start main, wait for server to start...
+Server started
+
+Proc simple1
+S: [simple1]
+Error? FALSE
+Proc simple2
+Error? FALSE
