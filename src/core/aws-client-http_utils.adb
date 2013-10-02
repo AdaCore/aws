@@ -209,9 +209,7 @@ package body AWS.Client.HTTP_Utils is
 
    exception
       when E : Net.Socket_Error =>
-         raise Connection_Error
-           with "can't connect to " & AWS.URL.URL (Connect_URL)
-             & " -> " & Exceptions.Exception_Information (E);
+         raise Connection_Error with Exceptions.Exception_Message (E);
    end Connect;
 
    --------------------------------------

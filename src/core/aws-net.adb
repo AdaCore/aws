@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2000-2012, AdaCore                     --
+--                     Copyright (C) 2000-2013, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -156,15 +156,18 @@ package body AWS.Net is
       First, Last : Natural;
       Errno       : Natural := 0;
    begin
-      --  First check SOCKET_ERROR
-      First := Strings.Fixed.Index (M, "SOCKET_ERROR");
+      if Exception_Identity (E) = Net.Socket_Error'Identity
+        or else
+          Strings.Fixed.Index (Exception_Name (E), "CONNECTION_ERROR") /= 0
+      then
+         First := M'First;
 
-      if First /= 0 then
          --  Now check for the start of the message containing the errno
-         First := Strings.Fixed.Index (M, "Message: [", From => First);
+
+         First := Strings.Fixed.Index (M, "[", From => First);
 
          if First /= 0 then
-            First := First + 10;
+            First := First + 1;
             Last := First;
             while Last < M'Last and then M (Last + 1) in '0' .. '9' loop
                Last := Last + 1;
