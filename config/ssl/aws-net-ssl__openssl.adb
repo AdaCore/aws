@@ -1402,9 +1402,9 @@ begin
          F => System.Memory.Free'Address) = 0
    then
       --  In "OpenSSL FIPS Object Module" based on OpenSSL version 1.0.1e
-      --  we are unable to setup own memory allocation routines. GNATMEM would
-      --  not be aware of memory allocations inside of OpenSSL in this case,
-      --  but AWS able to run anyway for sure.
+      --  we are unable to setup our own memory allocation routines. GNATMEM
+      --  would not be aware of memory allocations inside of OpenSSL in this
+      --  case, but AWS is able to run anyway.
       null;
    end if;
 
