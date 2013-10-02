@@ -1401,7 +1401,11 @@ begin
          R => System.Memory.Realloc'Address,
          F => System.Memory.Free'Address) = 0
    then
-      raise Program_Error with "Could not set memory functions.";
+      --  In "OpenSSL FIPS Object Module" based on OpenSSL version 1.0.1e
+      --  we are unable to setup own memory allocation routines. GNATMEM would
+      --  not be aware of memory allocations inside of OpenSSL in this case,
+      --  but AWS able to run anyway for sure.
+      null;
    end if;
 
    TSSL.SSL_load_error_strings;
