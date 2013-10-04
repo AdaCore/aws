@@ -1,5 +1,11 @@
 Known Problems fixed in AWS 3.1
 
+- MA04-027: Handle installation in different drives on Windows
+  Problem: It is not possible to use AWS on a project when not
+           installed on the same drive.
+  Workaround: Install AWS with by specifying the drive letter for the
+              prefix during setup.
+
 - MA03-072: Filers in macro expressions
   Problem: Filters in macro expressions where not properly parsed and
            evaluated. This could cause a PROGRAM_ERROR or a wrong
