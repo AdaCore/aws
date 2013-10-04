@@ -1,5 +1,11 @@
 Known Problems fixed in AWS 3.1
 
+- MA03-072: Filers in macro expressions
+  Problem: Filters in macro expressions where not properly parsed and
+           evaluated. This could cause a PROGRAM_ERROR or a wrong
+           evaluation of the conditional expression to FALSE.
+  Workaround: Expand the code manually instead of using a MACRO
+
 - M802-001: Make sure all data are sent on slow OpenSSL connection
   Problem:    On slow connection (~ 100Kbit/s) under MacOS-X the
               last chunk of data in an OpenSSL connection could remain
