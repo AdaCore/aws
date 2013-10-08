@@ -1,5 +1,10 @@
 Known Problems fixed in AWS 3.1
 
+- MA07-053: Support certificate validation
+  Problem: It is not possible in the certificate verify circuitry to
+           validate a certificate. It is only possible to invalidate.
+  Workaround: None.
+
 - MA04-027: Handle installation in different drives on Windows
   Problem: It is not possible to use AWS on a project when not
            installed on the same drive.

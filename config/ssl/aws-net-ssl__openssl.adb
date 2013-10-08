@@ -1356,10 +1356,12 @@ package body AWS.Net.SSL is
 
       CB := To_Callback (TSSL.SSL_CTX_get_ex_data (SSL_CTX, Data_Index));
 
-      if CB /= null
-        and then not CB (Net.SSL.Certificate.Impl.Read (Status, Cert))
-      then
-         Res := 0;
+      if CB /= null then
+         if CB (Net.SSL.Certificate.Impl.Read (Status, Cert)) then
+            Res := 1;
+         else
+            Res := 0;
+         end if;
       end if;
 
       --  If we did not ask to fail if no peer cert was received just
