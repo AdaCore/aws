@@ -321,7 +321,7 @@ endif
 		>> $(CONFGPR)
 	echo >> $(CONFGPR)
 	echo '   type Target_Type is ' >> $(CONFGPR)
-	echo '     ("Windows_NT", "Darwin", "UNIX", "vxworks");' >> $(CONFGPR)
+	echo '     ("Windows_NT", "Darwin", "UNIX", "vxworks", "freebsd");' >> $(CONFGPR)
 	echo '   PRJ_TARGET : Target_Type := "'$(PRJ_TARGET)'";' >> $(CONFGPR)
 	echo >> $(CONFGPR)
 	echo 'end AWS_Config;' >> $(CONFGPR)

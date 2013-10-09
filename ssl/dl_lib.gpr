@@ -29,7 +29,7 @@ project DL_Lib is
    for Source_Files use ();
 
    case Shared.S_Target is
-      when "Windows_NT" | "vxworks" =>
+      when "Windows_NT" | "vxworks" | "freebsd" =>
          null;
 
       when others =>

@@ -54,7 +54,7 @@ abstract project Shared is
 
    Target := external ("TARGET", "i686-pc-mingw32");
 
-   type S_Target_type is ("Windows_NT", "UNIX", "Darwin", "vxworks");
+   type S_Target_type is ("Windows_NT", "UNIX", "Darwin", "vxworks", "freebsd");
    S_Target : S_Target_Type := external ("PRJ_TARGET");
 
    -----------------------
