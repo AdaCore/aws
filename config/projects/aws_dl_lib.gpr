@@ -29,7 +29,7 @@ project AWS_DL_Lib is
    for Source_Files use ();
 
    case AWS_Config.PRJ_TARGET is
-      when "Windows_NT" =>
+      when "Windows_NT" | "freebsd" =>
          null;
       when others =>
          for Library_Dir use AWS_Lib_Shared.LIB_Path;
