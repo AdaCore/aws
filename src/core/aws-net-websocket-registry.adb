@@ -152,6 +152,12 @@ package body AWS.Net.WebSocket.Registry is
       procedure Signal_Socket;
       --  Send a signal to the wait call
 
+      procedure Receive
+        (WebSocket : Object_Class;
+         Data      : out Stream_Element_Array;
+         Last      : out Stream_Element_Offset);
+      --  Get data from WebSocket
+
    private
       Sig1, Sig2 : Net.Std.Socket_Type; -- Signaling sockets
       Signal     : Boolean := False;    -- Transient signal, release Not_Emtpy
@@ -241,7 +247,7 @@ package body AWS.Net.WebSocket.Registry is
             --  binary ones. This loop handles those cases.
 
             Read_Message : loop
-               WebSocket.Receive (Data, Last);
+               DB.Receive (WebSocket, Data, Last);
 
                case WebSocket.Kind is
                   when Text | Binary =>
@@ -431,6 +437,18 @@ package body AWS.Net.WebSocket.Registry is
             end;
          end if;
       end Not_Empty;
+
+      -------------
+      -- Receive --
+      -------------
+
+      procedure Receive
+        (WebSocket : Object_Class;
+         Data      : out Stream_Element_Array;
+         Last      : out Stream_Element_Offset) is
+      begin
+         WebSocket.Receive (Data, Last);
+      end Receive;
 
       --------------
       -- Register --
