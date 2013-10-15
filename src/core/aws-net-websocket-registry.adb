@@ -247,7 +247,7 @@ package body AWS.Net.WebSocket.Registry is
             --  binary ones. This loop handles those cases.
 
             Read_Message : loop
-               WebSocket.Receive (Data, Last);
+               DB.Receive (WebSocket, Data, Last);
 
                case WebSocket.Kind is
                   when Text | Binary =>

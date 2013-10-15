@@ -1,5 +1,10 @@
 Known Problems fixed in AWS 3.1
 
+- MA14-003: WebSocket support is not thread-safe
+  Problem: Sending and receiving data on the same WebSocket is not
+           thread safe.
+  Workaround: None.
+
 - MA07-053: Support certificate validation
   Problem: It is not possible in the certificate verify circuitry to
            validate a certificate. It is only possible to invalidate.
