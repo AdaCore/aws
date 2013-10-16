@@ -136,6 +136,26 @@ package body AWS.Net.WebSocket.Registry is
          Timeout     : Duration := Forever);
       --  Send the given message to all matching WebSockets
 
+      procedure Send
+        (Socket    : in out Object'Class;
+         Message   : String;
+         Is_Binary : Boolean := False;
+         Timeout   : Duration := Forever);
+
+      procedure Send
+        (Socket    : in out Object'Class;
+         Message   : Unbounded_String;
+         Is_Binary : Boolean := False;
+         Timeout   : Duration := Forever);
+   --  Same as above but can be used for large messages. The message is
+   --  possibly sent fragmented.
+
+      procedure Send
+        (Socket    : in out Object'Class;
+         Message   : Stream_Element_Array;
+         Is_Binary : Boolean := True;
+         Timeout   : Duration := Forever);
+
       procedure Close
         (To          : Recipient;
          Message     : String;
@@ -516,6 +536,36 @@ package body AWS.Net.WebSocket.Registry is
          Registered_Before.Iterate (Send_To'Access);
       end Send;
 
+      procedure Send
+        (Socket    : in out Object'Class;
+         Message   : String;
+         Is_Binary : Boolean := False;
+         Timeout   : Duration := Forever) is
+      begin
+         Socket.Set_Timeout (Timeout);
+         Socket.Send (Message, Is_Binary);
+      end Send;
+
+      procedure Send
+        (Socket    : in out Object'Class;
+         Message   : Unbounded_String;
+         Is_Binary : Boolean := False;
+         Timeout   : Duration := Forever) is
+      begin
+         Socket.Set_Timeout (Timeout);
+         Socket.Send (Message, Is_Binary);
+      end Send;
+
+      procedure Send
+        (Socket    : in out Object'Class;
+         Message   : Stream_Element_Array;
+         Is_Binary : Boolean := True;
+         Timeout   : Duration := Forever) is
+      begin
+         Socket.Set_Timeout (Timeout);
+         Socket.Send (Message, Is_Binary);
+      end Send;
+
       -------------------
       -- Signal_Socket --
       -------------------
@@ -669,6 +719,33 @@ package body AWS.Net.WebSocket.Registry is
         (To, Message,
          Except_Peer => AWS.Status.Socket (Request).Peer_Addr,
          Timeout     => Timeout);
+   end Send;
+
+   procedure Send
+     (Socket    : in out Object'Class;
+      Message   : String;
+      Is_Binary : Boolean := False;
+      Timeout   : Duration := Forever) is
+   begin
+      DB.Send (Socket, Message, Is_Binary, Timeout);
+   end Send;
+
+   procedure Send
+     (Socket    : in out Object'Class;
+      Message   : Unbounded_String;
+      Is_Binary : Boolean := False;
+      Timeout   : Duration := Forever) is
+   begin
+      DB.Send (Socket, Message, Is_Binary, Timeout);
+   end Send;
+
+   procedure Send
+     (Socket    : in out Object'Class;
+      Message   : Stream_Element_Array;
+      Is_Binary : Boolean := True;
+      Timeout   : Duration := Forever) is
+   begin
+      DB.Send (Socket, Message, Is_Binary, Timeout);
    end Send;
 
    --------------

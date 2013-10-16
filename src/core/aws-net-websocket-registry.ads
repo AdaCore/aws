@@ -84,6 +84,33 @@ package AWS.Net.WebSocket.Registry is
       Timeout     : Duration := Forever);
    --  Close connections
 
+   --  Targetting a single WebSocket, these routines are equivalent to the
+   --  Net.WebSocket ones but are thread-safe. That is, they can be mixed
+   --  with other WebSocket activity to and from the clients.
+
+   procedure Send
+     (Socket    : in out Object'Class;
+      Message   : String;
+      Is_Binary : Boolean := False;
+      Timeout   : Duration := Forever);
+   --  This default implementation just send a message to the client. The
+   --  message is sent in a single chunk (not fragmented).
+
+   procedure Send
+     (Socket    : in out Object'Class;
+      Message   : Unbounded_String;
+      Is_Binary : Boolean := False;
+      Timeout   : Duration := Forever);
+   --  Same as above but can be used for large messages. The message is
+   --  possibly sent fragmented.
+
+   procedure Send
+     (Socket    : in out Object'Class;
+      Message   : Stream_Element_Array;
+      Is_Binary : Boolean := True;
+      Timeout   : Duration := Forever);
+   --  As above but for a Stream_Element_Array
+
 private
 
    use GNAT.Regexp;
