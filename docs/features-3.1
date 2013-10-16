@@ -15,6 +15,12 @@ of the feature.
 New features in AWS 3.1
 -----------------------
 
+NF-31-MA14-060 Add thread-safe send/close WebSocket support (2013-10-16)
+
+   There is some new routines integrated into the WebSocket registry to
+   send data to a single peer and to close the WebSocket. These
+   routines, as for all routines into the registry, are thread-safe.
+
 NF-31-M925-005 Templates parser supports complex expressions (2013-09-25)
 
    It is now possible to use complex expressions in the template engine
