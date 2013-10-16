@@ -163,6 +163,11 @@ package body AWS.Net.WebSocket.Registry is
          Timeout     : Duration := Forever);
       --  Close all matching Webockets
 
+      procedure Close
+        (Socket  : in out Object'Class;
+         Message : String;
+         Timeout : Duration := Forever);
+
       procedure Register (WebSocket : Object_Class);
       --  Register a new WebSocket
 
@@ -377,6 +382,45 @@ package body AWS.Net.WebSocket.Registry is
 
       begin
          Registered_Before.Iterate (Close_To'Access);
+      end Close;
+
+      procedure Close
+        (Socket  : in out Object'Class;
+         Message : String;
+         Timeout : Duration := Forever)
+      is
+         Socket_Class : Object_Class;
+
+         procedure Check (Position : WebSocket_Set.Cursor);
+
+         -----------
+         -- Check --
+         -----------
+
+         procedure Check (Position : WebSocket_Set.Cursor) is
+            WebSocket : constant Object_Class :=
+                          WebSocket_Set.Element (Position);
+         begin
+            if WebSocket.all = Socket then
+               Socket_Class := WebSocket;
+            end if;
+         end Check;
+
+      begin
+         --  Look for WebSocket into the registered set
+
+         Registered.Iterate (Check'Access);
+
+         --  If found, unregister it
+
+         if Socket_Class /= null then
+            Unregister (Socket_Class);
+         end if;
+
+         Socket.State.Errno := Error_Code (Normal_Closure);
+         Socket.Set_Timeout (Timeout);
+         Socket.On_Close (Message);
+         Socket.Shutdown;
       end Close;
 
       --------------
@@ -643,6 +687,18 @@ package body AWS.Net.WebSocket.Registry is
       Timeout     : Duration := Forever) is
    begin
       DB.Close (To, Message, Except_Peer, Timeout);
+   exception
+      when others =>
+         --  Should never fails even if the WebSocket is closed by peer
+         null;
+   end Close;
+
+   procedure Close
+     (Socket  : in out Object'Class;
+      Message : String;
+      Timeout : Duration := Forever) is
+   begin
+      DB.Close (Socket, Message, Timeout);
    exception
       when others =>
          --  Should never fails even if the WebSocket is closed by peer

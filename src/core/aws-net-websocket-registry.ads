@@ -111,6 +111,11 @@ package AWS.Net.WebSocket.Registry is
       Timeout   : Duration := Forever);
    --  As above but for a Stream_Element_Array
 
+   procedure Close
+     (Socket  : in out Object'Class;
+      Message : String;
+      Timeout : Duration := Forever);
+
 private
 
    use GNAT.Regexp;
