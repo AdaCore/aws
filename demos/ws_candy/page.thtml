@@ -1,0 +1,84 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+          "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <title>Candy!</title>
+
+    <style type="text/css">
+      span {
+        display: inline-block;
+        width: 10em;
+      }
+      button {
+        margin-right: 20px;
+      }
+    </style>
+
+    <script type="text/javascript">
+
+      var ws;
+
+      function updateP(id, message) {
+        var a = document.getElementById(id);
+        a.innerHTML = a.innerHTML + "<br>" + message;
+      }
+
+      function startWS() {
+          var server = window.location.host;
+
+          ws = new WebSocket('ws://' + server + '/candy');
+
+          ws.onmessage = function(event) {
+
+            var tokens = event.data.split(",", 2);
+            console.log(tokens[1].length)
+            var key = tokens[0];
+
+            var span = document.getElementById(key);
+            var count = parseInt(span.innerHTML);
+            count = count + 1;
+            span.innerHTML = count;
+          }
+
+      };
+
+      function subscribe(key) {
+        ws.send("subscribe,"+key);
+      }
+      function unsubscribe(key) {
+        ws.send("unsubscribe,"+key);
+      }
+
+      function closeConnection() {
+        ws.send("close");
+      }
+
+    </script>
+  </head>
+
+  <body onload="startWS()">
+    <p>This is the main page, below is a simple candy counter
+
+    <p><span width="10%">Candy: </span><span id="Candy">0</span><button onclick="subscribe('Candy')">Subscribe</button><button onclick="unsubscribe('Candy')">Unsubscribe</button>
+    <p><span>Lollipop: </span><span id="Lollipop">0</span><button onclick="subscribe('Lollipop')">Subscribe</button><button onclick="unsubscribe('Lollipop')">Unsubscribe</button>
+    <p><span>Snickers: </span><span id="Snickers">0</span><button onclick="subscribe('Snickers')">Subscribe</button><button onclick="unsubscribe('Snickers')">Unsubscribe</button>
+    <p><span>Bubble Tape: </span><span id="Bubble Tape">0</span><button onclick="subscribe('Bubble Tape')">Subscribe</button><button onclick="unsubscribe('Bubble Tape')">Unsubscribe</button>
+    <p><span>Gummi Bears: </span><span id="Gummi Bears">0</span><button onclick="subscribe('Gummi Bears')">Subscribe</button><button onclick="unsubscribe('Gummi Bears')">Unsubscribe</button>
+    <p><span>Corn Candy: </span><span id="Corn Candy">0</span><button onclick="subscribe('Corn Candy')">Subscribe</button><button onclick="unsubscribe('Corn Candy')">Unsubscribe</button>
+    <p><span>Cherry Ripe: </span><span id="Cherry Ripe">0</span><button onclick="subscribe('Cherry Ripe')">Subscribe</button><button onclick="unsubscribe('Cherry Ripe')">Unsubscribe</button>
+    <p><span>Chocolate: </span><span id="Chocolate">0</span><button onclick="subscribe('Chocolate')">Subscribe</button><button onclick="unsubscribe('Chocolate')">Unsubscribe</button>
+    <p><span>Skittles: </span><span id="Skittles">0</span><button onclick="subscribe('Skittles')">Subscribe</button><button onclick="unsubscribe('Skittles')">Unsubscribe</button>
+    <p><span>Bullets: </span><span id="Bullets">0</span><button onclick="subscribe('Bullets')">Subscribe</button><button onclick="unsubscribe('Bullets')">Unsubscribe</button>
+    <p><span>Minties: </span><span id="Minties">0</span><button onclick="subscribe('Minties')">Subscribe</button><button onclick="unsubscribe('Minties')">Unsubscribe</button>
+    <p><span>Kool Mints: </span><span id="Kool Mints">0</span><button onclick="subscribe('Kool Mints')">Subscribe</button><button onclick="unsubscribe('Kool Mints')">Unsubscribe</button>
+    <p><span>Jaffas: </span><span id="Jaffas">0</span><button onclick="subscribe('Jaffas')">Subscribe</button><button onclick="unsubscribe('Jaffas')">Unsubscribe</button>
+    <p><span>Fantales: </span><span id="Fantales">0</span><button onclick="subscribe('Fantales')">Subscribe</button><button onclick="unsubscribe('Fantales')">Unsubscribe</button>
+    <p><span>Clinkers: </span><span id="Clinkers">0</span><button onclick="subscribe('Clinkers')">Subscribe</button><button onclick="unsubscribe('Clinkers')">Unsubscribe</button>
+
+      <br>
+      <br>
+      <br>
+      <br>
+      <p><button onclick="closeConnection()">Close WebSocket</button>
+  </body>
+</html>
