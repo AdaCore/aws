@@ -19,13 +19,13 @@
 MAKEFILES = $(wildcard */makefile)
 MAKEFILES_CLEAN = ${MAKEFILES:%=%_clean}
 
+build: $(MAKEFILES)
+
 setup:
 
 install:
 	$(CP) web_mail/*html $(DESTDIR)$(I_TPL)
 	$(CP) runme/aws_*.png $(DESTDIR)$(I_IMG)
-
-build: $(MAKEFILES)
 
 $(MAKEFILES): force
 	$(MAKE) -C $(dir $@)
