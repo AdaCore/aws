@@ -74,11 +74,7 @@ endif
 	echo '   --  libz' >> $(LIBGPR)
 ifeq (${ZPATH}, ./)
 	echo '   LIBZ_Path := Project'\''Project_Dir ' >> $(LIBGPR)
-ifeq ($(IS_CROSS), false)
 	echo '     & "../../../lib/aws/static";' >> $(LIBGPR)
-else
-	echo '     & "../../../$(TARGET)/lib/aws/static";' >> $(LIBGPR)
-endif
 else
 	echo '   LIBZ_Path := "${ZPATH}";' >> $(LIBGPR)
 endif
