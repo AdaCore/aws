@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2000-2012, AdaCore                     --
+--                     Copyright (C) 2000-2013, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -27,6 +27,8 @@
 --  covered by the  GNU Public License.                                     --
 ------------------------------------------------------------------------------
 
+with Ada.Streams;
+
 with AWS.Messages;
 with AWS.Response;
 with AWS.URL;
@@ -41,15 +43,16 @@ package body SOAP.Client is
    ----------
 
    function Call
-     (URL        : String;
-      P          : Message.Payload.Object;
-      SOAPAction : String                     := No_SOAPAction;
-      User       : String                     := Not_Specified;
-      Pwd        : String                     := Not_Specified;
-      Proxy      : String                     := Not_Specified;
-      Proxy_User : String                     := Not_Specified;
-      Proxy_Pwd  : String                     := Not_Specified;
-      Timeouts   : AWS.Client.Timeouts_Values := AWS.Client.No_Timeout)
+     (URL          : String;
+      P            : Message.Payload.Object;
+      SOAPAction   : String                     := No_SOAPAction;
+      User         : String                     := Not_Specified;
+      Pwd          : String                     := Not_Specified;
+      Proxy        : String                     := Not_Specified;
+      Proxy_User   : String                     := Not_Specified;
+      Proxy_Pwd    : String                     := Not_Specified;
+      Timeouts     : AWS.Client.Timeouts_Values := AWS.Client.No_Timeout;
+      Asynchronous : Boolean := False)
       return Message.Response.Object'Class
    is
       Connection : AWS.Client.HTTP_Connection;
@@ -62,7 +65,7 @@ package body SOAP.Client is
 
       declare
          Result : constant Message.Response.Object'Class :=
-                    Call (Connection, SOAPAction, P);
+                    Call (Connection, SOAPAction, P, Asynchronous);
       begin
          AWS.Client.Close (Connection);
          return Result;
@@ -78,11 +81,13 @@ package body SOAP.Client is
    ----------
 
    function Call
-     (Connection : AWS.Client.HTTP_Connection;
-      SOAPAction : String;
-      P          : Message.Payload.Object)
+     (Connection   : AWS.Client.HTTP_Connection;
+      SOAPAction   : String;
+      P            : Message.Payload.Object;
+      Asynchronous : Boolean := False)
       return Message.Response.Object'Class
    is
+      use type Ada.Streams.Stream_Element_Offset;
       use type AWS.Messages.Status_Code;
 
       function SOAP_Action return String;
@@ -113,12 +118,28 @@ package body SOAP.Client is
       end SOAP_Action;
 
       Response : AWS.Response.Data;
+
    begin
       AWS.Client.SOAP_Post
         (Connection, Response, SOAP_Action, SOAP.Message.XML.Image (P), True);
 
       if AWS.Response.Status_Code (Response) in AWS.Messages.Success then
-         return Message.XML.Load_Response (Connection);
+
+         --  In Asynchronous mode allow an empty message body. In this specific
+         --  case there is nothing to read from the connection (socket).
+
+         if Asynchronous
+           and then AWS.Response.Content_Length (Response) = 0
+         then
+            return S : Message.Response.Object do
+               null;
+            end return;
+
+         else
+            --  All other cases, read the response from the connection
+
+            return Message.XML.Load_Response (Connection);
+         end if;
 
       else
          return Message.Response.Error.Build

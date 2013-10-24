@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2000-2012, AdaCore                     --
+--                     Copyright (C) 2000-2013, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -36,26 +36,32 @@ package SOAP.Client is
    Not_Specified : String renames AWS.Client.No_Data;
 
    function Call
-     (URL        : String;
-      P          : Message.Payload.Object;
-      SOAPAction : String                     := No_SOAPAction;
-      User       : String                     := Not_Specified;
-      Pwd        : String                     := Not_Specified;
-      Proxy      : String                     := Not_Specified;
-      Proxy_User : String                     := Not_Specified;
-      Proxy_Pwd  : String                     := Not_Specified;
-      Timeouts   : AWS.Client.Timeouts_Values := AWS.Client.No_Timeout)
+     (URL          : String;
+      P            : Message.Payload.Object;
+      SOAPAction   : String                     := No_SOAPAction;
+      User         : String                     := Not_Specified;
+      Pwd          : String                     := Not_Specified;
+      Proxy        : String                     := Not_Specified;
+      Proxy_User   : String                     := Not_Specified;
+      Proxy_Pwd    : String                     := Not_Specified;
+      Timeouts     : AWS.Client.Timeouts_Values := AWS.Client.No_Timeout;
+      Asynchronous : Boolean := False)
       return Message.Response.Object'Class;
    --  Send a SOAP HTTP request to URL address. The P is the Payload and
    --  SOAPAction is the required HTTP field. If it is not specified then the
    --  URI (URL resource) will be used for the SOAPAction field. The complete
    --  format is "URL & '#' & Procedure_Name" (Procedure_Name is retrieved
    --  from the Payload object.
+   --
+   --  If Asynchronous is set to True the response from the server may be
+   --  empty. In this specific case the success of the call depends on the
+   --  HTTP status code.
 
    function Call
-     (Connection : AWS.Client.HTTP_Connection;
-      SOAPAction : String;
-      P          : Message.Payload.Object)
+     (Connection   : AWS.Client.HTTP_Connection;
+      SOAPAction   : String;
+      P            : Message.Payload.Object;
+      Asynchronous : Boolean := False)
       return Message.Response.Object'Class;
    --  Idem as above, but use an already opened connection
 
