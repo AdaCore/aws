@@ -1,7 +1,7 @@
 ############################################################################
 #                              Ada Web Server                              #
 #                                                                          #
-#                     Copyright (C) 2003-2012, AdaCore                     #
+#                     Copyright (C) 2003-2013, AdaCore                     #
 #                                                                          #
 #  This is free software;  you can redistribute it  and/or modify it       #
 #  under terms of the  GNU General Public License as published  by the     #
@@ -406,7 +406,10 @@ endif
 #  Copy all shared libraries into the main bin directory
 ifeq (${ENABLE_SHARED}, true)
 ifeq ($(OS), Windows_NT)
-	$(CP) $(I_LIB)/relocatable/*$(SOEXT) $(DESTDIR)$(I_BIN)
+	$(CP) $(I_LIB)/relocatable/libaws*$(SOEXT) $(DESTDIR)$(I_BIN)
+	if [ ! -f $(DESTDIR)$(I_BIN)/libz.dll ]; then \
+		$(CP) $(I_LIB)/relocatable/libz*$(SOEXT) $(DESTDIR)$(I_BIN); \
+	fi
 endif
 	$(CP) $(CONFADC) $(DESTDIR)$(I_LIB)/relocatable
 endif
