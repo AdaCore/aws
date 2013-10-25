@@ -33,9 +33,9 @@
 --  on the client side.
 
 with Ada.Calendar;
-with Ada.Strings.Unbounded;
-with Ada.Streams;
 with Ada.Finalization;
+with Ada.Streams;
+with Ada.Strings.Unbounded;
 with Ada.Unchecked_Deallocation;
 
 with AWS.Headers;
