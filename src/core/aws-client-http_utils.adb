@@ -924,7 +924,7 @@ package body AWS.Client.HTTP_Utils is
             elsif Mode_Image = Basic_Token then
                Request_Mode := Basic;
             else
-               raise Constraint_Error with "Only BASIC/DIGEST mode supported.";
+               Request_Mode := Unknown;
             end if;
 
             Read_Params := Request_Mode > Request_Auth_Mode (Level);

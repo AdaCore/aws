@@ -67,11 +67,12 @@ package AWS.Response is
       WebSocket,      -- Protocol switched to WebSocket
       No_Data);       -- No data, this is not a response
 
-   type Authentication_Mode is (Any, Basic, Digest);
+   type Authentication_Mode is (Unknown, Any, Basic, Digest);
    --  The authentication mode.
    --  "Basic" and "Digest" mean that server must accept the requested
    --  authentication mode. "Any" mean that server could accept any
    --  authentication from client.
+   --  Unknown, means that an unsupported mode has been found.
    --  Note the order here should not be changed as it is used in AWS.Client.
 
    subtype Content_Length_Type
