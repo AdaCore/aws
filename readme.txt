@@ -1,6 +1,6 @@
 
                             A W S - Ada Web Server
-                           3.1.0 release / SOAP 1.5
+                           3.2.0 release / SOAP 1.5
 
 Authors:
    Dmitriy Anisimkov
@@ -52,8 +52,6 @@ to work properly. Of course we try to avoid this as much as possible
 but we really prefer to have a clean API instead of keeping awkward
 implementations.
 
-- The generic procedure for For_Every_Session_Data iterator now has
-  a new parameter which represent the type of the stored data.
 
 
 Obsolescent features
