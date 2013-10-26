@@ -172,7 +172,7 @@ At this point some adjustments are needed:
    * on master
 
       $ git checkout master
-      $ edit src/core/aws.ads (set proper version number X.Y+1.0 or X+1.0.0)
+      $ edit src/core/aws.ads (set proper version number X.Y+1.0w or X+1.0.0w)
       $ edit readme.txt (likewise + clean-up "Changes",
         "Non upward compatible changes" and "Obsolescent features" sections)
       $ clean docs/known-problems
