@@ -649,6 +649,9 @@ package SSL.Thin is
    function X509_load_crl_file
      (Context : X509_LOOKUP; File : Strings.chars_ptr; Typ : int) return int;
 
+   function X509_STORE_set1_param
+     (Store : X509_STORE; Param : X509_VERIFY_PARAM) return int;
+
    --  Verify param
 
    function X509_VERIFY_PARAM_new return X509_VERIFY_PARAM;
@@ -906,6 +909,7 @@ private
    pragma Import (C, X509_STORE_add_lookup, "X509_STORE_add_lookup");
    pragma Import (C, X509_LOOKUP_file, "X509_LOOKUP_file");
    pragma Import (C, X509_load_crl_file, "X509_load_crl_file");
+   pragma Import (C, X509_STORE_set1_param, "X509_STORE_set1_param");
    pragma Import (C, i2c_ASN1_INTEGER, "i2c_ASN1_INTEGER");
    pragma Import (C, ASN1_INTEGER_get, "ASN1_INTEGER_get");
    pragma Import (C, ASN1_INTEGER_to_BN, "ASN1_INTEGER_to_BN");

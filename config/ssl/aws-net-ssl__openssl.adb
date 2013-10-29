@@ -1032,30 +1032,27 @@ package body AWS.Net.SSL is
                then
                   CRL_Time_Stamp := TS;
 
-                  --  Load CRL
-
                   declare
                      Store  : constant TSSL.X509_STORE :=
                                 TSSL.SSL_CTX_get_cert_store (Context);
                      Lookup : constant TSSL.X509_LOOKUP :=
                                 TSSL.X509_STORE_add_lookup
                                   (Store, TSSL.X509_LOOKUP_file);
+                     Param  : constant TSSL.X509_VERIFY_PARAM :=
+                                TSSL.X509_VERIFY_PARAM_new;
                   begin
+                     --  Load CRL
+
                      Error_If
                        (TSSL.X509_load_crl_file
                           (Lookup, CRL_File, TSSL.X509_FILETYPE_PEM) /= 1);
-                  end;
 
-                  --  Setup context to check CRL
+                     --  Set up certificate store to check CRL
 
-                  declare
-                     Param : constant TSSL.X509_VERIFY_PARAM :=
-                               TSSL.X509_VERIFY_PARAM_new;
-                  begin
                      Error_If
                        (TSSL.X509_VERIFY_PARAM_set_flags
                           (Param, TSSL.X509_V_FLAG_CRL_CHECK) < 0);
-                     Error_If (TSSL.SSL_CTX_set1_param (Context, Param) < 0);
+                     Error_If (TSSL.X509_STORE_set1_param (Store, Param) < 0);
                      TSSL.X509_VERIFY_PARAM_free (Param);
                   end;
                end if;
