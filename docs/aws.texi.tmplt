@@ -2519,14 +2519,14 @@ Or using the @code{certificate} configuration parameter,
 
 @noindent
 First note that it is not necessary to use such callback to verify the
-certificate validity. @pxref{Using a Certificate Authority}.
+certificate validity, @pxref{Using a Certificate Authority}.
 
 @noindent
 This callback will receive the client certificate as sent during SSL
 handshake between the server and the client. The certificate
 information can be checked for logging purpose or to impose some
 restriction. Generally this callback should return the value from
-@code{AWS.Net.SSL.Certificate.Verified}, see @pxref{AWS.Net.SSL.Certificate}.
+@code{AWS.Net.SSL.Certificate.Verified}, @pxref{AWS.Net.SSL.Certificate}.
 
 @noindent
 The Verified status of the certificate is the one that has been issued
