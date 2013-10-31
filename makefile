@@ -157,7 +157,6 @@ endif
 
 I_BIN	= $(TPREFIX)/bin
 I_INC	= $(TPREFIX)/include/aws
-I_CPN	= $(TPREFIX)/include/aws/components
 I_LIB	= $(TPREFIX)/lib/aws
 I_GPR	= $(TPREFIX)/lib/gnat
 I_AGP	= $(TPREFIX)/lib/gnat/aws
@@ -178,7 +177,6 @@ GALL_OPTIONS := $(ALL_OPTIONS) \
 	TP_XMLADA="$(TP_XMLADA)" \
 	I_BIN="$(I_BIN)" \
 	I_INC="$(I_INC)" \
-	I_CPN="$(I_CPN)" \
 	I_LIB="$(I_LIB)" \
 	I_GPR="$(I_GPR)" \
 	I_AGP="$(I_AGP)" \
@@ -210,7 +208,7 @@ GPROPTS = -XPRJ_BUILD=$(PRJ_BUILD) -XPRJ_SOCKLIB=$(PRJ_SOCKLIB) \
 build-native:
 	$(GPRBUILD) -p $(GPROPTS) -XLIBRARY_TYPE=static tools/tools.gpr
 ifeq (${ENABLE_SHARED}, true)
-	$(GPRBUILD) -p $(GPROPTS) -XLIBRARY_TYPE=relocatable src/src.gpr
+	$(GPRBUILD) -p $(GPROPTS) -XLIBRARY_TYPE=relocatable aws.gpr
 endif
 	$(GPRBUILD) -p $(GPROPTS) -XLIBRARY_TYPE=static gps/gps_support.gpr
 	${MAKE} -C gps $(GALL_OPTIONS) after-build
@@ -220,7 +218,7 @@ build-cross:
 		-XLIBRARY_TYPE=static tools/tools.gpr
 ifeq (${ENABLE_SHARED}, true)
 	$(GPRBUILD) -p --target=$(TARGET) $(GPROPTS) \
-		-XLIBRARY_TYPE=relocatable src/src.gpr
+		-XLIBRARY_TYPE=relocatable aws.gpr
 endif
 
 ifeq (${IS_CROSS}, true)
@@ -235,13 +233,13 @@ endif
 clean-native:
 	-$(GPRCLEAN) $(GPROPTS) -XLIBRARY_TYPE=static tools/tools.gpr
 ifeq (${ENABLE_SHARED}, true)
-	-$(GPRCLEAN) $(GPROPTS) -XLIBRARY_TYPE=relocatable src/src.gpr
+	-$(GPRCLEAN) $(GPROPTS) -XLIBRARY_TYPE=relocatable aws.gpr
 endif
 	-$(GPRCLEAN) $(GPROPTS) -XLIBRARY_TYPE=static gps/gps_support.gpr
 
 clean-cross:
 	-$(GPRCLEAN) $(GPROPTS) --target=$(TARGET) \
-		-XLIBRARY_TYPE=static src/src.gpr
+		-XLIBRARY_TYPE=static aws.gpr
 
 ifeq (${IS_CROSS}, true)
 clean: clean-cross
@@ -380,7 +378,6 @@ install_clean:
 install_dirs: install_clean
 	$(MKDIR) -p $(DESTDIR)$(I_BIN)
 	$(MKDIR) -p $(DESTDIR)$(I_INC)
-	$(MKDIR) -p $(DESTDIR)$(I_CPN)
 	$(MKDIR) -p $(DESTDIR)$(I_LIB)/static
 ifeq (${ENABLE_SHARED}, true)
 	$(MKDIR) -p $(DESTDIR)$(I_LIB)/relocatable
@@ -407,9 +404,6 @@ endif
 ifeq (${ENABLE_SHARED}, true)
 ifeq ($(OS), Windows_NT)
 	$(CP) $(I_LIB)/relocatable/libaws*$(SOEXT) $(DESTDIR)$(I_BIN)
-	if [ ! -f $(DESTDIR)$(I_BIN)/libz.dll ]; then \
-		$(CP) $(I_LIB)/relocatable/libz*$(SOEXT) $(DESTDIR)$(I_BIN); \
-	fi
 endif
 	$(CP) $(CONFADC) $(DESTDIR)$(I_LIB)/relocatable
 endif

@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2003-2012, AdaCore                     --
+--                     Copyright (C) 2003-2013, AdaCore                     --
 --                                                                          --
 --  This is free software;  you can redistribute it  and/or modify it       --
 --  under terms of the  GNU General Public License as published  by the     --
@@ -17,20 +17,50 @@
 ------------------------------------------------------------------------------
 
 with "shared";
-with "include/include";
-with "src/src";
-with "ssl/ssl";
-with "tools/tools";
-with "docs/docs";
-with "gps/gps_support";
-with "regtests/regtests";
-with "config/setup";
+with "include/zlib/zlib.gpr";
 
-abstract project AWS is
+aggregate library project AWS is
 
-   for Source_Dirs use ();
-   for Object_Dir use ".build";
+   for Project_Files use ("include/include.gpr", "src/src.gpr", "ssl/ssl.gpr");
 
-   package Ide renames Shared.Ide;
+   case ZLib.Zlib_Activated is
+      when "Yes" =>
+         for Project_Files
+           use Project'Project_Files & ("include/zlib/zlib.gpr");
+      when "No" =>
+         null;
+   end case;
+
+   for Library_Name use "aws";
+   for Library_Kind use Shared.Library_Type;
+   for Library_Dir use Shared'Library_Dir & "/src";
+
+   case Shared.Library_Type is
+      when "static" =>
+         null;
+
+      when "relocatable" =>
+         case Shared.S_Target is
+            when "Windows_NT" =>
+               for Library_Options use ("-lwsock32", "-lws2_32");
+            when others =>
+               null;
+         end case;
+
+         case Shared.LDAP is
+            when "Installed" =>
+               case Shared.S_Target is
+                  when "Windows_NT" =>
+                     for Library_Options use
+                       Project'Library_Options & ("-lwldap32");
+                  when others =>
+                     for Library_Options use
+                       Project'Library_Options & ("-lldap");
+               end case;
+
+            when "Disabled" =>
+               null;
+         end case;
+   end case;
 
 end AWS;

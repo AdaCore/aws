@@ -113,12 +113,10 @@ install:
 	$(CP) ssl/aws-net-ssl*__* $(DESTDIR)$(I_INC)
 	$(CP) ssl/ssl-thin__* $(DESTDIR)$(I_INC)
 	$(CP) src/templates_parser-* $(DESTDIR)$(I_INC)
-	$(CP) projects/aws_components.gpr $(DESTDIR)$(I_AGP)
 	$(CP) projects/aws.gpr $(DESTDIR)$(I_GPR)
 	$(CP) projects/*_lib.gpr $(DESTDIR)$(I_AGP)
 	$(CP) projects/aws_shared.gpr $(DESTDIR)$(I_AGP)
 	$(CP) projects/aws_libz.gpr $(DESTDIR)$(I_AGP)
-	$(CP) projects/aws_ssl_support.gpr $(DESTDIR)$(I_AGP)
 	$(CP) $(LIBGPR) $(DESTDIR)$(I_AGP)
 
 check:

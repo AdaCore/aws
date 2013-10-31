@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2004-2012, AdaCore                     --
+--                     Copyright (C) 2004-2013, AdaCore                     --
 --                                                                          --
 --  This is free software;  you can redistribute it  and/or modify it       --
 --  under terms of the  GNU General Public License as published  by the     --
@@ -17,14 +17,12 @@
 ------------------------------------------------------------------------------
 
 with "aws/aws_xmlada";
-with "aws/aws_components";
 with "aws/aws_crypto_lib";
-with "aws/aws_ssl_support";
 with "aws/aws_ssl_lib";
 with "aws/aws_ssl_error_lib";
 with "aws/aws_dl_lib";
 with "aws/aws_shared";
-with "aws/aws_config";
+with "aws/aws_libz";
 
 library project AWS is
 

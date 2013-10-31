@@ -1,7 +1,7 @@
 ############################################################################
 #                              Ada Web Server                              #
 #                                                                          #
-#                     Copyright (C) 2003-2012, AdaCore                     #
+#                     Copyright (C) 2003-2013, AdaCore                     #
 #                                                                          #
 #  This is free software;  you can redistribute it  and/or modify it       #
 #  under terms of the  GNU General Public License as published  by the     #
@@ -34,8 +34,6 @@ $(GEN): force
 	echo "   procedure Set_Default is" >> $(GEN)
 	echo "   begin" >> $(GEN)
 	echo "      pragma Style_Checks (Off);" >> $(GEN)
-	echo "      Parser.Add_Option (\"-I"$(I_CPN)"\");" \
-		>> $(GEN)
 	echo "      Parser.Add_Option (\"-I"$(I_INC)"\");" \
 		>> $(GEN)
 	echo "   end Set_Default;" >> $(GEN)
