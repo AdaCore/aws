@@ -45,19 +45,6 @@ setup_dir:
 setup: setup_dir $(GEN)
 
 install:
-ifneq ($(PRJ_TARGET),vxworks)
-	-$(CP) ../$(BDIR)/static/tools/awsres${EXEEXT} $(DESTDIR)$(I_BIN)
-	-$(CP) ../$(BDIR)/static/tools/aws_password${EXEEXT} $(DESTDIR)$(I_BIN)
-	-$(CP) ../$(BDIR)/static/tools/templates2ada${EXEEXT} $(DESTDIR)$(I_BIN)
-	-$(CP) ../$(BDIR)/static/tools/templatespp${EXEEXT} $(DESTDIR)$(I_BIN)
-	-$(CP) ../$(BDIR)/static/tools/webxref${EXEEXT} $(DESTDIR)$(I_BIN)
-ifeq ($(XMLADA),true)
-	$(CP) ../$(BDIR)/static/tools/wsdl2aws${EXEEXT} $(DESTDIR)$(I_BIN)
-endif
-ifeq (${ASIS},true)
-	$(CP) ../$(BDIR)/static/tools/ada2wsdl${EXEEXT} $(DESTDIR)$(I_BIN)
-endif
-endif
 
 check:
 	$(GNAT) check -Ptools -rules -from=../aws.checks

@@ -108,15 +108,5 @@ endif
 endif
 
 install:
-	$(CP) $(SDIR)/src/aws-os_lib.ads $(DESTDIR)$(I_INC)
-	$(CP) src/aws-net-*__* $(DESTDIR)$(I_INC)
-	$(CP) ssl/aws-net-ssl*__* $(DESTDIR)$(I_INC)
-	$(CP) ssl/ssl-thin__* $(DESTDIR)$(I_INC)
-	$(CP) src/templates_parser-* $(DESTDIR)$(I_INC)
-	$(CP) projects/aws.gpr $(DESTDIR)$(I_GPR)
-	$(CP) projects/*_lib.gpr $(DESTDIR)$(I_AGP)
-	$(CP) projects/aws_shared.gpr $(DESTDIR)$(I_AGP)
-	$(CP) projects/aws_libz.gpr $(DESTDIR)$(I_AGP)
-	$(CP) $(LIBGPR) $(DESTDIR)$(I_AGP)
 
 check:

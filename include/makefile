@@ -21,11 +21,6 @@
 setup:
 
 install:
-	$(CP) *.ad? $(DESTDIR)$(I_INC)
-	-$(CP) ../$(BDIR)/static/lib/include/* $(DESTDIR)$(I_LIB)/static
-ifeq (${ENABLE_SHARED}, true)
-	-$(CP) ../$(BDIR)/relocatable/lib/include/* $(DESTDIR)$(I_LIB)/relocatable
-endif
 
 check:
 	$(GNAT) check -files=filenames.check -rules -from=../aws.checks

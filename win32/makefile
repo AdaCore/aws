@@ -28,7 +28,7 @@ setup:
 
 install:
 ifeq (${OS}, Windows_NT)
-	$(CP) $(AWS_COFF) $(DESTDIR)$(I_LIB)
+	$(CP) $(AWS_COFF) $(I_LIB)
 endif
 
 check:

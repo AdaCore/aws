@@ -1,7 +1,7 @@
 ############################################################################
 #                              Ada Web Server                              #
 #                                                                          #
-#                     Copyright (C) 2003-2012, AdaCore                     #
+#                     Copyright (C) 2003-2013, AdaCore                     #
 #                                                                          #
 #  This is free software;  you can redistribute it  and/or modify it       #
 #  under terms of the  GNU General Public License as published  by the     #
@@ -204,15 +204,15 @@ aws.texi: gen_texi check_texi
 
 install:
 	-if [ -f aws.pdf ]; then \
-	   $(CP) aws.pdf $(DESTDIR)$(I_DOC); \
-	   $(CP) ../templates_parser/docs/templates_parser.pdf $(DESTDIR)$(I_DOC); \
+	   $(CP) aws.pdf $(I_DOC); \
+	   $(CP) ../templates_parser/docs/templates_parser.pdf $(I_DOC); \
 	fi;
-	-$(CP) aws.html $(DESTDIR)$(I_DOC)
-	-$(CP) aws.txt $(DESTDIR)$(I_DOC)
-	-$(CP) aws*.info* $(DESTDIR)$(I_DOC)
-	-$(CP) ../templates_parser/docs/templates_parser.html $(DESTDIR)$(I_DOC)
-	-$(CP) ../templates_parser/docs/templates_parser.txt $(DESTDIR)$(I_DOC)
-	-$(CP) ../templates_parser/docs/templates_parser.info* $(DESTDIR)$(I_DOC)
+	-$(CP) aws.html $(I_DOC)
+	-$(CP) aws.txt $(I_DOC)
+	-$(CP) aws*.info* $(I_DOC)
+	-$(CP) ../templates_parser/docs/templates_parser.html $(I_DOC)
+	-$(CP) ../templates_parser/docs/templates_parser.txt $(I_DOC)
+	-$(CP) ../templates_parser/docs/templates_parser.info* $(I_DOC)
 
 clean:
 	-$(GNAT) clean -XLIBRARY_TYPE=static -Pdocs
