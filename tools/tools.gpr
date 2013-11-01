@@ -34,7 +34,7 @@ project Tools is
 
    case Shared.XMLAda is
       when "Installed" =>
-         for Main use project'Main & ("wsdl2aws");
+         for Main use project'Main & ("wsdl2aws.adb");
       when "Disabled" =>
          for Locally_Removed_Files use
            Project'Locally_Removed_Files & ("wsdl2aws.adb");
@@ -42,7 +42,7 @@ project Tools is
 
    case Shared.ASIS is
       when "Installed" =>
-         for Main use project'Main & ("ada2wsdl-main");
+         for Main use project'Main & ("ada2wsdl-main.adb");
       when "Disabled" =>
          for Locally_Removed_Files use Project'Locally_Removed_Files &
            ("ada2wsdl.ads", "ada2wsdl.adb",
