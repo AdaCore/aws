@@ -241,7 +241,13 @@ endif
 #######################################################################
 #  install
 
-install_clean:
+install-clean:
+	-$(GPRINSTALL) $(GPROPTS) --uninstall \
+		--prefix=$(TPREFIX) aws.gpr
+	-$(GPRINSTALL) $(GPROPTS) --uninstall \
+		--prefix=$(TPREFIX) tools/tools.gpr
+	$(RM) -fr $(TPREFIX)/share/examples/aws
+	$(RM) -fr $(TPREFIX)/share/doc/aws
 
 install-dirs:
 	$(MKDIR) -p $(I_DOC)
