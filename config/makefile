@@ -40,7 +40,7 @@ $(SDIR)/xoscons$(EXEEXT): $(SDIR)/src setup/xoscons.adb
 		-XPRJ_TARGET=$(PRJ_TARGET) -XTARGET=$(TARGET) -Psetup xoscons
 
 setup_extlib:
-	echo "project AWS_Lib_Shared is" > $(LIBGPR)
+	echo "abstract project AWS_Lib_Shared is" > $(LIBGPR)
 	echo "   for Source_Files use ();" >> $(LIBGPR)
 	echo '   type SSL_Library_Kind is ("relocatable", "static");' >> $(LIBGPR)
 	echo '   SSL_Library_Type : SSL_Library_Kind := external ("SSL_LIBRARY_TYPE", "relocatable");' >> $(LIBGPR)

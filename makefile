@@ -289,24 +289,24 @@ check: $(MODULES_CHECK)
 PRJDIR = $(BROOTDIR)/projects
 
 gasis_dummy:
-	echo "project AWS_ASIS is" > $(PRJDIR)/aws_asis.gpr;
+	echo "abstract project AWS_ASIS is" > $(PRJDIR)/aws_asis.gpr;
 	echo "   for Source_Dirs use ();" >> $(PRJDIR)/aws_asis.gpr;
 	echo "end AWS_ASIS;" >> $(PRJDIR)/aws_asis.gpr;
 
 gasis_setup:
 	echo 'with "asis";' > $(PRJDIR)/aws_asis.gpr
-	echo "project AWS_ASIS is" >> $(PRJDIR)/aws_asis.gpr
+	echo "abstract project AWS_ASIS is" >> $(PRJDIR)/aws_asis.gpr
 	echo "   for Source_Dirs use ();" >> $(PRJDIR)/aws_asis.gpr
 	echo "end AWS_ASIS;" >> $(PRJDIR)/aws_asis.gpr
 
 gxmlada_dummy:
-	echo "project AWS_XMLADA is" > $(PRJDIR)/aws_xmlada.gpr
+	echo "abstract project AWS_XMLADA is" > $(PRJDIR)/aws_xmlada.gpr
 	echo "   for Source_Dirs use ();" >> $(PRJDIR)/aws_xmlada.gpr
 	echo "end AWS_XMLADA;" >> $(PRJDIR)/aws_xmlada.gpr
 
 gxmlada_setup:
 	echo 'with "xmlada";' > $(PRJDIR)/aws_xmlada.gpr
-	echo "project AWS_XMLADA is" >> $(PRJDIR)/aws_xmlada.gpr
+	echo "abstract project AWS_XMLADA is" >> $(PRJDIR)/aws_xmlada.gpr
 	echo "   for Source_Dirs use ();" >> $(PRJDIR)/aws_xmlada.gpr
 	echo "end AWS_XMLADA;" >> $(PRJDIR)/aws_xmlada.gpr
 
@@ -327,7 +327,7 @@ SSL_SUFFIX = dummy
 endif
 
 setup_config:
-	echo 'project AWS_Config is' > $(CONFGPR)
+	echo 'abstract project AWS_Config is' > $(CONFGPR)
 	echo '   for Source_Dirs use ();' >> $(CONFGPR)
 	echo >> $(CONFGPR)
 	echo '   type Boolean_Type is ("true", "false");' >> $(CONFGPR)
