@@ -338,23 +338,9 @@ setup_config:
 	echo '   type Boolean_Type is ("true", "false");' >> $(CONFGPR)
 	echo '   Zlib_Exists : Boolean_Type := "$(ZLIB)";' >> $(CONFGPR)
 	echo >> $(CONFGPR)
-	echo '   type SOCKLIB_Type is ("GNAT", "IPv6");' >> $(CONFGPR)
-ifeq ($(IPv6), true)
-	echo '   SOCKLIB : SOCKLIB_Type := "IPv6";' >> $(CONFGPR)
-else
-	echo '   SOCKLIB : SOCKLIB_Type := "GNAT";' >> $(CONFGPR)
-endif
-	echo >> $(CONFGPR)
 	echo '   type SOCKET_Type is ("std", "openssl", "gnutls");' \
 	  >> $(CONFGPR)
 	echo '   SOCKET : SOCKET_Type := "$(SOCKET)";' >> $(CONFGPR)
-	echo >> $(CONFGPR)
-	echo '   Default_Library_Type := "'$(DEFAULT_LIBRARY_TYPE)'";' \
-		>> $(CONFGPR)
-	echo >> $(CONFGPR)
-	echo '   type Target_Type is ' >> $(CONFGPR)
-	echo '     ("Windows_NT", "Darwin", "UNIX", "vxworks", "freebsd");' >> $(CONFGPR)
-	echo '   PRJ_TARGET : Target_Type := "'$(PRJ_TARGET)'";' >> $(CONFGPR)
 	echo >> $(CONFGPR)
 	echo 'end AWS_Config;' >> $(CONFGPR)
 
