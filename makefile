@@ -320,7 +320,6 @@ setup_dir:
 	-$(MKDIR) -p $(PRJDIR)
 
 CONFGPR	= $(PRJDIR)/aws_config.gpr
-CONFADC	= $(BDIR)/gnat.adc
 
 ifeq (${SOCKET}, ssl)
 SOCKET = openssl
@@ -340,14 +339,10 @@ setup_config:
 	echo '   Zlib_Exists : Boolean_Type := "$(ZLIB)";' >> $(CONFGPR)
 	echo >> $(CONFGPR)
 	echo '   type SOCKLIB_Type is ("GNAT", "IPv6");' >> $(CONFGPR)
-	echo 'pragma Source_File_Name' > $(CONFADC)
-	echo -n '  (AWS.Net.Std, Body_File_Name => ' >> $(CONFADC)
 ifeq ($(IPv6), true)
 	echo '   SOCKLIB : SOCKLIB_Type := "IPv6";' >> $(CONFGPR)
-	echo '"aws-net-std__ipv6.adb");' >> $(CONFADC)
 else
 	echo '   SOCKLIB : SOCKLIB_Type := "GNAT";' >> $(CONFGPR)
-	echo '"aws-net-std__gnat.adb");' >> $(CONFADC)
 endif
 	echo >> $(CONFGPR)
 	echo '   type SOCKET_Type is ("std", "openssl", "gnutls");' \
@@ -362,25 +357,6 @@ endif
 	echo '   PRJ_TARGET : Target_Type := "'$(PRJ_TARGET)'";' >> $(CONFGPR)
 	echo >> $(CONFGPR)
 	echo 'end AWS_Config;' >> $(CONFGPR)
-	echo 'pragma Source_File_Name' >> $(CONFADC)
-	echo '  (SSL.Thin, Spec_File_Name => "ssl-thin__$(SSL_SUFFIX).ads");' \
-	  >> $(CONFADC)
-	echo 'pragma Source_File_Name' >> $(CONFADC)
-	echo -n '  (AWS.Net.SSL,' >> $(CONFADC)
-	echo ' Body_File_Name => "aws-net-ssl__$(SSL_SUFFIX).adb");' \
-	  >> $(CONFADC)
-	echo 'pragma Source_File_Name' >> $(CONFADC)
-	echo '  (AWS.Net.SSL.Certificate,' >> $(CONFADC)
-	echo -n '   Body_File_Name =>' >> $(CONFADC)
-	echo ' "aws-net-ssl-certificate__$(SSL_SUFFIX).adb");' >> $(CONFADC)
-	echo 'pragma Source_File_Name' >> $(CONFADC)
-	echo '  (Templates_Parser.Configuration,' >> $(CONFADC)
-	echo '   Spec_File_Name => "templates_parser-configuration__aws.ads");'\
-	  >> $(CONFADC)
-	echo 'pragma Source_File_Name' >> $(CONFADC)
-	echo '  (Templates_Parser.Input,' >> $(CONFADC)
-	echo '   Body_File_Name => "templates_parser-input__aws.adb");'\
-	  >> $(CONFADC)
 
 #  Set up all modules to create all the directories. This way it is possible
 #  to build AWS using GPS using any settings.
