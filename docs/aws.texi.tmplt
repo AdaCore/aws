@@ -230,9 +230,9 @@ compiler than @code{GNAT}.
 @cindex OpenSSL
 
 OpenSSL is an Open Source toolkit implementing the @i{Secure Sockets Layer}
-(SSL v2 and v3) and much more. You'll find libraries for Win32 into this
-distribution. For other platforms just download the OpenSSL source
-distribution from @url{http://www.openssl.org} and build it.
+(SSL v2 and v3) and much more. It is possible to download the OpenSSL source
+distribution from @url{http://www.openssl.org} and build it. A Windows
+binary distribution may also be downloaded there.
 
 @item OpenLDAP (@b{optional}) ;
 @cindex OpenLDAP
