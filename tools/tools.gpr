@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2003-2012, AdaCore                     --
+--                     Copyright (C) 2003-2013, AdaCore                     --
 --                                                                          --
 --  This is free software;  you can redistribute it  and/or modify it       --
 --  under terms of the  GNU General Public License as published  by the     --
@@ -18,8 +18,7 @@
 
 with "../.build/projects/aws_asis";
 with "../shared.gpr";
-with "../include/include";
-with "../src/src";
+with "../aws";
 with "../win32/win32";
 
 project Tools is
@@ -35,7 +34,7 @@ project Tools is
 
    case Shared.XMLAda is
       when "Installed" =>
-         for Main use project'Main & ("wsdl2aws");
+         for Main use project'Main & ("wsdl2aws.adb");
       when "Disabled" =>
          for Locally_Removed_Files use
            Project'Locally_Removed_Files & ("wsdl2aws.adb");
@@ -43,7 +42,7 @@ project Tools is
 
    case Shared.ASIS is
       when "Installed" =>
-         for Main use project'Main & ("ada2wsdl-main");
+         for Main use project'Main & ("ada2wsdl-main.adb");
       when "Disabled" =>
          for Locally_Removed_Files use Project'Locally_Removed_Files &
            ("ada2wsdl.ads", "ada2wsdl.adb",

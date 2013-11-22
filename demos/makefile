@@ -24,8 +24,8 @@ build: $(MAKEFILES)
 setup:
 
 install:
-	$(CP) web_mail/*html $(DESTDIR)$(I_TPL)
-	$(CP) runme/aws_*.png $(DESTDIR)$(I_IMG)
+	$(CP) web_mail/*html $(I_TPL)
+	$(CP) runme/aws_*.png $(I_IMG)
 
 $(MAKEFILES): force
 	$(MAKE) -C $(dir $@)

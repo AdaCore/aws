@@ -40,7 +40,7 @@ $(SDIR)/xoscons$(EXEEXT): $(SDIR)/src setup/xoscons.adb
 		-XPRJ_TARGET=$(PRJ_TARGET) -XTARGET=$(TARGET) -Psetup xoscons
 
 setup_extlib:
-	echo "project AWS_Lib_Shared is" > $(LIBGPR)
+	echo "abstract project AWS_Lib_Shared is" > $(LIBGPR)
 	echo "   for Source_Files use ();" >> $(LIBGPR)
 	echo '   type SSL_Library_Kind is ("relocatable", "static");' >> $(LIBGPR)
 	echo '   SSL_Library_Type : SSL_Library_Kind := external ("SSL_LIBRARY_TYPE", "relocatable");' >> $(LIBGPR)
@@ -108,17 +108,5 @@ endif
 endif
 
 install:
-	$(CP) $(SDIR)/src/aws-os_lib.ads $(DESTDIR)$(I_INC)
-	$(CP) src/aws-net-*__* $(DESTDIR)$(I_INC)
-	$(CP) ssl/aws-net-ssl*__* $(DESTDIR)$(I_INC)
-	$(CP) ssl/ssl-thin__* $(DESTDIR)$(I_INC)
-	$(CP) src/templates_parser-* $(DESTDIR)$(I_INC)
-	$(CP) projects/aws_components.gpr $(DESTDIR)$(I_AGP)
-	$(CP) projects/aws.gpr $(DESTDIR)$(I_GPR)
-	$(CP) projects/*_lib.gpr $(DESTDIR)$(I_AGP)
-	$(CP) projects/aws_shared.gpr $(DESTDIR)$(I_AGP)
-	$(CP) projects/aws_libz.gpr $(DESTDIR)$(I_AGP)
-	$(CP) projects/aws_ssl_support.gpr $(DESTDIR)$(I_AGP)
-	$(CP) $(LIBGPR) $(DESTDIR)$(I_AGP)
 
 check:

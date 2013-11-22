@@ -1,7 +1,7 @@
 ############################################################################
 #                              Ada Web Server                              #
 #                                                                          #
-#                     Copyright (C) 2003-2012, AdaCore                     #
+#                     Copyright (C) 2003-2013, AdaCore                     #
 #                                                                          #
 #  This is free software;  you can redistribute it  and/or modify it       #
 #  under terms of the  GNU General Public License as published  by the     #
@@ -34,8 +34,6 @@ $(GEN): force
 	echo "   procedure Set_Default is" >> $(GEN)
 	echo "   begin" >> $(GEN)
 	echo "      pragma Style_Checks (Off);" >> $(GEN)
-	echo "      Parser.Add_Option (\"-I"$(I_CPN)"\");" \
-		>> $(GEN)
 	echo "      Parser.Add_Option (\"-I"$(I_INC)"\");" \
 		>> $(GEN)
 	echo "   end Set_Default;" >> $(GEN)
@@ -47,19 +45,6 @@ setup_dir:
 setup: setup_dir $(GEN)
 
 install:
-ifneq ($(PRJ_TARGET),vxworks)
-	-$(CP) ../$(BDIR)/static/tools/awsres${EXEEXT} $(DESTDIR)$(I_BIN)
-	-$(CP) ../$(BDIR)/static/tools/aws_password${EXEEXT} $(DESTDIR)$(I_BIN)
-	-$(CP) ../$(BDIR)/static/tools/templates2ada${EXEEXT} $(DESTDIR)$(I_BIN)
-	-$(CP) ../$(BDIR)/static/tools/templatespp${EXEEXT} $(DESTDIR)$(I_BIN)
-	-$(CP) ../$(BDIR)/static/tools/webxref${EXEEXT} $(DESTDIR)$(I_BIN)
-ifeq ($(XMLADA),true)
-	$(CP) ../$(BDIR)/static/tools/wsdl2aws${EXEEXT} $(DESTDIR)$(I_BIN)
-endif
-ifeq (${ASIS},true)
-	$(CP) ../$(BDIR)/static/tools/ada2wsdl${EXEEXT} $(DESTDIR)$(I_BIN)
-endif
-endif
 
 check:
 	$(GNAT) check -Ptools -rules -from=../aws.checks

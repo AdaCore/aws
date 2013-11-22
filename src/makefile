@@ -1,7 +1,7 @@
 ############################################################################
 #                              Ada Web Server                              #
 #                                                                          #
-#                     Copyright (C) 2003-2012, AdaCore                     #
+#                     Copyright (C) 2003-2013, AdaCore                     #
 #                                                                          #
 #  This is free software;  you can redistribute it  and/or modify it       #
 #  under terms of the  GNU General Public License as published  by the     #
@@ -21,18 +21,6 @@
 setup:
 
 install:
-	$(CP) core/*.ad[sb] extended/*.ad[sb] $(DESTDIR)$(I_INC)
-	$(CP) ../$(BDIR)/static/lib/src/* $(DESTDIR)$(I_LIB)/static
-ifeq (${ENABLE_SHARED}, true)
-	$(CP) ../$(BDIR)/relocatable/lib/src/* $(DESTDIR)$(I_LIB)/relocatable
-endif
-ifeq ($(XMLADA),true)
-	$(CP) soap/*.ad[sb] $(DESTDIR)$(I_INC)
-	$(CP) xsrc/*.ad[sb] $(DESTDIR)$(I_INC)
-endif
-ifeq ($(LDAP),true)
-	$(CP) ldap/*.ad[sb] $(DESTDIR)$(I_INC)
-endif
 
 check:
 	echo Rule \"raised exception is not declared...\"

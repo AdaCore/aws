@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                      Copyright (C) 2004-2012, AdaCore                    --
+--                      Copyright (C) 2004-2013, AdaCore                    --
 --                                                                          --
 --  This is free software;  you can redistribute it  and/or modify it       --
 --  under terms of the  GNU General Public License as published  by the     --
@@ -16,32 +16,37 @@
 --  to http://www.gnu.org/licenses for a complete copy of the license.      --
 ------------------------------------------------------------------------------
 
-with "../../shared";
 with "../../.build/projects/aws_config";
+
+with "../../shared";
 
 library project Zlib is
 
    for Languages use ("C");
 
+   --------------------
+   -- Zlib Activated --
+   --------------------
+
    type Yes_No is ("Yes", "No");
-   Activated : Yes_No := "No";
+   Zlib_Activated : Yes_No := "No";
 
    --  Always build the static Z library as needed by some AWS tools
 
    case Shared.Library_Type is
       when "static" =>
-         Activated := "Yes";
+         Zlib_Activated := "Yes";
 
       when "relocatable" =>
          case AWS_Config.Zlib_Exists is
             when "true" =>
-               Activated := "No";
+               Zlib_Activated := "No";
             when "false" =>
-               Activated := "Yes";
+               Zlib_Activated := "Yes";
          end case;
    end case;
 
-   case Activated is
+   case ZLib_Activated is
       when "No" =>
          for Source_Dirs use ();
          for Library_Dir use ".";

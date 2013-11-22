@@ -29,22 +29,13 @@ include makefile.conf
 include makefile.checks
 #  consistency checks
 
-LIBRARY_TYPE = static
-
 ifeq (${PRJ_TARGET}, Windows_NT)
 EXEEXT	= .exe
-SOEXT	= .dll
 OS      = Windows_NT
 else
 ifeq ($(PRJ_TARGET), Darwin)
-SOEXT   = .dylib
 OS      = Darwin
 else
-ifeq ($(PRJ_TARGET), HP-UX)
-SOEXT	= .sl
-else
-SOEXT	= .so
-endif
 OS      = UNIX
 endif
 EXEEXT	=
@@ -72,7 +63,7 @@ ALL_OPTIONS	= $(MAKE_OPT) SOCKET="$(SOCKET)" XMLADA="$(XMLADA)" \
 	SOEXT="$(SOEXT)" BUILD_DOC_SCRIPT="false" GNAT="$(GNAT)" \
 	T2A="../../$(BDIR)/static/tools/templates2ada" \
 	LIBRARY_TYPE="$(LIBRARY_TYPE)" PYTHON="$(PYTHON)" \
-	TARGET="$(TARGET)" IS_CROSS=$(IS_CROSS)
+	TARGET="$(TARGET)" IS_CROSS=$(IS_CROSS) GPRINSTALL="$(GPRINSTALL)"
 
 build_doc:
 	echo ""
@@ -148,22 +139,17 @@ PRJ_BUILD=Release
 endif
 
 ifeq ($(IS_CROSS), true)
-TPREFIX=$(prefix)/$(TARGET)
+TPREFIX=$(DESTDIR)$(prefix)/$(TARGET)
 else
-TPREFIX=$(prefix)
+TPREFIX=$(DESTDIR)$(prefix)
 endif
 
 #  Install directories
 
-I_BIN	= $(TPREFIX)/bin
 I_INC	= $(TPREFIX)/include/aws
-I_CPN	= $(TPREFIX)/include/aws/components
 I_LIB	= $(TPREFIX)/lib/aws
-I_GPR	= $(TPREFIX)/lib/gnat
-I_AGP	= $(TPREFIX)/lib/gnat/aws
 I_TPL	= $(TPREFIX)/share/examples/aws/templates
 I_IMG	= $(TPREFIX)/share/examples/aws/images
-I_SBN	= $(TPREFIX)/share/examples/aws/bin
 I_WEL	= $(TPREFIX)/share/examples/aws/web_elements
 I_DOC	= $(TPREFIX)/share/doc/aws
 I_PLG	= $(TPREFIX)/share/gps/plug-ins
@@ -176,15 +162,10 @@ GALL_OPTIONS := $(ALL_OPTIONS) \
 	PRJ_LDAP="$(PRJ_LDAP)" \
 	PRJ_TARGET="$(PRJ_TARGET)" \
 	TP_XMLADA="$(TP_XMLADA)" \
-	I_BIN="$(I_BIN)" \
 	I_INC="$(I_INC)" \
-	I_CPN="$(I_CPN)" \
 	I_LIB="$(I_LIB)" \
-	I_GPR="$(I_GPR)" \
-	I_AGP="$(I_AGP)" \
 	I_TPL="$(I_TPL)" \
 	I_IMG="$(I_IMG)" \
-	I_SBN="$(I_SBN)" \
 	I_WEL="$(I_WEL)" \
 	I_DOC="$(I_DOC)" \
 	I_PLG="$(I_PLG)"
@@ -210,7 +191,7 @@ GPROPTS = -XPRJ_BUILD=$(PRJ_BUILD) -XPRJ_SOCKLIB=$(PRJ_SOCKLIB) \
 build-native:
 	$(GPRBUILD) -p $(GPROPTS) -XLIBRARY_TYPE=static tools/tools.gpr
 ifeq (${ENABLE_SHARED}, true)
-	$(GPRBUILD) -p $(GPROPTS) -XLIBRARY_TYPE=relocatable src/src.gpr
+	$(GPRBUILD) -p $(GPROPTS) -XLIBRARY_TYPE=relocatable aws.gpr
 endif
 	$(GPRBUILD) -p $(GPROPTS) -XLIBRARY_TYPE=static gps/gps_support.gpr
 	${MAKE} -C gps $(GALL_OPTIONS) after-build
@@ -220,7 +201,7 @@ build-cross:
 		-XLIBRARY_TYPE=static tools/tools.gpr
 ifeq (${ENABLE_SHARED}, true)
 	$(GPRBUILD) -p --target=$(TARGET) $(GPROPTS) \
-		-XLIBRARY_TYPE=relocatable src/src.gpr
+		-XLIBRARY_TYPE=relocatable aws.gpr
 endif
 
 ifeq (${IS_CROSS}, true)
@@ -235,13 +216,17 @@ endif
 clean-native:
 	-$(GPRCLEAN) $(GPROPTS) -XLIBRARY_TYPE=static tools/tools.gpr
 ifeq (${ENABLE_SHARED}, true)
-	-$(GPRCLEAN) $(GPROPTS) -XLIBRARY_TYPE=relocatable src/src.gpr
+	-$(GPRCLEAN) $(GPROPTS) -XLIBRARY_TYPE=relocatable aws.gpr
 endif
 	-$(GPRCLEAN) $(GPROPTS) -XLIBRARY_TYPE=static gps/gps_support.gpr
 
 clean-cross:
 	-$(GPRCLEAN) $(GPROPTS) --target=$(TARGET) \
-		-XLIBRARY_TYPE=static src/src.gpr
+		-XLIBRARY_TYPE=static aws.gpr
+ifeq (${ENABLE_SHARED}, true)
+	-$(GPRCLEAN) $(GPROPTS) --target=$(TARGET) \
+		-XLIBRARY_TYPE=relocatable aws.gpr
+endif
 
 ifeq (${IS_CROSS}, true)
 clean: clean-cross
@@ -253,29 +238,81 @@ endif
 	-${RM} -fr $(BROOTDIR)
 	-${RM} -f makefile.setup
 
+#######################################################################
+#  install
+
+install-clean:
+	-$(GPRINSTALL) $(GPROPTS) --uninstall \
+		--prefix=$(TPREFIX) aws.gpr
+	-$(GPRINSTALL) $(GPROPTS) --uninstall \
+		--prefix=$(TPREFIX) tools/tools.gpr
+	$(RM) -fr $(TPREFIX)/share/examples/aws
+	$(RM) -fr $(TPREFIX)/share/doc/aws
+
+install-dirs:
+	$(MKDIR) -p $(I_DOC)
+	$(MKDIR) -p $(I_TPL)
+	$(MKDIR) -p $(I_IMG)
+	$(MKDIR) -p $(I_PLG)
+	$(MKDIR) -p $(I_WEL)
+
+install-native:
+	$(GPRINSTALL) $(GPROPTS) -p -f --prefix=$(TPREFIX) \
+		-XLIBRARY_TYPE=$(DEFAULT_LIBRARY_TYPE) aws.gpr
+	$(GPRINSTALL) $(GPROPTS) -p -f --prefix=$(TPREFIX) \
+		-XLIBRARY_TYPE=static --mode=usage tools/tools.gpr
+ifeq (${ENABLE_SHARED}, true)
+	$(GPRINSTALL) $(GPROPTS) -p -f --prefix=$(TPREFIX) \
+		-XLIBRARY_TYPE=$(OTHER_LIBRARY_TYPE) \
+		--build-name=$(OTHER_LIBRARY_TYPE) aws.gpr
+endif
+
+install-cross:
+ifneq ($(PRJ_TARGET),vxworks)
+	$(GPRINSTALL) $(GPROPTS) -p -f --prefix=$(TPREFIX) \
+		--target=$(TARGET) \
+		-XLIBRARY_TYPE=$(DEFAULT_LIBRARY_TYPE) aws.gpr
+	$(GPRINSTALL) $(GPROPTS) -p -f --prefix=$(TPREFIX) --mode=usage \
+		--target=$(TARGET)  -XLIBRARY_TYPE=static tools/tools.gpr
+ifeq (${ENABLE_SHARED}, true)
+	$(GPRINSTALL) $(GPROPTS) -p -f --prefix=$(TPREFIX) \
+		--target=$(TARGET) -XLIBRARY_TYPE=$(OTHER_LIBRARY_TYPE) \
+		--build-name=$(OTHER_LIBRARY_TYPE) aws.gpr
+endif
+endif
+
+ifeq (${IS_CROSS}, true)
+install: install-dirs install-cross $(MODULES_INSTALL)
+else
+install: install-dirs install-native $(MODULES_INSTALL)
+endif
+	$(CP) templates_parser/tools/templates.tads $(I_TPL)
+
+#######################################################################
+
 check: $(MODULES_CHECK)
 
 PRJDIR = $(BROOTDIR)/projects
 
 gasis_dummy:
-	echo "project AWS_ASIS is" > $(PRJDIR)/aws_asis.gpr;
+	echo "abstract project AWS_ASIS is" > $(PRJDIR)/aws_asis.gpr;
 	echo "   for Source_Dirs use ();" >> $(PRJDIR)/aws_asis.gpr;
 	echo "end AWS_ASIS;" >> $(PRJDIR)/aws_asis.gpr;
 
 gasis_setup:
 	echo 'with "asis";' > $(PRJDIR)/aws_asis.gpr
-	echo "project AWS_ASIS is" >> $(PRJDIR)/aws_asis.gpr
+	echo "abstract project AWS_ASIS is" >> $(PRJDIR)/aws_asis.gpr
 	echo "   for Source_Dirs use ();" >> $(PRJDIR)/aws_asis.gpr
 	echo "end AWS_ASIS;" >> $(PRJDIR)/aws_asis.gpr
 
 gxmlada_dummy:
-	echo "project AWS_XMLADA is" > $(PRJDIR)/aws_xmlada.gpr
+	echo "abstract project AWS_XMLADA is" > $(PRJDIR)/aws_xmlada.gpr
 	echo "   for Source_Dirs use ();" >> $(PRJDIR)/aws_xmlada.gpr
 	echo "end AWS_XMLADA;" >> $(PRJDIR)/aws_xmlada.gpr
 
 gxmlada_setup:
 	echo 'with "xmlada";' > $(PRJDIR)/aws_xmlada.gpr
-	echo "project AWS_XMLADA is" >> $(PRJDIR)/aws_xmlada.gpr
+	echo "abstract project AWS_XMLADA is" >> $(PRJDIR)/aws_xmlada.gpr
 	echo "   for Source_Dirs use ();" >> $(PRJDIR)/aws_xmlada.gpr
 	echo "end AWS_XMLADA;" >> $(PRJDIR)/aws_xmlada.gpr
 
@@ -283,7 +320,6 @@ setup_dir:
 	-$(MKDIR) -p $(PRJDIR)
 
 CONFGPR	= $(PRJDIR)/aws_config.gpr
-CONFADC	= $(BDIR)/gnat.adc
 
 ifeq (${SOCKET}, ssl)
 SOCKET = openssl
@@ -296,54 +332,17 @@ SSL_SUFFIX = dummy
 endif
 
 setup_config:
-	echo 'project AWS_Config is' > $(CONFGPR)
+	echo 'abstract project AWS_Config is' > $(CONFGPR)
 	echo '   for Source_Dirs use ();' >> $(CONFGPR)
 	echo >> $(CONFGPR)
 	echo '   type Boolean_Type is ("true", "false");' >> $(CONFGPR)
 	echo '   Zlib_Exists : Boolean_Type := "$(ZLIB)";' >> $(CONFGPR)
 	echo >> $(CONFGPR)
-	echo '   type SOCKLIB_Type is ("GNAT", "IPv6");' >> $(CONFGPR)
-	echo 'pragma Source_File_Name' > $(CONFADC)
-	echo -n '  (AWS.Net.Std, Body_File_Name => ' >> $(CONFADC)
-ifeq ($(IPv6), true)
-	echo '   SOCKLIB : SOCKLIB_Type := "IPv6";' >> $(CONFGPR)
-	echo '"aws-net-std__ipv6.adb");' >> $(CONFADC)
-else
-	echo '   SOCKLIB : SOCKLIB_Type := "GNAT";' >> $(CONFGPR)
-	echo '"aws-net-std__gnat.adb");' >> $(CONFADC)
-endif
-	echo >> $(CONFGPR)
 	echo '   type SOCKET_Type is ("std", "openssl", "gnutls");' \
 	  >> $(CONFGPR)
 	echo '   SOCKET : SOCKET_Type := "$(SOCKET)";' >> $(CONFGPR)
 	echo >> $(CONFGPR)
-	echo '   Default_Library_Type := "'$(DEFAULT_LIBRARY_TYPE)'";' \
-		>> $(CONFGPR)
-	echo >> $(CONFGPR)
-	echo '   type Target_Type is ' >> $(CONFGPR)
-	echo '     ("Windows_NT", "Darwin", "UNIX", "vxworks", "freebsd");' >> $(CONFGPR)
-	echo '   PRJ_TARGET : Target_Type := "'$(PRJ_TARGET)'";' >> $(CONFGPR)
-	echo >> $(CONFGPR)
 	echo 'end AWS_Config;' >> $(CONFGPR)
-	echo 'pragma Source_File_Name' >> $(CONFADC)
-	echo '  (SSL.Thin, Spec_File_Name => "ssl-thin__$(SSL_SUFFIX).ads");' \
-	  >> $(CONFADC)
-	echo 'pragma Source_File_Name' >> $(CONFADC)
-	echo -n '  (AWS.Net.SSL,' >> $(CONFADC)
-	echo ' Body_File_Name => "aws-net-ssl__$(SSL_SUFFIX).adb");' \
-	  >> $(CONFADC)
-	echo 'pragma Source_File_Name' >> $(CONFADC)
-	echo '  (AWS.Net.SSL.Certificate,' >> $(CONFADC)
-	echo -n '   Body_File_Name =>' >> $(CONFADC)
-	echo ' "aws-net-ssl-certificate__$(SSL_SUFFIX).adb");' >> $(CONFADC)
-	echo 'pragma Source_File_Name' >> $(CONFADC)
-	echo '  (Templates_Parser.Configuration,' >> $(CONFADC)
-	echo '   Spec_File_Name => "templates_parser-configuration__aws.ads");'\
-	  >> $(CONFADC)
-	echo 'pragma Source_File_Name' >> $(CONFADC)
-	echo '  (Templates_Parser.Input,' >> $(CONFADC)
-	echo '   Body_File_Name => "templates_parser-input__aws.adb");'\
-	  >> $(CONFADC)
 
 #  Set up all modules to create all the directories. This way it is possible
 #  to build AWS using GPS using any settings.
@@ -368,48 +367,3 @@ setup: gen_setup setup_dir setup_modules setup_config setup_tp $(GEXT_MODULE)
 
 setup_tp:
 	$(MAKE) -C templates_parser setup $(GALL_OPTIONS)
-
-install_clean:
-	$(RM) -fr $(DESTDIR)$(I_INC)/$(TARGET)
-	$(RM) -fr $(DESTDIR)$(I_LIB)
-	$(RM) -fr $(DESTDIR)$(I_AGP)
-	$(RM) -fr $(DESTDIR)$(prefix)/share/examples/aws
-	$(RM) -fr $(DESTDIR)$(I_DOC)
-	$(RM) -f $(DESTDIR)$(I_GPR)/aws.gpr
-
-install_dirs: install_clean
-	$(MKDIR) -p $(DESTDIR)$(I_BIN)
-	$(MKDIR) -p $(DESTDIR)$(I_INC)
-	$(MKDIR) -p $(DESTDIR)$(I_CPN)
-	$(MKDIR) -p $(DESTDIR)$(I_LIB)/static
-ifeq (${ENABLE_SHARED}, true)
-	$(MKDIR) -p $(DESTDIR)$(I_LIB)/relocatable
-endif
-	$(MKDIR) -p $(DESTDIR)$(I_DOC)
-	$(MKDIR) -p $(DESTDIR)$(I_GPR)
-	$(MKDIR) -p $(DESTDIR)$(I_AGP)
-	$(MKDIR) -p $(DESTDIR)$(I_TPL)
-	$(MKDIR) -p $(DESTDIR)$(I_IMG)
-	$(MKDIR) -p $(DESTDIR)$(I_SBN)
-	$(MKDIR) -p $(DESTDIR)$(I_PLG)
-	$(MKDIR) -p $(DESTDIR)$(I_WEL)
-
-install: install_dirs $(MODULES_INSTALL)
-	$(CP) templates_parser/src/t*.ad[sb] $(DESTDIR)$(I_INC)
-ifeq ($(XMLADA),true)
-	$(CP) templates_parser/xsrc/*.ad[sb] $(DESTDIR)$(I_INC)
-endif
-	$(CP) templates_parser/tools/templates.tads $(DESTDIR)$(I_TPL)
-	$(CP) $(CONFADC) $(DESTDIR)$(I_LIB)/static
-	$(CP) $(CONFGPR) $(DESTDIR)$(I_AGP)
-	$(CP) $(PRJDIR)/aws_xmlada.gpr $(DESTDIR)$(I_AGP)
-#  Copy all shared libraries into the main bin directory
-ifeq (${ENABLE_SHARED}, true)
-ifeq ($(OS), Windows_NT)
-	$(CP) $(I_LIB)/relocatable/libaws*$(SOEXT) $(DESTDIR)$(I_BIN)
-	if [ ! -f $(DESTDIR)$(I_BIN)/libz.dll ]; then \
-		$(CP) $(I_LIB)/relocatable/libz*$(SOEXT) $(DESTDIR)$(I_BIN); \
-	fi
-endif
-	$(CP) $(CONFADC) $(DESTDIR)$(I_LIB)/relocatable
-endif
