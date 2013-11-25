@@ -52,6 +52,19 @@ to work properly. Of course we try to avoid this as much as possible
 but we really prefer to have a clean API instead of keeping awkward
 implementations.
 
+   This version uses gprinstall for the installation. This may introduce
+   some incompatibilities. It is highly recommended to uninstall properly
+   previous versions by removing <prefix>/include/aws, <prefix>/lib/aws and
+   <prefix>/lib/gnat/aws*
+
+   Note that uninstalling new versions is easier and can be done with:
+
+      $ make install-clean
+
+   The default project is now installed into <prefix>/share/gpr, so if some
+   scripts are configured to setup ADA_PROJECT_PATH it needs to be adjusted.
+   There is nothing to do if AWS is installed together with the compiler as
+   gnatmake and gprbuild will look for projects files into this new location.
 
 
 Obsolescent features
