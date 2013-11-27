@@ -65,10 +65,11 @@ ALL_OPTIONS	= $(MAKE_OPT) SOCKET="$(SOCKET)" XMLADA="$(XMLADA)" \
 	LIBRARY_TYPE="$(LIBRARY_TYPE)" PYTHON="$(PYTHON)" \
 	TARGET="$(TARGET)" IS_CROSS=$(IS_CROSS) GPRINSTALL="$(GPRINSTALL)"
 
-build_doc:
+build-doc:
 	echo ""
 	echo "=== Build doc"
-	${MAKE} -C docs build_doc $(GALL_OPTIONS)
+	${MAKE} -C docs html
+	${MAKE} -C templates_parser/docs html
 
 run_regtests:
 	echo ""

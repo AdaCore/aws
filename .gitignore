@@ -8,16 +8,9 @@
 .gpsrcs
 demos/web_block_ajax_templates/code.ada
 demos/web_block_ajax_templates/wblocks*
-docs/*.ad[sb].texi
-docs/ada.sed
-docs/aws.html
-docs/aws.info*
-docs/aws.pdf
-docs/aws.sed
-docs/aws.texi
-docs/aws.txt
 docs/build
 docs/genout
+docs/source/confvars.py
 docs/style-guide.html
 docs/style-guide.info
 docs/style-guide.pdf
