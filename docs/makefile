@@ -58,6 +58,7 @@ help:
 
 clean:
 	-rm -rf $(BUILDDIR)/*
+	-rm -f style-guide.pdf
 
 vars:
 	mkdir -p build/obj build/bin
@@ -176,3 +177,6 @@ doctest: vars
 	$(SPHINXBUILD) -b doctest $(ALLSPHINXOPTS) $(BUILDDIR)/doctest
 	@echo "Testing of doctests in the sources finished, look at the " \
 	      "results in $(BUILDDIR)/doctest/output.txt."
+
+style-guide.pdf: style-guide.texi
+	texi2pdf -q --build-dir=build/ --build=clean $?
