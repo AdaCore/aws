@@ -38,8 +38,6 @@ with AWS.Messages;
 with AWS.MIME;
 with AWS.Net.Buffered;
 with AWS.SMTP.Authentication;
-pragma Warnings (Off, AWS.SMTP.Authentication);
---  Work around a visibility problem
 with AWS.Utils;
 
 package body AWS.SMTP.Client is
