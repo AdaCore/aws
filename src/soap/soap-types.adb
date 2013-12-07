@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2000-2012, AdaCore                     --
+--                     Copyright (C) 2000-2013, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -27,8 +27,8 @@
 --  covered by the  GNU Public License.                                     --
 ------------------------------------------------------------------------------
 
-with Ada.Long_Float_Text_IO;
 with Ada.Float_Text_IO;
+with Ada.Long_Float_Text_IO;
 with Ada.Strings.Fixed;
 with Ada.Tags;
 with Ada.Task_Attributes;
@@ -164,8 +164,9 @@ package body SOAP.Types is
    begin
       return
         (Finalization.Controlled
-         with To_Unbounded_String (Name), No_Name_Space,
-         To_Unbounded_String (V));
+         with To_Unbounded_String (Name),
+              No_Name_Space,
+              To_Unbounded_String (V));
    end B64;
 
    -------
@@ -915,31 +916,13 @@ package body SOAP.Types is
    function R
      (V         : Object_Set;
       Name      : String;
-      Type_Name : String := "") return SOAP_Record
-   is
-      function T_Name return String;
-      pragma Inline (T_Name);
-      --  Returns Type_Name is not empty and Name otherwise
-
-      ------------
-      -- T_Name --
-      ------------
-
-      function T_Name return String is
-      begin
-         if Type_Name = "" then
-            return Name;
-         else
-            return Type_Name;
-         end if;
-      end T_Name;
-
+      Type_Name : String := "") return SOAP_Record is
    begin
       return
         (Finalization.Controlled
          with To_Unbounded_String (Name), SOAP.Name_Space.AWS,
          new Natural'(1), new Object_Set'(V),
-         To_Unbounded_String (T_Name));
+         To_Unbounded_String (if Type_Name = "" then Name else Type_Name));
    end R;
 
    -------
@@ -1328,8 +1311,8 @@ package body SOAP.Types is
             --  having the same name.
 
             declare
-               Name : constant String
-                 := Types.XML_Type (O.O (O.O'First).O.all);
+               Name : constant String :=
+                        Types.XML_Type (O.O (O.O'First).O.all);
             begin
                --  For all remaining elements
 

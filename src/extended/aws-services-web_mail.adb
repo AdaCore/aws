@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2003-2012, AdaCore                     --
+--                     Copyright (C) 2003-2013, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -31,6 +31,7 @@ with Ada.Strings.Fixed;
 with Ada.Strings.Unbounded;
 
 with AWS.Config;
+with AWS.Messages;
 with AWS.MIME;
 with AWS.Parameters;
 with AWS.POP;
@@ -39,7 +40,6 @@ with AWS.Services.Transient_Pages;
 with AWS.Session;
 with AWS.SMTP.Client;
 with AWS.Templates;
-with AWS.Messages;
 with AWS.Utils;
 
 package body AWS.Services.Web_Mail is
@@ -52,22 +52,21 @@ package body AWS.Services.Web_Mail is
    function Login (Request : Status.Data) return Response.Data;
    --  Get the login data from Request and returns the summary of the mailbox
 
-   function Summary (Request : AWS.Status.Data) return AWS.Response.Data;
+   function Summary (Request : Status.Data) return Response.Data;
    --  Returns a list of all messages in the mailbox
 
-   function Message (Request : AWS.Status.Data) return AWS.Response.Data;
+   function Message (Request : Status.Data) return Response.Data;
    --  Returns a list of all messages in the mailbox
 
-   function Delete (Request : AWS.Status.Data) return AWS.Response.Data;
+   function Delete (Request : Status.Data) return Response.Data;
    --  Delete a message, returns to the summary page
 
    function Reply
-     (Request : AWS.Status.Data;
-      To_All  : Boolean)
-      return AWS.Response.Data;
+     (Request : Status.Data;
+      To_All  : Boolean) return Response.Data;
    --  Returns a reply form
 
-   function Send (Request : AWS.Status.Data) return AWS.Response.Data;
+   function Send (Request : Status.Data) return Response.Data;
    --  Send a message, used by the reply form above
 
    -------------
@@ -104,7 +103,8 @@ package body AWS.Services.Web_Mail is
    -- Callback --
    --------------
 
-   function Callback (Request : AWS.Status.Data) return AWS.Response.Data is
+   function Callback (Request : Status.Data) return Response.Data is
+
       WWW_Root   : String renames AWS.Config.WWW_Root (Config.Get_Current);
       WM_Session : constant Session.Id := Status.Session (Request);
       URI        : constant String     := Status.URI (Request);
@@ -161,8 +161,8 @@ package body AWS.Services.Web_Mail is
             use type Resources.Streams.Stream_Access;
             use type Templates.Translate_Set;
 
-            Stream : constant AWS.Resources.Streams.Stream_Access
-              := Services.Transient_Pages.Get (URI);
+            Stream : constant AWS.Resources.Streams.Stream_Access :=
+                       Services.Transient_Pages.Get (URI);
          begin
             if Stream /= null then
                return Response.Stream
@@ -199,12 +199,12 @@ package body AWS.Services.Web_Mail is
    -- Delete --
    ------------
 
-   function Delete (Request : AWS.Status.Data) return AWS.Response.Data is
+   function Delete (Request : Status.Data) return Response.Data is
       WM_Session : constant Session.Id := Status.Session (Request);
       P_List     : constant Parameters.List := Status.Parameters (Request);
 
-      No_Message     : constant Positive
-        := Positive'Value (Parameters.Get (P_List, "NO_MESSAGE"));
+      No_Message : constant Positive :=
+                     Positive'Value (Parameters.Get (P_List, "NO_MESSAGE"));
 
       Context : Context_Data;
       Mailbox : POP.Mailbox;
@@ -290,7 +290,7 @@ package body AWS.Services.Web_Mail is
    -- Message --
    -------------
 
-   function Message (Request : AWS.Status.Data) return AWS.Response.Data is
+   function Message (Request : Status.Data) return Response.Data is
       WWW_Root   : String renames Config.WWW_Root (Config.Get_Current);
       WM_Session : constant Session.Id := Status.Session (Request);
       P_List     : constant Parameters.List := Status.Parameters (Request);
@@ -429,8 +429,8 @@ package body AWS.Services.Web_Mail is
    -----------
 
    function Reply
-     (Request : AWS.Status.Data;
-      To_All  : Boolean) return AWS.Response.Data
+     (Request : Status.Data;
+      To_All  : Boolean) return Response.Data
    is
       WWW_Root   : String renames Config.WWW_Root (Config.Get_Current);
       WM_Session : constant Session.Id := Status.Session (Request);
@@ -512,7 +512,8 @@ package body AWS.Services.Web_Mail is
    -- Send --
    ----------
 
-   function Send (Request : AWS.Status.Data) return AWS.Response.Data is
+   function Send (Request : Status.Data) return Response.Data is
+
       WWW_Root   : String renames Config.WWW_Root (Config.Get_Current);
       WM_Session : constant Session.Id := Status.Session (Request);
       P_List     : constant Parameters.List := Status.Parameters (Request);
@@ -529,7 +530,7 @@ package body AWS.Services.Web_Mail is
       function Get_From return SMTP.E_Mail_Data is
          POP_Host : constant String  := -Context.POP_Host;
          K        : constant Natural := Strings.Fixed.Index (POP_Host, ".");
-         E_Mail : Unbounded_String;
+         E_Mail   : Unbounded_String;
       begin
          if K = 0 then
             --  No domain specified, this is a local machine
@@ -589,7 +590,8 @@ package body AWS.Services.Web_Mail is
    -- Summary --
    -------------
 
-   function Summary (Request : AWS.Status.Data) return AWS.Response.Data is
+   function Summary (Request : Status.Data) return Response.Data is
+
       WWW_Root   : String renames Config.WWW_Root (Config.Get_Current);
       WM_Session : constant Session.Id := Status.Session (Request);
 

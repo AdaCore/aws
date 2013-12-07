@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2007-2012, AdaCore                     --
+--                     Copyright (C) 2007-2013, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -27,8 +27,10 @@
 --  covered by the  GNU Public License.                                     --
 ------------------------------------------------------------------------------
 
-with Ada.Containers.Vectors;
+pragma Ada_2012;
+
 with Ada.Containers.Indefinite_Hashed_Maps;
+with Ada.Containers.Vectors;
 with Ada.Strings.Hash;
 
 with AWS.Parameters;
@@ -251,12 +253,10 @@ package body AWS.Services.Web_Block.Registry is
          end if;
 
          declare
-            use Pattern_URL_Container;
             use GNAT.Regpat;
-            Vector_Cursor : Pattern_URL_Container.Cursor :=
-                              First (Pattern_URL_Vector);
+            use Pattern_URL_Container;
          begin
-            while Vector_Cursor /= Pattern_URL_Container.No_Element loop
+            for Vector_Cursor in Pattern_URL_Vector.Iterate loop
                declare
                   P_URI : constant URL_Pattern := Element (Vector_Cursor);
                   K     : constant String := To_String (P_URI.Prefix);
@@ -305,7 +305,6 @@ package body AWS.Services.Web_Block.Registry is
                      end if;
                   end if;
                end;
-               Next (Vector_Cursor);
             end loop;
 
             return Empty_Callback_Parameters;

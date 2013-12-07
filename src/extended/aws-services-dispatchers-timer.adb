@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2003-2012, AdaCore                     --
+--                     Copyright (C) 2003-2013, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -26,6 +26,8 @@
 --  however invalidate any other reasons why the executable file  might be  --
 --  covered by the  GNU Public License.                                     --
 ------------------------------------------------------------------------------
+
+pragma Ada_2012;
 
 with Ada.Unchecked_Deallocation;
 
@@ -63,6 +65,7 @@ package body AWS.Services.Dispatchers.Timer is
                  new AWS.Dispatchers.Handler'Class'
                    (AWS.Dispatchers.Handler'Class (Item.Action.Clone));
             end if;
+
             Period_Table.Insert
               (Container => New_Dispatcher.Table,
                Before    => Natural (K),
@@ -253,49 +256,44 @@ package body AWS.Services.Dispatchers.Timer is
         (Now, Year, Month, Day, Hour, Minute, Second, Sub_Second);
       N_Day := Calendar.Formatting.Day_Of_Week (Now);
 
-      for K in 1 .. Period_Table.Length (Dispatcher.Table) loop
-         declare
-            Item : constant Node_Access
-              := Period_Table.Element (Dispatcher.Table, Natural (K));
-         begin
-            case Item.Period.Mode is
+      for Item of Dispatcher.Table loop
+         case Item.Period.Mode is
 
-               when Once =>
-                  if Match_Once (Item) then
-                     return Dispatch (Item.Action.all, Request);
-                  end if;
+            when Once =>
+               if Match_Once (Item) then
+                  return Dispatch (Item.Action.all, Request);
+               end if;
 
-               when Yearly =>
-                  if Match_Yearly (Item) then
-                     return Dispatch (Item.Action.all, Request);
-                  end if;
+            when Yearly =>
+               if Match_Yearly (Item) then
+                  return Dispatch (Item.Action.all, Request);
+               end if;
 
-               when Monthly =>
-                  if Match_Monthly (Item) then
-                     return Dispatch (Item.Action.all, Request);
-                  end if;
+            when Monthly =>
+               if Match_Monthly (Item) then
+                  return Dispatch (Item.Action.all, Request);
+               end if;
 
-               when Weekly =>
-                  if Match_Weekly (Item) then
-                     return Dispatch (Item.Action.all, Request);
-                  end if;
+            when Weekly =>
+               if Match_Weekly (Item) then
+                  return Dispatch (Item.Action.all, Request);
+               end if;
 
-               when Daily =>
-                  if Match_Daily (Item) then
-                     return Dispatch (Item.Action.all, Request);
-                  end if;
+            when Daily =>
+               if Match_Daily (Item) then
+                  return Dispatch (Item.Action.all, Request);
+               end if;
 
-               when Hourly =>
-                  if Match_Hourly (Item) then
-                     return Dispatch (Item.Action.all, Request);
-                  end if;
+            when Hourly =>
+               if Match_Hourly (Item) then
+                  return Dispatch (Item.Action.all, Request);
+               end if;
 
-               when Minutely =>
-                  if Match_Minutely (Item) then
-                     return Dispatch (Item.Action.all, Request);
-                  end if;
-            end case;
-         end;
+            when Minutely =>
+               if Match_Minutely (Item) then
+                  return Dispatch (Item.Action.all, Request);
+               end if;
+         end case;
       end loop;
 
       if Dispatcher.Action /= null then
@@ -319,14 +317,9 @@ package body AWS.Services.Dispatchers.Timer is
       Finalize (AWS.Dispatchers.Handler (Dispatcher));
 
       if Ref_Counter = 1 then
-         for K in 1 .. Period_Table.Length (Dispatcher.Table) loop
-            declare
-               Item : Node_Access
-                 := Period_Table.Element (Dispatcher.Table, Natural (K));
-            begin
-               Free (Item.Action);
-               Unchecked_Free (Item);
-            end;
+         for Item of Dispatcher.Table loop
+            Free (Item.Action);
+            Unchecked_Free (Item);
          end loop;
 
          Period_Table.Clear (Dispatcher.Table);
@@ -489,13 +482,13 @@ package body AWS.Services.Dispatchers.Timer is
      (Dispatcher : in out Handler;
       Name       : String) is
    begin
-      for K in 1 .. Natural (Period_Table.Length (Dispatcher.Table)) loop
+      for Cursor in Dispatcher.Table.Iterate loop
          declare
-            Item : Node_Access := Period_Table.Element (Dispatcher.Table, K);
+            Item : Node_Access := Period_Table.Element (Cursor);
          begin
             if To_String (Item.Name) = Name then
                Unchecked_Free (Item);
-               Period_Table.Delete (Dispatcher.Table, K);
+               Period_Table.Delete (Dispatcher.Table, Cursor);
                return;
             end if;
          end;

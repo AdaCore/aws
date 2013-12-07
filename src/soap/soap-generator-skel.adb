@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2003-2012, AdaCore                     --
+--                     Copyright (C) 2003-2013, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -70,9 +70,9 @@ package body Skel is
       pragma Unreferenced (Namespace, Fault);
 
       use Ada.Strings.Fixed;
-      use type WSDL.Parameters.P_Set;
-      use type WSDL.Parameters.Kind;
       use type WSDL.Parameter_Type;
+      use type WSDL.Parameters.Kind;
+      use type WSDL.Parameters.P_Set;
 
       procedure Output_Parameters (N : WSDL.Parameters.P_Set);
       --  Output parameters
@@ -337,8 +337,8 @@ package body Skel is
          end if;
 
          declare
-            Name : constant String
-              := Format_Name (O, To_String (N.Name));
+            Name : constant String :=
+                     Format_Name (O, To_String (N.Name));
          begin
             Text_IO.Put   (Skel_Adb, Name);
             Text_IO.Put   (Skel_Adb, (Max_Len - Name'Length) * ' ');
@@ -653,7 +653,7 @@ package body Skel is
       Text_IO.Put_Line
         (Skel_Ads,
          "   Port : constant := "
-           & AWS.Utils.Image (AWS.URL.Port (URL)) & ';');
+         & AWS.Utils.Image (AWS.URL.Port (URL)) & ';');
 
       --  Body
 

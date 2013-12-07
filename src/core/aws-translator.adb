@@ -27,6 +27,8 @@
 --  covered by the  GNU Public License.                                     --
 ------------------------------------------------------------------------------
 
+pragma Ada_2012;
+
 with Interfaces;
 
 package body AWS.Translator is
@@ -174,8 +176,8 @@ package body AWS.Translator is
                State.Pad := State.Pad + 1;
 
             when others =>
-               State.Group := State.Group or
-                 Shift_Left (Base64_Values (Ch), State.J);
+               State.Group := State.Group
+                 or Shift_Left (Base64_Values (Ch), State.J);
          end case;
 
          State.J := State.J - 6;
@@ -255,8 +257,8 @@ package body AWS.Translator is
       end Add_Char;
 
    begin
-      for C in B64_Data'Range loop
-         Add (Add_Char'Access, S, B64_Data (C));
+      for Char of B64_Data loop
+         Add (Add_Char'Access, S, Char);
       end loop;
 
       return Result (1 .. Last - Stream_Element_Offset (S.Pad));
@@ -318,8 +320,8 @@ package body AWS.Translator is
       end Add_Char;
 
    begin
-      for I in Data'Range loop
-         Add (Add_Char'Access, S, Character'Val (Data (I)));
+      for Elem of Data loop
+         Add (Add_Char'Access, S, Character'Val (Elem));
       end loop;
 
       Flush (Add_Char'Access, S);
@@ -534,8 +536,8 @@ package body AWS.Translator is
    begin
       while K <= Data'Last loop
          declare
-            Last : constant Stream_Element_Offset
-              := Stream_Element_Offset'Min (K + Chunk_Size, Data'Last);
+            Last : constant Stream_Element_Offset :=
+                     Stream_Element_Offset'Min (K + Chunk_Size, Data'Last);
          begin
             Append (Result, To_String (Data (K .. Last)));
             K := K + Chunk_Size + 1;

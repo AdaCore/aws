@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2003-2012, AdaCore                     --
+--                     Copyright (C) 2003-2013, AdaCore                     --
 --                                                                          --
 --  This is free software;  you can redistribute it  and/or modify it       --
 --  under terms of the  GNU General Public License as published  by the     --
@@ -54,10 +54,10 @@ package body Ada2WSDL.Generator is
                  Structure, Table, Simple_Type, Enumeration);
 
    type Definition (Def_Mode : Mode := Routine) is record
-      Name        : Unbounded_String;
-      NS          : Unbounded_String;
-      Parameters  : Parameter_Access;
-      Last        : Parameter_Access;
+      Name       : Unbounded_String;
+      NS         : Unbounded_String;
+      Parameters : Parameter_Access;
+      Last       : Parameter_Access;
 
       case Def_Mode is
          when Routine =>
@@ -81,7 +81,7 @@ package body Ada2WSDL.Generator is
    API   : Profiles (1 .. Max_Definition);
    Index : Natural := 0;
 
-   Schema_Needed    : Boolean := False;
+   Schema_Needed : Boolean := False;
    --  Set to True if a WSDL schema is to be writed
 
    Character_Schema : Boolean := False;
@@ -275,6 +275,7 @@ package body Ada2WSDL.Generator is
             "Package Safe_Pointers instantiation must be named "
             & Type_Name & "_Safe_Pointer.");
       end if;
+
       D.Name        := +Name;
       D.Type_Name   := +Type_Name;
       D.Access_Name := +Access_Name;
@@ -799,24 +800,6 @@ package body Ada2WSDL.Generator is
          -----------------
 
          procedure Write_Array (E : Definition) is
-
-            function Array_Constraint return String;
-            --  Returns the array constaint
-
-            ----------------------
-            -- Array_Constraint --
-            ----------------------
-
-            function Array_Constraint return String is
-            begin
-               if E.Length = 0 then
-                  --  This is an unconstrained array
-                  return "[]";
-               else
-                  return "[" & AWS.Utils.Image (E.Length) & "]";
-               end if;
-            end Array_Constraint;
-
          begin
             New_Line;
             Put_Line ("         <xsd:complexType name=""" & (-E.Name) & '"');
@@ -826,8 +809,11 @@ package body Ada2WSDL.Generator is
                       & "base=""soapenc:Array"">");
             Put_Line ("                  <xsd:attribute "
                       & "ref=""soapenc:arrayType"""
-                        & " wsdl:arrayType=""" & (-E.Parameters.XSD_Name)
-                        & Array_Constraint & """/>");
+                      & " wsdl:arrayType=""" & (-E.Parameters.XSD_Name)
+                      & (if E.Length = 0
+                         then "[]"
+                         else "[" & AWS.Utils.Image (E.Length) & "]")
+                      & """/>");
             Put_Line ("               </xsd:restriction>");
             Put_Line ("            </xsd:complexContent>");
             Put_Line ("         </xsd:complexType>");

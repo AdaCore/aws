@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2000-2012, AdaCore                     --
+--                     Copyright (C) 2000-2013, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -48,8 +48,8 @@
 --                           of this template usage.
 
 with AWS.Messages;
-with AWS.Status;
 with AWS.Response;
+with AWS.Status;
 
 package AWS.Services.Page_Server is
 
@@ -61,7 +61,7 @@ package AWS.Services.Page_Server is
    --  Set the Cache-Control header for each response given by the following
    --  callback.
 
-   function Callback (Request : AWS.Status.Data) return AWS.Response.Data;
+   function Callback (Request : Status.Data) return Response.Data;
    --  This is the AWS callback for the simple static Web pages server
 
 end AWS.Services.Page_Server;

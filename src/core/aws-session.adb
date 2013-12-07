@@ -27,6 +27,8 @@
 --  covered by the  GNU Public License.                                     --
 ------------------------------------------------------------------------------
 
+pragma Ada_2012;
+
 with Ada.Containers.Ordered_Maps;
 with Ada.Exceptions;
 with Ada.Real_Time;
@@ -397,21 +399,11 @@ package body AWS.Session is
       -------------
 
       procedure Destroy is
-
-         procedure Destroy (Cursor : Session_Set.Cursor);
-
-         -------------
-         -- Destroy --
-         -------------
-
-         procedure Destroy (Cursor : Session_Set.Cursor) is
-            Item : Session_Node := Session_Set.Element (Cursor);
-         begin
-            Unchecked_Free (Item.Root);
-         end Destroy;
-
       begin
-         Session_Set.Iterate (Sessions, Destroy'Access);
+         for Item of Sessions loop
+            Unchecked_Free (Item.Root);
+         end loop;
+
          Session_Set.Clear (Sessions);
       end Destroy;
 
@@ -759,11 +751,8 @@ package body AWS.Session is
       --------------------
 
       procedure For_Every_Data (Node : Session_Node) is
-         Cursor : Key_Value.Cursor;
       begin
-         Cursor := Key_Value.First (Node.Root.all);
-
-         while Key_Value.Has_Element (Cursor) loop
+         for Cursor in Node.Root.Iterate loop
             declare
                Value : constant String := Key_Value.Element (Cursor);
             begin
@@ -773,11 +762,10 @@ package body AWS.Session is
                   Value (Value'First + 1 .. Value'Last),
                   V_Kind (Value (Value'First)),
                   Quit);
-               exit when Quit;
             end;
+            exit when Quit;
 
             Order := Order + 1;
-            Key_Value.Next (Cursor);
          end loop;
       end For_Every_Data;
 
@@ -1012,29 +1000,19 @@ package body AWS.Session is
       -------------
 
       procedure Process_Session  is
-         Node : constant Session_Node := Session_Set.Element (Position);
-
-         procedure Process (C : Key_Value.Cursor);
-         --  Callback for each key/value pair for a specific session
-
-         -------------
-         -- Process --
-         -------------
-
-         procedure Process (C : Key_Value.Cursor) is
-         begin
-            String'Output (Stream_Ptr, Key_Value.Key (C));
-            String'Output (Stream_Ptr, Key_Value.Element (C));
-         end Process;
-
+         Node           : constant Session_Node :=
+                            Session_Set.Element (Position);
          Key_Value_Size : constant Natural :=
-           Natural (Key_Value.Length (Node.Root.all));
-
+                            Natural (Key_Value.Length (Node.Root.all));
       begin
          if Key_Value_Size > 0 then
             Id'Output (Stream_Ptr, Session_Set.Key (Position));
             Natural'Output (Stream_Ptr, Key_Value_Size);
-            Node.Root.Iterate (Process'Access);
+
+            for Cursor in Node.Root.Iterate loop
+               String'Output (Stream_Ptr, Key_Value.Key (Cursor));
+               String'Output (Stream_Ptr, Key_Value.Element (Cursor));
+            end loop;
          end if;
       end Process_Session;
 

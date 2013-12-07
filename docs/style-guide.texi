@@ -39,7 +39,7 @@
 
 @menu
 * General::
-* Ada 2005::
+* Restrictions on Ada Language::
 * Lexical Elements::
 * Declarations and Types::
 * Expressions and Names::
@@ -61,33 +61,42 @@ project. The goal is to have a consistent style used for all AWS
 codes.
 
 @c  -------------------------------------------------------------------------
-@node Ada 2005
-@chapter Ada 2005
+@node Restrictions on Ada Language
+@chapter Restrictions on Ada Language
 @c  -------------------------------------------------------------------------
 
 @noindent
-As the Ada 2005 support on GNAT is maturing, it is possible to use
-some Ada 2005 constructs for AWS development. We list here the
+At this point it is possible to use all constructs up to Ada 2005
+standard.
+
+@noindent
+As the Ada 2012 support on GNAT is maturing, it is possible to use
+some Ada 2012 constructs for AWS development. We list here the
 features that can be used:
 
 @itemize @bullet
-@item Ada.Containers
-@item raise .. with "";
-@item object.method notation
-@item limited with
-@item anonymous access fields/parameters
-@item use of overriding keyword
+@item New containers
+@item Iterators (on containers and arrays)
+@item Aspect specification (replacing pragmas when possible)
+@item Accessors
+@item Conditional and case expressions
+@item Extendend menbership
+@item use all type
+@item Function with out parameter
+@item Aliased formal parameters
+@item Quantified expressions
+@item Qualified expressions
+@item Subpools
 @end itemize
 
-Constructs that are not ready for use:
+Constructs that are not ready (or desirable) for use:
 
 @itemize @bullet
-@item interfaces
-@item extended return statement
+@item Expression functions in spec
 @end itemize
 
-In addition, all constructs should be compatible with GNAT 6.2 and
-GPL 2009.
+@noindent
+In addition, the AWS code must be compilable with GNAT 7.2 and GPL 2013.
 
 @c  -------------------------------------------------------------------------
 @node Lexical Elements

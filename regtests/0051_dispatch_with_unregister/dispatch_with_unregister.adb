@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2007-2012, AdaCore                     --
+--                     Copyright (C) 2007-2013, AdaCore                     --
 --                                                                          --
 --  This is free software;  you can redistribute it  and/or modify it       --
 --  under terms of the  GNU General Public License as published  by the     --
@@ -21,10 +21,10 @@ with Ada.Text_IO;
 with AWS.Client;
 with AWS.Config.Set;
 with AWS.Dispatchers.Callback;
+with AWS.Response;
 with AWS.Server.Status;
 with AWS.Services.Dispatchers.URI;
 with AWS.Status;
-with AWS.Response;
 with AWS.Utils;
 
 procedure Dispatch_With_Unregister is
@@ -41,8 +41,7 @@ procedure Dispatch_With_Unregister is
    ---------
 
    function CB1
-     (Request : AWS.Status.Data)
-      return AWS.Response.Data
+     (Request : AWS.Status.Data) return AWS.Response.Data
    is
       pragma Unreferenced (Request);
    begin
@@ -54,8 +53,7 @@ procedure Dispatch_With_Unregister is
    ---------
 
    function CB2
-     (Request : AWS.Status.Data)
-      return AWS.Response.Data
+     (Request : AWS.Status.Data) return AWS.Response.Data
    is
       pragma Unreferenced (Request);
    begin
@@ -67,8 +65,7 @@ procedure Dispatch_With_Unregister is
    --------------
 
    function Default1
-     (Request : AWS.Status.Data)
-      return AWS.Response.Data
+     (Request : AWS.Status.Data) return AWS.Response.Data
    is
       URI : constant String := Status.URI (Request);
    begin
@@ -80,8 +77,7 @@ procedure Dispatch_With_Unregister is
    --------------
 
    function Default2
-     (Request : AWS.Status.Data)
-      return AWS.Response.Data
+     (Request : AWS.Status.Data) return AWS.Response.Data
    is
       URI : constant String := Status.URI (Request);
    begin

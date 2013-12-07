@@ -27,6 +27,8 @@
 --  covered by the  GNU Public License.                                     --
 ------------------------------------------------------------------------------
 
+pragma Ada_2012;
+
 with Ada.Calendar;
 with Ada.Containers.Doubly_Linked_Lists;
 with Ada.Real_Time;
@@ -304,7 +306,7 @@ package body AWS.Server.Push is
      (Holder : in out Client_Holder_Access; Socket : Boolean := True)
    is
       procedure Unchecked_Free is
-         new Unchecked_Deallocation (Client_Holder, Client_Holder_Access);
+        new Unchecked_Deallocation (Client_Holder, Client_Holder_Access);
    begin
       if Socket then
          Net.Free (Holder.Socket);
@@ -904,8 +906,6 @@ package body AWS.Server.Push is
 
       procedure Subscribe (Client_Id : Client_Key; Group_Id : String) is
 
-         Cursor : constant Tables.Cursor := Container.Find (Client_Id);
-
          procedure Modify
            (Key : String; Element : in out Client_Holder_Access);
 
@@ -925,6 +925,8 @@ package body AWS.Server.Push is
                Add_To_Groups (Groups, Group_Id, Key, Element);
             end if;
          end Modify;
+
+         Cursor : constant Tables.Cursor := Container.Find (Client_Id);
 
       begin
          if Tables.Has_Element (Cursor) then
@@ -1312,31 +1314,24 @@ package body AWS.Server.Push is
                           return Stream_Element_Array := null)
    is
       Queue  : Tables.Map;
-      C      : Tables.Cursor;
       Holder : Client_Holder_Access;
    begin
       Server.Unregister_Clients (Queue, Open => Left_Open);
 
-      C := Queue.First;
-
-      while Tables.Has_Element (C) loop
-         Holder := Tables.Element (C);
+      for Cursor in Queue.Iterate loop
+         Holder := Tables.Element (Cursor);
 
          if Holder.Phase /= Available then
             Waiter_Command (Server, Holder, Remove);
          end if;
-
-         Tables.Next (C);
       end loop;
-
-      C := Queue.First;
 
       if not Wait_Send_Completion (10.0) then
          Internal_Error_Handler ("Could not clear server push waiter");
       end if;
 
-      while Tables.Has_Element (C) loop
-         Holder := Tables.Element (C);
+      for Cursor in Queue.Iterate loop
+         Holder := Tables.Element (Cursor);
 
          if Get_Final_Data /= null then
             declare
@@ -1361,8 +1356,6 @@ package body AWS.Server.Push is
          end if;
 
          Free (Holder);
-
-         Tables.Next (C);
       end loop;
    end Release;
 
@@ -1388,28 +1381,21 @@ package body AWS.Server.Push is
       Client_Gone  : access procedure (Client_Id : String) := null)
    is
       use type Ada.Containers.Count_Type;
-      Cursor : Tables.Cursor;
-      C      : Tables.Cursor;
       Holder : Client_Holder_Access;
       Queue  : Tables.Map;
       WQ     : Waiter_Queues.List;
    begin
       Server.Send (Data, Group_Id, Content_Type, Thin_Id, Queue);
 
-      Cursor := Queue.First;
-
-      while Tables.Has_Element (Cursor) loop
+      for Cursor in Queue.Iterate loop
          Holder := Tables.Element (Cursor);
-
-         C := Cursor;
-         Tables.Next (Cursor);
 
          if Holder.Errmsg = Null_Unbounded_String then
             WQ.Append ((Server'Unrestricted_Access, Holder, Add));
 
          else
             declare
-               Client_Id : constant String := Tables.Key (C);
+               Client_Id : constant String := Tables.Key (Cursor);
             begin
                if Client_Gone /= null then
                   Client_Gone (Client_Id);
@@ -1816,7 +1802,8 @@ package body AWS.Server.Push is
                then
                   select
                      accept Resume;
-                  or terminate;
+                  or
+                     terminate;
                   end select;
 
                else
@@ -1825,75 +1812,77 @@ package body AWS.Server.Push is
 
             else -- Remove | Shutdown | Deallocate
                case Queue_Item.Holder.Phase is
-               when Available =>
-                  --  Socket already gone, remove processing only
+                  when Available =>
+                     --  Socket already gone, remove processing only
 
-                  Remove_Processing;
+                     Remove_Processing;
 
-               when Going =>
-                  --  Socket on the way to waiter, move back to waiter queue
-                  Waiter_Queue.Add (Queue_Item);
+                  when Going =>
+                     --  Socket on the way to waiter, move back to waiter queue
+                     Waiter_Queue.Add (Queue_Item);
 
-               when Waiting =>
-                  for J in reverse 2 .. Count (Write_Set) loop
-                     if Get_Socket (Write_Set, J).Get_FD
-                        = Queue_Item.Holder.Socket.Get_FD
-                     then
-                        declare
-                           Socket : Net.Socket_Access;
+                  when Waiting =>
+                     for J in reverse 2 .. Count (Write_Set) loop
+                        if Get_Socket (Write_Set, J).Get_FD
+                          = Queue_Item.Holder.Socket.Get_FD
+                        then
+                           declare
+                              Socket : Net.Socket_Access;
 
-                           procedure Process
-                             (Socket : in out Socket_Type'Class;
-                              Client : in out Client_In_Wait);
+                              procedure Process
+                                (Socket : in out Socket_Type'Class;
+                                 Client : in out Client_In_Wait);
 
-                           -------------
-                           -- Process --
-                           -------------
+                              -------------
+                              -- Process --
+                              -------------
 
-                           procedure Process
-                             (Socket : in out Socket_Type'Class;
-                              Client : in out Client_In_Wait)
-                           is
-                              pragma Unreferenced (Socket);
+                              procedure Process
+                                (Socket : in out Socket_Type'Class;
+                                 Client : in out Client_In_Wait)
+                              is
+                                 pragma Unreferenced (Socket);
+                              begin
+                                 if Client.SP /= Queue_Item.Server
+                                   or else Client.CH /= Queue_Item.Holder
+                                 then
+                                    raise Program_Error with
+                                      "Broken data in waiter";
+                                 end if;
+
+                                 --  We could write to phase directly because
+                                 --  Holder have to be out of protected object.
+
+                                 Queue_Item.Holder.Phase := Available;
+                              end Process;
+
                            begin
-                              if Client.SP /= Queue_Item.Server
-                                or else Client.CH /= Queue_Item.Holder
-                              then
+                              Update_Socket (Write_Set, J, Process'Access);
+                              Remove_Socket (Write_Set, J, Socket);
+
+                              if Socket /= Queue_Item.Holder.Socket then
                                  raise Program_Error with
-                                   "Broken data in waiter";
+                                   "Broken socket in waiter";
                               end if;
 
-                              --  We could write to phase directly because
-                              --  Holder have to be out of protected object.
+                              Remove_Processing;
 
-                              Queue_Item.Holder.Phase := Available;
-                           end Process;
+                              Queue_Item.Holder := null; -- To check integrity
 
-                        begin
-                           Update_Socket (Write_Set, J, Process'Access);
-                           Remove_Socket (Write_Set, J, Socket);
+                              exit;
+                           end;
 
-                           if Socket /= Queue_Item.Holder.Socket then
-                              raise Program_Error with
-                                "Broken socket in waiter";
-                           end if;
+                        elsif
+                          Get_Data (Write_Set, J).CH = Queue_Item.Holder
+                        then
+                           raise Program_Error with "Broken holder";
+                        end if;
+                     end loop;
 
-                           Remove_Processing;
-
-                           Queue_Item.Holder := null; -- To check integrity
-
-                           exit;
-                        end;
-
-                     elsif Get_Data (Write_Set, J).CH = Queue_Item.Holder then
-                        raise Program_Error with "Broken holder";
+                     if Queue_Item.Holder /= null then
+                        Internal_Error_Handler
+                          ("Error: removing server push socket not found");
                      end if;
-                  end loop;
-
-                  if Queue_Item.Holder /= null then
-                     Internal_Error_Handler
-                       ("Error: removing server push socket not found");
-                  end if;
                end case;
             end if; -- end Remove | Shutdown | Deallocate
          end loop;
@@ -2045,11 +2034,9 @@ package body AWS.Server.Push is
       end Add;
 
       procedure Add (Queue : Waiter_Queues.List) is
-         C : Waiter_Queues.Cursor := Add.Queue.First;
       begin
-         while Waiter_Queues.Has_Element (C) loop
-            Waiter_Queue.Queue.Append (Waiter_Queues.Element (C));
-            Waiter_Queues.Next (C);
+         for Item of Add.Queue loop
+            Waiter_Queue.Queue.Append (Item);
          end loop;
       end Add;
 

@@ -620,9 +620,6 @@ package body AWS.Client.HTTP_Utils is
       Sock    : Net.Socket_Access := Connection.Socket;
       No_Data : Unbounded_String renames Null_Unbounded_String;
 
-      function HTTP_Prefix (Security : Boolean) return String;
-      --  Returns "http://" or "https://" if Security is set to True
-
       function Persistence return String;
       pragma Inline (Persistence);
       --  Returns "Keep-Alive" is we have a persistent connection and "Close"
@@ -645,19 +642,6 @@ package body AWS.Client.HTTP_Utils is
          end loop;
          return E_URI;
       end Encoded_URI;
-
-      -----------------
-      -- HTTP_Prefix --
-      -----------------
-
-      function HTTP_Prefix (Security : Boolean) return String is
-      begin
-         if Security then
-            return "https://";
-         else
-            return "http://";
-         end if;
-      end HTTP_Prefix;
 
       -----------------
       -- Persistence --
@@ -725,7 +709,7 @@ package body AWS.Client.HTTP_Utils is
             Send_Header
               (Sock.all,
                Method & ' '
-               & HTTP_Prefix (AWS.URL.Security (Connection.Host_URL))
+               & URL.Protocol_Name (Connection.Host_URL) & "://"
                & Host_Address & Encoded_URI & ' ' & HTTP_Version);
          end if;
 
@@ -995,10 +979,9 @@ package body AWS.Client.HTTP_Utils is
             --  By default HTTP/1.0 connection is not keep-alive but
             --  HTTP/1.1 is keep-alive.
 
-            Keep_Alive
-              := Line (Messages.HTTP_Token'Length + Line'First
-                         .. Messages.HTTP_Token'Length + Line'First + 2)
-                 >= "1.1";
+            Keep_Alive :=
+              Line (Messages.HTTP_Token'Length + Line'First
+                    .. Messages.HTTP_Token'Length + Line'First + 2) >= "1.1";
          else
             --  or else it is wrong answer from server
             raise Protocol_Error with Line;
@@ -1333,7 +1316,7 @@ package body AWS.Client.HTTP_Utils is
    end Send_Header;
 
    procedure Send_Header
-     (Sock        : AWS.Net.Socket_Type'Class;
+     (Sock        : Net.Socket_Type'Class;
       Header      : String;
       Constructor : not null access function (Value : String) return String;
       Value       : String;
@@ -1378,7 +1361,7 @@ package body AWS.Client.HTTP_Utils is
 
    procedure Set_HTTP_Connection
      (HTTP_Client : in out HTTP_Connection;
-      Sock_Ptr    : AWS.Net.Socket_Access) is
+      Sock_Ptr    : Net.Socket_Access) is
    begin
       HTTP_Client.Socket := Sock_Ptr;
       HTTP_Client.Opened := True;

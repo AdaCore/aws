@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2004-2012, AdaCore                     --
+--                     Copyright (C) 2004-2013, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -148,8 +148,8 @@ package body AWS.Client.XML.Input_Sources is
 
          Pos := From.Buffer'First + From.Last - From.First;
 
-         From.Buffer (From.Buffer'First .. Pos)
-           := From.Buffer (From.First .. From.Last);
+         From.Buffer (From.Buffer'First .. Pos) :=
+           From.Buffer (From.First .. From.Last);
 
          From.First := From.Buffer'First;
          From.Last  := Pos;

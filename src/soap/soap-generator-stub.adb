@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2003-2012, AdaCore                     --
+--                     Copyright (C) 2003-2013, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -241,6 +241,7 @@ package body Stub is
          if N /= null then
             if K = 1 then
                Text_IO.Put (Stub_Adb, "+");
+
             else
                Text_IO.New_Line (Stub_Adb);
                Text_IO.Put (Stub_Adb, ((K - 1) * 3) * ' ');
@@ -288,7 +289,7 @@ package body Stub is
             Text_IO.Put
               (Stub_Adb,
                Format_Name (O, To_String (N.Name))
-                 & ", """ & To_String (N.Name) & """)");
+               & ", """ & To_String (N.Name) & """)");
          else
             Text_IO.Put
               (Stub_Adb, Prefix & "." & Format_Name (O, To_String (N.Name))
@@ -303,8 +304,8 @@ package body Stub is
       -------------------
 
       procedure Output_Result (N : WSDL.Parameters.P_Set) is
-         use type WSDL.Parameters.Kind;
          use type WSDL.Parameter_Type;
+         use type WSDL.Parameters.Kind;
       begin
          if N.Mode = WSDL.Parameters.K_Array then
             declare
@@ -375,9 +376,9 @@ package body Stub is
       L_Proc : constant String := Format_Name (O, Proc);
 
       use type AWS.Client.Timeouts_Values;
-      use type WSDL.Parameters.Kind;
-      use type WSDL.Parameter_Type;
       use type Name_Space.Object;
+      use type WSDL.Parameter_Type;
+      use type WSDL.Parameters.Kind;
 
    begin
       --  Spec

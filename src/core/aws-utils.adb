@@ -27,6 +27,8 @@
 --  covered by the  GNU Public License.                                     --
 ------------------------------------------------------------------------------
 
+pragma Ada_2012;
+
 with Ada.Calendar.Time_Zones;
 with Ada.Characters.Handling;
 with Ada.Integer_Text_IO;
@@ -317,31 +319,12 @@ package body AWS.Utils is
    -------------------------------
 
    procedure For_Every_Directory_Entry (Directory_Name : String) is
+
+      Dir_Name : constant String := Normalized_Directory (Directory_Name);
+
       Iter : Directories.Search_Type;
       Item : Directories.Directory_Entry_Type;
-
       Quit : Boolean := False;
-
-      function Get_Directory return String;
-      --  Returns directory with an ending slash
-
-      -------------------
-      -- Get_Directory --
-      -------------------
-
-      function Get_Directory return String is
-      begin
-         if Directory_Name /= ""
-           and then Directory_Name (Directory_Name'Last) = '/'
-         then
-            return Directory_Name;
-         else
-            return Directory_Name & '/';
-         end if;
-      end Get_Directory;
-
-      Dir_Name : constant String := Get_Directory;
-
    begin
       Directories.Start_Search (Iter, Directory_Name, "");
 
@@ -398,9 +381,9 @@ package body AWS.Utils is
       Integer_Text_IO.Put (Hex_V, V, 16);
 
       declare
-         Result : constant String
-           := Hex_V (Fixed.Index (Hex_V, "#") + 1
-                       .. Fixed.Index (Hex_V, "#", Backward) - 1);
+         Result : constant String :=
+                    Hex_V (Fixed.Index (Hex_V, "#") + 1
+                           .. Fixed.Index (Hex_V, "#", Backward) - 1);
       begin
          if Width = 0 then
             return Result;
@@ -459,8 +442,8 @@ package body AWS.Utils is
       R : Natural := 0;
 
    begin
-      for K in Hex'Range loop
-         R := R * 16 + Value (Hex (K));
+      for H of Hex loop
+         R := R * 16 + Value (H);
       end loop;
 
       return R;
@@ -881,12 +864,12 @@ package body AWS.Utils is
         := "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
       Rand  : Random_Integer := 0;
    begin
-      for I in Item'Range loop
+      for Elem of Item loop
          if Rand = 0 then
             Rand := Random;
          end if;
 
-         Item (I) := Chars (Integer (Rand rem Chars'Length) + 1);
+         Elem := Chars (Integer (Rand rem Chars'Length) + 1);
          Rand := Rand / Chars'Length;
       end loop;
    end Random_String;

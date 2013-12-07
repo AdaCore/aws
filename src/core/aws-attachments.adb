@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2004-2012, AdaCore                     --
+--                     Copyright (C) 2004-2013, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -27,9 +27,11 @@
 --  covered by the  GNU Public License.                                     --
 ------------------------------------------------------------------------------
 
+pragma Ada_2012;
+
 with Ada.Directories;
-with Ada.Streams.Stream_IO;
 with Ada.IO_Exceptions;
+with Ada.Streams.Stream_IO;
 
 with AWS.Headers.Set;
 with AWS.Headers.Values;
@@ -43,8 +45,7 @@ package body AWS.Attachments is
    use Ada.Streams;
 
    function "+"
-     (V : String)
-      return Unbounded_String renames To_Unbounded_String;
+     (V : String) return Unbounded_String renames To_Unbounded_String;
 
    UID : Utils.Counter (0);
    --  Unique Id used for generating the MIME boundaries
@@ -356,23 +357,11 @@ package body AWS.Attachments is
 
    procedure Iterate
      (Attachments : List;
-      Process     : not null access procedure (Attachment : Element))
-   is
-      --  Use callbacks to avoid Elements copy on iteration
-
-      procedure Action (Position : Attachment_Table.Cursor);
-
-      ------------
-      -- Action --
-      ------------
-
-      procedure Action (Position : Attachment_Table.Cursor) is
-      begin
-         Attachment_Table.Query_Element (Position, Process);
-      end Action;
-
+      Process     : not null access procedure (Attachment : Element)) is
    begin
-      Attachments.Vector.Iterate (Action'Access);
+      for Position in Attachments.Vector.Iterate loop
+         Attachment_Table.Query_Element (Position, Process);
+      end loop;
    end Iterate;
 
    ----------
@@ -486,28 +475,7 @@ package body AWS.Attachments is
       ----------------------
 
       procedure Send_Alternative (Attachment : Element) is
-
-         procedure Send_Alternative (Position : Alternative_Table.Cursor);
-         --  Output the pointed part
-
          A_Boundary : Unbounded_String;
-
-         ----------------------
-         -- Send_Alternative --
-         ----------------------
-
-         procedure Send_Alternative (Position : Alternative_Table.Cursor) is
-            Part : constant Content :=
-                     Alternative_Table.Element (Position);
-         begin
-            Net.Buffered.Put_Line (Socket, Pref_Suf & To_String (A_Boundary));
-            Net.Buffered.Put_Line
-              (Socket, Messages.Content_Type (To_String (Part.Content_Type)));
-            Net.Buffered.New_Line (Socket);
-
-            Send_Content (Part);
-         end Send_Alternative;
-
       begin
          if not Simple_Alternative then
             --  This is not the first element, we issue an embedded MIME
@@ -521,7 +489,16 @@ package body AWS.Attachments is
             A_Boundary := To_Unbounded_String (Boundary);
          end if;
 
-         Attachment.Parts.Iterate (Send_Alternative'Access);
+         --  Send alternatives
+
+         for  Part of Attachment.Parts loop
+            Net.Buffered.Put_Line (Socket, Pref_Suf & To_String (A_Boundary));
+            Net.Buffered.Put_Line
+              (Socket, Messages.Content_Type (To_String (Part.Content_Type)));
+            Net.Buffered.New_Line (Socket);
+
+            Send_Content (Part);
+         end loop;
 
          if not Simple_Alternative then
             --  Ends the alternative part

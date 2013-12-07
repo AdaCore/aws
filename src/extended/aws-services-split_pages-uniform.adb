@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2004-2012, AdaCore                     --
+--                     Copyright (C) 2004-2013, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -89,9 +89,9 @@ package body AWS.Services.Split_Pages.Uniform is
                            Last  => Self.Max_Per_Page * I);
          end loop;
 
-         Result (Result'Last)
-           := (First => Self.Max_Per_Page *  (Result'Last - 1) + 1,
-               Last  => Max);
+         Result (Result'Last) :=
+           (First => Self.Max_Per_Page *  (Result'Last - 1) + 1,
+            Last  => Max);
 
          return Result;
       end;

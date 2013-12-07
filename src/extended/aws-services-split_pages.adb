@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2003-2012, AdaCore                     --
+--                     Copyright (C) 2003-2013, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -135,8 +135,8 @@ package body AWS.Services.Split_Pages is
             Stream := new AWS.Resources.Streams.Memory.Stream_Type;
 
             declare
-               Page : constant Unbounded_String
-                 := Parse (Template, Split_Set, Cached);
+               Page : constant Unbounded_String :=
+                        Parse (Template, Split_Set, Cached);
             begin
                AWS.Resources.Streams.Memory.Append
                  (AWS.Resources.Streams.Memory.Stream_Type (Stream.all),
@@ -160,8 +160,7 @@ package body AWS.Services.Split_Pages is
       Translations : Templates.Translate_Table;
       Table        : Templates.Translate_Table;
       Split_Rule   : Splitter'Class;
-      Cached       : Boolean  := True)
-      return Response.Data is
+      Cached       : Boolean  := True) return Response.Data is
    begin
       return Parse
         (Template,
@@ -177,8 +176,7 @@ package body AWS.Services.Split_Pages is
       Table        : Templates.Translate_Table;
       Max_Per_Page : Positive := 25;
       Max_In_Index : Positive := 20;
-      Cached       : Boolean  := True)
-      return Response.Data
+      Cached       : Boolean  := True) return Response.Data
    is
       pragma Unreferenced (Max_In_Index);
       S : Uniform.Splitter (Max_Per_Page);

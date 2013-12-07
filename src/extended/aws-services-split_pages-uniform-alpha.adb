@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2004-2012, AdaCore                     --
+--                     Copyright (C) 2004-2013, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -105,7 +105,8 @@ package body AWS.Services.Split_Pages.Uniform.Alpha is
          declare
             use Ada.Characters.Handling;
             use Ada.Strings.Fixed;
-            Name : constant String := Trim (Item (Key_Vec, I), Strings.Left);
+            Name        : constant String :=
+                            Trim (Item (Key_Vec, I), Strings.Left);
             New_Initial : Character;
          begin
             if Name = "" then
@@ -140,8 +141,9 @@ package body AWS.Services.Split_Pages.Uniform.Alpha is
       --  ???
 
       Self    : Splitter renames Splitter (This.Self.all);
-      Result  : Templates.Translate_Set
-        := Get_Translations (Uniform.Splitter (This), Page, URIs, Ranges);
+      Result  : Templates.Translate_Set :=
+                  Get_Translations
+                    (Uniform.Splitter (This), Page, URIs, Ranges);
       R_Index : Natural := 1;
 
       -------------
@@ -158,10 +160,10 @@ package body AWS.Services.Split_Pages.Uniform.Alpha is
                R_Index := R_Index + 1;
             end loop;
 
-            Self.S_HREFS_V
-              := Self.S_HREFS_V
+            Self.S_HREFS_V :=
+              Self.S_HREFS_V
                 & (URIs (R_Index) & '#'
-                   & Utils.Image (Line - Ranges (R_Index).First + 1));
+                & Utils.Image (Line - Ranges (R_Index).First + 1));
          end if;
       end Add_Ref;
 

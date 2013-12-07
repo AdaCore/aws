@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2003-2012, AdaCore                     --
+--                     Copyright (C) 2003-2013, AdaCore                     --
 --                                                                          --
 --  This is free software;  you can redistribute it  and/or modify it       --
 --  under terms of the  GNU General Public License as published  by the     --
@@ -16,15 +16,15 @@
 --  to http://www.gnu.org/licenses for a complete copy of the license.      --
 ------------------------------------------------------------------------------
 
-with Ada.Directories;
-with Ada.Text_IO;
-with Ada.Exceptions;
-with Ada.Characters.Handling;
 with Ada.Characters.Conversions;
+with Ada.Characters.Handling;
+with Ada.Directories;
+with Ada.Exceptions;
 with Ada.Strings;
 with Ada.Strings.Fixed;
 with Ada.Strings.Maps;
 with Ada.Strings.Unbounded;
+with Ada.Text_IO;
 with Ada.Unchecked_Deallocation;
 
 with GNAT.OS_Lib;
@@ -49,8 +49,8 @@ with AWS.Utils;
 with SOAP.Name_Space;
 with SOAP.Types;
 
-with Ada2WSDL.Options;
 with Ada2WSDL.Generator;
+with Ada2WSDL.Options;
 
 package body Ada2WSDL.Parser is
 
@@ -282,8 +282,8 @@ package body Ada2WSDL.Parser is
       procedure Analyse_Node (Node : Link) is
          use Extensions.Flat_Kinds;
 
-         Arg_Kind : constant Flat_Element_Kinds
-           := Flat_Element_Kind (Node.Spec);
+         Arg_Kind : constant Flat_Element_Kinds :=
+                      Flat_Element_Kind (Node.Spec);
       begin
          case Arg_Kind is
 
@@ -362,11 +362,10 @@ package body Ada2WSDL.Parser is
       procedure Analyse_Package (Node : Link) is
       begin
          if Options.WS_Name = Null_Unbounded_String then
-            Options.WS_Name
-              := To_Unbounded_String
-                   (Strings.Fixed.Translate
-                     (Node.Spec_Name.all,
-                      Strings.Maps.To_Mapping (".", "-")));
+            Options.WS_Name := To_Unbounded_String
+              (Strings.Fixed.Translate
+                 (Node.Spec_Name.all,
+                  Strings.Maps.To_Mapping (".", "-")));
          end if;
       end Analyse_Package;
 
@@ -413,26 +412,22 @@ package body Ada2WSDL.Parser is
 
          use Extensions.Flat_Kinds;
 
-         Arg_Kind   : constant Flat_Element_Kinds
-           := Flat_Element_Kind (Node.Spec);
-
-         Parameters : constant Asis.Element_List
-           := Declarations.Parameter_Profile (Node.Spec);
-
+         Arg_Kind   : constant Flat_Element_Kinds :=
+                        Flat_Element_Kind (Node.Spec);
+         Parameters : constant Asis.Element_List :=
+                        Declarations.Parameter_Profile (Node.Spec);
       begin
          if not Elements.Is_Nil (Parameters) then
 
             for I in Parameters'Range loop
                declare
-                  Elem  : constant Asis.Element
-                    := Declarations.Declaration_Subtype_Mark (Parameters (I));
-
-                  Mode  : constant Asis.Mode_Kinds
-                    := Elements.Mode_Kind (Parameters (I));
-
-                  Names : constant Defining_Name_List
-                    := Declarations.Names (Parameters (I));
-
+                  Elem  : constant Asis.Element :=
+                            Declarations.Declaration_Subtype_Mark
+                              (Parameters (I));
+                  Mode  : constant Asis.Mode_Kinds :=
+                            Elements.Mode_Kind (Parameters (I));
+                  Names : constant Defining_Name_List :=
+                            Declarations.Names (Parameters (I));
                   E     : Asis.Element := Elem;
                begin
                   --  For each name create a new formal parameter
@@ -467,8 +462,8 @@ package body Ada2WSDL.Parser is
            or else Arg_Kind = A_Generic_Function_Declaration
          then
             declare
-               Elem : constant Asis.Element
-                 := Declarations.Result_Profile (Node.Spec);
+               Elem : constant Asis.Element :=
+                        Declarations.Result_Profile (Node.Spec);
             begin
                Generator.Return_Type
                  (Name_Space (Elem), Type_Name (Elem, Base => False));
@@ -483,8 +478,8 @@ package body Ada2WSDL.Parser is
       procedure Analyse_Routine (Node : Link) is
          use Extensions.Flat_Kinds;
 
-         Arg_Kind : constant Flat_Element_Kinds
-           := Flat_Element_Kind (Node.Spec);
+         Arg_Kind : constant Flat_Element_Kinds :=
+                      Flat_Element_Kind (Node.Spec);
       begin
          begin
             if Arg_Kind = A_Function_Declaration then
@@ -513,7 +508,7 @@ package body Ada2WSDL.Parser is
          end record;
 
          Deferred_U_Arrays : array (1 .. 100) of U_Array_Def;
-         U_Array_Index : Natural := 0;
+         U_Array_Index     : Natural := 0;
 
          procedure Analyse_Field (Component : Asis.Element);
          --  Analyse a field from the record
@@ -549,20 +544,15 @@ package body Ada2WSDL.Parser is
 
          procedure Analyse_Field (Component : Asis.Element) is
 
-            ODV   : constant Asis.Element
-              := Declarations.Object_Declaration_View (Component);
-
-            Elem  : constant Asis.Element
-              := Definitions.Subtype_Mark
-                   (Definitions.Component_Subtype_Indication (ODV));
-
-            Names : constant Defining_Name_List
-              := Declarations.Names (Component);
-
+            ODV   : constant Asis.Element :=
+                      Declarations.Object_Declaration_View (Component);
+            Elem  : constant Asis.Element :=
+                      Definitions.Subtype_Mark
+                        (Definitions.Component_Subtype_Indication (ODV));
+            Names : constant Defining_Name_List :=
+                      Declarations.Names (Component);
             E         : Asis.Element := Elem;
-
             CND       : Asis.Element;
-
             Type_Name : Unbounded_String;
 
          begin
@@ -584,21 +574,21 @@ package body Ada2WSDL.Parser is
 
                   E := Definitions.Array_Component_Definition (E);
 
-                  Deferred_U_Arrays (U_Array_Index).Comp_Type
-                    := To_Unbounded_String (Image (Text.Element_Image (E)));
+                  Deferred_U_Arrays (U_Array_Index).Comp_Type :=
+                    To_Unbounded_String (Image (Text.Element_Image (E)));
 
-                  Deferred_U_Arrays (U_Array_Index).NS
-                    := To_Unbounded_String (Name_Space (E));
+                  Deferred_U_Arrays (U_Array_Index).NS :=
+                    To_Unbounded_String (Name_Space (E));
 
                   --  Set array's type name
 
                   E := CND;
 
-                  Deferred_U_Arrays (U_Array_Index).Name
-                    := To_Unbounded_String
-                         (Image
-                            (Text.Element_Image
-                               (Declarations.Names (CND) (1))));
+                  Deferred_U_Arrays (U_Array_Index).Name :=
+                    To_Unbounded_String
+                      (Image
+                        (Text.Element_Image
+                          (Declarations.Names (CND) (1))));
 
                   --  Get array's constraint, an array inside a record must be
                   --  constrained.
@@ -607,8 +597,8 @@ package body Ada2WSDL.Parser is
                          (Definitions.Component_Subtype_Indication (ODV));
 
                   declare
-                     R : constant Asis.Discrete_Range_List
-                       := Definitions.Discrete_Ranges (E);
+                     R : constant Asis.Discrete_Range_List :=
+                           Definitions.Discrete_Ranges (E);
                   begin
                      if R'Length /= 1 then
                         Raise_Spec_Error
@@ -632,10 +622,10 @@ package body Ada2WSDL.Parser is
             end if;
 
             declare
-               T : constant Flat_Element_Kinds
-                 := Flat_Element_Kind
-                      (Declarations.Type_Declaration_View
-                         (Declarations.Corresponding_First_Subtype (CND)));
+               T : constant Flat_Element_Kinds :=
+                     Flat_Element_Kind
+                       (Declarations.Type_Declaration_View
+                          (Declarations.Corresponding_First_Subtype (CND)));
             begin
                if Flat_Element_Kind (CND) = A_Subtype_Declaration
                  and then T /= A_Signed_Integer_Type_Definition
@@ -674,9 +664,10 @@ package body Ada2WSDL.Parser is
                     (Elements.Enclosing_Compilation_Unit (T)))) = "standard";
          end Is_Standard;
 
-         Name : constant String := Image
-           (Declarations.Defining_Name_Image (Declarations.Names (Elem) (1)));
-
+         Name       : constant String :=
+                        Image
+                          (Declarations.Defining_Name_Image
+                             (Declarations.Names (Elem) (1)));
          E         : Asis.Definition :=
                        Declarations.Type_Declaration_View (Elem);
          Type_Kind : constant Flat_Element_Kinds := Flat_Element_Kind (E);
@@ -691,8 +682,8 @@ package body Ada2WSDL.Parser is
                   E := Definitions.Record_Definition (E);
 
                   declare
-                     R : constant Asis.Record_Component_List
-                       := Definitions.Record_Components (E);
+                     R : constant Asis.Record_Component_List :=
+                           Definitions.Record_Components (E);
                   begin
                      for K in R'Range loop
                         Analyse_Field (R (K));
@@ -713,9 +704,8 @@ package body Ada2WSDL.Parser is
             when A_Constrained_Array_Definition =>
 
                declare
-                  S : constant Asis.Definition_List
-                    := Definitions.Discrete_Subtype_Definitions (E);
-
+                  S : constant Asis.Definition_List :=
+                        Definitions.Discrete_Subtype_Definitions (E);
                   Array_Len   : Natural;
                   Type_Suffix : Unbounded_String;
                   C           : Asis.Element;
@@ -789,8 +779,8 @@ package body Ada2WSDL.Parser is
                      if Flat_Element_Kind (C) = An_Index_Constraint then
                         --  This derived type has constraints
                         declare
-                           R : constant Asis.Discrete_Range_List :=
-                                 Definitions.Discrete_Ranges (C);
+                           R           : constant Asis.Discrete_Range_List :=
+                                           Definitions.Discrete_Ranges (C);
                            Type_Suffix : Unbounded_String;
                            Array_Len   : Natural;
                         begin
@@ -830,10 +820,10 @@ package body Ada2WSDL.Parser is
             when A_Subtype_Indication =>
 
                declare
-                  CFS : constant Asis.Declaration
-                    := Declarations.Corresponding_First_Subtype (Elem);
-                  TDV : constant Asis.Definition
-                    := Declarations.Type_Declaration_View (CFS);
+                  CFS  : constant Asis.Declaration :=
+                           Declarations.Corresponding_First_Subtype (Elem);
+                  TDV  : constant Asis.Definition :=
+                           Declarations.Type_Declaration_View (CFS);
                   C    : Asis.Constraint;
                   Comp : Asis.Element;
                begin
@@ -847,8 +837,8 @@ package body Ada2WSDL.Parser is
                      Comp := Definitions.Array_Component_Definition (TDV);
 
                      declare
-                        R : constant Asis.Discrete_Range_List
-                          := Definitions.Discrete_Ranges (C);
+                        R           : constant Asis.Discrete_Range_List :=
+                                        Definitions.Discrete_Ranges (C);
                         Type_Suffix : Unbounded_String;
                         Array_Len   : Natural;
                      begin
@@ -888,8 +878,8 @@ package body Ada2WSDL.Parser is
                      Generator.Start_Enumeration (Name_Space (E), Name);
 
                      declare
-                        D : constant Asis.Declaration_List
-                          := Definitions.Enumeration_Literal_Declarations (E);
+                        D : constant Asis.Declaration_List :=
+                              Definitions.Enumeration_Literal_Declarations (E);
                      begin
                         for K in D'Range loop
                            Generator.New_Literal
@@ -955,9 +945,9 @@ package body Ada2WSDL.Parser is
       ----------------
 
       function Name_Space (E : Asis.Element) return String is
-         NS  : String :=
-                 Image (Compilation_Units.Unit_Full_Name
-                        (Elements.Enclosing_Compilation_Unit (E)));
+         NS : String :=
+                Image (Compilation_Units.Unit_Full_Name
+                       (Elements.Enclosing_Compilation_Unit (E)));
       begin
          Strings.Fixed.Translate (NS, Strings.Maps.To_Mapping (".", "/"));
 
@@ -1328,8 +1318,8 @@ package body Ada2WSDL.Parser is
                E := Declarations.Names (CFS) (1);
                Raise_Spec_Error
                  (E,
-                  Message => "unsupported element kind " &
-                               Image (Declarations.Defining_Name_Image (E)));
+                  Message => "unsupported element kind "
+                             & Image (Declarations.Defining_Name_Image (E)));
          end case;
       end Type_Name;
 
@@ -1373,8 +1363,8 @@ package body Ada2WSDL.Parser is
    is
       use Extensions.Flat_Kinds;
 
-      Arg_Kind : constant Flat_Element_Kinds := Flat_Element_Kind (Element);
-
+      Arg_Kind     : constant Flat_Element_Kinds :=
+                       Flat_Element_Kind (Element);
       Current_Node : Link;
 
       procedure Insert_In_List
@@ -1670,7 +1660,6 @@ package body Ada2WSDL.Parser is
    procedure Initialize is
    begin
       Create_Tree;
-
       Options.Initialized := True;
    exception
       when others =>
@@ -1694,8 +1683,10 @@ package body Ada2WSDL.Parser is
    -----------------------
 
    function Register_Deferred (E : Asis.Declaration) return String is
-      Name : constant String := Image
-        (Declarations.Defining_Name_Image (Declarations.Names (E) (1)));
+      Name : constant String :=
+               Image
+                 (Declarations.Defining_Name_Image
+                    (Declarations.Names (E) (1)));
    begin
       Index := Index + 1;
       Deferred_Types (Index) := E;
@@ -1711,7 +1702,6 @@ package body Ada2WSDL.Parser is
       use Text_IO;
 
       CU         : Asis.Compilation_Unit;
-
       My_Control : Traverse_Control := Continue;
       My_State   : Body_State;
 

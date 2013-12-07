@@ -27,9 +27,11 @@
 --  covered by the  GNU Public License.                                     --
 ------------------------------------------------------------------------------
 
+pragma Ada_2012;
+
 with Ada.Calendar;
-with Ada.Text_IO;
 with Ada.Exceptions;
+with Ada.Text_IO;
 
 with GNAT.Calendar.Time_IO;
 
@@ -38,8 +40,6 @@ with AWS.Messages;
 with AWS.MIME;
 with AWS.Net.Buffered;
 with AWS.SMTP.Authentication;
-pragma Warnings (Off, AWS.SMTP.Authentication);
---  Work around a visibility problem
 with AWS.Utils;
 
 package body AWS.SMTP.Client is
@@ -597,9 +597,8 @@ package body AWS.SMTP.Client is
                Content_Type => MIME.Text_Plain));
       end if;
 
-      for K in Attachments'Range loop
+      for A of Attachments loop
          declare
-            A : constant Attachment := Attachments (K);
             H : AWS.Headers.List;
          begin
             case A.Kind is
@@ -696,7 +695,6 @@ package body AWS.SMTP.Client is
 
       when E : others =>
          Shutdown (Sock);
-
          raise Server_Error with Ada.Exceptions.Exception_Information (E);
    end Send;
 

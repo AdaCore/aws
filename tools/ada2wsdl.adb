@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2003-2012, AdaCore                     --
+--                     Copyright (C) 2003-2013, AdaCore                     --
 --                                                                          --
 --  This is free software;  you can redistribute it  and/or modify it       --
 --  under terms of the  GNU General Public License as published  by the     --
@@ -16,13 +16,13 @@
 --  to http://www.gnu.org/licenses for a complete copy of the license.      --
 ------------------------------------------------------------------------------
 
+with Ada.Characters.Conversions;
+with Ada.Characters.Handling;
 with Ada.Exceptions;
 with Ada.Strings.Fixed;
-with Ada.Characters.Handling;
-with Ada.Characters.Conversions;
 
-with Asis.Elements;
 with Asis.Declarations;
+with Asis.Elements;
 with Asis.Text;
 
 with AWS.Utils;
@@ -54,8 +54,9 @@ package body Ada2WSDL is
       end Image;
 
       E_Span    : constant Text.Span := Text.Element_Span (E);
-      Unit      : constant Asis.Declaration
-        := Elements.Unit_Declaration (Elements.Enclosing_Compilation_Unit (E));
+      Unit      : constant Asis.Declaration :=
+                    Elements.Unit_Declaration
+                      (Elements.Enclosing_Compilation_Unit (E));
       --  Unit containing element E
 
       Unit_Name : constant Asis.Element := Declarations.Names (Unit) (1);

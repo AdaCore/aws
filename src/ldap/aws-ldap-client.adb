@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                      Copyright (C) 2003-2012, AdaCore                    --
+--                      Copyright (C) 2003-2013, AdaCore                    --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -43,17 +43,17 @@ package body AWS.LDAP.Client is
 
    use type IC.int;
 
-   C_Scope : constant array (Scope_Type) of IC.int
-     := (LDAP_Scope_Default   => Thin.LDAP_SCOPE_DEFAULT,
-         LDAP_Scope_Base      => Thin.LDAP_SCOPE_BASE,
-         LDAP_Scope_One_Level => Thin.LDAP_SCOPE_ONELEVEL,
-         LDAP_Scope_Subtree   => Thin.LDAP_SCOPE_SUBTREE);
+   C_Scope : constant array (Scope_Type) of IC.int :=
+               (LDAP_Scope_Default   => Thin.LDAP_SCOPE_DEFAULT,
+                LDAP_Scope_Base      => Thin.LDAP_SCOPE_BASE,
+                LDAP_Scope_One_Level => Thin.LDAP_SCOPE_ONELEVEL,
+                LDAP_Scope_Subtree   => Thin.LDAP_SCOPE_SUBTREE);
    --  Map Scope_Type with the corresponding C values
 
-   C_Mod_Type : constant array (Mod_Type) of IC.int
-     := (LDAP_Mod_Add     => Thin.LDAP_MOD_ADD,
-         LDAP_Mod_Replace => Thin.LDAP_MOD_REPLACE,
-         LDAP_Mod_BValues => Thin.LDAP_MOD_BVALUES);
+   C_Mod_Type : constant array (Mod_Type) of IC.int :=
+                  (LDAP_Mod_Add     => Thin.LDAP_MOD_ADD,
+                   LDAP_Mod_Replace => Thin.LDAP_MOD_REPLACE,
+                   LDAP_Mod_BValues => Thin.LDAP_MOD_BVALUES);
    --  Map Mod_Type with the corresponsing C values
 
    C_Bool : constant array (Boolean) of IC.int := (False => 0, True => 1);
@@ -378,8 +378,8 @@ package body AWS.LDAP.Client is
          Result : String_Set (1 .. N);
       begin
          for K in Result'Range loop
-            Result (K)
-              := To_Unbounded_String (Value (Thin.Item (Res, IC.int (K))));
+            Result (K) :=
+              To_Unbounded_String (Value (Thin.Item (Res, IC.int (K))));
          end loop;
 
          Thin.ldap_value_free (Res);
@@ -586,8 +586,8 @@ package body AWS.LDAP.Client is
          Result : String_Set (1 .. N);
       begin
          for K in Result'Range loop
-            Result (K)
-              := To_Unbounded_String (Value (Thin.Item (Attribs, IC.int (K))));
+            Result (K) :=
+              To_Unbounded_String (Value (Thin.Item (Attribs, IC.int (K))));
          end loop;
 
          Thin.ldap_value_free (Attribs);

@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2000-2012, AdaCore                     --
+--                     Copyright (C) 2000-2013, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -30,12 +30,12 @@
 with Ada.Calendar;
 with Ada.Characters.Handling;
 with Ada.Containers.Ordered_Sets;
-with Ada.Strings.Unbounded;
 with Ada.Strings.Fixed;
 with Ada.Strings.Maps;
+with Ada.Strings.Unbounded;
 
-with AWS.Parameters;
 with AWS.MIME;
+with AWS.Parameters;
 with AWS.Utils;
 
 with GNAT.Calendar.Time_IO;
@@ -296,12 +296,12 @@ package body AWS.Services.Directory is
       --  This table will receive the string rule (a set of Order_Char) for
       --  each order.
 
-      Param_List   : constant AWS.Parameters.List
-        := AWS.Status.Parameters (Request);
+      Param_List   : constant AWS.Parameters.List :=
+                       AWS.Status.Parameters (Request);
       --  Web parameter's list
 
-      Mode         : constant String
-        := AWS.Parameters.Get (Param_List, "MODE");
+      Mode         : constant String :=
+                       AWS.Parameters.Get (Param_List, "MODE");
 
       Mode_Param   : constant String := "?MODE=" & Mode;
       --  MODE Web variable is set either to True or False to toggle the
@@ -309,10 +309,10 @@ package body AWS.Services.Directory is
 
       subtype Dir_Order_Range is Order_Mode range Name .. Time;
 
-      Dir_Ordr     : array (Dir_Order_Range) of Unbounded_String
-        := (Name  => To_Unbounded_String (Mode_Param & "&ORDER=DN"),
-            SName => To_Unbounded_String (Mode_Param & "&ORDER=DA"),
-            Time  => To_Unbounded_String (Mode_Param & "&ORDER=DT"));
+      Dir_Ordr     : array (Dir_Order_Range) of Unbounded_String :=
+        (Name  => To_Unbounded_String (Mode_Param & "&ORDER=DN"),
+         SName => To_Unbounded_String (Mode_Param & "&ORDER=DA"),
+         Time  => To_Unbounded_String (Mode_Param & "&ORDER=DT"));
       --  Defaults rules to order the directories by Name or by Time
 
       UID_Sq       : Natural := 0;
@@ -429,8 +429,8 @@ package body AWS.Services.Directory is
          ---------------
 
          function Get_Order return String is
-            P_Order : constant String
-              := AWS.Parameters.Get (Param_List, "ORDER");
+            P_Order : constant String :=
+                        AWS.Parameters.Get (Param_List, "ORDER");
          begin
             if P_Order = "" then
                --  no ordering define, use the default one
@@ -468,12 +468,12 @@ package body AWS.Services.Directory is
         and then To_Order_Mode (Element (Order_Set, 2)) in Dir_Order_Range
       then
          --  The current rule is a directory ordering, just invert it
-         Dir_Ordr (To_Order_Mode (Element (Order_Set, 2)))
-           := To_Unbounded_String
-           (Mode_Param
-            & "&ORDER="
-            & Invert (Element (Order_Set, 1))
-            & Invert (Element (Order_Set, 2)));
+         Dir_Ordr (To_Order_Mode (Element (Order_Set, 2))) :=
+           To_Unbounded_String
+             (Mode_Param
+              & "&ORDER="
+              & Invert (Element (Order_Set, 1))
+              & Invert (Element (Order_Set, 2)));
       end if;
 
       --  Build the Ordr table for each kind of ordering
@@ -553,8 +553,8 @@ package body AWS.Services.Directory is
    function Get_Ext (File_Name : String) return String is
       use Ada.Strings;
 
-      Pos : constant Natural
-        := Fixed.Index (File_Name, Maps.To_Set ("."), Going => Backward);
+      Pos : constant Natural :=
+              Fixed.Index (File_Name, Maps.To_Set ("."), Going => Backward);
 
    begin
       if Pos = 0 then
