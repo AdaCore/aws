@@ -27,6 +27,8 @@
 --  covered by the  GNU Public License.                                     --
 ------------------------------------------------------------------------------
 
+pragma Ada_2012;
+
 with Ada.Characters.Handling;
 with Ada.Exceptions;
 with Ada.Strings.Fixed;
@@ -251,8 +253,7 @@ package body SOAP.Message.XML is
      (Name : String;
       N    : DOM.Core.Node) return Types.Object'Class;
 
-   procedure Error (Node : DOM.Core.Node; Message : String);
-   pragma No_Return (Error);
+   procedure Error (Node : DOM.Core.Node; Message : String) with No_Return;
    --  Raises SOAP_Error with the Message as exception message
 
    type Parse_Type is access
@@ -540,8 +541,7 @@ package body SOAP.Message.XML is
       use SOAP.Types;
       use type DOM.Core.Node;
 
-      function Item_Type (Name : String) return String;
-      pragma Inline (Item_Type);
+      function Item_Type (Name : String) return String with Inline;
       --  Returns the array's item type, remove [] if present
 
       LS : State := S;
@@ -1185,8 +1185,8 @@ package body SOAP.Message.XML is
    is
       function Is_A
         (T1_Name, T2_Name : String;
-         NS               : String) return Boolean;
-      pragma Inline (Is_A);
+         NS               : String) return Boolean
+        with Inline;
       --  Returns True if T1_Name is equal to T2_Name based on namespace
 
       ----------

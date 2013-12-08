@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2000-2012, AdaCore                     --
+--                     Copyright (C) 2000-2013, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -26,6 +26,8 @@
 --  however invalidate any other reasons why the executable file  might be  --
 --  covered by the  GNU Public License.                                     --
 ------------------------------------------------------------------------------
+
+pragma Ada_2012;
 
 with Ada.Streams;
 with Ada.Strings.Unbounded;
@@ -76,15 +78,13 @@ package AWS.Translator is
    ------------------------------------
 
    function To_String
-     (Data : Ada.Streams.Stream_Element_Array) return String;
-   pragma Inline (To_String);
+     (Data : Ada.Streams.Stream_Element_Array) return String with Inline;
    --  Convert a Stream_Element_Array to a string. Note that as this routine
    --  returns a String it should not be used with large array as this could
    --  break the stack size limit. Use the routine below for large array.
 
    function To_Stream_Element_Array
-     (Data : String) return Ada.Streams.Stream_Element_Array;
-   pragma Inline (To_Stream_Element_Array);
+     (Data : String) return Ada.Streams.Stream_Element_Array with Inline;
    --  Convert a String to a Stream_Element_Array
 
    function To_Unbounded_String

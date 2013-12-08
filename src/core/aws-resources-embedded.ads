@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2002-2012, AdaCore                     --
+--                     Copyright (C) 2002-2013, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -26,6 +26,8 @@
 --  however invalidate any other reasons why the executable file  might be  --
 --  covered by the  GNU Public License.                                     --
 ------------------------------------------------------------------------------
+
+pragma Ada_2012;
 
 with AWS.Resources.Streams.Memory;
 
@@ -55,8 +57,7 @@ package AWS.Resources.Embedded is
    --  Return Both if both file Name and Name & ".gz" exists.
    --  Return None if files neither Name nor Name & ".gz" exist.
 
-   function Is_Regular_File (Name : String) return Boolean;
-   pragma Inline (Is_Regular_File);
+   function Is_Regular_File (Name : String) return Boolean with Inline;
    --  Returns True if file named Name has been registered (i.e. it is an
    --  in-memory file).
 

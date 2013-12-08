@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2008-2012, AdaCore                     --
+--                     Copyright (C) 2008-2013, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -26,6 +26,8 @@
 --  however invalidate any other reasons why the executable file  might be  --
 --  covered by the  GNU Public License.                                     --
 ------------------------------------------------------------------------------
+
+pragma Ada_2012;
 
 with Ada.Unchecked_Conversion;
 
@@ -114,8 +116,7 @@ package body AWS.Jabber.Digest_Md5 is
      (Username, Realm, Password : String) return String
    is
       type Byte is mod 2 ** 8;
-      type Byte_Array is array (Long_Integer range <>) of Byte;
-      pragma Pack (Byte_Array);
+      type Byte_Array is array (Long_Integer range <>) of Byte with Pack;
 
       subtype Fingerprint   is Byte_Array (1 .. 16);  --  128 bits
       subtype Digest_String is String     (1 .. 32);  --  Fingerprint in hex
@@ -134,8 +135,8 @@ package body AWS.Jabber.Digest_Md5 is
       function Digest_From_Text (S : Digest_String) return Fingerprint is
          type Word is mod 2 ** 32;
 
-         function Shift_Left  (Value : Word; Amount : Natural) return Word;
-         pragma Import (Intrinsic, Shift_Left);
+         function Shift_Left (Value : Word; Amount : Natural) return Word
+           with Import, Convention => Intrinsic;
 
          Digest : Fingerprint;
          Val   : Word;

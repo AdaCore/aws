@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2004-2012, AdaCore                     --
+--                     Copyright (C) 2004-2013, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -27,6 +27,8 @@
 --  covered by the  GNU Public License.                                     --
 ------------------------------------------------------------------------------
 
+pragma Ada_2012;
+
 --  Wait implementation on top of native poll call
 
 with System;
@@ -36,11 +38,12 @@ separate (AWS.Net.Poll_Events)
 procedure Wait
   (Fds : in out Set; Timeout : Timeout_Type; Result : out Integer)
 is
+
    function Poll
      (Fds     : System.Address;
       Nfds    : OS_Lib.nfds_t;
-      Timeout : Timeout_Type) return Interfaces.C.int;
-   pragma Import (C, Poll, "poll");
+      Timeout : Timeout_Type) return Interfaces.C.int
+     with Import => True, Convention => C;
 
 begin
    Result :=

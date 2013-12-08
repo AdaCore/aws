@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2000-2012, AdaCore                     --
+--                     Copyright (C) 2000-2013, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -26,6 +26,8 @@
 --  however invalidate any other reasons why the executable file  might be  --
 --  covered by the  GNU Public License.                                     --
 ------------------------------------------------------------------------------
+
+pragma Ada_2012;
 
 with Ada.Calendar;
 with Ada.Streams;
@@ -291,93 +293,69 @@ package AWS.Messages is
    -- HTTP message constructors --
    -------------------------------
 
-   function Accept_Encoding (Encoding : String) return String;
-   pragma Inline (Accept_Encoding);
+   function Accept_Encoding (Encoding : String) return String with Inline;
 
-   function Accept_Type (Mode : String) return String;
-   pragma Inline (Accept_Type);
+   function Accept_Type (Mode : String) return String with Inline;
 
-   function Accept_Language (Mode : String) return String;
-   pragma Inline (Accept_Language);
+   function Accept_Language (Mode : String) return String with Inline;
 
-   function Authorization (Mode, Password : String) return String;
-   pragma Inline (Authorization);
+   function Authorization (Mode, Password : String) return String with Inline;
 
-   function Connection (Mode : String) return String;
-   pragma Inline (Connection);
+   function Connection (Mode : String) return String with Inline;
 
-   function Content_Length (Size : Stream_Element_Offset) return String;
-   pragma Inline (Content_Length);
+   function Content_Length (Size : Stream_Element_Offset) return String
+     with Inline;
 
-   function Cookie (Value : String) return String;
-   pragma Inline (Cookie);
+   function Cookie (Value : String) return String with Inline;
 
    function Content_Type
-     (Format : String; Boundary : String := "") return String;
-   pragma Inline (Content_Type);
+     (Format : String; Boundary : String := "") return String with Inline;
 
-   function Cache_Control (Option : Cache_Option) return String;
-   pragma Inline (Cache_Control);
+   function Cache_Control (Option : Cache_Option) return String with Inline;
 
-   function Cache_Control (Data : Cache_Data) return String;
-   pragma Inline (Cache_Control);
+   function Cache_Control (Data : Cache_Data) return String with Inline;
 
    function Content_Disposition
-     (Format, Name, Filename : String) return String;
-   pragma Inline (Content_Disposition);
+     (Format, Name, Filename : String) return String with Inline;
    --  Note that this is not part of HTTP/1.1 standard, it is there because
    --  there is a lot of implementation around using it. This header is used
    --  in multipart data.
 
-   function ETag (Value : ETag_Value) return String;
-   pragma Inline (ETag);
+   function ETag (Value : ETag_Value) return String with Inline;
 
-   function Expires (Date : Calendar.Time) return String;
-   pragma Inline (Expires);
+   function Expires (Date : Calendar.Time) return String with Inline;
    --  The date should not be more than a year in the future, see RFC 2616
    --  [14.21 Expires].
 
-   function Host (Name : String) return String;
-   pragma Inline (Host);
+   function Host (Name : String) return String with Inline;
 
-   function Last_Modified (Date : Calendar.Time) return String;
-   pragma Inline (Last_Modified);
+   function Last_Modified (Date : Calendar.Time) return String with Inline;
 
-   function Location (URL : String) return String;
-   pragma Inline (Location);
+   function Location (URL : String) return String with Inline;
 
-   function Proxy_Authorization (Mode, Password : String) return String;
-   pragma Inline (Proxy_Authorization);
+   function Proxy_Authorization (Mode, Password : String) return String
+     with Inline;
 
-   function Proxy_Connection (Mode : String) return String;
-   pragma Inline (Proxy_Connection);
+   function Proxy_Connection (Mode : String) return String with Inline;
 
-   function Data_Range (Value : String) return String;
-   pragma Inline (Data_Range);
+   function Data_Range (Value : String) return String with Inline;
 
-   function SOAPAction (URI : String) return String;
-   pragma Inline (SOAPAction);
+   function SOAPAction (URI : String) return String with Inline;
 
-   function Status_Line (Code : Status_Code) return String;
-   pragma Inline (Status_Line);
+   function Status_Line (Code : Status_Code) return String with Inline;
 
-   function Transfer_Encoding (Encoding : String) return String;
-   pragma Inline (Transfer_Encoding);
+   function Transfer_Encoding (Encoding : String) return String with Inline;
 
-   function User_Agent (Name : String) return String;
-   pragma Inline (User_Agent);
+   function User_Agent (Name : String) return String with Inline;
 
-   function WWW_Authenticate (Realm : String) return String;
-   pragma Inline (WWW_Authenticate);
+   function WWW_Authenticate (Realm : String) return String with Inline;
    --  Basic authentication request
 
    function WWW_Authenticate
-     (Realm, Nonce : String; Stale : Boolean) return String;
-   pragma Inline (WWW_Authenticate);
+     (Realm, Nonce : String; Stale : Boolean) return String with Inline;
    --  Digest authentication request
 
-   function Sec_WebSocket_Accept (Key : String) return String;
-   pragma Inline (Sec_WebSocket_Accept);
+   function Sec_WebSocket_Accept (Key : String) return String with Inline;
 
    -----------------------
    --  helper functions --

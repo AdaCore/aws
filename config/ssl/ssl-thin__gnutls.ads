@@ -479,21 +479,18 @@ package SSL.Thin is
       ncerts     : C.int;              -- one for pgp keys
       key_x509   : gnutls_x509_privkey_t;
       deinit_all : C.unsigned;         -- if non zero all keys will be deinited
-   end record;
-   pragma Convention (C, gnutls_retr_st);
+   end record with Convention => C;
 
    type gnutls_datum_t is record
       data : a_c_signed_char_t;
       size : C.unsigned;
-   end record;
-   pragma Convention (C, gnutls_datum_t);
+   end record with Convention => C;
 
    type gnutls_pcert_st is record
       pubkey : gnutls_pubkey_t;
       cert   : gnutls_datum_t;
       c_type : gnutls_certificate_type_t;
-   end record;
-   pragma Convention (C, gnutls_pcert_st);
+   end record with Convention => C;
 
    type a_gnutls_pcert_st is access all gnutls_pcert_st;
 
@@ -505,9 +502,9 @@ package SSL.Thin is
       pk_algos_length : C.int;
       st              : access a_gnutls_pcert_st;
       pcert_length    : access C.unsigned;
-      privkey         : access gnutls_privkey_t) return C.int;
-   pragma Convention (C, gnutls_certificate_retrieve_function2);
-   --  !!! This ñallback in version 3.0.3 defined different in man and in file
+      privkey         : access gnutls_privkey_t) return C.int
+     with Convention => C;
+   --  ??? This callback in version 3.0.3 defined different in man and in file
    --  gnutls.h. This is a new definition. Old definition was ended by field
    --  st : access gnutls_pcert_st.
 
@@ -517,482 +514,612 @@ package SSL.Thin is
       nreqs           : C.int;
       pk_algos        : access constant gnutls_pk_algorithm_t;
       pk_algos_length : C.int;
-      st              : access gnutls_retr_st) return C.int;
-   pragma Convention (C, gnutls_certificate_client_retrieve_function);
+      st              : access gnutls_retr_st) return C.int
+     with Convention => C;
 
    type gnutls_certificate_verify_function is access function
-     (Session : gnutls_session_t) return C.int;
-   pragma Convention (C, gnutls_certificate_verify_function);
+     (Session : gnutls_session_t) return C.int
+     with Convention => C;
 
    type gnutls_db_store_func is access function
      (p1   : System.Address;
       key  : gnutls_datum_t;
-      data : gnutls_datum_t) return C.int;
-   pragma Convention (C, gnutls_db_store_func);
+      data : gnutls_datum_t) return C.int
+     with Convention => C;
 
    type gnutls_db_remove_func is access function
-     (p1  : System.Address; key : gnutls_datum_t) return C.int;
-   pragma Convention (C, gnutls_db_remove_func);
+     (p1 : System.Address; key : gnutls_datum_t) return C.int
+     with Convention => C;
 
    type gnutls_db_retr_func is access function
-     (p1  : System.Address; key : gnutls_datum_t) return gnutls_datum_t;
-   pragma Convention (C, gnutls_db_retr_func);
+     (p1  : System.Address; key : gnutls_datum_t) return gnutls_datum_t
+     with Convention => C;
 
-   type STRUCT_DSTRUCT is null record;
-   pragma Convention (C, STRUCT_DSTRUCT);
+   type STRUCT_DSTRUCT is null record with Convention => C;
 
    type gnutls_alloc_function is access function
-     (p1 : C.size_t) return System.Address;
-   pragma Convention (C, gnutls_alloc_function);
+     (p1 : C.size_t) return System.Address
+     with Convention => C;
 
    type gnutls_calloc_function is access function
-     (p1 : C.size_t; p2 : C.size_t) return System.Address;
-   pragma Convention (C, gnutls_calloc_function);
+     (p1 : C.size_t; p2 : C.size_t) return System.Address
+     with Convention => C;
 
    type gnutls_is_secure_function is access function
-     (p1 : System.Address) return C.int;
-   pragma Convention (C, gnutls_is_secure_function);
+     (p1 : System.Address) return C.int
+     with Convention => C;
 
-   type gnutls_free_function is access procedure (p1 : System.Address);
-   pragma Convention (C, gnutls_free_function);
+   type gnutls_free_function is access procedure (p1 : System.Address)
+     with Convention => C;
 
    type gnutls_realloc_function is access function
-     (p1 : System.Address; p2 : C.size_t) return System.Address;
-   pragma Convention (C, gnutls_realloc_function);
+     (p1 : System.Address; p2 : C.size_t) return System.Address
+     with Convention => C;
 
    type gnutls_log_func is access procedure
-     (level : C.int; text : CS.chars_ptr);
-   pragma Convention (C, gnutls_log_func);
+     (level : C.int; text : CS.chars_ptr)
+     with Convention => C;
 
-   gnutls_malloc                   : constant gnutls_alloc_function;
-   gnutls_calloc                   : constant gnutls_calloc_function;
-   gnutls_free                     : constant gnutls_free_function;
-   gnutls_strdup                   : constant System.Address;
-   gnutls_srp_2048_group_prime     : constant gnutls_datum_t;
-   gnutls_srp_2048_group_generator : constant gnutls_datum_t;
-   gnutls_srp_1536_group_prime     : constant gnutls_datum_t;
-   gnutls_srp_1536_group_generator : constant gnutls_datum_t;
-   gnutls_srp_1024_group_prime     : constant gnutls_datum_t;
-   gnutls_srp_1024_group_generator : constant gnutls_datum_t;
+   gnutls_malloc                   : constant gnutls_alloc_function
+     with Import, Convention => C;
+   gnutls_calloc                   : constant gnutls_calloc_function
+     with Import, Convention => C;
+   gnutls_free                     : constant gnutls_free_function
+     with Import, Convention => C;
+   gnutls_strdup                   : constant System.Address
+     with Import, Convention => C;
+
+   gnutls_srp_2048_group_prime     : constant gnutls_datum_t
+     with Import, Convention => C;
+   gnutls_srp_2048_group_generator : constant gnutls_datum_t
+     with Import, Convention => C;
+
+   gnutls_srp_1536_group_prime     : constant gnutls_datum_t
+     with Import, Convention => C;
+   gnutls_srp_1536_group_generator : constant gnutls_datum_t
+     with Import, Convention => C;
+
+   gnutls_srp_1024_group_prime     : constant gnutls_datum_t
+     with Import, Convention => C;
+   gnutls_srp_1024_group_generator : constant gnutls_datum_t
+     with Import, Convention => C;
 
    function gnutls_pk_algorithm_get_name
-     (algorithm : gnutls_pk_algorithm_t) return CS.chars_ptr;
+     (algorithm : gnutls_pk_algorithm_t) return CS.chars_ptr
+     with Import, Convention => C;
 
    function gnutls_sign_algorithm_get_name
-     (algorithm : gnutls_sign_algorithm_t) return CS.chars_ptr;
+     (algorithm : gnutls_sign_algorithm_t) return CS.chars_ptr
+     with Import, Convention => C;
 
    function gnutls_init
      (session : access gnutls_session_t;
-      con_end : gnutls_connection_end_t) return C.int;
+      con_end : gnutls_connection_end_t) return C.int
+     with Import, Convention => C;
 
-   procedure gnutls_deinit (session : gnutls_session_t);
+   procedure gnutls_deinit (session : gnutls_session_t)
+     with Import, Convention => C;
 
    function gnutls_bye
      (session : gnutls_session_t;
-      how     : gnutls_close_request_t) return C.int;
+      how     : gnutls_close_request_t) return C.int
+     with Import, Convention => C;
 
-   function gnutls_handshake (session : gnutls_session_t) return C.int;
+   function gnutls_handshake (session : gnutls_session_t) return C.int
+     with Import, Convention => C;
 
-   function gnutls_rehandshake (session : gnutls_session_t) return C.int;
+   function gnutls_rehandshake (session : gnutls_session_t) return C.int
+     with Import, Convention => C;
 
    function gnutls_alert_get
-     (session : gnutls_session_t) return gnutls_alert_description_t;
+     (session : gnutls_session_t) return gnutls_alert_description_t
+     with Import, Convention => C;
 
    function gnutls_alert_send
      (p1 : gnutls_session_t;
       p2 : gnutls_alert_level_t;
-      p3 : gnutls_alert_description_t) return C.int;
+      p3 : gnutls_alert_description_t) return C.int
+     with Import, Convention => C;
 
    function gnutls_alert_send_appropriate
-     (session : gnutls_session_t; err : C.int) return C.int;
+     (session : gnutls_session_t; err : C.int) return C.int
+     with Import, Convention => C;
 
    function gnutls_alert_get_name
-     (alert : gnutls_alert_description_t) return  CS.chars_ptr;
+     (alert : gnutls_alert_description_t) return  CS.chars_ptr
+     with Import, Convention => C;
 
    function gnutls_cipher_get
-     (session : gnutls_session_t) return gnutls_cipher_algorithm_t;
+     (session : gnutls_session_t) return gnutls_cipher_algorithm_t
+     with Import, Convention => C;
 
    function gnutls_kx_get
-     (session : gnutls_session_t) return gnutls_kx_algorithm_t;
+     (session : gnutls_session_t) return gnutls_kx_algorithm_t
+     with Import, Convention => C;
 
    function gnutls_mac_get
-     (session : gnutls_session_t) return gnutls_mac_algorithm_t;
+     (session : gnutls_session_t) return gnutls_mac_algorithm_t
+     with Import, Convention => C;
 
    function gnutls_compression_get
-     (session : gnutls_session_t) return gnutls_compression_method_t;
+     (session : gnutls_session_t) return gnutls_compression_method_t
+     with Import, Convention => C;
 
    function gnutls_certificate_type_get
-     (session : gnutls_session_t) return gnutls_certificate_type_t;
+     (session : gnutls_session_t) return gnutls_certificate_type_t
+     with Import, Convention => C;
 
    function gnutls_cipher_get_key_size
-     (algorithm : gnutls_cipher_algorithm_t) return C.size_t;
+     (algorithm : gnutls_cipher_algorithm_t) return C.size_t
+     with Import, Convention => C;
 
    function gnutls_cipher_get_name
-     (p1 : gnutls_cipher_algorithm_t) return CS.chars_ptr;
+     (p1 : gnutls_cipher_algorithm_t) return CS.chars_ptr
+     with Import, Convention => C;
 
    function gnutls_mac_get_name
-     (p1 : gnutls_mac_algorithm_t) return CS.chars_ptr;
+     (p1 : gnutls_mac_algorithm_t) return CS.chars_ptr
+     with Import, Convention => C;
 
    function gnutls_compression_get_name
-     (p1 : gnutls_compression_method_t) return CS.chars_ptr;
+     (p1 : gnutls_compression_method_t) return CS.chars_ptr
+     with Import, Convention => C;
 
    function gnutls_kx_get_name
-     (algorithm : gnutls_kx_algorithm_t) return CS.chars_ptr;
+     (algorithm : gnutls_kx_algorithm_t) return CS.chars_ptr
+     with Import, Convention => C;
 
    function gnutls_certificate_type_get_name
-     (c_type : gnutls_certificate_type_t) return CS.chars_ptr;
+     (c_type : gnutls_certificate_type_t) return CS.chars_ptr
+     with Import, Convention => C;
 
-   function gnutls_error_is_fatal (error : C.int) return C.int;
+   function gnutls_error_is_fatal (error : C.int) return C.int
+     with Import, Convention => C;
 
    function gnutls_error_to_alert
-     (err : C.int; level : access C.int) return C.int;
+     (err : C.int; level : access C.int) return C.int
+     with Import, Convention => C;
 
-   procedure gnutls_perror (error : C.int);
+   procedure gnutls_perror (error : C.int)
+     with Import, Convention => C;
 
-   function gnutls_strerror (error : C.int) return CS.chars_ptr;
+   function gnutls_strerror (error : C.int) return CS.chars_ptr
+     with Import, Convention => C;
 
    procedure gnutls_handshake_set_private_extensions
-     (session : gnutls_session_t; allow : C.int);
+     (session : gnutls_session_t; allow : C.int)
+     with Import, Convention => C;
 
    function gnutls_handshake_get_last_out
-     (session : gnutls_session_t) return gnutls_handshake_description_t;
+     (session : gnutls_session_t) return gnutls_handshake_description_t
+     with Import, Convention => C;
 
    function gnutls_handshake_get_last_in
-     (session : gnutls_session_t) return gnutls_handshake_description_t;
+     (session : gnutls_session_t) return gnutls_handshake_description_t
+     with Import, Convention => C;
 
    function gnutls_record_send
      (session    : gnutls_session_t;
       data       : System.Address;
-      sizeofdata : C.size_t) return ssize_t;
+      sizeofdata : C.size_t) return ssize_t
+     with Import, Convention => C;
 
    function gnutls_record_recv
      (session    : gnutls_session_t;
       data       : System.Address;
-      sizeofdata : C.size_t) return ssize_t;
+      sizeofdata : C.size_t) return ssize_t
+     with Import, Convention => C;
 
    function gnutls_record_get_direction
-     (session : gnutls_session_t) return C.int;
+     (session : gnutls_session_t) return C.int
+     with Import, Convention => C;
 
    function gnutls_record_get_max_size
-     (session : gnutls_session_t) return C.size_t;
+     (session : gnutls_session_t) return C.size_t
+     with Import, Convention => C;
 
    function gnutls_record_set_max_size
-     (session : gnutls_session_t; size : C.size_t) return C.size_t;
+     (session : gnutls_session_t; size : C.size_t) return C.size_t
+     with Import, Convention => C;
 
    function gnutls_record_check_pending
-     (session : gnutls_session_t) return C.size_t;
+     (session : gnutls_session_t) return C.size_t
+     with Import, Convention => C;
 
    function gnutls_server_name_set
      (session     : gnutls_session_t;
       c_type      : gnutls_server_name_type_t;
       name        : System.Address;
-      name_length : C.size_t) return C.int;
+      name_length : C.size_t) return C.int
+     with Import, Convention => C;
 
    function gnutls_server_name_get
      (session     : gnutls_session_t;
       data        : System.Address;
       data_length : a_size_t;
       c_type      : access C.unsigned;
-      indx        : C.unsigned) return C.int;
+      indx        : C.unsigned) return C.int
+     with Import, Convention => C;
 
    function gnutls_cipher_set_priority
-     (session : gnutls_session_t; p2 : System.Address) return C.int;
+     (session : gnutls_session_t; p2 : System.Address) return C.int
+     with Import, Convention => C;
 
    function gnutls_mac_set_priority
-     (session : gnutls_session_t; p2 : System.Address) return C.int;
+     (session : gnutls_session_t; p2 : System.Address) return C.int
+     with Import, Convention => C;
 
    function gnutls_compression_set_priority
-     (session : gnutls_session_t; p2 : System.Address) return C.int;
+     (session : gnutls_session_t; p2 : System.Address) return C.int
+     with Import, Convention => C;
 
    function gnutls_kx_set_priority
-     (session : gnutls_session_t; p2 : System.Address) return C.int;
+     (session : gnutls_session_t; p2 : System.Address) return C.int
+     with Import, Convention => C;
 
    function gnutls_protocol_set_priority
-     (session : gnutls_session_t; p2 : System.Address) return C.int;
+     (session : gnutls_session_t; p2 : System.Address) return C.int
+     with Import, Convention => C;
 
    function gnutls_certificate_type_set_priority
-     (session : gnutls_session_t; p2 : System.Address) return C.int;
+     (session : gnutls_session_t; p2 : System.Address) return C.int
+     with Import, Convention => C;
 
    function gnutls_set_default_priority
-     (session : gnutls_session_t) return C.int;
+     (session : gnutls_session_t) return C.int
+     with Import, Convention => C;
 
    function gnutls_set_default_export_priority
-     (session : gnutls_session_t) return C.int;
+     (session : gnutls_session_t) return C.int
+     with Import, Convention => C,
+          Link_Name => "gnutls_set_default_export_priority";
 
    function gnutls_cipher_suite_get_name
      (kx_algorithm     : gnutls_kx_algorithm_t;
       cipher_algorithm : gnutls_cipher_algorithm_t;
-      mac_algorithm    : gnutls_mac_algorithm_t) return CS.chars_ptr;
+      mac_algorithm    : gnutls_mac_algorithm_t) return CS.chars_ptr
+     with Import, Convention => C;
 
    function gnutls_protocol_get_version
-     (session : gnutls_session_t) return gnutls_protocol_t;
+     (session : gnutls_session_t) return gnutls_protocol_t
+     with Import, Convention => C;
 
    function gnutls_protocol_get_name
-     (version : gnutls_protocol_t) return CS.chars_ptr;
+     (version : gnutls_protocol_t) return CS.chars_ptr
+     with Import, Convention => C;
 
    function gnutls_session_set_data
      (session           : gnutls_session_t;
       session_data      : System.Address;
-      session_data_size : C.size_t) return C.int;
+      session_data_size : C.size_t) return C.int
+     with Import, Convention => C;
 
    function gnutls_session_get_data
      (session           : gnutls_session_t;
       session_data      : System.Address;
-      session_data_size : a_size_t) return C.int;
+      session_data_size : a_size_t) return C.int
+     with Import, Convention => C;
 
    function gnutls_session_get_id
      (session         : gnutls_session_t;
       session_id      : System.Address;
-      session_id_size : a_size_t) return C.int;
+      session_id_size : a_size_t) return C.int
+     with Import, Convention => C;
 
    function gnutls_session_is_resumed
-     (session : gnutls_session_t) return C.int;
+     (session : gnutls_session_t) return C.int
+     with Import, Convention => C;
 
    procedure gnutls_db_set_cache_expiration
-     (session : gnutls_session_t; seconds : C.int);
+     (session : gnutls_session_t; seconds : C.int)
+     with Import, Convention => C;
 
-   procedure gnutls_db_remove_session (session : gnutls_session_t);
+   procedure gnutls_db_remove_session (session : gnutls_session_t)
+     with Import, Convention => C;
 
    procedure gnutls_db_set_retrieve_function
-     (p1 : gnutls_session_t; p2 : gnutls_db_retr_func);
+     (p1 : gnutls_session_t; p2 : gnutls_db_retr_func)
+     with Import, Convention => C;
 
    procedure gnutls_db_set_remove_function
-     (p1 : gnutls_session_t; p2 : gnutls_db_remove_func);
+     (p1 : gnutls_session_t; p2 : gnutls_db_remove_func)
+     with Import, Convention => C;
 
    procedure gnutls_db_set_store_function
-     (p1 : gnutls_session_t; p2 : gnutls_db_store_func);
+     (p1 : gnutls_session_t; p2 : gnutls_db_store_func)
+     with Import, Convention => C;
 
    procedure gnutls_db_set_ptr
-     (p1 : gnutls_session_t; db_ptr : System.Address);
+     (p1 : gnutls_session_t; db_ptr : System.Address)
+     with Import, Convention => C;
 
-   function gnutls_db_get_ptr (p1 : gnutls_session_t) return System.Address;
+   function gnutls_db_get_ptr (p1 : gnutls_session_t) return System.Address
+     with Import, Convention => C;
 
    function gnutls_db_check_entry
      (session       : gnutls_session_t;
-      session_entry : gnutls_datum_t) return C.int;
+      session_entry : gnutls_datum_t) return C.int
+     with Import, Convention => C;
 
    procedure gnutls_handshake_set_max_packet_length
-     (session : gnutls_session_t; max : C.int);
+     (session : gnutls_session_t; max : C.int)
+     with Import, Convention => C;
 
-   function gnutls_check_version (p1 : CS.chars_ptr) return CS.chars_ptr;
+   function gnutls_check_version (p1 : CS.chars_ptr) return CS.chars_ptr
+     with Import, Convention => C;
 
-   function gnutls_credentials_clear (session : gnutls_session_t) return C.int;
+   function gnutls_credentials_clear (session : gnutls_session_t) return C.int
+     with Import, Convention => C;
 
    function gnutls_credentials_set
      (p1     : gnutls_session_t;
       c_type : gnutls_credentials_type_t;
-      cred   : System.Address) return C.int;
+      cred   : System.Address) return C.int
+     with Import, Convention => C;
 
    function gnutls_credentials_set
      (p1     : gnutls_session_t;
       c_type : gnutls_credentials_type_t := GNUTLS_CRD_ANON;
-      cred   : gnutls_anon_client_credentials_t) return C.int;
+      cred   : gnutls_anon_client_credentials_t) return C.int
+     with Import, Convention => C;
 
    function gnutls_credentials_set
      (p1     : gnutls_session_t;
       c_type : gnutls_credentials_type_t := GNUTLS_CRD_ANON;
-      cred   : gnutls_anon_server_credentials_t) return C.int;
+      cred   : gnutls_anon_server_credentials_t) return C.int
+     with Import, Convention => C;
 
    function gnutls_credentials_set
      (p1     : gnutls_session_t;
       c_type : gnutls_credentials_type_t := GNUTLS_CRD_CERTIFICATE;
-      cred   : gnutls_certificate_credentials_t) return C.int;
+      cred   : gnutls_certificate_credentials_t) return C.int
+     with Import, Convention => C;
 
    procedure gnutls_anon_free_server_credentials
-     (sc : gnutls_anon_server_credentials_t);
+     (sc : gnutls_anon_server_credentials_t)
+     with Import, Convention => C;
 
    function gnutls_anon_allocate_server_credentials
-     (sc : access gnutls_anon_server_credentials_t) return C.int;
+     (sc : access gnutls_anon_server_credentials_t) return C.int
+     with Import, Convention => C;
 
    procedure gnutls_anon_set_server_dh_params
      (res       : gnutls_anon_server_credentials_t;
-      dh_params : gnutls_dh_params_t);
+      dh_params : gnutls_dh_params_t)
+     with Import, Convention => C;
 
    procedure gnutls_anon_free_client_credentials
-     (sc : gnutls_anon_client_credentials_t);
+     (sc : gnutls_anon_client_credentials_t)
+     with Import, Convention => C;
 
    function gnutls_anon_allocate_client_credentials
-     (sc : access gnutls_anon_client_credentials_t) return C.int;
+     (sc : access gnutls_anon_client_credentials_t) return C.int
+     with Import, Convention => C;
 
    procedure gnutls_certificate_free_credentials
-     (sc : gnutls_certificate_credentials_t);
+     (sc : gnutls_certificate_credentials_t)
+     with Import, Convention => C;
 
    function gnutls_certificate_allocate_credentials
-     (sc : access gnutls_certificate_credentials_t) return C.int;
+     (sc : access gnutls_certificate_credentials_t) return C.int
+     with Import, Convention => C;
 
    procedure gnutls_certificate_free_keys
-     (sc : gnutls_certificate_credentials_t);
+     (sc : gnutls_certificate_credentials_t)
+     with Import, Convention => C;
 
    procedure gnutls_certificate_free_cas
-     (sc : gnutls_certificate_credentials_t);
+     (sc : gnutls_certificate_credentials_t)
+     with Import, Convention => C;
 
    procedure gnutls_certificate_free_ca_names
-     (sc : gnutls_certificate_credentials_t);
+     (sc : gnutls_certificate_credentials_t)
+     with Import, Convention => C;
 
    procedure gnutls_certificate_free_crls
-     (sc : gnutls_certificate_credentials_t);
+     (sc : gnutls_certificate_credentials_t)
+     with Import, Convention => C;
 
    procedure gnutls_certificate_set_dh_params
      (res : gnutls_certificate_credentials_t;
-      p2  : gnutls_dh_params_t);
+      p2  : gnutls_dh_params_t)
+     with Import, Convention => C;
 
    procedure gnutls_certificate_set_rsa_export_params
      (res        : gnutls_certificate_credentials_t;
-      rsa_params : gnutls_rsa_params_t);
+      rsa_params : gnutls_rsa_params_t)
+     with Import, Convention => C;
 
    procedure gnutls_certificate_set_verify_flags
      (res   : gnutls_certificate_credentials_t;
-      flags : C.unsigned);
+      flags : C.unsigned)
+     with Import, Convention => C;
 
    procedure gnutls_certificate_set_verify_limits
      (res       : gnutls_certificate_credentials_t;
       max_bits  : C.unsigned;
-      max_depth : C.unsigned);
+      max_depth : C.unsigned)
+     with Import, Convention => C;
 
    procedure gnutls_certificate_set_verify_function
      (cred : gnutls_certificate_credentials_t;
-      func : gnutls_certificate_verify_function);
+      func : gnutls_certificate_verify_function)
+     with Import, Convention => C;
 
    function gnutls_certificate_set_x509_trust_file
      (res    : gnutls_certificate_credentials_t;
       CAFILE : CS.chars_ptr;
-      p3     : gnutls_x509_crt_fmt_t) return C.int;
+      p3     : gnutls_x509_crt_fmt_t) return C.int
+     with Import, Convention => C;
 
    function gnutls_certificate_set_x509_trust_mem
      (res : gnutls_certificate_credentials_t;
       CA  : a_gnutls_datum_t;
-      p3  : gnutls_x509_crt_fmt_t) return C.int;
+      p3  : gnutls_x509_crt_fmt_t) return C.int
+     with Import, Convention => C;
 
    function gnutls_certificate_set_x509_crl_file
      (res     : gnutls_certificate_credentials_t;
       crlfile : CS.chars_ptr;
-      c_type  : gnutls_x509_crt_fmt_t) return C.int;
+      c_type  : gnutls_x509_crt_fmt_t) return C.int
+     with Import, Convention => C;
 
    function gnutls_certificate_set_x509_crl_mem
      (res    : gnutls_certificate_credentials_t;
       CRL    : a_gnutls_datum_t;
-      c_type : gnutls_x509_crt_fmt_t) return C.int;
+      c_type : gnutls_x509_crt_fmt_t) return C.int
+     with Import, Convention => C;
 
    function gnutls_certificate_set_x509_key_file
      (res      : gnutls_certificate_credentials_t;
       CERTFILE : CS.chars_ptr;
       KEYFILE  : CS.chars_ptr;
-      p4       : gnutls_x509_crt_fmt_t) return C.int;
+      p4       : gnutls_x509_crt_fmt_t) return C.int
+     with Import, Convention => C;
 
    function gnutls_certificate_set_x509_key_mem
      (res  : gnutls_certificate_credentials_t;
       cert : a_gnutls_datum_t;
       key  : a_gnutls_datum_t;
-      p4   : gnutls_x509_crt_fmt_t) return C.int;
+      p4   : gnutls_x509_crt_fmt_t) return C.int
+     with Import, Convention => C;
 
    function gnutls_certificate_set_x509_key
      (res            : gnutls_certificate_credentials_t;
       cert_list      : a_gnutls_x509_crt_t;
       cert_list_size : C.int;
-      key            : gnutls_x509_privkey_t) return C.int;
+      key            : gnutls_x509_privkey_t) return C.int
+     with Import, Convention => C;
 
    function gnutls_certificate_set_x509_trust
      (res          : gnutls_certificate_credentials_t;
       ca_list      : a_gnutls_x509_crt_t;
-      ca_list_size : C.int) return C.int;
+      ca_list_size : C.int) return C.int
+     with Import, Convention => C;
 
    function gnutls_certificate_set_x509_crl
      (res           : gnutls_certificate_credentials_t;
       crl_list      : a_gnutls_x509_crl_t;
-      crl_list_size : C.int) return C.int;
+      crl_list_size : C.int) return C.int
+     with Import, Convention => C;
 
    procedure gnutls_certificate_send_x509_rdn_sequence
-     (session : gnutls_session_t; status : C.int);
+     (session : gnutls_session_t; status : C.int)
+     with Import, Convention => C;
 
    function gnutls_x509_crt_init
-     (cert : access gnutls_x509_crt_t) return C.int;
+     (cert : access gnutls_x509_crt_t) return C.int
+     with Import, Convention => C;
 
-   procedure gnutls_x509_crt_deinit (cert : gnutls_x509_crt_t);
+   procedure gnutls_x509_crt_deinit (cert : gnutls_x509_crt_t)
+     with Import, Convention => C;
 
    function gnutls_x509_crt_import
      (cert   : gnutls_x509_crt_t;
       data   : gnutls_datum_t;
-      format : gnutls_x509_crt_fmt_t) return C.int;
+      format : gnutls_x509_crt_fmt_t) return C.int
+     with Import, Convention => C;
 
    function gnutls_x509_crt_get_dn
      (cert       : gnutls_x509_crt_t;
       buf        : CS.chars_ptr;
-      sizeof_buf : access C.size_t) return C.int;
+      sizeof_buf : access C.size_t) return C.int
+     with Import, Convention => C;
 
    function gnutls_x509_crt_get_issuer_dn
      (cert       : gnutls_x509_crt_t;
       buf        : CS.chars_ptr;
-      sizeof_buf : access C.size_t) return C.int;
+      sizeof_buf : access C.size_t) return C.int
+     with Import, Convention => C;
 
    function gnutls_x509_crt_get_serial
      (cert       : gnutls_x509_crt_t;
       buf        : CS.chars_ptr;
-      sizeof_buf : access C.size_t) return C.int;
+      sizeof_buf : access C.size_t) return C.int
+     with Import, Convention => C;
 
    function gnutls_x509_crt_get_activation_time
-     (cert : gnutls_x509_crt_t) return time_t;
+     (cert : gnutls_x509_crt_t) return time_t
+     with Import, Convention => C;
 
    function gnutls_x509_crt_get_expiration_time
-     (cert : gnutls_x509_crt_t) return time_t;
+     (cert : gnutls_x509_crt_t) return time_t
+     with Import, Convention => C;
 
-   function gnutls_global_init return C.int;
+   function gnutls_global_init return C.int
+     with Import, Convention => C;
 
-   procedure gnutls_global_deinit;
+   procedure gnutls_global_deinit
+     with Import, Convention => C;
 
    procedure gnutls_global_set_mem_functions
      (p1 : gnutls_alloc_function;
       p2 : gnutls_alloc_function;
       p3 : gnutls_is_secure_function;
       p4 : gnutls_realloc_function;
-      p5 : gnutls_free_function);
+      p5 : gnutls_free_function)
+     with Import, Convention => C;
 
-   procedure gnutls_global_set_log_function (log_func : gnutls_log_func);
+   procedure gnutls_global_set_log_function (log_func : gnutls_log_func)
+     with Import, Convention => C;
 
-   procedure gnutls_global_set_log_level (level : C.int);
+   procedure gnutls_global_set_log_level (level : C.int)
+     with Import, Convention => C;
 
    function gnutls_dh_params_init
-     (p1 : access gnutls_dh_params_t) return C.int;
+     (p1 : access gnutls_dh_params_t) return C.int
+     with Import, Convention => C;
 
-   procedure gnutls_dh_params_deinit (p1 : gnutls_dh_params_t);
+   procedure gnutls_dh_params_deinit (p1 : gnutls_dh_params_t)
+     with Import, Convention => C;
 
    function gnutls_dh_params_import_raw
      (dh_params : gnutls_dh_params_t;
       prime     : a_gnutls_datum_t;
-      generator : a_gnutls_datum_t) return C.int;
+      generator : a_gnutls_datum_t) return C.int
+     with Import, Convention => C;
 
    function gnutls_dh_params_import_pkcs3
      (params       : gnutls_dh_params_t;
       pkcs3_params : a_gnutls_datum_t;
-      format       : gnutls_x509_crt_fmt_t) return C.int;
+      format       : gnutls_x509_crt_fmt_t) return C.int
+     with Import, Convention => C;
 
    function gnutls_dh_params_generate2
      (params : gnutls_dh_params_t;
-      bits   : C.int) return C.int;
+      bits   : C.int) return C.int
+     with Import, Convention => C;
 
    function gnutls_dh_params_export_pkcs3
      (params           : gnutls_dh_params_t;
       format           : gnutls_x509_crt_fmt_t;
       params_data      : a_c_signed_char_t;
-      params_data_size : a_size_t) return C.int;
+      params_data_size : a_size_t) return C.int
+     with Import, Convention => C;
 
    function gnutls_dh_params_export_raw
      (params    : gnutls_dh_params_t;
       prime     : a_gnutls_datum_t;
       generator : a_gnutls_datum_t;
-      bits      : access C.unsigned) return C.int;
+      bits      : access C.unsigned) return C.int
+     with Import, Convention => C;
 
    function gnutls_dh_params_cpy
      (dst : gnutls_dh_params_t;
-      src : gnutls_dh_params_t) return C.int;
+      src : gnutls_dh_params_t) return C.int
+     with Import, Convention => C;
 
    function gnutls_rsa_params_init
-     (rsa_params : access gnutls_rsa_params_t) return C.int;
+     (rsa_params : access gnutls_rsa_params_t) return C.int
+     with Import, Convention => C;
 
-   procedure gnutls_rsa_params_deinit (rsa_params : gnutls_rsa_params_t);
+   procedure gnutls_rsa_params_deinit (rsa_params : gnutls_rsa_params_t)
+     with Import, Convention => C;
 
    function gnutls_rsa_params_cpy
      (dst : gnutls_rsa_params_t;
-      src : gnutls_rsa_params_t) return C.int;
+      src : gnutls_rsa_params_t) return C.int
+     with Import, Convention => C;
 
    function gnutls_rsa_params_import_raw
      (rsa_params : gnutls_rsa_params_t;
@@ -1001,11 +1128,13 @@ package SSL.Thin is
       d          : a_gnutls_datum_t;
       p          : a_gnutls_datum_t;
       q          : a_gnutls_datum_t;
-      u          : a_gnutls_datum_t) return C.int;
+      u          : a_gnutls_datum_t) return C.int
+     with Import, Convention => C;
 
    function gnutls_rsa_params_generate2
      (params : gnutls_rsa_params_t;
-      bits   : C.int) return C.int;
+      bits   : C.int) return C.int
+     with Import, Convention => C;
 
    function gnutls_rsa_params_export_raw
      (params : gnutls_rsa_params_t;
@@ -1015,78 +1144,98 @@ package SSL.Thin is
       p      : a_gnutls_datum_t;
       q      : a_gnutls_datum_t;
       u      : a_gnutls_datum_t;
-      bits   : access C.unsigned) return C.int;
+      bits   : access C.unsigned) return C.int
+     with Import, Convention => C;
 
    function gnutls_rsa_params_export_pkcs1
      (params           : gnutls_rsa_params_t;
       format           : gnutls_x509_crt_fmt_t;
       params_data      : a_c_signed_char_t;
-      params_data_size : a_size_t) return C.int;
+      params_data_size : a_size_t) return C.int
+     with Import, Convention => C;
 
    function gnutls_rsa_params_import_pkcs1
      (params       : gnutls_rsa_params_t;
       pkcs1_params : a_gnutls_datum_t;
-      format       : gnutls_x509_crt_fmt_t) return C.int;
+      format       : gnutls_x509_crt_fmt_t) return C.int
+     with Import, Convention => C;
 
    function gnutls_transport_get_ptr
-     (session : gnutls_session_t) return gnutls_transport_ptr_t;
+     (session : gnutls_session_t) return gnutls_transport_ptr_t
+     with Import, Convention => C;
 
    procedure gnutls_transport_get_ptr2
      (session  : gnutls_session_t;
       recv_ptr : gnutls_transport_ptr_t;
-      send_ptr : gnutls_transport_ptr_t);
+      send_ptr : gnutls_transport_ptr_t)
+     with Import, Convention => C;
 
    procedure gnutls_transport_set_lowat
-     (session : gnutls_session_t; num : C.int);
+     (session : gnutls_session_t; num : C.int)
+     with Import, Convention => C;
 
    procedure gnutls_transport_set_ptr
-     (session : gnutls_session_t; ptr : gnutls_transport_ptr_t);
+     (session : gnutls_session_t; ptr : gnutls_transport_ptr_t)
+     with Import, Convention => C;
 
    procedure gnutls_transport_set_push_function
-     (session : gnutls_session_t; push_func : System.Address);
+     (session : gnutls_session_t; push_func : System.Address)
+     with Import, Convention => C;
 
    procedure gnutls_transport_set_pull_function
-     (session : gnutls_session_t; pull_func : System.Address);
+     (session : gnutls_session_t; pull_func : System.Address)
+     with Import, Convention => C;
 
    procedure gnutls_session_set_ptr
-     (session : gnutls_session_t; ptr : System.Address);
+     (session : gnutls_session_t; ptr : System.Address)
+     with Import, Convention => C;
 
    function gnutls_session_get_ptr
-     (session : gnutls_session_t) return System.Address;
+     (session : gnutls_session_t) return System.Address
+     with Import, Convention => C;
 
    procedure gnutls_openpgp_send_key
-     (session : gnutls_session_t; status : gnutls_openpgp_key_status_t);
+     (session : gnutls_session_t; status : gnutls_openpgp_key_status_t)
+     with Import, Convention => C;
 
    function gnutls_fingerprint
      (algo        : gnutls_digest_algorithm_t;
       data        : a_gnutls_datum_t;
       result      : System.Address;
-      result_size : a_size_t) return C.int;
+      result_size : a_size_t) return C.int
+     with Import, Convention => C;
 
    procedure gnutls_srp_free_client_credentials
-     (sc : gnutls_srp_client_credentials_t);
+     (sc : gnutls_srp_client_credentials_t)
+     with Import, Convention => C;
 
    function gnutls_srp_allocate_client_credentials
-     (sc : access gnutls_srp_client_credentials_t) return C.int;
+     (sc : access gnutls_srp_client_credentials_t) return C.int
+     with Import, Convention => C;
 
    function gnutls_srp_set_client_credentials
      (res      : gnutls_srp_client_credentials_t;
       username : CS.chars_ptr;
-      password : CS.chars_ptr) return C.int;
+      password : CS.chars_ptr) return C.int
+     with Import, Convention => C;
 
    procedure gnutls_srp_free_server_credentials
-     (sc : gnutls_srp_server_credentials_t);
+     (sc : gnutls_srp_server_credentials_t)
+     with Import, Convention => C;
 
    function gnutls_srp_allocate_server_credentials
-     (sc : access gnutls_srp_server_credentials_t) return C.int;
+     (sc : access gnutls_srp_server_credentials_t) return C.int
+     with Import, Convention => C;
 
    function gnutls_srp_set_server_credentials_file
      (res                : gnutls_srp_server_credentials_t;
       password_file      : CS.chars_ptr;
-      password_conf_file : CS.chars_ptr) return C.int;
+      password_conf_file : CS.chars_ptr) return C.int
+     with Import, Convention => C;
 
    function gnutls_srp_server_get_username
-     (state : gnutls_session_t) return CS.chars_ptr;
+     (state : gnutls_session_t) return CS.chars_ptr
+     with Import, Convention => C;
 
    function gnutls_srp_verifier
      (username : CS.chars_ptr;
@@ -1094,128 +1243,160 @@ package SSL.Thin is
       salt     : a_gnutls_datum_t;
       g        : a_gnutls_datum_t;
       n        : a_gnutls_datum_t;
-      res      : a_gnutls_datum_t) return C.int;
+      res      : a_gnutls_datum_t) return C.int
+     with Import, Convention => C;
 
    procedure gnutls_srp_set_server_credentials_function
      (p1 : gnutls_srp_server_credentials_t;
-      p2 : gnutls_srp_server_credentials_function);
+      p2 : gnutls_srp_server_credentials_function)
+     with Import, Convention => C;
 
    procedure gnutls_srp_set_client_credentials_function
      (p1 : gnutls_srp_client_credentials_t;
-      p2 : gnutls_srp_client_credentials_function);
+      p2 : gnutls_srp_client_credentials_function)
+     with Import, Convention => C;
 
    function gnutls_auth_get_type
-     (session : gnutls_session_t) return gnutls_credentials_type_t;
+     (session : gnutls_session_t) return gnutls_credentials_type_t
+     with Import, Convention => C;
 
    function gnutls_auth_server_get_type
-     (session : gnutls_session_t) return gnutls_credentials_type_t;
+     (session : gnutls_session_t) return gnutls_credentials_type_t
+     with Import, Convention => C;
 
    function gnutls_auth_client_get_type
-     (session : gnutls_session_t) return gnutls_credentials_type_t;
+     (session : gnutls_session_t) return gnutls_credentials_type_t
+     with Import, Convention => C;
 
    procedure gnutls_dh_set_prime_bits
-     (session : gnutls_session_t; bits : C.int);
+     (session : gnutls_session_t; bits : C.int)
+     with Import, Convention => C;
 
-   function gnutls_dh_get_secret_bits (p1 : gnutls_session_t) return C.int;
+   function gnutls_dh_get_secret_bits (p1 : gnutls_session_t) return C.int
+     with Import, Convention => C;
 
    function gnutls_dh_get_peers_public_bits
-     (p1 : gnutls_session_t) return C.int;
+     (p1 : gnutls_session_t) return C.int
+     with Import, Convention => C;
 
-   function gnutls_dh_get_prime_bits (p1 : gnutls_session_t) return C.int;
+   function gnutls_dh_get_prime_bits (p1 : gnutls_session_t) return C.int
+     with Import, Convention => C;
 
    function gnutls_dh_get_group
      (p1    : gnutls_session_t;
       gen   : a_gnutls_datum_t;
-      prime : a_gnutls_datum_t) return C.int;
+      prime : a_gnutls_datum_t) return C.int
+     with Import, Convention => C;
 
    function gnutls_dh_get_pubkey
-     (p1 : gnutls_session_t; pub : a_gnutls_datum_t) return C.int;
+     (p1 : gnutls_session_t; pub : a_gnutls_datum_t) return C.int
+     with Import, Convention => C;
 
    function gnutls_rsa_export_get_pubkey
      (session : gnutls_session_t;
       exp     : a_gnutls_datum_t;
-      c_mod   : a_gnutls_datum_t) return C.int;
+      c_mod   : a_gnutls_datum_t) return C.int
+     with Import, Convention => C;
 
    function gnutls_rsa_export_get_modulus_bits
-     (session : gnutls_session_t) return C.int;
+     (session : gnutls_session_t) return C.int
+     with Import, Convention => C;
 
    procedure gnutls_certificate_set_retrieve_function2
      (cred : gnutls_certificate_credentials_t;
-      func : gnutls_certificate_retrieve_function2);
+      func : gnutls_certificate_retrieve_function2)
+     with Import, Convention => C;
 
    procedure gnutls_certificate_client_set_retrieve_function
      (cred : gnutls_certificate_credentials_t;
-      func : gnutls_certificate_client_retrieve_function);
+      func : gnutls_certificate_client_retrieve_function)
+     with Import, Convention => C;
 
    procedure gnutls_certificate_server_set_retrieve_function
      (cred : gnutls_certificate_credentials_t;
-      func : gnutls_certificate_server_retrieve_function);
+      func : gnutls_certificate_server_retrieve_function)
+     with Import, Convention => C;
 
    procedure gnutls_certificate_server_set_request
-     (p1 : gnutls_session_t; p2 : gnutls_certificate_request_t);
+     (p1 : gnutls_session_t; p2 : gnutls_certificate_request_t)
+     with Import, Convention => C;
 
    function gnutls_pkcs3_extract_dh_params
      (params     : a_gnutls_datum_t;
       format     : gnutls_x509_crt_fmt_t;
       prime      : a_gnutls_datum_t;
       generator  : a_gnutls_datum_t;
-      prime_bits : C.int) return C.int;
+      prime_bits : C.int) return C.int
+     with Import, Convention => C;
 
    function gnutls_pkcs3_export_dh_params
      (prime            : a_gnutls_datum_t;
       generator        : a_gnutls_datum_t;
       format           : gnutls_x509_crt_fmt_t;
       params_data      : a_c_signed_char_t;
-      params_data_size : C.int) return C.int;
+      params_data_size : C.int) return C.int
+     with Import, Convention => C;
 
    function gnutls_certificate_get_peers
      (p1        : gnutls_session_t;
-      list_size : access C.unsigned) return a_gnutls_datum_t;
+      list_size : access C.unsigned) return a_gnutls_datum_t
+     with Import, Convention => C;
 
    function gnutls_certificate_get_ours
-     (session : gnutls_session_t) return a_gnutls_datum_t;
+     (session : gnutls_session_t) return a_gnutls_datum_t
+     with Import, Convention => C;
 
    function gnutls_certificate_activation_time_peers
-     (session : gnutls_session_t) return time_t;
+     (session : gnutls_session_t) return time_t
+     with Import, Convention => C;
 
    function gnutls_certificate_expiration_time_peers
-     (session : gnutls_session_t) return time_t;
+     (session : gnutls_session_t) return time_t
+     with Import, Convention => C;
 
    function gnutls_certificate_client_get_request_status
-     (p1 : gnutls_session_t) return C.int;
+     (p1 : gnutls_session_t) return C.int
+     with Import, Convention => C;
 
    function gnutls_certificate_verify_peers2
-     (p1 : gnutls_session_t; status : access C.unsigned) return C.int;
+     (p1 : gnutls_session_t; status : access C.unsigned) return C.int
+     with Import, Convention => C;
 
    function gnutls_pem_base64_encode
      (header      : CS.chars_ptr;
       data        : a_gnutls_datum_t;
       result      : CS.chars_ptr;
-      result_size : a_size_t) return C.int;
+      result_size : a_size_t) return C.int
+     with Import, Convention => C;
 
    function gnutls_pem_base64_decode
      (header      : CS.chars_ptr;
       b64_data    : a_gnutls_datum_t;
       result      : a_c_signed_char_t;
-      result_size : a_size_t) return C.int;
+      result_size : a_size_t) return C.int
+     with Import, Convention => C;
 
    function gnutls_pem_base64_encode_alloc
      (header : CS.chars_ptr;
       data   : a_gnutls_datum_t;
-      result : a_gnutls_datum_t) return C.int;
+      result : a_gnutls_datum_t) return C.int
+     with Import, Convention => C;
 
    function gnutls_pem_base64_decode_alloc
      (header   : CS.chars_ptr;
       b64_data : a_gnutls_datum_t;
-      result   : a_gnutls_datum_t) return C.int;
+      result   : a_gnutls_datum_t) return C.int
+     with Import, Convention => C;
 
    procedure gnutls_certificate_set_params_function
      (res  : gnutls_certificate_credentials_t;
-      func : gnutls_params_function);
+      func : gnutls_params_function)
+     with Import, Convention => C;
 
    procedure gnutls_anon_set_params_function
      (res  : gnutls_certificate_credentials_t;
-      func : gnutls_params_function);
+      func : gnutls_params_function)
+     with Import, Convention => C;
 
    --------------------------
    -- GCrypt thread safety --
@@ -1246,31 +1427,30 @@ package SSL.Thin is
       Connect       : System.Address := System.Null_Address;
       SendMsg       : System.Address := System.Null_Address;
       RecvMsg       : System.Address := System.Null_Address;
-   end record;
-   pragma Convention (C, gcry_thread_cbs);
+   end record with Convention => C;
 
    subtype gpg_error_t is C.unsigned;
    subtype gcry_error_t is gpg_error_t;
 
    function aws_gcry_set_thread_cbs
-     (Thread_CBS : gcry_thread_cbs) return gcry_error_t;
-   pragma Import (C, aws_gcry_set_thread_cbs, "__aws_gcry_set_thread_cbs");
+     (Thread_CBS : gcry_thread_cbs) return gcry_error_t
+     with Import, Convention => C, Link_Name => "__aws_gcry_set_thread_cbs";
    --  Calls gcry_control (GCRYCTL_SET_THREAD_CBS, cbs) in C module gcry.c
    --  because varargs are not supported in Ada.
 
-   function gcry_strerror (Err : gcry_error_t) return CS.chars_ptr;
-   pragma Import (C, gcry_strerror, "gcry_strerror");
+   function gcry_strerror (Err : gcry_error_t) return CS.chars_ptr
+     with Import, Convention => C;
 
-   function gcry_strsource (Err : gcry_error_t) return CS.chars_ptr;
-   pragma Import (C, gcry_strsource, "gcry_strsource");
+   function gcry_strsource (Err : gcry_error_t) return CS.chars_ptr
+     with Import, Convention => C;
 
    --------------------------------------------------------------------
    -- Tricks to support AWS.Net.SSL specification compatibility with --
    -- OpenSSL thin binding.                                          --
    --------------------------------------------------------------------
 
-   function SSLeay (Dummy : C.int := 0) return C.int;
-   pragma Import (C, SSLeay, "gnutls_check_version");
+   function SSLeay (Dummy : C.int := 0) return C.int
+     with Import, Convention => C, Link_Name => "gnutls_check_version";
 
    subtype SSL_Handle is gnutls_session_t;
 
@@ -1283,539 +1463,5 @@ package SSL.Thin is
    end record;
    --  Need to be renamed into something like Internal_Type together with
    --  OpenSSL implementation after merge into trunk.
-
-private
-
-   pragma Import
-     (C, gnutls_pk_algorithm_get_name, "gnutls_pk_algorithm_get_name");
-
-   pragma Import
-     (C, gnutls_sign_algorithm_get_name, "gnutls_sign_algorithm_get_name");
-
-   pragma Import (C, gnutls_init, "gnutls_init");
-
-   pragma Import (C, gnutls_deinit, "gnutls_deinit");
-
-   pragma Import (C, gnutls_bye, "gnutls_bye");
-
-   pragma Import (C, gnutls_handshake, "gnutls_handshake");
-
-   pragma Import (C, gnutls_rehandshake, "gnutls_rehandshake");
-
-   pragma Import (C, gnutls_alert_get, "gnutls_alert_get");
-
-   pragma Import (C, gnutls_alert_send, "gnutls_alert_send");
-
-   pragma Import
-     (C, gnutls_alert_send_appropriate, "gnutls_alert_send_appropriate");
-
-   pragma Import (C, gnutls_alert_get_name, "gnutls_alert_get_name");
-
-   pragma Import (C, gnutls_cipher_get, "gnutls_cipher_get");
-
-   pragma Import (C, gnutls_kx_get, "gnutls_kx_get");
-
-   pragma Import (C, gnutls_mac_get, "gnutls_mac_get");
-
-   pragma Import (C, gnutls_compression_get, "gnutls_compression_get");
-
-   pragma Import
-     (C, gnutls_certificate_type_get, "gnutls_certificate_type_get");
-
-   pragma Import (C, gnutls_cipher_get_key_size, "gnutls_cipher_get_key_size");
-
-   pragma Import (C, gnutls_cipher_get_name, "gnutls_cipher_get_name");
-
-   pragma Import (C, gnutls_mac_get_name, "gnutls_mac_get_name");
-
-   pragma Import
-     (C, gnutls_compression_get_name, "gnutls_compression_get_name");
-
-   pragma Import (C, gnutls_kx_get_name, "gnutls_kx_get_name");
-
-   pragma Import
-     (C, gnutls_certificate_type_get_name, "gnutls_certificate_type_get_name");
-
-   pragma Import (C, gnutls_error_is_fatal, "gnutls_error_is_fatal");
-
-   pragma Import (C, gnutls_error_to_alert, "gnutls_error_to_alert");
-
-   pragma Import (C, gnutls_perror, "gnutls_perror");
-
-   pragma Import (C, gnutls_strerror, "gnutls_strerror");
-
-   pragma Import
-     (C,
-      gnutls_handshake_set_private_extensions,
-      "gnutls_handshake_set_private_extensions");
-
-   pragma Import
-     (C, gnutls_handshake_get_last_out, "gnutls_handshake_get_last_out");
-
-   pragma Import
-     (C, gnutls_handshake_get_last_in, "gnutls_handshake_get_last_in");
-
-   pragma Import (C, gnutls_record_send, "gnutls_record_send");
-
-   pragma Import (C, gnutls_record_recv, "gnutls_record_recv");
-
-   pragma Import
-     (C, gnutls_record_get_direction, "gnutls_record_get_direction");
-
-   pragma Import
-     (C, gnutls_record_get_max_size, "gnutls_record_get_max_size");
-
-   pragma Import
-     (C, gnutls_record_set_max_size, "gnutls_record_set_max_size");
-
-   pragma Import
-     (C, gnutls_record_check_pending, "gnutls_record_check_pending");
-
-   pragma Import (C, gnutls_server_name_set, "gnutls_server_name_set");
-
-   pragma Import (C, gnutls_server_name_get, "gnutls_server_name_get");
-
-   pragma Import
-     (C, gnutls_cipher_set_priority, "gnutls_cipher_set_priority");
-
-   pragma Import (C, gnutls_mac_set_priority, "gnutls_mac_set_priority");
-
-   pragma Import
-     (C, gnutls_compression_set_priority, "gnutls_compression_set_priority");
-
-   pragma Import (C, gnutls_kx_set_priority, "gnutls_kx_set_priority");
-
-   pragma Import
-     (C, gnutls_protocol_set_priority, "gnutls_protocol_set_priority");
-
-   pragma Import
-     (C,
-      gnutls_certificate_type_set_priority,
-      "gnutls_certificate_type_set_priority");
-
-   pragma Import
-     (C, gnutls_set_default_priority, "gnutls_set_default_priority");
-
-   pragma Import
-     (C,
-      gnutls_set_default_export_priority,
-      "gnutls_set_default_export_priority");
-
-   pragma Import
-     (C, gnutls_cipher_suite_get_name, "gnutls_cipher_suite_get_name");
-
-   pragma Import
-     (C,
-      gnutls_protocol_get_version,
-      "gnutls_protocol_get_version");
-
-   pragma Import (C, gnutls_protocol_get_name, "gnutls_protocol_get_name");
-
-   pragma Import (C, gnutls_session_set_data, "gnutls_session_set_data");
-
-   pragma Import (C, gnutls_session_get_data, "gnutls_session_get_data");
-
-   pragma Import (C, gnutls_session_get_id, "gnutls_session_get_id");
-
-   pragma Import (C, gnutls_session_is_resumed, "gnutls_session_is_resumed");
-
-   pragma Import
-     (C, gnutls_db_set_cache_expiration, "gnutls_db_set_cache_expiration");
-
-   pragma Import (C, gnutls_db_remove_session, "gnutls_db_remove_session");
-
-   pragma Import
-     (C, gnutls_db_set_retrieve_function, "gnutls_db_set_retrieve_function");
-
-   pragma Import
-     (C, gnutls_db_set_remove_function, "gnutls_db_set_remove_function");
-
-   pragma Import
-     (C, gnutls_db_set_store_function, "gnutls_db_set_store_function");
-
-   pragma Import (C, gnutls_db_set_ptr, "gnutls_db_set_ptr");
-
-   pragma Import (C, gnutls_db_get_ptr, "gnutls_db_get_ptr");
-
-   pragma Import (C, gnutls_db_check_entry, "gnutls_db_check_entry");
-
-   pragma Import
-     (C,
-      gnutls_handshake_set_max_packet_length,
-      "gnutls_handshake_set_max_packet_length");
-
-   pragma Import (C, gnutls_check_version, "gnutls_check_version");
-
-   pragma Import (C, gnutls_credentials_clear, "gnutls_credentials_clear");
-
-   pragma Import (C, gnutls_credentials_set, "gnutls_credentials_set");
-
-   pragma Import
-     (C,
-      gnutls_anon_free_server_credentials,
-      "gnutls_anon_free_server_credentials");
-
-   pragma Import
-     (C,
-      gnutls_anon_allocate_server_credentials,
-      "gnutls_anon_allocate_server_credentials");
-
-   pragma Import
-     (C, gnutls_anon_set_server_dh_params, "gnutls_anon_set_server_dh_params");
-
-   pragma Import
-     (C,
-      gnutls_anon_free_client_credentials,
-      "gnutls_anon_free_client_credentials");
-
-   pragma Import
-     (C,
-      gnutls_anon_allocate_client_credentials,
-      "gnutls_anon_allocate_client_credentials");
-
-   pragma Import
-     (C,
-      gnutls_certificate_free_credentials,
-      "gnutls_certificate_free_credentials");
-
-   pragma Import
-     (C,
-      gnutls_certificate_allocate_credentials,
-      "gnutls_certificate_allocate_credentials");
-
-   pragma Import
-     (C, gnutls_certificate_free_keys, "gnutls_certificate_free_keys");
-
-   pragma Import
-     (C, gnutls_certificate_free_cas, "gnutls_certificate_free_cas");
-
-   pragma Import
-     (C, gnutls_certificate_free_ca_names, "gnutls_certificate_free_ca_names");
-
-   pragma Import
-     (C, gnutls_certificate_free_crls, "gnutls_certificate_free_crls");
-
-   pragma Import
-     (C, gnutls_certificate_set_dh_params, "gnutls_certificate_set_dh_params");
-
-   pragma Import
-     (C,
-      gnutls_certificate_set_rsa_export_params,
-      "gnutls_certificate_set_rsa_export_params");
-
-   pragma Import
-     (C,
-      gnutls_certificate_set_verify_flags,
-      "gnutls_certificate_set_verify_flags");
-
-   pragma Import
-     (C,
-      gnutls_certificate_set_verify_limits,
-      "gnutls_certificate_set_verify_limits");
-
-   pragma Import
-     (C,
-      gnutls_certificate_set_verify_function,
-      "gnutls_certificate_set_verify_function");
-
-   pragma Import
-     (C,
-      gnutls_certificate_set_x509_trust_file,
-      "gnutls_certificate_set_x509_trust_file");
-
-   pragma Import
-     (C,
-      gnutls_certificate_set_x509_trust_mem,
-      "gnutls_certificate_set_x509_trust_mem");
-
-   pragma Import
-     (C,
-      gnutls_certificate_set_x509_crl_file,
-      "gnutls_certificate_set_x509_crl_file");
-
-   pragma Import
-     (C,
-      gnutls_certificate_set_x509_crl_mem,
-      "gnutls_certificate_set_x509_crl_mem");
-
-   pragma Import
-     (C,
-      gnutls_certificate_set_x509_key_file,
-      "gnutls_certificate_set_x509_key_file");
-
-   pragma Import
-     (C,
-      gnutls_certificate_set_x509_key_mem,
-      "gnutls_certificate_set_x509_key_mem");
-
-   pragma Import
-     (C, gnutls_certificate_set_x509_key, "gnutls_certificate_set_x509_key");
-
-   pragma Import
-     (C,
-      gnutls_certificate_set_x509_trust,
-      "gnutls_certificate_set_x509_trust");
-
-   pragma Import
-     (C, gnutls_certificate_set_x509_crl, "gnutls_certificate_set_x509_crl");
-
-   pragma Import
-     (C, gnutls_certificate_send_x509_rdn_sequence,
-      "gnutls_certificate_send_x509_rdn_sequence");
-
-   pragma Import (C, gnutls_x509_crt_init, "gnutls_x509_crt_init");
-   pragma Import (C, gnutls_x509_crt_deinit, "gnutls_x509_crt_deinit");
-   pragma Import (C, gnutls_x509_crt_import, "gnutls_x509_crt_import");
-   pragma Import (C, gnutls_x509_crt_get_dn, "gnutls_x509_crt_get_dn");
-   pragma Import
-     (C, gnutls_x509_crt_get_issuer_dn, "gnutls_x509_crt_get_issuer_dn");
-   pragma Import (C, gnutls_x509_crt_get_serial, "gnutls_x509_crt_get_serial");
-   pragma Import
-     (C, gnutls_x509_crt_get_activation_time,
-      "gnutls_x509_crt_get_activation_time");
-   pragma Import
-     (C, gnutls_x509_crt_get_expiration_time,
-      "gnutls_x509_crt_get_expiration_time");
-
-   pragma Import (C, gnutls_global_init, "gnutls_global_init");
-
-   pragma Import (C, gnutls_global_deinit, "gnutls_global_deinit");
-
-   pragma Import
-     (C, gnutls_global_set_mem_functions, "gnutls_global_set_mem_functions");
-
-   pragma Import
-     (C, gnutls_global_set_log_function, "gnutls_global_set_log_function");
-
-   pragma Import
-     (C, gnutls_global_set_log_level, "gnutls_global_set_log_level");
-
-   pragma Import (C, gnutls_dh_params_init, "gnutls_dh_params_init");
-
-   pragma Import (C, gnutls_dh_params_deinit, "gnutls_dh_params_deinit");
-
-   pragma Import
-     (C, gnutls_dh_params_import_raw, "gnutls_dh_params_import_raw");
-
-   pragma Import
-     (C, gnutls_dh_params_import_pkcs3, "gnutls_dh_params_import_pkcs3");
-
-   pragma Import
-     (C, gnutls_dh_params_generate2, "gnutls_dh_params_generate2");
-
-   pragma Import
-     (C, gnutls_dh_params_export_pkcs3, "gnutls_dh_params_export_pkcs3");
-
-   pragma Import
-     (C, gnutls_dh_params_export_raw, "gnutls_dh_params_export_raw");
-
-   pragma Import (C, gnutls_dh_params_cpy, "gnutls_dh_params_cpy");
-
-   pragma Import (C, gnutls_rsa_params_init, "gnutls_rsa_params_init");
-
-   pragma Import (C, gnutls_rsa_params_deinit, "gnutls_rsa_params_deinit");
-
-   pragma Import (C, gnutls_rsa_params_cpy, "gnutls_rsa_params_cpy");
-
-   pragma Import
-     (C, gnutls_rsa_params_import_raw, "gnutls_rsa_params_import_raw");
-
-   pragma Import
-     (C, gnutls_rsa_params_generate2, "gnutls_rsa_params_generate2");
-
-   pragma Import
-     (C, gnutls_rsa_params_export_raw, "gnutls_rsa_params_export_raw");
-
-   pragma Import
-     (C, gnutls_rsa_params_export_pkcs1, "gnutls_rsa_params_export_pkcs1");
-
-   pragma Import
-     (C, gnutls_rsa_params_import_pkcs1, "gnutls_rsa_params_import_pkcs1");
-
-   pragma Import (C, gnutls_transport_get_ptr, "gnutls_transport_get_ptr");
-
-   pragma Import (C, gnutls_transport_get_ptr2, "gnutls_transport_get_ptr2");
-
-   pragma Import
-     (C, gnutls_transport_set_lowat, "gnutls_transport_set_lowat");
-
-   pragma Import (C, gnutls_transport_set_ptr, "gnutls_transport_set_ptr");
-
-   pragma Import
-     (C,
-      gnutls_transport_set_push_function,
-      "gnutls_transport_set_push_function");
-
-   pragma Import
-     (C,
-      gnutls_transport_set_pull_function,
-      "gnutls_transport_set_pull_function");
-
-   pragma Import (C, gnutls_session_set_ptr, "gnutls_session_set_ptr");
-
-   pragma Import (C, gnutls_session_get_ptr, "gnutls_session_get_ptr");
-
-   pragma Import (C, gnutls_openpgp_send_key, "gnutls_openpgp_send_key");
-
-   pragma Import (C, gnutls_fingerprint, "gnutls_fingerprint");
-
-   pragma Import
-     (C,
-      gnutls_srp_free_client_credentials,
-      "gnutls_srp_free_client_credentials");
-
-   pragma Import
-     (C,
-      gnutls_srp_allocate_client_credentials,
-      "gnutls_srp_allocate_client_credentials");
-
-   pragma Import
-     (C,
-      gnutls_srp_set_client_credentials,
-      "gnutls_srp_set_client_credentials");
-
-   pragma Import
-     (C,
-      gnutls_srp_free_server_credentials,
-      "gnutls_srp_free_server_credentials");
-
-   pragma Import
-     (C,
-      gnutls_srp_allocate_server_credentials,
-      "gnutls_srp_allocate_server_credentials");
-
-   pragma Import
-     (C,
-      gnutls_srp_set_server_credentials_file,
-      "gnutls_srp_set_server_credentials_file");
-
-   pragma Import
-     (C, gnutls_srp_server_get_username, "gnutls_srp_server_get_username");
-
-   pragma Import (C, gnutls_srp_verifier, "gnutls_srp_verifier");
-
-   pragma Import
-     (C,
-      gnutls_srp_set_server_credentials_function,
-      "gnutls_srp_set_server_credentials_function");
-
-   pragma Import
-     (C,
-      gnutls_srp_set_client_credentials_function,
-      "gnutls_srp_set_client_credentials_function");
-
-   pragma Import (C, gnutls_auth_get_type, "gnutls_auth_get_type");
-
-   pragma Import
-     (C, gnutls_auth_server_get_type, "gnutls_auth_server_get_type");
-
-   pragma Import
-     (C, gnutls_auth_client_get_type, "gnutls_auth_client_get_type");
-
-   pragma Import (C, gnutls_dh_set_prime_bits, "gnutls_dh_set_prime_bits");
-
-   pragma Import (C, gnutls_dh_get_secret_bits, "gnutls_dh_get_secret_bits");
-
-   pragma Import
-     (C, gnutls_dh_get_peers_public_bits, "gnutls_dh_get_peers_public_bits");
-
-   pragma Import (C, gnutls_dh_get_prime_bits, "gnutls_dh_get_prime_bits");
-
-   pragma Import (C, gnutls_dh_get_group, "gnutls_dh_get_group");
-
-   pragma Import (C, gnutls_dh_get_pubkey, "gnutls_dh_get_pubkey");
-
-   pragma Import
-     (C, gnutls_rsa_export_get_pubkey, "gnutls_rsa_export_get_pubkey");
-
-   pragma Import
-     (C,
-      gnutls_rsa_export_get_modulus_bits,
-      "gnutls_rsa_export_get_modulus_bits");
-
-   pragma Import
-     (C,
-      gnutls_certificate_set_retrieve_function2,
-      "gnutls_certificate_set_retrieve_function2");
-
-   pragma Import
-     (C,
-      gnutls_certificate_client_set_retrieve_function,
-      "gnutls_certificate_client_set_retrieve_function");
-
-   pragma Import
-     (C,
-      gnutls_certificate_server_set_retrieve_function,
-      "gnutls_certificate_server_set_retrieve_function");
-
-   pragma Import
-     (C,
-      gnutls_certificate_server_set_request,
-      "gnutls_certificate_server_set_request");
-
-   pragma Import
-     (C, gnutls_pkcs3_extract_dh_params, "gnutls_pkcs3_extract_dh_params");
-
-   pragma Import
-     (C, gnutls_pkcs3_export_dh_params, "gnutls_pkcs3_export_dh_params");
-
-   pragma Import
-     (C, gnutls_certificate_get_peers, "gnutls_certificate_get_peers");
-
-   pragma Import
-     (C, gnutls_certificate_get_ours, "gnutls_certificate_get_ours");
-
-   pragma Import
-     (C,
-      gnutls_certificate_activation_time_peers,
-      "gnutls_certificate_activation_time_peers");
-
-   pragma Import
-     (C,
-      gnutls_certificate_expiration_time_peers,
-      "gnutls_certificate_expiration_time_peers");
-
-   pragma Import
-     (C,
-      gnutls_certificate_client_get_request_status,
-      "gnutls_certificate_client_get_request_status");
-
-   pragma Import
-     (C, gnutls_certificate_verify_peers2, "gnutls_certificate_verify_peers2");
-
-   pragma Import (C, gnutls_pem_base64_encode, "gnutls_pem_base64_encode");
-
-   pragma Import (C, gnutls_pem_base64_decode, "gnutls_pem_base64_decode");
-
-   pragma Import
-     (C, gnutls_pem_base64_encode_alloc, "gnutls_pem_base64_encode_alloc");
-
-   pragma Import
-     (C, gnutls_pem_base64_decode_alloc, "gnutls_pem_base64_decode_alloc");
-
-   pragma Import
-     (C,
-      gnutls_certificate_set_params_function,
-      "gnutls_certificate_set_params_function");
-
-   pragma Import
-     (C, gnutls_anon_set_params_function, "gnutls_anon_set_params_function");
-
-   pragma Import (C, gnutls_malloc, "gnutls_malloc");
-   pragma Import (C, gnutls_calloc, "gnutls_calloc");
-   pragma Import (C, gnutls_free, "gnutls_free");
-   pragma Import (C, gnutls_strdup, "gnutls_strdup");
-   pragma Import (C, gnutls_srp_2048_group_prime,
-                    "gnutls_srp_2048_group_prime");
-   pragma Import (C, gnutls_srp_2048_group_generator,
-                    "gnutls_srp_2048_group_generator");
-   pragma Import (C, gnutls_srp_1536_group_prime,
-                    "gnutls_srp_1536_group_prime");
-   pragma Import (C, gnutls_srp_1536_group_generator,
-                    "gnutls_srp_1536_group_generator");
-   pragma Import (C, gnutls_srp_1024_group_prime,
-                    "gnutls_srp_1024_group_prime");
-   pragma Import (C, gnutls_srp_1024_group_generator,
-                    "gnutls_srp_1024_group_generator");
 
 end SSL.Thin;

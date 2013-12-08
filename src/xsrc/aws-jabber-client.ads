@@ -27,6 +27,8 @@
 --  covered by the  GNU Public License.                                     --
 ------------------------------------------------------------------------------
 
+pragma Ada_2012;
+
 with Ada.Strings.Unbounded;
 
 private with AWS.Config;
@@ -152,8 +154,8 @@ private
    --  Mailbox. This task will terminate with the connection socket will be
    --  closed by the client.
 
-   task type Incoming_Stream (Account : Account_Access) is
-      pragma Priority (Config.Service_Priority);
+   task type Incoming_Stream (Account : Account_Access)
+     with Priority => Config.Service_Priority is
    end Incoming_Stream;
 
    type Incoming_Stream_Access is access Incoming_Stream;

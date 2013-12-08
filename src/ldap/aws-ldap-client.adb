@@ -27,6 +27,8 @@
 --  covered by the  GNU Public License.                                     --
 ------------------------------------------------------------------------------
 
+pragma Ada_2012;
+
 with Ada.Strings.Fixed;
 with Ada.Unchecked_Deallocation;
 
@@ -70,17 +72,15 @@ package body AWS.LDAP.Client is
    --  Releases memory associated with the LDAPMod C-style structure which
    --  has been allocated for LDAP add/modify and delete operations.
 
-   procedure Raise_Error (Code : Thin.Return_Code; Message : String);
-   pragma No_Return (Raise_Error);
+   procedure Raise_Error (Code : Thin.Return_Code; Message : String)
+     with No_Return;
    --  Raises LDAP_Error, set exception message to Message, add error message
    --  string.
 
-   function Attrib (Name, Value : String) return String;
-   pragma Inline (Attrib);
+   function Attrib (Name, Value : String) return String with Inline;
    --  Returns Name or Name=Value if Value is not the empty string
 
-   procedure Check_Handle (Dir : Directory);
-   pragma Inline (Check_Handle);
+   procedure Check_Handle (Dir : Directory) with Inline;
    --  Raises LDAP_Error if Dir is Null_Directory
 
    ---------
@@ -491,8 +491,7 @@ package body AWS.LDAP.Client is
    ----------
 
    procedure Free (Chain : LDAP_Message) is
-      Res : IC.int;
-      pragma Unreferenced (Res);
+      Res : IC.int with Unreferenced;
    begin
       Res := Thin.ldap_msgfree (Chain);
    end Free;
@@ -911,8 +910,7 @@ package body AWS.LDAP.Client is
    ------------
 
    procedure Unbind (Dir : in out Directory) is
-      Res : IC.int;
-      pragma Unreferenced (Res);
+      Res : IC.int with Unreferenced;
    begin
       if Is_Open (Dir) then
          Res := Thin.ldap_unbind_s (Dir);

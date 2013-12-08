@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                   Copyright (C) 2005-2012, AdaCore                       --
+--                   Copyright (C) 2005-2013, AdaCore                       --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -26,6 +26,8 @@
 --  however invalidate any other reasons why the executable file  might be  --
 --  covered by the  GNU Public License.                                     --
 ------------------------------------------------------------------------------
+
+pragma Ada_2012;
 
 with Ada.Streams;
 
@@ -81,8 +83,7 @@ package body AWS.Net.Acceptors is
       --  Add sockets to the acceptor either from Accept_Socket or from
       --  Give_Back.
 
-      procedure Shutdown;
-      pragma No_Return (Shutdown);
+      procedure Shutdown with No_Return;
 
       procedure Finalize;
 
@@ -211,8 +212,7 @@ package body AWS.Net.Acceptors is
       First        : constant Boolean := True;
       Timeout      : array (Boolean) of Real_Time.Time_Span;
       Oldest_Idx   : Sets.Socket_Count;
-      Finalizer    : AWS.Utils.Finalizer (Finalize'Access);
-      pragma Unreferenced (Finalizer);
+      Finalizer    : AWS.Utils.Finalizer (Finalize'Access) with Unreferenced;
 
       Wait_Timeout : Real_Time.Time_Span;
 
@@ -415,12 +415,12 @@ package body AWS.Net.Acceptors is
    is
       use type Sets.Socket_Count;
 
-      function Correct_2 (Item : Positive) return Sets.Socket_Count;
-      pragma Inline (Correct_2);
+      function Correct_2 (Item : Positive) return Sets.Socket_Count
+        with Inline;
       --  Take in account 2 auxiliary sockets, Server and R_Signal
 
-      function New_Socket return Socket_Access;
-      pragma Inline (New_Socket);
+      function New_Socket return Socket_Access
+        with Inline;
 
       ---------------
       -- Correct_2 --

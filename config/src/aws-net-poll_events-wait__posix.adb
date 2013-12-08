@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2004-2012, AdaCore                     --
+--                     Copyright (C) 2004-2013, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -27,6 +27,8 @@
 --  covered by the  GNU Public License.                                     --
 ------------------------------------------------------------------------------
 
+pragma Ada_2012;
+
 --  Wait implementation on top of posix select call
 
 separate (AWS.Net.Poll_Events)
@@ -38,17 +40,17 @@ is
    use type OS_Lib.FD_Type;
    use type OS_Lib.nfds_t;
 
-   type FD_Set_Type is array (0 .. Fds.Max_FD / C.long'Size) of C.long;
-   pragma Convention (C, FD_Set_Type);
+   type FD_Set_Type is array (0 .. Fds.Max_FD / C.long'Size) of C.long
+     with Convention => C;
 
    procedure FD_ZERO (Set : in out FD_Set_Type);
    --  Use own FD_ZERO routine because FD_Set_Type size depend on Fds.Max_FD
 
-   procedure FD_SET (FD : OS_Lib.FD_Type; Set : in out FD_Set_Type);
-   pragma Import (C, FD_SET, "__aws_set_socket_in_set");
+   procedure FD_SET (FD : OS_Lib.FD_Type; Set : in out FD_Set_Type)
+     with Import, Convention => C, Link_Name => "__aws_set_socket_in_set";
 
-   function FD_ISSET (FD : OS_Lib.FD_Type; Set : FD_Set_Type) return C.int;
-   pragma Import (C, FD_ISSET, "__aws_is_socket_in_set");
+   function FD_ISSET (FD : OS_Lib.FD_Type; Set : FD_Set_Type) return C.int
+     with Import, Convention => C, Link_Name => "__aws_is_socket_in_set";
 
    procedure FD_ZERO (Set : in out FD_Set_Type) is
    begin

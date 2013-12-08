@@ -53,8 +53,8 @@ package body AWS.Utils is
 
    package Integer_Random is new Numerics.Discrete_Random (Random_Integer);
 
-   function Local_To_GMT (DT : Calendar.Time) return Calendar.Time;
-   pragma Inline (Local_To_GMT);
+   function Local_To_GMT (DT : Calendar.Time) return Calendar.Time
+     with Inline;
 
    procedure Compress_Decompress
      (Filter       : in out ZLib.Filter_Type;
@@ -408,8 +408,8 @@ package body AWS.Utils is
 
    function Hex_Value (Hex : String) return Natural is
 
-      function Value (C : Character) return Natural;
-      pragma Inline (Value);
+      function Value (C : Character) return Natural
+        with Inline;
       --  Return value for single character C
 
       -----------
@@ -556,22 +556,22 @@ package body AWS.Utils is
       procedure Read_C
         (C              : in out Positive;
          Res            : in out Boolean;
-         R_From, R_Last : Character);
-      pragma Inline (Read_C);
+         R_From, R_Last : Character)
+        with Inline;
       --  Read a single character, check that it is in the range
       --  R_From .. R_Last and set Res accordingly. This routine moves C
       --  to the next character then.
 
-      procedure Read_S2 (C : in out Positive; Res : in out Boolean);
-      pragma Inline (Read_S2);
+      procedure Read_S2 (C : in out Positive; Res : in out Boolean)
+        with Inline;
       --  Read an UTF-8 character with 2 bytes sequence
 
-      procedure Read_S3 (C : in out Positive; Res : in out Boolean);
-      pragma Inline (Read_S3);
+      procedure Read_S3 (C : in out Positive; Res : in out Boolean)
+        with Inline;
       --  Read an UTF-8 character with 3 bytes sequence
 
-      procedure Read_S4 (C : in out Positive; Res : in out Boolean);
-      pragma Inline (Read_S4);
+      procedure Read_S4 (C : in out Positive; Res : in out Boolean)
+        with Inline;
       --  Read an UTF-8 character with 4 bytes sequence
 
       ------------

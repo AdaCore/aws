@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2003-2012, AdaCore                     --
+--                     Copyright (C) 2003-2013, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -27,6 +27,8 @@
 --  covered by the  GNU Public License.                                     --
 ------------------------------------------------------------------------------
 
+pragma Ada_2012;
+
 with Ada.Unchecked_Conversion;
 
 separate (AWS.Translator)
@@ -48,12 +50,10 @@ package body Conversion is
    package Fast is
 
       function To_Stream_Element_Array
-        (Data : String) return Stream_Element_Array;
-      pragma Inline (To_Stream_Element_Array);
+        (Data : String) return Stream_Element_Array with Inline;
 
       function To_String
-        (Data : Stream_Element_Array) return String;
-      pragma Inline (To_String);
+        (Data : Stream_Element_Array) return String with Inline;
 
    end Fast;
 
@@ -62,12 +62,10 @@ package body Conversion is
    package Portable is
 
       function To_Stream_Element_Array
-        (Data : String) return Stream_Element_Array;
-      pragma Inline (To_Stream_Element_Array);
+        (Data : String) return Stream_Element_Array with Inline;
 
       function To_String
-        (Data : Stream_Element_Array) return String;
-      pragma Inline (To_String);
+        (Data : Stream_Element_Array) return String with Inline;
 
    end Portable;
 

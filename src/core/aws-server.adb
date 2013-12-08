@@ -27,6 +27,8 @@
 --  covered by the  GNU Public License.                                     --
 ------------------------------------------------------------------------------
 
+pragma Ada_2012;
+
 with Ada.Tags;
 with Ada.Text_IO;
 with Ada.Unchecked_Deallocation;
@@ -333,8 +335,7 @@ package body AWS.Server is
       when E : others =>
          if not TA.Server.Shutdown then
             declare
-               S      : Status.Data;
-               pragma Warnings (Off, S);
+               S      : Status.Data with Warnings => Off;
                Answer : Response.Data;
             begin
                AWS.Log.Write

@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2003-2012, AdaCore                     --
+--                     Copyright (C) 2003-2013, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -26,6 +26,8 @@
 --  however invalidate any other reasons why the executable file  might be  --
 --  covered by the GNU Public License.                                      --
 ------------------------------------------------------------------------------
+
+pragma Ada_2012;
 
 --  This API is used as for standard memory stream (see parent package), the
 --  only difference is that the stream is compressing/decompressing on append.
@@ -55,15 +57,15 @@ package AWS.Resources.Streams.Memory.ZLib is
       Method       : Compression_Method := ZL.Deflated;
       Window_Bits  : Window_Bits_Type   := ZL.Default_Window_Bits;
       Memory_Level : Memory_Level_Type  := ZL.Default_Memory_Level;
-      Header       : Header_Type        := ZL.Default);
-   pragma Inline (Deflate_Initialize);
+      Header       : Header_Type        := ZL.Default)
+     with Inline;
    --  Initialize the compression
 
    procedure Inflate_Initialize
      (Resource    : in out Stream_Type;
       Window_Bits : Window_Bits_Type := ZL.Default_Window_Bits;
-      Header      : Header_Type      := ZL.Default);
-   pragma Inline (Inflate_Initialize);
+      Header      : Header_Type      := ZL.Default)
+     with Inline;
    --  Initialize the decompression
 
    overriding procedure Append

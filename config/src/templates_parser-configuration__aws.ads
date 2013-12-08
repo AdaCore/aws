@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2005-2012, AdaCore                     --
+--                     Copyright (C) 2005-2013, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -27,6 +27,8 @@
 --  covered by the  GNU Public License.                                     --
 ------------------------------------------------------------------------------
 
+pragma Ada_2012;
+
 with Ada.Calendar;
 
 with AWS.Resources;
@@ -35,14 +37,10 @@ package Templates_Parser.Configuration is
 
    subtype Time_Stamp is Ada.Calendar.Time;
 
-   pragma Style_Checks (Off);
-   --  Kill bogus style check on missing overriding keyword with old GNAT
-   --  versions.
    function "="
      (T1, T2 : Time_Stamp)
       return Boolean
       renames Ada.Calendar."=";
-   pragma Style_Checks (All_Checks);
 
    function Is_Regular_File
      (Filename : String)

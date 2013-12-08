@@ -27,6 +27,8 @@
 --  covered by the  GNU Public License.                                     --
 ------------------------------------------------------------------------------
 
+pragma Ada_2012;
+
 --  This library implement the Simple Mail Transfer Protocol. Only part of the
 --  RFC 821 is covered. There is no support to send a message to a console for
 --  example.
@@ -96,8 +98,7 @@ package AWS.SMTP is
 
    type Status is private;
 
-   function Is_Ok (Status : SMTP.Status) return Boolean;
-   pragma Inline (Is_Ok);
+   function Is_Ok (Status : SMTP.Status) return Boolean with Inline;
    --  Return True is status if Ok (no problem) or false if a problem has been
    --  detected. This is not an error (in that case Error is raised) but a
    --  warning because something wrong (but not unrecoverable) has happen.
@@ -106,12 +107,10 @@ package AWS.SMTP is
    --  If Is_Ok is False, this function return the reason of the problem. The
    --  return message is the error message as reported by the server.
 
-   function Status_Code (Status : SMTP.Status) return Reply_Code;
-   pragma Inline (Status_Code);
+   function Status_Code (Status : SMTP.Status) return Reply_Code with Inline;
    --  Returns the code replied by the server
 
-   procedure Clear (Status : in out SMTP.Status);
-   pragma Inline (Clear);
+   procedure Clear (Status : in out SMTP.Status) with Inline;
    --  Clear Status value. Code is set to Requested_Action_Ok and message
    --  string to null.
 

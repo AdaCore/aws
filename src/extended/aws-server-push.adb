@@ -188,8 +188,7 @@ package body AWS.Server.Push is
       Counter     : Wait_Counter_Type := 0;
    end Waiter_Information;
 
-   task Waiter is
-      pragma Priority (AWS.Config.Service_Priority);
+   task Waiter with Priority => AWS.Config.Service_Priority is
       entry Resume;
    end Waiter;
 

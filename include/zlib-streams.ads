@@ -1,10 +1,12 @@
 ----------------------------------------------------------------
 --  ZLib for Ada thick binding.                               --
 --                                                            --
---  Copyright (C) 2002-2012, Dmitriy Anisimkov                --
+--  Copyright (C) 2002-2013, Dmitriy Anisimkov                --
 --                                                            --
 --  Open source license information is in the zlib.ads file.  --
 ----------------------------------------------------------------
+
+pragma Ada_2012;
 
 package ZLib.Streams is
 
@@ -32,20 +34,16 @@ package ZLib.Streams is
    --  Should not be used untill necessary, becouse it is decreasing
    --  compression.
 
-   function Read_Total_In (Stream : in Stream_Type) return Count;
-   pragma Inline (Read_Total_In);
+   function Read_Total_In (Stream : in Stream_Type) return Count with Inline;
    --  Return total number of bytes read from back stream so far
 
-   function Read_Total_Out (Stream : in Stream_Type) return Count;
-   pragma Inline (Read_Total_Out);
+   function Read_Total_Out (Stream : in Stream_Type) return Count with Inline;
    --  Return total number of bytes read so far
 
-   function Write_Total_In (Stream : in Stream_Type) return Count;
-   pragma Inline (Write_Total_In);
+   function Write_Total_In (Stream : in Stream_Type) return Count with Inline;
    --  Return total number of bytes written so far
 
-   function Write_Total_Out (Stream : in Stream_Type) return Count;
-   pragma Inline (Write_Total_Out);
+   function Write_Total_Out (Stream : in Stream_Type) return Count with Inline;
    --  Return total number of bytes written to the back stream
 
    procedure Create

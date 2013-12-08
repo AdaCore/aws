@@ -27,6 +27,8 @@
 --  covered by the  GNU Public License.                                     --
 ------------------------------------------------------------------------------
 
+pragma Ada_2012;
+
 with Ada.Calendar;
 with Ada.Characters.Handling;
 with Ada.Containers.Ordered_Sets;
@@ -56,11 +58,11 @@ package body AWS.Services.Directory is
 
    function "<" (Left, Right : File_Record) return Boolean;
 
-   overriding function "=" (Left, Right : File_Record) return Boolean;
-   pragma Inline ("=");
+   overriding function "=" (Left, Right : File_Record) return Boolean
+     with Inline;
 
    package File_Tree is
-      new Ada.Containers.Ordered_Sets (File_Record, "<", "=");
+     new Ada.Containers.Ordered_Sets (File_Record, "<", "=");
 
    type Order_Mode is
      (O,  -- original order, as read on the file system

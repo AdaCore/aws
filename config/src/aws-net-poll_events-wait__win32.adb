@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2004-2012, AdaCore                     --
+--                     Copyright (C) 2004-2013, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -37,23 +37,21 @@ is
    use Interfaces;
    use type C.int;
 
-   type FD_Array is array (1 .. Fds.Length) of OS_Lib.FD_Type;
-   pragma Convention (C, FD_Array);
+   type FD_Array is array (1 .. Fds.Length) of OS_Lib.FD_Type
+     with Convention => C;
 
    type FD_Set_Type is record
       Count : C.int;
       Set   : FD_Array;
-   end record;
-   pragma Convention (C, FD_Set_Type);
+   end record with Convention => C;
 
-   procedure FD_ZERO (Set : in out FD_Set_Type);
-   pragma Inline (FD_ZERO);
+   procedure FD_ZERO (Set : in out FD_Set_Type) with Inline;
 
-   procedure FD_SET (FD : OS_Lib.FD_Type; Set : in out FD_Set_Type);
-   pragma Inline (FD_SET);
+   procedure FD_SET (FD : OS_Lib.FD_Type; Set : in out FD_Set_Type)
+     with Inline;
 
-   function FD_ISSET (FD : OS_Lib.FD_Type; Set : FD_Set_Type) return C.int;
-   pragma Import (Stdcall, FD_ISSET, "__WSAFDIsSet");
+   function FD_ISSET (FD : OS_Lib.FD_Type; Set : FD_Set_Type) return C.int
+     with Import, Convention => Stdcall, Link_Name => "__WSAFDIsSet";
 
    ------------
    -- FD_SET --

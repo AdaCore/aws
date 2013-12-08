@@ -27,6 +27,8 @@
 --  covered by the  GNU Public License.                                     --
 ------------------------------------------------------------------------------
 
+pragma Ada_2012;
+
 with Ada.Characters.Handling;
 with Ada.Exceptions;
 with Ada.Strings.Fixed;
@@ -620,8 +622,7 @@ package body AWS.Client.HTTP_Utils is
       Sock    : Net.Socket_Access := Connection.Socket;
       No_Data : Unbounded_String renames Null_Unbounded_String;
 
-      function Persistence return String;
-      pragma Inline (Persistence);
+      function Persistence return String with Inline;
       --  Returns "Keep-Alive" is we have a persistent connection and "Close"
       --  otherwise.
 

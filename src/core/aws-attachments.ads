@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2004-2012, AdaCore                     --
+--                     Copyright (C) 2004-2013, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -26,6 +26,8 @@
 --  however invalidate any other reasons why the executable file  might be  --
 --  covered by the  GNU Public License.                                     --
 ------------------------------------------------------------------------------
+
+pragma Ada_2012;
 
 with Ada.Strings.Unbounded;
 
@@ -118,8 +120,7 @@ package AWS.Attachments is
    --  Reset the list to be empty. If Delete_Files is set to true the
    --  attached files are removed from the file system.
 
-   function Count (Attachments : List) return Natural;
-   pragma Inline (Count);
+   function Count (Attachments : List) return Natural with Inline;
    --  Returns the number of Attachments in the data
 
    function Get
@@ -146,8 +147,7 @@ package AWS.Attachments is
       Process     : not null access procedure (Attachment : Element));
    --  Calls Process for every Attachment in Message
 
-   function Headers (Attachment : Element) return AWS.Headers.List;
-   pragma Inline (Headers);
+   function Headers (Attachment : Element) return AWS.Headers.List with Inline;
    --  Returns the list of header lines for the attachment
 
    function Content_Type (Attachment : Element) return String;
@@ -165,8 +165,7 @@ package AWS.Attachments is
    --  Original filename on the server side. This is generally encoded on the
    --  content-type or content-disposition header.
 
-   function Kind (Attachment : Element) return Attachment_Kind;
-   pragma Inline (Kind);
+   function Kind (Attachment : Element) return Attachment_Kind with Inline;
    --  Returns the kind of the given attachment
 
    function Length

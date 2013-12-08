@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                      ZLib for Ada thick binding.                         --
 --                                                                          --
---              Copyright (C) 2002-2012, Dmitriy Anisimkov                  --
+--              Copyright (C) 2002-2013, Dmitriy Anisimkov                  --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -26,6 +26,8 @@
 --  however invalidate any other reasons why the executable file  might be  --
 --  covered by the  GNU Public License.                                     --
 ------------------------------------------------------------------------------
+
+pragma Ada_2012;
 
 with Ada.Streams;
 with Interfaces;
@@ -127,8 +129,7 @@ package ZLib is
    --  The filter is for compression and for decompression.
    --  The usage of the type is depend of its initialization.
 
-   function Version return String;
-   pragma Inline (Version);
+   function Version return String with Inline;
    --  Return string representation of the ZLib version
 
    procedure Deflate_Init
@@ -162,8 +163,7 @@ package ZLib is
    --  supported for inflate routine only in ZLib versions 1.2.0.2 and later.
    --  Deflate_Init is supporting all header types.
 
-   function Is_Open (Filter : in Filter_Type) return Boolean;
-   pragma Inline (Is_Open);
+   function Is_Open (Filter : in Filter_Type) return Boolean with Inline;
    --  Is the filter opened for compression or decompression
 
    procedure Close
@@ -188,25 +188,21 @@ package ZLib is
    --  for compression/decompression data flow.
    --  Compression or decompression depend on Filter initialization.
 
-   function Total_In (Filter : in Filter_Type) return Count;
-   pragma Inline (Total_In);
+   function Total_In (Filter : in Filter_Type) return Count with Inline;
    --  Returns total number of input bytes read so far
 
-   function Total_Out (Filter : in Filter_Type) return Count;
-   pragma Inline (Total_Out);
+   function Total_Out (Filter : in Filter_Type) return Count with Inline;
    --  Returns total number of bytes output so far
 
    function CRC32
      (CRC    : in Unsigned_32;
       Data   : in Ada.Streams.Stream_Element_Array)
-      return Unsigned_32;
-   pragma Inline (CRC32);
+     return Unsigned_32 with Inline;
    --  Compute CRC32, it could be necessary for make gzip format
 
    procedure CRC32
      (CRC  : in out Unsigned_32;
-      Data : in     Ada.Streams.Stream_Element_Array);
-   pragma Inline (CRC32);
+      Data : in     Ada.Streams.Stream_Element_Array) with Inline;
    --  Compute CRC32, it could be necessary for make gzip format
 
    -------------------------------------------------
@@ -226,16 +222,15 @@ package ZLib is
    --  Filter. To tell the filter that incoming data are complete put the
    --  Flush parameter to Finish.
 
-   function Stream_End (Filter : in Filter_Type) return Boolean;
-   pragma Inline (Stream_End);
+   function Stream_End (Filter : in Filter_Type) return Boolean with Inline;
    --  Return the true when the stream is complete
 
    procedure Flush
      (Filter    : in out Filter_Type;
       Out_Data  :    out Ada.Streams.Stream_Element_Array;
       Out_Last  :    out Ada.Streams.Stream_Element_Offset;
-      Flush     : in     Flush_Mode);
-   pragma Inline (Flush);
+      Flush     : in     Flush_Mode)
+     with Inline;
    --  Flushing the data from the compressor
 
    generic

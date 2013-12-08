@@ -1,10 +1,12 @@
 ----------------------------------------------------------------
 --  ZLib for Ada thick binding.                               --
 --                                                            --
---  Copyright (C) 2002-2012, Dmitriy Anisimkov                --
+--  Copyright (C) 2002-2013, Dmitriy Anisimkov                --
 --                                                            --
 --  Open source license information is in the zlib.ads file.  --
 ----------------------------------------------------------------
+
+pragma Ada_2012;
 
 with Ada.Exceptions;
 with Ada.Unchecked_Conversion;
@@ -32,12 +34,11 @@ package body ZLib is
        VERSION_ERROR);
 
    type Flate_Step_Function is access
-     function (Strm : in Thin.Z_Streamp; Flush : in Thin.Int) return Thin.Int;
-   pragma Convention (C, Flate_Step_Function);
+     function (Strm : in Thin.Z_Streamp; Flush : in Thin.Int) return Thin.Int
+   with Convention => C;
 
    type Flate_End_Function is access
-      function (Ctrm : in Thin.Z_Streamp) return Thin.Int;
-   pragma Convention (C, Flate_End_Function);
+     function (Ctrm : in Thin.Z_Streamp) return Thin.Int with Convention => C;
 
    type Flate_Type is record
       Step : Flate_Step_Function;
@@ -80,11 +81,9 @@ package body ZLib is
    Flush_Finish : constant array (Boolean) of Flush_Mode :=
                     (True => Finish, False => No_Flush);
 
-   procedure Raise_Error (Stream : in Z_Stream);
-   pragma Inline (Raise_Error);
+   procedure Raise_Error (Stream : in Z_Stream) with Inline;
 
-   procedure Raise_Error (Message : in String);
-   pragma Inline (Raise_Error);
+   procedure Raise_Error (Message : in String) with Inline;
 
    procedure Check_Error (Stream : in Z_Stream; Code : in Thin.Int);
 
@@ -566,8 +565,8 @@ package body ZLib is
 
       procedure Put_32
         (Item : in out Stream_Element_Array;
-         Data : in     Unsigned_32);
-      pragma Inline (Put_32);
+         Data : in     Unsigned_32)
+        with Inline;
 
       --------------
       -- Add_Data --

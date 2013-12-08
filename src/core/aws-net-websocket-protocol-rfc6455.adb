@@ -27,6 +27,8 @@
 --  covered by the  GNU Public License.                                     --
 ------------------------------------------------------------------------------
 
+pragma Ada_2012;
+
 --  This implements the WebSocket protocol as defined in RFC-6455
 
 with Ada.Strings.Fixed;
@@ -62,13 +64,11 @@ package body AWS.Net.WebSocket.Protocol.RFC6455 is
       Opcd           : Opcode;
       Mask           : Bit;
       Payload_Length : Integer range 0 .. 127;
-   end record;
+   end record with Pack;
 
    for Frame_Header'Size use 16;
    for Frame_Header'Alignment use 1;
    for Frame_Header'Bit_Order use System.High_Order_First;
-
-   pragma Pack (Frame_Header);
 
    for Frame_Header use record
       --  Byte 1

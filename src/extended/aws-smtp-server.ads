@@ -27,6 +27,8 @@
 --  covered by the  GNU Public License.                                     --
 ------------------------------------------------------------------------------
 
+pragma Ada_2012;
+
 with AWS.SMTP.Messages;
 
 private with AWS.Config;
@@ -48,8 +50,9 @@ package AWS.SMTP.Server is
 
 private
 
-   task type Mail_Handler (Server : not null access Handle) is
-      pragma Priority (Config.Service_Priority);
+   task type Mail_Handler (Server : not null access Handle)
+     with Priority => Config.Service_Priority
+   is
       entry Start;
    end Mail_Handler;
 

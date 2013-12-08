@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2002-2012, AdaCore                     --
+--                     Copyright (C) 2002-2013, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -27,9 +27,9 @@
 --  covered by the  GNU Public License.                                     --
 ------------------------------------------------------------------------------
 
-package AWS.LDAP is
+pragma Ada_2012;
 
-   pragma Pure;
+package AWS.LDAP with Pure is
 
    LDAP_Error : exception;
    --  Raised by all LDAP.Client routines in case of error

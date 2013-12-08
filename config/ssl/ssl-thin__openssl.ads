@@ -27,6 +27,8 @@
 --  covered by the  GNU Public License.                                     --
 ------------------------------------------------------------------------------
 
+pragma Ada_2012;
+
 with Interfaces.C.Strings;
 with System;
 
@@ -41,8 +43,7 @@ package SSL.Thin is
 
    type Rand_Meth_St is record
       Seed, Bytes, Cleanup, Add, Pseudorand, Status : Pointer;
-   end record;
-   pragma Convention (C, Rand_Meth_St);
+   end record with Convention => C;
 
    type BIO_Method_St is record
       Kind : Integer;
@@ -55,8 +56,7 @@ package SSL.Thin is
       Create,
       Destroy,
       Callback_Ctrl : Pointer;
-   end record;
-   pragma Convention (C, BIO_Method_St);
+   end record with Convention => C;
 
    type BIO_Method_Access is access all BIO_Method_St;
 
@@ -355,8 +355,7 @@ package SSL.Thin is
       length : int;
       stype  : int;
       data   : Interfaces.C.Strings.chars_ptr;
-   end record;
-   pragma Convention (C, ASN1_STRING);
+   end record with Convention => C;
 
    subtype ASN1_UTCTIME is ASN1_STRING;
    subtype ASN1_INTEGER is ASN1_STRING;
@@ -395,20 +394,42 @@ package SSL.Thin is
    -- Multithread data access setup locking routines --
    ----------------------------------------------------
 
-   function  CRYPTO_num_locks return Natural;
+   function  CRYPTO_num_locks return Natural
+     with Import, Convention => C, Link_Name => "CRYPTO_num_locks";
 
-   procedure CRYPTO_set_id_callback (Id_Function : Pointer);
-   procedure CRYPTO_set_locking_callback (Locking_Function : Pointer);
-   function  CRYPTO_get_locking_callback return Pointer;
+   procedure CRYPTO_set_id_callback (Id_Function : Pointer)
+     with Import, Convention => C, Link_Name => "CRYPTO_set_id_callback";
 
-   procedure CRYPTO_set_dynlock_create_callback (Create_Function : Pointer);
-   procedure CRYPTO_set_dynlock_lock_callback (Lock_Function : Pointer);
+   procedure CRYPTO_set_locking_callback (Locking_Function : Pointer)
+     with Import, Convention => C, Link_Name => "CRYPTO_set_locking_callback";
+
+   function CRYPTO_get_locking_callback return Pointer
+     with Import, Convention => C, Link_Name => "CRYPTO_get_locking_callback";
+
+   procedure CRYPTO_set_dynlock_create_callback (Create_Function : Pointer)
+     with Import, Convention => C,
+          Link_Name => "CRYPTO_set_dynlock_create_callback";
+
+   procedure CRYPTO_set_dynlock_lock_callback (Lock_Function : Pointer)
+     with Import, Convention => C,
+          Link_Name => "CRYPTO_set_dynlock_lock_callback";
+
    procedure CRYPTO_set_dynlock_destroy_callback
-     (Destroy_Function : Pointer);
+     (Destroy_Function : Pointer)
+     with Import, Convention => C,
+          Link_Name => "CRYPTO_set_dynlock_destroy_callback";
 
-   function CRYPTO_get_dynlock_create_callback  return Pointer;
-   function CRYPTO_get_dynlock_lock_callback    return Pointer;
-   function CRYPTO_get_dynlock_destroy_callback return Pointer;
+   function CRYPTO_get_dynlock_create_callback  return Pointer
+     with Import, Convention => C,
+          Link_Name => "CRYPTO_get_dynlock_create_callback";
+
+   function CRYPTO_get_dynlock_lock_callback    return Pointer
+     with Import, Convention => C,
+          Link_Name => "CRYPTO_get_dynlock_lock_callback";
+
+   function CRYPTO_get_dynlock_destroy_callback return Pointer
+     with Import, Convention => C,
+          Link_Name => "CRYPTO_get_dynlock_destroy_callback";
 
    ------------------------------------------
    -- OpenSSL version information routines --
@@ -420,246 +441,343 @@ package SSL.Thin is
    SSLEAY_PLATFORM : constant := 4;
    SSLEAY_DIR      : constant := 5;
 
-   function SSLeay return long;
+   function SSLeay return long
+     with Import, Convention => C, Link_Name => "SSLeay";
    --  Returns OpenSSL numeric release version identifier
 
-   function SSLeay_version_info (T : int) return Cstr.chars_ptr;
+   function SSLeay_version_info (T : int) return Cstr.chars_ptr
+     with Import, Convention => C, Link_Name => "SSLeay_version";
    --  Returns version information line
 
    -------------------------------
    -- Context control routines  --
    -------------------------------
 
-   function SSLv3_method         return SSL_Method;
-   function SSLv3_server_method  return SSL_Method;
-   function SSLv3_client_method  return SSL_Method;
-   function SSLv23_method        return SSL_Method;
-   function SSLv23_server_method return SSL_Method;
-   function SSLv23_client_method return SSL_Method;
-   function TLSv1_method         return SSL_Method;
-   function TLSv1_server_method  return SSL_Method;
-   function TLSv1_client_method  return SSL_Method;
+   function SSLv3_method         return SSL_Method
+     with Import, Convention => C, Link_Name => "SSLv3_method";
 
-   function SSL_CTX_new (Meth : SSL_Method) return SSL_CTX;
+   function SSLv3_server_method  return SSL_Method
+     with Import, Convention => C, Link_Name => "SSLv3_server_method";
 
-   procedure SSL_CTX_free (P1 : SSL_CTX);
+   function SSLv3_client_method  return SSL_Method
+     with Import, Convention => C, Link_Name => "SSLv3_client_method";
 
-   procedure SSL_CTX_set_quiet_shutdown (Ctx : SSL_CTX; Mode : int);
+   function SSLv23_method        return SSL_Method
+     with Import, Convention => C, Link_Name => "SSLv23_method";
+
+   function SSLv23_server_method return SSL_Method
+     with Import, Convention => C, Link_Name => "SSLv23_server_method";
+
+   function SSLv23_client_method return SSL_Method
+     with Import, Convention => C, Link_Name => "SSLv23_client_method";
+
+   function TLSv1_method         return SSL_Method
+     with Import, Convention => C, Link_Name => "TLSv1_method";
+
+   function TLSv1_server_method  return SSL_Method
+     with Import, Convention => C, Link_Name => "TLSv1_server_method";
+
+   function TLSv1_client_method  return SSL_Method
+     with Import, Convention => C, Link_Name => "TLSv1_client_method";
+
+   function SSL_CTX_new (Meth : SSL_Method) return SSL_CTX
+     with Import, Convention => C, Link_Name => "SSL_CTX_new";
+
+   procedure SSL_CTX_free (P1 : SSL_CTX)
+     with Import, Convention => C, Link_Name => "SSL_CTX_free";
+
+   procedure SSL_CTX_set_quiet_shutdown (Ctx : SSL_CTX; Mode : int)
+     with Import, Convention => C, Link_Name => "SSL_CTX_set_quiet_shutdown";
 
    function SSL_CTX_ctrl
-     (Ctx  : SSL_CTX;
-      Cmd  : int;
-      Larg : int;
-      Parg : Pointer) return int;
+     (Ctx  : SSL_CTX; Cmd : int; Larg : int; Parg : Pointer) return int
+     with Import, Convention => C, Link_Name => "SSL_CTX_ctrl";
 
    -------------------------------------
    -- Library initialization routines --
    -------------------------------------
 
-   function CRYPTO_set_mem_functions
-     (M : System.Address;
-      R : System.Address;
-      F : System.Address) return int;
+   function CRYPTO_set_mem_functions (M, R, F : System.Address) return int
+     with Import, Convention => C, Link_Name => "CRYPTO_set_mem_functions";
 
-   procedure SSL_library_init;
+   procedure SSL_library_init
+     with Import, Convention => C, Link_Name => "SSL_library_init";
 
-   procedure SSL_load_error_strings;
+   procedure SSL_load_error_strings
+     with Import, Convention => C, Link_Name => "SSL_load_error_strings";
 
-   procedure ERR_load_crypto_strings;
+   procedure ERR_load_crypto_strings
+     with Import, Convention => C, Link_Name => "ERR_load_crypto_strings";
 
-   procedure ERR_load_ssl_strings;
+   procedure ERR_load_ssl_strings
+     with Import, Convention => C, Link_Name => "ERR_load_ssl_strings";
 
    --------------------------------
    -- Error information routines --
    --------------------------------
 
-   function ERR_get_error return Error_Code;
+   function ERR_get_error return Error_Code
+     with Import, Convention => C, Link_Name => "ERR_get_error";
 
    function ERR_error_string
-     (Code : Error_Code; Buffer : Cstr.chars_ptr) return Cstr.chars_ptr;
+     (Code : Error_Code; Buffer : Cstr.chars_ptr) return Cstr.chars_ptr
+     with Import, Convention => C, Link_Name => "ERR_error_string";
 
    procedure ERR_error_string_n
-     (Code : Error_Code; Buffer : Cstr.chars_ptr; Len : size_t);
+     (Code : Error_Code; Buffer : Cstr.chars_ptr; Len : size_t)
+     with Import, Convention => C, Link_Name => "ERR_error_string_n";
 
-   procedure ERR_remove_state (pid : int := 0);
+   procedure ERR_remove_state (pid : int := 0)
+     with Import, Convention => C, Link_Name => "ERR_remove_state";
 
    -----------------------------------------
    -- Connection handler control routines --
    -----------------------------------------
 
-   function SSL_new (Ctx : SSL_CTX) return SSL_Handle;
+   function SSL_new (Ctx : SSL_CTX) return SSL_Handle
+     with Import, Convention => C, Link_Name => "SSL_new";
 
-   procedure SSL_free (SSL : SSL_Handle);
+   procedure SSL_free (SSL : SSL_Handle)
+     with Import, Convention => C, Link_Name => "SSL_free";
 
-   function SSL_clear (SSL : SSL_Handle) return int;
+   function SSL_clear (SSL : SSL_Handle) return int
+     with Import, Convention => C, Link_Name => "SSL_clear";
 
-   function SSL_set_fd (S : SSL_Handle; Fd : int) return int;
+   function SSL_set_fd (S : SSL_Handle; Fd : int) return int
+     with Import, Convention => C, Link_Name => "SSL_set_fd";
 
-   procedure SSL_set_bio (SSL : SSL_Handle; RBIO, WBIO : BIO_Access);
+   procedure SSL_set_bio (SSL : SSL_Handle; RBIO, WBIO : BIO_Access)
+     with Import, Convention => C, Link_Name => "SSL_set_bio";
 
-   function SSL_get_rbio (SSL : SSL_Handle) return BIO_Access;
-   function SSL_get_wbio (SSL : SSL_Handle) return BIO_Access;
+   function SSL_get_rbio (SSL : SSL_Handle) return BIO_Access
+     with Import, Convention => C, Link_Name => "SSL_get_rbio";
 
-   procedure SSL_set_read_ahead (S : SSL_Handle; Yes : int);
+   function SSL_get_wbio (SSL : SSL_Handle) return BIO_Access
+     with Import, Convention => C, Link_Name => "SSL_get_wbio";
 
-   function SSL_connect (SSL : SSL_Handle) return int;
+   procedure SSL_set_read_ahead (S : SSL_Handle; Yes : int)
+     with Import, Convention => C, Link_Name => "SSL_set_read_ahead";
 
-   function SSL_accept (SSL : SSL_Handle) return int;
+   function SSL_connect (SSL : SSL_Handle) return int
+     with Import, Convention => C, Link_Name => "SSL_connect";
 
-   procedure SSL_set_connect_state (SSL : SSL_Handle);
+   function SSL_accept (SSL : SSL_Handle) return int
+     with Import, Convention => C, Link_Name => "SSL_accept";
 
-   procedure SSL_set_accept_state (SSL : SSL_Handle);
+   procedure SSL_set_connect_state (SSL : SSL_Handle)
+     with Import, Convention => C, Link_Name => "SSL_set_connect_state";
 
-   function SSL_renegotiate (SSL : SSL_Handle) return int;
+   procedure SSL_set_accept_state (SSL : SSL_Handle)
+     with Import, Convention => C, Link_Name => "SSL_set_accept_state";
 
-   function SSL_do_handshake (SSL : SSL_Handle) return int;
+   function SSL_renegotiate (SSL : SSL_Handle) return int
+     with Import, Convention => C, Link_Name => "SSL_renegotiate";
 
-   function SSL_want (S : SSL_Handle) return int;
+   function SSL_do_handshake (SSL : SSL_Handle) return int
+     with Import, Convention => C, Link_Name => "SSL_do_handshake";
 
-   function SSL_read
-     (SSL : SSL_Handle; Buf : Pointer; Num : int) return int;
+   function SSL_want (S : SSL_Handle) return int
+     with Import, Convention => C, Link_Name => "SSL_want";
 
-   function SSL_peek
-     (SSL : SSL_Handle; Buf : Pointer; Num : int) return int;
+   function SSL_read (SSL : SSL_Handle; Buf : Pointer; Num : int) return int
+     with Import, Convention => C, Link_Name => "SSL_read";
 
-   function SSL_write
-     (SSL : SSL_Handle; Buf : Pointer; Num : int) return int;
+   function SSL_peek (SSL : SSL_Handle; Buf : Pointer; Num : int) return int
+     with Import, Convention => C, Link_Name => "SSL_peek";
 
-   function SSL_pending (S : SSL_Handle) return int;
+   function SSL_write (SSL : SSL_Handle; Buf : Pointer; Num : int) return int
+     with Import, Convention => C, Link_Name => "SSL_write";
 
-   function SSL_get_error (SSL : SSL_Handle; ret : int) return int;
+   function SSL_pending (S : SSL_Handle) return int
+     with Import, Convention => C, Link_Name => "SSL_pending";
 
-   function SSL_shutdown (SSL : SSL_Handle) return int;
+   function SSL_get_error (SSL : SSL_Handle; Ret : int) return int
+     with Import, Convention => C, Link_Name => "SSL_get_error";
 
-   procedure SSL_set_shutdown (SSL : SSL_Handle; Mode : int);
+   function SSL_shutdown (SSL : SSL_Handle) return int
+     with Import, Convention => C, Link_Name => "SSL_shutdown";
 
-   function SSL_get_SSL_CTX (SSL : SSL_Handle) return SSL_CTX;
+   procedure SSL_set_shutdown (SSL : SSL_Handle; Mode : int)
+     with Import, Convention => C, Link_Name => "SSL_set_shutdown";
+
+   function SSL_get_SSL_CTX (SSL : SSL_Handle) return SSL_CTX
+     with Import, Convention => C, Link_Name => "SSL_get_SSL_CTX";
 
    ----------------------
    --  Crypto routines --
    ----------------------
 
    type Generate_Key_Callback is access
-     procedure (I1, I2 : Integer; Param : Pointer);
-   pragma Convention (C, Generate_Key_Callback);
+     procedure (I1, I2 : Integer; Param : Pointer)
+   with Convention => C;
 
    function RSA_generate_key
      (Bits     : int;
       E        : unsigned;
       Callback : Generate_Key_Callback;
-      Cb_Arg   : Pointer) return RSA;
+      Cb_Arg   : Pointer) return RSA
+     with Import, Convention => C, Link_Name => "RSA_generate_key";
 
    function SSL_use_RSAPrivateKey
-     (SSL : SSL_Handle; Private_Key : RSA) return int;
+     (SSL : SSL_Handle; Private_Key : RSA) return int
+     with Import, Convention => C, Link_Name => "SSL_use_RSAPrivateKey";
 
    function SSL_CTX_use_PrivateKey_file
-     (Ctx : SSL_CTX; File : char_array; C_Type : int) return int;
+     (Ctx : SSL_CTX; File : char_array; C_Type : int) return int
+     with Import, Convention => C, Link_Name => "SSL_CTX_use_PrivateKey_file";
 
    function SSL_use_PrivateKey_file
-     (SSL : SSL_Handle; File : char_array; C_Type : int) return int;
+     (SSL : SSL_Handle; File : char_array; C_Type : int) return int
+     with Import, Convention => C, Link_Name => "SSL_use_PrivateKey_file";
 
    function SSL_CTX_use_certificate_file
-     (Ctx : SSL_CTX; File : char_array; C_Type : int) return int;
+     (Ctx : SSL_CTX; File : char_array; C_Type : int) return int
+     with Import, Convention => C, Link_Name => "SSL_CTX_use_certificate_file";
 
    function SSL_CTX_use_certificate_chain_file
-     (Ctx : SSL_CTX; File : char_array) return int;
+     (Ctx : SSL_CTX; File : char_array) return int
+     with Import, Convention => C,
+          Link_Name => "SSL_CTX_use_certificate_chain_file";
 
    function SSL_use_certificate_file
-     (SSL : SSL_Handle; File : char_array; C_Type : int) return int;
+     (SSL : SSL_Handle; File : char_array; C_Type : int) return int
+     with Import, Convention => C, Link_Name => "SSL_use_certificate_file";
 
-   function SSL_get_verify_result (SSL : SSL_Handle) return long;
+   function SSL_get_verify_result (SSL : SSL_Handle) return long
+     with Import, Convention => C, Link_Name => "SSL_get_verify_result";
 
-   function SSL_CTX_check_private_key (Ctx : SSL_CTX) return int;
+   function SSL_CTX_check_private_key (Ctx : SSL_CTX) return int
+     with Import, Convention => C, Link_Name => "SSL_CTX_check_private_key";
 
    procedure SSL_CTX_set_verify
-     (Ctx : SSL_CTX; Mode : int; Callback : Pointer);
+     (Ctx : SSL_CTX; Mode : int; Callback : Pointer)
+     with Import, Convention => C, Link_Name => "SSL_CTX_set_verify";
 
-   function SSL_CTX_get_verify_mode (Ctx : SSL_CTX) return unsigned;
+   function SSL_CTX_get_verify_mode (Ctx : SSL_CTX) return unsigned
+     with Import, Convention => C, Link_Name => "SSL_CTX_set_verify";
 
    function SSL_CTX_load_verify_locations
-     (Cts : SSL_CTX; CAfile, CApath : Cstr.chars_ptr) return int;
+     (Cts : SSL_CTX; CAfile, CApath : Cstr.chars_ptr) return int
+     with Import, Convention => C,
+          Link_Name => "SSL_CTX_load_verify_locations";
 
    function SSL_CTX_set1_param
-     (Ctx : SSL_CTX; Param : X509_VERIFY_PARAM) return int;
+     (Ctx : SSL_CTX; Param : X509_VERIFY_PARAM) return int
+     with Import, Convention => C, Link_Name => "SSL_CTX_set1_param";
 
-   procedure RAND_seed (Buf : Pointer; Num : Integer);
+   procedure RAND_seed (Buf : Pointer; Num : Integer)
+     with Import, Convention => C, Link_Name => "RAND_seed";
 
-   function RAND_status return Integer;
+   function RAND_status return Integer
+     with Import, Convention => C, Link_Name => "RAND_status";
 
-   procedure RAND_set_rand_method (Method : access Rand_Meth_St);
+   procedure RAND_set_rand_method (Method : access Rand_Meth_St)
+     with Import, Convention => C, Link_Name => "RAND_set_rand_method";
 
    --  Connection data
 
    function SSL_CTX_get_ex_new_index
      (Args                          : long;
       Argp                          : Pointer;
-      New_Func, Dup_Func, Free_Func : Pointer) return int;
+      New_Func, Dup_Func, Free_Func : Pointer) return int
+     with Import, Convention => C, Link_Name => "SSL_CTX_get_ex_new_index";
 
    function SSL_CTX_set_ex_data
-     (SSL : SSL_CTX; Idx : int; Arg : Pointer) return int;
+     (SSL : SSL_CTX; Idx : int; Arg : Pointer) return int
+     with Import, Convention => C, Link_Name => "SSL_CTX_set_ex_data";
 
-   function SSL_CTX_get_ex_data (SSL : SSL_CTX; Idx : int) return Pointer;
+   function SSL_CTX_get_ex_data (SSL : SSL_CTX; Idx : int) return Pointer
+     with Import, Convention => C, Link_Name => "SSL_CTX_get_ex_data";
 
    --  Certificate
 
-   function SSL_get_peer_certificate (SSL : SSL_Handle) return X509;
+   function SSL_get_peer_certificate (SSL : SSL_Handle) return X509
+     with Import, Convention => C, Link_Name => "SSL_get_peer_certificate";
 
-   procedure X509_free (X509 : Thin.X509);
+   procedure X509_free (X509 : Thin.X509)
+     with Import, Convention => C, Link_Name => "X509_free";
 
    function X509_NAME_oneline
-     (Name : X509_Name;
-      Buf  : Pointer;
-      Size : int) return Cstr.chars_ptr;
+     (Name : X509_Name; Buf : Pointer; Size : int) return Cstr.chars_ptr
+     with Import, Convention => C, Link_Name => "X509_NAME_oneline";
 
    function X509_NAME_print_ex
      (Output : BIO_Access;
       Name   : X509_Name;
       Indent : int;
-      flags  : unsigned_long) return int;
+      flags  : unsigned_long) return int
+     with Import, Convention => C, Link_Name => "X509_NAME_print_ex";
 
-   function X509_get_subject_name (X509 : Thin.X509) return X509_Name;
-   function X509_get_issuer_name (X509 : Thin.X509) return X509_Name;
+   function X509_get_subject_name (X509 : Thin.X509) return X509_Name
+     with Import, Convention => C, Link_Name => "X509_get_subject_name";
+
+   function X509_get_issuer_name (X509 : Thin.X509) return X509_Name
+     with Import, Convention => C, Link_Name => "X509_get_issuer_name";
+
    function X509_get_notAfter
-     (X509 : Thin.X509) return access constant ASN1_STRING;
+     (X509 : Thin.X509) return access constant ASN1_STRING
+     with Import, Convention => C, Link_Name => "__aws_X509_get_notAfter";
+
    function X509_get_notBefore
-     (X509 : Thin.X509) return access constant ASN1_STRING;
+     (X509 : Thin.X509) return access constant ASN1_STRING
+     with Import, Convention => C, Link_Name => "__aws_X509_get_notBefore";
+
    function X509_get_serialNumber
-     (X509 : Thin.X509) return access constant ASN1_INTEGER;
+     (X509 : Thin.X509) return access constant ASN1_INTEGER
+     with Import, Convention => C, Link_Name => "X509_get_serialNumber";
 
-   procedure SSL_CTX_set_default_verify_paths (Ctx : SSL_CTX);
+   procedure SSL_CTX_set_default_verify_paths (Ctx : SSL_CTX)
+     with Import, Convention => C,
+          Link_Name => "SSL_CTX_set_default_verify_paths";
 
-   function SSL_get_ex_data_X509_STORE_CTX_idx return int;
+   function SSL_get_ex_data_X509_STORE_CTX_idx return int
+     with Import, Convention => C,
+          Link_Name => "SSL_get_ex_data_X509_STORE_CTX_idx";
 
    function X509_STORE_CTX_get_ex_data
-     (Ctx : X509_STORE_CTX; Idx : int) return SSL_Handle;
+     (Ctx : X509_STORE_CTX; Idx : int) return SSL_Handle
+     with Import, Convention => C, Link_Name => "X509_STORE_CTX_get_ex_data";
 
-   function X509_STORE_CTX_get_current_cert (Ctx : X509_STORE_CTX) return X509;
+   function X509_STORE_CTX_get_current_cert (Ctx : X509_STORE_CTX) return X509
+     with Import, Convention => C,
+          Link_Name => "X509_STORE_CTX_get_current_cert";
 
-   function X509_STORE_CTX_get_error (Ctx : SSL_CTX) return int;
+   function X509_STORE_CTX_get_error (Ctx : SSL_CTX) return int
+     with Import, Convention => C, Link_Name => "X509_STORE_CTX_get_error";
 
-   function X509_verify_cert_error_string (Error : long) return Cstr.chars_ptr;
+   function X509_verify_cert_error_string (Error : long) return Cstr.chars_ptr
+     with Import, Convention => C,
+          Link_Name => "X509_verify_cert_error_string";
 
-   function SSL_CTX_get_cert_store (Ctx : SSL_CTX) return X509_STORE;
+   function SSL_CTX_get_cert_store (Ctx : SSL_CTX) return X509_STORE
+     with Import, Convention => C, Link_Name => "SSL_CTX_get_cert_store";
 
-   function X509_LOOKUP_file return X509_LOOKUP_METHOD;
+   function X509_LOOKUP_file return X509_LOOKUP_METHOD
+     with Import, Convention => C, Link_Name => "X509_LOOKUP_file";
 
    function X509_STORE_add_lookup
-     (Store : X509_STORE; Method : X509_LOOKUP_METHOD) return X509_LOOKUP;
+     (Store : X509_STORE; Method : X509_LOOKUP_METHOD) return X509_LOOKUP
+     with Import, Convention => C, Link_Name => "X509_STORE_add_lookup";
 
    function X509_load_crl_file
-     (Context : X509_LOOKUP; File : Strings.chars_ptr; Typ : int) return int;
+     (Context : X509_LOOKUP; File : Strings.chars_ptr; Typ : int) return int
+     with Import, Convention => C, Link_Name => "X509_load_crl_file";
 
    function X509_STORE_set1_param
-     (Store : X509_STORE; Param : X509_VERIFY_PARAM) return int;
+     (Store : X509_STORE; Param : X509_VERIFY_PARAM) return int
+     with Import, Convention => C, Link_Name => "X509_STORE_set1_param";
 
    --  Verify param
 
-   function X509_VERIFY_PARAM_new return X509_VERIFY_PARAM;
+   function X509_VERIFY_PARAM_new return X509_VERIFY_PARAM
+     with Import, Convention => C, Link_Name => "X509_VERIFY_PARAM_new";
 
    function X509_VERIFY_PARAM_set_flags
-     (Param : X509_VERIFY_PARAM; Flags : unsigned_long) return int;
+     (Param : X509_VERIFY_PARAM; Flags : unsigned_long) return int
+     with Import, Convention => C, Link_Name => "X509_VERIFY_PARAM_set_flags";
 
-   procedure X509_VERIFY_PARAM_free (Param : X509_VERIFY_PARAM);
+   procedure X509_VERIFY_PARAM_free (Param : X509_VERIFY_PARAM)
+     with Import, Convention => C, Link_Name => "X509_VERIFY_PARAM_free";
 
    -------------------
    -- ASN1 routines --
@@ -667,73 +785,100 @@ package SSL.Thin is
 
    function i2c_ASN1_INTEGER
      (A  : access constant ASN1_INTEGER;
-      Pp : access Strings.chars_ptr) return int;
+      Pp : access Strings.chars_ptr) return int
+     with Import, Convention => C, Link_Name => "i2c_ASN1_INTEGER";
 
-   function ASN1_INTEGER_get (A : access constant ASN1_INTEGER) return long;
+   function ASN1_INTEGER_get (A : access constant ASN1_INTEGER) return long
+     with Import, Convention => C, Link_Name => "ASN1_INTEGER_get";
 
    function ASN1_INTEGER_to_BN
      (A  : access constant ASN1_INTEGER;
-      Pp : access Strings.chars_ptr) return BIGNUM;
+      Pp : access Strings.chars_ptr) return BIGNUM
+     with Import, Convention => C, Link_Name => "ASN1_INTEGER_to_BN";
 
-   function BN_bn2bin (BN : BIGNUM; Output : Strings.chars_ptr) return int;
+   function BN_bn2bin (BN : BIGNUM; Output : Strings.chars_ptr) return int
+     with Import, Convention => C, Link_Name => "BN_bn2bin";
 
-   function BN_bn2hex (BN : BIGNUM) return Strings.chars_ptr;
+   function BN_bn2hex (BN : BIGNUM) return Strings.chars_ptr
+     with Import, Convention => C, Link_Name => "BN_bn2hex";
 
    -------------------
    --  BIO routines --
    -------------------
 
-   function BIO_s_socket return BIO_Method_Access;
-   function BIO_s_mem return BIO_Method_Access;
+   function BIO_s_socket return BIO_Method_Access
+     with Import, Convention => C, Link_Name => "BIO_s_socket";
 
-   function BIO_new (Method : BIO_Method_St) return BIO_Access;
-   function BIO_new (Method : BIO_Method_Access) return BIO_Access;
+   function BIO_s_mem return BIO_Method_Access
+     with Import, Convention => C, Link_Name => "BIO_s_mem";
+
+   function BIO_new (Method : BIO_Method_St) return BIO_Access
+     with Import, Convention => C, Link_Name => "BIO_new";
+
+   function BIO_new (Method : BIO_Method_Access) return BIO_Access
+     with Import, Convention => C, Link_Name => "BIO_new";
 
    function BIO_int_ctrl
      (Bp   : BIO_Access;
       Cmd  : int;
       Larg : long;
-      Iarg : int) return long;
+      Iarg : int) return long
+     with Import, Convention => C, Link_Name => "BIO_int_ctrl";
 
    procedure BIO_int_ctrl
-     (Bp : BIO_Access; Cmd : int; Larg : long; Iarg : int);
+     (Bp : BIO_Access; Cmd : int; Larg : long; Iarg : int)
+     with Import, Convention => C, Link_Name => "BIO_int_ctrl";
    --  BIO_set_fd(b,fd,c) BIO_int_ctrl(b,BIO_C_SET_FD,c,fd)
 
    function BIO_ctrl
      (Bp   : BIO_Access;
       Cmd  : int;
       Larg : long    := 0;
-      Parg : Pointer := Null_Pointer) return long;
+      Parg : Pointer := Null_Pointer) return long
+     with Import, Convention => C, Link_Name => "BIO_ctrl";
    --  BIO_pending(b) = (int)BIO_ctrl(b,BIO_CTRL_PENDING,0,NULL)
 
    procedure BIO_ctrl
-     (Bp : BIO_Access; Cmd : int; Larg : long; Parg : Pointer);
+     (Bp : BIO_Access; Cmd : int; Larg : long; Parg : Pointer)
+     with Import, Convention => C, Link_Name => "BIO_ctrl";
    --  BIO_get_fd(b,c) = BIO_ctrl(b,BIO_C_GET_FD,0,(char *)c)
    --  BIO_set_mem_eof_return(b,v)
    --  = BIO_ctrl(b,BIO_C_SET_BUF_MEM_EOF_RETURN,v,NULL)
 
    function BIO_read
-     (BIO : BIO_Access; Data : Pointer; Len : int) return int;
+     (BIO : BIO_Access; Data : Pointer; Len : int) return int
+     with Import, Convention => C, Link_Name => "BIO_read";
 
    function BIO_write
-     (BIO : BIO_Access; Data : Pointer; Len : int) return int;
+     (BIO : BIO_Access; Data : Pointer; Len : int) return int
+     with Import, Convention => C, Link_Name => "BIO_write";
 
    function BIO_new_bio_pair
      (bio1 : access BIO_Access; writebuf1 : size_t;
-      bio2 : access BIO_Access; writebuf2 : size_t) return int;
+      bio2 : access BIO_Access; writebuf2 : size_t) return int
+     with Import, Convention => C, Link_Name => "BIO_new_bio_pair";
 
-   function BIO_nread0 (BIO : BIO_Access; Buf : Pointer) return int;
+   function BIO_nread0 (BIO : BIO_Access; Buf : Pointer) return int
+     with Import, Convention => C, Link_Name => "BIO_nread0";
+
    function BIO_nread
-     (BIO : BIO_Access; Buf : Pointer; Num : int) return int;
+     (BIO : BIO_Access; Buf : Pointer; Num : int) return int
+     with Import, Convention => C, Link_Name => "BIO_nread";
    --  Buf is the address of the buffer address
 
-   function BIO_nwrite0 (BIO : BIO_Access; Buf : Pointer) return int;
+   function BIO_nwrite0 (BIO : BIO_Access; Buf : Pointer) return int
+     with Import, Convention => C, Link_Name => "BIO_nwrite0";
+
    function BIO_nwrite
-     (BIO : BIO_Access; Buf : Pointer; Num : int) return int;
+     (BIO : BIO_Access; Buf : Pointer; Num : int) return int
+     with Import, Convention => C, Link_Name => "BIO_nwrite";
    --  Buf is the address of the buffer address
 
-   function BIO_free (BIO : BIO_Access) return int;
-   procedure BIO_free (BIO : BIO_Access);
+   function BIO_free (BIO : BIO_Access) return int
+     with Import, Convention => C, Link_Name => "BIO_free";
+
+   procedure BIO_free (BIO : BIO_Access)
+     with Import, Convention => C, Link_Name => "BIO_free";
 
    SSL_SESS_CACHE_OFF                : constant := 0;
    SSL_SESS_CACHE_CLIENT             : constant := 1;
@@ -747,173 +892,23 @@ package SSL.Thin is
      SSL_SESS_CACHE_NO_INTERNAL_LOOKUP + SSL_SESS_CACHE_NO_INTERNAL_STORE;
 
    function SSL_CTX_set_session_cache_mode
-     (Ctx : SSL_CTX; Mode : long) return long;
+     (Ctx : SSL_CTX; Mode : long) return long
+     with Import, Convention => C,
+          Link_Name => "SSL_CTX_set_session_cache_mode";
 
-   procedure SSL_CTX_flush_sessions (Ctx : SSL_CTX; Tm : long);
+   procedure SSL_CTX_flush_sessions (Ctx : SSL_CTX; Tm : long)
+     with Import, Convention => C, Link_Name => "SSL_CTX_flush_sessions";
 
    type SSL_Session is new Pointer;
 
    function SSL_set_session
-     (SSL : SSL_Handle; session : SSL_Session) return int;
+     (SSL : SSL_Handle; session : SSL_Session) return int
+     with Import, Convention => C, Link_Name => "SSL_set_session";
 
-   function SSL_get_session (SSL : SSL_Handle) return SSL_Session;
-   function SSL_get1_session (SSL : SSL_Handle) return SSL_Session;
+   function SSL_get_session (SSL : SSL_Handle) return SSL_Session
+     with Import, Convention => C, Link_Name => "SSL_get_session";
 
-private
-
-   pragma Import (C, BIO_s_socket, "BIO_s_socket");
-   pragma Import (C, BIO_s_mem, "BIO_s_mem");
-   pragma Import (C, BIO_new, "BIO_new");
-   pragma Import (C, BIO_read, "BIO_read");
-   pragma Import (C, BIO_write, "BIO_write");
-   pragma Import (C, BIO_int_ctrl, "BIO_int_ctrl");
-   pragma Import (C, BIO_ctrl, "BIO_ctrl");
-   pragma Import (C, BIO_new_bio_pair, "BIO_new_bio_pair");
-   pragma Import (C, BIO_free, "BIO_free");
-   pragma Import (C, BIO_nread0, "BIO_nread0");
-   pragma Import (C, BIO_nread, "BIO_nread");
-   pragma Import (C, BIO_nwrite0, "BIO_nwrite0");
-   pragma Import (C, BIO_nwrite, "BIO_nwrite");
-   pragma Import (C, CRYPTO_num_locks, "CRYPTO_num_locks");
-   pragma Import (C, CRYPTO_set_id_callback, "CRYPTO_set_id_callback");
-   pragma Import (C, CRYPTO_set_locking_callback,
-                    "CRYPTO_set_locking_callback");
-   pragma Import (C, CRYPTO_get_locking_callback,
-                    "CRYPTO_get_locking_callback");
-   pragma Import (C, CRYPTO_set_dynlock_create_callback,
-                    "CRYPTO_set_dynlock_create_callback");
-   pragma Import (C, CRYPTO_set_dynlock_lock_callback,
-                    "CRYPTO_set_dynlock_lock_callback");
-   pragma Import (C, CRYPTO_set_dynlock_destroy_callback,
-                    "CRYPTO_set_dynlock_destroy_callback");
-   pragma Import (C, CRYPTO_get_dynlock_create_callback,
-                    "CRYPTO_get_dynlock_create_callback");
-   pragma Import (C, CRYPTO_get_dynlock_lock_callback,
-                    "CRYPTO_get_dynlock_lock_callback");
-   pragma Import (C, CRYPTO_get_dynlock_destroy_callback,
-                    "CRYPTO_get_dynlock_destroy_callback");
-   pragma Import (C, SSLeay, "SSLeay");
-   pragma Import (C, SSLeay_version_info, "SSLeay_version");
-   pragma Import (C, RAND_seed, "RAND_seed");
-   pragma Import (C, RAND_status, "RAND_status");
-   pragma Import (C, RAND_set_rand_method, "RAND_set_rand_method");
-   pragma Import (C, SSL_set_fd, "SSL_set_fd");
-   pragma Import (C, SSL_set_bio, "SSL_set_bio");
-   pragma Import (C, SSL_get_rbio, "SSL_get_rbio");
-   pragma Import (C, SSL_get_wbio, "SSL_get_wbio");
-   pragma Import (C, SSL_accept, "SSL_accept");
-   pragma Import (C, ERR_remove_state, "ERR_remove_state");
-
-   pragma Import (C, SSL_set_connect_state, "SSL_set_connect_state");
-   pragma Import (C, SSL_set_accept_state, "SSL_set_accept_state");
-
-   pragma Import (C, SSL_CTX_use_certificate_file,
-                    "SSL_CTX_use_certificate_file");
-
-   pragma Import (C, SSL_CTX_use_certificate_chain_file,
-                    "SSL_CTX_use_certificate_chain_file");
-
-   pragma Import (C, SSL_CTX_use_PrivateKey_file,
-                    "SSL_CTX_use_PrivateKey_file");
-   pragma Import (C, SSL_use_certificate_file, "SSL_use_certificate_file");
-   pragma Import (C, SSL_use_PrivateKey_file, "SSL_use_PrivateKey_file");
-   pragma Import (C, SSL_CTX_check_private_key, "SSL_CTX_check_private_key");
-   pragma Import (C, SSL_get_verify_result, "SSL_get_verify_result");
-   pragma Import (C, SSL_read, "SSL_read");
-   pragma Import (C, SSL_write, "SSL_write");
-   pragma Import (C, SSL_peek, "SSL_peek");
-   pragma Import (C, SSL_connect, "SSL_connect");
-   pragma Import (C, SSL_CTX_set_quiet_shutdown, "SSL_CTX_set_quiet_shutdown");
-   pragma Import (C, SSL_CTX_ctrl, "SSL_CTX_ctrl");
-   pragma Import (C, SSL_CTX_set_session_cache_mode,
-                    "SSL_CTX_set_session_cache_mode");
-   pragma Import (C, SSL_pending, "SSL_pending");
-   pragma Import (C, SSL_set_shutdown, "SSL_set_shutdown");
-   pragma Import (C, SSL_shutdown, "SSL_shutdown");
-   pragma Import (C, SSL_do_handshake, "SSL_do_handshake");
-   pragma Import (C, SSL_renegotiate, "SSL_renegotiate");
-   pragma Import (C, SSL_want, "SSL_want");
-   pragma Import (C, SSL_set_read_ahead, "SSL_set_read_ahead");
-
-   pragma Import (C, RSA_generate_key, "RSA_generate_key");
-   pragma Import (C, SSL_use_RSAPrivateKey, "SSL_use_RSAPrivateKey");
-
-   pragma Import (C, SSL_library_init, "SSL_library_init");
-
-   pragma Import (C, SSL_load_error_strings, "SSL_load_error_strings");
-
-   pragma Import (C, ERR_load_crypto_strings, "ERR_load_crypto_strings");
-   pragma Import (C, ERR_load_ssl_strings, "ERR_load_SSL_strings");
-
-   pragma Import (C, ERR_get_error, "ERR_get_error");
-   pragma Import (C, ERR_error_string, "ERR_error_string");
-   pragma Import (C, ERR_error_string_n, "ERR_error_string_n");
-
-   pragma Import (C, CRYPTO_set_mem_functions, "CRYPTO_set_mem_functions");
-
-   pragma Import (C, SSL_CTX_new, "SSL_CTX_new");
-   pragma Import (C, SSL_CTX_free, "SSL_CTX_free");
-   pragma Import (C, SSL_CTX_set1_param, "SSL_CTX_set1_param");
-
-   pragma Import (C, SSLv3_method, "SSLv3_method");
-   pragma Import (C, SSLv3_server_method, "SSLv3_server_method");
-   pragma Import (C, SSLv3_client_method, "SSLv3_client_method");
-   pragma Import (C, SSLv23_method, "SSLv23_method");
-   pragma Import (C, SSLv23_server_method, "SSLv23_server_method");
-   pragma Import (C, SSLv23_client_method, "SSLv23_client_method");
-   pragma Import (C, TLSv1_method, "TLSv1_method");
-   pragma Import (C, TLSv1_server_method, "TLSv1_server_method");
-   pragma Import (C, TLSv1_client_method, "TLSv1_client_method");
-
-   pragma Import (C, SSL_new, "SSL_new");
-   pragma Import (C, SSL_free, "SSL_free");
-   pragma Import (C, SSL_clear, "SSL_clear");
-   pragma Import (C, SSL_get_error, "SSL_get_error");
-
-   pragma Import (C, SSL_get_peer_certificate, "SSL_get_peer_certificate");
-   pragma Import (C, X509_free, "X509_free");
-   pragma Import (C, X509_get_subject_name, "X509_get_subject_name");
-   pragma Import (C, X509_get_issuer_name, "X509_get_issuer_name");
-   pragma Import (C, X509_get_notAfter, "__aws_X509_get_notAfter");
-   pragma Import (C, X509_get_notBefore, "__aws_X509_get_notBefore");
-   pragma Import (C, X509_get_serialNumber, "X509_get_serialNumber");
-   pragma Import (C, X509_NAME_oneline, "X509_NAME_oneline");
-   pragma Import (C, X509_NAME_print_ex, "X509_NAME_print_ex");
-   pragma Import (C, SSL_get_ex_data_X509_STORE_CTX_idx,
-                  "SSL_get_ex_data_X509_STORE_CTX_idx");
-   pragma Import (C, X509_STORE_CTX_get_ex_data, "X509_STORE_CTX_get_ex_data");
-   pragma Import (C, X509_STORE_CTX_get_current_cert,
-                  "X509_STORE_CTX_get_current_cert");
-   pragma Import (C, X509_STORE_CTX_get_error, "X509_STORE_CTX_get_error");
-   pragma Import (C, X509_verify_cert_error_string,
-                  "X509_verify_cert_error_string");
-   pragma Import (C, X509_VERIFY_PARAM_set_flags,
-                  "X509_VERIFY_PARAM_set_flags");
-   pragma Import (C, X509_VERIFY_PARAM_new, "X509_VERIFY_PARAM_new");
-   pragma Import (C, X509_VERIFY_PARAM_free, "X509_VERIFY_PARAM_free");
-   pragma Import (C, SSL_CTX_set_verify, "SSL_CTX_set_verify");
-   pragma Import (C, SSL_CTX_get_verify_mode, "SSL_CTX_get_verify_mode");
-   pragma Import (C, SSL_CTX_load_verify_locations,
-                  "SSL_CTX_load_verify_locations");
-   pragma Import (C, SSL_CTX_set_default_verify_paths,
-                  "SSL_CTX_set_default_verify_paths");
-   pragma Import (C, SSL_set_session, "SSL_set_session");
-   pragma Import (C, SSL_get_session, "SSL_get_session");
-   pragma Import (C, SSL_get1_session, "SSL_get1_session");
-   pragma Import (C, SSL_CTX_flush_sessions, "SSL_CTX_flush_sessions");
-   pragma Import (C, SSL_CTX_get_ex_new_index, "SSL_CTX_get_ex_new_index");
-   pragma Import (C, SSL_CTX_set_ex_data, "SSL_CTX_set_ex_data");
-   pragma Import (C, SSL_CTX_get_ex_data, "SSL_CTX_get_ex_data");
-   pragma Import (C, SSL_get_SSL_CTX, "SSL_get_SSL_CTX");
-   pragma Import (C, SSL_CTX_get_cert_store, "SSL_CTX_get_cert_store");
-   pragma Import (C, X509_STORE_add_lookup, "X509_STORE_add_lookup");
-   pragma Import (C, X509_LOOKUP_file, "X509_LOOKUP_file");
-   pragma Import (C, X509_load_crl_file, "X509_load_crl_file");
-   pragma Import (C, X509_STORE_set1_param, "X509_STORE_set1_param");
-   pragma Import (C, i2c_ASN1_INTEGER, "i2c_ASN1_INTEGER");
-   pragma Import (C, ASN1_INTEGER_get, "ASN1_INTEGER_get");
-   pragma Import (C, ASN1_INTEGER_to_BN, "ASN1_INTEGER_to_BN");
-   pragma Import (C, BN_bn2bin, "BN_bn2bin");
-   pragma Import (C, BN_bn2hex, "BN_bn2hex");
+   function SSL_get1_session (SSL : SSL_Handle) return SSL_Session
+     with Import, Convention => C, Link_Name => "SSL_get1_session";
 
 end SSL.Thin;

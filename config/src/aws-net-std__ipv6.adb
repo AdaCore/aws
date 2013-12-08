@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2004-2012, AdaCore                     --
+--                     Copyright (C) 2004-2013, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -26,6 +26,8 @@
 --  however invalidate any other reasons why the executable file  might be  --
 --  covered by the  GNU Public License.                                     --
 ------------------------------------------------------------------------------
+
+pragma Ada_2012;
 
 with Ada.Unchecked_Deallocation;
 
@@ -62,20 +64,18 @@ package body AWS.Net.Std is
    package AC6 is new System.Address_To_Access_Conversions (Sockaddr_In6);
 
    function Lock_Set
-     (Ptr : access Unsigned_Lock; Set : Unsigned_Lock) return Unsigned_Lock;
-   pragma Import (Intrinsic, Lock_Set, "__sync_lock_test_and_set_1");
+     (Ptr : access Unsigned_Lock; Set : Unsigned_Lock) return Unsigned_Lock
+     with Import, Convention => Intrinsic,
+          Link_Name => "__sync_lock_test_and_set_1";
 
-   procedure Raise_Socket_Error (Error : Integer);
-   pragma No_Return (Raise_Socket_Error);
-   pragma Inline (Raise_Socket_Error);
+   procedure Raise_Socket_Error (Error : Integer)
+     with No_Return, Inline;
 
-   procedure Raise_Socket_Error (Error : Integer; Socket : Socket_Type);
-   pragma No_Return (Raise_Socket_Error);
-   pragma Inline (Raise_Socket_Error);
+   procedure Raise_Socket_Error (Error : Integer; Socket : Socket_Type)
+     with No_Return, Inline;
 
-   procedure Raise_Socket_Error (Errmsg : String);
-   pragma No_Return (Raise_Socket_Error);
-   pragma Inline (Raise_Socket_Error);
+   procedure Raise_Socket_Error (Errmsg : String)
+     with No_Return, Inline;
    --  Log socket error and raise exception
 
    function Image (Sin6 : Sockaddr_In6; Len : OS_Lib.socklen_t) return String;
@@ -107,35 +107,35 @@ package body AWS.Net.Std is
    function Swap_Little_Endian (S : Unsigned_16) return Unsigned_16;
 
    function C_Bind
-     (S : C.int; Name : System.Address; Namelen : C.int) return C.int;
-   pragma Import (Stdcall, C_Bind, "bind");
+     (S : C.int; Name : System.Address; Namelen : C.int) return C.int
+     with Import, Convention => Stdcall, Link_Name => "bind";
 
-   function C_Socket (Domain, Typ, Protocol : C.int) return C.int;
-   pragma Import (Stdcall, C_Socket, "socket");
+   function C_Socket (Domain, Typ, Protocol : C.int) return C.int
+     with Import, Convention => Stdcall, Link_Name => "socket";
 
    function C_Getsockname
      (S       : C.int;
       Name    : System.Address;
-      Namelen : not null access OS_Lib.socklen_t) return C.int;
-   pragma Import (Stdcall, C_Getsockname, "getsockname");
+      Namelen : not null access OS_Lib.socklen_t) return C.int
+     with Import, Convention => Stdcall, Link_Name => "getsockname";
 
    function C_Getsockopt
      (S       : C.int;
       Level   : C.int;
       OptName : C.int;
       OptVal  : System.Address;
-      OptLen  : not null access C.int) return C.int;
-   pragma Import (Stdcall, C_Getsockopt, "getsockopt");
+      OptLen  : not null access C.int) return C.int
+     with Import, Convention => Stdcall, Link_Name => "getsockopt";
 
    function C_Getpeername
      (S       : C.int;
       Name    : System.Address;
-      Namelen : not null access OS_Lib.socklen_t) return C.int;
-   pragma Import (Stdcall, C_Getpeername, "getpeername");
+      Namelen : not null access OS_Lib.socklen_t) return C.int
+     with Import, Convention => Stdcall, Link_Name => "getpeername";
 
    function C_Gethostname
-     (Name : System.Address; Namelen : C.int) return C.int;
-   pragma Import (Stdcall, C_Gethostname, "gethostname");
+     (Name : System.Address; Namelen : C.int) return C.int
+     with Import, Convention => Stdcall, Link_Name => "gethostname";
 
    -------------------
    -- Accept_Socket --
@@ -149,8 +149,8 @@ package body AWS.Net.Std is
       function C_Accept
         (S       : Integer;
          Addr    : System.Address;
-         Addrlen : not null access C.int) return C.int;
-      pragma Import (Stdcall, C_Accept, "accept");
+         Addrlen : not null access C.int) return C.int
+        with Import, Convention => Stdcall, Link_Name => "accept";
 
       Dummy : String (1 .. 32);
       Len   : aliased C.int := Dummy'Length;
@@ -249,8 +249,8 @@ package body AWS.Net.Std is
       function C_Connect
         (S       : C.int;
          Name    : System.Address;
-         Namelen : C.int) return C.int;
-      pragma Import (Stdcall, C_Connect, "connect");
+         Namelen : C.int) return C.int
+        with Import, Convention => Stdcall, Link_Name => "connect";
 
    begin
       if Socket.S /= null then
@@ -521,8 +521,8 @@ package body AWS.Net.Std is
          hostlen : C.size_t;
          serv    : CS.chars_ptr;
          servlen : C.size_t;
-         flags   : C.int) return C.int;
-      pragma Import (StdCall, getnameinfo, "getnameinfo");
+         flags   : C.int) return C.int
+        with Import, Convention => StdCall, Link_Name => "getnameinfo";
 
       Host : aliased C.char_array := (0 .. 128 => C.nul);
       Res  : constant C.int :=
@@ -668,8 +668,8 @@ package body AWS.Net.Std is
    is
       use type C.int;
 
-      function C_Listen (S : C.int; Backlog : C.int) return C.int;
-      pragma Import (Stdcall, C_Listen, "listen");
+      function C_Listen (S : C.int; Backlog : C.int) return C.int
+        with Import, Convention => Stdcall, Link_Name => "listen";
 
    begin
       if C_Listen (Socket.S.FD, C.int (Queue_Size)) = Failure then
@@ -782,8 +782,8 @@ package body AWS.Net.Std is
         (S     : C.int;
          Msg   : System.Address;
          Len   : C.int;
-         Flags : C.int) return C.int;
-      pragma Import (Stdcall, C_Recv, "recv");
+         Flags : C.int) return C.int
+        with Import, Convention => Stdcall, Link_Name => "recv";
 
    begin
       if Lock_Set (Socket.S.RL'Access, 1) /= 0 then
@@ -840,8 +840,8 @@ package body AWS.Net.Std is
          Len   : C.int;
          Flags : C.int;
          To    : access Sockaddr_In6;
-         Tolen : C.int) return C.int;
-      pragma Import (StdCall, C_Sendto, "sendto");
+         Tolen : C.int) return C.int
+        with Import, Convention => StdCall, Link_Name => "sendto";
 
    begin
       RC := C_Sendto
@@ -961,8 +961,8 @@ package body AWS.Net.Std is
                  Shut_Read       => OS_Lib.SHUT_RD,
                  Shut_Write      => OS_Lib.SHUT_WR);
 
-      function C_Shutdown (S : C.int; How : C.int) return C.int;
-      pragma Import (Stdcall, C_Shutdown, "shutdown");
+      function C_Shutdown (S : C.int; How : C.int) return C.int
+        with Import, Convention => Stdcall, Link_Name => "shutdown";
 
    begin
       if Socket.S = null then

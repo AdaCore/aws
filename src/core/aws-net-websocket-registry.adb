@@ -27,6 +27,8 @@
 --  covered by the  GNU Public License.                                     --
 ------------------------------------------------------------------------------
 
+pragma Ada_2012;
+
 with Ada.Containers.Indefinite_Ordered_Maps;
 with Ada.Containers.Ordered_Sets;
 with Ada.Unchecked_Deallocation;
@@ -80,8 +82,7 @@ package body AWS.Net.WebSocket.Registry is
    --  wait call. This first entry is not a WebSocket and should be ignored in
    --  most code below.
 
-   task type Watcher is
-      pragma Priority (Config.WebSocket_Priority);
+   task type Watcher with Priority => Config.WebSocket_Priority is
    end Watcher;
 
    type Watcher_Ref is access all Watcher;
@@ -89,8 +90,7 @@ package body AWS.Net.WebSocket.Registry is
    --  It then places the WebSocket into a job queue to be processed by the
    --  reader tasks.
 
-   task type Message_Reader is
-      pragma Priority (Config.WebSocket_Priority);
+   task type Message_Reader with Priority => Config.WebSocket_Priority is
    end Message_Reader;
    --  Wait for WebSocket message to be ready, read them and call the Received
    --  callback. The a message has been read, the WebSocket is added back into

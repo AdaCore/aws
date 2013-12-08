@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2000-2012, AdaCore                     --
+--                     Copyright (C) 2000-2013, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -26,6 +26,8 @@
 --  however invalidate any other reasons why the executable file  might be  --
 --  covered by the  GNU Public License.                                     --
 ------------------------------------------------------------------------------
+
+pragma Ada_2012;
 
 with Ada.Strings.Unbounded;
 
@@ -57,8 +59,7 @@ package AWS.Containers.Tables is
    function Name_Count (Table : Table_Type) return Natural;
    --  Returns the number of unique key name in Table
 
-   function Case_Sensitive (Table : Table_Type) return Boolean;
-   pragma Inline (Case_Sensitive);
+   function Case_Sensitive (Table : Table_Type) return Boolean with Inline;
    --  Returns case sensitivity flag of the Table
 
    function Count (Table : Table_Type; Name : String) return Natural;

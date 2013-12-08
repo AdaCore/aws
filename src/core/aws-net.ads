@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2000-2012, AdaCore                     --
+--                     Copyright (C) 2000-2013, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -26,6 +26,8 @@
 --  however invalidate any other reasons why the executable file  might be  --
 --  covered by the  GNU Public License.                                     --
 ------------------------------------------------------------------------------
+
+pragma Ada_2012;
 
 --  There is two implementations for this spec. One for standard sockets and
 --  one for SSL socket. Note that the SSL implementation does support standard
@@ -236,8 +238,8 @@ package AWS.Net is
    pragma Obsolescent ("Use Set_Timeout instead");
    --  Set the blocking mode for the socket
 
-   procedure Set_Timeout (Socket : in out Socket_Type; Timeout : Duration);
-   pragma Inline (Set_Timeout);
+   procedure Set_Timeout (Socket : in out Socket_Type; Timeout : Duration)
+     with Inline;
    --  Sets the timeout for the socket read/write operations
 
    procedure Set_No_Delay
@@ -299,8 +301,7 @@ package AWS.Net is
       Event  : Wait_Event_Set);
    --  Add FD to the end of FD_Set
 
-   procedure Free (FD_Set : in out FD_Set_Access);
-   pragma Inline (Free);
+   procedure Free (FD_Set : in out FD_Set_Access) with Inline;
    --  Deallocate the socket FD set
 
    procedure Add
@@ -420,8 +421,8 @@ private
       Timeout : Duration := Forever;
    end record;
 
-   procedure Raise_Socket_Error (Socket : Socket_Type'Class; Text : String);
-   pragma No_Return (Raise_Socket_Error);
+   procedure Raise_Socket_Error (Socket : Socket_Type'Class; Text : String)
+     with No_Return;
 
    function Error_Message (Errno : Integer) return String;
    --  Returns the error message string for the error number Errno. If Errno is

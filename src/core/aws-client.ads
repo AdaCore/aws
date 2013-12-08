@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2000-2012, AdaCore                     --
+--                     Copyright (C) 2000-2013, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -27,9 +27,11 @@
 --  covered by the  GNU Public License.                                     --
 ------------------------------------------------------------------------------
 
-with Ada.Real_Time;
+pragma Ada_2012;
+
 with Ada.Exceptions;
 with Ada.Finalization;
+with Ada.Real_Time;
 with Ada.Streams;
 with Ada.Strings.Unbounded;
 
@@ -83,20 +85,16 @@ package AWS.Client is
    --  Constructor for the timeouts values, sets all timeouts values (see
    --  Contructor above) to Each.
 
-   function Connect_Timeout (T : Timeouts_Values) return Duration;
-   pragma Inline (Connect_Timeout);
+   function Connect_Timeout (T : Timeouts_Values) return Duration with Inline;
    --  Returns the corresponding timeout value
 
-   function Send_Timeout (T : Timeouts_Values) return Duration;
-   pragma Inline (Send_Timeout);
+   function Send_Timeout (T : Timeouts_Values) return Duration with Inline;
    --  Returns the corresponding timeout value
 
-   function Receive_Timeout (T : Timeouts_Values) return Duration;
-   pragma Inline (Receive_Timeout);
+   function Receive_Timeout (T : Timeouts_Values) return Duration with Inline;
    --  Returns the corresponding timeout value
 
-   function Response_Timeout (T : Timeouts_Values) return Duration;
-   pragma Inline (Response_Timeout);
+   function Response_Timeout (T : Timeouts_Values) return Duration with Inline;
    --  Returns the corresponding timeout value
 
    --------------
@@ -336,13 +334,12 @@ package AWS.Client is
    --  Allow both connections to share the same user environment. Note that
    --  user's environment are thread-safe.
 
-   function Get_Cookie (Connection : HTTP_Connection) return String;
-   pragma Inline (Get_Cookie);
+   function Get_Cookie (Connection : HTTP_Connection) return String
+     with Inline;
    --  Get the connection cookie
 
    procedure Set_Cookie
-     (Connection : in out HTTP_Connection; Cookie : String);
-   pragma Inline (Set_Cookie);
+     (Connection : in out HTTP_Connection; Cookie : String) with Inline;
    --  Set the connection cookie
 
    function Read_Until
@@ -459,8 +456,8 @@ package AWS.Client is
 
    procedure Set_Streaming_Output
      (Connection : in out HTTP_Connection;
-      Value      : Boolean);
-   pragma Inline (Set_Streaming_Output);
+      Value      : Boolean)
+     with Inline;
    --  Call this routine with Value => True to be able to read data as a
    --  stream by using Read and/or Read_Some routines above. Note that
    --  Connection is already in Streaming mode if it has been created
@@ -555,13 +552,12 @@ private
 
    overriding procedure Finalize (Connection : in out HTTP_Connection);
 
-   procedure Debug_Message (Prefix, Message : String);
-   pragma Inline (Debug_Message);
+   procedure Debug_Message (Prefix, Message : String) with Inline;
    --  Output Message prefixed with Prefix if Debug_On is True and does
    --  nothing otherwise.
 
-   procedure Debug_Exception (E : Ada.Exceptions.Exception_Occurrence);
-   pragma Inline (Debug_Exception);
+   procedure Debug_Exception (E : Ada.Exceptions.Exception_Occurrence)
+     with Inline;
    --  Output E exception if Debug_On is True and does nothing otherwise
 
    procedure Error_Processing

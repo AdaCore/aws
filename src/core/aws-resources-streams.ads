@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2002-2012, AdaCore                     --
+--                     Copyright (C) 2002-2013, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -26,6 +26,8 @@
 --  however invalidate any other reasons why the executable file  might be  --
 --  covered by the  GNU Public License.                                     --
 ------------------------------------------------------------------------------
+
+pragma Ada_2012;
 
 package AWS.Resources.Streams is
 
@@ -65,8 +67,8 @@ package AWS.Resources.Streams is
 
    procedure Create
      (Resource : out File_Type;
-      Stream   : Stream_Access);
-   pragma Inline (Create);
+      Stream   : Stream_Access)
+     with Inline;
    --  Create a resource file from user defined stream
 
 private

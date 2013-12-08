@@ -27,6 +27,8 @@
 --  covered by the  GNU Public License.                                     --
 ------------------------------------------------------------------------------
 
+pragma Ada_2012;
+
 with Ada.Float_Text_IO;
 with Ada.Long_Float_Text_IO;
 with Ada.Strings.Fixed;
@@ -50,20 +52,17 @@ package body SOAP.Types is
    procedure Unchecked_Free is
       new Ada.Unchecked_Deallocation (Natural, Counter_Access);
 
-   function xsi_type (Name : String) return String;
-   pragma Inline (xsi_type);
+   function xsi_type (Name : String) return String with Inline;
    --  Returns the xsi:type field for the XML type representation whose name
    --  is passed as argument.
 
-   function Spaces (N : Natural) return String;
-   pragma Inline (Spaces);
+   function Spaces (N : Natural) return String with Inline;
    --  Returns N * 3 spaces
 
    package XML_Indent is new Ada.Task_Attributes (Natural, 0);
    --  Thread safe Indentation counter
 
-   procedure Get_Error (Expected : String; O : Object'Class);
-   pragma No_Return (Get_Error);
+   procedure Get_Error (Expected : String; O : Object'Class) with No_Return;
    --  Raise Data_Error, used by all Get routines
 
    No_Name_Space : SOAP.Name_Space.Object

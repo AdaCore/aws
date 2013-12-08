@@ -27,6 +27,8 @@
 --  covered by the  GNU Public License.                                     --
 ------------------------------------------------------------------------------
 
+pragma Ada_2012;
+
 with AWS.Containers.Memory_Streams;
 with AWS.Default;
 with AWS.Translator;
@@ -36,14 +38,13 @@ package body AWS.Net.Buffered is
    CRLF : constant Stream_Element_Array :=
             Translator.To_Stream_Element_Array (ASCII.CR & ASCII.LF);
 
-   Input_Limit : Stream_Element_Offset := AWS.Default.Input_Line_Size_Limit;
-   pragma Atomic (Input_Limit);
+   Input_Limit : Stream_Element_Offset := AWS.Default.Input_Line_Size_Limit
+     with Atomic;
 
    procedure Read (Socket : Socket_Type'Class);
    --  Refill the read-cache, the cache must be empty before the call
 
-   function Is_Empty (C : Read_Cache) return Boolean;
-   pragma Inline (Is_Empty);
+   function Is_Empty (C : Read_Cache) return Boolean with Inline;
 
    -----------
    -- Flush --
@@ -255,15 +256,12 @@ package body AWS.Net.Buffered is
    is
       use Containers.Memory_Streams;
 
-      function Buffered return Stream_Element_Array;
-      pragma Inline (Buffered);
+      function Buffered return Stream_Element_Array with Inline;
 
       procedure Finalize;
 
-      Finalizer : Utils.Finalizer (Finalize'Access);
-      pragma Unreferenced (Finalizer);
-
-      Buffer : Stream_Type;
+      Finalizer : Utils.Finalizer (Finalize'Access) with Unreferenced;
+      Buffer    : Stream_Type;
 
       --------------
       -- Buffered --

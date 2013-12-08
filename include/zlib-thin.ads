@@ -1,10 +1,12 @@
 ----------------------------------------------------------------
 --  ZLib for Ada thick binding.                               --
 --                                                            --
---  Copyright (C) 2002-2012, Dmitriy Anisimkov                --
+--  Copyright (C) 2002-2013, Dmitriy Anisimkov                --
 --                                                            --
 --  Open source license information is in the zlib.ads file.  --
 ----------------------------------------------------------------
+
+pragma Ada_2012;
 
 with Interfaces.C.Strings;
 
@@ -253,8 +255,7 @@ private package ZLib.Thin is
       method     : in Int;
       windowBits : in Int;
       memLevel   : in Int;
-      strategy   : in Int) return Int;
-   pragma Inline (Deflate_Init);
+      strategy   : in Int) return Int with Inline;
 
    function inflateInit
      (strm        : in Z_Streamp;
@@ -275,8 +276,8 @@ private package ZLib.Thin is
       stream_size : in Int) return Int;
    --  Size of window have to be 2**windowBits
 
-   function Inflate_Init (strm : in Z_Streamp; windowBits : in Int) return Int;
-   pragma Inline (Inflate_Init);
+   function Inflate_Init (strm : in Z_Streamp; windowBits : in Int) return Int
+     with Inline;
 
    function zError (err : in Int) return Chars_Ptr;
 
@@ -293,36 +294,31 @@ private package ZLib.Thin is
    procedure Set_In
      (Strm   : in out Z_Stream;
       Buffer : in Voidp;
-      Size   : in UInt);
-   pragma Inline (Set_In);
+      Size   : in UInt)
+     with Inline;
 
    procedure Set_Out
      (Strm   : in out Z_Stream;
       Buffer : in Voidp;
-      Size   : in UInt);
-   pragma Inline (Set_Out);
+      Size   : in UInt)
+     with Inline;
 
    procedure Set_Mem_Func
      (Strm   : in out Z_Stream;
       Opaque : in Voidp;
       Alloc  : in alloc_func;
-      Free   : in free_func);
-   pragma Inline (Set_Mem_Func);
+      Free   : in free_func)
+     with Inline;
 
-   function Last_Error_Message (Strm : in Z_Stream) return String;
-   pragma Inline (Last_Error_Message);
+   function Last_Error_Message (Strm : in Z_Stream) return String with Inline;
 
-   function Avail_Out (Strm : in Z_Stream) return UInt;
-   pragma Inline (Avail_Out);
+   function Avail_Out (Strm : in Z_Stream) return UInt with Inline;
 
-   function Avail_In (Strm : in Z_Stream) return UInt;
-   pragma Inline (Avail_In);
+   function Avail_In (Strm : in Z_Stream) return UInt with Inline;
 
-   function Total_In (Strm : in Z_Stream) return ULong;
-   pragma Inline (Total_In);
+   function Total_In (Strm : in Z_Stream) return ULong with Inline;
 
-   function Total_Out (Strm : in Z_Stream) return ULong;
-   pragma Inline (Total_Out);
+   function Total_Out (Strm : in Z_Stream) return ULong with Inline;
 
    function inflateCopy
      (dest   : in Z_Streamp;
@@ -358,9 +354,7 @@ private
       adler     : ULong;
       --  adler32 value of the uncompressed data
       reserved  : ULong;              -- reserved for future use
-   end record;
-
-   pragma Convention (C, Z_Stream);
+   end record with Convention => C;
 
    pragma Import (C, zlibVersion, "zlibVersion");
    pragma Import (C, Deflate, "deflate");

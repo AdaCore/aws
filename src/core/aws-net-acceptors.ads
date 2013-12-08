@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2005-2012, AdaCore                     --
+--                     Copyright (C) 2005-2013, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -27,11 +27,13 @@
 --  covered by the  GNU Public License.                                     --
 ------------------------------------------------------------------------------
 
+pragma Ada_2012;
+
 --  Waiting on a group of sockets for reading and accept new connections
 
 with Ada.Containers.Doubly_Linked_Lists;
-with Ada.Real_Time;
 with Ada.Exceptions;
+with Ada.Real_Time;
 
 with AWS.Net;
 with AWS.Net.Generic_Sets;
@@ -112,8 +114,8 @@ package AWS.Net.Acceptors is
    --  Use this routine to shutdown and free list of sockets returned from Get
    --  routine above.
 
-   function Server_Socket (Acceptor : Acceptor_Type) return Socket_Type'Class;
-   pragma Inline (Server_Socket);
+   function Server_Socket (Acceptor : Acceptor_Type) return Socket_Type'Class
+     with Inline;
    --  Returns main server accepting socket
 
    function Server_Sockets (Acceptor : Acceptor_Type) return Socket_List;
@@ -138,8 +140,7 @@ package AWS.Net.Acceptors is
    --  different task while the Get routine is blocked waiting for a
    --  socket.
 
-   function Length (Acceptor : Acceptor_Type) return Natural;
-   pragma Inline (Length);
+   function Length (Acceptor : Acceptor_Type) return Natural with Inline;
    --  Return number of sockets in the internal socket set.
    --  Note that this number include server accepting socket
    --  and one service signaling socket.

@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2003-2012, AdaCore                     --
+--                     Copyright (C) 2003-2013, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -26,6 +26,8 @@
 --  however invalidate any other reasons why the executable file  might be  --
 --  covered by the GNU Public License.                                      --
 ------------------------------------------------------------------------------
+
+pragma Ada_2012;
 
 package body AWS.Resources.Streams.ZLib is
 
@@ -151,8 +153,8 @@ package body AWS.Resources.Streams.ZLib is
    is
       procedure Get
         (Buffer : out Stream_Element_Array;
-         Last   : out Stream_Element_Offset);
-      pragma Inline (Get);
+         Last   : out Stream_Element_Offset)
+        with Inline;
       --  Generic parameter for read source data
 
       ---------

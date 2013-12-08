@@ -76,13 +76,13 @@ package body AWS.Translator is
 
    package Conversion is
 
-      function To_String (Data : Stream_Element_Array) return String;
-      pragma Inline (To_String);
+      function To_String (Data : Stream_Element_Array) return String
+        with Inline;
       --  Convert a Stream_Element_Array to a string
 
       function To_Stream_Element_Array
-        (Data : String) return Stream_Element_Array;
-      pragma Inline (To_Stream_Element_Array);
+        (Data : String) return Stream_Element_Array
+        with Inline;
       --  Convert a String to a Stream_Element_Array
 
    end Conversion;

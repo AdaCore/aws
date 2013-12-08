@@ -27,6 +27,8 @@
 --  covered by the  GNU Public License.                                     --
 ------------------------------------------------------------------------------
 
+pragma Ada_2012;
+
 --  Routines here are wrappers around standard sockets and SSL.
 --
 --  IMPORTANT: The default certificate used for the SSL connection is
@@ -110,12 +112,10 @@ package body AWS.Net.SSL is
    procedure Socket_Write (Socket : Socket_Type);
    --  Write encripted data to socket if availabe
 
-   procedure Error_If (Error : Boolean);
-   pragma Inline (Error_If);
+   procedure Error_If (Error : Boolean) with Inline;
    --  Raises Socket_Error if Error is true. Attach the SSL error message
 
-   procedure Error_If (Socket : Socket_Type; Error : Boolean);
-   pragma Inline (Error_If);
+   procedure Error_If (Socket : Socket_Type; Error : Boolean) with Inline;
    --  Raises and log Socket_Error if Error is true.
    --  Attach the SSL error message.
 
@@ -810,36 +810,33 @@ package body AWS.Net.SSL is
       F : Utils.Finalizer (Finalize'Access);
       pragma Unreferenced (F);
 
-      procedure Lock (Mode : Mode_Type; Locker : in out RW_Mutex);
-      pragma Inline (Lock);
+      procedure Lock (Mode : Mode_Type; Locker : in out RW_Mutex) with Inline;
 
       procedure Locking_Function
         (Mode : Mode_Type;
          N    : Lock_Index;
          File : Filename_Type;
-         Line : Line_Number);
-      pragma Convention (C, Locking_Function);
+         Line : Line_Number)
+        with Convention => C;
 
       function Dyn_Create
-        (File : Filename_Type; Line : Line_Number)
-         return RW_Mutex_Access;
-      pragma Convention (C, Dyn_Create);
+        (File : Filename_Type; Line : Line_Number) return RW_Mutex_Access
+        with Convention => C;
 
       procedure Dyn_Lock
         (Mode   : Mode_Type;
          Locker : RW_Mutex_Access;
          File   : Filename_Type;
-         Line   : Line_Number);
-      pragma Convention (C, Dyn_Lock);
+         Line   : Line_Number)
+        with Convention => C;
 
       procedure Dyn_Destroy
         (Locker : RW_Mutex_Access;
          File   : Filename_Type;
-         Line   : Line_Number);
-      pragma Convention (C, Dyn_Destroy);
+         Line   : Line_Number)
+        with Convention => C;
 
-      function Get_Task_Identifier return Task_Identifier;
-      pragma Convention (C, Get_Task_Identifier);
+      function Get_Task_Identifier return Task_Identifier with Convention => C;
 
       ----------------
       -- Dyn_Create --
@@ -1093,8 +1090,8 @@ package body AWS.Net.SSL is
          CRL_Filename         : String;
          Session_Cache_Size   : Positive)
       is
-         type Meth_Func is access function return TSSL.SSL_Method;
-         pragma Convention (C, Meth_Func);
+         type Meth_Func is access function return TSSL.SSL_Method
+           with Convention => C;
 
          procedure Set_Quiet_Shutdown (Value : Boolean := True);
 

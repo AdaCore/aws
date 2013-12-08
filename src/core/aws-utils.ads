@@ -27,6 +27,8 @@
 --  covered by the  GNU Public License.                                     --
 ------------------------------------------------------------------------------
 
+pragma Ada_2012;
+
 with Ada.Calendar;
 with Ada.Directories;
 with Ada.Finalization;
@@ -69,8 +71,8 @@ package AWS.Utils is
    procedure Random_String (Item : out String);
    --  Fill string by random printable characters
 
-   function Random_String (Length : Natural) return String;
-   pragma Inline (Random_String);
+   function Random_String (Length : Natural) return String
+     with Inline;
    --  Returns random string
 
    function Image (N : Natural) return String;
@@ -128,8 +130,8 @@ package AWS.Utils is
    --  Append Value into Content, append Sep before value if Content is not
    --  empty.
 
-   function Match (Str, Pattern : String) return Boolean;
-   pragma Inline (Match);
+   function Match (Str, Pattern : String) return Boolean
+     with Inline;
    --  Returns True if Pattern matches the begining of Str. The test is not
    --  case sensitive.
 
@@ -295,20 +297,20 @@ package AWS.Utils is
    No_Such_File : exception;
    --  Raised be the routines below when a file is not found
 
-   function Is_Regular_File (Filename : String) return Boolean;
-   pragma Inline (Is_Regular_File);
+   function Is_Regular_File (Filename : String) return Boolean
+     with Inline;
    --  Returns True if Filename is a regular file and is readable
 
-   function Is_Directory (Filename : String) return Boolean;
-   pragma Inline (Is_Directory);
+   function Is_Directory (Filename : String) return Boolean
+     with Inline;
    --  Returns True if Filename is a directory
 
-   function File_Size (Filename : String) return File_Size_Type;
-   pragma Inline (File_Size);
+   function File_Size (Filename : String) return File_Size_Type
+     with Inline;
    --  Returns Filename's size in bytes
 
-   function File_Time_Stamp (Filename : String) return Ada.Calendar.Time;
-   pragma Inline (File_Time_Stamp);
+   function File_Time_Stamp (Filename : String) return Ada.Calendar.Time
+     with Inline;
    --  Get the time for last modification to a file in UTC/GMT
 
    function Normalized_Directory (Directory : String) return String;

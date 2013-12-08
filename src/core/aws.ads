@@ -27,9 +27,9 @@
 --  covered by the  GNU Public License.                                     --
 ------------------------------------------------------------------------------
 
-package AWS is
+pragma Ada_2012;
 
-   pragma Pure;
+package AWS with Pure is
 
    Version      : constant String := "3.2.0w";
 

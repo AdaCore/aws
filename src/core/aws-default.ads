@@ -27,15 +27,15 @@
 --  covered by the  GNU Public License.                                     --
 ------------------------------------------------------------------------------
 
+pragma Ada_2012;
+
 --  This package contains the default AWS configuration values. These values
 --  are used to initialize the configuration objects. Users should not modify
 --  the values here, see AWS.Config.* API.
 
 with System;
 
-package AWS.Default is
-
-   pragma Pure;
+package AWS.Default with Pure is
 
    use System;
 

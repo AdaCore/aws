@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2000-2012, AdaCore                     --
+--                     Copyright (C) 2000-2013, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -27,12 +27,13 @@
 --  covered by the  GNU Public License.                                     --
 ------------------------------------------------------------------------------
 
+pragma Ada_2012;
+
 package AWS.Headers.Set is
 
    Format_Error : exception renames Headers.Format_Error;
 
-   procedure Add (Headers : in out List; Name, Value : String);
-   pragma Inline (Add);
+   procedure Add (Headers : in out List; Name, Value : String) with Inline;
    --  Add HTTP header name/value at the end of the Headers container. Note
    --  that there is no check about validity of this header. This service is
    --  provided to be able to create user-defined headers.
@@ -41,8 +42,8 @@ package AWS.Headers.Set is
      (Headers : in out List;
       Name    : String;
       Value   : String;
-      N       : Positive := 1);
-   pragma Inline (Update);
+      N       : Positive := 1)
+     with Inline;
    --  Update the N-th HTTP header Value with the given Name.
    --  The header could already have more than one value associated with
    --  this name. If there is M values with this Name, then if:
@@ -53,8 +54,7 @@ package AWS.Headers.Set is
    procedure Read (Socket : Net.Socket_Type'Class; Headers : in out List);
    --  Read and parse HTTP header from the socket
 
-   procedure Reset (Headers : in out List);
-   pragma Inline (Reset);
+   procedure Reset (Headers : in out List) with Inline;
    --  Removes all object from Headers. Headers will be reinitialized and will
    --  be ready for new use.
 

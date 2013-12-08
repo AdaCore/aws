@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2002-2012, AdaCore                     --
+--                     Copyright (C) 2002-2013, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -26,6 +26,8 @@
 --  however invalidate any other reasons why the executable file  might be  --
 --  covered by the  GNU Public License.                                     --
 ------------------------------------------------------------------------------
+
+pragma Ada_2012;
 
 --  This is the standard (non-SSL) socket support. Only the implementation of
 --  this package depends on a specific socket binding. To port AWS to another
@@ -90,8 +92,8 @@ package AWS.Net.Std is
    overriding procedure Receive
      (Socket : Socket_Type;
       Data   : out Stream_Element_Array;
-      Last   : out Stream_Element_Offset);
-   pragma Inline (Receive);
+      Last   : out Stream_Element_Offset)
+     with Inline;
 
    overriding function Pending
      (Socket : Socket_Type) return Stream_Element_Count;

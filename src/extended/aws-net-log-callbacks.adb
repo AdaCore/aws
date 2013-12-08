@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2004-2012, AdaCore                     --
+--                     Copyright (C) 2004-2013, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -27,6 +27,8 @@
 --  covered by the  GNU Public License.                                     --
 ------------------------------------------------------------------------------
 
+pragma Ada_2012;
+
 with Ada.Integer_Text_IO;
 with Ada.Strings.Fixed;
 with Ada.Strings.Maps.Constants;
@@ -39,12 +41,11 @@ package body AWS.Net.Log.Callbacks is
    procedure Put
      (File        : Text_IO.File_Type;
       Code        : Natural;
-      Binary_Mode : Boolean);
-   pragma Inline (Put);
+      Binary_Mode : Boolean)
+     with Inline;
    --  Output character C, if not printable output a single dot
 
-   procedure Put_Hex (File : Text_IO.File_Type; Code : Natural);
-   pragma Inline (Put_Hex);
+   procedure Put_Hex (File : Text_IO.File_Type; Code : Natural) with Inline;
    --  Output hex code for character C
 
    procedure Put_Header

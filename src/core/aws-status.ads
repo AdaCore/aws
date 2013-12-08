@@ -27,6 +27,8 @@
 --  covered by the  GNU Public License.                                     --
 ------------------------------------------------------------------------------
 
+pragma Ada_2012;
+
 --  This package is used to keep the HTTP protocol status. Client can then
 --  request the status for various values like the requested URI, the
 --  Content_Length and the Session ID for example.
@@ -60,103 +62,82 @@ package AWS.Status is
    -- Request-Line --
    ------------------
 
-   function Method                 (D : Data) return Request_Method;
-   pragma Inline (Method);
+   function Method       (D : Data) return Request_Method with Inline;
    --  Returns the request method
 
-   function Method                 (D : Data) return String;
-   pragma Inline (Method);
+   function Method       (D : Data) return String with Inline;
    --  Returns the request method as a String. Useful to get the method String
    --  for an extension-method, ie a method that is not already predefined
    --  in the RFC 2616.
 
-   function URI                    (D : Data) return String;
-   pragma Inline (URI);
+   function URI          (D : Data) return String with Inline;
    --  Returns the requested resource
 
-   function URI                    (D : Data) return URL.Object;
-   pragma Inline (URI);
+   function URI          (D : Data) return URL.Object with Inline;
    --  As above but return an URL object
 
-   function URL                    (D : Data) return String;
-   pragma Inline (URL);
+   function URL          (D : Data) return String with Inline;
    --  Returns the requested URL
 
-   function Parameters             (D : Data) return Parameters.List;
-   pragma Inline (Parameters);
+   function Parameters   (D : Data) return Parameters.List with Inline;
    --  Returns the list of parameters for the request. This list can be empty
    --  if there was no form or URL parameters.
 
    function Parameter
-     (D : Data; Name : String; N : Positive := 1) return String;
-   pragma Inline (Parameter);
+     (D : Data; Name : String; N : Positive := 1) return String with Inline;
 
-   function HTTP_Version           (D : Data) return String;
-   pragma Inline (HTTP_Version);
+   function HTTP_Version (D : Data) return String with Inline;
    --  Returns the HTTP version used by the client
 
-   function Request_Time           (D : Data) return Ada.Calendar.Time;
-   pragma Inline (Request_Time);
+   function Request_Time (D : Data) return Ada.Calendar.Time with Inline;
    --  Returns the time of the request
 
-   function Request_Time           (D : Data) return Ada.Real_Time.Time;
-   pragma Inline (Request_Time);
+   function Request_Time (D : Data) return Ada.Real_Time.Time with Inline;
 
    ------------
    -- Header --
    ------------
 
-   function Header                 (D : Data) return Headers.List;
-   pragma Inline (Header);
+   function Header            (D : Data) return Headers.List with Inline;
    --  Returns the list of header lines for the request
 
-   function Accept_Encoding        (D : Data) return String;
-   pragma Inline (Accept_Encoding);
+   function Accept_Encoding   (D : Data) return String with Inline;
    --  Get the value for "Accept-Encoding:" header
 
-   function Connection             (D : Data) return String;
-   pragma Inline (Connection);
+   function Connection        (D : Data) return String with Inline;
    --  Get the value for "Connection:" header
 
-   function Content_Length         (D : Data) return Natural;
-   pragma Inline (Content_Length);
+   function Content_Length    (D : Data) return Natural with Inline;
    --  Get the value for "Content-Length:" header, this is the number of
    --  bytes in the message body.
 
-   function Content_Type           (D : Data) return String;
-   pragma Inline (Content_Type);
+   function Content_Type      (D : Data) return String with Inline;
    --  Get value for "Content-Type:" header
 
-   function Expect                 (D : Data) return String;
-   pragma Inline (Expect);
+   function Expect            (D : Data) return String with Inline;
    --  Get value for "Expect:" header
 
-   function Host                   (D : Data) return String;
-   pragma Inline (Host);
+   function Host              (D : Data) return String with Inline;
    --  Get value for "Host:" header
 
-   function If_Modified_Since      (D : Data) return String;
-   pragma Inline (If_Modified_Since);
+   function If_Modified_Since (D : Data) return String with Inline;
    --  Get value for "If-Modified-Since:" header
 
-   function Keep_Alive             (D : Data) return Boolean;
-   pragma Inline (Keep_Alive);
+   function Keep_Alive        (D : Data) return Boolean with Inline;
    --  Returns the flag if the current HTTP connection is keep-alive
 
-   function User_Agent             (D : Data) return String;
-   pragma Inline (User_Agent);
+   function User_Agent        (D : Data) return String with Inline;
    --  Get value for "User-Agent:" header
 
-   function Referer                (D : Data) return String;
-   pragma Inline (Referer);
+   function Referer           (D : Data) return String with Inline;
    --  Get value for "Referer:" header
 
-   function Cache_Control          (D : Data) return Messages.Cache_Option;
-   pragma Inline (Cache_Control);
+   function Cache_Control     (D : Data) return Messages.Cache_Option
+     with Inline;
    --  Get value for "Cache-Control:" header
 
-   function Cache_Control (D : Data) return Messages.Cache_Data;
-   pragma Inline (Cache_Control);
+   function Cache_Control     (D : Data) return Messages.Cache_Data
+     with Inline;
    --  Returns the cache control data specified for the request
 
    function Is_Supported
@@ -164,49 +145,42 @@ package AWS.Status is
       Encoding : Messages.Content_Encoding) return Boolean;
    --  Returns True if the content encoding scheme is sported by the client
 
-   function Preferred_Coding (D : Data) return Messages.Content_Encoding;
+   function Preferred_Coding  (D : Data) return Messages.Content_Encoding;
    --  Returns supported by AWS coding preferred by client from the
    --  Accept-Coding header.
 
-   function Upgrade (D : Data) return String;
-   pragma Inline (Upgrade);
+   function Upgrade           (D : Data) return String with Inline;
    --  Get value for "Upgrade:" header
 
-   function Sec_WebSocket_Key (D : Data) return String;
-   pragma Inline (Sec_WebSocket_Key);
+   function Sec_WebSocket_Key (D : Data) return String with Inline;
    --  Get value for "Sec-WebSocket-Key:" header
 
    -------------------------------------------
    -- Cross-Origin Resource Sharing Headers --
    -------------------------------------------
 
-   function Origin (D : Data) return String;
-   pragma Inline (Origin);
+   function Origin (D : Data) return String with Inline;
    --  Get value for "Origin:" header
 
-   function Access_Control_Request_Headers (D : Data) return String;
-   pragma Inline (Access_Control_Request_Headers);
+   function Access_Control_Request_Headers (D : Data) return String
+     with Inline;
    --  Get value for "Access-Control-Request-Headers:" header
 
-   function Access_Control_Request_Method (D : Data) return String;
-   pragma Inline (Access_Control_Request_Method);
+   function Access_Control_Request_Method (D : Data) return String with Inline;
    --  Get value for "Access-Control-Request-Method:" header
 
    ----------------
    -- Connection --
    ----------------
 
-   function Peername               (D : Data) return String;
-   pragma Inline (Peername);
+   function Peername (D : Data) return String with Inline;
    --  Returns the address of the peer (the IP address of the client computer)
 
-   function Socket                 (D : Data) return Net.Socket_Type'Class;
-   pragma Inline (Socket);
+   function Socket   (D : Data) return Net.Socket_Type'Class with Inline;
    --  Returns the socket used to transfer data between the client and
    --  server.
 
-   function Socket                 (D : Data) return Net.Socket_Access;
-   pragma Inline (Socket);
+   function Socket   (D : Data) return Net.Socket_Access with Inline;
    --  Returns the socket used to transfer data between the client and
    --  server. Use Socket_Access to avoid memory allocation if we would need
    --  socket access further.
@@ -215,15 +189,13 @@ package AWS.Status is
    -- Data --
    ----------
 
-   function Is_Body_Uploaded       (D : Data) return Boolean;
-   pragma Inline (Is_Body_Uploaded);
+   function Is_Body_Uploaded       (D : Data) return Boolean with Inline;
    --  Returns True if the message body has been uploaded and False if not.
    --  The reason beeing that the body size is above Upload_Size_Limit.
    --  User can upload the file using AWS.Server.Get_Message_Body, the size
    --  beeing returned by Content_Length.
 
-   function Multipart_Boundary     (D : Data) return String;
-   pragma Inline (Multipart_Boundary);
+   function Multipart_Boundary     (D : Data) return String with Inline;
    --  Get value for the boundary part in "Content-Type: ...; boundary=..."
    --  parameter. This is a string that will be used to separate each chunk of
    --  data in a multipart message.
@@ -231,49 +203,42 @@ package AWS.Status is
    subtype Stream_Element_Array is Ada.Streams.Stream_Element_Array;
    subtype Stream_Element_Offset is Ada.Streams.Stream_Element_Offset;
 
-   function Binary_Data (D : Data) return Stream_Element_Array;
-   pragma Inline (Binary_Data);
+   function Binary_Data (D : Data) return Stream_Element_Array with Inline;
    --  Returns the binary data message content.
    --  Note that only the root part of a multipart/related message is returned.
 
-   function Binary_Size (D : Data) return Stream_Element_Offset;
-   pragma Inline (Binary_Size);
+   function Binary_Size (D : Data) return Stream_Element_Offset with Inline;
    --  Returns size of the binary data message content
 
-   procedure Reset_Body_Index (D : Data);
-   pragma Inline (Reset_Body_Index);
+   procedure Reset_Body_Index (D : Data) with Inline;
    --  Reset message body read position to the start
 
    procedure Read_Body
      (D      : Data;
       Buffer : out Stream_Element_Array;
-      Last   : out Stream_Element_Offset);
-   pragma Inline (Read_Body);
+      Last   : out Stream_Element_Offset)
+     with Inline;
    --  Read a chunk of data from message body and put them into Buffer.
    --  Last is the index of the last item returned in Buffer.
 
-   function End_Of_Body (D : Data) return Boolean;
-   pragma Inline (End_Of_Body);
+   function End_Of_Body (D : Data) return Boolean with Inline;
    --  Returns true if there is no more data to read from the message body
 
    -----------------
    -- Attachments --
    -----------------
 
-   function Attachments            (D : Data) return AWS.Attachments.List;
-   pragma Inline (Attachments);
+   function Attachments (D : Data) return AWS.Attachments.List with Inline;
    --  Returns the list of Attachments for the request
 
    -------------
    -- Session --
    -------------
 
-   function Has_Session            (D : Data) return Boolean;
-   pragma Inline (Has_Session);
+   function Has_Session            (D : Data) return Boolean with Inline;
    --  Returns true if a session ID has been received
 
-   function Session                (D : Data) return Session.Id;
-   pragma Inline (Session);
+   function Session                (D : Data) return Session.Id with Inline;
    --  Returns the Session ID for the request. Raises Constraint_Error if
    --  server's session support not activated.
 
@@ -289,18 +254,15 @@ package AWS.Status is
    -- SOAP --
    ----------
 
-   function Is_SOAP                (D : Data) return Boolean;
-   pragma Inline (Is_SOAP);
+   function Is_SOAP    (D : Data) return Boolean with Inline;
    --  Returns True if it is a SOAP request. In this case SOAPAction return
    --  the SOAPAction header and Payload returns the XML SOAP Payload message.
 
-   function SOAPAction             (D : Data) return String;
-   pragma Inline (SOAPAction);
+   function SOAPAction (D : Data) return String with Inline;
    --  Get value for "SOAPAction:" parameter. This is a standard header to
    --  support SOAP over HTTP protocol.
 
-   function Payload                (D : Data) return String;
-   pragma Inline (Payload);
+   function Payload    (D : Data) return String with Inline;
    --  Returns the XML Payload message. XML payload is the actual SOAP
    --  request. This is the root part of multipart/related SOAP message.
 
@@ -324,50 +286,40 @@ package AWS.Status is
    --  The same as above, but do not distinguish wrong requests and
    --  authentication errors.
 
-   function Authorization_Mode     (D : Data) return Authorization_Type;
-   pragma Inline (Authorization_Mode);
+   function Authorization_Mode     (D : Data) return Authorization_Type
+     with Inline;
    --  Returns the type of the "Authorization:" parameter
 
-   function Authorization_Name     (D : Data) return String;
-   pragma Inline (Authorization_Name);
+   function Authorization_Name     (D : Data) return String with Inline;
    --  Returns "username" value in the "Authorization:" parameter
 
-   function Authorization_URI      (D : Data) return String;
-   pragma Inline (Authorization_URI);
+   function Authorization_URI      (D : Data) return String with Inline;
    --  Returns "uri" value in the "Authorization:" parameter
    --  Note, it could differ from HTTP URI field, for example Mozilla browser
    --  places http parameters to the authorization uri field.
 
-   function Authorization_Password (D : Data) return String;
-   pragma Inline (Authorization_Password);
+   function Authorization_Password (D : Data) return String with Inline;
    --  Returns "password" value in the "Authorization:" parameter
 
-   function Authorization_Realm    (D : Data) return String;
-   pragma Inline (Authorization_Realm);
+   function Authorization_Realm    (D : Data) return String with Inline;
    --  Returns "realm" value in the "Authorization:" parameter
 
-   function Authorization_Nonce    (D : Data) return String;
-   pragma Inline (Authorization_Nonce);
+   function Authorization_Nonce    (D : Data) return String with Inline;
    --  Returns "nonce" value in the "Authorization:" parameter
 
-   function Authorization_NC       (D : Data) return String;
-   pragma Inline (Authorization_NC);
+   function Authorization_NC       (D : Data) return String with Inline;
    --  Returns "nc" value in the "Authorization:" parameter
 
-   function Authorization_CNonce   (D : Data) return String;
-   pragma Inline (Authorization_CNonce);
+   function Authorization_CNonce   (D : Data) return String with Inline;
    --  Returns "cnonce" value in the "Authorization:" parameter
 
-   function Authorization_QOP      (D : Data) return String;
-   pragma Inline (Authorization_QOP);
+   function Authorization_QOP      (D : Data) return String with Inline;
    --  Retruns "qop" value in the "Authorization:" parameter
 
-   function Authorization_Response (D : Data) return String;
-   pragma Inline (Authorization_Response);
+   function Authorization_Response (D : Data) return String with Inline;
    --  Returns "response" value in the "Authorization:" parameter
 
-   function Authorization_Tail     (D : Data) return String;
-   pragma Inline (Authorization_Tail);
+   function Authorization_Tail     (D : Data) return String with Inline;
    --  Returns precalculated part of digest composed of
    --  Nonce, NC, CNonce, QOP, Method, URI authorization fields.
    --  To build a full authorization response you can use:

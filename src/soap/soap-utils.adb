@@ -27,6 +27,8 @@
 --  covered by the  GNU Public License.                                     --
 ------------------------------------------------------------------------------
 
+pragma Ada_2012;
+
 with Ada.Calendar;
 with Ada.Strings.Fixed;
 with Ada.Unchecked_Deallocation;
@@ -136,12 +138,10 @@ package body SOAP.Utils is
       Result : String_Access := new String (1 .. 2000);
       Last   : Integer := 0;
 
-      procedure Append (Ch : Character);
-      pragma Inline (Append);
+      procedure Append (Ch : Character) with Inline;
       --  Append Ch into Result, adjust Result size if needed
 
-      procedure Adjust_Result;
-      pragma Inline (Adjust_Result);
+      procedure Adjust_Result with Inline;
       --  Adjust final Result to the right size
 
       -------------------

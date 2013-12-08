@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                             Templates Parser                             --
 --                                                                          --
---                      Copyright (C) 2002-2012, AdaCore                    --
+--                      Copyright (C) 2002-2013, AdaCore                    --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -27,6 +27,8 @@
 --  covered by the  GNU Public License.                                     --
 ------------------------------------------------------------------------------
 
+pragma Ada_2012;
+
 --  This is the implementation to be used with AWS, it is using AWS.Resources
 --  to support embedded resources.
 
@@ -38,8 +40,7 @@ package body Templates_Parser.Input is
 
    type File_Record is new AWS.Resources.File_Type;
 
-   procedure Check_Open (File : File_Type);
-   pragma Inline (Check_Open);
+   procedure Check_Open (File : File_Type) with Inline;
    --  Check if File is opened (File variable is not null)
 
    procedure Free is new Ada.Unchecked_Deallocation (File_Record, File_Type);

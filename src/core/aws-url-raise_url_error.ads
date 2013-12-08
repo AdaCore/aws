@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2000-2012, AdaCore                     --
+--                     Copyright (C) 2000-2013, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -27,9 +27,10 @@
 --  covered by the  GNU Public License.                                     --
 ------------------------------------------------------------------------------
 
+pragma Ada_2012;
+
 --  Raises exception URL_Error, exception message contains reference to URL
 --  and the specified message.
 
-procedure AWS.URL.Raise_URL_Error (URL : String; Message : String);
-pragma No_Return (Raise_URL_Error);
-pragma Inline (Raise_URL_Error);
+procedure AWS.URL.Raise_URL_Error (URL : String; Message : String)
+  with No_Return, Inline;

@@ -27,15 +27,17 @@
 --  covered by the  GNU Public License.                                     --
 ------------------------------------------------------------------------------
 
+pragma Ada_2012;
+
 with Ada.Characters.Handling;
 with Ada.Strings.Fixed;
 
-with AWS.Resources.Streams.ZLib;
-with AWS.Translator;
+with AWS.Digest;
 with AWS.Headers.Set;
 with AWS.Headers.Values;
-with AWS.Digest;
 with AWS.Resources.Streams.Memory.ZLib;
+with AWS.Resources.Streams.ZLib;
+with AWS.Translator;
 
 with ZLib;
 
@@ -43,12 +45,10 @@ package body AWS.Response.Set is
 
    package RSM renames AWS.Resources.Streams.Memory;
 
-   procedure Check_Memory_Stream (D : in out Data);
-   pragma Inline (Check_Memory_Stream);
+   procedure Check_Memory_Stream (D : in out Data) with Inline;
    --  Test if the memory stream allocated and create it if necessary
 
-   procedure Clear_Memory_Stream (D : in out Data);
-   pragma Inline (Clear_Memory_Stream);
+   procedure Clear_Memory_Stream (D : in out Data) with Inline;
    --  Test if the memory stream allocated and create it if necessary,
    --  if the stream already created, clear it.
 
