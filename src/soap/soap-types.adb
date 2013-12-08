@@ -661,7 +661,7 @@ package body SOAP.Types is
    -----------
 
    function Image (O : Object) return String is
-      pragma Warnings (Off, O);
+      pragma Unreferenced (O);
    begin
       return "";
    end Image;
@@ -1439,109 +1439,108 @@ package body SOAP.Types is
    --------------
 
    function XML_Type (O : Object) return String is
-      pragma Warnings (Off, O);
+      pragma Unreferenced (O);
    begin
       return "";
    end XML_Type;
 
    overriding function XML_Type (O : XSD_Any_Type) return String is
-      pragma Warnings (Off, O);
    begin
       return XML_Type (O.O.O.all);
    end XML_Type;
 
    overriding function XML_Type (O : XSD_Long) return String is
-      pragma Warnings (Off, O);
+      pragma Unreferenced (O);
    begin
       return XML_Long;
    end XML_Type;
 
    overriding function XML_Type (O : XSD_Integer) return String is
-      pragma Warnings (Off, O);
+      pragma Unreferenced (O);
    begin
       return XML_Int;
    end XML_Type;
 
    overriding function XML_Type (O : XSD_Short) return String is
-      pragma Warnings (Off, O);
+      pragma Unreferenced (O);
    begin
       return XML_Short;
    end XML_Type;
 
    overriding function XML_Type (O : XSD_Byte) return String is
-      pragma Warnings (Off, O);
+      pragma Unreferenced (O);
    begin
       return XML_Byte;
    end XML_Type;
 
    overriding function XML_Type (O : XSD_Float) return String is
-      pragma Warnings (Off, O);
+      pragma Unreferenced (O);
    begin
       return XML_Float;
    end XML_Type;
 
    overriding function XML_Type (O : XSD_Double) return String is
-      pragma Warnings (Off, O);
+      pragma Unreferenced (O);
    begin
       return XML_Double;
    end XML_Type;
 
    overriding function XML_Type (O : XSD_String) return String is
-      pragma Warnings (Off, O);
+      pragma Unreferenced (O);
    begin
       return XML_String;
    end XML_Type;
 
    overriding function XML_Type (O : XSD_Boolean) return String is
-      pragma Warnings (Off, O);
+      pragma Unreferenced (O);
    begin
       return XML_Boolean;
    end XML_Type;
 
    overriding function XML_Type (O : XSD_Time_Instant) return String is
-      pragma Warnings (Off, O);
+      pragma Unreferenced (O);
    begin
       return XML_Time_Instant;
    end XML_Type;
 
    overriding function XML_Type (O : XSD_Unsigned_Long) return String is
-      pragma Warnings (Off, O);
+      pragma Unreferenced (O);
    begin
       return XML_Unsigned_Long;
    end XML_Type;
 
    overriding function XML_Type (O : XSD_Unsigned_Int) return String is
-      pragma Warnings (Off, O);
+      pragma Unreferenced (O);
    begin
       return XML_Unsigned_Int;
    end XML_Type;
 
    overriding function XML_Type (O : XSD_Unsigned_Short) return String is
-      pragma Warnings (Off, O);
+      pragma Unreferenced (O);
    begin
       return XML_Unsigned_Short;
    end XML_Type;
 
    overriding function XML_Type (O : XSD_Unsigned_Byte) return String is
-      pragma Warnings (Off, O);
+      pragma Unreferenced (O);
    begin
       return XML_Unsigned_Byte;
    end XML_Type;
 
    overriding function XML_Type (O : XSD_Null) return String is
-      pragma Warnings (Off, O);
+      pragma Unreferenced (O);
    begin
       return XML_Null;
    end XML_Type;
 
    overriding function XML_Type (O : SOAP_Base64) return String is
-      pragma Warnings (Off, O);
+      pragma Unreferenced (O);
    begin
       return XML_Base64;
    end XML_Type;
 
    overriding function XML_Type (O : SOAP_Array) return String is
-      pragma Warnings (Off, O);
+      pragma Unreferenced (O);
    begin
       return XML_Array;
    end XML_Type;
