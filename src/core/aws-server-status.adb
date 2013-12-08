@@ -113,21 +113,11 @@ package body AWS.Server.Status is
    function Local_URL (Server : HTTP) return String is
       O : URL.Object;
 
-      function Localhost return String with Inline;
-      --  Returns localhost for Server in IPv4 or IPv6
-
-      ---------------
-      -- Localhost --
-      ---------------
-
       function Localhost return String is
-      begin
-         if Is_Any_Address (Server) then
-            return Net.Localhost (Is_IPv6 (Server));
-         else
-            return Host (Server);
-         end if;
-      end Localhost;
+        (if Is_Any_Address (Server)
+         then Net.Localhost (Is_IPv6 (Server))
+         else Host (Server)) with Inline;
+      --  Returns localhost for Server in IPv4 or IPv6
 
    begin
       URL.Set.Connection_Data

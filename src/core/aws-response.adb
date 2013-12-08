@@ -318,21 +318,11 @@ package body AWS.Response is
       Disposition   : Disposition_Mode          := None;
       User_Filename : String                    := "") return Data
    is
-      function CD_Filename return String with Inline;
-      --  Returns the Content-Disposition filename
-
-      -----------------
-      -- CD_Filename --
-      -----------------
-
       function CD_Filename return String is
-      begin
-         if User_Filename = "" then
-            return Directories.Simple_Name (Filename);
-         else
-            return User_Filename;
-         end if;
-      end CD_Filename;
+        (if User_Filename = ""
+         then Directories.Simple_Name (Filename)
+         else User_Filename) with Inline;
+      --  Returns the Content-Disposition filename
 
       Result : Data;
    begin

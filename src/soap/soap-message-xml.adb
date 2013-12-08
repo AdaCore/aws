@@ -1186,19 +1186,8 @@ package body SOAP.Message.XML is
       function Is_A
         (T1_Name, T2_Name : String;
          NS               : String) return Boolean
-        with Inline;
+      is (T1_Name = Utils.With_NS (NS, T2_Name)) with Inline;
       --  Returns True if T1_Name is equal to T2_Name based on namespace
-
-      ----------
-      -- Is_A --
-      ----------
-
-      function Is_A
-        (T1_Name, T2_Name : String;
-         NS               : String) return Boolean is
-      begin
-         return T1_Name = Utils.With_NS (NS, T2_Name);
-      end Is_A;
 
    begin
       for K in Handlers'Range loop

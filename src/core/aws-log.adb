@@ -468,22 +468,12 @@ package body AWS.Log is
       Status_Code    : Messages.Status_Code;
       Content_Length : Response.Content_Length_Type)
    is
-      function Length_Image return String with Inline;
-
-      ------------------
-      -- Length_Image --
-      ------------------
+      use type Response.Content_Length_Type;
 
       function Length_Image return String is
-         use type Response.Content_Length_Type;
-      begin
-         if Content_Length = Response.Undefined_Length then
-            return "";
-         else
-            return Utils.Image (Content_Length);
-         end if;
-      end Length_Image;
-
+        (if Content_Length = Response.Undefined_Length
+         then ""
+         else Utils.Image (Content_Length)) with Inline;
    begin
       Write
         (Log, Connect_Stat, Messages.Image (Status_Code) & ' ' & Length_Image);
