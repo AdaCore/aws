@@ -595,9 +595,9 @@ package body AWS.Net.Std is
       use type C.int;
       use type C.short;
       use type C.unsigned_long;
-      use type OS_Lib.socklen_t;
-      use type OS_Lib.sa_family_t;
       use type In6_Addr;
+      use type OS_Lib.sa_family_t;
+      use type OS_Lib.socklen_t;
 
       Name : aliased Sockaddr_In6;
       Len  : aliased OS_Lib.socklen_t := Name'Size / 8;
@@ -624,8 +624,8 @@ package body AWS.Net.Std is
    overriding function Is_IPv6 (Socket : Socket_Type) return Boolean is
       use type C.int;
       use type C.short;
-      use type OS_Lib.socklen_t;
       use type OS_Lib.sa_family_t;
+      use type OS_Lib.socklen_t;
 
       Name : aliased Sockaddr_In6;
       Len  : aliased OS_Lib.socklen_t := Name'Size / 8;

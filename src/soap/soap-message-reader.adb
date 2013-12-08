@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2000-2012, AdaCore                     --
+--                     Copyright (C) 2000-2013, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -29,12 +29,12 @@
 
 --  This package is based on Tree_Reader from the XMLada package
 
+with DOM.Core.Documents;   use DOM.Core.Documents;
+with DOM.Core.Elements;    use DOM.Core.Elements;
+with DOM.Core.Nodes;       use DOM.Core.Nodes;
 with Sax.Attributes;       use Sax.Attributes;
 with Unicode;              use Unicode;
 with Unicode.CES;          use Unicode.CES;
-with DOM.Core.Nodes;       use DOM.Core.Nodes;
-with DOM.Core.Documents;   use DOM.Core.Documents;
-with DOM.Core.Elements;    use DOM.Core.Elements;
 
 with SOAP.Utils;
 

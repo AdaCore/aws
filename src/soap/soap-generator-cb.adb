@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2003-2012, AdaCore                     --
+--                     Copyright (C) 2003-2013, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -107,8 +107,7 @@ package body CB is
       Output     : WSDL.Parameters.P_Set;
       Fault      : WSDL.Parameters.P_Set)
    is
-      pragma Unreferenced
-        (SOAPAction, Namespace, Input, Output, Fault);
+      pragma Unreferenced (SOAPAction, Namespace, Input, Output, Fault);
 
       use type WSDL.Parameters.P_Set;
 
