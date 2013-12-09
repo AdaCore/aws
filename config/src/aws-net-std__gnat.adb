@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2000-2012, AdaCore                     --
+--                     Copyright (C) 2000-2013, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -29,16 +29,12 @@
 
 with Ada.Strings.Maps;
 with Ada.Unchecked_Deallocation;
+with Interfaces.C;
+
+with GNAT.Sockets;
 
 with AWS.Net.Log;
-
-pragma Warnings (Off);
---  Ignore warning about portability of the GNAT.Sockets.Constants, these
---  constants should be fairly stable.
-with GNAT.Sockets.Constants;
-pragma Warnings (On);
-
-with Interfaces.C;
+with AWS.OS_Lib;
 
 package body AWS.Net.Std is
 
@@ -227,7 +223,7 @@ package body AWS.Net.Std is
             if Events (Error) then
                Raise_Error (Std.Errno (Socket));
             elsif not Events (Output) then
-               Raise_Error (Sockets.Constants.ETIMEDOUT);
+               Raise_Error (OS_Lib.ETIMEDOUT);
             end if;
          end;
       end if;
@@ -251,7 +247,7 @@ package body AWS.Net.Std is
    overriding function Errno (Socket : Socket_Type) return Integer is
       use Sockets;
 
-      package SC renames Sockets.Constants;
+      package SC renames OS_Lib;
 
       Option : constant Option_Type :=
                  Get_Socket_Option (Socket.S.FD, Name => Error);
@@ -506,7 +502,7 @@ package body AWS.Net.Std is
       use type Sockets.Error_Type;
    begin
       return Is_Peer_Closed (Net.Socket_Type (Socket), E)
-        or else Get_Socket_Errno (E) = Sockets.Constants.ECONNRESET;
+        or else Get_Socket_Errno (E) = OS_Lib.ECONNRESET;
    end Is_Peer_Closed;
 
    ----------------
@@ -520,7 +516,7 @@ package body AWS.Net.Std is
       use type Sockets.Error_Type;
    begin
       return Is_Timeout (Net.Socket_Type (Socket), E)
-        or else Get_Socket_Errno (E) = Sockets.Constants.ETIMEDOUT;
+        or else Get_Socket_Errno (E) = OS_Lib.ETIMEDOUT;
    end Is_Timeout;
 
    ------------
