@@ -539,15 +539,165 @@ CND(ENOBUFS, "No buffer space available")
 #endif
 CND(ENOTCONN, "Socket not connected")
 
+#ifndef ESHUTDOWN
+# define ESHUTDOWN -1
+#endif
+CND(ESHUTDOWN, "Cannot send once shutdown")
+
+#ifndef ESOCKTNOSUPPORT
+# define ESOCKTNOSUPPORT -1
+#endif
+CND(ESOCKTNOSUPPORT, "Socket type not supported")
+
 #ifndef ETIMEDOUT
 # define ETIMEDOUT -1
 #endif
 CND(ETIMEDOUT, "Connection timed out")
 
+#ifndef ETOOMANYREFS
+# define ETOOMANYREFS -1
+#endif
+CND(ETOOMANYREFS, "Too many references")
+
 #ifndef EWOULDBLOCK
 # define EWOULDBLOCK -1
 #endif
 CND(EWOULDBLOCK, "Operation would block")
+
+#ifndef ECONNRESET
+# define ECONNRESET -1
+#endif
+CND(ECONNRESET, "Connection reset by peer")
+
+#ifndef EACCES
+# define EACCES -1
+#endif
+CND(EACCES, "Permission denied")
+
+#ifndef EADDRINUSE
+# define EADDRINUSE -1
+#endif
+CND(EADDRINUSE, "Address already in use")
+
+#ifndef EAFNOSUPPORT
+# define EAFNOSUPPORT -1
+#endif
+CND(EAFNOSUPPORT, "Addr family not supported")
+
+#ifndef EALREADY
+# define EALREADY -1
+#endif
+CND(EALREADY, "Operation in progress")
+
+#ifndef EBADF
+# define EBADF -1
+#endif
+CND(EBADF, "Bad file descriptor")
+
+#ifndef ECONNABORTED
+# define ECONNABORTED -1
+#endif
+CND(ECONNABORTED, "Connection aborted")
+
+#ifndef ECONNREFUSED
+# define ECONNREFUSED -1
+#endif
+CND(ECONNREFUSED, "Connection refused")
+
+#ifndef EDESTADDRREQ
+# define EDESTADDRREQ -1
+#endif
+CND(EDESTADDRREQ, "Destination addr required")
+
+#ifndef EFAULT
+# define EFAULT -1
+#endif
+CND(EFAULT, "Bad address")
+
+#ifndef EHOSTDOWN
+# define EHOSTDOWN -1
+#endif
+CND(EHOSTDOWN, "Host is down")
+
+#ifndef EHOSTUNREACH
+# define EHOSTUNREACH -1
+#endif
+CND(EHOSTUNREACH, "No route to host")
+
+#ifndef EIO
+# define EIO -1
+#endif
+CND(EIO, "Input output error")
+
+#ifndef EISCONN
+# define EISCONN -1
+#endif
+CND(EISCONN, "Socket already connected")
+
+#ifndef ELOOP
+# define ELOOP -1
+#endif
+CND(ELOOP, "Too many symbolic links")
+
+#ifndef EMFILE
+# define EMFILE -1
+#endif
+CND(EMFILE, "Too many open files")
+
+#ifndef EMSGSIZE
+# define EMSGSIZE -1
+#endif
+CND(EMSGSIZE, "Message too long")
+
+#ifndef EPIPE
+# define EPIPE -1
+#endif
+CND(EPIPE, "Broken pipe")
+
+#ifndef EPFNOSUPPORT
+# define EPFNOSUPPORT -1
+#endif
+CND(EPFNOSUPPORT, "Unknown protocol family")
+
+#ifndef EPROTONOSUPPORT
+# define EPROTONOSUPPORT -1
+#endif
+CND(EPROTONOSUPPORT, "Unknown protocol")
+
+#ifndef EPROTOTYPE
+# define EPROTOTYPE -1
+#endif
+CND(EPROTOTYPE, "Unknown protocol type")
+
+#ifndef ENETDOWN
+# define ENETDOWN -1
+#endif
+CND(ENETDOWN, "Network is down")
+
+#ifndef ENETRESET
+# define ENETRESET -1
+#endif
+CND(ENETRESET, "Disconn. on network reset")
+
+#ifndef ENETUNREACH
+# define ENETUNREACH -1
+#endif
+CND(ENETUNREACH, "Network is unreachable")
+
+#ifndef ENOPROTOOPT
+# define ENOPROTOOPT -1
+#endif
+CND(ENOPROTOOPT, "Protocol not available")
+
+#ifndef ENOTSOCK
+# define ENOTSOCK -1
+#endif
+CND(ENOTSOCK, "Operation on non socket")
+
+#ifndef EOPNOTSUPP
+# define EOPNOTSUPP -1
+#endif
+CND(EOPNOTSUPP, "Operation not supported")
 
 /*
 
@@ -601,6 +751,34 @@ CND(SOCK_STREAM, "Stream socket")
 # define SOCK_DGRAM -1
 #endif
 CND(SOCK_DGRAM, "Datagram socket")
+
+/*
+
+   -----------------
+   -- Host errors --
+   -----------------
+
+*/
+
+#ifndef HOST_NOT_FOUND
+# define HOST_NOT_FOUND -1
+#endif
+CND(HOST_NOT_FOUND, "Unknown host")
+
+#ifndef TRY_AGAIN
+# define TRY_AGAIN -1
+#endif
+CND(TRY_AGAIN, "Host name lookup failure")
+
+#ifndef NO_DATA
+# define NO_DATA -1
+#endif
+CND(NO_DATA, "No data record for name")
+
+#ifndef NO_RECOVERY
+# define NO_RECOVERY -1
+#endif
+CND(NO_RECOVERY, "Non recoverable errors")
 
 /*
 
