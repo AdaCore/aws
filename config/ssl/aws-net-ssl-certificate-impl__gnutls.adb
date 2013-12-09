@@ -119,8 +119,7 @@ package body AWS.Net.SSL.Certificate.Impl is
       use type Ada.Calendar.Time;
       use type C.unsigned;
 
-      function To_Time (tv_sec : TSSL.time_t) return Calendar.Time;
-      pragma Inline (To_Time);
+      function To_Time (tv_sec : TSSL.time_t) return Calendar.Time with Inline;
       --  Convert a time_t to an Ada duration
 
       function To_Hex

@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2000-2012, AdaCore                     --
+--                     Copyright (C) 2000-2013, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -27,14 +27,16 @@
 --  covered by the  GNU Public License.                                     --
 ------------------------------------------------------------------------------
 
+pragma Ada_2012;
+
 --  This package is based on Tree_Reader from the XMLada package
 
+with DOM.Core.Documents;   use DOM.Core.Documents;
+with DOM.Core.Elements;    use DOM.Core.Elements;
+with DOM.Core.Nodes;       use DOM.Core.Nodes;
 with Sax.Attributes;       use Sax.Attributes;
 with Unicode;              use Unicode;
 with Unicode.CES;          use Unicode.CES;
-with DOM.Core.Nodes;       use DOM.Core.Nodes;
-with DOM.Core.Documents;   use DOM.Core.Documents;
-with DOM.Core.Elements;    use DOM.Core.Elements;
 
 with SOAP.Utils;
 
@@ -48,9 +50,7 @@ package body SOAP.Message.Reader is
      (Handler : in out Tree_Reader;
       Ch      : Unicode.CES.Byte_Sequence)
    is
-      Tmp : Node;
-      pragma Unreferenced (Tmp);
-
+      Tmp : Node with Unreferenced;
    begin
       declare
          --  Ch comes from the SAX parser and is Utf8 encoded. We convert
@@ -105,9 +105,7 @@ package body SOAP.Message.Reader is
      (Handler : in out Tree_Reader;
       Ch      : Unicode.CES.Byte_Sequence)
    is
-      Tmp : Node;
-      pragma Unreferenced (Tmp);
-
+      Tmp : Node with Unreferenced;
    begin
       --  Ignore these white spaces at the toplevel
       if Ch'Length >= 1

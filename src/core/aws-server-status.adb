@@ -27,6 +27,8 @@
 --  covered by the  GNU Public License.                                     --
 ------------------------------------------------------------------------------
 
+pragma Ada_2012;
+
 with Ada.Strings.Unbounded;
 with GNAT.Calendar.Time_IO;
 
@@ -111,22 +113,11 @@ package body AWS.Server.Status is
    function Local_URL (Server : HTTP) return String is
       O : URL.Object;
 
-      function Localhost return String;
-      pragma Inline (Localhost);
-      --  Returns localhost for Server in IPv4 or IPv6
-
-      ---------------
-      -- Localhost --
-      ---------------
-
       function Localhost return String is
-      begin
-         if Is_Any_Address (Server) then
-            return Net.Localhost (Is_IPv6 (Server));
-         else
-            return Host (Server);
-         end if;
-      end Localhost;
+        (if Is_Any_Address (Server)
+         then Net.Localhost (Is_IPv6 (Server))
+         else Host (Server)) with Inline;
+      --  Returns localhost for Server in IPv4 or IPv6
 
    begin
       URL.Set.Connection_Data
@@ -306,22 +297,14 @@ package body AWS.Server.Status is
 
       function Slot_Table return Translate_Set is
 
-         Sock                  : Vector_Tag;
-         Phase                 : Vector_Tag;
-         Abortable             : Vector_Tag;
-         Activity_Counter      : Vector_Tag;
-         Slot_Activity_Counter : Vector_Tag;
-         Activity_Time_Stamp   : Vector_Tag;
-         Peer_Name             : Vector_Tag;
-
          --  Avoids : may be referenced before it has a value
-         pragma Warnings (Off, Sock);
-         pragma Warnings (Off, Phase);
-         pragma Warnings (Off, Abortable);
-         pragma Warnings (Off, Activity_Counter);
-         pragma Warnings (Off, Slot_Activity_Counter);
-         pragma Warnings (Off, Activity_Time_Stamp);
-         pragma Warnings (Off, Peer_Name);
+         Sock                  : Vector_Tag with Warnings => Off;
+         Phase                 : Vector_Tag with Warnings => Off;
+         Abortable             : Vector_Tag with Warnings => Off;
+         Activity_Counter      : Vector_Tag with Warnings => Off;
+         Slot_Activity_Counter : Vector_Tag with Warnings => Off;
+         Activity_Time_Stamp   : Vector_Tag with Warnings => Off;
+         Peer_Name             : Vector_Tag with Warnings => Off;
 
          Slot_Data             : Slot;
          Result                : Translate_Set;

@@ -27,6 +27,8 @@
 --  covered by the  GNU Public License.                                     --
 ------------------------------------------------------------------------------
 
+pragma Ada_2012;
+
 with AWS.Config;
 with AWS.Resources.Streams;
 
@@ -52,8 +54,7 @@ private
    --  Cleaner task --
    -------------------
 
-   task type Cleaner is
-      pragma Priority (Config.Service_Priority);
+   task type Cleaner with Priority => Config.Service_Priority is
       entry Stop;
    end Cleaner;
 

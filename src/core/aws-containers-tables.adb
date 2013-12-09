@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2000-2012, AdaCore                     --
+--                     Copyright (C) 2000-2013, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -27,6 +27,8 @@
 --  covered by the  GNU Public License.                                     --
 ------------------------------------------------------------------------------
 
+pragma Ada_2012;
+
 --  Parameters name/value are put into the Table_Type.Data field (vector). The
 --  name as a key and the numeric index as a value is placed into map for fast
 --  retrieval of all Name/Value pairs having the same name. Each value in the
@@ -49,8 +51,8 @@ package body AWS.Containers.Tables is
      (Table   : Table_Type;
       Name    : String;
       Indexes : out Name_Index_Table;
-      Found   : out Boolean);
-   pragma Inline (Get_Indexes);
+      Found   : out Boolean)
+     with Inline;
    --  Returns all Name/Value indexes for the specified name.
    --  Found is set to False if Name was not found in Table and True otherwise.
 

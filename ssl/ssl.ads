@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                            Secure Sockets Layer                          --
 --                                                                          --
---                      Copyright (C) 2000-2012, AdaCore                    --
+--                      Copyright (C) 2000-2013, AdaCore                    --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -27,11 +27,11 @@
 --  covered by the  GNU Public License.                                     --
 ------------------------------------------------------------------------------
 
+pragma Ada_2012;
+
 --  Binding to OpenSSL library
 
-package SSL is
-
-   pragma Pure;
+package SSL with Pure is
 
    --  There is only one children SSL.Thin for the thin binding to the
    --  SSL library OpenSSL. The SSL_Wrappers is independent package to stub all

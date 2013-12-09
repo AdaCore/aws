@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2006-2012, AdaCore                     --
+--                     Copyright (C) 2006-2013, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -27,6 +27,8 @@
 --  covered by the  GNU Public License.                                     --
 ------------------------------------------------------------------------------
 
+pragma Ada_2012;
+
 with Ada.Real_Time;
 with Interfaces.C;
 
@@ -38,8 +40,7 @@ package body AWS.Net.Poll_Events is
 
    subtype Timeout_Type is Interfaces.C.int;
 
-   procedure Check_Range (FD_Set : Set; Index : Positive);
-   pragma Inline (Check_Range);
+   procedure Check_Range (FD_Set : Set; Index : Positive) with Inline;
 
    procedure Wait
      (Fds : in out Set; Timeout : Timeout_Type; Result : out Integer);
@@ -145,8 +146,8 @@ package body AWS.Net.Poll_Events is
          readfds   : access FD_Set_Type;
          writefds  : access FD_Set_Type;
          exceptfds : access FD_Set_Type;
-         timeout   : access OS_Lib.Timeval) return Integer;
-      pragma Import (Stdcall, C_Select, "select");
+         timeout   : access OS_Lib.Timeval) return Integer
+        with Import => True, Convention => Stdcall, Link_Name => "select";
 
       Timeout_V : aliased OS_Lib.Timeval;
       Timeout_A : access OS_Lib.Timeval;

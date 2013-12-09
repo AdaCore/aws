@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2002-2012, AdaCore                     --
+--                     Copyright (C) 2002-2013, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -27,6 +27,8 @@
 --  covered by the  GNU Public License.                                     --
 ------------------------------------------------------------------------------
 
+pragma Ada_2012;
+
 with AWS.Net;
 
 package AWS.Response.Set is
@@ -42,8 +44,8 @@ package AWS.Response.Set is
    procedure Add_Header
      (D     : in out Data;
       Name  : String;
-      Value : String);
-   pragma Inline (Add_Header);
+      Value : String)
+     with Inline;
    --  Add header name/value to the header container.
    --  Should be used inside of server's callback when the user want
    --  to add its own header lines to the response.
@@ -52,8 +54,8 @@ package AWS.Response.Set is
      (D     : in out Data;
       Name  : String;
       Value : String;
-      N     : Positive := 1);
-   pragma Inline (Update_Header);
+      N     : Positive := 1)
+     with Inline;
    --  Update N-th header name/value in the header container.
    --  Should be used inside of server's callback when the user want
    --  to add/modify its own header lines to the response.
@@ -64,38 +66,38 @@ package AWS.Response.Set is
 
    procedure Status_Code
      (D     : in out Data;
-      Value : Messages.Status_Code);
-   pragma Inline (Status_Code);
+      Value : Messages.Status_Code)
+     with Inline;
    --  Set the status code
 
    procedure Content_Type
      (D     : in out Data;
-      Value : String);
-   pragma Inline (Content_Type);
+      Value : String)
+     with Inline;
    --  Set the MIME type for the message body
 
    procedure Expires
      (D     : in out Data;
-      Value : Calendar.Time);
-   pragma Inline (Expires);
+      Value : Calendar.Time)
+     with Inline;
    --  Set the Expires date
 
    procedure Expires
      (D     : in out Data;
-      Value : String);
-   pragma Inline (Expires);
+      Value : String)
+     with Inline;
    --  As above but with a preformatted HTTP_Date
 
    procedure Cache_Control
      (D     : in out Data;
-      Value : Messages.Cache_Option);
-   pragma Inline (Cache_Control);
+      Value : Messages.Cache_Option)
+     with Inline;
    --  Set the Cache_Control mode for the message
 
    procedure Location
      (D     : in out Data;
-      Value : String);
-   pragma Inline (Location);
+      Value : String)
+     with Inline;
    --  Set the location for the new page in the case of a moved
    --  message. Should be used with redirection 3xx status codes.
 
@@ -103,8 +105,8 @@ package AWS.Response.Set is
      (D     : in out Data;
       Realm : String;
       Mode  : Authentication_Mode := Basic;
-      Stale : Boolean             := False);
-   pragma Inline (Authentication);
+      Stale : Boolean             := False)
+     with Inline;
    --  Set the authentication mode requested by server. Set the status code to
    --  the 401.
 
@@ -122,23 +124,23 @@ package AWS.Response.Set is
 
    procedure Mode
      (D     : in out Data;
-      Value : Data_Mode);
-   pragma Inline (Mode);
+      Value : Data_Mode)
+     with Inline;
    --  Set the data mode:
    --  Header, Message, File, Stream, Socket_Taken or No_Data.
 
    procedure Filename
      (D     : in out Data;
-      Value : String);
-   pragma Inline (Filename);
+      Value : String)
+     with Inline;
    --  Set the filename which should be sent back.
    --  It also set the Mode field to File.
 
    procedure Stream
      (D        : in out Data;
       Handle   : not null access Resources.Streams.Stream_Type'Class;
-      Encoding : Messages.Content_Encoding := Messages.Identity);
-   pragma Inline (Stream);
+      Encoding : Messages.Content_Encoding := Messages.Identity)
+     with Inline;
    --  Set the user defined data stream
 
    procedure Close_Resource
@@ -161,21 +163,21 @@ package AWS.Response.Set is
 
    procedure Message_Body
      (D     : in out Data;
-      Value : Streams.Stream_Element_Array);
-   pragma Inline (Message_Body);
+      Value : Streams.Stream_Element_Array)
+     with Inline;
    --  Set message body as a binary content. Set the Mode field to Message
 
    procedure Message_Body
      (D     : in out Data;
-      Value : Strings.Unbounded.Unbounded_String);
-   pragma Inline (Message_Body);
+      Value : Strings.Unbounded.Unbounded_String)
+     with Inline;
    --  Set the message body content as a unbounded_string. Set the Mode field
    --  to Message.
 
    procedure Message_Body
      (D     : in out Data;
-      Value : String);
-   pragma Inline (Message_Body);
+      Value : String)
+     with Inline;
    --  Set the message body content as a string. Set the Mode field to Message
 
    procedure Append_Body

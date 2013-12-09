@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2003-2012, AdaCore                     --
+--                     Copyright (C) 2003-2013, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -26,6 +26,8 @@
 --  however invalidate any other reasons why the executable file  might be  --
 --  covered by the  GNU Public License.                                     --
 ------------------------------------------------------------------------------
+
+pragma Ada_2012;
 
 --  API to handle a memory stream. A memory stream is first created
 --  empty. User can add chunk of data using the Append routines. The stream
@@ -69,8 +71,7 @@ package AWS.Resources.Streams.Memory is
    overriding function End_Of_File (Resource : Stream_Type) return Boolean;
    --  Returns True if the end of the memory stream has been reached
 
-   procedure Clear (Resource : in out Stream_Type);
-   pragma Inline (Clear);
+   procedure Clear (Resource : in out Stream_Type) with Inline;
    --  Delete all data from memory stream
 
    overriding procedure Reset (Resource : in out Stream_Type);

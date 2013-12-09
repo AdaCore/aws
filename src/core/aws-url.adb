@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2000-2012, AdaCore                     --
+--                     Copyright (C) 2000-2013, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -27,12 +27,14 @@
 --  covered by the  GNU Public License.                                     --
 ------------------------------------------------------------------------------
 
-with Ada.Strings.Fixed;
-with Ada.Characters.Handling;
+pragma Ada_2012;
 
-with AWS.Utils;
+with Ada.Characters.Handling;
+with Ada.Strings.Fixed;
+
 with AWS.URL.Raise_URL_Error;
 with AWS.URL.Set;
+with AWS.Utils;
 
 package body AWS.URL is
 
@@ -40,8 +42,7 @@ package body AWS.URL is
 
    Not_Escaped : constant Escape_Code := "  ";
 
-   function Code (C : Character) return Escape_Code;
-   pragma Inline (Code);
+   function Code (C : Character) return Escape_Code with Inline;
    --  Returns hexadecimal code for character C
 
    subtype ASCII_7 is Character range Character'First .. Character'Val (127);
@@ -633,8 +634,7 @@ package body AWS.URL is
 
    function URL (URL : Object) return String is
 
-      function User_Password return String;
-      pragma Inline (User_Password);
+      function User_Password return String with Inline;
       --  Returns the user:password@ if present and the empty string otherwise
 
       -------------------

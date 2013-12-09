@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2006-2012, AdaCore                     --
+--                     Copyright (C) 2006-2013, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -26,6 +26,8 @@
 --  however invalidate any other reasons why the executable file  might be  --
 --  covered by the  GNU Public License.                                     --
 ------------------------------------------------------------------------------
+
+pragma Ada_2012;
 
 with AWS.OS_Lib;
 
@@ -69,11 +71,9 @@ private
       FD      : OS_Lib.FD_Type;
       Events  : OS_Lib.Events_Type := 0;
       REvents : OS_Lib.Events_Type := 0;
-   end record;
-   pragma Convention (C, Pollfd);
+   end record with Convention => C;
 
-   type Poll_Set is array (Positive range <>) of Pollfd;
-   pragma Convention (C, Poll_Set);
+   type Poll_Set is array (Positive range <>) of Pollfd with Convention => C;
 
    type Set (Size : Natural) is new FD_Set (Size) with record
       Length : Natural := 0;

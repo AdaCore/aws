@@ -27,6 +27,8 @@
 --  covered by the  GNU Public License.                                     --
 ------------------------------------------------------------------------------
 
+pragma Ada_2012;
+
 with Ada.Calendar;
 with Ada.Exceptions;
 with Ada.Finalization;
@@ -428,9 +430,10 @@ private
    -- Line --
    ----------
 
-   task type Line (Priority : System.Any_Priority; Stack_Size : Integer) is
-      pragma Priority (Priority);
-      pragma Storage_Size (Stack_Size);
+   task type Line (Priority : System.Any_Priority; Stack_Size : Integer)
+     with Priority    => Priority,
+          Storage_Size => Stack_Size
+   is
       entry Start (Server : HTTP; Index : Positive);
    end Line;
 

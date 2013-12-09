@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2000-2012, AdaCore                     --
+--                     Copyright (C) 2000-2013, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -27,6 +27,8 @@
 --  covered by the  GNU Public License.                                     --
 ------------------------------------------------------------------------------
 
+pragma Ada_2012;
+
 with Ada.Real_Time;
 with Ada.Streams;
 with Ada.Strings.Maps.Constants;
@@ -46,8 +48,7 @@ package body AWS.Digest is
    type Modular24_Bits is mod 2 ** 24;
    for Modular24_Bits'Size use 24;
 
-   Nonce_Idx : Modular24_Bits := Modular24_Bits'Mod (Utils.Random);
-   pragma Atomic (Nonce_Idx);
+   Nonce_Idx : Modular24_Bits := Modular24_Bits'Mod (Utils.Random) with Atomic;
 
    subtype Timestamp_String is String (1 .. 4);
    --  The timestamp string is a 24 bits Base64 encoded value

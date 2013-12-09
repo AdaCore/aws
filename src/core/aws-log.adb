@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2000-2012, AdaCore                     --
+--                     Copyright (C) 2000-2013, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -26,6 +26,8 @@
 --  however invalidate any other reasons why the executable file  might be  --
 --  covered by the  GNU Public License.                                     --
 ------------------------------------------------------------------------------
+
+pragma Ada_2012;
 
 with Ada.Calendar;
 with Ada.Command_Line;
@@ -59,8 +61,8 @@ package body AWS.Log is
    --  Write data into the log file, change log file depending on the log file
    --  split mode and Now.
 
-   function Get_Position (File : Ada.Text_IO.File_Type) return Natural;
-   pragma Inline (Get_Position);
+   function Get_Position (File : Ada.Text_IO.File_Type) return Natural
+     with Inline;
    --  Returns current write position in the text file
 
    -----------------
@@ -466,23 +468,12 @@ package body AWS.Log is
       Status_Code    : Messages.Status_Code;
       Content_Length : Response.Content_Length_Type)
    is
-      function Length_Image return String;
-      pragma Inline (Length_Image);
-
-      ------------------
-      -- Length_Image --
-      ------------------
+      use type Response.Content_Length_Type;
 
       function Length_Image return String is
-         use type Response.Content_Length_Type;
-      begin
-         if Content_Length = Response.Undefined_Length then
-            return "";
-         else
-            return Utils.Image (Content_Length);
-         end if;
-      end Length_Image;
-
+        (if Content_Length = Response.Undefined_Length
+         then ""
+         else Utils.Image (Content_Length)) with Inline;
    begin
       Write
         (Log, Connect_Stat, Messages.Image (Status_Code) & ' ' & Length_Image);
@@ -495,8 +486,7 @@ package body AWS.Log is
    is
       Now : constant Calendar.Time := Calendar.Clock;
 
-      function Authorization_Name return String;
-      pragma Inline (Authorization_Name);
+      function Authorization_Name return String with Inline;
 
       ------------------------
       -- Authorization_Name --

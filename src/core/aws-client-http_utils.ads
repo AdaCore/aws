@@ -27,6 +27,8 @@
 --  covered by the  GNU Public License.                                     --
 ------------------------------------------------------------------------------
 
+pragma Ada_2012;
+
 with AWS.Client;
 with AWS.Response;
 
@@ -143,8 +145,8 @@ package AWS.Client.HTTP_Utils is
 
    procedure Send_Header
      (Sock : Net.Socket_Type'Class;
-      Data : String);
-   pragma Inline (Send_Header);
+      Data : String)
+     with Inline;
    --  Send header Data to socket and call Debug_Message
 
    procedure Send_Header
@@ -152,8 +154,8 @@ package AWS.Client.HTTP_Utils is
       Header      : String;
       Constructor : not null access function (Value : String) return String;
       Value       : String;
-      Headers     : Header_List);
-   pragma Inline (Send_Header);
+      Headers     : Header_List)
+     with Inline;
    --  Send header to socket if this header is not present in Headers. The
    --  actual header data is given by the constructor. Call Debug_Message if
    --  header is sent.

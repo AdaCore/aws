@@ -27,6 +27,8 @@
 --  covered by the  GNU Public License.                                     --
 ------------------------------------------------------------------------------
 
+pragma Ada_2012;
+
 with Ada.Characters.Handling;
 with Ada.Exceptions;
 with Ada.Strings.Fixed;
@@ -120,14 +122,14 @@ package body SOAP.WSDL.Parser is
    procedure Add_Parameter
      (O      : in out Object'Class;
       Name   : String;
-      P_Type : Parameter_Type);
-   pragma Inline (Add_Parameter);
+      P_Type : Parameter_Type)
+     with Inline;
    --  Add parameter Name / P_Type into O using current mode (O.Mode)
 
    procedure Add_Parameter
      (O     : in out Object'Class;
-      Param : Parameters.Parameter);
-   pragma Inline (Add_Parameter);
+      Param : Parameters.Parameter)
+     with Inline;
    --  Add parameter into O using current mode (O.Mode)
 
    function Parse_Parameter

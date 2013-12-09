@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2009-2012, AdaCore                     --
+--                     Copyright (C) 2009-2013, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -27,6 +27,8 @@
 --  covered by the  GNU Public License.                                     --
 ------------------------------------------------------------------------------
 
+pragma Ada_2012;
+
 with GNAT.SHA1;
 
 private with Ada.Strings.Unbounded;
@@ -43,20 +45,18 @@ package AWS.Utils.Streams is
    overriding procedure Read
      (Stream : in out Strings;
       Item   : out Stream_Element_Array;
-      Last   : out Stream_Element_Offset);
-   pragma Inline (Read);
+      Last   : out Stream_Element_Offset)
+     with Inline;
 
    overriding procedure Write
-     (Stream : in out Strings; Item : Stream_Element_Array);
-   pragma Inline (Write);
+     (Stream : in out Strings; Item : Stream_Element_Array)
+     with Inline;
 
-   procedure Open (Stream : in out Strings'Class; Str : String);
-   pragma Inline (Open);
+   procedure Open (Stream : in out Strings'Class; Str : String) with Inline;
    --  Open a new string. Str is the initial value of the string, to which will
    --  be appended the result of 'Output.
 
-   function Value (Stream : access Strings'Class) return String;
-   pragma Inline (Value);
+   function Value (Stream : access Strings'Class) return String with Inline;
    --  Returns the stream value
 
    ------------------
@@ -69,15 +69,14 @@ package AWS.Utils.Streams is
    overriding procedure Read
      (Stream : in out SHA1;
       Item   : out Stream_Element_Array;
-      Last   : out Stream_Element_Offset);
-   pragma Inline (Read);
+      Last   : out Stream_Element_Offset)
+     with Inline;
 
    overriding procedure Write
-     (Stream : in out SHA1; Item : Stream_Element_Array);
-   pragma Inline (Write);
+     (Stream : in out SHA1; Item : Stream_Element_Array) with Inline;
 
-   function Value (Stream : access SHA1'Class) return GNAT.SHA1.Message_Digest;
-   pragma Inline (Value);
+   function Value (Stream : access SHA1'Class) return GNAT.SHA1.Message_Digest
+     with Inline;
    --  Returns the stream value
 
 private

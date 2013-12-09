@@ -27,6 +27,8 @@
 --  covered by the  GNU Public License.                                     --
 ------------------------------------------------------------------------------
 
+pragma Ada_2012;
+
 --  This package is to be used to build answer to be sent to the client
 --  browser. It is also used as the object returned from the client API. So
 --  it is either a response built on the server side or the response received
@@ -243,48 +245,41 @@ package AWS.Response is
    -- Header --
    ------------
 
-   function Header (D : Data; Name : String; N : Positive) return String;
-   pragma Inline (Header);
+   function Header (D : Data; Name : String; N : Positive) return String
+     with Inline;
    --  Return the N-th value for header Name
 
-   function Header (D : Data; Name : String) return String;
-   pragma Inline (Header);
+   function Header (D : Data; Name : String) return String with Inline;
    --  Return all values as a comma-separated string for header Name.
    --  See [RFC 2616 - 4.2] last paragraph.
 
    function Header (D : Data) return AWS.Headers.List;
 
-   procedure Send_Header (Socket : Net.Socket_Type'Class; D : Data);
-   pragma Inline (Send_Header);
+   procedure Send_Header (Socket : Net.Socket_Type'Class; D : Data)
+     with Inline;
    --  Send all header lines to the socket
 
-   function Status_Code (D : Data) return Messages.Status_Code;
-   pragma Inline (Status_Code);
+   function Status_Code (D : Data) return Messages.Status_Code with Inline;
    --  Returns the status code
 
-   function Content_Length (D : Data) return Content_Length_Type;
-   pragma Inline (Content_Length);
+   function Content_Length (D : Data) return Content_Length_Type with Inline;
    --  Returns the content length (i.e. the message body length). A value of 0
    --  indicate that there is no message body.
 
-   function Content_Type (D : Data) return String;
-   pragma Inline (Content_Type);
+   function Content_Type (D : Data) return String with Inline;
    --  Returns the MIME type for the message body
 
-   function Cache_Control (D : Data) return Messages.Cache_Option;
-   pragma Inline (Cache_Control);
+   function Cache_Control (D : Data) return Messages.Cache_Option with Inline;
    --  Returns the cache control specified for the response
 
    function Cache_Control (D : Data) return Messages.Cache_Data;
    --  As above but returns a structured record of type "Cache_Data (Request)"
    --  representing the cache options.
 
-   function Expires (D : Data) return Calendar.Time;
-   pragma Inline (Expires);
+   function Expires (D : Data) return Calendar.Time with Inline;
    --  Returns the Expires date as a time value
 
-   function Location (D : Data) return String;
-   pragma Inline (Location);
+   function Location (D : Data) return String with Inline;
    --  Returns the location for the new page in the case of a moved
    --  message. See Moved constructor above.
 
@@ -292,16 +287,13 @@ package AWS.Response is
    -- Data --
    ----------
 
-   function Mode (D : Data) return Data_Mode;
-   pragma Inline (Mode);
+   function Mode (D : Data) return Data_Mode with Inline;
    --  Returns the data mode, either Header, Message or File
 
-   function Is_Empty (D : Data) return Boolean;
-   pragma Inline (Is_Empty);
+   function Is_Empty (D : Data) return Boolean with Inline;
    --  Returns True if D.Mode is No_Data
 
-   function Message_Body (D : Data) return String;
-   pragma Inline (Message_Body);
+   function Message_Body (D : Data) return String with Inline;
    --  Returns the message body content as a string.
    --  Message_Body routines could not be used with user defined streams
    --  (see. Stream routine in this package). Constraint_Error would be raised
@@ -320,8 +312,7 @@ package AWS.Response is
       File : out AWS.Resources.File_Type);
    --  Returns the message body as a stream
 
-   function Filename (D : Data) return String;
-   pragma Inline (Filename);
+   function Filename (D : Data) return String with Inline;
    --  Returns the filename which should be sent back or the filename which
    --  was containing the response for a server response.
 
@@ -329,16 +320,13 @@ package AWS.Response is
    -- Authentication --
    --------------------
 
-   function Realm (D : Data) return String;
-   pragma Inline (Realm);
+   function Realm (D : Data) return String with Inline;
    --  Returns the Realm for the current authentication request
 
-   function Authentication (D : Data) return Authentication_Mode;
-   pragma Inline (Authentication);
+   function Authentication (D : Data) return Authentication_Mode with Inline;
    --  Returns the authentication mode requested by server
 
-   function Authentication_Stale (D : Data) return Boolean;
-   pragma Inline (Authentication_Stale);
+   function Authentication_Stale (D : Data) return Boolean with Inline;
    --  Returns the stale parameter for authentication
 
    ---------------
@@ -348,8 +336,8 @@ package AWS.Response is
    procedure Create_Resource
      (D    : in out Data;
       File : out AWS.Resources.File_Type;
-      GZip : Boolean);
-   pragma Inline (Create_Resource);
+      GZip : Boolean)
+     with Inline;
    --  Creates the resource object (either a file or in-memory object) for
    --  the data to be sent to the client. The resource should be closed after
    --  use.

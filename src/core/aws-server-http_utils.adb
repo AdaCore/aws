@@ -27,6 +27,8 @@
 --  covered by the  GNU Public License.                                     --
 ------------------------------------------------------------------------------
 
+pragma Ada_2012;
+
 with Ada.Characters.Handling;
 with Ada.Directories;
 with Ada.Streams;
@@ -486,8 +488,8 @@ package body AWS.Server.HTTP_Utils is
             --  Skip CRLF after boundary
 
             declare
-               Data : constant String := Net.Buffered.Get_Line (Sock);
-               pragma Unreferenced (Data);
+               Data : constant String := Net.Buffered.Get_Line (Sock)
+                        with Unreferenced;
             begin
                null;
             end;
@@ -647,8 +649,7 @@ package body AWS.Server.HTTP_Utils is
          --  Returns True if we have reach the end of file data
 
          procedure Write
-           (Buffer : Streams.Stream_Element_Array; Trim : Boolean);
-         pragma Inline (Write);
+           (Buffer : Streams.Stream_Element_Array; Trim : Boolean) with Inline;
          --  Write buffer to the file, handle the Device_Error exception
 
          File    : Streams.Stream_IO.File_Type;
@@ -901,8 +902,8 @@ package body AWS.Server.HTTP_Utils is
             --  Skip CRLF after boundary
 
             declare
-               Data : constant String := Net.Buffered.Get_Line (Sock);
-               pragma Unreferenced (Data);
+               Data : constant String := Net.Buffered.Get_Line (Sock)
+                        with Unreferenced;
             begin
                null;
             end;
@@ -1133,19 +1134,16 @@ package body AWS.Server.HTTP_Utils is
       procedure Cut_Command;
       --  Parse Command and set I1, I2 and I3
 
-      function Method return String;
-      pragma Inline (Method);
+      function Method return String with Inline;
       --  Returns the method
 
-      function Resource return String;
-      pragma Inline (Resource);
+      function Resource return String with Inline;
       --  Returns first parameter. parameters are separated by spaces
 
       function Parameters return String;
       --  Returns parameters if some where specified in the URI
 
-      function HTTP_Version return String;
-      pragma Inline (HTTP_Version);
+      function HTTP_Version return String with Inline;
       --  Returns second parameter. parameters are separated by spaces
 
       -----------------

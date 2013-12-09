@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2000-2012, AdaCore                     --
+--                     Copyright (C) 2000-2013, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -27,9 +27,9 @@
 --  covered by the  GNU Public License.                                     --
 ------------------------------------------------------------------------------
 
-package AWS.Services.Dispatchers is
+pragma Ada_2012;
 
-   pragma Pure;
+package AWS.Services.Dispatchers with Pure is
 
    --  Services on the Dispatcher tree are to help building big servers.
    --  Experiences shows that a lot of user's code is to check the value of a

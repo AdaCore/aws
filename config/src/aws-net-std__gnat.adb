@@ -27,6 +27,8 @@
 --  covered by the  GNU Public License.                                     --
 ------------------------------------------------------------------------------
 
+pragma Ada_2012;
+
 with Ada.Strings.Maps;
 with Ada.Unchecked_Deallocation;
 with Interfaces.C;
@@ -51,14 +53,14 @@ package body AWS.Net.Std is
    procedure Raise_Exception
      (E       : Exceptions.Exception_Occurrence;
       Routine : String;
-      Socket  : Socket_Type);
-   pragma No_Return (Raise_Exception);
+      Socket  : Socket_Type)
+     with No_Return;
    --  Raise and log exception Socket_Error with E's message and a reference to
    --  the routine name.
 
    function Get_Inet_Addr
-     (Host : String; Passive : Boolean) return Sockets.Inet_Addr_Type;
-   pragma Inline (Get_Inet_Addr);
+     (Host : String; Passive : Boolean) return Sockets.Inet_Addr_Type
+     with Inline;
    --  Returns the inet address for the given host
 
    procedure Set_Non_Blocking_Mode (Socket : Socket_Type);

@@ -27,6 +27,8 @@
 --  covered by the  GNU Public License.                                     --
 ------------------------------------------------------------------------------
 
+pragma Ada_2012;
+
 --  This is the SSL based implementation of the Net package. The implementation
 --  should depend only on AWS.Net.Std and the SSL library. It is important to
 --  not call directly a socket binding here to ease porting.
@@ -87,8 +89,8 @@ package AWS.Net.SSL is
    overriding procedure Receive
      (Socket : Socket_Type;
       Data   : out Stream_Element_Array;
-      Last   : out Stream_Element_Offset);
-   pragma Inline (Receive);
+      Last   : out Stream_Element_Offset)
+     with Inline;
 
    overriding function Pending
      (Socket : Socket_Type) return Stream_Element_Count;

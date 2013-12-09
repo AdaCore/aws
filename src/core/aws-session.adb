@@ -194,8 +194,7 @@ package body AWS.Session is
 
       Next_Run : Calendar.Time := Calendar.Clock + Check_Interval;
 
-      L_SC     : Callback;
-      pragma Atomic (L_SC);
+      L_SC     : Callback with Atomic;
       --  Local pointer to the session callback procedure. This is to ensure
       --  that there is no race condition and that the code below will not
       --  crash if SC pointer is changed.

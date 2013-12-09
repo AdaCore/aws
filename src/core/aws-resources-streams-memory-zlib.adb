@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2003-2012, AdaCore                     --
+--                     Copyright (C) 2003-2013, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -27,6 +27,8 @@
 --  covered by the GNU Public License.                                      --
 ------------------------------------------------------------------------------
 
+pragma Ada_2012;
+
 package body AWS.Resources.Streams.Memory.ZLib is
 
    procedure Flush (Resource : in out Stream_Type);
@@ -46,8 +48,7 @@ package body AWS.Resources.Streams.Memory.ZLib is
       --  Ignore the Trim parameter, because stream would be trimmed anyway
       --  in the Flush routine.
 
-      procedure Append (Item : Stream_Element_Array);
-      pragma Inline (Append);
+      procedure Append (Item : Stream_Element_Array) with Inline;
 
       ------------
       -- Append --

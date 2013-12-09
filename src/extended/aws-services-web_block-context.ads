@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2007-2012, AdaCore                     --
+--                     Copyright (C) 2007-2013, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -26,6 +26,8 @@
 --  however invalidate any other reasons why the executable file  might be  --
 --  covered by the  GNU Public License.                                     --
 ------------------------------------------------------------------------------
+
+pragma Ada_2012;
 
 with Ada.Containers.Indefinite_Hashed_Maps;
 with Ada.Strings.Hash;
@@ -75,8 +77,8 @@ package AWS.Services.Web_Block.Context is
          Value   : Data);
       --  Set key/pair value for the SID
 
-      function Get_Value (Context : Object; Name : String) return Data;
-      pragma Inline (Get_Value);
+      function Get_Value (Context : Object; Name : String) return Data
+        with Inline;
       --  Returns the Value for Key in the session SID or Null_Data if
       --  key does not exist.
 

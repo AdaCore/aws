@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2000-2012, AdaCore                     --
+--                     Copyright (C) 2000-2013, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -26,6 +26,8 @@
 --  however invalidate any other reasons why the executable file  might be  --
 --  covered by the  GNU Public License.                                     --
 ------------------------------------------------------------------------------
+
+pragma Ada_2012;
 
 with Ada.Strings.Maps;
 with Ada.Strings.Unbounded;
@@ -160,17 +162,15 @@ package AWS.URL is
    --  Pathname & Parameters.
 
    function Parameter
-     (URL : Object; Name : String; N : Positive := 1) return String;
-   pragma Inline (Parameter);
+     (URL : Object; Name : String; N : Positive := 1) return String
+     with Inline;
    --  Returns the Nth value associated with Key into Table. Returns
    --  the emptry string if key does not exist.
 
-   function Parameters (URL : Object) return AWS.Parameters.List;
-   pragma Inline (Parameters);
+   function Parameters (URL : Object) return AWS.Parameters.List with Inline;
    --  Return the parameter list associated with the URL
 
-   function Fragment (URL : Object) return String;
-   pragma Inline (Fragment);
+   function Fragment (URL : Object) return String with Inline;
    --  Return the part after the # sign (included)
 
    --

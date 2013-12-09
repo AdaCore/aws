@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2002-2012, AdaCore                     --
+--                     Copyright (C) 2002-2013, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -27,6 +27,8 @@
 --  covered by the  GNU Public License.                                     --
 ------------------------------------------------------------------------------
 
+pragma Ada_2012;
+
 --  All routines below are buffered both ways (input and output) for better
 --  performances.
 
@@ -43,8 +45,7 @@ package AWS.Net.Buffered is
    --  Write Item & CRLF into Socket's buffer. Send the buffer to the socket
    --  if full.
 
-   procedure New_Line (Socket : Socket_Type'Class);
-   pragma Inline (New_Line);
+   procedure New_Line (Socket : Socket_Type'Class) with Inline;
    --  Write CRLF into Socket's buffer. Send the buffer to the socket if full
 
    procedure Write
@@ -66,23 +67,20 @@ package AWS.Net.Buffered is
    --  avoid stack overflow on very long data returned from Get_Line and
    --  Read_Until.
 
-   procedure Set_Input_Limit (Limit : Positive);
-   pragma Inline (Set_Input_Limit);
+   procedure Set_Input_Limit (Limit : Positive) with Inline;
    --  Set the input size limit for Get_Line and Read_Until routines
 
-   function Get_Input_Limit return Stream_Element_Offset;
-   pragma Inline (Get_Input_Limit);
+   function Get_Input_Limit return Stream_Element_Offset with Inline;
    --  Get the input size limit for Get_Line and Read_Until routines
 
    procedure Read
-     (Socket : Socket_Type'Class; Data : out Stream_Element_Array);
-   pragma Inline (Read);
+     (Socket : Socket_Type'Class; Data : out Stream_Element_Array) with Inline;
    --  Returns Data array read from the socket
 
    function Read
      (Socket : Socket_Type'Class;
-      Max    : Stream_Element_Count := 4096) return Stream_Element_Array;
-   pragma Inline (Read);
+      Max    : Stream_Element_Count := 4096) return Stream_Element_Array
+     with Inline;
    --  Returns an array of bytes read from the socket
 
    procedure Read
@@ -97,12 +95,11 @@ package AWS.Net.Buffered is
    --  Returns a line read from Socket. A line is a set of character
    --  terminated by CRLF.
 
-   function Get_Char (Socket : Socket_Type'Class) return Character;
-   pragma Inline (Get_Char);
+   function Get_Char (Socket : Socket_Type'Class) return Character with Inline;
    --  Returns a single character read from socket
 
-   function Peek_Char (Socket : Socket_Type'Class) return Character;
-   pragma Inline (Peek_Char);
+   function Peek_Char (Socket : Socket_Type'Class) return Character
+     with Inline;
    --  Returns next character that will be read from Socket. It does not
    --  actually consume the character, this character will be returned by
    --  the next read operation on the socket.

@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2004-2012, AdaCore                     --
+--                     Copyright (C) 2004-2013, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -26,6 +26,8 @@
 --  however invalidate any other reasons why the executable file  might be  --
 --  covered by the  GNU Public License.                                     --
 ------------------------------------------------------------------------------
+
+pragma Ada_2012;
 
 --  Waiting on group of sockets for input/output availability
 
@@ -63,32 +65,32 @@ package AWS.Net.Generic_Sets is
    procedure Add
      (Set    : in out Socket_Set_Type;
       Socket : Socket_Type'Class;
-      Mode   : Waiting_Mode);
-   pragma Inline (Add);
+      Mode   : Waiting_Mode)
+     with Inline;
    --  Add socket to the set. Socket can be retreived from the set using
    --  Get_Socket.
 
    procedure Add
      (Set    : in out Socket_Set_Type;
       Socket : Socket_Access;
-      Mode   : Waiting_Mode);
-   pragma Inline (Add);
+      Mode   : Waiting_Mode)
+     with Inline;
    --  Add socket to the set
 
    procedure Add
      (Set    : in out Socket_Set_Type;
       Socket : Socket_Type'Class;
       Data   : Data_Type;
-      Mode   : Waiting_Mode);
-   pragma Inline (Add);
+      Mode   : Waiting_Mode)
+     with Inline;
    --  Add socket and associated data to the set
 
    procedure Add
      (Set    : in out Socket_Set_Type;
       Socket : Socket_Access;
       Data   : Data_Type;
-      Mode   : Waiting_Mode);
-   pragma Inline (Add);
+      Mode   : Waiting_Mode)
+     with Inline;
    --  Add socket and associated data to the set
 
    procedure Set_Mode
@@ -97,14 +99,13 @@ package AWS.Net.Generic_Sets is
       Mode   : Waiting_Mode);
    --  Change waiting mode for the socket in the set
 
-   function Count (Set : Socket_Set_Type) return Socket_Count;
-   pragma Inline (Count);
+   function Count (Set : Socket_Set_Type) return Socket_Count with Inline;
    --  Returns the number of sockets in the Set
 
    procedure Wait
      (Set     : in out Socket_Set_Type;
-      Timeout : Duration);
-   pragma Inline (Wait);
+      Timeout : Duration)
+     with Inline;
    --  Wait for a socket in the set to be ready for input or output operation.
    --  Raises Socket_Error if an error occurs.
 
@@ -118,8 +119,7 @@ package AWS.Net.Generic_Sets is
 
    function Is_Read_Ready
      (Set   : Socket_Set_Type;
-      Index : Socket_Index) return Boolean;
-   pragma Inline (Is_Read_Ready);
+      Index : Socket_Index) return Boolean with Inline;
    --  Return True if data could be read from socket and socket was in Input
    --  or Both waiting mode.
 
@@ -127,48 +127,43 @@ package AWS.Net.Generic_Sets is
      (Set   : Socket_Set_Type;
       Index : Socket_Index;
       Ready : out Boolean;
-      Error : out Boolean);
-   pragma Inline (Is_Read_Ready);
+      Error : out Boolean)
+     with Inline;
    --  Return True in Ready out parameter if data could be read from socket and
    --  socket was in Input or Both waiting mode. Return True in Error out
    --  parameter if socket is in error state.
 
    function Is_Write_Ready
      (Set   : Socket_Set_Type;
-      Index : Socket_Index) return Boolean;
-   pragma Inline (Is_Write_Ready);
+      Index : Socket_Index) return Boolean with Inline;
    --  Return True if data could be written to socket and socket was in Output
    --  or Both waiting mode.
 
    function Is_Error
      (Set   : Socket_Set_Type;
-      Index : Socket_Index) return Boolean;
-   pragma Inline (Is_Error);
+      Index : Socket_Index) return Boolean with Inline;
    --  Return True if any error occured with socket while waiting
 
    function In_Range
      (Set   : Socket_Set_Type;
-      Index : Socket_Index) return Boolean;
-   pragma Inline (In_Range);
+      Index : Socket_Index) return Boolean with Inline;
    --  Return True if Index is in socket set range
 
    function Get_Socket
      (Set   : Socket_Set_Type;
-      Index : Socket_Index) return Socket_Type'Class;
-   pragma Inline (Get_Socket);
+      Index : Socket_Index) return Socket_Type'Class with Inline;
    --  Return socket from the Index position or raise Constraint_Error
    --  if index is more than the number of sockets in set.
 
    function Get_Data
      (Set   : Socket_Set_Type;
-      Index : Socket_Index) return Data_Type;
-   pragma Inline (Get_Data);
+      Index : Socket_Index) return Data_Type with Inline;
 
    procedure Set_Data
      (Set   : in out Socket_Set_Type;
       Index : Socket_Index;
-      Data  : Data_Type);
-   pragma Inline (Set_Data);
+      Data  : Data_Type)
+     with Inline;
 
    procedure Remove_Socket
      (Set   : in out Socket_Set_Type;

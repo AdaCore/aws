@@ -1,10 +1,12 @@
 ----------------------------------------------------------------
 --  ZLib for Ada thick binding.                               --
 --                                                            --
---  Copyright (C) 2002-2012, Dmitriy Anisimkov                --
+--  Copyright (C) 2002-2013, Dmitriy Anisimkov                --
 --                                                            --
 --  Open source license information is in the zlib.ads file.  --
 ----------------------------------------------------------------
+
+pragma Ada_2012;
 
 with Ada.Exceptions;
 with Ada.Unchecked_Conversion;
@@ -32,12 +34,11 @@ package body ZLib is
        VERSION_ERROR);
 
    type Flate_Step_Function is access
-     function (Strm : in Thin.Z_Streamp; Flush : in Thin.Int) return Thin.Int;
-   pragma Convention (C, Flate_Step_Function);
+     function (Strm : in Thin.Z_Streamp; Flush : in Thin.Int) return Thin.Int
+   with Convention => C;
 
    type Flate_End_Function is access
-      function (Ctrm : in Thin.Z_Streamp) return Thin.Int;
-   pragma Convention (C, Flate_End_Function);
+     function (Ctrm : in Thin.Z_Streamp) return Thin.Int with Convention => C;
 
    type Flate_Type is record
       Step : Flate_Step_Function;
@@ -46,50 +47,48 @@ package body ZLib is
 
    subtype Footer_Array is Stream_Element_Array (1 .. 8);
 
-   Simple_GZip_Header : constant Stream_Element_Array (1 .. 10)
-     := (16#1f#, 16#8b#,                 --  Magic header
-         16#08#,                         --  Z_DEFLATED
-         16#00#,                         --  Flags
-         16#00#, 16#00#, 16#00#, 16#00#, --  Time
-         16#00#,                         --  XFlags
-         16#03#                          --  OS code
-        );
+   Simple_GZip_Header : constant Stream_Element_Array (1 .. 10) :=
+     (16#1f#, 16#8b#,                 --  Magic header
+      16#08#,                         --  Z_DEFLATED
+      16#00#,                         --  Flags
+      16#00#, 16#00#, 16#00#, 16#00#, --  Time
+      16#00#,                         --  XFlags
+      16#03#                          --  OS code
+     );
    --  The simplest gzip header is not for informational, but just for
    --  gzip format compatibility.
    --  Note that some code below is using assumption
    --  Simple_GZip_Header'Last > Footer_Array'Last, so do not make
    --  Simple_GZip_Header'Last <= Footer_Array'Last.
 
-   Return_Code : constant array (Thin.Int range <>) of Return_Code_Enum
-     := (0 => OK,
-         1 => STREAM_END,
-         2 => NEED_DICT,
-        -1 => ERRNO,
-        -2 => STREAM_ERROR,
-        -3 => DATA_ERROR,
-        -4 => MEM_ERROR,
-        -5 => BUF_ERROR,
-        -6 => VERSION_ERROR);
+   Return_Code : constant array (Thin.Int range <>) of Return_Code_Enum :=
+     (0 => OK,
+      1 => STREAM_END,
+      2 => NEED_DICT,
+     -1 => ERRNO,
+     -2 => STREAM_ERROR,
+     -3 => DATA_ERROR,
+     -4 => MEM_ERROR,
+     -5 => BUF_ERROR,
+     -6 => VERSION_ERROR);
 
-   Flate : constant array (Boolean) of Flate_Type
-     := (True  => (Step => Thin.Deflate'Access,
-                   Done => Thin.DeflateEnd'Access),
-         False => (Step => Thin.Inflate'Access,
-                   Done => Thin.InflateEnd'Access));
+   Flate : constant array (Boolean) of Flate_Type :=
+             (True  => (Step => Thin.Deflate'Access,
+                        Done => Thin.DeflateEnd'Access),
+              False => (Step => Thin.Inflate'Access,
+                        Done => Thin.InflateEnd'Access));
 
-   Flush_Finish : constant array (Boolean) of Flush_Mode
-     := (True => Finish, False => No_Flush);
+   Flush_Finish : constant array (Boolean) of Flush_Mode :=
+                    (True => Finish, False => No_Flush);
 
-   procedure Raise_Error (Stream : in Z_Stream);
-   pragma Inline (Raise_Error);
+   procedure Raise_Error (Stream : in Z_Stream) with Inline;
 
-   procedure Raise_Error (Message : in String);
-   pragma Inline (Raise_Error);
+   procedure Raise_Error (Message : in String) with Inline;
 
    procedure Check_Error (Stream : in Z_Stream; Code : in Thin.Int);
 
    procedure Free is new Ada.Unchecked_Deallocation
-      (Z_Stream, Z_Stream_Access);
+     (Z_Stream, Z_Stream_Access);
 
    function To_Thin_Access is new Ada.Unchecked_Conversion
      (Z_Stream_Access, Thin.Z_Streamp);
@@ -101,7 +100,7 @@ package body ZLib is
       Out_Data  :    out Ada.Streams.Stream_Element_Array;
       Out_Last  :    out Ada.Streams.Stream_Element_Offset;
       Flush     : in     Flush_Mode);
-   --  Separate translate routine for make gzip header.
+   --  Separate translate routine for make gzip header
 
    procedure Translate_Auto
      (Filter    : in out Filter_Type;
@@ -110,7 +109,7 @@ package body ZLib is
       Out_Data  :    out Ada.Streams.Stream_Element_Array;
       Out_Last  :    out Ada.Streams.Stream_Element_Offset;
       Flush     : in     Flush_Mode);
-   --  translate routine without additional headers.
+   --  translate routine without additional headers
 
    -----------------
    -- Check_Error --
@@ -209,7 +208,7 @@ package body ZLib is
          Win_Bits := -Win_Bits;
       end if;
 
-      --  For the GZip CRC calculation and make headers.
+      --  For the GZip CRC calculation and make headers
 
       if Header = GZip then
          Filter.CRC    := 0;
@@ -289,7 +288,7 @@ package body ZLib is
 
             exit Main when Stream_End (Filter);
 
-            --  The end of in buffer.
+            --  The end of in buffer
 
             exit when In_Last = Last;
 
@@ -312,7 +311,7 @@ package body ZLib is
       Win_Bits : Thin.Int := Thin.Int (Window_Bits);
 
       procedure Check_Version;
-      --  Check the latest header types compatibility.
+      --  Check the latest header types compatibility
 
       -------------------
       -- Check_Version --
@@ -343,7 +342,7 @@ package body ZLib is
          when GZip =>
             Check_Version;
 
-            --  Inflate gzip data defined by flag 16.
+            --  Inflate gzip data defined by flag 16
 
             Win_Bits := Win_Bits + 16;
          when Auto =>
@@ -566,8 +565,8 @@ package body ZLib is
 
       procedure Put_32
         (Item : in out Stream_Element_Array;
-         Data : in     Unsigned_32);
-      pragma Inline (Put_32);
+         Data : in     Unsigned_32)
+        with Inline;
 
       --------------
       -- Add_Data --

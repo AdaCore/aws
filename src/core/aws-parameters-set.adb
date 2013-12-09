@@ -27,6 +27,8 @@
 --  covered by the  GNU Public License.                                     --
 ------------------------------------------------------------------------------
 
+pragma Ada_2012;
+
 with Ada.Streams;
 with Ada.Strings.Fixed;
 
@@ -191,8 +193,7 @@ package body AWS.Parameters.Set is
    is
       use Ada.Strings;
 
-      procedure Add (Name, Value : String);
-      pragma Inline (Add);
+      procedure Add (Name, Value : String) with Inline;
       --  Add Str as parameter, check for Max_Parameters
 
       ---------

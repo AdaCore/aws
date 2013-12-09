@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2000-2012, AdaCore                     --
+--                     Copyright (C) 2000-2013, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -27,6 +27,8 @@
 --  covered by the  GNU Public License.                                     --
 ------------------------------------------------------------------------------
 
+pragma Ada_2012;
+
 package AWS.Net.Stream_IO is
 
    type Socket_Stream_Type is new Root_Stream_Type with private;
@@ -43,8 +45,7 @@ package AWS.Net.Stream_IO is
    procedure Free (Stream : in out Socket_Stream_Access);
    --  Release memory associated with the Stream
 
-   procedure Flush (Stream : Socket_Stream_Access);
-   pragma Inline (Flush);
+   procedure Flush (Stream : Socket_Stream_Access) with Inline;
    --  Send all remaining data in the stream to the peer
 
    overriding procedure Read

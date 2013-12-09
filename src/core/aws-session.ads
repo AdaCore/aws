@@ -27,6 +27,8 @@
 --  covered by the  GNU Public License.                                     --
 ------------------------------------------------------------------------------
 
+pragma Ada_2012;
+
 --  This is the API to handle session data for each client connected
 
 with Ada.Calendar;
@@ -60,12 +62,10 @@ package AWS.Session is
    --  Need to delete not used just created session to avoid too many empty
    --  session creation.
 
-   function Image (SID : Id) return String;
-   pragma Inline (Image);
+   function Image (SID : Id) return String with Inline;
    --  Return ID image
 
-   function Value (SID : String) return Id;
-   pragma Inline (Value);
+   function Value (SID : String) return Id with Inline;
    --  Build an ID from a String, returns No_Session if SID is not recongnized
    --  as an AWS session ID.
 
@@ -88,23 +88,19 @@ package AWS.Session is
    procedure Set (SID : Id; Key : String; Value : Boolean);
    --  Set key/value pair for the SID
 
-   function Get (SID : Id; Key : String) return String;
-   pragma Inline (Get);
+   function Get (SID : Id; Key : String) return String with Inline;
    --  Returns the Value for Key in the session SID or the emptry string if
    --  key does not exist.
 
-   function Get (SID : Id; Key : String) return Integer;
-   pragma Inline (Get);
+   function Get (SID : Id; Key : String) return Integer with Inline;
    --  Returns the Value for Key in the session SID or the integer value 0 if
    --  key does not exist or is not an integer.
 
-   function Get (SID : Id; Key : String) return Float;
-   pragma Inline (Get);
+   function Get (SID : Id; Key : String) return Float with Inline;
    --  Returns the Value for Key in the session SID or the float value 0.0 if
    --  key does not exist or is not a float.
 
-   function Get (SID : Id; Key : String) return Boolean;
-   pragma Inline (Get);
+   function Get (SID : Id; Key : String) return Boolean with Inline;
    --  Returns the Value for Key in the session SID or the boolean False if
    --  key does not exist or is not a boolean.
 
@@ -116,8 +112,7 @@ package AWS.Session is
       procedure Set (SID : Id; Key : String; Value : Data);
       --  Set key/value pair for the SID
 
-      function Get (SID : Id; Key : String) return Data;
-      pragma Inline (Get);
+      function Get (SID : Id; Key : String) return Data with Inline;
       --  Returns the Value for Key in the session SID or Null_Data if
       --  key does not exist.
 
@@ -218,8 +213,7 @@ private
 
    No_Session : constant Id := (others => ' ');
 
-   task type Cleaner is
-      pragma Priority (Config.Session_Cleaner_Priority);
+   task type Cleaner with Priority => Config.Session_Cleaner_Priority is
       entry Stop;
       entry Force;
    end Cleaner;

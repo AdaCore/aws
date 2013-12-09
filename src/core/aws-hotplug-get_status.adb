@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2000-2012, AdaCore                     --
+--                     Copyright (C) 2000-2013, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -27,18 +27,17 @@
 --  covered by the  GNU Public License.                                     --
 ------------------------------------------------------------------------------
 
+pragma Ada_2012;
+
 function AWS.Hotplug.Get_Status
   (Filters : Filter_Set) return Templates_Parser.Translate_Set
 is
 
    use Templates_Parser;
 
-   Regexp : Vector_Tag;
-   URL    : Vector_Tag;
-
    --  Avoid : may be referenced before it has a value
-   pragma Warnings (Off, Regexp);
-   pragma Warnings (Off, URL);
+   Regexp : Vector_Tag with Warnings => Off;
+   URL    : Vector_Tag with Warnings => Off;
 
    Result : Translate_Set;
 

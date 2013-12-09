@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2001-2012, AdaCore                     --
+--                     Copyright (C) 2001-2013, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -26,6 +26,8 @@
 --  however invalidate any other reasons why the executable file  might be  --
 --  covered by the  GNU Public License.                                     --
 ------------------------------------------------------------------------------
+
+pragma Ada_2012;
 
 --  This package contains all SOAP types supported by this implementation.
 --  Here are some notes about adding support for a new SOAP type (not a
@@ -567,11 +569,9 @@ private
       O : Object_Access;
    end record;
 
-   overriding procedure Adjust   (O : in out Object_Safe_Pointer);
-   pragma Inline (Adjust);
+   overriding procedure Adjust   (O : in out Object_Safe_Pointer) with Inline;
 
-   overriding procedure Finalize (O : in out Object_Safe_Pointer);
-   pragma Inline (Finalize);
+   overriding procedure Finalize (O : in out Object_Safe_Pointer) with Inline;
 
    --  Scalar
 
@@ -588,14 +588,11 @@ private
       O           : Object_Set_Access;
    end record;
 
-   overriding procedure Initialize (O : in out Composite);
-   pragma Inline (Initialize);
+   overriding procedure Initialize (O : in out Composite) with Inline;
 
-   overriding procedure Adjust     (O : in out Composite);
-   pragma Inline (Adjust);
+   overriding procedure Adjust     (O : in out Composite) with Inline;
 
-   overriding procedure Finalize   (O : in out Composite);
-   pragma Inline (Finalize);
+   overriding procedure Finalize   (O : in out Composite) with Inline;
 
    --  AnyType
 

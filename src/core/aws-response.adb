@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2000-2012, AdaCore                     --
+--                     Copyright (C) 2000-2013, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -27,13 +27,15 @@
 --  covered by the  GNU Public License.                                     --
 ------------------------------------------------------------------------------
 
+pragma Ada_2012;
+
 with Ada.Directories;
 with Ada.Strings.Fixed;
 
 with AWS.Headers.Set;
 with AWS.Headers.Values;
-with AWS.Resources.Streams.Memory;
 with AWS.Resources.Streams.Disk.Once;
+with AWS.Resources.Streams.Memory;
 with AWS.Response.Set;
 with AWS.Translator;
 
@@ -316,22 +318,11 @@ package body AWS.Response is
       Disposition   : Disposition_Mode          := None;
       User_Filename : String                    := "") return Data
    is
-      function CD_Filename return String;
-      pragma Inline (CD_Filename);
-      --  Returns the Content-Disposition filename
-
-      -----------------
-      -- CD_Filename --
-      -----------------
-
       function CD_Filename return String is
-      begin
-         if User_Filename = "" then
-            return Directories.Simple_Name (Filename);
-         else
-            return User_Filename;
-         end if;
-      end CD_Filename;
+        (if User_Filename = ""
+         then Directories.Simple_Name (Filename)
+         else User_Filename) with Inline;
+      --  Returns the Content-Disposition filename
 
       Result : Data;
    begin
@@ -660,8 +651,7 @@ package body AWS.Response is
       Disposition   : Disposition_Mode          := None;
       User_Filename : String                    := "") return Data
    is
-      function CD_Filename return String;
-      pragma Inline (CD_Filename);
+      function CD_Filename return String with Inline;
       --  Returns the Content-Disposition filename
 
       -----------------

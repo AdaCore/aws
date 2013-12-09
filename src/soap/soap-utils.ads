@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2000-2012, AdaCore                     --
+--                     Copyright (C) 2000-2013, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -27,13 +27,15 @@
 --  covered by the  GNU Public License.                                     --
 ------------------------------------------------------------------------------
 
+pragma Ada_2012;
+
 with Ada.Finalization;
 with Ada.Strings.Unbounded;
 
-with AWS.Status;
 with AWS.Response;
-with SOAP.Types;
+with AWS.Status;
 with SOAP.Message.Payload;
+with SOAP.Types;
 
 package SOAP.Utils is
 
@@ -65,13 +67,11 @@ package SOAP.Utils is
    -- Basic_8bit string conversion --
    ----------------------------------
 
-   function To_Utf8 (Str : String) return String;
-   pragma Inline (To_Utf8);
+   function To_Utf8 (Str : String) return String with Inline;
    function To_Utf8 (Str : Unbounded_String) return Unbounded_String;
    --  Convert the Basic_8bit encoded Str string to Utf-8
 
-   function From_Utf8 (Str : String) return String;
-   pragma Inline (From_Utf8);
+   function From_Utf8 (Str : String) return String with Inline;
    function From_Utf8 (Str : Unbounded_String) return Unbounded_String;
    function From_Utf8 (Str : String) return String_Access;
    --  Convert the Utf-8 encoded Str string to Basic_8bit

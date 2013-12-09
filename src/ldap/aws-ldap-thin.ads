@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2002-2012, AdaCore                     --
+--                     Copyright (C) 2002-2013, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -27,12 +27,14 @@
 --  covered by the  GNU Public License.                                     --
 ------------------------------------------------------------------------------
 
+pragma Ada_2012;
+
 --  Thin binding to the LDAP API (derived from ldap.h)
 
 --  This has been tested with OpenLDAP and wldap32.dll on Windows paltforms
 
-with System;
 with Interfaces.C.Strings;
+with System;
 
 package AWS.LDAP.Thin is
 
@@ -530,25 +532,30 @@ package AWS.LDAP.Thin is
 
    function ldap_init
      (host : chars_ptr;
-      port : C.int) return LDAP_Type;
+      port : C.int) return LDAP_Type
+     with Import, Convention => C;
 
    function ldap_simple_bind
      (ld     : LDAP_Type;
       who    : chars_ptr;
-      passwd : chars_ptr) return C.int;
+      passwd : chars_ptr) return C.int
+     with Import, Convention => C;
 
    function ldap_simple_bind_s
      (ld     : LDAP_Type;
       who    : chars_ptr;
-      passwd : chars_ptr) return C.int;
+      passwd : chars_ptr) return C.int
+     with Import, Convention => C;
 
    function ldap_bind_s
      (ld         : LDAP_Type;
       who        : chars_ptr;
       passwd     : chars_ptr;
-      authmethod : C.int) return C.int;
+      authmethod : C.int) return C.int
+     with Import, Convention => C;
 
-   function ldap_unbind_s (ld : LDAP_Type) return C.int;
+   function ldap_unbind_s (ld : LDAP_Type) return C.int
+     with Import, Convention => C;
 
    --  Search
 
@@ -566,7 +573,8 @@ package AWS.LDAP.Thin is
       filter    : chars_ptr;
       attrs     : C.Strings.chars_ptr_array;
       attrsonly : C.int;
-      res       : not null access LDAPMessage) return C.int;
+      res       : not null access LDAPMessage) return C.int
+     with Import, Convention => C;
 
    function ldap_search_s
      (ld        : LDAP_Type;
@@ -575,7 +583,8 @@ package AWS.LDAP.Thin is
       filter    : chars_ptr;
       attrs     : chars_ptr; -- To be able to pass a null ptr
       attrsonly : C.int;
-      res       : not null access LDAPMessage) return C.int;
+      res       : not null access LDAPMessage) return C.int
+     with Import, Convention => C;
 
    --  Add / Modify / Delete
 
@@ -598,8 +607,8 @@ package AWS.LDAP.Thin is
 
    type LDAPMods is array (C.size_t range <>)
      of aliased LDAPMod_Element_Access;
-   type LDAPMods_Access is access all LDAPMod_Element_Access;
-   pragma Convention (C, LDAPMods_Access);
+   type LDAPMods_Access is access all LDAPMod_Element_Access
+     with Convention => C;
    --  LDAPMods, array of modifications. This is the Ada representation
    --  of "LDAPMod **" on the C side. LDAPMods_Access points to the first
    --  element in the array (since we cannot pass fat-pointers to the
@@ -610,54 +619,66 @@ package AWS.LDAP.Thin is
    function ldap_add_s
      (ld    : LDAP_Type;
       dn    : chars_ptr;
-      attrs : LDAPMods_Access) return C.int;
+      attrs : LDAPMods_Access) return C.int
+     with Import, Convention => C;
 
    --  Modify
 
    function ldap_modify_s
      (ld   : LDAP_Type;
       dn   : chars_ptr;
-      mods : LDAPMods_Access) return C.int;
+      mods : LDAPMods_Access) return C.int
+     with Import, Convention => C;
 
    --  Delete
 
    function ldap_delete_s
      (ld : LDAP_Type;
-      dn : chars_ptr) return C.int;
+      dn : chars_ptr) return C.int
+     with Import, Convention => C;
 
    --  Helpers
 
    function ldap_count_entries
      (ld    : LDAP_Type;
-      chain : LDAPMessage) return C.int;
+      chain : LDAPMessage) return C.int
+     with Import, Convention => C;
 
    function ldap_first_entry
      (ld    : LDAP_Type;
-      chain : LDAPMessage) return LDAPMessage;
+      chain : LDAPMessage) return LDAPMessage
+     with Import, Convention => C;
 
    function ldap_next_entry
      (ld      : LDAP_Type;
-      entries : LDAPMessage) return LDAPMessage;
+      entries : LDAPMessage) return LDAPMessage
+     with Import, Convention => C;
 
    function ldap_get_dn
      (ld      : LDAP_Type;
-      entries : LDAPMessage) return chars_ptr;
+      entries : LDAPMessage) return chars_ptr
+     with Import, Convention => C;
 
    function ldap_first_attribute
      (ld      : LDAP_Type;
       entries : LDAPMessage;
-      ber     : not null access BerElement) return chars_ptr;
+      ber     : not null access BerElement) return chars_ptr
+     with Import, Convention => C;
 
    function ldap_next_attribute
      (ld       : LDAP_Type;
       entries  : LDAPMessage;
-      ber      : BerElement) return chars_ptr;
+      ber      : BerElement) return chars_ptr
+     with Import, Convention => C;
 
-   function ldap_msgfree (lm : LDAPMessage) return C.int;
+   function ldap_msgfree (lm : LDAPMessage) return C.int
+     with Import, Convention => C;
 
-   function ldap_msgid (lm : LDAPMessage) return C.int;
+   function ldap_msgid (lm : LDAPMessage) return C.int
+     with Import, Convention => C;
 
-   function ldap_msgtype (lm : LDAPMessage) return C.int;
+   function ldap_msgtype (lm : LDAPMessage) return C.int
+     with Import, Convention => C;
 
    subtype Attribute_Set is C.Strings.chars_ptr_array (C.size_t);
    type Attribute_Set_Access is access all Attribute_Set;
@@ -669,28 +690,35 @@ package AWS.LDAP.Thin is
 
    function Item
      (Set   : Attribute_Set_Access;
-      Index : C.int) return chars_ptr;
-   pragma Inline (Item);
+      Index : C.int) return chars_ptr
+     with Inline;
    --  Returns item at positon Index in Set
 
    function ldap_get_values
      (ld      : LDAP_Type;
       entries : LDAPMessage;
-      target  : chars_ptr) return Attribute_Set_Access;
+      target  : chars_ptr) return Attribute_Set_Access
+     with Import, Convention => C;
 
-   function ldap_count_values (V : Attribute_Set_Access) return C.int;
+   function ldap_count_values (V : Attribute_Set_Access) return C.int
+     with Import, Convention => C;
 
-   procedure ldap_value_free (V : Attribute_Set_Access);
+   procedure ldap_value_free (V : Attribute_Set_Access)
+     with Import, Convention => C;
 
-   function ldap_err2string (err : C.int) return chars_ptr;
+   function ldap_err2string (err : C.int) return chars_ptr
+     with Import, Convention => C;
 
-   function ldap_dn2ufn (dn : chars_ptr) return chars_ptr;
+   function ldap_dn2ufn (dn : chars_ptr) return chars_ptr
+     with Import, Convention => C;
 
    function ldap_explode_dn
      (dn      : chars_ptr;
-      notypes : C.int) return Attribute_Set_Access;
+      notypes : C.int) return Attribute_Set_Access
+     with Import, Convention => C;
 
-   procedure ber_free (BER : BerElement; fbuf : C.int);
+   procedure ber_free (BER : BerElement; fbuf : C.int)
+     with Import, Convention => C;
 
 private
 
@@ -707,31 +735,5 @@ private
 
    Null_LDAPMessage : constant LDAPMessage :=
                         LDAPMessage (System.Null_Address);
-
-   pragma Import (C, ldap_init);
-   pragma Import (C, ldap_simple_bind);
-   pragma Import (C, ldap_simple_bind_s);
-   pragma Import (C, ldap_bind_s);
-   pragma Import (C, ldap_unbind_s);
-   pragma Import (C, ldap_search_s);
-   pragma Import (C, ldap_add_s);
-   pragma Import (C, ldap_modify_s);
-   pragma Import (C, ldap_delete_s);
-   pragma Import (C, ldap_count_entries);
-   pragma Import (C, ldap_first_entry);
-   pragma Import (C, ldap_next_entry);
-   pragma Import (C, ldap_get_dn);
-   pragma Import (C, ldap_first_attribute);
-   pragma Import (C, ldap_next_attribute);
-   pragma Import (C, ldap_msgfree);
-   pragma Import (C, ldap_msgid);
-   pragma Import (C, ldap_msgtype);
-   pragma Import (C, ldap_get_values);
-   pragma Import (C, ldap_err2string);
-   pragma Import (C, ldap_dn2ufn);
-   pragma Import (C, ldap_explode_dn);
-   pragma Import (C, ldap_value_free);
-   pragma Import (C, ldap_count_values);
-   pragma Import (C, ber_free);
 
 end AWS.LDAP.Thin;

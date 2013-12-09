@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2006-2012, AdaCore                     --
+--                     Copyright (C) 2006-2013, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -26,6 +26,8 @@
 --  however invalidate any other reasons why the executable file  might be  --
 --  covered by the  GNU Public License.                                     --
 ------------------------------------------------------------------------------
+
+pragma Ada_2012;
 
 with Ada.Calendar;
 with Ada.Directories;
@@ -60,26 +62,24 @@ package body AWS.Net.SSL is
 
    procedure Code_Processing (Code : C.int; Socket : Socket_Type'Class);
 
-   procedure Check_Config (Socket : in out Socket_Type);
-   pragma Inline (Check_Config);
+   procedure Check_Config (Socket : in out Socket_Type) with Inline;
 
-   procedure Do_Handshake_Internal (Socket : Socket_Type);
-   pragma Inline (Do_Handshake_Internal);
+   procedure Do_Handshake_Internal (Socket : Socket_Type) with Inline;
    --  The real handshake is done here
 
    package Locking is
 
-      function Init (Item : access Mutex_Access) return C.int;
-      pragma Convention (C, Init);
+      function Init (Item : access Mutex_Access) return C.int
+        with Convention => C;
 
-      function Destroy (Item : access Mutex_Access) return C.int;
-      pragma Convention (C, Destroy);
+      function Destroy (Item : access Mutex_Access) return C.int
+        with Convention => C;
 
-      function Lock (Item : access Mutex_Access) return C.int;
-      pragma Convention (C, Lock);
+      function Lock (Item : access Mutex_Access) return C.int
+        with Convention => C;
 
-      function Unlock (Item : access Mutex_Access) return C.int;
-      pragma Convention (C, Unlock);
+      function Unlock (Item : access Mutex_Access) return C.int
+        with Convention => C;
 
    end Locking;
 
@@ -115,8 +115,8 @@ package body AWS.Net.SSL is
 
    procedure Session_Transport (Socket : in out Socket_Type);
 
-   function Verify_Callback (Session : TSSL.gnutls_session_t) return C.int;
-   pragma Convention (C, Verify_Callback);
+   function Verify_Callback (Session : TSSL.gnutls_session_t) return C.int
+     with Convention => C;
 
    procedure Finalize (Config : in out TS_SSL);
 

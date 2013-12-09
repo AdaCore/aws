@@ -1,8 +1,7 @@
 ------------------------------------------------------------------------------
 --                       Generic memory stream                              --
 --                                                                          --
---                      Copyright (C) 2003-2012                             --
---                         Dmitriy Anisimkov                                --
+--              Copyright (C) 2003-2013, Dmitriy Anisimkov                  --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -26,6 +25,8 @@
 --  covered by the  GNU Public License.                                     --
 ------------------------------------------------------------------------------
 
+pragma Ada_2012;
+
 with Ada.Unchecked_Deallocation;
 
 package body Memory_Streams is
@@ -38,11 +39,9 @@ package body Memory_Streams is
    procedure Trim_Last_Block (Stream : in out Stream_Type);
    --  Remove unused space from last buffer
 
-   function First (Item : in Buffer_Access) return Element_Index;
-   pragma Inline (First);
+   function First (Item : in Buffer_Access) return Element_Index with Inline;
 
-   function Last (Item : in Buffer_Access) return Element_Index;
-   pragma Inline (Last);
+   function Last (Item : in Buffer_Access) return Element_Index with Inline;
 
    ------------
    -- Append --

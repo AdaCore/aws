@@ -27,6 +27,8 @@
 --  covered by the  GNU Public License.                                     --
 ------------------------------------------------------------------------------
 
+pragma Ada_2012;
+
 with Ada.Streams.Stream_IO;
 with Ada.Strings.Fixed;
 with Ada.Unchecked_Deallocation;
@@ -54,8 +56,8 @@ package body AWS.POP is
 
    procedure Read_Headers
      (Sock    : AWS.Net.Socket_Type'Class;
-      Headers : out AWS.Headers.List);
-   pragma Inline (Read_Headers);
+      Headers : out AWS.Headers.List)
+     with Inline;
    --  Read headers from Sock, do not fail if a non conformant header is
    --  found. It is possible to get wrong headers in SPAMs.
 

@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2000-2012, AdaCore                     --
+--                     Copyright (C) 2000-2013, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -26,6 +26,8 @@
 --  however invalidate any other reasons why the executable file  might be  --
 --  covered by the  GNU Public License.                                     --
 ------------------------------------------------------------------------------
+
+pragma Ada_2012;
 
 with Ada.Streams.Stream_IO;
 with Ada.Strings.Fixed;
@@ -817,8 +819,8 @@ package body AWS.Client is
          ---------------
 
          procedure Skip_Line is
-            D : constant String := Net.Buffered.Get_Line (Sock);
-            pragma Warnings (Off, D);
+            D : constant String := Net.Buffered.Get_Line (Sock)
+                  with Warnings => Off;
          begin
             null;
          end Skip_Line;

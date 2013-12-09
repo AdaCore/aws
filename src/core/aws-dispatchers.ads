@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2000-2012, AdaCore                     --
+--                     Copyright (C) 2000-2013, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -26,6 +26,8 @@
 --  however invalidate any other reasons why the executable file  might be  --
 --  covered by the  GNU Public License.                                     --
 ------------------------------------------------------------------------------
+
+pragma Ada_2012;
 
 --  This package provides a service to build Callbacks which can support
 --  user's data. It is possible to build a new dispatcher by inheriting the
@@ -60,8 +62,7 @@ package AWS.Dispatchers is
 
    type Handler_Class_Access is access all Handler'Class;
 
-   procedure Free (Dispatcher : in out Handler_Class_Access);
-   pragma Inline (Free);
+   procedure Free (Dispatcher : in out Handler_Class_Access) with Inline;
    --  Release memory associated with the dispatcher
 
 private

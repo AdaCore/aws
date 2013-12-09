@@ -27,6 +27,8 @@
 --  covered by the  GNU Public License.                                     --
 ------------------------------------------------------------------------------
 
+pragma Ada_2012;
+
 --  This package is used when parsing the HTTP protocol from the client. It is
 --  used to keep the values for the currently handled HTTP parameters.
 
@@ -92,33 +94,32 @@ package AWS.Status.Set is
    procedure Parameters (D : in out Data; Set : AWS.Parameters.List);
    --  Associate the parameters in Set to the status data
 
-   procedure Parameters_From_Body (D : in out Data);
-   pragma Inline (Parameters_From_Body);
+   procedure Parameters_From_Body (D : in out Data) with Inline;
    --  Get HTTP parameters from message body for POST form processing.
    --  This routine allow to move big message body into HTTP parameters set
    --  with low stack usage.
 
-   procedure Case_Sensitive_Parameters (D : in out Data; Mode : Boolean);
-   pragma Inline (Case_Sensitive_Parameters);
+   procedure Case_Sensitive_Parameters (D : in out Data; Mode : Boolean)
+     with Inline;
 
    procedure Add_Parameter
      (D           : in out Data;
       Name, Value : String;
       Decode      : Boolean := True;
-      Replace     : Boolean := False);
-   pragma Inline (Add_Parameter);
+      Replace     : Boolean := False)
+     with Inline;
    --  Add or replace one parameter into the internal parameters list.
    --  The Name and Value should be already decoded.
    --  If Decode is true, decodes Name and Value. This is used when handling
    --  multipart/form-data for example. If Replace is True the paramater named
    --  Name will be set with Value (or added if not already present).
 
-   procedure Add_Parameters (D : in out Data; Parameters : String);
-   pragma Inline (Add_Parameters);
+   procedure Add_Parameters (D : in out Data; Parameters : String)
+     with Inline;
    --  Parse and add parameters into the internal parameters list
 
-   procedure Query (D : in out Data; Parameters : String);
-   pragma Inline (Query);
+   procedure Query (D : in out Data; Parameters : String)
+     with Inline;
    --  Query is a parameters only from request line (RFC-2616 3.2.2)
 
    procedure Binary (D : in out Data; Parameter : Stream_Element_Array);
