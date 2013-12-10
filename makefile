@@ -268,7 +268,6 @@ ifeq (${ENABLE_SHARED}, true)
 endif
 
 install-cross:
-ifneq ($(PRJ_TARGET),vxworks)
 	$(GPRINSTALL) $(GPROPTS) -p -f --prefix=$(TPREFIX) \
 		--target=$(TARGET) \
 		-XLIBRARY_TYPE=$(DEFAULT_LIBRARY_TYPE) aws.gpr
@@ -278,7 +277,6 @@ ifeq (${ENABLE_SHARED}, true)
 	$(GPRINSTALL) $(GPROPTS) -p -f --prefix=$(TPREFIX) \
 		--target=$(TARGET) -XLIBRARY_TYPE=$(OTHER_LIBRARY_TYPE) \
 		--build-name=$(OTHER_LIBRARY_TYPE) aws.gpr
-endif
 endif
 
 ifeq (${IS_CROSS}, true)
