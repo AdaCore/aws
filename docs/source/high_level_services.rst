@@ -1366,14 +1366,11 @@ used ? Don't we reference an id that does not exist anymore ?
 
 The files kinds handled are:
 
-*.css*
-*.tcss*
+*.css*, *.tcss*
   A CSS (or template CSS file). Ids and classes inside are recorded as
   CSS definitions.
 
-*.xml*
-*.html*
-*.thtml*
+*.xml*, *.html*, *.thtml*
   A meta-language document. Ids and classes inside are recorded as
   referencing a CSS definition and meta-language definition.
 
