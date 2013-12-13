@@ -2,7 +2,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                       Copyright (C) 2012, AdaCore                        --
+--                    Copyright (C) 2012-2013, AdaCore                      --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -59,13 +59,13 @@ pragma Style_Checks ("M32766");
  **     $target-gcc -DTARGET=\"$target\" -C -E \
  **        aws-os_lib-tmplt.c > aws-os_lib-tmplt.i
  **     $target-gcc -S aws-os_lib-tmplt.i
- **     xoscons
+ **     xoscons aws-os_lib
  **
  **  It is also possible to generate aws-os_lib.ads on a native environment:
  **
  **     gcc -DTARGET=\"$target\" -C -E aws-os_lib-tmplt.c > aws-os_lib-tmplt.i
  **     gcc -S aws-os_lib-tmplt.i
- **     xoscons
+ **     xoscons aws-os_lib
  **/
 
 #ifndef TARGET
