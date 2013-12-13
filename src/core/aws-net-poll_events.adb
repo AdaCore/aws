@@ -147,7 +147,7 @@ package body AWS.Net.Poll_Events is
          writefds  : access FD_Set_Type;
          exceptfds : access FD_Set_Type;
          timeout   : access OS_Lib.Timeval) return Integer
-        with Import => True, Convention => Stdcall, Link_Name => "select";
+        with Import => True, Convention => Stdcall, External_Name => "select";
 
       Timeout_V : aliased OS_Lib.Timeval;
       Timeout_A : access OS_Lib.Timeval;

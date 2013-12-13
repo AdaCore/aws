@@ -108,16 +108,16 @@ package body AWS.Net.Std is
 
    function C_Bind
      (S : C.int; Name : System.Address; Namelen : C.int) return C.int
-     with Import, Convention => Stdcall, Link_Name => "bind";
+     with Import, Convention => Stdcall, External_Name => "bind";
 
    function C_Socket (Domain, Typ, Protocol : C.int) return C.int
-     with Import, Convention => Stdcall, Link_Name => "socket";
+     with Import, Convention => Stdcall, External_Name => "socket";
 
    function C_Getsockname
      (S       : C.int;
       Name    : System.Address;
       Namelen : not null access OS_Lib.socklen_t) return C.int
-     with Import, Convention => Stdcall, Link_Name => "getsockname";
+     with Import, Convention => Stdcall, External_Name => "getsockname";
 
    function C_Getsockopt
      (S       : C.int;
@@ -125,17 +125,17 @@ package body AWS.Net.Std is
       OptName : C.int;
       OptVal  : System.Address;
       OptLen  : not null access C.int) return C.int
-     with Import, Convention => Stdcall, Link_Name => "getsockopt";
+     with Import, Convention => Stdcall, External_Name => "getsockopt";
 
    function C_Getpeername
      (S       : C.int;
       Name    : System.Address;
       Namelen : not null access OS_Lib.socklen_t) return C.int
-     with Import, Convention => Stdcall, Link_Name => "getpeername";
+     with Import, Convention => Stdcall, External_Name => "getpeername";
 
    function C_Gethostname
      (Name : System.Address; Namelen : C.int) return C.int
-     with Import, Convention => Stdcall, Link_Name => "gethostname";
+     with Import, Convention => Stdcall, External_Name => "gethostname";
 
    -------------------
    -- Accept_Socket --
@@ -150,7 +150,7 @@ package body AWS.Net.Std is
         (S       : Integer;
          Addr    : System.Address;
          Addrlen : not null access C.int) return C.int
-        with Import, Convention => Stdcall, Link_Name => "accept";
+        with Import, Convention => Stdcall, External_Name => "accept";
 
       Dummy : String (1 .. 32);
       Len   : aliased C.int := Dummy'Length;
@@ -250,7 +250,7 @@ package body AWS.Net.Std is
         (S       : C.int;
          Name    : System.Address;
          Namelen : C.int) return C.int
-        with Import, Convention => Stdcall, Link_Name => "connect";
+        with Import, Convention => Stdcall, External_Name => "connect";
 
    begin
       if Socket.S /= null then
@@ -522,7 +522,7 @@ package body AWS.Net.Std is
          serv    : CS.chars_ptr;
          servlen : C.size_t;
          flags   : C.int) return C.int
-        with Import, Convention => StdCall, Link_Name => "getnameinfo";
+        with Import, Convention => Stdcall, External_Name => "getnameinfo";
 
       Host : aliased C.char_array := (0 .. 128 => C.nul);
       Res  : constant C.int :=
@@ -669,7 +669,7 @@ package body AWS.Net.Std is
       use type C.int;
 
       function C_Listen (S : C.int; Backlog : C.int) return C.int
-        with Import, Convention => Stdcall, Link_Name => "listen";
+        with Import, Convention => Stdcall, External_Name => "listen";
 
    begin
       if C_Listen (Socket.S.FD, C.int (Queue_Size)) = Failure then
@@ -783,7 +783,7 @@ package body AWS.Net.Std is
          Msg   : System.Address;
          Len   : C.int;
          Flags : C.int) return C.int
-        with Import, Convention => Stdcall, Link_Name => "recv";
+        with Import, Convention => Stdcall, External_Name => "recv";
 
    begin
       if Lock_Set (Socket.S.RL'Access, 1) /= 0 then
@@ -841,7 +841,7 @@ package body AWS.Net.Std is
          Flags : C.int;
          To    : access Sockaddr_In6;
          Tolen : C.int) return C.int
-        with Import, Convention => StdCall, Link_Name => "sendto";
+        with Import, Convention => Stdcall, External_Name => "sendto";
 
    begin
       RC := C_Sendto
@@ -962,7 +962,7 @@ package body AWS.Net.Std is
                  Shut_Write      => OS_Lib.SHUT_WR);
 
       function C_Shutdown (S : C.int; How : C.int) return C.int
-        with Import, Convention => Stdcall, Link_Name => "shutdown";
+        with Import, Convention => Stdcall, External_Name => "shutdown";
 
    begin
       if Socket.S = null then

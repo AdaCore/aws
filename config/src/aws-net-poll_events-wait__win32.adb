@@ -51,7 +51,7 @@ is
      with Inline;
 
    function FD_ISSET (FD : OS_Lib.FD_Type; Set : FD_Set_Type) return C.int
-     with Import, Convention => Stdcall, Link_Name => "__WSAFDIsSet";
+     with Import, Convention => Stdcall, External_Name => "__WSAFDIsSet";
 
    ------------
    -- FD_SET --
