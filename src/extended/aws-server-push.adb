@@ -781,10 +781,11 @@ package body AWS.Server.Push is
                begin
                   Holder.Socket.Receive (Unexpect, Last);
                   Holder.Errmsg :=
-                     To_Unbounded_String
-                        ("Unexpected data from server push socket: "
-                         & Translator.To_String (Unexpect (1 .. Last)));
+                    To_Unbounded_String
+                      ("Unexpected data from server push socket: "
+                       & Translator.To_String (Unexpect (1 .. Last)));
                   Net.Log.Error (Holder.Socket.all, To_String (Holder.Errmsg));
+
                exception
                   when E : Socket_Error =>
                      Holder.Errmsg :=
@@ -1180,7 +1181,6 @@ package body AWS.Server.Push is
          else
             Waiter_Command (Server, Duplicated, Shutdown);
          end if;
-
       end if;
 
       begin
