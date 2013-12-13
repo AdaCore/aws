@@ -127,8 +127,38 @@ package AWS.OS_Lib is
    ENAMETOOLONG         : constant := 26;    --  Name too long
    ENOBUFS              : constant := 55;    --  No buffer space available
    ENOTCONN             : constant := 57;    --  Socket not connected
+   ESHUTDOWN            : constant := 58;    --  Cannot send once shutdown
+   ESOCKTNOSUPPORT      : constant := 44;    --  Socket type not supported
    ETIMEDOUT            : constant := 60;    --  Connection timed out
+   ETOOMANYREFS         : constant := 59;    --  Too many references
    EWOULDBLOCK          : constant := 70;    --  Operation would block
+   ECONNRESET           : constant := 54;    --  Connection reset by peer
+   EACCES               : constant := 13;    --  Permission denied
+   EADDRINUSE           : constant := 48;    --  Address already in use
+   EAFNOSUPPORT         : constant := 47;    --  Addr family not supported
+   EALREADY             : constant := 69;    --  Operation in progress
+   EBADF                : constant := 9;     --  Bad file descriptor
+   ECONNABORTED         : constant := 53;    --  Connection aborted
+   ECONNREFUSED         : constant := 61;    --  Connection refused
+   EDESTADDRREQ         : constant := 40;    --  Destination addr required
+   EFAULT               : constant := 14;    --  Bad address
+   EHOSTDOWN            : constant := 67;    --  Host is down
+   EHOSTUNREACH         : constant := 65;    --  No route to host
+   EIO                  : constant := 5;     --  Input output error
+   EISCONN              : constant := 56;    --  Socket already connected
+   ELOOP                : constant := 64;    --  Too many symbolic links
+   EMFILE               : constant := 24;    --  Too many open files
+   EMSGSIZE             : constant := 36;    --  Message too long
+   EPIPE                : constant := 32;    --  Broken pipe
+   EPFNOSUPPORT         : constant := 46;    --  Unknown protocol family
+   EPROTONOSUPPORT      : constant := 43;    --  Unknown protocol
+   EPROTOTYPE           : constant := 41;    --  Unknown protocol type
+   ENETDOWN             : constant := 62;    --  Network is down
+   ENETRESET            : constant := 52;    --  Disconn. on network reset
+   ENETUNREACH          : constant := 51;    --  Network is unreachable
+   ENOPROTOOPT          : constant := 42;    --  Protocol not available
+   ENOTSOCK             : constant := 50;    --  Operation on non socket
+   EOPNOTSUPP           : constant := 45;    --  Operation not supported
 
    --------------
    -- Families --
@@ -144,6 +174,15 @@ package AWS.OS_Lib is
 
    SOCK_STREAM          : constant := 1;     --  Stream socket
    SOCK_DGRAM           : constant := 2;     --  Datagram socket
+
+   -----------------
+   -- Host errors --
+   -----------------
+
+   HOST_NOT_FOUND       : constant := 1;     --  Unknown host
+   TRY_AGAIN            : constant := 2;     --  Host name lookup failure
+   NO_DATA              : constant := 4;     --  No data record for name
+   NO_RECOVERY          : constant := 3;     --  Non recoverable errors
 
    --------------------
    -- Shutdown modes --
