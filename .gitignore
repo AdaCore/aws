@@ -9,7 +9,6 @@
 demos/web_block_ajax_templates/code.ada
 demos/web_block_ajax_templates/wblocks*
 docs/build
-docs/genout
 docs/source/confvars.py
 docs/style-guide.html
 docs/style-guide.info
