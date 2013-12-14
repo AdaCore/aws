@@ -147,6 +147,10 @@ Here are a short description of them:
 *auth*
   A simple program to test the Web Basic and Digest authentication feature.
 
+*autobahn*
+  A demo to validate the WebSocket implementation against the autobahn
+  test suite.
+
 *cert*
   A secure server using a Certificate Authority and validating clients
   with certificate. This is the highest security level possible.
@@ -241,6 +245,9 @@ Here are a short description of them:
 
 *ws*
   A static Web page server and push enabled server.
+
+*ws_candy*
+  A WebSocket demo using many of the WebSocket's features.
 
 *zdemo*
   A simple demo of the Gzip content encoding feature.
