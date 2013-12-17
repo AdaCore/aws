@@ -75,7 +75,7 @@ def gnatmake(prj):
     if Env().is_cross:
         if Env().target.os.name.startswith('vxworks'):
             cmd.append('-XPLATFORM=vxworks')
-    cmd = cmd + ["-p", "-gnat05", "-P" + prj, "-bargs", "-E"]
+    cmd = cmd + ["-p", "-gnat2012", "-P" + prj, "-bargs", "-E"]
     process = Run(cmd)
     if process.status:
         logging.error(process.out)
@@ -83,7 +83,7 @@ def gnatmake(prj):
 
 def gprbuild(prj):
     """Compile a project with gprbuild"""
-    cmd = ["gprbuild", "-p", "-gnat05", "-P" + prj, "-bargs", "-E"]
+    cmd = ["gprbuild", "-p", "-gnat2012", "-P" + prj, "-bargs", "-E"]
     if Env().testsuite_config.with_gprof:
         cmd = cmd + ["-cargs", "-pg", "-O2", "-largs", "-pg"]
     process = Run(cmd)
