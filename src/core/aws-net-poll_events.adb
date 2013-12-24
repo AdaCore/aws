@@ -399,7 +399,7 @@ package body AWS.Net.Poll_Events is
 
          if Errno = OS_Lib.EINTR then
             if C_Timeout >= 0 then
-               Poll_Timeout := Timeout - To_Duration (Stamp - Clock);
+               Poll_Timeout := Timeout - To_Duration (Clock - Stamp);
 
                if Poll_Timeout < 0.0 then
                   Count := 0;
