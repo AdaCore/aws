@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2000-2013, AdaCore                     --
+--                     Copyright (C) 2000-2014, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -98,6 +98,9 @@ package body AWS.Net.SSL is
       CRL_File       : C.Strings.chars_ptr := C.Strings.Null_Ptr;
       CRL_Time_Stamp : Calendar.Time := Utils.AWS_Epoch;
    end TS_SSL;
+
+   type Memory_Access is access all
+     Stream_Element_Array (1 .. Stream_Element_Offset'Last);
 
    Default_Config : constant Config := new TS_SSL;
 
@@ -723,9 +726,6 @@ package body AWS.Net.SSL is
    procedure Socket_Read (Socket : Socket_Type) is
       use TSSL;
 
-      type Memory_Access is access all
-        Stream_Element_Array (1 .. Stream_Element_Offset'Last);
-
       Data : aliased Memory_Access;
       Len  : Stream_Element_Offset;
       Last : Stream_Element_Offset;
@@ -749,21 +749,20 @@ package body AWS.Net.SSL is
 
    procedure Socket_Write (Socket : Socket_Type) is
       use TSSL;
-      type Memory_Access is access all
-        Stream_Element_Array (1 .. Stream_Element_Offset'Last);
 
       Data : aliased Memory_Access;
-      Last : constant Stream_Element_Offset :=
-               Stream_Element_Offset
-                 (BIO_nread (Socket.IO, Data'Address, C.int'Last));
-      Plain : constant NSST := NSST (Socket);
-      --  ??? Looks like direct type convertion lead to wrong dispatch
+      Last : Stream_Element_Offset :=
+               Stream_Element_Offset (BIO_nread0 (Socket.IO, Data'Address));
    begin
       if Last <= 0 then
          return;
       end if;
 
-      Plain.Send (Data (1 .. Last));
+      Net.Std.Send (NSST (Socket), Data (1 .. Last), Last);
+
+      if BIO_nread (Socket.IO, Data'Address, C.int (Last)) /= C.int (Last) then
+         raise Program_Error;
+      end if;
    end Socket_Write;
 
    -------------
