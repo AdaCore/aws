@@ -656,53 +656,55 @@ package body AWS.Net.SSL is
                 Shut_Write      => TSSL.SSL_SENT_SHUTDOWN);
       RC : C.int;
    begin
-      TSSL.SSL_set_shutdown (Socket.SSL, To_C (How));
+      if Socket.SSL /= TSSL.Null_Handle then
+         TSSL.SSL_set_shutdown (Socket.SSL, To_C (How));
 
-      loop
-         RC := TSSL.SSL_shutdown (Socket.SSL);
+         loop
+            RC := TSSL.SSL_shutdown (Socket.SSL);
 
-         exit when RC > 0;
+            exit when RC > 0;
 
-         declare
-            Error_Code : constant C.int :=
-                           TSSL.SSL_get_error (Socket.SSL, RC);
+            declare
+               Error_Code : constant C.int :=
+                              TSSL.SSL_get_error (Socket.SSL, RC);
 
-            Err_Code   : TSSL.Error_Code;
-            Err_No     : Integer;
+               Err_Code   : TSSL.Error_Code;
+               Err_No     : Integer;
 
-            use type TSSL.Error_Code;
-         begin
-            case Error_Code is
-               when TSSL.SSL_ERROR_WANT_READ =>
-                  Socket_Read (Socket);
+               use type TSSL.Error_Code;
+            begin
+               case Error_Code is
+                  when TSSL.SSL_ERROR_WANT_READ =>
+                     Socket_Read (Socket);
 
-               when TSSL.SSL_ERROR_WANT_WRITE =>
-                  Socket_Write (Socket);
+                  when TSSL.SSL_ERROR_WANT_WRITE =>
+                     Socket_Write (Socket);
 
-               when TSSL.SSL_ERROR_SYSCALL =>
-                  Err_No := OS_Lib.Socket_Errno;
+                  when TSSL.SSL_ERROR_SYSCALL =>
+                     Err_No := OS_Lib.Socket_Errno;
 
-                  exit when Err_No = 0;
+                     exit when Err_No = 0;
 
-                  Net.Log.Error
-                    (Socket,
-                     "System error (" & Utils.Image (Err_No)
-                        & ") on SSL shutdown");
-
-               when others =>
-                  Err_Code := TSSL.ERR_get_error;
-
-                  if Err_Code = 0 then
                      Net.Log.Error
                        (Socket,
-                        "Error (" & Utils.Image (Integer (Error_Code))
-                        & ") on SSL shutdown");
-                  else
-                     Net.Log.Error (Socket, Error_Str (Err_Code));
-                  end if;
-            end case;
-         end;
-      end loop;
+                        "System error (" & Utils.Image (Err_No)
+                           & ") on SSL shutdown");
+
+                  when others =>
+                     Err_Code := TSSL.ERR_get_error;
+
+                     if Err_Code = 0 then
+                        Net.Log.Error
+                          (Socket,
+                           "Error (" & Utils.Image (Integer (Error_Code))
+                           & ") on SSL shutdown");
+                     else
+                        Net.Log.Error (Socket, Error_Str (Err_Code));
+                     end if;
+               end case;
+            end;
+         end loop;
+      end if;
 
       Net.Std.Shutdown (NSST (Socket), How);
    end Shutdown;
