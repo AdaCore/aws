@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2000-2013, AdaCore                     --
+--                     Copyright (C) 2000-2014, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -301,6 +301,62 @@ package body AWS.Net is
          return "127.0.0.1";
       end if;
    end Localhost;
+
+   ------------------
+   -- Output_Space --
+   ------------------
+
+   function Output_Space (Socket : Socket_Type) return Stream_Element_Offset is
+      --  Implementation not in the aws-net-std__ipv6 and aws-net-std__gnat.adb
+      --  separately because GNAT.Sockets doesn't have appropriate Request_Type
+      --  anyway, at least in GNAT GPL 2013. So, we avoid code duplication this
+      --  way. We could easily make this routine abstract and split
+      --  implementation between aws-net-std__ipv6 and aws-net-std__gnat.adb
+      --  when GNAT.Sockets.Control_Socket get support it.
+
+      use Interfaces;
+      S : Socket_Type'Class renames Socket_Type'Class (Socket);
+
+      function Get_Arg (Code : C.int) return Stream_Element_Offset;
+
+      -------------
+      -- Get_Arg --
+      -------------
+
+      function Get_Arg (Code : C.int) return Stream_Element_Offset is
+         use type C.int;
+         Res : C.int;
+         Arg : aliased C.int;
+      begin
+         Res := OS_Lib.C_Ioctl (C.int (S.Get_FD), Code, Arg'Unchecked_Access);
+
+         if Res = -1 then
+            S.Raise_Socket_Error (Error_Message (OS_Lib.Socket_Errno));
+         end if;
+
+         return Stream_Element_Count (Arg);
+      end Get_Arg;
+
+   begin
+      pragma Warnings (Off, "*condition is always*");
+
+      if OS_Lib.FIONSPACE /= -1 then
+         return Get_Arg (OS_Lib.FIONSPACE);
+
+      elsif OS_Lib.FIONWRITE /= -1 then
+         --  Sometimes Linux could have more data in output buffer than formal
+         --  output buffer size. We could not return negative value as a free
+         --  space in output buffer in this case.
+
+         return Stream_Element_Offset'Max
+                  (0, Stream_Element_Offset (S.Get_Send_Buffer_Size)
+                      - Get_Arg (OS_Lib.FIONWRITE));
+      else
+         return -1;
+      end if;
+
+      pragma Warnings (On, "*condition is always*");
+   end Output_Space;
 
    ----------
    -- Poll --

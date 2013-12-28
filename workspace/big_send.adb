@@ -57,17 +57,19 @@ begin
       Put_Line
         (S (J).Get_Send_Buffer_Size'Img & S (J).Get_Receive_Buffer_Size'Img);
 
-      S (J).Set_Send_Buffer_Size (4096);
-      S (J).Set_Receive_Buffer_Size (4096);
+      S (J).Set_Send_Buffer_Size (70_000);
+      S (J).Set_Receive_Buffer_Size (50_000);
    end loop;
 
-   Put_Line (Data'Last'Img);
+   Put_Line (SSL.Version & Data'Last'Img);
 
    for J in S'Range loop
       S (J).Send (Data, Last);
       Put_Line ("Send" & Last'Img);
-      S (not J).Receive (Data, Last);
-      Put_Line ("Receive" & Last'Img);
+      while S (not J).Pending > 0 loop
+         S (not J).Receive (Data, Last);
+         Put_Line ("Receive" & Last'Img);
+      end loop;
    end loop;
 
    SSL.Initialize (Conf, "cert.pem");
@@ -96,7 +98,6 @@ begin
             Data : Ada.Streams.Stream_Element_Array (1 .. 8000);
             Last : Ada.Streams.Stream_Element_Offset;
          begin
-            --  for K in 1 .. 10
             loop
                begin
                   S (not J).Receive (Data, Last);
@@ -111,9 +112,7 @@ begin
                end if;
 
                Got := Got + Last;
-               Put (Last'Img);
             end loop;
-            New_Line;
 
             accept Done;
          end Receive;
@@ -123,7 +122,9 @@ begin
             S (J).Send (Data, Last);
             exit when Last = 0;
             Sent := Sent + Last;
+            Put (Last'Img & S (J).Output_Space'Img & ';');
          end loop;
+         New_Line;
 
          Stop := True;
          Receive.Done;

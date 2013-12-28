@@ -435,7 +435,15 @@ CND(FIONBIO, "Set/clear non-blocking io")
 CND(FIONREAD, "How many bytes to read")
 
 #ifndef FIONWRITE
-# define FIONWRITE -1
+# ifdef TIOCOUTQ
+#  define FIONWRITE TIOCOUTQ
+# else
+#  ifdef SIOCOUTQ
+#   define FIONWRITE SIOCOUTQ
+#  else
+#   define FIONWRITE -1
+#  endif
+# endif
 #endif
 CND(FIONWRITE, "How many bytes in the send queue")
 

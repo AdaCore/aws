@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2000-2012, AdaCore                     --
+--                     Copyright (C) 2000-2014, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -175,6 +175,10 @@ package AWS.Net is
       is abstract;
    --  Returns the number of bytes which are available inside socket
    --  for immediate read.
+
+   function Output_Space (Socket : Socket_Type) return Stream_Element_Offset;
+   --  Returns the free space in output buffer in bytes. If OS could not
+   --  provide such information, routine returns -1.
 
    ------------
    -- Others --
