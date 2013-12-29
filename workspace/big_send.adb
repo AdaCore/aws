@@ -32,6 +32,8 @@ with Ada.Exceptions;
 with Ada.Streams;
 with Ada.Text_IO;
 
+with GNAT.MD5;
+
 procedure Big_Send is
    use AWS.Net;
    use Ada.Text_IO;
@@ -41,6 +43,8 @@ procedure Big_Send is
    Data : Ada.Streams.Stream_Element_Array (1 .. 16#10000#);
    Last : Ada.Streams.Stream_Element_Offset;
    Conf : SSL.Config;
+   MD5R : GNAT.MD5.Context;
+   MD5W : GNAT.MD5.Context;
 
 begin
    for J in Data'Range loop
@@ -65,9 +69,11 @@ begin
 
    for J in S'Range loop
       S (J).Send (Data, Last);
+      GNAT.MD5.Update (MD5W, (Data (1 .. Last)));
       Put_Line ("Send" & Last'Img);
       while S (not J).Pending > 0 loop
          S (not J).Receive (Data, Last);
+         GNAT.MD5.Update (MD5R, (Data (1 .. Last)));
          Put_Line ("Receive" & Last'Img);
       end loop;
    end loop;
@@ -101,6 +107,7 @@ begin
             loop
                begin
                   S (not J).Receive (Data, Last);
+                  GNAT.MD5.Update (MD5R, (Data (1 .. Last)));
                exception when E : Socket_Error =>
                   exit when Is_Timeout (E);
                   Put_Line (Ada.Exceptions.Exception_Information (E));
@@ -108,7 +115,7 @@ begin
                end;
 
                if not Stop then
-                  delay 0.01;
+                  delay 0.0;
                end if;
 
                Got := Got + Last;
@@ -120,6 +127,7 @@ begin
       begin
          loop
             S (J).Send (Data, Last);
+            GNAT.MD5.Update (MD5W, (Data (1 .. Last)));
             exit when Last = 0;
             Sent := Sent + Last;
             Put (Last'Img & S (J).Output_Space'Img & ';');
@@ -133,4 +141,7 @@ begin
          Put_Line ("Got " & Got'Img);
       end;
    end loop;
+
+   Put_Line (GNAT.MD5.Digest (MD5R));
+   Put_Line (GNAT.MD5.Digest (MD5W));
 end Big_Send;

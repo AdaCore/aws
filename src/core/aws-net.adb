@@ -200,6 +200,32 @@ package body AWS.Net is
       end if;
    end Initialize;
 
+   ----------------
+   -- IO_Control --
+   ----------------
+
+   function IO_Control
+     (Socket : Socket_Type;
+      Code   : Interfaces.C.int) return Stream_Element_Offset
+   is
+      use Interfaces;
+      use type C.int;
+
+      S : Socket_Type'Class renames Socket_Type'Class (Socket);
+
+      Res : C.int;
+      Arg : aliased C.int;
+
+   begin
+      Res := OS_Lib.C_Ioctl (C.int (S.Get_FD), Code, Arg'Unchecked_Access);
+
+      if Res = -1 then
+         S.Raise_Socket_Error (Error_Message (OS_Lib.Socket_Errno));
+      end if;
+
+      return Stream_Element_Count (Arg);
+   end IO_Control;
+
    --------------------
    -- IPv6_Available --
    --------------------
@@ -302,55 +328,45 @@ package body AWS.Net is
       end if;
    end Localhost;
 
-   ------------------
-   -- Output_Space --
-   ------------------
+   -----------------
+   -- Output_Busy --
+   -----------------
 
-   function Output_Space (Socket : Socket_Type) return Stream_Element_Offset is
+   function Output_Busy (Socket : Socket_Type) return Stream_Element_Offset is
       --  Implementation not in the aws-net-std__ipv6 and aws-net-std__gnat.adb
       --  separately because GNAT.Sockets doesn't have appropriate Request_Type
       --  anyway, at least in GNAT GPL 2013. So, we avoid code duplication this
       --  way. We could easily make this routine abstract and split
       --  implementation between aws-net-std__ipv6 and aws-net-std__gnat.adb
       --  when GNAT.Sockets.Control_Socket get support it.
+   begin
+      pragma Warnings (Off, "*condition is always*");
 
-      use Interfaces;
-      S : Socket_Type'Class renames Socket_Type'Class (Socket);
+      if OS_Lib.FIONWRITE = -1 then
+         return -1;
+      else
+         return Socket.IO_Control (OS_Lib.FIONWRITE);
+      end if;
 
-      function Get_Arg (Code : C.int) return Stream_Element_Offset;
+      pragma Warnings (On, "*condition is always*");
+   end Output_Busy;
 
-      -------------
-      -- Get_Arg --
-      -------------
+   ------------------
+   -- Output_Space --
+   ------------------
 
-      function Get_Arg (Code : C.int) return Stream_Element_Offset is
-         use type C.int;
-         Res : C.int;
-         Arg : aliased C.int;
-      begin
-         Res := OS_Lib.C_Ioctl (C.int (S.Get_FD), Code, Arg'Unchecked_Access);
-
-         if Res = -1 then
-            S.Raise_Socket_Error (Error_Message (OS_Lib.Socket_Errno));
-         end if;
-
-         return Stream_Element_Count (Arg);
-      end Get_Arg;
-
+   function Output_Space (Socket : Socket_Type) return Stream_Element_Offset is
    begin
       pragma Warnings (Off, "*condition is always*");
 
       if OS_Lib.FIONSPACE /= -1 then
-         return Get_Arg (OS_Lib.FIONSPACE);
+         return Socket.IO_Control (OS_Lib.FIONSPACE);
 
       elsif OS_Lib.FIONWRITE /= -1 then
-         --  Sometimes Linux could have more data in output buffer than formal
-         --  output buffer size. We could not return negative value as a free
-         --  space in output buffer in this case.
-
          return Stream_Element_Offset'Max
-                  (0, Stream_Element_Offset (S.Get_Send_Buffer_Size)
-                      - Get_Arg (OS_Lib.FIONWRITE));
+                  (Stream_Element_Offset
+                     (Socket_Type'Class (Socket).Get_Send_Buffer_Size)
+                   - Socket.IO_Control (OS_Lib.FIONWRITE), 0);
       else
          return -1;
       end if;
@@ -410,7 +426,10 @@ package body AWS.Net is
    is
       First : Stream_Element_Offset := Data'First;
       Last  : Stream_Element_Offset;
+      Save  : constant Boolean := Socket.C.Can_Wait;
    begin
+      Socket.C.Can_Wait := True;
+
       loop
          Send (Socket, Data (First .. Data'Last), Last);
 
@@ -424,6 +443,11 @@ package body AWS.Net is
             First := Last + 1;
          end if;
       end loop;
+
+      Socket.C.Can_Wait := Save;
+   exception when others =>
+      Socket.C.Can_Wait := Save;
+      raise;
    end Send;
 
    -----------------------

@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2004-2012, AdaCore                     --
+--                     Copyright (C) 2004-2014, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -723,20 +723,9 @@ package body AWS.Net.Std is
    -------------
 
    overriding function Pending
-     (Socket : Socket_Type) return Stream_Element_Count
-   is
-      use type C.int;
-      Arg : aliased C.int;
-      Res : constant C.int := OS_Lib.C_Ioctl
-                                (Socket.S.FD,
-                                 OS_Lib.FIONREAD,
-                                 Arg'Unchecked_Access);
+     (Socket : Socket_Type) return Stream_Element_Count is
    begin
-      if Res = Failure then
-         Raise_Socket_Error (OS_Lib.Socket_Errno, Socket);
-      end if;
-
-      return Stream_Element_Count (Arg);
+      return Socket.IO_Control (OS_Lib.FIONREAD);
    end Pending;
 
    ------------------------

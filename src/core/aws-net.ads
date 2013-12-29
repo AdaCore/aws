@@ -38,6 +38,8 @@ with Ada.Streams;
 
 with AWS.Utils;
 
+with Interfaces.C;
+
 package AWS.Net is
 
    use Ada;
@@ -179,6 +181,10 @@ package AWS.Net is
    function Output_Space (Socket : Socket_Type) return Stream_Element_Offset;
    --  Returns the free space in output buffer in bytes. If OS could not
    --  provide such information, routine returns -1.
+
+   function Output_Busy (Socket : Socket_Type) return Stream_Element_Offset;
+   --  How many bytes in the send queue. If OS could not provide such
+   --  information, routine returns -1.
 
    ------------
    -- Others --
@@ -415,6 +421,8 @@ private
       Listening : Boolean  := False; -- True if a listening (server) socket
       R_Cache   : Read_Cache (R_Cache_Size);
       W_Cache   : Write_Cache (W_Cache_Size);
+      Can_Wait  : Boolean := False; -- Need for OpenSSL send in Mac OS
+      Pack_Size : Stream_Element_Count := 2**15; -- Idem
    end record;
 
    type RW_Data_Access is access RW_Data;
@@ -445,5 +453,11 @@ private
    --  When First = Stream_Element_Offset'First and Res = 0, Constraint_Error
    --  is raised. This is consistent with the semantics of stream operations
    --  as clarified in AI95-227.
+
+   function IO_Control
+     (Socket : Socket_Type;
+      Code   : Interfaces.C.int) return Stream_Element_Offset;
+   --  This routine is necessary for both sockets implementations because
+   --  GNAT.Sockets support only 2 control codes (at least in GNAT GPL 2013).
 
 end AWS.Net;
