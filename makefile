@@ -1,7 +1,7 @@
 ############################################################################
 #                              Ada Web Server                              #
 #                                                                          #
-#                     Copyright (C) 2003-2013, AdaCore                     #
+#                     Copyright (C) 2003-2014, AdaCore                     #
 #                                                                          #
 #  This is free software;  you can redistribute it  and/or modify it       #
 #  under terms of the  GNU General Public License as published  by the     #
@@ -280,9 +280,9 @@ ifeq (${ENABLE_SHARED}, true)
 endif
 
 ifeq (${IS_CROSS}, true)
-install: install-dirs install-cross $(MODULES_INSTALL)
+install: install-clean install-dirs install-cross $(MODULES_INSTALL)
 else
-install: install-dirs install-native $(MODULES_INSTALL)
+install: install-clean install-dirs install-native $(MODULES_INSTALL)
 endif
 	$(CP) templates_parser/tools/templates.tads $(I_TPL)
 
