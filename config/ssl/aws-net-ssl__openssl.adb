@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2000-2013, AdaCore                     --
+--                     Copyright (C) 2000-2014, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -101,15 +101,21 @@ package body AWS.Net.SSL is
       CRL_Time_Stamp : Calendar.Time := Utils.AWS_Epoch;
    end TS_SSL;
 
+   type Memory_Access is access all
+     Stream_Element_Array (1 .. Stream_Element_Offset'Last);
+
    Default_Config : constant Config := new TS_SSL;
 
    Data_Index     : C.int;
    --  Application specific data's index
 
+   Max_Overhead : Stream_Element_Count := 78;
+   pragma Atomic (Max_Overhead);
+
    procedure Socket_Read (Socket : Socket_Type);
    --  Read encripted data from socket if necessary
 
-   procedure Socket_Write (Socket : Socket_Type);
+   procedure Socket_Write (Socket : Socket_Type; Gone : C.int := 0);
    --  Write encripted data to socket if availabe
 
    procedure Error_If (Error : Boolean) with Inline;
@@ -537,19 +543,48 @@ package body AWS.Net.SSL is
       Data   : Stream_Element_Array;
       Last   : out Stream_Element_Offset)
    is
-      RC : C.int;
+      RC   : C.int;
+      RW   : constant RW_Data_Access := Net.Socket_Type (Socket).C;
+      Pack_Size : Stream_Element_Count :=
+        Stream_Element_Count'Min (RW.Pack_Size, Data'Length);
    begin
       if not Check (Socket, (Input => False, Output => True)) (Output) then
          Last := Last_Index (Data'First, 0);
          return;
       end if;
 
+      if not RW.Can_Wait then
+         declare
+            Free : constant Stream_Element_Offset := Socket.Output_Space;
+         begin
+            if Free > 0
+              and then Pack_Size + Max_Overhead > Free
+              and then Socket.Output_Busy > 0
+            then
+               if Free <= Max_Overhead then
+                  Last := Last_Index (Data'First, 0);
+                  return;
+               else
+                  Pack_Size := Free - Max_Overhead;
+               end if;
+            end if;
+         end;
+      end if;
+
       loop
-         RC := TSSL.SSL_write (Socket.SSL, Data'Address, Data'Length);
+         RC := TSSL.SSL_write (Socket.SSL, Data'Address, C.int (Pack_Size));
 
          if RC > 0 then
-            Socket_Write (Socket);
-            Last  := Data'First + Stream_Element_Offset (RC) - 1;
+            if RC < C.int (Pack_Size) then
+               --  Pack_Size initialization. This condition would be true only
+               --  once per SSL socket.
+
+               RW.Pack_Size := Stream_Element_Count (RC);
+            end if;
+
+            Socket_Write (Socket, RC);
+
+            Last := Data'First + Stream_Element_Offset (RC) - 1;
 
             return;
 
@@ -653,53 +688,55 @@ package body AWS.Net.SSL is
                 Shut_Write      => TSSL.SSL_SENT_SHUTDOWN);
       RC : C.int;
    begin
-      TSSL.SSL_set_shutdown (Socket.SSL, To_C (How));
+      if Socket.SSL /= TSSL.Null_Handle then
+         TSSL.SSL_set_shutdown (Socket.SSL, To_C (How));
 
-      loop
-         RC := TSSL.SSL_shutdown (Socket.SSL);
+         loop
+            RC := TSSL.SSL_shutdown (Socket.SSL);
 
-         exit when RC > 0;
+            exit when RC > 0;
 
-         declare
-            Error_Code : constant C.int :=
-                           TSSL.SSL_get_error (Socket.SSL, RC);
+            declare
+               Error_Code : constant C.int :=
+                              TSSL.SSL_get_error (Socket.SSL, RC);
 
-            Err_Code   : TSSL.Error_Code;
-            Err_No     : Integer;
+               Err_Code   : TSSL.Error_Code;
+               Err_No     : Integer;
 
-            use type TSSL.Error_Code;
-         begin
-            case Error_Code is
-               when TSSL.SSL_ERROR_WANT_READ =>
-                  Socket_Read (Socket);
+               use type TSSL.Error_Code;
+            begin
+               case Error_Code is
+                  when TSSL.SSL_ERROR_WANT_READ =>
+                     Socket_Read (Socket);
 
-               when TSSL.SSL_ERROR_WANT_WRITE =>
-                  Socket_Write (Socket);
+                  when TSSL.SSL_ERROR_WANT_WRITE =>
+                     Socket_Write (Socket);
 
-               when TSSL.SSL_ERROR_SYSCALL =>
-                  Err_No := OS_Lib.Socket_Errno;
+                  when TSSL.SSL_ERROR_SYSCALL =>
+                     Err_No := OS_Lib.Socket_Errno;
 
-                  exit when Err_No = 0;
+                     exit when Err_No = 0;
 
-                  Net.Log.Error
-                    (Socket,
-                     "System error (" & Utils.Image (Err_No)
-                        & ") on SSL shutdown");
-
-               when others =>
-                  Err_Code := TSSL.ERR_get_error;
-
-                  if Err_Code = 0 then
                      Net.Log.Error
                        (Socket,
-                        "Error (" & Utils.Image (Integer (Error_Code))
-                        & ") on SSL shutdown");
-                  else
-                     Net.Log.Error (Socket, Error_Str (Err_Code));
-                  end if;
-            end case;
-         end;
-      end loop;
+                        "System error (" & Utils.Image (Err_No)
+                           & ") on SSL shutdown");
+
+                  when others =>
+                     Err_Code := TSSL.ERR_get_error;
+
+                     if Err_Code = 0 then
+                        Net.Log.Error
+                          (Socket,
+                           "Error (" & Utils.Image (Integer (Error_Code))
+                           & ") on SSL shutdown");
+                     else
+                        Net.Log.Error (Socket, Error_Str (Err_Code));
+                     end if;
+               end case;
+            end;
+         end loop;
+      end if;
 
       Net.Std.Shutdown (NSST (Socket), How);
    end Shutdown;
@@ -723,9 +760,6 @@ package body AWS.Net.SSL is
    procedure Socket_Read (Socket : Socket_Type) is
       use TSSL;
 
-      type Memory_Access is access all
-        Stream_Element_Array (1 .. Stream_Element_Offset'Last);
-
       Data : aliased Memory_Access;
       Len  : Stream_Element_Offset;
       Last : Stream_Element_Offset;
@@ -747,23 +781,45 @@ package body AWS.Net.SSL is
    -- Socket_Write --
    ------------------
 
-   procedure Socket_Write (Socket : Socket_Type) is
+   procedure Socket_Write (Socket : Socket_Type; Gone : C.int := 0) is
       use TSSL;
-      type Memory_Access is access all
-        Stream_Element_Array (1 .. Stream_Element_Offset'Last);
 
-      Data : aliased Memory_Access;
-      Last : constant Stream_Element_Offset :=
-               Stream_Element_Offset
-                 (BIO_nread (Socket.IO, Data'Address, C.int'Last));
-      Plain : constant NSST := NSST (Socket);
-      --  ??? Looks like direct type convertion lead to wrong dispatch
+      Data  : aliased Memory_Access;
+      Cnt   : constant C.int := BIO_nread0 (Socket.IO, Data'Address);
+      Last  : Stream_Element_Offset;
+      Plain : constant Net.Std.Socket_Type := NSST (Socket);
    begin
-      if Last <= 0 then
+      if Cnt <= 0 then
          return;
       end if;
 
-      Plain.Send (Data (1 .. Last));
+      if Gone > 0 and then Cnt - Gone > C.int (Max_Overhead) then
+         --  Looks like Max_Overhead is not enought
+
+         Max_Overhead := Stream_Element_Offset (Cnt - Gone);
+
+         Log.Error
+           (Socket,
+            "Increase Max_Overhead to" & Max_Overhead'Img
+            & " in the aws-net-ssl_openssl.adb to avoid send locking");
+      end if;
+
+      Plain.Send (Data (1 .. Stream_Element_Offset (Cnt)), Last);
+
+      if Last < Stream_Element_Offset (Cnt) then
+         if not Net.Socket_Type (Socket).C.Can_Wait then
+            Log.Error (Socket, "Unexpected blocking send");
+         end if;
+
+         --  Most likely Max_Overhead value is not enought, send rest data
+         --  locking.
+
+         Plain.Send (Data (Last + 1 .. Stream_Element_Offset (Cnt)));
+      end if;
+
+      if BIO_nread (Socket.IO, Data'Address, Cnt) /= Cnt then
+         raise Program_Error;
+      end if;
    end Socket_Write;
 
    -------------

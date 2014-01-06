@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                    Copyright (C) 2012-2013, AdaCore                      --
+--                     Copyright (C) 2012-2014, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -99,6 +99,8 @@ package AWS.OS_Lib is
 
    FIONBIO              : constant := 16;    --  Set/clear non-blocking io
    FIONREAD             : constant := 1;     --  How many bytes to read
+   FIONWRITE            : constant := 12;    --  How many bytes in the send queue
+   FIONSPACE            : constant := -1;    --  Free space in the send queue
 
    ---------------------------------------
    -- getaddrinfo getnameinfo constants --

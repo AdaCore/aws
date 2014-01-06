@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2000-2013, AdaCore                     --
+--                     Copyright (C) 2000-2014, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -741,6 +741,8 @@ package body AWS.Net.Std is
             Net.Log.Event (Net.Log.Shutdown, Socket);
          end if;
 
+         declare
+            use type Sockets.Error_Type;
          begin
             --  We catch socket exceptions here as we do not want this call to
             --  fail. A shutdown will fail on non connected sockets.
@@ -748,10 +750,14 @@ package body AWS.Net.Std is
             Sockets.Shutdown_Socket (Socket.S.FD, To_GNAT (How));
          exception
             when E : Sockets.Socket_Error =>
-               Log.Error
-                 (Socket,
-                  Message => "Shutdown : "
-                             & Ada.Exceptions.Exception_Message (E));
+               if Sockets.Resolve_Exception (E)
+                  /= Sockets.Transport_Endpoint_Not_Connected
+               then
+                  Log.Error
+                    (Socket,
+                     Message => "Shutdown : " & Error'Img & ' '
+                                & Ada.Exceptions.Exception_Message (E));
+               end if;
          end;
 
          if How /= Shut_Read_Write then
