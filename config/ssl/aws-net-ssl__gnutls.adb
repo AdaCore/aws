@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2006-2013, AdaCore                     --
+--                     Copyright (C) 2006-2014, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -753,6 +753,11 @@ package body AWS.Net.SSL is
       Code : TSSL.ssize_t;
    begin
       Do_Handshake_Internal (Socket);
+
+      if Data'Length = 0 then
+         Last := Last_Index (Data'First, 0);
+         return;
+      end if;
 
       loop
          Code :=
