@@ -66,7 +66,7 @@ package body AWS.Net.Std is
    function Lock_Set
      (Ptr : access Unsigned_Lock; Set : Unsigned_Lock) return Unsigned_Lock
      with Import, Convention => Intrinsic,
-          Link_Name => "__sync_lock_test_and_set_1";
+          External_Name => "__sync_lock_test_and_set_1";
 
    procedure Raise_Socket_Error (Error : Integer)
      with No_Return, Inline;
