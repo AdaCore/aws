@@ -1093,6 +1093,8 @@ CND(IP_PKTINFO, "Get datagram info")
 #ifdef _WIN32
 /*
 
+   pragma Linker_Options ("-lws2_32");
+
    procedure WSA_Startup (Version : C.int; Data : System.Address);
    pragma Import (Stdcall, WSA_Startup, "WSAStartup");
 
