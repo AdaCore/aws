@@ -242,10 +242,12 @@ endif
 #  install
 
 install-clean:
+ifneq (,$(wildcard $(TPREFIX)/share/gpr/manifests/aws))
 	-$(GPRINSTALL) $(GPROPTS) --uninstall \
 		--prefix=$(TPREFIX) aws.gpr
 	-$(GPRINSTALL) $(GPROPTS) --uninstall \
 		--prefix=$(TPREFIX) tools/tools.gpr
+endif
 	$(RM) -fr $(TPREFIX)/share/examples/aws
 	$(RM) -fr $(TPREFIX)/share/doc/aws
 
