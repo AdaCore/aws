@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                            Secure Sockets Layer                          --
 --                                                                          --
---                     Copyright (C) 2000-2013, AdaCore                     --
+--                     Copyright (C) 2000-2014, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -654,7 +654,7 @@ package SSL.Thin is
      with Import, Convention => C, Link_Name => "SSL_CTX_set_verify";
 
    function SSL_CTX_get_verify_mode (Ctx : SSL_CTX) return unsigned
-     with Import, Convention => C, Link_Name => "SSL_CTX_set_verify";
+     with Import, Convention => C, Link_Name => "SSL_CTX_get_verify_mode";
 
    function SSL_CTX_load_verify_locations
      (Cts : SSL_CTX; CAfile, CApath : Cstr.chars_ptr) return int
