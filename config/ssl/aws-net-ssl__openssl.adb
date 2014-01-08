@@ -543,10 +543,10 @@ package body AWS.Net.SSL is
       Data   : Stream_Element_Array;
       Last   : out Stream_Element_Offset)
    is
-      RC   : C.int;
-      RW   : constant RW_Data_Access := Net.Socket_Type (Socket).C;
+      RC        : C.int;
+      RW        : constant RW_Data_Access := Net.Socket_Type (Socket).C;
       Pack_Size : Stream_Element_Count :=
-        Stream_Element_Count'Min (RW.Pack_Size, Data'Length);
+                    Stream_Element_Count'Min (RW.Pack_Size, Data'Length);
    begin
       if not Check (Socket, (Input => False, Output => True)) (Output) then
          Last := Last_Index (Data'First, 0);
@@ -686,7 +686,7 @@ package body AWS.Net.SSL is
                                    + TSSL.SSL_RECEIVED_SHUTDOWN,
                 Shut_Read       => TSSL.SSL_RECEIVED_SHUTDOWN,
                 Shut_Write      => TSSL.SSL_SENT_SHUTDOWN);
-      RC : C.int;
+      RC   : C.int;
    begin
       if Socket.SSL /= TSSL.Null_Handle then
          TSSL.SSL_set_shutdown (Socket.SSL, To_C (How));
@@ -842,8 +842,7 @@ package body AWS.Net.SSL is
       Finalized : Boolean := False;
       --  Need to avoid access to finalized protected locking objects
 
-      package Task_Identifiers is new Task_Attributes
-        (Task_Data, (TID => 0));
+      package Task_Identifiers is new Task_Attributes (Task_Data, (TID => 0));
 
       procedure Finalize;
 
@@ -853,6 +852,7 @@ package body AWS.Net.SSL is
            (Cause : Task_Termination.Cause_Of_Termination;
             T     : Task_Identification.Task_Id;
             X     : Exceptions.Exception_Occurrence);
+
       private
          Id_Counter : Task_Identifier := 0;
       end Task_Id_Generator;
