@@ -1,7 +1,7 @@
 ############################################################################
 #                              Ada Web Server                              #
 #                                                                          #
-#                     Copyright (C) 2003-2013, AdaCore                     #
+#                     Copyright (C) 2003-2014, AdaCore                     #
 #                                                                          #
 #  This is free software;  you can redistribute it  and/or modify it       #
 #  under terms of the  GNU General Public License as published  by the     #
@@ -25,11 +25,6 @@ ALL_API = $(sort $(shell ls ../src/core/*.ads ../src/extended/*.ads \
 setup:
 
 install:
-	-$(CP) aws_api.xml $(I_PLG)
-	$(CP) aws.py $(I_PLG)
-	$(CP) aws.xml $(I_PLG)
-	$(CP) ada2wsdl.xml $(I_PLG)
-	$(CP) wsdl2aws.xml $(I_PLG)
 
 check:
 
