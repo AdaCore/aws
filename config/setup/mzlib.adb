@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2009-2013, AdaCore                     --
+--                     Copyright (C) 2009-2014, AdaCore                     --
 --                                                                          --
 --  This is free software;  you can redistribute it  and/or modify it       --
 --  under terms of the  GNU General Public License as published  by the     --
@@ -23,7 +23,7 @@ procedure Mzlib is
    use Ada;
 
    function zlibVersion return Interfaces.C.Strings.chars_ptr
-     with Import, Convention => C;
+     with Import, Convention => C, Link_Name => "zlibVersion";
 
    Min : constant String := "1.2.1";
    Ver : constant String := Interfaces.C.Strings.Value (zlibVersion);
