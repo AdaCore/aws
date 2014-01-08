@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2011-2012, AdaCore                     --
+--                     Copyright (C) 2011-2014, AdaCore                     --
 --                                                                          --
 --  This is free software;  you can redistribute it  and/or modify it       --
 --  under terms of the  GNU General Public License as published  by the     --
@@ -35,7 +35,6 @@ procedure Stream_Response2 is
 
    WS    : Server.HTTP;
    CNF   : Config.Object;
-   Port  : Positive := 8167;
    Index : Natural := 0;
    Cnx   : Client.HTTP_Connection;
 

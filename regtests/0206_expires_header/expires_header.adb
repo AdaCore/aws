@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2010-2012, AdaCore                     --
+--                     Copyright (C) 2010-2014, AdaCore                     --
 --                                                                          --
 --  This is free software;  you can redistribute it  and/or modify it       --
 --  under terms of the  GNU General Public License as published  by the     --
@@ -35,7 +35,6 @@ procedure Expires_Header is
 
    WS   : Server.HTTP;
    CNF  : Config.Object;
-   Port : Positive := 8275;
 
    Date : constant String := "Tue, 15 Nov 1994 08:12:31 GMT";
    D    : constant Calendar.Time := Messages.To_Time  (Date);
