@@ -109,8 +109,7 @@ package body AWS.Net.SSL is
    Data_Index     : C.int;
    --  Application specific data's index
 
-   Max_Overhead : Stream_Element_Count := 78;
-   pragma Atomic (Max_Overhead);
+   Max_Overhead : Stream_Element_Count := 78 with Atomic;
 
    procedure Socket_Read (Socket : Socket_Type);
    --  Read encripted data from socket if necessary
@@ -863,8 +862,7 @@ package body AWS.Net.SSL is
 
       Locks : array (1 .. Lock_Index (TSSL.CRYPTO_num_locks)) of RW_Mutex;
 
-      F : Utils.Finalizer (Finalize'Access);
-      pragma Unreferenced (F);
+      F : Utils.Finalizer (Finalize'Access) with Unreferenced;
 
       procedure Lock (Mode : Mode_Type; Locker : in out RW_Mutex) with Inline;
 
@@ -1174,9 +1172,8 @@ package body AWS.Net.SSL is
          is
             use Interfaces.C;
 
-            procedure File_Error (Prefix, Name : String);
+            procedure File_Error (Prefix, Name : String) with No_Return;
             --  Prefix is the type of file key or certificate that was expected
-            pragma No_Return (File_Error);
 
             ----------------
             -- File_Error --
