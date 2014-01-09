@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                    Copyright (C) 2000-2013, AdaCore                      --
+--                    Copyright (C) 2000-2014, AdaCore                      --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -178,7 +178,8 @@ package AWS.Response is
    --  responsability to close the stream. User_Filename can be used to force
    --  the filename on the client side. This can be different from the server
    --  side filename (for file based stream) or can be used to name a non disk
-   --  based stream.
+   --  based stream. Encoding mean additional encoding would be applied on top
+   --  of given Handler stream.
 
    ------------------------------
    -- Redirection Constructors --

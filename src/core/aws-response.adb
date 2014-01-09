@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2000-2013, AdaCore                     --
+--                     Copyright (C) 2000-2014, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -670,15 +670,15 @@ package body AWS.Response is
 
       Result : Data;
    begin
+      if Handle.Name /= "" then
+         Set.Filename (Result, Handle.Name);
+      end if;
+
       Set.Stream         (Result, Handle, Encoding);
       Set.Status_Code    (Result, Status_Code);
       Set.Content_Type   (Result, Content_Type);
       Set.Cache_Control  (Result, Cache_Control);
       Set.Close_Resource (Result, Server_Close);
-
-      if Resources.Streams.Name (Handle.all) /= "" then
-         Set.Filename (Result, Resources.Streams.Name (Handle.all));
-      end if;
 
       --  Set the Content_Disposition to properly pass the filename to
       --  the browser.

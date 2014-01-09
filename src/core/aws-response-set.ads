@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2002-2013, AdaCore                     --
+--                     Copyright (C) 2002-2014, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -141,7 +141,9 @@ package AWS.Response.Set is
       Handle   : not null access Resources.Streams.Stream_Type'Class;
       Encoding : Messages.Content_Encoding := Messages.Identity)
      with Inline;
-   --  Set the user defined data stream
+   --  Set the user defined data stream.
+   --  Encoding mean additional encoding would be applied on top of given
+   --  Handler stream.
 
    procedure Close_Resource
      (D     : in out Data;
