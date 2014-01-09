@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2007-2013, AdaCore                     --
+--                     Copyright (C) 2007-2014, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -86,7 +86,25 @@ package body AWS.Services.Web_Block.Registry is
      (String, Web_Object, Strings.Hash, "=");
    use Web_Object_Maps;
 
-   WO_Map : Map;
+   --  Wrap access to the shared map with a protected object for safe
+   --  concurrent access.
+
+   protected WO_Store is
+
+      procedure Include (Key : String; WO : Web_Object);
+      --  Include an element in the map
+
+      procedure Find (Key : String; Position : out Web_Object_Maps.Cursor);
+      --  Returns a cursor pointing to element Key (or No_Element)
+
+      procedure Element
+        (Position : Web_Object_Maps.Cursor;
+         WO       : out Web_Object);
+      --  Returns element pointed to by Position
+
+   private
+      WO_Map : Map;
+   end WO_Store;
 
    type Pattern_Matcher_Access is access all GNAT.Regpat.Pattern_Matcher;
 
@@ -166,12 +184,19 @@ package body AWS.Services.Web_Block.Registry is
    ------------------
 
    function Content_Type (Key : String) return String is
-      Position : constant Web_Object_Maps.Cursor := WO_Map.Find (Key);
+      Position : Web_Object_Maps.Cursor;
    begin
+      WO_Store.Find (Key, Position);
+
       if Position = No_Element then
          return "";
       else
-         return To_String (Web_Object_Maps.Element (Position).Content_Type);
+         declare
+            WO : Web_Object;
+         begin
+            WO_Store.Element (Position, WO);
+            return To_String (WO.Content_Type);
+         end;
       end if;
    end Content_Type;
 
@@ -246,7 +271,7 @@ package body AWS.Services.Web_Block.Registry is
       function Get_Matching_Web_Object
         (Search_Key : String) return Callback_Parameters is
       begin
-         Position := WO_Map.Find (Key);
+         WO_Store.Find (Key, Position);
 
          if Position /= No_Element then
             return Empty_Callback_Parameters;
@@ -282,7 +307,8 @@ package body AWS.Services.Web_Block.Registry is
                            if Matched (0) /= No_Match then
                               --  Returns the registered web object
                               --  Registered with a key = Prefix + Regexp
-                              Position := WO_Map.Find (To_String (P_URI.Key));
+                              WO_Store.Find (To_String (P_URI.Key), Position);
+
                               declare
                                  Params : Callback_Parameters (1 .. Count);
                               begin
@@ -300,7 +326,7 @@ package body AWS.Services.Web_Block.Registry is
                      else
                         --  Only a prefix is defined.
                         --  No need to search for other candidates
-                        Position := WO_Map.Find (K);
+                        WO_Store.Find (K, Position);
                         return Empty_Callback_Parameters;
                      end if;
                   end if;
@@ -329,12 +355,13 @@ package body AWS.Services.Web_Block.Registry is
             Content       : Unbounded_String;
             C_Index       : Natural;
             CID           : Web_Block.Context.Id;
-            CT            : Unbounded_String
-                              renames Element (Position).Content_Type;
+            Element       : Web_Object;
          begin
+            WO_Store.Element (Position, Element);
+
             --  Get translation set for this tag
 
-            if Ctx = "" and then Element (Position).Context_Required then
+            if Ctx = "" and then Element.Context_Required then
                --  No context but it is required
                return Parse (Context_Error, Request, Translations);
 
@@ -342,25 +369,22 @@ package body AWS.Services.Web_Block.Registry is
                Templates.Insert (T, Translations);
 
                --  Call the Data_CB
-               if not Element (Position).Data_CB.With_Params then
-                  if Element (Position).Data_CB.Callback /= null then
-                     Element (Position).Data_CB.Callback
-                       (LT.Request, LT.Ctx'Access, T);
+               if not Element.Data_CB.With_Params then
+                  if Element.Data_CB.Callback /= null then
+                     Element.Data_CB.Callback (LT.Request, LT.Ctx'Access, T);
                   end if;
                else
-                  if Element (Position).Data_CB.Callback_With_Parameters
-                    /= null
-                  then
-                     Element (Position).Data_CB.Callback_With_Parameters
+                  if Element.Data_CB.Callback_With_Parameters /= null then
+                     Element.Data_CB.Callback_With_Parameters
                         (LT.Request, LT.Ctx'Access, Parameters, T);
                   end if;
                end if;
 
-               if Element (Position).Callback_Template then
+               if Element.Callback_Template then
                   Template_Name := To_Unbounded_String
-                    (Element (Position).Template_CB (Request));
+                    (Element.Template_CB (Request));
                else
-                  Template_Name := Element (Position).Template;
+                  Template_Name := Element.Template;
                end if;
 
                --  Page is now parsed, we need to create the context id for
@@ -386,7 +410,9 @@ package body AWS.Services.Web_Block.Registry is
 
                C_Index := Index (Content, Tag_Context_Var);
 
-               if CT = MIME.Text_HTML and then C_Index = 0 then
+               if Element.Content_Type = MIME.Text_HTML
+                 and then C_Index = 0
+               then
                   --  A web page, we insert the context just after the
                   --  <body> tag, format:
                   --
@@ -412,7 +438,9 @@ package body AWS.Services.Web_Block.Registry is
                      end if;
                   end if;
 
-               elsif CT = MIME.Text_XML and then C_Index = 0 then
+               elsif Element.Content_Type = MIME.Text_XML
+                 and then C_Index = 0
+               then
                   --  Inject context into the XML response, format:
                   --
                   --  <ctx id="CID"/>
@@ -442,7 +470,7 @@ package body AWS.Services.Web_Block.Registry is
                end if;
 
                Parsed_Page :=
-                 Page'(Content_Type => Element (Position).Content_Type,
+                 Page'(Content_Type => Element.Content_Type,
                        Content      => Content,
                        Set          => Templates.Null_Set,
                        Ctx_Id       => CID);
@@ -475,7 +503,7 @@ package body AWS.Services.Web_Block.Registry is
    begin
       --  Register Tag
 
-      WO_Map.Include (Key, WO);
+      WO_Store.Include (Key, WO);
 
       if Prefix then
          Pattern_URL_Container.Append
@@ -507,7 +535,7 @@ package body AWS.Services.Web_Block.Registry is
    begin
       --  Register Tag
 
-      WO_Map.Include (Key, WO);
+      WO_Store.Include (Key, WO);
    end Register;
 
    --------------------------
@@ -537,7 +565,8 @@ package body AWS.Services.Web_Block.Registry is
    begin
       --  Register Tag
 
-      WO_Map.Include (Key, WO);
+      WO_Store.Include (Key, WO);
+
       Pattern_URL_Container.Append
          (Pattern_URL_Vector,
             URL_Pattern'(Prefix       => To_Unbounded_String (Prefix),
@@ -569,7 +598,8 @@ package body AWS.Services.Web_Block.Registry is
    begin
       --  Register Tag
 
-      WO_Map.Include (Key, WO);
+      WO_Store.Include (Key, WO);
+
       Pattern_URL_Container.Append
          (Pattern_URL_Vector,
             URL_Pattern'(Prefix       => To_Unbounded_String (Prefix),
@@ -604,7 +634,7 @@ package body AWS.Services.Web_Block.Registry is
       else
          --  Get Web Object
 
-         Position := WO_Map.Find (Var_Name);
+         WO_Store.Find (Var_Name, Position);
 
          if Position /= No_Element then
             declare
@@ -612,24 +642,27 @@ package body AWS.Services.Web_Block.Registry is
                                  Lazy_Tag.Translations;
                T             : Templates.Translate_Set;
                Template_Name : Unbounded_String;
+               Element       : Web_Object;
             begin
                --  Get translation set for this tag
 
                Templates.Insert (T, Translations);
                Templates.Insert (T, Lazy_Tag.Translations);
 
-               if not Element (Position).Data_CB.With_Params
-                  and then Element (Position).Data_CB.Callback /= null
+               WO_Store.Element (Position, Element);
+
+               if not Element.Data_CB.With_Params
+                  and then Element.Data_CB.Callback /= null
                then
-                  Element (Position).Data_CB.Callback
+                  Element.Data_CB.Callback
                     (Lazy_Tag.Request, Lazy_Tag.Ctx'Access, T);
                end if;
 
-               if Element (Position).Callback_Template then
+               if Element.Callback_Template then
                   Template_Name := To_Unbounded_String
-                    (Element (Position).Template_CB (Lazy_Tag.Request));
+                    (Element.Template_CB (Lazy_Tag.Request));
                else
-                  Template_Name := Element (Position).Template;
+                  Template_Name := Element.Template;
                end if;
 
                Lazy_Tag.Translations := T;
@@ -651,5 +684,42 @@ package body AWS.Services.Web_Block.Registry is
          end if;
       end if;
    end Value;
+
+   --------------
+   -- WO_Store --
+   --------------
+
+   protected body WO_Store is
+
+      -------------
+      -- Element --
+      -------------
+
+      procedure Element
+        (Position : Web_Object_Maps.Cursor;
+         WO       : out Web_Object) is
+      begin
+         WO := Web_Object_Maps.Element (Position);
+      end Element;
+
+      ----------
+      -- Find --
+      ----------
+
+      procedure Find (Key : String; Position : out Web_Object_Maps.Cursor) is
+      begin
+         Position := WO_Map.Find (Key);
+      end Find;
+
+      -------------
+      -- Include --
+      -------------
+
+      procedure Include (Key : String; WO : Web_Object) is
+      begin
+         WO_Map.Include (Key, WO);
+      end Include;
+
+   end WO_Store;
 
 end AWS.Services.Web_Block.Registry;
