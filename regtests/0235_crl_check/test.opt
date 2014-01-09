@@ -1,2 +1,3 @@
 !ssl DEAD
+gnutls OUT test-gnutls.out
 NT DEAD test requires UNIX shell

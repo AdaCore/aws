@@ -1,0 +1,16 @@
+Trying aws-client1.pem
+Client certificate: C=FR,ST=Paris,O=ACME,OU=clients,CN=client1, verified: TRUE
+Cert in callback: C=FR,ST=Paris,O=ACME,OU=clients,CN=client1
+-> 200
+Trying aws-client2.pem
+Client certificate: C=FR,ST=Paris,O=ACME,OU=clients,CN=client2, verified: TRUE
+Cert in callback: C=FR,ST=Paris,O=ACME,OU=clients,CN=client2
+-> 200
+Trying aws-client1.pem
+Client certificate: C=FR,ST=Paris,O=ACME,OU=clients,CN=client1, verified: FALSE
+Client certificate: C=FR,ST=Paris,O=ACME,OU=clients,CN=client1, verified: FALSE
+-> 400
+Trying aws-client2.pem
+Client certificate: C=FR,ST=Paris,O=ACME,OU=clients,CN=client2, verified: TRUE
+Cert in callback: C=FR,ST=Paris,O=ACME,OU=clients,CN=client2
+-> 200

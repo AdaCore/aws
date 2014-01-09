@@ -1,0 +1,25 @@
+The client automatically sends only certificates which match the CA's the
+server trusts in.
+
+If you want to override this, you must install a callback on certificate
+requests on the client side:
+
+gnutls_certificate_client_set_retrieve_function (credentials, cert_callback);
+
+Inside the callback you can choose the certificate/key to send:
+
+static int cert_callback (gnutls_session_t session,
+      const gnutls_datum_t * req_ca_rdn,
+      int nreqs,
+      const gnutls_pk_algorithm_t * sign_algos, int sign_algos_length,
+       gnutls_retr_st * st) {
+       // Check CA's requested by server
+       // Check Algorithms accepted by server
+
+       // Putting in our key / cert, even if not trusted by the sever
+       st->cert.x509   = &myCert;
+       st->ncerts = 1;
+       st->key.x509    = myKey;
+       st->deinit_all = 0;
+       return 0; // no error
+}

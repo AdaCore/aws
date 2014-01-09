@@ -1,2 +1,3 @@
 !ssl DEAD
+-- gnutls: client sends only certs which match the server's CA (see README)
 gnutls OUT test-gnutls.out
