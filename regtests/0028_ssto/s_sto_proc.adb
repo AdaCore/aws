@@ -18,18 +18,18 @@
 
 --  Test for socket timeouts
 
-with Ada.Text_IO;
 with Ada.Exceptions;
 with Ada.Real_Time;
 with Ada.Streams;
+with Ada.Text_IO;
 
 with AWS.Net;
 
 procedure S_STO_Proc (Security : Boolean) is
 
-   use AWS;
    use Ada;
    use Ada.Streams;
+   use AWS;
 
    Sample : Stream_Element_Array (1 .. 100_000);
 
