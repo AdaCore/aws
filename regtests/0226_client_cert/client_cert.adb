@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2012-2013, AdaCore                     --
+--                     Copyright (C) 2012-2014, AdaCore                     --
 --                                                                          --
 --  This is free software;  you can redistribute it  and/or modify it       --
 --  under terms of the  GNU General Public License as published  by the     --
@@ -181,7 +181,6 @@ begin
      (SSL1,
       Certificate_Filename => "aws-server.crt",
       Key_Filename         => "aws-server.key",
-      --  The 3 following configs are from aws.ini
       Exchange_Certificate => True,
       Certificate_Required => True);
 
@@ -196,7 +195,6 @@ begin
      (SSL2,
       Certificate_Filename => "aws-server.crt",
       Key_Filename         => "aws-server.key",
-      --  The 3 following configs are from aws.ini
       Exchange_Certificate => True,
       Certificate_Required => True,
       Trusted_CA_Filename  => "private-ca.crt");
