@@ -50,3 +50,12 @@ for item in r2:
 
 if fr1 != fr2:
     logging.error(fr1 + "!=" + fr2)
+
+    print "run 1"
+    for l in r1:
+        print l
+
+    print ""
+    print "run 2"
+    for l in r2:
+        print l
