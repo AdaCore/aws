@@ -1,0 +1,486 @@
+Start main, wait for server to start...
+Server started
+
+simple ok 0  
+simple ok 2 8 azerty qwerty
+simple ok 2 azerty qwerty 8
+/doesnotexist not found
+very_long_name_in_a_get_form=alongvalueforthistest 16 16
+multiple ok 5 1 2 3 4 whatever
+simple ok 2 8 azerty qwerty
+check_mem.adb
+ab16fd6dcc71c8baa5eed759b9f75060
+dummy
+check_mem.adb
+Ok
+ 6 bytes compressed to 14
+Ok
+ 155 bytes compressed to 118
+simple ok 0  
+simple ok 2 8 azerty qwerty
+simple ok 2 azerty qwerty 8
+/doesnotexist not found
+very_long_name_in_a_get_form=alongvalueforthistest 16 16
+multiple ok 5 1 2 3 4 whatever
+simple ok 2 8 azerty qwerty
+check_mem.adb
+ab16fd6dcc71c8baa5eed759b9f75060
+dummy
+check_mem.adb
+Ok
+ 6 bytes compressed to 14
+Ok
+ 155 bytes compressed to 118
+Start main, wait for server to start...
+Server started
+
+simple ok 0  
+simple ok 2 8 azerty qwerty
+simple ok 2 azerty qwerty 8
+/doesnotexist not found
+very_long_name_in_a_get_form=alongvalueforthistest 16 16
+multiple ok 5 1 2 3 4 whatever
+simple ok 2 8 azerty qwerty
+check_mem.adb
+ab16fd6dcc71c8baa5eed759b9f75060
+dummy
+check_mem.adb
+Ok
+ 6 bytes compressed to 14
+Ok
+ 155 bytes compressed to 118
+simple ok 0  
+simple ok 2 8 azerty qwerty
+simple ok 2 azerty qwerty 8
+/doesnotexist not found
+very_long_name_in_a_get_form=alongvalueforthistest 16 16
+multiple ok 5 1 2 3 4 whatever
+simple ok 2 8 azerty qwerty
+check_mem.adb
+ab16fd6dcc71c8baa5eed759b9f75060
+dummy
+check_mem.adb
+Ok
+ 6 bytes compressed to 14
+Ok
+ 155 bytes compressed to 118
+simple ok 0  
+simple ok 2 8 azerty qwerty
+simple ok 2 azerty qwerty 8
+/doesnotexist not found
+very_long_name_in_a_get_form=alongvalueforthistest 16 16
+multiple ok 5 1 2 3 4 whatever
+simple ok 2 8 azerty qwerty
+check_mem.adb
+ab16fd6dcc71c8baa5eed759b9f75060
+dummy
+check_mem.adb
+Ok
+ 6 bytes compressed to 14
+Ok
+ 155 bytes compressed to 118
+simple ok 0  
+simple ok 2 8 azerty qwerty
+simple ok 2 azerty qwerty 8
+/doesnotexist not found
+very_long_name_in_a_get_form=alongvalueforthistest 16 16
+multiple ok 5 1 2 3 4 whatever
+simple ok 2 8 azerty qwerty
+check_mem.adb
+ab16fd6dcc71c8baa5eed759b9f75060
+dummy
+check_mem.adb
+Ok
+ 6 bytes compressed to 14
+Ok
+ 155 bytes compressed to 118
+simple ok 0  
+simple ok 2 8 azerty qwerty
+simple ok 2 azerty qwerty 8
+/doesnotexist not found
+very_long_name_in_a_get_form=alongvalueforthistest 16 16
+multiple ok 5 1 2 3 4 whatever
+simple ok 2 8 azerty qwerty
+check_mem.adb
+ab16fd6dcc71c8baa5eed759b9f75060
+dummy
+check_mem.adb
+Ok
+ 6 bytes compressed to 14
+Ok
+ 155 bytes compressed to 118
+simple ok 0  
+simple ok 2 8 azerty qwerty
+simple ok 2 azerty qwerty 8
+/doesnotexist not found
+very_long_name_in_a_get_form=alongvalueforthistest 16 16
+multiple ok 5 1 2 3 4 whatever
+simple ok 2 8 azerty qwerty
+check_mem.adb
+ab16fd6dcc71c8baa5eed759b9f75060
+dummy
+check_mem.adb
+Ok
+ 6 bytes compressed to 14
+Ok
+ 155 bytes compressed to 118
+simple ok 0  
+simple ok 2 8 azerty qwerty
+simple ok 2 azerty qwerty 8
+/doesnotexist not found
+very_long_name_in_a_get_form=alongvalueforthistest 16 16
+multiple ok 5 1 2 3 4 whatever
+simple ok 2 8 azerty qwerty
+check_mem.adb
+ab16fd6dcc71c8baa5eed759b9f75060
+dummy
+check_mem.adb
+Ok
+ 6 bytes compressed to 14
+Ok
+ 155 bytes compressed to 118
+simple ok 0  
+simple ok 2 8 azerty qwerty
+simple ok 2 azerty qwerty 8
+/doesnotexist not found
+very_long_name_in_a_get_form=alongvalueforthistest 16 16
+multiple ok 5 1 2 3 4 whatever
+simple ok 2 8 azerty qwerty
+check_mem.adb
+ab16fd6dcc71c8baa5eed759b9f75060
+dummy
+check_mem.adb
+Ok
+ 6 bytes compressed to 14
+Ok
+ 155 bytes compressed to 118
+simple ok 0  
+simple ok 2 8 azerty qwerty
+simple ok 2 azerty qwerty 8
+/doesnotexist not found
+very_long_name_in_a_get_form=alongvalueforthistest 16 16
+multiple ok 5 1 2 3 4 whatever
+simple ok 2 8 azerty qwerty
+check_mem.adb
+ab16fd6dcc71c8baa5eed759b9f75060
+dummy
+check_mem.adb
+Ok
+ 6 bytes compressed to 14
+Ok
+ 155 bytes compressed to 118
+simple ok 0  
+simple ok 2 8 azerty qwerty
+simple ok 2 azerty qwerty 8
+/doesnotexist not found
+very_long_name_in_a_get_form=alongvalueforthistest 16 16
+multiple ok 5 1 2 3 4 whatever
+simple ok 2 8 azerty qwerty
+check_mem.adb
+ab16fd6dcc71c8baa5eed759b9f75060
+dummy
+check_mem.adb
+Ok
+ 6 bytes compressed to 14
+Ok
+ 155 bytes compressed to 118
+simple ok 0  
+simple ok 2 8 azerty qwerty
+simple ok 2 azerty qwerty 8
+/doesnotexist not found
+very_long_name_in_a_get_form=alongvalueforthistest 16 16
+multiple ok 5 1 2 3 4 whatever
+simple ok 2 8 azerty qwerty
+check_mem.adb
+ab16fd6dcc71c8baa5eed759b9f75060
+dummy
+check_mem.adb
+Ok
+ 6 bytes compressed to 14
+Ok
+ 155 bytes compressed to 118
+simple ok 0  
+simple ok 2 8 azerty qwerty
+simple ok 2 azerty qwerty 8
+/doesnotexist not found
+very_long_name_in_a_get_form=alongvalueforthistest 16 16
+multiple ok 5 1 2 3 4 whatever
+simple ok 2 8 azerty qwerty
+check_mem.adb
+ab16fd6dcc71c8baa5eed759b9f75060
+dummy
+check_mem.adb
+Ok
+ 6 bytes compressed to 14
+Ok
+ 155 bytes compressed to 118
+simple ok 0  
+simple ok 2 8 azerty qwerty
+simple ok 2 azerty qwerty 8
+/doesnotexist not found
+very_long_name_in_a_get_form=alongvalueforthistest 16 16
+multiple ok 5 1 2 3 4 whatever
+simple ok 2 8 azerty qwerty
+check_mem.adb
+ab16fd6dcc71c8baa5eed759b9f75060
+dummy
+check_mem.adb
+Ok
+ 6 bytes compressed to 14
+Ok
+ 155 bytes compressed to 118
+simple ok 0  
+simple ok 2 8 azerty qwerty
+simple ok 2 azerty qwerty 8
+/doesnotexist not found
+very_long_name_in_a_get_form=alongvalueforthistest 16 16
+multiple ok 5 1 2 3 4 whatever
+simple ok 2 8 azerty qwerty
+check_mem.adb
+ab16fd6dcc71c8baa5eed759b9f75060
+dummy
+check_mem.adb
+Ok
+ 6 bytes compressed to 14
+Ok
+ 155 bytes compressed to 118
+simple ok 0  
+simple ok 2 8 azerty qwerty
+simple ok 2 azerty qwerty 8
+/doesnotexist not found
+very_long_name_in_a_get_form=alongvalueforthistest 16 16
+multiple ok 5 1 2 3 4 whatever
+simple ok 2 8 azerty qwerty
+check_mem.adb
+ab16fd6dcc71c8baa5eed759b9f75060
+dummy
+check_mem.adb
+Ok
+ 6 bytes compressed to 14
+Ok
+ 155 bytes compressed to 118
+simple ok 0  
+simple ok 2 8 azerty qwerty
+simple ok 2 azerty qwerty 8
+/doesnotexist not found
+very_long_name_in_a_get_form=alongvalueforthistest 16 16
+multiple ok 5 1 2 3 4 whatever
+simple ok 2 8 azerty qwerty
+check_mem.adb
+ab16fd6dcc71c8baa5eed759b9f75060
+dummy
+check_mem.adb
+Ok
+ 6 bytes compressed to 14
+Ok
+ 155 bytes compressed to 118
+simple ok 0  
+simple ok 2 8 azerty qwerty
+simple ok 2 azerty qwerty 8
+/doesnotexist not found
+very_long_name_in_a_get_form=alongvalueforthistest 16 16
+multiple ok 5 1 2 3 4 whatever
+simple ok 2 8 azerty qwerty
+check_mem.adb
+ab16fd6dcc71c8baa5eed759b9f75060
+dummy
+check_mem.adb
+Ok
+ 6 bytes compressed to 14
+Ok
+ 155 bytes compressed to 118
+simple ok 0  
+simple ok 2 8 azerty qwerty
+simple ok 2 azerty qwerty 8
+/doesnotexist not found
+very_long_name_in_a_get_form=alongvalueforthistest 16 16
+multiple ok 5 1 2 3 4 whatever
+simple ok 2 8 azerty qwerty
+check_mem.adb
+ab16fd6dcc71c8baa5eed759b9f75060
+dummy
+check_mem.adb
+Ok
+ 6 bytes compressed to 14
+Ok
+ 155 bytes compressed to 118
+simple ok 0  
+simple ok 2 8 azerty qwerty
+simple ok 2 azerty qwerty 8
+/doesnotexist not found
+very_long_name_in_a_get_form=alongvalueforthistest 16 16
+multiple ok 5 1 2 3 4 whatever
+simple ok 2 8 azerty qwerty
+check_mem.adb
+ab16fd6dcc71c8baa5eed759b9f75060
+dummy
+check_mem.adb
+Ok
+ 6 bytes compressed to 14
+Ok
+ 155 bytes compressed to 118
+simple ok 0  
+simple ok 2 8 azerty qwerty
+simple ok 2 azerty qwerty 8
+/doesnotexist not found
+very_long_name_in_a_get_form=alongvalueforthistest 16 16
+multiple ok 5 1 2 3 4 whatever
+simple ok 2 8 azerty qwerty
+check_mem.adb
+ab16fd6dcc71c8baa5eed759b9f75060
+dummy
+check_mem.adb
+Ok
+ 6 bytes compressed to 14
+Ok
+ 155 bytes compressed to 118
+simple ok 0  
+simple ok 2 8 azerty qwerty
+simple ok 2 azerty qwerty 8
+/doesnotexist not found
+very_long_name_in_a_get_form=alongvalueforthistest 16 16
+multiple ok 5 1 2 3 4 whatever
+simple ok 2 8 azerty qwerty
+check_mem.adb
+ab16fd6dcc71c8baa5eed759b9f75060
+dummy
+check_mem.adb
+Ok
+ 6 bytes compressed to 14
+Ok
+ 155 bytes compressed to 118
+simple ok 0  
+simple ok 2 8 azerty qwerty
+simple ok 2 azerty qwerty 8
+/doesnotexist not found
+very_long_name_in_a_get_form=alongvalueforthistest 16 16
+multiple ok 5 1 2 3 4 whatever
+simple ok 2 8 azerty qwerty
+check_mem.adb
+ab16fd6dcc71c8baa5eed759b9f75060
+dummy
+check_mem.adb
+Ok
+ 6 bytes compressed to 14
+Ok
+ 155 bytes compressed to 118
+simple ok 0  
+simple ok 2 8 azerty qwerty
+simple ok 2 azerty qwerty 8
+/doesnotexist not found
+very_long_name_in_a_get_form=alongvalueforthistest 16 16
+multiple ok 5 1 2 3 4 whatever
+simple ok 2 8 azerty qwerty
+check_mem.adb
+ab16fd6dcc71c8baa5eed759b9f75060
+dummy
+check_mem.adb
+Ok
+ 6 bytes compressed to 14
+Ok
+ 155 bytes compressed to 118
+simple ok 0  
+simple ok 2 8 azerty qwerty
+simple ok 2 azerty qwerty 8
+/doesnotexist not found
+very_long_name_in_a_get_form=alongvalueforthistest 16 16
+multiple ok 5 1 2 3 4 whatever
+simple ok 2 8 azerty qwerty
+check_mem.adb
+ab16fd6dcc71c8baa5eed759b9f75060
+dummy
+check_mem.adb
+Ok
+ 6 bytes compressed to 14
+Ok
+ 155 bytes compressed to 118
+simple ok 0  
+simple ok 2 8 azerty qwerty
+simple ok 2 azerty qwerty 8
+/doesnotexist not found
+very_long_name_in_a_get_form=alongvalueforthistest 16 16
+multiple ok 5 1 2 3 4 whatever
+simple ok 2 8 azerty qwerty
+check_mem.adb
+ab16fd6dcc71c8baa5eed759b9f75060
+dummy
+check_mem.adb
+Ok
+ 6 bytes compressed to 14
+Ok
+ 155 bytes compressed to 118
+simple ok 0  
+simple ok 2 8 azerty qwerty
+simple ok 2 azerty qwerty 8
+/doesnotexist not found
+very_long_name_in_a_get_form=alongvalueforthistest 16 16
+multiple ok 5 1 2 3 4 whatever
+simple ok 2 8 azerty qwerty
+check_mem.adb
+ab16fd6dcc71c8baa5eed759b9f75060
+dummy
+check_mem.adb
+Ok
+ 6 bytes compressed to 14
+Ok
+ 155 bytes compressed to 118
+simple ok 0  
+simple ok 2 8 azerty qwerty
+simple ok 2 azerty qwerty 8
+/doesnotexist not found
+very_long_name_in_a_get_form=alongvalueforthistest 16 16
+multiple ok 5 1 2 3 4 whatever
+simple ok 2 8 azerty qwerty
+check_mem.adb
+ab16fd6dcc71c8baa5eed759b9f75060
+dummy
+check_mem.adb
+Ok
+ 6 bytes compressed to 14
+Ok
+ 155 bytes compressed to 118
+simple ok 0  
+simple ok 2 8 azerty qwerty
+simple ok 2 azerty qwerty 8
+/doesnotexist not found
+very_long_name_in_a_get_form=alongvalueforthistest 16 16
+multiple ok 5 1 2 3 4 whatever
+simple ok 2 8 azerty qwerty
+check_mem.adb
+ab16fd6dcc71c8baa5eed759b9f75060
+dummy
+check_mem.adb
+Ok
+ 6 bytes compressed to 14
+Ok
+ 155 bytes compressed to 118
+simple ok 0  
+simple ok 2 8 azerty qwerty
+simple ok 2 azerty qwerty 8
+/doesnotexist not found
+very_long_name_in_a_get_form=alongvalueforthistest 16 16
+multiple ok 5 1 2 3 4 whatever
+simple ok 2 8 azerty qwerty
+check_mem.adb
+ab16fd6dcc71c8baa5eed759b9f75060
+dummy
+check_mem.adb
+Ok
+ 6 bytes compressed to 14
+Ok
+ 155 bytes compressed to 118
+simple ok 0  
+simple ok 2 8 azerty qwerty
+simple ok 2 azerty qwerty 8
+/doesnotexist not found
+very_long_name_in_a_get_form=alongvalueforthistest 16 16
+multiple ok 5 1 2 3 4 whatever
+simple ok 2 8 azerty qwerty
+check_mem.adb
+ab16fd6dcc71c8baa5eed759b9f75060
+dummy
+check_mem.adb
+Ok
+ 6 bytes compressed to 14
+Ok
+ 155 bytes compressed to 118

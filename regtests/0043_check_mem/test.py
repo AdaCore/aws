@@ -4,12 +4,12 @@ from test_support import *
 build('check_mem')
 
 #  Run driver (2 loops)
-run('check_mem', ['2'], output_file='check_mem.res1')
+run('check_mem', ['2'])
 exec_cmd('gnatmem', ['5', '-i', 'gmem.out', './check_mem'],
          output_file='check_mem.run1')
 
 #  Run driver (30 loops)
-run('check_mem', ['30'], output_file='check_mem.res2')
+run('check_mem', ['30'])
 exec_cmd('gnatmem', ['5', '-i', 'gmem.out', './check_mem'],
          output_file='check_mem.run2')
 
