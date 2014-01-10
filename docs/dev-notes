@@ -43,7 +43,7 @@ REPOSIT_NAME=$1
 OWEB="-H -cP -cY -l256"
 
 case "$REPOSIT_NAME" in
-   AWS) CPYR="[[:space:]]Copyright[[:space:]]\(C\)[[:space:]]([12]\d\d\d-)?2\d\d\d,[[:space:]]AdaCore[[:space:]]"
+   aws) CPYR="[[:space:]]Copyright[[:space:]]\(C\)[[:space:]]([12]\d\d\d-)?2\d\d\d,[[:space:]]AdaCore[[:space:]]"
         SC_OPTS="-ign out -ign tmplt -ign sed -ign txt \
         -lang TXML $OWEB -lang XML $OWEB -lang HTML $OWEB -lang XSD $OWEB \
         -lang CSS $OWEB -lang Ada -d -cp -cy -sp -gnat05 -sp -gnatyI -cf $CPYR \
