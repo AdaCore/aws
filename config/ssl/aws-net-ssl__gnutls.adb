@@ -964,13 +964,16 @@ package body AWS.Net.SSL is
    overriding procedure Shutdown
      (Socket : Socket_Type; How : Shutmode_Type := Shut_Read_Write)
    is
+      use type TSSL.Boolean_Access;
+      use type TSSL.gnutls_session_t;
+
       Code : C.int;
       To_C : constant array (Shutmode_Type) of TSSL.gnutls_close_request_t :=
                (Shut_Read_Write => TSSL.GNUTLS_SHUT_RDWR,
                 Shut_Read       => TSSL.GNUTLS_SHUT_RDWR, -- Absent, use RDWR
                 Shut_Write      => TSSL.GNUTLS_SHUT_WR);
    begin
-      if Socket.IO.Handshaken.all then
+      if Socket.IO.Handshaken /= null and then Socket.IO.Handshaken.all then
          --  Must be done only after successful handshake
 
          loop
@@ -990,7 +993,9 @@ package body AWS.Net.SSL is
          end loop;
       end if;
 
-      TSSL.gnutls_transport_set_ptr (Socket.SSL, 0);
+      if Socket.SSL /= null then
+         TSSL.gnutls_transport_set_ptr (Socket.SSL, 0);
+      end if;
 
       Net.Std.Shutdown (NSST (Socket), How);
    end Shutdown;
