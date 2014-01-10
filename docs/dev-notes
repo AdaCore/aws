@@ -49,6 +49,9 @@ case "$REPOSIT_NAME" in
         -lang CSS $OWEB -lang Ada -d -cp -cy -sp -gnat05 -sp -gnatyI -cf $CPYR \
         -lang makefile -cp -cy -cf $CPYR -lang Python -H"
         EXCLUDE="\(features\)"
+        PSTATUS=true
+        ;;
+     *) PSTATUS=""
         ;;
 esac
 EOF
