@@ -730,7 +730,7 @@ procedure Check_Mem is
       Server    : AWS.SMTP.Receiver;
       Status    : AWS.SMTP.Status;
 
-      SMTP_Host : constant String := "bad_smtp_host";
+      SMTP_Host : constant String := "255.255.255.255";
    begin
       From := AWS.SMTP.E_Mail
         (Name    => "Pascal Obry",
