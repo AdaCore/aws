@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2002-2012, AdaCore                     --
+--                     Copyright (C) 2002-2014, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -104,7 +104,7 @@ package AWS.Resources is
       Buffer    : out String;
       Last      : out Natural);
    --  Returns a line from the file. A line is a set of character terminated
-   --  by ASCII.LF (UNIX style EOF) or ASCII.CR+ASCII.LF (DOS style EOF).
+   --  by ASCII.LF (UNIX style EOL) or ASCII.CR+ASCII.LF (DOS style EOL).
 
    function End_Of_File (Resource : File_Type) return Boolean;
    --  Returns true if there is no more data to read
