@@ -39,6 +39,7 @@ with Interfaces.C.Strings;
 with AWS.Config;
 with AWS.Net.Log;
 with AWS.Net.SSL.Certificate.Impl;
+with AWS.OS_Lib;
 with AWS.Utils;
 
 package body AWS.Net.SSL is
@@ -66,6 +67,12 @@ package body AWS.Net.SSL is
 
    procedure Do_Handshake_Internal (Socket : Socket_Type) with Inline;
    --  The real handshake is done here
+
+   function Write_Socket
+     (S : C.int; Msg : System.Address; Len : C.int) return C.int
+     with Convention => C;
+   --  Would be used only on defined MSG_NOSIGNAL platforms to avoid SIGPIPE
+   --  signal.
 
    package Locking is
 
@@ -925,6 +932,16 @@ package body AWS.Net.SSL is
    begin
       TSSL.gnutls_transport_set_ptr
         (Socket.SSL, TSSL.gnutls_transport_ptr_t (Socket.Get_FD));
+
+      pragma Warnings (Off, "*condition is always *");
+
+      if OS_Lib.MSG_NOSIGNAL /= -1 then
+         TSSL.gnutls_transport_set_push_function
+           (Socket.SSL, push_func => Write_Socket'Address);
+      end if;
+
+      pragma Warnings (On, "*condition is always *");
+
       Socket.IO.Handshaken := new Boolean'(False);
    end Session_Transport;
 
@@ -1084,6 +1101,24 @@ package body AWS.Net.SSL is
    begin
       return "GNUTLS " & Value (TSSL.gnutls_check_version (Null_Ptr));
    end Version;
+
+   ------------------
+   -- Write_Socket --
+   ------------------
+
+   function Write_Socket
+     (S : C.int; Msg : System.Address; Len : C.int) return C.int
+   is
+      function C_Send
+        (S     : C.int;
+         Msg   : System.Address;
+         Len   : C.int;
+         Flags : C.int) return C.int
+      with Import, Convention => Stdcall, External_Name => "send";
+
+   begin
+      return C_Send (S, Msg, Len, OS_Lib.MSG_NOSIGNAL);
+   end Write_Socket;
 
 begin
    Check_Error_Code
