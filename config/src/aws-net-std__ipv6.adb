@@ -833,7 +833,7 @@ package body AWS.Net.Std is
         with Import, Convention => Stdcall, External_Name => "sendto";
 
    begin
-      pragma Warnings (Off, "*condition is always False*");
+      pragma Warnings (Off, "*condition is always *");
 
       RC := C_Sendto
               (Socket.S.FD,
@@ -842,7 +842,7 @@ package body AWS.Net.Std is
                (if OS_Lib.MSG_NOSIGNAL = -1 then 0 else OS_Lib.MSG_NOSIGNAL),
                null, 0);
 
-      pragma Warnings (On, "*condition is always False*");
+      pragma Warnings (On, "*condition is always *");
 
       if RC = Failure then
          Errno := OS_Lib.Socket_Errno;
