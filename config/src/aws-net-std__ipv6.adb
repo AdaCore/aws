@@ -823,31 +823,28 @@ package body AWS.Net.Std is
       Errno : Integer;
       RC    : C.int;
 
-      function C_Sendto
+      function C_Send
         (S     : C.int;
          Msg   : System.Address;
          Len   : C.int;
-         Flags : C.int;
-         To    : access Sockaddr_In6;
-         Tolen : C.int) return C.int
-        with Import, Convention => Stdcall, External_Name => "sendto";
+         Flags : C.int) return C.int
+        with Import, Convention => Stdcall, External_Name => "send";
 
    begin
       pragma Warnings (Off, "*condition is always *");
 
-      RC := C_Sendto
+      RC := C_Send
               (Socket.S.FD,
                Data'Address,
                Data'Length,
-               (if OS_Lib.MSG_NOSIGNAL = -1 then 0 else OS_Lib.MSG_NOSIGNAL),
-               null, 0);
+               (if OS_Lib.MSG_NOSIGNAL = -1 then 0 else OS_Lib.MSG_NOSIGNAL));
 
       pragma Warnings (On, "*condition is always *");
 
       if RC = Failure then
          Errno := OS_Lib.Socket_Errno;
 
-         if Errno = OS_Lib.EWOULDBLOCK then
+         if Errno = OS_Lib.EWOULDBLOCK or else Errno = OS_Lib.EAGAIN then
             Last := Last_Index (Data'First, 0);
             return;
 
