@@ -321,23 +321,7 @@ package body AWS.Net.SSL is
 
          exit when Code = TSSL.GNUTLS_E_SUCCESS;
 
-         if Code = TSSL.GNUTLS_E_INTERRUPTED
-           or else Code = TSSL.GNUTLS_E_AGAIN
-         then
-            if Socket.Config.Is_Server then
-               --  Yield otherwise we get a crash from GNU/TLS library and the
-               --  program terminates. After some analysis it looks like some
-               --  lock are not properly created if we do not yield here.
-               --  ??? Maybe a GNU/TLS bug in 3.0.20, to be checked with futur
-               --  version on regression test 0226_client_cert.
-               delay 0.01;
-
-               Code_Processing (Code, Socket, Timeout => 0.5);
-            end if;
-
-         else
-            Check_Error_Code (Code, Socket);
-         end if;
+         Code_Processing (Code, Socket);
       end loop;
 
       Socket.IO.Handshaken.all := True;
