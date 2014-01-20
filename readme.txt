@@ -4,7 +4,7 @@
 
 Authors:
    Dmitriy Anisimkov
-   Pascal Obry                                          October 20th, 2012
+   Pascal Obry                                          January 20th, 2014
 
 
 
@@ -79,23 +79,6 @@ features in your application by using the GNAT's -gnatwj option as we
 have tagged all obsolescent features with a pragma.
 
 
-Notes
------
-
-The OpenSSL libraries (optional) distributed are for Windows only. On UNIX
-you'll have to build the libraries from sources, it is quite easy to do
-so. This has been tested on GNU/Linux without trouble.
-
-The LDAP binding will use the LDAP dynamic library on Windows. On UNIX you
-need to build and install OpenLDAP.
-
-See documentation for build information.
-
-To edit a project using AWS you need at least GPS 4.3.0 because of a
-restriction in previous version on variable reference for external default
-value.
-
-
 Known problems
 --------------
 
@@ -132,7 +115,7 @@ Templates_Parser sources:
 
 GNU/Ada - GNAT
 
-   You need at least GNAT 2012 GPL Edition or GNAT Pro 7.0
+   You need at least GNAT 2014 GPL Edition or GNAT Pro 7.2
 
    http://libre.adacore.com/GNAT/
 
@@ -143,14 +126,22 @@ XML/Ada (optional):
 
    http://libre.adacore.com/
 
+OpenSSL (optional):
+
+   You need to install manually the development libraries.
+
+GNU/TLS (optional):
+
+   You need to install manually the development libraries. AWS needs at
+   least version 3.2.4 of GNU/TLS.
+
 OpenLDAP library (optional) :
 
    Sources for UNIX or Win32:
       http://www.openldap.org/
 
-   binaries for Win32:
-      Included with the main AWS distribution (win32 directory). The import
-      library will bind to the Microsoft LDAP dynamic library.
+   Win32:
+      AWS binding will use to the Microsoft LDAP dynamic library.
 
 Windows Services API (optional):
 
