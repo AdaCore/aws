@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2012-2013, AdaCore                     --
+--                     Copyright (C) 2012-2014, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -34,7 +34,7 @@ package AWS.Net.SSL.Certificate.Impl is
    use Interfaces;
 
    function Get (Socket : Socket_Type) return Object;
-   --  Read certificate from peer socket. Note that GNU/TLS sends the client
+   --  Read certificate from peer socket. Note that GNUTLS sends the client
    --  certificate only of the server CA corresponds. This means that if no
    --  CA is used this routine will return an empty certificate when trying to
    --  retreive the client certificate.

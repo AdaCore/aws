@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2012-2013, AdaCore                     --
+--                     Copyright (C) 2012-2014, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -236,7 +236,7 @@ package body AWS.Net.SSL.Certificate.Impl is
       Message      : Unbounded_String;
 
    begin
-      --  The GNU/TLS status is an unsigned long bitwise or’d
+      --  The GNUTLS status is an unsigned long bitwise or’d
       --  gnutls_certificate_status_t values or zero if the certificate is
       --  trusted.
 

@@ -130,10 +130,10 @@ OpenSSL (optional):
 
    You need to install manually the development libraries.
 
-GNU/TLS (optional):
+GNUTLS (optional):
 
    You need to install manually the development libraries. AWS needs at
-   least version 3.2.4 of GNU/TLS.
+   least version 3.2.4 of GNUTLS.
 
 OpenLDAP library (optional) :
 

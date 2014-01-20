@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                            Secure Sockets Layer                          --
 --                                                                          --
---                      Copyright (C) 2005-2013, AdaCore                    --
+--                      Copyright (C) 2005-2014, AdaCore                    --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -29,7 +29,7 @@
 
 pragma Ada_2012;
 
---  Thin binding to GNU/TLS
+--  Thin binding to GNUTLS
 
 with Interfaces.C.Strings;
 with System;
