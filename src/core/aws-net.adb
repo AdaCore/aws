@@ -27,6 +27,7 @@
 --  covered by the  GNU Public License.                                     --
 ------------------------------------------------------------------------------
 
+with Ada.Real_Time;
 with Ada.Strings.Fixed;
 with Ada.Unchecked_Deallocation;
 
@@ -424,18 +425,36 @@ package body AWS.Net is
    procedure Send
      (Socket : Socket_Type'Class; Data : Stream_Element_Array)
    is
+      use Ada.Real_Time;
+      Save  : constant Boolean := Socket.C.Can_Wait;
       First : Stream_Element_Offset := Data'First;
       Last  : Stream_Element_Offset;
-      Save  : constant Boolean := Socket.C.Can_Wait;
+      Stamp : Time;
    begin
       Socket.C.Can_Wait := True;
+
+      if Socket.Timeout = Forever then
+         Stamp := Time_Last;
+
+      elsif Socket.Timeout < 0.0 then
+         Stamp := Clock;
+
+      else
+         begin
+            Stamp := Clock + To_Time_Span (Socket.Timeout);
+         exception
+            when Constraint_Error =>
+               --  Too big
+               Stamp := Time_Last;
+         end;
+      end if;
 
       loop
          Send (Socket, Data (First .. Data'Last), Last);
 
          exit when Last = Data'Last;
 
-         Wait_For (Output, Socket);
+         Wait_For (Output, Socket, Timeout => To_Duration (Stamp - Clock));
 
          if Last < Data'Last then
             --  Otherwise First should be unchanged, because no data sent
