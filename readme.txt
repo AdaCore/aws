@@ -117,7 +117,7 @@ GNU/Ada - GNAT
 
    You need at least GNAT 2014 GPL Edition or GNAT Pro 7.2
 
-   http://libre.adacore.com/GNAT/
+   http://libre.adacore.com/tools/gnat-gpl-edition/
 
 XML/Ada (optional):
 
