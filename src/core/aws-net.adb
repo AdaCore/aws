@@ -464,9 +464,10 @@ package body AWS.Net is
       end loop;
 
       Socket.C.Can_Wait := Save;
-   exception when others =>
-      Socket.C.Can_Wait := Save;
-      raise;
+   exception
+      when others =>
+         Socket.C.Can_Wait := Save;
+         raise;
    end Send;
 
    -----------------------
