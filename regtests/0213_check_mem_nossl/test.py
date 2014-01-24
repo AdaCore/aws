@@ -25,12 +25,12 @@ exec_cmd('wsdl2aws', ['-q', '-f', '-types', 'api2', '-cb', 'api2.wsdl'],
 build('check_mem_nossl')
 
 #  Run driver (2 loops)
-run('check_mem_nossl', ['2'], output_file='check_mem_nossl.res1')
+run('check_mem_nossl', ['2'])
 exec_cmd('gnatmem', ['5', '-i', 'gmem.out', './check_mem_nossl'],
          output_file='check_mem_nossl.run1')
 
 #  Run driver (10 loops)
-run('check_mem_nossl', ['10'], output_file='check_mem_nossl.res2')
+run('check_mem_nossl', ['10'])
 exec_cmd('gnatmem', ['5', '-i', 'gmem.out', './check_mem_nossl'],
          output_file='check_mem_nossl.run2')
 

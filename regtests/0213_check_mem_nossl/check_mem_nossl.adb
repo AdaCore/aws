@@ -1,19 +1,30 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2011-2013, AdaCore                     --
+--                     Copyright (C) 2011-2014, AdaCore                     --
 --                                                                          --
---  This is free software;  you can redistribute it  and/or modify it       --
---  under terms of the  GNU General Public License as published  by the     --
---  Free Software  Foundation;  either version 3,  or (at your option) any  --
---  later version.  This software is distributed in the hope  that it will  --
---  be useful, but WITHOUT ANY WARRANTY;  without even the implied warranty --
---  of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU     --
---  General Public License for  more details.                               --
+--  This library is free software;  you can redistribute it and/or modify   --
+--  it under terms of the  GNU General Public License  as published by the  --
+--  Free Software  Foundation;  either version 3,  or (at your  option) any --
+--  later version. This library is distributed in the hope that it will be  --
+--  useful, but WITHOUT ANY WARRANTY;  without even the implied warranty of --
+--  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.                    --
 --                                                                          --
---  You should have  received  a copy of the GNU General  Public  License   --
---  distributed  with  this  software;   see  file COPYING3.  If not, go    --
---  to http://www.gnu.org/licenses for a complete copy of the license.      --
+--  As a special exception under Section 7 of GPL version 3, you are        --
+--  granted additional permissions described in the GCC Runtime Library     --
+--  Exception, version 3.1, as published by the Free Software Foundation.   --
+--                                                                          --
+--  You should have received a copy of the GNU General Public License and   --
+--  a copy of the GCC Runtime Library Exception along with this program;    --
+--  see the files COPYING3 and COPYING.RUNTIME respectively.  If not, see   --
+--  <http://www.gnu.org/licenses/>.                                         --
+--                                                                          --
+--  As a special exception, if other files instantiate generics from this   --
+--  unit, or you link this unit with other files to produce an executable,  --
+--  this  unit  does not  by itself cause  the resulting executable to be   --
+--  covered by the GNU General Public License. This exception does not      --
+--  however invalidate any other reasons why the executable file  might be  --
+--  covered by the  GNU Public License.                                     --
 ------------------------------------------------------------------------------
 
 with Ada.Calendar;
@@ -42,6 +53,8 @@ with AWS.Status;
 with AWS.Templates;
 with AWS.Translator;
 with AWS.Utils;
+
+with GNAT.MD5;
 
 with SOAP.Client;
 with SOAP.Message.Payload;
@@ -111,6 +124,7 @@ procedure Check_Mem_Nossl is
 
       N           : Natural := 0;
       Strm        : Resources.Streams.Stream_Access;
+      Answer      : Response.Data;
    begin
       if Session.Exist (SID, "key") then
          N := Session.Get (SID, "key");
@@ -136,36 +150,45 @@ procedure Check_Mem_Nossl is
          end;
 
       elsif URI = "/simple" then
-         Check (Natural'Image (Parameters.Count (P_List)));
-         Check (Parameters.Get (P_List, "p1"));
-         Check (Parameters.Get (P_List, "p2"));
-
-         return Response.Build (MIME.Text_HTML, "simple ok");
+         return Response.Build
+                  (MIME.Text_HTML,
+                   "simple ok" & Natural'Image (Parameters.Count (P_List))
+                   & ' ' & Parameters.Get (P_List, "p1")
+                   & ' ' & Parameters.Get (P_List, "p2"));
 
       elsif URI = "/complex" then
-         Check (Natural'Image (Parameters.Count (P_List)));
-         Check (Parameters.Get (P_List, "p1"));
-         Check (Parameters.Get (P_List, "p2"));
-
          for K in 1 .. Parameters.Count (P_List) loop
-            Check (Parameters.Get_Name (P_List, K));
-            Check (Parameters.Get_Value (P_List, K));
+            declare
+               Name  : constant String := Parameters.Get_Name (P_List, K);
+               Value : constant String := Parameters.Get_Value (P_List, K);
+            begin
+               if Name (Name'First) /= 'p'
+                 or else Name (Name'First + 1 .. Name'Last) /= Value
+                 or else K /= Natural'Value (Value)
+               then
+                  Response.Set.Append_Body
+                    (Answer, Name & '=' & Value & K'Img);
+               end if;
+            end;
          end loop;
 
-         return Response.Build (MIME.Text_HTML, "complex ok");
+         Response.Set.Append_Body
+           (Answer, Natural'Image (Parameters.Count (P_List)));
+
+         return Answer;
 
       elsif URI = "/multiple" then
-         Check (Natural'Image (Parameters.Count (P_List)));
-         Check (Parameters.Get (P_List, "par", 1));
-         Check (Parameters.Get (P_List, "par", 2));
-         Check (Parameters.Get (P_List, "par", 3));
-         Check (Parameters.Get (P_List, "par", 4));
-         Check (Parameters.Get (P_List, "par", 5));
-
-         return Response.Build (MIME.Text_HTML, "multiple ok");
+         return Response.Build
+                  (MIME.Text_HTML,
+                   "multiple ok" & Natural'Image (Parameters.Count (P_List))
+                   & ' ' & Parameters.Get (P_List, "par", 1)
+                   & ' ' & Parameters.Get (P_List, "par", 2)
+                   & ' ' & Parameters.Get (P_List, "par", 3)
+                   & ' ' & Parameters.Get (P_List, "par", 4)
+                   & ' ' & Parameters.Get (P_List, "par", 5));
 
       elsif URI = "/file" then
-         return Response.File (MIME.Text_Plain, "check_mem.adb");
+         return Response.File (MIME.Text_Plain, "check_mem_nossl.adb");
 
       elsif URI = "/filea.txt"
         or else URI = "/fileb.txt"
@@ -221,10 +244,7 @@ procedure Check_Mem_Nossl is
             "check_mem_nossl.adb");
 
          return Response.Stream
-           (MIME.Text_Plain,
-            Resources.Streams.ZLib.Deflate_Create
-              (Strm, Header => Resources.Streams.ZLib.ZL.Gzip),
-            Encoding => Messages.GZip);
+                  (MIME.Text_Plain, Strm, Encoding => Messages.GZip);
 
       elsif URI = "/stream-unknown" then
          Strm := new Resources.Streams.Disk.Stream_Type;
@@ -320,7 +340,7 @@ procedure Check_Mem_Nossl is
 
    procedure Client is
 
-      procedure Request (URL : String);
+      procedure Request (URL : String; Filename : String := "");
 
       procedure Request (Proc : String; X, Y : Integer);
 
@@ -328,11 +348,59 @@ procedure Check_Mem_Nossl is
       -- Request --
       -------------
 
-      procedure Request (URL : String) is
+      procedure Request (URL : String; Filename : String := "") is
+         use type AWS.Messages.Status_Code;
+         use Ada.Streams;
          R : Response.Data;
+
+         Result : Resources.File_Type;
+         File   : Resources.File_Type;
+         Data_R : Stream_Element_Array (1 .. 4096);
+         Last_R : Stream_Element_Offset;
+         Data_F : Stream_Element_Array (1 .. Data_R'Last);
+         Last_F : Stream_Element_Offset;
       begin
          R := AWS.Client.Get (AWS.Server.Status.Local_URL (HTTP) & URL);
-         Check (Response.Message_Body (R));
+
+         Response.Message_Body (R, Result);
+
+         if Response.Status_Code (R) = Messages.S404
+           and then Response.Is_Empty (R)
+         then
+            Check (URL & " not found, empty response");
+            return;
+         end if;
+
+         if Filename /= "" then
+            Resources.Open (File, Filename, "shared=no");
+            Check (Filename);
+         end if;
+
+         loop
+            Resources.Read (Result, Data_R, Last_R);
+
+            if Filename = "" then
+               if Last_R < 64 then
+                  Check (Translator.To_String (Data_R (1 .. Last_R)));
+               else
+                  Check (GNAT.MD5.Digest (Data_R (1 .. Last_R)));
+               end if;
+            else
+               Resources.Read (File, Data_F, Last_F);
+
+               if Data_R (1 .. Last_R) /= Data_F (1 .. Last_F) then
+                  Put_Line ("Responce error");
+               end if;
+            end if;
+
+            exit when Last_R < Data_R'Last;
+         end loop;
+
+         if Filename /= "" then
+            Resources.Close (File);
+         end if;
+
+         Resources.Close (Result);
       end Request;
 
       procedure Request (Proc : String; X, Y : Integer) is
@@ -374,10 +442,10 @@ procedure Check_Mem_Nossl is
       Request ("/multiple?par=1&par=2&par=3&par=4&par=whatever");
 
       Request ("/simple?p1=8&p2=azerty%20qwerty");
-      Request ("/file");
+      Request ("/file", "check_mem_nossl.adb");
       Request ("/template");
       Request ("/no-template");
-      Request ("/stream");
+      Request ("/stream", "check_mem_nossl.adb");
       Request ("/stream-unknown");
 
       Request ("multProc", 2, 3);
@@ -609,7 +677,7 @@ procedure Check_Mem_Nossl is
       Server    : AWS.SMTP.Receiver;
       Status    : AWS.SMTP.Status;
 
-      SMTP_Host : constant String := "bad_smtp_host";
+      SMTP_Host : constant String := "255.255.255.255";
    begin
       Time_Tag ("Check_SMTP");
 
@@ -664,9 +732,10 @@ procedure Check_Mem_Nossl is
 
    procedure Time_Tag (Label : String) is
       use type Calendar.Time;
-      Now : constant Calendar.Time := Calendar.Clock;
    begin
-      Put_Line (Label & " : " & Utils.Image (Now - Start_Time));
+      --  Put_Line (Label & " : " & Utils.Image (Calendar.Clock - Start_Time));
+      --  Code above commented to have same output in regression testing.
+      --  Uncomment it to see time output.
       Flush;
    end Time_Tag;
 
@@ -689,7 +758,7 @@ begin
       declare
          R : Response.Data;
       begin
-         R := AWS.Client.Get ("http://www.nowayitexists.com/me/aws");
+         R := AWS.Client.Get ("http://255.255.255.255/me/aws");
       exception
          when E : others =>
             Put_Line ("*** " & Exception_Message (E));
