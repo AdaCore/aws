@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2005-2013, AdaCore                     --
+--                     Copyright (C) 2005-2014, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -109,11 +109,9 @@ package body AWS.Client.HTTP_Utils is
             Connection.SSL_Config);
       end if;
 
-      Net.Set_Timeout (Sock.all, Connection.Timeouts.Connect);
+      Sock.Set_Timeout (Connection.Timeouts.Connect);
 
-      Net.Connect
-        (Sock.all,
-         AWS.URL.Host (Connect_URL), AWS.URL.Port (Connect_URL));
+      Sock.Connect (AWS.URL.Host (Connect_URL), AWS.URL.Port (Connect_URL));
 
       Connection.Opened := True;
 
@@ -129,7 +127,7 @@ package body AWS.Client.HTTP_Utils is
          --  <other headers>
          --  <empty line>
 
-         Net.Set_Timeout (Sock.all, Connection.Timeouts.Send);
+         Sock.Set_Timeout (Connection.Timeouts.Send);
 
          declare
             use AWS.URL;
@@ -162,7 +160,7 @@ package body AWS.Client.HTTP_Utils is
 
          --  Wait for reply from the proxy, and check status
 
-         Net.Set_Timeout (Sock.all, Connection.Timeouts.Receive);
+         Sock.Set_Timeout (Connection.Timeouts.Receive);
 
          declare
             use type Messages.Status_Code;
@@ -205,7 +203,7 @@ package body AWS.Client.HTTP_Utils is
             --  Do explicit handshake for be able to get server certificate
             --  after connect.
 
-            Net.SSL.Do_Handshake (SS);
+            SS.Do_Handshake;
          end;
       end if;
 
@@ -249,7 +247,7 @@ package body AWS.Client.HTTP_Utils is
          Connection.Opened := False;
 
          if Connection.Socket /= null then
-            Net.Shutdown (Connection.Socket.all);
+            Connection.Socket.Shutdown;
          end if;
       end if;
 
@@ -287,7 +285,7 @@ package body AWS.Client.HTTP_Utils is
       end Disconnect;
 
    begin
-      Net.Set_Timeout (Sock, Connection.Timeouts.Receive);
+      Sock.Set_Timeout (Connection.Timeouts.Receive);
 
       --  Clear the data in the response
 
@@ -670,7 +668,7 @@ package body AWS.Client.HTTP_Utils is
          Sock := Connection.Socket;
       end if;
 
-      Net.Set_Timeout (Sock.all, Connection.Timeouts.Send);
+      Sock.Set_Timeout (Connection.Timeouts.Send);
 
       --  Header command
 
