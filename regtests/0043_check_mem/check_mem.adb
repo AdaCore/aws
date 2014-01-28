@@ -685,7 +685,7 @@ procedure Check_Mem is
          accept Start;
 
          for J in 1 .. N loop
-            Connect (Client, Server.Get_Addr, Server.Get_Port);
+            Connect (Client, Localhost (Server.Is_IPv6), Server.Get_Port);
             Send (Client, (1 .. 10 => 11));
             Receive (Client, Buffer, Last);
             Shutdown (Client);
