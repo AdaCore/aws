@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2012-2013, AdaCore                     --
+--                     Copyright (C) 2012-2014, AdaCore                     --
 --                                                                          --
 --  This is free software;  you can redistribute it  and/or modify it       --
 --  under terms of the  GNU General Public License as published  by the     --
@@ -81,6 +81,17 @@ package body WebSock_CB is
         ("Received : Connection_Close "
          & Net.WebSocket.Error_Type'Image (Socket.Error) & ", " & Message);
    end On_Close;
+
+   --------------
+   -- On_Error --
+   --------------
+
+   overriding procedure On_Error (Socket : in out Object; Message : String) is
+   begin
+      Text_IO.Put_Line
+        ("Error : "
+         & Net.WebSocket.Error_Type'Image (Socket.Error) & ", " & Message);
+   end On_Error;
 
    ----------------
    -- On_Message --
