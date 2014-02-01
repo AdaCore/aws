@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2012-2013, AdaCore                     --
+--                     Copyright (C) 2012-2014, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -61,7 +61,9 @@ package body AWS.Net.WebSocket.Registry is
    --  Order on the socket file descriptor
 
    procedure WebSocket_Exception
-     (WebSocket : Object_Class; Message : String);
+     (WebSocket : Object_Class;
+      Message   : String;
+      Error     : Error_Type);
    --  Call when an exception is caught. In this case we want to send the
    --  error message, the close message and shutdown the socket.
 
@@ -320,7 +322,8 @@ package body AWS.Net.WebSocket.Registry is
          exception
             when E : others =>
                DB.Unregister (WebSocket);
-               WebSocket_Exception (WebSocket, Exception_Message (E));
+               WebSocket_Exception
+                 (WebSocket, Exception_Message (E), Protocol_Error);
          end;
       end loop Handle_Message;
    end Message_Reader;
@@ -569,7 +572,8 @@ package body AWS.Net.WebSocket.Registry is
                exception
                   when E : others =>
                      Unregister (WebSocket);
-                     WebSocket_Exception (WebSocket, Exception_Message (E));
+                     WebSocket_Exception
+                       (WebSocket, Exception_Message (E), Protocol_Error);
                end;
             end if;
          end Send_To;
@@ -894,11 +898,17 @@ package body AWS.Net.WebSocket.Registry is
    -------------------------
 
    procedure WebSocket_Exception
-     (WebSocket : Object_Class; Message : String) is
+     (WebSocket : Object_Class;
+      Message   : String;
+      Error     : Error_Type) is
    begin
-      WebSocket.State.Errno := Error_Code (Protocol_Error);
+      WebSocket.State.Errno := Error_Code (Error);
       WebSocket.On_Error (Message);
-      WebSocket.On_Close (Message);
+
+      if Error /= Abnormal_Closure then
+         WebSocket.On_Close (Message);
+      end if;
+
       WebSocket.Shutdown;
    exception
       when others =>
