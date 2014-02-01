@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2012-2013, AdaCore                     --
+--                     Copyright (C) 2012-2014, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -96,7 +96,8 @@ package body AWS.Net.WebSocket.Protocol.RFC6455 is
      (Protocol : in out State;
       Socket   : Object;
       Opcd     : Opcode;
-      Data     : Stream_Element_Array);
+      Data     : Stream_Element_Array;
+      Error    : Status_Code := 0);
    --  Send the frame (header + data)
 
    function Is_Library_Error (Code : Interfaces.Unsigned_16) return Boolean;
@@ -104,6 +105,21 @@ package body AWS.Net.WebSocket.Protocol.RFC6455 is
 
    function Is_Valid_Close_Code (Error : Error_Type) return Boolean;
    --  Returns True if the Error code is valid
+
+   -----------
+   -- Close --
+   -----------
+
+   overriding procedure Close
+     (Protocol : in out State;
+      Socket   : Object;
+      Data     : String;
+      Error    : Status_Code) is
+   begin
+      Send_Frame
+        (Protocol, Socket, O_Connection_Close,
+         Translator.To_Stream_Element_Array (Data), Error);
+   end Close;
 
    --------------------
    -- End_Of_Message --
@@ -366,7 +382,7 @@ package body AWS.Net.WebSocket.Protocol.RFC6455 is
                            (Translator.To_String
                              (Data (Data'First + 2 .. Last)))
                      then
-                        E := Error_Code (Normal_Closure);
+                        null;
                      else
                         E := Error_Code (Protocol_Error);
                      end if;
@@ -374,15 +390,15 @@ package body AWS.Net.WebSocket.Protocol.RFC6455 is
                      --  Set back Errno
 
                      Socket.State.Errno := E;
-
-                     if Default_Bit_Order = Low_Order_First then
-                        Byte_Swapping.Swap2 (E'Address);
-                     end if;
-
-                     --  And set the new error code in the payload
-
-                     Data (Data'First .. Data'First + 1) := D;
                   end;
+
+               elsif Last - Data'First = 0 then
+                  --  A single byte, we are missing the status code
+                  Socket.State.Errno := Error_Code (Protocol_Error);
+
+               else
+                  --  Empty payload, this is a normal closure
+                  Socket.State.Errno := Error_Code (Normal_Closure);
                end if;
 
                --  If needed send a close frame
@@ -394,7 +410,9 @@ package body AWS.Net.WebSocket.Protocol.RFC6455 is
 
                   Send_Frame
                     (Protocol,
-                     Socket, O_Connection_Close, Data (Data'First .. Last));
+                     Socket, O_Connection_Close,
+                     Data (Data'First + 2 .. Last),
+                     Error => Socket.State.Errno);
                end if;
 
                Socket.State.Kind := Connection_Close;
@@ -506,9 +524,37 @@ package body AWS.Net.WebSocket.Protocol.RFC6455 is
      (Protocol : in out State;
       Socket   : Object;
       Opcd     : Opcode;
-      Data     : Stream_Element_Array) is
+      Data     : Stream_Element_Array;
+      Error    : Status_Code := 0)
+   is
+      use GNAT;
+      use System;
+      use type Status_Code;
+
+      Error_Code_Needed : constant Boolean :=
+                            Opcd = O_Connection_Close and then Error > 0;
+
+      Frame_Length      : constant Stream_Element_Offset :=
+                            Data'Length + (if Error_Code_Needed then 2 else 0);
+
    begin
-      Send_Frame_Header (Protocol, Socket, Opcd, Data'Length);
+      Send_Frame_Header (Protocol, Socket, Opcd, Frame_Length);
+
+      --  Send the 2-byte error code for close control frame
+
+      if Error_Code_Needed then
+         declare
+            D : Stream_Element_Array (1 .. 2);
+            for D'Alignment use Interfaces.Unsigned_16'Alignment;
+            E : Interfaces.Unsigned_16 := Error;
+            for E'Address use D'Address;
+         begin
+            if Default_Bit_Order = Low_Order_First then
+               Byte_Swapping.Swap2 (E'Address);
+            end if;
+            Net.Buffered.Write (Socket, D);
+         end;
+      end if;
 
       --  Send payload
 
