@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2003-2013, AdaCore                     --
+--                     Copyright (C) 2003-2014, AdaCore                     --
 --                                                                          --
 --  This is free software;  you can redistribute it  and/or modify it       --
 --  under terms of the  GNU General Public License as published  by the     --
@@ -62,5 +62,11 @@ aggregate library project AWS is
                null;
          end case;
    end case;
+
+   -------------
+   -- Builder --
+   -------------
+
+   package Builder renames Shared.Builder;
 
 end AWS;
