@@ -1,2 +1,9 @@
 Known Problems fixed in AWS 3.2
 
+- N129-029: Better handling for WebSocket abonormal closure
+  Problem: When a client close the connection abruptly we now send
+           only a On_Error message with the Abnormal_Closure status
+           code.
+  Workaround: Do not take any action for On_Close message with a
+              Protocol_Error status where the message string contains
+              "closed by peer".

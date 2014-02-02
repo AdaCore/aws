@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2012-2013, AdaCore                     --
+--                     Copyright (C) 2012-2014, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -60,7 +60,12 @@ package AWS.Net.WebSocket is
       Mandatory_Extension,
       Internal_Server_Error,
       TLS_Handshake,
-      Cannot_Resolve_Error);
+      Cannot_Resolve_Error,
+      User_01,              -- User's defined error code
+      User_02,
+      User_03,
+      User_04,
+      User_05);
 
    --
    --  The following three methods are the one to override or redefine. In fact
@@ -119,6 +124,12 @@ package AWS.Net.WebSocket is
       Message   : Stream_Element_Array;
       Is_Binary : Boolean := True);
    --  As above but default is a binary message
+
+   procedure Close
+     (Socket  : in out Object;
+      Message : String;
+      Error   : Error_Type := Normal_Closure);
+   --  Send a close frame to the WebSocket
 
    --
    --  Simple accessors to WebSocket state
@@ -273,6 +284,11 @@ private
                    Mandatory_Extension        => 1010,
                    Internal_Server_Error      => 1011,
                    TLS_Handshake              => 1015,
-                   Cannot_Resolve_Error       => 0000);
+                   Cannot_Resolve_Error       => 0000,
+                   User_01                    => 3000,
+                   User_02                    => 3001,
+                   User_03                    => 3002,
+                   User_04                    => 3003,
+                   User_05                    => 3004);
 
 end AWS.Net.WebSocket;

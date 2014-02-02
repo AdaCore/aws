@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2012-2013, AdaCore                     --
+--                     Copyright (C) 2012-2014, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -44,6 +44,18 @@ package body AWS.Net.WebSocket is
    type Protocol_State is record
       State : Net.WebSocket.Protocol.State_Class;
    end record;
+
+   -----------
+   -- Close --
+   -----------
+
+   procedure Close
+     (Socket  : in out Object;
+      Message : String;
+      Error   : Error_Type := Normal_Closure) is
+   begin
+      Socket.P_State.State.Close (Socket, Message, Error_Code (Error));
+   end Close;
 
    ------------
    -- Create --

@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2012-2013, AdaCore                     --
+--                     Copyright (C) 2012-2014, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -34,6 +34,8 @@ package AWS.Net.WebSocket.Protocol is
    type State is abstract tagged null record;
    type State_Class is access all State'Class;
 
+   subtype Status_Code is Interfaces.Unsigned_16 range 0 .. 4_999;
+
    procedure Send
      (Protocol : in out State;
       Socket   : Object;
@@ -46,6 +48,13 @@ package AWS.Net.WebSocket.Protocol is
       Data     : Unbounded_String) is abstract;
    --  Same as above but for an Unbounded_String. This version supports large
    --  messages possibly sent fragmented.
+
+   procedure Close
+     (Protocol : in out State;
+      Socket   : Object;
+      Data     : String;
+      Error    : Status_Code) is abstract;
+   --  Send a close frame to the given socket
 
    procedure Receive
      (Protocol : in out State;

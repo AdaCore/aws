@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2012-2013, AdaCore                     --
+--                     Copyright (C) 2012-2014, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -45,6 +45,13 @@ package AWS.Net.WebSocket.Protocol.RFC6455 is
       Data     : Unbounded_String);
    --  Same as above but for an Unbounded_String. This version supports large
    --  messages possibly sent fragmented.
+
+   overriding procedure Close
+     (Protocol : in out State;
+      Socket   : Object;
+      Data     : String;
+      Error    : Status_Code);
+   --  Send a close frame
 
    overriding procedure Receive
      (Protocol : in out State;

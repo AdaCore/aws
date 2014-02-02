@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2012-2013, AdaCore                     --
+--                     Copyright (C) 2012-2014, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -61,7 +61,9 @@ package body AWS.Net.WebSocket.Registry is
    --  Order on the socket file descriptor
 
    procedure WebSocket_Exception
-     (WebSocket : Object_Class; Message : String);
+     (WebSocket : Object_Class;
+      Message   : String;
+      Error     : Error_Type);
    --  Call when an exception is caught. In this case we want to send the
    --  error message, the close message and shutdown the socket.
 
@@ -160,13 +162,15 @@ package body AWS.Net.WebSocket.Registry is
         (To          : Recipient;
          Message     : String;
          Except_Peer : String;
-         Timeout     : Duration := Forever);
+         Timeout     : Duration := Forever;
+         Error       : Error_Type := Normal_Closure);
       --  Close all matching Webockets
 
       procedure Close
         (Socket  : in out Object'Class;
          Message : String;
-         Timeout : Duration := Forever);
+         Timeout : Duration := Forever;
+         Error   : Error_Type := Normal_Closure);
 
       procedure Register (WebSocket : Object_Class);
       --  Register a new WebSocket
@@ -272,7 +276,17 @@ package body AWS.Net.WebSocket.Registry is
             --  binary ones. This loop handles those cases.
 
             Read_Message : loop
-               DB.Receive (WebSocket, Data, Last);
+               begin
+                  DB.Receive (WebSocket, Data, Last);
+               exception
+                  when E : Socket_Error =>
+                     DB.Unregister (WebSocket);
+                     WebSocket_Exception
+                       (WebSocket,
+                        Exception_Message (E),
+                        Abnormal_Closure);
+                     exit Read_Message;
+               end;
 
                case WebSocket.Kind is
                   when Text | Binary =>
@@ -320,7 +334,8 @@ package body AWS.Net.WebSocket.Registry is
          exception
             when E : others =>
                DB.Unregister (WebSocket);
-               WebSocket_Exception (WebSocket, Exception_Message (E));
+               WebSocket_Exception
+                 (WebSocket, Exception_Message (E), Protocol_Error);
          end;
       end loop Handle_Message;
    end Message_Reader;
@@ -339,7 +354,8 @@ package body AWS.Net.WebSocket.Registry is
         (To          : Recipient;
          Message     : String;
          Except_Peer : String;
-         Timeout     : Duration := Forever)
+         Timeout     : Duration := Forever;
+         Error       : Error_Type := Normal_Closure)
       is
 
          procedure Close_To (Position : WebSocket_Set.Cursor);
@@ -361,13 +377,14 @@ package body AWS.Net.WebSocket.Registry is
                  or else GNAT.Regexp.Match (WebSocket.Origin, To.Origin))
             then
                DB.Unregister (WebSocket);
-               WebSocket.State.Errno := Error_Code (Normal_Closure);
+               WebSocket.State.Errno := Error_Code (Error);
 
                --  If an error occurs, we don't want to fail, shutdown the
                --  socket silently.
 
                begin
                   WebSocket.Set_Timeout (Timeout);
+                  WebSocket.Close (Message, Error);
                   WebSocket.On_Close (Message);
                exception
                   when others =>
@@ -387,7 +404,8 @@ package body AWS.Net.WebSocket.Registry is
       procedure Close
         (Socket  : in out Object'Class;
          Message : String;
-         Timeout : Duration := Forever)
+         Timeout : Duration := Forever;
+         Error   : Error_Type := Normal_Closure)
       is
          Socket_Class : Object_Class;
 
@@ -417,8 +435,9 @@ package body AWS.Net.WebSocket.Registry is
             Unregister (Socket_Class);
          end if;
 
-         Socket.State.Errno := Error_Code (Normal_Closure);
+         Socket.State.Errno := Error_Code (Error);
          Socket.Set_Timeout (Timeout);
+         Socket.Close (Message, Error);
          Socket.On_Close (Message);
          Socket.Shutdown;
       end Close;
@@ -569,7 +588,8 @@ package body AWS.Net.WebSocket.Registry is
                exception
                   when E : others =>
                      Unregister (WebSocket);
-                     WebSocket_Exception (WebSocket, Exception_Message (E));
+                     WebSocket_Exception
+                       (WebSocket, Exception_Message (E), Protocol_Error);
                end;
             end if;
          end Send_To;
@@ -684,9 +704,10 @@ package body AWS.Net.WebSocket.Registry is
      (To          : Recipient;
       Message     : String;
       Except_Peer : String := "";
-      Timeout     : Duration := Forever) is
+      Timeout     : Duration := Forever;
+      Error       : Error_Type := Normal_Closure) is
    begin
-      DB.Close (To, Message, Except_Peer, Timeout);
+      DB.Close (To, Message, Except_Peer, Timeout, Error);
    exception
       when others =>
          --  Should never fails even if the WebSocket is closed by peer
@@ -696,9 +717,10 @@ package body AWS.Net.WebSocket.Registry is
    procedure Close
      (Socket  : in out Object'Class;
       Message : String;
-      Timeout : Duration := Forever) is
+      Timeout : Duration := Forever;
+      Error   : Error_Type := Normal_Closure) is
    begin
-      DB.Close (Socket, Message, Timeout);
+      DB.Close (Socket, Message, Timeout, Error);
    exception
       when others =>
          --  Should never fails even if the WebSocket is closed by peer
@@ -894,11 +916,17 @@ package body AWS.Net.WebSocket.Registry is
    -------------------------
 
    procedure WebSocket_Exception
-     (WebSocket : Object_Class; Message : String) is
+     (WebSocket : Object_Class;
+      Message   : String;
+      Error     : Error_Type) is
    begin
-      WebSocket.State.Errno := Error_Code (Protocol_Error);
+      WebSocket.State.Errno := Error_Code (Error);
       WebSocket.On_Error (Message);
-      WebSocket.On_Close (Message);
+
+      if Error /= Abnormal_Closure then
+         WebSocket.On_Close (Message);
+      end if;
+
       WebSocket.Shutdown;
    exception
       when others =>

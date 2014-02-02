@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2012-2013, AdaCore                     --
+--                     Copyright (C) 2012-2014, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -81,7 +81,8 @@ package AWS.Net.WebSocket.Registry is
      (To          : Recipient;
       Message     : String;
       Except_Peer : String := "";
-      Timeout     : Duration := Forever);
+      Timeout     : Duration := Forever;
+      Error       : Error_Type := Normal_Closure);
    --  Close connections
 
    --  Targetting a single WebSocket, these routines are equivalent to the
@@ -114,7 +115,8 @@ package AWS.Net.WebSocket.Registry is
    procedure Close
      (Socket  : in out Object'Class;
       Message : String;
-      Timeout : Duration := Forever);
+      Timeout : Duration := Forever;
+      Error   : Error_Type := Normal_Closure);
 
 private
 
