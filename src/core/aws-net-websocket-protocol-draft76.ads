@@ -47,7 +47,7 @@ package AWS.Net.WebSocket.Protocol.Draft76 is
    --  Same as above but for an Unbounded_String. This version supports large
    --  messages possibly sent fragmented.
 
-   procedure Close
+   overriding procedure Close
      (Protocol : in out State;
       Socket   : Object;
       Data     : String;
