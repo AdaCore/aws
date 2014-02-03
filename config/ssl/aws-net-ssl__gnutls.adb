@@ -130,7 +130,9 @@ package body AWS.Net.SSL is
    Default_Config : aliased TS_SSL;
 
    protected Default_Config_Sync is
-      procedure Create_Default_Config;
+
+      procedure Create;
+      --  Create default config with default parameters
 
       procedure Initialize
         (Certificate_Filename : String;
@@ -283,11 +285,11 @@ package body AWS.Net.SSL is
 
    protected body Default_Config_Sync is
 
-      ---------------------------
-      -- Create_Default_Config --
-      ---------------------------
+      ------------
+      -- Create --
+      ------------
 
-      procedure Create_Default_Config is
+      procedure Create is
          package CNF renames AWS.Config;
          Default : CNF.Object renames CNF.Default_Config;
       begin
@@ -300,10 +302,9 @@ package body AWS.Net.SSL is
                Key_Filename         => CNF.Key (Default),
                Exchange_Certificate => CNF.Exchange_Certificate (Default),
                Certificate_Required => CNF.Certificate_Required (Default));
-
             Done := True;
          end if;
-      end Create_Default_Config;
+      end Create;
 
       ----------------
       -- Initialize --
@@ -610,7 +611,7 @@ package body AWS.Net.SSL is
 
    procedure Initialize_Default_Config is
    begin
-      Default_Config_Sync.Create_Default_Config;
+      Default_Config_Sync.Create;
    end Initialize_Default_Config;
 
    -------------
