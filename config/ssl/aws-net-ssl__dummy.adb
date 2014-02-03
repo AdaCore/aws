@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2006-2012, AdaCore                     --
+--                     Copyright (C) 2006-2014, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -107,6 +107,23 @@ package body AWS.Net.SSL is
    begin
       raise Program_Error with Error_Message;
    end Initialize;
+
+   -------------------------------
+   -- Initialize_Default_Config --
+   -------------------------------
+
+   procedure Initialize_Default_Config
+     (Certificate_Filename : String;
+      Security_Mode        : Method     := SSLv23;
+      Key_Filename         : String     := "";
+      Exchange_Certificate : Boolean    := False;
+      Certificate_Required : Boolean    := False;
+      Trusted_CA_Filename  : String     := "";
+      CRL_Filename         : String     := "";
+      Session_Cache_Size   : Positive   := 16#4000#) is
+   begin
+      raise Program_Error with Error_Message;
+   end Initialize_Default_Config;
 
    -------------
    -- Pending --
