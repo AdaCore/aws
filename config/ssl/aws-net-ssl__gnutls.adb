@@ -301,7 +301,10 @@ package body AWS.Net.SSL is
                                          (CNF.Security_Mode (Default)),
                Key_Filename         => CNF.Key (Default),
                Exchange_Certificate => CNF.Exchange_Certificate (Default),
-               Certificate_Required => CNF.Certificate_Required (Default));
+               Certificate_Required => CNF.Certificate_Required (Default),
+               Trusted_CA_Filename  => CNF.Trusted_CA (Default),
+               CRL_Filename         => CNF.CRL_File (Default),
+               Session_Cache_Size   => 16#4000#);
             Done := True;
          end if;
       end Create;
