@@ -130,7 +130,20 @@ package body AWS.Net.SSL is
    Default_Config : aliased TS_SSL;
 
    protected Default_Config_Sync is
-      procedure Create_Default_Config;
+
+      procedure Create;
+      --  Create default config with default parameters
+
+      procedure Initialize
+        (Certificate_Filename : String;
+         Security_Mode        : Method   := SSLv23;
+         Key_Filename         : String   := "";
+         Exchange_Certificate : Boolean  := False;
+         Certificate_Required : Boolean  := False;
+         Trusted_CA_Filename  : String   := "";
+         CRL_Filename         : String   := "";
+         Session_Cache_Size   : Positive := 16#4000#);
+
    private
       Done : Boolean := False;
    end Default_Config_Sync;
@@ -272,11 +285,11 @@ package body AWS.Net.SSL is
 
    protected body Default_Config_Sync is
 
-      ---------------------------
-      -- Create_Default_Config --
-      ---------------------------
+      ------------
+      -- Create --
+      ------------
 
-      procedure Create_Default_Config is
+      procedure Create is
          package CNF renames AWS.Config;
          Default : CNF.Object renames CNF.Default_Config;
       begin
@@ -288,11 +301,37 @@ package body AWS.Net.SSL is
                                          (CNF.Security_Mode (Default)),
                Key_Filename         => CNF.Key (Default),
                Exchange_Certificate => CNF.Exchange_Certificate (Default),
-               Certificate_Required => CNF.Certificate_Required (Default));
-
+               Certificate_Required => CNF.Certificate_Required (Default),
+               Trusted_CA_Filename  => CNF.Trusted_CA (Default),
+               CRL_Filename         => CNF.CRL_File (Default),
+               Session_Cache_Size   => 16#4000#);
             Done := True;
          end if;
-      end Create_Default_Config;
+      end Create;
+
+      ----------------
+      -- Initialize --
+      ----------------
+
+      procedure Initialize
+        (Certificate_Filename : String;
+         Security_Mode        : Method   := SSLv23;
+         Key_Filename         : String   := "";
+         Exchange_Certificate : Boolean  := False;
+         Certificate_Required : Boolean  := False;
+         Trusted_CA_Filename  : String   := "";
+         CRL_Filename         : String   := "";
+         Session_Cache_Size   : Positive := 16#4000#) is
+      begin
+         if not Done then
+            Initialize
+              (Default_Config,
+               Certificate_Filename,  Security_Mode,
+               Key_Filename, Exchange_Certificate, Certificate_Required,
+               Trusted_CA_Filename, CRL_Filename, Session_Cache_Size);
+            Done := True;
+         end if;
+      end Initialize;
 
    end Default_Config_Sync;
 
@@ -557,9 +596,25 @@ package body AWS.Net.SSL is
    -- Initialize_Default_Config --
    -------------------------------
 
+   procedure Initialize_Default_Config
+     (Certificate_Filename : String;
+      Security_Mode        : Method   := SSLv23;
+      Key_Filename         : String   := "";
+      Exchange_Certificate : Boolean  := False;
+      Certificate_Required : Boolean  := False;
+      Trusted_CA_Filename  : String   := "";
+      CRL_Filename         : String   := "";
+      Session_Cache_Size   : Positive := 16#4000#) is
+   begin
+      Default_Config_Sync.Initialize
+        (Certificate_Filename, Security_Mode, Key_Filename,
+         Exchange_Certificate, Certificate_Required, Trusted_CA_Filename,
+         CRL_Filename, Session_Cache_Size);
+   end Initialize_Default_Config;
+
    procedure Initialize_Default_Config is
    begin
-      Default_Config_Sync.Create_Default_Config;
+      Default_Config_Sync.Create;
    end Initialize_Default_Config;
 
    -------------

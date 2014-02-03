@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2002-2013, AdaCore                     --
+--                     Copyright (C) 2002-2014, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -127,6 +127,20 @@ package AWS.Net.SSL is
    --  associated with all secure sockets sharing the same options. If
    --  Exchange_Certificate is True the client will send its certificate to
    --  the server, if False only the server will send its certificate.
+
+   procedure Initialize_Default_Config
+     (Certificate_Filename : String;
+      Security_Mode        : Method     := SSLv23;
+      Key_Filename         : String     := "";
+      Exchange_Certificate : Boolean    := False;
+      Certificate_Required : Boolean    := False;
+      Trusted_CA_Filename  : String     := "";
+      CRL_Filename         : String     := "";
+      Session_Cache_Size   : Positive   := 16#4000#);
+   --  As above but for the default SSL configuration which is will be used
+   --  for any socket not setting explicitly an SSL config object. Not that
+   --  this routine can only be called once. Subsequent calls are no-op. To
+   --  be effective it must be called before any SSL socket is created.
 
    procedure Release (Config : in out SSL.Config);
    --  Release memory associated with the Config object
