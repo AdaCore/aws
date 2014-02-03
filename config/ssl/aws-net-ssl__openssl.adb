@@ -403,6 +403,22 @@ package body AWS.Net.SSL is
    -- Initialize_Default_Config --
    -------------------------------
 
+   procedure Initialize_Default_Config
+     (Certificate_Filename : String;
+      Security_Mode        : Method   := SSLv23;
+      Key_Filename         : String   := "";
+      Exchange_Certificate : Boolean  := False;
+      Certificate_Required : Boolean  := False;
+      Trusted_CA_Filename  : String   := "";
+      CRL_Filename         : String   := "";
+      Session_Cache_Size   : Positive := 16#4000#) is
+   begin
+      Default_Config.Initialize
+        (Certificate_Filename, Security_Mode, Key_Filename,
+         Exchange_Certificate, Certificate_Required, Trusted_CA_Filename,
+         CRL_Filename, Session_Cache_Size);
+   end Initialize_Default_Config;
+
    procedure Initialize_Default_Config is
       package CNF renames AWS.Config;
       Default : CNF.Object renames CNF.Default_Config;
