@@ -51,12 +51,8 @@ package body AWS.Net.SSL is
 
    subtype NSST is Net.Std.Socket_Type;
 
-   type Mutex_Access is access all AWS.Utils.Semaphore;
-
    procedure Check_Error_Code (Code : C.int);
    procedure Check_Error_Code (Code : C.int; Socket : Socket_Type'Class);
-
-   procedure Check_Error_Code (Code : TSSL.gcry_error_t);
 
    procedure Code_Processing
      (Code : C.int; Socket : Socket_Type'Class; Timeout : Duration);
@@ -73,22 +69,6 @@ package body AWS.Net.SSL is
      with Convention => C;
    --  Would be used only on defined MSG_NOSIGNAL platforms to avoid SIGPIPE
    --  signal.
-
-   package Locking is
-
-      function Init (Item : access Mutex_Access) return C.int
-        with Convention => C;
-
-      function Destroy (Item : access Mutex_Access) return C.int
-        with Convention => C;
-
-      function Lock (Item : access Mutex_Access) return C.int
-        with Convention => C;
-
-      function Unlock (Item : access Mutex_Access) return C.int
-        with Convention => C;
-
-   end Locking;
 
    type TS_SSL is record
       ASC            : aliased TSSL.gnutls_anon_server_credentials_t;
@@ -212,17 +192,6 @@ package body AWS.Net.SSL is
       Dummy : Socket_Type;
    begin
       Check_Error_Code (Code, Dummy);
-   end Check_Error_Code;
-
-   procedure Check_Error_Code (Code : TSSL.gpg_error_t) is
-   begin
-      if Code = 0 then
-         return;
-      end if;
-
-      raise Program_Error with
-        '[' & Code'Img & "] " & C.Strings.Value (TSSL.gcry_strerror (Code))
-        & '/' & C.Strings.Value (TSSL.gcry_strsource (Code));
    end Check_Error_Code;
 
    -------------------------
@@ -616,79 +585,6 @@ package body AWS.Net.SSL is
    begin
       Default_Config_Sync.Create;
    end Initialize_Default_Config;
-
-   -------------
-   -- Locking --
-   -------------
-
-   package body Locking is
-      use AWS.Utils;
-
-      procedure Finalize;
-
-      Working : Boolean := True;
-
-      F : Utils.Finalizer (Finalize'Access);
-      pragma Unreferenced (F);
-
-      -------------
-      -- Destroy --
-      -------------
-
-      function Destroy (Item : access Mutex_Access) return C.int is
-         procedure Free is
-           new Ada.Unchecked_Deallocation (Semaphore, Mutex_Access);
-      begin
-         Free (Item.all);
-         return 0;
-      end Destroy;
-
-      --------------
-      -- Finalize --
-      --------------
-
-      procedure Finalize is
-      begin
-         Working := False;
-      end Finalize;
-
-      ----------
-      -- Init --
-      ----------
-
-      function Init (Item : access Mutex_Access) return C.int is
-      begin
-         if Working then
-            Item.all := new Semaphore;
-         end if;
-         return 0;
-      end Init;
-
-      ----------
-      -- Lock --
-      ----------
-
-      function Lock (Item : access Mutex_Access) return C.int is
-      begin
-         if Working then
-            Item.all.Seize;
-         end if;
-         return 0;
-      end Lock;
-
-      ------------
-      -- Unlock --
-      ------------
-
-      function Unlock (Item : access Mutex_Access) return C.int is
-      begin
-         if Working then
-            Item.all.Release;
-         end if;
-         return 0;
-      end Unlock;
-
-   end Locking;
 
    -------------
    -- Pending --
@@ -1160,15 +1056,6 @@ package body AWS.Net.SSL is
    end Write_Socket;
 
 begin
-   Check_Error_Code
-     (TSSL.aws_gcry_set_thread_cbs
-        (Thread_CBS => (Option        => TSSL.GCRY_THREAD_OPTION_USER,
-                        Mutex_Init    => Locking.Init'Address,
-                        Mutex_Destroy => Locking.Destroy'Address,
-                        Mutex_Lock    => Locking.Lock'Address,
-                        Mutex_Unlock  => Locking.Unlock'Address,
-                        others        => <>)));
-
    if TSSL.gnutls_global_init /= 0 then
       raise Program_Error;
    end if;

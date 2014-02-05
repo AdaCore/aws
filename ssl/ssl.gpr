@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2003-2012, AdaCore                     --
+--                     Copyright (C) 2003-2014, AdaCore                     --
 --                                                                          --
 --  This is free software;  you can redistribute it  and/or modify it       --
 --  under terms of the  GNU General Public License as published  by the     --
@@ -20,7 +20,6 @@ with "../shared";
 
 with "crypto_lib";
 with "ssl_lib";
-with "ssl_error_lib";
 
 library project SSL is
 
@@ -29,8 +28,8 @@ library project SSL is
          for Languages use ("Ada", "Project file");
          for Source_Dirs use (".", "../config/ssl");
       when "gnutls" =>
-         for Languages use ("Ada", "Project file", "C");
-         for Source_Dirs use (".", "../config/ssl", "../config/ssl/gnutls");
+         for Languages use ("Ada", "Project file");
+         for Source_Dirs use (".", "../config/ssl");
       when others =>
          for Languages use ("Ada", "Project file", "C");
          for Source_Dirs use (".", "../config/ssl", "../config/ssl/openssl");
