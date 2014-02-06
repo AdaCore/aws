@@ -1,19 +1,30 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2008-2013, AdaCore                     --
+--                     Copyright (C) 2008-2014, AdaCore                     --
 --                                                                          --
---  This is free software;  you can redistribute it  and/or modify it       --
---  under terms of the  GNU General Public License as published  by the     --
---  Free Software  Foundation;  either version 3,  or (at your option) any  --
---  later version.  This software is distributed in the hope  that it will  --
---  be useful, but WITHOUT ANY WARRANTY;  without even the implied warranty --
---  of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU     --
---  General Public License for  more details.                               --
+--  This library is free software;  you can redistribute it and/or modify   --
+--  it under terms of the  GNU General Public License  as published by the  --
+--  Free Software  Foundation;  either version 3,  or (at your  option) any --
+--  later version. This library is distributed in the hope that it will be  --
+--  useful, but WITHOUT ANY WARRANTY;  without even the implied warranty of --
+--  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.                    --
 --                                                                          --
---  You should have  received  a copy of the GNU General  Public  License   --
---  distributed  with  this  software;   see  file COPYING3.  If not, go    --
---  to http://www.gnu.org/licenses for a complete copy of the license.      --
+--  As a special exception under Section 7 of GPL version 3, you are        --
+--  granted additional permissions described in the GCC Runtime Library     --
+--  Exception, version 3.1, as published by the Free Software Foundation.   --
+--                                                                          --
+--  You should have received a copy of the GNU General Public License and   --
+--  a copy of the GCC Runtime Library Exception along with this program;    --
+--  see the files COPYING3 and COPYING.RUNTIME respectively.  If not, see   --
+--  <http://www.gnu.org/licenses/>.                                         --
+--                                                                          --
+--  As a special exception, if other files instantiate generics from this   --
+--  unit, or you link this unit with other files to produce an executable,  --
+--  this  unit  does not  by itself cause  the resulting executable to be   --
+--  covered by the GNU General Public License. This exception does not      --
+--  however invalidate any other reasons why the executable file  might be  --
+--  covered by the  GNU Public License.                                     --
 ------------------------------------------------------------------------------
 
 with Ada.Exceptions;
@@ -70,9 +81,7 @@ procedure Uplimit is
          if URI = "/" then
             AWS.Server.Get_Message_Body;
 
-         elsif not Status.Is_Body_Uploaded (Request)
-           and then Status.Binary_Size (Request) = 0
-         then
+         elsif not Is_Up and then Status.Binary_Size (Request) = 0 then
             return Response.Build
                      (MIME.Text_Plain,
                       Integer'Image (Status.Content_Length (Request))
@@ -149,7 +158,6 @@ procedure Uplimit is
    -- Request --
    -------------
 
-   Port   : Positive;
    Client : AWS.Client.HTTP_Connection;
    R      : Response.Data;
 

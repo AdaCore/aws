@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2005-2013, AdaCore                     --
+--                     Copyright (C) 2005-2014, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -332,6 +332,8 @@ package body AWS.Server.HTTP_Utils is
          return Answer;
       end Status_Page;
 
+      Need_Purge : Boolean := False;
+
    begin
       Build_Answer;
 
@@ -340,8 +342,10 @@ package body AWS.Server.HTTP_Utils is
          --  support 100 (Continue) response, we have to close
          --  socket to discard pending client data.
 
+         Need_Purge := Status.Expect (C_Stat) /= Messages.S100_Continue;
+
          if not Will_Close then
-            Will_Close := Status.Expect (C_Stat) /= Messages.S100_Continue;
+            Will_Close := Need_Purge;
          end if;
 
          if Response.Status_Code (Answer) < Messages.S300 then
@@ -354,6 +358,23 @@ package body AWS.Server.HTTP_Utils is
       end if;
 
       Send (Answer, HTTP_Server, Line_Index, C_Stat, Socket_Taken, Will_Close);
+
+      if Need_Purge then
+         --  User callback did not read client data and client does not support
+         --  100 (Continue) response. We need clear socket input buffers to be
+         --  able to close socket gracefully.
+
+         declare
+            Socket : constant Net.Socket_Type'Class := Status.Socket (C_Stat);
+            Buffer : Stream_Element_Array (1 .. 4096);
+            Last   : Stream_Element_Offset;
+         begin
+            while Socket.Pending > 0 loop
+               Socket.Receive (Buffer, Last);
+               exit when Last < Buffer'Last;
+            end loop;
+         end;
+      end if;
    end Answer_To_Client;
 
    ---------------------
