@@ -545,6 +545,7 @@ package body AWS.Net.SSL is
       Result : Socket_Type;
    begin
       Secure (Socket, Result, Config);
+      Result.Config.Check_CRL;
       TSSL.SSL_set_accept_state (Result.SSL);
       return Result;
    end Secure_Server;
@@ -1254,13 +1255,14 @@ package body AWS.Net.SSL is
 
             if Trusted_CA_Filename /= "" then
                declare
-                  CAfile : C.Strings.chars_ptr :=
-                             C.Strings.New_String (Trusted_CA_Filename);
+                  CAfile : aliased C.char_array :=
+                             C.To_C (Trusted_CA_Filename);
                begin
                   Error_If
                     (TSSL.SSL_CTX_load_verify_locations
-                       (Context, CAfile, C.Strings.Null_Ptr) /= 1);
-                  C.Strings.Free (CAfile);
+                       (Context,
+                        C.Strings.To_Chars_Ptr (CAfile'Unchecked_Access),
+                        C.Strings.Null_Ptr) /= 1);
                end;
             end if;
 

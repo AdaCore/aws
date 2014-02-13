@@ -78,10 +78,10 @@ package body AWS.Net.SSL is
       DH_Params      : aliased TSSL.gnutls_dh_params_t;
       RCC            : Boolean := False; -- Request client certificate
       CREQ           : Boolean := False; -- Certificate is required
-      CAfile         : C.Strings.chars_ptr := C.Strings.Null_Ptr;
       Verify_CB      : System.Address := System.Null_Address;
       Is_Server      : Boolean := True;
       CRL_File       : C.Strings.chars_ptr := C.Strings.Null_Ptr;
+      CRL_Semaphore  : Utils.Semaphore;
       CRL_Time_Stamp : Calendar.Time := Utils.AWS_Epoch;
    end record;
 
@@ -364,8 +364,6 @@ package body AWS.Net.SSL is
          TSSL.gnutls_dh_params_deinit (Config.DH_Params);
          Config.DH_Params := null;
       end if;
-
-      C.Strings.Free (Config.CAfile);
    end Finalize;
 
    ----------
@@ -504,6 +502,9 @@ package body AWS.Net.SSL is
          Check_Error_Code
            (TSSL.gnutls_dh_params_init (Config.DH_Params'Access));
 
+         Config.RCC := Exchange_Certificate;
+         Config.CREQ := Certificate_Required;
+
          if Certificate_Filename = "" then
             Check_Error_Code
               (TSSL.gnutls_anon_allocate_server_credentials
@@ -523,13 +524,22 @@ package body AWS.Net.SSL is
 
             TSSL.gnutls_certificate_set_dh_params
               (Config.CSC, Config.DH_Params);
-         end if;
 
-         Config.RCC := Exchange_Certificate;
-         Config.CREQ := Certificate_Required;
-
-         if Trusted_CA_Filename /= "" then
-            Config.CAfile := C.Strings.New_String (Trusted_CA_Filename);
+            if Trusted_CA_Filename /= "" then
+               declare
+                  FN : aliased C.char_array :=
+                         C.To_C (Trusted_CA_Filename);
+               begin
+                  if TSSL.Gnutls_Certificate_Set_X509_Trust_File
+                    (Config.CSC,
+                     C.Strings.To_Chars_Ptr (FN'Unchecked_Access),
+                     TSSL.GNUTLS_X509_FMT_PEM) = -1
+                  then
+                     raise Socket_Error
+                       with "cannot set CA file " & Trusted_CA_Filename;
+                  end if;
+               end;
+            end if;
          end if;
 
          if CRL_Filename /= "" then
@@ -778,8 +788,6 @@ package body AWS.Net.SSL is
       use TSSL;
       use type C.Strings.chars_ptr;
       use type System.Address;
-
-      Setting : gnutls_certificate_request_t;
    begin
       Check_Config (Socket);
 
@@ -799,27 +807,10 @@ package body AWS.Net.SSL is
             Socket);
 
          if Socket.Config.RCC then
-            if Socket.Config.CREQ then
-               Setting := GNUTLS_CERT_REQUIRE;
-            else
-               Setting := GNUTLS_CERT_REQUEST;
-            end if;
-
-            gnutls_certificate_server_set_request (Socket.SSL, Setting);
-
-            if Socket.Config.CAfile /= C.Strings.Null_Ptr then
-               TSSL.gnutls_certificate_send_x509_rdn_sequence (Socket.SSL, 0);
-
-               if TSSL.gnutls_certificate_set_x509_trust_file
-                 (Socket.Config.CSC,
-                  Socket.Config.CAfile,
-                  TSSL.GNUTLS_X509_FMT_PEM) = -1
-               then
-                  raise Socket_Error
-                    with "cannot set CA file "
-                      & C.Strings.Value (Socket.Config.CAfile);
-               end if;
-            end if;
+            gnutls_certificate_server_set_request
+              (Socket.SSL,
+               (if Socket.Config.CREQ
+                then GNUTLS_CERT_REQUIRE else GNUTLS_CERT_REQUEST));
 
             if Socket.Config.CRL_File /= C.Strings.Null_Ptr then
                declare
@@ -828,16 +819,23 @@ package body AWS.Net.SSL is
                   TS : constant Calendar.Time :=
                          Utils.File_Time_Stamp
                            (C.Strings.Value (Socket.Config.CRL_File));
+                  RC : C.int;
                begin
                   if Socket.Config.CRL_Time_Stamp = Utils.AWS_Epoch
                     or else Socket.Config.CRL_Time_Stamp /= TS
                   then
+                     Socket.Config.CRL_Semaphore.Seize;
+
                      Socket.Config.CRL_Time_Stamp := TS;
-                     if TSSL.gnutls_certificate_set_x509_crl_file
-                       (Socket.Config.CSC,
-                        Socket.Config.CRL_File,
-                        TSSL.GNUTLS_X509_FMT_PEM) = -1
-                     then
+
+                     RC := TSSL.gnutls_certificate_set_x509_crl_file
+                             (Socket.Config.CSC,
+                              Socket.Config.CRL_File,
+                              TSSL.GNUTLS_X509_FMT_PEM);
+
+                     Socket.Config.CRL_Semaphore.Release;
+
+                     if RC = -1 then
                         raise Socket_Error
                           with "cannot set CRL file "
                             & C.Strings.Value (Socket.Config.CRL_File);
