@@ -55,6 +55,7 @@ procedure SSLCfg is
             elsif Fixed.Index (Text, ":PEM_read_bio:no start line") > 0
               or Text = "Base64 unexpected header error."
               or Text = "Error in parsing."
+              or Text = "No certificate was found."
             then
                Put_Line ("Expected error about wrong data");
 

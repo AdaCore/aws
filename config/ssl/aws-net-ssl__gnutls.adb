@@ -41,6 +41,7 @@ with AWS.Config;
 with AWS.Net.Log;
 with AWS.Net.SSL.Certificate.Impl;
 with AWS.OS_Lib;
+with AWS.Resources;
 with AWS.Utils;
 
 package body AWS.Net.SSL is
@@ -51,6 +52,32 @@ package body AWS.Net.SSL is
    use type C.unsigned;
 
    subtype NSST is Net.Std.Socket_Type;
+
+   Set_Certificate_Over_Callback : constant Boolean := False;
+   --  ??? We have 2 variants to setup certificate now,
+   --  over callback installed by gnutls_certificate_set_retrieve_function2
+   --  and over gnutls_certificate_set_x509_key_mem, which one to use, we will
+   --  decide later, but now we are able to test it both.
+
+   type Datum_Type is record
+      Datum : aliased TSSL.gnutls_datum_t;
+      Data  : Utils.Stream_Element_Array_Access;
+   end record;
+
+   function Load_File (Filename : String) return Datum_Type;
+
+   type PCert_Array is
+     array (Positive range <>) of aliased TSSL.gnutls_pcert_st
+     with Convention => C;
+
+   function Zero_Allocation (Size : C.size_t) return System.Address
+     with Convention => C;
+   --  To workaroung GNUTLS bug in gnutls_pcert_list_import_x509_raw
+   --  when it parsing file without certificate.
+
+   type PCert_Array_Access is access all PCert_Array;
+
+   procedure Free (Datum : in out Datum_Type) with Inline;
 
    procedure Check_Error_Code (Code : C.int);
    procedure Check_Error_Code (Code : C.int; Socket : Socket_Type'Class);
@@ -63,6 +90,9 @@ package body AWS.Net.SSL is
    procedure Check_Config (Socket : in out Socket_Type) with Inline;
 
    procedure Do_Handshake_Internal (Socket : Socket_Type) with Inline;
+
+   function To_Config is new Unchecked_Conversion (System.Address, Config);
+
    --  The real handshake is done here
 
    function Write_Socket
@@ -76,10 +106,12 @@ package body AWS.Net.SSL is
       ACC            : aliased TSSL.gnutls_anon_client_credentials_t;
       CSC            : aliased TSSL.gnutls_certificate_credentials_t;
       CCC            : aliased TSSL.gnutls_certificate_credentials_t;
+      PCert_List     : PCert_Array_Access;
+      TLS_PK         : aliased TSSL.gnutls_privkey_t;
       DH_Params      : aliased TSSL.gnutls_dh_params_t;
       RCC            : Boolean := False; -- Request client certificate
       CREQ           : Boolean := False; -- Certificate is required
-      Verify_CB      : System.Address := System.Null_Address;
+      Verify_CB      : Net.SSL.Certificate.Verify_Callback;
       Is_Server      : Boolean := True;
       CRL_File       : C.Strings.chars_ptr := C.Strings.Null_Ptr;
       CRL_Semaphore  : Utils.Semaphore;
@@ -89,13 +121,13 @@ package body AWS.Net.SSL is
    procedure Initialize
      (Config               : in out TS_SSL;
       Certificate_Filename : String;
-      Security_Mode        : Method  := SSLv23;
-      Key_Filename         : String  := "";
-      Exchange_Certificate : Boolean := False;
-      Certificate_Required : Boolean    := False;
-      Trusted_CA_Filename  : String     := "";
-      CRL_Filename         : String     := "";
-      Session_Cache_Size   : Positive   := 16#4000#);
+      Security_Mode        : Method   := SSLv23;
+      Key_Filename         : String   := "";
+      Exchange_Certificate : Boolean  := False;
+      Certificate_Required : Boolean  := False;
+      Trusted_CA_Filename  : String   := "";
+      CRL_Filename         : String   := "";
+      Session_Cache_Size   : Positive := 16#4000#);
 
    procedure Session_Client (Socket : in out Socket_Type);
    procedure Session_Server (Socket : in out Socket_Type);
@@ -138,6 +170,17 @@ package body AWS.Net.SSL is
       Target : out Socket_Type;
       Config : SSL.Config);
    --  Make Target a secure socket for Source using the given configuration
+
+   function Retrieve_Certificate
+     (Session         : TSSL.gnutls_session_t;
+      req_ca_rdn      : access constant TSSL.gnutls_datum_t;
+      nreqs           : C.int;
+      pk_algos        : access constant TSSL.gnutls_pk_algorithm_t;
+      pk_algos_length : C.int;
+      pcert           : access TSSL.a_gnutls_pcert_st;
+      pcert_length    : access C.unsigned;
+      privkey         : access TSSL.gnutls_privkey_t) return C.int
+      with Convention => C;
 
    -------------------
    -- Accept_Socket --
@@ -345,6 +388,11 @@ package body AWS.Net.SSL is
       use type TSSL.gnutls_anon_server_credentials_t;
       use type TSSL.gnutls_certificate_credentials_t;
       use type TSSL.gnutls_dh_params_t;
+      use type TSSL.gnutls_privkey_t;
+
+      procedure Unchecked_Free is
+        new Ada.Unchecked_Deallocation (PCert_Array, PCert_Array_Access);
+
    begin
       if Config.ASC /= null then
          TSSL.gnutls_anon_free_server_credentials (Config.ASC);
@@ -365,6 +413,15 @@ package body AWS.Net.SSL is
          TSSL.gnutls_dh_params_deinit (Config.DH_Params);
          Config.DH_Params := null;
       end if;
+
+      if Config.TLS_PK /= null then
+         TSSL.gnutls_privkey_deinit (Config.TLS_PK);
+         Config.TLS_PK := null;
+      end if;
+
+      if Config.PCert_List /= null then
+         Unchecked_Free (Config.PCert_List);
+      end if;
    end Finalize;
 
    ----------
@@ -383,6 +440,11 @@ package body AWS.Net.SSL is
 
       Unchecked_Free (Socket.IO.Handshaken);
       Net.Std.Free (NSST (Socket));
+   end Free;
+
+   procedure Free (Datum : in out Datum_Type) is
+   begin
+      Utils.Unchecked_Free (Datum.Data);
    end Free;
 
    ----------------
@@ -442,10 +504,18 @@ package body AWS.Net.SSL is
       ---------------------
 
       procedure Set_Certificate (CC : TSSL.gnutls_certificate_credentials_t) is
+         Cert : Datum_Type;
+         Key  : Datum_Type;
+
+         X509_PK : aliased TSSL.gnutls_x509_privkey_t;
 
          procedure Check_File (Prefix, Filename : String);
          --  Check that Filename is present, raise an exception adding
          --  Prefix in front of the message.
+
+         procedure Final;
+
+         function Load_PCert_List (Try_Size : Positive) return PCert_Array;
 
          ----------------
          -- Check_File --
@@ -460,34 +530,104 @@ package body AWS.Net.SSL is
             end if;
          end Check_File;
 
+         -----------
+         -- Final --
+         -----------
+
+         procedure Final is
+         begin
+            Free (Cert);
+
+            if Key_Filename /= "" then
+               Free (Key);
+            end if;
+         end Final;
+
          Code : C.int;
+         Drop : Utils.Finalizer (Final'Access);
+         pragma Unreferenced (Drop);
+
+         ---------------------
+         -- Load_PCert_List --
+         ---------------------
+
+         function Load_PCert_List (Try_Size : Positive) return PCert_Array is
+            Result : PCert_Array (1 .. Try_Size);
+            Size   : aliased C.unsigned := C.unsigned (Try_Size);
+
+            RC : constant C.int :=
+                   TSSL.gnutls_pcert_list_import_x509_raw
+                     (Result (1)'Access,
+                      Size'Access,
+                      Cert.Datum,
+                      TSSL.GNUTLS_X509_FMT_PEM,
+                      TSSL.GNUTLS_X509_CRT_LIST_IMPORT_FAIL_IF_EXCEED);
+         begin
+            if RC = TSSL.GNUTLS_E_SHORT_MEMORY_BUFFER then
+               return Load_PCert_List (Positive (Size));
+            else
+               Check_Error_Code (RC);
+            end if;
+
+            return Result (1 .. Positive (Size));
+         end Load_PCert_List;
 
       begin
          Check_File ("Certificate", Certificate_Filename);
 
-         declare
-            use C.Strings;
-            Cert : aliased C.char_array := C.To_C (Certificate_Filename);
-            Key  : aliased C.char_array := C.To_C (Key_Filename);
-            CP   : constant chars_ptr := To_Chars_Ptr (Cert'Unchecked_Access);
-            KP   : chars_ptr;
-         begin
-            if Key_Filename = "" then
-               KP := CP;
-            else
-               Check_File ("Key", Key_Filename);
-               KP := To_Chars_Ptr (Key'Unchecked_Access);
-            end if;
+         Cert := Load_File (Certificate_Filename);
 
-            Code := TSSL.gnutls_certificate_set_x509_key_file
-                      (CC, CP, KP, TSSL.GNUTLS_X509_FMT_PEM);
+         if Key_Filename = "" then
+            Key := Cert;
+         else
+            Check_File ("Key", Key_Filename);
+            Key := Load_File (Key_Filename);
+         end if;
+
+         if Set_Certificate_Over_Callback then
+            Config.PCert_List := new PCert_Array'(Load_PCert_List (4));
+            Check_Error_Code (TSSL.gnutls_x509_privkey_init (X509_PK'Access));
+            Check_Error_Code
+              (TSSL.gnutls_x509_privkey_import
+                 (X509_PK, Key.Datum, TSSL.GNUTLS_X509_FMT_PEM));
+
+            Check_Error_Code
+              (TSSL.gnutls_privkey_init (Config.TLS_PK'Access));
+            Check_Error_Code
+              (TSSL.gnutls_privkey_import_x509
+                 (Config.TLS_PK, X509_PK,
+                  TSSL.GNUTLS_PRIVKEY_IMPORT_AUTO_RELEASE));
+
+            TSSL.gnutls_certificate_set_retrieve_function2
+              (CC, Retrieve_Certificate'Access);
+
+         else
+            Code := TSSL.gnutls_certificate_set_x509_key_mem
+                      (CC,
+                       Cert.Datum'Unchecked_Access,
+                       Key.Datum'Unchecked_Access,
+                       TSSL.GNUTLS_X509_FMT_PEM);
 
             if Code = TSSL.GNUTLS_E_BASE64_DECODING_ERROR then
                raise Socket_Error with "Certificate/Key file error.";
             else
                Check_Error_Code (Code);
             end if;
-         end;
+         end if;
+
+         if Trusted_CA_Filename /= "" then
+            declare
+               FN : aliased C.char_array := C.To_C (Trusted_CA_Filename);
+            begin
+               if TSSL.gnutls_certificate_set_x509_trust_file
+                    (CC, C.Strings.To_Chars_Ptr (FN'Unchecked_Access),
+                     TSSL.GNUTLS_X509_FMT_PEM) = -1
+               then
+                  raise Socket_Error
+                    with "cannot set CA file " & Trusted_CA_Filename;
+               end if;
+            end;
+         end if;
       end Set_Certificate;
 
    begin
@@ -525,26 +665,6 @@ package body AWS.Net.SSL is
 
             TSSL.gnutls_certificate_set_dh_params
               (Config.CSC, Config.DH_Params);
-
-            if Trusted_CA_Filename /= "" then
-               declare
-                  FN : aliased C.char_array :=
-                         C.To_C (Trusted_CA_Filename);
-               begin
-                  if TSSL.Gnutls_Certificate_Set_X509_Trust_File
-                    (Config.CSC,
-                     C.Strings.To_Chars_Ptr (FN'Unchecked_Access),
-                     TSSL.GNUTLS_X509_FMT_PEM) = -1
-                  then
-                     raise Socket_Error
-                       with "cannot set CA file " & Trusted_CA_Filename;
-                  end if;
-               end;
-            end if;
-         end if;
-
-         if CRL_Filename /= "" then
-            Config.CRL_File := C.Strings.New_String (CRL_Filename);
          end if;
       end if;
 
@@ -569,6 +689,10 @@ package body AWS.Net.SSL is
          if Certificate_Filename /= "" then
             Set_Certificate (Config.CCC);
          end if;
+      end if;
+
+      if CRL_Filename /= "" then
+         Config.CRL_File := C.Strings.New_String (CRL_Filename);
       end if;
    end Initialize;
 
@@ -596,6 +720,41 @@ package body AWS.Net.SSL is
    begin
       Default_Config_Sync.Create;
    end Initialize_Default_Config;
+
+   ---------------
+   -- Load_File --
+   ---------------
+
+   function Load_File (Filename : String) return Datum_Type is
+      use AWS.Resources;
+
+      Result : Datum_Type;
+      Last   : Stream_Element_Offset;
+      File   : File_Type;
+   begin
+      Open (File, Name => Filename);
+
+      Result.Data := new Stream_Element_Array
+                           (1 .. Stream_Element_Offset (File_Size (Filename)));
+
+      Read (File, Result.Data.all, Last);
+
+      if not End_Of_File (File) then
+         Close (File);
+         raise Program_Error with "not end of file";
+      end if;
+
+      Close (File);
+
+      if Last < Result.Data'Last then
+         raise Program_Error with Last'Img & Result.Data'Last'Img;
+      end if;
+
+      Result.Datum.size := Result.Data'Length;
+      Result.Datum.data := Result.Data.all'Address;
+
+      return Result;
+   end Load_File;
 
    -------------
    -- Pending --
@@ -649,6 +808,32 @@ package body AWS.Net.SSL is
          Unchecked_Free (Config);
       end if;
    end Release;
+
+   --------------------------
+   -- Retrieve_Certificate --
+   --------------------------
+
+   function Retrieve_Certificate
+     (Session         : TSSL.gnutls_session_t;
+      req_ca_rdn      : access constant TSSL.gnutls_datum_t;
+      nreqs           : C.int;
+      pk_algos        : access constant TSSL.gnutls_pk_algorithm_t;
+      pk_algos_length : C.int;
+      pcert           : access TSSL.a_gnutls_pcert_st;
+      pcert_length    : access C.unsigned;
+      privkey         : access TSSL.gnutls_privkey_t) return C.int
+   is
+      pragma Unreferenced (req_ca_rdn, nreqs, pk_algos, pk_algos_length);
+
+      Cfg : constant Config :=
+              To_Config (TSSL.gnutls_session_get_ptr (Session));
+   begin
+      pcert.all        := Cfg.PCert_List (Cfg.PCert_List'First)'Access;
+      pcert_length.all := Cfg.PCert_List'Length;
+      privkey.all      := Cfg.TLS_PK;
+
+      return 0;
+   end Retrieve_Certificate;
 
    ------------
    -- Secure --
@@ -767,8 +952,8 @@ package body AWS.Net.SSL is
         (gnutls_set_default_priority (Socket.SSL), Socket);
 
       Check_Error_Code
-        (gnutls_credentials_set
-           (Socket.SSL, cred => Socket.Config.ACC), Socket);
+        (gnutls_credentials_set (Socket.SSL, cred => Socket.Config.ACC),
+         Socket);
 
       if Socket.Config.CCC /= null then
          Check_Error_Code
@@ -851,10 +1036,6 @@ package body AWS.Net.SSL is
          end if;
       end if;
 
-      --  Record the user's verify callback
-
-      TSSL.gnutls_session_set_ptr (Socket.SSL, Socket.Config.Verify_CB);
-
       Session_Transport (Socket);
    end Session_Server;
 
@@ -877,6 +1058,11 @@ package body AWS.Net.SSL is
       pragma Warnings (On, "*condition is always *");
 
       Socket.IO.Handshaken := new Boolean'(False);
+
+      --  Record the SSL config to use in Verify_Callback for server and for
+      --  Retrieve_Certificate for client.
+
+      TSSL.gnutls_session_set_ptr (Socket.SSL, Socket.Config.all'Address);
    end Session_Transport;
 
    ----------------
@@ -903,9 +1089,12 @@ package body AWS.Net.SSL is
    -------------------------
 
    procedure Set_Verify_Callback
-     (Config : in out SSL.Config; Callback : System.Address) is
+     (Config : in out SSL.Config; Callback : System.Address)
+   is
+      function To_Callback is new Unchecked_Conversion
+        (System.Address, Net.SSL.Certificate.Verify_Callback);
    begin
-      Config.Verify_CB := Callback;
+      Config.Verify_CB := To_Callback (Callback);
    end Set_Verify_Callback;
 
    --------------
@@ -971,11 +1160,8 @@ package body AWS.Net.SSL is
       use type Net.SSL.Certificate.Verify_Callback;
       use type TSSL.a_gnutls_datum_t;
 
-      function To_Callback is new Unchecked_Conversion
-        (System.Address, Net.SSL.Certificate.Verify_Callback);
-
       Status        : aliased C.unsigned;
-      CB            : aliased Net.SSL.Certificate.Verify_Callback;
+      CB            : Net.SSL.Certificate.Verify_Callback;
       Cert          : aliased TSSL.gnutls_x509_crt_t;
       Cert_List     : TSSL.a_gnutls_datum_t;
       Cert_List_Len : aliased C.unsigned;
@@ -1006,9 +1192,9 @@ package body AWS.Net.SSL is
          return TSSL.GNUTLS_E_CERTIFICATE_ERROR;
       end if;
 
-      --  Get the user's callback stored in the session
+      --  Get the user's callback stored in the session config
 
-      CB := To_Callback (TSSL.gnutls_session_get_ptr (Session));
+      CB := To_Config (TSSL.gnutls_session_get_ptr (Session)).Verify_CB;
 
       if CB /= null
         and then not CB (Net.SSL.Certificate.Impl.Read (Status, Cert))
@@ -1054,9 +1240,27 @@ package body AWS.Net.SSL is
       return C_Send (S, Msg, Len, OS_Lib.MSG_NOSIGNAL);
    end Write_Socket;
 
+   ---------------------
+   -- Zero_Allocation --
+   ---------------------
+
+   function Zero_Allocation (Size : C.size_t) return System.Address is
+      Result : constant System.Address :=
+                 System.Memory.Alloc (System.Memory.size_t (Size));
+      type Binary_Access is
+        access all Stream_Element_Array (1 .. Stream_Element_Offset (Size));
+      function To_Access is
+        new Ada.Unchecked_Conversion (System.Address, Binary_Access);
+   begin
+      To_Access (Result).all := (others => 0);
+      return Result;
+   end Zero_Allocation;
+
 begin
    TSSL.gnutls_global_set_mem_functions
-     (alloc_func        => System.Memory.Alloc'Address,
+     (alloc_func        => (if Set_Certificate_Over_Callback
+                            then Zero_Allocation'Address
+                            else System.Memory.Alloc'Address),
       secure_alloc_func => System.Memory.Alloc'Address,
       is_secure_func    => null,
       realloc_func      => System.Memory.Realloc'Address,

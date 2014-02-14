@@ -193,6 +193,7 @@ private
    type TS_SSL;
 
    type Config is access all TS_SSL;
+   pragma No_Strict_Aliasing (Config);
 
    Null_Config : constant Config := null;
 
