@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2000-2013, AdaCore                     --
+--                     Copyright (C) 2000-2014, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -277,6 +277,7 @@ package AWS.Client is
       Persistent  : Boolean         := True;
       Timeouts    : Timeouts_Values := No_Timeout;
       Server_Push : Boolean         := False;
+      SSL_Config  : Net.SSL.Config  := Net.SSL.Null_Config;
       Certificate : String          := Default.Client_Certificate;
       User_Agent  : String          := Default.User_Agent);
    --  Create a new connection. This is to be used with Keep-Alive client API
@@ -288,6 +289,7 @@ package AWS.Client is
    --  from this routine, for Digest authentication see below. Timeouts are
    --  the send/receive timeouts for each request. If Server_Push is True the
    --  connection will be used to push information to the client.
+   --  SSL_Config is to define secure connection configuration. Othewhise
    --  Certificate can be set to specify the certificate filename to use for
    --  the secure connection. User_Agent can be overridden to whatever you want
    --  the client interface to present itself to the server.
@@ -525,29 +527,30 @@ private
    type HTTP_Connection is new Finalization.Limited_Controlled with record
       Self : HTTP_Connection_Access := HTTP_Connection'Unchecked_Access;
 
-      Connect_URL   : AWS.URL.Object;
-      Host          : Unbounded_String;
-      Host_URL      : AWS.URL.Object;
-      Proxy         : Unbounded_String;
-      Proxy_URL     : AWS.URL.Object;
-      Auth          : Authentication_Set;
-      Opened        : Boolean                      := False;
-      Persistent    : Boolean;
-      Streaming     : Boolean;
-      Cookie        : Unbounded_String;
-      Socket        : AWS.Net.Socket_Access;
-      Retry         : Natural;
-      Timeouts      : Timeouts_Values;
-      Data_Range    : Content_Range;
-      Certificate   : Unbounded_String;
-      User_Agent    : Unbounded_String;
-      SSL_Config    : AWS.Net.SSL.Config;
-      Length        : Response.Content_Length_Type := Undefined_Length;
-      Transfer      : Transfer_Type                := None;
-      Decode_Filter : ZLib.Filter_Type;
-      Decode_Buffer : Utils.Stream_Element_Array_Access;
-      Decode_First  : Stream_Element_Offset;
-      Decode_Last   : Stream_Element_Offset;
+      Connect_URL        : AWS.URL.Object;
+      Host               : Unbounded_String;
+      Host_URL           : AWS.URL.Object;
+      Proxy              : Unbounded_String;
+      Proxy_URL          : AWS.URL.Object;
+      Auth               : Authentication_Set;
+      Opened             : Boolean                      := False;
+      Persistent         : Boolean;
+      Streaming          : Boolean;
+      Cookie             : Unbounded_String;
+      Socket             : AWS.Net.Socket_Access;
+      Retry              : Natural;
+      Timeouts           : Timeouts_Values;
+      Data_Range         : Content_Range;
+      Certificate        : Unbounded_String;
+      User_Agent         : Unbounded_String;
+      SSL_Config         : AWS.Net.SSL.Config;
+      Default_SSL_Config : Boolean                      := False;
+      Length             : Response.Content_Length_Type := Undefined_Length;
+      Transfer           : Transfer_Type                := None;
+      Decode_Filter      : ZLib.Filter_Type;
+      Decode_Buffer      : Utils.Stream_Element_Array_Access;
+      Decode_First       : Stream_Element_Offset;
+      Decode_Last        : Stream_Element_Offset;
    end record;
 
    overriding procedure Finalize (Connection : in out HTTP_Connection);

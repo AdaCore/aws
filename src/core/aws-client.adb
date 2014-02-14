@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2000-2013, AdaCore                     --
+--                     Copyright (C) 2000-2014, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -53,7 +53,7 @@ package body AWS.Client is
    begin
       Disconnect (Connection);
 
-      if URL.Security (Connection.Host_URL) then
+      if Connection.Default_SSL_Config then
          Net.SSL.Release (Connection.SSL_Config);
       end if;
 
@@ -109,7 +109,7 @@ package body AWS.Client is
                  Proxy, Proxy_User, Proxy_Pwd,
                  Retry, Persistent, Timeouts,
                  Server_Push,
-                 Certificate, User_Agent);
+                 Net.SSL.Null_Config, Certificate, User_Agent);
       end return;
    end Create;
 
@@ -125,9 +125,12 @@ package body AWS.Client is
       Persistent  : Boolean         := True;
       Timeouts    : Timeouts_Values := No_Timeout;
       Server_Push : Boolean         := False;
+      SSL_Config  : Net.SSL.Config  := Net.SSL.Null_Config;
       Certificate : String          := Default.Client_Certificate;
       User_Agent  : String          := Default.User_Agent)
    is
+      use type Net.SSL.Config;
+
       Host_URL    : constant AWS.URL.Object := AWS.URL.Parse (Host);
       Proxy_URL   : constant AWS.URL.Object := AWS.URL.Parse (Proxy);
       Connect_URL : AWS.URL.Object;
@@ -173,8 +176,14 @@ package body AWS.Client is
       if URL.Security (Host_URL) then
          --  This is a secure connection, initialize the SSL layer
 
-         Net.SSL.Initialize
-           (Connection.SSL_Config, Certificate, Net.SSL.SSLv23_Client);
+         Connection.Default_SSL_Config := SSL_Config = Net.SSL.Null_Config;
+
+         if Connection.Default_SSL_Config then
+            Net.SSL.Initialize
+              (Connection.SSL_Config, Certificate, Net.SSL.SSLv23_Client);
+         else
+            Connection.SSL_Config := SSL_Config;
+         end if;
       end if;
 
       if Persistent and then Connection.Retry = 0 then
