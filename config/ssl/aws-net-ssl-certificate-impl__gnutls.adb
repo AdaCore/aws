@@ -100,7 +100,7 @@ package body AWS.Net.SSL.Certificate.Impl is
            (Cert, Datum.all, TSSL.GNUTLS_X509_FMT_DER),
          Socket'Access);
 
-      Result := Read (Socket'Access, 2, Cert);
+      Result := Read (Socket'Access, 0, Cert);
 
       TSSL.gnutls_x509_crt_deinit (Cert);
 
