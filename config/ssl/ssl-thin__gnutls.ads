@@ -152,6 +152,14 @@ package SSL.Thin is
    GNUTLS_E_RANDOM_FAILED                       : constant := -206;
    GNUTLS_E_UNIMPLEMENTED_FEATURE               : constant := -1250;
 
+   GNUTLS_X509_CRT_LIST_IMPORT_FAIL_IF_EXCEED : constant := 1;
+   GNUTLS_X509_CRT_LIST_FAIL_IF_UNSORTED      : constant := 2;
+
+   GNUTLS_PRIVKEY_IMPORT_AUTO_RELEASE : constant := 1;
+   GNUTLS_PRIVKEY_IMPORT_COPY         : constant := 2;
+   GNUTLS_PRIVKEY_DISABLE_CALLBACKS   : constant := 4;
+   GNUTLS_PRIVKEY_SIGN_FLAG_TLS1_RSA  : constant := 16;
+
    type time_t is new C.long;
    subtype ssize_t is C.int;
 
@@ -367,15 +375,27 @@ package SSL.Thin is
       GNUTLS_CERT_SIGNER_NOT_CA,
       GNUTLS_CERT_INSECURE_ALGORITHM,
       GNUTLS_CERT_NOT_ACTIVATED,
-      GNUTLS_CERT_EXPIRED);
+      GNUTLS_CERT_EXPIRED,
+      GNUTLS_CERT_SIGNATURE_FAILURE,
+      GNUTLS_CERT_REVOCATION_DATA_SUPERSEDED,
+      GNUTLS_CERT_UNEXPECTED_OWNER,
+      GNUTLS_CERT_REVOCATION_DATA_ISSUED_IN_FUTURE,
+      GNUTLS_CERT_SIGNER_CONSTRAINTS_FAILURE,
+      GNUTLS_CERT_MISMATCH);
    for gnutls_certificate_status_t use
-     (GNUTLS_CERT_INVALID            => 2,
-      GNUTLS_CERT_REVOKED            => 32,
-      GNUTLS_CERT_SIGNER_NOT_FOUND   => 64,
-      GNUTLS_CERT_SIGNER_NOT_CA      => 128,
-      GNUTLS_CERT_INSECURE_ALGORITHM => 256,
-      GNUTLS_CERT_NOT_ACTIVATED      => 512,
-      GNUTLS_CERT_EXPIRED            => 1024);
+     (GNUTLS_CERT_INVALID                          => 2,
+      GNUTLS_CERT_REVOKED                          => 32,
+      GNUTLS_CERT_SIGNER_NOT_FOUND                 => 64,
+      GNUTLS_CERT_SIGNER_NOT_CA                    => 128,
+      GNUTLS_CERT_INSECURE_ALGORITHM               => 256,
+      GNUTLS_CERT_NOT_ACTIVATED                    => 512,
+      GNUTLS_CERT_EXPIRED                          => 1024,
+      GNUTLS_CERT_SIGNATURE_FAILURE                => 2048,
+      GNUTLS_CERT_REVOCATION_DATA_SUPERSEDED       => 4096,
+      GNUTLS_CERT_UNEXPECTED_OWNER                 => 2**14,
+      GNUTLS_CERT_REVOCATION_DATA_ISSUED_IN_FUTURE => 2**15,
+      GNUTLS_CERT_SIGNER_CONSTRAINTS_FAILURE       => 2**16,
+      GNUTLS_CERT_MISMATCH                         => 2**17);
    for gnutls_certificate_status_t'Size use C.int'Size;
 
    type gnutls_certificate_request_t is
@@ -414,13 +434,18 @@ package SSL.Thin is
    for gnutls_x509_crt_fmt_t'Size use C.int'Size;
 
    type gnutls_pk_algorithm_t is
-     (GNUTLS_PK_RSA,
+     (GNUTLS_PK_UNKNOWN,
+      GNUTLS_PK_RSA,
       GNUTLS_PK_DSA,
-      GNUTLS_PK_UNKNOWN);
+      GNUTLS_PK_DH,
+      GNUTLS_PK_EC);
+
    for gnutls_pk_algorithm_t use
-     (GNUTLS_PK_RSA     => 1,
+     (GNUTLS_PK_UNKNOWN => 0,
+      GNUTLS_PK_RSA     => 1,
       GNUTLS_PK_DSA     => 2,
-      GNUTLS_PK_UNKNOWN => 255);
+      GNUTLS_PK_DH      => 3,
+      GNUTLS_PK_EC      => 4);
    for gnutls_pk_algorithm_t'Size use C.int'Size;
 
    type gnutls_sign_algorithm_t is
@@ -441,7 +466,7 @@ package SSL.Thin is
    for gnutls_server_name_type_t use (GNUTLS_NAME_DNS => 1);
    for gnutls_server_name_type_t'Size use C.int'Size;
 
-   subtype a_c_signed_char_t is System.Address;
+   subtype a_unsigned_char_t is System.Address;
    type a_size_t is access all C.size_t;
    type gnutls_transport_ptr_t is new C.int;
 
@@ -484,7 +509,7 @@ package SSL.Thin is
    end record with Convention => C;
 
    type gnutls_datum_t is record
-      data : a_c_signed_char_t;
+      data : a_unsigned_char_t;
       size : C.unsigned;
    end record with Convention => C;
 
@@ -502,7 +527,7 @@ package SSL.Thin is
       nreqs           : C.int;
       pk_algos        : access constant gnutls_pk_algorithm_t;
       pk_algos_length : C.int;
-      st              : access a_gnutls_pcert_st;
+      pcert           : access a_gnutls_pcert_st;
       pcert_length    : access C.unsigned;
       privkey         : access gnutls_privkey_t) return C.int
      with Convention => C;
@@ -974,8 +999,8 @@ package SSL.Thin is
 
    function gnutls_certificate_set_x509_key_file
      (res      : gnutls_certificate_credentials_t;
-      CERTFILE : CS.chars_ptr;
-      KEYFILE  : CS.chars_ptr;
+      certfile : CS.chars_ptr;
+      keyfile  : CS.chars_ptr;
       p4       : gnutls_x509_crt_fmt_t) return C.int
      with Import, Convention => C;
 
@@ -1009,11 +1034,43 @@ package SSL.Thin is
      (session : gnutls_session_t; status : C.int)
      with Import, Convention => C;
 
+   function gnutls_x509_rdn_get
+     (idn        : gnutls_datum_t;
+      buf        : CS.chars_ptr;
+      sizeof_buf : access C.size_t) return C.int
+     with Import, Convention => C;
+
    function gnutls_x509_crt_init
      (cert : access gnutls_x509_crt_t) return C.int
      with Import, Convention => C;
 
    procedure gnutls_x509_crt_deinit (cert : gnutls_x509_crt_t)
+     with Import, Convention => C;
+
+   function gnutls_x509_privkey_init
+     (key : access gnutls_x509_privkey_t) return C.int
+     with Import, Convention => C;
+
+   procedure gnutls_x509_privkey_deinit (key : gnutls_x509_privkey_t)
+     with Import, Convention => C;
+
+   function gnutls_x509_privkey_import
+     (key    : gnutls_x509_privkey_t;
+      data   : gnutls_datum_t;
+      format : gnutls_x509_crt_fmt_t) return C.int
+     with Import, Convention => C;
+
+   function gnutls_privkey_init
+     (key : access gnutls_privkey_t) return C.int
+     with Import, Convention => C;
+
+   procedure gnutls_privkey_deinit (key : gnutls_privkey_t)
+     with Import, Convention => C;
+
+   function gnutls_privkey_import_x509
+     (pkey  : gnutls_privkey_t;
+      key   : gnutls_x509_privkey_t;
+      flags : C.unsigned) return C.int
      with Import, Convention => C;
 
    function gnutls_x509_crt_import
@@ -1049,6 +1106,14 @@ package SSL.Thin is
      with Import, Convention => C;
 
    function gnutls_global_init return C.int
+     with Import, Convention => C;
+
+   function gnutls_pcert_list_import_x509_raw
+     (pcerts    : access gnutls_pcert_st;
+      pcert_max : access C.unsigned;
+      data      : gnutls_datum_t;
+      format    : gnutls_x509_crt_fmt_t;
+      flags     : C.unsigned) return C.int
      with Import, Convention => C;
 
    procedure gnutls_global_deinit
@@ -1104,7 +1169,7 @@ package SSL.Thin is
    function gnutls_dh_params_export_pkcs3
      (params           : gnutls_dh_params_t;
       format           : gnutls_x509_crt_fmt_t;
-      params_data      : a_c_signed_char_t;
+      params_data      : a_unsigned_char_t;
       params_data_size : a_size_t) return C.int
      with Import, Convention => C;
 
@@ -1156,13 +1221,6 @@ package SSL.Thin is
       q      : a_gnutls_datum_t;
       u      : a_gnutls_datum_t;
       bits   : access C.unsigned) return C.int
-     with Import, Convention => C;
-
-   function gnutls_rsa_params_export_pkcs1
-     (params           : gnutls_rsa_params_t;
-      format           : gnutls_x509_crt_fmt_t;
-      params_data      : a_c_signed_char_t;
-      params_data_size : a_size_t) return C.int
      with Import, Convention => C;
 
    function gnutls_rsa_params_import_pkcs1
@@ -1332,22 +1390,6 @@ package SSL.Thin is
      (p1 : gnutls_session_t; p2 : gnutls_certificate_request_t)
      with Import, Convention => C;
 
-   function gnutls_pkcs3_extract_dh_params
-     (params     : a_gnutls_datum_t;
-      format     : gnutls_x509_crt_fmt_t;
-      prime      : a_gnutls_datum_t;
-      generator  : a_gnutls_datum_t;
-      prime_bits : C.int) return C.int
-     with Import, Convention => C;
-
-   function gnutls_pkcs3_export_dh_params
-     (prime            : a_gnutls_datum_t;
-      generator        : a_gnutls_datum_t;
-      format           : gnutls_x509_crt_fmt_t;
-      params_data      : a_c_signed_char_t;
-      params_data_size : C.int) return C.int
-     with Import, Convention => C;
-
    function gnutls_certificate_get_peers
      (p1        : gnutls_session_t;
       list_size : access C.unsigned) return a_gnutls_datum_t
@@ -1383,7 +1425,7 @@ package SSL.Thin is
    function gnutls_pem_base64_decode
      (header      : CS.chars_ptr;
       b64_data    : a_gnutls_datum_t;
-      result      : a_c_signed_char_t;
+      result      : a_unsigned_char_t;
       result_size : a_size_t) return C.int
      with Import, Convention => C;
 
