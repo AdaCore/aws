@@ -35,6 +35,7 @@ with Ada.Unchecked_Conversion;
 with Ada.Unchecked_Deallocation;
 
 with Interfaces.C.Strings;
+with System.Memory;
 
 with AWS.Config;
 with AWS.Net.Log;
@@ -1054,6 +1055,13 @@ package body AWS.Net.SSL is
    end Write_Socket;
 
 begin
+   TSSL.gnutls_global_set_mem_functions
+     (alloc_func        => System.Memory.Alloc'Address,
+      secure_alloc_func => System.Memory.Alloc'Address,
+      is_secure_func    => null,
+      realloc_func      => System.Memory.Realloc'Address,
+      free_func         => System.Memory.Free'Access);
+
    if TSSL.gnutls_global_init /= 0 then
       raise Program_Error;
    end if;

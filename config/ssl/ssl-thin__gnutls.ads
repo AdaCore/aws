@@ -1055,12 +1055,21 @@ package SSL.Thin is
      with Import, Convention => C;
 
    procedure gnutls_global_set_mem_functions
-     (p1 : gnutls_alloc_function;
-      p2 : gnutls_alloc_function;
-      p3 : gnutls_is_secure_function;
-      p4 : gnutls_realloc_function;
-      p5 : gnutls_free_function)
+     (alloc_func        : gnutls_alloc_function;
+      secure_alloc_func : gnutls_alloc_function;
+      is_secure_func    : gnutls_is_secure_function;
+      realloc_func      : gnutls_realloc_function;
+      free_func         : gnutls_free_function)
      with Import, Convention => C;
+
+   procedure gnutls_global_set_mem_functions
+     (alloc_func        : System.Address;
+      secure_alloc_func : System.Address;
+      is_secure_func    : gnutls_is_secure_function;
+      realloc_func      : System.Address;
+      free_func         : gnutls_free_function)
+     with Import, Convention => C;
+   --  Could not use strict typing because System.Memory redefined size_t type
 
    procedure gnutls_global_set_log_function (log_func : gnutls_log_func)
      with Import, Convention => C;
@@ -1398,52 +1407,6 @@ package SSL.Thin is
    procedure gnutls_anon_set_params_function
      (res  : gnutls_certificate_credentials_t;
       func : gnutls_params_function)
-     with Import, Convention => C;
-
-   --------------------------
-   -- GCrypt thread safety --
-   --------------------------
-
-   GCRY_THREAD_OPTION_DEFAULT : constant := 0;
-   GCRY_THREAD_OPTION_USER    : constant := 1;
-   GCRY_THREAD_OPTION_PTH     : constant := 2;
-   GCRY_THREAD_OPTION_PTHREAD : constant := 3;
-   --  enum gcry_thread_option
-
-   GCRYCTL_SET_THREAD_CBS : constant := 47;
-   --  enum gcry_ctl_cmds
-   --  Codes used with the gcry_control function.
-
-   type gcry_thread_cbs is record
-      Option        : C.int          := GCRY_THREAD_OPTION_DEFAULT;
-      Init          : System.Address := System.Null_Address;
-      Mutex_Init    : System.Address := System.Null_Address;
-      Mutex_Destroy : System.Address := System.Null_Address;
-      Mutex_Lock    : System.Address := System.Null_Address;
-      Mutex_Unlock  : System.Address := System.Null_Address;
-      Read          : System.Address := System.Null_Address;
-      Write         : System.Address := System.Null_Address;
-      Select_Socket : System.Address := System.Null_Address;
-      WaitPID       : System.Address := System.Null_Address;
-      Accept_Socket : System.Address := System.Null_Address;
-      Connect       : System.Address := System.Null_Address;
-      SendMsg       : System.Address := System.Null_Address;
-      RecvMsg       : System.Address := System.Null_Address;
-   end record with Convention => C;
-
-   subtype gpg_error_t is C.unsigned;
-   subtype gcry_error_t is gpg_error_t;
-
-   function aws_gcry_set_thread_cbs
-     (Thread_CBS : gcry_thread_cbs) return gcry_error_t
-     with Import, Convention => C, Link_Name => "__aws_gcry_set_thread_cbs";
-   --  Calls gcry_control (GCRYCTL_SET_THREAD_CBS, cbs) in C module gcry.c
-   --  because varargs are not supported in Ada.
-
-   function gcry_strerror (Err : gcry_error_t) return CS.chars_ptr
-     with Import, Convention => C;
-
-   function gcry_strsource (Err : gcry_error_t) return CS.chars_ptr
      with Import, Convention => C;
 
    --------------------------------------------------------------------
