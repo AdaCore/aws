@@ -120,13 +120,19 @@ procedure Client_Cert is
    -- Request --
    -------------
 
-   procedure Request (URL : String) is
+   procedure Request (URL : String; CA : String := "") is
       O_URL : constant AWS.URL.Object := AWS.URL.Parse (URL);
       R     : Response.Data;
       C     : Client.HTTP_Connection;
       Cert  : Net.SSL.Certificate.Object;
+      Cfg   : Net.SSL.Config;
    begin
-      Client.Create (C, URL, Certificate => "aws-client.pem");
+      Net.SSL.Initialize
+        (Cfg,
+         Certificate_Filename => "aws-client.pem",
+         Trusted_CA_Filename  => CA);
+
+      Client.Create (C, URL, SSL_Config => Cfg);
 
       begin
          Cert := Client.Get_Certificate (C);
@@ -222,7 +228,7 @@ begin
    Put_Line ("Server 2 started");
    New_Line;
 
-   Request (AWS.Server.Status.Local_URL (HTTP2) & "/simple");
+   Request (AWS.Server.Status.Local_URL (HTTP2) & "/simple", "private-ca.crt");
 
    Server.Shutdown (HTTP2);
 

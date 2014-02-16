@@ -81,6 +81,7 @@ package body AWS.Net.SSL.Certificate.Impl is
       use type System.Address;
       use type TSSL.a_gnutls_datum_t;
 
+      Status    : aliased C.unsigned;
       List_Size : aliased C.unsigned;
       Datum     : constant TSSL.a_gnutls_datum_t :=
                     TSSL.gnutls_certificate_get_peers
@@ -93,6 +94,10 @@ package body AWS.Net.SSL.Certificate.Impl is
       end if;
 
       Check_Error_Code
+        (TSSL.gnutls_certificate_verify_peers2 (Socket.SSL, Status'Access),
+         Socket'Access);
+
+      Check_Error_Code
         (TSSL.gnutls_x509_crt_init (Cert'Access), Socket'Access);
 
       Check_Error_Code
@@ -100,7 +105,7 @@ package body AWS.Net.SSL.Certificate.Impl is
            (Cert, Datum.all, TSSL.GNUTLS_X509_FMT_DER),
          Socket'Access);
 
-      Result := Read (Socket'Access, 2, Cert);
+      Result := Read (Socket'Access, Status, Cert);
 
       TSSL.gnutls_x509_crt_deinit (Cert);
 
