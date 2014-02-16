@@ -8,8 +8,8 @@ run('check_mem', ['2'])
 exec_cmd('gnatmem', ['5', '-i', 'gmem.out', './check_mem'],
          output_file='check_mem.run1')
 
-#  Run driver (30 loops)
-run('check_mem', ['30'])
+#  Run driver (10 loops)
+run('check_mem', ['10'])
 exec_cmd('gnatmem', ['5', '-i', 'gmem.out', './check_mem'],
          output_file='check_mem.run2')
 

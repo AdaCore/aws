@@ -70,10 +70,24 @@ package body AWS.Net.SSL is
      array (Positive range <>) of aliased TSSL.gnutls_pcert_st
      with Convention => C;
 
-   function Zero_Allocation (Size : C.size_t) return System.Address
+   function Lib_Alloc (Size : System.Memory.size_t) return System.Address
      with Convention => C;
-   --  To workaroung GNUTLS bug in gnutls_pcert_list_import_x509_raw
-   --  when it parsing file without certificate.
+   --  Set allocated data to zero to workaroung GNUTLS bug in
+   --  gnutls_pcert_list_import_x509_raw when it parse file without
+   --  certificate. Should be fixed in 3.3.1, 3.2.12, 3.1.22 GNUTLS versions.
+
+   function Lib_Realloc
+     (Ptr  : System.Address;
+      Size : System.Memory.size_t) return System.Address
+     with Convention => C;
+   --  C library could use null pointer as input parameter for realloc, but
+   --  gnatmem does not care about it and logging Free of the null pointer
+   --  and than claiming for "Releasing deallocated memory".
+
+   procedure Lib_Free (Ptr  : System.Address) with Convention => C;
+   --  C library could put null pointer as input parameter for free, but
+   --  gnatmem does not care about it and logging Free of the null pointer
+   --  and than claiming for "Releasing deallocated memory".
 
    type PCert_Array_Access is access all PCert_Array;
 
@@ -409,6 +423,11 @@ package body AWS.Net.SSL is
          Config.CSC := null;
       end if;
 
+      if Config.CCC /= null then
+         TSSL.gnutls_certificate_free_credentials (Config.CCC);
+         Config.CCC := null;
+      end if;
+
       if Config.DH_Params /= null then
          TSSL.gnutls_dh_params_deinit (Config.DH_Params);
          Config.DH_Params := null;
@@ -720,6 +739,54 @@ package body AWS.Net.SSL is
    begin
       Default_Config_Sync.Create;
    end Initialize_Default_Config;
+
+   ---------------
+   -- Lib_Alloc --
+   ---------------
+
+   function Lib_Alloc (Size : System.Memory.size_t) return System.Address is
+      Result : constant System.Address := System.Memory.Alloc (Size);
+      type Binary_Access is
+        access all Stream_Element_Array (1 .. Stream_Element_Offset (Size));
+      function To_Access is
+        new Ada.Unchecked_Conversion (System.Address, Binary_Access);
+   begin
+      To_Access (Result).all := (others => 0);
+      return Result;
+   end Lib_Alloc;
+
+   --------------
+   -- Lib_Free --
+   --------------
+
+   procedure Lib_Free (Ptr  : System.Address) is
+      use System;
+   begin
+      if Ptr /= Null_Address then
+         Memory.Free (Ptr);
+      end if;
+   end Lib_Free;
+
+   -----------------
+   -- Lib_Realloc --
+   -----------------
+
+   function Lib_Realloc
+     (Ptr  : System.Address;
+      Size : System.Memory.size_t) return System.Address
+   is
+      use System;
+   begin
+      if Ptr = Null_Address then
+         if Set_Certificate_Over_Callback then
+            return Lib_Alloc (Size);
+         else
+            return Memory.Alloc (Size);
+         end if;
+      else
+         return Memory.Realloc (Ptr, Size);
+      end if;
+   end Lib_Realloc;
 
    ---------------
    -- Load_File --
@@ -1240,31 +1307,15 @@ package body AWS.Net.SSL is
       return C_Send (S, Msg, Len, OS_Lib.MSG_NOSIGNAL);
    end Write_Socket;
 
-   ---------------------
-   -- Zero_Allocation --
-   ---------------------
-
-   function Zero_Allocation (Size : C.size_t) return System.Address is
-      Result : constant System.Address :=
-                 System.Memory.Alloc (System.Memory.size_t (Size));
-      type Binary_Access is
-        access all Stream_Element_Array (1 .. Stream_Element_Offset (Size));
-      function To_Access is
-        new Ada.Unchecked_Conversion (System.Address, Binary_Access);
-   begin
-      To_Access (Result).all := (others => 0);
-      return Result;
-   end Zero_Allocation;
-
 begin
    TSSL.gnutls_global_set_mem_functions
      (alloc_func        => (if Set_Certificate_Over_Callback
-                            then Zero_Allocation'Address
+                            then Lib_Alloc'Address
                             else System.Memory.Alloc'Address),
       secure_alloc_func => System.Memory.Alloc'Address,
       is_secure_func    => null,
-      realloc_func      => System.Memory.Realloc'Address,
-      free_func         => System.Memory.Free'Access);
+      realloc_func      => Lib_Realloc'Address,
+      free_func         => Lib_Free'Access);
 
    if TSSL.gnutls_global_init /= 0 then
       raise Program_Error;

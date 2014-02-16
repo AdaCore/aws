@@ -274,6 +274,7 @@ procedure Check_Mem is
          CB'Unrestricted_Access,
          Port           => 0,
          Max_Connection => 5,
+         Security       => True,
          Session        => True);
 
       Put_Line ("Server started");

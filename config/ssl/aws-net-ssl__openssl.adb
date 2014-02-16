@@ -69,6 +69,13 @@ package body AWS.Net.SSL is
 
    end Locking;
 
+   function Lib_Realloc
+     (Ptr  : System.Address;
+      Size : System.Memory.size_t) return System.Address
+     with Convention => C;
+   --  C library could use null pointer as input parameter for realloc, but
+   --  gnatmem does not care about it and logging Free of the null pointer.
+
    protected type TS_SSL is
 
       procedure Set_IO (Socket : in out Socket_Type);
@@ -433,6 +440,21 @@ package body AWS.Net.SSL is
          CRL_Filename         => CNF.CRL_File (Default),
          Session_Cache_Size   => 16#4000#);
    end Initialize_Default_Config;
+
+   -----------------
+   -- Lib_Realloc --
+   -----------------
+
+   function Lib_Realloc
+     (Ptr  : System.Address;
+      Size : System.Memory.size_t) return System.Address is
+   begin
+      if Ptr = System.Null_Address then
+         return System.Memory.Alloc (Size);
+      else
+         return System.Memory.Realloc (Ptr, Size);
+      end if;
+   end Lib_Realloc;
 
    -------------
    -- Pending --
@@ -1469,7 +1491,7 @@ begin
 
    if TSSL.CRYPTO_set_mem_functions
         (M => System.Memory.Alloc'Address,
-         R => System.Memory.Realloc'Address,
+         R => Lib_Realloc'Address,
          F => System.Memory.Free'Address) = 0
    then
       --  In "OpenSSL FIPS Object Module" based on OpenSSL version 1.0.1e
