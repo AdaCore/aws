@@ -26,6 +26,10 @@ project Check_Mem_Nossl is
       for Default_Switches ("Ada") use ("-g", "-gnat05");
    end Builder;
 
+   package Binder is
+      for Default_Switches ("Ada") use ("-static");
+   end Binder;
+
    package Linker is
       for Default_Switches ("Ada") use ("-g", "-lgmem");
    end Linker;
