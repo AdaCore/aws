@@ -515,56 +515,59 @@ package body AWS.Net.SSL is
       use type TSSL.gnutls_certificate_credentials_t;
       use type TSSL.gnutls_dh_params_t;
 
+      Cert     : Datum_Type;
+      Key      : Datum_Type;
+      Trust_CA : Datum_Type;
+
       procedure Set_Certificate (CC : TSSL.gnutls_certificate_credentials_t);
       --  Set credentials from Cetificate_Filename and Key_Filename
+
+      procedure Check_File (Prefix, Filename : String);
+      --  Check that Filename is present, raise an exception adding
+      --  Prefix in front of the message.
+
+      procedure Final;
+
+      Drop : Utils.Finalizer (Final'Access);
+      pragma Unreferenced (Drop);
+
+      ----------------
+      -- Check_File --
+      ----------------
+
+      procedure Check_File (Prefix, Filename : String) is
+         use type Directories.File_Kind;
+      begin
+         if Directories.Kind (Filename) /= Directories.Ordinary_File then
+            raise Socket_Error
+               with Prefix & " file """ & Filename & """ error.";
+         end if;
+      end Check_File;
+
+      -----------
+      -- Final --
+      -----------
+
+      procedure Final is
+      begin
+         Free (Cert);
+         Free (Trust_CA);
+
+         if Key_Filename /= "" then
+            Free (Key);
+         end if;
+      end Final;
 
       ---------------------
       -- Set_Certificate --
       ---------------------
 
       procedure Set_Certificate (CC : TSSL.gnutls_certificate_credentials_t) is
-         Cert : Datum_Type;
-         Key  : Datum_Type;
-
          X509_PK : aliased TSSL.gnutls_x509_privkey_t;
-
-         procedure Check_File (Prefix, Filename : String);
-         --  Check that Filename is present, raise an exception adding
-         --  Prefix in front of the message.
-
-         procedure Final;
 
          function Load_PCert_List (Try_Size : Positive) return PCert_Array;
 
-         ----------------
-         -- Check_File --
-         ----------------
-
-         procedure Check_File (Prefix, Filename : String) is
-            use type Directories.File_Kind;
-         begin
-            if Directories.Kind (Filename) /= Directories.Ordinary_File then
-               raise Socket_Error
-                 with Prefix & " file """ & Filename & """ error.";
-            end if;
-         end Check_File;
-
-         -----------
-         -- Final --
-         -----------
-
-         procedure Final is
-         begin
-            Free (Cert);
-
-            if Key_Filename /= "" then
-               Free (Key);
-            end if;
-         end Final;
-
          Code : C.int;
-         Drop : Utils.Finalizer (Final'Access);
-         pragma Unreferenced (Drop);
 
          ---------------------
          -- Load_PCert_List --
@@ -592,17 +595,6 @@ package body AWS.Net.SSL is
          end Load_PCert_List;
 
       begin
-         Check_File ("Certificate", Certificate_Filename);
-
-         Cert := Load_File (Certificate_Filename);
-
-         if Key_Filename = "" then
-            Key := Cert;
-         else
-            Check_File ("Key", Key_Filename);
-            Key := Load_File (Key_Filename);
-         end if;
-
          if Set_Certificate_Over_Callback then
             Config.PCert_List := new PCert_Array'(Load_PCert_List (4));
             Check_Error_Code (TSSL.gnutls_x509_privkey_init (X509_PK'Access));
@@ -635,21 +627,35 @@ package body AWS.Net.SSL is
          end if;
 
          if Trusted_CA_Filename /= "" then
-            declare
-               FN : aliased C.char_array := C.To_C (Trusted_CA_Filename);
-            begin
-               if TSSL.gnutls_certificate_set_x509_trust_file
-                    (CC, C.Strings.To_Chars_Ptr (FN'Unchecked_Access),
-                     TSSL.GNUTLS_X509_FMT_PEM) = -1
-               then
-                  raise Socket_Error
-                    with "cannot set CA file " & Trusted_CA_Filename;
-               end if;
-            end;
+            if TSSL.gnutls_certificate_set_x509_trust_mem
+                 (CC, Trust_CA.Datum'Unchecked_Access,
+                  TSSL.GNUTLS_X509_FMT_PEM) = -1
+            then
+               raise Socket_Error
+                 with "cannot set CA file " & Trusted_CA_Filename;
+            end if;
          end if;
       end Set_Certificate;
 
    begin
+      if Certificate_Filename /= "" then
+         Check_File ("Certificate", Certificate_Filename);
+
+         Cert := Load_File (Certificate_Filename);
+
+         if Key_Filename = "" then
+            Key := Cert;
+         else
+            Check_File ("Key", Key_Filename);
+            Key := Load_File (Key_Filename);
+         end if;
+      end if;
+
+      if Trusted_CA_Filename /= "" then
+         Check_File ("CA", Trusted_CA_Filename);
+         Trust_CA := Load_File (Trusted_CA_Filename);
+      end if;
+
       if (Security_Mode = SSLv23
           or else Security_Mode = TLSv1
           or else Security_Mode = SSLv3
