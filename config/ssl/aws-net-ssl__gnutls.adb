@@ -1235,9 +1235,38 @@ package body AWS.Net.SSL is
 
       Status        : aliased C.unsigned;
       CB            : Net.SSL.Certificate.Verify_Callback;
-      Cert          : aliased TSSL.gnutls_x509_crt_t;
       Cert_List     : TSSL.a_gnutls_datum_t;
       Cert_List_Len : aliased C.unsigned;
+
+      procedure Callback_Processing;
+
+      -------------------------
+      -- Callback_Processing --
+      -------------------------
+
+      procedure Callback_Processing is
+         Cert : array (1 .. Cert_List_Len) of aliased TSSL.gnutls_x509_crt_t;
+      begin
+         if TSSL.gnutls_x509_crt_list_import
+              (Cert (1)'Access, Cert_List_Len'Access, Cert_List,
+               TSSL.GNUTLS_X509_FMT_DER, 0) < 0
+         then
+            Status := 1;
+            return;
+         end if;
+
+         if Cert_List_Len /= Cert'Length then
+            raise Program_Error;
+         end if;
+
+         for J in reverse Cert'Range loop
+            if not CB (Net.SSL.Certificate.Impl.Read (Status, Cert (J))) then
+               Status := 1;
+            end if;
+
+            TSSL.gnutls_x509_crt_deinit (Cert (J));
+         end loop;
+      end Callback_Processing;
 
    begin
       if TSSL.gnutls_certificate_verify_peers2
@@ -1255,27 +1284,13 @@ package body AWS.Net.SSL is
          return TSSL.GNUTLS_E_CERTIFICATE_ERROR;
       end if;
 
-      if TSSL.gnutls_x509_crt_init (Cert'Access) < 0 then
-         return TSSL.GNUTLS_E_CERTIFICATE_ERROR;
-      end if;
-
-      if TSSL.gnutls_x509_crt_import
-        (Cert, Cert_List.all, TSSL.GNUTLS_X509_FMT_DER) < 0
-      then
-         return TSSL.GNUTLS_E_CERTIFICATE_ERROR;
-      end if;
-
       --  Get the user's callback stored in the session config
 
       CB := To_Config (TSSL.gnutls_session_get_ptr (Session)).Verify_CB;
 
-      if CB /= null
-        and then not CB (Net.SSL.Certificate.Impl.Read (Status, Cert))
-      then
-         Status := 1;
+      if CB /= null then
+         Callback_Processing;
       end if;
-
-      TSSL.gnutls_x509_crt_deinit (Cert);
 
       if Status = 0 then
          return 0;

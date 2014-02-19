@@ -1060,6 +1060,14 @@ package SSL.Thin is
       format : gnutls_x509_crt_fmt_t) return C.int
      with Import, Convention => C;
 
+   function gnutls_x509_crt_list_import
+     (certs    : access gnutls_x509_crt_t;
+      cert_max : access C.unsigned;
+      data     : a_gnutls_datum_t;
+      format   : gnutls_x509_crt_fmt_t;
+      flags    : C.unsigned) return C.int
+     with Import, Convention => C;
+
    function gnutls_privkey_init
      (key : access gnutls_privkey_t) return C.int
      with Import, Convention => C;
