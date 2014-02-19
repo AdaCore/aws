@@ -1,5 +1,11 @@
 Known Problems fixed in AWS 3.2
 
+- N219-019: Fix Ada code generation with wsdl2ada
+  Problem: For a WSDL record with a single field having a name
+           corresponding to an Ada keyword, wsdl2ada was generating
+           non compilable Ada units.
+  Workaround: Rename the WSDL record field in the WSDL.
+
 - N129-029: Better handling for WebSocket abonormal closure
   Problem: When a client close the connection abruptly we now send
            only a On_Error message with the Abnormal_Closure status
