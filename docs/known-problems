@@ -6,7 +6,7 @@ Known Problems fixed in AWS 3.2
            non compilable Ada units.
   Workaround: Rename the WSDL record field in the WSDL.
 
-- N129-029: Better handling for WebSocket abonormal closure
+- N129-029: Better handling for WebSocket abnormal closure
   Problem: When a client close the connection abruptly we now send
            only a On_Error message with the Abnormal_Closure status
            code.
