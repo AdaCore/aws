@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<definitions name="AdaName"
+ targetNamespace="http://www.dummy.net/AdaName.wsdl"
+ xmlns:tns="http://www.dummy.net/AdaName.wsdl"
+ xmlns:SOAP-ENV="http://schemas.xmlsoap.org/soap/envelope/"
+ xmlns:SOAP-ENC="http://schemas.xmlsoap.org/soap/encoding/"
+ xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+ xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+ xmlns:ns="http://www.dummy.net/AdaName.wsdl"
+ xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/"
+ xmlns:MIME="http://schemas.xmlsoap.org/wsdl/mime/"
+ xmlns:DIME="http://schemas.xmlsoap.org/ws/2002/04/dime/wsdl/"
+ xmlns:WSDL="http://schemas.xmlsoap.org/wsdl/"
+ xmlns="http://schemas.xmlsoap.org/wsdl/">
+
+<types>
+ <schema targetNamespace="http://www.dummy.net/AdaName.wsdl"
+  xmlns:SOAP-ENV="http://schemas.xmlsoap.org/soap/envelope/"
+  xmlns:SOAP-ENC="http://schemas.xmlsoap.org/soap/encoding/"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+  xmlns:ns="http://www.dummy.net/AdaName.wsdl"
+  xmlns="http://www.w3.org/2001/XMLSchema"
+  elementFormDefault="unqualified"
+  attributeFormDefault="unqualified">
+  <complexType name="SizeOfTable">
+   <all>
+    <element name="return" type="xsd:unsignedInt"/>
+   </all>
+  </complexType>
+ </schema>
+</types>
+
+<message name="getTableSizeCpsNTableRequest">
+</message>
+<message name="getTableSizeCpsNTableResponse">
+ <part name="CpsNTable" type="ns:SizeOfTable"/>
+</message>
+
+<portType name="AdaNamePortType">
+ <operation name="getTableSizeCpsNTable">
+  <input message="tns:getTableSizeCpsNTableRequest"/>
+  <output message="tns:getTableSizeCpsNTableResponse"/>
+ </operation>
+</portType>
+
+<binding name="AdaName" type="tns:AdaNamePortType">
+ <soap:binding style="rpc"
+transport="http://schemas.xmlsoap.org/soap/http"/>
+ <operation name="getTableSizeCpsNTable">
+  <soap:operation style="rpc" soapAction=""/>
+  <input>
+   <soap:body use="encoded"
+namespace="http://www.dummy.net/AdaName.wsdl"
+encodingStyle="http://schemas.xmlsoap.org/soap/encoding/"/>
+  </input>
+  <output>
+   <soap:body use="encoded"
+namespace="http://www.dummy.net/AdaName.wsdl"
+encodingStyle="http://schemas.xmlsoap.org/soap/encoding/"/>
+  </output>
+ </operation>
+</binding>
+
+<service name="AdaName">
+ <port name="AdaName" binding="tns:AdaName">
+  <soap:address location="http://localhost:8085"/>
+ </port>
+</service>
+
+</definitions>
