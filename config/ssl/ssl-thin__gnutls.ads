@@ -462,6 +462,38 @@ package SSL.Thin is
       GNUTLS_SIGN_UNKNOWN => 255);
    for gnutls_sign_algorithm_t'Size use C.int'Size;
 
+   type gnutls_sec_param_t is
+     (GNUTLS_SEC_PARAM_INSECURE,
+      GNUTLS_SEC_PARAM_EXPORT,
+      GNUTLS_SEC_PARAM_VERY_WEAK,
+      GNUTLS_SEC_PARAM_WEAK,
+      GNUTLS_SEC_PARAM_UNKNOWN,
+      GNUTLS_SEC_PARAM_LOW,
+      GNUTLS_SEC_PARAM_LEGACY,
+      GNUTLS_SEC_PARAM_NORMAL,
+      GNUTLS_SEC_PARAM_HIGH,
+      GNUTLS_SEC_PARAM_ULTRA);
+   for gnutls_sec_param_t use
+     (GNUTLS_SEC_PARAM_INSECURE  => -20,
+      GNUTLS_SEC_PARAM_EXPORT    => -15,
+      GNUTLS_SEC_PARAM_VERY_WEAK => -12,
+      GNUTLS_SEC_PARAM_WEAK      => -10,
+      GNUTLS_SEC_PARAM_UNKNOWN   => 0,
+      GNUTLS_SEC_PARAM_LOW       => 1,
+      GNUTLS_SEC_PARAM_LEGACY    => 2,
+      GNUTLS_SEC_PARAM_NORMAL    => 3,
+      GNUTLS_SEC_PARAM_HIGH      => 4,
+      GNUTLS_SEC_PARAM_ULTRA     => 5);
+   for gnutls_sec_param_t'Size use C.int'Size;
+
+   type gnutls_params_type_t is
+     (GNUTLS_PARAMS_RSA_EXPORT, GNUTLS_PARAMS_DH, GNUTLS_PARAMS_ECDH);
+   for gnutls_params_type_t use
+     (GNUTLS_PARAMS_RSA_EXPORT => 1,
+      GNUTLS_PARAMS_DH         => 2,
+      GNUTLS_PARAMS_ECDH       => 3);
+   for gnutls_params_type_t'Size use C.int'Size;
+
    type gnutls_server_name_type_t is (GNUTLS_NAME_DNS);
    for gnutls_server_name_type_t use (GNUTLS_NAME_DNS => 1);
    for gnutls_server_name_type_t'Size use C.int'Size;
@@ -477,13 +509,13 @@ package SSL.Thin is
    type gnutls_srp_server_credentials_function is new System.Address;
    type gnutls_srp_client_credentials_function is new System.Address;
    type gnutls_certificate_server_retrieve_function is new System.Address;
-   type gnutls_params_function is new System.Address;
 
    type STRUCT_DSTRUCT;
 
    type gnutls_session_t is access all STRUCT_DSTRUCT;
    type gnutls_dh_params_t is access all STRUCT_DSTRUCT;
    type gnutls_rsa_params_t is access all STRUCT_DSTRUCT;
+   type gnutls_ecdh_params_t is access all STRUCT_DSTRUCT;
    type gnutls_certificate_credentials_t is access all STRUCT_DSTRUCT;
    type gnutls_anon_server_credentials_t is access all STRUCT_DSTRUCT;
    type gnutls_anon_client_credentials_t is access all STRUCT_DSTRUCT;
@@ -586,6 +618,27 @@ package SSL.Thin is
    type gnutls_log_func is access procedure
      (level : C.int; text : CS.chars_ptr)
      with Convention => C;
+
+   type gnutls_params_st_union
+     (kind : gnutls_params_type_t := GNUTLS_PARAMS_DH) is
+   record
+      case kind is
+         when GNUTLS_PARAMS_DH         => dh         : gnutls_dh_params_t;
+         when GNUTLS_PARAMS_ECDH       => ecdh       : gnutls_ecdh_params_t;
+         when GNUTLS_PARAMS_RSA_EXPORT => rsa_export : gnutls_rsa_params_t;
+      end case;
+   end record with Unchecked_Union, Convention => C;
+
+   type gnutls_params_st is record
+      kind   : gnutls_params_type_t;
+      params : gnutls_params_st_union;
+      deinit : C.int;
+   end record with Convention => C;
+
+   type gnutls_params_function is access function
+     (sessn  : gnutls_session_t;
+      kind   : gnutls_params_type_t;
+      params : access gnutls_params_st) return C.int with Convention => C;
 
    gnutls_malloc                   : constant gnutls_alloc_function
      with Import, Convention => C;
@@ -1150,6 +1203,11 @@ package SSL.Thin is
    procedure gnutls_global_set_log_level (level : C.int)
      with Import, Convention => C;
 
+   function gnutls_sec_param_to_pk_bits
+     (algo  : gnutls_pk_algorithm_t;
+      param : gnutls_sec_param_t) return C.unsigned
+     with Import, Convention => C;
+
    function gnutls_dh_params_init
      (p1 : access gnutls_dh_params_t) return C.int
      with Import, Convention => C;
@@ -1171,7 +1229,7 @@ package SSL.Thin is
 
    function gnutls_dh_params_generate2
      (params : gnutls_dh_params_t;
-      bits   : C.int) return C.int
+      bits   : C.unsigned) return C.int
      with Import, Convention => C;
 
    function gnutls_dh_params_export_pkcs3
@@ -1217,7 +1275,7 @@ package SSL.Thin is
 
    function gnutls_rsa_params_generate2
      (params : gnutls_rsa_params_t;
-      bits   : C.int) return C.int
+      bits   : C.unsigned) return C.int
      with Import, Convention => C;
 
    function gnutls_rsa_params_export_raw
@@ -1455,7 +1513,7 @@ package SSL.Thin is
      with Import, Convention => C;
 
    procedure gnutls_anon_set_params_function
-     (res  : gnutls_certificate_credentials_t;
+     (res  : gnutls_anon_server_credentials_t;
       func : gnutls_params_function)
      with Import, Convention => C;
 

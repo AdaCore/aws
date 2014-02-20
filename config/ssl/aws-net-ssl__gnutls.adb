@@ -123,6 +123,7 @@ package body AWS.Net.SSL is
       PCert_List     : PCert_Array_Access;
       TLS_PK         : aliased TSSL.gnutls_privkey_t;
       DH_Params      : aliased TSSL.gnutls_dh_params_t;
+      RSA_Params     : aliased TSSL.gnutls_rsa_params_t;
       RCC            : Boolean := False; -- Request client certificate
       CREQ           : Boolean := False; -- Certificate is required
       Verify_CB      : Net.SSL.Certificate.Verify_Callback;
@@ -195,6 +196,13 @@ package body AWS.Net.SSL is
       pcert_length    : access C.unsigned;
       privkey         : access TSSL.gnutls_privkey_t) return C.int
       with Convention => C;
+
+   function Params_Callback
+     (Sessn  : TSSL.gnutls_session_t;
+      Kind   : TSSL.gnutls_params_type_t;
+      Params : access TSSL.gnutls_params_st) return C.int
+     with Convention => C;
+   --  Callback to give Diffie-Hellman and/or RSA parameters
 
    -------------------
    -- Accept_Socket --
@@ -403,6 +411,7 @@ package body AWS.Net.SSL is
       use type TSSL.gnutls_certificate_credentials_t;
       use type TSSL.gnutls_dh_params_t;
       use type TSSL.gnutls_privkey_t;
+      use type TSSL.gnutls_rsa_params_t;
 
       procedure Unchecked_Free is
         new Ada.Unchecked_Deallocation (PCert_Array, PCert_Array_Access);
@@ -431,6 +440,11 @@ package body AWS.Net.SSL is
       if Config.DH_Params /= null then
          TSSL.gnutls_dh_params_deinit (Config.DH_Params);
          Config.DH_Params := null;
+      end if;
+
+      if Config.RSA_Params /= null then
+         TSSL.gnutls_rsa_params_deinit (Config.RSA_Params);
+         Config.RSA_Params := null;
       end if;
 
       if Config.TLS_PK /= null then
@@ -668,6 +682,12 @@ package body AWS.Net.SSL is
          Check_Error_Code
            (TSSL.gnutls_dh_params_init (Config.DH_Params'Access));
 
+         Check_Error_Code
+           (TSSL.gnutls_dh_params_generate2
+              (Config.DH_Params,
+               TSSL.gnutls_sec_param_to_pk_bits
+                 (TSSL.GNUTLS_PK_DH, TSSL.GNUTLS_SEC_PARAM_LOW)));
+
          Config.RCC := Exchange_Certificate;
          Config.CREQ := Certificate_Required;
 
@@ -675,8 +695,8 @@ package body AWS.Net.SSL is
             Check_Error_Code
               (TSSL.gnutls_anon_allocate_server_credentials
                  (Config.ASC'Access));
-            TSSL.gnutls_anon_set_server_dh_params
-              (Config.ASC, Config.DH_Params);
+            TSSL.gnutls_anon_set_params_function
+              (Config.ASC, Params_Callback'Access);
 
          else
             Check_Error_Code
@@ -688,8 +708,17 @@ package body AWS.Net.SSL is
             TSSL.gnutls_certificate_set_verify_function
               (cred => Config.CSC, func => Verify_Callback'Access);
 
-            TSSL.gnutls_certificate_set_dh_params
-              (Config.CSC, Config.DH_Params);
+            Check_Error_Code
+              (TSSL.gnutls_rsa_params_init (Config.RSA_Params'Access));
+
+            Check_Error_Code
+              (TSSL.gnutls_rsa_params_generate2
+                 (Config.RSA_Params,
+                  TSSL.gnutls_sec_param_to_pk_bits
+                    (TSSL.GNUTLS_PK_RSA, TSSL.GNUTLS_SEC_PARAM_LOW)));
+
+            TSSL.gnutls_certificate_set_params_function
+              (Config.CSC, Params_Callback'Access);
          end if;
       end if;
 
@@ -828,6 +857,40 @@ package body AWS.Net.SSL is
 
       return Result;
    end Load_File;
+
+   ---------------------
+   -- Params_Callback --
+   ---------------------
+
+   function Params_Callback
+     (Sessn  : TSSL.gnutls_session_t;
+      Kind   : TSSL.gnutls_params_type_t;
+      Params : access TSSL.gnutls_params_st) return C.int
+   is
+      Cfg : constant Config :=
+              To_Config (TSSL.gnutls_session_get_ptr (Sessn));
+   begin
+      --  Diffie-Hellman parameters should be discarded and regenerated once a
+      --  week or once a month. Depends on the security requirements.
+      --  RSA parameters should be discarded and regenerated once a day, once
+      --  every 500 transactions etc. Depends on the security requirements
+      --  (gnutls/src/serv.c).
+      --  ??? Now the parameters is not regenerated. Implement it later.
+
+      case Kind is
+         when TSSL.GNUTLS_PARAMS_RSA_EXPORT =>
+            Params.params.rsa_export := Cfg.RSA_Params;
+         when TSSL.GNUTLS_PARAMS_DH =>
+            Params.params.dh := Cfg.DH_Params;
+         when TSSL.GNUTLS_PARAMS_ECDH =>
+            return -1;
+      end case;
+
+      Params.kind   := Kind;
+      Params.deinit := 0;
+
+      return 0;
+   end Params_Callback;
 
    -------------
    -- Pending --
