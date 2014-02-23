@@ -1295,54 +1295,53 @@ package body AWS.Net.SSL is
       use type Net.SSL.Certificate.Verify_Callback;
       use type TSSL.a_gnutls_datum_t;
 
+      type Datum_List is
+        array (1 .. C.unsigned'Last) of aliased TSSL.gnutls_datum_t;
+      pragma Convention (C, Datum_List);
+
+      type Datum_List_Access is access all Datum_List;
+
+      function To_Array_Access is
+        new Ada.Unchecked_Conversion
+              (TSSL.a_gnutls_datum_t, Datum_List_Access);
+
       Status        : aliased C.unsigned;
       CB            : Net.SSL.Certificate.Verify_Callback;
       Cert_List     : TSSL.a_gnutls_datum_t;
       Cert_List_Len : aliased C.unsigned;
+      Cert          : aliased TSSL.gnutls_x509_crt_t;
+      RC            : C.int;
 
-      procedure Callback_Processing;
+      procedure Log_Error (Text : String := "");
 
-      -------------------------
-      -- Callback_Processing --
-      -------------------------
+      ---------------
+      -- Log_Error --
+      ---------------
 
-      procedure Callback_Processing is
-         Cert : array (1 .. Cert_List_Len) of aliased TSSL.gnutls_x509_crt_t;
+      procedure Log_Error (Text : String := "") is
+         Txt : constant String :=
+                 (if Text = "" then C.Strings.Value (TSSL.gnutls_strerror (RC))
+                  else Text);
+         Dum : Socket_Type;
       begin
-         if TSSL.gnutls_x509_crt_list_import
-              (Cert (1)'Access, Cert_List_Len'Access, Cert_List,
-               TSSL.GNUTLS_X509_FMT_DER, 0) < 0
-         then
-            Status := 1;
-            return;
-         end if;
-
-         if Cert_List_Len /= Cert'Length then
-            raise Program_Error;
-         end if;
-
-         for J in reverse Cert'Range loop
-            if not CB (Net.SSL.Certificate.Impl.Read (Status, Cert (J))) then
-               Status := 1;
-            end if;
-
-            TSSL.gnutls_x509_crt_deinit (Cert (J));
-         end loop;
-      end Callback_Processing;
+         Log.Error (Dum, Txt);
+      end Log_Error;
 
    begin
-      if TSSL.gnutls_certificate_verify_peers2
-        (Session, Status'Access) < 0
-      then
+      RC := TSSL.gnutls_certificate_verify_peers2 (Session, Status'Access);
+
+      if RC < 0 then
+         Log_Error;
          return TSSL.GNUTLS_E_CERTIFICATE_ERROR;
       end if;
 
       --  Get the peer certificate
 
       Cert_List := TSSL.gnutls_certificate_get_peers
-        (Session, Cert_List_Len'Access);
+                     (Session, Cert_List_Len'Access);
 
       if Cert_List = null then
+         Log_Error ("gnutls_certificate_get_peers null result");
          return TSSL.GNUTLS_E_CERTIFICATE_ERROR;
       end if;
 
@@ -1351,7 +1350,29 @@ package body AWS.Net.SSL is
       CB := To_Config (TSSL.gnutls_session_get_ptr (Session)).Verify_CB;
 
       if CB /= null then
-         Callback_Processing;
+         for J in reverse 1 .. Cert_List_Len loop
+            RC := TSSL.gnutls_x509_crt_init (Cert'Access);
+
+            if RC < 0 then
+               Log_Error;
+               return TSSL.GNUTLS_E_CERTIFICATE_ERROR;
+            end if;
+
+            RC := TSSL.gnutls_x509_crt_import
+                    (Cert, To_Array_Access (Cert_List) (J),
+                     TSSL.GNUTLS_X509_FMT_DER);
+
+            if RC < 0 then
+               Log_Error;
+               return TSSL.GNUTLS_E_CERTIFICATE_ERROR;
+            end if;
+
+            if not CB (Net.SSL.Certificate.Impl.Read (Status, Cert)) then
+               Status := 1;
+            end if;
+
+            TSSL.gnutls_x509_crt_deinit (Cert);
+         end loop;
       end if;
 
       if Status = 0 then
@@ -1359,6 +1380,11 @@ package body AWS.Net.SSL is
       else
          return TSSL.GNUTLS_E_CERTIFICATE_ERROR;
       end if;
+
+   exception
+      when E : others =>
+         Log_Error (Ada.Exceptions.Exception_Message (E));
+         return TSSL.GNUTLS_E_CERTIFICATE_ERROR;
    end Verify_Callback;
 
    -------------
