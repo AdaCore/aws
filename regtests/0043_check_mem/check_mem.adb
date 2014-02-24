@@ -27,6 +27,7 @@
 --  covered by the  GNU Public License.                                     --
 ------------------------------------------------------------------------------
 
+with Ada.Calendar;
 with Ada.Command_Line;
 with Ada.Exceptions;
 with Ada.IO_Exceptions;
@@ -77,6 +78,8 @@ procedure Check_Mem is
 
    procedure Check (Str : String);
 
+   procedure Stamp (Label : String);
+
    procedure Client;
 
    function SOAP_CB (Request : Status.Data) return Response.Data;
@@ -110,6 +113,7 @@ procedure Check_Mem is
    Push : Server_Push.Object;
 
    Iteration : Positive;
+   Timestamp : Ada.Calendar.Time;
 
    -----------
    -- Check --
@@ -340,6 +344,8 @@ procedure Check_Mem is
 
    procedure Client is
 
+      Connect : AWS.Client.HTTP_Connection;
+
       procedure Request (URL : String; Filename : String := "");
 
       procedure Request (Proc : String; X, Y : Integer);
@@ -350,6 +356,7 @@ procedure Check_Mem is
 
       procedure Request (URL : String; Filename : String := "") is
          use Ada.Streams;
+         Answer : Response.Data;
          Result : Resources.File_Type;
          File   : Resources.File_Type;
          Data_R : Stream_Element_Array (1 .. 4096);
@@ -357,8 +364,9 @@ procedure Check_Mem is
          Data_F : Stream_Element_Array (1 .. Data_R'Last);
          Last_F : Stream_Element_Offset;
       begin
-         Response.Message_Body
-           (AWS.Client.Get (AWS.Server.Status.Local_URL (HTTP) & URL), Result);
+         AWS.Client.Get (Connect, Answer, URL);
+
+         Response.Message_Body (Answer, Result);
 
          if Filename /= "" then
             Resources.Open (File, Filename, "shared=no");
@@ -402,23 +410,33 @@ procedure Check_Mem is
          Payload := SOAP.Message.Payload.Build (Proc, P_Set);
 
          declare
-            Response     : constant SOAP.Message.Response.Object'Class
-              := SOAP.Client.Call
-                   (AWS.Server.Status.Local_URL (HTTP) & "/soap_demo",
-                    Payload,
-                    "/soap_demo");
+            Response : constant SOAP.Message.Response.Object'Class :=
+                         SOAP.Client.Call (Connect, "/soap_demo", Payload);
 
             R_Parameters : constant SOAP.Parameters.List
               := SOAP.Message.Parameters (Response);
 
             Result : constant Integer
               := SOAP.Parameters.Get (R_Parameters, "result");
+            Expect : Integer;
          begin
-            null;
+            if Proc = "multProc" then
+               Expect := X * Y;
+            elsif Proc = "addProc" then
+               Expect := X + Y;
+            else
+               Expect := Integer'Last;
+            end if;
+
+            if Result /= Expect then
+               Check ("!!! Error " & Proc & Result'Img & " /=" & Expect'Img);
+            end if;
          end;
       end Request;
 
    begin
+      AWS.Client.Create (Connect, AWS.Server.Status.Local_URL (HTTP));
+
       Request ("/simple");
       Request ("/simple?p1=8&p2=azerty%20qwerty");
       Request ("/simple?p2=8&p1=azerty%20qwerty");
@@ -442,6 +460,7 @@ procedure Check_Mem is
       Request ("addProc", 2, 3);
       Request ("addProc", 98, 123);
       Request ("addProc", 5, 9);
+      AWS.Client.Close (Connect);
    end Client;
 
    ---------------------------
@@ -571,9 +590,28 @@ procedure Check_Mem is
          Check_Data (J, Data + Push_Data_Type (J));
       end loop;
 
-      for J in Connect'Range loop
-         AWS.Client.Close (Connect (J));
-      end loop;
+      declare
+         task type Closer is
+            entry Close (Index : Positive);
+         end Closer;
+
+         task body Closer is
+            Index : Positive;
+         begin
+            accept Close (Index : Positive) do
+               Closer.Index := Index;
+            end Close;
+
+            AWS.Client.Close (Connect (Index));
+         end Closer;
+
+         Closers : array (Connect'Range) of Closer;
+
+      begin
+         for J in Connect'Range loop
+            Closers (J).Close (J);
+         end loop;
+      end;
 
       Server_Push.Send (Push, Data => Data, Content_Type => "text/plain");
    end Check_Server_Push;
@@ -779,6 +817,20 @@ procedure Check_Mem is
       end loop;
    end Check_Socket;
 
+   -----------
+   -- Stamp --
+   -----------
+
+   procedure Stamp (Label : String) is
+      use Calendar;
+      Now : constant Time := Clock;
+   begin
+      if Ada.Command_Line.Argument_Count > 1 then
+         Ada.Text_IO.Put_Line (Label & ' ' & Utils.Image (Now - Timestamp));
+      end if;
+      Timestamp := Now;
+   end Stamp;
+
    --------------
    -- To_Array --
    --------------
@@ -810,19 +862,33 @@ begin
    --  iterations.
 
    for K in 1 ..  Iteration loop
+      Timestamp := Calendar.Clock;
       Client;
+      Stamp ("Client");
       Check_Zlib;
+      Stamp ("ZLib");
       Check_Memory_Streams;
+      Stamp ("Stream");
       Check_Dynamic_Message (Messages.Identity);
+      Stamp ("Dymanic identity");
       Check_Dynamic_Message (Messages.Deflate);
+      Stamp ("Dymanic deflate");
       Check_Transient;
+      Stamp ("Transient");
       Check_Zopen;
+      Stamp ("Zopen");
       Check_Socket;
+      Stamp ("Socket");
       Check_Reconnect (False);
+      Stamp ("Reconnect plain");
       Check_Reconnect (True);
+      Stamp ("Reconnect SSL");
       Check_SMTP (False);
+      Stamp ("SMTP plain");
       Check_SMTP (True);
+      Stamp ("SMTP SSL");
       Check_Server_Push;
+      Stamp ("Server push");
    end loop;
 
    Server.Stopped;

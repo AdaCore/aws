@@ -191,6 +191,8 @@ private
 
    Is_Supported : constant Boolean := Integer (TSSL.SSLeay) /= 0;
 
+   Shutdown_Read_Timeout : constant Duration := 0.25;
+
    subtype SSL_Handle is TSSL.SSL_Handle;
 
    type TS_SSL;

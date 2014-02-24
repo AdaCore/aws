@@ -737,60 +737,88 @@ package body AWS.Net.SSL is
    overriding procedure Shutdown
      (Socket : Socket_Type; How : Shutmode_Type := Shut_Read_Write)
    is
-      To_C : constant array (Shutmode_Type) of C.int :=
-               (Shut_Read_Write => TSSL.SSL_SENT_SHUTDOWN
-                                   + TSSL.SSL_RECEIVED_SHUTDOWN,
-                Shut_Read       => TSSL.SSL_RECEIVED_SHUTDOWN,
-                Shut_Write      => TSSL.SSL_SENT_SHUTDOWN);
       RC   : C.int;
+      Both : Boolean := False;
+
+      function Error_Processing return Boolean;
+      --  Exit from shutdown loop on True result
+
+      ----------------------
+      -- Error_Processing --
+      ----------------------
+
+      function Error_Processing return Boolean is
+         Error_Code : constant C.int := TSSL.SSL_get_error (Socket.SSL, RC);
+         Err_Code   : TSSL.Error_Code;
+
+         use type TSSL.Error_Code;
+
+      begin
+         case Error_Code is
+            when TSSL.SSL_ERROR_WANT_READ =>
+               if Net.Socket_Type (Socket).Timeout > Shutdown_Read_Timeout then
+                  Socket_Write (Socket);
+                  Wait_For (Input, NSST (Socket), Shutdown_Read_Timeout);
+               end if;
+
+               Socket_Read (Socket);
+
+            when TSSL.SSL_ERROR_WANT_WRITE =>
+               Socket_Write (Socket);
+
+            when TSSL.SSL_ERROR_SYSCALL =>
+               Net.Log.Error
+                 (Socket,
+                  "System error (" & Utils.Image (OS_Lib.Socket_Errno)
+                  & ") on SSL shutdown");
+
+               return True;
+
+            when others =>
+               Err_Code := TSSL.ERR_get_error;
+
+               if Err_Code = 0 then
+                  Net.Log.Error
+                    (Socket,
+                     "Error (" & Utils.Image (Integer (Error_Code))
+                     & ") on SSL shutdown");
+               else
+                  Net.Log.Error (Socket, Error_Str (Err_Code));
+               end if;
+
+               return True;
+         end case;
+
+         return False;
+
+      exception
+         when Socket_Error =>
+            return True;
+      end Error_Processing;
+
    begin
       if Socket.SSL /= TSSL.Null_Handle then
-         TSSL.SSL_set_shutdown (Socket.SSL, To_C (How));
-
          loop
             RC := TSSL.SSL_shutdown (Socket.SSL);
 
             exit when RC > 0;
 
-            declare
-               Error_Code : constant C.int :=
-                              TSSL.SSL_get_error (Socket.SSL, RC);
+            if RC = 0 then
+               --  First part of bidirectional shutdown done
 
-               Err_Code   : TSSL.Error_Code;
-               Err_No     : Integer;
+               if How = Shut_Write then
+                  exit;
+               end if;
 
-               use type TSSL.Error_Code;
-            begin
-               case Error_Code is
-                  when TSSL.SSL_ERROR_WANT_READ =>
-                     Socket_Read (Socket);
+               if Both then
+                  exit when Error_Processing;
+               else
+                  Both := True;
+               end if;
 
-                  when TSSL.SSL_ERROR_WANT_WRITE =>
-                     Socket_Write (Socket);
-
-                  when TSSL.SSL_ERROR_SYSCALL =>
-                     Err_No := OS_Lib.Socket_Errno;
-
-                     exit when Err_No = 0;
-
-                     Net.Log.Error
-                       (Socket,
-                        "System error (" & Utils.Image (Err_No)
-                           & ") on SSL shutdown");
-
-                  when others =>
-                     Err_Code := TSSL.ERR_get_error;
-
-                     if Err_Code = 0 then
-                        Net.Log.Error
-                          (Socket,
-                           "Error (" & Utils.Image (Integer (Error_Code))
-                           & ") on SSL shutdown");
-                     else
-                        Net.Log.Error (Socket, Error_Str (Err_Code));
-                     end if;
-               end case;
-            end;
+            else
+               exit when Error_Processing;
+            end if;
          end loop;
       end if;
 
@@ -1208,8 +1236,6 @@ package body AWS.Net.SSL is
          type Meth_Func is access function return TSSL.SSL_Method
            with Convention => C;
 
-         procedure Set_Quiet_Shutdown (Value : Boolean := True);
-
          procedure Set_Certificate
            (Cert_Filename : String; Key_Filename : String);
 
@@ -1314,17 +1340,6 @@ package body AWS.Net.SSL is
             end if;
          end Set_Certificate;
 
-         ------------------------
-         -- Set_Quiet_Shutdown --
-         ------------------------
-
-         procedure Set_Quiet_Shutdown (Value : Boolean := True) is
-         begin
-            TSSL.SSL_CTX_set_quiet_shutdown
-              (Ctx  => Context,
-               Mode => Boolean'Pos (Value));
-         end Set_Quiet_Shutdown;
-
       begin
          if Context = TSSL.Null_Pointer then
             --  Initialize context
@@ -1364,7 +1379,6 @@ package body AWS.Net.SSL is
                Set_Certificate (Certificate_Filename, Key_Filename);
             end if;
 
-            Set_Quiet_Shutdown;
             TS_SSL.Set_Session_Cache_Size (Session_Cache_Size);
          end if;
       end Initialize;

@@ -1283,7 +1283,8 @@ package body AWS.Net.SSL is
             begin
                Code_Processing
                  (Code, Socket,
-                  Duration'Min (Net.Socket_Type (Socket).Timeout, 0.25));
+                  Duration'Min
+                    (Net.Socket_Type (Socket).Timeout, Shutdown_Read_Timeout));
             exception
                when E : others =>
                   Net.Log.Error (Socket, Ada.Exceptions.Exception_Message (E));

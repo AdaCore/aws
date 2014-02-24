@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2004-2012, AdaCore                     --
+--                     Copyright (C) 2004-2014, AdaCore                     --
 --                                                                          --
 --  This is free software;  you can redistribute it  and/or modify it       --
 --  under terms of the  GNU General Public License as published  by the     --
@@ -100,10 +100,10 @@ begin
 
    Peer.Send (Sample);
 
-   Client_Side.Stop;
-
    Peer.Shutdown;
    Server.Shutdown;
+
+   Client_Side.Stop;
 
    Text_IO.Put_Line ("done.");
 
