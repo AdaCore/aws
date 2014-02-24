@@ -501,6 +501,13 @@ package body AWS.Net.SSL is
                      & Utils.Image (Integer (OS_Lib.Socket_Errno))
                      & ") on SSL receive");
 
+               when TSSL.SSL_ERROR_ZERO_RETURN =>
+                  if Len = 0 then
+                     raise Socket_Error with Peer_Closed_Message;
+                  else
+                     Raise_Socket_Error (Socket, Error_Stack);
+                  end if;
+
                when others => Raise_Socket_Error (Socket, Error_Stack);
             end case;
          end;
