@@ -182,6 +182,9 @@ package AWS.Net.SSL is
    --  Set session cache size in the SSL context.
    --  Null_Config mean default context.
 
+   procedure Set_Debug (Level : Natural);
+   --  ???
+
 private
 
    package TSSL renames Standard.SSL.Thin;

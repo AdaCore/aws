@@ -118,6 +118,8 @@ package body AWS.Net.SSL is
 
    Max_Overhead : Stream_Element_Count := 78 with Atomic;
 
+   Debug_Level  : Natural := 0 with Atomic;
+
    procedure Socket_Read (Socket : Socket_Type);
    --  Read encripted data from socket if necessary
 
@@ -686,6 +688,15 @@ package body AWS.Net.SSL is
    begin
       Socket.Config := Config;
    end Set_Config;
+
+   ---------------
+   -- Set_Debug --
+   ---------------
+
+   procedure Set_Debug (Level : Natural) is
+   begin
+      Debug_Level := Level;
+   end Set_Debug;
 
    ----------------------------
    -- Set_Session_Cache_Size --
@@ -1365,6 +1376,15 @@ package body AWS.Net.SSL is
 
          Error_If
            (BIO_new_bio_pair (Inside_IO'Access, 0, Net_IO'Access, 0) = 0);
+
+         case Debug_Level is
+            when 0 => null;
+            when 1 => BIO_set_callback (Inside_IO, BIO_debug_callback'Access);
+            when 2 => BIO_set_callback (Net_IO, BIO_debug_callback'Access);
+            when others =>
+               BIO_set_callback (Inside_IO, BIO_debug_callback'Access);
+               BIO_set_callback (Net_IO, BIO_debug_callback'Access);
+         end case;
 
          Socket.IO := Net_IO;
 

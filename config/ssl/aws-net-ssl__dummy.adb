@@ -209,6 +209,15 @@ package body AWS.Net.SSL is
       raise Program_Error with Error_Message;
    end Set_Config;
 
+   ---------------
+   -- Set_Debug --
+   ---------------
+
+   procedure Set_Debug (Level : Natural) is
+   begin
+      null;
+   end Set_Debug;
+
    ----------------------------
    -- Set_Session_Cache_Size --
    ----------------------------

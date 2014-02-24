@@ -31,6 +31,7 @@ pragma Ada_2012;
 
 with Ada.Calendar;
 with Ada.Directories;
+with Ada.Text_IO;
 with Ada.Unchecked_Conversion;
 with Ada.Unchecked_Deallocation;
 
@@ -50,6 +51,8 @@ package body AWS.Net.SSL is
 
    use type C.int;
    use type C.unsigned;
+
+   package CS renames C.Strings;
 
    subtype NSST is Net.Std.Socket_Type;
 
@@ -114,6 +117,16 @@ package body AWS.Net.SSL is
      with Convention => C;
    --  Would be used only on defined MSG_NOSIGNAL platforms to avoid SIGPIPE
    --  signal.
+
+   procedure SSL_Log (level : C.int; text : CS.chars_ptr)
+     with Convention => C;
+
+   procedure SSL_Log_Audit
+     (sessn : TSSL.gnutls_session_t; level : C.int; text : CS.chars_ptr)
+     with Convention => C;
+
+   procedure SSL_Log_Common
+     (Prefix : String; Level : C.int; text : CS.chars_ptr);
 
    type TS_SSL is record
       ASC            : aliased TSSL.gnutls_anon_server_credentials_t;
@@ -1209,6 +1222,17 @@ package body AWS.Net.SSL is
       Socket.Config := Config;
    end Set_Config;
 
+   ---------------
+   -- Set_Debug --
+   ---------------
+
+   procedure Set_Debug (Level : Natural) is
+   begin
+      TSSL.gnutls_global_set_log_function (SSL_Log'Access);
+      TSSL.gnutls_global_set_audit_log_function (SSL_Log_Audit'Access);
+      TSSL.gnutls_global_set_log_level (C.int (Level));
+   end Set_Debug;
+
    ----------------------------
    -- Set_Session_Cache_Size --
    ----------------------------
@@ -1286,6 +1310,47 @@ package body AWS.Net.SSL is
       S1 := Secure_Server (ST1);
       S2 := Secure_Client (ST2);
    end Socket_Pair;
+
+   -------------
+   -- SSL_Log --
+   -------------
+
+   procedure SSL_Log (level : C.int; text : CS.chars_ptr) is
+   begin
+      SSL_Log_Common ("", level, text);
+   end SSL_Log;
+
+   -------------------
+   -- SSL_Log_Audit --
+   -------------------
+
+   procedure SSL_Log_Audit
+     (sessn : TSSL.gnutls_session_t; level : C.int; text : CS.chars_ptr)
+   is
+      pragma Unreferenced (sessn);
+   begin
+      SSL_Log_Common ("@", level, text);
+   end SSL_Log_Audit;
+
+   --------------------
+   -- SSL_Log_Common --
+   --------------------
+
+   procedure SSL_Log_Common
+     (Prefix : String; Level : C.int; text : CS.chars_ptr)
+   is
+      use Ada.Text_IO;
+
+      Lev : constant String  := Level'Img;
+      Fst : Positive := Lev'First;
+      Adt : constant String := CS.Value (text);
+   begin
+      if Lev (Fst) = ' ' then
+         Fst := Fst + 1;
+      end if;
+
+      Put (Current_Error, "|<" & Prefix & Lev (Fst .. Lev'Last) & ">| " & Adt);
+   end SSL_Log_Common;
 
    ---------------------
    -- Verify_Callback --

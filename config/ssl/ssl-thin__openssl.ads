@@ -81,6 +81,15 @@ package SSL.Thin is
       --  CRYPTO_EX_DATA ex_data; -- Do not need to translete it
    end record;
 
+   type BIO_callback is access function
+     (BIO  : BIO_Access;
+      cmd  : int;
+      argp : Cstr.chars_ptr;
+      argi : int;
+      argl : long;
+      ret  : long) return long
+     with Convention => C;
+
    subtype SSL_Method     is Pointer;
    subtype SSL_CTX        is Pointer;
    subtype SSL_Handle     is Pointer;
@@ -594,6 +603,15 @@ package SSL.Thin is
    function SSL_get_error (SSL : SSL_Handle; Ret : int) return int
      with Import, Convention => C, Link_Name => "SSL_get_error";
 
+   function SSL_state (SSL : SSL_Handle) return int
+     with Import, Convention => C, Link_Name => "SSL_state";
+
+   function SSL_state_string (SSL : SSL_Handle) return Cstr.chars_ptr
+     with Import, Convention => C, Link_Name => "SSL_state_string";
+
+   function SSL_state_string_long (SSL : SSL_Handle) return Cstr.chars_ptr
+     with Import, Convention => C, Link_Name => "SSL_state_string_long";
+
    function SSL_shutdown (SSL : SSL_Handle) return int
      with Import, Convention => C, Link_Name => "SSL_shutdown";
 
@@ -879,6 +897,27 @@ package SSL.Thin is
 
    procedure BIO_free (BIO : BIO_Access)
      with Import, Convention => C, Link_Name => "BIO_free";
+
+   function BIO_get_callback (BIO : BIO_Access) return BIO_callback
+     with Import, Convention => C, Link_Name => "BIO_get_callback";
+
+   procedure BIO_set_callback (BIO : BIO_Access; callback : BIO_callback)
+     with Import, Convention => C, Link_Name => "BIO_set_callback";
+
+   function BIO_get_callback_arg (BIO : BIO_Access) return Cstr.chars_ptr
+     with Import, Convention => C, Link_Name => "BIO_get_callback_arg";
+
+   procedure BIO_set_callback_arg (BIO : BIO_Access; arg : Cstr.chars_ptr)
+     with Import, Convention => C, Link_Name => "BIO_set_callback_arg";
+
+   function BIO_debug_callback
+     (BIO  : BIO_Access;
+      cmd  : int;
+      argp : Cstr.chars_ptr;
+      argi : int;
+      argl : long;
+      ret  : long) return long
+     with Import, Convention => C, Link_Name => "BIO_debug_callback";
 
    SSL_SESS_CACHE_OFF                : constant := 0;
    SSL_SESS_CACHE_CLIENT             : constant := 1;

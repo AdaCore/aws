@@ -619,6 +619,10 @@ package SSL.Thin is
      (level : C.int; text : CS.chars_ptr)
      with Convention => C;
 
+   type gnutls_audit_log_func is access procedure
+     (sessn : gnutls_session_t; level : C.int; text : CS.chars_ptr)
+     with Convention => C;
+
    type gnutls_params_st_union
      (kind : gnutls_params_type_t := GNUTLS_PARAMS_DH) is
    record
@@ -1201,6 +1205,10 @@ package SSL.Thin is
      with Import, Convention => C;
 
    procedure gnutls_global_set_log_level (level : C.int)
+     with Import, Convention => C;
+
+   procedure gnutls_global_set_audit_log_function
+     (log_func : gnutls_audit_log_func)
      with Import, Convention => C;
 
    function gnutls_sec_param_to_pk_bits
