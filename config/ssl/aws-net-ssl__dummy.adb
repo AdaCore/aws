@@ -49,6 +49,17 @@ package body AWS.Net.SSL is
       raise Program_Error with Error_Message;
    end Accept_Socket;
 
+   ------------------------
+   -- Cipher_Description --
+   ------------------------
+
+   overriding function Cipher_Description
+     (Socket : Socket_Type) return String is
+   begin
+      raise Program_Error with Error_Message;
+      return "";
+   end Cipher_Description;
+
    -------------------------
    -- Clear_Session_Cache --
    -------------------------

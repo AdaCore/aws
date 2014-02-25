@@ -189,6 +189,20 @@ package body AWS.Net.SSL is
       end loop SSL_Accept;
    end Accept_Socket;
 
+   ------------------------
+   -- Cipher_Description --
+   ------------------------
+
+   overriding function Cipher_Description (Socket : Socket_Type) return String
+   is
+      Buffer : aliased C.char_array := (1 .. 256 => <>);
+   begin
+      return C.Strings.Value
+               (TSSL.SSL_CIPHER_description
+                  (TSSL.SSL_get_current_cipher (Socket.SSL).all,
+                   Buffer'Access, Buffer'Length));
+   end Cipher_Description;
+
    -------------------------
    -- Clear_Session_Cache --
    -------------------------

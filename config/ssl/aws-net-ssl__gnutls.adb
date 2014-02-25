@@ -273,6 +273,23 @@ package body AWS.Net.SSL is
       Check_Error_Code (Code, Dummy);
    end Check_Error_Code;
 
+   ------------------------
+   -- Cipher_Description --
+   ------------------------
+
+   overriding function Cipher_Description (Socket : Socket_Type) return String
+   is
+      use TSSL;
+   begin
+      return CS.Value
+               (gnutls_protocol_get_name
+                  (gnutls_protocol_get_version (Socket.SSL)))
+        & ' ' & CS.Value (gnutls_kx_get_name (gnutls_kx_get (Socket.SSL)))
+        & ' ' & CS.Value
+                  (gnutls_cipher_get_name (gnutls_cipher_get (Socket.SSL)))
+        & ' ' & CS.Value (gnutls_mac_get_name (gnutls_mac_get (Socket.SSL)));
+   end Cipher_Description;
+
    -------------------------
    -- Clear_Session_Cache --
    -------------------------
@@ -894,7 +911,7 @@ package body AWS.Net.SSL is
             Params.params.rsa_export := Cfg.RSA_Params;
          when TSSL.GNUTLS_PARAMS_DH =>
             Params.params.dh := Cfg.DH_Params;
-         when TSSL.GNUTLS_PARAMS_ECDH =>
+         when others =>
             return -1;
       end case;
 

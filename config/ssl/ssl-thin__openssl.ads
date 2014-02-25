@@ -79,7 +79,28 @@ package SSL.Thin is
       Num_Read     : unsigned_long;
       Num_Write    : unsigned_long;
       --  CRYPTO_EX_DATA ex_data; -- Do not need to translete it
-   end record;
+   end record with Convention => C;
+
+   type ssl_cipher_st is record
+      valid : int;
+      name : Cstr.chars_ptr; -- text name
+      id   : unsigned_long;  -- id, 4 bytes, first is version
+
+      --  changed in 0.9.9: these four used to be portions of a single value
+      --  'algorithms'
+      algorithm_mkey : unsigned_long; -- key exchange algorithm
+      algorithm_auth : unsigned_long; -- server authentication
+      algorithm_enc  : unsigned_long; -- symmetric encryption
+      algorithm_mac  : unsigned_long; -- symmetric authentication
+      algorithm_ssl  : unsigned_long; -- (major) protocol version
+
+      algo_strength  : unsigned_long; -- strength and export flags
+      algorithm2     : unsigned_long; -- Extra flags
+      strength_bits  : int; -- Number of bits really used
+      alg_bits       : int; -- Number of bits for algorithm
+   end record with Convention => C;
+
+   subtype SSL_CIPHER is ssl_cipher_st;
 
    type BIO_callback is access function
      (BIO  : BIO_Access;
@@ -612,6 +633,21 @@ package SSL.Thin is
    function SSL_state_string_long (SSL : SSL_Handle) return Cstr.chars_ptr
      with Import, Convention => C, Link_Name => "SSL_state_string_long";
 
+   function SSL_get_current_cipher (SSL : SSL_Handle) return access SSL_CIPHER
+     with Import, Convention => C, Link_Name => "SSL_get_current_cipher";
+
+   function SSL_CIPHER_get_version (cipher : SSL_CIPHER) return Cstr.chars_ptr
+     with Import, Convention => C, Link_Name => "SSL_CIPHER_get_version";
+
+   function SSL_CIPHER_get_name (cipher : SSL_CIPHER) return Cstr.chars_ptr
+     with Import, Convention => C, Link_Name => "SSL_CIPHER_get_name";
+
+   function SSL_CIPHER_description
+     (cipher : SSL_CIPHER;
+      buf    : access char_array;
+      size   : int) return Cstr.chars_ptr
+     with Import, Convention => C, Link_Name => "SSL_CIPHER_description";
+
    function SSL_shutdown (SSL : SSL_Handle) return int
      with Import, Convention => C, Link_Name => "SSL_shutdown";
 
@@ -620,6 +656,9 @@ package SSL.Thin is
 
    function SSL_get_SSL_CTX (SSL : SSL_Handle) return SSL_CTX
      with Import, Convention => C, Link_Name => "SSL_get_SSL_CTX";
+
+   function SSL_get_shutdown (SSL : SSL_Handle) return int
+     with Import, Convention => C, Link_Name => "SSL_get_shutdown";
 
    ----------------------
    --  Crypto routines --

@@ -243,6 +243,10 @@ package AWS.Net is
    --  Returns the internal socket receive buffer size.
    --  Do not confuse with buffers for the AWS.Net.Buffered operations.
 
+   function Cipher_Description (Socket : Socket_Type) return String;
+   --  Returns cipher description on SSL implementation or empty string on
+   --  plain socket.
+
    procedure Set_Blocking_Mode
      (Socket : in out Socket_Type; Blocking : Boolean);
    pragma Obsolescent ("Use Set_Timeout instead");

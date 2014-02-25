@@ -344,6 +344,8 @@ package AWS.Client is
      (Connection : in out HTTP_Connection; Cookie : String) with Inline;
    --  Set the connection cookie
 
+   function Cipher_Description (Connection : HTTP_Connection) return String;
+
    function Read_Until
      (Connection : HTTP_Connection;
       Delimiter  : String;

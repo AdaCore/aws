@@ -90,6 +90,16 @@ package body AWS.Net is
       return Poll (Socket, Events, 0.0);
    end Check;
 
+   ------------------------
+   -- Cipher_Description --
+   ------------------------
+
+   function Cipher_Description (Socket : Socket_Type) return String is
+      pragma Unreferenced (Socket);
+   begin
+      return "";
+   end Cipher_Description;
+
    -------------------
    -- Error_Message --
    -------------------

@@ -163,105 +163,25 @@ package SSL.Thin is
    type time_t is new C.long;
    subtype ssize_t is C.int;
 
-   type gnutls_cipher_algorithm_t is
-     (GNUTLS_0,
-      GNUTLS_CIPHER_NULL,
-      GNUTLS_CIPHER_ARCFOUR_128,
-      GNUTLS_CIPHER_3DES_CBC,
-      GNUTLS_CIPHER_AES_128_CBC,
-      GNUTLS_CIPHER_AES_256_CBC,
-      GNUTLS_CIPHER_ARCFOUR_40);
-   for gnutls_cipher_algorithm_t use
-     (GNUTLS_0                  => 0,
-      GNUTLS_CIPHER_NULL        => 1,
-      GNUTLS_CIPHER_ARCFOUR_128 => 2,
-      GNUTLS_CIPHER_3DES_CBC    => 3,
-      GNUTLS_CIPHER_AES_128_CBC => 4,
-      GNUTLS_CIPHER_AES_256_CBC => 5,
-      GNUTLS_CIPHER_ARCFOUR_40  => 6);
-   for gnutls_cipher_algorithm_t'Size use C.int'Size;
+   type gnutls_cipher_algorithm_t is new C.int;
+   type gnutls_kx_algorithm_t is new C.int;
+   type gnutls_credentials_type_t is new C.int;
+   type gnutls_mac_algorithm_t is new C.int;
+   type gnutls_digest_algorithm_t is new C.int;
+   type gnutls_compression_method_t is new C.int;
 
-   type gnutls_kx_algorithm_t is
-     (GNUTLS_0,
-      GNUTLS_KX_RSA,
-      GNUTLS_KX_DHE_DSS,
-      GNUTLS_KX_DHE_RSA,
-      GNUTLS_KX_ANON_DH,
-      GNUTLS_KX_SRP,
-      GNUTLS_KX_RSA_EXPORT,
-      GNUTLS_KX_SRP_RSA,
-      GNUTLS_KX_SRP_DSS);
-   for gnutls_kx_algorithm_t use
-     (GNUTLS_0             => 0,
-      GNUTLS_KX_RSA        => 1,
-      GNUTLS_KX_DHE_DSS    => 2,
-      GNUTLS_KX_DHE_RSA    => 3,
-      GNUTLS_KX_ANON_DH    => 4,
-      GNUTLS_KX_SRP        => 5,
-      GNUTLS_KX_RSA_EXPORT => 6,
-      GNUTLS_KX_SRP_RSA    => 7,
-      GNUTLS_KX_SRP_DSS    => 8);
-   for gnutls_kx_algorithm_t'Size use C.int'Size;
+   GNUTLS_CRD_CERTIFICATE : constant gnutls_credentials_type_t := 1;
+   GNUTLS_CRD_ANON        : constant gnutls_credentials_type_t := 2;
+   GNUTLS_CRD_SRP         : constant gnutls_credentials_type_t := 3;
+   GNUTLS_CRD_PSK         : constant gnutls_credentials_type_t := 4;
+   GNUTLS_CRD_IA          : constant gnutls_credentials_type_t := 5;
 
-   type gnutls_credentials_type_t is
-     (GNUTLS_CRD_CERTIFICATE,
-      GNUTLS_CRD_ANON,
-      GNUTLS_CRD_SRP);
-   for gnutls_credentials_type_t use
-     (GNUTLS_CRD_CERTIFICATE => 1,
-      GNUTLS_CRD_ANON        => 2,
-      GNUTLS_CRD_SRP         => 3);
-   for gnutls_credentials_type_t'Size use C.int'Size;
+   GNUTLS_SERVER   : constant C.unsigned := 1;
+   GNUTLS_CLIENT   : constant C.unsigned := 2;
+   GNUTLS_DATAGRAM : constant C.unsigned := 4;
+   GNUTLS_NONBLOCK : constant C.unsigned := 8;
 
-   type gnutls_mac_algorithm_t is
-     (GNUTLS_0,
-      GNUTLS_MAC_NULL,
-      GNUTLS_MAC_MD5,
-      GNUTLS_MAC_SHA,
-      GNUTLS_MAC_RMD160);
-   for gnutls_mac_algorithm_t use
-     (GNUTLS_0          => 0,
-      GNUTLS_MAC_NULL   => 1,
-      GNUTLS_MAC_MD5    => 2,
-      GNUTLS_MAC_SHA    => 3,
-      GNUTLS_MAC_RMD160 => 4);
-   for gnutls_mac_algorithm_t'Size use C.int'Size;
-
-   type gnutls_digest_algorithm_t is
-     (GNUTLS_DIG_NULL,
-      GNUTLS_DIG_MD5,
-      GNUTLS_DIG_SHA,
-      GNUTLS_DIG_RIPEMD160);
-   for gnutls_digest_algorithm_t use
-     (GNUTLS_DIG_NULL      => 1,
-      GNUTLS_DIG_MD5       => 2,
-      GNUTLS_DIG_SHA       => 3,
-      GNUTLS_DIG_RIPEMD160 => 4);
-   for gnutls_digest_algorithm_t'Size use C.int'Size;
-
-   type gnutls_compression_method_t is
-     (GNUTLS_0,
-      GNUTLS_COMP_NULL,
-      GNUTLS_COMP_DEFLATE,
-      GNUTLS_COMP_LZO -- only available if gnutls-extra has been initialized
-     );
-   for gnutls_compression_method_t use
-     (GNUTLS_0            => 0,
-      GNUTLS_COMP_NULL    => 1,
-      GNUTLS_COMP_DEFLATE => 2,
-      GNUTLS_COMP_LZO     => 3);
-   for gnutls_compression_method_t'Size use C.int'Size;
-
-   type gnutls_connection_end_t is mod 2**4;
-   for gnutls_connection_end_t'Size use C.int'Size;
-
-   GNUTLS_SERVER   : constant gnutls_connection_end_t := 1;
-   GNUTLS_CLIENT   : constant gnutls_connection_end_t := 2;
-   GNUTLS_DATAGRAM : constant gnutls_connection_end_t := 4;
-   GNUTLS_NONBLOCK : constant gnutls_connection_end_t := 8;
-
-   type gnutls_certificate_verify_flags is mod 1024;
-   for gnutls_certificate_verify_flags'Size use C.int'Size;
+   type gnutls_certificate_verify_flags is new C.int;
    subtype certificate_verify_flags is gnutls_certificate_verify_flags;
 
    --  GNUTLS_VERIFY_ prefix removed from gnutls_certificate_verify_flags
@@ -277,96 +197,59 @@ package SSL.Thin is
    DISABLE_TRUSTED_TIME_CHECKS : constant certificate_verify_flags := 128;
    DO_NOT_ALLOW_X509_V1_CA_CRT : constant certificate_verify_flags := 256;
    DISABLE_CRL_CHECKS          : constant certificate_verify_flags := 512;
+   ALLOW_UNSORTED_CHAIN        : constant certificate_verify_flags := 2 ** 10;
+   DO_NOT_ALLOW_UNSORTED_CHAIN : constant certificate_verify_flags := 2 ** 11;
 
    type gnutls_alert_level_t is (GNUTLS_AL_WARNING, GNUTLS_AL_FATAL);
    for gnutls_alert_level_t use (GNUTLS_AL_WARNING => 1, GNUTLS_AL_FATAL => 2);
    for gnutls_alert_level_t'Size use C.int'Size;
 
-   type gnutls_alert_description_t is
-     (GNUTLS_A_CLOSE_NOTIFY,
-      GNUTLS_A_UNEXPECTED_MESSAGE,
-      GNUTLS_A_BAD_RECORD_MAC,
-      GNUTLS_A_DECRYPTION_FAILED,
-      GNUTLS_A_RECORD_OVERFLOW,
-      GNUTLS_A_DECOMPRESSION_FAILURE,
-      GNUTLS_A_HANDSHAKE_FAILURE,
-      GNUTLS_A_SSL3_NO_CERTIFICATE,
-      GNUTLS_A_BAD_CERTIFICATE,
-      GNUTLS_A_UNSUPPORTED_CERTIFICATE,
-      GNUTLS_A_CERTIFICATE_REVOKED,
-      GNUTLS_A_CERTIFICATE_EXPIRED,
-      GNUTLS_A_CERTIFICATE_UNKNOWN,
-      GNUTLS_A_ILLEGAL_PARAMETER,
-      GNUTLS_A_UNKNOWN_CA,
-      GNUTLS_A_ACCESS_DENIED,
-      GNUTLS_A_DECODE_ERROR,
-      GNUTLS_A_DECRYPT_ERROR,
-      GNUTLS_A_EXPORT_RESTRICTION,
-      GNUTLS_A_PROTOCOL_VERSION,
-      GNUTLS_A_INSUFFICIENT_SECURITY,
-      GNUTLS_A_INTERNAL_ERROR,
-      GNUTLS_A_USER_CANCELED,
-      GNUTLS_A_NO_RENEGOTIATION,
-      GNUTLS_A_UNSUPPORTED_EXTENSION,
-      GNUTLS_A_CERTIFICATE_UNOBTAINABLE,
-      GNUTLS_A_UNRECOGNIZED_NAME,
-      GNUTLS_A_UNKNOWN_SRP_USERNAME,
-      GNUTLS_A_MISSING_SRP_USERNAME);
-   for gnutls_alert_description_t use
-     (GNUTLS_A_CLOSE_NOTIFY             => 0,
-      GNUTLS_A_UNEXPECTED_MESSAGE       => 10,
-      GNUTLS_A_BAD_RECORD_MAC           => 20,
-      GNUTLS_A_DECRYPTION_FAILED        => 21,
-      GNUTLS_A_RECORD_OVERFLOW          => 22,
-      GNUTLS_A_DECOMPRESSION_FAILURE    => 30,
-      GNUTLS_A_HANDSHAKE_FAILURE        => 40,
-      GNUTLS_A_SSL3_NO_CERTIFICATE      => 41,
-      GNUTLS_A_BAD_CERTIFICATE          => 42,
-      GNUTLS_A_UNSUPPORTED_CERTIFICATE  => 43,
-      GNUTLS_A_CERTIFICATE_REVOKED      => 44,
-      GNUTLS_A_CERTIFICATE_EXPIRED      => 45,
-      GNUTLS_A_CERTIFICATE_UNKNOWN      => 46,
-      GNUTLS_A_ILLEGAL_PARAMETER        => 47,
-      GNUTLS_A_UNKNOWN_CA               => 48,
-      GNUTLS_A_ACCESS_DENIED            => 49,
-      GNUTLS_A_DECODE_ERROR             => 50,
-      GNUTLS_A_DECRYPT_ERROR            => 51,
-      GNUTLS_A_EXPORT_RESTRICTION       => 60,
-      GNUTLS_A_PROTOCOL_VERSION         => 70,
-      GNUTLS_A_INSUFFICIENT_SECURITY    => 71,
-      GNUTLS_A_INTERNAL_ERROR           => 80,
-      GNUTLS_A_USER_CANCELED            => 90,
-      GNUTLS_A_NO_RENEGOTIATION         => 100,
-      GNUTLS_A_UNSUPPORTED_EXTENSION    => 110,
-      GNUTLS_A_CERTIFICATE_UNOBTAINABLE => 111,
-      GNUTLS_A_UNRECOGNIZED_NAME        => 112,
-      GNUTLS_A_UNKNOWN_SRP_USERNAME     => 120,
-      GNUTLS_A_MISSING_SRP_USERNAME     => 121);
-   for gnutls_alert_description_t'Size use C.int'Size;
+   type gnutls_alert_description_t is new C.int;
+   subtype alert_description is gnutls_alert_description_t;
 
-   type gnutls_handshake_description_t is
-     (GNUTLS_HANDSHAKE_HELLO_REQUEST,
-      GNUTLS_HANDSHAKE_CLIENT_HELLO,
-      GNUTLS_HANDSHAKE_SERVER_HELLO,
-      GNUTLS_HANDSHAKE_CERTIFICATE_PKT,
-      GNUTLS_HANDSHAKE_SERVER_KEY_EXCHANGE,
-      GNUTLS_HANDSHAKE_CERTIFICATE_REQUEST,
-      GNUTLS_HANDSHAKE_SERVER_HELLO_DONE,
-      GNUTLS_HANDSHAKE_CERTIFICATE_VERIFY,
-      GNUTLS_HANDSHAKE_CLIENT_KEY_EXCHANGE,
-      GNUTLS_HANDSHAKE_FINISHED);
-   for gnutls_handshake_description_t use
-     (GNUTLS_HANDSHAKE_HELLO_REQUEST       => 0,
-      GNUTLS_HANDSHAKE_CLIENT_HELLO        => 1,
-      GNUTLS_HANDSHAKE_SERVER_HELLO        => 2,
-      GNUTLS_HANDSHAKE_CERTIFICATE_PKT     => 11,
-      GNUTLS_HANDSHAKE_SERVER_KEY_EXCHANGE => 12,
-      GNUTLS_HANDSHAKE_CERTIFICATE_REQUEST => 13,
-      GNUTLS_HANDSHAKE_SERVER_HELLO_DONE   => 14,
-      GNUTLS_HANDSHAKE_CERTIFICATE_VERIFY  => 15,
-      GNUTLS_HANDSHAKE_CLIENT_KEY_EXCHANGE => 16,
-      GNUTLS_HANDSHAKE_FINISHED            => 20);
-   for gnutls_handshake_description_t'Size use C.int'Size;
+   GNUTLS_A_CLOSE_NOTIFY             : constant alert_description := 0;
+   GNUTLS_A_UNEXPECTED_MESSAGE       : constant alert_description := 10;
+   GNUTLS_A_BAD_RECORD_MAC           : constant alert_description := 20;
+   GNUTLS_A_DECRYPTION_FAILED        : constant alert_description := 21;
+   GNUTLS_A_RECORD_OVERFLOW          : constant alert_description := 22;
+   GNUTLS_A_DECOMPRESSION_FAILURE    : constant alert_description := 30;
+   GNUTLS_A_HANDSHAKE_FAILURE        : constant alert_description := 40;
+   GNUTLS_A_SSL3_NO_CERTIFICATE      : constant alert_description := 41;
+   GNUTLS_A_BAD_CERTIFICATE          : constant alert_description := 42;
+   GNUTLS_A_UNSUPPORTED_CERTIFICATE  : constant alert_description := 43;
+   GNUTLS_A_CERTIFICATE_REVOKED      : constant alert_description := 44;
+   GNUTLS_A_CERTIFICATE_EXPIRED      : constant alert_description := 45;
+   GNUTLS_A_CERTIFICATE_UNKNOWN      : constant alert_description := 46;
+   GNUTLS_A_ILLEGAL_PARAMETER        : constant alert_description := 47;
+   GNUTLS_A_UNKNOWN_CA               : constant alert_description := 48;
+   GNUTLS_A_ACCESS_DENIED            : constant alert_description := 49;
+   GNUTLS_A_DECODE_ERROR             : constant alert_description := 50;
+   GNUTLS_A_DECRYPT_ERROR            : constant alert_description := 51;
+   GNUTLS_A_EXPORT_RESTRICTION       : constant alert_description := 60;
+   GNUTLS_A_PROTOCOL_VERSION         : constant alert_description := 70;
+   GNUTLS_A_INSUFFICIENT_SECURITY    : constant alert_description := 71;
+   GNUTLS_A_INTERNAL_ERROR           : constant alert_description := 80;
+   GNUTLS_A_USER_CANCELED            : constant alert_description := 90;
+   GNUTLS_A_NO_RENEGOTIATION         : constant alert_description := 100;
+   GNUTLS_A_UNSUPPORTED_EXTENSION    : constant alert_description := 110;
+   GNUTLS_A_CERTIFICATE_UNOBTAINABLE : constant alert_description := 111;
+   GNUTLS_A_UNRECOGNIZED_NAME        : constant alert_description := 112;
+   GNUTLS_A_UNKNOWN_SRP_USERNAME     : constant alert_description := 120;
+   GNUTLS_A_MISSING_SRP_USERNAME     : constant alert_description := 121;
+
+   type gnutls_handshake_description_t is new C.int;
+   subtype handshake_description is gnutls_handshake_description_t;
+
+   GNUTLS_HANDSHAKE_HELLO_REQUEST       : constant handshake_description := 0;
+   GNUTLS_HANDSHAKE_CLIENT_HELLO        : constant handshake_description := 1;
+   GNUTLS_HANDSHAKE_SERVER_HELLO        : constant handshake_description := 2;
+   GNUTLS_HANDSHAKE_CERTIFICATE_PKT     : constant handshake_description := 11;
+   GNUTLS_HANDSHAKE_SERVER_KEY_EXCHANGE : constant handshake_description := 12;
+   GNUTLS_HANDSHAKE_CERTIFICATE_REQUEST : constant handshake_description := 13;
+   GNUTLS_HANDSHAKE_SERVER_HELLO_DONE   : constant handshake_description := 14;
+   GNUTLS_HANDSHAKE_CERTIFICATE_VERIFY  : constant handshake_description := 15;
+   GNUTLS_HANDSHAKE_CLIENT_KEY_EXCHANGE : constant handshake_description := 16;
+   GNUTLS_HANDSHAKE_FINISHED            : constant handshake_description := 20;
 
    type gnutls_certificate_status_t is
      (GNUTLS_CERT_INVALID,
@@ -415,52 +298,41 @@ package SSL.Thin is
       GNUTLS_SHUT_WR   => 1);
    for gnutls_close_request_t'Size use C.int'Size;
 
-   type gnutls_protocol_t is
-     (GNUTLS_0, GNUTLS_SSL3, GNUTLS_TLS1_0, GNUTLS_TLS1_1);
-   for gnutls_protocol_t use
-     (GNUTLS_0      => 0,
-      GNUTLS_SSL3   => 1,
-      GNUTLS_TLS1_0 => 2,
-      GNUTLS_TLS1_1 => 3);
-   for gnutls_protocol_t'Size use C.int'Size;
+   type gnutls_protocol_t is new C.int;
 
-   type gnutls_certificate_type_t is
-     (GNUTLS_0, GNUTLS_CRT_X509, GNUTLS_CRT_OPENPGP);
-   for gnutls_certificate_type_t use
-     (GNUTLS_0 => 0, GNUTLS_CRT_X509 => 1, GNUTLS_CRT_OPENPGP => 2);
-   for gnutls_certificate_type_t'Size use C.int'Size;
+   GNUTLS_SSL3            : constant gnutls_protocol_t := 1;
+   GNUTLS_TLS1_0          : constant gnutls_protocol_t := 2;
+   GNUTLS_TLS1_1          : constant gnutls_protocol_t := 3;
+   GNUTLS_TLS1_2          : constant gnutls_protocol_t := 4;
+   GNUTLS_DTLS1_0         : constant gnutls_protocol_t := 5;
+   GNUTLS_DTLS0_9         : constant gnutls_protocol_t := 6;
+   GNUTLS_VERSION_UNKNOWN : constant gnutls_protocol_t := 16#FF#;
+   GNUTLS_TLS1            : constant gnutls_protocol_t := GNUTLS_TLS1_0;
+   GNUTLS_VERSION_MAX     : constant gnutls_protocol_t := GNUTLS_DTLS0_9;
+
+   type gnutls_certificate_type_t is new C.int;
+
+   GNUTLS_CRT_X509    : constant gnutls_certificate_type_t := 1;
+   GNUTLS_CRT_OPENPGP : constant gnutls_certificate_type_t := 2;
 
    type gnutls_x509_crt_fmt_t is (GNUTLS_X509_FMT_DER, GNUTLS_X509_FMT_PEM);
    for gnutls_x509_crt_fmt_t'Size use C.int'Size;
 
-   type gnutls_pk_algorithm_t is
-     (GNUTLS_PK_UNKNOWN,
-      GNUTLS_PK_RSA,
-      GNUTLS_PK_DSA,
-      GNUTLS_PK_DH,
-      GNUTLS_PK_EC);
+   type gnutls_pk_algorithm_t is new C.int;
 
-   for gnutls_pk_algorithm_t use
-     (GNUTLS_PK_UNKNOWN => 0,
-      GNUTLS_PK_RSA     => 1,
-      GNUTLS_PK_DSA     => 2,
-      GNUTLS_PK_DH      => 3,
-      GNUTLS_PK_EC      => 4);
-   for gnutls_pk_algorithm_t'Size use C.int'Size;
+   GNUTLS_PK_UNKNOWN : constant gnutls_pk_algorithm_t := 0;
+   GNUTLS_PK_RSA     : constant gnutls_pk_algorithm_t := 1;
+   GNUTLS_PK_DSA     : constant gnutls_pk_algorithm_t := 2;
+   GNUTLS_PK_DH      : constant gnutls_pk_algorithm_t := 3;
+   GNUTLS_PK_EC      : constant gnutls_pk_algorithm_t := 4;
 
-   type gnutls_sign_algorithm_t is
-     (GNUTLS_SIGN_RSA_SHA,
-      GNUTLS_SIGN_DSA_SHA,
-      GNUTLS_SIGN_RSA_MD5,
-      GNUTLS_SIGN_RSA_MD2,
-      GNUTLS_SIGN_UNKNOWN);
-   for gnutls_sign_algorithm_t use
-     (GNUTLS_SIGN_RSA_SHA => 1,
-      GNUTLS_SIGN_DSA_SHA => 2,
-      GNUTLS_SIGN_RSA_MD5 => 3,
-      GNUTLS_SIGN_RSA_MD2 => 4,
-      GNUTLS_SIGN_UNKNOWN => 255);
-   for gnutls_sign_algorithm_t'Size use C.int'Size;
+   type gnutls_sign_algorithm_t is new C.int;
+
+   GNUTLS_SIGN_RSA_SHA : constant gnutls_sign_algorithm_t := 1;
+   GNUTLS_SIGN_DSA_SHA : constant gnutls_sign_algorithm_t := 2;
+   GNUTLS_SIGN_RSA_MD5 : constant gnutls_sign_algorithm_t := 3;
+   GNUTLS_SIGN_RSA_MD2 : constant gnutls_sign_algorithm_t := 4;
+   GNUTLS_SIGN_UNKNOWN : constant gnutls_sign_algorithm_t := 255;
 
    type gnutls_sec_param_t is
      (GNUTLS_SEC_PARAM_INSECURE,
@@ -486,13 +358,10 @@ package SSL.Thin is
       GNUTLS_SEC_PARAM_ULTRA     => 5);
    for gnutls_sec_param_t'Size use C.int'Size;
 
-   type gnutls_params_type_t is
-     (GNUTLS_PARAMS_RSA_EXPORT, GNUTLS_PARAMS_DH, GNUTLS_PARAMS_ECDH);
-   for gnutls_params_type_t use
-     (GNUTLS_PARAMS_RSA_EXPORT => 1,
-      GNUTLS_PARAMS_DH         => 2,
-      GNUTLS_PARAMS_ECDH       => 3);
-   for gnutls_params_type_t'Size use C.int'Size;
+   type gnutls_params_type_t is new C.int;
+   GNUTLS_PARAMS_RSA_EXPORT : constant gnutls_params_type_t := 1;
+   GNUTLS_PARAMS_DH         : constant gnutls_params_type_t := 2;
+   GNUTLS_PARAMS_ECDH       : constant gnutls_params_type_t := 3;
 
    type gnutls_server_name_type_t is (GNUTLS_NAME_DNS);
    for gnutls_server_name_type_t use (GNUTLS_NAME_DNS => 1);
@@ -630,6 +499,7 @@ package SSL.Thin is
          when GNUTLS_PARAMS_DH         => dh         : gnutls_dh_params_t;
          when GNUTLS_PARAMS_ECDH       => ecdh       : gnutls_ecdh_params_t;
          when GNUTLS_PARAMS_RSA_EXPORT => rsa_export : gnutls_rsa_params_t;
+         when others                   => unknown    : C.int;
       end case;
    end record with Unchecked_Union, Convention => C;
 
@@ -677,8 +547,7 @@ package SSL.Thin is
      with Import, Convention => C;
 
    function gnutls_init
-     (session : access gnutls_session_t;
-      con_end : gnutls_connection_end_t) return C.int
+     (session : access gnutls_session_t; flags : C.unsigned) return C.int
      with Import, Convention => C;
 
    procedure gnutls_deinit (session : gnutls_session_t)
@@ -870,6 +739,9 @@ package SSL.Thin is
 
    function gnutls_protocol_get_name
      (version : gnutls_protocol_t) return CS.chars_ptr
+     with Import, Convention => C;
+
+   function gnutls_protocol_list return access gnutls_protocol_t
      with Import, Convention => C;
 
    function gnutls_session_set_data

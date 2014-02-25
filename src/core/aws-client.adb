@@ -45,6 +45,20 @@ package body AWS.Client is
 
    use AWS.Client.HTTP_Utils;
 
+   ------------------------
+   -- Cipher_Description --
+   ------------------------
+
+   function Cipher_Description (Connection : HTTP_Connection) return String is
+      use type AWS.Net.Socket_Access;
+   begin
+      if Connection.Socket = null then
+         return "";
+      end if;
+
+      return Connection.Socket.Cipher_Description;
+   end Cipher_Description;
+
    -----------
    -- Close --
    -----------
