@@ -542,8 +542,7 @@ package body AWS.Net.SSL is
 
       procedure Final;
 
-      Drop : Utils.Finalizer (Final'Access);
-      pragma Unreferenced (Drop);
+      Drop : Utils.Finalizer (Final'Access) with Unreferenced;
 
       ----------------
       -- Check_File --
