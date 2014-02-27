@@ -808,6 +808,14 @@ Current supported options are:
   URL does not reference a resource above the Web root. The default
   is |CHECK_URL_VALIDITY|.
 
+*cipher_priorities*
+
+  .. index:: Cipher_Priorities (string)
+
+  Values are dependent on the actual secure layer (OpenSSL or
+  GNUTLS). It is used to specify the session’s handshake algorithms
+  and options.
+
 *Cleaner_Wait_For_Client_Timeout (duration)*
 
   .. index:: Cleaner_Wait_For_Client_Timeout

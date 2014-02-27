@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2000-2013, AdaCore                     --
+--                     Copyright (C) 2000-2014, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -1015,7 +1015,10 @@ package body AWS.Server is
            (Web_Server.SSL_Config,
             CNF.Certificate (Web_Server.Properties),
             Security_Mode,
-            CNF.Key (Web_Server.Properties),
+            Priorities           =>
+              CNF.Cipher_Priorities (Web_Server.Properties),
+            Key_Filename         =>
+              CNF.Key (Web_Server.Properties),
             Exchange_Certificate =>
               CNF.Exchange_Certificate (Web_Server.Properties),
             Certificate_Required =>

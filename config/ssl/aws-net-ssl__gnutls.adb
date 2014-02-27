@@ -137,6 +137,7 @@ package body AWS.Net.SSL is
       TLS_PK         : aliased TSSL.gnutls_privkey_t;
       DH_Params      : aliased TSSL.gnutls_dh_params_t;
       RSA_Params     : aliased TSSL.gnutls_rsa_params_t;
+      Priority_Cache : aliased TSSL.gnutls_priority_t;
       RCC            : Boolean := False; -- Request client certificate
       CREQ           : Boolean := False; -- Certificate is required
       Verify_CB      : Net.SSL.Certificate.Verify_Callback;
@@ -150,6 +151,7 @@ package body AWS.Net.SSL is
      (Config               : in out TS_SSL;
       Certificate_Filename : String;
       Security_Mode        : Method   := SSLv23;
+      Priorities           : String   := "";
       Key_Filename         : String   := "";
       Exchange_Certificate : Boolean  := False;
       Certificate_Required : Boolean  := False;
@@ -178,6 +180,7 @@ package body AWS.Net.SSL is
       procedure Initialize
         (Certificate_Filename : String;
          Security_Mode        : Method   := SSLv23;
+         Priorities           : String   := "";
          Key_Filename         : String   := "";
          Exchange_Certificate : Boolean  := False;
          Certificate_Required : Boolean  := False;
@@ -257,20 +260,18 @@ package body AWS.Net.SSL is
    procedure Check_Error_Code (Code : C.int; Socket : Socket_Type'Class) is
    begin
       if Code /= 0 then
-         declare
-            Error : constant String :=
-                      C.Strings.Value (TSSL.gnutls_strerror (Code));
-         begin
-            Net.Log.Error (Socket, Error);
-            raise Socket_Error with Error;
-         end;
+         Raise_Socket_Error
+           (Socket, C.Strings.Value (TSSL.gnutls_strerror (Code)));
       end if;
    end Check_Error_Code;
 
    procedure Check_Error_Code (Code : C.int) is
-      Dummy : Socket_Type;
    begin
-      Check_Error_Code (Code, Dummy);
+      if Code /= 0 then
+         Raise_Socket_Error
+           (Socket_Type'(Std.Socket_Type with others => <>),
+            C.Strings.Value (TSSL.gnutls_strerror (Code)));
+      end if;
    end Check_Error_Code;
 
    ------------------------
@@ -289,6 +290,38 @@ package body AWS.Net.SSL is
                   (gnutls_cipher_get_name (gnutls_cipher_get (Socket.SSL)))
         & ' ' & CS.Value (gnutls_mac_get_name (gnutls_mac_get (Socket.SSL)));
    end Cipher_Description;
+
+   -------------
+   -- Ciphers --
+   -------------
+
+   procedure Ciphers (Cipher : access procedure (Name : String)) is
+      use type CS.chars_ptr;
+      Name    : CS.chars_ptr;
+      cs_id   : array (0 .. 1) of aliased C.unsigned_char;
+      kx      : aliased TSSL.gnutls_kx_algorithm_t;
+      ciph    : aliased TSSL.gnutls_cipher_algorithm_t;
+      mac     : aliased TSSL.gnutls_mac_algorithm_t;
+      min_ver : aliased TSSL.gnutls_protocol_t;
+   begin
+      for J in 0 .. C.size_t'Last loop
+         Name := TSSL.gnutls_cipher_suite_info
+                   (J, cs_id (0)'Access, kx'Access, ciph'Access, mac'Access,
+                    min_ver'Access);
+
+         exit when Name = CS.Null_Ptr;
+
+         Cipher (Utils.Hex (C.unsigned_char'Pos (cs_id (0)), 2)
+            & ' ' & Utils.Hex (C.unsigned_char'Pos (cs_id (1)), 2)
+            & ' ' & CS.Value (TSSL.gnutls_protocol_get_name (min_ver))
+            & ' ' & CS.Value (TSSL.gnutls_kx_get_name (kx))
+            & ' ' & CS.Value (TSSL.gnutls_cipher_get_name (ciph))
+            & ' ' & CS.Value (TSSL.gnutls_mac_get_name (mac)));
+
+         --  Could put CS.Value (Name) too, but it would duplicate information
+         --  above in different format.
+      end loop;
+   end Ciphers;
 
    -------------------------
    -- Clear_Session_Cache --
@@ -381,6 +414,7 @@ package body AWS.Net.SSL is
       procedure Initialize
         (Certificate_Filename : String;
          Security_Mode        : Method   := SSLv23;
+         Priorities           : String   := "";
          Key_Filename         : String   := "";
          Exchange_Certificate : Boolean  := False;
          Certificate_Required : Boolean  := False;
@@ -391,7 +425,7 @@ package body AWS.Net.SSL is
          if not Done then
             Initialize
               (Default_Config,
-               Certificate_Filename,  Security_Mode,
+               Certificate_Filename,  Security_Mode, Priorities,
                Key_Filename, Exchange_Certificate, Certificate_Required,
                Trusted_CA_Filename, CRL_Filename, Session_Cache_Size);
             Done := True;
@@ -440,6 +474,7 @@ package body AWS.Net.SSL is
       use type TSSL.gnutls_anon_server_credentials_t;
       use type TSSL.gnutls_certificate_credentials_t;
       use type TSSL.gnutls_dh_params_t;
+      use type TSSL.gnutls_priority_t;
       use type TSSL.gnutls_privkey_t;
       use type TSSL.gnutls_rsa_params_t;
 
@@ -485,6 +520,11 @@ package body AWS.Net.SSL is
       if Config.PCert_List /= null then
          Unchecked_Free (Config.PCert_List);
       end if;
+
+      if Config.Priority_Cache /= null then
+         TSSL.gnutls_priority_deinit (Config.Priority_Cache);
+         Config.Priority_Cache := null;
+      end if;
    end Finalize;
 
    ----------
@@ -518,6 +558,7 @@ package body AWS.Net.SSL is
      (Config               : in out SSL.Config;
       Certificate_Filename : String;
       Security_Mode        : Method     := SSLv23;
+      Priorities           : String     := "";
       Key_Filename         : String     := "";
       Exchange_Certificate : Boolean    := False;
       Certificate_Required : Boolean    := False;
@@ -533,6 +574,7 @@ package body AWS.Net.SSL is
         (Config.all,
          Certificate_Filename => Certificate_Filename,
          Security_Mode        => Security_Mode,
+         Priorities           => Priorities,
          Key_Filename         => Key_Filename,
          Exchange_Certificate => Exchange_Certificate,
          Certificate_Required => Certificate_Required,
@@ -545,6 +587,7 @@ package body AWS.Net.SSL is
      (Config               : in out TS_SSL;
       Certificate_Filename : String;
       Security_Mode        : Method     := SSLv23;
+      Priorities           : String     := "";
       Key_Filename         : String     := "";
       Exchange_Certificate : Boolean    := False;
       Certificate_Required : Boolean    := False;
@@ -777,6 +820,30 @@ package body AWS.Net.SSL is
       if CRL_Filename /= "" then
          Config.CRL_File := C.Strings.New_String (CRL_Filename);
       end if;
+
+      declare
+         Pr : aliased C.char_array := C.To_C (Priorities);
+         Pp : CS.chars_ptr;
+         Er : aliased CS.chars_ptr;
+         RC : C.int;
+      begin
+         if Priorities /= "" then
+            Pp := CS.To_Chars_Ptr (Pr'Unchecked_Access);
+         end if;
+
+         RC := TSSL.gnutls_priority_init
+                 (priority_cache => Config.Priority_Cache'Access,
+                  priorities     => Pp,
+                  err_pos        => Er'Access);
+
+         if RC = TSSL.GNUTLS_E_INVALID_REQUEST then
+            Log.Error
+              (Socket_Type'(Std.Socket_Type with others => <>),
+               "Priority syntax error '" & CS.Value (Er) & ''');
+         else
+            Check_Error_Code (RC);
+         end if;
+      end;
    end Initialize;
 
    -------------------------------
@@ -786,6 +853,7 @@ package body AWS.Net.SSL is
    procedure Initialize_Default_Config
      (Certificate_Filename : String;
       Security_Mode        : Method   := SSLv23;
+      Priorities           : String   := "";
       Key_Filename         : String   := "";
       Exchange_Certificate : Boolean  := False;
       Certificate_Required : Boolean  := False;
@@ -794,7 +862,7 @@ package body AWS.Net.SSL is
       Session_Cache_Size   : Positive := 16#4000#) is
    begin
       Default_Config_Sync.Initialize
-        (Certificate_Filename, Security_Mode, Key_Filename,
+        (Certificate_Filename, Security_Mode, Priorities, Key_Filename,
          Exchange_Certificate, Certificate_Required, Trusted_CA_Filename,
          CRL_Filename, Session_Cache_Size);
    end Initialize_Default_Config;
@@ -1114,9 +1182,6 @@ package body AWS.Net.SSL is
         (gnutls_init (Socket.SSL'Access, GNUTLS_CLIENT), Socket);
 
       Check_Error_Code
-        (gnutls_set_default_priority (Socket.SSL), Socket);
-
-      Check_Error_Code
         (gnutls_credentials_set (Socket.SSL, cred => Socket.Config.ACC),
          Socket);
 
@@ -1144,8 +1209,6 @@ package body AWS.Net.SSL is
 
       Check_Error_Code
         (gnutls_init (Socket.SSL'Access, GNUTLS_SERVER), Socket);
-
-      Check_Error_Code (gnutls_set_default_priority (Socket.SSL), Socket);
 
       if Socket.Config.CSC = null then
          Check_Error_Code
@@ -1210,6 +1273,10 @@ package body AWS.Net.SSL is
 
    procedure Session_Transport (Socket : in out Socket_Type) is
    begin
+      Check_Error_Code
+        (TSSL.gnutls_priority_set (Socket.SSL, Socket.Config.Priority_Cache),
+         Socket);
+
       TSSL.gnutls_transport_set_ptr
         (Socket.SSL, TSSL.gnutls_transport_ptr_t (Socket.Get_FD));
 

@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2000-2013, AdaCore                     --
+--                     Copyright (C) 2000-2014, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -310,6 +310,9 @@ package AWS.Config is
    --  Returns the security mode to be used with the secure server. Returns the
    --  empty string if the server is not a secure one.
 
+   function Cipher_Priorities (O : Object) return String with Inline;
+   --  Returns the cipher priorities for the security communication
+
    function Exchange_Certificate (O : Object) return Boolean with Inline;
    --  Returns True if the client is requested to send its certificate to the
    --  server. Note that this option must not be used if the client is a Web
@@ -412,6 +415,7 @@ private
       Certificate,
       Key,
       Security_Mode,
+      Cipher_Priorities,
       Exchange_Certificate,
       Certificate_Required,
       Trusted_CA,
@@ -649,6 +653,9 @@ private
 
          Security_Mode =>
            (Str, To_Unbounded_String (Default.Security_Mode)),
+
+         Cipher_Priorities =>
+           (Str, To_Unbounded_String (Default.Cipher_Priorities)),
 
          Exchange_Certificate =>
            (Bool, Default.Exchange_Certificate),

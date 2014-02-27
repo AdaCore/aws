@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2000-2013, AdaCore                     --
+--                     Copyright (C) 2000-2014, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -146,6 +146,7 @@ package AWS.Default with Pure is
 
    Security                        : constant Boolean := False;
    Security_Mode                   : constant String  := "SSLv23";
+   Cipher_Priorities               : constant String  := "";
    Certificate                     : constant String  := "cert.pem";
    Key                             : constant String  := "";
    Client_Certificate              : constant String  := "";

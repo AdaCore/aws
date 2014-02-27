@@ -648,6 +648,10 @@ package SSL.Thin is
       size   : int) return Cstr.chars_ptr
      with Import, Convention => C, Link_Name => "SSL_CIPHER_description";
 
+   function SSL_get_cipher_list
+     (SSL : SSL_Handle; priority : int) return Cstr.chars_ptr
+     with Import, Convention => C, Link_Name => "SSL_get_cipher_list";
+
    function SSL_shutdown (SSL : SSL_Handle) return int
      with Import, Convention => C, Link_Name => "SSL_shutdown";
 
@@ -721,6 +725,10 @@ package SSL.Thin is
    function SSL_CTX_set1_param
      (Ctx : SSL_CTX; Param : X509_VERIFY_PARAM) return int
      with Import, Convention => C, Link_Name => "SSL_CTX_set1_param";
+
+   function SSL_CTX_set_cipher_list
+     (Ctx : SSL_CTX; str : Cstr.chars_ptr) return int
+     with Import, Convention => C, Link_Name => "SSL_CTX_set_cipher_list";
 
    procedure RAND_seed (Buf : Pointer; Num : Integer)
      with Import, Convention => C, Link_Name => "RAND_seed";

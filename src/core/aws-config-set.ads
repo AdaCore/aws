@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2000-2013, AdaCore                     --
+--                     Copyright (C) 2000-2014, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -297,6 +297,11 @@ package AWS.Config.Set is
    procedure Security_Mode (O : in out Object; Mode : String);
    --  Set the security mode to be used with the secure server. Only values
    --  from AWS.Net.SSL.Method can be used.
+
+   procedure Cipher_Priorities (O : in out Object; Value : String);
+   --  Sets priorities for the cipher suites supported by SSL implementation.
+   --  GNUTLS and OpenSSL implementations has different sintax for this
+   --  parameter.
 
    procedure Exchange_Certificate (O : in out Object; Value : Boolean);
    --  Set to True to request the client to send its certificate to the server
