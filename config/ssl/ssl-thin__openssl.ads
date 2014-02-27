@@ -644,7 +644,7 @@ package SSL.Thin is
 
    function SSL_CIPHER_description
      (cipher : SSL_CIPHER;
-      buf    : access char_array;
+      buf    : Cstr.char_array_access;
       size   : int) return Cstr.chars_ptr
      with Import, Convention => C, Link_Name => "SSL_CIPHER_description";
 

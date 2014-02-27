@@ -200,7 +200,7 @@ package body AWS.Net.SSL is
       return C.Strings.Value
                (TSSL.SSL_CIPHER_description
                   (TSSL.SSL_get_current_cipher (Socket.SSL).all,
-                   Buffer'Access, Buffer'Length));
+                   Buffer'Unchecked_Access, Buffer'Length));
    end Cipher_Description;
 
    -------------------------
