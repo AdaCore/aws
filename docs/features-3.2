@@ -15,6 +15,13 @@ of the feature.
 New features in AWS 3.2
 -----------------------
 
+NF-32-N227-068 Add support for controlling WebSocket handshake (2014-03-02)
+
+   In the user's WebSocket factory it is now possible to return an
+   AWS.Net.WebSocket.Handshake_Error.Object to reject the handshake.
+   With such response it is possible to specify a specific status code
+   and an associated reaso-phrase. The default status code is 403.
+
 NF-32-MB08-003 Add support for status code when closing WebSocket (2014-02-02)
 
    It is now possible to close a WebSocket with a status code.
