@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2000-2013, AdaCore                     --
+--                     Copyright (C) 2000-2014, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -123,7 +123,13 @@ package body SOAP.Client is
       AWS.Client.SOAP_Post
         (Connection, Response, SOAP_Action, SOAP.Message.XML.Image (P), True);
 
-      if AWS.Response.Status_Code (Response) in AWS.Messages.Success then
+      --  Valid responses code included S500 which is the code returned for
+      --  SOAP fault-messages.
+      --  See SOAP HTTP Response section 6.2 of W3C Note from 08 May 2000.
+
+      if AWS.Response.Status_Code (Response)
+        in AWS.Messages.Success | AWS.Messages.S500
+      then
 
          --  In Asynchronous mode allow an empty message body. In this specific
          --  case there is nothing to read from the connection (socket).

@@ -1,5 +1,10 @@
 Known Problems fixed in AWS 3.2
 
+- N228-008: Wrong HTTP status code returned for SOAP fault-messages
+  Problem: AWS returns the status code 200 for all SOAP messages but
+           it is required to be 500 for fault-messages.
+  Workaround: None.
+
 - N219-019: Fix Ada code generation with wsdl2ada
   Problem: For a WSDL record with a single field having a name
            corresponding to an Ada keyword, wsdl2ada was generating
