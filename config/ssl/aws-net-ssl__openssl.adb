@@ -197,11 +197,17 @@ package body AWS.Net.SSL is
    overriding function Cipher_Description (Socket : Socket_Type) return String
    is
       Buffer : aliased C.char_array := (1 .. 256 => <>);
+      Result : constant String :=
+                 C.Strings.Value
+                   (TSSL.SSL_CIPHER_description
+                      (TSSL.SSL_get_current_cipher (Socket.SSL).all,
+                       Buffer'Unchecked_Access, Buffer'Length));
    begin
-      return C.Strings.Value
-               (TSSL.SSL_CIPHER_description
-                  (TSSL.SSL_get_current_cipher (Socket.SSL).all,
-                   Buffer'Unchecked_Access, Buffer'Length));
+      if Result'Length > 0 and then Result (Result'Last) = ASCII.LF then
+         return Result (Result'First .. Result'Last - 1);
+      end if;
+
+      return Result;
    end Cipher_Description;
 
    -------------
@@ -357,15 +363,14 @@ package body AWS.Net.SSL is
             Error_Text : constant String := Error_Str (Error_Code);
             Trim_Start : constant String := "error:";
             First      : Positive := Error_Text'First;
+            Error_Rest : constant String := Error_Stack;
          begin
-            if Error_Text'Length > Trim_Start'Length
-              and then Error_Text (First .. Trim_Start'Last) = Trim_Start
-            then
+            if Utils.Match (Error_Text, Trim_Start) then
                First := Error_Text'First + Trim_Start'Length;
             end if;
 
             return Error_Text (First .. Error_Text'Last)
-              & ASCII.LF & Error_Stack;
+              & (if Error_Rest = "" then "" else ASCII.LF & Error_Rest);
          end;
       end if;
    end Error_Stack;

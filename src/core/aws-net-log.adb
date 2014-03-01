@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2004-2012, AdaCore                     --
+--                     Copyright (C) 2004-2014, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -144,6 +144,7 @@ package body AWS.Net.Log is
       State.Semaphore.Seize;
       State.Event := null;
       State.Write := null;
+      State.Error := null;
       State.Semaphore.Release;
    end Stop;
 

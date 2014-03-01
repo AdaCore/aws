@@ -282,12 +282,11 @@ package body AWS.Net.SSL is
    is
       use TSSL;
    begin
-      return CS.Value
-               (gnutls_protocol_get_name
-                  (gnutls_protocol_get_version (Socket.SSL)))
-        & ' ' & CS.Value (gnutls_kx_get_name (gnutls_kx_get (Socket.SSL)))
+      return CS.Value (gnutls_cipher_get_name (gnutls_cipher_get (Socket.SSL)))
         & ' ' & CS.Value
-                  (gnutls_cipher_get_name (gnutls_cipher_get (Socket.SSL)))
+                  (gnutls_protocol_get_name
+                     (gnutls_protocol_get_version (Socket.SSL)))
+        & ' ' & CS.Value (gnutls_kx_get_name (gnutls_kx_get (Socket.SSL)))
         & ' ' & CS.Value (gnutls_mac_get_name (gnutls_mac_get (Socket.SSL)));
    end Cipher_Description;
 
