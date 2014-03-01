@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2000-2013, AdaCore                     --
+--                     Copyright (C) 2000-2014, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -342,7 +342,9 @@ package AWS.Messages is
 
    function SOAPAction (URI : String) return String with Inline;
 
-   function Status_Line (Code : Status_Code) return String with Inline;
+   function Status_Line
+     (Code          : Status_Code;
+      Reason_Phrase : String := "") return String with Inline;
 
    function Transfer_Encoding (Encoding : String) return String with Inline;
 
