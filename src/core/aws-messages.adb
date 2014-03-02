@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2000-2012, AdaCore                     --
+--                     Copyright (C) 2000-2014, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -396,11 +396,15 @@ package body AWS.Messages is
    -- Status_Line --
    -----------------
 
-   function Status_Line (Code : Status_Code) return String is
+   function Status_Line
+     (Code          : Status_Code;
+      Reason_Phrase : String := "") return String is
    begin
       return HTTP_Version & ' '
         & Status_Messages (Code).Code & ' '
-        & Status_Messages (Code).Reason_Phrase.all;
+        & (if Reason_Phrase = ""
+           then Status_Messages (Code).Reason_Phrase.all
+           else Reason_Phrase);
    end Status_Line;
 
    -------------------

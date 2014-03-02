@@ -52,6 +52,7 @@ with AWS.Messages;
 with AWS.MIME;
 with AWS.Net;
 with AWS.Net.Buffered;
+with AWS.Net.WebSocket.Handshake_Error;
 with AWS.Net.WebSocket.Protocol.Draft76;
 with AWS.Net.WebSocket.Protocol.RFC6455;
 with AWS.Net.WebSocket.Registry.Watch;
@@ -1287,8 +1288,10 @@ package body AWS.Server.HTTP_Utils is
       procedure Send_WebSocket_Handshake;
       --  Send reply, accept the switching protocol
 
-      procedure Send_WebSocket_Forbidden_Header;
-      --  Send reply, forbidden
+      procedure Send_Websocket_Handshake_Error
+        (Status_Code   : Messages.Status_Code;
+         Reason_Phrase : String := "");
+      --  Deny the WebSocket handshake
 
       ---------------
       -- Send_Data --
@@ -1490,24 +1493,6 @@ package body AWS.Server.HTTP_Utils is
          Net.Buffered.Flush (Sock);
       end Send_Header_Only;
 
-      -------------------------------------
-      -- Send_WebSocket_Forbidden_Header --
-      -------------------------------------
-
-      procedure Send_WebSocket_Forbidden_Header is
-         Sock : constant Net.Socket_Type'Class := Status.Socket (C_Stat);
-      begin
-         --  First let's output the S403 status line
-
-         Net.Buffered.Put_Line (Sock, Messages.Status_Line (Messages.S403));
-         Net.Buffered.Put_Line (Sock, Messages.Content_Length (0));
-
-         --  End of header
-
-         Net.Buffered.New_Line (Sock);
-         Net.Buffered.Flush (Sock);
-      end Send_WebSocket_Forbidden_Header;
-
       ------------------------------
       -- Send_WebSocket_Handshake --
       ------------------------------
@@ -1542,6 +1527,28 @@ package body AWS.Server.HTTP_Utils is
          end if;
       end Send_WebSocket_Handshake;
 
+      ------------------------------------
+      -- Send_WebSocket_Handshake_Error --
+      ------------------------------------
+
+      procedure Send_Websocket_Handshake_Error
+        (Status_Code   : Messages.Status_Code;
+         Reason_Phrase : String := "")
+      is
+         Sock : constant Net.Socket_Type'Class := Status.Socket (C_Stat);
+      begin
+         --  First let's output the status line
+
+         Net.Buffered.Put_Line
+           (Sock, Messages.Status_Line (Status_Code, Reason_Phrase));
+         Net.Buffered.Put_Line (Sock, Messages.Content_Length (0));
+
+         --  End of header
+
+         Net.Buffered.New_Line (Sock);
+         Net.Buffered.Flush (Sock);
+      end Send_Websocket_Handshake_Error;
+
       use type Response.Data;
 
    begin
@@ -1562,28 +1569,56 @@ package body AWS.Server.HTTP_Utils is
 
          when Response.WebSocket =>
 
+            Socket_Taken := False;
+            Will_Close := True;
+
             if not AWS.Config.Is_WebSocket_Origin_Set
               or else GNAT.Regexp.Match
                 (Status.Origin (C_Stat), AWS.Config.WebSocket_Origin)
             then
-               --  Register this new WebSocket
+               --  Get the WebSocket
 
-               Send_WebSocket_Handshake;
+               begin
+                  declare
+                     --  The call to the constructor will raise an exception
+                     --  if the WebSocket is not to be accepted. In this case
+                     --  a forbidden message is sent back.
 
-               HTTP_Server.Slots.Socket_Taken (Line_Index);
-               Socket_Taken := True;
-               Will_Close := False;
+                     WS : constant Net.WebSocket.Object'Class :=
+                            Net.WebSocket.Registry.Constructor
+                              (Status.URI (C_Stat))
+                              (Socket  => Status.Socket (C_Stat),
+                               Request => C_Stat);
+                  begin
+                     --  Register this new WebSocket
 
-               Net.WebSocket.Registry.Watch
-                 (Net.WebSocket.Registry.Constructor (Status.URI (C_Stat))
-                  (Socket  => Status.Socket (C_Stat),
-                   Request => C_Stat));
+                     if WS in Net.WebSocket.Handshake_Error.Object'Class then
+                        declare
+                           E : constant Net.WebSocket.Handshake_Error.Object :=
+                                 Net.WebSocket.Handshake_Error.Object (WS);
+                        begin
+                           Send_Websocket_Handshake_Error
+                             (E.Status_Code, E.Reason_Phrase);
+                        end;
+
+                     else
+                        Send_WebSocket_Handshake;
+
+                        HTTP_Server.Slots.Socket_Taken (Line_Index);
+                        Socket_Taken := True;
+                        Will_Close := False;
+
+                        Net.WebSocket.Registry.Watch (WS);
+                     end if;
+                  end;
+
+               exception
+                  when others =>
+                     Send_Websocket_Handshake_Error (Messages.S403);
+               end;
 
             else
-               Socket_Taken := False;
-               Will_Close := True;
-
-               Send_WebSocket_Forbidden_Header;
+               Send_Websocket_Handshake_Error (Messages.S403);
             end if;
 
          when Response.No_Data =>

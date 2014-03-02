@@ -1534,6 +1534,9 @@ from `AWS.Net.WebSocket.Object` and redefine at least two methods
          (AWS.Net.WebSocket.Create (Socket, Request)) with null record);
    end Create;
 
+  It is also possible to deny the handshake by returning an object from
+  AWS.Net.WebSocket.Handshake_Error.
+
 *On_Open*
   This is the callback that will be called when the WebSocket is opened::
 

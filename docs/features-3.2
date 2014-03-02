@@ -20,6 +20,13 @@ NF-32-N302-003 Add support for cipher priority (2014-03-02)
    It is now possible to specify the session’s handshake algorithms
    and options using the new configuration variable CIPHER_PRIORITIES.
 
+NF-32-N227-068 Add support for controlling WebSocket handshake (2014-03-02)
+
+   In the user's WebSocket factory it is now possible to return an
+   AWS.Net.WebSocket.Handshake_Error.Object to reject the handshake.
+   With such response it is possible to specify a specific status code
+   and an associated reaso-phrase. The default status code is 403.
+
 NF-32-N126-007 Add a way to initialize explicitly the SSL layer (2014-02-03)
 
    It is now possible to initialize explicitly the SSL layer default
