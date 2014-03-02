@@ -219,6 +219,11 @@ Here are the tag variables recognized by `AWS` status page:
 
   see :ref:`Configuration_options`.
 
+*CIPHER_PRIORITIES*
+  .. index:: CIPHER_PRIORITIES
+
+  see :ref:`Configuration_options`.
+
 *SEND_TIMEOUT*
   .. index:: SEND_TIMEOUT
 

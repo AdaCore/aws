@@ -60,6 +60,15 @@ package body AWS.Net.SSL is
       return "";
    end Cipher_Description;
 
+   -------------
+   -- Ciphers --
+   -------------
+
+   procedure Ciphers (Cipher : access procedure (Name : String)) is
+   begin
+      null;
+   end Ciphers;
+
    -------------------------
    -- Clear_Session_Cache --
    -------------------------
@@ -109,6 +118,7 @@ package body AWS.Net.SSL is
      (Config               : in out SSL.Config;
       Certificate_Filename : String;
       Security_Mode        : Method     := SSLv23;
+      Priorities           : String     := "";
       Key_Filename         : String     := "";
       Exchange_Certificate : Boolean    := False;
       Certificate_Required : Boolean    := False;
@@ -126,6 +136,7 @@ package body AWS.Net.SSL is
    procedure Initialize_Default_Config
      (Certificate_Filename : String;
       Security_Mode        : Method     := SSLv23;
+      Priorities           : String     := "";
       Key_Filename         : String     := "";
       Exchange_Certificate : Boolean    := False;
       Certificate_Required : Boolean    := False;

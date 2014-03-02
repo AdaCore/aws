@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2000-2013, AdaCore                     --
+--                     Copyright (C) 2000-2014, AdaCore                     --
 --                                                                          --
 --  This is free software;  you can redistribute it  and/or modify it       --
 --  under terms of the  GNU General Public License as published  by the     --
@@ -106,6 +106,7 @@ begin
    Add ("DEFAULT_CERTIFICATE", Default.Certificate);
    Add ("DEFAULT_KEY", Default.Key);
    Add ("SECURITY_MODE", Default.Security_Mode);
+   Add ("CIPHER_PRIORITIES", Default.Cipher_Priorities);
    Add ("EXCHANGE_CERTIFICATE", Default.Exchange_Certificate);
    Add ("CASE_SENSITIVE_PARAMETERS", Default.Case_Sensitive_Parameters);
    Add ("ADMIN_URI", Default.Admin_URI);

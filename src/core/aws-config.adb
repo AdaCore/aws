@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2000-2013, AdaCore                     --
+--                     Copyright (C) 2000-2014, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -115,6 +115,15 @@ package body AWS.Config is
    begin
       return O.P (Check_URL_Validity).Bool_Value;
    end Check_URL_Validity;
+
+   -----------------------
+   -- Cipher_Priorities --
+   -----------------------
+
+   function Cipher_Priorities (O : Object) return String is
+   begin
+      return To_String (O.P (Cipher_Priorities).Str_Value);
+   end Cipher_Priorities;
 
    ---------------------------------
    -- Cleaner_Client_Data_Timeout --

@@ -114,6 +114,7 @@ package AWS.Net.SSL is
      (Config               : in out SSL.Config;
       Certificate_Filename : String;
       Security_Mode        : Method     := SSLv23;
+      Priorities           : String     := "";
       Key_Filename         : String     := "";
       Exchange_Certificate : Boolean    := False;
       Certificate_Required : Boolean    := False;
@@ -131,6 +132,7 @@ package AWS.Net.SSL is
    procedure Initialize_Default_Config
      (Certificate_Filename : String;
       Security_Mode        : Method     := SSLv23;
+      Priorities           : String     := "";
       Key_Filename         : String     := "";
       Exchange_Certificate : Boolean    := False;
       Certificate_Required : Boolean    := False;
@@ -184,8 +186,11 @@ package AWS.Net.SSL is
 
    overriding function Cipher_Description (Socket : Socket_Type) return String;
 
+   procedure Ciphers (Cipher : access procedure (Name : String));
+   --  Calls callback Cipher for all available ciphers
+
    procedure Set_Debug (Level : Natural);
-   --  ???
+   --  Set debug information printed level
 
 private
 

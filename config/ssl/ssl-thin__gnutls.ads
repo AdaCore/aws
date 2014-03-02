@@ -400,6 +400,7 @@ package SSL.Thin is
    type gnutls_openpgp_privkey_t is access all STRUCT_DSTRUCT;
    type gnutls_pubkey_t is access all STRUCT_DSTRUCT;
    type gnutls_privkey_t is access all STRUCT_DSTRUCT;
+   type gnutls_priority_t is access all STRUCT_DSTRUCT;
 
    type gnutls_retr_st is record
       cert_type  : gnutls_certificate_type_t;
@@ -694,6 +695,51 @@ package SSL.Thin is
       indx        : C.unsigned) return C.int
      with Import, Convention => C;
 
+   function gnutls_priority_init
+     (priority_cache : access gnutls_priority_t;
+      priorities     : CS.chars_ptr;
+      err_pos        : access CS.chars_ptr) return C.int
+     with Import, Convention => C;
+
+   procedure gnutls_priority_deinit (priority_cache : gnutls_priority_t)
+     with Import, Convention => C;
+
+   function gnutls_priority_get_cipher_suite_index
+     (pcache : gnutls_priority_t;
+      idx    : C.unsigned;
+      sidx   : access C.unsigned) return C.int
+     with Import, Convention => C;
+
+   function gnutls_priority_set
+     (session : gnutls_session_t; priority : gnutls_priority_t) return C.int
+     with Import, Convention => C;
+
+   function gnutls_priority_set_direct
+     (session    : gnutls_session_t;
+      priorities : CS.chars_ptr;
+      err_pos    : access CS.chars_ptr) return C.int
+     with Import, Convention => C;
+
+   function gnutls_priority_certificate_type_list
+     (pcache : gnutls_priority_t; list : System.Address) return C.int
+     with Import, Convention => C;
+
+   function gnutls_priority_sign_list
+     (pcache : gnutls_priority_t; list : System.Address) return C.int
+     with Import, Convention => C;
+
+   function gnutls_priority_protocol_list
+     (pcache : gnutls_priority_t; list : System.Address) return C.int
+     with Import, Convention => C;
+
+   function gnutls_priority_compression_list
+     (pcache : gnutls_priority_t; list : System.Address) return C.int
+     with Import, Convention => C;
+
+   function gnutls_priority_ecc_curve_list
+     (pcache : gnutls_priority_t; list : System.Address) return C.int
+     with Import, Convention => C;
+
    function gnutls_cipher_set_priority
      (session : gnutls_session_t; p2 : System.Address) return C.int
      with Import, Convention => C;
@@ -724,8 +770,16 @@ package SSL.Thin is
 
    function gnutls_set_default_export_priority
      (session : gnutls_session_t) return C.int
-     with Import, Convention => C,
-          Link_Name => "gnutls_set_default_export_priority";
+     with Import, Convention => C;
+
+   function gnutls_cipher_suite_info
+     (idx         : C.size_t;
+      cs_id       : access C.unsigned_char;
+      kx          : access gnutls_kx_algorithm_t;
+      cipher      : access gnutls_cipher_algorithm_t;
+      mac         : access gnutls_mac_algorithm_t;
+      min_version : access gnutls_protocol_t) return CS.chars_ptr
+     with Import, Convention => C;
 
    function gnutls_cipher_suite_get_name
      (kx_algorithm     : gnutls_kx_algorithm_t;
