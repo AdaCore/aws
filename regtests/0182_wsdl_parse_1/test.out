@@ -1,2 +1,2 @@
 
-Error in operation Try : Schema does not correspond to Ada Character type (maxLength /= 1).
+Error: (Try) Schema does not correspond to Ada Character type (maxLength /= 1).

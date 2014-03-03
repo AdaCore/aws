@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2003-2013, AdaCore                     --
+--                     Copyright (C) 2003-2014, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -641,7 +641,9 @@ package body SOAP.WSDL.Parser is
          then
             L := XML.First_Child (L);
 
-            if Utils.No_NS (DOM.Core.Nodes.Node_Name (L)) = "element" then
+            if L /= null
+               and then Utils.No_NS (DOM.Core.Nodes.Node_Name (L)) = "element"
+            then
                return True;
             end if;
          end if;
@@ -796,12 +798,9 @@ package body SOAP.WSDL.Parser is
                                 & " skipped : "
                                 & Exceptions.Exception_Message (E));
                         else
-                           Text_IO.New_Line;
-                           Text_IO.Put_Line
-                             ("Error in operation "
-                                & XML.Get_Attr_Value (S, "name")
-                                & " : " & Exceptions.Exception_Message (E));
-                           raise;
+                           raise WSDL_Error
+                             with "(" & XML.Get_Attr_Value (S, "name")
+                                & ") " & Exceptions.Exception_Message (E);
                         end if;
                   end;
                end if;
