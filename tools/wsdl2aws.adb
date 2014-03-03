@@ -36,6 +36,7 @@ procedure WSDL2AWS is
    use Ada.Exceptions;
    use Ada.Strings.Unbounded;
    use GNAT;
+
    use AWS;
    use type SOAP.WSDL.Parser.Verbose_Level;
 

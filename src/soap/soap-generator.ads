@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2003-2012, AdaCore                     --
+--                     Copyright (C) 2003-2014, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -32,8 +32,8 @@ with Ada.Strings.Unbounded;
 with AWS.Client;
 
 with SOAP.Name_Space;
-with SOAP.WSDL.Parser;
 with SOAP.WSDL.Parameters;
+with SOAP.WSDL.Parser;
 
 package SOAP.Generator is
 
