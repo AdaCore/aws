@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2003-2012, AdaCore                     --
+--                     Copyright (C) 2003-2014, AdaCore                     --
 --                                                                          --
 --  This is free software;  you can redistribute it  and/or modify it       --
 --  under terms of the  GNU General Public License as published  by the     --
@@ -408,7 +408,9 @@ exception
       New_Line;
       Ada.Command_Line.Set_Exit_Status (Ada.Command_Line.Failure);
 
-   when SOAP.WSDL.WSDL_Error =>
+   when W : SOAP.WSDL.WSDL_Error =>
+      New_Line;
+      Put_Line ("Error: " & Exception_Message (W));
       Ada.Command_Line.Set_Exit_Status (Ada.Command_Line.Failure);
 
    when E : others =>
