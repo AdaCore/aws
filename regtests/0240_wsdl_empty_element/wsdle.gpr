@@ -1,0 +1,4 @@
+with "aws";
+project WSDLe is
+   for Source_Dirs use (".");
+end WSDLe;

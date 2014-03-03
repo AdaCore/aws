@@ -641,7 +641,9 @@ package body SOAP.WSDL.Parser is
          then
             L := XML.First_Child (L);
 
-            if Utils.No_NS (DOM.Core.Nodes.Node_Name (L)) = "element" then
+            if L /= null
+               and then Utils.No_NS (DOM.Core.Nodes.Node_Name (L)) = "element"
+            then
                return True;
             end if;
          end if;
