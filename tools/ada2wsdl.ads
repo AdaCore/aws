@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2003-2012, AdaCore                     --
+--                     Copyright (C) 2003-2014, AdaCore                     --
 --                                                                          --
 --  This is free software;  you can redistribute it  and/or modify it       --
 --  under terms of the  GNU General Public License as published  by the     --
@@ -36,8 +36,7 @@ package Ada2WSDL is
 
    procedure Raise_Spec_Error
      (E       : Asis.Element;
-      Message : String);
-   pragma No_Return (Raise_Spec_Error);
+      Message : String) with No_Return;
    --  Raises Spec_Error exception with the given message. Add a source
    --  location information for entity E.
 
