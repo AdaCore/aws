@@ -189,6 +189,25 @@ package AWS.Net.SSL is
    procedure Ciphers (Cipher : access procedure (Name : String));
    --  Calls callback Cipher for all available ciphers
 
+   procedure Generate_DH;
+   --  Regenerates Diffie-Hellman parameters.
+   --  The call could take a quite long time.
+   --  Diffie-Hellman parameters should be discarded and regenerated once a
+   --  week or once a month. Depends on the security requirements.
+   --  (gnutls/src/serv.c).
+
+   procedure Generate_RSA;
+   --  Regenerates RSA parameters.
+   --  The call could take some time.
+   --  RSA parameters should be discarded and regenerated once a day, once
+   --  every 500 transactions etc. Depends on the security requirements
+   --  (gnutls/src/serv.c).
+
+   procedure Start_Parameters_Generation (DH : Boolean);
+   --  Start SSL parameters regeneration in background.
+   --  DH is False mean only RSA parameters generated.
+   --  DH is True mean RSA and DH both parameters generated.
+
    procedure Set_Debug (Level : Natural);
    --  Set debug information printed level
 
@@ -221,5 +240,11 @@ private
    procedure Set_Verify_Callback
      (Config : in out SSL.Config; Callback : System.Address);
    --  Record verify callback address into the SSL config
+
+   procedure Log_Error (Text : String);
+   --  Log error into Net error log
+
+   DH_Lock  : Utils.Test_And_Set;
+   RSA_Lock : Utils.Test_And_Set;
 
 end AWS.Net.SSL;

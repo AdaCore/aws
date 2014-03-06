@@ -146,6 +146,7 @@ package AWS.Default with Pure is
 
    Security                        : constant Boolean := False;
    Security_Mode                   : constant String  := "SSLv23";
+   Security_Home_Directory         : constant String  := "~/.AWS-SSL";
    Cipher_Priorities               : constant String  := "";
    Certificate                     : constant String  := "cert.pem";
    Key                             : constant String  := "";

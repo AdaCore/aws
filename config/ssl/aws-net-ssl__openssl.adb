@@ -40,6 +40,7 @@ with Ada.Calendar;
 with Ada.Task_Attributes;
 with Ada.Task_Identification;
 with Ada.Task_Termination;
+with Ada.Text_IO;
 with Ada.Unchecked_Conversion;
 with Ada.Unchecked_Deallocation;
 with Interfaces.C.Strings;
@@ -50,7 +51,9 @@ with System.Storage_Elements;
 with AWS.Config;
 with AWS.Net.Log;
 with AWS.Net.SSL.Certificate.Impl;
+with AWS.Net.SSL.RSA_DH_Generators;
 with AWS.OS_Lib;
+with AWS.Resources;
 with AWS.Utils;
 
 package body AWS.Net.SSL is
@@ -121,6 +124,16 @@ package body AWS.Net.SSL is
 
    Debug_Level  : Natural := 0 with Atomic;
 
+   DH_Params  : array (0 .. 1) of aliased TSSL.DH :=
+                  (others => TSSL.Null_Pointer) with Atomic_Components;
+   RSA_Params : array (0 .. 1) of aliased TSSL.RSA :=
+                  (others => TSSL.Null_Pointer) with Atomic_Components;
+   --  0 element for current use, 1 element for remain usage after creation new
+   --  0 element.
+
+   DH_Length  : constant C.int := 2048;
+   RSA_Length : constant C.int := 2048;
+
    procedure Socket_Read (Socket : Socket_Type);
    --  Read encripted data from socket if necessary
 
@@ -151,15 +164,27 @@ package body AWS.Net.SSL is
    --  secondary initialization is ignored.
 
    function Verify_Callback
-     (preverify_ok : C.int; ctx : TSSL.X509_STORE_CTX) return C.int;
+     (preverify_ok : C.int; ctx : TSSL.X509_STORE_CTX) return C.int
+     with Convention => C;
    --  This routine is needed to be able to retreive the client's certificate
    --  and validate it thought the user's verification routine if provided.
+
+   function Tmp_RSA_Callback
+     (SSL : SSL_Handle; Is_Export : C.int; Keylength : C.int) return TSSL.RSA
+     with Convention => C;
+
+   function Tmp_DH_Callback
+     (SSL : SSL_Handle; Is_Export : C.int; Keylength : C.int) return TSSL.DH
+     with Convention => C;
 
    procedure Secure
      (Source : Net.Socket_Type'Class;
       Target : out Socket_Type;
       Config : SSL.Config);
    --  Common code for Secure_Server and Secure_Client routines
+
+   procedure Set_Accept_State (Socket : Socket_Type);
+   --  Server session initialization
 
    -------------------
    -- Accept_Socket --
@@ -180,7 +205,7 @@ package body AWS.Net.SSL is
 
          New_Socket.Config.Set_IO (New_Socket);
 
-         TSSL.SSL_set_accept_state (New_Socket.SSL);
+         Set_Accept_State (New_Socket);
 
          Do_Handshake (New_Socket, Success);
 
@@ -412,6 +437,175 @@ package body AWS.Net.SSL is
    end Free;
 
    -----------------
+   -- Generate_DH --
+   -----------------
+
+   procedure Generate_DH is
+      use type TSSL.DH;
+      use type TSSL.BIO_Access;
+      OK   : Boolean;
+      DH   : aliased TSSL.DH;
+      Bits : constant C.int := DH_Length;
+
+      function Loaded return Boolean;
+
+      procedure Save;
+
+      ------------
+      -- Loaded --
+      ------------
+
+      function Loaded return Boolean is
+         Filename : constant String :=
+                      RSA_DH_Generators.Parameters_Filename
+                        ("dh-" & Utils.Image (Integer (Bits)), Exist => True);
+      begin
+         if Filename = "" then
+            return False;
+         end if;
+
+         declare
+            use AWS.Resources;
+            Data : Stream_Element_Array
+                     (1 .. Stream_Element_Offset (File_Size (Filename)));
+            Last : Stream_Element_Offset;
+            File : File_Type;
+            BIO  : TSSL.BIO_Access;
+         begin
+            Open (File, Name => Filename);
+
+            Read (File, Data, Last);
+
+            if not End_Of_File (File) then
+               Close (File);
+               raise Program_Error with "not end of file";
+            end if;
+
+            Close (File);
+
+            if Last < Data'Last then
+               raise Program_Error with "read error";
+            end if;
+
+            BIO := TSSL.BIO_new_mem_buf (Data'Address, Data'Length);
+
+            Error_If (BIO = null);
+
+            Error_If
+              (DH /= TSSL.PEM_read_bio_DHparams
+                       (BIO, DH'Access, TSSL.Null_Pointer, TSSL.Null_Pointer));
+
+            TSSL.BIO_free (BIO);
+         end;
+
+         return True;
+      end Loaded;
+
+      ----------
+      -- Save --
+      ----------
+
+      procedure Save is
+         use Ada.Text_IO;
+         Filename : constant String :=
+                      RSA_DH_Generators.Parameters_Filename
+                        ("dh-" & Utils.Image (Integer (Bits)), Exist => False);
+         Data : String (1 .. 4096);
+         Len  : C.int;
+         File : File_Type;
+         BIO  : TSSL.BIO_Access;
+      begin
+         if Filename = "" then
+            return;
+         end if;
+
+         BIO := TSSL.BIO_new (TSSL.BIO_s_mem);
+
+         Error_If (TSSL.PEM_write_bio_DHparams (BIO, DH) = 0);
+
+         Len := TSSL.BIO_read (BIO, Data'Address, Data'Length);
+
+         Error_If (Len <= 0);
+
+         TSSL.BIO_free (BIO);
+
+         Create (File, Out_File, Filename, Form => "shared=no");
+
+         Put (File, Data (1 .. Natural (Len)));
+
+         Close (File);
+      end Save;
+
+   begin
+      DH_Lock.Try_Lock (OK);
+
+      if not OK then
+         return;
+      end if;
+
+      DH := TSSL.DH_new;
+
+      Error_If (DH = TSSL.Null_Pointer);
+
+      if DH_Params (0) /= TSSL.Null_Pointer or else not Loaded then
+         Error_If
+           (TSSL.DH_generate_parameters_ex
+              (params => DH, prime_len => DH_Length, generator => 2,
+               cb => TSSL.Null_Pointer) = 0);
+         Save;
+      end if;
+
+      if DH_Params (1) /= TSSL.Null_Pointer then
+         TSSL.DH_free (DH_Params (1));
+      end if;
+
+      DH_Params (1) := DH_Params (0);
+      DH_Params (0) := DH;
+
+      DH_Lock.Unlock;
+   end Generate_DH;
+
+   ------------------
+   -- Generate_RSA --
+   ------------------
+
+   procedure Generate_RSA is
+      use type TSSL.RSA;
+      OK  : Boolean;
+      BN  : TSSL.BIGNUM;
+      RSA : TSSL.RSA;
+   begin
+      RSA_Lock.Try_Lock (OK);
+
+      if not OK then
+         return;
+      end if;
+
+      BN := TSSL.BN_new;
+
+      Error_If (TSSL."=" (BN, TSSL.BIGNUM (TSSL.Null_Pointer)));
+      Error_If (TSSL.BN_set_word (BN, TSSL.RSA_F4) = 0);
+
+      RSA := TSSL.RSA_new;
+
+      Error_If (RSA = TSSL.Null_Pointer);
+      Error_If
+        (TSSL.RSA_generate_key_ex
+           (RSA, RSA_Length, BN, TSSL.Null_Pointer) = 0);
+
+      TSSL.BN_free (BN);
+
+      if RSA_Params (1) /= TSSL.Null_Pointer then
+         TSSL.RSA_free (RSA_Params (1));
+      end if;
+
+      RSA_Params (1) := RSA_Params (0);
+      RSA_Params (0) := RSA;
+
+      RSA_Lock.Unlock;
+   end Generate_RSA;
+
+   -----------------
    -- Init_Random --
    -----------------
 
@@ -506,6 +700,15 @@ package body AWS.Net.SSL is
          return System.Memory.Realloc (Ptr, Size);
       end if;
    end Lib_Realloc;
+
+   ---------------
+   -- Log_Error --
+   ---------------
+
+   procedure Log_Error (Text : String) is
+   begin
+      Log.Error (Socket_Type'(Net.Std.Socket_Type with others => <>), Text);
+   end Log_Error;
 
    -------------
    -- Pending --
@@ -625,8 +828,7 @@ package body AWS.Net.SSL is
       Result : Socket_Type;
    begin
       Secure (Socket, Result, Config);
-      Result.Config.Check_CRL;
-      TSSL.SSL_set_accept_state (Result.SSL);
+      Set_Accept_State (Result);
       return Result;
    end Secure_Server;
 
@@ -734,6 +936,35 @@ package body AWS.Net.SSL is
          end if;
       end loop;
    end Send;
+
+   ----------------------
+   -- Set_Accept_State --
+   ----------------------
+
+   procedure Set_Accept_State (Socket : Socket_Type) is
+   begin
+      Socket.Config.Check_CRL;
+      TSSL.SSL_set_accept_state (Socket.SSL);
+
+      if RSA_Params (0) = TSSL.Null_Pointer
+        and then DH_Params (0) = TSSL.Null_Pointer
+      then
+         if not RSA_Lock.Locked and then not DH_Lock.Locked then
+            Start_Parameters_Generation (DH => True);
+         end if;
+
+      else
+         if RSA_Params (0) /= TSSL.Null_Pointer then
+            TSSL.SSL_set_tmp_rsa_callback
+            (SSL => Socket.SSL, RSA_CB => Tmp_RSA_Callback'Access);
+         end if;
+
+         if DH_Params (0) /= TSSL.Null_Pointer then
+            TSSL.SSL_set_tmp_dh_callback
+            (SSL => Socket.SSL, DH_CB => Tmp_DH_Callback'Access);
+         end if;
+      end if;
+   end Set_Accept_State;
 
    ----------------
    -- Set_Config --
@@ -1194,6 +1425,41 @@ package body AWS.Net.SSL is
 
    end Locking;
 
+   ---------------------------------
+   -- Start_Parameters_Generation --
+   ---------------------------------
+
+   procedure Start_Parameters_Generation (DH : Boolean) is
+   begin
+      RSA_DH_Generators.Start_Parameters_Generation (DH);
+   end Start_Parameters_Generation;
+
+   ---------------------
+   -- Tmp_DH_Callback --
+   ---------------------
+
+   function Tmp_DH_Callback
+     (SSL : SSL_Handle; Is_Export : C.int; Keylength : C.int) return TSSL.DH
+   is
+      pragma Unreferenced (SSL, Is_Export, Keylength);
+      --  Ignore export restrictions
+   begin
+      return DH_Params (0);
+   end Tmp_DH_Callback;
+
+   ----------------------
+   -- Tmp_RSA_Callback --
+   ----------------------
+
+   function Tmp_RSA_Callback
+     (SSL : SSL_Handle; Is_Export : C.int; Keylength : C.int) return TSSL.RSA
+   is
+      pragma Unreferenced (SSL, Is_Export, Keylength);
+      --  Ignore export restrictions
+   begin
+      return RSA_Params (0);
+   end Tmp_RSA_Callback;
+
    ------------
    -- TS_SSL --
    ------------
@@ -1402,9 +1668,7 @@ package body AWS.Net.SSL is
             if TSSL.SSL_CTX_set_cipher_list
                  (Context, C.Strings.To_Chars_Ptr (Pr'Unchecked_Access)) = 0
             then
-               Net.Log.Error
-                 (Socket_Type'(Net.Std.Socket_Type with others => <>),
-                  Error_Stack);
+               Log_Error (Error_Stack);
             end if;
          end Set_Priorities;
 

@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2000-2013, AdaCore                     --
+--                     Copyright (C) 2000-2014, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -194,6 +194,28 @@ package AWS.Utils is
    private
       R, W : Natural := 0;
    end RW_Semaphore;
+
+   ------------------
+   -- Test_And_Set --
+   ------------------
+
+   --  Could be interpreted by compiler as a lock free operation.
+
+   protected type Test_And_Set is
+
+      procedure Try_Lock (Succeeded : out Boolean);
+      --  Return True if the lock has been acquired, otherwise don't wait for
+      --  the lock and return False.
+
+      procedure Unlock;
+      --  Release the lock
+
+      function Locked return Boolean;
+      --  Returns the Locked state
+
+   private
+      Flag : Boolean := False; -- Mean locked
+   end Test_And_Set;
 
    -------------
    -- Streams --

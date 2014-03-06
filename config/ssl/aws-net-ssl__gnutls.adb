@@ -41,6 +41,7 @@ with System.Memory;
 with AWS.Config;
 with AWS.Net.Log;
 with AWS.Net.SSL.Certificate.Impl;
+with AWS.Net.SSL.RSA_DH_Generators;
 with AWS.OS_Lib;
 with AWS.Resources;
 with AWS.Utils;
@@ -72,6 +73,13 @@ package body AWS.Net.SSL is
    type PCert_Array is
      array (Positive range <>) of aliased TSSL.gnutls_pcert_st
      with Convention => C;
+
+   DH_Params  : array (0 .. 1) of aliased TSSL.gnutls_dh_params_t
+     with Atomic_Components;
+   RSA_Params : array (0 .. 1) of aliased TSSL.gnutls_rsa_params_t
+     with Atomic_Components;
+   --  0 element for current use, 1 element for remain usage after creation new
+   --  0 element.
 
    function Lib_Alloc (Size : System.Memory.size_t) return System.Address
      with Convention => C;
@@ -107,10 +115,9 @@ package body AWS.Net.SSL is
    procedure Check_Config (Socket : in out Socket_Type) with Inline;
 
    procedure Do_Handshake_Internal (Socket : Socket_Type) with Inline;
+   --  The real handshake is done here
 
    function To_Config is new Unchecked_Conversion (System.Address, Config);
-
-   --  The real handshake is done here
 
    function Write_Socket
      (S : C.int; Msg : System.Address; Len : C.int) return C.int
@@ -135,8 +142,6 @@ package body AWS.Net.SSL is
       CCC            : aliased TSSL.gnutls_certificate_credentials_t;
       PCert_List     : PCert_Array_Access;
       TLS_PK         : aliased TSSL.gnutls_privkey_t;
-      DH_Params      : aliased TSSL.gnutls_dh_params_t;
-      RSA_Params     : aliased TSSL.gnutls_rsa_params_t;
       Priority_Cache : aliased TSSL.gnutls_priority_t;
       RCC            : Boolean := False; -- Request client certificate
       CREQ           : Boolean := False; -- Certificate is required
@@ -472,10 +477,8 @@ package body AWS.Net.SSL is
       use type TSSL.gnutls_anon_client_credentials_t;
       use type TSSL.gnutls_anon_server_credentials_t;
       use type TSSL.gnutls_certificate_credentials_t;
-      use type TSSL.gnutls_dh_params_t;
       use type TSSL.gnutls_priority_t;
       use type TSSL.gnutls_privkey_t;
-      use type TSSL.gnutls_rsa_params_t;
 
       procedure Unchecked_Free is
         new Ada.Unchecked_Deallocation (PCert_Array, PCert_Array_Access);
@@ -499,16 +502,6 @@ package body AWS.Net.SSL is
       if Config.CCC /= null then
          TSSL.gnutls_certificate_free_credentials (Config.CCC);
          Config.CCC := null;
-      end if;
-
-      if Config.DH_Params /= null then
-         TSSL.gnutls_dh_params_deinit (Config.DH_Params);
-         Config.DH_Params := null;
-      end if;
-
-      if Config.RSA_Params /= null then
-         TSSL.gnutls_rsa_params_deinit (Config.RSA_Params);
-         Config.RSA_Params := null;
       end if;
 
       if Config.TLS_PK /= null then
@@ -548,6 +541,134 @@ package body AWS.Net.SSL is
    begin
       Utils.Unchecked_Free (Datum.Data);
    end Free;
+
+   -----------------
+   -- Generate_DH --
+   -----------------
+
+   procedure Generate_DH is
+      use type TSSL.gnutls_dh_params_t;
+
+      New_One : aliased TSSL.gnutls_dh_params_t;
+      OK      : Boolean;
+      Bits    : C.unsigned;
+
+      function Loaded return Boolean;
+
+      procedure Save;
+
+      ------------
+      -- Loaded --
+      ------------
+
+      function Loaded return Boolean is
+         Filename : constant String :=
+                      RSA_DH_Generators.Parameters_Filename
+                        ("dh-" & Utils.Image (Integer (Bits)), Exist => True);
+         Datum    : Datum_Type;
+      begin
+         if Filename = "" then
+            return False;
+         end if;
+
+         Datum := Load_File (Filename);
+
+         Check_Error_Code
+           (TSSL.gnutls_dh_params_import_pkcs3
+              (New_One, Datum.Datum'Unchecked_Access,
+               TSSL.GNUTLS_X509_FMT_PEM));
+
+         Free (Datum);
+
+         return True;
+      end Loaded;
+
+      ----------
+      -- Save --
+      ----------
+
+      procedure Save is
+         Filename : constant String :=
+                      RSA_DH_Generators.Parameters_Filename
+                        ("dh-" & Utils.Image (Integer (Bits)), Exist => False);
+         Data     : String (1 .. 4096);
+         Last     : aliased C.size_t := Data'Length;
+         File     : Text_IO.File_Type;
+      begin
+         if Filename = "" then
+            return;
+         end if;
+
+         Check_Error_Code
+           (TSSL.gnutls_dh_params_export_pkcs3
+              (New_One, TSSL.GNUTLS_X509_FMT_PEM, Data'Address,
+               Last'Unchecked_Access));
+
+         Text_IO.Create
+           (File, Text_IO.Out_File, Filename, Form => "shared=no");
+
+         Text_IO.Put (File, Data (1 .. Natural (Last)));
+
+         Text_IO.Close (File);
+      end Save;
+
+   begin
+      DH_Lock.Try_Lock (OK);
+
+      if not OK then
+         --  Already in concurrent generation
+         return;
+      end if;
+
+      Check_Error_Code (TSSL.gnutls_dh_params_init (New_One'Access));
+
+      Bits := TSSL.gnutls_sec_param_to_pk_bits
+                (TSSL.GNUTLS_PK_DH, TSSL.GNUTLS_SEC_PARAM_NORMAL);
+
+      if DH_Params (0) /= null or else not Loaded then
+         Check_Error_Code (TSSL.gnutls_dh_params_generate2 (New_One, Bits));
+         Save;
+      end if;
+
+      TSSL.gnutls_dh_params_deinit (DH_Params (1));
+
+      DH_Params (1) := DH_Params (0);
+      DH_Params (0) := New_One;
+
+      DH_Lock.Unlock;
+   end Generate_DH;
+
+   ------------------
+   -- Generate_RSA --
+   ------------------
+
+   procedure Generate_RSA is
+      use type TSSL.gnutls_rsa_params_t;
+
+      New_One : aliased TSSL.gnutls_rsa_params_t;
+      OK      : Boolean;
+   begin
+      RSA_Lock.Try_Lock (OK);
+
+      if not OK then
+         --  Already in concurrent generation
+         return;
+      end if;
+
+      Check_Error_Code (TSSL.gnutls_rsa_params_init (New_One'Access));
+      Check_Error_Code
+        (TSSL.gnutls_rsa_params_generate2
+           (New_One,
+            TSSL.gnutls_sec_param_to_pk_bits
+              (TSSL.GNUTLS_PK_RSA, TSSL.GNUTLS_SEC_PARAM_NORMAL)));
+
+      TSSL.gnutls_rsa_params_deinit (RSA_Params (1));
+
+      RSA_Params (1) := RSA_Params (0);
+      RSA_Params (0) := New_One;
+
+      DH_Lock.Unlock;
+   end Generate_RSA;
 
    ----------------
    -- Initialize --
@@ -750,15 +871,6 @@ package body AWS.Net.SSL is
         and then Config.ASC = null
         and then Config.CSC = null
       then
-         Check_Error_Code
-           (TSSL.gnutls_dh_params_init (Config.DH_Params'Access));
-
-         Check_Error_Code
-           (TSSL.gnutls_dh_params_generate2
-              (Config.DH_Params,
-               TSSL.gnutls_sec_param_to_pk_bits
-                 (TSSL.GNUTLS_PK_DH, TSSL.GNUTLS_SEC_PARAM_LOW)));
-
          Config.RCC := Exchange_Certificate;
          Config.CREQ := Certificate_Required;
 
@@ -778,15 +890,6 @@ package body AWS.Net.SSL is
 
             TSSL.gnutls_certificate_set_verify_function
               (cred => Config.CSC, func => Verify_Callback'Access);
-
-            Check_Error_Code
-              (TSSL.gnutls_rsa_params_init (Config.RSA_Params'Access));
-
-            Check_Error_Code
-              (TSSL.gnutls_rsa_params_generate2
-                 (Config.RSA_Params,
-                  TSSL.gnutls_sec_param_to_pk_bits
-                    (TSSL.GNUTLS_PK_RSA, TSSL.GNUTLS_SEC_PARAM_LOW)));
 
             TSSL.gnutls_certificate_set_params_function
               (Config.CSC, Params_Callback'Access);
@@ -836,9 +939,7 @@ package body AWS.Net.SSL is
                   err_pos        => Er'Access);
 
          if RC = TSSL.GNUTLS_E_INVALID_REQUEST then
-            Log.Error
-              (Socket_Type'(Std.Socket_Type with others => <>),
-               "Priority syntax error '" & CS.Value (Er) & ''');
+            Log_Error ("Priority syntax error '" & CS.Value (Er) & ''');
          else
             Check_Error_Code (RC);
          end if;
@@ -954,6 +1055,15 @@ package body AWS.Net.SSL is
       return Result;
    end Load_File;
 
+   ---------------
+   -- Log_Error --
+   ---------------
+
+   procedure Log_Error (Text : String) is
+   begin
+      Log.Error (Socket_Type'(Std.Socket_Type with others => <>), Text);
+   end Log_Error;
+
    ---------------------
    -- Params_Callback --
    ---------------------
@@ -963,21 +1073,15 @@ package body AWS.Net.SSL is
       Kind   : TSSL.gnutls_params_type_t;
       Params : access TSSL.gnutls_params_st) return C.int
    is
-      Cfg : constant Config :=
-              To_Config (TSSL.gnutls_session_get_ptr (Sessn));
+      pragma Unreferenced (Sessn);
    begin
-      --  Diffie-Hellman parameters should be discarded and regenerated once a
-      --  week or once a month. Depends on the security requirements.
-      --  RSA parameters should be discarded and regenerated once a day, once
-      --  every 500 transactions etc. Depends on the security requirements
-      --  (gnutls/src/serv.c).
-      --  ??? Now the parameters is not regenerated. Implement it later.
-
       case Kind is
          when TSSL.GNUTLS_PARAMS_RSA_EXPORT =>
-            Params.params.rsa_export := Cfg.RSA_Params;
+            Params.params.rsa_export := RSA_Params (0);
+
          when TSSL.GNUTLS_PARAMS_DH =>
-            Params.params.dh := Cfg.DH_Params;
+            Params.params.dh := DH_Params (0);
+
          when others =>
             return -1;
       end case;
@@ -1205,6 +1309,12 @@ package body AWS.Net.SSL is
       use type System.Address;
    begin
       Check_Config (Socket);
+
+      if DH_Params (0) = null and then RSA_Params (0) = null
+        and then not RSA_Lock.Locked and then not DH_Lock.Locked
+      then
+         Start_Parameters_Generation (DH => True);
+      end if;
 
       Check_Error_Code
         (gnutls_init (Socket.SSL'Access, GNUTLS_SERVER), Socket);
@@ -1436,6 +1546,15 @@ package body AWS.Net.SSL is
       Put (Current_Error, "|<" & Prefix & Lev (Fst .. Lev'Last) & ">| " & Adt);
    end SSL_Log_Common;
 
+   ---------------------------------
+   -- Start_Parameters_Generation --
+   ---------------------------------
+
+   procedure Start_Parameters_Generation (DH : Boolean) is
+   begin
+      RSA_DH_Generators.Start_Parameters_Generation (DH);
+   end Start_Parameters_Generation;
+
    ---------------------
    -- Verify_Callback --
    ---------------------
@@ -1471,9 +1590,8 @@ package body AWS.Net.SSL is
          Txt : constant String :=
                  (if Text = "" then C.Strings.Value (TSSL.gnutls_strerror (RC))
                   else Text);
-         Dum : Socket_Type;
       begin
-         Log.Error (Dum, Txt);
+         SSL.Log_Error (Txt);
       end Log_Error;
 
    begin

@@ -475,6 +475,16 @@ package body AWS.Config.Set is
       O.P (Security).Bool_Value := Value;
    end Security;
 
+   -----------------------------
+   -- Security_Home_Directory --
+   -----------------------------
+
+   procedure Security_Home_Directory (Value : String) is
+   begin
+      Process_Options (Security_Home_Directory).Str_Value :=
+        To_Unbounded_String (Value);
+   end Security_Home_Directory;
+
    -------------------
    -- Security_Mode --
    -------------------

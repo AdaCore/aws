@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2000-2013, AdaCore                     --
+--                     Copyright (C) 2000-2014, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -1038,6 +1038,45 @@ package body AWS.Utils is
            Duration'Image (Item) & Integer'Image (N);
       end if;
    end Significant_Image;
+
+   ------------------
+   -- Test_And_Set --
+   ------------------
+
+   protected body Test_And_Set is
+
+      ------------
+      -- Locked --
+      ------------
+
+      function Locked return Boolean is
+      begin
+         return Flag;
+      end Locked;
+
+      --------------
+      -- Try_Lock --
+      --------------
+
+      procedure Try_Lock (Succeeded : out Boolean) is
+      begin
+         Succeeded := not Flag;
+
+         if Succeeded then
+            Flag := True;
+         end if;
+      end Try_Lock;
+
+      ------------
+      -- Unlock --
+      ------------
+
+      procedure Unlock is
+      begin
+         Flag := False;
+      end Unlock;
+
+   end Test_And_Set;
 
    ---------------
    -- Time_Zone --

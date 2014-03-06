@@ -28,6 +28,7 @@
 ------------------------------------------------------------------------------
 
 with Ada.Directories;
+with Ada.Environment_Variables;
 
 with AWS.Config.Ini;
 
@@ -522,6 +523,44 @@ package body AWS.Config is
    begin
       return O.P (Security).Bool_Value;
    end Security;
+
+   -----------------------------
+   -- Security_Home_Directory --
+   -----------------------------
+
+   function Security_Home_Directory return String is
+
+      function Home_Path return String;
+
+      ---------------
+      -- Home_Path --
+      ---------------
+
+      function Home_Path return String is
+         use Ada.Environment_Variables;
+         Home : constant String := "HOME";        -- Unix
+         User : constant String := "USERPROFILE"; -- Windows
+      begin
+         if Exists (Home) then
+            return Value (Home);
+         elsif Exists (User) then
+            return Value (User);
+         else
+            return "~";
+         end if;
+      end Home_Path;
+
+      Result : constant String :=
+                 To_String
+                   (Process_Options (Security_Home_Directory).Str_Value);
+
+   begin
+      if Result'Length = 0 or else Result (Result'First) /= '~' then
+         return Result;
+      end if;
+
+      return Home_Path & Result (Result'First + 1 .. Result'Last);
+   end Security_Home_Directory;
 
    -------------------
    -- Security_Mode --

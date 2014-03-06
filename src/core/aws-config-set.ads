@@ -343,6 +343,9 @@ package AWS.Config.Set is
    --  Set the priority used by the others services (SMTP server, Jabber
    --  server, Push server...).
 
+   procedure Security_Home_Directory (Value : String);
+   --  Directory where security parameter files located
+
    procedure Transient_Cleanup_Interval (Value : Duration);
    --  Number of seconds between each run of the cleaner task to remove
    --  transient pages.

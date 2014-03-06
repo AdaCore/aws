@@ -115,6 +115,7 @@ package SSL.Thin is
    subtype SSL_CTX        is Pointer;
    subtype SSL_Handle     is Pointer;
    subtype RSA            is Pointer;
+   subtype DH             is Pointer;
    subtype X509           is Pointer;
    subtype X509_Name      is Pointer;
    subtype X509_STORE_CTX is Pointer;
@@ -668,6 +669,12 @@ package SSL.Thin is
    --  Crypto routines --
    ----------------------
 
+   function RSA_new return RSA
+     with Import, Convention => C, Link_Name => "RSA_new";
+
+   procedure RSA_free (key : RSA)
+     with Import, Convention => C, Link_Name => "RSA_free";
+
    type Generate_Key_Callback is access
      procedure (I1, I2 : Integer; Param : Pointer)
    with Convention => C;
@@ -678,6 +685,30 @@ package SSL.Thin is
       Callback : Generate_Key_Callback;
       Cb_Arg   : Pointer) return RSA
      with Import, Convention => C, Link_Name => "RSA_generate_key";
+
+   function RSA_generate_key_ex
+     (key : RSA; bits : int; e : BIGNUM; cb : Pointer) return int
+     with Import, Convention => C, Link_Name => "RSA_generate_key_ex";
+
+   function DH_new return DH
+     with Import, Convention => C, Link_Name => "DH_new";
+
+   procedure DH_free (params : DH)
+     with Import, Convention => C, Link_Name => "DH_free";
+
+   function DH_size (params : DH) return int
+     with Import, Convention => C, Link_Name => "DH_size";
+
+   function DH_generate_parameters_ex
+     (params : DH; prime_len : int; generator : int; cb : Pointer) return int
+     with Import, Convention => C, Link_Name => "DH_generate_parameters_ex";
+
+   function PEM_read_bio_DHparams
+     (bp : BIO_Access; x : access DH; cb : Pointer; u : Pointer) return DH
+     with Import, Convention => C, Link_Name => "PEM_read_bio_DHparams";
+
+   function PEM_write_bio_DHparams (bp : BIO_Access; x : DH) return int
+     with Import, Convention => C, Link_Name => "PEM_write_bio_DHparams";
 
    function SSL_use_RSAPrivateKey
      (SSL : SSL_Handle; Private_Key : RSA) return int
@@ -748,11 +779,35 @@ package SSL.Thin is
      with Import, Convention => C, Link_Name => "SSL_CTX_get_ex_new_index";
 
    function SSL_CTX_set_ex_data
-     (SSL : SSL_CTX; Idx : int; Arg : Pointer) return int
+     (Ctx : SSL_CTX; Idx : int; Arg : Pointer) return int
      with Import, Convention => C, Link_Name => "SSL_CTX_set_ex_data";
 
-   function SSL_CTX_get_ex_data (SSL : SSL_CTX; Idx : int) return Pointer
+   function SSL_CTX_get_ex_data (Ctx : SSL_CTX; Idx : int) return Pointer
      with Import, Convention => C, Link_Name => "SSL_CTX_get_ex_data";
+
+   type Tmp_RSA_Callback is access function
+     (SSL : SSL_Handle; Is_Export : int; Keylength : int) return RSA
+     with Convention => C;
+
+   procedure SSL_CTX_set_tmp_rsa_callback
+     (Ctx : SSL_CTX; RSA_CB : Tmp_RSA_Callback)
+     with Import, Convention => C, Link_Name => "SSL_CTX_set_tmp_rsa_callback";
+
+   procedure SSL_set_tmp_rsa_callback
+     (SSL : SSL_Handle; RSA_CB : Tmp_RSA_Callback)
+     with Import, Convention => C, Link_Name => "SSL_set_tmp_rsa_callback";
+
+   type Tmp_DH_Callback is access function
+     (SSL : SSL_Handle; Is_Export : int; Keylength : int) return DH
+     with Convention => C;
+
+   procedure SSL_CTX_set_tmp_dh_callback
+     (Ctx : SSL_CTX; DH_CB : Tmp_DH_Callback)
+     with Import, Convention => C, Link_Name => "SSL_CTX_set_tmp_dh_callback";
+
+   procedure SSL_set_tmp_dh_callback
+     (SSL : SSL_Handle; DH_CB : Tmp_DH_Callback)
+     with Import, Convention => C, Link_Name => "SSL_set_tmp_dh_callback";
 
    --  Certificate
 
@@ -861,11 +916,24 @@ package SSL.Thin is
       Pp : access Strings.chars_ptr) return BIGNUM
      with Import, Convention => C, Link_Name => "ASN1_INTEGER_to_BN";
 
+   ------------
+   -- BIGNUM --
+   ------------
+
    function BN_bn2bin (BN : BIGNUM; Output : Strings.chars_ptr) return int
      with Import, Convention => C, Link_Name => "BN_bn2bin";
 
    function BN_bn2hex (BN : BIGNUM) return Strings.chars_ptr
      with Import, Convention => C, Link_Name => "BN_bn2hex";
+
+   function BN_new return BIGNUM
+     with Import, Convention => C, Link_Name => "BN_new";
+
+   procedure BN_free (BN : BIGNUM)
+     with Import, Convention => C, Link_Name => "BN_free";
+
+   function BN_set_word (BN : BIGNUM; w : unsigned_long) return int
+     with Import, Convention => C, Link_Name => "BN_set_word";
 
    -------------------
    --  BIO routines --
@@ -882,6 +950,9 @@ package SSL.Thin is
 
    function BIO_new (Method : BIO_Method_Access) return BIO_Access
      with Import, Convention => C, Link_Name => "BIO_new";
+
+   function BIO_new_mem_buf (Buff : Pointer; Len : int) return BIO_Access
+     with Import, Convention => C, Link_Name => "BIO_new_mem_buf";
 
    function BIO_int_ctrl
      (Bp   : BIO_Access;

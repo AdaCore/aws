@@ -889,6 +889,7 @@ begin
       Stamp ("SMTP SSL");
       Check_Server_Push;
       Stamp ("Server push");
+      AWS.Net.SSL.Start_Parameters_Generation (K rem 3 = 1);
    end loop;
 
    Server.Stopped;

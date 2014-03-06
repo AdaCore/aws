@@ -110,6 +110,18 @@ package body AWS.Net.SSL is
       raise Program_Error with Error_Message;
    end Free;
 
+   -----------------
+   -- Generate_DH --
+   -----------------
+
+   procedure Generate_DH is null;
+
+   ------------------
+   -- Generate_RSA --
+   ------------------
+
+   procedure Generate_RSA is null;
+
    ----------------
    -- Initialize --
    ----------------
@@ -146,6 +158,12 @@ package body AWS.Net.SSL is
    begin
       raise Program_Error with Error_Message;
    end Initialize_Default_Config;
+
+   ---------------
+   -- Log_Error --
+   ---------------
+
+   procedure Log_Error (Text : String) is null;
 
    -------------
    -- Pending --
@@ -278,6 +296,12 @@ package body AWS.Net.SSL is
    begin
       raise Program_Error with Error_Message;
    end Socket_Pair;
+
+   ---------------------------------
+   -- Start_Parameters_Generation --
+   ---------------------------------
+
+   procedure Start_Parameters_Generation (DH : Boolean) is null;
 
    -------------
    -- Version --

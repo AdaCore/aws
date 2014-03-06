@@ -355,6 +355,9 @@ package AWS.Config is
    --  Returns the priority used by the others services (SMTP server, Jabber
    --  server, Push server...).
 
+   function Security_Home_Directory return String with Inline;
+   --  Directory where security parameter files located
+
    function Transient_Cleanup_Interval return Duration with Inline;
    --  Number of seconds between each run of the cleaner task to remove
    --  transient pages.
@@ -465,6 +468,7 @@ private
       Session_Id_Length,
       Session_Cleaner_Priority,
       Service_Priority,
+      Security_Home_Directory,
       Transient_Cleanup_Interval,
       Transient_Lifetime,
       Input_Line_Size_Limit,
@@ -708,6 +712,9 @@ private
 
          Service_Priority =>
            (Nat, Default.Service_Priority),
+
+         Security_Home_Directory =>
+           (Str, To_Unbounded_String (Default.Security_Home_Directory)),
 
          Transient_Cleanup_Interval =>
            (Dur, Default.Transient_Cleanup_Interval),
