@@ -1009,6 +1009,12 @@ package body AWS.Client.HTTP_Utils is
       end loop;
 
       Read_Status_Line;
+
+      --  By default we have at least some headers. This value will be
+      --  updated if a message body is read.
+
+      Response.Set.Mode (Answer, Response.Header);
+
       Response.Set.Read_Header (Sock, Answer);
 
       declare
