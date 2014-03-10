@@ -413,7 +413,7 @@ package SSL.Thin is
    type gnutls_datum_t is record
       data : a_unsigned_char_t;
       size : C.unsigned;
-   end record with Convention => C;
+   end record with Convention => C_Pass_By_Copy;
 
    type gnutls_pcert_st is record
       pubkey : gnutls_pubkey_t;
@@ -824,23 +824,27 @@ package SSL.Thin is
      (session : gnutls_session_t; seconds : C.int)
      with Import, Convention => C;
 
+   function gnutls_db_check_entry_time
+     (Item : a_gnutls_datum_t) return C.long
+     with Import, Convention => C;
+
    procedure gnutls_db_remove_session (session : gnutls_session_t)
      with Import, Convention => C;
 
    procedure gnutls_db_set_retrieve_function
-     (p1 : gnutls_session_t; p2 : gnutls_db_retr_func)
+     (session : gnutls_session_t; retr_func : gnutls_db_retr_func)
      with Import, Convention => C;
 
    procedure gnutls_db_set_remove_function
-     (p1 : gnutls_session_t; p2 : gnutls_db_remove_func)
+     (session : gnutls_session_t; rem_func : gnutls_db_remove_func)
      with Import, Convention => C;
 
    procedure gnutls_db_set_store_function
-     (p1 : gnutls_session_t; p2 : gnutls_db_store_func)
+     (session : gnutls_session_t; store_func : gnutls_db_store_func)
      with Import, Convention => C;
 
    procedure gnutls_db_set_ptr
-     (p1 : gnutls_session_t; db_ptr : System.Address)
+     (session : gnutls_session_t; db_ptr : System.Address)
      with Import, Convention => C;
 
    function gnutls_db_get_ptr (p1 : gnutls_session_t) return System.Address
@@ -1018,7 +1022,7 @@ package SSL.Thin is
      with Import, Convention => C;
 
    function gnutls_x509_rdn_get
-     (idn        : gnutls_datum_t;
+     (idn        : a_gnutls_datum_t;
       buf        : CS.chars_ptr;
       sizeof_buf : access C.size_t) return C.int
      with Import, Convention => C;
@@ -1039,7 +1043,7 @@ package SSL.Thin is
 
    function gnutls_x509_privkey_import
      (key    : gnutls_x509_privkey_t;
-      data   : gnutls_datum_t;
+      data   : a_gnutls_datum_t;
       format : gnutls_x509_crt_fmt_t) return C.int
      with Import, Convention => C;
 
@@ -1066,7 +1070,7 @@ package SSL.Thin is
 
    function gnutls_x509_crt_import
      (cert   : gnutls_x509_crt_t;
-      data   : gnutls_datum_t;
+      data   : a_gnutls_datum_t;
       format : gnutls_x509_crt_fmt_t) return C.int
      with Import, Convention => C;
 
@@ -1102,7 +1106,7 @@ package SSL.Thin is
    function gnutls_pcert_list_import_x509_raw
      (pcerts    : access gnutls_pcert_st;
       pcert_max : access C.unsigned;
-      data      : gnutls_datum_t;
+      data      : a_gnutls_datum_t;
       format    : gnutls_x509_crt_fmt_t;
       flags     : C.unsigned) return C.int
      with Import, Convention => C;

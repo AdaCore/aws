@@ -102,7 +102,7 @@ package body AWS.Net.SSL.Certificate.Impl is
 
       Check_Error_Code
         (TSSL.gnutls_x509_crt_import
-           (Cert, Datum.all, TSSL.GNUTLS_X509_FMT_DER),
+           (Cert, Datum, TSSL.GNUTLS_X509_FMT_DER),
          Socket'Access);
 
       Result := Read (Socket'Access, Status, Cert);

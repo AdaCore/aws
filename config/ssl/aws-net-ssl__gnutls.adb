@@ -722,9 +722,9 @@ package body AWS.Net.SSL is
       use type TSSL.gnutls_certificate_credentials_t;
       use type TSSL.gnutls_dh_params_t;
 
-      Cert     : Datum_Type;
-      Key      : Datum_Type;
-      Trust_CA : Datum_Type;
+      Cert     : aliased Datum_Type;
+      Key      : aliased Datum_Type;
+      Trust_CA : aliased Datum_Type;
 
       procedure Set_Certificate (CC : TSSL.gnutls_certificate_credentials_t);
       --  Set credentials from Cetificate_Filename and Key_Filename
@@ -787,7 +787,7 @@ package body AWS.Net.SSL is
                    TSSL.gnutls_pcert_list_import_x509_raw
                      (Result (1)'Access,
                       Size'Access,
-                      Cert.Datum,
+                      Cert.Datum'Unchecked_Access,
                       TSSL.GNUTLS_X509_FMT_PEM,
                       TSSL.GNUTLS_X509_CRT_LIST_IMPORT_FAIL_IF_EXCEED);
          begin
@@ -806,7 +806,8 @@ package body AWS.Net.SSL is
             Check_Error_Code (TSSL.gnutls_x509_privkey_init (X509_PK'Access));
             Check_Error_Code
               (TSSL.gnutls_x509_privkey_import
-                 (X509_PK, Key.Datum, TSSL.GNUTLS_X509_FMT_PEM));
+                 (X509_PK, Key.Datum'Unchecked_Access,
+                  TSSL.GNUTLS_X509_FMT_PEM));
 
             Check_Error_Code
               (TSSL.gnutls_privkey_init (Config.TLS_PK'Access));
@@ -1626,7 +1627,7 @@ package body AWS.Net.SSL is
             end if;
 
             RC := TSSL.gnutls_x509_crt_import
-                    (Cert, To_Array_Access (Cert_List) (J),
+                    (Cert, To_Array_Access (Cert_List) (J)'Unchecked_Access,
                      TSSL.GNUTLS_X509_FMT_DER);
 
             if RC < 0 then
