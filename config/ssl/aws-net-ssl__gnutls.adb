@@ -30,7 +30,10 @@
 pragma Ada_2012;
 
 with Ada.Calendar;
+with Ada.Containers.Hashed_Maps;
+with Ada.Containers.Ordered_Maps;
 with Ada.Directories;
+with Ada.Strings.Hash;
 with Ada.Text_IO;
 with Ada.Unchecked_Conversion;
 with Ada.Unchecked_Deallocation;
@@ -81,6 +84,9 @@ package body AWS.Net.SSL is
    --  0 element for current use, 1 element for remain usage after creation new
    --  0 element.
 
+   function Copy (Item : TSSL.gnutls_datum_t) return TSSL.gnutls_datum_t;
+   --  Creates gnutls_datum_t copy
+
    function Lib_Alloc (Size : System.Memory.size_t) return System.Address
      with Convention => C;
    --  Set allocated data to zero to workaroung GNUTLS bug in
@@ -125,6 +131,20 @@ package body AWS.Net.SSL is
    --  Would be used only on defined MSG_NOSIGNAL platforms to avoid SIGPIPE
    --  signal.
 
+   function DB_Store
+     (p1   : System.Address;
+      key  : TSSL.gnutls_datum_t;
+      data : TSSL.gnutls_datum_t) return C.int with Convention => C;
+
+   function DB_Remove
+     (p1 : System.Address; key : TSSL.gnutls_datum_t) return C.int
+     with Convention => C;
+
+   function DB_Retrieve
+     (p1  : System.Address;
+      key : TSSL.gnutls_datum_t) return TSSL.gnutls_datum_t
+     with Convention => C;
+
    procedure SSL_Log (level : C.int; text : CS.chars_ptr)
      with Convention => C;
 
@@ -135,6 +155,47 @@ package body AWS.Net.SSL is
    procedure SSL_Log_Common
      (Prefix : String; Level : C.int; text : CS.chars_ptr);
 
+   function Equal (Left, Right : TSSL.gnutls_datum_t) return Boolean;
+
+   function Hash (Item : TSSL.gnutls_datum_t) return Ada.Containers.Hash_Type;
+
+   type Session_Element is record
+      Datum : TSSL.gnutls_datum_t;
+      Birth : Ada.Calendar.Time;
+   end record;
+
+   package Session_Container is
+     new Ada.Containers.Hashed_Maps
+           (Key_Type        => TSSL.gnutls_datum_t,
+            Element_Type    => Session_Element,
+            Hash            => Hash,
+            Equivalent_Keys => Equal);
+
+   package Time_Index is
+     new Ada.Containers.Ordered_Maps
+           (Key_Type     => Ada.Calendar.Time,
+            Element_Type => TSSL.gnutls_datum_t,
+            "<"          => Ada.Calendar."<",
+            "="          => Equal);
+
+   protected type Session_Cache is
+
+      procedure Set_Size (Size : Natural);
+
+      procedure Put (Key, Data : TSSL.gnutls_datum_t);
+
+      function Get (Key : TSSL.gnutls_datum_t) return TSSL.gnutls_datum_t;
+
+      procedure Drop (Key : TSSL.gnutls_datum_t);
+
+      procedure Clear;
+
+   private
+      Size : Natural := Natural'Last;
+      Map  : Session_Container.Map;
+      DTI  : Time_Index.Map; --  To remove oldest sessions to fit Size
+   end Session_Cache;
+
    type TS_SSL is record
       ASC            : aliased TSSL.gnutls_anon_server_credentials_t;
       ACC            : aliased TSSL.gnutls_anon_client_credentials_t;
@@ -143,10 +204,10 @@ package body AWS.Net.SSL is
       PCert_List     : PCert_Array_Access;
       TLS_PK         : aliased TSSL.gnutls_privkey_t;
       Priority_Cache : aliased TSSL.gnutls_priority_t;
+      Sessions       : Session_Cache;
       RCC            : Boolean := False; -- Request client certificate
       CREQ           : Boolean := False; -- Certificate is required
       Verify_CB      : Net.SSL.Certificate.Verify_Callback;
-      Is_Server      : Boolean := True;
       CRL_File       : C.Strings.chars_ptr := C.Strings.Null_Ptr;
       CRL_Semaphore  : Utils.Semaphore;
       CRL_Time_Stamp : Calendar.Time := Utils.AWS_Epoch;
@@ -333,7 +394,11 @@ package body AWS.Net.SSL is
 
    procedure Clear_Session_Cache (Config : SSL.Config := Null_Config) is
    begin
-      null;
+      if Config = Null_Config then
+         Default_Config.Sessions.Clear;
+      else
+         Config.Sessions.Clear;
+      end if;
    end Clear_Session_Cache;
 
    ---------------------
@@ -380,6 +445,90 @@ package body AWS.Net.SSL is
          Do_Handshake (Socket);
       end if;
    end Connect;
+
+   ----------
+   -- Copy --
+   ----------
+
+   function Copy (Item : TSSL.gnutls_datum_t) return TSSL.gnutls_datum_t is
+      use Ada.Streams;
+
+      type Array_Access is access all Stream_Element_Array
+                                        (1 .. Stream_Element_Offset
+                                                (Item.size));
+      function To_Array is
+        new Ada.Unchecked_Conversion (TSSL.a_unsigned_char_t, Array_Access);
+
+      Result : TSSL.gnutls_datum_t;
+
+   begin
+      if Item.size = 0 then
+         return Item;
+      end if;
+
+      Result.data := TSSL.gnutls_malloc (C.size_t (Item.size));
+      Result.size := Item.size;
+      To_Array (Result.data).all := To_Array (Item.data).all;
+      return Result;
+   end Copy;
+
+   ---------------
+   -- DB_Remove --
+   ---------------
+
+   function DB_Remove
+     (p1 : System.Address; key : TSSL.gnutls_datum_t) return C.int
+   is
+      Cfg : constant Config := To_Config (p1);
+   begin
+      Cfg.Sessions.Drop (key);
+      return 0;
+   exception
+      when E : others =>
+         Log_Error (Ada.Exceptions.Exception_Information (E));
+         return 1;
+   end DB_Remove;
+
+   -----------------
+   -- DB_Retrieve --
+   -----------------
+
+   function DB_Retrieve
+     (p1  : System.Address;
+      key : TSSL.gnutls_datum_t) return TSSL.gnutls_datum_t
+   is
+      Cfg : constant Config := To_Config (p1);
+   begin
+      return Copy (Cfg.Sessions.Get (key));
+   exception
+      when E : others =>
+         Log_Error (Ada.Exceptions.Exception_Information (E));
+         return (System.Null_Address, 0);
+   end DB_Retrieve;
+
+   --------------
+   -- DB_Store --
+   --------------
+
+   function DB_Store
+     (p1   : System.Address;
+      key  : TSSL.gnutls_datum_t;
+      data : TSSL.gnutls_datum_t) return C.int
+   is
+      Cfg : constant Config := To_Config (p1);
+      D : constant TSSL.gnutls_datum_t := Copy (data);
+      K : constant TSSL.gnutls_datum_t := Copy (key);
+   begin
+      Cfg.Sessions.Put (K, D);
+
+      return 0;
+   exception
+      when E : others =>
+         Log_Error (Ada.Exceptions.Exception_Information (E));
+         TSSL.gnutls_free (D.data);
+         TSSL.gnutls_free (K.data);
+         return 1;
+   end DB_Store;
 
    -------------------------
    -- Default_Config_Sync --
@@ -469,6 +618,24 @@ package body AWS.Net.SSL is
       Socket.IO.Handshaken.all := True;
    end Do_Handshake_Internal;
 
+   -----------
+   -- Equal --
+   -----------
+
+   function Equal (Left, Right : TSSL.gnutls_datum_t) return Boolean is
+      use Ada.Streams;
+      type Array_Access is access all Stream_Element_Array
+                                        (1 .. Stream_Element_Offset'Last);
+      function To_Array is
+        new Ada.Unchecked_Conversion (TSSL.a_unsigned_char_t, Array_Access);
+   begin
+      return Left.size = Right.size
+             and then To_Array (Left.data)
+                        (1 .. Stream_Element_Offset (Left.size))
+                    = To_Array (Right.data)
+                        (1 .. Stream_Element_Offset (Right.size));
+   end Equal;
+
    --------------
    -- Finalize --
    --------------
@@ -517,6 +684,8 @@ package body AWS.Net.SSL is
          TSSL.gnutls_priority_deinit (Config.Priority_Cache);
          Config.Priority_Cache := null;
       end if;
+
+      Config.Sessions.Clear;
    end Finalize;
 
    ----------
@@ -670,6 +839,20 @@ package body AWS.Net.SSL is
       DH_Lock.Unlock;
    end Generate_RSA;
 
+   ----------
+   -- Hash --
+   ----------
+
+   function Hash (Item : TSSL.gnutls_datum_t) return Ada.Containers.Hash_Type
+   is
+      type String_Access is access all String (Positive);
+      function To_Access is new
+        Ada.Unchecked_Conversion (TSSL.a_unsigned_char_t, String_Access);
+   begin
+      return Ada.Strings.Hash
+               (To_Access (Item.data) (1 .. Natural (Item.size)));
+   end Hash;
+
    ----------------
    -- Initialize --
    ----------------
@@ -715,8 +898,6 @@ package body AWS.Net.SSL is
       CRL_Filename         : String     := "";
       Session_Cache_Size   : Positive   := 16#4000#)
    is
-      pragma Unreferenced (Session_Cache_Size);
-
       use type TSSL.gnutls_anon_client_credentials_t;
       use type TSSL.gnutls_anon_server_credentials_t;
       use type TSSL.gnutls_certificate_credentials_t;
@@ -844,7 +1025,9 @@ package body AWS.Net.SSL is
          end if;
       end Set_Certificate;
 
-   begin
+   begin -- Initialize
+      Config.Sessions.Set_Size (Session_Cache_Size);
+
       if Certificate_Filename /= "" then
          Check_File ("Certificate", Certificate_Filename);
 
@@ -1273,6 +1456,101 @@ package body AWS.Net.SSL is
       end loop;
    end Send;
 
+   -------------------
+   -- Session_Cache --
+   -------------------
+
+   protected body Session_Cache is
+
+      -----------
+      -- Clear --
+      -----------
+
+      procedure Clear is
+         procedure Action (Position : Session_Container.Cursor);
+
+         procedure Action (Position : Session_Container.Cursor) is
+         begin
+            TSSL.gnutls_free (Session_Container.Element (Position).Datum.data);
+         end Action;
+
+      begin
+         Map.Iterate (Action'Access);
+
+         Map.Clear;
+
+         for J in DTI.Iterate loop
+            TSSL.gnutls_free (DTI (J).data);
+         end loop;
+
+         DTI.Clear;
+      end Clear;
+
+      ----------
+      -- Drop --
+      ----------
+
+      procedure Drop (Key : TSSL.gnutls_datum_t) is
+         Cs : Session_Container.Cursor := Map.Find (Key);
+      begin
+         TSSL.gnutls_free (Session_Container.Key (Cs).data);
+         TSSL.gnutls_free (Map (Cs).Datum.data);
+         DTI.Delete (Map (Cs).Birth);
+         Map.Delete (Cs);
+      end Drop;
+
+      ---------
+      -- Get --
+      ---------
+
+      function Get (Key : TSSL.gnutls_datum_t) return TSSL.gnutls_datum_t is
+         Ce : constant Session_Container.Cursor := Map.Find (Key);
+      begin
+         if Session_Container.Has_Element (Ce) then
+            return Map (Key).Datum;
+         else
+            return (System.Null_Address, 0);
+         end if;
+      end Get;
+
+      ---------
+      -- Put --
+      ---------
+
+      procedure Put (Key, Data : TSSL.gnutls_datum_t) is
+         use Ada.Calendar;
+         Now : Time := Clock;
+         Ce  : Time_Index.Cursor;
+         OK  : Boolean;
+      begin
+         for J in 1 .. 8 loop
+            DTI.Insert (Now, Key, Ce, OK);
+            exit when OK;
+            Now := Now + Duration'Small;
+         end loop;
+
+         if not OK then
+            raise Program_Error with "Time index entry creation";
+         end if;
+
+         Map.Insert (Key, (Data, Birth => Now));
+
+         while Natural (Map.Length) > Size loop
+            Drop (DTI.First_Element);
+         end loop;
+      end Put;
+
+      --------------
+      -- Set_Size --
+      --------------
+
+      procedure Set_Size (Size : Natural) is
+      begin
+         Session_Cache.Size := Size;
+      end Set_Size;
+
+   end Session_Cache;
+
    --------------------
    -- Session_Client --
    --------------------
@@ -1294,8 +1572,6 @@ package body AWS.Net.SSL is
            (gnutls_credentials_set (Socket.SSL, cred => Socket.Config.CCC),
             Socket);
       end if;
-
-      Socket.Config.Is_Server := False;
 
       Session_Transport (Socket);
    end Session_Client;
@@ -1319,6 +1595,11 @@ package body AWS.Net.SSL is
 
       Check_Error_Code
         (gnutls_init (Socket.SSL'Access, GNUTLS_SERVER), Socket);
+
+      gnutls_db_set_ptr (Socket.SSL, Socket.Config.all'Address);
+      gnutls_db_set_retrieve_function (Socket.SSL, DB_Retrieve'Access);
+      gnutls_db_set_remove_function (Socket.SSL, DB_Remove'Access);
+      gnutls_db_set_store_function (Socket.SSL, DB_Store'Access);
 
       if Socket.Config.CSC = null then
          Check_Error_Code
@@ -1434,7 +1715,12 @@ package body AWS.Net.SSL is
    procedure Set_Session_Cache_Size
      (Size : Natural; Config : SSL.Config := Null_Config) is
    begin
-      null;
+      if Config = Null_Config then
+         Initialize_Default_Config;
+         Default_Config.Sessions.Set_Size (Size);
+      else
+         Config.Sessions.Set_Size (Size);
+      end if;
    end Set_Session_Cache_Size;
 
    -------------------------
