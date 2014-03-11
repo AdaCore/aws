@@ -1467,15 +1467,10 @@ package body AWS.Net.SSL is
       -----------
 
       procedure Clear is
-         procedure Action (Position : Session_Container.Cursor);
-
-         procedure Action (Position : Session_Container.Cursor) is
-         begin
-            TSSL.gnutls_free (Session_Container.Element (Position).Datum.data);
-         end Action;
-
       begin
-         Map.Iterate (Action'Access);
+         for J in Map.Iterate loop
+            TSSL.gnutls_free (Map (J).Datum.data);
+         end loop;
 
          Map.Clear;
 
@@ -1492,11 +1487,15 @@ package body AWS.Net.SSL is
 
       procedure Drop (Key : TSSL.gnutls_datum_t) is
          Cs : Session_Container.Cursor := Map.Find (Key);
+         Dd : constant TSSL.a_unsigned_char_t := Map (Cs).Datum.data;
+         Kd : constant TSSL.a_unsigned_char_t :=
+                Session_Container.Key (Cs).data;
+         Dt : constant Ada.Calendar.Time := Map (Cs).Birth;
       begin
-         TSSL.gnutls_free (Session_Container.Key (Cs).data);
-         TSSL.gnutls_free (Map (Cs).Datum.data);
-         DTI.Delete (Map (Cs).Birth);
          Map.Delete (Cs);
+         DTI.Delete (Dt);
+         TSSL.gnutls_free (Kd);
+         TSSL.gnutls_free (Dd);
       end Drop;
 
       ---------
