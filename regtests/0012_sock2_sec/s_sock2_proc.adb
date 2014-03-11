@@ -22,7 +22,10 @@ with Ada.Text_IO;
 with Ada.Exceptions;
 with Ada.Streams;
 
+with AWS.Net.Log;
 with AWS.Net.SSL;
+
+with GNAT.Traceback.Symbolic;
 
 procedure S_Sock2_Proc (Security : Boolean) is
 
@@ -83,7 +86,25 @@ procedure S_Sock2_Proc (Security : Boolean) is
          accept Stop;
    end Client_Side;
 
+   -----------
+   -- Error --
+   -----------
+
+   procedure Error (Socket : Net.Socket_Type'Class; Message : String) is
+      use GNAT.Traceback;
+      Trace : Tracebacks_Array (1 .. 64);
+      Last  : Natural;
+   begin
+      Call_Chain (Trace, Last);
+
+      Ada.Text_IO.Put_Line
+        ("# Network error: "
+         & Message & Symbolic.Symbolic_Traceback (Trace (1 .. Last)));
+   end Error;
+
 begin
+   Net.Log.Start (Error => Error'Unrestricted_Access, Write => null);
+
    for J in Sample'Range loop
       Sample (J) := Stream_Element
                       (J mod Stream_Element_Offset (Stream_Element'Last));
