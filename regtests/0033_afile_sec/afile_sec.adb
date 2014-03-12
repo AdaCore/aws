@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2004-2012, AdaCore                     --
+--                     Copyright (C) 2004-2014, AdaCore                     --
 --                                                                          --
 --  This is free software;  you can redistribute it  and/or modify it       --
 --  under terms of the  GNU General Public License as published  by the     --
@@ -18,9 +18,31 @@
 
 --  Test file as attachment
 
+with Ada.Text_IO;
+with AWS.Net.Log;
+with GNAT.Traceback.Symbolic;
+
 with S_AFile_Pack;
 
 procedure AFile_Sec is
+
+   -----------
+   -- Error --
+   -----------
+
+   procedure Error (Socket : AWS.Net.Socket_Type'Class; Message : String) is
+      use GNAT.Traceback;
+      Trace : Tracebacks_Array (1 .. 64);
+      Last  : Natural;
+   begin
+      Call_Chain (Trace, Last);
+
+      Ada.Text_IO.Put_Line
+        ("# Network error: "
+         & Message & Symbolic.Symbolic_Traceback (Trace (1 .. Last)));
+   end Error;
+
 begin
+   AWS.Net.Log.Start (Error => Error'Unrestricted_Access, Write => null);
    S_AFile_Pack.Run ("https");
 end AFile_Sec;
