@@ -27,12 +27,16 @@
 --  covered by the  GNU Public License.                                     --
 ------------------------------------------------------------------------------
 
+with Ada.Characters.Handling;
 with Ada.Directories;
 with Ada.Environment_Variables;
 
 with AWS.Config.Ini;
+with AWS.OS_Lib;
 
 package body AWS.Config is
+
+   use Ada;
 
    Server_Config : Object;
    --  This variable will be updated with options found in 'aws.ini' and
@@ -530,6 +534,8 @@ package body AWS.Config is
 
    function Security_Home_Directory return String is
 
+      use Ada.Characters.Handling;
+
       function Home_Path return String;
 
       ---------------
@@ -555,11 +561,16 @@ package body AWS.Config is
                    (Process_Options (Security_Home_Directory).Str_Value);
 
    begin
-      if Result'Length = 0 or else Result (Result'First) /= '~' then
+      if Result'Length = 0
+        or else Result (Result'First) in '/' | '\'
+        or else (Result'Length > 2
+                 and then To_Lower (Result (Result'First)) in 'a' .. 'z'
+                 and then Result (Result'First + 1) = ':')
+      then
          return Result;
       end if;
 
-      return Home_Path & Result (Result'First + 1 .. Result'Last);
+      return Home_Path & OS_Lib.Directory_Separator & Result;
    end Security_Home_Directory;
 
    -------------------
