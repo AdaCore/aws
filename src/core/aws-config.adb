@@ -167,6 +167,50 @@ package body AWS.Config is
    end Cleaner_Wait_For_Client_Timeout;
 
    ----------------------
+   -- Config_Directory --
+   ----------------------
+
+   function Config_Directory return String is
+
+      use Ada.Characters.Handling;
+
+      function Home_Path return String;
+
+      ---------------
+      -- Home_Path --
+      ---------------
+
+      function Home_Path return String is
+         use Ada.Environment_Variables;
+         Home : constant String := "HOME";        -- Unix
+         User : constant String := "USERPROFILE"; -- Windows
+      begin
+         if Exists (Home) then
+            return Value (Home);
+         elsif Exists (User) then
+            return Value (User);
+         else
+            return "~";
+         end if;
+      end Home_Path;
+
+      Result : constant String :=
+                 To_String (Process_Options (Config_Directory).Str_Value);
+
+   begin
+      if Result'Length = 0
+        or else Result (Result'First) in '/' | '\'
+        or else (Result'Length > 2
+                 and then To_Lower (Result (Result'First)) in 'a' .. 'z'
+                 and then Result (Result'First + 1) = ':')
+      then
+         return Result;
+      end if;
+
+      return Home_Path & OS_Lib.Directory_Separator & Result;
+   end Config_Directory;
+
+   ----------------------
    -- Context_Lifetime --
    ----------------------
 
@@ -527,51 +571,6 @@ package body AWS.Config is
    begin
       return O.P (Security).Bool_Value;
    end Security;
-
-   -----------------------------
-   -- Security_Home_Directory --
-   -----------------------------
-
-   function Security_Home_Directory return String is
-
-      use Ada.Characters.Handling;
-
-      function Home_Path return String;
-
-      ---------------
-      -- Home_Path --
-      ---------------
-
-      function Home_Path return String is
-         use Ada.Environment_Variables;
-         Home : constant String := "HOME";        -- Unix
-         User : constant String := "USERPROFILE"; -- Windows
-      begin
-         if Exists (Home) then
-            return Value (Home);
-         elsif Exists (User) then
-            return Value (User);
-         else
-            return "~";
-         end if;
-      end Home_Path;
-
-      Result : constant String :=
-                 To_String
-                   (Process_Options (Security_Home_Directory).Str_Value);
-
-   begin
-      if Result'Length = 0
-        or else Result (Result'First) in '/' | '\'
-        or else (Result'Length > 2
-                 and then To_Lower (Result (Result'First)) in 'a' .. 'z'
-                 and then Result (Result'First + 1) = ':')
-      then
-         return Result;
-      end if;
-
-      return Home_Path & OS_Lib.Directory_Separator & Result;
-   end Security_Home_Directory;
 
    -------------------
    -- Security_Mode --

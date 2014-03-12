@@ -58,7 +58,7 @@ package body AWS.Net.SSL.RSA_DH_Generators is
    is
       Filename : constant String :=
                    Directories.Compose
-                     (AWS.Config.Security_Home_Directory,
+                     (AWS.Config.Config_Directory,
                       "aws-" & Kind & ".pem");
    begin
       if Exist then
@@ -69,8 +69,8 @@ package body AWS.Net.SSL.RSA_DH_Generators is
             return "";
          end if;
 
-      elsif not Directories.Exists (AWS.Config.Security_Home_Directory) then
-         Directories.Create_Path (AWS.Config.Security_Home_Directory);
+      elsif not Directories.Exists (AWS.Config.Config_Directory) then
+         Directories.Create_Path (AWS.Config.Config_Directory);
       end if;
 
       return Filename;

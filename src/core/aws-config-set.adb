@@ -151,6 +151,16 @@ package body AWS.Config.Set is
    end Cleaner_Wait_For_Client_Timeout;
 
    ----------------------
+   -- Config_Directory --
+   ----------------------
+
+   procedure Config_Directory (Value : String) is
+   begin
+      Process_Options (Config_Directory).Str_Value :=
+        To_Unbounded_String (Value);
+   end Config_Directory;
+
+   ----------------------
    -- Context_Lifetime --
    ----------------------
 
@@ -474,16 +484,6 @@ package body AWS.Config.Set is
    begin
       O.P (Security).Bool_Value := Value;
    end Security;
-
-   -----------------------------
-   -- Security_Home_Directory --
-   -----------------------------
-
-   procedure Security_Home_Directory (Value : String) is
-   begin
-      Process_Options (Security_Home_Directory).Str_Value :=
-        To_Unbounded_String (Value);
-   end Security_Home_Directory;
 
    -------------------
    -- Security_Mode --
