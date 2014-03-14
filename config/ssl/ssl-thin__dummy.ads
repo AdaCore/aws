@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                            Secure Sockets Layer                          --
 --                                                                          --
---                      Copyright (C) 2006-2012, AdaCore                    --
+--                      Copyright (C) 2006-2014, AdaCore                    --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -33,6 +33,7 @@ package SSL.Thin is
 
    type SSL_Handle is null record;
    type BIO_Access is null record;
+   type Session_Record is null record;
 
    Null_Handle : SSL_Handle;
 

@@ -54,6 +54,7 @@ with AWS.Net.SSL.Certificate.Impl;
 with AWS.Net.SSL.RSA_DH_Generators;
 with AWS.OS_Lib;
 with AWS.Resources;
+with AWS.Translator;
 with AWS.Utils;
 
 package body AWS.Net.SSL is
@@ -295,6 +296,11 @@ package body AWS.Net.SSL is
 
       Socket.Config.Set_IO (Socket);
 
+      if Socket.Sessn /= null then
+         Set_Session_Data (Socket, Socket.Sessn);
+         Socket.Sessn := null;
+      end if;
+
       TSSL.SSL_set_connect_state (Socket.SSL);
 
       if Wait then
@@ -434,6 +440,18 @@ package body AWS.Net.SSL is
       end if;
 
       NSST (Socket).Free;
+   end Free;
+
+   ----------
+   -- Free --
+   ----------
+
+   procedure Free (Session : in out Session_Type) is
+   begin
+      if Session /= null then
+         TSSL.SSL_SESSION_free (TSSL.SSL_Session (Session));
+         Session := null;
+      end if;
    end Free;
 
    -----------------
@@ -937,6 +955,47 @@ package body AWS.Net.SSL is
       end loop;
    end Send;
 
+   ------------------
+   -- Session_Data --
+   ------------------
+
+   function Session_Data (Socket : Socket_Type) return Session_Type is
+   begin
+      return Session_Type (TSSL.SSL_get1_session (Socket.SSL));
+   end Session_Data;
+
+   ----------------------
+   -- Session_Id_Image --
+   ----------------------
+
+   function Session_Id_Image (Session : Session_Type) return String is
+      use TSSL;
+
+      subtype Binary_Array is Stream_Element_Array (1 .. 1024);
+      type Binary_Access is access all Binary_Array;
+
+      function To_Array is
+        new Ada.Unchecked_Conversion (Pointer, Binary_Access);
+
+      Len : aliased C.unsigned;
+      Id  : Binary_Access;
+
+   begin
+      if Session = null then
+         return "";
+      end if;
+
+      Id := To_Array (SSL_SESSION_get_id (SSL_Session (Session), Len'Access));
+
+      return Translator.Base64_Encode (Id (1 .. Stream_Element_Offset (Len)));
+   end Session_Id_Image;
+
+   function Session_Id_Image (Socket : Socket_Type) return String is
+   begin
+      return Session_Id_Image
+               (Session_Type (TSSL.SSL_get_session (Socket.SSL)));
+   end Session_Id_Image;
+
    ----------------------
    -- Set_Accept_State --
    ----------------------
@@ -999,6 +1058,22 @@ package body AWS.Net.SSL is
          Config.Set_Session_Cache_Size (Size);
       end if;
    end Set_Session_Cache_Size;
+
+   ----------------------
+   -- Set_Session_Data --
+   ----------------------
+
+   procedure Set_Session_Data
+     (Socket : in out Socket_Type; Data : Session_Type) is
+   begin
+      if Socket.SSL = TSSL.Null_Pointer then
+         Socket.Sessn := Data;
+      else
+         Error_If
+           (Socket,
+            TSSL.SSL_set_session (Socket.SSL, TSSL.SSL_Session (Data)) = 0);
+      end if;
+   end Set_Session_Data;
 
    -------------------------
    -- Set_Verify_Callback --
@@ -1678,6 +1753,18 @@ package body AWS.Net.SSL is
 
             Context := TSSL.SSL_CTX_new (Methods (Security_Mode).all);
             Error_If (Context = TSSL.Null_Pointer);
+
+            --  Disable session ticket support because OpenSSL does not show
+            --  right session id on server side in this mode, detected in
+            --  0033_afile_sec regtest. Will implement control under ticket
+            --  mode later.
+
+            Error_If
+              (TSSL.SSL_CTX_ctrl
+                 (Ctx  => Context,
+                  Cmd  => TSSL.SSL_CTRL_OPTIONS,
+                  Larg => TSSL.SSL_OP_NO_TICKET,
+                  Parg => TSSL.Null_Pointer) = 0);
 
             Error_If
               (TSSL.SSL_CTX_ctrl

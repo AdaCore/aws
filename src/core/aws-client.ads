@@ -329,6 +329,16 @@ package AWS.Client is
    --  Sets the username, password and authentication mode for the proxy
    --  authentication.
 
+   procedure Set_Persistent
+     (Connection : in out HTTP_Connection; Value : Boolean) with Inline;
+   --  Change Persistent flag of the connection. If persistent is True the
+   --  connection will remain open, otherwise it will be closed after each
+   --  request, next request and further would be with "Connection: Close"
+   --  header line.
+
+   procedure Clear_SSL_Session (Connection : in out HTTP_Connection);
+   --  Avoid reuse SSL session data after reconnect
+
    procedure Copy_Cookie
      (Source      : HTTP_Connection;
       Destination : in out HTTP_Connection);
@@ -345,6 +355,11 @@ package AWS.Client is
    --  Set the connection cookie
 
    function Cipher_Description (Connection : HTTP_Connection) return String;
+
+   function SSL_Session_Id (Connection : HTTP_Connection) return String;
+   --  Returns base64 encoded SSL session identifier.
+   --  Returns empty string for plain HTTP connections and for not connected
+   --  SSL HTTP connections.
 
    function Read_Until
      (Connection : HTTP_Connection;
@@ -539,7 +554,8 @@ private
       Persistent         : Boolean;
       Streaming          : Boolean;
       Cookie             : Unbounded_String;
-      Socket             : AWS.Net.Socket_Access;
+      Socket             : Net.Socket_Access;
+      SSL_Session        : Net.SSL.Session_Type;
       Retry              : Natural;
       Timeouts           : Timeouts_Values;
       Data_Range         : Content_Range;

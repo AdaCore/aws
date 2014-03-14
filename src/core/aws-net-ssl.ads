@@ -44,6 +44,11 @@ package AWS.Net.SSL is
 
    type Socket_Type is new Net.Std.Socket_Type with private;
 
+   type Session_Type is private;
+   --  To keep session data over plain socket reconnect
+
+   Null_Session : constant Session_Type;
+
    Is_Supported : constant Boolean;
    --  True if SSL supported in the current runtime
 
@@ -211,6 +216,25 @@ package AWS.Net.SSL is
    procedure Set_Debug (Level : Natural);
    --  Set debug information printed level
 
+   function Session_Id_Image (Session : Session_Type) return String;
+   --  Returns base64 encoded session id. Could be used to recognize resumed
+   --  session when it has the same Id.
+
+   function Session_Id_Image (Socket : Socket_Type) return String;
+   --  Returns base64 encoded session id of the socket.
+
+   function Session_Data (Socket : Socket_Type) return Session_Type;
+   --  For the client side SSL socket returns session data to be used to
+   --  resume session after socket disconnected.
+
+   procedure Free (Session : in out Session_Type);
+   --  Free session data
+
+   procedure Set_Session_Data
+     (Socket : in out Socket_Type; Data : Session_Type);
+   --  For the client side SSL socket try to resume session from data taken
+   --  from previosly connected socket by Session_Data routine.
+
 private
 
    package TSSL renames Standard.SSL.Thin;
@@ -223,6 +247,10 @@ private
 
    type TS_SSL;
 
+   type Session_Type is access all TSSL.Session_Record;
+
+   Null_Session : constant Session_Type := null;
+
    type Config is access all TS_SSL;
    pragma No_Strict_Aliasing (Config);
 
@@ -231,6 +259,7 @@ private
    type Socket_Type is new Net.Std.Socket_Type with record
       Config : SSL.Config := Null_Config;
       SSL    : aliased SSL_Handle := TSSL.Null_Handle;
+      Sessn  : Session_Type; --  Put client session before next connect
       IO     : TSSL.BIO_Access;
    end record;
 

@@ -168,6 +168,41 @@ package SSL.Thin is
    SSL_SENT_SHUTDOWN                 : constant := 1;
    SSL_RECEIVED_SHUTDOWN             : constant := 2;
 
+   SSL_OP_MICROSOFT_SESS_ID_BUG                  : constant := 16#00000001#;
+   SSL_OP_NETSCAPE_CHALLENGE_BUG                 : constant := 16#00000002#;
+   SSL_OP_LEGACY_SERVER_CONNECT                  : constant := 16#00000004#;
+   SSL_OP_NETSCAPE_REUSE_CIPHER_CHANGE_BUG       : constant := 16#00000008#;
+   SSL_OP_SSLREF2_REUSE_CERT_TYPE_BUG            : constant := 16#00000010#;
+   SSL_OP_MICROSOFT_BIG_SSLV3_BUFFER             : constant := 16#00000020#;
+   SSL_OP_MSIE_SSLV2_RSA_PADDING                 : constant := 16#00000040#;
+   SSL_OP_SSLEAY_080_CLIENT_DH_BUG               : constant := 16#00000080#;
+   SSL_OP_TLS_D5_BUG                             : constant := 16#00000100#;
+   SSL_OP_TLS_BLOCK_PADDING_BUG                  : constant := 16#00000200#;
+   SSL_OP_DONT_INSERT_EMPTY_FRAGMENTS            : constant := 16#00000800#;
+   SSL_OP_ALL                                    : constant := 16#80000BFF#;
+   SSL_OP_NO_QUERY_MTU                           : constant := 16#00001000#;
+   SSL_OP_COOKIE_EXCHANGE                        : constant := 16#00002000#;
+   SSL_OP_NO_TICKET                              : constant := 16#00004000#;
+   SSL_OP_CISCO_ANYCONNECT                       : constant := 16#00008000#;
+   SSL_OP_NO_SESSION_RESUMPTION_ON_RENEGOTIATION : constant := 16#00010000#;
+   SSL_OP_NO_COMPRESSION                         : constant := 16#00020000#;
+   SSL_OP_ALLOW_UNSAFE_LEGACY_RENEGOTIATION      : constant := 16#00040000#;
+   SSL_OP_SINGLE_ECDH_USE                        : constant := 16#00080000#;
+   SSL_OP_SINGLE_DH_USE                          : constant := 16#00100000#;
+   SSL_OP_EPHEMERAL_RSA                          : constant := 16#00200000#;
+   SSL_OP_CIPHER_SERVER_PREFERENCE               : constant := 16#00400000#;
+   SSL_OP_TLS_ROLLBACK_BUG                       : constant := 16#00800000#;
+   SSL_OP_NO_SSLv2                               : constant := 16#01000000#;
+   SSL_OP_NO_SSLv3                               : constant := 16#02000000#;
+   SSL_OP_NO_TLSv1                               : constant := 16#04000000#;
+   SSL_OP_NO_TLSv1_2                             : constant := 16#08000000#;
+   SSL_OP_NO_TLSv1_1                             : constant := 16#10000000#;
+   SSL_OP_PKCS1_CHECK_1                          : constant := 16#0#;
+   SSL_OP_PKCS1_CHECK_2                          : constant := 16#0#;
+   SSL_OP_NETSCAPE_CA_DN_BUG                     : constant := 16#20000000#;
+   SSL_OP_NETSCAPE_DEMO_CIPHER_CHANGE_BUG        : constant := 16#40000000#;
+   SSL_OP_CRYPTOPRO_TLSEXT_BUG                   : constant := 16#80000000#;
+
    SSL_VERIFY_NONE                   : constant := 0;
    SSL_VERIFY_PEER                   : constant := 1;
    SSL_VERIFY_FAIL_IF_NO_PEER_CERT   : constant := 2;
@@ -1056,7 +1091,9 @@ package SSL.Thin is
    procedure SSL_CTX_flush_sessions (Ctx : SSL_CTX; Tm : long)
      with Import, Convention => C, Link_Name => "SSL_CTX_flush_sessions";
 
-   type SSL_Session is new Pointer;
+   type Session_Record is null record;
+
+   type SSL_Session is access all Session_Record;
 
    function SSL_set_session
      (SSL : SSL_Handle; session : SSL_Session) return int
@@ -1067,5 +1104,12 @@ package SSL.Thin is
 
    function SSL_get1_session (SSL : SSL_Handle) return SSL_Session
      with Import, Convention => C, Link_Name => "SSL_get1_session";
+
+   function SSL_SESSION_get_id
+     (s : SSL_Session; len : access unsigned) return Pointer
+     with Import, Convention => C, Link_Name => "SSL_SESSION_get_id";
+
+   procedure SSL_SESSION_free (session : SSL_Session)
+     with Import, Convention => C, Link_Name => "SSL_SESSION_free";
 
 end SSL.Thin;

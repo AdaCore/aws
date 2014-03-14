@@ -31,6 +31,7 @@ pragma Ada_2012;
 
 --  Thin binding to GNUTLS
 
+with Ada.Streams;
 with Interfaces.C.Strings;
 with System;
 
@@ -414,6 +415,13 @@ package SSL.Thin is
       data : a_unsigned_char_t;
       size : C.unsigned;
    end record with Convention => C_Pass_By_Copy;
+
+   type Session_Record (Id_Size : Ada.Streams.Stream_Element_Count) is
+   record
+      Id   : Ada.Streams.Stream_Element_Array (1 .. Id_Size);
+      Data : aliased gnutls_datum_t;
+   end record;
+   --  To support AWS.Net.SSL.Session_Type
 
    type gnutls_pcert_st is record
       pubkey : gnutls_pubkey_t;
@@ -808,6 +816,10 @@ package SSL.Thin is
      (session           : gnutls_session_t;
       session_data      : System.Address;
       session_data_size : a_size_t) return C.int
+     with Import, Convention => C;
+
+   function gnutls_session_get_data2
+     (session : gnutls_session_t; data : a_gnutls_datum_t) return C.int
      with Import, Convention => C;
 
    function gnutls_session_get_id

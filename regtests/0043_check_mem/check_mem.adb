@@ -345,6 +345,7 @@ procedure Check_Mem is
    procedure Client is
 
       Connect : AWS.Client.HTTP_Connection;
+      Session : Unbounded_String;
 
       procedure Request (URL : String; Filename : String := "");
 
@@ -438,6 +439,13 @@ procedure Check_Mem is
       AWS.Client.Create (Connect, AWS.Server.Status.Local_URL (HTTP));
 
       Request ("/simple");
+
+      Session := To_Unbounded_String (AWS.Client.SSL_Session_Id (Connect));
+
+      if Session = Null_Unbounded_String then
+         Check ("!!! Empty SSL session.");
+      end if;
+
       Request ("/simple?p1=8&p2=azerty%20qwerty");
       Request ("/simple?p2=8&p1=azerty%20qwerty");
       Request ("/doesnotexist?p=8");
@@ -447,6 +455,10 @@ procedure Check_Mem is
                  & "&very_long_name_in_a_get_form=alongvalueforthistest");
 
       Request ("/multiple?par=1&par=2&par=3&par=4&par=whatever");
+
+      --  Make connection non persistent to check memory leak on session resume
+
+      AWS.Client.Set_Persistent (Connect, False);
 
       Request ("/simple?p1=8&p2=azerty%20qwerty");
       Request ("/file", "check_mem.adb");
@@ -460,6 +472,11 @@ procedure Check_Mem is
       Request ("addProc", 2, 3);
       Request ("addProc", 98, 123);
       Request ("addProc", 5, 9);
+
+      if To_String (Session) /= AWS.Client.SSL_Session_Id (Connect) then
+         Check ("!!! SSL session changed.");
+      end if;
+
       AWS.Client.Close (Connect);
    end Client;
 

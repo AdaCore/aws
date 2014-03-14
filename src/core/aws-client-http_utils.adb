@@ -83,6 +83,7 @@ package body AWS.Client.HTTP_Utils is
 
    procedure Connect (Connection : in out HTTP_Connection) is
       use type Net.Socket_Access;
+      use type Net.SSL.Session_Type;
       Connect_URL : AWS.URL.Object renames Connection.Connect_URL;
       Security    : constant Boolean := AWS.URL.Security (Connect_URL);
       Sock        : Net.Socket_Access;
@@ -104,14 +105,29 @@ package body AWS.Client.HTTP_Utils is
       if Security then
          --  This is a secure connection, set the SSL config for this socket
 
-         Net.SSL.Set_Config
-           (Net.SSL.Socket_Type (Connection.Socket.all),
-            Connection.SSL_Config);
+         Net.SSL.Socket_Type (Sock.all).Set_Config (Connection.SSL_Config);
+
+         if Connection.SSL_Session /= Net.SSL.Null_Session then
+            --  Try to reuse SSL session to speedup handshake
+
+            Net.SSL.Socket_Type (Sock.all).Set_Session_Data
+              (Connection.SSL_Session);
+         end if;
       end if;
 
       Sock.Set_Timeout (Connection.Timeouts.Connect);
 
       Sock.Connect (AWS.URL.Host (Connect_URL), AWS.URL.Port (Connect_URL));
+
+      if Security then
+         --  Save SSL session to be able to reuse it later
+
+         if Connection.SSL_Session /= Net.SSL.Null_Session then
+            Net.SSL.Free (Connection.SSL_Session);
+         end if;
+
+         Connection.SSL_Session := Net.SSL.Socket_Type (Sock.all).Session_Data;
+      end if;
 
       Connection.Opened := True;
 

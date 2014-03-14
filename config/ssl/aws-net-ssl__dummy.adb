@@ -110,6 +110,12 @@ package body AWS.Net.SSL is
       raise Program_Error with Error_Message;
    end Free;
 
+   procedure Free (Session : in out Session_Type) is
+      pragma Unreferenced (Session);
+   begin
+      null;
+   end Free;
+
    -----------------
    -- Generate_DH --
    -----------------
@@ -239,6 +245,32 @@ package body AWS.Net.SSL is
       raise Program_Error with Error_Message;
    end Send;
 
+   ------------------
+   -- Session_Data --
+   ------------------
+
+   function Session_Data (Socket : Socket_Type) return Session_Type is
+      pragma Unreferenced (Socket);
+   begin
+      return Null_Session;
+   end Session_Data;
+
+   ----------------------
+   -- Session_Id_Image --
+   ----------------------
+
+   function Session_Id_Image (Session : Session_Type) return String is
+      pragma Unreferenced (Session);
+   begin
+      return "";
+   end Session_Id_Image;
+
+   function Session_Id_Image (Socket : Socket_Type) return String is
+      pragma Unreferenced (Socket);
+   begin
+      return "";
+   end Session_Id_Image;
+
    ----------------
    -- Set_Config --
    ----------------
@@ -267,6 +299,16 @@ package body AWS.Net.SSL is
    begin
       null;
    end Set_Session_Cache_Size;
+
+   ----------------------
+   -- Set_Session_Data --
+   ----------------------
+
+   procedure Set_Session_Data
+     (Socket : in out Socket_Type; Data : Session_Type) is
+   begin
+      null;
+   end Set_Session_Data;
 
    -------------------------
    -- Set_Verify_Callback --

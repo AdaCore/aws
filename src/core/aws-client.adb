@@ -59,6 +59,15 @@ package body AWS.Client is
       return Connection.Socket.Cipher_Description;
    end Cipher_Description;
 
+   -----------------------
+   -- Clear_SSL_Session --
+   -----------------------
+
+   procedure Clear_SSL_Session (Connection : in out HTTP_Connection) is
+   begin
+      Net.SSL.Free (Connection.SSL_Session);
+   end Clear_SSL_Session;
+
    -----------
    -- Close --
    -----------
@@ -76,6 +85,8 @@ package body AWS.Client is
       end if;
 
       Utils.Unchecked_Free (Connection.Decode_Buffer);
+
+      Net.SSL.Free (Connection.SSL_Session);
    end Close;
 
    ---------------------
@@ -1007,6 +1018,16 @@ package body AWS.Client is
       AWS.Headers.Set.Debug (On);
    end Set_Debug;
 
+   --------------------
+   -- Set_Persistent --
+   --------------------
+
+   procedure Set_Persistent
+     (Connection : in out HTTP_Connection; Value : Boolean) is
+   begin
+      Connection.Persistent := Value;
+   end Set_Persistent;
+
    ------------------------------
    -- Set_Proxy_Authentication --
    ------------------------------
@@ -1116,6 +1137,15 @@ package body AWS.Client is
 
       Connection.Self.Streaming := Save_Streaming;
    end SOAP_Post;
+
+   --------------------
+   -- SSL_Session_Id --
+   --------------------
+
+   function SSL_Session_Id (Connection : HTTP_Connection) return String is
+   begin
+      return Net.SSL.Session_Id_Image (Connection.SSL_Session);
+   end SSL_Session_Id;
 
    --------------
    -- Timeouts --

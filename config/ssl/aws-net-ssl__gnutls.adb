@@ -47,6 +47,7 @@ with AWS.Net.SSL.Certificate.Impl;
 with AWS.Net.SSL.RSA_DH_Generators;
 with AWS.OS_Lib;
 with AWS.Resources;
+with AWS.Translator;
 with AWS.Utils;
 
 package body AWS.Net.SSL is
@@ -83,6 +84,9 @@ package body AWS.Net.SSL is
      with Atomic_Components;
    --  0 element for current use, 1 element for remain usage after creation new
    --  0 element.
+
+   function To_Ada
+     (Item : TSSL.gnutls_datum_t) return access Stream_Element_Array;
 
    function Copy (Item : TSSL.gnutls_datum_t) return TSSL.gnutls_datum_t;
    --  Creates gnutls_datum_t copy
@@ -451,16 +455,7 @@ package body AWS.Net.SSL is
    ----------
 
    function Copy (Item : TSSL.gnutls_datum_t) return TSSL.gnutls_datum_t is
-      use Ada.Streams;
-
-      type Array_Access is access all Stream_Element_Array
-                                        (1 .. Stream_Element_Offset
-                                                (Item.size));
-      function To_Array is
-        new Ada.Unchecked_Conversion (TSSL.a_unsigned_char_t, Array_Access);
-
       Result : TSSL.gnutls_datum_t;
-
    begin
       if Item.size = 0 then
          return Item;
@@ -468,7 +463,8 @@ package body AWS.Net.SSL is
 
       Result.data := TSSL.gnutls_malloc (C.size_t (Item.size));
       Result.size := Item.size;
-      To_Array (Result.data).all := To_Array (Item.data).all;
+      To_Ada (Result).all := To_Ada (Item).all;
+
       return Result;
    end Copy;
 
@@ -516,17 +512,13 @@ package body AWS.Net.SSL is
       data : TSSL.gnutls_datum_t) return C.int
    is
       Cfg : constant Config := To_Config (p1);
-      D : constant TSSL.gnutls_datum_t := Copy (data);
-      K : constant TSSL.gnutls_datum_t := Copy (key);
    begin
-      Cfg.Sessions.Put (K, D);
+      Cfg.Sessions.Put (key, data);
 
       return 0;
    exception
       when E : others =>
          Log_Error (Ada.Exceptions.Exception_Information (E));
-         TSSL.gnutls_free (D.data);
-         TSSL.gnutls_free (K.data);
          return 1;
    end DB_Store;
 
@@ -709,6 +701,18 @@ package body AWS.Net.SSL is
    procedure Free (Datum : in out Datum_Type) is
    begin
       Utils.Unchecked_Free (Datum.Data);
+   end Free;
+
+   procedure Free (Session : in out Session_Type) is
+      procedure Unchecked_Free is
+        new Ada.Unchecked_Deallocation (TSSL.Session_Record, Session_Type);
+   begin
+      if Session = null then
+         return;
+      end if;
+
+      TSSL.gnutls_free (Session.Data.data);
+      Unchecked_Free (Session);
    end Free;
 
    -----------------
@@ -1518,21 +1522,36 @@ package body AWS.Net.SSL is
 
       procedure Put (Key, Data : TSSL.gnutls_datum_t) is
          use Ada.Calendar;
-         Now : Time := Clock;
-         Ce  : Time_Index.Cursor;
-         OK  : Boolean;
+         E  : Session_Element;
+         Ce : Time_Index.Cursor;
+         Cm : Session_Container.Cursor := Map.Find (Key);
+         OK : Boolean;
+         K  : TSSL.gnutls_datum_t;
       begin
+         if Session_Container.Has_Element (Cm) then
+            K := Session_Container.Key (Cm);
+            E := Map (Cm);
+
+            Map.Delete (Cm);
+            DTI.Delete (E.Birth);
+            TSSL.gnutls_free (E.Datum.data);
+         else
+            K := Copy (Key);
+         end if;
+
+         E := (Copy (Data), Clock);
+
          for J in 1 .. 8 loop
-            DTI.Insert (Now, Key, Ce, OK);
+            DTI.Insert (E.Birth, K, Ce, OK);
             exit when OK;
-            Now := Now + Duration'Small;
+            E.Birth := E.Birth + Duration'Small;
          end loop;
 
          if not OK then
             raise Program_Error with "Time index entry creation";
          end if;
 
-         Map.Insert (Key, (Data, Birth => Now));
+         Map.Insert (K, E);
 
          while Natural (Map.Length) > Size loop
             Drop (DTI.First_Element);
@@ -1562,6 +1581,11 @@ package body AWS.Net.SSL is
       Check_Error_Code
         (gnutls_init (Socket.SSL'Access, GNUTLS_CLIENT), Socket);
 
+      if Socket.Sessn /= null then
+         Socket.Set_Session_Data (Socket.Sessn);
+         Socket.Sessn := null;
+      end if;
+
       Check_Error_Code
         (gnutls_credentials_set (Socket.SSL, cred => Socket.Config.ACC),
          Socket);
@@ -1574,6 +1598,49 @@ package body AWS.Net.SSL is
 
       Session_Transport (Socket);
    end Session_Client;
+
+   ------------------
+   -- Session_Data --
+   ------------------
+
+   function Session_Data (Socket : Socket_Type) return Session_Type is
+      Result : Session_Type;
+      Id  : aliased Stream_Element_Array (1 .. 64);
+      Len : aliased C.size_t := Id'Length;
+   begin
+      Check_Error_Code
+        (TSSL.gnutls_session_get_id
+           (Socket.SSL, Id'Address, Len'Unchecked_Access));
+
+      Result := new TSSL.Session_Record (Stream_Element_Count (Len));
+
+      Result.Id := Id (1 .. Stream_Element_Count (Len));
+
+      Check_Error_Code
+        (TSSL.gnutls_session_get_data2 (Socket.SSL, Result.Data'Access));
+
+      return Result;
+   end Session_Data;
+
+   ----------------------
+   -- Session_Id_Image --
+   ----------------------
+
+   function Session_Id_Image (Session : Session_Type) return String is
+   begin
+      return Translator.Base64_Encode (Session.Id);
+   end Session_Id_Image;
+
+   function Session_Id_Image (Socket : Socket_Type) return String is
+      Id  : aliased Stream_Element_Array (1 .. 64);
+      Len : aliased C.size_t := Id'Length;
+   begin
+      Check_Error_Code
+        (TSSL.gnutls_session_get_id
+           (Socket.SSL, Id'Address, Len'Unchecked_Access));
+
+      return Translator.Base64_Encode (Id (1 .. Stream_Element_Offset (Len)));
+   end Session_Id_Image;
 
    --------------------
    -- Session_Server --
@@ -1722,6 +1789,24 @@ package body AWS.Net.SSL is
       end if;
    end Set_Session_Cache_Size;
 
+   ----------------------
+   -- Set_Session_Data --
+   ----------------------
+
+   procedure Set_Session_Data
+     (Socket : in out Socket_Type; Data : Session_Type)
+   is
+      use type TSSL.gnutls_session_t;
+   begin
+      if Socket.SSL = null then
+         Socket.Sessn := Data;
+      else
+         Check_Error_Code
+           (TSSL.gnutls_session_set_data
+              (Socket.SSL, Data.Data.data, C.size_t (Data.Data.size)));
+      end if;
+   end Set_Session_Data;
+
    -------------------------
    -- Set_Verify_Callback --
    -------------------------
@@ -1840,6 +1925,22 @@ package body AWS.Net.SSL is
    begin
       RSA_DH_Generators.Start_Parameters_Generation (DH);
    end Start_Parameters_Generation;
+
+   ------------
+   -- To_Ada --
+   ------------
+
+   function To_Ada
+     (Item : TSSL.gnutls_datum_t) return access Stream_Element_Array
+   is
+      type Array_Access is access all Stream_Element_Array
+                                        (1 .. Stream_Element_Offset
+                                                (Item.size));
+      function To_Array is
+        new Ada.Unchecked_Conversion (TSSL.a_unsigned_char_t, Array_Access);
+   begin
+      return To_Array (Item.data).all'Unrestricted_Access;
+   end To_Ada;
 
    ---------------------
    -- Verify_Callback --
