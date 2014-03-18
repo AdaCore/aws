@@ -1467,6 +1467,25 @@ package SSL.Thin is
       func : gnutls_params_function)
      with Import, Convention => C;
 
+   -----------------------------
+   -- SessionTicket, RFC 5077 --
+   -----------------------------
+
+   function gnutls_session_ticket_key_generate
+     (key : access gnutls_datum_t) return C.int with Import, Convention => C;
+
+   function gnutls_session_ticket_enable_client
+     (session : gnutls_session_t) return C.int with Import, Convention => C;
+
+   function gnutls_session_ticket_enable_server
+     (session : gnutls_session_t;
+      key     : access constant gnutls_datum_t) return C.int
+     with Import, Convention => C;
+
+   function gnutls_key_generate
+     (key : access gnutls_datum_t; key_size : C.unsigned) return C.int
+     with Import, Convention => C;
+
    --------------------------------------------------------------------
    -- Tricks to support AWS.Net.SSL specification compatibility with --
    -- OpenSSL thin binding.                                          --

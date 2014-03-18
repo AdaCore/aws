@@ -137,6 +137,7 @@ package body AWS.Net.SSL is
       Certificate_Filename : String;
       Security_Mode        : Method     := SSLv23;
       Priorities           : String     := "";
+      Ticket_Support       : Boolean    := False;
       Key_Filename         : String     := "";
       Exchange_Certificate : Boolean    := False;
       Certificate_Required : Boolean    := False;
@@ -155,6 +156,7 @@ package body AWS.Net.SSL is
      (Certificate_Filename : String;
       Security_Mode        : Method     := SSLv23;
       Priorities           : String     := "";
+      Ticket_Support       : Boolean    := False;
       Key_Filename         : String     := "";
       Exchange_Certificate : Boolean    := False;
       Certificate_Required : Boolean    := False;
@@ -245,6 +247,18 @@ package body AWS.Net.SSL is
       raise Program_Error with Error_Message;
    end Send;
 
+   --------------------------
+   -- Session_Cache_Number --
+   --------------------------
+
+   function Session_Cache_Number
+     (Config : SSL.Config := Null_Config) return Natural
+   is
+      pragma Unreferenced (Config);
+   begin
+      return 0;
+   end Session_Cache_Number;
+
    ------------------
    -- Session_Data --
    ------------------
@@ -270,6 +284,16 @@ package body AWS.Net.SSL is
    begin
       return "";
    end Session_Id_Image;
+
+   --------------------
+   -- Session_Reused --
+   --------------------
+
+   function Session_Reused (Socket : Socket_Type) return Boolean is
+      pragma Unreferenced (Socket);
+   begin
+      return False;
+   end Session_Reused;
 
    ----------------
    -- Set_Config --

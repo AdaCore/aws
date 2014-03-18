@@ -707,6 +707,15 @@ package body AWS.Config is
       return To_String (O.P (Status_Page).Str_Value);
    end Status_Page;
 
+   ------------------------
+   -- TLS_Ticket_Support --
+   ------------------------
+
+   function TLS_Ticket_Support (O : Object) return Boolean is
+   begin
+      return O.P (TLS_Ticket_Support).Bool_Value;
+   end TLS_Ticket_Support;
+
    --------------------------------
    -- Transient_Cleanup_Interval --
    --------------------------------

@@ -377,7 +377,7 @@ package body AWS.Net.Std is
    overriding function Get_FD (Socket : Socket_Type) return Integer is
    begin
       if Socket.S = null then
-         return Sockets.To_C (Sockets.No_Socket);
+         return No_Socket;
       else
          return Sockets.To_C (Socket.S.FD);
       end if;
@@ -792,4 +792,13 @@ package body AWS.Net.Std is
       end if;
    end Shutdown;
 
+begin
+   --  We need No_Socket Integer value for SSL implementation but we could not
+   --  use GNAT.Sockets in AWS.Net spec. So we check here to be sure that we
+   --  use right value.
+
+   if No_Socket /= Sockets.To_C (Sockets.No_Socket) then
+      raise Program_Error with "No_Socket have to be "
+            & Integer'Image (Sockets.To_C (Sockets.No_Socket));
+   end if;
 end AWS.Net.Std;

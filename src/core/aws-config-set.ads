@@ -303,6 +303,10 @@ package AWS.Config.Set is
    --  GNUTLS and OpenSSL implementations has different sintax for this
    --  parameter.
 
+   procedure TLS_Ticket_Support (O : in out Object; Value : Boolean);
+   --  Set to True for security communication side support stateless TLS
+   --  session resumption. See RFC 5077.
+
    procedure Exchange_Certificate (O : in out Object; Value : Boolean);
    --  Set to True to request the client to send its certificate to the server
 

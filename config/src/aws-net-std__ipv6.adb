@@ -42,8 +42,7 @@ package body AWS.Net.Std is
 
    use Interfaces;
 
-   No_Socket : constant C.int := C.int (-1);
-   Failure   : constant C.int := C.int (-1);
+   Failure : constant C.int := C.int (-1);
 
    type Unsigned_Lock is mod 2**8;
    pragma Atomic (Unsigned_Lock);
@@ -417,7 +416,7 @@ package body AWS.Net.Std is
    overriding function Get_FD (Socket : Socket_Type) return Integer is
    begin
       if Socket.S = null then
-         return Integer (No_Socket);
+         return No_Socket;
       else
          return Integer (Socket.S.FD);
       end if;

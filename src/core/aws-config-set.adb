@@ -621,6 +621,15 @@ package body AWS.Config.Set is
       O.P (Status_Page).Str_Value := To_Unbounded_String (Value);
    end Status_Page;
 
+   ------------------------
+   -- TLS_Ticket_Support --
+   ------------------------
+
+   procedure TLS_Ticket_Support (O : in out Object; Value : Boolean) is
+   begin
+      O.P (TLS_Ticket_Support).Bool_Value := Value;
+   end TLS_Ticket_Support;
+
    --------------------------------
    -- Transient_Cleanup_Interval --
    --------------------------------

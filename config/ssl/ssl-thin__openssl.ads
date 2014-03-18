@@ -133,18 +133,28 @@ package SSL.Thin is
    subtype Error_Code is unsigned_long;
 
    SSL_FILETYPE_PEM                  : constant := 1;
+
    SSL_CTRL_NEED_TMP_RSA             : constant := 1;
    SSL_CTRL_SET_TMP_RSA              : constant := 2;
    SSL_CTRL_SET_TMP_DH               : constant := 3;
-   SSL_CTRL_SET_TMP_RSA_CB           : constant := 4;
-   SSL_CTRL_SET_TMP_DH_CB            : constant := 5;
-   SSL_CTRL_GET_SESSION_REUSED       : constant := 6;
-   SSL_CTRL_GET_CLIENT_CERT_REQUEST  : constant := 7;
-   SSL_CTRL_GET_NUM_RENEGOTIATIONS   : constant := 8;
-   SSL_CTRL_CLEAR_NUM_RENEGOTIATIONS : constant := 9;
-   SSL_CTRL_GET_TOTAL_RENEGOTIATIONS : constant := 10;
-   SSL_CTRL_GET_FLAGS                : constant := 11;
-   SSL_CTRL_EXTRA_CHAIN_CERT         : constant := 12;
+   SSL_CTRL_SET_TMP_ECDH             : constant := 4;
+   SSL_CTRL_SET_TMP_RSA_CB           : constant := 5;
+   SSL_CTRL_SET_TMP_DH_CB            : constant := 6;
+   SSL_CTRL_SET_TMP_ECDH_CB          : constant := 7;
+
+   SSL_CTRL_GET_SESSION_REUSED       : constant := 8;
+   SSL_CTRL_GET_CLIENT_CERT_REQUEST  : constant := 9;
+   SSL_CTRL_GET_NUM_RENEGOTIATIONS   : constant := 10;
+   SSL_CTRL_CLEAR_NUM_RENEGOTIATIONS : constant := 11;
+   SSL_CTRL_GET_TOTAL_RENEGOTIATIONS : constant := 12;
+   SSL_CTRL_GET_FLAGS                : constant := 13;
+   SSL_CTRL_EXTRA_CHAIN_CERT         : constant := 14;
+
+   SSL_CTRL_SET_MSG_CALLBACK         : constant := 15;
+   SSL_CTRL_SET_MSG_CALLBACK_ARG     : constant := 16;
+
+   SSL_CTRL_SET_MTU                  : constant := 17;
+
    SSL_CTRL_SESS_NUMBER              : constant := 20;
    SSL_CTRL_SESS_CONNECT             : constant := 21;
    SSL_CTRL_SESS_CONNECT_GOOD        : constant := 22;
@@ -165,6 +175,58 @@ package SSL.Thin is
    SSL_CTRL_GET_SESS_CACHE_SIZE      : constant := 43;
    SSL_CTRL_SET_SESS_CACHE_MODE      : constant := 44;
    SSL_CTRL_GET_SESS_CACHE_MODE      : constant := 45;
+
+   SSL_CTRL_GET_MAX_CERT_LIST        : constant := 50;
+   SSL_CTRL_SET_MAX_CERT_LIST        : constant := 51;
+
+   SSL_CTRL_SET_MAX_SEND_FRAGMENT    : constant := 52;
+
+   SSL_CTRL_SET_TLSEXT_SERVERNAME_CB           : constant := 53;
+   SSL_CTRL_SET_TLSEXT_SERVERNAME_ARG          : constant := 54;
+   SSL_CTRL_SET_TLSEXT_HOSTNAME                : constant := 55;
+   SSL_CTRL_SET_TLSEXT_DEBUG_CB                : constant := 56;
+   SSL_CTRL_SET_TLSEXT_DEBUG_ARG               : constant := 57;
+   SSL_CTRL_GET_TLSEXT_TICKET_KEYS             : constant := 58;
+   SSL_CTRL_SET_TLSEXT_TICKET_KEYS             : constant := 59;
+   SSL_CTRL_SET_TLSEXT_OPAQUE_PRF_INPUT        : constant := 60;
+   SSL_CTRL_SET_TLSEXT_OPAQUE_PRF_INPUT_CB     : constant := 61;
+   SSL_CTRL_SET_TLSEXT_OPAQUE_PRF_INPUT_CB_ARG : constant := 62;
+   SSL_CTRL_SET_TLSEXT_STATUS_REQ_CB           : constant := 63;
+   SSL_CTRL_SET_TLSEXT_STATUS_REQ_CB_ARG       : constant := 64;
+   SSL_CTRL_SET_TLSEXT_STATUS_REQ_TYPE         : constant := 65;
+   SSL_CTRL_GET_TLSEXT_STATUS_REQ_EXTS         : constant := 66;
+   SSL_CTRL_SET_TLSEXT_STATUS_REQ_EXTS         : constant := 67;
+   SSL_CTRL_GET_TLSEXT_STATUS_REQ_IDS          : constant := 68;
+   SSL_CTRL_SET_TLSEXT_STATUS_REQ_IDS          : constant := 69;
+   SSL_CTRL_GET_TLSEXT_STATUS_REQ_OCSP_RESP    : constant := 70;
+   SSL_CTRL_SET_TLSEXT_STATUS_REQ_OCSP_RESP    : constant := 71;
+
+   SSL_CTRL_SET_TLSEXT_TICKET_KEY_CB    : constant := 72;
+
+   SSL_CTRL_SET_TLS_EXT_SRP_USERNAME_CB : constant := 75;
+   SSL_CTRL_SET_SRP_VERIFY_PARAM_CB     : constant := 76;
+   SSL_CTRL_SET_SRP_GIVE_CLIENT_PWD_CB  : constant := 77;
+
+   SSL_CTRL_SET_SRP_ARG              : constant := 78;
+   SSL_CTRL_SET_TLS_EXT_SRP_USERNAME : constant := 79;
+   SSL_CTRL_SET_TLS_EXT_SRP_STRENGTH : constant := 80;
+   SSL_CTRL_SET_TLS_EXT_SRP_PASSWORD : constant := 81;
+
+   SSL_CTRL_TLS_EXT_SEND_HEARTBEAT            : constant := 85;
+   SSL_CTRL_GET_TLS_EXT_HEARTBEAT_PENDING     : constant := 86;
+   SSL_CTRL_SET_TLS_EXT_HEARTBEAT_NO_REQUESTS : constant := 87;
+
+   DTLS_CTRL_GET_TIMEOUT             : constant := 73;
+   DTLS_CTRL_HANDLE_TIMEOUT          : constant := 74;
+   DTLS_CTRL_LISTEN                  : constant := 75;
+
+   SSL_CTRL_GET_RI_SUPPORT           : constant := 76;
+   SSL_CTRL_CLEAR_OPTIONS            : constant := 77;
+   SSL_CTRL_CLEAR_MODE               : constant := 78;
+
+   SSL_CTRL_GET_EXTRA_CHAIN_CERTS    : constant := 82;
+   SSL_CTRL_CLEAR_EXTRA_CHAIN_CERTS  : constant := 83;
+
    SSL_SENT_SHUTDOWN                 : constant := 1;
    SSL_RECEIVED_SHUTDOWN             : constant := 2;
 
@@ -556,7 +618,7 @@ package SSL.Thin is
      with Import, Convention => C, Link_Name => "SSL_CTX_set_quiet_shutdown";
 
    function SSL_CTX_ctrl
-     (Ctx  : SSL_CTX; Cmd : int; Larg : int; Parg : Pointer) return int
+     (Ctx : SSL_CTX; Cmd : int; Larg : int; Parg : Pointer) return int
      with Import, Convention => C, Link_Name => "SSL_CTX_ctrl";
 
    -------------------------------------
@@ -608,6 +670,10 @@ package SSL.Thin is
 
    function SSL_clear (SSL : SSL_Handle) return int
      with Import, Convention => C, Link_Name => "SSL_clear";
+
+   function SSL_ctrl
+     (SSL : SSL_Handle; Cmd : int; Larg : int; Parg : Pointer) return long
+     with Import, Convention => C, Link_Name => "SSL_ctrl";
 
    function SSL_set_fd (S : SSL_Handle; Fd : int) return int
      with Import, Convention => C, Link_Name => "SSL_set_fd";

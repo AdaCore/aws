@@ -313,6 +313,10 @@ package AWS.Config is
    function Cipher_Priorities (O : Object) return String with Inline;
    --  Returns the cipher priorities for the security communication
 
+   function TLS_Ticket_Support (O : Object) return Boolean with Inline;
+   --  Is security communication side has support stateless TLS session
+   --  resumption. See RFC 5077.
+
    function Exchange_Certificate (O : Object) return Boolean with Inline;
    --  Returns True if the client is requested to send its certificate to the
    --  server. Note that this option must not be used if the client is a Web
@@ -419,6 +423,7 @@ private
       Key,
       Security_Mode,
       Cipher_Priorities,
+      TLS_Ticket_Support,
       Exchange_Certificate,
       Certificate_Required,
       Trusted_CA,
@@ -660,6 +665,9 @@ private
 
          Cipher_Priorities =>
            (Str, To_Unbounded_String (Default.Cipher_Priorities)),
+
+         TLS_Ticket_Support =>
+           (Bool, Default.TLS_Ticket_Support),
 
          Exchange_Certificate =>
            (Bool, Default.Exchange_Certificate),

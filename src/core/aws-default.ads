@@ -148,6 +148,7 @@ package AWS.Default with Pure is
    Security_Mode                   : constant String  := "SSLv23";
    Config_Directory                : constant String  := ".config/ada-web-srv";
    Cipher_Priorities               : constant String  := "";
+   TLS_Ticket_Support              : constant Boolean := False;
    Certificate                     : constant String  := "cert.pem";
    Key                             : constant String  := "";
    Client_Certificate              : constant String  := "";

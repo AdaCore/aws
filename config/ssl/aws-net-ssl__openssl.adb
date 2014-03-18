@@ -89,6 +89,7 @@ package body AWS.Net.SSL is
         (Certificate_Filename : String;
          Security_Mode        : Method;
          Priorities           : String;
+         Ticket_Support       : Boolean;
          Key_Filename         : String;
          Exchange_Certificate : Boolean;
          Certificate_Required : Boolean;
@@ -101,6 +102,8 @@ package body AWS.Net.SSL is
       procedure Clear_Session_Cache;
 
       procedure Set_Session_Cache_Size (Size : Natural);
+
+      function Session_Cache_Number return Natural;
 
       procedure Set_Verify_Callback (Callback : System.Address);
 
@@ -650,6 +653,7 @@ package body AWS.Net.SSL is
       Certificate_Filename : String;
       Security_Mode        : Method     := SSLv23;
       Priorities           : String     := "";
+      Ticket_Support       : Boolean    := False;
       Key_Filename         : String     := "";
       Exchange_Certificate : Boolean    := False;
       Certificate_Required : Boolean    := False;
@@ -662,8 +666,8 @@ package body AWS.Net.SSL is
       end if;
 
       Config.Initialize
-        (Certificate_Filename, Security_Mode, Priorities, Key_Filename,
-         Exchange_Certificate, Certificate_Required,
+        (Certificate_Filename, Security_Mode, Priorities, Ticket_Support,
+         Key_Filename, Exchange_Certificate, Certificate_Required,
          Trusted_CA_Filename, CRL_Filename, Session_Cache_Size);
    end Initialize;
 
@@ -675,6 +679,7 @@ package body AWS.Net.SSL is
      (Certificate_Filename : String;
       Security_Mode        : Method   := SSLv23;
       Priorities           : String   := "";
+      Ticket_Support       : Boolean  := False;
       Key_Filename         : String   := "";
       Exchange_Certificate : Boolean  := False;
       Certificate_Required : Boolean  := False;
@@ -683,9 +688,9 @@ package body AWS.Net.SSL is
       Session_Cache_Size   : Positive := 16#4000#) is
    begin
       Default_Config.Initialize
-        (Certificate_Filename, Security_Mode, Priorities, Key_Filename,
-         Exchange_Certificate, Certificate_Required, Trusted_CA_Filename,
-         CRL_Filename, Session_Cache_Size);
+        (Certificate_Filename, Security_Mode, Priorities, Ticket_Support,
+         Key_Filename, Exchange_Certificate, Certificate_Required,
+         Trusted_CA_Filename, CRL_Filename, Session_Cache_Size);
    end Initialize_Default_Config;
 
    procedure Initialize_Default_Config is
@@ -696,6 +701,7 @@ package body AWS.Net.SSL is
         (Certificate_Filename => CNF.Certificate (Default),
          Security_Mode        => Method'Value (CNF.Security_Mode (Default)),
          Priorities           => CNF.Cipher_Priorities (Default),
+         Ticket_Support       => CNF.TLS_Ticket_Support (Default),
          Key_Filename         => CNF.Key (Default),
          Exchange_Certificate => CNF.Exchange_Certificate (Default),
          Certificate_Required => CNF.Certificate_Required (Default),
@@ -955,6 +961,19 @@ package body AWS.Net.SSL is
       end loop;
    end Send;
 
+   --------------------------
+   -- Session_Cache_Number --
+   --------------------------
+
+   function Session_Cache_Number
+     (Config : SSL.Config := Null_Config) return Natural
+   is
+      Cfg : constant SSL.Config :=
+        (if Config = Null_Config then Default_Config else Config);
+   begin
+      return Cfg.Session_Cache_Number;
+   end Session_Cache_Number;
+
    ------------------
    -- Session_Data --
    ------------------
@@ -996,6 +1015,26 @@ package body AWS.Net.SSL is
                (Session_Type (TSSL.SSL_get_session (Socket.SSL)));
    end Session_Id_Image;
 
+   --------------------
+   -- Session_Reused --
+   --------------------
+
+   function Session_Reused (Socket : Socket_Type) return Boolean is
+      use TSSL;
+      use type C.long;
+      Rc : constant C.long :=
+             SSL_ctrl -- SSL_session_reused is macro in OpenSSL sources
+               (Socket.SSL, SSL_CTRL_GET_SESSION_REUSED, 0, Null_Pointer);
+   begin
+      if Rc = 0 then
+         return False;
+      end if;
+
+      Error_If (Socket, Rc /= 1);
+
+      return True;
+   end Session_Reused;
+
    ----------------------
    -- Set_Accept_State --
    ----------------------
@@ -1015,12 +1054,12 @@ package body AWS.Net.SSL is
       else
          if RSA_Params (0) /= TSSL.Null_Pointer then
             TSSL.SSL_set_tmp_rsa_callback
-            (SSL => Socket.SSL, RSA_CB => Tmp_RSA_Callback'Access);
+              (SSL => Socket.SSL, RSA_CB => Tmp_RSA_Callback'Access);
          end if;
 
          if DH_Params (0) /= TSSL.Null_Pointer then
             TSSL.SSL_set_tmp_dh_callback
-            (SSL => Socket.SSL, DH_CB => Tmp_DH_Callback'Access);
+              (SSL => Socket.SSL, DH_CB => Tmp_DH_Callback'Access);
          end if;
       end if;
    end Set_Accept_State;
@@ -1066,7 +1105,7 @@ package body AWS.Net.SSL is
    procedure Set_Session_Data
      (Socket : in out Socket_Type; Data : Session_Type) is
    begin
-      if Socket.SSL = TSSL.Null_Pointer then
+      if Socket.SSL = TSSL.Null_Pointer or else Socket.Get_FD = No_Socket then
          Socket.Sessn := Data;
       else
          Error_If
@@ -1617,6 +1656,7 @@ package body AWS.Net.SSL is
         (Certificate_Filename : String;
          Security_Mode        : Method;
          Priorities           : String;
+         Ticket_Support       : Boolean;
          Key_Filename         : String;
          Exchange_Certificate : Boolean;
          Certificate_Required : Boolean;
@@ -1754,17 +1794,14 @@ package body AWS.Net.SSL is
             Context := TSSL.SSL_CTX_new (Methods (Security_Mode).all);
             Error_If (Context = TSSL.Null_Pointer);
 
-            --  Disable session ticket support because OpenSSL does not show
-            --  right session id on server side in this mode, detected in
-            --  0033_afile_sec regtest. Will implement control under ticket
-            --  mode later.
-
-            Error_If
-              (TSSL.SSL_CTX_ctrl
-                 (Ctx  => Context,
-                  Cmd  => TSSL.SSL_CTRL_OPTIONS,
-                  Larg => TSSL.SSL_OP_NO_TICKET,
-                  Parg => TSSL.Null_Pointer) = 0);
+            if not Ticket_Support then
+               Error_If
+                 (TSSL.SSL_CTX_ctrl
+                    (Ctx  => Context,
+                     Cmd  => TSSL.SSL_CTRL_OPTIONS,
+                     Larg => TSSL.SSL_OP_NO_TICKET,
+                     Parg => TSSL.Null_Pointer) = 0);
+            end if;
 
             Error_If
               (TSSL.SSL_CTX_ctrl
@@ -1805,6 +1842,17 @@ package body AWS.Net.SSL is
             TS_SSL.Set_Session_Cache_Size (Session_Cache_Size);
          end if;
       end Initialize;
+
+      --------------------------
+      -- Session_Cache_Number --
+      --------------------------
+
+      function Session_Cache_Number return Natural is
+         use TSSL;
+      begin
+         return Natural (SSL_CTX_ctrl
+                           (Context, SSL_CTRL_SESS_NUMBER, 0, Null_Pointer));
+      end Session_Cache_Number;
 
       ------------
       -- Set_IO --

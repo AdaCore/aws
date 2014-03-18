@@ -405,6 +405,8 @@ private
 
    Forever : constant Duration := Duration'Last;
 
+   No_Socket : constant := -1;
+
    Peer_Closed_Message : constant String := "Receive : Socket closed by peer";
 
    function Get_Socket_Errno (E : Exception_Occurrence) return Natural;

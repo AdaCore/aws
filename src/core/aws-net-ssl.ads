@@ -120,6 +120,7 @@ package AWS.Net.SSL is
       Certificate_Filename : String;
       Security_Mode        : Method     := SSLv23;
       Priorities           : String     := "";
+      Ticket_Support       : Boolean    := False;
       Key_Filename         : String     := "";
       Exchange_Certificate : Boolean    := False;
       Certificate_Required : Boolean    := False;
@@ -138,6 +139,7 @@ package AWS.Net.SSL is
      (Certificate_Filename : String;
       Security_Mode        : Method     := SSLv23;
       Priorities           : String     := "";
+      Ticket_Support       : Boolean    := False;
       Key_Filename         : String     := "";
       Exchange_Certificate : Boolean    := False;
       Certificate_Required : Boolean    := False;
@@ -189,6 +191,11 @@ package AWS.Net.SSL is
    --  Set session cache size in the SSL context.
    --  Null_Config mean default context.
 
+   function Session_Cache_Number
+     (Config : SSL.Config := Null_Config) return Natural;
+   --  Returns number of sessions currently in the cache.
+   --  Null_Config mean default context.
+
    overriding function Cipher_Description (Socket : Socket_Type) return String;
 
    procedure Ciphers (Cipher : access procedure (Name : String));
@@ -234,6 +241,10 @@ package AWS.Net.SSL is
      (Socket : in out Socket_Type; Data : Session_Type);
    --  For the client side SSL socket try to resume session from data taken
    --  from previosly connected socket by Session_Data routine.
+
+   function Session_Reused (Socket : Socket_Type) return Boolean;
+   --  Returns True in case session was successfully reused after
+   --  Set_Session_Data and handshake.
 
 private
 

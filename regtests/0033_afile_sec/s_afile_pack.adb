@@ -60,7 +60,7 @@ package body S_AFile_Pack is
       URI  : constant String := Status.URI (Request);
       Sock : Net.Socket_Access := Status.Socket (Request);
 
-      function Same_Session return Boolean;
+      procedure Same_Session (Condition : Boolean);
 
       function Same_Socket return Boolean;
 
@@ -68,14 +68,22 @@ package body S_AFile_Pack is
       -- Same_Session --
       ------------------
 
-      function Same_Session return Boolean is
+      procedure Same_Session (Condition : Boolean) is
          Sessn  : constant String :=
                     Net.SSL.Session_Id_Image (Net.SSL.Socket_Type (Sock.all));
          Result : constant Boolean := ASU.To_String (Session) = Sessn;
       begin
-         Session := ASU.To_Unbounded_String (Sessn);
+         if (ASU.To_String (Session) = Sessn) /= Condition then
+            if Condition then
+               Text_IO.Put_Line
+                 ("Unexpected session differ " & ASU.To_String (Session)
+                  & ' ' & Sessn);
+            else
+               Text_IO.Put_Line ("Unexpected same session");
+            end if;
+         end if;
 
-         return Result;
+         Session := ASU.To_Unbounded_String (Sessn);
       end Same_Session;
 
       -----------------
@@ -110,9 +118,7 @@ package body S_AFile_Pack is
             Text_IO.Put_Line ("Unexpected change socket");
          end if;
 
-         if not Same_Session then
-            Text_IO.Put_Line ("Unexpected session differ");
-         end if;
+         Same_Session (True);
 
          return Response.File
            (MIME.Application_Octet_Stream, FN,
@@ -123,9 +129,7 @@ package body S_AFile_Pack is
             Text_IO.Put_Line ("Unexpected same socket");
          end if;
 
-         if Same_Session then
-            Text_IO.Put_Line ("Unexpected same session");
-         end if;
+         Same_Session (False);
 
          return Response.File
            (MIME.Application_Octet_Stream, FN,
@@ -137,9 +141,7 @@ package body S_AFile_Pack is
             Text_IO.Put_Line ("Unexpected same socket");
          end if;
 
-         if not Same_Session then
-            Text_IO.Put_Line ("Unexpected session differ");
-         end if;
+         Same_Session (True);
 
          return Response.File
            (MIME.Application_Octet_Stream, FN,
@@ -151,9 +153,7 @@ package body S_AFile_Pack is
             Text_IO.Put_Line ("Unexpected same socket");
          end if;
 
-         if Same_Session then
-            Text_IO.Put_Line ("Unexpected same session");
-         end if;
+         Same_Session (False);
 
          Strm :=  new Resources.Streams.Disk.Stream_Type;
          Resources.Streams.Disk.Open
@@ -167,9 +167,7 @@ package body S_AFile_Pack is
             Text_IO.Put_Line ("Unexpected same socket");
          end if;
 
-         if not Same_Session then
-            Text_IO.Put_Line ("Unexpected session differ");
-         end if;
+         Same_Session (True);
 
          Strm :=  new Resources.Streams.Disk.Stream_Type;
          Resources.Streams.Disk.Open
@@ -183,9 +181,7 @@ package body S_AFile_Pack is
             Text_IO.Put_Line ("Unexpected same socket");
          end if;
 
-         if not Same_Session then
-            Text_IO.Put_Line ("Unexpected session differ");
-         end if;
+         Same_Session (True);
 
          Strm :=  new Resources.Streams.Disk.Stream_Type;
          Resources.Streams.Disk.Open
@@ -199,9 +195,7 @@ package body S_AFile_Pack is
             Text_IO.Put_Line ("Unexpected same socket");
          end if;
 
-         if not Same_Session then
-            Text_IO.Put_Line ("Unexpected session differ");
-         end if;
+         Same_Session (True);
 
          Strm :=  new Resources.Streams.Disk.Stream_Type;
          Resources.Streams.Disk.Open
@@ -216,9 +210,7 @@ package body S_AFile_Pack is
             Text_IO.Put_Line ("Unexpected same socket");
          end if;
 
-         if not Same_Session then
-            Text_IO.Put_Line ("Unexpected session differ");
-         end if;
+         Same_Session (True);
 
          return Response.File (MIME.Application_Octet_Stream, FN);
 
@@ -227,9 +219,7 @@ package body S_AFile_Pack is
             Text_IO.Put_Line ("Unexpected same socket");
          end if;
 
-         if not Same_Session then
-            Text_IO.Put_Line ("Unexpected session differ");
-         end if;
+         Same_Session (True);
 
          Strm :=  new Resources.Streams.Disk.Stream_Type;
          Resources.Streams.Disk.Open

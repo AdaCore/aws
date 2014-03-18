@@ -85,9 +85,6 @@ package body AWS.Net.SSL is
    --  0 element for current use, 1 element for remain usage after creation new
    --  0 element.
 
-   function To_Ada
-     (Item : TSSL.gnutls_datum_t) return access Stream_Element_Array;
-
    function Copy (Item : TSSL.gnutls_datum_t) return TSSL.gnutls_datum_t;
    --  Creates gnutls_datum_t copy
 
@@ -185,6 +182,10 @@ package body AWS.Net.SSL is
    protected type Session_Cache is
 
       procedure Set_Size (Size : Natural);
+      --  Set the maximum cache size
+
+      function Length return Natural;
+      --  Returns number of sessions currently in cache
 
       procedure Put (Key, Data : TSSL.gnutls_datum_t);
 
@@ -208,6 +209,8 @@ package body AWS.Net.SSL is
       PCert_List     : PCert_Array_Access;
       TLS_PK         : aliased TSSL.gnutls_privkey_t;
       Priority_Cache : aliased TSSL.gnutls_priority_t;
+      Ticket_Support : Boolean;
+      Ticket_Key     : aliased TSSL.gnutls_datum_t := (System.Null_Address, 0);
       Sessions       : Session_Cache;
       RCC            : Boolean := False; -- Request client certificate
       CREQ           : Boolean := False; -- Certificate is required
@@ -220,14 +223,15 @@ package body AWS.Net.SSL is
    procedure Initialize
      (Config               : in out TS_SSL;
       Certificate_Filename : String;
-      Security_Mode        : Method   := SSLv23;
-      Priorities           : String   := "";
-      Key_Filename         : String   := "";
-      Exchange_Certificate : Boolean  := False;
-      Certificate_Required : Boolean  := False;
-      Trusted_CA_Filename  : String   := "";
-      CRL_Filename         : String   := "";
-      Session_Cache_Size   : Positive := 16#4000#);
+      Security_Mode        : Method;
+      Priorities           : String;
+      Ticket_Support       : Boolean;
+      Key_Filename         : String;
+      Exchange_Certificate : Boolean;
+      Certificate_Required : Boolean;
+      Trusted_CA_Filename  : String;
+      CRL_Filename         : String;
+      Session_Cache_Size   : Positive);
 
    procedure Session_Client (Socket : in out Socket_Type);
    procedure Session_Server (Socket : in out Socket_Type);
@@ -249,14 +253,15 @@ package body AWS.Net.SSL is
 
       procedure Initialize
         (Certificate_Filename : String;
-         Security_Mode        : Method   := SSLv23;
-         Priorities           : String   := "";
-         Key_Filename         : String   := "";
-         Exchange_Certificate : Boolean  := False;
-         Certificate_Required : Boolean  := False;
-         Trusted_CA_Filename  : String   := "";
-         CRL_Filename         : String   := "";
-         Session_Cache_Size   : Positive := 16#4000#);
+         Security_Mode        : Method;
+         Priorities           : String;
+         Ticket_Support       : Boolean;
+         Key_Filename         : String;
+         Exchange_Certificate : Boolean;
+         Certificate_Required : Boolean;
+         Trusted_CA_Filename  : String;
+         CRL_Filename         : String;
+         Session_Cache_Size   : Positive);
 
    private
       Done : Boolean := False;
@@ -456,6 +461,13 @@ package body AWS.Net.SSL is
 
    function Copy (Item : TSSL.gnutls_datum_t) return TSSL.gnutls_datum_t is
       Result : TSSL.gnutls_datum_t;
+
+      type Array_Access is access all Stream_Element_Array
+                                        (1 .. Stream_Element_Offset
+                                                (Item.size));
+      function To_Array is
+        new Ada.Unchecked_Conversion (TSSL.a_unsigned_char_t, Array_Access);
+
    begin
       if Item.size = 0 then
          return Item;
@@ -463,7 +475,7 @@ package body AWS.Net.SSL is
 
       Result.data := TSSL.gnutls_malloc (C.size_t (Item.size));
       Result.size := Item.size;
-      To_Ada (Result).all := To_Ada (Item).all;
+      To_Array (Result.data).all := To_Array (Item.data).all;
 
       return Result;
    end Copy;
@@ -542,6 +554,8 @@ package body AWS.Net.SSL is
                Certificate_Filename => CNF.Certificate (Default),
                Security_Mode        => Method'Value
                                          (CNF.Security_Mode (Default)),
+               Priorities           => CNF.Cipher_Priorities (Default),
+               Ticket_Support       => CNF.TLS_Ticket_Support (Default),
                Key_Filename         => CNF.Key (Default),
                Exchange_Certificate => CNF.Exchange_Certificate (Default),
                Certificate_Required => CNF.Certificate_Required (Default),
@@ -558,21 +572,23 @@ package body AWS.Net.SSL is
 
       procedure Initialize
         (Certificate_Filename : String;
-         Security_Mode        : Method   := SSLv23;
-         Priorities           : String   := "";
-         Key_Filename         : String   := "";
-         Exchange_Certificate : Boolean  := False;
-         Certificate_Required : Boolean  := False;
-         Trusted_CA_Filename  : String   := "";
-         CRL_Filename         : String   := "";
-         Session_Cache_Size   : Positive := 16#4000#) is
+         Security_Mode        : Method;
+         Priorities           : String;
+         Ticket_Support       : Boolean;
+         Key_Filename         : String;
+         Exchange_Certificate : Boolean;
+         Certificate_Required : Boolean;
+         Trusted_CA_Filename  : String;
+         CRL_Filename         : String;
+         Session_Cache_Size   : Positive) is
       begin
          if not Done then
             Initialize
               (Default_Config,
                Certificate_Filename,  Security_Mode, Priorities,
-               Key_Filename, Exchange_Certificate, Certificate_Required,
-               Trusted_CA_Filename, CRL_Filename, Session_Cache_Size);
+               Ticket_Support, Key_Filename, Exchange_Certificate,
+               Certificate_Required, Trusted_CA_Filename, CRL_Filename,
+               Session_Cache_Size);
             Done := True;
          end if;
       end Initialize;
@@ -676,6 +692,9 @@ package body AWS.Net.SSL is
          TSSL.gnutls_priority_deinit (Config.Priority_Cache);
          Config.Priority_Cache := null;
       end if;
+
+      TSSL.gnutls_free (Config.Ticket_Key.data);
+      Config.Ticket_Key.data := System.Null_Address;
 
       Config.Sessions.Clear;
    end Finalize;
@@ -866,6 +885,7 @@ package body AWS.Net.SSL is
       Certificate_Filename : String;
       Security_Mode        : Method     := SSLv23;
       Priorities           : String     := "";
+      Ticket_Support       : Boolean    := False;
       Key_Filename         : String     := "";
       Exchange_Certificate : Boolean    := False;
       Certificate_Required : Boolean    := False;
@@ -882,6 +902,7 @@ package body AWS.Net.SSL is
          Certificate_Filename => Certificate_Filename,
          Security_Mode        => Security_Mode,
          Priorities           => Priorities,
+         Ticket_Support       => Ticket_Support,
          Key_Filename         => Key_Filename,
          Exchange_Certificate => Exchange_Certificate,
          Certificate_Required => Certificate_Required,
@@ -893,14 +914,15 @@ package body AWS.Net.SSL is
    procedure Initialize
      (Config               : in out TS_SSL;
       Certificate_Filename : String;
-      Security_Mode        : Method     := SSLv23;
-      Priorities           : String     := "";
-      Key_Filename         : String     := "";
-      Exchange_Certificate : Boolean    := False;
-      Certificate_Required : Boolean    := False;
-      Trusted_CA_Filename  : String     := "";
-      CRL_Filename         : String     := "";
-      Session_Cache_Size   : Positive   := 16#4000#)
+      Security_Mode        : Method;
+      Priorities           : String;
+      Ticket_Support       : Boolean;
+      Key_Filename         : String;
+      Exchange_Certificate : Boolean;
+      Certificate_Required : Boolean;
+      Trusted_CA_Filename  : String;
+      CRL_Filename         : String;
+      Session_Cache_Size   : Positive)
    is
       use type TSSL.gnutls_anon_client_credentials_t;
       use type TSSL.gnutls_anon_server_credentials_t;
@@ -1031,6 +1053,7 @@ package body AWS.Net.SSL is
 
    begin -- Initialize
       Config.Sessions.Set_Size (Session_Cache_Size);
+      Config.Ticket_Support := Ticket_Support;
 
       if Certificate_Filename /= "" then
          Check_File ("Certificate", Certificate_Filename);
@@ -1081,6 +1104,12 @@ package body AWS.Net.SSL is
 
             TSSL.gnutls_certificate_set_params_function
               (Config.CSC, Params_Callback'Access);
+         end if;
+
+         if Ticket_Support then
+            Check_Error_Code
+              (TSSL.gnutls_session_ticket_key_generate
+                 (Config.Ticket_Key'Access));
          end if;
       end if;
 
@@ -1142,6 +1171,7 @@ package body AWS.Net.SSL is
      (Certificate_Filename : String;
       Security_Mode        : Method   := SSLv23;
       Priorities           : String   := "";
+      Ticket_Support       : Boolean  := False;
       Key_Filename         : String   := "";
       Exchange_Certificate : Boolean  := False;
       Certificate_Required : Boolean  := False;
@@ -1150,9 +1180,9 @@ package body AWS.Net.SSL is
       Session_Cache_Size   : Positive := 16#4000#) is
    begin
       Default_Config_Sync.Initialize
-        (Certificate_Filename, Security_Mode, Priorities, Key_Filename,
-         Exchange_Certificate, Certificate_Required, Trusted_CA_Filename,
-         CRL_Filename, Session_Cache_Size);
+        (Certificate_Filename, Security_Mode, Priorities, Ticket_Support,
+         Key_Filename, Exchange_Certificate, Certificate_Required,
+         Trusted_CA_Filename, CRL_Filename, Session_Cache_Size);
    end Initialize_Default_Config;
 
    procedure Initialize_Default_Config is
@@ -1516,6 +1546,15 @@ package body AWS.Net.SSL is
          end if;
       end Get;
 
+      ------------
+      -- Length --
+      ------------
+
+      function Length return Natural is
+      begin
+         return Natural (Map.Length);
+      end Length;
+
       ---------
       -- Put --
       ---------
@@ -1569,6 +1608,19 @@ package body AWS.Net.SSL is
 
    end Session_Cache;
 
+   --------------------------
+   -- Session_Cache_Number --
+   --------------------------
+
+   function Session_Cache_Number
+     (Config : SSL.Config := Null_Config) return Natural
+   is
+      Cfg : constant SSL.Config :=
+              (if Config = Null_Config then Default_Config'Access else Config);
+   begin
+      return Cfg.Sessions.Length;
+   end Session_Cache_Number;
+
    --------------------
    -- Session_Client --
    --------------------
@@ -1580,6 +1632,10 @@ package body AWS.Net.SSL is
 
       Check_Error_Code
         (gnutls_init (Socket.SSL'Access, GNUTLS_CLIENT), Socket);
+
+      if Socket.Config.Ticket_Support then
+         Check_Error_Code (gnutls_session_ticket_enable_client (Socket.SSL));
+      end if;
 
       if Socket.Sessn /= null then
          Socket.Set_Session_Data (Socket.Sessn);
@@ -1643,6 +1699,15 @@ package body AWS.Net.SSL is
    end Session_Id_Image;
 
    --------------------
+   -- Session_Reused --
+   --------------------
+
+   function Session_Reused (Socket : Socket_Type) return Boolean is
+   begin
+      return TSSL.gnutls_session_is_resumed (Socket.SSL) /= 0;
+   end Session_Reused;
+
+   --------------------
    -- Session_Server --
    --------------------
 
@@ -1661,6 +1726,12 @@ package body AWS.Net.SSL is
 
       Check_Error_Code
         (gnutls_init (Socket.SSL'Access, GNUTLS_SERVER), Socket);
+
+      if Socket.Config.Ticket_Support then
+         Check_Error_Code
+           (gnutls_session_ticket_enable_server
+              (Socket.SSL, Socket.Config.Ticket_Key'Access));
+      end if;
 
       gnutls_db_set_ptr (Socket.SSL, Socket.Config.all'Address);
       gnutls_db_set_retrieve_function (Socket.SSL, DB_Retrieve'Access);
@@ -1798,7 +1869,7 @@ package body AWS.Net.SSL is
    is
       use type TSSL.gnutls_session_t;
    begin
-      if Socket.SSL = null then
+      if Socket.SSL = null or else Socket.Get_FD = No_Socket then
          Socket.Sessn := Data;
       else
          Check_Error_Code
@@ -1925,22 +1996,6 @@ package body AWS.Net.SSL is
    begin
       RSA_DH_Generators.Start_Parameters_Generation (DH);
    end Start_Parameters_Generation;
-
-   ------------
-   -- To_Ada --
-   ------------
-
-   function To_Ada
-     (Item : TSSL.gnutls_datum_t) return access Stream_Element_Array
-   is
-      type Array_Access is access all Stream_Element_Array
-                                        (1 .. Stream_Element_Offset
-                                                (Item.size));
-      function To_Array is
-        new Ada.Unchecked_Conversion (TSSL.a_unsigned_char_t, Array_Access);
-   begin
-      return To_Array (Item.data).all'Unrestricted_Access;
-   end To_Ada;
 
    ---------------------
    -- Verify_Callback --
