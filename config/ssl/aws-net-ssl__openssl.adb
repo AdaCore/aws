@@ -516,6 +516,8 @@ package body AWS.Net.SSL is
               (DH /= TSSL.PEM_read_bio_DHparams
                        (BIO, DH'Access, TSSL.Null_Pointer, TSSL.Null_Pointer));
 
+            DH_Time := File_Timestamp (Filename);
+
             TSSL.BIO_free (BIO);
          end;
 
@@ -573,6 +575,9 @@ package body AWS.Net.SSL is
            (TSSL.DH_generate_parameters_ex
               (params => DH, prime_len => DH_Length, generator => 2,
                cb => TSSL.Null_Pointer) = 0);
+
+         DH_Time := Ada.Calendar.Clock;
+
          Save;
       end if;
 
@@ -622,6 +627,8 @@ package body AWS.Net.SSL is
 
       RSA_Params (1) := RSA_Params (0);
       RSA_Params (0) := RSA;
+
+      RSA_Time := Ada.Calendar.Clock;
 
       RSA_Lock.Unlock;
    end Generate_RSA;

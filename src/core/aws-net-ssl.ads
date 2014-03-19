@@ -33,6 +33,8 @@ pragma Ada_2012;
 --  should depend only on AWS.Net.Std and the SSL library. It is important to
 --  not call directly a socket binding here to ease porting.
 
+with Ada.Calendar;
+
 with System;
 
 with AWS.Net.Std;
@@ -220,6 +222,14 @@ package AWS.Net.SSL is
    --  DH is False mean only RSA parameters generated.
    --  DH is True mean RSA and DH both parameters generated.
 
+   function Generated_Time_DH return Ada.Calendar.Time with Inline;
+   --  Returns date and time when the DH parameters was generated last time.
+   --  Need to decide when new regeneration would start.
+
+   function Generated_Time_RSA return Ada.Calendar.Time with Inline;
+   --  Returns date and time when the RSA parameters was generated last time.
+   --  Need to decide when new regeneration would start.
+
    procedure Set_Debug (Level : Natural);
    --  Set debug information printed level
 
@@ -286,5 +296,12 @@ private
 
    DH_Lock  : Utils.Test_And_Set;
    RSA_Lock : Utils.Test_And_Set;
+
+   DH_Time  : Ada.Calendar.Time := AWS.Utils.AWS_Epoch with Atomic;
+   RSA_Time : Ada.Calendar.Time := AWS.Utils.AWS_Epoch with Atomic;
+
+   function Generated_Time_RSA return Ada.Calendar.Time is (RSA_Time);
+
+   function Generated_Time_DH return Ada.Calendar.Time is (DH_Time);
 
 end AWS.Net.SSL;

@@ -72,6 +72,8 @@ procedure Check_Mem is
 
    use AWS;
 
+   use type Ada.Calendar.Time;
+
    CRLF : constant String := ASCII.CR & ASCII.LF;
 
    function CB (Request : Status.Data) return Response.Data;
@@ -111,6 +113,9 @@ procedure Check_Mem is
 
    HTTP : AWS.Server.HTTP;
    Push : Server_Push.Object;
+
+   DH_Time  : Ada.Calendar.Time := AWS.Utils.AWS_Epoch;
+   RSA_Time : Ada.Calendar.Time := AWS.Utils.AWS_Epoch;
 
    Iteration : Positive;
    Timestamp : Ada.Calendar.Time;
@@ -906,6 +911,17 @@ begin
       Stamp ("SMTP SSL");
       Check_Server_Push;
       Stamp ("Server push");
+
+      --  Get the first generated DH and RSA parameters
+
+      if DH_Time = AWS.Utils.AWS_Epoch then
+         DH_Time := AWS.Net.SSL.Generated_Time_DH;
+      end if;
+
+      if RSA_Time = AWS.Utils.AWS_Epoch then
+         RSA_Time := AWS.Net.SSL.Generated_Time_RSA;
+      end if;
+
       AWS.Net.SSL.Start_Parameters_Generation (K rem 3 = 1);
    end loop;
 
@@ -914,6 +930,16 @@ begin
    --  Clear session cache to normalize rest allocated memory
 
    AWS.Net.SSL.Clear_Session_Cache;
+
+   while DH_Time = AWS.Net.SSL.Generated_Time_DH loop
+      --  Wait for DH parameters generated at least once more
+      delay 0.25;
+   end loop;
+
+   if RSA_Time = AWS.Net.SSL.Generated_Time_RSA then
+      Check
+        ("RSA only once generated at " & AWS.Messages.To_HTTP_Date (RSA_Time));
+   end if;
 
    Command_Line.Set_Exit_Status (Command_Line.Success);
 exception

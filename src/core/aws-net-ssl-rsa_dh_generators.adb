@@ -47,7 +47,7 @@ package body AWS.Net.SSL.RSA_DH_Generators is
    procedure Unchecked_Free is new Ada.Unchecked_Deallocation
      (RSA_DH_Generator, RSA_DH_Generator_Access);
 
-   Starter : Utils.Test_And_Set;
+   Single_Task : Utils.Test_And_Set;
 
    -------------------------
    -- Parameters_Filename --
@@ -88,9 +88,12 @@ package body AWS.Net.SSL.RSA_DH_Generators is
          Generate_DH;
       end if;
 
+      Single_Task.Unlock;
+
    exception
       when E : others =>
          Log_Error (Exceptions.Exception_Message (E));
+         Single_Task.Unlock;
    end RSA_DH_Generator;
 
    ---------------------------------
@@ -98,20 +101,27 @@ package body AWS.Net.SSL.RSA_DH_Generators is
    ---------------------------------
 
    procedure Start_Parameters_Generation (DH : Boolean) is
-      OK : Boolean;
+      OK  : Boolean;
+      Cnt : Natural := 8;
    begin
-      Starter.Try_Lock (OK);
+      Single_Task.Try_Lock (OK);
 
       if not OK then
          return;
       end if;
 
-      if RSA_DH_Worker = null or else RSA_DH_Worker'Terminated then
-         Unchecked_Free (RSA_DH_Worker);
-         RSA_DH_Worker := new RSA_DH_Generator (DH);
-      end if;
+      while RSA_DH_Worker /= null and then not RSA_DH_Worker'Terminated loop
+         delay 0.125;
 
-      Starter.Unlock;
+         Cnt := Cnt - 1;
+
+         if Cnt = 0 then
+            raise Program_Error with "Generation task is not terminating";
+         end if;
+      end loop;
+
+      Unchecked_Free (RSA_DH_Worker);
+      RSA_DH_Worker := new RSA_DH_Generator (DH);
    end Start_Parameters_Generation;
 
 end AWS.Net.SSL.RSA_DH_Generators;

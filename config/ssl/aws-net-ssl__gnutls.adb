@@ -772,6 +772,8 @@ package body AWS.Net.SSL is
 
          Free (Datum);
 
+         DH_Time := AWS.Resources.File_Timestamp (Filename);
+
          return True;
       end Loaded;
 
@@ -819,6 +821,7 @@ package body AWS.Net.SSL is
 
       if DH_Params (0) /= null or else not Loaded then
          Check_Error_Code (TSSL.gnutls_dh_params_generate2 (New_One, Bits));
+         DH_Time := Ada.Calendar.Clock;
          Save;
       end if;
 
@@ -859,7 +862,9 @@ package body AWS.Net.SSL is
       RSA_Params (1) := RSA_Params (0);
       RSA_Params (0) := New_One;
 
-      DH_Lock.Unlock;
+      RSA_Time := Ada.Calendar.Clock;
+
+      RSA_Lock.Unlock;
    end Generate_RSA;
 
    ----------
