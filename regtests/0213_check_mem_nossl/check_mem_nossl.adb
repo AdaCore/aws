@@ -364,9 +364,7 @@ procedure Check_Mem_Nossl is
 
          Response.Message_Body (R, Result);
 
-         if Response.Status_Code (R) = Messages.S404
-           and then Response.Is_Empty (R)
-         then
+         if Response.Status_Code (R) = Messages.S404 then
             Check (URL & " not found, empty response");
             return;
          end if;
