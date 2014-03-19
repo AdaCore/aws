@@ -1,0 +1,21 @@
+#! /bin/bash
+
+function do_run()
+{
+    NAME=$1
+    OPTS="$2"
+
+    (
+        make clean
+        make DEBUG=true $OPTS setup
+        make && make install
+        cd regtests
+        ./testsuite.py --jobs=6
+        cp out/report report-$NAME
+    )
+}
+
+do_run std ""
+do_run ipv6 "IPv6=true"
+do_run openssl "SOCKET=openssl"
+do_run gnutls "SOCKET=gnutls"
