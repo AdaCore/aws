@@ -297,11 +297,22 @@ private
    DH_Lock  : Utils.Test_And_Set;
    RSA_Lock : Utils.Test_And_Set;
 
-   DH_Time  : Ada.Calendar.Time := AWS.Utils.AWS_Epoch with Atomic;
-   RSA_Time : Ada.Calendar.Time := AWS.Utils.AWS_Epoch with Atomic;
+   type Time_Index is mod 2;
 
-   function Generated_Time_RSA return Ada.Calendar.Time is (RSA_Time);
+   DH_Time  : array (Time_Index) of Ada.Calendar.Time :=
+                (0 => Utils.AWS_Epoch, 1 => <>);
+   RSA_Time : array (Time_Index) of Ada.Calendar.Time :=
+                (0 => Utils.AWS_Epoch, 1 => <>);
+   --  Ada.Calendar.Time could not be Atomic in 32 bit platforms. Use Atomic
+   --  index instead.
 
-   function Generated_Time_DH return Ada.Calendar.Time is (DH_Time);
+   DH_Time_Idx  : Time_Index := 0 with Atomic;
+   RSA_Time_Idx : Time_Index := 0 with Atomic;
+
+   function Generated_Time_RSA return Ada.Calendar.Time is
+     (RSA_Time (RSA_Time_Idx));
+
+   function Generated_Time_DH return Ada.Calendar.Time is
+     (DH_Time (DH_Time_Idx));
 
 end AWS.Net.SSL;
