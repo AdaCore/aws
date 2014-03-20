@@ -238,7 +238,7 @@ package AWS.Net.SSL is
    --  session when it has the same Id.
 
    function Session_Id_Image (Socket : Socket_Type) return String;
-   --  Returns base64 encoded session id of the socket.
+   --  Returns base64 encoded session id of the socket
 
    function Session_Data (Socket : Socket_Type) return Session_Type;
    --  For the client side SSL socket returns session data to be used to
