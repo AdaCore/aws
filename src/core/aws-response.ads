@@ -349,6 +349,9 @@ package AWS.Response is
    function Close_Resource (D : Data) return Boolean;
    --  Returns True if the resource stream must be close
 
+   function Keep_Alive (D : Data) return Boolean with Inline;
+   --  Returns True if the user want to keep connection alive
+
    ----------------
    -- WebSockets --
    ----------------
@@ -401,6 +404,7 @@ private
       Stream       : Resources.Streams.Stream_Access;
       Header       : AWS.Headers.List;
       Close_Stream : Boolean              := True;
+      Keep_Alive   : Boolean              := True;
    end record;
 
    overriding procedure Initialize (Object : in out Data);
@@ -409,5 +413,7 @@ private
 
    procedure Unchecked_Free is new Ada.Unchecked_Deallocation
      (Resources.Streams.Stream_Type'Class, Resources.Streams.Stream_Access);
+
+   function Keep_Alive (D : Data) return Boolean is (D.Keep_Alive);
 
 end AWS.Response;

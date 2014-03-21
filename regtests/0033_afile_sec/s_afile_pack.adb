@@ -27,7 +27,7 @@ with AWS.Config.Set;
 with AWS.Messages;
 with AWS.Net.SSL;
 with AWS.MIME;
-with AWS.Response;
+with AWS.Response.Set;
 with AWS.Resources.Streams.Disk;
 with AWS.Server.Status;
 with AWS.Status;
@@ -120,9 +120,16 @@ package body S_AFile_Pack is
 
          Same_Session (True);
 
-         return Response.File
-           (MIME.Application_Octet_Stream, FN,
-            Disposition => Response.Attachment);
+         declare
+            Answer : Response.Data :=
+                       Response.File
+                         (MIME.Application_Octet_Stream, FN,
+                          Disposition => Response.Attachment);
+         begin
+            Response.Set.Keep_Alive (Answer, False);
+
+            return Answer;
+         end;
 
       elsif URI = "/third" then
          if Same_Socket then
@@ -304,8 +311,8 @@ package body S_AFile_Pack is
       AWS.Client.Create (Cli, Server.Status.Local_URL (WS));
 
       Call_It ("first");
-      AWS.Client.Set_Persistent (Cli, False);
       Call_It ("second");
+      AWS.Client.Set_Persistent (Cli, False);
       AWS.Client.Clear_SSL_Session (Cli);
       Call_It ("third");
       Call_It ("fourth");

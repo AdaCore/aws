@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2002-2013, AdaCore                     --
+--                     Copyright (C) 2002-2014, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -355,6 +355,15 @@ package body AWS.Response.Set is
                               (D.Header,
                                Messages.WWW_Authenticate_Token));
    end Is_Valid;
+
+   ----------------
+   -- Keep_Alive --
+   ----------------
+
+   procedure Keep_Alive (D : in out Data; State : Boolean) is
+   begin
+      D.Keep_Alive := State;
+   end Keep_Alive;
 
    --------------
    -- Location --

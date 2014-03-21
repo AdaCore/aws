@@ -1378,13 +1378,15 @@ package body AWS.Server.HTTP_Utils is
          Length := Resources.Size (File);
 
          --  Checking if we have to close connection because of undefined
-         --  message length comming from a user's stream.
+         --  message length coming from a user's stream. Or because of user
+         --  do not want to keep connection alive.
 
-         if Length = Resources.Undefined_Length
-           and then Status.HTTP_Version (C_Stat) = HTTP_10
-         --  We cannot use transfer-encoding chunked in HTTP_10
-           and then Method /= Status.HEAD
-         --  We have to send message_body
+         if (Length = Resources.Undefined_Length
+             and then Status.HTTP_Version (C_Stat) = HTTP_10
+             --  We cannot use transfer-encoding chunked in HTTP_10
+             and then Method /= Status.HEAD)
+             --  We have to send message_body
+           or else not Response.Keep_Alive (Answer)
          then
             --  In this case we need to close the connection explicitly at the
             --  end of the transfer.

@@ -152,6 +152,11 @@ package AWS.Response.Set is
    --  closed. This is needed to build transient resources as the closing must
    --  be controlled by the transient task cleaner and not the server.
 
+   procedure Keep_Alive (D : in out Data; State : Boolean) with Inline;
+   --  Keep alive connection control. Setting this flag to False will send
+   --  "Connection: close" in server's response header line and the socket
+   --  will be closed after the response. This flag is True by default.
+
    procedure Data_Encoding
      (D         : in out Data;
       Encoding  : Messages.Content_Encoding;
