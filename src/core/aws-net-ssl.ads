@@ -160,6 +160,9 @@ package AWS.Net.SSL is
      (Socket : in out Socket_Type; Config : SSL.Config);
    --  Set the SSL configuration object for the secure socket
 
+   function Get_Config (Socket : Socket_Type) return SSL.Config with Inline;
+   --  Get the SSL configuration object of the secure socket
+
    function Secure_Client
      (Socket : Net.Socket_Type'Class;
       Config : SSL.Config := Null_Config) return Socket_Type;
@@ -314,5 +317,8 @@ private
 
    function Generated_Time_DH return Ada.Calendar.Time is
      (DH_Time (DH_Time_Idx));
+
+   function Get_Config (Socket : Socket_Type) return SSL.Config is
+     (Socket.Config);
 
 end AWS.Net.SSL;
