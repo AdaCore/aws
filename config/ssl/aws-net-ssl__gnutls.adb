@@ -1692,7 +1692,11 @@ package body AWS.Net.SSL is
 
    function Session_Id_Image (Session : Session_Type) return String is
    begin
-      return Translator.Base64_Encode (Session.Id);
+      if Session = null then
+         return "";
+      else
+         return Translator.Base64_Encode (Session.Id);
+      end if;
    end Session_Id_Image;
 
    function Session_Id_Image (Socket : Socket_Type) return String is
