@@ -19,22 +19,17 @@ makefile.conf.
 Note that you can find more information about the build procedure into
 the AWS User's Guide.
 
-This release requires an Ada compiler supporting some Ada 2005 features as it
-is using the Ada.Containers libraries. It is possible to build this release
-starting with the following compilers:
+This release requires an Ada compiler supporting some Ada 2012 features. It
+is possible to build this release starting with the following compilers:
 
-	GNAT Pro 6.2.1
+	GNAT Pro 7.2.1
 
-	GNAT GPL 2009 Edition
+	GNAT GPL 2014 Edition
 
-Building from Subversion
-------------------------
+To build the documentation in HTML, PDF and plain text formats you need to
+have a working Sphinx package installed on your system.
 
-To build the documentation in HTML, PDF, INFO and plain text
-format you need to have a working makeinfo and Tex package installed on
-your system.
-
-   $ make build_doc
+   $ make build-doc
 
 Building on Windows
 -------------------
