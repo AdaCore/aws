@@ -39,6 +39,11 @@ package body AWS.Net.SSL is
 
    Error_Message : constant String := "SSL not supported.";
 
+   procedure Abort_DH_Generation is
+   begin
+      Abort_DH_Flag := True;
+   end Abort_DH_Generation;
+
    -------------------
    -- Accept_Socket --
    -------------------
@@ -367,7 +372,9 @@ package body AWS.Net.SSL is
    -- Start_Parameters_Generation --
    ---------------------------------
 
-   procedure Start_Parameters_Generation (DH : Boolean) is null;
+   procedure Start_Parameters_Generation
+     (DH : Boolean; Logging : access procedure (Text : String) := null)
+     is null;
 
    -------------
    -- Version --

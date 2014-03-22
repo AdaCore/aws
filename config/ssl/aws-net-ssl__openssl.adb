@@ -138,6 +138,13 @@ package body AWS.Net.SSL is
    DH_Length  : constant C.int := 2048;
    RSA_Length : constant C.int := 2048;
 
+   function DH_Generate_cb
+     (a, b : C.int; cb : access TSSL.BN_GENCB) return C.int
+     with Convention => C;
+
+   DH_Generate_Callback : aliased TSSL.BN_GENCB :=
+     (cb => DH_Generate_cb'Access, others => <>);
+
    procedure Socket_Read (Socket : Socket_Type);
    --  Read encripted data from socket if necessary
 
@@ -189,6 +196,15 @@ package body AWS.Net.SSL is
 
    procedure Set_Accept_State (Socket : Socket_Type);
    --  Server session initialization
+
+   -------------------------
+   -- Abort_DH_Generation --
+   -------------------------
+
+   procedure Abort_DH_Generation is
+   begin
+      Abort_DH_Flag := True;
+   end Abort_DH_Generation;
 
    -------------------
    -- Accept_Socket --
@@ -324,6 +340,18 @@ package body AWS.Net.SSL is
          end if;
       end if;
    end Connect;
+
+   --------------------
+   -- DH_Generate_cb --
+   --------------------
+
+   function DH_Generate_cb
+     (a, b : C.int; cb : access TSSL.BN_GENCB) return C.int
+   is
+      pragma Unreferenced (a, b, cb);
+   begin
+      return Boolean'Pos (not Abort_DH_Flag);
+   end DH_Generate_cb;
 
    ------------------
    -- Do_Handshake --
@@ -572,15 +600,19 @@ package body AWS.Net.SSL is
       Error_If (DH = TSSL.Null_Pointer);
 
       if DH_Params (0) /= TSSL.Null_Pointer or else not Loaded then
-         Error_If
-           (TSSL.DH_generate_parameters_ex
-              (params => DH, prime_len => DH_Length, generator => 2,
-               cb => TSSL.Null_Pointer) = 0);
+         if TSSL.DH_generate_parameters_ex
+              (params    => DH,
+               prime_len => DH_Length,
+               generator => (if DH_Time_Idx = 0 then 2 else 5),
+               cb        => DH_Generate_Callback'Access) = 0
+         then
+            Error_If (not Abort_DH_Flag);
+         else
+            DH_Time (DH_Time_Idx + 1) := Ada.Calendar.Clock;
+            DH_Time_Idx := DH_Time_Idx + 1;
 
-         DH_Time (DH_Time_Idx + 1) := Ada.Calendar.Clock;
-         DH_Time_Idx := DH_Time_Idx + 1;
-
-         Save;
+            Save;
+         end if;
       end if;
 
       if DH_Params (1) /= TSSL.Null_Pointer then
@@ -1553,9 +1585,10 @@ package body AWS.Net.SSL is
    -- Start_Parameters_Generation --
    ---------------------------------
 
-   procedure Start_Parameters_Generation (DH : Boolean) is
+   procedure Start_Parameters_Generation
+     (DH : Boolean; Logging : access procedure (Text : String) := null) is
    begin
-      RSA_DH_Generators.Start_Parameters_Generation (DH);
+      RSA_DH_Generators.Start_Parameters_Generation (DH, Logging);
    end Start_Parameters_Generation;
 
    ---------------------

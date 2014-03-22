@@ -220,7 +220,16 @@ package AWS.Net.SSL is
    --  every 500 transactions etc. Depends on the security requirements
    --  (gnutls/src/serv.c).
 
-   procedure Start_Parameters_Generation (DH : Boolean);
+   procedure Abort_DH_Generation with Inline;
+   --  DH generation could be for a few minutes. If it is really necessary to
+   --  terminate process faster, this call should be used.
+   --  GNUTLS generates DH parameters much faster than OpenSSL, at least in
+   --  Linux x86_64 and does not support DH generation abort at least in
+   --  version 3.2.12.
+
+   procedure Start_Parameters_Generation
+     (DH : Boolean; Logging : access procedure (Text : String) := null)
+     with Inline;
    --  Start SSL parameters regeneration in background.
    --  DH is False mean only RSA parameters generated.
    --  DH is True mean RSA and DH both parameters generated.
@@ -311,6 +320,8 @@ private
 
    DH_Time_Idx  : Time_Index := 0 with Atomic;
    RSA_Time_Idx : Time_Index := 0 with Atomic;
+
+   Abort_DH_Flag : Boolean := False with Atomic;
 
    function Generated_Time_RSA return Ada.Calendar.Time is
      (RSA_Time (RSA_Time_Idx));

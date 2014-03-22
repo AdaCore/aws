@@ -36,9 +36,8 @@ with AWS.Config;
 
 package body AWS.Net.SSL.RSA_DH_Generators is
 
-   use Ada;
-
-   task type RSA_DH_Generator (DH : Boolean);
+   task type RSA_DH_Generator
+     (DH : Boolean; Logging : access procedure (Text : String));
 
    type RSA_DH_Generator_Access is access all RSA_DH_Generator;
 
@@ -81,11 +80,29 @@ package body AWS.Net.SSL.RSA_DH_Generators is
    ----------------------
 
    task body RSA_DH_Generator is
+      use type Ada.Calendar.Time;
+      Stamp : Ada.Calendar.Time;
    begin
+      if Logging /= null then
+         Stamp := Ada.Calendar.Clock;
+      end if;
+
       Generate_RSA;
 
+      if Logging /= null then
+         Logging ("RSA" & Duration'Image (Ada.Calendar.Clock - Stamp));
+      end if;
+
       if DH then
+         if Logging /= null then
+            Stamp := Ada.Calendar.Clock;
+         end if;
+
          Generate_DH;
+
+         if Logging /= null then
+            Logging ("DH" & Duration'Image (Ada.Calendar.Clock - Stamp));
+         end if;
       end if;
 
       Single_Task.Unlock;
@@ -100,13 +117,20 @@ package body AWS.Net.SSL.RSA_DH_Generators is
    -- Start_Parameters_Generation --
    ---------------------------------
 
-   procedure Start_Parameters_Generation (DH : Boolean) is
+   procedure Start_Parameters_Generation
+     (DH : Boolean; Logging : access procedure (Text : String) := null)
+   is
       OK  : Boolean;
       Cnt : Natural := 8;
+
    begin
       Single_Task.Try_Lock (OK);
 
       if not OK then
+         if Logging /= null then
+            Logging ("Generation task already running");
+         end if;
+
          return;
       end if;
 
@@ -121,7 +145,7 @@ package body AWS.Net.SSL.RSA_DH_Generators is
       end loop;
 
       Unchecked_Free (RSA_DH_Worker);
-      RSA_DH_Worker := new RSA_DH_Generator (DH);
+      RSA_DH_Worker := new RSA_DH_Generator (DH, Logging);
    end Start_Parameters_Generation;
 
 end AWS.Net.SSL.RSA_DH_Generators;

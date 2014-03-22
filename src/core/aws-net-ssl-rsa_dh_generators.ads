@@ -31,7 +31,8 @@ pragma Ada_2012;
 
 private package AWS.Net.SSL.RSA_DH_Generators is
 
-   procedure Start_Parameters_Generation (DH : Boolean);
+   procedure Start_Parameters_Generation
+     (DH : Boolean; Logging : access procedure (Text : String) := null);
    --  Start SSL parameters regeneration in background.
    --  DH is False mean only RSA parameters generated.
    --  DH is True mean RSA and DH both parameters generated.

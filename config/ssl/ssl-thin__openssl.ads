@@ -102,6 +102,19 @@ package SSL.Thin is
 
    subtype SSL_CIPHER is ssl_cipher_st;
 
+   type bn_gencb_st;
+
+   type gen_cb_function is access function
+     (a, b : int; cb : access bn_gencb_st) return int with Convention => C;
+
+   type bn_gencb_st is record
+      var : unsigned := 2;
+      arg : Pointer;
+      cb  : gen_cb_function;
+   end record with Convention => C;
+
+   subtype BN_GENCB is bn_gencb_st;
+
    type BIO_callback is access function
      (BIO  : BIO_Access;
       cmd  : int;
@@ -801,7 +814,10 @@ package SSL.Thin is
      with Import, Convention => C, Link_Name => "DH_size";
 
    function DH_generate_parameters_ex
-     (params : DH; prime_len : int; generator : int; cb : Pointer) return int
+     (params    : DH;
+      prime_len : int;
+      generator : int;
+      cb        : access constant BN_GENCB) return int
      with Import, Convention => C, Link_Name => "DH_generate_parameters_ex";
 
    function PEM_read_bio_DHparams

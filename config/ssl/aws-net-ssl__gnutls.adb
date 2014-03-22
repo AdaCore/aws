@@ -295,6 +295,15 @@ package body AWS.Net.SSL is
      with Convention => C;
    --  Callback to give Diffie-Hellman and/or RSA parameters
 
+   -------------------------
+   -- Abort_DH_Generation --
+   -------------------------
+
+   procedure Abort_DH_Generation is
+   begin
+      Abort_DH_Flag := True;
+   end Abort_DH_Generation;
+
    -------------------
    -- Accept_Socket --
    -------------------
@@ -2004,9 +2013,10 @@ package body AWS.Net.SSL is
    -- Start_Parameters_Generation --
    ---------------------------------
 
-   procedure Start_Parameters_Generation (DH : Boolean) is
+   procedure Start_Parameters_Generation
+     (DH : Boolean; Logging : access procedure (Text : String) := null) is
    begin
-      RSA_DH_Generators.Start_Parameters_Generation (DH);
+      RSA_DH_Generators.Start_Parameters_Generation (DH, Logging);
    end Start_Parameters_Generation;
 
    ---------------------

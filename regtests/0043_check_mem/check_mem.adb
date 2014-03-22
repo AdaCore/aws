@@ -38,6 +38,7 @@ with Ada.Text_IO.Editing;
 with AWS.Client;
 with AWS.MIME;
 with AWS.Messages;
+with AWS.Net.Log;
 with AWS.Net.SSL;
 with AWS.Net.Std;
 with AWS.Parameters;
@@ -56,6 +57,7 @@ with AWS.Translator;
 with AWS.Utils;
 
 with GNAT.MD5;
+with GNAT.Traceback.Symbolic;
 
 with SOAP.Client;
 with SOAP.Message.Payload;
@@ -116,6 +118,8 @@ procedure Check_Mem is
 
    DH_Time  : Ada.Calendar.Time := AWS.Utils.AWS_Epoch;
    RSA_Time : Ada.Calendar.Time := AWS.Utils.AWS_Epoch;
+
+   Generation_Log : Text_IO.File_Type;
 
    Iteration : Positive;
    Timestamp : Ada.Calendar.Time;
@@ -271,6 +275,34 @@ procedure Check_Mem is
            (MIME.Text_HTML, URI & " not found", Messages.S404);
       end if;
    end CB;
+
+   -----------
+   -- Error --
+   -----------
+
+   procedure Error (Socket : AWS.Net.Socket_Type'Class; Message : String) is
+      use GNAT.Traceback;
+      Trace : Tracebacks_Array (1 .. 64);
+      Last  : Natural;
+   begin
+      Call_Chain (Trace, Last);
+
+      Ada.Text_IO.Put_Line
+        ("# Network error: "
+         & Message & Symbolic.Symbolic_Traceback (Trace (1 .. Last)));
+   end Error;
+
+   ------------------------
+   -- Generation_Logging --
+   ------------------------
+
+   procedure Generation_Logging (Text : String) is
+   begin
+      if Text_IO.Is_Open (Generation_Log) then
+         Text_IO.Put_Line (Generation_Log, Text);
+         Text_IO.Flush (Generation_Log);
+      end if;
+   end Generation_Logging;
 
    ------------
    -- Server --
@@ -879,6 +911,15 @@ begin
 
    AWS.Net.SSL.Set_Session_Cache_Size (2);
 
+   declare
+      FN : constant String := "rsa-dh-generation.log";
+   begin
+      if AWS.Resources.Is_Regular_File (FN) then
+         Text_IO.Open (Generation_Log, Text_IO.Append_File, FN);
+         Text_IO.Put_Line (Generation_Log, "-- start process --");
+      end if;
+   end;
+
    --  This is the main loop. Be sure to run everything inside this
    --  loop. Check_Mem is checked between 2 runs with a different number of
    --  iterations.
@@ -922,7 +963,8 @@ begin
          RSA_Time := AWS.Net.SSL.Generated_Time_RSA;
       end if;
 
-      AWS.Net.SSL.Start_Parameters_Generation (K rem 3 = 1);
+      AWS.Net.SSL.Start_Parameters_Generation
+        (K rem 3 = 1, Generation_Logging'Access);
    end loop;
 
    Server.Stopped;
@@ -931,17 +973,24 @@ begin
 
    AWS.Net.SSL.Clear_Session_Cache;
 
-   while DH_Time = AWS.Net.SSL.Generated_Time_DH loop
-      --  Wait for DH parameters generated at least once more
+   for J in 1 .. 8 loop
+      exit when DH_Time /= AWS.Net.SSL.Generated_Time_DH;
       delay 0.25;
    end loop;
+
+   AWS.Net.Log.Start (Error => Error'Unrestricted_Access, Write => null);
+
+   Net.SSL.Abort_DH_Generation;
 
    if RSA_Time = AWS.Net.SSL.Generated_Time_RSA then
       Check
         ("RSA only once generated at " & AWS.Messages.To_HTTP_Date (RSA_Time));
    end if;
 
+   Generation_Logging ("-- end");
+
    Command_Line.Set_Exit_Status (Command_Line.Success);
+
 exception
    when E : others =>
       Put_Line ("Main Error " & Exceptions.Exception_Information (E));
