@@ -350,6 +350,7 @@ procedure Check_Mem_Nossl is
 
       procedure Request (URL : String; Filename : String := "") is
          use type AWS.Messages.Status_Code;
+         use type AWS.Response.Data_Mode;
          use Ada.Streams;
          R : Response.Data;
 
@@ -364,7 +365,9 @@ procedure Check_Mem_Nossl is
 
          Response.Message_Body (R, Result);
 
-         if Response.Status_Code (R) = Messages.S404 then
+         if Response.Status_Code (R) = Messages.S404
+           and then Response.Mode (R) = Response.Header
+         then
             Check (URL & " not found, empty response");
             return;
          end if;
