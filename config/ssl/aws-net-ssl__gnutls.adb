@@ -172,7 +172,7 @@ package body AWS.Net.SSL is
             Hash            => Hash,
             Equivalent_Keys => Equal);
 
-   package Time_Index is
+   package Time_Set is
      new Ada.Containers.Ordered_Maps
            (Key_Type     => Ada.Calendar.Time,
             Element_Type => TSSL.gnutls_datum_t,
@@ -198,7 +198,7 @@ package body AWS.Net.SSL is
    private
       Size : Natural := Natural'Last;
       Map  : Session_Container.Map;
-      DTI  : Time_Index.Map; --  To remove oldest sessions to fit Size
+      DTI  : Time_Set.Map; --  To remove oldest sessions to fit Size
    end Session_Cache;
 
    type TS_SSL is record
@@ -1579,7 +1579,7 @@ package body AWS.Net.SSL is
       procedure Put (Key, Data : TSSL.gnutls_datum_t) is
          use Ada.Calendar;
          E  : Session_Element;
-         Ce : Time_Index.Cursor;
+         Ce : Time_Set.Cursor;
          Cm : Session_Container.Cursor := Map.Find (Key);
          OK : Boolean;
          K  : TSSL.gnutls_datum_t;
