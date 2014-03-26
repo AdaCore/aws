@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2005-2012, AdaCore                     --
+--                     Copyright (C) 2005-2014, AdaCore                     --
 --                                                                          --
 --  This is free software;  you can redistribute it  and/or modify it       --
 --  under terms of the  GNU General Public License as published  by the     --
@@ -17,10 +17,10 @@
 ------------------------------------------------------------------------------
 
 with Ada.Numerics.Discrete_Random;
+with Ada.Streams.Stream_IO;
 with Ada.Strings.Fixed;
 with Ada.Strings.Unbounded;
 with Ada.Text_IO;
-with Ada.Streams.Stream_IO;
 
 with GNAT.MD5;
 
@@ -31,9 +31,9 @@ with AWS.MIME;
 with AWS.Resources.Streams.Disk;
 with AWS.Response;
 with AWS.Server.Status;
-with AWS.Services.Download;
 with AWS.Services.Dispatchers.Linker;
 with AWS.Services.Dispatchers.URI;
+with AWS.Services.Download;
 with AWS.Status;
 with AWS.Translator;
 with AWS.Utils;
@@ -45,8 +45,9 @@ procedure DM is
    use Ada.Strings;
    use Ada.Strings.Unbounded;
    use Ada.Text_IO;
-   use GNAT;
+
    use AWS;
+   use GNAT;
 
    Debug : constant Boolean := False;
 
@@ -170,8 +171,8 @@ procedure DM is
          begin
             if Code = Messages.S302 then
                Put_Line
-                 ("Client " & Utils.Image (N) &
-                  " " & Messages.Status_Code'Image (Code) & Message);
+                 ("Client " & Utils.Image (N)
+                  & " " & Messages.Status_Code'Image (Code) & Message);
                Get_R (Response.Location (R));
 
             elsif Fixed.Index (Message, "Download manager") /= 0 then
@@ -184,16 +185,16 @@ procedure DM is
 
                --  A download page, we need to reload
                Put_Line
-                 ("Client " & Utils.Image (N) &
-                  " " & Messages.Status_Code'Image (Code) & Message);
+                 ("Client " & Utils.Image (N)
+                  & " " & Messages.Status_Code'Image (Code) & Message);
                delay 1.0;
                Reload_R;
 
             elsif Code = Messages.S200 then
                Downloads := Downloads + 1;
                Put_Line
-                 ("Client " & Utils.Image (N) &
-                  " " & Messages.Status_Code'Image (Code));
+                 ("Client " & Utils.Image (N)
+                  & " " & Messages.Status_Code'Image (Code));
                exit;
 
             else
@@ -201,7 +202,6 @@ procedure DM is
                  ("Error code " & Messages.Status_Code'Image (Code)
                     & Message);
                exit;
-
             end if;
          end;
       end loop;

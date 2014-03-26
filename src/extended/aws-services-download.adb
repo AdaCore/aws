@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2005-2013, AdaCore                     --
+--                     Copyright (C) 2005-2014, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -649,7 +649,7 @@ package body AWS.Services.Download is
       Dispatchers.URI.Unregister (DM_Handler, "/" & URI_Prefix);
       Data_Manager.Set_Shutdown;
 
-      while not  DM'Terminated loop
+      while not DM'Terminated loop
          delay 0.1;
       end loop;
 

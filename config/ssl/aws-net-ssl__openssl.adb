@@ -490,8 +490,8 @@ package body AWS.Net.SSL is
    -----------------
 
    procedure Generate_DH is
-      use type TSSL.DH;
       use type TSSL.BIO_Access;
+      use type TSSL.DH;
       OK   : Boolean;
       DH   : aliased TSSL.DH;
       Bits : constant C.int := DH_Length;
