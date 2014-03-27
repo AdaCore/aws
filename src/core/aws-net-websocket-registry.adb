@@ -76,7 +76,7 @@ package body AWS.Net.WebSocket.Registry is
 
    Set : FD_Set.Socket_Set_Type;
    --  All WebSockets are registered into this set to check for incoming
-   --  messages. We a message is ready the WebSocket is placed into the
+   --  messages. When a message is ready the WebSocket is placed into the
    --  Message_Queue for being handled. When the message has been read
    --  and handled the WebSocket is put back into this set.
    --
