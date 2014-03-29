@@ -252,7 +252,7 @@
         Configuration
     </h3>
     <p class="link_box">
-        <a href="http://www.adacore.com/wp-content/files/auto_update/aws-docs/aws.html#Configuration-options">AWS configuration options manual</a>
+        <a href="http://docs.adacore.com/aws-docs/aws/using_aws.html#configuration-options">AWS configuration options manual</a>
     </p>
     <table class="configuration_table">
         <tr>
@@ -953,7 +953,7 @@
             AWS has been developed in Ada with the GNAT compiler (see the <a href="http://www.adacore.com">AdaCore</a> web site).
         </p>
         <p>
-            <a href="mailto:anisimkov@ada-ru.org">Dmitriy Anisimkov</a> | <a href="mailto:p.obry@wanadoo.fr">Pascal Obry</a>
+            <a href="mailto:anisimkov@ada-ru.org">Dmitriy Anisimkov</a> | <a href="mailto:pascal@obry.net">Pascal Obry</a>
         </p>
         <p>
             Copyright (C) 2000-2012, AdaCore
