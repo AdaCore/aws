@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2000-2013, AdaCore                     --
+--                     Copyright (C) 2000-2014, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -962,7 +962,7 @@ package body AWS.Session is
                   Key   : constant String := String'Input (Stream_Ptr);
                   Value : constant String := String'Input (Stream_Ptr);
                begin
-                  Set (SID, Key, Value);
+                  Database.Set_Value (SID, Key, Value);
                end;
             end loop;
 
