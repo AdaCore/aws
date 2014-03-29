@@ -714,7 +714,6 @@ created with the `tar` tool without writting the intermediate tar
 achive on the disk.
 
 .. _Configuration_options:
-.. _WebSocket_Origin:
 
 Configuration options
 =====================
