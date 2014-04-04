@@ -627,10 +627,8 @@ package body AWS.Server.HTTP_Utils is
 
                         --  Append this line to the value
 
-                        if Value /= Null_Unbounded_String then
-                           Append (Value, ASCII.CR & ASCII.LF);
-                        end if;
-                        Append (Value, L);
+                        Utils.Append_With_Sep
+                          (Value, L, Sep => ASCII.CR & ASCII.LF);
                      end;
                   end loop;
 
