@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2000-2013, AdaCore                     --
+--                     Copyright (C) 2000-2014, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -33,11 +33,10 @@ with Interfaces;
 
 package body AWS.Translator is
 
-   use Ada.Streams;
    use Interfaces;
 
    procedure Compress_Decompress
-     (Stream : in out AWS.Resources.Streams.Memory.ZLib.Stream_Type'Class;
+     (Stream : in out Resources.Streams.Memory.ZLib.Stream_Type'Class;
       Data   : Stream_Element_Array;
       Result : out Utils.Stream_Element_Array_Access);
    --  Compress or decompress (depending on the Stream initialization)
@@ -359,7 +358,7 @@ package body AWS.Translator is
    -------------------------
 
    procedure Compress_Decompress
-     (Stream : in out AWS.Resources.Streams.Memory.ZLib.Stream_Type'Class;
+     (Stream : in out Resources.Streams.Memory.ZLib.Stream_Type'Class;
       Data   : Stream_Element_Array;
       Result : out Utils.Stream_Element_Array_Access)
    is

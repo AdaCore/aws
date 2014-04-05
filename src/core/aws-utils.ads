@@ -199,7 +199,7 @@ package AWS.Utils is
    -- Test_And_Set --
    ------------------
 
-   --  Could be interpreted by compiler as a lock free operation.
+   --  Could be interpreted by compiler as a lock free operation
 
    protected type Test_And_Set is
 

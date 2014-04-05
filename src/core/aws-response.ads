@@ -363,13 +363,13 @@ private
 
    use Ada.Strings.Unbounded;
 
-   Default_Moved_Message : constant String
-     := "Page moved<br><a href=""_@_"">Click here</a>";
+   Default_Moved_Message : constant String :=
+                             "Page moved<br><a href=""_@_"">Click here</a>";
 
    CRLF : constant String := ASCII.CR & ASCII.LF;
 
-   Default_Authenticate_Message : constant String
-     := "<HTML><HEAD>" & CRLF
+   Default_Authenticate_Message : constant String :=
+     "<HTML><HEAD>" & CRLF
      & "<TITLE>401 Authorization Required</TITLE>" & CRLF
      & "</HEAD><BODY>" & CRLF
      & "<H1>Authorization Required</H1>" & CRLF
@@ -381,8 +381,8 @@ private
      & "the credentials required.<P>" & CRLF
      & "</BODY></HTML>" & CRLF;
 
-   Undefined_Length : constant Content_Length_Type
-     := Content_Length_Type (Resources.Undefined_Length);
+   Undefined_Length : constant Content_Length_Type :=
+                        Content_Length_Type (Resources.Undefined_Length);
 
    type Release_Controller is record
       Counter      : Natural := 1;
