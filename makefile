@@ -68,8 +68,8 @@ ALL_OPTIONS	= $(MAKE_OPT) SOCKET="$(SOCKET)" XMLADA="$(XMLADA)" \
 build-doc:
 	echo ""
 	echo "=== Build doc"
-	${MAKE} -C docs html
-	${MAKE} -C templates_parser/docs html
+	${MAKE} -C docs html latexpdf
+	${MAKE} -C templates_parser/docs html latexpdf
 
 run_regtests:
 	echo ""
@@ -82,7 +82,7 @@ force:
 #############################################################################
 #  Configuration for GNAT Projet Files
 
-MODULES = config win32 include ssl src tools gps regtests web_elements demos
+MODULES = config include ssl src tools gps regtests demos
 
 MODULES_SETUP = ${MODULES:%=%_setup}
 
@@ -147,12 +147,6 @@ endif
 #  Install directories
 
 I_INC	= $(TPREFIX)/include/aws
-I_LIB	= $(TPREFIX)/lib/aws
-I_TPL	= $(TPREFIX)/share/examples/aws/templates
-I_IMG	= $(TPREFIX)/share/examples/aws/images
-I_WEL	= $(TPREFIX)/share/examples/aws/web_elements
-I_DOC	= $(TPREFIX)/share/doc/aws
-I_PLG	= $(TPREFIX)/share/gps/plug-ins
 
 GALL_OPTIONS := $(ALL_OPTIONS) \
 	PRJ_BUILD="$(PRJ_BUILD)" \
@@ -162,13 +156,7 @@ GALL_OPTIONS := $(ALL_OPTIONS) \
 	PRJ_LDAP="$(PRJ_LDAP)" \
 	PRJ_TARGET="$(PRJ_TARGET)" \
 	TP_XMLADA="$(TP_XMLADA)" \
-	I_INC="$(I_INC)" \
-	I_LIB="$(I_LIB)" \
-	I_TPL="$(I_TPL)" \
-	I_IMG="$(I_IMG)" \
-	I_WEL="$(I_WEL)" \
-	I_DOC="$(I_DOC)" \
-	I_PLG="$(I_PLG)"
+	I_INC="$(I_INC)"
 
 ${MODULES_SETUP}: force
 	${MAKE} -C ${@:%_setup=%} setup $(GALL_OPTIONS)
@@ -243,38 +231,28 @@ endif
 
 install-clean:
 ifneq (,$(wildcard $(TPREFIX)/share/gpr/manifests/aws))
-	-$(GPRINSTALL) $(GPROPTS) --uninstall \
-		--prefix=$(TPREFIX) aws.gpr
-	-$(GPRINSTALL) $(GPROPTS) --uninstall \
-		--prefix=$(TPREFIX) tools/tools.gpr
+	-$(GPRINSTALL) $(GPROPTS) --uninstall --prefix=$(TPREFIX) aws
 endif
-	$(RM) -fr $(TPREFIX)/share/examples/aws
-	$(RM) -fr $(TPREFIX)/share/doc/aws
 
-install-dirs:
-	$(MKDIR) -p $(I_DOC)
-	$(MKDIR) -p $(I_TPL)
-	$(MKDIR) -p $(I_IMG)
-	$(MKDIR) -p $(I_PLG)
-	$(MKDIR) -p $(I_WEL)
-
-install-native:
+install-native: install-clean
 	$(GPRINSTALL) $(GPROPTS) -p -f --prefix=$(TPREFIX) \
 		-XLIBRARY_TYPE=$(DEFAULT_LIBRARY_TYPE) aws.gpr
 	$(GPRINSTALL) $(GPROPTS) -p -f --prefix=$(TPREFIX) \
-		-XLIBRARY_TYPE=static --mode=usage tools/tools.gpr
+		-XLIBRARY_TYPE=static --mode=usage \
+		--install-name=aws tools/tools.gpr
 ifeq (${ENABLE_SHARED}, true)
 	$(GPRINSTALL) $(GPROPTS) -p -f --prefix=$(TPREFIX) \
 		-XLIBRARY_TYPE=$(OTHER_LIBRARY_TYPE) \
 		--build-name=$(OTHER_LIBRARY_TYPE) aws.gpr
 endif
 
-install-cross:
+install-cross: install-clean
 	$(GPRINSTALL) $(GPROPTS) -p -f --prefix=$(TPREFIX) \
 		--target=$(TARGET) \
 		-XLIBRARY_TYPE=$(DEFAULT_LIBRARY_TYPE) aws.gpr
 	$(GPRINSTALL) $(GPROPTS) -p -f --prefix=$(TPREFIX) --mode=usage \
-		--target=$(TARGET)  -XLIBRARY_TYPE=static tools/tools.gpr
+		--target=$(TARGET) -XLIBRARY_TYPE=static \
+		--install-name=aws tools/tools.gpr
 ifeq (${ENABLE_SHARED}, true)
 	$(GPRINSTALL) $(GPROPTS) -p -f --prefix=$(TPREFIX) \
 		--target=$(TARGET) -XLIBRARY_TYPE=$(OTHER_LIBRARY_TYPE) \
@@ -282,11 +260,10 @@ ifeq (${ENABLE_SHARED}, true)
 endif
 
 ifeq (${IS_CROSS}, true)
-install: install-clean install-dirs install-cross $(MODULES_INSTALL)
+install: install-cross
 else
-install: install-clean install-dirs install-native $(MODULES_INSTALL)
+install: install-native
 endif
-	$(CP) templates_parser/tools/templates.tads $(I_TPL)
 
 #######################################################################
 

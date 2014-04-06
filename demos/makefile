@@ -1,7 +1,7 @@
 ############################################################################
 #                              Ada Web Server                              #
 #                                                                          #
-#                     Copyright (C) 2003-2013, AdaCore                     #
+#                     Copyright (C) 2003-2014, AdaCore                     #
 #                                                                          #
 #  This is free software;  you can redistribute it  and/or modify it       #
 #  under terms of the  GNU General Public License as published  by the     #
@@ -22,10 +22,6 @@ MAKEFILES_CLEAN = ${MAKEFILES:%=%_clean}
 build: $(MAKEFILES)
 
 setup:
-
-install:
-	$(CP) web_mail/*html $(I_TPL)
-	$(CP) runme/aws_*.png $(I_IMG)
 
 $(MAKEFILES): force
 	$(MAKE) -C $(dir $@)
