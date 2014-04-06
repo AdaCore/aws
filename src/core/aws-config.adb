@@ -409,6 +409,8 @@ package body AWS.Config is
 
    procedure Load_Config is
    begin
+      Read_If_Present
+        (Config_Directory & OS_Lib.Directory_Separator & "aws.ini");
       Read_If_Present ("aws.ini");
       Read_If_Present (Ini.Program_Ini_File (Full_Path => True));
       Read_If_Present (Ini.Program_Ini_File (Full_Path => False));

@@ -373,7 +373,7 @@ package body AWS.Utils is
    -- Hex --
    ---------
 
-   function Hex (V : Natural; Width : Natural := 0) return String is
+   function Hex (V : Natural; Width : Natural := 0) return Hex_String is
       use Strings;
 
       Hex_V : String (1 .. Integer'Size / 4 + 4);
@@ -406,7 +406,7 @@ package body AWS.Utils is
    -- Hex_Value --
    ---------------
 
-   function Hex_Value (Hex : String) return Natural is
+   function Hex_Value (Hex : Hex_String) return Natural is
 
       function Value (C : Character) return Natural
         with Inline;

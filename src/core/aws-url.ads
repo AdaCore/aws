@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2000-2013, AdaCore                     --
+--                     Copyright (C) 2000-2014, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -65,9 +65,9 @@ package AWS.URL is
    Default_HTTPS_Port : constant := 443;
 
    function Parse
-      (URL            : String;
-       Check_Validity : Boolean := True;
-       Normalize      : Boolean := False) return Object;
+     (URL            : String;
+      Check_Validity : Boolean := True;
+      Normalize      : Boolean := False) return Object;
    --  Parse an URL and return an Object representing this URL. It is then
    --  possible to extract each part of the URL with the services bellow.
    --  Raises URL_Error if Check_Validity is true and the URL reference a
@@ -228,11 +228,13 @@ private
       Fragment   : Unbounded_String;
    end record;
 
-   Default_Encoding_Set : constant Strings.Maps.Character_Set
-     := Strings.Maps.To_Set
-         (Span => (Low  => Character'Val (128),
-                   High => Character'Val (Character'Pos (Character'Last))))
-     or
-       Strings.Maps.To_Set (";/?:@&=+$,<>#%""{}|\^[]`' ");
+   Default_Encoding_Set : constant Strings.Maps.Character_Set :=
+                            Strings.Maps.To_Set
+                              (Span => (Low  => Character'Val (128),
+                                        High => Character'Val
+                                          (Character'Pos (Character'Last))))
+                            or
+                              Strings.Maps.To_Set
+                                (";/?:@&=+$,<>#%""{}|\^[]`' ");
 
 end AWS.URL;

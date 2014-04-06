@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2000-2013, AdaCore                     --
+--                     Copyright (C) 2000-2014, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -30,6 +30,7 @@
 with Ada.Strings.Fixed;
 
 with AWS.Net.Buffered;
+with AWS.Utils;
 
 package body AWS.SMTP is
 
@@ -90,12 +91,8 @@ package body AWS.SMTP is
 
    procedure Add (Answer : in out Server_Reply; Status : in out SMTP.Status) is
    begin
-      if Status.Reason /= Null_Unbounded_String then
-         Append (Status.Reason, ASCII.LF);
-      end if;
-
-      Append (Status.Reason, Image (Answer));
-
+      Utils.Append_With_Sep
+        (Status.Reason, Image (Answer), Sep => String'(1 => ASCII.LF));
       Status.Code := Answer.Code;
    end Add;
 

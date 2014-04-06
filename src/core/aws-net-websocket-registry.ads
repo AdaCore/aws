@@ -42,17 +42,20 @@ package AWS.Net.WebSocket.Registry is
 
    --  Creating and Registering WebSockets
 
-   function Constructor (URI : String) return Registry.Factory;
+   function Constructor (URI : String) return Registry.Factory
+     with Pre => URI'Length > 0;
    --  Get the WebObject's constructor for a specific URI
 
-   procedure Register (URI : String; Factory : Registry.Factory);
+   procedure Register (URI : String; Factory : Registry.Factory)
+     with Pre => URI'Length > 0;
    --  Register a WebObject's constructor for a specific URI
 
    --  Sending messages
 
    type Recipient is private;
 
-   function Create (URI : String; Origin : String := "") return Recipient;
+   function Create (URI : String; Origin : String := "") return Recipient
+     with Pre => URI'Length >  0;
    --  A recipient with only an URI is called a broadcast as it designate all
    --  registered WebSocket for this specific URI. If Origin is specified then
    --  it designates a single client.

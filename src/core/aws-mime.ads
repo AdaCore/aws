@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2000-2012, AdaCore                     --
+--                     Copyright (C) 2000-2014, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -73,8 +73,8 @@ package AWS.MIME is
    Application_Pdf             : constant String := "application/pdf";
    Application_Zip             : constant String := "application/zip";
    Application_Octet_Stream    : constant String := "application/octet-stream";
-   Application_Form_Data       : constant String
-     := "application/x-www-form-urlencoded";
+   Application_Form_Data       : constant String :=
+                                   "application/x-www-form-urlencoded";
    Application_Mac_Binhex40    : constant String := "application/mac-binhex40";
    Application_Msword          : constant String := "application/msword";
    Application_Powerpoint      : constant String := "application/powerpoint";
@@ -101,8 +101,8 @@ package AWS.MIME is
    Audio_Mpeg                  : constant String := "audio/mpeg";
    Audio_X_Wav                 : constant String := "audio/x-wav";
    Audio_X_Pn_Realaudio        : constant String := "audio/x-pn-realaudio";
-   Audio_X_Pn_Realaudio_Plugin : constant String
-     := "audio/x-pn-realaudio-plugin";
+   Audio_X_Pn_Realaudio_Plugin : constant String :=
+                                   "audio/x-pn-realaudio-plugin";
    Audio_X_Realaudio           : constant String := "audio/x-realaudio";
 
    -----------
@@ -120,8 +120,8 @@ package AWS.MIME is
    Multipart_Form_Data         : constant String := "multipart/form-data";
    Multipart_Byteranges        : constant String := "multipart/byteranges";
    Multipart_Related           : constant String := "multipart/related";
-   Multipart_X_Mixed_Replace   : constant String
-     := "multipart/x-mixed-replace";
+   Multipart_X_Mixed_Replace   : constant String :=
+                                   "multipart/x-mixed-replace";
 
    -------------
    -- Setting --

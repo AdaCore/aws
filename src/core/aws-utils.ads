@@ -61,6 +61,11 @@ package AWS.Utils is
               Strings.Maps.To_Set (' ' & ASCII.HT & ASCII.LF & ASCII.CR);
    --  Set of spaces to ignore during parsing
 
+   subtype Hex_String is String
+     with Dynamic_Predicate =>
+            (for all H in Hex_String'Range
+             => Hex_String (H) in '0' .. '9' | 'a' .. 'f' | 'A' .. 'F');
+
    -------------------------------
    --  General helper functions --
    -------------------------------
@@ -72,7 +77,7 @@ package AWS.Utils is
    --  Fill string by random printable characters
 
    function Random_String (Length : Natural) return String
-     with Inline;
+     with Inline, Post => Random_String'Result'Length = Length;
    --  Returns random string
 
    function Image (N : Natural) return String;
@@ -91,12 +96,12 @@ package AWS.Utils is
    --  digits. If number of digits in integer part is more than N, the image
    --  would represent the whole integer part.
 
-   function Hex (V : Natural; Width : Natural := 0) return String;
+   function Hex (V : Natural; Width : Natural := 0) return Hex_String;
    --  Returns the hexadecimal string representation of the decimal
    --  number V. if Width /= 0, the result will have exactly Width characters
    --  eventually padded with leading 0 or trimmed on the right.
 
-   function Hex_Value (Hex : String) return Natural;
+   function Hex_Value (Hex : Hex_String) return Natural;
    --  Returns the value for the hexadecimal number Hex. Raises
    --  Constraint_Error is Hex is not an hexadecimal number.
 
@@ -126,7 +131,8 @@ package AWS.Utils is
    procedure Append_With_Sep
      (Content : in out Unbounded_String;
       Value   : String;
-      Sep     : String := ", ");
+      Sep     : String := ", ")
+     with Inline;
    --  Append Value into Content, append Sep before value if Content is not
    --  empty.
 
@@ -199,7 +205,7 @@ package AWS.Utils is
    -- Test_And_Set --
    ------------------
 
-   --  Could be interpreted by compiler as a lock free operation.
+   --  Could be interpreted by compiler as a lock free operation
 
    protected type Test_And_Set is
 
@@ -360,7 +366,15 @@ package AWS.Utils is
    function GMT_Clock return Calendar.Time;
    --  Returns current UTC/GMT time
 
-   function Time_Zone return String;
+   function Time_Zone return String
+     with Post =>
+       (Time_Zone'Result'Length = 0
+          or else
+       (Time_Zone'Result'Length = 5
+        and then Time_Zone'Result (Time_Zone'Result'First) in '-' | '+'
+        and then
+          (for all K in Time_Zone'Result'First + 1 .. Time_Zone'Result'Last
+           => Time_Zone'Result (K) in '0' .. '9')));
    --  Returns the current offset between the GMT time and the local time-zone.
    --  The format used is (+|-)HHMM as described into RFC 822. If offset is
    --  zero it returns the empty string.

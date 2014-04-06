@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2000-2012, AdaCore                     --
+--                     Copyright (C) 2000-2014, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -33,7 +33,10 @@ with GNAT.MD5;
 
 package AWS.Digest is
 
-   subtype Digest_String is GNAT.MD5.Message_Digest;
+   subtype Digest_String is GNAT.MD5.Message_Digest
+     with Dynamic_Predicate =>
+       (for all C of Digest_String
+        => C in 'a' .. 'z' | 'A' .. 'Z' | '0' .. '9' | '+' | '/' | '=');
 
    subtype Nonce is String (1 .. 40);
    --  4 bytes base64 seconds, 4 bytes base64 global counter, 32 bytes digest

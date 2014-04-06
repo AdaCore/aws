@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2000-2013, AdaCore                     --
+--                     Copyright (C) 2000-2014, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -561,10 +561,9 @@ package body AWS.Log is
       use Ada.Strings.Unbounded;
       use GNAT.Calendar.Time_IO;
 
-      Length      : constant Natural := Natural (Log.Extended_Fields.Length);
-      Message     : Unbounded_String := Null_Unbounded_String;
-      Now         : Ada.Calendar.Time;
-      First_Field : Boolean := True;
+      Length  : constant Natural := Natural (Log.Extended_Fields.Length);
+      Message : Unbounded_String := Null_Unbounded_String;
+      Now     : Ada.Calendar.Time;
 
       procedure Write_And_Clear (Position : SV.Cursor);
 
@@ -574,13 +573,7 @@ package body AWS.Log is
 
       procedure Write_And_Clear (Position : SV.Cursor) is
       begin
-         if First_Field then
-            First_Field := False;
-            Append (Message, SV.Element (Position));
-         else
-            Append (Message, ' ' & SV.Element (Position));
-         end if;
-
+         Utils.Append_With_Sep (Message, SV.Element (Position), Sep => " ");
          Data.Values.Replace_Element (Position, "-");
       end Write_And_Clear;
 

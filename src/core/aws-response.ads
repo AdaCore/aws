@@ -104,7 +104,8 @@ package AWS.Response is
       Status_Code   : Messages.Status_Code      := Messages.S200;
       Cache_Control : Messages.Cache_Option     := Messages.Unspecified;
       Encoding      : Messages.Content_Encoding := Messages.Identity)
-      return Data;
+      return Data
+     with Post => not Is_Empty (Build'Result);
 
    function Build
      (Content_Type    : String;
@@ -112,7 +113,8 @@ package AWS.Response is
       Status_Code     : Messages.Status_Code      := Messages.S200;
       Cache_Control   : Messages.Cache_Option     := Messages.Unspecified;
       Encoding        : Messages.Content_Encoding := Messages.Identity)
-      return Data;
+      return Data
+     with Post => not Is_Empty (Build'Result);
    --  Return a message whose body is passed into Message_Body. The
    --  Content_Type parameter is the MIME type for the message
    --  body. Status_Code is the response status (see Messages.Status_Code
@@ -124,7 +126,8 @@ package AWS.Response is
       Status_Code   : Messages.Status_Code         := Messages.S200;
       Cache_Control : Messages.Cache_Option        := Messages.Unspecified;
       Encoding      : Messages.Content_Encoding    := Messages.Identity)
-      return Data;
+      return Data
+     with Post => not Is_Empty (Build'Result);
    --  Idem above, but the message body is a stream element array
 
    type Disposition_Mode is (Attachment, Inline, None);
@@ -152,7 +155,8 @@ package AWS.Response is
       Once          : Boolean                   := False;
       Disposition   : Disposition_Mode          := None;
       User_Filename : String                    := "")
-      return Data;
+      return Data
+     with Post => not Is_Empty (File'Result);
    --  Returns a message whose message body is the content of the file. The
    --  Content_Type must indicate the MIME type for the file. User_Filename
    --  can be used to force the filename on the client side. This can be
@@ -169,7 +173,8 @@ package AWS.Response is
       Server_Close  : Boolean                   := True;
       Disposition   : Disposition_Mode          := None;
       User_Filename : String                    := "")
-      return Data;
+      return Data
+     with Post => not Is_Empty (Stream'Result);
    --  Returns a message whose message body is the content of the user defined
    --  stream. The Content_Type must indicate the MIME type for the data
    --  stream, Status_Code is the the header status code which should be send
@@ -188,7 +193,8 @@ package AWS.Response is
    function URL
      (Location      : String;
       Cache_Control : Messages.Cache_Option := Messages.Unspecified)
-      return Data;
+      return Data
+     with Post => not Is_Empty (URL'Result);
    --  This ask the server for a redirection to the specified URL. This is
    --  a temporary redirection, and the client browser should query the
    --  same original URL next time.
@@ -197,7 +203,8 @@ package AWS.Response is
      (Location      : String;
       Message       : String                := Default_Moved_Message;
       Cache_Control : Messages.Cache_Option := Messages.Unspecified)
-      return Data;
+      return Data
+     with Post => not Is_Empty (Moved'Result);
    --  This send back a moved message (Messages.S301) with the specified
    --  message body.
    --  This is a permanent redirection, and the client browser is encouraged
@@ -211,7 +218,8 @@ package AWS.Response is
    function Acknowledge
      (Status_Code  : Messages.Status_Code;
       Message_Body : String := "";
-      Content_Type : String := MIME.Text_HTML) return Data;
+      Content_Type : String := MIME.Text_HTML) return Data
+     with Post => not Is_Empty (Acknowledge'Result);
    --  Returns a message to the Web browser. This routine must be used to
    --  send back an error message to the Web browser. For example if a
    --  requested resource cannot be served a message with status code S404
@@ -222,12 +230,14 @@ package AWS.Response is
       Mode    : Authentication_Mode := Basic;
       Stale   : Boolean             := False;
       Message : String              := Default_Authenticate_Message)
-      return Data;
+      return Data
+     with Post => not Is_Empty (Authenticate'Result);
    --  Returns an authentication message (Messages.S401), the Web browser
    --  will then ask for an authentication. Realm string will be displayed
    --  by the Web Browser in the authentication dialog box.
 
-   function Socket_Taken return Data;
+   function Socket_Taken return Data
+     with Post => not Is_Empty (Socket_Taken'Result);
    --  Must be used to say that the connection socket has been taken by user
    --  inside of user callback. No operations should be performed on this
    --  socket, and associated slot should be released for further operations.
@@ -356,20 +366,21 @@ package AWS.Response is
    -- WebSockets --
    ----------------
 
-   function WebSocket return Data;
+   function WebSocket return Data
+     with Post => not Is_Empty (WebSocket'Result);
    --  WebSocket handshake from initial WebSocket connection
 
 private
 
    use Ada.Strings.Unbounded;
 
-   Default_Moved_Message : constant String
-     := "Page moved<br><a href=""_@_"">Click here</a>";
+   Default_Moved_Message : constant String :=
+                             "Page moved<br><a href=""_@_"">Click here</a>";
 
    CRLF : constant String := ASCII.CR & ASCII.LF;
 
-   Default_Authenticate_Message : constant String
-     := "<HTML><HEAD>" & CRLF
+   Default_Authenticate_Message : constant String :=
+     "<HTML><HEAD>" & CRLF
      & "<TITLE>401 Authorization Required</TITLE>" & CRLF
      & "</HEAD><BODY>" & CRLF
      & "<H1>Authorization Required</H1>" & CRLF
@@ -381,8 +392,8 @@ private
      & "the credentials required.<P>" & CRLF
      & "</BODY></HTML>" & CRLF;
 
-   Undefined_Length : constant Content_Length_Type
-     := Content_Length_Type (Resources.Undefined_Length);
+   Undefined_Length : constant Content_Length_Type :=
+                        Content_Length_Type (Resources.Undefined_Length);
 
    type Release_Controller is record
       Counter      : Natural := 1;
