@@ -126,7 +126,8 @@ package AWS.Utils is
    procedure Append_With_Sep
      (Content : in out Unbounded_String;
       Value   : String;
-      Sep     : String := ", ");
+      Sep     : String := ", ")
+     with Inline;
    --  Append Value into Content, append Sep before value if Content is not
    --  empty.
 
