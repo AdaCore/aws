@@ -27,6 +27,8 @@
 --  covered by the  GNU Public License.                                     --
 ------------------------------------------------------------------------------
 
+pragma Ada_2012;
+
 --  This package is used to build and register the active WebSockets. Some
 --  services to send or broadcast messages are also provided.
 
