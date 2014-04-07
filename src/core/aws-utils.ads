@@ -362,18 +362,19 @@ package AWS.Utils is
    function GMT_Clock return Calendar.Time;
    --  Returns current UTC/GMT time
 
-   function Time_Zone return String
-     with Post =>
+   function Time_Zone return String with
+   --  Returns the current offset between the GMT time and the local time-zone.
+   --  The format used is (+|-)HHMM as described into RFC 822. If offset is
+   --  zero it returns the empty string.
+     Post =>
        (Time_Zone'Result'Length = 0
           or else
        (Time_Zone'Result'Length = 5
         and then Time_Zone'Result (Time_Zone'Result'First) in '-' | '+'
-        and then
-          (for all K in Time_Zone'Result'First + 1 .. Time_Zone'Result'Last
-           => Time_Zone'Result (K) in '0' .. '9')));
-   --  Returns the current offset between the GMT time and the local time-zone.
-   --  The format used is (+|-)HHMM as described into RFC 822. If offset is
-   --  zero it returns the empty string.
+        and then Time_Zone'Result (Time_Zone'Result'First + 1) in '0' .. '2'
+        and then Time_Zone'Result (Time_Zone'Result'First + 2) in '0' .. '9'
+        and then Time_Zone'Result (Time_Zone'Result'First + 3) in '0' .. '5'
+        and then Time_Zone'Result (Time_Zone'Result'First + 4) in '0' .. '9'));
 
    AWS_Epoch : constant Calendar.Time := Calendar.Time_Of (2000, 01, 01, 0.0);
    --  AWS birthdate
