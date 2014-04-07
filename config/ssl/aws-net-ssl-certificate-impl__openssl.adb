@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2012-2013, AdaCore                     --
+--                     Copyright (C) 2012-2014, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -97,7 +97,7 @@ package body AWS.Net.SSL.Certificate.Impl is
 
          declare
             use Ada.Strings.Fixed;
-            Result : String (1 .. Natural (BIO_ctrl (IO, BIO_CTRL_PENDING)));
+            Result : String (1 .. Natural (BIO_pending (IO)));
             EMail  : constant String := ",emailAddress=";
             Idx    : Natural;
          begin

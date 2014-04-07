@@ -1089,7 +1089,15 @@ package SSL.Thin is
       Larg : long    := 0;
       Parg : Pointer := Null_Pointer) return long
      with Import, Convention => C, Link_Name => "BIO_ctrl";
-   --  BIO_pending(b) = (int)BIO_ctrl(b,BIO_CTRL_PENDING,0,NULL)
+
+   function BIO_pending (Bp : BIO_Access) return int is
+     (int (BIO_ctrl (Bp, BIO_CTRL_PENDING)));
+
+   function BIO_wpending (Bp : BIO_Access) return int is
+     (int (BIO_ctrl (Bp, BIO_CTRL_WPENDING)));
+
+   function BIO_flush (Bp : BIO_Access) return int is
+     (int (BIO_ctrl (Bp, BIO_CTRL_FLUSH)));
 
    procedure BIO_ctrl
      (Bp : BIO_Access; Cmd : int; Larg : long; Parg : Pointer)
