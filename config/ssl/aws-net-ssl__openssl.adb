@@ -798,18 +798,24 @@ package body AWS.Net.SSL is
       Data   : out Stream_Element_Array;
       Last   : out Stream_Element_Offset)
    is
-      Len : C.int;
+      Len   : C.int;
+      First : Stream_Element_Offset := Data'First;
    begin
       loop
-         Len := TSSL.SSL_read (Socket.SSL, Data'Address, Data'Length);
+         Len := TSSL.SSL_read
+                  (Socket.SSL, Data (First)'Address,
+                   Data'Length - C.int (First - Data'First));
 
-         exit when Len > 0;
+         if Len > 0 then
+            First := First + Stream_Element_Offset (Len);
+            Last  := First - 1;
 
-         declare
-            Error_Code : constant C.int :=
-                           TSSL.SSL_get_error (Socket.SSL, Len);
-         begin
-            case Error_Code is
+            exit when Last = Data'Last;
+
+         else
+            exit when First > Data'First and then NSST (Socket).Pending = 0;
+
+            case TSSL.SSL_get_error (Socket.SSL, Len) is
                when TSSL.SSL_ERROR_WANT_READ  => Socket_Read (Socket);
                when TSSL.SSL_ERROR_WANT_WRITE => Socket_Write (Socket);
                when TSSL.SSL_ERROR_SYSCALL =>
@@ -828,10 +834,8 @@ package body AWS.Net.SSL is
 
                when others => Raise_Socket_Error (Socket, Error_Stack);
             end case;
-         end;
+         end if;
       end loop;
-
-      Last := Data'First + Stream_Element_Offset (Len) - 1;
    end Receive;
 
    -------------

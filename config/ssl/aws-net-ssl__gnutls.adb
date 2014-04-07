@@ -1347,22 +1347,31 @@ package body AWS.Net.SSL is
       Data   : out Stream_Element_Array;
       Last   : out Stream_Element_Offset)
    is
-      Code : TSSL.ssize_t;
+      Code  : TSSL.ssize_t;
+      First : Stream_Element_Offset := Data'First;
    begin
       Do_Handshake_Internal (Socket);
 
       loop
-         Code :=
-           TSSL.gnutls_record_recv (Socket.SSL, Data'Address, Data'Length);
+         Code := TSSL.gnutls_record_recv
+                   (Socket.SSL, Data (First)'Address,
+                    C.size_t (Data'Length - First + Data'First));
 
-         if Code = 0 then
-            raise Socket_Error with Peer_Closed_Message;
-         elsif Code > 0 then
-            Last := Data'First + Stream_Element_Offset (Code) - 1;
-            exit;
+         if Code > 0 then
+            First := First + Stream_Element_Offset (Code);
+            Last  := First - 1;
+
+            exit when Last = Data'Last;
+
+         else
+            exit when First > Data'First and then NSST (Socket).Pending = 0;
+
+            if Code = 0 then
+               raise Socket_Error with Peer_Closed_Message;
+            end if;
+
+            Code_Processing (Code, Socket);
          end if;
-
-         Code_Processing (Code, Socket);
       end loop;
    end Receive;
 
