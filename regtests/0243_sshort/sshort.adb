@@ -104,8 +104,6 @@ procedure SShort is
 
       Client.Shutdown;
 
-      Text_IO.Put_Line ("client task done.");
-
    exception
       when E : others =>
          Text_IO.Put_Line (Exceptions.Exception_Information (E));
