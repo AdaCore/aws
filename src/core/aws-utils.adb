@@ -408,8 +408,7 @@ package body AWS.Utils is
 
    function Hex_Value (Hex : Hex_String) return Natural is
 
-      function Value (C : Character) return Natural
-        with Inline;
+      function Value (C : Character) return Natural with Inline;
       --  Return value for single character C
 
       -----------
@@ -557,7 +556,7 @@ package body AWS.Utils is
         (C              : in out Positive;
          Res            : in out Boolean;
          R_From, R_Last : Character)
-        with Inline;
+      with Inline;
       --  Read a single character, check that it is in the range
       --  R_From .. R_Last and set Res accordingly. This routine moves C
       --  to the next character then.

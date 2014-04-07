@@ -61,10 +61,10 @@ package AWS.Utils is
               Strings.Maps.To_Set (' ' & ASCII.HT & ASCII.LF & ASCII.CR);
    --  Set of spaces to ignore during parsing
 
-   subtype Hex_String is String
-     with Dynamic_Predicate =>
-            (for all H in Hex_String'Range
-             => Hex_String (H) in '0' .. '9' | 'a' .. 'f' | 'A' .. 'F');
+   subtype Hex_String is String with
+     Dynamic_Predicate =>
+       (for all H in Hex_String'Range
+        => Hex_String (H) in '0' .. '9' | 'a' .. 'f' | 'A' .. 'F');
 
    -------------------------------
    --  General helper functions --
@@ -76,8 +76,8 @@ package AWS.Utils is
    procedure Random_String (Item : out String);
    --  Fill string by random printable characters
 
-   function Random_String (Length : Natural) return String
-     with Inline, Post => Random_String'Result'Length = Length;
+   function Random_String (Length : Natural) return String with
+     Inline, Post => Random_String'Result'Length = Length;
    --  Returns random string
 
    function Image (N : Natural) return String;
@@ -132,12 +132,11 @@ package AWS.Utils is
      (Content : in out Unbounded_String;
       Value   : String;
       Sep     : String := ", ")
-     with Inline;
+   with Inline;
    --  Append Value into Content, append Sep before value if Content is not
    --  empty.
 
-   function Match (Str, Pattern : String) return Boolean
-     with Inline;
+   function Match (Str, Pattern : String) return Boolean with Inline;
    --  Returns True if Pattern matches the begining of Str. The test is not
    --  case sensitive.
 
@@ -325,16 +324,13 @@ package AWS.Utils is
    No_Such_File : exception;
    --  Raised be the routines below when a file is not found
 
-   function Is_Regular_File (Filename : String) return Boolean
-     with Inline;
+   function Is_Regular_File (Filename : String) return Boolean with Inline;
    --  Returns True if Filename is a regular file and is readable
 
-   function Is_Directory (Filename : String) return Boolean
-     with Inline;
+   function Is_Directory (Filename : String) return Boolean with Inline;
    --  Returns True if Filename is a directory
 
-   function File_Size (Filename : String) return File_Size_Type
-     with Inline;
+   function File_Size (Filename : String) return File_Size_Type with Inline;
    --  Returns Filename's size in bytes
 
    function File_Time_Stamp (Filename : String) return Ada.Calendar.Time

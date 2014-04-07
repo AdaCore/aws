@@ -1372,8 +1372,8 @@ package body AWS.Net.SSL is
 
       protected Task_Id_Generator is
 
-         procedure Get_Task_Id (Id : out Task_Identifier)
-           with Post => Id > 0;
+         procedure Get_Task_Id (Id : out Task_Identifier) with
+           Post => Id > 0;
          --  Return a uniq Id starting from 1 and incrementing one by one
 
          procedure Finalize_Task

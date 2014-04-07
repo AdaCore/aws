@@ -67,7 +67,7 @@ package AWS.Net.Std is
       Port   : Positive;
       Wait   : Boolean     := True;
       Family : Family_Type := Family_Unspec)
-     with Pre => Host'Length > 0;
+   with Pre => Host'Length > 0;
    --  Connect a socket on a given host/port. If Wait is True Connect will wait
    --  for the connection to be established for timeout seconds, specified by
    --  Set_Timeout routine. If Wait is False Connect will return immediately,
@@ -94,7 +94,7 @@ package AWS.Net.Std is
      (Socket : Socket_Type;
       Data   : out Stream_Element_Array;
       Last   : out Stream_Element_Offset)
-     with Inline;
+   with Inline;
 
    overriding function Pending
      (Socket : Socket_Type) return Stream_Element_Count;

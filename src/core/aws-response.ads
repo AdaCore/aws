@@ -105,7 +105,7 @@ package AWS.Response is
       Cache_Control : Messages.Cache_Option     := Messages.Unspecified;
       Encoding      : Messages.Content_Encoding := Messages.Identity)
       return Data
-     with Post => not Is_Empty (Build'Result);
+   with Post => not Is_Empty (Build'Result);
 
    function Build
      (Content_Type    : String;
@@ -114,7 +114,7 @@ package AWS.Response is
       Cache_Control   : Messages.Cache_Option     := Messages.Unspecified;
       Encoding        : Messages.Content_Encoding := Messages.Identity)
       return Data
-     with Post => not Is_Empty (Build'Result);
+   with Post => not Is_Empty (Build'Result);
    --  Return a message whose body is passed into Message_Body. The
    --  Content_Type parameter is the MIME type for the message
    --  body. Status_Code is the response status (see Messages.Status_Code
@@ -127,7 +127,7 @@ package AWS.Response is
       Cache_Control : Messages.Cache_Option        := Messages.Unspecified;
       Encoding      : Messages.Content_Encoding    := Messages.Identity)
       return Data
-     with Post => not Is_Empty (Build'Result);
+   with Post => not Is_Empty (Build'Result);
    --  Idem above, but the message body is a stream element array
 
    type Disposition_Mode is (Attachment, Inline, None);
@@ -156,7 +156,7 @@ package AWS.Response is
       Disposition   : Disposition_Mode          := None;
       User_Filename : String                    := "")
       return Data
-     with Post => not Is_Empty (File'Result);
+   with Post => not Is_Empty (File'Result);
    --  Returns a message whose message body is the content of the file. The
    --  Content_Type must indicate the MIME type for the file. User_Filename
    --  can be used to force the filename on the client side. This can be
@@ -174,7 +174,7 @@ package AWS.Response is
       Disposition   : Disposition_Mode          := None;
       User_Filename : String                    := "")
       return Data
-     with Post => not Is_Empty (Stream'Result);
+   with Post => not Is_Empty (Stream'Result);
    --  Returns a message whose message body is the content of the user defined
    --  stream. The Content_Type must indicate the MIME type for the data
    --  stream, Status_Code is the the header status code which should be send
@@ -194,7 +194,7 @@ package AWS.Response is
      (Location      : String;
       Cache_Control : Messages.Cache_Option := Messages.Unspecified)
       return Data
-     with Post => not Is_Empty (URL'Result);
+   with Post => not Is_Empty (URL'Result);
    --  This ask the server for a redirection to the specified URL. This is
    --  a temporary redirection, and the client browser should query the
    --  same original URL next time.
@@ -204,7 +204,7 @@ package AWS.Response is
       Message       : String                := Default_Moved_Message;
       Cache_Control : Messages.Cache_Option := Messages.Unspecified)
       return Data
-     with Post => not Is_Empty (Moved'Result);
+   with Post => not Is_Empty (Moved'Result);
    --  This send back a moved message (Messages.S301) with the specified
    --  message body.
    --  This is a permanent redirection, and the client browser is encouraged
@@ -219,11 +219,11 @@ package AWS.Response is
      (Status_Code  : Messages.Status_Code;
       Message_Body : String := "";
       Content_Type : String := MIME.Text_HTML) return Data
-     with Post => not Is_Empty (Acknowledge'Result);
    --  Returns a message to the Web browser. This routine must be used to
    --  send back an error message to the Web browser. For example if a
    --  requested resource cannot be served a message with status code S404
    --  must be sent.
+   with Post => not Is_Empty (Acknowledge'Result);
 
    function Authenticate
      (Realm   : String;
@@ -231,13 +231,13 @@ package AWS.Response is
       Stale   : Boolean             := False;
       Message : String              := Default_Authenticate_Message)
       return Data
-     with Post => not Is_Empty (Authenticate'Result);
    --  Returns an authentication message (Messages.S401), the Web browser
    --  will then ask for an authentication. Realm string will be displayed
    --  by the Web Browser in the authentication dialog box.
+   with Post => not Is_Empty (Authenticate'Result);
 
-   function Socket_Taken return Data
-     with Post => not Is_Empty (Socket_Taken'Result);
+   function Socket_Taken return Data with
+     Post => not Is_Empty (Socket_Taken'Result);
    --  Must be used to say that the connection socket has been taken by user
    --  inside of user callback. No operations should be performed on this
    --  socket, and associated slot should be released for further operations.
@@ -348,7 +348,7 @@ package AWS.Response is
      (D    : in out Data;
       File : out AWS.Resources.File_Type;
       GZip : Boolean)
-     with Inline;
+   with Inline;
    --  Creates the resource object (either a file or in-memory object) for
    --  the data to be sent to the client. The resource should be closed after
    --  use.
@@ -366,8 +366,8 @@ package AWS.Response is
    -- WebSockets --
    ----------------
 
-   function WebSocket return Data
-     with Post => not Is_Empty (WebSocket'Result);
+   function WebSocket return Data with
+     Post => not Is_Empty (WebSocket'Result);
    --  WebSocket handshake from initial WebSocket connection
 
 private

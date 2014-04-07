@@ -35,8 +35,8 @@ with GNAT.MD5;
 
 package AWS.Digest is
 
-   subtype Digest_String is GNAT.MD5.Message_Digest
-     with Dynamic_Predicate =>
+   subtype Digest_String is GNAT.MD5.Message_Digest with
+     Dynamic_Predicate =>
        (for all C of Digest_String
         => C in 'a' .. 'z' | 'A' .. 'Z' | '0' .. '9' | '+' | '/' | '=');
 
