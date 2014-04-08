@@ -66,6 +66,17 @@ package AWS.Utils is
        (for all H in Hex_String'Range
         => Hex_String (H) in '0' .. '9' | 'a' .. 'f' | 'A' .. 'F');
 
+   subtype Time_Zone_String is String with
+     Dynamic_Predicate =>
+       (Time_Zone_String'Length = 0
+          or else
+       (Time_Zone_String'Length = 5
+        and then Time_Zone_String (Time_Zone_String'First) in '-' | '+'
+        and then Time_Zone_String (Time_Zone_String'First + 1) in '0' .. '2'
+        and then Time_Zone_String (Time_Zone_String'First + 2) in '0' .. '9'
+        and then Time_Zone_String (Time_Zone_String'First + 3) in '0' .. '5'
+        and then Time_Zone_String (Time_Zone_String'First + 4) in '0' .. '9'));
+
    -------------------------------
    --  General helper functions --
    -------------------------------
@@ -362,19 +373,10 @@ package AWS.Utils is
    function GMT_Clock return Calendar.Time;
    --  Returns current UTC/GMT time
 
-   function Time_Zone return String with
+   function Time_Zone return Time_Zone_String;
    --  Returns the current offset between the GMT time and the local time-zone.
    --  The format used is (+|-)HHMM as described into RFC 822. If offset is
    --  zero it returns the empty string.
-     Post =>
-       (Time_Zone'Result'Length = 0
-          or else
-       (Time_Zone'Result'Length = 5
-        and then Time_Zone'Result (Time_Zone'Result'First) in '-' | '+'
-        and then Time_Zone'Result (Time_Zone'Result'First + 1) in '0' .. '2'
-        and then Time_Zone'Result (Time_Zone'Result'First + 2) in '0' .. '9'
-        and then Time_Zone'Result (Time_Zone'Result'First + 3) in '0' .. '5'
-        and then Time_Zone'Result (Time_Zone'Result'First + 4) in '0' .. '9'));
 
    AWS_Epoch : constant Calendar.Time := Calendar.Time_Of (2000, 01, 01, 0.0);
    --  AWS birthdate

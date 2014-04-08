@@ -1081,7 +1081,7 @@ package body AWS.Utils is
    -- Time_Zone --
    ---------------
 
-   function Time_Zone return String is
+   function Time_Zone return Time_Zone_String is
 
       subtype String2 is String (1 .. 2);
 
