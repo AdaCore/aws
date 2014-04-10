@@ -19,9 +19,11 @@
 
       function startWS() {
           var server = window.location.host;
+          var protocol = window.location.protocol;
           updateP('server', 'Server is ' + server);
 
-          ws = AWS.WebSocket.open('ws://' + server + '/echo', 'data', 'status');
+          ws = AWS.WebSocket.open('ws' + protocol.substring (4) + '//' + server
+                                  + '/echo', 'data', 'status');
           if (ws != false)
              updateP('status', "Your browser supports webSocket.");
 
