@@ -182,6 +182,19 @@ package SSL.Thin is
    GNUTLS_DATAGRAM : constant C.unsigned := 4;
    GNUTLS_NONBLOCK : constant C.unsigned := 8;
 
+   GNUTLS_MAC_UNKNOWN : constant gnutls_mac_algorithm_t := 0;
+   GNUTLS_MAC_NULL    : constant gnutls_mac_algorithm_t := 1;
+   GNUTLS_MAC_MD5     : constant gnutls_mac_algorithm_t := 2;
+   GNUTLS_MAC_SHA1    : constant gnutls_mac_algorithm_t := 3;
+   GNUTLS_MAC_RMD160  : constant gnutls_mac_algorithm_t := 4;
+   GNUTLS_MAC_MD2     : constant gnutls_mac_algorithm_t := 5;
+   GNUTLS_MAC_SHA256  : constant gnutls_mac_algorithm_t := 6;
+   GNUTLS_MAC_SHA384  : constant gnutls_mac_algorithm_t := 7;
+   GNUTLS_MAC_SHA512  : constant gnutls_mac_algorithm_t := 8;
+   GNUTLS_MAC_SHA224  : constant gnutls_mac_algorithm_t := 9;
+   GNUTLS_MAC_AEAD    : constant gnutls_mac_algorithm_t := 200;
+   --  indicates that MAC is on the cipher
+
    type gnutls_certificate_verify_flags is new C.int;
    subtype certificate_verify_flags is gnutls_certificate_verify_flags;
 
@@ -1078,6 +1091,22 @@ package SSL.Thin is
      (pkey  : gnutls_privkey_t;
       key   : gnutls_x509_privkey_t;
       flags : C.unsigned) return C.int
+     with Import, Convention => C;
+
+   function gnutls_privkey_import_x509_raw
+     (pkey     : gnutls_privkey_t;
+      data     : a_gnutls_datum_t;
+      format   : gnutls_x509_crt_fmt_t;
+      password : CS.chars_ptr;
+      flags    : C.unsigned) return C.int
+     with Import, Convention => C;
+
+   function gnutls_privkey_sign_data
+     (signer    : gnutls_privkey_t;
+      hash      : gnutls_digest_algorithm_t;
+      flags     : C.unsigned;
+      data      : a_gnutls_datum_t;
+      signature : access gnutls_datum_t) return C.int
      with Import, Convention => C;
 
    function gnutls_x509_crt_import
