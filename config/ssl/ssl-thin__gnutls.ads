@@ -416,6 +416,8 @@ package SSL.Thin is
    type gnutls_privkey_t is access all STRUCT_DSTRUCT;
    type gnutls_priority_t is access all STRUCT_DSTRUCT;
 
+   subtype Private_Key is gnutls_privkey_t;
+
    type gnutls_retr_st is record
       cert_type  : gnutls_certificate_type_t;
       cert_x509  : a_gnutls_x509_crt_t;
@@ -1104,6 +1106,13 @@ package SSL.Thin is
    function gnutls_privkey_sign_data
      (signer    : gnutls_privkey_t;
       hash      : gnutls_digest_algorithm_t;
+      flags     : C.unsigned;
+      data      : a_gnutls_datum_t;
+      signature : access gnutls_datum_t) return C.int
+     with Import, Convention => C;
+
+   function gnutls_privkey_sign_raw_data
+     (key       : gnutls_privkey_t;
       flags     : C.unsigned;
       data      : a_gnutls_datum_t;
       signature : access gnutls_datum_t) return C.int

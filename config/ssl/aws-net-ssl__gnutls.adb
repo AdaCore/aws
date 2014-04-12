@@ -743,6 +743,14 @@ package body AWS.Net.SSL is
       Unchecked_Free (Session);
    end Free;
 
+   procedure Free (Key : in out Private_Key) is
+   begin
+      if Key /= null then
+         TSSL.gnutls_privkey_deinit (TSSL.Private_Key (Key));
+         Key := null;
+      end if;
+   end Free;
+
    -----------------
    -- Generate_DH --
    -----------------
@@ -993,7 +1001,6 @@ package body AWS.Net.SSL is
       ---------------------
 
       procedure Set_Certificate (CC : TSSL.gnutls_certificate_credentials_t) is
-         X509_PK : aliased TSSL.gnutls_x509_privkey_t;
 
          function Load_PCert_List (Try_Size : Positive) return PCert_Array;
 
@@ -1027,18 +1034,12 @@ package body AWS.Net.SSL is
       begin
          if Set_Certificate_Over_Callback then
             Config.PCert_List := new PCert_Array'(Load_PCert_List (4));
-            Check_Error_Code (TSSL.gnutls_x509_privkey_init (X509_PK'Access));
-            Check_Error_Code
-              (TSSL.gnutls_x509_privkey_import
-                 (X509_PK, Key.Datum'Unchecked_Access,
-                  TSSL.GNUTLS_X509_FMT_PEM));
 
+            Check_Error_Code (TSSL.gnutls_privkey_init (Config.TLS_PK'Access));
             Check_Error_Code
-              (TSSL.gnutls_privkey_init (Config.TLS_PK'Access));
-            Check_Error_Code
-              (TSSL.gnutls_privkey_import_x509
-                 (Config.TLS_PK, X509_PK,
-                  TSSL.GNUTLS_PRIVKEY_IMPORT_AUTO_RELEASE));
+              (TSSL.gnutls_privkey_import_x509_raw
+                 (Config.TLS_PK, Key.Datum'Unchecked_Access,
+                  TSSL.GNUTLS_X509_FMT_PEM, CS.Null_Ptr, 0));
 
             TSSL.gnutls_certificate_set_retrieve_function2
               (CC, Retrieve_Certificate'Access);
@@ -1254,6 +1255,25 @@ package body AWS.Net.SSL is
          return Memory.Realloc (Ptr, Size);
       end if;
    end Lib_Realloc;
+
+   ----------
+   -- Load --
+   ----------
+
+   function Load (Filename : String) return Private_Key is
+      Data : Datum_Type := Load_File (Filename);
+      Key  : aliased TSSL.Private_Key;
+   begin
+      Check_Error_Code (TSSL.gnutls_privkey_init (Key'Access));
+      Check_Error_Code
+        (TSSL.gnutls_privkey_import_x509_raw
+           (Key, Data.Datum'Unchecked_Access, TSSL.GNUTLS_X509_FMT_PEM,
+            CS.Null_Ptr, 0));
+
+      Free (Data);
+
+      return Private_Key (Key);
+   end Load;
 
    ---------------
    -- Load_File --
@@ -1964,6 +1984,48 @@ package body AWS.Net.SSL is
 
       Net.Std.Shutdown (NSST (Socket), How);
    end Shutdown;
+
+   ---------------
+   -- Signature --
+   ---------------
+
+   function Signature
+     (Ptr  : System.Address;
+      Size : Interfaces.C.size_t;
+      Key  : Private_Key;
+      Hash : Hash_Method) return Stream_Element_Array
+   is
+      To_C : constant array (Hash_Method) of TSSL.gnutls_mac_algorithm_t
+               := (MD5    => TSSL.GNUTLS_MAC_MD5,
+                   SHA1   => TSSL.GNUTLS_MAC_SHA1,
+                   SHA224 => TSSL.GNUTLS_MAC_SHA224,
+                   SHA256 => TSSL.GNUTLS_MAC_SHA256,
+                   SHA384 => TSSL.GNUTLS_MAC_SHA384,
+                   SHA512 => TSSL.GNUTLS_MAC_SHA512);
+      Dat : aliased TSSL.gnutls_datum_t := (Ptr, C.unsigned (Size));
+      Sig : aliased TSSL.gnutls_datum_t;
+   begin
+      Check_Error_Code
+        (TSSL.gnutls_privkey_sign_data
+           (signer    => TSSL.Private_Key (Key),
+            hash      => TSSL.gnutls_digest_algorithm_t (To_C (Hash)),
+            flags     => 0,
+            data      => Dat'Unchecked_Access,
+            signature => Sig'Access));
+
+      declare
+         type Array_Access is access all
+            Stream_Element_Array (1 .. Stream_Element_Offset (Sig.size));
+
+         function To_Result is
+           new Ada.Unchecked_Conversion (TSSL.a_unsigned_char_t, Array_Access);
+
+         Result : constant Stream_Element_Array := To_Result (Sig.data).all;
+      begin
+         TSSL.gnutls_free (Sig.data);
+         return Result;
+      end;
+   end Signature;
 
    -----------------
    -- Socket_Pair --

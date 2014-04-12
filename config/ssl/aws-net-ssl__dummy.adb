@@ -110,6 +110,12 @@ package body AWS.Net.SSL is
    -- Free --
    ----------
 
+   procedure Free (Key : in out Private_Key) is
+      pragma Unreferenced (Key);
+   begin
+      null;
+   end Free;
+
    overriding procedure Free (Socket : in out Socket_Type) is
    begin
       raise Program_Error with Error_Message;
@@ -171,6 +177,16 @@ package body AWS.Net.SSL is
    begin
       raise Program_Error with Error_Message;
    end Initialize_Default_Config;
+
+   ----------
+   -- Load --
+   ----------
+
+   function Load (Filename : String) return Private_Key is
+   begin
+      raise Program_Error with Error_Message;
+      return (others => <>);
+   end Load;
 
    ---------------
    -- Log_Error --
@@ -358,6 +374,21 @@ package body AWS.Net.SSL is
    begin
       raise Program_Error with Error_Message;
    end Shutdown;
+
+   ---------------
+   -- Signature --
+   ---------------
+
+   function Signature
+     (Ptr  : System.Address;
+      Size : Interfaces.C.size_t;
+      Key  : Private_Key;
+      Hash : Hash_Method) return Stream_Element_Array
+   is
+      pragma Unreferenced (Ptr, Size, Key, Hash);
+   begin
+      return (1 .. 0 => <>);
+   end Signature;
 
    -----------------
    -- Socket_Pair --

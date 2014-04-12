@@ -485,6 +485,14 @@ package body AWS.Net.SSL is
       end if;
    end Free;
 
+   procedure Free (Key : in out Private_Key) is
+   begin
+      if Key /= Private_Key (TSSL.Null_Pointer) then
+         TSSL.RSA_free (TSSL.Private_Key (Key));
+         Key := Private_Key (TSSL.Null_Pointer);
+      end if;
+   end Free;
+
    -----------------
    -- Generate_DH --
    -----------------
@@ -542,7 +550,7 @@ package body AWS.Net.SSL is
 
             Error_If
               (DH /= TSSL.PEM_read_bio_DHparams
-                       (BIO, DH'Access, TSSL.Null_Pointer, TSSL.Null_Pointer));
+                       (BIO, DH'Access, null, TSSL.Null_Pointer));
 
             DH_Time (DH_Time_Idx + 1) := File_Timestamp (Filename);
             DH_Time_Idx := DH_Time_Idx + 1;
@@ -766,6 +774,29 @@ package body AWS.Net.SSL is
          return System.Memory.Realloc (Ptr, Size);
       end if;
    end Lib_Realloc;
+
+   ----------
+   -- Load --
+   ----------
+
+   function Load (Filename : String) return Private_Key is
+      use type TSSL.Private_Key;
+      Key  : aliased TSSL.Private_Key := TSSL.RSA_new;
+      IO   : constant TSSL.BIO_Access := TSSL.BIO_new (TSSL.BIO_s_file);
+      Name : aliased C.char_array := C.To_C (Filename);
+   begin
+      Error_If
+        (TSSL.BIO_read_filename
+           (IO, C.Strings.To_Chars_Ptr (Name'Unchecked_Access)) = 0);
+
+      Error_If
+        (TSSL.PEM_read_bio_RSAPrivateKey
+           (IO, Key'Access, null, TSSL.Null_Pointer) /= Key);
+
+      TSSL.BIO_free (IO);
+
+      return Private_Key (Key);
+   end Load;
 
    ---------------
    -- Log_Error --
@@ -1264,6 +1295,61 @@ package body AWS.Net.SSL is
 
       Net.Std.Shutdown (NSST (Socket), How);
    end Shutdown;
+
+   ---------------
+   -- Signature --
+   ---------------
+
+   function Signature
+     (Ptr  : System.Address;
+      Size : C.size_t;
+      Key  : Private_Key;
+      Hash : Hash_Method) return Stream_Element_Array
+   is
+      use TSSL;
+      use type C.unsigned;
+      To_EVP_MD : constant array (Hash_Method) of EVP_MD :=
+                    (MD5    => EVP_md5,
+                     SHA1   => EVP_sha1,
+                     SHA224 => EVP_sha224,
+                     SHA256 => EVP_sha256,
+                     SHA384 => EVP_sha384,
+                     SHA512 => EVP_sha512);
+
+      To_NID : constant array (Hash_Method) of C.int :=
+                 (MD5    => NID_md5,
+                  SHA1   => NID_sha1,
+                  SHA224 => NID_sha224,
+                  SHA256 => NID_sha256,
+                  SHA384 => NID_sha384,
+                  SHA512 => NID_sha512);
+
+      Md  : constant EVP_MD := To_EVP_MD (Hash);
+      Ctx : constant EVP_MD_CTX := EVP_MD_CTX_create;
+      Dig : Stream_Element_Array
+              (1 .. Stream_Element_Offset (EVP_MD_size (Md)));
+      Res : Stream_Element_Array
+              (1 .. Stream_Element_Offset (RSA_size (RSA (Key))));
+      Len : aliased C.unsigned := Dig'Length;
+   begin
+      Error_If (EVP_DigestInit (Ctx, Md) = 0);
+      Error_If (EVP_DigestUpdate (Ctx, Ptr, Size) = 0);
+      Error_If (EVP_DigestFinal (Ctx, Dig'Address, Len'Access) = 0);
+
+      if Len /= Dig'Length then
+         raise Program_Error with "Digest length error";
+      end if;
+
+      EVP_MD_CTX_destroy (Ctx);
+
+      Len := Res'Length;
+      Error_If
+        (RSA_sign
+           (To_NID (Hash), Dig'Address, Dig'Length, Res'Address, Len'Access,
+            RSA (Key)) /= 1);
+
+      return Res;
+   end Signature;
 
    -----------------
    -- Socket_Pair --

@@ -36,6 +36,7 @@ with Ada.Strings.Unbounded;
 with Ada.Text_IO.Editing;
 
 with AWS.Client;
+with AWS.Config.Set;
 with AWS.Messages;
 with AWS.MIME;
 with AWS.Net.Log;
@@ -115,6 +116,10 @@ procedure Check_Mem is
 
    HTTP : AWS.Server.HTTP;
    Push : Server_Push.Object;
+
+   SSL_Srv : Net.SSL.Config;
+   SSL_Clt : Net.SSL.Config;
+   Hash    : Net.SSL.Hash_Method := Net.SSL.Hash_Method'First;
 
    DH_Time  : Ada.Calendar.Time := AWS.Utils.AWS_Epoch;
    RSA_Time : Ada.Calendar.Time := AWS.Utils.AWS_Epoch;
@@ -309,14 +314,26 @@ procedure Check_Mem is
    ------------
 
    task body Server is
+      Cfg : Config.Object;
    begin
-      AWS.Server.Start
-        (HTTP, "check_mem",
-         CB'Unrestricted_Access,
-         Port           => 0,
-         Max_Connection => 5,
-         Security       => True,
-         Session        => True);
+      Config.Set.Server_Name    (Cfg, "check_mem");
+      Config.Set.Server_Port    (Cfg, 0);
+      Config.Set.Max_Connection (Cfg, 5);
+      Config.Set.Security       (Cfg, True);
+      Config.Set.Session        (Cfg, True);
+
+      AWS.Net.SSL.Initialize
+        (Config               => SSL_Srv,
+         Certificate_Filename => "cert.pem",
+         Key_Filename         => "cert.key",
+         Session_Cache_Size   => 2);
+
+      --  Session_Cache_Size  => 2 - limit session cache to avoid different
+      --  cache container allocation in different execution.
+
+      AWS.Server.Set_SSL_Config (HTTP, SSL_Srv);
+
+      AWS.Server.Start (HTTP, CB'Unrestricted_Access, Cfg);
 
       Put_Line ("Server started");
       New_Line;
@@ -383,6 +400,7 @@ procedure Check_Mem is
 
       Connect : AWS.Client.HTTP_Connection;
       Session : Unbounded_String;
+      Key     : Net.SSL.Private_Key := Net.SSL.Load ("cert.key");
 
       procedure Request (URL : String; Filename : String := "");
 
@@ -394,6 +412,7 @@ procedure Check_Mem is
 
       procedure Request (URL : String; Filename : String := "") is
          use Ada.Streams;
+         use type Net.SSL.Hash_Method;
          Answer : Response.Data;
          Result : Resources.File_Type;
          File   : Resources.File_Type;
@@ -418,7 +437,13 @@ procedure Check_Mem is
                if Last_R < 64 then
                   Check (Translator.To_String (Data_R (1 .. Last_R)));
                else
-                  Check (GNAT.MD5.Digest (Data_R (1 .. Last_R)));
+                  Check
+                    (GNAT.MD5.Digest
+                       (Net.SSL.Signature (Data_R (1 .. Last_R), Key, Hash)));
+
+                  if Hash < Net.SSL.Hash_Method'Last then
+                     Hash := Net.SSL.Hash_Method'Succ (Hash);
+                  end if;
                end if;
             else
                Resources.Read (File, Data_F, Last_F);
@@ -515,6 +540,7 @@ procedure Check_Mem is
       end if;
 
       AWS.Client.Close (Connect);
+      Net.SSL.Free (Key);
    end Client;
 
    ---------------------------
@@ -777,6 +803,10 @@ procedure Check_Mem is
 
          accept Start;
 
+         if Security then
+            Net.SSL.Socket_Type (Client).Set_Config (SSL_Clt);
+         end if;
+
          for J in 1 .. N loop
             Connect (Client, Localhost (Server.Is_IPv6), Server.Get_Port);
             Send (Client, (1 .. 10 => 11));
@@ -796,6 +826,10 @@ procedure Check_Mem is
       Std.Set_Timeout (Server, 0.5);
 
       Connector.Start;
+
+      if Security then
+         Net.SSL.Socket_Type (Peer).Set_Config (SSL_Srv);
+      end if;
 
       for J in 1 .. N loop
          Accept_Socket (Server, Peer);
@@ -906,11 +940,6 @@ begin
 
    Server.Started;
 
-   --  Limit session cache to avoid different cache container allocation
-   --  in different execution.
-
-   AWS.Net.SSL.Set_Session_Cache_Size (2);
-
    declare
       FN : constant String := "rsa-dh-generation.log";
    begin
@@ -925,6 +954,8 @@ begin
    --  iterations.
 
    for K in 1 ..  Iteration loop
+      Net.SSL.Initialize (Config => SSL_Clt, Certificate_Filename => "");
+
       Timestamp := Calendar.Clock;
       Client;
       Stamp ("Client");
@@ -965,13 +996,15 @@ begin
 
       AWS.Net.SSL.Start_Parameters_Generation
         (K rem 3 = 1, Generation_Logging'Access);
+
+      Net.SSL.Release (Config => SSL_Clt);
    end loop;
 
    Server.Stopped;
 
    --  Clear session cache to normalize rest allocated memory
 
-   AWS.Net.SSL.Clear_Session_Cache;
+   AWS.Net.SSL.Clear_Session_Cache (SSL_Srv);
 
    for J in 1 .. 8 loop
       exit when DH_Time /= AWS.Net.SSL.Generated_Time_DH;

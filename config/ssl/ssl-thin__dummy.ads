@@ -34,6 +34,7 @@ package SSL.Thin is
    type SSL_Handle is null record;
    type BIO_Access is null record;
    type Session_Record is null record;
+   type Private_Key is null record;
 
    Null_Handle : SSL_Handle;
 

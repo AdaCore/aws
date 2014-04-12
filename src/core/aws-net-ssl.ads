@@ -268,6 +268,24 @@ package AWS.Net.SSL is
    --  Returns True in case session was successfully reused after
    --  Set_Session_Data and handshake.
 
+   type Private_Key is private;
+
+   type Hash_Method is (MD5, SHA1, SHA224, SHA256, SHA384, SHA512);
+
+   function Load (Filename : String) return Private_Key;
+
+   procedure Free (Key : in out Private_Key) with Inline;
+
+   function Signature
+     (Data : String;
+      Key  : Private_Key;
+      Hash : Hash_Method) return Stream_Element_Array with Inline;
+
+   function Signature
+     (Data : Stream_Element_Array;
+      Key  : Private_Key;
+      Hash : Hash_Method) return Stream_Element_Array with Inline;
+
 private
 
    package TSSL renames Standard.SSL.Thin;
@@ -283,6 +301,8 @@ private
    type Session_Type is access all TSSL.Session_Record;
 
    Null_Session : constant Session_Type := null;
+
+   type Private_Key is new TSSL.Private_Key;
 
    type Config is access all TS_SSL;
    pragma No_Strict_Aliasing (Config);
@@ -331,5 +351,23 @@ private
 
    function Get_Config (Socket : Socket_Type) return SSL.Config is
      (Socket.Config);
+
+   function Signature
+     (Ptr  : System.Address;
+      Size : Interfaces.C.size_t;
+      Key  : Private_Key;
+      Hash : Hash_Method) return Stream_Element_Array;
+
+   function Signature
+     (Data : String;
+      Key  : Private_Key;
+      Hash : Hash_Method) return Stream_Element_Array
+   is (Signature (Data'Address, Data'Length, Key, Hash));
+
+   function Signature
+     (Data : Stream_Element_Array;
+      Key  : Private_Key;
+      Hash : Hash_Method) return Stream_Element_Array
+   is (Signature (Data'Address, Data'Length, Key, Hash));
 
 end AWS.Net.SSL;

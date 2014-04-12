@@ -134,6 +134,8 @@ package SSL.Thin is
    subtype X509_STORE_CTX is Pointer;
    subtype X509_STORE     is Pointer;
 
+   subtype Private_Key is RSA;
+
    type X509_LOOKUP        is new Pointer;
    type X509_LOOKUP_METHOD is new Pointer;
    type X509_VERIFY_PARAM  is new Pointer;
@@ -368,6 +370,11 @@ package SSL.Thin is
    BIO_NOCLOSE : constant := 0;
    BIO_CLOSE   : constant := 1;
 
+   BIO_FP_READ   : constant := 2;
+   BIO_FP_WRITE  : constant := 4;
+   BIO_FP_APPEND : constant := 8;
+   BIO_FP_TEXT   : constant := 16;
+
    BIO_FLAGS_READ       : constant := 1;
    BIO_FLAGS_WRITE      : constant := 2;
    BIO_FLAGS_IO_SPECIAL : constant := 4;
@@ -377,6 +384,14 @@ package SSL.Thin is
 
    RSA_3  : constant := 3;
    RSA_F4 : constant := 16#10001#;
+
+   RSA_PKCS1_PADDING      : constant := 1;
+   RSA_SSLV23_PADDING     : constant := 2;
+   RSA_NO_PADDING         : constant := 3;
+   RSA_PKCS1_OAEP_PADDING : constant := 4;
+   RSA_X931_PADDING       : constant := 5;
+   RSA_PKCS1_PSS_PADDING  : constant := 6;
+   RSA_PKCS1_PADDING_SIZE : constant := 11;
 
    ASN1_OBJECT_FLAG_DYNAMIC         : constant := 16#01#;
    ASN1_OBJECT_FLAG_CRITICAL        : constant := 16#02#;
@@ -491,6 +506,14 @@ package SSL.Thin is
    X509_V_ERR_AKID_ISSUER_SERIAL_MISMATCH        : constant := 31;
    X509_V_ERR_KEYUSAGE_NO_CERTSIGN               : constant := 32;
    X509_V_ERR_APPLICATION_VERIFICATION           : constant := 50;
+
+   NID_md5       : constant := 4;
+   NID_sha1      : constant := 64;
+   NID_sha224    : constant := 675;
+   NID_sha256    : constant := 672;
+   NID_sha384    : constant := 673;
+   NID_sha512    : constant := 674;
+   NID_ripemd160 : constant := 117;
 
    type ASN1_STRING is record
       length : int;
@@ -783,11 +806,88 @@ package SSL.Thin is
    --  Crypto routines --
    ----------------------
 
+   type EVP_PKEY is new Pointer;
+   type EVP_MD is new Pointer;
+   type EVP_MD_CTX is new Pointer;
+
+   function EVP_MD_CTX_create return EVP_MD_CTX
+     with Import, Convention => C, Link_Name => "EVP_MD_CTX_create";
+
+   procedure EVP_MD_CTX_destroy (Ctx : EVP_MD_CTX)
+     with Import, Convention => C, Link_Name => "EVP_MD_CTX_destroy";
+
+   function EVP_DigestInit (ctx : EVP_MD_CTX; kind : EVP_MD) return int
+     with Import, Convention => C, Link_Name => "EVP_DigestInit";
+
+   function EVP_DigestUpdate
+     (ctx : EVP_MD_CTX; d : Pointer; cnt : size_t) return int
+     with Import, Convention => C, Link_Name => "EVP_DigestUpdate";
+
+   function EVP_DigestFinal
+     (ctx : EVP_MD_CTX; md : Pointer; s : access unsigned) return int
+     with Import, Convention => C, Link_Name => "EVP_DigestFinal";
+
+   function EVP_DigestFinal_ex
+     (ctx : EVP_MD_CTX; md : Pointer; s : access unsigned) return int
+     with Import, Convention => C, Link_Name => "EVP_DigestFinal_ex";
+
+   function EVP_MD_size (md : EVP_MD) return int
+     with Import, Convention => C, Link_Name => "EVP_MD_size";
+
+   function EVP_PKEY_new return EVP_PKEY
+     with Import, Convention => C, Link_Name => "EVP_PKEY_new";
+
+   procedure EVP_PKEY_free (key : EVP_PKEY)
+     with Import, Convention => C, Link_Name => "EVP_PKEY_free";
+
+   function EVP_md_null return EVP_MD
+     with Import, Convention => C, Link_Name => "EVP_md_null";
+
+   function EVP_md2 return EVP_MD
+     with Import, Convention => C, Link_Name => "EVP_md2";
+
+   function EVP_md5 return EVP_MD
+     with Import, Convention => C, Link_Name => "EVP_md5";
+
+   function EVP_sha1 return EVP_MD
+     with Import, Convention => C, Link_Name => "EVP_sha1";
+
+   function EVP_dss return EVP_MD
+     with Import, Convention => C, Link_Name => "EVP_dss";
+
+   function EVP_dss1 return EVP_MD
+     with Import, Convention => C, Link_Name => "EVP_dss1";
+
+   function EVP_mdc2 return EVP_MD
+     with Import, Convention => C, Link_Name => "EVP_mdc2";
+
+   function EVP_ripemd160 return EVP_MD
+     with Import, Convention => C, Link_Name => "EVP_ripemd160";
+
+   function EVP_sha224 return EVP_MD
+     with Import, Convention => C, Link_Name => "EVP_sha224";
+
+   function EVP_sha256 return EVP_MD
+     with Import, Convention => C, Link_Name => "EVP_sha256";
+
+   function EVP_sha384 return EVP_MD
+     with Import, Convention => C, Link_Name => "EVP_sha384";
+
+   function EVP_sha512 return EVP_MD
+     with Import, Convention => C, Link_Name => "EVP_sha512";
+
    function RSA_new return RSA
      with Import, Convention => C, Link_Name => "RSA_new";
 
    procedure RSA_free (key : RSA)
      with Import, Convention => C, Link_Name => "RSA_free";
+
+   function RSA_sign
+     (kind : int;
+      m : Pointer; m_len : unsigned;
+      sigret : Pointer; siglen : access unsigned;
+      key : RSA) return int
+     with Import, Convention => C, Link_Name => "RSA_sign";
 
    type Generate_Key_Callback is access
      procedure (I1, I2 : Integer; Param : Pointer)
@@ -803,6 +903,19 @@ package SSL.Thin is
    function RSA_generate_key_ex
      (key : RSA; bits : int; e : BIGNUM; cb : Pointer) return int
      with Import, Convention => C, Link_Name => "RSA_generate_key_ex";
+
+   function RSA_size (key : RSA) return int
+     with Import, Convention => C, Link_Name => "RSA_size";
+
+   function RSA_private_encrypt
+     (flen : int; from : Pointer;
+      to : Pointer; key : RSA; padding : int) return int
+     with Import, Convention => C, Link_Name => "RSA_private_encrypt";
+
+   function RSA_public_decrypt
+     (flen : int; from : Pointer;
+      to : Pointer; key : RSA; padding : int) return int
+     with Import, Convention => C, Link_Name => "RSA_public_decrypt";
 
    function DH_new return DH
      with Import, Convention => C, Link_Name => "DH_new";
@@ -820,8 +933,31 @@ package SSL.Thin is
       cb        : access constant BN_GENCB) return int
      with Import, Convention => C, Link_Name => "DH_generate_parameters_ex";
 
+   type pem_password_cb is access function
+     (buf      : Cstr.chars_ptr;
+      size     : int;
+      rwflag   : int;
+      userdata : Pointer) return int with Convention => C;
+
+   function PEM_read_bio_PrivateKey
+     (bp : BIO_Access;
+      x  : access EVP_PKEY;
+      cb : pem_password_cb;
+      u  : Pointer) return EVP_PKEY
+     with Import, Convention => C, Link_Name => "PEM_read_bio_PrivateKey";
+
+   function PEM_read_bio_RSAPrivateKey
+     (bp : BIO_Access;
+      x  : access RSA;
+      cb : pem_password_cb;
+      u  : Pointer) return RSA
+     with Import, Convention => C, Link_Name => "PEM_read_bio_RSAPrivateKey";
+
    function PEM_read_bio_DHparams
-     (bp : BIO_Access; x : access DH; cb : Pointer; u : Pointer) return DH
+     (bp : BIO_Access;
+      x  : access DH;
+      cb : pem_password_cb;
+      u  : Pointer) return DH
      with Import, Convention => C, Link_Name => "PEM_read_bio_DHparams";
 
    function PEM_write_bio_DHparams (bp : BIO_Access; x : DH) return int
@@ -1062,6 +1198,9 @@ package SSL.Thin is
    function BIO_s_mem return BIO_Method_Access
      with Import, Convention => C, Link_Name => "BIO_s_mem";
 
+   function BIO_s_file return BIO_Method_Access
+     with Import, Convention => C, Link_Name => "BIO_s_file";
+
    function BIO_new (Method : BIO_Method_St) return BIO_Access
      with Import, Convention => C, Link_Name => "BIO_new";
 
@@ -1105,6 +1244,31 @@ package SSL.Thin is
    --  BIO_get_fd(b,c) = BIO_ctrl(b,BIO_C_GET_FD,0,(char *)c)
    --  BIO_set_mem_eof_return(b,v)
    --  = BIO_ctrl(b,BIO_C_SET_BUF_MEM_EOF_RETURN,v,NULL)
+
+   function BIO_ctrl
+     (Bp   : BIO_Access;
+      Cmd  : int;
+      Larg : long;
+      Parg : Cstr.chars_ptr) return int
+     with Import, Convention => C, Link_Name => "BIO_ctrl";
+
+   function BIO_read_filename
+     (Bp : BIO_Access; name : Cstr.chars_ptr) return int
+   is (BIO_ctrl (Bp, BIO_C_SET_FILENAME, BIO_CLOSE + BIO_FP_READ, name));
+
+   function BIO_write_filename
+     (Bp : BIO_Access; name : Cstr.chars_ptr) return int
+   is (BIO_ctrl (Bp, BIO_C_SET_FILENAME, BIO_CLOSE + BIO_FP_WRITE, name));
+
+   function BIO_append_filename
+     (Bp : BIO_Access; name : Cstr.chars_ptr) return int
+   is (BIO_ctrl (Bp, BIO_C_SET_FILENAME, BIO_CLOSE + BIO_FP_APPEND, name));
+
+   function BIO_rw_filename
+     (Bp : BIO_Access; name : Cstr.chars_ptr) return int
+   is (BIO_ctrl
+         (Bp, BIO_C_SET_FILENAME, BIO_CLOSE + BIO_FP_READ + BIO_FP_WRITE,
+          name));
 
    function BIO_read
      (BIO : BIO_Access; Data : Pointer; Len : int) return int
