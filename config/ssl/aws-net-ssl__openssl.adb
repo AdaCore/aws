@@ -37,10 +37,10 @@ pragma Ada_2012;
 --  AWS.Server.Set_Security.
 
 with Ada.Calendar;
+with Ada.Directories;
 with Ada.Task_Attributes;
 with Ada.Task_Identification;
 with Ada.Task_Termination;
-with Ada.Text_IO;
 with Ada.Unchecked_Conversion;
 with Ada.Unchecked_Deallocation;
 with Interfaces.C.Strings;
@@ -53,7 +53,6 @@ with AWS.Net.Log;
 with AWS.Net.SSL.Certificate.Impl;
 with AWS.Net.SSL.RSA_DH_Generators;
 with AWS.OS_Lib;
-with AWS.Resources;
 with AWS.Translator;
 with AWS.Utils;
 
@@ -516,47 +515,29 @@ package body AWS.Net.SSL is
          Filename : constant String :=
                       RSA_DH_Generators.Parameters_Filename
                         ("dh-" & Utils.Image (Integer (Bits)), Exist => True);
+         C_Name : aliased C.char_array := C.To_C (Filename);
+         IO : TSSL.BIO_Access;
       begin
          if Filename = "" then
             return False;
          end if;
 
-         declare
-            use AWS.Resources;
-            Data : Stream_Element_Array
-                     (1 .. Stream_Element_Offset (File_Size (Filename)));
-            Last : Stream_Element_Offset;
-            File : File_Type;
-            BIO  : TSSL.BIO_Access;
-         begin
-            Open (File, Name => Filename);
+         IO := TSSL.BIO_new (TSSL.BIO_s_file);
 
-            Read (File, Data, Last);
+         Error_If (IO = null);
+         Error_If
+           (TSSL.BIO_read_filename
+              (IO, C.Strings.To_Chars_Ptr (C_Name'Unchecked_Access)) = 0);
 
-            if not End_Of_File (File) then
-               Close (File);
-               raise Program_Error with "not end of file";
-            end if;
+         Error_If
+           (TSSL.PEM_read_bio_DHparams (IO, DH'Access, null, TSSL.Null_Pointer)
+            /= DH);
 
-            Close (File);
+         DH_Time (DH_Time_Idx + 1) :=
+           Ada.Directories.Modification_Time (Filename);
+         DH_Time_Idx := DH_Time_Idx + 1;
 
-            if Last < Data'Last then
-               raise Program_Error with "read error";
-            end if;
-
-            BIO := TSSL.BIO_new_mem_buf (Data'Address, Data'Length);
-
-            Error_If (BIO = null);
-
-            Error_If
-              (DH /= TSSL.PEM_read_bio_DHparams
-                       (BIO, DH'Access, null, TSSL.Null_Pointer));
-
-            DH_Time (DH_Time_Idx + 1) := File_Timestamp (Filename);
-            DH_Time_Idx := DH_Time_Idx + 1;
-
-            TSSL.BIO_free (BIO);
-         end;
+         TSSL.BIO_free (IO);
 
          return True;
       end Loaded;
@@ -566,34 +547,26 @@ package body AWS.Net.SSL is
       ----------
 
       procedure Save is
-         use Ada.Text_IO;
          Filename : constant String :=
                       RSA_DH_Generators.Parameters_Filename
                         ("dh-" & Utils.Image (Integer (Bits)), Exist => False);
-         Data : String (1 .. 4096);
-         Len  : C.int;
-         File : File_Type;
-         BIO  : TSSL.BIO_Access;
+         C_Name : aliased C.char_array := C.To_C (Filename);
+         BIO : TSSL.BIO_Access;
       begin
          if Filename = "" then
             return;
          end if;
 
-         BIO := TSSL.BIO_new (TSSL.BIO_s_mem);
+         BIO := TSSL.BIO_new (TSSL.BIO_s_file);
+
+         Error_If (BIO = null);
+         Error_If
+           (TSSL.BIO_write_filename
+              (BIO, C.Strings.To_Chars_Ptr (C_Name'Unchecked_Access)) = 0);
 
          Error_If (TSSL.PEM_write_bio_DHparams (BIO, DH) = 0);
 
-         Len := TSSL.BIO_read (BIO, Data'Address, Data'Length);
-
-         Error_If (Len <= 0);
-
          TSSL.BIO_free (BIO);
-
-         Create (File, Out_File, Filename, Form => "shared=no");
-
-         Put (File, Data (1 .. Natural (Len)));
-
-         Close (File);
       end Save;
 
    begin
