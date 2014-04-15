@@ -916,7 +916,7 @@ begin
    begin
       if AWS.Resources.Is_Regular_File (FN) then
          Text_IO.Open (Generation_Log, Text_IO.Append_File, FN);
-         Text_IO.Put_Line (Generation_Log, "-- start process --");
+         Text_IO.Put_Line (Generation_Log, "-- " & Net.SSL.Version & " --");
       end if;
    end;
 

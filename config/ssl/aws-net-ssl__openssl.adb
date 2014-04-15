@@ -1473,6 +1473,13 @@ package body AWS.Net.SSL is
 
       procedure Finalize is
       begin
+         for J in DH_Params'Range loop
+            if DH_Params (J) /= TSSL.Null_Pointer then
+               TSSL.DH_free (DH_Params (J));
+               DH_Params (J) := TSSL.Null_Pointer;
+            end if;
+         end loop;
+
          Finalized := True;
       end Finalize;
 
