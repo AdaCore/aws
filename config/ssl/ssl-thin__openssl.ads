@@ -1001,6 +1001,9 @@ package SSL.Thin is
    function SSL_CTX_get_verify_mode (Ctx : SSL_CTX) return unsigned
      with Import, Convention => C, Link_Name => "SSL_CTX_get_verify_mode";
 
+   function SSL_get_verify_mode (Ctx : SSL_Handle) return unsigned
+     with Import, Convention => C, Link_Name => "SSL_get_verify_mode";
+
    function SSL_CTX_load_verify_locations
      (Cts : SSL_CTX; CAfile, CApath : Cstr.chars_ptr) return int
      with Import, Convention => C,
@@ -1037,6 +1040,9 @@ package SSL.Thin is
 
    function SSL_CTX_get_ex_data (Ctx : SSL_CTX; Idx : int) return Pointer
      with Import, Convention => C, Link_Name => "SSL_CTX_get_ex_data";
+
+   function SSL_get_ex_data (Ctx : SSL_Handle; Idx : int) return Pointer
+     with Import, Convention => C, Link_Name => "SSL_get_ex_data";
 
    type Tmp_RSA_Callback is access function
      (SSL : SSL_Handle; Is_Export : int; Keylength : int) return RSA

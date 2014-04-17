@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                        Copyright (C) 2012, AdaCore                       --
+--                      Copyright (C) 2012-2014, AdaCore                    --
 --                                                                          --
 --  This is free software;  you can redistribute it  and/or modify it       --
 --  under terms of the  GNU General Public License as published  by the     --
@@ -19,34 +19,41 @@
 with Ada.Calendar.Formatting;
 with Ada.Text_IO;
 
+with AWS.Response.Set;
+
 package body Cert_CB is
 
    use Ada;
 
-   procedure Display (Cert : Net.SSL.Certificate.Object);
-   --  Display certificate object
+   procedure Display
+     (Cert   : Net.SSL.Certificate.Object;
+      Output : access procedure (Test : String));
+   --  Certificate object output
 
    -------------
    -- Display --
    -------------
 
-   procedure Display (Cert : Net.SSL.Certificate.Object) is
+   procedure Display
+     (Cert : Net.SSL.Certificate.Object;
+      Output : access procedure (Test : String)) is
    begin
-      Text_IO.Put_Line
+      Output.all
         ("  issuer          : " & Net.SSL.Certificate.Issuer (Cert));
-      Text_IO.Put_Line
+      Output.all
         ("  subject         : " & Net.SSL.Certificate.Subject (Cert));
-      Text_IO.Put_Line
+      Output.all
         ("  serial number   : " & Net.SSL.Certificate.Serial_Number (Cert));
-      Text_IO.Put_Line
+      Output.all
         ("  activation time : "
          & Calendar.Formatting.Image
            (Net.SSL.Certificate.Activation_Time (Cert)));
-      Text_IO.Put_Line
+      Output.all
         ("  expiration time : "
          & Calendar.Formatting.Image
            (Net.SSL.Certificate.Expiration_Time (Cert)));
-      Text_IO.New_Line;
+      Output.all
+        ("  status message  : "  & Net.SSL.Certificate.Status_Message (Cert));
    end Display;
 
    -----------
@@ -57,10 +64,22 @@ package body Cert_CB is
       Sock : constant Net.Socket_Access := Status.Socket (Request);
       Cert : constant Net.SSL.Certificate.Object :=
                Net.SSL.Certificate.Get (Net.SSL.Socket_Type (Sock.all));
+      Answer : Response.Data;
+
+      procedure Append (Text : String);
+
+      procedure Append (Text : String) is
+      begin
+         Response.Set.Append_Body (Answer, Text & ASCII.LF);
+      end Append;
+
    begin
-      Text_IO.Put_Line ("Client certificate from user's callback:");
-      Display (Cert);
-      return Response.Build ("text/html", "<p>Hello world !");
+      Append (Net.SSL.Version);
+      Append ("Client certificate from user's callback:");
+      Display (Cert, Append'Access);
+      Append (Calendar.Formatting.Image (Calendar.Clock));
+      Response.Set.Content_Type (Answer, "text/plain");
+      return Answer;
    end HW_CB;
 
    -----------------
@@ -71,7 +90,8 @@ package body Cert_CB is
       use type Calendar.Time;
    begin
       Text_IO.Put_Line ("Client certificate from verify routine:");
-      Display (Cert);
+      Display (Cert, Text_IO.Put_Line'Access);
+      Text_IO.New_Line;
 
       --  Return verified status from the SSL layer
 

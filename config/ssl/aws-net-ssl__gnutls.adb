@@ -2109,31 +2109,31 @@ package body AWS.Net.SSL is
               (TSSL.a_gnutls_datum_t, Datum_List_Access);
 
       Status        : aliased C.unsigned;
-      CB            : Net.SSL.Certificate.Verify_Callback;
+      Cfg           : Config;
       Cert_List     : TSSL.a_gnutls_datum_t;
       Cert_List_Len : aliased C.unsigned;
       Cert          : aliased TSSL.gnutls_x509_crt_t;
-      RC            : C.int;
 
-      procedure Log_Error (Text : String := "");
+      function Is_Error (Code : C.int) return Boolean;
 
-      ---------------
-      -- Log_Error --
-      ---------------
+      --------------
+      -- Is_Error --
+      --------------
 
-      procedure Log_Error (Text : String := "") is
-         Txt : constant String :=
-                 (if Text = "" then C.Strings.Value (TSSL.gnutls_strerror (RC))
-                  else Text);
+      function Is_Error (Code : C.int) return Boolean is
       begin
-         SSL.Log_Error (Txt);
-      end Log_Error;
+         if Code < 0 then
+            Log_Error (C.Strings.Value (TSSL.gnutls_strerror (Code)));
+            return True;
+         end if;
+
+         return False;
+      end Is_Error;
 
    begin
-      RC := TSSL.gnutls_certificate_verify_peers2 (Session, Status'Access);
-
-      if RC < 0 then
-         Log_Error;
+      if Is_Error
+           (TSSL.gnutls_certificate_verify_peers2 (Session, Status'Access))
+      then
          return TSSL.GNUTLS_E_CERTIFICATE_ERROR;
       end if;
 
@@ -2149,27 +2149,25 @@ package body AWS.Net.SSL is
 
       --  Get the user's callback stored in the session config
 
-      CB := To_Config (TSSL.gnutls_session_get_ptr (Session)).Verify_CB;
+      Cfg := To_Config (TSSL.gnutls_session_get_ptr (Session));
 
-      if CB /= null then
+      if Cfg.Verify_CB /= null then
          for J in reverse 1 .. Cert_List_Len loop
-            RC := TSSL.gnutls_x509_crt_init (Cert'Access);
-
-            if RC < 0 then
-               Log_Error;
+            if Is_Error (TSSL.gnutls_x509_crt_init (Cert'Access)) then
                return TSSL.GNUTLS_E_CERTIFICATE_ERROR;
             end if;
 
-            RC := TSSL.gnutls_x509_crt_import
+            if Is_Error
+                 (TSSL.gnutls_x509_crt_import
                     (Cert, To_Array_Access (Cert_List) (J)'Unchecked_Access,
-                     TSSL.GNUTLS_X509_FMT_DER);
-
-            if RC < 0 then
-               Log_Error;
+                     TSSL.GNUTLS_X509_FMT_DER))
+            then
                return TSSL.GNUTLS_E_CERTIFICATE_ERROR;
             end if;
 
-            if not CB (Net.SSL.Certificate.Impl.Read (Status, Cert)) then
+            if not Cfg.Verify_CB (Net.SSL.Certificate.Impl.Read (Status, Cert))
+              and then Status = 0
+            then
                Status := 1;
             end if;
 
@@ -2177,7 +2175,7 @@ package body AWS.Net.SSL is
          end loop;
       end if;
 
-      if Status = 0 then
+      if Status = 0 or else not Cfg.CREQ then
          return 0;
       else
          return TSSL.GNUTLS_E_CERTIFICATE_ERROR;

@@ -29,12 +29,15 @@ with AWS.Client;
 with AWS.Config.Set;
 with AWS.Messages;
 with AWS.MIME;
+with AWS.Net.Log;
 with AWS.Net.SSL.Certificate;
 with AWS.Parameters;
 with AWS.Response;
 with AWS.Server.Status;
 with AWS.Status;
 with AWS.URL;
+
+with GNAT.Traceback.Symbolic;
 
 procedure Client_Cert is
 
@@ -107,6 +110,22 @@ procedure Client_Cert is
    end Display_Certificate;
 
    -----------
+   -- Error --
+   -----------
+
+   procedure Error (Socket : Net.Socket_Type'Class; Message : String) is
+      use GNAT.Traceback;
+      Trace : Tracebacks_Array (1 .. 64);
+      Last  : Natural;
+   begin
+      Call_Chain (Trace, Last);
+
+      Text_IO.Put_Line
+        ("# Network error: "
+         & Message & Symbolic.Symbolic_Traceback (Trace (1 .. Last)));
+   end Error;
+
+   -----------
    -- Image --
    -----------
 
@@ -169,9 +188,9 @@ procedure Client_Cert is
       return Net.SSL.Certificate.Verified (Cert);
    end Verify_Cert;
 
-   HTTP1, HTTP2 : Server.HTTP;
-   Conf         : Config.Object;
-   SSL1, SSL2   : Net.SSL.Config;
+   HTTP1, HTTP2, HTTP3 : Server.HTTP;
+   Conf                : Config.Object;
+   SSL1, SSL2, SSL3    : Net.SSL.Config;
 
 begin
    Put_Line ("Start main, wait for server to start...");
@@ -219,6 +238,8 @@ begin
 
    Request (AWS.Server.Status.Local_URL (HTTP1) & "/simple");
 
+   Net.Log.Start (Error => Error'Unrestricted_Access, Write => null);
+
    Server.Shutdown (HTTP1);
 
    --  Run 2
@@ -231,6 +252,24 @@ begin
    Request (AWS.Server.Status.Local_URL (HTTP2) & "/simple", "private-ca.crt");
 
    Server.Shutdown (HTTP2);
+
+   Net.SSL.Initialize
+     (SSL3,
+      Certificate_Filename => "aws-server.crt",
+      Key_Filename         => "aws-server.key",
+      Exchange_Certificate => True,
+      Certificate_Required => False);
+
+   Server.Set_SSL_Config (HTTP3, SSL3);
+
+   Server.Start (HTTP3, CB'Unrestricted_Access, Conf);
+
+   Put_Line ("Server 3 started");
+   New_Line;
+
+   Request (AWS.Server.Status.Local_URL (HTTP3) & "/simple", "private-ca.crt");
+
+   Server.Shutdown (HTTP3);
 
 exception
    when E : others =>

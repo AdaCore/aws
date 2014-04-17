@@ -46,7 +46,7 @@ package body AWS.Net.SSL.Certificate.Impl is
                  TSSL.SSL_get_peer_certificate (Socket.SSL);
       Result : Object;
    begin
-      Result := Read (0, X509);
+      Result := Read (C.int (TSSL.SSL_get_verify_result (Socket.SSL)), X509);
       TSSL.X509_free (X509);
       return Result;
    end Get;

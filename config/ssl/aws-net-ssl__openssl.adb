@@ -2056,7 +2056,7 @@ package body AWS.Net.SSL is
 
       --  Get the current verification mode
 
-      Mode := TSSL.SSL_CTX_get_verify_mode (SSL_CTX);
+      Mode := TSSL.SSL_get_verify_mode (SSL);
 
       --  Get the certificate as stored into the context
 
