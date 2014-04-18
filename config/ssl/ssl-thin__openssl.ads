@@ -115,6 +115,8 @@ package SSL.Thin is
 
    subtype BN_GENCB is bn_gencb_st;
 
+   type X509_NAME_ENTRY is null record with Convention => C;
+
    type BIO_callback is access function
      (BIO  : BIO_Access;
       cmd  : int;
@@ -130,7 +132,7 @@ package SSL.Thin is
    subtype RSA            is Pointer;
    subtype DH             is Pointer;
    subtype X509           is Pointer;
-   subtype X509_Name      is Pointer;
+   subtype X509_NAME      is Pointer;
    subtype X509_STORE_CTX is Pointer;
    subtype X509_STORE     is Pointer;
 
@@ -515,11 +517,102 @@ package SSL.Thin is
    NID_sha512    : constant := 674;
    NID_ripemd160 : constant := 117;
 
+   NID_sxnet                        : constant := 143;
+   NID_X500                         : constant := 11;
+   NID_X509                         : constant := 12;
+   NID_commonName                   : constant := 13;
+   NID_surname                      : constant := 100;
+   NID_serialNumber                 : constant := 105;
+   NID_countryName                  : constant := 14;
+   NID_localityName                 : constant := 15;
+   NID_stateOrProvinceName          : constant := 16;
+   NID_streetAddress                : constant := 660;
+   NID_organizationName             : constant := 17;
+   NID_organizationalUnitName       : constant := 18;
+   NID_title                        : constant := 106;
+   NID_description                  : constant := 107;
+   NID_searchGuide                  : constant := 859;
+   NID_businessCategory             : constant := 860;
+   NID_postalAddress                : constant := 861;
+   NID_postalCode                   : constant := 661;
+   NID_postOfficeBox                : constant := 862;
+   NID_physicalDeliveryOfficeName   : constant := 863;
+   NID_telephoneNumber              : constant := 864;
+   NID_telexNumber                  : constant := 865;
+   NID_teletexTerminalIdentifier    : constant := 866;
+   NID_facsimileTelephoneNumber     : constant := 867;
+   NID_x121Address                  : constant := 868;
+   NID_internationaliSDNNumber      : constant := 869;
+   NID_registeredAddress            : constant := 870;
+   NID_destinationIndicator         : constant := 871;
+   NID_preferredDeliveryMethod      : constant := 872;
+   NID_presentationAddress          : constant := 873;
+   NID_supportedApplicationContext  : constant := 874;
+   NID_member                       : constant := 875;
+   NID_owner                        : constant := 876;
+   NID_roleOccupant                 : constant := 877;
+   NID_seeAlso                      : constant := 878;
+   NID_userPassword                 : constant := 879;
+   NID_userCertificate              : constant := 880;
+   NID_cACertificate                : constant := 881;
+   NID_authorityRevocationList      : constant := 882;
+   NID_certificateRevocationList    : constant := 883;
+   NID_crossCertificatePair         : constant := 884;
+   NID_name                         : constant := 173;
+   NID_givenName                    : constant := 99;
+   NID_initials                     : constant := 101;
+   NID_generationQualifier          : constant := 509;
+   NID_x500UniqueIdentifier         : constant := 503;
+   NID_dnQualifier                  : constant := 174;
+   NID_enhancedSearchGuide          : constant := 885;
+   NID_protocolInformation          : constant := 886;
+   NID_distinguishedName            : constant := 887;
+   NID_uniqueMember                 : constant := 888;
+   NID_houseIdentifier              : constant := 889;
+   NID_supportedAlgorithms          : constant := 890;
+   NID_deltaRevocationList          : constant := 891;
+   NID_dmdName                      : constant := 892;
+   NID_pseudonym                    : constant := 510;
+   NID_role                         : constant := 400;
+   NID_X500algorithms               : constant := 378;
+   NID_rsa                          : constant := 19;
+   NID_mdc2WithRSA                  : constant := 96;
+   NID_mdc2                         : constant := 95;
+   NID_id_ce                        : constant := 81;
+   NID_subject_directory_attributes : constant := 769;
+   NID_subject_key_identifier       : constant := 82;
+   NID_key_usage                    : constant := 83;
+   NID_private_key_usage_period     : constant := 84;
+   NID_subject_alt_name             : constant := 85;
+   NID_issuer_alt_name              : constant := 86;
+   NID_basic_constraints            : constant := 87;
+   NID_crl_number                   : constant := 88;
+   NID_crl_reason                   : constant := 141;
+   NID_invalidity_date              : constant := 142;
+   NID_delta_crl                    : constant := 140;
+   NID_issuing_distribution_point   : constant := 770;
+   NID_certificate_issuer           : constant := 771;
+   NID_name_constraints             : constant := 666;
+   NID_crl_distribution_points      : constant := 103;
+   NID_certificate_policies         : constant := 89;
+   NID_any_policy                   : constant := 746;
+   NID_policy_mappings              : constant := 747;
+   NID_authority_key_identifier     : constant := 90;
+   NID_policy_constraints           : constant := 401;
+   NID_ext_key_usage                : constant := 126;
+   NID_freshest_crl                 : constant := 857;
+   NID_inhibit_any_policy           : constant := 748;
+   NID_target_information           : constant := 402;
+   NID_no_rev_avail                 : constant := 403;
+   NID_anyExtendedKeyUsage          : constant := 910;
+
    type ASN1_STRING is record
       length : int;
       stype  : int;
       data   : Interfaces.C.Strings.chars_ptr;
    end record with Convention => C;
+
+   type ASN1_OBJECT is null record with Convention => C;
 
    subtype ASN1_UTCTIME is ASN1_STRING;
    subtype ASN1_INTEGER is ASN1_STRING;
@@ -1077,20 +1170,52 @@ package SSL.Thin is
      with Import, Convention => C, Link_Name => "X509_free";
 
    function X509_NAME_oneline
-     (Name : X509_Name; Buf : Pointer; Size : int) return Cstr.chars_ptr
+     (Name : X509_NAME; Buf : Pointer; Size : int) return Cstr.chars_ptr
      with Import, Convention => C, Link_Name => "X509_NAME_oneline";
 
    function X509_NAME_print_ex
      (Output : BIO_Access;
-      Name   : X509_Name;
+      Name   : X509_NAME;
       Indent : int;
       flags  : unsigned_long) return int
      with Import, Convention => C, Link_Name => "X509_NAME_print_ex";
 
-   function X509_get_subject_name (X509 : Thin.X509) return X509_Name
+   function X509_NAME_entry_count (name : X509_NAME) return int
+     with Import, Convention => C, Link_Name => "X509_NAME_entry_count";
+
+   function X509_NAME_get_index_by_NID
+     (name : X509_NAME; nid : int; lastpos : int) return int
+     with Import, Convention => C, Link_Name => "X509_NAME_get_index_by_NID";
+
+   function X509_NAME_get_entry
+     (name : X509_NAME; loc : int) return access X509_NAME_ENTRY
+     with Import, Convention => C, Link_Name => "X509_NAME_get_entry";
+
+   function X509_NAME_ENTRY_get_data
+     (ne : access X509_NAME_ENTRY) return access ASN1_STRING
+     with Import, Convention => C, Link_Name => "X509_NAME_ENTRY_get_data";
+
+   function X509_NAME_ENTRY_get_object
+     (ne : access X509_NAME_ENTRY) return access ASN1_OBJECT
+     with Import, Convention => C, Link_Name => "X509_NAME_ENTRY_get_object";
+
+   function OBJ_obj2txt
+     (buf     : Cstr.char_array_access;
+      buf_len : int;
+      a       : access constant ASN1_OBJECT;
+      no_name : int) return int
+     with Import, Convention => C, Link_Name => "OBJ_obj2txt";
+
+   function OBJ_obj2nid (o : access constant ASN1_OBJECT) return int
+     with Import, Convention => C, Link_Name => "OBJ_obj2nid";
+
+   function OBJ_nid2sn (n : int) return Cstr.chars_ptr
+     with Import, Convention => C, Link_Name => "OBJ_nid2sn";
+
+   function X509_get_subject_name (X509 : Thin.X509) return X509_NAME
      with Import, Convention => C, Link_Name => "X509_get_subject_name";
 
-   function X509_get_issuer_name (X509 : Thin.X509) return X509_Name
+   function X509_get_issuer_name (X509 : Thin.X509) return X509_NAME
      with Import, Convention => C, Link_Name => "X509_get_issuer_name";
 
    function X509_get_notAfter

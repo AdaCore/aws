@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2003-2013, AdaCore                     --
+--                     Copyright (C) 2003-2014, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -27,6 +27,8 @@
 --  covered by the  GNU Public License.                                     --
 ------------------------------------------------------------------------------
 
+pragma Ada_2012;
+
 with Ada.Calendar;
 with Ada.Strings.Unbounded;
 
@@ -43,22 +45,27 @@ package AWS.Net.SSL.Certificate is
    function Get (Socket : Socket_Type) return Object;
    --  Returns the certificate used by the SSL
 
-   function Subject (Certificate : Object) return String;
+   function Common_Name (Certificate : Object) return String with Inline;
+   --  Returns the certificate's common name
+
+   function Subject (Certificate : Object) return String with Inline;
    --  Returns the certificate's subject
 
-   function Issuer (Certificate : Object) return String;
+   function Issuer (Certificate : Object) return String with Inline;
    --  Returns the certificate's issuer
 
-   function Serial_Number (Certificate : Object) return String;
+   function Serial_Number (Certificate : Object) return String with Inline;
    --  Returns the certificate's serial number
 
-   function Activation_Time (Certificate : Object) return Calendar.Time;
+   function Activation_Time (Certificate : Object) return Calendar.Time
+     with Inline;
    --  Certificate validity starting date
 
-   function Expiration_Time (Certificate : Object) return Calendar.Time;
+   function Expiration_Time (Certificate : Object) return Calendar.Time
+     with Inline;
    --  Certificate validity ending date
 
-   function Verified (Certificate : Object) return Boolean;
+   function Verified (Certificate : Object) return Boolean with Inline;
    --  Returns True if the certificate has already been verified, this is
    --  mostly interresting when used from the Verify_Callback below. If this
    --  routine returns True it means that the certificate has already been
@@ -67,7 +74,7 @@ package AWS.Net.SSL.Certificate is
    --  the application to check the certificate into the Verify_Callback and
    --  returns the appropriate status.
 
-   function Status (Certificate : Object) return Long_Integer;
+   function Status (Certificate : Object) return Long_Integer with Inline;
    --  Returns the status for the certificate. This is to be used inside the
    --  verify callback to know why the certificate has been rejected.
 
@@ -94,6 +101,7 @@ private
    type Object is record
       Verified      : Boolean;
       Status        : Long_Integer;
+      Common_Name   : Unbounded_String;
       Subject       : Unbounded_String;
       Issuer        : Unbounded_String;
       Serial_Number : Unbounded_String;
@@ -103,6 +111,31 @@ private
 
    Undefined : constant Object :=
                  (False, 0, Null_Unbounded_String, Null_Unbounded_String,
-                  Null_Unbounded_String, Utils.AWS_Epoch, Utils.AWS_Epoch);
+                  Null_Unbounded_String, Null_Unbounded_String,
+                  Utils.AWS_Epoch, Utils.AWS_Epoch);
+
+   function Common_Name (Certificate : Object) return String is
+     (To_String (Certificate.Common_Name));
+
+   function Subject (Certificate : Object) return String is
+     (To_String (Certificate.Subject));
+
+   function Issuer (Certificate : Object) return String is
+     (To_String (Certificate.Issuer));
+
+   function Serial_Number (Certificate : Object) return String is
+     (To_String (Certificate.Serial_Number));
+
+   function Activation_Time (Certificate : Object) return Calendar.Time is
+     (Certificate.Activation);
+
+   function Expiration_Time (Certificate : Object) return Calendar.Time is
+     (Certificate.Expiration);
+
+   function Verified (Certificate : Object) return Boolean is
+     (Certificate.Verified);
+
+   function Status (Certificate : Object) return Long_Integer is
+     (Certificate.Status);
 
 end AWS.Net.SSL.Certificate;

@@ -86,6 +86,8 @@ procedure Client_Cert is
          Put_Line ("No certificate.");
       else
          Put_Line
+           ("Name       : " & Net.SSL.Certificate.Common_Name (Cert));
+         Put_Line
            ("Subject    : " & Net.SSL.Certificate.Subject (Cert));
          Put_Line
            ("Issuer     : " & Net.SSL.Certificate.Issuer (Cert));

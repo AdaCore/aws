@@ -372,6 +372,13 @@ package SSL.Thin is
       GNUTLS_SEC_PARAM_ULTRA     => 5);
    for gnutls_sec_param_t'Size use C.int'Size;
 
+   type chars_constant_access is access constant C.char_array
+     with Size => Standard'Address_Size, Convention => C;
+
+   GNUTLS_OID_X520_COUNTRY_NAME  : aliased constant C.char_array := "2.5.4.6";
+   GNUTLS_OID_X520_COMMON_NAME   : aliased constant C.char_array := "2.5.4.3";
+   GNUTLS_OID_X520_LOCALITY_NAME : aliased constant C.char_array := "2.5.4.7";
+
    type gnutls_params_type_t is new C.int;
    GNUTLS_PARAMS_RSA_EXPORT : constant gnutls_params_type_t := 1;
    GNUTLS_PARAMS_DH         : constant gnutls_params_type_t := 2;
@@ -1130,6 +1137,15 @@ package SSL.Thin is
       sizeof_buf : access C.size_t) return C.int
      with Import, Convention => C;
 
+   function gnutls_x509_crt_get_dn_by_oid
+     (cert     : gnutls_x509_crt_t;
+      oid      : chars_constant_access;
+      indx     : C.int;
+      raw_flag : C.unsigned;
+      buf      : System.Address;
+      buf_size : access C.size_t) return C.int
+     with Import, Convention => C;
+
    function gnutls_x509_crt_get_issuer_dn
      (cert       : gnutls_x509_crt_t;
       buf        : CS.chars_ptr;
@@ -1138,7 +1154,7 @@ package SSL.Thin is
 
    function gnutls_x509_crt_get_serial
      (cert       : gnutls_x509_crt_t;
-      buf        : CS.chars_ptr;
+      buf        : System.Address;
       sizeof_buf : access C.size_t) return C.int
      with Import, Convention => C;
 

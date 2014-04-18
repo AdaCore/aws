@@ -61,8 +61,11 @@ package body AWS.Net.SSL.Certificate.Impl is
       use type Interfaces.C.int;
       use type TSSL.Pointer;
 
-      function NAME_oneline (Name : TSSL.X509_Name) return String;
-      --  Return the value for Name
+      Subj : TSSL.X509_NAME;
+
+      function NAME_oneline (Name : TSSL.X509_NAME) return Unbounded_String;
+
+      function Common_Name (Name : TSSL.X509_NAME) return Unbounded_String;
 
       function To_Time
         (tm : access constant TSSL.ASN1_UTCTIME) return Calendar.Time;
@@ -75,15 +78,36 @@ package body AWS.Net.SSL.Certificate.Impl is
       --   YYMMDDhhmmss-hh'mm'
 
       function To_String
-        (Number : access constant TSSL.ASN1_INTEGER) return String;
+        (Number : access constant TSSL.ASN1_INTEGER) return Unbounded_String;
       --  Returns the string value for Number of the empty string if not
       --  defined.
+
+      function To_Ada (Item : access constant TSSL.ASN1_STRING) return String;
+
+      -----------------
+      -- Common_Name --
+      -----------------
+
+      function Common_Name (Name : TSSL.X509_NAME) return Unbounded_String is
+         use TSSL;
+         Idx : constant C.int :=
+                 X509_NAME_get_index_by_NID (Name, NID_commonName, -1);
+      begin
+         if Idx = -1 then
+            return Null_Unbounded_String;
+         end if;
+
+         return To_Unbounded_String
+                  (To_Ada
+                     (X509_NAME_ENTRY_get_data
+                        (X509_NAME_get_entry (Name, Idx))));
+      end Common_Name;
 
       ------------------
       -- NAME_oneline --
       ------------------
 
-      function NAME_oneline (Name : TSSL.X509_Name) return String is
+      function NAME_oneline (Name : TSSL.X509_NAME) return Unbounded_String is
          use TSSL;
          use type Interfaces.C.int;
          IO : constant BIO_Access := BIO_new (BIO_s_mem);
@@ -112,40 +136,50 @@ package body AWS.Net.SSL.Certificate.Impl is
             Idx := Index (Result, EMail);
 
             if Idx = 0 then
-               return Result;
+               return To_Unbounded_String (Result);
             end if;
 
             --  Make the certificate output like in GNUTLS
 
-            return Replace_Slice
-              (Result, Idx, Idx + EMail'Length - 1, ",EMAIL=");
+            return To_Unbounded_String (Replace_Slice
+                     (Result, Idx, Idx + EMail'Length - 1, ",EMAIL="));
          end;
       end NAME_oneline;
+
+      ------------
+      -- To_Ada --
+      ------------
+
+      function To_Ada
+        (Item : access constant TSSL.ASN1_STRING) return String is
+      begin
+         return C.Strings.Value (Item.data, C.size_t (Item.length));
+      end To_Ada;
 
       ---------------
       -- To_String --
       ---------------
 
       function To_String
-        (Number : access constant TSSL.ASN1_INTEGER) return String is
+        (Number : access constant TSSL.ASN1_INTEGER) return Unbounded_String is
       begin
          if Number = null or else Number.data = C.Strings.Null_Ptr then
-            return "";
+            return Null_Unbounded_String;
 
          else
             declare
                N : TSSL.BIGNUM;
                R : C.Strings.chars_ptr;
+               V : Unbounded_String;
             begin
                N := TSSL.ASN1_INTEGER_to_BN (Number, null);
                R := TSSL.BN_bn2hex (N);
+               V := To_Unbounded_String (C.Strings.Value (R));
 
-               declare
-                  V : constant String := C.Strings.Value (R);
-               begin
-                  C.Strings.Free (R);
-                  return V;
-               end;
+               TSSL.BN_free (N);
+               C.Strings.Free (R);
+
+               return V;
             end;
          end if;
       end To_String;
@@ -162,8 +196,7 @@ package body AWS.Net.SSL.Certificate.Impl is
 
          else
             declare
-               Value : constant String :=
-                         C.Strings.Value (tm.data, C.size_t (tm.length));
+               Value : constant String := To_Ada (tm);
                F     : constant Positive := Value'First;
                Year  : constant Calendar.Year_Number :=
                          2000 + Natural'Value (Value (F .. F + 1));
@@ -200,15 +233,17 @@ package body AWS.Net.SSL.Certificate.Impl is
          T_Activation := TSSL.X509_get_notBefore (X509);
          T_Expiration := TSSL.X509_get_notAfter (X509);
 
+         --  Get Subj before result construction because CN detecting inside
+
+         Subj := TSSL.X509_get_subject_name (X509);
+
          return
            (Verified      => Status = 0,
             Status        => Long_Integer (Status),
-            Subject       => To_Unbounded_String
-              (NAME_oneline (TSSL.X509_get_subject_name (X509))),
-            Issuer        => To_Unbounded_String
-              (NAME_oneline (TSSL.X509_get_issuer_name (X509))),
-            Serial_Number => To_Unbounded_String
-              (To_String (TSSL.X509_get_serialNumber (X509))),
+            Common_Name   => Common_Name (Subj),
+            Subject       => NAME_oneline (Subj),
+            Issuer        => NAME_oneline (TSSL.X509_get_issuer_name (X509)),
+            Serial_Number => To_String (TSSL.X509_get_serialNumber (X509)),
             Activation    => To_Time (T_Activation),
             Expiration    => To_Time (T_Expiration));
       end if;

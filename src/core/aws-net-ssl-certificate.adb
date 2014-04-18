@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2003-2013, AdaCore                     --
+--                     Copyright (C) 2003-2014, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -35,24 +35,6 @@ with AWS.Net.SSL.Certificate.Impl;
 
 package body AWS.Net.SSL.Certificate is
 
-   ---------------------
-   -- Activation_Time --
-   ---------------------
-
-   function Activation_Time (Certificate : Object) return Calendar.Time is
-   begin
-      return Certificate.Activation;
-   end Activation_Time;
-
-   ---------------------
-   -- Expiration_Time --
-   ---------------------
-
-   function Expiration_Time (Certificate : Object) return Calendar.Time is
-   begin
-      return Certificate.Expiration;
-   end Expiration_Time;
-
    ---------
    -- Get --
    ---------
@@ -61,24 +43,6 @@ package body AWS.Net.SSL.Certificate is
    begin
       return Impl.Get (Socket);
    end Get;
-
-   ------------
-   -- Issuer --
-   ------------
-
-   function Issuer  (Certificate : Object) return String is
-   begin
-      return To_String (Certificate.Issuer);
-   end Issuer;
-
-   -------------------
-   -- Serial_Number --
-   -------------------
-
-   function Serial_Number (Certificate : Object) return String is
-   begin
-      return To_String (Certificate.Serial_Number);
-   end Serial_Number;
 
    -------------------------
    -- Set_Verify_Callback --
@@ -93,15 +57,6 @@ package body AWS.Net.SSL.Certificate is
       Set_Verify_Callback (Config, To_Address (Callback));
    end Set_Verify_Callback;
 
-   ------------
-   -- Status --
-   ------------
-
-   function Status (Certificate : Object) return Long_Integer is
-   begin
-      return Certificate.Status;
-   end Status;
-
    --------------------
    -- Status_Message --
    --------------------
@@ -110,23 +65,5 @@ package body AWS.Net.SSL.Certificate is
    begin
       return Impl.Status_String (Interfaces.C.long (Certificate.Status));
    end Status_Message;
-
-   -------------
-   -- Subject --
-   -------------
-
-   function Subject (Certificate : Object) return String is
-   begin
-      return To_String (Certificate.Subject);
-   end Subject;
-
-   --------------
-   -- Verified --
-   --------------
-
-   function Verified (Certificate : Object) return Boolean is
-   begin
-      return Certificate.Verified;
-   end Verified;
 
 end AWS.Net.SSL.Certificate;

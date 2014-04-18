@@ -40,7 +40,7 @@ with AWS.Config.Set;
 with AWS.Messages;
 with AWS.MIME;
 with AWS.Net.Log;
-with AWS.Net.SSL;
+with AWS.Net.SSL.Certificate;
 with AWS.Net.Std;
 with AWS.Parameters;
 with AWS.Resources.Streams.Disk;
@@ -499,6 +499,9 @@ procedure Check_Mem is
 
    begin
       AWS.Client.Create (Connect, AWS.Server.Status.Local_URL (HTTP));
+
+      Check
+        (Net.SSL.Certificate.Subject (AWS.Client.Get_Certificate (Connect)));
 
       Request ("/simple");
 

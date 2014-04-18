@@ -2,6 +2,7 @@ Start main, wait for server to start...
 Server 1 started
 
 Client certificate from verify routine:
+Name       : Jean Dupont
 Subject    : C=FR,ST=Ile de France,O=AWS Team,CN=Jean Dupont,EMAIL=jean.dupont@nowhere.com
 Issuer     : C=FR,ST=Ile de France,L=Magny les Hameaux,O=AWS Team,CN=Pascal Obry,EMAIL=aws@obry.net
 Activation : 2012-08-06 16:19:08
@@ -12,6 +13,7 @@ Client connection closed by peer.
 Server 2 started
 
 Client certificate from verify routine:
+Name       : Jean Dupont
 Subject    : C=FR,ST=Ile de France,O=AWS Team,CN=Jean Dupont,EMAIL=jean.dupont@nowhere.com
 Issuer     : C=FR,ST=Ile de France,L=Magny les Hameaux,O=AWS Team,CN=Pascal Obry,EMAIL=aws@obry.net
 Activation : 2012-08-06 16:19:08
@@ -20,6 +22,7 @@ Verified   : TRUE
 
 
 Server certificate as received by the client:
+Name       : localhost
 Subject    : C=FR,ST=Ile de France,O=AWS Team,CN=localhost,EMAIL=aws@obry.net
 Issuer     : C=FR,ST=Ile de France,L=Magny les Hameaux,O=AWS Team,CN=Pascal Obry,EMAIL=aws@obry.net
 Activation : 2012-08-06 16:18:51
@@ -28,6 +31,7 @@ Verified   : TRUE
 
 
 Client certificate as received by the server:
+Name       : Jean Dupont
 Subject    : C=FR,ST=Ile de France,O=AWS Team,CN=Jean Dupont,EMAIL=jean.dupont@nowhere.com
 Issuer     : C=FR,ST=Ile de France,L=Magny les Hameaux,O=AWS Team,CN=Pascal Obry,EMAIL=aws@obry.net
 Activation : 2012-08-06 16:19:08
@@ -40,6 +44,7 @@ Server 3 started
 
 
 Server certificate as received by the client:
+Name       : localhost
 Subject    : C=FR,ST=Ile de France,O=AWS Team,CN=localhost,EMAIL=aws@obry.net
 Issuer     : C=FR,ST=Ile de France,L=Magny les Hameaux,O=AWS Team,CN=Pascal Obry,EMAIL=aws@obry.net
 Activation : 2012-08-06 16:18:51
@@ -48,6 +53,7 @@ Verified   : TRUE
 
 
 Client certificate as received by the server:
+Name       : Jean Dupont
 Subject    : C=FR,ST=Ile de France,O=AWS Team,CN=Jean Dupont,EMAIL=jean.dupont@nowhere.com
 Issuer     : C=FR,ST=Ile de France,L=Magny les Hameaux,O=AWS Team,CN=Pascal Obry,EMAIL=aws@obry.net
 Activation : 2012-08-06 16:19:08

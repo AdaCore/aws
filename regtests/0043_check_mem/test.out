@@ -1,6 +1,7 @@
 Start main, wait for server to start...
 Server started
 
+C=FR,ST=Ile de France,O=AWS Team,CN=localhost,EMAIL=aws@obry.net
 simple ok 0
 simple ok 2 8 azerty qwerty
 simple ok 2 azerty qwerty 8
@@ -16,6 +17,7 @@ Ok
  6 bytes compressed to 14
 Ok
  155 bytes compressed to 118
+C=FR,ST=Ile de France,O=AWS Team,CN=localhost,EMAIL=aws@obry.net
 simple ok 0
 simple ok 2 8 azerty qwerty
 simple ok 2 azerty qwerty 8
@@ -34,6 +36,7 @@ Ok
 Start main, wait for server to start...
 Server started
 
+C=FR,ST=Ile de France,O=AWS Team,CN=localhost,EMAIL=aws@obry.net
 simple ok 0
 simple ok 2 8 azerty qwerty
 simple ok 2 azerty qwerty 8
@@ -49,6 +52,7 @@ Ok
  6 bytes compressed to 14
 Ok
  155 bytes compressed to 118
+C=FR,ST=Ile de France,O=AWS Team,CN=localhost,EMAIL=aws@obry.net
 simple ok 0
 simple ok 2 8 azerty qwerty
 simple ok 2 azerty qwerty 8
@@ -64,6 +68,7 @@ Ok
  6 bytes compressed to 14
 Ok
  155 bytes compressed to 118
+C=FR,ST=Ile de France,O=AWS Team,CN=localhost,EMAIL=aws@obry.net
 simple ok 0
 simple ok 2 8 azerty qwerty
 simple ok 2 azerty qwerty 8
@@ -79,6 +84,7 @@ Ok
  6 bytes compressed to 14
 Ok
  155 bytes compressed to 118
+C=FR,ST=Ile de France,O=AWS Team,CN=localhost,EMAIL=aws@obry.net
 simple ok 0
 simple ok 2 8 azerty qwerty
 simple ok 2 azerty qwerty 8
@@ -94,6 +100,7 @@ Ok
  6 bytes compressed to 14
 Ok
  155 bytes compressed to 118
+C=FR,ST=Ile de France,O=AWS Team,CN=localhost,EMAIL=aws@obry.net
 simple ok 0
 simple ok 2 8 azerty qwerty
 simple ok 2 azerty qwerty 8
@@ -109,6 +116,7 @@ Ok
  6 bytes compressed to 14
 Ok
  155 bytes compressed to 118
+C=FR,ST=Ile de France,O=AWS Team,CN=localhost,EMAIL=aws@obry.net
 simple ok 0
 simple ok 2 8 azerty qwerty
 simple ok 2 azerty qwerty 8
@@ -124,6 +132,7 @@ Ok
  6 bytes compressed to 14
 Ok
  155 bytes compressed to 118
+C=FR,ST=Ile de France,O=AWS Team,CN=localhost,EMAIL=aws@obry.net
 simple ok 0
 simple ok 2 8 azerty qwerty
 simple ok 2 azerty qwerty 8
@@ -139,6 +148,7 @@ Ok
  6 bytes compressed to 14
 Ok
  155 bytes compressed to 118
+C=FR,ST=Ile de France,O=AWS Team,CN=localhost,EMAIL=aws@obry.net
 simple ok 0
 simple ok 2 8 azerty qwerty
 simple ok 2 azerty qwerty 8
@@ -154,6 +164,7 @@ Ok
  6 bytes compressed to 14
 Ok
  155 bytes compressed to 118
+C=FR,ST=Ile de France,O=AWS Team,CN=localhost,EMAIL=aws@obry.net
 simple ok 0
 simple ok 2 8 azerty qwerty
 simple ok 2 azerty qwerty 8
@@ -169,6 +180,7 @@ Ok
  6 bytes compressed to 14
 Ok
  155 bytes compressed to 118
+C=FR,ST=Ile de France,O=AWS Team,CN=localhost,EMAIL=aws@obry.net
 simple ok 0
 simple ok 2 8 azerty qwerty
 simple ok 2 azerty qwerty 8

@@ -128,26 +128,40 @@ package body AWS.Net.SSL.Certificate.Impl is
       --  Convert a time_t to an Ada duration
 
       function To_Hex
-        (Str : C.char_array; Len : C.size_t) return Unbounded_String;
-      --  Convert Str to an hex string
+        (Bin : Stream_Element_Array; Len : C.size_t) return Unbounded_String;
+      --  Convert Bin to an hex string
+
+      function To_Ada
+        (Item : C.char_array; Length : C.size_t) return Unbounded_String
+        with Inline;
+
+      ------------
+      -- To_Ada --
+      ------------
+
+      function To_Ada
+        (Item : C.char_array; Length : C.size_t) return Unbounded_String is
+      begin
+         return To_Unbounded_String (C.To_Ada (Item (1 .. Length), False));
+      end To_Ada;
 
       ------------
       -- To_Hex --
       ------------
 
       function To_Hex
-        (Str : C.char_array; Len : C.size_t) return Unbounded_String
+        (Bin : Stream_Element_Array; Len : C.size_t) return Unbounded_String
       is
          use type C.size_t;
          R : Unbounded_String;
       begin
-         for K in Str'First .. Str'First + Len - 1 loop
+         for K in Bin'First .. Bin'First + Stream_Element_Offset (Len) - 1 loop
             declare
-               P : constant Natural := C.char'Pos (Str (K));
+               P : constant Natural := Natural (Bin (K));
             begin
                --  Skip leading zero
 
-               if P /= 0 or else K > Str'First then
+               if P /= 0 or else K > Bin'First then
                   Append (R, Utils.Hex (P, 2));
                end if;
             end;
@@ -174,10 +188,12 @@ package body AWS.Net.SSL.Certificate.Impl is
       Subj_Len : aliased C.size_t := Buffer_Size;
       Issuer   : aliased C.char_array := (1 .. Buffer_Size => C.nul);
       Iss_Len  : aliased C.size_t := Buffer_Size;
+      CN       : aliased C.char_array := (1 .. Buffer_Size => C.nul);
+      CN_Len   : aliased C.size_t := Buffer_Size;
 
       T_Activation, T_Expiration : TSSL.time_t;
 
-      Serial     : aliased C.char_array := (1 .. Buffer_Size => C.nul);
+      Serial     : aliased Stream_Element_Array := (1 .. Buffer_Size => 0);
       Serial_Len : aliased C.size_t := Buffer_Size;
 
    begin
@@ -186,6 +202,16 @@ package body AWS.Net.SSL.Certificate.Impl is
            (X509,
             C.Strings.To_Chars_Ptr (Subject'Unchecked_Access),
             Subj_Len'Access),
+         Socket);
+
+      Check_Error_Code
+        (TSSL.gnutls_x509_crt_get_dn_by_oid
+           (cert     => X509,
+            oid      => TSSL.GNUTLS_OID_X520_COMMON_NAME'Access,
+            indx     => 0,
+            raw_flag => 0,
+            buf      => CN'Address,
+            buf_size => CN_Len'Access),
          Socket);
 
       Check_Error_Code
@@ -198,7 +224,7 @@ package body AWS.Net.SSL.Certificate.Impl is
       Check_Error_Code
         (TSSL.gnutls_x509_crt_get_serial
            (X509,
-            C.Strings.To_Chars_Ptr (Serial'Unchecked_Access),
+            Serial'Address,
             Serial_Len'Access),
          Socket);
 
@@ -207,10 +233,9 @@ package body AWS.Net.SSL.Certificate.Impl is
 
       return (Verified      => Status = 0,
               Status        => Long_Integer (Status),
-              Subject       => To_Unbounded_String
-                                 (C.To_Ada (Subject (1 .. Subj_Len), False)),
-              Issuer        => To_Unbounded_String
-                                 (C.To_Ada (Issuer (1 .. Iss_Len), False)),
+              Common_Name   => To_Ada (CN, CN_Len),
+              Subject       => To_Ada (Subject, Subj_Len),
+              Issuer        => To_Ada (Issuer, Iss_Len),
               Serial_Number => To_Hex (Serial, Serial_Len),
               Activation    => To_Time (T_Activation),
               Expiration    => To_Time (T_Expiration));
