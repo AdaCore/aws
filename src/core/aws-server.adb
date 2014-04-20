@@ -50,9 +50,6 @@ package body AWS.Server is
    use Ada;
    use type Net.Socket_Access;
 
-   procedure Unchecked_Free is new Ada.Unchecked_Deallocation
-     (Dispatchers.Handler'Class, Dispatchers.Handler_Class_Access);
-
    procedure Start
      (Web_Server : in out HTTP;
       Dispatcher : Dispatchers.Handler'Class);
@@ -372,7 +369,7 @@ package body AWS.Server is
      (Web_Server : in out HTTP;
       Dispatcher : Dispatchers.Handler'Class) is
    begin
-      Unchecked_Free (Web_Server.New_Dispatcher);
+      Dispatchers.Free (Web_Server.New_Dispatcher);
       Web_Server.New_Dispatcher :=
         new Dispatchers.Handler'Class'
           (Dispatchers.Handler'Class (Dispatcher.Clone));
@@ -545,7 +542,7 @@ package body AWS.Server is
 
       Unchecked_Free (Web_Server.Slots);
 
-      Unchecked_Free (Web_Server.Dispatcher);
+      Dispatchers.Free (Web_Server.Dispatcher);
 
       --  Release the session server if needed
 
