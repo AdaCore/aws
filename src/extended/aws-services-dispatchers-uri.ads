@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2000-2013, AdaCore                     --
+--                     Copyright (C) 2000-2014, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -54,7 +54,7 @@ package AWS.Services.Dispatchers.URI is
      (Dispatcher : in out Handler;
       URI        : String;
       Action     : Response.Callback;
-      Prefix     : Boolean := False);
+      Prefix     : Boolean := False) with Inline;
    --  Idem as above but take a callback procedure as parameter
 
    procedure Register_Regexp
@@ -67,7 +67,7 @@ package AWS.Services.Dispatchers.URI is
    procedure Register_Regexp
      (Dispatcher : in out Handler;
       URI        : String;
-      Action     : Response.Callback);
+      Action     : Response.Callback) with Inline;
    --  Idem as above but take a callback procedure as parameter
 
    procedure Unregister
@@ -86,8 +86,7 @@ private
 
    use Ada.Strings.Unbounded;
 
-   overriding procedure Initialize (Dispatcher : in out Handler);
-   overriding procedure Finalize   (Dispatcher : in out Handler);
+   overriding procedure Finalize (Dispatcher : in out Handler);
 
    overriding function Dispatch
      (Dispatcher : Handler;

@@ -193,15 +193,6 @@ package body AWS.Services.Dispatchers.URI is
       end if;
    end Finalize;
 
-   ----------------
-   -- Initialize --
-   ----------------
-
-   overriding procedure Initialize (Dispatcher : in out Handler) is
-   begin
-      Initialize (AWS.Dispatchers.Handler (Dispatcher));
-   end Initialize;
-
    -----------
    -- Match --
    -----------
