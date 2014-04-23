@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2000-2013, AdaCore                     --
+--                     Copyright (C) 2000-2014, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -62,6 +62,7 @@ package body AWS.Services.Dispatchers.URI is
 
    overriding function Clone (Dispatcher : Handler) return Handler is
       New_Dispatcher : Handler;
+      Item           : URI_Class_Access;
    begin
       if Dispatcher.Action /= null then
          New_Dispatcher.Action :=
@@ -69,7 +70,13 @@ package body AWS.Services.Dispatchers.URI is
              (AWS.Dispatchers.Handler'Class (Dispatcher.Action.Clone));
       end if;
 
-      for Item of Dispatcher.Table loop
+      for J in Dispatcher.Table.First_Index .. Dispatcher.Table.Last_Index loop
+         --  Could not use "for Item of Dispatcher.Table" because this
+         --  construction is not thread safe, at least in
+         --  GNAT Pro 7.3.0w (20140401-47)
+
+         Item := Dispatcher.Table.Element (J);
+
          URI_Table.Append
            (New_Dispatcher.Table,
             new Std_URI'Class'(Std_URI'Class (Item.Clone)));
@@ -122,8 +129,15 @@ package body AWS.Services.Dispatchers.URI is
 
       URI    : constant String := Status.URI (Request);
       Result : Response.Data;
+      Item   : URI_Class_Access;
    begin
-      for Item of Dispatcher.Table loop
+      for J in Dispatcher.Table.First_Index .. Dispatcher.Table.Last_Index loop
+         --  Could not use "for Item of Dispatcher.Table" because this
+         --  construction is not thread safe, at least in
+         --  GNAT Pro 7.3.0w (20140401-47)
+
+         Item := Dispatcher.Table.Element (J);
+
          if Match (Item.all, URI) then
             Result := Dispatch (Item.Action.all, Request);
 
@@ -158,11 +172,15 @@ package body AWS.Services.Dispatchers.URI is
         new Ada.Unchecked_Deallocation (Regpat.Pattern_Matcher, Regpat_Access);
 
       Ref_Counter : constant Natural := Dispatcher.Ref_Counter;
+      Item        : URI_Class_Access;
    begin
       Finalize (AWS.Dispatchers.Handler (Dispatcher));
 
       if Ref_Counter = 1 then
-         for Item of Dispatcher.Table loop
+         while not Dispatcher.Table.Is_Empty loop
+            Item := Dispatcher.Table.Last_Element;
+            Dispatcher.Table.Delete_Last;
+
             Free (Item.Action);
 
             if Item.all in Reg_URI then
@@ -172,7 +190,6 @@ package body AWS.Services.Dispatchers.URI is
          end loop;
 
          Free (Dispatcher.Action);
-         URI_Table.Clear (Dispatcher.Table);
       end if;
    end Finalize;
 
