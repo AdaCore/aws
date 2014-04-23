@@ -46,14 +46,26 @@ package AWS.Translator is
    -- Base64 --
    ------------
 
+   type Base64_Mode is (MIME, URL);
+   --  Base64 encoding variants for encoding routines,
+   --  RFC4648
+   --  MIME - section 4
+   --  URL  - section 5
+   --
+   --  Decoding does not have to have Base64_Mode parameter, because data
+   --  coding easy detected automatically.
+
    procedure Base64_Encode
      (Data     : Unbounded_String;
-      B64_Data : out Unbounded_String);
+      B64_Data : out Unbounded_String;
+      Mode     : Base64_Mode := MIME);
 
-   function Base64_Encode (Data : Stream_Element_Array) return String;
+   function Base64_Encode
+     (Data : Stream_Element_Array; Mode : Base64_Mode := MIME) return String;
    --  Encode Data using the base64 algorithm
 
-   function Base64_Encode (Data : String) return String;
+   function Base64_Encode
+     (Data : String; Mode : Base64_Mode := MIME) return String;
    --  Same as above but takes a string as input
 
    procedure Base64_Decode

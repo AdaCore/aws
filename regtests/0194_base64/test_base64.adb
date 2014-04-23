@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2008-2012, AdaCore                     --
+--                     Copyright (C) 2008-2014, AdaCore                     --
 --                                                                          --
 --  This is free software;  you can redistribute it  and/or modify it       --
 --  under terms of the  GNU General Public License as published  by the     --
@@ -16,10 +16,14 @@
 --  to http://www.gnu.org/licenses for a complete copy of the license.      --
 ------------------------------------------------------------------------------
 
+with Ada.Streams;
+with Ada.Strings.Fixed;
+with Ada.Strings.Maps;
 with Ada.Strings.Unbounded;
 with Ada.Text_IO;
 
 with AWS.Translator;
+with AWS.Utils;
 
 procedure Test_base64 is
 
@@ -71,4 +75,55 @@ begin
    Check ("S2", To_Unbounded_String (S2));
    Check ("S3", To_Unbounded_String (S3));
    Check ("S4", To_Unbounded_String (S4));
+
+   for J in 1 .. 1024 loop
+      declare
+         use Ada.Streams;
+         use AWS.Utils;
+         use AWS.Translator;
+         Bin : Stream_Element_Array (1 .. Stream_Element_Offset (J rem 256));
+      begin
+         for K in Bin'Range loop
+            Bin (K) := Stream_Element'Mod (Random);
+         end loop;
+
+         declare
+            use Ada.Strings;
+            URL_Str  : constant String := Base64_Encode (Bin, URL);
+            MIME_Str : constant String := Base64_Encode (Bin, MIME);
+            Unb_Str1 : Unbounded_String;
+            Unb_Str2 : Unbounded_String;
+         begin
+            if Base64_Decode (URL_Str) /= Bin then
+               Put_Line ("Error " & URL_Str);
+            end if;
+
+            if Base64_Decode (MIME_Str) /= Bin then
+               Put_Line ("Error " & MIME_Str);
+            end if;
+
+            Base64_Encode
+              (To_Unbounded_String (URL_Str & MIME_Str), Unb_Str1, MIME);
+            Base64_Encode (Unb_Str1, Unb_Str2, URL);
+
+            Base64_Decode (Unb_Str2, Unb_Str1);
+            Base64_Decode (Unb_Str1, Unb_Str2);
+
+            if To_String (Unb_Str2) /= URL_Str & MIME_Str then
+               Put_Line ("Error " & To_String (Unb_Str2));
+            end if;
+
+            if Fixed.Translate
+                 (Fixed.Trim
+                    (MIME_Str,
+                     Left => Maps.Null_Set, Right => Maps.To_Set ('=')),
+                  Maps.To_Mapping ("+/", "-_"))
+               /= URL_Str
+            then
+               Put_Line ("URL:  " & URL_Str);
+               Put_Line ("MIME: " & MIME_Str);
+            end if;
+         end;
+      end;
+   end loop;
 end Test_Base64;

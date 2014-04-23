@@ -43,6 +43,8 @@ package body AWS.Translator is
    --  Data. Set result with the compressed or decompressed string. This is
    --  used to implement the Compress and Decompress routines.
 
+   type Base64_Encode_Array is array (Unsigned_8 range 0 .. 63) of Character;
+
    type Decoding_State is record
       Pad   : Unsigned_32 := 0;
       Group : Unsigned_32 := 0;
@@ -51,6 +53,7 @@ package body AWS.Translator is
 
    type Encoding_State is record
       Last          : Integer := 0;
+      To_Char       : access constant Base64_Encode_Array;
       Current_State : Positive range 1 .. 3 := 1;
       Prev_E        : Unsigned_8 := 0; -- position of the character
       Count         : Integer := 0;
@@ -72,6 +75,12 @@ package body AWS.Translator is
      (Add   : not null access procedure (Ch : Character);
       State : in out Encoding_State);
    --  This method is implemented for flushing to add the last bits
+
+   procedure Flush
+     (Add   : not null access procedure (Ch : Character);
+      State : Decoding_State);
+   --  This method is implemented for flushing to add the last bits when
+   --  padding is absent in Base64URL coding
 
    package Conversion is
 
@@ -96,13 +105,21 @@ package body AWS.Translator is
 
    --  The base64 character set
 
-   Base64 : constant array (Unsigned_8 range 0 .. 63) of Character :=
+   Base64 : constant array (Base64_Mode) of aliased Base64_Encode_Array :=
+             (MIME =>
               ('A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M',
                'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z',
                'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm',
                'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z',
                '0', '1', '2', '3', '4', '5', '6', '7', '8', '9',
-               '+', '/');
+               '+', '/'),
+              URL =>
+              ('A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M',
+               'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z',
+               'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm',
+               'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z',
+               '0', '1', '2', '3', '4', '5', '6', '7', '8', '9',
+               '-', '_'));
 
    --  The base64 values
 
@@ -121,7 +138,7 @@ package body AWS.Translator is
                       'u' => 46, 'v' => 47, 'w' => 48, 'x' => 49, 'y' => 50,
                       'z' => 51, '0' => 52, '1' => 53, '2' => 54, '3' => 55,
                       '4' => 56, '5' => 57, '6' => 58, '7' => 59, '8' => 60,
-                      '9' => 61, '+' => 62, '/' => 63,
+                      '9' => 61, '+' => 62, '/' => 63, '-' => 62, '_' => 63,
                       others => 16#ffffffff#);
 
    ---------
@@ -142,19 +159,19 @@ package body AWS.Translator is
 
       case State.Current_State is
          when 1 =>
-            Add (Base64 (Shift_Right (E, 2) and 16#3F#));
+            Add (State.To_Char (Shift_Right (E, 2) and 16#3F#));
             State.Current_State := 2;
 
          when 2 =>
-            Add (Base64 ((Shift_Left (State.Prev_E, 4) and 16#30#)
+            Add (State.To_Char ((Shift_Left (State.Prev_E, 4) and 16#30#)
               or (Shift_Right (E, 4) and 16#F#)));
             State.Current_State := 3;
 
          when 3 =>
-            Add (Base64 ((Shift_Left (State.Prev_E, 2) and 16#3C#)
+            Add (State.To_Char ((Shift_Left (State.Prev_E, 2) and 16#3C#)
               or (Shift_Right (E, 6) and 16#3#)));
             State.Last := State.Last + 1;
-            Add (Base64 (E and 16#3F#));
+            Add (State.To_Char (E and 16#3F#));
             State.Current_State := 1;
       end case;
 
@@ -182,12 +199,9 @@ package body AWS.Translator is
          State.J := State.J - 6;
 
          if State.J < 0 then
-            Add (Character'Val (Unsigned_8
-              (Shift_Right (State.Group and 16#FF0000#, 16))));
-            Add (Character'Val (Unsigned_8
-              (Shift_Right (State.Group and 16#00FF00#, 8))));
-            Add (Character'Val (Unsigned_8
-              (State.Group and 16#0000FF#)));
+            Add (Character'Val (Shift_Right (State.Group and 16#FF0000#, 16)));
+            Add (Character'Val (Shift_Right (State.Group and 16#00FF00#, 8)));
+            Add (Character'Val (State.Group and 16#0000FF#));
 
             State.Group := 0;
             State.J     := 18;
@@ -232,6 +246,11 @@ package body AWS.Translator is
            (Data,
             From    => Length (Data) - Positive (S.Pad) + 1,
             Through => Length (Data));
+
+      else
+         --  Padding is absent in Base64URL coding
+
+         Flush (Add_Char'Access, S);
       end if;
    end Base64_Decode;
 
@@ -260,6 +279,8 @@ package body AWS.Translator is
          Add (Add_Char'Access, S, Char);
       end loop;
 
+      Flush (Add_Char'Access, S);
+
       return Result (1 .. Last - Stream_Element_Offset (S.Pad));
    end Base64_Decode;
 
@@ -274,7 +295,8 @@ package body AWS.Translator is
 
    procedure Base64_Encode
      (Data     : Unbounded_String;
-      B64_Data : out Unbounded_String)
+      B64_Data : out Unbounded_String;
+      Mode     : Base64_Mode := MIME)
    is
 
       procedure Add_Char (Ch : Character);
@@ -292,6 +314,8 @@ package body AWS.Translator is
       S : Encoding_State;
 
    begin
+      S.To_Char := Base64 (Mode)'Access;
+
       B64_Data := Null_Unbounded_String;
 
       for C in 1 .. Length (Data) loop
@@ -301,7 +325,9 @@ package body AWS.Translator is
       Flush (Add_Char'Access, S);
    end Base64_Encode;
 
-   function Base64_Encode (Data : Stream_Element_Array) return String is
+   function Base64_Encode
+     (Data : Stream_Element_Array; Mode : Base64_Mode := MIME) return String
+   is
 
       procedure Add_Char (Ch : Character);
       --  Add single char into result string
@@ -319,6 +345,8 @@ package body AWS.Translator is
       end Add_Char;
 
    begin
+      S.To_Char := Base64 (Mode)'Access;
+
       for Elem of Data loop
          Add (Add_Char'Access, S, Character'Val (Elem));
       end loop;
@@ -327,11 +355,13 @@ package body AWS.Translator is
       return To_String (Result);
    end Base64_Encode;
 
-   function Base64_Encode (Data : String) return String is
+   function Base64_Encode
+     (Data : String; Mode : Base64_Mode := MIME) return String
+   is
       Stream_Data : constant Stream_Element_Array :=
                       To_Stream_Element_Array (Data);
    begin
-      return Base64_Encode (Stream_Data);
+      return Base64_Encode (Stream_Data, Mode);
    end Base64_Encode;
 
    --------------
@@ -444,11 +474,11 @@ package body AWS.Translator is
 
          when 2 =>
             State.Last := State.Last + 1;
-            Add (Base64 (Shift_Left (State.Prev_E, 4) and 16#30#));
+            Add (State.To_Char (Shift_Left (State.Prev_E, 4) and 16#30#));
 
          when 3 =>
             State.Last := State.Last + 1;
-            Add (Base64 (Shift_Left (State.Prev_E, 2) and 16#3C#));
+            Add (State.To_Char (Shift_Left (State.Prev_E, 2) and 16#3C#));
       end case;
 
       --  Add Additional '=' character for the missing bits
@@ -457,9 +487,24 @@ package body AWS.Translator is
 
       Encoded_Length := 4 * ((State.Count + 2) / 3);
 
-      for I in State.Last .. Encoded_Length loop
-         Add ('=');
-      end loop;
+      if State.To_Char = Base64 (MIME)'Access then
+         for I in State.Last .. Encoded_Length loop
+            Add ('=');
+         end loop;
+      end if;
+   end Flush;
+
+   procedure Flush
+     (Add   : not null access procedure (Ch : Character);
+      State : Decoding_State) is
+   begin
+      if State.J <= 12 then
+         Add (Character'Val (Shift_Right (State.Group and 16#FF0000#, 16)));
+      end if;
+
+      if State.J = 0 then
+         Add (Character'Val (Shift_Right (State.Group and 16#00FF00#, 8)));
+      end if;
    end Flush;
 
    ---------------
