@@ -1552,6 +1552,8 @@ package SSL.Thin is
 
    Null_Handle : constant SSL_Handle := null;
 
+   Null_Private_Key : constant Private_Key := null;
+
    type Boolean_Access is access Boolean;
 
    type BIO_Access is record

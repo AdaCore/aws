@@ -147,6 +147,8 @@ package SSL.Thin is
    Null_CTX    : SSL_CTX    renames Null_Pointer;
    Null_Handle : SSL_Handle renames Null_Pointer;
 
+   Null_Private_Key : Private_Key renames Null_Pointer;
+
    subtype Error_Code is unsigned_long;
 
    SSL_FILETYPE_PEM                  : constant := 1;

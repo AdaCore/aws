@@ -270,6 +270,8 @@ package AWS.Net.SSL is
 
    type Private_Key is private;
 
+   Null_Private_Key : constant Private_Key;
+
    type Hash_Method is (MD5, SHA1, SHA224, SHA256, SHA384, SHA512);
 
    function Load (Filename : String) return Private_Key;
@@ -303,6 +305,9 @@ private
    Null_Session : constant Session_Type := null;
 
    type Private_Key is new TSSL.Private_Key;
+
+   Null_Private_Key : constant Private_Key :=
+                        Private_Key (TSSL.Null_Private_Key);
 
    type Config is access all TS_SSL;
    pragma No_Strict_Aliasing (Config);
