@@ -38,6 +38,8 @@ package SSL.Thin is
 
    Null_Handle : SSL_Handle;
 
+   Null_Private_Key : constant Private_Key := Private_Key'(null record);
+
    SSLeay : constant := 0;
 
 end SSL.Thin;
