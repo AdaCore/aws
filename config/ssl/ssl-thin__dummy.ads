@@ -36,7 +36,7 @@ package SSL.Thin is
    type Session_Record is null record;
    type Private_Key is null record;
 
-   Null_Handle : SSL_Handle;
+   Null_Handle : constant SSL_Handle := SSL_Handle'(null record);
 
    Null_Private_Key : constant Private_Key := Private_Key'(null record);
 
