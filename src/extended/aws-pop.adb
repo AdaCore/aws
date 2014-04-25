@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2003-2013, AdaCore                     --
+--                     Copyright (C) 2003-2014, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -60,6 +60,9 @@ package body AWS.POP is
      with Inline;
    --  Read headers from Sock, do not fail if a non conformant header is
    --  found. It is possible to get wrong headers in SPAMs.
+
+   procedure Unchecked_Free is new Unchecked_Deallocation
+     (Attachment, Attachment_Access);
 
    ------------
    -- Adjust --
@@ -251,6 +254,7 @@ package body AWS.POP is
 
    overriding procedure Finalize (Attachment : in out POP.Attachment) is
       use type Utils.Counter_Access;
+      use type AWS.Resources.Streams.Stream_Access;
       procedure Unchecked_Free is new Unchecked_Deallocation
         (AWS.Resources.Streams.Stream_Type'Class,
          AWS.Resources.Streams.Stream_Access);
@@ -261,12 +265,16 @@ package body AWS.POP is
       Attachment.Ref_Count := null;
 
       if Ref_Count /= null then
-         Ref_Count.all := Ref_Count.all + 1;
+         Ref_Count.all := Ref_Count.all - 1;
 
          if Ref_Count.all = 0 then
-            AWS.Resources.Streams.Memory.Close
-              (Stream_Type (Attachment.Content.all));
-            Unchecked_Free (Attachment.Content);
+            if Attachment.Content /= null then
+               AWS.Resources.Streams.Memory.Close
+                 (Stream_Type (Attachment.Content.all));
+               Unchecked_Free (Attachment.Content);
+            end if;
+
+            Unchecked_Free (Attachment.Next);
             Utils.Unchecked_Free (Ref_Count);
          end if;
       end if;
@@ -275,24 +283,18 @@ package body AWS.POP is
    overriding procedure Finalize (Message : in out POP.Message) is
       use type Utils.Counter_Access;
       Ref_Count : Utils.Counter_Access := Message.Ref_Count;
-      A         : Attachment_Access := Message.Attachments;
    begin
       --  Ensure call is idempotent
 
       Message.Ref_Count := null;
 
       if Ref_Count /= null then
-         Ref_Count.all := Ref_Count.all + 1;
+         Ref_Count.all := Ref_Count.all - 1;
 
          if Ref_Count.all = 0 then
+            Unchecked_Free (Message.Attachments);
             Utils.Unchecked_Free (Ref_Count);
          end if;
-
-         while A /= null loop
-            --  ??? free A there
-            Finalize (A.all);
-            A := A.Next;
-         end loop;
       end if;
    end Finalize;
 
@@ -624,12 +626,12 @@ package body AWS.POP is
 
    overriding procedure Initialize (Message : in out POP.Message) is
    begin
-      Message.Ref_Count := new Natural'(0);
+      Message.Ref_Count := new Natural'(1);
    end Initialize;
 
    overriding procedure Initialize (Attachment : in out POP.Attachment) is
    begin
-      Attachment.Ref_Count := new Natural'(0);
+      Attachment.Ref_Count := new Natural'(1);
    end Initialize;
 
    function Initialize

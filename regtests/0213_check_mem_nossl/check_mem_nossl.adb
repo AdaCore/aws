@@ -40,6 +40,7 @@ with AWS.MIME;
 with AWS.Messages;
 with AWS.Net.Std;
 with AWS.Parameters;
+with AWS.POP;
 with AWS.Resources.Streams.Disk;
 with AWS.Resources.Streams.Memory.ZLib;
 with AWS.Resources.Streams.ZLib;
@@ -668,6 +669,41 @@ procedure Check_Mem_Nossl is
       end loop;
    end Check_Reconnect;
 
+   ---------------
+   -- Check_POP --
+   ---------------
+
+   procedure Check_POP is
+      use AWS.POP;
+      Box : Mailbox;
+      Msg : Message;
+      Att : Attachment;
+
+      POP_Host : constant String := "255.255.255.255";
+   begin
+      Time_Tag ("Check_POP");
+
+      if User_Name (Box) /= "" then
+         Check ("Name (Box) /= """"");
+      end if;
+
+      if From (Msg) /= "" then
+         Check ("From (Msg) /= """"");
+      end if;
+
+      if Filename (Att) /= "" then
+         Check ("Filename (Att) /= """"");
+      end if;
+
+      Box := Initialize
+               (Server_Name => POP_Host,
+                User        => "does not matter",
+                Password    => "idem");
+   exception
+      when Net.Socket_Error =>
+         null;
+   end Check_POP;
+
    ----------------
    -- Check_SMTP --
    ----------------
@@ -705,8 +741,9 @@ procedure Check_Mem_Nossl is
       if AWS.SMTP.Is_Ok (Status) then
          Put_Line ("Status OK");
       end if;
+
    exception
-      when others =>
+      when AWS.SMTP.Server_Error =>
          null;
    end Check_SMTP;
 
@@ -775,6 +812,7 @@ begin
       Check_Socket;
       Check_Reconnect;
       Check_SMTP;
+      Check_POP;
 
       Time_Tag ("SOAP");
       declare

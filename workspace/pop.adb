@@ -1,3 +1,20 @@
+------------------------------------------------------------------------------
+--                              Ada Web Server                              --
+--                                                                          --
+--                        Copyright (C) 2014, AdaCore                       --
+--                                                                          --
+--  This is free software;  you can redistribute it  and/or modify it       --
+--  under terms of the  GNU General Public License as published  by the     --
+--  Free Software  Foundation;  either version 3,  or (at your option) any  --
+--  later version.  This software is distributed in the hope  that it will  --
+--  be useful, but WITHOUT ANY WARRANTY;  without even the implied warranty --
+--  of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU     --
+--  General Public License for  more details.                               --
+--                                                                          --
+--  You should have  received  a copy of the GNU General  Public  License   --
+--  distributed  with  this  software;   see  file COPYING3.  If not, go    --
+--  to http://www.gnu.org/licenses for a complete copy of the license.      --
+------------------------------------------------------------------------------
 
 --  Simple POP demo, it depends on the mailbox content
 
@@ -14,14 +31,17 @@ procedure POP is
 
    M       : AWS.POP.Message;
    A       : AWS.Pop.Attachment;
+   Counter : Integer := 32;
 
    procedure Display
-     (M     : in     AWS.POP.Message;
-      Index : in     Positive;
+     (M     : AWS.POP.Message;
+      Index : Positive;
       Quit  : in out Boolean) is
    begin
       Text_IO.Put_Line ("From    " & AWS.POP.From (M));
       Text_IO.Put_Line ("Subject " & AWS.POP.Subject (M));
+      Counter := Counter - 1;
+      Quit := Counter <= 0;
    end Display;
 
    procedure List_Message is new AWS.POP.For_Every_Message (Display);
@@ -55,6 +75,7 @@ begin
    Text_IO.New_Line;
    Text_IO.Put_Line ("Header Iterator:");
 
+   Counter := 32;
    List_Message_Header (Mailbox);
 
    AWS.POP.Close (Mailbox);
