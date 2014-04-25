@@ -54,7 +54,7 @@ package AWS.Services.Dispatchers.URI is
      (Dispatcher : in out Handler;
       URI        : String;
       Action     : Response.Callback;
-      Prefix     : Boolean := False) with Inline;
+      Prefix     : Boolean := False);
    --  Idem as above but take a callback procedure as parameter
 
    procedure Register_Regexp
@@ -67,7 +67,7 @@ package AWS.Services.Dispatchers.URI is
    procedure Register_Regexp
      (Dispatcher : in out Handler;
       URI        : String;
-      Action     : Response.Callback) with Inline;
+      Action     : Response.Callback);
    --  Idem as above but take a callback procedure as parameter
 
    procedure Unregister
