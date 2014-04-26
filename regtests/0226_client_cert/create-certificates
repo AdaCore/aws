@@ -1,0 +1,63 @@
+SUBJ="/C=FR/ST=Ile de France/L=Paris/O=AdaCore"
+
+# certificate request for server certificate authority
+
+openssl req -new -newkey rsa:2048 -nodes -keyout CA-srv.key \
+-out CA-srv.csr \
+-subj "$SUBJ/OU=CA/CN=CA-Web-Server/emailAddress=ca-aws@adacore.com/"
+
+# certificate request for client certificate authority
+
+openssl req -new -newkey rsa:2048 -nodes -keyout CA-clt.key \
+-out CA-clt.csr -subj \
+"$SUBJ/OU=CA/CN=CA-Web-Client/emailAddress=aws-clt@adacore.com/"
+
+# Sign CA requests and get the self signed certificates.
+
+openssl x509 -req -days 800 -in CA-srv.csr -signkey CA-srv.key -out CA-srv.crt
+openssl x509 -req -days 800 -in CA-clt.csr -signkey CA-clt.key -out CA-clt.crt
+
+# If we need CA certificate signed by trusted authority, we should send the
+# CA-srv.csr to the trusted authority and get the signed certificate for some
+# payment.
+
+# Generate server certificate requests
+
+openssl req -new -newkey rsa:2048 -nodes -keyout aws-server.key \
+-out aws-server.csr \
+-subj "$SUBJ/OU=CRM/CN=localhost/emailAddress=aws-test@adacore.com/"
+
+# Generate client certificate requests
+
+openssl req -new -newkey rsa:2048 -nodes -keyout aws-client.key \
+-out aws-client.csr \
+-subj "$SUBJ/OU=CRM/CN=test-client-cert/emailAddress=aws-test@adacore.com/"
+
+# Initialize a demo CA directory, see CA_default section in
+# /etc/ssl/openssl.cnf.
+
+mkdir demoCA
+mkdir demoCA/newcerts
+touch demoCA/index.txt
+echo ADA0 > demoCA/serial
+
+# Sign server certificate by server CA.
+
+openssl ca -in aws-server.csr -days 800 -cert CA-srv.crt -keyfile CA-srv.key \
+-batch -out aws-server.crt
+
+openssl ca -in aws-client.csr -days 800 -cert CA-clt.crt -keyfile CA-clt.key \
+-batch -out aws-client.crt
+
+# concatenate client certificate with its private key.
+
+cat aws-client.crt aws-client.key > aws-client.pem
+rm aws-client.crt aws-client.key
+
+# remove certificate requests
+
+rm CA-clt.csr CA-srv.csr aws-client.csr aws-server.csr
+
+# remove demo CA directory and CA private keys.
+
+rm -fr demoCA CA-clt.key CA-srv.key

@@ -224,7 +224,7 @@ begin
       Key_Filename         => "aws-server.key",
       Exchange_Certificate => True,
       Certificate_Required => True,
-      Trusted_CA_Filename  => "private-ca.crt");
+      Trusted_CA_Filename  => "CA-clt.crt");
 
    Net.SSL.Certificate.Set_Verify_Callback
      (SSL2, Verify_Cert'Unrestricted_Access);
@@ -251,7 +251,7 @@ begin
    Put_Line ("Server 2 started");
    New_Line;
 
-   Request (AWS.Server.Status.Local_URL (HTTP2) & "/simple", "private-ca.crt");
+   Request (AWS.Server.Status.Local_URL (HTTP2) & "/simple", "CA-srv.crt");
 
    Server.Shutdown (HTTP2);
 
@@ -269,7 +269,7 @@ begin
    Put_Line ("Server 3 started");
    New_Line;
 
-   Request (AWS.Server.Status.Local_URL (HTTP3) & "/simple", "private-ca.crt");
+   Request (AWS.Server.Status.Local_URL (HTTP3) & "/simple", "CA-srv.crt");
 
    Server.Shutdown (HTTP3);
 
