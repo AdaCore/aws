@@ -63,4 +63,8 @@ library project Zlib is
    package Compiler renames Shared.Compiler;
    package Ide renames Shared.Ide;
 
+   package Install is
+      for Active use "false";
+   end Install;
+
 end Zlib;
