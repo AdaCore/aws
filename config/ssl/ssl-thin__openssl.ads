@@ -300,6 +300,13 @@ package SSL.Thin is
    SSL_ERROR_WANT_CONNECT     : constant := 7;
    SSL_ERROR_WANT_ACCEPT      : constant := 8;
 
+   SSL_MAX_KRB5_PRINCIPAL_LENGTH       : constant := 256;
+   SSL_MAX_SSL_SESSION_ID_LENGTH       : constant := 32;
+   SSL_MAX_SID_CTX_LENGTH              : constant := 32;
+   SSL_MIN_RSA_MODULUS_LENGTH_IN_BYTES : constant := 512 / 8;
+   SSL_MAX_KEY_ARG_LENGTH              : constant := 8;
+   SSL_MAX_MASTER_KEY_LENGTH           : constant := 48;
+
    BIO_C_SET_CONNECT                 : constant := 100;
    BIO_C_DO_STATE_MACHINE            : constant := 101;
    BIO_C_SET_NBIO                    : constant := 102;
@@ -1058,6 +1065,9 @@ package SSL.Thin is
    function PEM_write_bio_DHparams (bp : BIO_Access; x : DH) return int
      with Import, Convention => C, Link_Name => "PEM_write_bio_DHparams";
 
+   function SSL_CTX_use_RSAPrivateKey (Ctx : SSL_CTX; PK : RSA) return int
+     with Import, Convention => C, Link_Name => "SSL_CTX_use_RSAPrivateKey";
+
    function SSL_use_RSAPrivateKey
      (SSL : SSL_Handle; Private_Key : RSA) return int
      with Import, Convention => C, Link_Name => "SSL_use_RSAPrivateKey";
@@ -1474,6 +1484,11 @@ package SSL.Thin is
      (Ctx : SSL_CTX; Mode : long) return long
      with Import, Convention => C,
           Link_Name => "SSL_CTX_set_session_cache_mode";
+
+   function SSL_CTX_set_session_id_context
+     (Ctx : SSL_CTX; sid_ctx : Pointer; sid_ctx_len : unsigned) return int
+     with Import, Convention => C,
+                  Link_Name => "SSL_CTX_set_session_id_context";
 
    procedure SSL_CTX_flush_sessions (Ctx : SSL_CTX; Tm : long)
      with Import, Convention => C, Link_Name => "SSL_CTX_flush_sessions";

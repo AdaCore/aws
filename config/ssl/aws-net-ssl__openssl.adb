@@ -37,6 +37,7 @@ pragma Ada_2012;
 --  AWS.Server.Set_Security.
 
 with Ada.Calendar;
+with Ada.Command_Line;
 with Ada.Directories;
 with Ada.Task_Attributes;
 with Ada.Task_Identification;
@@ -156,6 +157,9 @@ package body AWS.Net.SSL is
    procedure Error_If (Socket : Socket_Type; Error : Boolean) with Inline;
    --  Raises and log Socket_Error if Error is true.
    --  Attach the SSL error message.
+
+   procedure File_Error (Prefix, Name : String) with No_Return;
+   --  Prefix is the type of file key or certificate that was expected
 
    procedure Do_Handshake (Socket : in out Socket_Type; Success : out Boolean);
    --  Perform SSL handshake
@@ -456,6 +460,16 @@ package body AWS.Net.SSL is
          return C.To_Ada (Buffer);
       end if;
    end Error_Str;
+
+   ----------------
+   -- File_Error --
+   ----------------
+
+   procedure File_Error (Prefix, Name : String) is
+   begin
+      raise Socket_Error with
+         Prefix & " file """ & Name & """ error." & ASCII.LF & Error_Stack;
+   end File_Error;
 
    ----------
    -- Free --
@@ -758,13 +772,15 @@ package body AWS.Net.SSL is
       IO   : constant TSSL.BIO_Access := TSSL.BIO_new (TSSL.BIO_s_file);
       Name : aliased C.char_array := C.To_C (Filename);
    begin
-      Error_If
-        (TSSL.BIO_read_filename
-           (IO, C.Strings.To_Chars_Ptr (Name'Unchecked_Access)) = 0);
-
-      Error_If
-        (TSSL.PEM_read_bio_RSAPrivateKey
-           (IO, Key'Access, null, TSSL.Null_Pointer) /= Key);
+      if TSSL.BIO_read_filename
+           (IO, C.Strings.To_Chars_Ptr (Name'Unchecked_Access)) = 0
+        or else TSSL.PEM_read_bio_RSAPrivateKey
+                  (IO, Key'Access, null, TSSL.Null_Pointer) /= Key
+      then
+         TSSL.BIO_free (IO);
+         TSSL.RSA_free (Key);
+         File_Error ("Key", Filename);
+      end if;
 
       TSSL.BIO_free (IO);
 
@@ -1751,6 +1767,17 @@ package body AWS.Net.SSL is
          TSSL.SSL_CTX_flush_sessions (Context, C.long'Last);
       end Clear_Session_Cache;
 
+      ----------------
+      -- File_Error --
+      ----------------
+
+      procedure File_Error (Prefix, Name : String) is
+      begin
+         raise Socket_Error
+            with Prefix & " file """ & Name & """ error."
+               & ASCII.LF & Error_Stack;
+      end File_Error;
+
       --------------
       -- Finalize --
       --------------
@@ -1805,63 +1832,37 @@ package body AWS.Net.SSL is
          is
             use Interfaces.C;
 
-            procedure File_Error (Prefix, Name : String) with No_Return;
-            --  Prefix is the type of file key or certificate that was expected
-
-            ----------------
-            -- File_Error --
-            ----------------
-
-            procedure File_Error (Prefix, Name : String) is
-            begin
-               raise Socket_Error
-                 with Prefix & " file """ & Name & """ error."
-                   & ASCII.LF & Error_Stack;
-            end File_Error;
+            PK : constant Private_Key :=
+                   Load ((if Key_Filename = ""
+                          then Cert_Filename else Key_Filename));
 
          begin
-            if Key_Filename = "" then
-               --  Get certificate and private key from the same file.
-               --  We could not use certificates chain this way.
+            --  Get the single certificate or certificate chain from
+            --  the file Cert_Filename.
 
-               if TSSL.SSL_CTX_use_certificate_file
-                    (Ctx    => Context,
-                     File   => To_C (Cert_Filename),
-                     C_Type => TSSL.SSL_FILETYPE_PEM) /= 1
-               then
-                  File_Error ("Certificate", Cert_Filename);
-               end if;
-
-               if TSSL.SSL_CTX_use_PrivateKey_file
-                    (Ctx    => Context,
-                     File   => To_C (Cert_Filename),
-                     C_Type => TSSL.SSL_FILETYPE_PEM) /= 1
-               then
-                  File_Error ("Key", Cert_Filename);
-               end if;
-
-            else
-               --  Get the single certificate or certificate chain from
-               --  the file Cert_Filename.
-
-               if TSSL.SSL_CTX_use_certificate_chain_file
-                    (Ctx    => Context,
-                     File   => To_C (Cert_Filename)) /= 1
-               then
-                  File_Error ("Certificate", Cert_Filename);
-               end if;
-
-               if TSSL.SSL_CTX_use_PrivateKey_file
-                    (Ctx    => Context,
-                     File   => To_C (Key_Filename),
-                     C_Type => TSSL.SSL_FILETYPE_PEM) /= 1
-               then
-                  File_Error ("Key", Key_Filename);
-               end if;
+            if TSSL.SSL_CTX_use_certificate_chain_file
+                 (Ctx => Context, File => To_C (Cert_Filename)) /= 1
+            then
+               File_Error ("Certificate", Cert_Filename);
             end if;
 
             Error_If
-              (TSSL.SSL_CTX_check_private_key (Ctx => Context) /= 1);
+              (TSSL.SSL_CTX_use_RSAPrivateKey (Context, TSSL.RSA (PK)) /= 1);
+            Error_If (TSSL.SSL_CTX_check_private_key (Ctx => Context) /= 1);
+
+            if Exchange_Certificate then
+               declare
+                  Data : aliased constant Stream_Element_Array :=
+                           Signature (Command_Line.Command_Name, PK, SHA224);
+               begin
+                  Error_If
+                    (TSSL.SSL_CTX_set_session_id_context
+                       (Context, Data'Address,
+                        C.unsigned'Min
+                          (TSSL.SSL_MAX_SSL_SESSION_ID_LENGTH, Data'Length))
+                     = 0);
+               end;
+            end if;
 
             --  Set Trusted Certificate Authority if any
 
