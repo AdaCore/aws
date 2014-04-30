@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2004-2013, AdaCore                     --
+--                     Copyright (C) 2004-2014, AdaCore                     --
 --                                                                          --
 --  This is free software;  you can redistribute it  and/or modify it       --
 --  under terms of the  GNU General Public License as published  by the     --
@@ -131,10 +131,14 @@ begin
 
                if Text (1 .. Last) = "An unexpected TLS packet was received."
                  or else Text (1 .. Last)
+                         = "A record packet with illegal version was received."
+                 or else Text (1 .. Last)
                          = "1408F10B:SSL routines:SSL3_GET_RECORD:"
                            & "wrong version number" -- OpenSSL
                then
                   Put_Line ("Expected error about wrong data received");
+               else
+                  Put_Line ("Unexpected: " & Text);
                end if;
             end;
       end;
