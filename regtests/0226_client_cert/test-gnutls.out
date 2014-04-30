@@ -62,3 +62,17 @@ Verified   : FALSE
 
 => simple ok
 
+
+Server certificate as received by the client:
+Name       : localhost
+Subject    : C=FR,ST=Ile de France,O=AdaCore,OU=CRM,CN=localhost,EMAIL=aws-test@adacore.com
+Issuer     : C=FR,ST=Ile de France,L=Paris,O=AdaCore,OU=CA,CN=CA-Web-Server,EMAIL=ca-aws@adacore.com
+Activation : 2014-04-26 02:55:41
+Expiration : 2016-07-04 02:55:41
+Verified   : FALSE
+
+
+Client certificate as received by the server:
+No certificate.
+=> simple ok
+

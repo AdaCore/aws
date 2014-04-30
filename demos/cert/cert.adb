@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                        Copyright (C) 2012, AdaCore                       --
+--                     Copyright (C) 2012-2014, AdaCore                     --
 --                                                                          --
 --  This is free software;  you can redistribute it  and/or modify it       --
 --  under terms of the  GNU General Public License as published  by the     --
@@ -20,14 +20,18 @@
 --  Certificate Authority.
 
 with Ada.Text_IO;
+with Ada.Command_Line;
 
 with AWS.Config;
 with AWS.Default;
+with AWS.Net.Log;
 with AWS.Net.SSL;
 with AWS.Net.SSL.Certificate;
 with AWS.Server;
 
 with Cert_CB;
+
+with GNAT.Traceback.Symbolic;
 
 procedure Cert is
 
@@ -38,7 +42,27 @@ procedure Cert is
    Cnf : Config.Object := Config.Get_Current;
    SSL : Net.SSL.Config;
 
+   -----------
+   -- Error --
+   -----------
+
+   procedure Error (Socket : Net.Socket_Type'Class; Message : String) is
+      use GNAT.Traceback;
+      Trace : Tracebacks_Array (1 .. 64);
+      Last  : Natural;
+   begin
+      Call_Chain (Trace, Last);
+
+      Text_IO.Put_Line
+        ("# Network error: "
+         & Message & Symbolic.Symbolic_Traceback (Trace (1 .. Last)));
+   end Error;
+
 begin
+   if Ada.Command_Line.Argument_Count > 0 then
+      Net.Log.Start (Error => Error'Unrestricted_Access, Write => null);
+   end if;
+
    Text_IO.Put_Line ("Call me on port 4433, press Q to exit");
    Text_IO.New_Line;
 

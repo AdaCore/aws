@@ -100,6 +100,7 @@ procedure Client_Cert is
          Put_Line
            ("Verified   : "
             & Boolean'Image (Net.SSL.Certificate.Verified (Cert)));
+         --  Put_Line ("Status: " & Net.SSL.Certificate.Status_Message (Cert));
          New_Line;
       end if;
    end Display_Certificate;
@@ -141,7 +142,9 @@ procedure Client_Cert is
    -- Request --
    -------------
 
-   procedure Request (URL : String; CA : String := "") is
+   procedure Request
+     (URL : String; CA : String := ""; Crt : String := "aws-client.pem")
+   is
       O_URL : constant AWS.URL.Object := AWS.URL.Parse (URL);
       R     : Response.Data;
       C     : Client.HTTP_Connection;
@@ -150,7 +153,7 @@ procedure Client_Cert is
    begin
       Net.SSL.Initialize
         (Cfg,
-         Certificate_Filename => "aws-client.pem",
+         Certificate_Filename => Crt,
          Trusted_CA_Filename  => CA);
 
       Client.Create (C, URL, SSL_Config => Cfg);
@@ -270,6 +273,11 @@ begin
    New_Line;
 
    Request (AWS.Server.Status.Local_URL (HTTP3) & "/simple", "CA-srv.crt");
+   Request (AWS.Server.Status.Local_URL (HTTP3) & "/simple", "CA-srv.crt", "");
+
+   --  Looks like in the last request client see the server certificate as a
+   --  non trusted, but has a correct truster authority, in both OpenSSL and
+   --  GNUTLS. Need investigate.
 
    Server.Shutdown (HTTP3);
 

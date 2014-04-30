@@ -54,6 +54,9 @@ package body Cert_CB is
            (Net.SSL.Certificate.Expiration_Time (Cert)));
       Output.all
         ("  status message  : "  & Net.SSL.Certificate.Status_Message (Cert));
+      Output.all
+        ("  verified        : "
+         & Boolean'Image (Net.SSL.Certificate.Verified (Cert)));
    end Display;
 
    -----------

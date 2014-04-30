@@ -2113,6 +2113,7 @@ package body AWS.Net.SSL is
       Cert_List     : TSSL.a_gnutls_datum_t;
       Cert_List_Len : aliased C.unsigned;
       Cert          : aliased TSSL.gnutls_x509_crt_t;
+      Error_Code    : C.int;
 
       function Is_Error (Code : C.int) return Boolean;
 
@@ -2131,9 +2132,17 @@ package body AWS.Net.SSL is
       end Is_Error;
 
    begin
-      if Is_Error
-           (TSSL.gnutls_certificate_verify_peers2 (Session, Status'Access))
+      --  Get the session config
+
+      Cfg := To_Config (TSSL.gnutls_session_get_ptr (Session));
+
+      Error_Code := TSSL.gnutls_certificate_verify_peers2
+                      (Session, Status'Access);
+
+      if Error_Code = TSSL.GNUTLS_E_NO_CERTIFICATE_FOUND and then not Cfg.CREQ
       then
+         return 0;
+      elsif Is_Error (Error_Code) then
          return TSSL.GNUTLS_E_CERTIFICATE_ERROR;
       end if;
 
@@ -2146,10 +2155,6 @@ package body AWS.Net.SSL is
          Log_Error ("gnutls_certificate_get_peers null result");
          return TSSL.GNUTLS_E_CERTIFICATE_ERROR;
       end if;
-
-      --  Get the user's callback stored in the session config
-
-      Cfg := To_Config (TSSL.gnutls_session_get_ptr (Session));
 
       if Cfg.Verify_CB /= null then
          for J in reverse 1 .. Cert_List_Len loop
