@@ -35,6 +35,7 @@ with AWS.Parameters;
 with AWS.Response;
 with AWS.Server.Status;
 with AWS.Status;
+with AWS.Translator;
 with AWS.URL;
 
 with GNAT.Traceback.Symbolic;
@@ -45,11 +46,15 @@ procedure Client_Cert is
    use Ada.Text_IO;
    use AWS;
 
+   package NSC renames AWS.Net.SSL.Certificate;
+
+   Client_Certificate_Name : constant String := "aws-client.pem";
+   Client_Certificate      : constant NSC.Object :=
+                               NSC.Load (Client_Certificate_Name);
+
    function CB (Request : Status.Data) return Response.Data;
 
-   procedure Display_Certificate (Socket : Net.SSL.Socket_Type);
-
-   procedure Display_Certificate (Cert : Net.SSL.Certificate.Object);
+   procedure Display_Certificate (Cert : NSC.Object);
 
    function Image (DT : Calendar.Time) return String;
 
@@ -58,13 +63,20 @@ procedure Client_Cert is
    --------
 
    function CB (Request : Status.Data) return Response.Data is
+      use type NSC.Object;
       URI  : constant String                := Status.URI (Request);
       Sock : constant Net.Socket_Type'Class := Status.Socket (Request);
+      Cert : constant NSC.Object := NSC.Get (Net.SSL.Socket_Type (Sock));
    begin
       if URI = "/simple" then
          New_Line;
          Put_Line ("Client certificate as received by the server:");
-         Display_Certificate (Net.SSL.Socket_Type (Sock));
+
+         if NSC.Subject (Cert) /= "" and then Cert /= Client_Certificate then
+            Put_Line ("Wrong client certificate !");
+         end if;
+
+         Display_Certificate (Cert);
 
          return Response.Build (MIME.Text_HTML, "simple ok");
 
@@ -79,37 +91,21 @@ procedure Client_Cert is
    -- Display_Certificate --
    -------------------------
 
-   procedure Display_Certificate (Cert : Net.SSL.Certificate.Object) is
-      use type Net.SSL.Certificate.Object;
+   procedure Display_Certificate (Cert : NSC.Object) is
+      use type NSC.Object;
    begin
-      if Cert = Net.SSL.Certificate.Undefined then
+      if Cert = NSC.Undefined then
          Put_Line ("No certificate.");
       else
-         Put_Line
-           ("Name       : " & Net.SSL.Certificate.Common_Name (Cert));
-         Put_Line
-           ("Subject    : " & Net.SSL.Certificate.Subject (Cert));
-         Put_Line
-           ("Issuer     : " & Net.SSL.Certificate.Issuer (Cert));
-         Put_Line
-           ("Activation : "
-            & Image (Net.SSL.Certificate.Activation_Time (Cert)));
-         Put_Line
-           ("Expiration : "
-            & Image (Net.SSL.Certificate.Expiration_Time (Cert)));
-         Put_Line
-           ("Verified   : "
-            & Boolean'Image (Net.SSL.Certificate.Verified (Cert)));
-         --  Put_Line ("Status: " & Net.SSL.Certificate.Status_Message (Cert));
+         Put_Line ("Name       : " & NSC.Common_Name (Cert));
+         Put_Line ("Subject    : " & NSC.Subject (Cert));
+         Put_Line ("Issuer     : " & NSC.Issuer (Cert));
+         Put_Line ("Activation : " & Image (NSC.Activation_Time (Cert)));
+         Put_Line ("Expiration : " & Image (NSC.Expiration_Time (Cert)));
+         Put_Line ("Verified   : " & Boolean'Image (NSC.Verified (Cert)));
+         --  Put_Line ("Status: " & NSC.Status_Message (Cert));
          New_Line;
       end if;
-   end Display_Certificate;
-
-   procedure Display_Certificate (Socket : Net.SSL.Socket_Type) is
-      Cert : constant Net.SSL.Certificate.Object :=
-               Net.SSL.Certificate.Get (Socket);
-   begin
-      Display_Certificate (Cert);
    end Display_Certificate;
 
    -----------
@@ -143,12 +139,12 @@ procedure Client_Cert is
    -------------
 
    procedure Request
-     (URL : String; CA : String := ""; Crt : String := "aws-client.pem")
+     (URL : String; CA : String := ""; Crt : String := Client_Certificate_Name)
    is
       O_URL : constant AWS.URL.Object := AWS.URL.Parse (URL);
       R     : Response.Data;
       C     : Client.HTTP_Connection;
-      Cert  : Net.SSL.Certificate.Object;
+      Cert  : NSC.Object;
       Cfg   : Net.SSL.Config;
    begin
       Net.SSL.Initialize
@@ -166,6 +162,10 @@ procedure Client_Cert is
             return;
       end;
 
+      if NSC."=" (Cert, Client_Certificate) then
+         Put_Line ("Client certificate could not be on client side.");
+      end if;
+
       New_Line;
       Put_Line ("Server certificate as received by the client:");
       Display_Certificate (Cert);
@@ -182,7 +182,7 @@ procedure Client_Cert is
    -- Verify_Cert --
    -----------------
 
-   function Verify_Cert (Cert : Net.SSL.Certificate.Object) return Boolean is
+   function Verify_Cert (Cert : NSC.Object) return Boolean is
       use type Calendar.Time;
    begin
       Text_IO.Put_Line ("Client certificate from verify routine:");
@@ -190,7 +190,7 @@ procedure Client_Cert is
 
       --  Return verified status from the SSL layer
 
-      return Net.SSL.Certificate.Verified (Cert);
+      return NSC.Verified (Cert);
    end Verify_Cert;
 
    HTTP1, HTTP2, HTTP3 : Server.HTTP;
@@ -214,8 +214,7 @@ begin
       Exchange_Certificate => True,
       Certificate_Required => True);
 
-   Net.SSL.Certificate.Set_Verify_Callback
-     (SSL1, Verify_Cert'Unrestricted_Access);
+   NSC.Set_Verify_Callback (SSL1, Verify_Cert'Unrestricted_Access);
 
    Server.Set_SSL_Config (HTTP1, SSL1);
 
@@ -229,8 +228,7 @@ begin
       Certificate_Required => True,
       Trusted_CA_Filename  => "CA-clt.crt");
 
-   Net.SSL.Certificate.Set_Verify_Callback
-     (SSL2, Verify_Cert'Unrestricted_Access);
+   NSC.Set_Verify_Callback (SSL2, Verify_Cert'Unrestricted_Access);
 
    Server.Set_SSL_Config (HTTP2, SSL2);
 
@@ -280,6 +278,9 @@ begin
    --  GNUTLS. Need investigate.
 
    Server.Shutdown (HTTP3);
+
+   Set_Line_Length (79);
+   Put_Line (AWS.Translator.Base64_Encode (NSC.DER (Client_Certificate)));
 
 exception
    when E : others =>

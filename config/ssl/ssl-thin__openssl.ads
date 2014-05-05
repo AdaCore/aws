@@ -1066,6 +1066,13 @@ package SSL.Thin is
    function PEM_write_bio_DHparams (bp : BIO_Access; x : DH) return int
      with Import, Convention => C, Link_Name => "PEM_write_bio_DHparams";
 
+   function PEM_read_bio_X509
+     (bp : BIO_Access;
+      x  : access X509;
+      cb : pem_password_cb;
+      u  : Pointer) return X509
+     with Import, Convention => C, Link_Name => "PEM_read_bio_X509";
+
    function SSL_CTX_use_RSAPrivateKey (Ctx : SSL_CTX; PK : RSA) return int
      with Import, Convention => C, Link_Name => "SSL_CTX_use_RSAPrivateKey";
 
@@ -1250,6 +1257,15 @@ package SSL.Thin is
    function X509_get_serialNumber
      (X509 : Thin.X509) return access constant ASN1_INTEGER
      with Import, Convention => C, Link_Name => "X509_get_serialNumber";
+
+   function X509_get_pubkey (X509 : Thin.X509) return EVP_PKEY
+     with Import, Convention => C, Link_Name => "X509_get_pubkey";
+
+   function d2i_X509_bio (bp : BIO_Access; x : access X509) return X509
+     with Import, Convention => C, Link_Name => "d2i_X509_bio";
+
+   function i2d_X509 (x : X509; p : access Pointer) return int
+     with Import, Convention => C, Link_Name => "i2d_X509";
 
    procedure SSL_CTX_set_default_verify_paths (Ctx : SSL_CTX)
      with Import, Convention => C,

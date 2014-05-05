@@ -34,6 +34,57 @@ with System;
 package body AWS.Net.SSL.Certificate.Impl is
 
    use Interfaces;
+   use type C.int;
+   use type TSSL.Pointer;
+
+   -----------------
+   -- Error_Stack --
+   -----------------
+
+   function Error_Stack return String is
+      use type TSSL.Error_Code;
+      Error_Code : constant TSSL.Error_Code := TSSL.ERR_get_error;
+   begin
+      if Error_Code = 0 then
+         return "";
+
+      else
+         declare
+            Error_Text : constant String := Error_Str (Error_Code);
+            Trim_Start : constant String := "error:";
+            First      : Positive := Error_Text'First;
+            Error_Rest : constant String := Error_Stack;
+         begin
+            if Utils.Match (Error_Text, Trim_Start) then
+               First := Error_Text'First + Trim_Start'Length;
+            end if;
+
+            return Error_Text (First .. Error_Text'Last)
+              & (if Error_Rest = "" then "" else ASCII.LF & Error_Rest);
+         end;
+      end if;
+   end Error_Stack;
+
+   ---------------
+   -- Error_Str --
+   ---------------
+
+   function Error_Str (Code : TSSL.Error_Code) return String is
+      use type TSSL.Error_Code;
+      Buffer : aliased C.char_array := (0 .. 511 => C.nul);
+   begin
+      if Code = 0 then
+         return "Not an error";
+
+      else
+         TSSL.ERR_error_string_n
+           (Code,
+            C.Strings.To_Chars_Ptr (Buffer'Unchecked_Access),
+            Buffer'Length);
+
+         return C.To_Ada (Buffer);
+      end if;
+   end Error_Str;
 
    ---------
    -- Get --
@@ -52,14 +103,45 @@ package body AWS.Net.SSL.Certificate.Impl is
    end Get;
 
    ----------
+   -- Load --
+   ----------
+
+   function Load (Filename : String) return Object is
+      IO     : constant TSSL.BIO_Access := TSSL.BIO_new (TSSL.BIO_s_file);
+      Name   : aliased C.char_array := C.To_C (Filename);
+      X509   : aliased TSSL.X509 := TSSL.Null_Pointer;
+      Result : Object;
+   begin
+      if TSSL.BIO_read_filename
+           (IO, C.Strings.To_Chars_Ptr (Name'Unchecked_Access)) = 0
+        or else TSSL.PEM_read_bio_X509
+                  (IO, X509'Access, null, TSSL.Null_Pointer)
+                = TSSL.Null_Pointer
+      then
+         TSSL.X509_free (X509);
+         TSSL.BIO_free (IO);
+
+         raise Constraint_Error with
+            "Certificate file """ & Filename & """ error." & ASCII.LF
+            & Error_Stack;
+      end if;
+
+      TSSL.BIO_free (IO);
+
+      Result := Read (0, X509);
+
+      TSSL.X509_free (X509);
+
+      return Result;
+   end Load;
+
+   ----------
    -- Read --
    ----------
 
    function Read (Status : C.int; X509 : TSSL.X509) return Object is
 
       use type C.Strings.chars_ptr;
-      use type Interfaces.C.int;
-      use type TSSL.Pointer;
 
       Subj : TSSL.X509_NAME;
 
@@ -83,6 +165,8 @@ package body AWS.Net.SSL.Certificate.Impl is
       --  defined.
 
       function To_Ada (Item : access constant TSSL.ASN1_STRING) return String;
+
+      function To_DER return Binary_Holders.Holder;
 
       -----------------
       -- Common_Name --
@@ -155,6 +239,23 @@ package body AWS.Net.SSL.Certificate.Impl is
       begin
          return C.Strings.Value (Item.data, C.size_t (Item.length));
       end To_Ada;
+
+      ------------
+      -- To_DER --
+      ------------
+
+      function To_DER return Binary_Holders.Holder is
+         DER : aliased Stream_Element_Array
+                         (1 .. Stream_Element_Offset
+                                 (TSSL.i2d_X509 (X509, null)));
+         DP : aliased TSSL.Pointer := DER'Address;
+      begin
+         if TSSL.i2d_X509 (X509, DP'Access) /= DER'Length then
+            raise Socket_Error with Error_Stack;
+         end if;
+
+         return Binary_Holders.To_Holder (DER);
+      end To_DER;
 
       ---------------
       -- To_String --
@@ -244,6 +345,7 @@ package body AWS.Net.SSL.Certificate.Impl is
             Subject       => NAME_oneline (Subj),
             Issuer        => NAME_oneline (TSSL.X509_get_issuer_name (X509)),
             Serial_Number => To_String (TSSL.X509_get_serialNumber (X509)),
+            DER           => To_DER,
             Activation    => To_Time (T_Activation),
             Expiration    => To_Time (T_Expiration));
       end if;

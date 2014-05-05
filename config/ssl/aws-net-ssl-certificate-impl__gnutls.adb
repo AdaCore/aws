@@ -35,6 +35,9 @@ with Ada.Unchecked_Conversion;
 with Interfaces.C.Strings;
 
 with AWS.Net.Log;
+with AWS.Resources;
+with AWS.Utils;
+
 with SSL.Thin;
 
 package body AWS.Net.SSL.Certificate.Impl is
@@ -113,6 +116,66 @@ package body AWS.Net.SSL.Certificate.Impl is
    end Get;
 
    ----------
+   -- Load --
+   ----------
+
+   function Load (Filename : String) return Object is
+      Data : Datum_Type := Load_File (Filename);
+      Cert : aliased TSSL.gnutls_x509_crt_t;
+      Res  : Object;
+   begin
+      Check_Error_Code (TSSL.gnutls_x509_crt_init (Cert'Access), null);
+
+      Check_Error_Code
+        (TSSL.gnutls_x509_crt_import
+           (Cert, Data.Datum'Unchecked_Access, TSSL.GNUTLS_X509_FMT_PEM),
+         null);
+
+      Utils.Unchecked_Free (Data.Data);
+
+      Res := Read (0, Cert);
+
+      TSSL.gnutls_x509_crt_deinit (Cert);
+
+      return Res;
+   end Load;
+
+   ---------------
+   -- Load_File --
+   ---------------
+
+   function Load_File (Filename : String) return Datum_Type is
+      use AWS.Resources;
+
+      Result : Datum_Type;
+      Last   : Stream_Element_Offset;
+      File   : File_Type;
+   begin
+      Open (File, Name => Filename);
+
+      Result.Data := new Stream_Element_Array
+                           (1 .. Stream_Element_Offset (File_Size (Filename)));
+
+      Read (File, Result.Data.all, Last);
+
+      if not End_Of_File (File) then
+         Close (File);
+         raise Program_Error with "not end of file";
+      end if;
+
+      Close (File);
+
+      if Last < Result.Data'Last then
+         raise Program_Error with Last'Img & Result.Data'Last'Img;
+      end if;
+
+      Result.Datum.size := Result.Data'Length;
+      Result.Datum.data := Result.Data.all'Address;
+
+      return Result;
+   end Load_File;
+
+   ----------
    -- Read --
    ----------
 
@@ -135,6 +198,8 @@ package body AWS.Net.SSL.Certificate.Impl is
         (Item : C.char_array; Length : C.size_t) return Unbounded_String
         with Inline;
 
+      function To_DER return Binary_Holders.Holder;
+
       ------------
       -- To_Ada --
       ------------
@@ -144,6 +209,34 @@ package body AWS.Net.SSL.Certificate.Impl is
       begin
          return To_Unbounded_String (C.To_Ada (Item (1 .. Length), False));
       end To_Ada;
+
+      ------------
+      -- To_DER --
+      ------------
+
+      function To_DER return Binary_Holders.Holder is
+         Datum  : aliased TSSL.gnutls_datum_t;
+         Result : Binary_Holders.Holder;
+      begin
+         Check_Error_Code
+           (TSSL.gnutls_x509_crt_export2
+              (X509, TSSL.GNUTLS_X509_FMT_DER, Datum'Unchecked_Access),
+            Socket);
+
+         declare
+            type Array_Access is
+               access all Stream_Element_Array
+                            (1 .. Stream_Element_Offset (Datum.size));
+            function To_Array is
+               new Ada.Unchecked_Conversion
+                     (TSSL.a_unsigned_char_t, Array_Access);
+         begin
+            Result := Binary_Holders.To_Holder (To_Array (Datum.data).all);
+            TSSL.gnutls_free (Datum.data);
+         end;
+
+         return Result;
+      end To_DER;
 
       ------------
       -- To_Hex --
@@ -237,6 +330,7 @@ package body AWS.Net.SSL.Certificate.Impl is
               Subject       => To_Ada (Subject, Subj_Len),
               Issuer        => To_Ada (Issuer, Iss_Len),
               Serial_Number => To_Hex (Serial, Serial_Len),
+              DER           => To_DER,
               Activation    => To_Time (T_Activation),
               Expiration    => To_Time (T_Expiration));
    end Read;

@@ -39,6 +39,9 @@ package AWS.Net.SSL.Certificate.Impl is
    --  CA is used this routine will return an empty certificate when trying to
    --  retreive the client certificate.
 
+   function Load (Filename : String) return Object;
+   --  Load certificate data from file
+
    function Read
      (Status : C.unsigned;
       X509   : Standard.SSL.Thin.gnutls_x509_crt_t) return Object;
@@ -46,5 +49,12 @@ package AWS.Net.SSL.Certificate.Impl is
 
    function Status_String (Status : C.long) return String;
    --  Returns the message string for status
+
+   type Datum_Type is record
+      Datum : aliased Standard.SSL.Thin.gnutls_datum_t;
+      Data  : Utils.Stream_Element_Array_Access;
+   end record;
+
+   function Load_File (Filename : String) return Datum_Type;
 
 end AWS.Net.SSL.Certificate.Impl;

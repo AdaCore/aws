@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2012-2013, AdaCore                     --
+--                     Copyright (C) 2012-2014, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -36,11 +36,20 @@ package AWS.Net.SSL.Certificate.Impl is
    function Get (Socket : Socket_Type) return Object;
    --  Read certificate from peer socket
 
+   function Load (Filename : String) return Object;
+   --  Load certificate data from file
+
    function Read
      (Status : C.int; X509 : Standard.SSL.Thin.X509) return Object;
    --  Read certificate data
 
    function Status_String (Status : C.long) return String;
    --  Returns the message string for status
+
+   function Error_Stack return String;
+   --  Returns error stack of the last SSL error in multiple lines
+
+   function Error_Str (Code : Standard.SSL.Thin.Error_Code) return String;
+   --  Returns the SSL error message for error Code
 
 end AWS.Net.SSL.Certificate.Impl;

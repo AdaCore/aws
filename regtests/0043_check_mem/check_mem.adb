@@ -79,6 +79,9 @@ procedure Check_Mem is
 
    CRLF : constant String := ASCII.CR & ASCII.LF;
 
+   Certificate_Name : constant String := "cert.pem";
+   Private_Key_Name : constant String := "cert.key";
+
    function CB (Request : Status.Data) return Response.Data;
 
    procedure Check (Str : String);
@@ -324,8 +327,8 @@ procedure Check_Mem is
 
       AWS.Net.SSL.Initialize
         (Config               => SSL_Srv,
-         Certificate_Filename => "cert.pem",
-         Key_Filename         => "cert.key",
+         Certificate_Filename => Certificate_Name,
+         Key_Filename         => Private_Key_Name,
          Session_Cache_Size   => 2);
 
       --  Session_Cache_Size  => 2 - limit session cache to avoid different
@@ -397,10 +400,14 @@ procedure Check_Mem is
    ------------
 
    procedure Client is
+      package NSC renames Net.SSL.Certificate;
+      use type NSC.Object;
 
       Connect : AWS.Client.HTTP_Connection;
       Session : Unbounded_String;
-      Key     : Net.SSL.Private_Key := Net.SSL.Load ("cert.key");
+      Key     : Net.SSL.Private_Key := Net.SSL.Load (Private_Key_Name);
+      Cert_F  : constant NSC.Object := NSC.Load (Certificate_Name);
+      Cert_S  : NSC.Object;
 
       procedure Request (URL : String; Filename : String := "");
 
@@ -500,8 +507,12 @@ procedure Check_Mem is
    begin
       AWS.Client.Create (Connect, AWS.Server.Status.Local_URL (HTTP));
 
-      Check
-        (Net.SSL.Certificate.Subject (AWS.Client.Get_Certificate (Connect)));
+      Cert_S := AWS.Client.Get_Certificate (Connect);
+      Check (NSC.Subject (Cert_S));
+
+      if Cert_S /= Cert_F then
+         Check ("Wrong server certificate");
+      end if;
 
       Request ("/simple");
 

@@ -164,10 +164,11 @@ package body AWS.Net.SSL is
    procedure Do_Handshake (Socket : in out Socket_Type; Success : out Boolean);
    --  Perform SSL handshake
 
-   function Error_Stack return String;
+   function Error_Stack return String renames Certificate.Impl.Error_Stack;
    --  Returns error stack of the last SSL error in multiple lines
 
-   function Error_Str (Code : TSSL.Error_Code) return String;
+   function Error_Str (Code : TSSL.Error_Code) return String
+     renames Certificate.Impl.Error_Str;
    --  Returns the SSL error message for error Code
 
    procedure Init_Random;
@@ -411,55 +412,6 @@ package body AWS.Net.SSL is
          Raise_Socket_Error (Socket, Error_Stack);
       end if;
    end Error_If;
-
-   -----------------
-   -- Error_Stack --
-   -----------------
-
-   function Error_Stack return String is
-      use type TSSL.Error_Code;
-      Error_Code : constant TSSL.Error_Code := TSSL.ERR_get_error;
-   begin
-      if Error_Code = 0 then
-         return "";
-
-      else
-         declare
-            Error_Text : constant String := Error_Str (Error_Code);
-            Trim_Start : constant String := "error:";
-            First      : Positive := Error_Text'First;
-            Error_Rest : constant String := Error_Stack;
-         begin
-            if Utils.Match (Error_Text, Trim_Start) then
-               First := Error_Text'First + Trim_Start'Length;
-            end if;
-
-            return Error_Text (First .. Error_Text'Last)
-              & (if Error_Rest = "" then "" else ASCII.LF & Error_Rest);
-         end;
-      end if;
-   end Error_Stack;
-
-   ---------------
-   -- Error_Str --
-   ---------------
-
-   function Error_Str (Code : TSSL.Error_Code) return String is
-      use type TSSL.Error_Code;
-      Buffer : aliased C.char_array := (0 .. 511 => C.nul);
-   begin
-      if Code = 0 then
-         return "Not an error";
-
-      else
-         TSSL.ERR_error_string_n
-           (Code,
-            C.Strings.To_Chars_Ptr (Buffer'Unchecked_Access),
-            Buffer'Length);
-
-         return C.To_Ada (Buffer);
-      end if;
-   end Error_Str;
 
    ----------------
    -- File_Error --

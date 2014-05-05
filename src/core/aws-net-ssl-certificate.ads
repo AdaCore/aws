@@ -30,6 +30,7 @@
 pragma Ada_2012;
 
 with Ada.Calendar;
+with Ada.Containers.Indefinite_Holders;
 with Ada.Strings.Unbounded;
 
 private with AWS.Utils;
@@ -56,6 +57,15 @@ package AWS.Net.SSL.Certificate is
 
    function Serial_Number (Certificate : Object) return String with Inline;
    --  Returns the certificate's serial number
+
+   function DER (Certificate : Object) return Stream_Element_Array with Inline;
+   --  Returns all certificate's data in DER format
+
+   overriding function "=" (Left, Right : Object) return Boolean with Inline;
+   --  Compare 2 certificates
+
+   function Load (Filename : String) return Object;
+   --  Load certificate from file in PEM format
 
    function Activation_Time (Certificate : Object) return Calendar.Time
      with Inline;
@@ -98,6 +108,9 @@ package AWS.Net.SSL.Certificate is
 
 private
 
+   package Binary_Holders is
+     new Ada.Containers.Indefinite_Holders (Stream_Element_Array);
+
    type Object is record
       Verified      : Boolean;
       Status        : Long_Integer;
@@ -105,6 +118,7 @@ private
       Subject       : Unbounded_String;
       Issuer        : Unbounded_String;
       Serial_Number : Unbounded_String;
+      DER           : Binary_Holders.Holder;
       Activation    : Calendar.Time;
       Expiration    : Calendar.Time;
    end record;
@@ -112,6 +126,7 @@ private
    Undefined : constant Object :=
                  (False, 0, Null_Unbounded_String, Null_Unbounded_String,
                   Null_Unbounded_String, Null_Unbounded_String,
+                  Binary_Holders.Empty_Holder,
                   Utils.AWS_Epoch, Utils.AWS_Epoch);
 
    function Common_Name (Certificate : Object) return String is
@@ -137,5 +152,11 @@ private
 
    function Status (Certificate : Object) return Long_Integer is
      (Certificate.Status);
+
+   function DER (Certificate : Object) return Stream_Element_Array is
+     (Certificate.DER.Element);
+
+   function "=" (Left, Right : Object) return Boolean is
+     (Binary_Holders."=" (Left.DER, Right.DER));
 
 end AWS.Net.SSL.Certificate;

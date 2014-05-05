@@ -44,6 +44,15 @@ package body AWS.Net.SSL.Certificate is
       return Impl.Get (Socket);
    end Get;
 
+   ----------
+   -- Load --
+   ----------
+
+   function Load (Filename : String) return Object is
+   begin
+      return Impl.Load (Filename);
+   end Load;
+
    -------------------------
    -- Set_Verify_Callback --
    -------------------------

@@ -67,12 +67,10 @@ package body AWS.Net.SSL is
    --  and over gnutls_certificate_set_x509_key_mem, which one to use, we will
    --  decide later, but now we are able to test it both.
 
-   type Datum_Type is record
-      Datum : aliased TSSL.gnutls_datum_t;
-      Data  : Utils.Stream_Element_Array_Access;
-   end record;
+   subtype Datum_Type is Certificate.Impl.Datum_Type;
 
-   function Load_File (Filename : String) return Datum_Type;
+   function Load_File (Filename : String) return Datum_Type
+     renames Certificate.Impl.Load_File;
 
    type PCert_Array is
      array (Positive range <>) of aliased TSSL.gnutls_pcert_st
@@ -1274,41 +1272,6 @@ package body AWS.Net.SSL is
 
       return Private_Key (Key);
    end Load;
-
-   ---------------
-   -- Load_File --
-   ---------------
-
-   function Load_File (Filename : String) return Datum_Type is
-      use AWS.Resources;
-
-      Result : Datum_Type;
-      Last   : Stream_Element_Offset;
-      File   : File_Type;
-   begin
-      Open (File, Name => Filename);
-
-      Result.Data := new Stream_Element_Array
-                           (1 .. Stream_Element_Offset (File_Size (Filename)));
-
-      Read (File, Result.Data.all, Last);
-
-      if not End_Of_File (File) then
-         Close (File);
-         raise Program_Error with "not end of file";
-      end if;
-
-      Close (File);
-
-      if Last < Result.Data'Last then
-         raise Program_Error with Last'Img & Result.Data'Last'Img;
-      end if;
-
-      Result.Datum.size := Result.Data'Length;
-      Result.Datum.data := Result.Data.all'Address;
-
-      return Result;
-   end Load_File;
 
    ---------------
    -- Log_Error --

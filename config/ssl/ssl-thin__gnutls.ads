@@ -1068,6 +1068,12 @@ package SSL.Thin is
    procedure gnutls_x509_crt_deinit (cert : gnutls_x509_crt_t)
      with Import, Convention => C;
 
+   function gnutls_x509_crt_export2
+     (cert   : gnutls_x509_crt_t;
+      format : gnutls_x509_crt_fmt_t;
+      data   : access gnutls_datum_t) return C.int
+     with Import, Convention => C;
+
    function gnutls_x509_privkey_init
      (key : access gnutls_x509_privkey_t) return C.int
      with Import, Convention => C;
