@@ -33,7 +33,7 @@ aggregate library project AWS is
 
    for Library_Name use "aws";
    for Library_Kind use Shared.Library_Type;
-   for Library_Dir use Shared'Library_Dir & "/src";
+   for Library_Dir use Shared'Library_Dir & "/aws";
 
    case Shared.Library_Type is
       when "static" =>
