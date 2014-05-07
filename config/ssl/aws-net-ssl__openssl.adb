@@ -1868,14 +1868,22 @@ package body AWS.Net.SSL is
 
             if Trusted_CA_Filename /= "" then
                declare
+                  use C.Strings;
                   CAfile : aliased C.char_array :=
                              C.To_C (Trusted_CA_Filename);
+                  CA_ptr : constant chars_ptr :=
+                             To_Chars_Ptr (CAfile'Unchecked_Access);
                begin
                   Error_If
                     (TSSL.SSL_CTX_load_verify_locations
-                       (Context,
-                        C.Strings.To_Chars_Ptr (CAfile'Unchecked_Access),
-                        C.Strings.Null_Ptr) /= 1);
+                       (Context, CA_ptr, Null_Ptr) /= 1);
+
+                  if Exchange_Certificate then
+                     --  Let server send to client CA authority names it trust
+
+                     TSSL.SSL_CTX_set_client_CA_list
+                       (Context, TSSL.SSL_load_client_CA_file (CA_ptr));
+                  end if;
                end;
             end if;
 

@@ -141,6 +141,7 @@ package SSL.Thin is
    type X509_LOOKUP        is new Pointer;
    type X509_LOOKUP_METHOD is new Pointer;
    type X509_VERIFY_PARAM  is new Pointer;
+   type STACK_OF_X509_NAME is new Pointer;
 
    type BIGNUM             is new Pointer;
 
@@ -1121,6 +1122,14 @@ package SSL.Thin is
    function SSL_CTX_set_cipher_list
      (Ctx : SSL_CTX; str : Cstr.chars_ptr) return int
      with Import, Convention => C, Link_Name => "SSL_CTX_set_cipher_list";
+
+   function SSL_load_client_CA_file
+     (file : Cstr.chars_ptr) return STACK_OF_X509_NAME
+     with Import, Convention => C, Link_Name => "SSL_load_client_CA_file";
+
+   procedure SSL_CTX_set_client_CA_list
+     (Ctx : SSL_CTX; list : STACK_OF_X509_NAME)
+     with Import, Convention => C, Link_Name => "SSL_CTX_set_client_CA_list";
 
    procedure RAND_seed (Buf : Pointer; Num : Integer)
      with Import, Convention => C, Link_Name => "RAND_seed";
