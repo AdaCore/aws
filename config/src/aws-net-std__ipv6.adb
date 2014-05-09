@@ -30,6 +30,7 @@
 pragma Ada_2012;
 
 with Ada.Unchecked_Deallocation;
+with Ada.Strings.Fixed;
 
 with AWS.Net.Log;
 with AWS.OS_Lib;
@@ -295,14 +296,19 @@ package body AWS.Net.Std is
             Res := OS_Lib.C_Close (FD);
 
             declare
+               Errm : constant String := Error_Message (Errno);
                Addr : constant String :=
                  Image (AC6.To_Pointer (Info.ai_addr).all, Info.ai_addrlen);
             begin
                OS_Lib.FreeAddrInfo (Info);
                Raise_Socket_Error
                  (Socket,
-                  Error_Message (Errno) & " Connect to " & Host & " [" & Addr
-                  & "]:" & Utils.Image (Port));
+                  Errm & (if Strings.Fixed.Index (Errm, "Connect") = 0
+                          then " on connect" else "") & " to "
+                  & (if Host = Addr then "" else Host & ' ')
+                  & (if Strings.Fixed.Index (Addr, ":") > 0
+                     then '[' & Addr & ']' else Addr)
+                  & ':' & Utils.Image (Port));
             end;
          end if;
       end if;
@@ -370,7 +376,8 @@ package body AWS.Net.Std is
 
       C_Node : aliased C.char_array := C.To_C (Host);
       P_Node : CS.chars_ptr;
-      C_Serv : aliased C.char_array := C.To_C (AWS.Utils.Image (Port));
+      A_Serv : constant String := AWS.Utils.Image (Port);
+      C_Serv : aliased C.char_array := C.To_C (A_Serv);
       Res    : C.int;
       Result : aliased OS_Lib.Addr_Info_Access;
       Hints  : constant OS_Lib.Addr_Info :=
@@ -403,7 +410,8 @@ package body AWS.Net.Std is
          Raise_Socket_Error (OS_Lib.Socket_Errno);
 
       elsif Res /= 0 then
-         Raise_Socket_Error (CS.Value (OS_Lib.GAI_StrError (Res)));
+         Raise_Socket_Error
+           (CS.Value (OS_Lib.GAI_StrError (Res)) & ' ' & Host & ':' & A_Serv);
       end if;
 
       return Result;

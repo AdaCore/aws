@@ -29,6 +29,7 @@
 
 pragma Ada_2012;
 
+with Ada.Strings.Fixed;
 with Ada.Strings.Maps;
 with Ada.Unchecked_Deallocation;
 with Interfaces.C;
@@ -164,6 +165,41 @@ package body AWS.Net.Std is
       Sock_Addr : Sockets.Sock_Addr_Type;
 
       Close_On_Exception : Boolean := False;
+
+      procedure Raise_Error (Errno : Integer) with Inline;
+
+      procedure Raise_Error (Errm : String);
+
+      -----------------
+      -- Raise_Error --
+      -----------------
+
+      procedure Raise_Error (Errno : Integer) is
+      begin
+         Raise_Error (Error_Message (Errno));
+      end Raise_Error;
+
+      procedure Raise_Error (Errm : String) is
+         use type Sockets.Inet_Addr_Type;
+
+         Addr : constant String := Sockets.Image (Sock_Addr);
+         Msg  : constant String :=
+                  Errm & (if Strings.Fixed.Index (Errm, "Connect") = 0
+                          then " on connect" else "") & " to "
+                  & (if Sock_Addr.Addr = Sockets.No_Inet_Addr
+                     then Host & ':' & Utils.Image (Port)
+                     elsif Utils.Match (Addr, Host) then Addr
+                     else Host & ' ' & Addr);
+      begin
+         Log.Error (Socket, Msg);
+
+         if Close_On_Exception then
+            Sockets.Close_Socket (Socket.S.FD);
+         end if;
+
+         raise Socket_Error with Msg;
+      end Raise_Error;
+
    begin
       if Socket.S /= null then
          Socket := Socket_Type'(Net.Socket_Type with others => <>);
@@ -171,12 +207,12 @@ package body AWS.Net.Std is
 
       Socket.S := new Socket_Hidden;
 
-      Sockets.Create_Socket (Socket.S.FD);
-      Close_On_Exception := True;
-
       Sock_Addr := (To_GNAT (Family),
                     Get_Inet_Addr (Host, Passive => False),
                     Sockets.Port_Type (Port));
+
+      Sockets.Create_Socket (Socket.S.FD);
+      Close_On_Exception := True;
 
       Set_Non_Blocking_Mode (Socket);
 
@@ -195,8 +231,7 @@ package body AWS.Net.Std is
                when Operation_Now_In_Progress
                     | Resource_Temporarily_Unavailable => null;
                when others =>
-                  Sockets.Close_Socket (Socket.S.FD);
-                  Raise_Exception (E, "Connect", Socket);
+                  Raise_Error (Ada.Exceptions.Exception_Message (E));
             end case;
       end;
 
@@ -204,23 +239,6 @@ package body AWS.Net.Std is
          declare
             Events : constant Event_Set :=
                        Net.Wait (Socket, (Output => True, Input => False));
-
-            procedure Raise_Error (Errno : Integer);
-
-            -----------------
-            -- Raise_Error --
-            -----------------
-
-            procedure Raise_Error (Errno : Integer) is
-               Msg : constant String :=
-                       Error_Message (Errno) & " Connect to " & Host & ' '
-                       & Sockets.Image (Sock_Addr);
-            begin
-               Log.Error (Socket, Msg);
-               Sockets.Close_Socket (Socket.S.FD);
-               raise Socket_Error with Msg;
-            end Raise_Error;
-
          begin
             if Events (Error) then
                Raise_Error (Std.Errno (Socket));
@@ -239,7 +257,7 @@ package body AWS.Net.Std is
             Sockets.Close_Socket (Socket.S.FD);
          end if;
 
-         Raise_Exception (E, "Connect", Socket);
+         Raise_Error (Ada.Exceptions.Exception_Message (E));
    end Connect;
 
    -----------
