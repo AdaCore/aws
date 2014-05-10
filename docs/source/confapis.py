@@ -88,15 +88,21 @@ API=['src/core/aws.ads',
 if os.path.exists("../build/apirefs") == False:
     os.makedirs ("../build/apirefs")
 
-for file in API:
-    out=True
-    content = open("../../"+file).readlines()
-    fout = open("../build/apirefs/"+os.path.basename(file),'w')
-    for line in content:
-        if line[0:4] == "end ":
-            out = True
-        if out == True:
-            fout.write(line)
-        if line == "private\n":
-            out = False
-            fout.write("   -- implementation removed\n")
+for path in API:
+    try:
+        fin = open ("../../"+path)
+        fout = open ("../build/apirefs/"+os.path.basename(path),'w')
+        outside_private_part = True
+        for line in fin:
+            if line.startswith ("end "):
+                outside_private_part = True
+            if outside_private_part:
+                fout.write (line)
+            if line == "private\n":
+                outside_private_part = False
+                fout.write ("   -- implementation removed\n")
+    finally:
+        if fin:
+            fin.close ()
+        if fout:
+            fout.close ()
