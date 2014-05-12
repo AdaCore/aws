@@ -1370,7 +1370,8 @@ package body SOAP.Generator is
             --  Retruns Prefix & '-' if prefix is not empty
 
             function Get_Name (Name : String) return String;
-            --  Returns n is a valid identifier, prefix with 'n' is number
+            --  Returns n if a valid identifier, prefix with 'n' if number, and
+            --  Ada reserved word or some AWS package name.
 
             --------------
             -- Get_Name --
@@ -1381,6 +1382,9 @@ package body SOAP.Generator is
             begin
                if Strings.Fixed.Count
                  (Name, Strings.Maps.Constants.Decimal_Digit_Set) = Name'Length
+                 or else Utils.Is_Ada_Reserved_Word (Name)
+                 or else Name = "soap"
+                 or else Name = "aws"
                then
                   return 'n' & N;
                else
