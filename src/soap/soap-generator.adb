@@ -1519,35 +1519,41 @@ package body SOAP.Generator is
 
             Text_IO.New_Line (Rec_Ads);
 
-            Text_IO.Put_Line
-              (Rec_Ads, "   type " & F_Name & " is record");
+            if N = null then
+               Text_IO.Put_Line
+                 (Rec_Ads, "   type " & F_Name & " is null record;");
 
-            while N /= null loop
-               declare
-                  F_Name : constant String :=
-                             Format_Name (O, To_String (N.Name));
-               begin
-                  Text_IO.Put
-                    (Rec_Ads, "      "
-                       & F_Name
-                       & String'(1 .. Max - F_Name'Length => ' ') & " : ");
-               end;
+            else
+               Text_IO.Put_Line
+                 (Rec_Ads, "   type " & F_Name & " is record");
 
-               Text_IO.Put (Rec_Ads, Format_Name (O, Type_Name (N)));
+               while N /= null loop
+                  declare
+                     F_Name : constant String :=
+                                Format_Name (O, To_String (N.Name));
+                  begin
+                     Text_IO.Put
+                       (Rec_Ads, "      "
+                        & F_Name
+                        & String'(1 .. Max - F_Name'Length => ' ') & " : ");
+                  end;
 
-               Text_IO.Put_Line (Rec_Ads, ";");
+                  Text_IO.Put (Rec_Ads, Format_Name (O, Type_Name (N)));
 
-               if N.Mode = WSDL.Parameters.K_Array then
-                  Text_IO.Put_Line
-                    (Rec_Ads,
-                     "      --  Access items with : result.Item (n)");
-               end if;
+                  Text_IO.Put_Line (Rec_Ads, ";");
 
-               N := N.Next;
-            end loop;
+                  if N.Mode = WSDL.Parameters.K_Array then
+                     Text_IO.Put_Line
+                       (Rec_Ads,
+                        "      --  Access items with : result.Item (n)");
+                  end if;
 
-            Text_IO.Put_Line
-              (Rec_Ads, "   end record;");
+                  N := N.Next;
+               end loop;
+
+               Text_IO.Put_Line
+                 (Rec_Ads, "   end record;");
+            end if;
 
             Text_IO.Put_Line (Tmp_Ads, "   subtype " & F_Name);
             Text_IO.Put_Line
@@ -1637,7 +1643,11 @@ package body SOAP.Generator is
 
          N := R;
 
-         if N.Next = null then
+         if N = null then
+            --  An empty record
+            Text_IO.Put_Line (Rec_Adb, "null record);");
+
+         elsif N.Next = null then
             --  We have a single element into this record, we must use a named
             --  notation for the aggregate.
             Text_IO.Put
@@ -1802,30 +1812,34 @@ package body SOAP.Generator is
 
          Text_IO.Put_Line (Rec_Adb, "      Result := SOAP.Types.R");
 
-         while N /= null loop
+         if N = null then
+            Text_IO.Put_Line
+              (Rec_Adb, "        (SOAP.Types.Empty_Object_Set,");
 
-            if N = R then
+         else
+            while N /= null loop
 
-               if R.Next = null then
-                  --  We have a single element into this record, we must use a
-                  --  named notation for the aggregate.
-                  Text_IO.Put (Rec_Adb, "        ((1 => +");
+               if N = R then
+                  if R.Next = null then
+                     --  We have a single element into this record, we must use
+                     --  a named notation for the aggregate.
+                     Text_IO.Put (Rec_Adb, "        ((1 => +");
+                  else
+                     Text_IO.Put (Rec_Adb, "        ((+");
+                  end if;
+
                else
-                  Text_IO.Put (Rec_Adb, "        ((+");
+                  Text_IO.Put      (Rec_Adb, "          +");
                end if;
 
-            else
-               Text_IO.Put      (Rec_Adb, "          +");
-            end if;
-
-            case N.Mode is
+               case N.Mode is
                when WSDL.Parameters.K_Simple =>
                   Text_IO.Put (Rec_Adb, Set_Routine (N));
 
                   Text_IO.Put
                     (Rec_Adb,
                      " (R." & Format_Name (O, To_String (N.Name))
-                       & ", """ & To_String (N.Name) & """)");
+                     & ", """ & To_String (N.Name) & """)");
 
                when WSDL.Parameters.K_Derived =>
                   Text_IO.Put (Rec_Adb, Set_Routine (N));
@@ -1833,23 +1847,23 @@ package body SOAP.Generator is
                   Text_IO.Put
                     (Rec_Adb,
                      " (" & WSDL.To_Ada (N.Parent_Type)
-                       & " (R." & Format_Name (O, To_String (N.Name))
-                       & "), """ & To_String (N.Name) & """)");
+                     & " (R." & Format_Name (O, To_String (N.Name))
+                     & "), """ & To_String (N.Name) & """)");
 
                when WSDL.Parameters.K_Enumeration =>
                   Text_IO.Put
                     (Rec_Adb,
                      " SOAP.Types.E (Image"
-                       & " (R." & Format_Name (O, To_String (N.Name))
-                       & "), """ & To_String (N.E_Name)
-                       & """, """ & To_String (N.Name) & """)");
+                     & " (R." & Format_Name (O, To_String (N.Name))
+                     & "), """ & To_String (N.E_Name)
+                     & """, """ & To_String (N.Name) & """)");
 
                when WSDL.Parameters.K_Array =>
                   Text_IO.Put
                     (Rec_Adb,
                      "SOAP.Types.A (To_Object_Set (R."
-                       & Format_Name (O, To_String (N.Name))
-                       & ".Item.all), """ & To_String (N.Name) & """)");
+                     & Format_Name (O, To_String (N.Name))
+                     & ".Item.all), """ & To_String (N.Name) & """)");
 
                when WSDL.Parameters.K_Record =>
                   Text_IO.Put (Rec_Adb, Set_Routine (N));
@@ -1857,17 +1871,18 @@ package body SOAP.Generator is
                   Text_IO.Put
                     (Rec_Adb,
                      " (R." & Format_Name (O, To_String (N.Name))
-                       & ", """ & To_String (N.Name) & """)");
-            end case;
+                     & ", """ & To_String (N.Name) & """)");
+               end case;
 
-            if N.Next = null then
-               Text_IO.Put_Line (Rec_Adb, "),");
-            else
-               Text_IO.Put_Line (Rec_Adb, ",");
-            end if;
+               if N.Next = null then
+                  Text_IO.Put_Line (Rec_Adb, "),");
+               else
+                  Text_IO.Put_Line (Rec_Adb, ",");
+               end if;
 
-            N := N.Next;
-         end loop;
+               N := N.Next;
+            end loop;
+         end if;
 
          if P.Mode = WSDL.Parameters.K_Simple then
             --  This is an unnamed record (output described as a set of part)

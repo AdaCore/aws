@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2001-2013, AdaCore                     --
+--                     Copyright (C) 2001-2014, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -79,6 +79,8 @@ package SOAP.Types is
    --  A set of SOAP types. This is used to build arrays or records. We use
    --  Positive for the index to have the item index map the SOAP array
    --  element order.
+
+   Empty_Object_Set : constant Object_Set;
 
    function Image (O : Object) return String;
    --  Returns O value image
@@ -580,6 +582,8 @@ private
    type Counter_Access is access Natural;
 
    --  Composite
+
+   Empty_Object_Set : constant Object_Set := Object_Set'(1 .. 0 => <>);
 
    type Object_Set_Access is access Object_Set;
 

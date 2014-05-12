@@ -1,0 +1,4 @@
+with "aws";
+project WSDLer is
+   for Source_Dirs use (".");
+end WSDLer;

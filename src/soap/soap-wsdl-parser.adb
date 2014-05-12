@@ -636,6 +636,12 @@ package body SOAP.WSDL.Parser is
       if Utils.No_NS (DOM.Core.Nodes.Node_Name (L)) = "complexType" then
          L := XML.First_Child (L);
 
+         --  Empty complexType
+
+         if L = null then
+            return True;
+         end if;
+
          if Utils.No_NS (DOM.Core.Nodes.Node_Name (L)) = "all"
            or else Utils.No_NS (DOM.Core.Nodes.Node_Name (L)) = "sequence"
          then
@@ -887,8 +893,6 @@ package body SOAP.WSDL.Parser is
             if N = null then
                if XML.Get_Attr_Value (Parent, "abstract") = "true" then
                   raise WSDL_Error with "abstract complexType not suported.";
-               else
-                  raise WSDL_Error with "Found an empty complexType.";
                end if;
             end if;
          end;
@@ -1282,14 +1286,18 @@ package body SOAP.WSDL.Parser is
 
          N := XML.First_Child (N);
 
-         --  Get first element
+         --  Check for empty complexType
 
-         N := XML.First_Child (N);
+         if N /= null then
+            --  Get first element
 
-         while N /= null loop
-            Parameters.Append (P.P, Parse_Parameter (O, N, Document));
-            N := XML.Next_Sibling (N);
-         end loop;
+            N := XML.First_Child (N);
+
+            while N /= null loop
+               Parameters.Append (P.P, Parse_Parameter (O, N, Document));
+               N := XML.Next_Sibling (N);
+            end loop;
+         end if;
 
          return P;
       end;
