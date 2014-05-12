@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<definitions name="ecc"
+ targetNamespace="urn:ecc"
+ xmlns:tns="urn:ecc"
+ xmlns:SOAP-ENV="http://schemas.xmlsoap.org/soap/envelope/"
+ xmlns:SOAP-ENC="http://schemas.xmlsoap.org/soap/encoding/"
+ xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+ xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+ xmlns:ecc="urn:ecc"
+ xmlns:SOAP="http://schemas.xmlsoap.org/wsdl/soap/"
+ xmlns:MIME="http://schemas.xmlsoap.org/wsdl/mime/"
+ xmlns:DIME="http://schemas.xmlsoap.org/ws/2002/04/dime/wsdl/"
+ xmlns:WSDL="http://schemas.xmlsoap.org/wsdl/"
+ xmlns="http://schemas.xmlsoap.org/wsdl/">
+
+<types>
+
+ <schema targetNamespace="urn:ecc"
+  xmlns:SOAP-ENV="http://schemas.xmlsoap.org/soap/envelope/"
+  xmlns:SOAP-ENC="http://schemas.xmlsoap.org/soap/encoding/"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+  xmlns:ecc="urn:ecc"
+  xmlns="http://www.w3.org/2001/XMLSchema"
+  elementFormDefault="qualified"
+  attributeFormDefault="unqualified">
+  <import namespace="http://schemas.xmlsoap.org/soap/encoding/" schemaLocation="http://schemas.xmlsoap.org/soap/encoding/"/>
+  <!-- operation request element -->
+
+  <complexType name="TypeServerExit">
+    <sequence>
+     <element name="Reason" type="xsd:string"/>
+    </sequence>
+  </complexType>
+  <element name="ServerExit" type="ecc:TypeServerExit"/>
+
+  <!-- operation response element -->
+  <element name="Response">
+   <complexType>
+    <sequence>
+     <element name="ErrorCode" type="xsd:int" minOccurs="1" maxOccurs="1"/>
+     <element name="ErrorMessage" type="xsd:string" minOccurs="1" maxOccurs="1"/>
+    </sequence>
+   </complexType>
+  </element>
+ </schema>
+
+</types>
+
+<message name="ServerExit">
+ <part name="parameters" element="ecc:ServerExit"/>
+</message>
+
+<message name="Response">
+ <part name="parameters" element="ecc:Response"/>
+</message>
+
+<portType name="eccPortType">
+ <operation name="ServerExit">
+  <documentation>Service definition of function ecc__ServerExit</documentation>
+  <input message="tns:ServerExit"/>
+  <output message="tns:Response"/>
+ </operation>
+</portType>
+
+<binding name="ecc" type="tns:eccPortType">
+ <SOAP:binding style="document" transport="http://schemas.xmlsoap.org/soap/http"/>
+ <operation name="ServerExit">
+  <SOAP:operation soapAction=""/>
+  <input>
+     <SOAP:body parts="parameters" use="literal"/>
+  </input>
+  <output>
+     <SOAP:body parts="parameters" use="literal"/>
+  </output>
+ </operation>
+</binding>
+
+<service name="ecc">
+ <documentation>gSOAP 2.7.16 generated service definition</documentation>
+ <port name="ecc" binding="tns:ecc">
+  <SOAP:address location="http://localhost:8061"/>
+ </port>
+</service>
+
+</definitions>

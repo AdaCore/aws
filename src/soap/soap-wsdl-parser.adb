@@ -878,12 +878,22 @@ package body SOAP.WSDL.Parser is
 
          declare
             Parent : constant DOM.Core.Node := N;
+            ET     : constant String := XML.Get_Attr_Value (N, "type");
          begin
             if N /= null
               and then DOM.Core.Nodes.Local_Name (N) = "element"
             then
-               --  Move to complexType node
-               N := XML.First_Child (N);
+               if ET = "" then
+                  --  Move to complexType node
+                  N := XML.First_Child (N);
+
+               else
+                  --  Get the corresponding type definition
+
+                  N := Get_Node
+                    (XML.First_Child (DOM.Core.Node (Document)),
+                     "types.schema.complexType", Utils.No_NS (ET));
+               end if;
             end if;
 
             --  Enter complexType node
