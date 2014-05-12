@@ -900,7 +900,8 @@ package body SOAP.WSDL.Parser is
 
          declare
             Parent : constant DOM.Core.Node := N;
-            ET     : constant String := XML.Get_Attr_Value (N, "type");
+            ET     : constant String :=
+                       XML.Get_Attr_Value (N, "type", NS => False);
          begin
             if N /= null
               and then DOM.Core.Nodes.Local_Name (N) = "element"
@@ -914,7 +915,7 @@ package body SOAP.WSDL.Parser is
 
                   N := Get_Node
                     (XML.First_Child (DOM.Core.Node (Document)),
-                     "types.schema.complexType", Utils.No_NS (ET));
+                     "types.schema.complexType", ET);
                end if;
             end if;
 
