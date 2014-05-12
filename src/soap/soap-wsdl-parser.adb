@@ -640,6 +640,28 @@ package body SOAP.WSDL.Parser is
 
          if L = null then
             return True;
+
+         else
+            if Utils.No_NS (DOM.Core.Nodes.Node_Name (L))
+              = "complexContent"
+            then
+               L := XML.First_Child (L);
+            end if;
+
+            if L = null then
+               raise WSDL_Error with "empty complexContent.";
+
+            elsif Utils.No_NS (DOM.Core.Nodes.Node_Name (L))
+              = "extension"
+            then
+               L := XML.First_Child (L);
+            end if;
+         end if;
+
+         --  Empty extension
+
+         if L = null then
+            return True;
          end if;
 
          if Utils.No_NS (DOM.Core.Nodes.Node_Name (L)) = "all"
@@ -1299,7 +1321,62 @@ package body SOAP.WSDL.Parser is
          --  Check for empty complexType
 
          if N /= null then
-            --  Get first element
+            --  Get first element, if we have a complexContent, parse
+
+            if Utils.No_NS (DOM.Core.Nodes.Node_Name (N))
+              = "complexContent"
+            then
+               N := XML.First_Child (N);
+
+               --  We have an extension, we need to inline the element
+               --  definition here.
+
+               if N /= null
+                 and then  Utils.No_NS (DOM.Core.Nodes.Node_Name (N))
+                   = "extension"
+               then
+                  declare
+                     Base : constant String :=
+                              XML.Get_Attr_Value (N, "base", False);
+                     CT   : DOM.Core.Node;
+                  begin
+                     --  Get type whose name is Base
+
+                     CT := Get_Node
+                       (XML.First_Child (DOM.Core.Node (Document)),
+                        "types.schema.complexType", Base);
+
+                     --  Move to the sequence
+
+                     CT := XML.First_Child (CT);
+
+                     --  Get all elements
+
+                     declare
+                        NL : constant DOM.Core.Node_List :=
+                               DOM.Core.Nodes.Child_Nodes (CT);
+                     begin
+                        for K in 0 .. DOM.Core.Nodes.Length (NL) - 1 loop
+                           declare
+                              N : constant DOM.Core.Node :=
+                                    DOM.Core.Nodes.Item (NL, K);
+                           begin
+                              if DOM.Core.Nodes.Node_Name (N)
+                                /= "#text"
+                              then
+                                 Parameters.Append
+                                   (P.P, Parse_Parameter (O, N, Document));
+                              end if;
+                           end;
+                        end loop;
+                     end;
+                  end;
+
+                  --  Move past extension node
+
+                  N := XML.First_Child (N);
+               end if;
+            end if;
 
             N := XML.First_Child (N);
 
