@@ -243,7 +243,8 @@ package body AWS.Net.SSL is
    -- Cipher_Description --
    ------------------------
 
-   overriding function Cipher_Description (Socket : Socket_Type) return String
+   overriding function Cipher_Description
+     (Socket : Socket_Type) return String
    is
       Buffer : aliased C.char_array := (1 .. 256 => <>);
       Result : constant String :=
@@ -377,7 +378,7 @@ package body AWS.Net.SSL is
          case TSSL.SSL_get_error (Socket.SSL, Res) is
             when TSSL.SSL_ERROR_WANT_READ  => Socket_Read (Socket);
             when TSSL.SSL_ERROR_WANT_WRITE => Socket_Write (Socket);
-            when others => exit;
+            when others                    => exit;
          end case;
       end loop;
 
@@ -463,8 +464,10 @@ package body AWS.Net.SSL is
    -----------------
 
    procedure Generate_DH is
+
       use type TSSL.BIO_Access;
       use type TSSL.DH;
+
       OK   : Boolean;
       DH   : aliased TSSL.DH;
       Bits : constant C.int := DH_Length;
@@ -987,7 +990,7 @@ package body AWS.Net.SSL is
      (Config : SSL.Config := Null_Config) return Natural
    is
       Cfg : constant SSL.Config :=
-        (if Config = Null_Config then Default_Config else Config);
+              (if Config = Null_Config then Default_Config else Config);
    begin
       return Cfg.Session_Cache_Number;
    end Session_Cache_Number;
@@ -1011,8 +1014,7 @@ package body AWS.Net.SSL is
       subtype Binary_Array is Stream_Element_Array (1 .. 1024);
       type Binary_Access is access all Binary_Array;
 
-      function To_Array is
-        new Ada.Unchecked_Conversion (Pointer, Binary_Access);
+      function To_Array is new Unchecked_Conversion (Pointer, Binary_Access);
 
       Len : aliased C.unsigned;
       Id  : Binary_Access;
@@ -1030,7 +1032,7 @@ package body AWS.Net.SSL is
    function Session_Id_Image (Socket : Socket_Type) return String is
    begin
       return Session_Id_Image
-               (Session_Type (TSSL.SSL_get_session (Socket.SSL)));
+        (Session_Type (TSSL.SSL_get_session (Socket.SSL)));
    end Session_Id_Image;
 
    --------------------
@@ -1249,6 +1251,7 @@ package body AWS.Net.SSL is
    is
       use TSSL;
       use type C.unsigned;
+
       To_EVP_MD : constant array (Hash_Method) of EVP_MD :=
                     (MD5    => EVP_md5,
                      SHA1   => EVP_sha1,
@@ -1474,7 +1477,7 @@ package body AWS.Net.SSL is
          Temp : RW_Mutex_Access := Locker;
 
          procedure Free is
-            new Unchecked_Deallocation (RW_Mutex, RW_Mutex_Access);
+           new Unchecked_Deallocation (RW_Mutex, RW_Mutex_Access);
       begin
          Free (Temp);
       end Dyn_Destroy;
@@ -1793,7 +1796,7 @@ package body AWS.Net.SSL is
             --  the file Cert_Filename.
 
             if TSSL.SSL_CTX_use_certificate_chain_file
-                 (Ctx => Context, File => To_C (Cert_Filename)) /= 1
+              (Ctx => Context, File => To_C (Cert_Filename)) /= 1
             then
                File_Error ("Certificate", Cert_Filename);
             end if;
@@ -1855,7 +1858,7 @@ package body AWS.Net.SSL is
             Pr : aliased C.char_array := C.To_C (Priorities);
          begin
             if TSSL.SSL_CTX_set_cipher_list
-                 (Context, C.Strings.To_Chars_Ptr (Pr'Unchecked_Access)) = 0
+              (Context, C.Strings.To_Chars_Ptr (Pr'Unchecked_Access)) = 0
             then
                Log_Error (Error_Stack);
             end if;
@@ -1924,8 +1927,8 @@ package body AWS.Net.SSL is
       function Session_Cache_Number return Natural is
          use TSSL;
       begin
-         return Natural (SSL_CTX_ctrl
-                           (Context, SSL_CTRL_SESS_NUMBER, 0, Null_Pointer));
+         return Natural
+           (SSL_CTX_ctrl (Context, SSL_CTRL_SESS_NUMBER, 0, Null_Pointer));
       end Session_Cache_Number;
 
       ------------

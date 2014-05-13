@@ -39,6 +39,10 @@ package body AWS.Net.SSL is
 
    Error_Message : constant String := "SSL not supported.";
 
+   -------------------------
+   -- Abort_DH_Generation --
+   -------------------------
+
    procedure Abort_DH_Generation is
    begin
       Abort_DH_Flag := True;
@@ -69,30 +73,24 @@ package body AWS.Net.SSL is
    -- Ciphers --
    -------------
 
-   procedure Ciphers (Cipher : access procedure (Name : String)) is
-   begin
-      null;
-   end Ciphers;
+   procedure Ciphers (Cipher : access procedure (Name : String)) is null;
 
    -------------------------
    -- Clear_Session_Cache --
    -------------------------
 
-   procedure Clear_Session_Cache (Config : SSL.Config := Null_Config) is
-   begin
-      null;
-   end Clear_Session_Cache;
+   procedure Clear_Session_Cache (Config : SSL.Config := Null_Config) is null;
 
    -------------
    -- Connect --
    -------------
 
    overriding procedure Connect
-     (Socket   : in out Socket_Type;
-      Host     : String;
-      Port     : Positive;
-      Wait     : Boolean     := True;
-      Family   : Family_Type := Family_Unspec) is
+     (Socket : in out Socket_Type;
+      Host   : String;
+      Port   : Positive;
+      Wait   : Boolean     := True;
+      Family : Family_Type := Family_Unspec) is
    begin
       raise Program_Error with Error_Message;
    end Connect;
@@ -110,21 +108,13 @@ package body AWS.Net.SSL is
    -- Free --
    ----------
 
-   procedure Free (Key : in out Private_Key) is
-      pragma Unreferenced (Key);
-   begin
-      null;
-   end Free;
+   procedure Free (Key : in out Private_Key) is null;
+
+   procedure Free (Session : in out Session_Type) is null;
 
    overriding procedure Free (Socket : in out Socket_Type) is
    begin
       raise Program_Error with Error_Message;
-   end Free;
-
-   procedure Free (Session : in out Session_Type) is
-      pragma Unreferenced (Session);
-   begin
-      null;
    end Free;
 
    -----------------
@@ -340,20 +330,14 @@ package body AWS.Net.SSL is
    ----------------------------
 
    procedure Set_Session_Cache_Size
-     (Size : Natural; Config : SSL.Config := Null_Config) is
-   begin
-      null;
-   end Set_Session_Cache_Size;
+     (Size : Natural; Config : SSL.Config := Null_Config) is null;
 
    ----------------------
    -- Set_Session_Data --
    ----------------------
 
    procedure Set_Session_Data
-     (Socket : in out Socket_Type; Data : Session_Type) is
-   begin
-      null;
-   end Set_Session_Data;
+     (Socket : in out Socket_Type; Data : Session_Type) is null;
 
    -------------------------
    -- Set_Verify_Callback --
@@ -404,8 +388,8 @@ package body AWS.Net.SSL is
    ---------------------------------
 
    procedure Start_Parameters_Generation
-     (DH : Boolean; Logging : access procedure (Text : String) := null)
-     is null;
+     (DH      : Boolean;
+      Logging : access procedure (Text : String) := null) is null;
 
    -------------
    -- Version --

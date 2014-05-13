@@ -204,7 +204,7 @@ package body AWS.Net.SSL.Certificate.Impl is
             flags  => XN_FLAG_RFC2253_DIRECT);
 
          declare
-            use Ada.Strings.Fixed;
+            use Strings.Fixed;
             Result : String (1 .. Natural (BIO_pending (IO)));
             EMail  : constant String := ",emailAddress=";
             Idx    : Natural;
