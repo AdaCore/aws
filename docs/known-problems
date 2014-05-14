@@ -1,5 +1,12 @@
 Known Problems fixed in AWS 3.2
 
+- N607-007: AWS wsdl2aws crashes with WSDL recursive definitions
+  Problem: A WSDL schema can describe recursive definitions. The AWS
+           wsdl2aws crashes when parsing such definitions. Instead of
+           crashing the tool now properly report the recursive definition
+           and exit.
+  Workaround: Remove the recursive definition from the WSDL document.
+
 - N303-022: AWS does not support empty WSDL complex types
   Problem: AWS crashes when trying to parse a WSDL complexType
            with a sequence node without any child.

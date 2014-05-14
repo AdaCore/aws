@@ -1065,6 +1065,11 @@ package body SOAP.WSDL.Parser is
          raise WSDL_Error with "Type anyType is not supported.";
 
       else
+         if P_Type = To_String (O.Enclosing_Type) then
+            raise WSDL_Error with
+              "Recursive WSDL definition " & P_Type & " is not supported.";
+         end if;
+
          declare
             R : DOM.Core.Node :=
                   Get_Node (DOM.Core.Node (Document),
@@ -1303,10 +1308,12 @@ package body SOAP.WSDL.Parser is
       declare
          Name : constant String := XML.Get_Attr_Value (R, "name", False);
       begin
-         --  Set record name, R is a complexType node
+         --  Set record name, R is a complexType or element node
 
          P.Name   := O.Current_Name;
          P.T_Name := +Name;
+
+         O.Self.Enclosing_Type := +Name;
 
          if Utils.No_NS (DOM.Core.Nodes.Node_Name (R)) = "element" then
             --  Skip enclosing element
