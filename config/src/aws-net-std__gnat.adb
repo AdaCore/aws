@@ -231,7 +231,7 @@ package body AWS.Net.Std is
                when Operation_Now_In_Progress
                     | Resource_Temporarily_Unavailable => null;
                when others =>
-                  Raise_Error (Ada.Exceptions.Exception_Message (E));
+                  Raise_Error (Exception_Message (E));
             end case;
       end;
 
@@ -257,7 +257,7 @@ package body AWS.Net.Std is
             Sockets.Close_Socket (Socket.S.FD);
          end if;
 
-         Raise_Error (Ada.Exceptions.Exception_Message (E));
+         Raise_Error (Exception_Message (E));
    end Connect;
 
    -----------
@@ -773,8 +773,8 @@ package body AWS.Net.Std is
                then
                   Log.Error
                     (Socket,
-                     Message => "Shutdown : " & Error'Img & ' '
-                                & Ada.Exceptions.Exception_Message (E));
+                     Message => "Shutdown : "
+                                & Error'Img & ' ' & Exception_Message (E));
                end if;
          end;
 
@@ -804,8 +804,7 @@ package body AWS.Net.Std is
                Log.Error
                  (Socket_Type'
                     (Net.Socket_Type with new Socket_Hidden'(FD => FD)),
-                  Message => "Close : "
-                             & Ada.Exceptions.Exception_Message (E));
+                  Message => "Close : " & Exception_Message (E));
          end;
       end if;
    end Shutdown;
@@ -817,6 +816,6 @@ begin
 
    if No_Socket /= Sockets.To_C (Sockets.No_Socket) then
       raise Program_Error with "No_Socket have to be "
-            & Integer'Image (Sockets.To_C (Sockets.No_Socket));
+        & Integer'Image (Sockets.To_C (Sockets.No_Socket));
    end if;
 end AWS.Net.Std;
