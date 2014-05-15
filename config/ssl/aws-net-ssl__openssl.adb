@@ -61,7 +61,9 @@ package body AWS.Net.SSL is
 
    use Interfaces;
    use type C.int;
-   use type System.Address;
+   use type TSSL.Pointer;
+   use type TSSL.SSL_Handle;
+   use type TSSL.SSL_CTX;
 
    subtype NSST is Net.Std.Socket_Type;
 
@@ -270,10 +272,10 @@ package body AWS.Net.SSL is
       Ctx  : constant TSSL.SSL_CTX := TSSL.SSL_CTX_new (TSSL.SSLv23_method);
       SSL  : SSL_Handle;
    begin
-      Error_If (Ctx = TSSL.Null_Pointer);
+      Error_If (Ctx = TSSL.Null_CTX);
 
       SSL := TSSL.SSL_new (Ctx);
-      Error_If (SSL = TSSL.Null_Pointer);
+      Error_If (SSL = TSSL.Null_Handle);
 
       for J in 0 .. C.int'Last loop
          Name := TSSL.SSL_get_cipher_list (SSL, J);
@@ -430,10 +432,10 @@ package body AWS.Net.SSL is
 
    overriding procedure Free (Socket : in out Socket_Type) is
    begin
-      if Socket.SSL /= TSSL.Null_Pointer then
+      if Socket.SSL /= TSSL.Null_Handle then
          TSSL.SSL_free (Socket.SSL);
          TSSL.BIO_free (Socket.IO);
-         Socket.SSL := TSSL.Null_Pointer;
+         Socket.SSL := TSSL.Null_Handle;
       end if;
 
       NSST (Socket).Free;
@@ -1125,7 +1127,7 @@ package body AWS.Net.SSL is
    procedure Set_Session_Data
      (Socket : in out Socket_Type; Data : Session_Type) is
    begin
-      if Socket.SSL = TSSL.Null_Pointer or else Socket.Get_FD = No_Socket then
+      if Socket.SSL = TSSL.Null_Handle or else Socket.Get_FD = No_Socket then
          Socket.Sessn := Data;
       else
          Error_If
@@ -1740,7 +1742,7 @@ package body AWS.Net.SSL is
       procedure Finalize is
       begin
          TSSL.SSL_CTX_free (Context);
-         Context := TSSL.Null_Pointer;
+         Context := TSSL.Null_CTX;
       end Finalize;
 
       ----------------
@@ -1865,11 +1867,11 @@ package body AWS.Net.SSL is
          end Set_Priorities;
 
       begin
-         if Context = TSSL.Null_Pointer then
+         if Context = TSSL.Null_CTX then
             --  Initialize context
 
             Context := TSSL.SSL_CTX_new (Methods (Security_Mode).all);
-            Error_If (Context = TSSL.Null_Pointer);
+            Error_If (Context = TSSL.Null_CTX);
 
             if not Ticket_Support then
                Error_If
@@ -1941,7 +1943,7 @@ package body AWS.Net.SSL is
          Inside_IO, Net_IO : aliased BIO_Access;
       begin
          Socket.SSL := SSL_new (Context);
-         Error_If (Socket, Socket.SSL = Null_Pointer);
+         Error_If (Socket, Socket.SSL = Null_Handle);
 
          Error_If
            (BIO_new_bio_pair (Inside_IO'Access, 0, Net_IO'Access, 0) = 0);

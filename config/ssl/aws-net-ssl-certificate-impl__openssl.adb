@@ -35,7 +35,7 @@ package body AWS.Net.SSL.Certificate.Impl is
 
    use Interfaces;
    use type C.int;
-   use type TSSL.Pointer;
+   use type TSSL.X509;
 
    -----------------
    -- Error_Stack --
@@ -109,14 +109,14 @@ package body AWS.Net.SSL.Certificate.Impl is
    function Load (Filename : String) return Object is
       IO     : constant TSSL.BIO_Access := TSSL.BIO_new (TSSL.BIO_s_file);
       Name   : aliased C.char_array := C.To_C (Filename);
-      X509   : aliased TSSL.X509 := TSSL.Null_Pointer;
+      X509   : aliased TSSL.X509 := TSSL.Null_X509;
       Result : Object;
    begin
       if TSSL.BIO_read_filename
            (IO, C.Strings.To_Chars_Ptr (Name'Unchecked_Access)) = 0
         or else TSSL.PEM_read_bio_X509
                   (IO, X509'Access, null, TSSL.Null_Pointer)
-                = TSSL.Null_Pointer
+                = TSSL.Null_X509
       then
          TSSL.X509_free (X509);
          TSSL.BIO_free (IO);
@@ -327,7 +327,7 @@ package body AWS.Net.SSL.Certificate.Impl is
       T_Activation, T_Expiration : access constant TSSL.ASN1_UTCTIME;
 
    begin
-      if X509 = TSSL.Null_Pointer then
+      if X509 = TSSL.Null_X509 then
          return Undefined;
 
       else

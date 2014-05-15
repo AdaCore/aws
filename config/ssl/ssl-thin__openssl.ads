@@ -127,17 +127,17 @@ package SSL.Thin is
      with Convention => C;
 
    subtype SSL_Method     is Pointer;
-   subtype SSL_CTX        is Pointer;
-   subtype SSL_Handle     is Pointer;
    subtype RSA            is Pointer;
    subtype DH             is Pointer;
-   subtype X509           is Pointer;
-   subtype X509_NAME      is Pointer;
-   subtype X509_STORE_CTX is Pointer;
-   subtype X509_STORE     is Pointer;
 
    subtype Private_Key is RSA;
 
+   type SSL_CTX            is new Pointer;
+   type SSL_Handle         is new Pointer;
+   type X509               is new Pointer;
+   type X509_NAME          is new Pointer;
+   type X509_STORE         is new Pointer;
+   type X509_STORE_CTX     is new Pointer;
    type X509_LOOKUP        is new Pointer;
    type X509_LOOKUP_METHOD is new Pointer;
    type X509_VERIFY_PARAM  is new Pointer;
@@ -145,8 +145,9 @@ package SSL.Thin is
 
    type BIGNUM             is new Pointer;
 
-   Null_CTX    : SSL_CTX    renames Null_Pointer;
-   Null_Handle : SSL_Handle renames Null_Pointer;
+   Null_CTX    : constant SSL_CTX    := SSL_CTX (Null_Pointer);
+   Null_Handle : constant SSL_Handle := SSL_Handle (Null_Pointer);
+   Null_X509   : constant X509       := X509 (Null_Pointer);
 
    Null_Private_Key : Private_Key renames Null_Pointer;
 
@@ -1283,7 +1284,7 @@ package SSL.Thin is
      with Import, Convention => C,
           Link_Name => "X509_STORE_CTX_get_current_cert";
 
-   function X509_STORE_CTX_get_error (Ctx : SSL_CTX) return int
+   function X509_STORE_CTX_get_error (Ctx : X509_STORE_CTX) return int
      with Import, Convention => C, Link_Name => "X509_STORE_CTX_get_error";
 
    function X509_verify_cert_error_string (Error : long) return Cstr.chars_ptr
