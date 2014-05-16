@@ -1287,6 +1287,10 @@ package SSL.Thin is
    function X509_STORE_CTX_get_error (Ctx : X509_STORE_CTX) return int
      with Import, Convention => C, Link_Name => "X509_STORE_CTX_get_error";
 
+   function X509_STORE_CTX_get_error_depth (Ctx : X509_STORE_CTX) return int
+     with Import, Convention => C,
+          Link_Name => "X509_STORE_CTX_get_error_depth";
+
    function X509_verify_cert_error_string (Error : long) return Cstr.chars_ptr
      with Import, Convention => C,
           Link_Name => "X509_verify_cert_error_string";

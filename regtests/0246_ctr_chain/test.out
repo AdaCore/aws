@@ -1,0 +1,14 @@
+Verify call: test-clt-CA-root BB92B427925B096F -clt-CA-root,EMAIL=ca@adacore.com OK
+Verify call: test-clt-CA-1 03E9 -clt-CA-root,EMAIL=ca@adacore.com OK
+Verify call: test-clt-CA-2 03EA -clt-CA-1,EMAIL=ca@adacore.com OK
+Verify call: test-clt-CA-3 03EB -clt-CA-2,EMAIL=ca@adacore.com OK
+Verify call: test-clt-CA-4 03EC -clt-CA-3,EMAIL=ca@adacore.com OK
+Verify call: test-clt-CA-5 03ED -clt-CA-4,EMAIL=ca@adacore.com OK
+Verify call: test-clt-CA-6 03EE -clt-CA-5,EMAIL=ca@adacore.com OK
+Verify call: test-clt-CA-7 03EF -clt-CA-6,EMAIL=ca@adacore.com OK
+Verify call: test-clt-CA-8 03F0 -clt-CA-7,EMAIL=ca@adacore.com OK
+Verify call: test-clt 271A -clt-CA-8,EMAIL=ca@adacore.com OK
+Server side: test-clt 271A -clt-CA-8,EMAIL=ca@adacore.com OK
+Client side: test-srv 271A -srv-CA-8,EMAIL=ca@adacore.com OK
+-> 200
+-> OK
