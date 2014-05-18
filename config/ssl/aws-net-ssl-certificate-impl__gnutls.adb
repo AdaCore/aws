@@ -67,10 +67,13 @@ package body AWS.Net.SSL.Certificate.Impl is
             Error : constant String :=
                       C.Strings.Value (TSSL.gnutls_strerror (Code));
          begin
-            if Socket /= null then
+            if Socket = null then
+               Log_Error (Error);
+            else
                Net.Log.Error (Socket.all, Error);
             end if;
-            Ada.Exceptions.Raise_Exception (Socket_Error'Identity, Error);
+
+            raise Socket_Error with Error;
          end;
       end if;
    end Check_Error_Code;
@@ -186,6 +189,8 @@ package body AWS.Net.SSL.Certificate.Impl is
    is
       use type Ada.Calendar.Time;
       use type C.unsigned;
+      use type C.int;
+      use type C.size_t;
 
       function To_Time (tv_sec : TSSL.time_t) return Calendar.Time with Inline;
       --  Convert a time_t to an Ada duration
@@ -254,7 +259,11 @@ package body AWS.Net.SSL.Certificate.Impl is
             begin
                --  Skip leading zero
 
-               if P /= 0 or else K > Bin'First then
+               if P = 0 and then K = Bin'First then
+                  if Len = 1 then
+                     Append (R, '0');
+                  end if;
+               else
                   Append (R, Utils.Hex (P, 2));
                end if;
             end;
@@ -277,6 +286,7 @@ package body AWS.Net.SSL.Certificate.Impl is
       Buffer_Size : constant := 256;
       --  Buffer size for the subject and issuer
 
+      RC       : C.int;
       Subject  : aliased C.char_array := (1 .. Buffer_Size => C.nul);
       Subj_Len : aliased C.size_t := Buffer_Size;
       Issuer   : aliased C.char_array := (1 .. Buffer_Size => C.nul);
@@ -297,15 +307,19 @@ package body AWS.Net.SSL.Certificate.Impl is
             Subj_Len'Access),
          Socket);
 
-      Check_Error_Code
-        (TSSL.gnutls_x509_crt_get_dn_by_oid
-           (cert     => X509,
-            oid      => TSSL.GNUTLS_OID_X520_COMMON_NAME'Access,
-            indx     => 0,
-            raw_flag => 0,
-            buf      => CN'Address,
-            buf_size => CN_Len'Access),
-         Socket);
+      RC := TSSL.gnutls_x509_crt_get_dn_by_oid
+              (cert     => X509,
+               oid      => TSSL.GNUTLS_OID_X520_COMMON_NAME'Access,
+               indx     => 0,
+               raw_flag => 0,
+               buf      => CN'Address,
+               buf_size => CN_Len'Access);
+
+      if RC = TSSL.GNUTLS_E_REQUESTED_DATA_NOT_AVAILABLE then
+         CN_Len := 0;
+      else
+         Check_Error_Code (RC, Socket);
+      end if;
 
       Check_Error_Code
         (TSSL.gnutls_x509_crt_get_issuer_dn

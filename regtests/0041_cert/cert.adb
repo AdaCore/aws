@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2003-2012, AdaCore                     --
+--                     Copyright (C) 2003-2014, AdaCore                     --
 --                                                                          --
 --  This is free software;  you can redistribute it  and/or modify it       --
 --  under terms of the  GNU General Public License as published  by the     --
@@ -16,9 +16,7 @@
 --  to http://www.gnu.org/licenses for a complete copy of the license.      --
 ------------------------------------------------------------------------------
 
---  This must be the exact same test than tgetparam. The only difference is
---  that it uses HTTPS protocol. We test that output is the same as the non
---  secure version.
+--  Simple test for certificate usage.
 
 with Ada.Exceptions;
 with Ada.Text_IO;
@@ -80,6 +78,7 @@ procedure Cert is
       if Cert = Net.SSL.Certificate.Undefined then
          Put_Line ("No certificate.");
       else
+         Put_Line ("Name    : " & Net.SSL.Certificate.Common_Name (Cert));
          Put_Line ("Subject : " & Net.SSL.Certificate.Subject (Cert));
          Put_Line ("Issuer  : " & Net.SSL.Certificate.Issuer (Cert));
          Put_Line ("Serial  : " & Net.SSL.Certificate.Serial_Number (Cert));
@@ -141,6 +140,8 @@ begin
    Request (AWS.Server.Status.Local_URL (HTTP) & "/simple");
 
    Server.Shutdown (HTTP);
+
+   Display_Certificate (Net.SSL.Certificate.Load ("go-daddy.crt"));
 
 exception
    when E : others =>
