@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2000-2013, AdaCore                     --
+--                     Copyright (C) 2000-2014, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -146,6 +146,10 @@ package body SOAP.Message.XML is
      (NS   : Namespaces;
       Name : String) return String;
    --  Returns the user's namspace value for the given namespace name
+
+   function Get_NS
+     (NS : Namespaces; Name : String) return SOAP.Name_Space.Object;
+   --  Returns the user namespace for the given name
 
    procedure Parse_Document
      (N : DOM.Core.Node;
@@ -333,6 +337,22 @@ package body SOAP.Message.XML is
 
       return "";
    end Get_Namespace_Value;
+
+   ------------
+   -- Get_NS --
+   ------------
+
+   function Get_NS
+     (NS : Namespaces; Name : String) return SOAP.Name_Space.Object is
+   begin
+      for K in 1 .. NS.Index loop
+         if SOAP.Name_Space.Name (NS.User (K)) = Name then
+            return NS.User (K);
+         end if;
+      end loop;
+
+      return SOAP.Name_Space.No_Name_Space;
+   end Get_NS;
 
    -----------
    -- Image --
@@ -969,17 +989,18 @@ package body SOAP.Message.XML is
       OS    : Types.Object_Set (1 .. Max_Object_Size);
       K     : Natural := 0;
       Field : DOM.Core.Node := SOAP.XML.Get_Ref (N);
+      Kind  : constant String :=
+                SOAP.XML.Get_Attr_Value
+                  (Field, SOAP.Name_Space.Name (S.NS.xsi) & ":type");
    begin
       if Name /= Local_Name (N)
         and then First_Child (Field).Node_Type = DOM.Core.Text_Node
       then
          --  This is not a record after all, it is an enumeration with an href
          --  A record can't have a text child node.
+
          return Types.E
-           (Node_Value (First_Child (Field)),
-            Utils.No_NS (SOAP.XML.Get_Attr_Value
-                           (Field, SOAP.Name_Space.Name (S.NS.xsi) & ":type")),
-            Name);
+                  (Node_Value (First_Child (Field)), Utils.No_NS (Kind), Name);
 
       else
          Field := SOAP.XML.First_Child (Field);
@@ -991,7 +1012,14 @@ package body SOAP.Message.XML is
             Field := Next_Sibling (Field);
          end loop;
 
-         return Types.R (OS (1 .. K), Name);
+         declare
+            Result : Types.SOAP_Record :=
+                       Types.R (OS (1 .. K), Name, Utils.No_NS (Kind));
+         begin
+            Result.Set_Name_Space (Get_NS (S.NS, Utils.NS (Kind)));
+
+            return Result;
+         end;
       end if;
    end Parse_Record;
 
