@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2000-2013, AdaCore                     --
+--                     Copyright (C) 2000-2014, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -838,7 +838,7 @@ package body SOAP.Types is
       Append (Result, '(');
 
       for K in O.O'Range loop
-         Append (Result, Name (O));
+         Append (Result, Name (O.O (K).O.all));
          Append (Result, " => ");
          Append (Result, Image (O.O (K).O.all));
 
