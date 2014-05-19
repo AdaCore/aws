@@ -1000,7 +1000,7 @@ package body SOAP.Message.XML is
          --  A record can't have a text child node.
 
          return Types.E
-                  (Node_Value (First_Child (Field)), Utils.No_NS (Kind), Name);
+           (Node_Value (First_Child (Field)), Utils.No_NS (Kind), Name);
 
       else
          Field := SOAP.XML.First_Child (Field);
@@ -1008,7 +1008,6 @@ package body SOAP.Message.XML is
          while Field /= null loop
             K := K + 1;
             OS (K) := +Parse_Param (Field, S);
-
             Field := Next_Sibling (Field);
          end loop;
 
