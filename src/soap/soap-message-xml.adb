@@ -147,7 +147,7 @@ package body SOAP.Message.XML is
       Name : String) return String;
    --  Returns the user's namspace value for the given namespace name
 
-   function Get_NS
+   function Get_Namespace_Object
      (NS : Namespaces; Name : String) return SOAP.Name_Space.Object;
    --  Returns the user namespace for the given name
 
@@ -321,6 +321,22 @@ package body SOAP.Message.XML is
       raise SOAP_Error with Name & " - " & Message;
    end Error;
 
+   --------------------------
+   -- Get_Namespace_Object --
+   --------------------------
+
+   function Get_Namespace_Object
+     (NS : Namespaces; Name : String) return SOAP.Name_Space.Object is
+   begin
+      for K in 1 .. NS.Index loop
+         if SOAP.Name_Space.Name (NS.User (K)) = Name then
+            return NS.User (K);
+         end if;
+      end loop;
+
+      return SOAP.Name_Space.No_Name_Space;
+   end Get_Namespace_Object;
+
    -------------------------
    -- Get_Namespace_Value --
    -------------------------
@@ -337,22 +353,6 @@ package body SOAP.Message.XML is
 
       return "";
    end Get_Namespace_Value;
-
-   ------------
-   -- Get_NS --
-   ------------
-
-   function Get_NS
-     (NS : Namespaces; Name : String) return SOAP.Name_Space.Object is
-   begin
-      for K in 1 .. NS.Index loop
-         if SOAP.Name_Space.Name (NS.User (K)) = Name then
-            return NS.User (K);
-         end if;
-      end loop;
-
-      return SOAP.Name_Space.No_Name_Space;
-   end Get_NS;
 
    -----------
    -- Image --
@@ -1016,8 +1016,8 @@ package body SOAP.Message.XML is
             Result : Types.SOAP_Record :=
                        Types.R (OS (1 .. K), Name, Utils.No_NS (Kind));
          begin
-            Result.Set_Name_Space (Get_NS (S.NS, Utils.NS (Kind)));
-
+            Result.Set_Name_Space
+              (Get_Namespace_Object (S.NS, Utils.NS (Kind)));
             return Result;
          end;
       end if;
