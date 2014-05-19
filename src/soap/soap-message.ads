@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2000-2012, AdaCore                     --
+--                     Copyright (C) 2000-2014, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -45,10 +45,10 @@ package SOAP.Message is
    function Name_Space   (M : Object'Class) return SOAP.Name_Space.Object;
    --  Returns message Namespace
 
-   function Wrapper_Name (M : Object'class) return String;
+   function Wrapper_Name (M : Object'Class) return String;
    --  Returns wrapper name
 
-   function Parameters   (M : Object'class) return SOAP.Parameters.List;
+   function Parameters   (M : Object'Class) return SOAP.Parameters.List;
    --  Returns the parameter
 
    procedure Set_Name_Space

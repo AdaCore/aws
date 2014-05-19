@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2000-2012, AdaCore                     --
+--                     Copyright (C) 2000-2014, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -86,7 +86,7 @@ package body SOAP.Message is
    -- Wrapper_Name --
    ------------------
 
-   function Wrapper_Name (M : Object'class) return String is
+   function Wrapper_Name (M : Object'Class) return String is
    begin
       return To_String (M.Wrapper_Name);
    end Wrapper_Name;
