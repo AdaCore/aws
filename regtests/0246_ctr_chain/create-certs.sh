@@ -15,8 +15,8 @@ openssl req -x509 -batch -newkey rsa:2048 -nodes -keyout $KCA \
 
 # Create CA chain
 
-for ((J=1; J<=8; J++)); do
-   KCAJ=ca$1-$J.key
+for ((J=1; J<=8; J++))
+do KCAJ=ca$1-$J.key
    SCAJ=ca$1-$J.crt
    openssl req -new -batch -newkey rsa:2048 -nodes -keyout $KCAJ \
      -subj "$SUBJ/OU=CA-office/CN=test$1-CA-$J/emailAddress=ca@adacore.com/" \
@@ -37,8 +37,8 @@ openssl x509 -req -days 800 -in temp.csr -CA $SCA -CAkey $KCA \
 
 rm $KCA
 
-for ((J=8; J>0; J--)); do
-   cat ca$1-$J.crt >> chain$1.crt
+for ((J=8; J>0; J--))
+do cat ca$1-$J.crt >> chain$1.crt
    rm ca$1-$J.crt
 done
 
