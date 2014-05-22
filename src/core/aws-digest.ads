@@ -74,22 +74,4 @@ package AWS.Digest is
    --  otherwise
    --     Tail := ':' & Nonce & ':' & MD5.Digest (Method & ':' & URI);
 
-private
-
-   use GNAT;
-
-   function Tail
-     (Nonce, NC, CNonce, QOP, Method, URI : String) return String
-   is
-     (':' & Nonce & ':'
-      & (if QOP = "" then "" else NC & ':' & CNonce & ':' & QOP & ':')
-      & MD5.Digest (Method & ':' & URI));
-
-   function Create
-     (Username, Realm, Password : String;
-      Nonce                     : String;
-      Method, URI               : String) return Digest_String
-   is
-     (Create (Username, Realm, Password, Nonce, "", "", "", Method, URI));
-
 end AWS.Digest;

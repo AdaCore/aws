@@ -41,6 +41,7 @@ package body AWS.Digest is
 
    use Ada;
    use Ada.Streams;
+   use GNAT;
 
    Private_Key : MD5.Context;
 
@@ -165,6 +166,15 @@ package body AWS.Digest is
            & Tail (Nonce, NC, CNonce, QOP, Method, URI));
    end Create;
 
+   function Create
+     (Username, Realm, Password : String;
+      Nonce                     : String;
+      Method, URI               : String) return Digest_String is
+   begin
+      return Create
+               (Username, Realm, Password, Nonce, "", "", "", Method, URI);
+   end Create;
+
    ------------------
    -- Create_Nonce --
    ------------------
@@ -197,6 +207,22 @@ package body AWS.Digest is
 
       return Nonce (Timestamp_Str & Index_Str & MD5.Digest (Ctx));
    end Create_Nonce;
+
+   ----------
+   -- Tail --
+   ----------
+
+   function Tail
+     (Nonce, NC, CNonce, QOP, Method, URI : String) return String
+   is
+      MUD : constant Digest_String := MD5.Digest (Method & ':' & URI);
+   begin
+      if QOP = "" then
+         return ':' & Nonce & ':' & MUD;
+      else
+         return ':' & Nonce & ':' & NC & ':' & CNonce & ':' & QOP & ':' & MUD;
+      end if;
+   end Tail;
 
 begin
    MD5.Update (Private_Key, Utils.Random_String (32));
