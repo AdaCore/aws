@@ -56,7 +56,7 @@ package AWS.Digest is
    function Create
      (Username, Realm, Password : String;
       Nonce                     : String;
-      Method, URI               : String) return Digest_String;
+      Method, URI               : String) return Digest_String with Inline;
    --  Returns a simple MD5 Digest
 
    function Create
@@ -66,12 +66,30 @@ package AWS.Digest is
    --  Returns a more complex MD5 Digest if QOP field is not empty
 
    function Tail
-     (Nonce, NC, CNonce, QOP, Method, URI : String) return String;
+     (Nonce, NC, CNonce, QOP, Method, URI : String) return String with Inline;
    --  Returns the precalculated tail part of the digest
    --  if QOP field is not empty
    --     Tail := ':' & Nonce & ':' & NC & ':' & CNonce & ':' & QOP & ':'
    --               & MD5.Digest (Method & ':' & URI);
    --  otherwise
    --     Tail := ':' & Nonce & ':' & MD5.Digest (Method & ':' & URI);
+
+private
+
+   use GNAT;
+
+   function Tail
+     (Nonce, NC, CNonce, QOP, Method, URI : String) return String
+   is
+     (':' & Nonce & ':'
+      & (if QOP = "" then "" else NC & ':' & CNonce & ':' & QOP & ':')
+      & MD5.Digest (Method & ':' & URI));
+
+   function Create
+     (Username, Realm, Password : String;
+      Nonce                     : String;
+      Method, URI               : String) return Digest_String
+   is
+     (Create (Username, Realm, Password, Nonce, "", "", "", Method, URI));
 
 end AWS.Digest;
