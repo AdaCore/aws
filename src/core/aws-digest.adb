@@ -213,15 +213,11 @@ package body AWS.Digest is
    ----------
 
    function Tail
-     (Nonce, NC, CNonce, QOP, Method, URI : String) return String
-   is
-      MUD : constant Digest_String := MD5.Digest (Method & ':' & URI);
+     (Nonce, NC, CNonce, QOP, Method, URI : String) return String is
    begin
-      if QOP = "" then
-         return ':' & Nonce & ':' & MUD;
-      else
-         return ':' & Nonce & ':' & NC & ':' & CNonce & ':' & QOP & ':' & MUD;
-      end if;
+      return ':' & Nonce
+         & (if QOP = "" then "" else ':' & NC & ':' & CNonce & ':' & QOP & ':')
+         & MD5.Digest (Method & ':' & URI);
    end Tail;
 
 begin
