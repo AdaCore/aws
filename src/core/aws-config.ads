@@ -319,8 +319,7 @@ package AWS.Config is
 
    function Exchange_Certificate (O : Object) return Boolean with Inline;
    --  Returns True if the client is requested to send its certificate to the
-   --  server. Note that this option must not be used if the client is a Web
-   --  Browser.
+   --  server.
 
    function Certificate_Required (O : Object) return Boolean with Inline;
    --  Returns True if the server must abort the connection if the
