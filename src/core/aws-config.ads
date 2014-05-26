@@ -323,7 +323,7 @@ package AWS.Config is
 
    function Certificate_Required (O : Object) return Boolean with Inline;
    --  Returns True if the server must abort the connection if the
-   --  client did not provide a certificate. If this option is set
+   --  client did not provide trusted certificate. If this option is set
    --  the Exchange_Certificate must also be set.
 
    function Trusted_CA (O : Object) return String with Inline;
