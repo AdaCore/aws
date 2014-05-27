@@ -54,6 +54,7 @@ package AWS.MIME is
    Image_Gif                   : constant String := "image/gif";
    Image_Jpeg                  : constant String := "image/jpeg";
    Image_Png                   : constant String := "image/png";
+   Image_SVG                   : constant String := "image/svg+xml";
    Image_Tiff                  : constant String := "image/tiff";
    Image_Icon                  : constant String := "image/x-icon";
    Image_X_Portable_Anymap     : constant String := "image/x-portable-anymap";

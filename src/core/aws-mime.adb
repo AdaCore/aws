@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2000-2013, AdaCore                     --
+--                     Copyright (C) 2000-2014, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -195,6 +195,7 @@ package body AWS.MIME is
       Set.Add_Extension ("jpe",     Image_Jpeg);
       Set.Add_Extension ("png",     Image_Png);
       Set.Add_Extension ("tiff",    Image_Tiff);
+      Set.Add_Extension ("svg",     Image_SVG);
       Set.Add_Extension ("tif",     Image_Tiff);
       Set.Add_Extension ("pnm",     Image_X_Portable_Anymap);
       Set.Add_Extension ("pbm",     Image_X_Portable_Bitmap);
