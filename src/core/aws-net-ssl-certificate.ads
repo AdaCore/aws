@@ -154,7 +154,8 @@ private
      (Certificate.Status);
 
    function DER (Certificate : Object) return Stream_Element_Array is
-     (Certificate.DER.Element);
+     (if Certificate.DER.Is_Empty then (1 .. 0 => <>)
+      else Certificate.DER.Element);
 
    function "=" (Left, Right : Object) return Boolean is
      (Binary_Holders."=" (Left.DER, Right.DER));
