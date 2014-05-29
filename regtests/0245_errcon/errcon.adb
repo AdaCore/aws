@@ -17,9 +17,10 @@
 ------------------------------------------------------------------------------
 
 with Ada.Exceptions;
-with Ada.Text_IO;
-with AWS.Net.SSL;
 with Ada.Strings.Fixed;
+with Ada.Text_IO;
+
+with AWS.Net.SSL;
 with AWS.OS_Lib;
 with AWS.Utils;
 
@@ -50,7 +51,7 @@ procedure ErrCon is
 
    procedure Print_Error (Message : String) is
       Text : String := Message;
-      HNF : constant Natural := Fixed.Index (Text, Host_Not_Found);
+      HNF  : constant Natural := Fixed.Index (Text, Host_Not_Found);
    begin
       if Text (Text'Last - 4 .. Text'Last) /= Port_Img then
          Text (Text'Last - 4 .. Text'Last) := Port_Img;
@@ -69,10 +70,12 @@ procedure ErrCon is
          Text_IO.Put_Line
            (Fixed.Replace_Slice
               (Text, Text'First, Unreach_Err'Length, "[UNREACH]"));
+
       elsif HNF > 0 then
          Text_IO.Put_Line
            ("Name or service not known"
             & Text (HNF + Host_Not_Found'Length .. Text'Last));
+
       else
          Text_IO.Put_Line (Text);
       end if;
