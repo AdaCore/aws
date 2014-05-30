@@ -33,6 +33,9 @@ pragma Ada_2012;
 --  this package depends on a specific socket binding. To port AWS to another
 --  socket implementation you need only to rewrite the body.
 
+with Ada.Strings.Fixed;
+with Ada.Strings.Maps.Constants;
+
 package AWS.Net.Std is
 
    Socket_Error : exception renames Net.Socket_Error;
@@ -183,5 +186,16 @@ private
 
    overriding procedure Free (Socket : in out Socket_Type);
    --  Release memory associated with the socket object
+
+   function Error_On_Connect (Text : String) return String is
+     ((if Text'Length > 0 and then Text (Text'Last) = '.'
+       then Text (Text'First .. Text'Last - 1) else Text)
+      & (if Strings.Fixed.Index
+              (Text, "connect",
+               Mapping => Strings.Maps.Constants.Lower_Case_Map) = 0
+         then " on connect" else "") & " to ");
+   --  Function to concatenate error message with connection address in human
+   --  readable manner. Declare in specification because it is common code for
+   --  GNAT and IPv6 implementations.
 
 end AWS.Net.Std;

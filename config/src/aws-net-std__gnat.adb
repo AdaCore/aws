@@ -184,8 +184,7 @@ package body AWS.Net.Std is
 
          Addr : constant String := Sockets.Image (Sock_Addr);
          Msg  : constant String :=
-                  Errm & (if Strings.Fixed.Index (Errm, "Connect") = 0
-                          then " on connect" else "") & " to "
+                  Error_On_Connect (Errm)
                   & (if Sock_Addr.Addr = Sockets.No_Inet_Addr
                      then Host & ':' & Utils.Image (Port)
                      elsif Utils.Match (Addr, Host) then Addr

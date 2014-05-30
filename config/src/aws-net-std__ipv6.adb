@@ -30,7 +30,6 @@
 pragma Ada_2012;
 
 with Ada.Unchecked_Deallocation;
-with Ada.Strings.Fixed;
 
 with AWS.Net.Log;
 with AWS.OS_Lib;
@@ -303,8 +302,7 @@ package body AWS.Net.Std is
                OS_Lib.FreeAddrInfo (Info);
                Raise_Socket_Error
                  (Socket,
-                  Errm & (if Strings.Fixed.Index (Errm, "Connect") = 0
-                          then " on connect" else "") & " to "
+                  Error_On_Connect (Errm)
                   & (if Host = Addr then "" else Host & ' ')
                   & (if Strings.Fixed.Index (Addr, ":") > 0
                      then '[' & Addr & ']' else Addr)
