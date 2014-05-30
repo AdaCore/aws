@@ -41,8 +41,6 @@ procedure ErrCon is
    Unreach_Err : constant String :=
                    '[' & Utils.Image (Natural (OS_Lib.ENETUNREACH)) & ']';
 
-   Host_Not_Found : constant String := "Host not found on connect to";
-
    procedure Print_Error (Message : String);
 
    -----------------
@@ -51,7 +49,6 @@ procedure ErrCon is
 
    procedure Print_Error (Message : String) is
       Text : String := Message;
-      HNF  : constant Natural := Fixed.Index (Text, Host_Not_Found);
    begin
       if Text (Text'Last - 4 .. Text'Last) /= Port_Img then
          Text (Text'Last - 4 .. Text'Last) := Port_Img;
@@ -70,11 +67,6 @@ procedure ErrCon is
          Text_IO.Put_Line
            (Fixed.Replace_Slice
               (Text, Text'First, Unreach_Err'Length, "[UNREACH]"));
-
-      elsif HNF > 0 then
-         Text_IO.Put_Line
-           ("Name or service not known"
-            & Text (HNF + Host_Not_Found'Length .. Text'Last));
 
       else
          Text_IO.Put_Line (Text);
