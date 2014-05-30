@@ -408,8 +408,14 @@ package body AWS.Net.Std is
          Raise_Socket_Error (OS_Lib.Socket_Errno);
 
       elsif Res /= 0 then
-         Raise_Socket_Error
-           (CS.Value (OS_Lib.GAI_StrError (Res)) & ' ' & Host & ':' & A_Serv);
+         declare
+            Errm : constant String := CS.Value (OS_Lib.GAI_StrError (Res));
+         begin
+            Raise_Socket_Error
+              ((if Errm (Errm'Last) = '.'
+                then Errm (Errm'First .. Errm'Last - 1) else Errm)
+               & ' ' & Host & ':' & A_Serv);
+         end;
       end if;
 
       return Result;
