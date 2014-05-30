@@ -1,1 +1,3 @@
 vxworks DEAD
+NT,ipv6 OUT test-nt-ipv6.out
+NT,!ipv6 OUT test-nt-ipv4.out

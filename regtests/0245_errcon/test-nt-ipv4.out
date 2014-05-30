@@ -1,0 +1,4 @@
+[REFUSED] Connection refused to localhost 127.0.0.1:10123
+[REFUSED] Connection refused to 127.0.0.1:10123
+[10049] Cannot assign requested address on connect to 255.255.255.255:10123
+[11004] Valid name, no data record of requested type. This error indicates that the key (name, address, and so on) was not found on connect to no-way.to-have.such-address:10123
