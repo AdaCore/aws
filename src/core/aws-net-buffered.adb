@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2002-2013, AdaCore                     --
+--                     Copyright (C) 2002-2014, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -38,8 +38,7 @@ package body AWS.Net.Buffered is
    CRLF : constant Stream_Element_Array :=
             Translator.To_Stream_Element_Array (ASCII.CR & ASCII.LF);
 
-   Input_Limit : Stream_Element_Offset := AWS.Default.Input_Line_Size_Limit
-     with Atomic;
+   Input_Limit : Positive := AWS.Default.Input_Line_Size_Limit with Atomic;
 
    procedure Read (Socket : Socket_Type'Class);
    --  Refill the read-cache, the cache must be empty before the call
@@ -83,7 +82,7 @@ package body AWS.Net.Buffered is
 
    function Get_Input_Limit return Stream_Element_Offset is
    begin
-      return Input_Limit;
+      return Stream_Element_Offset (Input_Limit);
    end Get_Input_Limit;
 
    --------------
@@ -300,7 +299,7 @@ package body AWS.Net.Buffered is
             if Wait then
                Append (Buffer, C.Buffer (C.First .. C.Last));
 
-               if Size (Buffer) > Input_Limit then
+               if Size (Buffer) > Stream_Element_Offset (Input_Limit) then
                   raise Data_Overflow with
                     "Size" & Stream_Element_Offset'Image (Size (Buffer));
                end if;
@@ -362,7 +361,7 @@ package body AWS.Net.Buffered is
 
    procedure Set_Input_Limit (Limit : Positive) is
    begin
-      Input_Limit := Stream_Element_Offset (Limit);
+      Input_Limit := Limit;
    end Set_Input_Limit;
 
    --------------
