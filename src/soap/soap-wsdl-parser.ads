@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2003-2012, AdaCore                     --
+--                     Copyright (C) 2003-2014, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -116,6 +116,7 @@ private
       Mode            : Parameter_Mode;   -- Current parameter parsing mode
       Params          : All_Parameters;   -- All parameters
       Current_Name    : Unbounded_String; -- Current parameter name
+      Enclosing_Type  : Unbounded_String; -- The enclosing entity type
       Array_Elements  : Unbounded_String; -- Type of the array's elements
       Array_Length    : Natural;          -- Number of items (0 = unbounded)
       Accept_Document : Boolean := False;

@@ -1,0 +1,15 @@
+
+Service ecc
+   gSOAP 2.7.16 generated service definition
+
+Procedure ServerExit SOAPAction:
+   Input
+      [record] parameters ; ServerExit
+         [simple] fieldsToNull ; String
+         [simple] Id ; String
+         [simple] CreatedBy ; String
+   Output
+      [record] parameters ; Response
+         [simple] ErrorCode ; Integer
+         [simple] ErrorMessage ; String
+   > ServerExit

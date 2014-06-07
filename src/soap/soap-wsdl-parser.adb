@@ -636,6 +636,34 @@ package body SOAP.WSDL.Parser is
       if Utils.No_NS (DOM.Core.Nodes.Node_Name (L)) = "complexType" then
          L := XML.First_Child (L);
 
+         --  Empty complexType
+
+         if L = null then
+            return True;
+
+         else
+            if Utils.No_NS (DOM.Core.Nodes.Node_Name (L))
+              = "complexContent"
+            then
+               L := XML.First_Child (L);
+            end if;
+
+            if L = null then
+               raise WSDL_Error with "empty complexContent.";
+
+            elsif Utils.No_NS (DOM.Core.Nodes.Node_Name (L))
+              = "extension"
+            then
+               L := XML.First_Child (L);
+            end if;
+         end if;
+
+         --  Empty extension
+
+         if L = null then
+            return True;
+         end if;
+
          if Utils.No_NS (DOM.Core.Nodes.Node_Name (L)) = "all"
            or else Utils.No_NS (DOM.Core.Nodes.Node_Name (L)) = "sequence"
          then
@@ -872,12 +900,23 @@ package body SOAP.WSDL.Parser is
 
          declare
             Parent : constant DOM.Core.Node := N;
+            ET     : constant String :=
+                       XML.Get_Attr_Value (N, "type", NS => False);
          begin
             if N /= null
               and then DOM.Core.Nodes.Local_Name (N) = "element"
             then
-               --  Move to complexType node
-               N := XML.First_Child (N);
+               if ET = "" then
+                  --  Move to complexType node
+                  N := XML.First_Child (N);
+
+               else
+                  --  Get the corresponding type definition
+
+                  N := Get_Node
+                    (XML.First_Child (DOM.Core.Node (Document)),
+                     "types.schema.complexType", ET);
+               end if;
             end if;
 
             --  Enter complexType node
@@ -887,8 +926,6 @@ package body SOAP.WSDL.Parser is
             if N = null then
                if XML.Get_Attr_Value (Parent, "abstract") = "true" then
                   raise WSDL_Error with "abstract complexType not suported.";
-               else
-                  raise WSDL_Error with "Found an empty complexType.";
                end if;
             end if;
          end;
@@ -1028,6 +1065,11 @@ package body SOAP.WSDL.Parser is
          raise WSDL_Error with "Type anyType is not supported.";
 
       else
+         if P_Type = To_String (O.Enclosing_Type) then
+            raise WSDL_Error with
+              "Recursive WSDL definition " & P_Type & " is not supported.";
+         end if;
+
          declare
             R : DOM.Core.Node :=
                   Get_Node (DOM.Core.Node (Document),
@@ -1266,10 +1308,12 @@ package body SOAP.WSDL.Parser is
       declare
          Name : constant String := XML.Get_Attr_Value (R, "name", False);
       begin
-         --  Set record name, R is a complexType node
+         --  Set record name, R is a complexType or element node
 
          P.Name   := O.Current_Name;
          P.T_Name := +Name;
+
+         O.Self.Enclosing_Type := +Name;
 
          if Utils.No_NS (DOM.Core.Nodes.Node_Name (R)) = "element" then
             --  Skip enclosing element
@@ -1282,14 +1326,73 @@ package body SOAP.WSDL.Parser is
 
          N := XML.First_Child (N);
 
-         --  Get first element
+         --  Check for empty complexType
 
-         N := XML.First_Child (N);
+         if N /= null then
+            --  Get first element, if we have a complexContent, parse
 
-         while N /= null loop
-            Parameters.Append (P.P, Parse_Parameter (O, N, Document));
-            N := XML.Next_Sibling (N);
-         end loop;
+            if Utils.No_NS (DOM.Core.Nodes.Node_Name (N))
+              = "complexContent"
+            then
+               N := XML.First_Child (N);
+
+               --  We have an extension, we need to inline the element
+               --  definition here.
+
+               if N /= null
+                 and then  Utils.No_NS (DOM.Core.Nodes.Node_Name (N))
+                   = "extension"
+               then
+                  declare
+                     Base : constant String :=
+                              XML.Get_Attr_Value (N, "base", False);
+                     CT   : DOM.Core.Node;
+                  begin
+                     --  Get type whose name is Base
+
+                     CT := Get_Node
+                       (XML.First_Child (DOM.Core.Node (Document)),
+                        "types.schema.complexType", Base);
+
+                     --  Move to the sequence
+
+                     CT := XML.First_Child (CT);
+
+                     --  Get all elements
+
+                     declare
+                        NL : constant DOM.Core.Node_List :=
+                               DOM.Core.Nodes.Child_Nodes (CT);
+                     begin
+                        for K in 0 .. DOM.Core.Nodes.Length (NL) - 1 loop
+                           declare
+                              N : constant DOM.Core.Node :=
+                                    DOM.Core.Nodes.Item (NL, K);
+                           begin
+                              if DOM.Core.Nodes.Node_Name (N)
+                                /= "#text"
+                              then
+                                 Parameters.Append
+                                   (P.P, Parse_Parameter (O, N, Document));
+                              end if;
+                           end;
+                        end loop;
+                     end;
+                  end;
+
+                  --  Move past extension node
+
+                  N := XML.First_Child (N);
+               end if;
+            end if;
+
+            N := XML.First_Child (N);
+
+            while N /= null loop
+               Parameters.Append (P.P, Parse_Parameter (O, N, Document));
+               N := XML.Next_Sibling (N);
+            end loop;
+         end if;
 
          return P;
       end;

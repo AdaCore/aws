@@ -1,0 +1,5 @@
+
+Service ecc
+   AWS recurse test
+
+Error: (ServerExit) Recursive WSDL definition ServerExit is not supported.
