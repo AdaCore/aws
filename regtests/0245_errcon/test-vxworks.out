@@ -1,0 +1,3 @@
+[REFUSED] S_errno_ECONNREFUSED on connect to localhost 127.0.0.1:10123
+[REFUSED] S_errno_ECONNREFUSED on connect to 127.0.0.1:10123
+[1] Host not found on connect to no-way.to-have.such-address:10123
