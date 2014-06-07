@@ -69,40 +69,20 @@ codes.
 At this point it is possible to use all constructs up to Ada 2005
 standard.
 
-@noindent
-As the Ada 2012 support on GNAT is maturing, it is possible to use
-some Ada 2012 constructs for AWS development. We list here the
-features that can be used:
-
-@itemize @bullet
-@item New containers
-@item Iterators (on containers and arrays)
-@item Aspect specification (replacing pragmas when possible)
-@item Accessors
-@item Conditional and case expressions
-@item Extendend menbership
-@item use all type
-@item Function with out parameter
-@item Aliased formal parameters
-@item Quantified expressions
-@item Qualified expressions
-@item Subpools
-@end itemize
-
-Constructs that are not ready (or desirable) for use:
+It is also possible to use most of the Ada 2012 standard except the
+following constructs that are not ready (or desirable) for use:
 
 @itemize @bullet
 @item Expression functions in spec
 @end itemize
 
 @noindent
-In addition, the AWS code must be compilable with GNAT 7.2 and GPL 2013.
+In addition, the AWS code must be compilable with GNAT 7.2 and GPL 2014.
 
 @c  -------------------------------------------------------------------------
 @node Lexical Elements
 @chapter Lexical Elements
-@c
--------------------------------------------------------------------------
+@c  -------------------------------------------------------------------------
 
 @menu
 * Character Set and Separators::
@@ -355,6 +335,7 @@ operands with operators:
 * Case statements::
 * Loop statements::
 * Block Statements::
+* Aspects::
 @end menu
 
 @node Simple and Compound Statements
@@ -531,6 +512,122 @@ except when the block_statement is named:
 @end smallexample
 
 @end itemize
+
+@node Aspects
+@section Aspects
+
+If a declaration such as a subprogram spec fits all on one line, and
+with fits at the end of the line, that’s where it goes:
+
+@smallexample
+@b{function}  F (A : Integer) @b{with}
+  Pre => ...;
+
+@b{type} R @b{is range} 1 .. 10 @b{with}
+  Size => 32;
+@end smallexample
+
+as shown, the aspects are indented two spaces as continuations.
+
+if the with won’t fit, or the declaration in any case needs multiple
+lines, put the with on a line of its own (much as we do for is in the
+case of subprogram specifications):
+
+@smallexample
+@b{function} F
+  (R : Integer;
+   S : Integer) @b{return} Integer
+@b{with}
+  Pre =>
+
+@b{type} R @b{is record}
+  X : Integer;
+  Y : Integer;
+@b{with}
+  Alignment => 2;
+@end smallexample
+
+If a Pre or other aspect has complex parts format the entire aspect
+expression without indentation in a separate line as in:
+
+@smallexample
+Pre =>
+  complicated conditional stuff
+  @b{and then} (complicated stuff
+             @b{or else} complicated stuff);
+@end smallexample
+
+When a subprogram has comments and aspects, the main comments may come
+before or after the aspects as in:
+
+@smallexample
+@b{procedure} Swap (Left, Right : @b{in out} Integer) @b{with}
+--  @i{Procedure to swap the two Integers passed as parameters}
+  Inline => True,
+  Post   => Left = Right'Old @b{and then} Right = Left'Old;
+@end smallexample
+
+or:
+
+@smallexample
+@b{procedure} Swap (Left, Right : @b{in out} Integer) @b{with}
+  Inline => True,
+  Post   => Left = Right'Old and then Right = Left'Old;
+--  @i{Procedure to swap the two Integers passed as parameters}
+@end smallexample
+
+But if the aspects are longer than a few lines, they should come after
+the main comments, so that the intent of the subprogram is presented
+before specific behaviors are given by aspects Pre, Post, etc. Here is
+an example from GNAT run-time library:
+
+@smallexample
+@b{procedure} Insert (Thread : Thread_Id) @b{with}
+--  @i{Insert the thread into the ready queue. The thread is always inserted}
+--  @i{at the tail of its active priority because these are the semantics of}
+--  @i{FIFO_Within_Priorities dispatching policy when a task becomes ready to}
+--  @i{execute.}
+--
+--  @i{There is one case in which the ready queue does not change after the}
+--  @i{insertion. It can happen only when there is no ready thread to execute,}
+--  @i{in which case the currently running thread was inserted in the queue}
+--  @i{(keeping its state as non-runnable). If the state of the thread changes}
+--  @i{(after an interrupt), the reinsertion of the thread will not change the}
+--  @i{ready queue.}
+
+  Pre =>
+    Thread /= Null_Thread_Id
+
+      --  @i{Normal insertion}
+
+      @b{and then} (Thread.State = Runnable
+
+                 --  @i{Insertion in the queue of the thread that was executing}
+                 --  @i{before (even when it is no longer runnable) because we}
+                 --  @i{need to have an an execution context for the interrupts}
+                 --  @i{that may arrive.}
+
+                 @b{or else} First_Thread = Null_Thread_Id),
+
+  Post =>
+
+    --  @i{Insertions in the queue when there is no thread ready to execute}
+    --  @i{means that there can be no other ready thread.}
+
+    (@b{if} Thread.State'Old /= Runnable @b{then}
+      First_Thread = Thread
+        @b{and then} Running_Thread = Thread
+        @b{and then} Running_Thread.Next = Null_Thread_Id
+
+     --  @i{Insertions at the tail of its active priority must guarantee that}
+     --  @i{any thread after this one must have a priority which is strictly}
+     --  @i{lower than the one just inserted.}
+
+     @b{else} Thread.Next = Null_Thread_Id
+            @b{or else} Thread.Active_Priority > Thread.Next.Active_Priority),
+
+  Inline => True;
+@end smallexample
 
 @c  -------------------------------------------------------------------------
 @node Subprograms
@@ -731,7 +828,7 @@ alphabetical order.
 @itemize @bullet
 @item
 Every AWS source file must be compiled with the
-"@b{-gnatwcfijmpruv -gnatwe -gnaty3abcefhiklmnoprst}" switches to
+"@b{-gnatwcfijkmRuv -gnatwe -gnaty3abBcefhiIklmnoprstx}" switches to
 check the coding style.
 
 @item
