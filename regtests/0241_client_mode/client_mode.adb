@@ -41,7 +41,7 @@ procedure Client_Mode is
       URI : constant String := Status.URI (Request);
    begin
       if URI = "/file" then
-         return Response.File (MIME.Text_Plain, "test.out");
+         return Response.File (MIME.Text_Plain, "file.txt");
       elsif URI = "/redirect" then
          return Response.URL ("/go/here");
       elsif URI = "/message" then
