@@ -11,7 +11,7 @@ SCA=ca$1.crt
 
 openssl req -x509 -batch -newkey rsa:2048 -nodes -keyout $KCA \
   -subj "$SUBJ/OU=CA-office/CN=test$1-CA-root/emailAddress=ca@adacore.com/" \
-  -out $SCA
+  -days 800 -out $SCA
 
 # Create CA chain
 
