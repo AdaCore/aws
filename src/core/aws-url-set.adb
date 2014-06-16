@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2007-2012, AdaCore                     --
+--                     Copyright (C) 2007-2014, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -309,7 +309,7 @@ package body AWS.URL.Set is
             --              F         I1   I2
             --  (I3 no longer used)
             --
-            --  If TPv6 address in brackets, the I1 should point to the ':'
+            --  If IPv6 address in brackets, the I1 should point to the ':'
             --  character right after ']' (port number) or should be 0 (no port
             --  number specified). For example we want:
             --
