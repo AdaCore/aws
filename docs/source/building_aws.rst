@@ -19,11 +19,10 @@ build `AWS` you need:
   .. index:: GNAT
   .. index:: GNU/Ada
 
-  To build this version you need at least `GNAT GPL 2009 Edition`
-  or `GNAT Pro 6.2` as some Ada 2005 fearures
-  (`Ada.Containers`, interfaces, overriding keyword) are used. The
+  Obviously an Ada compiler is mandatory. Only GNAT is tested, the
   code should be fairly portable but has never been tested on another
-  compiler than `GNAT`.
+  compiler. See INSTALL file distributed with AWS for specific
+  versions supported.
 
 * OpenSSL (**optional**) ;
 
