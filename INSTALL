@@ -22,9 +22,9 @@ the AWS User's Guide.
 This release requires an Ada compiler supporting some Ada 2012 features. It
 is possible to build this release starting with the following compilers:
 
-	GNAT Pro 7.2.1
+        GNAT Pro 7.2.2
 
-	GNAT GPL 2014 Edition
+        GNAT GPL 2014 Edition
 
 To build the documentation in HTML, PDF and plain text formats you need to
 have a working Sphinx package installed on your system.
