@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2000-2013, AdaCore                     --
+--                     Copyright (C) 2000-2014, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -485,7 +485,10 @@ package body AWS.Status.Set is
    begin
       Free (D);
 
+      D.Socket            := null;
+      D.Peername          := Null_Unbounded_String;
       D.Method            := GET;
+      D.Method_String     := Null_Unbounded_String;
       D.Query             := Null_Unbounded_String;
       D.HTTP_Version      := Null_Unbounded_String;
       D.Content_Length    := 0;
@@ -502,6 +505,7 @@ package body AWS.Status.Set is
       D.Session_Id        := AWS.Session.No_Session;
       D.Session_Created   := False;
       D.Session_Timed_Out := False;
+      D.SOAP_Action       := False;
       D.Uploaded          := False;
       D.Monotonic_Time    := Ada.Real_Time.Time_First;
 
