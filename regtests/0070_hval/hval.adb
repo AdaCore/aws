@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2000-2012, AdaCore                     --
+--                     Copyright (C) 2000-2014, AdaCore                     --
 --                                                                          --
 --  This is free software;  you can redistribute it  and/or modify it       --
 --  under terms of the  GNU General Public License as published  by the     --
@@ -35,6 +35,7 @@ procedure HVal is
    Test_5 : constant String := Test_4 & "Token_5; ";
    Test_6 : constant String := Test_5 & "Token_6; ";
    Test_7 : constant String := Test_6 & "name_7=value_7;";
+   Test_8 : constant String := ",name_8=value_8;";
 
    ----------
    -- Test --
@@ -68,9 +69,9 @@ procedure HVal is
       for I in S'Range loop
          if S (I).Named_Value then
             Named_Value
-               (To_String (S (I).Name),
-                To_String (S (I).Value),
-                Dummy);
+              (To_String (S (I).Name),
+               To_String (S (I).Value),
+               Dummy);
          else
             Value (To_String (S (I).Value), Dummy);
          end if;
@@ -93,6 +94,7 @@ begin
    Test (Test_5);
    Test (Test_6);
    Test (Test_7);
+   Test (Test_8);
    Test (Test_1 & Test_2 & Test_3 & Test_4 & Test_5 & Test_6 & Test_7);
    Put_Line (Search (Test_7, "name_1"));
    Put_Line (Search (Test_7, "name_2"));

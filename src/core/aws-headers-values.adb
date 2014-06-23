@@ -35,6 +35,14 @@ with AWS.Utils;
 package body AWS.Headers.Values is
 
    use Ada.Strings;
+   use type Maps.Character_Set;
+
+   EDel : constant Maps.Character_Set := Utils.Spaces or Maps.To_Set (",;");
+   --  Delimiter between name/value pairs in the HTTP header lines.
+   --  In WWW-Authenticate, header delimiter between name="Value" pairs is a
+   --  comma.
+   --  In the Set-Cookie header, value delimiter between name="Value" pairs is
+   --  a semi-colon.
 
    procedure Next_Value
      (Data        : String;
@@ -65,7 +73,7 @@ package body AWS.Headers.Values is
    begin
       First := Fixed.Index
                  (Source => Header_Value,
-                  Set    => Utils.Spaces,
+                  Set    => EDel,
                   Test   => Outside);
 
       if First = 0 then
@@ -138,15 +146,6 @@ package body AWS.Headers.Values is
       Value_First : out Positive;
       Value_Last  : out Natural)
    is
-      use type Maps.Character_Set;
-
-      EDel  : constant Maps.Character_Set := Maps.To_Set (" ,;");
-      --  Delimiter between name/value pairs in the HTTP header lines.
-      --  In WWW-Authenticate, header delimiter between name="Value"
-      --  pairs is a comma.
-      --  In the Set-Cookie header, value delimiter between name="Value"
-      --  pairs is a semi-colon.
-
       NVDel : constant Character := '=';
       --  Delimiter between name and Value for a named value
 
@@ -258,7 +257,7 @@ package body AWS.Headers.Values is
 
       First := Fixed.Index
                  (Source => Header_Value,
-                  Set    => Utils.Spaces,
+                  Set    => EDel,
                   Test   => Outside);
 
       if First = 0 then
@@ -310,7 +309,7 @@ package body AWS.Headers.Values is
    begin
       First := Fixed.Index
                  (Source => Header_Value,
-                  Set    => Utils.Spaces,
+                  Set    => EDel,
                   Test   => Outside);
 
       if First = 0 then
@@ -416,7 +415,7 @@ package body AWS.Headers.Values is
    begin
       First := Fixed.Index
         (Source => Header_Value,
-         Set    => Utils.Spaces,
+         Set    => EDel,
          Test   => Outside);
 
       return To_Set;
@@ -443,7 +442,7 @@ package body AWS.Headers.Values is
    begin
       First := Fixed.Index
                  (Source => Header_Value,
-                  Set    => Utils.Spaces,
+                  Set    => EDel,
                   Test   => Outside);
 
       if First = 0 then
