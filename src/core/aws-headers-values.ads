@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2002-2012, AdaCore                     --
+--                     Copyright (C) 2002-2014, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -61,9 +61,7 @@ package AWS.Headers.Values is
 
    generic
 
-      with procedure Value
-        (Item : String;
-         Quit : in out Boolean);
+      with procedure Value (Item : String; Quit : in out Boolean);
       --  Called for every un-named value read from the header value
 
       with procedure Named_Value
@@ -104,8 +102,7 @@ package AWS.Headers.Values is
    --  found. If Case_Sensitive is False the search is case insensitive.
 
    function Get_Unnamed_Value
-     (Header_Value : String;
-      N            : Positive := 1) return String;
+     (Header_Value : String; N : Positive := 1) return String;
    --  Returns N-th un-named value from Header_Value
 
    function Unnamed_Value_Exists

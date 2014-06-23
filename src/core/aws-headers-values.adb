@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2002-2012, AdaCore                     --
+--                     Copyright (C) 2002-2014, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -37,12 +37,12 @@ package body AWS.Headers.Values is
    use Ada.Strings;
 
    procedure Next_Value
-      (Data        : String;
-       First       : in out Natural;
-       Name_First  : out Positive;
-       Name_Last   : out Natural;
-       Value_First : out Positive;
-       Value_Last  : out Natural);
+     (Data        : String;
+      First       : in out Natural;
+      Name_First  : out Positive;
+      Name_Last   : out Natural;
+      Value_First : out Positive;
+      Value_Last  : out Natural);
    --  Returns the next named or un-named value from Data. It start the search
    --  from First index. Returns First = 0 if it has reached the end of
    --  Data. Returns Name_Last = 0 if an un-named value has been found.
@@ -52,8 +52,7 @@ package body AWS.Headers.Values is
    -----------------------
 
    function Get_Unnamed_Value
-     (Header_Value : String;
-      N            : Positive := 1) return String
+     (Header_Value : String; N : Positive := 1) return String
    is
       First       : Natural;
       Name_First  : Positive;
@@ -65,9 +64,9 @@ package body AWS.Headers.Values is
 
    begin
       First := Fixed.Index
-        (Source => Header_Value,
-         Set    => Utils.Spaces,
-         Test   => Outside);
+                 (Source => Header_Value,
+                  Set    => Utils.Spaces,
+                  Test   => Outside);
 
       if First = 0 then
          --  Value is empty or contains only spaces
@@ -258,9 +257,9 @@ package body AWS.Headers.Values is
       --  Ignore the leading spaces
 
       First := Fixed.Index
-        (Source => Header_Value,
-         Set    => Utils.Spaces,
-         Test   => Outside);
+                 (Source => Header_Value,
+                  Set    => Utils.Spaces,
+                  Test   => Outside);
 
       if First = 0 then
          --  Value is empty or contains only spaces
@@ -281,13 +280,10 @@ package body AWS.Headers.Values is
                Header_Value (Value_First .. Value_Last),
                Quit);
          else
-            Value
-              (Header_Value (Value_First .. Value_Last),
-               Quit);
+            Value (Header_Value (Value_First .. Value_Last), Quit);
          end if;
 
          exit when Quit or else First = 0;
-
       end loop;
    end Parse;
 
@@ -313,9 +309,9 @@ package body AWS.Headers.Values is
 
    begin
       First := Fixed.Index
-        (Source => Header_Value,
-         Set    => Utils.Spaces,
-         Test   => Outside);
+                 (Source => Header_Value,
+                  Set    => Utils.Spaces,
+                  Test   => Outside);
 
       if First = 0 then
          --  Value is empty or contains only spaces
@@ -446,9 +442,9 @@ package body AWS.Headers.Values is
 
    begin
       First := Fixed.Index
-        (Source => Header_Value,
-         Set    => Utils.Spaces,
-         Test   => Outside);
+                 (Source => Header_Value,
+                  Set    => Utils.Spaces,
+                  Test   => Outside);
 
       if First = 0 then
          --  Value is empty or contains only spaces
