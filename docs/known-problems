@@ -1,5 +1,11 @@
 Known Problems fixed in AWS 3.2
 
+- N624-001: AWS won't build on Darwin with OpenSSL
+  Problem: The link will not succeed because the OpenSSL thin binding does
+           not allow for symbols decoration as using Link_Name in the
+           import aspects.
+  Workaround: Change all Link_Name by External_Name in OpenSSL thin binding.
+
 - N607-007: AWS wsdl2aws crashes with WSDL recursive definitions
   Problem: A WSDL schema can describe recursive definitions. The AWS
            wsdl2aws crashes when parsing such definitions. Instead of

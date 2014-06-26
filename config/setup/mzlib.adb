@@ -23,7 +23,7 @@ procedure Mzlib is
    use Ada;
 
    function zlibVersion return Interfaces.C.Strings.chars_ptr
-     with Import, Convention => C, Link_Name => "zlibVersion";
+     with Import, Convention => C, External_Name => "zlibVersion";
 
    Min : constant String := "1.2.1";
    Ver : constant String := Interfaces.C.Strings.Value (zlibVersion);

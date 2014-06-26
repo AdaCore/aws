@@ -1552,7 +1552,7 @@ package SSL.Thin is
    --------------------------------------------------------------------
 
    function SSLeay (Dummy : C.int := 0) return C.int
-     with Import, Convention => C, Link_Name => "gnutls_check_version";
+     with Import, Convention => C, External_Name => "gnutls_check_version";
 
    subtype SSL_Handle is gnutls_session_t;
 
