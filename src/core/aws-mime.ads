@@ -82,6 +82,7 @@ package AWS.MIME is
    Application_Rtf             : constant String := "application/rtf";
    Application_XML             : constant String := "application/xml";
    Application_JSON            : constant String := "application/json";
+   Application_SOAP            : constant String := "application/soap";
    Application_X_Compress      : constant String := "application/x-compress";
    Application_X_GTar          : constant String := "application/x-gtar";
    Application_X_GZip          : constant String := "application/x-gzip";
