@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2000-2013, AdaCore                     --
+--                     Copyright (C) 2000-2014, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -192,8 +192,32 @@ package body AWS.Status is
    begin
       Reset_Body_Index (D);
       Read_Body (D, Result, Last);
-
       return Result;
+   end Binary_Data;
+
+   function Binary_Data (D : Data) return Unbounded_String is
+   begin
+      if D.Binary_Data = null then
+         return Null_Unbounded_String;
+
+      else
+         declare
+            Chunk_Size : constant := 10000;
+            Size       : constant Stream_Element_Offset :=
+                           Containers.Memory_Streams.Size (D.Binary_Data.all);
+            Chunk      : Stream_Element_Array (1 .. Chunk_Size);
+            Last       : Stream_Element_Offset;
+            Result     : Unbounded_String;
+         begin
+            Reset_Body_Index (D);
+            loop
+               Read_Body (D, Chunk, Last);
+               Append (Result, Translator.To_String (Chunk (1 .. Last)));
+               exit when Length (Result) = Integer (Size);
+            end loop;
+            return Result;
+         end;
+      end if;
    end Binary_Data;
 
    -----------------
@@ -566,6 +590,15 @@ package body AWS.Status is
          return Translator.To_String (Binary_Data (D));
       else
          return "";
+      end if;
+   end Payload;
+
+   function Payload (D : Data) return Unbounded_String is
+   begin
+      if D.SOAP_Action then
+         return Binary_Data (D);
+      else
+         return Null_Unbounded_String;
       end if;
    end Payload;
 

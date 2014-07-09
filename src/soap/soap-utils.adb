@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2000-2013, AdaCore                     --
+--                     Copyright (C) 2000-2014, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -67,11 +67,16 @@ package body SOAP.Utils is
    -- Encode --
    ------------
 
-   function Encode (Str : String) return String is
-      Result : Unbounded_String;
+   procedure Encode
+     (S      : Unbounded_String;
+      Result : in out Unbounded_String)
+   is
+      Ch : Character;
    begin
-      for K in Str'Range loop
-         case Str (K) is
+      for K in 1 .. Length (S) loop
+         Ch := Element (S, K);
+
+         case Ch is
             when '<'    => Append (Result, "&lt;");
             when '>'    => Append (Result, "&gt;");
             when '&'    => Append (Result, "&amp;");
@@ -79,13 +84,17 @@ package body SOAP.Utils is
             when '"'    => Append (Result, "&quot;");
             when Character'Val (0) .. Character'Val (31) =>
                Append (Result, "&#");
-               Append
-                 (Result, AWS.Utils.Image (Natural (Character'Pos (Str (K)))));
+               Append (Result, AWS.Utils.Image (Natural (Character'Pos (Ch))));
                Append (Result, ';');
-            when others => Append (Result, Str (K));
+            when others => Append (Result, Ch);
          end case;
       end loop;
+   end Encode;
 
+   function Encode (Str : String) return String is
+      Result : Unbounded_String;
+   begin
+      Encode (To_Unbounded_String (Str), Result);
       return To_String (Result);
    end Encode;
 
@@ -370,9 +379,10 @@ package body SOAP.Utils is
    begin
       if SOAPAction /= No_SOAPAction then
          declare
-            Payload : constant Message.Payload.Object :=
-                        Message.XML.Load_Payload
-                          (AWS.Status.Payload (Request));
+            Payload_Data : constant Unbounded_String :=
+                             AWS.Status.Payload (Request);
+            Payload      : constant Message.Payload.Object :=
+                             Message.XML.Load_Payload (Payload_Data);
          begin
             return SOAP_CB (SOAPAction, Payload, Request);
          end;

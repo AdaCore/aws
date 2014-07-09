@@ -28,15 +28,18 @@
 ------------------------------------------------------------------------------
 
 with Ada.Streams;
+with Ada.Strings.Unbounded;
 
 with AWS.Messages;
 with AWS.Response;
 with AWS.URL;
 
-with SOAP.Message.XML;
 with SOAP.Message.Response.Error;
+with SOAP.Message.XML;
 
 package body SOAP.Client is
+
+   use Ada.Strings.Unbounded;
 
    ----------
    -- Call --
@@ -118,10 +121,16 @@ package body SOAP.Client is
       end SOAP_Action;
 
       Response : AWS.Response.Data;
-
+      XML_Data : constant Unbounded_String := SOAP.Message.XML.Image (P);
+      XML_Str  : String_Access := new String (1 .. Length (XML_Data));
    begin
+      for I in 1 .. Length (XML_Data) loop
+         XML_Str (I) := Element (XML_Data, I);
+      end loop;
+
       AWS.Client.SOAP_Post
-        (Connection, Response, SOAP_Action, SOAP.Message.XML.Image (P), True);
+        (Connection, Response, SOAP_Action, XML_Str.all, True);
+      Free (XML_Str);
 
       --  Valid responses code included S500 which is the code returned for
       --  SOAP fault-messages.
@@ -154,6 +163,11 @@ package body SOAP.Client is
                  (AWS.Response.Status_Code (Response))),
             Faultstring => AWS.Response.Message_Body (Response));
       end if;
+
+   exception
+      when others =>
+         Free (XML_Str);
+         raise;
    end Call;
 
 end SOAP.Client;

@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2000-2013, AdaCore                     --
+--                     Copyright (C) 2000-2014, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -47,6 +47,8 @@ package SOAP.Utils is
 
    function Encode (Str : String) return String;
    --  Encode XML entities and return the resulting string
+   procedure Encode (S : Unbounded_String; Result : in out Unbounded_String);
+   --  Same as function, but append to Result
 
    function NS (Name : String) return String;
    --  Returns the namespace for Name, string prefix separated with a ':'

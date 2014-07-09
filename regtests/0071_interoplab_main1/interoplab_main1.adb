@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2003-2012, AdaCore                     --
+--                     Copyright (C) 2003-2014, AdaCore                     --
 --                                                                          --
 --  This is free software;  you can redistribute it  and/or modify it       --
 --  under terms of the  GNU General Public License as published  by the     --
@@ -28,8 +28,8 @@ with AWS.Response;
 with AWS.Server;
 with AWS.Status;
 with AWS.Translator;
-with SOAP.Message.XML;
 with SOAP.Message.Payload;
+with SOAP.Message.XML;
 
 with Tinteroplab.Client;
 with Tinteroplab.Server;
@@ -38,10 +38,10 @@ with Tinteroplab.Types;
 procedure Interoplab_Main1 is
 
    use Ada;
+   use Ada.Strings.Unbounded;
    use AWS;
 
    use Tinteroplab.Types;
-   use Ada.Strings.Unbounded;
 
    H_Server : Server.HTTP;
 
@@ -289,10 +289,6 @@ procedure Interoplab_Main1 is
    procedure T_echoStruct is
       Struct : constant SOAPStruct_Type
         := (6, 6.6, +"666");
-
-      pragma Warnings (Off);
-      --  Suppress a wrong warnings issued by GNAT, this is fixed in
-      --  GNAT 3.17
       Res : constant echoStruct_Result
         := TinteropLab.Client.echoStruct (Struct);
    begin
@@ -435,8 +431,9 @@ procedure Interoplab_Main1 is
 
    function CB (Request : Status.Data) return Response.Data is
       SOAPAction : constant String := Status.SOAPAction (Request);
+      P_Str      : aliased constant String := AWS.Status.Payload (Request);
       Payload    : constant SOAP.Message.Payload.Object
-        := SOAP.Message.XML.Load_Payload (AWS.Status.Payload (Request));
+        := SOAP.Message.XML.Load_Payload (P_Str);
    begin
       if SOAPAction = "http://t_soapinterop.org/#echoString" then
          return echoString_CB (SOAPAction, Payload, Request);

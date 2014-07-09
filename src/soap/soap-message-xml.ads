@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2000-2012, AdaCore                     --
+--                     Copyright (C) 2000-2014, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -27,6 +27,8 @@
 --  covered by the  GNU Public License.                                     --
 ------------------------------------------------------------------------------
 
+pragma Ada_2012;
+
 with AWS.Client;
 
 with SOAP.Message.Payload;
@@ -36,7 +38,11 @@ package SOAP.Message.XML is
 
    SOAP_Error : exception renames SOAP.SOAP_Error;
 
-   function Load_Payload (XML : String) return Message.Payload.Object;
+   function Load_Payload (XML : aliased String) return Message.Payload.Object;
+   --  Build a Payload object by parsing the XML payload string
+
+   function Load_Payload
+     (XML : Unbounded_String) return Message.Payload.Object;
    --  Build a Payload object by parsing the XML payload string
 
    function Load_Response
@@ -46,7 +52,7 @@ package SOAP.Message.XML is
    --  response) by parsing the HTTP client connection output.
 
    function Load_Response
-     (XML : String) return Message.Response.Object'Class;
+     (XML : aliased String) return Message.Response.Object'Class;
    --  Build a Response object (either a standard response or an error
    --  response) by parsing the XML response string.
 

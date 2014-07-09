@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2002-2012, AdaCore                     --
+--                     Copyright (C) 2002-2014, AdaCore                     --
 --                                                                          --
 --  This is free software;  you can redistribute it  and/or modify it       --
 --  under terms of the  GNU General Public License as published  by the     --
@@ -16,13 +16,14 @@
 --  to http://www.gnu.org/licenses for a complete copy of the license.      --
 ------------------------------------------------------------------------------
 
-with Ada.Text_IO;      use Ada.Text_IO;
 with Ada.Calendar;     use Ada.Calendar;
-with SOAP.Types;       use SOAP.Types;
-with SOAP.Parameters;  use SOAP.Parameters;
+with Ada.Text_IO;      use Ada.Text_IO;
+
 with SOAP.Message;
 with SOAP.Message.Payload;
 with SOAP.Message.XML;
+with SOAP.Parameters;  use SOAP.Parameters;
+with SOAP.Types;       use SOAP.Types;
 
 procedure SOAP2 is
 
@@ -39,7 +40,7 @@ procedure SOAP2 is
 
    Parms    : List := SOAP.Message.Parameters (Payload);
    Obj      : Object'Class := Argument (Parms, "my_record_out");
-   Img      : String := SOAP.Message.XML.Image (Payload);
+   Img      : aliased String := SOAP.Message.XML.Image (Payload);
    Payload2 : SOAP.Message.Payload.Object'Class
      := SOAP.Message.XML.Load_Payload (Img);
 
