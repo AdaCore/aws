@@ -34,8 +34,8 @@ with AWS.Messages;
 with AWS.Response;
 with AWS.URL;
 
-with SOAP.Message.XML;
 with SOAP.Message.Response.Error;
+with SOAP.Message.XML;
 
 package body SOAP.Client is
 

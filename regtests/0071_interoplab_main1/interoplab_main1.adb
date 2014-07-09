@@ -28,8 +28,8 @@ with AWS.Response;
 with AWS.Server;
 with AWS.Status;
 with AWS.Translator;
-with SOAP.Message.XML;
 with SOAP.Message.Payload;
+with SOAP.Message.XML;
 
 with Tinteroplab.Client;
 with Tinteroplab.Server;
@@ -38,10 +38,10 @@ with Tinteroplab.Types;
 procedure Interoplab_Main1 is
 
    use Ada;
+   use Ada.Strings.Unbounded;
    use AWS;
 
    use Tinteroplab.Types;
-   use Ada.Strings.Unbounded;
 
    H_Server : Server.HTTP;
 
@@ -289,10 +289,6 @@ procedure Interoplab_Main1 is
    procedure T_echoStruct is
       Struct : constant SOAPStruct_Type
         := (6, 6.6, +"666");
-
-      pragma Warnings (Off);
-      --  Suppress a wrong warnings issued by GNAT, this is fixed in
-      --  GNAT 3.17
       Res : constant echoStruct_Result
         := TinteropLab.Client.echoStruct (Struct);
    begin
