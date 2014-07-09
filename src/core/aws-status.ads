@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2000-2013, AdaCore                     --
+--                     Copyright (C) 2000-2014, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -48,6 +48,8 @@ with AWS.Session;
 with AWS.URL;
 
 package AWS.Status is
+
+   use Ada.Strings.Unbounded;
 
    type Data is private;
 
@@ -207,6 +209,10 @@ package AWS.Status is
    --  Returns the binary data message content.
    --  Note that only the root part of a multipart/related message is returned.
 
+   function Binary_Data (D : Data) return Unbounded_String;
+   --  Returns the binary data message content in a Unbounded_String
+   --  Note that only the root part of a multipart/related message is returned.
+
    function Binary_Size (D : Data) return Stream_Element_Offset with Inline;
    --  Returns size of the binary data message content
 
@@ -263,6 +269,10 @@ package AWS.Status is
    --  support SOAP over HTTP protocol.
 
    function Payload    (D : Data) return String with Inline;
+   --  Returns the XML Payload message. XML payload is the actual SOAP
+   --  request. This is the root part of multipart/related SOAP message.
+
+   function Payload (D : Data) return Unbounded_String;
    --  Returns the XML Payload message. XML payload is the actual SOAP
    --  request. This is the root part of multipart/related SOAP message.
 
@@ -331,8 +341,6 @@ package AWS.Status is
    --  This method can be used to avoid sending a password over the network.
 
 private
-
-   use Ada.Strings.Unbounded;
 
    type Memory_Stream_Access is access Containers.Memory_Streams.Stream_Type;
 

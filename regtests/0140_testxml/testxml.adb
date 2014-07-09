@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2000-2012, AdaCore                     --
+--                     Copyright (C) 2000-2014, AdaCore                     --
 --                                                                          --
 --  This is free software;  you can redistribute it  and/or modify it       --
 --  under terms of the  GNU General Public License as published  by the     --
@@ -43,7 +43,7 @@ procedure TestXML is
 
    Payload : SOAP.Message.Payload.Object'Class :=
       SOAP.Message.Payload.Build ("Test", Parm);
-   Pimg : String := Image (Payload);
+   Pimg : aliased constant String := Image (Payload);
 
 begin
    Ada.Text_IO.Put_Line ("Pimg : " & Pimg);

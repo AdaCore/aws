@@ -395,15 +395,14 @@ package body SOAP.Message.XML is
    -- Load_Payload --
    ------------------
 
-   function Load_Payload (XML : String) return Message.Payload.Object is
+   function Load_Payload
+     (XML : aliased String) return Message.Payload.Object
+   is
       use Input_Sources.Strings;
-
-      Str    : aliased String := XML;
       Source : String_Input;
       S      : State;
-
    begin
-      Open (Str'Unchecked_Access,
+      Open (XML'Unchecked_Access,
             Unicode.CES.Utf8.Utf8_Encoding,
             Source);
 
@@ -412,6 +411,26 @@ package body SOAP.Message.XML is
 
       return Message.Payload.Build
         (To_String (S.Wrapper_Name), S.Parameters, S.Name_Space);
+   end Load_Payload;
+
+   function Load_Payload
+     (XML : Unbounded_String) return Message.Payload.Object
+   is
+      XML_Str : String_Access := new String (1 .. Length (XML));
+   begin
+      for I in 1 .. Length (XML) loop
+         XML_Str (I) := Element (XML, I);
+      end loop;
+
+      return O : constant Message.Payload.Object :=
+                   Load_Payload (XML_Str.all)
+      do
+         Free (XML_Str);
+      end return;
+   exception
+      when others =>
+         Free (XML_Str);
+         raise;
    end Load_Payload;
 
    -------------------
@@ -453,7 +472,7 @@ package body SOAP.Message.XML is
    end Load_Response;
 
    function Load_Response
-     (XML : String) return Message.Response.Object'Class
+     (XML : aliased String) return Message.Response.Object'Class
    is
       use Input_Sources.Strings;
 
@@ -461,7 +480,7 @@ package body SOAP.Message.XML is
       S      : State;
 
    begin
-      Open (XML'Unrestricted_Access,
+      Open (XML'Unchecked_Access,
             Unicode.CES.Utf8.Utf8_Encoding,
             Source);
 

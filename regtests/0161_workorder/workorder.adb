@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2008-2012, AdaCore                     --
+--                     Copyright (C) 2008-2014, AdaCore                     --
 --                                                                          --
 --  This is free software;  you can redistribute it  and/or modify it       --
 --  under terms of the  GNU General Public License as published  by the     --
@@ -69,7 +69,7 @@ procedure Workorder is
 
    Parms    : List := SOAP.Message.Parameters (Payload);
    Obj      : Object'Class := Argument (Parms, Soap_Wo);
-   Img      : String := SOAP.Message.XML.Image (Payload);
+   Img      : aliased constant String := SOAP.Message.XML.Image (Payload);
    Payload2 : SOAP.Message.Payload.Object'Class
      := SOAP.Message.XML.Load_Payload (Img);
 

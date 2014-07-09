@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2003-2012, AdaCore                     --
+--                     Copyright (C) 2003-2014, AdaCore                     --
 --                                                                          --
 --  This is free software;  you can redistribute it  and/or modify it       --
 --  under terms of the  GNU General Public License as published  by the     --
@@ -435,8 +435,9 @@ procedure Interoplab_Main1 is
 
    function CB (Request : Status.Data) return Response.Data is
       SOAPAction : constant String := Status.SOAPAction (Request);
+      P_Str      : aliased constant String := AWS.Status.Payload (Request);
       Payload    : constant SOAP.Message.Payload.Object
-        := SOAP.Message.XML.Load_Payload (AWS.Status.Payload (Request));
+        := SOAP.Message.XML.Load_Payload (P_Str);
    begin
       if SOAPAction = "http://t_soapinterop.org/#echoString" then
          return echoString_CB (SOAPAction, Payload, Request);

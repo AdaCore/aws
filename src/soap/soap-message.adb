@@ -165,10 +165,8 @@ package body SOAP.Message is
       begin
          for K in 1 .. SOAP.Parameters.Argument_Count (P) loop
             Add_Namespaces (SOAP.Parameters.Argument (P, K));
-
-            Append
-              (Message_Body,
-               Types.XML_Image (SOAP.Parameters.Argument (P, K)) & New_Line);
+            Types.XML_Image (SOAP.Parameters.Argument (P, K), Message_Body);
+            Append (Message_Body, New_Line);
          end loop;
       end;
 

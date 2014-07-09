@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2008-2013, AdaCore                     --
+--                     Copyright (C) 2008-2014, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -40,7 +40,7 @@ begin
    Insert (Tr, Assoc ("AUTH_MODE",
                      Authorization_Type'Image (Status.Auth_Mode)));
    Insert (Tr, Assoc ("SOAP_ACTION",  Status.SOAP_Action));
-   Insert (Tr, Assoc ("PAYLOAD",      AWS.Status.Payload (Status)));
+   Insert (Tr, Assoc ("PAYLOAD",      String'(AWS.Status.Payload (Status))));
 
    return Tr;
 end AWS.Status.Translate_Set;

@@ -1171,108 +1171,144 @@ package body SOAP.Types is
    -- XML_Image --
    ---------------
 
-   function XML_Image (O : Object) return String is
+   procedure XML_Image
+     (O      : Object;
+      Result : in out Unbounded_String)
+   is
       Indent : constant Natural      := XML_Indent.Value;
       OC     : constant Object'Class := Object'Class (O);
    begin
       if OC in XSD_String then
-         return Spaces (Indent)
-           & "<" & Name (OC) & xsi_type (XML_Type (OC)) & '>'
-           & Utils.Encode (Image (OC))
-           & "</" & Name (OC) & '>';
+         Append (Result, Spaces (Indent));
+         Append (Result, "<");
+         Append (Result, Name (OC));
+         Append (Result, xsi_type (XML_Type (OC)));
+         Append (Result, '>');
+         Utils.Encode (XSD_String (OC).V, Result);
+         Append (Result, "</");
+         Append (Result, Name (OC));
+         Append (Result, '>');
       else
-         return Spaces (Indent)
-           & "<" & Name (OC) & xsi_type (XML_Type (OC)) & '>'
-           & Image (OC)
-           & "</" & Name (OC) & '>';
+         Append (Result, Spaces (Indent));
+         Append (Result, "<");
+         Append (Result, Name (OC));
+         Append (Result, xsi_type (XML_Type (OC)));
+         Append (Result, '>');
+         Append (Result, Image (OC));
+         Append (Result, "</");
+         Append (Result, Name (OC));
+         Append (Result, '>');
       end if;
    end XML_Image;
 
-   overriding function XML_Image (O : XSD_Any_Type) return String is
+   overriding procedure XML_Image
+     (O : XSD_Any_Type; Result : in out Unbounded_String) is
    begin
-      return XML_Image (Object (O.O.O.all));
+      XML_Image (Object (O.O.O.all), Result);
    end XML_Image;
 
-   overriding function XML_Image (O : XSD_Long) return String is
+   overriding procedure XML_Image
+     (O : XSD_Long; Result : in out Unbounded_String) is
    begin
-      return XML_Image (Object (O));
+      XML_Image (Object (O), Result);
    end XML_Image;
 
-   overriding function XML_Image (O : XSD_Integer) return String is
+   overriding procedure XML_Image
+     (O : XSD_Integer; Result : in out Unbounded_String) is
    begin
-      return XML_Image (Object (O));
+      XML_Image (Object (O), Result);
    end XML_Image;
 
-   overriding function XML_Image (O : XSD_Short) return String is
+   overriding procedure XML_Image
+     (O : XSD_Short; Result : in out Unbounded_String) is
    begin
-      return XML_Image (Object (O));
+      XML_Image (Object (O), Result);
    end XML_Image;
 
-   overriding function XML_Image (O : XSD_Byte) return String is
+   overriding procedure XML_Image
+     (O : XSD_Byte; Result : in out Unbounded_String) is
    begin
-      return XML_Image (Object (O));
+      XML_Image (Object (O), Result);
    end XML_Image;
 
-   overriding function XML_Image (O : XSD_Float) return String is
+   overriding procedure XML_Image
+     (O : XSD_Float; Result : in out Unbounded_String) is
    begin
-      return XML_Image (Object (O));
+      XML_Image (Object (O), Result);
    end XML_Image;
 
-   overriding function XML_Image (O : XSD_Double) return String is
+   overriding procedure XML_Image
+     (O : XSD_Double; Result : in out Unbounded_String) is
    begin
-      return XML_Image (Object (O));
+      XML_Image (Object (O), Result);
    end XML_Image;
 
-   overriding function XML_Image (O : XSD_String) return String is
+   overriding procedure XML_Image
+     (O : XSD_String; Result : in out Unbounded_String) is
    begin
-      return XML_Image (Object (O));
+      XML_Image (Object (O), Result);
    end XML_Image;
 
-   overriding function XML_Image (O : XSD_Boolean) return String is
+   overriding procedure XML_Image
+     (O : XSD_Boolean; Result : in out Unbounded_String) is
    begin
-      return XML_Image (Object (O));
+      XML_Image (Object (O), Result);
    end XML_Image;
 
-   overriding function XML_Image (O : XSD_Time_Instant) return String is
+   overriding procedure XML_Image
+     (O : XSD_Time_Instant; Result : in out Unbounded_String) is
    begin
-      return XML_Image (Object (O));
+      XML_Image (Object (O), Result);
    end XML_Image;
 
-   overriding function XML_Image (O : XSD_Unsigned_Long) return String is
+   overriding procedure XML_Image
+     (O : XSD_Unsigned_Long; Result : in out Unbounded_String) is
    begin
-      return XML_Image (Object (O));
+      XML_Image (Object (O), Result);
    end XML_Image;
 
-   overriding function XML_Image (O : XSD_Unsigned_Int) return String is
+   overriding procedure XML_Image
+     (O : XSD_Unsigned_Int; Result : in out Unbounded_String) is
    begin
-      return XML_Image (Object (O));
+      XML_Image (Object (O), Result);
    end XML_Image;
 
-   overriding function XML_Image (O : XSD_Unsigned_Short) return String is
+   overriding procedure XML_Image
+     (O : XSD_Unsigned_Short; Result : in out Unbounded_String) is
    begin
-      return XML_Image (Object (O));
+      XML_Image (Object (O), Result);
    end XML_Image;
 
-   overriding function XML_Image (O : XSD_Unsigned_Byte) return String is
+   overriding procedure XML_Image
+     (O : XSD_Unsigned_Byte; Result : in out Unbounded_String) is
    begin
-      return XML_Image (Object (O));
+      XML_Image (Object (O), Result);
    end XML_Image;
 
-   overriding function XML_Image (O : XSD_Null) return String is
+   overriding procedure XML_Image
+     (O : XSD_Null; Result : in out Unbounded_String)
+   is
       Indent : constant Natural := XML_Indent.Value;
       OC     : constant Object'Class := Object'Class (O);
    begin
-      return Spaces (Indent) & "<" & Name (OC) & " xsi_null=""1""/>";
+      Append (Result, Spaces (Indent));
+      Append (Result, "<");
+      Append (Result, Name (OC));
+      Append (Result, " xsi_null=""1""/>");
    end XML_Image;
 
-   overriding function XML_Image (O : SOAP_Base64) return String is
+   overriding procedure XML_Image
+    (O : SOAP_Base64; Result : in out Unbounded_String) is
    begin
-      return XML_Image (Object (O));
+      XML_Image (Object (O), Result);
    end XML_Image;
 
    New_Line : constant String := ASCII.CR & ASCII.LF;
 
-   overriding function XML_Image (O : SOAP_Array) return String is
+   overriding procedure XML_Image
+     (O      : SOAP_Array;
+      Result : in out Unbounded_String)
+   is
 
       Indent : constant Natural := XML_Indent.Value;
 
@@ -1356,7 +1392,6 @@ package body SOAP.Types is
          return XML_Type (O.O (O.O'First).O.all);
       end Array_Type;
 
-      Result : Unbounded_String;
    begin
       --  Open array element
 
@@ -1377,7 +1412,7 @@ package body SOAP.Types is
       XML_Indent.Set_Value (Indent + 1);
 
       for K in O.O'Range loop
-         Append (Result, XML_Image (O.O (K).O.all));
+         XML_Image (O.O (K).O.all, Result);
          Append (Result, New_Line);
       end loop;
 
@@ -1387,13 +1422,13 @@ package body SOAP.Types is
 
       Append (Result, Spaces (Indent));
       Append (Result, Utils.Tag (To_String (O.Name), Start => False));
-
-      return To_String (Result);
    end XML_Image;
 
-   overriding function XML_Image (O : SOAP_Record) return String is
+   overriding procedure XML_Image
+     (O      : SOAP_Record;
+      Result : in out Unbounded_String)
+   is
       Indent : constant Natural := XML_Indent.Value;
-      Result : Unbounded_String;
    begin
       Append (Result, Spaces (Indent));
 
@@ -1413,7 +1448,7 @@ package body SOAP.Types is
       XML_Indent.Set_Value (Indent + 1);
 
       for K in O.O'Range loop
-         Append (Result, XML_Image (O.O (K).O.all));
+         XML_Image (O.O (K).O.all, Result);
          Append (Result, New_Line);
       end loop;
 
@@ -1421,16 +1456,26 @@ package body SOAP.Types is
 
       Append (Result, Spaces (Indent));
       Append (Result, Utils.Tag (Name (O), Start => False));
-
-      return To_String (Result);
    end XML_Image;
 
-   overriding function XML_Image (O : SOAP_Enumeration) return String is
+   overriding procedure XML_Image
+     (O : SOAP_Enumeration; Result : in out Unbounded_String) is
    begin
-      return Spaces (XML_Indent.Value) & "<" & Name (O)
-        & " type=""" & To_String (O.Type_Name) & """>"
-        & To_String (O.V)
-        & Utils.Tag (Name (O), Start => False);
+      Append (Result, Spaces (XML_Indent.Value));
+      Append (Result, "<");
+      Append (Result, Name (O));
+      Append (Result, " type=""");
+      Append (Result, O.Type_Name);
+      Append (Result, """>");
+      Append (Result, O.V);
+      Append (Result, Utils.Tag (Name (O), Start => False));
+   end XML_Image;
+
+   function XML_Image (O : Object'Class) return String is
+      Result : Unbounded_String;
+   begin
+      XML_Image (O, Result);
+      return To_String (Result);
    end XML_Image;
 
    --------------

@@ -66,6 +66,9 @@ implementations.
    There is nothing to do if AWS is installed together with the compiler as
    gnatmake and gprbuild will look for projects files into this new location.
 
+   SOAP.Message.XML.Load_Payload has now two versions one with a
+   String and one with an Unbounded_String. This can introduce some
+   incompatibilities and could require a type qualification.
 
 Obsolescent features
 --------------------
@@ -179,4 +182,3 @@ Jerme Roussel, Ariane Sinibardy, Henrik Sundberg.
 
 
 Thanks to all who have reported bugs and have sent us patches.
-

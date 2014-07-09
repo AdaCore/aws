@@ -143,9 +143,9 @@ procedure Check_Mem_Nossl is
         or else SOAP_Action = "Get_Last_Key"
       then
          declare
+            P_Str   : aliased constant String := AWS.Status.Payload (Request);
             Payload : constant SOAP.Message.Payload.Object :=
-                        SOAP.Message.XML.Load_Payload
-                          (AWS.Status.Payload (Request));
+                        SOAP.Message.XML.Load_Payload (P_Str);
          begin
             return API2_Service.CB.SOAP_CB (SOAP_Action, Payload, Request);
          end;
@@ -303,9 +303,9 @@ procedure Check_Mem_Nossl is
       use SOAP.Parameters;
       use SOAP.Types;
 
+      P_Str        : aliased constant String := AWS.Status.Payload (Request);
       Payload      : constant SOAP.Message.Payload.Object :=
-                       SOAP.Message.XML.Load_Payload
-                         (AWS.Status.Payload (Request));
+                       SOAP.Message.XML.Load_Payload (P_Str);
 
       SOAP_Proc    : constant String :=
                        SOAP.Message.Payload.Procedure_Name (Payload);

@@ -364,8 +364,9 @@ procedure Check_Mem is
       use SOAP.Parameters;
       use SOAP.Types;
 
+      P_Str        : aliased constant String := AWS.Status.Payload (Request);
       Payload      : constant SOAP.Message.Payload.Object
-        := SOAP.Message.XML.Load_Payload (AWS.Status.Payload (Request));
+        := SOAP.Message.XML.Load_Payload (P_Str);
 
       SOAP_Proc    : constant String
         := SOAP.Message.Payload.Procedure_Name (Payload);

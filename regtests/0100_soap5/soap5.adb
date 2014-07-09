@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2004-2012, AdaCore                     --
+--                     Copyright (C) 2004-2014, AdaCore                     --
 --                                                                          --
 --  This is free software;  you can redistribute it  and/or modify it       --
 --  under terms of the  GNU General Public License as published  by the     --
@@ -25,7 +25,7 @@ procedure SOAP5 is
 
    use Ada;
 
-   Mess : constant String :=
+   Mess : aliased constant String :=
      "<env:Envelope xmlns:env=""http://schemas.xmlsoap.org/soap/envelope/"""
      & " xmlns:xsi=""http://www.w3.org/2001/XMLSchema-instance"""
      & " xmlns:soapenc=""http://schemas.xmlsoap.org/soap/encoding/"""

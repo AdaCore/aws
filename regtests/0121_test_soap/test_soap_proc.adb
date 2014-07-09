@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2004-2012, AdaCore                     --
+--                     Copyright (C) 2004-2014, AdaCore                     --
 --                                                                          --
 --  This is free software;  you can redistribute it  and/or modify it       --
 --  under terms of the  GNU General Public License as published  by the     --
@@ -100,8 +100,9 @@ procedure Test_SOAP_Proc (Security : Boolean) is
       use SOAP.Types;
       use SOAP.Parameters;
 
-      Payload      : constant SOAP.Message.Payload.Object
-        := SOAP.Message.XML.Load_Payload (AWS.Status.Payload (Request));
+      P_Str        : aliased constant String := AWS.Status.Payload (Request);
+      Payload      : constant SOAP.Message.Payload.Object :=
+                       SOAP.Message.XML.Load_Payload (P_Str);
 
       SOAP_Proc    : constant String
         := SOAP.Message.Payload.Procedure_Name (Payload);

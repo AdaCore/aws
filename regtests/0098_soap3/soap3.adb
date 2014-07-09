@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2002-2012, AdaCore                     --
+--                     Copyright (C) 2002-2014, AdaCore                     --
 --                                                                          --
 --  This is free software;  you can redistribute it  and/or modify it       --
 --  under terms of the  GNU General Public License as published  by the     --
@@ -41,8 +41,8 @@ procedure SOAP3 is
      ("Workorder",
       +S ("", "string"));
 
-   Img1 : constant String := SOAP.Message.XML.Image (Payload1);
-   Img2 : constant String := SOAP.Message.XML.Image (Payload2);
+   Img1 : aliased constant String := SOAP.Message.XML.Image (Payload1);
+   Img2 : aliased constant String := SOAP.Message.XML.Image (Payload2);
 
    B_Payload1 : constant SOAP.Message.Payload.Object'Class
      := SOAP.Message.XML.Load_Payload (Img1);
