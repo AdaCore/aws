@@ -5,7 +5,7 @@ Server = Run(['./websock'], output='./server-output', bg=True)
 
 # websocket client application
 from websocket import create_connection
-ws = create_connection("ws://localhost:1234/echo")
+ws = create_connection("ws://127.0.0.1:1234/echo")
 
 # Receiving Open connect message, 1 large message and 5 short messages
 for J in range(1, 8):

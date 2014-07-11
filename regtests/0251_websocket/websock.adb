@@ -41,6 +41,7 @@ procedure WebSock is
    Config : AWS.Config.Object;
 begin
    AWS.Config.Set.Reuse_Address (Config, True);
+   AWS.Config.Set.Server_Host (Config, "127.0.0.1");
    AWS.Config.Set.Server_Port (Config, 1234);
 
    Server.Start
