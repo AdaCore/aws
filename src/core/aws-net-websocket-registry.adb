@@ -57,6 +57,9 @@ package body AWS.Net.WebSocket.Registry is
    --  A list of all WebSockets in the registry, this list is used to send or
    --  broadcast messages.
 
+   procedure Unchecked_Free is
+     new Ada.Unchecked_Deallocation (Object'Class, Object_Class);
+
    function "<" (Left, Right : Object_Class) return Boolean;
    --  Order on the socket file descriptor
 
@@ -316,6 +319,7 @@ package body AWS.Net.WebSocket.Registry is
                      DB.Unregister (WebSocket);
                      WebSocket.On_Close (To_String (Message));
                      WebSocket.Shutdown;
+                     Unchecked_Free (WebSocket);
                      exit Read_Message;
 
                   when Ping | Pong =>
@@ -455,7 +459,7 @@ package body AWS.Net.WebSocket.Registry is
          --------------
 
          procedure On_Close (Position : WebSocket_Set.Cursor) is
-            WebSocket : constant Object_Class :=
+            WebSocket : Object_Class :=
                           WebSocket_Set.Element (Position);
          begin
             WebSocket.State.Errno := Error_Code (Going_Away);
@@ -474,7 +478,7 @@ package body AWS.Net.WebSocket.Registry is
             end;
 
             WebSocket.Shutdown;
-            WebSocket.Free;
+            Unchecked_Free (WebSocket);
          end On_Close;
 
       begin
@@ -908,7 +912,7 @@ package body AWS.Net.WebSocket.Registry is
       --  Register WebSocket
 
       DB.Register (WS);
-      DB.watch (WS);
+      DB.Watch (WS);
    end Watch_Data;
 
    -------------------------
