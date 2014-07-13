@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2003-2012, AdaCore                     --
+--                     Copyright (C) 2003-2014, AdaCore                     --
 --                                                                          --
 --  This is free software;  you can redistribute it  and/or modify it       --
 --  under terms of the  GNU General Public License as published  by the     --
@@ -55,8 +55,9 @@ package body SOAP_Server_CB is
       use SOAP.Types;
       use SOAP.Parameters;
 
+      Rq : aliased constant String := AWS.Status.Payload (Request);
       PL : constant SOAP.Message.Payload.Object
-        := SOAP.Message.XML.Load_Payload (AWS.Status.Payload (Request));
+        := SOAP.Message.XML.Load_Payload (Rq);
 
       P  : constant SOAP.Parameters.List
         := SOAP.Message.Parameters (PL);
