@@ -1,0 +1,16 @@
+Client abcdef 999 Message  0
+Client abcdef 999 Message  1
+Client abcdef 999 Message  2
+Client abcdef 999 Message  3
+Client abcdef 999 Message  4
+Client abcdef 999 Message  5
+Server ends with status 0
+Server output:
+Server started, wait connection
+On_Open:/server_push
+Send  1
+Send  2
+Send  3
+Send  4
+Send  5
+On_Close:

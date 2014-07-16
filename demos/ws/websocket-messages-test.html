@@ -1,0 +1,49 @@
+<html>
+    <head>
+        <script>
+            function ws_toggle_connect ()
+            {
+                if (window.WS != null && window.WS.readyState != 3)
+                {
+                        window.WS.close();
+                        document.getElementById ('open_bt').value = 'connect to:';
+                        document.getElementById ('url_input').disabled = 0;
+                }
+                else {
+                        var server_url = document.getElementById ('url_input').value;
+                        window.WS = new WebSocket (server_url);
+
+                        window.WS.onopen = function (event) {
+                                alert ('onopen ');
+                        };
+
+                        window.WS.onmessage = function(event) {
+                                document.getElementById ('out_text').innerHTML = event.data;
+                        };
+
+                        window.WS.onclose = function(event) {
+                                alert ('onclose');
+                        };
+                        document.getElementById ('open_bt').value = 'close connection:';
+                        document.getElementById ('url_input').disabled = 1;
+                }
+            };
+
+            function send_text ()
+            {
+                window.WS.send (document.getElementById ('send_text').value);
+            }
+        </script>
+    </head>
+
+    <body>
+      <h2>Websocket demo</h2>
+      <input type="button" name="open_bt" id="open_bt"  onclick="ws_toggle_connect()" value="connect to:">
+      <input type="text" id="url_input" size="30" value="ws://localhost:1234/server_push">
+      <p>last message:<span id="out_text">****</span></p>
+      <p>
+        <input type="button" name="send_bt" id="send_bt" onclick="send_text()" value="send to server:">
+        <input type="text" id="send_text" size="30" value="Hello from websocket client!">
+      </p>
+    </body>
+</html>

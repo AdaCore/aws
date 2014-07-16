@@ -39,9 +39,9 @@ package body WebSock_CB is
    -- HW_CB --
    -----------
 
-   function HW_CB (Request : Status.Data) return Response.Data is
-      URI      : constant String := Status.URI (Request);
-      Filename : constant String := URI (URI'First + 1 .. URI'Last);
+   function HW_CB (Request : Status.Data) return Response.Data
+   is
+      pragma Unreferenced (Request);
    begin
       return Response.Build
         ("text/html", "<html><head></head><body>HTML Response</body></html>");

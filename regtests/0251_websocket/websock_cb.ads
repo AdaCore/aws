@@ -16,9 +16,6 @@
 --  to http://www.gnu.org/licenses for a complete copy of the license.      --
 ------------------------------------------------------------------------------
 
-with Ada.Streams;
-
-with AWS.Net.Log;
 with AWS.Response;
 with AWS.Status;
 
@@ -26,7 +23,6 @@ with AWS.Net.WebSocket;
 
 package WebSock_CB is
 
-   use Ada.Streams;
    use AWS;
 
    Created : Boolean := False;

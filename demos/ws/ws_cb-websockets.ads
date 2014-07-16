@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2000-2014, AdaCore                     --
+--                      Copyright (C) 2014, AdaCore                         --
 --                                                                          --
 --  This is free software;  you can redistribute it  and/or modify it       --
 --  under terms of the  GNU General Public License as published  by the     --
@@ -16,42 +16,8 @@
 --  to http://www.gnu.org/licenses for a complete copy of the license.      --
 ------------------------------------------------------------------------------
 
---  This is a way to build a simple HTML page server. Just a part of a full
---  Web server.
+package WS_CB.WebSockets is
 
-with Ada.Text_IO;
+   procedure Start;
 
-with AWS.Server;
-with AWS.Config.Set;
-
-with WS_CB.WebSockets;
-
-procedure WS is
-
-   use Ada;
-   Config : AWS.Config.Object;
-begin
-   Text_IO.Put_Line ("AWS " & AWS.Version);
-   Text_IO.Put_Line ("Kill me when you want me to stop...");
-   Text_IO.Put_Line ("I will stop in 10 minutes anyway !");
-
-   AWS.Config.Set.Reuse_Address (Config, True);
-   AWS.Config.Set.Server_Host (Config, "127.0.0.1");
-   AWS.Config.Set.Server_Port (Config, 1234);
-   AWS.Config.Set.Server_Name (Config, "WS Demo");
-   AWS.Config.Set.Max_Connection (Config, 5);
-
-   AWS.Server.Start
-     (WS_CB.WS,
-      Config   => Config,
-      Callback => WS_CB.Service'Access);
-
-   WS_CB.WebSockets.Start;
-
-   delay 10 * 60.0;
-
-   Text_IO.Put_Line ("ok, let's shutdown...");
-
-   AWS.Server.Shutdown (WS_CB.WS);
-   WS_CB.Stop_Push_Server;
-end WS;
+end WS_CB.WebSockets;

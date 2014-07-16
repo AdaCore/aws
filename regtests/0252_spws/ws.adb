@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2000-2014, AdaCore                     --
+--                      Copyright (C) 2014, AdaCore                         --
 --                                                                          --
 --  This is free software;  you can redistribute it  and/or modify it       --
 --  under terms of the  GNU General Public License as published  by the     --
@@ -24,34 +24,36 @@ with Ada.Text_IO;
 with AWS.Server;
 with AWS.Config.Set;
 
-with WS_CB.WebSockets;
+with WS_CB;
 
 procedure WS is
-
    use Ada;
    Config : AWS.Config.Object;
 begin
-   Text_IO.Put_Line ("AWS " & AWS.Version);
-   Text_IO.Put_Line ("Kill me when you want me to stop...");
-   Text_IO.Put_Line ("I will stop in 10 minutes anyway !");
-
    AWS.Config.Set.Reuse_Address (Config, True);
    AWS.Config.Set.Server_Host (Config, "127.0.0.1");
    AWS.Config.Set.Server_Port (Config, 1234);
-   AWS.Config.Set.Server_Name (Config, "WS Demo");
+   AWS.Config.Set.Server_Name (Config, "Test");
    AWS.Config.Set.Max_Connection (Config, 5);
 
    AWS.Server.Start
      (WS_CB.WS,
       Config   => Config,
-      Callback => WS_CB.Service'Access);
+      Callback => WS_CB.Get'Access);
 
-   WS_CB.WebSockets.Start;
+   WS_CB.WebSock_Start;
 
-   delay 10 * 60.0;
+   Ada.Text_IO.Put_Line ("Server started, wait connection");
+   WS_CB.Wait.Ready;
 
-   Text_IO.Put_Line ("ok, let's shutdown...");
+   delay 0.5;
+
+   for J in 1 .. 5 loop
+      Ada.Text_IO.Put_Line ("Send " & J'Img);
+      WS_CB.Server_Push_Send (J);
+   end loop;
+
+   WS_CB.Wait.Close;
 
    AWS.Server.Shutdown (WS_CB.WS);
-   WS_CB.Stop_Push_Server;
 end WS;

@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2000-2013, AdaCore                     --
+--                     Copyright (C) 2000-2014, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -43,6 +43,7 @@ with AWS.Net.Generic_Sets;
 with AWS.Net.Log;
 with AWS.Translator;
 with AWS.Utils;
+with AWS.Net.WebSocket;
 
 package body AWS.Server.Push is
 
@@ -773,24 +774,31 @@ package body AWS.Server.Push is
                Net.Log.Error (Holder.Socket.all, To_String (Holder.Errmsg));
 
             elsif Events (Input) then
-               --  Need to understand closed socket from peer
+               if Holder.Socket.all in Net.WebSocket.Object'Class then
+                  Holder := null;
+                  --  Net.WebSocket.Protocol do read data
+                  --  and protocol handling
+               else
+                  --  Need to understand closed socket from peer
+                  declare
+                     Unexpect : Stream_Element_Array (1 .. 64);
+                     Last     : Stream_Element_Offset;
+                  begin
 
-               declare
-                  Unexpect : Stream_Element_Array (1 .. 64);
-                  Last     : Stream_Element_Offset;
-               begin
-                  Holder.Socket.Receive (Unexpect, Last);
-                  Holder.Errmsg :=
-                    To_Unbounded_String
-                      ("Unexpected data from server push socket: "
-                       & Translator.To_String (Unexpect (1 .. Last)));
-                  Net.Log.Error (Holder.Socket.all, To_String (Holder.Errmsg));
+                     Holder.Socket.Receive (Unexpect, Last);
 
-               exception
-                  when E : Socket_Error =>
                      Holder.Errmsg :=
-                       To_Unbounded_String (Exception_Message (E));
-               end;
+                       To_Unbounded_String
+                         ("Unexpected data from server push socket: "
+                          & Translator.To_String (Unexpect (1 .. Last)));
+                     Net.Log.Error (Holder.Socket.all,
+                                    To_String (Holder.Errmsg));
+                  exception
+                     when E : Socket_Error =>
+                        Holder.Errmsg :=
+                          To_Unbounded_String (Exception_Message (E));
+                  end;
+               end if;
 
             elsif Events (Output) then
                declare
@@ -798,13 +806,19 @@ package body AWS.Server.Push is
                             Data_Chunk (Holder, Data, Content_Type);
                   Last  : Stream_Element_Offset;
                begin
-                  --  It is not blocking Net.Send operation
-
-                  Holder.Socket.Send (Chunk, Last);
+                  if Holder.Socket.all in Net.WebSocket.Object'Class then
+                     Net.WebSocket.Send (Socket    => Net.WebSocket.Object
+                                                        (Holder.Socket.all),
+                                         Message   => Chunk,
+                                         Is_Binary => False);
+                     Last := Chunk'Last;
+                  else
+                     --  It is not blocking Net.Send operation
+                     Holder.Socket.Send (Chunk, Last);
+                  end if;
 
                   if Last = Chunk'Last then
                      --  Data sent completely
-
                      Holder := null;
 
                   elsif Last in Chunk'Range then
@@ -1171,6 +1185,14 @@ package body AWS.Server.Push is
       end Content_Type_Header;
 
    begin
+      if Holder.Socket.all in Net.WebSocket.Object'Class
+        and then Holder.Kind /= Plain
+      then
+         raise Program_Error
+           with "Only 'Plain' Kind for websockets allowed, found "
+           & Holder.Kind'Img;
+      end if;
+
       Server.Register
         (Client_Id, Holder, Duplicated, Duplicated_Age, Ext_Sock_Alloc);
 
@@ -1184,11 +1206,13 @@ package body AWS.Server.Push is
       end if;
 
       begin
-         Net.Buffered.Put_Line
-           (Holder.Socket.all,
-            "HTTP/1.1 200 OK" & New_Line
-            & "Server: AWS (Ada Web Server) v" & Version & New_Line
-            & Messages.Connection ("Close"));
+         if Holder.Socket.all not in Net.WebSocket.Object'Class then
+            Net.Buffered.Put_Line
+              (Holder.Socket.all,
+               Messages.Status_Line (Messages.S200) & New_Line
+                 & "Server: AWS (Ada Web Server) v" & Version & New_Line
+                 & Messages.Connection ("Close"));
+         end if;
 
          if Holder.Kind = Chunked then
             Net.Buffered.Put_Line
@@ -1202,12 +1226,20 @@ package body AWS.Server.Push is
                Messages.Content_Type (MIME.Multipart_X_Mixed_Replace, Boundary)
                & New_Line);
 
-         else
+         elsif Holder.Socket.all not in Net.WebSocket.Object'Class then
+            --  to Net.WebSocket.Object not need to send anything
             Net.Buffered.Put_Line (Holder.Socket.all, Content_Type_Header);
          end if;
 
-         Net.Buffered.Write (Holder.Socket.all, Init_Data);
-         Net.Buffered.Flush (Holder.Socket.all);
+         if Holder.Socket.all in Net.WebSocket.Object'Class then
+            Net.WebSocket.Send (Socket    => Net.WebSocket.Object
+                                               (Holder.Socket.all),
+                                Message   => Init_Data,
+                                Is_Binary => False);
+         else
+            Net.Buffered.Write (Holder.Socket.all, Init_Data);
+            Net.Buffered.Flush (Holder.Socket.all);
+         end if;
 
          Waiter_Command (Server, Holder, Add);
 

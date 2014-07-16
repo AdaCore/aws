@@ -16,23 +16,19 @@
 --  to http://www.gnu.org/licenses for a complete copy of the license.      --
 ------------------------------------------------------------------------------
 
-with Ada.Text_IO;
-
 with AWS.Config.Set;
 with AWS.Net.WebSocket.Registry.Control;
 with AWS.Server;
-with AWS.Status;
 
 with WebSock_CB;
 
 procedure WebSock is
 
-   use Ada;
    use AWS;
    use AWS.Config;
    use type AWS.Net.Socket_Access;
 
-   Rcp : Net.WebSocket.Registry.Recipient :=
+   Rcp : constant Net.WebSocket.Registry.Recipient :=
           Net.WebSocket.Registry.Create (URI => "/echo");
    --  The recipient targets all clients (any Origin) whose URI is /echo
 

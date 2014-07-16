@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2000-2012, AdaCore                     --
+--                     Copyright (C) 2000-2014, AdaCore                     --
 --                                                                          --
 --  This is free software;  you can redistribute it  and/or modify it       --
 --  under terms of the  GNU General Public License as published  by the     --
@@ -16,59 +16,30 @@
 --  to http://www.gnu.org/licenses for a complete copy of the license.      --
 ------------------------------------------------------------------------------
 
-with Ada.Calendar;
-with Ada.Streams;
-with Ada.Strings.Unbounded;
 with Ada.Integer_Text_IO;
 with Ada.Exceptions;
+with Ada.Text_IO;
 
 with GNAT.Calendar.Time_IO;
 
 with AWS.Config;
-with AWS.OS_Lib;
 with AWS.Messages;
 with AWS.MIME;
 with AWS.Net;
 with AWS.Parameters;
 with AWS.Services.Directory;
-with AWS.Server.Push;
+
 with AWS.Translator;
 with AWS.Utils;
 
 package body WS_CB is
 
    use AWS;
-   use Ada.Strings.Unbounded;
-   use Ada.Calendar;
 
    WWW_Root : String renames AWS.Config.WWW_Root (Server.Config (WS));
 
-   type Client_Env is record
-      Start   : Time;
-      Picture : Unbounded_String;
-   end record;
-
-   --  Simple ID generator
-
-   protected New_Client_Id is
-      procedure Get (New_Id : out String);
-   private
-      Id : Natural := 0;
-   end New_Client_Id;
-
    task Server_Push_Task;
    --  The push data are generated here
-
-   function To_Array
-     (Time : Ada.Calendar.Time;
-      Env  : Client_Env) return Ada.Streams.Stream_Element_Array;
-
-   package Time_Push is new AWS.Server.Push
-     (Client_Output_Type => Ada.Calendar.Time,
-      Client_Environment => Client_Env,
-      To_Stream_Array    => To_Array);
-
-   SP : Time_Push.Object;
 
    ---------
    -- Get --
@@ -86,9 +57,6 @@ package body WS_CB is
       elsif URI = "/server_push" then
 
          declare
-            use GNAT.Calendar.Time_IO;
-            use Ada.Calendar;
-
             P_List : constant AWS.Parameters.List
               := AWS.Status.Parameters (Request);
 
@@ -203,10 +171,22 @@ package body WS_CB is
    ----------------------
 
    task body Server_Push_Task is
+      Tm :  Ada.Calendar.Time;
    begin
       loop
-         delay 1.0;
-         Time_Push.Send (SP, Ada.Calendar.Clock, Content_Type => "text/plain");
+         begin
+            delay 1.0;
+            Tm := Ada.Calendar.Clock;
+
+            Ada.Text_IO.Put_Line
+              ("Send time "
+                 & GNAT.Calendar.Time_IO.Image (Tm, "%D - %T"));
+
+            Time_Push.Send (SP, Tm, Content_Type => "text/plain");
+         exception when E : others =>
+            Ada.Text_IO.Put_Line ("Server_Push_Task error");
+            Ada.Text_IO.Put_Line (Ada.Exceptions.Exception_Information (E));
+         end;
       end loop;
    end Server_Push_Task;
 
