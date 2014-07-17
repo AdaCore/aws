@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2003-2013, AdaCore                     --
+--                     Copyright (C) 2003-2014, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -480,7 +480,11 @@ package body AWS.Services.Dispatchers.Timer is
 
    procedure Unregister
      (Dispatcher : in out Handler;
-      Name       : String) is
+      Name       : String)
+   is
+      use type Period_Table.Cursor;
+
+      Pos : Period_Table.Cursor := Period_Table.No_Element;
    begin
       for Cursor in Dispatcher.Table.Iterate loop
          declare
@@ -488,13 +492,18 @@ package body AWS.Services.Dispatchers.Timer is
          begin
             if To_String (Item.Name) = Name then
                Unchecked_Free (Item);
-               Period_Table.Delete (Dispatcher.Table, Cursor);
-               return;
+               Pos := Cursor;
+               exit;
             end if;
          end;
       end loop;
 
-      raise Constraint_Error with "Timer distpatcher " & Name & " not found";
+      if Pos = Period_Table.No_Element then
+         raise Constraint_Error
+           with "Timer distpatcher " & Name & " not found";
+      else
+         Period_Table.Delete (Dispatcher.Table, Pos);
+      end if;
    end Unregister;
 
    ------------
