@@ -45,7 +45,6 @@ package body S_AFile_Pack is
    FN   : constant String := "test.out";
    Size : constant Response.Content_Length_Type
     := Response.Content_Length_Type (Resources.File_Size (FN));
-   Cli  : AWS.Client.HTTP_Connection;
 
    Socket  : Net.Socket_Access;
    Session : ASU.Unbounded_String;
@@ -235,6 +234,9 @@ package body S_AFile_Pack is
    procedure Run (Protocol : String) is
 
       Port : Positive;
+      Cli  : AWS.Client.HTTP_Connection;
+      Dum  : array (Boolean) of AWS.Client.HTTP_Connection;
+      Bum  : Boolean := False;
 
       -------------
       -- Call_It --
@@ -243,7 +245,13 @@ package body S_AFile_Pack is
       procedure Call_It (Res : String) is
          use type Response.Content_Length_Type;
          R : Response.Data;
+         D : Response.Data;
       begin
+         Client.Create (Dum (Bum), Server.Status.Local_URL (WS));
+         Client.Get (Dum (Bum), D, "/nop");
+         Bum := not Bum;
+         Client.Close (Dum (Bum));
+
          Client.Get (Cli, R, '/' & Res);
 
          declare
@@ -262,8 +270,8 @@ package body S_AFile_Pack is
            ("= " & Response.Header (R, Messages.Content_Disposition_Token, 1));
 
          declare
-            S : constant Response.Content_Length_Type
-              := Response.Content_Length (R);
+            S : constant Response.Content_Length_Type :=
+                  Response.Content_Length (R);
          begin
             if S = Response.Undefined_Length then
                Text_IO.Put_Line ("Error: " & Res & " undefined size.");
@@ -278,7 +286,7 @@ package body S_AFile_Pack is
       Config.Set.Server_Host    (CNF, "localhost");
       Config.Set.Server_Port    (CNF, 0);
       Config.Set.Security       (CNF, Protocol = "https");
-      Config.Set.Max_Connection (CNF, 5);
+      Config.Set.Max_Connection (CNF, 16);
 
       Server.Start (WS, CB'Access, CNF);
 
@@ -303,6 +311,11 @@ package body S_AFile_Pack is
       Call_It ("eighth");
       Call_It ("nineth");
       Call_It ("tenth");
+
+      Bum := not Bum;
+      Client.Close (Dum (Bum));
+
+      Client.Close (Cli);
 
       Server.Shutdown (WS);
       Text_IO.Put_Line ("shutdown");
