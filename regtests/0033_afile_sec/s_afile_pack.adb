@@ -62,7 +62,7 @@ package body S_AFile_Pack is
 
       procedure Same_Session (Condition : Boolean);
 
-      function Same_Socket return Boolean;
+      procedure Same_Socket (Condition : Boolean);
 
       ------------------
       -- Same_Session --
@@ -90,16 +90,23 @@ package body S_AFile_Pack is
       -- Same_Socket --
       -----------------
 
-      function Same_Socket return Boolean is
+      procedure Same_Socket (Condition : Boolean) is
          use type Net.Socket_Access;
-         Result : constant Boolean :=
-                    Sock = Socket
-                      and then Sock.Get_FD = Socket.Get_FD
-                      and then Sock.Get_Port = Socket.Get_Port;
       begin
-         Socket := Sock;
+         if (Sock = Socket
+             and then Sock.Get_FD = Socket.Get_FD
+             and then Sock.Get_Port = Socket.Get_Port) /= Condition
+         then
+            if Condition then
+               Text_IO.Put_Line ("Unexpected change socket");
+            else
+               Text_IO.Put_Line
+                  ("Unexpected same socket " & Sock.Get_FD'Img
+                   & Sock.Get_Port'Img);
+            end if;
+         end if;
 
-         return Result;
+         Socket := Sock;
       end Same_Socket;
 
    begin
@@ -114,10 +121,7 @@ package body S_AFile_Pack is
             Disposition => Response.Inline);
 
       elsif URI = "/second" then
-         if not Same_Socket then
-            Text_IO.Put_Line ("Unexpected change socket");
-         end if;
-
+         Same_Socket (True);
          Same_Session (True);
 
          declare
@@ -132,10 +136,7 @@ package body S_AFile_Pack is
          end;
 
       elsif URI = "/third" then
-         if Same_Socket then
-            Text_IO.Put_Line ("Unexpected same socket");
-         end if;
-
+         Same_Socket (False);
          Same_Session (False);
 
          return Response.File
@@ -144,10 +145,7 @@ package body S_AFile_Pack is
             Disposition => Response.Inline);
 
       elsif URI = "/fourth" then
-         if Same_Socket then
-            Text_IO.Put_Line ("Unexpected same socket");
-         end if;
-
+         Same_Socket (False);
          Same_Session (True);
 
          return Response.File
@@ -156,10 +154,7 @@ package body S_AFile_Pack is
             User_Filename => "you_got_this.o");
 
       elsif URI = "/fifth" then
-         if Same_Socket then
-            Text_IO.Put_Line ("Unexpected same socket");
-         end if;
-
+         Same_Socket (False);
          Same_Session (False);
 
          Strm :=  new Resources.Streams.Disk.Stream_Type;
@@ -170,10 +165,7 @@ package body S_AFile_Pack is
             Disposition => Response.Inline);
 
       elsif URI = "/sixth" then
-         if Same_Socket then
-            Text_IO.Put_Line ("Unexpected same socket");
-         end if;
-
+         Same_Socket (False);
          Same_Session (True);
 
          Strm :=  new Resources.Streams.Disk.Stream_Type;
@@ -184,10 +176,7 @@ package body S_AFile_Pack is
             Disposition => Response.Attachment);
 
       elsif URI = "/seventh" then
-         if Same_Socket then
-            Text_IO.Put_Line ("Unexpected same socket");
-         end if;
-
+         Same_Socket (False);
          Same_Session (True);
 
          Strm :=  new Resources.Streams.Disk.Stream_Type;
@@ -198,10 +187,7 @@ package body S_AFile_Pack is
             User_Filename => "a_stream.o", Disposition => Response.Inline);
 
       elsif URI = "/eighth" then
-         if Same_Socket then
-            Text_IO.Put_Line ("Unexpected same socket");
-         end if;
-
+         Same_Socket (False);
          Same_Session (True);
 
          Strm :=  new Resources.Streams.Disk.Stream_Type;
@@ -213,19 +199,13 @@ package body S_AFile_Pack is
             User_Filename => "a_stream.o");
 
       elsif URI = "/nineth" then
-         if Same_Socket then
-            Text_IO.Put_Line ("Unexpected same socket");
-         end if;
-
+         Same_Socket (False);
          Same_Session (True);
 
          return Response.File (MIME.Application_Octet_Stream, FN);
 
       elsif URI = "/tenth" then
-         if Same_Socket then
-            Text_IO.Put_Line ("Unexpected same socket");
-         end if;
-
+         Same_Socket (False);
          Same_Session (True);
 
          Strm :=  new Resources.Streams.Disk.Stream_Type;
