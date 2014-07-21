@@ -16,9 +16,22 @@
 --  to http://www.gnu.org/licenses for a complete copy of the license.      --
 ------------------------------------------------------------------------------
 
-with "aws";
+--  Private key signature test
 
-project SDig is
-   for Source_Dirs use (".");
-   for Main use ("sdig.adb");
-end SDig;
+pragma Ada_2012;
+
+with Ada.Text_IO;
+with AWS.Net.SSL;
+with AWS.Translator;
+
+procedure Psig is
+   use Ada.Text_IO;
+   use AWS.Net.SSL;
+   use AWS.Translator;
+   Key : Private_Key := Load ("psig.key");
+begin
+   Set_Debug (11);
+   for J in Hash_Method loop
+      Put_Line (J'Img & ' ' & Base64_Encode (Signature (J'Img, Key, J)));
+   end loop;
+end Psig;
