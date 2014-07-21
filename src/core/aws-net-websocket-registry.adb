@@ -152,8 +152,8 @@ package body AWS.Net.WebSocket.Registry is
          Message   : Unbounded_String;
          Is_Binary : Boolean := False;
          Timeout   : Duration := Forever);
-   --  Same as above but can be used for large messages. The message is
-   --  possibly sent fragmented.
+      --  Same as above but can be used for large messages. The message is
+      --  possibly sent fragmented.
 
       procedure Send
         (Socket    : in out Object'Class;

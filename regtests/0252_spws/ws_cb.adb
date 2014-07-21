@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                      Copyright (C) 2014, AdaCore                         --
+--                       Copyright (C) 2014, AdaCore                        --
 --                                                                          --
 --  This is free software;  you can redistribute it  and/or modify it       --
 --  under terms of the  GNU General Public License as published  by the     --
@@ -16,18 +16,25 @@
 --  to http://www.gnu.org/licenses for a complete copy of the license.      --
 ------------------------------------------------------------------------------
 
+with Ada.Calendar;
+with Ada.Streams;
+with Ada.Strings.Unbounded;
 with Ada.Text_IO;
 
 with AWS.Net;
-with AWS.Translator;
-with AWS.Parameters;
-with AWS.Status;
 with AWS.Net.WebSocket.Registry.Control;
+with AWS.Parameters;
+with AWS.Server.Push;
+with AWS.Status;
+with AWS.Translator;
 
 package body WS_CB is
 
-   use AWS;
+   use Ada;
+   use Ada.Streams;
    use Ada.Strings.Unbounded;
+
+   use AWS;
 
    type WS_type is new AWS.Net.WebSocket.Object with null record;
    type WS_Access is access WS_Type;
@@ -36,20 +43,20 @@ package body WS_CB is
      (Socket  : AWS.Net.Socket_Access;
       Request : AWS.Status.Data) return AWS.Net.WebSocket.Object'Class;
 
-   procedure On_Open (Socket : in out WS_type; Message : String);
+   procedure On_Open    (Socket : in out WS_type; Message : String);
    procedure On_Message (Socket : in out WS_type; Message : String);
    procedure On_Message (Socket : in out WS_type; Message : Unbounded_String);
-   procedure On_Close (Socket : in out WS_type; Message : String);
-   procedure On_Error (Socket : in out WS_type; Message : String);
+   procedure On_Close   (Socket : in out WS_type; Message : String);
+   procedure On_Error   (Socket : in out WS_type; Message : String);
 
    type Client_Env is record
-      Num  : Integer;
-      Str  : Unbounded_String;
+      Num : Integer;
+      Str : Unbounded_String;
    end record;
 
    function To_Array
      (Num : Integer;
-      Env : Client_Env) return Ada.Streams.Stream_Element_Array;
+      Env : Client_Env) return Stream_Element_Array;
 
    package Int_Push is new AWS.Server.Push
      (Client_Output_Type => Integer,
@@ -63,6 +70,7 @@ package body WS_CB is
    -------------------------
 
    protected body Wait is
+
       entry Ready when Started is
       begin
          null;
@@ -77,6 +85,7 @@ package body WS_CB is
       begin
          Started := Value;
       end Set;
+
    end Wait;
 
    ------------
@@ -111,7 +120,7 @@ package body WS_CB is
 
    procedure On_Close (Socket : in out WS_type; Message : String) is
    begin
-      Ada.Text_IO.Put_Line ("On_Close:" & Message);
+      Text_IO.Put_Line ("On_Close:" & Message);
       Wait.Set (False);
    end On_Close;
 
@@ -121,7 +130,7 @@ package body WS_CB is
 
    procedure On_Error (Socket : in out WS_type; Message : String) is
    begin
-      Ada.Text_IO.Put_Line ("On_Error:" & Message);
+      Text_IO.Put_Line ("On_Error:" & Message);
    end On_Error;
 
    ----------------
@@ -130,17 +139,17 @@ package body WS_CB is
 
    procedure On_Message (Socket : in out WS_type; Message : String) is
    begin
-      Ada.Text_IO.Put_Line ("On_Message:" & Message);
+      Text_IO.Put_Line ("On_Message:" & Message);
    end On_Message;
 
    ----------------
    -- On_Message --
    ----------------
 
-   procedure On_Message (Socket : in out WS_type; Message : Unbounded_String)
-   is
+   procedure On_Message
+     (Socket : in out WS_type; Message : Unbounded_String) is
    begin
-      Ada.Text_IO.Put_Line ("On_Message (Unb):" & To_String (Message));
+      Text_IO.Put_Line ("On_Message (Unb):" & To_String (Message));
    end On_Message;
 
    -------------
@@ -148,12 +157,12 @@ package body WS_CB is
    -------------
 
    procedure On_Open (Socket : in out WS_type; Message : String) is
-      use AWS.Net.WebSocket;
       use Ada.Calendar;
+      use AWS.Net.WebSocket;
 
-      URI  : String :=  AWS.Net.WebSocket.Object'Class (Socket).URI;
+      URI : String := AWS.Net.WebSocket.Object'Class (Socket).URI;
    begin
-      Ada.Text_IO.Put_Line ("On_Open:" & URI);
+      Text_IO.Put_Line ("On_Open:" & URI);
 
       Int_Push.Register
         (Server            => SP,
@@ -175,8 +184,7 @@ package body WS_CB is
 
    procedure Server_Push_Send (Num : Integer) is
    begin
-      Int_Push.Send (SP, Num,
-                     Content_Type => "text/plain");
+      Int_Push.Send (SP, Num, Content_Type => "text/plain");
    end Server_Push_Send;
 
    --------------
@@ -184,9 +192,8 @@ package body WS_CB is
    --------------
 
    function To_Array
-     (Num  : Integer;
-      Env  : Client_Env) return Ada.Streams.Stream_Element_Array
-   is
+     (Num : Integer;
+      Env : Client_Env) return Ada.Streams.Stream_Element_Array is
    begin
       return Translator.To_Stream_Element_Array
         ("Client " & To_String (Env.Str) & Env.Num'Img

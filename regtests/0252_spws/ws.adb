@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                      Copyright (C) 2014, AdaCore                         --
+--                       Copyright (C) 2014, AdaCore                        --
 --                                                                          --
 --  This is free software;  you can redistribute it  and/or modify it       --
 --  under terms of the  GNU General Public License as published  by the     --
@@ -21,8 +21,8 @@
 
 with Ada.Text_IO;
 
-with AWS.Server;
 with AWS.Config.Set;
+with AWS.Server;
 
 with WS_CB;
 
@@ -43,13 +43,13 @@ begin
 
    WS_CB.WebSock_Start;
 
-   Ada.Text_IO.Put_Line ("Server started, wait connection");
+   Text_IO.Put_Line ("Server started, wait connection");
    WS_CB.Wait.Ready;
 
    delay 0.5;
 
    for J in 1 .. 5 loop
-      Ada.Text_IO.Put_Line ("Send " & J'Img);
+      Text_IO.Put_Line ("Send " & J'Img);
       WS_CB.Server_Push_Send (J);
    end loop;
 

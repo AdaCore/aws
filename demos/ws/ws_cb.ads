@@ -15,9 +15,10 @@
 --  distributed  with  this  software;   see  file COPYING3.  If not, go    --
 --  to http://www.gnu.org/licenses for a complete copy of the license.      --
 ------------------------------------------------------------------------------
+
 with Ada.Calendar;
-with Ada.Strings.Unbounded;
 with Ada.Streams;
+with Ada.Strings.Unbounded;
 
 with AWS.Response;
 with AWS.Server;
@@ -25,7 +26,9 @@ with AWS.Status;
 with AWS.Server.Push;
 
 package WS_CB is
+
    use Ada.Calendar;
+   use Ada.Streams;
    use Ada.Strings.Unbounded;
 
    WS : AWS.Server.HTTP;
@@ -48,7 +51,7 @@ package WS_CB is
 
    function To_Array
      (Time : Ada.Calendar.Time;
-      Env  : Client_Env) return Ada.Streams.Stream_Element_Array;
+      Env  : Client_Env) return Stream_Element_Array;
 
    package Time_Push is new AWS.Server.Push
      (Client_Output_Type => Ada.Calendar.Time,
@@ -56,4 +59,5 @@ package WS_CB is
       To_Stream_Array    => To_Array);
 
    SP : Time_Push.Object;
+
 end WS_CB;

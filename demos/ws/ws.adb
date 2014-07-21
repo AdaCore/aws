@@ -21,8 +21,8 @@
 
 with Ada.Text_IO;
 
-with AWS.Server;
 with AWS.Config.Set;
+with AWS.Server;
 
 with WS_CB.WebSockets;
 

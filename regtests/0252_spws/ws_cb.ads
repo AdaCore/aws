@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                      Copyright (C) 2014, AdaCore                         --
+--                       Copyright (C) 2014, AdaCore                        --
 --                                                                          --
 --  This is free software;  you can redistribute it  and/or modify it       --
 --  under terms of the  GNU General Public License as published  by the     --
@@ -15,19 +15,14 @@
 --  distributed  with  this  software;   see  file COPYING3.  If not, go    --
 --  to http://www.gnu.org/licenses for a complete copy of the license.      --
 ------------------------------------------------------------------------------
-with Ada.Calendar;
-with Ada.Strings.Unbounded;
-with Ada.Streams;
 
 with AWS.Response;
 with AWS.Server;
 with AWS.Status;
-with AWS.Server.Push;
 
 package WS_CB is
+
    use AWS;
-   use Ada.Strings.Unbounded;
-   use Ada.Calendar;
 
    WS : AWS.Server.HTTP;
 

@@ -16,8 +16,8 @@
 --  to http://www.gnu.org/licenses for a complete copy of the license.      --
 ------------------------------------------------------------------------------
 
-with Ada.Integer_Text_IO;
 with Ada.Exceptions;
+with Ada.Integer_Text_IO;
 with Ada.Text_IO;
 
 with GNAT.Calendar.Time_IO;
@@ -34,6 +34,7 @@ with AWS.Utils;
 
 package body WS_CB is
 
+   use Ada;
    use AWS;
 
    WWW_Root : String renames AWS.Config.WWW_Root (Server.Config (WS));
@@ -171,21 +172,23 @@ package body WS_CB is
    ----------------------
 
    task body Server_Push_Task is
-      Tm :  Ada.Calendar.Time;
+      Tm : Calendar.Time;
    begin
       loop
          begin
             delay 1.0;
             Tm := Ada.Calendar.Clock;
 
-            Ada.Text_IO.Put_Line
+            Text_IO.Put_Line
               ("Send time "
-                 & GNAT.Calendar.Time_IO.Image (Tm, "%D - %T"));
+               & GNAT.Calendar.Time_IO.Image (Tm, "%D - %T"));
 
             Time_Push.Send (SP, Tm, Content_Type => "text/plain");
-         exception when E : others =>
-            Ada.Text_IO.Put_Line ("Server_Push_Task error");
-            Ada.Text_IO.Put_Line (Ada.Exceptions.Exception_Information (E));
+
+         exception
+            when E : others =>
+               Text_IO.Put_Line ("Server_Push_Task error");
+               Text_IO.Put_Line (Ada.Exceptions.Exception_Information (E));
          end;
       end loop;
    end Server_Push_Task;
@@ -199,7 +202,7 @@ package body WS_CB is
       procedure Get (New_Id : out String) is
       begin
          Id := Id + 1;
-         Ada.Integer_Text_IO.Put (New_Id, Id);
+         Integer_Text_IO.Put (New_Id, Id);
       end Get;
 
    end New_Client_Id;

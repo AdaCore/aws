@@ -39,8 +39,7 @@ package body WebSock_CB is
    -- HW_CB --
    -----------
 
-   function HW_CB (Request : Status.Data) return Response.Data
-   is
+   function HW_CB (Request : Status.Data) return Response.Data is
       pragma Unreferenced (Request);
    begin
       return Response.Build
