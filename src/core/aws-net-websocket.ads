@@ -190,6 +190,16 @@ package AWS.Net.WebSocket is
    --  Returns the internal socket receive buffer size.
    --  Do not confuse with buffers for the AWS.Net.Buffered operations.
 
+   --
+   --  Socket reference
+   --
+
+   type UID is range 0 .. 2**31;
+
+   function Get_UID (Socket : Object) return UID;
+   --  Returns a unique id for the given socket. The uniqueness for this socket
+   --  is guaranteed during the lifetime of the application.
+
 private
 
    type Internal_State is record
@@ -204,6 +214,7 @@ private
 
    type Object is new Net.Socket_Type with record
       Socket  : Net.Socket_Access;
+      Id      : UID;
       Request : AWS.Status.Data;
       Version : Natural;
       State   : Internal_State_Access;
@@ -264,6 +275,7 @@ private
                  Object'
                    (Net.Socket_Type with
                     Socket  => null,
+                    Id      => 0,
                     Request => <>,
                     Version => 0,
                     State   => null,

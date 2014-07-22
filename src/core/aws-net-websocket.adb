@@ -41,6 +41,9 @@ package body AWS.Net.WebSocket is
 
    use Ada.Streams;
 
+   WS_UID : Utils.Counter (0);
+   --  Unique Id for the WebSockets
+
    type Protocol_State is record
       State : Net.WebSocket.Protocol.State_Class;
    end record;
@@ -90,9 +93,12 @@ package body AWS.Net.WebSocket is
          end;
       end if;
 
+      WS_UID.Increment;
+
       return Object'
         (Net.Socket_Type with
            Socket  => Socket,
+           Id      => UID (WS_UID.Value),
            Request => Request,
            Version => Version,
            State   => new Internal_State'
@@ -216,6 +222,15 @@ package body AWS.Net.WebSocket is
    begin
       return Socket.Socket.Get_Send_Buffer_Size;
    end Get_Send_Buffer_Size;
+
+   -------------
+   -- Get_UID --
+   -------------
+
+   function Get_UID (Socket : Object) return UID is
+   begin
+      return Socket.Id;
+   end Get_UID;
 
    ------------------
    -- Is_Listening --
