@@ -16,14 +16,16 @@
 --  to http://www.gnu.org/licenses for a complete copy of the license.      --
 ------------------------------------------------------------------------------
 
+with Ada.Text_IO;
 with AWS.Config.Set;
 with AWS.Net.WebSocket.Registry.Control;
-with AWS.Server;
+with AWS.Server.Status;
 
 with WebSock_CB;
 
 procedure WebSock is
 
+   use Ada;
    use AWS;
    use AWS.Config;
    use type AWS.Net.Socket_Access;
@@ -38,12 +40,14 @@ procedure WebSock is
 begin
    AWS.Config.Set.Reuse_Address (Config, True);
    AWS.Config.Set.Server_Host (Config, "127.0.0.1");
-   AWS.Config.Set.Server_Port (Config, 1234);
+   AWS.Config.Set.Server_Port (Config, 0);
 
    Server.Start
      (WS,
       Config   => Config,
       Callback => WebSock_CB.HW_CB'Access);
+
+   Text_IO.Put_Line ("PORT: " & Positive'Image (Server.Status.Port (WS)));
 
    --  Start the WebSocket server, this is needed only to receive message
    --  from the WebClient. It is always possible to send messages.

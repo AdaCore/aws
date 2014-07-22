@@ -22,7 +22,7 @@
 with Ada.Text_IO;
 
 with AWS.Config.Set;
-with AWS.Server;
+with AWS.Server.Status;
 
 with WS_CB;
 
@@ -32,7 +32,7 @@ procedure WS is
 begin
    AWS.Config.Set.Reuse_Address (Config, True);
    AWS.Config.Set.Server_Host (Config, "127.0.0.1");
-   AWS.Config.Set.Server_Port (Config, 1234);
+   AWS.Config.Set.Server_Port (Config, 0);
    AWS.Config.Set.Server_Name (Config, "Test");
    AWS.Config.Set.Max_Connection (Config, 5);
 
@@ -40,6 +40,9 @@ begin
      (WS_CB.WS,
       Config   => Config,
       Callback => WS_CB.Get'Access);
+
+   Text_IO.Put_Line
+     ("PORT: " & Positive'Image (AWS.Server.Status.Port (WS_CB.WS)));
 
    WS_CB.WebSock_Start;
 
