@@ -1,0 +1,18 @@
+Server open connect [ 1]
+Echo client message 1 [ 2]
+Echo client message 2 [ 3]
+Echo client message 3 [ 4]
+A simple message! [ 5]
+Server ends with status 0
+Server output:
+On_Open : AWS WebSocket connection open 1
+Send : Server open connect [ 1]
+Received : client message 1
+Send : Echo client message 1 [ 2]
+Received : client message 2
+Send : Echo client message 2 [ 3]
+Received : client message 3
+Send : Echo client message 3 [ 4]
+Send : A simple message! [ 5]
+Received : Connection_Close NORMAL_CLOSURE,
+closed socket known

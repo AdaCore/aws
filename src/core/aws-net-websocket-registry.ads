@@ -64,6 +64,9 @@ package AWS.Net.WebSocket.Registry is
    --
    --  Note that both URI and Origin can be regular expressions.
 
+   function Create (Id : UID) return Recipient;
+   --  A recipient for a specific WebSocket
+
    procedure Send
      (To          : Recipient;
       Message     : String;
@@ -123,15 +126,26 @@ package AWS.Net.WebSocket.Registry is
       Timeout : Duration := Forever;
       Error   : Error_Type := Normal_Closure);
 
+   function Is_Registered (Id : UID) return Boolean;
+   --  Returns True if the WebSocket Id is registered and False otherwise
+
 private
 
    use GNAT.Regexp;
 
-   type Recipient is record
-      URI_Set    : Boolean := False;
-      URI        : Regexp  := Compile ("");
-      Origin_Set : Boolean := False;
-      Origin     : Regexp  := Compile ("");
+   type Recipient_Kind is (K_UID, K_URI);
+
+   type Recipient (Kind : Recipient_Kind := K_URI) is record
+      case Kind is
+         when K_UID =>
+            WS_Id : UID;
+
+         when K_URI =>
+            URI_Set    : Boolean := False;
+            URI        : Regexp  := Compile ("");
+            Origin_Set : Boolean := False;
+            Origin     : Regexp  := Compile ("");
+      end case;
    end record;
 
    procedure Start;

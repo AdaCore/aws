@@ -30,7 +30,7 @@
 pragma Ada_2012;
 
 with Ada.Containers.Indefinite_Ordered_Maps;
-with Ada.Containers.Ordered_Sets;
+with Ada.Containers.Ordered_Maps;
 with Ada.Unchecked_Deallocation;
 
 with AWS.Config;
@@ -60,8 +60,9 @@ package body AWS.Net.WebSocket.Registry is
    procedure Unchecked_Free is
      new Ada.Unchecked_Deallocation (Object'Class, Object_Class);
 
-   function "<" (Left, Right : Object_Class) return Boolean;
-   --  Order on the socket file descriptor
+   function Same_WS (Left, Right : Object_Class) return Boolean is
+     (Left.Id = Right.Id);
+   --  Equality is based on the unique id
 
    procedure WebSocket_Exception
      (WebSocket : Object_Class;
@@ -70,7 +71,8 @@ package body AWS.Net.WebSocket.Registry is
    --  Call when an exception is caught. In this case we want to send the
    --  error message, the close message and shutdown the socket.
 
-   package WebSocket_Set is new Containers.Ordered_Sets (Object_Class);
+   package WebSocket_Set is
+     new Containers.Ordered_Maps (UID, Object_Class, "=" => Same_WS);
 
    --  The socket set with all sockets to wait for data
 
@@ -181,6 +183,9 @@ package body AWS.Net.WebSocket.Registry is
       procedure Unregister (WebSocket : Object_Class);
       --  Unregister a WebSocket
 
+      function Is_Registered (Id : UID) return Boolean;
+      --  Returns True if the WebSocket Id is registered and False otherwise
+
       procedure Signal_Socket;
       --  Send a signal to the wait call
 
@@ -194,7 +199,7 @@ package body AWS.Net.WebSocket.Registry is
       Sig1, Sig2 : Net.Std.Socket_Type; -- Signaling sockets
       Signal     : Boolean := False;    -- Transient signal, release Not_Emtpy
       Count      : Natural := 0;        -- Not counting signaling socket
-      Registered : WebSocket_Set.Set;   -- Contains all the WebSocket ref
+      Registered : WebSocket_Set.Map;   -- Contains all the WebSocket ref
    end DB;
 
    -------------
@@ -399,44 +404,48 @@ package body AWS.Net.WebSocket.Registry is
             end if;
          end Close_To;
 
-         Registered_Before : constant WebSocket_Set.Set := Registered;
+         Registered_Before : constant WebSocket_Set.Map := Registered;
 
       begin
-         Registered_Before.Iterate (Close_To'Access);
+         case To.Kind is
+            when K_UID =>
+               if Registered.Contains (To.WS_Id) then
+                  declare
+                     WebSocket : constant Object_Class :=
+                                   Registered (To.WS_Id);
+                  begin
+                     WebSocket.Set_Timeout (Timeout);
+                     WebSocket.Close (Message, Error);
+                     WebSocket.On_Close (Message);
+                  exception
+                     when others =>
+                        null;
+                  end;
+
+               else
+                  --  This WebSocket is not registered anymore
+
+                  raise Socket_Error
+                    with "WebSocket " & Utils.Image (Natural (To.WS_Id))
+                         & " is not registered";
+               end if;
+
+            when K_URI =>
+               Registered_Before.Iterate (Close_To'Access);
+         end case;
       end Close;
 
       procedure Close
         (Socket  : in out Object'Class;
          Message : String;
          Timeout : Duration := Forever;
-         Error   : Error_Type := Normal_Closure)
-      is
-         Socket_Class : Object_Class;
-
-         procedure Check (Position : WebSocket_Set.Cursor);
-
-         -----------
-         -- Check --
-         -----------
-
-         procedure Check (Position : WebSocket_Set.Cursor) is
-            WebSocket : constant Object_Class :=
-                          WebSocket_Set.Element (Position);
-         begin
-            if WebSocket.all = Socket then
-               Socket_Class := WebSocket;
-            end if;
-         end Check;
-
+         Error   : Error_Type := Normal_Closure) is
       begin
-         --  Look for WebSocket into the registered set
+         --  Look for WebSocket into the registered set, unregisted it is
+         --  present.
 
-         Registered.Iterate (Check'Access);
-
-         --  If found, unregister it
-
-         if Socket_Class /= null then
-            Unregister (Socket_Class);
+         if Registered.Contains (Socket.Id) then
+            Unregister (Registered (Socket.Id));
          end if;
 
          Socket.State.Errno := Error_Code (Error);
@@ -505,6 +514,15 @@ package body AWS.Net.WebSocket.Registry is
          FD_Set.Add (Set, Sig1, null, FD_Set.Input);
       end Initialize;
 
+      -------------------
+      -- Is_Registered --
+      -------------------
+
+      function Is_Registered (Id : UID) return Boolean is
+      begin
+         return Registered.Contains (Id);
+      end Is_Registered;
+
       ---------------
       -- Not_Empty --
       ---------------
@@ -543,7 +561,7 @@ package body AWS.Net.WebSocket.Registry is
 
       procedure Register (WebSocket : Object_Class) is
       begin
-         Registered.Insert (WebSocket);
+         Registered.Insert (WebSocket.Get_UID, WebSocket);
       end Register;
 
       ------------
@@ -598,10 +616,36 @@ package body AWS.Net.WebSocket.Registry is
             end if;
          end Send_To;
 
-         Registered_Before : constant WebSocket_Set.Set := Registered;
+         Registered_Before : constant WebSocket_Set.Map := Registered;
 
       begin
-         Registered_Before.Iterate (Send_To'Access);
+         case To.Kind is
+            when K_UID =>
+               if Registered.Contains (To.WS_Id) then
+                  declare
+                     WebSocket : constant Object_Class :=
+                                   Registered (To.WS_Id);
+                  begin
+                     WebSocket.Set_Timeout (Timeout);
+                     WebSocket.Send (Message);
+                  exception
+                     when E : others =>
+                        Unregister (WebSocket);
+                        WebSocket_Exception
+                          (WebSocket, Exception_Message (E), Protocol_Error);
+                  end;
+
+               else
+                  --  This WebSocket is not registered anymore
+
+                  raise Socket_Error
+                    with "WebSocket " & Utils.Image (Natural (To.WS_Id))
+                         & " is not registered";
+               end if;
+
+            when K_URI =>
+               Registered_Before.Iterate (Send_To'Access);
+         end case;
       end Send;
 
       procedure Send
@@ -653,11 +697,8 @@ package body AWS.Net.WebSocket.Registry is
       ----------------
 
       procedure Unregister (WebSocket : Object_Class) is
-         Position : WebSocket_Set.Cursor := Registered.Find (WebSocket);
       begin
-         if WebSocket_Set.Has_Element (Position) then
-            Registered.Delete (Position);
-         end if;
+         Registered.Exclude (WebSocket.Id);
 
          --  And remove it from the set
 
@@ -690,15 +731,6 @@ package body AWS.Net.WebSocket.Registry is
       end Watch;
 
    end DB;
-
-   ---------
-   -- "<" --
-   ---------
-
-   function "<" (Left, Right : Object_Class) return Boolean is
-   begin
-      return Left.Get_FD < Right.Get_FD;
-   end "<";
 
    -----------
    -- Close --
@@ -750,7 +782,7 @@ package body AWS.Net.WebSocket.Registry is
    ------------
 
    function Create (URI : String; Origin : String := "") return Recipient is
-      Result : Recipient;
+      Result : Recipient (K_URI);
    begin
       if URI /= "" then
          Result.URI_Set := True;
@@ -764,6 +796,22 @@ package body AWS.Net.WebSocket.Registry is
 
       return Result;
    end Create;
+
+   function Create (Id : UID) return Recipient is
+   begin
+      return Result : Recipient (K_UID) do
+         Result.WS_Id := Id;
+      end return;
+   end Create;
+
+   -------------------
+   -- Is_Registered --
+   -------------------
+
+   function Is_Registered (Id : UID) return Boolean is
+   begin
+      return DB.Is_Registered (Id);
+   end Is_Registered;
 
    --------------
    -- Register --
