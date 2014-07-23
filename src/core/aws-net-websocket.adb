@@ -69,9 +69,10 @@ package body AWS.Net.WebSocket is
       Request : AWS.Status.Data) return Object'Class
    is
 
-      Headers  : constant AWS.Headers.List := AWS.Status.Header (Request);
-      Version  : Natural := 0;
-      Protocol : Net.WebSocket.Protocol.State_Class;
+      Headers      : constant AWS.Headers.List := AWS.Status.Header (Request);
+      Version      : Natural := 0;
+      Protocol     : Net.WebSocket.Protocol.State_Class;
+      WS_UID_Value : Natural := 0;
 
    begin
       if Headers.Exist (Messages.Sec_WebSocket_Key1_Token)
@@ -93,12 +94,12 @@ package body AWS.Net.WebSocket is
          end;
       end if;
 
-      WS_UID.Increment;
+      WS_UID.Increment (Value => WS_UID_Value);
 
       return Object'
         (Net.Socket_Type with
            Socket  => Socket,
-           Id      => UID (WS_UID.Value),
+           Id      => UID (WS_UID_Value),
            Request => Request,
            Version => Version,
            State   => new Internal_State'
