@@ -320,6 +320,15 @@ package body AWS.Net.WebSocket is
       Socket.P_State.State.Receive (Socket, Data, Last);
    end Receive;
 
+   -------------
+   -- Request --
+   -------------
+
+   function Request (Socket : Object) return AWS.Status.Data is
+   begin
+      return Socket.Request;
+   end Request;
+
    ----------
    -- Send --
    ----------

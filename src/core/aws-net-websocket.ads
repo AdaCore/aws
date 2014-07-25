@@ -148,6 +148,10 @@ package AWS.Net.WebSocket is
    --  Returns the Origin of the WebSocket. That is the value of the Origin
    --  header of the client which has opened the socket.
 
+   function Request (Socket : Object) return AWS.Status.Data;
+   --  Returns Request of the WebSocket. That is the HTTP-request
+   --  of the client which has opened the socket.
+
    function Error (Socket : Object) return Error_Type;
    --  Returns the current error type
 
