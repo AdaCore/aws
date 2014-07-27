@@ -79,16 +79,6 @@ package body AWS.Net.WebSocket.Registry is
    package FD_Set is new Net.Generic_Sets (Object_Class);
    use type FD_Set.Socket_Count;
 
-   Set : FD_Set.Socket_Set_Type;
-   --  All WebSockets are registered into this set to check for incoming
-   --  messages. When a message is ready the WebSocket is placed into the
-   --  Message_Queue for being handled. When the message has been read
-   --  and handled the WebSocket is put back into this set.
-   --
-   --  Note that the very first one is a signaling socket used to release the
-   --  wait call. This first entry is not a WebSocket and should be ignored in
-   --  most code below.
-
    task type Watcher with Priority => Config.WebSocket_Priority is
    end Watcher;
 
@@ -126,11 +116,14 @@ package body AWS.Net.WebSocket.Registry is
       procedure Finalize;
       --  Close signaling socket
 
+      function Create_Set return FD_Set.Socket_Set_Type;
+      --  Returns the set of watched WebSockets
+
       procedure Watch (WebSocket : Object_Class);
       --  Add a new Websocket into the set, release the current FD_Set.Wait
       --  call if any to ensure this new WebSocket will be watched too.
 
-      procedure Remove (Index : FD_Set.Socket_Index);
+      procedure Remove (WebSocket : Object_Class);
       --  Remove WebSocket at the given index
 
       entry Not_Empty;
@@ -200,6 +193,12 @@ package body AWS.Net.WebSocket.Registry is
       Signal     : Boolean := False;    -- Transient signal, release Not_Emtpy
       Count      : Natural := 0;        -- Not counting signaling socket
       Registered : WebSocket_Set.Map;   -- Contains all the WebSocket ref
+
+      Watched    : WebSocket_Set.Map;
+      --  All WebSockets are registered into this set to check for incoming
+      --  messages. When a message is ready the WebSocket is placed into the
+      --  Message_Queue for being handled. When the message has been read
+      --  and handled the WebSocket is put back into this set.
    end DB;
 
    -------------
@@ -215,6 +214,11 @@ package body AWS.Net.WebSocket.Registry is
          DB.Not_Empty;
          exit when Shutdown_Signal;
 
+         declare
+            Set : FD_Set.Socket_Set_Type := DB.Create_Set;
+            --  Note that the very first one is a signaling socket used to
+            --  release the wait call. This first entry is not a WebSocket and
+            --  should be ignored in most code below.
          begin
             --  Wait indefinitely, this call will be released either by an
             --  incoming message in a WebSocket or because the signaling socket
@@ -234,13 +238,10 @@ package body AWS.Net.WebSocket.Registry is
                while K <= FD_Set.Count (Set) loop
                   if FD_Set.Is_Read_Ready (Set, K) then
                      WS := FD_Set.Get_Data (Set, K);
-                     DB.Remove (K);
+                     DB.Remove (WS);
                      Message_Queue.Add (WS);
-                     --  Don't increment K if we're removing FDs as it will get
-                     --  replaced with last value.
-                  else
-                     K := K + 1;
                   end if;
+                  K := K + 1;
                end loop;
             end;
 
@@ -455,6 +456,25 @@ package body AWS.Net.WebSocket.Registry is
          Socket.Shutdown;
       end Close;
 
+      ----------------
+      -- Create_Set --
+      ----------------
+
+      function Create_Set return FD_Set.Socket_Set_Type is
+      begin
+         return Result : FD_Set.Socket_Set_Type do
+            --  Add the signaling socket
+
+            FD_Set.Add (Result, Sig1, null, FD_Set.Input);
+
+            --  Add watched sockets
+
+            for WS of Watched loop
+               FD_Set.Add (Result, WS.all, WS, FD_Set.Input);
+            end loop;
+         end return;
+      end Create_Set;
+
       --------------
       -- Finalize --
       --------------
@@ -494,8 +514,6 @@ package body AWS.Net.WebSocket.Registry is
          Net.Std.Shutdown (Sig1);
          Net.Std.Shutdown (Sig2);
 
-         FD_Set.Reset (Set);
-
          --  Finally send a On_Close message to all registered WebSocket
 
          Registered.Iterate (On_Close'Access);
@@ -511,7 +529,6 @@ package body AWS.Net.WebSocket.Registry is
          --  Create a signaling socket that will be used to exit from the
          --  infinite wait when a new WebSocket arrives.
          Net.Std.Socket_Pair (Sig1, Sig2);
-         FD_Set.Add (Set, Sig1, null, FD_Set.Input);
       end Initialize;
 
       -------------------
@@ -568,11 +585,12 @@ package body AWS.Net.WebSocket.Registry is
       -- Remove --
       ------------
 
-      procedure Remove (Index : FD_Set.Socket_Index) is
+      procedure Remove (WebSocket : Object_Class) is
       begin
-         pragma Assert (Index > 1);
-         FD_Set.Remove_Socket (Set, Index);
-         Count := Count - 1;
+         if Watched.Contains (WebSocket.Id) then
+            Watched.Exclude (WebSocket.Id);
+            Count := Count - 1;
+         end if;
       end Remove;
 
       ----------
@@ -700,17 +718,8 @@ package body AWS.Net.WebSocket.Registry is
       begin
          Registered.Exclude (WebSocket.Id);
 
-         --  And remove it from the set
-
-         for K in 2 .. FD_Set.Count (Set) loop
-            if FD_Set.Get_Data (Set, K) = WebSocket then
-               --  It's okay to remove from here because we immediately exit
-               --  the loop.
-               Remove (K);
-               Signal_Socket;
-               exit;
-            end if;
-         end loop;
+         Remove (WebSocket);
+         Signal_Socket;
       end Unregister;
 
       -----------
@@ -719,13 +728,11 @@ package body AWS.Net.WebSocket.Registry is
 
       procedure Watch (WebSocket : Object_Class) is
       begin
-         FD_Set.Add (Set, WebSocket.all, WebSocket, FD_Set.Input);
-
-         Count := Count + 1;
-
-         --  Signal the wait if there was already some socket
-
-         if Count > 1 then
+         if Is_Registered (WebSocket.Id)
+           and then not Watched.Contains (WebSocket.Id)
+         then
+            Watched.Insert (WebSocket.Id, WebSocket);
+            Count := Count + 1;
             Signal_Socket;
          end if;
       end Watch;

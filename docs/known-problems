@@ -1,5 +1,10 @@
 Known Problems fixed in AWS 3.2
 
+- N727-001: WebSocket concurrency issue
+  Problem: When using lot of tasks to handle WebSockets the AWS server could
+           crashes abruptly.
+  Workaround: None.
+
 - N624-001: AWS won't build on Darwin with OpenSSL
   Problem: The link will not succeed because the OpenSSL thin binding does
            not allow for symbols decoration as using Link_Name in the
