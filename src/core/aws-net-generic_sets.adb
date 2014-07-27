@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2004-2012, AdaCore                     --
+--                     Copyright (C) 2004-2014, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -108,6 +108,10 @@ package body AWS.Net.Generic_Sets is
       Mode   : Waiting_Mode;
       Length : out Socket_Count) is
    begin
+      if Socket = null then
+         raise Constraint_Error with "Cannot add null Socket_Access.";
+      end if;
+
       if Set.Set = null then
          --  Allocate only few elements in array first, because this package
          --  often would be used for wait just one socket.
@@ -197,7 +201,7 @@ package body AWS.Net.Generic_Sets is
      (Set   : Socket_Set_Type;
       Index : Socket_Index) return Boolean is
    begin
-      return Index <= Count (Set);
+      return Index <= Count (Set) and then Set.Set (Index).Socket /= null;
    end In_Range;
 
    --------------
@@ -272,6 +276,11 @@ package body AWS.Net.Generic_Sets is
          raise Constraint_Error;
       end if;
 
+      --  Ensure that removed socket is not accessible
+
+      Set.Set (Last).Socket := null;
+      Set.Set (Last).Allocated := False;
+
       Set.Poll.Remove (Positive (Index));
    end Remove_Socket;
 
@@ -289,6 +298,11 @@ package body AWS.Net.Generic_Sets is
       elsif Index > Last then
          raise Constraint_Error;
       end if;
+
+      --  Ensure that removed socket is not accessible
+
+      Set.Set (Last).Socket := null;
+      Set.Set (Last).Allocated := False;
 
       Set.Poll.Remove (Positive (Index));
    end Remove_Socket;
