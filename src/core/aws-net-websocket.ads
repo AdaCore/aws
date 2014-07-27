@@ -200,6 +200,9 @@ package AWS.Net.WebSocket is
 
    type UID is range 0 .. 2**31;
 
+   No_UID : constant UID;
+   --  Not an UID, this is a WebSocket not yet initialized
+
    function Get_UID (Socket : Object) return UID;
    --  Returns a unique id for the given socket. The uniqueness for this socket
    --  is guaranteed during the lifetime of the application.
@@ -275,11 +278,13 @@ private
 
    overriding procedure Free (Socket : in out Object);
 
+   No_UID    : constant UID := 0;
+
    No_Object : constant Object'Class :=
                  Object'
                    (Net.Socket_Type with
                     Socket  => null,
-                    Id      => 0,
+                    Id      => No_UID,
                     Request => <>,
                     Version => 0,
                     State   => null,
