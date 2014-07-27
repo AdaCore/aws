@@ -79,11 +79,25 @@ package AWS.Net.WebSocket.Registry is
    --  which has sent the message triggering a response.
 
    procedure Send
+     (To          : Recipient;
+      Message     : Unbounded_String;
+      Except_Peer : String := "";
+      Timeout     : Duration := Forever);
+   --  As above but with an Unbounded_String
+
+   procedure Send
      (To      : Recipient;
       Message : String;
       Request : AWS.Status.Data;
       Timeout : Duration := Forever);
    --  As above but filter out the client having set the given request
+
+   procedure Send
+     (To      : Recipient;
+      Message : Unbounded_String;
+      Request : AWS.Status.Data;
+      Timeout : Duration := Forever);
+   --  As above but with an Unbounded_String
 
    procedure Close
      (To          : Recipient;

@@ -120,4 +120,20 @@ package body WSUID_CB is
         (Message & " [" & Natural'Image (Socket.C) & "]");
    end Send;
 
+   overriding procedure Send
+     (Socket    : in out Object;
+      Message   : Unbounded_String;
+      Is_Binary : Boolean := False)
+   is
+      pragma Unreferenced (Is_Binary);
+   begin
+      --  This implementation just adds a counter after the message
+      Socket.C := Socket.C + 1;
+      Text_IO.Put_Line
+        ("Send : "
+         & To_String (Message) & " [" & Natural'Image (Socket.C) & "]");
+      Net.WebSocket.Object (Socket).Send
+        (Message & " [" & Natural'Image (Socket.C) & "]");
+   end Send;
+
 end WSUID_CB;
