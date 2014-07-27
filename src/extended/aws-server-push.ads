@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2000-2012, AdaCore                     --
+--                     Copyright (C) 2000-2014, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -32,10 +32,7 @@
 --  For Microsoft Internet Explorer complementary active components
 --  should be used like java applets or ActiveX controls.
 
-with Ada.Containers.Indefinite_Hashed_Sets;
-with Ada.Containers.Indefinite_Hashed_Maps;
-with Ada.Containers.Indefinite_Doubly_Linked_Lists;
-with Ada.Strings.Hash;
+with Ada.Calendar;
 with Ada.Streams;
 with Ada.Strings.Unbounded;
 
@@ -44,6 +41,11 @@ with AWS.Default;
 with AWS.Net;
 
 with System;
+
+private with Ada.Containers.Indefinite_Hashed_Sets;
+private with Ada.Containers.Indefinite_Hashed_Maps;
+private with Ada.Containers.Indefinite_Doubly_Linked_Lists;
+private with Ada.Strings.Hash;
 
 generic
 
@@ -63,6 +65,8 @@ generic
 
 package AWS.Server.Push is
 
+   use Ada;
+   use Ada.Streams;
    use Ada.Strings.Unbounded;
 
    Client_Gone : exception;
@@ -268,7 +272,7 @@ package AWS.Server.Push is
    procedure Info
      (Size        : out Natural;
       Max_Size    : out Natural;
-      Max_Size_DT : out Ada.Calendar.Time;
+      Max_Size_DT : out Calendar.Time;
       Counter     : out Wait_Counter_Type);
    --  Size would return number of currently waiting sockets.
    --  Counter would return total number of waited sockets from start.

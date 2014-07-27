@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2003-2012, AdaCore                     --
+--                     Copyright (C) 2003-2014, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -35,6 +35,8 @@ with AWS.Status;
 
 package AWS.Exceptions is
 
+   use Ada.Exceptions;
+
    type Data is record
       Fatal   : Boolean;
       --  If True it means that we go a fatal error. The slot will be
@@ -49,8 +51,8 @@ package AWS.Exceptions is
       --  failed. This variable is set only when Fatal is False.
    end record;
 
-   type Unexpected_Exception_Handler is access
-     procedure (E      : Ada.Exceptions.Exception_Occurrence;
+   type Unexpected_Exception_Handler is not null access
+     procedure (E      : Exception_Occurrence;
                 Log    : in out AWS.Log.Object;
                 Error  : Data;
                 Answer : in out Response.Data);

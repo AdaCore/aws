@@ -47,8 +47,7 @@ package AWS.Headers is
    Format_Error : exception;
    --  Raised when header line format is wrong
 
-   procedure Send_Header
-     (Socket : Net.Socket_Type'Class; Headers : List);
+   procedure Send_Header (Socket : Net.Socket_Type'Class; Headers : List);
    --  Send all header lines in Headers list to the socket
 
    function Get_Line (Headers : List; N : Positive) return String;

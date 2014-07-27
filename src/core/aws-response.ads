@@ -35,10 +35,8 @@ pragma Ada_2012;
 --  on the client side.
 
 with Ada.Calendar;
-with Ada.Finalization;
 with Ada.Streams;
 with Ada.Strings.Unbounded;
-with Ada.Unchecked_Deallocation;
 
 with AWS.Headers;
 with AWS.Messages;
@@ -47,10 +45,14 @@ with AWS.Net;
 with AWS.Resources.Streams;
 with AWS.Status;
 
+private with Ada.Finalization;
+private with Ada.Unchecked_Deallocation;
+
 package AWS.Response is
 
    use Ada;
    use Ada.Streams;
+   use Ada.Strings.Unbounded;
 
    type Data is private;
    --  Note that this type use a reference counter which is not thread safe
@@ -109,7 +111,7 @@ package AWS.Response is
 
    function Build
      (Content_Type    : String;
-      UString_Message : Strings.Unbounded.Unbounded_String;
+      UString_Message : Unbounded_String;
       Status_Code     : Messages.Status_Code      := Messages.S200;
       Cache_Control   : Messages.Cache_Option     := Messages.Unspecified;
       Encoding        : Messages.Content_Encoding := Messages.Identity)
@@ -122,7 +124,7 @@ package AWS.Response is
 
    function Build
      (Content_Type  : String;
-      Message_Body  : Streams.Stream_Element_Array;
+      Message_Body  : Stream_Element_Array;
       Status_Code   : Messages.Status_Code         := Messages.S200;
       Cache_Control : Messages.Cache_Option        := Messages.Unspecified;
       Encoding      : Messages.Content_Encoding    := Messages.Identity)
@@ -312,10 +314,10 @@ package AWS.Response is
    --  For get data from user defined streams routine Create_Resource should
    --  be used.
 
-   function Message_Body (D : Data) return Strings.Unbounded.Unbounded_String;
+   function Message_Body (D : Data) return Unbounded_String;
    --  Returns message body content as an unbounded_string
 
-   function Message_Body (D : Data) return Streams.Stream_Element_Array;
+   function Message_Body (D : Data) return Stream_Element_Array;
    --  Returns message body as a binary content
 
    procedure Message_Body
@@ -372,8 +374,6 @@ package AWS.Response is
 
 private
 
-   use Ada.Strings.Unbounded;
-
    Default_Moved_Message : constant String :=
                              "Page moved<br><a href=""_@_"">Click here</a>";
 
@@ -424,7 +424,5 @@ private
 
    procedure Unchecked_Free is new Ada.Unchecked_Deallocation
      (Resources.Streams.Stream_Type'Class, Resources.Streams.Stream_Access);
-
-   function Keep_Alive (D : Data) return Boolean is (D.Keep_Alive);
 
 end AWS.Response;

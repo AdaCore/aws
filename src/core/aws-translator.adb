@@ -99,10 +99,6 @@ package body AWS.Translator is
    -- Base64 Decode / Encode --
    ----------------------------
 
-   -------------
-   -- General --
-   -------------
-
    --  The base64 character set
 
    Base64 : constant array (Base64_Mode) of aliased Base64_Encode_Array :=

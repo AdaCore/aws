@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2000-2013, AdaCore                     --
+--                     Copyright (C) 2000-2014, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -33,10 +33,9 @@ pragma Ada_2012;
 --  RFC 821 is covered. There is no support to send a message to a console for
 --  example.
 
-with Ada.Strings.Unbounded;
-
 with AWS.Net;
 
+private with Ada.Strings.Unbounded;
 limited with AWS.SMTP.Authentication;
 
 package AWS.SMTP is

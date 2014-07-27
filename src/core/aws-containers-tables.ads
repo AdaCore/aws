@@ -103,14 +103,14 @@ package AWS.Containers.Tables is
    generic
       with procedure Process (Name, Value : String);
    procedure Generic_Iterate_Names
-     (Table : Table_Type; Coupler : String);
+     (Table : Table_Type; Separator : String);
    --  Iterates over all names in the table.
-   --  All Values of the same name would be given Coupler separated.
+   --  All Values of the same name are separated by Separator string.
 
    procedure Iterate_Names
-     (Table   : Table_Type;
-      Coupler : String;
-      Process : not null access procedure (Name, Value : String));
+     (Table     : Table_Type;
+      Separator : String;
+      Process   : not null access procedure (Name, Value : String));
 
 private
 

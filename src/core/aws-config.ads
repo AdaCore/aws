@@ -34,17 +34,15 @@ pragma Ada_2012;
 --  If initialization of this package is not done all functions below will
 --  return the default value as declared in AWS.Default.
 
-with Ada.Strings.Unbounded;
 with System;
 
 with GNAT.Regexp;
 
+private with Ada.Strings.Unbounded;
 private with AWS.Containers.String_Vectors;
 private with AWS.Default;
 
 package AWS.Config is
-
-   use Ada.Strings.Unbounded;
 
    type Object is private;
 
@@ -401,6 +399,8 @@ package AWS.Config is
 
 private
 
+   use Ada.Strings.Unbounded;
+
    package SV renames AWS.Containers.String_Vectors;
 
    --  List of token (keyword) recognized by the parser. There must be one
@@ -523,180 +523,183 @@ private
 
    type Parameter_Set is array (Parameter_Name range <>) of Values;
 
-   Default_Parameters : constant Parameter_Set (Server_Parameter_Name)
-     := (Cleaner_Wait_For_Client_Timeout =>
-           (Dur, Default.Cleaner_Wait_For_Client_Timeout),
+   function "+"
+     (Str : String) return Unbounded_String renames To_Unbounded_String;
 
-         Cleaner_Client_Header_Timeout =>
-           (Dur, Default.Cleaner_Client_Header_Timeout),
+   Default_Parameters : constant Parameter_Set (Server_Parameter_Name) :=
+                          (Cleaner_Wait_For_Client_Timeout =>
+                             (Dur, Default.Cleaner_Wait_For_Client_Timeout),
 
-         Cleaner_Client_Data_Timeout =>
-           (Dur, Default.Cleaner_Client_Data_Timeout),
+                           Cleaner_Client_Header_Timeout   =>
+                             (Dur, Default.Cleaner_Client_Header_Timeout),
 
-         Cleaner_Server_Response_Timeout =>
-           (Dur, Default.Cleaner_Server_Response_Timeout),
+                           Cleaner_Client_Data_Timeout     =>
+                             (Dur, Default.Cleaner_Client_Data_Timeout),
 
-         Force_Wait_For_Client_Timeout =>
-           (Dur, Default.Force_Wait_For_Client_Timeout),
+                           Cleaner_Server_Response_Timeout =>
+                             (Dur, Default.Cleaner_Server_Response_Timeout),
 
-         Force_Client_Header_Timeout =>
-           (Dur, Default.Force_Client_Header_Timeout),
+                           Force_Wait_For_Client_Timeout   =>
+                             (Dur, Default.Force_Wait_For_Client_Timeout),
 
-         Force_Client_Data_Timeout =>
-           (Dur, Default.Force_Client_Data_Timeout),
+                           Force_Client_Header_Timeout     =>
+                             (Dur, Default.Force_Client_Header_Timeout),
 
-         Force_Server_Response_Timeout =>
-           (Dur, Default.Force_Server_Response_Timeout),
+                           Force_Client_Data_Timeout       =>
+                             (Dur, Default.Force_Client_Data_Timeout),
 
-         Send_Timeout =>
-           (Dur, Default.Send_Timeout),
+                           Force_Server_Response_Timeout   =>
+                             (Dur, Default.Force_Server_Response_Timeout),
 
-         Receive_Timeout =>
-           (Dur, Default.Receive_Timeout),
+                           Send_Timeout                    =>
+                             (Dur, Default.Send_Timeout),
 
-         Status_Page =>
-           (Str, To_Unbounded_String (Default.Status_Page)),
+                           Receive_Timeout                 =>
+                             (Dur, Default.Receive_Timeout),
 
-         Directory_Browser_Page =>
-           (Str, To_Unbounded_String (Default.Directory_Browser_Page)),
+                           Status_Page                     =>
+                             (Str, +Default.Status_Page),
 
-         Up_Image =>
-           (Str, To_Unbounded_String (Default.Up_Image)),
+                           Directory_Browser_Page          =>
+                             (Str, +Default.Directory_Browser_Page),
 
-         Down_Image =>
-           (Str, To_Unbounded_String (Default.Down_Image)),
+                           Up_Image                        =>
+                             (Str, +Default.Up_Image),
 
-         Logo_Image =>
-           (Str, To_Unbounded_String (Default.Logo_Image)),
+                           Down_Image                      =>
+                             (Str, +Default.Down_Image),
 
-         Admin_Password =>
-           (Str, To_Unbounded_String (Default.Admin_Password)),
+                           Logo_Image                      =>
+                             (Str, +Default.Logo_Image),
 
-         Admin_Realm =>
-           (Str, To_Unbounded_String (Default.Admin_Realm)),
+                           Admin_Password                  =>
+                             (Str, +Default.Admin_Password),
 
-         Admin_URI =>
-           (Str, To_Unbounded_String (Default.Admin_URI)),
+                           Admin_Realm                     =>
+                             (Str, +Default.Admin_Realm),
 
-         Server_Name =>
-           (Str, To_Unbounded_String (Default.Server_Name)),
+                           Admin_URI                       =>
+                             (Str, +Default.Admin_URI),
 
-         WWW_Root =>
-           (Dir, To_Unbounded_String (Default.WWW_Root)),
+                           Server_Name                     =>
+                             (Str, +Default.Server_Name),
 
-         Log_File_Directory =>
-           (Dir, To_Unbounded_String (Default.Log_File_Directory)),
+                           WWW_Root                        =>
+                             (Dir, +Default.WWW_Root),
 
-         Log_Filename_Prefix =>
-           (Str, To_Unbounded_String (Default.Log_Filename_Prefix)),
+                           Log_File_Directory              =>
+                             (Dir, +Default.Log_File_Directory),
 
-         Log_Extended_Fields =>
-           (Str_Vect, SV.Empty_Vector),
+                           Log_Filename_Prefix             =>
+                             (Str, +Default.Log_Filename_Prefix),
 
-         Log_Split_Mode =>
-           (Str, To_Unbounded_String (Default.Log_Split_Mode)),
+                           Log_Extended_Fields             =>
+                             (Str_Vect, SV.Empty_Vector),
 
-         Log_Size_Limit =>
-           (Nat, Default.Log_Size_Limit),
+                           Log_Split_Mode                  =>
+                             (Str, +Default.Log_Split_Mode),
 
-         Error_Log_Filename_Prefix =>
-           (Str, To_Unbounded_String (Default.Error_Log_Filename_Prefix)),
+                           Log_Size_Limit                  =>
+                             (Nat, Default.Log_Size_Limit),
 
-         Error_Log_Split_Mode =>
-           (Str, To_Unbounded_String (Default.Error_Log_Split_Mode)),
+                           Error_Log_Filename_Prefix       =>
+                             (Str, +Default.Error_Log_Filename_Prefix),
 
-         Upload_Directory =>
-           (Dir, To_Unbounded_String (Default.Upload_Directory)),
+                           Error_Log_Split_Mode            =>
+                             (Str, +Default.Error_Log_Split_Mode),
 
-         Upload_Size_Limit =>
-           (Pos, Default.Upload_Size_Limit),
+                           Upload_Directory                =>
+                             (Dir, +Default.Upload_Directory),
 
-         Max_Connection =>
-           (Pos, Default.Max_Connection),
+                           Upload_Size_Limit               =>
+                             (Pos, Default.Upload_Size_Limit),
 
-         Send_Buffer_Size =>
-           (Nat, Default.Send_Buffer_Size),
+                           Max_Connection                  =>
+                             (Pos, Default.Max_Connection),
 
-         Free_Slots_Keep_Alive_Limit =>
-           (Nat, Default.Free_Slots_Keep_Alive_Limit),
+                           Send_Buffer_Size                =>
+                             (Nat, Default.Send_Buffer_Size),
 
-         Keep_Alive_Force_Limit =>
-           (Nat, Default.Keep_Alive_Force_Limit),
+                           Free_Slots_Keep_Alive_Limit     =>
+                             (Nat, Default.Free_Slots_Keep_Alive_Limit),
 
-         Keep_Alive_Close_Limit =>
-           (Nat, Default.Keep_Alive_Close_Limit),
+                           Keep_Alive_Force_Limit          =>
+                             (Nat, Default.Keep_Alive_Force_Limit),
 
-         Accept_Queue_Size =>
-           (Pos, Default.Accept_Queue_Size),
+                           Keep_Alive_Close_Limit          =>
+                             (Nat, Default.Keep_Alive_Close_Limit),
 
-         Protocol_Family =>
-           (Str, To_Unbounded_String (Default.Protocol_Family)),
+                           Accept_Queue_Size               =>
+                             (Pos, Default.Accept_Queue_Size),
 
-         Server_Host =>
-           (Str, Null_Unbounded_String),
+                           Protocol_Family                 =>
+                             (Str, +Default.Protocol_Family),
 
-         Server_Port =>
-           (Nat, Default.Server_Port),
+                           Server_Host                     =>
+                             (Str, Null_Unbounded_String),
 
-         Server_Priority =>
-           (Nat, Default.Server_Priority),
+                           Server_Port                     =>
+                             (Nat, Default.Server_Port),
 
-         Hotplug_Port =>
-           (Pos, Default.Hotplug_Port),
+                           Server_Priority                 =>
+                             (Nat, Default.Server_Priority),
 
-         Session =>
-           (Bool, Default.Session),
+                           Hotplug_Port                    =>
+                             (Pos, Default.Hotplug_Port),
 
-         Session_Name =>
-           (Str, To_Unbounded_String (Default.Session_Name)),
+                           Session                         =>
+                             (Bool, Default.Session),
 
-         Security =>
-           (Bool, Default.Security),
+                           Session_Name                    =>
+                             (Str, +Default.Session_Name),
 
-         Certificate =>
-           (Str, To_Unbounded_String (Default.Certificate)),
+                           Security                        =>
+                             (Bool, Default.Security),
 
-         Key =>
-           (Str, To_Unbounded_String (Default.Key)),
+                           Certificate                     =>
+                             (Str, +Default.Certificate),
 
-         Security_Mode =>
-           (Str, To_Unbounded_String (Default.Security_Mode)),
+                           Key                             =>
+                             (Str, +Default.Key),
 
-         Cipher_Priorities =>
-           (Str, To_Unbounded_String (Default.Cipher_Priorities)),
+                           Security_Mode                   =>
+                             (Str, +Default.Security_Mode),
 
-         TLS_Ticket_Support =>
-           (Bool, Default.TLS_Ticket_Support),
+                           Cipher_Priorities               =>
+                             (Str, +Default.Cipher_Priorities),
 
-         Exchange_Certificate =>
-           (Bool, Default.Exchange_Certificate),
+                           TLS_Ticket_Support              =>
+                             (Bool, Default.TLS_Ticket_Support),
 
-         Certificate_Required =>
-           (Bool, Default.Certificate_Required),
+                           Exchange_Certificate            =>
+                             (Bool, Default.Exchange_Certificate),
 
-         Trusted_CA =>
-           (Str, To_Unbounded_String (Default.Trusted_CA)),
+                           Certificate_Required            =>
+                             (Bool, Default.Certificate_Required),
 
-         CRL_File =>
-           (Str, To_Unbounded_String (Default.CRL_File)),
+                           Trusted_CA                      =>
+                             (Str, +Default.Trusted_CA),
 
-         Case_Sensitive_Parameters =>
-           (Bool, Default.Case_Sensitive_Parameters),
+                           CRL_File                        =>
+                             (Str, +Default.CRL_File),
 
-         Check_URL_Validity =>
-           (Bool, Default.Check_URL_Validity),
+                           Case_Sensitive_Parameters       =>
+                             (Bool, Default.Case_Sensitive_Parameters),
 
-         Line_Stack_Size =>
-           (Pos, Default.Line_Stack_Size),
+                           Check_URL_Validity              =>
+                             (Bool, Default.Check_URL_Validity),
 
-         Reuse_Address =>
-           (Bool, Default.Reuse_Address),
+                           Line_Stack_Size                 =>
+                             (Pos, Default.Line_Stack_Size),
 
-         Max_POST_Parameters =>
-           (Pos, Default.Max_POST_Parameters),
+                           Reuse_Address                   =>
+                             (Bool, Default.Reuse_Address),
 
-         MIME_Types =>
-           (Str, To_Unbounded_String (Default.MIME_Types)));
+                           Max_POST_Parameters             =>
+                             (Pos, Default.Max_POST_Parameters),
+
+                           MIME_Types                      =>
+                             (Str, +Default.MIME_Types));
 
    type Object is record
       P : Parameter_Set (Server_Parameter_Name) := Default_Parameters;
@@ -704,50 +707,51 @@ private
 
    Default_Config : constant Object := (P => Default_Parameters);
 
-   Process_Options : Parameter_Set (Process_Parameter_Name)
-     := (Session_Cleanup_Interval =>
-           (Dur, Default.Session_Cleanup_Interval),
+   Process_Options : Parameter_Set (Process_Parameter_Name) :=
+                       (Session_Cleanup_Interval     =>
+                          (Dur, Default.Session_Cleanup_Interval),
 
-         Session_Lifetime =>
-           (Dur, Default.Session_Lifetime),
+                        Session_Lifetime             =>
+                          (Dur, Default.Session_Lifetime),
 
-         Session_Id_Length =>
-           (Pos, Default.Session_Id_Length),
+                        Session_Id_Length            =>
+                          (Pos, Default.Session_Id_Length),
 
-         Session_Cleaner_Priority =>
-           (Nat, Default.Session_Cleaner_Priority),
+                        Session_Cleaner_Priority     =>
+                          (Nat, Default.Session_Cleaner_Priority),
 
-         Service_Priority =>
-           (Nat, Default.Service_Priority),
+                        Service_Priority             =>
+                          (Nat, Default.Service_Priority),
 
-         Config_Directory =>
-           (Str, To_Unbounded_String (Default.Config_Directory)),
+                        Config_Directory             =>
+                          (Str, +Default.Config_Directory),
 
-         Transient_Cleanup_Interval =>
-           (Dur, Default.Transient_Cleanup_Interval),
+                        Transient_Cleanup_Interval   =>
+                          (Dur, Default.Transient_Cleanup_Interval),
 
-         Transient_Lifetime =>
-           (Dur, Default.Transient_Lifetime),
+                        Transient_Lifetime           =>
+                          (Dur, Default.Transient_Lifetime),
 
-         Input_Line_Size_Limit =>
-           (Pos, Default.Input_Line_Size_Limit),
+                        Input_Line_Size_Limit        =>
+                          (Pos, Default.Input_Line_Size_Limit),
 
-         Max_Concurrent_Download =>
-           (Pos, Default.Max_Concurrent_Download),
+                        Max_Concurrent_Download      =>
+                          (Pos, Default.Max_Concurrent_Download),
 
-         Max_WebSocket_Handler =>
-           (Pos, Default.Max_WebSocket_Handler),
+                        Max_WebSocket_Handler        =>
+                          (Pos, Default.Max_WebSocket_Handler),
 
-         WebSocket_Message_Queue_Size =>
-           (Pos, Default.WebSocket_Message_Queue_Size),
+                        WebSocket_Message_Queue_Size =>
+                          (Pos, Default.WebSocket_Message_Queue_Size),
 
-         WebSocket_Origin =>
-           (Regexp, False, Pattern => <>, Regexp_Str => Null_Unbounded_String),
+                        WebSocket_Origin             =>
+                          (Regexp, False, Pattern => <>,
+                           Regexp_Str             => Null_Unbounded_String),
 
-         WebSocket_Priority =>
-           (Nat, Default.WebSocket_Priority),
+                        WebSocket_Priority           =>
+                          (Nat, Default.WebSocket_Priority),
 
-         Context_Lifetime =>
-           (Dur, Default.Context_Lifetime));
+                        Context_Lifetime             =>
+                          (Dur, Default.Context_Lifetime));
 
 end AWS.Config;

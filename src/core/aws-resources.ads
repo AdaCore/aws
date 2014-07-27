@@ -29,8 +29,9 @@
 
 with Ada.Calendar;
 with Ada.Streams;
-with Ada.Unchecked_Deallocation;
 with AWS.Utils;
+
+private with Ada.Unchecked_Deallocation;
 
 package AWS.Resources is
 

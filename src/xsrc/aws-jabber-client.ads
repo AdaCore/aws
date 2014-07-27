@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2008-2013, AdaCore                     --
+--                     Copyright (C) 2008-2014, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -29,14 +29,12 @@
 
 pragma Ada_2012;
 
-with Ada.Strings.Unbounded;
+private with Ada.Strings.Unbounded;
 
 private with AWS.Config;
 private with AWS.Net;
 
 package AWS.Jabber.Client is
-
-   use Ada.Strings.Unbounded;
 
    type Account is limited private;
    type Account_Access is not null access all Account;
@@ -125,6 +123,9 @@ package AWS.Jabber.Client is
    --  message is composed of Subject and a body (Content).
 
 private
+
+   use Ada.Strings.Unbounded;
+
    --  Jabber Client and Server open a stream and both communicate with each
    --  others via this channel. All messages exchanged are XML encoded. Both
    --  streams (client -> server and server -> client) have a common

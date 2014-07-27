@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2003-2012, AdaCore                     --
+--                     Copyright (C) 2003-2014, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -30,9 +30,8 @@
 --  An ready-to-use implementation of the stream API where the stream content
 --  is read from an on-disk file.
 
-with Ada.Streams.Stream_IO;
-
 private with Ada.Strings.Unbounded;
+private with Ada.Streams.Stream_IO;
 
 package AWS.Resources.Streams.Disk is
 

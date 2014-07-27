@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2000-2013, AdaCore                     --
+--                     Copyright (C) 2000-2014, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -106,7 +106,7 @@ package body AWS.Containers.Tables is
    ---------------------------
 
    procedure Generic_Iterate_Names
-     (Table : Table_Type; Coupler : String)
+     (Table : Table_Type; Separator : String)
    is
       use type Ada.Containers.Count_Type;
 
@@ -136,7 +136,7 @@ package body AWS.Containers.Tables is
                   Append (Value, Data_Table.Element (Table.Data, Idx).Value);
 
                   if J < Positive (Name_Indexes.Length (NI)) then
-                     Append (Value, Coupler);
+                     Append (Value, Separator);
                   end if;
                end loop;
 
@@ -299,13 +299,13 @@ package body AWS.Containers.Tables is
    -------------------
 
    procedure Iterate_Names
-     (Table   : Table_Type;
-      Coupler : String;
-      Process : not null access procedure (Name, Value : String))
+     (Table     : Table_Type;
+      Separator : String;
+      Process   : not null access procedure (Name, Value : String))
    is
       procedure For_Each is new Generic_Iterate_Names (Process.all);
    begin
-      For_Each (Table, Coupler);
+      For_Each (Table, Separator);
    end Iterate_Names;
 
    ----------------

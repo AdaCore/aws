@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2005-2013, AdaCore                     --
+--                     Copyright (C) 2005-2014, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -33,18 +33,21 @@ pragma Ada_2012;
 
 with Ada.Containers.Doubly_Linked_Lists;
 with Ada.Exceptions;
-with Ada.Real_Time;
 
 with AWS.Net;
 with AWS.Net.Generic_Sets;
 with AWS.Utils;
 
+private with Ada.Real_Time;
+
 package AWS.Net.Acceptors is
+
+   use Ada;
+   use Ada.Exceptions;
 
    type Acceptor_Type is limited private;
 
-   package Socket_Lists is
-     new Ada.Containers.Doubly_Linked_Lists (Socket_Access);
+   package Socket_Lists is new Containers.Doubly_Linked_Lists (Socket_Access);
 
    subtype Socket_List is Socket_Lists.List;
 
@@ -89,8 +92,7 @@ package AWS.Net.Acceptors is
    procedure Get
      (Acceptor : in out Acceptor_Type;
       Socket   : out    Socket_Access;
-      On_Error : access procedure
-        (E : Ada.Exceptions.Exception_Occurrence) := null);
+      On_Error : access procedure (E : Exception_Occurrence) := null);
    --  Returns a socket from the internal socket set which has data to read.
    --  Should not be called simultaneously from different tasks.
    --  On_Error needs to be able to catch Socket_Error on Accept_Socket or
@@ -105,8 +107,7 @@ package AWS.Net.Acceptors is
      (Acceptor : in out Acceptor_Type;
       Socket   : out    Socket_Access;
       To_Close : out    Socket_List;
-      On_Error : access procedure
-        (E : Ada.Exceptions.Exception_Occurrence) := null);
+      On_Error : access procedure (E : Exception_Occurrence) := null);
    --  Idem but with output socket list which have to be shutdowned and freed.
    --  It should be done out of critical section if any.
 
@@ -165,7 +166,7 @@ private
    end Socket_Box;
 
    type Socket_Data_Type is record
-      Time  : Ada.Real_Time.Time;
+      Time  : Real_Time.Time;
       First : Boolean;
    end record;
 
@@ -188,10 +189,10 @@ private
       Box                 : Socket_Box (Acceptor_Type'Access);
       Index               : Sets.Socket_Count;
       Last                : Sets.Socket_Count;
-      Timeout             : Ada.Real_Time.Time_Span;
-      First_Timeout       : Ada.Real_Time.Time_Span;
-      Force_Timeout       : Ada.Real_Time.Time_Span;
-      Force_First_Timeout : Ada.Real_Time.Time_Span;
+      Timeout             : Real_Time.Time_Span;
+      First_Timeout       : Real_Time.Time_Span;
+      Force_Timeout       : Real_Time.Time_Span;
+      Force_First_Timeout : Real_Time.Time_Span;
       Force_Length        : Sets.Socket_Count;
       Close_Length        : Sets.Socket_Count;
       Back_Queue_Size     : Positive;
