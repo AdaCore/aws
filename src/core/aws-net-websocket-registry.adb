@@ -578,7 +578,7 @@ package body AWS.Net.WebSocket.Registry is
 
       procedure Register (WebSocket : Object_Class) is
       begin
-         Registered.Insert (WebSocket.Get_UID, WebSocket);
+         Registered.Insert (WebSocket.Id, WebSocket);
       end Register;
 
       ------------
