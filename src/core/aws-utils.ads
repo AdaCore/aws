@@ -91,10 +91,12 @@ package AWS.Utils is
      Inline, Post => Random_String'Result'Length = Length;
    --  Returns random string
 
-   function Image (N : Natural) return String;
+   function Image (N : Natural) return String with
+     Post => Image'Result'Length > 0;
    --  Returns image of N without the leading blank
 
-   function Image (N : Stream_Element_Offset) return String;
+   function Image (N : Stream_Element_Offset) return String with
+     Post => Image'Result'Length > 0;
    --  Returns image of N without the leading blank
 
    function Image (D : Duration) return String;
@@ -123,12 +125,22 @@ package AWS.Utils is
    --  Allow_Negative is True, then also allow the '-' character in the first
    --  position of S.
 
-   function Quote (Str : String; Replace : String := """") return String;
+   function Quote (Str : String; Replace : String := """") return String with
+     Post =>
+       Quote'Result (Quote'Result'First) = '"'
+       and then Quote'Result (Quote'Result'Last) = '"'
+       and then Quote'Result'Length >= Str'Length;
    --  Returns Str with character '"' added at the start and the end
-   --  Replace parameter is for replace the '"' inside of string.
+   --  Replace parameter is for replacing the '"' inside of string.
    --  It is not replaced by default.
 
-   function Dequote (Str : String) return String;
+   function Dequote (Str : String) return String with
+     Post =>
+       Str'Length = 0
+       or else Str (Str'First) /= '"'
+       or else Str (Str'Last) /= '"'
+       or else (Dequote'Result (Dequote'Result'First) /= '"'
+                and then Dequote'Result (Dequote'Result'Last) /= '"');
    --  Removes quotes if any around Str and return the resulting string
 
    function CRLF_2_Spaces (Str : String) return String;

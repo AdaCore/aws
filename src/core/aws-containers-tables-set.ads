@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2000-2012, AdaCore                     --
+--                     Copyright (C) 2000-2014, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -31,7 +31,10 @@ package AWS.Containers.Tables.Set is
 
    procedure Add
      (Table       : in out Table_Type;
-      Name, Value : String);
+      Name, Value : String)
+   with Post => Count (Table) = Count (Table'Old) + 1
+               or else
+                Count (Table, Name) = Count (Table'Old, Name) + 1;
    --  Add a new Key/Value pair into Table. A new value is always added,
    --  even if there is already an entry with the same name.
 
@@ -39,20 +42,30 @@ package AWS.Containers.Tables.Set is
      (Table : in out Table_Type;
       Name  : String;
       Value : String;
-      N     : Positive := 1);
+      N     : Positive := 1)
+   with
+     Pre  =>
+       --  Count + 1 means it is added at the end of the table
+       N <= Count (Table, Name) + 1,
+     Post =>
+       --  Value already exists, it is updated
+       (N <= Count (Table'Old, Name)
+        and then Count (Table, Name) = Count  (Table'Old, Name))
+       --  New value appended
+       or else
+         (N = Count (Table'Old, Name) + 1
+          and then N = Count (Table, Name));
    --  Update the N-th Value with the given Name into the Table.
    --  The container could already have more than one value associated with
-   --  this name. If there is M values with this Name, then if:
-   --     N <= M      => update the value
-   --     N  = M + 1  => the pair name=value is appended to the table
-   --     N  > M + 1  => Constraint_Error raised
+   --  this name.
 
    procedure Case_Sensitive
      (Table : in out Table_Type;
       Mode  : Boolean);
    --  If Mode is True it will use all parameters with case sensitivity
 
-   procedure Reset (Table : in out Table_Type);
+   procedure Reset (Table : in out Table_Type) with
+     Post => Count (Table) = 0;
    --  Removes all object from Table. Table will be reinitialized and will be
    --  ready for new use.
 

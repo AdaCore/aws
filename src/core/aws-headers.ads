@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2000-2012, AdaCore                     --
+--                     Copyright (C) 2000-2014, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -27,6 +27,8 @@
 --  covered by the  GNU Public License.                                     --
 ------------------------------------------------------------------------------
 
+pragma Ada_2012;
+
 with AWS.Containers.Tables;
 with AWS.Net;
 
@@ -50,7 +52,10 @@ package AWS.Headers is
    procedure Send_Header (Socket : Net.Socket_Type'Class; Headers : List);
    --  Send all header lines in Headers list to the socket
 
-   function Get_Line (Headers : List; N : Positive) return String;
+   function Get_Line (Headers : List; N : Positive) return String with
+     Post =>
+       (N > Count (Headers) and then Get_Line'Result'Length = 0)
+       or else N <= Count (Headers);
    --  Returns the Nth header line in Headers container. The returned value is
    --  formatted as a correct header line:
    --

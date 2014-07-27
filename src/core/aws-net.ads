@@ -122,7 +122,8 @@ package AWS.Net is
       Host   : String;
       Port   : Positive;
       Wait   : Boolean     := True;
-      Family : Family_Type := Family_Unspec) is abstract;
+      Family : Family_Type := Family_Unspec) is abstract
+   with Pre'Class => Host'Length > 0;
    --  Connect a socket on a given host/port. If Wait is True Connect will wait
    --  for the connection to be established for timeout seconds, specified by
    --  Set_Timeout routine. If Wait is False Connect will return immediately,
@@ -327,13 +328,15 @@ package AWS.Net is
    procedure Replace
      (FD_Set : in out Net.FD_Set;
       Index  : Positive;
-      FD     : FD_Type) is abstract;
+      FD     : FD_Type) is abstract
+   with Pre'Class => Index <= Length (FD_Set);
    --  Replaces the socket FD in FD_Set
 
    procedure Set_Mode
      (FD_Set : in out Net.FD_Set;
       Index  : Positive;
-      Mode   : Wait_Event_Set) is abstract;
+      Mode   : Wait_Event_Set) is abstract
+   with Pre'Class => Index <= Length (FD_Set);
    --  Sets the kind of network events to wait for
 
    function Copy
@@ -342,7 +345,8 @@ package AWS.Net is
    --  Allocates and copy the given FD_Set with different size
 
    procedure Remove
-     (FD_Set : in out Net.FD_Set; Index : Positive) is abstract;
+     (FD_Set : in out Net.FD_Set; Index : Positive) is abstract
+   with Pre'Class => Index <= Length (FD_Set);
    --  Removes socket FD from Index position.
    --  Last socket FD in FD_Set is placed at position Index.
 
@@ -352,12 +356,16 @@ package AWS.Net is
    procedure Wait
      (FD_Set  : in out Net.FD_Set;
       Timeout : Duration;
-      Count   : out Natural) is abstract;
+      Count   : out Natural) is abstract
+   with Post'Class => Count <= Length (FD_Set);
    --  Wait for network events on the sockets FD set. Count value is the
    --  number of socket FDs with non empty event set.
 
    procedure Next
-     (FD_Set : Net.FD_Set; Index : in out Positive) is abstract;
+     (FD_Set : Net.FD_Set; Index : in out Positive) is abstract
+   with
+     Pre'Class  => Index <= Length (FD_Set) + 1,
+     Post'Class => Index <= Length (FD_Set) + 1;
    --  Looking for an active (for which an event has been detected by routine
    --  Wait above) socket FD starting from Index and return Index of the found
    --  active socket FD. Use functions Status to retreive the kind of network
@@ -365,7 +373,8 @@ package AWS.Net is
 
    function Status
      (FD_Set : Net.FD_Set;
-      Index  : Positive) return Event_Set is abstract;
+      Index  : Positive) return Event_Set is abstract
+   with Pre'Class => Index <= Length (FD_Set);
    --  Returns events for the socket FD at position Index
 
    procedure Free (Socket : in out Socket_Type) is null;

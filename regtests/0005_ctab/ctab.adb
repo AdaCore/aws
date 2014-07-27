@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2000-2012, AdaCore                     --
+--                     Copyright (C) 2000-2014, AdaCore                     --
 --                                                                          --
 --  This is free software;  you can redistribute it  and/or modify it       --
 --  under terms of the  GNU General Public License as published  by the     --
@@ -20,10 +20,12 @@ with AWS.Containers.Tables.Set;
 
 with Ada.Text_IO;
 with Ada.Strings.Unbounded;
+with System.Assertions;
 
 procedure CTab is
    use AWS.Containers.Tables;
    use Ada.Text_IO;
+   use System.Assertions;
 
    Table : Table_Type;
 
@@ -100,14 +102,14 @@ begin
       Set.Update (Table, "NAme_5", "Value", 6);
       Put_Line ("Error.");
    exception
-      when Constraint_Error => null;
+      when Constraint_Error | Assert_Failure => null;
    end;
 
    begin
       Set.Update (Table, "NAme_6", "Value", 2);
       Put_Line ("Error.");
    exception
-      when Constraint_Error =>
+      when Constraint_Error  | Assert_Failure =>
          Put_Line ("Ok.");
    end;
 end CTab;

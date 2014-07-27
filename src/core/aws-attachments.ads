@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2004-2013, AdaCore                     --
+--                     Copyright (C) 2004-2014, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -76,7 +76,8 @@ package AWS.Attachments is
       Content_Id  : String;
       Headers     : AWS.Headers.List := AWS.Headers.Empty_List;
       Name        : String := "";
-      Encode      : Encoding := None);
+      Encode      : Encoding := None)
+   with Post => Count (Attachments) = Count (Attachments'Old) + 1;
    --  Adds an Attachment to the list.
    --  Note that the encoding will overwrite the corresponding entry in
    --  headers.
@@ -86,7 +87,8 @@ package AWS.Attachments is
       Filename    : String;
       Headers     : AWS.Headers.List;
       Name        : String := "";
-      Encode      : Encoding := None);
+      Encode      : Encoding := None)
+   with Post => Count (Attachments) = Count (Attachments'Old) + 1;
    --  Adds an Attachment to the list.
    --  Note that the encoding will overwrite the corresponding entry in
    --  headers.
@@ -95,7 +97,8 @@ package AWS.Attachments is
      (Attachments : in out List;
       Name        : String;
       Data        : Content;
-      Headers     : AWS.Headers.List := AWS.Headers.Empty_List);
+      Headers     : AWS.Headers.List := AWS.Headers.Empty_List)
+   with Post => Count (Attachments) = Count (Attachments'Old) + 1;
    --  Adds an Attachment to the list.
    --  Note that the encoding and content type attached to Data will
    --  overwrite the corresponding entry in headers.
@@ -116,7 +119,8 @@ package AWS.Attachments is
 
    procedure Reset
      (Attachments  : in out List;
-      Delete_Files : Boolean);
+      Delete_Files : Boolean)
+   with Post => Count (Attachments) = 0;
    --  Reset the list to be empty. If Delete_Files is set to true the
    --  attached files are removed from the file system.
 
@@ -125,12 +129,17 @@ package AWS.Attachments is
 
    function Get
      (Attachments : List;
-      Index       : Positive) return Element;
+      Index       : Positive) return Element
+   with Pre => Index <= Count (Attachments);
    --  Returns specified Attachment
 
    function Get
      (Attachments : List;
-      Content_Id  : String) return Element;
+      Content_Id  : String) return Element
+   with
+     Pre =>
+       (for some K in 1 .. Count (Attachments)
+        => AWS.Attachments.Content_Id (Get (Attachments, K)) = Content_Id);
    --  Returns the Attachment with the Content Id
 
    generic
@@ -170,7 +179,8 @@ package AWS.Attachments is
 
    function Length
      (Attachments : List;
-      Boundary    : String) return Natural;
+      Boundary    : String) return Positive
+   with Post => Length'Result > 8;
    --  Returns the complete size of all attachments including the surrounding
    --  boundaries.
 

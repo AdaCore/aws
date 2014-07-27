@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2000-2013, AdaCore                     --
+--                     Copyright (C) 2000-2014, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -72,32 +72,49 @@ package AWS.Containers.Tables is
    function Get
      (Table : Table_Type;
       Name  : String;
-      N     : Positive := 1) return String;
+      N     : Positive := 1) return String
+   with
+     Post =>  (N > Count (Table, Name) and then Get'Result'Length = 0)
+            or else
+              N <= Count (Table, Name);
    --  Returns the Nth value associated with Key into Table. Returns
    --  the emptry string if key does not exist.
 
    function Get_Name
-     (Table : Table_Type; N : Positive := 1) return String;
+     (Table : Table_Type; N : Positive := 1) return String
+   with
+     Post => (N > Count (Table) and then Get_Name'Result'Length = 0)
+            or else
+             (N <= Count (Table) and then Get_Name'Result'Length > 0);
    --  Returns the Nth Name in Table or the empty string if there is
    --  no parameter with this number.
 
    function Get_Value
-     (Table : Table_Type; N : Positive := 1) return String;
+     (Table : Table_Type; N : Positive := 1) return String
+   with
+     Post => (N > Count (Table) and then Get_Value'Result'Length = 0)
+            or else
+             N <= Count (Table);
    --  Returns the Nth Value in Table or the empty string if there is
    --  no parameter with this number.
 
-   function Get (Table : Table_Type; N : Positive) return Element;
+   function Get (Table : Table_Type; N : Positive) return Element with
+     Post => (N > Count (Table) and then Get'Result = Null_Element)
+            or else
+             (N <= Count (Table) and then Get'Result /= Null_Element);
    --  Returns N'th name/value pair. Returns Null_Element if there is no
    --  such item in the table.
 
    function Get_Names
-     (Table : Table_Type; Sort : Boolean := False) return VString_Array;
+     (Table : Table_Type; Sort : Boolean := False) return VString_Array
+   with Post => Get_Names'Result'Length = Name_Count (Table);
    --  Returns array of unique key names. If Sort is True, the returned names
    --  array is sorted in alphabetical order. This is of course slightly
    --  slower than returning unsorted results.
 
    function Get_Values
-     (Table : Table_Type; Name : String) return VString_Array;
+     (Table : Table_Type; Name : String) return VString_Array
+   with Post => Get_Values'Result'Length = Count (Table, Name);
    --  Returns all values for the specified parameter key name
 
    generic

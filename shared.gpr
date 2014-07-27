@@ -149,6 +149,14 @@ abstract project Shared is
             null;
       end case;
 
+      for Switches ("aws-attachments.adb")
+        use Common_Options & Debug_Options & ("-gnatVn");
+      for Switches ("aws-session.adb")
+        use Common_Options & Debug_Options & ("-gnatVn");
+      for Switches ("templates_parser.adb")
+        use Common_Options & Debug_Options & ("-gnatVn");
+      --  Disable validity check on this unit to work-around N728-028
+
    end Compiler;
 
    ------------

@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2004-2013, AdaCore                     --
+--                     Copyright (C) 2004-2014, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -379,9 +379,9 @@ package body AWS.Attachments is
 
    function Length
      (Attachments : List;
-      Boundary    : String) return Natural
+      Boundary    : String) return Positive
    is
-      L : Natural;
+      L : Positive;
    begin
       --  The length of all start boundaries, and the 2 characters longer
       --  end boundary.
