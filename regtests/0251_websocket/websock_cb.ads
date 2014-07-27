@@ -16,13 +16,15 @@
 --  to http://www.gnu.org/licenses for a complete copy of the license.      --
 ------------------------------------------------------------------------------
 
+with Ada.Strings.Unbounded;
+
+with AWS.Net.WebSocket;
 with AWS.Response;
 with AWS.Status;
 
-with AWS.Net.WebSocket;
-
 package WebSock_CB is
 
+   use Ada.Strings.Unbounded;
    use AWS;
 
    Created : Boolean := False;
@@ -50,6 +52,10 @@ package WebSock_CB is
 
    overriding procedure Send
      (Socket : in out Object; Message : String; Is_Binary : Boolean := False);
+   overriding procedure Send
+     (Socket    : in out Object;
+      Message   : Unbounded_String;
+      Is_Binary : Boolean := False);
    --  Send a message to the server
 
 private

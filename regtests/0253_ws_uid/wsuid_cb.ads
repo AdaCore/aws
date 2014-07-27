@@ -17,6 +17,7 @@
 ------------------------------------------------------------------------------
 
 with Ada.Streams;
+with Ada.Strings.Unbounded;
 
 with AWS.Net.Log;
 with AWS.Response;
@@ -27,6 +28,8 @@ with AWS.Net.WebSocket;
 package WSUID_CB is
 
    use Ada.Streams;
+   use Ada.Strings.Unbounded;
+
    use AWS;
 
    Created : Boolean := False;
@@ -56,6 +59,10 @@ package WSUID_CB is
 
    overriding procedure Send
      (Socket : in out Object; Message : String; Is_Binary : Boolean := False);
+   overriding procedure Send
+     (Socket    : in out Object;
+      Message   : Unbounded_String;
+      Is_Binary : Boolean := False);
    --  Send a message to the server
 
 private

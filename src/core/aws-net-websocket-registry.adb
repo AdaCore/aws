@@ -138,7 +138,7 @@ package body AWS.Net.WebSocket.Registry is
 
       procedure Send
         (To          : Recipient;
-         Message     : String;
+         Message     : Unbounded_String;
          Except_Peer : String;
          Timeout     : Duration := Forever);
       --  Send the given message to all matching WebSockets
@@ -581,7 +581,7 @@ package body AWS.Net.WebSocket.Registry is
 
       procedure Send
         (To          : Recipient;
-         Message     : String;
+         Message     : Unbounded_String;
          Except_Peer : String;
          Timeout     : Duration := Forever)
       is
@@ -828,7 +828,7 @@ package body AWS.Net.WebSocket.Registry is
 
    procedure Send
      (To          : Recipient;
-      Message     : String;
+      Message     : Unbounded_String;
       Except_Peer : String := "";
       Timeout     : Duration := Forever) is
    begin
@@ -840,13 +840,34 @@ package body AWS.Net.WebSocket.Registry is
    end Send;
 
    procedure Send
+     (To          : Recipient;
+      Message     : String;
+      Except_Peer : String := "";
+      Timeout     : Duration := Forever) is
+   begin
+      Send (To, To_Unbounded_String (Message), Except_Peer, Timeout);
+   end Send;
+
+   procedure Send
+     (To      : Recipient;
+      Message : Unbounded_String;
+      Request : AWS.Status.Data;
+      Timeout : Duration := Forever) is
+   begin
+      Send
+        (To, Message,
+         Except_Peer => AWS.Status.Socket (Request).Peer_Addr,
+         Timeout     => Timeout);
+   end Send;
+
+   procedure Send
      (To      : Recipient;
       Message : String;
       Request : AWS.Status.Data;
       Timeout : Duration := Forever) is
    begin
       Send
-        (To, Message,
+        (To, To_Unbounded_String (Message),
          Except_Peer => AWS.Status.Socket (Request).Peer_Addr,
          Timeout     => Timeout);
    end Send;
