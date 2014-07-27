@@ -702,12 +702,16 @@ package body AWS.Net.WebSocket.Registry is
 
       procedure Signal_Socket is
       begin
-         Net.Send (Sig2, Stream_Element_Array'(1 => 0));
+         --  If a signal is pending no need to signal again the socket
 
-         --  Also activate the signal to release Not_Empty for proper
-         --  termination when there is no remaining socket.
+         if not Signal then
+            Net.Send (Sig2, Stream_Element_Array'(1 => 0));
 
-         Signal := True;
+            --  Also activate the signal to release Not_Empty for proper
+            --  termination when there is no remaining socket.
+
+            Signal := True;
+         end if;
       end Signal_Socket;
 
       ----------------
