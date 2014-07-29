@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2000-2012, AdaCore                     --
+--                     Copyright (C) 2000-2014, AdaCore                     --
 --                                                                          --
 --  This is free software;  you can redistribute it  and/or modify it       --
 --  under terms of the  GNU General Public License as published  by the     --
@@ -52,7 +52,7 @@ procedure Tcom is
    function Callback
      (Server     : String;
       Name       : String;
-      Context    : Context_Access;
+      Context    : not null access Tcom.Context;
       Parameters : Communication.Parameter_Set
         := Communication.Null_Parameter_Set)
       return Response.Data;
@@ -69,7 +69,7 @@ procedure Tcom is
    function Callback
      (Server     : String;
       Name       : String;
-      Context    : Context_Access;
+      Context    : not null access Tcom.Context;
       Parameters : Communication.Parameter_Set
         := Communication.Null_Parameter_Set)
       return Response.Data
