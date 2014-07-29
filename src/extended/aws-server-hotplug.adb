@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2000-2012, AdaCore                     --
+--                     Copyright (C) 2000-2014, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -52,8 +52,8 @@ package body AWS.Server.Hotplug is
      (Server     : String;
       Name       : String;
       Web_Server : HTTP_Access;
-      Parameters : Communication.Parameter_Set
-        := Communication.Null_Parameter_Set)
+      Parameters : Communication.Parameter_Set :=
+                     Communication.Null_Parameter_Set)
       return Response.Data;
    --  Handle incoming message to register/unregister a module
 
@@ -167,8 +167,8 @@ package body AWS.Server.Hotplug is
      (Server     : String;
       Name       : String;
       Web_Server : HTTP_Access;
-      Parameters : Communication.Parameter_Set
-        := Communication.Null_Parameter_Set)
+      Parameters : Communication.Parameter_Set :=
+                     Communication.Null_Parameter_Set)
       return Response.Data
    is
       pragma Unreferenced (Server);
@@ -218,6 +218,7 @@ package body AWS.Server.Hotplug is
          if URL = "" then
             Result := D = Digest;
             return D = Digest;
+
          else
             declare
                U : AWS.URL.Object;

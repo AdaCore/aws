@@ -542,7 +542,7 @@ package body AWS.Log is
    --  #Fields: time cs-method cs-uri
    --  00:34:23 GET /foo/bar.html
 
-   procedure Write (Log  : in out Object; Data : in out Fields_Table) is
+   procedure Write (Log : in out Object; Data : in out Fields_Table) is
    begin
       if Log.Writer = null then
          Write_File (Log, Data);
@@ -556,7 +556,7 @@ package body AWS.Log is
    ----------------------
 
    procedure Write_Callback
-     (Log  : in out Object; Data : in out Fields_Table)
+     (Log : in out Object; Data : in out Fields_Table)
    is
       use Ada.Strings.Unbounded;
       use GNAT.Calendar.Time_IO;
@@ -652,7 +652,7 @@ package body AWS.Log is
    --  Write_File  --
    ------------------
 
-   procedure Write_File (Log  : in out Object; Data : in out Fields_Table) is
+   procedure Write_File (Log : in out Object; Data : in out Fields_Table) is
       use GNAT.Calendar.Time_IO;
 
       Length      : constant Natural := Natural (Log.Extended_Fields.Length);
@@ -678,7 +678,6 @@ package body AWS.Log is
       end Write_And_Clear;
 
    begin
-
       if Length = 0 then
          --  It is not extended log
          return;
