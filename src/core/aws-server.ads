@@ -184,7 +184,7 @@ package AWS.Server is
 
    type HTTP_Access is access all HTTP;
 
-   function Get_Current return access HTTP;
+   function Get_Current return not null access HTTP;
    --  Get current server. This can be used in a callback procedure to
    --  retrieve the running HTTP server. It is needed when a callback
    --  procedure is shared by multiple servers.

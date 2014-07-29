@@ -224,7 +224,7 @@ package body AWS.Server is
    -- Get_Current --
    -----------------
 
-   function Get_Current return access HTTP is
+   function Get_Current return not null access HTTP is
    begin
       return Line_Attribute.Reference.Server;
    end Get_Current;

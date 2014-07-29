@@ -526,7 +526,8 @@ package body AWS.Net is
       end if;
    end Socket;
 
-   function Socket (Security : Boolean) return Socket_Access is
+   function Socket
+     (Security : Boolean) return not null access Socket_Type'Class is
    begin
       return new Socket_Type'Class'(Socket (Security));
    end Socket;

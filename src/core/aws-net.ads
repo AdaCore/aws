@@ -90,7 +90,8 @@ package AWS.Net is
    function Socket (Security : Boolean) return Socket_Type'Class;
    --  Create an uninitialized socket
 
-   function Socket (Security : Boolean) return Socket_Access;
+   function Socket
+     (Security : Boolean) return not null access Socket_Type'Class;
    --  Create a dynamically allocated uninitialized socket
 
    procedure Bind
