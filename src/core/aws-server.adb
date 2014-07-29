@@ -59,7 +59,7 @@ package body AWS.Server is
    --  Handle the lines, this is where all the HTTP protocol is defined
 
    function Accept_Socket_Serialized
-     (Server : HTTP_Access) return Net.Socket_Access;
+     (Server : not null access HTTP) return Net.Socket_Access;
    --  Do a protected accept on the HTTP socket. It is not safe to call
    --  multiple accept on the same socket on some platforms.
 
@@ -73,7 +73,7 @@ package body AWS.Server is
    ------------------------------
 
    function Accept_Socket_Serialized
-     (Server : HTTP_Access) return Net.Socket_Access
+     (Server : not null access HTTP) return Net.Socket_Access
    is
       use type Ada.Tags.Tag;
 
@@ -224,7 +224,7 @@ package body AWS.Server is
    -- Get_Current --
    -----------------
 
-   function Get_Current return HTTP_Access is
+   function Get_Current return access HTTP is
    begin
       return Line_Attribute.Reference.Server;
    end Get_Current;

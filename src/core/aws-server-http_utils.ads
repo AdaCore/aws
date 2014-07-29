@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                    Copyright (C) 2005-2012, AdaCore                      --
+--                     Copyright (C) 2005-2014, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -50,7 +50,7 @@ package AWS.Server.HTTP_Utils is
    --  callback.
 
    procedure Get_Message_Data
-     (HTTP_Server  : in out AWS.Server.HTTP;
+     (HTTP_Server  : AWS.Server.HTTP;
       Line_Index   : Positive;
       C_Stat       : in out AWS.Status.Data;
       Expect_100   : Boolean);

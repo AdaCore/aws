@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2000-2012, AdaCore                     --
+--                     Copyright (C) 2000-2014, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -37,7 +37,7 @@ generic
    with function Callback
      (Server     : String; -- Host name
       Name       : String; -- Message name
-      Context    : T_Access;
+      Context    : not null access T;
       Parameters : Parameter_Set := Null_Parameter_Set)
       return Response.Data;
 

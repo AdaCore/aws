@@ -401,7 +401,7 @@ package body AWS.Server.HTTP_Utils is
    ----------------------
 
    procedure Get_Message_Data
-     (HTTP_Server : in out AWS.Server.HTTP;
+     (HTTP_Server : AWS.Server.HTTP;
       Line_Index  : Positive;
       C_Stat      : in out AWS.Status.Data;
       Expect_100  : Boolean)

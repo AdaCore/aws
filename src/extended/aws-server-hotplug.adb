@@ -51,7 +51,7 @@ package body AWS.Server.Hotplug is
    function Message
      (Server     : String;
       Name       : String;
-      Web_Server : HTTP_Access;
+      Web_Server : not null access HTTP;
       Parameters : Communication.Parameter_Set :=
                      Communication.Null_Parameter_Set)
       return Response.Data;
@@ -99,7 +99,7 @@ package body AWS.Server.Hotplug is
    --------------
 
    procedure Activate
-     (Web_Server         : HTTP_Access;
+     (Web_Server         : not null access HTTP;
       Port               : Positive;
       Authorization_File : String;
       Register_Mode      : AWS.Hotplug.Register_Mode := AWS.Hotplug.Add;
@@ -166,7 +166,7 @@ package body AWS.Server.Hotplug is
    function Message
      (Server     : String;
       Name       : String;
-      Web_Server : HTTP_Access;
+      Web_Server : not null access HTTP;
       Parameters : Communication.Parameter_Set :=
                      Communication.Null_Parameter_Set)
       return Response.Data

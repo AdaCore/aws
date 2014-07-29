@@ -184,7 +184,7 @@ package AWS.Server is
 
    type HTTP_Access is access all HTTP;
 
-   function Get_Current return HTTP_Access;
+   function Get_Current return access HTTP;
    --  Get current server. This can be used in a callback procedure to
    --  retrieve the running HTTP server. It is needed when a callback
    --  procedure is shared by multiple servers.
@@ -452,7 +452,7 @@ private
    ----------
 
    type HTTP is new Ada.Finalization.Limited_Controlled with record
-      Self               : HTTP_Access := HTTP'Unchecked_Access;
+      Self               : not null access HTTP := HTTP'Unchecked_Access;
       --  Point to the record
 
       Start_Time         : Calendar.Time;
@@ -506,7 +506,7 @@ private
    overriding procedure Finalize (Web_Server : in out HTTP);
 
    type Line_Attribute_Record is record
-      Server     : HTTP_Access;
+      Server     : access HTTP;
       Line       : Positive;
       Stat       : Status.Data;
       Expect_100 : Boolean := False;

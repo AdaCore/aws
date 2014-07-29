@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                      Copyright (C) 2000-2012, AdaCore                    --
+--                     Copyright (C) 2000-2014, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -51,7 +51,7 @@ package AWS.Server.Hotplug is
    --  port         : and the corresponding port
 
    procedure Activate
-     (Web_Server         : HTTP_Access;
+     (Web_Server         : not null access HTTP;
       Port               : Positive;
       Authorization_File : String;
       Register_Mode      : AWS.Hotplug.Register_Mode := AWS.Hotplug.Add;
