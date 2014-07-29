@@ -29,9 +29,6 @@
 
 pragma Ada_2012;
 
-with Ada.Exceptions;
-with Ada.Finalization;
-with Ada.Real_Time;
 with Ada.Streams;
 with Ada.Strings.Unbounded;
 
@@ -40,14 +37,19 @@ with AWS.Default;
 with AWS.Headers;
 with AWS.Net.SSL.Certificate;
 with AWS.Response;
-with AWS.URL;
-with AWS.Utils;
 
-with ZLib;
+private with Ada.Exceptions;
+private with Ada.Finalization;
+private with Ada.Real_Time;
+private with ZLib;
+
+private with AWS.URL;
+private with AWS.Utils;
 
 package AWS.Client is
 
    use Ada.Streams;
+   use Ada.Strings.Unbounded;
 
    Connection_Error : exception;
    --  Raised if the connection with the server cannot be established
@@ -295,7 +297,7 @@ package AWS.Client is
    --  the client interface to present itself to the server.
 
    function Get_Certificate
-     (Connection : HTTP_Connection) return AWS.Net.SSL.Certificate.Object;
+     (Connection : HTTP_Connection) return Net.SSL.Certificate.Object;
    --  Return the certificate used for the secure connection. If this is not a
    --  secure connection, returns Net.SSL.Certificate.Undefined.
 
@@ -375,14 +377,14 @@ package AWS.Client is
    procedure Read_Until
      (Connection : in out HTTP_Connection;
       Delimiter  : String;
-      Result     : in out Ada.Strings.Unbounded.Unbounded_String;
+      Result     : in out Unbounded_String;
       Wait       : Boolean := True);
    --  Idem as above but returns the result as an Unbounded_String
 
    procedure Read_Some
      (Connection : in out HTTP_Connection;
-      Data       : out Ada.Streams.Stream_Element_Array;
-      Last       : out Ada.Streams.Stream_Element_Offset);
+      Data       : out Stream_Element_Array;
+      Last       : out Stream_Element_Offset);
    --  Reads any available data from the client's connection.
    --  If no data available, it will wait for some data to become available or
    --  until it timeouts. Returns Last < Data'First when there is no data
@@ -391,8 +393,8 @@ package AWS.Client is
 
    procedure Read
      (Connection : in out HTTP_Connection;
-      Data       : out Ada.Streams.Stream_Element_Array;
-      Last       : out Ada.Streams.Stream_Element_Offset);
+      Data       : out Stream_Element_Array;
+      Last       : out Stream_Element_Offset);
    --  Reads data from the client's connection until Data buffer if filled
    --  or it reached the end of the response. Returns Last < Data'Last if
    --  there is no more data available in HTTP response. Connection have
@@ -476,7 +478,7 @@ package AWS.Client is
    procedure Set_Streaming_Output
      (Connection : in out HTTP_Connection;
       Value      : Boolean)
-     with Inline;
+   with Inline;
    --  Call this routine with Value => True to be able to read data as a
    --  stream by using Read and/or Read_Some routines above. Note that
    --  Connection is already in Streaming mode if it has been created
@@ -489,15 +491,15 @@ package AWS.Client is
 private
 
    use Ada;
-   use Ada.Strings.Unbounded;
+   use Ada.Exceptions;
 
-   Forever : constant Ada.Real_Time.Time_Span := Ada.Real_Time.Time_Span_Last;
+   Forever : constant Real_Time.Time_Span := Real_Time.Time_Span_Last;
 
    type Timeouts_Values is record
-      Connect  : Duration                := Net.Forever;
-      Send     : Duration                := Net.Forever;
-      Receive  : Duration                := Net.Forever;
-      Response : Ada.Real_Time.Time_Span := Forever;
+      Connect  : Duration            := Net.Forever;
+      Send     : Duration            := Net.Forever;
+      Receive  : Duration            := Net.Forever;
+      Response : Real_Time.Time_Span := Forever;
    end record;
 
    No_Timeout : constant Timeouts_Values :=
@@ -577,7 +579,7 @@ private
    --  Output Message prefixed with Prefix if Debug_On is True and does
    --  nothing otherwise.
 
-   procedure Debug_Exception (E : Ada.Exceptions.Exception_Occurrence)
+   procedure Debug_Exception (E : Exception_Occurrence)
      with Inline;
    --  Output E exception if Debug_On is True and does nothing otherwise
 
@@ -586,7 +588,7 @@ private
       Try_Count  : in out Natural;
       Result     : out Response.Data;
       Context    : String;
-      E          : Ada.Exceptions.Exception_Occurrence;
+      E          : Exception_Occurrence;
       Stamp      : Ada.Real_Time.Time);
    --  Check timeout and Try_Count and set error responce into Result
    --  if necessary.

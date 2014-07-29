@@ -120,8 +120,8 @@ package body AWS.Digest is
            or To_Set ("+/");
       begin
          if not Is_Subset
-                  (To_Set (Value (Timestamp_Range'First .. Index_Range'Last)),
-                   Base64_Set)
+           (To_Set (Value (Timestamp_Range'First .. Index_Range'Last)),
+            Base64_Set)
            or else not
              Is_Subset
                (To_Set (Value (Digest_Range)), Constants.Hexadecimal_Digit_Set)
@@ -172,7 +172,7 @@ package body AWS.Digest is
       Method, URI               : String) return Digest_String is
    begin
       return Create
-               (Username, Realm, Password, Nonce, "", "", "", Method, URI);
+        (Username, Realm, Password, Nonce, "", "", "", Method, URI);
    end Create;
 
    ------------------

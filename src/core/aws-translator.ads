@@ -51,31 +51,78 @@ package AWS.Translator is
    --  RFC4648
    --  MIME - section 4
    --  URL  - section 5
+
+   subtype Base64_Common is Character with
+     Static_Predicate => Base64_Common
+       in 'A' .. 'Z' | 'a' .. 'z' | '0' .. '9' | '=';
+
+   subtype Base64_String is String with
+     Dynamic_Predicate =>
+       (for all C of Base64_String =>
+          C in Base64_Common | '+' | '-' | '_' | '/');
+
+   subtype Base64_UString is Unbounded_String with
+     Dynamic_Predicate =>
+       (for all K in 1 .. Length (Base64_UString) =>
+          Element (Base64_UString, K)
+            in Base64_Common | '+' | '-' | '_' | '/');
+
    --
    --  Decoding does not have to have Base64_Mode parameter, because data
    --  coding easy detected automatically.
 
    procedure Base64_Encode
      (Data     : Unbounded_String;
-      B64_Data : out Unbounded_String;
-      Mode     : Base64_Mode := MIME);
+      B64_Data : out Base64_UString;
+      Mode     : Base64_Mode := MIME)
+   with
+     Post =>
+       (Mode = MIME
+          and then
+        (for all K in 1 .. Length (B64_Data) =>
+            Element (B64_Data, K) not in '-' | '_'))
+      or else
+        (Mode = URL
+           and then
+         (for all K in 1 .. Length (B64_Data) =>
+            Element (B64_Data, K) not in '+' | '/'));
 
    function Base64_Encode
-     (Data : Stream_Element_Array; Mode : Base64_Mode := MIME) return String;
+     (Data : Stream_Element_Array;
+      Mode : Base64_Mode := MIME) return Base64_String
+   with
+     Post =>
+       (Mode = MIME
+          and then
+        (for all C of Base64_Encode'Result => C not in '-' | '_'))
+      or else
+        (Mode = URL
+           and then
+         (for all C of Base64_Encode'Result => C not in '+' | '/'));
    --  Encode Data using the base64 algorithm
 
    function Base64_Encode
-     (Data : String; Mode : Base64_Mode := MIME) return String;
+     (Data : String; Mode : Base64_Mode := MIME) return Base64_String
+   with
+     Post =>
+       (Mode = MIME
+          and then
+        (for all C of Base64_Encode'Result => C not in '-' | '_'))
+      or else
+        (Mode = URL
+           and then
+         (for all C of Base64_Encode'Result => C not in '+' | '/'));
    --  Same as above but takes a string as input
 
    procedure Base64_Decode
-     (B64_Data : Unbounded_String;
+     (B64_Data : Base64_UString;
       Data     : out Unbounded_String);
 
-   function Base64_Decode (B64_Data : String) return Stream_Element_Array;
+   function Base64_Decode
+     (B64_Data : Base64_String) return Stream_Element_Array;
    --  Decode B64_Data using the base64 algorithm
 
-   function Base64_Decode (B64_Data : String) return String;
+   function Base64_Decode (B64_Data : Base64_String) return String;
 
    --------
    -- QP --

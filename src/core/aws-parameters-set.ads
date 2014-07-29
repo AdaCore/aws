@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2000-2012, AdaCore                     --
+--                     Copyright (C) 2000-2014, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -27,6 +27,8 @@
 --  covered by the  GNU Public License.                                     --
 ------------------------------------------------------------------------------
 
+pragma Ada_2012;
+
 with AWS.Containers.Memory_Streams;
 
 package AWS.Parameters.Set is
@@ -34,7 +36,11 @@ package AWS.Parameters.Set is
    procedure Add
      (Parameter_List : in out List;
       Name, Value    : String;
-      Decode         : Boolean := True);
+      Decode         : Boolean := True)
+   with Post => Count (Parameter_List) = Count (Parameter_List'Old) + 1
+              or else
+                Count (Parameter_List, Name) =
+                  Count (Parameter_List'Old, Name) + 1;
    --  Add a new Key/Value pair into the parameter set.
    --  If Decode is true, decodes Name and Value. This is used when handling
    --  multipart/form-data for example.
@@ -65,7 +71,8 @@ package AWS.Parameters.Set is
    procedure Case_Sensitive (Parameter_List : in out List; Mode : Boolean);
    --  If Mode is True it will use all parameters with case sensitivity
 
-   procedure Reset (Parameter_List : in out List);
+   procedure Reset (Parameter_List : in out List) with
+     Post => Count (Parameter_List) = 0;
    --  Removes all object from the Set. Set will be reinitialized and will be
    --  ready for new use.
 

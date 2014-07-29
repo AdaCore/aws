@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2000-2012, AdaCore                     --
+--                     Copyright (C) 2000-2014, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -36,10 +36,6 @@
 --
 --  This package is thread safe.
 
-with Ada.Finalization;
-with Ada.Strings.Unbounded;
-with Ada.Text_IO;
-
 with AWS.Containers.String_Vectors;
 with AWS.Headers;
 with AWS.Messages;
@@ -47,6 +43,9 @@ with AWS.Response;
 with AWS.Status;
 
 private with Ada.Containers.Indefinite_Ordered_Maps;
+private with Ada.Finalization;
+private with Ada.Strings.Unbounded;
+private with Ada.Text_IO;
 private with AWS.Utils;
 
 package AWS.Log is

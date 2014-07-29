@@ -30,14 +30,12 @@
 pragma Ada_2012;
 
 with Ada.Calendar;
-with Ada.Containers.Indefinite_Holders;
-with Ada.Strings.Unbounded;
 
+private with Ada.Containers.Indefinite_Holders;
+private with Ada.Strings.Unbounded;
 private with AWS.Utils;
 
 package AWS.Net.SSL.Certificate is
-
-   use Ada.Strings.Unbounded;
 
    type Object is private;
 
@@ -107,6 +105,8 @@ package AWS.Net.SSL.Certificate is
    --  Register the callback to use to verify client's certificates
 
 private
+
+   use Ada.Strings.Unbounded;
 
    package Binary_Holders is
      new Ada.Containers.Indefinite_Holders (Stream_Element_Array);

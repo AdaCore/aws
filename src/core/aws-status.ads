@@ -272,7 +272,7 @@ package AWS.Status is
    --  Returns the XML Payload message. XML payload is the actual SOAP
    --  request. This is the root part of multipart/related SOAP message.
 
-   function Payload (D : Data) return Unbounded_String;
+   function Payload    (D : Data) return Unbounded_String;
    --  Returns the XML Payload message. XML payload is the actual SOAP
    --  request. This is the root part of multipart/related SOAP message.
 

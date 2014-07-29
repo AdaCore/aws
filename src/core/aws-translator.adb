@@ -99,10 +99,6 @@ package body AWS.Translator is
    -- Base64 Decode / Encode --
    ----------------------------
 
-   -------------
-   -- General --
-   -------------
-
    --  The base64 character set
 
    Base64 : constant array (Base64_Mode) of aliased Base64_Encode_Array :=
@@ -215,7 +211,7 @@ package body AWS.Translator is
    -------------------
 
    procedure Base64_Decode
-     (B64_Data : Unbounded_String;
+     (B64_Data : Base64_UString;
       Data     : out Unbounded_String)
    is
 
@@ -254,7 +250,9 @@ package body AWS.Translator is
       end if;
    end Base64_Decode;
 
-   function Base64_Decode (B64_Data : String) return Stream_Element_Array is
+   function Base64_Decode
+     (B64_Data : Base64_String) return Stream_Element_Array
+   is
 
       procedure Add_Char (Ch : Character);
       --  Add single char into Result
@@ -284,7 +282,7 @@ package body AWS.Translator is
       return Result (1 .. Last - Stream_Element_Offset (S.Pad));
    end Base64_Decode;
 
-   function Base64_Decode (B64_Data : String) return String is
+   function Base64_Decode (B64_Data : Base64_String) return String is
    begin
       return To_String (Base64_Decode (B64_Data));
    end Base64_Decode;
@@ -295,7 +293,7 @@ package body AWS.Translator is
 
    procedure Base64_Encode
      (Data     : Unbounded_String;
-      B64_Data : out Unbounded_String;
+      B64_Data : out Base64_UString;
       Mode     : Base64_Mode := MIME)
    is
 
@@ -326,7 +324,8 @@ package body AWS.Translator is
    end Base64_Encode;
 
    function Base64_Encode
-     (Data : Stream_Element_Array; Mode : Base64_Mode := MIME) return String
+     (Data : Stream_Element_Array;
+      Mode : Base64_Mode := MIME) return Base64_String
    is
 
       procedure Add_Char (Ch : Character);
@@ -356,7 +355,7 @@ package body AWS.Translator is
    end Base64_Encode;
 
    function Base64_Encode
-     (Data : String; Mode : Base64_Mode := MIME) return String
+     (Data : String; Mode : Base64_Mode := MIME) return Base64_String
    is
       Stream_Data : constant Stream_Element_Array :=
                       To_Stream_Element_Array (Data);

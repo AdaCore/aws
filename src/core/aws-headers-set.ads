@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2000-2013, AdaCore                     --
+--                     Copyright (C) 2000-2014, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -33,7 +33,9 @@ package AWS.Headers.Set is
 
    Format_Error : exception renames Headers.Format_Error;
 
-   procedure Add (Headers : in out List; Name, Value : String) with Inline;
+   procedure Add (Headers : in out List; Name, Value : String) with
+     Inline => True,
+     Post   => Count (Headers) = Count (Headers'Old) + 1;
    --  Add HTTP header name/value at the end of the Headers container. Note
    --  that there is no check about validity of this header. This service is
    --  provided to be able to create user-defined headers.
@@ -43,18 +45,29 @@ package AWS.Headers.Set is
       Name    : String;
       Value   : String;
       N       : Positive := 1)
-     with Inline;
+   with
+     Inline => True,
+     Pre    =>
+       --  Count + 1 means it is added at the end of the table
+       N <= Count (Headers, Name) + 1,
+     Post   =>
+       --  Value already exists, it is updated
+       (N <= Count (Headers'Old, Name)
+        and then Count (Headers, Name) = Count  (Headers'Old, Name))
+       --  New value appended
+       or else
+         (N = Count (Headers'Old, Name) + 1
+          and then N = Count (Headers, Name));
    --  Update the N-th HTTP header Value with the given Name.
    --  The header could already have more than one value associated with
-   --  this name. If there is M values with this Name, then if:
-   --     N <= M      => update the value
-   --     N  = M + 1  => the pair name=value is appended to the table
-   --     N  > M + 1  => Constraint_Error raised
+   --  this name.
 
    procedure Read (Socket : Net.Socket_Type'Class; Headers : in out List);
    --  Read and parse HTTP header from the socket
 
-   procedure Reset (Headers : in out List) with Inline;
+   procedure Reset (Headers : in out List) with
+     Inline => True,
+     Post   => Count (Headers) = 0;
    --  Removes all object from Headers. Headers will be reinitialized and will
    --  be ready for new use.
 

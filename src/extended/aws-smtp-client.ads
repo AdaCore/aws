@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2000-2013, AdaCore                     --
+--                     Copyright (C) 2000-2014, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -59,13 +59,11 @@
 --         Message => "now Ada can send SMTP mail!",
 --         Status  => Result);
 
-with Ada.Strings.Unbounded;
-
 with AWS.Attachments;
 
-package AWS.SMTP.Client is
+private with Ada.Strings.Unbounded;
 
-   use Ada.Strings.Unbounded;
+package AWS.SMTP.Client is
 
    Server_Error : exception renames SMTP.Server_Error;
 
@@ -198,6 +196,7 @@ package AWS.SMTP.Client is
 private
 
    use Ada;
+   use Ada.Strings.Unbounded;
 
    type Attachment_Mode is (File, Base64_Data);
 

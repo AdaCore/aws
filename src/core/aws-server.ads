@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2000-2013, AdaCore                     --
+--                     Copyright (C) 2000-2014, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -29,24 +29,25 @@
 
 pragma Ada_2012;
 
-with Ada.Calendar;
-with Ada.Exceptions;
-with Ada.Finalization;
-with Ada.Real_Time;
-with Ada.Task_Attributes;
-with System;
-
 with AWS.Config;
 with AWS.Default;
 with AWS.Dispatchers;
 with AWS.Exceptions;
-with AWS.Hotplug;
-with AWS.Log;
-with AWS.Net.Acceptors;
 with AWS.Net.SSL;
 with AWS.Response;
 with AWS.Status;
-with AWS.Utils;
+
+private with Ada.Calendar;
+private with Ada.Exceptions;
+private with Ada.Finalization;
+private with Ada.Task_Attributes;
+private with Ada.Real_Time;
+private with System;
+
+private with AWS.Log;
+private with AWS.Net.Acceptors;
+private with AWS.Hotplug;
+private with AWS.Utils;
 
 package AWS.Server is
 
@@ -231,8 +232,11 @@ package AWS.Server is
 
 private
 
+   use Ada;
+   use Ada.Exceptions;
+
    procedure Default_Unexpected_Exception_Handler
-     (E      : Ada.Exceptions.Exception_Occurrence;
+     (E      : Exception_Occurrence;
       Log    : in out AWS.Log.Object;
       Error  : Exceptions.Data;
       Answer : in out Response.Data);
@@ -298,11 +302,11 @@ private
    ----------
 
    type Slot is record
-      Sock                  : Socket_Access      := null;
-      Socket_Taken          : Boolean            := False;
-      Phase                 : Slot_Phase         := Closed;
-      Phase_Time_Stamp      : Ada.Real_Time.Time := Ada.Real_Time.Clock;
-      Alive_Time_Stamp      : Ada.Calendar.Time;
+      Sock                  : Socket_Access  := null;
+      Socket_Taken          : Boolean        := False;
+      Phase                 : Slot_Phase     := Closed;
+      Phase_Time_Stamp      : Real_Time.Time := Real_Time.Clock;
+      Alive_Time_Stamp      : Calendar.Time;
       Slot_Activity_Counter : Natural := 0;
       Activity_Counter      : Natural := 0;
       Alive_Counter         : Natural;
@@ -431,7 +435,7 @@ private
    ----------
 
    task type Line (Priority : System.Any_Priority; Stack_Size : Integer)
-     with Priority    => Priority,
+     with Priority     => Priority,
           Storage_Size => Stack_Size
    is
       entry Start (Server : HTTP; Index : Positive);
@@ -451,7 +455,7 @@ private
       Self               : HTTP_Access := HTTP'Unchecked_Access;
       --  Point to the record
 
-      Start_Time         : Ada.Calendar.Time;
+      Start_Time         : Calendar.Time;
       --  Date and Time when server was started
 
       Shutdown           : Boolean := True;
@@ -505,9 +509,9 @@ private
       Server     : HTTP_Access;
       Line       : Positive;
       Stat       : Status.Data;
-      Expect_100 : Boolean;
+      Expect_100 : Boolean := False;
       Skip_Log   : Boolean := False;
-      Log_Data   : AWS.Log.Fields_Table;
+      Log_Data   : Log.Fields_Table;
    end record;
 
    package Line_Attribute is new Ada.Task_Attributes

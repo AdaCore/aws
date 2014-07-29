@@ -459,6 +459,15 @@ package body AWS.Response is
       return D.Mode = No_Data;
    end Is_Empty;
 
+   ----------------
+   -- Keep_Alive --
+   ----------------
+
+   function Keep_Alive (D : Data) return Boolean is
+   begin
+      return D.Keep_Alive;
+   end Keep_Alive;
+
    --------------
    -- Location --
    --------------

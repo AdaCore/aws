@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2003-2013, AdaCore                     --
+--                     Copyright (C) 2003-2014, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -33,15 +33,16 @@ pragma Ada_2012;
 --  empty. User can add chunk of data using the Append routines. The stream
 --  is then read using the Read procedure.
 
-with AWS.Containers.Memory_Streams;
 with AWS.Utils;
+
+private with AWS.Containers.Memory_Streams;
 
 package AWS.Resources.Streams.Memory is
 
    type Stream_Type is new Streams.Stream_Type with private;
 
    subtype Stream_Element_Access is Utils.Stream_Element_Array_Access;
-   subtype Buffer_Access is  Utils.Stream_Element_Array_Constant_Access;
+   subtype Buffer_Access is Utils.Stream_Element_Array_Constant_Access;
 
    procedure Append
      (Resource : in out Stream_Type;

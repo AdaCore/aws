@@ -27,13 +27,13 @@
 --  covered by the  GNU Public License.                                     --
 ------------------------------------------------------------------------------
 
-with Ada.Strings.Unbounded;
-
 with AWS.Client;
 
 with SOAP.Name_Space;
 with SOAP.WSDL.Parameters;
 with SOAP.WSDL.Parser;
+
+private with Ada.Strings.Unbounded;
 
 package SOAP.Generator is
 

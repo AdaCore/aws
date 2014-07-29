@@ -31,7 +31,7 @@ pragma Ada_2012;
 
 --  Waiting on group of sockets for input/output availability
 
-with Ada.Finalization;
+private with Ada.Finalization;
 
 generic
    type Data_Type is private;

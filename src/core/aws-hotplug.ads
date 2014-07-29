@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2000-2012, AdaCore                     --
+--                     Copyright (C) 2000-2014, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -27,13 +27,12 @@
 --  covered by the  GNU Public License.                                     --
 ------------------------------------------------------------------------------
 
-with Ada.Strings.Unbounded;
-with GNAT.Regexp;
-
-with Ada.Containers.Vectors;
-
 with AWS.Response;
 with AWS.Status;
+
+private with Ada.Containers.Vectors;
+private with Ada.Strings.Unbounded;
+private with GNAT.Regexp;
 
 package AWS.Hotplug is
 

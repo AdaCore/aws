@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2009-2013, AdaCore                     --
+--                     Copyright (C) 2009-2014, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -46,11 +46,11 @@ package AWS.Utils.Streams is
      (Stream : in out Strings;
       Item   : out Stream_Element_Array;
       Last   : out Stream_Element_Offset)
-     with Inline;
+   with Inline;
 
    overriding procedure Write
      (Stream : in out Strings; Item : Stream_Element_Array)
-     with Inline;
+   with Inline;
 
    procedure Open (Stream : in out Strings'Class; Str : String) with Inline;
    --  Open a new string. Str is the initial value of the string, to which will
@@ -70,13 +70,14 @@ package AWS.Utils.Streams is
      (Stream : in out SHA1;
       Item   : out Stream_Element_Array;
       Last   : out Stream_Element_Offset)
-     with Inline;
+   with Inline;
 
    overriding procedure Write
      (Stream : in out SHA1; Item : Stream_Element_Array) with Inline;
 
-   function Value (Stream : access SHA1'Class) return GNAT.SHA1.Message_Digest
-     with Inline;
+   function Value
+     (Stream : access SHA1'Class) return GNAT.SHA1.Message_Digest
+   with Inline;
    --  Returns the stream value
 
 private

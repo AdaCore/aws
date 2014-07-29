@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2000-2013, AdaCore                     --
+--                     Copyright (C) 2000-2014, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -43,10 +43,12 @@ package AWS.Session is
 
    No_Session : constant Id;
 
-   function Create return Id;
+   function Create return Id with
+     Post => Create'Result /= No_Session;
    --  Create a new uniq Session Id
 
-   procedure Delete (SID : Id);
+   procedure Delete (SID : Id) with
+     Post => not Exist (SID);
    --  Delete session, does nothing if SID does not exists.
    --  In most cases, the client browser will still send the cookie identifying
    --  the session on its next request. In such a case, the function
@@ -88,19 +90,31 @@ package AWS.Session is
    procedure Set (SID : Id; Key : String; Value : Boolean);
    --  Set key/value pair for the SID
 
-   function Get (SID : Id; Key : String) return String with Inline;
+   function Get (SID : Id; Key : String) return String with
+     Inline => True,
+     Post   => (not Exist (SID, Key) and then Get'Result'Length = 0)
+               or else Exist (SID, Key);
    --  Returns the Value for Key in the session SID or the emptry string if
    --  key does not exist.
 
-   function Get (SID : Id; Key : String) return Integer with Inline;
+   function Get (SID : Id; Key : String) return Integer with
+     Inline => True,
+     Post   => (not Exist (SID, Key) and then Get'Result = 0)
+               or else Exist (SID, Key);
    --  Returns the Value for Key in the session SID or the integer value 0 if
    --  key does not exist or is not an integer.
 
-   function Get (SID : Id; Key : String) return Float with Inline;
+   function Get (SID : Id; Key : String) return Float with
+     Inline => True,
+     Post   => (not Exist (SID, Key) and then Get'Result = 0.0)
+               or else Exist (SID, Key);
    --  Returns the Value for Key in the session SID or the float value 0.0 if
    --  key does not exist or is not a float.
 
-   function Get (SID : Id; Key : String) return Boolean with Inline;
+   function Get (SID : Id; Key : String) return Boolean with
+     Inline => True,
+     Post   => (not Exist (SID, Key) and then Get'Result = False)
+               or else Exist (SID, Key);
    --  Returns the Value for Key in the session SID or the boolean False if
    --  key does not exist or is not a boolean.
 
@@ -118,7 +132,8 @@ package AWS.Session is
 
    end Generic_Data;
 
-   procedure Remove (SID : Id; Key : String);
+   procedure Remove (SID : Id; Key : String) with
+     Post => not Exist (SID, Key);
    --  Removes Key from the specified session
 
    function Exist (SID : Id; Key : String) return Boolean;
@@ -133,7 +148,7 @@ package AWS.Session is
    function Length (SID : Id) return Natural;
    --  Returns number of key/value pairs in session SID
 
-   procedure Clear;
+   procedure Clear with Post => Length = 0;
    --  Removes all sessions data
 
    ---------------

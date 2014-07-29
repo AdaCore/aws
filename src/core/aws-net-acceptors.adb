@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                   Copyright (C) 2005-2013, AdaCore                       --
+--                   Copyright (C) 2005-2014, AdaCore                       --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -33,6 +33,8 @@ with Ada.Streams;
 
 package body AWS.Net.Acceptors is
 
+   use Ada.Streams;
+
    Signal_Index   : constant := 1;
    First_Index    : constant := 2;
 
@@ -52,7 +54,7 @@ package body AWS.Net.Acceptors is
       Reuse_Address : Boolean     := False)
    is
       Server : constant Socket_Access :=
-         new Socket_Type'Class'(Acceptor.Constructor (False));
+                 new Socket_Type'Class'(Acceptor.Constructor (False));
    begin
       Server.Bind
         (Host => Host, Port => Port, Family => Family,
@@ -72,8 +74,7 @@ package body AWS.Net.Acceptors is
      (Acceptor : in out Acceptor_Type;
       Socket   : out    Socket_Access;
       To_Close : out    Socket_List;
-      On_Error : access procedure
-        (E : Ada.Exceptions.Exception_Occurrence) := null)
+      On_Error : access procedure (E : Exception_Occurrence) := null)
    is
       use type Sets.Socket_Count;
 
@@ -107,7 +108,6 @@ package body AWS.Net.Acceptors is
 
          elsif Ready then
             declare
-               use Ada.Real_Time;
                New_Socket : Socket_Type'Class := Acceptor.Constructor (False);
             begin
                --  We could not accept SSL socket because SSL handshake could
@@ -119,7 +119,7 @@ package body AWS.Net.Acceptors is
                Sets.Add
                  (Acceptor.Set,
                   New_Socket,
-                  Data => (Time => Clock, First => True),
+                  Data => (Time => Real_Time.Clock, First => True),
                   Mode => Sets.Input);
 
             exception
@@ -156,11 +156,9 @@ package body AWS.Net.Acceptors is
 
          elsif Ready then
             declare
-               use Ada.Real_Time;
-
                Socket : Socket_Access;
-               Bytes  : Ada.Streams.Stream_Element_Array (1 .. 16);
-               Last   : Ada.Streams.Stream_Element_Offset;
+               Bytes  : Stream_Element_Array (1 .. 16);
+               Last   : Stream_Element_Offset;
             begin
                --  Read bytes from signalling socket and take sockets from
                --  mailbox.
@@ -178,7 +176,7 @@ package body AWS.Net.Acceptors is
                      Sets.Add
                        (Acceptor.Set,
                         Socket,
-                        Data  => (Time => Clock, First => False),
+                        Data  => (Time => Real_Time.Clock, First => False),
                         Mode  => Sets.Input);
                   else
                      raise Constraint_Error;
@@ -262,16 +260,17 @@ package body AWS.Net.Acceptors is
                --  Check for timeout
 
                declare
-                  use Ada.Real_Time;
+                  use Real_Time;
                   Data : constant Socket_Data_Type :=
                            Sets.Get_Data (Acceptor.Set, Acceptor.Index);
-                  Diff : constant Time_Span :=
+                  Diff : constant Real_Time.Time_Span :=
                            Timeout (Data.First) - (Clock - Data.Time);
                begin
                   if Diff <= Time_Span_Zero then
                      Sets.Remove_Socket (Acceptor.Set, Acceptor.Index, Socket);
                      Acceptor.Last := Acceptor.Last - 1;
                      To_Close.Append (Socket);
+
                   else
                      if Diff < Wait_Timeout then
                         Wait_Timeout := Diff;
@@ -291,7 +290,7 @@ package body AWS.Net.Acceptors is
          end if;
 
          declare
-            use type Ada.Containers.Count_Type;
+            use type Containers.Count_Type;
             Count : Sets.Socket_Count;
             S     : Socket_Access;
          begin
@@ -349,8 +348,7 @@ package body AWS.Net.Acceptors is
    procedure Get
      (Acceptor : in out Acceptor_Type;
       Socket   : out    Socket_Access;
-      On_Error : access procedure
-        (E : Ada.Exceptions.Exception_Occurrence) := null)
+      On_Error : access procedure (E : Exception_Occurrence) := null)
    is
       To_Close : Socket_List;
    begin
@@ -419,8 +417,7 @@ package body AWS.Net.Acceptors is
         with Inline;
       --  Take in account 2 auxiliary sockets, Server and R_Signal
 
-      function New_Socket return Socket_Access
-        with Inline;
+      function New_Socket return Socket_Access with Inline;
 
       ---------------
       -- Correct_2 --
@@ -669,8 +666,7 @@ package body AWS.Net.Acceptors is
       -- Get --
       ---------
 
-      entry Get
-        (S : out Socket_Access) when Ada.Containers.">" (Buffer.Length, 0) is
+      entry Get (S : out Socket_Access) when Size > 0 is
       begin
          S := Buffer.First_Element;
          Buffer.Delete_First;
