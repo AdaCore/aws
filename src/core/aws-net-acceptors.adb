@@ -366,14 +366,15 @@ package body AWS.Net.Acceptors is
 
    procedure Give_Back
      (Acceptor : in out Acceptor_Type;
-      Socket   : Socket_Access;
+      Socket   : not null access Socket_Type'Class;
       Success  : out Boolean) is
    begin
       Acceptor.Box.Add (Socket, Positive (Acceptor.Back_Queue_Size), Success);
    end Give_Back;
 
    procedure Give_Back
-     (Acceptor : in out Acceptor_Type; Socket : Socket_Access)
+     (Acceptor : in out Acceptor_Type;
+      Socket   : not null access Socket_Type'Class)
    is
       Success : Boolean;
    begin
@@ -506,7 +507,7 @@ package body AWS.Net.Acceptors is
       -- Add --
       ---------
 
-      procedure Add (S : Socket_Access) is
+      procedure Add (S : not null access Socket_Type'Class) is
       begin
          Sockets.Append (S);
       end Add;
@@ -642,7 +643,9 @@ package body AWS.Net.Acceptors is
       ---------
 
       procedure Add
-        (S : Socket_Access; Max_Size : Positive; Success : out Boolean) is
+        (S        : not null access Socket_Type'Class;
+         Max_Size : Positive;
+         Success  : out Boolean) is
       begin
          Success := Natural (Buffer.Length) < Max_Size
                       and then Acceptor.W_Signal /= null;

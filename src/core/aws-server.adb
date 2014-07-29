@@ -259,7 +259,8 @@ package body AWS.Server is
    ----------------------
 
    procedure Give_Back_Socket
-     (Web_Server : in out HTTP; Socket : Net.Socket_Access) is
+     (Web_Server : in out HTTP;
+      Socket     : not null access Net.Socket_Type'Class) is
    begin
       Net.Acceptors.Give_Back (Web_Server.Acceptor, Socket);
    end Give_Back_Socket;

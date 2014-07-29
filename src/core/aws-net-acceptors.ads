@@ -124,7 +124,7 @@ package AWS.Net.Acceptors is
 
    procedure Give_Back
      (Acceptor : in out Acceptor_Type;
-      Socket   : Socket_Access;
+      Socket   : not null access Socket_Type'Class;
       Success  : out Boolean);
    --  Give back socket which has been taken from Get routine above. Generally
    --  this is called from a different task while the Get routine is blocked
@@ -133,7 +133,8 @@ package AWS.Net.Acceptors is
    --  would return False value in this case.
 
    procedure Give_Back
-     (Acceptor : in out Acceptor_Type; Socket : Socket_Access);
+     (Acceptor : in out Acceptor_Type;
+      Socket   : not null access Socket_Type'Class);
    --  Idem but do not check sockets queue length
 
    procedure Shutdown (Acceptor : in out Acceptor_Type);
@@ -150,10 +151,12 @@ package AWS.Net.Acceptors is
 
 private
 
-   protected type Socket_Box (Acceptor : access Acceptor_Type) is
+   protected type Socket_Box (Acceptor : not null access Acceptor_Type) is
 
       procedure Add
-        (S : Socket_Access; Max_Size : Positive; Success : out Boolean);
+        (S        : not null access Socket_Type'Class;
+         Max_Size : Positive;
+         Success  : out Boolean);
 
       entry Get (S : out Socket_Access);
 
@@ -171,7 +174,7 @@ private
    end record;
 
    protected type Server_Sockets_Set is
-      procedure Add (S : Socket_Access);
+      procedure Add (S : not null access Socket_Type'Class);
       function Get return Socket_List;
       procedure Clear;
       entry Wait_Empty;
@@ -183,8 +186,8 @@ private
 
    type Acceptor_Type is tagged limited record
       Set                 : Sets.Socket_Set_Type;
-      W_Signal            : Socket_Access;
-      R_Signal            : Socket_Access;
+      W_Signal            : access Socket_Type'Class;
+      R_Signal            : access Socket_Type'Class;
       Servers             : Server_Sockets_Set;
       Box                 : Socket_Box (Acceptor_Type'Access);
       Index               : Sets.Socket_Count;

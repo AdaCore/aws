@@ -206,7 +206,8 @@ package AWS.Server is
    --  the server using the Response.Socket_Taken routine in a callback.
 
    procedure Give_Back_Socket
-     (Web_Server : in out HTTP; Socket : Net.Socket_Access);
+     (Web_Server : in out HTTP;
+      Socket     : not null access Net.Socket_Type'Class);
    --  Idem.
    --  Use Socket_Access to avoid memory reallocation for already allocated
    --  sockets.
