@@ -527,6 +527,39 @@ package body AWS.Utils is
         and then Directories.Kind (Filename) = Directories.Ordinary_File;
    end Is_Regular_File;
 
+   ------------------------
+   -- Is_Valid_HTTP_Date --
+   ------------------------
+
+   function Is_Valid_HTTP_Date (HTTP_Date : String) return Boolean is
+      Mask   : constant String  := "Aaa, 99 Aaa 9999 99:99:99 GMT";
+      Offset : constant Integer := HTTP_Date'First - 1;
+      --  Make sure the function works for inputs with 'First <> 1
+      Result : Boolean := True;
+   begin
+      for I in Mask'Range loop
+         Result := I + Offset in HTTP_Date'Range;
+
+         exit when not Result;
+
+         case Mask (I) is
+            when 'A' =>
+               Result := HTTP_Date (I + Offset) in 'A' .. 'Z';
+
+            when 'a' =>
+               Result := HTTP_Date (I + Offset) in 'a' .. 'z';
+
+            when '9' =>
+               Result := HTTP_Date (I + Offset) in '0' .. '9';
+
+            when others =>
+               Result := Mask (I) = HTTP_Date (I + Offset);
+         end case;
+      end loop;
+
+      return Result;
+   end Is_Valid_HTTP_Date;
+
    -------------------
    -- Is_Valid_UTF8 --
    -------------------

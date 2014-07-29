@@ -61,10 +61,6 @@ package AWS.Server.HTTP_Utils is
    --  Parse HTTP request line. This procedure fills in the C_Stat status
    --  data.
 
-   function Is_Valid_HTTP_Date (HTTP_Date : String) return Boolean;
-   --  Check the date format as some Web brower seems to return invalid date
-   --  field.
-
    procedure Parse_Request_Line
      (Command : String; C_Stat : in out AWS.Status.Data);
    --  Parse the request line:

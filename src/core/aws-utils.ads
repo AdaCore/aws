@@ -390,6 +390,10 @@ package AWS.Utils is
    --  The format used is (+|-)HHMM as described into RFC 822. If offset is
    --  zero it returns the empty string.
 
+   function Is_Valid_HTTP_Date (HTTP_Date : String) return Boolean;
+   --  Check the date format as some Web brower seems to return invalid date
+   --  field.
+
    AWS_Epoch : constant Calendar.Time := Calendar.Time_Of (2000, 01, 01, 0.0);
    --  AWS birthdate
 

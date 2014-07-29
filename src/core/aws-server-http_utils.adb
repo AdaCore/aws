@@ -1104,39 +1104,6 @@ package body AWS.Server.HTTP_Utils is
    end Get_Request_Line;
 
    ------------------------
-   -- Is_Valid_HTTP_Date --
-   ------------------------
-
-   function Is_Valid_HTTP_Date (HTTP_Date : String) return Boolean is
-      Mask   : constant String  := "Aaa, 99 Aaa 9999 99:99:99 GMT";
-      Offset : constant Integer := HTTP_Date'First - 1;
-      --  Make sure the function works for inputs with 'First <> 1
-      Result : Boolean := True;
-   begin
-      for I in Mask'Range loop
-         Result := I + Offset in HTTP_Date'Range;
-
-         exit when not Result;
-
-         case Mask (I) is
-            when 'A' =>
-               Result := HTTP_Date (I + Offset) in 'A' .. 'Z';
-
-            when 'a' =>
-               Result := HTTP_Date (I + Offset) in 'a' .. 'z';
-
-            when '9' =>
-               Result := HTTP_Date (I + Offset) in '0' .. '9';
-
-            when others =>
-               Result := Mask (I) = HTTP_Date (I + Offset);
-         end case;
-      end loop;
-
-      return Result;
-   end Is_Valid_HTTP_Date;
-
-   ------------------------
    -- Parse_Request_Line --
    ------------------------
 
@@ -1318,7 +1285,7 @@ package body AWS.Server.HTTP_Utils is
             if Resources.Is_Regular_File (Filename) then
                File_Time := Resources.File_Timestamp (Filename);
 
-               if Is_Valid_HTTP_Date (Status.If_Modified_Since (C_Stat))
+               if Utils.Is_Valid_HTTP_Date (Status.If_Modified_Since (C_Stat))
                  and then
                    File_Time
                      = Messages.To_Time (Status.If_Modified_Since (C_Stat))
