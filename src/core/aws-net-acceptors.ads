@@ -168,19 +168,24 @@ private
       Buffer : Socket_List;
    end Socket_Box;
 
+   protected type Server_Sockets_Set is
+
+      procedure Add (S : not null access Socket_Type'Class);
+
+      function Get return Socket_List;
+
+      procedure Clear;
+
+      entry Wait_Empty;
+
+   private
+      Sockets : Socket_List;
+   end Server_Sockets_Set;
+
    type Socket_Data_Type is record
       Time  : Real_Time.Time;
       First : Boolean;
    end record;
-
-   protected type Server_Sockets_Set is
-      procedure Add (S : not null access Socket_Type'Class);
-      function Get return Socket_List;
-      procedure Clear;
-      entry Wait_Empty;
-   private
-      Sockets : Socket_List;
-   end Server_Sockets_Set;
 
    package Sets is new Generic_Sets (Socket_Data_Type);
 
