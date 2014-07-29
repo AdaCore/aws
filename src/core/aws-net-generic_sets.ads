@@ -66,7 +66,7 @@ package AWS.Net.Generic_Sets is
      (Set    : in out Socket_Set_Type;
       Socket : Socket_Type'Class;
       Mode   : Waiting_Mode)
-     with Inline;
+   with Inline;
    --  Add socket to the set. Socket can be retreived from the set using
    --  Get_Socket.
 
@@ -74,7 +74,7 @@ package AWS.Net.Generic_Sets is
      (Set    : in out Socket_Set_Type;
       Socket : Socket_Access;
       Mode   : Waiting_Mode)
-     with Inline;
+   with Inline;
    --  Add socket to the set
 
    procedure Add
@@ -82,7 +82,7 @@ package AWS.Net.Generic_Sets is
       Socket : Socket_Type'Class;
       Data   : Data_Type;
       Mode   : Waiting_Mode)
-     with Inline;
+   with Inline;
    --  Add socket and associated data to the set
 
    procedure Add
@@ -90,15 +90,15 @@ package AWS.Net.Generic_Sets is
       Socket : Socket_Access;
       Data   : Data_Type;
       Mode   : Waiting_Mode)
-     with Inline;
+   with Inline;
    --  Add socket and associated data to the set
 
    procedure Set_Mode
      (Set    : in out Socket_Set_Type;
       Index  : Socket_Index;
       Mode   : Waiting_Mode)
-     with
-       Pre => In_Range (Set, Index);
+   with
+     Pre => In_Range (Set, Index);
    --  Change waiting mode for the socket in the set
 
    function Count (Set : Socket_Set_Type) return Socket_Count with Inline;
@@ -107,7 +107,7 @@ package AWS.Net.Generic_Sets is
    procedure Wait
      (Set     : in out Socket_Set_Type;
       Timeout : Duration)
-     with Inline;
+   with Inline;
    --  Wait for a socket in the set to be ready for input or output operation.
    --  Raises Socket_Error if an error occurs.
 
@@ -122,9 +122,9 @@ package AWS.Net.Generic_Sets is
    function Is_Read_Ready
      (Set   : Socket_Set_Type;
       Index : Socket_Index) return Boolean
-     with
-       Inline,
-       Pre => In_Range (Set, Index);
+   with
+     Inline,
+     Pre => In_Range (Set, Index);
    --  Return True if data could be read from socket and socket was in Input
    --  or Both waiting mode.
 
@@ -133,9 +133,9 @@ package AWS.Net.Generic_Sets is
       Index : Socket_Index;
       Ready : out Boolean;
       Error : out Boolean)
-     with
-       Inline,
-       Pre => In_Range (Set, Index);
+   with
+     Inline,
+     Pre => In_Range (Set, Index);
    --  Return True in Ready out parameter if data could be read from socket and
    --  socket was in Input or Both waiting mode. Return True in Error out
    --  parameter if socket is in error state.
@@ -143,18 +143,18 @@ package AWS.Net.Generic_Sets is
    function Is_Write_Ready
      (Set   : Socket_Set_Type;
       Index : Socket_Index) return Boolean
-     with
-       Inline,
-       Pre => In_Range (Set, Index);
+   with
+     Inline,
+     Pre => In_Range (Set, Index);
    --  Return True if data could be written to socket and socket was in Output
    --  or Both waiting mode.
 
    function Is_Error
      (Set   : Socket_Set_Type;
       Index : Socket_Index) return Boolean
-     with
-       Inline,
-       Pre => In_Range (Set, Index);
+   with
+     Inline,
+     Pre => In_Range (Set, Index);
    --  Return True if any error occured with socket while waiting
 
    function In_Range
@@ -165,32 +165,31 @@ package AWS.Net.Generic_Sets is
    function Get_Socket
      (Set   : Socket_Set_Type;
       Index : Socket_Index) return Socket_Type'Class
-     with
-       Inline,
-       Pre => In_Range (Set, Index);
+   with
+     Inline,
+     Pre => In_Range (Set, Index);
    --  Return socket from the Index position or raise Constraint_Error
    --  if index is more than the number of sockets in set.
 
    function Get_Data
      (Set   : Socket_Set_Type;
       Index : Socket_Index) return Data_Type
-     with
-       Inline,
-       Pre => In_Range (Set, Index);
+   with
+     Inline,
+     Pre => In_Range (Set, Index);
 
    procedure Set_Data
      (Set   : in out Socket_Set_Type;
       Index : Socket_Index;
       Data  : Data_Type)
-     with
-       Inline,
-       Pre => In_Range (Set, Index);
+   with
+     Inline,
+     Pre => In_Range (Set, Index);
 
    procedure Remove_Socket
      (Set   : in out Socket_Set_Type;
       Index : Socket_Index)
-     with
-       Pre => In_Range (Set, Index);
+   with Pre => In_Range (Set, Index);
    --  Delete socket from Index position from the Set. If the Index is not
    --  last position in the set, last socket would be placed instead of
    --  deleted one.
@@ -199,8 +198,7 @@ package AWS.Net.Generic_Sets is
      (Set    : in out Socket_Set_Type;
       Index  : Socket_Index;
       Socket : out Socket_Access)
-     with
-       Pre => In_Range (Set, Index);
+   with Pre => In_Range (Set, Index);
    --  Delete socket from Index position from the Set and return delete socket
    --  access. If the Index is not last position in the set, last socket would
    --  be placed instead of deleted one.
@@ -211,18 +209,16 @@ package AWS.Net.Generic_Sets is
       Process : not null access procedure
                   (Socket : in out Socket_Type'Class;
                    Data   : in out Data_Type))
-     with
-       Pre => In_Range (Set, Index);
+   with Pre => In_Range (Set, Index);
 
-   procedure Next (Set : Socket_Set_Type; Index : in out Socket_Index)
-     with
-       Pre  => Index = Count (Set) + 1        -- either past of last item
-               or else In_Range (Set, Index), -- or in the range of the set
+   procedure Next (Set : Socket_Set_Type; Index : in out Socket_Index) with
+     Pre  => Index = Count (Set) + 1        -- either past of last item
+             or else In_Range (Set, Index), -- or in the range of the set
 
-       Post => not In_Range (Set, Index)
-               or else Is_Write_Ready (Set, Index)
-               or else Is_Read_Ready (Set, Index)
-               or else Is_Error (Set, Index);
+     Post => not In_Range (Set, Index)
+             or else Is_Write_Ready (Set, Index)
+             or else Is_Read_Ready (Set, Index)
+             or else Is_Error (Set, Index);
    --  Looking for active socket starting from Index and return Index of the
    --  found active socket. After search use functions In_Range,
    --  Is_Write_Ready, Is_Read_Ready and Is_Error to be sure that active
