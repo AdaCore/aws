@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                        Copyright (C) 2012, AdaCore                       --
+--                     Copyright (C) 2012-2014, AdaCore                     --
 --                                                                          --
 --  This is free software;  you can redistribute it  and/or modify it       --
 --  under terms of the  GNU General Public License as published  by the     --
@@ -102,8 +102,8 @@ begin
 
    Net.WebSocket.Registry.Send
      (Rcp,
-      Templates.Parse
-        ("resp.xml", (1 => Templates.ASSOC ("MESSAGE", M (M'First .. L)))));
+      String'(Templates.Parse
+        ("resp.xml", (1 => Templates.ASSOC ("MESSAGE", M (M'First .. L))))));
 
    Text_IO.Put_Line ("You can now press Q to exit.");
 
