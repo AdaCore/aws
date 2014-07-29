@@ -73,35 +73,26 @@ package AWS.Containers.Tables is
      (Table : Table_Type;
       Name  : String;
       N     : Positive := 1) return String
-   with
-     Post =>  (N > Count (Table, Name) and then Get'Result'Length = 0)
-            or else
-              N <= Count (Table, Name);
+   with Post => (if N > Count (Table, Name) then Get'Result'Length = 0);
    --  Returns the Nth value associated with Key into Table. Returns
    --  the emptry string if key does not exist.
 
    function Get_Name
      (Table : Table_Type; N : Positive := 1) return String
-   with
-     Post => (N > Count (Table) and then Get_Name'Result'Length = 0)
-            or else
-             (N <= Count (Table) and then Get_Name'Result'Length > 0);
+   with Post => (if N > Count (Table) then Get_Name'Result'Length = 0);
    --  Returns the Nth Name in Table or the empty string if there is
    --  no parameter with this number.
 
    function Get_Value
      (Table : Table_Type; N : Positive := 1) return String
-   with
-     Post => (N > Count (Table) and then Get_Value'Result'Length = 0)
-            or else
-             N <= Count (Table);
+   with Post => (if N > Count (Table) then Get_Value'Result'Length = 0);
    --  Returns the Nth Value in Table or the empty string if there is
    --  no parameter with this number.
 
    function Get (Table : Table_Type; N : Positive) return Element with
-     Post => (N > Count (Table) and then Get'Result = Null_Element)
-            or else
-             (N <= Count (Table) and then Get'Result /= Null_Element);
+     Post => (if N > Count (Table)
+              then Get'Result = Null_Element
+              else Get'Result /= Null_Element);
    --  Returns N'th name/value pair. Returns Null_Element if there is no
    --  such item in the table.
 
