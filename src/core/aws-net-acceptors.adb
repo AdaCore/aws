@@ -600,14 +600,12 @@ package body AWS.Net.Acceptors is
    -----------------------
 
    procedure Shutdown_And_Free (Set : Socket_List) is
-      C : Socket_Lists.Cursor := Set.First;
       S : Socket_Access;
    begin
-      while Socket_Lists.Has_Element (C) loop
+      for C in Set.Iterate loop
          S := Socket_Lists.Element (C);
          S.Shutdown;
          Free (S); -- Don't use S.Free, it does not deallocate S
-         Socket_Lists.Next (C);
       end loop;
    end Shutdown_And_Free;
 
