@@ -37,6 +37,7 @@ with AWS.Headers.Set;
 with AWS.Headers.Values;
 with AWS.Resources.Streams.Memory.ZLib;
 with AWS.Resources.Streams.ZLib;
+with AWS.Server;
 with AWS.Translator;
 
 with ZLib;
@@ -208,7 +209,7 @@ package body AWS.Response.Set is
 
    procedure Clear_Session (D : in out Data) is
    begin
-      Add_Header (D, "Set-Cookie", "AWS=");
+      Add_Header (D, "Set-Cookie", AWS.Server.Session_Name & "=");
    end Clear_Session;
 
    --------------------
