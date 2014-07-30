@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2003-2012, AdaCore                     --
+--                     Copyright (C) 2003-2014, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -40,6 +40,7 @@ with AWS.LDAP.Thin;
 
 package AWS.LDAP.Client is
 
+   use Ada.Exceptions;
    use Ada.Strings.Unbounded;
 
    LDAP_Error : exception renames LDAP.LDAP_Error;
@@ -73,8 +74,7 @@ package AWS.LDAP.Client is
 
    Null_Set : constant String_Set;
 
-   function Get_Error
-     (E : Ada.Exceptions.Exception_Occurrence) return Thin.Return_Code;
+   function Get_Error (E : Exception_Occurrence) return Thin.Return_Code;
    --  Returns the error code in the LDAP_Error exception occurence E. Returns
    --  Think.LDAP_SUCCESS if no error code has been found.
 

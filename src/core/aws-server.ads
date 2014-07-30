@@ -425,7 +425,7 @@ private
       Count : Natural := N;
 
       Shutdown_Count : Natural := 0;
-      Last_Force     : Ada.Calendar.Time := Ada.Calendar.Clock;
+      Last_Force     : Calendar.Time := Calendar.Clock;
 
    end Slots;
 

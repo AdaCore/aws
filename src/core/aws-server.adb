@@ -150,14 +150,13 @@ package body AWS.Server is
    ------------------------------------------
 
    procedure Default_Unexpected_Exception_Handler
-     (E      : Ada.Exceptions.Exception_Occurrence;
+     (E      : Exception_Occurrence;
       Log    : in out AWS.Log.Object;
       Error  : Exceptions.Data;
       Answer : in out Response.Data)
    is
       pragma Unreferenced (Log);
 
-      use Ada.Exceptions;
       use type Templates.Translate_Set;
 
       Fatal_Error_Template  : constant String := "500.tmplt";
@@ -172,7 +171,7 @@ package body AWS.Server is
            (Text_IO.Current_Error, Exception_Information (E));
 
       else
-         if AWS.Utils.Is_Regular_File (Fatal_Error_Template) then
+         if Utils.Is_Regular_File (Fatal_Error_Template) then
             Answer := Response.Build
               (MIME.Text_HTML,
                String'(Templates.Parse
