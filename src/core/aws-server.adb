@@ -59,7 +59,8 @@ package body AWS.Server is
    --  Handle the lines, this is where all the HTTP protocol is defined
 
    function Accept_Socket_Serialized
-     (Server : not null access HTTP) return Net.Socket_Access;
+     (Server : not null access HTTP)
+      return not null access Net.Socket_Type'Class;
    --  Do a protected accept on the HTTP socket. It is not safe to call
    --  multiple accept on the same socket on some platforms.
 
@@ -73,7 +74,8 @@ package body AWS.Server is
    ------------------------------
 
    function Accept_Socket_Serialized
-     (Server : not null access HTTP) return Net.Socket_Access
+     (Server : not null access HTTP)
+      return not null access Net.Socket_Type'Class
    is
       use type Ada.Tags.Tag;
 
@@ -855,7 +857,9 @@ package body AWS.Server is
       -- Set --
       ---------
 
-      procedure Set (Socket : Socket_Access; Index : Positive) is
+      procedure Set
+        (Socket : not null access Net.Socket_Type'Class;
+         Index  : Positive) is
       begin
          pragma Assert (Count > 0);
 

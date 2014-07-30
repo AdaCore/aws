@@ -224,7 +224,8 @@ package AWS.Server is
       Host          : String;
       Port          : Natural;
       Family        : Net.Family_Type := Net.Family_Unspec;
-      Reuse_Address : Boolean         := False);
+      Reuse_Address : Boolean         := False)
+   with Pre => Host'Length > 0;
    --  Add the binded/listening socket on host, port and protocol family. To be
    --  able to connect web enabled application with others in the internal
    --  network, and then give access for external clients by listening on
@@ -369,7 +370,9 @@ private
       function Free_Slots return Natural;
       --  Returns number of free slots
 
-      procedure Set (Socket : Socket_Access; Index : Positive);
+      procedure Set
+        (Socket : not null access Net.Socket_Type'Class;
+         Index  : Positive);
       --  Mark slot at position Index to be used. This slot will be associated
       --  with Socket. Phase set to Wait_For_Client.
 
