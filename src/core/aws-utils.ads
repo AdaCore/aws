@@ -96,15 +96,23 @@ package AWS.Utils is
    --  Returns image of N without the leading blank
 
    function Image (N : Stream_Element_Offset) return String with
-     Post => Image'Result'Length > 0;
+     Post =>
+       Image'Result'Length > 0
+       and then Image'Result (Image'Result'First) /= ' ';
    --  Returns image of N without the leading blank
 
-   function Image (D : Duration) return String;
+   function Image (D : Duration) return String with
+     Post => Image'Result'Length > 0
+             and then Image'Result (Image'Result'First) /= ' ';
    --  Returns image of D without the leading blank and with only 2 decimals
    --  numbers.
 
    function Significant_Image
-     (Item : Duration; N : Positive) return String;
+     (Item : Duration; N : Positive) return String
+   with Post =>
+     Significant_Image'Result'Length > 0
+     and then Significant_Image'Result (Significant_Image'Result'First) /= ' ';
+
    --  Returns image of D without the leading blank and with N significant
    --  digits. If number of digits in integer part is more than N, the image
    --  would represent the whole integer part.
@@ -155,7 +163,12 @@ package AWS.Utils is
      (Content : in out Unbounded_String;
       Value   : String;
       Sep     : String := ", ")
-   with Inline;
+   with
+     Inline => True,
+     Post   => (if Length (Content'Old) = 0
+                then Length (Content) = Value'Length
+                else Length (Content) = Length (Content'Old)
+                       + Value'Length + Sep'Length);
    --  Append Value into Content, append Sep before value if Content is not
    --  empty.
 
