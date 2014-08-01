@@ -170,9 +170,6 @@ package AWS.Config is
    function Directory_Browser_Page (O : Object) return String with Inline;
    --  Filename for the directory browser template page
 
-   function MIME_Types (O : Object) return String with Inline;
-   --  Returns the name of the MIME types to use
-
    function Max_POST_Parameters (O : Object) return Positive with Inline;
    --  Returns the maximum number of POST parameters handled. Past this limit
    --  the exception Too_Many_Parameters is raised.
@@ -371,6 +368,9 @@ package AWS.Config is
    --  Number of maximum concurrent download supported by the download manager
    --  service.
 
+   function MIME_Types return String with Inline;
+   --  Returns the file name of the MIME types to use
+
    function Input_Line_Size_Limit return Positive with Inline;
    --  Limit of the HTTP protocol text lines length
 
@@ -465,7 +465,6 @@ private
       Check_URL_Validity,
       Case_Sensitive_Parameters,
       Max_POST_Parameters,
-      MIME_Types,
       --  Per process options
       Session_Cleanup_Interval,
       Session_Lifetime,
@@ -478,13 +477,14 @@ private
       Input_Line_Size_Limit,
       Max_Concurrent_Download,
       Max_WebSocket_Handler,
+      MIME_Types,
       WebSocket_Message_Queue_Size,
       WebSocket_Origin,
       WebSocket_Priority,
       Context_Lifetime);
 
    subtype Server_Parameter_Name is Parameter_Name
-     range Server_Name .. MIME_Types;
+     range Server_Name .. Max_POST_Parameters;
 
    subtype Process_Parameter_Name is Parameter_Name
      range Session_Cleanup_Interval .. Context_Lifetime;
@@ -696,10 +696,7 @@ private
                              (Bool, Default.Reuse_Address),
 
                            Max_POST_Parameters             =>
-                             (Pos, Default.Max_POST_Parameters),
-
-                           MIME_Types                      =>
-                             (Str, +Default.MIME_Types));
+                             (Pos, Default.Max_POST_Parameters));
 
    type Object is record
       P : Parameter_Set (Server_Parameter_Name) := Default_Parameters;
@@ -740,6 +737,9 @@ private
 
                         Max_WebSocket_Handler        =>
                           (Pos, Default.Max_WebSocket_Handler),
+
+                        MIME_Types                   =>
+                          (Str, +Default.MIME_Types),
 
                         WebSocket_Message_Queue_Size =>
                           (Pos, Default.WebSocket_Message_Queue_Size),

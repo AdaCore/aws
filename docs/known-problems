@@ -1,5 +1,10 @@
 Known Problems fixed in AWS 3.2
 
+- N731-023: MIME_Types not taken into account
+  Problem: The MIME types files specified with AWS.Config.Set.MIME_Types
+           was not taken into account.
+  Workaround: Load the file explicitly using AWS.Config.Load routine.
+
 - N727-001: WebSocket concurrency issue
   Problem: When using lot of tasks to handle WebSockets the AWS server could
            crashes abruptly.

@@ -65,9 +65,6 @@ package AWS.Config.Set is
    procedure Line_Stack_Size (O : in out Object; Value : Positive);
    --  HTTP lines stack size
 
-   procedure MIME_Types (O : in out Object; Value : String);
-   --  The name of the file containing the MIME types associations
-
    procedure Reuse_Address (O : in out Object; Value : Boolean);
    --  Set the reuse address policy allowing a bind without a dealy to the same
    --  address and port.
@@ -368,6 +365,9 @@ package AWS.Config.Set is
 
    procedure Max_WebSocket_Handler (Value : Positive);
    --  This is the max simultaneous connections handling WebSocket's messages
+
+   procedure MIME_Types (Value : String);
+   --  The name of the file containing the MIME types associations
 
    procedure WebSocket_Message_Queue_Size (Value : Positive);
    --  This is the size of the queue containing incoming messages

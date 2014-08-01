@@ -168,7 +168,11 @@ package body AWS.MIME is
 
    procedure Initialize is
 
-      AWS_MIME : constant String := Config.MIME_Types (Config.Get_Current);
+      Cnf     : constant Config.Object := Config.Get_Current with Unreferenced;
+      --  Declared to initialize the configuration object and then reading the
+      --  .ini file if any.
+
+      AWS_MIME : constant String := Config.MIME_Types;
 
    begin
       --  Text

@@ -28,6 +28,7 @@
 ------------------------------------------------------------------------------
 
 with AWS.Config.Utils;
+with AWS.MIME;
 with AWS.Utils;
 
 package body AWS.Config.Set is
@@ -418,9 +419,13 @@ package body AWS.Config.Set is
    -- MIME_Types --
    ----------------
 
-   procedure MIME_Types (O : in out Object; Value : String) is
+   procedure MIME_Types (Value : String) is
    begin
-      O.P (MIME_Types).Str_Value := To_Unbounded_String (Value);
+      Process_Options (MIME_Types).Str_Value := To_Unbounded_String (Value);
+
+      --  We also want to load the values in this file
+
+      MIME.Load (Value);
    end MIME_Types;
 
    ---------------

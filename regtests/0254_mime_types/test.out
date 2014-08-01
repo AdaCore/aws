@@ -1,0 +1,3 @@
+aws.ada                  => text/plain
+aws.ecma                 => application/ecmascript
+aws.toto                 => x-toto/x-titi

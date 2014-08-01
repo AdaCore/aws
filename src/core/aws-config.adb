@@ -521,9 +521,9 @@ package body AWS.Config is
    -- MIME_Types --
    ----------------
 
-   function MIME_Types (O : Object) return String is
+   function MIME_Types return String is
    begin
-      return To_String (O.P (MIME_Types).Str_Value);
+      return To_String (Process_Options (MIME_Types).Str_Value);
    end MIME_Types;
 
    ---------------------
