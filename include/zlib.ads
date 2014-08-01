@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
---                      ZLib for Ada thick binding.                         --
+--                       ZLib for Ada thick binding.                        --
 --                                                                          --
---              Copyright (C) 2002-2013, Dmitriy Anisimkov                  --
+--                Copyright (C) 2002-2014, Dmitriy Anisimkov                --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -34,6 +34,8 @@ with Interfaces;
 with System;
 
 package ZLib is
+
+   use Ada.Streams;
 
    ZLib_Error   : exception;
    Status_Error : exception;
@@ -175,10 +177,10 @@ package ZLib is
 
    generic
       with procedure Data_In
-        (Item : out Ada.Streams.Stream_Element_Array;
-         Last : out Ada.Streams.Stream_Element_Offset);
+        (Item : out Stream_Element_Array;
+         Last : out Stream_Element_Offset);
       with procedure Data_Out
-        (Item : in Ada.Streams.Stream_Element_Array);
+        (Item : in Stream_Element_Array);
    procedure Generic_Translate
      (Filter          : in out Filter_Type;
       In_Buffer_Size  : in     Integer := Default_Buffer_Size;
@@ -196,13 +198,13 @@ package ZLib is
 
    function CRC32
      (CRC    : in Unsigned_32;
-      Data   : in Ada.Streams.Stream_Element_Array)
+      Data   : in Stream_Element_Array)
      return Unsigned_32 with Inline;
    --  Compute CRC32, it could be necessary for make gzip format
 
    procedure CRC32
      (CRC  : in out Unsigned_32;
-      Data : in     Ada.Streams.Stream_Element_Array) with Inline;
+      Data : in     Stream_Element_Array) with Inline;
    --  Compute CRC32, it could be necessary for make gzip format
 
    -------------------------------------------------
@@ -211,10 +213,10 @@ package ZLib is
 
    procedure Translate
      (Filter    : in out Filter_Type;
-      In_Data   : in     Ada.Streams.Stream_Element_Array;
-      In_Last   :    out Ada.Streams.Stream_Element_Offset;
-      Out_Data  :    out Ada.Streams.Stream_Element_Array;
-      Out_Last  :    out Ada.Streams.Stream_Element_Offset;
+      In_Data   : in     Stream_Element_Array;
+      In_Last   :    out Stream_Element_Offset;
+      Out_Data  :    out Stream_Element_Array;
+      Out_Last  :    out Stream_Element_Offset;
       Flush     : in     Flush_Mode);
    --  Compress/decompress the In_Data buffer and place the result into
    --  Out_Data. In_Last is the index of last element from In_Data accepted by
@@ -227,41 +229,39 @@ package ZLib is
 
    procedure Flush
      (Filter    : in out Filter_Type;
-      Out_Data  :    out Ada.Streams.Stream_Element_Array;
-      Out_Last  :    out Ada.Streams.Stream_Element_Offset;
+      Out_Data  :    out Stream_Element_Array;
+      Out_Last  :    out Stream_Element_Offset;
       Flush     : in     Flush_Mode)
      with Inline;
    --  Flushing the data from the compressor
 
    generic
-      with procedure Write
-        (Item : in Ada.Streams.Stream_Element_Array);
+      with procedure Write (Item : in Stream_Element_Array);
       --  User should provide this routine for accept
       --  compressed/decompressed data.
 
-      Buffer_Size : in Ada.Streams.Stream_Element_Offset
-         := Default_Buffer_Size;
+      Buffer_Size : in Stream_Element_Offset := Default_Buffer_Size;
       --  Buffer size for Write user routine
 
    procedure Write
      (Filter  : in out Filter_Type;
-      Item    : in     Ada.Streams.Stream_Element_Array;
+      Item    : in     Stream_Element_Array;
       Flush   : in     Flush_Mode := No_Flush);
    --  Compress/Decompress data from Item to the generic parameter procedure
    --  Write. Output buffer size could be set in Buffer_Size generic parameter.
 
    generic
       with procedure Read
-        (Item : out Ada.Streams.Stream_Element_Array;
-         Last : out Ada.Streams.Stream_Element_Offset);
+        (Item : out Stream_Element_Array;
+         Last : out Stream_Element_Offset);
       --  User should provide data for compression/decompression
       --  thru this routine.
 
-      Buffer : in out Ada.Streams.Stream_Element_Array;
+      Buffer : in out Stream_Element_Array;
       --  Buffer for keep remaining data from the previous
       --  back read.
 
-      Rest_First, Rest_Last : in out Ada.Streams.Stream_Element_Offset;
+      Rest_First, Rest_Last : in out Stream_Element_Offset;
       --  Rest_First have to be initialized to Buffer'Last + 1
       --  Rest_Last have to be initialized to Buffer'Last
       --  before usage.
@@ -271,8 +271,8 @@ package ZLib is
 
    procedure Read
      (Filter : in out Filter_Type;
-      Item   :    out Ada.Streams.Stream_Element_Array;
-      Last   :    out Ada.Streams.Stream_Element_Offset;
+      Item   :    out Stream_Element_Array;
+      Last   :    out Stream_Element_Offset;
       Flush  : in     Flush_Mode := No_Flush);
    --  Compress/Decompress data from generic parameter procedure Read to the
    --  Item. User should provide Buffer and initialized Rest_First, Rest_Last
@@ -281,10 +281,8 @@ package ZLib is
 
 private
 
-   use Ada.Streams;
-
-   pragma Assert (Ada.Streams.Stream_Element'Size    =    8);
-   pragma Assert (Ada.Streams.Stream_Element'Modulus = 2**8);
+   pragma Assert (Stream_Element'Size    =    8);
+   pragma Assert (Stream_Element'Modulus = 2**8);
 
    type Flush_Mode is new Integer range 0 .. 5;
 

@@ -1,7 +1,7 @@
 ----------------------------------------------------------------
 --  ZLib for Ada thick binding.                               --
 --                                                            --
---  Copyright (C) 2002-2013, Dmitriy Anisimkov                --
+--  Copyright (C) 2002-2014, Dmitriy Anisimkov                --
 --                                                            --
 --  Open source license information is in the zlib.ads file.  --
 ----------------------------------------------------------------
@@ -19,6 +19,7 @@ with ZLib.Thin;
 package body ZLib is
 
    use type Thin.Int;
+   use Ada.Exceptions;
 
    type Z_Stream is new Thin.Z_Stream;
 
@@ -95,19 +96,19 @@ package body ZLib is
 
    procedure Translate_GZip
      (Filter    : in out Filter_Type;
-      In_Data   : in     Ada.Streams.Stream_Element_Array;
-      In_Last   :    out Ada.Streams.Stream_Element_Offset;
-      Out_Data  :    out Ada.Streams.Stream_Element_Array;
-      Out_Last  :    out Ada.Streams.Stream_Element_Offset;
+      In_Data   : in     Stream_Element_Array;
+      In_Last   :    out Stream_Element_Offset;
+      Out_Data  :    out Stream_Element_Array;
+      Out_Last  :    out Stream_Element_Offset;
       Flush     : in     Flush_Mode);
    --  Separate translate routine for make gzip header
 
    procedure Translate_Auto
      (Filter    : in out Filter_Type;
-      In_Data   : in     Ada.Streams.Stream_Element_Array;
-      In_Last   :    out Ada.Streams.Stream_Element_Offset;
-      Out_Data  :    out Ada.Streams.Stream_Element_Array;
-      Out_Last  :    out Ada.Streams.Stream_Element_Offset;
+      In_Data   : in     Stream_Element_Array;
+      In_Last   :    out Stream_Element_Offset;
+      Out_Data  :    out Stream_Element_Array;
+      Out_Last  :    out Stream_Element_Offset;
       Flush     : in     Flush_Mode);
    --  translate routine without additional headers
 
@@ -149,7 +150,7 @@ package body ZLib is
               := Last_Error_Message (Filter.Strm.all);
          begin
             Free (Filter.Strm);
-            Ada.Exceptions.Raise_Exception
+            Raise_Exception
                (ZLib_Error'Identity,
                 Return_Code_Enum'Image (Return_Code (Code))
                   & ": " & Error_Message);
@@ -163,7 +164,7 @@ package body ZLib is
 
    function CRC32
      (CRC  : in Unsigned_32;
-      Data : in Ada.Streams.Stream_Element_Array)
+      Data : in Stream_Element_Array)
       return Unsigned_32
    is
       use Thin;
@@ -175,7 +176,7 @@ package body ZLib is
 
    procedure CRC32
      (CRC  : in out Unsigned_32;
-      Data : in     Ada.Streams.Stream_Element_Array) is
+      Data : in     Stream_Element_Array) is
    begin
       CRC := CRC32 (CRC, Data);
    end CRC32;
@@ -240,8 +241,8 @@ package body ZLib is
 
    procedure Flush
      (Filter    : in out Filter_Type;
-      Out_Data  :    out Ada.Streams.Stream_Element_Array;
-      Out_Last  :    out Ada.Streams.Stream_Element_Offset;
+      Out_Data  :    out Stream_Element_Array;
+      Out_Last  :    out Stream_Element_Offset;
       Flush     : in     Flush_Mode)
    is
       No_Data : constant Stream_Element_Array := (1 .. 0 => 0);
@@ -308,6 +309,7 @@ package body ZLib is
       Header      : in     Header_Type      := Default)
    is
       use type Thin.Int;
+
       Win_Bits : Thin.Int := Thin.Int (Window_Bits);
 
       procedure Check_Version;
@@ -382,7 +384,7 @@ package body ZLib is
 
    procedure Raise_Error (Message : in String) is
    begin
-      Ada.Exceptions.Raise_Exception (ZLib_Error'Identity, Message);
+      Raise_Exception (ZLib_Error'Identity, Message);
    end Raise_Error;
 
    procedure Raise_Error (Stream : in Z_Stream) is
@@ -396,12 +398,12 @@ package body ZLib is
 
    procedure Read
      (Filter : in out Filter_Type;
-      Item   :    out Ada.Streams.Stream_Element_Array;
-      Last   :    out Ada.Streams.Stream_Element_Offset;
+      Item   :    out Stream_Element_Array;
+      Last   :    out Stream_Element_Offset;
       Flush  : in     Flush_Mode := No_Flush)
    is
       In_Last    : Stream_Element_Offset;
-      Item_First : Ada.Streams.Stream_Element_Offset := Item'First;
+      Item_First : Stream_Element_Offset := Item'First;
       V_Flush    : Flush_Mode := Flush;
 
    begin
@@ -477,10 +479,10 @@ package body ZLib is
 
    procedure Translate
      (Filter    : in out Filter_Type;
-      In_Data   : in     Ada.Streams.Stream_Element_Array;
-      In_Last   :    out Ada.Streams.Stream_Element_Offset;
-      Out_Data  :    out Ada.Streams.Stream_Element_Array;
-      Out_Last  :    out Ada.Streams.Stream_Element_Offset;
+      In_Data   : in     Stream_Element_Array;
+      In_Last   :    out Stream_Element_Offset;
+      Out_Data  :    out Stream_Element_Array;
+      Out_Last  :    out Stream_Element_Offset;
       Flush     : in     Flush_Mode) is
    begin
       if Filter.Header = GZip and then Filter.Compression then
@@ -508,13 +510,14 @@ package body ZLib is
 
    procedure Translate_Auto
      (Filter    : in out Filter_Type;
-      In_Data   : in     Ada.Streams.Stream_Element_Array;
-      In_Last   :    out Ada.Streams.Stream_Element_Offset;
-      Out_Data  :    out Ada.Streams.Stream_Element_Array;
-      Out_Last  :    out Ada.Streams.Stream_Element_Offset;
+      In_Data   : in     Stream_Element_Array;
+      In_Last   :    out Stream_Element_Offset;
+      Out_Data  :    out Stream_Element_Array;
+      Out_Last  :    out Stream_Element_Offset;
       Flush     : in     Flush_Mode)
    is
       use type Thin.Int;
+
       Code : Thin.Int;
 
    begin
@@ -551,10 +554,10 @@ package body ZLib is
 
    procedure Translate_GZip
      (Filter    : in out Filter_Type;
-      In_Data   : in     Ada.Streams.Stream_Element_Array;
-      In_Last   :    out Ada.Streams.Stream_Element_Offset;
-      Out_Data  :    out Ada.Streams.Stream_Element_Array;
-      Out_Last  :    out Ada.Streams.Stream_Element_Offset;
+      In_Data   : in     Stream_Element_Array;
+      In_Last   :    out Stream_Element_Offset;
+      Out_Data  :    out Stream_Element_Array;
+      Out_Last  :    out Stream_Element_Offset;
       Flush     : in     Flush_Mode)
    is
       Out_First : Stream_Element_Offset;
@@ -566,7 +569,7 @@ package body ZLib is
       procedure Put_32
         (Item : in out Stream_Element_Array;
          Data : in     Unsigned_32)
-        with Inline;
+      with Inline;
 
       --------------
       -- Add_Data --
@@ -668,7 +671,7 @@ package body ZLib is
 
    procedure Write
      (Filter : in out Filter_Type;
-      Item   : in     Ada.Streams.Stream_Element_Array;
+      Item   : in     Stream_Element_Array;
       Flush  : in     Flush_Mode := No_Flush)
    is
       Buffer   : Stream_Element_Array (1 .. Buffer_Size);

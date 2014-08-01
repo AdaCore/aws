@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                       Generic memory stream                              --
 --                                                                          --
---                      Copyright (C) 2003-2007                             --
+--                      Copyright (C) 2003-2014                             --
 --                         Dmitriy Anisimkov                                --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
@@ -51,15 +51,15 @@ package Memory_Streams is
    --  Set Trim to true for every call to stream would decrease performance.
 
    procedure Append
-     (Stream     : in out Stream_Type;
-      Data       : in     Element_Access);
+     (Stream : in out Stream_Type;
+      Data   : in     Element_Access);
    --  Append dynamically allocated data or access to the static data
    --  to the stream. Application must not use Data after send it to the
    --  Stream. Stream would care about it, and free when necessary.
 
    procedure Append
-     (Stream     : in out Stream_Type;
-      Data       : in     Constant_Access);
+     (Stream : in out Stream_Type;
+      Data   : in     Constant_Access);
    --  Append dynamically allocated data or access to the static data
    --  to the stream. Application could use Data after send it to the
    --  Stream.

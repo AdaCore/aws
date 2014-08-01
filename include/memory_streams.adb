@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                       Generic memory stream                              --
 --                                                                          --
---              Copyright (C) 2003-2013, Dmitriy Anisimkov                  --
+--              Copyright (C) 2003-2014, Dmitriy Anisimkov                  --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -99,8 +99,8 @@ package body Memory_Streams is
                     := Value'Last - Split_Value + 1;
                begin
                   Stream.Last.Data
-                    (Stream.Last_Length + 1 .. Stream.Last.Data'Last)
-                    := Value (Value'First .. Split_Value - 1);
+                    (Stream.Last_Length + 1 .. Stream.Last.Data'Last) :=
+                       Value (Value'First .. Split_Value - 1);
 
                   Stream.Last.Next := new Buffer_Type (False);
                   Stream.Last      := Stream.Last.Next;
@@ -108,12 +108,12 @@ package body Memory_Streams is
                   if Next_Length >= Next_Block_Length or else Trim then
                      Stream.Last.Data := new Element_Array (1 .. Next_Length);
                   else
-                     Stream.Last.Data
-                       := new Element_Array (1 .. Next_Block_Length);
+                     Stream.Last.Data :=
+                       new Element_Array (1 .. Next_Block_Length);
                   end if;
 
-                  Stream.Last.Data (1 .. Next_Length)
-                    := Value (Split_Value .. Value'Last);
+                  Stream.Last.Data (1 .. Next_Length) :=
+                    Value (Split_Value .. Value'Last);
 
                   Stream.Last_Length := Next_Length;
                end;
@@ -125,8 +125,8 @@ package body Memory_Streams is
                if Value'Length >= Next_Block_Length or else Trim then
                   Stream.Last.Data := new Element_Array (1 .. Value'Length);
                else
-                  Stream.Last.Data
-                    := new Element_Array (1 .. Next_Block_Length);
+                  Stream.Last.Data :=
+                    new Element_Array (1 .. Next_Block_Length);
                end if;
 
                Stream.Last.Data (1 .. Value'Length) := Value;
@@ -212,6 +212,7 @@ package body Memory_Streams is
 
          if First.Next = null then
             Length := Length + Stream.Last_Length;
+
          else
             if First.Steady then
                Length := Length + First.Const'Length;
@@ -244,7 +245,7 @@ package body Memory_Streams is
    begin
       return Stream.Current = null
         or else (Stream.Current.Next = null
-                   and then Stream.Current_Offset > Last (Stream.Current));
+                 and then Stream.Current_Offset > Last (Stream.Current));
    end End_Of_File;
 
    -----------
@@ -309,12 +310,12 @@ package body Memory_Streams is
       ------------
 
       procedure Append (Data : in Element_Array) is
-         Buffer_Len_1  : constant Element_Offset
-           := Buffer'Last - Buffer_Offset;
+         Buffer_Len_1  : constant Element_Offset :=
+                           Buffer'Last - Buffer_Offset;
          --  Buffer remain length minus 1
 
-         Current_Len_1 : constant Element_Offset
-           := Data'Last - Stream.Current_Offset;
+         Current_Len_1 : constant Element_Offset :=
+                           Data'Last - Stream.Current_Offset;
          --  Data remain length minus 1
 
          Current_Last  : Element_Index;
@@ -324,8 +325,8 @@ package body Memory_Streams is
          if Block_Over then
             Last := Buffer_Offset + Current_Len_1;
 
-            Buffer (Buffer_Offset .. Last)
-              := Data (Stream.Current_Offset .. Data'Last);
+            Buffer (Buffer_Offset .. Last) :=
+              Data (Stream.Current_Offset .. Data'Last);
 
             Buffer_Offset := Last + 1;
 
@@ -336,8 +337,8 @@ package body Memory_Streams is
 
             Current_Last := Stream.Current_Offset + Buffer_Len_1;
 
-            Buffer (Buffer_Offset .. Last)
-              := Data (Stream.Current_Offset .. Current_Last);
+            Buffer (Buffer_Offset .. Last) :=
+              Data (Stream.Current_Offset .. Current_Last);
 
             Stream.Current_Offset := Current_Last + 1;
          end if;
