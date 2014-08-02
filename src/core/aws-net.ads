@@ -60,6 +60,9 @@ package AWS.Net is
    subtype FD_Type is Integer;
    --  Represents an external socket file descriptor
 
+   No_Socket : constant FD_Type := -1;
+   --  Represents closed socket file descriptor
+
    type FD_Set (Size : Natural) is abstract tagged private;
    --  Abstract type for waiting of network events on group of sockets FD
 
@@ -414,8 +417,6 @@ private
    --  efficient. Before reading data, the write cache  is flushed.
 
    Forever : constant Duration := Duration'Last;
-
-   No_Socket : constant := -1;
 
    Peer_Closed_Message : constant String := "Receive : Socket closed by peer";
 
