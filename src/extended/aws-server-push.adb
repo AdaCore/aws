@@ -764,6 +764,15 @@ package body AWS.Server.Push is
 
                   Holder.Errmsg := To_Unbounded_String (Exception_Message (E));
                   Events := (others => False);
+
+                  if Holder.Socket.all in Net.WebSocket.Object'Class
+                    and then Holder.Socket.Get_FD = Net.No_Socket
+                  then
+                     --  Need for free Holder when WebSocket closed
+                     --  in WebSocket.Register
+                     Holder.Phase := Available;
+                     return;
+                  end if;
             end;
 
             if Events (Error) then
