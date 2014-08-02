@@ -29,6 +29,8 @@
 
 --  Parent of all implemented protocols which are for internal use only
 
+with Interfaces;
+
 package AWS.Net.WebSocket.Protocol is
 
    type State is abstract tagged null record;

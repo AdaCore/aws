@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2000-2012, AdaCore                      --
+--                     Copyright (C) 2000-2014, AdaCore                      --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -100,7 +100,7 @@ begin
          Back_OK       : Boolean;
          First_Line    : Boolean := True;
          Switch        : constant array (Boolean) of
-                           access function
+                           not null access function
                              (Socket : Net.Socket_Type'Class;
                               Events : Net.Wait_Event_Set) return Net.Event_Set
                            := (True  => Net.Wait'Access,

@@ -203,7 +203,7 @@ package AWS.Net.SSL is
 
    overriding function Cipher_Description (Socket : Socket_Type) return String;
 
-   procedure Ciphers (Cipher : access procedure (Name : String));
+   procedure Ciphers (Cipher : not null access procedure (Name : String));
    --  Calls callback Cipher for all available ciphers
 
    procedure Generate_DH;

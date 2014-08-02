@@ -73,7 +73,8 @@ package body AWS.Net.SSL is
    -- Ciphers --
    -------------
 
-   procedure Ciphers (Cipher : access procedure (Name : String)) is null;
+   procedure Ciphers
+     (Cipher : not null access procedure (Name : String)) is null;
 
    -------------------------
    -- Clear_Session_Cache --

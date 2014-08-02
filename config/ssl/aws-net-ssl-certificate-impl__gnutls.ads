@@ -29,6 +29,8 @@
 
 with Interfaces.C;
 
+with AWS.Utils;
+
 package AWS.Net.SSL.Certificate.Impl is
 
    use Interfaces;

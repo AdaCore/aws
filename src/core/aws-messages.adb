@@ -100,7 +100,7 @@ package body AWS.Messages is
 
    type Status_Data is record
       Code          : Status_Code_Image;
-      Reason_Phrase : access constant String;
+      Reason_Phrase : not null access constant String;
    end record;
 
    Status_Messages : constant array (Status_Code) of Status_Data :=

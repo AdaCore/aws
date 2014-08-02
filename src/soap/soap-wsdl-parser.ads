@@ -27,12 +27,11 @@
 --  covered by the  GNU Public License.                                     --
 ------------------------------------------------------------------------------
 
-with Ada.Strings.Unbounded;
-
-with Ada.Containers.Indefinite_Ordered_Sets;
-
 with SOAP.Name_Space;
 with SOAP.WSDL.Parameters;
+
+private with Ada.Strings.Unbounded;
+private with Ada.Containers.Indefinite_Ordered_Sets;
 
 package SOAP.WSDL.Parser is
 
@@ -96,10 +95,10 @@ package SOAP.WSDL.Parser is
 
 private
 
+   use Ada;
    use Ada.Strings.Unbounded;
 
-   package Exclude_Set is
-     new Ada.Containers.Indefinite_Ordered_Sets (String);
+   package Exclude_Set is new Containers.Indefinite_Ordered_Sets (String);
 
    type Parameter_Mode is (Input, Output, Fault);
    --  Current parameter parsing mode

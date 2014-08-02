@@ -38,9 +38,8 @@ with Ada.Exceptions;
 with Ada.Finalization;
 with Ada.Streams;
 
-with AWS.Utils;
-
-with Interfaces.C;
+private with AWS.Utils;
+private with Interfaces.C;
 
 package AWS.Net is
 
@@ -118,7 +117,7 @@ package AWS.Net is
    --  resources used by new_Socket have been released.
    --  There is not need to call Free or Shutdown.
 
-   type Socket_Constructor is access
+   type Socket_Constructor is not null access
      function (Security : Boolean) return Socket_Type'Class;
 
    procedure Connect

@@ -39,7 +39,6 @@ with Ada.Streams;
 with Ada.Strings.Unbounded;
 
 with AWS.Attachments;
-with AWS.Containers.Memory_Streams;
 with AWS.Headers;
 with AWS.Messages;
 with AWS.Net;
@@ -47,8 +46,12 @@ with AWS.Parameters;
 with AWS.Session;
 with AWS.URL;
 
+private with AWS.Containers.Memory_Streams;
+
 package AWS.Status is
 
+   use Ada;
+   use Ada.Streams;
    use Ada.Strings.Unbounded;
 
    type Data is private;
@@ -91,10 +94,10 @@ package AWS.Status is
    function HTTP_Version (D : Data) return String with Inline;
    --  Returns the HTTP version used by the client
 
-   function Request_Time (D : Data) return Ada.Calendar.Time with Inline;
+   function Request_Time (D : Data) return Calendar.Time with Inline;
    --  Returns the time of the request
 
-   function Request_Time (D : Data) return Ada.Real_Time.Time with Inline;
+   function Request_Time (D : Data) return Real_Time.Time with Inline;
 
    ------------
    -- Header --
@@ -201,9 +204,6 @@ package AWS.Status is
    --  Get value for the boundary part in "Content-Type: ...; boundary=..."
    --  parameter. This is a string that will be used to separate each chunk of
    --  data in a multipart message.
-
-   subtype Stream_Element_Array is Ada.Streams.Stream_Element_Array;
-   subtype Stream_Element_Offset is Ada.Streams.Stream_Element_Offset;
 
    function Binary_Data (D : Data) return Stream_Element_Array with Inline;
    --  Returns the binary data message content.
@@ -356,8 +356,8 @@ private
       Method_String     : Unbounded_String;
       HTTP_Version      : Unbounded_String;
       URI               : aliased AWS.URL.Object;
-      Calendar_Time     : Ada.Calendar.Time;
-      Monotonic_Time    : Ada.Real_Time.Time;
+      Calendar_Time     : Calendar.Time;
+      Monotonic_Time    : Real_Time.Time;
       Binary_Data       : Memory_Stream_Access;
       Uploaded          : Boolean               := False;
       Content_Length    : Natural               := 0;

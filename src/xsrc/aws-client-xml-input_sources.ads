@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2004-2012, AdaCore                     --
+--                     Copyright (C) 2004-2014, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -37,7 +37,6 @@ package AWS.Client.XML.Input_Sources is
    package Sources renames Standard.Input_Sources;
 
    type HTTP_Input is new Sources.Input_Source with private;
-   type HTTP_Input_Access is access all HTTP_Input'Class;
    --  A special implementation of a reader, that reads from an HTTP stream
 
    procedure Create
@@ -56,7 +55,8 @@ package AWS.Client.XML.Input_Sources is
 private
 
    type HTTP_Input is new Sources.Input_Source with record
-      Self   : HTTP_Input_Access := HTTP_Input'Unchecked_Access;
+      Self   : not null access HTTP_Input :=
+                 HTTP_Input'Unchecked_Access;
       HTTP   : HTTP_Connection_Access;
       Buffer : Stream_Element_Array (1 .. 4_096);
       First  : Stream_Element_Offset;

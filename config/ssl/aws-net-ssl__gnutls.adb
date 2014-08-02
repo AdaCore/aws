@@ -376,7 +376,7 @@ package body AWS.Net.SSL is
    -- Ciphers --
    -------------
 
-   procedure Ciphers (Cipher : access procedure (Name : String)) is
+   procedure Ciphers (Cipher : not null access procedure (Name : String)) is
       use type CS.chars_ptr;
       Name    : CS.chars_ptr;
       cs_id   : array (0 .. 1) of aliased C.unsigned_char;

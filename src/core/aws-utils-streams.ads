@@ -56,7 +56,8 @@ package AWS.Utils.Streams is
    --  Open a new string. Str is the initial value of the string, to which will
    --  be appended the result of 'Output.
 
-   function Value (Stream : access Strings'Class) return String with Inline;
+   function Value
+     (Stream : not null access Strings'Class) return String with Inline;
    --  Returns the stream value
 
    ------------------
@@ -76,7 +77,7 @@ package AWS.Utils.Streams is
      (Stream : in out SHA1; Item : Stream_Element_Array) with Inline;
 
    function Value
-     (Stream : access SHA1'Class) return GNAT.SHA1.Message_Digest
+     (Stream : not null access SHA1'Class) return GNAT.SHA1.Message_Digest
    with Inline;
    --  Returns the stream value
 

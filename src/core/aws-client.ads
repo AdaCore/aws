@@ -544,7 +544,8 @@ private
       End_Response);  -- Document is over
 
    type HTTP_Connection is new Finalization.Limited_Controlled with record
-      Self : HTTP_Connection_Access := HTTP_Connection'Unchecked_Access;
+      Self : not null access HTTP_Connection :=
+               HTTP_Connection'Unchecked_Access;
 
       Connect_URL        : AWS.URL.Object;
       Host               : Unbounded_String;
