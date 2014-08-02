@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2002-2013, AdaCore                     --
+--                     Copyright (C) 2002-2014, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -166,34 +166,34 @@ package AWS.LDAP.Thin is
 
    --  LDAP Controls
 
-   LDAP_CONTROL_MANAGEDSAIT  : constant chars_ptr
-     := NS ("2.16.840.1.113730.3.4.2");
+   LDAP_CONTROL_MANAGEDSAIT  : constant chars_ptr :=
+                                 NS ("2.16.840.1.113730.3.4.2");
 
    --  Experimental Controls
 
-   LDAP_CONTROL_SORTREQUEST  : constant chars_ptr
-     := NS ("1.2.840.113556.1.4.473");
-   LDAP_CONTROL_SORTRESPONSE : constant chars_ptr
-     := NS ("1.2.840.113556.1.4.474");
-   LDAP_CONTROL_VLVREQUEST   : constant chars_ptr
-     := NS ("2.16.840.1.113730.3.4.9");
-   LDAP_CONTROL_VLVRESPONSE  : constant chars_ptr
-     := NS ("2.16.840.1.113730.3.4.10");
+   LDAP_CONTROL_SORTREQUEST  : constant chars_ptr :=
+                                 NS ("1.2.840.113556.1.4.473");
+   LDAP_CONTROL_SORTRESPONSE : constant chars_ptr :=
+                                 NS ("1.2.840.113556.1.4.474");
+   LDAP_CONTROL_VLVREQUEST   : constant chars_ptr :=
+                                 NS ("2.16.840.1.113730.3.4.9");
+   LDAP_CONTROL_VLVRESPONSE  : constant chars_ptr :=
+                                 NS ("2.16.840.1.113730.3.4.10");
 
    --  LDAP Unsolicited Notifications
 
-   LDAP_NOTICE_OF_DISCONNECTION : constant chars_ptr
-     := NS ("1.3.6.1.4.1.1466.20036");
-   LDAP_NOTICE_DISCONNECT    : constant chars_ptr
-     := LDAP_NOTICE_OF_DISCONNECTION;
+   LDAP_NOTICE_OF_DISCONNECTION : constant chars_ptr :=
+                                    NS ("1.3.6.1.4.1.1466.20036");
+   LDAP_NOTICE_DISCONNECT    : constant chars_ptr :=
+                                 LDAP_NOTICE_OF_DISCONNECTION;
 
    --  LDAP Extended Operations
 
-   LDAP_EXOP_START_TLS       : constant chars_ptr
-     := NS ("1.3.6.1.4.1.1466.20037");
+   LDAP_EXOP_START_TLS       : constant chars_ptr :=
+                                 NS ("1.3.6.1.4.1.1466.20037");
 
-   LDAP_EXOP_X_MODIFY_PASSWD : constant chars_ptr
-     := NS ("1.3.6.1.4.1.4203.1.11.1");
+   LDAP_EXOP_X_MODIFY_PASSWD : constant chars_ptr :=
+                                 NS ("1.3.6.1.4.1.4203.1.11.1");
 
    LDAP_TAG_EXOP_X_MODIFY_PASSWD_ID  : constant := 16#80#;
    LDAP_TAG_EXOP_X_MODIFY_PASSWD_OLD : constant := 16#81#;

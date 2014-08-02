@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2003-2012, AdaCore                     --
+--                     Copyright (C) 2003-2014, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -41,8 +41,8 @@ package body SOAP.WSDL.Parameters is
    begin
       if P = null then
          P := new Parameter'(Param);
-      else
 
+      else
          N := P;
 
          while N.Next /= null loop
@@ -50,7 +50,6 @@ package body SOAP.WSDL.Parameters is
          end loop;
 
          N.Next := new Parameter'(Param);
-
       end if;
    end Append;
 

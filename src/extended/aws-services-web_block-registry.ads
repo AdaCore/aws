@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2007-2012, AdaCore                     --
+--                     Copyright (C) 2007-2014, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -69,8 +69,8 @@ package AWS.Services.Web_Block.Registry is
       Parameters   : Callback_Parameters;
       Translations : in out Templates.Translate_Set);
 
-   type Template_Callback is access function
-     (Request : Status.Data) return String;
+   type Template_Callback is access
+     function (Request : Status.Data) return String;
 
    procedure Register
      (Key              : String;

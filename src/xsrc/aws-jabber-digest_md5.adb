@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2008-2013, AdaCore                     --
+--                     Copyright (C) 2008-2014, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -139,8 +139,8 @@ package body AWS.Jabber.Digest_Md5 is
            with Import, Convention => Intrinsic;
 
          Digest : Fingerprint;
-         Val   : Word;
-         Ch    : Character;
+         Val    : Word;
+         Ch     : Character;
 
       begin
          for I in Digest'Range loop

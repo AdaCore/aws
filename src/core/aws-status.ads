@@ -223,7 +223,7 @@ package AWS.Status is
      (D      : Data;
       Buffer : out Stream_Element_Array;
       Last   : out Stream_Element_Offset)
-     with Inline;
+   with Inline;
    --  Read a chunk of data from message body and put them into Buffer.
    --  Last is the index of the last item returned in Buffer.
 

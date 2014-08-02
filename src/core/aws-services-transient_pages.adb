@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2003-2013, AdaCore                     --
+--                     Copyright (C) 2003-2014, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -40,7 +40,7 @@ package body AWS.Services.Transient_Pages is
    use Ada;
 
    type Item is record
-      Stream      : AWS.Resources.Streams.Stream_Access;
+      Stream      : Resources.Streams.Stream_Access;
       Delete_Time : Real_Time.Time;
    end record;
 
@@ -209,7 +209,6 @@ package body AWS.Services.Transient_Pages is
          if K >= 100_000 then
             K := 0;
          end if;
-
       end Generate_ID;
 
       ---------------
@@ -253,7 +252,7 @@ package body AWS.Services.Transient_Pages is
    -- Get --
    ---------
 
-   function Get (URI : String) return AWS.Resources.Streams.Stream_Access is
+   function Get (URI : String) return Resources.Streams.Stream_Access is
       Result : Item;
       Found  : Boolean;
    begin
@@ -285,7 +284,7 @@ package body AWS.Services.Transient_Pages is
 
    procedure Register
      (URI      : String;
-      Resource : AWS.Resources.Streams.Stream_Access;
+      Resource : Resources.Streams.Stream_Access;
       Lifetime : Duration := Config.Transient_Lifetime)
    is
       use Real_Time;

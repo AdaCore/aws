@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2004-2012, AdaCore                     --
+--                     Copyright (C) 2004-2014, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -45,8 +45,8 @@ package AWS.Services.Split_Pages.Uniform is
    --  HREFS_V and INDEXES_V can be used to create an index to the generated
    --  pages.
 
-   type Splitter (Max_Per_Page : Positive)
-     is new Split_Pages.Splitter with private;
+   type Splitter (Max_Per_Page : Positive) is
+     new Split_Pages.Splitter with private;
 
    overriding function Get_Page_Ranges
      (This  : Splitter;

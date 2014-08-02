@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2000-2013, AdaCore                     --
+--                     Copyright (C) 2000-2014, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -107,7 +107,7 @@ package AWS.Status.Set is
       Name, Value : String;
       Decode      : Boolean := True;
       Replace     : Boolean := False)
-     with Inline;
+   with Inline;
    --  Add or replace one parameter into the internal parameters list.
    --  The Name and Value should be already decoded.
    --  If Decode is true, decodes Name and Value. This is used when handling
