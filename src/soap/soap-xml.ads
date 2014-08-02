@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2003-2012, AdaCore                     --
+--                     Copyright (C) 2003-2014, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -27,27 +27,37 @@
 --  covered by the  GNU Public License.                                     --
 ------------------------------------------------------------------------------
 
+pragma Ada_2012;
+
 --  Some XML helper functions
 
 with DOM.Core;
 
 package SOAP.XML is
 
+   use type DOM.Core.Node;
+
    function Get_Attr_Value
      (N    : DOM.Core.Node;
       Name : String;
-      NS   : Boolean := True) return String;
+      NS   : Boolean := True) return String
+   with Pre => N /= null;
    --  Returns the value of attribute Name in N, remove namespace if NS is
    --  True. Returns the empty string if attribute Name does not exists.
 
-   function Get_Ref (N : DOM.Core.Node) return DOM.Core.Node;
+   function Get_Ref (N : DOM.Core.Node) return DOM.Core.Node with
+     Pre => N /= null;
    --  If there is a ref in N returns the multiRef referenced node otherwise
    --  just returns N.
 
-   function First_Child (Parent : DOM.Core.Node) return DOM.Core.Node;
-   --  Returns the first child, skip #text nodes
+   function First_Child (Parent : DOM.Core.Node) return DOM.Core.Node with
+     Pre  => Parent /= null;
+   --  Returns the first child, skip #text nodes. Returns null if there is no
+   --  children.
 
-   function Next_Sibling (N : DOM.Core.Node) return DOM.Core.Node;
-   --  Returns the next sibling, skip #text nodes
+   function Next_Sibling (N : DOM.Core.Node) return DOM.Core.Node with
+     Pre  => N /= null;
+   --  Returns the next sibling, skip #text nodes. Return null if there is no
+   --  more sibbling.
 
 end SOAP.XML;

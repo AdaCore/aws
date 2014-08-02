@@ -119,7 +119,8 @@ package body AWS.Net.WebSocket.Registry is
       function Create_Set return FD_Set.Socket_Set_Type;
       --  Returns the set of watched WebSockets
 
-      procedure Watch (WebSocket : Object_Class);
+      procedure Watch (WebSocket : Object_Class) with
+        Pre => WebSocket /= null;
       --  Add a new Websocket into the set, release the current FD_Set.Wait
       --  call if any to ensure this new WebSocket will be watched too.
 
@@ -170,7 +171,8 @@ package body AWS.Net.WebSocket.Registry is
          Timeout : Duration := Forever;
          Error   : Error_Type := Normal_Closure);
 
-      procedure Register (WebSocket : Object_Class);
+      procedure Register (WebSocket : Object_Class) with
+        Pre => WebSocket /= null;
       --  Register a new WebSocket
 
       procedure Unregister (WebSocket : not null access Object'Class);

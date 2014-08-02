@@ -74,7 +74,7 @@ package AWS.Net.Generic_Sets is
      (Set    : in out Socket_Set_Type;
       Socket : Socket_Access;
       Mode   : Waiting_Mode)
-   with Inline;
+   with Inline, Pre => Socket /= null;
    --  Add socket to the set
 
    procedure Add
@@ -90,7 +90,7 @@ package AWS.Net.Generic_Sets is
       Socket : Socket_Access;
       Data   : Data_Type;
       Mode   : Waiting_Mode)
-   with Inline;
+   with Inline, Pre => Socket /= null;
    --  Add socket and associated data to the set
 
    procedure Set_Mode

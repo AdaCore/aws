@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2010-2012, AdaCore                     --
+--                     Copyright (C) 2010-2014, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -35,6 +35,8 @@ with AWS.Response;
 with AWS.Status;
 
 package AWS.Cookie is
+
+   use type AWS.Response.Data_Mode;
 
    Response_Data_Not_Initialized : exception;
    --  The Response_Data_Not_Initialized exception is raised when trying to add
@@ -97,7 +99,8 @@ package AWS.Cookie is
       Domain  : String := "";
       Max_Age : Duration := Default.Ten_Years;
       Path    : String := "/";
-      Secure  : Boolean := False);
+      Secure  : Boolean := False)
+   with Pre => Response.Mode (Content) /= Response.No_Data;
    --  Set a new cookie named 'Key' with value 'Value'. See RFC 2109 for more
    --  information about the individual cookie attributes:
    --    http://tools.ietf.org/html/rfc2109
@@ -115,7 +118,8 @@ package AWS.Cookie is
       Domain  : String := "";
       Max_Age : Duration := Default.Ten_Years;
       Path    : String := "/";
-      Secure  : Boolean := False);
+      Secure  : Boolean := False)
+   with Pre => Response.Mode (Content) /= Response.No_Data;
    --  Set a new cookie named 'Key' with Integer value 'Value'. The Integer is
    --  converted to a String, as both cookie keys and values are inherently
    --  strings.
@@ -133,7 +137,8 @@ package AWS.Cookie is
       Domain  : String := "";
       Max_Age : Duration := Default.Ten_Years;
       Path    : String := "/";
-      Secure  : Boolean := False);
+      Secure  : Boolean := False)
+   with Pre => Response.Mode (Content) /= Response.No_Data;
    --  Set a new cookie named 'Key' with Float value 'Value'. The Float is
    --  converted to a String, as both cookie keys and values are inherently
    --  strings.
@@ -151,7 +156,8 @@ package AWS.Cookie is
       Domain  : String := "";
       Max_Age : Duration := Default.Ten_Years;
       Path    : String := "/";
-      Secure  : Boolean := False);
+      Secure  : Boolean := False)
+   with Pre => Response.Mode (Content) /= Response.No_Data;
    --  Set a new cookie named 'Key' with Boolean value 'Value'. The Boolean is
    --  converted to a String ("False" or "True"), as both cookie keys and
    --  values are inherently strings.

@@ -34,7 +34,8 @@ with AWS.Resources.Streams;
 
 package AWS.Services.Transient_Pages is
 
-   function Get_URI return String;
+   function Get_URI return String with
+     Post => Get_URI'Result'Length > 0;
    --  Create a unique URI, must be used to register a transient web page
 
    procedure Register

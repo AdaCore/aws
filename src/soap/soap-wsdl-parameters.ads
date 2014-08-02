@@ -78,10 +78,12 @@ package SOAP.WSDL.Parameters is
       end case;
    end record;
 
-   function Type_Name (P : not null access Parameter) return String;
+   function Type_Name (P : not null access Parameter) return String with
+     Post => Type_Name'Result'Length > 0;
    --  Returns the type name for the given parameter
 
-   procedure Append (P : in out P_Set; Param : Parameter);
+   procedure Append (P : in out P_Set; Param : Parameter) with
+     Post => Length (P) = Length (P)'Old + 1;
    --  Add Param at the end of P
 
    function Length (P : access Parameter) return Natural;
@@ -90,7 +92,8 @@ package SOAP.WSDL.Parameters is
    procedure Output (P : access Parameter);
    --  Output parameter set, this is to be used for debugging purpose
 
-   procedure Release (P : in out P_Set);
+   procedure Release (P : in out P_Set) with
+     Post => Length (P) = 0;
    --  Release memory associated the the parameter set
 
 end SOAP.WSDL.Parameters;
