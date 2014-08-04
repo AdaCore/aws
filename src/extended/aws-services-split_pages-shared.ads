@@ -29,8 +29,6 @@
 
 private package AWS.Services.Split_Pages.Shared is
 
-   Splitter_Error : exception renames Split_Pages.Splitter_Error;
-
    function Associated_Vector
      (Table : Templates.Translate_Set;
       Key   : String)

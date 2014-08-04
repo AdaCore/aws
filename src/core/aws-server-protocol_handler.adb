@@ -35,7 +35,6 @@ with Ada.Exceptions;
 with AWS.Config;
 with AWS.Log;
 with AWS.Messages;
-with AWS.MIME;
 with AWS.Net.Buffered;
 with AWS.Parameters.Set;
 with AWS.Resources;
@@ -44,7 +43,6 @@ with AWS.Server.HTTP_Utils;
 with AWS.Server.Status;
 with AWS.Session;
 with AWS.Status.Set;
-with AWS.Templates;
 with AWS.Utils;
 
 separate (AWS.Server)
