@@ -173,23 +173,26 @@ GPROPTS = -XPRJ_BUILD=$(PRJ_BUILD) -XPRJ_SOCKLIB=$(PRJ_SOCKLIB) \
 		-XPROCESSORS=$(PROCESSORS) -XSOCKET=$(SOCKET) \
 		-XPRJ_TARGET=$(PRJ_TARGET)
 
+GPR_STATIC = -XLIBRARY_TYPE=static -XXMLADA_BUILD=static
+GPR_SHARED = -XLIBRARY_TYPE=relocatable -XXMLADA_BUILD=relocatable
+
 #######################################################################
 #  build
 
 build-native:
-	$(GPRBUILD) -p $(GPROPTS) -XLIBRARY_TYPE=static tools/tools.gpr
+	$(GPRBUILD) -p $(GPROPTS) $(GPR_STATIC) tools/tools.gpr
 ifeq (${ENABLE_SHARED}, true)
-	$(GPRBUILD) -p $(GPROPTS) -XLIBRARY_TYPE=relocatable aws.gpr
+	$(GPRBUILD) -p $(GPROPTS) $(GPR_SHARED) aws.gpr
 endif
-	$(GPRBUILD) -p $(GPROPTS) -XLIBRARY_TYPE=static gps/gps_support.gpr
+	$(GPRBUILD) -p $(GPROPTS) $(GPR_STATIC) gps/gps_support.gpr
 	${MAKE} -C gps $(GALL_OPTIONS) after-build
 
 build-cross:
 	$(GPRBUILD) -p --target=$(TARGET) $(GPROPTS) \
-		-XLIBRARY_TYPE=static tools/tools.gpr
+		$(GPR_STATIC) tools/tools.gpr
 ifeq (${ENABLE_SHARED}, true)
 	$(GPRBUILD) -p --target=$(TARGET) $(GPROPTS) \
-		-XLIBRARY_TYPE=relocatable aws.gpr
+		$(GPR_SHARED) aws.gpr
 endif
 
 ifeq (${IS_CROSS}, true)
