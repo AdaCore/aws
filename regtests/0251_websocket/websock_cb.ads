@@ -27,9 +27,6 @@ package WebSock_CB is
    use Ada.Strings.Unbounded;
    use AWS;
 
-   Created : Boolean := False;
-   --  A boolean that will be set to True when a websocket has been created
-
    function HW_CB (Request : Status.Data) return Response.Data;
 
    type Object is new AWS.Net.WebSocket.Object with private;
@@ -57,6 +54,14 @@ package WebSock_CB is
       Message   : Unbounded_String;
       Is_Binary : Boolean := False);
    --  Send a message to the server
+
+   protected Wait is
+      entry Start;
+      entry Stop;
+      procedure Set (Value : Integer);
+   private
+      Step : Integer := 0;
+   end Wait;
 
 private
 

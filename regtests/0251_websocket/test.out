@@ -24,4 +24,12 @@ Received : client message 2
 Send : Echo client message 2 [ 9]
 Received : client message 3
 Send : Echo client message 3 [ 10]
-Received : Connection_Close NORMAL_CLOSURE,
+On_Close : NORMAL_CLOSURE,
+On_Open : AWS WebSocket connection open
+Send : Server open connect [ 1]
+On_Error : CANNOT_RESOLVE_ERROR, Unknown frame type
+On_Close : CANNOT_RESOLVE_ERROR, Unknown frame type
+On_Open : AWS WebSocket connection open
+Send : Server open connect [ 1]
+Received : END_TEST
+On_Close : NORMAL_CLOSURE,

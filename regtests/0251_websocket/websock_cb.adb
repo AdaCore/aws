@@ -23,6 +23,27 @@ package body WebSock_CB is
    use Ada;
    use type AWS.Net.WebSocket.Kind_Type;
 
+   ---------
+   -- Wait --
+   ----------
+
+   protected body Wait is
+      entry Start when Step > 0 is
+      begin
+         null;
+      end Start;
+
+      entry Stop when Step > 99 is
+      begin
+         null;
+      end Stop;
+
+      procedure Set (Value : Integer) is
+      begin
+         Step := Value;
+      end Set;
+   end Wait;
+
    ------------
    -- Create --
    ------------
@@ -53,9 +74,8 @@ package body WebSock_CB is
    overriding procedure On_Close (Socket : in out Object; Message : String) is
    begin
       Text_IO.Put_Line
-        ("Received : Connection_Close "
+        ("On_Close : "
          & Net.WebSocket.Error_Type'Image (Socket.Error) & ", " & Message);
-      Created := False;
    end On_Close;
 
    --------------
@@ -65,7 +85,7 @@ package body WebSock_CB is
    overriding procedure On_Error (Socket : in out Object; Message : String) is
    begin
       Text_IO.Put_Line
-        ("Error : "
+        ("On_Error : "
          & Net.WebSocket.Error_Type'Image (Socket.Error) & ", " & Message);
    end On_Error;
 
@@ -77,7 +97,12 @@ package body WebSock_CB is
      (Socket : in out Object; Message : String) is
    begin
       Text_IO.Put_Line ("Received : " & Message);
-      Socket.Send ("Echo " & Message);
+
+      if Message = "END_TEST" then
+         Wait.Set (100);
+      else
+         Socket.Send ("Echo " & Message);
+      end if;
    end On_Message;
 
    -------------
@@ -86,9 +111,9 @@ package body WebSock_CB is
 
    overriding procedure On_Open (Socket : in out Object; Message : String) is
    begin
-      Created := True;
       Text_IO.Put_Line ("On_Open : " & Message);
       Socket.Send ("Server open connect");
+      Wait.Set (1);
    end On_Open;
 
    ----------

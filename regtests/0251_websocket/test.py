@@ -1,10 +1,8 @@
 from test_support import *
-from time import sleep
 from websocket import create_connection
 
 build('websock')
 Server = Run(['./websock'], output='./server-output', bg=True)
-sleep(1)
 
 # read line until we find the server port
 while True:
@@ -28,6 +26,17 @@ for J in range(1, 4):
     print result
 
 ws.close()
+
+# send abnormal header - check free websocket in this case
+ws = create_connection("ws://127.0.0.1:"+port+"/echo")
+ws.sock.send("\xFF\x00")
+ws.close()
+
+# for normal ending of test
+ws = create_connection("ws://127.0.0.1:"+port+"/echo")
+ws.send("END_TEST")
+ws.close()
+
 # check server output
 res = Server.wait()
 print "Server ends with status %d" % res

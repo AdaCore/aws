@@ -334,10 +334,19 @@ package body AWS.Net.WebSocket.Registry is
                         exit Read_Message;
                      end if;
 
-                  when Connection_Open | Unknown =>
+                  when Connection_Open =>
                      --  Note that the On_Open message has been handled at the
                      --  time the WebSocket was registered.
                      exit Read_Message;
+
+                  when Unknown =>
+                     DB.Unregister (WebSocket);
+                     WebSocket.On_Error ("Unknown frame type");
+                     WebSocket.On_Close ("Unknown frame type");
+                     WebSocket.Shutdown;
+                     Unchecked_Free (WebSocket);
+                     exit Read_Message;
+
                end case;
             end loop Read_Message;
 

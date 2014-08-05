@@ -419,7 +419,6 @@ package body AWS.Net.WebSocket.Protocol.RFC6455 is
 
             else
                Socket.State.Kind := Unknown;
-               Socket.Shutdown;
             end if;
 
          when O_Ping =>
@@ -434,7 +433,6 @@ package body AWS.Net.WebSocket.Protocol.RFC6455 is
                  (Protocol, Socket, O_Pong, Data (Data'First .. Last));
             else
                Socket.State.Kind := Unknown;
-               Socket.Shutdown;
             end if;
 
          when O_Pong =>
@@ -445,7 +443,6 @@ package body AWS.Net.WebSocket.Protocol.RFC6455 is
 
             if Header.Payload_Length > 125 or else Header.FIN = 0 then
                Socket.State.Kind := Unknown;
-               Socket.Shutdown;
             end if;
 
          when O_Continuation =>
@@ -458,7 +455,6 @@ package body AWS.Net.WebSocket.Protocol.RFC6455 is
             --  illegal at this stage and the connection is required to be
             --  shutdown.
             Socket.State.Kind := Unknown;
-            Socket.Shutdown;
       end case;
    end Receive;
 

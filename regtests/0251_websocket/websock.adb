@@ -63,26 +63,22 @@ begin
    --  Wait for at least a WebSocket to be created, no need to send a
    --  message into the void.
 
-   while not WebSock_CB.Created loop
-      delay 1.0;
-   end loop;
+   WebSock_CB.Wait.Start;
 
    --  First send a large message (message with length > 125, see RFC 6455)
 
    Net.WebSocket.Registry.Send (Rcp, "Server large message " & M);
 
-   delay 0.2;
+   delay 0.01;
 
    --  Then send some messages
 
    for K in 1 .. 5 loop
       Net.WebSocket.Registry.Send (Rcp, "Server short message " & K'Img);
-      delay 0.2;
+      delay 0.01;
    end loop;
 
-   while WebSock_CB.Created loop
-      delay 0.2;
-   end loop;
+   WebSock_CB.Wait.Stop;
 
    Server.Shutdown (WS);
 end WebSock;
