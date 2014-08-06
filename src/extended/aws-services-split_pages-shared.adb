@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2004-2012, AdaCore                     --
+--                     Copyright (C) 2004-2014, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -40,8 +40,8 @@ package body AWS.Services.Split_Pages.Shared is
       Key   : String)
       return Templates.Tag
    is
-      --  Determine key vector
-      use Templates, Templates.Query;
+      use Templates;
+      use Templates.Query;
    begin
       if Key = "" then
          raise Splitter_Error;

@@ -43,7 +43,8 @@ package body AWS.Net.Generic_Sets is
      (Set    : in out Socket_Set_Type;
       Socket : Socket_Access;
       Mode   : Waiting_Mode;
-      Length : out Socket_Count);
+      Length : out Socket_Count)
+   with Pre => Socket /= null;
    --  Add Socket into Set
 
    ---------

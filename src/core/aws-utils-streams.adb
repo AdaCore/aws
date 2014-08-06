@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2009-2013, AdaCore                     --
+--                     Copyright (C) 2009-2014, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -79,13 +79,13 @@ package body AWS.Utils.Streams is
    -- Value --
    -----------
 
-   function Value (Stream : access Strings'Class) return String is
+   function Value (Stream : not null access Strings'Class) return String is
    begin
       return To_String (Stream.Str);
    end Value;
 
    function Value
-     (Stream : access SHA1'Class) return GNAT.SHA1.Message_Digest
+     (Stream : not null access SHA1'Class) return GNAT.SHA1.Message_Digest
    is
       Result : GNAT.SHA1.Message_Digest;
    begin

@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2003-2012, AdaCore                     --
+--                     Copyright (C) 2003-2014, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -41,8 +41,8 @@ package body SOAP.WSDL.Parameters is
    begin
       if P = null then
          P := new Parameter'(Param);
-      else
 
+      else
          N := P;
 
          while N.Next /= null loop
@@ -50,7 +50,6 @@ package body SOAP.WSDL.Parameters is
          end loop;
 
          N.Next := new Parameter'(Param);
-
       end if;
    end Append;
 
@@ -58,8 +57,8 @@ package body SOAP.WSDL.Parameters is
    -- Length --
    ------------
 
-   function Length (P : P_Set) return Natural is
-      N      : P_Set := P;
+   function Length (P : access Parameter) return Natural is
+      N      : access Parameter := P;
       Result : Natural := 0;
    begin
       while N /= null loop
@@ -73,19 +72,19 @@ package body SOAP.WSDL.Parameters is
    -- Output --
    ------------
 
-   procedure Output (P : P_Set) is
+   procedure Output (P : access Parameter) is
 
       use Ada;
       use type Parameters.Kind;
       use type Parameters.P_Set;
 
-      procedure Output (P : P_Set; K : Natural);
+      procedure Output (P : access Parameter; K : Natural);
 
       ------------
       -- Output --
       ------------
 
-      procedure Output (P : P_Set; K : Natural) is
+      procedure Output (P : access Parameter; K : Natural) is
       begin
          if P /= null then
             Text_IO.Put (String'(1 .. K => ' '));
@@ -166,7 +165,7 @@ package body SOAP.WSDL.Parameters is
    -- Type_Name --
    ---------------
 
-   function Type_Name (P : WSDL.Parameters.P_Set) return String is
+   function Type_Name (P : not null access Parameter) return String is
    begin
       case P.Mode is
          when K_Simple           => return WSDL.To_Ada (P.P_Type);

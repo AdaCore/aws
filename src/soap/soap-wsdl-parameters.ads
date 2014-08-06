@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2003-2012, AdaCore                     --
+--                     Copyright (C) 2003-2014, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -78,19 +78,22 @@ package SOAP.WSDL.Parameters is
       end case;
    end record;
 
-   function Type_Name (P : WSDL.Parameters.P_Set) return String;
+   function Type_Name (P : not null access Parameter) return String with
+     Post => Type_Name'Result'Length > 0;
    --  Returns the type name for the given parameter
 
-   procedure Append (P : in out P_Set; Param : Parameter);
+   procedure Append (P : in out P_Set; Param : Parameter) with
+     Post => Length (P) = Length (P)'Old + 1;
    --  Add Param at the end of P
 
-   function Length (P : P_Set) return Natural;
+   function Length (P : access Parameter) return Natural;
    --  Returns the number of items in P
 
-   procedure Output (P : P_Set);
+   procedure Output (P : access Parameter);
    --  Output parameter set, this is to be used for debugging purpose
 
-   procedure Release (P : in out P_Set);
+   procedure Release (P : in out P_Set) with
+     Post => Length (P) = 0;
    --  Release memory associated the the parameter set
 
 end SOAP.WSDL.Parameters;

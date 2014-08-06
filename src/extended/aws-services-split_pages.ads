@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2003-2012, AdaCore                     --
+--                     Copyright (C) 2003-2014, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -111,10 +111,8 @@ package AWS.Services.Split_Pages is
 
 private
 
-   type Splitter_Access is access all Splitter'Class;
-
    type Splitter is abstract tagged limited record
-      Self : Splitter_Access := Splitter'Unchecked_Access;
+      Self : not null access Splitter'Class := Splitter'Unchecked_Access;
    end record;
 
    --  Type used to index alpha tables:

@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2000-2013, AdaCore                     --
+--                     Copyright (C) 2000-2014, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -34,7 +34,10 @@ pragma Ada_2012;
 
 package AWS.Status.Set is
 
-   procedure Reset (D : in out Data);
+   use type Net.Socket_Access;
+
+   procedure Reset (D : in out Data) with
+     Post => Socket (D) = null;
    --  Reset the status data for a new use
 
    procedure Connection_Data
@@ -65,7 +68,8 @@ package AWS.Status.Set is
    --  memory space in body's buffer is released. Ideally Trim should be
    --  set to True only when appending the last chunk of data.
 
-   procedure Keep_Alive (D : in out Data; Flag : Boolean);
+   procedure Keep_Alive (D : in out Data; Flag : Boolean) with
+     Post => Status.Keep_Alive (D) = Flag;
    --  Set the Keep-Alive flag for the current HTTP connection
 
    procedure Session (D : in out Data);
@@ -107,7 +111,7 @@ package AWS.Status.Set is
       Name, Value : String;
       Decode      : Boolean := True;
       Replace     : Boolean := False)
-     with Inline;
+   with Inline;
    --  Add or replace one parameter into the internal parameters list.
    --  The Name and Value should be already decoded.
    --  If Decode is true, decodes Name and Value. This is used when handling
@@ -122,12 +126,14 @@ package AWS.Status.Set is
      with Inline;
    --  Query is a parameters only from request line (RFC-2616 3.2.2)
 
-   procedure Binary (D : in out Data; Parameter : Stream_Element_Array);
+   procedure Binary (D : in out Data; Parameter : Stream_Element_Array) with
+     Post => Binary_Size (D) = Binary_Size (D)'Old + Parameter'Length;
    --  This procedure is used to store any binary data sent with the
    --  request. For example this will be used by the PUT method if a binary
    --  file is sent to the server.
 
-   procedure Socket (D : in out Data; Sock : Net.Socket_Access);
+   procedure Socket (D : in out Data; Sock : Net.Socket_Access) with
+     Post => Status.Socket (D) = Sock;
    --  Set the Socket for the status. User callback can then retrieve the
    --  Socket for whatever it want. For example for passing it to the 'push'
    --  server.

@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2000-2013, AdaCore                     --
+--                     Copyright (C) 2000-2014, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -46,7 +46,8 @@ package SOAP.Parameters is
 
    type List is private;
 
-   function Argument_Count (P : List) return Natural;
+   function Argument_Count (P : List) return Natural with
+     Post => Argument_Count'Result <= Max_Parameters;
    --  Returns the number of parameters in P
 
    function Argument (P : List; Name : String) return Types.Object'Class;
@@ -141,8 +142,11 @@ package SOAP.Parameters is
    -- Constructors --
    ------------------
 
-   function "&" (P : List; O : Types.Object'Class) return List;
-   function "+" (O : Types.Object'Class) return List;
+   function "&" (P : List; O : Types.Object'Class) return List with
+     Post => Argument_Count ("&"'Result) = Argument_Count (P) + 1;
+
+   function "+" (O : Types.Object'Class) return List with
+     Post => Argument_Count ("+"'Result) = 1;
 
    ----------------
    -- Validation --

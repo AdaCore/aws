@@ -65,7 +65,7 @@ package body AWS.Net.WebSocket.Registry is
    --  Equality is based on the unique id
 
    procedure WebSocket_Exception
-     (WebSocket : Object_Class;
+     (WebSocket : not null access Object'Class;
       Message   : String;
       Error     : Error_Type);
    --  Call when an exception is caught. In this case we want to send the
@@ -119,11 +119,12 @@ package body AWS.Net.WebSocket.Registry is
       function Create_Set return FD_Set.Socket_Set_Type;
       --  Returns the set of watched WebSockets
 
-      procedure Watch (WebSocket : Object_Class);
+      procedure Watch (WebSocket : Object_Class) with
+        Pre => WebSocket /= null;
       --  Add a new Websocket into the set, release the current FD_Set.Wait
       --  call if any to ensure this new WebSocket will be watched too.
 
-      procedure Remove (WebSocket : Object_Class);
+      procedure Remove (WebSocket : not null access Object'Class);
       --  Remove WebSocket at the given index
 
       entry Not_Empty;
@@ -170,10 +171,11 @@ package body AWS.Net.WebSocket.Registry is
          Timeout : Duration := Forever;
          Error   : Error_Type := Normal_Closure);
 
-      procedure Register (WebSocket : Object_Class);
+      procedure Register (WebSocket : Object_Class) with
+        Pre => WebSocket /= null;
       --  Register a new WebSocket
 
-      procedure Unregister (WebSocket : Object_Class);
+      procedure Unregister (WebSocket : not null access Object'Class);
       --  Unregister a WebSocket
 
       function Is_Registered (Id : UID) return Boolean;
@@ -183,7 +185,7 @@ package body AWS.Net.WebSocket.Registry is
       --  Send a signal to the wait call
 
       procedure Receive
-        (WebSocket : Object_Class;
+        (WebSocket : not null access Object'Class;
          Data      : out Stream_Element_Array;
          Last      : out Stream_Element_Offset);
       --  Get data from WebSocket
@@ -384,7 +386,7 @@ package body AWS.Net.WebSocket.Registry is
          -------------
 
          procedure Close_To (Position : WebSocket_Set.Cursor) is
-            WebSocket : constant Object_Class :=
+            WebSocket : constant not null access Object'Class :=
                           WebSocket_Set.Element (Position);
          begin
             if (Except_Peer = "" or else WebSocket.Peer_Addr /= Except_Peer)
@@ -421,7 +423,7 @@ package body AWS.Net.WebSocket.Registry is
             when K_UID =>
                if Registered.Contains (To.WS_Id) then
                   declare
-                     WebSocket : constant Object_Class :=
+                     WebSocket : constant not null access Object'Class :=
                                    Registered (To.WS_Id);
                   begin
                      WebSocket.Set_Timeout (Timeout);
@@ -574,7 +576,7 @@ package body AWS.Net.WebSocket.Registry is
       -------------
 
       procedure Receive
-        (WebSocket : Object_Class;
+        (WebSocket : not null access Object'Class;
          Data      : out Stream_Element_Array;
          Last      : out Stream_Element_Offset) is
       begin
@@ -594,7 +596,7 @@ package body AWS.Net.WebSocket.Registry is
       -- Remove --
       ------------
 
-      procedure Remove (WebSocket : Object_Class) is
+      procedure Remove (WebSocket : not null access Object'Class) is
       begin
          if Watched.Contains (WebSocket.Id) then
             Watched.Exclude (WebSocket.Id);
@@ -620,7 +622,7 @@ package body AWS.Net.WebSocket.Registry is
          -------------
 
          procedure Send_To (Position : WebSocket_Set.Cursor) is
-            WebSocket : constant Object_Class :=
+            WebSocket : constant not null access Object'Class :=
                           WebSocket_Set.Element (Position);
          begin
             if (Except_Peer = "" or else WebSocket.Peer_Addr /= Except_Peer)
@@ -650,7 +652,7 @@ package body AWS.Net.WebSocket.Registry is
             when K_UID =>
                if Registered.Contains (To.WS_Id) then
                   declare
-                     WebSocket : constant Object_Class :=
+                     WebSocket : constant not null access Object'Class :=
                                    Registered (To.WS_Id);
                   begin
                      WebSocket.Set_Timeout (Timeout);
@@ -727,7 +729,7 @@ package body AWS.Net.WebSocket.Registry is
       -- Unregister --
       ----------------
 
-      procedure Unregister (WebSocket : Object_Class) is
+      procedure Unregister (WebSocket : not null access Object'Class) is
       begin
          Registered.Exclude (WebSocket.Id);
 
@@ -1009,7 +1011,7 @@ package body AWS.Net.WebSocket.Registry is
    -------------------------
 
    procedure WebSocket_Exception
-     (WebSocket : Object_Class;
+     (WebSocket : not null access Object'Class;
       Message   : String;
       Error     : Error_Type) is
    begin

@@ -72,7 +72,7 @@ package body AWS.SMTP is
 
    type Reply_Code_Data is record
       Code : Reply_Code;
-      Name : access constant String;
+      Name : not null access constant String;
    end record;
 
    Code_Table : constant array (Positive range <>) of Reply_Code_Data :=

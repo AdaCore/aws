@@ -27,6 +27,8 @@
 --  covered by the  GNU Public License.                                     --
 ------------------------------------------------------------------------------
 
+pragma Ada_2012;
+
 --  This implements the WebSocket protocol as defined in RFC-6455
 
 with Ada.Strings.Unbounded;
@@ -74,7 +76,8 @@ package AWS.Net.WebSocket is
 
    function Create
      (Socket  : Socket_Access;
-      Request : AWS.Status.Data) return Object'Class;
+      Request : AWS.Status.Data) return Object'Class
+   with Pre => Socket /= null;
    --  Create a new instance of the WebSocket, this is used by AWS internal
    --  server to create a default WebSocket if no other constructor are
    --  provided. It is also needed when deriving from WebSocket.

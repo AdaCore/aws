@@ -266,7 +266,7 @@ package body AWS.Net.SSL is
    -- Ciphers --
    -------------
 
-   procedure Ciphers (Cipher : access procedure (Name : String)) is
+   procedure Ciphers (Cipher : not null access procedure (Name : String)) is
       use type C.Strings.chars_ptr;
       Name : C.Strings.chars_ptr;
       Ctx  : constant TSSL.SSL_CTX := TSSL.SSL_CTX_new (TSSL.SSLv23_method);

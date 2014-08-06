@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2006-2013, AdaCore                     --
+--                     Copyright (C) 2006-2014, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -147,7 +147,7 @@ package body AWS.Net.Poll_Events is
          writefds  : access FD_Set_Type;
          exceptfds : access FD_Set_Type;
          timeout   : access OS_Lib.Timeval) return Integer
-        with Import => True, Convention => Stdcall, External_Name => "select";
+      with Import => True, Convention => Stdcall, External_Name => "select";
 
       Timeout_V : aliased OS_Lib.Timeval;
       Timeout_A : access OS_Lib.Timeval;

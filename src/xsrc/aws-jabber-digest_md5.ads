@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2008-2012, AdaCore                     --
+--                     Copyright (C) 2008-2014, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -29,6 +29,8 @@
 
 with Ada.Strings.Unbounded;
 
+with AWS.Translator;
+
 package AWS.Jabber.Digest_Md5 is
 
    use Ada.Strings.Unbounded;
@@ -43,10 +45,21 @@ package AWS.Jabber.Digest_Md5 is
    end record;
 
    function Decode_Challenge
-     (Encoded_Challenge : String) return Challenge;
+     (Encoded_Challenge : Translator.Base64_String) return Challenge
+   with
+       Pre  => Encoded_Challenge'Length > 0,
+       Post => Decode_Challenge'Result /=
+                 (Null_Unbounded_String, Null_Unbounded_String);
    --  Decode the Base64 encoded message and returns the challenge
 
    function Reply_Challenge
-     (Username, Realm, Password, Host, Nonce : String) return String;
+     (Username, Realm, Password, Host, Nonce : String)
+      return Translator.Base64_String
+   with
+     Pre =>
+         Username'Length > 0
+         and then Password'Length > 0
+         and then Host'Length > 0
+         and then Nonce'Length > 0;
 
 end AWS.Jabber.Digest_Md5;

@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2008-2013, AdaCore                     --
+--                     Copyright (C) 2008-2014, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -35,6 +35,7 @@ with GNAT.MD5;
 
 with AWS.Digest;
 with AWS.Translator;
+with AWS.Utils;
 
 package body AWS.Jabber.Digest_Md5 is
 
@@ -42,11 +43,13 @@ package body AWS.Jabber.Digest_Md5 is
 
    function Response
      (Username, Realm, Password, Host, Nonce, Cnonce : String)
-      return String;
+      return Utils.Hex_String;
    --  Generate the response directive
 
+   subtype MD5_16_Hash is String (1 .. 16);
+
    function Make_URP_Hash
-     (Username, Realm, Password : String) return String;
+     (Username, Realm, Password : String) return MD5_16_Hash;
    --  Compute the 16 octect md5 hash of username:realm:password
 
    ----------------------
@@ -54,7 +57,7 @@ package body AWS.Jabber.Digest_Md5 is
    ----------------------
 
    function Decode_Challenge
-     (Encoded_Challenge : String) return Challenge
+     (Encoded_Challenge : Translator.Base64_String) return Challenge
    is
       Decoded_Challenge : Challenge;
 
@@ -113,18 +116,17 @@ package body AWS.Jabber.Digest_Md5 is
    -------------------
 
    function Make_URP_Hash
-     (Username, Realm, Password : String) return String
+     (Username, Realm, Password : String) return MD5_16_Hash
    is
       type Byte is mod 2 ** 8;
       type Byte_Array is array (Long_Integer range <>) of Byte with Pack;
 
       subtype Fingerprint   is Byte_Array (1 .. 16);  --  128 bits
-      subtype Digest_String is String     (1 .. 32);  --  Fingerprint in hex
+      subtype Digest_String is Utils.Hex_String (1 .. 32);
 
-      subtype Fingerprint_String is String (1 .. 16);
       function To_String is new Unchecked_Conversion
         (Source => Fingerprint,
-         Target => Fingerprint_String);
+         Target => MD5_16_Hash);
 
       function Digest_From_Text (S : Digest_String) return Fingerprint;
 
@@ -139,8 +141,8 @@ package body AWS.Jabber.Digest_Md5 is
            with Import, Convention => Intrinsic;
 
          Digest : Fingerprint;
-         Val   : Word;
-         Ch    : Character;
+         Val    : Word;
+         Ch     : Character;
 
       begin
          for I in Digest'Range loop
@@ -185,7 +187,8 @@ package body AWS.Jabber.Digest_Md5 is
    ---------------------
 
    function Reply_Challenge
-     (Username, Realm, Password, Host, Nonce : String) return String
+     (Username, Realm, Password, Host, Nonce : String)
+      return Translator.Base64_String
    is
       --  Return a base64 encoded form of
       --  username="Username",realm="Realm",nonce="Nonce",
@@ -216,7 +219,8 @@ package body AWS.Jabber.Digest_Md5 is
    --------------
 
    function Response
-     (Username, Realm, Password, Host, Nonce, Cnonce : String) return String
+     (Username, Realm, Password, Host, Nonce, Cnonce : String)
+      return Utils.Hex_String
    is
       --  The value of the response directive is computed as follows:
       --   * Create a 16 octet md5 hash of a string

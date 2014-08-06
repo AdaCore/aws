@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2000-2013, AdaCore                     --
+--                     Copyright (C) 2000-2014, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -27,6 +27,8 @@
 --  covered by the  GNU Public License.                                     --
 ------------------------------------------------------------------------------
 
+pragma Ada_2012;
+
 with AWS.Client;
 with SOAP.Message.Payload;
 with SOAP.Message.Response;
@@ -46,7 +48,8 @@ package SOAP.Client is
       Proxy_Pwd    : String                     := Not_Specified;
       Timeouts     : AWS.Client.Timeouts_Values := AWS.Client.No_Timeout;
       Asynchronous : Boolean := False)
-      return Message.Response.Object'Class;
+      return Message.Response.Object'Class
+   with Pre => URL'Length > 0;
    --  Send a SOAP HTTP request to URL address. The P is the Payload and
    --  SOAPAction is the required HTTP field. If it is not specified then the
    --  URI (URL resource) will be used for the SOAPAction field. The complete
@@ -62,7 +65,8 @@ package SOAP.Client is
       SOAPAction   : String;
       P            : Message.Payload.Object;
       Asynchronous : Boolean := False)
-      return Message.Response.Object'Class;
+      return Message.Response.Object'Class
+   with Pre => AWS.Client.Host (Connection)'Length > 0;
    --  Idem as above, but use an already opened connection
 
 end SOAP.Client;

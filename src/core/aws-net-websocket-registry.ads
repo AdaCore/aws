@@ -38,7 +38,7 @@ private with GNAT.Regexp;
 
 package AWS.Net.WebSocket.Registry is
 
-   type Factory is access function
+   type Factory is not null access function
      (Socket  : Socket_Access;
       Request : AWS.Status.Data) return Object'Class;
 

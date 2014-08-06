@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2003-2013, AdaCore                     --
+--                     Copyright (C) 2003-2014, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -34,17 +34,18 @@ with AWS.Resources.Streams;
 
 package AWS.Services.Transient_Pages is
 
-   function Get_URI return String;
+   function Get_URI return String with
+     Post => Get_URI'Result'Length > 0;
    --  Create a unique URI, must be used to register a transient web page
 
    procedure Register
      (URI      : String;
-      Resource : AWS.Resources.Streams.Stream_Access;
+      Resource : Resources.Streams.Stream_Access;
       Lifetime : Duration := Config.Transient_Lifetime);
    --  Register a new transient page, this page will be deleted after Lifetime
    --  seconds.
 
-   function Get (URI : String) return AWS.Resources.Streams.Stream_Access;
+   function Get (URI : String) return Resources.Streams.Stream_Access;
    --  Returns the stream access for the URI or null if this URI has not been
    --  registered.
 

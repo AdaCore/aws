@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                             Ada Web Server                               --
 --                                                                          --
---                    Copyright (C) 2000-2012, AdaCore                      --
+--                    Copyright (C) 2000-2014, AdaCore                      --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -44,8 +44,8 @@ package body AWS.Communication.Server is
    Context    : T_Access;
    --  The context kept for each server
 
-   type Internal_Callback is
-     access function (Request : Status.Data) return Response.Data;
+   type Internal_Callback is not null access
+     function (Request : Status.Data) return Response.Data;
    --  This is the internal callback access type. It is not possible to use
    --  Receive'Access for as the callback address as the Response.Callback is
    --  outside generic package. We then use Unchecked_Conversion to convert

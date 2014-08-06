@@ -341,7 +341,7 @@ package body AWS.Status.Set is
    -----------
 
    procedure Query (D : in out Data; Parameters : String) is
-      P : constant access AWS.Parameters.List :=
+      P : constant not null access AWS.Parameters.List :=
             AWS.URL.Set.Parameters (D.URI'Access);
    begin
       if P.Count > 0 then
