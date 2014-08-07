@@ -321,7 +321,6 @@ package body AWS.Net.WebSocket.Protocol.RFC6455 is
          if Bad_Header then
             Socket.State.Kind := Unknown;
             Last := 0;
-            Socket.Shutdown;
             return;
          end if;
 
