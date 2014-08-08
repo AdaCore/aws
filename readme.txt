@@ -4,7 +4,7 @@
 
 Authors:
    Dmitriy Anisimkov
-   Pascal Obry                                          January 20th, 2014
+   Pascal Obry                                            August 08th, 2014
 
 
 
@@ -39,8 +39,6 @@ New features, for each AWS version, are described into the files
 docs/features-*.
 
 Listed below are some minor enhancements and fixes:
-
-
 
 
 Non upward compatible changes
