@@ -1,0 +1,13 @@
+diff --git a/shared.gpr b/shared.gpr
+index 3802927..60f7569 100644
+--- a/shared.gpr
++++ b/shared.gpr
+@@ -121,7 +121,7 @@ abstract project Shared is
+    --  Common options used for the Debug and Release modes
+ 
+    Debug_Options :=
+-     ("-g", "-gnata", "-gnatVa", "-gnatQ", "-gnato", "-gnatwe",
++     ("-g", "-gnatVa", "-gnatQ", "-gnato",
+       "-gnatyO", "-Wall");
+ 
+    Release_Options :=

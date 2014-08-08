@@ -26,6 +26,11 @@ is possible to build this release starting with the following compilers:
 
         GNAT GPL 2014 Edition
 
+To build with GNAT GPL 2014 in debug mode you need to apply the following
+patch:
+
+   $ git apply workspace/gpl-2014.dif
+
 To build the documentation in HTML, PDF and plain text formats you need to
 have a working Sphinx package installed on your system.
 
