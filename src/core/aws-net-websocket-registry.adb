@@ -993,7 +993,7 @@ package body AWS.Net.WebSocket.Registry is
    ----------------
 
    procedure Watch_Data (WebSocket : Object'Class) is
-      WS : constant Object_Class := new Object'Class'(WebSocket);
+      WS : Object_Class := new Object'Class'(WebSocket);
    begin
       --  Send a Connection_Open message
 
@@ -1004,6 +1004,10 @@ package body AWS.Net.WebSocket.Registry is
 
       DB.Register (WS);
       DB.Watch (WS);
+   exception
+      when others =>
+         Unchecked_Free (WS);
+         raise;
    end Watch_Data;
 
    -------------------------

@@ -1577,6 +1577,11 @@ package body AWS.Server.HTTP_Utils is
 
                         Net.WebSocket.Registry.Watch (WS);
                      end if;
+
+                  exception
+                     when others =>
+                        Send_Websocket_Handshake_Error (Messages.S403);
+                        WS.Shutdown;
                   end;
 
                exception
