@@ -119,6 +119,7 @@ package body AWS.Net.WebSocket.Protocol.RFC6455 is
       Send_Frame
         (Protocol, Socket, O_Connection_Close,
          Translator.To_Stream_Element_Array (Data), Error);
+      Protocol.Close_Sent := True;
    end Close;
 
    --------------------
