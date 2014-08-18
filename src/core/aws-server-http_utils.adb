@@ -847,7 +847,7 @@ package body AWS.Server.HTTP_Utils is
             --  We can't write to the file, there is probably no space left
             --  on devide.
             raise HTTP_Utils.Device_Error
-              with "No space left on device while writting " & Server_Filename;
+              with "No space left on device while writing " & Server_Filename;
          end if;
       end Get_File_Data;
 

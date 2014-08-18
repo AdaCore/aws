@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2007-2013, AdaCore                     --
+--                     Copyright (C) 2007-2014, AdaCore                     --
 --                                                                          --
 --  This is free software;  you can redistribute it  and/or modify it       --
 --  under terms of the  GNU General Public License as published  by the     --
@@ -990,7 +990,7 @@ exception
       Text_IO.Put_Line
         ("        -h         : display help");
       Text_IO.Put_Line
-        ("        -x         : ouput all cross-references (default)");
+        ("        -x         : output all cross-references (default)");
       Text_IO.Put_Line
         ("        -u         : output unused entities only");
       Text_IO.Put_Line

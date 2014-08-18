@@ -128,7 +128,7 @@ package SOAP.Generator is
    --  Set options used with wsdl2aws tool to generate the code
 
    procedure Overwrite (O : in out Object);
-   --  Add WSDL file in parent file comments (no overwritting by default)
+   --  Add WSDL file in parent file comments (no overwriting by default)
 
    procedure Set_Proxy (O : in out Object; Proxy, User, Password : String);
    --  Set proxy user and password, needed if behind a firewall with
