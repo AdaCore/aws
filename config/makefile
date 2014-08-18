@@ -1,7 +1,7 @@
 ############################################################################
 #                              Ada Web Server                              #
 #                                                                          #
-#                     Copyright (C) 2003-2013, AdaCore                     #
+#                     Copyright (C) 2003-2014, AdaCore                     #
 #                                                                          #
 #  This is free software;  you can redistribute it  and/or modify it       #
 #  under terms of the  GNU General Public License as published  by the     #
@@ -33,7 +33,7 @@ endif
 endif
 
 $(SDIR)/src:
-	$(MKDIR) -p $(SDIR)/src
+	$(MKDIR) $(SDIR)/src
 
 $(SDIR)/xoscons$(EXEEXT): $(SDIR)/src setup/xoscons.adb
 	-$(GPRBUILD) -p -XPRJ_BUILD=Debug -XLIBRARY_TYPE=static \

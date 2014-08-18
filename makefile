@@ -294,7 +294,7 @@ gxmlada_setup:
 	echo "end AWS_XMLADA;" >> $(PRJDIR)/aws_xmlada.gpr
 
 setup_dir:
-	-$(MKDIR) -p $(PRJDIR)
+	-$(MKDIR) $(PRJDIR)
 
 CONFGPR	= $(PRJDIR)/aws_config.gpr
 
