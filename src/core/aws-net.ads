@@ -59,7 +59,7 @@ package AWS.Net is
    subtype FD_Type is Integer;
    --  Represents an external socket file descriptor
 
-   No_Socket : constant FD_Type := -1;
+   No_Socket : constant := -1;
    --  Represents closed socket file descriptor
 
    type FD_Set (Size : Natural) is abstract tagged private;
