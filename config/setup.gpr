@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2006-2012, AdaCore                     --
+--                     Copyright (C) 2006-2014, AdaCore                     --
 --                                                                          --
 --  This is free software;  you can redistribute it  and/or modify it       --
 --  under terms of the  GNU General Public License as published  by the     --
@@ -34,8 +34,13 @@ project Setup is
          when others =>
             null;
       end case;
+
+      for Default_Switches ("Ada") use
+        Shared.Compiler'Default_Switches ("Ada");
    end Compiler;
 
    package Ide renames Shared.Ide;
+
+   package Linker renames Shared.Linker;
 
 end Setup;
