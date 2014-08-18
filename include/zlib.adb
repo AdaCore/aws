@@ -117,7 +117,6 @@ package body ZLib is
    -----------------
 
    procedure Check_Error (Stream : in Z_Stream; Code : in Thin.Int) is
-      use type Thin.Int;
    begin
       if Code /= Thin.Z_OK then
          Raise_Error
@@ -194,7 +193,6 @@ package body ZLib is
       Memory_Level : in     Memory_Level_Type  := Default_Memory_Level;
       Header       : in     Header_Type        := Default)
    is
-      use type Thin.Int;
       Win_Bits : Thin.Int := Thin.Int (Window_Bits);
    begin
       if Is_Open (Filter) then
@@ -308,8 +306,6 @@ package body ZLib is
       Window_Bits : in     Window_Bits_Type := Default_Window_Bits;
       Header      : in     Header_Type      := Default)
    is
-      use type Thin.Int;
-
       Win_Bits : Thin.Int := Thin.Int (Window_Bits);
 
       procedure Check_Version;
@@ -516,8 +512,6 @@ package body ZLib is
       Out_Last  :    out Stream_Element_Offset;
       Flush     : in     Flush_Mode)
    is
-      use type Thin.Int;
-
       Code : Thin.Int;
 
    begin

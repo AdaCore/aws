@@ -28,14 +28,11 @@
 ------------------------------------------------------------------------------
 
 with Ada.Directories;
-with Ada.Strings.Unbounded;
 
 with AWS.Headers.Values;
 with AWS.Utils;
 
 package body AWS.Messages is
-
-   use Ada.Strings.Unbounded;
 
    subtype Status_Code_Image is String (1 .. 3);
 

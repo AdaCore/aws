@@ -34,7 +34,6 @@ with Ada.Command_Line;
 with Ada.Directories;
 with Ada.Strings.Fixed;
 with Ada.Strings.Maps;
-with Ada.Strings.Unbounded;
 with Ada.Text_IO.C_Streams;
 
 with GNAT.Calendar.Time_IO;
@@ -558,7 +557,6 @@ package body AWS.Log is
    procedure Write_Callback
      (Log : in out Object; Data : in out Fields_Table)
    is
-      use Ada.Strings.Unbounded;
       use GNAT.Calendar.Time_IO;
 
       Length  : constant Natural := Natural (Log.Extended_Fields.Length);

@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2008-2012, AdaCore                     --
+--                     Copyright (C) 2008-2014, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -40,7 +40,6 @@ with Sax.Readers;
 with Unicode.CES.Basic_8bit;
 
 with AWS.Jabber.Digest_Md5;
-with AWS.Net;
 with AWS.Translator;
 with AWS.Utils;
 

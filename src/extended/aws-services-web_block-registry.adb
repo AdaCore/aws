@@ -39,7 +39,6 @@ with GNAT.Regpat;
 
 package body AWS.Services.Web_Block.Registry is
 
-   use Ada;
    use GNAT;
 
    Context_Var : constant String := "CTX_WB";

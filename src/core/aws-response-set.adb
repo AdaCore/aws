@@ -404,8 +404,6 @@ package body AWS.Response.Set is
      (D     : in out Data;
       Value : Unbounded_String)
    is
-      use Streams;
-
       Chunk_Size  : constant := 8 * 1_024;
       Len         : constant Natural := Length (Value);
 

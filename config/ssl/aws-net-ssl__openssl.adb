@@ -36,7 +36,6 @@ pragma Ada_2012;
 --  not exists it is required to initialize the SSL layer certificate with
 --  AWS.Server.Set_Security.
 
-with Ada.Calendar;
 with Ada.Command_Line;
 with Ada.Directories;
 with Ada.Task_Attributes;
@@ -62,8 +61,8 @@ package body AWS.Net.SSL is
    use Interfaces;
    use type C.int;
    use type TSSL.Pointer;
-   use type TSSL.SSL_Handle;
    use type TSSL.SSL_CTX;
+   use type TSSL.SSL_Handle;
 
    subtype NSST is Net.Std.Socket_Type;
 
@@ -468,7 +467,6 @@ package body AWS.Net.SSL is
    procedure Generate_DH is
 
       use type TSSL.BIO_Access;
-      use type TSSL.DH;
 
       OK   : Boolean;
       DH   : aliased TSSL.DH;
@@ -582,7 +580,6 @@ package body AWS.Net.SSL is
    ------------------
 
    procedure Generate_RSA is
-      use type TSSL.RSA;
       OK  : Boolean;
       BN  : TSSL.BIGNUM;
       RSA : TSSL.RSA;
@@ -799,7 +796,7 @@ package body AWS.Net.SSL is
                   Raise_Socket_Error
                     (Socket,
                      "System error ("
-                     & Utils.Image (Integer (OS_Lib.Socket_Errno))
+                     & Utils.Image (OS_Lib.Socket_Errno)
                      & ") on SSL receive");
 
                when TSSL.SSL_ERROR_ZERO_RETURN =>

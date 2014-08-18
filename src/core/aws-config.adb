@@ -540,7 +540,6 @@ package body AWS.Config is
    ---------------------
 
    procedure Read_If_Present (Filename : String) is
-      use Ada;
    begin
       if Directories.Exists (Filename) then
          Ini.Read (Server_Config, Filename);

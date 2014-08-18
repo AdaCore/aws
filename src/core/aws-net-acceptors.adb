@@ -369,7 +369,7 @@ package body AWS.Net.Acceptors is
       Socket   : not null access Socket_Type'Class;
       Success  : out Boolean) is
    begin
-      Acceptor.Box.Add (Socket, Positive (Acceptor.Back_Queue_Size), Success);
+      Acceptor.Box.Add (Socket, Acceptor.Back_Queue_Size, Success);
    end Give_Back;
 
    procedure Give_Back

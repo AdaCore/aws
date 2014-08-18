@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2012-2013, AdaCore                     --
+--                     Copyright (C) 2012-2014, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -27,7 +27,6 @@
 --  covered by the  GNU Public License.                                     --
 ------------------------------------------------------------------------------
 
-with Ada.Exceptions;
 with Ada.Strings.Maps.Constants;
 with Ada.Text_IO;
 with System;
@@ -42,7 +41,6 @@ with AWS.Translator;
 
 package body AWS.Net.WebSocket.Protocol.Draft76 is
 
-   use Ada.Exceptions;
    use Ada.Text_IO;
 
    --------------------

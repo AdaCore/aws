@@ -27,9 +27,7 @@
 --  covered by the  GNU Public License.                                     --
 ------------------------------------------------------------------------------
 
-with Ada.Streams;
 with Ada.Unchecked_Deallocation;
-with Interfaces;
 
 with AWS.Headers;
 with AWS.Messages;
@@ -38,8 +36,6 @@ with AWS.Net.WebSocket.Protocol.RFC6455;
 with AWS.Translator;
 
 package body AWS.Net.WebSocket is
-
-   use Ada.Streams;
 
    WS_UID : Utils.Counter (0);
    --  Unique Id for the WebSockets

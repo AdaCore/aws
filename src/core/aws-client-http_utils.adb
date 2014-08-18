@@ -47,7 +47,6 @@ with AWS.Utils;
 
 package body AWS.Client.HTTP_Utils is
 
-   use Ada;
    use AWS.Client;
 
    function Image (Data_Range : Content_Range) return String;

@@ -31,8 +31,6 @@ pragma Ada_2012;
 
 with GNAT.SHA1;
 
-private with Ada.Strings.Unbounded;
-
 package AWS.Utils.Streams is
 
    --------------------
@@ -82,8 +80,6 @@ package AWS.Utils.Streams is
    --  Returns the stream value
 
 private
-
-   use Ada.Strings.Unbounded;
 
    type Strings is new Root_Stream_Type with record
       Str        : Unbounded_String;

@@ -31,8 +31,6 @@
 --  support. Every use of this interface will raise the Program_Error
 --  exception.
 
-with System;
-
 package body AWS.Net.SSL is
 
    type TS_SSL is new System.Address;

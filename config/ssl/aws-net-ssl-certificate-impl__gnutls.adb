@@ -29,7 +29,6 @@
 
 with Ada.Calendar.Conversions;
 with Ada.Calendar.Time_Zones;
-with Ada.Strings.Unbounded;
 with Ada.Unchecked_Conversion;
 
 with Interfaces.C.Strings;
@@ -41,8 +40,6 @@ with AWS.Utils;
 with SSL.Thin;
 
 package body AWS.Net.SSL.Certificate.Impl is
-
-   use Interfaces;
 
    procedure Check_Error_Code
      (Code : C.int; Socket : access constant Socket_Type'Class);
@@ -188,9 +185,9 @@ package body AWS.Net.SSL.Certificate.Impl is
       X509   : TSSL.gnutls_x509_crt_t) return Object
    is
       use type Ada.Calendar.Time;
-      use type C.unsigned;
       use type C.int;
       use type C.size_t;
+      use type C.unsigned;
 
       function To_Time (tv_sec : TSSL.time_t) return Calendar.Time with Inline;
       --  Convert a time_t to an Ada duration
@@ -364,7 +361,6 @@ package body AWS.Net.SSL.Certificate.Impl is
    -------------------
 
    function Status_String (Status : C.long) return String is
-      use Strings.Unbounded;
       use type C.unsigned_long;
 
       function To_Value is new Ada.Unchecked_Conversion

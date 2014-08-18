@@ -29,7 +29,6 @@
 
 pragma Ada_2012;
 
-with Ada.Calendar;
 with Ada.Containers.Hashed_Maps;
 with Ada.Containers.Ordered_Maps;
 with Ada.Directories;
@@ -635,7 +634,6 @@ package body AWS.Net.SSL is
    -----------
 
    function Equal (Left, Right : TSSL.gnutls_datum_t) return Boolean is
-      use Ada.Streams;
       type Array_Access is
         access all Stream_Element_Array (1 .. Stream_Element_Offset'Last);
       function To_Array is

@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2002-2012, AdaCore                     --
+--                     Copyright (C) 2002-2014, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -56,7 +56,6 @@ package body AWS.LDAP.Thin is
    ---------------------
 
    function LDAP_API_RESULT (n : Return_Code) return Boolean is
-      use type C.int;
    begin
       return n = 0 or else LDAP_API_ERROR (n);
    end LDAP_API_RESULT;

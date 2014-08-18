@@ -33,7 +33,6 @@ with System;
 
 package body AWS.Net.SSL.Certificate.Impl is
 
-   use Interfaces;
    use type C.int;
    use type TSSL.X509;
 
@@ -193,7 +192,6 @@ package body AWS.Net.SSL.Certificate.Impl is
 
       function NAME_oneline (Name : TSSL.X509_NAME) return Unbounded_String is
          use TSSL;
-         use type Interfaces.C.int;
          IO : constant BIO_Access := BIO_new (BIO_s_mem);
          RC : Interfaces.C.int;
       begin

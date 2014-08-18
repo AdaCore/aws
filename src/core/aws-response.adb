@@ -41,8 +41,6 @@ with AWS.Translator;
 
 package body AWS.Response is
 
-   use Streams;
-
    package RSM renames AWS.Resources.Streams.Memory;
 
    -----------------

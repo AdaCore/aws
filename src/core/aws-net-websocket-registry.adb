@@ -208,7 +208,6 @@ package body AWS.Net.WebSocket.Registry is
    -------------
 
    task body Watcher is
-      use type FD_Set.Socket_Count;
       Count : FD_Set.Socket_Count;
       WS    : Object_Class;
    begin
