@@ -1,7 +1,7 @@
 ############################################################################
 #                              Ada Web Server                              #
 #                                                                          #
-#                     Copyright (C) 2003-2013, AdaCore                     #
+#                     Copyright (C) 2003-2014, AdaCore                     #
 #                                                                          #
 #  This is free software;  you can redistribute it  and/or modify it       #
 #  under terms of the  GNU General Public License as published  by the     #
@@ -40,7 +40,7 @@ $(GEN): force
 	echo "end Ada2WSDL.Options;" >> $(GEN)
 
 setup_dir:
-	-$(MKDIR) -p $(SDIR)/tsrc
+	-$(MKDIR) $(SDIR)/tsrc
 
 setup: setup_dir $(GEN)
 

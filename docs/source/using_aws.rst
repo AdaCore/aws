@@ -710,7 +710,7 @@ Response a from pipe stream
 The response sent to the server is read from the output of an external
 application. This kind of stream can be used to avoid writing a temporary
 file into the hard disk. For example it is possible to return an archive
-created with the `tar` tool without writting the intermediate tar
+created with the `tar` tool without writing the intermediate tar
 achive on the disk.
 
 .. _Configuration_options:

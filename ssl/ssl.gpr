@@ -40,6 +40,7 @@ library project SSL is
 
    for Library_Name use "aws_ssl";
    for Library_Kind use Shared.Library_Type;
+   for Leading_Library_Options use Shared.Leading_Library_Options;
 
    ---------
    -- Ide --

@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2003-2013, AdaCore                     --
+--                     Copyright (C) 2003-2014, AdaCore                     --
 --                                                                          --
 --  This is free software;  you can redistribute it  and/or modify it       --
 --  under terms of the  GNU General Public License as published  by the     --
@@ -97,13 +97,16 @@ project Tools is
 
    package Linker is
 
+      for Default_Switches ("Ada") use Shared.Linker'Default_Switches ("Ada");
+
       case Shared.Build is
          when "Release" =>
             case Shared.S_Target is
                when "Darwin" =>
                   null;
                when others =>
-                  for Default_Switches ("Ada") use ("-s");
+                  for Default_Switches ("Ada")
+                    use Linker'Default_Switches ("Ada") & ("-s");
             end case;
          when others =>
             null;

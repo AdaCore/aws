@@ -1,7 +1,7 @@
 ############################################################################
 #                              Ada Web Server                              #
 #                                                                          #
-#                     Copyright (C) 2003-2013, AdaCore                     #
+#                     Copyright (C) 2003-2014, AdaCore                     #
 #                                                                          #
 #  This is free software;  you can redistribute it  and/or modify it       #
 #  under terms of the  GNU General Public License as published  by the     #
@@ -63,7 +63,8 @@ clean:
 vars:
 	mkdir -p build/obj build/bin
 	gnat make -D build/obj -I../src/core -I../src/soap \
-		-o build/bin/build build.adb
+		-o build/bin/build build.adb \
+		-cargs $(ADAFLAGS) -O0 -largs $(LDFLAGS)
 	build/bin/build $(VERSION) > source/confvars.py
 	rm -fr build/obj build/bin
 

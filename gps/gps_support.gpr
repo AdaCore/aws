@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                      Copyright (C) 2004-2013, AdaCore                    --
+--                      Copyright (C) 2004-2014, AdaCore                    --
 --                                                                          --
 --  This is free software;  you can redistribute it  and/or modify it       --
 --  under terms of the  GNU General Public License as published  by the     --
@@ -17,7 +17,6 @@
 ------------------------------------------------------------------------------
 
 with "../shared";
-with "../aws";
 
 project GPS_Support is
 
@@ -38,6 +37,12 @@ project GPS_Support is
    --------------
 
    package Compiler renames Shared.Compiler;
+
+   ------------
+   -- Linker --
+   ------------
+
+   package Linker renames Shared.Linker;
 
    ------------
    -- Binder --

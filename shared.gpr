@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2003-2013, AdaCore                     --
+--                     Copyright (C) 2003-2014, AdaCore                     --
 --                                                                          --
 --  This is free software;  you can redistribute it  and/or modify it       --
 --  under terms of the  GNU General Public License as published  by the     --
@@ -68,17 +68,10 @@ abstract project Shared is
 
    case Build is
       when "Debug" =>
-         for Exec_Dir use Project'Exec_Dir & "/debug";
+         for Exec_Dir use Project'Exec_Dir & "/debug/" & Library_Type;
       when "Release" =>
-         for Exec_Dir use Project'Exec_Dir & "/release";
-   end case;
-
-   case Library_Type is
-      when "static" =>
-         for Exec_Dir use Project'Exec_Dir & "/static";
-      when "relocatable" =>
-         for Exec_Dir use Project'Exec_Dir & "/relocatable";
-   end case;
+         for Exec_Dir use Project'Exec_Dir & "/release/" & Library_Type;
+      end case;
 
    for Object_Dir use Project'Exec_Dir & "/obj";
    for Library_Dir use Project'Exec_Dir & "/lib";
@@ -90,6 +83,14 @@ abstract project Shared is
    XMLAda : Install_Status := external ("PRJ_XMLADA", "Installed");
    ASIS   : Install_Status := external ("PRJ_ASIS", "Installed");
    LDAP   : Install_Status := external ("PRJ_LDAP", "Installed");
+
+   --------------------
+   -- External flags --
+   --------------------
+
+   Adaflags := External_As_List ("ADAFLAGS", " ");
+   Cflags   := External_As_List ("CFLAGS", " ");
+   Ldflags  := External_As_List ("LDFLAGS", " ");
 
    ---------
    -- Ide --
@@ -157,6 +158,14 @@ abstract project Shared is
         use Common_Options & Debug_Options & ("-gnatVn");
       --  Disable validity check on this unit to work-around N728-028
 
+      --  ADAFLAGS and CFLAGS should come last so that command line
+      --  settings override the ones in this project.
+
+      for Default_Switches ("Ada") use
+        Compiler'Default_Switches ("Ada") & Adaflags;
+      for Default_Switches ("C") use
+        Compiler'Default_Switches ("C") & Cflags;
+
    end Compiler;
 
    ------------
@@ -174,6 +183,19 @@ abstract project Shared is
    package Builder is
       for Switches (others) use ("-m", "-j" & Processors);
    end Builder;
+
+   ------------
+   -- Linker --
+   ------------
+
+   package Linker is
+      for Default_Switches ("Ada") use Ldflags;
+   end Linker;
+
+   --  LDFLAGS should come first so that command line settings
+   --  influence the way -l options are handled afterwards.
+   --  For library projects, use Leading_Library_Options instead.
+   Leading_Library_Options := Ldflags;
 
    ------------
    -- Naming --
