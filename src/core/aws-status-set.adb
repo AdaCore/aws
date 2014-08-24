@@ -251,6 +251,9 @@ package body AWS.Status.Set is
    begin
       if D.Binary_Data = null then
          D.Binary_Data := new Containers.Memory_Streams.Stream_Type;
+
+      else
+         Containers.Memory_Streams.Clear (D.Binary_Data.all);
       end if;
 
       Containers.Memory_Streams.Append (D.Binary_Data.all, Parameter);

@@ -127,7 +127,7 @@ package AWS.Status.Set is
    --  Query is a parameters only from request line (RFC-2616 3.2.2)
 
    procedure Binary (D : in out Data; Parameter : Stream_Element_Array) with
-     Post => Binary_Size (D) = Binary_Size (D)'Old + Parameter'Length;
+     Post => Binary_Size (D) = Parameter'Length;
    --  This procedure is used to store any binary data sent with the
    --  request. For example this will be used by the PUT method if a binary
    --  file is sent to the server.
