@@ -253,10 +253,17 @@ package body AWS.Status.Set is
          D.Binary_Data := new Containers.Memory_Streams.Stream_Type;
 
       else
+         --  Clear previous data if exists
+
          Containers.Memory_Streams.Clear (D.Binary_Data.all);
       end if;
 
-      Containers.Memory_Streams.Append (D.Binary_Data.all, Parameter);
+      --  "Trim => True" mean don't remain allocated space at the end of
+      --  internal buffer for next data because this routine designed to put
+      --  all data at once.
+
+      Containers.Memory_Streams.Append
+        (D.Binary_Data.all, Parameter, Trim => True);
    end Binary;
 
    -------------------------------
