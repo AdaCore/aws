@@ -29,7 +29,7 @@ project Setup is
 
    package Compiler is
       for Default_Switches ("Ada") use
-        Shared.Compiler'Default_Switches ("Ada");
+        Shared.Compiler'Default_Switches ("Ada") & ("-gnatyN");
    end Compiler;
 
    package Ide renames Shared.Ide;
