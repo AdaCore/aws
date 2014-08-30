@@ -1036,6 +1036,17 @@ Current supported options are:
   The maximum number of POST parameters supported by AWS. The default
   value is |MAX_POST_PARAMETERS|.
 
+.. _max-websocket:
+
+*Max_WebSocket (positive)*
+
+  .. index:: Max_WebSocket
+
+  The maximum number of WebSocket that can be opened simultaneously
+  in AWS. Above this value AWS will try to close timed-out WebSockets
+  (see :ref:`WebSocket_Timeout <websocket-timeout>`). The default
+  value is |MAX_WEBSOCKET|.
+
 *Max_WebSocket_Handler (positive)*
 
   .. index:: Max_WebSocket_Handler
@@ -1236,6 +1247,18 @@ Current supported options are:
 
   Priority of the task handling the WebSockets.
   The default is **Default_Priority**.
+
+.. _websocket-timeout:
+
+*WebSocket_Timeout (duration)*
+
+  .. index:: WebSocket_Timeout
+
+  A number of seconds after which a WebSocket without activity is
+  considered timed-out and can be elected to be closed if the maximum
+  number of sockets opened has been reached.
+  (see :ref:`Max_WebSocket <max-websocket>`). The default
+  is |WEBSOCKET_TIMEOUT|.
 
 *WWW_Root (string)*
 

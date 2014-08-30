@@ -363,6 +363,11 @@ package AWS.Config.Set is
    --  Control the maximum number of parallel downloads accepted by the
    --  download manager.
 
+   procedure Max_WebSocket (Value : Positive);
+   --  The maximum number of simultaneous WebSocket opened. Note that that
+   --  there could be more WebSocket registered when counting the closing
+   --  WebSockets.
+
    procedure Max_WebSocket_Handler (Value : Positive);
    --  This is the max simultaneous connections handling WebSocket's messages
 
@@ -377,6 +382,10 @@ package AWS.Config.Set is
 
    procedure WebSocket_Priority (Value : System.Any_Priority);
    --  Set the priority used by the WebSocket service
+
+   procedure WebSocket_Timeout (Value : Duration);
+   --  Returns the WebSocket activity timeout. After this number of seconds
+   --  without any activity the WebSocket can be closed when needed.
 
    procedure Input_Line_Size_Limit (Value : Positive);
    --  Maximum length of an HTTP parameter

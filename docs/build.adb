@@ -87,6 +87,7 @@ begin
    Add ("SOAP_VERSION", SOAP.Version);
    Add ("MAX_CONCURRENT_DOWNLOAD", Default.Max_Concurrent_Download);
    Add ("MAX_WEBSOCKET_HANDLER", Default.Max_WebSocket_Handler);
+   Add ("MAX_WEBSOCKET", Default.Max_WebSocket);
    Add ("WEBSOCKET_MESSAGE_QUEUE_SIZE", Default.WebSocket_Message_Queue_Size);
    Add ("MAX_CONNECT", Default.Max_Connection);
    Add ("MIME_TYPES", Default.MIME_Types);
@@ -131,6 +132,7 @@ begin
    Add ("SESSION_CLEANUP_INTERVAL", Default.Session_Cleanup_Interval);
    Add ("TRANSIENT_LIFETIME", Default.Transient_Lifetime);
    Add ("TRANSIENT_CLEANUP_INTERVAL", Default.Transient_Cleanup_Interval);
+   Add ("WebSocket_Timeout", Default.Websocket_Timeout);
    Add ("WWW_ROOT", Default.WWW_Root);
    Add ("MAX_POST_PARAMETERS", Default.Max_POST_Parameters);
    Add ("CERTIFICATE_REQUIRED", Default.Certificate_Required);

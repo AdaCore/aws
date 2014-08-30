@@ -406,6 +406,15 @@ package body AWS.Config.Set is
       O.P (Max_POST_Parameters).Pos_Value := Value;
    end Max_POST_Parameters;
 
+   -------------------
+   -- Max_WebSocket --
+   -------------------
+
+   procedure Max_WebSocket (Value : Positive) is
+   begin
+      Process_Options (Max_WebSocket).Pos_Value := Value;
+   end Max_WebSocket;
+
    ---------------------------
    -- Max_WebSocket_Handler --
    ---------------------------
@@ -720,6 +729,15 @@ package body AWS.Config.Set is
    begin
       Process_Options (WebSocket_Priority).Nat_Value := Value;
    end WebSocket_Priority;
+
+   -----------------------
+   -- WebSocket_Timeout --
+   -----------------------
+
+   procedure WebSocket_Timeout (Value : Duration) is
+   begin
+      Process_Options (WebSocket_Timeout).Dur_Value := Value;
+   end WebSocket_Timeout;
 
    --------------
    -- WWW_Root --

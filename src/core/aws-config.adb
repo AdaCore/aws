@@ -508,6 +508,15 @@ package body AWS.Config is
       return O.P (Max_POST_Parameters).Pos_Value;
    end Max_POST_Parameters;
 
+   -------------------
+   -- Max_WebSocket --
+   -------------------
+
+   function Max_WebSocket return Positive is
+   begin
+      return Process_Options (Max_WebSocket).Pos_Value;
+   end Max_WebSocket;
+
    ---------------------------
    -- Max_WebSocket_Handler --
    ---------------------------
@@ -806,6 +815,15 @@ package body AWS.Config is
    begin
       return Process_Options (WebSocket_Priority).Nat_Value;
    end WebSocket_Priority;
+
+   -----------------------
+   -- WebSocket_Timeout --
+   -----------------------
+
+   function WebSocket_Timeout return Duration is
+   begin
+      return Process_Options (WebSocket_Timeout).Dur_Value;
+   end WebSocket_Timeout;
 
    --------------
    -- WWW_Root --
