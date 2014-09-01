@@ -452,7 +452,7 @@ package body AWS.Net.WebSocket.Registry is
          Timeout : Duration := Forever;
          Error   : Error_Type := Normal_Closure) is
       begin
-         --  Look for WebSocket into the registered set, unregisted it is
+         --  Look for WebSocket into the registered set, unregisted it if
          --  present.
 
          if Registered.Contains (Socket.Id) then
