@@ -588,6 +588,41 @@ package body AWS.Net.WebSocket.Registry is
 
       procedure Register (WebSocket : Object_Class; Success : out Boolean) is
       begin
+         --  Check if maximum number of WebSocket has been reached
+
+         if Natural (Registered.Length) = Config.Max_WebSocket then
+            --  Let's try to close a WebSocket for which the activity has
+            --  timedout.
+
+            declare
+               use type Calendar.Time;
+               Timeout : constant Calendar.Time :=
+                           Calendar.Clock - Config.WebSocket_Timeout;
+               W       : Object_Class;
+            begin
+               for WS of Registered loop
+                  if WS.State.Last_Activity < Timeout then
+                     W := WS;
+                     exit;
+                  end if;
+               end loop;
+
+               --  If no WebSocket can be closed
+
+               if W = null then
+                  Success := False;
+                  return;
+
+               else
+                  Close
+                    (Socket  => W.all,
+                     Message => "activity timeout reached",
+                     Timeout => 1.0,
+                     Error   => Abnormal_Closure);
+               end if;
+            end;
+         end if;
+
          Registered.Insert (WebSocket.Id, WebSocket);
          Success := True;
       end Register;

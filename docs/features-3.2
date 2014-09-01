@@ -15,6 +15,17 @@ of the feature.
 New features in AWS 3.2
 -----------------------
 
+NF-32-N822-001 Add support for controlling WebSocket lifetime (2014-09-03)
+
+    It is now possible to control the WebSocket's lifetime. First the
+    new configuration option Max_WebSocket can be used to allow a
+    maximum of simultaneous opened WebSocket and so avoid using all
+    operating system file descriptor. Second the new configuration
+    option WebSocket_Timeout can be used to control the time without
+    activity after which a WebSocket is in timed-out mode. A timed-out
+    WebSocket can be closed if the maximum number of WebSocket is
+    reached.
+
 NF-32-N718-007 Add support for WebSocket unique identifier (2014-07-23)
 
     This UID can be used to reference a WebSocket without having to
