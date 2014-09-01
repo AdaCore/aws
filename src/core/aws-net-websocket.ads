@@ -34,6 +34,7 @@ pragma Ada_2012;
 with Ada.Strings.Unbounded;
 with AWS.Status;
 
+private with Ada.Calendar;
 private with Interfaces;
 
 package AWS.Net.WebSocket is
@@ -213,8 +214,9 @@ package AWS.Net.WebSocket is
 private
 
    type Internal_State is record
-      Kind  : Kind_Type := Unknown;
-      Errno : Interfaces.Unsigned_16 := Interfaces.Unsigned_16'Last;
+      Kind          : Kind_Type := Unknown;
+      Errno         : Interfaces.Unsigned_16 := Interfaces.Unsigned_16'Last;
+      Last_Activity : Calendar.Time;
    end record;
 
    type Internal_State_Access is access Internal_State;
