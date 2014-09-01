@@ -125,7 +125,7 @@ package body AWS.Net.WebSocket.Registry is
       --  call if any to ensure this new WebSocket will be watched too.
 
       procedure Remove (WebSocket : not null access Object'Class);
-      --  Remove WebSocket at the given index
+      --  Remove WebSocket from the watched list
 
       entry Not_Empty;
       --  Returns if the Set is not empty
