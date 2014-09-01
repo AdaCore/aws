@@ -171,7 +171,7 @@ package body AWS.Net.WebSocket.Registry is
          Timeout : Duration := Forever;
          Error   : Error_Type := Normal_Closure);
 
-      procedure Register (WebSocket : Object_Class) with
+      procedure Register (WebSocket : Object_Class; Success : out Boolean) with
         Pre => WebSocket /= null;
       --  Register a new WebSocket
 
@@ -586,9 +586,10 @@ package body AWS.Net.WebSocket.Registry is
       -- Register --
       --------------
 
-      procedure Register (WebSocket : Object_Class) is
+      procedure Register (WebSocket : Object_Class; Success : out Boolean) is
       begin
          Registered.Insert (WebSocket.Id, WebSocket);
+         Success := True;
       end Register;
 
       ------------
@@ -843,6 +844,19 @@ package body AWS.Net.WebSocket.Registry is
       Factories.Insert (URI, Factory);
    end Register;
 
+   function Register (WebSocket : Object'Class) return Object_Class is
+      WS      : Object_Class := new Object'Class'(WebSocket);
+      Success : Boolean;
+   begin
+      DB.Register (WS, Success);
+
+      if not Success then
+         Unchecked_Free (WS);
+      end if;
+
+      return WS;
+   end Register;
+
    ----------
    -- Send --
    ----------
@@ -987,27 +1001,23 @@ package body AWS.Net.WebSocket.Registry is
         new Message_Reader_Set (1 .. Config.Max_WebSocket_Handler);
    end Start;
 
-   ----------------
-   -- Watch_Data --
-   ----------------
+   -----------
+   -- Watch --
+   -----------
 
-   procedure Watch_Data (WebSocket : Object'Class) is
-      WS : Object_Class := new Object'Class'(WebSocket);
+   procedure Watch (WebSocket : in out Object_Class) is
    begin
       --  Send a Connection_Open message
 
-      WS.State.Kind := Connection_Open;
-      WS.On_Open ("AWS WebSocket connection open");
+      WebSocket.State.Kind := Connection_Open;
+      WebSocket.On_Open ("AWS WebSocket connection open");
 
-      --  Register WebSocket
-
-      DB.Register (WS);
-      DB.Watch (WS);
+      DB.Watch (WebSocket);
    exception
       when others =>
-         Unchecked_Free (WS);
+         Unchecked_Free (WebSocket);
          raise;
-   end Watch_Data;
+   end Watch;
 
    -------------------------
    -- WebSocket_Exception --

@@ -55,7 +55,7 @@ with AWS.Net.Buffered;
 with AWS.Net.WebSocket.Handshake_Error;
 with AWS.Net.WebSocket.Protocol.Draft76;
 with AWS.Net.WebSocket.Protocol.RFC6455;
-with AWS.Net.WebSocket.Registry.Watch;
+with AWS.Net.WebSocket.Registry.Utils;
 with AWS.Parameters;
 with AWS.Response.Set;
 with AWS.Server.Get_Status;
@@ -1569,13 +1569,29 @@ package body AWS.Server.HTTP_Utils is
                         end;
 
                      else
-                        Send_WebSocket_Handshake;
+                        --  First try to register the WebSocket object
 
-                        HTTP_Server.Slots.Socket_Taken (Line_Index);
-                        Socket_Taken := True;
-                        Will_Close := False;
+                        declare
+                           use type Net.WebSocket.Object_Class;
+                           W : Net.WebSocket.Object_Class;
+                        begin
+                           W := Net.WebSocket.Registry.Utils.Register (WS);
 
-                        Net.WebSocket.Registry.Watch (WS);
+                           if W = null then
+                              Send_Websocket_Handshake_Error
+                                (Messages.S412,
+                                 "too many WebSocket registered");
+
+                           else
+                              Send_WebSocket_Handshake;
+
+                              HTTP_Server.Slots.Socket_Taken (Line_Index);
+                              Socket_Taken := True;
+                              Will_Close := False;
+
+                              Net.WebSocket.Registry.Utils.Watch (W);
+                           end if;
+                        end;
                      end if;
 
                   exception
