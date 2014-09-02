@@ -456,7 +456,11 @@ package body AWS.Net.WebSocket.Registry is
          --  present.
 
          if Registered.Contains (Socket.Id) then
-            Unregister (Registered (Socket.Id));
+            declare
+               W : constant Object_Class := Registered (Socket.Id);
+            begin
+               Unregister (W);
+            end;
          end if;
 
          Socket.State.Errno := Error_Code (Error);
