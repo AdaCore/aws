@@ -1176,6 +1176,13 @@ Current supported options are:
 
   The name of the status page to used. The default is |STATUS_PAGE|.
 
+*TLS_Ticket_Support (boolean)*
+
+  .. index:: TLS_Ticket_Support
+
+  Specify whether the TLS ticket support is activated or not. The
+  default value is |TLS_TICKET_SUPPORT|.
+
 *Transient_Cleanup_Interval (positive)*
 
   .. index:: Transient_Cleanup_Interval

@@ -137,5 +137,6 @@ begin
    Add ("TRUSTED_CA", Default.Trusted_CA);
    Add ("CRL_FILE", Default.CRL_File);
    Add ("SESSION_ID_LENGTH", Default.Session_Id_Length);
+   Add ("TLS_TICKET_SUPPORT", Default.TLS_Ticket_Support);
    Text_IO.Put_Line ("""""""");
 end Build;
