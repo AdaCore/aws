@@ -44,14 +44,14 @@ begin
       Config   => Config,
       Callback => WSUID_CB.HW_CB'Access);
 
-   Text_IO.Put_Line ("PORT: " & Positive'Image (Server.Status.Port (WS)));
-
    --  Start the WebSocket server, this is needed only to receive message
    --  from the WebClient. It is always possible to send messages.
 
    Net.WebSocket.Registry.Control.Start;
 
    Net.WebSocket.Registry.Register ("/echo", WSUID_CB.Create'Access);
+
+   Text_IO.Put_Line ("PORT: " & Positive'Image (Server.Status.Port (WS)));
 
    --  Wait for at least a WebSocket to be created, no need to send a
    --  message into the void.

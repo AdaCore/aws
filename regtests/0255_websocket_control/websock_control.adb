@@ -49,8 +49,6 @@ begin
       Config   => Config,
       Callback => WebSock_Control_CB.HW_CB'Access);
 
-   Text_IO.Put_Line ("PORT: " & Positive'Image (Server.Status.Port (WS)));
-
    --  Start the WebSocket server, this is needed only to receive message
    --  from the WebClient. It is always possible to send messages.
 
@@ -62,6 +60,8 @@ begin
      ("/echo2", WebSock_Control_CB.Create'Access);
    Net.WebSocket.Registry.Register
      ("/echo3", WebSock_Control_CB.Create'Access);
+
+   Text_IO.Put_Line ("PORT: " & Positive'Image (Server.Status.Port (WS)));
 
    --  Wait for at least a WebSocket to be created, no need to send a
    --  message into the void.

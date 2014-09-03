@@ -47,8 +47,6 @@ begin
       Config   => Config,
       Callback => WebSock_CB.HW_CB'Access);
 
-   Text_IO.Put_Line ("PORT: " & Positive'Image (Server.Status.Port (WS)));
-
    --  Start the WebSocket server, this is needed only to receive message
    --  from the WebClient. It is always possible to send messages.
 
@@ -59,6 +57,8 @@ begin
    for K in M'Range loop
       M (K) := Character'Val ((Character'Pos ('0') + K mod 10));
    end loop;
+
+   Text_IO.Put_Line ("PORT: " & Positive'Image (Server.Status.Port (WS)));
 
    --  Wait for at least a WebSocket to be created, no need to send a
    --  message into the void.
