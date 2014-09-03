@@ -168,7 +168,11 @@ private
    procedure Shutdown;
    --  Stop the WebServer's servers
 
-   procedure Watch_Data (WebSocket : Object'Class);
-   --  Register a new WebSocket which must be watched for incoming data
+   function Register (WebSocket : Object'Class) return Object_Class;
+   --  Register a new WebSocket, returns a reference to the registered
+   --  WebSocket or null if it was impossible to register it.
+
+   procedure Watch (WebSocket : in out Object_Class);
+   --  Watched WebSocket for incoming data
 
 end AWS.Net.WebSocket.Registry;

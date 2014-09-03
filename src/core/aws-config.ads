@@ -384,6 +384,15 @@ package AWS.Config is
    function WebSocket_Message_Queue_Size return Positive with Inline;
    --  This is the size of the queue containing incoming messages
 
+   function Max_WebSocket return Positive with Inline;
+   --  The maximum number of simultaneous WebSocket opened. Note that that
+   --  there could be more WebSocket registered when counting the closing
+   --  WebSockets.
+
+   function WebSocket_Timeout return Duration with Inline;
+   --  Returns the WebSocket activity timeout. After this number of seconds
+   --  without any activity the WebSocket can be closed when needed.
+
    function Is_WebSocket_Origin_Set return Boolean with Inline;
    --  Returns True if the Origin has been set
 
@@ -481,6 +490,8 @@ private
       WebSocket_Message_Queue_Size,
       WebSocket_Origin,
       WebSocket_Priority,
+      Max_WebSocket,
+      WebSocket_Timeout,
       Context_Lifetime);
 
    subtype Server_Parameter_Name is Parameter_Name
@@ -735,6 +746,9 @@ private
                         Max_Concurrent_Download      =>
                           (Pos, Default.Max_Concurrent_Download),
 
+                        Max_WebSocket                =>
+                          (Pos, Default.Max_WebSocket),
+
                         Max_WebSocket_Handler        =>
                           (Pos, Default.Max_WebSocket_Handler),
 
@@ -750,6 +764,9 @@ private
 
                         WebSocket_Priority           =>
                           (Nat, Default.WebSocket_Priority),
+
+                        WebSocket_Timeout            =>
+                          (Dur, Default.WebSocket_Timeout),
 
                         Context_Lifetime             =>
                           (Dur, Default.Context_Lifetime));

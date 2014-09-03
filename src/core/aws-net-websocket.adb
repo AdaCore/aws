@@ -99,8 +99,9 @@ package body AWS.Net.WebSocket is
            Request => Request,
            Version => Version,
            State   => new Internal_State'
-                           (Kind  => Unknown,
-                            Errno => Interfaces.Unsigned_16'Last),
+                           (Kind          => Unknown,
+                            Errno         => Interfaces.Unsigned_16'Last,
+                            Last_Activity => Calendar.Clock),
            P_State => new Protocol_State'(State => Protocol));
    end Create;
 
@@ -314,6 +315,7 @@ package body AWS.Net.WebSocket is
       Last   : out Stream_Element_Offset) is
    begin
       Socket.P_State.State.Receive (Socket, Data, Last);
+      Socket.State.Last_Activity := Calendar.Clock;
    end Receive;
 
    -------------
@@ -335,6 +337,7 @@ package body AWS.Net.WebSocket is
       Last   : out Stream_Element_Offset) is
    begin
       Socket.Socket.Send (Data, Last);
+      Socket.State.Last_Activity := Calendar.Clock;
    end Send;
 
    procedure Send

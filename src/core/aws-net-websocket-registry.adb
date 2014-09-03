@@ -125,7 +125,7 @@ package body AWS.Net.WebSocket.Registry is
       --  call if any to ensure this new WebSocket will be watched too.
 
       procedure Remove (WebSocket : not null access Object'Class);
-      --  Remove WebSocket at the given index
+      --  Remove WebSocket from the watched list
 
       entry Not_Empty;
       --  Returns if the Set is not empty
@@ -171,7 +171,7 @@ package body AWS.Net.WebSocket.Registry is
          Timeout : Duration := Forever;
          Error   : Error_Type := Normal_Closure);
 
-      procedure Register (WebSocket : Object_Class) with
+      procedure Register (WebSocket : Object_Class; Success : out Boolean) with
         Pre => WebSocket /= null;
       --  Register a new WebSocket
 
@@ -452,11 +452,15 @@ package body AWS.Net.WebSocket.Registry is
          Timeout : Duration := Forever;
          Error   : Error_Type := Normal_Closure) is
       begin
-         --  Look for WebSocket into the registered set, unregisted it is
+         --  Look for WebSocket into the registered set, unregisted it if
          --  present.
 
          if Registered.Contains (Socket.Id) then
-            Unregister (Registered (Socket.Id));
+            declare
+               W : constant Object_Class := Registered (Socket.Id);
+            begin
+               Unregister (W);
+            end;
          end if;
 
          Socket.State.Errno := Error_Code (Error);
@@ -586,9 +590,45 @@ package body AWS.Net.WebSocket.Registry is
       -- Register --
       --------------
 
-      procedure Register (WebSocket : Object_Class) is
+      procedure Register (WebSocket : Object_Class; Success : out Boolean) is
       begin
+         --  Check if maximum number of WebSocket has been reached
+
+         if Natural (Registered.Length) = Config.Max_WebSocket then
+            --  Let's try to close a WebSocket for which the activity has
+            --  timedout.
+
+            declare
+               use type Calendar.Time;
+               Timeout : constant Calendar.Time :=
+                           Calendar.Clock - Config.WebSocket_Timeout;
+               W       : Object_Class;
+            begin
+               for WS of Registered loop
+                  if WS.State.Last_Activity < Timeout then
+                     W := WS;
+                     exit;
+                  end if;
+               end loop;
+
+               --  If no WebSocket can be closed
+
+               if W = null then
+                  Success := False;
+                  return;
+
+               else
+                  Close
+                    (Socket  => W.all,
+                     Message => "activity timeout reached",
+                     Timeout => 1.0,
+                     Error   => Abnormal_Closure);
+               end if;
+            end;
+         end if;
+
          Registered.Insert (WebSocket.Id, WebSocket);
+         Success := True;
       end Register;
 
       ------------
@@ -843,6 +883,19 @@ package body AWS.Net.WebSocket.Registry is
       Factories.Insert (URI, Factory);
    end Register;
 
+   function Register (WebSocket : Object'Class) return Object_Class is
+      WS      : Object_Class := new Object'Class'(WebSocket);
+      Success : Boolean;
+   begin
+      DB.Register (WS, Success);
+
+      if not Success then
+         Unchecked_Free (WS);
+      end if;
+
+      return WS;
+   end Register;
+
    ----------
    -- Send --
    ----------
@@ -987,27 +1040,23 @@ package body AWS.Net.WebSocket.Registry is
         new Message_Reader_Set (1 .. Config.Max_WebSocket_Handler);
    end Start;
 
-   ----------------
-   -- Watch_Data --
-   ----------------
+   -----------
+   -- Watch --
+   -----------
 
-   procedure Watch_Data (WebSocket : Object'Class) is
-      WS : Object_Class := new Object'Class'(WebSocket);
+   procedure Watch (WebSocket : in out Object_Class) is
    begin
       --  Send a Connection_Open message
 
-      WS.State.Kind := Connection_Open;
-      WS.On_Open ("AWS WebSocket connection open");
+      WebSocket.State.Kind := Connection_Open;
+      WebSocket.On_Open ("AWS WebSocket connection open");
 
-      --  Register WebSocket
-
-      DB.Register (WS);
-      DB.Watch (WS);
+      DB.Watch (WebSocket);
    exception
       when others =>
-         Unchecked_Free (WS);
+         Unchecked_Free (WebSocket);
          raise;
-   end Watch_Data;
+   end Watch;
 
    -------------------------
    -- WebSocket_Exception --

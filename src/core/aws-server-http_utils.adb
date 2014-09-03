@@ -55,7 +55,7 @@ with AWS.Net.Buffered;
 with AWS.Net.WebSocket.Handshake_Error;
 with AWS.Net.WebSocket.Protocol.Draft76;
 with AWS.Net.WebSocket.Protocol.RFC6455;
-with AWS.Net.WebSocket.Registry.Watch;
+with AWS.Net.WebSocket.Registry.Utils;
 with AWS.Parameters;
 with AWS.Response.Set;
 with AWS.Server.Get_Status;
@@ -1253,7 +1253,7 @@ package body AWS.Server.HTTP_Utils is
       procedure Send_WebSocket_Handshake;
       --  Send reply, accept the switching protocol
 
-      procedure Send_Websocket_Handshake_Error
+      procedure Send_WebSocket_Handshake_Error
         (Status_Code   : Messages.Status_Code;
          Reason_Phrase : String := "");
       --  Deny the WebSocket handshake
@@ -1498,7 +1498,7 @@ package body AWS.Server.HTTP_Utils is
       -- Send_WebSocket_Handshake_Error --
       ------------------------------------
 
-      procedure Send_Websocket_Handshake_Error
+      procedure Send_WebSocket_Handshake_Error
         (Status_Code   : Messages.Status_Code;
          Reason_Phrase : String := "")
       is
@@ -1514,7 +1514,7 @@ package body AWS.Server.HTTP_Utils is
 
          Net.Buffered.New_Line (Sock);
          Net.Buffered.Flush (Sock);
-      end Send_Websocket_Handshake_Error;
+      end Send_WebSocket_Handshake_Error;
 
       use type Response.Data;
 
@@ -1564,33 +1564,49 @@ package body AWS.Server.HTTP_Utils is
                            E : constant Net.WebSocket.Handshake_Error.Object :=
                                  Net.WebSocket.Handshake_Error.Object (WS);
                         begin
-                           Send_Websocket_Handshake_Error
+                           Send_WebSocket_Handshake_Error
                              (E.Status_Code, E.Reason_Phrase);
                         end;
 
                      else
-                        Send_WebSocket_Handshake;
+                        --  First try to register the WebSocket object
 
-                        HTTP_Server.Slots.Socket_Taken (Line_Index);
-                        Socket_Taken := True;
-                        Will_Close := False;
+                        declare
+                           use type Net.WebSocket.Object_Class;
+                           W : Net.WebSocket.Object_Class;
+                        begin
+                           W := Net.WebSocket.Registry.Utils.Register (WS);
 
-                        Net.WebSocket.Registry.Watch (WS);
+                           if W = null then
+                              Send_WebSocket_Handshake_Error
+                                (Messages.S412,
+                                 "too many WebSocket registered");
+
+                           else
+                              Send_WebSocket_Handshake;
+
+                              HTTP_Server.Slots.Socket_Taken (Line_Index);
+                              Socket_Taken := True;
+                              Will_Close := False;
+
+                              Net.WebSocket.Registry.Utils.Watch (W);
+                           end if;
+                        end;
                      end if;
 
                   exception
                      when others =>
-                        Send_Websocket_Handshake_Error (Messages.S403);
+                        Send_WebSocket_Handshake_Error (Messages.S403);
                         WS.Shutdown;
                   end;
 
                exception
                   when others =>
-                     Send_Websocket_Handshake_Error (Messages.S403);
+                     Send_WebSocket_Handshake_Error (Messages.S403);
                end;
 
             else
-               Send_Websocket_Handshake_Error (Messages.S403);
+               Send_WebSocket_Handshake_Error (Messages.S403);
             end if;
 
          when Response.No_Data =>

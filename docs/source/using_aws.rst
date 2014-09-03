@@ -807,7 +807,7 @@ Current supported options are:
   URL does not reference a resource above the Web root. The default
   is |CHECK_URL_VALIDITY|.
 
-*cipher_priorities*
+*Cipher_Priorities*
 
   .. index:: Cipher_Priorities (string)
 
@@ -845,6 +845,13 @@ Current supported options are:
   Number of seconds to timeout on waiting for client to accept
   answer. This is a timeout for regular cleaning task. The default is
   |CT_SERVER_RESPONSE| seconds.
+
+*Config_Directory (string)*
+
+  .. index:: Config_Directory
+
+  The directory in which AWS keeps some configuration parameters.
+  The default is |CONFIG_DIRECTORY|.
 
 *CRL_File (string)*
 
@@ -1036,6 +1043,17 @@ Current supported options are:
   The maximum number of POST parameters supported by AWS. The default
   value is |MAX_POST_PARAMETERS|.
 
+.. _max-websocket:
+
+*Max_WebSocket (positive)*
+
+  .. index:: Max_WebSocket
+
+  The maximum number of WebSocket that can be opened simultaneously
+  in AWS. Above this value AWS will try to close timed-out WebSockets
+  (see :ref:`WebSocket_Timeout <websocket-timeout>`). The default
+  value is |MAX_WEBSOCKET|.
+
 *Max_WebSocket_Handler (positive)*
 
   .. index:: Max_WebSocket_Handler
@@ -1176,6 +1194,13 @@ Current supported options are:
 
   The name of the status page to used. The default is |STATUS_PAGE|.
 
+*TLS_Ticket_Support (boolean)*
+
+  .. index:: TLS_Ticket_Support
+
+  Specify whether the TLS ticket support is activated or not. The
+  default value is |TLS_TICKET_SUPPORT|.
+
 *Transient_Cleanup_Interval (positive)*
 
   .. index:: Transient_Cleanup_Interval
@@ -1236,6 +1261,18 @@ Current supported options are:
 
   Priority of the task handling the WebSockets.
   The default is **Default_Priority**.
+
+.. _websocket-timeout:
+
+*WebSocket_Timeout (duration)*
+
+  .. index:: WebSocket_Timeout
+
+  A number of seconds after which a WebSocket without activity is
+  considered timed-out and can be elected to be closed if the maximum
+  number of sockets opened has been reached.
+  (see :ref:`Max_WebSocket <max-websocket>`). The default
+  is |WEBSOCKET_TIMEOUT|.
 
 *WWW_Root (string)*
 

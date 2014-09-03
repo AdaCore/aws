@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                       Copyright (C) 2012, AdaCore                        --
+--                       Copyright (C) 2014, AdaCore                        --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -29,7 +29,24 @@
 
 --  This procedure is to be used by the internal Web Server
 
-procedure AWS.Net.WebSocket.Registry.Watch (WebSocket : Object'Class) is
-begin
-   AWS.Net.WebSocket.Registry.Watch_Data (WebSocket);
-end AWS.Net.WebSocket.Registry.Watch;
+package body AWS.Net.WebSocket.Registry.Utils is
+
+   --------------
+   -- Register --
+   --------------
+
+   function Register (WebSocket : Object'Class) return Object_Class is
+   begin
+      return Net.WebSocket.Registry.Register (WebSocket);
+   end Register;
+
+   -----------
+   -- Watch --
+   -----------
+
+   procedure Watch (WebSocket : in out Object_Class) is
+   begin
+      Net.WebSocket.Registry.Watch (WebSocket);
+   end Watch;
+
+end AWS.Net.WebSocket.Registry.Utils;
