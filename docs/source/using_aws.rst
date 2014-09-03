@@ -846,6 +846,13 @@ Current supported options are:
   answer. This is a timeout for regular cleaning task. The default is
   |CT_SERVER_RESPONSE| seconds.
 
+*Config_Directory (string)*
+
+  .. index:: Config_Directory
+
+  The directory in which AWS keeps some configuration parameters.
+  The default is |CONFIG_DIRECTORY|.
+
 *CRL_File (string)*
 
   .. index:: CRL_File, CRL
