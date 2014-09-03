@@ -807,7 +807,7 @@ Current supported options are:
   URL does not reference a resource above the Web root. The default
   is |CHECK_URL_VALIDITY|.
 
-*cipher_priorities*
+*Cipher_Priorities*
 
   .. index:: Cipher_Priorities (string)
 
