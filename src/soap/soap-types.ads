@@ -579,6 +579,12 @@ package SOAP.Types is
    function Name_Space (O : Object'Class) return Name_Space.Object;
    --  Returns name space associated with object O
 
+   procedure Rename (O : in out Object'Class; Name : String);
+   --  Set the name to the object
+
+   function Rename (O : Object'Class; Name : String) return Object'Class;
+   --  Return the same object with changed name
+
 private
 
    --  Object

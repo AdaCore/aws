@@ -924,6 +924,23 @@ package body SOAP.Types is
          To_Unbounded_String (if Type_Name = "" then Name else Type_Name));
    end R;
 
+   ------------
+   -- Rename --
+   ------------
+
+   procedure Rename (O : in out Object'Class; Name : String) is
+   begin
+      O.Name := To_Unbounded_String (Name);
+   end Rename;
+
+   function Rename (O : Object'Class; Name : String) return Object'Class is
+      Copy : Object'Class := O;
+   begin
+      Rename (Copy, Name);
+
+      return Copy;
+   end Rename;
+
    -------
    -- S --
    -------
