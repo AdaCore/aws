@@ -96,12 +96,9 @@ package AWS.Containers.Tables is
    --  Returns N'th name/value pair. Returns Null_Element if there is no
    --  such item in the table.
 
-   function Get_Names
-     (Table : Table_Type; Sort : Boolean := False) return VString_Array
+   function Get_Names (Table : Table_Type) return VString_Array
    with Post => Get_Names'Result'Length = Name_Count (Table);
-   --  Returns array of unique key names. If Sort is True, the returned names
-   --  array is sorted in alphabetical order. This is of course slightly
-   --  slower than returning unsorted results.
+   --  Returns sorted array of unique key names
 
    function Get_Values
      (Table : Table_Type; Name : String) return VString_Array

@@ -32,7 +32,7 @@ procedure CTab is
    procedure Print_Table;
 
    procedure Print_Table is
-      Names : constant VString_Array := Get_Names (Table, Sort => True);
+      Names : constant VString_Array := Table.Get_Names;
    begin
       Put_Line ("----------------------------");
       for K in 1 .. Name_Count (Table) loop

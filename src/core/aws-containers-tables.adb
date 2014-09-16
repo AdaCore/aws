@@ -43,8 +43,6 @@ pragma Ada_2012;
 
 with Ada.Characters.Handling;
 
-with Ada.Containers.Generic_Array_Sort;
-
 package body AWS.Containers.Tables is
 
    procedure Get_Indexes
@@ -222,13 +220,7 @@ package body AWS.Containers.Tables is
    -- Get_Names --
    ---------------
 
-   function Get_Names
-     (Table : Table_Type; Sort : Boolean := False) return VString_Array
-   is
-      procedure Sort_Names is
-        new Ada.Containers.Generic_Array_Sort
-          (Positive, Unbounded_String, VString_Array);
-
+   function Get_Names (Table : Table_Type) return VString_Array is
       Result : VString_Array (1 .. Name_Count (Table));
       Cursor : Index_Table.Cursor;
       Index  : Natural := Result'First - 1;
@@ -240,10 +232,6 @@ package body AWS.Containers.Tables is
          Result (Index) := To_Unbounded_String (Index_Table.Key (Cursor));
          Index_Table.Next (Cursor);
       end loop;
-
-      if Sort then
-         Sort_Names (Result);
-      end if;
 
       return Result;
    end Get_Names;
