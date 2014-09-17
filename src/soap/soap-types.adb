@@ -1174,7 +1174,7 @@ package body SOAP.Types is
       return To_String (O.V);
    end V;
 
-   overriding function V (O : SOAP_Array) return Object_Set is
+   function V (O : Composite) return Object_Set is
    begin
       return O.O.all;
    end V;
@@ -1194,11 +1194,6 @@ package body SOAP.Types is
 
       raise Types.Data_Error
         with "(V) Struct object " & Name & " not found";
-   end V;
-
-   overriding function V (O : SOAP_Record) return Object_Set is
-   begin
-      return O.O.all;
    end V;
 
    ---------------

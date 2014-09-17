@@ -115,7 +115,7 @@ package SOAP.Types is
    --  Composite types are using a by-reference semantic for efficiency
    --  reason. Not that these types are not thread safe.
 
-   function V (C : Composite) return Object_Set is abstract;
+   function V (O : Composite) return Object_Set;
 
    overriding function Is_Empty (O : Composite) return Boolean;
 
@@ -164,8 +164,6 @@ package SOAP.Types is
 
    function V (O : SOAP_Array; N : Positive) return Object'Class;
    --  Returns SOAP_Array item at position N
-
-   overriding function V (O : SOAP_Array) return Object_Set;
 
    ------------
    -- Base64 --
@@ -326,8 +324,6 @@ package SOAP.Types is
 
    function V (O : SOAP_Record; Name : String) return Object'Class;
    --  Returns SOAP_Record field named Name
-
-   overriding function V (O : SOAP_Record) return Object_Set;
 
    -----------
    -- Short --
