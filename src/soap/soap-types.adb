@@ -866,6 +866,23 @@ package body SOAP.Types is
       O.Ref_Counter := new Natural'(1);
    end Initialize;
 
+   function Is_Empty (O : Object) return Boolean is
+      pragma Unreferenced (O);
+   begin
+      return False;
+   end Is_Empty;
+
+   overriding function Is_Empty (O : XSD_Null) return Boolean is
+      pragma Unreferenced (O);
+   begin
+      return True;
+   end Is_Empty;
+
+   overriding function Is_Empty (O : Composite) return Boolean is
+   begin
+      return O.O'Length = 0;
+   end Is_Empty;
+
    -------
    -- L --
    -------

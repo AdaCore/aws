@@ -85,6 +85,9 @@ package SOAP.Types is
    function Image (O : Object) return String;
    --  Returns O value image
 
+   function Is_Empty (O : Object) return Boolean;
+   --  Returns True if the object is empty Array, Empty Record or null value
+
    procedure XML_Image (O : Object; Result : in out Unbounded_String);
    --  Returns O value encoded for use by the Payload object or Response
    --  object. The generated characters are appened to Result.
@@ -113,6 +116,8 @@ package SOAP.Types is
    --  reason. Not that these types are not thread safe.
 
    function V (C : Composite) return Object_Set is abstract;
+
+   overriding function Is_Empty (O : Composite) return Boolean;
 
    --------------
    -- Any Type --
@@ -298,6 +303,8 @@ package SOAP.Types is
      (O : XSD_Null; Result : in out Unbounded_String);
 
    function N (Name : String  := "item") return XSD_Null;
+
+   overriding function Is_Empty (O : XSD_Null) return Boolean;
 
    ------------
    -- Record --
