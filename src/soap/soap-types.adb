@@ -866,6 +866,10 @@ package body SOAP.Types is
       O.Ref_Counter := new Natural'(1);
    end Initialize;
 
+   --------------
+   -- Is_Empty --
+   --------------
+
    function Is_Empty (O : Object) return Boolean is
       pragma Unreferenced (O);
    begin
