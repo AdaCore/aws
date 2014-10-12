@@ -39,5 +39,12 @@ have a working Sphinx package installed on your system.
 Building on Windows
 -------------------
 
-On Windows based system you need to install either the Cygwin or MSYS
-toolset. This is required as the build procedure uses some UNIX tools.
+On Windows based system it is possible to build from the standard Windows
+command line using the provided scripts win32\build.cmd. The argument is the
+path where AWS is to be installed. It is recommended to install AWS with
+the compiler, so for example:
+
+   c:> win32\build.cmd c:\gnat\2014
+
+An alternative solution is to install either the Cygwin or MSYS toolset. In
+this case the standard procedure described above can be used.

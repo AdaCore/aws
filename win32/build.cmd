@@ -5,6 +5,7 @@ rem
 rem    c:> win32/build c:\gnat\2014
 rem
 
+set ROOTDIR=%CD%
 set GPROPTS=-XPRJ_BUILD=Release -XPRJ_TARGET=Windows_NT -XTARGET=win -XPRJ_XMLADA=Installed -XPRJ_LDAP=Installed -XPRJ_ASIS=Disabled -XPRJ_SOCKLIB=GNAT
 
 if .%1==. goto dusage
@@ -100,6 +101,8 @@ goto exit
 rem ----------------------------------------------- ERROR
 :error
 echo Couldn't build or install AWS
+chdir /d %ROOTDIR%
+rmdir /S /Q .build
 exit /b 1
 
 rem ----------------------------------------------- EXIT
