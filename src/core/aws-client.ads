@@ -304,6 +304,10 @@ package AWS.Client is
    function Host (Connection : HTTP_Connection) return String;
    --  Returns the host as recorded into the connection
 
+   procedure Set_Headers
+     (Connection : in out HTTP_Connection; Headers : Header_List) with Inline;
+   --  Set additional headers for connection
+
    procedure Set_WWW_Authentication
      (Connection : in out HTTP_Connection;
       User       : String;
@@ -552,6 +556,7 @@ private
       Host_URL           : AWS.URL.Object;
       Proxy              : Unbounded_String;
       Proxy_URL          : AWS.URL.Object;
+      Headers            : Header_List;
       Auth               : Authentication_Set;
       Opened             : Boolean                      := False;
       Persistent         : Boolean;

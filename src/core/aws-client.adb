@@ -183,7 +183,6 @@ package body AWS.Client is
       Connection.Auth (Client.Proxy).User := Value (Proxy_User);
       Connection.Auth (Client.Proxy).Pwd  := Value (Proxy_Pwd);
       Connection.Retry                    := Create.Retry;
-      Connection.Cookie                   := Null_Unbounded_String;
       Connection.Persistent               := Persistent;
       Connection.Streaming                := Server_Push;
       Connection.Certificate              := To_Unbounded_String (Certificate);
@@ -1021,6 +1020,16 @@ package body AWS.Client is
       Debug_On := On;
       AWS.Headers.Set.Debug (On);
    end Set_Debug;
+
+   -----------------
+   -- Set_Headers --
+   -----------------
+
+   procedure Set_Headers
+     (Connection : in out HTTP_Connection; Headers : Header_List) is
+   begin
+      Connection.Headers := Headers;
+   end Set_Headers;
 
    --------------------
    -- Set_Persistent --

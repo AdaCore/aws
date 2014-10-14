@@ -744,6 +744,10 @@ package body AWS.Client.HTTP_Utils is
 
       AWS.Headers.Send_Header (Sock.all, Headers);
 
+      --  Send connection additional headers
+
+      AWS.Headers.Send_Header (Sock.all, Connection.Headers);
+
       --  Cookie
 
       if Connection.Cookie /= No_Data then
