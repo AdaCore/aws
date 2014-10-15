@@ -634,6 +634,8 @@ package body AWS.Client.HTTP_Utils is
    is
       Sock    : Net.Socket_Access := Connection.Socket;
       No_Data : Unbounded_String renames Null_Unbounded_String;
+      Header  : constant Header_List :=
+                  Headers.Union (Connection.Headers, Unique => True);
 
       function Persistence return String with Inline;
       --  Returns "Keep-Alive" is we have a persistent connection and "Close"
@@ -742,46 +744,42 @@ package body AWS.Client.HTTP_Utils is
 
       --  Send specific headers
 
-      AWS.Headers.Send_Header (Sock.all, Headers);
-
-      --  Send connection additional headers
-
-      AWS.Headers.Send_Header (Sock.all, Connection.Headers);
+      AWS.Headers.Send_Header (Sock.all, Header);
 
       --  Cookie
 
       if Connection.Cookie /= No_Data then
          Send_Header
            (Sock.all, Messages.Cookie_Token,
-            Messages.Cookie'Access, To_String (Connection.Cookie), Headers);
+            Messages.Cookie'Access, To_String (Connection.Cookie), Header);
       end if;
 
       Send_Header
         (Sock.all, Messages.Host_Token,
-         Messages.Host'Access, Host_Address, Headers);
+         Messages.Host'Access, Host_Address, Header);
 
       Send_Header
         (Sock.all, Messages.Accept_Token,
-         Messages.Accept_Type'Access, "text/html, */*", Headers);
+         Messages.Accept_Type'Access, "text/html, */*", Header);
 
       Send_Header
         (Sock.all, Messages.Accept_Encoding_Token,
-         Messages.Accept_Encoding'Access, "deflate, gzip", Headers);
+         Messages.Accept_Encoding'Access, "deflate, gzip", Header);
 
       Send_Header
         (Sock.all, Messages.Accept_Language_Token,
-         Messages.Accept_Language'Access, "fr, ru, us", Headers);
+         Messages.Accept_Language'Access, "fr, ru, us", Header);
 
       Send_Header
         (Sock.all, Messages.User_Agent_Token,
          Messages.User_Agent'Access,
-         To_String (Connection.User_Agent), Headers);
+         To_String (Connection.User_Agent), Header);
 
       if Connection.Data_Range /= No_Range then
          Send_Header
            (Sock.all, Messages.Range_Token,
             Messages.Data_Range'Access,
-            Image (Connection.Data_Range), Headers);
+            Image (Connection.Data_Range), Header);
       end if;
 
       --  User Authentication

@@ -43,6 +43,8 @@ pragma Ada_2012;
 
 with Ada.Characters.Handling;
 
+with AWS.Containers.Tables.Set;
+
 package body AWS.Containers.Tables is
 
    procedure Get_Indexes
@@ -318,5 +320,29 @@ package body AWS.Containers.Tables is
          return Name;
       end if;
    end Normalize_Name;
+
+   -----------
+   -- Union --
+   -----------
+
+   function Union
+     (Left   : Table_Type;
+      Right  : Table_Type;
+      Unique : Boolean) return Table_Type
+   is
+      Result : Table_Type := Left;
+   begin
+      for J in 1 .. Right.Count loop
+         declare
+            Item : constant Element := Right.Get (J);
+         begin
+            if not Unique or else not Left.Exist (Item.Name) then
+               Set.Add (Result, Item.Name, Item.Value);
+            end if;
+         end;
+      end loop;
+
+      return Result;
+   end Union;
 
 end AWS.Containers.Tables;

@@ -1,2 +1,6 @@
 1> ?name1=value_1&name2=value_2
 2> ?name1=value_1&name2=value_2&name3=value_3
+> ?name1=value_1&name2=value_2&name3=value_3&name1=mist-1&name3=mist-2&char%20=value%23
+> ?name1=value_1&name2=value_2&name3=value_3&char%20=value%23
+> ?name1=mist-1&name3=mist-2&char%20=value%23&name1=value_1&name2=value_2&name3=value_3
+> ?name1=mist-1&name3=mist-2&char%20=value%23&name2=value_2

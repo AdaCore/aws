@@ -79,6 +79,9 @@ package AWS.Headers is
    --  Returns the length (in bytes) of the header, including the ending
    --  empty line.
 
+   overriding function Union
+     (Left, Right : List; Unique : Boolean) return List;
+
    --  See AWS.Containers.Tables for inherited routines
 
 private

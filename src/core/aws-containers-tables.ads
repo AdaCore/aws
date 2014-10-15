@@ -117,6 +117,14 @@ package AWS.Containers.Tables is
       Separator : String;
       Process   : not null access procedure (Name, Value : String));
 
+   function Union
+     (Left   : Table_Type;
+      Right  : Table_Type;
+      Unique : Boolean) return Table_Type;
+   --  Concatenates two tables, If Unique is True do not add Right container
+   --  element into result when element with the same name already exists in
+   --  the Left container.
+
 private
 
    Null_Element : constant Element := (0, 0, "", "");

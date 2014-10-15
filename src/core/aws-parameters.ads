@@ -27,6 +27,8 @@
 --  covered by the  GNU Public License.                                     --
 ------------------------------------------------------------------------------
 
+pragma Ada_2012;
+
 with AWS.Containers.Tables;
 
 private with Ada.Strings.Unbounded;
@@ -37,11 +39,17 @@ package AWS.Parameters is
 
    subtype VString_Array is AWS.Containers.Tables.VString_Array;
 
-   function URI_Format (Parameter_List : List) return String;
+   function URI_Format (Parameter_List : List) return String with Inline;
    --  Returns the list of parameters in the URI format. This can be added
    --  after the resource to form the complete URI. The format is:
    --  "?name1=value1&name2=value2..."
    --  If there is no parameter in the list, the empty string is returned.
+
+   overriding function Union
+     (Left, Right : List; Unique : Boolean) return List;
+   --  Concatenates two parameter lists, if Unique is True do not add Right
+   --  list element into result when element with the same name already exists
+   --  in the Left list.
 
    --  See AWS.Containers.Tables for inherited routines
 

@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2000-2012, AdaCore                     --
+--                     Copyright (C) 2000-2014, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -27,7 +27,61 @@
 --  covered by the  GNU Public License.                                     --
 ------------------------------------------------------------------------------
 
+with Ada.Strings.Unbounded;
+
+with AWS.URL;
+
 package body AWS.Parameters is
+
+   procedure Refresh_Internal (Parameter_List : in out List);
+   --  Refresh internal URI representation of HTTP parameters from container
+
+   ----------------------
+   -- Refresh_Internal --
+   ----------------------
+
+   procedure Refresh_Internal (Parameter_List : in out List) is
+      Split : Character := '?';
+   begin
+      Parameter_List.Parameters := Null_Unbounded_String;
+
+      for J in 1 .. Parameter_List.Count loop
+         declare
+            Item : constant Containers.Tables.Element :=
+                     Parameter_List.Get (J);
+         begin
+            if Item.Value = "" then
+               Append (Parameter_List.Parameters, Split & Item.Name);
+            else
+               Append
+                 (Parameter_List.Parameters,
+                  Split & URL.Encode (Item.Name) & "="
+                  & URL.Encode (Item.Value));
+            end if;
+
+            if J = 1 then
+               Split := '&';
+            end if;
+         end;
+      end loop;
+   end Refresh_Internal;
+
+   -----------
+   -- Union --
+   -----------
+
+   overriding function Union
+     (Left, Right : List; Unique : Boolean) return List
+   is
+      subtype Table_Type is Containers.Tables.Table_Type;
+      Result : List :=
+        (Table_Type (Left).Union (Table_Type (Right), Unique)
+         with others => <>);
+   begin
+      Refresh_Internal (Result);
+
+      return Result;
+   end Union;
 
    ----------------
    -- URI_Format --

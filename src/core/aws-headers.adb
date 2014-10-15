@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2000-2012, AdaCore                     --
+--                     Copyright (C) 2000-2014, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -111,5 +111,18 @@ package body AWS.Headers is
          Net.Buffered.Put_Line (Socket, Get_Line (Headers, J));
       end loop;
    end Send_Header;
+
+   -----------
+   -- Union --
+   -----------
+
+   overriding function Union
+     (Left, Right : List; Unique : Boolean) return List
+   is
+      subtype Table_Type is Containers.Tables.Table_Type;
+   begin
+      return (Table_Type (Left).Union (Table_Type (Right), Unique)
+              with others => <>);
+   end Union;
 
 end AWS.Headers;

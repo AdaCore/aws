@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2008-2012, AdaCore                     --
+--                     Copyright (C) 2008-2014, AdaCore                     --
 --                                                                          --
 --  This is free software;  you can redistribute it  and/or modify it       --
 --  under terms of the  GNU General Public License as published  by the     --
@@ -27,6 +27,13 @@ procedure Param2 is
    use AWS;
 
    List : Parameters.List;
+   Mist : Parameters.List;
+
+   procedure Print_Union (Left, Right : Parameters.List; Unique : Boolean) is
+   begin
+      Text_IO.Put_Line
+        ("> " & Parameters.URI_Format (Left.Union (Right, Unique)));
+   end Print_Union;
 
 begin
    Parameters.Set.Add (List, "name1", "value_xxxx");
@@ -39,6 +46,15 @@ begin
    Parameters.Set.Update (List, "name3", "value_3");
 
    Text_IO.Put_Line ("2> " & Parameters.URI_Format (List));
+
+   Parameters.Set.Add (Mist, "name1", "mist-1");
+   Parameters.Set.Add (Mist, "name3", "mist-2");
+   Parameters.Set.Add (Mist, "char+", "value#");
+   Print_Union (List, Mist, False);
+   Print_Union (List, Mist, True);
+   Print_Union (Mist, List, False);
+   Print_Union (Mist, List, True);
+
 exception
    when E : others =>
       Text_IO.Put_Line ("Main Error " & Exceptions.Exception_Information (E));

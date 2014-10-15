@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2008-2012, AdaCore                     --
+--                     Copyright (C) 2008-2014, AdaCore                     --
 --                                                                          --
 --  This is free software;  you can redistribute it  and/or modify it       --
 --  under terms of the  GNU General Public License as published  by the     --
@@ -132,9 +132,11 @@ procedure Client_Headers is
       end if;
    end Dump;
 
-   R   : Response.Data;
-   H   : Headers.List;
-   CFG : Config.Object;
+   R    : Response.Data;
+   H    : Headers.List;
+   HC   : Headers.List;
+   CFG  : Config.Object;
+   HTTP : AWS.Client.HTTP_Connection;
 
 begin
    Config.Set.Server_Name (CFG, "Client Headers");
@@ -145,27 +147,30 @@ begin
 
    --  AWS.Net.Log.Start (Dump'Unrestricted_Access);
 
-   declare
-      URL : constant String := Server.Status.Local_URL (WS);
-   begin
-      R := AWS.Client.Get (URL => URL & "/1");
-      R := AWS.Client.Head (URL => URL & "/2");
-      R := AWS.Client.Post (URL & "/3", Data => "V=1");
+   Headers.Set.Add (HC, Messages.Accept_Encoding_Token, "GZIP");
 
-      Headers.Set.Add (H, Messages.Accept_Language_Token, "fr");
-      Headers.Set.Add (H, Messages.If_Modified_Since_Token, "yesterday :)");
+   AWS.Client.Create (HTTP, Server.Status.Local_URL (WS));
 
-      R := AWS.Client.Get (URL => URL & "/4", Headers => H);
+   AWS.Client.Set_Headers (HTTP, HC);
 
-      Headers.Set.Add (H, Messages.User_Agent_Token, "Very_Secret");
+   AWS.Client.Get (HTTP, R, "/1");
+   AWS.Client.Head (HTTP, R, "/2");
+   AWS.Client.Post (HTTP, R, URI => "/3", Data => "V=1");
 
-      R := AWS.Client.Head (URL => URL & "/5", Headers => H);
+   Headers.Set.Add (H, Messages.Accept_Language_Token, "fr");
+   Headers.Set.Add (H, Messages.If_Modified_Since_Token, "yesterday :)");
+   Headers.Set.Add (H, Messages.Accept_Encoding_Token, "DEFLATE");
 
-      Headers.Set.Update (H, Messages.User_Agent_Token, "Or_Not");
-      Headers.Set.Add (H, Messages.Host_Token, "me");
+   AWS.Client.Get (HTTP, R, "/4", Headers => H);
 
-      R := AWS.Client.Post (URL => URL & "/6", Data => "V=2", Headers => H);
-   end;
+   Headers.Set.Add (H, Messages.User_Agent_Token, "Very_Secret");
+
+   AWS.Client.Head (HTTP, R, "/5", Headers => H);
+
+   Headers.Set.Update (H, Messages.User_Agent_Token, "Or_Not");
+   Headers.Set.Add (H, Messages.Host_Token, "me");
+
+   AWS.Client.Post (HTTP, R, URI => "/6", Data => "V=2", Headers => H);
 
    Server.Shutdown (WS);
    Text_IO.Put_Line ("shutdown");
