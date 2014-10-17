@@ -46,18 +46,25 @@ package SOAP.Message.XML is
    --  Build a Payload object by parsing the XML payload string
 
    function Load_Response
-     (Connection : AWS.Client.HTTP_Connection)
+     (Connection     : AWS.Client.HTTP_Connection;
+      Claim_Envelope : Boolean := True)
       return Message.Response.Object'Class;
    --  Build a Response object (either a standard response or an error
    --  response) by parsing the HTTP client connection output.
+   --  If Claim_Envelope is False, the message could consists only from body
+   --  with arbitrary root tag without mandatory SOAP Envelope wrapper.
 
    function Load_Response
-     (XML : aliased String) return Message.Response.Object'Class;
+     (XML            : aliased String;
+      Claim_Envelope : Boolean := True) return Message.Response.Object'Class;
    --  Build a Response object (either a standard response or an error
    --  response) by parsing the XML response string.
+   --  If Claim_Envelope is False, the message could consists only from body
+   --  with arbitrary root tag without mandatory SOAP Envelope wrapper.
 
    function Load_Response
-     (XML : Unbounded_String) return Message.Response.Object'Class;
+     (XML            : Unbounded_String;
+      Claim_Envelope : Boolean := True) return Message.Response.Object'Class;
    --  As above but using an Unbounded_String
 
    function Image (O : Object'Class) return String;

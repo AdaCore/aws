@@ -36,9 +36,40 @@ procedure SOAP1 is
      & "</soap:Body>"
      & "</soap:Envelope>";
 
+   XML_RPC : aliased constant String := "<jobInfo>"
+     & "<id>750M0000000VL33IAG</id>"
+     & "<operation>query</operation>"
+     & "<object>Account</object>"
+     & "<createdById>005D0000002SuzhIAC</createdById>"
+     & "<createdDate>2014-10-17T02:18:43.000Z</createdDate>"
+     & "<systemModstamp>2014-10-17T02:18:43.000Z</systemModstamp>"
+     & "<state>Open</state>"
+     & "<concurrencyMode>Parallel</concurrencyMode>"
+     & "<contentType>CSV</contentType>"
+     & "<numberBatchesQueued>0</numberBatchesQueued>"
+     & "<numberBatchesInProgress>0</numberBatchesInProgress>"
+     & "<numberBatchesCompleted>0</numberBatchesCompleted>"
+     & "<numberBatchesFailed>0</numberBatchesFailed>"
+     & "<numberBatchesTotal>0</numberBatchesTotal>"
+     & "<numberRecordsProcessed>0</numberRecordsProcessed>"
+     & "<numberRetries>0</numberRetries>"
+     & "<apiVersion>32.0</apiVersion>"
+     & "<error>"
+        & "<exceptionCode>InvalidEntity</exceptionCode>"
+        & "<exceptionMessage>Entity 'AcceptedEventRelation' is not supported"
+                         & " by the Bulk API.</exceptionMessage>"
+     & "</error>"
+     & "<numberRecordsFailed>0</numberRecordsFailed>"
+     & "<totalProcessingTime>0</totalProcessingTime>"
+     & "<apiActiveProcessingTime>0</apiActiveProcessingTime>"
+     & "<apexProcessingTime>0</apexProcessingTime></jobInfo>";
+
    Resp : constant SOAP.Message.Response.Object'Class
      := SOAP.Message.XML.Load_Response (Mess);
 
 begin
    Text_IO.Put_Line (SOAP.Message.XML.Image (Resp));
+   Text_IO.Put
+     (SOAP.Message.XML.Image
+        (SOAP.Message.XML.Load_Response (XML_RPC, Claim_Envelope => False)));
 end SOAP1;

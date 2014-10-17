@@ -7,3 +7,35 @@
 </soap:Body>
 </soap:Envelope>
 
+<?xml version='1.0' encoding='UTF-8'?>
+<soap:Envelope soap:encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" xmlns:soapenc="http://schemas.xmlsoap.org/soap/encoding/" xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/" xmlns:xsd="http://www.w3.org/1999/XMLSchema" xmlns:xsi="http://www.w3.org/1999/XMLSchema-instance">
+<soap:Body>
+<jobInfo xmlns="">
+<id xsi:type="xsd:string">750M0000000VL33IAG</id>
+<operation xsi:type="xsd:string">query</operation>
+<object xsi:type="xsd:string">Account</object>
+<createdById xsi:type="xsd:string">005D0000002SuzhIAC</createdById>
+<createdDate xsi:type="xsd:string">2014-10-17T02:18:43.000Z</createdDate>
+<systemModstamp xsi:type="xsd:string">2014-10-17T02:18:43.000Z</systemModstamp>
+<state xsi:type="xsd:string">Open</state>
+<concurrencyMode xsi:type="xsd:string">Parallel</concurrencyMode>
+<contentType xsi:type="xsd:string">CSV</contentType>
+<numberBatchesQueued xsi:type="xsd:string">0</numberBatchesQueued>
+<numberBatchesInProgress xsi:type="xsd:string">0</numberBatchesInProgress>
+<numberBatchesCompleted xsi:type="xsd:string">0</numberBatchesCompleted>
+<numberBatchesFailed xsi:type="xsd:string">0</numberBatchesFailed>
+<numberBatchesTotal xsi:type="xsd:string">0</numberBatchesTotal>
+<numberRecordsProcessed xsi:type="xsd:string">0</numberRecordsProcessed>
+<numberRetries xsi:type="xsd:string">0</numberRetries>
+<apiVersion xsi:type="xsd:string">32.0</apiVersion>
+<error>
+   <exceptionCode xsi:type="xsd:string">InvalidEntity</exceptionCode>
+   <exceptionMessage xsi:type="xsd:string">Entity 'AcceptedEventRelation' is not supported by the Bulk API.</exceptionMessage>
+</error>
+<numberRecordsFailed xsi:type="xsd:string">0</numberRecordsFailed>
+<totalProcessingTime xsi:type="xsd:string">0</totalProcessingTime>
+<apiActiveProcessingTime xsi:type="xsd:string">0</apiActiveProcessingTime>
+<apexProcessingTime xsi:type="xsd:string">0</apexProcessingTime>
+</jobInfo>
+</soap:Body>
+</soap:Envelope>

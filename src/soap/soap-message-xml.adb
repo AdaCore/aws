@@ -123,6 +123,7 @@ package body SOAP.Message.XML is
       Parameters   : SOAP.Parameters.List;
       A_State      : Type_State := Void;
       NS           : Namespaces;
+      Strict       : Boolean    := True;
    end record;
 
    function To_Type
@@ -438,8 +439,8 @@ package body SOAP.Message.XML is
    -------------------
 
    function Load_Response
-     (Connection : AWS.Client.HTTP_Connection)
-      return Message.Response.Object'Class
+     (Connection     : AWS.Client.HTTP_Connection;
+      Claim_Envelope : Boolean := True) return Message.Response.Object'Class
    is
       use AWS.Client.XML.Input_Sources;
 
@@ -448,6 +449,8 @@ package body SOAP.Message.XML is
 
    begin
       Create (Connection, Source);
+
+      S.Strict := Claim_Envelope;
 
       Load_XML (Source, S);
       Close (Source);
@@ -472,7 +475,8 @@ package body SOAP.Message.XML is
    end Load_Response;
 
    function Load_Response
-     (XML : aliased String) return Message.Response.Object'Class
+     (XML            : aliased String;
+      Claim_Envelope : Boolean := True) return Message.Response.Object'Class
    is
       use Input_Sources.Strings;
 
@@ -484,6 +488,8 @@ package body SOAP.Message.XML is
             Unicode.CES.Utf8.Utf8_Encoding,
             Source);
 
+      S.Strict := Claim_Envelope;
+
       Load_XML (Source, S);
       Close (Source);
 
@@ -507,7 +513,8 @@ package body SOAP.Message.XML is
    end Load_Response;
 
    function Load_Response
-     (XML : Unbounded_String) return Message.Response.Object'Class
+     (XML            : Unbounded_String;
+      Claim_Envelope : Boolean := True) return Message.Response.Object'Class
    is
       S : String_Access := new String (1 .. Length (XML));
    begin
@@ -518,7 +525,7 @@ package body SOAP.Message.XML is
 
       declare
          Result : constant Message.Response.Object'Class
-           := Load_Response (S.all);
+           := Load_Response (S.all, Claim_Envelope);
       begin
          Free (S);
          return Result;
@@ -622,7 +629,8 @@ package body SOAP.Message.XML is
 
             OS (K) := +Parse_Param
               (Field,
-               (S.Name_Space, S.Wrapper_Name, S.Parameters, A_Type, S.NS));
+               (S.Name_Space, S.Wrapper_Name, S.Parameters, A_Type, S.NS,
+                True));
 
             Field := Next_Sibling (Field);
          end loop;
@@ -751,7 +759,17 @@ package body SOAP.Message.XML is
    begin
       Parse_Namespaces (N, LS.NS);
 
-      if Length (NL) = 1 then
+      if Local_Name (N) /= "Envelope" then
+         if S.Strict then
+            Error
+              (N,
+               "Root tag local name have to be 'Envelope', but '"
+               & Local_Name (N) & "' found.");
+         else
+            Parse_Wrapper (N, LS);
+         end if;
+
+      elsif Length (NL) = 1 then
          --  This must be the body
          Parse_Body (SOAP.XML.First_Child (N), LS);
 
