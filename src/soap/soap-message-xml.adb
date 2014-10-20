@@ -397,7 +397,8 @@ package body SOAP.Message.XML is
    ------------------
 
    function Load_Payload
-     (XML : aliased String) return Message.Payload.Object
+     (XML      : aliased String;
+      Envelope : Boolean := True) return Message.Payload.Object
    is
       use Input_Sources.Strings;
       Source : String_Input;
@@ -407,6 +408,8 @@ package body SOAP.Message.XML is
             Unicode.CES.Utf8.Utf8_Encoding,
             Source);
 
+      S.Strict := Envelope;
+
       Load_XML (Source, S);
       Close (Source);
 
@@ -415,7 +418,8 @@ package body SOAP.Message.XML is
    end Load_Payload;
 
    function Load_Payload
-     (XML : Unbounded_String) return Message.Payload.Object
+     (XML      : Unbounded_String;
+      Envelope : Boolean := True) return Message.Payload.Object
    is
       XML_Str : String_Access := new String (1 .. Length (XML));
    begin
@@ -424,7 +428,7 @@ package body SOAP.Message.XML is
       end loop;
 
       return O : constant Message.Payload.Object :=
-                   Load_Payload (XML_Str.all)
+                   Load_Payload (XML_Str.all, Envelope)
       do
          Free (XML_Str);
       end return;
@@ -439,8 +443,8 @@ package body SOAP.Message.XML is
    -------------------
 
    function Load_Response
-     (Connection     : AWS.Client.HTTP_Connection;
-      Claim_Envelope : Boolean := True) return Message.Response.Object'Class
+     (Connection : AWS.Client.HTTP_Connection;
+      Envelope   : Boolean := True) return Message.Response.Object'Class
    is
       use AWS.Client.XML.Input_Sources;
 
@@ -450,7 +454,7 @@ package body SOAP.Message.XML is
    begin
       Create (Connection, Source);
 
-      S.Strict := Claim_Envelope;
+      S.Strict := Envelope;
 
       Load_XML (Source, S);
       Close (Source);
@@ -475,8 +479,8 @@ package body SOAP.Message.XML is
    end Load_Response;
 
    function Load_Response
-     (XML            : aliased String;
-      Claim_Envelope : Boolean := True) return Message.Response.Object'Class
+     (XML      : aliased String;
+      Envelope : Boolean := True) return Message.Response.Object'Class
    is
       use Input_Sources.Strings;
 
@@ -488,7 +492,7 @@ package body SOAP.Message.XML is
             Unicode.CES.Utf8.Utf8_Encoding,
             Source);
 
-      S.Strict := Claim_Envelope;
+      S.Strict := Envelope;
 
       Load_XML (Source, S);
       Close (Source);
@@ -513,8 +517,8 @@ package body SOAP.Message.XML is
    end Load_Response;
 
    function Load_Response
-     (XML            : Unbounded_String;
-      Claim_Envelope : Boolean := True) return Message.Response.Object'Class
+     (XML      : Unbounded_String;
+      Envelope : Boolean := True) return Message.Response.Object'Class
    is
       S : String_Access := new String (1 .. Length (XML));
    begin
@@ -525,7 +529,7 @@ package body SOAP.Message.XML is
 
       declare
          Result : constant Message.Response.Object'Class
-           := Load_Response (S.all, Claim_Envelope);
+           := Load_Response (S.all, Envelope);
       begin
          Free (S);
          return Result;

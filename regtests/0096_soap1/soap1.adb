@@ -18,12 +18,12 @@
 
 with Ada.Text_IO;
 
-with SOAP.Message.Response;
 with SOAP.Message.XML;
 
 procedure SOAP1 is
 
    use Ada;
+   use SOAP.Message;
 
    Mess : aliased constant String :=
      "<?xml version=""1.0"" encoding=""UTF-8"" standalone=""no"" ?>"
@@ -64,12 +64,7 @@ procedure SOAP1 is
      & "<apiActiveProcessingTime>0</apiActiveProcessingTime>"
      & "<apexProcessingTime>0</apexProcessingTime></jobInfo>";
 
-   Resp : constant SOAP.Message.Response.Object'Class
-     := SOAP.Message.XML.Load_Response (Mess);
-
 begin
-   Text_IO.Put_Line (SOAP.Message.XML.Image (Resp));
-   Text_IO.Put
-     (SOAP.Message.XML.Image
-        (SOAP.Message.XML.Load_Response (XML_RPC, Claim_Envelope => False)));
+   Text_IO.Put_Line (XML.Image (XML.Load_Response (Mess)));
+   Text_IO.Put (XML.Image (XML.Load_Response (XML_RPC, Envelope => False)));
 end SOAP1;

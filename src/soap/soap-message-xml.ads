@@ -38,33 +38,38 @@ package SOAP.Message.XML is
 
    SOAP_Error : exception renames SOAP.SOAP_Error;
 
-   function Load_Payload (XML : aliased String) return Message.Payload.Object;
-   --  Build a Payload object by parsing the XML payload string
+   function Load_Payload
+     (XML      : aliased String;
+      Envelope : Boolean := True) return Message.Payload.Object;
+   --  Build a Payload object by parsing the XML payload string.
+   --  If Envelope is False, the message could consists only from body
+   --  with arbitrary named root tag without mandatory SOAP Envelope wrapper.
 
    function Load_Payload
-     (XML : Unbounded_String) return Message.Payload.Object;
-   --  Build a Payload object by parsing the XML payload string
+     (XML      : Unbounded_String;
+      Envelope : Boolean := True) return Message.Payload.Object;
+   --  Build a Payload object by parsing the XML payload string.
 
    function Load_Response
-     (Connection     : AWS.Client.HTTP_Connection;
-      Claim_Envelope : Boolean := True)
+     (Connection : AWS.Client.HTTP_Connection;
+      Envelope   : Boolean := True)
       return Message.Response.Object'Class;
    --  Build a Response object (either a standard response or an error
    --  response) by parsing the HTTP client connection output.
-   --  If Claim_Envelope is False, the message could consists only from body
-   --  with arbitrary root tag without mandatory SOAP Envelope wrapper.
+   --  If Envelope is False, the message could consists only from body
+   --  with arbitrary named root tag without mandatory SOAP Envelope wrapper.
 
    function Load_Response
-     (XML            : aliased String;
-      Claim_Envelope : Boolean := True) return Message.Response.Object'Class;
+     (XML      : aliased String;
+      Envelope : Boolean := True) return Message.Response.Object'Class;
    --  Build a Response object (either a standard response or an error
    --  response) by parsing the XML response string.
-   --  If Claim_Envelope is False, the message could consists only from body
-   --  with arbitrary root tag without mandatory SOAP Envelope wrapper.
+   --  If Envelope is False, the message could consists only from body
+   --  with arbitrary named root tag without mandatory SOAP Envelope wrapper.
 
    function Load_Response
-     (XML            : Unbounded_String;
-      Claim_Envelope : Boolean := True) return Message.Response.Object'Class;
+     (XML      : Unbounded_String;
+      Envelope : Boolean := True) return Message.Response.Object'Class;
    --  As above but using an Unbounded_String
 
    function Image (O : Object'Class) return String;
