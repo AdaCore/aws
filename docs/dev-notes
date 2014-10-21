@@ -170,7 +170,6 @@ At this point some adjustments are needed:
       $ git checkout release-2.0
       $ edit src/core/aws.ads (set proper version number: X.Y.1)
       $ edit readme.txt (likewise)
-      $ update docs/gen_doc.sed (version number)
 
    * on master
 
@@ -179,7 +178,6 @@ At this point some adjustments are needed:
       $ edit readme.txt (likewise + clean-up "Changes",
         "Non upward compatible changes" and "Obsolescent features" sections)
       $ clean docs/known-problems
-      $ update docs/gen_doc.sed (version number)
 
 -------------
 stabilization
