@@ -4,7 +4,7 @@
 
 Authors:
    Dmitriy Anisimkov
-   Pascal Obry                                            August 08th, 2014
+   Pascal Obry                                            October 21st, 2014
 
 
 
@@ -49,28 +49,6 @@ In such a case we try to give proper advice on how to change the code
 to work properly. Of course we try to avoid this as much as possible
 but we really prefer to have a clean API instead of keeping awkward
 implementations.
-
- * This version uses gprinstall for the installation. This may introduce
-   some incompatibilities. It is highly recommended to uninstall properly
-   previous versions by removing <prefix>/include/aws, <prefix>/lib/aws and
-   <prefix>/lib/gnat/aws*
-
-   Note that uninstalling new versions is easier and can be done with:
-
-      $ make install-clean
-
-   The default project is now installed into <prefix>/share/gpr, so if some
-   scripts are configured to setup ADA_PROJECT_PATH it needs to be adjusted.
-   There is nothing to do if AWS is installed together with the compiler as
-   gnatmake and gprbuild will look for projects files into this new location.
-
- * SOAP.Message.XML.Load_Payload has now two versions one with a
-   String and one with an Unbounded_String. This can introduce some
-   incompatibilities and could require a type qualification.
-
- * MIME_Types is now a per-process configuration option. This means
-   that the calls to AWS.Config.MIME_Types and AWS.Config.Set.MIME_Types
-   must be adjusted by removing the configuration object as first parameter.
 
 
 Obsolescent features
