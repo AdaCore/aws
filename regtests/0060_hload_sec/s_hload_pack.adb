@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2004-2012, AdaCore                     --
+--                     Copyright (C) 2004-2014, AdaCore                     --
 --                                                                          --
 --  This is free software;  you can redistribute it  and/or modify it       --
 --  under terms of the  GNU General Public License as published  by the     --
@@ -19,16 +19,22 @@
 --  Test for heavy loading
 
 with Ada.Calendar;
+with Ada.Containers.Indefinite_Doubly_Linked_Lists;
 with Ada.Exceptions;
-with Ada.Text_IO;
 with Ada.Strings.Unbounded;
+with Ada.Strings.Hash;
+with Ada.Task_Attributes;
+with Ada.Task_Identification;
+with Ada.Text_IO;
 
-with AWS.Server.Status;
-with AWS.Response;
-with AWS.Status;
-with AWS.MIME;
+with AWS.Config.Set;
 with AWS.Client;
+with AWS.MIME;
+with AWS.Net.SSL;
 with AWS.Parameters;
+with AWS.Response;
+with AWS.Server.Status;
+with AWS.Status;
 with AWS.Utils;
 
 package body S_HLoad_Pack is
@@ -41,6 +47,16 @@ package body S_HLoad_Pack is
    Max_Client   : constant := 18;
    Max_Line     : constant := 16;
    Client_Count : constant := 300;
+
+   Client_Error : Boolean := False with Atomic;
+
+   package String_Lists is
+     new Ada.Containers.Indefinite_Doubly_Linked_Lists (String);
+
+   package Debug_Dumps is
+     new Ada.Task_Attributes (String_Lists.List, String_Lists.Empty_List);
+
+   procedure Debug_Output (Text : String);
 
    function CB (Request : Status.Data) return Response.Data;
 
@@ -75,6 +91,15 @@ package body S_HLoad_Pack is
       return Response.Build
         (MIME.Text_HTML, "Data:" & AWS.Parameters.Get (P, "PARAM"));
    end CB;
+
+   ------------------
+   -- Debug_Output --
+   ------------------
+
+   procedure Debug_Output (Text : String) is
+   begin
+      Debug_Dumps.Reference.Append (Text);
+   end Debug_Output;
 
    --------------------
    -- Interval_Timer --
@@ -154,16 +179,21 @@ package body S_HLoad_Pack is
    -- Run --
    ---------
 
-   procedure Run (Protocol : String; Timed : Boolean := False) is
+   procedure Run (Timed : Boolean := False) is
 
       task type Client is
          entry Start (Name : String);
+         entry Pause;
          entry Stop;
       end Client;
 
-      WS : Server.HTTP;
+      WS  : Server.HTTP;
+      Cfg : Config.Object;
+      Sfg : Net.SSL.Config;
 
       Clients : array (1 .. Max_Client) of Client;
+
+      procedure Dump_Task (Id : Task_Identification.Task_Id);
 
       ------------
       -- Client --
@@ -201,8 +231,12 @@ package body S_HLoad_Pack is
                         & " expected " & Expected
                         & " -> found "
                         & String'(AWS.Response.Message_Body (R)));
+
+                     Client_Error := True;
+                     exit;
                   end if;
                end;
+
             exception
                when E : others =>
                   Text_IO.Put_Line
@@ -210,25 +244,66 @@ package body S_HLoad_Pack is
                      & " request " & Utils.Image (K) & " aborted.");
                   Text_IO.Put_Line
                     (" => " & Exceptions.Exception_Information (E));
+
+                  Client_Error := True;
+                  exit;
             end;
          end loop;
 
          AWS.Client.Close (Connect);
 
+         accept Pause;
+
          accept Stop;
       end Client;
 
-   begin
+      ---------------
+      -- Dump_Task --
+      ---------------
+
+      procedure Dump_Task (Id : Task_Identification.Task_Id) is
+         Dump : String_Lists.List;
+         DFO  : Text_IO.File_Type;
+      begin
+         Dump := Debug_Dumps.Value (Id);
+
+         Text_IO.Create (DFO, Name => Task_Identification.Image (Id));
+
+         for Line of Dump loop
+            Text_IO.Put (DFO, Line);
+         end loop;
+
+         Text_IO.Close (DFO);
+      end Dump_Task;
+
+   begin -- Run
       Interval_Timer.Reset;
 
-      Server.Start
-        (WS,
-         "Heavy Loaded",
-         CB'Access,
-         Port           => 0,
-         Security       => Protocol = "https",
-         Max_Connection => Max_Line,
-         Session        => True);
+      Net.SSL.Set_Debug (3, Debug_Output'Access);
+
+      Config.Set.Server_Name        (Cfg, "Heavy Loaded");
+      Config.Set.Server_Port        (Cfg, 0);
+      Config.Set.Security           (Cfg, True);
+      Config.Set.TLS_Ticket_Support (Cfg, True);
+      Config.Set.Max_Connection     (Cfg, Max_Line);
+      Config.Set.Session            (Cfg, True);
+
+      Net.SSL.Initialize
+        (Sfg, Config.Certificate (Cfg),
+         Priorities           => Config.Cipher_Priorities (Cfg),
+         Ticket_Support       => Config.TLS_Ticket_Support (Cfg),
+         Key_Filename         => Config.Key (Cfg),
+         Exchange_Certificate => Config.Exchange_Certificate (Cfg),
+         Certificate_Required => Config.Certificate_Required (Cfg),
+         Trusted_CA_Filename  => Config.Trusted_CA (Cfg),
+         CRL_Filename         => Config.CRL_File (Cfg),
+         Session_Cache_Size   => 16#4000#);
+
+      --  Separated SSL config need only for Session_Cache_Size parameter
+
+      Server.Set_SSL_Config (WS, Sfg);
+
+      Server.Start (WS, CB'Access, Cfg);
 
       Ada.Text_IO.Put_Line ("server started."); Ada.Text_IO.Flush;
 
@@ -238,6 +313,26 @@ package body S_HLoad_Pack is
          Clients (K).Start ("client" & Utils.Image (K));
          Text_IO.Put_Line ("client " & Utils.Image (K) & " started.");
       end loop;
+
+      for K in Clients'Range loop
+         Clients (K).Pause;
+      end loop;
+
+      if Client_Error then
+         --  Dump debug output of the all clients and server lines
+
+         for K in Clients'Range loop
+            Dump_Task (Clients (K)'Identity);
+         end loop;
+
+         declare
+            Tasks : constant Server.Task_Id_Array := Server.Line_Tasks (WS);
+         begin
+            for K in Tasks'Range loop
+               Dump_Task (Tasks (K));
+            end loop;
+         end;
+      end if;
 
       for K in Clients'Range loop
          Clients (K).Stop;

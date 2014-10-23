@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2004-2012, AdaCore                     --
+--                     Copyright (C) 2004-2014, AdaCore                     --
 --                                                                          --
 --  This is free software;  you can redistribute it  and/or modify it       --
 --  under terms of the  GNU General Public License as published  by the     --
@@ -22,5 +22,5 @@ with S_HLoad_Pack;
 
 procedure HLoad_Sec is
 begin
-   S_HLoad_Pack.Run ("https");
+   S_HLoad_Pack.Run;
 end HLoad_Sec;

@@ -41,6 +41,9 @@ private with Ada.Calendar;
 private with Ada.Exceptions;
 private with Ada.Finalization;
 private with Ada.Task_Attributes;
+
+with Ada.Task_Identification;
+
 private with Ada.Real_Time;
 private with System;
 
@@ -231,6 +234,12 @@ package AWS.Server is
    --  network, and then give access for external clients by listening on
    --  externally available address. Also it could be used to bind one server
    --  to IPv4 and IPv6 protocols simultaneously.
+
+   type Task_Id_Array is
+     array (Positive range <>) of Ada.Task_Identification.Task_Id;
+
+   function Line_Tasks (Web_Server : HTTP) return Task_Id_Array;
+   --  Returns line tasks identifiers
 
 private
 

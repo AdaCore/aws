@@ -761,7 +761,7 @@ package SSL.Thin is
           External_Name => "SSL_CTX_set_quiet_shutdown";
 
    function SSL_CTX_ctrl
-     (Ctx : SSL_CTX; Cmd : int; Larg : int; Parg : Pointer) return int
+     (Ctx : SSL_CTX; Cmd : int; Larg : long; Parg : Pointer) return long
      with Import, Convention => C, External_Name => "SSL_CTX_ctrl";
 
    -------------------------------------
@@ -1390,6 +1390,9 @@ package SSL.Thin is
    function BIO_s_file return BIO_Method_Access
      with Import, Convention => C, External_Name => "BIO_s_file";
 
+   function BIO_s_null return BIO_Method_Access
+     with Import, Convention => C, External_Name => "BIO_s_null";
+
    function BIO_new (Method : BIO_Method_St) return BIO_Access
      with Import, Convention => C, External_Name => "BIO_new";
 
@@ -1503,7 +1506,7 @@ package SSL.Thin is
    function BIO_get_callback_arg (BIO : BIO_Access) return Cstr.chars_ptr
      with Import, Convention => C, External_Name => "BIO_get_callback_arg";
 
-   procedure BIO_set_callback_arg (BIO : BIO_Access; arg : Cstr.chars_ptr)
+   procedure BIO_set_callback_arg (BIO : BIO_Access; arg : BIO_Access)
      with Import, Convention => C, External_Name => "BIO_set_callback_arg";
 
    function BIO_debug_callback
@@ -1528,8 +1531,7 @@ package SSL.Thin is
 
    function SSL_CTX_set_session_cache_mode
      (Ctx : SSL_CTX; Mode : long) return long
-     with Import, Convention => C,
-          External_Name => "SSL_CTX_set_session_cache_mode";
+   is (SSL_CTX_ctrl (Ctx, SSL_CTRL_SET_SESS_CACHE_MODE, Mode, Null_Pointer));
 
    function SSL_CTX_set_session_id_context
      (Ctx : SSL_CTX; sid_ctx : Pointer; sid_ctx_len : unsigned) return int

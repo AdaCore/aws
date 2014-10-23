@@ -54,6 +54,8 @@ package AWS.Net.SSL is
    Is_Supported : constant Boolean;
    --  True if SSL supported in the current runtime
 
+   type Debug_Output_Procedure is access procedure (Text : String);
+
    ----------------
    -- Initialize --
    ----------------
@@ -128,7 +130,7 @@ package AWS.Net.SSL is
       Certificate_Required : Boolean    := False;
       Trusted_CA_Filename  : String     := "";
       CRL_Filename         : String     := "";
-      Session_Cache_Size   : Positive   := 16#4000#);
+      Session_Cache_Size   : Natural    := 16#4000#);
    --  Initialize the SSL layer into Config. Certificate_Filename must point
    --  to a valid certificate. Security mode can be used to change the
    --  security method used by AWS. Key_Filename must be specified if the key
@@ -147,7 +149,7 @@ package AWS.Net.SSL is
       Certificate_Required : Boolean    := False;
       Trusted_CA_Filename  : String     := "";
       CRL_Filename         : String     := "";
-      Session_Cache_Size   : Positive   := 16#4000#);
+      Session_Cache_Size   : Natural    := 16#4000#);
    --  As above but for the default SSL configuration which is will be used
    --  for any socket not setting explicitly an SSL config object. Not that
    --  this routine can only be called once. Subsequent calls are no-op. To
@@ -242,8 +244,10 @@ package AWS.Net.SSL is
    --  Returns date and time when the RSA parameters was generated last time.
    --  Need to decide when new regeneration would start.
 
-   procedure Set_Debug (Level : Natural);
-   --  Set debug information printed level
+   procedure Set_Debug
+     (Level : Natural; Output : Debug_Output_Procedure := null);
+   --  Set debug information printed level and output callback.
+   --  Null output callback mean output to Ada.Text_IO.Current_Error.
 
    function Session_Id_Image (Session : Session_Type) return String;
    --  Returns base64 encoded session id. Could be used to recognize resumed
@@ -347,6 +351,8 @@ private
    RSA_Time_Idx : Time_Index := 0 with Atomic;
 
    Abort_DH_Flag : Boolean := False with Atomic;
+
+   Debug_Output : Debug_Output_Procedure with Atomic;
 
    function Generated_Time_RSA return Ada.Calendar.Time is
      (RSA_Time (RSA_Time_Idx));

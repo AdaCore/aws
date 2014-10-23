@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2004-2012, AdaCore                     --
+--                     Copyright (C) 2004-2014, AdaCore                     --
 --                                                                          --
 --  This is free software;  you can redistribute it  and/or modify it       --
 --  under terms of the  GNU General Public License as published  by the     --
@@ -20,6 +20,6 @@
 
 package S_HLoad_Pack is
 
-   procedure Run (Protocol : String; Timed : Boolean := False);
+   procedure Run (Timed : Boolean := False);
 
 end S_HLoad_Pack;

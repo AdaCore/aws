@@ -143,6 +143,8 @@ package body AWS.Net.SSL is
       key : TSSL.gnutls_datum_t) return TSSL.gnutls_datum_t
      with Convention => C;
 
+   procedure Debug_Output_Default (Text : String);
+
    procedure SSL_Log (level : C.int; text : CS.chars_ptr)
      with Convention => C;
 
@@ -180,6 +182,9 @@ package body AWS.Net.SSL is
 
       procedure Set_Size (Size : Natural);
       --  Set the maximum cache size
+
+      function Get_Size return Natural;
+      --  Get the maximum cache size
 
       function Length return Natural;
       --  Returns number of sessions currently in cache
@@ -228,7 +233,7 @@ package body AWS.Net.SSL is
       Certificate_Required : Boolean;
       Trusted_CA_Filename  : String;
       CRL_Filename         : String;
-      Session_Cache_Size   : Positive);
+      Session_Cache_Size   : Natural);
 
    procedure Session_Client (Socket : in out Socket_Type);
    procedure Session_Server (Socket : in out Socket_Type);
@@ -258,7 +263,7 @@ package body AWS.Net.SSL is
          Certificate_Required : Boolean;
          Trusted_CA_Filename  : String;
          CRL_Filename         : String;
-         Session_Cache_Size   : Positive);
+         Session_Cache_Size   : Natural);
 
    private
       Done : Boolean := False;
@@ -537,6 +542,16 @@ package body AWS.Net.SSL is
          return 1;
    end DB_Store;
 
+   --------------------------
+   -- Debug_Output_Default --
+   --------------------------
+
+   procedure Debug_Output_Default (Text : String) is
+      use Ada.Text_IO;
+   begin
+      Put (Current_Error, Text);
+   end Debug_Output_Default;
+
    -------------------------
    -- Default_Config_Sync --
    -------------------------
@@ -583,7 +598,7 @@ package body AWS.Net.SSL is
          Certificate_Required : Boolean;
          Trusted_CA_Filename  : String;
          CRL_Filename         : String;
-         Session_Cache_Size   : Positive) is
+         Session_Cache_Size   : Natural) is
       begin
          if not Done then
             Initialize
@@ -909,7 +924,7 @@ package body AWS.Net.SSL is
       Certificate_Required : Boolean    := False;
       Trusted_CA_Filename  : String     := "";
       CRL_Filename         : String     := "";
-      Session_Cache_Size   : Positive   := 16#4000#) is
+      Session_Cache_Size   : Natural    := 16#4000#) is
    begin
       if Config = null then
          Config := new TS_SSL;
@@ -940,7 +955,7 @@ package body AWS.Net.SSL is
       Certificate_Required : Boolean;
       Trusted_CA_Filename  : String;
       CRL_Filename         : String;
-      Session_Cache_Size   : Positive)
+      Session_Cache_Size   : Natural)
    is
       use type TSSL.gnutls_anon_client_credentials_t;
       use type TSSL.gnutls_anon_server_credentials_t;
@@ -1188,7 +1203,7 @@ package body AWS.Net.SSL is
       Certificate_Required : Boolean  := False;
       Trusted_CA_Filename  : String   := "";
       CRL_Filename         : String   := "";
-      Session_Cache_Size   : Positive := 16#4000#) is
+      Session_Cache_Size   : Natural  := 16#4000#) is
    begin
       Default_Config_Sync.Initialize
         (Certificate_Filename, Security_Mode, Priorities, Ticket_Support,
@@ -1551,6 +1566,15 @@ package body AWS.Net.SSL is
          end if;
       end Get;
 
+      --------------
+      -- Get_Size --
+      --------------
+
+      function Get_Size return Natural is
+      begin
+         return Size;
+      end Get_Size;
+
       ------------
       -- Length --
       ------------
@@ -1743,10 +1767,12 @@ package body AWS.Net.SSL is
               (Socket.SSL, Socket.Config.Ticket_Key'Access));
       end if;
 
-      gnutls_db_set_ptr (Socket.SSL, Socket.Config.all'Address);
-      gnutls_db_set_retrieve_function (Socket.SSL, DB_Retrieve'Access);
-      gnutls_db_set_remove_function (Socket.SSL, DB_Remove'Access);
-      gnutls_db_set_store_function (Socket.SSL, DB_Store'Access);
+      if Socket.Config.Sessions.Get_Size > 0 then
+         gnutls_db_set_ptr (Socket.SSL, Socket.Config.all'Address);
+         gnutls_db_set_retrieve_function (Socket.SSL, DB_Retrieve'Access);
+         gnutls_db_set_remove_function (Socket.SSL, DB_Remove'Access);
+         gnutls_db_set_store_function (Socket.SSL, DB_Store'Access);
+      end if;
 
       if Socket.Config.CSC = null then
          Check_Error_Code
@@ -1848,8 +1874,13 @@ package body AWS.Net.SSL is
    -- Set_Debug --
    ---------------
 
-   procedure Set_Debug (Level : Natural) is
+   procedure Set_Debug
+     (Level : Natural; Output : Debug_Output_Procedure := null) is
    begin
+      Debug_Output :=
+        (if Output = null and then Level > 0 then Debug_Output_Default'Access
+         else Output);
+
       TSSL.gnutls_global_set_log_function (SSL_Log'Access);
       TSSL.gnutls_global_set_audit_log_function (SSL_Log_Audit'Access);
       TSSL.gnutls_global_set_log_level (C.int (Level));
@@ -2027,8 +2058,6 @@ package body AWS.Net.SSL is
    procedure SSL_Log_Common
      (Prefix : String; Level : C.int; text : CS.chars_ptr)
    is
-      use Ada.Text_IO;
-
       Lev : constant String  := Level'Img;
       Fst : Positive := Lev'First;
       Adt : constant String := CS.Value (text);
@@ -2037,7 +2066,7 @@ package body AWS.Net.SSL is
          Fst := Fst + 1;
       end if;
 
-      Put (Current_Error, "|<" & Prefix & Lev (Fst .. Lev'Last) & ">| " & Adt);
+      Debug_Output ("|<" & Prefix & Lev (Fst .. Lev'Last) & ">| " & Adt);
    end SSL_Log_Common;
 
    ---------------------------------

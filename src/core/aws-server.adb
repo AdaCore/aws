@@ -348,6 +348,20 @@ package body AWS.Server is
          end if;
    end Line;
 
+   ----------------
+   -- Line_Tasks --
+   ----------------
+
+   function Line_Tasks (Web_Server : HTTP) return Task_Id_Array is
+      Result : Task_Id_Array (Web_Server.Lines'Range);
+   begin
+      for J in Result'Range loop
+         Result (J) := Web_Server.Lines (J)'Identity;
+      end loop;
+
+      return Result;
+   end Line_Tasks;
+
    ----------------------
    -- Protocol_Handler --
    ----------------------
@@ -421,6 +435,10 @@ package body AWS.Server is
       Net.Acceptors.Set_Socket_Constructor
         (Web_Server.Acceptor, Socket_Constructor);
    end Set_Socket_Constructor;
+
+   --------------------
+   -- Set_SSL_Config --
+   --------------------
 
    procedure Set_SSL_Config
      (Web_Server : in out HTTP; SSL_Config : Net.SSL.Config) is
@@ -1018,6 +1036,8 @@ package body AWS.Server is
             Security_Mode,
             Priorities           =>
               CNF.Cipher_Priorities (Web_Server.Properties),
+            Ticket_Support       =>
+              CNF.TLS_Ticket_Support (Web_Server.Properties),
             Key_Filename         =>
               CNF.Key (Web_Server.Properties),
             Exchange_Certificate =>

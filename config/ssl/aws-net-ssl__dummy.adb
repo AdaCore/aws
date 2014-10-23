@@ -143,7 +143,7 @@ package body AWS.Net.SSL is
       Certificate_Required : Boolean    := False;
       Trusted_CA_Filename  : String     := "";
       CRL_Filename         : String     := "";
-      Session_Cache_Size   : Positive   := 16#4000#) is
+      Session_Cache_Size   : Natural    := 16#4000#) is
    begin
       raise Program_Error with Error_Message;
    end Initialize;
@@ -162,7 +162,7 @@ package body AWS.Net.SSL is
       Certificate_Required : Boolean    := False;
       Trusted_CA_Filename  : String     := "";
       CRL_Filename         : String     := "";
-      Session_Cache_Size   : Positive   := 16#4000#) is
+      Session_Cache_Size   : Natural    := 16#4000#) is
    begin
       raise Program_Error with Error_Message;
    end Initialize_Default_Config;
@@ -319,10 +319,8 @@ package body AWS.Net.SSL is
    -- Set_Debug --
    ---------------
 
-   procedure Set_Debug (Level : Natural) is
-   begin
-      null;
-   end Set_Debug;
+   procedure Set_Debug
+     (Level : Natural; Output : Debug_Output_Procedure := null) is null;
 
    ----------------------------
    -- Set_Session_Cache_Size --

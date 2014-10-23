@@ -60,6 +60,7 @@ package body AWS.Net.SSL is
 
    use Interfaces;
    use type C.int;
+   use type C.long;
    use type TSSL.Pointer;
    use type TSSL.SSL_CTX;
    use type TSSL.SSL_Handle;
@@ -81,6 +82,14 @@ package body AWS.Net.SSL is
    --  C library could use null pointer as input parameter for realloc, but
    --  gnatmem does not care about it and logging Free of the null pointer.
 
+   function BIO_Debug_Write
+     (BIO  : TSSL.BIO_Access;
+      Buf  : C.Strings.chars_ptr;
+      Size : C.int) return C.int with Convention => C;
+
+   Debug_BIO_Method : TSSL.BIO_Method_Access;
+   Debug_BIO_Output : TSSL.BIO_Access;
+
    protected type TS_SSL is
 
       procedure Set_IO (Socket : in out Socket_Type);
@@ -96,7 +105,7 @@ package body AWS.Net.SSL is
          Certificate_Required : Boolean;
          Trusted_CA_Filename  : String;
          CRL_Filename         : String;
-         Session_Cache_Size   : Positive);
+         Session_Cache_Size   : Natural);
 
       procedure Finalize;
 
@@ -239,6 +248,21 @@ package body AWS.Net.SSL is
          Shutdown (New_Socket);
       end loop SSL_Accept;
    end Accept_Socket;
+
+   ---------------------
+   -- BIO_Debug_Write --
+   ---------------------
+
+   function BIO_Debug_Write
+     (BIO  : TSSL.BIO_Access;
+      Buf  : C.Strings.chars_ptr;
+      Size : C.int) return C.int
+   is
+      pragma Unreferenced (BIO);
+   begin
+      Debug_Output (C.Strings.Value (Buf, C.size_t (Size)));
+      return Size;
+   end BIO_Debug_Write;
 
    ------------------------
    -- Cipher_Description --
@@ -650,7 +674,7 @@ package body AWS.Net.SSL is
       Certificate_Required : Boolean    := False;
       Trusted_CA_Filename  : String     := "";
       CRL_Filename         : String     := "";
-      Session_Cache_Size   : Positive   := 16#4000#) is
+      Session_Cache_Size   : Natural    := 16#4000#) is
    begin
       if Config = null then
          Config := new TS_SSL;
@@ -676,7 +700,7 @@ package body AWS.Net.SSL is
       Certificate_Required : Boolean  := False;
       Trusted_CA_Filename  : String   := "";
       CRL_Filename         : String   := "";
-      Session_Cache_Size   : Positive := 16#4000#) is
+      Session_Cache_Size   : Natural  := 16#4000#) is
    begin
       Default_Config.Initialize
         (Certificate_Filename, Security_Mode, Priorities, Ticket_Support,
@@ -1097,9 +1121,11 @@ package body AWS.Net.SSL is
    -- Set_Debug --
    ---------------
 
-   procedure Set_Debug (Level : Natural) is
+   procedure Set_Debug
+     (Level : Natural; Output : Debug_Output_Procedure := null) is
    begin
-      Debug_Level := Level;
+      Debug_Level  := Level;
+      Debug_Output := Output;
    end Set_Debug;
 
    ----------------------------
@@ -1756,7 +1782,7 @@ package body AWS.Net.SSL is
          Certificate_Required : Boolean;
          Trusted_CA_Filename  : String;
          CRL_Filename         : String;
-         Session_Cache_Size   : Positive)
+         Session_Cache_Size   : Natural)
       is
          type Meth_Func is access function return TSSL.SSL_Method
            with Convention => C;
@@ -1954,6 +1980,17 @@ package body AWS.Net.SSL is
                BIO_set_callback (Net_IO, BIO_debug_callback'Access);
          end case;
 
+         if Debug_Output /= null then
+            if Debug_BIO_Output = null then
+               Debug_BIO_Method        := TSSL.BIO_s_null;
+               Debug_BIO_Method.Bwrite := BIO_Debug_Write'Address;
+               Debug_BIO_Output        := TSSL.BIO_new (Debug_BIO_Method);
+            end if;
+
+            BIO_set_callback_arg (Inside_IO, Debug_BIO_Output);
+            BIO_set_callback_arg (Net_IO,    Debug_BIO_Output);
+         end if;
+
          Socket.IO := Net_IO;
 
          SSL_set_bio (Socket.SSL, Inside_IO, Inside_IO);
@@ -1965,11 +2002,21 @@ package body AWS.Net.SSL is
 
       procedure Set_Session_Cache_Size (Size : Natural) is
       begin
+         case TSSL.SSL_CTX_set_session_cache_mode
+                (Ctx  => Context,
+                 Mode => (if Size = 0 then TSSL.SSL_SESS_CACHE_OFF
+                                      else TSSL.SSL_SESS_CACHE_SERVER))
+         is
+            when TSSL.SSL_SESS_CACHE_OFF | TSSL.SSL_SESS_CACHE_SERVER => null;
+            when others =>
+               raise Socket_Error with "Unexpected session cache mode";
+         end case;
+
          Error_If
            (TSSL.SSL_CTX_ctrl
               (Ctx  => Context,
                Cmd  => TSSL.SSL_CTRL_SET_SESS_CACHE_SIZE,
-               Larg => C.int (Size),
+               Larg => C.long (Size),
                Parg => TSSL.Null_Pointer) = -1);
       end Set_Session_Cache_Size;
 
