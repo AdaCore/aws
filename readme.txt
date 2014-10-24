@@ -1,6 +1,6 @@
 
                             A W S - Ada Web Server
-                           3.2.1 release / SOAP 1.5
+                           3.2.0 release / SOAP 1.5
 
 Authors:
    Dmitriy Anisimkov
