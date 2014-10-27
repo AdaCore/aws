@@ -999,27 +999,6 @@ package body AWS.Utils is
          TID    := Seize_Internal'Caller;
       end Seize_Internal;
 
-      ---------------
-      -- Seize_Try --
-      ---------------
-
-      procedure Seize_Try (Success : out Boolean) is
-      begin
-         if Current_Task = TID then
-            Seized := Seized + 1;
-
-         elsif Seized = 0 then
-            Seized := 1;
-            TID := Current_Task;
-
-         else
-            Success := False;
-            return;
-         end if;
-
-         Success := True;
-      end Seize_Try;
-
    end Semaphore;
 
    -----------------------
