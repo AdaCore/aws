@@ -985,7 +985,7 @@ package body AWS.Utils is
          if Seize'Caller = TID then
             Seized := Seized + 1;
          else
-            requeue Seize_Internal;
+            requeue Seize_Internal with abort;
          end if;
       end Seize;
 
