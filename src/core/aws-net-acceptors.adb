@@ -556,6 +556,7 @@ package body AWS.Net.Acceptors is
    --------------
 
    procedure Shutdown (Acceptor : in out Acceptor_Type) is
+      Seized : Boolean;
    begin
       if Acceptor.W_Signal /= null then
          Acceptor.W_Signal.Shutdown;
@@ -570,14 +571,13 @@ package body AWS.Net.Acceptors is
          --  If acceptor is not inside Get routine, we should make shutdown
          --  directly.
 
-         select
-            Acceptor.Semaphore.Seize;
+         Acceptor.Semaphore.Seize_Try (Seized);
+
+         if Seized then
             Shutdown_Internal (Acceptor);
             Acceptor.Semaphore.Release;
             return;
-         or
-            delay 0.0;
-         end select;
+         end if;
 
          --  Close of signal socket could be detected inside Get routine and
          --  shoutdown would be processed over there.

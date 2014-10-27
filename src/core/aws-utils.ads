@@ -198,6 +198,10 @@ package AWS.Utils is
    protected type Semaphore is
       entry Seize;
       procedure Release;
+
+      procedure Seize_Try (Success : out Boolean);
+      --  None entry Seize returning try result.
+
    private
       entry Seize_Internal;
       TID    : Task_Id := Null_Task_Id;
