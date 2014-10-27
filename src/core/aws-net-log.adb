@@ -27,6 +27,8 @@
 --  covered by the  GNU Public License.                                     --
 ------------------------------------------------------------------------------
 
+pragma Ada_2012;
+
 with AWS.Utils;
 
 package body AWS.Net.Log is
@@ -39,6 +41,10 @@ package body AWS.Net.Log is
    end record;
 
    State : Log_State;
+
+   In_Error : Boolean := False with Thread_Local_Storage;
+   In_Event : Boolean := False with Thread_Local_Storage;
+   In_Write : Boolean := False with Thread_Local_Storage;
 
    -----------
    -- Error --
@@ -56,7 +62,9 @@ package body AWS.Net.Log is
 
       --  Explicit check for State.Error inside of critical section
 
-      if State.Error /= null then
+      if State.Error /= null and then not In_Error then
+         In_Error := True;
+
          begin
             --  This call must never fail, catch all exceptions
             State.Error (Socket, Message);
@@ -64,6 +72,8 @@ package body AWS.Net.Log is
             when others =>
                null;
          end;
+
+         In_Error := False;
       end if;
 
       State.Semaphore.Release;
@@ -77,7 +87,9 @@ package body AWS.Net.Log is
    begin
       State.Semaphore.Seize;
 
-      if State.Event /= null then
+      if State.Event /= null and then not In_Event then
+         In_Event := True;
+
          begin
             --  This call must never fail, catch all exceptions
             State.Event (Action, Socket);
@@ -85,6 +97,8 @@ package body AWS.Net.Log is
             when others =>
                null;
          end;
+
+         In_Event := False;
       end if;
 
       State.Semaphore.Release;
@@ -160,7 +174,9 @@ package body AWS.Net.Log is
    begin
       State.Semaphore.Seize;
 
-      if State.Write /= null then
+      if State.Write /= null and then not In_Write then
+         In_Write := True;
+
          begin
             --  This call must never fail, catch all exceptions
             State.Write
@@ -172,6 +188,8 @@ package body AWS.Net.Log is
             when others =>
                null;
          end;
+
+         In_Write := False;
       end if;
 
       State.Semaphore.Release;
