@@ -982,8 +982,9 @@ package body AWS.Utils is
 
       entry Seize when True is
       begin
-         if Seize'Caller = TID then
+         if Seized = 0 or else Seize'Caller = TID then
             Seized := Seized + 1;
+            TID    := Seize'Caller;
          else
             requeue Seize_Internal with abort;
          end if;
