@@ -385,7 +385,7 @@ package AWS.Utils is
    --  Reads all entries in Directory_Name and calls Action for each
    --  one. Is_Directory is set to True if Filename is a directory. Quit can
    --  be set to True to stop the iterator. Raises No_Such_File if
-   --  Directory_Name does not exists.
+   --  Directory_Name does not exist.
 
    function Get_Program_Directory
      return String renames Templates_Parser.Utils.Get_Program_Directory;

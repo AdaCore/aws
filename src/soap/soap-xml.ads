@@ -43,7 +43,7 @@ package SOAP.XML is
       NS   : Boolean := True) return String
    with Pre => N /= null;
    --  Returns the value of attribute Name in N, remove namespace if NS is
-   --  True. Returns the empty string if attribute Name does not exists.
+   --  True. Returns the empty string if attribute Name does not exist.
 
    function Get_Ref (N : DOM.Core.Node) return DOM.Core.Node with
      Pre => N /= null;

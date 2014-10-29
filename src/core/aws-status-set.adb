@@ -633,7 +633,7 @@ package body AWS.Status.Set is
                   --  Check if cookie exists in the server
 
                   if not AWS.Session.Exist (D.Session_Id) then
-                     --  Reset to empty cookie if session does not exists.
+                     --  Reset to empty cookie if session does not exist.
                      --  This is a case where a session has timed out.
 
                      D.Session_Id        := AWS.Session.No_Session;

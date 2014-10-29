@@ -39,7 +39,7 @@ private package AWS.Net.SSL.RSA_DH_Generators is
 
    function Parameters_Filename (Kind : String; Exist : Boolean) return String;
    --  Returns DH parameters filename in internal AWS security storage
-   --  directory. Returns empty string if filename does not exists and could
+   --  directory. Returns empty string if filename does not exist and could
    --  not be created. Common code for use in GNUTLS and OpenSSL
    --  implementations.
 

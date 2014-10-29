@@ -64,7 +64,7 @@ package body AWS.Net.SSL.RSA_DH_Generators is
          if Directories.Exists (Filename) then
             return Filename;
          else
-            Log_Error ("File " & Filename & " does not exists");
+            Log_Error ("File " & Filename & " does not exist");
             return "";
          end if;
 

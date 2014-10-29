@@ -49,7 +49,7 @@ package AWS.Session is
 
    procedure Delete (SID : Id) with
      Post => not Exist (SID);
-   --  Delete session, does nothing if SID does not exists.
+   --  Delete session, does nothing if SID does not exist.
    --  In most cases, the client browser will still send the cookie identifying
    --  the session on its next request. In such a case, the function
    --  AWS.Status.Timed_Out will return True, same as when the session was
@@ -76,7 +76,7 @@ package AWS.Session is
 
    procedure Touch (SID : Id);
    --  Update to current time the timestamp associated with SID. Does nothing
-   --  if SID does not exists.
+   --  if SID does not exist.
 
    procedure Set (SID : Id; Key : String; Value : String);
    --  Set key/value pair for the SID
