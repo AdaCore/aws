@@ -1047,7 +1047,9 @@ package body AWS.Server is
             Trusted_CA_Filename  =>
               CNF.Trusted_CA (Web_Server.Properties),
             CRL_Filename         =>
-              CNF.CRL_File (Web_Server.Properties));
+              CNF.CRL_File (Web_Server.Properties),
+            Session_Cache_Size   =>
+              CNF.SSL_Session_Cache_Size (Web_Server.Properties));
       end if;
 
       --  Create the Web Server socket set

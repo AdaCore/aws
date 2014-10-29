@@ -30,6 +30,7 @@ with Ada.Text_IO;
 with AWS.Config.Set;
 with AWS.Client;
 with AWS.MIME;
+with AWS.Net.Log;
 with AWS.Net.SSL;
 with AWS.Parameters;
 with AWS.Response;
@@ -40,6 +41,7 @@ with AWS.Utils;
 package body S_HLoad_Pack is
 
    use Ada;
+   use Ada.Exceptions;
    use Ada.Strings.Unbounded;
 
    use AWS;
@@ -57,6 +59,13 @@ package body S_HLoad_Pack is
      new Ada.Task_Attributes (String_Lists.List, String_Lists.Empty_List);
 
    procedure Debug_Output (Text : String);
+
+   procedure Error_Callback
+     (Socket : Net.Socket_Type'Class; Message : String);
+   --  The callback procedure which is called for every socket error
+
+   procedure Event_Callback
+     (Action : Net.Log.Event_Type; Socket : Net.Socket_Type'Class);
 
    function CB (Request : Status.Data) return Response.Data;
 
@@ -92,14 +101,73 @@ package body S_HLoad_Pack is
         (MIME.Text_HTML, "Data:" & AWS.Parameters.Get (P, "PARAM"));
    end CB;
 
+   Counter : Utils.Counter (100_000);
+
    ------------------
    -- Debug_Output --
    ------------------
 
    procedure Debug_Output (Text : String) is
+      Value : Natural;
    begin
-      Debug_Dumps.Reference.Append (Text);
+      Counter.Increment (Value => Value);
+
+      declare
+         Cnt_Img : constant String := Natural'Image (Value);
+      begin
+         Debug_Dumps.Reference.Append
+           (Cnt_Img (Cnt_Img'Last - 4 .. Cnt_Img'Last)  & ' ' & Text);
+      end;
    end Debug_Output;
+
+   --------------------
+   -- Error_Callback --
+   --------------------
+
+   procedure Error_Callback
+     (Socket : Net.Socket_Type'Class; Message : String)
+   is
+      FD : constant Integer := Socket.Get_FD;
+   begin
+      if FD = Net.No_Socket then
+         Debug_Output (Message & ASCII.LF);
+      else
+         Debug_Output
+           (Socket.Get_Port'Img & Socket.Peer_Port'Img & FD'Img & ' '
+            & Message & ASCII.LF);
+      end if;
+
+   exception
+      when E : others =>
+         Debug_Output
+           (Message & ' ' & Exception_Message (E) & ASCII.LF);
+   end Error_Callback;
+
+   --------------------
+   -- Event_Callback --
+   --------------------
+
+   procedure Event_Callback
+     (Action : Net.Log.Event_Type; Socket : Net.Socket_Type'Class)
+   is
+      FD : constant Integer := Socket.Get_FD;
+   begin
+      if FD = Net.No_Socket then
+         Debug_Output (Action'Img & " closed socket" & ASCII.LF);
+      else
+         Debug_Output
+           (Action'Img
+            & (if Net.Log."=" (Action, Net.Log.Connect)
+               then Socket.Peer_Port'Img & Socket.Get_Port'Img
+               else Socket.Get_Port'Img & Socket.Peer_Port'Img)
+            & FD'Img & ' ' & ASCII.LF);
+      end if;
+
+   exception
+      when E : others =>
+         Debug_Output
+           (Action'Img & FD'Img & ' ' & Exception_Message (E) & ASCII.LF);
+   end Event_Callback;
 
    --------------------
    -- Interval_Timer --
@@ -179,7 +247,7 @@ package body S_HLoad_Pack is
    -- Run --
    ---------
 
-   procedure Run (Timed : Boolean := False) is
+   procedure Run (Timed : Boolean := False; Debug : Boolean := False) is
 
       task type Client is
          entry Start (Name : String);
@@ -192,8 +260,11 @@ package body S_HLoad_Pack is
       Sfg : Net.SSL.Config;
 
       Clients : array (1 .. Max_Client) of Client;
+      Hang : array (Clients'Range) of Boolean := (others => False);
 
-      procedure Dump_Task (Id : Task_Identification.Task_Id);
+      Delay_Time : Duration := 60.0;
+
+      procedure Dump_Task (Id : Task_Identification.Task_Id; Hang : Boolean);
 
       ------------
       -- Client --
@@ -261,13 +332,23 @@ package body S_HLoad_Pack is
       -- Dump_Task --
       ---------------
 
-      procedure Dump_Task (Id : Task_Identification.Task_Id) is
+      procedure Dump_Task (Id : Task_Identification.Task_Id; Hang : Boolean) is
          Dump : String_Lists.List;
          DFO  : Text_IO.File_Type;
       begin
+         if not Debug then
+            return;
+         end if;
+
          Dump := Debug_Dumps.Value (Id);
 
          Text_IO.Create (DFO, Name => Task_Identification.Image (Id));
+
+         if Hang then
+            Text_IO.Put_Line (DFO, "HANG");
+         end if;
+
+         Text_IO.Put_Line (DFO, Net.SSL.Version);
 
          for Line of Dump loop
             Text_IO.Put (DFO, Line);
@@ -279,29 +360,26 @@ package body S_HLoad_Pack is
    begin -- Run
       Interval_Timer.Reset;
 
-      Net.SSL.Set_Debug (3, Debug_Output'Access);
+      if Debug then
+         Net.SSL.Set_Debug (7, Debug_Output'Access);
+
+         Net.Log.Start
+           (Write => null,
+            Event => Event_Callback'Access,
+            Error => Error_Callback'Access);
+      end if;
 
       Config.Set.Server_Name        (Cfg, "Heavy Loaded");
       Config.Set.Server_Port        (Cfg, 0);
       Config.Set.Security           (Cfg, True);
-      Config.Set.TLS_Ticket_Support (Cfg, True);
       Config.Set.Max_Connection     (Cfg, Max_Line);
       Config.Set.Session            (Cfg, True);
+      Config.Set.TLS_Ticket_Support (Cfg, False);
 
-      Net.SSL.Initialize
-        (Sfg, Config.Certificate (Cfg),
-         Priorities           => Config.Cipher_Priorities (Cfg),
-         Ticket_Support       => Config.TLS_Ticket_Support (Cfg),
-         Key_Filename         => Config.Key (Cfg),
-         Exchange_Certificate => Config.Exchange_Certificate (Cfg),
-         Certificate_Required => Config.Certificate_Required (Cfg),
-         Trusted_CA_Filename  => Config.Trusted_CA (Cfg),
-         CRL_Filename         => Config.CRL_File (Cfg),
-         Session_Cache_Size   => 16#4000#);
+      --  Set SSL session size a bit less than number of clients, to provoke
+      --  session extrusion.
 
-      --  Separated SSL config need only for Session_Cache_Size parameter
-
-      Server.Set_SSL_Config (WS, Sfg);
+      Config.Set.SSL_Session_Cache_Size (Cfg, Max_Client - 1);
 
       Server.Start (WS, CB'Access, Cfg);
 
@@ -315,28 +393,41 @@ package body S_HLoad_Pack is
       end loop;
 
       for K in Clients'Range loop
-         Clients (K).Pause;
+         select Clients (K).Pause;
+         or delay Delay_Time;
+            Text_IO.Put_Line ("Client" & K'Img & " hangs.");
+            Hang (K) := True;
+            Client_Error := True;
+            Delay_Time := Delay_Time / 3;
+         end select;
       end loop;
 
       if Client_Error then
          --  Dump debug output of the all clients and server lines
 
          for K in Clients'Range loop
-            Dump_Task (Clients (K)'Identity);
+            Dump_Task (Clients (K)'Identity, Hang (K));
          end loop;
 
          declare
             Tasks : constant Server.Task_Id_Array := Server.Line_Tasks (WS);
          begin
             for K in Tasks'Range loop
-               Dump_Task (Tasks (K));
+               Dump_Task (Tasks (K), False);
             end loop;
          end;
       end if;
 
       for K in Clients'Range loop
-         Clients (K).Stop;
-         Text_IO.Put_Line ("client " & Utils.Image (K) & " stopped.");
+         Text_IO.Put ("client " & Utils.Image (K));
+
+         if Hang (K) then
+            abort Clients (K);
+            Text_IO.Put_Line (" aborted.");
+         else
+            Clients (K).Stop;
+            Text_IO.Put_Line (" stopped.");
+         end if;
       end loop;
 
       Server.Shutdown (WS);

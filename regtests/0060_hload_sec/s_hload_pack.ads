@@ -20,6 +20,11 @@
 
 package S_HLoad_Pack is
 
-   procedure Run (Timed : Boolean := False);
+   --  GNUTLS versions less than 3.2.8 have a rare regression on this test
+   --  when TLS_Ticket_Support = False, i.e. SSL session cache is used.
+
+   procedure Run (Timed : Boolean := False; Debug : Boolean := False);
+   --  Timed flag enables check test performance, Debug flag enables debug logs
+   --  output.
 
 end S_HLoad_Pack;

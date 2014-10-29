@@ -322,6 +322,8 @@ package AWS.Config.Set is
    --  Returns the filename containing the Certificate Revocation List. This
    --  list is used by the server to check for revoked certificate.
 
+   procedure SSL_Session_Cache_Size (O : in out Object; Value : Natural);
+
    -------------------------
    -- Per Process Options --
    -------------------------

@@ -29,6 +29,7 @@
 
 pragma Ada_2012;
 
+with Ada.Characters.Handling;
 with Ada.Containers.Hashed_Maps;
 with Ada.Containers.Ordered_Maps;
 with Ada.Directories;
@@ -84,6 +85,8 @@ package body AWS.Net.SSL is
 
    function Copy (Item : TSSL.gnutls_datum_t) return TSSL.gnutls_datum_t;
    --  Creates gnutls_datum_t copy
+
+   function Image (Item : TSSL.gnutls_datum_t) return String;
 
    function Lib_Alloc (Size : System.Memory.size_t) return System.Address
      with Convention => C;
@@ -430,7 +433,9 @@ package body AWS.Net.SSL is
             case TSSL.gnutls_record_get_direction (Socket.SSL) is
                when 0      => Wait_For (Input, Socket, Timeout);
                when 1      => Wait_For (Output, Socket, Timeout);
-               when others => raise Program_Error;
+               when others =>
+                  Log_Error ("Unexpected gnutls_record_get_direction result");
+                  raise Program_Error;
             end case;
 
          when others =>
@@ -497,6 +502,10 @@ package body AWS.Net.SSL is
    is
       Cfg : constant Config := To_Config (p1);
    begin
+      if Debug_Output /= null then
+         Debug_Output ("Remove session " & Image (key) & ASCII.LF);
+      end if;
+
       Cfg.Sessions.Drop (key);
       return 0;
    exception
@@ -515,6 +524,10 @@ package body AWS.Net.SSL is
    is
       Cfg : constant Config := To_Config (p1);
    begin
+      if Debug_Output /= null then
+         Debug_Output ("Retrieve session " & Image (key) & ASCII.LF);
+      end if;
+
       return Copy (Cfg.Sessions.Get (key));
    exception
       when E : others =>
@@ -533,6 +546,10 @@ package body AWS.Net.SSL is
    is
       Cfg : constant Config := To_Config (p1);
    begin
+      if Debug_Output /= null then
+         Debug_Output ("Store session " & Image (key) & ASCII.LF);
+      end if;
+
       Cfg.Sessions.Put (key, data);
 
       return 0;
@@ -637,6 +654,12 @@ package body AWS.Net.SSL is
          Code := TSSL.gnutls_handshake (Socket.SSL);
 
          exit when Code = TSSL.GNUTLS_E_SUCCESS;
+
+         if Debug_Output /= null and then Socket.Get_FD /= No_Socket then
+            Debug_Output
+              ("Handshake" & Socket.Get_Port'Img & Socket.Peer_Port'Img
+               & Socket.Get_FD'Img & Code'Img & ASCII.LF);
+         end if;
 
          Code_Processing (Code, Socket);
       end loop;
@@ -908,6 +931,33 @@ package body AWS.Net.SSL is
       return Strings.Hash
         (To_Access (Item.data) (1 .. Natural (Item.size)));
    end Hash;
+
+   -----------
+   -- Image --
+   -----------
+
+   function Image (Item : TSSL.gnutls_datum_t) return String is
+      type String_Access is access all String (1 .. Natural (Item.size));
+
+      function To_Access is
+        new Unchecked_Conversion (TSSL.a_unsigned_char_t, String_Access);
+
+      Src    : constant String_Access := To_Access (Item.data);
+      Result : String (1 .. Natural (Item.size) * 2);
+
+   begin
+      if System."=" (Item.data, System.Null_Address) then
+         return "";
+      end if;
+
+      for J in 1 .. Natural (Item.size) loop
+         Result (J * 2 - 1 .. J * 2) :=
+           Ada.Characters.Handling.To_Lower
+             (Utils.Hex (Character'Pos (Src (J)), 2));
+      end loop;
+
+      return Result;
+   end Image;
 
    ----------------
    -- Initialize --

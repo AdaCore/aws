@@ -626,6 +626,15 @@ package body AWS.Config.Set is
       O.P (Session_Name).Str_Value := To_Unbounded_String (Value);
    end Session_Name;
 
+   ----------------------------
+   -- SSL_Session_Cache_Size --
+   ----------------------------
+
+   procedure SSL_Session_Cache_Size (O : in out Object; Value : Natural) is
+   begin
+      O.P (SSL_Session_Cache_Size).Nat_Value := Value;
+   end SSL_Session_Cache_Size;
+
    -----------------
    -- Status_Page --
    -----------------

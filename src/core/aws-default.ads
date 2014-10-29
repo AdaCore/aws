@@ -159,6 +159,7 @@ package AWS.Default with Pure is
    Trusted_CA                      : constant String  := "";
    CRL_File                        : constant String  := "";
    Check_URL_Validity              : constant Boolean := True;
+   SSL_Session_Cache_Size          : constant         := 16#4000#;
 
    --  Priorities
 

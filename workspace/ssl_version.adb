@@ -1,36 +1,25 @@
-with Interfaces.C.Strings;
+------------------------------------------------------------------------------
+--                              Ada Web Server                              --
+--                                                                          --
+--                       Copyright (C) 2014, AdaCore                        --
+--                                                                          --
+--  This is free software;  you can redistribute it  and/or modify it       --
+--  under terms of the  GNU General Public License as published  by the     --
+--  Free Software  Foundation;  either version 3,  or (at your option) any  --
+--  later version.  This software is distributed in the hope  that it will  --
+--  be useful, but WITHOUT ANY WARRANTY;  without even the implied warranty --
+--  of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU     --
+--  General Public License for  more details.                               --
+--                                                                          --
+--  You should have  received  a copy of the GNU General  Public  License   --
+--  distributed  with  this  software;   see  file COPYING3.  If not, go    --
+--  to http://www.gnu.org/licenses for a complete copy of the license.      --
+------------------------------------------------------------------------------
+
 with Ada.Text_IO;
+with AWS.Net.SSL;
 
 procedure SSL_Version is
-
-   SSLEAY_VERSION  : constant := 0;
-   SSLEAY_CFLAGS   : constant := 2;
-   SSLEAY_BUILT_ON : constant := 3;
-   SSLEAY_PLATFORM : constant := 4;
-   SSLEAY_DIR      : constant := 5;
-
-   procedure Print (Info : Integer);
-
-   -----------
-   -- Print --
-   -----------
-
-   procedure Print (Info : Integer) is
-      use Interfaces.C.Strings;
-
-      function SSLeay_version (T : Integer) return chars_ptr;
-      pragma Import (C, SSLeay_version, "SSLeay_version");
-
-   begin
-      Ada.Text_IO.Put_Line (Value (SSLeay_version (Info)));
-   end Print;
-
 begin
-   Ada.Text_IO.Put_Line ("------------");
-   Print (SSLEAY_VERSION);
-   Print (SSLEAY_CFLAGS);
-   Print (SSLEAY_BUILT_ON);
-   Print (SSLEAY_PLATFORM);
-   Print (SSLEAY_DIR);
-   Ada.Text_IO.Put_Line ("------------");
+   Ada.Text_IO.Put_Line (AWS.Net.SSL.Version (True));
 end SSL_Version;

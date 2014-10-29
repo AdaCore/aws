@@ -708,6 +708,15 @@ package body AWS.Config is
       return To_String (O.P (Session_Name).Str_Value);
    end Session_Name;
 
+   ----------------------------
+   -- SSL_Session_Cache_Size --
+   ----------------------------
+
+   function SSL_Session_Cache_Size (O : Object) return Natural is
+   begin
+      return O.P (SSL_Session_Cache_Size).Nat_Value;
+   end SSL_Session_Cache_Size;
+
    -----------------
    -- Status_Page --
    -----------------

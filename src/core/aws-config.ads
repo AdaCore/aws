@@ -331,6 +331,9 @@ package AWS.Config is
    --  Returns the filename containing the Certificate Revocation List. This
    --  list is used by the server to check for revoked certificate.
 
+   function SSL_Session_Cache_Size (O : Object) return Natural with Inline;
+   --  Returns SSL session cashe size
+
    -------------------------
    -- Per Process options --
    -------------------------
@@ -436,6 +439,7 @@ private
       Certificate_Required,
       Trusted_CA,
       CRL_File,
+      SSL_Session_Cache_Size,
       Hotplug_Port,
       Max_Connection,
       Send_Buffer_Size,
@@ -693,6 +697,9 @@ private
 
                            CRL_File                        =>
                              (Str, +Default.CRL_File),
+
+                           SSL_Session_Cache_Size          =>
+                             (Nat, Default.SSL_Session_Cache_Size),
 
                            Case_Sensitive_Parameters       =>
                              (Bool, Default.Case_Sensitive_Parameters),
