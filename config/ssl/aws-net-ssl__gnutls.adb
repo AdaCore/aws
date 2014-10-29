@@ -564,9 +564,8 @@ package body AWS.Net.SSL is
    --------------------------
 
    procedure Debug_Output_Default (Text : String) is
-      use Ada.Text_IO;
    begin
-      Put (Current_Error, Text);
+      Text_IO.Put (Text_IO.Current_Error, Text);
    end Debug_Output_Default;
 
    -------------------------
@@ -1928,7 +1927,8 @@ package body AWS.Net.SSL is
      (Level : Natural; Output : Debug_Output_Procedure := null) is
    begin
       Debug_Output :=
-        (if Output = null and then Level > 0 then Debug_Output_Default'Access
+        (if Output = null and then Level > 0
+         then Debug_Output_Default'Access
          else Output);
 
       TSSL.gnutls_global_set_log_function (SSL_Log'Access);
