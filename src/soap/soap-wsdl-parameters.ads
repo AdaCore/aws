@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2003-2014, AdaCore                     --
+--                     Copyright (C) 2003-2015, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -30,57 +30,32 @@
 with Ada.Strings.Unbounded;
 
 with SOAP.Name_Space;
+with SOAP.WSDL.Types;
 
 package SOAP.WSDL.Parameters is
 
    use Ada.Strings.Unbounded;
-
-   type Kind is (K_Record, K_Array, K_Derived, K_Simple, K_Enumeration);
-   subtype Compound_Type is Kind range K_Record .. K_Array;
-
-   --  Enumeration values
-
-   type E_Node;
-   type E_Node_Access is access E_Node;
-
-   type E_Node is record
-      Value : Unbounded_String;
-      Next  : E_Node_Access;
-   end record;
 
    --  Parameter
 
    type Parameter;
    type P_Set is access Parameter;
 
-   type Parameter (Mode : Kind) is record
-      Name : Unbounded_String;
-      NS   : Name_Space.Object;
-      Next : P_Set;
+   type Parameter (Mode : Types.Kind) is record
+      Name      : Unbounded_String;
+      Type_Name : Unbounded_String;
+      NS        : Name_Space.Object;
+      Next      : P_Set;
 
       case Mode is
-         when K_Simple =>
-            P_Type : Parameter_Type;
-
-         when K_Derived =>
-            Parent_Type : Parameter_Type;   -- Parent type
-            D_Name      : Unbounded_String; -- Derived type name
-
-         when K_Array | K_Record =>
-            T_Name : Unbounded_String; -- Type name
-            E_Type : Unbounded_String; -- Array element's type
+         when Types.Compound_Type =>
             Length : Natural;          -- Number of items (0 = unbounded)
             P      : P_Set;
 
-         when K_Enumeration =>
-            E_Name : Unbounded_String; -- Enumeration type name
-            E_Def  : E_Node_Access;
+         when others =>
+            null;
       end case;
    end record;
-
-   function Type_Name (P : not null access Parameter) return String with
-     Post => Type_Name'Result'Length > 0;
-   --  Returns the type name for the given parameter
 
    procedure Append (P : in out P_Set; Param : Parameter) with
      Post => Length (P) = Length (P)'Old + 1;

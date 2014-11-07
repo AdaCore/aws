@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2003-2012, AdaCore                     --
+--                     Copyright (C) 2003-2015, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -35,12 +35,6 @@ package SOAP.WSDL is
 
    WSDL_Error : exception;
 
-   NS_SOAP    : constant String := "http://schemas.xmlsoap.org/wsdl/soap/";
-   NS_SOAPENC : constant String := "http://schemas.xmlsoap.org/soap/encoding/";
-   NS_XSD     : constant String := "http://www.w3.org/2001/XMLSchema";
-   NS_XSI     : constant String := "http://www.w3.org/1999/XMLSchema-instance";
-   NS_WSDL    : constant String := "http://schemas.xmlsoap.org/wsdl/";
-
    type Object is private;
 
    function Load (Filename : String) return Object;
@@ -61,6 +55,9 @@ package SOAP.WSDL is
 
    function To_Type (XSD_Type : String) return Parameter_Type;
    --  Returns the Ada parameter style for the XML type XSD_Type
+
+   function From_Type (P : Parameter_Type) return String;
+   --  Returns the xsd type for the given parameter
 
    function To_Ada
      (P       : Parameter_Type;

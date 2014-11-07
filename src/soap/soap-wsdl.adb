@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2003-2012, AdaCore                     --
+--                     Copyright (C) 2003-2015, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -131,6 +131,32 @@ package body SOAP.WSDL is
          Standard := False;
       end if;
    end From_Ada;
+
+   ---------------
+   -- From_Type --
+   ---------------
+
+   function From_Type (P : Parameter_Type) return String is
+   begin
+      case P is
+         when P_String         => return "string";
+         when P_Long           => return "long";
+         when P_Integer        => return "int";
+         when P_Short          => return "short";
+         when P_Byte           => return "byte";
+         when P_Float          => return "float";
+         when P_Double         => return "double";
+         when P_Boolean        => return "boolean";
+         when P_Time           => return "datetime";
+         when P_B64            => return "base64binary";
+         when P_Character      => return "character";
+         when P_Unsigned_Long  => return "unsignedlong";
+         when P_Unsigned_Int   => return "unsignedint";
+         when P_Unsigned_Short => return "unsignedshort";
+         when P_Unsigned_Byte  => return "unsignedbyte";
+         when P_Any_Type       => return "anytype";
+      end case;
+   end From_Type;
 
    -----------------
    -- Get_Routine --
@@ -307,7 +333,12 @@ package body SOAP.WSDL is
       Result   : out Parameter_Type;
       Standard : out Boolean)
    is
-      L_Type : constant String := Characters.Handling.To_Lower (XSD_Type);
+      Name   : constant String := Characters.Handling.To_Lower (XSD_Type);
+      L_Type : constant String :=
+                 (if Name'Length > 4
+                    and then Name (Name'First .. Name'First + 3) = "xsd:"
+                  then Name (Name'First + 4 .. Name'Last)
+                  else Name);
    begin
       Result := P_Any_Type;
       Standard := True;

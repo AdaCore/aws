@@ -42,6 +42,7 @@ with AWS.Utils;
 with SOAP.Types;
 with SOAP.Utils;
 with SOAP.WSDL.Schema;
+with SOAP.WSDL.Types;
 with SOAP.XML;
 
 package body SOAP.WSDL.Parser is
@@ -52,8 +53,6 @@ package body SOAP.WSDL.Parser is
    Verbose_Mode  : Verbose_Level := 0;
    Skip_Error    : Boolean       := False;
    NS_SOAP       : Unbounded_String;
-
-   No_Name_Space : Name_Space.Object renames Name_Space.No_Name_Space;
 
    type Look_Kind is (Complex_Type, Simple_Type, Element);
    type Look_Context is array (Look_Kind) of Boolean;
@@ -129,9 +128,9 @@ package body SOAP.WSDL.Parser is
    --  Parse WSDL element nodes
 
    procedure Add_Parameter
-     (O      : in out Object'Class;
-      Name   : String;
-      P_Type : Parameter_Type)
+     (O         : in out Object'Class;
+      Name      : String;
+      Type_Name : String)
      with Inline;
    --  Add parameter Name / P_Type into O using current mode (O.Mode)
 
@@ -142,25 +141,25 @@ package body SOAP.WSDL.Parser is
    --  Add parameter into O using current mode (O.Mode)
 
    function Parse_Parameter
-     (O        : Object'Class;
+     (O        : in out Object'Class;
       N        : DOM.Core.Node;
       Document : WSDL.Object) return Parameters.Parameter;
    --  Returns parameter in node P
 
    function Parse_Record
-     (O        : Object'Class;
+     (O        : in out Object'Class;
       R        : DOM.Core.Node;
       Document : WSDL.Object) return Parameters.Parameter;
    --  Returns record in node N
 
    function Parse_Array
-     (O        : Object'Class;
+     (O        : in out Object'Class;
       R        : DOM.Core.Node;
       Document : WSDL.Object) return Parameters.Parameter;
    --  Returns array in node N
 
    function Parse_Simple
-     (O        : Object'Class;
+     (O        : in out Object'Class;
       R        : DOM.Core.Node;
       Document : WSDL.Object) return Parameters.Parameter;
    --  Returns the derived or enumeration type in node N (N must be a
@@ -225,12 +224,13 @@ package body SOAP.WSDL.Parser is
    -------------------
 
    procedure Add_Parameter
-     (O      : in out Object'Class;
-      Name   : String;
-      P_Type : Parameter_Type) is
+     (O         : in out Object'Class;
+      Name      : String;
+      Type_Name : String) is
    begin
-      Add_Parameter
-        (O, (Parameters.K_Simple, +Name, No_Name_Space, null, P_Type));
+      Parameters.Append
+        (O.Params (O.Mode),
+         (WSDL.Types.K_Simple, +Name, +Type_Name, Name_Space.XSD, null));
    end Add_Parameter;
 
    procedure Add_Parameter
@@ -856,11 +856,12 @@ package body SOAP.WSDL.Parser is
    -----------------
 
    function Parse_Array
-     (O        : Object'Class;
+     (O        : in out Object'Class;
       R        : DOM.Core.Node;
       Document : WSDL.Object) return Parameters.Parameter
    is
-      P : Parameters.Parameter (Parameters.K_Array);
+      P : Parameters.Parameter (Types.K_Array);
+      D : Types.Definition (Types.K_Array);
    begin
       Trace ("(Parse_Array)", R);
 
@@ -875,10 +876,15 @@ package body SOAP.WSDL.Parser is
       begin
          --  Set array name, R is a complexType node
 
-         P.Name   := O.Current_Name;
-         P.T_Name := +Name;
-         P.E_Type := O.Array_Elements;
-         P.Length := O.Array_Length;
+         P.Name      := O.Current_Name;
+         P.Type_Name := +Name;
+         P.Length    := O.Array_Length;
+
+         D.Name      := P.Type_Name;
+         D.E_Type    := O.Array_Elements;
+         D.NS        := P.NS;
+
+         Types.Register (D);
 
          if not WSDL.Is_Standard (To_String (O.Array_Elements)) then
             --  This is not a standard type, parse it
@@ -1194,7 +1200,7 @@ package body SOAP.WSDL.Parser is
    ---------------------
 
    function Parse_Parameter
-     (O        : Object'Class;
+     (O        : in out Object'Class;
       N        : DOM.Core.Node;
       Document : WSDL.Object) return Parameters.Parameter
    is
@@ -1204,8 +1210,8 @@ package body SOAP.WSDL.Parser is
 
       if WSDL.Is_Standard (P_Type) then
          return
-           (Parameters.K_Simple, +XML.Get_Attr_Value (N, "name"),
-            No_Name_Space, null, To_Type (P_Type));
+           (Types.K_Simple, +XML.Get_Attr_Value (N, "name"), +P_Type,
+            Name_Space.XSD, null);
 
       elsif P_Type = "anyType" then
          raise WSDL_Error with "Type anyType is not supported.";
@@ -1296,9 +1302,9 @@ package body SOAP.WSDL.Parser is
                             "definitions.types.schema.simpleType", T_No_NS));
             end if;
 
-            Add_Parameter (O, -O.Current_Name, WSDL.To_Type (T_No_NS));
+            Add_Parameter (O, -O.Current_Name, T_No_NS);
 
-         elsif T = Types.XML_Any_Type then
+         elsif T = SOAP.Types.XML_Any_Type then
             raise WSDL_Error with "Type anyType is not supported.";
 
          else
@@ -1415,11 +1421,12 @@ package body SOAP.WSDL.Parser is
    ------------------
 
    function Parse_Record
-     (O        : Object'Class;
+     (O        : in out Object'Class;
       R        : DOM.Core.Node;
       Document : WSDL.Object) return Parameters.Parameter
    is
-      P : Parameters.Parameter (Parameters.K_Record);
+      P : Parameters.Parameter (Types.K_Record);
+      D : Types.Definition (Types.K_Record);
       N : DOM.Core.Node;
    begin
       Trace ("(Parse_Record)", R);
@@ -1441,8 +1448,13 @@ package body SOAP.WSDL.Parser is
       begin
          --  Set record name, R is a complexType or element node
 
-         P.Name   := O.Current_Name;
-         P.T_Name := +Name;
+         P.Name      := O.Current_Name;
+         P.Type_Name := +Name;
+
+         D.Name := P.Type_Name;
+         D.NS   := P.NS;
+
+         Types.Register (D);
 
          O.Self.Enclosing_Type := +Name;
 
@@ -1548,9 +1560,13 @@ package body SOAP.WSDL.Parser is
             for K in 0 .. DOM.Core.Nodes.Length (NL) - 1 loop
                declare
                   S : constant DOM.Core.Node := DOM.Core.Nodes.Item (NL, K);
+                  L : constant String :=
+                        XML.Get_Attr_Value (S, "schemaLocation");
                begin
                   if DOM.Core.Nodes.Local_Name (S) = "import"
-                    and then XML.Get_Attr_Value (S, "schemaLocation") /= ""
+                    and then L /= ""
+                    and then (L'Length < 7
+                              or else L (L'First .. L'First + 6) /= "http://")
                   then
                      --  Register the root node of the schema under the
                      --  corresponding namespace.
@@ -1653,7 +1669,7 @@ package body SOAP.WSDL.Parser is
    ------------------
 
    function Parse_Simple
-     (O        : Object'Class;
+     (O        : in out Object'Class;
       R        : DOM.Core.Node;
       Document : WSDL.Object) return Parameters.Parameter
    is
@@ -1662,7 +1678,7 @@ package body SOAP.WSDL.Parser is
       function Build_Derived
         (Name, Base : String;
          E          : DOM.Core.Node) return Parameters.Parameter;
-      --  Returns the derived type definition
+      --  Returns the derived (from standard Ada type) type definition
 
       function Build_Enumeration
         (Name, Base : String;
@@ -1677,24 +1693,27 @@ package body SOAP.WSDL.Parser is
         (Name, Base : String;
          E          : DOM.Core.Node) return Parameters.Parameter
       is
-         P : Parameters.Parameter (Parameters.K_Derived);
+         P : Parameters.Parameter (Types.K_Derived);
+         D : Types.Definition (Types.K_Derived);
       begin
-         P.NS := Get_Target_Name_Space (DOM.Core.Nodes.Parent_Node (E));
+         P.NS        := Get_Target_Name_Space (DOM.Core.Nodes.Parent_Node (E));
+         P.Name      := O.Current_Name;
+         P.Type_Name := +Name;
 
-         P.Name   := O.Current_Name;
-         P.D_Name := +Name;
+         D.Name        := P.Type_Name;
+         D.NS          := P.NS;
+         D.Parent_Name := +Base;
+
+         Types.Register (D);
 
          if WSDL.Is_Standard (Base) then
-            P.Parent_Type := To_Type (Base);
-
-            if P.Parent_Type = WSDL.P_Character then
+            if WSDL.To_Type (Base) = WSDL.P_Character then
                Check_Character (R);
             end if;
 
          else
             --  We do not support derived type at more than one level for
             --  now.
-
             raise WSDL_Error with "Parent type must be a standard type.";
          end if;
 
@@ -1711,16 +1730,21 @@ package body SOAP.WSDL.Parser is
       is
          pragma Unreferenced (Base);
 
-         use type Parameters.E_Node_Access;
+         use type Types.E_Node_Access;
 
-         P : Parameters.Parameter (Parameters.K_Enumeration);
+         P : Parameters.Parameter (Types.K_Enumeration);
+         D : Types.Definition (Types.K_Enumeration);
          N : DOM.Core.Node := E;
-         D : Parameters.E_Node_Access;
+         R : Types.E_Node_Access;
       begin
-         P.NS := Get_Target_Name_Space (DOM.Core.Nodes.Parent_Node (E));
+         --  ??PO R not needed above
 
-         P.Name   := O.Current_Name;
-         P.E_Name := +Name;
+         P.NS        := Get_Target_Name_Space (DOM.Core.Nodes.Parent_Node (E));
+         P.Name      := O.Current_Name;
+         P.Type_Name := +Name;
+
+         D.NS   := P.NS;
+         D.Name := P.Type_Name;
 
          while N /= null
            and then Utils.No_NS (DOM.Core.Nodes.Node_Name (E)) = "enumeration"
@@ -1728,21 +1752,23 @@ package body SOAP.WSDL.Parser is
             declare
                Value    : constant String :=
                             XML.Get_Attr_Value (N, "value", False);
-               New_Node : constant Parameters.E_Node_Access :=
-                            new Parameters.E_Node'
+               New_Node : constant Types.E_Node_Access :=
+                            new Types.E_Node'
                               (To_Unbounded_String (Value), null);
             begin
-               if D = null then
-                  P.E_Def := New_Node;
+               if R = null then
+                  D.E_Def := New_Node;
                else
-                  D.Next := New_Node;
+                  R.Next := New_Node;
                end if;
 
-               D := New_Node;
+               R := New_Node;
             end;
 
             N := XML.Next_Sibling (N);
          end loop;
+
+         Types.Register (D);
 
          return P;
       end Build_Enumeration;
@@ -1796,12 +1822,18 @@ package body SOAP.WSDL.Parser is
             if N_Name'Length > 6
               and then N_Name (N_Name'First .. N_Name'First + 5) = "xmlns:"
             then
+               --  We can have multiple prefix pointing to the same URL
+               --  (namespace). But an URL must be unique
+
                NS.Insert
                  (DOM.Core.Nodes.Local_Name (N),
                   DOM.Core.Nodes.Node_Value (N));
-               NS.Insert
-                 (DOM.Core.Nodes.Node_Value (N),
-                  DOM.Core.Nodes.Local_Name (N));
+
+               if not NS.Contains (DOM.Core.Nodes.Node_Value (N)) then
+                  NS.Insert
+                    (DOM.Core.Nodes.Node_Value (N),
+                     DOM.Core.Nodes.Local_Name (N));
+               end if;
             end if;
          end;
       end loop;
