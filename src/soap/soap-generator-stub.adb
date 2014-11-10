@@ -91,13 +91,14 @@ package body Stub is
    -------------------
 
    procedure New_Procedure
-     (O          : in out Object;
-      Proc       : String;
-      SOAPAction : String;
-      Namespace  : Name_Space.Object;
-      Input      : WSDL.Parameters.P_Set;
-      Output     : WSDL.Parameters.P_Set;
-      Fault      : WSDL.Parameters.P_Set)
+     (O             : in out Object;
+      Proc          : String;
+      Documentation : String;
+      SOAPAction    : String;
+      Namespace     : Name_Space.Object;
+      Input         : WSDL.Parameters.P_Set;
+      Output        : WSDL.Parameters.P_Set;
+      Fault         : WSDL.Parameters.P_Set)
    is
       use type SOAP.WSDL.Parameters.P_Set;
 
@@ -391,6 +392,8 @@ package body Stub is
       Text_IO.Put (Stub_Ads, "   ");
       Put_Header (Stub_Ads, O, Proc, Input, Output, Mode => Stub_Spec);
       Put_Header (Stub_Ads, O, Proc, Input, Output, Mode => C_Stub_Spec);
+
+      Output_Comment (Stub_Ads, Documentation, Indent => 3);
 
       Text_IO.Put_Line
         (Stub_Ads, "   --  Raises SOAP.SOAP_Error if the procedure fails");
@@ -708,12 +711,13 @@ package body Stub is
    -------------------
 
    procedure Start_Service
-     (O             : in out Object;
-      Name          : String;
-      Documentation : String;
-      Location      : String)
+     (O                  : in out Object;
+      Name               : String;
+      Root_Documentation : String;
+      Documentation      : String;
+      Location           : String)
    is
-      pragma Unreferenced (Location, Documentation);
+      pragma Unreferenced (Root_Documentation, Location);
 
       U_Name : constant String := To_Unit_Name (Format_Name (O, Name));
    begin
@@ -727,6 +731,10 @@ package body Stub is
       Text_IO.New_Line (Stub_Ads);
       With_Unit (Stub_Ads, U_Name & ".Types", Elab => Off);
       Text_IO.New_Line (Stub_Ads);
+
+      Output_Comment (Stub_Ads, Documentation, Indent => 0);
+      Text_IO.New_Line (Stub_Ads);
+
       Text_IO.Put_Line (Stub_Ads, "package " & U_Name & ".Client is");
       Text_IO.New_Line (Stub_Ads);
       Text_IO.Put_Line (Stub_Ads, "   use " & U_Name & ".Types;");

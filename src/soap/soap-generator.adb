@@ -123,6 +123,12 @@ package body SOAP.Generator is
    --  Use_Clause is set. A pragma Elaborate_All is issued for this unit if
    --  Elab is set.
 
+   procedure Output_Comment
+     (File    : Text_IO.File_Type;
+      Comment : String;
+      Indent  : Natural);
+   --  Ouput Comment into File wrapped with 80 characters
+
    Root     : Text_IO.File_Type; -- Parent packages
    Type_Ads : Text_IO.File_Type; -- Child with all type definitions
    Tmp_Ads  : Text_IO.File_Type; -- Temp file for spec types
@@ -138,23 +144,25 @@ package body SOAP.Generator is
    package Stub is
 
       procedure Start_Service
-        (O             : in out Object;
-         Name          : String;
-         Documentation : String;
-         Location      : String);
+        (O                  : in out Object;
+         Name               : String;
+         Root_Documentation : String;
+         Documentation      : String;
+         Location           : String);
 
       procedure End_Service
         (O    : in out Object;
          Name : String);
 
       procedure New_Procedure
-        (O          : in out Object;
-         Proc       : String;
-         SOAPAction : String;
-         Namespace  : Name_Space.Object;
-         Input      : WSDL.Parameters.P_Set;
-         Output     : WSDL.Parameters.P_Set;
-         Fault      : WSDL.Parameters.P_Set);
+        (O             : in out Object;
+         Proc          : String;
+         Documentation : String;
+         SOAPAction    : String;
+         Namespace     : Name_Space.Object;
+         Input         : WSDL.Parameters.P_Set;
+         Output        : WSDL.Parameters.P_Set;
+         Fault         : WSDL.Parameters.P_Set);
 
    end Stub;
 
@@ -163,23 +171,25 @@ package body SOAP.Generator is
    package Skel is
 
       procedure Start_Service
-        (O             : in out Object;
-         Name          : String;
-         Documentation : String;
-         Location      : String);
+        (O                  : in out Object;
+         Name               : String;
+         Root_Documentation : String;
+         Documentation      : String;
+         Location           : String);
 
       procedure End_Service
         (O    : in out Object;
          Name : String);
 
       procedure New_Procedure
-        (O          : in out Object;
-         Proc       : String;
-         SOAPAction : String;
-         Namespace  : Name_Space.Object;
-         Input      : WSDL.Parameters.P_Set;
-         Output     : WSDL.Parameters.P_Set;
-         Fault      : WSDL.Parameters.P_Set);
+        (O             : in out Object;
+         Proc          : String;
+         Documentation : String;
+         SOAPAction    : String;
+         Namespace     : Name_Space.Object;
+         Input         : WSDL.Parameters.P_Set;
+         Output        : WSDL.Parameters.P_Set;
+         Fault         : WSDL.Parameters.P_Set);
 
    end Skel;
 
@@ -188,23 +198,25 @@ package body SOAP.Generator is
    package CB is
 
       procedure Start_Service
-        (O             : in out Object;
-         Name          : String;
-         Documentation : String;
-         Location      : String);
+        (O                  : in out Object;
+         Name               : String;
+         Root_Documentation : String;
+         Documentation      : String;
+         Location           : String);
 
       procedure End_Service
         (O    : in out Object;
          Name : String);
 
       procedure New_Procedure
-        (O          : in out Object;
-         Proc       : String;
-         SOAPAction : String;
-         Namespace  : Name_Space.Object;
-         Input      : WSDL.Parameters.P_Set;
-         Output     : WSDL.Parameters.P_Set;
-         Fault      : WSDL.Parameters.P_Set);
+        (O             : in out Object;
+         Proc          : String;
+         Documentation : String;
+         SOAPAction    : String;
+         Namespace     : Name_Space.Object;
+         Input         : WSDL.Parameters.P_Set;
+         Output        : WSDL.Parameters.P_Set;
+         Fault         : WSDL.Parameters.P_Set);
 
    end CB;
 
@@ -426,13 +438,14 @@ package body SOAP.Generator is
    -------------------
 
    overriding procedure New_Procedure
-     (O          : in out Object;
-      Proc       : String;
-      SOAPAction : String;
-      Namespace  : Name_Space.Object;
-      Input      : WSDL.Parameters.P_Set;
-      Output     : WSDL.Parameters.P_Set;
-      Fault      : WSDL.Parameters.P_Set) is
+     (O             : in out Object;
+      Proc          : String;
+      Documentation : String;
+      SOAPAction    : String;
+      Namespace     : Name_Space.Object;
+      Input         : WSDL.Parameters.P_Set;
+      Output        : WSDL.Parameters.P_Set;
+      Fault         : WSDL.Parameters.P_Set) is
    begin
       if not O.Quiet then
          Text_IO.Put_Line ("   > " & Proc);
@@ -442,17 +455,20 @@ package body SOAP.Generator is
 
       if O.Gen_Stub then
          Stub.New_Procedure
-           (O, Proc, SOAPAction, Namespace, Input, Output, Fault);
+           (O, Proc, Documentation, SOAPAction, Namespace,
+            Input, Output, Fault);
       end if;
 
       if O.Gen_Skel then
          Skel.New_Procedure
-           (O, Proc, SOAPAction, Namespace, Input, Output, Fault);
+           (O, Proc, Documentation, SOAPAction, Namespace,
+            Input, Output, Fault);
       end if;
 
       if O.Gen_CB then
          CB.New_Procedure
-           (O, Proc, SOAPAction, Namespace, Input, Output, Fault);
+           (O, Proc, Documentation, SOAPAction, Namespace,
+            Input, Output, Fault);
       end if;
    end New_Procedure;
 
@@ -482,6 +498,47 @@ package body SOAP.Generator is
    begin
       O.Options := To_Unbounded_String (Options);
    end Options;
+
+   --------------------
+   -- Output_Comment --
+   --------------------
+
+   procedure Output_Comment
+     (File    : Text_IO.File_Type;
+      Comment : String;
+      Indent  : Natural)
+   is
+      use Ada.Strings.Fixed;
+      Max_Len : constant Natural := 75 - 4 - Indent;
+      F       : Positive := Comment'First;
+      L       : Positive := F;
+   begin
+      while F < Comment'Last loop
+         L := Positive'Min (Comment'Last, F + Max_Len);
+
+         if L < Comment'Last then
+            while L > F and then Comment (L) /= ' ' loop
+               L := L - 1;
+            end loop;
+
+            if L = F then
+               L := Positive'Min (Comment'Last, F + Max_Len);
+            end if;
+         end if;
+
+         while L > F and then Comment (L) = ' ' loop
+            L := L - 1;
+         end loop;
+
+         Text_IO.Put_Line
+           (File, String'(Indent * ' ') & "--  " & Comment (F .. L));
+         F := L + 1;
+
+         while F < Comment'Last and then Comment (F) = ' ' loop
+            F := F + 1;
+         end loop;
+      end loop;
+   end Output_Comment;
 
    ---------------
    -- Overwrite --
@@ -936,6 +993,11 @@ package body SOAP.Generator is
                     & " of " & To_Ada_Type (T_Name) & ";");
             end if;
 
+            if P.Doc /= Null_Unbounded_String then
+               Output_Comment (Arr_Ads, To_String (P.Doc), Indent => 3);
+               Text_IO.New_Line (Arr_Ads);
+            end if;
+
             if not Regen then
                Text_IO.Put_Line
                  (Tmp_Ads, "   subtype " & F_Name);
@@ -1320,11 +1382,15 @@ package body SOAP.Generator is
                Text_IO.Put_Line (Der_Ads, "       (" & F_Name & " (D));");
             end if;
 
+            Output_Comment (Der_Ads, To_String (P.Doc), Indent => 3);
+
             Text_IO.Put_Line
               (Tmp_Ads, "   subtype " & F_Name);
             Text_IO.Put_Line
               (Tmp_Ads, "     is " & To_Unit_Name (To_String (Prefix)) & '.'
                & F_Name & ';');
+
+            Output_Comment (Tmp_Ads, To_String (P.Doc), Indent => 3);
 
             Text_IO.Put_Line
               (Tmp_Ads, "   function To_" & Name & " (D : " & F_Name & ")");
@@ -1710,6 +1776,9 @@ package body SOAP.Generator is
 
             Text_IO.New_Line (Rec_Ads);
 
+            Output_Comment (Rec_Ads, To_String (P.Doc), Indent => 3);
+            Text_IO.New_Line (Rec_Ads);
+
             if N = null then
                Text_IO.Put_Line
                  (Rec_Ads, "   type " & F_Name & " is null record;");
@@ -1732,6 +1801,7 @@ package body SOAP.Generator is
                   Text_IO.Put (Rec_Ads, Format_Name (O, Type_Name (N)));
 
                   Text_IO.Put_Line (Rec_Ads, ";");
+                  Output_Comment (Rec_Ads, To_String (N.Doc), Indent => 6);
 
                   if N.Mode = WSDL.Types.K_Array then
                      Text_IO.Put_Line
@@ -2738,10 +2808,11 @@ package body SOAP.Generator is
    -------------------
 
    overriding procedure Start_Service
-     (O             : in out Object;
-      Name          : String;
-      Documentation : String;
-      Location      : String)
+     (O                  : in out Object;
+      Name               : String;
+      Root_Documentation : String;
+      Documentation      : String;
+      Location           : String)
    is
       use type Client.Timeouts_Values;
 
@@ -2874,7 +2945,7 @@ package body SOAP.Generator is
       if not O.Quiet then
          Text_IO.New_Line;
          Text_IO.Put_Line ("Service " & Name);
-         Text_IO.Put_Line ("   " & Documentation);
+         Text_IO.Put_Line ("   " & Root_Documentation);
       end if;
 
       Create (Root, LL_Name & ".ads");
@@ -2906,8 +2977,8 @@ package body SOAP.Generator is
 
       Put_File_Header (O, Root);
 
-      if Documentation /= "" then
-         Text_IO.Put_Line (Root, "--  " & Documentation);
+      if Root_Documentation /= "" then
+         Output_Comment (Root, Root_Documentation, Indent => 0);
          Text_IO.New_Line (Root);
       end if;
 
@@ -2983,7 +3054,8 @@ package body SOAP.Generator is
       if O.Gen_Stub then
          Put_File_Header (O, Stub_Ads);
          Put_File_Header (O, Stub_Adb);
-         Stub.Start_Service (O, Name, Documentation, Location);
+         Stub.Start_Service
+           (O, Name, Root_Documentation, Documentation, Location);
       end if;
 
       --  Skeletons
@@ -2991,7 +3063,8 @@ package body SOAP.Generator is
       if O.Gen_Skel then
          Put_File_Header (O, Skel_Ads);
          Put_File_Header (O, Skel_Adb);
-         Skel.Start_Service (O, Name, Documentation, Location);
+         Skel.Start_Service
+           (O, Name, Root_Documentation, Documentation, Location);
       end if;
 
       --  Callbacks
@@ -2999,7 +3072,8 @@ package body SOAP.Generator is
       if O.Gen_CB then
          Put_File_Header (O, CB_Ads);
          Put_File_Header (O, CB_Adb);
-         CB.Start_Service (O, Name, Documentation, Location);
+         CB.Start_Service
+           (O, Name, Root_Documentation, Documentation, Location);
       end if;
 
       --  Main

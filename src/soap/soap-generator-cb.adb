@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2003-2013, AdaCore                     --
+--                     Copyright (C) 2003-2015, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -101,15 +101,17 @@ package body CB is
    -------------------
 
    procedure New_Procedure
-     (O          : in out Object;
-      Proc       : String;
-      SOAPAction : String;
-      Namespace  : Name_Space.Object;
-      Input      : WSDL.Parameters.P_Set;
-      Output     : WSDL.Parameters.P_Set;
-      Fault      : WSDL.Parameters.P_Set)
+     (O             : in out Object;
+      Proc          : String;
+      Documentation : String;
+      SOAPAction    : String;
+      Namespace     : Name_Space.Object;
+      Input         : WSDL.Parameters.P_Set;
+      Output        : WSDL.Parameters.P_Set;
+      Fault         : WSDL.Parameters.P_Set)
    is
-      pragma Unreferenced (SOAPAction, Namespace, Input, Output, Fault);
+      pragma Unreferenced (SOAPAction, Namespace, Documentation);
+      pragma Unreferenced (Input, Output, Fault);
 
       use type WSDL.Parameters.P_Set;
 
@@ -142,12 +144,13 @@ package body CB is
    -------------------
 
    procedure Start_Service
-     (O             : in out Object;
-      Name          : String;
-      Documentation : String;
-      Location      : String)
+     (O                  : in out Object;
+      Name               : String;
+      Root_Documentation : String;
+      Documentation      : String;
+      Location           : String)
    is
-      pragma Unreferenced (Location, Documentation);
+      pragma Unreferenced (Location, Root_Documentation, Documentation);
 
       U_Name : constant String := To_Unit_Name (Format_Name (O, Name));
    begin

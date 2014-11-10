@@ -43,6 +43,7 @@ package SOAP.WSDL.Parameters is
 
    type Parameter (Mode : Types.Kind) is record
       Name      : Unbounded_String;
+      Doc       : Unbounded_String;
       Typ       : Types.Object;
       Next      : P_Set;
 

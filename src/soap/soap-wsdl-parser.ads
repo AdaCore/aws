@@ -44,10 +44,11 @@ package SOAP.WSDL.Parser is
    type Object is tagged limited private;
 
    procedure Start_Service
-     (O             : in out Object;
-      Name          : String;
-      Documentation : String;
-      Location      : String) is null;
+     (O                  : in out Object;
+      Name               : String;
+      Root_Documentation : String;
+      Documentation      : String;
+      Location           : String) is null;
    --  Called for every service in the WSDL document
 
    procedure End_Service
@@ -56,13 +57,14 @@ package SOAP.WSDL.Parser is
    --  Called at the end of the service
 
    procedure New_Procedure
-     (O          : in out Object;
-      Proc       : String;
-      SOAPAction : String;
-      Namespace  : Name_Space.Object;
-      Input      : Parameters.P_Set;
-      Output     : Parameters.P_Set;
-      Fault      : Parameters.P_Set) is null;
+     (O             : in out Object;
+      Proc          : String;
+      Documentation : String;
+      SOAPAction    : String;
+      Namespace     : Name_Space.Object;
+      Input         : Parameters.P_Set;
+      Output        : Parameters.P_Set;
+      Fault         : Parameters.P_Set) is null;
    --  Called for each SOAP procedure found in the WSDL document for the
    --  current service.
 
@@ -110,6 +112,7 @@ private
    type Object is tagged limited record
       Self            : Object_Access := Object'Unchecked_Access;
       Proc            : Unbounded_String; -- SOAP procedure name
+      Documentation   : Unbounded_String; -- Associated documentation
       SOAPAction      : Unbounded_String; -- SOAPAction string
       Namespace       : Name_Space.Object;
       Mode            : Parameter_Mode;   -- Current parameter parsing mode

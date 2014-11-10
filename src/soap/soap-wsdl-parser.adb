@@ -32,6 +32,7 @@ pragma Ada_2012;
 with Ada.Containers.Indefinite_Vectors;
 with Ada.Exceptions;
 with Ada.Strings.Fixed;
+with Ada.Strings.Maps;
 with Ada.Text_IO;
 
 with DOM.Core.Nodes;
@@ -205,6 +206,9 @@ package body SOAP.WSDL.Parser is
    procedure Skip_Annotation (N : in out DOM.Core.Node);
    --  Skip annotation node
 
+   function Get_Documentation (N : DOM.Core.Node) return String;
+   --  Get text for the documentation node N
+
    -----------
    -- Debug --
    -----------
@@ -233,7 +237,7 @@ package body SOAP.WSDL.Parser is
       if not O.No_Param then
          Parameters.Append
            (O.Params (O.Mode),
-            (WSDL.Types.K_Simple, +Name,
+            (WSDL.Types.K_Simple, +Name, Null_Unbounded_String,
              Typ  => Types.Create (Utils.No_NS (Type_Name), Name_Space.XSD),
              Next => null));
       end if;
@@ -267,6 +271,57 @@ package body SOAP.WSDL.Parser is
    begin
       O.Exclude.Insert (Operation, Pos, Success);
    end Exclude;
+
+   -----------------------
+   -- Get_Documentation --
+   -----------------------
+
+   function Get_Documentation (N : DOM.Core.Node) return String is
+      Trim_Set : constant Strings.Maps.Character_Set :=
+                   Strings.Maps.To_Set (ASCII.LF & ASCII.CR);
+      D        : DOM.Core.Node := DOM.Core.Nodes.First_Child (N);
+      Doc      : Unbounded_String;
+   begin
+      while D /= null loop
+         if DOM.Core.Nodes.Node_Name (D) = "#text" then
+            declare
+               V : Unbounded_String := +DOM.Core.Nodes.Node_Value (D);
+               P : Natural;
+               E : Boolean := True;
+            begin
+               loop
+                  E := True;
+
+                  P := Index (V, "  ");
+                  if P /= 0 then
+                     Strings.Unbounded.Delete (V, P, P);
+                     E := False;
+                  end if;
+
+                  P := Index (V, Trim_Set);
+                  if P /= 0 then
+                     Strings.Unbounded.Delete (V, P, P);
+                     E := False;
+                  end if;
+
+                  exit when E;
+               end loop;
+
+               if Doc /= Null_Unbounded_String then
+                  Append (Doc, " ");
+               end if;
+
+               --  Then finaly removes leading/trainling white spaces
+
+               Append (Doc, Strings.Unbounded.Trim (V, Side => Strings.Both));
+            end;
+         end if;
+
+         D := DOM.Core.Nodes.Next_Sibling (D);
+      end loop;
+
+      return To_String (Doc);
+   end Get_Documentation;
 
    ------------------------
    -- Get_Namespaces_For --
@@ -897,6 +952,16 @@ package body SOAP.WSDL.Parser is
 
          Types.Register (D);
 
+         --  Get documentation if any
+
+         if Utils.No_NS (DOM.Core.Nodes.Node_Name (XML.First_Child (R)))
+           = "annotation"
+         then
+            Append
+              (P.Doc,
+               Get_Documentation (XML.First_Child (XML.First_Child (R))));
+         end if;
+
          if not WSDL.Is_Standard (To_String (O.Array_Elements)) then
             --  This is not a standard type, parse it
             declare
@@ -1214,14 +1279,24 @@ package body SOAP.WSDL.Parser is
       Document : WSDL.Object) return Parameters.Parameter
    is
       P_Type : constant String := XML.Get_Attr_Value (N, "type", True);
+      Doc    : Unbounded_String;
+      D      : DOM.Core.Node := N;
    begin
       Trace ("(Parse_Parameter)", N);
+
+      D := XML.First_Child (N);
+
+      if D /= null
+        and then Utils.No_NS (DOM.Core.Nodes.Node_Name (D)) = "annotation"
+      then
+         Append (Doc, Get_Documentation (XML.First_Child (D)));
+      end if;
 
       if (WSDL.Is_Standard (P_Type) and then To_Type (P_Type) /= P_Character)
         or else Is_Character (N, P_Type, Document)
       then
          return
-           (Types.K_Simple, +XML.Get_Attr_Value (N, "name"),
+           (Types.K_Simple, +XML.Get_Attr_Value (N, "name"), Doc,
             Typ  => Types.Create (Utils.No_NS (P_Type), Name_Space.XSD),
             Next => null);
 
@@ -1375,6 +1450,14 @@ package body SOAP.WSDL.Parser is
    begin
       Trace ("(Parse_PortType)", Operation);
 
+      --  Check for documentation
+
+      N := Get_Node (Operation, "documentation");
+
+      if N /= null then
+         O.Documentation := +Get_Documentation (N);
+      end if;
+
       --  Input parameters
 
       N := Get_Node (Operation, "input");
@@ -1414,7 +1497,7 @@ package body SOAP.WSDL.Parser is
       end if;
 
       New_Procedure
-        (O, -O.Proc, -O.SOAPAction, O.Namespace,
+        (O, -O.Proc, -O.Documentation, -O.SOAPAction, O.Namespace,
          O.Params (Input), O.Params (Output), O.Params (Fault));
 
       Parameters.Release (O.Params (Input));
@@ -1474,7 +1557,13 @@ package body SOAP.WSDL.Parser is
             N := XML.First_Child (N);
          end if;
 
-         Skip_Annotation (N);
+         if N /= null
+           and then
+             Utils.No_NS (DOM.Core.Nodes.Node_Name (N)) = "annotation"
+         then
+            Append (P.Doc, Get_Documentation (XML.First_Child (N)));
+            N := XML.Next_Sibling (N);
+         end if;
 
          --  Check for empty complexType
 
@@ -1539,7 +1628,16 @@ package body SOAP.WSDL.Parser is
             N := XML.First_Child (N);
 
             while N /= null loop
-               Parameters.Append (P.P, Parse_Parameter (O, N, Document));
+               --  Check for annotation
+
+               if Utils.No_NS (DOM.Core.Nodes.Node_Name (N))
+                 = "annotation"
+               then
+                  Append (P.Doc, Get_Documentation (XML.First_Child (N)));
+               else
+                  Parameters.Append (P.P, Parse_Parameter (O, N, Document));
+               end if;
+
                N := XML.Next_Sibling (N);
             end loop;
          end if;
@@ -1624,11 +1722,12 @@ package body SOAP.WSDL.Parser is
       Service  : DOM.Core.Node;
       Document : WSDL.Object)
    is
-      Port, N       : DOM.Core.Node;
-      Name          : Unbounded_String;
-      Documentation : Unbounded_String;
-      Location      : Unbounded_String;
-      Binding       : Unbounded_String;
+      Port, N            : DOM.Core.Node;
+      Name               : Unbounded_String;
+      Root_Documentation : Unbounded_String;
+      Documentation      : Unbounded_String;
+      Location           : Unbounded_String;
+      Binding            : Unbounded_String;
    begin
       Trace ("(Parse_Service)", Service);
 
@@ -1637,9 +1736,15 @@ package body SOAP.WSDL.Parser is
       N := Get_Node (Service, "documentation");
 
       if N /= null then
-         DOM.Core.Nodes.Normalize (N);
-         Documentation :=
-           +DOM.Core.Nodes.Node_Value (DOM.Core.Nodes.First_Child (N));
+         Root_Documentation := +Get_Documentation (N);
+      end if;
+
+      N := Get_Node
+        (XML.First_Child (DOM.Core.Node (Document)),
+         "portType.documentation");
+
+      if N /= null then
+         Append (Documentation, Get_Documentation (N));
       end if;
 
       Port := Get_Node (Service, "port");
@@ -1654,7 +1759,7 @@ package body SOAP.WSDL.Parser is
          Location := +XML.Get_Attr_Value (N, "location");
       end if;
 
-      Start_Service (O, -Name, -Documentation, -Location);
+      Start_Service (O, -Name, -Root_Documentation, -Documentation, -Location);
 
       --  Look for the right binding
 
