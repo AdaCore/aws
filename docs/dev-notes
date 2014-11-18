@@ -159,9 +159,11 @@ Tags               : vX.Y.Z (Z=0 for the branchpoint and Z>=1 otherwise)
 branching
 ---------
 
-When a release is about to be ready a branch is created (vX.Y):
+When a release is about to be ready a branch is created (release-X.Y):
 
    $ git branch release-2.0 master
+
+   $ git tag -a vX.Y.0
 
 At this point some adjustments are needed:
 
@@ -195,7 +197,7 @@ For this, <branch_name> may have to be rebased on release branch:
 
 When the release is fully ready a corresponding tag is created (vX.Y.1):
 
-   $ git tag -a v2.0.1
+   $ git tag -a vX.Y.1
    $ git push --tags
 
 If interim releases are needed to fix some important bugs, as before fixes
