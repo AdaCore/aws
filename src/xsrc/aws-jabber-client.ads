@@ -66,21 +66,25 @@ package AWS.Jabber.Client is
    type Message_Type is (M_Chat, M_Normal, M_Group_Chat, M_Headline, M_Error);
 
    type Message_Hook is not null access procedure
-     (From         : Jabber_ID;
+     (Account      : Account_Access;
+      From         : Jabber_ID;
       Message_Type : Client.Message_Type;
       Subject      : String;
       Content      : String);
 
    type Presence_Hook is not null access procedure
-     (From   : Jabber_ID;
-      Status : String);
+     (Account : Account_Access;
+      From    : Jabber_ID;
+      Status  : String);
 
    procedure IO_Presence
-     (From    : Jabber_ID;
+     (Account : Account_Access;
+      From    : Jabber_ID;
       Status  : String);
 
    procedure IO_Message
-     (From         : Jabber_ID;
+     (Account      : Account_Access;
+      From         : Jabber_ID;
       Message_Type : Client.Message_Type;
       Subject      : String;
       Content      : String);
@@ -88,6 +92,10 @@ package AWS.Jabber.Client is
    procedure Set_Presence_Hook
      (Account : in out Client.Account;
       Hook    : Presence_Hook);
+
+   procedure Set_Message_Hook
+     (Account : in out Client.Account;
+      Hook    : Message_Hook);
 
    procedure Set_Host
      (Account : in out Client.Account;
@@ -107,6 +115,9 @@ package AWS.Jabber.Client is
      (Account   : in out Client.Account;
       Auth_Type : Authentication_Mechanism);
 
+   function Get_User
+     (Account : Client.Account) return String;
+
    procedure Connect (Account : in out Client.Account);
    --  Connect to the jabber server
 
@@ -121,6 +132,17 @@ package AWS.Jabber.Client is
       Message_Type : Client.Message_Type := M_Normal);
    --  Send a message to user JID (Jabber ID) via the specified Server. The
    --  message is composed of Subject and a body (Content).
+
+   procedure Remove_And_Unsubscribe
+      (Account : Client.Account;
+       JID     : Jabber_ID);
+   --  Remove JID from the roster and unsubscribe from all presence
+   --  information.
+
+   procedure Subscribe
+      (Account : Client.Account;
+       JID     : Jabber_ID);
+   --  Subscribe to presence information from JID
 
 private
 
@@ -171,6 +193,16 @@ private
       JID      : Unbounded_String;
    end record;
 
+   type Serial_Number is mod 2 ** 32;
+
+   protected type Serial_Generator is
+      procedure Get (Serial : out Serial_Number);
+   private
+      Value : Serial_Number := Serial_Number'Last;
+   end Serial_Generator;
+
+   type Serial_Generator_Access is access Serial_Generator;
+
    type Account is limited record
       Self       : Account_Access := Account'Unchecked_Access;
       User       : User_Data;
@@ -182,6 +214,7 @@ private
       SID        : Unbounded_String;
       Auth_Type  : Authentication_Mechanism := More_Secure_Mechanism;
       Hooks      : Jabber_Hooks;
+      Serial     : Serial_Generator_Access := new Serial_Generator;
    end record;
 
 end AWS.Jabber.Client;

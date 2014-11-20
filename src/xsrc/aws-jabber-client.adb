@@ -50,6 +50,10 @@ package body AWS.Jabber.Client is
    procedure XMPP_Send (Account : Client.Account; Message : String);
    --  Send a XMPP message to the jabber server
 
+   function Image (Serial : Serial_Number) return String
+     with Post => Image'Result (Image'Result'First) = '_';
+   --  Returns string representation of Serial with '_' as prefix
+
    -----------
    -- Close --
    -----------
@@ -57,6 +61,8 @@ package body AWS.Jabber.Client is
    procedure Close (Account : in out Client.Account)  is
       procedure Unchecked_Free is new Ada.Unchecked_Deallocation
         (Incoming_Stream, Incoming_Stream_Access);
+      procedure Unchecked_Free is new Ada.Unchecked_Deallocation
+        (Serial_Generator, Serial_Generator_Access);
    begin
       if Account.Is_Running then
          --  Let's annouce that we are going offline
@@ -80,6 +86,7 @@ package body AWS.Jabber.Client is
 
          Unchecked_Free (Account.Stream);
          Account.Is_Running := False;
+         Unchecked_Free (Account.Serial);
       end if;
    end Close;
 
@@ -128,17 +135,43 @@ package body AWS.Jabber.Client is
          raise Server_Error;
    end Connect;
 
+   ---------------
+   -- Get_User ---
+   ---------------
+
+   function Get_User
+     (Account : Client.Account) return String is
+   begin
+      return To_String (Account.User.Name);
+   end Get_User;
+
+   -----------
+   -- Image --
+   -----------
+
+   function Image (Serial : Serial_Number) return String is
+      Result : String := Serial_Number'Image (Serial);
+   begin
+      Result (Result'First) := '_';
+
+      return Result;
+   end Image;
+
    -----------------
    -- IO_Message ---
    -----------------
 
    procedure IO_Message
-     (From         : Jabber_ID;
+     (Account      : Account_Access;
+      From         : Jabber_ID;
       Message_Type : Client.Message_Type;
       Subject      : String;
-      Content      : String) is
+      Content      : String)
+   is
+      pragma Unreferenced (Account);
    begin
       Text_IO.Put_Line ("From :" & String (From));
+
       if Message_Type = M_Normal then
          Text_IO.Put_Line ("Subject: " & Subject);
       end if;
@@ -151,11 +184,33 @@ package body AWS.Jabber.Client is
    -----------------
 
    procedure IO_Presence
-     (From   : Jabber_ID;
-      Status : String) is
+     (Account : Account_Access;
+      From    : Jabber_ID;
+      Status  : String)
+   is
+      pragma Unreferenced (Account);
    begin
       Text_IO.Put_Line (String (From) & " is " & Status);
    end IO_Presence;
+
+   ----------------------------
+   -- Remove_And_Unsubscribe --
+   ----------------------------
+
+   procedure Remove_And_Unsubscribe
+     (Account : Client.Account;
+      JID     : Jabber_ID)
+   is
+      Serial : Serial_Number;
+   begin
+      Account.Serial.Get (Serial);
+
+      XMPP_Send (Account, "<iq type='set' id='remove" & Image (Serial) & "'>"
+                          & " <query xmlns='jabber:iq:roster'>"
+                          & "  <item jid='" & String (JID) & "'"
+                          & "   subscription='remove'/>"
+                          & " </query></iq>");
+   end Remove_And_Unsubscribe;
 
    ----------
    -- Send --
@@ -182,18 +237,30 @@ package body AWS.Jabber.Client is
          return Characters.Handling.To_Lower (T (T'First + 2 .. T'Last));
       end Send_Type;
 
+      Serial : Serial_Number;
+      Result : Ada.Strings.Unbounded.Unbounded_String;
    begin
       if Account.Is_Running then
+         Account.Serial.Get (Serial);
+
          --  Send Message
 
-         XMPP_Send (Account,
-                    "<message xmlns='jabber:client' type='" & Send_Type & "'"
-                    & " id='id_msg' to='" & String (JID) & "'>"
-                    & " <thread xmlns='jabber:client'>ja_msg</thread>"
-                    & " <subject xmlns='jabber:client'>" & Subject
-                    & "</subject>"
-                    & " <body xmlns='jabber:client'>" & Content & "</body>"
-                    & "</message>");
+         Ada.Strings.Unbounded.Append
+            (Result, "<message type='" & Send_Type & "'"
+                     & " id='msg" & Image (Serial)
+                     & "' to='" & String (JID) & "'>");
+
+         if Subject /= "" then
+            Ada.Strings.Unbounded.Append
+               (Result,
+                " <subject>" & Subject & "</subject>");
+         end if;
+
+         Ada.Strings.Unbounded.Append
+            (Result,
+             " <body>" & Content & "</body></message>");
+
+         XMPP_Send (Account, To_String (Result));
       else
          raise Server_Error with "Not connected to server";
       end if;
@@ -236,6 +303,17 @@ package body AWS.Jabber.Client is
       Account.User.Resource := To_Unbounded_String (Resource);
    end Set_Login_Information;
 
+   ----------------------
+   -- Set_Message_Hook --
+   ----------------------
+
+   procedure Set_Message_Hook
+     (Account : in out Client.Account;
+      Hook    : Message_Hook) is
+   begin
+      Account.Hooks.Message := Hook;
+   end Set_Message_Hook;
+
    --------------
    -- Set_Port --
    --------------
@@ -257,6 +335,18 @@ package body AWS.Jabber.Client is
    begin
       Account.Hooks.Presence := Hook;
    end Set_Presence_Hook;
+
+   ---------------
+   -- Subscribe --
+   ---------------
+
+   procedure Subscribe
+      (Account : Client.Account;
+       JID     : Jabber_ID) is
+   begin
+      XMPP_Send
+        (Account, "<presence to='" & String (JID) & "' type='subscribe'/>");
+   end Subscribe;
 
    ------------------
    -- To_Jabber_ID --
@@ -568,6 +658,7 @@ package body AWS.Jabber.Client is
                        Authentication_Step'Succ (Authentication_Current_Step);
                   end Next_Step;
 
+                  Serial : Serial_Number;
                begin
                   if Authentication_Current_Step = First_Challenge
                     and then Contains (Message.all, "challenge")
@@ -627,6 +718,8 @@ package body AWS.Jabber.Client is
                   elsif Authentication_Current_Step = Bind_Requirement
                     and then Contains (Message.all, "bind")
                   then
+                     Account.Serial.Get (Serial);
+
                      --  Server tells client that resource binding is required
 
                      --  Request a resource or ask for the desired resource
@@ -634,7 +727,7 @@ package body AWS.Jabber.Client is
                      if Account.User.Resource /= "" then
                         XMPP_Send
                           (Account,
-                           "<iq type='set' id='bind_2'>"
+                           "<iq type='set' id='bind" & Image (Serial) & "'>"
                            & "<bind xmlns='urn:ietf:params:xml:ns:xmpp-bind'>"
                            & "<resource>"
                            & To_String (Account.User.Resource)
@@ -642,7 +735,7 @@ package body AWS.Jabber.Client is
                      else
                         XMPP_Send
                           (Account,
-                           "<iq type='set' id='bind_1'>"
+                           "<iq type='set' id='bind" & Image (Serial) & "'>"
                            & "<bind xmlns='urn:ietf:params:xml:ns:xmpp-bind'/>"
                            & "</iq>");
                      end if;
@@ -652,6 +745,7 @@ package body AWS.Jabber.Client is
                   elsif Authentication_Current_Step = Get_Resource
                     and then Contains (Message.all, "jid")
                   then
+                     Account.Serial.Get (Serial);
 
                      Account.User.JID := To_Unbounded_String
                        (Value (Message, "jid"));
@@ -661,7 +755,7 @@ package body AWS.Jabber.Client is
 
                      XMPP_Send
                        (Account,
-                        "<iq type='set' id='sess_1'>"
+                        "<iq type='set' id='sess" & Image (Serial) & "'>"
                         & "<session "
                         & "xmlns='urn:ietf:params:xml:ns:xmpp-session'/>"
                         & "</iq>");
@@ -670,13 +764,15 @@ package body AWS.Jabber.Client is
                   elsif Authentication_Current_Step = Get_Ack_Session
                     and then Contains (Message.all, "session")
                   then
+                     Account.Serial.Get (Serial);
+
                      --  Send our presence, as this is an application and not a
                      --  real user we send an initial dnd (Do Not Disturb)
                      --  status.
 
                      XMPP_Send (Account,
                            "<presence from='" & To_String (Account.User.JID)
-                           & "' id='ja_pres'>"
+                           & "' id='ja_pres" & Image (Serial) & "'>"
                            & "<show>dnd</show>"
                            & "<status>AWS Project</status>"
                            & "</presence>");
@@ -708,7 +804,8 @@ package body AWS.Jabber.Client is
                   end if;
 
                   Account.Hooks.Message
-                    (From         => Jabber_ID
+                    (Account      => Account.Self,
+                     From         => Jabber_ID
                        (Value (Message, "message.from")),
                      Message_Type => Get_Type,
                      Subject      => Value (Message, "subject"),
@@ -747,7 +844,8 @@ package body AWS.Jabber.Client is
 
                begin
                   Account.Hooks.Presence
-                    (From    => Jabber_ID (Value (Message, "presence.from")),
+                    (Account => Account.Self,
+                     From    => Jabber_ID (Value (Message, "presence.from")),
                      Status  => Get_Status);
                end Get_Presence_Hook;
 
@@ -934,6 +1032,20 @@ package body AWS.Jabber.Client is
          Text_IO.Put_Line (Exceptions.Exception_Information (E));
          raise;
    end Incoming_Stream;
+
+   ----------------------
+   -- Serial_Generator --
+   ----------------------
+
+   protected body Serial_Generator is
+
+      procedure Get (Serial : out Serial_Number) is
+      begin
+         Value := Value + 1;
+         Serial := Value;
+      end Get;
+
+   end Serial_Generator;
 
    ---------------
    -- XMPP_Send --
