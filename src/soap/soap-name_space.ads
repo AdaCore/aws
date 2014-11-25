@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2004-2012, AdaCore                     --
+--                     Copyright (C) 2004-2014, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -35,9 +35,14 @@ package SOAP.Name_Space is
 
    Default_Prefix : constant String := "xmlns";
 
-   AWS : constant Object;
-
    No_Name_Space : constant Object;
+
+   function AWS return Object;
+   --  Returns the AWS namespace (used to generate schema)
+
+   procedure Set_AWS_NS (Value : String);
+   --  Set the root value of the AWS name-space. This is used by ada2wsdl to
+   --  generate specific schema root name.
 
    function Create
      (Name, Value : String;
@@ -79,10 +84,5 @@ private
                      (Null_Unbounded_String,
                       Null_Unbounded_String,
                       Null_Unbounded_String);
-
-   AWS : constant Object :=
-           (To_Unbounded_String (Default_Prefix),
-            To_Unbounded_String ("awsns"),
-            To_Unbounded_String ("http://soapaws/"));
 
 end SOAP.Name_Space;

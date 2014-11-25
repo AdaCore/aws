@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2004-2012, AdaCore                     --
+--                     Copyright (C) 2004-2014, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -28,6 +28,19 @@
 ------------------------------------------------------------------------------
 
 package body SOAP.Name_Space is
+
+   Root_AWS_NS : Unbounded_String := To_Unbounded_String ("soapaws");
+
+   ---------
+   -- AWS --
+   ---------
+
+   function AWS return Object is
+   begin
+      return Create
+        (Name  => "awsns",
+         Value => "http://" & To_String (Root_AWS_NS) & "/");
+   end AWS;
 
    ------------
    -- Create --
@@ -90,6 +103,15 @@ package body SOAP.Name_Space is
    begin
       O := Create (Name, Value, Prefix);
    end Set;
+
+   ----------------
+   -- Set_AWS_NS --
+   ----------------
+
+   procedure Set_AWS_NS (Value : String) is
+   begin
+      Root_AWS_NS := To_Unbounded_String (Value);
+   end Set_AWS_NS;
 
    -----------
    -- Value --

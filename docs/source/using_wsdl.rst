@@ -396,6 +396,9 @@ ada2wsdl
   Add path option for the `ASIS` compilation step. This option can
   appear any number of time on the command line.
 
+*-n name*
+  Specify the schema name space root name. The default value is "soapaws".
+
 *-noenum*
   Do not generate `WSDL` representation for Ada enumerations, map
   them to standard string. :ref:`Ada_mapping_to_WSDL`.
