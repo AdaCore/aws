@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2003-2012, AdaCore                     --
+--                     Copyright (C) 2003-2014, AdaCore                     --
 --                                                                          --
 --  This is free software;  you can redistribute it  and/or modify it       --
 --  under terms of the  GNU General Public License as published  by the     --
@@ -24,6 +24,7 @@ with Ada.Text_IO;
 with GNAT.Command_Line;
 
 with AWS.Utils;
+with SOAP.Name_Space;
 
 with Ada2WSDL.Generator;
 with Ada2WSDL.Options;
@@ -48,7 +49,9 @@ procedure Ada2WSDL.Main is
    procedure Parse_Command_Line is
    begin
       loop
-         case GNAT.Command_Line.Getopt ("f q v a: o: s: t: I: P: noenum d") is
+         case GNAT.Command_Line.Getopt
+           ("f q v a: o: s: t: I: P: n: noenum d")
+         is
 
             when ASCII.NUL =>
                exit;
@@ -80,6 +83,11 @@ procedure Ada2WSDL.Main is
             when 'n' =>
                if GNAT.Command_Line.Full_Switch = "noenum" then
                   Options.Enum_To_String := True;
+
+               elsif GNAT.Command_Line.Full_Switch = "n" then
+                  SOAP.Name_Space.Set_AWS_NS
+                    (Value => GNAT.Command_Line.Parameter);
+
                else
                   Usage;
                   raise Parameter_Error;
@@ -176,6 +184,7 @@ procedure Ada2WSDL.Main is
       Put_Line ("  -t path  Path to tree file directory");
       Put_Line ("  -a url   Web Service server address (URL)");
       Put_Line ("  -s name  Web Service name (default package name)");
+      Put_Line ("  -n name  Schema root name (default soapaws)");
       Put_Line ("  -noenum  Map Ada enumeration to xsd:string");
 
       Set_Output (Current_Output.all);
