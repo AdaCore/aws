@@ -2060,6 +2060,12 @@ package body SOAP.Generator is
             while P /= null loop
                if P.Mode = WSDL.Parameters.K_Record then
                   Check_Record (P.P, In_Record);
+
+               elsif P.Mode = WSDL.Parameters.K_Array then
+                  --  Recursively check for every array parameters. This is
+                  --  to handle the case where an array has a parameter which
+                  --  is a record containing the type Name.
+                  Check_Parameters (P.P);
                end if;
 
                P := P.Next;
