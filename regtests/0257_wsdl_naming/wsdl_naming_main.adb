@@ -35,6 +35,9 @@ pragma Elaborate_All (API_Service.CB);
 with API_Service.Server;
 pragma Elaborate_All (API_Service.Server);
 
+with Aroot.Data_Type_Pkg;
+with NSans.WSDL_Naming_Pkg.Data_Type_Pkg;
+
 procedure WSDL_Naming_Main is
 
    use Ada;
@@ -42,6 +45,8 @@ procedure WSDL_Naming_Main is
 
    URL  : constant String := API_Service.URL;
    Disp : API_Service.CB.Handler;
+   Tmp1 : Aroot.Data_Type_Pkg.Data_Type;
+   Tmp2 : NSans.WSDL_Naming_Pkg.Data_Type_Pkg.Data_Type;
 
 begin
    Text_IO.Put_Line ("Server built!");

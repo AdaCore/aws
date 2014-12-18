@@ -699,6 +699,9 @@ a `WSDL` document on the Web by passing it's `URL`.
        begin
           ...
 
+*-n name*
+  Specify the schema name space root name. The default value is "soapaws".
+
 *-proxy name|IP*
   Use this proxy to access the `WSDL` document and generate code to access
   to these Web Services via this proxy. The proxy can be specified by

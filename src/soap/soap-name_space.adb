@@ -65,6 +65,15 @@ package body SOAP.Name_Space is
       return Prefix (O) & ':' & Name (O) & "=""" & Value (O) & '"';
    end Image;
 
+   -----------------------
+   -- Is_Default_AWS_NS --
+   -----------------------
+
+   function Is_Default_AWS_NS return Boolean is
+   begin
+      return Root_AWS_NS = "soapaws";
+   end Is_Default_AWS_NS;
+
    ----------------
    -- Is_Defined --
    ----------------

@@ -19,4 +19,7 @@ NF-33-NB18-024 Add support for schema root naming (2014-11-26)
 
     It is now possible to set the schema root name generated in the
     WSDL with ada2wsdl. This is needed when mixing multiple project
-    to avoid name clashes.
+    to avoid name clashes. The same support has been added in the
+    wsdl2aws tool to generate the sources under a specific prefix.
+    Again this is to avoid name clashes when multiple Ada source
+    codes are generated.

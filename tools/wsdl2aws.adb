@@ -29,6 +29,7 @@ with GNAT.String_Split;
 with AWS.Client;
 with AWS.Response;
 with SOAP.Generator;
+with SOAP.Name_Space;
 with SOAP.WSDL.Parser;
 
 procedure WSDL2AWS is
@@ -142,7 +143,7 @@ procedure WSDL2AWS is
       loop
          case Command_Line.Getopt
            ("d q a e: f v s o: proxy: pu: pp: doc wsdl cvs nostub noskel "
-            & "x: cb types: spec: main: timeouts:")
+            & "x: cb types: spec: main: n: timeouts:")
          is
             when ASCII.NUL => exit;
 
@@ -222,6 +223,10 @@ procedure WSDL2AWS is
 
                elsif Command_Line.Full_Switch = "noskel" then
                   SOAP.Generator.No_Skel (Gen);
+
+               elsif Command_Line.Full_Switch = "n" then
+                  SOAP.Name_Space.Set_AWS_NS
+                    (Value => GNAT.Command_Line.Parameter);
 
                else
                   raise Syntax_Error;
@@ -394,6 +399,7 @@ exception
       Put_Line ("   -spec  spec  Use procs/types from Ada spec");
       Put_Line ("   -types spec  Use types from Ada spec");
       Put_Line ("   -main file   Generate SOAP main server's procedure");
+      Put_Line ("   -n name      Schema root name (default soapaws)");
       Put_Line ("   -proxy addr  Name or IP of the proxy");
       Put_Line ("   -pu name     The proxy user name");
       Put_Line ("   -pp pwd      The proxy password");
