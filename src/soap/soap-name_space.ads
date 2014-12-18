@@ -27,6 +27,8 @@
 --  covered by the  GNU Public License.                                     --
 ------------------------------------------------------------------------------
 
+pragma Ada_2012;
+
 with Ada.Strings.Unbounded;
 
 package SOAP.Name_Space is
@@ -40,9 +42,14 @@ package SOAP.Name_Space is
    function AWS return Object;
    --  Returns the AWS namespace (used to generate schema)
 
-   procedure Set_AWS_NS (Value : String);
+   procedure Set_AWS_NS (Value : String) with
+     Post => Value = "soapaws" or else not Is_Default_AWS_NS;
    --  Set the root value of the AWS name-space. This is used by ada2wsdl to
    --  generate specific schema root name.
+
+   function Is_Default_AWS_NS return Boolean;
+   --  Returns whether the AWS NS is the default one or not. That is, if
+   --  Set_AWS_NS has been called or not.
 
    function Create
      (Name, Value : String;

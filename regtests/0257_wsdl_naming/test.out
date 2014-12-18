@@ -1,3 +1,6 @@
 Server built!
 OK service
-OK ns
+OK nsans-wsdl_naming_pkg.ads
+OK nsans-wsdl_naming_pkg-data_type_pkg.ads
+OK aroot.ads
+OK aroot-data_type_pkg.ads

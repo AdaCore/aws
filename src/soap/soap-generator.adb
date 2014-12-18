@@ -1434,7 +1434,11 @@ package body SOAP.Generator is
 
          else
             declare
-               V     : constant String := Name_Space.Value (NS);
+               --  If we have forced the AWS name-space (-n option), use it
+               V     : constant String :=
+                         (if Name_Space.Is_Default_AWS_NS
+                          then Name_Space.Value (NS)
+                          else Name_Space.Value (Name_Space.AWS));
                First : Positive := V'First;
                Last  : Positive := V'Last;
                K     : Natural;
