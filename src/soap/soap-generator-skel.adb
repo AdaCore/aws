@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2003-2013, AdaCore                     --
+--                     Copyright (C) 2003-2015, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -405,7 +405,7 @@ package body Skel is
          end if;
 
          Text_IO.Put
-           (Skel_Adb, "           := " & L_Proc);
+           (Skel_Adb, "           := " & L_Proc & "_CB." & L_Proc);
 
          if Input /= null then
             Text_IO.New_Line (Skel_Adb);
