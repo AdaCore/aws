@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2003-2014, AdaCore                     --
+--                     Copyright (C) 2003-2015, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -43,7 +43,7 @@ package SOAP.XML is
       NS   : Boolean := True) return String
    with Pre => N /= null;
    --  Returns the value of attribute Name in N, remove namespace if NS is
-   --  True. Returns the empty string if attribute Name does not exist.
+   --  False. Returns the empty string if attribute Name does not exist.
 
    function Get_Ref (N : DOM.Core.Node) return DOM.Core.Node with
      Pre => N /= null;
