@@ -35,6 +35,7 @@ with SOAP.WSDL.Types;
 package SOAP.WSDL.Parameters is
 
    use Ada.Strings.Unbounded;
+   use type WSDL.Types.Kind;
 
    --  Parameter
 
@@ -70,5 +71,23 @@ package SOAP.WSDL.Parameters is
    procedure Release (P : in out P_Set) with
      Post => Length (P) = 0;
    --  Release memory associated the the parameter set
+
+   function To_SOAP
+     (P            : Parameter;
+      Object, Name : String;
+      Type_Name    : String := "") return String
+     with Pre => P.Mode = WSDL.Types.K_Enumeration xor Type_Name = "";
+   --  Returns the code to create a SOAP parameter with given Name. Object is
+   --  the reference to the object to convert. Type_Name is the name of the
+   --  enumeration to convert to/from.
+
+   function From_SOAP
+     (P            : Parameter;
+      Object       : String;
+      Type_Name    : String := "";
+      Is_SOAP_Type : Boolean := False) return String
+     with Pre => P.Mode in WSDL.Types.Compound_Type xor Type_Name = "";
+   --  Is_SOAP_Type is true if Object is alreay a SOAP types object. So there
+   --  is no need for a convertion in this context.
 
 end SOAP.WSDL.Parameters;

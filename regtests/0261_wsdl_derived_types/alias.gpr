@@ -1,0 +1,4 @@
+with "aws";
+project WSDLex is
+   for Source_Dirs use (".");
+end WSDLex;

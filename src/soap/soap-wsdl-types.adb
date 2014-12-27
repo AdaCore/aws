@@ -35,7 +35,8 @@ package body SOAP.WSDL.Types is
    use Ada;
 
    package Types_Store is
-      new Containers.Indefinite_Vectors (Positive, Definition);
+     new Containers.Indefinite_Vectors (Positive, Definition);
+
    Store : Types_Store.Vector;
 
    function Contains
@@ -56,6 +57,7 @@ package body SOAP.WSDL.Types is
             return True;
          end if;
       end loop;
+
       return False;
    end Contains;
 
@@ -77,12 +79,19 @@ package body SOAP.WSDL.Types is
    is
       use type Name_Space.Object;
    begin
-      for D of Store loop
-         if D.Name = Type_Name and then D.NS = NS then
-            return D;
-         end if;
-      end loop;
-      return No_Definition;
+      if WSDL.Is_Standard (Type_Name) then
+         return Definition'
+           (K_Simple, To_Unbounded_String (Type_Name), Name_Space.XSD);
+
+      else
+         for D of Store loop
+            if D.Name = Type_Name and then D.NS = NS then
+               return D;
+            end if;
+         end loop;
+
+         return No_Definition;
+      end if;
    end Find;
 
    -----------
@@ -103,9 +112,9 @@ package body SOAP.WSDL.Types is
    -- Output --
    ------------
 
-   procedure Output (P : Definition) is
+   procedure Output (Def : Definition) is
    begin
-      Text_IO.Put (To_String (P.Name));
+      Text_IO.Put (To_String (Def.Name));
    end Output;
 
    --------------
@@ -127,5 +136,18 @@ package body SOAP.WSDL.Types is
    begin
       Store.Clear;
    end Release;
+
+   -------------------
+   -- Root_Type_For --
+   -------------------
+
+   function Root_Type_For (Def : Definition) return String is
+   begin
+      if WSDL.Is_Standard (To_String (Def.Name)) then
+         return To_String (Def.Name);
+      else
+         return Root_Type_For (Find (To_String (Def.Parent_Name), Def.NS));
+      end if;
+   end Root_Type_For;
 
 end SOAP.WSDL.Types;

@@ -172,29 +172,14 @@ package body Stub is
       procedure Output_Derived
         (K      : Positive;
          Prefix : String;
-         N      : WSDL.Parameters.P_Set)
-      is
-         use type WSDL.Parameter_Type;
-         Def    : constant WSDL.Types.Definition :=
-                    WSDL.Types.Find (To_String (N.Type_Name), N.NS);
-         B_Name : constant String := To_String (Def.Parent_Name);
+         N      : WSDL.Parameters.P_Set)  is
       begin
-         if Prefix /= "" then
-            --  Inside a record
-            Text_IO.Put
-              (Stub_Adb,
-               WSDL.Set_Routine
-                 (WSDL.To_Type (B_Name), Context => WSDL.Component));
-         else
-            Text_IO.Put (Stub_Adb, WSDL.Set_Routine (WSDL.To_Type (B_Name)));
-         end if;
-
          Text_IO.Put
            (Stub_Adb,
-            " (" & WSDL.To_Ada (WSDL.To_Type (To_String (Def.Parent_Name)))
-            & " ("
-            & Prefix & Format_Name (O, To_String (N.Name))
-            & "), """ & To_String (N.Name) & """)");
+            WSDL.Parameters.To_SOAP
+              (P      => N.all,
+               Object => Format_Name (O, To_String (N.Name)),
+               Name   => Format_Name (O, To_String (N.Name))));
 
          if Prefix /= "" and then N.Next /= null then
             Text_IO.Put (Stub_Adb, ",");
@@ -340,10 +325,20 @@ package body Stub is
                Text_IO.Put (Stub_Adb, "+");
             end if;
 
-            Text_IO.Put
-              (Stub_Adb,
-               "SOAP.Parameters.Get (R_Param, """
-                 & To_String (N.Name) & """)");
+            if N.Mode = WSDL.Types.K_Derived then
+               Text_IO.Put
+                 (Stub_Adb,
+                  WSDL.Parameters.From_SOAP
+                    (N.all,
+                     Object       => "SOAP.Parameters.Get (R_Param, """
+                                     & To_String (N.Name) & """)",
+                     Is_SOAP_Type => True));
+            else
+               Text_IO.Put
+                 (Stub_Adb,
+                  "SOAP.Parameters.Get (R_Param, """
+                  & To_String (N.Name) & """)");
+            end if;
          end if;
       end Output_Result;
 
@@ -519,11 +514,10 @@ package body Stub is
             --  A single parameter is returned
 
             declare
-               Def    : constant WSDL.Types.Definition :=
-                          WSDL.Types.Find
-                            (To_String (Output.Type_Name), Output.NS);
                T_Name : constant String := To_String (Output.Type_Name);
             begin
+               Text_IO.Put (Stub_Adb, "                 := ");
+
                case Output.Mode is
 
                   when WSDL.Types.K_Simple =>
@@ -531,51 +525,32 @@ package body Stub is
                      if WSDL.To_Type (T_Name) = WSDL.P_B64 then
                         Text_IO.Put_Line
                           (Stub_Adb,
-                           "                 "
-                           & ":= V (SOAP_Base64'(SOAP.Parameters.Get "
+                           "V (SOAP_Base64'(SOAP.Parameters.Get "
                            & "(R_Param, """
                            & To_String (Output.Name) & """)));");
                      else
                         Text_IO.Put_Line
                           (Stub_Adb,
-                           "                 := SOAP.Parameters.Get"
+                           "SOAP.Parameters.Get"
                            & " (R_Param, """
                            & To_String (Output.Name)
                            & """);");
                      end if;
 
                   when WSDL.Types.K_Derived =>
-
-                     if  WSDL.To_Type (To_String (Def.Parent_Name))
-                       = WSDL.P_B64
-                     then
-                        Text_IO.Put_Line
-                          (Stub_Adb,
-                           "                 "
-                           & ":= V (SOAP_Base64'(SOAP.Parameters.Get "
-                           & "(R_Param, """
-                           & To_String (Output.Name) & """)));");
-                     else
-                        Text_IO.Put_Line
-                          (Stub_Adb,
-                           "                 := "
-                           & Result_Type (O, Proc, Output));
-                        Text_IO.Put_Line
-                          (Stub_Adb,
-                           "                   ("
-                           & WSDL.To_Ada
-                             (WSDL.To_Type (To_String (Def.Parent_Name)))
-                           & "'(SOAP.Parameters.Get (R_Param, """
-                           & To_String (Output.Name)
-                           & """)));");
-                     end if;
+                     Text_IO.Put
+                       (Stub_Adb,
+                        WSDL.Parameters.From_SOAP
+                          (Output.all,
+                           Object => "SOAP.Parameters.Get (R_Param, """
+                                     & To_String (Output.Name) & '"',
+                           Is_SOAP_Type => True));
+                     Text_IO.Put_Line (Stub_Adb, ");");
 
                   when WSDL.Types.K_Enumeration =>
 
                      Text_IO.Put_Line
-                       (Stub_Adb,
-                        "                 := "
-                        & Result_Type (O, Proc, Output));
+                       (Stub_Adb, Result_Type (O, Proc, Output));
                      Text_IO.Put_Line
                        (Stub_Adb,
                         "                   ("
@@ -588,9 +563,7 @@ package body Stub is
                   when WSDL.Types.K_Array =>
                      Text_IO.Put_Line
                        (Stub_Adb,
-                        "                 "
-                        & ":= To_"
-                        & Format_Name (O, T_Name) & "_Type");
+                        "To_" & Format_Name (O, T_Name) & "_Type");
                      Text_IO.Put_Line
                        (Stub_Adb,
                         "                 "
@@ -601,9 +574,7 @@ package body Stub is
                   when WSDL.Types.K_Record =>
                      Text_IO.Put_Line
                        (Stub_Adb,
-                        "                 "
-                        & ":= To_"
-                        & Format_Name (O, T_Name) & "_Type");
+                        "To_" & Format_Name (O, T_Name) & "_Type");
                      Text_IO.Put_Line
                        (Stub_Adb,
                         "                 "

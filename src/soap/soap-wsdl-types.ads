@@ -37,7 +37,6 @@ package SOAP.WSDL.Types is
 
    type Kind is (K_Record, K_Array, K_Derived, K_Enumeration, K_Simple);
 
-   subtype Application_Defined is Kind range K_Record .. K_Enumeration;
    subtype Compound_Type is Kind range K_Record .. K_Array;
 
    --  Enumeration values
@@ -52,7 +51,7 @@ package SOAP.WSDL.Types is
 
    --  Parameter
 
-   type Definition (Mode : Application_Defined) is record
+   type Definition (Mode : Kind) is record
       Name : Unbounded_String;
       NS   : Name_Space.Object;
 
@@ -60,7 +59,7 @@ package SOAP.WSDL.Types is
          when K_Derived =>
             Parent_Name : Unbounded_String; -- Derived type name
 
-         when K_Record =>
+         when K_Simple | K_Record =>
             null;
 
          when K_Array =>
@@ -89,12 +88,15 @@ package SOAP.WSDL.Types is
    function Count return Natural;
    --  Returns the number of type registered
 
-   procedure Output (P : Definition);
+   procedure Output (Def : Definition);
    --  Output parameter set, this is to be used for debugging purpose
 
    procedure Release with
      Post => Count = 0;
    --  Release memory associated the type definitions
+
+   function Root_Type_For (Def : Definition) return String;
+   --  Returns the root type (XSD type) for the given defintion
 
 private
 

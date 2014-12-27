@@ -53,6 +53,93 @@ package body SOAP.WSDL.Parameters is
       end if;
    end Append;
 
+   ---------------
+   -- From_SOAP --
+   ---------------
+
+   function From_SOAP
+     (P         : Parameter;
+      Object    : String;
+      Type_Name : String := "";
+      Is_SOAP_Type : Boolean := False) return String
+   is
+      function For_Derived
+        (Def : WSDL.Types.Definition; Code : String) return String;
+      --  ??
+
+      -----------------
+      -- For_Derived --
+      -----------------
+
+      function For_Derived
+        (Def  : WSDL.Types.Definition;
+         Code : String) return String
+      is
+         use type SOAP.Name_Space.Object;
+      begin
+         if Def.NS = Name_Space.XSD then
+            if Is_SOAP_Type then
+               return Code;
+            else
+               return WSDL.V_Routine
+                 (WSDL.To_Type (To_String (Def.Name)), WSDL.Component)
+                 & " ("
+                 & WSDL.Set_Type (To_Type (To_String (Def.Name)))
+                 & " (" & Code & "))";
+            end if;
+
+         else
+            declare
+               P_Name : constant String := To_String (Def.Parent_Name);
+            begin
+               return "From_" & P_Name & "_Type"
+                 & " ("
+                 & For_Derived
+                     (WSDL.Types.Find (To_String (Def.Parent_Name), Def.NS),
+                      Code) & ')';
+            end;
+         end if;
+      end For_Derived;
+
+      Def : constant WSDL.Types.Definition :=
+              WSDL.Types.Find (To_String (P.Type_Name), P.NS);
+
+   begin
+      case P.Mode is
+         when WSDL.Types.K_Derived =>
+            return For_Derived
+              (WSDL.Types.Find (To_String (P.Type_Name), P.NS), Object);
+
+         when WSDL.Types.K_Enumeration =>
+            return To_String (Def.Name) & "_Type'Value ("
+              & "SOAP.Types.V (SOAP.Types.SOAP_Enumeration ("
+              & Object & ")))";
+
+         when WSDL.Types.K_Array =>
+            return "+To_" & Type_Name
+              & "_Type (SOAP.Types.V (SOAP.Types.SOAP_Array ("
+              & Object & ")))";
+
+         when WSDL.Types.K_Record =>
+            return "To_" & Type_Name
+              & " (SOAP.Types.SOAP_Record (" & Object & "))";
+
+         when WSDL.Types.K_Simple =>
+            declare
+               P_Type : constant WSDL.Parameter_Type :=
+                          WSDL.To_Type (To_String (P.Type_Name));
+               I_Type : constant String := WSDL.Set_Type (P_Type);
+            begin
+               return WSDL.V_Routine (P_Type, WSDL.Component)
+                 & " (" & I_Type & " ("
+                 & Object & "))";
+            end;
+
+         when others =>
+            return "";
+      end case;
+   end From_SOAP;
+
    ------------
    -- Length --
    ------------
@@ -139,5 +226,107 @@ package body SOAP.WSDL.Parameters is
          Unchecked_Free (P);
       end if;
    end Release;
+
+   -------------
+   -- To_SOAP --
+   -------------
+
+   function To_SOAP
+     (P            : Parameter;
+      Object, Name : String;
+      Type_Name    : String := "") return String
+   is
+
+      function For_Derived
+        (Def : WSDL.Types.Definition; Code : String) return String;
+      --  ??
+
+      function Set_Routine (P : WSDL.Parameters.Parameter) return String;
+      --  ??
+
+      -----------------
+      -- For_Derived --
+      -----------------
+
+      function For_Derived
+        (Def  : WSDL.Types.Definition;
+         Code : String) return String
+      is
+         use type SOAP.Name_Space.Object;
+      begin
+         if Def.NS = Name_Space.XSD then
+            return Set_Routine (To_String (Def.Name))
+              & " (" & Code & ", """ & Name & """)";
+         else
+            declare
+               P_Name : constant String := To_String (Def.Parent_Name);
+            begin
+               return For_Derived
+                 (WSDL.Types.Find (To_String (Def.Parent_Name), Def.NS),
+                  "To_" & P_Name & "_Type"
+                  & " (" & Code & ')');
+            end;
+         end if;
+      end For_Derived;
+
+      -----------------
+      -- Set_Routine --
+      -----------------
+
+      function Set_Routine (P : WSDL.Parameters.Parameter) return String is
+         Def    : constant WSDL.Types.Definition :=
+                    WSDL.Types.Find (To_String (P.Type_Name), P.NS);
+         T_Name : constant String := To_String (P.Type_Name);
+      begin
+         case P.Mode is
+            when WSDL.Types.K_Simple =>
+               return WSDL.Set_Routine
+                 (WSDL.To_Type (T_Name), Context => WSDL.Component);
+
+            when WSDL.Types.K_Derived =>
+               return WSDL.Set_Routine
+                 (To_String (Def.Parent_Name),
+                  Context => WSDL.Component);
+
+            when WSDL.Types.K_Enumeration =>
+               return WSDL.Set_Routine
+                 (WSDL.P_String, Context => WSDL.Component);
+
+            when WSDL.Types.K_Array =>
+               declare
+                  E_Type : constant String := To_String (Def.E_Type);
+               begin
+                  if WSDL.Is_Standard (E_Type) then
+                     return WSDL.Set_Routine
+                       (WSDL.To_Type (E_Type), Context => WSDL.Component);
+                  else
+                     return "To_SOAP_Object";
+                  end if;
+               end;
+
+            when WSDL.Types.K_Record =>
+               return "To_SOAP_Object";
+         end case;
+      end Set_Routine;
+
+   begin
+      case P.Mode is
+         when WSDL.Types.K_Simple | WSDL.Types.K_Record =>
+            return Set_Routine (P) & " (" & Object & ", """ & Name & """)";
+
+         when WSDL.Types.K_Derived =>
+            return For_Derived
+              (WSDL.Types.Find (To_String (P.Type_Name), P.NS), Object);
+
+         when WSDL.Types.K_Enumeration =>
+            return "SOAP.Types.E (Image (" & Object & "), """ & Type_Name
+              & """, """ & Name & """)";
+
+         when WSDL.Types.K_Array =>
+            return "SOAP.Types.A (To_Object_Set (" & Object
+              & "), """ & Name & """)";
+
+      end case;
+   end To_SOAP;
 
 end SOAP.WSDL.Parameters;

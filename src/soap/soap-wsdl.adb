@@ -260,6 +260,17 @@ package body SOAP.WSDL is
       end case;
    end Set_Routine;
 
+   function Set_Routine
+     (P       : String;
+      Context : Context_Type := Parameter) return String is
+   begin
+      if Is_Standard (P) then
+         return Set_Routine (To_Type (P), Context);
+      else
+         return "To_" & P & "_Type";
+      end if;
+   end Set_Routine;
+
    --------------
    -- Set_Type --
    --------------

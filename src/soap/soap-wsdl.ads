@@ -86,6 +86,9 @@ package SOAP.WSDL is
    function Set_Routine
      (P       : Parameter_Type;
       Context : Context_Type := Parameter) return String;
+   function Set_Routine
+     (P       : String;
+      Context : Context_Type := Parameter) return String;
    --  Returns the constructor to use to create a Parameter_Type
 
    function Set_Type (P : Parameter_Type) return String;

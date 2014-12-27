@@ -228,16 +228,20 @@ package body SOAP.WSDL.Parser is
       Name      : String;
       Type_Name : String) is
    begin
-      Parameters.Append
-        (O.Params (O.Mode),
-         (WSDL.Types.K_Simple, +Name, +Type_Name, Name_Space.XSD, null));
+      if not O.No_Param then
+         Parameters.Append
+           (O.Params (O.Mode),
+            (WSDL.Types.K_Simple, +Name, +Type_Name, Name_Space.XSD, null));
+      end if;
    end Add_Parameter;
 
    procedure Add_Parameter
      (O     : in out Object'Class;
       Param : Parameters.Parameter) is
    begin
-      Parameters.Append (O.Params (O.Mode), Param);
+      if not O.No_Param then
+         Parameters.Append (O.Params (O.Mode), Param);
+      end if;
    end Add_Parameter;
 
    ---------------------
@@ -1674,7 +1678,6 @@ package body SOAP.WSDL.Parser is
       R        : DOM.Core.Node;
       Document : WSDL.Object) return Parameters.Parameter
    is
-      pragma Unreferenced (Document);
 
       function Build_Derived
         (Name, Base : String;
@@ -1711,11 +1714,6 @@ package body SOAP.WSDL.Parser is
             if WSDL.To_Type (Base) = WSDL.P_Character then
                Check_Character (R);
             end if;
-
-         else
-            --  We do not support derived type at more than one level for
-            --  now.
-            raise WSDL_Error with "Parent type must be a standard type.";
          end if;
 
          return P;
@@ -1804,6 +1802,20 @@ package body SOAP.WSDL.Parser is
          return Build_Enumeration (-Name, -Base, E);
 
       else
+         if not WSDL.Is_Standard (-Base) then
+            N := Look_For_Schema (N, -Base, Document);
+
+            if N = null then
+               raise WSDL_Error
+                 with "Definition for " & (-Base) & " not found.";
+
+            else
+               O.No_Param := True;
+               Parse_Element (O, N, Document);
+               O.No_Param := False;
+            end if;
+         end if;
+
          return Build_Derived (-Name, -Base, N);
       end if;
    end Parse_Simple;
