@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2003-2013, AdaCore                     --
+--                     Copyright (C) 2003-2015, AdaCore                     --
 --                                                                          --
 --  This is free software;  you can redistribute it  and/or modify it       --
 --  under terms of the  GNU General Public License as published  by the     --
@@ -624,11 +624,12 @@ package body Ada2WSDL.Generator is
          Put_Line ("<wsdl:definitions name=""" & WS_Name  & """");
          Put_Line ("   targetNamespace=""" & NS & '"');
          Put_Line ("   xmlns:tns=""" & NS & '"');
-         Put_Line ("   xmlns:soap=""" & WSDL.NS_SOAP & '"');
-         Put_Line ("   xmlns:soapenc=""" & WSDL.NS_SOAPENC & '"');
-         Put_Line ("   xmlns:wsdl=""" & WSDL.NS_WSDL & '"');
-         Put_Line ("   xmlns:xsi=""" & WSDL.NS_XSI & '"');
-         Put ("   xmlns:xsd=""" & WSDL.NS_XSD & '"');
+
+         Put_Line ("   " & Name_Space.Image (Name_Space.SOAP));
+         Put_Line ("   " & Name_Space.Image (Name_Space.SOAPENC));
+         Put_Line ("   " & Name_Space.Image (Name_Space.WSDL));
+         Put_Line ("   " & Name_Space.Image (Name_Space.XSI));
+         Put      ("   " & Name_Space.Image (Name_Space.XSD));
 
          --  Write all name spaces
 

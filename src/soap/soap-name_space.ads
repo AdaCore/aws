@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2004-2014, AdaCore                     --
+--                     Copyright (C) 2004-2015, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -36,6 +36,31 @@ package SOAP.Name_Space is
    type Object is private;
 
    Default_Prefix : constant String := "xmlns";
+
+   SOAP_URL    : constant String :=
+                   "http://schemas.xmlsoap.org/wsdl/soap/";
+
+   SOAPENC_URL : constant String :=
+                   "http://schemas.xmlsoap.org/soap/encoding/";
+
+   SOAPENV_URL : constant String :=
+                   "http://schemas.xmlsoap.org/soap/envelope/";
+
+   XSD_URL     : constant String :=
+                   "http://www.w3.org/2001/XMLSchema";
+
+   XSI_URL     : constant String :=
+                   "http://www.w3.org/2001/XMLSchema-instance";
+
+   WSDL_URL    : constant String :=
+                   "http://schemas.xmlsoap.org/wsdl/";
+
+   XSD     : constant Object;
+   XSI     : constant Object;
+   SOAP    : constant Object;
+   SOAPENC : constant Object;
+   SOAPENV : constant Object;
+   WSDL    : constant Object;
 
    No_Name_Space : constant Object;
 
@@ -91,5 +116,35 @@ private
                      (Null_Unbounded_String,
                       Null_Unbounded_String,
                       Null_Unbounded_String);
+
+   XSD     : constant Object :=
+               (To_Unbounded_String (Default_Prefix),
+                To_Unbounded_String ("xsd"),
+                To_Unbounded_String (XSD_URL));
+
+   XSI     : constant Object :=
+               (To_Unbounded_String (Default_Prefix),
+                To_Unbounded_String ("xsi"),
+                To_Unbounded_String (XSI_URL));
+
+   SOAP    : constant Object :=
+               (To_Unbounded_String (Default_Prefix),
+                To_Unbounded_String ("soap"),
+                To_Unbounded_String (SOAP_URL));
+
+   SOAPENC : constant Object :=
+               (To_Unbounded_String (Default_Prefix),
+                To_Unbounded_String ("soapenc"),
+                To_Unbounded_String (SOAPENC_URL));
+
+   SOAPENV : constant Object :=
+               (To_Unbounded_String (Default_Prefix),
+                To_Unbounded_String ("soapenv"),
+                To_Unbounded_String (SOAPENV_URL));
+
+   WSDL    : constant Object :=
+               (To_Unbounded_String (Default_Prefix),
+                To_Unbounded_String ("wsdl"),
+                To_Unbounded_String (WSDL_URL));
 
 end SOAP.Name_Space;

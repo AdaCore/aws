@@ -994,7 +994,7 @@ package body SOAP.WSDL.Parser is
          declare
             N : constant DOM.Core.Node := DOM.Core.Nodes.Item (Atts, K);
          begin
-            if DOM.Core.Nodes.Node_Value (N) = WSDL.NS_SOAP then
+            if DOM.Core.Nodes.Node_Value (N) = Name_Space.SOAP_URL then
                NS_SOAP := +DOM.Core.Nodes.Local_Name (N);
             end if;
          end;
