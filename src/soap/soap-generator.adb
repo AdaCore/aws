@@ -1192,6 +1192,8 @@ package body SOAP.Generator is
 
          Text_IO.New_Line (Tmp_Ads);
 
+         Text_IO.New_Line (Der_Ads);
+
          --  Is types are to be reused from an Ada  spec ?
 
          if Types_Spec (O) = "" then
@@ -1202,47 +1204,34 @@ package body SOAP.Generator is
 
             Text_IO.New_Line (Der_Ads);
 
-            Text_IO.Put_Line
-              (Der_Ads,
-               "   function To_" & B_Name
-               & " (D : " & F_Name & ") return " & B_Name & " is");
-            Text_IO.Put_Line
-              (Der_Ads,
-               "     (" & B_Name & " (D));");
+            Text_IO.Put_Line (Der_Ads, "   function To_" & B_Name);
+            Text_IO.Put_Line (Der_Ads, "     (D : " & F_Name & ")");
+            Text_IO.Put_Line (Der_Ads, "      return " & B_Name & " is");
+            Text_IO.Put_Line (Der_Ads, "       (" & B_Name & " (D));");
 
             Text_IO.New_Line (Der_Ads);
 
-            Text_IO.Put_Line
-              (Der_Ads,
-               "   function From_" & B_Name
-               & " (D : " & B_Name & ") return " & F_Name & " is");
-            Text_IO.Put_Line
-              (Der_Ads,
-               "     (" & F_Name & " (D));");
+            Text_IO.Put_Line (Der_Ads, "   function From_" & B_Name);
+            Text_IO.Put_Line (Der_Ads, "     (D : " & B_Name & ")");
+            Text_IO.Put_Line (Der_Ads, "      return " & F_Name & " is");
+            Text_IO.Put_Line (Der_Ads, "       (" & F_Name & " (D));");
 
             if WSDL.Is_Standard (P_Name) then
                Text_IO.New_Line (Der_Ads);
 
                Text_IO.Put_Line
-                 (Der_Ads,
-                  "   function To_" & P_Name & "_Type"
-                  & " (D : " & F_Name & ")");
-               Text_IO.Put_Line
-                 (Der_Ads,
-                  "     return "
-                  & B_Name & " is (" & B_Name & " (D));");
+                 (Der_Ads, "   function To_" & P_Name & "_Type");
+               Text_IO.Put_Line (Der_Ads, "     (D : " & F_Name & ")");
+               Text_IO.Put_Line (Der_Ads, "      return " & B_Name & " is");
+               Text_IO.Put_Line (Der_Ads, "       (" & B_Name & " (D));");
 
                Text_IO.New_Line (Der_Ads);
 
                Text_IO.Put_Line
-                 (Der_Ads,
-                  "   function From_" & P_Name & "_Type"
-                  & " (D : " & B_Name & ")");
-               Text_IO.Put_Line
-                 (Der_Ads,
-                  "     return " & F_Name & " is (" & F_Name & " (D));");
-
-               Text_IO.New_Line (Der_Ads);
+                 (Der_Ads, "   function From_" & P_Name & "_Type");
+               Text_IO.Put_Line (Der_Ads, "     (D : " & B_Name & ")");
+               Text_IO.Put_Line (Der_Ads, "      return " & F_Name & " is");
+               Text_IO.Put_Line (Der_Ads, "       (" & F_Name & " (D));");
             end if;
 
             Text_IO.Put_Line
@@ -1272,23 +1261,20 @@ package body SOAP.Generator is
                Text_IO.New_Line (Tmp_Ads);
 
                Text_IO.Put_Line
-                 (Tmp_Ads, "   function To_" & P_Name & "_Type"
-                  & " (D : " & F_Name & ")");
+                 (Tmp_Ads, "   function To_" & P_Name & "_Type");
+               Text_IO.Put_Line (Tmp_Ads, "     (D : " & F_Name & ")");
+               Text_IO.Put_Line (Tmp_Ads, "      return " & B_Name);
                Text_IO.Put_Line
-                 (Tmp_Ads, "     return " & B_Name);
-               Text_IO.Put_Line
-                 (Tmp_Ads, "     renames "
+                 (Tmp_Ads, "      renames "
                   & To_Unit_Name (To_String (Prefix))
                   & ".To_" & P_Name & "_Type;");
 
                Text_IO.Put_Line
-                 (Tmp_Ads,
-                  "   function From_" & P_Name & "_Type"
-                  & " (D : " & B_Name & ")");
+                 (Tmp_Ads, "   function From_" & P_Name & "_Type");
+               Text_IO.Put_Line (Tmp_Ads, "     (D : " & B_Name & ")");
+               Text_IO.Put_Line (Tmp_Ads, "      return " & F_Name);
                Text_IO.Put_Line
-                 (Tmp_Ads, "     return " & F_Name);
-               Text_IO.Put_Line
-                 (Tmp_Ads, "     renames "
+                 (Tmp_Ads, "      renames "
                   & To_Unit_Name (To_String (Prefix))
                   & ".From_" & P_Name & "_Type;");
             end if;
@@ -1303,45 +1289,33 @@ package body SOAP.Generator is
 
             Text_IO.New_Line (Der_Ads);
 
+            Text_IO.Put_Line (Der_Ads, "   function To_" & Name);
+            Text_IO.Put_Line (Der_Ads, "     (D : " & F_Name & ")");
             Text_IO.Put_Line
               (Der_Ads,
-               "   function To_" & Name
-               & " (D : " & F_Name & ")");
-            Text_IO.Put_Line
-              (Der_Ads,
-               "     return "
-               & Types_Spec (O) & "." & Name & " is (D);");
+               "      return " & Types_Spec (O) & "." & Name & " is (D);");
 
             Text_IO.New_Line (Der_Ads);
 
+            Text_IO.Put_Line (Der_Ads, "   function From_" & Name);
             Text_IO.Put_Line
-              (Der_Ads,
-               "   function From_" & Name
-               & " (D : " & Types_Spec (O) & "." & Name
-               & ")");
-            Text_IO.Put_Line
-              (Der_Ads,
-               "     return " & F_Name & " is (D);");
+              (Der_Ads, "     (D : " & Types_Spec (O) & "." & Name & ")");
+            Text_IO.Put_Line (Der_Ads, "      return " & F_Name & " is (D);");
 
             if WSDL.Is_Standard (P_Name) then
                Text_IO.New_Line (Der_Ads);
 
                Text_IO.Put_Line
-                 (Der_Ads,
-                  "   function To_" & P_Name & "_Type"
-                  & " (D : " & F_Name & ")");
-               Text_IO.Put_Line
-                 (Der_Ads,
-                  "     return "
-                  & B_Name & " is (" & B_Name & " (D));");
+                 (Der_Ads, "   function To_" & P_Name & "_Type");
+               Text_IO.Put_Line (Der_Ads, "     (D : " & F_Name & ")");
+               Text_IO.Put_Line (Der_Ads, "      return " & B_Name & " is");
+               Text_IO.Put_Line (Der_Ads, "       (" & B_Name & " (D));");
 
                Text_IO.Put_Line
-                 (Der_Ads,
-                  "   function From_" & P_Name & "_Type"
-                  & " (D : " & B_Name & ")");
-               Text_IO.Put_Line
-                 (Der_Ads,
-                  "     return " & F_Name & " is (" & F_Name & " (D));");
+                 (Der_Ads, "   function From_" & P_Name & "_Type");
+               Text_IO.Put_Line (Der_Ads, "     (D : " & B_Name & ")");
+               Text_IO.Put_Line (Der_Ads, "      return " & F_Name & " is");
+               Text_IO.Put_Line (Der_Ads, "       (" & F_Name & " (D));");
             end if;
 
             Text_IO.Put_Line
@@ -1372,23 +1346,20 @@ package body SOAP.Generator is
                Text_IO.New_Line (Tmp_Ads);
 
                Text_IO.Put_Line
-                 (Tmp_Ads, "   function To_" & P_Name & "_Type"
-                  & " (D : " & F_Name & ")");
-               Text_IO.Put_Line
-                 (Tmp_Ads, "     return " & B_Name);
-               Text_IO.Put_Line
-                 (Tmp_Ads, "     renames "
+                 (Tmp_Ads, "   function To_" & P_Name & "_Type");
+               Text_IO.Put_Line (Tmp_Ads, "     (D : " & F_Name & ")");
+               Text_IO.Put_Line (Tmp_Ads, "      return " & B_Name);
+               Text_IO.Put_Line (Tmp_Ads, "      renames "
                   & To_Unit_Name (To_String (Prefix))
                   & ".To_" & P_Name & "_Type;");
 
                Text_IO.Put_Line
-                 (Tmp_Ads,
-                  "   function From_" & P_Name & "_Type"
-                  & " (D : " & B_Name & ")");
+                 (Tmp_Ads, "   function From_" & P_Name & "_Type");
+               Text_IO.Put_Line (Tmp_Ads, "     (D : " & B_Name & ")");
                Text_IO.Put_Line
-                 (Tmp_Ads, "     return " & F_Name);
+                 (Tmp_Ads, "      return " & F_Name);
                Text_IO.Put_Line
-                 (Tmp_Ads, "     renames "
+                 (Tmp_Ads, "      renames "
                   & To_Unit_Name (To_String (Prefix))
                   & ".From_" & P_Name & "_Type;");
             end if;
@@ -1773,6 +1744,7 @@ package body SOAP.Generator is
                  (Rec_Ads, "   end record;");
             end if;
 
+            Text_IO.New_Line (Tmp_Ads);
             Text_IO.Put_Line (Tmp_Ads, "   subtype " & F_Name);
             Text_IO.Put_Line
               (Tmp_Ads, "     is "
@@ -2184,6 +2156,7 @@ package body SOAP.Generator is
                   To_Unit_Name (Prefix) & '.' & F_Name & "_Type_Pkg",
                   Elab       => Off,
                   Use_Clause => True);
+               Text_IO.New_Line (File);
                Generated.Insert (F_Name);
             end if;
 
@@ -2212,10 +2185,6 @@ package body SOAP.Generator is
 
             N := N.Next;
          end loop;
-
-         if not Generated.Is_Empty then
-            Text_IO.New_Line (File);
-         end if;
       end Generate_References;
 
       -----------------
