@@ -735,9 +735,11 @@ package body SOAP.WSDL.Parser is
       T_No_NS : constant String := Utils.No_NS (Type_Name);
       T_NS    : constant String := Utils.NS (Type_Name);
       TNS     : constant Name_Space.Object := Get_Target_Name_Space (N);
-      D, S    : DOM.Core.Node;
+      D       : DOM.Core.Node;
       All_NS  : constant String_List.Vector := Get_Namespaces_For (N);
    begin
+      Trace ("(Look_For_Schema)", N);
+
       --  First look for imported schema
       declare
          Key : constant String := (if T_NS = ""
@@ -746,52 +748,49 @@ package body SOAP.WSDL.Parser is
          URL : constant String := (if NS.Contains (Key)
                                    then NS (Key)
                                    else "");
+
+         procedure Look_Schema (S : DOM.Core.Node);
+         --  Look for element/complexType/simpleType definition in schema
+
+         -----------------
+         -- Look_Schema --
+         -----------------
+
+         procedure Look_Schema (S : DOM.Core.Node) is
+         begin
+            D := Get_Node (S, "element", T_No_NS);
+
+            if D = null and then Context (Complex_Type) then
+               D := Get_Node (S, "complexType", T_No_NS);
+            end if;
+
+            if D = null and then Context (Simple_Type) then
+               D := Get_Node (S, "simpleType", T_No_NS);
+            end if;
+         end Look_Schema;
+
       begin
          --  We have a name-space prefix, use it to find the corresponding
          --  schema definition.
 
          if URL /= "" then
-            S := Schema.Get (URL);
-
-            if S /= null then
-               Trace ("(Look_For_Schema)", S);
-
-               D := Get_Node (S, "element", T_No_NS);
-
-               if D = null and then Context (Complex_Type) then
-                  D := Get_Node (S, "complexType", T_No_NS);
-               end if;
-
-               if D = null and then Context (Simple_Type) then
-                  D := Get_Node (S, "simpleType", T_No_NS);
-               end if;
-            end if;
+            WSDL.Schema.For_All (URL, Look_Schema'Access);
          end if;
 
-         --  Check on the schema in the visible
+         --  Check on the embedded schema
 
          if D = null then
             for U of All_NS loop
-               S := Schema.Get (U);
-
-               if S /= null then
-                  Trace ("(Look_For_Schema)", S);
-
-                  D := Get_Node (S, "element", T_No_NS);
-
-                  if D = null and then Context (Complex_Type) then
-                     D := Get_Node
-                       (S, "complexType", T_No_NS);
-                  end if;
-
-                  if D = null and then Context (Simple_Type) then
-                     D := Get_Node
-                       (S, "simpleType", T_No_NS);
-                  end if;
-               end if;
-
+               WSDL.Schema.For_All (U, Look_Schema'Access);
                exit when D /= null;
             end loop;
+         end if;
+
+         --  Then check all mixed-schemas
+
+         if D = null then
+            WSDL.Schema.For_All
+              (Namespace => "", Process => Look_Schema'Access);
          end if;
       end;
 
@@ -1562,6 +1561,10 @@ package body SOAP.WSDL.Parser is
                                 (Load
                                    (XML.Get_Attr_Value (S, "schemaLocation")));
                      begin
+                        Trace ("(Parse_Schema) "
+                               & XML.Get_Attr_Value (S, "namespace"),
+                               XML.First_Child (N));
+
                         Schema.Register
                           (XML.Get_Attr_Value (S, "namespace"),
                            XML.First_Child (N));
@@ -1576,6 +1579,14 @@ package body SOAP.WSDL.Parser is
                end;
             end loop;
          end;
+
+         --  If this schema has no targetNamespace then it is a schema
+         --  containing definition for different name-space. Record it as
+         --  a mixed name-space.
+
+         if XML.Get_Attr_Value (N, "targetNamespace") = "" then
+            Schema.Register ("", N);
+         end if;
       end if;
    end Parse_Schema;
 

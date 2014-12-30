@@ -31,21 +31,19 @@ package SOAP.WSDL.Schema is
 
    use type DOM.Core.Node;
 
-   subtype URL is String with
-     Dynamic_Predicate => URL (URL'First .. URL'First + 6) = "http://";
+   subtype URL is String;
 
    procedure Register (Namespace : URL; Node : DOM.Core.Node) with
      Pre  => Node /= null,
      Post => Contains (Namespace);
    --  Register a Namespace (URL) for the given DOM tree
 
-   function Get (Namespace : URL) return DOM.Core.Node with
-     Post => (Contains (Namespace) and then Get'Result /= null)
-               or else
-             (not Contains (Namespace) and then Get'Result = null);
-   --  Get the DOM tree for the schema corresponding with the Namespace
-
    function Contains (Namespace : URL) return Boolean;
    --  Returns True if the Namespace is known (has been registered)
+
+   procedure For_All
+     (Namespace : URL;
+      Process   : not null access procedure (N : DOM.Core.Node));
+   --  Go through all mixed namespaces
 
 end SOAP.WSDL.Schema;

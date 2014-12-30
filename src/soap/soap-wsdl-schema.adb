@@ -27,17 +27,24 @@
 --  covered by the  GNU Public License.                                     --
 ------------------------------------------------------------------------------
 
-with Ada.Containers.Indefinite_Ordered_Maps;
+with Ada.Containers.Indefinite_Vectors;
+with Ada.Strings.Unbounded;
 
 package body SOAP.WSDL.Schema is
 
    use Ada;
+   use Ada.Strings.Unbounded;
+
    use type DOM.Core.Node;
 
-   package Schema_Store is
-     new Containers.Indefinite_Ordered_Maps (String, DOM.Core.Node);
+   type Data is record
+      URL  : Unbounded_String;
+      Node : DOM.Core.Node;
+   end record;
 
-   Store : Schema_Store.Map;
+   package Schema_Store is new Containers.Indefinite_Vectors (Positive, Data);
+
+   Store : Schema_Store.Vector;
 
    --------------
    -- Contains --
@@ -45,21 +52,29 @@ package body SOAP.WSDL.Schema is
 
    function Contains (Namespace : URL) return Boolean is
    begin
-      return Store.Contains (Namespace);
+      for E of Store loop
+         if E.URL = Namespace then
+            return True;
+         end if;
+      end loop;
+
+      return False;
    end Contains;
 
-   ---------
-   -- Get --
-   ---------
+   -------------
+   -- For_All --
+   -------------
 
-   function Get (Namespace : URL) return DOM.Core.Node is
+   procedure For_All
+     (Namespace : URL;
+      Process   : not null access procedure (N : DOM.Core.Node)) is
    begin
-      if Store.Contains (Namespace) then
-         return Store (Namespace);
-      else
-         return null;
-      end if;
-   end Get;
+      for E of Store loop
+         if E.URL = Namespace then
+            Process (E.Node);
+         end if;
+      end loop;
+   end For_All;
 
    --------------
    -- Register --
@@ -67,7 +82,7 @@ package body SOAP.WSDL.Schema is
 
    procedure Register (Namespace : URL; Node : DOM.Core.Node) is
    begin
-      Store.Insert (Namespace, Node);
+      Store.Append (Data'(To_Unbounded_String (Namespace), Node));
    end Register;
 
 end SOAP.WSDL.Schema;
