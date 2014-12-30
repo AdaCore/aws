@@ -741,6 +741,7 @@ package body SOAP.WSDL.Parser is
       Trace ("(Look_For_Schema)", N);
 
       --  First look for imported schema
+
       declare
          Key : constant String := (if T_NS = ""
                                    then NS (Name_Space.Value (TNS))
@@ -1228,14 +1229,14 @@ package body SOAP.WSDL.Parser is
             R := Look_For_Schema
               (N, P_Type, Document,
                Look_Context'(Complex_Type => True,
-                             others                     => False));
+                             others       => False));
 
             if R = null then
                --  Now check for a simpleType
                R := Look_For_Schema
                  (N, P_Type, Document,
-                  Look_Context'(Simple_Type                => True,
-                                others                     => False));
+                  Look_Context'(Simple_Type => True,
+                                others      => False));
 
                if R = null then
                   raise WSDL_Error with
@@ -1801,6 +1802,7 @@ package body SOAP.WSDL.Parser is
         and then Utils.No_NS (DOM.Core.Nodes.Node_Name (E)) = "enumeration"
       then
          return Build_Enumeration (-Name, -Base, E);
+
       else
          return Build_Derived (-Name, -Base, N);
       end if;

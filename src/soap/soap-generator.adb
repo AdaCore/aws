@@ -540,8 +540,8 @@ package body SOAP.Generator is
       Mode   : Header_Mode)
    is
       use Ada.Strings.Fixed;
-      use type SOAP.WSDL.Types.Kind;
       use type SOAP.WSDL.Parameters.P_Set;
+      use type SOAP.WSDL.Types.Kind;
 
       procedure Put_Indent (Last : Character := ' ');
       --  Ouput proper indentation spaces
@@ -749,8 +749,8 @@ package body SOAP.Generator is
       Output : WSDL.Parameters.P_Set)
    is
       use Characters.Handling;
-      use type WSDL.Types.Kind;
       use type WSDL.Parameters.P_Set;
+      use type WSDL.Types.Kind;
 
       procedure Generate_Record
         (Name   : String;
@@ -2073,10 +2073,11 @@ package body SOAP.Generator is
                   With_Unit
                     (File,
                      To_Unit_Name (Prefix) & '.' & F_Name & "_Type_Pkg",
-                     Elab      => Off,
+                     Elab       => Off,
                      Use_Clause => True);
                end;
             end if;
+
             N := N.Next;
          end loop;
 

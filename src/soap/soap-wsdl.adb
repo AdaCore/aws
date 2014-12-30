@@ -31,9 +31,9 @@
 
 with Ada.Characters.Handling;
 
+with DOM.Readers;
 with Input_Sources.File;
 with Sax.Readers;
-with DOM.Readers;
 
 with SOAP.Types;
 
@@ -203,8 +203,8 @@ package body SOAP.WSDL is
    ----------
 
    function Load (Filename : String) return Object is
-      use Input_Sources.File;
       use DOM.Readers;
+      use Input_Sources.File;
 
       Source : File_Input;
       Reader : Tree_Reader;
@@ -415,8 +415,8 @@ package body SOAP.WSDL is
    ------------
 
    function To_XSD (P : WSDL.Parameter_Type) return String is
-      use SOAP.WSDL;
       use SOAP.Types;
+      use SOAP.WSDL;
    begin
       case P is
          when P_Long           => return XML_Long;
