@@ -582,15 +582,15 @@ package body SOAP.Generator is
                   when WSDL.Types.K_Simple =>
                      Text_IO.Put
                        (File,
-                        WSDL.To_Ada (WSDL.To_Type (To_String (N.Type_Name))));
+                        WSDL.To_Ada (WSDL.To_Type (WSDL.Types.Name (N.Typ))));
 
                   when WSDL.Types.Compound_Type =>
                      Text_IO.Put
                        (File,
-                        Format_Name (O, To_String (N.Type_Name) & "_Type"));
+                        Format_Name (O, WSDL.Types.Name (N.Typ) & "_Type"));
 
                   when others =>
-                     Text_IO.Put (File, To_String (N.Type_Name) & "_Type");
+                     Text_IO.Put (File, WSDL.Types.Name (N.Typ) & "_Type");
 
                end case;
 
@@ -879,13 +879,12 @@ package body SOAP.Generator is
          S_Name  : constant String := Name (Name'First .. Name'Last - 5);
          --  Simple name without the ending _Type
 
-         Def     : constant WSDL.Types.Definition :=
-                     WSDL.Types.Find (To_String (P.Type_Name), P.NS);
+         Def     : constant WSDL.Types.Definition := WSDL.Types.Find (P.Typ);
 
          F_Name  : constant String := Format_Name (O, Name);
          T_Name  : constant String :=
                      (if Def = WSDL.Types.No_Definition
-                      then To_String (P.Type_Name)
+                      then WSDL.Types.Name (P.Typ)
                       else To_String (Def.E_Type));
 
          Prefix  : Unbounded_String;
@@ -1024,12 +1023,12 @@ package body SOAP.Generator is
 
             Text_IO.Put_Line
               (Arr_Ads, "   subtype " & F_Name & " is "
-               & Types_Spec (O) & "." & To_String (P.Type_Name) & ";");
+               & Types_Spec (O) & "." & WSDL.Types.Name (P.Typ) & ";");
 
             if not Regen then
                Text_IO.Put_Line
                  (Tmp_Ads, "   subtype " & F_Name & " is "
-                  & Types_Spec (O) & "." & To_String (P.Type_Name) & ";");
+                  & Types_Spec (O) & "." & WSDL.Types.Name (P.Typ) & ";");
             end if;
 
             if Is_Inside_Record (S_Name) then
@@ -1046,7 +1045,7 @@ package body SOAP.Generator is
                     (Tmp_Ads, "   subtype " & F_Name & "_Safe_Access");
                   Text_IO.Put_Line
                     (Tmp_Ads, "      is " & Types_Spec (O) & "."
-                     & To_String (P.Type_Name)
+                     & WSDL.Types.Name (P.Typ)
                      & "_Safe_Pointer.Safe_Pointer;");
 
                   Text_IO.New_Line (Tmp_Ads);
@@ -1058,7 +1057,7 @@ package body SOAP.Generator is
                     (Tmp_Ads, "      return " & F_Name & "_Safe_Access");
                   Text_IO.Put_Line
                     (Tmp_Ads, "      renames " & Procs_Spec (O) & "."
-                     & To_String (P.Type_Name)
+                     & WSDL.Types.Name (P.Typ)
                      & "_Safe_Pointer.To_Safe_Pointer;");
                   Text_IO.Put_Line
                     (Tmp_Ads, "   --  Convert an array to a safe pointer");
@@ -1073,7 +1072,7 @@ package body SOAP.Generator is
                  (Arr_Ads, "   subtype " & F_Name & "_Safe_Access");
                Text_IO.Put_Line
                  (Arr_Ads, "      is " & Types_Spec (O) & "."
-                  & To_String (P.Type_Name) & "_Safe_Pointer.Safe_Pointer;");
+                  & WSDL.Types.Name (P.Typ) & "_Safe_Pointer.Safe_Pointer;");
 
                Text_IO.New_Line (Arr_Ads);
                Text_IO.Put_Line
@@ -1084,7 +1083,7 @@ package body SOAP.Generator is
                  (Arr_Ads, "      return " & F_Name & "_Safe_Access");
                Text_IO.Put_Line
                  (Arr_Ads, "      renames " & Procs_Spec (O) & "."
-                  & To_String (P.Type_Name)
+                  & WSDL.Types.Name (P.Typ)
                   & "_Safe_Pointer.To_Safe_Pointer;");
                Text_IO.Put_Line
                  (Arr_Ads, "   --  Convert an array to a safe pointer");
@@ -1176,12 +1175,13 @@ package body SOAP.Generator is
       is
          F_Name  : constant String := Format_Name (O, Name & "_Type");
          Def     : constant WSDL.Types.Definition :=
-                     WSDL.Types.Find (Name, P.NS);
-         P_Name  : constant String := To_String (Def.Parent_Name);
+                     WSDL.Types.Find
+                       (WSDL.Types.Create (Name, WSDL.Types.NS (P.Typ)));
+         P_Name  : constant String := WSDL.Types.Name (Def.Parent);
          B_Name  : constant String :=
                      (if WSDL.Is_Standard (P_Name)
                       then WSDL.To_Ada (WSDL.To_Type (P_Name))
-                      else To_String (Def.Parent_Name) & "_Type");
+                      else P_Name & "_Type");
          Prefix  : Unbounded_String;
          Der_Ads : Text_IO.File_Type;
          Der_Adb : Text_IO.File_Type;
@@ -1432,8 +1432,7 @@ package body SOAP.Generator is
             return To_String (Result);
          end Image;
 
-         Def     : constant WSDL.Types.Definition :=
-                     WSDL.Types.Find (To_String (P.Type_Name), P.NS);
+         Def     : constant WSDL.Types.Definition := WSDL.Types.Find (P.Typ);
          N       : WSDL.Types.E_Node_Access := Def.E_Def;
          Prefix  : Unbounded_String;
          Enu_Ads : Text_IO.File_Type;
@@ -1453,7 +1452,7 @@ package body SOAP.Generator is
          else
             Text_IO.Put_Line
               (Enu_Ads, "   subtype " & F_Name & " is "
-               & Types_Spec (O) & "." & To_String (Def.Name) & ";");
+               & Types_Spec (O) & "." & WSDL.Types.Name (Def.Ref) & ";");
          end if;
 
          Text_IO.New_Line (Tmp_Ads);
@@ -1754,12 +1753,12 @@ package body SOAP.Generator is
             Text_IO.New_Line (Rec_Ads);
             Text_IO.Put_Line
               (Rec_Ads, "   subtype " & F_Name & " is "
-               & Types_Spec (O) & "." & To_String (P.Type_Name) & ";");
+               & Types_Spec (O) & "." & WSDL.Types.Name (P.Typ) & ";");
 
             Text_IO.New_Line (Tmp_Ads);
             Text_IO.Put_Line
               (Tmp_Ads, "   subtype " & F_Name & " is "
-               & Types_Spec (O) & "." & To_String (P.Type_Name) & ";");
+               & Types_Spec (O) & "." & WSDL.Types.Name (P.Typ) & ";");
          end if;
 
          --  Generate conversion spec
@@ -1851,8 +1850,7 @@ package body SOAP.Generator is
             end if;
 
             declare
-               Def : constant WSDL.Types.Definition :=
-                       WSDL.Types.Find (To_String (N.Type_Name), N.NS);
+               Def : constant WSDL.Types.Definition := WSDL.Types.Find (N.Typ);
             begin
                case N.Mode is
                   when WSDL.Types.K_Simple =>
@@ -1883,7 +1881,7 @@ package body SOAP.Generator is
                           (N.all,
                            Object    => Format_Name (O, To_String (N.Name)),
                            Type_Name =>
-                              Format_Name (O, To_String (Def.Name))));
+                              Format_Name (O, WSDL.Types.Name (Def.Ref))));
 
                   when WSDL.Types.K_Record =>
                      Text_IO.Put
@@ -1945,9 +1943,8 @@ package body SOAP.Generator is
                while N /= null loop
                   declare
                      Def    : constant WSDL.Types.Definition :=
-                                WSDL.Types.Find
-                                  (To_String (N.Type_Name), N.NS);
-                     T_Name : constant String := To_String (N.Type_Name);
+                                WSDL.Types.Find (N.Typ);
+                     T_Name : constant String := WSDL.Types.Name (Def.Ref);
                   begin
                      case N.Mode is
                         when WSDL.Types.K_Simple =>
@@ -2030,7 +2027,7 @@ package body SOAP.Generator is
                end if;
 
                declare
-                  T_Name : constant String := To_String (N.Type_Name);
+                  T_Name : constant String := WSDL.Types.Name (N.Typ);
                begin
                   case N.Mode is
                      when WSDL.Types.K_Simple | WSDL.Types.K_Record =>
@@ -2091,7 +2088,7 @@ package body SOAP.Generator is
          elsif P.Mode in WSDL.Types.Compound_Type then
             Text_IO.Put_Line
               (Rec_Adb,
-               "         Name, """ & To_String (P.Type_Name) & """);");
+               "         Name, """ & WSDL.Types.Name (P.Typ) & """);");
 
          else
             Text_IO.Put_Line
@@ -2099,7 +2096,7 @@ package body SOAP.Generator is
                "         Name, """ & Name & """);");
          end if;
 
-         if P.NS /= Name_Space.No_Name_Space then
+         if WSDL.Types.NS (P.Typ) /= Name_Space.No_Name_Space then
             Text_IO.Put_Line
               (Rec_Adb, "      SOAP.Types.Set_Name_Space");
             Text_IO.Put_Line
@@ -2107,9 +2104,13 @@ package body SOAP.Generator is
             Text_IO.Put_Line
               (Rec_Adb, "         SOAP.Name_Space.Create");
             Text_IO.Put_Line
-              (Rec_Adb, "           (""" & Name_Space.Name (P.NS) & """,");
+              (Rec_Adb,
+               "           ("""
+               & Name_Space.Name (WSDL.Types.NS (P.Typ)) & """,");
             Text_IO.Put_Line
-              (Rec_Adb, "            """ & Name_Space.Value (P.NS) & """));");
+              (Rec_Adb,
+               "            """
+               & Name_Space.Value (WSDL.Types.NS (P.Typ)) & """));");
          end if;
 
          Text_IO.Put_Line (Rec_Adb, "      return Result;");
@@ -2146,9 +2147,9 @@ package body SOAP.Generator is
          procedure Output_Refs (Def : WSDL.Types.Definition; Gen : Boolean) is
             --  ?? should use derived NS
             F_Name : constant String :=
-                       Format_Name (O, To_String (Def.Name));
+                       Format_Name (O, WSDL.Types.Name (Def.Ref));
             Prefix : constant String :=
-                       Generate_Namespace (Def.NS, False);
+                       Generate_Namespace (WSDL.Types.NS (Def.Ref), False);
          begin
             if Gen and then not Generated.Contains (F_Name) then
                With_Unit
@@ -2161,10 +2162,9 @@ package body SOAP.Generator is
             end if;
 
             if Def.Mode = WSDL.Types.K_Derived
-              and then not WSDL.Is_Standard (To_String (Def.Parent_Name))
+              and then not WSDL.Is_Standard (WSDL.Types.Name (Def.Parent))
             then
-               Output_Refs
-                 (WSDL.Types.Find (To_String (Def.Parent_Name), Def.NS), True);
+               Output_Refs (WSDL.Types.Find (Def.Parent), True);
             end if;
          end Output_Refs;
 
@@ -2172,10 +2172,8 @@ package body SOAP.Generator is
 
       begin
          while N /= null loop
-            if N.NS /= Name_Space.XSD then
-               Output_Refs
-                 (WSDL.Types.Find (To_String (N.Type_Name), N.NS),
-                  not For_Derived);
+            if WSDL.Types.NS (N.Typ) /= Name_Space.XSD then
+               Output_Refs (WSDL.Types.Find (N.Typ), not For_Derived);
             end if;
 
             --  If we are not handling a compound type, only reference the root
@@ -2192,9 +2190,8 @@ package body SOAP.Generator is
       -----------------
 
       function Get_Routine (P : WSDL.Parameters.P_Set) return String is
-         Def    : constant WSDL.Types.Definition :=
-                    WSDL.Types.Find (To_String (P.Type_Name), P.NS);
-         T_Name : constant String := To_String (P.Type_Name);
+         Def    : constant WSDL.Types.Definition := WSDL.Types.Find (P.Typ);
+         T_Name : constant String := WSDL.Types.Name (P.Typ);
       begin
          case P.Mode is
             when WSDL.Types.K_Simple =>
@@ -2240,7 +2237,7 @@ package body SOAP.Generator is
          F_Name : constant String := Name & "_Pkg";
       begin
          Prefix := To_Unbounded_String
-           (Generate_Namespace (P.NS, True) & '-' & F_Name);
+           (Generate_Namespace (WSDL.Types.NS (P.Typ), True) & '-' & F_Name);
 
          --  Add references into the main types package
 
@@ -2273,11 +2270,12 @@ package body SOAP.Generator is
          end if;
 
          if Def.Mode = WSDL.Types.K_Derived then
-            if not WSDL.Is_Standard (To_String (Def.Parent_Name)) then
+            if not WSDL.Is_Standard (WSDL.Types.Name (Def.Parent)) then
                With_Unit
                  (F_Ads,
-                  To_Unit_Name (Generate_Namespace (Def.NS, False))
-                  & '.' & To_String (Def.Parent_Name) & "_Type_Pkg",
+                  To_Unit_Name
+                    (Generate_Namespace (WSDL.Types.NS (Def.Ref), False))
+                  & '.' & WSDL.Types.Name (Def.Parent) & "_Type_Pkg",
                   Elab       => Off,
                   Use_Clause => True);
                Text_IO.New_Line (F_Ads);
@@ -2342,7 +2340,7 @@ package body SOAP.Generator is
          begin
             while P /= null loop
                if P.Mode = WSDL.Types.K_Array
-                 and then To_String (P.Type_Name) = Name
+                 and then WSDL.Types.Name (P.Typ) = Name
                then
                   Mode := True;
                   return;
@@ -2372,7 +2370,7 @@ package body SOAP.Generator is
       begin
          while N /= null loop
             declare
-               T_Name : constant String := To_String (N.Type_Name);
+               T_Name : constant String := WSDL.Types.Name (N.Typ);
             begin
                case N.Mode is
                   when WSDL.Types.K_Simple =>
@@ -2392,12 +2390,11 @@ package body SOAP.Generator is
                         procedure Generate (Def : WSDL.Types.Definition) is
                            use type Name_Space.Object;
 
-                           T_Name : constant String := To_String (Def.Name);
+                           T_Name : constant String :=
+                                      WSDL.Types.Name (Def.Ref);
                         begin
-                           if Def.NS /= Name_Space.XSD then
-                              Generate
-                                (WSDL.Types.Find
-                                   (To_String (Def.Parent_Name), Def.NS));
+                           if WSDL.Types.NS (Def.Ref) /= Name_Space.XSD then
+                              Generate (WSDL.Types.Find (Def.Parent));
 
                               if not Name_Set.Exists (T_Name) then
 
@@ -2409,8 +2406,7 @@ package body SOAP.Generator is
                         end Generate;
 
                      begin
-                        Generate
-                          (WSDL.Types.Find (To_String (N.Type_Name), N.NS));
+                        Generate (WSDL.Types.Find (N.Typ));
                      end;
 
                   when WSDL.Types.K_Enumeration =>
@@ -2469,9 +2465,8 @@ package body SOAP.Generator is
       -----------------
 
       function Set_Routine (P : WSDL.Parameters.P_Set) return String is
-         Def    : constant WSDL.Types.Definition :=
-                    WSDL.Types.Find (To_String (P.Type_Name), P.NS);
-         T_Name : constant String := To_String (P.Type_Name);
+         Def    : constant WSDL.Types.Definition :=  WSDL.Types.Find (P.Typ);
+         T_Name : constant String := WSDL.Types.Name (P.Typ);
       begin
          case P.Mode is
             when WSDL.Types.K_Simple =>
@@ -2480,7 +2475,7 @@ package body SOAP.Generator is
 
             when WSDL.Types.K_Derived =>
                return WSDL.Set_Routine
-                 (To_String (Def.Parent_Name),
+                 (WSDL.Types.Name (Def.Parent),
                   Context => WSDL.Component);
 
             when WSDL.Types.K_Enumeration =>
@@ -2523,7 +2518,7 @@ package body SOAP.Generator is
 
       function Type_Name (N : WSDL.Parameters.P_Set) return String is
          use type WSDL.Parameter_Type;
-         T_Name : constant String := To_String (N.Type_Name);
+         T_Name : constant String := WSDL.Types.Name (N.Typ);
       begin
          case N.Mode is
             when WSDL.Types.K_Simple =>
@@ -2564,7 +2559,7 @@ package body SOAP.Generator is
                Text_IO.Put_Line
                  (Tmp_Ads,
                   "   subtype " & L_Proc & "_Result is "
-                  & Format_Name (O, To_String (Output.Type_Name))
+                  & Format_Name (O, WSDL.Types.Name (Output.Typ))
                   & "_Type;");
             end if;
 
@@ -2686,7 +2681,7 @@ package body SOAP.Generator is
       if WSDL.Parameters.Length (Output) = 1
         and then Output.Mode = WSDL.Types.K_Simple
       then
-         return WSDL.To_Ada (WSDL.To_Type (To_String (Output.Type_Name)));
+         return WSDL.To_Ada (WSDL.To_Type (WSDL.Types.Name (Output.Typ)));
       else
          return L_Proc & "_Result";
       end if;

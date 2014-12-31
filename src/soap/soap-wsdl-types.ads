@@ -35,6 +35,21 @@ package SOAP.WSDL.Types is
 
    use Ada.Strings.Unbounded;
 
+   --  A type object
+
+   type Object is private;
+
+   function Create (Name : String; NS : Name_Space.Object) return Object;
+   --  Create a full reference for a type
+
+   function Name (O : Object) return String;
+   --  Returns the name of the type
+
+   function NS (O : Object) return Name_Space.Object;
+   --  Retrurns the name-space for the type
+
+   --  Kind of types
+
    type Kind is (K_Record, K_Array, K_Derived, K_Enumeration, K_Simple);
 
    subtype Compound_Type is Kind range K_Record .. K_Array;
@@ -52,12 +67,11 @@ package SOAP.WSDL.Types is
    --  Parameter
 
    type Definition (Mode : Kind) is record
-      Name : Unbounded_String;
-      NS   : Name_Space.Object;
+      Ref : Object;
 
       case Mode is
          when K_Derived =>
-            Parent_Name : Unbounded_String; -- Derived type name
+            Parent : Object;
 
          when K_Simple | K_Record =>
             null;
@@ -79,8 +93,7 @@ package SOAP.WSDL.Types is
    function Image (K : Kind) return String;
    --  Returns a string representation of Kind type
 
-   function Find
-     (Type_Name : String; NS : Name_Space.Object) return Definition;
+   function Find (O : Object) return Definition;
    --  Returns the type definition for the given type name and name-space
    --  or No_Definition if not found. Note that the standard xsd types are
    --  not registered their, only the types as found in the schema.
@@ -100,8 +113,15 @@ package SOAP.WSDL.Types is
 
 private
 
+   type Object is record
+      Name : Unbounded_String;
+      NS   : Name_Space.Object;
+   end record;
+
+   No_Type : constant Object :=
+               (Null_Unbounded_String, Name_Space.No_Name_Space);
+
    No_Definition : constant Definition :=
-                     (K_Enumeration, Null_Unbounded_String,
-                      Name_Space.No_Name_Space, null);
+                     (K_Enumeration, No_Type, null);
 
 end SOAP.WSDL.Types;

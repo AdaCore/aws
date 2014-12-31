@@ -206,7 +206,7 @@ package body Stub is
             " (Types.Image ("
               & Prefix & Format_Name (O, To_String (N.Name))
               & "), """
-              & To_String (N.Type_Name)
+              & WSDL.Types.Name (N.Typ)
               & """, """ & To_String (N.Name) & """)");
 
          if Prefix /= "" and then N.Next /= null then
@@ -300,7 +300,7 @@ package body Stub is
          if N.Mode = WSDL.Types.K_Array then
             declare
                Name : constant String :=
-                        Format_Name (O, To_String (N.Type_Name));
+                        Format_Name (O, WSDL.Types.Name (N.Typ));
             begin
                Text_IO.Put_Line
                  (Stub_Adb,
@@ -318,7 +318,7 @@ package body Stub is
          else
 
             if N.Mode = WSDL.Types.K_Simple
-              and then WSDL.To_Type (To_String (N.Type_Name)) = WSDL.P_String
+              and then WSDL.To_Type (WSDL.Types.Name (N.Typ)) = WSDL.P_String
             then
                --  First call operator to convert the string to an unbounded
                --  string.
@@ -353,7 +353,7 @@ package body Stub is
       is
          use type WSDL.Parameter_Type;
          P_Type : constant WSDL.Parameter_Type :=
-                    WSDL.To_Type (To_String (N.Type_Name));
+                    WSDL.To_Type (WSDL.Types.Name (N.Typ));
       begin
          if Prefix /= "" then
             --  Inside a record
@@ -514,7 +514,7 @@ package body Stub is
             --  A single parameter is returned
 
             declare
-               T_Name : constant String := To_String (Output.Type_Name);
+               T_Name : constant String := WSDL.Types.Name (Output.Typ);
             begin
                Text_IO.Put (Stub_Adb, "                 := ");
 

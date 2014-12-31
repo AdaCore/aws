@@ -39,21 +39,17 @@ package body SOAP.WSDL.Types is
 
    Store : Types_Store.Vector;
 
-   function Contains
-     (Type_Name : String; NS : Name_Space.Object) return Boolean;
+   function Contains (O : Object) return Boolean;
    --  Returns True if the type is already registered
 
    --------------
    -- Contains --
    --------------
 
-   function Contains
-     (Type_Name : String; NS : Name_Space.Object) return Boolean
-   is
-      use type Name_Space.Object;
+   function Contains (O : Object) return Boolean is
    begin
       for D of Store loop
-         if D.Name = Type_Name and then D.NS = NS then
+         if O = D.Ref then
             return True;
          end if;
       end loop;
@@ -70,22 +66,29 @@ package body SOAP.WSDL.Types is
       return Natural (Store.Length);
    end Count;
 
+   ------------
+   -- Create --
+   ------------
+
+   function Create (Name : String; NS : Name_Space.Object) return Object is
+   begin
+      return Object'(To_Unbounded_String (Name), NS);
+   end Create;
+
    ----------
    -- Find --
    ----------
 
-   function Find
-     (Type_Name : String; NS : Name_Space.Object) return Definition
+   function Find (O : Object) return Definition
    is
       use type Name_Space.Object;
    begin
-      if WSDL.Is_Standard (Type_Name) then
-         return Definition'
-           (K_Simple, To_Unbounded_String (Type_Name), Name_Space.XSD);
+      if WSDL.Is_Standard (Name (O)) then
+         return Definition'(K_Simple, Ref => (O.Name, Name_Space.XSD));
 
       else
          for D of Store loop
-            if D.Name = Type_Name and then D.NS = NS then
+            if O = D.Ref then
                return D;
             end if;
          end loop;
@@ -108,13 +111,31 @@ package body SOAP.WSDL.Types is
                  when K_Simple      => "simple");
    end Image;
 
+   ----------
+   -- Name --
+   ----------
+
+   function Name (O : Object) return String is
+   begin
+      return To_String (O.Name);
+   end Name;
+
+   --------
+   -- NS --
+   --------
+
+   function NS (O : Object) return Name_Space.Object is
+   begin
+      return O.NS;
+   end NS;
+
    ------------
    -- Output --
    ------------
 
    procedure Output (Def : Definition) is
    begin
-      Text_IO.Put (To_String (Def.Name));
+      Text_IO.Put (To_String (Def.Ref.Name));
    end Output;
 
    --------------
@@ -123,7 +144,7 @@ package body SOAP.WSDL.Types is
 
    procedure Register (Def : Definition) is
    begin
-      if not Contains (To_String (Def.Name), Def.NS) then
+      if not Contains (Def.Ref) then
          Store.Append (Def);
       end if;
    end Register;
@@ -143,10 +164,10 @@ package body SOAP.WSDL.Types is
 
    function Root_Type_For (Def : Definition) return String is
    begin
-      if WSDL.Is_Standard (To_String (Def.Name)) then
-         return To_String (Def.Name);
+      if WSDL.Is_Standard (To_String (Def.Ref.Name)) then
+         return To_String (Def.Ref.Name);
       else
-         return Root_Type_For (Find (To_String (Def.Parent_Name), Def.NS));
+         return Root_Type_For (Find (Def.Parent));
       end if;
    end Root_Type_For;
 

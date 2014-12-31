@@ -87,7 +87,7 @@ package body Skel is
       -----------------------
 
       procedure Output_Parameters (N : WSDL.Parameters.P_Set) is
-         T_Name : constant String := To_String (N.Type_Name);
+         T_Name : constant String := WSDL.Types.Name (N.Typ);
          R      : WSDL.Parameters.P_Set;
       begin
          Text_IO.Put (Skel_Adb, "           := ");
@@ -312,7 +312,7 @@ package body Skel is
 
       while N /= null loop
          declare
-            T_Name : constant String := To_String (N.Type_Name);
+            T_Name : constant String := WSDL.Types.Name (N.Typ);
          begin
             Text_IO.Put      (Skel_Adb, "         ");
 
@@ -402,7 +402,7 @@ package body Skel is
          then
             Text_IO.Put_Line
               (Skel_Adb,
-               WSDL.To_Ada (WSDL.To_Type (To_String (Output.Type_Name))));
+               WSDL.To_Ada (WSDL.To_Type (WSDL.Types.Name (Output.Typ))));
          else
             Text_IO.Put_Line
               (Skel_Adb, L_Proc & "_Result");
@@ -463,7 +463,7 @@ package body Skel is
             end if;
 
             declare
-               T_Name : constant String := To_String (N.Type_Name);
+               T_Name : constant String := WSDL.Types.Name (N.Typ);
             begin
                case N.Mode is
                   when WSDL.Types.K_Simple =>

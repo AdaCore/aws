@@ -231,7 +231,9 @@ package body SOAP.WSDL.Parser is
       if not O.No_Param then
          Parameters.Append
            (O.Params (O.Mode),
-            (WSDL.Types.K_Simple, +Name, +Type_Name, Name_Space.XSD, null));
+            (WSDL.Types.K_Simple, +Name,
+             Typ  => Types.Create (Type_Name, Name_Space.XSD),
+             Next => null));
       end if;
    end Add_Parameter;
 
@@ -874,20 +876,17 @@ package body SOAP.WSDL.Parser is
         (R /= null
          and then Utils.No_NS (DOM.Core.Nodes.Node_Name (R)) = "complexType");
 
-      P.NS := Get_Target_Name_Space (R);
-
       declare
          Name : constant String := XML.Get_Attr_Value (R, "name", False);
       begin
          --  Set array name, R is a complexType node
 
          P.Name      := O.Current_Name;
-         P.Type_Name := +Name;
+         P.Typ       := Types.Create (Name, Get_Target_Name_Space (R));
          P.Length    := O.Array_Length;
 
-         D.Name      := P.Type_Name;
+         D.Ref       := Types.Create (Name, Types.NS (P.Typ));
          D.E_Type    := O.Array_Elements;
-         D.NS        := P.NS;
 
          Types.Register (D);
 
@@ -1215,8 +1214,9 @@ package body SOAP.WSDL.Parser is
 
       if WSDL.Is_Standard (P_Type) then
          return
-           (Types.K_Simple, +XML.Get_Attr_Value (N, "name"), +P_Type,
-            Name_Space.XSD, null);
+           (Types.K_Simple, +XML.Get_Attr_Value (N, "name"),
+            Typ  => Types.Create (P_Type, Name_Space.XSD),
+            Next => null);
 
       elsif P_Type = "anyType" then
          raise WSDL_Error with "Type anyType is not supported.";
@@ -1442,8 +1442,6 @@ package body SOAP.WSDL.Parser is
            (Utils.No_NS (DOM.Core.Nodes.Node_Name (R)) = "complexType"
             or else Utils.No_NS (DOM.Core.Nodes.Node_Name (R)) = "element"));
 
-      P.NS := Get_Target_Name_Space (R);
-
       if XML.Get_Attr_Value (R, "abstract", False) = "true" then
          raise WSDL_Error with "abstract record not supported";
       end if;
@@ -1454,10 +1452,9 @@ package body SOAP.WSDL.Parser is
          --  Set record name, R is a complexType or element node
 
          P.Name      := O.Current_Name;
-         P.Type_Name := +Name;
+         P.Typ       := Types.Create (Name, Get_Target_Name_Space (R));
 
-         D.Name := P.Type_Name;
-         D.NS   := P.NS;
+         D.Ref  := Types.Create (Name, Types.NS (P.Typ));
 
          Types.Register (D);
 
@@ -1700,13 +1697,13 @@ package body SOAP.WSDL.Parser is
          P : Parameters.Parameter (Types.K_Derived);
          D : Types.Definition (Types.K_Derived);
       begin
-         P.NS        := Get_Target_Name_Space (DOM.Core.Nodes.Parent_Node (E));
          P.Name      := O.Current_Name;
-         P.Type_Name := +Name;
+         P.Typ       := Types.Create
+           (Name, Get_Target_Name_Space (DOM.Core.Nodes.Parent_Node (E)));
 
-         D.Name        := P.Type_Name;
-         D.NS          := P.NS;
-         D.Parent_Name := +Base;
+         D.Ref    := Types.Create (Name, Types.NS (P.Typ));
+         D.Parent := Types.Create (Base, Types.NS (P.Typ));
+         --  ??PO should use Base NS
 
          Types.Register (D);
 
@@ -1738,12 +1735,10 @@ package body SOAP.WSDL.Parser is
       begin
          --  ??PO R not needed above
 
-         P.NS        := Get_Target_Name_Space (DOM.Core.Nodes.Parent_Node (E));
          P.Name      := O.Current_Name;
-         P.Type_Name := +Name;
-
-         D.NS   := P.NS;
-         D.Name := P.Type_Name;
+         P.Typ       := Types.Create
+           (Name, Get_Target_Name_Space (DOM.Core.Nodes.Parent_Node (E)));
+         D.Ref := Types.Create (Name, Types.NS (P.Typ));
 
          while N /= null
            and then Utils.No_NS (DOM.Core.Nodes.Node_Name (E)) = "enumeration"

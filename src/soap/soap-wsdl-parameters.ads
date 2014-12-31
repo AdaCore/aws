@@ -29,7 +29,6 @@
 
 with Ada.Strings.Unbounded;
 
-with SOAP.Name_Space;
 with SOAP.WSDL.Types;
 
 package SOAP.WSDL.Parameters is
@@ -44,8 +43,7 @@ package SOAP.WSDL.Parameters is
 
    type Parameter (Mode : Types.Kind) is record
       Name      : Unbounded_String;
-      Type_Name : Unbounded_String;
-      NS        : Name_Space.Object;
+      Typ       : Types.Object;
       Next      : P_Set;
 
       case Mode is
