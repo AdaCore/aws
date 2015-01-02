@@ -1116,7 +1116,7 @@ package body Ada2WSDL.Parser is
                      if Dig <= Float'Digits then
                         return "float";
                      else
-                        return "double";
+                        return "long_float";
                      end if;
                   end;
 
