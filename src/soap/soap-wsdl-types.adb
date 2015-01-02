@@ -79,8 +79,7 @@ package body SOAP.WSDL.Types is
    -- Find --
    ----------
 
-   function Find (O : Object) return Definition
-   is
+   function Find (O : Object) return Definition is
       use type Name_Space.Object;
    begin
       if WSDL.Is_Standard (Name (O)) then
