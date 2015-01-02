@@ -31,6 +31,7 @@ with Ada.Text_IO;
 with Ada.Unchecked_Deallocation;
 
 with SOAP.Name_Space;
+with SOAP.Utils;
 
 package body SOAP.WSDL.Parameters is
 
@@ -92,7 +93,8 @@ package body SOAP.WSDL.Parameters is
 
          else
             declare
-               P_Name : constant String := Types.Name (Def.Parent);
+               P_Name : constant String :=
+                          Utils.No_NS (Types.Name (Def.Parent));
             begin
                return "From_" & P_Name & "_Type"
                  & " ("
@@ -114,12 +116,12 @@ package body SOAP.WSDL.Parameters is
               & Object & ")))";
 
          when WSDL.Types.K_Array =>
-            return "+To_" & Type_Name
+            return "+To_" & Utils.No_NS (Type_Name)
               & "_Type (SOAP.Types.V (SOAP.Types.SOAP_Array ("
               & Object & ")))";
 
          when WSDL.Types.K_Record =>
-            return "To_" & Type_Name
+            return "To_" & Utils.No_NS (Type_Name)
               & " (SOAP.Types.SOAP_Record (" & Object & "))";
 
          when WSDL.Types.K_Simple =>
@@ -257,7 +259,8 @@ package body SOAP.WSDL.Parameters is
               & " (" & Code & ", """ & Name & """)";
          else
             declare
-               P_Name : constant String := Types.Name (Def.Parent);
+               P_Name : constant String :=
+                          Utils.No_NS (Types.Name (Def.Parent));
             begin
                return For_Derived
                  (WSDL.Types.Find (Def.Parent),

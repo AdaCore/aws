@@ -29,7 +29,6 @@
 
 pragma Ada_2012;
 
-with Ada.Characters.Handling;
 with Ada.Containers.Indefinite_Vectors;
 with Ada.Exceptions;
 with Ada.Strings.Fixed;
@@ -37,10 +36,10 @@ with Ada.Text_IO;
 
 with DOM.Core.Nodes;
 
-with AWS.Containers.Key_Value;
 with AWS.Utils;
 with SOAP.Types;
 with SOAP.Utils;
+with SOAP.WSDL.Name_Spaces;
 with SOAP.WSDL.Schema;
 with SOAP.WSDL.Types;
 with SOAP.XML;
@@ -53,6 +52,7 @@ package body SOAP.WSDL.Parser is
    Verbose_Mode  : Verbose_Level := 0;
    Skip_Error    : Boolean       := False;
    NS_SOAP       : Unbounded_String;
+   NS_Num        : Natural := 0;
 
    type Look_Kind is (Complex_Type, Simple_Type, Element);
    type Look_Context is array (Look_Kind) of Boolean;
@@ -60,10 +60,6 @@ package body SOAP.WSDL.Parser is
    Look_All : constant Look_Context := (others => True);
 
    package String_List is new Containers.Indefinite_Vectors (Positive, String);
-
-   package Name_Spaces renames AWS.Containers.Key_Value;
-   NS     : Name_Spaces.Map;
-   NS_Num : Natural := 0;
 
    function Get_Node
      (Parent  : DOM.Core.Node;
@@ -182,9 +178,6 @@ package body SOAP.WSDL.Parser is
       N : DOM.Core.Node) return Boolean;
    --  Returns True if N is a struct description node
 
-   procedure Check_Character (R : DOM.Core.Node);
-   --  Checks that N is a valid schema definition for a Character Ada type
-
    function Get_Target_Name_Space
      (N : DOM.Core.Node) return Name_Space.Object;
    --  Returns the targetNamespace
@@ -202,6 +195,12 @@ package body SOAP.WSDL.Parser is
       Document  : WSDL.Object;
       Context   : Look_Context := Look_All) return DOM.Core.Node;
    --  Look for schema starting at
+
+   function Is_Character
+     (N         : DOM.Core.Node;
+      Type_Name : String;
+      Document  : WSDL.Object) return Boolean;
+   --  Returns True if Type_Name corresponds to a character type
 
    -----------
    -- Debug --
@@ -232,7 +231,7 @@ package body SOAP.WSDL.Parser is
          Parameters.Append
            (O.Params (O.Mode),
             (WSDL.Types.K_Simple, +Name,
-             Typ  => Types.Create (Type_Name, Name_Space.XSD),
+             Typ  => Types.Create (Utils.No_NS (Type_Name), Name_Space.XSD),
              Next => null));
       end if;
    end Add_Parameter;
@@ -245,146 +244,6 @@ package body SOAP.WSDL.Parser is
          Parameters.Append (O.Params (O.Mode), Param);
       end if;
    end Add_Parameter;
-
-   ---------------------
-   -- Check_Character --
-   ---------------------
-
-   procedure Check_Character (R : DOM.Core.Node) is
-
-      function Character_Facet
-        (Parent : DOM.Core.Node;
-         Child  : Boolean := False) return DOM.Core.Node;
-      --  Returns the first node corresponding to a character type definition.
-      --  It skips annotation tag for example.
-
-      ---------------------
-      -- Character_Facet --
-      ---------------------
-
-      function Character_Facet
-        (Parent : DOM.Core.Node;
-         Child  : Boolean := False) return DOM.Core.Node
-      is
-         N : DOM.Core.Node := Parent;
-      begin
-         if Child then
-            N := XML.First_Child (N);
-         else
-            N := XML.Next_Sibling (N);
-         end if;
-
-         while N /= null
-           and then DOM.Core.Nodes.Local_Name (N) /= "length"
-           and then DOM.Core.Nodes.Local_Name (N) /= "minLength"
-           and then DOM.Core.Nodes.Local_Name (N) /= "maxLength"
-         loop
-            N := XML.Next_Sibling (N);
-         end loop;
-
-         return N;
-      end Character_Facet;
-
-      N : DOM.Core.Node := R;
-
-   begin
-      Trace ("(Check_Character)", R);
-
-      pragma Assert
-        (R /= null
-         and then Utils.No_NS (DOM.Core.Nodes.Node_Name (R)) = "simpleType");
-
-      --  Now check that if Name is Character and base is xsd:string
-      --  that this is really an Ada Character type. For this the
-      --  type must be constrained to a single character.
-      --
-      --  Either we have the facet <length value="1">
-      --  Or <minLength value="1"> and <maxLength value="1">
-
-      declare
-         Name : constant String := XML.Get_Attr_Value (R, "name", False);
-      begin
-         --  Get restriction node
-
-         N := XML.First_Child (N);
-
-         declare
-            Base : constant String := XML.Get_Attr_Value (N, "base", False);
-         begin
-            if Characters.Handling.To_Lower (Name) /= "character"
-              or else Base /= "string"
-            then
-               raise WSDL_Error
-                 with "Schema does not correspond to Ada Character type.";
-            end if;
-
-            N := Character_Facet (N, Child => True);
-
-            if N /= null
-              and then DOM.Core.Nodes.Local_Name (N) = "length"
-            then
-               --  Check length
-
-               if XML.Get_Attr_Value (N, "value", False) /= "1" then
-                  raise WSDL_Error
-                    with "Schema does not correspond"
-                      & " to Ada Character type (length /= 1).";
-               end if;
-
-            elsif N /= null
-              and then DOM.Core.Nodes.Local_Name (N) = "minLength"
-            then
-
-               if XML.Get_Attr_Value (N, "value", False) /= "1" then
-                  raise WSDL_Error
-                    with "Schema does not correspond"
-                      & " to Ada Character type (minLength /= 1).";
-               end if;
-
-               N := Character_Facet (N);
-
-               if N = null
-                 or else DOM.Core.Nodes.Local_Name (N) /= "maxLength"
-                 or else XML.Get_Attr_Value (N, "value", False) /= "1"
-               then
-                  if N = null then
-                     Text_IO.Put_Line ("N=null");
-                  end if;
-
-                  raise WSDL_Error
-                    with "Schema does not correspond"
-                      & " to Ada Character type (maxLength /= 1).";
-               end if;
-
-            elsif N /= null
-              and then DOM.Core.Nodes.Local_Name (N) = "maxLength"
-            then
-
-               if XML.Get_Attr_Value (N, "value", False) /= "1" then
-                  raise WSDL_Error
-                    with "Schema does not correspond"
-                      & " to Ada Character type (maxLength /= 1).";
-               end if;
-
-               N := Character_Facet (N);
-
-               if N = null
-                 or else DOM.Core.Nodes.Local_Name (N) /= "minLength"
-                 or else XML.Get_Attr_Value (N, "value", False) /= "1"
-               then
-                  raise WSDL_Error
-                    with "Schema does not correspond"
-                      & " to Ada Character type (minLength /= 1).";
-               end if;
-
-            else
-               raise WSDL_Error
-                 with "Schema does not correspond"
-                   & " to Ada Character type (no facet).";
-            end if;
-         end;
-      end;
-   end Check_Character;
 
    -----------------------
    -- Continue_On_Error --
@@ -535,20 +394,16 @@ package body SOAP.WSDL.Parser is
       ------------
 
       function Create (Value : String) return Name_Space.Object is
-         P : Name_Spaces.Cursor;
-         R : Boolean;
       begin
-         P := Name_Spaces.Find (NS, Value);
-
-         if Name_Spaces.Has_Element (P) then
-            return Name_Space.Create (Name_Spaces.Element (P), Value);
+         if WSDL.Name_Spaces.Contains (Value) then
+            return Name_Space.Create (WSDL.Name_Spaces.Get (Value), Value);
 
          else
             NS_Num := NS_Num + 1;
             declare
                Name : constant String := "n" & AWS.Utils.Image (NS_Num);
             begin
-               Name_Spaces.Insert (NS, Value, Name, P, R);
+               WSDL.Name_Spaces.Register (Value, Name);
                return Name_Space.Create (Name, Value);
             end;
          end if;
@@ -661,6 +516,150 @@ package body SOAP.WSDL.Parser is
       return False;
    end Is_Array;
 
+   ------------------
+   -- Is_Character --
+   ------------------
+
+   function Is_Character
+     (N         : DOM.Core.Node;
+      Type_Name : String;
+      Document  : WSDL.Object) return Boolean
+   is
+
+      function Is_Character_Schema (R : DOM.Core.Node) return Boolean;
+
+      -------------------------
+      -- Is_Character_Schema --
+      -------------------------
+
+      function Is_Character_Schema (R : DOM.Core.Node) return Boolean is
+
+         function Character_Facet
+           (Parent : DOM.Core.Node;
+            Child  : Boolean := False) return DOM.Core.Node;
+         --  Returns the first node corresponding to a character type
+         --  definition. It skips annotation tag for example.
+
+         ---------------------
+         -- Character_Facet --
+         ---------------------
+
+         function Character_Facet
+           (Parent : DOM.Core.Node;
+            Child  : Boolean := False) return DOM.Core.Node
+         is
+            N : DOM.Core.Node := Parent;
+         begin
+            if Child then
+               N := XML.First_Child (N);
+            else
+               N := XML.Next_Sibling (N);
+            end if;
+
+            while N /= null
+              and then DOM.Core.Nodes.Local_Name (N) /= "length"
+              and then DOM.Core.Nodes.Local_Name (N) /= "minLength"
+              and then DOM.Core.Nodes.Local_Name (N) /= "maxLength"
+            loop
+               N := XML.Next_Sibling (N);
+            end loop;
+
+            return N;
+         end Character_Facet;
+
+         N : DOM.Core.Node := R;
+
+      begin
+         Trace ("(Is_Character_Schema)", R);
+
+         if Utils.No_NS (DOM.Core.Nodes.Node_Name (R)) /= "simpleType" then
+            return False;
+         end if;
+
+         --  Now check that if Name is Character and base is xsd:string
+         --  that this is really an Ada Character type. For this the
+         --  type must be constrained to a single character.
+         --
+         --  Either we have the facet <length value="1">
+         --  Or <minLength value="1"> and <maxLength value="1">
+
+         --  Get restriction node
+
+         N := XML.First_Child (N);
+
+         declare
+            Base : constant String := XML.Get_Attr_Value (N, "base", False);
+         begin
+            if Base /= "string" then
+               --  The base type must be a string
+               return False;
+            end if;
+
+            N := Character_Facet (N, Child => True);
+
+            if N /= null
+              and then DOM.Core.Nodes.Local_Name (N) = "length"
+            then
+               --  Check length
+
+               if XML.Get_Attr_Value (N, "value", False) /= "1" then
+                  --  Must be a single character
+                  return False;
+               end if;
+
+            elsif N /= null
+              and then DOM.Core.Nodes.Local_Name (N) = "minLength"
+            then
+
+               if XML.Get_Attr_Value (N, "value", False) /= "1" then
+                  --  Must be a single character
+                  return False;
+               end if;
+
+               N := Character_Facet (N);
+
+               if N = null
+                 or else DOM.Core.Nodes.Local_Name (N) /= "maxLength"
+                 or else XML.Get_Attr_Value (N, "value", False) /= "1"
+               then
+                  --  Must be a single character
+                  return False;
+               end if;
+
+            elsif N /= null
+              and then DOM.Core.Nodes.Local_Name (N) = "maxLength"
+            then
+
+               if XML.Get_Attr_Value (N, "value", False) /= "1" then
+                  --  Must be a single character
+                  return False;
+               end if;
+
+               N := Character_Facet (N);
+
+               if N = null
+                 or else DOM.Core.Nodes.Local_Name (N) /= "minLength"
+                 or else XML.Get_Attr_Value (N, "value", False) /= "1"
+               then
+                  --  Must be a single character
+                  return False;
+               end if;
+
+            else
+               --  Must be a single character
+               return False;
+            end if;
+         end;
+
+         return True;
+      end Is_Character_Schema;
+
+      S : constant DOM.Core.Node := Look_For_Schema (N, Type_Name, Document);
+
+   begin
+      return S /= null and then Is_Character_Schema (S);
+   end Is_Character;
+
    ---------------
    -- Is_Record --
    ---------------
@@ -750,10 +749,11 @@ package body SOAP.WSDL.Parser is
 
       declare
          Key : constant String := (if T_NS = ""
-                                   then NS (Name_Space.Value (TNS))
+                                   then WSDL.Name_Spaces.Get
+                                          (Name_Space.Value (TNS))
                                    else T_NS);
-         URL : constant String := (if NS.Contains (Key)
-                                   then NS (Key)
+         URL : constant String := (if WSDL.Name_Spaces.Contains (Key)
+                                   then WSDL.Name_Spaces.Get (Key)
                                    else "");
 
          procedure Look_Schema (S : DOM.Core.Node);
@@ -1054,7 +1054,7 @@ package body SOAP.WSDL.Parser is
          declare
             Parent : constant DOM.Core.Node := N;
             ET     : constant String :=
-                       XML.Get_Attr_Value (N, "type", NS => False);
+                       XML.Get_Attr_Value (N, "type", NS => True);
          begin
             if N /= null
               and then DOM.Core.Nodes.Local_Name (N) = "element"
@@ -1064,8 +1064,6 @@ package body SOAP.WSDL.Parser is
                   N := XML.First_Child (N);
 
                else
-                  --  PO??? check default type???
-
                   --  Get the corresponding type definition
 
                   N := Look_For_Schema
@@ -1170,8 +1168,8 @@ package body SOAP.WSDL.Parser is
       declare
          NS_Value : constant String := XML.Get_Attr_Value (N, "namespace");
          NS_Name  : constant String :=
-                      (if NS.Contains (NS_Value)
-                       then NS (NS_Value)
+                      (if WSDL.Name_Spaces.Contains (NS_Value)
+                       then WSDL.Name_Spaces.Get (NS_Value)
                        else "");
       begin
          if NS_Value /= "" then
@@ -1208,21 +1206,23 @@ package body SOAP.WSDL.Parser is
       N        : DOM.Core.Node;
       Document : WSDL.Object) return Parameters.Parameter
    is
-      P_Type : constant String := XML.Get_Attr_Value (N, "type", False);
+      P_Type : constant String := XML.Get_Attr_Value (N, "type", True);
    begin
       Trace ("(Parse_Parameter)", N);
 
-      if WSDL.Is_Standard (P_Type) then
+      if (WSDL.Is_Standard (P_Type) and then To_Type (P_Type) /= P_Character)
+        or else Is_Character (N, P_Type, Document)
+      then
          return
            (Types.K_Simple, +XML.Get_Attr_Value (N, "name"),
-            Typ  => Types.Create (P_Type, Name_Space.XSD),
+            Typ  => Types.Create (Utils.No_NS (P_Type), Name_Space.XSD),
             Next => null);
 
       elsif P_Type = "anyType" then
          raise WSDL_Error with "Type anyType is not supported.";
 
       else
-         if P_Type = To_String (O.Enclosing_Type) then
+         if Utils.No_NS (P_Type) = To_String (O.Enclosing_Type) then
             raise WSDL_Error with
               "Recursive WSDL definition " & P_Type & " is not supported.";
          end if;
@@ -1296,18 +1296,12 @@ package body SOAP.WSDL.Parser is
       O.Current_Name := +XML.Get_Attr_Value (Part, "name");
 
       declare
-         T       : constant String := -ET;
-         T_No_NS : constant String := Utils.No_NS (T);
+         T : constant String := -ET;
       begin
-         if WSDL.Is_Standard (T_No_NS) then
-
-            if WSDL.To_Type (T_No_NS) = WSDL.P_Character then
-               Check_Character
-                 (Get_Node (DOM.Core.Node (Document),
-                            "definitions.types.schema.simpleType", T_No_NS));
-            end if;
-
-            Add_Parameter (O, -O.Current_Name, T_No_NS);
+         if (WSDL.Is_Standard (T) and then To_Type (T) /= P_Character)
+           or else Is_Character (Part, T, Document)
+         then
+            Add_Parameter (O, -O.Current_Name, T);
 
          elsif T = SOAP.Types.XML_Any_Type then
             raise WSDL_Error with "Type anyType is not supported.";
@@ -1490,7 +1484,7 @@ package body SOAP.WSDL.Parser is
                then
                   declare
                      Base : constant String :=
-                              XML.Get_Attr_Value (N, "base", False);
+                              XML.Get_Attr_Value (N, "base", True);
                      CT   : DOM.Core.Node;
                   begin
                      --  Get type whose name is Base
@@ -1694,24 +1688,22 @@ package body SOAP.WSDL.Parser is
         (Name, Base : String;
          E          : DOM.Core.Node) return Parameters.Parameter
       is
-         P : Parameters.Parameter (Types.K_Derived);
-         D : Types.Definition (Types.K_Derived);
+         BNS : constant String := Utils.NS (Base);
+         P   : Parameters.Parameter (Types.K_Derived);
+         D   : Types.Definition (Types.K_Derived);
       begin
          P.Name      := O.Current_Name;
          P.Typ       := Types.Create
            (Name, Get_Target_Name_Space (DOM.Core.Nodes.Parent_Node (E)));
 
          D.Ref    := Types.Create (Name, Types.NS (P.Typ));
-         D.Parent := Types.Create (Base, Types.NS (P.Typ));
-         --  ??PO should use Base NS
+         D.Parent := Types.Create
+           (Utils.No_NS (Base),
+            (if BNS = ""
+             then Types.NS (P.Typ)
+             else Name_Space.Create (BNS, WSDL.Name_Spaces.Get (BNS))));
 
          Types.Register (D);
-
-         if WSDL.Is_Standard (Base) then
-            if WSDL.To_Type (Base) = WSDL.P_Character then
-               Check_Character (R);
-            end if;
-         end if;
 
          return P;
       end Build_Derived;
@@ -1785,7 +1777,7 @@ package body SOAP.WSDL.Parser is
 
       N := XML.First_Child (R);
 
-      Base := +XML.Get_Attr_Value (N, "base", False);
+      Base := +XML.Get_Attr_Value (N, "base", True);
 
       --  Check if this is an enumeration
 
@@ -1797,7 +1789,10 @@ package body SOAP.WSDL.Parser is
          return Build_Enumeration (-Name, -Base, E);
 
       else
-         if not WSDL.Is_Standard (-Base) then
+         if not WSDL.Is_Standard (-Base)
+           or else (To_Type (-Base) = P_Character
+                    and then not Is_Character (N, -Base, Document))
+         then
             N := Look_For_Schema (N, -Base, Document);
 
             if N = null then
@@ -1834,12 +1829,14 @@ package body SOAP.WSDL.Parser is
                --  We can have multiple prefix pointing to the same URL
                --  (namespace). But an URL must be unique
 
-               NS.Insert
+               WSDL.Name_Spaces.Register
                  (DOM.Core.Nodes.Local_Name (N),
                   DOM.Core.Nodes.Node_Value (N));
 
-               if not NS.Contains (DOM.Core.Nodes.Node_Value (N)) then
-                  NS.Insert
+               if not WSDL.Name_Spaces.Contains
+                 (DOM.Core.Nodes.Node_Value (N))
+               then
+                  WSDL.Name_Spaces.Register
                     (DOM.Core.Nodes.Node_Value (N),
                      DOM.Core.Nodes.Local_Name (N));
                end if;

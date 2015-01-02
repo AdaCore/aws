@@ -30,12 +30,15 @@
 --  This package provides services to handle WSDL
 
 with Ada.Characters.Handling;
+with Ada.Strings.Fixed;
 
 with DOM.Readers;
 with Input_Sources.File;
 with Sax.Readers;
 
 with SOAP.Types;
+with SOAP.Utils;
+with SOAP.WSDL.Name_Spaces;
 
 package body SOAP.WSDL is
 
@@ -190,10 +193,15 @@ package body SOAP.WSDL is
    -----------------
 
    function Is_Standard (XSD_Type : String) return Boolean is
+      NS       : constant String := Utils.NS (XSD_Type);
       P        : Parameter_Type;
       Standard : Boolean;
    begin
-      To_Type (XSD_Type, P, Standard);
+      if NS = "" then
+         To_Type (XSD_Type, P, Standard);
+      else
+         Standard := WSDL.Name_Spaces.Is_XSD (NS);
+      end if;
 
       return Standard;
    end Is_Standard;
@@ -267,7 +275,7 @@ package body SOAP.WSDL is
       if Is_Standard (P) then
          return Set_Routine (To_Type (P), Context);
       else
-         return "To_" & P & "_Type";
+         return "To_" & Utils.No_NS (P) & "_Type";
       end if;
    end Set_Routine;
 
@@ -345,14 +353,19 @@ package body SOAP.WSDL is
       Standard : out Boolean)
    is
       Name   : constant String := Characters.Handling.To_Lower (XSD_Type);
+      C      : constant Natural := Strings.Fixed.Index (Name, ":");
+      XSD    : constant String :=
+                 (if C = 0 then "" else Name (Name'First .. C - 1));
       L_Type : constant String :=
-                 (if Name'Length > 4
-                    and then Name (Name'First .. Name'First + 3) = "xsd:"
-                  then Name (Name'First + 4 .. Name'Last)
-                  else Name);
+                 (if C = 0 then Name else Name (C + 1 .. Name'Last));
    begin
       Result := P_Any_Type;
       Standard := True;
+
+      if XSD /= "" and then not WSDL.Name_Spaces.Is_XSD (XSD) then
+         Standard := False;
+         return;
+      end if;
 
       if L_Type = "string" then
          Result := P_String;

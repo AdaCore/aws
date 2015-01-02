@@ -82,16 +82,20 @@ package body SOAP.WSDL.Types is
    function Find (O : Object) return Definition is
       use type Name_Space.Object;
    begin
+      --  First check for a known definition, including a possible type with
+      --  name Character which is not an Ada character.
+
+      for D of Store loop
+         if O = D.Ref then
+            return D;
+         end if;
+      end loop;
+
+      --  If not definition found, check for a standard type
+
       if WSDL.Is_Standard (Name (O)) then
          return Definition'(K_Simple, Ref => (O.Name, Name_Space.XSD));
-
       else
-         for D of Store loop
-            if O = D.Ref then
-               return D;
-            end if;
-         end loop;
-
          return No_Definition;
       end if;
    end Find;

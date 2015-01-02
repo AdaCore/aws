@@ -1,0 +1,111 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<definitions name="AliasService"
+   targetNamespace="http://www.ecerami.com/wsdl/AliasService.wsdl"
+   xmlns="http://schemas.xmlsoap.org/wsdl/"
+   xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/"
+   xmlns:xs="http://www.w3.org/2001/XMLSchema"
+   xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/"
+   xmlns:tns="http://www.ecerami.com/wsdl/AliasService.wsdl"
+   xmlns:ns1="urn:examples:aliasservice"
+   xmlns:ns2="urn:whatever:different">
+
+   <wsdl:types>
+      <xs:schema version="1.0" elementFormDefault="qualified">
+
+         <xs:simpleType name="PercentCompleteInteger">
+            <xs:restriction base="ns2:NonNegativeInt">
+               <xs:maxInclusive value="100" />
+            </xs:restriction>
+         </xs:simpleType>
+
+         <xs:complexType name="PercentCompleteFloat">
+           <xs:sequence>
+             <xs:element name="one" type="PercentCompleteInteger" />
+             <xs:element name="two" type="NonNegativeFloat" />
+           </xs:sequence>
+         </xs:complexType>
+
+         <xs:simpleType name="NonNegativeInt"
+                        targetNamespace="urn:whatever:different">
+            <xs:restriction base="xs:int">
+               <xs:minInclusive value="0" />
+            </xs:restriction>
+         </xs:simpleType>
+
+         <xs:simpleType name="NonNegativeFloat">
+            <xs:restriction base="xs:double">
+               <xs:minInclusive value="0" />
+            </xs:restriction>
+         </xs:simpleType>
+
+      </xs:schema>
+   </wsdl:types>
+
+   <message name="CallRequest">
+      <part name="percent" type="PercentCompleteInteger"/>
+   </message>
+   <message name="CallResponse">
+      <part name="value" type="PercentCompleteInteger"/>
+   </message>
+   <message name="Call2Request">
+      <part name="percent" type="PercentCompleteInteger"/>
+      <part name="count" type="PercentCompleteFloat"/>
+   </message>
+   <message name="Call2Response">
+      <part name="value" type="PercentCompleteInteger"/>
+      <part name="part" type="ns2:NonNegativeInt"/>
+   </message>
+
+   <portType name="Alias_PortType">
+      <operation name="call">
+         <input message="tns:CallRequest"/>
+         <output message="tns:CallResponse"/>
+      </operation>
+      <operation name="call2">
+         <input message="tns:Call2Request"/>
+         <output message="tns:Call2Response"/>
+      </operation>
+   </portType>
+
+   <binding name="Alias_Binding" type="tns:Alias_PortType">
+      <soap:binding style="document"
+         transport="http://schemas.xmlsoap.org/soap/http"/>
+      <operation name="call">
+         <soap:operation soapAction="call"/>
+         <input>
+            <soap:body
+               encodingStyle="http://schemas.xmlsoap.org/soap/encoding/"
+               namespace="urn:examples:aliasservice"
+               use="literal"/>
+         </input>
+         <output>
+            <soap:body
+               encodingStyle="http://schemas.xmlsoap.org/soap/encoding/"
+               namespace="urn:examples:aliasservice"
+               use="literal"/>
+         </output>
+      </operation>
+      <operation name="call2">
+         <soap:operation soapAction="call2"/>
+         <input>
+            <soap:body
+               encodingStyle="http://schemas.xmlsoap.org/soap/encoding/"
+               namespace="urn:examples:aliasservice"
+               use="literal"/>
+         </input>
+         <output>
+            <soap:body
+               encodingStyle="http://schemas.xmlsoap.org/soap/encoding/"
+               namespace="urn:examples:aliasservice"
+               use="literal"/>
+         </output>
+      </operation>
+   </binding>
+
+   <service name="Alias_Demo">
+      <documentation>WSDL File for Alias Demo</documentation>
+      <port binding="tns:Alias_Binding" name="Alias_Port">
+         <soap:address location="http://localhost:9111/alias"/>
+      </port>
+   </service>
+</definitions>

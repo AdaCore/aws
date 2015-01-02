@@ -1,0 +1,22 @@
+Service Alias_Demo
+   WSDL File for Alias Demo
+
+Procedure call SOAPAction:call
+   Input
+      [derived] percent ; PercentCompleteInteger
+   Output
+      [derived] value ; PercentCompleteInteger
+   > call
+
+Procedure call2 SOAPAction:call2
+   Input
+      [derived] percent ; PercentCompleteInteger
+      [record] count ; PercentCompleteFloat
+         [derived] one ; PercentCompleteInteger
+         [derived] two ; NonNegativeFloat
+   Output
+      [derived] value ; PercentCompleteInteger
+      [derived] part ; NonNegativeInt
+   > call2
+OK nonnegativeint
+OK percentcompleteinteger

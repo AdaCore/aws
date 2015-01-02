@@ -15,6 +15,14 @@ of the feature.
 New features in AWS 3.3
 -----------------------
 
+NF-33-O118-004 Add support for derived types (2015-01-18)
+
+    AWS's wsdl2aws tool has now full support for derived types.
+    The namespace for the parent type is properly used when generating
+    the corresponding Ada code. This has make it possible to clean-up
+    some old code to handle Ada Character mapping for example. Any
+    type derivation level is properly handled.
+
 NF-33-O118-003 Add support for external schema (2015-01-18)
 
     It is now possible to use WSDL with references to external
