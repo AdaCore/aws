@@ -4,7 +4,7 @@
 
 Authors:
    Dmitriy Anisimkov
-   Pascal Obry                                            October 21st, 2014
+   Pascal Obry                                            January 6th, 2015
 
 
 
@@ -49,6 +49,12 @@ In such a case we try to give proper advice on how to change the code
 to work properly. Of course we try to avoid this as much as possible
 but we really prefer to have a clean API instead of keeping awkward
 implementations.
+
+  ada2wsdl -I option support has been removed. This tool used to call
+  gnatmake with possibly a -P<proj> on the command line. The project
+  support in gnatmake is being deprecated, so ada2wsdl now uses
+  gprbuild which in turn does not support -I option. The solution is to
+  use a project file (no need for -I in this case).
 
 
 Obsolescent features

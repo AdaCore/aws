@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2003-2013, AdaCore                     --
+--                     Copyright (C) 2003-2015, AdaCore                     --
 --                                                                          --
 --  This is free software;  you can redistribute it  and/or modify it       --
 --  under terms of the  GNU General Public License as published  by the     --
@@ -86,8 +86,8 @@ package body Ada2WSDL.Parser is
 
    Arg_Index    : Natural := 0;
 
-   GNATMAKE     : constant String_Access :=
-                    OS_Lib.Locate_Exec_On_Path ("gnatmake");
+   GPRBUILD     : constant String_Access :=
+                    OS_Lib.Locate_Exec_On_Path ("gprbuild");
 
    ----------------------
    -- Status variables --
@@ -224,8 +224,10 @@ package body Ada2WSDL.Parser is
 
    procedure Add_Option (Option : String) is
    begin
-      Arg_Index := Arg_Index + 1;
-      Arg_List (Arg_Index) := new String'(Option);
+      if Option (Option'First .. Option'First + 1) /= "-I" then
+         Arg_Index := Arg_Index + 1;
+         Arg_List (Arg_Index) := new String'(Option);
+      end if;
    end Add_Option;
 
    -----------------------
@@ -1497,9 +1499,6 @@ package body Ada2WSDL.Parser is
       function Get_Tree_Name return String;
       --  Returns the name of the tree file
 
-      procedure Set_I_Option;
-      --  Add -I option pointing to the source directory
-
       ----------
       -- Free --
       ----------
@@ -1529,33 +1528,12 @@ package body Ada2WSDL.Parser is
            & F_Name (F_Name'First .. Last) & ".adt";
       end Get_Tree_Name;
 
-      ------------------
-      -- Set_I_Option --
-      ------------------
-
-      procedure Set_I_Option is
-         F_Name      : constant String := To_String (Options.File_Name);
-         Slash_Index : Natural;
-
-      begin
-         Slash_Index := Strings.Fixed.Index (F_Name, "/", Strings.Backward);
-
-         --  If we have a directory specified for the file name, add and -I
-         --  option for this directory.
-
-         if Slash_Index /= 0 then
-            Add_Option ("-I" & F_Name (F_Name'First .. Slash_Index - 1));
-         end if;
-      end Set_I_Option;
-
    begin
       File_Name := new String'(To_String (Options.File_Name));
 
-      Set_I_Option;
-
       Compile
         (File_Name, Arg_List (Arg_List'First .. Arg_Index), Success,
-         GCC          => GNATMAKE,
+         GCC          => GPRBUILD,
          Use_GNATMAKE => True);
 
       if not Success then

@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2003-2012, AdaCore                     --
+--                     Copyright (C) 2003-2015, AdaCore                     --
 --                                                                          --
 --  This is free software;  you can redistribute it  and/or modify it       --
 --  under terms of the  GNU General Public License as published  by the     --
@@ -58,8 +58,5 @@ package Ada2WSDL.Options is
    Debug          : Boolean := False;
    --  Do not generate date/time tag into the WSDL document for being able to
    --  compare them. This is an internal option only.
-
-   procedure Set_Default;
-   --  Set default path options for the Asis compile step
 
 end Ada2WSDL.Options;

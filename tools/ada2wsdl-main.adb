@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2003-2014, AdaCore                     --
+--                     Copyright (C) 2003-2015, AdaCore                     --
 --                                                                          --
 --  This is free software;  you can redistribute it  and/or modify it       --
 --  under terms of the  GNU General Public License as published  by the     --
@@ -177,8 +177,6 @@ procedure Ada2WSDL.Main is
       Put_Line ("  -q       Quiet mode");
       Put_Line ("  -v       Verbose mode - output the version");
       Put_Line
-        ("  -I path  A path to a directory containing a set of sources");
-      Put_Line
         ("  -P proj  A project file to use for building the spec");
       Put_Line ("  -o file  WSDL file, <filename>.wsdl by default");
       Put_Line ("  -t path  Path to tree file directory");
@@ -191,8 +189,6 @@ procedure Ada2WSDL.Main is
    end Usage;
 
 begin
-   Options.Set_Default;
-
    Parse_Command_Line;
 
    Parser.Initialize;
