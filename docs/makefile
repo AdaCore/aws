@@ -1,7 +1,7 @@
 ############################################################################
 #                              Ada Web Server                              #
 #                                                                          #
-#                     Copyright (C) 2003-2014, AdaCore                     #
+#                     Copyright (C) 2003-2015, AdaCore                     #
 #                                                                          #
 #  This is free software;  you can redistribute it  and/or modify it       #
 #  under terms of the  GNU General Public License as published  by the     #
@@ -132,7 +132,8 @@ latex: vars
 latexpdf: vars
 	$(SPHINXBUILD) -b latex $(ALLSPHINXOPTS) $(BUILDDIR)/latex
 	@echo "Running LaTeX files through pdflatex..."
-	$(MAKE) -C $(BUILDDIR)/latex all-pdf
+	$(MAKE) -C $(BUILDDIR)/latex all-pdf \
+		LATEXOPTS="-interaction=nonstopmode"
 	@echo "pdflatex finished; the PDF files are in $(BUILDDIR)/latex."
 
 text: vars
