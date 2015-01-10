@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2003-2014, AdaCore                     --
+--                     Copyright (C) 2003-2015, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -2045,7 +2045,7 @@ package body SOAP.Generator is
 
          procedure Check_Record
            (P_Set : WSDL.Parameters.P_Set;
-            Mode  : out Boolean);
+            Mode  : in out Boolean);
          --  Checks all record fields for Name
 
          procedure Check_Parameters
@@ -2082,17 +2082,16 @@ package body SOAP.Generator is
 
          procedure Check_Record
            (P_Set : WSDL.Parameters.P_Set;
-            Mode  : out Boolean)
+            Mode  : in out Boolean)
          is
             P : WSDL.Parameters.P_Set := P_Set;
          begin
-            Mode := False;
-
             while P /= null loop
                if P.Mode = WSDL.Parameters.K_Array
                  and then To_String (P.T_Name) = Name
                then
                   Mode := True;
+                  return;
                end if;
 
                if P.Mode = WSDL.Parameters.K_Record then
