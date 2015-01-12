@@ -27,8 +27,8 @@
 --  covered by the  GNU Public License.                                     --
 ------------------------------------------------------------------------------
 
-with Ada.Strings.Fixed;
 with Ada.Characters.Handling;
+with Ada.Strings.Fixed;
 
 with AWS.Parameters.Set;
 with AWS.URL.Raise_URL_Error;
