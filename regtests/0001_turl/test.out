@@ -154,3 +154,12 @@ http://www.myserver.com:89/app/./../toto&url=http://titi
    Port      : 89
    URI       : /toto&url=http://titi
 Error on http://www.myserver.com:89/app//../\..\\..\toto?url=http://titi - Wrong URL: (/../../) Reference Web root parent directory.
+http://192.168.58.44:8083/whatever/me/dev[6]
+http://192.168.58.44:8083/whatever/me/dev[6]
+Server    : 192.168.58.44
+Port      : 8083
+URI       : /whatever/me/dev[6]
+*
+Server    : 192.168.58.44
+Port      : 8083
+URI       : /whatever/me/dev[6]

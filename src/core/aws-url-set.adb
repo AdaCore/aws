@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2007-2014, AdaCore                     --
+--                     Copyright (C) 2007-2015, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -317,7 +317,7 @@ package body AWS.URL.Set is
             --                       |          ||    |
             --                       F, LB    RB  I1  I2
 
-            if LB < RB and then LB > 0 then
+            if LB < RB and then LB > 0 and then LB < I2 then
                if RB < URL'Last and then URL (RB + 1) = ':' then
                   I1 := RB + 1;
                else

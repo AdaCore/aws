@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2000-2012, AdaCore                     --
+--                     Copyright (C) 2000-2015, AdaCore                     --
 --                                                                          --
 --  This is free software;  you can redistribute it  and/or modify it       --
 --  under terms of the  GNU General Public License as published  by the     --
@@ -66,4 +66,5 @@ begin
    Test ("http://www.myserver.com:89/app/..\..\toto&url=http://titi");
    Test ("http://www.myserver.com:89/app/.\..\toto&url=http://titi");
    Test ("http://www.myserver.com:89/app//../\..\\..\toto?url=http://titi");
+   Test ("http://192.168.58.44:8083/whatever/me/dev[6]");
 end Turl;
