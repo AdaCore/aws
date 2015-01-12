@@ -1534,7 +1534,7 @@ package body Ada2WSDL.Parser is
       Compile
         (File_Name, Arg_List (Arg_List'First .. Arg_Index), Success,
          GCC          => GPRBUILD,
-         Use_GNATMAKE => True);
+         Use_GPRBUILD => True);
 
       if not Success then
          Text_IO.Put_Line
