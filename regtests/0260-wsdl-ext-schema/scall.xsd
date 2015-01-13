@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!-- The data types for all webservices -->
+
+<xs:schema xmlns="http://aws.demo.com/scall"
+           xmlns:xs="http://www.w3.org/2001/XMLSchema"
+           targetNamespace="http://aws.demo.com/scall"
+           xmlns:scall="http://aws.demo.com/scall"
+           xmlns:dt="http://aws.demo.com/dataTypes"
+           elementFormDefault="qualified">
+
+  <!-- Import the data types schema. -->
+
+  <xs:import namespace="http://aws.demo.com/dataTypes"
+             schemaLocation="dtypes.xsd">
+  </xs:import>
+
+   <!-- Request/Response -->
+   <xs:complexType name="WsGetSrvRequest">
+      <xs:sequence>
+         <xs:element name="limits" type="xsd:int" />
+         <xs:element name="spatialDomain" type="WsSpatialDomain"
+                     minOccurs="0">
+         </xs:element>
+      </xs:sequence>
+   </xs:complexType>
+
+   <xs:complexType name="WsGetSrvResponse">
+      <xs:sequence>
+         <xs:element name="results" type="WsGetSrvResults" minOccurs="1" />
+      </xs:sequence>
+   </xs:complexType>
+
+   <xs:complexType name="WsGetSrvResults">
+      <xs:sequence>
+         <xs:element name="bestA" type="xsd:float" minOccurs="0" />
+         <xs:element name="bestB" type="xsd:float" minOccurs="0" />
+      </xs:sequence>
+   </xs:complexType>
+
+   <!-- ??PO recursive definition when 2 elements in this complexType;
+        removing northEastCorner makes it pass -->
+   <xs:complexType name="WsSpatialDomain">
+      <xs:sequence>
+         <xs:element name="southWestCorner"
+                     type="dt:WsLatLongDegrees">
+         </xs:element>
+         <xs:element name="northEastCorner"
+                     type="dt:WsLongitudeDegrees">
+         </xs:element>
+      </xs:sequence>
+   </xs:complexType>
+
+</xs:schema>

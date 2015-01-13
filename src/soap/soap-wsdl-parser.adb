@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2003-2014, AdaCore                     --
+--                     Copyright (C) 2003-2015, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -30,6 +30,7 @@
 pragma Ada_2012;
 
 with Ada.Characters.Handling;
+with Ada.Containers.Indefinite_Vectors;
 with Ada.Exceptions;
 with Ada.Strings.Fixed;
 with Ada.Text_IO;
@@ -40,6 +41,7 @@ with AWS.Containers.Key_Value;
 with AWS.Utils;
 with SOAP.Types;
 with SOAP.Utils;
+with SOAP.WSDL.Schema;
 with SOAP.XML;
 
 package body SOAP.WSDL.Parser is
@@ -52,6 +54,13 @@ package body SOAP.WSDL.Parser is
    NS_SOAP       : Unbounded_String;
 
    No_Name_Space : Name_Space.Object renames Name_Space.No_Name_Space;
+
+   type Look_Kind is (Complex_Type, Simple_Type, Element);
+   type Look_Context is array (Look_Kind) of Boolean;
+
+   Look_All : constant Look_Context := (others => True);
+
+   package String_List is new Containers.Indefinite_Vectors (Positive, String);
 
    package Name_Spaces renames AWS.Containers.Key_Value;
    NS     : Name_Spaces.Map;
@@ -157,6 +166,12 @@ package body SOAP.WSDL.Parser is
    --  Returns the derived or enumeration type in node N (N must be a
    --  simpleType schema node).
 
+   procedure Parse_Schema
+     (O     : in out Object'Class;
+      Root  : DOM.Core.Node;
+      XPath : String);
+   --  Parse a schema node
+
    function Is_Array
      (O : Object'Class;
       N : DOM.Core.Node) return Boolean;
@@ -175,10 +190,19 @@ package body SOAP.WSDL.Parser is
      (N : DOM.Core.Node) return Name_Space.Object;
    --  Returns the targetNamespace
 
-   function Get_NS_Name_For
-     (N : DOM.Core.Node; Value : String) return String;
-   --  Returns the namespace Name given the Value. The value is checked
-   --  starting from N.
+   procedure Register_Name_Spaces (N : DOM.Core.Node);
+   --  Register namespace pointing at node N
+
+   function Get_Namespaces_For (N : DOM.Core.Node) return String_List.Vector;
+   --  Get all possible name spaces for the item at the given node. This is the
+   --  target namespace and all imported namespace.
+
+   function Look_For_Schema
+     (N         : DOM.Core.Node;
+      Type_Name : String;
+      Document  : WSDL.Object;
+      Context   : Look_Context := Look_All) return DOM.Core.Node;
+   --  Look for schema starting at
 
    -----------
    -- Debug --
@@ -376,6 +400,36 @@ package body SOAP.WSDL.Parser is
       Exclude_Set.Insert (O.Exclude, Operation, Pos, Success);
    end Exclude;
 
+   ------------------------
+   -- Get_Namespaces_For --
+   ------------------------
+
+   function Get_Namespaces_For (N : DOM.Core.Node) return String_List.Vector is
+      NS : constant Name_Space.Object := Get_Target_Name_Space (N);
+      R  : DOM.Core.Node := N;
+      V  : String_List.Vector;
+   begin
+      Look_For_Import : loop
+         if DOM.Core.Nodes.Local_Name (R) = "import"
+           and then XML.Get_Attr_Value (R, "namespace", True) /= ""
+         then
+            V.Append (XML.Get_Attr_Value (R, "namespace", True));
+         end if;
+
+         if DOM.Core.Nodes.Previous_Sibling (R) = null then
+            R := DOM.Core.Nodes.Parent_Node (R);
+         else
+            R := DOM.Core.Nodes.Previous_Sibling (R);
+         end if;
+
+         exit Look_For_Import when R = null;
+      end loop Look_For_Import;
+
+      V.Append (Name_Space.Value (NS));
+
+      return V;
+   end Get_Namespaces_For;
+
    --------------
    -- Get_Node --
    --------------
@@ -460,38 +514,6 @@ package body SOAP.WSDL.Parser is
       return Get_Node_Int (Parent, Element, Name);
    end Get_Node;
 
-   ---------------------
-   -- Get_NS_Name_For --
-   ---------------------
-
-   function Get_NS_Name_For
-     (N : DOM.Core.Node; Value : String) return String is
-   begin
-      if N = null then
-         return "";
-
-      else
-         declare
-            Atts : constant DOM.Core.Named_Node_Map :=
-                     DOM.Core.Nodes.Attributes (N);
-         begin
-            for K in reverse 0 .. DOM.Core.Nodes.Length (Atts) - 1 loop
-               declare
-                  N : constant DOM.Core.Node := DOM.Core.Nodes.Item (Atts, K);
-               begin
-                  if DOM.Core.Nodes.Node_Value (N) = Value
-                    and then DOM.Core.Nodes.Local_Name (N) /= "targetNamespace"
-                  then
-                     return DOM.Core.Nodes.Local_Name (N);
-                  end if;
-               end;
-            end loop;
-         end;
-
-         return Get_NS_Name_For (DOM.Core.Nodes.Parent_Node (N), Value);
-      end if;
-   end Get_NS_Name_For;
-
    ---------------------------
    -- Get_Target_Name_Space --
    ---------------------------
@@ -499,28 +521,46 @@ package body SOAP.WSDL.Parser is
    function Get_Target_Name_Space
      (N : DOM.Core.Node) return Name_Space.Object
    is
-      V : constant String := XML.Get_Attr_Value (N, "targetNamespace", True);
-      P : Name_Spaces.Cursor;
-      R : Boolean;
-   begin
-      if V = "" and then DOM.Core.Nodes.Parent_Node (N) /= null then
-         return Get_Target_Name_Space (DOM.Core.Nodes.Parent_Node (N));
 
-      else
-         P := Name_Spaces.Find (NS, V);
+      function Create (Value : String) return Name_Space.Object;
+
+      ------------
+      -- Create --
+      ------------
+
+      function Create (Value : String) return Name_Space.Object is
+         P : Name_Spaces.Cursor;
+         R : Boolean;
+      begin
+         P := Name_Spaces.Find (NS, Value);
 
          if Name_Spaces.Has_Element (P) then
-            return Name_Space.Create (Name_Spaces.Element (P), V);
+            return Name_Space.Create (Name_Spaces.Element (P), Value);
 
          else
             NS_Num := NS_Num + 1;
             declare
                Name : constant String := "n" & AWS.Utils.Image (NS_Num);
             begin
-               Name_Spaces.Insert (NS, V, Name, P, R);
-               return Name_Space.Create (Name, V);
+               Name_Spaces.Insert (NS, Value, Name, P, R);
+               return Name_Space.Create (Name, Value);
             end;
          end if;
+      end Create;
+
+      V : constant String := XML.Get_Attr_Value (N, "targetNamespace", True);
+
+   begin
+      if V = "" then
+         if DOM.Core.Nodes.Parent_Node (N) /= null then
+            return Get_Target_Name_Space (DOM.Core.Nodes.Parent_Node (N));
+
+         else
+            raise WSDL_Error with "cannot find name space";
+         end if;
+
+      else
+         return Create (V);
       end if;
    end Get_Target_Name_Space;
 
@@ -680,6 +720,84 @@ package body SOAP.WSDL.Parser is
       return False;
    end Is_Record;
 
+   ---------------------
+   -- Look_For_Schema --
+   ---------------------
+
+   function Look_For_Schema
+     (N         : DOM.Core.Node;
+      Type_Name : String;
+      Document  : WSDL.Object;
+      Context   : Look_Context := Look_All) return DOM.Core.Node
+   is
+      pragma Unreferenced (Document);
+
+      T_No_NS : constant String := Utils.No_NS (Type_Name);
+      T_NS    : constant String := Utils.NS (Type_Name);
+      TNS     : constant Name_Space.Object := Get_Target_Name_Space (N);
+      D, S    : DOM.Core.Node;
+      All_NS  : constant String_List.Vector := Get_Namespaces_For (N);
+   begin
+      --  First look for imported schema
+      declare
+         Key : constant String := (if T_NS = ""
+                                   then NS (Name_Space.Value (TNS))
+                                   else T_NS);
+         URL : constant String := (if NS.Contains (Key)
+                                   then NS (Key)
+                                   else "");
+      begin
+         --  We have a name-space prefix, use it to find the corresponding
+         --  schema definition.
+
+         if URL /= "" then
+            S := Schema.Get (URL);
+
+            if S /= null then
+               Trace ("(Look_For_Schema)", S);
+
+               D := Get_Node (S, "element", T_No_NS);
+
+               if D = null and then Context (Complex_Type) then
+                  D := Get_Node (S, "complexType", T_No_NS);
+               end if;
+
+               if D = null and then Context (Simple_Type) then
+                  D := Get_Node (S, "simpleType", T_No_NS);
+               end if;
+            end if;
+         end if;
+
+         --  Check on the schema in the visible
+
+         if D = null then
+            for U of All_NS loop
+               S := Schema.Get (U);
+
+               if S /= null then
+                  Trace ("(Look_For_Schema)", S);
+
+                  D := Get_Node (S, "element", T_No_NS);
+
+                  if D = null and then Context (Complex_Type) then
+                     D := Get_Node
+                       (S, "complexType", T_No_NS);
+                  end if;
+
+                  if D = null and then Context (Simple_Type) then
+                     D := Get_Node
+                       (S, "simpleType", T_No_NS);
+                  end if;
+               end if;
+
+               exit when D /= null;
+            end loop;
+         end if;
+      end;
+
+      return D;
+   end Look_For_Schema;
+
    -----------
    -- Parse --
    -----------
@@ -696,6 +814,24 @@ package body SOAP.WSDL.Parser is
       --  First we want to parse the definitions node to get the namespaces
 
       Parse_Definitions (O, N, Document);
+
+      --  Record this schema as the targetNamespace schema
+
+      declare
+         Embedded_Schema : constant DOM.Core.Node :=
+                             Get_Node (DOM.Core.Node (Document),
+                                       "definitions.types.schema");
+      begin
+         if Embedded_Schema /= null then
+            Schema.Register
+               (Name_Space.Value (Get_Target_Name_Space (Embedded_Schema)),
+                Embedded_Schema);
+         end if;
+      end;
+
+      --  Then we load all external schemas
+
+      Parse_Schema (O, DOM.Core.Node (Document), "definitions.types.schema");
 
       --  Look for the service node
 
@@ -749,9 +885,10 @@ package body SOAP.WSDL.Parser is
             --  This is not a standard type, parse it
             declare
                N : constant DOM.Core.Node :=
-                     Get_Node (DOM.Core.Node (Document),
-                               "definitions.types.schema.complexType",
-                               To_String (O.Array_Elements));
+                     Look_For_Schema (R, To_String (O.Array_Elements),
+                                      Document,
+                                      Look_Context'(Complex_Type => True,
+                                                    others => False));
             begin
                --  ??? Right now pretend that it is a record, there is
                --  certainly some cases not covered here.
@@ -862,6 +999,8 @@ package body SOAP.WSDL.Parser is
             end if;
          end;
       end loop;
+
+      Register_Name_Spaces (Definitions);
    end Parse_Definitions;
 
    -------------------
@@ -895,6 +1034,11 @@ package body SOAP.WSDL.Parser is
       if DOM.Core.Nodes.Local_Name (N) = "simpleType" then
          Add_Parameter (O, Parse_Simple (O, CT_Node, Document));
 
+      elsif DOM.Core.Nodes.Local_Name (N) = "element"
+        and then XML.First_Child (N) = null
+      then
+         Add_Parameter (O, Parse_Parameter (O, N, Document));
+
       else
          --  This is a complexType, continue analyse
 
@@ -911,11 +1055,13 @@ package body SOAP.WSDL.Parser is
                   N := XML.First_Child (N);
 
                else
+                  --  PO??? check default type???
+
                   --  Get the corresponding type definition
 
-                  N := Get_Node
-                    (XML.First_Child (DOM.Core.Node (Document)),
-                     "types.schema.complexType", ET);
+                  N := Look_For_Schema
+                    (N, ET, Document,
+                     Look_Context'(Complex_Type => True, others => False));
                end if;
             end if;
 
@@ -1015,8 +1161,9 @@ package body SOAP.WSDL.Parser is
       declare
          NS_Value : constant String := XML.Get_Attr_Value (N, "namespace");
          NS_Name  : constant String :=
-                      Get_NS_Name_For
-                        (DOM.Core.Nodes.Parent_Node (N), NS_Value);
+                      (if NS.Contains (NS_Value)
+                       then NS (NS_Value)
+                       else "");
       begin
          if NS_Value /= "" then
             if NS_Name = "" then
@@ -1071,14 +1218,19 @@ package body SOAP.WSDL.Parser is
          end if;
 
          declare
-            R : DOM.Core.Node :=
-                  Get_Node (DOM.Core.Node (Document),
-                            "definitions.types.schema.complexType", P_Type);
+            R : DOM.Core.Node;
          begin
+            R := Look_For_Schema
+              (N, P_Type, Document,
+               Look_Context'(Complex_Type => True,
+                             others                     => False));
+
             if R = null then
                --  Now check for a simpleType
-               R := Get_Node (DOM.Core.Node (Document),
-                              "definitions.types.schema.simpleType", P_Type);
+               R := Look_For_Schema
+                 (N, P_Type, Document,
+                  Look_Context'(Simple_Type                => True,
+                                others                     => False));
 
                if R = null then
                   raise WSDL_Error with
@@ -1151,27 +1303,7 @@ package body SOAP.WSDL.Parser is
             raise WSDL_Error with "Type anyType is not supported.";
 
          else
-            --  First search for element in the schema
-
-            N := Get_Node
-              (XML.First_Child (DOM.Core.Node (Document)),
-               "types.schema.element", T_No_NS);
-
-            --  If not present look for a simpleType
-
-            if N = null then
-               N := Get_Node
-                 (XML.First_Child (DOM.Core.Node (Document)),
-                  "types.schema.simpleType", T_No_NS);
-            end if;
-
-            --  If not present look for a complexType
-
-            if N = null then
-               N := Get_Node
-                 (XML.First_Child (DOM.Core.Node (Document)),
-                  "types.schema.complexType", T_No_NS);
-            end if;
+            N := Look_For_Schema (Part, T, Document);
 
             if N = null then
                raise WSDL_Error with "Definition for " & T & " not found.";
@@ -1211,9 +1343,9 @@ package body SOAP.WSDL.Parser is
          if N = null then
             --  In this case the message reference the schema element
 
-            N := Get_Node
-              (XML.First_Child (DOM.Core.Node (Document)),
-               "types.schema.element", -Message);
+            N := Look_For_Schema
+              (N, -Message, Document,
+               Look_Context'(Element => True, others => False));
 
             if N = null then
                raise WSDL_Error
@@ -1350,9 +1482,9 @@ package body SOAP.WSDL.Parser is
                   begin
                      --  Get type whose name is Base
 
-                     CT := Get_Node
-                       (XML.First_Child (DOM.Core.Node (Document)),
-                        "types.schema.complexType", Base);
+                     CT := Look_For_Schema
+                       (N, Base, Document,
+                        Look_Context'(Complex_Type => True, others => False));
 
                      --  Move to the sequence
 
@@ -1397,6 +1529,55 @@ package body SOAP.WSDL.Parser is
          return P;
       end;
    end Parse_Record;
+
+   ------------------
+   -- Parse_Schema --
+   ------------------
+
+   procedure Parse_Schema
+     (O     : in out Object'Class;
+      Root  : DOM.Core.Node;
+      XPath : String)
+   is
+      N : constant DOM.Core.Node := Get_Node (Root, XPath);
+   begin
+      if N /= null then
+         declare
+            NL : constant DOM.Core.Node_List :=
+                   DOM.Core.Nodes.Child_Nodes (N);
+         begin
+            for K in 0 .. DOM.Core.Nodes.Length (NL) - 1 loop
+               declare
+                  S : constant DOM.Core.Node := DOM.Core.Nodes.Item (NL, K);
+               begin
+                  if DOM.Core.Nodes.Local_Name (S) = "import"
+                    and then XML.Get_Attr_Value (S, "schemaLocation") /= ""
+                  then
+                     --  Register the root node of the schema under the
+                     --  corresponding namespace.
+
+                     declare
+                        N : constant DOM.Core.Node :=
+                              DOM.Core.Node
+                                (Load
+                                   (XML.Get_Attr_Value (S, "schemaLocation")));
+                     begin
+                        Schema.Register
+                          (XML.Get_Attr_Value (S, "namespace"),
+                           XML.First_Child (N));
+
+                        Register_Name_Spaces (N);
+
+                        --  Check recursively for imported schema
+
+                        Parse_Schema (O, N, "schema");
+                     end;
+                  end if;
+               end;
+            end loop;
+         end;
+      end if;
+   end Parse_Schema;
 
    -------------------
    -- Parse_Service --
@@ -1587,6 +1768,33 @@ package body SOAP.WSDL.Parser is
          return Build_Derived (-Name, -Base, N);
       end if;
    end Parse_Simple;
+
+   --------------------------
+   -- Register_Name_Spaces --
+   --------------------------
+
+   procedure Register_Name_Spaces (N : DOM.Core.Node) is
+      Atts : constant DOM.Core.Named_Node_Map :=
+               DOM.Core.Nodes.Attributes (N);
+   begin
+      for K in 0 .. DOM.Core.Nodes.Length (Atts) - 1 loop
+         declare
+            N      : constant DOM.Core.Node := DOM.Core.Nodes.Item (Atts, K);
+            N_Name : constant String := DOM.Core.Nodes.Node_Name (N);
+         begin
+            if N_Name'Length > 6
+              and then N_Name (N_Name'First .. N_Name'First + 5) = "xmlns:"
+            then
+               NS.Insert
+                 (DOM.Core.Nodes.Local_Name (N),
+                  DOM.Core.Nodes.Node_Value (N));
+               NS.Insert
+                 (DOM.Core.Nodes.Node_Value (N),
+                  DOM.Core.Nodes.Local_Name (N));
+            end if;
+         end;
+      end loop;
+   end Register_Name_Spaces;
 
    -----------
    -- Trace --

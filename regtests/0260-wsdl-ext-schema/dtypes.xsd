@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!-- The common data types for all webservices -->
+
+<xs:schema xmlns="http://aws.demo.com/dataTypes"
+           xmlns:xs="http://www.w3.org/2001/XMLSchema"
+           targetNamespace="http://aws.demo.com/dataTypes"
+           xmlns:tns="http://aws.demo.com/dataTypes"
+           elementFormDefault="qualified">
+
+  <!-- Spatial types. -->
+
+  <xs:simpleType name="WsLatitudeDegrees">
+    <xs:restriction base="xs:double">
+      <xs:minInclusive value="-90" />
+      <xs:maxInclusive value="90" />
+    </xs:restriction>
+  </xs:simpleType>
+
+  <xs:complexType name="WsLatLongDegrees">
+    <xs:sequence>
+      <xs:element name="latitudeDegrees" type="WsLatitudeDegrees" />
+      <xs:element name="longitudeDegrees" type="WsLongitudeDegrees" />
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:simpleType name="WsLongitudeDegrees">
+    <xs:restriction base="xs:double">
+      <xs:minExclusive value="-180" />
+      <xs:maxInclusive value="180" />
+    </xs:restriction>
+  </xs:simpleType>
+
+</xs:schema>
