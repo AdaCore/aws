@@ -202,6 +202,9 @@ package body SOAP.WSDL.Parser is
       Document  : WSDL.Object) return Boolean;
    --  Returns True if Type_Name corresponds to a character type
 
+   procedure Skip_Annotation (N : in out DOM.Core.Node);
+   --  Skip annotation node
+
    -----------
    -- Debug --
    -----------
@@ -490,6 +493,8 @@ package body SOAP.WSDL.Parser is
       if Utils.No_NS (DOM.Core.Nodes.Node_Name (L)) = "complexType" then
          L := XML.First_Child (L);
 
+         Skip_Annotation (L);
+
          if L /= null
            and then
              Utils.No_NS (DOM.Core.Nodes.Node_Name (L)) = "complexContent"
@@ -680,6 +685,8 @@ package body SOAP.WSDL.Parser is
 
       if Utils.No_NS (DOM.Core.Nodes.Node_Name (L)) = "complexType" then
          L := XML.First_Child (L);
+
+         Skip_Annotation (L);
 
          --  Empty complexType
 
@@ -1463,7 +1470,11 @@ package body SOAP.WSDL.Parser is
 
          --  Enter complexType element
 
-         N := XML.First_Child (N);
+         if N /= null then
+            N := XML.First_Child (N);
+         end if;
+
+         Skip_Annotation (N);
 
          --  Check for empty complexType
 
@@ -1777,6 +1788,8 @@ package body SOAP.WSDL.Parser is
 
       N := XML.First_Child (R);
 
+      Skip_Annotation (N);
+
       Base := +XML.Get_Attr_Value (N, "base", True);
 
       --  Check if this is an enumeration
@@ -1844,6 +1857,19 @@ package body SOAP.WSDL.Parser is
          end;
       end loop;
    end Register_Name_Spaces;
+
+   ---------------------
+   -- Skip_Annotation --
+   ---------------------
+
+   procedure Skip_Annotation (N : in out DOM.Core.Node) is
+   begin
+      if N /= null
+        and then Utils.No_NS (DOM.Core.Nodes.Node_Name (N)) = "annotation"
+      then
+         N := XML.Next_Sibling (N);
+      end if;
+   end Skip_Annotation;
 
    -----------
    -- Trace --
