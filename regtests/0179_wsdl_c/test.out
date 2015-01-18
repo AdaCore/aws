@@ -5,7 +5,7 @@
    - derived         S_Int is new Positive (xsd:int)
    - derived         L_Int is new Long_Integer (xsd:int)
    - new type        My_Float is float (xsd:float)
-   - new type        My_Double is double (n1:double)
+   - new type        My_Double is long_float (xsd:double)
    - derived         My_Float2 is new Float (xsd:float)
    - new type        Mod1 is unsigned_byte (xsd:unsignedByte)
    - new type        Mod2 is unsigned_short (xsd:unsignedShort)

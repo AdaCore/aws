@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2003-2015, AdaCore                     --
+--                        Copyright (C) 2015, AdaCore                       --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -29,63 +29,99 @@
 
 with Ada.Strings.Unbounded;
 
-with SOAP.WSDL.Types;
+with SOAP.Name_Space;
 
-package SOAP.WSDL.Parameters is
+package SOAP.WSDL.Types is
 
    use Ada.Strings.Unbounded;
-   use type WSDL.Types.Kind;
+
+   --  A type object
+
+   type Object is private;
+
+   function Create (Name : String; NS : Name_Space.Object) return Object;
+   --  Create a full reference for a type
+
+   function Name (O : Object) return String;
+   --  Returns the name of the type
+
+   function NS (O : Object) return Name_Space.Object;
+   --  Retrurns the name-space for the type
+
+   --  Kind of types
+
+   type Kind is (K_Record, K_Array, K_Derived, K_Enumeration, K_Simple);
+
+   subtype Compound_Type is Kind range K_Record .. K_Array;
+
+   --  Enumeration values
+
+   type E_Node;
+   type E_Node_Access is access E_Node;
+
+   type E_Node is record
+      Value : Unbounded_String;
+      Next  : E_Node_Access;
+   end record;
 
    --  Parameter
 
-   type Parameter;
-   type P_Set is access Parameter;
-
-   type Parameter (Mode : Types.Kind) is record
-      Name      : Unbounded_String;
-      Typ       : Types.Object;
-      Next      : P_Set;
+   type Definition (Mode : Kind) is record
+      Ref : Object;
 
       case Mode is
-         when Types.Compound_Type =>
-            Length : Natural;          -- Number of items (0 = unbounded)
-            P      : P_Set;
+         when K_Derived =>
+            Parent : Object;
 
-         when others =>
+         when K_Simple | K_Record =>
             null;
+
+         when K_Array =>
+            E_Type : Unbounded_String; -- Array element's type
+
+         when K_Enumeration =>
+            E_Def  : E_Node_Access;
       end case;
    end record;
 
-   procedure Append (P : in out P_Set; Param : Parameter) with
-     Post => Length (P) = Length (P)'Old + 1;
+   No_Definition : constant Definition;
+
+   procedure Register (Def : Definition) with
+     Post => Count >= Count'Old;
    --  Add Param at the end of P
 
-   function Length (P : access Parameter) return Natural;
-   --  Returns the number of items in P
+   function Image (K : Kind) return String;
+   --  Returns a string representation of Kind type
 
-   procedure Output (P : access Parameter);
+   function Find (O : Object) return Definition;
+   --  Returns the type definition for the given type name and name-space
+   --  or No_Definition if not found. Note that the standard xsd types are
+   --  not registered their, only the types as found in the schema.
+
+   function Count return Natural;
+   --  Returns the number of type registered
+
+   procedure Output (Def : Definition);
    --  Output parameter set, this is to be used for debugging purpose
 
-   procedure Release (P : in out P_Set) with
-     Post => Length (P) = 0;
-   --  Release memory associated the the parameter set
+   procedure Release with
+     Post => Count = 0;
+   --  Release memory associated the type definitions
 
-   function To_SOAP
-     (P            : Parameter;
-      Object, Name : String;
-      Type_Name    : String := "") return String
-     with Pre => P.Mode = WSDL.Types.K_Enumeration xor Type_Name = "";
-   --  Returns the code to create a SOAP parameter with given Name. Object is
-   --  the reference to the object to convert. Type_Name is the name of the
-   --  enumeration to convert to/from.
+   function Root_Type_For (Def : Definition) return String;
+   --  Returns the root type (XSD type) for the given defintion
 
-   function From_SOAP
-     (P            : Parameter;
-      Object       : String;
-      Type_Name    : String := "";
-      Is_SOAP_Type : Boolean := False) return String
-     with Pre => P.Mode in WSDL.Types.Compound_Type xor Type_Name = "";
-   --  Is_SOAP_Type is true if Object is alreay a SOAP types object. So there
-   --  is no need for a convertion in this context.
+private
 
-end SOAP.WSDL.Parameters;
+   type Object is record
+      Name : Unbounded_String;
+      NS   : Name_Space.Object;
+   end record;
+
+   No_Type : constant Object :=
+               (Null_Unbounded_String, Name_Space.No_Name_Space);
+
+   No_Definition : constant Definition :=
+                     (K_Enumeration, No_Type, null);
+
+end SOAP.WSDL.Types;

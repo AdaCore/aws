@@ -27,23 +27,19 @@
 --  covered by the  GNU Public License.                                     --
 ------------------------------------------------------------------------------
 
-package SOAP.WSDL.Schema is
+package SOAP.WSDL.Name_Spaces is
 
-   use type DOM.Core.Node;
+   procedure Register (Key, Value : String);
+   --  Register a new name-space. The Key is either the name or the URL. The
+   --  value is the corresponding other part.
 
-   subtype URL is String;
+   function Contains (Key : String) return Boolean;
+   --  Returns true if the Key is a known name-space
 
-   procedure Register (Namespace : URL; Node : DOM.Core.Node) with
-     Pre  => Node /= null,
-     Post => Contains (Namespace);
-   --  Register a Namespace (URL) for the given DOM tree
+   function Get (Key : String) return String;
+   --  Get the name-space corresponding value for Key
 
-   function Contains (Namespace : URL) return Boolean;
-   --  Returns True if the Namespace is known (has been registered)
+   function Is_XSD (Name : String) return Boolean;
+   --  Returns true is the Name corresponds to the XSD URL
 
-   procedure For_All
-     (Namespace : URL;
-      Process   : not null access procedure (N : DOM.Core.Node));
-   --  Go through all mixed namespaces
-
-end SOAP.WSDL.Schema;
+end SOAP.WSDL.Name_Spaces;

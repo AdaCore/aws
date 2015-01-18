@@ -1,6 +1,6 @@
 <?xml version='1.0' encoding='UTF-8'?>
-<soap:Envelope soap:encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" xmlns:soapenc="http://schemas.xmlsoap.org/soap/encoding/" xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/" xmlns:xsd="http://www.w3.org/1999/XMLSchema" xmlns:xsi="http://www.w3.org/1999/XMLSchema-instance">
-<soap:Body>
+<soapenv:Envelope soapenv:encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" xmlns:soapenc="http://schemas.xmlsoap.org/soap/encoding/" xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+<soapenv:Body>
 <ns3:getLastResponse xmlns:ns4="urn:datafeed.dukascopy.com" xmlns:ns3="urn:datafeed.dukascopy.com">
 <getLastReturn soapenc:arrayType="awsns:Candle[1]" xsi:type="soapenc:Array">
    <item xsi:type="ns4:Candle">
@@ -18,6 +18,5 @@
    </item>
 </getLastReturn>
 </ns3:getLastResponse>
-</soap:Body>
-</soap:Envelope>
-
+</soapenv:Body>
+</soapenv:Envelope>

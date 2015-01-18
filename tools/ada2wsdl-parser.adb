@@ -1103,8 +1103,8 @@ package body Ada2WSDL.Parser is
                end if;
 
             when A_Floating_Point_Definition =>
-               --  This is an integer type, check the constraint to return the
-               --  proper mapping.
+               --  This is a floating point type, check the constraint to
+               --  return the proper mapping.
 
                if Base then
                   declare
@@ -1116,7 +1116,7 @@ package body Ada2WSDL.Parser is
                      if Dig <= Float'Digits then
                         return "float";
                      else
-                        return "double";
+                        return "long_float";
                      end if;
                   end;
 

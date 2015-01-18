@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2003-2012, AdaCore                     --
+--                     Copyright (C) 2003-2015, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -30,12 +30,15 @@
 --  This package provides services to handle WSDL
 
 with Ada.Characters.Handling;
+with Ada.Strings.Fixed;
 
+with DOM.Readers;
 with Input_Sources.File;
 with Sax.Readers;
-with DOM.Readers;
 
 with SOAP.Types;
+with SOAP.Utils;
+with SOAP.WSDL.Name_Spaces;
 
 package body SOAP.WSDL is
 
@@ -132,6 +135,32 @@ package body SOAP.WSDL is
       end if;
    end From_Ada;
 
+   ---------------
+   -- From_Type --
+   ---------------
+
+   function From_Type (P : Parameter_Type) return String is
+   begin
+      case P is
+         when P_String         => return "string";
+         when P_Long           => return "long";
+         when P_Integer        => return "int";
+         when P_Short          => return "short";
+         when P_Byte           => return "byte";
+         when P_Float          => return "float";
+         when P_Double         => return "double";
+         when P_Boolean        => return "boolean";
+         when P_Time           => return "datetime";
+         when P_B64            => return "base64binary";
+         when P_Character      => return "character";
+         when P_Unsigned_Long  => return "unsignedlong";
+         when P_Unsigned_Int   => return "unsignedint";
+         when P_Unsigned_Short => return "unsignedshort";
+         when P_Unsigned_Byte  => return "unsignedbyte";
+         when P_Any_Type       => return "anytype";
+      end case;
+   end From_Type;
+
    -----------------
    -- Get_Routine --
    -----------------
@@ -164,10 +193,15 @@ package body SOAP.WSDL is
    -----------------
 
    function Is_Standard (XSD_Type : String) return Boolean is
+      NS       : constant String := Utils.NS (XSD_Type);
       P        : Parameter_Type;
       Standard : Boolean;
    begin
-      To_Type (XSD_Type, P, Standard);
+      if NS = "" then
+         To_Type (XSD_Type, P, Standard);
+      else
+         Standard := WSDL.Name_Spaces.Is_XSD (NS);
+      end if;
 
       return Standard;
    end Is_Standard;
@@ -177,8 +211,8 @@ package body SOAP.WSDL is
    ----------
 
    function Load (Filename : String) return Object is
-      use Input_Sources.File;
       use DOM.Readers;
+      use Input_Sources.File;
 
       Source : File_Input;
       Reader : Tree_Reader;
@@ -232,6 +266,17 @@ package body SOAP.WSDL is
                return "SOAP.Utils.US";
             end if;
       end case;
+   end Set_Routine;
+
+   function Set_Routine
+     (P       : String;
+      Context : Context_Type := Parameter) return String is
+   begin
+      if Is_Standard (P) then
+         return Set_Routine (To_Type (P), Context);
+      else
+         return "To_" & Utils.No_NS (P) & "_Type";
+      end if;
    end Set_Routine;
 
    --------------
@@ -307,10 +352,20 @@ package body SOAP.WSDL is
       Result   : out Parameter_Type;
       Standard : out Boolean)
    is
-      L_Type : constant String := Characters.Handling.To_Lower (XSD_Type);
+      Name   : constant String := Characters.Handling.To_Lower (XSD_Type);
+      C      : constant Natural := Strings.Fixed.Index (Name, ":");
+      XSD    : constant String :=
+                 (if C = 0 then "" else Name (Name'First .. C - 1));
+      L_Type : constant String :=
+                 (if C = 0 then Name else Name (C + 1 .. Name'Last));
    begin
       Result := P_Any_Type;
       Standard := True;
+
+      if XSD /= "" and then not WSDL.Name_Spaces.Is_XSD (XSD) then
+         Standard := False;
+         return;
+      end if;
 
       if L_Type = "string" then
          Result := P_String;
@@ -384,8 +439,8 @@ package body SOAP.WSDL is
    ------------
 
    function To_XSD (P : WSDL.Parameter_Type) return String is
-      use SOAP.WSDL;
       use SOAP.Types;
+      use SOAP.WSDL;
    begin
       case P is
          when P_Long           => return XML_Long;

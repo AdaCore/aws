@@ -27,23 +27,53 @@
 --  covered by the  GNU Public License.                                     --
 ------------------------------------------------------------------------------
 
-package SOAP.WSDL.Schema is
+pragma Ada_2012;
 
-   use type DOM.Core.Node;
+with AWS.Containers.Key_Value;
+with SOAP.Name_Space;
 
-   subtype URL is String;
+package body SOAP.WSDL.Name_Spaces is
 
-   procedure Register (Namespace : URL; Node : DOM.Core.Node) with
-     Pre  => Node /= null,
-     Post => Contains (Namespace);
-   --  Register a Namespace (URL) for the given DOM tree
+   package Name_Spaces renames AWS.Containers.Key_Value;
+   NS : Name_Spaces.Map;
 
-   function Contains (Namespace : URL) return Boolean;
-   --  Returns True if the Namespace is known (has been registered)
+   --------------
+   -- Contains --
+   --------------
 
-   procedure For_All
-     (Namespace : URL;
-      Process   : not null access procedure (N : DOM.Core.Node));
-   --  Go through all mixed namespaces
+   function Contains (Key : String) return Boolean is
+   begin
+      return NS.Contains (Key);
+   end Contains;
 
-end SOAP.WSDL.Schema;
+   ---------
+   -- Get --
+   ---------
+
+   function Get (Key : String) return String is
+   begin
+      return NS (Key);
+   end Get;
+
+   ------------
+   -- Is_XSD --
+   ------------
+
+   function Is_XSD (Name : String) return Boolean is
+   begin
+      return NS.Contains (Name)
+        and then (NS (Name) = SOAP.Name_Space.XSD_URL
+                  or else NS (Name) = "http://www.w3.org/2000/10/XMLSchema"
+                  or else NS (Name) = "http://www.w3.org/1999/XMLSchema");
+   end Is_XSD;
+
+   --------------
+   -- Register --
+   --------------
+
+   procedure Register (Key, Value : String) is
+   begin
+      NS.Insert (Key, Value);
+   end Register;
+
+end SOAP.WSDL.Name_Spaces;

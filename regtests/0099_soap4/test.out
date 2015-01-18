@@ -1,6 +1,6 @@
 <?xml version='1.0' encoding='UTF-8'?>
-<soap:Envelope soap:encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" xmlns:soapenc="http://schemas.xmlsoap.org/soap/encoding/" xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/" xmlns:xsd="http://www.w3.org/1999/XMLSchema" xmlns:xsi="http://www.w3.org/1999/XMLSchema-instance">
-<soap:Body>
+<soapenv:Envelope soapenv:encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" xmlns:soapenc="http://schemas.xmlsoap.org/soap/encoding/" xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+<soapenv:Body>
 <awsns:Arr_Rec xmlns:awsns="http://soapaws/">
 <arr soapenc:arrayType="awsns:rec[3]" xsi:type="soapenc:Array">
    <rec>
@@ -17,13 +17,13 @@
    </rec>
 </arr>
 </awsns:Arr_Rec>
-</soap:Body>
-</soap:Envelope>
+</soapenv:Body>
+</soapenv:Envelope>
 
 
 <?xml version='1.0' encoding='UTF-8'?>
-<soap:Envelope soap:encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" xmlns:soapenc="http://schemas.xmlsoap.org/soap/encoding/" xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/" xmlns:xsd="http://www.w3.org/1999/XMLSchema" xmlns:xsi="http://www.w3.org/1999/XMLSchema-instance">
-<soap:Body>
+<soapenv:Envelope soapenv:encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" xmlns:soapenc="http://schemas.xmlsoap.org/soap/encoding/" xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+<soapenv:Body>
 <awsns:Arr_Rec2 xmlns:awsns="http://soapaws/">
 <arr2 soapenc:arrayType="xsd:ur-type[4]" xsi:type="soapenc:Array">
    <rec>
@@ -44,13 +44,13 @@
    </rec>
 </arr2>
 </awsns:Arr_Rec2>
-</soap:Body>
-</soap:Envelope>
+</soapenv:Body>
+</soapenv:Envelope>
 
 
 <?xml version='1.0' encoding='UTF-8'?>
-<soap:Envelope soap:encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" xmlns:soapenc="http://schemas.xmlsoap.org/soap/encoding/" xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/" xmlns:xsd="http://www.w3.org/1999/XMLSchema" xmlns:xsi="http://www.w3.org/1999/XMLSchema-instance">
-<soap:Body>
+<soapenv:Envelope soapenv:encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" xmlns:soapenc="http://schemas.xmlsoap.org/soap/encoding/" xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+<soapenv:Body>
 <awsns:Arr_Rec3 xmlns:awsns="http://soapaws/">
 <arr3 soapenc:arrayType="xsd:ur-type[4]" xsi:type="soapenc:Array">
    <rec>
@@ -68,7 +68,5 @@
    </rec>
 </arr3>
 </awsns:Arr_Rec3>
-</soap:Body>
-</soap:Envelope>
-
-
+</soapenv:Body>
+</soapenv:Envelope>

@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2000-2013, AdaCore                     --
+--                     Copyright (C) 2000-2015, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -27,18 +27,21 @@
 --  covered by the  GNU Public License.                                     --
 ------------------------------------------------------------------------------
 
+with SOAP.Name_Space;
 with SOAP.Types;
 with SOAP.Utils;
 
 package body SOAP.Message.Response.Error is
 
+   package NS renames SOAP.Name_Space;
+
    Version_Mismatch_Faultcode : constant String := "VersionMismatch";
    Must_Understand_Faultcode  : constant String := "MustUnderstand";
    Client_Faultcode           : constant String := "Client";
    Server_Faultcode           : constant String := "Server";
-
-   Start_Fault_Env            : constant String := "<soap:Fault>";
-   End_Fault_Env              : constant String := "</soap:Fault>";
+   SOAPENV                    : constant String := NS.Name (NS.SOAPENV);
+   Start_Fault_Env            : constant String := "<" & SOAPENV & ":Fault>";
+   End_Fault_Env              : constant String := "</" & SOAPENV & ":Fault>";
 
    function Fault_Code (Name, Subname : String) return Faultcode;
    --  Returns the Faultcode for Name and Subname. If Subname is empty it

@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2003-2014, AdaCore                     --
+--                     Copyright (C) 2003-2015, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -30,6 +30,9 @@
 with Ada.Text_IO;
 with Ada.Unchecked_Deallocation;
 
+with SOAP.Name_Space;
+with SOAP.Utils;
+
 package body SOAP.WSDL.Parameters is
 
    ------------
@@ -53,6 +56,90 @@ package body SOAP.WSDL.Parameters is
       end if;
    end Append;
 
+   ---------------
+   -- From_SOAP --
+   ---------------
+
+   function From_SOAP
+     (P         : Parameter;
+      Object    : String;
+      Type_Name : String := "";
+      Is_SOAP_Type : Boolean := False) return String
+   is
+      function For_Derived
+        (Def : WSDL.Types.Definition; Code : String) return String;
+      --  ??
+
+      -----------------
+      -- For_Derived --
+      -----------------
+
+      function For_Derived
+        (Def  : WSDL.Types.Definition;
+         Code : String) return String
+      is
+         use type SOAP.Name_Space.Object;
+      begin
+         if Types.NS (Def.Ref) = Name_Space.XSD then
+            if Is_SOAP_Type then
+               return Code;
+            else
+               return WSDL.V_Routine
+                 (WSDL.To_Type (Types.Name (Def.Ref)), WSDL.Component)
+                 & " ("
+                 & WSDL.Set_Type (To_Type (Types.Name (Def.Ref)))
+                 & " (" & Code & "))";
+            end if;
+
+         else
+            declare
+               P_Name : constant String :=
+                          Utils.No_NS (Types.Name (Def.Parent));
+            begin
+               return "From_" & P_Name & "_Type"
+                 & " ("
+                 & For_Derived (WSDL.Types.Find (Def.Parent), Code) & ')';
+            end;
+         end if;
+      end For_Derived;
+
+      Def : constant WSDL.Types.Definition :=  WSDL.Types.Find (P.Typ);
+
+   begin
+      case P.Mode is
+         when WSDL.Types.K_Derived =>
+            return For_Derived (WSDL.Types.Find (P.Typ), Object);
+
+         when WSDL.Types.K_Enumeration =>
+            return Types.Name (Def.Ref) & "_Type'Value ("
+              & "SOAP.Types.V (SOAP.Types.SOAP_Enumeration ("
+              & Object & ")))";
+
+         when WSDL.Types.K_Array =>
+            return "+To_" & Utils.No_NS (Type_Name)
+              & "_Type (SOAP.Types.V (SOAP.Types.SOAP_Array ("
+              & Object & ")))";
+
+         when WSDL.Types.K_Record =>
+            return "To_" & Utils.No_NS (Type_Name)
+              & " (SOAP.Types.SOAP_Record (" & Object & "))";
+
+         when WSDL.Types.K_Simple =>
+            declare
+               P_Type : constant WSDL.Parameter_Type :=
+                          WSDL.To_Type (Types.Name (P.Typ));
+               I_Type : constant String := WSDL.Set_Type (P_Type);
+            begin
+               return WSDL.V_Routine (P_Type, WSDL.Component)
+                 & " (" & I_Type & " ("
+                 & Object & "))";
+            end;
+
+         when others =>
+            return "";
+      end case;
+   end From_SOAP;
+
    ------------
    -- Length --
    ------------
@@ -75,8 +162,8 @@ package body SOAP.WSDL.Parameters is
    procedure Output (P : access Parameter) is
 
       use Ada;
-      use type Parameters.Kind;
       use type Parameters.P_Set;
+      use type Types.Kind;
 
       procedure Output (P : access Parameter; K : Natural);
 
@@ -89,32 +176,27 @@ package body SOAP.WSDL.Parameters is
          if P /= null then
             Text_IO.Put (String'(1 .. K => ' '));
 
-            if P.Mode = Parameters.K_Simple then
+            if P.Mode = Types.K_Simple then
                Text_IO.Put ("[simple] ");
                Text_IO.Put_Line
-                 (To_String (P.Name) & " ; " & To_Ada (P.P_Type));
-
-            elsif P.Mode = Parameters.K_Derived then
-               Text_IO.Put ("[derived] ");
-               Text_IO.Put_Line
-                 (To_String (P.Name) & " ; " & To_String (P.D_Name));
-
-            elsif P.Mode = Parameters.K_Enumeration then
-               Text_IO.Put ("[enumeration] ");
-               Text_IO.Put_Line
-                 (To_String (P.Name) & " ; " & To_String (P.E_Name));
+                 (To_String (P.Name) & " ; "
+                  & To_Ada (To_Type (Types.Name (P.Typ))));
 
             else
-               if P.Mode = Parameters.K_Array then
-                  Text_IO.Put ("[array] ");
-               else
-                  Text_IO.Put ("[record] ");
-               end if;
+               Text_IO.Put ('[' & Types.Image (P.Mode) & "] ");
 
-               Text_IO.Put_Line
-                 (To_String (P.Name) & " ; " & To_String (P.T_Name));
+               declare
+                  Def : constant WSDL.Types.Definition :=
+                          WSDL.Types.Find (P.Typ);
+               begin
+                  Text_IO.Put (To_String (P.Name) & " ; ");
+                  WSDL.Types.Output (Def);
+                  Text_IO.New_Line;
 
-               Output (P.P, K + 3);
+                  if P.Mode in WSDL.Types.Compound_Type then
+                     Output (P.P, K + 3);
+                  end if;
+               end;
             end if;
 
             Output (P.Next, K);
@@ -134,26 +216,10 @@ package body SOAP.WSDL.Parameters is
       procedure Unchecked_Free is
         new Ada.Unchecked_Deallocation (Parameter, P_Set);
 
-      procedure Unchecked_Free is
-        new Ada.Unchecked_Deallocation (E_Node, E_Node_Access);
-
    begin
       if P /= null then
-         if P.Mode = K_Array or else P.Mode = K_Record then
+         if P.Mode in Types.Compound_Type then
             Release (P.P);
-
-         elsif P.Mode = K_Enumeration then
-            declare
-               C, N : E_Node_Access;
-            begin
-               C := P.E_Def;
-
-               while C /= null loop
-                  N := C.Next;
-                  Unchecked_Free (C);
-                  C := N;
-               end loop;
-            end;
          end if;
 
          Release (P.Next);
@@ -161,18 +227,106 @@ package body SOAP.WSDL.Parameters is
       end if;
    end Release;
 
-   ---------------
-   -- Type_Name --
-   ---------------
+   -------------
+   -- To_SOAP --
+   -------------
 
-   function Type_Name (P : not null access Parameter) return String is
+   function To_SOAP
+     (P            : Parameter;
+      Object, Name : String;
+      Type_Name    : String := "") return String
+   is
+
+      function For_Derived
+        (Def : WSDL.Types.Definition; Code : String) return String;
+      --  ??
+
+      function Set_Routine (P : WSDL.Parameters.Parameter) return String;
+      --  ??
+
+      -----------------
+      -- For_Derived --
+      -----------------
+
+      function For_Derived
+        (Def  : WSDL.Types.Definition;
+         Code : String) return String
+      is
+         use type SOAP.Name_Space.Object;
+      begin
+         if Types.NS (Def.Ref) = Name_Space.XSD then
+            return Set_Routine (Types.Name (Def.Ref))
+              & " (" & Code & ", """ & Name & """)";
+         else
+            declare
+               P_Name : constant String :=
+                          Utils.No_NS (Types.Name (Def.Parent));
+            begin
+               return For_Derived
+                 (WSDL.Types.Find (Def.Parent),
+                  "To_" & P_Name & "_Type"
+                  & " (" & Code & ')');
+            end;
+         end if;
+      end For_Derived;
+
+      -----------------
+      -- Set_Routine --
+      -----------------
+
+      function Set_Routine (P : WSDL.Parameters.Parameter) return String is
+         Def    : constant WSDL.Types.Definition := WSDL.Types.Find (P.Typ);
+         T_Name : constant String := Types.Name (P.Typ);
+      begin
+         case P.Mode is
+            when WSDL.Types.K_Simple =>
+               return WSDL.Set_Routine
+                 (WSDL.To_Type (T_Name), Context => WSDL.Component);
+
+            when WSDL.Types.K_Derived =>
+               return WSDL.Set_Routine
+                 (Types.Name (Def.Parent),
+                  Context => WSDL.Component);
+
+            when WSDL.Types.K_Enumeration =>
+               return WSDL.Set_Routine
+                 (WSDL.P_String, Context => WSDL.Component);
+
+            when WSDL.Types.K_Array =>
+               declare
+                  E_Type : constant String := To_String (Def.E_Type);
+               begin
+                  if WSDL.Is_Standard (E_Type) then
+                     return WSDL.Set_Routine
+                       (WSDL.To_Type (E_Type), Context => WSDL.Component);
+                  else
+                     return "To_SOAP_Object";
+                  end if;
+               end;
+
+            when WSDL.Types.K_Record =>
+               return "To_SOAP_Object";
+         end case;
+      end Set_Routine;
+
    begin
       case P.Mode is
-         when K_Simple           => return WSDL.To_Ada (P.P_Type);
-         when K_Derived          => return To_String (P.D_Name);
-         when K_Array | K_Record => return To_String (P.T_Name);
-         when K_Enumeration      => return To_String (P.E_Name);
+         when WSDL.Types.K_Simple | WSDL.Types.K_Record =>
+            return Set_Routine (P) & " (" & Object & ", """ & Name & """)";
+
+         when WSDL.Types.K_Derived =>
+            return For_Derived
+              (WSDL.Types.Find (P.Typ), Object);
+
+         when WSDL.Types.K_Enumeration =>
+            return "SOAP.Types.E (Image (" & Object & "), """ & Type_Name
+              & """, """ & Name & """)";
+
+         when WSDL.Types.K_Array =>
+            return "SOAP.Types.A (To_Object_Set (" & Object
+              & "), """ & Name & """)";
+
       end case;
-   end Type_Name;
+   end To_SOAP;
 
 end SOAP.WSDL.Parameters;

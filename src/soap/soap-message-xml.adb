@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2000-2014, AdaCore                     --
+--                     Copyright (C) 2000-2015, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -61,45 +61,32 @@ package body SOAP.Message.XML is
 
    XML_Header : constant String := "<?xml version='1.0' encoding='UTF-8'?>";
 
-   URL_Enc    : constant String := "http://schemas.xmlsoap.org/soap/encoding/";
-   URL_Env    : constant String := "http://schemas.xmlsoap.org/soap/envelope/";
    URL_xsd    : constant String := "http://www.w3.org/1999/XMLSchema";
-   URL_xsd_01 : constant String := "http://www.w3.org/2001/XMLSchema";
    URL_xsi    : constant String := "http://www.w3.org/1999/XMLSchema-instance";
-   URL_xsi_01 : constant String := "http://www.w3.org/2001/XMLSchema-instance";
+
+   SOAPENV    : constant String :=
+                  SOAP.Name_Space.Name (SOAP.Name_Space.SOAPENV);
 
    --  Name spaces
 
-   NS_SOAP_Env : constant SOAP.Name_Space.Object :=
-                   SOAP.Name_Space.Create ("soap", URL_Env);
-
-   NS_SOAP_Enc : constant SOAP.Name_Space.Object :=
-                   SOAP.Name_Space.Create ("soapenc", URL_Enc);
-
-   NS_XSD      : constant SOAP.Name_Space.Object :=
-                   SOAP.Name_Space.Create ("xsd", URL_xsd);
-
-   NS_XSI      : constant SOAP.Name_Space.Object :=
-                   SOAP.Name_Space.Create ("xsi", URL_xsi);
-
    NS_Enc      : constant SOAP.Name_Space.Object :=
                    SOAP.Name_Space.Create
-                     ("encodingStyle", URL_Enc, Prefix => "soap");
+                     ("encodingStyle",
+                      SOAP.Name_Space.SOAPENC_URL, Prefix => SOAPENV);
 
-   Start_Env   : constant String := "<soap:Envelope";
-   End_Env     : constant String := "</soap:Envelope>";
+   Start_Env  : constant String := "<" & SOAPENV & ":Envelope";
+   End_Env    : constant String := "</" & SOAPENV & ":Envelope>";
+   Start_Body : constant String := "<" & SOAPENV & ":Body>";
+   End_Body   : constant String := "</" & SOAPENV & ":Body>";
 
    Header      : constant String :=
                    Start_Env
                      & ' ' & SOAP.Name_Space.Image (NS_Enc)
-                     & ' ' & SOAP.Name_Space.Image (NS_SOAP_Enc)
-                     & ' ' & SOAP.Name_Space.Image (NS_SOAP_Env)
-                     & ' ' & SOAP.Name_Space.Image (NS_XSD)
-                     & ' ' & SOAP.Name_Space.Image (NS_XSI)
+                     & ' ' & SOAP.Name_Space.Image (SOAP.Name_Space.SOAPENC)
+                     & ' ' & SOAP.Name_Space.Image (SOAP.Name_Space.SOAPENV)
+                     & ' ' & SOAP.Name_Space.Image (SOAP.Name_Space.XSD)
+                     & ' ' & SOAP.Name_Space.Image (SOAP.Name_Space.XSI)
                      & '>';
-
-   Start_Body : constant String := "<soap:Body>";
-   End_Body   : constant String := "</soap:Body>";
 
    type Type_State is
      (Void, T_Undefined, T_Any_Type,
@@ -860,12 +847,19 @@ package body SOAP.Message.XML is
             Value : constant String        := Node_Value (N);
          begin
             if Utils.NS (Name) = "xmlns" then
-               if Value = URL_xsd or else Value = URL_xsd_01 then
+               if Value = URL_xsd
+                 or else Value = SOAP.Name_Space.XSD_URL
+               then
                   NS.xsd := SOAP.Name_Space.Create (Utils.No_NS (Name), Value);
-               elsif Value = URL_xsi or else Value = URL_xsi_01 then
+
+               elsif Value = URL_xsi
+                 or else Value = SOAP.Name_Space.XSI_URL
+               then
                   NS.xsi := SOAP.Name_Space.Create (Utils.No_NS (Name), Value);
-               elsif Value = URL_Enc then
+
+               elsif Value = SOAP.Name_Space.SOAPENC_URL then
                   NS.enc := SOAP.Name_Space.Create (Utils.No_NS (Name), Value);
+
                elsif NS.Index < NS.User'Last then
                   NS.Index := NS.Index + 1;
                   NS.User (NS.Index) :=

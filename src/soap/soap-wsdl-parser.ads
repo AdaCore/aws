@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2003-2014, AdaCore                     --
+--                     Copyright (C) 2003-2015, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -120,6 +120,7 @@ private
       Array_Length    : Natural;          -- Number of items (0 = unbounded)
       Accept_Document : Boolean := False;
       Exclude         : Exclude_Set.Set;  -- Operation to exclude from gen
+      No_Param        : Boolean := False; -- Disable param generation
    end record;
 
 end SOAP.WSDL.Parser;

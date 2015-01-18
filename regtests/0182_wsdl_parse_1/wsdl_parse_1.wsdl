@@ -1,16 +1,17 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <definitions name="WSDL_4"
-   xmlns="http://schemas.xmlsoap.org/wsdl/"
-   xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/"
-   xmlns:xsd="http://www.w3.org/2001/XMLSchema"
-   xmlns:tns="urn:aws:WSDL_4">
+             targetNamespace="urn:aws:WSDL_4"
+             xmlns="http://schemas.xmlsoap.org/wsdl/"
+             xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/"
+             xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+             xmlns:tns="urn:aws:WSDL_4">
 
    <types>
       <schema xmlns="http://www.w3.org/2000/10/XMLSchema">
 
          <simpleType name="Character">
             <restriction base="xsd:string">
-               <minLength value="1"/> 
+               <minLength value="1"/>
 	       <maxLength value="2"/>
             </restriction>
          </simpleType>

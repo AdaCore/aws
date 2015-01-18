@@ -5,7 +5,7 @@
    xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/"
    xmlns:soapenc="http://schemas.xmlsoap.org/soap/encoding/"
    xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/"
-   xmlns:xsi="http://www.w3.org/1999/XMLSchema-instance"
+   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
    xmlns:xsd="http://www.w3.org/2001/XMLSchema"
    xmlns:n1="http://soapaws/Standard_pkg/">
 
