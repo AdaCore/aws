@@ -73,8 +73,11 @@ package SOAP.WSDL.Types is
          when K_Derived =>
             Parent : Object;
 
-         when K_Simple | K_Record =>
+         when K_Simple =>
             null;
+
+         when K_Record =>
+            Is_Choice : Boolean;
 
          when K_Array =>
             E_Type : Unbounded_String; -- Array element's type
@@ -90,7 +93,7 @@ package SOAP.WSDL.Types is
      Post => Count >= Count'Old;
    --  Add Param at the end of P
 
-   function Image (K : Kind) return String;
+   function Image (Def : Definition) return String;
    --  Returns a string representation of Kind type
 
    function Find (O : Object) return Definition;

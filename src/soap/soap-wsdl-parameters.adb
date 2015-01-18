@@ -183,12 +183,12 @@ package body SOAP.WSDL.Parameters is
                   & To_Ada (To_Type (Types.Name (P.Typ))));
 
             else
-               Text_IO.Put ('[' & Types.Image (P.Mode) & "] ");
-
                declare
                   Def : constant WSDL.Types.Definition :=
                           WSDL.Types.Find (P.Typ);
                begin
+                  Text_IO.Put ('[' & Types.Image (Def) & "] ");
+
                   Text_IO.Put (To_String (P.Name) & " ; ");
                   WSDL.Types.Output (Def);
                   Text_IO.New_Line;

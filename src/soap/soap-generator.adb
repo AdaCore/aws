@@ -1179,7 +1179,7 @@ package body SOAP.Generator is
          P_Name  : constant String := WSDL.Types.Name (Def.Parent);
          B_Name  : constant String :=
                      (if WSDL.Is_Standard (P_Name)
-                      then WSDL.To_Ada (WSDL.To_Type (P_Name))
+                      then WSDL.To_Ada (WSDL.To_Type (P_Name), WSDL.Component)
                       else P_Name & "_Type");
          Prefix  : Unbounded_String;
          Der_Ads : Text_IO.File_Type;
