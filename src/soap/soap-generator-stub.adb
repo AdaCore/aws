@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2003-2013, AdaCore                     --
+--                     Copyright (C) 2003-2015, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -677,7 +677,7 @@ package body Stub is
          Text_IO.Put (Stub_Adb, "              ");
       end if;
 
-      Text_IO.Put (Stub_Adb, "      " & L_Proc & " (Connection");
+      Text_IO.Put (Stub_Adb, "      Client." & L_Proc & " (Connection");
 
       declare
          N  : WSDL.Parameters.P_Set := Input;

@@ -1,0 +1,18 @@
+Service ScallService
+
+
+Procedure wsGetSrvRequest SOAPAction:
+   Input
+      [record] wsGetSrvRequest ; WsGetSrvRequest
+         [simple] limits ; Integer
+         [record] spatialDomain ; WsSpatialDomain
+            [record] southWestCorner ; WsLatLongDegrees
+               [derived] latitudeDegrees ; WsLatitudeDegrees
+               [derived] longitudeDegrees ; WsLongitudeDegrees
+            [derived] northEastCorner ; WsLongitudeDegrees
+   Output
+      [record] wsGetSrvResponse ; WsGetSrvResponse
+         [record] results ; WsGetSrvResults
+            [simple] bestA ; Float
+            [simple] bestB ; Float
+   > wsGetSrvRequest

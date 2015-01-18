@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<wsdl:definitions name="TestWebService"
+                  targetNamespace="http://aws.demo.com/getSrc"
+                  xmlns="http://schemas.xmlsoap.org/wsdl/"
+                  xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/"
+                  xmlns:gc="http://aws.demo.com/getSrv"
+                  xmlns:scall="http://aws.demo.com/scall"
+                  xmlns:xs="http://www.w3.org/2001/XMLSchema"
+                  xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/"
+                  xmlns:dt="http://aws.demo.com/dataTypes">
+
+  <!-- The WSDL types -->
+
+  <wsdl:types>
+    <xs:schema version="1.0" elementFormDefault="qualified">
+      <xs:import namespace="http://aws.demo.com/scall"
+                 schemaLocation="scall.xsd" />
+    </xs:schema>
+  </wsdl:types>
+
+  <!-- The WSDL messages -->
+
+  <wsdl:message name="GetSrvWebService_Request">
+    <part name="wsGetSrvRequest" element="scall:WsGetSrvRequest" />
+  </wsdl:message>
+
+  <wsdl:message name="GetSrvWebService_Response">
+    <part name="wsGetSrvResponse" element="scall:WsGetSrvResponse" />
+  </wsdl:message>
+
+  <!-- The WSDL Port Types -->
+
+  <wsdl:portType name="ScallWebService">
+    <wsdl:operation name="wsGetSrvRequest">
+      <wsdl:input message="gc:GetSrvWebService_Request" />
+      <wsdl:output message="gc:GetSrvWebService_Response" />
+    </wsdl:operation>
+  </wsdl:portType>
+
+  <!-- The WSDL Bindings -->
+
+  <wsdl:binding name="ScallWebServiceBinding" type="gc:ScallWebService">
+    <soap:binding style="document"
+                  transport="http://schemas.xmlsoap.org/soap/http" />
+
+    <operation name="wsGetSrvRequest">
+      <soap:operation soapAction="" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </operation>
+  </wsdl:binding>
+
+  <!-- The WSDL Services -->
+
+  <wsdl:service name="ScallService">
+    <port name="ScallPort" binding="gc:ScallWebServiceBinding">
+      <soap:address location="http://localhost" />
+    </port>
+  </wsdl:service>
+
+</wsdl:definitions>
