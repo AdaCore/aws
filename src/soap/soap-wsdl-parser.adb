@@ -259,10 +259,10 @@ package body SOAP.WSDL.Parser is
    -------------
 
    procedure Exclude (O : in out Object; Operation : String) is
-      Pos     : Exclude_Set.Cursor;
+      Pos     : Name_Set.Cursor;
       Success : Boolean;
    begin
-      Exclude_Set.Insert (O.Exclude, Operation, Pos, Success);
+      O.Exclude.Insert (Operation, Pos, Success);
    end Exclude;
 
    ------------------------
@@ -957,8 +957,8 @@ package body SOAP.WSDL.Parser is
                S : constant DOM.Core.Node := DOM.Core.Nodes.Item (NL, K);
             begin
                if Utils.No_NS (DOM.Core.Nodes.Node_Name (S)) = "operation"
-                 and then not Exclude_Set.Contains
-                   (O.Exclude, XML.Get_Attr_Value (S, "name"))
+                 and then not O.Exclude.Contains
+                   (XML.Get_Attr_Value (S, "name"))
                then
                   begin
                      Parse_Operation
@@ -1222,7 +1222,7 @@ package body SOAP.WSDL.Parser is
          raise WSDL_Error with "Type anyType is not supported.";
 
       else
-         if Utils.No_NS (P_Type) = To_String (O.Enclosing_Type) then
+         if O.Enclosing_Types.Contains (Utils.No_NS (P_Type)) then
             raise WSDL_Error with
               "Recursive WSDL definition " & P_Type & " is not supported.";
          end if;
@@ -1452,7 +1452,7 @@ package body SOAP.WSDL.Parser is
 
          Types.Register (D);
 
-         O.Self.Enclosing_Type := +Name;
+         O.Self.Enclosing_Types.Include (Name);
 
          if Utils.No_NS (DOM.Core.Nodes.Node_Name (R)) = "element" then
             --  Skip enclosing element
@@ -1532,6 +1532,8 @@ package body SOAP.WSDL.Parser is
                N := XML.Next_Sibling (N);
             end loop;
          end if;
+
+         O.Enclosing_Types.Exclude (Name);
 
          return P;
       end;
