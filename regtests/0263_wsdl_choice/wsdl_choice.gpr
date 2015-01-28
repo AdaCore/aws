@@ -1,3 +1,0 @@
-with "aws";
-project WSDL_Choice is
-end WSDL_Choice;

@@ -777,6 +777,9 @@ It is hard to know all current limitations as the `WSDL` and
 * Only the RPC/Encoded SOAP messages' style is supported (the
   Document/Literal is not)
 
+* complexType with xs:choice are only supported with a single occurence
+  of each choice.
+
 .. _Using_ada2wsdl_and_wsdl2aws_together:
 
 Using ada2wsdl and wsdl2aws together

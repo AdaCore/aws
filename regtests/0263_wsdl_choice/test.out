@@ -10,4 +10,4 @@ Procedure Try SOAPAction:Try
       [simple] Param2 ; Integer
    Output
    > Try
-OK
+Run OK
