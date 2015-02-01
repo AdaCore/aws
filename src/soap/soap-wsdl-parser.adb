@@ -718,6 +718,7 @@ package body SOAP.WSDL.Parser is
 
          if Utils.No_NS (DOM.Core.Nodes.Node_Name (L)) = "all"
            or else Utils.No_NS (DOM.Core.Nodes.Node_Name (L)) = "sequence"
+           or else Utils.No_NS (DOM.Core.Nodes.Node_Name (L)) = "choice"
          then
             L := XML.First_Child (L);
 
@@ -1455,9 +1456,8 @@ package body SOAP.WSDL.Parser is
          P.Name      := O.Current_Name;
          P.Typ       := Types.Create (Name, Get_Target_Name_Space (R));
 
-         D.Ref  := Types.Create (Name, Types.NS (P.Typ));
-
-         Types.Register (D);
+         D.Ref       := Types.Create (Name, Types.NS (P.Typ));
+         D.Is_Choice := False;
 
          O.Self.Enclosing_Types.Include (Name);
 
@@ -1472,9 +1472,19 @@ package body SOAP.WSDL.Parser is
 
          if N /= null then
             N := XML.First_Child (N);
+
+            if N /= null
+              and then Utils.No_NS (DOM.Core.Nodes.Node_Name (N)) = "choice"
+            then
+               D.Is_Choice := True;
+               N := XML.First_Child (N);
+               Skip_Annotation (N);
+            end if;
          end if;
 
          Skip_Annotation (N);
+
+         Types.Register (D);
 
          --  Check for empty complexType
 
@@ -1536,7 +1546,14 @@ package body SOAP.WSDL.Parser is
                end if;
             end if;
 
-            N := XML.First_Child (N);
+            --  Got to the first element node
+
+            while N /= null
+              and then
+                Utils.No_NS (DOM.Core.Nodes.Node_Name (N)) /= "element"
+            loop
+               N := XML.First_Child (N);
+            end loop;
 
             while N /= null loop
                Parameters.Append (P.P, Parse_Parameter (O, N, Document));

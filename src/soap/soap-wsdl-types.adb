@@ -104,10 +104,11 @@ package body SOAP.WSDL.Types is
    -- Image --
    -----------
 
-   function Image (K : Kind) return String is
+   function Image (Def : Definition) return String is
    begin
-      return (case K is
-                 when K_Record      => "record",
+      return (case Def.Mode is
+                 when K_Record      =>
+                    "record" & (if Def.Is_Choice then ":choice" else ""),
                  when K_Array       => "array",
                  when K_Derived     => "derived",
                  when K_Enumeration => "enumeration",

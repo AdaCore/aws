@@ -757,7 +757,9 @@ package body SOAP.Generator is
         (Name   : String;
          P      : WSDL.Parameters.P_Set;
          Output : Boolean               := False);
-      --  Output record definitions (type and routine conversion)
+      --  Output record definitions (type and routine conversion). Note that
+      --  this routine also handles choice records. The current implementation
+      --  only handles single occurence of a choice.
 
       function Type_Name (N : WSDL.Parameters.P_Set) return String;
       --  Returns the name of the type for parameter on node N
@@ -1179,7 +1181,7 @@ package body SOAP.Generator is
          P_Name  : constant String := WSDL.Types.Name (Def.Parent);
          B_Name  : constant String :=
                      (if WSDL.Is_Standard (P_Name)
-                      then WSDL.To_Ada (WSDL.To_Type (P_Name))
+                      then WSDL.To_Ada (WSDL.To_Type (P_Name), WSDL.Component)
                       else P_Name & "_Type");
          Prefix  : Unbounded_String;
          Der_Ads : Text_IO.File_Type;
@@ -1661,17 +1663,47 @@ package body SOAP.Generator is
       is
          use type SOAP.Name_Space.Object;
 
-         F_Name  : constant String := Format_Name (O, Name);
+         procedure End_Result;
+         --  End the Result definition in To_SOAP_Object code
+
+         F_Name    : constant String := Format_Name (O, Name);
+         Def       : constant WSDL.Types.Definition := WSDL.Types.Find (P.Typ);
+         Is_Choice : constant Boolean :=
+                       Def.Mode = WSDL.Types.K_Record and then Def.Is_Choice;
 
          R       : WSDL.Parameters.P_Set;
          N       : WSDL.Parameters.P_Set;
 
          Max     : Positive;
+         Count   : Natural := 0;
 
          Prefix  : Unbounded_String;
 
          Rec_Ads : Text_IO.File_Type;
          Rec_Adb : Text_IO.File_Type;
+
+         ----------------
+         -- End_Result --
+         ----------------
+
+         procedure End_Result is
+         begin
+            if P.Mode = WSDL.Types.K_Simple then
+               --  This is an unnamed record (output described as a set
+               --  of part).
+
+               Text_IO.Put_Line (Rec_Adb, "         Name);");
+
+            elsif P.Mode in WSDL.Types.Compound_Type then
+               Text_IO.Put_Line
+                 (Rec_Adb,
+                  "         Name, """ & WSDL.Types.Name (P.Typ) & """);");
+
+            else
+               Text_IO.Put_Line
+                 (Rec_Adb, "         Name, """ & Name & """);");
+            end if;
+         end End_Result;
 
       begin
          Initialize_Types_Package
@@ -1692,13 +1724,14 @@ package body SOAP.Generator is
 
          if Types_Spec (O) = "" then
 
-            --  Compute max field width
+            --  Compute max field width, compute also the number of fields
 
             N := R;
 
             Max := 1;
 
             while N /= null loop
+               Count := Count + 1;
                Max := Positive'Max
                  (Max, Format_Name (O, To_String (N.Name))'Length);
                N := N.Next;
@@ -1715,10 +1748,44 @@ package body SOAP.Generator is
                  (Rec_Ads, "   type " & F_Name & " is null record;");
 
             else
-               Text_IO.Put_Line
-                 (Rec_Ads, "   type " & F_Name & " is record");
+               if Is_Choice then
+                  Text_IO.Put
+                    (Rec_Ads, "   type Choice is (");
+
+                  for K in 1 .. Count loop
+                     Text_IO.Put (Rec_Ads, "C" & AWS.Utils.Image (K));
+                     if K < Count then
+                        Text_IO.Put (Rec_Ads, ", ");
+                     end if;
+                  end loop;
+
+                  Text_IO.Put_Line (Rec_Ads, ");");
+                  Text_IO.New_Line (Rec_Ads);
+
+                  Text_IO.Put_Line
+                    (Rec_Ads,
+                     "   type " & F_Name & " (C : Choice := C1) is record");
+                  Text_IO.Put_Line
+                    (Rec_Ads,
+                     "      case C is");
+
+               else
+                  Text_IO.Put_Line
+                    (Rec_Ads, "   type " & F_Name & " is record");
+               end if;
+
+               Count := 0;
 
                while N /= null loop
+                  Count := Count + 1;
+
+                  if Is_Choice then
+                     Text_IO.Put_Line
+                       (Rec_Ads,
+                        "         when C" & AWS.Utils.Image (Count) & " =>");
+                     Text_IO.Put (Rec_Ads, "      ");
+                  end if;
+
                   declare
                      F_Name : constant String :=
                                 Format_Name (O, To_String (N.Name));
@@ -1741,6 +1808,10 @@ package body SOAP.Generator is
 
                   N := N.Next;
                end loop;
+
+               if Is_Choice then
+                  Text_IO.Put_Line (Rec_Ads, "      end case;");
+               end if;
 
                Text_IO.Put_Line
                  (Rec_Ads, "   end record;");
@@ -1813,23 +1884,115 @@ package body SOAP.Generator is
             "      R : constant SOAP.Types.SOAP_Record "
               & ":= SOAP.Types.SOAP_Record (O);");
 
-         --  Declare all record's fields
+         if Is_Choice and then R /= null then
+            --  Generate C_Name helper routine
 
-         N := R;
-
-         while N /= null loop
+            Text_IO.New_Line (Rec_Adb);
             Text_IO.Put_Line
               (Rec_Adb,
-               "      " & Format_Name (O, To_String (N.Name))
-               & " : constant SOAP.Types.Object'Class"
-               & " := SOAP.Types.V (R, """
-               & To_String (N.Name) & """);");
+               "      function C_Name return String is");
+            Text_IO.Put
+              (Rec_Adb,
+               "        (");
 
-            N := N.Next;
-         end loop;
+            N := R;
+
+            while N /= null loop
+               if N = R then
+                  Text_IO.Put (Rec_Adb, "if");
+               elsif N.Next = null then
+                  Text_IO.Put (Rec_Adb, "         else --");
+               else
+                  Text_IO.Put (Rec_Adb, "         elsif");
+               end if;
+
+               Text_IO.Put_Line
+                 (Rec_Adb,
+                  " SOAP.Types.Exists (R, """
+                  & Format_Name (O, To_String (N.Name)) & """) then");
+               Text_IO.Put
+                 (Rec_Adb,
+                  "           """
+                  & Format_Name (O, To_String (N.Name)) & """");
+               N := N.Next;
+
+               if N = null then
+                  Text_IO.Put_Line (Rec_Adb, ");");
+               else
+                  Text_IO.New_Line (Rec_Adb);
+               end if;
+            end loop;
+
+            --  Generate C_Disc helper routine
+
+            Text_IO.New_Line (Rec_Adb);
+            Text_IO.Put_Line
+              (Rec_Adb,
+               "      function C_Disc return Choice is");
+            Text_IO.Put
+              (Rec_Adb,
+               "        (");
+
+            N := R;
+
+            Count := 0;
+
+            while N /= null loop
+               Count := Count + 1;
+               if N = R then
+                  Text_IO.Put (Rec_Adb, "if");
+               elsif N.Next = null then
+                  Text_IO.Put (Rec_Adb, "         else --");
+               else
+                  Text_IO.Put (Rec_Adb, "         elsif");
+               end if;
+
+               Text_IO.Put_Line
+                 (Rec_Adb,
+                  " SOAP.Types.Exists (R, """
+                  & Format_Name (O, To_String (N.Name)) & """) then");
+               Text_IO.Put
+                 (Rec_Adb,
+                  "           C" & AWS.Utils.Image (Count));
+               N := N.Next;
+
+               if N = null then
+                  Text_IO.Put_Line (Rec_Adb, ");");
+               else
+                  Text_IO.New_Line (Rec_Adb);
+               end if;
+            end loop;
+
+            Text_IO.New_Line (Rec_Adb);
+            Text_IO.Put_Line
+              (Rec_Adb,
+               "      E : constant SOAP.Types.Object'Class "
+               & ":= SOAP.Types.V (R, C_Name);");
+
+         else
+            --  Declare all record's fields
+
+            N := R;
+
+            while N /= null loop
+               Text_IO.Put_Line
+                 (Rec_Adb,
+                  "      " & Format_Name (O, To_String (N.Name))
+                  & " : constant SOAP.Types.Object'Class"
+                  & " := SOAP.Types.V (R, """
+                  & To_String (N.Name) & """);");
+
+               N := N.Next;
+            end loop;
+         end if;
 
          Text_IO.Put_Line (Rec_Adb, "   begin");
-         Text_IO.Put      (Rec_Adb, "      return (");
+
+         if Is_Choice and then R /= null then
+            Text_IO.Put_Line (Rec_Adb, "      case C_Disc is");
+         else
+            Text_IO.Put (Rec_Adb, "      return (");
+         end if;
 
          --  Aggregate to build the record object
 
@@ -1839,50 +2002,53 @@ package body SOAP.Generator is
             --  An empty record
             Text_IO.Put_Line (Rec_Adb, "null record);");
 
-         elsif N.Next = null then
+         elsif not Is_Choice and then N.Next = null then
             --  We have a single element into this record, we must use a named
             --  notation for the aggregate.
             Text_IO.Put
               (Rec_Adb, Format_Name (O, To_String (N.Name)) & " => ");
          end if;
 
-         while N /= null loop
+         Count := 0;
 
-            if N /= R then
+         while N /= null loop
+            Count := Count + 1;
+
+            if Is_Choice then
+               Text_IO.Put_Line
+                 (Rec_Adb,
+                  "         when C" & AWS.Utils.Image (Count) & " =>");
+               Text_IO.Put
+                 (Rec_Adb,
+                  "            return (C" & AWS.Utils.Image (Count) & ", ");
+
+            elsif N /= R then
                Text_IO.Put      (Rec_Adb, "              ");
             end if;
 
             declare
-               Def : constant WSDL.Types.Definition := WSDL.Types.Find (N.Typ);
+               Def  : constant WSDL.Types.Definition :=
+                        WSDL.Types.Find (N.Typ);
+               Name : constant String :=
+                        (if Is_Choice
+                         then "E"
+                         else Format_Name (O, To_String (N.Name)));
             begin
                case N.Mode is
-                  when WSDL.Types.K_Simple =>
+                  when WSDL.Types.K_Simple
+                     | WSDL.Types.K_Derived
+                     | WSDL.Types.K_Enumeration
+                     =>
                      Text_IO.Put
                        (Rec_Adb,
-                        WSDL.Parameters.From_SOAP
-                          (N.all,
-                           Object => Format_Name (O, To_String (N.Name))));
-
-                  when WSDL.Types.K_Derived =>
-                     Text_IO.Put
-                       (Rec_Adb,
-                        WSDL.Parameters.From_SOAP
-                          (N.all,
-                           Object => Format_Name (O, To_String (N.Name))));
-
-                  when WSDL.Types.K_Enumeration =>
-                     Text_IO.Put
-                       (Rec_Adb,
-                        WSDL.Parameters.From_SOAP
-                          (N.all,
-                           Object => Format_Name (O, To_String (N.Name))));
+                        WSDL.Parameters.From_SOAP (N.all, Object => Name));
 
                   when WSDL.Types.K_Array =>
                      Text_IO.Put
                        (Rec_Adb,
                         WSDL.Parameters.From_SOAP
                           (N.all,
-                           Object    => Format_Name (O, To_String (N.Name)),
+                           Object    => Name,
                            Type_Name =>
                               Format_Name (O, WSDL.Types.Name (Def.Ref))));
 
@@ -1891,12 +2057,12 @@ package body SOAP.Generator is
                        (Rec_Adb,
                         WSDL.Parameters.From_SOAP
                           (N.all,
-                           Object    => Format_Name (O, To_String (N.Name)),
+                           Object    => Name,
                            Type_Name => Format_Name (O, Type_Name (N))));
                end case;
             end;
 
-            if N.Next = null then
+            if Is_Choice or else N.Next = null then
                Text_IO.Put_Line (Rec_Adb, ");");
             else
                Text_IO.Put_Line (Rec_Adb, ",");
@@ -1904,6 +2070,10 @@ package body SOAP.Generator is
 
             N := N.Next;
          end loop;
+
+         if Is_Choice and then R /= null then
+            Text_IO.Put_Line (Rec_Adb, "      end case;");
+         end if;
 
          --  Generate exception handler
 
@@ -1920,10 +2090,18 @@ package body SOAP.Generator is
 
                procedure Emit_Check (F_Name, I_Type : String) is
                begin
-                  Text_IO.Put_Line
-                    (Rec_Adb,
-                     "         if " & F_Name & "'Tag /= "
-                     & I_Type & "'Tag then");
+                  if Is_Choice then
+                     Text_IO.Put_Line
+                       (Rec_Adb,
+                        "         if C_Disc = C" & AWS.Utils.Image (Count)
+                        & " and then E'Tag /= "
+                        & I_Type & "'Tag then");
+                  else
+                     Text_IO.Put_Line
+                       (Rec_Adb,
+                        "         if " & F_Name & "'Tag /= "
+                        & I_Type & "'Tag then");
+                  end if;
                   Text_IO.Put_Line
                     (Rec_Adb, "            raise SOAP.SOAP_Error");
                   Text_IO.Put_Line
@@ -1932,9 +2110,17 @@ package body SOAP.Generator is
                     (Rec_Adb, "                  & ""."
                      & F_Name & " expected "
                      & I_Type & ", """);
-                  Text_IO.Put_Line
-                    (Rec_Adb, "                  & ""found "" & External_Tag ("
-                     & F_Name & "'Tag);");
+                  if Is_Choice then
+                     Text_IO.Put_Line
+                       (Rec_Adb,
+                        "                  & ""found "" & External_Tag ("
+                        & "E'Tag);");
+                  else
+                     Text_IO.Put_Line
+                       (Rec_Adb,
+                        "                  & ""found "" & External_Tag ("
+                        & F_Name & "'Tag);");
+                  end if;
                   Text_IO.Put_Line
                     (Rec_Adb, "         end if;");
                end Emit_Check;
@@ -1943,7 +2129,10 @@ package body SOAP.Generator is
                Text_IO.Put_Line (Rec_Adb, "   exception");
                Text_IO.Put_Line (Rec_Adb, "      when Constraint_Error =>");
 
+               Count := 0;
+
                while N /= null loop
+                  Count := Count + 1;
                   declare
                      Def    : constant WSDL.Types.Definition :=
                                 WSDL.Types.Find (N.Typ);
@@ -2007,26 +2196,44 @@ package body SOAP.Generator is
 
          N := R;
 
-         Text_IO.Put_Line (Rec_Adb, "      Result := SOAP.Types.R");
+         if Is_Choice and then N /= null then
+            Text_IO.Put_Line (Rec_Adb, "      case R.C is");
+         else
+            Text_IO.Put_Line (Rec_Adb, "      Result := SOAP.Types.R");
+         end if;
 
          if N = null then
             Text_IO.Put_Line
               (Rec_Adb, "        (SOAP.Types.Empty_Object_Set,");
 
          else
-            while N /= null loop
+            Count := 0;
 
-               if N = R then
-                  if R.Next = null then
-                     --  We have a single element into this record, we must use
-                     --  a named notation for the aggregate.
-                     Text_IO.Put (Rec_Adb, "        ((1 => +");
-                  else
-                     Text_IO.Put (Rec_Adb, "        ((+");
-                  end if;
+            while N /= null loop
+               Count := Count + 1;
+
+               if Is_Choice then
+                  Text_IO.Put_Line
+                    (Rec_Adb,
+                     "         when C" & AWS.Utils.Image (Count) & " =>");
+                  Text_IO.Put_Line
+                    (Rec_Adb, "            Result := SOAP.Types.R");
+                  Text_IO.Put
+                    (Rec_Adb, "              ((1 => +");
 
                else
-                  Text_IO.Put      (Rec_Adb, "          +");
+                  if N = R then
+                     if R.Next = null or else Is_Choice then
+                        --  We have a single element into this record, we must
+                        --  use a named notation for the aggregate.
+                        Text_IO.Put (Rec_Adb, "        ((1 => +");
+                     else
+                        Text_IO.Put (Rec_Adb, "        ((+");
+                     end if;
+
+                  else
+                     Text_IO.Put      (Rec_Adb, "          +");
+                  end if;
                end if;
 
                declare
@@ -2073,8 +2280,15 @@ package body SOAP.Generator is
                   end case;
                end;
 
-               if N.Next = null then
+               if N.Next = null or else Is_Choice then
                   Text_IO.Put_Line (Rec_Adb, "),");
+
+                  if Is_Choice then
+                     Text_IO.Put (Rec_Adb, "      ");
+                  end if;
+
+                  End_Result;
+
                else
                   Text_IO.Put_Line (Rec_Adb, ",");
                end if;
@@ -2083,20 +2297,10 @@ package body SOAP.Generator is
             end loop;
          end if;
 
-         if P.Mode = WSDL.Types.K_Simple then
-            --  This is an unnamed record (output described as a set of part)
-
-            Text_IO.Put_Line (Rec_Adb, "         Name);");
-
-         elsif P.Mode in WSDL.Types.Compound_Type then
-            Text_IO.Put_Line
-              (Rec_Adb,
-               "         Name, """ & WSDL.Types.Name (P.Typ) & """);");
-
-         else
-            Text_IO.Put_Line
-              (Rec_Adb,
-               "         Name, """ & Name & """);");
+         if R = null then
+            End_Result;
+         elsif Is_Choice then
+            Text_IO.Put_Line (Rec_Adb, "      end case;");
          end if;
 
          if WSDL.Types.NS (P.Typ) /= Name_Space.No_Name_Space then

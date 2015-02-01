@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2001-2014, AdaCore                     --
+--                     Copyright (C) 2001-2015, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -324,6 +324,9 @@ package SOAP.Types is
 
    function V (O : SOAP_Record; Name : String) return Object'Class;
    --  Returns SOAP_Record field named Name
+
+   function Exists (O : SOAP_Record; Field_Name : String) return Boolean;
+   --  Returns True if the record O constains Field_Name
 
    -----------
    -- Short --
