@@ -202,6 +202,9 @@ package body SOAP.WSDL.Parser is
       Document  : WSDL.Object) return Boolean;
    --  Returns True if Type_Name corresponds to a character type
 
+   procedure Skip_Annotation (N : in out DOM.Core.Node);
+   --  Skip annotation node
+
    -----------
    -- Debug --
    -----------
@@ -259,10 +262,10 @@ package body SOAP.WSDL.Parser is
    -------------
 
    procedure Exclude (O : in out Object; Operation : String) is
-      Pos     : Exclude_Set.Cursor;
+      Pos     : Name_Set.Cursor;
       Success : Boolean;
    begin
-      Exclude_Set.Insert (O.Exclude, Operation, Pos, Success);
+      O.Exclude.Insert (Operation, Pos, Success);
    end Exclude;
 
    ------------------------
@@ -490,6 +493,8 @@ package body SOAP.WSDL.Parser is
       if Utils.No_NS (DOM.Core.Nodes.Node_Name (L)) = "complexType" then
          L := XML.First_Child (L);
 
+         Skip_Annotation (L);
+
          if L /= null
            and then
              Utils.No_NS (DOM.Core.Nodes.Node_Name (L)) = "complexContent"
@@ -680,6 +685,8 @@ package body SOAP.WSDL.Parser is
 
       if Utils.No_NS (DOM.Core.Nodes.Node_Name (L)) = "complexType" then
          L := XML.First_Child (L);
+
+         Skip_Annotation (L);
 
          --  Empty complexType
 
@@ -957,8 +964,8 @@ package body SOAP.WSDL.Parser is
                S : constant DOM.Core.Node := DOM.Core.Nodes.Item (NL, K);
             begin
                if Utils.No_NS (DOM.Core.Nodes.Node_Name (S)) = "operation"
-                 and then not Exclude_Set.Contains
-                   (O.Exclude, XML.Get_Attr_Value (S, "name"))
+                 and then not O.Exclude.Contains
+                   (XML.Get_Attr_Value (S, "name"))
                then
                   begin
                      Parse_Operation
@@ -1222,7 +1229,7 @@ package body SOAP.WSDL.Parser is
          raise WSDL_Error with "Type anyType is not supported.";
 
       else
-         if Utils.No_NS (P_Type) = To_String (O.Enclosing_Type) then
+         if O.Enclosing_Types.Contains (Utils.No_NS (P_Type)) then
             raise WSDL_Error with
               "Recursive WSDL definition " & P_Type & " is not supported.";
          end if;
@@ -1452,7 +1459,7 @@ package body SOAP.WSDL.Parser is
 
          Types.Register (D);
 
-         O.Self.Enclosing_Type := +Name;
+         O.Self.Enclosing_Types.Include (Name);
 
          if Utils.No_NS (DOM.Core.Nodes.Node_Name (R)) = "element" then
             --  Skip enclosing element
@@ -1463,7 +1470,11 @@ package body SOAP.WSDL.Parser is
 
          --  Enter complexType element
 
-         N := XML.First_Child (N);
+         if N /= null then
+            N := XML.First_Child (N);
+         end if;
+
+         Skip_Annotation (N);
 
          --  Check for empty complexType
 
@@ -1532,6 +1543,8 @@ package body SOAP.WSDL.Parser is
                N := XML.Next_Sibling (N);
             end loop;
          end if;
+
+         O.Enclosing_Types.Exclude (Name);
 
          return P;
       end;
@@ -1777,6 +1790,8 @@ package body SOAP.WSDL.Parser is
 
       N := XML.First_Child (R);
 
+      Skip_Annotation (N);
+
       Base := +XML.Get_Attr_Value (N, "base", True);
 
       --  Check if this is an enumeration
@@ -1844,6 +1859,19 @@ package body SOAP.WSDL.Parser is
          end;
       end loop;
    end Register_Name_Spaces;
+
+   ---------------------
+   -- Skip_Annotation --
+   ---------------------
+
+   procedure Skip_Annotation (N : in out DOM.Core.Node) is
+   begin
+      if N /= null
+        and then Utils.No_NS (DOM.Core.Nodes.Node_Name (N)) = "annotation"
+      then
+         N := XML.Next_Sibling (N);
+      end if;
+   end Skip_Annotation;
 
    -----------
    -- Trace --

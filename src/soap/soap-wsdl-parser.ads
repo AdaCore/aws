@@ -98,7 +98,7 @@ private
    use Ada;
    use Ada.Strings.Unbounded;
 
-   package Exclude_Set is new Containers.Indefinite_Ordered_Sets (String);
+   package Name_Set is new Containers.Indefinite_Ordered_Sets (String);
 
    type Parameter_Mode is (Input, Output, Fault);
    --  Current parameter parsing mode
@@ -115,11 +115,11 @@ private
       Mode            : Parameter_Mode;   -- Current parameter parsing mode
       Params          : All_Parameters;   -- All parameters
       Current_Name    : Unbounded_String; -- Current parameter name
-      Enclosing_Type  : Unbounded_String; -- The enclosing entity type
+      Enclosing_Types : Name_Set.Set;     -- The enclosing entity type
       Array_Elements  : Unbounded_String; -- Type of the array's elements
       Array_Length    : Natural;          -- Number of items (0 = unbounded)
       Accept_Document : Boolean := False;
-      Exclude         : Exclude_Set.Set;  -- Operation to exclude from gen
+      Exclude         : Name_Set.Set;     -- Operation to exclude from gen
       No_Param        : Boolean := False; -- Disable param generation
    end record;
 
