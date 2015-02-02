@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2000-2014, AdaCore                     --
+--                     Copyright (C) 2000-2015, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -1796,15 +1796,21 @@ package body AWS.Net.SSL is
          procedure Set_Priorities;
 
          Methods : constant array (Method) of Meth_Func :=
-                     (SSLv23        => TSSL.SSLv23_method'Access,
-                      SSLv23_Server => TSSL.SSLv23_server_method'Access,
-                      SSLv23_Client => TSSL.SSLv23_client_method'Access,
-                      TLSv1         => TSSL.TLSv1_method'Access,
-                      TLSv1_Server  => TSSL.TLSv1_server_method'Access,
-                      TLSv1_Client  => TSSL.TLSv1_client_method'Access,
-                      SSLv3         => TSSL.SSLv3_method'Access,
-                      SSLv3_Server  => TSSL.SSLv3_server_method'Access,
-                      SSLv3_Client  => TSSL.SSLv3_client_method'Access);
+                     (SSLv23         => TSSL.SSLv23_method'Access,
+                      SSLv23_Server  => TSSL.SSLv23_server_method'Access,
+                      SSLv23_Client  => TSSL.SSLv23_client_method'Access,
+                      TLSv1          => TSSL.TLSv1_method'Access,
+                      TLSv1_Server   => TSSL.TLSv1_server_method'Access,
+                      TLSv1_Client   => TSSL.TLSv1_client_method'Access,
+                      TLSv1_1        => TSSL.TLSv1_1_method'Access,
+                      TLSv1_1_Server => TSSL.TLSv1_1_server_method'Access,
+                      TLSv1_1_Client => TSSL.TLSv1_1_client_method'Access,
+                      TLSv1_2        => TSSL.TLSv1_2_method'Access,
+                      TLSv1_2_Server => TSSL.TLSv1_2_server_method'Access,
+                      TLSv1_2_Client => TSSL.TLSv1_2_client_method'Access,
+                      SSLv3          => TSSL.SSLv3_method'Access,
+                      SSLv3_Server   => TSSL.SSLv3_server_method'Access,
+                      SSLv3_Client   => TSSL.SSLv3_client_method'Access);
 
          ---------------------
          -- Set_Certificate --

@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2002-2014, AdaCore                     --
+--                     Copyright (C) 2002-2015, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -111,9 +111,11 @@ package AWS.Net.SSL is
    --------------------
 
    type Method is
-     (SSLv23, SSLv23_Server, SSLv23_Client,
-      TLSv1,  TLSv1_Server,  TLSv1_Client,
-      SSLv3,  SSLv3_Server,  SSLv3_Client);
+     (SSLv23,   SSLv23_Server,   SSLv23_Client,  -- Highest available SSL/TLS
+      TLSv1,    TLSv1_Server,    TLSv1_Client,   -- TLS 1.0
+      TLSv1_1,  TLSv1_1_Server,  TLSv1_1_Client, -- TLS 1.1
+      TLSv1_2,  TLSv1_2_Server,  TLSv1_2_Client, -- TLS 1.2
+      SSLv3,    SSLv3_Server,    SSLv3_Client);  -- SSLv3
 
    type Config is private;
 

@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                            Secure Sockets Layer                          --
 --                                                                          --
---                     Copyright (C) 2000-2014, AdaCore                     --
+--                     Copyright (C) 2000-2015, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -749,6 +749,24 @@ package SSL.Thin is
 
    function TLSv1_client_method  return SSL_Method
      with Import, Convention => C, External_Name => "TLSv1_client_method";
+
+   function TLSv1_1_method         return SSL_Method
+     with Import, Convention => C, External_Name => "TLSv1_1_method";
+
+   function TLSv1_1_server_method  return SSL_Method
+     with Import, Convention => C, External_Name => "TLSv1_1_server_method";
+
+   function TLSv1_1_client_method  return SSL_Method
+     with Import, Convention => C, External_Name => "TLSv1_1_client_method";
+
+   function TLSv1_2_method         return SSL_Method
+     with Import, Convention => C, External_Name => "TLSv1_2_method";
+
+   function TLSv1_2_server_method  return SSL_Method
+     with Import, Convention => C, External_Name => "TLSv1_2_server_method";
+
+   function TLSv1_2_client_method  return SSL_Method
+     with Import, Convention => C, External_Name => "TLSv1_2_client_method";
 
    function SSL_CTX_new (Meth : SSL_Method) return SSL_CTX
      with Import, Convention => C, External_Name => "SSL_CTX_new";

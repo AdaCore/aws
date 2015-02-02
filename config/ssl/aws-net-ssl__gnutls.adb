@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2006-2014, AdaCore                     --
+--                     Copyright (C) 2006-2015, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -1150,9 +1150,13 @@ package body AWS.Net.SSL is
 
       if (Security_Mode = SSLv23
           or else Security_Mode = TLSv1
+          or else Security_Mode = TLSv1_1
+          or else Security_Mode = TLSv1_2
           or else Security_Mode = SSLv3
           or else Security_Mode = SSLv23_Server
           or else Security_Mode = TLSv1_Server
+          or else Security_Mode = TLSv1_1_Server
+          or else Security_Mode = TLSv1_2_Server
           or else Security_Mode = SSLv3_Server)
         and then Config.ASC = null
         and then Config.CSC = null
@@ -1190,9 +1194,13 @@ package body AWS.Net.SSL is
 
       if (Security_Mode = SSLv23
           or else Security_Mode = TLSv1
+          or else Security_Mode = TLSv1_1
+          or else Security_Mode = TLSv1_2
           or else Security_Mode = SSLv3
           or else Security_Mode = SSLv23_Client
           or else Security_Mode = TLSv1_Client
+          or else Security_Mode = TLSv1_1_Client
+          or else Security_Mode = TLSv1_2_Client
           or else Security_Mode = SSLv3_Client)
         and then Config.ACC = null
         and then Config.CCC = null
