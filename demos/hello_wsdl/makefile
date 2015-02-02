@@ -1,7 +1,7 @@
 ############################################################################
 #                              Ada Web Server                              #
 #                                                                          #
-#                     Copyright (C) 2010-2012, AdaCore                     #
+#                     Copyright (C) 2010-2015, AdaCore                     #
 #                                                                          #
 #  This is free software;  you can redistribute it  and/or modify it       #
 #  under terms of the  GNU General Public License as published  by the     #
@@ -20,7 +20,7 @@
 
 ifneq (${XMLADA},false)
 all: build_wsdl
-	gnat make -P hello_wsdl
+	gprbuild hello_wsdl.gpr
 else
 all:
 endif
@@ -30,5 +30,5 @@ build_wsdl:
 	wsdl2aws -q -f -doc -timeouts 1,2,2 hello.wsdl
 
 clean:
-	gnat clean -P hello_wsdl
+	gprclean hello_wsdl.gpr
 	rm -f hello_demo*

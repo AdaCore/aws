@@ -1,7 +1,7 @@
 ############################################################################
 #                              Ada Web Server                              #
 #                                                                          #
-#                     Copyright (C) 2010-2012, AdaCore                     #
+#                     Copyright (C) 2010-2015, AdaCore                     #
 #                                                                          #
 #  This is free software;  you can redistribute it  and/or modify it       #
 #  under terms of the  GNU General Public License as published  by the     #
@@ -20,8 +20,8 @@
 
 all:
 ifneq (${SOCKET},std)
-	gnat make -P agent
+	gprbuild agent.gpr
 endif
 
 clean:
-	gnat clean -P agent
+	gprclean agent.gpr

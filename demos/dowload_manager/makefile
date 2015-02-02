@@ -1,7 +1,7 @@
 ############################################################################
 #                              Ada Web Server                              #
 #                                                                          #
-#                     Copyright (C) 2011-2012, AdaCore                     #
+#                     Copyright (C) 2011-2015, AdaCore                     #
 #                                                                          #
 #  This is free software;  you can redistribute it  and/or modify it       #
 #  under terms of the  GNU General Public License as published  by the     #
@@ -17,7 +17,7 @@
 ############################################################################
 
 all:
-	gnat make -P download_manager
+	gprbuild download_manager.gpr
 
 clean:
-	gnat clean -P download_manager
+	gprclean download_manager.gpr

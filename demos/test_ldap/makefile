@@ -1,7 +1,7 @@
 ############################################################################
 #                              Ada Web Server                              #
 #                                                                          #
-#                     Copyright (C) 2010-2012, AdaCore                     #
+#                     Copyright (C) 2010-2015, AdaCore                     #
 #                                                                          #
 #  This is free software;  you can redistribute it  and/or modify it       #
 #  under terms of the  GNU General Public License as published  by the     #
@@ -20,10 +20,10 @@
 
 ifneq (${LDAP},false)
 all:
-	gnat make -P test_ldap
+	gprbuild test_ldap.gpr
 else
 all:
 endif
 
 clean:
-	gnat clean -P test_ldap
+	gprclean test_ldap.gpr
