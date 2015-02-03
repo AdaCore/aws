@@ -39,8 +39,8 @@ build `AWS` you need:
   .. index:: GNUTLS
 
   GNUTLS is an Open Source toolkit implementing the *Secure Sockets Layer*
-  (SSL v2 and v3 and TLS 1.1, 1.2) and much more. It is necessary to
-  install the developers libraries to use it in AWS.
+  (SSL v3 and TLS 1.1, 1.2) and much more. It is necessary to install
+  the developers libraries to use it in AWS.
 
 * OpenLDAP (**optional**) ;
 
