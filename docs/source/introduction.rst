@@ -26,8 +26,8 @@ to distribute when the project gets bigger. We will also see that it is
 easier with `AWS` to deal with session data.
 
 `AWS` support also `HTTPS` (secure `HTTP`) using
-`SSL`. This is based on `OpenSSL` a very good and Open Source SSL
-implementation.
+`SSL`. This is based on either `OpenSSL` or `GNUTLS` two Open Source SSL
+implementations.
 
 Major supported features are:
 
@@ -60,5 +60,3 @@ Major supported features are:
 * Complete client API, including HTTPS
 
 * Web server activity log
-
-

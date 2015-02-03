@@ -29,9 +29,18 @@ build `AWS` you need:
   .. index:: OpenSSL
 
   OpenSSL is an Open Source toolkit implementing the *Secure Sockets Layer*
-  (SSL v2 and v3) and much more. It is possible to download the OpenSSL source
-  distribution from `http://www.openssl.org <http://www.openssl.org>` and
-  build it. A Windows binary distribution may also be downloaded there.
+  (SSL v2 and v3 and TLS 1.1, 1.2) and much more. It is possible to
+  download the OpenSSL source distribution from
+  `http://www.openssl.org <http://www.openssl.org>` and  build it. A
+  Windows binary distribution may also be downloaded there.
+
+* GNUTLS (**optional**) ;
+
+  .. index:: GNUTLS
+
+  GNUTLS is an Open Source toolkit implementing the *Secure Sockets Layer*
+  (SSL v2 and v3 and TLS 1.1, 1.2) and much more. It is necessary to
+  install the developers libraries to use it in AWS.
 
 * OpenLDAP (**optional**) ;
 
@@ -89,15 +98,23 @@ At this point you can build `AWS` with::
   $ make setup build
 
 Note that some demos require that `AWS` be built with `SSL`
-support. If you want to activate `SSL` on UNIX (in
-this case you must have :file:`libssl.a` and :file:`libcrypto.a`
-available on your platform), open :file:`makefile.conf` and set the
-`SOCKET` variable to `openssl`. Then rebuild with::
+support. If you want to activate `SSL` you must have installed the
+necessary developers libraries. It is possible to specify the `SSL`
+implementation to use with the `SOCKET` variable.
 
-  $ make setup build
+To build with `GNUTLS`::
 
-.. index:: libssl.a
-.. index:: libcrypto.a
+  $ make SOCKET=gnutls setup
+  $ make build
+
+.. index:: GNUTLS build
+
+To build with `OpenSSL`::
+
+  $ make SOCKET=openssl setup
+  $ make build
+
+.. index:: OpenSSL build
 
 It is is possible to build `AWS` in debug mode by setting
 `DEBUG` make's variable in :file:`makefile.conf`, or just::

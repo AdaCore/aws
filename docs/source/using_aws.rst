@@ -201,7 +201,7 @@ The procedure `Start` takes many parameters:
     .. index:: Security
 
     If Security is set to True the server will use an HTTPS/SSL
-    connection. This part uses the `OpenSSL` library.
+    connection. This part uses the `OpenSSL` or `GNUTLS` library.
 
 **Session**
 
@@ -1999,8 +1999,8 @@ server.
 
 Before going further you must check that `AWS` has been
 configured with `SSL` support. See :ref:`Building`. You must also
-have installed the `OpenSSL` library on your system. If this is
-done, you can continue reading this section.
+have installed the `OpenSSL` or `GNUTLS` libraries on your system. If
+this is done, you can continue reading this section.
 
 .. _Initialization:
 
@@ -2014,10 +2014,10 @@ started. The only thing to do is to set the Start's Security parameter
 to True. This will start a server and activate the `SSL` layer by
 default. A secure server must use a valid certificate, the default one
 is |DEFAULT_CERTIFICATE|. This certificate has been
-created by the `OpenSSL` tool and is valid until year 2008. Yet, this
-certificate has not been signed. To build a secure server user's can
-rely on, you must have a valid certificate signed by one of the
-**Certificate Authorities**.
+created by the `OpenSSL` or `GNUTLS` tool and is valid until
+year 2008. Yet, this certificate has not been signed. To build a
+secure server user's can rely on, you must have a valid certificate
+signed by one of the **Certificate Authorities**.
 
 The certificate to be used must be specified before starting the
 secure server with `AWS.Server.Set_Security`:
@@ -2076,7 +2076,8 @@ Creating a server certificate
 
 The goal here is not to replace the `OpenSSL` documentation but
 just to present one way to create a self signed certificate for an
-`HTTPS` test server.
+`HTTPS` test server. Note that `GNUTLS` offers similar tools to
+generate certificates.
 
 *Generate a RSA key*::
 
