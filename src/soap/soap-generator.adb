@@ -39,6 +39,7 @@ with GNAT.Calendar.Time_IO;
 with AWS.Templates;
 with AWS.Utils;
 
+with SOAP.Types;
 with SOAP.Utils;
 with SOAP.WSDL.Types;
 
@@ -1198,8 +1199,188 @@ package body SOAP.Generator is
          --  Is types are to be reused from an Ada  spec ?
 
          if Types_Spec (O) = "" then
-            Text_IO.Put_Line
-              (Der_Ads, "   type " & F_Name & " is new " & B_Name & ";");
+            Text_IO.Put
+              (Der_Ads, "   type " & F_Name & " is new " & B_Name);
+
+            --  Generate constraints if any. We first get the root type to know
+            --  if the constraints are on integers, floats or strings.
+            --
+            --  * on integers and floats we generate a range:
+            --
+            --     range <lower> .. <upper>
+            --
+            --  where <lower> or <upper> could the base type 'First or 'Last.
+
+            declare
+               Root_Type   : constant WSDL.Parameter_Type :=
+                               WSDL.To_Type (WSDL.Types.Root_Type_For (Def));
+               Constraints : WSDL.Types.Constraints_Def;
+            begin
+               case Root_Type is
+                  when WSDL.P_Float =>
+                     declare
+                        Lower, Upper : Float;
+                        L_Set, U_Set : Boolean;
+                     begin
+                        Lower := Float'First;
+                        Upper := Float'Last;
+
+                        --  Get constraints from parent types. Note that we
+                        --  do not want the constraint of the first parent
+                        --  only, but the constraints from the whole derived
+                        --  hierarchy.
+
+                        WSDL.Types.Get_Constraints (Def, Constraints);
+
+                        --  Get constraints from the WSDL definition
+
+                        WSDL.Types.Get_Constraint_Float
+                          (Constraints, Lower, L_Set, Upper, U_Set);
+
+                        --  If constraints are found, write them
+
+                        if L_Set or U_Set then
+                           Text_IO.New_Line (Der_Ads);
+                           Text_IO.Put
+                             (Der_Ads,
+                              "     range"
+                              & (if not L_Set or else Lower < 0.0
+                                then " " else "")
+                              & (if L_Set
+                                then Float'Image (Lower)
+                                else " " & B_Name & "'First")
+                              & " .."
+                              & (if not U_Set or else Upper < 0.0
+                                then " " else "")
+                              & (if L_Set
+                                then Float'Image (Upper)
+                                else " " & B_Name & "'Last"));
+                        end if;
+                     end;
+
+                  when WSDL.P_Double =>
+                     declare
+                        Lower, Upper : Long_Float;
+                        L_Set, U_Set : Boolean;
+                     begin
+                        Lower := Long_Float'First;
+                        Upper := Long_Float'Last;
+
+                        --  Get constraints from parent types. Note that we
+                        --  do not want the constraint of the first parent
+                        --  only, but the constraints from the whole derived
+                        --  hierarchy.
+
+                        WSDL.Types.Get_Constraints (Def, Constraints);
+
+                        --  Get constraints from the WSDL definition
+
+                        WSDL.Types.Get_Constraint_Double
+                          (Constraints, Lower, L_Set, Upper, U_Set);
+
+                        --  If constraints are found, write them
+
+                        if L_Set or U_Set then
+                           Text_IO.New_Line (Der_Ads);
+                           Text_IO.Put
+                             (Der_Ads,
+                              "     range"
+                              & (if not L_Set or else Lower < 0.0
+                                then " " else "")
+                              & (if L_Set
+                                then Long_Float'Image (Lower)
+                                else B_Name & "'First")
+                              & " .."
+                              & (if not U_Set or else Upper < 0.0
+                                then " " else "")
+                              & (if U_Set
+                                then Long_Float'Image (Upper)
+                                else B_Name & "'Last"));
+                        end if;
+                     end;
+
+                  when WSDL.P_String | WSDL.P_Character =>
+                     null;
+
+                  when WSDL.P_Any_Type | WSDL.P_B64 =>
+                     null;
+
+                  when others =>
+                     declare
+                        Lower, Upper : Long_Long_Integer;
+                        L_Set, U_Set : Boolean;
+                     begin
+                        --  Set min/max depending on the type
+
+                        case Root_Type is
+                           when WSDL.P_Byte =>
+                              Lower := Long_Long_Integer (Types.Byte'First);
+                              Upper := Long_Long_Integer (Types.Byte'Last);
+
+                           when WSDL.P_Short =>
+                              Lower := Long_Long_Integer (Types.Short'First);
+                              Upper := Long_Long_Integer (Types.Short'Last);
+
+                           when WSDL.P_Integer =>
+                              Lower := Long_Long_Integer (Integer'First);
+                              Upper := Long_Long_Integer (Integer'Last);
+
+                           when WSDL.P_Long =>
+                              Lower := Long_Long_Integer (Types.Long'First);
+                              Upper := Long_Long_Integer (Types.Long'Last);
+
+                           when WSDL.P_Unsigned_Byte =>
+                              Lower := 0;
+                              Upper := Long_Long_Integer (Types.Byte'Last);
+
+                           when WSDL.P_Unsigned_Short =>
+                              Lower := 0;
+                              Upper := Long_Long_Integer (Types.Short'Last);
+
+                           when WSDL.P_Unsigned_Int =>
+                              Lower := 0;
+                              Upper := Long_Long_Integer (Integer'Last);
+
+                           when WSDL.P_Unsigned_Long =>
+                              Lower := 0;
+                              Upper := Long_Long_Integer (Types.Long'Last);
+
+                           when others =>
+                              null;
+                        end case;
+
+                        --  Get constraints from parent types. Note that we
+                        --  do not want the constraint of the first parent
+                        --  only, but the constraints from the whole derived
+                        --  hierarchy.
+
+                        WSDL.Types.Get_Constraints (Def, Constraints);
+
+                        --  Get constraints from the WSDL definition
+
+                        WSDL.Types.Get_Constraint_Integer
+                          (Constraints, Lower, L_Set, Upper, U_Set);
+
+                        --  If constraints are found, write them
+
+                        if L_Set or U_Set then
+                           Text_IO.New_Line (Der_Ads);
+                           Text_IO.Put
+                             (Der_Ads,
+                              "     range"
+                              & (if L_Set
+                                then Long_Long_Integer'Image (Lower)
+                                else " " & B_Name & "'First")
+                                & " .."
+                                & (if U_Set
+                                  then Long_Long_Integer'Image (Upper)
+                                  else " " & B_Name & "'Last"));
+                        end if;
+                     end;
+               end case;
+            end;
+
+            Text_IO.Put_Line (Der_Ads, ";");
 
             --  Routine to convert to base type
 

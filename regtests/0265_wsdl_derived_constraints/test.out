@@ -1,0 +1,17 @@
+Service Deriveconst_Demo
+   WSDL File for Deriveconst Demo
+
+Procedure call SOAPAction:call
+   Input
+      [record] params ; big
+         [derived] one ; PercentCompleteInteger
+         [derived] two ; NonNegativeInt
+         [derived] three ; NonNegativeFloat
+   Output
+   > call
+Procedure call2 SOAPAction:call2
+   Input
+      [derived] params2 ; MByte
+   Output
+   > call2
+Run OK
