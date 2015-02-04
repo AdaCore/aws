@@ -127,6 +127,10 @@ package SOAP.WSDL.Types is
       end case;
    end record;
 
+   function Is_Constrained (Def : Definition) return Boolean;
+   --  Returns True is the type is constrained and so can appear as-is in a
+   --  record component for example.
+
    No_Definition : constant Definition;
 
    procedure Register (Def : Definition) with

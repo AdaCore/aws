@@ -1182,7 +1182,10 @@ package body SOAP.Generator is
          P_Name  : constant String := WSDL.Types.Name (Def.Parent);
          B_Name  : constant String :=
                      (if WSDL.Is_Standard (P_Name)
-                      then WSDL.To_Ada (WSDL.To_Type (P_Name), WSDL.Component)
+                      then WSDL.To_Ada
+                        (WSDL.To_Type (P_Name),
+                         (if WSDL.Types.Is_Constrained (Def)
+                          then WSDL.Parameter else WSDL.Component))
                       else P_Name & "_Type");
          Prefix  : Unbounded_String;
          Der_Ads : Text_IO.File_Type;
@@ -1210,6 +1213,10 @@ package body SOAP.Generator is
             --     range <lower> .. <upper>
             --
             --  where <lower> or <upper> could the base type 'First or 'Last.
+            --
+            --  * on static strings we generate:
+            --
+            --     (1 .. <length>)
 
             declare
                Root_Type   : constant WSDL.Parameter_Type :=
@@ -1299,7 +1306,15 @@ package body SOAP.Generator is
                         end if;
                      end;
 
-                  when WSDL.P_String | WSDL.P_Character =>
+                  when WSDL.P_String =>
+                     if WSDL.Types.Is_Constrained (Def) then
+                        Text_IO.Put
+                          (Der_Ads,
+                           " (1 .."
+                           & Natural'Image (Def.Constraints.Length) & ')');
+                     end if;
+
+                  when  WSDL.P_Character =>
                      null;
 
                   when WSDL.P_Any_Type | WSDL.P_B64 =>

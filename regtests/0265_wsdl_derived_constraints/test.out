@@ -4,9 +4,11 @@ Service Deriveconst_Demo
 Procedure call SOAPAction:call
    Input
       [record] params ; big
+         [simple] id ; Integer
          [derived] one ; PercentCompleteInteger
          [derived] two ; NonNegativeInt
          [derived] three ; NonNegativeFloat
+         [derived] four ; Name
    Output
    > call
 Procedure call2 SOAPAction:call2
@@ -15,3 +17,18 @@ Procedure call2 SOAPAction:call2
    Output
    > call2
 Run OK
+Call 1
+Call 2
+OK
+Id 3
+Faultcode   : Client
+Faultstring : Error in call (Record params not well formed.)
+Id 4
+Faultcode   : Client
+Faultstring : Error in call (Record params not well formed.)
+Id 5
+Faultcode   : Client
+Faultstring : Error in call (Record params not well formed.)
+Id 6
+Faultcode   : Client
+Faultstring : Error in call (Record params not well formed.)

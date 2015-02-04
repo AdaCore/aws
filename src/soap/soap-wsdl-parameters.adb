@@ -85,7 +85,10 @@ package body SOAP.WSDL.Parameters is
                return Code;
             else
                return WSDL.V_Routine
-                 (WSDL.To_Type (Types.Name (Def.Ref)), WSDL.Component)
+                 (WSDL.To_Type
+                    (Types.Name (Def.Ref)),
+                  (if WSDL.Types.Is_Constrained (Def)
+                   then WSDL.Parameter else WSDL.Component))
                  & " ("
                  & WSDL.Set_Type (To_Type (Types.Name (Def.Ref)))
                  & " (" & Code & "))";

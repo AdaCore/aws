@@ -291,6 +291,19 @@ package body SOAP.WSDL.Types is
                  when K_Simple      => "simple");
    end Image;
 
+   --------------------
+   -- Is_Constrained --
+   --------------------
+
+   function Is_Constrained (Def : Definition) return Boolean is
+   begin
+      return (Def.Mode = K_Derived
+              and then WSDL.Is_Standard (Name (Def.Parent))
+              and then WSDL.To_Type (Name (Def.Parent)) = P_String
+              and then Def.Constraints.Length /= Unset)
+            or else Def.Mode /= K_Derived;
+   end Is_Constrained;
+
    ----------
    -- Name --
    ----------
