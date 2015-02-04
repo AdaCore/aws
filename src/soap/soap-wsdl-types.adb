@@ -34,6 +34,8 @@ package body SOAP.WSDL.Types is
 
    use Ada;
 
+   function "-" (S : Unbounded_String) return String renames To_String;
+
    package Types_Store is
      new Containers.Indefinite_Vectors (Positive, Definition);
 
@@ -99,6 +101,180 @@ package body SOAP.WSDL.Types is
          return No_Definition;
       end if;
    end Find;
+
+   ---------------------------
+   -- Get_Constraint_Double --
+   ---------------------------
+
+   procedure Get_Constraint_Double
+     (Constraints : Constraints_Def;
+      Lower       : in out Long_Float;
+      L_Set       : out Boolean;
+      Upper       : in out Long_Float;
+      U_Set       : out Boolean) is
+   begin
+      L_Set := False;
+      U_Set := False;
+
+      --  Min
+
+      if Constraints.Min_Inclusive /= Null_Unbounded_String then
+         Lower := Long_Float'Value (-Constraints.Min_Inclusive);
+         L_Set := True;
+      end if;
+
+      if Constraints.Min_Exclusive /= Null_Unbounded_String then
+         Lower := Long_Float'Succ
+           (Long_Float'Value (-Constraints.Min_Exclusive));
+         L_Set := True;
+      end if;
+
+      --  Max
+
+      if Constraints.Max_Inclusive /= Null_Unbounded_String then
+         Upper := Long_Float'Value (-Constraints.Max_Inclusive);
+         U_Set := True;
+      end if;
+
+      if Constraints.Max_Exclusive /= Null_Unbounded_String then
+         Upper := Long_Float'Pred
+           (Long_Float'Value (-Constraints.Max_Exclusive));
+         U_Set := True;
+      end if;
+   end Get_Constraint_Double;
+
+   --------------------------
+   -- Get_Constraint_Float --
+   --------------------------
+
+   procedure Get_Constraint_Float
+     (Constraints : Constraints_Def;
+      Lower       : in out Float;
+      L_Set       : out Boolean;
+      Upper       : in out Float;
+      U_Set       : out Boolean) is
+   begin
+      L_Set := False;
+      U_Set := False;
+
+      --  Min
+
+      if Constraints.Min_Inclusive /= Null_Unbounded_String then
+         Lower := Float'Value (-Constraints.Min_Inclusive);
+         L_Set := True;
+      end if;
+
+      if Constraints.Min_Exclusive /= Null_Unbounded_String then
+         Lower := Float'Succ (Float'Value (-Constraints.Min_Exclusive));
+         L_Set := True;
+      end if;
+
+      --  Max
+
+      if Constraints.Max_Inclusive /= Null_Unbounded_String then
+         Upper := Float'Value (-Constraints.Max_Inclusive);
+         U_Set := True;
+      end if;
+
+      if Constraints.Max_Exclusive /= Null_Unbounded_String then
+         Upper := Float'Pred (Float'Value (-Constraints.Max_Exclusive));
+         U_Set := True;
+      end if;
+   end Get_Constraint_Float;
+
+   ----------------------------
+   -- Get_Constraint_Integer --
+   ----------------------------
+
+   procedure Get_Constraint_Integer
+     (Constraints : Constraints_Def;
+      Lower       : in out Long_Long_Integer;
+      L_Set       : out Boolean;
+      Upper       : in out Long_Long_Integer;
+      U_Set       : out Boolean) is
+   begin
+      L_Set := False;
+      U_Set := False;
+
+      --  Min
+
+      if Constraints.Min_Inclusive /= Null_Unbounded_String then
+         Lower := Long_Long_Integer'Value (-Constraints.Min_Inclusive);
+         L_Set := True;
+      end if;
+
+      if Constraints.Min_Exclusive /= Null_Unbounded_String then
+         Lower := Long_Long_Integer'Succ
+           (Long_Long_Integer'Value (-Constraints.Min_Exclusive));
+         L_Set := True;
+      end if;
+
+      --  Max
+
+      if Constraints.Max_Inclusive /= Null_Unbounded_String then
+         Upper := Long_Long_Integer'Value (-Constraints.Max_Inclusive);
+         U_Set := True;
+      end if;
+
+      if Constraints.Max_Exclusive /= Null_Unbounded_String then
+         Upper := Long_Long_Integer'Pred
+           (Long_Long_Integer'Value (-Constraints.Max_Exclusive));
+         U_Set := True;
+      end if;
+   end Get_Constraint_Integer;
+
+   ---------------------
+   -- Get_Constraints --
+   ---------------------
+
+   procedure Get_Constraints
+     (Def         : Definition;
+      Constraints : out Constraints_Def) is
+   begin
+      if not WSDL.Is_Standard (To_String (Def.Ref.Name)) then
+         --  Min
+
+         if Constraints.Min_Inclusive = Null_Unbounded_String then
+            Constraints.Min_Inclusive := Def.Constraints.Min_Inclusive;
+         end if;
+
+         if Constraints.Min_Exclusive = Null_Unbounded_String then
+            Constraints.Min_Exclusive := Def.Constraints.Min_Exclusive;
+         end if;
+
+         --  Max
+
+         if Constraints.Max_Inclusive = Null_Unbounded_String then
+            Constraints.Max_Inclusive := Def.Constraints.Max_Inclusive;
+         end if;
+
+         if Constraints.Max_Exclusive = Null_Unbounded_String then
+            Constraints.Max_Exclusive := Def.Constraints.Max_Exclusive;
+         end if;
+
+         --  Length
+
+         if Constraints.Length = Unset then
+            Constraints.Length := Def.Constraints.Length;
+         end if;
+
+         if Constraints.Min_Length = Unset then
+            Constraints.Min_Length := Def.Constraints.Min_Length;
+         end if;
+
+         if Constraints.Max_Length = Unset then
+            Constraints.Max_Length := Def.Constraints.Max_Length;
+         end if;
+
+         --  Pattern
+
+         if Constraints.Pattern = Null_Unbounded_String then
+            Constraints.Pattern := Def.Constraints.Pattern;
+         end if;
+
+         Get_Constraints (Find (Def.Parent), Constraints);
+      end if;
+   end Get_Constraints;
 
    -----------
    -- Image --
