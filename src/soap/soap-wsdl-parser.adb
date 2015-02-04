@@ -1702,7 +1702,7 @@ package body SOAP.WSDL.Parser is
 
       function Build_Derived
         (Name, Base : String;
-         E          : DOM.Core.Node) return Parameters.Parameter;
+         N          : DOM.Core.Node) return Parameters.Parameter;
       --  Returns the derived (from standard Ada type) type definition
 
       function Build_Enumeration
@@ -1716,7 +1716,7 @@ package body SOAP.WSDL.Parser is
 
       function Build_Derived
         (Name, Base : String;
-         E          : DOM.Core.Node) return Parameters.Parameter
+         N          : DOM.Core.Node) return Parameters.Parameter
       is
          BNS : constant String := Utils.NS (Base);
          P   : Parameters.Parameter (Types.K_Derived);
@@ -1724,7 +1724,7 @@ package body SOAP.WSDL.Parser is
       begin
          P.Name      := O.Current_Name;
          P.Typ       := Types.Create
-           (Name, Get_Target_Name_Space (DOM.Core.Nodes.Parent_Node (E)));
+           (Name, Get_Target_Name_Space (DOM.Core.Nodes.Parent_Node (N)));
 
          D.Ref    := Types.Create (Name, Types.NS (P.Typ));
          D.Parent := Types.Create
