@@ -30,7 +30,7 @@ with SOAP.Types;
 
 with CB;
 with Deriveconst_Demo.Client;
-with www.ecerami.com.wsdl.deriveconstservice_wsdl.big_type_pkg;
+with Deriveconst_Demo.Types;
 
 procedure Deriveconst_Main is
    use Ada;
@@ -39,7 +39,7 @@ procedure Deriveconst_Main is
    use SOAP.Parameters;
    use SOAP.Types;
 
-   use www.ecerami.com.wsdl.deriveconstservice_wsdl.big_type_pkg;
+   use Deriveconst_Demo.Types;
 
    procedure Error (E : Message.Response.Error.Object);
 
@@ -59,18 +59,22 @@ procedure Deriveconst_Main is
    ----------
 
    procedure Call
-     (Id  : Integer;
-      One : Integer;
-      Two : Integer;
+     (Id    : Integer;
+      One   : Integer;
+      Two   : Integer;
       Three : Long_Float;
       Four  : String)
    is
+      O_Set : Object_Set := (+S ("00000000", "item"),
+                             +S ((if Id = 3 then "x" else "abcdefgh"),
+                                 "item"));
       P_Set : Parameters.List :=
                 +R ((+I (Id, "id"),
                      +I (One, "one"),
                      +I (Two, "two"),
                      +D (Three, "three"),
-                     +S (Four, "four")), "params");
+                     +S (Four, "four"),
+                     +A (O_Set, "five")), "params");
       P     : Message.Payload.Object :=
                 Message.Payload.Build
                   ("call", P_Set,
@@ -105,7 +109,8 @@ procedure Deriveconst_Main is
         ("Faultstring : " & SOAP.Parameters.Get (P, "faultstring"));
    end Error;
 
-   B1 : constant Big_Type := (1, 1, 1, 1.0, "abcdefgh");
+   A  : constant ArrayOfName_Type := (1 => "00000000", 2 => "abcdefgh");
+   B1 : constant Big_Type := (1, 1, 1, 1.0, "abcdefgh", +A);
 
 begin
    Text_IO.Put_Line ("Run OK");
@@ -121,10 +126,11 @@ begin
 
    --  Some calls with constraints error
 
-   Call (3, 101, 7, 9.0, "12345678");
-   Call (4, 99, 7, 9.0, "12345");
-   Call (5, 99, 7, -0.1, "12345678");
-   Call (6, 99, -7, 9.0, "12345678");
+   Call (3, 88, 7, 9.0, "12345678"); -- fails because of array
+   Call (4, 101, 7, 9.0, "12345678");
+   Call (5, 99, 7, 9.0, "12345");
+   Call (6, 99, 7, -0.1, "12345678");
+   Call (7, 99, -7, 9.0, "12345678");
 
    Server.Shutdown (HTTP);
 end Deriveconst_Main;

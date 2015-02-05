@@ -417,6 +417,10 @@ package body SOAP.WSDL.Types is
    procedure Output (Def : Definition) is
    begin
       Text_IO.Put (To_String (Def.Ref.Name));
+
+      if Def.Mode = K_Array then
+         Text_IO.Put (" [" & To_String (Def.E_Type.Name) & "]");
+      end if;
    end Output;
 
    --------------

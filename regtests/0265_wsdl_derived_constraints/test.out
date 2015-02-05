@@ -9,6 +9,7 @@ Procedure call SOAPAction:call
          [derived] two ; NonNegativeInt
          [derived] three ; NonNegativeFloat
          [derived] four ; Name
+         [array] five ; ArrayOfName [Name]
    Output
    > call
 Procedure call2 SOAPAction:call2
@@ -30,5 +31,8 @@ Id 5
 Faultcode   : Client
 Faultstring : Error in call (Record params not well formed.)
 Id 6
+Faultcode   : Client
+Faultstring : Error in call (Record params not well formed.)
+Id 7
 Faultcode   : Client
 Faultstring : Error in call (Record params not well formed.)

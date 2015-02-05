@@ -121,7 +121,7 @@ package body SOAP.WSDL.Parameters is
                   WSDL.Types.Output (Def);
                   Text_IO.New_Line;
 
-                  if P.Mode in WSDL.Types.Compound_Type then
+                  if P.Mode = WSDL.Types.K_Record then
                      Output (P.P, K + 3);
                   end if;
                end;

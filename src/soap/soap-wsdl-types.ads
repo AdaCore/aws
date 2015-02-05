@@ -120,7 +120,7 @@ package SOAP.WSDL.Types is
             Is_Choice : Boolean;
 
          when K_Array =>
-            E_Type : Unbounded_String; -- Array element's type
+            E_Type : Object; -- Array element's type
 
          when K_Enumeration =>
             E_Def  : E_Node_Access;

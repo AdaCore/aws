@@ -820,9 +820,6 @@ package body SOAP.Generator is
       function Set_Routine (P : WSDL.Parameters.P_Set) return String;
       --  Returns the constructor routine for the given type
 
-      function Set_Type (Name : String) return String;
-      --  Returns the SOAP type for Name
-
       function Is_Inside_Record (Name : String) return Boolean;
       --  Returns True if Name is defined inside a record in the Input
       --  or Output parameter list.
@@ -865,6 +862,28 @@ package body SOAP.Generator is
          function To_Ada_Type (Name : String) return String;
          --  Returns the Ada corresponding type
 
+         function Set_Type (Def  : WSDL.Types.Definition) return String;
+         --  Returns the SOAP type for Name
+
+         --------------
+         -- Set_Type --
+         --------------
+
+         function Set_Type (Def  : WSDL.Types.Definition) return String is
+            Name : constant String := WSDL.Types.Name (Def.Ref);
+         begin
+            if WSDL.Is_Standard (Name) then
+               return WSDL.Set_Type (WSDL.To_Type (Name));
+
+            else
+               if Def.Mode = WSDL.Types.K_Derived then
+                  return Set_Type (WSDL.Types.Find (Def.Parent));
+               else
+                  return "SOAP.Types.SOAP_Record";
+               end if;
+            end if;
+         end Set_Type;
+
          -----------------
          -- To_Ada_Type --
          -----------------
@@ -888,7 +907,7 @@ package body SOAP.Generator is
          T_Name  : constant String :=
                      (if Def = WSDL.Types.No_Definition
                       then WSDL.Types.Name (P.Typ)
-                      else To_String (Def.E_Type));
+                      else WSDL.Types.Name (Def.E_Type));
 
          Prefix  : Unbounded_String;
          Arr_Ads : Text_IO.File_Type;
@@ -1163,7 +1182,8 @@ package body SOAP.Generator is
 
          Text_IO.Put_Line
            (Arr_Ads,
-            "      " & Set_Type (T_Name) & ", " & Set_Routine (P) & ");");
+            "      " & Set_Type (WSDL.Types.Find (Def.E_Type))
+            & ", " & Set_Routine (P) & ");");
 
          Finalize_Types_Package (Prefix, Arr_Ads, Arr_Adb, No_Body => True);
       end Generate_Array;
@@ -1411,6 +1431,14 @@ package body SOAP.Generator is
             Text_IO.Put_Line (Der_Ads, "      return " & F_Name & " is");
             Text_IO.Put_Line (Der_Ads, "       (" & F_Name & " (D));");
 
+            Text_IO.New_Line (Der_Ads);
+
+            Text_IO.Put_Line (Der_Ads, "   function To_" & F_Name);
+            Text_IO.Put_Line (Der_Ads, "     (D : " & B_Name & ")");
+            Text_IO.Put_Line
+              (Der_Ads,
+               "      return " & F_Name & " renames From_" & B_Name & ";");
+
             if WSDL.Is_Standard (P_Name) then
                Text_IO.New_Line (Der_Ads);
 
@@ -1429,6 +1457,36 @@ package body SOAP.Generator is
                Text_IO.Put_Line (Der_Ads, "      return " & F_Name & " is");
                Text_IO.Put_Line (Der_Ads, "       (" & F_Name & " (D));");
             end if;
+
+            --  For array support
+
+            Text_IO.New_Line (Der_Ads);
+            Text_IO.Put_Line (Der_Ads, "   function To_" & F_Name);
+            Text_IO.Put_Line (Der_Ads, "     (O : SOAP.Types.Object'Class)");
+            Text_IO.Put_Line (Der_Ads, "      return " & F_Name & " is");
+            Text_IO.Put_Line
+              (Der_Ads,
+               "       ("
+               & WSDL.Types.From_SOAP (Def, Object => "O") & ");");
+
+            Text_IO.New_Line (Der_Ads);
+            Text_IO.Put_Line (Der_Ads, "   function To_SOAP_Object");
+            Text_IO.Put_Line (Der_Ads, "     (D    : " & F_Name & ";");
+            Text_IO.Put_Line (Der_Ads, "      Name : String := ""item"")");
+            Text_IO.Put_Line
+              (Der_Ads, "      return "
+               &  WSDL.Set_Type (WSDL.To_Type (WSDL.Types.Root_Type_For (Def)))
+               & " is");
+            Text_IO.Put_Line
+              (Der_Ads,
+               "        ("
+               & WSDL.Types.To_SOAP
+                 (Def,
+                  Object      => "D",
+                  Name        => "Name",
+                  Name_Is_Var => True) & ");");
+
+            --  For Types child package
 
             Text_IO.Put_Line
               (Tmp_Ads, "   subtype " & F_Name);
@@ -1499,6 +1557,14 @@ package body SOAP.Generator is
               (Der_Ads, "     (D : " & Types_Spec (O) & "." & Name & ")");
             Text_IO.Put_Line (Der_Ads, "      return " & F_Name & " is (D);");
 
+            Text_IO.New_Line (Der_Ads);
+            Text_IO.Put_Line (Der_Ads, "   function To_" & F_Name);
+            Text_IO.Put_Line
+              (Der_Ads, "     (D : " & Types_Spec (O) & "." & Name & ")");
+            Text_IO.Put_Line
+              (Der_Ads, "      return " & F_Name
+               & " renames From_" & Name & ';');
+
             if WSDL.Is_Standard (P_Name) then
                Text_IO.New_Line (Der_Ads);
 
@@ -1515,6 +1581,36 @@ package body SOAP.Generator is
                Text_IO.Put_Line (Der_Ads, "      return " & F_Name & " is");
                Text_IO.Put_Line (Der_Ads, "       (" & F_Name & " (D));");
             end if;
+
+            --  For array support
+
+            Text_IO.New_Line (Der_Ads);
+            Text_IO.Put_Line (Der_Ads, "   function To_" & F_Name);
+            Text_IO.Put_Line (Der_Ads, "     (O : SOAP.Types.Object'Class)");
+            Text_IO.Put_Line (Der_Ads, "      return " & F_Name & " is");
+            Text_IO.Put_Line
+              (Der_Ads,
+               "       ("
+               & WSDL.Types.From_SOAP (Def, Object => "O") & ");");
+
+            Text_IO.New_Line (Der_Ads);
+            Text_IO.Put_Line (Der_Ads, "   function To_SOAP_Object");
+            Text_IO.Put_Line (Der_Ads, "     (D    : " & F_Name & ";");
+            Text_IO.Put_Line (Der_Ads, "      Name : String := ""item"")");
+            Text_IO.Put_Line
+              (Der_Ads, "      return "
+               &  WSDL.Set_Type (WSDL.To_Type (WSDL.Types.Root_Type_For (Def)))
+               & " is");
+            Text_IO.Put_Line
+              (Der_Ads,
+               "        ("
+               & WSDL.Types.To_SOAP
+                 (Def,
+                  Object      => "D",
+                  Name        => "Name",
+                  Name_Is_Var => True) & ");");
+
+            --  For Types child package
 
             Text_IO.Put_Line
               (Tmp_Ads, "   subtype " & F_Name);
@@ -2606,7 +2702,7 @@ package body SOAP.Generator is
 
             when WSDL.Types.K_Array =>
                declare
-                  E_Type : constant String := To_String (Def.E_Type);
+                  E_Type : constant String := WSDL.Types.Name (Def.E_Type);
                begin
                   if WSDL.Is_Standard (E_Type) then
                      return WSDL.Get_Routine
@@ -2888,7 +2984,7 @@ package body SOAP.Generator is
 
             when WSDL.Types.K_Array =>
                declare
-                  E_Type : constant String := To_String (Def.E_Type);
+                  E_Type : constant String := WSDL.Types.Name (Def.E_Type);
                begin
                   if WSDL.Is_Standard (E_Type) then
                      return WSDL.Set_Routine
@@ -2902,19 +2998,6 @@ package body SOAP.Generator is
                return "To_SOAP_Object";
          end case;
       end Set_Routine;
-
-      --------------
-      -- Set_Type --
-      --------------
-
-      function Set_Type (Name : String) return String is
-      begin
-         if WSDL.Is_Standard (Name) then
-            return WSDL.Set_Type (WSDL.To_Type (Name));
-         else
-            return "SOAP.Types.SOAP_Record";
-         end if;
-      end Set_Type;
 
       ---------------
       -- Type_Name --

@@ -436,7 +436,7 @@ package body SOAP.WSDL.Parser is
      (O : Object'Class;
       N : DOM.Core.Node) return Boolean
    is
-      function Array_Elements return Unbounded_String;
+      function Array_Elements return Types.Object;
       --  Returns array's element type encoded in node L
 
       L : DOM.Core.Node := N;
@@ -445,7 +445,7 @@ package body SOAP.WSDL.Parser is
       -- Array_Elements --
       --------------------
 
-      function Array_Elements return Unbounded_String is
+      function Array_Elements return Types.Object is
          Attributes : constant  DOM.Core.Named_Node_Map :=
                         DOM.Core.Nodes.Attributes (L);
       begin
@@ -479,8 +479,9 @@ package body SOAP.WSDL.Parser is
                         O.Self.Array_Length := 0;
                      end if;
 
-                     return To_Unbounded_String
-                       (Value (Value'First .. First - 1));
+                     return Types.Create
+                       (Value (Value'First .. First - 1),
+                        Get_Target_Name_Space (Is_Array.N));
                   end;
                end if;
             end;
@@ -898,18 +899,25 @@ package body SOAP.WSDL.Parser is
 
          Types.Register (D);
 
-         if not WSDL.Is_Standard (To_String (O.Array_Elements)) then
+         if not WSDL.Is_Standard (WSDL.Types.Name (O.Array_Elements)) then
             --  This is not a standard type, parse it
             declare
-               N : constant DOM.Core.Node :=
-                     Look_For_Schema (R, To_String (O.Array_Elements),
+               N : DOM.Core.Node :=
+                     Look_For_Schema (R, WSDL.Types.Name (O.Array_Elements),
                                       Document,
                                       Look_Context'(Complex_Type => True,
                                                     others => False));
             begin
-               --  ??? Right now pretend that it is a record, there is
-               --  certainly some cases not covered here.
-               Parameters.Append (P.P, Parse_Record (O, N, Document));
+               if N = null then
+                  N := Look_For_Schema (R, WSDL.Types.Name (O.Array_Elements),
+                                        Document,
+                                        Look_Context'(Simple_Type => True,
+                                                      others      => False));
+                  Parameters.Append (P.P, Parse_Simple (O, N, Document));
+
+               else
+                  Parameters.Append (P.P, Parse_Record (O, N, Document));
+               end if;
             end;
          end if;
 

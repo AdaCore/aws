@@ -5,6 +5,7 @@
    xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/"
    xmlns:xs="http://www.w3.org/2001/XMLSchema"
    xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/"
+   xmlns:soapenc="http://schemas.xmlsoap.org/soap/encoding/"
    xmlns:tns="http://www.ecerami.com/wsdl/DeriveconstService.wsdl"
    xmlns:ns1="urn:examples:deriveconstservice">
 
@@ -40,13 +41,22 @@
             </xs:restriction>
          </xs:simpleType>
 
+         <xs:complexType name="ArrayOfName">
+           <xs:complexContent>
+             <xs:restriction base="soapenc:Array">
+               <xs:attribute ref="soapenc:arrayType" wsdl:arrayType="Name[]"/>
+             </xs:restriction>
+           </xs:complexContent>
+         </xs:complexType>
+
          <xs:complexType name="big">
            <xs:sequence>
-             <xs:element name="id" type="xs:int" />
-             <xs:element name="one" type="PercentCompleteInteger" />
-             <xs:element name="two" type="NonNegativeInt" />
+             <xs:element name="id"    type="xs:int" />
+             <xs:element name="one"   type="PercentCompleteInteger" />
+             <xs:element name="two"   type="NonNegativeInt" />
              <xs:element name="three" type="NonNegativeFloat" />
-             <xs:element name="four" type="Name" />
+             <xs:element name="four"  type="Name" />
+             <xs:element name="five"  type="ArrayOfName" />
            </xs:sequence>
          </xs:complexType>
 

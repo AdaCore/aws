@@ -32,6 +32,7 @@ with SOAP.WSDL.Parameters;
 
 private with Ada.Strings.Unbounded;
 private with Ada.Containers.Indefinite_Ordered_Sets;
+private with SOAP.WSDL.Types;
 
 package SOAP.WSDL.Parser is
 
@@ -116,7 +117,7 @@ private
       Params          : All_Parameters;   -- All parameters
       Current_Name    : Unbounded_String; -- Current parameter name
       Enclosing_Types : Name_Set.Set;     -- The enclosing entity type
-      Array_Elements  : Unbounded_String; -- Type of the array's elements
+      Array_Elements  : Types.Object;     -- Type of the array's elements
       Array_Length    : Natural;          -- Number of items (0 = unbounded)
       Accept_Document : Boolean := False;
       Exclude         : Name_Set.Set;     -- Operation to exclude from gen
