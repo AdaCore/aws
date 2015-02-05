@@ -912,6 +912,8 @@ package body SOAP.Generator is
 
          --  Is types are to be reused from an Ada  spec ?
 
+         Text_IO.New_Line (Arr_Ads);
+
          if Types_Spec (O) = "" then
             --  No user's spec, generate all type definitions
 
@@ -1006,8 +1008,6 @@ package body SOAP.Generator is
 
          else
             --  Here we have a reference to a spec, just build alias to it
-
-            Text_IO.New_Line (Arr_Ads);
 
             if P.Length /= 0 then
                --  This is a constrained array, create the index subtype
