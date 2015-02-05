@@ -1247,6 +1247,12 @@ package body SOAP.Generator is
                                WSDL.To_Type (WSDL.Types.Root_Type_For (Def));
                Constraints : WSDL.Types.Constraints_Def;
             begin
+               --  Get constraints from parent types. Note that we do not want
+               --  the constraint of the first parent only, but the constraints
+               --  from the whole derived hierarchy.
+
+               WSDL.Types.Get_Constraints (Def, Constraints);
+
                case Root_Type is
                   when WSDL.P_Float =>
                      declare
@@ -1255,13 +1261,6 @@ package body SOAP.Generator is
                      begin
                         Lower := Float'First;
                         Upper := Float'Last;
-
-                        --  Get constraints from parent types. Note that we
-                        --  do not want the constraint of the first parent
-                        --  only, but the constraints from the whole derived
-                        --  hierarchy.
-
-                        WSDL.Types.Get_Constraints (Def, Constraints);
 
                         --  Get constraints from the WSDL definition
 
@@ -1297,13 +1296,6 @@ package body SOAP.Generator is
                         Lower := Long_Float'First;
                         Upper := Long_Float'Last;
 
-                        --  Get constraints from parent types. Note that we
-                        --  do not want the constraint of the first parent
-                        --  only, but the constraints from the whole derived
-                        --  hierarchy.
-
-                        WSDL.Types.Get_Constraints (Def, Constraints);
-
                         --  Get constraints from the WSDL definition
 
                         WSDL.Types.Get_Constraint_Double
@@ -1331,8 +1323,6 @@ package body SOAP.Generator is
                      end;
 
                   when WSDL.P_String =>
-                     WSDL.Types.Get_Constraints (Def, Constraints);
-
                      if WSDL.Types.Is_Constrained (Def) then
                         Text_IO.Put
                           (Der_Ads,
@@ -1425,13 +1415,6 @@ package body SOAP.Generator is
                            when others =>
                               null;
                         end case;
-
-                        --  Get constraints from parent types. Note that we
-                        --  do not want the constraint of the first parent
-                        --  only, but the constraints from the whole derived
-                        --  hierarchy.
-
-                        WSDL.Types.Get_Constraints (Def, Constraints);
 
                         --  Get constraints from the WSDL definition
 
