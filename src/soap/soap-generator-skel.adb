@@ -484,8 +484,7 @@ package body Skel is
                         Text_IO.Put
                           (Skel_Adb,
                            WSDL.Set_Routine
-                             (WSDL.To_Type (T_Name),
-                              Context => WSDL.Component));
+                             (WSDL.To_Type (T_Name), Constrained => True));
 
                         Text_IO.Put
                           (Skel_Adb, " (Result."

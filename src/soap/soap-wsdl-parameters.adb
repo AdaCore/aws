@@ -87,8 +87,7 @@ package body SOAP.WSDL.Parameters is
                return WSDL.V_Routine
                  (WSDL.To_Type
                     (Types.Name (Def.Ref)),
-                  (if WSDL.Types.Is_Constrained (Def)
-                   then WSDL.Parameter else WSDL.Component))
+                  not WSDL.Types.Is_Constrained (Def))
                  & " ("
                  & WSDL.Set_Type (To_Type (Types.Name (Def.Ref)))
                  & " (" & Code & "))";
@@ -133,7 +132,7 @@ package body SOAP.WSDL.Parameters is
                           WSDL.To_Type (Types.Name (P.Typ));
                I_Type : constant String := WSDL.Set_Type (P_Type);
             begin
-               return WSDL.V_Routine (P_Type, WSDL.Component)
+               return WSDL.V_Routine (P_Type, Constrained => True)
                  & " (" & I_Type & " ("
                  & Object & "))";
             end;
@@ -284,16 +283,14 @@ package body SOAP.WSDL.Parameters is
          case P.Mode is
             when WSDL.Types.K_Simple =>
                return WSDL.Set_Routine
-                 (WSDL.To_Type (T_Name), Context => WSDL.Component);
+                 (WSDL.To_Type (T_Name), Constrained => True);
 
             when WSDL.Types.K_Derived =>
                return WSDL.Set_Routine
-                 (Types.Name (Def.Parent),
-                  Context => WSDL.Component);
+                 (Types.Name (Def.Parent), Constrained => True);
 
             when WSDL.Types.K_Enumeration =>
-               return WSDL.Set_Routine
-                 (WSDL.P_String, Context => WSDL.Component);
+               return WSDL.Set_Routine (WSDL.P_String, Constrained => True);
 
             when WSDL.Types.K_Array =>
                declare
@@ -301,7 +298,7 @@ package body SOAP.WSDL.Parameters is
                begin
                   if WSDL.Is_Standard (E_Type) then
                      return WSDL.Set_Routine
-                       (WSDL.To_Type (E_Type), Context => WSDL.Component);
+                       (WSDL.To_Type (E_Type), Constrained => True);
                   else
                      return "To_SOAP_Object";
                   end if;

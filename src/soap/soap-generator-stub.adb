@@ -359,7 +359,7 @@ package body Stub is
             --  Inside a record
             Text_IO.Put
               (Stub_Adb,
-               WSDL.Set_Routine (P_Type, Context => WSDL.Component));
+               WSDL.Set_Routine (P_Type, Constrained => True));
          else
             Text_IO.Put (Stub_Adb, WSDL.Set_Routine (P_Type));
          end if;

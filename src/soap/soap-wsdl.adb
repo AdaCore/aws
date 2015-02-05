@@ -166,12 +166,12 @@ package body SOAP.WSDL is
    -----------------
 
    function Get_Routine
-     (P       : Parameter_Type;
-      Context : Context_Type := Parameter) return String is
+     (P           : Parameter_Type;
+      Constrained : Boolean := False) return String is
    begin
       case P is
          when P_String =>
-            if Context = Component then
+            if Constrained then
                return "SOAP.Utils.Get";
             else
                return "SOAP.Types.Get";
@@ -235,8 +235,8 @@ package body SOAP.WSDL is
    -----------------
 
    function Set_Routine
-     (P       : Parameter_Type;
-      Context : Context_Type := Parameter) return String is
+     (P           : Parameter_Type;
+      Constrained : Boolean := False) return String is
    begin
       case P is
          when P_Long           => return "SOAP.Types.L";
@@ -254,26 +254,26 @@ package body SOAP.WSDL is
          when P_Unsigned_Short => return "SOAP.Types.US";
          when P_Unsigned_Byte  => return "SOAP.Types.UB";
          when P_Any_Type       =>
-            if Context = Parameter then
-               return "SOAP.Types.Any";
-            else
+            if Constrained then
                return "SOAP.Utils.Any";
+            else
+               return "SOAP.Types.Any";
             end if;
          when P_String         =>
-            if Context = Parameter then
-               return "SOAP.Types.S";
-            else
+            if Constrained then
                return "SOAP.Utils.US";
+            else
+               return "SOAP.Types.S";
             end if;
       end case;
    end Set_Routine;
 
    function Set_Routine
-     (P       : String;
-      Context : Context_Type := Parameter) return String is
+     (P           : String;
+      Constrained : Boolean := False) return String is
    begin
       if Is_Standard (P) then
-         return Set_Routine (To_Type (P), Context);
+         return Set_Routine (To_Type (P), Constrained);
       else
          return "To_" & Utils.No_NS (P) & "_Type";
       end if;
@@ -310,8 +310,8 @@ package body SOAP.WSDL is
    ------------
 
    function To_Ada
-     (P       : Parameter_Type;
-      Context : Context_Type := Parameter) return String is
+     (P           : Parameter_Type;
+      Constrained : Boolean := False) return String is
    begin
       case P is
          when P_Long           => return "SOAP.Types.Long";
@@ -329,16 +329,16 @@ package body SOAP.WSDL is
          when P_Unsigned_Short => return "SOAP.Types.Unsigned_Short";
          when P_Unsigned_Byte  => return "SOAP.Types.Unsigned_Byte";
          when P_Any_Type       =>
-            if Context = Parameter then
-               return "SOAP.Types.Object'Class";
-            else
+            if Constrained then
                return "SOAP.Types.XSD_Any_Type";
+            else
+               return "SOAP.Types.Object'Class";
             end if;
          when P_String         =>
-            if Context = Parameter then
-               return "String";
-            else
+            if Constrained then
                return "Unbounded_String";
+            else
+               return "String";
             end if;
       end case;
    end To_Ada;
@@ -467,12 +467,12 @@ package body SOAP.WSDL is
    ---------------
 
    function V_Routine
-     (P       : Parameter_Type;
-      Context : Context_Type := Parameter) return String is
+     (P           : Parameter_Type;
+      Constrained : Boolean := False) return String is
    begin
       case P is
          when P_String =>
-            if Context = Component then
+            if Constrained then
                return "SOAP.Utils.V";
             else
                return "SOAP.Types.V";

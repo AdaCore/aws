@@ -872,8 +872,7 @@ package body SOAP.Generator is
          function To_Ada_Type (Name : String) return String is
          begin
             if WSDL.Is_Standard (Name) then
-               return WSDL.To_Ada
-                 (WSDL.To_Type (Name), Context => WSDL.Component);
+               return WSDL.To_Ada (WSDL.To_Type (Name), Constrained => True);
 
             else
                return Format_Name (O, Name) & "_Type";
@@ -1184,8 +1183,7 @@ package body SOAP.Generator is
                      (if WSDL.Is_Standard (P_Name)
                       then WSDL.To_Ada
                         (WSDL.To_Type (P_Name),
-                         (if WSDL.Types.Is_Constrained (Def)
-                          then WSDL.Parameter else WSDL.Component))
+                         not WSDL.Types.Is_Constrained (Def))
                       else P_Name & "_Type");
          Prefix  : Unbounded_String;
          Der_Ads : Text_IO.File_Type;
@@ -2612,7 +2610,7 @@ package body SOAP.Generator is
                begin
                   if WSDL.Is_Standard (E_Type) then
                      return WSDL.Get_Routine
-                       (WSDL.To_Type (E_Type), WSDL.Component);
+                       (WSDL.To_Type (E_Type), Constrained => True);
                   else
                      return "To_" & Format_Name (O, E_Type) & "_Type";
                   end if;
@@ -2879,16 +2877,14 @@ package body SOAP.Generator is
          case P.Mode is
             when WSDL.Types.K_Simple =>
                return WSDL.Set_Routine
-                 (WSDL.To_Type (T_Name), Context => WSDL.Component);
+                 (WSDL.To_Type (T_Name), Constrained => True);
 
             when WSDL.Types.K_Derived =>
                return WSDL.Set_Routine
-                 (WSDL.Types.Name (Def.Parent),
-                  Context => WSDL.Component);
+                 (WSDL.Types.Name (Def.Parent), Constrained => True);
 
             when WSDL.Types.K_Enumeration =>
-               return WSDL.Set_Routine
-                 (WSDL.P_String, Context => WSDL.Component);
+               return WSDL.Set_Routine (WSDL.P_String, Constrained => True);
 
             when WSDL.Types.K_Array =>
                declare
@@ -2896,7 +2892,7 @@ package body SOAP.Generator is
                begin
                   if WSDL.Is_Standard (E_Type) then
                      return WSDL.Set_Routine
-                       (WSDL.To_Type (E_Type), Context => WSDL.Component);
+                       (WSDL.To_Type (E_Type), Constrained => True);
                   else
                      return "To_SOAP_Object";
                   end if;
@@ -2933,7 +2929,7 @@ package body SOAP.Generator is
                --  This routine is called only for SOAP object in records
                --  or arrays.
                return WSDL.To_Ada
-                 (WSDL.To_Type (T_Name), Context => WSDL.Component);
+                 (WSDL.To_Type (T_Name), Constrained => True);
 
             when WSDL.Types.K_Derived =>
                return Format_Name (O, T_Name) & "_Type";
