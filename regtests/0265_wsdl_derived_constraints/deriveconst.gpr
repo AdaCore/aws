@@ -17,11 +17,15 @@
 ------------------------------------------------------------------------------
 
 with "aws";
+
 project Deriveconst is
+
    for Source_Dirs use (".");
    for Main use ("deriveconst_main");
 
    package Builder is
       for Executable ("deriveconst_main.adb") use "deriveconst";
+      for Default_Switches ("Ada") use ("-gnata");
    end Builder;
+
 end Deriveconst;

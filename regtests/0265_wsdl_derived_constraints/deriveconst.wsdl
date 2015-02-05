@@ -35,6 +35,13 @@
             </xs:restriction>
          </xs:simpleType>
 
+         <xs:simpleType name="Address">
+            <xs:restriction base="xs:string">
+               <xs:minLength value="5" />
+               <xs:maxLength value="8" />
+            </xs:restriction>
+         </xs:simpleType>
+
          <xs:simpleType name="NonNegativeFloat">
             <xs:restriction base="xs:double">
                <xs:minInclusive value="0" />
@@ -57,6 +64,7 @@
              <xs:element name="three" type="NonNegativeFloat" />
              <xs:element name="four"  type="Name" />
              <xs:element name="five"  type="ArrayOfName" />
+             <xs:element name="six"   type="Address" />
            </xs:sequence>
          </xs:complexType>
 

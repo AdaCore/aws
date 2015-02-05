@@ -16,6 +16,7 @@
 --  to http://www.gnu.org/licenses for a complete copy of the license.      --
 ------------------------------------------------------------------------------
 
+with Ada.Strings.Unbounded;
 with Ada.Text_IO;
 
 with AWS.Server.Status;
@@ -33,7 +34,10 @@ with Deriveconst_Demo.Client;
 with Deriveconst_Demo.Types;
 
 procedure Deriveconst_Main is
+
    use Ada;
+   use Ada.Strings.Unbounded;
+
    use AWS;
    use SOAP;
    use SOAP.Parameters;
@@ -41,14 +45,20 @@ procedure Deriveconst_Main is
 
    use Deriveconst_Demo.Types;
 
+   function "+"
+     (Str : String)
+      return Unbounded_String
+      renames To_Unbounded_String;
+
    procedure Error (E : Message.Response.Error.Object);
 
    procedure Call
-     (Id  : Integer;
-      One : Integer;
-      Two : Integer;
+     (Id    : Integer;
+      One   : Integer;
+      Two   : Integer;
       Three : Long_Float;
-      Four  : String);
+      Four  : String;
+      Six   : String);
    --  Send a Call display return error is any
 
    HTTP : Server.HTTP;
@@ -63,7 +73,8 @@ procedure Deriveconst_Main is
       One   : Integer;
       Two   : Integer;
       Three : Long_Float;
-      Four  : String)
+      Four  : String;
+      Six   : String)
    is
       O_Set : Object_Set := (+S ("00000000", "item"),
                              +S ((if Id = 3 then "x" else "abcdefgh"),
@@ -74,7 +85,8 @@ procedure Deriveconst_Main is
                      +I (Two, "two"),
                      +D (Three, "three"),
                      +S (Four, "four"),
-                     +A (O_Set, "five")), "params");
+                     +A (O_Set, "five"),
+                     +S (Six, "six")), "params");
       P     : Message.Payload.Object :=
                 Message.Payload.Build
                   ("call", P_Set,
@@ -110,7 +122,8 @@ procedure Deriveconst_Main is
    end Error;
 
    A  : constant ArrayOfName_Type := (1 => "00000000", 2 => "abcdefgh");
-   B1 : constant Big_Type := (1, 1, 1, 1.0, "abcdefgh", +A);
+   B1 : constant Big_Type := (1, 1, 1, 1.0, "abcdefgh", +A,
+                              From_Unbounded_String (+"0987654"));
 
 begin
    Text_IO.Put_Line ("Run OK");
@@ -122,15 +135,17 @@ begin
 
    --  One call with respected constraints
 
-   Call (2, 99, 7, 9.0, "12345678");
+   Call (2, 99, 7, 9.0, "12345678", "12345");
 
    --  Some calls with constraints error
 
-   Call (3, 88, 7, 9.0, "12345678"); -- fails because of array
-   Call (4, 101, 7, 9.0, "12345678");
-   Call (5, 99, 7, 9.0, "12345");
-   Call (6, 99, 7, -0.1, "12345678");
-   Call (7, 99, -7, 9.0, "12345678");
+   Call (3, 88, 7, 9.0, "12345678", "12345"); -- fails because of array
+   Call (4, 101, 7, 9.0, "12345678", "12345");
+   Call (5, 99, 7, 9.0, "12345", "12345");
+   Call (6, 99, 7, -0.1, "12345678", "12345");
+   Call (7, 99, -7, 9.0, "12345678", "12345");
+   Call (8, 99, -7, 9.0, "12345678", "145");
+   Call (9, 99, -7, 9.0, "12345678", "145000000099887");
 
    Server.Shutdown (HTTP);
 end Deriveconst_Main;

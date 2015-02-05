@@ -1235,6 +1235,12 @@ package body SOAP.Generator is
             --  * on static strings we generate:
             --
             --     (1 .. <length>)
+            --
+            --  * on variable length strings we generate aspects:
+            --
+            --     Dynamic_Predicate =>
+            --       Length (Unbounded_String (<type>)) >= <min>
+            --       and then Length (Unbounded_String (<type>)) <= <max>
 
             declare
                Root_Type   : constant WSDL.Parameter_Type :=
@@ -1325,11 +1331,49 @@ package body SOAP.Generator is
                      end;
 
                   when WSDL.P_String =>
+                     WSDL.Types.Get_Constraints (Def, Constraints);
+
                      if WSDL.Types.Is_Constrained (Def) then
                         Text_IO.Put
                           (Der_Ads,
                            " (1 .."
-                           & Natural'Image (Def.Constraints.Length) & ')');
+                           & Natural'Image (Constraints.Length) & ')');
+
+                     else
+                        if Constraints.Min_Length /= WSDL.Types.Unset
+                          or else Constraints.Max_Length /= WSDL.Types.Unset
+                        then
+                           Text_IO.New_Line (Der_Ads);
+                           Text_IO.Put_Line
+                             (Der_Ads, "     with Dynamic_Predicate => ");
+
+                           if Constraints.Min_Length /= WSDL.Types.Unset then
+                              Text_IO.Put
+                                (Der_Ads,
+                                 "       Length (Unbounded_String ("
+                                 & F_Name & ")) >="
+                                 & Natural'Image (Constraints.Min_Length));
+                           end if;
+
+                           if Constraints.Max_Length /= WSDL.Types.Unset then
+                              if Constraints.Min_Length /=
+                                WSDL.Types.Unset
+                              then
+                                 Text_IO.New_Line (Der_Ads);
+                              end if;
+
+                              Text_IO.Put
+                                (Der_Ads,
+                                 "       "
+                                 & (if Constraints.Min_Length /=
+                                       WSDL.Types.Unset
+                                   then "and then "
+                                   else "")
+                                 & "Length (Unbounded_String ("
+                                 & F_Name & ")) <="
+                                 & Natural'Image (Constraints.Max_Length));
+                           end if;
+                        end if;
                      end if;
 
                   when  WSDL.P_Character =>
