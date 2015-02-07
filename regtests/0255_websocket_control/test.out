@@ -11,30 +11,30 @@ Echo ws3: client message 1 [ 2]
 Echo ws3: client message 2 [ 3]
 Server ends with status 0
 Server output:
+On_Close : ABNORMAL_CLOSURE, activity timeout reached
+On_Close : NORMAL_CLOSURE,
+On_Close : NORMAL_CLOSURE,
+On_Close : NORMAL_CLOSURE,
 On_Open : AWS WebSocket connection open
+On_Open : AWS WebSocket connection open
+On_Open : AWS WebSocket connection open
+On_Open : AWS WebSocket connection open
+Received : END_TEST
+Received : ws1: client message 1
+Received : ws1: client message 2
+Received : ws2: client message 1
+Received : ws2: client message 2
+Received : ws3: client message 1
+Received : ws3: client message 2
+Send : Echo ws1: client message 1 [ 4]
+Send : Echo ws1: client message 2 [ 5]
+Send : Echo ws2: client message 1 [ 2]
+Send : Echo ws2: client message 2 [ 3]
+Send : Echo ws3: client message 1 [ 2]
+Send : Echo ws3: client message 2 [ 3]
+Send : Server open connect [ 1]
+Send : Server open connect [ 1]
+Send : Server open connect [ 1]
 Send : Server open connect [ 1]
 Send : Server short message  1 [ 2]
 Send : Server short message  2 [ 3]
-Received : ws1: client message 1
-Send : Echo ws1: client message 1 [ 4]
-Received : ws1: client message 2
-Send : Echo ws1: client message 2 [ 5]
-On_Open : AWS WebSocket connection open
-Send : Server open connect [ 1]
-Received : ws2: client message 1
-Send : Echo ws2: client message 1 [ 2]
-Received : ws2: client message 2
-Send : Echo ws2: client message 2 [ 3]
-On_Close : ABNORMAL_CLOSURE, activity timeout reached
-On_Open : AWS WebSocket connection open
-Send : Server open connect [ 1]
-Received : ws3: client message 1
-Send : Echo ws3: client message 1 [ 2]
-Received : ws3: client message 2
-Send : Echo ws3: client message 2 [ 3]
-On_Close : NORMAL_CLOSURE,
-On_Close : NORMAL_CLOSURE,
-On_Open : AWS WebSocket connection open
-Send : Server open connect [ 1]
-Received : END_TEST
-On_Close : NORMAL_CLOSURE,

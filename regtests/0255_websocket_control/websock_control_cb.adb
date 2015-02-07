@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                        Copyright (C) 2014, AdaCore                       --
+--                     Copyright (C) 2014-2015, AdaCore                     --
 --                                                                          --
 --  This is free software;  you can redistribute it  and/or modify it       --
 --  under terms of the  GNU General Public License as published  by the     --
@@ -28,20 +28,42 @@ package body WebSock_Control_CB is
    ----------
 
    protected body Wait is
-      entry Start when Step > 0 is
+
+      entry Start when Count > 0 is
       begin
          null;
       end Start;
 
-      entry Stop when Step > 99 is
+      entry Stop when Count = 0 is
       begin
          null;
       end Stop;
 
-      procedure Set (Value : Integer) is
+      entry One when Count = 1 is
       begin
-         Step := Value;
-      end Set;
+         null;
+      end One;
+
+      procedure Incr is
+      begin
+         Count := Count + 1;
+      end Incr;
+
+      procedure Incr_Total is
+      begin
+         Total := Total + 1;
+      end Incr_Total;
+
+      procedure Decr is
+      begin
+         Count := Count - 1;
+      end Decr;
+
+      entry Max when Total = 4 is
+      begin
+         null;
+      end Max;
+
    end Wait;
 
    ------------
@@ -52,6 +74,7 @@ package body WebSock_Control_CB is
      (Socket  : Net.Socket_Access;
       Request : Status.Data) return Net.WebSocket.Object'Class is
    begin
+      Wait.Incr_Total;
       return Object'(Net.WebSocket.Object
                       (Net.WebSocket.Create (Socket, Request)) with C => 0);
    end Create;
@@ -76,6 +99,7 @@ package body WebSock_Control_CB is
       Text_IO.Put_Line
         ("On_Close : "
          & Net.WebSocket.Error_Type'Image (Socket.Error) & ", " & Message);
+      Wait.Decr;
    end On_Close;
 
    --------------
@@ -96,11 +120,11 @@ package body WebSock_Control_CB is
    overriding procedure On_Message
      (Socket : in out Object; Message : String) is
    begin
-      Text_IO.Put_Line ("Received : " & Message);
-
       if Message = "END_TEST" then
-         Wait.Set (100);
+         Wait.One;
+         Text_IO.Put_Line ("Received : " & Message);
       else
+         Text_IO.Put_Line ("Received : " & Message);
          Socket.Send ("Echo " & Message);
       end if;
    end On_Message;
@@ -113,7 +137,7 @@ package body WebSock_Control_CB is
    begin
       Text_IO.Put_Line ("On_Open : " & Message);
       Socket.Send ("Server open connect");
-      Wait.Set (1);
+      Wait.Incr;
    end On_Open;
 
    ----------

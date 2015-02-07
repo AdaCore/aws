@@ -76,7 +76,7 @@ res = Server.wait()
 print "Server ends with status %d" % res
 
 print "Server output:"
-lines = open('server-output').readlines()
+lines = sorted(open('server-output').readlines())
 for l in lines:
     if l[0:5] != 'PORT:':
         print l
