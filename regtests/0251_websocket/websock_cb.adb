@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2012-2014, AdaCore                     --
+--                     Copyright (C) 2012-2015, AdaCore                     --
 --                                                                          --
 --  This is free software;  you can redistribute it  and/or modify it       --
 --  under terms of the  GNU General Public License as published  by the     --
@@ -22,6 +22,9 @@ package body WebSock_CB is
 
    use Ada;
    use type AWS.Net.WebSocket.Kind_Type;
+
+   Opened : Natural := 0;
+   --  Number of opened WebSocket
 
    ---------
    -- Wait --
@@ -52,6 +55,15 @@ package body WebSock_CB is
      (Socket  : Net.Socket_Access;
       Request : Status.Data) return Net.WebSocket.Object'Class is
    begin
+      --  Wait for previous socket to be closed, this is to ensure all log
+      --  from previous WebSocket are displayed.
+
+      while Opened /= 0 loop
+         delay 0.1;
+      end loop;
+
+      Opened := Opened + 1;
+
       return Object'(Net.WebSocket.Object
                       (Net.WebSocket.Create (Socket, Request)) with C => 0);
    end Create;
@@ -76,6 +88,7 @@ package body WebSock_CB is
       Text_IO.Put_Line
         ("On_Close : "
          & Net.WebSocket.Error_Type'Image (Socket.Error) & ", " & Message);
+      Opened := Opened - 1;
    end On_Close;
 
    --------------
