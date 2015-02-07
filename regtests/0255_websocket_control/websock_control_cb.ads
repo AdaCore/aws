@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                        Copyright (C) 2014, AdaCore                       --
+--                     Copyright (C) 2014-2015, AdaCore                     --
 --                                                                          --
 --  This is free software;  you can redistribute it  and/or modify it       --
 --  under terms of the  GNU General Public License as published  by the     --
@@ -58,9 +58,14 @@ package WebSock_Control_CB is
    protected Wait is
       entry Start;
       entry Stop;
-      procedure Set (Value : Integer);
+      entry Max;
+      entry One;
+      procedure Incr;
+      procedure Decr;
+      procedure Incr_Total;
    private
-      Step : Integer := 0;
+      Count : Integer := 0;
+      Total : Natural := 0;
    end Wait;
 
 private

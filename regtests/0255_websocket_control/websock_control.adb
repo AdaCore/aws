@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                        Copyright (C) 2014, AdaCore                       --
+--                     Copyright (C) 2014-2015, AdaCore                     --
 --                                                                          --
 --  This is free software;  you can redistribute it  and/or modify it       --
 --  under terms of the  GNU General Public License as published  by the     --
@@ -34,9 +34,9 @@ procedure WebSock_Control is
           Net.WebSocket.Registry.Create (URI => "/echo1");
    --  The recipient targets all clients (any Origin) whose URI is /echo1
 
-   M      : String (1 .. 255);
    WS     : Server.HTTP;
    Config : AWS.Config.Object;
+
 begin
    AWS.Config.Set.Reuse_Address (Config, True);
    AWS.Config.Set.Server_Host (Config, "127.0.0.1");
@@ -77,6 +77,7 @@ begin
       delay 0.01;
    end loop;
 
+   WebSock_Control_CB.Wait.Max;
    WebSock_Control_CB.Wait.Stop;
 
    Server.Shutdown (WS);
