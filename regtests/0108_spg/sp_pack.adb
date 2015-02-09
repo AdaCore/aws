@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2006-2012, AdaCore                     --
+--                     Copyright (C) 2006-2015, AdaCore                     --
 --                                                                          --
 --  This is free software;  you can redistribute it  and/or modify it       --
 --  under terms of the  GNU General Public License as published  by the     --
@@ -285,14 +285,16 @@ package body Sp_Pack is
          Client.Close (Connect (J));
       end loop;
 
-      if Server_Push.Count (Push) > 1 then
-         --  Wait for server-push internal waiter process completion
-         delay 0.5;
-      end if;
+      for J in 1 .. 10 loop
+         exit when Server_Push.Count (Push) = 1;
 
-      if Server_Push.Count (Push) /= 1 then
-         Put_Line ("Auto unregister error." & Server_Push.Count (Push)'Img);
-      end if;
+         if J = 10 then
+            Put_Line ("Auto unregister error" & Server_Push.Count (Push)'Img);
+            exit;
+         end if;
+
+         delay 0.25;
+      end loop;
 
       Server_Push.Unregister_Clients (Push);
 
