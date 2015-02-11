@@ -1024,6 +1024,10 @@ package body AWS.Net.SSL is
 
       procedure Final;
 
+      function Get_Priorities return String;
+      --  Returns the Priorities string from Initialize of a default one
+      --  depending on the Security_Mode.
+
       Drop : Utils.Finalizer (Final'Access) with Unreferenced;
 
       ----------------
@@ -1052,6 +1056,35 @@ package body AWS.Net.SSL is
             Free (Key);
          end if;
       end Final;
+
+      --------------------
+      -- Get_Priorities --
+      --------------------
+
+      function Get_Priorities return String is
+      begin
+         if Priorities /= "" then
+            return Priorities;
+
+         else
+            case Security_Mode is
+               when SSLv3 | SSLv3_Server | SSLv3_Client =>
+                  return "NORMAL:-VERS-TLS-ALL:+VERS-SSL3.0";
+
+               when TLSv1 | TLSv1_Server | TLSv1_Client =>
+                  return "NORMAL:-VERS-TLS-ALL:+VERS-TLS1.0";
+
+               when TLSv1_1 | TLSv1_1_Server | TLSv1_1_Client =>
+                  return "NORMAL:-VERS-TLS-ALL:+VERS-TLS1.1";
+
+               when TLSv1_2 | TLSv1_2_Server | TLSv1_2_Client =>
+                  return "NORMAL:-VERS-TLS-ALL:+VERS-TLS1.2";
+
+               when SSLv23 | SSLv23_Server | SSLv23_Client =>
+                  return "NORMAL:+VERS-TLS-ALL:+VERS-SSL3.0";
+            end case;
+         end if;
+      end Get_Priorities;
 
       ---------------------
       -- Set_Certificate --
@@ -1224,12 +1257,13 @@ package body AWS.Net.SSL is
       end if;
 
       declare
-         Pr : aliased C.char_array := C.To_C (Priorities);
+         GP : constant String := Get_Priorities;
+         Pr : aliased C.char_array := C.To_C (GP);
          Pp : CS.chars_ptr;
          Er : aliased CS.chars_ptr;
          RC : C.int;
       begin
-         if Priorities /= "" then
+         if GP /= "" then
             Pp := CS.To_Chars_Ptr (Pr'Unchecked_Access);
          end if;
 

@@ -39,22 +39,12 @@ begin
    Text_IO.Put_Line ("Call me on port 4433, press Q to exit");
    Text_IO.New_Line;
 
-   --  Priorities    : for GNUTLS
-   --  Security_Mode : for OpenSSL
-   --
-   --  TLS 1.1 only:
-   --     Priorities           => "NORMAL:-VERS-TLS-ALL:+VERS-TLS1.1",
-   --     Security_Mode        => Net.SSL.TLSv1_1);
-   --
-   --  TLS 1.2 only:
-   --     Priorities           => "NORMAL:-VERS-TLS-ALL:+VERS-TLS1.2",
-   --     Security_Mode        => Net.SSL.TLSv1_2);
+   --  Allows only TLS 1.2
 
    Net.SSL.Initialize
      (SSL,
       Certificate_Filename => "aws-server.crt",
       Key_Filename         => "aws-server.key",
-      Priorities           => "NORMAL:-VERS-TLS-ALL:+VERS-TLS1.1",
       Security_Mode        => Net.SSL.TLSv1_2);
 
    Server.Set_SSL_Config (WS, SSL);
