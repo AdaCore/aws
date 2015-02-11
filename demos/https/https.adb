@@ -18,7 +18,6 @@
 
 --  Demos using TLS 1.2 only
 
-with Ada.Command_Line;
 with Ada.Text_IO;
 
 with AWS.Config;
