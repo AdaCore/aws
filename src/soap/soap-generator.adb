@@ -2545,7 +2545,7 @@ package body SOAP.Generator is
             Text_IO.Put_Line
               (Rec_Adb,
                "            with ""Record "" & SOAP.Types.Name (R) &"
-               & " "" not well formed."";");
+               & " "" not well formed"";");
          end if;
 
          Text_IO.Put_Line (Rec_Adb, "   end To_" & F_Name & ';');

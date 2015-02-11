@@ -26,19 +26,19 @@ Call 2
 OK
 Id 3
 Faultcode   : Client
-Faultstring : Parameter error in call (Record params not well formed.)
+Faultstring : Parameter error in call (Record params not well formed)
 Id 4
 Faultcode   : Client
-Faultstring : Parameter error in call (Record params not well formed.)
+Faultstring : Parameter error in call (Record params not well formed)
 Id 5
 Faultcode   : Client
-Faultstring : Parameter error in call (Record params not well formed.)
+Faultstring : Parameter error in call (Record params not well formed)
 Id 6
 Faultcode   : Client
-Faultstring : Parameter error in call (Record params not well formed.)
+Faultstring : Parameter error in call (Record params not well formed)
 Id 7
 Faultcode   : Client
-Faultstring : Parameter error in call (Record params not well formed.)
+Faultstring : Parameter error in call (Record params not well formed)
 Id 8
 Faultcode   : Client
 Faultstring : Parameter error in call (Dynamic_Predicate failed at www-ecerami-com-wsdl-deriveconstservice_wsdl-address_type_pkg.ads:65)
