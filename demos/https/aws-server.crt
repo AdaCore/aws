@@ -1,0 +1,65 @@
+Certificate:
+    Data:
+        Version: 3 (0x2)
+        Serial Number: 4026 (0xfba)
+    Signature Algorithm: sha1WithRSAEncryption
+        Issuer: C=FR, ST=Ile de France, L=Magny les Hameaux, O=AWS Team, CN=Pascal Obry/emailAddress=aws@obry.net
+        Validity
+            Not Before: Aug 13 16:09:06 2012 GMT
+            Not After : Aug  8 16:09:06 2032 GMT
+        Subject: C=FR, ST=Ile de France, O=AWS Team, CN=localhost/emailAddress=aws@obry.net
+        Subject Public Key Info:
+            Public Key Algorithm: rsaEncryption
+                Public-Key: (1024 bit)
+                Modulus:
+                    00:c4:ce:2a:42:f5:82:e6:2d:50:8b:ed:5a:dc:fc:
+                    73:fd:a7:5b:de:db:91:c1:0f:08:25:3c:dc:cc:3b:
+                    06:82:41:c2:dd:59:cb:3d:1a:60:8d:19:c2:24:3a:
+                    90:1b:11:1f:22:51:9c:aa:76:d9:77:b7:e5:d7:bb:
+                    90:97:ec:44:a1:99:95:ac:b2:20:00:df:55:61:d8:
+                    e9:c2:ee:b4:3a:a6:5d:9f:b6:6c:c5:e7:ea:1e:1a:
+                    78:f6:ac:ea:4b:de:30:68:0b:8c:d3:2c:56:eb:c1:
+                    98:a2:ba:89:13:e1:ce:82:f9:86:81:28:14:3f:ef:
+                    19:32:fd:43:4c:8f:00:81:8b
+                Exponent: 65537 (0x10001)
+        X509v3 extensions:
+            X509v3 Basic Constraints: 
+                CA:FALSE
+            Netscape Comment: 
+                OpenSSL Generated Certificate
+            X509v3 Subject Key Identifier: 
+                75:A2:31:6C:28:24:55:25:DA:17:AF:64:BA:A4:EA:7F:B3:96:6A:13
+            X509v3 Authority Key Identifier: 
+                DirName:/C=FR/ST=Ile de France/L=Magny les Hameaux/O=AWS Team/CN=Pascal Obry/emailAddress=aws@obry.net
+                serial:8B:4B:88:9D:CC:EA:1B:E7
+
+    Signature Algorithm: sha1WithRSAEncryption
+         02:97:95:2c:f8:a6:2b:f6:b4:d7:fb:b7:c3:52:74:aa:42:e9:
+         bb:b3:d7:d5:46:b1:29:4e:3f:f5:85:4c:09:c1:ad:96:8a:54:
+         39:34:c6:e9:cc:4f:e2:14:1d:d4:b9:55:16:61:f0:33:78:bf:
+         0f:d2:ff:18:90:49:8b:09:ce:f2:d8:8e:57:55:ad:e6:65:6b:
+         67:99:40:fa:db:36:4b:70:43:04:b5:05:ae:93:d1:2c:c8:09:
+         e6:08:63:f3:c2:ad:3e:8b:9b:fd:01:92:d6:5c:35:7c:24:cc:
+         82:0f:3d:a8:98:1e:e9:60:b0:c1:f4:15:59:9e:55:fa:9d:6e:
+         c2:6c
+-----BEGIN CERTIFICATE-----
+MIIDbzCCAtigAwIBAgICD7owDQYJKoZIhvcNAQEFBQAwgYcxCzAJBgNVBAYTAkZS
+MRYwFAYDVQQIDA1JbGUgZGUgRnJhbmNlMRowGAYDVQQHDBFNYWdueSBsZXMgSGFt
+ZWF1eDERMA8GA1UECgwIQVdTIFRlYW0xFDASBgNVBAMMC1Bhc2NhbCBPYnJ5MRsw
+GQYJKoZIhvcNAQkBFgxhd3NAb2JyeS5uZXQwHhcNMTIwODEzMTYwOTA2WhcNMzIw
+ODA4MTYwOTA2WjBpMQswCQYDVQQGEwJGUjEWMBQGA1UECAwNSWxlIGRlIEZyYW5j
+ZTERMA8GA1UECgwIQVdTIFRlYW0xEjAQBgNVBAMMCWxvY2FsaG9zdDEbMBkGCSqG
+SIb3DQEJARYMYXdzQG9icnkubmV0MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKB
+gQDEzipC9YLmLVCL7Vrc/HP9p1ve25HBDwglPNzMOwaCQcLdWcs9GmCNGcIkOpAb
+ER8iUZyqdtl3t+XXu5CX7EShmZWssiAA31Vh2OnC7rQ6pl2ftmzF5+oeGnj2rOpL
+3jBoC4zTLFbrwZiiuokT4c6C+YaBKBQ/7xky/UNMjwCBiwIDAQABo4IBBTCCAQEw
+CQYDVR0TBAIwADAsBglghkgBhvhCAQ0EHxYdT3BlblNTTCBHZW5lcmF0ZWQgQ2Vy
+dGlmaWNhdGUwHQYDVR0OBBYEFHWiMWwoJFUl2hevZLqk6n+zlmoTMIGmBgNVHSME
+gZ4wgZuhgY2kgYowgYcxCzAJBgNVBAYTAkZSMRYwFAYDVQQIDA1JbGUgZGUgRnJh
+bmNlMRowGAYDVQQHDBFNYWdueSBsZXMgSGFtZWF1eDERMA8GA1UECgwIQVdTIFRl
+YW0xFDASBgNVBAMMC1Bhc2NhbCBPYnJ5MRswGQYJKoZIhvcNAQkBFgxhd3NAb2Jy
+eS5uZXSCCQCLS4idzOob5zANBgkqhkiG9w0BAQUFAAOBgQACl5Us+KYr9rTX+7fD
+UnSqQum7s9fVRrEpTj/1hUwJwa2WilQ5NMbpzE/iFB3UuVUWYfAzeL8P0v8YkEmL
+Cc7y2I5XVa3mZWtnmUD62zZLcEMEtQWuk9EsyAnmCGPzwq0+i5v9AZLWXDV8JMyC
+Dz2omB7pYLDB9BVZnlX6nW7CbA==
+-----END CERTIFICATE-----
