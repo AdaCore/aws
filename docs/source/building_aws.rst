@@ -188,6 +188,10 @@ Here are a short description of them:
 *hotplug*
   A simple test for the hotplug feature.
 
+*https*
+  A simple secure server enforcing TLS 1.2 protocol to be used by
+  the Web Browser.
+
 *interoplab*
   A WSDL based demo that test most of the `SOAP` features.
 
