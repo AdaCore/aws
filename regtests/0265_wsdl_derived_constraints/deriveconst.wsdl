@@ -42,6 +42,19 @@
             </xs:restriction>
          </xs:simpleType>
 
+         <xs:simpleType name="Code1">
+            <xs:restriction base="xs:string">
+               <xs:pattern value="[A-Z][0-9]" />
+            </xs:restriction>
+         </xs:simpleType>
+
+         <xs:simpleType name="Code2">
+            <xs:restriction base="xs:string">
+               <xs:length value="3" />
+               <xs:pattern value="[A-Z][0-9][a-z]" />
+            </xs:restriction>
+         </xs:simpleType>
+
          <xs:simpleType name="NonNegativeFloat">
             <xs:restriction base="xs:double">
                <xs:minInclusive value="0" />
@@ -65,6 +78,8 @@
              <xs:element name="four"  type="Name" />
              <xs:element name="five"  type="ArrayOfName" />
              <xs:element name="six"   type="Address" />
+             <xs:element name="seven" type="Code1" />
+             <xs:element name="eight" type="Code2" />
            </xs:sequence>
          </xs:complexType>
 

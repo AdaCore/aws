@@ -600,7 +600,11 @@ package body Skel is
       --  Types.Data_Error
 
       Text_IO.Put_Line
-        (Skel_Adb, "      when E : SOAP.Types.Data_Error =>");
+        (Skel_Adb, "      when E : SOAP.Types.Data_Error");
+      Text_IO.Put_Line
+        (Skel_Adb, "               | System.Assertions.Assert_Failure");
+      Text_IO.Put_Line
+        (Skel_Adb, "        =>");
 
       Text_IO.Put_Line
         (Skel_Adb, "         --  Here we have a problem with some"
@@ -661,6 +665,7 @@ package body Skel is
       Text_IO.Put_Line (Skel_Ads, "pragma Warnings (Off);");
       Text_IO.New_Line (Skel_Ads);
       With_Unit (Skel_Ads, "Ada.Calendar", Elab => Off);
+      With_Unit (Skel_Ads, "System.Assertions", Elab => Off);
       Text_IO.New_Line (Skel_Ads);
       With_Unit (Skel_Ads, "AWS.Status");
       With_Unit (Skel_Ads, "AWS.Response");

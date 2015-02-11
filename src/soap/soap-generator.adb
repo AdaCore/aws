@@ -1220,29 +1220,9 @@ package body SOAP.Generator is
          --  Is types are to be reused from an Ada  spec ?
 
          if Types_Spec (O) = "" then
-            Text_IO.Put
-              (Der_Ads, "   type " & F_Name & " is new " & B_Name);
-
-            --  Generate constraints if any. We first get the root type to know
-            --  if the constraints are on integers, floats or strings.
-            --
-            --  * on integers and floats we generate a range:
-            --
-            --     range <lower> .. <upper>
-            --
-            --  where <lower> or <upper> could the base type 'First or 'Last.
-            --
-            --  * on static strings we generate:
-            --
-            --     (1 .. <length>)
-            --
-            --  * on variable length strings we generate aspects:
-            --
-            --     Dynamic_Predicate =>
-            --       Length (Unbounded_String (<type>)) >= <min>
-            --       and then Length (Unbounded_String (<type>)) <= <max>
-
             declare
+               use type WSDL.Parameter_Type;
+
                Root_Type   : constant WSDL.Parameter_Type :=
                                WSDL.To_Type (WSDL.Types.Root_Type_For (Def));
                Constraints : WSDL.Types.Constraints_Def;
@@ -1252,6 +1232,45 @@ package body SOAP.Generator is
                --  from the whole derived hierarchy.
 
                WSDL.Types.Get_Constraints (Def, Constraints);
+
+               --  Check if we have to build a regexp
+
+               if Root_Type = WSDL.P_String
+                 and then Constraints.Pattern /= Null_Unbounded_String
+               then
+                  Text_IO.Put_Line
+                    (Der_Ads,
+                     "   Compiled_Pattern : constant GNAT.Regexp.Regexp :=");
+                  Text_IO.Put_Line
+                    (Der_Ads, "                        GNAT.Regexp.Compile ("""
+                     & To_String (Constraints.Pattern) & """);");
+                  Text_IO.New_Line (Der_Ads);
+               end if;
+
+               Text_IO.Put
+                 (Der_Ads, "   type " & F_Name & " is new " & B_Name);
+
+               --  Generate constraints if any. We first get the root type to
+               --  know if the constraints are on integers, floats or strings.
+               --
+               --  * on integers and floats we generate a range:
+               --
+               --     range <lower> .. <upper>
+               --
+               --  where <lower> or <upper> could the base type 'First or
+               --  'Last.
+               --
+               --  * on static strings we generate:
+               --
+               --     (1 .. <length>)
+               --       Dynamic_Preficate => Match (<type>, <pattern>);
+               --
+               --  * on variable length strings we generate aspects:
+               --
+               --     Dynamic_Predicate =>
+               --       Length (Unbounded_String (<type>)) >= <min>
+               --       and then Length (Unbounded_String (<type>)) <= <max>
+               --       and then Match (To_String (<type>), <pattern>)
 
                case Root_Type is
                   when WSDL.P_Float =>
@@ -1329,41 +1348,73 @@ package body SOAP.Generator is
                            " (1 .."
                            & Natural'Image (Constraints.Length) & ')');
 
-                     else
-                        if Constraints.Min_Length /= WSDL.Types.Unset
-                          or else Constraints.Max_Length /= WSDL.Types.Unset
-                        then
+                        if Constraints.Pattern /= Null_Unbounded_String then
                            Text_IO.New_Line (Der_Ads);
                            Text_IO.Put_Line
                              (Der_Ads, "     with Dynamic_Predicate => ");
+                           Text_IO.Put
+                             (Der_Ads, "        GNAT.Regexp.Match (String ("
+                             & F_Name & "), Compiled_Pattern)");
+                        end if;
 
-                           if Constraints.Min_Length /= WSDL.Types.Unset then
-                              Text_IO.Put
-                                (Der_Ads,
-                                 "       Length (Unbounded_String ("
-                                 & F_Name & ")) >="
-                                 & Natural'Image (Constraints.Min_Length));
-                           end if;
+                     else
+                        declare
+                           Unset : Integer renames WSDL.Types.Unset;
+                           Empty : Unbounded_String
+                                     renames Null_Unbounded_String;
+                           Pred  : Boolean := False;
+                        begin
+                           if Constraints.Min_Length /= WSDL.Types.Unset
+                             or else Constraints.Max_Length /= WSDL.Types.Unset
+                             or else Constraints.Pattern /= Empty
+                           then
+                              Text_IO.New_Line (Der_Ads);
+                              Text_IO.Put_Line
+                                (Der_Ads, "     with Dynamic_Predicate => ");
 
-                           if Constraints.Max_Length /= WSDL.Types.Unset then
-                              if Constraints.Min_Length /=
-                                WSDL.Types.Unset
-                              then
-                                 Text_IO.New_Line (Der_Ads);
+                              if Constraints.Min_Length /= Unset then
+                                 Text_IO.Put
+                                   (Der_Ads,
+                                    "       Length (Unbounded_String ("
+                                    & F_Name & ")) >="
+                                    & Natural'Image (Constraints.Min_Length));
+                                 Pred := True;
                               end if;
 
-                              Text_IO.Put
-                                (Der_Ads,
-                                 "       "
-                                 & (if Constraints.Min_Length /=
-                                       WSDL.Types.Unset
-                                   then "and then "
-                                   else "")
-                                 & "Length (Unbounded_String ("
-                                 & F_Name & ")) <="
-                                 & Natural'Image (Constraints.Max_Length));
+                              if Constraints.Max_Length /= Unset then
+                                 if Pred then
+                                    Text_IO.New_Line (Der_Ads);
+                                 end if;
+
+                                 Text_IO.Put
+                                   (Der_Ads,
+                                    "       "
+                                    & (if Pred
+                                      then "and then "
+                                      else "")
+                                    & "Length (Unbounded_String ("
+                                    & F_Name & ")) <="
+                                    & Natural'Image (Constraints.Max_Length));
+                                    Pred := True;
+                              end if;
+
+                              if Constraints.Pattern /= Empty then
+                                 if Pred then
+                                    Text_IO.New_Line (Der_Ads);
+                                 end if;
+
+                                 Text_IO.Put
+                                   (Der_Ads,
+                                    "       "
+                                    & (if Pred
+                                      then "and then "
+                                      else "")
+                                    & "GNAT.Regexp.Match (To_String ("
+                                    & "Unbounded_String ("
+                                    & F_Name & ")), Compiled_Pattern)");
+                              end if;
                            end if;
-                        end if;
+                        end;
                      end if;
 
                   when  WSDL.P_Character =>
@@ -3125,6 +3176,8 @@ package body SOAP.Generator is
       With_Unit (File, "SOAP.Types", Elab => Children);
       With_Unit (File, "SOAP.Utils");
       Text_IO.New_Line (File);
+      With_Unit (File, "GNAT.Regexp");
+      Text_IO.New_Line (File);
 
       if Types_Spec (O) /= "" then
          With_Unit (File, Types_Spec (O));
@@ -3144,6 +3197,7 @@ package body SOAP.Generator is
         (File, "   pragma Warnings (Off, Ada.Strings.Unbounded);");
       Text_IO.Put_Line (File, "   pragma Warnings (Off, SOAP.Types);");
       Text_IO.Put_Line (File, "   pragma Warnings (Off, SOAP.Utils);");
+      Text_IO.Put_Line (File, "   pragma Warnings (Off, GNAT.Regexp);");
 
       if Types_Spec (O) /= "" then
          Text_IO.Put_Line

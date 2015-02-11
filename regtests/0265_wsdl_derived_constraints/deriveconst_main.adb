@@ -58,7 +58,9 @@ procedure Deriveconst_Main is
       Two   : Integer;
       Three : Long_Float;
       Four  : String;
-      Six   : String);
+      Six   : String;
+      Seven : String;
+      Eight : String);
    --  Send a Call display return error is any
 
    HTTP : Server.HTTP;
@@ -74,7 +76,9 @@ procedure Deriveconst_Main is
       Two   : Integer;
       Three : Long_Float;
       Four  : String;
-      Six   : String)
+      Six   : String;
+      Seven : String;
+      Eight : String)
    is
       O_Set : Object_Set := (+S ("00000000", "item"),
                              +S ((if Id = 3 then "x" else "abcdefgh"),
@@ -86,7 +90,9 @@ procedure Deriveconst_Main is
                      +D (Three, "three"),
                      +S (Four, "four"),
                      +A (O_Set, "five"),
-                     +S (Six, "six")), "params");
+                     +S (Six, "six"),
+                     +S (Seven, "seven"),
+                     +S (Eight, "eight")), "params");
       P     : Message.Payload.Object :=
                 Message.Payload.Build
                   ("call", P_Set,
@@ -123,7 +129,9 @@ procedure Deriveconst_Main is
 
    A  : constant ArrayOfName_Type := (1 => "00000000", 2 => "abcdefgh");
    B1 : constant Big_Type := (1, 1, 1, 1.0, "abcdefgh", +A,
-                              From_Unbounded_String (+"0987654"));
+                              From_Unbounded_String (+"0987654"),
+                              From_Unbounded_String (+"A2"),
+                              "A3b");
 
 begin
    Text_IO.Put_Line ("Run OK");
@@ -135,17 +143,21 @@ begin
 
    --  One call with respected constraints
 
-   Call (2, 99, 7, 9.0, "12345678", "12345");
+   Call (2, 99, 7, 9.0, "12345678", "12345", "A2", "A9z");
 
    --  Some calls with constraints error
 
-   Call (3, 88, 7, 9.0, "12345678", "12345"); -- fails because of array
-   Call (4, 101, 7, 9.0, "12345678", "12345");
-   Call (5, 99, 7, 9.0, "12345", "12345");
-   Call (6, 99, 7, -0.1, "12345678", "12345");
-   Call (7, 99, -7, 9.0, "12345678", "12345");
-   Call (8, 99, -7, 9.0, "12345678", "145");
-   Call (9, 99, -7, 9.0, "12345678", "145000000099887");
+   Call (3, 88, 7, 9.0, "12345678", "12345", "A2", "A9z");
+   --  fails because of array
+
+   Call (4, 101, 7, 9.0, "12345678", "12345", "A2", "A9z");
+   Call (5, 99, 7, 9.0, "12345", "12345", "A2", "A9z");
+   Call (6, 99, 7, -0.1, "12345678", "12345", "A2", "A9z");
+   Call (7, 99, -7, 9.0, "12345678", "12345", "A2", "A9z");
+   Call (8, 99, -7, 9.0, "12345678", "145", "A2", "A9z");
+   Call (9, 99, -7, 9.0, "12345678", "145000000099887", "A2", "A9z");
+   Call (10, 99, 7, 9.0, "12345678", "12345", "Ab", "A9z");
+   Call (11, 99, 7, 9.0, "12345678", "12345", "Ab", "A#@");
 
    Server.Shutdown (HTTP);
 end Deriveconst_Main;
