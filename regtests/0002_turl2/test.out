@@ -76,6 +76,21 @@ http://[1234:5678::9ABCD]:89/app/./../toto?url=http://titi&a=2
    File       : toto
    Parameters : ?url=http://titi&a=2
    URI        : /toto?url=http://titi&a=2
+http://[::12:3456]:789
+http://[::12:3456]:789/
+   Server     : ::12:3456
+   Port       : 789
+   Path       : /
+   File       :
+   Parameters :
+   URI        : /
+   *
+   Server     : ::12:3456
+   Port       : 789
+   Path       : /
+   File       :
+   Parameters :
+   URI        : /
 .
 .
    Server     :

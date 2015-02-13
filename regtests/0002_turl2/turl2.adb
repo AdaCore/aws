@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2000-2012, AdaCore                     --
+--                     Copyright (C) 2000-2015, AdaCore                     --
 --                                                                          --
 --  This is free software;  you can redistribute it  and/or modify it       --
 --  under terms of the  GNU General Public License as published  by the     --
@@ -59,9 +59,10 @@ begin
    Test ("http://www.myserver.com:89/./..?a=2");
    Test ("https://www.myserver.com/bugs/I9/DIR/"
          & "X2%202010:%20Notification%20to%20authors.eml"
-         &"?filename=X2%202010:%20Notification%20to%20authors.eml");
+         & "?filename=X2%202010:%20Notification%20to%20authors.eml");
    Test ("http://[1234:5678::9ABCD]/app/request?p1=9&p2=toto");
    Test ("http://[1234:5678::9ABCD]:89/app/.\..\toto?url=http://titi&a=2");
+   Test ("http://[::12:3456]:789");
    Test (".");
    Test ("./toto");
    Test ("./../toto");

@@ -317,7 +317,7 @@ package body AWS.URL.Set is
             --                       |          ||    |
             --                       F, LB    RB  I1  I2
 
-            if LB < RB and then LB > 0 and then LB < I2 then
+            if LB < RB and then LB > 0 and then (LB < I2 or else I2 = 0) then
                if RB < URL'Last and then URL (RB + 1) = ':' then
                   I1 := RB + 1;
                else
