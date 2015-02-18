@@ -1,0 +1,22 @@
+Hello AWS and welcome! 12
+r_hello_demo-client.ads
+--  This web service provides a simple Hello World.
+--  Called with a firstName, and returns a greeting message. This is
+--  very simple SOAP callback. The input message is a simple string, the
+--  response is a complexType with the response and a uniq token value.
+--  Raises SOAP.SOAP_Error if the procedure fails
+--  just for the documentation validation.
+--  Raises SOAP.SOAP_Error if the procedure fails
+r_hello_demo-server.ads
+--  This web service provides a simple Hello World.
+--  Called with a firstName, and returns a greeting message. This is
+--  very simple SOAP callback. The input message is a simple string, the
+--  response is a complexType with the response and a uniq token value.
+--  just for the documentation validation.
+www-s-com-wsdl-hs_wsdl-arrayoffloat_type_pkg.ads
+--  A set of float
+--  Convert an array to a safe pointer
+www-s-com-wsdl-hs_wsdl-helloresponse_type_pkg.ads
+--  A message/token pair
+--  The reponse string.
+--  Value representing the length of the response.

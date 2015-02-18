@@ -59,13 +59,14 @@ package body Skel is
    -------------------
 
    procedure New_Procedure
-     (O          : in out Object;
-      Proc       : String;
-      SOAPAction : String;
-      Namespace  : Name_Space.Object;
-      Input      : WSDL.Parameters.P_Set;
-      Output     : WSDL.Parameters.P_Set;
-      Fault      : WSDL.Parameters.P_Set)
+     (O             : in out Object;
+      Proc          : String;
+      Documentation : String;
+      SOAPAction    : String;
+      Namespace     : Name_Space.Object;
+      Input         : WSDL.Parameters.P_Set;
+      Output        : WSDL.Parameters.P_Set;
+      Fault         : WSDL.Parameters.P_Set)
    is
       pragma Unreferenced (Namespace, Fault);
 
@@ -176,6 +177,7 @@ package body Skel is
         (Skel_Ads, "      Request    : AWS.Status.Data)");
       Text_IO.Put_Line
         (Skel_Ads, "      return AWS.Response.Data;");
+      Output_Comment (Skel_Ads, Documentation, Indent => 3);
 
       --  Body
 
@@ -647,12 +649,13 @@ package body Skel is
    -------------------
 
    procedure Start_Service
-     (O             : in out Object;
-      Name          : String;
-      Documentation : String;
-      Location      : String)
+     (O                  : in out Object;
+      Name               : String;
+      Root_Documentation : String;
+      Documentation      : String;
+      Location           : String)
    is
-      pragma Unreferenced (Documentation);
+      pragma Unreferenced (Root_Documentation);
 
       U_Name : constant String         := To_Unit_Name (Format_Name (O, Name));
       URL    : constant AWS.URL.Object := AWS.URL.Parse (Location);
@@ -671,6 +674,10 @@ package body Skel is
       Text_IO.New_Line (Skel_Ads);
       With_Unit (Skel_Ads, U_Name & ".Types");
       Text_IO.New_Line (Skel_Ads);
+
+      Output_Comment (Skel_Ads, Documentation, Indent => 0);
+      Text_IO.New_Line (Skel_Ads);
+
       Text_IO.Put_Line (Skel_Ads, "package " & U_Name & ".Server is");
       Text_IO.New_Line (Skel_Ads);
       Text_IO.Put_Line (Skel_Ads, "   use " & U_Name & ".Types;");

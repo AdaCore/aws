@@ -46,10 +46,11 @@ package SOAP.Generator is
    type Object is new SOAP.WSDL.Parser.Object with private;
 
    overriding procedure Start_Service
-     (O             : in out Object;
-      Name          : String;
-      Documentation : String;
-      Location      : String);
+     (O                  : in out Object;
+      Name               : String;
+      Root_Documentation : String;
+      Documentation      : String;
+      Location           : String);
    --  Called for every service in the WSDL document
 
    overriding procedure End_Service
@@ -58,13 +59,14 @@ package SOAP.Generator is
    --  Called at the end of the service
 
    overriding procedure New_Procedure
-     (O          : in out Object;
-      Proc       : String;
-      SOAPAction : String;
-      Namespace  : Name_Space.Object;
-      Input      : WSDL.Parameters.P_Set;
-      Output     : WSDL.Parameters.P_Set;
-      Fault      : WSDL.Parameters.P_Set);
+     (O             : in out Object;
+      Proc          : String;
+      Documentation : String;
+      SOAPAction    : String;
+      Namespace     : Name_Space.Object;
+      Input         : WSDL.Parameters.P_Set;
+      Output        : WSDL.Parameters.P_Set;
+      Fault         : WSDL.Parameters.P_Set);
    --  Called for each SOAP procedure found in the WSDL document for the
    --  current service.
 

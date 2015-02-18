@@ -15,10 +15,17 @@ of the feature.
 New features in AWS 3.3
 -----------------------
 
-NF-33-O202-019 Add explicit supprot for TLS 1.1 and 1.2 (2015-02-02)
+NF-33-O202-019 Add explicit support for TLS 1.1 and 1.2 (2015-02-02)
 
     Allow explicit support for TLS 1.1 and 1.2 on OpenSSL. This also
     enable to restrict use of these specific protocols.
+
+NF-33-O122-046 Add support for documentation in WSDL (2015-02-18)
+
+    AWS's wsdl2aws tool will now record the annotation/documentation
+    nodes in the WSDL and generate comments out of them in the Ada
+    generated code. These comments are handled for the WSDL operations
+    and schema's types.
 
 NF-33-O118-021 Add support for xs:choice in WSDL complexType (2015-01-31)
 
