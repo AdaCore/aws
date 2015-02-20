@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2000-2014, AdaCore                     --
+--                     Copyright (C) 2000-2015, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -153,7 +153,7 @@ package body SOAP.Client is
          else
             --  All other cases, read the response from the connection
 
-            return Message.XML.Load_Response (Connection);
+            return Message.XML.Load_Response (Connection, Style => P.Style);
          end if;
 
       else

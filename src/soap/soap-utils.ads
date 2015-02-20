@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2000-2014, AdaCore                     --
+--                     Copyright (C) 2000-2015, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -87,6 +87,7 @@ package SOAP.Utils is
         (SOAPAction : String;
          Payload    : Message.Payload.Object;
          Request    : AWS.Status.Data) return AWS.Response.Data;
+      Style : Message.Binding_Style := Message.RPC;
    function SOAP_Wrapper
      (Request : AWS.Status.Data) return AWS.Response.Data;
    --  From a standard HTTP callback calls the SOAP callback passed as generic

@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2000-2014, AdaCore                     --
+--                     Copyright (C) 2000-2015, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -40,19 +40,22 @@ package SOAP.Message.XML is
 
    function Load_Payload
      (XML      : aliased String;
-      Envelope : Boolean := True) return Message.Payload.Object;
+      Envelope : Boolean := True;
+      Style    : Binding_Style := RPC) return Message.Payload.Object;
    --  Build a Payload object by parsing the XML payload string.
    --  If Envelope is False, the message could consists only from body
    --  with arbitrary named root tag without mandatory SOAP Envelope wrapper.
 
    function Load_Payload
      (XML      : Unbounded_String;
-      Envelope : Boolean := True) return Message.Payload.Object;
-   --  Build a Payload object by parsing the XML payload string.
+      Envelope : Boolean := True;
+      Style    : Binding_Style := RPC) return Message.Payload.Object;
+   --  Build a Payload object by parsing the XML payload string
 
    function Load_Response
      (Connection : AWS.Client.HTTP_Connection;
-      Envelope   : Boolean := True)
+      Envelope   : Boolean := True;
+      Style      : Binding_Style := RPC)
       return Message.Response.Object'Class;
    --  Build a Response object (either a standard response or an error
    --  response) by parsing the HTTP client connection output.
@@ -61,7 +64,8 @@ package SOAP.Message.XML is
 
    function Load_Response
      (XML      : aliased String;
-      Envelope : Boolean := True) return Message.Response.Object'Class;
+      Envelope : Boolean := True;
+      Style    : Binding_Style := RPC) return Message.Response.Object'Class;
    --  Build a Response object (either a standard response or an error
    --  response) by parsing the XML response string.
    --  If Envelope is False, the message could consists only from body
@@ -69,7 +73,8 @@ package SOAP.Message.XML is
 
    function Load_Response
      (XML      : Unbounded_String;
-      Envelope : Boolean := True) return Message.Response.Object'Class;
+      Envelope : Boolean := True;
+      Style    : Binding_Style := RPC) return Message.Response.Object'Class;
    --  As above but using an Unbounded_String
 
    function Image (O : Object'Class) return String;

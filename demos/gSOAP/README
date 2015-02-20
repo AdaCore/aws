@@ -1,0 +1,22 @@
+
+This demo shows the interoperability with the gSOAP C framework.
+
+To build the executable do:
+
+   $ make
+
+This will create:
+
+   hello_doc_client   The AWS client using the Document style binding
+   hello_doc_server   The AWS server using the Document style binding
+   c_client_doc       The gSOAP client using the Document style binding
+   c_server_doc       The gSOAP server using the Document style binding
+
+   hello_rpc_client   The AWS client using the RPC style binding
+   hello_rpc_server   The AWS server using the RPC style binding
+   c_client_rpc       The gSOAP client using the RPC style binding
+   c_server_rpc       The gSOAP server using the RPC style binding
+
+To run the demo it is required to run a server and the corresponding client.
+Mixing the RPC and Document style binding should fail otherwise all other
+combinations should be working without reporting an error.

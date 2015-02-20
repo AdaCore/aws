@@ -36,13 +36,14 @@ package body SOAP.Message.Payload is
    function Build
      (Procedure_Name : String;
       P_Set          : SOAP.Parameters.List;
-      Name_Space     : SOAP.Name_Space.Object := SOAP.Name_Space.AWS)
+      Name_Space     : SOAP.Name_Space.Object := SOAP.Name_Space.AWS;
+      Style          : Binding_Style := RPC)
       return Object is
    begin
       return (Name_Space   => Name_Space,
               Wrapper_Name => To_Unbounded_String (Procedure_Name),
               P            => P_Set,
-              Style        => RPC);
+              Style        => Style);
    end Build;
 
    --------------------

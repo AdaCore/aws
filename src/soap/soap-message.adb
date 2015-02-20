@@ -149,23 +149,25 @@ package body SOAP.Message is
    begin
       --  Procedure
 
-      Append (Message_Header, '<');
+      if M.Style = RPC then
+         Append (Message_Header, '<');
 
-      if NS_Name /= "" then
-         Append (Message_Header, NS_Name & ':');
+         if NS_Name /= "" then
+            Append (Message_Header, NS_Name & ':');
+         end if;
+
+         Append (Message_Header, Wrapper_Name (M));
+
+         Append (Message_Body, " xmlns");
+
+         if NS_Name /= "" then
+            Append (Message_Body, ":" & NS_Name);
+         end if;
+
+         Append
+           (Message_Body,
+            "=""" & SOAP.Name_Space.Value (NS) & """>" & New_Line);
       end if;
-
-      Append (Message_Header, Wrapper_Name (M));
-
-      Append (Message_Body, " xmlns");
-
-      if NS_Name /= "" then
-         Append (Message_Body, ":" & NS_Name);
-      end if;
-
-      Append
-        (Message_Body,
-         "=""" & SOAP.Name_Space.Value (NS) & """>" & New_Line);
 
       --  Procedure's parameters
 
@@ -181,14 +183,16 @@ package body SOAP.Message is
 
       --  Close payload objects
 
-      Append (Message_Body, "</");
+      if M.Style = RPC then
+         Append (Message_Body, "</");
 
-      if NS_Name /= "" then
-         Append (Message_Body, NS_Name & ':');
+         if NS_Name /= "" then
+            Append (Message_Body, NS_Name & ':');
+         end if;
+
+         Append (Message_Body, Wrapper_Name (M));
+         Append (Message_Body, ">" & New_Line);
       end if;
-
-      Append (Message_Body, Wrapper_Name (M));
-      Append (Message_Body, ">" & New_Line);
 
       return Message_Header & Message_Body;
    end XML_Image;
