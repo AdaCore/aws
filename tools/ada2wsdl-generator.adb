@@ -66,7 +66,10 @@ package body Ada2WSDL.Generator is
          when Table =>
             Length : Natural;
 
-         when Structure | Simple_Type | Enumeration =>
+         when Simple_Type =>
+            Min, Max : Unbounded_String;
+
+         when Structure | Enumeration =>
             null;
 
          when Safe_Pointer_Definition =>
@@ -231,10 +234,13 @@ package body Ada2WSDL.Generator is
    -- Register_Derived --
    ----------------------
 
-   procedure Register_Derived (NS, Name, Parent_Name : String) is
+   procedure Register_Derived
+     (NS, Name : String;
+      Def      : Type_Data)
+   is
       New_P : constant Parameter_Access :=
                 new Parameter'
-                  (+Name, +Parent_Name, +To_XSD (NS, Parent_Name), null);
+                  (+Name, Def.Name, +To_XSD (NS, -Def.Name), null);
       D     : Definition (Simple_Type);
    begin
       --  We need to write a schema for this derived type
@@ -243,13 +249,15 @@ package body Ada2WSDL.Generator is
       D.NS         := +NS;
       D.Name       := +Name;
       D.Parameters := New_P;
+      D.Min        := Def.Min;
+      D.Max        := Def.Max;
 
       Index := Index + 1;
       API (Index) := D;
 
       if not Options.Quiet then
          Text_IO.Put
-           ("   - derived         " & Name & " is new " & Parent_Name);
+           ("   - derived         " & Name & " is new " & (-Def.Name));
 
          if Options.Verbose then
             Text_IO.Put_Line (" (" & (-New_P.XSD_Name) & ')');
@@ -294,10 +302,13 @@ package body Ada2WSDL.Generator is
    -- Register_Type --
    -------------------
 
-   procedure Register_Type (NS, Name, Root_Name : String) is
+   procedure Register_Type
+     (NS, Name : String;
+      Def      : Type_Data)
+   is
       New_P : constant Parameter_Access :=
                 new Parameter'
-                  (+Name, +Root_Name, +To_XSD (NS, Root_Name), null);
+                  (+Name, Def.Name, +To_XSD (NS, -Def.Name), null);
       D     : Definition (Simple_Type);
    begin
       --  We need to write a schema for this derived type
@@ -306,13 +317,15 @@ package body Ada2WSDL.Generator is
       D.NS         := +NS;
       D.Name       := +Name;
       D.Parameters := New_P;
+      D.Min        := Def.Min;
+      D.Max        := Def.Max;
 
       Index := Index + 1;
       API (Index) := D;
 
       if not Options.Quiet then
          Text_IO.Put
-           ("   - new type        " & Name & " is " & Root_Name);
+           ("   - new type        " & Name & " is " & (-Def.Name));
 
          if Options.Verbose then
             Text_IO.Put_Line (" (" & (-New_P.XSD_Name) & ')');
@@ -892,7 +905,16 @@ package body Ada2WSDL.Generator is
             Put_Line ("         <xsd:simpleType name=""" & (-E.Name) & '"');
             Put_Line ("                 targetNamespace=""" & (-E.NS) & """>");
             Put_Line ("            <xsd:restriction base="""
-                        & (-P.XSD_Name) & """/>");
+                        & (-P.XSD_Name) & """>");
+            if E.Min /= Null_Unbounded_String then
+               Put_Line ("               <xsd:minInclusive value="""
+                         & To_String (E.Min) & """/>");
+            end if;
+            if E.Max /= Null_Unbounded_String then
+               Put_Line ("               <xsd:maxInclusive value="""
+                         & To_String (E.Max) & """/>");
+            end if;
+            Put_Line ("            </xsd:restriction>");
             Put_Line ("         </xsd:simpleType>");
          end Write_Type;
 

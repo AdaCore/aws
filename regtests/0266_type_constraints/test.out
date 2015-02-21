@@ -1,0 +1,21 @@
+ 12
+125
+==============================
+<xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+<xsd:simpleType name="T1"
+<xsd:restriction base="xsd:int">
+<xsd:minInclusive value=" 1"/>
+<xsd:maxInclusive value=" 9345"/>
+<xsd:simpleType name="T2"
+<xsd:restriction base="xsd:byte">
+<xsd:minInclusive value=" 1"/>
+<xsd:maxInclusive value=" 127"/>
+<xsd:simpleType name="T3"
+<xsd:restriction base="xsd:byte">
+<xsd:simpleType name="T4"
+<xsd:restriction base="xsd:short">
+<xsd:minInclusive value=" 0"/>
+<xsd:maxInclusive value=" 896"/>
+<xsd:simpleType name="T5"
+<xsd:restriction base="xsd:int">
+<xsd:minInclusive value=" 1"/>

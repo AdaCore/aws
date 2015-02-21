@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2003-2012, AdaCore                     --
+--                     Copyright (C) 2003-2015, AdaCore                     --
 --                                                                          --
 --  This is free software;  you can redistribute it  and/or modify it       --
 --  under terms of the  GNU General Public License as published  by the     --
@@ -16,7 +16,16 @@
 --  to http://www.gnu.org/licenses for a complete copy of the license.      --
 ------------------------------------------------------------------------------
 
+with Ada.Strings.Unbounded;
+
 package Ada2WSDL.Generator is
+
+   use Ada.Strings.Unbounded;
+
+   type Type_Data is record
+      Name     : Unbounded_String;
+      Min, Max : Unbounded_String;
+   end record;
 
    -------------
    -- Routine --
@@ -71,10 +80,14 @@ package Ada2WSDL.Generator is
    -- Types --
    -----------
 
-   procedure Register_Derived (NS, Name, Parent_Name : String);
+   procedure Register_Derived
+     (NS, Name : String;
+      Def      : Type_Data);
    --  Register a derived type
 
-   procedure Register_Type (NS, Name, Root_Name : String);
+   procedure Register_Type
+     (NS, Name : String;
+      Def      : Type_Data);
    --  Register a user defined type
 
    function Type_Exists (NS, Name : String) return Boolean;
