@@ -19,3 +19,10 @@
 <xsd:simpleType name="T5"
 <xsd:restriction base="xsd:int">
 <xsd:minInclusive value=" 1"/>
+<xsd:simpleType name="T6"
+<xsd:restriction base="xsd:float">
+<xsd:minInclusive value=" 0.00000000000000E+00"/>
+<xsd:maxInclusive value=" 1.00000000000000E+00"/>
+<xsd:simpleType name="T7"
+<xsd:restriction base="xsd:double">
+<xsd:minInclusive value="-1.00000000000000E+00"/>

@@ -996,12 +996,29 @@ package body Ada2WSDL.Parser is
               then Null_Unbounded_String
               else +Long_Long_Integer'Image (Last)));
 
+         function Build_Type_F
+           (Name  : String;
+            First : Long_Float := Long_Float'Last;
+            Last  : Long_Float := Long_Float'First)
+            return Generator.Type_Data
+         is (+Name,
+             (if First = Long_Float'Last
+              then Null_Unbounded_String
+              else +Long_Float'Image (First)),
+             (if Last = Long_Float'First
+              then Null_Unbounded_String
+              else +Long_Float'Image (Last)));
+
          procedure Get_Range
            (E : Asis.Element; Lower, Upper : out Long_Long_Integer);
+         procedure Get_Range
+           (E : Asis.Element; Lower, Upper : out Long_Float);
          --  Returns the range constraint for the given type pointed to by E
 
          function Compute_Value
            (V : Asis.Expression) return Long_Long_Integer;
+         function Compute_Value
+           (V : Asis.Expression) return Long_Float;
          function Compute_Value
            (V : Asis.Expression) return SOAP.Types.Unsigned_Long;
          --  Retruns the computed value for the given expression. This is
@@ -1011,6 +1028,38 @@ package body Ada2WSDL.Parser is
          -------------------
          -- Compute_Value --
          -------------------
+
+         function Compute_Value
+           (V : Asis.Expression) return Long_Float
+         is
+            VI  : constant String := Image (Text.Element_Image (V));
+            M   : constant Natural := Strings.Fixed.Index (VI, "-");
+            E   : constant Natural := Strings.Fixed.Index (VI, "**");
+            N   : Long_Float;
+            Exp : Natural := 1;
+
+         begin
+            if E = 0 and then M /= 0 then
+               --  We have a simple minus before a number
+               return -Long_Float'Value (VI (M + 1 .. VI'Last));
+
+            elsif M < E then
+               Exp := Natural'Value (VI (E + 2 .. VI'Last));
+
+               if M = 0 then
+                  N := Long_Float'Value (VI (VI'First .. E - 1));
+               else
+                  N := -Long_Float'Value (VI (M + 1 .. E - 1));
+               end if;
+
+               return N ** Exp;
+
+            else
+               --  expressions not supported
+               --  ???
+               return 0.0;
+            end if;
+         end Compute_Value;
 
          function Compute_Value
            (V : Asis.Expression) return Long_Long_Integer
@@ -1070,7 +1119,6 @@ package body Ada2WSDL.Parser is
          procedure Get_Range
            (E : Asis.Element; Lower, Upper : out Long_Long_Integer)
          is
-
             C      : Asis.Element;
             LB, UB : Asis.Expression;
 
@@ -1114,6 +1162,56 @@ package body Ada2WSDL.Parser is
                   Upper := Long_Long_Integer'First;
                else
                   Upper := Long_Long_Integer'Value
+                    (Image (Expressions.Value_Image (UB)));
+               end if;
+            end if;
+         end Get_Range;
+
+         procedure Get_Range
+           (E : Asis.Element; Lower, Upper : out Long_Float)
+         is
+            C      : Asis.Element;
+            LB, UB : Asis.Expression;
+
+         begin
+            Lower := 0.0;
+            Upper := 0.0;
+
+            case Flat_Element_Kind (E) is
+               when A_Floating_Point_Definition =>
+                  C := Definitions.Real_Range_Constraint (E);
+
+               when An_Ordinary_Type_Declaration =>
+                  C := Definitions.Subtype_Constraint
+                    (Definitions.Parent_Subtype_Indication
+                       (Declarations.Type_Declaration_View (E)));
+
+               when A_Derived_Type_Definition =>
+                  C := Definitions.Subtype_Constraint (E);
+
+               when others =>
+                  C := E;
+            end case;
+
+            if Flat_Element_Kind (C) = A_Simple_Expression_Range then
+               LB := Definitions.Lower_Bound (C);
+               UB := Definitions.Upper_Bound (C);
+
+               if Flat_Element_Kind (LB) = A_Function_Call then
+                  Lower := Compute_Value (LB);
+               elsif Flat_Element_Kind (LB) = A_First_Attribute then
+                  Lower := Long_Float'Last;
+               else
+                  Lower := Long_Float'Value
+                    (Image (Expressions.Value_Image (LB)));
+               end if;
+
+               if Flat_Element_Kind (UB) = A_Function_Call then
+                  Upper := Compute_Value (UB);
+               elsif Flat_Element_Kind (UB) = A_Last_Attribute then
+                  Upper := Long_Float'First;
+               else
+                  Upper := Long_Float'Value
                     (Image (Expressions.Value_Image (UB)));
                end if;
             end if;
@@ -1210,20 +1308,30 @@ package body Ada2WSDL.Parser is
 
                if Base then
                   declare
-                     Dig : constant Integer :=
-                             Integer'Value
-                               (Image (Expressions.Value_Image
-                                (Definitions.Digits_Expression (E))));
+                     Dig      : constant Integer :=
+                                  Integer'Value
+                                    (Image (Expressions.Value_Image
+                                     (Definitions.Digits_Expression (E))));
+                     Ilb, Iub : Long_Float;
                   begin
+                     Get_Range (E, Ilb, Iub);
+
                      if Dig <= Float'Digits then
-                        return Build_Type ("float");
+                        return Build_Type_F ("float", Ilb, Iub);
                      else
-                        return Build_Type ("long_float");
+                        return Build_Type_F ("long_float", Ilb, Iub);
                      end if;
                   end;
 
                else
-                  return Build_Type (Image (Text.Element_Image (Tn)));
+                  declare
+                     Ilb, Iub : Long_Float;
+                  begin
+                     Get_Range (Elem, Ilb, Iub);
+
+                     return Build_Type_F
+                       (Image (Text.Element_Image (Tn)), Ilb, Iub);
+                  end;
                end if;
 
             when A_Modular_Type_Definition =>

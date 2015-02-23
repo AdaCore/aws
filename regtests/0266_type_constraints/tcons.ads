@@ -33,4 +33,10 @@ package TCONS is
    type T5 is new Integer range 1 .. Integer'Last;
    procedure Print_T5 (X : T5);
 
+   type T6 is new Float range 0.0 .. 1.0;
+   procedure Print_T6 (X : T6);
+
+   type T7 is digits 10 range -1.0 .. Long_Float'Last;
+   procedure Print_T7 (X : T7);
+
 end TCONS;

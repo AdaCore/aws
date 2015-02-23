@@ -67,4 +67,22 @@ package body TCONS is
       Text_IO.Put_Line (T5'Image (X));
    end Print_T5;
 
+   --------------
+   -- Print_T6 --
+   --------------
+
+   procedure Print_T6 (X : T6) is
+   begin
+      Text_IO.Put_Line (T6'Image (X));
+   end Print_T6;
+
+   --------------
+   -- Print_T7 --
+   --------------
+
+   procedure Print_T7 (X : T7) is
+   begin
+      Text_IO.Put_Line (T7'Image (X));
+   end Print_T7;
+
 end TCONS;
