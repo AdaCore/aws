@@ -1015,11 +1015,11 @@ package body Ada2WSDL.Parser is
          function Compute_Value
            (V : Asis.Expression) return Long_Long_Integer
          is
-            VI     : constant String := Image (Text.Element_Image (V));
-            M      : constant Natural := Strings.Fixed.Index (VI, "-");
-            E      : constant Natural := Strings.Fixed.Index (VI, "**");
-            N      : Long_Long_Integer;
-            N1, N2 : Long_Long_Integer;
+            VI  : constant String := Image (Text.Element_Image (V));
+            M   : constant Natural := Strings.Fixed.Index (VI, "-");
+            E   : constant Natural := Strings.Fixed.Index (VI, "**");
+            N   : Long_Long_Integer;
+            Exp : Natural := 1;
 
          begin
             if E = 0 and then M /= 0 then
@@ -1027,21 +1027,15 @@ package body Ada2WSDL.Parser is
                return -Long_Long_Integer'Value (VI (M + 1 .. VI'Last));
 
             elsif M < E then
-               N2 := Long_Long_Integer'Value (VI (E + 2 .. VI'Last));
+               Exp := Natural'Value (VI (E + 2 .. VI'Last));
 
                if M = 0 then
-                  N1 := Long_Long_Integer'Value (VI (VI'First .. E - 1));
-                  N := N1;
+                  N := Long_Long_Integer'Value (VI (VI'First .. E - 1));
                else
-                  N1 := Long_Long_Integer'Value (VI (M + 1 .. E - 1));
-                  N := -N1;
+                  N := -Long_Long_Integer'Value (VI (M + 1 .. E - 1));
                end if;
 
-               for K in 1 .. N2 - 1 loop
-                  N := N * N1;
-               end loop;
-
-               return N;
+               return N ** Exp;
 
             else
                --  expressions not supported
