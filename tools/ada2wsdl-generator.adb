@@ -68,6 +68,7 @@ package body Ada2WSDL.Generator is
 
          when Simple_Type =>
             Min, Max : Unbounded_String;
+            Len      : Unbounded_String;
 
          when Structure | Enumeration =>
             null;
@@ -251,6 +252,7 @@ package body Ada2WSDL.Generator is
       D.Parameters := New_P;
       D.Min        := Def.Min;
       D.Max        := Def.Max;
+      D.Len        := Def.Len;
 
       Index := Index + 1;
       API (Index) := D;
@@ -913,6 +915,10 @@ package body Ada2WSDL.Generator is
             if E.Max /= Null_Unbounded_String then
                Put_Line ("               <xsd:maxInclusive value="""
                          & To_String (E.Max) & """/>");
+            end if;
+            if E.Len /= Null_Unbounded_String then
+               Put_Line ("               <xsd:Length value="""
+                         & To_String (E.Len) & """/>");
             end if;
             Put_Line ("            </xsd:restriction>");
             Put_Line ("         </xsd:simpleType>");

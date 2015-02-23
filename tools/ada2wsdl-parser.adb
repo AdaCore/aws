@@ -766,6 +766,8 @@ package body Ada2WSDL.Parser is
                begin
                   if Flat_Element_Kind (TDV)
                     = An_Unconstrained_Array_Definition
+                    or else Flat_Element_Kind (TDV)
+                    = A_Constrained_Array_Definition
                   then
                      --  This is derived type from an array, we have to create
                      --  a new array definition if this derived type as a set
@@ -775,6 +777,45 @@ package body Ada2WSDL.Parser is
 
                      C    := Definitions.Subtype_Constraint (PST);
                      Comp := Definitions.Array_Component_Definition (TDV);
+
+                     --  Check whether the base name is a standard Ada string
+
+                     declare
+                        B_Name : constant String :=
+                                   Characters.Handling.To_Lower
+                                     (Image (Text.Element_Image
+                                       (Definitions.Subtype_Mark (PST))));
+                        Len    : Unbounded_String;
+                     begin
+                        if B_Name = "string" then
+
+                           if Flat_Element_Kind (C) = An_Index_Constraint then
+                              declare
+                                 R       : constant Asis.Discrete_Range_List :=
+                                               Definitions.Discrete_Ranges (C);
+                                 Dummy   : Unbounded_String;
+                                 Str_Len : Natural;
+                              begin
+                                 Array_Type_Suffix (R (1), Dummy, Str_Len);
+                                 Len := To_Unbounded_String
+                                   (AWS.Utils.Image (Str_Len));
+                              end;
+                           end if;
+
+                           if not Generator.Type_Exists
+                             (Name_Space (E), Name)
+                           then
+                              Generator.Register_Derived
+                                (Name_Space (E), Name,
+                                 (To_Unbounded_String ("string"),
+                                  Null_Unbounded_String,
+                                  Null_Unbounded_String,
+                                  Len));
+                           end if;
+
+                           return;
+                        end if;
+                     end;
 
                      if Flat_Element_Kind (C) = An_Index_Constraint then
                         --  This derived type has constraints
@@ -994,7 +1035,8 @@ package body Ada2WSDL.Parser is
               else +Long_Long_Integer'Image (First)),
              (if Last = Long_Long_Integer'First
               then Null_Unbounded_String
-              else +Long_Long_Integer'Image (Last)));
+              else +Long_Long_Integer'Image (Last)),
+             Null_Unbounded_String);
 
          function Build_Type_F
            (Name  : String;
@@ -1007,7 +1049,8 @@ package body Ada2WSDL.Parser is
               else +Long_Float'Image (First)),
              (if Last = Long_Float'First
               then Null_Unbounded_String
-              else +Long_Float'Image (Last)));
+              else +Long_Float'Image (Last)),
+             Null_Unbounded_String);
 
          procedure Get_Range
            (E : Asis.Element; Lower, Upper : out Long_Long_Integer);

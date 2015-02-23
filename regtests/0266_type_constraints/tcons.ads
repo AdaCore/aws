@@ -39,4 +39,10 @@ package TCONS is
    type T7 is digits 10 range -1.0 .. Long_Float'Last;
    procedure Print_T7 (X : T7);
 
+   type T8 is new String (1 .. 10);
+   procedure Print_T8 (X : T8);
+
+   type T9 is new String;
+   procedure Print_T9 (X : T9);
+
 end TCONS;

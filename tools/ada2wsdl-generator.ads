@@ -25,6 +25,7 @@ package Ada2WSDL.Generator is
    type Type_Data is record
       Name     : Unbounded_String;
       Min, Max : Unbounded_String;
+      Len      : Unbounded_String;
    end record;
 
    -------------
