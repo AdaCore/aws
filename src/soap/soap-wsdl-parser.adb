@@ -147,13 +147,13 @@ package body SOAP.WSDL.Parser is
      (O        : in out Object'Class;
       R        : DOM.Core.Node;
       Document : WSDL.Object) return Parameters.Parameter;
-   --  Returns record in node N
+   --  Returns record in node R
 
    function Parse_Array
      (O        : in out Object'Class;
       R        : DOM.Core.Node;
       Document : WSDL.Object) return Parameters.Parameter;
-   --  Returns array in node N
+   --  Returns array in node R
 
    function Parse_Simple
      (O        : in out Object'Class;
