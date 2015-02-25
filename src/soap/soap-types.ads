@@ -165,6 +165,25 @@ package SOAP.Types is
    function V (O : SOAP_Array; N : Positive) return Object'Class;
    --  Returns SOAP_Array item at position N
 
+   ----------
+   --  Set --
+   ----------
+
+   type SOAP_Set is new Composite with private;
+   --  A set is like an array but to record multi-occurence of parameters. The
+   --  SOAP message does not contain the enclosing SOAP array XML tag.
+
+   overriding function Image (O : SOAP_Set) return String;
+   overriding procedure XML_Image
+     (O : SOAP_Set; Result : in out Unbounded_String);
+
+   function Set
+     (V         : Object_Set;
+      Name      : String;
+      Type_Name : String := "") return SOAP_Set;
+   --  Type_Name of the array's elements, if not specified it will be computed
+   --  based on element's name.
+
    ------------
    -- Base64 --
    ------------
@@ -710,6 +729,8 @@ private
    type SOAP_Array is new Composite with record
       Type_Name : Unbounded_String;
    end record;
+
+   type SOAP_Set is new SOAP_Array with null record;
 
    type SOAP_Record is new Composite with record
       Type_Name : Unbounded_String;
