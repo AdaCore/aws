@@ -344,6 +344,9 @@ package SOAP.Types is
    function V (O : SOAP_Record; Name : String) return Object'Class;
    --  Returns SOAP_Record field named Name
 
+   function V (O : SOAP_Record; Name : String) return Object_Set;
+   --  Returns SOAP_Record fields named Name
+
    function Exists (O : SOAP_Record; Field_Name : String) return Boolean;
    --  Returns True if the record O constains Field_Name
 

@@ -1257,6 +1257,40 @@ package body SOAP.Types is
         with "(V) Struct object " & Name & " not found";
    end V;
 
+   function V (O : SOAP_Record; Name : String) return Object_Set is
+
+      function Count return Natural;
+      --  Returns the number of items in O with given Name
+
+      -----------
+      -- Count --
+      -----------
+
+      function Count return Natural is
+         C : Natural := 0;
+      begin
+         for K in O.O'Range loop
+            if Types.Name (O.O (K).O.all) = Name then
+               C := C + 1;
+            end if;
+         end loop;
+         return C;
+      end Count;
+
+      Result : Object_Set (1 .. Count);
+      I      : Natural range 0 .. Count := 0;
+
+   begin
+      for K in O.O'Range loop
+         if Types.Name (O.O (K).O.all) = Name then
+            I := I + 1;
+            Result (I) := O.O (K);
+         end if;
+      end loop;
+
+      return Result;
+   end V;
+
    ---------------
    -- XML_Image --
    ---------------
