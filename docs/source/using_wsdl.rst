@@ -238,8 +238,44 @@ document. In this section we describe the mapping between Ada and
 
 .. highlight:: ada
 
+*Derived types with constraints*
+  Mapped to a type schema definition with minInclusive and maxInclusive
+  attributes::
+
+   type Number is new Integer range 1 .. 9345;
+
+  .. highlight:: xml
+
+  is defined as::
+
+   <simpleType name="Number" targetNamespace="http://soapaws/WSDL_C_pkg/">
+     <restriction base="xsd:int">
+       <xsd:minInclusive value=" 1"/>
+       <xsd:maxInclusive value=" 9345"/>
+     </restriction>
+   </simpleType>
+
+   Or for a string::
+
+   .. highlight:: ada
+
+   type Code is String (1 .. 10);
+
+  .. highlight:: xml
+
+  is defined as::
+
+   <simpleType name="Code" targetNamespace="http://soapaws/WSDL_C_pkg/">
+     <xsd:restriction base="xsd:string">
+       <xsd:Length value="10"/>
+     </xsd:restriction>
+   </simpleType>
+
+.. highlight:: ada
+
 *User's types*
-  Mapped to a type schema definition::
+  Mapped to a type schema definition with minInclusive and
+  maxInclusive attributes::
 
    type Small is range 1 .. 10;
 
@@ -248,8 +284,28 @@ document. In this section we describe the mapping between Ada and
   is defined as::
 
    <simpleType name="Small" targetNamespace="http://soapaws/WSDL_C_pkg/">
-     <restriction base="xsd:byte"/>
-   </simpleType>}
+     <restriction base="xsd:byte">
+       <xsd:minInclusive value=" 1"/>
+       <xsd:maxInclusive value=" 10"/>
+     </restriction>
+   </simpleType>
+
+.. highlight:: ada
+
+*Modular types*
+  Mapped to an unsigned type with an optional maxInclusive attribute::
+
+   type Count is mod 14;
+
+  .. highlight:: xml
+
+  is defined as::
+
+   <simpleType name="Count" targetNamespace="http://soapaws/WSDL_C_pkg/">
+     <xsd:restriction base="xsd:unsignedByte">
+       <xsd:maxInclusive value=" 13"/>
+     </xsd:restriction>
+   </simpleType>
 
 .. highlight:: ada
 
@@ -731,17 +787,26 @@ package and a set of child packages as described below:
   comment and the description of the services as read from the `WSDL`
   document.
 
+*<NS>.<type>_type_pkg*
+  Contains all the type definitions for non standard Ada types. In
+  these packages we find for example the definition of the records and
+  the operation to convert them to/from SOAP objects. The types
+  defined here have possible constraints like range attribute and/or
+  Dynamic_Predicate aspects for Pattern and/or Length WSDL attribute.
+
+  The root package <NS> is the name-space of the actual type. This
+  ensure that no type name clash will happen. Those packages are
+  generally not directly withed.
+
 *<root>.Types*
   This package contains the definitions of the types which are not `SOAP`
   base types. We find here the definitions of the `SOAP` structs
   and arrays with routines to convert them between the Ada and `SOAP` type
-  model. A subtype definition is also created for every routine's returned type.
-  In fact, all definitions here are only alias or renaming of types
-  and/or routines generated in other packages. The real definitions for
-  structs, arrays, enumerations and derived types are generated into a
-  package whose name depends on the name space used for these
-  entities. This package act as a container for all definitions and it
-  is the only one used in the other generated packages.
+  model. A subtype definition is also created for every routine's
+  returned type. In fact, all definitions here are only alias or
+  renaming of types and/or routines generated in other packages rooted
+  with a name-space as described above. This package is the one that
+  user's should import to gain the visibility of types definitions.
 
 *<root>.Client*
   All spec to call Web Services.

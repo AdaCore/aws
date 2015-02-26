@@ -15,6 +15,29 @@ of the feature.
 New features in AWS 3.3
 -----------------------
 
+NF-33-O204-042 Add support for WSDL/SOAP type's constraints (2015-02-28)
+
+    The tools ada2wsdl and wsdl2aws handle now the type constraints.
+    That is, ada2wsdl will check for range attribute, mod for modular
+    types and array index to generate the corresponding constraints in
+    the WSDL using the simpleType Length, minInclusive and
+    maxInclusive attributes. Those attributes (plus the  minExclusive
+    and maxExclusive ones) are now used by wsdl2aws to generate Ada
+    type constraints.
+
+    Now a constrained string is generated instead of an
+    Unbounded_String for a simpleType with a Length attribute whose
+    base type is xsd:string.
+
+    The simpleType Pattern attribute is now taken into account and a
+    Dynamic_Predicate aspect is generated. For varying length string
+    with attribute minLength and/or maxLength a Dynamic_Predicate
+    aspect is also generated.
+
+    Those now constraints will ensure that SOAP objects sent/received
+    are not violating the constraints expressed into the WSDL making
+    the new implementation safer.
+
 NF-33-O202-019 Add explicit supprot for TLS 1.1 and 1.2 (2015-02-02)
 
     Allow explicit support for TLS 1.1 and 1.2 on OpenSSL. This also

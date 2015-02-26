@@ -31,3 +31,8 @@
 <xsd:Length value="10"/>
 <xsd:simpleType name="T9"
 <xsd:restriction base="xsd:string">
+<xsd:simpleType name="TA"
+<xsd:restriction base="xsd:unsignedByte">
+<xsd:maxInclusive value=" 13"/>
+<xsd:simpleType name="TB"
+<xsd:restriction base="xsd:unsignedShort">

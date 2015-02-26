@@ -1395,23 +1395,46 @@ package body Ada2WSDL.Parser is
                           (Image (Expressions.Value_Image (Mod_Node)));
                      end if;
 
-                     if Modulus < SOAP.Types.Unsigned_Long
+                     if Modulus = SOAP.Types.Unsigned_Long
                        (SOAP.Types.Unsigned_Byte'Modulus)
                      then
                         return Build_Type ("unsigned_byte");
 
                      elsif Modulus < SOAP.Types.Unsigned_Long
+                       (SOAP.Types.Unsigned_Byte'Modulus)
+                     then
+                        return Build_Type
+                          ("unsigned_byte",
+                           Last => Long_Long_Integer (Modulus - 1));
+
+                     elsif Modulus = SOAP.Types.Unsigned_Long
                        (SOAP.Types.Unsigned_Short'Modulus)
                      then
                         return Build_Type ("unsigned_short");
 
                      elsif Modulus < SOAP.Types.Unsigned_Long
+                       (SOAP.Types.Unsigned_Short'Modulus)
+                     then
+                        return Build_Type
+                          ("unsigned_short",
+                           Last => Long_Long_Integer (Modulus - 1));
+
+                     elsif Modulus = SOAP.Types.Unsigned_Long
                        (SOAP.Types.Unsigned_Int'Modulus)
                      then
                         return Build_Type ("unsigned_int");
 
+                     elsif Modulus < SOAP.Types.Unsigned_Long
+                       (SOAP.Types.Unsigned_Int'Modulus)
+                     then
+                        return Build_Type
+                          ("unsigned_int",
+                           Last => Long_Long_Integer (Modulus - 1));
+
                      else
-                        return Build_Type ("unsigned_long");
+                        return Build_Type
+                          ("unsigned_long",
+                           Last => Long_Long_Integer (Modulus - 1));
                      end if;
                   end;
 

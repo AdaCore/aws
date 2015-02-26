@@ -45,4 +45,10 @@ package TCONS is
    type T9 is new String;
    procedure Print_T9 (X : T9);
 
+   type TA is mod 14;
+   procedure Print_TA (X : TA);
+
+   type TB is mod 2**16;
+   procedure Print_TB (X : TB);
+
 end TCONS;
