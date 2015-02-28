@@ -186,7 +186,7 @@ document. In this section we describe the mapping between Ada and
      <restriction base="xsd:string">
        <length value="1"/>
      </restriction>
-   </simpleType>}
+   </simpleType>
 
 *SOAP.Utils.SOAP_Base64*
   Mapped to **xsd:base64Binary**. `SOAP.Utils.SOAP_Base64` is a
@@ -490,13 +490,13 @@ ada2wsdl limitations
 
 .. index:: ada2wsdl limitations
 
-* Do not handle constraint arrays into a records.
+* Do not handle constrained arrays into a records.
 
-* Unbounded_String are supported with full interoperability only inside a record.
+* Unbounded_String are supported with full interoperability  only inside a record.
 
-* Only unconstraint arrays are supported
+* Only unconstrained arrays are supported
 
-* Arrays with multiple dimentions not supported
+* Arrays with multiple dimensions not supported
 
 .. _Working_with_WSDL_documents:
 
@@ -873,7 +873,7 @@ build a server for this service it is as easy as::
 The server will be available on localhost at port 8787::
 
  $ wsdl2aws -cb -main server -types graphics graphics.wsdl
- $ gnatmake server -largs ...}
+ $ gnatmake server -largs ...
 
 Options
 
