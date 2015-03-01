@@ -129,8 +129,8 @@ procedure Deriveconst_Main is
 
    A  : constant ArrayOfName_Type := (1 => "00000000", 2 => "abcdefgh");
    B1 : constant Big_Type := (1, 1, 1, 1.0, "abcdefgh", +A,
-                              From_Unbounded_String (+"0987654"),
-                              From_Unbounded_String (+"A2"),
+                              To_Address_Type (+"0987654"),
+                              To_Code1_Type (+"A2"),
                               "A3b");
 
 begin
