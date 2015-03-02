@@ -39,6 +39,7 @@ with GNAT.Calendar.Time_IO;
 with AWS.Templates;
 with AWS.Utils;
 
+with SOAP.Types;
 with SOAP.Utils;
 with SOAP.WSDL.Types;
 
@@ -876,9 +877,6 @@ package body SOAP.Generator is
       function Set_Routine (P : WSDL.Parameters.P_Set) return String;
       --  Returns the constructor routine for the given type
 
-      function Set_Type (Name : String) return String;
-      --  Returns the SOAP type for Name
-
       function Is_Inside_Record (Name : String) return Boolean;
       --  Returns True if Name is defined inside a record in the Input
       --  or Output parameter list.
@@ -921,6 +919,28 @@ package body SOAP.Generator is
          function To_Ada_Type (Name : String) return String;
          --  Returns the Ada corresponding type
 
+         function Set_Type (Def  : WSDL.Types.Definition) return String;
+         --  Returns the SOAP type for Name
+
+         --------------
+         -- Set_Type --
+         --------------
+
+         function Set_Type (Def  : WSDL.Types.Definition) return String is
+            Name : constant String := WSDL.Types.Name (Def.Ref);
+         begin
+            if WSDL.Is_Standard (Name) then
+               return WSDL.Set_Type (WSDL.To_Type (Name));
+
+            else
+               if Def.Mode = WSDL.Types.K_Derived then
+                  return Set_Type (WSDL.Types.Find (Def.Parent));
+               else
+                  return "SOAP.Types.SOAP_Record";
+               end if;
+            end if;
+         end Set_Type;
+
          -----------------
          -- To_Ada_Type --
          -----------------
@@ -928,8 +948,7 @@ package body SOAP.Generator is
          function To_Ada_Type (Name : String) return String is
          begin
             if WSDL.Is_Standard (Name) then
-               return WSDL.To_Ada
-                 (WSDL.To_Type (Name), Context => WSDL.Component);
+               return WSDL.To_Ada (WSDL.To_Type (Name), Constrained => True);
 
             else
                return Format_Name (O, Name) & "_Type";
@@ -945,7 +964,7 @@ package body SOAP.Generator is
          T_Name  : constant String :=
                      (if Def = WSDL.Types.No_Definition
                       then WSDL.Types.Name (P.Typ)
-                      else To_String (Def.E_Type));
+                      else WSDL.Types.Name (Def.E_Type));
 
          Prefix  : Unbounded_String;
          Arr_Ads : Text_IO.File_Type;
@@ -968,6 +987,8 @@ package body SOAP.Generator is
          end if;
 
          --  Is types are to be reused from an Ada  spec ?
+
+         Text_IO.New_Line (Arr_Ads);
 
          if Types_Spec (O) = "" then
             --  No user's spec, generate all type definitions
@@ -1068,8 +1089,6 @@ package body SOAP.Generator is
 
          else
             --  Here we have a reference to a spec, just build alias to it
-
-            Text_IO.New_Line (Arr_Ads);
 
             if P.Length /= 0 then
                --  This is a constrained array, create the index subtype
@@ -1225,7 +1244,8 @@ package body SOAP.Generator is
 
          Text_IO.Put_Line
            (Arr_Ads,
-            "      " & Set_Type (T_Name) & ", " & Set_Routine (P) & ");");
+            "      " & Set_Type (WSDL.Types.Find (Def.E_Type))
+            & ", " & Set_Routine (P) & ");");
 
          Finalize_Types_Package (Prefix, Arr_Ads, Arr_Adb, No_Body => True);
       end Generate_Array;
@@ -1243,7 +1263,10 @@ package body SOAP.Generator is
          P_Name  : constant String := WSDL.Types.Name (Def.Parent);
          B_Name  : constant String :=
                      (if WSDL.Is_Standard (P_Name)
-                      then WSDL.To_Ada (WSDL.To_Type (P_Name), WSDL.Component)
+                      then WSDL.To_Ada
+                        (WSDL.To_Type (P_Name),
+                         not WSDL.Types.Is_Constrained (Def)
+                             and then Types_Spec (O) = "")
                       else P_Name & "_Type");
          Prefix  : Unbounded_String;
          Der_Ads : Text_IO.File_Type;
@@ -1260,24 +1283,280 @@ package body SOAP.Generator is
          --  Is types are to be reused from an Ada  spec ?
 
          if Types_Spec (O) = "" then
-            Text_IO.Put_Line
-              (Der_Ads, "   type " & F_Name & " is new " & B_Name & ";");
+            declare
+               use type WSDL.Parameter_Type;
+
+               Root_Type   : constant WSDL.Parameter_Type :=
+                               WSDL.To_Type (WSDL.Types.Root_Type_For (Def));
+               Constraints : WSDL.Types.Constraints_Def;
+            begin
+               --  Get constraints from parent types. Note that we do not want
+               --  the constraint of the first parent only, but the constraints
+               --  from the whole derived hierarchy.
+
+               WSDL.Types.Get_Constraints (Def, Constraints);
+
+               --  Check if we have to build a regexp
+
+               if Root_Type = WSDL.P_String
+                 and then Constraints.Pattern /= Null_Unbounded_String
+               then
+                  Text_IO.Put_Line
+                    (Der_Ads,
+                     "   Compiled_Pattern : constant GNAT.Regexp.Regexp :=");
+                  Text_IO.Put_Line
+                    (Der_Ads, "                        GNAT.Regexp.Compile ("""
+                     & To_String (Constraints.Pattern) & """);");
+                  Text_IO.New_Line (Der_Ads);
+               end if;
+
+               Text_IO.Put
+                 (Der_Ads, "   type " & F_Name & " is new " & B_Name);
+
+               --  Generate constraints if any. We first get the root type to
+               --  know if the constraints are on integers, floats or strings.
+               --
+               --  * on integers and floats we generate a range:
+               --
+               --     range <lower> .. <upper>
+               --
+               --  where <lower> or <upper> could the base type 'First or
+               --  'Last.
+               --
+               --  * on static strings we generate:
+               --
+               --     (1 .. <length>)
+               --       Dynamic_Preficate => Match (<type>, <pattern>);
+               --
+               --  * on variable length strings we generate aspects:
+               --
+               --     Dynamic_Predicate =>
+               --       Length (Unbounded_String (<type>)) >= <min>
+               --       and then Length (Unbounded_String (<type>)) <= <max>
+               --       and then Match (To_String (<type>), <pattern>)
+
+               case Root_Type is
+                  when WSDL.P_Float =>
+                     declare
+                        Lower, Upper : Float;
+                        L_Set, U_Set : Boolean;
+                     begin
+                        Lower := Float'First;
+                        Upper := Float'Last;
+
+                        --  Get constraints from the WSDL definition
+
+                        WSDL.Types.Get_Constraint_Float
+                          (Constraints, Lower, L_Set, Upper, U_Set);
+
+                        --  If constraints are found, write them
+
+                        if L_Set or U_Set then
+                           Text_IO.New_Line (Der_Ads);
+                           Text_IO.Put
+                             (Der_Ads,
+                              "     range"
+                              & (if not L_Set or else Lower < 0.0
+                                then " " else "")
+                              & (if L_Set
+                                then Float'Image (Lower)
+                                else " " & B_Name & "'First")
+                              & " .."
+                              & (if not U_Set or else Upper < 0.0
+                                then " " else "")
+                              & (if L_Set
+                                then Float'Image (Upper)
+                                else " " & B_Name & "'Last"));
+                        end if;
+                     end;
+
+                  when WSDL.P_Double =>
+                     declare
+                        Lower, Upper : Long_Float;
+                        L_Set, U_Set : Boolean;
+                     begin
+                        Lower := Long_Float'First;
+                        Upper := Long_Float'Last;
+
+                        --  Get constraints from the WSDL definition
+
+                        WSDL.Types.Get_Constraint_Double
+                          (Constraints, Lower, L_Set, Upper, U_Set);
+
+                        --  If constraints are found, write them
+
+                        if L_Set or U_Set then
+                           Text_IO.New_Line (Der_Ads);
+                           Text_IO.Put
+                             (Der_Ads,
+                              "     range"
+                              & (if not L_Set or else Lower < 0.0
+                                then " " else "")
+                              & (if L_Set
+                                then Long_Float'Image (Lower)
+                                else B_Name & "'First")
+                              & " .."
+                              & (if not U_Set or else Upper < 0.0
+                                then " " else "")
+                              & (if U_Set
+                                then Long_Float'Image (Upper)
+                                else B_Name & "'Last"));
+                        end if;
+                     end;
+
+                  when WSDL.P_String =>
+                     if WSDL.Types.Is_Constrained (Def) then
+                        Text_IO.Put
+                          (Der_Ads,
+                           " (1 .."
+                           & Natural'Image (Constraints.Length) & ')');
+
+                        if Constraints.Pattern /= Null_Unbounded_String then
+                           Text_IO.New_Line (Der_Ads);
+                           Text_IO.Put_Line
+                             (Der_Ads, "     with Dynamic_Predicate => ");
+                           Text_IO.Put
+                             (Der_Ads, "        GNAT.Regexp.Match (String ("
+                             & F_Name & "), Compiled_Pattern)");
+                        end if;
+
+                     else
+                        declare
+                           Unset : Integer renames WSDL.Types.Unset;
+                           Empty : Unbounded_String
+                                     renames Null_Unbounded_String;
+                           Pred  : Boolean := False;
+                        begin
+                           if Constraints.Min_Length /= WSDL.Types.Unset
+                             or else Constraints.Max_Length /= WSDL.Types.Unset
+                             or else Constraints.Pattern /= Empty
+                           then
+                              Text_IO.New_Line (Der_Ads);
+                              Text_IO.Put_Line
+                                (Der_Ads, "     with Dynamic_Predicate => ");
+
+                              if Constraints.Min_Length /= Unset then
+                                 Text_IO.Put
+                                   (Der_Ads,
+                                    "       Length (Unbounded_String ("
+                                    & F_Name & ")) >="
+                                    & Natural'Image (Constraints.Min_Length));
+                                 Pred := True;
+                              end if;
+
+                              if Constraints.Max_Length /= Unset then
+                                 if Pred then
+                                    Text_IO.New_Line (Der_Ads);
+                                 end if;
+
+                                 Text_IO.Put
+                                   (Der_Ads,
+                                    "       "
+                                    & (if Pred
+                                      then "and then "
+                                      else "")
+                                    & "Length (Unbounded_String ("
+                                    & F_Name & ")) <="
+                                    & Natural'Image (Constraints.Max_Length));
+                                    Pred := True;
+                              end if;
+
+                              if Constraints.Pattern /= Empty then
+                                 if Pred then
+                                    Text_IO.New_Line (Der_Ads);
+                                 end if;
+
+                                 Text_IO.Put
+                                   (Der_Ads,
+                                    "       "
+                                    & (if Pred
+                                      then "and then "
+                                      else "")
+                                    & "GNAT.Regexp.Match (To_String ("
+                                    & "Unbounded_String ("
+                                    & F_Name & ")), Compiled_Pattern)");
+                              end if;
+                           end if;
+                        end;
+                     end if;
+
+                  when  WSDL.P_Character =>
+                     null;
+
+                  when WSDL.P_Any_Type | WSDL.P_B64 =>
+                     null;
+
+                  when others =>
+                     declare
+                        Lower, Upper : Long_Long_Integer;
+                        L_Set, U_Set : Boolean;
+                     begin
+                        --  Set min/max depending on the type
+
+                        case Root_Type is
+                           when WSDL.P_Byte =>
+                              Lower := Long_Long_Integer (Types.Byte'First);
+                              Upper := Long_Long_Integer (Types.Byte'Last);
+
+                           when WSDL.P_Short =>
+                              Lower := Long_Long_Integer (Types.Short'First);
+                              Upper := Long_Long_Integer (Types.Short'Last);
+
+                           when WSDL.P_Integer =>
+                              Lower := Long_Long_Integer (Integer'First);
+                              Upper := Long_Long_Integer (Integer'Last);
+
+                           when WSDL.P_Long =>
+                              Lower := Long_Long_Integer (Types.Long'First);
+                              Upper := Long_Long_Integer (Types.Long'Last);
+
+                           when WSDL.P_Unsigned_Byte =>
+                              Lower := 0;
+                              Upper := Long_Long_Integer (Types.Byte'Last);
+
+                           when WSDL.P_Unsigned_Short =>
+                              Lower := 0;
+                              Upper := Long_Long_Integer (Types.Short'Last);
+
+                           when WSDL.P_Unsigned_Int =>
+                              Lower := 0;
+                              Upper := Long_Long_Integer (Integer'Last);
+
+                           when WSDL.P_Unsigned_Long =>
+                              Lower := 0;
+                              Upper := Long_Long_Integer (Types.Long'Last);
+
+                           when others =>
+                              null;
+                        end case;
+
+                        --  Get constraints from the WSDL definition
+
+                        WSDL.Types.Get_Constraint_Integer
+                          (Constraints, Lower, L_Set, Upper, U_Set);
+
+                        --  If constraints are found, write them
+
+                        if L_Set or U_Set then
+                           Text_IO.New_Line (Der_Ads);
+                           Text_IO.Put
+                             (Der_Ads,
+                              "     range"
+                              & (if L_Set
+                                then Long_Long_Integer'Image (Lower)
+                                else " " & B_Name & "'First")
+                                & " .."
+                                & (if U_Set
+                                  then Long_Long_Integer'Image (Upper)
+                                  else " " & B_Name & "'Last"));
+                        end if;
+                     end;
+               end case;
+            end;
+
+            Text_IO.Put_Line (Der_Ads, ";");
 
             --  Routine to convert to base type
-
-            Text_IO.New_Line (Der_Ads);
-
-            Text_IO.Put_Line (Der_Ads, "   function To_" & B_Name);
-            Text_IO.Put_Line (Der_Ads, "     (D : " & F_Name & ")");
-            Text_IO.Put_Line (Der_Ads, "      return " & B_Name & " is");
-            Text_IO.Put_Line (Der_Ads, "       (" & B_Name & " (D));");
-
-            Text_IO.New_Line (Der_Ads);
-
-            Text_IO.Put_Line (Der_Ads, "   function From_" & B_Name);
-            Text_IO.Put_Line (Der_Ads, "     (D : " & B_Name & ")");
-            Text_IO.Put_Line (Der_Ads, "      return " & F_Name & " is");
-            Text_IO.Put_Line (Der_Ads, "       (" & F_Name & " (D));");
 
             if WSDL.Is_Standard (P_Name) then
                Text_IO.New_Line (Der_Ads);
@@ -1296,30 +1575,75 @@ package body SOAP.Generator is
                Text_IO.Put_Line (Der_Ads, "     (D : " & B_Name & ")");
                Text_IO.Put_Line (Der_Ads, "      return " & F_Name & " is");
                Text_IO.Put_Line (Der_Ads, "       (" & F_Name & " (D));");
+
+               Text_IO.New_Line (Der_Ads);
+
+               Text_IO.Put_Line (Der_Ads, "   function To_" & F_Name);
+               Text_IO.Put_Line (Der_Ads, "     (D : " & B_Name & ")");
+               Text_IO.Put_Line
+                 (Der_Ads,
+                  "      return " & F_Name & " renames From_"
+                  & Utils.No_NS (P_Name) & "_Type;");
+
+            else
+               Text_IO.New_Line (Der_Ads);
+
+               Text_IO.Put_Line (Der_Ads, "   function To_" & B_Name);
+               Text_IO.Put_Line (Der_Ads, "     (D : " & F_Name & ")");
+               Text_IO.Put_Line (Der_Ads, "      return " & B_Name & " is");
+               Text_IO.Put_Line (Der_Ads, "       (" & B_Name & " (D));");
+
+               Text_IO.New_Line (Der_Ads);
+
+               Text_IO.Put_Line (Der_Ads, "   function From_" & B_Name);
+               Text_IO.Put_Line (Der_Ads, "     (D : " & B_Name & ")");
+               Text_IO.Put_Line (Der_Ads, "      return " & F_Name & " is");
+               Text_IO.Put_Line (Der_Ads, "       (" & F_Name & " (D));");
+
+               Text_IO.New_Line (Der_Ads);
+
+               Text_IO.Put_Line (Der_Ads, "   function To_" & F_Name);
+               Text_IO.Put_Line (Der_Ads, "     (D : " & B_Name & ")");
+               Text_IO.Put_Line
+                 (Der_Ads,
+                  "      return " & F_Name & " renames From_" & B_Name & ";");
             end if;
+
+            --  For array support
+
+            Text_IO.New_Line (Der_Ads);
+            Text_IO.Put_Line (Der_Ads, "   function To_" & F_Name);
+            Text_IO.Put_Line (Der_Ads, "     (O : SOAP.Types.Object'Class)");
+            Text_IO.Put_Line (Der_Ads, "      return " & F_Name & " is");
+            Text_IO.Put_Line
+              (Der_Ads,
+               "       ("
+               & WSDL.Types.From_SOAP (Def, Object => "O") & ");");
+
+            Text_IO.New_Line (Der_Ads);
+            Text_IO.Put_Line (Der_Ads, "   function To_SOAP_Object");
+            Text_IO.Put_Line (Der_Ads, "     (D    : " & F_Name & ";");
+            Text_IO.Put_Line (Der_Ads, "      Name : String := ""item"")");
+            Text_IO.Put_Line
+              (Der_Ads, "      return "
+               &  WSDL.Set_Type (WSDL.To_Type (WSDL.Types.Root_Type_For (Def)))
+               & " is");
+            Text_IO.Put_Line
+              (Der_Ads,
+               "        ("
+               & WSDL.Types.To_SOAP
+                 (Def,
+                  Object      => "D",
+                  Name        => "Name",
+                  Name_Is_Var => True) & ");");
+
+            --  For Types child package
 
             Text_IO.Put_Line
               (Tmp_Ads, "   subtype " & F_Name);
             Text_IO.Put_Line
               (Tmp_Ads, "     is " & To_Unit_Name (To_String (Prefix)) & '.'
                & F_Name & ';');
-
-            Text_IO.Put_Line
-              (Tmp_Ads, "   function To_" & B_Name & " (D : " & F_Name & ")");
-            Text_IO.Put_Line
-              (Tmp_Ads, "     return " & B_Name);
-            Text_IO.Put_Line
-              (Tmp_Ads, "     renames "
-               & To_Unit_Name (To_String (Prefix)) & ".To_" & B_Name & ';');
-
-            Text_IO.Put_Line
-              (Tmp_Ads,
-               "   function From_" & B_Name & " (D : " & B_Name & ")");
-            Text_IO.Put_Line
-              (Tmp_Ads, "     return " & F_Name);
-            Text_IO.Put_Line
-              (Tmp_Ads, "     renames "
-               & To_Unit_Name (To_String (Prefix)) & ".From_" & B_Name & ';');
 
             if WSDL.Is_Standard (P_Name) then
                Text_IO.New_Line (Tmp_Ads);
@@ -1342,6 +1666,46 @@ package body SOAP.Generator is
                  (Tmp_Ads, "      renames "
                   & To_Unit_Name (To_String (Prefix))
                   & ".From_" & Utils.No_NS (P_Name) & "_Type;");
+
+               Text_IO.New_Line (Tmp_Ads);
+
+               Text_IO.Put_Line (Tmp_Ads, "   function To_" & F_Name);
+               Text_IO.Put_Line (Tmp_Ads, "     (D : " & B_Name & ")");
+               Text_IO.Put_Line
+                 (Tmp_Ads,
+                  "      return " & F_Name & " renames "
+                  & To_Unit_Name (To_String (Prefix))
+                  & ".From_"  & Utils.No_NS (P_Name) & "_Type;");
+
+            else
+               Text_IO.Put_Line
+                 (Tmp_Ads,
+                  "   function To_" & B_Name & " (D : " & F_Name & ")");
+               Text_IO.Put_Line
+                 (Tmp_Ads, "     return " & B_Name);
+               Text_IO.Put_Line
+                 (Tmp_Ads, "     renames "
+                  & To_Unit_Name (To_String (Prefix)) & ".To_" & B_Name & ';');
+
+               Text_IO.Put_Line
+                 (Tmp_Ads,
+                  "   function From_" & B_Name & " (D : " & B_Name & ")");
+               Text_IO.Put_Line
+                 (Tmp_Ads, "     return " & F_Name);
+               Text_IO.Put_Line
+                 (Tmp_Ads, "     renames "
+                  & To_Unit_Name (To_String (Prefix))
+                  & ".From_" & B_Name & ';');
+
+               Text_IO.New_Line (Tmp_Ads);
+
+               Text_IO.Put_Line (Tmp_Ads, "   function To_" & F_Name);
+               Text_IO.Put_Line (Tmp_Ads, "     (D : " & B_Name & ")");
+               Text_IO.Put_Line
+                 (Tmp_Ads,
+                  "      return " & F_Name & " renames "
+                  & To_Unit_Name (To_String (Prefix))
+                  & ".From_" & B_Name & ";");
             end if;
 
          else
@@ -1367,6 +1731,14 @@ package body SOAP.Generator is
               (Der_Ads, "     (D : " & Types_Spec (O) & "." & Name & ")");
             Text_IO.Put_Line (Der_Ads, "      return " & F_Name & " is (D);");
 
+            Text_IO.New_Line (Der_Ads);
+            Text_IO.Put_Line (Der_Ads, "   function To_" & F_Name);
+            Text_IO.Put_Line
+              (Der_Ads, "     (D : " & Types_Spec (O) & "." & Name & ")");
+            Text_IO.Put_Line
+              (Der_Ads, "      return " & F_Name
+               & " renames From_" & Name & ';');
+
             if WSDL.Is_Standard (P_Name) then
                Text_IO.New_Line (Der_Ads);
 
@@ -1385,6 +1757,36 @@ package body SOAP.Generator is
             end if;
 
             Output_Comment (Der_Ads, To_String (P.Doc), Indent => 3);
+
+            --  For array support
+
+            Text_IO.New_Line (Der_Ads);
+            Text_IO.Put_Line (Der_Ads, "   function To_" & F_Name);
+            Text_IO.Put_Line (Der_Ads, "     (O : SOAP.Types.Object'Class)");
+            Text_IO.Put_Line (Der_Ads, "      return " & F_Name & " is");
+            Text_IO.Put_Line
+              (Der_Ads,
+               "       ("
+               & WSDL.Types.From_SOAP (Def, Object => "O") & ");");
+
+            Text_IO.New_Line (Der_Ads);
+            Text_IO.Put_Line (Der_Ads, "   function To_SOAP_Object");
+            Text_IO.Put_Line (Der_Ads, "     (D    : " & F_Name & ";");
+            Text_IO.Put_Line (Der_Ads, "      Name : String := ""item"")");
+            Text_IO.Put_Line
+              (Der_Ads, "      return "
+               &  WSDL.Set_Type (WSDL.To_Type (WSDL.Types.Root_Type_For (Def)))
+               & " is");
+            Text_IO.Put_Line
+              (Der_Ads,
+               "        ("
+               & WSDL.Types.To_SOAP
+                 (Def,
+                  Object      => "D",
+                  Name        => "Name",
+                  Name_Is_Var => True) & ");");
+
+            --  For Types child package
 
             Text_IO.Put_Line
               (Tmp_Ads, "   subtype " & F_Name);
@@ -2247,7 +2649,7 @@ package body SOAP.Generator is
             Text_IO.Put_Line
               (Rec_Adb,
                "            with ""Record "" & SOAP.Types.Name (R) &"
-               & " "" not well formed."";");
+               & " "" not well formed"";");
          end if;
 
          Text_IO.Put_Line (Rec_Adb, "   end To_" & F_Name & ';');
@@ -2482,11 +2884,11 @@ package body SOAP.Generator is
 
             when WSDL.Types.K_Array =>
                declare
-                  E_Type : constant String := To_String (Def.E_Type);
+                  E_Type : constant String := WSDL.Types.Name (Def.E_Type);
                begin
                   if WSDL.Is_Standard (E_Type) then
                      return WSDL.Get_Routine
-                       (WSDL.To_Type (E_Type), WSDL.Component);
+                       (WSDL.To_Type (E_Type), Constrained => True);
                   else
                      return "To_" & Format_Name (O, E_Type) & "_Type";
                   end if;
@@ -2753,24 +3155,22 @@ package body SOAP.Generator is
          case P.Mode is
             when WSDL.Types.K_Simple =>
                return WSDL.Set_Routine
-                 (WSDL.To_Type (T_Name), Context => WSDL.Component);
+                 (WSDL.To_Type (T_Name), Constrained => True);
 
             when WSDL.Types.K_Derived =>
                return WSDL.Set_Routine
-                 (WSDL.Types.Name (Def.Parent),
-                  Context => WSDL.Component);
+                 (WSDL.Types.Name (Def.Parent), Constrained => True);
 
             when WSDL.Types.K_Enumeration =>
-               return WSDL.Set_Routine
-                 (WSDL.P_String, Context => WSDL.Component);
+               return WSDL.Set_Routine (WSDL.P_String, Constrained => True);
 
             when WSDL.Types.K_Array =>
                declare
-                  E_Type : constant String := To_String (Def.E_Type);
+                  E_Type : constant String := WSDL.Types.Name (Def.E_Type);
                begin
                   if WSDL.Is_Standard (E_Type) then
                      return WSDL.Set_Routine
-                       (WSDL.To_Type (E_Type), Context => WSDL.Component);
+                       (WSDL.To_Type (E_Type), Constrained => True);
                   else
                      return "To_SOAP_Object";
                   end if;
@@ -2780,19 +3180,6 @@ package body SOAP.Generator is
                return "To_SOAP_Object";
          end case;
       end Set_Routine;
-
-      --------------
-      -- Set_Type --
-      --------------
-
-      function Set_Type (Name : String) return String is
-      begin
-         if WSDL.Is_Standard (Name) then
-            return WSDL.Set_Type (WSDL.To_Type (Name));
-         else
-            return "SOAP.Types.SOAP_Record";
-         end if;
-      end Set_Type;
 
       ---------------
       -- Type_Name --
@@ -2807,7 +3194,7 @@ package body SOAP.Generator is
                --  This routine is called only for SOAP object in records
                --  or arrays.
                return WSDL.To_Ada
-                 (WSDL.To_Type (T_Name), Context => WSDL.Component);
+                 (WSDL.To_Type (T_Name), Constrained => True);
 
             when WSDL.Types.K_Derived =>
                return Format_Name (O, T_Name) & "_Type";
@@ -2893,6 +3280,8 @@ package body SOAP.Generator is
       With_Unit (File, "SOAP.Types", Elab => Children);
       With_Unit (File, "SOAP.Utils");
       Text_IO.New_Line (File);
+      With_Unit (File, "GNAT.Regexp");
+      Text_IO.New_Line (File);
 
       if Types_Spec (O) /= "" then
          With_Unit (File, Types_Spec (O));
@@ -2912,6 +3301,7 @@ package body SOAP.Generator is
         (File, "   pragma Warnings (Off, Ada.Strings.Unbounded);");
       Text_IO.Put_Line (File, "   pragma Warnings (Off, SOAP.Types);");
       Text_IO.Put_Line (File, "   pragma Warnings (Off, SOAP.Utils);");
+      Text_IO.Put_Line (File, "   pragma Warnings (Off, GNAT.Regexp);");
 
       if Types_Spec (O) /= "" then
          Text_IO.Put_Line

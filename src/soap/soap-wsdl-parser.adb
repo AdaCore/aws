@@ -491,7 +491,7 @@ package body SOAP.WSDL.Parser is
      (O : Object'Class;
       N : DOM.Core.Node) return Boolean
    is
-      function Array_Elements return Unbounded_String;
+      function Array_Elements return Types.Object;
       --  Returns array's element type encoded in node L
 
       L : DOM.Core.Node := N;
@@ -500,7 +500,7 @@ package body SOAP.WSDL.Parser is
       -- Array_Elements --
       --------------------
 
-      function Array_Elements return Unbounded_String is
+      function Array_Elements return Types.Object is
          Attributes : constant  DOM.Core.Named_Node_Map :=
                         DOM.Core.Nodes.Attributes (L);
       begin
@@ -534,8 +534,9 @@ package body SOAP.WSDL.Parser is
                         O.Self.Array_Length := 0;
                      end if;
 
-                     return To_Unbounded_String
-                       (Value (Value'First .. First - 1));
+                     return Types.Create
+                       (Value (Value'First .. First - 1),
+                        Get_Target_Name_Space (Is_Array.N));
                   end;
                end if;
             end;
@@ -963,18 +964,25 @@ package body SOAP.WSDL.Parser is
                Get_Documentation (XML.First_Child (XML.First_Child (R))));
          end if;
 
-         if not WSDL.Is_Standard (To_String (O.Array_Elements)) then
+         if not WSDL.Is_Standard (WSDL.Types.Name (O.Array_Elements)) then
             --  This is not a standard type, parse it
             declare
-               N : constant DOM.Core.Node :=
-                     Look_For_Schema (R, To_String (O.Array_Elements),
+               N : DOM.Core.Node :=
+                     Look_For_Schema (R, WSDL.Types.Name (O.Array_Elements),
                                       Document,
                                       Look_Context'(Complex_Type => True,
                                                     others => False));
             begin
-               --  ??? Right now pretend that it is a record, there is
-               --  certainly some cases not covered here.
-               Parameters.Append (P.P, Parse_Record (O, N, Document));
+               if N = null then
+                  N := Look_For_Schema (R, WSDL.Types.Name (O.Array_Elements),
+                                        Document,
+                                        Look_Context'(Simple_Type => True,
+                                                      others      => False));
+                  Parameters.Append (P.P, Parse_Simple (O, N, Document));
+
+               else
+                  Parameters.Append (P.P, Parse_Record (O, N, Document));
+               end if;
             end;
          end if;
 
@@ -1803,8 +1811,9 @@ package body SOAP.WSDL.Parser is
    is
 
       function Build_Derived
-        (Name, Base : String;
-         E          : DOM.Core.Node) return Parameters.Parameter;
+        (Name, Base  : String;
+         Constraints : WSDL.Types.Constraints_Def;
+         N           : DOM.Core.Node) return Parameters.Parameter;
       --  Returns the derived (from standard Ada type) type definition
 
       function Build_Enumeration
@@ -1817,8 +1826,9 @@ package body SOAP.WSDL.Parser is
       -------------------
 
       function Build_Derived
-        (Name, Base : String;
-         E          : DOM.Core.Node) return Parameters.Parameter
+        (Name, Base  : String;
+         Constraints : WSDL.Types.Constraints_Def;
+         N           : DOM.Core.Node) return Parameters.Parameter
       is
          BNS : constant String := Utils.NS (Base);
          P   : Parameters.Parameter (Types.K_Derived);
@@ -1826,7 +1836,8 @@ package body SOAP.WSDL.Parser is
       begin
          P.Name      := O.Current_Name;
          P.Typ       := Types.Create
-           (Name, Get_Target_Name_Space (DOM.Core.Nodes.Parent_Node (E)));
+           (Name, Get_Target_Name_Space (DOM.Core.Nodes.Parent_Node (N)));
+         D.Constraints := Constraints;
 
          D.Ref    := Types.Create (Name, Types.NS (P.Typ));
          D.Parent := Types.Create
@@ -1892,6 +1903,7 @@ package body SOAP.WSDL.Parser is
       end Build_Enumeration;
 
       N, E : DOM.Core.Node;
+      C    : WSDL.Types.Constraints_Def;
 
       Name : Unbounded_String;
       Base : Unbounded_String;
@@ -1923,6 +1935,68 @@ package body SOAP.WSDL.Parser is
          return Build_Enumeration (-Name, -Base, E);
 
       else
+         --  Check restrictions for this type
+
+         declare
+            R : DOM.Core.Node := XML.First_Child (N);
+         begin
+            while R /= null loop
+               declare
+                  Name  : constant String :=
+                            Utils.No_NS (DOM.Core.Nodes.Node_Name (R));
+                  Value : constant String :=
+                            XML.Get_Attr_Value (R, "value", True);
+               begin
+                  if Name = "minInclusive" then
+                     if C.Min_Exclusive /= Null_Unbounded_String then
+                        raise WSDL_Error
+                          with "Cannot specify minInclusive and minExclusive.";
+                     end if;
+
+                     C.Min_Inclusive := +Value;
+
+                  elsif Name = "minExclusive" then
+                     if C.Min_Inclusive /= Null_Unbounded_String then
+                        raise WSDL_Error
+                          with "Cannot specify minInclusive and minExclusive.";
+                     end if;
+
+                     C.Min_Exclusive := +Value;
+
+                  elsif Name = "maxInclusive" then
+                     if C.Max_Exclusive /= Null_Unbounded_String then
+                        raise WSDL_Error
+                          with "Cannot specify maxInclusive and maxExclusive.";
+                     end if;
+
+                     C.Max_Inclusive := +Value;
+
+                  elsif Name = "maxExclusive" then
+                     if C.Max_Inclusive /= Null_Unbounded_String then
+                        raise WSDL_Error
+                          with "Cannot specify maxInclusive and maxExclusive.";
+                     end if;
+
+                     C.Max_Exclusive := +Value;
+
+                  elsif Name = "pattern" then
+                     C.Pattern := +Value;
+
+                  elsif Name = "length" then
+                     C.Length := Natural'Value (Value);
+
+                  elsif Name = "minLength" then
+                     C.Min_Length := Natural'Value (Value);
+
+                  elsif Name = "maxLength" then
+                     C.Max_Length := Natural'Value (Value);
+                  end if;
+               end;
+
+               R := XML.Next_Sibling (R);
+            end loop;
+         end;
+
          if not WSDL.Is_Standard (-Base)
            or else (To_Type (-Base) = P_Character
                     and then not Is_Character (N, -Base, Document))
@@ -1940,7 +2014,7 @@ package body SOAP.WSDL.Parser is
             end if;
          end if;
 
-         return Build_Derived (-Name, -Base, N);
+         return Build_Derived (-Name, -Base, C, N);
       end if;
    end Parse_Simple;
 

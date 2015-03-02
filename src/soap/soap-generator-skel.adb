@@ -486,8 +486,7 @@ package body Skel is
                         Text_IO.Put
                           (Skel_Adb,
                            WSDL.Set_Routine
-                             (WSDL.To_Type (T_Name),
-                              Context => WSDL.Component));
+                             (WSDL.To_Type (T_Name), Constrained => True));
 
                         Text_IO.Put
                           (Skel_Adb, " (Result."
@@ -578,6 +577,29 @@ package body Skel is
          end loop;
       end if;
 
+      --  Catch user's callback exceptions
+
+      Text_IO.Put_Line
+        (Skel_Adb, "      exception");
+      Text_IO.Put_Line
+        (Skel_Adb, "         when E : others =>");
+
+      Text_IO.Put_Line
+        (Skel_Adb, "            --  Here we have a problem with user's"
+           & " callback, return a SOAP error");
+
+      Text_IO.Put_Line
+        (Skel_Adb, "            return SOAP.Message.Response.Build");
+      Text_IO.Put_Line
+        (Skel_Adb, "              (SOAP.Message.Response.Error.Build");
+      Text_IO.Put_Line
+        (Skel_Adb, "                 (SOAP.Message.Response.Error.Client,");
+      Text_IO.Put_Line
+        (Skel_Adb, "                  """
+           & "Error in " & L_Proc & " (""");
+      Text_IO.Put_Line
+        (Skel_Adb, "                    & Exception_Message (E) & "")""));");
+
       Text_IO.Put_Line
         (Skel_Adb, "      end;");
       Text_IO.New_Line (Skel_Adb);
@@ -603,7 +625,7 @@ package body Skel is
       --  Types.Data_Error
 
       Text_IO.Put_Line
-        (Skel_Adb, "      when E : SOAP.Types.Data_Error =>");
+        (Skel_Adb, "      when E : others =>");
 
       Text_IO.Put_Line
         (Skel_Adb, "         --  Here we have a problem with some"
@@ -621,26 +643,6 @@ package body Skel is
       Text_IO.Put_Line
         (Skel_Adb, "                 & Exception_Message (E) & "")""));");
 
-      --  All other errors
-
-      Text_IO.Put_Line
-        (Skel_Adb, "      when O : others =>");
-
-      Text_IO.Put_Line
-        (Skel_Adb, "         --  Here we have a problem with user's"
-           & " callback, return a SOAP error");
-
-      Text_IO.Put_Line
-        (Skel_Adb, "         return SOAP.Message.Response.Build");
-      Text_IO.Put_Line
-        (Skel_Adb, "           (SOAP.Message.Response.Error.Build");
-      Text_IO.Put_Line
-        (Skel_Adb, "              (SOAP.Message.Response.Error.Client,");
-      Text_IO.Put_Line
-        (Skel_Adb, "               """
-           & "Error in " & L_Proc & " (""");
-      Text_IO.Put_Line
-        (Skel_Adb, "                 & Exception_Message (O) & "")""));");
       Text_IO.Put_Line (Skel_Adb, "   end " & L_Proc & "_CB;");
    end New_Procedure;
 
@@ -665,6 +667,7 @@ package body Skel is
       Text_IO.Put_Line (Skel_Ads, "pragma Warnings (Off);");
       Text_IO.New_Line (Skel_Ads);
       With_Unit (Skel_Ads, "Ada.Calendar", Elab => Off);
+      With_Unit (Skel_Ads, "System.Assertions", Elab => Off);
       Text_IO.New_Line (Skel_Ads);
       With_Unit (Skel_Ads, "AWS.Status");
       With_Unit (Skel_Ads, "AWS.Response");

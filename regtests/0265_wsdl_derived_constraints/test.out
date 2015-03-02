@@ -1,0 +1,53 @@
+Service Deriveconst_Demo
+   WSDL File for Deriveconst Demo
+
+Procedure call SOAPAction:call
+   Input
+      [record] params ; big
+         [simple] id ; Integer
+         [derived] one ; PercentCompleteInteger
+         [derived] two ; NonNegativeInt
+         [derived] three ; NonNegativeFloat
+         [derived] four ; Name
+         [array] five ; ArrayOfName [Name]
+         [derived] six ; Address
+         [derived] seven ; Code1
+         [derived] eight ; Code2
+   Output
+   > call
+Procedure call2 SOAPAction:call2
+   Input
+      [derived] params2 ; MByte
+   Output
+   > call2
+Run OK
+Call 1
+Call 2
+OK
+Id 3
+Faultcode   : Client
+Faultstring : Parameter error in call (Record params not well formed)
+Id 4
+Faultcode   : Client
+Faultstring : Parameter error in call (Record params not well formed)
+Id 5
+Faultcode   : Client
+Faultstring : Parameter error in call (Record params not well formed)
+Id 6
+Faultcode   : Client
+Faultstring : Parameter error in call (Record params not well formed)
+Id 7
+Faultcode   : Client
+Faultstring : Parameter error in call (Record params not well formed)
+Id 8
+Faultcode   : Client
+Faultstring : Parameter error in call (Dynamic_Predicate failed at www-ecerami-com-wsdl-deriveconstservice_wsdl-address_type_pkg.ads:51)
+Id 9
+Faultcode   : Client
+Faultstring : Parameter error in call (Dynamic_Predicate failed at www-ecerami-com-wsdl-deriveconstservice_wsdl-address_type_pkg.ads:51)
+Id 10
+Faultcode   : Client
+Faultstring : Parameter error in call (Dynamic_Predicate failed at www-ecerami-com-wsdl-deriveconstservice_wsdl-code1_type_pkg.ads:53)
+Id 11
+Faultcode   : Client
+Faultstring : Parameter error in call (Dynamic_Predicate failed at www-ecerami-com-wsdl-deriveconstservice_wsdl-code1_type_pkg.ads:53)

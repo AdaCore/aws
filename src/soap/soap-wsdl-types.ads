@@ -64,6 +64,45 @@ package SOAP.WSDL.Types is
       Next  : E_Node_Access;
    end record;
 
+   --  Constraints
+
+   Unset : constant Natural := Natural'Last;
+
+   type Constraints_Def is record
+      Min_Inclusive : Unbounded_String;
+      Min_Exclusive : Unbounded_String;
+      Max_Inclusive : Unbounded_String;
+      Max_Exclusive : Unbounded_String;
+      Pattern       : Unbounded_String;
+      Length        : Natural := Unset;
+      Min_Length    : Natural := Unset;
+      Max_Length    : Natural := Unset;
+   end record;
+
+   procedure Get_Constraint_Integer
+     (Constraints : Constraints_Def;
+      Lower       : in out Long_Long_Integer;
+      L_Set       : out Boolean;
+      Upper       : in out Long_Long_Integer;
+      U_Set       : out Boolean);
+   --  Returns the lower and upper bounds if defined otherwise Set is False
+
+   procedure Get_Constraint_Float
+     (Constraints : Constraints_Def;
+      Lower       : in out Float;
+      L_Set       : out Boolean;
+      Upper       : in out Float;
+      U_Set       : out Boolean);
+   --  Returns the lower and upper bounds if defined otherwise Set is False
+
+   procedure Get_Constraint_Double
+     (Constraints : Constraints_Def;
+      Lower       : in out Long_Float;
+      L_Set       : out Boolean;
+      Upper       : in out Long_Float;
+      U_Set       : out Boolean);
+   --  Returns the lower and upper bounds if defined otherwise Set is False
+
    --  Parameter
 
    type Definition (Mode : Kind) is record
@@ -71,7 +110,8 @@ package SOAP.WSDL.Types is
 
       case Mode is
          when K_Derived =>
-            Parent : Object;
+            Constraints : Constraints_Def;
+            Parent      : Object;
 
          when K_Simple =>
             null;
@@ -80,12 +120,16 @@ package SOAP.WSDL.Types is
             Is_Choice : Boolean;
 
          when K_Array =>
-            E_Type : Unbounded_String; -- Array element's type
+            E_Type : Object; -- Array element's type
 
          when K_Enumeration =>
             E_Def  : E_Node_Access;
       end case;
    end record;
+
+   function Is_Constrained (Def : Definition) return Boolean;
+   --  Returns True is the type is constrained and so can appear as-is in a
+   --  record component for example.
 
    No_Definition : constant Definition;
 
@@ -113,6 +157,30 @@ package SOAP.WSDL.Types is
 
    function Root_Type_For (Def : Definition) return String;
    --  Returns the root type (XSD type) for the given defintion
+
+   procedure Get_Constraints
+     (Def         : Definition;
+      Constraints : out Constraints_Def);
+   --  Set constaints from the type hierarchy
+
+   function From_SOAP
+     (Def          : WSDL.Types.Definition;
+      Object       : String;
+      Type_Name    : String := "";
+      Is_SOAP_Type : Boolean := False) return String
+     with Pre => Def.Mode in Compound_Type xor Type_Name = "";
+   --  Is_SOAP_Type is true if Object is alreay a SOAP types object. So there
+   --  is no need for a convertion in this context.
+
+   function To_SOAP
+     (Def          : WSDL.Types.Definition;
+      Object, Name : String;
+      Name_Is_Var  : Boolean := False;
+      Type_Name    : String := "") return String
+     with Pre => Def.Mode = K_Enumeration xor Type_Name = "";
+   --  Returns the code to create a SOAP parameter with given Name. Object is
+   --  the reference to the object to convert. Type_Name is the name of the
+   --  enumeration to convert to/from.
 
 private
 

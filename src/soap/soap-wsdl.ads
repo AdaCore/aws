@@ -46,10 +46,6 @@ package SOAP.WSDL is
       P_Unsigned_Short, P_Unsigned_Byte, P_Any_Type);
    --  These are the types supported by the WSDL parser
 
-   type Context_Type is (Parameter, Component);
-   --  This is the context of the variable, either as a simple parameter or as
-   --  a record or array component.
-
    function Is_Standard (XSD_Type : String) return Boolean;
    --  Returns true is XSD_Type is a standard type (not an array or a record)
 
@@ -60,8 +56,8 @@ package SOAP.WSDL is
    --  Returns the xsd type for the given parameter
 
    function To_Ada
-     (P       : Parameter_Type;
-      Context : Context_Type := Parameter) return String;
+     (P           : Parameter_Type;
+      Constrained : Boolean := False) return String;
    --  Returns P's Ada type string representation
 
    procedure From_Ada
@@ -74,21 +70,21 @@ package SOAP.WSDL is
    --  Returns the XSD type corresponding to P
 
    function V_Routine
-     (P       : Parameter_Type;
-      Context : Context_Type := Parameter) return String;
+     (P           : Parameter_Type;
+      Constrained : Boolean := False) return String;
    --  Returns the V routine to use to get value for a Parameter_Type
 
    function Get_Routine
-     (P       : Parameter_Type;
-      Context : Context_Type := Parameter) return String;
+     (P           : Parameter_Type;
+      Constrained : Boolean := False) return String;
    --  Returns the Get routine to use to get value for a Parameter_Type
 
    function Set_Routine
-     (P       : Parameter_Type;
-      Context : Context_Type := Parameter) return String;
+     (P           : Parameter_Type;
+      Constrained : Boolean := False) return String;
    function Set_Routine
-     (P       : String;
-      Context : Context_Type := Parameter) return String;
+     (P           : String;
+      Constrained : Boolean := False) return String;
    --  Returns the constructor to use to create a Parameter_Type
 
    function Set_Type (P : Parameter_Type) return String;
