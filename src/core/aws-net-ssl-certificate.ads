@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2003-2014, AdaCore                     --
+--                     Copyright (C) 2003-2015, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -157,7 +157,7 @@ private
      (if Certificate.DER.Is_Empty then (1 .. 0 => <>)
       else Certificate.DER.Element);
 
-   function "=" (Left, Right : Object) return Boolean is
+   overriding function "=" (Left, Right : Object) return Boolean is
      (Binary_Holders."=" (Left.DER, Right.DER));
 
 end AWS.Net.SSL.Certificate;
