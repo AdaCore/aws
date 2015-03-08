@@ -2450,7 +2450,11 @@ package body SOAP.Generator is
                Text_IO.Put_Line
                  (Rec_Adb,
                   "      " & Format_Name (O, To_String (N.Name))
-                  & " : constant SOAP.Types.Object'Class"
+                  & " : constant SOAP.Types."
+                  & (if N.Mode = WSDL.Types.K_Array
+                       and then not WSDL.Parameters.Is_Uniq (N.all)
+                     then "Object_Set"
+                     else "Object'Class")
                   & " := SOAP.Types.V (R, """
                   & To_String (N.Name) & """);");
 
@@ -2459,6 +2463,34 @@ package body SOAP.Generator is
          end if;
 
          Text_IO.Put_Line (Rec_Adb, "   begin");
+
+         --  Check size of set minOccurs / maxOccurs
+
+         N := R;
+
+         while N /= null loop
+            if N.Mode = WSDL.Types.K_Array
+              and then not WSDL.Parameters.Is_Uniq (N.all)
+            then
+               Text_IO.Put_Line
+                 (Rec_Adb,
+                  "      if "
+                  & Format_Name (O, To_String (N.Name))
+                  & "'Length not in " & AWS.Utils.Image (N.Min)
+                  & " .. " & AWS.Utils.Image (N.Max) & " then");
+               Text_IO.Put_Line
+                 (Rec_Adb, "         raise SOAP.SOAP_Error");
+               Text_IO.Put_Line
+                 (Rec_Adb, "            with ""Length of "
+                  & Format_Name (O, To_String (N.Name))
+                  & " violate schema definition"";");
+               Text_IO.Put_Line
+                 (Rec_Adb,
+                  "      end if;");
+            end if;
+
+            N := N.Next;
+         end loop;
 
          if Is_Choice and then R /= null then
             Text_IO.Put_Line (Rec_Adb, "      case C_Disc is");
@@ -2629,9 +2661,11 @@ package body SOAP.Generator is
                               "SOAP.Types.SOAP_Enumeration");
 
                         when WSDL.Types.K_Array =>
-                           Emit_Check
-                             (Format_Name (O, To_String (N.Name)),
-                              "SOAP.Types.SOAP_Array");
+                           if WSDL.Parameters.Is_Uniq (N.all) then
+                              Emit_Check
+                                (Format_Name (O, To_String (N.Name)),
+                                 "SOAP.Types.SOAP_Array");
+                           end if;
 
                         when WSDL.Types.K_Record =>
                            Emit_Check

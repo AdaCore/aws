@@ -112,7 +112,8 @@ package body SOAP.WSDL.Types is
      (Def          : WSDL.Types.Definition;
       Object       : String;
       Type_Name    : String := "";
-      Is_SOAP_Type : Boolean := False) return String
+      Is_SOAP_Type : Boolean := False;
+      Is_Uniq      : Boolean := True) return String
    is
       function For_Derived
         (Def : WSDL.Types.Definition; Code : String) return String;
@@ -166,9 +167,14 @@ package body SOAP.WSDL.Types is
               & Object & ")))";
 
          when WSDL.Types.K_Array =>
-            return "+To_" & Utils.No_NS (Type_Name)
-              & "_Type (SOAP.Types.V (SOAP.Types.SOAP_Array ("
-              & Object & ")))";
+            if Is_Uniq then
+               return "+To_" & Utils.No_NS (Type_Name)
+                 & "_Type (SOAP.Types.V (SOAP.Types.SOAP_Array ("
+                 & Object & ")))";
+            else
+               return "+To_" & Utils.No_NS (Type_Name)
+                 & "_Type (" & Object & ")";
+            end if;
 
          when WSDL.Types.K_Record =>
             return "To_" & Utils.No_NS (Type_Name)
@@ -464,7 +470,8 @@ package body SOAP.WSDL.Types is
      (Def          : WSDL.Types.Definition;
       Object, Name : String;
       Name_Is_Var  : Boolean := False;
-      Type_Name    : String := "") return String
+      Type_Name    : String := "";
+      Is_Uniq      : Boolean := True) return String
    is
 
       function For_Derived
@@ -551,8 +558,10 @@ package body SOAP.WSDL.Types is
               & """, """ & Name & """)";
 
          when WSDL.Types.K_Array =>
-            return "SOAP.Types.A (To_Object_Set (" & Object
-              & "), """ & Name & """)";
+            return (if Is_Uniq
+                    then "SOAP_Array'(SOAP.Types.A"
+                    else "SOAP_Set'(SOAP.Types.Set")
+              & " (To_Object_Set (" & Object & "), """ & Name & """))";
 
       end case;
    end To_SOAP;

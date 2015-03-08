@@ -15,6 +15,13 @@ of the feature.
 New features in AWS 3.3
 -----------------------
 
+NF-33-O223-047 Add support for minOccurs/maxOccurs (2015-03-08)
+
+    Add support for multi-occurrence SOAP elements. SOAP element
+    declared with a minOccurs or maxOccurs different than 1 are now
+    properly handled as multi-occurrence elements. If minOccurs is set
+    to 0 the element can be omitted.
+
 NF-33-O204-042 Add support for WSDL/SOAP type's constraints (2015-02-28)
 
     The tools ada2wsdl and wsdl2aws handle now the type constraints.
