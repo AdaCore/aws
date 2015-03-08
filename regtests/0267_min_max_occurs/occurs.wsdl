@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="utf-8"?>
+<definitions xmlns:http="http://schemas.xmlsoap.org/wsdl/http/"
+             xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/"
+             xmlns:s="http://www.w3.org/2001/XMLSchema"
+             xmlns:s0="http://81.67.51.47/HECATEEWebServices/encodedTypes"
+             xmlns:soapenc="http://schemas.xmlsoap.org/soap/encoding/"
+             xmlns:tns="http://81.67.51.47/HECATEEWebServices/"
+             xmlns:tm="http://microsoft.com/wsdl/mime/textMatching/"
+             xmlns:mime="http://schemas.xmlsoap.org/wsdl/mime/"
+             targetNamespace="http://81.67.51.47/HECATEEWebServices/"
+             xmlns="http://schemas.xmlsoap.org/wsdl/">
+  <types>
+    <s:schema targetNamespace="http://81.67.51.47/HECATEEWebServices/encodedTypes">
+      <s:complexType name="T_Track">
+        <s:sequence>
+          <s:element minOccurs="1" maxOccurs="1" name="p_battleDimension" type="s0:T_Battle_Dimension" />
+          <s:element minOccurs="1" maxOccurs="2" name="p_tag" type="s:string" />
+        </s:sequence>
+      </s:complexType>
+
+      <s:simpleType name="T_Battle_Dimension">
+        <s:restriction base="s:string">
+          <s:enumeration value="SPACE" />
+          <s:enumeration value="AIR" />
+          <s:enumeration value="GROUND" />
+          <s:enumeration value="SEA_SURFACE" />
+          <s:enumeration value="SEA_SUBSURFACE" />
+          <s:enumeration value="SOF" />
+        </s:restriction>
+      </s:simpleType>
+
+      <complexType name="ArrayOfFloat">
+        <complexContent>
+          <restriction base="soapenc:Array">
+            <attribute ref="soapenc:arrayType" arrayType="xsd:float[]"/>
+          </restriction>
+        </complexContent>
+      </complexType>
+
+    </s:schema>
+  </types>
+
+  <message name="displayTrackSoapIn">
+    <part name="pa_track" type="s0:T_Track" />
+    <part name="values" type="s0:ArrayOfFloat" />
+  </message>
+
+  <message name="displayTrackSoapOut" />
+
+  <portType name="OccursServicesSoap">
+    <operation name="displayTrack">
+      <input message="tns:displayTrackSoapIn" />
+      <output message="tns:displayTrackSoapOut" />
+    </operation>
+  </portType>
+
+  <binding name="OccursServicesSoap" type="tns:OccursServicesSoap">
+    <soap:binding transport="http://schemas.xmlsoap.org/soap/http" style="document" />
+    <operation name="displayTrack">
+      <soap:operation soapAction="displayTrack" style="rpc" />
+      <input>
+        <soap:body use="encoded" namespace="http://81.67.51.47/HECATEEWebServices/" encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" />
+      </input>
+      <output>
+        <soap:body use="encoded" namespace="http://81.67.51.47/HECATEEWebServices/" encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" />
+      </output>
+    </operation>
+  </binding>
+
+  <service name="OccursServices">
+    <documentation>A track display tool</documentation>
+    <port name="OccursServicesSoap"
+        binding="tns:OccursServicesSoap">
+      <soap:address location="http://81.67.51.47/HECATEEWebSErvices/HECATEEWebServices.asmx" />
+    </port>
+  </service>
+</definitions>

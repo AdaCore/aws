@@ -46,6 +46,8 @@ package SOAP.WSDL.Parameters is
       Doc       : Unbounded_String;
       Typ       : Types.Object;
       Next      : P_Set;
+      Min       : Natural := 1;  -- minOccurs
+      Max       : Positive := 1; -- maxOccurs
 
       case Mode is
          when Types.Compound_Type =>
@@ -56,6 +58,10 @@ package SOAP.WSDL.Parameters is
             null;
       end case;
    end record;
+
+   function Is_Uniq (P : Parameter) return Boolean
+     with Post => Is_Uniq'Result = (P.Min = 1 and then P.Max = 1);
+   --  Returns True if Min and Max is set to one
 
    procedure Append (P : in out P_Set; Param : Parameter) with
      Post => Length (P) = Length (P)'Old + 1;

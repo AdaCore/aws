@@ -29,6 +29,7 @@
 
 pragma Ada_2012;
 
+with Ada.Characters.Handling;
 with Ada.Containers.Indefinite_Vectors;
 with Ada.Exceptions;
 with Ada.Strings.Fixed;
@@ -147,13 +148,20 @@ package body SOAP.WSDL.Parser is
      (O        : in out Object'Class;
       R        : DOM.Core.Node;
       Document : WSDL.Object) return Parameters.Parameter;
-   --  Returns record in node N
+   --  Returns record in node R
 
    function Parse_Array
      (O        : in out Object'Class;
       R        : DOM.Core.Node;
       Document : WSDL.Object) return Parameters.Parameter;
-   --  Returns array in node N
+   --  Returns array in node R
+
+   function Parse_Set
+     (O        : in out Object'Class;
+      S        : DOM.Core.Node;
+      Document : WSDL.Object) return Parameters.Parameter;
+   --  Returns array in node S. A set if used to handle parameters with a
+   --  minOccurs or maxOccurs different to 1.
 
    function Parse_Simple
      (O        : in out Object'Class;
@@ -209,6 +217,9 @@ package body SOAP.WSDL.Parser is
    function Get_Documentation (N : DOM.Core.Node) return String;
    --  Get text for the documentation node N
 
+   procedure Get_Min_Max (S_Min, S_Max : String; Min, Max : out Natural);
+   --  Returns the Min, Max values for the given string
+
    -----------
    -- Debug --
    -----------
@@ -239,6 +250,8 @@ package body SOAP.WSDL.Parser is
            (O.Params (O.Mode),
             (WSDL.Types.K_Simple, +Name, Null_Unbounded_String,
              Typ  => Types.Create (Utils.No_NS (Type_Name), Name_Space.XSD),
+             Min  => 1,
+             Max  => 1,
              Next => null));
       end if;
    end Add_Parameter;
@@ -322,6 +335,27 @@ package body SOAP.WSDL.Parser is
 
       return To_String (Doc);
    end Get_Documentation;
+
+   -----------------
+   -- Get_Min_Max --
+   -----------------
+
+   procedure Get_Min_Max (S_Min, S_Max : String; Min, Max : out Natural) is
+   begin
+      if S_Min = "" then
+         Min := 1;
+      else
+         Min := Natural'Value (S_Min);
+      end if;
+
+      if S_Max = "" then
+         Max := 1;
+      elsif Characters.Handling.To_Lower (S_Max) = "unbounded" then
+         Max := Natural'Last;
+      else
+         Max := Positive'Value (S_Max);
+      end if;
+   end Get_Min_Max;
 
    ------------------------
    -- Get_Namespaces_For --
@@ -1288,10 +1322,16 @@ package body SOAP.WSDL.Parser is
       Document : WSDL.Object) return Parameters.Parameter
    is
       P_Type : constant String := XML.Get_Attr_Value (N, "type", True);
+      S_Min  : constant String := XML.Get_Attr_Value (N, "minOccurs", True);
+      S_Max  : constant String := XML.Get_Attr_Value (N, "maxOccurs", True);
+      Min    : Natural;
+      Max    : Positive;
       Doc    : Unbounded_String;
       D      : DOM.Core.Node := N;
    begin
       Trace ("(Parse_Parameter)", N);
+
+      Get_Min_Max (S_Min, S_Max, Min, Max);
 
       D := XML.First_Child (N);
 
@@ -1304,10 +1344,16 @@ package body SOAP.WSDL.Parser is
       if (WSDL.Is_Standard (P_Type) and then To_Type (P_Type) /= P_Character)
         or else Is_Character (N, P_Type, Document)
       then
-         return
-           (Types.K_Simple, +XML.Get_Attr_Value (N, "name"), Doc,
-            Typ  => Types.Create (Utils.No_NS (P_Type), Name_Space.XSD),
-            Next => null);
+         if Min = 1 and then Max = 1 then
+            return
+              (Types.K_Simple, +XML.Get_Attr_Value (N, "name"), Doc,
+               Typ  => Types.Create (Utils.No_NS (P_Type), Name_Space.XSD),
+               Min  => Min,
+               Max  => Max,
+               Next => null);
+         else
+            return Parse_Set (O, N, Document);
+         end if;
 
       elsif P_Type = "anyType" then
          raise WSDL_Error with "Type anyType is not supported.";
@@ -1339,7 +1385,14 @@ package body SOAP.WSDL.Parser is
 
                else
                   O.Self.Current_Name := +XML.Get_Attr_Value (N, "name");
-                  return Parse_Simple (O, R, Document);
+
+                  declare
+                     P : Parameters.Parameter := Parse_Simple (O, R, Document);
+                  begin
+                     P.Min := Min;
+                     P.Max := Max;
+                     return P;
+                  end;
                end if;
             end if;
 
@@ -1348,12 +1401,26 @@ package body SOAP.WSDL.Parser is
                   P : Parameters.Parameter := Parse_Array (O, R, Document);
                begin
                   P.Name := +XML.Get_Attr_Value (N, "name");
+                  P.Min := Min;
+                  P.Max := Max;
                   return P;
                end;
 
             else
                O.Self.Current_Name := +XML.Get_Attr_Value (N, "name");
-               return Parse_Record (O, R, Document);
+
+               if Min = 1 and then Max = 1 then
+                  declare
+                     P : Parameters.Parameter := Parse_Record (O, R, Document);
+                  begin
+                     P.Min := Min;
+                     P.Max := Max;
+                     return P;
+                  end;
+
+               else
+                  return Parse_Set (O, N, Document);
+               end if;
             end if;
          end;
       end if;
@@ -1799,6 +1866,64 @@ package body SOAP.WSDL.Parser is
 
       End_Service (O, -Name);
    end Parse_Service;
+
+   ---------------
+   -- Parse_Set --
+   ---------------
+
+   function Parse_Set
+     (O        : in out Object'Class;
+      S        : DOM.Core.Node;
+      Document : WSDL.Object) return Parameters.Parameter
+   is
+      P : Parameters.Parameter (Types.K_Array);
+      D : Types.Definition (Types.K_Array);
+   begin
+      Trace ("(Parse_Set)", S);
+
+      pragma Assert
+        (S /= null
+         and then Utils.No_NS (DOM.Core.Nodes.Node_Name (S)) = "element");
+
+      declare
+         Name  : constant String := XML.Get_Attr_Value (S, "name", False);
+         Typ   : constant String := XML.Get_Attr_Value (S, "type", False);
+         S_Min : constant String := XML.Get_Attr_Value (S, "minOccurs", False);
+         S_Max : constant String := XML.Get_Attr_Value (S, "maxOccurs", False);
+      begin
+         P.Name := +Name;
+         P.Typ  := Types.Create (Typ & "_Set", Get_Target_Name_Space (S));
+
+         Get_Min_Max (S_Min, S_Max, P.Min, P.Max);
+
+         if P.Min = P.Max then
+            P.Length := P.Min;
+         else
+            P.Length := 0;
+         end if;
+
+         D.Ref       := Types.Create (Typ & "_Set", Types.NS (P.Typ));
+         D.E_Type    := Types.Create (Typ, Get_Target_Name_Space (S));
+
+         Types.Register (D);
+
+         if not WSDL.Is_Standard (Typ) then
+            --  This is not a standard type, parse it
+            declare
+               N : constant DOM.Core.Node :=
+                     Look_For_Schema (S, Typ, Document,
+                                      Look_Context'(Complex_Type => True,
+                                                    others => False));
+            begin
+               --  ??? Right now pretend that it is a record, there is
+               --  certainly some cases not covered here.
+               Parameters.Append (P.P, Parse_Record (O, N, Document));
+            end;
+         end if;
+
+         return P;
+      end;
+   end Parse_Set;
 
    ------------------
    -- Parse_Simple --

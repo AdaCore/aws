@@ -5,14 +5,11 @@ Procedure wsGetSrvRequest SOAPAction:
    Input
       [record] wsGetSrvRequest ; WsGetSrvRequest
          [simple] limits ; Integer
-         [record] spatialDomain ; WsSpatialDomain
-            [record] southWestCorner ; WsLatLongDegrees
-               [derived] latitudeDegrees ; WsLatitudeDegrees
-               [derived] longitudeDegrees ; WsLongitudeDegrees
-            [derived] northEastCorner ; WsLongitudeDegrees
+         [set] {0 .. 1} spatialDomain ; WsSpatialDomain_Set [WsSpatialDomain]
+
    Output
       [record] wsGetSrvResponse ; WsGetSrvResponse
          [record] results ; WsGetSrvResults
-            [simple] bestA ; Float
-            [simple] bestB ; Float
+            [set] {0 .. 1} bestA ; float_Set [float]
+            [set] {0 .. 1} bestB ; float_Set [float]
    > wsGetSrvRequest

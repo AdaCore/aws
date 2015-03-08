@@ -152,15 +152,21 @@ package body Stub is
          if Prefix = "" then
             --  Not inside a record
             Text_IO.Put
-              (Stub_Adb, "A (To_Object_Set ("
-                 & Format_Name (O, To_String (N.Name))
-                 & "), """ & To_String (N.Name) & """)");
+              (Stub_Adb,
+               (if WSDL.Parameters.Is_Uniq (N.all)
+                then "SOAP_Array" else "SOAP_Set")
+               & "'(A (To_Object_Set ("
+               & Format_Name (O, To_String (N.Name))
+               & "), """ & To_String (N.Name) & """))");
 
          else
             Text_IO.Put
-              (Stub_Adb, "A (To_Object_Set ("
-                 & Prefix & Format_Name (O, To_String (N.Name))
-                 & ".Item.all" & "), """ & To_String (N.Name) & """)");
+              (Stub_Adb,
+               (if WSDL.Parameters.Is_Uniq (N.all)
+                then "SOAP_Array" else "SOAP_Set")
+               & "'(A (To_Object_Set ("
+               & Prefix & Format_Name (O, To_String (N.Name))
+               & ".Item.all" & "), """ & To_String (N.Name) & """))");
          end if;
 
          Output_Parameter (K + 1, Prefix, N.Next);

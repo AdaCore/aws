@@ -30,6 +30,8 @@
 with Ada.Text_IO;
 with Ada.Unchecked_Deallocation;
 
+with AWS.Utils;
+
 package body SOAP.WSDL.Parameters is
 
    ------------
@@ -65,8 +67,18 @@ package body SOAP.WSDL.Parameters is
    is
       Def : constant WSDL.Types.Definition :=  WSDL.Types.Find (P.Typ);
    begin
-      return WSDL.Types.From_SOAP (Def, Object, Type_Name, Is_SOAP_Type);
+      return WSDL.Types.From_SOAP
+        (Def, Object, Type_Name, Is_SOAP_Type, Is_Uniq (P));
    end From_SOAP;
+
+   -------------
+   -- Is_Uniq --
+   -------------
+
+   function Is_Uniq (P : Parameter) return Boolean is
+   begin
+      return P.Min = 1 and then P.Max = 1;
+   end Is_Uniq;
 
    ------------
    -- Length --
@@ -100,12 +112,22 @@ package body SOAP.WSDL.Parameters is
       ------------
 
       procedure Output (P : access Parameter; K : Natural) is
+
+         function Min_Max return String is
+           (if Is_Uniq (P.all)
+            then ""
+            else "{" & AWS.Utils.Image (P.Min)
+                 & " .. "
+                 & (if P.Max = Positive'Last
+                    then "unbounded"
+                    else AWS.Utils.Image (P.Max)) & "} ");
+
       begin
          if P /= null then
             Text_IO.Put (String'(1 .. K => ' '));
 
             if P.Mode = Types.K_Simple then
-               Text_IO.Put ("[simple] ");
+               Text_IO.Put ("[simple] " & Min_Max);
                Text_IO.Put_Line
                  (To_String (P.Name) & " ; "
                   & To_Ada (To_Type (Types.Name (P.Typ))));
@@ -115,7 +137,11 @@ package body SOAP.WSDL.Parameters is
                   Def : constant WSDL.Types.Definition :=
                           WSDL.Types.Find (P.Typ);
                begin
-                  Text_IO.Put ('[' & Types.Image (Def) & "] ");
+                  if Is_Uniq (P.all) then
+                     Text_IO.Put ('[' & Types.Image (Def) & "] ");
+                  else
+                     Text_IO.Put ("[set] " & Min_Max);
+                  end if;
 
                   Text_IO.Put (To_String (P.Name) & " ; ");
                   WSDL.Types.Output (Def);
@@ -166,7 +192,8 @@ package body SOAP.WSDL.Parameters is
    is
       Def : constant WSDL.Types.Definition :=  WSDL.Types.Find (P.Typ);
    begin
-      return WSDL.Types.To_SOAP (Def, Object, Name, False, Type_Name);
+      return WSDL.Types.To_SOAP
+        (Def, Object, Name, False, Type_Name, Is_Uniq (P));
    end To_SOAP;
 
 end SOAP.WSDL.Parameters;

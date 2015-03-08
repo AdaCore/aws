@@ -167,7 +167,8 @@ package SOAP.WSDL.Types is
      (Def          : WSDL.Types.Definition;
       Object       : String;
       Type_Name    : String := "";
-      Is_SOAP_Type : Boolean := False) return String
+      Is_SOAP_Type : Boolean := False;
+      Is_Uniq      : Boolean := True) return String
      with Pre => Def.Mode in Compound_Type xor Type_Name = "";
    --  Is_SOAP_Type is true if Object is alreay a SOAP types object. So there
    --  is no need for a convertion in this context.
@@ -176,7 +177,8 @@ package SOAP.WSDL.Types is
      (Def          : WSDL.Types.Definition;
       Object, Name : String;
       Name_Is_Var  : Boolean := False;
-      Type_Name    : String := "") return String
+      Type_Name    : String := "";
+      Is_Uniq      : Boolean := True) return String
      with Pre => Def.Mode = K_Enumeration xor Type_Name = "";
    --  Returns the code to create a SOAP parameter with given Name. Object is
    --  the reference to the object to convert. Type_Name is the name of the

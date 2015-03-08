@@ -5,9 +5,9 @@ Service ecc
 Procedure ServerExit SOAPAction:
    Input
       [record] parameters ; ServerExit
-         [simple] fieldsToNull ; String
+         [set] {0 .. unbounded} fieldsToNull ; string_Set [string]
          [simple] Id ; String
-         [simple] CreatedBy ; String
+         [set] {0 .. 1} CreatedBy ; string_Set [string]
    Output
       [record] parameters ; Response
          [simple] ErrorCode ; Integer

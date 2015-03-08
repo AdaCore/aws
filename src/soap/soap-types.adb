@@ -847,6 +847,26 @@ package body SOAP.Types is
       return To_String (Result);
    end Image;
 
+   overriding function Image (O : SOAP_Set) return String is
+      Result : Unbounded_String;
+   begin
+      Append (Result, '(');
+
+      for K in O.O'Range loop
+         Append (Result, Integer'Image (K));
+         Append (Result, " => ");
+         Append (Result, Image (O.O (K).O.all));
+
+         if K /= O.O'Last then
+            Append (Result, ", ");
+         end if;
+      end loop;
+
+      Append (Result, ')');
+
+      return To_String (Result);
+   end Image;
+
    overriding function Image (O : SOAP_Record) return String is
       Result : Unbounded_String;
    begin
@@ -1008,6 +1028,28 @@ package body SOAP.Types is
         (Finalization.Controlled
          with To_Unbounded_String (Name), No_Name_Space, Utils.To_Utf8 (V));
    end S;
+
+   ---------
+   -- Set --
+   ---------
+
+   function Set
+     (V         : Object_Set;
+      Name      : String;
+      Type_Name : String := "") return SOAP_Set is
+   begin
+      --  All items must have the name of the set
+
+      for K in V'Range loop
+         V (K).O.Name := To_Unbounded_String (Name);
+      end loop;
+
+      return
+        (Finalization.Controlled
+         with To_Unbounded_String (Name), No_Name_Space,
+           new Natural'(1), new Object_Set'(V),
+           To_Unbounded_String (Type_Name));
+   end Set;
 
    --------------------
    -- Set_Name_Space --
@@ -1213,6 +1255,40 @@ package body SOAP.Types is
 
       raise Types.Data_Error
         with "(V) Struct object " & Name & " not found";
+   end V;
+
+   function V (O : SOAP_Record; Name : String) return Object_Set is
+
+      function Count return Natural;
+      --  Returns the number of items in O with given Name
+
+      -----------
+      -- Count --
+      -----------
+
+      function Count return Natural is
+         C : Natural := 0;
+      begin
+         for K in O.O'Range loop
+            if Types.Name (O.O (K).O.all) = Name then
+               C := C + 1;
+            end if;
+         end loop;
+         return C;
+      end Count;
+
+      Result : Object_Set (1 .. Count);
+      I      : Natural range 0 .. Count := 0;
+
+   begin
+      for K in O.O'Range loop
+         if Types.Name (O.O (K).O.all) = Name then
+            I := I + 1;
+            Result (I) := O.O (K);
+         end if;
+      end loop;
+
+      return Result;
    end V;
 
    ---------------
@@ -1470,6 +1546,19 @@ package body SOAP.Types is
 
       Append (Result, Spaces (Indent));
       Append (Result, Utils.Tag (To_String (O.Name), Start => False));
+
+   end XML_Image;
+
+   overriding procedure XML_Image
+     (O      : SOAP_Set;
+      Result : in out Unbounded_String) is
+   begin
+      --  Add all elements
+
+      for K in O.O'Range loop
+         XML_Image (O.O (K).O.all, Result);
+         Append (Result, New_Line);
+      end loop;
    end XML_Image;
 
    overriding procedure XML_Image
