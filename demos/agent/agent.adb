@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2000-2012, AdaCore                     --
+--                     Copyright (C) 2000-2015, AdaCore                     --
 --                                                                          --
 --  This is free software;  you can redistribute it  and/or modify it       --
 --  under terms of the  GNU General Public License as published  by the     --
@@ -89,12 +89,15 @@ procedure Agent is
    Server_Push        : Boolean := False;
    Follow_Redirection : Boolean := False;
    Show_Cert          : Boolean := False;
+   Break_On_Code      : Boolean := False;
    Interval           : Duration               := Duration'Last;
    Timeouts           : Client.Timeouts_Values := Client.No_Timeout;
    Connect            : AWS.Client.HTTP_Connection;
    Cookie             : Unbounded_String;
    Client_Cert        : Unbounded_String :=
                           To_Unbounded_String (Default.Client_Certificate);
+   Was_Iterations     : Boolean := False;
+   Previous_Code      : Messages.Status_Code := Messages.S100;
 
    function Parse_Command_Line return Boolean;
    --  Parse Agent command line. Returns False on error
@@ -130,7 +133,8 @@ procedure Agent is
    begin
       loop
          case GNAT.Command_Line.Getopt
-           ("f o d h v u: p: a: pu: pp: pa: proxy: k i: if: s sc: r c cc: t:")
+           ("f o d h v u: p: a: pu: pp: pa: proxy: k i: if: s sc: r c cc: t:"
+            & " bc")
          is
             when ASCII.NUL =>
                exit;
@@ -144,6 +148,9 @@ procedure Agent is
             when 'h' =>
                Usage;
                return False;
+
+            when 'b' =>
+               Break_On_Code := GNAT.Command_Line.Full_Switch = "bc";
 
             when 'f' =>
                Force := True;
@@ -287,12 +294,17 @@ procedure Agent is
       Text_IO.Put_Line ("       -s           server-push mode.");
       Text_IO.Put_Line ("       -i           repeat over delay interval for"
                           & " stress test.");
+      Text_IO.Put_Line ("       -bc          Stop repeating on status code"
+                          & " change.");
       Text_IO.Put_Line ("       -r           follow redirection.");
       Text_IO.Put_Line ("       -d           debug mode, view HTTP headers.");
       Text_IO.Put_Line ("       -c           display server certificate.");
       Text_IO.Put_Line ("       -cc          Client certificate.");
       Text_IO.Put_Line ("       -sc          Set cookie.");
       Text_IO.Put_Line ("       -t           wait response timeout.");
+      Text_IO.Put_Line ("       -if          File name to send.");
+      Text_IO.Put_Line ("       -v           AWS and SSL version.");
+      Text_IO.Put_Line ("       -h           This help screen.");
       Text_IO.Put_Line ("       -proxy <proxy_url>");
       Text_IO.Put_Line ("       -u <user_name>");
       Text_IO.Put_Line ("       -p <password>");
@@ -380,6 +392,16 @@ begin
            & Messages.Image (Response.Status_Code (Data))
            & " - "
            & Messages.Reason_Phrase (Response.Status_Code (Data)));
+
+      if Was_Iterations
+        and then Break_On_Code
+        and then Previous_Code /= Response.Status_Code (Data)
+      then
+         Interval := Duration'Last;
+      end if;
+
+      Was_Iterations := True;
+      Previous_Code  := Response.Status_Code (Data);
 
       if Response.Status_Code (Data) = Messages.S301 then
          Text_IO.Put_Line ("New location : " & Response.Location (Data));
