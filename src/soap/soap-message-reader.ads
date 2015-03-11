@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2000-2014, AdaCore                     --
+--                     Copyright (C) 2000-2015, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -30,8 +30,8 @@
 --  This package is based on Tree_Reader from the XMLada package. It is used
 --  to create a DOM object using the SAX parser.
 
-with Sax.Readers;
 with DOM.Core;
+with Sax.Readers;
 
 private with Sax.Attributes;
 private with Unicode.CES;
