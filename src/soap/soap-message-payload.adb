@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2000-2012, AdaCore                     --
+--                     Copyright (C) 2000-2015, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -41,7 +41,8 @@ package body SOAP.Message.Payload is
    begin
       return (Name_Space   => Name_Space,
               Wrapper_Name => To_Unbounded_String (Procedure_Name),
-              P            => P_Set);
+              P            => P_Set,
+              Style        => RPC);
    end Build;
 
    --------------------

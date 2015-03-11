@@ -44,12 +44,12 @@ private package SOAP.Message.Reader is
    type Tree_Reader is new Sax.Readers.Reader with private;
    --  Tree_Reader create a DOM tree using the SAX parser
 
-   function Get_Tree (Read : Tree_Reader) return Document;
+   function Get_Tree (Read : Tree_Reader) return DOM.Core.Document;
 
 private
 
    type Tree_Reader is new Sax.Readers.Reader with record
-      Tree              : Document;
+      Tree              : DOM.Core.Document;
       Current_Node      : Node;
       Internal_Encoding : Unicode.CES.Encoding_Scheme;
    end record;

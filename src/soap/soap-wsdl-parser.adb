@@ -1045,10 +1045,13 @@ package body SOAP.WSDL.Parser is
 
       --  Check for style (only Document is supported)
 
-      if not O.Accept_Document
-        and then XML.Get_Attr_Value (N, "style") = "document"
-      then
-         raise WSDL_Error with "Document Web Service style not supported.";
+      if  XML.Get_Attr_Value (N, "style") = "document" then
+         if O.Accept_Document then
+            --  We accept document style binding as RPC
+            O.Style := Message.RPC;
+         else
+            O.Style := Message.Document;
+         end if;
       end if;
 
       --  Check for transport (only HTTP is supported)
@@ -2190,6 +2193,15 @@ package body SOAP.WSDL.Parser is
          N := XML.Next_Sibling (N);
       end if;
    end Skip_Annotation;
+
+   -----------
+   -- Style --
+   -----------
+
+   function Style (O : Object'Class) return Message.Binding_Style is
+   begin
+      return O.Style;
+   end Style;
 
    -----------
    -- Trace --

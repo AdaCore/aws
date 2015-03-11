@@ -454,7 +454,7 @@ package body SOAP.Message.XML is
             Faultstring => SOAP.Parameters.Get (S.Parameters, "faultstring"));
       else
          return Message.Response.Object'
-           (Message.Object'(S.Name_Space, S.Wrapper_Name, S.Parameters)
+           (Message.Object'(S.Name_Space, S.Wrapper_Name, S.Parameters, RPC)
             with null record);
       end if;
 
@@ -492,7 +492,7 @@ package body SOAP.Message.XML is
             Faultstring => SOAP.Parameters.Get (S.Parameters, "faultstring"));
       else
          return Message.Response.Object'
-           (Message.Object'(S.Name_Space, S.Wrapper_Name, S.Parameters)
+           (Message.Object'(S.Name_Space, S.Wrapper_Name, S.Parameters, RPC)
             with null record);
       end if;
 

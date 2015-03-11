@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2000-2013, AdaCore                     --
+--                     Copyright (C) 2000-2015, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -92,7 +92,7 @@ package body SOAP.Message.Reader is
    -- Get_Tree --
    --------------
 
-   function Get_Tree (Read : Tree_Reader) return Document is
+   function Get_Tree (Read : Tree_Reader) return DOM.Core.Document is
    begin
       return Read.Tree;
    end Get_Tree;

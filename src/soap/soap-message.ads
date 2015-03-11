@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2000-2014, AdaCore                     --
+--                     Copyright (C) 2000-2015, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -38,6 +38,8 @@ package SOAP.Message is
 
    type Object is tagged private;
 
+   type Binding_Style is (RPC, Document);
+
    function XML_Image (M : Object) return Unbounded_String;
    --  Returns the XML image for the wrapper and parameters. This is designed
    --  to be used by Payload and Response object.
@@ -50,6 +52,8 @@ package SOAP.Message is
 
    function Parameters   (M : Object'Class) return SOAP.Parameters.List;
    --  Returns the parameter
+
+   function Style (M : Object'Class) return Binding_Style;
 
    procedure Set_Name_Space
      (M  : in out Object'Class;
@@ -72,6 +76,7 @@ private
       Name_Space   : SOAP.Name_Space.Object;
       Wrapper_Name : Unbounded_String;
       P            : SOAP.Parameters.List;
+      Style        : Binding_Style := RPC;
    end record;
 
 end SOAP.Message;

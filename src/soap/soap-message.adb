@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2000-2014, AdaCore                     --
+--                     Copyright (C) 2000-2015, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -81,6 +81,15 @@ package body SOAP.Message is
    begin
       M.Wrapper_Name := To_Unbounded_String (Name);
    end Set_Wrapper_Name;
+
+   -----------
+   -- Style --
+   -----------
+
+   function Style (M : Object'Class) return Binding_Style is
+   begin
+      return M.Style;
+   end Style;
 
    ------------------
    -- Wrapper_Name --
