@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2000-2014, AdaCore                     --
+--                     Copyright (C) 2000-2015, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -30,8 +30,8 @@
 --  This package is based on Tree_Reader from the XMLada package. It is used
 --  to create a DOM object using the SAX parser.
 
-with Sax.Readers;
 with DOM.Core;
+with Sax.Readers;
 
 private with Sax.Attributes;
 private with Unicode.CES;
@@ -44,12 +44,12 @@ private package SOAP.Message.Reader is
    type Tree_Reader is new Sax.Readers.Reader with private;
    --  Tree_Reader create a DOM tree using the SAX parser
 
-   function Get_Tree (Read : Tree_Reader) return Document;
+   function Get_Tree (Read : Tree_Reader) return DOM.Core.Document;
 
 private
 
    type Tree_Reader is new Sax.Readers.Reader with record
-      Tree              : Document;
+      Tree              : DOM.Core.Document;
       Current_Node      : Node;
       Internal_Encoding : Unicode.CES.Encoding_Scheme;
    end record;

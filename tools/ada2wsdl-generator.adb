@@ -600,8 +600,14 @@ package body Ada2WSDL.Generator is
          New_Line;
          Put_Line ("   <wsdl:binding name="""
                    & WS_Name & "_Binding"" type=""tns:"
-                   & WS_Name & "_PortType"">");
-         Put_Line ("      <soap:binding style=""rpc""");
+                     & WS_Name & "_PortType"">");
+
+         if Options.Document then
+            Put_Line ("      <soap:binding style=""document""");
+         else
+            Put_Line ("      <soap:binding style=""rpc""");
+         end if;
+
          Put_Line ("         transport="""
                      & "http://schemas.xmlsoap.org/soap/http""/>");
 

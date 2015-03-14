@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2003-2014, AdaCore                     --
+--                     Copyright (C) 2003-2015, AdaCore                     --
 --                                                                          --
 --  This is free software;  you can redistribute it  and/or modify it       --
 --  under terms of the  GNU General Public License as published  by the     --
@@ -387,7 +387,7 @@ exception
       Put_Line ("   -s           Skip non supported SOAP routines");
       Put_Line ("   -o           Output filename for Web Document (URL mode)");
       Put_Line
-        ("   -doc         Accept Document style binding (parsed as RPC)");
+        ("   -doc         Document style binding handled as RPC");
       Put_Line ("   -v           Verbose mode");
       Put_Line ("   -v -v        Very verbose mode");
       Put_Line ("   -wsdl        Add WSDL file in unit comment");

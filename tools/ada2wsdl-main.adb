@@ -50,7 +50,7 @@ procedure Ada2WSDL.Main is
    begin
       loop
          case GNAT.Command_Line.Getopt
-           ("f q v a: o: s: t: I: P: n: noenum d")
+           ("f q v a: o: s: t: I: P: n: noenum d doc")
          is
 
             when ASCII.NUL =>
@@ -105,7 +105,16 @@ procedure Ada2WSDL.Main is
                Parser.Add_Option ("-P" & GNAT.Command_Line.Parameter);
 
             when 'd' =>
-               Options.Debug := True;
+               if GNAT.Command_Line.Full_Switch = "doc" then
+                  Options.Document := True;
+
+               elsif GNAT.Command_Line.Full_Switch = "d" then
+                  Options.Debug := True;
+
+               else
+                  Usage;
+                  raise Parameter_Error;
+               end if;
 
             when others =>
                Usage;
@@ -176,6 +185,7 @@ procedure Ada2WSDL.Main is
       Put_Line ("  -f       Replace an existing WSDL document");
       Put_Line ("  -q       Quiet mode");
       Put_Line ("  -v       Verbose mode - output the version");
+      Put_Line ("  -doc     Generate document style WSDL binding");
       Put_Line
         ("  -P proj  A project file to use for building the spec");
       Put_Line ("  -o file  WSDL file, <filename>.wsdl by default");

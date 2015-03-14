@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2003-2012, AdaCore                     --
+--                     Copyright (C) 2003-2015, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -68,6 +68,8 @@ private
      (Dispatcher : Handler;
       Request    : AWS.Status.Data) return AWS.Response.Data;
 
-   type Handler is abstract new AWS.Dispatchers.Handler with null record;
+   type Handler is abstract new AWS.Dispatchers.Handler with record
+      Style : Message.Binding_Style;
+   end record;
 
 end SOAP.Dispatchers;

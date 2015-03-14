@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2000-2014, AdaCore                     --
+--                     Copyright (C) 2000-2015, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -82,6 +82,15 @@ package body SOAP.Message is
       M.Wrapper_Name := To_Unbounded_String (Name);
    end Set_Wrapper_Name;
 
+   -----------
+   -- Style --
+   -----------
+
+   function Style (M : Object'Class) return Binding_Style is
+   begin
+      return M.Style;
+   end Style;
+
    ------------------
    -- Wrapper_Name --
    ------------------
@@ -140,23 +149,25 @@ package body SOAP.Message is
    begin
       --  Procedure
 
-      Append (Message_Header, '<');
+      if M.Style = RPC then
+         Append (Message_Header, '<');
 
-      if NS_Name /= "" then
-         Append (Message_Header, NS_Name & ':');
+         if NS_Name /= "" then
+            Append (Message_Header, NS_Name & ':');
+         end if;
+
+         Append (Message_Header, Wrapper_Name (M));
+
+         Append (Message_Body, " xmlns");
+
+         if NS_Name /= "" then
+            Append (Message_Body, ":" & NS_Name);
+         end if;
+
+         Append
+           (Message_Body,
+            "=""" & SOAP.Name_Space.Value (NS) & """>" & New_Line);
       end if;
-
-      Append (Message_Header, Wrapper_Name (M));
-
-      Append (Message_Body, " xmlns");
-
-      if NS_Name /= "" then
-         Append (Message_Body, ":" & NS_Name);
-      end if;
-
-      Append
-        (Message_Body,
-         "=""" & SOAP.Name_Space.Value (NS) & """>" & New_Line);
 
       --  Procedure's parameters
 
@@ -172,14 +183,16 @@ package body SOAP.Message is
 
       --  Close payload objects
 
-      Append (Message_Body, "</");
+      if M.Style = RPC then
+         Append (Message_Body, "</");
 
-      if NS_Name /= "" then
-         Append (Message_Body, NS_Name & ':');
+         if NS_Name /= "" then
+            Append (Message_Body, NS_Name & ':');
+         end if;
+
+         Append (Message_Body, Wrapper_Name (M));
+         Append (Message_Body, ">" & New_Line);
       end if;
-
-      Append (Message_Body, Wrapper_Name (M));
-      Append (Message_Body, ">" & New_Line);
 
       return Message_Header & Message_Body;
    end XML_Image;

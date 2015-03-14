@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2003-2012, AdaCore                     --
+--                     Copyright (C) 2003-2015, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -29,6 +29,8 @@
 
 --  Dispatch on a SOAP Callback procedures
 
+with SOAP.Message;
+
 package SOAP.Dispatchers.Callback is
 
    type Handler is new Dispatchers.Handler with private;
@@ -38,7 +40,8 @@ package SOAP.Dispatchers.Callback is
 
    function Create
      (HTTP_Callback : AWS.Response.Callback;
-      SOAP_Callback : Dispatchers.SOAP_Callback) return Handler;
+      SOAP_Callback : Dispatchers.SOAP_Callback;
+      Style         : Message.Binding_Style := Message.RPC) return Handler;
    --  Build a dispatcher for the specified callback
 
 private

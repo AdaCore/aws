@@ -111,6 +111,7 @@ package body SOAP.Message.XML is
       A_State      : Type_State := Void;
       NS           : Namespaces;
       Strict       : Boolean    := True;
+      Style        : Binding_Style := RPC;
    end record;
 
    function To_Type
@@ -385,7 +386,8 @@ package body SOAP.Message.XML is
 
    function Load_Payload
      (XML      : aliased String;
-      Envelope : Boolean := True) return Message.Payload.Object
+      Envelope : Boolean := True;
+      Style    : Binding_Style := RPC) return Message.Payload.Object
    is
       use Input_Sources.Strings;
       Source : String_Input;
@@ -396,17 +398,19 @@ package body SOAP.Message.XML is
             Source);
 
       S.Strict := Envelope;
+      S.Style  := Style;
 
       Load_XML (Source, S);
       Close (Source);
 
       return Message.Payload.Build
-        (To_String (S.Wrapper_Name), S.Parameters, S.Name_Space);
+        (To_String (S.Wrapper_Name), S.Parameters, S.Name_Space, Style);
    end Load_Payload;
 
    function Load_Payload
      (XML      : Unbounded_String;
-      Envelope : Boolean := True) return Message.Payload.Object
+      Envelope : Boolean := True;
+      Style    : Binding_Style := RPC) return Message.Payload.Object
    is
       XML_Str : String_Access := new String (1 .. Length (XML));
    begin
@@ -415,7 +419,7 @@ package body SOAP.Message.XML is
       end loop;
 
       return O : constant Message.Payload.Object :=
-                   Load_Payload (XML_Str.all, Envelope)
+                   Load_Payload (XML_Str.all, Envelope, Style)
       do
          Free (XML_Str);
       end return;
@@ -431,7 +435,8 @@ package body SOAP.Message.XML is
 
    function Load_Response
      (Connection : AWS.Client.HTTP_Connection;
-      Envelope   : Boolean := True) return Message.Response.Object'Class
+      Envelope   : Boolean := True;
+      Style      : Binding_Style := RPC) return Message.Response.Object'Class
    is
       use AWS.Client.XML.Input_Sources;
 
@@ -442,6 +447,7 @@ package body SOAP.Message.XML is
       Create (Connection, Source);
 
       S.Strict := Envelope;
+      S.Style  := Style;
 
       Load_XML (Source, S);
       Close (Source);
@@ -454,7 +460,7 @@ package body SOAP.Message.XML is
             Faultstring => SOAP.Parameters.Get (S.Parameters, "faultstring"));
       else
          return Message.Response.Object'
-           (Message.Object'(S.Name_Space, S.Wrapper_Name, S.Parameters)
+           (Message.Object'(S.Name_Space, S.Wrapper_Name, S.Parameters, Style)
             with null record);
       end if;
 
@@ -467,7 +473,8 @@ package body SOAP.Message.XML is
 
    function Load_Response
      (XML      : aliased String;
-      Envelope : Boolean := True) return Message.Response.Object'Class
+      Envelope : Boolean := True;
+      Style    : Binding_Style := RPC) return Message.Response.Object'Class
    is
       use Input_Sources.Strings;
 
@@ -480,6 +487,7 @@ package body SOAP.Message.XML is
             Source);
 
       S.Strict := Envelope;
+      S.Style  := Style;
 
       Load_XML (Source, S);
       Close (Source);
@@ -492,7 +500,7 @@ package body SOAP.Message.XML is
             Faultstring => SOAP.Parameters.Get (S.Parameters, "faultstring"));
       else
          return Message.Response.Object'
-           (Message.Object'(S.Name_Space, S.Wrapper_Name, S.Parameters)
+           (Message.Object'(S.Name_Space, S.Wrapper_Name, S.Parameters, Style)
             with null record);
       end if;
 
@@ -505,7 +513,8 @@ package body SOAP.Message.XML is
 
    function Load_Response
      (XML      : Unbounded_String;
-      Envelope : Boolean := True) return Message.Response.Object'Class
+      Envelope : Boolean := True;
+      Style    : Binding_Style := RPC) return Message.Response.Object'Class
    is
       S : String_Access := new String (1 .. Length (XML));
    begin
@@ -515,8 +524,8 @@ package body SOAP.Message.XML is
       end loop;
 
       declare
-         Result : constant Message.Response.Object'Class
-           := Load_Response (S.all, Envelope);
+         Result : constant Message.Response.Object'Class :=
+                    Load_Response (S.all, Envelope, Style);
       begin
          Free (S);
          return Result;
@@ -621,7 +630,7 @@ package body SOAP.Message.XML is
             OS (K) := +Parse_Param
               (Field,
                (S.Name_Space, S.Wrapper_Name, S.Parameters, A_Type, S.NS,
-                True));
+                True, S.Style));
 
             Field := Next_Sibling (Field);
          end loop;
@@ -661,7 +670,22 @@ package body SOAP.Message.XML is
 
    procedure Parse_Body (N : DOM.Core.Node; S : in out State) is
    begin
-      Parse_Wrapper (SOAP.XML.First_Child (N), S);
+      if S.Style = RPC then
+         Parse_Wrapper (SOAP.XML.First_Child (N), S);
+
+      else
+         declare
+            use SOAP.Parameters;
+            use type DOM.Core.Node;
+            P  : DOM.Core.Node := SOAP.XML.First_Child (N);
+            LS : State;
+         begin
+            while P /= null loop
+               S.Parameters := S.Parameters & Parse_Param (P, LS);
+               P := SOAP.XML.Next_Sibling (P);
+            end loop;
+         end;
+      end if;
    end Parse_Body;
 
    -------------------

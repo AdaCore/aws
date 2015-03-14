@@ -684,7 +684,7 @@ a `WSDL` document on the Web by passing it's `URL`.
 *-doc*
   Handle document style binding as RPC ones. This is sometimes needed
   because some `WSDL` document specify a document style binding even
-  though it is really an RPC one.
+  though the service behave like an RPC one.
 
 *-v*
   Verbose mode, display the parsed spec.

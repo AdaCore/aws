@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2003-2014, AdaCore                     --
+--                     Copyright (C) 2003-2015, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -48,7 +48,8 @@ package body SOAP.Dispatchers is
             (Handler'Class (Dispatcher),
              AWS.Status.SOAPAction (Request),
              SOAP.Message.XML.Load_Payload
-               (Unbounded_String'(AWS.Status.Payload (Request))),
+               (Unbounded_String'(AWS.Status.Payload (Request)),
+                Style => Dispatcher.Style),
              Request);
       else
          return Dispatch_HTTP (Handler'Class (Dispatcher), Request);

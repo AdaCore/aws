@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2003-2012, AdaCore                     --
+--                     Copyright (C) 2003-2015, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -35,8 +35,9 @@ package body SOAP.Dispatchers.Callback is
 
    overriding function Clone (Dispatch : Handler) return Handler is
    begin
-      return (Dispatchers.Handler
-              with Dispatch.HTTP_Callback, Dispatch.SOAP_Callback);
+      return (AWS.Dispatchers.Handler
+              with Dispatch.Style,
+                   Dispatch.HTTP_Callback, Dispatch.SOAP_Callback);
    end Clone;
 
    ------------
@@ -45,9 +46,11 @@ package body SOAP.Dispatchers.Callback is
 
    function Create
      (HTTP_Callback : AWS.Response.Callback;
-      SOAP_Callback : Dispatchers.SOAP_Callback) return Handler is
+      SOAP_Callback : Dispatchers.SOAP_Callback;
+      Style         : Message.Binding_Style := Message.RPC) return Handler is
    begin
-      return (Dispatchers.Handler with HTTP_Callback, SOAP_Callback);
+      return (AWS.Dispatchers.Handler
+              with Style, HTTP_Callback, SOAP_Callback);
    end Create;
 
    -------------------

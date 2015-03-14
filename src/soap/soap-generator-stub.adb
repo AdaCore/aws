@@ -28,6 +28,7 @@
 ------------------------------------------------------------------------------
 
 with SOAP.Client;
+with SOAP.Message;
 
 separate (SOAP.Generator)
 package body Stub is
@@ -430,27 +431,29 @@ package body Stub is
 
       Text_IO.Put_Line
         (Stub_Adb, "      Payload := SOAP.Message.Payload.Build");
-      Text_IO.Put
-        (Stub_Adb, "        (""" & Proc & """, P_Set");
+      Text_IO.Put_Line
+        (Stub_Adb, "        (""" & Proc & """, P_Set,");
 
-      if Namespace = Name_Space.No_Name_Space then
-         Text_IO.Put_Line (Stub_Adb, ");");
-      else
-         Text_IO.Put_Line (Stub_Adb, ",");
+      if Namespace /= Name_Space.No_Name_Space then
          Text_IO.Put_Line
            (Stub_Adb, "         SOAP.Name_Space.Create ("""
             & Name_Space.Name (Namespace) & """, """
-            & Name_Space.Value (Namespace) & """));");
+            & Name_Space.Value (Namespace) & """),");
       end if;
 
+      Text_IO.Put_Line
+        (Stub_Adb,
+         "         Style => SOAP.Message."
+         & SOAP.Message.Binding_Style'Image (O.Style) & ");");
+
       if O.Debug then
+         Text_IO.New_Line (Stub_Adb);
          Text_IO.Put_Line
            (Stub_Adb,
             "      Put_Line (""[CLIENT/" & L_Proc & "] Payload : """);
          Text_IO.Put_Line
            (Stub_Adb,
             "                & SOAP.Message.XML.Image (Payload));");
-         Text_IO.New_Line (Stub_Adb);
       end if;
 
       Text_IO.New_Line (Stub_Adb);

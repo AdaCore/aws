@@ -30,6 +30,8 @@
 with AWS.URL;
 with AWS.Utils;
 
+with SOAP.Message;
+
 separate (SOAP.Generator)
 package body Skel is
 
@@ -71,6 +73,7 @@ package body Skel is
       pragma Unreferenced (Namespace, Fault);
 
       use Ada.Strings.Fixed;
+      use type SOAP.Message.Binding_Style;
       use type WSDL.Parameter_Type;
       use type WSDL.Parameters.P_Set;
       use type WSDL.Types.Kind;
@@ -196,11 +199,15 @@ package body Skel is
       Text_IO.Put_Line
         (Skel_Adb, "      return AWS.Response.Data");
       Text_IO.Put_Line (Skel_Adb, "   is");
-      Text_IO.Put_Line
-        (Skel_Adb, "      Proc_Name : constant String");
-      Text_IO.Put_Line
-        (Skel_Adb, "        := SOAP.Message.Payload.Procedure_Name"
-           & " (Payload);");
+
+      if O.Style = Message.RPC then
+         Text_IO.Put_Line
+           (Skel_Adb, "      Proc_Name : constant String");
+         Text_IO.Put_Line
+           (Skel_Adb, "        := SOAP.Message.Payload.Procedure_Name"
+              & " (Payload);");
+      end if;
+
       Text_IO.Put_Line
         (Skel_Adb, "      Params    : constant SOAP.Parameters.List");
       Text_IO.Put_Line
@@ -251,31 +258,33 @@ package body Skel is
 
       --  Then check the procedure name
 
-      if O.Debug then
+      if O.Style = Message.RPC then
+         if O.Debug then
+            Text_IO.Put_Line
+              (Skel_Adb,
+               "      Put_Line (""[SERVER/" & L_Proc & "_CB] Proc_Name : """
+               & " & Proc_Name);");
+            Text_IO.New_Line (Skel_Adb);
+         end if;
+
          Text_IO.Put_Line
-           (Skel_Adb,
-            "      Put_Line (""[SERVER/" & L_Proc & "_CB] Proc_Name : """
-            & " & Proc_Name);");
+           (Skel_Adb, "      if Proc_Name /= """ & Proc & """ then");
+         Text_IO.Put_Line
+           (Skel_Adb, "         return SOAP.Message.Response.Build");
+         Text_IO.Put_Line
+           (Skel_Adb, "           (SOAP.Message.Response.Error.Build");
+         Text_IO.Put_Line
+           (Skel_Adb, "              (SOAP.Message.Response.Error.Client,");
+         Text_IO.Put_Line
+           (Skel_Adb, "               """
+            & "Found procedure "" & Proc_Name & "" in " & L_Proc & ", """);
+         Text_IO.Put_Line
+           (Skel_Adb, "               "
+              & "  & """ & Proc & " expected.""));");
+         Text_IO.Put_Line
+           (Skel_Adb, "      end if;");
          Text_IO.New_Line (Skel_Adb);
       end if;
-
-      Text_IO.Put_Line
-        (Skel_Adb, "      if Proc_Name /= """ & Proc & """ then");
-      Text_IO.Put_Line
-        (Skel_Adb, "         return SOAP.Message.Response.Build");
-      Text_IO.Put_Line
-        (Skel_Adb, "           (SOAP.Message.Response.Error.Build");
-      Text_IO.Put_Line
-        (Skel_Adb, "              (SOAP.Message.Response.Error.Client,");
-      Text_IO.Put_Line
-        (Skel_Adb, "               """
-           & "Found procedure "" & Proc_Name & "" in " & L_Proc & ", """);
-      Text_IO.Put_Line
-        (Skel_Adb, "               "
-           & "  & """ & Proc & " expected.""));");
-      Text_IO.Put_Line
-        (Skel_Adb, "      end if;");
-      Text_IO.New_Line (Skel_Adb);
 
       if O.Debug then
          Text_IO.Put_Line
