@@ -55,6 +55,9 @@ package Ada2WSDL.Options is
    Enum_To_String : Boolean := False;
    --  If True all enumeration types will be mapped to strings
 
+   Document : Boolean := False;
+   --  Whether to generate document style binding instead of RPC
+
    Debug          : Boolean := False;
    --  Do not generate date/time tag into the WSDL document for being able to
    --  compare them. This is an internal option only.
