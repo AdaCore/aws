@@ -342,6 +342,7 @@ gen_setup:
 	echo "DEBUG=$(DEBUG)" >> makefile.setup
 	echo "PROCESSORS=$(PROCESSORS)" >> makefile.setup
 	echo "TARGET=$(TARGET)" >> makefile.setup
+	echo "GSOAP=false" >> makefile.setup
 
 setup: gen_setup setup_dir setup_modules setup_config setup_tp $(GEXT_MODULE)
 

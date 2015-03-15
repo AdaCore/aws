@@ -22,6 +22,13 @@
 #  DEBUG=-d
 DEBUG=
 
+#  do not activate build by default as it required gSOAP to be installed
+#  manually.
+
+ifneq (${GSOAP},true)
+all:
+
+else
 ifneq (${XMLADA},false)
 all: build_wsdl
 	gprbuild -p -m gsoap_demo.gpr
@@ -35,6 +42,7 @@ all: build_wsdl
 		c_client_doc.c -lgsoap
 else
 all:
+endif
 endif
 
 create-dirs:
