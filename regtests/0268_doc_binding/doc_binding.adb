@@ -41,5 +41,5 @@ begin
      (DOC.Client.SayHello
         (firstName => "AWS", Endpoint => Server.Status.Local_URL (H_Server)));
 
-   Server.Wait (Server.Q_Key_Pressed);
+   AWS.Server.Shutdown (H_Server);
 end DOC_Binding;
