@@ -280,7 +280,9 @@ package body Sp_Pack is
          --  closed in previous iterations.
          --  Last connection would not be unregistered.
 
-         Server_Push.Send (Push, Data => Data, Content_Type => "text/plain");
+         Server_Push.Send
+           (Push, Data => Data, Content_Type => "text/plain",
+            Client_Gone => Put_Line'Access);
 
          Client.Close (Connect (J));
       end loop;
@@ -290,6 +292,11 @@ package body Sp_Pack is
 
          if J = 10 then
             Put_Line ("Auto unregister error" & Server_Push.Count (Push)'Img);
+
+            Server_Push.Send
+              (Push, Data => Data, Content_Type => "text/plain",
+               Client_Gone => Put_Line'Access);
+
             exit;
          end if;
 
