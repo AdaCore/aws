@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2003-2014, AdaCore                     --
+--                     Copyright (C) 2003-2015, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -35,6 +35,8 @@ with AWS.Net.SSL.Certificate.Impl;
 
 package body AWS.Net.SSL.Certificate is
 
+   Pwd_Callback : Password_Callback;
+
    ---------
    -- Get --
    ---------
@@ -44,6 +46,19 @@ package body AWS.Net.SSL.Certificate is
       return Impl.Get (Socket);
    end Get;
 
+   ------------------
+   -- Get_Password --
+   ------------------
+
+   function Get_Password (Certificate_Filename : String) return String is
+   begin
+      if Pwd_Callback = null then
+         return "";
+      else
+         return Pwd_Callback (Certificate_Filename);
+      end if;
+   end Get_Password;
+
    ----------
    -- Load --
    ----------
@@ -52,6 +67,16 @@ package body AWS.Net.SSL.Certificate is
    begin
       return Impl.Load (Filename);
    end Load;
+
+   ---------------------------
+   -- Set_Password_Callback --
+   ---------------------------
+
+   procedure Set_Password_Callback
+     (Callback : Password_Callback) is
+   begin
+      Pwd_Callback := Callback;
+   end Set_Password_Callback;
 
    -------------------------
    -- Set_Verify_Callback --

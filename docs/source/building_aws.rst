@@ -190,7 +190,8 @@ Here are a short description of them:
 
 *https*
   A simple secure server enforcing TLS 1.2 protocol to be used by
-  the Web Browser.
+  the Web Browser. This demo also uses a signed server's key and
+  proper setup hand over the password to the secure layer.
 
 *interoplab*
   A WSDL based demo that test most of the `SOAP` features.

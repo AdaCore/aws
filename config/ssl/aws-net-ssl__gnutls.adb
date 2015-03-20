@@ -61,11 +61,12 @@ package body AWS.Net.SSL is
 
    subtype NSST is Net.Std.Socket_Type;
 
-   Set_Certificate_Over_Callback : constant Boolean := False;
-   --  ??? We have 2 variants to setup certificate now,
-   --  over callback installed by gnutls_certificate_set_retrieve_function2
-   --  and over gnutls_certificate_set_x509_key_mem, which one to use, we will
-   --  decide later, but now we are able to test it both.
+   Set_Certificate_Over_Callback : constant Boolean := True;
+   --  ??? We have 2 variants to setup certificate now, over
+   --  callback installed by gnutls_certificate_set_retrieve_function2
+   --  and over gnutls_certificate_set_x509_key_mem.
+   --  This later variant is now used as it simple support signed server's
+   --  key.
 
    subtype Datum_Type is Certificate.Impl.Datum_Type;
 
@@ -1121,6 +1122,17 @@ package body AWS.Net.SSL is
             return Result (1 .. Positive (Size));
          end Load_PCert_List;
 
+         Password : constant String :=
+                      Net.SSL.Certificate.Get_Password
+                        (if Key_Filename = ""
+                         then Certificate_Filename
+                         else Key_Filename);
+
+         Pwd      : CS.chars_ptr :=
+                      (if Password = ""
+                       then CS.Null_Ptr
+                       else CS.New_String (Password));
+
       begin
          if Set_Certificate_Over_Callback then
             Config.PCert_List := new PCert_Array'(Load_PCert_List (4));
@@ -1129,7 +1141,9 @@ package body AWS.Net.SSL is
             Check_Error_Code
               (TSSL.gnutls_privkey_import_x509_raw
                  (Config.TLS_PK, Key.Datum'Unchecked_Access,
-                  TSSL.GNUTLS_X509_FMT_PEM, CS.Null_Ptr, 0));
+                  TSSL.GNUTLS_X509_FMT_PEM, Pwd, 0));
+
+            CS.Free (Pwd);
 
             TSSL.gnutls_certificate_set_retrieve_function2
               (CC, Retrieve_Certificate'Access);

@@ -16,36 +16,14 @@
 --  to http://www.gnu.org/licenses for a complete copy of the license.      --
 ------------------------------------------------------------------------------
 
-with Ada.Calendar;
-with Ada.Text_IO;
+with "aws";
 
-with AWS.MIME;
-with AWS.Response.Set;
+project Signed_Key is
+   for Source_Dirs use (".");
+   for Main use ("signed_key.adb");
 
-package body HTTPS_CB is
+   package Builder is
+      for Default_Switches ("Ada") use ("-gnat05");
+   end Builder;
 
-   use Ada;
-
-   -----------
-   -- HW_CB --
-   -----------
-
-   function HW_CB (Request : Status.Data) return Response.Data is
-      Answer : Response.Data;
-   begin
-      return Response.Build
-        (MIME.Text_HTML, "Hello World! - "
-         & Duration'Image (Calendar.Seconds (Calendar.Clock)));
-   end HW_CB;
-
-   ------------------
-   -- Set_Password --
-   ------------------
-
-   function Set_Password (File : String) return String is
-   begin
-      Text_IO.Put_Line ("Asking for password for " & File);
-      return "foobar";
-   end Set_Password;
-
-end HTTPS_CB;
+end Signed_Key;

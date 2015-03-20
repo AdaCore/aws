@@ -16,36 +16,44 @@
 --  to http://www.gnu.org/licenses for a complete copy of the license.      --
 ------------------------------------------------------------------------------
 
-with Ada.Calendar;
 with Ada.Text_IO;
 
-with AWS.MIME;
-with AWS.Response.Set;
+with AWS.Client;
+with AWS.Config;
+with AWS.Net.SSL.Certificate;
+with AWS.Response;
+with AWS.Server.Status;
 
-package body HTTPS_CB is
+with Signed_Key_CB;
+
+procedure Signed_Key is
 
    use Ada;
+   use AWS;
 
-   -----------
-   -- HW_CB --
-   -----------
+   WS  : Server.HTTP;
+   SSL : Net.SSL.Config;
+   R   : Response.Data;
 
-   function HW_CB (Request : Status.Data) return Response.Data is
-      Answer : Response.Data;
-   begin
-      return Response.Build
-        (MIME.Text_HTML, "Hello World! - "
-         & Duration'Image (Calendar.Seconds (Calendar.Clock)));
-   end HW_CB;
+begin
+   Net.SSL.Certificate.Set_Password_Callback
+     (Signed_Key_CB.Set_Password'Access);
 
-   ------------------
-   -- Set_Password --
-   ------------------
+   Net.SSL.Initialize
+     (SSL,
+      Certificate_Filename => "aws-server.crt",
+      Key_Filename         => "aws-server.key");
 
-   function Set_Password (File : String) return String is
-   begin
-      Text_IO.Put_Line ("Asking for password for " & File);
-      return "foobar";
-   end Set_Password;
+   Server.Set_SSL_Config (WS, SSL);
 
-end HTTPS_CB;
+   Server.Start
+     (WS, "HTTPS",
+      Max_Connection => 5,
+      Security       => True,
+      Callback       => Signed_Key_CB.HW_CB'Access);
+
+   R := Client.Get (Server.Status.Local_URL (WS));
+   Text_IO.Put_Line ("R : " & Response.Message_Body (R));
+
+   Server.Shutdown (WS);
+end Signed_Key;
