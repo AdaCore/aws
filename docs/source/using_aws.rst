@@ -28,20 +28,14 @@ is no manual configuration.
   path into `ADA_INCLUDE_PATH` or put it on the command line
   `-aI<awsroot>/include/aws`.
 
-*components*
-
-  `AWS` uses some components they are installed in
-  :file:`<awsroot>/include/aws/components`. Add this path into ADA_INCLUDE_PATH
-  or put it on the command line `-I<awsroot>/include/aws/components`.
-
 *libraries*
 
   The GNAT library files (:file:`.ali`) and the `AWS` libraries
-  (:file:`libaws.a`) are installed into :file:`<awsroot>/lib/aws/static`. Add
+  (:file:`libaws.a`) are installed into :file:`<awsroot>/lib/aws`. Add
   this path into `ADA_OBJECTS_PATH` or put it on the command line
   `-aO<awsroot>/lib/aws/static`. Furthermore for `gnatlink` to find the
   libraries you must add the following library path option on the
-  `gnatmake` command line `-largs -L<awsroot>/lib/aws/static -laws`.
+  `gnatmake` command line `-largs -L<awsroot>/lib/aws -laws`.
 
   Note that to build SSL applications you need to add `-lssl -lcrypto` on
   gnatmake's `-largs` section.
