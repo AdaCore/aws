@@ -16,15 +16,16 @@
 --  to http://www.gnu.org/licenses for a complete copy of the license.      --
 ------------------------------------------------------------------------------
 
-with Ada.Calendar;
 with Ada.Text_IO;
 
 with AWS.MIME;
 with AWS.Response.Set;
 
-package body HTTPS_CB is
+package body Signed_Key_CB is
 
    use Ada;
+
+   Mess : Boolean := False;
 
    -----------
    -- HW_CB --
@@ -33,9 +34,7 @@ package body HTTPS_CB is
    function HW_CB (Request : Status.Data) return Response.Data is
       Answer : Response.Data;
    begin
-      return Response.Build
-        (MIME.Text_HTML, "Hello World! - "
-         & Duration'Image (Calendar.Seconds (Calendar.Clock)));
+      return Response.Build (MIME.Text_HTML, "Hello World!");
    end HW_CB;
 
    ------------------
@@ -44,8 +43,13 @@ package body HTTPS_CB is
 
    function Set_Password (File : String) return String is
    begin
-      Text_IO.Put_Line ("Asking for password for " & File);
+      if not Mess then
+         Text_IO.Put_Line ("Asking for password for " & File);
+      end if;
+
+      Mess := True;
+
       return "foobar";
    end Set_Password;
 
-end HTTPS_CB;
+end Signed_Key_CB;

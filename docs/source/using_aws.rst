@@ -2091,6 +2091,15 @@ random seed.
 A this point you can use :file:`aws.pem` with your server or the separate
 :file:`server.key` and :file:`server.crt` files.
 
+It is also possible to sign the server's key. In this case the key
+won't be in plain text but will require to setup a password on the
+server code for the key to be decoded. See routine Set_Password_Callback
+in AWS.Net.SSL.Certificate.
+
+*Generate a crypted RSA key*::
+
+  $ openssl genrsa -aes128 -passout pass:<PASSWORD> -out aws-server.key
+
 .. _Creating_a_client_certificate:
 
 Creating a client certificate

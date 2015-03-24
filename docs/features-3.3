@@ -15,6 +15,13 @@ of the feature.
 New features in AWS 3.3
 -----------------------
 
+NF-33-O202-018 Add support for signed server's key file
+
+    It is now possible to use a signed key file with AWS. In this case
+    a pass-phrase is requested to be able to start the HTTPS
+    session. This pass-phrase can be handed over to the server using
+    the Set_Password_Callback in AWS.Net.SSL.Certificate.
+
 NF-33-O223-047 Add support for minOccurs/maxOccurs (2015-03-08)
 
     Add support for multi-occurrence SOAP elements. SOAP element

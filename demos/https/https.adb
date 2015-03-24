@@ -21,7 +21,7 @@
 with Ada.Text_IO;
 
 with AWS.Config;
-with AWS.Net.SSL;
+with AWS.Net.SSL.Certificate;
 with AWS.Server;
 
 with HTTPS_CB;
@@ -39,6 +39,9 @@ begin
    Text_IO.New_Line;
 
    --  Allows only TLS 1.2
+
+   Net.SSL.Certificate.Set_Password_Callback
+     (HTTPS_CB.Set_Password'Access);
 
    Net.SSL.Initialize
      (SSL,

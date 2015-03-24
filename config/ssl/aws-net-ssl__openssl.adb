@@ -752,11 +752,16 @@ package body AWS.Net.SSL is
       Key  : aliased TSSL.Private_Key := TSSL.RSA_new;
       IO   : constant TSSL.BIO_Access := TSSL.BIO_new (TSSL.BIO_s_file);
       Name : aliased C.char_array := C.To_C (Filename);
+      Pwd  : aliased C.char_array :=
+               C.To_C (Net.SSL.Certificate.Get_Password (Filename));
    begin
       if TSSL.BIO_read_filename
            (IO, C.Strings.To_Chars_Ptr (Name'Unchecked_Access)) = 0
         or else TSSL.PEM_read_bio_RSAPrivateKey
-                  (IO, Key'Access, null, TSSL.Null_Pointer) /= Key
+                  (IO, Key'Access, null,
+                   (if Pwd'Length = 1       -- 1 means just the nul char
+                    then TSSL.Null_Pointer
+                    else Pwd'Address)) /= Key
       then
          TSSL.BIO_free (IO);
          TSSL.RSA_free (Key);

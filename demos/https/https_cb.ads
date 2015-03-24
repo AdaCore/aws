@@ -25,4 +25,6 @@ package HTTPS_CB is
 
    function HW_CB (Request : Status.Data) return Response.Data;
 
+   function Set_Password (File : String) return String;
+
 end HTTPS_CB;

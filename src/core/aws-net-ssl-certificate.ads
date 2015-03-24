@@ -104,6 +104,19 @@ package AWS.Net.SSL.Certificate is
      (Config : in out SSL.Config; Callback : Verify_Callback);
    --  Register the callback to use to verify client's certificates
 
+   type Password_Callback is
+     access function (Certificate_Filename : String) return String;
+   --  Callback to get password for signed server's keys. An empty string
+   --  must be returned if the password is unknown or the certificate isn't
+   --  signed.
+
+   procedure Set_Password_Callback (Callback : Password_Callback);
+   --  Set the password callback
+
+   function Get_Password (Certificate_Filename : String) return String;
+   --  Request a password for the giver certificate. The default
+   --  implementation just returns an empty string.
+
 private
 
    use Ada.Strings.Unbounded;
