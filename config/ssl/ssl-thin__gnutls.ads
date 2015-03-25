@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                            Secure Sockets Layer                          --
 --                                                                          --
---                      Copyright (C) 2005-2014, AdaCore                    --
+--                      Copyright (C) 2005-2015, AdaCore                    --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -1030,6 +1030,15 @@ package SSL.Thin is
       cert : a_gnutls_datum_t;
       key  : a_gnutls_datum_t;
       p4   : gnutls_x509_crt_fmt_t) return C.int
+     with Import, Convention => C;
+
+   function gnutls_certificate_set_x509_key_mem2
+     (res   : gnutls_certificate_credentials_t;
+      cert  : a_gnutls_datum_t;
+      key   : a_gnutls_datum_t;
+      p4    : gnutls_x509_crt_fmt_t;
+      pass  : CS.chars_ptr;
+      flags : C.unsigned) return C.int
      with Import, Convention => C;
 
    function gnutls_certificate_set_x509_key

@@ -61,12 +61,11 @@ package body AWS.Net.SSL is
 
    subtype NSST is Net.Std.Socket_Type;
 
-   Set_Certificate_Over_Callback : constant Boolean := True;
+   Set_Certificate_Over_Callback : constant Boolean := False;
    --  ??? We have 2 variants to setup certificate now, over
    --  callback installed by gnutls_certificate_set_retrieve_function2
-   --  and over gnutls_certificate_set_x509_key_mem.
-   --  This later variant is now used as it simple support signed server's
-   --  key.
+   --  and directly over the gnutls_certificate_set_x509_key_mem2. Which one to
+   --  use, we will decide later, now we are able to test it both.
 
    subtype Datum_Type is Certificate.Impl.Datum_Type;
 
@@ -1149,11 +1148,11 @@ package body AWS.Net.SSL is
               (CC, Retrieve_Certificate'Access);
 
          else
-            Code := TSSL.gnutls_certificate_set_x509_key_mem
+            Code := TSSL.gnutls_certificate_set_x509_key_mem2
                       (CC,
                        Cert.Datum'Unchecked_Access,
                        Key.Datum'Unchecked_Access,
-                       TSSL.GNUTLS_X509_FMT_PEM);
+                       TSSL.GNUTLS_X509_FMT_PEM, Pwd, 0);
 
             if Code = TSSL.GNUTLS_E_BASE64_DECODING_ERROR then
                raise Socket_Error with "Certificate/Key file error.";
