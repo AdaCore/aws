@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2012-2014, AdaCore                     --
+--                     Copyright (C) 2012-2015, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -51,6 +51,13 @@ package AWS.Net.WebSocket.Registry is
    procedure Register (URI : String; Factory : Registry.Factory) with
      Pre => URI'Length > 0;
    --  Register a WebObject's constructor for a specific URI
+
+   procedure Register_Pattern
+     (Pattern : String;
+      Factory : Registry.Factory)
+   with
+     Pre => Pattern'Length > 0;
+   --  Register a WebObject's constructor for a specific URI and pattern
 
    --  Sending messages
 

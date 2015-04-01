@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2012-2014, AdaCore                     --
+--                     Copyright (C) 2012-2015, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -30,8 +30,10 @@
 pragma Ada_2012;
 
 with Ada.Containers.Indefinite_Ordered_Maps;
+with Ada.Containers.Indefinite_Vectors;
 with Ada.Containers.Ordered_Maps;
 with Ada.Unchecked_Deallocation;
+with GNAT.Regpat;
 
 with AWS.Config;
 with AWS.Net.Generic_Sets;
@@ -42,12 +44,26 @@ with AWS.Utils;
 package body AWS.Net.WebSocket.Registry is
 
    use GNAT;
+   use GNAT.Regpat;
 
-   --  Containers for all registered constructors
+   --  Container for URI based registered constructors
 
    package Constructors is
      new Containers.Indefinite_Ordered_Maps (String, Factory);
+
    Factories : Constructors.Map;
+
+   --  Container for Pattern based registered constructors
+
+   type P_Data (Size : Regpat.Program_Size) is record
+      Pattern : Regpat.Pattern_Matcher (Size);
+      Factory : Registry.Factory;
+   end record;
+
+   package Pattern_Constructors is
+     new Containers.Indefinite_Vectors (Positive, P_Data);
+
+   Pattern_Factories : Pattern_Constructors.Vector;
 
    --  A queue for WebSocket with pending messages to be read
 
@@ -830,12 +846,28 @@ package body AWS.Net.WebSocket.Registry is
 
    function Constructor (URI : String) return Registry.Factory is
       Position : constant Constructors.Cursor := Factories.Find (URI);
+
    begin
       if Constructors.Has_Element (Position) then
          return Constructors.Element (Position);
+
       else
-         return Create'Access;
+         for Data of Pattern_Factories loop
+            declare
+               Count   : constant Natural :=
+                          Paren_Count (Data.Pattern);
+               Matches : Match_Array (0 .. Count);
+            begin
+               Match (Data.Pattern, URI, Matches);
+
+               if Matches (0) /= No_Match then
+                  return Data.Factory;
+               end if;
+            end;
+         end loop;
       end if;
+
+      return Create'Access;
    end Constructor;
 
    ------------
@@ -895,6 +927,20 @@ package body AWS.Net.WebSocket.Registry is
 
       return WS;
    end Register;
+
+   ----------------------
+   -- Register_Pattern --
+   ----------------------
+
+   procedure Register_Pattern
+     (Pattern : String;
+      Factory : Registry.Factory)
+   is
+      M : constant Regpat.Pattern_Matcher :=
+            Regpat.Compile (Pattern, GNAT.Regpat.Case_Insensitive);
+   begin
+      Pattern_Factories.Append (P_Data'(M.Size, M, Factory));
+   end Register_Pattern;
 
    ----------
    -- Send --

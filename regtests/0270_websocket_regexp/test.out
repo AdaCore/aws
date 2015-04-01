@@ -1,0 +1,35 @@
+Server open connect [ 1]
+Server large message 123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345 [ 2]
+Server short message  1 [ 3]
+Server short message  2 [ 4]
+Server short message  3 [ 5]
+Server short message  4 [ 6]
+Server short message  5 [ 7]
+Echo client message 1 [ 8]
+Echo client message 2 [ 9]
+Echo client message 3 [ 10]
+Server ends with status 0
+Server output:
+On_Open : AWS WebSocket connection open
+Send : Server open connect [ 1]
+Send : Server large message 123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345 [ 2]
+Send : Server short message  1 [ 3]
+Send : Server short message  2 [ 4]
+Send : Server short message  3 [ 5]
+Send : Server short message  4 [ 6]
+Send : Server short message  5 [ 7]
+Received : client message 1
+Send : Echo client message 1 [ 8]
+Received : client message 2
+Send : Echo client message 2 [ 9]
+Received : client message 3
+Send : Echo client message 3 [ 10]
+On_Close : NORMAL_CLOSURE,
+On_Open : AWS WebSocket connection open
+Send : Server open connect [ 1]
+On_Error : CANNOT_RESOLVE_ERROR, Unknown frame type
+On_Close : CANNOT_RESOLVE_ERROR, Unknown frame type
+On_Open : AWS WebSocket connection open
+Send : Server open connect [ 1]
+Received : END_TEST
+On_Close : NORMAL_CLOSURE,
