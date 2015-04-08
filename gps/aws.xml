@@ -7,23 +7,17 @@
    </submenu>
 
    <documentation_file>
-      <name>aws.html</name>
+      <name>aws/index.html</name>
       <descr>AWS User's Guide</descr>
       <category>AWS</category>
       <menu>/Help/AWS/AWS User's Guide</menu>
    </documentation_file>
 
    <documentation_file>
-      <name>templates_parser.html</name>
+      <name>aws/templates_parser/index.html</name>
       <descr>Templates Parser User's Guide</descr>
       <category>AWS</category>
       <menu>/Help/AWS/Templates Parser User's Guide</menu>
    </documentation_file>
 
-   <documentation_file>
-      <name>html/aws_index.htm</name>
-      <descr>AWS HTML API Reference</descr>
-      <category>AWS</category>
-      <menu>/Help/AWS/AWS API (HTML)</menu>
-   </documentation_file>
 </index>

@@ -1,5 +1,10 @@
 Known Problems fixed in AWS 3.3
 
+- O408-015: Wrong link to AWS documentation in GPS plug-in
+  Problem: The AWS and Templates Parser User's Guides where not listed in
+           the GPS Help menu.
+  Workaround: Open manually the documentation files found in share/doc/aws
+
 - O317-001: Double free of rejected WebSockets
   Problem: When limiting the number of simultaneous connected WebSockets
            (using Config.Set.Max_WebSocket) the server could miss-behave
