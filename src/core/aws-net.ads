@@ -439,7 +439,7 @@ private
       R_Cache   : Read_Cache (R_Cache_Size);
       W_Cache   : Write_Cache (W_Cache_Size);
       Can_Wait  : Boolean := False; -- Need for OpenSSL send in Mac OS
-      Pack_Size : Stream_Element_Count := 2**15; -- Idem and 0 shutdown mark
+      Pack_Size : Stream_Element_Count := 2**15; -- Idem
    end record;
 
    type RW_Data_Access is access RW_Data;

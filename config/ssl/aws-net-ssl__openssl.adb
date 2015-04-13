@@ -922,13 +922,6 @@ package body AWS.Net.SSL is
       Pack_Size : Stream_Element_Count :=
                     Stream_Element_Count'Min (RW.Pack_Size, Data'Length);
    begin
-      if RW.Pack_Size = 0 then
-         --  In shutdown process
-
-         Last := Last_Index (Data'First, 0);
-         return;
-      end if;
-
       if not Check (Socket, (Input => False, Output => True)) (Output) then
          Last := Last_Index (Data'First, 0);
          return;
@@ -1252,8 +1245,6 @@ package body AWS.Net.SSL is
 
    begin
       if Socket.SSL /= TSSL.Null_Handle then
-         Net.Socket_Type (Socket).C.Pack_Size := 0;
-
          loop
             RC := TSSL.SSL_shutdown (Socket.SSL);
 
@@ -1417,7 +1408,7 @@ package body AWS.Net.SSL is
       Cnt1 := BIO_nread (Socket.IO, Data'Address, Cnt);
 
       if Cnt1 /= Cnt then
-         if Net.Socket_Type (Socket).C.Pack_Size = 0 then
+         if SSL_get_shutdown (Socket.SSL) /= 0 then
             Log.Error (Socket, "Shutdown detected" & Cnt'Img & Cnt1'Img);
          else
             raise Program_Error with Cnt'Img & Cnt1'Img;
