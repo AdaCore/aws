@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2000-2014, AdaCore                     --
+--                     Copyright (C) 2000-2015, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -439,7 +439,7 @@ private
       R_Cache   : Read_Cache (R_Cache_Size);
       W_Cache   : Write_Cache (W_Cache_Size);
       Can_Wait  : Boolean := False; -- Need for OpenSSL send in Mac OS
-      Pack_Size : Stream_Element_Count := 2**15; -- Idem
+      Pack_Size : Stream_Element_Count := 2**15; -- Idem and 0 shutdown mark
    end record;
 
    type RW_Data_Access is access RW_Data;

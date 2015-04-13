@@ -1509,6 +1509,12 @@ package SSL.Thin is
      with Import, Convention => C, External_Name => "BIO_nwrite";
    --  Buf is the address of the buffer address
 
+   function BIO_number_written (BIO : BIO_Access) return unsigned_long
+     with Import, Convention => C, External_Name => "BIO_number_written";
+
+   function BIO_number_read (BIO : BIO_Access) return unsigned_long
+     with Import, Convention => C, External_Name => "BIO_number_read";
+
    function BIO_free (BIO : BIO_Access) return int
      with Import, Convention => C, External_Name => "BIO_free";
 

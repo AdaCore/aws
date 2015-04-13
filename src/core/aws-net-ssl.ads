@@ -323,7 +323,7 @@ private
    type Socket_Type is new Net.Std.Socket_Type with record
       Config : SSL.Config := Null_Config;
       SSL    : aliased SSL_Handle := TSSL.Null_Handle;
-      Sessn  : Session_Type; --  Put client session before next connect
+      Sessn  : Session_Type; -- Put client session before next connect
       IO     : TSSL.BIO_Access;
    end record;
 
