@@ -276,34 +276,18 @@ package body Sp_Pack is
       end;
 
       for J in Connect'Range loop
-         --  Next line will automatically unregister server push clients,
-         --  closed in previous iterations.
-         --  Last connection would not be unregistered.
-
-         Server_Push.Send
-           (Push, Data => Data, Content_Type => "text/plain",
-            Client_Gone => Put_Line'Access);
-
          Client.Close (Connect (J));
       end loop;
 
       for J in 1 .. 10 loop
-         exit when Server_Push.Count (Push) = 1;
+         Server_Push.Send (Push, Data => Data, Content_Type => "text/plain");
 
-         if J = 10 then
-            Put_Line ("Auto unregister error" & Server_Push.Count (Push)'Img);
-
-            Server_Push.Send
-              (Push, Data => Data, Content_Type => "text/plain",
-               Client_Gone => Put_Line'Access);
-
-            exit;
-         end if;
-
-         delay 0.25;
+         exit when Server_Push.Count (Push) = 0;
       end loop;
 
-      Server_Push.Unregister_Clients (Push);
+      if Server_Push.Count (Push) > 0 then
+         Server_Push.Unregister_Clients (Push);
+      end if;
 
    exception
       when E : others =>
