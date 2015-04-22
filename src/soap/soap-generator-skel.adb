@@ -540,7 +540,7 @@ package body Skel is
                              (N.all,
                               Object    =>
                                 "Result."
-                              & Format_Name (O, To_String (N.Name)),
+                                   & Format_Name (O, To_String (N.Name)),
                               Name      => To_String (N.Name),
                               Type_Name => T_Name));
                      end if;
@@ -562,7 +562,7 @@ package body Skel is
                            WSDL.Parameters.To_SOAP
                              (N.all,
                               Object => "Result."
-                              & To_String (N.Name) & ".Item.all",
+                                          & To_String (N.Name) & ".Item.all",
                               Name   => To_String (N.Name)));
                      end if;
 

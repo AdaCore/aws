@@ -557,9 +557,9 @@ package body SOAP.Message.XML is
 
    exception
       when others =>
-      Doc := Get_Tree (Reader);
-      Free (Doc);
-      raise;
+         Doc := Get_Tree (Reader);
+         Free (Doc);
+         raise;
    end Load_XML;
 
    --------------------
@@ -1269,6 +1269,7 @@ package body SOAP.Message.XML is
      (Type_Name : String;
       NS        : Namespaces) return Type_State
    is
+
       function Is_A
         (T1_Name, T2_Name : String;
          NS               : String) return Boolean

@@ -1312,6 +1312,7 @@ package body SOAP.Types is
          Append (Result, "</");
          Append (Result, Name (OC));
          Append (Result, '>');
+
       else
          Append (Result, Spaces (Indent));
          Append (Result, "<");
@@ -1546,7 +1547,6 @@ package body SOAP.Types is
 
       Append (Result, Spaces (Indent));
       Append (Result, Utils.Tag (To_String (O.Name), Start => False));
-
    end XML_Image;
 
    overriding procedure XML_Image
