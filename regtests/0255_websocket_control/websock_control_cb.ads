@@ -58,14 +58,12 @@ package WebSock_Control_CB is
    protected Wait is
       entry Start;
       entry Stop;
-      entry Max;
-      entry One;
       procedure Incr;
       procedure Decr;
-      procedure Incr_Total;
+      procedure Finish;
    private
       Count : Integer := 0;
-      Total : Natural := 0;
+      Finish_Flag : Boolean := False;
    end Wait;
 
 private

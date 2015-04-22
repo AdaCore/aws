@@ -77,7 +77,6 @@ begin
       delay 0.01;
    end loop;
 
-   WebSock_Control_CB.Wait.Max;
    WebSock_Control_CB.Wait.Stop;
 
    Server.Shutdown (WS);

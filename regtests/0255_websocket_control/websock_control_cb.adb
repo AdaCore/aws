@@ -34,35 +34,25 @@ package body WebSock_Control_CB is
          null;
       end Start;
 
-      entry Stop when Count = 0 is
+      entry Stop when Count = 0 and Finish_Flag is
       begin
          null;
       end Stop;
-
-      entry One when Count = 1 is
-      begin
-         null;
-      end One;
 
       procedure Incr is
       begin
          Count := Count + 1;
       end Incr;
 
-      procedure Incr_Total is
-      begin
-         Total := Total + 1;
-      end Incr_Total;
-
       procedure Decr is
       begin
          Count := Count - 1;
       end Decr;
 
-      entry Max when Total = 4 is
+      procedure Finish is
       begin
-         null;
-      end Max;
+         Finish_Flag := True;
+      end Finish;
 
    end Wait;
 
@@ -74,7 +64,6 @@ package body WebSock_Control_CB is
      (Socket  : Net.Socket_Access;
       Request : Status.Data) return Net.WebSocket.Object'Class is
    begin
-      Wait.Incr_Total;
       return Object'(Net.WebSocket.Object
                       (Net.WebSocket.Create (Socket, Request)) with C => 0);
    end Create;
@@ -121,8 +110,8 @@ package body WebSock_Control_CB is
      (Socket : in out Object; Message : String) is
    begin
       if Message = "END_TEST" then
-         Wait.One;
          Text_IO.Put_Line ("Received : " & Message);
+         Wait.Finish;
       else
          Text_IO.Put_Line ("Received : " & Message);
          Socket.Send ("Echo " & Message);
