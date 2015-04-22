@@ -345,10 +345,20 @@ package body Skel is
                   To_String (N.Name) & "_"
                   & Format_Name (O, T_Name) & "_Record : "
                   & "constant SOAP.Types.SOAP_Record");
-               Text_IO.Put_Line
-                 (Skel_Adb,
-                  "           := SOAP.Parameters.Get (Params, """
-                  & To_String (N.Name) & """);");
+
+               if N.P = null then
+                  --  An empty record, just build a corresponding object
+                  Text_IO.Put_Line
+                    (Skel_Adb,
+                     "           := SOAP.Types.R (SOAP.Types.Empty_Object_Set"
+                     & ", """ & To_String (N.Name) & """);");
+               else
+                  Text_IO.Put_Line
+                    (Skel_Adb,
+                     "           := SOAP.Parameters.Get (Params, """
+                     & To_String (N.Name) & """);");
+               end if;
+
                Text_IO.Put      (Skel_Adb, "         ");
             end if;
 
