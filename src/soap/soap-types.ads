@@ -63,6 +63,9 @@ package SOAP.Types is
 
    use Ada.Strings.Unbounded;
 
+   type Encoding_Style is (Encoded, Literal);
+   --  SOAP encoding style for the entities
+
    Data_Error : exception;
    --  Raised when a variable has not the expected type
 

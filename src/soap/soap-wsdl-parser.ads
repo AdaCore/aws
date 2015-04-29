@@ -29,15 +29,20 @@
 
 with SOAP.Message;
 with SOAP.Name_Space;
+with SOAP.Types;
 with SOAP.WSDL.Parameters;
 
 private with Ada.Strings.Unbounded;
 private with Ada.Containers.Indefinite_Ordered_Sets;
+private with SOAP.Types;
 private with SOAP.WSDL.Types;
 
 package SOAP.WSDL.Parser is
 
    WSDL_Error : exception renames WSDL.WSDL_Error;
+
+   type Parameter_Mode is (Input, Output, Fault);
+   --  Kind of parameters in the WSDL
 
    ------------
    -- Parser --
@@ -100,15 +105,16 @@ package SOAP.WSDL.Parser is
    function Style (O : Object'Class) return Message.Binding_Style;
    --  Returns the binding style for the parsed WSDL
 
+   function Encoding
+     (O : Object'Class; Kind : Parameter_Mode) return Types.Encoding_Style;
+   --  Returns the encoding style for the proc
+
 private
 
    use Ada;
    use Ada.Strings.Unbounded;
 
    package Name_Set is new Containers.Indefinite_Ordered_Sets (String);
-
-   type Parameter_Mode is (Input, Output, Fault);
-   --  Current parameter parsing mode
 
    type All_Parameters is array (Parameter_Mode) of Parameters.P_Set;
 
@@ -129,7 +135,10 @@ private
       Accept_Document : Boolean := False;
       Exclude         : Name_Set.Set;     -- Operation to exclude from gen
       No_Param        : Boolean := False; -- Disable param generation
-      Style           : SOAP.Message.Binding_Style := SOAP.Message.RPC;
+      Style           : Message.Binding_Style := SOAP.Message.RPC;
+      --  Input/Output encoding
+      I_Encoding      : SOAP.Types.Encoding_Style := SOAP.Types.Encoded;
+      O_Encoding      : SOAP.Types.Encoding_Style := SOAP.Types.Encoded;
    end record;
 
 end SOAP.WSDL.Parser;

@@ -39,7 +39,6 @@ with Ada.Text_IO;
 with DOM.Core.Nodes;
 
 with AWS.Utils;
-with SOAP.Types;
 with SOAP.Utils;
 with SOAP.WSDL.Name_Spaces;
 with SOAP.WSDL.Schema;
@@ -273,6 +272,23 @@ package body SOAP.WSDL.Parser is
    begin
       Skip_Error := True;
    end Continue_On_Error;
+
+   --------------
+   -- Encoding --
+   --------------
+
+   function Encoding
+     (O    : Object'Class;
+      Kind : Parameter_Mode) return SOAP.Types.Encoding_Style is
+   begin
+      case Kind is
+         when Input =>
+            return O.I_Encoding;
+         when Output | Fault =>
+            --  ??? fault taken as output
+            return O.O_Encoding;
+      end case;
+   end Encoding;
 
    -------------
    -- Exclude --
@@ -1281,6 +1297,60 @@ package body SOAP.WSDL.Parser is
       end if;
 
       N := XML.Next_Sibling (N);
+
+      --  Check that input/output is literal
+
+      Parse_Encoding : declare
+         use type Message.Binding_Style;
+         use type SOAP.Types.Encoding_Style;
+
+         F : DOM.Core.Node := N;
+         B : DOM.Core.Node;
+      begin
+         while F /= null loop
+            declare
+               N_Name : constant String :=
+                          Utils.No_NS (DOM.Core.Nodes.Node_Name (F));
+               E      : SOAP.Types.Encoding_Style;
+            begin
+               if N_Name in "input" | "output" then
+                  B := XML.First_Child (F);
+
+                  declare
+                     U : constant String :=
+                           Characters.Handling.To_Lower
+                             (XML.Get_Attr_Value (B, "use"));
+                  begin
+                     if U = "literal" then
+                        E := SOAP.Types.Literal;
+                     elsif U = "encoded" then
+                        E := SOAP.Types.Encoded;
+                     else
+                        raise WSDL_Error with "Unknown encoding type " & U;
+                     end if;
+
+                     if N_Name = "input" then
+                        O.I_Encoding := E;
+                     else
+                        O.O_Encoding := E;
+                     end if;
+                  end;
+               end if;
+            end;
+            F := XML.Next_Sibling (F);
+         end loop;
+
+         --  Check for consistency, not that no toolset support
+         --  Document/Encoded, so we reject this conbination.
+
+         if (O.I_Encoding = SOAP.Types.Encoded
+             or else O.O_Encoding = SOAP.Types.Encoded)
+           and then O.Style = Message.Document
+         then
+            raise WSDL_Error with "document/encoded is not supported";
+         end if;
+      end Parse_Encoding;
+
       N := XML.First_Child (N);
 
       declare
@@ -1299,9 +1369,6 @@ package body SOAP.WSDL.Parser is
             end if;
          end if;
       end;
-
-      --  Check that input/output/fault is literal
-      --  ???
 
       N := Get_Node
         (XML.First_Child (DOM.Core.Node (Document)),
