@@ -1296,8 +1296,9 @@ package body SOAP.Types is
    ---------------
 
    procedure XML_Image
-     (O      : Object;
-      Result : in out Unbounded_String)
+     (O        : Object;
+      Result   : in out Unbounded_String;
+      Encoding : Encoding_Style := Encoded)
    is
       Indent : constant Natural      := XML_Indent.Value;
       OC     : constant Object'Class := Object'Class (O);
@@ -1306,7 +1307,11 @@ package body SOAP.Types is
          Append (Result, Spaces (Indent));
          Append (Result, "<");
          Append (Result, Name (OC));
-         Append (Result, xsi_type (XML_Type (OC)));
+
+         if Encoding = Encoded then
+            Append (Result, xsi_type (XML_Type (OC)));
+         end if;
+
          Append (Result, '>');
          Utils.Encode (XSD_String (OC).V, Result);
          Append (Result, "</");
@@ -1317,7 +1322,11 @@ package body SOAP.Types is
          Append (Result, Spaces (Indent));
          Append (Result, "<");
          Append (Result, Name (OC));
-         Append (Result, xsi_type (XML_Type (OC)));
+
+         if Encoding = Encoded then
+            Append (Result, xsi_type (XML_Type (OC)));
+         end if;
+
          Append (Result, '>');
          Append (Result, Image (OC));
          Append (Result, "</");
@@ -1327,13 +1336,17 @@ package body SOAP.Types is
    end XML_Image;
 
    overriding procedure XML_Image
-     (O : XSD_Any_Type; Result : in out Unbounded_String) is
+     (O        : XSD_Any_Type;
+      Result   : in out Unbounded_String;
+      Encoding : Encoding_Style := Encoded) is
    begin
-      XML_Image (Object (O.O.O.all), Result);
+      XML_Image (Object (O.O.O.all), Result, Encoding);
    end XML_Image;
 
    overriding procedure XML_Image
-     (O : XSD_Null; Result : in out Unbounded_String)
+     (O        : XSD_Null;
+      Result   : in out Unbounded_String;
+      Encoding : Encoding_Style := Encoded)
    is
       Indent : constant Natural := XML_Indent.Value;
       OC     : constant Object'Class := Object'Class (O);
@@ -1341,15 +1354,20 @@ package body SOAP.Types is
       Append (Result, Spaces (Indent));
       Append (Result, "<");
       Append (Result, Name (OC));
-      Append (Result, " xsi_null=""1""/>");
 
+      if Encoding = Encoded then
+         Append (Result, " xsi_null=""1""");
+      end if;
+
+      Append (Result, "/>");
    end XML_Image;
 
    New_Line : constant String := ASCII.CR & ASCII.LF;
 
    overriding procedure XML_Image
-     (O      : SOAP_Array;
-      Result : in out Unbounded_String)
+     (O        : SOAP_Array;
+      Result   : in out Unbounded_String;
+      Encoding : Encoding_Style := Encoded)
    is
 
       Indent : constant Natural := XML_Indent.Value;
@@ -1445,7 +1463,11 @@ package body SOAP.Types is
       Append (Result, '[');
       Append (Result, AWS.Utils.Image (Natural (O.O'Length)));
       Append (Result, "]""");
-      Append (Result, xsi_type (XML_Array));
+
+      if Encoding = Encoded then
+         Append (Result, xsi_type (XML_Array));
+      end if;
+
       Append (Result, '>');
       Append (Result, New_Line);
 
@@ -1467,60 +1489,75 @@ package body SOAP.Types is
    end XML_Image;
 
    overriding procedure XML_Image
-     (O      : SOAP_Set;
-      Result : in out Unbounded_String) is
+     (O        : SOAP_Set;
+      Result   : in out Unbounded_String;
+      Encoding : Encoding_Style := Encoded) is
    begin
       --  Add all elements
 
       for K in O.O'Range loop
-         XML_Image (O.O (K).O.all, Result);
+         XML_Image (O.O (K).O.all, Result, Encoding);
          Append (Result, New_Line);
       end loop;
    end XML_Image;
 
    overriding procedure XML_Image
-     (O      : SOAP_Record;
-      Result : in out Unbounded_String)
+     (O        : SOAP_Record;
+      Result   : in out Unbounded_String;
+      Encoding : Encoding_Style := Encoded)
    is
       Indent : constant Natural := XML_Indent.Value;
+      NS_Name : constant String :=
+                  SOAP.Name_Space.Name (O.NS) & ":" & Name (O);
    begin
       Append (Result, Spaces (Indent));
 
-      if Name (O) = XML_Type (O) then
-         --  The name and the type are identical, we do not have to specify
-         --  the xsi:type in this case.
-         Append (Result, Utils.Tag (Name (O), Start => True));
+      Append (Result, "<" & NS_Name);
 
-      else
-         Append (Result, "<" & Name (O)
-                 & " xsi:type="""
-                 & SOAP.Name_Space.Name (O.NS) & ":" & XML_Type (O) & """>");
+      if Encoding = Encoded then
+         Append
+           (Result,
+            " xsi:type="""
+            & SOAP.Name_Space.Name (O.NS) & ":" & XML_Type (O) & '"');
       end if;
 
-      Append (Result, New_Line);
+      if O.O'Length = 0 then
+         --  Empty record, stop here
+         Append (Result, "/>");
 
-      XML_Indent.Set_Value (Indent + 1);
+      else
+         Append (Result, ">" & New_Line);
 
-      for K in O.O'Range loop
-         XML_Image (O.O (K).O.all, Result);
-         Append (Result, New_Line);
-      end loop;
+         XML_Indent.Set_Value (Indent + 1);
 
-      XML_Indent.Set_Value (Indent);
+         for K in O.O'Range loop
+            XML_Image (O.O (K).O.all, Result);
+            Append (Result, New_Line);
+         end loop;
 
-      Append (Result, Spaces (Indent));
-      Append (Result, Utils.Tag (Name (O), Start => False));
+         XML_Indent.Set_Value (Indent);
+
+         Append (Result, Spaces (Indent));
+         Append (Result, Utils.Tag (NS_Name, Start => False));
+      end if;
    end XML_Image;
 
    overriding procedure XML_Image
-     (O : SOAP_Enumeration; Result : in out Unbounded_String) is
+     (O        : SOAP_Enumeration;
+      Result   : in out Unbounded_String;
+      Encoding : Encoding_Style := Encoded) is
    begin
       Append (Result, Spaces (XML_Indent.Value));
       Append (Result, "<");
       Append (Result, Name (O));
-      Append (Result, " type=""");
-      Append (Result, O.Type_Name);
-      Append (Result, """>");
+
+      if Encoding = Encoded then
+         Append (Result, " type=""");
+         Append (Result, O.Type_Name);
+         Append (Result, '"');
+      end if;
+
+      Append (Result, ">");
       Append (Result, O.V);
       Append (Result, Utils.Tag (Name (O), Start => False));
    end XML_Image;

@@ -91,7 +91,10 @@ package SOAP.Types is
    function Is_Empty (O : Object) return Boolean;
    --  Returns True if the object is empty Array, Empty Record or null value
 
-   procedure XML_Image (O : Object; Result : in out Unbounded_String);
+   procedure XML_Image
+     (O        : Object;
+      Result   : in out Unbounded_String;
+      Encoding : Encoding_Style := Encoded);
    --  Returns O value encoded for use by the Payload object or Response
    --  object. The generated characters are appened to Result.
 
@@ -133,7 +136,9 @@ package SOAP.Types is
    overriding function  XML_Type  (O : XSD_Any_Type) return String;
    overriding function  Image     (O : XSD_Any_Type) return String;
    overriding procedure XML_Image
-     (O : XSD_Any_Type; Result : in out Unbounded_String);
+     (O        : XSD_Any_Type;
+      Result   : in out Unbounded_String;
+      Encoding : Encoding_Style := Encoded);
 
    function Any
      (V    : Object'Class;
@@ -153,7 +158,9 @@ package SOAP.Types is
    overriding function XML_Type   (O : SOAP_Array) return String;
    overriding function Image      (O : SOAP_Array) return String;
    overriding procedure XML_Image
-     (O : SOAP_Array; Result : in out Unbounded_String);
+     (O        : SOAP_Array;
+      Result   : in out Unbounded_String;
+      Encoding : Encoding_Style := Encoded);
 
    function A
      (V         : Object_Set;
@@ -178,7 +185,9 @@ package SOAP.Types is
 
    overriding function Image (O : SOAP_Set) return String;
    overriding procedure XML_Image
-     (O : SOAP_Set; Result : in out Unbounded_String);
+     (O        : SOAP_Set;
+      Result   : in out Unbounded_String;
+      Encoding : Encoding_Style := Encoded);
 
    function Set
      (V         : Object_Set;
@@ -306,7 +315,9 @@ package SOAP.Types is
 
    overriding function XML_Type   (O : XSD_Null) return String;
    overriding procedure XML_Image
-     (O : XSD_Null; Result : in out Unbounded_String);
+     (O        : XSD_Null;
+      Result   : in out Unbounded_String;
+      Encoding : Encoding_Style := Encoded);
 
    function N (Name : String  := "item") return XSD_Null;
 
@@ -321,7 +332,9 @@ package SOAP.Types is
    overriding function XML_Type   (O : SOAP_Record) return String;
    overriding function Image      (O : SOAP_Record) return String;
    overriding procedure XML_Image
-     (O : SOAP_Record; Result : in out Unbounded_String);
+     (O        : SOAP_Record;
+      Result   : in out Unbounded_String;
+      Encoding : Encoding_Style := Encoded);
 
    function R
      (V         : Object_Set;
@@ -482,7 +495,9 @@ package SOAP.Types is
    overriding function XML_Type   (O : SOAP_Enumeration) return String;
    overriding function Image      (O : SOAP_Enumeration) return String;
    overriding procedure XML_Image
-     (O : SOAP_Enumeration; Result : in out Unbounded_String);
+     (O        : SOAP_Enumeration;
+      Result   : in out Unbounded_String;
+      Encoding : Encoding_Style := Encoded);
 
    function E
      (V         : String;
