@@ -1333,84 +1333,6 @@ package body SOAP.Types is
    end XML_Image;
 
    overriding procedure XML_Image
-     (O : XSD_Long; Result : in out Unbounded_String) is
-   begin
-      XML_Image (Object (O), Result);
-   end XML_Image;
-
-   overriding procedure XML_Image
-     (O : XSD_Integer; Result : in out Unbounded_String) is
-   begin
-      XML_Image (Object (O), Result);
-   end XML_Image;
-
-   overriding procedure XML_Image
-     (O : XSD_Short; Result : in out Unbounded_String) is
-   begin
-      XML_Image (Object (O), Result);
-   end XML_Image;
-
-   overriding procedure XML_Image
-     (O : XSD_Byte; Result : in out Unbounded_String) is
-   begin
-      XML_Image (Object (O), Result);
-   end XML_Image;
-
-   overriding procedure XML_Image
-     (O : XSD_Float; Result : in out Unbounded_String) is
-   begin
-      XML_Image (Object (O), Result);
-   end XML_Image;
-
-   overriding procedure XML_Image
-     (O : XSD_Double; Result : in out Unbounded_String) is
-   begin
-      XML_Image (Object (O), Result);
-   end XML_Image;
-
-   overriding procedure XML_Image
-     (O : XSD_String; Result : in out Unbounded_String) is
-   begin
-      XML_Image (Object (O), Result);
-   end XML_Image;
-
-   overriding procedure XML_Image
-     (O : XSD_Boolean; Result : in out Unbounded_String) is
-   begin
-      XML_Image (Object (O), Result);
-   end XML_Image;
-
-   overriding procedure XML_Image
-     (O : XSD_Time_Instant; Result : in out Unbounded_String) is
-   begin
-      XML_Image (Object (O), Result);
-   end XML_Image;
-
-   overriding procedure XML_Image
-     (O : XSD_Unsigned_Long; Result : in out Unbounded_String) is
-   begin
-      XML_Image (Object (O), Result);
-   end XML_Image;
-
-   overriding procedure XML_Image
-     (O : XSD_Unsigned_Int; Result : in out Unbounded_String) is
-   begin
-      XML_Image (Object (O), Result);
-   end XML_Image;
-
-   overriding procedure XML_Image
-     (O : XSD_Unsigned_Short; Result : in out Unbounded_String) is
-   begin
-      XML_Image (Object (O), Result);
-   end XML_Image;
-
-   overriding procedure XML_Image
-     (O : XSD_Unsigned_Byte; Result : in out Unbounded_String) is
-   begin
-      XML_Image (Object (O), Result);
-   end XML_Image;
-
-   overriding procedure XML_Image
      (O : XSD_Null; Result : in out Unbounded_String)
    is
       Indent : constant Natural := XML_Indent.Value;
@@ -1420,12 +1342,7 @@ package body SOAP.Types is
       Append (Result, "<");
       Append (Result, Name (OC));
       Append (Result, " xsi_null=""1""/>");
-   end XML_Image;
 
-   overriding procedure XML_Image
-    (O : SOAP_Base64; Result : in out Unbounded_String) is
-   begin
-      XML_Image (Object (O), Result);
    end XML_Image;
 
    New_Line : constant String := ASCII.CR & ASCII.LF;
