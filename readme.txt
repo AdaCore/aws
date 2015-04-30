@@ -1,10 +1,10 @@
 
                             A W S - Ada Web Server
-                           3.2.0 release / SOAP 1.5
+                         GPL 2015 release / SOAP 1.5
 
 Authors:
    Dmitriy Anisimkov
-   Pascal Obry                                            January 6th, 2015
+   Pascal Obry                                            April 30th, 2015
 
 
 
