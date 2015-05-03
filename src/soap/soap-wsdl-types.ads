@@ -42,8 +42,9 @@ package SOAP.WSDL.Types is
    function Create (Name : String; NS : Name_Space.Object) return Object;
    --  Create a full reference for a type
 
-   function Name (O : Object) return String;
-   --  Returns the name of the type
+   function Name (O : Object; NS : Boolean := False) return String;
+   --  Returns the name of the type, qualified with the name-space if NS
+   --  is true.
 
    function NS (O : Object) return Name_Space.Object;
    --  Retrurns the name-space for the type

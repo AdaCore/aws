@@ -400,9 +400,13 @@ package body SOAP.WSDL.Types is
    -- Name --
    ----------
 
-   function Name (O : Object) return String is
+   function Name (O : Object; NS : Boolean := False) return String is
    begin
-      return To_String (O.Name);
+      if NS then
+         return SOAP.Name_Space.Name (O.NS) & ":" & To_String (O.Name);
+      else
+         return To_String (O.Name);
+      end if;
    end Name;
 
    --------
