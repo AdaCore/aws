@@ -154,8 +154,6 @@ package body SOAP.WSDL.Types is
          end if;
       end For_Derived;
 
---      Def : constant WSDL.Types.Definition :=  WSDL.Types.Find (P.Typ);
-
    begin
       case Def.Mode is
          when WSDL.Types.K_Derived =>
