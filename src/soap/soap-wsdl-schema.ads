@@ -27,9 +27,65 @@
 --  covered by the  GNU Public License.                                     --
 ------------------------------------------------------------------------------
 
+pragma Ada_2012;
+
+with AWS.Containers.Key_Value;
+with SOAP.Types;
+
 package SOAP.WSDL.Schema is
 
    use type DOM.Core.Node;
+
+   type Binding_Style is (RPC, Document);
+
+   subtype Definition is AWS.Containers.Key_Value.Map;
+   --  This map is used to map schema type-names and parameters to actual types
+   --  in AWS. This is needed when parting in literal encoding as the type
+   --  information is not given and must refer to the WSDL schema. Also in
+   --  document style binding the actual procedure to call is computed based
+   --  on the procedure call signature (the parameter names). For this, a
+   --  definition map record the following informations:
+   --
+   --     1. The binding style for the schema (Document/RPC)
+   --        key:   @binding.style
+   --        value: document/rpc
+   --
+   --     2. The encoding style for each procedure's input and output messages
+   --        key:   @<object>.encoding
+   --        value: encoded/literal
+   --
+   --     3. The SOAP operation for each signature
+   --        key:   @<param1>[:<param2>]
+   --        value: <SOAP procedure call name>
+   --
+   --     4. The root type for each types in the schema
+   --        key:   <type_name>
+   --        value: <xsd_type>
+
+   Empty : constant Definition;
+
+   procedure Set_Binding_Style
+     (Schema : in out Definition; Style : Binding_Style);
+   --  Set the actual binding style for the schema
+
+   function Get_Binding_Style (Schema : Definition) return Binding_Style;
+   --  Get the binding style for the schema
+
+   function Get_Encoding_Style
+     (Schema    : Definition;
+      Operation : String) return Types.Encoding_Style;
+   --  Returns the encoding-style for the given operation
+
+   procedure Set_Encoding_Style
+     (Schema    : in out Definition;
+      Operation : String;
+      Encoding  : Types.Encoding_Style);
+   --  Set the encoding-style for the given operation
+
+   function Get_Call_For_Signature
+     (Schema    : Definition;
+      Signature : String) return String;
+   --  Returns the SOAP operation for the given call signature
 
    subtype URL is String;
 
@@ -46,4 +102,6 @@ package SOAP.WSDL.Schema is
       Process   : not null access procedure (N : DOM.Core.Node));
    --  Go through all mixed namespaces
 
+private
+   Empty : constant Definition := AWS.Containers.Key_Value.Empty_Map;
 end SOAP.WSDL.Schema;

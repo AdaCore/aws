@@ -76,6 +76,53 @@ package body SOAP.WSDL.Schema is
       end loop;
    end For_All;
 
+   -----------------------
+   -- Get_Binding_Style --
+   -----------------------
+
+   function Get_Binding_Style (Schema : Definition) return Binding_Style is
+   begin
+      if Schema.Contains ("@binding.style") then
+         return Binding_Style'Value (Schema ("@binding.style"));
+      else
+         return RPC;
+      end if;
+   end Get_Binding_Style;
+
+   ----------------------------
+   -- Get_Call_For_Signature --
+   ----------------------------
+
+   function Get_Call_For_Signature
+     (Schema    : Definition;
+      Signature : String) return String
+   is
+      Key : constant String := "@" & Signature;
+   begin
+      if Schema.Contains (Key) then
+         return Schema (Key);
+      else
+         return "";
+      end if;
+   end Get_Call_For_Signature;
+
+   ------------------------
+   -- Get_Encoding_Style --
+   ------------------------
+
+   function Get_Encoding_Style
+     (Schema    : Definition;
+      Operation : String) return Types.Encoding_Style
+   is
+      Key : constant String := "@" & Operation & ".encoding";
+   begin
+      if Schema.Contains (Key) then
+         return Types.Encoding_Style'Value (Schema (Key));
+      else
+         return Types.Encoded;
+      end if;
+   end Get_Encoding_Style;
+
    --------------
    -- Register --
    --------------
@@ -84,5 +131,28 @@ package body SOAP.WSDL.Schema is
    begin
       Store.Append (Data'(To_Unbounded_String (Namespace), Node));
    end Register;
+
+   -----------------------
+   -- Set_Binding_Style --
+   -----------------------
+
+   procedure Set_Binding_Style
+     (Schema : in out Definition; Style : Binding_Style) is
+   begin
+      Schema.Include ("@binding.style", Binding_Style'Image (Style));
+   end Set_Binding_Style;
+
+   ------------------------
+   -- Set_Encoding_Style --
+   ------------------------
+
+   procedure Set_Encoding_Style
+     (Schema    : in out Definition;
+      Operation : String;
+      Encoding  : Types.Encoding_Style) is
+   begin
+      Schema.Include
+        ("@" & Operation & ".encoding", Types.Encoding_Style'Image (Encoding));
+   end Set_Encoding_Style;
 
 end SOAP.WSDL.Schema;
