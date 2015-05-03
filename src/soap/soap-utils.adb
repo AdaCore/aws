@@ -46,10 +46,11 @@ package body SOAP.Utils is
    ---------
 
    function Any
-     (V    : Types.XSD_Any_Type;
-      Name : String  := "item") return Types.XSD_Any_Type is
+     (V         : Types.XSD_Any_Type;
+      Name      : String := "item";
+      Type_Name : String := Types.XML_String) return Types.XSD_Any_Type is
    begin
-      return SOAP.Types.Any (Types.Object'Class (V), Name);
+      return SOAP.Types.Any (Types.Object'Class (V), Name, Type_Name);
    end Any;
 
    -------
@@ -57,10 +58,11 @@ package body SOAP.Utils is
    -------
 
    function C
-     (V      : Character;
-      Name   : String  := "item") return Types.SOAP_Enumeration is
+     (V         : Character;
+      Name      : String := "item";
+      Type_Name : String := "Character") return Types.SOAP_Enumeration is
    begin
-      return SOAP.Types.E (String'(1 => V), "Character", Name);
+      return SOAP.Types.E (String'(1 => V), Type_Name, Name);
    end C;
 
    ------------
@@ -411,7 +413,9 @@ package body SOAP.Utils is
    ------------------
 
    function Time_Instant
-     (TI, Name : String) return Types.XSD_Time_Instant
+     (TI, Name  : String;
+      Type_Name : String := Types.XML_Time_Instant)
+      return Types.XSD_Time_Instant
    is
       use Ada.Calendar;
       subtype Year_Range is Positive range TI'First .. TI'First + 3;
@@ -435,9 +439,12 @@ package body SOAP.Utils is
 
       if TI'Length < 22 then
          --  No timezone data
-         return Types.T (T, Name);
+         return Types.T (T, Name, Type_Name => Type_Name);
       else
-         return Types.T (T, Name, Types.TZ'Value (TI (TZ_Range)));
+         return Types.T
+           (T, Name,
+            Type_Name => Type_Name,
+            Timezone  => Types.TZ'Value (TI (TZ_Range)));
       end if;
    end Time_Instant;
 
@@ -530,10 +537,11 @@ package body SOAP.Utils is
    --------
 
    function US
-     (V    : Unbounded_String;
-      Name : String  := "item") return Types.XSD_String is
+     (V         : Unbounded_String;
+      Name      : String := "item";
+      Type_Name : String := Types.XML_String) return Types.XSD_String is
    begin
-      return Types.S (To_String (V), Name);
+      return Types.S (To_String (V), Name, Type_Name);
    end US;
 
    -------

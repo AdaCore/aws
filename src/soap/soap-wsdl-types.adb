@@ -496,7 +496,8 @@ package body SOAP.WSDL.Types is
          if Types.NS (Def.Ref) = Name_Space.XSD then
             return Set_Routine (Types.Name (Def.Ref))
               & " (" & Code & ", "
-              & (if Name_Is_Var then Name else """" & Name & """") & ")";
+              & (if Name_Is_Var then Name else """" & Name & """")
+              & ", """ & Type_Name & """)";
          else
             declare
                P_Name : constant String :=
@@ -547,7 +548,11 @@ package body SOAP.WSDL.Types is
 
    begin
       case Def.Mode is
-         when WSDL.Types.K_Simple | WSDL.Types.K_Record =>
+         when WSDL.Types.K_Simple =>
+            return Set_Routine (WSDL.Types.Find (Def.Ref))
+               & " (" & Object & ", """ & Name & """, """ & Type_Name & """)";
+
+         when WSDL.Types.K_Record =>
             return Set_Routine (WSDL.Types.Find (Def.Ref))
               & " (" & Object & ", """ & Name & """)";
 

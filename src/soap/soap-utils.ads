@@ -62,7 +62,11 @@ package SOAP.Utils is
    function Is_Ada_Reserved_Word (Name : String) return Boolean;
    --  Returns True if Name is an Ada reserved word
 
-   function Time_Instant (TI, Name : String) return Types.XSD_Time_Instant;
+   function Time_Instant
+     (TI,
+      Name      : String;
+      Type_Name : String := Types.XML_Time_Instant)
+      return Types.XSD_Time_Instant;
    --  Returns the timeInstant given an string encoded time
 
    ----------------------------------
@@ -151,18 +155,21 @@ package SOAP.Utils is
    --  to map to Ada type.
 
    function Any
-     (V    : Types.XSD_Any_Type;
-      Name : String  := "item") return Types.XSD_Any_Type;
+     (V         : Types.XSD_Any_Type;
+      Name      : String := "item";
+      Type_Name : String := Types.XML_String) return Types.XSD_Any_Type;
    --  Return V with the given name
 
    function US
-     (V    : Unbounded_String;
-      Name : String  := "item") return Types.XSD_String;
+     (V         : Unbounded_String;
+      Name      : String := "item";
+      Type_Name : String := Types.XML_String) return Types.XSD_String;
    --  Returns the SOAP string for the given Unbounded_String value and name
 
    function C
-     (V    : Character;
-      Name : String  := "item") return Types.SOAP_Enumeration;
+     (V         : Character;
+      Name      : String := "item";
+      Type_Name : String := "Character") return Types.SOAP_Enumeration;
    --  Returns the SOAP string for the given Character value and name
 
    --  Smart pointers support used for array access in SOAP record. The memory

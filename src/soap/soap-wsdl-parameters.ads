@@ -80,8 +80,7 @@ package SOAP.WSDL.Parameters is
    function To_SOAP
      (P            : Parameter;
       Object, Name : String;
-      Type_Name    : String := "") return String
-     with Pre => P.Mode = WSDL.Types.K_Enumeration xor Type_Name = "";
+      Type_Name    : String := "") return String;
    --  Returns the code to create a SOAP parameter with given Name. Object is
    --  the reference to the object to convert. Type_Name is the name of the
    --  enumeration to convert to/from.

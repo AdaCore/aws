@@ -179,8 +179,7 @@ package SOAP.WSDL.Types is
       Object, Name : String;
       Name_Is_Var  : Boolean := False;
       Type_Name    : String := "";
-      Is_Uniq      : Boolean := True) return String
-     with Pre => Def.Mode = K_Enumeration xor Type_Name = "";
+      Is_Uniq      : Boolean := True) return String;
    --  Returns the code to create a SOAP parameter with given Name. Object is
    --  the reference to the object to convert. Type_Name is the name of the
    --  enumeration to convert to/from.
