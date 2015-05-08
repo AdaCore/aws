@@ -1260,6 +1260,7 @@ package body SOAP.Generator is
          P    : WSDL.Parameters.P_Set)
       is
          F_Name  : constant String := Format_Name (O, Name & "_Type");
+         T_Name  : constant String := WSDL.Types.Name (Def.Ref, True);
          P_Name  : constant String := WSDL.Types.Name (Def.Parent);
          B_Name  : constant String :=
                      (if WSDL.Is_Standard (P_Name)
@@ -1635,6 +1636,7 @@ package body SOAP.Generator is
                  (Def,
                   Object      => "D",
                   Name        => "Name",
+                  Type_Name   => T_Name,
                   Name_Is_Var => True) & ");");
 
             --  For Types child package
@@ -1784,6 +1786,7 @@ package body SOAP.Generator is
                  (Def,
                   Object      => "D",
                   Name        => "Name",
+                  Type_Name   => T_Name,
                   Name_Is_Var => True) & ");");
 
             --  For Types child package
@@ -2743,7 +2746,8 @@ package body SOAP.Generator is
                end if;
 
                declare
-                  T_Name : constant String := WSDL.Types.Name (N.Typ);
+                  T_Name : constant String :=
+                             WSDL.Types.Name (N.Typ, NS => True);
                begin
                   case N.Mode is
                      when WSDL.Types.K_Simple | WSDL.Types.K_Record =>
@@ -2751,18 +2755,20 @@ package body SOAP.Generator is
                           (Rec_Adb,
                            WSDL.Parameters.To_SOAP
                              (N.all,
-                              Object =>
+                              Object    =>
                                  "R." & Format_Name (O, To_String (N.Name)),
-                              Name   => To_String (N.Name)));
+                              Name      => To_String (N.Name),
+                              Type_Name => T_Name));
 
                      when WSDL.Types.K_Derived =>
                         Text_IO.Put
                           (Rec_Adb,
                            WSDL.Parameters.To_SOAP
                              (N.all,
-                              Object =>
+                              Object    =>
                                  "R." & Format_Name (O, To_String (N.Name)),
-                              Name   => To_String (N.Name)));
+                              Name      => To_String (N.Name),
+                              Type_Name =>  T_Name));
 
                      when WSDL.Types.K_Enumeration =>
                         Text_IO.Put

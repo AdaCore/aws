@@ -185,9 +185,10 @@ package body Stub is
          Text_IO.Put
            (Stub_Adb,
             WSDL.Parameters.To_SOAP
-              (P      => N.all,
-               Object => Format_Name (O, To_String (N.Name)),
-               Name   => Format_Name (O, To_String (N.Name))));
+              (P         => N.all,
+               Object    => Format_Name (O, To_String (N.Name)),
+               Name      => Format_Name (O, To_String (N.Name)),
+               Type_Name => WSDL.Types.Name (N.Typ, NS => True)));
 
          if Prefix /= "" and then N.Next /= null then
             Text_IO.Put (Stub_Adb, ",");

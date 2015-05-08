@@ -484,7 +484,7 @@ package body Skel is
             end if;
 
             declare
-               T_Name : constant String := WSDL.Types.Name (N.Typ);
+               T_Name : constant String := WSDL.Types.Name (N.Typ, True);
             begin
                case N.Mode is
                   when WSDL.Types.K_Simple =>
@@ -520,17 +520,19 @@ package body Skel is
                           (Skel_Adb,
                            WSDL.Parameters.To_SOAP
                              (N.all,
-                              Object => "Result",
-                              Name   => To_String (N.Name)));
+                              Object    => "Result",
+                              Name      => To_String (N.Name),
+                              Type_Name => T_Name));
                      else
                         Text_IO.Put
                           (Skel_Adb,
                            WSDL.Parameters.To_SOAP
                              (N.all,
-                              Object =>
+                              Object    =>
                                 "Result."
-                                & Format_Name (O, To_String (N.Name)),
-                              Name   => To_String (N.Name)));
+                                  & Format_Name (O, To_String (N.Name)),
+                              Name      => To_String (N.Name),
+                              Type_Name => T_Name));
                      end if;
 
                   when WSDL.Types.K_Enumeration =>
