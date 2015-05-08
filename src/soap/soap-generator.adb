@@ -813,6 +813,7 @@ package body SOAP.Generator is
 
       procedure Generate_Record
         (Name   : String;
+         Suffix : String;
          P      : WSDL.Parameters.P_Set;
          Output : Boolean               := False);
       --  Output record definitions (type and routine conversion). Note that
@@ -2129,6 +2130,7 @@ package body SOAP.Generator is
 
       procedure Generate_Record
         (Name   : String;
+         Suffix : String;
          P      : WSDL.Parameters.P_Set;
          Output : Boolean               := False)
       is
@@ -2137,7 +2139,11 @@ package body SOAP.Generator is
          procedure End_Result;
          --  End the Result definition in To_SOAP_Object code
 
-         F_Name    : constant String := Format_Name (O, Name);
+         function Type_Name return String;
+         --  Returns the type name for the record (this is the name that will
+         --  be associated with the record SOAP definition).
+
+         F_Name    : constant String := Format_Name (O, Name & Suffix);
          Def       : constant WSDL.Types.Definition := WSDL.Types.Find (P.Typ);
          Is_Choice : constant Boolean :=
                        Def.Mode = WSDL.Types.K_Record and then Def.Is_Choice;
@@ -2158,23 +2164,38 @@ package body SOAP.Generator is
          ----------------
 
          procedure End_Result is
+            T_Name : constant String := Type_Name;
+         begin
+            if T_Name = "" then
+               --  This is an unnamed record (output described as a set
+               --  of part).
+               Text_IO.Put_Line (Rec_Adb, "         Name);");
+
+            else
+               Text_IO.Put_Line
+                 (Rec_Adb, "         Name, """ & T_Name & """);");
+            end if;
+         end End_Result;
+
+         ---------------
+         -- Type_Name --
+         ---------------
+
+         function Type_Name return String is
          begin
             if P.Mode = WSDL.Types.K_Simple then
                --  This is an unnamed record (output described as a set
                --  of part).
 
-               Text_IO.Put_Line (Rec_Adb, "         Name);");
+               return "";
 
             elsif P.Mode in WSDL.Types.Compound_Type then
-               Text_IO.Put_Line
-                 (Rec_Adb,
-                  "         Name, """ & WSDL.Types.Name (P.Typ) & """);");
+               return WSDL.Types.Name (P.Typ);
 
             else
-               Text_IO.Put_Line
-                 (Rec_Adb, "         Name, """ & Name & """);");
+               return Name & Suffix;
             end if;
-         end End_Result;
+         end Type_Name;
 
       begin
          Initialize_Types_Package
@@ -3175,7 +3196,7 @@ package body SOAP.Generator is
 
                         Name_Set.Add (T_Name);
 
-                        Generate_Record (T_Name & "_Type", N);
+                        Generate_Record (T_Name, "_Type", N);
                      end if;
                end case;
             end;
@@ -3276,7 +3297,7 @@ package body SOAP.Generator is
             --  Multiple parameters in the output, generate a record in this
             --  case.
 
-            Generate_Record (L_Proc & "_Result", Output, Output => True);
+            Generate_Record (L_Proc, "_Result", Output, Output => True);
          end if;
       end if;
    end Put_Types;
