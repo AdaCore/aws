@@ -1059,15 +1059,15 @@ package body SOAP.WSDL.Parser is
          raise WSDL_Error with "Binding style/transport definition not found.";
       end if;
 
-      --  Check for style (only Document is supported)
+      --  Check for binding style
 
-      if  XML.Get_Attr_Value (N, "style") = "document" then
-         if O.Accept_Document then
-            --  We accept document style binding as RPC
-            O.Style := Message.RPC;
-         else
-            O.Style := Message.Document;
-         end if;
+      if Characters.Handling.To_Lower
+        (XML.Get_Attr_Value (N, "style")) = "document"
+        and then not O.Accept_Document
+      then
+         O.Style := WSDL.Schema.Document;
+      else
+         O.Style := WSDL.Schema.RPC;
       end if;
 
       --  Check for transport (only HTTP is supported)
@@ -1301,7 +1301,7 @@ package body SOAP.WSDL.Parser is
       --  Check that input/output is literal
 
       Parse_Encoding : declare
-         use type Message.Binding_Style;
+         use type WSDL.Schema.Binding_Style;
          use type SOAP.Types.Encoding_Style;
 
          F : DOM.Core.Node := N;
@@ -1345,7 +1345,7 @@ package body SOAP.WSDL.Parser is
 
          if (O.I_Encoding = SOAP.Types.Encoded
              or else O.O_Encoding = SOAP.Types.Encoded)
-           and then O.Style = Message.Document
+           and then O.Style = WSDL.Schema.Document
          then
             raise WSDL_Error with "document/encoded is not supported";
          end if;
@@ -2265,7 +2265,7 @@ package body SOAP.WSDL.Parser is
    -- Style --
    -----------
 
-   function Style (O : Object'Class) return Message.Binding_Style is
+   function Style (O : Object'Class) return WSDL.Schema.Binding_Style is
    begin
       return O.Style;
    end Style;

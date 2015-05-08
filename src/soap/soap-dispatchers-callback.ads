@@ -30,6 +30,7 @@
 --  Dispatch on a SOAP Callback procedures
 
 with SOAP.Message;
+with SOAP.WSDL.Schema;
 
 package SOAP.Dispatchers.Callback is
 
@@ -41,7 +42,8 @@ package SOAP.Dispatchers.Callback is
    function Create
      (HTTP_Callback : AWS.Response.Callback;
       SOAP_Callback : Dispatchers.SOAP_Callback;
-      Style         : Message.Binding_Style := Message.RPC) return Handler;
+      Schema        : WSDL.Schema.Definition :=
+                        WSDL.Schema.Empty) return Handler;
    --  Build a dispatcher for the specified callback
 
 private

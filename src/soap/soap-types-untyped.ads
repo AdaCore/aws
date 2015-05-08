@@ -42,11 +42,15 @@ package SOAP.Types.Untyped is
    overriding function S
      (V         : String;
       Name      : String := "item";
-      Type_Name : String := XML_String) return Untyped;
+      Type_Name : String := XML_String;
+      NS        : SOAP.Name_Space.Object := SOAP.Name_Space.No_Name_Space)
+      return Untyped;
 
    overriding function S
      (V         : Unbounded_String;
       Name      : String  := "item";
-      Type_Name : String := XML_String) return Untyped;
+      Type_Name : String := XML_String;
+      NS        : SOAP.Name_Space.Object := SOAP.Name_Space.No_Name_Space)
+      return Untyped;
 
 end SOAP.Types.Untyped;

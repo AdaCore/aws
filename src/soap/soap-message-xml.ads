@@ -33,6 +33,7 @@ with AWS.Client;
 
 with SOAP.Message.Payload;
 with SOAP.Message.Response;
+with SOAP.WSDL.Schema;
 
 package SOAP.Message.XML is
 
@@ -41,7 +42,8 @@ package SOAP.Message.XML is
    function Load_Payload
      (XML      : aliased String;
       Envelope : Boolean := True;
-      Style    : Binding_Style := RPC) return Message.Payload.Object;
+      Schema   : WSDL.Schema.Definition := WSDL.Schema.Empty)
+      return Message.Payload.Object;
    --  Build a Payload object by parsing the XML payload string.
    --  If Envelope is False, the message could consists only from body
    --  with arbitrary named root tag without mandatory SOAP Envelope wrapper.
@@ -49,13 +51,14 @@ package SOAP.Message.XML is
    function Load_Payload
      (XML      : Unbounded_String;
       Envelope : Boolean := True;
-      Style    : Binding_Style := RPC) return Message.Payload.Object;
+      Schema   : WSDL.Schema.Definition := WSDL.Schema.Empty)
+      return Message.Payload.Object;
    --  Build a Payload object by parsing the XML payload string
 
    function Load_Response
      (Connection : AWS.Client.HTTP_Connection;
       Envelope   : Boolean := True;
-      Style      : Binding_Style := RPC)
+      Schema     : WSDL.Schema.Definition := WSDL.Schema.Empty)
       return Message.Response.Object'Class;
    --  Build a Response object (either a standard response or an error
    --  response) by parsing the HTTP client connection output.
@@ -65,7 +68,8 @@ package SOAP.Message.XML is
    function Load_Response
      (XML      : aliased String;
       Envelope : Boolean := True;
-      Style    : Binding_Style := RPC) return Message.Response.Object'Class;
+      Schema   : WSDL.Schema.Definition := WSDL.Schema.Empty)
+      return Message.Response.Object'Class;
    --  Build a Response object (either a standard response or an error
    --  response) by parsing the XML response string.
    --  If Envelope is False, the message could consists only from body
@@ -74,13 +78,19 @@ package SOAP.Message.XML is
    function Load_Response
      (XML      : Unbounded_String;
       Envelope : Boolean := True;
-      Style    : Binding_Style := RPC) return Message.Response.Object'Class;
+      Schema   : WSDL.Schema.Definition := WSDL.Schema.Empty)
+      return Message.Response.Object'Class;
    --  As above but using an Unbounded_String
 
-   function Image (O : Object'Class) return String;
+   function Image
+     (O      : Object'Class;
+      Schema : WSDL.Schema.Definition := WSDL.Schema.Empty) return String;
    --  Returns XML representation of object O
 
-   function Image (O : Object'Class) return Unbounded_String;
+   function Image
+     (O      : Object'Class;
+      Schema : WSDL.Schema.Definition :=
+                 WSDL.Schema.Empty) return Unbounded_String;
    --  Idem as above but returns an Unbounded_String instead of a String
 
 end SOAP.Message.XML;

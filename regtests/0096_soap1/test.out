@@ -10,7 +10,7 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <soapenv:Envelope soapenv:encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" xmlns:soapenc="http://schemas.xmlsoap.org/soap/encoding/" xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
 <soapenv:Body>
-<jobInfo xmlns="">
+<jobInfo>
 <id xsi:type="xsd:string">750M0000000VL33IAG</id>
 <operation xsi:type="xsd:string">query</operation>
 <object xsi:type="xsd:string">Account</object>
@@ -28,7 +28,7 @@
 <numberRecordsProcessed xsi:type="xsd:string">0</numberRecordsProcessed>
 <numberRetries xsi:type="xsd:string">0</numberRetries>
 <apiVersion xsi:type="xsd:string">32.0</apiVersion>
-<error>
+<error xsi:type="error">
    <exceptionCode xsi:type="xsd:string">InvalidEntity</exceptionCode>
    <exceptionMessage xsi:type="xsd:string">Entity 'AcceptedEventRelation' is not supported by the Bulk API.</exceptionMessage>
 </error>

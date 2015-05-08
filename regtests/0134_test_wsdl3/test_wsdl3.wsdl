@@ -47,7 +47,7 @@ targetNamespace="http://example.com/stockquote.wsdl"
     </portType>
 
     <binding name="StockQuoteSoapBinding" type="tns:StockQuotePortType">
-        <soap:binding style="document" transport="http://schemas.xmlsoap.org/soap/http"/>
+        <soap:binding style="rpc" transport="http://schemas.xmlsoap.org/soap/http"/>
         <operation name="GetLastTradePrice">
            <soap:operation soapAction="http://localhost/GetTradePrices"/>
            <input>

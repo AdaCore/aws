@@ -40,7 +40,9 @@ procedure TCONS_Main is
 
 begin
    H := SOAP.Dispatchers.Callback.Create
-     (TCONS_Server.HTTP_CB'Access, TCONS_Server.SOAP_CB'Access);
+     (TCONS_Server.HTTP_CB'Access,
+      TCONS_Server.SOAP_CB'Access,
+      TCONS_Service.Schema);
 
    Config.Set.Server_Host (Conf, "localhost");
    Config.Set.Server_Port (Conf, 0);

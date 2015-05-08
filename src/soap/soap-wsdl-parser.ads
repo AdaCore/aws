@@ -27,14 +27,13 @@
 --  covered by the  GNU Public License.                                     --
 ------------------------------------------------------------------------------
 
-with SOAP.Message;
 with SOAP.Name_Space;
 with SOAP.Types;
 with SOAP.WSDL.Parameters;
+with SOAP.WSDL.Schema;
 
 private with Ada.Strings.Unbounded;
 private with Ada.Containers.Indefinite_Ordered_Sets;
-private with SOAP.Types;
 private with SOAP.WSDL.Types;
 
 package SOAP.WSDL.Parser is
@@ -102,7 +101,7 @@ package SOAP.WSDL.Parser is
    procedure Exclude (O : in out Object; Operation : String);
    --  Register operation to be excluded from the code generation
 
-   function Style (O : Object'Class) return Message.Binding_Style;
+   function Style (O : Object'Class) return WSDL.Schema.Binding_Style;
    --  Returns the binding style for the parsed WSDL
 
    function Encoding
@@ -135,7 +134,7 @@ private
       Accept_Document : Boolean := False;
       Exclude         : Name_Set.Set;     -- Operation to exclude from gen
       No_Param        : Boolean := False; -- Disable param generation
-      Style           : Message.Binding_Style := SOAP.Message.RPC;
+      Style           : WSDL.Schema.Binding_Style := SOAP.WSDL.Schema.RPC;
       --  Input/Output encoding
       I_Encoding      : SOAP.Types.Encoding_Style := SOAP.Types.Encoded;
       O_Encoding      : SOAP.Types.Encoding_Style := SOAP.Types.Encoded;

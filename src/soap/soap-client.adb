@@ -55,7 +55,8 @@ package body SOAP.Client is
       Proxy_User   : String                     := Not_Specified;
       Proxy_Pwd    : String                     := Not_Specified;
       Timeouts     : AWS.Client.Timeouts_Values := AWS.Client.No_Timeout;
-      Asynchronous : Boolean := False)
+      Asynchronous : Boolean                    := False;
+      Schema       : WSDL.Schema.Definition     := WSDL.Schema.Empty)
       return Message.Response.Object'Class
    is
       Connection : AWS.Client.HTTP_Connection;
@@ -68,7 +69,7 @@ package body SOAP.Client is
 
       declare
          Result : constant Message.Response.Object'Class :=
-                    Call (Connection, SOAPAction, P, Asynchronous);
+                    Call (Connection, SOAPAction, P, Asynchronous, Schema);
       begin
          AWS.Client.Close (Connection);
          return Result;
@@ -87,7 +88,8 @@ package body SOAP.Client is
      (Connection   : AWS.Client.HTTP_Connection;
       SOAPAction   : String;
       P            : Message.Payload.Object;
-      Asynchronous : Boolean := False)
+      Asynchronous : Boolean := False;
+      Schema       : WSDL.Schema.Definition := WSDL.Schema.Empty)
       return Message.Response.Object'Class
    is
       use type Ada.Streams.Stream_Element_Offset;
@@ -121,7 +123,8 @@ package body SOAP.Client is
       end SOAP_Action;
 
       Response : AWS.Response.Data;
-      XML_Data : constant Unbounded_String := SOAP.Message.XML.Image (P);
+      XML_Data : constant Unbounded_String :=
+                   SOAP.Message.XML.Image (P, Schema);
       XML_Str  : String_Access := new String (1 .. Length (XML_Data));
    begin
       for I in 1 .. Length (XML_Data) loop
@@ -153,7 +156,7 @@ package body SOAP.Client is
          else
             --  All other cases, read the response from the connection
 
-            return Message.XML.Load_Response (Connection, Style => P.Style);
+            return Message.XML.Load_Response (Connection, Schema => Schema);
          end if;
 
       else

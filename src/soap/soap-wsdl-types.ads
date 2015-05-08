@@ -30,6 +30,7 @@
 with Ada.Strings.Unbounded;
 
 with SOAP.Name_Space;
+with SOAP.WSDL.Schema;
 
 package SOAP.WSDL.Types is
 
@@ -183,6 +184,9 @@ package SOAP.WSDL.Types is
    --  Returns the code to create a SOAP parameter with given Name. Object is
    --  the reference to the object to convert. Type_Name is the name of the
    --  enumeration to convert to/from.
+
+   function Get_Schema_Definition return WSDL.Schema.Definition;
+   --  Get the schema definition part for types defined in the WSDL
 
 private
 

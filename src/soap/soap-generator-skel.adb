@@ -30,8 +30,6 @@
 with AWS.URL;
 with AWS.Utils;
 
-with SOAP.Message;
-
 separate (SOAP.Generator)
 package body Skel is
 
@@ -73,7 +71,7 @@ package body Skel is
       pragma Unreferenced (Namespace, Fault);
 
       use Ada.Strings.Fixed;
-      use type SOAP.Message.Binding_Style;
+      use type WSDL.Schema.Binding_Style;
       use type WSDL.Parameter_Type;
       use type WSDL.Parameters.P_Set;
       use type WSDL.Types.Kind;
@@ -200,7 +198,7 @@ package body Skel is
         (Skel_Adb, "      return AWS.Response.Data");
       Text_IO.Put_Line (Skel_Adb, "   is");
 
-      if O.Style = Message.RPC then
+      if O.Style = WSDL.Schema.RPC then
          Text_IO.Put_Line
            (Skel_Adb, "      Proc_Name : constant String");
          Text_IO.Put_Line
@@ -258,7 +256,7 @@ package body Skel is
 
       --  Then check the procedure name
 
-      if O.Style = Message.RPC then
+      if O.Style = WSDL.Schema.RPC then
          if O.Debug then
             Text_IO.Put_Line
               (Skel_Adb,
@@ -292,7 +290,7 @@ package body Skel is
             "      Put_Line (""[SERVER/" & L_Proc & "_CB] Payload : """);
          Text_IO.Put_Line
            (Skel_Adb,
-            "                & SOAP.Message.XML.Image (Payload));");
+            "                & SOAP.Message.XML.Image (Payload, Schema));");
          Text_IO.New_Line (Skel_Adb);
       end if;
 
@@ -634,11 +632,12 @@ package body Skel is
             "      Put_Line (""[SERVER/" & L_Proc & "_CB] Response : """);
          Text_IO.Put_Line
            (Skel_Adb,
-            "                & SOAP.Message.XML.Image (Response));");
+            "                & SOAP.Message.XML.Image (Response, Schema));");
       end if;
 
       Text_IO.Put_Line
-        (Skel_Adb, "      return SOAP.Message.Response.Build (Response);");
+        (Skel_Adb,
+         "      return SOAP.Message.Response.Build (Response, Schema);");
 
       Text_IO.Put_Line
         (Skel_Adb, "   exception");
@@ -721,6 +720,7 @@ package body Skel is
       With_Unit (Skel_Adb, "Ada.Exceptions", Elab => Off);
       Text_IO.New_Line (Skel_Adb);
       With_Unit (Skel_Adb, "SOAP.Message.Response.Error", Elab => Children);
+      With_Unit (Skel_Adb, "SOAP.Name_Space");
       With_Unit (Skel_Adb, "SOAP.Parameters");
       With_Unit (Skel_Adb, "SOAP.Utils");
       Text_IO.New_Line (Skel_Adb);

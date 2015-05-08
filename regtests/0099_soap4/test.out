@@ -3,15 +3,15 @@
 <soapenv:Body>
 <awsns:Arr_Rec xmlns:awsns="http://soapaws/">
 <arr soapenc:arrayType="awsns:rec[3]" xsi:type="soapenc:Array">
-   <rec>
+   <rec xsi:type="rec">
       <name1 xsi:type="xsd:string">val1</name1>
       <name2 xsi:type="xsd:string">val2</name2>
    </rec>
-   <rec>
+   <rec xsi:type="rec">
       <name1 xsi:type="xsd:string">val1</name1>
       <name2 xsi:type="xsd:string">val2</name2>
    </rec>
-   <rec>
+   <rec xsi:type="rec">
       <name1 xsi:type="xsd:string">val1</name1>
       <name2 xsi:type="xsd:string">val2</name2>
    </rec>
@@ -26,19 +26,19 @@
 <soapenv:Body>
 <awsns:Arr_Rec2 xmlns:awsns="http://soapaws/">
 <arr2 soapenc:arrayType="xsd:ur-type[4]" xsi:type="soapenc:Array">
-   <rec>
+   <rec xsi:type="rec">
       <name1 xsi:type="xsd:string">val1</name1>
       <name2 xsi:type="xsd:string">val2</name2>
    </rec>
-   <rec>
+   <rec xsi:type="rec">
       <name1 xsi:type="xsd:string">val1</name1>
       <name2 xsi:type="xsd:string">val2</name2>
    </rec>
-   <rec2>
+   <rec2 xsi:type="rec2">
       <name1 xsi:type="xsd:string">val1</name1>
       <name2 xsi:type="xsd:string">val2</name2>
    </rec2>
-   <rec>
+   <rec xsi:type="rec">
       <name1 xsi:type="xsd:string">val1</name1>
       <name2 xsi:type="xsd:string">val2</name2>
    </rec>
@@ -53,16 +53,16 @@
 <soapenv:Body>
 <awsns:Arr_Rec3 xmlns:awsns="http://soapaws/">
 <arr3 soapenc:arrayType="xsd:ur-type[4]" xsi:type="soapenc:Array">
-   <rec>
+   <rec xsi:type="rec">
       <name1 xsi:type="xsd:string">val1</name1>
       <name2 xsi:type="xsd:string">val2</name2>
    </rec>
-   <rec>
+   <rec xsi:type="rec">
       <name1 xsi:type="xsd:string">val1</name1>
       <name2 xsi:type="xsd:string">val2</name2>
    </rec>
    <rec xsi:type="xsd:string">value</rec>
-   <rec>
+   <rec xsi:type="rec">
       <name1 xsi:type="xsd:string">val1</name1>
       <name2 xsi:type="xsd:string">val2</name2>
    </rec>

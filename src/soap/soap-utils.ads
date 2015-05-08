@@ -34,8 +34,11 @@ with Ada.Strings.Unbounded;
 
 with AWS.Response;
 with AWS.Status;
+
 with SOAP.Message.Payload;
+with SOAP.Name_Space;
 with SOAP.Types;
+with SOAP.WSDL.Schema;
 
 package SOAP.Utils is
 
@@ -91,9 +94,10 @@ package SOAP.Utils is
         (SOAPAction : String;
          Payload    : Message.Payload.Object;
          Request    : AWS.Status.Data) return AWS.Response.Data;
-      Style : Message.Binding_Style := Message.RPC;
    function SOAP_Wrapper
-     (Request : AWS.Status.Data) return AWS.Response.Data;
+     (Request : AWS.Status.Data;
+      Schema  : WSDL.Schema.Definition := WSDL.Schema.Empty)
+      return AWS.Response.Data;
    --  From a standard HTTP callback calls the SOAP callback passed as generic
    --  formal procedure. Raises Constraint_Error if Request is not a SOAP
    --  request.
@@ -123,7 +127,13 @@ package SOAP.Utils is
       type T is private;
       type T_Array is array (Positive range <>) of T;
       type XSD_Type is new Types.Object with private;
-      with function Get (V : T; Name : String := "item") return XSD_Type;
+      Type_Name : String;
+      with function
+        Get (V         : T;
+             Name      : String := "item";
+             Type_Name : String := "";
+             NS        : Name_Space.Object := Name_Space.No_Name_Space)
+             return XSD_Type;
    function To_Object_Set (From : T_Array) return Types.Object_Set;
    --  Convert an array of T to a Types.Object_Set
 
@@ -132,7 +142,13 @@ package SOAP.Utils is
       type Index is range <>;
       type T_Array is array (Index) of T;
       type XSD_Type is new Types.Object with private;
-      with function Get (V : T; Name : String := "item") return XSD_Type;
+      Type_Name : String;
+      with function
+        Get (V         : T;
+             Name      : String := "item";
+             Type_Name : String := "";
+             NS        : Name_Space.Object := Name_Space.No_Name_Space)
+             return XSD_Type;
    function To_Object_Set_C (From : T_Array) return Types.Object_Set;
    --  As above but for constrained arrays
 
@@ -157,19 +173,25 @@ package SOAP.Utils is
    function Any
      (V         : Types.XSD_Any_Type;
       Name      : String := "item";
-      Type_Name : String := Types.XML_String) return Types.XSD_Any_Type;
+      Type_Name : String := Types.XML_String;
+      NS        : Name_Space.Object := Name_Space.No_Name_Space)
+      return Types.XSD_Any_Type;
    --  Return V with the given name
 
    function US
      (V         : Unbounded_String;
       Name      : String := "item";
-      Type_Name : String := Types.XML_String) return Types.XSD_String;
+      Type_Name : String := Types.XML_String;
+      NS        : Name_Space.Object := Name_Space.No_Name_Space)
+      return Types.XSD_String;
    --  Returns the SOAP string for the given Unbounded_String value and name
 
    function C
      (V         : Character;
       Name      : String := "item";
-      Type_Name : String := "Character") return Types.SOAP_Enumeration;
+      Type_Name : String := "Character";
+      NS        : Name_Space.Object := Name_Space.No_Name_Space)
+      return Types.SOAP_Enumeration;
    --  Returns the SOAP string for the given Character value and name
 
    --  Smart pointers support used for array access in SOAP record. The memory

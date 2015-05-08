@@ -80,6 +80,8 @@ procedure Deriveconst_Main is
       Seven : String;
       Eight : String)
    is
+      TNS   : SOAP.Name_Space.Object := SOAP.Name_Space.Create
+                ("tns", "http://www.ecerami.com/wsdl/DeriveconstService.wsdl");
       O_Set : Object_Set := (+S ("00000000", "item"),
                              +S ((if Id = 3 then "x" else "abcdefgh"),
                                  "item"));
@@ -89,17 +91,18 @@ procedure Deriveconst_Main is
                      +I (Two, "two"),
                      +D (Three, "three"),
                      +S (Four, "four"),
-                     +A (O_Set, "five"),
+                     +A (O_Set, "five", "tns:Name"),
                      +S (Six, "six"),
                      +S (Seven, "seven"),
-                     +S (Eight, "eight")), "params");
+                     +S (Eight, "eight")), "params", "tns:big", TNS);
       P     : Message.Payload.Object :=
                 Message.Payload.Build
                   ("call", P_Set,
                     SOAP.Name_Space.Create
                       ("ns1", "urn:examples:deriveconstservice"));
       R     : constant Message.Response.Object'Class :=
-                SOAP.Client.Call (AWS.URL.URL (URL), P, "call");
+                SOAP.Client.Call (AWS.URL.URL (URL), P, "call",
+                                  Schema => Deriveconst_Demo.Schema);
    begin
       if R.Is_Error then
          Text_IO.Put_Line ("Id" & Integer'Image (Id));

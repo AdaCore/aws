@@ -35,9 +35,11 @@ package body SOAP.Dispatchers.Callback is
 
    overriding function Clone (Dispatch : Handler) return Handler is
    begin
-      return (AWS.Dispatchers.Handler
-              with Dispatch.Style,
-                   Dispatch.HTTP_Callback, Dispatch.SOAP_Callback);
+      return H : Handler do
+         H.Schema        := Dispatch.Schema.Copy;
+         H.HTTP_Callback := Dispatch.HTTP_Callback;
+         H.SOAP_Callback := Dispatch.SOAP_Callback;
+      end return;
    end Clone;
 
    ------------
@@ -47,10 +49,11 @@ package body SOAP.Dispatchers.Callback is
    function Create
      (HTTP_Callback : AWS.Response.Callback;
       SOAP_Callback : Dispatchers.SOAP_Callback;
-      Style         : Message.Binding_Style := Message.RPC) return Handler is
+      Schema        : WSDL.Schema.Definition :=
+                        WSDL.Schema.Empty) return Handler is
    begin
       return (AWS.Dispatchers.Handler
-              with Style, HTTP_Callback, SOAP_Callback);
+              with Schema, HTTP_Callback, SOAP_Callback);
    end Create;
 
    -------------------

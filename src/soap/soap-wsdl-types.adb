@@ -369,6 +369,49 @@ package body SOAP.WSDL.Types is
       end if;
    end Get_Constraints;
 
+   ---------------------------
+   -- Get_Schema_Definition --
+   ---------------------------
+
+   function Get_Schema_Definition return WSDL.Schema.Definition is
+
+      S_Def : WSDL.Schema.Definition;
+
+      procedure Set_Aliases (Def : Definition);
+
+      -----------------
+      -- Set_Aliases --
+      -----------------
+
+      procedure Set_Aliases (Def : Definition) is
+         N_N  : constant Name_Space.Object :=
+                  SOAP.WSDL.Types.NS (Def.Ref);
+         Name : constant String :=
+                  Name_Space.Name (N_N)
+                & ":" & SOAP.WSDL.Types.Name (Def.Ref);
+
+         Root_Type : constant String :=
+                       WSDL.Types.Root_Type_For (Def);
+      begin
+         if not S_Def.Contains (Name) then
+            S_Def.Insert (Name, "xsd:" & Root_Type);
+         end if;
+      end Set_Aliases;
+
+   begin
+      for K in Store.Iterate loop
+         declare
+            D : constant Definition := Store (K);
+         begin
+            if D.Mode = WSDL.Types.K_Derived then
+               Set_Aliases (Store (K));
+            end if;
+         end;
+      end loop;
+
+      return S_Def;
+   end Get_Schema_Definition;
+
    -----------
    -- Image --
    -----------
@@ -478,8 +521,11 @@ package body SOAP.WSDL.Types is
    is
 
       function For_Derived
-        (Def : WSDL.Types.Definition; Code : String) return String;
-      --  ??
+        (Def  : WSDL.Types.Definition;
+         Code : String;
+         NS   : Name_Space.Object) return String;
+      --  Recursively output the code to convert a derived type definition to
+      --  a SOAP object.
 
       function Set_Routine (Def : WSDL.Types.Definition) return String;
       --  The routine to convert from an Ada type to the corresponding SOAP
@@ -491,7 +537,8 @@ package body SOAP.WSDL.Types is
 
       function For_Derived
         (Def  : WSDL.Types.Definition;
-         Code : String) return String
+         Code : String;
+         NS   : Name_Space.Object) return String
       is
          use type SOAP.Name_Space.Object;
       begin
@@ -499,7 +546,10 @@ package body SOAP.WSDL.Types is
             return Set_Routine (Types.Name (Def.Ref))
               & " (" & Code & ", "
               & (if Name_Is_Var then Name else """" & Name & """")
-              & ", """ & Type_Name & """)";
+              & ", """ & Type_Name & """, "
+              & "SOAP.Name_Space.Create (""" & Name_Space.Name (NS) & """"
+              & ", """ & Name_Space.Value (NS) & """))";
+
          else
             declare
                P_Name : constant String :=
@@ -507,7 +557,7 @@ package body SOAP.WSDL.Types is
             begin
                return For_Derived
                  (WSDL.Types.Find (Def.Parent),
-                  "To_" & P_Name & "_Type" & " (" & Code & ')');
+                  "To_" & P_Name & "_Type" & " (" & Code & ')', NS);
             end;
          end if;
       end For_Derived;
@@ -560,7 +610,7 @@ package body SOAP.WSDL.Types is
 
          when WSDL.Types.K_Derived =>
             return For_Derived
-              (WSDL.Types.Find (Def.Ref), Object);
+              (WSDL.Types.Find (Def.Ref), Object, Def.Ref.NS);
 
          when WSDL.Types.K_Enumeration =>
             return "SOAP.Types.E (Image (" & Object & "), """ & Type_Name

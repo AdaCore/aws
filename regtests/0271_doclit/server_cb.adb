@@ -16,48 +16,77 @@
 --  to http://www.gnu.org/licenses for a complete copy of the license.      --
 ------------------------------------------------------------------------------
 
+with Ada.Text_IO;
+
+with AWS.Messages;
 with AWS.MIME;
 
-with SOAP.Message;
 with SOAP.Utils;
 
-with DOC.Server;
+with Getcasualtiesservice.Server;
+with Getcasualtiesservice.Types;
 
-package body DOC_Server_CB is
+package body Server_CB is
 
+   use Ada;
    use AWS;
+   use Getcasualtiesservice.Server;
+   use Getcasualtiesservice.Types;
 
-   function sayHello (Firstname : String) return String;
+   function getQueueStatus
+     (getQueueStatusRequest : GetQueueStatusRequest_Type)
+     return getQueueStatus_Result;
 
    -------------
    -- SOAP_CB --
    -------------
 
-   function SOAP_CB is new DOC.Server.sayHello_CB (sayHello);
+   function SOAP_CB is
+     new Getcasualtiesservice.Server.getQueueStatus_CB (getQueueStatus);
 
-   function SOAP_Wrapper is new SOAP.Utils.SOAP_Wrapper (Soap_CB);
+   function SOAP_Wrapper is new SOAP.Utils.SOAP_Wrapper (SOAP_CB);
 
    --------
    -- CB --
    --------
 
    function CB (Request : Status.Data) return Response.Data is
-      SOAPAction : constant String := Status.SOAPAction (Request);
    begin
-      if SOAPAction = "sayHello" then
-         return SOAP_Wrapper (Request, DOC.Schema);
-      else
-         return Response.Build (MIME.Text_HTML, "<p>Not a SOAP request");
-      end if;
+      return Response.Build (MIME.Text_HTML, "not used");
    end CB;
 
-   --------------
-   -- sayHello --
-   --------------
-
-   function sayHello (Firstname : String) return String is
+   function S_CB
+     (SOAPAction : String;
+      Payload    : SOAP.Message.Payload.Object;
+      Request    : AWS.Status.Data)
+      return Response.Data is
    begin
-      return "Hello " & Firstname & " and welcome!";
-   end sayHello;
+      Text_IO.Put_Line ("=============== req");
+      Text_IO.Put_Line (Status.Payload (Request));
 
-end DOC_Server_CB;
+      declare
+         R : constant Response.Data :=
+               SOAP_Wrapper (Request, Getcasualtiesservice.Schema);
+      begin
+         Text_IO.Put_Line ("=============== rep");
+         Text_IO.Put_Line (Response.Message_Body (R));
+         return R;
+      end;
+   end S_CB;
+
+   --------------------
+   -- getQueueStatus --
+   --------------------
+
+   function getQueueStatus
+     (getQueueStatusRequest : GetQueueStatusRequest_Type)
+     return getQueueStatus_Result
+   is
+      R : getQueueStatus_Result;
+   begin
+      R.numberQueued := 1;
+      R.maximumQueueSize := 16;
+      return R;
+   end Getqueuestatus;
+
+end Server_CB;

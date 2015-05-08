@@ -109,6 +109,9 @@ package SOAP.Types is
    function Name (O : Object'Class) return String;
    --  Returns name for object O
 
+   function Type_Name (O : Object'Class) return String;
+   --  Returns the type name for object O
+
    function "+" (O : Object'Class) return Object_Safe_Pointer;
    --  Allocate an object into the heap and return a safe pointer to it
 
@@ -144,7 +147,9 @@ package SOAP.Types is
    function Any
      (V         : Object'Class;
       Name      : String := "item";
-      Type_Name : String := "") return XSD_Any_Type;
+      Type_Name : String := "";
+      NS        : Name_Space.Object := Name_Space.No_Name_Space)
+      return XSD_Any_Type;
 
    function V (O : XSD_Any_Type) return Object_Access;
 
@@ -166,7 +171,9 @@ package SOAP.Types is
    function A
      (V         : Object_Set;
       Name      : String;
-      Type_Name : String := "") return SOAP_Array;
+      Type_Name : String := "";
+      NS        : Name_Space.Object := Name_Space.No_Name_Space)
+      return SOAP_Array;
    --  Type_Name of the array's elements, if not specified it will be computed
    --  based on element's name.
 
@@ -211,7 +218,9 @@ package SOAP.Types is
    function B64
      (V         : String;
       Name      : String := "item";
-      Type_Name : String := XML_Base64) return SOAP_Base64;
+      Type_Name : String := XML_Base64;
+      NS        : Name_Space.Object := Name_Space.No_Name_Space)
+      return SOAP_Base64;
 
    function V (O : SOAP_Base64) return String;
 
@@ -228,7 +237,9 @@ package SOAP.Types is
    function B
      (V         : Boolean;
       Name      : String := "item";
-      Type_Name : String := XML_Boolean) return XSD_Boolean;
+      Type_Name : String := XML_Boolean;
+      NS        : Name_Space.Object := Name_Space.No_Name_Space)
+      return XSD_Boolean;
    function V (O : XSD_Boolean) return Boolean;
 
    ----------
@@ -246,7 +257,9 @@ package SOAP.Types is
    function B
      (V         : Byte;
       Name      : String := "item";
-      Type_Name : String := XML_Byte) return XSD_Byte;
+      Type_Name : String := XML_Byte;
+      NS        : Name_Space.Object := Name_Space.No_Name_Space)
+      return XSD_Byte;
    function V (O : XSD_Byte) return Byte;
 
    ------------
@@ -262,7 +275,9 @@ package SOAP.Types is
    function D
      (V         : Long_Float;
       Name      : String := "item";
-      Type_Name : String := XML_Double) return XSD_Double;
+      Type_Name : String := XML_Double;
+      NS        : Name_Space.Object := Name_Space.No_Name_Space)
+      return XSD_Double;
 
    function V (O : XSD_Double) return Long_Float;
 
@@ -279,7 +294,9 @@ package SOAP.Types is
    function F
      (V         : Float;
       Name      : String := "item";
-      Type_Name : String := XML_Float) return XSD_Float;
+      Type_Name : String := XML_Float;
+      NS        : Name_Space.Object := Name_Space.No_Name_Space)
+      return XSD_Float;
    function V (O : XSD_Float) return Float;
 
    -------------
@@ -295,7 +312,9 @@ package SOAP.Types is
    function I
      (V         : Integer;
       Name      : String := "item";
-      Type_Name : String := XML_Int) return XSD_Integer;
+      Type_Name : String := XML_Int;
+      NS        : Name_Space.Object := Name_Space.No_Name_Space)
+      return XSD_Integer;
    function V (O : XSD_Integer) return Integer;
 
    ----------
@@ -313,7 +332,9 @@ package SOAP.Types is
    function L
      (V         : Long;
       Name      : String := "item";
-      Type_Name : String := XML_Long) return XSD_Long;
+      Type_Name : String := XML_Long;
+      NS        : Name_Space.Object := Name_Space.No_Name_Space)
+      return XSD_Long;
    function V (O : XSD_Long) return Long;
 
    ----------
@@ -349,7 +370,9 @@ package SOAP.Types is
    function R
      (V         : Object_Set;
       Name      : String;
-      Type_Name : String := "") return SOAP_Record;
+      Type_Name : String := "";
+      NS        : Name_Space.Object := Name_Space.No_Name_Space)
+      return SOAP_Record;
    --  If Type_Name is omitted then the type name is the name of the record.
    --  Type_Name must be specified for item into an array for example.
 
@@ -377,7 +400,9 @@ package SOAP.Types is
    function S
      (V         : Short;
       Name      : String := "item";
-      Type_Name : String := XML_Short) return XSD_Short;
+      Type_Name : String := XML_Short;
+      NS        : Name_Space.Object := Name_Space.No_Name_Space)
+      return XSD_Short;
    function V (O : XSD_Short) return Short;
 
    ------------
@@ -393,12 +418,16 @@ package SOAP.Types is
    function S
      (V    : String;
       Name : String      := "item";
-      Type_Name : String := XML_String) return XSD_String;
+      Type_Name : String := XML_String;
+      NS        : Name_Space.Object := Name_Space.No_Name_Space)
+      return XSD_String;
 
    function S
      (V         : Unbounded_String;
       Name      : String  := "item";
-      Type_Name : String := XML_String) return XSD_String;
+      Type_Name : String := XML_String;
+      NS        : Name_Space.Object := Name_Space.No_Name_Space)
+      return XSD_String;
 
    function V (O : XSD_String) return String;
 
@@ -422,7 +451,9 @@ package SOAP.Types is
      (V         : Calendar.Time;
       Name      : String := "item";
       Type_Name : String := XML_Date_Time;
-      Timezone  : TZ     := GMT) return XSD_Time_Instant;
+      NS        : Name_Space.Object := Name_Space.No_Name_Space;
+      Timezone  : TZ     := GMT)
+      return XSD_Time_Instant;
 
    function V (O : XSD_Time_Instant) return Calendar.Time;
    --  Returns a GMT date and time
@@ -442,7 +473,9 @@ package SOAP.Types is
    function UL
      (V         : Unsigned_Long;
       Name      : String := "item";
-      Type_Name : String := XML_Unsigned_Long) return XSD_Unsigned_Long;
+      Type_Name : String := XML_Unsigned_Long;
+      NS        : Name_Space.Object := Name_Space.No_Name_Space)
+      return XSD_Unsigned_Long;
    function V (O : XSD_Unsigned_Long) return Unsigned_Long;
 
    ------------------
@@ -460,7 +493,9 @@ package SOAP.Types is
    function UI
      (V         : Unsigned_Int;
       Name      : String := "item";
-      Type_Name : String := XML_Unsigned_Int) return XSD_Unsigned_Int;
+      Type_Name : String := XML_Unsigned_Int;
+      NS        : Name_Space.Object := Name_Space.No_Name_Space)
+      return XSD_Unsigned_Int;
    function V (O : XSD_Unsigned_Int) return Unsigned_Int;
 
    --------------------
@@ -478,7 +513,9 @@ package SOAP.Types is
    function US
      (V         : Unsigned_Short;
       Name      : String := "item";
-      Type_Name : String := XML_Unsigned_Short) return XSD_Unsigned_Short;
+      Type_Name : String := XML_Unsigned_Short;
+      NS        : Name_Space.Object := Name_Space.No_Name_Space)
+      return XSD_Unsigned_Short;
    function V (O : XSD_Unsigned_Short) return Unsigned_Short;
 
    -------------------
@@ -496,7 +533,9 @@ package SOAP.Types is
    function UB
      (V         : Unsigned_Byte;
       Name      : String := "item";
-      Type_Name : String := XML_Unsigned_Byte) return XSD_Unsigned_Byte;
+      Type_Name : String := XML_Unsigned_Byte;
+      NS        : Name_Space.Object := Name_Space.No_Name_Space)
+      return XSD_Unsigned_Byte;
    function V (O : XSD_Unsigned_Byte) return Unsigned_Byte;
 
    -----------------
@@ -514,7 +553,9 @@ package SOAP.Types is
    function E
      (V         : String;
       Type_Name : String;
-      Name      : String := "item") return SOAP_Enumeration;
+      Name      : String := "item";
+      NS        : Name_Space.Object := Name_Space.No_Name_Space)
+      return SOAP_Enumeration;
 
    function V (O : SOAP_Enumeration) return String;
 

@@ -48,9 +48,11 @@ package body SOAP.Utils is
    function Any
      (V         : Types.XSD_Any_Type;
       Name      : String := "item";
-      Type_Name : String := Types.XML_String) return Types.XSD_Any_Type is
+      Type_Name : String := Types.XML_String;
+      NS        : Name_Space.Object := Name_Space.No_Name_Space)
+      return Types.XSD_Any_Type is
    begin
-      return SOAP.Types.Any (Types.Object'Class (V), Name, Type_Name);
+      return SOAP.Types.Any (Types.Object'Class (V), Name, Type_Name, NS);
    end Any;
 
    -------
@@ -60,9 +62,11 @@ package body SOAP.Utils is
    function C
      (V         : Character;
       Name      : String := "item";
-      Type_Name : String := "Character") return Types.SOAP_Enumeration is
+      Type_Name : String := "Character";
+      NS        : Name_Space.Object := Name_Space.No_Name_Space)
+      return Types.SOAP_Enumeration is
    begin
-      return SOAP.Types.E (String'(1 => V), Type_Name, Name);
+      return SOAP.Types.E (String'(1 => V), Type_Name, Name, NS);
    end C;
 
    ------------
@@ -375,7 +379,9 @@ package body SOAP.Utils is
    ------------------
 
    function SOAP_Wrapper
-     (Request : AWS.Status.Data) return AWS.Response.Data
+     (Request : AWS.Status.Data;
+      Schema  : WSDL.Schema.Definition := WSDL.Schema.Empty)
+      return AWS.Response.Data
    is
       SOAPAction : constant String := AWS.Status.SOAPAction (Request);
    begin
@@ -385,7 +391,7 @@ package body SOAP.Utils is
                              AWS.Status.Payload (Request);
             Payload      : constant Message.Payload.Object :=
                              Message.XML.Load_Payload
-                               (Payload_Data, Style => Style);
+                               (Payload_Data, Schema => Schema);
          begin
             return SOAP_CB (SOAPAction, Payload, Request);
          end;
@@ -457,7 +463,7 @@ package body SOAP.Utils is
       Result : Types.Object_Set (From'Range);
    begin
       for K in From'Range loop
-         Result (K) := +Get (From (K));
+         Result (K) := +Get (From (K), Type_Name => Type_Name);
       end loop;
 
       return Result;
@@ -472,7 +478,7 @@ package body SOAP.Utils is
       Result : Types.Object_Set (1 .. Integer (From'Last));
    begin
       for K in From'Range loop
-         Result (Integer (K)) := +Get (From (K));
+         Result (Integer (K)) := +Get (From (K), Type_Name => Type_Name);
       end loop;
 
       return Result;
@@ -539,9 +545,11 @@ package body SOAP.Utils is
    function US
      (V         : Unbounded_String;
       Name      : String := "item";
-      Type_Name : String := Types.XML_String) return Types.XSD_String is
+      Type_Name : String := Types.XML_String;
+      NS        : Name_Space.Object := Name_Space.No_Name_Space)
+      return Types.XSD_String is
    begin
-      return Types.S (To_String (V), Name, Type_Name);
+      return Types.S (To_String (V), Name, Type_Name, NS);
    end US;
 
    -------

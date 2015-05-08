@@ -23,7 +23,7 @@
    </portType>
 
    <binding name="Hello_Binding" type="tns:Hello_PortType">
-      <soap:binding style="document"
+      <soap:binding style="rpc"
          transport="http://schemas.xmlsoap.org/soap/http"/>
       <operation name="sayHello2">
          <soap:operation soapAction="sayHello2"/>
@@ -31,13 +31,13 @@
             <soap:body
                encodingStyle="http://schemas.xmlsoap.org/soap/encoding/"
                namespace="urn:examples:helloservice"
-               use="literal"/>
+               use="encoded"/>
          </input>
          <output>
             <soap:body
                encodingStyle="http://schemas.xmlsoap.org/soap/encoding/"
                namespace="urn:examples:helloservice"
-               use="literal"/>
+               use="encoded"/>
          </output>
       </operation>
    </binding>

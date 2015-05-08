@@ -39,6 +39,7 @@ with Ada.Unchecked_Deallocation;
 with AWS.Utils;
 with GNAT.Calendar.Time_IO;
 
+with SOAP.Name_Space;
 with SOAP.Types.Untyped;
 with SOAP.Utils;
 
@@ -93,13 +94,14 @@ package body SOAP.Types is
    function A
      (V         : Object_Set;
       Name      : String;
-      Type_Name : String := "") return SOAP_Array is
+      Type_Name : String := "";
+      NS        : SOAP.Name_Space.Object := SOAP.Name_Space.No_Name_Space)
+      return SOAP_Array is
    begin
       return
         (Finalization.Controlled
          with To_Unbounded_String (Name), To_Unbounded_String (Type_Name),
-              No_Name_Space,
-              new Natural'(1), new Object_Set'(V));
+              NS,  new Natural'(1), new Object_Set'(V));
    end A;
 
    ------------
@@ -125,12 +127,14 @@ package body SOAP.Types is
    function Any
      (V         : Object'Class;
       Name      : String := "item";
-      Type_Name : String := "") return XSD_Any_Type is
+      Type_Name : String := "";
+      NS        : SOAP.Name_Space.Object := SOAP.Name_Space.No_Name_Space)
+      return XSD_Any_Type is
    begin
       return
         (Finalization.Controlled
          with To_Unbounded_String (Name), To_Unbounded_String (Type_Name),
-              No_Name_Space, +V);
+              NS, +V);
    end Any;
 
    -------
@@ -140,23 +144,27 @@ package body SOAP.Types is
    function B
      (V         : Boolean;
       Name      : String := "item";
-      Type_Name : String := XML_Boolean) return XSD_Boolean is
+      Type_Name : String := XML_Boolean;
+      NS        : SOAP.Name_Space.Object := SOAP.Name_Space.No_Name_Space)
+      return XSD_Boolean is
    begin
       return
         (Finalization.Controlled
          with To_Unbounded_String (Name), To_Unbounded_String (Type_Name),
-              No_Name_Space, V);
+              NS, V);
    end B;
 
    function B
      (V         : Byte;
       Name      : String := "item";
-      Type_Name : String := XML_Byte) return XSD_Byte is
+      Type_Name : String := XML_Byte;
+      NS        : SOAP.Name_Space.Object := SOAP.Name_Space.No_Name_Space)
+      return XSD_Byte is
    begin
       return
         (Finalization.Controlled
          with To_Unbounded_String (Name), To_Unbounded_String (Type_Name),
-              No_Name_Space, V);
+              NS, V);
    end B;
 
    ---------
@@ -166,12 +174,14 @@ package body SOAP.Types is
    function B64
      (V         : String;
       Name      : String := "item";
-      Type_Name : String := XML_Base64) return SOAP_Base64 is
+      Type_Name : String := XML_Base64;
+      NS        : SOAP.Name_Space.Object := SOAP.Name_Space.No_Name_Space)
+      return SOAP_Base64 is
    begin
       return
         (Finalization.Controlled
          with To_Unbounded_String (Name), To_Unbounded_String (Type_Name),
-              No_Name_Space, To_Unbounded_String (V));
+              NS, To_Unbounded_String (V));
    end B64;
 
    -------
@@ -181,12 +191,14 @@ package body SOAP.Types is
    function D
      (V         : Long_Float;
       Name      : String := "item";
-      Type_Name : String := XML_Double) return XSD_Double is
+      Type_Name : String := XML_Double;
+      NS        : SOAP.Name_Space.Object := SOAP.Name_Space.No_Name_Space)
+      return XSD_Double is
    begin
       return
         (Finalization.Controlled
          with To_Unbounded_String (Name), To_Unbounded_String (Type_Name),
-              No_Name_Space, V);
+              NS, V);
    end D;
 
    -------
@@ -196,11 +208,13 @@ package body SOAP.Types is
    function E
      (V         : String;
       Type_Name : String;
-      Name      : String := "item") return SOAP_Enumeration is
+      Name      : String := "item";
+      NS        : SOAP.Name_Space.Object := SOAP.Name_Space.No_Name_Space)
+      return SOAP_Enumeration is
    begin
       return (Finalization.Controlled
               with To_Unbounded_String (Name), To_Unbounded_String (Type_Name),
-                   No_Name_Space, To_Unbounded_String (V));
+                   NS, To_Unbounded_String (V));
    end E;
 
    ------------
@@ -225,12 +239,14 @@ package body SOAP.Types is
    function F
      (V         : Float;
       Name      : String := "item";
-      Type_Name : String := XML_Float) return XSD_Float is
+      Type_Name : String := XML_Float;
+      NS        : SOAP.Name_Space.Object := SOAP.Name_Space.No_Name_Space)
+      return XSD_Float is
    begin
       return
         (Finalization.Controlled
          with To_Unbounded_String (Name), To_Unbounded_String (Type_Name),
-              No_Name_Space, V);
+              NS, V);
    end F;
 
    --------------
@@ -673,13 +689,15 @@ package body SOAP.Types is
    function I
      (V         : Integer;
       Name      : String := "item";
-      Type_Name : String := XML_Int) return XSD_Integer is
+      Type_Name : String := XML_Int;
+      NS        : SOAP.Name_Space.Object := SOAP.Name_Space.No_Name_Space)
+      return XSD_Integer is
    begin
       return
         (Finalization.Controlled
          with To_Unbounded_String (Name),
               To_Unbounded_String (Type_Name),
-              No_Name_Space, V);
+              NS, V);
    end I;
 
    -----------
@@ -941,12 +959,14 @@ package body SOAP.Types is
    function L
      (V         : Long;
       Name      : String := "item";
-      Type_Name : String := XML_Long) return XSD_Long is
+      Type_Name : String := XML_Long;
+      NS        : SOAP.Name_Space.Object := SOAP.Name_Space.No_Name_Space)
+      return XSD_Long is
    begin
       return
         (Finalization.Controlled
          with To_Unbounded_String (Name), To_Unbounded_String (Type_Name),
-              No_Name_Space, V);
+              NS, V);
    end L;
 
    -------
@@ -986,13 +1006,15 @@ package body SOAP.Types is
    function R
      (V         : Object_Set;
       Name      : String;
-      Type_Name : String := "") return SOAP_Record is
+      Type_Name : String := "";
+      NS        : SOAP.Name_Space.Object := SOAP.Name_Space.No_Name_Space)
+      return SOAP_Record is
    begin
       return
         (Finalization.Controlled
          with To_Unbounded_String (Name),
               To_Unbounded_String (if Type_Name = "" then Name else Type_Name),
-              SOAP.Name_Space.AWS,
+              NS,
               new Natural'(1), new Object_Set'(V));
    end R;
 
@@ -1020,36 +1042,42 @@ package body SOAP.Types is
    function S
      (V         : Short;
       Name      : String := "item";
-      Type_Name : String := XML_Short) return XSD_Short is
+      Type_Name : String := XML_Short;
+      NS        : SOAP.Name_Space.Object := SOAP.Name_Space.No_Name_Space)
+      return XSD_Short is
    begin
       return
         (Finalization.Controlled
          with To_Unbounded_String (Name), To_Unbounded_String (Type_Name),
-              No_Name_Space, V);
+              NS, V);
    end S;
 
    function S
      (V         : String;
       Name      : String := "item";
-      Type_Name : String := XML_String) return XSD_String
+      Type_Name : String := XML_String;
+      NS        : SOAP.Name_Space.Object := SOAP.Name_Space.No_Name_Space)
+      return XSD_String
    is
       L_V : constant String := Utils.To_Utf8 (V);
    begin
       return
         (Finalization.Controlled
          with To_Unbounded_String (Name), To_Unbounded_String (Type_Name),
-              No_Name_Space, To_Unbounded_String (L_V));
+              NS, To_Unbounded_String (L_V));
    end S;
 
    function S
      (V         : Unbounded_String;
       Name      : String := "item";
-      Type_Name : String := XML_String) return XSD_String is
+      Type_Name : String := XML_String;
+      NS        : SOAP.Name_Space.Object := SOAP.Name_Space.No_Name_Space)
+      return XSD_String is
    begin
       return
         (Finalization.Controlled
          with To_Unbounded_String (Name), To_Unbounded_String (Type_Name),
-              No_Name_Space, Utils.To_Utf8 (V));
+              NS, Utils.To_Utf8 (V));
    end S;
 
    ---------
@@ -1111,13 +1139,24 @@ package body SOAP.Types is
      (V         : Calendar.Time;
       Name      : String := "item";
       Type_Name : String := XML_Date_Time;
-      Timezone  : TZ     := GMT) return XSD_Time_Instant is
+      NS        : SOAP.Name_Space.Object := SOAP.Name_Space.No_Name_Space;
+      Timezone  : TZ     := GMT)
+      return XSD_Time_Instant is
    begin
       return
         (Finalization.Controlled
          with To_Unbounded_String (Name),
-         To_Unbounded_String (Type_Name), No_Name_Space, V, Timezone);
+         To_Unbounded_String (Type_Name), NS, V, Timezone);
    end T;
+
+   ---------------
+   -- Type_Name --
+   ---------------
+
+   function Type_Name (O : Object'Class) return String is
+   begin
+      return To_String (O.Type_Name);
+   end Type_Name;
 
    --------
    -- UB --
@@ -1126,12 +1165,14 @@ package body SOAP.Types is
    function UB
      (V         : Unsigned_Byte;
       Name      : String := "item";
-      Type_Name : String := XML_Unsigned_Byte) return XSD_Unsigned_Byte is
+      Type_Name : String := XML_Unsigned_Byte;
+      NS        : SOAP.Name_Space.Object := SOAP.Name_Space.No_Name_Space)
+      return XSD_Unsigned_Byte is
    begin
       return
         (Finalization.Controlled
          with To_Unbounded_String (Name), To_Unbounded_String (Type_Name),
-              No_Name_Space, V);
+              NS, V);
    end UB;
 
    --------
@@ -1141,12 +1182,14 @@ package body SOAP.Types is
    function UI
      (V         : Unsigned_Int;
       Name      : String := "item";
-      Type_Name : String := XML_Unsigned_Int) return XSD_Unsigned_Int is
+      Type_Name : String := XML_Unsigned_Int;
+      NS        : SOAP.Name_Space.Object := SOAP.Name_Space.No_Name_Space)
+      return XSD_Unsigned_Int is
    begin
       return
         (Finalization.Controlled
          with To_Unbounded_String (Name), To_Unbounded_String (Type_Name),
-              No_Name_Space, V);
+              NS, V);
    end UI;
 
    --------
@@ -1156,12 +1199,14 @@ package body SOAP.Types is
    function UL
      (V         : Unsigned_Long;
       Name      : String := "item";
-      Type_Name : String := XML_Unsigned_Long) return XSD_Unsigned_Long is
+      Type_Name : String := XML_Unsigned_Long;
+      NS        : SOAP.Name_Space.Object := SOAP.Name_Space.No_Name_Space)
+      return XSD_Unsigned_Long is
    begin
       return
         (Finalization.Controlled
          with To_Unbounded_String (Name), To_Unbounded_String (Type_Name),
-              No_Name_Space, V);
+              NS, V);
    end UL;
 
    --------
@@ -1171,12 +1216,14 @@ package body SOAP.Types is
    function US
      (V         : Unsigned_Short;
       Name      : String := "item";
-      Type_Name : String := XML_Unsigned_Short) return XSD_Unsigned_Short is
+      Type_Name : String := XML_Unsigned_Short;
+      NS        : SOAP.Name_Space.Object := SOAP.Name_Space.No_Name_Space)
+      return XSD_Unsigned_Short is
    begin
       return
         (Finalization.Controlled
          with To_Unbounded_String (Name), To_Unbounded_String (Type_Name),
-              No_Name_Space, V);
+              NS, V);
    end US;
 
    -------
@@ -1342,7 +1389,11 @@ package body SOAP.Types is
          Append (Result, Name (OC));
 
          if Encoding = Encoded then
-            Append (Result, xsi_type (XML_Type (OC)));
+            if XML_Type (OC) = "" then
+               Append (Result, xsi_type (XML_String));
+            else
+               Append (Result, xsi_type (XML_Type (OC)));
+            end if;
          end if;
 
          Append (Result, '>');
@@ -1455,8 +1506,14 @@ package body SOAP.Types is
                --  The array is composed of only records having the same
                --  name. Use this name for the array component type.
 
-               return SOAP.Name_Space.Name
-                 (Name_Space (O.O (O.O'First).O.all)) & ":" & Name;
+               declare
+                  Prefix : constant String :=
+                             SOAP.Name_Space.Name
+                               (Name_Space (O.O (O.O'First).O.all));
+               begin
+                  return Utils.With_NS
+                    ((if Prefix = "" then "awsns" else Prefix), Name);
+               end;
             end;
          end if;
 
@@ -1509,7 +1566,7 @@ package body SOAP.Types is
       XML_Indent.Set_Value (Indent + 1);
 
       for K in O.O'Range loop
-         XML_Image (O.O (K).O.all, Result);
+         XML_Image (O.O (K).O.all, Result, Encoding);
          Append (Result, New_Line);
       end loop;
 
@@ -1540,18 +1597,16 @@ package body SOAP.Types is
       Encoding : Encoding_Style := Encoded)
    is
       Indent : constant Natural := XML_Indent.Value;
-      NS_Name : constant String :=
-                  SOAP.Name_Space.Name (O.NS) & ":" & Name (O);
+      Prefix : constant String := SOAP.Name_Space.Name (O.NS);
    begin
       Append (Result, Spaces (Indent));
 
-      Append (Result, "<" & NS_Name);
+      Append (Result, "<" & Name (O));
 
       if Encoding = Encoded then
          Append
            (Result,
-            " xsi:type="""
-            & SOAP.Name_Space.Name (O.NS) & ":" & XML_Type (O) & '"');
+            " xsi:type=""" & Utils.With_NS (Prefix, XML_Type (O)) & '"');
       end if;
 
       if O.O'Length = 0 then
@@ -1564,14 +1619,14 @@ package body SOAP.Types is
          XML_Indent.Set_Value (Indent + 1);
 
          for K in O.O'Range loop
-            XML_Image (O.O (K).O.all, Result);
+            XML_Image (O.O (K).O.all, Result, Encoding);
             Append (Result, New_Line);
          end loop;
 
          XML_Indent.Set_Value (Indent);
 
          Append (Result, Spaces (Indent));
-         Append (Result, Utils.Tag (NS_Name, Start => False));
+         Append (Result, Utils.Tag (Name (O), Start => False));
       end if;
    end XML_Image;
 

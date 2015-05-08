@@ -104,7 +104,7 @@
    </portType>
 
    <binding name="Deriveconst_Binding" type="tns:Deriveconst_PortType">
-      <soap:binding style="document"
+      <soap:binding style="rpc"
          transport="http://schemas.xmlsoap.org/soap/http"/>
       <operation name="call">
          <soap:operation soapAction="call"/>
@@ -112,13 +112,13 @@
             <soap:body
                encodingStyle="http://schemas.xmlsoap.org/soap/encoding/"
                namespace="urn:examples:deriveconstservice"
-               use="literal"/>
+               use="encoded"/>
          </input>
          <output>
             <soap:body
                encodingStyle="http://schemas.xmlsoap.org/soap/encoding/"
                namespace="urn:examples:deriveconstservice"
-               use="literal"/>
+               use="encoded"/>
          </output>
       </operation>
       <operation name="call2">
@@ -127,13 +127,13 @@
             <soap:body
                encodingStyle="http://schemas.xmlsoap.org/soap/encoding/"
                namespace="urn:examples:deriveconstservice"
-               use="literal"/>
+               use="encoded"/>
          </input>
          <output>
             <soap:body
                encodingStyle="http://schemas.xmlsoap.org/soap/encoding/"
                namespace="urn:examples:deriveconstservice"
-               use="literal"/>
+               use="encoded"/>
          </output>
       </operation>
    </binding>

@@ -154,11 +154,21 @@ package body SOAP.Message.Response.Error is
    -- XML_Image --
    ---------------
 
-   overriding function XML_Image (E : Object) return Unbounded_String is
+   overriding function XML_Image
+     (E      : Object;
+      Schema : WSDL.Schema.Definition :=
+                 WSDL.Schema.Empty) return Unbounded_String
+   is
+      pragma Unreferenced (Schema);
+
       NL           : constant String := ASCII.CR & ASCII.LF;
       Message_Body : Unbounded_String;
 
    begin
+      --  Close body
+
+      Append (Message_Body, ">" & NL);
+
       --  Fault Env
 
       Append (Message_Body, Start_Fault_Env & NL);

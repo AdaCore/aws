@@ -49,7 +49,8 @@ package body CB is
       SOAPAction : constant String := AWS.Status.SOAPAction (Request);
       Payload    : aliased String := AWS.Status.Payload (Request);
       Pl         : SOAP.Message.Payload.Object :=
-                     SOAP.Message.XML.Load_Payload (Payload);
+                     SOAP.Message.XML.Load_Payload
+                       (Payload, Schema => Deriveconst_Demo.Schema);
    begin
       if SOAPAction = "call" then
          return Call_Cb (SOAPAction, Pl, Request);

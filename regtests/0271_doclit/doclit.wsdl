@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<wsdl:definitions name="GetCasService" targetNamespace="http://net.def.com/wsa" xmlns="http://schemas.xmlsoap.org/wsdl/"
+   xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/" xmlns:wsa="http://net.def.com/wsa"
+   xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/">
+
+   <!-- The WSDL types -->
+   <wsdl:types>
+      <xs:schema version="1.0" elementFormDefault="qualified">
+         <xs:import namespace="http://net.def.com/wsa" schemaLocation="./sch1.xsd" />
+      </xs:schema>
+   </wsdl:types>
+
+   <wsdl:message name="GetQueueStatus_Request">
+      <part name="getQueueStatusRequest" element="wsa:getQueueStatusRequest" />
+   </wsdl:message>
+   <wsdl:message name="GetQueueStatus_Response">
+      <part name="getQueueStatusResponse" element="wsa:getQueueStatusResponse" />
+   </wsdl:message>
+
+   <!-- Port Types -->
+   <wsdl:portType name="GetCasualtiesWebService">
+      <wsdl:documentation>
+         This web service provides access to WSA computations.
+      </wsdl:documentation>
+      <wsdl:operation name="getQueueStatus">
+         <wsdl:documentation>
+            This operation will report the status of the queue.
+         </wsdl:documentation>
+         <wsdl:input message="wsa:GetQueueStatus_Request" />
+         <wsdl:output message="wsa:GetQueueStatus_Response" />
+      </wsdl:operation>
+   </wsdl:portType>
+
+   <!-- Bindings -->
+   <wsdl:binding name="GetCasualtiesWebServiceBinding" type="wsa:GetCasualtiesWebService">
+      <soap:binding style="document" transport="http://schemas.xmlsoap.org/soap/http" />
+      <operation name="getQueueStatus">
+         <soap:operation soapAction="http://net.def.com/wsa/getQueueStatus" />
+         <wsdl:input>
+            <soap:body use="literal" />
+         </wsdl:input>
+         <wsdl:output>
+            <soap:body use="literal" />
+         </wsdl:output>
+      </operation>
+   </wsdl:binding>
+
+   <!-- The WSDL Services -->
+   <wsdl:service name="GetCasualtiesService">
+      <port name="WsaPort" binding="wsa:GetCasualtiesWebServiceBinding">
+         <soap:address location="http://localhost:1234" />
+      </port>
+   </wsdl:service>
+</wsdl:definitions>

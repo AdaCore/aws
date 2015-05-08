@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2008-2015, AdaCore                     --
+--                        Copyright (C) 2015, AdaCore                       --
 --                                                                          --
 --  This is free software;  you can redistribute it  and/or modify it       --
 --  under terms of the  GNU General Public License as published  by the     --
@@ -16,26 +16,48 @@
 --  to http://www.gnu.org/licenses for a complete copy of the license.      --
 ------------------------------------------------------------------------------
 
-with Ada.Strings.Unbounded;
 with Ada.Text_IO;
 
-with SOAP.Message.Payload;
-with SOAP.Message.XML;
-with SOAP.Parameters;
-with SOAP.Name_Space;
-with SOAP.Types;
+with AWS.Config.Set;
+with AWS.Server.Status;
+with SOAP.Dispatchers.Callback;
 
-procedure Driver is
-   use Ada;
-   use Ada.Strings.Unbounded;
-   use SOAP;
-   use SOAP.Types;
-   use type SOAP.Parameters.List;
+with Getcasualtiesservice.Client;
+with Getcasualtiesservice.Server;
+with Getcasualtiesservice.Types;
 
-   NS    : constant SOAP.Name_Space.Object := SOAP.Name_Space.Create ("", "x");
-   P_Set : constant Parameters.List := +S ("simple_string");
-   P     : Message.Payload.Object;
+with Server_CB;
+
+procedure DocLit is
+
+   use Ada.Text_IO;
+   use AWS;
+
+   use Getcasualtiesservice.Client;
+   use Getcasualtiesservice.Server;
+   use Getcasualtiesservice.Types;
+
+   H_Server : AWS.Server.HTTP;
+   Conf     : Config.Object := Config.Get_Current;
+   H        : SOAP.Dispatchers.Callback.Handler;
+
 begin
-   P := Message.Payload.Build ("whatever", P_Set, Name_Space => NS);
-   Text_IO.Put_Line (To_String (Message.XML.Image (P)));
-end Driver;
+   H := SOAP.Dispatchers.Callback.Create
+     (Server_Cb.CB'Access, Server_Cb.S_CB'Access);
+
+   Config.Set.Server_Host (Conf, "localhost");
+   Config.Set.Server_Port (Conf, 0);
+
+   AWS.Server.Start (H_Server, H, Conf);
+
+   declare
+      D : GetQueueStatusRequest_Type;
+      R : getQueueStatus_Result;
+   begin
+      R := getQueueStatus (D, Endpoint => Server.Status.Local_URL (H_Server));
+      Put_Line ("numberQueued     =" & R.numberQueued'Img);
+      Put_Line ("maximumQueueSize =" & R.maximumQueueSize'Img);
+   end;
+
+   AWS.Server.Shutdown (H_Server);
+end DocLit;
