@@ -100,6 +100,7 @@ package body SOAP.Message.XML is
       xsd   : SOAP.Name_Space.Object;
       xsi   : SOAP.Name_Space.Object;
       enc   : SOAP.Name_Space.Object;
+      env   : SOAP.Name_Space.Object;
       User  : NS_Set;
       Index : Natural := 0;
    end record;
@@ -907,6 +908,9 @@ package body SOAP.Message.XML is
 
                elsif Value = SOAP.Name_Space.SOAPENC_URL then
                   NS.enc := SOAP.Name_Space.Create (Utils.No_NS (Name), Value);
+
+               elsif Value = SOAP.Name_Space.SOAPENV_URL then
+                  NS.env := SOAP.Name_Space.Create (Utils.No_NS (Name), Value);
 
                elsif NS.Index < NS.User'Last then
                   NS.Index := NS.Index + 1;
