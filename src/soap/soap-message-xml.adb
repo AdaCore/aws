@@ -93,7 +93,7 @@ package body SOAP.Message.XML is
      (Void, T_Undefined, T_Any_Type,
       T_Int, T_Float, T_Double, T_Long, T_Short, T_Byte,
       T_Unsigned_Long, T_Unsigned_Int, T_Unsigned_Short, T_Unsigned_Byte,
-      T_String, T_Boolean, T_Time_Instant, T_Base64);
+      T_String, T_Boolean, T_Time_Instant, T_Date_Time, T_Base64);
 
    type NS_Set is array (1 .. 10) of SOAP.Name_Space.Object;
 
@@ -314,6 +314,9 @@ package body SOAP.Message.XML is
                  T_Unsigned_Byte  =>
                    (Types.XML_Unsigned_Byte'Access,
                     Parse_Unsigned_Byte'Access, False),
+                 T_Date_Time   =>
+                   (Types.XML_Date_Time'Access,
+                    Parse_Time_Instant'Access, False),
                  T_Time_Instant   =>
                    (Types.XML_Time_Instant'Access,
                     Parse_Time_Instant'Access, False));

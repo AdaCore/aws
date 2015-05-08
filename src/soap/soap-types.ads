@@ -409,7 +409,7 @@ package SOAP.Types is
    -----------------
 
    XML_Time_Instant : aliased constant String := "xsd:timeInstant";
-   XML_Date_Time    : constant String := "xsd:dateTime";
+   XML_Date_Time    : aliased constant String := "xsd:dateTime";
 
    type XSD_Time_Instant is new Scalar with private;
 
