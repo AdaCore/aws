@@ -61,6 +61,7 @@ package body SOAP.Message.XML is
 
    XML_Header : constant String := "<?xml version='1.0' encoding='UTF-8'?>";
 
+   --  Alternate URLs
    URL_xsd    : constant String := "http://www.w3.org/1999/XMLSchema";
    URL_xsi    : constant String := "http://www.w3.org/1999/XMLSchema-instance";
 

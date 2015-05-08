@@ -95,7 +95,7 @@ package body SOAP.WSDL.Types is
          end if;
       end loop;
 
-      --  If not definition found, check for a standard type
+      --  If no definition found, check for a standard type
 
       if WSDL.Is_Standard (Name (O)) then
          return Definition'(K_Simple, Ref => (O.Name, Name_Space.XSD));
@@ -117,7 +117,8 @@ package body SOAP.WSDL.Types is
    is
       function For_Derived
         (Def : WSDL.Types.Definition; Code : String) return String;
-      --  ??
+      --  Recursively called to return the set of instructions to convert
+      --  from a SOAP object to the actual Ada type.
 
       -----------------
       -- For_Derived --
@@ -481,7 +482,8 @@ package body SOAP.WSDL.Types is
       --  ??
 
       function Set_Routine (Def : WSDL.Types.Definition) return String;
-      --  ??
+      --  The routine to convert from an Ada type to the corresponding SOAP
+      --  object.
 
       -----------------
       -- For_Derived --

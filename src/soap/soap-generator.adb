@@ -917,7 +917,7 @@ package body SOAP.Generator is
          use type WSDL.Types.Definition;
 
          function To_Ada_Type (Name : String) return String;
-         --  Returns the Ada corresponding type
+         --  Returns the Ada corresponding type (for array element)
 
          function Set_Type (Def  : WSDL.Types.Definition) return String;
          --  Returns the SOAP type for Name
