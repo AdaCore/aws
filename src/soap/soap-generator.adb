@@ -3216,6 +3216,19 @@ package body SOAP.Generator is
 
          Put_File_Header (O, F_Adb);
          Put_Types_Header_Body (O, F_Adb, To_Unit_Name (To_String (Prefix)));
+
+         --  Generate qualified type name
+
+         if Def.Mode /= WSDL.Types.K_Simple then
+            Text_IO.New_Line (F_Ads);
+            Text_IO.Put_Line
+              (F_Ads,
+               "   Q_Type_Name : constant String := """
+               & WSDL.Types.Name
+                 ((if Def = WSDL.Types.No_Definition
+                   then P.Typ
+                   else Def.Ref), NS => True) & """;");
+         end if;
       end Initialize_Types_Package;
 
       ----------------------
