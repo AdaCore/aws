@@ -2121,10 +2121,14 @@ package body SOAP.Generator is
          use type Name_Space.Object;
 
          function Gen_Dir (Prefix, Name : String) return String;
-         --  ???
+         --  Generate a set of directory for each value in Prefix using :, /
+         --  and . as directory separator.
 
-         function Gen_Package (Prefix, Name : String) return String;
-         --  ???
+         function Gen_Package
+           (Prefix, Name : String; Leaf : Boolean) return String;
+         --  Generate a packge for Name. If Leaf is true, this is a leaf
+         --  package and we do generate the Name_Space variable for this
+         --  hierarchy.
 
          -------------
          -- Gen_Dir --
@@ -2138,10 +2142,11 @@ package body SOAP.Generator is
               (Name (F .. Name'Last), Strings.Maps.To_Set (":/."));
 
             if L = 0 then
-               return Gen_Package (Prefix, Name (F .. Name'Last));
+               return Gen_Package
+                 (Prefix, Name (F .. Name'Last), Leaf => False);
             else
                return Gen_Dir
-                 (Gen_Package (Prefix, Name (F .. L - 1)),
+                 (Gen_Package (Prefix, Name (F .. L - 1), Leaf => False),
                   Name (L + 1 .. Name'Last));
             end if;
          end Gen_Dir;
@@ -2150,14 +2155,17 @@ package body SOAP.Generator is
          -- Gen_Package --
          -----------------
 
-         function Gen_Package (Prefix, Name : String) return String is
+         function Gen_Package
+           (Prefix, Name : String; Leaf : Boolean) return String
+         is
 
             function Get_Prefix return String;
             --  Retruns Prefix & '-' if prefix is not empty
 
             function Get_Name (Name : String) return String;
-            --  Returns n if a valid identifier, prefix with 'n' if number, and
-            --  Ada reserved word or some AWS package name.
+            --  Returns Name if a valid identifier, prefix with 'n' if number,
+            --  and Ada reserved word or some AWS package names. This is to
+            --  avoid name clashes.
 
             --------------
             -- Get_Name --
@@ -2203,8 +2211,27 @@ package body SOAP.Generator is
                Text_IO.Create (File, Text_IO.Out_File, To_Lower (N) & ".ads");
                Put_File_Header (O, File);
 
+               if Leaf then
+                  With_Unit (File, "SOAP.Name_Space");
+               end if;
+
                Text_IO.Put_Line (File, "package " & To_Unit_Name (N) & " is");
-               Text_IO.Put_Line (File, "   pragma Pure;");
+
+               if not Leaf then
+                  Text_IO.Put_Line (File, "   pragma Pure;");
+               end if;
+
+               if Leaf then
+                  Text_IO.Put_Line
+                    (File,
+                     "   Name_Space : constant SOAP.Name_Space.Object :=");
+                  Text_IO.Put_Line
+                    (File,
+                     "                  SOAP.Name_Space.Create ("""
+                     & Name_Space.Name (NS) & """, """
+                     & Name_Space.Value (NS) & """);");
+               end if;
+
                Text_IO.Put_Line (File, "end " & To_Unit_Name (N) & ';');
 
                Text_IO.Close (File);
@@ -2247,7 +2274,9 @@ package body SOAP.Generator is
                   return Gen_Dir ("", V (First .. Last));
                else
                   return Gen_Package
-                    (Gen_Dir ("", V (First .. K - 1)), V (K + 1 .. Last));
+                    (Prefix => Gen_Dir ("", V (First .. K - 1)),
+                     Name   => V (K + 1 .. Last),
+                     Leaf   => True);
                end if;
             end;
          end if;
