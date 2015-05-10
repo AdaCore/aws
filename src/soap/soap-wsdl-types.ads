@@ -175,15 +175,21 @@ package SOAP.WSDL.Types is
    --  Is_SOAP_Type is true if Object is alreay a SOAP types object. So there
    --  is no need for a convertion in this context.
 
+   type Ref_Kind is (Name_Var, Type_Var, Both_Var, Both_Value);
+   --  Whether the reference for Name and Type_Name are values or variables
+
    function To_SOAP
      (Def          : WSDL.Types.Definition;
       Object, Name : String;
-      Name_Is_Var  : Boolean := False;
       Type_Name    : String := "";
-      Is_Uniq      : Boolean := True) return String;
+      Name_Kind    : Ref_Kind := Both_Value;
+      Is_Uniq      : Boolean := True;
+      NS           : String := "") return String;
    --  Returns the code to create a SOAP parameter with given Name. Object is
    --  the reference to the object to convert. Type_Name is the name of the
-   --  enumeration to convert to/from.
+   --  type to convert to/from. If NS is empty a Name_Space.Object will be
+   --  generated otherwise it is the variable name visible in the scope of
+   --  the generated code.
 
    function Get_Schema_Definition return WSDL.Schema.Definition;
    --  Get the schema definition part for types defined in the WSDL

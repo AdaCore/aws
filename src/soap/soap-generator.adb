@@ -49,6 +49,9 @@ package body SOAP.Generator is
 
    use Ada;
 
+   package String_Store is
+     new Ada.Containers.Indefinite_Ordered_Sets (String);
+
    function Format_Name (O : Object; Name : String) return String;
    --  Returns Name formated with the Ada style if O.Ada_Style is true and
    --  Name unchanged otherwise.
@@ -151,6 +154,10 @@ package body SOAP.Generator is
 
    S_Gen    : WSDL.Schema.Definition;
    --  Keep record of generated schema definitions to avoid dupliace
+
+   NS_Generated : String_Store.Set;
+   --  Keep record generated name-space renaming in types package to avoid
+   --  duplicate.
 
    Root     : Text_IO.File_Type; -- Parent packages
    Type_Ads : Text_IO.File_Type; -- Child with all type definitions
@@ -1083,6 +1090,10 @@ package body SOAP.Generator is
                      (if Def = WSDL.Types.No_Definition
                       then WSDL.Types.Name (P.Typ)
                       else WSDL.Types.Name (Def.E_Type));
+         Q_Name  : constant String :=
+                     (if Def = WSDL.Types.No_Definition
+                      then WSDL.Types.Name (P.Typ, True)
+                      else WSDL.Types.Name (Def.E_Type, True));
 
          Prefix  : Unbounded_String;
          Arr_Ads : Text_IO.File_Type;
@@ -1363,7 +1374,7 @@ package body SOAP.Generator is
          Text_IO.Put_Line
            (Arr_Ads,
             "      " & Set_Type (WSDL.Types.Find (Def.E_Type))
-            & ", """ & To_XSD_Type (T_Name) & """, " & Set_Routine (P) & ");");
+            & ", """ & To_XSD_Type (Q_Name) & """, " & Set_Routine (P) & ");");
 
          Finalize_Types_Package (Prefix, Arr_Ads, Arr_Adb, No_Body => True);
       end Generate_Array;
@@ -1378,7 +1389,6 @@ package body SOAP.Generator is
          P    : WSDL.Parameters.P_Set)
       is
          F_Name  : constant String := Format_Name (O, Name & "_Type");
-         T_Name  : constant String := WSDL.Types.Name (Def.Ref, True);
          P_Name  : constant String := WSDL.Types.Name (Def.Parent, True);
          B_Name  : constant String :=
                      (if WSDL.Is_Standard (P_Name)
@@ -1745,10 +1755,10 @@ package body SOAP.Generator is
             Text_IO.Put_Line
               (Der_Ads, "      Name      : String := ""item"";");
             Text_IO.Put_Line
-              (Der_Ads, "      Type_Name : String := """ & P_Name & """;");
+              (Der_Ads, "      Type_Name : String := Q_Type_Name;");
             Text_IO.Put_Line
               (Der_Ads, "      NS        : SOAP.Name_Space.Object := "
-               & "SOAP.Name_Space.No_Name_Space)");
+               & "Name_Space)");
             Text_IO.Put_Line
               (Der_Ads, "      return "
                &  WSDL.Set_Type (WSDL.To_Type (WSDL.Types.Root_Type_For (Def)))
@@ -1758,10 +1768,11 @@ package body SOAP.Generator is
                "        ("
                & WSDL.Types.To_SOAP
                  (Def,
-                  Object      => "D",
-                  Name        => "Name",
-                  Type_Name   => T_Name,
-                  Name_Is_Var => True) & ");");
+                  Object    => "D",
+                  Name      => "Name",
+                  Type_Name => "Type_Name",
+                  Name_Kind => WSDL.Types.Both_Var,
+                  NS        => "NS") & ");");
 
             --  For Types child package
 
@@ -1901,10 +1912,10 @@ package body SOAP.Generator is
             Text_IO.Put_Line
               (Der_Ads, "      Name      : String := ""item"";");
             Text_IO.Put_Line
-              (Der_Ads, "      Type_Name : String := """ & P_Name & """;");
+              (Der_Ads, "      Type_Name : String := Q_Type_Name;");
             Text_IO.Put_Line
               (Der_Ads, "      NS        : SOAP.Name_Space.Object := "
-               & "SOAP.Name_Space.No_Name_Space)");
+               & "Name_Space)");
             Text_IO.Put_Line
               (Der_Ads, "      return "
                &  WSDL.Set_Type (WSDL.To_Type (WSDL.Types.Root_Type_For (Def)))
@@ -1914,10 +1925,11 @@ package body SOAP.Generator is
                "        ("
                & WSDL.Types.To_SOAP
                  (Def,
-                  Object      => "D",
-                  Name        => "Name",
-                  Type_Name   => T_Name,
-                  Name_Is_Var => True) & ");");
+                  Object    => "D",
+                  Name      => "Name",
+                  Type_Name => "Type_Name",
+                  Name_Kind => WSDL.Types.Both_Var,
+                  NS        => "NS") & ");");
 
             --  For Types child package
 
@@ -2143,7 +2155,7 @@ package body SOAP.Generator is
 
             if L = 0 then
                return Gen_Package
-                 (Prefix, Name (F .. Name'Last), Leaf => False);
+                 (Prefix, Name (F .. Name'Last), Leaf => True);
             else
                return Gen_Dir
                  (Gen_Package (Prefix, Name (F .. L - 1), Leaf => False),
@@ -2213,6 +2225,7 @@ package body SOAP.Generator is
 
                if Leaf then
                   With_Unit (File, "SOAP.Name_Space");
+                  Text_IO.New_Line (File);
                end if;
 
                Text_IO.Put_Line (File, "package " & To_Unit_Name (N) & " is");
@@ -2222,6 +2235,7 @@ package body SOAP.Generator is
                end if;
 
                if Leaf then
+                  Text_IO.Put_Line (File, "   pragma Style_Checks (Off);");
                   Text_IO.Put_Line
                     (File,
                      "   Name_Space : constant SOAP.Name_Space.Object :=");
@@ -2305,6 +2319,11 @@ package body SOAP.Generator is
          Def       : constant WSDL.Types.Definition := WSDL.Types.Find (P.Typ);
          Is_Choice : constant Boolean :=
                        Def.Mode = WSDL.Types.K_Record and then Def.Is_Choice;
+         NS        : constant SOAP.Name_Space.Object := WSDL.Types.NS (P.Typ);
+         Pck_NS    : constant String :=
+                       Strings.Fixed.Translate
+                         (Generate_Namespace (NS, False),
+                          Strings.Maps.To_Mapping ("-", "."));
 
          R       : WSDL.Parameters.P_Set;
          N       : WSDL.Parameters.P_Set;
@@ -2402,8 +2421,6 @@ package body SOAP.Generator is
             --  Output field
 
             N := R;
-
-            Text_IO.New_Line (Rec_Ads);
 
             Output_Comment (Rec_Ads, To_String (P.Doc), Indent => 3);
             Text_IO.New_Line (Rec_Ads);
@@ -2521,21 +2538,34 @@ package body SOAP.Generator is
          Text_IO.Put_Line (Rec_Ads, "     (R         : " & F_Name & ';');
          Text_IO.Put_Line (Rec_Ads, "      Name      : String := ""item"";");
          Text_IO.Put_Line
-           (Rec_Ads, "      Type_Name : String := """ & Type_Name & """;");
+           (Rec_Ads, "      Type_Name : String := Q_Type_Name;");
          Text_IO.Put_Line
            (Rec_Ads, "      NS        : SOAP.Name_Space.Object := "
-            & "SOAP.Name_Space.No_Name_Space)");
+            & "Name_Space)");
          Text_IO.Put_Line (Rec_Ads, "      return SOAP.Types.SOAP_Record;");
+
+         if not NS_Generated.Contains (Name_Space.Name (NS)) then
+            Text_IO.New_Line (Tmp_Ads);
+            Text_IO.Put_Line
+              (Tmp_Ads,
+               "   " & Name_Space.Name (NS) & "_Name_Space : "
+               & "SOAP.Name_Space.Object ");
+            Text_IO.Put_Line
+              (Tmp_Ads,
+               "     renames " & Pck_NS & ".Name_Space;");
+            NS_Generated.Insert (Name_Space.Name (NS));
+         end if;
 
          Text_IO.New_Line (Tmp_Ads);
          Text_IO.Put_Line (Tmp_Ads, "   function To_SOAP_Object");
          Text_IO.Put_Line (Tmp_Ads, "     (R         : " & F_Name & ';');
          Text_IO.Put_Line (Tmp_Ads, "      Name      : String := ""item"";");
          Text_IO.Put_Line
-           (Tmp_Ads, "      Type_Name : String := """ & Type_Name & """;");
+           (Tmp_Ads, "      Type_Name : String := "
+            & To_Unit_Name (To_String (Prefix)) & ".Q_Type_Name;");
          Text_IO.Put_Line
            (Tmp_Ads, "      NS        : SOAP.Name_Space.Object := "
-            & "SOAP.Name_Space.No_Name_Space)");
+            & Name_Space.Name (NS) & "_Name_Space)");
          Text_IO.Put_Line (Tmp_Ads, "      return SOAP.Types.SOAP_Record");
          Text_IO.Put_Line
            (Tmp_Ads, "      renames "
@@ -2900,10 +2930,10 @@ package body SOAP.Generator is
          Text_IO.Put_Line (Rec_Adb, "     (R         : " & F_Name & ';');
          Text_IO.Put_Line (Rec_Adb, "      Name      : String := ""item"";");
          Text_IO.Put_Line
-           (Rec_Adb, "      Type_Name : String := """ & Type_Name & """;");
+           (Rec_Adb, "      Type_Name : String := Q_Type_Name;");
          Text_IO.Put_Line
            (Rec_Adb, "      NS        : SOAP.Name_Space.Object := "
-            & "SOAP.Name_Space.No_Name_Space)");
+            & "Name_Space)");
          Text_IO.Put_Line (Rec_Adb, "      return SOAP.Types.SOAP_Record");
          Text_IO.Put_Line (Rec_Adb, "   is");
          Text_IO.Put_Line (Rec_Adb, "      Result : SOAP.Types.SOAP_Record;");
@@ -3054,9 +3084,6 @@ package body SOAP.Generator is
          For_Derived : Boolean := False)
       is
          use type Name_Space.Object;
-
-         package String_Store is
-           new Ada.Containers.Indefinite_Ordered_Sets (String);
 
          procedure Output_Refs (Def : WSDL.Types.Definition; Gen : Boolean);
          --  Recursivelly output with/use clauses for derived types

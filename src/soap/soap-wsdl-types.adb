@@ -515,9 +515,10 @@ package body SOAP.WSDL.Types is
    function To_SOAP
      (Def          : WSDL.Types.Definition;
       Object, Name : String;
-      Name_Is_Var  : Boolean := False;
       Type_Name    : String := "";
-      Is_Uniq      : Boolean := True) return String
+      Name_Kind    : Ref_Kind := Both_Value;
+      Is_Uniq      : Boolean := True;
+      NS           : String := "") return String
    is
 
       function For_Derived
@@ -530,6 +531,16 @@ package body SOAP.WSDL.Types is
       function Set_Routine (Def : WSDL.Types.Definition) return String;
       --  The routine to convert from an Ada type to the corresponding SOAP
       --  object.
+
+      function Get_Name return String
+        is (if Name_Kind in Name_Var | Both_Var
+            then Name
+            else '"' & Name & '"');
+
+      function Get_Type_Name return String
+        is (if Name_Kind in Type_Var | Both_Var
+            then Type_Name
+            else '"' & Type_Name & '"');
 
       -----------------
       -- For_Derived --
@@ -545,10 +556,16 @@ package body SOAP.WSDL.Types is
          if Types.NS (Def.Ref) = Name_Space.XSD then
             return Set_Routine (Types.Name (Def.Ref))
               & " (" & Code & ", "
-              & (if Name_Is_Var then Name else """" & Name & """")
-              & ", """ & Type_Name & """, "
-              & "SOAP.Name_Space.Create (""" & Name_Space.Name (NS) & """"
-              & ", """ & Name_Space.Value (NS) & """))";
+              & Get_Name
+              & ", "
+              & Get_Type_Name
+              & ", "
+              & (if To_SOAP.NS = ""
+                 then "SOAP.Name_Space.Create ("""
+                      & Name_Space.Name (NS) & """"
+                      & ", """ & Name_Space.Value (NS) & """)"
+                 else "NS")
+              & ")";
 
          else
             declare
@@ -613,14 +630,14 @@ package body SOAP.WSDL.Types is
               (WSDL.Types.Find (Def.Ref), Object, Def.Ref.NS);
 
          when WSDL.Types.K_Enumeration =>
-            return "SOAP.Types.E (Image (" & Object & "), """ & Type_Name
-              & """, """ & Name & """)";
+            return "SOAP.Types.E (Image (" & Object & "), " & Get_Type_Name
+              & ", " & Get_Name & ")";
 
          when WSDL.Types.K_Array =>
             return (if Is_Uniq
                     then "SOAP_Array'(SOAP.Types.A"
                     else "SOAP_Set'(SOAP.Types.Set")
-              & " (To_Object_Set (" & Object & "), """ & Name & """))";
+              & " (To_Object_Set (" & Object & "), " & Get_Name & "))";
 
       end case;
    end To_SOAP;
