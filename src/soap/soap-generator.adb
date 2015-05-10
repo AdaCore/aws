@@ -1027,9 +1027,6 @@ package body SOAP.Generator is
          function To_Ada_Type (Name : String) return String;
          --  Returns the Ada corresponding type (for array element)
 
-         function To_XSD_Type (Name : String) return String;
-         --  Returns the XSD corresponding type (for array element)
-
          function Set_Type (Def  : WSDL.Types.Definition) return String;
          --  Returns the SOAP type for Name
 
@@ -1066,20 +1063,6 @@ package body SOAP.Generator is
             end if;
          end To_Ada_Type;
 
-         -----------------
-         -- To_XSD_Type --
-         -----------------
-
-         function To_XSD_Type (Name : String) return String is
-         begin
-            if WSDL.Is_Standard (Name) then
-               return WSDL.To_XSD (WSDL.To_Type (Name));
-
-            else
-               return Name;
-            end if;
-         end To_XSD_Type;
-
          S_Name  : constant String := Name (Name'First .. Name'Last - 5);
          --  Simple name without the ending _Type
 
@@ -1090,9 +1073,12 @@ package body SOAP.Generator is
                      (if Def = WSDL.Types.No_Definition
                       then WSDL.Types.Name (P.Typ)
                       else WSDL.Types.Name (Def.E_Type));
+
+         --  Array's element type name
+
          Q_Name  : constant String :=
                      (if Def = WSDL.Types.No_Definition
-                      then WSDL.Types.Name (P.Typ, True)
+                      then WSDL.Types.Name (P.P.Typ, True)
                       else WSDL.Types.Name (Def.E_Type, True));
 
          Prefix  : Unbounded_String;
@@ -1374,7 +1360,7 @@ package body SOAP.Generator is
          Text_IO.Put_Line
            (Arr_Ads,
             "      " & Set_Type (WSDL.Types.Find (Def.E_Type))
-            & ", """ & To_XSD_Type (Q_Name) & """, " & Set_Routine (P) & ");");
+            & ", """ & Q_Name & """, " & Set_Routine (P) & ");");
 
          Finalize_Types_Package (Prefix, Arr_Ads, Arr_Adb, No_Body => True);
       end Generate_Array;

@@ -75,8 +75,13 @@ package body SOAP.WSDL.Types is
    ------------
 
    function Create (Name : String; NS : Name_Space.Object) return Object is
+      use type Name_Space.Object;
    begin
-      return Object'(To_Unbounded_String (Name), NS);
+      if NS = Name_Space.No_Name_Space then
+         return Object'(To_Unbounded_String (Name), NS);
+      else
+         return Object'(To_Unbounded_String (Utils.No_NS (Name)), NS);
+      end if;
    end Create;
 
    ----------

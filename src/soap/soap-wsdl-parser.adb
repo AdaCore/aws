@@ -566,7 +566,7 @@ package body SOAP.WSDL.Parser is
                   --  Found get the value removing []
                   declare
                      Value : constant String :=
-                               Utils.No_NS (DOM.Core.Nodes.Node_Value (N));
+                               DOM.Core.Nodes.Node_Value (N);
                      First : Natural;
                      Last  : Natural;
                   begin
@@ -584,9 +584,20 @@ package body SOAP.WSDL.Parser is
                         O.Self.Array_Length := 0;
                      end if;
 
-                     return Types.Create
-                       (Value (Value'First .. First - 1),
-                        Get_Target_Name_Space (Is_Array.N));
+                     declare
+                        BNS : constant String := Utils.NS (Value);
+                     begin
+                        if BNS = "" then
+                           return Types.Create
+                             (Value (Value'First .. First - 1),
+                              Get_Target_Name_Space (Is_Array.N));
+                        else
+                           return Types.Create
+                             (Value (Value'First .. First - 1),
+                              Name_Space.Create
+                                (BNS, WSDL.Name_Spaces.Get (BNS)));
+                        end if;
+                     end;
                   end;
                end if;
             end;
