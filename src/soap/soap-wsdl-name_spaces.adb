@@ -52,7 +52,11 @@ package body SOAP.WSDL.Name_Spaces is
 
    function Get (Key : String) return String is
    begin
-      return NS (Key);
+      if NS.Contains (Key) then
+         return NS (Key);
+      else
+         raise SOAP_Error with "unknown name-space " & Key;
+      end if;
    end Get;
 
    ------------
