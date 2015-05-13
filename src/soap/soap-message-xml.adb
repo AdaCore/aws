@@ -707,7 +707,7 @@ package body SOAP.Message.XML is
 
       if Value = null then
          --  No node found, this is an empty Base64 content
-         return Types.B64 ("", Name);
+         return Types.B64 ("", Name, Type_Name);
 
       else
          return Types.B64 (Node_Value (Value), Name, Type_Name);
