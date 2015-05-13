@@ -93,7 +93,8 @@ package body SOAP.Message.XML is
      (Void, T_Undefined, T_Any_Type,
       T_Int, T_Float, T_Double, T_Long, T_Short, T_Byte,
       T_Unsigned_Long, T_Unsigned_Int, T_Unsigned_Short, T_Unsigned_Byte,
-      T_String, T_Boolean, T_Time_Instant, T_Date_Time, T_Base64);
+      T_String, T_Boolean, T_Time_Instant, T_Date_Time,
+      T_Base64, T_Base64_Bin);
 
    type Namespaces is record
       xsd   : SOAP.Name_Space.Object;
@@ -303,6 +304,8 @@ package body SOAP.Message.XML is
                    (Types.XML_Boolean'Access, Parse_Boolean'Access, False),
                  T_Base64         =>
                    (Types.XML_Base64'Access, Parse_Base64'Access, True),
+                 T_Base64_Bin     =>
+                   (Types.XML_Base64_Binary'Access, Parse_Base64'Access, True),
                  T_Unsigned_Long  =>
                    (Types.XML_Unsigned_Long'Access,
                     Parse_Unsigned_Long'Access, False),

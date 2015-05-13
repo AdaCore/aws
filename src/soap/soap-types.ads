@@ -209,7 +209,7 @@ package SOAP.Types is
    ------------
 
    XML_Base64        : aliased constant String := "soapenc:base64";
-   XML_Base64_Binary : constant String := "xsd:base64Binary";
+   XML_Base64_Binary : aliased constant String := "xsd:base64Binary";
 
    type SOAP_Base64 is new Scalar with private;
 
