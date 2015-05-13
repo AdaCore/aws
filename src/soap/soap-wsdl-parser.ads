@@ -108,6 +108,18 @@ package SOAP.WSDL.Parser is
      (O : Object'Class; Kind : Parameter_Mode) return Types.Encoding_Style;
    --  Returns the encoding style for the proc
 
+   function xsd (O : Object'Class) return SOAP.Name_Space.Object;
+   --  Returns the xsd name-space
+
+   function xsi (O : Object'Class) return SOAP.Name_Space.Object;
+   --  Returns the xsi name-space
+
+   function env (O : Object'Class) return SOAP.Name_Space.Object;
+   --  Returns the env name-space
+
+   function enc (O : Object'Class) return SOAP.Name_Space.Object;
+   --  Returns the enc name-space
+
 private
 
    use Ada;
@@ -136,8 +148,13 @@ private
       No_Param        : Boolean := False; -- Disable param generation
       Style           : WSDL.Schema.Binding_Style := SOAP.WSDL.Schema.RPC;
       --  Input/Output encoding
-      I_Encoding      : SOAP.Types.Encoding_Style := SOAP.Types.Encoded;
-      O_Encoding      : SOAP.Types.Encoding_Style := SOAP.Types.Encoded;
+      I_Encoding      : WSDL.Schema.Encoding_Style := WSDL.Schema.Encoded;
+      O_Encoding      : WSDL.Schema.Encoding_Style := WSDL.Schema.Encoded;
+      --  Name-spaces as defined in WSDL definition node
+      xsd             : Name_Space.Object := Name_Space.XSD;
+      xsi             : Name_Space.Object := Name_Space.XSI;
+      env             : Name_Space.Object := Name_Space.SOAPENV;
+      enc             : Name_Space.Object := Name_Space.SOAPENC;
    end record;
 
 end SOAP.WSDL.Parser;

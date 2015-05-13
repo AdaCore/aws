@@ -65,30 +65,6 @@ package body SOAP.Message.XML is
    URL_xsd    : constant String := "http://www.w3.org/1999/XMLSchema";
    URL_xsi    : constant String := "http://www.w3.org/1999/XMLSchema-instance";
 
-   SOAPENV    : constant String :=
-                  SOAP.Name_Space.Name (SOAP.Name_Space.SOAPENV);
-
-   --  Name spaces
-
-   NS_Enc      : constant SOAP.Name_Space.Object :=
-                   SOAP.Name_Space.Create
-                     ("encodingStyle",
-                      SOAP.Name_Space.SOAPENC_URL, Prefix => SOAPENV);
-
-   Start_Env  : constant String := "<" & SOAPENV & ":Envelope";
-   End_Env    : constant String := "</" & SOAPENV & ":Envelope>";
-   Start_Body : constant String := "<" & SOAPENV & ":Body";
-   End_Body   : constant String := "</" & SOAPENV & ":Body>";
-
-   Header      : constant String :=
-                   Start_Env
-                     & ' ' & SOAP.Name_Space.Image (NS_Enc)
-                     & ' ' & SOAP.Name_Space.Image (SOAP.Name_Space.SOAPENC)
-                     & ' ' & SOAP.Name_Space.Image (SOAP.Name_Space.SOAPENV)
-                     & ' ' & SOAP.Name_Space.Image (SOAP.Name_Space.XSD)
-                     & ' ' & SOAP.Name_Space.Image (SOAP.Name_Space.XSI)
-                     & '>';
-
    type Type_State is
      (Void, T_Undefined, T_Any_Type,
       T_Int, T_Float, T_Double, T_Long, T_Short, T_Byte,
@@ -97,10 +73,10 @@ package body SOAP.Message.XML is
       T_Base64, T_Base64_Bin);
 
    type Namespaces is record
-      xsd   : SOAP.Name_Space.Object;
-      xsi   : SOAP.Name_Space.Object;
-      enc   : SOAP.Name_Space.Object;
-      env   : SOAP.Name_Space.Object;
+      xsd   : SOAP.Name_Space.Object := SOAP.Name_Space.XSD;
+      xsi   : SOAP.Name_Space.Object := SOAP.Name_Space.XSI;
+      enc   : SOAP.Name_Space.Object := SOAP.Name_Space.SOAPENC;
+      env   : SOAP.Name_Space.Object := SOAP.Name_Space.SOAPENV;
       User  : NS_Set;
       Index : Natural := 0;
    end record;
@@ -389,11 +365,60 @@ package body SOAP.Message.XML is
                  WSDL.Schema.Empty) return Unbounded_String
    is
       Message_Body : Unbounded_String;
+
+      function Get_NS (URL, Default : String) return String;
+      --  Returns the name-space as defined in the schema for the given URL or
+      --  default if not found.
+
+      ------------
+      -- Get_NS --
+      ------------
+
+      function Get_NS (URL, Default : String) return String is
+      begin
+         if Schema.Contains (URL) then
+            return "xmlns:" & Schema (URL) & "=""" & URL & '"';
+         else
+            return Default;
+         end if;
+      end Get_NS;
+
+      --  Name spaces
+
+      NS_Enc     : constant SOAP.Name_Space.Object :=
+                     SOAP.Name_Space.Create
+                       ("encodingStyle",
+                        SOAP.Name_Space.SOAPENC_URL,
+                        Prefix => SOAP.Name_Space.Name (O.env));
+
+      SOAPENV    : constant String :=
+                     SOAP.Name_Space.Name (O.env);
+
+      Start_Env  : constant String := "<" & SOAPENV & ":Envelope";
+      End_Env    : constant String := "</" & SOAPENV & ":Envelope>";
+      Start_Body : constant String := "<" & SOAPENV & ":Body";
+      End_Body   : constant String := "</" & SOAPENV & ":Body>";
+
    begin
       --  Header
 
       Append (Message_Body, XML_Header & NL);
-      Append (Message_Body, Header & NL);
+
+      --  Add environment
+
+      Append
+        (Message_Body,
+         Start_Env
+         & ' ' & SOAP.Name_Space.Image (NS_Enc)
+         & ' '
+         & Get_NS (SOAP.Name_Space.SOAPENC_URL, SOAP.Name_Space.Image (O.enc))
+         & ' '
+         & Get_NS (SOAP.Name_Space.SOAPENV_URL, SOAP.Name_Space.Image (O.env))
+         & ' '
+         & Get_NS (SOAP.Name_Space.XSD_URL, SOAP.Name_Space.Image (O.xsd))
+         & ' '
+         & Get_NS (SOAP.Name_Space.XSI_URL, SOAP.Name_Space.Image (O.xsi))
+         & '>' & NL);
 
       --  Body
 
@@ -496,8 +521,8 @@ package body SOAP.Message.XML is
             Faultstring => SOAP.Parameters.Get (S.Parameters, "faultstring"));
       else
          return Message.Response.Object'
-           (Message.Object'(S.Name_Space, S.Wrapper_Name,
-            S.Parameters, S.NS.User, S.NS.Index)
+           (Message.Object'(S.Name_Space, S.Wrapper_Name, S.Parameters,
+            S.NS.xsd, S.NS.xsi, S.NS.enc, S.NS.env, S.NS.User, S.NS.Index)
             with null record);
       end if;
 
@@ -539,8 +564,8 @@ package body SOAP.Message.XML is
             Faultstring => SOAP.Parameters.Get (S.Parameters, "faultstring"));
       else
          return Message.Response.Object'
-           (Message.Object'(S.Name_Space, S.Wrapper_Name,
-            S.Parameters, S.NS.User, S.NS.Index)
+           (Message.Object'(S.Name_Space, S.Wrapper_Name, S.Parameters,
+            S.NS.xsd, S.NS.xsi, S.NS.enc, S.NS.env, S.NS.User, S.NS.Index)
             with null record);
       end if;
 
@@ -1067,7 +1092,7 @@ package body SOAP.Message.XML is
    begin
       Parse_Namespaces (Ref, S.NS);
 
-      if  Encoding = Types.Encoded then
+      if  Encoding = WSDL.Schema.Encoded then
          XSI_Type :=
            Get_Named_Item (Atts, SOAP.Name_Space.Name (S.NS.xsi) & ":type");
 
@@ -1450,10 +1475,47 @@ package body SOAP.Message.XML is
       is (T1_Name = Utils.With_NS (NS, T2_Name)) with Inline;
       --  Returns True if T1_Name is equal to T2_Name based on namespace
 
+      function With_Standard_NS return String;
+      --  Returns Type_Name using the default name-space name to compare
+      --  against the handlers name.
+
+      ----------------------
+      -- With_Standard_NS --
+      ----------------------
+
+      function With_Standard_NS return String is
+         Is_Bas64 : constant Boolean :=
+                      Type_Name'Length > 6
+                        and then
+                      Type_Name (Type_Name'Last - 6 .. Type_Name'Last)
+                        = ":base64";
+
+         XSD_NS : constant String :=
+                    (if Schema.Contains (SOAP.Name_Space.XSD_URL)
+                     then Schema (SOAP.Name_Space.XSD_URL)
+                     else SOAP.Name_Space.Name (SOAP.Name_Space.XSD));
+
+         ENC_NS : constant String :=
+                    (if Schema.Contains (SOAP.Name_Space.SOAPENC_URL)
+                     then Schema (SOAP.Name_Space.SOAPENC_URL)
+                     else SOAP.Name_Space.Name (SOAP.Name_Space.SOAPENC));
+
+         T_NS   : constant String := Utils.NS (Type_Name);
+         S_NS   : constant String := (if Is_Bas64 then ENC_NS else XSD_NS);
+
+      begin
+         if T_NS = S_NS then
+            return Utils.With_NS (S_NS, Type_Name);
+         else
+            return Type_Name;
+         end if;
+      end With_Standard_NS;
+
       T_Name : constant String :=
                  (if Schema.Contains (Type_Name)
                   then Schema (Type_Name)
-                  else Type_Name);
+                  else With_Standard_NS);
+
    begin
       for K in Handlers'Range loop
          if Handlers (K).Name /= null

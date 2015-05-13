@@ -58,13 +58,14 @@ with Ada.Finalization;
 with Ada.Strings.Unbounded;
 
 with SOAP.Name_Space;
+with SOAP.WSDL.Schema;
 
 package SOAP.Types is
 
    use Ada;
    use Ada.Strings.Unbounded;
 
-   type Encoding_Style is (Encoded, Literal);
+   subtype Encoding_Style is WSDL.Schema.Encoding_Style;
    --  SOAP encoding style for the entities
 
    Data_Error : exception;
@@ -95,7 +96,8 @@ package SOAP.Types is
    procedure XML_Image
      (O        : Object;
       Result   : in out Unbounded_String;
-      Encoding : Encoding_Style := Encoded);
+      Encoding : Encoding_Style := WSDL.Schema.Encoded;
+      Schema   : WSDL.Schema.Definition := WSDL.Schema.Empty);
    --  Returns O value encoded for use by the Payload object or Response
    --  object. The generated characters are appened to Result.
 
@@ -142,7 +144,8 @@ package SOAP.Types is
    overriding procedure XML_Image
      (O        : XSD_Any_Type;
       Result   : in out Unbounded_String;
-      Encoding : Encoding_Style := Encoded);
+      Encoding : Encoding_Style := WSDL.Schema.Encoded;
+      Schema   : WSDL.Schema.Definition := WSDL.Schema.Empty);
 
    function Any
      (V         : Object'Class;
@@ -166,7 +169,8 @@ package SOAP.Types is
    overriding procedure XML_Image
      (O        : SOAP_Array;
       Result   : in out Unbounded_String;
-      Encoding : Encoding_Style := Encoded);
+      Encoding : Encoding_Style := WSDL.Schema.Encoded;
+      Schema   : WSDL.Schema.Definition := WSDL.Schema.Empty);
 
    function A
      (V         : Object_Set;
@@ -195,7 +199,8 @@ package SOAP.Types is
    overriding procedure XML_Image
      (O        : SOAP_Set;
       Result   : in out Unbounded_String;
-      Encoding : Encoding_Style := Encoded);
+      Encoding : Encoding_Style := WSDL.Schema.Encoded;
+      Schema   : WSDL.Schema.Definition := WSDL.Schema.Empty);
 
    function Set
      (V         : Object_Set;
@@ -349,7 +354,8 @@ package SOAP.Types is
    overriding procedure XML_Image
      (O        : XSD_Null;
       Result   : in out Unbounded_String;
-      Encoding : Encoding_Style := Encoded);
+      Encoding : Encoding_Style := WSDL.Schema.Encoded;
+      Schema   : WSDL.Schema.Definition := WSDL.Schema.Empty);
 
    function N (Name : String  := "item") return XSD_Null;
 
@@ -365,7 +371,8 @@ package SOAP.Types is
    overriding procedure XML_Image
      (O        : SOAP_Record;
       Result   : in out Unbounded_String;
-      Encoding : Encoding_Style := Encoded);
+      Encoding : Encoding_Style := WSDL.Schema.Encoded;
+      Schema   : WSDL.Schema.Definition := WSDL.Schema.Empty);
 
    function R
      (V         : Object_Set;
@@ -548,7 +555,8 @@ package SOAP.Types is
    overriding procedure XML_Image
      (O        : SOAP_Enumeration;
       Result   : in out Unbounded_String;
-      Encoding : Encoding_Style := Encoded);
+      Encoding : Encoding_Style := WSDL.Schema.Encoded;
+      Schema   : WSDL.Schema.Definition := WSDL.Schema.Empty);
 
    function E
      (V         : String;

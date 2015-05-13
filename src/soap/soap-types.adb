@@ -1378,8 +1378,13 @@ package body SOAP.Types is
    procedure XML_Image
      (O        : Object;
       Result   : in out Unbounded_String;
-      Encoding : Encoding_Style := Encoded)
+      Encoding : Encoding_Style := WSDL.Schema.Encoded;
+      Schema   : WSDL.Schema.Definition := WSDL.Schema.Empty)
    is
+      pragma Unreferenced (Schema);
+
+      use type WSDL.Schema.Encoding_Style;
+
       Indent : constant Natural      := XML_Indent.Value;
       OC     : constant Object'Class := Object'Class (O);
    begin
@@ -1388,7 +1393,7 @@ package body SOAP.Types is
          Append (Result, "<");
          Append (Result, Name (OC));
 
-         if Encoding = Encoded then
+         if Encoding = WSDL.Schema.Encoded then
             if XML_Type (OC) = "" then
                Append (Result, xsi_type (XML_String));
             else
@@ -1407,7 +1412,7 @@ package body SOAP.Types is
          Append (Result, "<");
          Append (Result, Name (OC));
 
-         if Encoding = Encoded then
+         if Encoding = WSDL.Schema.Encoded then
             Append (Result, xsi_type (XML_Type (OC)));
          end if;
 
@@ -1422,7 +1427,10 @@ package body SOAP.Types is
    overriding procedure XML_Image
      (O        : XSD_Any_Type;
       Result   : in out Unbounded_String;
-      Encoding : Encoding_Style := Encoded) is
+      Encoding : Encoding_Style := WSDL.Schema.Encoded;
+      Schema   : WSDL.Schema.Definition := WSDL.Schema.Empty)
+   is
+      pragma Unreferenced (Schema);
    begin
       XML_Image (Object (O.O.O.all), Result, Encoding);
    end XML_Image;
@@ -1430,8 +1438,12 @@ package body SOAP.Types is
    overriding procedure XML_Image
      (O        : XSD_Null;
       Result   : in out Unbounded_String;
-      Encoding : Encoding_Style := Encoded)
+      Encoding : Encoding_Style := WSDL.Schema.Encoded;
+      Schema   : WSDL.Schema.Definition := WSDL.Schema.Empty)
    is
+      pragma Unreferenced (Schema);
+      use type WSDL.Schema.Encoding_Style;
+
       Indent : constant Natural := XML_Indent.Value;
       OC     : constant Object'Class := Object'Class (O);
    begin
@@ -1439,7 +1451,7 @@ package body SOAP.Types is
       Append (Result, "<");
       Append (Result, Name (OC));
 
-      if Encoding = Encoded then
+      if Encoding = WSDL.Schema.Encoded then
          Append (Result, " xsi_null=""1""");
       end if;
 
@@ -1451,8 +1463,10 @@ package body SOAP.Types is
    overriding procedure XML_Image
      (O        : SOAP_Array;
       Result   : in out Unbounded_String;
-      Encoding : Encoding_Style := Encoded)
+      Encoding : Encoding_Style := WSDL.Schema.Encoded;
+      Schema   : WSDL.Schema.Definition := WSDL.Schema.Empty)
    is
+      use type WSDL.Schema.Encoding_Style;
 
       Indent : constant Natural := XML_Indent.Value;
 
@@ -1542,19 +1556,24 @@ package body SOAP.Types is
          return XML_Type (O.O (O.O'First).O.all);
       end Array_Type;
 
+      SOAP_Enc : constant String :=
+                   (if Schema.Contains (SOAP.Name_Space.SOAPENC_URL)
+                    then Schema (SOAP.Name_Space.SOAPENC_URL)
+                    else SOAP.Name_Space.Name (SOAP.Name_Space.SOAPENC));
+
    begin
       --  Open array element
 
       Append (Result, Spaces (Indent));
       Append (Result, '<');
       Append (Result, O.Name);
-      Append (Result, " soapenc:arrayType=""");
+      Append (Result, " " & SOAP_Enc & ":arrayType=""");
       Append (Result, Array_Type);
       Append (Result, '[');
       Append (Result, AWS.Utils.Image (Natural (O.O'Length)));
       Append (Result, "]""");
 
-      if Encoding = Encoded then
+      if Encoding = WSDL.Schema.Encoded then
          Append (Result, xsi_type (XML_Array));
       end if;
 
@@ -1566,7 +1585,7 @@ package body SOAP.Types is
       XML_Indent.Set_Value (Indent + 1);
 
       for K in O.O'Range loop
-         XML_Image (O.O (K).O.all, Result, Encoding);
+         XML_Image (O.O (K).O.all, Result, Encoding, Schema);
          Append (Result, New_Line);
       end loop;
 
@@ -1581,12 +1600,13 @@ package body SOAP.Types is
    overriding procedure XML_Image
      (O        : SOAP_Set;
       Result   : in out Unbounded_String;
-      Encoding : Encoding_Style := Encoded) is
+      Encoding : Encoding_Style := WSDL.Schema.Encoded;
+      Schema   : WSDL.Schema.Definition := WSDL.Schema.Empty) is
    begin
       --  Add all elements
 
       for K in O.O'Range loop
-         XML_Image (O.O (K).O.all, Result, Encoding);
+         XML_Image (O.O (K).O.all, Result, Encoding, Schema);
          Append (Result, New_Line);
       end loop;
    end XML_Image;
@@ -1594,8 +1614,11 @@ package body SOAP.Types is
    overriding procedure XML_Image
      (O        : SOAP_Record;
       Result   : in out Unbounded_String;
-      Encoding : Encoding_Style := Encoded)
+      Encoding : Encoding_Style := WSDL.Schema.Encoded;
+      Schema   : WSDL.Schema.Definition := WSDL.Schema.Empty)
    is
+      use type WSDL.Schema.Encoding_Style;
+
       Indent : constant Natural := XML_Indent.Value;
       Prefix : constant String := SOAP.Name_Space.Name (O.NS);
    begin
@@ -1603,7 +1626,7 @@ package body SOAP.Types is
 
       Append (Result, "<" & Name (O));
 
-      if Encoding = Encoded then
+      if Encoding = WSDL.Schema.Encoded then
          Append
            (Result,
             " xsi:type=""" & Utils.With_NS (Prefix, XML_Type (O)) & '"');
@@ -1619,7 +1642,7 @@ package body SOAP.Types is
          XML_Indent.Set_Value (Indent + 1);
 
          for K in O.O'Range loop
-            XML_Image (O.O (K).O.all, Result, Encoding);
+            XML_Image (O.O (K).O.all, Result, Encoding, Schema);
             Append (Result, New_Line);
          end loop;
 
@@ -1633,13 +1656,17 @@ package body SOAP.Types is
    overriding procedure XML_Image
      (O        : SOAP_Enumeration;
       Result   : in out Unbounded_String;
-      Encoding : Encoding_Style := Encoded) is
+      Encoding : Encoding_Style := WSDL.Schema.Encoded;
+      Schema   : WSDL.Schema.Definition := WSDL.Schema.Empty)
+   is
+      pragma Unreferenced (Schema);
+      use type WSDL.Schema.Encoding_Style;
    begin
       Append (Result, Spaces (XML_Indent.Value));
       Append (Result, "<");
       Append (Result, Name (O));
 
-      if Encoding = Encoded then
+      if Encoding = WSDL.Schema.Encoded then
          Append (Result, " type=""");
          Append (Result, O.Type_Name);
          Append (Result, '"');

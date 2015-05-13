@@ -1,8 +1,8 @@
 <?xml version='1.0' encoding='UTF-8'?>
-<soapenv:Envelope soapenv:encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" xmlns:soapenc="http://schemas.xmlsoap.org/soap/encoding/" xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
-<soapenv:Body>
+<env:Envelope env:encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" xmlns:soapenc="http://schemas.xmlsoap.org/soap/encoding/" xmlns:env="http://schemas.xmlsoap.org/soap/envelope/" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+<env:Body>
 <m:isUserInBlackListResponse xmlns:m="http://pfgui:11001/BlackListService">
 <result xsi:type="xsd:boolean">0</result>
 </m:isUserInBlackListResponse>
-</soapenv:Body>
-</soapenv:Envelope>
+</env:Body>
+</env:Envelope>

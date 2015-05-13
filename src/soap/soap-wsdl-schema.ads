@@ -30,13 +30,15 @@
 pragma Ada_2012;
 
 with AWS.Containers.Key_Value;
-with SOAP.Types;
 
 package SOAP.WSDL.Schema is
 
    use type DOM.Core.Node;
 
    type Binding_Style is (RPC, Document);
+
+   type Encoding_Style is (Encoded, Literal);
+   --  SOAP encoding style for the entities
 
    subtype Definition is AWS.Containers.Key_Value.Map;
    --  This map is used to map schema type-names and parameters to actual types
@@ -73,13 +75,13 @@ package SOAP.WSDL.Schema is
 
    function Get_Encoding_Style
      (Schema    : Definition;
-      Operation : String) return Types.Encoding_Style;
+      Operation : String) return Encoding_Style;
    --  Returns the encoding-style for the given operation
 
    procedure Set_Encoding_Style
      (Schema    : in out Definition;
       Operation : String;
-      Encoding  : Types.Encoding_Style);
+      Encoding  : Encoding_Style);
    --  Set the encoding-style for the given operation
 
    function Get_Call_For_Signature

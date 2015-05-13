@@ -204,7 +204,8 @@ package body SOAP.Message is
             Add_Namespaces (SOAP.Parameters.Argument (P, K));
 
             Types.XML_Image
-              (SOAP.Parameters.Argument (P, K), Message_Body, Encoding);
+              (SOAP.Parameters.Argument (P, K), Message_Body,
+               Encoding, Schema);
             Append (Message_Body, New_Line);
          end loop;
 

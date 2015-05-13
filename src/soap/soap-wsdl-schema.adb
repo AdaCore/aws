@@ -112,14 +112,14 @@ package body SOAP.WSDL.Schema is
 
    function Get_Encoding_Style
      (Schema    : Definition;
-      Operation : String) return Types.Encoding_Style
+      Operation : String) return Encoding_Style
    is
       Key : constant String := "@" & Operation & ".encoding";
    begin
       if Schema.Contains (Key) then
-         return Types.Encoding_Style'Value (Schema (Key));
+         return Encoding_Style'Value (Schema (Key));
       else
-         return Types.Encoded;
+         return Encoded;
       end if;
    end Get_Encoding_Style;
 
@@ -149,10 +149,10 @@ package body SOAP.WSDL.Schema is
    procedure Set_Encoding_Style
      (Schema    : in out Definition;
       Operation : String;
-      Encoding  : Types.Encoding_Style) is
+      Encoding  : Encoding_Style) is
    begin
       Schema.Include
-        ("@" & Operation & ".encoding", Types.Encoding_Style'Image (Encoding));
+        ("@" & Operation & ".encoding", Encoding_Style'Image (Encoding));
    end Set_Encoding_Style;
 
 end SOAP.WSDL.Schema;

@@ -89,7 +89,7 @@ package body SOAP.WSDL.Parser is
    --  Parse WSDL binding nodes
 
    procedure Parse_Definitions
-     (O           : Object'Class;
+     (O           : in out Object'Class;
       Definitions : DOM.Core.Node;
       Document    : WSDL.Object);
    --  Parse WSDL definition node
@@ -273,6 +273,15 @@ package body SOAP.WSDL.Parser is
       Skip_Error := True;
    end Continue_On_Error;
 
+   ---------
+   -- enc --
+   ---------
+
+   function enc (O : Object'Class) return SOAP.Name_Space.Object is
+   begin
+      return O.enc;
+   end enc;
+
    --------------
    -- Encoding --
    --------------
@@ -289,6 +298,15 @@ package body SOAP.WSDL.Parser is
             return O.O_Encoding;
       end case;
    end Encoding;
+
+   ---------
+   -- env --
+   ---------
+
+   function env (O : Object'Class) return SOAP.Name_Space.Object is
+   begin
+      return O.env;
+   end env;
 
    -------------
    -- Exclude --
@@ -1133,7 +1151,7 @@ package body SOAP.WSDL.Parser is
    -----------------------
 
    procedure Parse_Definitions
-     (O           : Object'Class;
+     (O           : in out Object'Class;
       Definitions : DOM.Core.Node;
       Document    : WSDL.Object)
    is
@@ -1146,10 +1164,26 @@ package body SOAP.WSDL.Parser is
 
       for K in 0 .. DOM.Core.Nodes.Length (Atts) - 1 loop
          declare
-            N : constant DOM.Core.Node := DOM.Core.Nodes.Item (Atts, K);
+            N     : constant DOM.Core.Node := DOM.Core.Nodes.Item (Atts, K);
+            Name  : constant String := DOM.Core.Nodes.Node_Name (N);
+            Value : constant String := DOM.Core.Nodes.Node_Value (N);
          begin
-            if DOM.Core.Nodes.Node_Value (N) = Name_Space.SOAP_URL then
+            if Value = Name_Space.SOAP_URL then
                NS_SOAP := +DOM.Core.Nodes.Local_Name (N);
+            end if;
+
+            if Name'Length > 5
+              and then Name (Name'First .. Name'First + 5) = "xmlns:"
+            then
+               if Value = SOAP.Name_Space.XSD_URL then
+                  O.xsd := SOAP.Name_Space.Create (Name, Value);
+               elsif Value = SOAP.Name_Space.XSI_URL then
+                  O.xsi := SOAP.Name_Space.Create (Name, Value);
+               elsif Value = SOAP.Name_Space.SOAPENC_URL then
+                  O.enc := SOAP.Name_Space.Create (Name, Value);
+               elsif Value = SOAP.Name_Space.SOAPENV_URL then
+                  O.env := SOAP.Name_Space.Create (Name, Value);
+               end if;
             end if;
          end;
       end loop;
@@ -1333,9 +1367,9 @@ package body SOAP.WSDL.Parser is
                              (XML.Get_Attr_Value (B, "use"));
                   begin
                      if U = "literal" then
-                        E := SOAP.Types.Literal;
+                        E := WSDL.Schema.Literal;
                      elsif U = "encoded" then
-                        E := SOAP.Types.Encoded;
+                        E := WSDL.Schema.Encoded;
                      else
                         raise WSDL_Error with "Unknown encoding type " & U;
                      end if;
@@ -1354,8 +1388,8 @@ package body SOAP.WSDL.Parser is
          --  Check for consistency, not that no toolset support
          --  Document/Encoded, so we reject this conbination.
 
-         if (O.I_Encoding = SOAP.Types.Encoded
-             or else O.O_Encoding = SOAP.Types.Encoded)
+         if (O.I_Encoding = WSDL.Schema.Encoded
+             or else O.O_Encoding = WSDL.Schema.Encoded)
            and then O.Style = WSDL.Schema.Document
          then
             raise WSDL_Error with "document/encoded is not supported";
@@ -2326,5 +2360,23 @@ package body SOAP.WSDL.Parser is
    begin
       Verbose_Mode := Level;
    end Verbose;
+
+   ---------
+   -- xsd --
+   ---------
+
+   function xsd (O : Object'Class) return SOAP.Name_Space.Object is
+   begin
+      return O.xsd;
+   end xsd;
+
+   ---------
+   -- xsi --
+   ---------
+
+   function xsi (O : Object'Class) return SOAP.Name_Space.Object is
+   begin
+      return O.xsi;
+   end xsi;
 
 end SOAP.WSDL.Parser;

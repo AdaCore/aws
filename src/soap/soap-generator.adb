@@ -3973,6 +3973,23 @@ package body SOAP.Generator is
       Text_IO.Put_Line
         (Root, "   Schema   : SOAP.WSDL.Schema.Definition;");
 
+      --  Add namespaces in schema
+
+      Text_IO.Put_Line (Type_Adb, "   --  Definitions for SOAP name-spaces");
+      Output_Schema_Definition
+        (Key   => SOAP.Name_Space.Value (O.xsd),
+         Value => Utils.No_NS (SOAP.Name_Space.Name (O.xsd)));
+      Output_Schema_Definition
+        (Key   => SOAP.Name_Space.Value (O.xsi),
+         Value => Utils.No_NS (SOAP.Name_Space.Name (O.xsi)));
+      Output_Schema_Definition
+        (Key   => SOAP.Name_Space.Value (O.env),
+         Value => Utils.No_NS (SOAP.Name_Space.Name (O.env)));
+      Output_Schema_Definition
+        (Key   => SOAP.Name_Space.Value (O.enc),
+         Value => Utils.No_NS (SOAP.Name_Space.Name (O.enc)));
+      Text_IO.New_Line (Type_Adb);
+
       if O.WSDL_File /= Null_Unbounded_String then
          Text_IO.New_Line (Root);
          Text_IO.Put_Line (Root, "   pragma Style_Checks (Off);");

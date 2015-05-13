@@ -83,6 +83,10 @@ private
       Name_Space   : SOAP.Name_Space.Object;
       Wrapper_Name : Unbounded_String;
       P            : SOAP.Parameters.List;
+      xsd          : SOAP.Name_Space.Object := SOAP.Name_Space.XSD;
+      xsi          : SOAP.Name_Space.Object := SOAP.Name_Space.XSI;
+      enc          : SOAP.Name_Space.Object := SOAP.Name_Space.SOAPENC;
+      env          : SOAP.Name_Space.Object := SOAP.Name_Space.SOAPENV;
       Users_NS     : NS_Set;
       Index        : Natural := 0;
    end record;
