@@ -495,7 +495,8 @@ package body Skel is
 
                         Text_IO.Put
                           (Skel_Adb,
-                           " (Result, """ & To_String (N.Name) & """)");
+                           " (Result, """ & To_String (N.Name) & ""","
+                           & " Type_Name => """ & T_Name & """)");
 
                      else
                         --  Multiple value returned, this is a record
@@ -508,7 +509,8 @@ package body Skel is
                         Text_IO.Put
                           (Skel_Adb, " (Result."
                            & Format_Name (O, To_String (N.Name))
-                           & ", """ & To_String (N.Name) & """)");
+                           & ", """ & To_String (N.Name) & ""","
+                           & " Type_Name => """ & T_Name & """)");
                      end if;
 
                   when WSDL.Types.K_Derived =>

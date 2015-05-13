@@ -375,7 +375,8 @@ package body Stub is
          Text_IO.Put
            (Stub_Adb,
             " (" & Prefix & Format_Name (O, To_String (N.Name))
-              & ", """ & To_String (N.Name) & """)");
+              & ", """ & To_String (N.Name) & ""","
+              & " Type_Name => """ & WSDL.Types.Name (N.Typ, True) & """)");
 
          if Prefix /= "" and then N.Next /= null then
             Text_IO.Put (Stub_Adb, ",");
