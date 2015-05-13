@@ -306,11 +306,17 @@ package body AWS.Net.WebSocket.Registry is
                   DB.Receive (WebSocket, Data, Last);
                exception
                   when E : Socket_Error =>
-                     DB.Unregister (WebSocket);
-                     WebSocket_Exception
-                       (WebSocket,
-                        Exception_Message (E),
-                        Abnormal_Closure);
+                     --  FD = No_Socket means Websocket is allready closed
+                     --  and unregistred in other task
+
+                     if WebSocket.Get_FD /= Net.No_Socket then
+                        DB.Unregister (WebSocket);
+                        WebSocket_Exception
+                          (WebSocket,
+                           Exception_Message (E),
+                           Abnormal_Closure);
+                     end if;
+
                      exit Read_Message;
                end;
 
