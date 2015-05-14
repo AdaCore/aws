@@ -82,19 +82,20 @@ procedure Deriveconst_Main is
    is
       TNS   : SOAP.Name_Space.Object := SOAP.Name_Space.Create
                 ("tns", "http://www.ecerami.com/wsdl/DeriveconstService.wsdl");
-      O_Set : Object_Set := (+S ("00000000", "item"),
+      O_Set : Object_Set := (+S ("00000000", "item", "tns:Name"),
                              +S ((if Id = 3 then "x" else "abcdefgh"),
-                                 "item"));
+                                 "item", "tns:Name"));
       P_Set : Parameters.List :=
-                +R ((+I (Id, "id"),
-                     +I (One, "one"),
-                     +I (Two, "two"),
-                     +D (Three, "three"),
-                     +S (Four, "four"),
-                     +A (O_Set, "five", "tns:Name"),
-                     +S (Six, "six"),
-                     +S (Seven, "seven"),
-                     +S (Eight, "eight")), "params", "tns:big", TNS);
+                +R ((+I (Id, "id", "xs:int"),
+                     +I (One, "one", "tns:PercentCompleteInteger"),
+                     +I (Two, "two", "tns:NonNegativeInt"),
+                     +D (Three, "three", "tns:NonNegativeFloat"),
+                     +S (Four, "four", "tns:Name"),
+                     +A (O_Set, "five", "tns:ArrayOfName"),
+                     +S (Six, "six", "tns:Address"),
+                     +S (Seven, "seven", "tns:Code1"),
+                     +S (Eight, "eight", "tns:Code2")),
+                     "params", "tns:big", TNS);
       P     : Message.Payload.Object :=
                 Message.Payload.Build
                   ("call", P_Set,

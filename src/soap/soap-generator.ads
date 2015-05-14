@@ -39,7 +39,7 @@ package SOAP.Generator is
 
    use AWS;
 
-   Version : constant String := "2.4.0";
+   Version : constant String := "3.0.0";
 
    Generator_Error : exception;
 

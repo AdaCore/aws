@@ -32,7 +32,7 @@
       <complexType name="ArrayOfFloat">
         <complexContent>
           <restriction base="soapenc:Array">
-            <attribute ref="soapenc:arrayType" arrayType="xsd:float[]"/>
+            <attribute ref="soapenc:arrayType" arrayType="s:float[]"/>
           </restriction>
         </complexContent>
       </complexType>

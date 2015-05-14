@@ -142,10 +142,11 @@ package SOAP.WSDL.Types is
    function Image (Def : Definition) return String;
    --  Returns a string representation of Kind type
 
-   function Find (O : Object) return Definition;
-   --  Returns the type definition for the given type name and name-space
-   --  or No_Definition if not found. Note that the standard xsd types are
-   --  not registered their, only the types as found in the schema.
+   function Find (O : Object; Registered : Boolean := False) return Definition;
+   --  Returns the type definition for the given type name and name-space or
+   --  No_Definition if not found. Note that the standard xsd types are not
+   --  registered their, only the types as found in the schema. If Registered
+   --  is true only check for registered type into this package.
 
    function Count return Natural;
    --  Returns the number of type registered
@@ -157,8 +158,11 @@ package SOAP.WSDL.Types is
      Post => Count = 0;
    --  Release memory associated the type definitions
 
-   function Root_Type_For (Def : Definition) return String;
-   --  Returns the root type (XSD type) for the given defintion
+   function Root_Type_For
+     (Def        : Definition;
+      Registered : Boolean := False) return String;
+   --  Returns the root type (XSD type) for the given defintion. If registered
+   --  is true check only for registered types into this package.
 
    procedure Get_Constraints
      (Def         : Definition;

@@ -242,13 +242,16 @@ package body SOAP.WSDL.Parser is
    procedure Add_Parameter
      (O         : in out Object'Class;
       Name      : String;
-      Type_Name : String) is
+      Type_Name : String)
+   is
+      NS : constant Name_Space.Object :=
+             WSDL.Name_Spaces.Get (Utils.NS (Type_Name), Name_Space.XSD);
    begin
       if not O.No_Param then
          Parameters.Append
            (O.Params (O.Mode),
             (WSDL.Types.K_Simple, +Name, Null_Unbounded_String,
-             Typ  => Types.Create (Utils.No_NS (Type_Name), Name_Space.XSD),
+             Typ  => Types.Create (Utils.No_NS (Type_Name), NS),
              Min  => 1,
              Max  => 1,
              Next => null));
@@ -1346,8 +1349,8 @@ package body SOAP.WSDL.Parser is
       --  Check that input/output is literal
 
       Parse_Encoding : declare
-         use type WSDL.Schema.Binding_Style;
          use type SOAP.Types.Encoding_Style;
+         use type WSDL.Schema.Binding_Style;
 
          F : DOM.Core.Node := N;
          B : DOM.Core.Node;
@@ -1460,12 +1463,19 @@ package body SOAP.WSDL.Parser is
         or else Is_Character (N, P_Type, Document)
       then
          if Min = 1 and then Max = 1 then
-            return
-              (Types.K_Simple, +XML.Get_Attr_Value (N, "name"), Doc,
-               Typ  => Types.Create (Utils.No_NS (P_Type), Name_Space.XSD),
-               Min  => Min,
-               Max  => Max,
-               Next => null);
+            declare
+               NS  : constant Name_Space.Object :=
+                       WSDL.Name_Spaces.Get
+                         (Utils.NS (P_Type), Name_Space.XSD);
+            begin
+               return
+                 (Types.K_Simple, +XML.Get_Attr_Value (N, "name"), Doc,
+                  Typ  => Types.Create (Utils.No_NS (P_Type), NS),
+                  Min  => Min,
+                  Max  => Max,
+                  Next => null);
+            end;
+
          else
             return Parse_Set (O, N, Document);
          end if;
@@ -2002,12 +2012,15 @@ package body SOAP.WSDL.Parser is
 
       declare
          Name  : constant String := XML.Get_Attr_Value (S, "name", False);
-         Typ   : constant String := XML.Get_Attr_Value (S, "type", False);
+         Typ   : constant String := XML.Get_Attr_Value (S, "type", True);
          S_Min : constant String := XML.Get_Attr_Value (S, "minOccurs", False);
          S_Max : constant String := XML.Get_Attr_Value (S, "maxOccurs", False);
+         NS    : constant SOAP.Name_Space.Object :=
+                   WSDL.Name_Spaces.Get
+                     (Utils.NS (Typ), Get_Target_Name_Space (S));
       begin
          P.Name := +Name;
-         P.Typ  := Types.Create (Typ & "_Set", Get_Target_Name_Space (S));
+         P.Typ  := Types.Create (Typ & "_Set", NS);
 
          Get_Min_Max (S_Min, S_Max, P.Min, P.Max);
 
@@ -2017,8 +2030,8 @@ package body SOAP.WSDL.Parser is
             P.Length := 0;
          end if;
 
-         D.Ref       := Types.Create (Typ & "_Set", Types.NS (P.Typ));
-         D.E_Type    := Types.Create (Typ, Get_Target_Name_Space (S));
+         D.Ref    := P.Typ;
+         D.E_Type := Types.Create (Typ, Types.NS (P.Typ));
 
          Types.Register (D);
 

@@ -3089,6 +3089,16 @@ package body SOAP.Generator is
             Prefix : constant String :=
                        Generate_Namespace (WSDL.Types.NS (Def.Ref), False);
          begin
+            --  For array we want to output references even for standard types
+            --  as we have the generated safe-access circuitry.
+
+            if (WSDL.Types.NS (Def.Ref) = O.xsd
+                or else WSDL.Types.NS (Def.Ref) = Name_Space.XSD)
+              and then Def.Mode /= WSDL.Types.K_Array
+            then
+               return;
+            end if;
+
             if Gen and then not Generated.Contains (F_Name) then
                With_Unit
                  (File,
@@ -3110,7 +3120,10 @@ package body SOAP.Generator is
 
       begin
          while N /= null loop
-            if WSDL.Types.NS (N.Typ) /= Name_Space.XSD then
+            if (WSDL.Types.NS (N.Typ) /= Name_Space.XSD
+                and then WSDL.Types.NS (N.Typ) /= O.xsd)
+              or else N.Mode = WSDL.Types.K_Array
+            then
                Output_Refs (WSDL.Types.Find (N.Typ), not For_Derived);
             end if;
 

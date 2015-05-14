@@ -27,6 +27,8 @@
 --  covered by the  GNU Public License.                                     --
 ------------------------------------------------------------------------------
 
+with SOAP.Name_Space;
+
 package SOAP.WSDL.Name_Spaces is
 
    procedure Register (Key, Value : String);
@@ -35,6 +37,13 @@ package SOAP.WSDL.Name_Spaces is
 
    function Contains (Key : String) return Boolean;
    --  Returns true if the Key is a known name-space
+
+   function Get
+     (Prefix  : String;
+      Default : Name_Space.Object := Name_Space.No_Name_Space)
+      return Name_Space.Object;
+   --  Get the name-space for Prefix or default if Prefix is empty (or not
+   --  found).
 
    function Get (Key : String) return String;
    --  Get the name-space corresponding value for Key

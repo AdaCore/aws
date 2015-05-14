@@ -88,7 +88,10 @@ package body SOAP.WSDL.Types is
    -- Find --
    ----------
 
-   function Find (O : Object) return Definition is
+   function Find
+     (O          : Object;
+      Registered : Boolean := False) return Definition
+   is
       use type Name_Space.Object;
    begin
       --  First check for a known definition, including a possible type with
@@ -102,7 +105,7 @@ package body SOAP.WSDL.Types is
 
       --  If no definition found, check for a standard type
 
-      if WSDL.Is_Standard (Name (O)) then
+      if not Registered and then WSDL.Is_Standard (Name (O)) then
          return Definition'(K_Simple, Ref => (O.Name, Name_Space.XSD));
       else
          return No_Definition;
@@ -396,10 +399,10 @@ package body SOAP.WSDL.Types is
                 & ":" & SOAP.WSDL.Types.Name (Def.Ref);
 
          Root_Type : constant String :=
-                       WSDL.Types.Root_Type_For (Def);
+                       WSDL.Types.Root_Type_For (Def, Registered => True);
       begin
          if not S_Def.Contains (Name) then
-            S_Def.Insert (Name, "xsd:" & Root_Type);
+            S_Def.Insert (Name, Root_Type);
          end if;
       end Set_Aliases;
 
@@ -504,12 +507,22 @@ package body SOAP.WSDL.Types is
    -- Root_Type_For --
    -------------------
 
-   function Root_Type_For (Def : Definition) return String is
+   function Root_Type_For
+     (Def        : Definition;
+      Registered : Boolean := False) return String is
    begin
       if WSDL.Is_Standard (To_String (Def.Ref.Name)) then
-         return To_String (Def.Ref.Name);
+         return Name (Def.Ref, NS => True);
       else
-         return Root_Type_For (Find (Def.Parent));
+         declare
+            D : constant Definition := Find (Def.Parent, Registered);
+         begin
+            if D = No_Definition then
+               return Name  (Def.Parent, True);
+            else
+               return Root_Type_For (D, Registered);
+            end if;
+         end;
       end if;
    end Root_Type_For;
 
