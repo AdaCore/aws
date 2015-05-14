@@ -69,7 +69,8 @@ package body SOAP.Generator is
      (O         : Object;
       File      : Text_IO.File_Type;
       Unit_Name : String;
-      Elab_Body : Boolean := False);
+      Elab_Body : Boolean := False;
+      Is_NS     : Boolean := False);
    --  Put standard header for types body packages
 
    procedure Put_Types_Header_Body
@@ -3238,7 +3239,8 @@ package body SOAP.Generator is
             end if;
          end if;
 
-         Put_Types_Header_Spec (O, F_Ads, To_Unit_Name (To_String (Prefix)));
+         Put_Types_Header_Spec
+           (O, F_Ads, To_Unit_Name (To_String (Prefix)), Is_NS => True);
 
          Put_File_Header (O, F_Adb);
          Put_Types_Header_Body (O, F_Adb, To_Unit_Name (To_String (Prefix)));
@@ -3597,14 +3599,8 @@ package body SOAP.Generator is
       With_Unit (File, "Ada.Tags", Elab => Off);
       Text_IO.New_Line (File);
 
-      With_Unit (File, "SOAP.Name_Space", Elab => Children);
-      Text_IO.New_Line (File);
-
       Text_IO.Put_Line
         (File, "package body " & Unit_Name & " is");
-      Text_IO.New_Line (File);
-      Text_IO.Put_Line
-        (File, "   pragma Warnings (Off, SOAP.Name_Space);");
       Text_IO.New_Line (File);
       Text_IO.Put_Line (File, "   use Ada.Tags;");
       Text_IO.Put_Line (File, "   use SOAP.Types;");
@@ -3619,12 +3615,16 @@ package body SOAP.Generator is
      (O         : Object;
       File      : Text_IO.File_Type;
       Unit_Name : String;
-      Elab_Body : Boolean := False) is
+      Elab_Body : Boolean := False;
+      Is_NS     : Boolean := False) is
    begin
       With_Unit (File, "Ada.Calendar", Elab => Off);
       With_Unit (File, "Ada.Strings.Unbounded", Elab => Off);
       Text_IO.New_Line (File);
-      With_Unit (File, "SOAP.Name_Space");
+
+      if not Is_NS then
+         With_Unit (File, "SOAP.Name_Space");
+      end if;
       With_Unit (File, "SOAP.Types", Elab => Children);
       With_Unit (File, "SOAP.Utils");
       Text_IO.New_Line (File);
