@@ -1,9 +1,7 @@
 started
-Response : Internal Server Error.<br>Please, send the following information to the Web Master, thanks.<br><hr><br><pre>Exception name: CONSTRAINT_ERROR
-Message: Can't use AWS session feature if session support not activated.
+Response : Internal Server Error.<br>Please, send the following information to the Web Master, thanks.<br><hr><br><pre>raised CONSTRAINT_ERROR : Can't use AWS session feature if session support not activated.
 </pre><br><hr>
-Response : Internal Server Error.<br>Please, send the following information to the Web Master, thanks.<br><hr><br><pre>Exception name: CONSTRAINT_ERROR
-Message: Can't use AWS session feature if session support not activated.
+Response : Internal Server Error.<br>Please, send the following information to the Web Master, thanks.<br><hr><br><pre>raised CONSTRAINT_ERROR : Can't use AWS session feature if session support not activated.
 </pre><br><hr>
 Ready to stop
 shutdown

@@ -1,3 +1,1 @@
-> Get request error. Exception name: AWS.NET.SOCKET_ERROR
-Message: Receive : Socket closed by peer
-
+> Get request error. raised AWS.NET.SOCKET_ERROR : Receive : Socket closed by peer

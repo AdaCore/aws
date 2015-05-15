@@ -40,11 +40,11 @@ shutdown
 127.0.0.1 | 127.0.0.1 | login | GET | /file | HTTP/1.1 | 200 | 2897 | 17 |
 127.0.0.1 | 127.0.0.1 | - | GET | /header/line/error | HTTP/1.1 | 500 | 67 | - |
 > File : tlog_error-xxxx-xx-xx.log
-127.0.0.1 | - | - | [<date>] | "GET | /error | HTTP/1.1" | Exception | name: | CONSTRAINT_ERROR | Message: | CB | at | 6 |
-127.0.0.1 | - | - | [<date>] | "GET | /error | HTTP/1.1" | Exception | name: | CONSTRAINT_ERROR | Message: | CB | at | 8 |
-127.0.0.1 | - | login | [<date>] | "GET | /error | HTTP/1.1" | Exception | name: | CONSTRAINT_ERROR | Message: | CB | at | 15 |
-127.0.0.1 | - | - | [<date>] | "GET | /header/line/error | HTTP/1.1" | Exception | name: | AWS.HEADERS.FORMAT_ERROR | Message: | header | line | error |
-127.0.0.1 | - | - | [<date>] | "GET | /error | HTTP/1.1" | Exception | name: | CONSTRAINT_ERROR | Message: | CB | at | 6 |
-127.0.0.1 | - | - | [<date>] | "GET | /error | HTTP/1.1" | Exception | name: | CONSTRAINT_ERROR | Message: | CB | at | 8 |
-127.0.0.1 | - | login | [<date>] | "GET | /error | HTTP/1.1" | Exception | name: | CONSTRAINT_ERROR | Message: | CB | at | 15 |
-127.0.0.1 | - | - | [<date>] | "GET | /header/line/error | HTTP/1.1" | Exception | name: | AWS.HEADERS.FORMAT_ERROR | Message: | header | line | error |
+127.0.0.1 | - | - | [<date>] | "GET | /error | HTTP/1.1" | raised | CONSTRAINT_ERROR | : | CB | at | 6 | Call |
+127.0.0.1 | - | - | [<date>] | "GET | /error | HTTP/1.1" | raised | CONSTRAINT_ERROR | : | CB | at | 8 | Call |
+127.0.0.1 | - | login | [<date>] | "GET | /error | HTTP/1.1" | raised | CONSTRAINT_ERROR | : | CB | at | 15 | Call |
+127.0.0.1 | - | - | [<date>] | "GET | /header/line/error | HTTP/1.1" | raised | AWS.HEADERS.FORMAT_ERROR | : | header | line | error | Call |
+127.0.0.1 | - | - | [<date>] | "GET | /error | HTTP/1.1" | raised | CONSTRAINT_ERROR | : | CB | at | 6 | Call |
+127.0.0.1 | - | - | [<date>] | "GET | /error | HTTP/1.1" | raised | CONSTRAINT_ERROR | : | CB | at | 8 | Call |
+127.0.0.1 | - | login | [<date>] | "GET | /error | HTTP/1.1" | raised | CONSTRAINT_ERROR | : | CB | at | 15 | Call |
+127.0.0.1 | - | - | [<date>] | "GET | /header/line/error | HTTP/1.1" | raised | AWS.HEADERS.FORMAT_ERROR | : | header | line | error | Call |
