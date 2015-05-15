@@ -2295,13 +2295,6 @@ package body SOAP.Generator is
       is
          use type SOAP.Name_Space.Object;
 
-         procedure End_Result;
-         --  End the Result definition in To_SOAP_Object code
-
-         function Type_Name return String;
-         --  Returns the type name for the record (this is the name that will
-         --  be associated with the record SOAP definition).
-
          F_Name    : constant String := Format_Name (O, Name & Suffix);
          Def       : constant WSDL.Types.Definition := WSDL.Types.Find (P.Typ);
          Is_Choice : constant Boolean :=
@@ -2322,44 +2315,6 @@ package body SOAP.Generator is
 
          Rec_Ads : Text_IO.File_Type;
          Rec_Adb : Text_IO.File_Type;
-
-         ----------------
-         -- End_Result --
-         ----------------
-
-         procedure End_Result is
-            T_Name : constant String := Type_Name;
-         begin
-            if T_Name = "" then
-               --  This is an unnamed record (output described as a set
-               --  of part).
-               Text_IO.Put_Line (Rec_Adb, "         Name);");
-
-            else
-               Text_IO.Put_Line
-                 (Rec_Adb, "         Name, """ & T_Name & """);");
-            end if;
-         end End_Result;
-
-         ---------------
-         -- Type_Name --
-         ---------------
-
-         function Type_Name return String is
-         begin
-            if P.Mode = WSDL.Types.K_Simple then
-               --  This is an unnamed record (output described as a set
-               --  of part).
-
-               return "";
-
-            elsif P.Mode in WSDL.Types.Compound_Type then
-               return WSDL.Types.Name (P.Typ);
-
-            else
-               return Name & Suffix;
-            end if;
-         end Type_Name;
 
       begin
          Initialize_Types_Package
@@ -3022,7 +2977,9 @@ package body SOAP.Generator is
                      Text_IO.Put (Rec_Adb, "      ");
                   end if;
 
-                  End_Result;
+                  Text_IO.Put_Line
+                    (Rec_Adb,
+                     "         Name, Q_Type_Name, NS => Name_Space);");
 
                else
                   Text_IO.Put_Line (Rec_Adb, ",");
@@ -3033,26 +2990,11 @@ package body SOAP.Generator is
          end if;
 
          if R = null then
-            End_Result;
+            Text_IO.Put_Line
+              (Rec_Adb,
+               "         Name, Q_Type_Name, NS => Name_Space);");
          elsif Is_Choice then
             Text_IO.Put_Line (Rec_Adb, "      end case;");
-         end if;
-
-         if WSDL.Types.NS (P.Typ) /= Name_Space.No_Name_Space then
-            Text_IO.Put_Line
-              (Rec_Adb, "      SOAP.Types.Set_Name_Space");
-            Text_IO.Put_Line
-              (Rec_Adb, "        (Result,");
-            Text_IO.Put_Line
-              (Rec_Adb, "         SOAP.Name_Space.Create");
-            Text_IO.Put_Line
-              (Rec_Adb,
-               "           ("""
-               & Name_Space.Name (WSDL.Types.NS (P.Typ)) & """,");
-            Text_IO.Put_Line
-              (Rec_Adb,
-               "            """
-               & Name_Space.Value (WSDL.Types.NS (P.Typ)) & """));");
          end if;
 
          Text_IO.Put_Line (Rec_Adb, "      return Result;");
