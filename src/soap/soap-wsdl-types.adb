@@ -655,8 +655,8 @@ package body SOAP.WSDL.Types is
             return (if Is_Uniq
                     then "SOAP_Array'(SOAP.Types.A"
                     else "SOAP_Set'(SOAP.Types.Set")
-              & " (To_Object_Set (" & Object & "), " & Get_Name & "))";
-
+                   & " (To_Object_Set (" & Object & "), " & Get_Name
+                   & ", " & Get_Type_Name & "))";
       end case;
    end To_SOAP;
 

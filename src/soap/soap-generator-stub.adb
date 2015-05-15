@@ -157,7 +157,8 @@ package body Stub is
                 then "SOAP_Array" else "SOAP_Set")
                & "'(A (To_Object_Set ("
                & Format_Name (O, To_String (N.Name))
-               & "), """ & To_String (N.Name) & """))");
+               & "), """ & To_String (N.Name) & """, """
+               & WSDL.Types.Name (N.Typ, True) & """))");
 
          else
             Text_IO.Put
@@ -166,7 +167,8 @@ package body Stub is
                 then "SOAP_Array" else "SOAP_Set")
                & "'(A (To_Object_Set ("
                & Prefix & Format_Name (O, To_String (N.Name))
-               & ".Item.all" & "), """ & To_String (N.Name) & """))");
+               & ".Item.all" & "), """ & To_String (N.Name) & """, """
+               & WSDL.Types.Name (N.Typ, True) & """))");
          end if;
 
          Output_Parameter (K + 1, Prefix, N.Next);

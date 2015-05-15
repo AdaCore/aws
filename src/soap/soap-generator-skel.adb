@@ -564,8 +564,9 @@ package body Skel is
                           (Skel_Adb,
                            WSDL.Parameters.To_SOAP
                              (N.all,
-                              Object => "Result",
-                              Name   => To_String (N.Name)));
+                              Object    => "Result",
+                              Name      => To_String (N.Name),
+                              Type_Name => T_Name));
 
                      else
                         --  Array here is part of an array
@@ -573,9 +574,10 @@ package body Skel is
                           (Skel_Adb,
                            WSDL.Parameters.To_SOAP
                              (N.all,
-                              Object => "Result."
-                                          & To_String (N.Name) & ".Item.all",
-                              Name   => To_String (N.Name)));
+                              Object    => "Result."
+                                           & To_String (N.Name) & ".Item.all",
+                              Name      => To_String (N.Name),
+                              Type_Name => T_Name));
                      end if;
 
                   when WSDL.Types.K_Record =>
