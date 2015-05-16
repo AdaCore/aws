@@ -1,2 +1,1 @@
-> Get request error. Exception name: AWS.NET.SOCKET_ERROR
-Message: Receive : [58] S_errno_ESHUTDOWN
+> Get request error. raised AWS.NET.SOCKET_ERROR : Receive : [58] S_errno_ESHUTDOWN
