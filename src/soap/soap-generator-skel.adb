@@ -71,9 +71,9 @@ package body Skel is
       pragma Unreferenced (Namespace, Fault);
 
       use Ada.Strings.Fixed;
-      use type WSDL.Schema.Binding_Style;
       use type WSDL.Parameter_Type;
       use type WSDL.Parameters.P_Set;
+      use type WSDL.Schema.Binding_Style;
       use type WSDL.Types.Kind;
 
       procedure Output_Parameters (N : WSDL.Parameters.P_Set);
