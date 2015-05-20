@@ -1619,12 +1619,16 @@ package body SOAP.Types is
    is
       use type WSDL.Schema.Encoding_Style;
 
-      Indent : constant Natural := XML_Indent.Value;
-      Prefix : constant String := SOAP.Name_Space.Name (O.NS);
+      Indent   : constant Natural := XML_Indent.Value;
+      Prefix   : constant String := SOAP.Name_Space.Name (O.NS);
+      Tag_Name : constant String :=
+                   (if Encoding = WSDL.Schema.Encoded
+                    then Name (O)
+                    else Utils.No_NS (Type_Name (O)));
    begin
       Append (Result, Spaces (Indent));
 
-      Append (Result, "<" & Name (O));
+      Append (Result, "<" & Tag_Name);
 
       if Encoding = WSDL.Schema.Encoded then
          Append
@@ -1649,7 +1653,7 @@ package body SOAP.Types is
          XML_Indent.Set_Value (Indent);
 
          Append (Result, Spaces (Indent));
-         Append (Result, Utils.Tag (Name (O), Start => False));
+         Append (Result, Utils.Tag (Tag_Name, Start => False));
       end if;
    end XML_Image;
 

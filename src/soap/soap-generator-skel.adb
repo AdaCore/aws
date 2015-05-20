@@ -321,6 +321,7 @@ package body Skel is
 
       while N /= null loop
          declare
+            use type WSDL.Schema.Encoding_Style;
             T_Name : constant String := WSDL.Types.Name (N.Typ);
          begin
             Text_IO.Put      (Skel_Adb, "         ");
@@ -354,7 +355,11 @@ package body Skel is
                   Text_IO.Put_Line
                     (Skel_Adb,
                      "           := SOAP.Parameters.Get (Params, """
-                     & To_String (N.Name) & """);");
+                     & (if O.Encoding (WSDL.Parser.Input)
+                           = WSDL.Schema.Encoded
+                       then To_String (N.Name)
+                       else T_Name)
+                       & """);");
                end if;
 
                Text_IO.Put      (Skel_Adb, "         ");

@@ -387,6 +387,8 @@ package body SOAP.WSDL.Types is
 
       procedure Set_Aliases (Def : Definition);
 
+      procedure Set_Record (Def : Definition);
+
       -----------------
       -- Set_Aliases --
       -----------------
@@ -399,20 +401,44 @@ package body SOAP.WSDL.Types is
                 & ":" & SOAP.WSDL.Types.Name (Def.Ref);
 
          Root_Type : constant String :=
-                       WSDL.Types.Root_Type_For (Def, Registered => True);
+                       (if Def.Mode = WSDL.Types.K_Derived
+                        then WSDL.Types.Root_Type_For (Def, Registered => True)
+                        else WSDL.Types.Name (Def.Ref));
       begin
          if not S_Def.Contains (Name) then
             S_Def.Insert (Name, Root_Type);
          end if;
       end Set_Aliases;
 
+      ----------------
+      -- Set_Record --
+      ----------------
+
+      procedure Set_Record (Def : Definition) is
+         N_N    : constant Name_Space.Object :=
+                    SOAP.WSDL.Types.NS (Def.Ref);
+         T_Name : constant String :=
+                    Name_Space.Name (N_N)
+                    & ":" & SOAP.WSDL.Types.Name (Def.Ref);
+
+         Name   : constant String :=
+                    WSDL.Types.Name (Def.Ref);
+      begin
+         if not S_Def.Contains (Name) then
+            S_Def.Insert (Name, T_Name);
+         end if;
+      end Set_Record;
+
    begin
       for K in Store.Iterate loop
          declare
             D : constant Definition := Store (K);
          begin
-            if D.Mode = WSDL.Types.K_Derived then
-               Set_Aliases (Store (K));
+            if D.Mode in WSDL.Types.K_Derived then
+               Set_Aliases (D);
+
+            elsif D.Mode =  WSDL.Types.K_Record then
+               Set_Record (D);
             end if;
          end;
       end loop;

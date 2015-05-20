@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<wsdl:definitions name="GetCasService"
+                  targetNamespace="http://simple.doc.net/sd"
+                  xmlns="http://schemas.xmlsoap.org/wsdl/"
+                  xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/"
+                  xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+                  xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/">
+  <types>
+    <schema>
+      <element name="myMethod">
+        <complexType>
+          <sequence>
+            <element name="x" type="xsd:int"/>
+            <element name="y" type="xsd:float"/>
+          </sequence>
+        </complexType>
+      </element>
+      <element name="myMethodResponse">
+        <complexType/>
+      </element>
+    </schema>
+  </types>
+
+  <message name="myMethodRequest">
+    <part name="parameters" element="myMethod"/>
+  </message>
+
+  <message name="empty">
+    <part name="parameters" element="myMethodResponse"/>
+  </message>
+
+  <portType name="PT">
+    <operation name="call">
+      <input message="myMethodRequest"/>
+      <output message="empty"/>
+    </operation>
+  </portType>
+
+<binding name="SimpleDocBinding" type="simpledoc">
+  <soap:binding style="document"
+                transport="http://schemas.xmlsoap.org/soap/http" />
+
+  <operation name="call">
+    <soap:operation soapAction="http://me.here.net/call" />
+    <wsdl:input>
+      <soap:body use="literal" />
+    </wsdl:input>
+    <wsdl:output>
+      <soap:body use="literal" />
+    </wsdl:output>
+  </operation>
+</binding>
+
+<wsdl:service name="SimpleDocService">
+  <port name="SimpleDocPort" binding="SimpleDocBinding">
+    <soap:address location="http://localhost:1234" />
+  </port>
+</wsdl:service>
+
+</wsdl:definitions>

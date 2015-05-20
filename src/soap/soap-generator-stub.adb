@@ -531,6 +531,7 @@ package body Stub is
             --  A single parameter is returned
 
             declare
+               use type WSDL.Schema.Encoding_Style;
                T_Name : constant String := WSDL.Types.Name (Output.Typ);
             begin
                Text_IO.Put (Stub_Adb, "                 := ");
@@ -596,7 +597,10 @@ package body Stub is
                        (Stub_Adb,
                         "                 "
                         & "(SOAP_Record'(SOAP.Parameters.Get (R_Param, """
-                        & To_String (Output.Name)
+                        & (if O.Encoding (WSDL.Parser.Output)
+                              = WSDL.Schema.Encoded
+                          then To_String (Output.Name)
+                          else T_Name)
                         & """)));");
                end case;
             end;

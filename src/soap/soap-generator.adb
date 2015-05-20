@@ -524,7 +524,7 @@ package body SOAP.Generator is
                Append (Sig, ":");
             end if;
 
-            Append (Sig, P.Name);
+            Append (Sig, WSDL.Types.Name (N.Typ, False));
 
             N := N.Next;
          end loop;
