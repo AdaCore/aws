@@ -28,7 +28,6 @@
 ------------------------------------------------------------------------------
 
 with SOAP.Client;
-with SOAP.Message;
 
 separate (SOAP.Generator)
 package body Stub is
@@ -158,7 +157,8 @@ package body Stub is
                 then "SOAP_Array" else "SOAP_Set")
                & "'(A (To_Object_Set ("
                & Format_Name (O, To_String (N.Name))
-               & "), """ & To_String (N.Name) & """))");
+               & "), """ & To_String (N.Name) & """, """
+               & WSDL.Types.Name (N.Typ, True) & """))");
 
          else
             Text_IO.Put
@@ -167,7 +167,8 @@ package body Stub is
                 then "SOAP_Array" else "SOAP_Set")
                & "'(A (To_Object_Set ("
                & Prefix & Format_Name (O, To_String (N.Name))
-               & ".Item.all" & "), """ & To_String (N.Name) & """))");
+               & ".Item.all" & "), """ & To_String (N.Name) & """, """
+               & WSDL.Types.Name (N.Typ, True) & """))");
          end if;
 
          Output_Parameter (K + 1, Prefix, N.Next);
@@ -185,9 +186,10 @@ package body Stub is
          Text_IO.Put
            (Stub_Adb,
             WSDL.Parameters.To_SOAP
-              (P      => N.all,
-               Object => Format_Name (O, To_String (N.Name)),
-               Name   => Format_Name (O, To_String (N.Name))));
+              (P         => N.all,
+               Object    => Format_Name (O, To_String (N.Name)),
+               Name      => Format_Name (O, To_String (N.Name)),
+               Type_Name => WSDL.Types.Name (N.Typ, NS => True)));
 
          if Prefix /= "" and then N.Next /= null then
             Text_IO.Put (Stub_Adb, ",");
@@ -375,7 +377,8 @@ package body Stub is
          Text_IO.Put
            (Stub_Adb,
             " (" & Prefix & Format_Name (O, To_String (N.Name))
-              & ", """ & To_String (N.Name) & """)");
+              & ", """ & To_String (N.Name) & ""","
+              & " Type_Name => """ & WSDL.Types.Name (N.Typ, True) & """)");
 
          if Prefix /= "" and then N.Next /= null then
             Text_IO.Put (Stub_Adb, ",");
@@ -431,20 +434,18 @@ package body Stub is
 
       Text_IO.Put_Line
         (Stub_Adb, "      Payload := SOAP.Message.Payload.Build");
-      Text_IO.Put_Line
-        (Stub_Adb, "        (""" & Proc & """, P_Set,");
+      Text_IO.Put
+        (Stub_Adb, "        (""" & Proc & """, P_Set");
 
-      if Namespace /= Name_Space.No_Name_Space then
+      if Namespace = Name_Space.No_Name_Space then
+         Text_IO.Put_Line (Stub_Adb, ");");
+      else
+         Text_IO.Put_Line (Stub_Adb, ",");
          Text_IO.Put_Line
            (Stub_Adb, "         SOAP.Name_Space.Create ("""
             & Name_Space.Name (Namespace) & """, """
-            & Name_Space.Value (Namespace) & """),");
+            & Name_Space.Value (Namespace) & """));");
       end if;
-
-      Text_IO.Put_Line
-        (Stub_Adb,
-         "         Style => SOAP.Message."
-         & SOAP.Message.Binding_Style'Image (O.Style) & ");");
 
       if O.Debug then
          Text_IO.New_Line (Stub_Adb);
@@ -453,7 +454,7 @@ package body Stub is
             "      Put_Line (""[CLIENT/" & L_Proc & "] Payload : """);
          Text_IO.Put_Line
            (Stub_Adb,
-            "                & SOAP.Message.XML.Image (Payload));");
+            "                & SOAP.Message.XML.Image (Payload, Schema));");
       end if;
 
       Text_IO.New_Line (Stub_Adb);
@@ -467,7 +468,10 @@ package body Stub is
 
       Text_IO.Put_Line
         (Stub_Adb,
-         "                (Connection, """ & SOAPAction & """, Payload);");
+         "                (Connection, """ & SOAPAction & """,");
+      Text_IO.Put_Line
+        (Stub_Adb,
+         "                 Payload, Schema => Schema);");
 
       Text_IO.Put_Line
         (Stub_Adb,
@@ -485,7 +489,8 @@ package body Stub is
             "         Put_Line (""[CLIENT/" & L_Proc & "] Response : """);
          Text_IO.Put_Line
            (Stub_Adb,
-            "                   & SOAP.Message.XML.Image (Response));");
+            "                   "
+            & "& SOAP.Message.XML.Image (Response, Schema));");
          Text_IO.New_Line (Stub_Adb);
       end if;
 
@@ -526,6 +531,7 @@ package body Stub is
             --  A single parameter is returned
 
             declare
+               use type WSDL.Schema.Encoding_Style;
                T_Name : constant String := WSDL.Types.Name (Output.Typ);
             begin
                Text_IO.Put (Stub_Adb, "                 := ");
@@ -591,7 +597,10 @@ package body Stub is
                        (Stub_Adb,
                         "                 "
                         & "(SOAP_Record'(SOAP.Parameters.Get (R_Param, """
-                        & To_String (Output.Name)
+                        & (if O.Encoding (WSDL.Parser.Output)
+                              = WSDL.Schema.Encoded
+                          then To_String (Output.Name)
+                          else T_Name)
                         & """)));");
                end case;
             end;
@@ -765,6 +774,7 @@ package body Stub is
       With_Unit (Stub_Adb, "SOAP.Client");
       With_Unit (Stub_Adb, "SOAP.Message.Payload", Elab => Children);
       With_Unit (Stub_Adb, "SOAP.Message.Response");
+      With_Unit (Stub_Adb, "SOAP.Message.XML");
       With_Unit (Stub_Adb, "SOAP.Name_Space");
       With_Unit (Stub_Adb, "SOAP.Parameters");
       With_Unit (Stub_Adb, "SOAP.Utils");

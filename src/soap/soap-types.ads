@@ -58,10 +58,15 @@ with Ada.Finalization;
 with Ada.Strings.Unbounded;
 
 with SOAP.Name_Space;
+with SOAP.WSDL.Schema;
 
 package SOAP.Types is
 
+   use Ada;
    use Ada.Strings.Unbounded;
+
+   subtype Encoding_Style is WSDL.Schema.Encoding_Style;
+   --  SOAP encoding style for the entities
 
    Data_Error : exception;
    --  Raised when a variable has not the expected type
@@ -88,7 +93,11 @@ package SOAP.Types is
    function Is_Empty (O : Object) return Boolean;
    --  Returns True if the object is empty Array, Empty Record or null value
 
-   procedure XML_Image (O : Object; Result : in out Unbounded_String);
+   procedure XML_Image
+     (O        : Object;
+      Result   : in out Unbounded_String;
+      Encoding : Encoding_Style := WSDL.Schema.Encoded;
+      Schema   : WSDL.Schema.Definition := WSDL.Schema.Empty);
    --  Returns O value encoded for use by the Payload object or Response
    --  object. The generated characters are appened to Result.
 
@@ -101,6 +110,9 @@ package SOAP.Types is
 
    function Name (O : Object'Class) return String;
    --  Returns name for object O
+
+   function Type_Name (O : Object'Class) return String;
+   --  Returns the type name for object O
 
    function "+" (O : Object'Class) return Object_Safe_Pointer;
    --  Allocate an object into the heap and return a safe pointer to it
@@ -130,11 +142,17 @@ package SOAP.Types is
    overriding function  XML_Type  (O : XSD_Any_Type) return String;
    overriding function  Image     (O : XSD_Any_Type) return String;
    overriding procedure XML_Image
-     (O : XSD_Any_Type; Result : in out Unbounded_String);
+     (O        : XSD_Any_Type;
+      Result   : in out Unbounded_String;
+      Encoding : Encoding_Style := WSDL.Schema.Encoded;
+      Schema   : WSDL.Schema.Definition := WSDL.Schema.Empty);
 
    function Any
-     (V    : Object'Class;
-      Name : String  := "item") return XSD_Any_Type;
+     (V         : Object'Class;
+      Name      : String := "item";
+      Type_Name : String := "";
+      NS        : Name_Space.Object := Name_Space.No_Name_Space)
+      return XSD_Any_Type;
 
    function V (O : XSD_Any_Type) return Object_Access;
 
@@ -147,15 +165,19 @@ package SOAP.Types is
 
    type SOAP_Array is new Composite with private;
 
-   overriding function XML_Type   (O : SOAP_Array) return String;
    overriding function Image      (O : SOAP_Array) return String;
    overriding procedure XML_Image
-     (O : SOAP_Array; Result : in out Unbounded_String);
+     (O        : SOAP_Array;
+      Result   : in out Unbounded_String;
+      Encoding : Encoding_Style := WSDL.Schema.Encoded;
+      Schema   : WSDL.Schema.Definition := WSDL.Schema.Empty);
 
    function A
      (V         : Object_Set;
       Name      : String;
-      Type_Name : String := "") return SOAP_Array;
+      Type_Name : String := "";
+      NS        : Name_Space.Object := Name_Space.No_Name_Space)
+      return SOAP_Array;
    --  Type_Name of the array's elements, if not specified it will be computed
    --  based on element's name.
 
@@ -175,7 +197,10 @@ package SOAP.Types is
 
    overriding function Image (O : SOAP_Set) return String;
    overriding procedure XML_Image
-     (O : SOAP_Set; Result : in out Unbounded_String);
+     (O        : SOAP_Set;
+      Result   : in out Unbounded_String;
+      Encoding : Encoding_Style := WSDL.Schema.Encoded;
+      Schema   : WSDL.Schema.Definition := WSDL.Schema.Empty);
 
    function Set
      (V         : Object_Set;
@@ -189,18 +214,18 @@ package SOAP.Types is
    ------------
 
    XML_Base64        : aliased constant String := "soapenc:base64";
-   XML_Base64_Binary : constant String := "xsd:base64Binary";
+   XML_Base64_Binary : aliased constant String := "xsd:base64Binary";
 
    type SOAP_Base64 is new Scalar with private;
 
-   overriding function XML_Type   (O : SOAP_Base64) return String;
-   overriding function Image      (O : SOAP_Base64) return String;
-   overriding procedure XML_Image
-     (O : SOAP_Base64; Result : in out Unbounded_String);
+   overriding function Image (O : SOAP_Base64) return String;
 
    function B64
-     (V    : String;
-      Name : String := "item") return SOAP_Base64;
+     (V         : String;
+      Name      : String := "item";
+      Type_Name : String := XML_Base64;
+      NS        : Name_Space.Object := Name_Space.No_Name_Space)
+      return SOAP_Base64;
 
    function V (O : SOAP_Base64) return String;
 
@@ -212,12 +237,14 @@ package SOAP.Types is
 
    type XSD_Boolean is new Scalar with private;
 
-   overriding function XML_Type   (O : XSD_Boolean) return String;
-   overriding function Image      (O : XSD_Boolean) return String;
-   overriding procedure XML_Image
-     (O : XSD_Boolean; Result : in out Unbounded_String);
+   overriding function Image (O : XSD_Boolean) return String;
 
-   function B (V : Boolean; Name : String  := "item") return XSD_Boolean;
+   function B
+     (V         : Boolean;
+      Name      : String := "item";
+      Type_Name : String := XML_Boolean;
+      NS        : Name_Space.Object := Name_Space.No_Name_Space)
+      return XSD_Boolean;
    function V (O : XSD_Boolean) return Boolean;
 
    ----------
@@ -230,12 +257,14 @@ package SOAP.Types is
 
    type XSD_Byte is new Scalar with private;
 
-   overriding function XML_Type   (O : XSD_Byte) return String;
-   overriding function Image      (O : XSD_Byte) return String;
-   overriding procedure XML_Image
-     (O : XSD_Byte; Result : in out Unbounded_String);
+   overriding function Image (O : XSD_Byte) return String;
 
-   function B (V : Byte; Name : String := "item") return XSD_Byte;
+   function B
+     (V         : Byte;
+      Name      : String := "item";
+      Type_Name : String := XML_Byte;
+      NS        : Name_Space.Object := Name_Space.No_Name_Space)
+      return XSD_Byte;
    function V (O : XSD_Byte) return Byte;
 
    ------------
@@ -246,14 +275,14 @@ package SOAP.Types is
 
    type XSD_Double is new Scalar with private;
 
-   overriding function XML_Type   (O : XSD_Double) return String;
-   overriding function Image      (O : XSD_Double) return String;
-   overriding procedure XML_Image
-     (O : XSD_Double; Result : in out Unbounded_String);
+   overriding function Image (O : XSD_Double) return String;
 
    function D
-     (V    : Long_Float;
-      Name : String          := "item") return XSD_Double;
+     (V         : Long_Float;
+      Name      : String := "item";
+      Type_Name : String := XML_Double;
+      NS        : Name_Space.Object := Name_Space.No_Name_Space)
+      return XSD_Double;
 
    function V (O : XSD_Double) return Long_Float;
 
@@ -265,12 +294,14 @@ package SOAP.Types is
 
    type XSD_Float is new Scalar with private;
 
-   overriding function XML_Type   (O : XSD_Float) return String;
-   overriding function Image      (O : XSD_Float) return String;
-   overriding procedure XML_Image
-     (O : XSD_Float; Result : in out Unbounded_String);
+   overriding function Image (O : XSD_Float) return String;
 
-   function F (V : Float; Name : String := "item") return XSD_Float;
+   function F
+     (V         : Float;
+      Name      : String := "item";
+      Type_Name : String := XML_Float;
+      NS        : Name_Space.Object := Name_Space.No_Name_Space)
+      return XSD_Float;
    function V (O : XSD_Float) return Float;
 
    -------------
@@ -281,12 +312,14 @@ package SOAP.Types is
 
    type XSD_Integer is new Scalar with private;
 
-   overriding function XML_Type   (O : XSD_Integer) return String;
-   overriding function Image      (O : XSD_Integer) return String;
-   overriding procedure XML_Image
-     (O : XSD_Integer; Result : in out Unbounded_String);
+   overriding function Image (O : XSD_Integer) return String;
 
-   function I (V : Integer; Name : String := "item") return XSD_Integer;
+   function I
+     (V         : Integer;
+      Name      : String := "item";
+      Type_Name : String := XML_Int;
+      NS        : Name_Space.Object := Name_Space.No_Name_Space)
+      return XSD_Integer;
    function V (O : XSD_Integer) return Integer;
 
    ----------
@@ -299,12 +332,14 @@ package SOAP.Types is
 
    type XSD_Long is new Scalar with private;
 
-   overriding function XML_Type   (O : XSD_Long) return String;
-   overriding function Image      (O : XSD_Long) return String;
-   overriding procedure XML_Image
-     (O : XSD_Long; Result : in out Unbounded_String);
+   overriding function Image (O : XSD_Long) return String;
 
-   function L (V : Long; Name : String := "item") return XSD_Long;
+   function L
+     (V         : Long;
+      Name      : String := "item";
+      Type_Name : String := XML_Long;
+      NS        : Name_Space.Object := Name_Space.No_Name_Space)
+      return XSD_Long;
    function V (O : XSD_Long) return Long;
 
    ----------
@@ -317,7 +352,10 @@ package SOAP.Types is
 
    overriding function XML_Type   (O : XSD_Null) return String;
    overriding procedure XML_Image
-     (O : XSD_Null; Result : in out Unbounded_String);
+     (O        : XSD_Null;
+      Result   : in out Unbounded_String;
+      Encoding : Encoding_Style := WSDL.Schema.Encoded;
+      Schema   : WSDL.Schema.Definition := WSDL.Schema.Empty);
 
    function N (Name : String  := "item") return XSD_Null;
 
@@ -329,15 +367,19 @@ package SOAP.Types is
 
    type SOAP_Record is new Composite with private;
 
-   overriding function XML_Type   (O : SOAP_Record) return String;
    overriding function Image      (O : SOAP_Record) return String;
    overriding procedure XML_Image
-     (O : SOAP_Record; Result : in out Unbounded_String);
+     (O        : SOAP_Record;
+      Result   : in out Unbounded_String;
+      Encoding : Encoding_Style := WSDL.Schema.Encoded;
+      Schema   : WSDL.Schema.Definition := WSDL.Schema.Empty);
 
    function R
      (V         : Object_Set;
       Name      : String;
-      Type_Name : String := "") return SOAP_Record;
+      Type_Name : String := "";
+      NS        : Name_Space.Object := Name_Space.No_Name_Space)
+      return SOAP_Record;
    --  If Type_Name is omitted then the type name is the name of the record.
    --  Type_Name must be specified for item into an array for example.
 
@@ -360,12 +402,14 @@ package SOAP.Types is
 
    type XSD_Short is new Scalar with private;
 
-   overriding function XML_Type   (O : XSD_Short) return String;
-   overriding function Image      (O : XSD_Short) return String;
-   overriding procedure XML_Image
-     (O : XSD_Short; Result : in out Unbounded_String);
+   overriding function Image (O : XSD_Short) return String;
 
-   function S (V : Short; Name : String := "item") return XSD_Short;
+   function S
+     (V         : Short;
+      Name      : String := "item";
+      Type_Name : String := XML_Short;
+      NS        : Name_Space.Object := Name_Space.No_Name_Space)
+      return XSD_Short;
    function V (O : XSD_Short) return Short;
 
    ------------
@@ -376,18 +420,21 @@ package SOAP.Types is
 
    type XSD_String is new Scalar with private;
 
-   overriding function XML_Type   (O : XSD_String) return String;
-   overriding function Image      (O : XSD_String) return String;
-   overriding procedure XML_Image
-     (O : XSD_String; Result : in out Unbounded_String);
+   overriding function Image (O : XSD_String) return String;
 
    function S
      (V    : String;
-      Name : String := "item") return XSD_String;
+      Name : String      := "item";
+      Type_Name : String := XML_String;
+      NS        : Name_Space.Object := Name_Space.No_Name_Space)
+      return XSD_String;
 
    function S
-     (V    : Unbounded_String;
-      Name : String  := "item") return XSD_String;
+     (V         : Unbounded_String;
+      Name      : String  := "item";
+      Type_Name : String := XML_String;
+      NS        : Name_Space.Object := Name_Space.No_Name_Space)
+      return XSD_String;
 
    function V (O : XSD_String) return String;
 
@@ -398,24 +445,24 @@ package SOAP.Types is
    -----------------
 
    XML_Time_Instant : aliased constant String := "xsd:timeInstant";
-   XML_Date_Time    : constant String := "xsd:dateTime";
+   XML_Date_Time    : aliased constant String := "xsd:dateTime";
 
    type XSD_Time_Instant is new Scalar with private;
 
-   overriding function XML_Type   (O : XSD_Time_Instant) return String;
-   overriding function Image      (O : XSD_Time_Instant) return String;
-   overriding procedure XML_Image
-     (O : XSD_Time_Instant; Result : in out Unbounded_String);
+   overriding function Image (O : XSD_Time_Instant) return String;
 
    subtype TZ is Integer range -11 .. +11;
    GMT : constant TZ := 0;
 
    function T
-     (V        : Ada.Calendar.Time;
-      Name     : String        := "item";
-      Timezone : TZ            := GMT) return XSD_Time_Instant;
+     (V         : Calendar.Time;
+      Name      : String := "item";
+      Type_Name : String := XML_Date_Time;
+      NS        : Name_Space.Object := Name_Space.No_Name_Space;
+      Timezone  : TZ     := GMT)
+      return XSD_Time_Instant;
 
-   function V (O : XSD_Time_Instant) return Ada.Calendar.Time;
+   function V (O : XSD_Time_Instant) return Calendar.Time;
    --  Returns a GMT date and time
 
    -------------------
@@ -428,14 +475,14 @@ package SOAP.Types is
 
    type XSD_Unsigned_Long is new Scalar with private;
 
-   overriding function XML_Type   (O : XSD_Unsigned_Long) return String;
-   overriding function Image      (O : XSD_Unsigned_Long) return String;
-   overriding procedure XML_Image
-     (O : XSD_Unsigned_Long; Result : in out Unbounded_String);
+   overriding function Image (O : XSD_Unsigned_Long) return String;
 
    function UL
-     (V    : Unsigned_Long;
-      Name : String := "item") return XSD_Unsigned_Long;
+     (V         : Unsigned_Long;
+      Name      : String := "item";
+      Type_Name : String := XML_Unsigned_Long;
+      NS        : Name_Space.Object := Name_Space.No_Name_Space)
+      return XSD_Unsigned_Long;
    function V (O : XSD_Unsigned_Long) return Unsigned_Long;
 
    ------------------
@@ -448,14 +495,14 @@ package SOAP.Types is
 
    type XSD_Unsigned_Int is new Scalar with private;
 
-   overriding function XML_Type   (O : XSD_Unsigned_Int) return String;
-   overriding function Image      (O : XSD_Unsigned_Int) return String;
-   overriding procedure XML_Image
-     (O : XSD_Unsigned_Int; Result : in out Unbounded_String);
+   overriding function Image (O : XSD_Unsigned_Int) return String;
 
    function UI
-     (V    : Unsigned_Int;
-      Name : String := "item") return XSD_Unsigned_Int;
+     (V         : Unsigned_Int;
+      Name      : String := "item";
+      Type_Name : String := XML_Unsigned_Int;
+      NS        : Name_Space.Object := Name_Space.No_Name_Space)
+      return XSD_Unsigned_Int;
    function V (O : XSD_Unsigned_Int) return Unsigned_Int;
 
    --------------------
@@ -468,14 +515,14 @@ package SOAP.Types is
 
    type XSD_Unsigned_Short is new Scalar with private;
 
-   overriding function XML_Type   (O : XSD_Unsigned_Short) return String;
-   overriding function Image      (O : XSD_Unsigned_Short) return String;
-   overriding procedure XML_Image
-     (O : XSD_Unsigned_Short; Result : in out Unbounded_String);
+   overriding function Image (O : XSD_Unsigned_Short) return String;
 
    function US
-     (V    : Unsigned_Short;
-      Name : String := "item") return XSD_Unsigned_Short;
+     (V         : Unsigned_Short;
+      Name      : String := "item";
+      Type_Name : String := XML_Unsigned_Short;
+      NS        : Name_Space.Object := Name_Space.No_Name_Space)
+      return XSD_Unsigned_Short;
    function V (O : XSD_Unsigned_Short) return Unsigned_Short;
 
    -------------------
@@ -488,14 +535,14 @@ package SOAP.Types is
 
    type XSD_Unsigned_Byte is new Scalar with private;
 
-   overriding function XML_Type  (O : XSD_Unsigned_Byte) return String;
-   overriding function Image     (O : XSD_Unsigned_Byte) return String;
-   overriding procedure XML_Image
-     (O : XSD_Unsigned_Byte; Result : in out Unbounded_String);
+   overriding function Image (O : XSD_Unsigned_Byte) return String;
 
    function UB
-     (V    : Unsigned_Byte;
-      Name : String := "item") return XSD_Unsigned_Byte;
+     (V         : Unsigned_Byte;
+      Name      : String := "item";
+      Type_Name : String := XML_Unsigned_Byte;
+      NS        : Name_Space.Object := Name_Space.No_Name_Space)
+      return XSD_Unsigned_Byte;
    function V (O : XSD_Unsigned_Byte) return Unsigned_Byte;
 
    -----------------
@@ -504,15 +551,19 @@ package SOAP.Types is
 
    type SOAP_Enumeration is new Scalar with private;
 
-   overriding function XML_Type   (O : SOAP_Enumeration) return String;
    overriding function Image      (O : SOAP_Enumeration) return String;
    overriding procedure XML_Image
-     (O : SOAP_Enumeration; Result : in out Unbounded_String);
+     (O        : SOAP_Enumeration;
+      Result   : in out Unbounded_String;
+      Encoding : Encoding_Style := WSDL.Schema.Encoded;
+      Schema   : WSDL.Schema.Definition := WSDL.Schema.Empty);
 
    function E
      (V         : String;
       Type_Name : String;
-      Name      : String := "item") return SOAP_Enumeration;
+      Name      : String := "item";
+      NS        : Name_Space.Object := Name_Space.No_Name_Space)
+      return SOAP_Enumeration;
 
    function V (O : SOAP_Enumeration) return String;
 
@@ -618,8 +669,9 @@ private
    --  Object
 
    type Object is abstract new Ada.Finalization.Controlled with record
-      Name : Unbounded_String;
-      NS   : SOAP.Name_Space.Object;
+      Name      : Unbounded_String;
+      Type_Name : Unbounded_String;
+      NS        : SOAP.Name_Space.Object;
    end record;
 
    --  Object_Safe_Pointer
@@ -723,20 +775,15 @@ private
    end record;
 
    type SOAP_Enumeration is new Scalar with record
-      V         : Unbounded_String;
-      Type_Name : Unbounded_String;
+      V : Unbounded_String;
    end record;
 
    --  Composite SOAP types
 
-   type SOAP_Array is new Composite with record
-      Type_Name : Unbounded_String;
-   end record;
+   type SOAP_Array is new Composite with null record;
 
    type SOAP_Set is new SOAP_Array with null record;
 
-   type SOAP_Record is new Composite with record
-      Type_Name : Unbounded_String;
-   end record;
+   type SOAP_Record is new Composite with null record;
 
 end SOAP.Types;

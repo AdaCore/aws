@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<xs:schema xmlns="http://net.def.com/wsa" xmlns:xs="http://www.w3.org/2001/XMLSchema" targetNamespace="http://net.def.com/wsa"
+   xmlns:wsa="http://net.def.com/wsa" xmlns:sp="http://net.def.com/spatial" elementFormDefault="qualified">
+
+   <!-- Get Queue Status Request/Response -->
+   <xs:element name="getQueueStatusRequest" type="GetQueueStatusRequest" />
+   <xs:element name="getQueueStatusResponse" type="GetQueueStatusResponse" />
+   <xs:complexType name="GetQueueStatusRequest" />
+   <xs:complexType name="GetQueueStatusResponse">
+      <xs:sequence>
+         <xs:element name="numberQueued" type="NonNegativeInt">
+            <xs:annotation>
+               <xs:documentation>
+                  The number of requested service invocations currently waiting to be processed.
+               </xs:documentation>
+            </xs:annotation>
+         </xs:element>
+         <xs:element name="maximumQueueSize" type="NonNegativeInt">
+            <xs:annotation>
+               <xs:documentation>
+                  The maximum number of service invocations allowed to be queued.
+               </xs:documentation>
+            </xs:annotation>
+         </xs:element>
+      </xs:sequence>
+   </xs:complexType>
+
+   <!-- Miscellaneous data types. -->
+   <xs:simpleType name="NonNegativeInt">
+      <xs:annotation>
+         <xs:documentation>
+            A simple type limiting integer values to be greater than or equal to 0.
+         </xs:documentation>
+      </xs:annotation>
+      <xs:restriction base="xs:int">
+         <xs:minInclusive value="0" />
+      </xs:restriction>
+   </xs:simpleType>
+
+</xs:schema>

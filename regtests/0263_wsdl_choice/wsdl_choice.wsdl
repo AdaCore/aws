@@ -50,13 +50,13 @@
             <soap:body
                encodingStyle="http://schemas.xmlsoap.org/soap/encoding/"
                namespace="urn:aws:WSDL_Choice"
-               use="literal"/>
+               use="encoded"/>
          </input>
          <output>
             <soap:body
                encodingStyle="http://schemas.xmlsoap.org/soap/encoding/"
                namespace="urn:aws:WSDL_Choice"
-               use="literal"/>
+               use="encoded"/>
          </output>
       </operation>
 

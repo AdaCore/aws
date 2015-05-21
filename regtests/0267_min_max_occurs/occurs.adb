@@ -29,8 +29,8 @@ with OccursServices.Types;
 
 with n81.n67.n51.n47.hecateewebservices.encodedtypes.
   t_battle_dimension_type_pkg;
-with n81.n67.n51.n47.hecateewebservices.encodedtypes.
-  string_set_type_pkg;
+
+with www.w3.org.n2001.XMLSchema.string_Set_Type_Pkg;
 
 with Occurs_CB;
 
@@ -41,9 +41,8 @@ procedure Occurs is
 
    use n81.n67.n51.n47.hecateewebservices.encodedtypes.
      t_battle_dimension_type_pkg;
-   use n81.n67.n51.n47.hecateewebservices.encodedtypes.
-     string_set_type_pkg;
    use OccursServices.Types;
+   use www.w3.org.n2001.XMLSchema.string_Set_Type_Pkg;
 
    function "+" (Str : String)
      return Unbounded_String renames To_Unbounded_String;

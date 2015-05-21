@@ -76,14 +76,14 @@
 </portType>
 
 <binding name="ecc" type="tns:eccPortType">
- <SOAP:binding style="document" transport="http://schemas.xmlsoap.org/soap/http"/>
+ <SOAP:binding style="rpc" transport="http://schemas.xmlsoap.org/soap/http"/>
  <operation name="ServerExit">
   <SOAP:operation soapAction=""/>
   <input>
-     <SOAP:body parts="parameters" use="literal"/>
+     <SOAP:body parts="parameters" use="encoded"/>
   </input>
   <output>
-     <SOAP:body parts="parameters" use="literal"/>
+     <SOAP:body parts="parameters" use="encoded"/>
   </output>
  </operation>
 </binding>

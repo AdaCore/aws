@@ -30,7 +30,6 @@
 pragma Ada_2012;
 
 with AWS.Containers.Key_Value;
-with SOAP.Name_Space;
 
 package body SOAP.WSDL.Name_Spaces is
 
@@ -50,9 +49,25 @@ package body SOAP.WSDL.Name_Spaces is
    -- Get --
    ---------
 
+   function Get
+     (Prefix  : String;
+      Default : Name_Space.Object := Name_Space.No_Name_Space)
+      return Name_Space.Object is
+   begin
+      if Prefix = "" then
+         return Default;
+      else
+         return Name_Space.Create (Prefix, Get (Prefix));
+      end if;
+   end Get;
+
    function Get (Key : String) return String is
    begin
-      return NS (Key);
+      if NS.Contains (Key) then
+         return NS (Key);
+      else
+         raise SOAP_Error with "unknown name-space " & Key;
+      end if;
    end Get;
 
    ------------

@@ -49,7 +49,7 @@ package body SOAP.Dispatchers is
              AWS.Status.SOAPAction (Request),
              SOAP.Message.XML.Load_Payload
                (Unbounded_String'(AWS.Status.Payload (Request)),
-                Style => Dispatcher.Style),
+                Schema => Dispatcher.Schema),
              Request);
       else
          return Dispatch_HTTP (Handler'Class (Dispatcher), Request);

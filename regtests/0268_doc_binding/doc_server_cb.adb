@@ -35,8 +35,7 @@ package body DOC_Server_CB is
 
    function SOAP_CB is new DOC.Server.sayHello_CB (sayHello);
 
-   function SOAP_Wrapper is
-     new SOAP.Utils.SOAP_Wrapper (Soap_CB, SOAP.Message.Document);
+   function SOAP_Wrapper is new SOAP.Utils.SOAP_Wrapper (Soap_CB);
 
    --------
    -- CB --
@@ -46,7 +45,7 @@ package body DOC_Server_CB is
       SOAPAction : constant String := Status.SOAPAction (Request);
    begin
       if SOAPAction = "sayHello" then
-         return SOAP_Wrapper (Request);
+         return SOAP_Wrapper (Request, DOC.Schema);
       else
          return Response.Build (MIME.Text_HTML, "<p>Not a SOAP request");
       end if;

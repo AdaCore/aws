@@ -614,7 +614,8 @@ a standard callback). To use it there is different solutions:
    function CB (Request : in Status.Data) return Response.Data is
       SOAPAction : constant String := Status.SOAPAction (Request);
       Payload    : constant SOAP.Message.Payload.Object :=
-        SOAP.Message.XML.Load_Payload (AWS.Status.Payload (Request));
+        SOAP.Message.XML.Load_Payload
+          (AWS.Status.Payload (Request), Schema => BNQuoteService.Schema);
       Proc       : constant String :=
         SOAP.Message.Payload.Procedure_Name (Payload);
    begin
@@ -807,6 +808,9 @@ package and a set of child packages as described below:
   renaming of types and/or routines generated in other packages rooted
   with a name-space as described above. This package is the one that
   user's should import to gain the visibility of types definitions.
+
+  This package also contains the schema object which must be used when
+  calling a Web service or parsing a payload.
 
 *<root>.Client*
   All spec to call Web Services.

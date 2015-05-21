@@ -424,7 +424,7 @@ package body SOAP.WSDL is
       Result   : Parameter_Type;
       Standard : Boolean;
    begin
-      To_Type (XSD_Type, Result, Standard);
+      To_Type (Utils.No_NS (XSD_Type), Result, Standard);
 
       if not Standard then
          raise WSDL_Error

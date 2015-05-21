@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2008-2012, AdaCore                     --
+--                     Copyright (C) 2008-2015, AdaCore                     --
 --                                                                          --
 --  This is free software;  you can redistribute it  and/or modify it       --
 --  under terms of the  GNU General Public License as published  by the     --
@@ -20,6 +20,7 @@ with Ada.Strings.Unbounded;
 with Ada.Text_IO;
 
 with SOAP.Message.Payload;
+with SOAP.Message.XML;
 with SOAP.Parameters;
 with SOAP.Name_Space;
 with SOAP.Types;
@@ -36,5 +37,5 @@ procedure Driver is
    P     : Message.Payload.Object;
 begin
    P := Message.Payload.Build ("whatever", P_Set, Name_Space => NS);
-   Text_IO.Put_Line (To_String (Message.XML_Image (Message.Object (P))));
+   Text_IO.Put_Line (To_String (Message.XML.Image (P)));
 end Driver;

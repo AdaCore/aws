@@ -82,15 +82,6 @@ package body SOAP.Message is
       M.Wrapper_Name := To_Unbounded_String (Name);
    end Set_Wrapper_Name;
 
-   -----------
-   -- Style --
-   -----------
-
-   function Style (M : Object'Class) return Binding_Style is
-   begin
-      return M.Style;
-   end Style;
-
    ------------------
    -- Wrapper_Name --
    ------------------
@@ -104,8 +95,14 @@ package body SOAP.Message is
    -- XML_Image --
    ---------------
 
-   function XML_Image (M : Object) return Unbounded_String is
+   function XML_Image
+     (M      : Object;
+      Schema : WSDL.Schema.Definition := WSDL.Schema.Empty)
+      return Unbounded_String
+   is
+      use type WSDL.Schema.Binding_Style;
 
+      procedure Add_Namespace (NS : SOAP.Name_Space.Object);
       procedure Add_Namespaces (O : Types.Object'Class);
       --  Add name space reference into Message_Header
 
@@ -113,25 +110,45 @@ package body SOAP.Message is
       NS             : constant SOAP.Name_Space.Object := Name_Space (M);
       NS_Name        : constant String                 :=
                          SOAP.Name_Space.Name (NS);
+      Encoding       : constant Types.Encoding_Style :=
+                         WSDL.Schema.Get_Encoding_Style
+                           (Schema, To_String (M.Wrapper_Name));
+      Style          : constant WSDL.Schema.Binding_Style :=
+                         WSDL.Schema.Get_Binding_Style (Schema);
+
       Message_Header : Unbounded_String;
       Message_Body   : Unbounded_String;
+      Message_NS     : Unbounded_String;
+
+      --------------------
+      -- Add_Namespaces --
+      --------------------
+
+      procedure Add_Namespace (NS : SOAP.Name_Space.Object) is
+         use SOAP.Name_Space;
+      begin
+         if NS /= No_Name_Space
+           and then NS /= SOAP.Name_Space.AWS
+           and then Index
+             (Message_NS, ':' & SOAP.Name_Space.Name (NS) & '=') = 0
+         then
+            if Message_NS /= Null_Unbounded_String then
+               Append (Message_NS, New_Line);
+            end if;
+
+            Append (Message_NS, " " & Image (NS));
+         end if;
+      end Add_Namespace;
 
       --------------------
       -- Add_Namespaces --
       --------------------
 
       procedure Add_Namespaces (O : Types.Object'Class) is
-         use SOAP.Name_Space;
          use SOAP.Types;
          NS : constant SOAP.Name_Space.Object := Types.Name_Space (O);
       begin
-         if NS /= No_Name_Space
-           and then NS /= SOAP.Name_Space.AWS
-           and then Index
-             (Message_Header, ':' & SOAP.Name_Space.Name (NS) & '=') = 0
-         then
-            Append (Message_Header, " " & Image (NS));
-         end if;
+         Add_Namespace (NS);
 
          --  If this is a composite object, check components
 
@@ -149,7 +166,10 @@ package body SOAP.Message is
    begin
       --  Procedure
 
-      if M.Style = RPC then
+      --  We are called with the Body node opened
+
+      if Style = WSDL.Schema.RPC then
+         Append (Message_Header, '>' & New_Line);
          Append (Message_Header, '<');
 
          if NS_Name /= "" then
@@ -158,15 +178,21 @@ package body SOAP.Message is
 
          Append (Message_Header, Wrapper_Name (M));
 
-         Append (Message_Body, " xmlns");
+      else
+         --  Namespaces are to be put into the Body node
+         Append (Message_Header, New_Line);
+      end if;
+
+      if SOAP.Name_Space.Value (NS) /= "" then
+         Append (Message_NS, " xmlns");
 
          if NS_Name /= "" then
-            Append (Message_Body, ":" & NS_Name);
+            Append (Message_NS, ":" & NS_Name);
          end if;
 
          Append
-           (Message_Body,
-            "=""" & SOAP.Name_Space.Value (NS) & """>" & New_Line);
+           (Message_NS,
+            "=""" & SOAP.Name_Space.Value (NS) & """");
       end if;
 
       --  Procedure's parameters
@@ -176,14 +202,25 @@ package body SOAP.Message is
       begin
          for K in 1 .. SOAP.Parameters.Argument_Count (P) loop
             Add_Namespaces (SOAP.Parameters.Argument (P, K));
-            Types.XML_Image (SOAP.Parameters.Argument (P, K), Message_Body);
+
+            Types.XML_Image
+              (SOAP.Parameters.Argument (P, K), Message_Body,
+               Encoding, Schema);
             Append (Message_Body, New_Line);
+         end loop;
+
+         --  User's Namespaces
+
+         for K in 1 .. M.Index loop
+            Add_Namespace (M.Users_NS (K));
          end loop;
       end;
 
+      Append (Message_NS, ">" & New_Line);
+
       --  Close payload objects
 
-      if M.Style = RPC then
+      if Style = WSDL.Schema.RPC then
          Append (Message_Body, "</");
 
          if NS_Name /= "" then
@@ -194,7 +231,7 @@ package body SOAP.Message is
          Append (Message_Body, ">" & New_Line);
       end if;
 
-      return Message_Header & Message_Body;
+      return Message_Header & Message_NS & Message_Body;
    end XML_Image;
 
 end SOAP.Message;

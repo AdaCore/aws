@@ -34,6 +34,8 @@ with AWS.Response;
 with AWS.Status;
 with SOAP.Message.Payload;
 
+private with SOAP.WSDL.Schema;
+
 package SOAP.Dispatchers is
 
    type Handler is abstract new AWS.Dispatchers.Handler with private;
@@ -69,7 +71,7 @@ private
       Request    : AWS.Status.Data) return AWS.Response.Data;
 
    type Handler is abstract new AWS.Dispatchers.Handler with record
-      Style : Message.Binding_Style;
+      Schema : WSDL.Schema.Definition;
    end record;
 
 end SOAP.Dispatchers;

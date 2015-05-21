@@ -30,6 +30,7 @@
 with Ada.Strings.Unbounded;
 
 with SOAP.Name_Space;
+with SOAP.WSDL.Schema;
 
 package SOAP.WSDL.Types is
 
@@ -42,8 +43,9 @@ package SOAP.WSDL.Types is
    function Create (Name : String; NS : Name_Space.Object) return Object;
    --  Create a full reference for a type
 
-   function Name (O : Object) return String;
-   --  Returns the name of the type
+   function Name (O : Object; NS : Boolean := False) return String;
+   --  Returns the name of the type, qualified with the name-space if NS
+   --  is true.
 
    function NS (O : Object) return Name_Space.Object;
    --  Retrurns the name-space for the type
@@ -140,10 +142,11 @@ package SOAP.WSDL.Types is
    function Image (Def : Definition) return String;
    --  Returns a string representation of Kind type
 
-   function Find (O : Object) return Definition;
-   --  Returns the type definition for the given type name and name-space
-   --  or No_Definition if not found. Note that the standard xsd types are
-   --  not registered their, only the types as found in the schema.
+   function Find (O : Object; Registered : Boolean := False) return Definition;
+   --  Returns the type definition for the given type name and name-space or
+   --  No_Definition if not found. Note that the standard xsd types are not
+   --  registered their, only the types as found in the schema. If Registered
+   --  is true only check for registered type into this package.
 
    function Count return Natural;
    --  Returns the number of type registered
@@ -155,8 +158,11 @@ package SOAP.WSDL.Types is
      Post => Count = 0;
    --  Release memory associated the type definitions
 
-   function Root_Type_For (Def : Definition) return String;
-   --  Returns the root type (XSD type) for the given defintion
+   function Root_Type_For
+     (Def        : Definition;
+      Registered : Boolean := False) return String;
+   --  Returns the root type (XSD type) for the given defintion. If registered
+   --  is true check only for registered types into this package.
 
    procedure Get_Constraints
      (Def         : Definition;
@@ -173,16 +179,24 @@ package SOAP.WSDL.Types is
    --  Is_SOAP_Type is true if Object is alreay a SOAP types object. So there
    --  is no need for a convertion in this context.
 
+   type Ref_Kind is (Name_Var, Type_Var, Both_Var, Both_Value);
+   --  Whether the reference for Name and Type_Name are values or variables
+
    function To_SOAP
      (Def          : WSDL.Types.Definition;
       Object, Name : String;
-      Name_Is_Var  : Boolean := False;
       Type_Name    : String := "";
-      Is_Uniq      : Boolean := True) return String
-     with Pre => Def.Mode = K_Enumeration xor Type_Name = "";
+      Name_Kind    : Ref_Kind := Both_Value;
+      Is_Uniq      : Boolean := True;
+      NS           : String := "") return String;
    --  Returns the code to create a SOAP parameter with given Name. Object is
    --  the reference to the object to convert. Type_Name is the name of the
-   --  enumeration to convert to/from.
+   --  type to convert to/from. If NS is empty a Name_Space.Object will be
+   --  generated otherwise it is the variable name visible in the scope of
+   --  the generated code.
+
+   function Get_Schema_Definition return WSDL.Schema.Definition;
+   --  Get the schema definition part for types defined in the WSDL
 
 private
 

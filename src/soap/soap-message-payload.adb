@@ -27,6 +27,10 @@
 --  covered by the  GNU Public License.                                     --
 ------------------------------------------------------------------------------
 
+with AWS.Containers.Key_Value;
+
+with SOAP.Types;
+
 package body SOAP.Message.Payload is
 
    -----------
@@ -36,14 +40,41 @@ package body SOAP.Message.Payload is
    function Build
      (Procedure_Name : String;
       P_Set          : SOAP.Parameters.List;
-      Name_Space     : SOAP.Name_Space.Object := SOAP.Name_Space.AWS;
-      Style          : Binding_Style := RPC)
-      return Object is
+      Name_Space     : SOAP.Name_Space.Object := SOAP.Name_Space.AWS)
+      return Object
+   is
+      use AWS;
+      use type SOAP.Name_Space.Object;
+
+      Gen : Containers.Key_Value.Map;
    begin
-      return (Name_Space   => Name_Space,
-              Wrapper_Name => To_Unbounded_String (Procedure_Name),
-              P            => P_Set,
-              Style        => Style);
+      return O : Object do
+         O.Name_Space   := Name_Space;
+         O.Wrapper_Name := To_Unbounded_String (Procedure_Name);
+         O.P            := P_Set;
+
+         --  Add all the user's name-spaces for the given parameters
+
+         for K in 1 .. SOAP.Parameters.Argument_Count (P_Set) loop
+            declare
+               N : constant SOAP.Name_Space.Object :=
+                     SOAP.Types.Name_Space
+                       (SOAP.Parameters.Argument (P_Set, K));
+            begin
+               if N /= SOAP.Name_Space.No_Name_Space
+                 and then not Gen.Contains (SOAP.Name_Space.Value (N))
+               then
+                  O.Index := O.Index + 1;
+                  O.Users_NS (O.Index) :=
+                    SOAP.Name_Space.Create (SOAP.Name_Space.Name (N),
+                                            SOAP.Name_Space.Value (N));
+                  Gen.Insert
+                    (SOAP.Name_Space.Value (N),
+                     SOAP.Name_Space.Name (N));
+               end if;
+            end;
+         end loop;
+      end return;
    end Build;
 
    --------------------

@@ -43,8 +43,7 @@ package SOAP.Message.Payload is
    function Build
      (Procedure_Name : String;
       P_Set          : SOAP.Parameters.List;
-      Name_Space     : SOAP.Name_Space.Object := SOAP.Name_Space.AWS;
-      Style          : Binding_Style := RPC)
+      Name_Space     : SOAP.Name_Space.Object := SOAP.Name_Space.AWS)
       return Object;
    --  Retruns a Payload object initialized with the procedure name,
    --  parameters and name space.

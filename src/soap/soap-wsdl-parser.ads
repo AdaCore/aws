@@ -27,9 +27,10 @@
 --  covered by the  GNU Public License.                                     --
 ------------------------------------------------------------------------------
 
-with SOAP.Message;
 with SOAP.Name_Space;
+with SOAP.Types;
 with SOAP.WSDL.Parameters;
+with SOAP.WSDL.Schema;
 
 private with Ada.Strings.Unbounded;
 private with Ada.Containers.Indefinite_Ordered_Sets;
@@ -38,6 +39,9 @@ private with SOAP.WSDL.Types;
 package SOAP.WSDL.Parser is
 
    WSDL_Error : exception renames WSDL.WSDL_Error;
+
+   type Parameter_Mode is (Input, Output, Fault);
+   --  Kind of parameters in the WSDL
 
    ------------
    -- Parser --
@@ -97,8 +101,24 @@ package SOAP.WSDL.Parser is
    procedure Exclude (O : in out Object; Operation : String);
    --  Register operation to be excluded from the code generation
 
-   function Style (O : Object'Class) return Message.Binding_Style;
+   function Style (O : Object'Class) return WSDL.Schema.Binding_Style;
    --  Returns the binding style for the parsed WSDL
+
+   function Encoding
+     (O : Object'Class; Kind : Parameter_Mode) return Types.Encoding_Style;
+   --  Returns the encoding style for the proc
+
+   function xsd (O : Object'Class) return SOAP.Name_Space.Object;
+   --  Returns the xsd name-space
+
+   function xsi (O : Object'Class) return SOAP.Name_Space.Object;
+   --  Returns the xsi name-space
+
+   function env (O : Object'Class) return SOAP.Name_Space.Object;
+   --  Returns the env name-space
+
+   function enc (O : Object'Class) return SOAP.Name_Space.Object;
+   --  Returns the enc name-space
 
 private
 
@@ -106,9 +126,6 @@ private
    use Ada.Strings.Unbounded;
 
    package Name_Set is new Containers.Indefinite_Ordered_Sets (String);
-
-   type Parameter_Mode is (Input, Output, Fault);
-   --  Current parameter parsing mode
 
    type All_Parameters is array (Parameter_Mode) of Parameters.P_Set;
 
@@ -129,7 +146,15 @@ private
       Accept_Document : Boolean := False;
       Exclude         : Name_Set.Set;     -- Operation to exclude from gen
       No_Param        : Boolean := False; -- Disable param generation
-      Style           : SOAP.Message.Binding_Style := SOAP.Message.RPC;
+      Style           : WSDL.Schema.Binding_Style := SOAP.WSDL.Schema.RPC;
+      --  Input/Output encoding
+      I_Encoding      : WSDL.Schema.Encoding_Style := WSDL.Schema.Encoded;
+      O_Encoding      : WSDL.Schema.Encoding_Style := WSDL.Schema.Encoded;
+      --  Name-spaces as defined in WSDL definition node
+      xsd             : Name_Space.Object := Name_Space.XSD;
+      xsi             : Name_Space.Object := Name_Space.XSI;
+      env             : Name_Space.Object := Name_Space.SOAPENV;
+      enc             : Name_Space.Object := Name_Space.SOAPENC;
    end record;
 
 end SOAP.WSDL.Parser;

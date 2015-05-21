@@ -31,6 +31,7 @@ with Ada.Strings.Unbounded;
 
 with SOAP.Name_Space;
 with SOAP.Parameters;
+with SOAP.WSDL.Schema;
 
 package SOAP.Message is
 
@@ -38,9 +39,10 @@ package SOAP.Message is
 
    type Object is tagged private;
 
-   type Binding_Style is (RPC, Document);
-
-   function XML_Image (M : Object) return Unbounded_String;
+   function XML_Image
+     (M      : Object;
+      Schema : WSDL.Schema.Definition := WSDL.Schema.Empty)
+      return Unbounded_String;
    --  Returns the XML image for the wrapper and parameters. This is designed
    --  to be used by Payload and Response object.
 
@@ -52,8 +54,6 @@ package SOAP.Message is
 
    function Parameters   (M : Object'Class) return SOAP.Parameters.List;
    --  Returns the parameter
-
-   function Style (M : Object'Class) return Binding_Style;
 
    procedure Set_Name_Space
      (M  : in out Object'Class;
@@ -72,11 +72,23 @@ package SOAP.Message is
 
 private
 
+   Max_Name_Space : constant := 10;
+   --  Maximum number of user's name-space supported
+
+   type NS_Set is array (1 .. Max_Name_Space) of SOAP.Name_Space.Object;
+
+   No_NS : constant NS_Set := (others => SOAP.Name_Space.No_Name_Space);
+
    type Object is tagged record
       Name_Space   : SOAP.Name_Space.Object;
       Wrapper_Name : Unbounded_String;
       P            : SOAP.Parameters.List;
-      Style        : Binding_Style := RPC;
+      xsd          : SOAP.Name_Space.Object := SOAP.Name_Space.XSD;
+      xsi          : SOAP.Name_Space.Object := SOAP.Name_Space.XSI;
+      enc          : SOAP.Name_Space.Object := SOAP.Name_Space.SOAPENC;
+      env          : SOAP.Name_Space.Object := SOAP.Name_Space.SOAPENV;
+      Users_NS     : NS_Set;
+      Index        : Natural := 0;
    end record;
 
 end SOAP.Message;

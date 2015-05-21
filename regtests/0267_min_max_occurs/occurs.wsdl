@@ -32,7 +32,7 @@
       <complexType name="ArrayOfFloat">
         <complexContent>
           <restriction base="soapenc:Array">
-            <attribute ref="soapenc:arrayType" arrayType="xsd:float[]"/>
+            <attribute ref="soapenc:arrayType" arrayType="s:float[]"/>
           </restriction>
         </complexContent>
       </complexType>
@@ -55,7 +55,7 @@
   </portType>
 
   <binding name="OccursServicesSoap" type="tns:OccursServicesSoap">
-    <soap:binding transport="http://schemas.xmlsoap.org/soap/http" style="document" />
+    <soap:binding transport="http://schemas.xmlsoap.org/soap/http" style="rpc" />
     <operation name="displayTrack">
       <soap:operation soapAction="displayTrack" style="rpc" />
       <input>

@@ -2,14 +2,14 @@
 <soapenv:Envelope soapenv:encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" xmlns:soapenc="http://schemas.xmlsoap.org/soap/encoding/" xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
 <soapenv:Body>
 <awsns:Workorder xmlns:awsns="http://soapaws/">
-<Workorder>
+<Workorder xsi:type="Workorder">
    <Woid xsi:type="xsd:string">Wo1</Woid>
-   <Updated xsi:type="xsd:timeInstant">2002-03-24T15:43:20Z</Updated>
+   <Updated xsi:type="xsd:dateTime">2002-03-24T15:43:20Z</Updated>
    <State xsi:type="xsd:string">idle</State>
    <Package xsi:type="xsd:string">sot23</Package>
    <Recipe xsi:type="xsd:string">bc847</Recipe>
    <Orderline soapenc:arrayType="awsns:Orderline[2]" xsi:type="soapenc:Array">
-      <Orderline>
+      <Orderline xsi:type="Orderline">
          <State xsi:type="xsd:string">idle</State>
          <Woid xsi:type="xsd:string">Wo1</Woid>
          <Twelvenc xsi:type="xsd:string">123456781234</Twelvenc>
@@ -22,7 +22,7 @@
          <Orientation xsi:type="xsd:string">1</Orientation>
          <Produced xsi:type="xsd:int">0</Produced>
       </Orderline>
-      <Orderline>
+      <Orderline xsi:type="Orderline">
          <State xsi:type="xsd:string">idle</State>
          <Woid xsi:type="xsd:string">Wo1</Woid>
          <Twelvenc xsi:type="xsd:string">123456781235</Twelvenc>

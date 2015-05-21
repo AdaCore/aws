@@ -3,11 +3,11 @@
 <soapenv:Envelope soapenv:encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" xmlns:soapenc="http://schemas.xmlsoap.org/soap/encoding/" xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
 <soapenv:Body>
 <awsns:Workorder xmlns:awsns="http://soapaws/">
-<my_record_out>
+<my_record_out xsi:type="my_record_out">
    <name1 xsi:type="xsd:string">Wo1</name1>
    <name2 xsi:type="xsd:string">idle</name2>
    <my_array soapenc:arrayType="awsns:my_record[1]" xsi:type="soapenc:Array">
-      <my_record>
+      <my_record xsi:type="my_record">
          <name3 xsi:type="xsd:string">idle</name3>
          <name4 xsi:type="xsd:string">Wo1</name4>
       </my_record>

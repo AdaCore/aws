@@ -30,8 +30,6 @@
 with AWS.URL;
 with AWS.Utils;
 
-with SOAP.Message;
-
 separate (SOAP.Generator)
 package body Skel is
 
@@ -73,9 +71,9 @@ package body Skel is
       pragma Unreferenced (Namespace, Fault);
 
       use Ada.Strings.Fixed;
-      use type SOAP.Message.Binding_Style;
       use type WSDL.Parameter_Type;
       use type WSDL.Parameters.P_Set;
+      use type WSDL.Schema.Binding_Style;
       use type WSDL.Types.Kind;
 
       procedure Output_Parameters (N : WSDL.Parameters.P_Set);
@@ -200,7 +198,7 @@ package body Skel is
         (Skel_Adb, "      return AWS.Response.Data");
       Text_IO.Put_Line (Skel_Adb, "   is");
 
-      if O.Style = Message.RPC then
+      if O.Style = WSDL.Schema.RPC then
          Text_IO.Put_Line
            (Skel_Adb, "      Proc_Name : constant String");
          Text_IO.Put_Line
@@ -258,7 +256,7 @@ package body Skel is
 
       --  Then check the procedure name
 
-      if O.Style = Message.RPC then
+      if O.Style = WSDL.Schema.RPC then
          if O.Debug then
             Text_IO.Put_Line
               (Skel_Adb,
@@ -292,7 +290,7 @@ package body Skel is
             "      Put_Line (""[SERVER/" & L_Proc & "_CB] Payload : """);
          Text_IO.Put_Line
            (Skel_Adb,
-            "                & SOAP.Message.XML.Image (Payload));");
+            "                & SOAP.Message.XML.Image (Payload, Schema));");
          Text_IO.New_Line (Skel_Adb);
       end if;
 
@@ -323,6 +321,7 @@ package body Skel is
 
       while N /= null loop
          declare
+            use type WSDL.Schema.Encoding_Style;
             T_Name : constant String := WSDL.Types.Name (N.Typ);
          begin
             Text_IO.Put      (Skel_Adb, "         ");
@@ -345,10 +344,24 @@ package body Skel is
                   To_String (N.Name) & "_"
                   & Format_Name (O, T_Name) & "_Record : "
                   & "constant SOAP.Types.SOAP_Record");
-               Text_IO.Put_Line
-                 (Skel_Adb,
-                  "           := SOAP.Parameters.Get (Params, """
-                  & To_String (N.Name) & """);");
+
+               if N.P = null then
+                  --  An empty record, just build a corresponding object
+                  Text_IO.Put_Line
+                    (Skel_Adb,
+                     "           := SOAP.Types.R (SOAP.Types.Empty_Object_Set"
+                     & ", """ & To_String (N.Name) & """);");
+               else
+                  Text_IO.Put_Line
+                    (Skel_Adb,
+                     "           := SOAP.Parameters.Get (Params, """
+                     & (if O.Encoding (WSDL.Parser.Input)
+                           = WSDL.Schema.Encoded
+                       then To_String (N.Name)
+                       else T_Name)
+                       & """);");
+               end if;
+
                Text_IO.Put      (Skel_Adb, "         ");
             end if;
 
@@ -474,7 +487,7 @@ package body Skel is
             end if;
 
             declare
-               T_Name : constant String := WSDL.Types.Name (N.Typ);
+               T_Name : constant String := WSDL.Types.Name (N.Typ, True);
             begin
                case N.Mode is
                   when WSDL.Types.K_Simple =>
@@ -487,7 +500,8 @@ package body Skel is
 
                         Text_IO.Put
                           (Skel_Adb,
-                           " (Result, """ & To_String (N.Name) & """)");
+                           " (Result, """ & To_String (N.Name) & ""","
+                           & " Type_Name => """ & T_Name & """)");
 
                      else
                         --  Multiple value returned, this is a record
@@ -500,7 +514,8 @@ package body Skel is
                         Text_IO.Put
                           (Skel_Adb, " (Result."
                            & Format_Name (O, To_String (N.Name))
-                           & ", """ & To_String (N.Name) & """)");
+                           & ", """ & To_String (N.Name) & ""","
+                           & " Type_Name => """ & T_Name & """)");
                      end if;
 
                   when WSDL.Types.K_Derived =>
@@ -510,17 +525,19 @@ package body Skel is
                           (Skel_Adb,
                            WSDL.Parameters.To_SOAP
                              (N.all,
-                              Object => "Result",
-                              Name   => To_String (N.Name)));
+                              Object    => "Result",
+                              Name      => To_String (N.Name),
+                              Type_Name => T_Name));
                      else
                         Text_IO.Put
                           (Skel_Adb,
                            WSDL.Parameters.To_SOAP
                              (N.all,
-                              Object =>
+                              Object    =>
                                 "Result."
-                                & Format_Name (O, To_String (N.Name)),
-                              Name   => To_String (N.Name)));
+                                  & Format_Name (O, To_String (N.Name)),
+                              Name      => To_String (N.Name),
+                              Type_Name => T_Name));
                      end if;
 
                   when WSDL.Types.K_Enumeration =>
@@ -540,7 +557,7 @@ package body Skel is
                              (N.all,
                               Object    =>
                                 "Result."
-                              & Format_Name (O, To_String (N.Name)),
+                                   & Format_Name (O, To_String (N.Name)),
                               Name      => To_String (N.Name),
                               Type_Name => T_Name));
                      end if;
@@ -552,8 +569,9 @@ package body Skel is
                           (Skel_Adb,
                            WSDL.Parameters.To_SOAP
                              (N.all,
-                              Object => "Result",
-                              Name   => To_String (N.Name)));
+                              Object    => "Result",
+                              Name      => To_String (N.Name),
+                              Type_Name => T_Name));
 
                      else
                         --  Array here is part of an array
@@ -561,9 +579,10 @@ package body Skel is
                           (Skel_Adb,
                            WSDL.Parameters.To_SOAP
                              (N.all,
-                              Object => "Result."
-                              & To_String (N.Name) & ".Item.all",
-                              Name   => To_String (N.Name)));
+                              Object    => "Result."
+                                           & To_String (N.Name) & ".Item.all",
+                              Name      => To_String (N.Name),
+                              Type_Name => T_Name));
                      end if;
 
                   when WSDL.Types.K_Record =>
@@ -622,11 +641,12 @@ package body Skel is
             "      Put_Line (""[SERVER/" & L_Proc & "_CB] Response : """);
          Text_IO.Put_Line
            (Skel_Adb,
-            "                & SOAP.Message.XML.Image (Response));");
+            "                & SOAP.Message.XML.Image (Response, Schema));");
       end if;
 
       Text_IO.Put_Line
-        (Skel_Adb, "      return SOAP.Message.Response.Build (Response);");
+        (Skel_Adb,
+         "      return SOAP.Message.Response.Build (Response, Schema);");
 
       Text_IO.Put_Line
         (Skel_Adb, "   exception");
@@ -709,6 +729,7 @@ package body Skel is
       With_Unit (Skel_Adb, "Ada.Exceptions", Elab => Off);
       Text_IO.New_Line (Skel_Adb);
       With_Unit (Skel_Adb, "SOAP.Message.Response.Error", Elab => Children);
+      With_Unit (Skel_Adb, "SOAP.Name_Space");
       With_Unit (Skel_Adb, "SOAP.Parameters");
       With_Unit (Skel_Adb, "SOAP.Utils");
       Text_IO.New_Line (Skel_Adb);
@@ -723,10 +744,6 @@ package body Skel is
       Text_IO.New_Line (Skel_Adb);
       Text_IO.Put_Line (Skel_Adb, "   use SOAP.Types;");
       Text_IO.Put_Line (Skel_Adb, "   use type SOAP.Parameters.List;");
-      Text_IO.New_Line (Skel_Adb);
-      Text_IO.Put_Line (Skel_Adb, "   pragma Warnings (Off);");
-      Text_IO.Put_Line (Skel_Adb, "   --  Suppress wrong warnings generated"
-                          & " by GNAT (fixed in 3.17)");
       Text_IO.New_Line (Skel_Adb);
       Text_IO.Put_Line (Skel_Adb, "   pragma Style_Checks (Off);");
    end Start_Service;

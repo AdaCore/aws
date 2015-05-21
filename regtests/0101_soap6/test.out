@@ -1,20 +1,21 @@
 <?xml version='1.0' encoding='UTF-8'?>
-<soapenv:Envelope soapenv:encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" xmlns:soapenc="http://schemas.xmlsoap.org/soap/encoding/" xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+<soapenv:Envelope soapenv:encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" xmlns:soapenc="http://schemas.xmlsoap.org/soap/encoding/" xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:ns15="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
 <soapenv:Body>
-<ns3:getLastResponse xmlns:ns4="urn:datafeed.dukascopy.com" xmlns:ns3="urn:datafeed.dukascopy.com">
-<getLastReturn soapenc:arrayType="awsns:Candle[1]" xsi:type="soapenc:Array">
+  <ns3:getLastResponse xmlns:ns3="urn:datafeed.dukascopy.com"
+                       xmlns:ns4="urn:datafeed.dukascopy.com">
+<getLastReturn soapenc:arrayType="ns3:Candle[1]" xsi:type="soapenc:Array">
    <item xsi:type="ns4:Candle">
-      <artificial xsi:type="xsd:boolean">0</artificial>
-      <closePrice xsi:type="xsd:double">1.74650000000000</closePrice>
-      <flat xsi:type="xsd:boolean">0</flat>
-      <id xsi:type="xsd:int">533</id>
-      <maxPrice xsi:type="xsd:double">1.74650000000000</maxPrice>
-      <minPrice xsi:type="xsd:double">1.74590000000000</minPrice>
-      <openPrice xsi:type="xsd:double">1.74650000000000</openPrice>
-      <periodType xsi:type="xsd:int">0</periodType>
-      <time xsi:type="xsd:long">1089143140</time>
-      <timeIndex xsi:type="xsd:int">108914314</timeIndex>
-      <volume xsi:type="xsd:long">0</volume>
+      <artificial xsi:type="ns5:boolean">0</artificial>
+      <closePrice xsi:type="ns6:double">1.74650000000000</closePrice>
+      <flat xsi:type="ns7:boolean">0</flat>
+      <id xsi:type="ns8:int">533</id>
+      <maxPrice xsi:type="ns9:double">1.74650000000000</maxPrice>
+      <minPrice xsi:type="ns10:double">1.74590000000000</minPrice>
+      <openPrice xsi:type="ns11:double">1.74650000000000</openPrice>
+      <periodType xsi:type="ns12:int">0</periodType>
+      <time xsi:type="ns13:long">1089143140</time>
+      <timeIndex xsi:type="ns14:int">108914314</timeIndex>
+      <volume xsi:type="ns15:long">0</volume>
    </item>
 </getLastReturn>
 </ns3:getLastResponse>

@@ -193,7 +193,7 @@ package body SOAP.WSDL.Parameters is
       Def : constant WSDL.Types.Definition :=  WSDL.Types.Find (P.Typ);
    begin
       return WSDL.Types.To_SOAP
-        (Def, Object, Name, False, Type_Name, Is_Uniq (P));
+        (Def, Object, Name, Type_Name, WSDL.Types.Both_Value, Is_Uniq (P));
    end To_SOAP;
 
 end SOAP.WSDL.Parameters;

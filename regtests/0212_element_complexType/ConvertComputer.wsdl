@@ -86,10 +86,10 @@
     <wsdl:operation name="ChangeComputerUnit">
       <soap:operation soapAction="http://www.webserviceX.NET/ChangeComputerUnit" style="document" />
       <wsdl:input>
-        <soap:body use="literal" />
+        <soap:body use="encoded" />
       </wsdl:input>
       <wsdl:output>
-        <soap:body use="literal" />
+        <soap:body use="encoded" />
       </wsdl:output>
     </wsdl:operation>
   </wsdl:binding>
@@ -98,10 +98,10 @@
     <wsdl:operation name="ChangeComputerUnit">
       <soap12:operation soapAction="http://www.webserviceX.NET/ChangeComputerUnit" style="document" />
       <wsdl:input>
-        <soap12:body use="literal" />
+        <soap12:body use="encoded" />
       </wsdl:input>
       <wsdl:output>
-        <soap12:body use="literal" />
+        <soap12:body use="encoded" />
       </wsdl:output>
     </wsdl:operation>
   </wsdl:binding>

@@ -85,7 +85,7 @@
   </portType>
 
   <binding name="Hello_Binding" type="tns:Hello_PortType">
-    <soap:binding style="document"
+    <soap:binding style="rpc"
                   transport="http://schemas.xmlsoap.org/soap/http"/>
     <operation name="sayHello">
       <soap:operation soapAction="sayHello"/>
@@ -93,13 +93,13 @@
         <soap:body
             encodingStyle="http://schemas.xmlsoap.org/soap/encoding/"
             namespace="urn:examples:helloservice"
-            use="literal"/>
+            use="encoded"/>
       </input>
       <output>
         <soap:body
             encodingStyle="http://schemas.xmlsoap.org/soap/encoding/"
             namespace="urn:examples:helloservice"
-            use="literal"/>
+            use="encoded"/>
       </output>
     </operation>
     <operation name="call">
@@ -108,13 +108,13 @@
         <soap:body
             encodingStyle="http://schemas.xmlsoap.org/soap/encoding/"
             namespace="urn:examples:helloservice"
-            use="literal"/>
+            use="encoded"/>
       </input>
       <output>
         <soap:body
             encodingStyle="http://schemas.xmlsoap.org/soap/encoding/"
             namespace="urn:examples:helloservice"
-            use="literal"/>
+            use="encoded"/>
       </output>
     </operation>
   </binding>

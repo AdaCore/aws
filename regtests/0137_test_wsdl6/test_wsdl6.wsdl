@@ -69,7 +69,7 @@
   </portType>
 
   <binding name="HECATEEWebServicesClassSoap" type="tns:HECATEEWebServicesClassSoap">
-    <soap:binding transport="http://schemas.xmlsoap.org/soap/http" style="document" />
+    <soap:binding transport="http://schemas.xmlsoap.org/soap/http" style="rpc" />
     <operation name="displayTrack">
       <soap:operation soapAction="http://81.67.51.47/HECATEEWebServices/displayTrack" style="rpc" />
       <input>
@@ -83,7 +83,7 @@
 
   <service name="HECATEEWebServicesClass">
     <documentation>A track display tool</documentation>
-    <port name="HECATEEWebServicesClassSoap" 
+    <port name="HECATEEWebServicesClassSoap"
 	binding="tns:HECATEEWebServicesClassSoap">
       <soap:address location="http://81.67.51.47/HECATEEWebSErvices/HECATEEWebServices.asmx" />
     </port>

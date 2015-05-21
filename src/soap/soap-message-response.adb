@@ -38,12 +38,16 @@ package body SOAP.Message.Response is
    -- Build --
    -----------
 
-   function Build (R : Object'Class) return AWS.Response.Data is
+   function Build
+     (R      : Object'Class;
+      Schema : WSDL.Schema.Definition := WSDL.Schema.Empty)
+      return AWS.Response.Data
+   is
       use AWS.Messages;
    begin
       return AWS.Response.Build
         (AWS.MIME.Text_XML,
-         UString_Message => SOAP.Message.XML.Image (R),
+         UString_Message => SOAP.Message.XML.Image (R, Schema),
          Status_Code     => (if Is_Error (R) then S500 else S200));
    end Build;
 
@@ -59,8 +63,6 @@ package body SOAP.Message.Response is
       Set_Parameters   (NP, Parameters (P));
 
       Set_Name_Space (NP, Name_Space (P));
-
-      NP.Style := P.Style;
 
       return NP;
    end From;
