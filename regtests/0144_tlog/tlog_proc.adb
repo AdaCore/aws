@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2006-2012, AdaCore                     --
+--                     Copyright (C) 2006-2015, AdaCore                     --
 --                                                                          --
 --  This is free software;  you can redistribute it  and/or modify it       --
 --  under terms of the  GNU General Public License as published  by the     --
@@ -195,7 +195,7 @@ procedure TLog_Proc (Extended_Fields : String) is
                end;
             end if;
 
-            for K in I + 1 .. AWK.Count'Min (10 + I, AWK.NF) loop
+            for K in I + 1 .. AWK.Count'Min (9 + I, AWK.NF) loop
                Text_IO.Put (AWK.Field (K));
                Text_IO.Put (" | ");
             end loop;
