@@ -597,10 +597,7 @@ package body Stub is
                        (Stub_Adb,
                         "                 "
                         & "(SOAP_Record'(SOAP.Parameters.Get (R_Param, """
-                        & (if O.Encoding (WSDL.Parser.Output)
-                              = WSDL.Schema.Encoded
-                          then To_String (Output.Name)
-                          else T_Name)
+                        & To_String (Output.Name)
                         & """)));");
                end case;
             end;

@@ -524,7 +524,7 @@ package body SOAP.Generator is
                Append (Sig, ":");
             end if;
 
-            Append (Sig, WSDL.Types.Name (N.Typ, False));
+            Append (Sig, Utils.No_NS (To_String (N.Elmt_Name)));
 
             N := N.Next;
          end loop;
@@ -2353,8 +2353,9 @@ package body SOAP.Generator is
 
                Output_Schema_Definition
                  (Key   => Name & "." & To_String (N.Name),
-                  Value => WSDL.Types.Name (N.Typ, NS => True));
-
+                  Value => WSDL.Types.Name
+                             ((if N.Is_Set then N.E_Typ else N.Typ),
+                              NS => True));
                N := N.Next;
             end loop;
 

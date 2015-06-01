@@ -90,7 +90,7 @@ package body SOAP.Message.XML is
       Strict       : Boolean    := True;
       Style        : WSDL.Schema.Binding_Style := WSDL.Schema.RPC;
       Schema       : WSDL.Schema.Definition;
-      Enclosing    : Unbounded_String; -- enclosing element name (record)
+      Enclosing    : Unbounded_String; -- enclosing element type (record)
    end record;
 
    function To_Type
@@ -786,6 +786,7 @@ package body SOAP.Message.XML is
               To_Unbounded_String
                 (WSDL.Schema.Get_Call_For_Signature
                    (S.Schema, To_String (Signature)));
+            S.Enclosing := S.Wrapper_Name;
          end Compute_Signature;
 
          declare
@@ -1205,7 +1206,7 @@ package body SOAP.Message.XML is
       use type DOM.Core.Node_Types;
       use type WSDL.Schema.Binding_Style;
 
-      Key    : constant String := To_String (S.Wrapper_Name) & '.' & Name;
+      Key    : constant String := To_String (S.Enclosing) & '.' & Name;
       Field  : DOM.Core.Node := SOAP.XML.Get_Ref (N);
       xsd    : constant String :=
                  SOAP.XML.Get_Attr_Value
@@ -1246,7 +1247,7 @@ package body SOAP.Message.XML is
 
          --  Set state for the enclosing elements
 
-         S.Enclosing := To_Unbounded_String (Name);
+         S.Enclosing := To_Unbounded_String (Utils.No_NS (To_String (T_Name)));
 
          while Field /= null loop
             K := K + 1;
@@ -1451,6 +1452,7 @@ package body SOAP.Message.XML is
       end if;
 
       S.Wrapper_Name := To_Unbounded_String (Name);
+      S.Enclosing := S.Wrapper_Name;
 
       for K in 0 .. Length (NL) - 1 loop
          if Item (NL, K).Node_Type /= DOM.Core.Text_Node then
@@ -1469,62 +1471,34 @@ package body SOAP.Message.XML is
       Schema    : WSDL.Schema.Definition) return Type_State
    is
 
+      N_xsd : constant String := SOAP.Name_Space.Name (NS.xsd);
+      N_enc : constant String := SOAP.Name_Space.Name (NS.enc);
+      S_xsd : constant String :=
+                (if Schema.Contains (SOAP.Name_Space.XSD_URL)
+                 then Schema (SOAP.Name_Space.XSD_URL)
+                 else "");
+
       function Is_A
         (T1_Name, T2_Name : String;
          NS               : String) return Boolean
       is (T1_Name = Utils.With_NS (NS, T2_Name)) with Inline;
       --  Returns True if T1_Name is equal to T2_Name based on namespace
 
-      function With_Standard_NS return String;
-      --  Returns Type_Name using the default name-space name to compare
-      --  against the handlers name.
-
-      ----------------------
-      -- With_Standard_NS --
-      ----------------------
-
-      function With_Standard_NS return String is
-         Is_Bas64 : constant Boolean :=
-                      Type_Name'Length > 6
-                        and then
-                      Type_Name (Type_Name'Last - 6 .. Type_Name'Last)
-                        = ":base64";
-
-         XSD_NS : constant String :=
-                    (if Schema.Contains (SOAP.Name_Space.XSD_URL)
-                     then Schema (SOAP.Name_Space.XSD_URL)
-                     else SOAP.Name_Space.Name (SOAP.Name_Space.XSD));
-
-         ENC_NS : constant String :=
-                    (if Schema.Contains (SOAP.Name_Space.SOAPENC_URL)
-                     then Schema (SOAP.Name_Space.SOAPENC_URL)
-                     else SOAP.Name_Space.Name (SOAP.Name_Space.SOAPENC));
-
-         T_NS   : constant String := Utils.NS (Type_Name);
-         S_NS   : constant String := (if Is_Bas64 then ENC_NS else XSD_NS);
-
-      begin
-         if T_NS = S_NS then
-            return Utils.With_NS (S_NS, Type_Name);
-         else
-            return Type_Name;
-         end if;
-      end With_Standard_NS;
-
       T_Name : constant String :=
-                 (if Schema.Contains (Type_Name)
-                  then Schema (Type_Name)
-                  else With_Standard_NS);
+               (if Schema.Contains (Type_Name)
+                then Schema (Type_Name)
+                else Type_Name);
 
    begin
       for K in Handlers'Range loop
          if Handlers (K).Name /= null
            and then
              ((Handlers (K).Encoded
-               and then Is_A (T_Name, Handlers (K).Name.all,
-                              SOAP.Name_Space.Name (NS.enc)))
-              or else Is_A (T_Name, Handlers (K).Name.all,
-                            SOAP.Name_Space.Name (NS.xsd)))
+               and then Is_A (T_Name, Handlers (K).Name.all, N_enc))
+              --   check name-space in the schema
+              or else Is_A (T_Name, Handlers (K).Name.all, S_xsd)
+              --   then check name-space in the parsed context
+              or else Is_A (T_Name, Handlers (K).Name.all, N_xsd))
          then
             return K;
          end if;

@@ -43,17 +43,21 @@ package SOAP.WSDL.Parameters is
 
    type Parameter (Mode : Types.Kind) is record
       Name      : Unbounded_String;
+      Elmt_Name : Unbounded_String; -- element name in the WSDL
       Doc       : Unbounded_String;
       Typ       : Types.Object;
       Next      : P_Set;
       Min       : Natural := 1;  -- minOccurs
       Max       : Positive := 1; -- maxOccurs
+      Is_Set    : Boolean := False;
 
       case Mode is
          when Types.Compound_Type =>
             Length : Natural;          -- Number of items (0 = unbounded)
             P      : P_Set;
-
+            E_Typ  : Types.Object;
+            --  Element type needed for a set. If the set is empty we cannot
+            --  compute the Element type using P above.
          when others =>
             null;
       end case;

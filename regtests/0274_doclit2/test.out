@@ -1,0 +1,59 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<soapenv:Envelope soapenv:encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" xmlns:soapenc="http://schemas.xmlsoap.org/soap/encoding/" xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+<soapenv:Body
+ xmlns:awsns="http://soapaws/"
+ xmlns:abc="http://aurn.here.org/abc">
+<getQueueStatusRequest/>
+</soapenv:Body>
+</soapenv:Envelope>
+
+numberQueued     = 1
+maximumQueueSize = 16
+<?xml version='1.0' encoding='UTF-8'?>
+<soapenv:Envelope soapenv:encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" xmlns:soapenc="http://schemas.xmlsoap.org/soap/encoding/" xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+<soapenv:Body
+ xmlns:awsns="http://soapaws/"
+ xmlns:abc="http://aurn.here.org/abc"
+ xmlns:n1="http://aurn.here.org/spatial">
+<executeRequest>
+   <executionTime>XXXX-XX-XXTXX:XX:XXZ</executionTime>
+   <valueA>
+      <latLong>
+         <latitudeDegrees>1.00000000000000</latitudeDegrees>
+         <longitudeDegrees>1.10000000000000</longitudeDegrees>
+      </latLong>
+      <field7>3.00000000000000</field7>
+      <field8>4.00000000000000</field8>
+      <field9>2</field9>
+      <field12>0.90000000000000</field12>
+      <field10>8</field10>
+      <field11>0.60000000000000</field11>
+   </valueA>
+   <valueA>
+      <latLong>
+         <latitudeDegrees>2.00000000000000</latitudeDegrees>
+         <longitudeDegrees>2.10000000000000</longitudeDegrees>
+      </latLong>
+      <field7>3.20000000000000</field7>
+      <field8>4.20000000000000</field8>
+      <field9>2</field9>
+      <field12>0.91000000000000</field12>
+      <field10>81</field10>
+      <field11>0.61000000000000</field11>
+   </valueA>
+
+</executeRequest>
+</soapenv:Body>
+</soapenv:Envelope>
+
+invocationToken = this_is_the_token 1
+<soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:abc="http://aurn.here.org/abc" xmlns:spat="http://aurn.here.org/spatial"><soapenv:Header/><soapenv:Body><abc:executeRequest><abc:executionTime>XXXX-XX-XXTXX:XX:XXZ</abc:executionTime><abc:valueA><abc:latLong><spat:latitudeDegrees>12.20000000000000</spat:latitudeDegrees><spat:longitudeDegrees>12.30000000000000</spat:longitudeDegrees></abc:latLong><abc:field7>100.00000000000000</abc:field7><abc:field8>100.00000000000000</abc:field8><abc:field9>100</abc:field9><abc:field12>1.00000000000000</abc:field12><abc:field10>1</abc:field10><abc:field11>1.00000000000000</abc:field11></abc:valueA></abc:executeRequest></soapenv:Body></soapenv:Envelope>
+<?xml version='1.0' encoding='UTF-8'?>
+<soapenv:Envelope soapenv:encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" xmlns:soapenc="http://schemas.xmlsoap.org/soap/encoding/" xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+<soapenv:Body
+ xmlns:abc="http://aurn.here.org/abc">
+<executeResponse>
+   <invocationToken>this_is_the_token 2</invocationToken>
+</executeResponse>
+</soapenv:Body>
+</soapenv:Envelope>

@@ -1624,7 +1624,7 @@ package body SOAP.Types is
       Tag_Name : constant String :=
                    (if Encoding = WSDL.Schema.Encoded
                     then Name (O)
-                    else Utils.No_NS (Type_Name (O)));
+                    else Name (O)); -- Utils.No_NS (Type_Name (O)));
    begin
       Append (Result, Spaces (Indent));
 

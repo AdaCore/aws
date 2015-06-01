@@ -140,6 +140,7 @@ private
       Mode            : Parameter_Mode;   -- Current parameter parsing mode
       Params          : All_Parameters;   -- All parameters
       Current_Name    : Unbounded_String; -- Current parameter name
+      Elmt_Name       : Unbounded_String; -- Current element name
       Enclosing_Types : Name_Set.Set;     -- The enclosing entity type
       Array_Elements  : Types.Object;     -- Type of the array's elements
       Array_Length    : Natural;          -- Number of items (0 = unbounded)

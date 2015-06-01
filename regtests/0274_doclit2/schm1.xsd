@@ -1,0 +1,172 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<xs:schema xmlns="http://aurn.here.org/abc"
+           xmlns:xs="http://www.w3.org/2001/XMLSchema"
+           targetNamespace="http://aurn.here.org/abc"
+           xmlns:abc="http://aurn.here.org/abc"
+           xmlns:sp="http://aurn.here.org/spatial"
+           elementFormDefault="qualified">
+
+   <!-- Import the data types schema. -->
+   <xs:import namespace="http://aurn.here.org/spatial"
+              schemaLocation="./spatial.xsd" />
+
+   <!-- Execute Operation Request/Response -->
+   <xs:element name="executeRequest" type="ExecuteRequest" />
+   <xs:element name="executeResponse" type="ExecuteResponse" />
+   <xs:complexType name="ExecuteRequest">
+      <xs:sequence>
+         <xs:element name="executionTime" type="xs:dateTime" />
+         <xs:element name="valueA" type="RecB" maxOccurs="5000" />
+      </xs:sequence>
+   </xs:complexType>
+   <xs:complexType name="ExecuteResponse">
+      <xs:sequence>
+         <xs:element name="invocationToken" type="xs:string">
+         </xs:element>
+      </xs:sequence>
+   </xs:complexType>
+
+   <!-- Cancel Operation Request/Response -->
+   <xs:element name="cancelRequest" type="CancelRequest" />
+   <xs:element name="cancelResponse" type="CancelResponse" />
+   <xs:complexType name="CancelRequest">
+      <xs:sequence>
+         <xs:element name="invocationToken" type="xs:string">
+         </xs:element>
+      </xs:sequence>
+   </xs:complexType>
+   <xs:complexType name="CancelResponse">
+      <xs:sequence>
+         <xs:element name="cancelled" type="xs:boolean">
+         </xs:element>
+      </xs:sequence>
+   </xs:complexType>
+
+   <!-- Get Status Operation Request/Response -->
+   <xs:element name="getStatusRequest" type="GetStatusRequest" />
+   <xs:element name="getStatusResponse" type="GetStatusResponse" />
+   <xs:complexType name="GetStatusRequest">
+      <xs:sequence>
+         <xs:element name="invocationToken" type="xs:string">
+         </xs:element>
+      </xs:sequence>
+   </xs:complexType>
+   <xs:complexType name="GetStatusResponse">
+      <xs:sequence>
+         <xs:element name="status" type="Status">
+         </xs:element>
+      </xs:sequence>
+   </xs:complexType>
+
+   <!-- Get Results Operation Request/Response -->
+   <xs:element name="getResultsRequest" type="GetResultsRequest" />
+   <xs:element name="getResultsResponse" type="GetResultsResponse" />
+   <xs:complexType name="GetResultsRequest">
+      <xs:sequence>
+         <xs:element name="invocationToken" type="xs:string">
+         </xs:element>
+      </xs:sequence>
+   </xs:complexType>
+   <xs:complexType name="GetResultsResponse">
+      <xs:sequence>
+         <xs:element name="paramA" type="RecA" maxOccurs="1000" />
+      </xs:sequence>
+   </xs:complexType>
+
+   <!-- Get Queue Status Request/Response -->
+   <xs:element name="getQueueStatusRequest" type="GetQueueStatusRequest" />
+   <xs:element name="getQueueStatusResponse" type="GetQueueStatusResponse" />
+   <xs:complexType name="GetQueueStatusRequest" />
+   <xs:complexType name="GetQueueStatusResponse">
+      <xs:sequence>
+         <xs:element name="numberQueued" type="NonNegativeInt">
+         </xs:element>
+         <xs:element name="maximumQueueSize" type="NonNegativeInt">
+         </xs:element>
+      </xs:sequence>
+   </xs:complexType>
+
+   <xs:complexType name="RecB">
+      <xs:sequence>
+         <xs:element name="latLong" type="sp:LatLongDegrees">
+         </xs:element>
+         <xs:element name="field7" type="NonNegativeDouble">
+         </xs:element>
+         <xs:element name="field8" type="NonNegativeDouble">
+         </xs:element>
+         <xs:element name="field9" type="NonNegativeInt">
+         </xs:element>
+         <xs:element name="field12" type="Probability">
+         </xs:element>
+         <xs:element name="field10" type="NonNegativeInt">
+         </xs:element>
+         <xs:element name="field11" type="Probability">
+         </xs:element>
+      </xs:sequence>
+   </xs:complexType>
+
+   <!-- Output Types -->
+   <xs:complexType name="Status">
+      <xs:sequence>
+         <xs:element name="state" type="State" />
+         <xs:element name="percentComplete" type="PercentCompleteInteger" />
+         <xs:element name="statusMessage" type="xs:string" />
+      </xs:sequence>
+   </xs:complexType>
+
+   <xs:simpleType name="State">
+      <xs:restriction base="xs:string">
+         <xs:enumeration value="QUEUED" />
+         <xs:enumeration value="RUNNING" />
+         <xs:enumeration value="CANCELLED" />
+         <xs:enumeration value="COMPLETED" />
+      </xs:restriction>
+   </xs:simpleType>
+
+   <xs:simpleType name="PercentCompleteInteger">
+      <xs:restriction base="NonNegativeInt">
+         <xs:maxInclusive value="100" />
+      </xs:restriction>
+   </xs:simpleType>
+
+   <xs:complexType name="RecA">
+      <xs:sequence>
+         <xs:element name="field1" type="xs:string" />
+         <xs:element name="field2" type="NonNegativeInt" />
+         <xs:element name="field3" type="NonNegativeInt" />
+         <xs:element name="field4" type="NonNegativeInt" />
+         <xs:element name="field5" type="NonNegativeInt" />
+         <xs:element name="totalCasualities" type="NonNegativeInt" />
+      </xs:sequence>
+   </xs:complexType>
+
+   <!-- Define the Faults -->
+   <xs:element name="executionExceptionFault" type="xs:string" />
+   <xs:element name="invalidInputFault" type="xs:string" />
+   <xs:element name="queueSizeExceededFault" type="xs:string" />
+   <xs:element name="resultsUnavailableFault" type="xs:string" />
+   <xs:element name="unknownInvocationFault" type="xs:string" />
+
+   <!-- Miscellaneous data types. -->
+   <xs:simpleType name="NonNegativeDouble">
+      <xs:restriction base="xs:double">
+         <xs:minInclusive value="0" />
+      </xs:restriction>
+   </xs:simpleType>
+
+   <!-- Miscellaneous data types. -->
+   <xs:simpleType name="NonNegativeInt">
+      <xs:restriction base="xs:int">
+         <xs:minInclusive value="0" />
+      </xs:restriction>
+   </xs:simpleType>
+
+   <xs:simpleType name="Probability">
+      <xs:restriction base="xs:double">
+         <xs:minInclusive value="0" />
+         <xs:maxInclusive value="1" />
+      </xs:restriction>
+   </xs:simpleType>
+
+</xs:schema>
