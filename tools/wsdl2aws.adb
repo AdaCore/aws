@@ -407,14 +407,6 @@ exception
       New_Line;
       Ada.Command_Line.Set_Exit_Status (Ada.Command_Line.Failure);
 
-   when Name_Error =>
-      New_Line;
-      Put_Line ("wsdl2aws SOAP Generator v" & SOAP.Generator.Version);
-      New_Line;
-      Put_Line ("WSDL file not found : " & To_String (Filename));
-      New_Line;
-      Ada.Command_Line.Set_Exit_Status (Ada.Command_Line.Failure);
-
    when W : SOAP.WSDL.WSDL_Error =>
       New_Line;
       Put_Line ("Error: " & Exception_Message (W));

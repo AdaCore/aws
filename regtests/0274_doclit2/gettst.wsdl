@@ -1,0 +1,197 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<wsdl:definitions name="GetTstService"
+                  targetNamespace="http://aurn.here.org/abc"
+                  xmlns="http://schemas.xmlsoap.org/wsdl/"
+                  xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/"
+                  xmlns:abc="http://aurn.here.org/abc"
+                  xmlns:xs="http://www.w3.org/2001/XMLSchema"
+                  xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/">
+
+   <!-- The WSDL types -->
+   <wsdl:types>
+      <xs:schema version="1.0" elementFormDefault="qualified">
+        <xs:import namespace="http://aurn.here.org/abc"
+                   schemaLocation="./schm1.xsd" />
+      </xs:schema>
+   </wsdl:types>
+
+   <!-- The WSDL messages. -->
+   <wsdl:message name="Execute_Request">
+      <part name="executeRequest" element="abc:executeRequest" />
+   </wsdl:message>
+
+   <wsdl:message name="Execute_Response">
+      <part name="executeResponse" element="abc:executeResponse" />
+   </wsdl:message>
+
+   <wsdl:message name="Cancel_Request">
+      <part name="cancelRequest" element="abc:cancelRequest" />
+   </wsdl:message>
+
+   <wsdl:message name="Cancel_Response">
+      <part name="cancelResponse" element="abc:cancelResponse" />
+   </wsdl:message>
+
+   <wsdl:message name="GetStatus_Request">
+      <part name="getStatusRequest" element="abc:getStatusRequest" />
+   </wsdl:message>
+
+   <wsdl:message name="GetStatus_Response">
+      <part name="getStatusResponse" element="abc:getStatusResponse" />
+   </wsdl:message>
+
+   <wsdl:message name="GetResults_Request">
+      <part name="getResultsRequest" element="abc:getResultsRequest" />
+   </wsdl:message>
+
+   <wsdl:message name="GetResults_Response">
+      <part name="getResultsResponse" element="abc:getResultsResponse" />
+   </wsdl:message>
+
+   <wsdl:message name="GetQueueStatus_Request">
+      <part name="getQueueStatusRequest" element="abc:getQueueStatusRequest" />
+   </wsdl:message>
+
+   <wsdl:message name="GetQueueStatus_Response">
+      <part name="getQueueStatusResponse" element="abc:getQueueStatusResponse" />
+   </wsdl:message>
+
+   <!-- Fault messages -->
+   <wsdl:message name="InvalidInputFault">
+      <part name="fault" element="abc:invalidInputFault" />
+   </wsdl:message>
+
+   <wsdl:message name="QueueSizeExceededFault">
+      <part name="fault" element="abc:queueSizeExceededFault" />
+   </wsdl:message>
+
+   <wsdl:message name="UnknownInvocationFault">
+      <part name="fault" element="abc:unknownInvocationFault" />
+   </wsdl:message>
+
+   <wsdl:message name="ResultsUnavailableFault">
+      <part name="fault" element="abc:resultsUnavailableFault" />
+   </wsdl:message>
+
+   <wsdl:message name="ExecutionExceptionFault">
+      <part name="fault" element="abc:executionExceptionFault" />
+   </wsdl:message>
+
+   <!-- Port Types -->
+   <wsdl:portType name="TestingWebService">
+      <wsdl:operation name="execute">
+         <wsdl:input message="abc:Execute_Request" />
+         <wsdl:output message="abc:Execute_Response" />
+         <wsdl:fault name="InvalidInputFault" message="abc:InvalidInputFault" />
+         <wsdl:fault name="QueueSizeExceededFault" message="abc:QueueSizeExceededFault" />
+      </wsdl:operation>
+
+      <wsdl:operation name="cancel">
+         <wsdl:input message="abc:Cancel_Request" />
+         <wsdl:output message="abc:Cancel_Response" />
+         <wsdl:fault name="UnknownInvocationFault" message="abc:UnknownInvocationFault" />
+      </wsdl:operation>
+
+      <wsdl:operation name="getStatus">
+         <wsdl:input message="abc:GetStatus_Request" />
+         <wsdl:output message="abc:GetStatus_Response" />
+         <wsdl:fault name="UnknownInvocationFault" message="abc:UnknownInvocationFault" />
+      </wsdl:operation>
+
+      <wsdl:operation name="getResults">
+         <wsdl:input message="abc:GetResults_Request" />
+         <wsdl:output message="abc:GetResults_Response" />
+         <wsdl:fault name="UnknownInvocationFault" message="abc:UnknownInvocationFault" />
+         <wsdl:fault name="ResultsUnavailableFault" message="abc:ResultsUnavailableFault" />
+         <wsdl:fault name="ExecutionExceptionFault" message="abc:ExecutionExceptionFault" />
+      </wsdl:operation>
+
+      <wsdl:operation name="getQueueStatus">
+         <wsdl:input message="abc:GetQueueStatus_Request" />
+         <wsdl:output message="abc:GetQueueStatus_Response" />
+      </wsdl:operation>
+   </wsdl:portType>
+
+   <!-- Bindings -->
+   <wsdl:binding name="TestingWebServiceBinding" type="abc:TestingWebService">
+      <soap:binding style="document" transport="http://schemas.xmlsoap.org/soap/http" />
+      <operation name="execute">
+         <soap:operation soapAction="http://aurn.here.org/abc/execute" />
+         <wsdl:input>
+            <soap:body use="literal" />
+         </wsdl:input>
+         <wsdl:output>
+            <soap:body use="literal" />
+         </wsdl:output>
+         <wsdl:fault name="InvalidInputFault">
+            <soap:fault use="literal" name="InvalidInputFault" />
+         </wsdl:fault>
+         <wsdl:fault name="QueueSizeExceededFault">
+            <soap:fault use="literal" name="QueueSizeExceededFault" />
+         </wsdl:fault>
+      </operation>
+
+      <operation name="cancel">
+         <soap:operation soapAction="http://aurn.here.org/abc/cancel" />
+         <wsdl:input>
+            <soap:body use="literal" />
+         </wsdl:input>
+         <wsdl:output>
+            <soap:body use="literal" />
+         </wsdl:output>
+         <wsdl:fault name="UnknownInvocationFault">
+            <soap:fault use="literal" name="UnknownInvocationFault" />
+         </wsdl:fault>
+      </operation>
+
+      <operation name="getStatus">
+         <soap:operation soapAction="http://aurn.here.org/abc/getStatus" />
+         <wsdl:input>
+            <soap:body use="literal" />
+         </wsdl:input>
+         <wsdl:output>
+            <soap:body use="literal" />
+         </wsdl:output>
+         <wsdl:fault name="UnknownInvocationFault">
+            <soap:fault use="literal" name="UnknownInvocationFault" />
+         </wsdl:fault>
+      </operation>
+
+      <operation name="getResults">
+         <soap:operation soapAction="http://aurn.here.org/abc/getResults" />
+         <wsdl:input>
+            <soap:body use="literal" />
+         </wsdl:input>
+         <wsdl:output>
+            <soap:body use="literal" />
+         </wsdl:output>
+         <wsdl:fault name="UnknownInvocationFault">
+            <soap:fault use="literal" name="UnknownInvocationFault" />
+         </wsdl:fault>
+         <wsdl:fault name="ResultsUnavailableFault">
+            <soap:fault use="literal" name="ResultsUnavailableFault" />
+         </wsdl:fault>
+         <wsdl:fault name="ExecutionExceptionFault">
+            <soap:fault use="literal" name="ExecutionExceptionFault" />
+         </wsdl:fault>
+      </operation>
+
+      <operation name="getQueueStatus">
+         <soap:operation soapAction="http://aurn.here.org/abc/getQueueStatus" />
+         <wsdl:input>
+            <soap:body use="literal" />
+         </wsdl:input>
+         <wsdl:output>
+            <soap:body use="literal" />
+         </wsdl:output>
+      </operation>
+   </wsdl:binding>
+
+   <!-- The WSDL Services -->
+   <wsdl:service name="TestingService">
+      <port name="schm1Port" binding="abc:TestingWebServiceBinding">
+         <soap:address location="http://localhost:1234" />
+      </port>
+   </wsdl:service>
+</wsdl:definitions>

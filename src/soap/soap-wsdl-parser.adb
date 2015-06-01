@@ -250,11 +250,12 @@ package body SOAP.WSDL.Parser is
       if not O.No_Param then
          Parameters.Append
            (O.Params (O.Mode),
-            (WSDL.Types.K_Simple, +Name, Null_Unbounded_String,
-             Typ  => Types.Create (Utils.No_NS (Type_Name), NS),
-             Min  => 1,
-             Max  => 1,
-             Next => null));
+            (WSDL.Types.K_Simple, +Name, O.Elmt_Name, Null_Unbounded_String,
+             Typ    => Types.Create (Utils.No_NS (Type_Name), NS),
+             Min    => 1,
+             Max    => 1,
+             Is_Set => False,
+             Next   => null));
       end if;
    end Add_Parameter;
 
@@ -1028,6 +1029,7 @@ package body SOAP.WSDL.Parser is
          --  Set array name, R is a complexType node
 
          P.Name      := O.Current_Name;
+         P.Elmt_Name := O.Elmt_Name;
          P.Typ       := Types.Create (Name, Get_Target_Name_Space (R));
          P.Length    := O.Array_Length;
 
@@ -1469,11 +1471,13 @@ package body SOAP.WSDL.Parser is
                          (Utils.NS (P_Type), Name_Space.XSD);
             begin
                return
-                 (Types.K_Simple, +XML.Get_Attr_Value (N, "name"), Doc,
-                  Typ  => Types.Create (Utils.No_NS (P_Type), NS),
-                  Min  => Min,
-                  Max  => Max,
-                  Next => null);
+                 (Types.K_Simple, +XML.Get_Attr_Value (N, "name"),
+                  O.Elmt_Name, Doc,
+                  Typ    => Types.Create (Utils.No_NS (P_Type), NS),
+                  Min    => Min,
+                  Max    => Max,
+                  Is_Set => False,
+                  Next   => null);
             end;
 
          else
@@ -1569,6 +1573,9 @@ package body SOAP.WSDL.Parser is
 
       if ET = Null_Unbounded_String then
          ET := +XML.Get_Attr_Value (Part, "type");
+         O.Elmt_Name := Null_Unbounded_String;
+      else
+         O.Elmt_Name := ET;
       end if;
 
       if ET = Null_Unbounded_String then
@@ -1732,11 +1739,13 @@ package body SOAP.WSDL.Parser is
       end if;
 
       declare
+         use type WSDL.Schema.Binding_Style;
          Name : constant String := XML.Get_Attr_Value (R, "name", False);
       begin
          --  Set record name, R is a complexType or element node
 
          P.Name      := O.Current_Name;
+         P.Elmt_Name := O.Elmt_Name;
          P.Typ       := Types.Create (Name, Get_Target_Name_Space (R));
 
          D.Ref       := Types.Create (Name, Types.NS (P.Typ));
@@ -1747,6 +1756,17 @@ package body SOAP.WSDL.Parser is
          if Utils.No_NS (DOM.Core.Nodes.Node_Name (R)) = "element" then
             --  Skip enclosing element
             N := XML.First_Child (R);
+
+            --  This is the case where a complexType is directly put inside
+            --  an enclosing element. In this case, and only for the Document
+            --  style binding, we want to set the record name to the actual
+            --  element name and not the parameter name (Current_Name) as set
+            --  while parsing the part.
+
+            if O.Style = WSDL.Schema.Document then
+               P.Name := To_Unbounded_String (Name);
+            end if;
+
          else
             N := R;
          end if;
@@ -2019,8 +2039,10 @@ package body SOAP.WSDL.Parser is
                    WSDL.Name_Spaces.Get
                      (Utils.NS (Typ), Get_Target_Name_Space (S));
       begin
-         P.Name := +Name;
-         P.Typ  := Types.Create (Typ & "_Set", NS);
+         P.Name   := +Name;
+         P.Typ    := Types.Create (Typ & "_Set", NS);
+         P.Is_Set := True;
+         P.E_Typ  := Types.Create (Typ, Types.NS (P.Typ));
 
          Get_Min_Max (S_Min, S_Max, P.Min, P.Max);
 
@@ -2031,7 +2053,7 @@ package body SOAP.WSDL.Parser is
          end if;
 
          D.Ref    := P.Typ;
-         D.E_Type := Types.Create (Typ, Types.NS (P.Typ));
+         D.E_Type := P.E_Typ;
 
          Types.Register (D);
 
@@ -2088,6 +2110,7 @@ package body SOAP.WSDL.Parser is
          D   : Types.Definition (Types.K_Derived);
       begin
          P.Name      := O.Current_Name;
+         P.Elmt_Name := O.Elmt_Name;
          P.Typ       := Types.Create
            (Name, Get_Target_Name_Space (DOM.Core.Nodes.Parent_Node (N)));
          D.Constraints := Constraints;
@@ -2124,6 +2147,7 @@ package body SOAP.WSDL.Parser is
          --  ??PO R not needed above
 
          P.Name      := O.Current_Name;
+         P.Elmt_Name := O.Elmt_Name;
          P.Typ       := Types.Create
            (Name, Get_Target_Name_Space (DOM.Core.Nodes.Parent_Node (E)));
          D.Ref := Types.Create (Name, Types.NS (P.Typ));

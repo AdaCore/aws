@@ -355,11 +355,7 @@ package body Skel is
                   Text_IO.Put_Line
                     (Skel_Adb,
                      "           := SOAP.Parameters.Get (Params, """
-                     & (if O.Encoding (WSDL.Parser.Input)
-                           = WSDL.Schema.Encoded
-                       then To_String (N.Name)
-                       else T_Name)
-                       & """);");
+                     & To_String (N.Name) & """);");
                end if;
 
                Text_IO.Put      (Skel_Adb, "         ");
