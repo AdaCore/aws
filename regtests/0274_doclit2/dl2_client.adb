@@ -20,10 +20,12 @@ with Ada.Calendar;
 with Ada.Strings.Unbounded;
 with Ada.Text_IO;
 
+with AWS.Client;
+
 with testingservice.Client;
 with testingservice.Types;
 
-procedure Dl2_Client is
+procedure Dl2_Client (Client : AWS.Client.HTTP_Connection) is
 
    use Ada, Ada.Calendar;
    use Ada.Strings.Unbounded;
@@ -42,12 +44,12 @@ procedure Dl2_Client is
           (((1.0, 1.1), 3.0, 4.0, 2, 0.9, 8, 0.6),
            ((2.0, 2.1), 3.2, 4.2, 2, 0.91, 81, 0.61));
 begin
-   R := getQueueStatus (D);
+   R := getQueueStatus (Client, D);
    Put_Line ("numberQueued     =" & R.numberQueued'Img);
    Put_Line ("maximumQueueSize =" & R.maximumQueueSize'Img);
 
    De.executionTime := Calendar.Clock;
    De.valueA := +N;
-   Re := execute (De);
+   Re := execute (Client, De);
    Put_Line ("invocationToken = " & To_String (Re.invocationToken));
 end Dl2_Client;

@@ -20,6 +20,7 @@ with Ada.Text_IO;
 
 with AWS.Client;
 with AWS.Response;
+with AWS.Server.Log;
 with AWS.Server.Status;
 
 with testingservice.Server;
@@ -37,6 +38,7 @@ procedure Dl2_Server is
    use testingservice.Types;
 
    H_Server : AWS.Server.HTTP;
+   H_Client : AWS.Client.HTTP_Connection;
 
 begin
    AWS.Server.Start
@@ -44,7 +46,11 @@ begin
       Dl2_Server_CB.CB'Access,
       Port => testingservice.Server.Port);
 
-   Dl2_Client;
+   AWS.Server.Log.Start_Error (H_Server);
+
+   AWS.Client.Create (H_Client, AWS.Server.Status.Local_URL (H_Server));
+
+   Dl2_Client (H_Client);
 
    declare
       Exec_Mes : aliased String :=
@@ -65,10 +71,8 @@ begin
         & "</soapenv:Envelope>";
       Resp : AWS.Response.Data;
    begin
-      Resp := AWS.Client.SOAP_Post
-        (AWS.Server.Status.Local_URL (H_Server),
-         Exec_Mes,
-         "http://aurn.here.org/abc/execute");
+      AWS.Client.SOAP_Post
+        (H_Client, Resp, "http://aurn.here.org/abc/execute", Exec_Mes);
       Text_IO.Put_Line (Response.Message_Body (Resp));
    end;
 
