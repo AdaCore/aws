@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2007-2014, AdaCore                     --
+--                     Copyright (C) 2007-2015, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -258,8 +258,7 @@ package body AWS.Services.Web_Block.Registry is
                                         Ctx               => Get_Context);
       Position        : Web_Object_Maps.Cursor;
 
-      function Get_Matching_Web_Object
-         (Search_Key : String) return Callback_Parameters;
+      function Get_Matching_Web_Object return Callback_Parameters;
       --  Get the Web_Object matching Search_Key in Pattern_URL_Vector
       --  Returns the Parameters extracted from the URL patterns.
 
@@ -267,8 +266,7 @@ package body AWS.Services.Web_Block.Registry is
       -- Get_Matching_Web_Object --
       -----------------------------
 
-      function Get_Matching_Web_Object
-        (Search_Key : String) return Callback_Parameters is
+      function Get_Matching_Web_Object return Callback_Parameters is
       begin
          WO_Store.Find (Key, Position);
 
@@ -276,76 +274,64 @@ package body AWS.Services.Web_Block.Registry is
             return Empty_Callback_Parameters;
          end if;
 
-         declare
-            use GNAT.Regpat;
-            use Pattern_URL_Container;
-         begin
-            for Vector_Cursor in Pattern_URL_Vector.Iterate loop
-               declare
-                  P_URI : constant URL_Pattern := Element (Vector_Cursor);
-                  K     : constant String := To_String (P_URI.Prefix);
-               begin
-                  if K'Length <= Search_Key'Length
-                  and then
-                     Search_Key
-                        (Search_Key'First ..
-                               Search_Key'First + K'Length - 1) = K
-                  then
+         for Vector_Cursor in Pattern_URL_Vector.Iterate loop
+            declare
+               use GNAT.Regpat;
+               use Pattern_URL_Container;
+               P_URI : constant URL_Pattern := Element (Vector_Cursor);
+               K     : constant String := To_String (P_URI.Prefix);
+            begin
+               if K'Length <= Key'Length
+                 and then Key (Key'First .. Key'First + K'Length - 1) = K
+               then
+                  --  If a regexp is defined, check whether it matched
 
-                     --  If a regexp is defined, check whether it matched
-                     if P_URI.With_Matcher then
-                        declare
-                           Count   : constant Natural :=
-                                       Paren_Count (P_URI.Matcher.all);
-                           Matched : Match_Array (0 .. Count);
-                        begin
-                           Match (Self    => P_URI.Matcher.all,
-                                  Data    => Search_Key,
-                                  Matches => Matched);
+                  if P_URI.With_Matcher then
+                     declare
+                        Count   : constant Natural :=
+                                    Paren_Count (P_URI.Matcher.all);
+                        Matched : Match_Array (0 .. Count);
+                     begin
+                        Match (Self    => P_URI.Matcher.all,
+                               Data    => Key,
+                               Matches => Matched);
 
-                           if Matched (0) /= No_Match then
-                              --  Returns the registered web object
-                              --  Registered with a key = Prefix + Regexp
-                              WO_Store.Find (To_String (P_URI.Key), Position);
+                        if Matched (0) /= No_Match then
+                           --  Returns the registered web object
+                           --  Registered with a key = Prefix + Regexp
+                           WO_Store.Find (To_String (P_URI.Key), Position);
 
-                              declare
-                                 Params : Callback_Parameters (1 .. Count);
-                              begin
-                                 for J in 1 .. Count loop
-                                    Params (J) :=
-                                       To_Unbounded_String (Search_Key
-                                          (Matched (J).First ..
-                                             Matched (J).Last));
-                                 end loop;
-                                 return Params;
-                              end;
-                           end if;
-                        end;
+                           declare
+                              Params : Callback_Parameters (1 .. Count);
+                           begin
+                              for J in 1 .. Count loop
+                                 Params (J) :=
+                                    To_Unbounded_String
+                                      (Key (Matched (J).First
+                                            .. Matched (J).Last));
+                              end loop;
+                              return Params;
+                           end;
+                        end if;
+                     end;
 
-                     else
-                        --  Only a prefix is defined.
-                        --  No need to search for other candidates
-                        WO_Store.Find (K, Position);
-                        return Empty_Callback_Parameters;
-                     end if;
+                  else
+                     --  Only a prefix is defined.
+                     --  No need to search for other candidates
+                     WO_Store.Find (K, Position);
+                     return Empty_Callback_Parameters;
                   end if;
-               end;
-            end loop;
+               end if;
+            end;
+         end loop;
 
-            return Empty_Callback_Parameters;
-         end;
+         return Empty_Callback_Parameters;
       end Get_Matching_Web_Object;
 
       Parsed_Page : Page := No_Page;
-      Parameters  : constant Callback_Parameters :=
-                      Get_Matching_Web_Object (Key);
-
+      Parameters  : constant Callback_Parameters := Get_Matching_Web_Object;
    begin
       --  Use provided context if a user's defined one
-
-      if Context /= Web_Block.Context.Empty then
-         LT.Ctx := Context;
-      end if;
 
       if Position /= No_Element then
          declare
