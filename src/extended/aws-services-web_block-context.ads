@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2007-2014, AdaCore                     --
+--                     Copyright (C) 2007-2015, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -94,6 +94,9 @@ private
 
    use Ada;
    use GNAT;
+
+   pragma Suppress (Tampering_Check);
+   --  Suppress Tampering_Check until O608-005 fixed.
 
    package KV is new Containers.Indefinite_Hashed_Maps
      (String, String, Strings.Hash, "=");
