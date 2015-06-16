@@ -1,7 +1,7 @@
 ############################################################################
 #                              Ada Web Server                              #
 #                                                                          #
-#                     Copyright (C) 2003-2012, AdaCore                     #
+#                     Copyright (C) 2003-2015, AdaCore                     #
 #                                                                          #
 #  This is free software;  you can redistribute it  and/or modify it       #
 #  under terms of the  GNU General Public License as published  by the     #
@@ -18,20 +18,9 @@
 
 .SILENT:
 
-build:
-
-testsuite.tags: ../makefile.setup gen_system_tags.py
-	$(PYTHON) gen_system_tags.py ../makefile.setup 2>/dev/null || \
-		(echo "Can not generate system tags. The test are disabled")
-
-setup: testsuite.tags
-
-aws_regtests:
-	test -f testsuite.tags || (echo 'Did you run make setup ?'; exit 1)
-	$(PYTHON) testsuite.py --from-build-dir
+setup:
 
 install:
 
-clean:
-	-$(RM) -f testsuite.tags testsuite.res testsuite.duration_* *.pyc
-	-$(RM) -fr .outputs .build
+check:
+	$(GNAT) check -files=filenames.check -rules -from=../aws.checks

@@ -1,7 +1,7 @@
 ############################################################################
 #                              Ada Web Server                              #
 #                                                                          #
-#                     Copyright (C) 2003-2013, AdaCore                     #
+#                     Copyright (C) 2003-2015, AdaCore                     #
 #                                                                          #
 #  This is free software;  you can redistribute it  and/or modify it       #
 #  under terms of the  GNU General Public License as published  by the     #
@@ -18,12 +18,20 @@
 
 .SILENT:
 
-setup:
+build:
+
+testsuite.tags: ../makefile.setup gen_system_tags.py
+	$(PYTHON) gen_system_tags.py ../makefile.setup 2>/dev/null || \
+		(echo "Can not generate system tags. The test are disabled")
+
+setup: testsuite.tags
+
+aws_regtests:
+	test -f testsuite.tags || (echo 'Did you run make setup ?'; exit 1)
+	$(PYTHON) testsuite.py --from-build-dir
 
 install:
 
-check:
-	echo Rule \"raised exception is not declared...\"
-	echo "   Expected 3 violations in aws-server-hotplug.adb"
-	echo "   Expected 3 violations in aws-server.adb"
-	$(GNAT) check -rules -from=../aws.checks -Psrc
+clean:
+	-$(RM) -f testsuite.tags testsuite.res testsuite.duration_* *.pyc
+	-$(RM) -fr .outputs .build

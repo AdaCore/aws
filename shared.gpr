@@ -130,7 +130,7 @@ abstract project Shared is
 
    package Compiler is
 
-      for Driver ("makefile") use "";
+      for Driver ("Makefile") use "";
 
       case Build is
          when "Debug" =>
@@ -202,8 +202,8 @@ abstract project Shared is
    ------------
 
    package Naming is
-      for Implementation_Suffix ("makefile") use ".makefile";
-      for Implementation_Exceptions ("makefile") use ("makefile");
+      for Implementation_Suffix ("Makefile") use ".txt";
+      for Implementation_Exceptions ("Makefile") use ("Makefile");
    end Naming;
 
 end Shared;
