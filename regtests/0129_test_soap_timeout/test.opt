@@ -1,1 +1,2 @@
 !xmlada DEAD
+ALL XFAIL "depends on network status, timeout may be longer than expected"

@@ -1,1 +1,2 @@
 vxworks DEAD "cannot access external world"
+ALL XFAIL "depends on network status, timeout may be longer than expected"
