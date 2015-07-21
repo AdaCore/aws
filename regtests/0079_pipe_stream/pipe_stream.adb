@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2007-2012, AdaCore                     --
+--                     Copyright (C) 2007-2015, AdaCore                     --
 --                                                                          --
 --  This is free software;  you can redistribute it  and/or modify it       --
 --  under terms of the  GNU General Public License as published  by the     --
@@ -24,17 +24,17 @@ with GNAT.OS_Lib;
 
 with AWS.Client;
 with AWS.MIME;
-with AWS.Server.Status;
-with AWS.Status;
 with AWS.Resources.Streams.Pipe;
 with AWS.Response;
+with AWS.Server.Status;
+with AWS.Status;
 with AWS.Utils;
 
 procedure Pipe_Stream is
 
    use Ada;
-   use GNAT;
    use AWS;
+   use GNAT;
 
    WS : Server.HTTP;
 
@@ -50,7 +50,7 @@ procedure Pipe_Stream is
       Args : OS_Lib.Argument_List (1 .. 1) := (1 => new String'("-pipe"));
       Strm : Resources.Streams.Stream_Access;
    begin
-      Strm :=  new Resources.Streams.Pipe.Stream_Type;
+      Strm := new Resources.Streams.Pipe.Stream_Type;
 
       Resources.Streams.Pipe.Open
         (Resources.Streams.Pipe.Stream_Type (Strm.all), "./pipe_stream", Args);
