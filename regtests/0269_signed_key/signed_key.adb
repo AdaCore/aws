@@ -48,6 +48,7 @@ begin
 
    Server.Start
      (WS, "HTTPS",
+      Port           => 0,
       Max_Connection => 5,
       Security       => True,
       Callback       => Signed_Key_CB.HW_CB'Access);
