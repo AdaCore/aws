@@ -1802,8 +1802,7 @@ package body AWS.Net.SSL is
          type Meth_Func is access function return TSSL.SSL_Method
            with Convention => C;
 
-         procedure Set_Certificate
-           (Cert_Filename : String; Key_Filename : String);
+         procedure Set_Certificate;
 
          procedure Set_Priorities;
 
@@ -1828,23 +1827,21 @@ package body AWS.Net.SSL is
          -- Set_Certificate --
          ---------------------
 
-         procedure Set_Certificate
-           (Cert_Filename : String; Key_Filename : String)
-         is
+         procedure Set_Certificate is
             use Interfaces.C;
 
             PK : constant Private_Key :=
                    Load ((if Key_Filename = ""
-                          then Cert_Filename else Key_Filename));
+                          then Certificate_Filename else Key_Filename));
 
          begin
             --  Get the single certificate or certificate chain from
             --  the file Cert_Filename.
 
             if TSSL.SSL_CTX_use_certificate_chain_file
-              (Ctx => Context, File => To_C (Cert_Filename)) /= 1
+              (Ctx => Context, File => To_C (Certificate_Filename)) /= 1
             then
-               File_Error ("Certificate", Cert_Filename);
+               File_Error ("Certificate", Certificate_Filename);
             end if;
 
             Error_If
@@ -1955,7 +1952,7 @@ package body AWS.Net.SSL is
             end if;
 
             if Certificate_Filename /= "" then
-               Set_Certificate (Certificate_Filename, Key_Filename);
+               Set_Certificate;
             end if;
 
             if Priorities /= "" then

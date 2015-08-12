@@ -209,8 +209,7 @@ package body AWS.Net.SSL is
    type TS_SSL is record
       ASC            : aliased TSSL.gnutls_anon_server_credentials_t;
       ACC            : aliased TSSL.gnutls_anon_client_credentials_t;
-      CSC            : aliased TSSL.gnutls_certificate_credentials_t;
-      CCC            : aliased TSSL.gnutls_certificate_credentials_t;
+      CC             : aliased TSSL.gnutls_certificate_credentials_t;
       PCert_List     : PCert_Array_Access;
       TLS_PK         : aliased TSSL.gnutls_privkey_t;
       Priority_Cache : aliased TSSL.gnutls_priority_t;
@@ -707,14 +706,9 @@ package body AWS.Net.SSL is
          Config.ACC := null;
       end if;
 
-      if Config.CSC /= null then
-         TSSL.gnutls_certificate_free_credentials (Config.CSC);
-         Config.CSC := null;
-      end if;
-
-      if Config.CCC /= null then
-         TSSL.gnutls_certificate_free_credentials (Config.CCC);
-         Config.CCC := null;
+      if Config.CC /= null then
+         TSSL.gnutls_certificate_free_credentials (Config.CC);
+         Config.CC := null;
       end if;
 
       if Config.TLS_PK /= null then
@@ -1011,10 +1005,6 @@ package body AWS.Net.SSL is
       use type TSSL.gnutls_certificate_credentials_t;
       use type TSSL.gnutls_dh_params_t;
 
-      Cert     : aliased Datum_Type;
-      Key      : aliased Datum_Type;
-      Trust_CA : aliased Datum_Type;
-
       procedure Set_Certificate (CC : TSSL.gnutls_certificate_credentials_t);
       --  Set credentials from Cetificate_Filename and Key_Filename
 
@@ -1022,13 +1012,9 @@ package body AWS.Net.SSL is
       --  Check that Filename is present, raise an exception adding
       --  Prefix in front of the message.
 
-      procedure Final;
-
       function Get_Priorities return String;
       --  Returns the Priorities string from Initialize of a default one
       --  depending on the Security_Mode.
-
-      Drop : Utils.Finalizer (Final'Access) with Unreferenced;
 
       ----------------
       -- Check_File --
@@ -1042,20 +1028,6 @@ package body AWS.Net.SSL is
                with Prefix & " file """ & Filename & """ error.";
          end if;
       end Check_File;
-
-      -----------
-      -- Final --
-      -----------
-
-      procedure Final is
-      begin
-         Free (Cert);
-         Free (Trust_CA);
-
-         if Key_Filename /= "" then
-            Free (Key);
-         end if;
-      end Final;
 
       --------------------
       -- Get_Priorities --
@@ -1094,7 +1066,28 @@ package body AWS.Net.SSL is
 
          function Load_PCert_List (Try_Size : Positive) return PCert_Array;
 
+         procedure Final;
+
          Code : C.int;
+
+         Cert     : aliased Datum_Type;
+         Key      : aliased Datum_Type;
+         Trust_CA : aliased Datum_Type;
+         Drop     : Utils.Finalizer (Final'Access) with Unreferenced;
+
+         -----------
+         -- Final --
+         -----------
+
+         procedure Final is
+         begin
+            Free (Cert);
+            Free (Trust_CA);
+
+            if Key_Filename /= "" then
+               Free (Key);
+            end if;
+         end Final;
 
          ---------------------
          -- Load_PCert_List --
@@ -1133,6 +1126,19 @@ package body AWS.Net.SSL is
                        else CS.New_String (Password));
 
       begin
+         if Certificate_Filename /= "" then
+            Check_File ("Certificate", Certificate_Filename);
+
+            Cert := Load_File (Certificate_Filename);
+
+            if Key_Filename = "" then
+               Key := Cert;
+            else
+               Check_File ("Key", Key_Filename);
+               Key := Load_File (Key_Filename);
+            end if;
+         end if;
+
          if Set_Certificate_Over_Callback then
             Config.PCert_List := new PCert_Array'(Load_PCert_List (4));
 
@@ -1162,6 +1168,9 @@ package body AWS.Net.SSL is
          end if;
 
          if Trusted_CA_Filename /= "" then
+            Check_File ("CA", Trusted_CA_Filename);
+            Trust_CA := Load_File (Trusted_CA_Filename);
+
             if TSSL.gnutls_certificate_set_x509_trust_mem
               (CC, Trust_CA.Datum'Unchecked_Access,
                TSSL.GNUTLS_X509_FMT_PEM) = -1
@@ -1176,24 +1185,6 @@ package body AWS.Net.SSL is
       Config.Sessions.Set_Size (Session_Cache_Size);
       Config.Ticket_Support := Ticket_Support;
 
-      if Certificate_Filename /= "" then
-         Check_File ("Certificate", Certificate_Filename);
-
-         Cert := Load_File (Certificate_Filename);
-
-         if Key_Filename = "" then
-            Key := Cert;
-         else
-            Check_File ("Key", Key_Filename);
-            Key := Load_File (Key_Filename);
-         end if;
-      end if;
-
-      if Trusted_CA_Filename /= "" then
-         Check_File ("CA", Trusted_CA_Filename);
-         Trust_CA := Load_File (Trusted_CA_Filename);
-      end if;
-
       if (Security_Mode = SSLv23
           or else Security_Mode = TLSv1
           or else Security_Mode = TLSv1_1
@@ -1205,7 +1196,6 @@ package body AWS.Net.SSL is
           or else Security_Mode = TLSv1_2_Server
           or else Security_Mode = SSLv3_Server)
         and then Config.ASC = null
-        and then Config.CSC = null
       then
          Config.RCC := Exchange_Certificate;
          Config.CREQ := Certificate_Required;
@@ -1216,19 +1206,6 @@ package body AWS.Net.SSL is
                  (Config.ASC'Access));
             TSSL.gnutls_anon_set_params_function
               (Config.ASC, Params_Callback'Access);
-
-         else
-            Check_Error_Code
-              (TSSL.gnutls_certificate_allocate_credentials
-                 (Config.CSC'Access));
-
-            Set_Certificate (Config.CSC);
-
-            TSSL.gnutls_certificate_set_verify_function
-              (cred => Config.CSC, func => Verify_Callback'Access);
-
-            TSSL.gnutls_certificate_set_params_function
-              (Config.CSC, Params_Callback'Access);
          end if;
 
          if Ticket_Support then
@@ -1249,20 +1226,25 @@ package body AWS.Net.SSL is
           or else Security_Mode = TLSv1_2_Client
           or else Security_Mode = SSLv3_Client)
         and then Config.ACC = null
-        and then Config.CCC = null
       then
          Check_Error_Code
            (TSSL.gnutls_anon_allocate_client_credentials (Config.ACC'Access));
+      end if;
 
-         Check_Error_Code
-           (TSSL.gnutls_certificate_allocate_credentials (Config.CCC'Access));
-         --  It is a strange, but we have to allocate client certificate
-         --  credentials even if we would not assign certificate over there.
-         --  Checked in GNUTLS 3.0.3.
+      Check_Error_Code
+        (TSSL.gnutls_certificate_allocate_credentials (Config.CC'Access));
+      --  It is strange, but we have to allocate client certificate
+      --  credentials even if we would not assign certificate over there.
+      --  Checked in GNUTLS 3.2.18.
 
-         if Certificate_Filename /= "" then
-            Set_Certificate (Config.CCC);
-         end if;
+      if Certificate_Filename /= "" then
+         Set_Certificate (Config.CC);
+
+         TSSL.gnutls_certificate_set_verify_function
+           (cred => Config.CC, func => Verify_Callback'Access);
+
+         TSSL.gnutls_certificate_set_params_function
+           (Config.CC, Params_Callback'Access);
       end if;
 
       if CRL_Filename /= "" then
@@ -1779,9 +1761,9 @@ package body AWS.Net.SSL is
         (gnutls_credentials_set (Socket.SSL, cred => Socket.Config.ACC),
          Socket);
 
-      if Socket.Config.CCC /= null then
+      if Socket.Config.CC /= null then
          Check_Error_Code
-           (gnutls_credentials_set (Socket.SSL, cred => Socket.Config.CCC),
+           (gnutls_credentials_set (Socket.SSL, cred => Socket.Config.CC),
             Socket);
       end if;
 
@@ -1878,14 +1860,14 @@ package body AWS.Net.SSL is
          gnutls_db_set_store_function (Socket.SSL, DB_Store'Access);
       end if;
 
-      if Socket.Config.CSC = null then
+      if Socket.Config.CC = null then
          Check_Error_Code
            (gnutls_credentials_set (Socket.SSL, cred => Socket.Config.ASC),
             Socket);
 
       else
          Check_Error_Code
-           (gnutls_credentials_set (Socket.SSL, cred => Socket.Config.CSC),
+           (gnutls_credentials_set (Socket.SSL, cred => Socket.Config.CC),
             Socket);
 
          if Socket.Config.RCC then
@@ -1911,7 +1893,7 @@ package body AWS.Net.SSL is
                      Socket.Config.CRL_Time_Stamp := TS;
 
                      RC := TSSL.gnutls_certificate_set_x509_crl_file
-                       (Socket.Config.CSC,
+                       (Socket.Config.CC,
                         Socket.Config.CRL_File,
                         TSSL.GNUTLS_X509_FMT_PEM);
 
