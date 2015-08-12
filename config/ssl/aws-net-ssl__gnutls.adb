@@ -207,8 +207,6 @@ package body AWS.Net.SSL is
    end Session_Cache;
 
    type TS_SSL is record
-      ASC            : aliased TSSL.gnutls_anon_server_credentials_t;
-      ACC            : aliased TSSL.gnutls_anon_client_credentials_t;
       CC             : aliased TSSL.gnutls_certificate_credentials_t;
       PCert_List     : PCert_Array_Access;
       TLS_PK         : aliased TSSL.gnutls_privkey_t;
@@ -696,16 +694,6 @@ package body AWS.Net.SSL is
         new Unchecked_Deallocation (PCert_Array, PCert_Array_Access);
 
    begin
-      if Config.ASC /= null then
-         TSSL.gnutls_anon_free_server_credentials (Config.ASC);
-         Config.ASC := null;
-      end if;
-
-      if Config.ACC /= null then
-         TSSL.gnutls_anon_free_client_credentials (Config.ACC);
-         Config.ACC := null;
-      end if;
-
       if Config.CC /= null then
          TSSL.gnutls_certificate_free_credentials (Config.CC);
          Config.CC := null;
@@ -1005,7 +993,7 @@ package body AWS.Net.SSL is
       use type TSSL.gnutls_certificate_credentials_t;
       use type TSSL.gnutls_dh_params_t;
 
-      procedure Set_Certificate (CC : TSSL.gnutls_certificate_credentials_t);
+      procedure Set_Certificate;
       --  Set credentials from Cetificate_Filename and Key_Filename
 
       procedure Check_File (Prefix, Filename : String);
@@ -1062,7 +1050,7 @@ package body AWS.Net.SSL is
       -- Set_Certificate --
       ---------------------
 
-      procedure Set_Certificate (CC : TSSL.gnutls_certificate_credentials_t) is
+      procedure Set_Certificate is
 
          function Load_PCert_List (Try_Size : Positive) return PCert_Array;
 
@@ -1151,11 +1139,11 @@ package body AWS.Net.SSL is
             CS.Free (Pwd);
 
             TSSL.gnutls_certificate_set_retrieve_function2
-              (CC, Retrieve_Certificate'Access);
+              (Config.CC, Retrieve_Certificate'Access);
 
          else
             Code := TSSL.gnutls_certificate_set_x509_key_mem2
-                      (CC,
+                      (Config.CC,
                        Cert.Datum'Unchecked_Access,
                        Key.Datum'Unchecked_Access,
                        TSSL.GNUTLS_X509_FMT_PEM, Pwd, 0);
@@ -1172,7 +1160,7 @@ package body AWS.Net.SSL is
             Trust_CA := Load_File (Trusted_CA_Filename);
 
             if TSSL.gnutls_certificate_set_x509_trust_mem
-              (CC, Trust_CA.Datum'Unchecked_Access,
+              (Config.CC, Trust_CA.Datum'Unchecked_Access,
                TSSL.GNUTLS_X509_FMT_PEM) = -1
             then
                raise Socket_Error
@@ -1185,67 +1173,50 @@ package body AWS.Net.SSL is
       Config.Sessions.Set_Size (Session_Cache_Size);
       Config.Ticket_Support := Ticket_Support;
 
-      if (Security_Mode = SSLv23
-          or else Security_Mode = TLSv1
-          or else Security_Mode = TLSv1_1
-          or else Security_Mode = TLSv1_2
-          or else Security_Mode = SSLv3
-          or else Security_Mode = SSLv23_Server
-          or else Security_Mode = TLSv1_Server
-          or else Security_Mode = TLSv1_1_Server
-          or else Security_Mode = TLSv1_2_Server
-          or else Security_Mode = SSLv3_Server)
-        and then Config.ASC = null
+      Check_Error_Code
+        (TSSL.gnutls_certificate_allocate_credentials (Config.CC'Access));
+      --  Looks like it is possible to use gnutls_certificate_credentials_t
+      --  on client side without certificate assigned. See
+      --  "Simple client example with X.509 certificate support" example
+      --  at http://www.gnutls.org/manual/html_node
+      --  Commented code
+      --  /* If client holds a certificate it can be set using the following:
+      --   *
+      --   gnutls_certificate_set_x509_key_file (xcred,
+      --   "cert.pem", "key.pem",
+      --   GNUTLS_X509_FMT_PEM);
+      --   */
+
+      if Certificate_Filename /= "" then
+         Set_Certificate;
+      end if;
+
+      if Security_Mode = SSLv23
+        or else Security_Mode = TLSv1
+        or else Security_Mode = TLSv1_1
+        or else Security_Mode = TLSv1_2
+        or else Security_Mode = SSLv3
+        or else Security_Mode = SSLv23_Server
+        or else Security_Mode = TLSv1_Server
+        or else Security_Mode = TLSv1_1_Server
+        or else Security_Mode = TLSv1_2_Server
+        or else Security_Mode = SSLv3_Server
       then
          Config.RCC := Exchange_Certificate;
          Config.CREQ := Certificate_Required;
-
-         if Certificate_Filename = "" then
-            Check_Error_Code
-              (TSSL.gnutls_anon_allocate_server_credentials
-                 (Config.ASC'Access));
-            TSSL.gnutls_anon_set_params_function
-              (Config.ASC, Params_Callback'Access);
-         end if;
 
          if Ticket_Support then
             Check_Error_Code
               (TSSL.gnutls_session_ticket_key_generate
                  (Config.Ticket_Key'Access));
          end if;
-      end if;
-
-      if (Security_Mode = SSLv23
-          or else Security_Mode = TLSv1
-          or else Security_Mode = TLSv1_1
-          or else Security_Mode = TLSv1_2
-          or else Security_Mode = SSLv3
-          or else Security_Mode = SSLv23_Client
-          or else Security_Mode = TLSv1_Client
-          or else Security_Mode = TLSv1_1_Client
-          or else Security_Mode = TLSv1_2_Client
-          or else Security_Mode = SSLv3_Client)
-        and then Config.ACC = null
-      then
-         Check_Error_Code
-           (TSSL.gnutls_anon_allocate_client_credentials (Config.ACC'Access));
-      end if;
-
-      Check_Error_Code
-        (TSSL.gnutls_certificate_allocate_credentials (Config.CC'Access));
-      --  It is strange, but we have to allocate client certificate
-      --  credentials even if we would not assign certificate over there.
-      --  Checked in GNUTLS 3.2.18.
-
-      if Certificate_Filename /= "" then
-         Set_Certificate (Config.CC);
-
-         TSSL.gnutls_certificate_set_verify_function
-           (cred => Config.CC, func => Verify_Callback'Access);
 
          TSSL.gnutls_certificate_set_params_function
            (Config.CC, Params_Callback'Access);
       end if;
+
+      TSSL.gnutls_certificate_set_verify_function
+        (cred => Config.CC, func => Verify_Callback'Access);
 
       if CRL_Filename /= "" then
          Config.CRL_File := C.Strings.New_String (CRL_Filename);
@@ -1758,14 +1729,8 @@ package body AWS.Net.SSL is
       end if;
 
       Check_Error_Code
-        (gnutls_credentials_set (Socket.SSL, cred => Socket.Config.ACC),
+        (gnutls_credentials_set (Socket.SSL, cred => Socket.Config.CC),
          Socket);
-
-      if Socket.Config.CC /= null then
-         Check_Error_Code
-           (gnutls_credentials_set (Socket.SSL, cred => Socket.Config.CC),
-            Socket);
-      end if;
 
       Session_Transport (Socket);
    end Session_Client;
@@ -1860,58 +1825,51 @@ package body AWS.Net.SSL is
          gnutls_db_set_store_function (Socket.SSL, DB_Store'Access);
       end if;
 
-      if Socket.Config.CC = null then
-         Check_Error_Code
-           (gnutls_credentials_set (Socket.SSL, cred => Socket.Config.ASC),
-            Socket);
+      Check_Error_Code
+        (gnutls_credentials_set (Socket.SSL, cred => Socket.Config.CC),
+         Socket);
+
+      if Socket.Config.RCC then
+         gnutls_certificate_server_set_request
+           (Socket.SSL,
+            (if Socket.Config.CREQ
+             then GNUTLS_CERT_REQUIRE else GNUTLS_CERT_REQUEST));
+
+         if Socket.Config.CRL_File /= C.Strings.Null_Ptr then
+            declare
+               use type Calendar.Time;
+
+               TS : constant Calendar.Time :=
+                      Utils.File_Time_Stamp
+                        (C.Strings.Value (Socket.Config.CRL_File));
+               RC : C.int;
+            begin
+               if Socket.Config.CRL_Time_Stamp = Utils.AWS_Epoch
+                 or else Socket.Config.CRL_Time_Stamp /= TS
+               then
+                  Socket.Config.CRL_Semaphore.Seize;
+
+                  Socket.Config.CRL_Time_Stamp := TS;
+
+                  RC := TSSL.gnutls_certificate_set_x509_crl_file
+                          (Socket.Config.CC,
+                           Socket.Config.CRL_File,
+                           TSSL.GNUTLS_X509_FMT_PEM);
+
+                  Socket.Config.CRL_Semaphore.Release;
+
+                  if RC = -1 then
+                     raise Socket_Error
+                       with "cannot set CRL file "
+                         & C.Strings.Value (Socket.Config.CRL_File);
+                  end if;
+               end if;
+            end;
+         end if;
 
       else
-         Check_Error_Code
-           (gnutls_credentials_set (Socket.SSL, cred => Socket.Config.CC),
-            Socket);
-
-         if Socket.Config.RCC then
-            gnutls_certificate_server_set_request
-              (Socket.SSL,
-               (if Socket.Config.CREQ
-                then GNUTLS_CERT_REQUIRE else GNUTLS_CERT_REQUEST));
-
-            if Socket.Config.CRL_File /= C.Strings.Null_Ptr then
-               declare
-                  use type Calendar.Time;
-
-                  TS : constant Calendar.Time :=
-                         Utils.File_Time_Stamp
-                           (C.Strings.Value (Socket.Config.CRL_File));
-                  RC : C.int;
-               begin
-                  if Socket.Config.CRL_Time_Stamp = Utils.AWS_Epoch
-                    or else Socket.Config.CRL_Time_Stamp /= TS
-                  then
-                     Socket.Config.CRL_Semaphore.Seize;
-
-                     Socket.Config.CRL_Time_Stamp := TS;
-
-                     RC := TSSL.gnutls_certificate_set_x509_crl_file
-                       (Socket.Config.CC,
-                        Socket.Config.CRL_File,
-                        TSSL.GNUTLS_X509_FMT_PEM);
-
-                     Socket.Config.CRL_Semaphore.Release;
-
-                     if RC = -1 then
-                        raise Socket_Error
-                          with "cannot set CRL file "
-                            & C.Strings.Value (Socket.Config.CRL_File);
-                     end if;
-                  end if;
-               end;
-            end if;
-
-         else
-            gnutls_certificate_server_set_request
-              (Socket.SSL, GNUTLS_CERT_IGNORE);
-         end if;
+         gnutls_certificate_server_set_request
+           (Socket.SSL, GNUTLS_CERT_IGNORE);
       end if;
 
       Session_Transport (Socket);
