@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2000-2014, AdaCore                     --
+--                     Copyright (C) 2000-2015, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -209,12 +209,12 @@ package AWS.Utils is
    ------------------
 
    --  This is a Read/Write semaphore. Many reader tasks can enter (Read) at
-   --  the same time excluding all writers (Write). A single writer can enter
-   --  (Write) excluding all readers (Read). The task must release the
-   --  corresponding resource by calling either Release_Read or Release_Write.
-   --  As soon as a writer arrive all readers will wait for it to complete.
-   --  Writers discriminant is the maximum number of writers accepted into the
-   --  critical section.
+   --  the same time excluding all writers (Write). Limited number of writers
+   --  can enter (Write) excluding all readers (Read). The task must release
+   --  the corresponding resource by calling either Release_Read or
+   --  Release_Write. As soon as a writer arrive all readers will wait for it
+   --  to complete. Writers discriminant is the maximum number of writers
+   --  accepted into the critical section.
 
    protected type RW_Semaphore (Writers : Positive) is
 
