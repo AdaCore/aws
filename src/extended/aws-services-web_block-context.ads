@@ -96,7 +96,7 @@ private
    use GNAT;
 
    pragma Suppress (Tampering_Check);
-   --  Suppress Tampering_Check until O608-005 fixed.
+   --  ?? Suppress Tampering_Check until O608-005 is fixed
 
    package KV is new Containers.Indefinite_Hashed_Maps
      (String, String, Strings.Hash, "=");
