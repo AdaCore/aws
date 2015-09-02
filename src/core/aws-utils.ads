@@ -83,15 +83,20 @@ package AWS.Utils is
    function Random return Random_Integer;
    --  Returns a random integer number
 
-   procedure Random_String (Item : out String);
+   procedure Random_String (Item : out String) with
+     Post => (for all C of Item => C in '0' .. '9' | 'a' .. 'z' | 'A' .. 'Z');
    --  Fill string by random printable characters
 
    function Random_String (Length : Natural) return String with
-     Inline, Post => Random_String'Result'Length = Length;
+     Inline,
+     Post => Random_String'Result'Length = Length
+             and then (for all C of Random_String'Result
+                         => C in '0' .. '9' | 'a' .. 'z' | 'A' .. 'Z');
    --  Returns random string
 
    function Image (N : Natural) return String with
-     Post => Image'Result'Length > 0;
+     Post => Image'Result'Length > 0
+             and then Image'Result (Image'Result'First) /= ' ';
    --  Returns image of N without the leading blank
 
    function Image (N : Stream_Element_Offset) return String with
@@ -116,12 +121,15 @@ package AWS.Utils is
    --  digits. If number of digits in integer part is more than N, the image
    --  would represent the whole integer part.
 
-   function Hex (V : Natural; Width : Natural := 0) return Hex_String;
+   function Hex (V : Natural; Width : Natural := 0) return Hex_String with
+     Post => (Width > 0 and then Hex'Result'Length = Width)
+             or else Hex'Result'Length > 0;
    --  Returns the hexadecimal string representation of the decimal
    --  number V. if Width /= 0, the result will have exactly Width characters
    --  eventually padded with leading 0 or trimmed on the right.
 
-   function Hex_Value (Hex : Hex_String) return Natural;
+   function Hex_Value (Hex : Hex_String) return Natural with
+     Pre => Hex'Length > 0;
    --  Returns the value for the hexadecimal number Hex. Raises
    --  Constraint_Error is Hex is not an hexadecimal number.
 
@@ -150,11 +158,23 @@ package AWS.Utils is
                 and then Dequote'Result (Dequote'Result'Last) /= '"');
    --  Removes quotes if any around Str and return the resulting string
 
-   function CRLF_2_Spaces (Str : String) return String;
+   function CRLF_2_Spaces (Str : String) return String with
+     Post => CRLF_2_Spaces'Result'Length <= Str'Length
+             and then (for all C of CRLF_2_Spaces'Result
+                        => C not in ASCII.CR | ASCII.LF);
    --  Returns an str in a single line. All CR and LF are converted to spaces,
    --  trailing spaces are removed.
 
-   function Head_Before (Source, Pattern : String) return String;
+   function Head_Before (Source, Pattern : String) return String with
+     Pre  => Pattern'Length > 0,
+     Post =>
+       (Head_Before'Result'Length = Source'Length
+        and then Head_Before'Result = Source)
+      or else
+       (Head_Before'Result'Length < Source'Length
+        and then Head_Before'Result =
+                 Source (Source'First
+                         .. Source'First + Head_Before'Result'Length - 1));
    --  Returns first part of string before Pattern or the Source string if
    --  Pattern not found.
 
