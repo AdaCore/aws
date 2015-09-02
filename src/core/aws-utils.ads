@@ -63,8 +63,7 @@ package AWS.Utils is
 
    subtype Hex_String is String with
      Dynamic_Predicate =>
-       (for all H in Hex_String'Range
-        => Hex_String (H) in '0' .. '9' | 'a' .. 'f' | 'A' .. 'F');
+       (for all H of Hex_String => H in '0' .. '9' | 'a' .. 'f' | 'A' .. 'F');
 
    subtype Time_Zone_String is String with
      Dynamic_Predicate =>
