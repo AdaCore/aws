@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2000-2014, AdaCore                     --
+--                     Copyright (C) 2000-2015, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -360,7 +360,7 @@ package body AWS.Utils is
    -----------------
 
    function Head_Before (Source, Pattern : String) return String is
-      Index : constant Natural := Ada.Strings.Fixed.Index (Source, Pattern);
+      Index : constant Natural := Strings.Fixed.Index (Source, Pattern);
    begin
       if Index = 0 then
          return Source;
