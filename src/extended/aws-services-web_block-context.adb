@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2007-2012, AdaCore                     --
+--                     Copyright (C) 2007-2015, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -61,7 +61,8 @@ package body AWS.Services.Web_Block.Context is
       function Get (CID : Id) return Object;
       --  Retruns the context object
 
-      procedure Include (Context : Object; CID : Id);
+      procedure Include (Context : Object; CID : Id)
+        with Post => Contains (CID);
       --  Add or update context into the database
 
    private

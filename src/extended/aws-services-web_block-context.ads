@@ -51,7 +51,8 @@ package AWS.Services.Web_Block.Context is
    function Value (CID : String) return Id;
    --  Returns Id given it's string representation
 
-   function Register (Context : Object) return Id;
+   function Register (Context : Object) return Id
+     with Post => Exist (Register'Result);
    --  Register the context into the database, returns its Id
 
    function Exist (CID : Id) return Boolean;
@@ -60,11 +61,20 @@ package AWS.Services.Web_Block.Context is
    function Get (CID : Id) return Object;
    --  Returns the context object corresponding to CID
 
-   procedure Set_Value (Context : in out Object; Name, Value : String);
-   --  Add a new name/value pair
+   procedure Set_Value (Context : in out Object; Name, Value : String)
+     with Post => Context.Exist (Name);
+   --  Add a new name/value pair (replace name/value if already present)
 
-   function Get_Value (Context : Object; Name : String) return String;
+   function Get_Value (Context : Object; Name : String) return String
+     with Post => (if not Context.Exist (Name) then Get_Value'Result = "");
    --  Returns the value for the key Name or an empty string if does not exist
+
+   function Exist (Context : Object; Name : String) return Boolean;
+   --  Returns true if the key Name exist in this context
+
+   procedure Remove (Context : in out Object; Name : String)
+     with Post => not Context.Exist (Name);
+   --  Remove the context for key Name
 
    generic
       type Data is private;
@@ -74,21 +84,19 @@ package AWS.Services.Web_Block.Context is
       procedure Set_Value
         (Context : in out Object;
          Name    : String;
-         Value   : Data);
+         Value   : Data)
+        with Post => Context.Exist (Name);
       --  Set key/pair value for the SID
 
       function Get_Value (Context : Object; Name : String) return Data
-        with Inline;
+        with
+          Inline,
+          Post => (if not Context.Exist (Name)
+                   then Get_Value'Result = Null_Data);
       --  Returns the Value for Key in the session SID or Null_Data if
       --  key does not exist.
 
    end Generic_Data;
-
-   function Exist (Context : Object; Name : String) return Boolean;
-   --  Returns true if the key Name exist in this context
-
-   procedure Remove (Context : in out Object; Name : String);
-   --  Remove the context for key Name
 
 private
 
