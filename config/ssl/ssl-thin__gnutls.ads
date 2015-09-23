@@ -348,29 +348,32 @@ package SSL.Thin is
    GNUTLS_SIGN_RSA_MD2 : constant gnutls_sign_algorithm_t := 4;
    GNUTLS_SIGN_UNKNOWN : constant gnutls_sign_algorithm_t := 255;
 
-   type gnutls_sec_param_t is
-     (GNUTLS_SEC_PARAM_INSECURE,
-      GNUTLS_SEC_PARAM_EXPORT,
-      GNUTLS_SEC_PARAM_VERY_WEAK,
-      GNUTLS_SEC_PARAM_WEAK,
-      GNUTLS_SEC_PARAM_UNKNOWN,
-      GNUTLS_SEC_PARAM_LOW,
-      GNUTLS_SEC_PARAM_LEGACY,
-      GNUTLS_SEC_PARAM_NORMAL,
-      GNUTLS_SEC_PARAM_HIGH,
-      GNUTLS_SEC_PARAM_ULTRA);
-   for gnutls_sec_param_t use
-     (GNUTLS_SEC_PARAM_INSECURE  => -20,
-      GNUTLS_SEC_PARAM_EXPORT    => -15,
-      GNUTLS_SEC_PARAM_VERY_WEAK => -12,
-      GNUTLS_SEC_PARAM_WEAK      => -10,
-      GNUTLS_SEC_PARAM_UNKNOWN   => 0,
-      GNUTLS_SEC_PARAM_LOW       => 1,
-      GNUTLS_SEC_PARAM_LEGACY    => 2,
-      GNUTLS_SEC_PARAM_NORMAL    => 3,
-      GNUTLS_SEC_PARAM_HIGH      => 4,
-      GNUTLS_SEC_PARAM_ULTRA     => 5);
-   for gnutls_sec_param_t'Size use C.int'Size;
+   type gnutls_sec_param_t is new C.int;
+   GNUTLS_SEC_PARAM_UNKNOWN   : constant gnutls_sec_param_t with Import,
+      Convention => C, External_Name => "_AWS_GNUTLS_SEC_PARAM_UNKNOWN";
+   GNUTLS_SEC_PARAM_INSECURE  : constant gnutls_sec_param_t with Import,
+      Convention => C, External_Name => "_AWS_GNUTLS_SEC_PARAM_INSECURE";
+   GNUTLS_SEC_PARAM_EXPORT    : constant gnutls_sec_param_t with Import,
+      Convention => C, External_Name => "_AWS_GNUTLS_SEC_PARAM_EXPORT";
+   GNUTLS_SEC_PARAM_VERY_WEAK : constant gnutls_sec_param_t with Import,
+      Convention => C, External_Name => "_AWS_GNUTLS_SEC_PARAM_VERY_WEAK";
+   GNUTLS_SEC_PARAM_WEAK      : constant gnutls_sec_param_t with Import,
+      Convention => C, External_Name => "_AWS_GNUTLS_SEC_PARAM_WEAK";
+   GNUTLS_SEC_PARAM_LOW       : constant gnutls_sec_param_t with Import,
+      Convention => C, External_Name => "_AWS_GNUTLS_SEC_PARAM_LOW";
+   GNUTLS_SEC_PARAM_LEGACY    : constant gnutls_sec_param_t with Import,
+      Convention => C, External_Name => "_AWS_GNUTLS_SEC_PARAM_LEGACY";
+   GNUTLS_SEC_PARAM_MEDIUM    : constant gnutls_sec_param_t with Import,
+      Convention => C, External_Name => "_AWS_GNUTLS_SEC_PARAM_NORMAL";
+   --  MEDIUM parameter imported as NORMAL for compartibility with different
+   --  GNUTLS versions. MEDIUM appeared at GNUTLS version 3.3.
+   GNUTLS_SEC_PARAM_HIGH      : constant gnutls_sec_param_t with Import,
+      Convention => C, External_Name => "_AWS_GNUTLS_SEC_PARAM_HIGH";
+   GNUTLS_SEC_PARAM_ULTRA     : constant gnutls_sec_param_t with Import,
+      Convention => C, External_Name => "_AWS_GNUTLS_SEC_PARAM_ULTRA";
+
+   GNUTLS_SEC_PARAM_NORMAL : constant gnutls_sec_param_t :=
+      GNUTLS_SEC_PARAM_MEDIUM;
 
    type chars_constant_access is access constant C.char_array
      with Size => Standard'Address_Size, Convention => C;
@@ -404,7 +407,6 @@ package SSL.Thin is
 
    type gnutls_session_t is access all STRUCT_DSTRUCT;
    type gnutls_dh_params_t is access all STRUCT_DSTRUCT;
-   type gnutls_rsa_params_t is access all STRUCT_DSTRUCT;
    type gnutls_ecdh_params_t is access all STRUCT_DSTRUCT;
    type gnutls_certificate_credentials_t is access all STRUCT_DSTRUCT;
    type gnutls_anon_server_credentials_t is access all STRUCT_DSTRUCT;
@@ -423,6 +425,7 @@ package SSL.Thin is
    type gnutls_privkey_t is access all STRUCT_DSTRUCT;
    type gnutls_priority_t is access all STRUCT_DSTRUCT;
 
+   subtype gnutls_rsa_params_t is gnutls_x509_privkey_t;
    subtype Private_Key is gnutls_privkey_t;
 
    type gnutls_retr_st is record
@@ -973,11 +976,6 @@ package SSL.Thin is
       p2  : gnutls_dh_params_t)
      with Import, Convention => C;
 
-   procedure gnutls_certificate_set_rsa_export_params
-     (res        : gnutls_certificate_credentials_t;
-      rsa_params : gnutls_rsa_params_t)
-     with Import, Convention => C;
-
    procedure gnutls_certificate_set_verify_flags
      (res   : gnutls_certificate_credentials_t;
       flags : C.unsigned)
@@ -1086,6 +1084,12 @@ package SSL.Thin is
    function gnutls_x509_privkey_init
      (key : access gnutls_x509_privkey_t) return C.int
      with Import, Convention => C;
+
+   function gnutls_x509_privkey_generate
+     (key   : gnutls_x509_privkey_t;
+      algo  : gnutls_pk_algorithm_t;
+      bits  : C.unsigned;
+      flags : C.unsigned) return C.int with Import, Convention => C;
 
    procedure gnutls_x509_privkey_deinit (key : gnutls_x509_privkey_t)
      with Import, Convention => C;
@@ -1268,50 +1272,6 @@ package SSL.Thin is
    function gnutls_dh_params_cpy
      (dst : gnutls_dh_params_t;
       src : gnutls_dh_params_t) return C.int
-     with Import, Convention => C;
-
-   function gnutls_rsa_params_init
-     (rsa_params : access gnutls_rsa_params_t) return C.int
-     with Import, Convention => C;
-
-   procedure gnutls_rsa_params_deinit (rsa_params : gnutls_rsa_params_t)
-     with Import, Convention => C;
-
-   function gnutls_rsa_params_cpy
-     (dst : gnutls_rsa_params_t;
-      src : gnutls_rsa_params_t) return C.int
-     with Import, Convention => C;
-
-   function gnutls_rsa_params_import_raw
-     (rsa_params : gnutls_rsa_params_t;
-      m          : a_gnutls_datum_t;
-      e          : a_gnutls_datum_t;
-      d          : a_gnutls_datum_t;
-      p          : a_gnutls_datum_t;
-      q          : a_gnutls_datum_t;
-      u          : a_gnutls_datum_t) return C.int
-     with Import, Convention => C;
-
-   function gnutls_rsa_params_generate2
-     (params : gnutls_rsa_params_t;
-      bits   : C.unsigned) return C.int
-     with Import, Convention => C;
-
-   function gnutls_rsa_params_export_raw
-     (params : gnutls_rsa_params_t;
-      m      : a_gnutls_datum_t;
-      e      : a_gnutls_datum_t;
-      d      : a_gnutls_datum_t;
-      p      : a_gnutls_datum_t;
-      q      : a_gnutls_datum_t;
-      u      : a_gnutls_datum_t;
-      bits   : access C.unsigned) return C.int
-     with Import, Convention => C;
-
-   function gnutls_rsa_params_import_pkcs1
-     (params       : gnutls_rsa_params_t;
-      pkcs1_params : a_gnutls_datum_t;
-      format       : gnutls_x509_crt_fmt_t) return C.int
      with Import, Convention => C;
 
    function gnutls_transport_get_ptr

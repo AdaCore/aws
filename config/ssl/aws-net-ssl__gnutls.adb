@@ -880,14 +880,14 @@ package body AWS.Net.SSL is
          return;
       end if;
 
-      Check_Error_Code (TSSL.gnutls_rsa_params_init (New_One'Access));
+      Check_Error_Code (TSSL.gnutls_x509_privkey_init (New_One'Access));
       Check_Error_Code
-        (TSSL.gnutls_rsa_params_generate2
-           (New_One,
+        (TSSL.gnutls_x509_privkey_generate
+           (New_One, TSSL.GNUTLS_PK_RSA,
             TSSL.gnutls_sec_param_to_pk_bits
-              (TSSL.GNUTLS_PK_RSA, TSSL.GNUTLS_SEC_PARAM_NORMAL)));
+              (TSSL.GNUTLS_PK_RSA, TSSL.GNUTLS_SEC_PARAM_NORMAL), 0));
 
-      TSSL.gnutls_rsa_params_deinit (RSA_Params (1));
+      TSSL.gnutls_x509_privkey_deinit (RSA_Params (1));
 
       RSA_Params (1) := RSA_Params (0);
       RSA_Params (0) := New_One;
