@@ -177,10 +177,12 @@ package SSL.Thin is
    GNUTLS_CRD_PSK         : constant gnutls_credentials_type_t := 4;
    GNUTLS_CRD_IA          : constant gnutls_credentials_type_t := 5;
 
-   GNUTLS_SERVER   : constant C.unsigned := 1;
-   GNUTLS_CLIENT   : constant C.unsigned := 2;
-   GNUTLS_DATAGRAM : constant C.unsigned := 4;
-   GNUTLS_NONBLOCK : constant C.unsigned := 8;
+   GNUTLS_SERVER               : constant C.unsigned := 1;
+   GNUTLS_CLIENT               : constant C.unsigned := 2;
+   GNUTLS_DATAGRAM             : constant C.unsigned := 4;
+   GNUTLS_NONBLOCK             : constant C.unsigned := 8;
+   GNUTLS_NO_EXTENSIONS        : constant C.unsigned := 16;
+   GNUTLS_NO_REPLAY_PROTECTION : constant C.unsigned := 32;
 
    GNUTLS_MAC_UNKNOWN : constant gnutls_mac_algorithm_t := 0;
    GNUTLS_MAC_NULL    : constant gnutls_mac_algorithm_t := 1;

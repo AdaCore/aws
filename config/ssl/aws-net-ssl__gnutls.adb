@@ -1717,7 +1717,11 @@ package body AWS.Net.SSL is
       Check_Config (Socket);
 
       Check_Error_Code
-        (gnutls_init (Socket.SSL'Access, GNUTLS_CLIENT), Socket);
+        (gnutls_init
+           (Socket.SSL'Access,
+            GNUTLS_CLIENT + (if Socket.Config.Ticket_Support then 0
+                             else GNUTLS_NO_EXTENSIONS)),
+         Socket);
 
       if Socket.Config.Ticket_Support then
          Check_Error_Code (gnutls_session_ticket_enable_client (Socket.SSL));
@@ -1810,7 +1814,11 @@ package body AWS.Net.SSL is
       end if;
 
       Check_Error_Code
-        (gnutls_init (Socket.SSL'Access, GNUTLS_SERVER), Socket);
+        (gnutls_init
+           (Socket.SSL'Access,
+            GNUTLS_SERVER + (if Socket.Config.Ticket_Support then 0
+                             else GNUTLS_NO_EXTENSIONS)),
+         Socket);
 
       if Socket.Config.Ticket_Support then
          Check_Error_Code
