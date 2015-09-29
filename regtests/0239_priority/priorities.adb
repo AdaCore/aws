@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                       Copyright (C) 2014, AdaCore                        --
+--                     Copyright (C) 2014-2015, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -109,6 +109,8 @@ procedure Priorities is
    begin
       return Text = "No or insufficient priorities were set."
         or else Text = "No supported cipher suites have been found."
+        or else Text = "error:1408A0C1:SSL routines:ssl3_get_client_hello:"
+                       & "no shared cipher"
         or else Text = "14077410:SSL routines:SSL23_GET_SERVER_HELLO:"
                        & "sslv3 alert handshake failure";
    end Is_Handshake_Error;
