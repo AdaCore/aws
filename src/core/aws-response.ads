@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                    Copyright (C) 2000-2014, AdaCore                      --
+--                    Copyright (C) 2000-2015, AdaCore                      --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -288,6 +288,9 @@ package AWS.Response is
    --  See [RFC 2616 - 4.2] last paragraph.
 
    function Header (D : Data) return AWS.Headers.List;
+
+   function Has_Header (D : Data; Name : String) return Boolean with Inline;
+   --  Returns True if D headers contains Name
 
    procedure Send_Header (Socket : Net.Socket_Type'Class; D : Data)
      with Inline;

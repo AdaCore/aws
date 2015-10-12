@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2000-2014, AdaCore                     --
+--                     Copyright (C) 2000-2015, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -418,6 +418,15 @@ package body AWS.Response is
          end if;
       end if;
    end Finalize;
+
+   ----------------
+   -- Has_Header --
+   ----------------
+
+   function Has_Header (D : Data; Name : String) return Boolean is
+   begin
+      return D.Header.Exist (Name);
+   end Has_Header;
 
    ------------
    -- Header --

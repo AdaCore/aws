@@ -1,5 +1,10 @@
 Known Problems fixed in AWS 3.3
 
+- OA07-026: Cannot override file upload's Last_Modified_Token header
+  Problem: A specified Last_Modified_Token in the header of a response
+           is always overridden by the server.
+  Workaround: None.
+
 - O408-015: Wrong link to AWS documentation in GPS plug-in
   Problem: The AWS and Templates Parser User's Guides where not listed in
            the GPS Help menu.

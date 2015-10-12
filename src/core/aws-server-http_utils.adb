@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2005-2014, AdaCore                     --
+--                     Copyright (C) 2005-2015, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -1367,7 +1367,10 @@ package body AWS.Server.HTTP_Utils is
 
          --  Send file last-modified timestamp info in case of a file
 
-         if File_Mode then
+         if File_Mode
+           and then
+             not Response.Has_Header (Answer, Messages.Last_Modified_Token)
+         then
             Net.Buffered.Put_Line (Sock, Messages.Last_Modified (File_Time));
          end if;
 
