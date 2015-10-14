@@ -137,7 +137,7 @@ Templates_Parser sources:
 
 GNU/Ada - GNAT
 
-   You need at least GNAT 2014 GPL Edition or GNAT Pro 7.2
+   You need at least GNAT 2015 GPL Edition or GNAT Pro 7.2
 
    http://libre.adacore.com/tools/gnat-gpl-edition/
 
