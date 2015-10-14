@@ -354,6 +354,7 @@ package body AWS.Net.SSL is
       end if;
 
       TSSL.SSL_set_connect_state (Socket.SSL);
+      Error_If (TSSL.SSL_set_tlsext_host_name (Socket.SSL, C.To_C (Host)) = 0);
 
       if Wait then
          --  Do handshake only in case of wait connection completion

@@ -454,11 +454,17 @@ package body AWS.Net.SSL is
       Host   : String;
       Port   : Positive;
       Wait   : Boolean     := True;
-      Family : Family_Type := Family_Unspec) is
+      Family : Family_Type := Family_Unspec)
+   is
+      SNI : constant C.char_array := C.To_C (Host);
    begin
       Net.Std.Connect (NSST (Socket), Host, Port, Wait, Family);
 
       Session_Client (Socket);
+
+      Check_Error_Code
+        (TSSL.gnutls_server_name_set
+           (Socket.SSL, TSSL.GNUTLS_NAME_DNS, SNI'Address, Host'Length));
 
       if Wait then
          Do_Handshake (Socket);

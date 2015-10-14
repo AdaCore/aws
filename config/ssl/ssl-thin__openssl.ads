@@ -237,6 +237,8 @@ package SSL.Thin is
    SSL_CTRL_GET_TLS_EXT_HEARTBEAT_PENDING     : constant := 86;
    SSL_CTRL_SET_TLS_EXT_HEARTBEAT_NO_REQUESTS : constant := 87;
 
+   TLSEXT_NAMETYPE_host_name         : constant := 0;
+
    DTLS_CTRL_GET_TIMEOUT             : constant := 73;
    DTLS_CTRL_HANDLE_TIMEOUT          : constant := 74;
    DTLS_CTRL_LISTEN                  : constant := 75;
@@ -926,6 +928,12 @@ package SSL.Thin is
 
    function SSL_get_shutdown (SSL : SSL_Handle) return int
      with Import, Convention => C, External_Name => "SSL_get_shutdown";
+
+   function SSL_set_tlsext_host_name
+     (SSL : SSL_Handle; Name : char_array) return long
+   is (SSL_ctrl
+         (SSL, SSL_CTRL_SET_TLSEXT_HOSTNAME, TLSEXT_NAMETYPE_host_name,
+          Name'Address));
 
    ----------------------
    --  Crypto routines --
