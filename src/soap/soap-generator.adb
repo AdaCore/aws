@@ -529,7 +529,8 @@ package body SOAP.Generator is
             N := N.Next;
          end loop;
 
-         Output_Schema_Definition (To_String (Sig), Proc);
+         Output_Schema_Definition
+           (To_String (Sig), To_String (O.Prefix) & Proc);
       end Generate_Call_Signature;
 
    begin
@@ -3470,11 +3471,11 @@ package body SOAP.Generator is
       Text_IO.Put_Line (Type_Adb, "   --  Definitions for procedure " & Proc);
 
       Output_Schema_Definition
-        (Key   => '@' & Proc & ".encoding",
+        (Key   => '@' & To_String (O.Prefix) & Proc & ".encoding",
          Value => Types.Encoding_Style'Image (O.Encoding (WSDL.Parser.Input)));
 
       Output_Schema_Definition
-        (Key   => '@' & Proc & "Response.encoding",
+        (Key   => '@' & To_String (O.Prefix) & Proc & "Response.encoding",
          Value =>
            Types.Encoding_Style'Image (O.Encoding (WSDL.Parser.Output)));
 
@@ -3654,6 +3655,15 @@ package body SOAP.Generator is
          return L_Proc & "_Result";
       end if;
    end Result_Type;
+
+   ----------------
+   -- Set_Prefix --
+   ----------------
+
+   procedure Set_Prefix (O : in out Object; Prefix : String) is
+   begin
+      O.Prefix := To_Unbounded_String (Prefix);
+   end Set_Prefix;
 
    ---------------
    -- Set_Proxy --

@@ -237,7 +237,9 @@ package body Skel is
       end if;
 
       Text_IO.Put_Line
-        (Skel_Adb, "      if SOAPAction /= """ & SOAPAction & """ then");
+        (Skel_Adb,
+         "      if SOAPAction /= """ & To_String (O.Prefix) & SOAPAction
+         & """ then");
       Text_IO.Put_Line
         (Skel_Adb, "         return SOAP.Message.Response.Build");
       Text_IO.Put_Line
@@ -266,7 +268,9 @@ package body Skel is
          end if;
 
          Text_IO.Put_Line
-           (Skel_Adb, "      if Proc_Name /= """ & Proc & """ then");
+           (Skel_Adb,
+            "      if Proc_Name /= """ & To_String (O.Prefix) & Proc
+            & """ then");
          Text_IO.Put_Line
            (Skel_Adb, "         return SOAP.Message.Response.Build");
          Text_IO.Put_Line

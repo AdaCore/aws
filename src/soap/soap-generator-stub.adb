@@ -435,7 +435,7 @@ package body Stub is
       Text_IO.Put_Line
         (Stub_Adb, "      Payload := SOAP.Message.Payload.Build");
       Text_IO.Put
-        (Stub_Adb, "        (""" & Proc & """, P_Set");
+        (Stub_Adb, "        (""" & To_String (O.Prefix) & Proc & """, P_Set");
 
       if Namespace = Name_Space.No_Name_Space then
          Text_IO.Put_Line (Stub_Adb, ");");
@@ -468,7 +468,8 @@ package body Stub is
 
       Text_IO.Put_Line
         (Stub_Adb,
-         "                (Connection, """ & SOAPAction & """,");
+         "                (Connection, """
+         & To_String (O.Prefix) & SOAPAction & """,");
       Text_IO.Put_Line
         (Stub_Adb,
          "                 Payload, Schema => Schema);");
