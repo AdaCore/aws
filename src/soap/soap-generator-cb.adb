@@ -32,7 +32,8 @@ pragma Ada_2012;
 separate (SOAP.Generator)
 package body CB is
 
-   Tmp_Adb : Text_IO.File_Type; -- Temporary files with callback definitions
+   Tmp_Adb  : Text_IO.File_Type; -- Temporary file with callback definitions
+   Proc_Adb : Text_IO.File_Type; -- Temporary file with SOAPAction definitions
 
    -----------------
    -- End_Service --
@@ -50,6 +51,20 @@ package body CB is
 
       Text_IO.New_Line (CB_Ads);
       Text_IO.Put_Line (CB_Ads, "end " & U_Name & ".CB;");
+
+      --  Copy Is_SOAPAction_Defined now
+
+      Text_IO.Reset (Proc_Adb, Text_IO.In_File);
+
+      while not Text_IO.End_Of_File (Proc_Adb) loop
+         Text_IO.Get_Line (Proc_Adb, Buffer, Last);
+         Text_IO.Put_Line (CB_Adb, Buffer (1 .. Last));
+      end loop;
+
+      Text_IO.Put_Line (CB_Adb, "      else");
+      Text_IO.Put_Line (CB_Adb, "         return False;");
+      Text_IO.Put_Line (CB_Adb, "      end if;");
+      Text_IO.Put_Line (CB_Adb, "   end Is_SOAPAction_Defined;");
 
       --  Copy SOAP_CB definition now
 
@@ -94,6 +109,7 @@ package body CB is
       Text_IO.Put_Line (CB_Adb, "end " & U_Name & ".CB;");
 
       Text_IO.Close (Tmp_Adb);
+      Text_IO.Close (Proc_Adb);
    end End_Service;
 
    -------------------
@@ -128,15 +144,24 @@ package body CB is
 
       if O.First_Proc then
          Text_IO.Put (Tmp_Adb, "      if ");
+         Text_IO.Put (Proc_Adb, "      if ");
          O.First_Proc := False;
       else
          Text_IO.Put (Tmp_Adb, "      elsif ");
+         Text_IO.Put (Proc_Adb, "      elsif ");
       end if;
 
-      Text_IO.Put_Line (Tmp_Adb, "SOAPAction = """ & Proc & """ then");
+      Text_IO.Put_Line
+        (Tmp_Adb, "SOAPAction = """ & To_String (O.Prefix) & Proc & """ then");
       Text_IO.Put_Line (Tmp_Adb, "         return " & Proc
                           & "_CB (SOAPAction, Payload, Request);");
       Text_IO.New_Line (Tmp_Adb);
+
+      Text_IO.Put_Line
+        (Proc_Adb,
+         "SOAPAction = """ & To_String (O.Prefix) & Proc & """ then");
+      Text_IO.Put_Line (Proc_Adb, "         return True;");
+      Text_IO.New_Line (Proc_Adb);
    end New_Procedure;
 
    -------------------
@@ -155,6 +180,7 @@ package body CB is
       U_Name : constant String := To_Unit_Name (Format_Name (O, Name));
    begin
       Text_IO.Create (Tmp_Adb, Text_IO.Out_File);
+      Text_IO.Create (Proc_Adb, Text_IO.Out_File);
 
       --  Spec
 
@@ -174,6 +200,12 @@ package body CB is
       Text_IO.Put_Line
         (CB_Ads,
          "   subtype Handler is SOAP.Dispatchers.Callback.Handler;");
+
+      Text_IO.New_Line (CB_Ads);
+      Text_IO.Put_Line (CB_Ads, "   function Is_SOAPAction_Defined");
+      Text_IO.Put_Line (CB_Ads, "     (SOAPAction : String) return Boolean;");
+      Text_IO.Put_Line
+        (CB_Ads, "   --  Returns True if SOAPAction handled by SOAP_CB below");
 
       Text_IO.New_Line (CB_Ads);
       Text_IO.Put_Line (CB_Ads, "   function SOAP_CB");
@@ -225,6 +257,16 @@ package body CB is
       Text_IO.Put_Line (Tmp_Adb, "      Request    : AWS.Status.Data)");
       Text_IO.Put_Line (Tmp_Adb, "      return Response.Data is");
       Text_IO.Put_Line (Tmp_Adb, "   begin");
+
+      Text_IO.New_Line (Proc_Adb);
+      Text_IO.Put_Line (Proc_Adb, "   ---------------------------");
+      Text_IO.Put_Line (Proc_Adb, "   -- Is_SOAPAction_Defined --");
+      Text_IO.Put_Line (Proc_Adb, "   ---------------------------");
+      Text_IO.New_Line (Proc_Adb);
+      Text_IO.Put_Line (Proc_Adb, "   function Is_SOAPAction_Defined");
+      Text_IO.Put_Line
+        (Proc_Adb, "     (SOAPAction : String) return Boolean is");
+      Text_IO.Put_Line (Proc_Adb, "   begin");
    end Start_Service;
 
 end CB;
