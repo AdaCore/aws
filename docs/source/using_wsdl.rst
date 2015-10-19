@@ -666,7 +666,7 @@ a `WSDL` document on the Web by passing it's `URL`.
   Force creation of the file. Overwrite any exiting files with the same
   name.
 
-*-e*
+*-e URL*
   Specify the default endpoint to use instead of the one found in the
   WSDL document.
 

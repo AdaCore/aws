@@ -386,9 +386,9 @@ exception
       Put_Line ("   -d           Generate debug code");
       Put_Line ("   -a           Ada style identifiers");
       Put_Line ("   -f           Force files creation stub/skeleton/types");
-      Put_Line ("   -e           Endpoint to use");
+      Put_Line ("   -e URL       Endpoint to use");
       Put_Line ("   -s           Skip non supported SOAP routines");
-      Put_Line ("   -o           Output filename for Web Document (URL mode)");
+      Put_Line ("   -o name      Output filename for Web Document (URL mode)");
       Put_Line ("   -p name      Name prefix for all SOAPActions");
       Put_Line
         ("   -doc         Document style binding handled as RPC");
