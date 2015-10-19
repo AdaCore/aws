@@ -33,13 +33,18 @@ with AWS.Dispatchers;
 with AWS.Response;
 with AWS.Status;
 with SOAP.Message.Payload;
-
-private with SOAP.WSDL.Schema;
+with SOAP.WSDL.Schema;
 
 package SOAP.Dispatchers is
 
    type Handler is abstract new AWS.Dispatchers.Handler with private;
    --  This dispatcher will send SOAP and HTTP requests to different routines
+
+   function Schema
+     (Dispatcher : Handler;
+      SOAPAction : String)
+      return WSDL.Schema.Definition;
+   --  Returns the schema for the given SOAPAction
 
    type SOAP_Callback is
      access function (SOAPAction : String;

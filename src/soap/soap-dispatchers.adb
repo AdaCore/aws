@@ -44,16 +44,35 @@ package body SOAP.Dispatchers is
       Request    : AWS.Status.Data) return AWS.Response.Data is
    begin
       if AWS.Status.Is_SOAP (Request) then
-         return Dispatch_SOAP
-            (Handler'Class (Dispatcher),
-             AWS.Status.SOAPAction (Request),
-             SOAP.Message.XML.Load_Payload
-               (Unbounded_String'(AWS.Status.Payload (Request)),
-                Schema => Dispatcher.Schema),
-             Request);
+         declare
+            SOAPAction : constant String := AWS.Status.SOAPAction (Request);
+         begin
+            return Dispatch_SOAP
+              (Handler'Class (Dispatcher),
+               SOAPAction,
+               SOAP.Message.XML.Load_Payload
+                 (Unbounded_String'(AWS.Status.Payload (Request)),
+                  Schema => Schema (Handler'Class (Dispatcher), SOAPAction)),
+               Request);
+         end;
+
       else
          return Dispatch_HTTP (Handler'Class (Dispatcher), Request);
       end if;
    end Dispatch;
+
+   ------------
+   -- Schema --
+   ------------
+
+   function Schema
+     (Dispatcher : Handler;
+      SOAPAction : String)
+      return WSDL.Schema.Definition
+   is
+      pragma Unreferenced (SOAPAction);
+   begin
+      return Dispatcher.Schema;
+   end Schema;
 
 end SOAP.Dispatchers;
