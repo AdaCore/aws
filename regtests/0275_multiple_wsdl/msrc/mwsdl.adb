@@ -58,14 +58,12 @@ procedure Mwsdl is
 
    WS   : Server.HTTP;
    Conf : Config.Object;
-   Disp : SOAP.Dispatchers.Callback.Handler;
+   Disp : Agg_Server_CB.Handler;
 
 begin
    Config.Set.Server_Port (Conf, 0);
 
-   Disp := SOAP.Dispatchers.Callback.Create
-     (CB'Unrestricted_Access,
-      Agg_Server_CB.SOAP_CB'Access);
+   Disp := Agg_Server_CB.Create (CB'Unrestricted_Access);
 
    AWS.Server.Start (WS, Disp, Conf);
 
