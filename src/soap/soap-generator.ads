@@ -136,6 +136,9 @@ package SOAP.Generator is
    --  Set proxy user and password, needed if behind a firewall with
    --  authentication.
 
+   procedure Set_Prefix (O : in out Object; Prefix : String);
+   --  Set the prefix to use for all SOAPActions
+
    procedure Set_Timeouts
      (O        : in out Object;
       Timeouts : Client.Timeouts_Values);
@@ -162,6 +165,7 @@ private
       Spec       : Unbounded_String;
       Types_Spec : Unbounded_String;
       Main       : Unbounded_String;
+      Prefix     : Unbounded_String;
       Location   : Unbounded_String;
       WSDL_File  : Unbounded_String;
       Proxy      : Unbounded_String;

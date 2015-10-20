@@ -39,6 +39,11 @@ package SOAP.Dispatchers.Callback is
    --  function). It will be used to build dispatchers services and for the
    --  main server callback.
 
+   overriding function Schema
+     (Dispatcher : Handler;
+      SOAPAction : String)
+      return WSDL.Schema.Definition;
+
    function Create
      (HTTP_Callback : AWS.Response.Callback;
       SOAP_Callback : Dispatchers.SOAP_Callback;

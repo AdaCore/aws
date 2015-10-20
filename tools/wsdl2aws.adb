@@ -142,7 +142,7 @@ procedure WSDL2AWS is
 
       loop
          case Command_Line.Getopt
-           ("d q a e: f v s o: proxy: pu: pp: doc wsdl cvs nostub noskel "
+           ("d q a e: f v s o: p: proxy: pu: pp: doc wsdl cvs nostub noskel "
             & "x: cb types: spec: main: n: timeouts:")
          is
             when ASCII.NUL => exit;
@@ -241,6 +241,9 @@ procedure WSDL2AWS is
 
                elsif Command_Line.Full_Switch = "pp" then
                   Pp := To_Unbounded_String (GNAT.Command_Line.Parameter);
+
+               elsif Command_Line.Full_Switch = "p" then
+                  SOAP.Generator.Set_Prefix (Gen, GNAT.Command_Line.Parameter);
 
                else
                   raise Syntax_Error;
@@ -383,9 +386,10 @@ exception
       Put_Line ("   -d           Generate debug code");
       Put_Line ("   -a           Ada style identifiers");
       Put_Line ("   -f           Force files creation stub/skeleton/types");
-      Put_Line ("   -e           Endpoint to use");
+      Put_Line ("   -e URL       Endpoint to use");
       Put_Line ("   -s           Skip non supported SOAP routines");
-      Put_Line ("   -o           Output filename for Web Document (URL mode)");
+      Put_Line ("   -o name      Output filename for Web Document (URL mode)");
+      Put_Line ("   -p name      Name prefix for all SOAPActions");
       Put_Line
         ("   -doc         Document style binding handled as RPC");
       Put_Line ("   -v           Verbose mode");

@@ -80,4 +80,18 @@ package body SOAP.Dispatchers.Callback is
       return Dispatcher.SOAP_Callback (SOAPAction, Payload, Request);
    end Dispatch_SOAP;
 
+   ------------
+   -- Schema --
+   ------------
+
+   overriding function Schema
+     (Dispatcher : Handler;
+      SOAPAction : String)
+      return WSDL.Schema.Definition
+   is
+      pragma Unreferenced (SOAPAction);
+   begin
+      return Dispatcher.Schema;
+   end Schema;
+
 end SOAP.Dispatchers.Callback;

@@ -121,4 +121,14 @@ project Tools is
 
    end Linker;
 
+   -------------
+   -- Install --
+   -------------
+
+   package Install is
+
+      for Artifacts ("bin") use ("awsascb");
+
+   end Install;
+
 end Tools;
