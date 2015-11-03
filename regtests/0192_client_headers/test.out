@@ -1,5 +1,5 @@
 >>>>> /1
-User-Agent: AWS (Ada Web Server) vx.x.x
+User-Agent: AWS (Ada Web Server) vx.x
 Accept-Language: fr, ru, us
 Accept-Encoding: GZIP
 Accept: text/html, */*
@@ -8,7 +8,7 @@ Range: NOT FOUND
 If-Modified-Since: NOT FOUND
 
 >>>>> /2
-User-Agent: AWS (Ada Web Server) vx.x.x
+User-Agent: AWS (Ada Web Server) vx.x
 Accept-Language: fr, ru, us
 Accept-Encoding: GZIP
 Accept: text/html, */*
@@ -17,7 +17,7 @@ Range: NOT FOUND
 If-Modified-Since: NOT FOUND
 
 >>>>> /3
-User-Agent: AWS (Ada Web Server) vx.x.x
+User-Agent: AWS (Ada Web Server) vx.x
 Accept-Language: fr, ru, us
 Accept-Encoding: GZIP
 Accept: text/html, */*
@@ -26,7 +26,7 @@ Range: NOT FOUND
 If-Modified-Since: NOT FOUND
 
 >>>>> /4
-User-Agent: AWS (Ada Web Server) vx.x.x
+User-Agent: AWS (Ada Web Server) vx.x
 Accept-Language: fr
 Accept-Encoding: DEFLATE
 Accept: text/html, */*
