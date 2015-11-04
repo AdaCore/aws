@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2000-2014, AdaCore                     --
+--                     Copyright (C) 2000-2015, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -41,9 +41,9 @@ with AWS.MIME;
 with AWS.Net.Buffered;
 with AWS.Net.Generic_Sets;
 with AWS.Net.Log;
+with AWS.Net.WebSocket;
 with AWS.Translator;
 with AWS.Utils;
-with AWS.Net.WebSocket;
 
 package body AWS.Server.Push is
 
@@ -163,7 +163,7 @@ package body AWS.Server.Push is
      new Ada.Containers.Doubly_Linked_Lists (Waiter_Queue_Element);
 
    protected Waiter_Queue is
-      procedure Add (Item : Waiter_Queue_Element);
+      procedure Add (Item  : Waiter_Queue_Element);
       procedure Add (Queue : Waiter_Queues.List);
       procedure Get (Queue : out Waiter_Queues.List);
    private
@@ -175,7 +175,7 @@ package body AWS.Server.Push is
       procedure Info
         (Size        : out Natural;
          Max_Size    : out Natural;
-         Max_Size_DT : out Ada.Calendar.Time;
+         Max_Size_DT : out Calendar.Time;
          Counter     : out Wait_Counter_Type);
 
       entry Empty;
@@ -185,7 +185,7 @@ package body AWS.Server.Push is
    private
       Size        : Positive := 1;
       Max_Size    : Positive := 1;
-      Max_Size_DT : Ada.Calendar.Time := Ada.Calendar.Clock;
+      Max_Size_DT : Calendar.Time := Calendar.Clock;
       Counter     : Wait_Counter_Type := 0;
    end Waiter_Information;
 
@@ -380,7 +380,7 @@ package body AWS.Server.Push is
    procedure Info
      (Size        : out Natural;
       Max_Size    : out Natural;
-      Max_Size_DT : out Ada.Calendar.Time;
+      Max_Size_DT : out Calendar.Time;
       Counter     : out Wait_Counter_Type) is
    begin
       Waiter_Information.Info
@@ -793,15 +793,14 @@ package body AWS.Server.Push is
                      Unexpect : Stream_Element_Array (1 .. 64);
                      Last     : Stream_Element_Offset;
                   begin
-
                      Holder.Socket.Receive (Unexpect, Last);
 
                      Holder.Errmsg :=
                        To_Unbounded_String
                          ("Unexpected data from server push socket: "
                           & Translator.To_String (Unexpect (1 .. Last)));
-                     Net.Log.Error (Holder.Socket.all,
-                                    To_String (Holder.Errmsg));
+                     Net.Log.Error
+                       (Holder.Socket.all, To_String (Holder.Errmsg));
                   exception
                      when E : Socket_Error =>
                         Holder.Errmsg :=
@@ -816,10 +815,10 @@ package body AWS.Server.Push is
                   Last  : Stream_Element_Offset;
                begin
                   if Holder.Socket.all in Net.WebSocket.Object'Class then
-                     Net.WebSocket.Send (Socket    => Net.WebSocket.Object
-                                                        (Holder.Socket.all),
-                                         Message   => Chunk,
-                                         Is_Binary => False);
+                     Net.WebSocket.Send
+                       (Socket    => Net.WebSocket.Object (Holder.Socket.all),
+                        Message   => Chunk,
+                        Is_Binary => False);
                      Last := Chunk'Last;
                   else
                      --  It is not blocking Net.Send operation
@@ -1258,8 +1257,7 @@ package body AWS.Server.Push is
 
             Net.Log.Error
               (Holder.Socket.all,
-               "Server push write header error "
-               & Ada.Exceptions.Exception_Information (E));
+               "Server push write header error " & Exception_Information (E));
 
             Holder.Socket.Shutdown;
             Free (Holder);
@@ -2106,7 +2104,7 @@ package body AWS.Server.Push is
       procedure Info
         (Size        : out Natural;
          Max_Size    : out Natural;
-         Max_Size_DT : out Ada.Calendar.Time;
+         Max_Size_DT : out Calendar.Time;
          Counter     : out Wait_Counter_Type) is
       begin
          Info.Size        := Waiter_Information.Size - 1;
@@ -2135,7 +2133,7 @@ package body AWS.Server.Push is
 
          if Size > Max_Size then
             Max_Size := Size;
-            Max_Size_DT := Ada.Calendar.Clock;
+            Max_Size_DT := Calendar.Clock;
          end if;
       end Set_Size;
 

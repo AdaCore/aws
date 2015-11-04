@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2000-2014, AdaCore                     --
+--                     Copyright (C) 2000-2015, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -85,7 +85,7 @@ package AWS.Server.Push is
    --  Closed.
 
    type Mode is (Plain, Multipart, Chunked);
-   --  Describeed the mode to communicate with the client.
+   --  Described the mode to communicate with the client.
    --  Plain     : no transformation is done, the data are sent as-is
    --  Multipart : data are MIME encoded.
    --  Chuncked  : data are chunked, a piece of data is sent in small pieces.
@@ -115,7 +115,7 @@ package AWS.Server.Push is
    --  Add client identified by Client_Id to the server subscription
    --  list and send the Init_Data (as a Init_Content_Type mime content) to
    --  him. After registering this client will be able to receive pushed data
-   --  from the server in brodcasting mode.
+   --  from the server in broadcasting mode.
    --  If Duplicated_Age less than age of the already registered same Client_Id
    --  then old one will be unregistered first (no exception will be raised).
    --  The Timeout is not for socket send timeout, but for internal waiting for
@@ -215,7 +215,7 @@ package AWS.Server.Push is
       Group_Id     : String             := "";
       Content_Type : String             := "";
       Thin_Id      : String             := "");
-   --  Same like before, but generic for back compartibility
+   --  Same like before, but generic for back compatibility
 
    function Count (Server : Object) return Natural;
    --  Returns the number of registered clients in the server
@@ -242,12 +242,12 @@ package AWS.Server.Push is
 
    --  Shutdown routines put the server in a Closed mode. The routines below
    --  provides a way to eventually close the socket, to send some
-   --  finalisation data.
+   --  finalization data.
 
    procedure Shutdown
      (Server : in out Object; Close_Sockets : Boolean := True);
-   --  Unregisted all clients and close all associated connections (socket) if
-   --  Close_Socket is True. The server will be in Closed mode. After this
+   --  Unregistered all clients and close all associated connections (socket)
+   --  if Close_Socket is True. The server will be in Closed mode. After this
    --  call any client trying to register will get the Closed exception. It is
    --  possible to reactivate the server with Restart.
 
@@ -280,7 +280,7 @@ package AWS.Server.Push is
    function Wait_Send_Completion (Timeout : Duration) return Boolean;
    --  Wait for all data sending in all server_push objects of the current
    --  package instance.
-   --  Return True if wait successfull. False in timeout.
+   --  Return True if wait successful. False in timeout.
 
    type Error_Handler is not null access procedure (Message : String);
 
@@ -305,25 +305,24 @@ private
    package Chunk_Lists is
      new Ada.Containers.Indefinite_Doubly_Linked_Lists (Message_Type);
 
-   package Thin_Indexes is
-     new Ada.Containers.Indefinite_Hashed_Maps
-           (Key_Type        => String,
-            Element_Type    => Chunk_Lists.Cursor,
-            Hash            => Ada.Strings.Hash,
-            Equivalent_Keys => "=",
-            "="             => Chunk_Lists."=");
+   package Thin_Indexes is new Ada.Containers.Indefinite_Hashed_Maps
+     (Key_Type        => String,
+      Element_Type    => Chunk_Lists.Cursor,
+      Hash            => Strings.Hash,
+      Equivalent_Keys => "=",
+      "="             => Chunk_Lists."=");
 
    type Client_Holder;
 
    type Client_Holder_Access is access all Client_Holder;
 
    package Tables is new Ada.Containers.Indefinite_Hashed_Maps
-     (String, Client_Holder_Access, Ada.Strings.Hash, "=");
+     (String, Client_Holder_Access, Strings.Hash, "=");
 
    type Map_Access is access all Tables.Map;
 
    package Group_Maps is new Ada.Containers.Indefinite_Hashed_Maps
-     (String, Map_Access, Ada.Strings.Hash, "=");
+     (String, Map_Access, Strings.Hash, "=");
 
    subtype Group_Map is Group_Maps.Map;
 
