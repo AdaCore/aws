@@ -289,6 +289,40 @@ package body Memory_Streams is
       end if;
    end Last;
 
+   -------------
+   -- Pending --
+   -------------
+
+   function Pending (Stream : in Stream_Type) return Element_Offset is
+   begin
+      if Stream.Current = null then
+         return 0;
+
+      else
+         declare
+            B : Buffer_Access := Stream.Current;
+            S : Element_Offset := 0;
+         begin
+            while B /= null loop
+               if B.Next = null then
+                  if B.Steady then
+                     S := S + Last (B);
+                  else
+                     S := S + Stream.Last_Length - Stream.Current_Offset + 1;
+                  end if;
+
+               else
+                  S := S + Last (B);
+               end if;
+
+               B := B.Next;
+            end loop;
+
+            return S;
+         end;
+      end if;
+   end Pending;
+
    ----------
    -- Read --
    ----------

@@ -66,6 +66,9 @@ package Memory_Streams is
    function Size (Stream : in Stream_Type) return Element_Offset;
    --  Returns the size of the stream in bytes (total number of bytes)
 
+   function Pending (Stream : in Stream_Type) return Element_Offset;
+   --  Returns the number of byte from current position to the end
+
    procedure Reset (Stream : in out Stream_Type);
    --  Set read index at the start of the stream
 
