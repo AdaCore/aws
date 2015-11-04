@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2004-2012, AdaCore                     --
+--                     Copyright (C) 2004-2015, AdaCore                     --
 --                                                                          --
 --  This is free software;  you can redistribute it  and/or modify it       --
 --  under terms of the  GNU General Public License as published  by the     --
@@ -16,11 +16,11 @@
 --  to http://www.gnu.org/licenses for a complete copy of the license.      --
 ------------------------------------------------------------------------------
 
-with Ada.Text_IO;
 with Ada.Calendar;
+with Ada.Strings.Unbounded;
+with Ada.Text_IO;
 
 with Memory_Streams;
-with Ada.Strings.Unbounded;
 
 procedure TMem is
    use Ada.Text_IO;
@@ -108,6 +108,8 @@ begin
    Append (Stream, Sample);
 
    Append (Stream, CPtr);
+
+   Append (Stream, "variable after constant OB04-011" & ASCII.Lf);
 
    Ptr := new String'((1010 .. 1070 => '=', 1071 => ASCII.LF));
    Append (Stream, Ptr);

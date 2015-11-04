@@ -75,8 +75,23 @@ package body Memory_Streams is
          Stream.Last        := Stream.First;
          Stream.Last_Length := Value'Length;
 
-      else
+      elsif Stream.Last.Steady
+        or else Stream.Last_Length = Stream.Last.Data'Length
+      then
+         Stream.Last.Next := new Buffer_Type (False);
+         Stream.Last      := Stream.Last.Next;
 
+         if Value'Length >= Next_Block_Length or else Trim then
+            Stream.Last.Data := new Element_Array (1 .. Value'Length);
+         else
+            Stream.Last.Data := new Element_Array (1 .. Next_Block_Length);
+         end if;
+
+         Stream.Last.Data (1 .. Value'Length) := Value;
+
+         Stream.Last_Length := Value'Length;
+
+      else
          declare
             Block_Length : constant Element_Offset
               := Stream.Last_Length + Value'Length;
@@ -90,7 +105,7 @@ package body Memory_Streams is
                   Trim_Last_Block (Stream);
                end if;
 
-            elsif Stream.Last_Length < Stream.Last.Data'Length then
+            else
                declare
                   Split_Value : constant Element_Index
                     := Value'First
@@ -117,21 +132,6 @@ package body Memory_Streams is
 
                   Stream.Last_Length := Next_Length;
                end;
-
-            else
-               Stream.Last.Next := new Buffer_Type (False);
-               Stream.Last      := Stream.Last.Next;
-
-               if Value'Length >= Next_Block_Length or else Trim then
-                  Stream.Last.Data := new Element_Array (1 .. Value'Length);
-               else
-                  Stream.Last.Data :=
-                    new Element_Array (1 .. Next_Block_Length);
-               end if;
-
-               Stream.Last.Data (1 .. Value'Length) := Value;
-
-               Stream.Last_Length := Value'Length;
             end if;
          end;
       end if;
