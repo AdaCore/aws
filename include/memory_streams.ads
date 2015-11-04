@@ -1,8 +1,7 @@
 ------------------------------------------------------------------------------
 --                       Generic memory stream                              --
 --                                                                          --
---                      Copyright (C) 2003-2014                             --
---                         Dmitriy Anisimkov                                --
+--                Copyright (C) 2003-2015, Dmitriy Anisimkov                --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -65,7 +64,7 @@ package Memory_Streams is
    --  Stream.
 
    function Size (Stream : in Stream_Type) return Element_Offset;
-   --  Returns the size of the stream in bytes
+   --  Returns the size of the stream in bytes (total number of bytes)
 
    procedure Reset (Stream : in out Stream_Type);
    --  Set read index at the start of the stream
