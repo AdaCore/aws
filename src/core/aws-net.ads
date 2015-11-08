@@ -156,6 +156,13 @@ package AWS.Net is
    --  Send Data chunk to the socket
 
    procedure Send
+     (Sockets : Socket_Set; Data : Stream_Element_Array);
+   --  Send Data to all sockets from the socket set. This call will ensure that
+   --  the data are sent in priority to client waiting for reading. That is,
+   --  slow connection for one sokcet should not delay the fast connections.
+   --  Yet, this routine will return only when the data is sent to all sockets.
+
+   procedure Send
      (Socket : Socket_Type;
       Data   : Stream_Element_Array;
       Last   : out Stream_Element_Offset) is abstract;

@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2000-2014, AdaCore                     --
+--                     Copyright (C) 2000-2015, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -478,6 +478,85 @@ package body AWS.Net is
       when others =>
          Socket.C.Can_Wait := Save;
          raise;
+   end Send;
+
+   procedure Send
+     (Sockets : Socket_Set; Data : Stream_Element_Array)
+   is
+      Wait_Events : constant Wait_Event_Set :=
+                      (Input => False, Output => True);
+      Set         : Poll_Events.Set (Sockets'Length);
+      Socks       : Socket_Set (1 .. Sockets'Length) := Sockets;
+      Index       : array (Sockets'Range) of Stream_Element_Offset :=
+                      (others => 1);
+      Last        : Stream_Element_Offset;
+      Count       : Natural;
+      Sock_Index  : Positive;
+      Chunk_Size  : Stream_Element_Offset;
+   begin
+      --  First check if there is something to do
+
+      if Sockets'Length = 0 then
+         return;
+      end if;
+
+      --  Add all sockets into the poll
+
+      for S of Sockets loop
+         Set.Add (S.Get_FD, Wait_Events);
+      end loop;
+
+      --  Send data to available sockets
+
+      loop
+         Set.Wait (Forever, Count);
+
+         Sock_Index := 1;
+
+         for K in 1 .. Count loop
+            Set.Next (Sock_Index);
+
+            Chunk_Size := Socks (Sock_Index).Output_Space;
+
+            if Chunk_Size = -1 then
+               Chunk_Size := 100 * 1_024;
+            end if;
+
+            Last := Stream_Element_Offset'Min
+              (Index (Sock_Index) + Chunk_Size, Data'Last);
+
+            Socks (Sock_Index).Send
+              (Data (Index (Sock_Index) .. Last));
+
+            Index (Sock_Index) := Last + 1;
+
+            if Index (Sock_Index) > Data'Last then
+               --  No more data for this socket. The Set.Remove on the socket
+               --  set move the last socket in the set to the location of the
+               --  removed one. Do the same for the local data to keep data
+               --  consistency.
+               --
+               --  Note that in this case we do not want to increment the
+               --  socket index. The new loop will check the socket at the
+               --  same position which is now the previous last in the set.
+
+               if Sock_Index /= Set.Length then
+                  Socks (Sock_Index) := Socks (Set.Length);
+                  Index (Sock_Index) := Index (Set.Length);
+               end if;
+
+               Set.Remove (Sock_Index);
+
+            else
+               --  In this case, and only in this case we move to next socket
+               --  position for next iteration.
+
+               Sock_Index := Sock_Index + 1;
+            end if;
+         end loop;
+
+         exit when Set.Length = 0;
+      end loop;
    end Send;
 
    -----------------------
