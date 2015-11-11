@@ -175,6 +175,8 @@ GPROPTS = -XPRJ_BUILD=$(PRJ_BUILD) -XPRJ_SOCKLIB=$(PRJ_SOCKLIB) \
 
 GPR_STATIC = -XLIBRARY_TYPE=static -XXMLADA_BUILD=static
 GPR_SHARED = -XLIBRARY_TYPE=relocatable -XXMLADA_BUILD=relocatable
+GPR_OTHER  = -XLIBRARY_TYPE=$(OTHER_LIBRARY_TYPE) \
+		-XXMLADA_BUILD=$(OTHER_LIBRARY_TYPE)
 
 #######################################################################
 #  build
@@ -205,18 +207,16 @@ endif
 #  clean
 
 clean-native:
-	-$(GPRCLEAN) $(GPROPTS) -XLIBRARY_TYPE=static tools/tools.gpr
+	-$(GPRCLEAN) $(GPROPTS) $(GPR_STATIC) tools/tools.gpr
 ifeq (${ENABLE_SHARED}, true)
-	-$(GPRCLEAN) $(GPROPTS) -XLIBRARY_TYPE=relocatable aws.gpr
+	-$(GPRCLEAN) $(GPROPTS) $(GPR_SHARED) aws.gpr
 endif
-	-$(GPRCLEAN) $(GPROPTS) -XLIBRARY_TYPE=static gps/gps_support.gpr
+	-$(GPRCLEAN) $(GPROPTS) $(GPR_STATIC) gps/gps_support.gpr
 
 clean-cross:
-	-$(GPRCLEAN) $(GPROPTS) --target=$(TARGET) \
-		-XLIBRARY_TYPE=static aws.gpr
+	-$(GPRCLEAN) $(GPROPTS) --target=$(TARGET) $(GPR_STATIC) aws.gpr
 ifeq (${ENABLE_SHARED}, true)
-	-$(GPRCLEAN) $(GPROPTS) --target=$(TARGET) \
-		-XLIBRARY_TYPE=relocatable aws.gpr
+	-$(GPRCLEAN) $(GPROPTS) --target=$(TARGET) $(GPR_SHARED) aws.gpr
 endif
 
 ifeq (${IS_CROSS}, true)
@@ -241,12 +241,11 @@ install-native: install-clean
 	$(GPRINSTALL) $(GPROPTS) -p -f --prefix=$(TPREFIX) \
 		-XLIBRARY_TYPE=$(DEFAULT_LIBRARY_TYPE) aws.gpr
 	$(GPRINSTALL) $(GPROPTS) -p -f --prefix=$(TPREFIX) \
-		-XLIBRARY_TYPE=static --mode=usage \
+		$(GPR_STATIC) --mode=usage \
 		--install-name=aws tools/tools.gpr
 ifeq (${ENABLE_SHARED}, true)
 	$(GPRINSTALL) $(GPROPTS) -p -f --prefix=$(TPREFIX) \
-		-XLIBRARY_TYPE=$(OTHER_LIBRARY_TYPE) \
-		--build-name=$(OTHER_LIBRARY_TYPE) aws.gpr
+		$(GPR_OTHER) --build-name=$(OTHER_LIBRARY_TYPE) aws.gpr
 endif
 
 install-cross: install-clean
@@ -254,11 +253,11 @@ install-cross: install-clean
 		--target=$(TARGET) \
 		-XLIBRARY_TYPE=$(DEFAULT_LIBRARY_TYPE) aws.gpr
 	$(GPRINSTALL) $(GPROPTS) -p -f --prefix=$(TPREFIX) --mode=usage \
-		--target=$(TARGET) -XLIBRARY_TYPE=static \
+		--target=$(TARGET) $(GPROPTS) \
 		--install-name=aws tools/tools.gpr
 ifeq (${ENABLE_SHARED}, true)
 	$(GPRINSTALL) $(GPROPTS) -p -f --prefix=$(TPREFIX) \
-		--target=$(TARGET) -XLIBRARY_TYPE=$(OTHER_LIBRARY_TYPE) \
+		--target=$(TARGET) $(GPR_OTHER) \
 		--build-name=$(OTHER_LIBRARY_TYPE) aws.gpr
 endif
 
