@@ -1,1 +1,6 @@
 Known Problems fixed in AWS 17.0
+
+- OB15-006: Cannot compress file larger than 2**32 bytes.
+  Problem: Constraint error is raised when compressing a file whose original
+           size is larger that 2**32 bytes.
+  Workaround: None.
