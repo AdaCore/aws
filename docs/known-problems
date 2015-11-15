@@ -1,5 +1,10 @@
 Known Problems fixed in AWS 3.3
 
+- OB15-006: Cannot compress file larger than 2**32 bytes.
+  Problem: Constraint error is raised when compressing a file whose original
+           size is larger that 2**32 bytes.
+  Workaround: None.
+
 - OA07-026: Cannot override file upload's Last_Modified_Token header
   Problem: A specified Last_Modified_Token in the header of a response
            is always overridden by the server.

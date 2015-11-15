@@ -1,7 +1,7 @@
 ----------------------------------------------------------------
 --  ZLib for Ada thick binding.                               --
 --                                                            --
---  Copyright (C) 2002-2014, Dmitriy Anisimkov                --
+--  Copyright (C) 2002-2015, Dmitriy Anisimkov                --
 --                                                            --
 --  Open source license information is in the zlib.ads file.  --
 ----------------------------------------------------------------
@@ -644,7 +644,7 @@ package body ZLib is
          begin
             Put_32 (Footer, Filter.CRC);
             Put_32 (Footer (Footer'First + 4 .. Footer'Last),
-                    Unsigned_32 (Total_In (Filter)));
+                    Unsigned_32 (Total_In (Filter) mod (2 ** 32)));
             Add_Data (Footer);
          end;
       end if;
