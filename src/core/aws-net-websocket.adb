@@ -94,15 +94,17 @@ package body AWS.Net.WebSocket is
 
       return Object'
         (Net.Socket_Type with
-           Socket  => Socket,
-           Id      => UID (WS_UID_Value),
-           Request => Request,
-           Version => Version,
-           State   => new Internal_State'
-                           (Kind          => Unknown,
-                            Errno         => Interfaces.Unsigned_16'Last,
-                            Last_Activity => Calendar.Clock),
-           P_State => new Protocol_State'(State => Protocol));
+           Socket   => Socket,
+           Id       => UID (WS_UID_Value),
+           Request  => Request,
+           Version  => Version,
+           State    => new Internal_State'
+                            (Kind          => Unknown,
+                             Errno         => Interfaces.Unsigned_16'Last,
+                             Last_Activity => Calendar.Clock),
+           P_State  => new Protocol_State'(State => Protocol),
+           Mem_Sock => null,
+           In_Mem   => False);
    end Create;
 
    --------------------
@@ -335,7 +337,12 @@ package body AWS.Net.WebSocket is
       Data   : Stream_Element_Array;
       Last   : out Stream_Element_Offset) is
    begin
-      Socket.Socket.Send (Data, Last);
+      if Socket.In_Mem then
+         Socket.Mem_Sock.Send (Data, Last);
+      else
+         Socket.Socket.Send (Data, Last);
+      end if;
+
       Socket.State.Last_Activity := Calendar.Clock;
    end Send;
 

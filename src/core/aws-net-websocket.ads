@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2012-2014, AdaCore                     --
+--                     Copyright (C) 2012-2015, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -42,7 +42,7 @@ package AWS.Net.WebSocket is
    use Ada.Strings.Unbounded;
 
    type Object is new Net.Socket_Type with private;
-   type Object_Class is access Object'Class;
+   type Object_Class is access all Object'Class;
 
    No_Object : constant Object'Class;
 
@@ -225,12 +225,14 @@ private
    type Protocol_State_Access is access Protocol_State;
 
    type Object is new Net.Socket_Type with record
-      Socket  : Net.Socket_Access;
-      Id      : UID;
-      Request : AWS.Status.Data;
-      Version : Natural;
-      State   : Internal_State_Access;
-      P_State : Protocol_State_Access;
+      Socket   : Net.Socket_Access;
+      Id       : UID;
+      Request  : AWS.Status.Data;
+      Version  : Natural;
+      State    : Internal_State_Access;
+      P_State  : Protocol_State_Access;
+      Mem_Sock : Net.Socket_Access;
+      In_Mem   : Boolean := False;
    end record;
 
    --  Routines read/write from a WebSocket, this handles the WebSocket
@@ -288,12 +290,14 @@ private
    No_Object : constant Object'Class :=
                  Object'
                    (Net.Socket_Type with
-                    Socket  => null,
-                    Id      => No_UID,
-                    Request => <>,
-                    Version => 0,
-                    State   => null,
-                    P_State => null);
+                    Socket   => null,
+                    Id       => No_UID,
+                    Request  => <>,
+                    Version  => 0,
+                    State    => null,
+                    P_State  => null,
+                    Mem_Sock => null,
+                    In_Mem   => False);
 
    --  Error codes corresponding to all errors
 
