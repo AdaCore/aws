@@ -644,7 +644,7 @@ package body ZLib is
          begin
             Put_32 (Footer, Filter.CRC);
             Put_32 (Footer (Footer'First + 4 .. Footer'Last),
-                    Unsigned_32 (Total_In (Filter) mod (2 ** 32)));
+                    Unsigned_32'Mod (Total_In (Filter)));
             Add_Data (Footer);
          end;
       end if;
