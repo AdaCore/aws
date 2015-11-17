@@ -37,7 +37,10 @@ with GNAT.Regpat;
 
 with AWS.Config;
 with AWS.Net.Generic_Sets;
+with AWS.Net.Memory;
+with AWS.Net.Poll_Events;
 with AWS.Net.Std;
+with AWS.Net.WebSocket;
 with AWS.Translator;
 with AWS.Utils;
 
@@ -676,13 +679,20 @@ package body AWS.Net.WebSocket.Registry is
          Timeout     : Duration := Forever)
       is
 
-         procedure Send_To (Position : WebSocket_Set.Cursor);
+         procedure Initialize_Recipients (Position : WebSocket_Set.Cursor);
+         --  Count recipients and initialize the message's raw data
 
-         -------------
-         -- Send_To --
-         -------------
+         procedure Send_To_Recipients (Recipients : Socket_Set);
+         --  Send message to all recipients
 
-         procedure Send_To (Position : WebSocket_Set.Cursor) is
+         Recipients : Socket_Set (1 .. Natural (Registered.Length));
+         Last       : Natural := 0;
+
+         ---------------------------
+         -- Initialize_Recipients --
+         ---------------------------
+
+         procedure Initialize_Recipients (Position : WebSocket_Set.Cursor) is
             WebSocket : constant not null access Object'Class :=
                           WebSocket_Set.Element (Position);
          begin
@@ -694,19 +704,119 @@ package body AWS.Net.WebSocket.Registry is
                 (not To.Origin_Set
                  or else GNAT.Regexp.Match (WebSocket.Origin, To.Origin))
             then
-               begin
-                  WebSocket.Set_Timeout (Timeout);
-                  WebSocket.Send (Message);
-               exception
-                  when E : others =>
-                     Unregister (WebSocket);
-                     WebSocket_Exception
-                       (WebSocket, Exception_Message (E), Protocol_Error);
-               end;
-            end if;
-         end Send_To;
+               --  Send all data to a memory socket. This is a special
+               --  circuitry where all sent data are actually stored into
+               --  a buffer. This is necessary to be able to get raw data
+               --  denpending on the protocol.
+               --
+               --  ??? for supporting a large set of WebSocket it would be
+               --  good to share the memory buffer. There is actually one
+               --  for each WebSocket format.
 
-         Registered_Before : constant WebSocket_Set.Map := Registered;
+               WebSocket.Mem_Sock := new Memory.Socket_Type;
+
+               WebSocket.In_Mem := True;
+               WebSocket.Send (Message);
+               WebSocket.In_Mem := False;
+
+               Last := Last + 1;
+               Recipients (Last) := Socket_Access (WebSocket);
+               Recipients (Last).Set_Timeout (Timeout);
+            end if;
+         end Initialize_Recipients;
+
+         ------------------------
+         -- Send_To_Recipients --
+         ------------------------
+
+         procedure Send_To_Recipients (Recipients : Socket_Set) is
+            Wait_Events : constant Wait_Event_Set :=
+                            (Input => False, Output => True);
+            Set         : Poll_Events.Set (Recipients'Length);
+            Socks       : Socket_Set (1 .. Recipients'Length) := Recipients;
+            Sock_Index  : Positive;
+            Count       : Natural;
+            Pending     : Stream_Element_Count;
+         begin
+            --  Register the sockets to be handled
+
+            for S of Socks loop
+               Set.Add (S.Get_FD, Wait_Events);
+            end loop;
+
+            --  Send actual data to the WebSocket depending on their status
+
+            loop
+               Set.Wait (Forever, Count);
+
+               Sock_Index := 1;
+
+               for K in 1 .. Count loop
+                  Set.Next (Sock_Index);
+
+                  declare
+                     WS         : constant not null access Object'Class :=
+                                    Object_Class (Socks (Sock_Index));
+                     Chunk_Size : Stream_Element_Offset := WS.Output_Space;
+                  begin
+                     Pending := WS.Mem_Sock.Pending;
+
+                     Chunk_Size := Stream_Element_Offset'Min
+                       (Chunk_Size, Pending);
+
+                     Read_Send : declare
+                        Data : Stream_Element_Array (1 .. Chunk_Size);
+                        Last : Stream_Element_Offset;
+                     begin
+                        WS.Mem_Sock.Receive (Data, Last);
+                        pragma Assert (Last = Data'Last);
+
+                        WS.Send (Data, Last);
+
+                        Pending := Pending - Chunk_Size;
+                     exception
+                        when E : others =>
+                           Unregister (WS);
+                           WebSocket_Exception
+                             (WS, Exception_Message (E), Protocol_Error);
+                           --  No more data to send from this socket
+                           Pending := 0;
+                     end Read_Send;
+                  end;
+
+                  if Pending = 0 then
+                     --  No more data for this socket, first free memory
+
+                     WebSocket.Object'Class
+                       (Socks (Sock_Index).all).Mem_Sock.Free;
+
+                     --  Then the Set.Remove (on the socket set) move the last
+                     --  socket in the set to the location of the removed
+                     --  one. Do the same for the local data to keep data
+                     --  consistency.
+                     --
+                     --  Note that in this case we do not want to increment the
+                     --  socket index. The new loop will check the socket at
+                     --  the same position which is now the previous last in
+                     --  the set.
+
+                     if Sock_Index /= Set.Length then
+                        Socks (Sock_Index) := Socks (Set.Length);
+                     end if;
+
+                     Set.Remove (Sock_Index);
+
+                  else
+                     --  In this case, and only in this case we move to next
+                     --  socket position for next iteration.
+
+                     Sock_Index := Sock_Index + 1;
+                  end if;
+               end loop;
+
+               exit when Set.Length = 0;
+            end loop;
+         end Send_To_Recipients;
 
       begin
          case To.Kind is
@@ -734,7 +844,11 @@ package body AWS.Net.WebSocket.Registry is
                end if;
 
             when K_URI =>
-               Registered_Before.Iterate (Send_To'Access);
+               Registered.Iterate (Initialize_Recipients'Access);
+
+               if Last > 0 then
+                  Send_To_Recipients (Recipients (1 .. Last));
+               end if;
          end case;
       end Send;
 

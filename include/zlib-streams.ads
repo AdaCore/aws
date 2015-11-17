@@ -1,7 +1,7 @@
 ----------------------------------------------------------------
 --  ZLib for Ada thick binding.                               --
 --                                                            --
---  Copyright (C) 2002-2013, Dmitriy Anisimkov                --
+--  Copyright (C) 2002-2015, Dmitriy Anisimkov                --
 --                                                            --
 --  Open source license information is in the zlib.ads file.  --
 ----------------------------------------------------------------
@@ -12,19 +12,18 @@ package ZLib.Streams is
 
    type Stream_Mode is (In_Stream, Out_Stream, Duplex);
 
-   type Stream_Access is access all Ada.Streams.Root_Stream_Type'Class;
+   type Stream_Access is access all Root_Stream_Type'Class;
 
-   type Stream_Type is
-      new Ada.Streams.Root_Stream_Type with private;
+   type Stream_Type is  new Root_Stream_Type with private;
 
    procedure Read
      (Stream : in out Stream_Type;
-      Item   :    out Ada.Streams.Stream_Element_Array;
-      Last   :    out Ada.Streams.Stream_Element_Offset);
+      Item   :    out Stream_Element_Array;
+      Last   :    out Stream_Element_Offset);
 
    procedure Write
      (Stream : in out Stream_Type;
-      Item   : in     Ada.Streams.Stream_Element_Array);
+      Item   : in     Stream_Element_Array);
 
    procedure Flush
      (Stream : in out Stream_Type;
@@ -54,10 +53,8 @@ package ZLib.Streams is
       Level             : in     Compression_Level := Default_Compression;
       Strategy          : in     Strategy_Type     := Default_Strategy;
       Header            : in     Header_Type       := Default;
-      Read_Buffer_Size  : in     Ada.Streams.Stream_Element_Offset
-                                    := Default_Buffer_Size;
-      Write_Buffer_Size : in     Ada.Streams.Stream_Element_Offset
-                                    := Default_Buffer_Size);
+      Read_Buffer_Size  : in     Stream_Element_Offset := Default_Buffer_Size;
+      Write_Buffer_Size : in     Stream_Element_Offset := Default_Buffer_Size);
    --  Create the Comression/Decompression stream.
    --  If mode is In_Stream then Write operation is disabled.
    --  If mode is Out_Stream then Read operation is disabled.
@@ -81,28 +78,24 @@ private
 
    type Buffer_Access is access all Stream_Element_Array;
 
-   type Stream_Type
-     is new Root_Stream_Type with
-   record
+   type Stream_Type is new Root_Stream_Type with record
       Mode       : Stream_Mode;
 
       Buffer     : Buffer_Access;
       Rest_First : Stream_Element_Offset;
       Rest_Last  : Stream_Element_Offset;
       --  Buffer for Read operation.
-      --  We need to have this buffer in the record
-      --  becouse not all read data from back stream
-      --  could be processed during the read operation.
+      --  We need to have this buffer in the record because not all read data
+      --  from back stream could be processed during the read operation.
 
       Buffer_Size : Stream_Element_Offset;
       --  Buffer size for write operation.
-      --  We do not need to have this buffer
-      --  in the record becouse all data could be
-      --  processed in the write operation.
+      --  We do not need to have this buffer in the record because all data
+      --  could be processed in the write operation.
 
-      Back       : Stream_Access;
-      Reader     : Filter_Type;
-      Writer     : Filter_Type;
+      Back   : Stream_Access;
+      Reader : Filter_Type;
+      Writer : Filter_Type;
    end record;
 
 end ZLib.Streams;

@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                       Generic memory stream                              --
 --                                                                          --
---              Copyright (C) 2003-2014, Dmitriy Anisimkov                  --
+--                Copyright (C) 2003-2015, Dmitriy Anisimkov                --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -93,8 +93,8 @@ package body Memory_Streams is
 
       else
          declare
-            Block_Length : constant Element_Offset
-              := Stream.Last_Length + Value'Length;
+            Block_Length : constant Element_Offset :=
+                             Stream.Last_Length + Value'Length;
          begin
             if Block_Length <= Stream.Last.Data'Length then
                Stream.Last.Data
@@ -107,11 +107,12 @@ package body Memory_Streams is
 
             else
                declare
-                  Split_Value : constant Element_Index
-                    := Value'First
-                         + Stream.Last.Data'Length - Stream.Last_Length;
-                  Next_Length : constant Element_Index
-                    := Value'Last - Split_Value + 1;
+                  Split_Value : constant Element_Index :=
+                                  Value'First
+                                    + Stream.Last.Data'Length
+                                    - Stream.Last_Length;
+                  Next_Length : constant Element_Index :=
+                                  Value'Last - Split_Value + 1;
                begin
                   Stream.Last.Data
                     (Stream.Last_Length + 1 .. Stream.Last.Data'Last) :=
@@ -288,6 +289,40 @@ package body Memory_Streams is
          return Item.Data'Last;
       end if;
    end Last;
+
+   -------------
+   -- Pending --
+   -------------
+
+   function Pending (Stream : in Stream_Type) return Element_Offset is
+   begin
+      if Stream.Current = null then
+         return 0;
+
+      else
+         declare
+            B : Buffer_Access := Stream.Current;
+            S : Element_Offset := 0;
+         begin
+            while B /= null loop
+               if B.Next = null then
+                  if B.Steady then
+                     S := S + Last (B);
+                  else
+                     S := S + Stream.Last_Length - Stream.Current_Offset + 1;
+                  end if;
+
+               else
+                  S := S + Last (B);
+               end if;
+
+               B := B.Next;
+            end loop;
+
+            return S;
+         end;
+      end if;
+   end Pending;
 
    ----------
    -- Read --

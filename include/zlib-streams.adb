@@ -1,7 +1,7 @@
 ----------------------------------------------------------------
 --  ZLib for Ada thick binding.                               --
 --                                                            --
---  Copyright (C) 2002-2012, Dmitriy Anisimkov                --
+--  Copyright (C) 2002-2015, Dmitriy Anisimkov                --
 --                                                            --
 --  Open source license information is in the zlib.ads file.  --
 ----------------------------------------------------------------
@@ -15,7 +15,7 @@ package body ZLib.Streams is
    -----------
 
    procedure Close (Stream : in out Stream_Type) is
-      procedure Free is new Ada.Unchecked_Deallocation
+      procedure Unchecked_Free is new Ada.Unchecked_Deallocation
          (Stream_Element_Array, Buffer_Access);
    begin
       if Stream.Mode = Out_Stream or Stream.Mode = Duplex then
@@ -28,7 +28,7 @@ package body ZLib.Streams is
 
       if Stream.Mode = In_Stream or Stream.Mode = Duplex then
          Close (Stream.Reader);
-         Free (Stream.Buffer);
+         Unchecked_Free (Stream.Buffer);
       end if;
    end Close;
 
@@ -44,10 +44,8 @@ package body ZLib.Streams is
       Level             : in     Compression_Level := Default_Compression;
       Strategy          : in     Strategy_Type     := Default_Strategy;
       Header            : in     Header_Type       := Default;
-      Read_Buffer_Size  : in     Ada.Streams.Stream_Element_Offset
-                                    := Default_Buffer_Size;
-      Write_Buffer_Size : in     Ada.Streams.Stream_Element_Offset
-                                    := Default_Buffer_Size)
+      Read_Buffer_Size  : in     Stream_Element_Offset := Default_Buffer_Size;
+      Write_Buffer_Size : in     Stream_Element_Offset := Default_Buffer_Size)
    is
 
       subtype Buffer_Subtype is Stream_Element_Array (1 .. Read_Buffer_Size);
