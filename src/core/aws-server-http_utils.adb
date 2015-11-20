@@ -1145,7 +1145,8 @@ package body AWS.Server.HTTP_Utils is
          I3  := Fixed.Index (Command (I1 + 1 .. I2 - 1), "?");
 
          if I1 = 0 or else I2 = 0 or else I1 = I2 then
-            raise Constraint_Error with "Wrong request line '" & Command & ''';
+            raise Wrong_Request_Line
+              with "Wrong request line '" & Command & ''';
 
          elsif I3 = 0 then
             --  Could be encoded ?

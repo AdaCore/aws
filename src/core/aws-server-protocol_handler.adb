@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2000-2014, AdaCore                      --
+--                     Copyright (C) 2000-2015, AdaCore                      --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -247,6 +247,26 @@ begin
             exit For_Every_Request;
 
          when Expectation_Failed =>
+            Send
+              (Error_Answer, LA.Server.all, LA.Line, LA.Stat, Socket_Taken,
+               Will_Close);
+
+         when E : Wrong_Request_Line =>
+            AWS.Log.Write
+              (LA.Server.Error_Log,
+               LA.Stat,
+               Utils.CRLF_2_Spaces
+                 (Ada.Exceptions.Exception_Information (E)));
+
+            Will_Close := True;
+
+            Error_Answer := Response.Build
+              (Status_Code  => Messages.S400,
+               Content_Type => "text/plain",
+               Message_Body => Ada.Exceptions.Exception_Message (E));
+
+            LA.Server.Slots.Mark_Phase (LA.Line, Server_Response);
+
             Send
               (Error_Answer, LA.Server.all, LA.Line, LA.Stat, Socket_Taken,
                Will_Close);

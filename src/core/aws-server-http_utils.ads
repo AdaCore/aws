@@ -38,6 +38,9 @@ package AWS.Server.HTTP_Utils is
    Name_Error   : exception renames Ada.IO_Exceptions.Name_Error;
    Device_Error : exception renames Ada.IO_Exceptions.Device_Error;
 
+   Wrong_Request_Line : exception;
+   --  Raised when a non well formed request line is detected
+
    procedure Answer_To_Client
      (HTTP_Server  : in out AWS.Server.HTTP;
       Line_Index   : Positive;

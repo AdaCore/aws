@@ -1,5 +1,10 @@
 Known Problems fixed in AWS 17.0
 
+- OB17-023: Wrong error code returned for broken request line
+  Problem: A server internal error code 500 is returned when a
+           broken request line is detected.
+  Workaround: None.
+
 - OB15-006: Cannot compress file larger than 2**32 bytes.
   Problem: Constraint error is raised when compressing a file whose original
            size is larger that 2**32 bytes.
