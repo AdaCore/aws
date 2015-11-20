@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2005-2014, AdaCore                     --
+--                     Copyright (C) 2005-2015, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -29,9 +29,9 @@
 
 with Ada.IO_Exceptions;
 
-with AWS.Status;
 with AWS.Resources;
 with AWS.Response;
+with AWS.Status;
 
 package AWS.Server.HTTP_Utils is
 
