@@ -17,7 +17,7 @@
 ------------------------------------------------------------------------------
 
 with "../.build/projects/aws_asis";
-with "../shared.gpr";
+with "../shared";
 with "../aws";
 with "../win32/win32";
 
