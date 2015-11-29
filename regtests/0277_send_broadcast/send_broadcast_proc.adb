@@ -30,7 +30,7 @@ procedure Send_Broadcast_Proc (Security : Boolean) is
    use Ada.Streams;
    use AWS;
 
-   Max_Client : constant := 20;
+   Max_Client : constant := 10;
 
    Sample     : Stream_Element_Array (1 .. 500_000);
 
@@ -103,11 +103,11 @@ begin
       Clients (K).Start;
    end loop;
 
-   Server.Set_Timeout (2.0);
+   Server.Set_Timeout (10.0);
 
    for K in Clients'Range loop
       Server.Accept_Socket (Peers (K).all);
-      Peers (K).Set_Timeout (3.0);
+      Peers (K).Set_Timeout (5.0);
       Peers (K).Set_Send_Buffer_Size (Integer (Sample'Last / 3));
    end loop;
 
