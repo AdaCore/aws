@@ -759,6 +759,10 @@ package body AWS.Net.WebSocket.Registry is
                                     Object_Class (Socks (Sock_Index));
                      Chunk_Size : Stream_Element_Offset := WS.Output_Space;
                   begin
+                     if Chunk_Size = -1 then
+                        Chunk_Size := 100 * 1_024;
+                     end if;
+
                      Pending := WS.Mem_Sock.Pending;
 
                      Chunk_Size := Stream_Element_Offset'Min
