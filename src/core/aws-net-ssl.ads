@@ -115,7 +115,11 @@ package AWS.Net.SSL is
       TLSv1,    TLSv1_Server,    TLSv1_Client,   -- TLS 1.0
       TLSv1_1,  TLSv1_1_Server,  TLSv1_1_Client, -- TLS 1.1
       TLSv1_2,  TLSv1_2_Server,  TLSv1_2_Client, -- TLS 1.2
-      SSLv3,    SSLv3_Server,    SSLv3_Client);  -- SSLv3
+      SSLv3,    SSLv3_Server,    SSLv3_Client);  -- SSLv3 (obsolescent)
+
+   pragma Obsolescent (SSLv3, "use SSLv23 instead");
+   pragma Obsolescent (SSLv3_Server, "use SSLv23_Server instead");
+   pragma Obsolescent (SSLv3_Client, "use SSLv23_Client instead");
 
    type Config is private;
 

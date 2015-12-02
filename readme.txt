@@ -4,7 +4,7 @@
 
 Authors:
    Dmitriy Anisimkov
-   Pascal Obry                                           October 28th, 2015
+   Pascal Obry                                           December 2nd, 2015
 
 
 
@@ -61,6 +61,11 @@ features will be listed in this section. Those features will be
 removed in the next version. Note that you can check usage of those
 features in your application by using the GNAT's -gnatwj option as we
 have tagged all obsolescent features with a pragma.
+
+-  The OpenSSL methods: SSLv3, SSLv3_Client, SSLv3_Server are marked
+   obsolescent. Those methods are not supported anymore in OpenSSL
+   (> 1.0.1), until those are removed from AWS they are using the
+   equivalent v23 methods.
 
 
 Known problems

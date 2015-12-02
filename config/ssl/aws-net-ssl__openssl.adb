@@ -1820,9 +1820,9 @@ package body AWS.Net.SSL is
                       TLSv1_2        => TSSL.TLSv1_2_method'Access,
                       TLSv1_2_Server => TSSL.TLSv1_2_server_method'Access,
                       TLSv1_2_Client => TSSL.TLSv1_2_client_method'Access,
-                      SSLv3          => TSSL.SSLv3_method'Access,
-                      SSLv3_Server   => TSSL.SSLv3_server_method'Access,
-                      SSLv3_Client   => TSSL.SSLv3_client_method'Access);
+                      SSLv3          => TSSL.SSLv23_method'Access,
+                      SSLv3_Server   => TSSL.SSLv23_server_method'Access,
+                      SSLv3_Client   => TSSL.SSLv23_client_method'Access);
 
          ---------------------
          -- Set_Certificate --
