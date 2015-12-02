@@ -68,21 +68,8 @@ have tagged all obsolescent features with a pragma.
    equivalent v23 methods.
 
 
-Known problems
---------------
-
-- There is a bug in Internet Explorer which prevents to download a file when
-  the connection is using the SSL encryption and there is the "Cache-Control"
-  header set to "no-cache".
-
-  See: http://support.microsoft.com/?kbid=323308
-
-
 Pointers
 --------
-
-AWS User's Mailing List:
-   http://lists.adacore.com/mailman/listinfo/aws
 
 AWS Home Page (sources and printable documentations in Postscript and PDF):
    http://libre.adacore.com/aws
@@ -90,17 +77,6 @@ AWS Home Page (sources and printable documentations in Postscript and PDF):
 Templates_Parser sources:
    Templates_Parser module (sources and documentation) is provided with AWS
    distribution.
-
-   Templates_Parser is a very useful add-on for AWS. You should have a look at
-   it if you plan to develop a Web applications. Templates_Parser permits to
-   completely separate the HTML design from the Ada code.
-
-   Some other Templates engine are WebMacro, FreeMarker, PHP, ASP, JSP and
-   Velocity. All of them are based on explicit iterators (#foreach with a
-   variable) where Templates_Parser is based on implicit ones (you use a more
-   intuitive table iterator). Be sure to check the documentation. Only
-   the Velocity project has the goal to support complete separation of HTML
-   design and code.
 
 GNU/Ada - GNAT
 
