@@ -1198,8 +1198,11 @@ package body AWS.Net.SSL is
       function Error_Processing return Boolean is
          Error_Code : constant C.int := TSSL.SSL_get_error (Socket.SSL, RC);
          Err_Code   : TSSL.Error_Code;
+         RIO        : TSSL.BIO_Access;
+         BIO        : TSSL.BIO_Access;
+         Retry      : aliased C.int;
 
-         use type TSSL.Error_Code;
+         use type TSSL.Error_Code, TSSL.BIO_Access;
 
       begin
          case Error_Code is
@@ -1215,12 +1218,34 @@ package body AWS.Net.SSL is
                Socket_Write (Socket);
 
             when TSSL.SSL_ERROR_SYSCALL =>
-               Net.Log.Error
-                 (Socket,
-                  "System error (" & Utils.Image (OS_Lib.Socket_Errno)
-                  & ") on SSL shutdown");
+               RIO := TSSL.BIO_get_retry_BIO (Socket.IO, Retry'Access);
+               BIO := TSSL.SSL_get_rbio (Socket.SSL);
+               Err_Code := TSSL.ERR_get_error;
 
-               return True;
+               if Err_Code /= 0
+                 or else TSSL.SSL_want (Socket.SSL) /= TSSL.SSL_NOTHING
+                 or else Retry /= 0
+                 or else Socket.IO.Flags /= 0
+                 or else RIO.Flags /= 0
+                 or else BIO.Flags /= 0
+                 or else Socket.Pending /= 0
+               then
+                  Net.Log.Error
+                    (Socket,
+                     "Unexpected SSL_ERROR_SYSCALL "
+                     & Boolean'Image (RIO = Socket.IO)
+                     & ' ' & Boolean'Image (BIO = Socket.IO)
+                     & Err_Code'Img
+                     & TSSL.SSL_want (Socket.SSL)'Img
+                     & Retry'Img
+                     & Socket.IO.Flags'Img
+                     & RIO.Flags'Img
+                     & BIO.Flags'Img
+                     & Socket.Pending'Img
+                     & Std.Pending (NSST (Socket))'Img);
+
+                  return True;
+               end if;
 
             when others =>
                Err_Code := TSSL.ERR_get_error;

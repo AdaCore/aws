@@ -304,6 +304,11 @@ package SSL.Thin is
    SSL_ERROR_WANT_CONNECT     : constant := 7;
    SSL_ERROR_WANT_ACCEPT      : constant := 8;
 
+   SSL_NOTHING     : constant := 1;
+   SSL_WRITING     : constant := 2;
+   SSL_READING     : constant := 3;
+   SSL_X509_LOOKUP : constant := 4;
+
    SSL_MAX_KRB5_PRINCIPAL_LENGTH       : constant := 256;
    SSL_MAX_SSL_SESSION_ID_LENGTH       : constant := 32;
    SSL_MAX_SID_CTX_LENGTH              : constant := 32;
@@ -864,6 +869,18 @@ package SSL.Thin is
 
    function SSL_want (S : SSL_Handle) return int
      with Import, Convention => C, External_Name => "SSL_want";
+
+   function SSL_want_nothing (S : SSL_Handle) return Boolean
+   is (SSL_want (S) = SSL_NOTHING);
+
+   function SSL_want_read (S : SSL_Handle) return Boolean
+   is (SSL_want (S) = SSL_READING);
+
+   function SSL_want_write (S : SSL_Handle) return Boolean
+   is (SSL_want (S) = SSL_WRITING);
+
+   function SSL_want_x509_lookup (S : SSL_Handle) return Boolean
+   is (SSL_want (S) = SSL_X509_LOOKUP);
 
    function SSL_read (SSL : SSL_Handle; Buf : Pointer; Num : int) return int
      with Import, Convention => C, External_Name => "SSL_read";
@@ -1447,6 +1464,9 @@ package SSL.Thin is
    function BIO_flush (Bp : BIO_Access) return int is
      (int (BIO_ctrl (Bp, BIO_CTRL_FLUSH)));
 
+   function BIO_reset (Bp : BIO_Access) return int is
+     (int (BIO_ctrl (Bp, BIO_CTRL_RESET)));
+
    procedure BIO_ctrl
      (Bp : BIO_Access; Cmd : int; Larg : long; Parg : Pointer)
      with Import, Convention => C, External_Name => "BIO_ctrl";
@@ -1540,6 +1560,28 @@ package SSL.Thin is
       argl : long;
       ret  : long) return long
      with Import, Convention => C, External_Name => "BIO_debug_callback";
+
+   function BIO_get_retry_BIO
+     (BIO : BIO_Access; reason : access int) return BIO_Access
+     with Import, Convention => C, External_Name => "BIO_get_retry_BIO";
+
+   function BIO_get_retry_reason (BIO : BIO_Access) return int
+     with Import, Convention => C, External_Name => "BIO_get_retry_reason";
+
+   function BIO_should_read (BIO : BIO_Access) return Boolean
+   is ((unsigned (BIO.Flags) and BIO_FLAGS_READ) > 0);
+
+   function BIO_should_write (BIO : BIO_Access) return Boolean
+   is ((unsigned (BIO.Flags) and BIO_FLAGS_WRITE) > 0);
+
+   function BIO_should_io_special (BIO : BIO_Access) return Boolean
+   is ((unsigned (BIO.Flags) and BIO_FLAGS_IO_SPECIAL) > 0);
+
+   function BIO_retry_type (BIO : BIO_Access) return unsigned
+   is (unsigned (BIO.Flags) and BIO_FLAGS_RWS);
+
+   function BIO_should_retry (BIO : BIO_Access) return Boolean
+   is ((unsigned (BIO.Flags) and BIO_FLAGS_SHOULD_RETRY) > 0);
 
    SSL_SESS_CACHE_OFF                : constant := 0;
    SSL_SESS_CACHE_CLIENT             : constant := 1;
