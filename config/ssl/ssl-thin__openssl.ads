@@ -1568,20 +1568,20 @@ package SSL.Thin is
    function BIO_get_retry_reason (BIO : BIO_Access) return int
      with Import, Convention => C, External_Name => "BIO_get_retry_reason";
 
-   function BIO_should_read (BIO : BIO_Access) return Boolean
-   is ((unsigned (BIO.Flags) and BIO_FLAGS_READ) > 0);
+   function BIO_should_read (BIO : BIO_Access) return Boolean is
+     ((unsigned (BIO.Flags) and BIO_FLAGS_READ) > 0);
 
-   function BIO_should_write (BIO : BIO_Access) return Boolean
-   is ((unsigned (BIO.Flags) and BIO_FLAGS_WRITE) > 0);
+   function BIO_should_write (BIO : BIO_Access) return Boolean is
+    ((unsigned (BIO.Flags) and BIO_FLAGS_WRITE) > 0);
 
-   function BIO_should_io_special (BIO : BIO_Access) return Boolean
-   is ((unsigned (BIO.Flags) and BIO_FLAGS_IO_SPECIAL) > 0);
+   function BIO_should_io_special (BIO : BIO_Access) return Boolean is
+    ((unsigned (BIO.Flags) and BIO_FLAGS_IO_SPECIAL) > 0);
 
-   function BIO_retry_type (BIO : BIO_Access) return unsigned
-   is (unsigned (BIO.Flags) and BIO_FLAGS_RWS);
+   function BIO_retry_type (BIO : BIO_Access) return unsigned is
+    (unsigned (BIO.Flags) and BIO_FLAGS_RWS);
 
-   function BIO_should_retry (BIO : BIO_Access) return Boolean
-   is ((unsigned (BIO.Flags) and BIO_FLAGS_SHOULD_RETRY) > 0);
+   function BIO_should_retry (BIO : BIO_Access) return Boolean is
+    ((unsigned (BIO.Flags) and BIO_FLAGS_SHOULD_RETRY) > 0);
 
    SSL_SESS_CACHE_OFF                : constant := 0;
    SSL_SESS_CACHE_CLIENT             : constant := 1;
