@@ -2,7 +2,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2012-2014, AdaCore                     --
+--                     Copyright (C) 2012-2015, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -459,14 +459,10 @@ CND(FIONBIO, "Set/clear non-blocking io")
 CND(FIONREAD, "How many bytes to read")
 
 #ifndef FIONWRITE
-# ifdef TIOCOUTQ
-#  define FIONWRITE TIOCOUTQ
+# ifdef SIOCOUTQ
+#  define FIONWRITE SIOCOUTQ
 # else
-#  ifdef SIOCOUTQ
-#   define FIONWRITE SIOCOUTQ
-#  else
-#   define FIONWRITE -1
-#  endif
+#  define FIONWRITE -1
 # endif
 #endif
 CND(FIONWRITE, "How many bytes in the send queue")
