@@ -56,32 +56,6 @@ def tail(infile_name, outfile_name, nb_line):
 
 
 def build(prj):
-    """Build a project"""
-    if Env().testsuite_config.with_gprbuild:
-        gprbuild(prj)
-    else:
-        gnatmake(prj)
-
-
-def gnatmake(prj):
-    """Compile a project with gnatmake"""
-    cmd = []
-    if Env().is_cross:
-        cmd.append(Env().target.triplet + '-gnatmake')
-    else:
-        cmd.append('gnatmake')
-    if Env().testsuite_config.with_gprof:
-        cmd.append('-pg')
-    if Env().is_cross:
-        if Env().target.os.name.startswith('vxworks'):
-            cmd.append('-XPLATFORM=vxworks')
-    cmd = cmd + ["-p", "-gnat2012", "-P" + prj, "-bargs", "-E"]
-    process = Run(cmd)
-    if process.status:
-        logging.error(process.out)
-
-
-def gprbuild(prj):
     """Compile a project with gprbuild"""
     cmd = ["gprbuild", "-p", "-gnat2012", "-P" + prj, "-bargs", "-E"]
     if Env().testsuite_config.with_gprof:

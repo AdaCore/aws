@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 #                              Ada Web Server
 #
-#                     Copyright (C) 2003-2012, AdaCore
+#                     Copyright (C) 2003-2015, AdaCore
 #
 #  This library is free software; you can redistribute it and/or modify
 #  This is free software;  you can redistribute it  and/or modify it
@@ -35,6 +35,7 @@ from gnatpython.mainloop import (MainLoop, add_mainloop_options,
                                  setup_result_dir)
 from gnatpython.testdriver import add_run_test_options
 from gnatpython.reports import ReportDiff
+
 
 class Runner(object):
     """Run the testsuite
@@ -93,10 +94,10 @@ class Runner(object):
             os.environ["PLATFORM"] = "native"
             # Add current tools in from of PATH
             os.environ["PATH"] = os.getcwd() + os.sep + ".." + os.sep \
-              + ".build" + os.sep + os.environ["PLATFORM"] \
-              + os.sep + os.environ["PRJ_BUILD"].lower() \
-              + os.sep + "static" + os.sep + "tools" \
-              + os.pathsep + os.environ["PATH"]
+                + ".build" + os.sep + os.environ["PLATFORM"] \
+                + os.sep + os.environ["PRJ_BUILD"].lower() \
+                + os.sep + "static" + os.sep + "tools" \
+                + os.pathsep + os.environ["PATH"]
 
         logging.debug(
             "Running the testsuite with the following discriminants: %s"
@@ -151,9 +152,9 @@ class Runner(object):
             # failed.
             if test_metrics['failed'] < self.options.retry_threshold:
                 logging.warning("%d tests have failed (threshold was %d)."
-                        " Retrying..."
-                        % (test_metrics['failed'],
-                           self.options.retry_threshold))
+                                " Retrying..."
+                                % (test_metrics['failed'],
+                                   self.options.retry_threshold))
 
                 # Regenerate collect_result function
                 self.options.skip_if_ok = True
@@ -168,8 +169,8 @@ class Runner(object):
 
         # Write report
         ReportDiff(self.options.output_dir,
-                self.options.old_output_dir).txt_image(
-                        self.options.report_file)
+                   self.options.old_output_dir).txt_image(
+                       self.options.report_file)
 
 
 def run_testsuite():
@@ -191,12 +192,6 @@ def run_testsuite():
     main.add_option("--with-valgrind", dest="with_valgrind",
                     action="store_true", default=False,
                     help="Run with valgrind")
-    main.add_option("--with-gnatmake", dest="with_gprbuild",
-                    action="store_false", default=False,
-                    help="Compile with gnatmake")
-    main.add_option("--with-gprbuild", dest="with_gprbuild",
-                    action="store_true", default=False,
-                    help="Compile with gprbuild (default is gnatmake)")
     main.add_option("--old-result-dir", type="string",
                     help="Old result dir")
     main.add_option("--from-build-dir", dest="from_build_dir",
