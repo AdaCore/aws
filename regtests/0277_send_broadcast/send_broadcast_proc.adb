@@ -39,10 +39,33 @@ procedure Send_Broadcast_Proc (Security : Boolean) is
                   (others =>
                      new Net.Socket_Type'Class'(Net.Socket (Security)));
 
+   protected Shared is
+      procedure Connect
+        (Client : in out Net.Socket_Type'Class;
+         Addr   : String;
+         Port   : Positive);
+   end Shared;
+
    task type Client_Side is
       entry Start;
       entry Stop;
    end Client_Side;
+
+   ------------
+   -- Shared --
+   ------------
+
+   protected body Shared is
+
+      procedure Connect
+        (Client : in out Net.Socket_Type'Class;
+         Addr   : String;
+         Port   : Positive) is
+      begin
+         Client.Connect (Addr, Port);
+      end Connect;
+
+   end Shared;
 
    -----------------
    -- Client_Side --
@@ -54,7 +77,7 @@ procedure Send_Broadcast_Proc (Security : Boolean) is
    begin
       accept Start;
 
-      Client.Connect (Server.Get_Addr, Server.Get_Port);
+      Shared.Connect (Client, Server.Get_Addr, Server.Get_Port);
 
       loop
          declare
