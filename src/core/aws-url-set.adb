@@ -425,7 +425,7 @@ package body AWS.URL.Set is
 
       --  Checks for parameters
 
-      P := Strings.Fixed.Index (L_URL, "?");
+      P := Strings.Fixed.Index (L_URL (L_URL'First .. F), "?");
 
       if P = 0 then
          P := F;
@@ -437,25 +437,26 @@ package body AWS.URL.Set is
 
       --  Checks for prefix
 
-      if Utils.Match (L_URL, HTTP_Token) then
+      if Utils.Match (L_URL (L_URL'First .. P), HTTP_Token) then
          Item.Port := Default_HTTP_Port;
          Parse (L_URL (L_URL'First + HTTP_Token'Length .. P));
 
-      elsif Utils.Match (L_URL, HTTPS_Token) then
+      elsif Utils.Match (L_URL (L_URL'First .. P), HTTPS_Token) then
          Item.Port := Default_HTTPS_Port;
          Parse (L_URL (L_URL'First + HTTPS_Token'Length .. P));
          Item.Protocol := HTTPS;
 
-      elsif Utils.Match (L_URL, FTP_Token) then
+      elsif Utils.Match (L_URL (L_URL'First .. P), FTP_Token) then
          Item.Port := Default_FTP_Port;
          Parse (L_URL (L_URL'First + FTP_Token'Length .. P));
          Item.Protocol := FTP;
 
-      elsif L_URL /= "" then
+      elsif P >= L_URL'First then
          --  No known scheme detected. Look for a scheme anyway and parse the
          --  rest of the URL.
          Item.Port := 0;
-         Scheme := To_Unbounded_String (Parse_Scheme (L_URL));
+         Scheme := To_Unbounded_String
+                     (Parse_Scheme (L_URL (L_URL'First .. P)));
 
          if Scheme /= Null_Unbounded_String then
             Item.Protocol := Scheme;

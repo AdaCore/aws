@@ -156,10 +156,30 @@ http://www.myserver.com:89/app/./../toto&url=http://titi
 Error on http://www.myserver.com:89/app//../\..\\..\toto?url=http://titi - Wrong URL: (/../../) Reference Web root parent directory.
 http://192.168.58.44:8083/whatever/me/dev[6]
 http://192.168.58.44:8083/whatever/me/dev[6]
-Server    : 192.168.58.44
-Port      : 8083
-URI       : /whatever/me/dev[6]
-*
-Server    : 192.168.58.44
-Port      : 8083
-URI       : /whatever/me/dev[6]
+   Server    : 192.168.58.44
+   Port      : 8083
+   URI       : /whatever/me/dev[6]
+   *
+   Server    : 192.168.58.44
+   Port      : 8083
+   URI       : /whatever/me/dev[6]
+http://www.myserver.com:12/request?p1=9#fragment
+http://www.myserver.com:12/request?p1=9#fragment
+   Server    : www.myserver.com
+   Port      : 12
+   URI       : /request?p1=9
+   *
+   Server    : www.myserver.com
+   Port      : 12
+   URI       : /request?p1=9
+   Fragment  : #fragment
+http://www.itserver.com:34/query#fragment?question
+http://www.itserver.com:34/query#fragment?question
+   Server    : www.itserver.com
+   Port      : 34
+   URI       : /query
+   *
+   Server    : www.itserver.com
+   Port      : 34
+   URI       : /query
+   Fragment  : #fragment?question

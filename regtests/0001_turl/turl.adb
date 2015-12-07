@@ -24,6 +24,16 @@ procedure Turl is
 
    procedure Test (URL : String) is
       O : Object;
+
+      procedure Print_Not_Empty (Title, Value : String) is
+      begin
+         if Value /= "" then
+            Put ("   " & Title);
+            Set_Col (14);
+            Put_Line (": " & Value);
+         end if;
+      end Print_Not_Empty;
+
    begin
       O := Parse (URL);
 
@@ -39,6 +49,8 @@ procedure Turl is
       Put_Line ("   Server    : " & Host (O));
       Put_Line ("   Port      : " & Port (O));
       Put_Line ("   URI       : " & Pathname_And_Parameters (O));
+
+      Print_Not_Empty ("Fragment", Fragment (O));
 
    exception
       when E : URL_Error =>
@@ -67,4 +79,6 @@ begin
    Test ("http://www.myserver.com:89/app/.\..\toto&url=http://titi");
    Test ("http://www.myserver.com:89/app//../\..\\..\toto?url=http://titi");
    Test ("http://192.168.58.44:8083/whatever/me/dev[6]");
+   Test ("http://www.myserver.com:12/request?p1=9#fragment");
+   Test ("http://www.itserver.com:34/query#fragment?question");
 end Turl;
