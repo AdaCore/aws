@@ -1,10 +1,10 @@
 
                             A W S - Ada Web Server
-                          3.3.0 release / SOAP 2.0.0
+                          3.3.1 release / SOAP 2.0.0
 
 Authors:
    Dmitriy Anisimkov
-   Pascal Obry                                            October 28th, 2015
+   Pascal Obry                                            December 7th, 2015
 
 
 
