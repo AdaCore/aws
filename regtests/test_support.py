@@ -60,10 +60,9 @@ def build(prj):
     cmd = ["gprbuild"]
     if Env().is_cross:
         cmd.append("--target=" + Env().target.triplet)
-    cmd = cmd + ["-p", "-gnat2012", "-P" + prj, "-bargs", "-E"]
-    if Env().is_cross:
         if Env().target.os.name.startswith('vxworks'):
             cmd.append('-XPLATFORM=vxworks')
+    cmd = cmd + ["-p", "-gnat2012", "-P" + prj, "-bargs", "-E"]
     if Env().testsuite_config.with_gprof:
         cmd = cmd + ["-cargs", "-pg", "-O2", "-largs", "-pg"]
     process = Run(cmd)
