@@ -126,11 +126,11 @@ begin
       Clients (K).Start;
    end loop;
 
-   Server.Set_Timeout (10.0);
+   Server.Set_Timeout (20.0);
 
    for K in Clients'Range loop
       Server.Accept_Socket (Peers (K).all);
-      Peers (K).Set_Timeout (5.0);
+      Peers (K).Set_Timeout (10.0);
       Peers (K).Set_Send_Buffer_Size (Integer (Sample'Last / 3));
    end loop;
 
