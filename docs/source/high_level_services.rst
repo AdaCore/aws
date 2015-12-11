@@ -1529,9 +1529,9 @@ from `AWS.Net.WebSocket.Object` and redefine at least two methods
       Request : AWS.Status.Data) return AWS.Net.WebSocket.Object'Class
    is
       --  Note the call to the other version of Create*
-     return
-       (AWS.Net.WebSocket.Object
-         (AWS.Net.WebSocket.Create (Socket, Request)) with null record);
+      return MySocket'
+        (AWS.Net.WebSocket.Object
+          (AWS.Net.WebSocket.Create (Socket, Request)) with null record);
    end Create;
 
   It is also possible to deny the handshake by returning an object from
