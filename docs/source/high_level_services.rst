@@ -1526,7 +1526,7 @@ from `AWS.Net.WebSocket.Object` and redefine at least two methods
 
    function Create
      (Socket  : Socket_Access;
-      Request : AWS.Status.Data) return MySocket'Class
+      Request : AWS.Status.Data) return AWS.Net.WebSocket.Object'Class
    is
       --  Note the call to the other version of Create*
      return
