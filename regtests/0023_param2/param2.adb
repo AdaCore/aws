@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2008-2014, AdaCore                     --
+--                     Copyright (C) 2008-2015, AdaCore                     --
 --                                                                          --
 --  This is free software;  you can redistribute it  and/or modify it       --
 --  under terms of the  GNU General Public License as published  by the     --
@@ -19,7 +19,7 @@
 with Ada.Exceptions;
 with Ada.Text_IO;
 
-with AWS.Parameters.Set;
+with AWS.Parameters;
 
 procedure Param2 is
 
@@ -36,20 +36,20 @@ procedure Param2 is
    end Print_Union;
 
 begin
-   Parameters.Set.Add (List, "name1", "value_xxxx");
-   Parameters.Set.Add (List, "name2", "value_2");
-   Parameters.Set.Update (List, "name1", "value_1");
+   List.Add ("name1", "value_xxxx");
+   List.Add ("name2", "value_2");
+   List.Update ("name1", "value_1");
 
    Text_IO.Put_Line ("1> " & Parameters.URI_Format (List));
 
-   Parameters.Set.Add (List, "name3", "value");
-   Parameters.Set.Update (List, "name3", "value_3");
+   List.Add ("name3", "value");
+   List.Update ("name3", "value_3");
 
    Text_IO.Put_Line ("2> " & Parameters.URI_Format (List));
 
-   Parameters.Set.Add (Mist, "name1", "mist-1");
-   Parameters.Set.Add (Mist, "name3", "mist-2");
-   Parameters.Set.Add (Mist, "char+", "value#");
+   Mist.Add ("name1", "mist-1");
+   Mist.Add ("name3", "mist-2");
+   Mist.Add ("char+", "value%23", Decode => True);
    Print_Union (List, Mist, False);
    Print_Union (List, Mist, True);
    Print_Union (Mist, List, False);

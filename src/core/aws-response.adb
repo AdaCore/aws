@@ -32,7 +32,6 @@ pragma Ada_2012;
 with Ada.Directories;
 with Ada.Strings.Fixed;
 
-with AWS.Headers.Set;
 with AWS.Headers.Values;
 with AWS.Resources.Streams.Disk.Once;
 with AWS.Resources.Streams.Memory;
@@ -454,7 +453,7 @@ package body AWS.Response is
    overriding procedure Initialize (Object : in out Data) is
    begin
       Object.Ref_Counter := new Release_Controller;
-      AWS.Headers.Set.Reset (Object.Header);
+      Object.Header.Reset;
    end Initialize;
 
    --------------

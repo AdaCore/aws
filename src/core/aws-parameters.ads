@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2000-2014, AdaCore                     --
+--                     Copyright (C) 2000-2015, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -30,8 +30,7 @@
 pragma Ada_2012;
 
 with AWS.Containers.Tables;
-
-private with Ada.Strings.Unbounded;
+with AWS.Containers.Memory_Streams;
 
 package AWS.Parameters is
 
@@ -39,26 +38,48 @@ package AWS.Parameters is
 
    subtype VString_Array is AWS.Containers.Tables.VString_Array;
 
-   function URI_Format (Parameter_List : List) return String with Inline;
+   function URI_Format
+     (Parameter_List : List; Limit : Positive := Positive'Last) return String;
    --  Returns the list of parameters in the URI format. This can be added
    --  after the resource to form the complete URI. The format is:
    --  "?name1=value1&name2=value2..."
    --  If there is no parameter in the list, the empty string is returned.
+   --  Limit is maximum size of the output line, parameters name=value will be
+   --  returned unbroken in case of limit applied.
 
-   overriding function Union
-     (Left, Right : List; Unique : Boolean) return List;
-   --  Concatenates two parameter lists, if Unique is True do not add Right
-   --  list element into result when element with the same name already exists
-   --  in the Left list.
+   procedure Add
+     (Parameter_List : in out List; Name, Value : String; Decode : Boolean);
+   --  URL decode and add Name=Value pair into parameters
+
+   procedure Add (Parameter_List : in out List; Parameters : String);
+   --  Set parameters for the current request. The Parameters string has the
+   --  form "name1=value1&name2=value2...". The paramaters are added to the
+   --  list. The parameters can start with a '?' (standard Web character
+   --  separator) which is just ignored.
+
+   procedure Add
+     (Parameter_List : in out List;
+      Parameters     : in out Containers.Memory_Streams.Stream_Type);
+   --  Same as above, but use different parameters source. Used to reduce
+   --  stack usage on big POST requests. This is the routine used by AWS for
+   --  parsing the POST parameters. This routine also control the maximum
+   --  number of parameter parsed as set by the corresponding configuration
+   --  option.
+
+   procedure Update
+     (Parameter_List : in out List; Name, Value : String; Decode : Boolean);
+
+   Too_Long_Parameter : exception;
+   --  Raised if the Add routine detects a too long parameter line when reading
+   --  parameters from Memory_Stream.
+
+   Too_Many_Parameters : exception;
+   --  Raised when the maximum number of parameters has been reached
 
    --  See AWS.Containers.Tables for inherited routines
 
 private
 
-   use Ada.Strings.Unbounded;
-
-   type List is new AWS.Containers.Tables.Table_Type with record
-      Parameters : Unbounded_String;
-   end record;
+   type List is new AWS.Containers.Tables.Table_Type with null record;
 
 end AWS.Parameters;

@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2000-2014, AdaCore                     --
+--                     Copyright (C) 2000-2015, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -189,7 +189,11 @@ package AWS.URL is
    --  URL Encoding and Decoding
    --
 
+   Parameters_Encoding_Set : constant Strings.Maps.Character_Set;
+   --  Encoding set enought for HTTP parameters
+
    Default_Encoding_Set : constant Strings.Maps.Character_Set;
+   --  Encoding set enought for all URL parts
 
    function Encode
      (Str          : String;
@@ -228,13 +232,13 @@ private
       Fragment   : Unbounded_String;
    end record;
 
+   Parameters_Encoding_Set : constant Strings.Maps.Character_Set :=
+                               Strings.Maps.To_Set ("&=+ <>?#%@")
+                               or Strings.Maps.To_Set
+                                    (Span => (Low  => Character'Val (128),
+                                              High => Character'Last));
    Default_Encoding_Set : constant Strings.Maps.Character_Set :=
-                            Strings.Maps.To_Set
-                              (Span => (Low  => Character'Val (128),
-                                        High => Character'Val
-                                          (Character'Pos (Character'Last))))
-                            or
-                              Strings.Maps.To_Set
-                                (";/?:@&=+$,<>#%""{}|\^[]`' ");
+                            Parameters_Encoding_Set
+                            or Strings.Maps.To_Set (";/:$,""{}|\^[]`'");
 
 end AWS.URL;

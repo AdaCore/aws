@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2011-2012, AdaCore                     --
+--                     Copyright (C) 2011-2015, AdaCore                     --
 --                                                                          --
 --  This is free software;  you can redistribute it  and/or modify it       --
 --  under terms of the  GNU General Public License as published  by the     --
@@ -25,7 +25,7 @@ with GNAT.Calendar.Time_IO;
 
 with AWS.Client;
 with AWS.Config.Set;
-with AWS.Headers.Set;
+with AWS.Headers;
 with AWS.Messages;
 with AWS.MIME;
 with AWS.Response;
@@ -77,10 +77,7 @@ procedure Log_Check is
       R : Response.Data;
    begin
       if Filename = "file.txt" and then MS /= Null_Unbounded_String then
-         Headers.Set.Add
-           (H,
-            Messages.If_Modified_Since_Token,
-            To_String (MS));
+         H.Add (Messages.If_Modified_Since_Token, To_String (MS));
       end if;
 
       R := Client.Get (Server.Status.Local_URL (WS) & '/' & Filename,

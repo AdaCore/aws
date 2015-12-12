@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2011-2012, AdaCore                     --
+--                     Copyright (C) 2011-2015, AdaCore                     --
 --                                                                          --
 --  This is free software;  you can redistribute it  and/or modify it       --
 --  under terms of the  GNU General Public License as published  by the     --
@@ -20,8 +20,8 @@ with Ada.Text_IO;
 
 with AWS.Client;
 with AWS.Config.Set;
-with AWS.Containers.Tables.Set;
-with AWS.Headers.Set;
+with AWS.Containers.Tables;
+with AWS.Headers;
 with AWS.MIME;
 with AWS.Response;
 with AWS.Server.Status;
@@ -55,38 +55,20 @@ begin
    Config.Set.Server_Host (Conf, "localhost");
    Config.Set.Server_Port (Conf, 0);
 
-   Headers.Set.Debug (True);
+   Headers.Debug (True);
 
    Server.Start
      (Web_Server => WS,
       Callback   => CB'Unrestricted_Access,
       Config     => Conf);
 
-   Containers.Tables.Set.Add
-     (CHeader,
-      Name  => "Accept",
-      Value => "*/*");
-
-   Containers.Tables.Set.Add
-     (CHeader,
-      Name  => "User-Agent",
-      Value => "Fake bzr/2.3.4 (urllib)");
-   Containers.Tables.Set.Add
-     (CHeader,
-      Name  => "Host",
-      Value => "localhost:" & Utils.Image (Server.Status.Port (WS)));
-   Containers.Tables.Set.Add
-     (CHeader,
-      Name  => "Pragma",
-      Value => "no-cache");
-   Containers.Tables.Set.Add
-     (CHeader,
-      Name  => "Cache-Control",
-      Value => "max-age=0");
-   Containers.Tables.Set.Add
-     (CHeader,
-      Name  => "Range",
-      Value => "bytes=0-41,46-80");
+   CHeader.Add (Name => "Accept",        Value => "*/*");
+   CHeader.Add (Name => "User-Agent",    Value => "Fake bzr/2.3.4 (urllib)");
+   CHeader.Add (Name => "Pragma",        Value => "no-cache");
+   CHeader.Add (Name => "Cache-Control", Value => "max-age=0");
+   CHeader.Add (Name => "Range",         Value => "bytes=0-41,46-80");
+   CHeader.Add (Name => "Host",
+                Value => "localhost:" & Utils.Image (Server.Status.Port (WS)));
 
    Client_Data := Client.Get
                     (AWS.Server.Status.Local_URL (WS) & "/test.txt",

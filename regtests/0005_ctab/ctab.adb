@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2000-2014, AdaCore                     --
+--                     Copyright (C) 2000-2015, AdaCore                     --
 --                                                                          --
 --  This is free software;  you can redistribute it  and/or modify it       --
 --  under terms of the  GNU General Public License as published  by the     --
@@ -16,7 +16,7 @@
 --  to http://www.gnu.org/licenses for a complete copy of the license.      --
 ------------------------------------------------------------------------------
 
-with AWS.Containers.Tables.Set;
+with AWS.Containers.Tables;
 
 with Ada.Text_IO;
 with Ada.Strings.Unbounded;
@@ -38,7 +38,7 @@ procedure CTab is
       for K in 1 .. Name_Count (Table) loop
          declare
             Name : String := Ada.Strings.Unbounded.To_String (Names (K));
-            Last : Natural := AWS.Containers.Tables.Count (Table, Name);
+            Last : Natural := Table.Count (Name);
          begin
             Put (Name & ": ");
             for L in 1 .. Last loop
@@ -55,58 +55,58 @@ procedure CTab is
    end Print_Table;
 
 begin
-   Set.Reset (Table);
-   Set.Case_Sensitive (Table, False);
-   Set.Add (Table, "name_1", "value_1_1");
-   Set.Add (Table, "Name_1", "value_1_2");
-   Set.Add (Table, "NAME_1", "value_1_3");
-   Set.Add (Table, "name_2", "value_2_1");
-   Set.Add (Table, "Name_2", "value_2_2");
-   Set.Add (Table, "NAME_2", "value_2_3");
-   Set.Add (Table, "name_3", "value_3_1");
-   Set.Add (Table, "Name_3", "value_3_2");
-   Set.Add (Table, "NAME_3", "value_3_3");
-   Set.Add (Table, "name_4", "value_4_1");
-   Set.Add (Table, "Name_4", "value_4_2");
-   Set.Add (Table, "NAME_4", "value_4_3");
+   Reset (Table);
+   Case_Sensitive (Table, False);
+   Table.Add ("name_1", "value_1_1");
+   Table.Add ("Name_1", "value_1_2");
+   Table.Add ("NAME_1", "value_1_3");
+   Table.Add ("name_2", "value_2_1");
+   Table.Add ("Name_2", "value_2_2");
+   Table.Add ("NAME_2", "value_2_3");
+   Table.Add ("name_3", "value_3_1");
+   Table.Add ("Name_3", "value_3_2");
+   Table.Add ("NAME_3", "value_3_3");
+   Table.Add ("name_4", "value_4_1");
+   Table.Add ("Name_4", "value_4_2");
+   Table.Add ("NAME_4", "value_4_3");
    Print_Table;
 
-   Set.Update (Table, "NAme_1", "Value (1, 4)", 4);
-   Set.Update (Table, "NAME_1", "Value (1, 3)", 3);
-   Set.Update (Table, "Name_1", "Value (1, 2)", 2);
-   Set.Update (Table, "name_1", "Value (1, 1)", 1);
+   Update (Table, "NAme_1", "Value (1, 4)", 4);
+   Update (Table, "NAME_1", "Value (1, 3)", 3);
+   Update (Table, "Name_1", "Value (1, 2)", 2);
+   Update (Table, "name_1", "Value (1, 1)", 1);
 
-   Set.Update (Table, "NAme_2", "Value (2, 4)", 4);
-   Set.Update (Table, "NAME_2", "Value (2, 3)", 3);
-   Set.Update (Table, "Name_2", "Value (2, 2)", 2);
-   Set.Update (Table, "name_2", "Value (2, 1)", 1);
+   Update (Table, "NAme_2", "Value (2, 4)", 4);
+   Update (Table, "NAME_2", "Value (2, 3)", 3);
+   Update (Table, "Name_2", "Value (2, 2)", 2);
+   Update (Table, "name_2", "Value (2, 1)", 1);
 
-   Set.Update (Table, "NAme_3", "Value (3, 4)", 4);
-   Set.Update (Table, "NAME_3", "Value (3, 3)", 3);
-   Set.Update (Table, "Name_3", "Value (3, 2)", 2);
-   Set.Update (Table, "name_3", "Value (3, 1)", 1);
+   Update (Table, "NAme_3", "Value (3, 4)", 4);
+   Update (Table, "NAME_3", "Value (3, 3)", 3);
+   Update (Table, "Name_3", "Value (3, 2)", 2);
+   Update (Table, "name_3", "Value (3, 1)", 1);
 
-   Set.Update (Table, "name_4", "Value (4, 1)", 1);
-   Set.Update (Table, "Name_4", "Value (4, 2)", 2);
-   Set.Update (Table, "NAME_4", "Value (4, 3)", 3);
-   Set.Update (Table, "NAme_4", "Value (4, 4)", 4);
+   Update (Table, "name_4", "Value (4, 1)", 1);
+   Update (Table, "Name_4", "Value (4, 2)", 2);
+   Update (Table, "NAME_4", "Value (4, 3)", 3);
+   Update (Table, "NAme_4", "Value (4, 4)", 4);
 
-   Set.Update (Table, "name_5", "Value (5, 1)", 1);
-   Set.Update (Table, "Name_5", "Value (5, 2)", 2);
-   Set.Update (Table, "NAME_5", "Value (5, 3)", 3);
-   Set.Update (Table, "NAme_5", "Value (5, 4)", 4);
+   Update (Table, "name_5", "Value (5, 1)", 1);
+   Update (Table, "Name_5", "Value (5, 2)", 2);
+   Update (Table, "NAME_5", "Value (5, 3)", 3);
+   Update (Table, "NAme_5", "Value (5, 4)", 4);
 
    Print_Table;
 
    begin
-      Set.Update (Table, "NAme_5", "Value", 6);
+      Table.Update ("NAme_5", "Value", 6);
       Put_Line ("Error.");
    exception
       when Constraint_Error | Assert_Failure => null;
    end;
 
    begin
-      Set.Update (Table, "NAme_6", "Value", 2);
+      Table.Update ("NAme_6", "Value", 2);
       Put_Line ("Error.");
    exception
       when Constraint_Error  | Assert_Failure =>

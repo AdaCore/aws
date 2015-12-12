@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2002-2014, AdaCore                     --
+--                     Copyright (C) 2002-2015, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -33,7 +33,6 @@ with Ada.Characters.Handling;
 with Ada.Strings.Fixed;
 
 with AWS.Digest;
-with AWS.Headers.Set;
 with AWS.Headers.Values;
 with AWS.Resources.Streams.Memory.ZLib;
 with AWS.Resources.Streams.ZLib;
@@ -62,7 +61,7 @@ package body AWS.Response.Set is
       Name  : String;
       Value : String) is
    begin
-      Headers.Set.Add (D.Header, Name, Value);
+      D.Header.Add (Name, Value);
    end Add_Header;
 
    -----------------
@@ -105,9 +104,8 @@ package body AWS.Response.Set is
       --  WWW-Authenticate: Digest
 
       if Mode = Digest or else Mode = Any then
-         Headers.Set.Update
-           (D.Header,
-            Name  => Messages.WWW_Authenticate_Token,
+         D.Header.Update
+           (Name  => Messages.WWW_Authenticate_Token,
             Value => "Digest qop=""auth"", realm=""" & Realm
                      & """, stale=""" & Boolean'Image (Stale)
                      & """, nonce="""
@@ -117,9 +115,8 @@ package body AWS.Response.Set is
       end if;
 
       if Mode = Basic or else Mode = Any then
-         Headers.Set.Update
-           (D.Header,
-            Name  => Messages.WWW_Authenticate_Token,
+         D.Header.Update
+           (Name  => Messages.WWW_Authenticate_Token,
             Value => "Basic realm=""" & Realm & """",
             N     => N);
       end if;
@@ -138,9 +135,8 @@ package body AWS.Response.Set is
       use type Messages.Cache_Option;
    begin
       if Value /= Messages.Unspecified then
-         Headers.Set.Update
-           (D.Header,
-            Name  => Messages.Cache_Control_Token,
+         D.Header.Update
+           (Name  => Messages.Cache_Control_Token,
             Value => String (Value));
 
          if Strings.Fixed.Index (String (Value), "no-cache") /= 0 then
@@ -148,8 +144,8 @@ package body AWS.Response.Set is
             --  header. Add "Pragma: no-cache" for compatibility with HTTP/1.0
             --  protocol.
 
-            Headers.Set.Update
-              (D.Header, Name => Messages.Pragma_Token, Value => "no-cache");
+            D.Header.Update
+              (Name => Messages.Pragma_Token, Value => "no-cache");
          end if;
       end if;
    end Cache_Control;
@@ -181,7 +177,7 @@ package body AWS.Response.Set is
          Unchecked_Free (D.Stream);
       end if;
 
-      Headers.Set.Reset (D.Header);
+      D.Header.Reset;
 
       D.Mode        := No_Data;
       D.Status_Code := Messages.S200;
@@ -306,10 +302,7 @@ package body AWS.Response.Set is
      (D     : in out Data;
       Value : String) is
    begin
-      Headers.Set.Update
-        (D.Header,
-         Name  => Messages.Expires_Token,
-         Value => Value);
+      D.Header.Update (Name => Messages.Expires_Token, Value => Value);
    end Expires;
 
    --------------
@@ -374,10 +367,7 @@ package body AWS.Response.Set is
      (D     : in out Data;
       Value : String) is
    begin
-      Headers.Set.Update
-        (D.Header,
-         Name  => Messages.Location_Token,
-         Value => Value);
+      D.Header.Update (Name  => Messages.Location_Token, Value => Value);
    end Location;
 
    ------------------
@@ -447,7 +437,7 @@ package body AWS.Response.Set is
      (Socket : Net.Socket_Type'Class;
       D      : in out Data) is
    begin
-      Headers.Set.Read (Socket, D.Header);
+      D.Header.Read (Socket);
 
       --  Set D.Content_Type with the value read from the socket
 
@@ -535,7 +525,7 @@ package body AWS.Response.Set is
       Value : String;
       N     : Positive := 1) is
    begin
-      Headers.Set.Update (D.Header, Name, Value, N);
+      D.Header.Update (Name, Value, N);
    end Update_Header;
 
 end AWS.Response.Set;

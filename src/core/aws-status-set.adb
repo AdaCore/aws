@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2000-2014, AdaCore                     --
+--                     Copyright (C) 2000-2015, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -31,11 +31,11 @@ with Ada.Characters.Handling;
 with Ada.Strings.Fixed;
 with Ada.Unchecked_Deallocation;
 
-with AWS.Headers.Set;
+with AWS.Headers;
 with AWS.Headers.Values;
 with AWS.Messages;
 with AWS.Net.Buffered;
-with AWS.Parameters.Set;
+with AWS.Parameters;
 with AWS.Server;
 with AWS.Translator;
 with AWS.URL.Set;
@@ -66,11 +66,10 @@ package body AWS.Status.Set is
       Replace     : Boolean := False) is
    begin
       if Replace then
-         AWS.Parameters.Set.Update
-           (AWS.URL.Set.Parameters (D.URI'Access).all, Name, Value, Decode);
+         AWS.URL.Set.Parameters (D.URI'Access).all.Update
+           (Name, Value, Decode);
       else
-         AWS.Parameters.Set.Add
-           (AWS.URL.Set.Parameters (D.URI'Access).all, Name, Value, Decode);
+         AWS.URL.Set.Parameters (D.URI'Access).all.Add (Name, Value, Decode);
       end if;
    end Add_Parameter;
 
@@ -80,8 +79,7 @@ package body AWS.Status.Set is
 
    procedure Add_Parameters (D : in out Data; Parameters : String) is
    begin
-      AWS.Parameters.Set.Add
-        (AWS.URL.Set.Parameters (D.URI'Access).all, Parameters);
+      AWS.URL.Set.Parameters (D.URI'Access).all.Add (Parameters);
    end Add_Parameters;
 
    -----------------
@@ -272,8 +270,7 @@ package body AWS.Status.Set is
 
    procedure Case_Sensitive_Parameters (D : in out Data; Mode : Boolean) is
    begin
-      AWS.Parameters.Set.Case_Sensitive
-        (AWS.URL.Set.Parameters (D.URI'Access).all, Mode);
+      AWS.URL.Set.Parameters (D.URI'Access).all.Case_Sensitive (Mode);
    end Case_Sensitive_Parameters;
 
    ---------------------
@@ -342,8 +339,7 @@ package body AWS.Status.Set is
 
    procedure Parameters_From_Body (D : in out Data) is
    begin
-      AWS.Parameters.Set.Add
-        (AWS.URL.Set.Parameters (D.URI'Access).all, D.Binary_Data.all);
+      AWS.URL.Set.Parameters (D.URI'Access).all.Add (D.Binary_Data.all);
    end Parameters_From_Body;
 
    -----------
@@ -360,7 +356,7 @@ package body AWS.Status.Set is
 
       D.Query := To_Unbounded_String (Parameters);
 
-      AWS.Parameters.Set.Add (P.all, Parameters);
+      P.Add (Parameters);
    end Query;
 
    ---------------
@@ -432,7 +428,7 @@ package body AWS.Status.Set is
 
    procedure Read_Header (Socket : Net.Socket_Type'Class; D : in out Data) is
    begin
-      Headers.Set.Read (Socket, D.Header);
+      D.Header.Read (Socket);
       Update_Data_From_Header (D);
    end Read_Header;
 
@@ -519,8 +515,8 @@ package body AWS.Status.Set is
       D.Uploaded          := False;
       D.Monotonic_Time    := Ada.Real_Time.Time_First;
 
-      Headers.Set.Reset (D.Header);
-      AWS.Parameters.Set.Reset (AWS.URL.Set.Parameters (D.URI'Access).all);
+      D.Header.Reset;
+      AWS.URL.Set.Parameters (D.URI'Access).all.Reset;
    end Reset;
 
    -------------

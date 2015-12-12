@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2004-2014, AdaCore                     --
+--                     Copyright (C) 2004-2015, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -33,7 +33,6 @@ with Ada.Directories;
 with Ada.IO_Exceptions;
 with Ada.Streams.Stream_IO;
 
-with AWS.Headers.Set;
 with AWS.Headers.Values;
 with AWS.Messages;
 with AWS.Net.Buffered;
@@ -108,65 +107,57 @@ package body AWS.Attachments is
    begin
       if Data.Filename = Null_Unbounded_String then
          if Data.Content_Type /= Null_Unbounded_String then
-            AWS.Headers.Set.Update
-              (Headers => A.Headers,
-               Name    => AWS.Messages.Content_Type_Token,
-               Value   => To_String (Data.Content_Type));
+            A.Headers.Update
+              (Name  => AWS.Messages.Content_Type_Token,
+               Value => To_String (Data.Content_Type));
          end if;
 
       else
-         AWS.Headers.Set.Add
-           (Headers => A.Headers,
-            Name    => AWS.Messages.Content_Disposition_Token,
-            Value   => "attachment; filename=""" & Name & '"');
+         A.Headers.Add
+           (Name  => AWS.Messages.Content_Disposition_Token,
+            Value => "attachment; filename=""" & Name & '"');
 
          if Data.Content_Type = Null_Unbounded_String then
             if not Has_Content_Type then
                --  Content_Type is not in A.Headers nor defined with Data,
                --  create one based on the file name.
 
-               AWS.Headers.Set.Add
-                 (Headers => A.Headers,
-                  Name    => AWS.Messages.Content_Type_Token,
-                  Value   => MIME.Content_Type (Name) & "; name="""
+               A.Headers.Add
+                 (Name  => AWS.Messages.Content_Type_Token,
+                  Value => MIME.Content_Type (Name) & "; name="""
                     &  Name & '"');
             end if;
 
          else
-            AWS.Headers.Set.Update
-              (Headers => A.Headers,
-               Name    => AWS.Messages.Content_Type_Token,
-               Value   => To_String (Data.Content_Type) & "; name="""
+            A.Headers.Update
+              (Name  => AWS.Messages.Content_Type_Token,
+               Value => To_String (Data.Content_Type) & "; name="""
                  &  Name & '"');
          end if;
 
          if Data.Encode = None and then not Has_Content_TE then
             if MIME.Is_Text (MIME.Content_Type (Name)) then
-               AWS.Headers.Set.Add
-                 (Headers => A.Headers,
-                  Name    => AWS.Messages.Content_Transfer_Encoding_Token,
-                  Value   => "8bit");
+               A.Headers.Add
+                 (Name  => AWS.Messages.Content_Transfer_Encoding_Token,
+                  Value => "8bit");
             else
-               AWS.Headers.Set.Add
-                 (Headers => A.Headers,
-                  Name    => AWS.Messages.Content_Transfer_Encoding_Token,
-                  Value   => "binary");
+               A.Headers.Add
+                 (Name  => AWS.Messages.Content_Transfer_Encoding_Token,
+                  Value => "binary");
             end if;
          end if;
       end if;
 
       if Data.Encode = Base64 then
-         AWS.Headers.Set.Update
-           (Headers => A.Headers,
-            Name    => AWS.Messages.Content_Transfer_Encoding_Token,
-            Value   => "base64");
+         A.Headers.Update
+           (Name  => AWS.Messages.Content_Transfer_Encoding_Token,
+            Value => "base64");
       end if;
 
       if Data.Content_Id /= Null_Unbounded_String then
-         AWS.Headers.Set.Add
-           (Headers => A.Headers,
-            Name    => AWS.Messages.Content_Id_Token,
-            Value   => '<' & To_String (Data.Content_Id) & '>');
+         A.Headers.Add
+           (Name  => AWS.Messages.Content_Id_Token,
+            Value => '<' & To_String (Data.Content_Id) & '>');
       end if;
 
       Attachments.Vector.Append (A);

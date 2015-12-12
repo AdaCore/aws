@@ -30,7 +30,7 @@
 with Ada.Characters.Handling;
 with Ada.Strings.Fixed;
 
-with AWS.Parameters.Set;
+with AWS.Parameters;
 with AWS.URL.Raise_URL_Error;
 with AWS.Utils;
 
@@ -431,7 +431,7 @@ package body AWS.URL.Set is
          P := F;
 
       else
-         AWS.Parameters.Set.Add (Item.Parameters, L_URL (P .. F));
+         Item.Parameters.Add (L_URL (P .. F));
          P := P - 1;
       end if;
 

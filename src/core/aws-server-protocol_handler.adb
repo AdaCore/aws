@@ -36,7 +36,7 @@ with AWS.Config;
 with AWS.Log;
 with AWS.Messages;
 with AWS.Net.Buffered;
-with AWS.Parameters.Set;
+with AWS.Parameters;
 with AWS.Resources;
 with AWS.Response.Set;
 with AWS.Server.HTTP_Utils;
@@ -272,8 +272,8 @@ begin
                Will_Close);
 
          when E : Net.Buffered.Data_Overflow
-           | Parameters.Set.Too_Long_Parameter
-           | Parameters.Set.Too_Many_Parameters
+           | Parameters.Too_Long_Parameter
+           | Parameters.Too_Many_Parameters
            =>
             AWS.Log.Write
               (LA.Server.Error_Log,
@@ -291,7 +291,7 @@ begin
 
             elsif
               Exception_Identity (E) =
-                Parameters.Set.Too_Many_Parameters'Identity
+                Parameters.Too_Many_Parameters'Identity
             then
                Error_Answer := Response.Build
                  (Status_Code  => Messages.S403,

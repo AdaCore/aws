@@ -2,20 +2,20 @@ Start main, wait for server to start...
 Server started
 
 N  =  0
-p1 = 
-p2 = 
-Parameters = 
+p1 =
+p2 =
+Parameters =
 => call ok
 
 N  =  0
-p1 = 
-p2 = 
+p1 =
+p2 =
 => call call ok
 
 N  =  2
 p1 = 8
 p2 = azerty> &<?qwerty
-Parameters = ?p1=8&p2=azerty%3e%20%26%3c%3fqwerty
+Parameters = ?p1=8&p2=azerty%3E%20%26%3C%3Fqwerty
 => call ok
 
 N  =  2
@@ -25,7 +25,7 @@ p2 = azerty> qwerty
 
 N  =  1
 p1 = a a?
-p2 = 
+p2 =
 => call call ok
 
 N  =  2

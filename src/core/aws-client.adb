@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2000-2014, AdaCore                     --
+--                     Copyright (C) 2000-2015, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -34,7 +34,7 @@ with Ada.Strings.Fixed;
 with Ada.Text_IO;
 
 with AWS.Client.HTTP_Utils;
-with AWS.Headers.Set;
+with AWS.Headers;
 with AWS.Messages;
 with AWS.MIME;
 with AWS.Net.Buffered;
@@ -1018,7 +1018,7 @@ package body AWS.Client is
    procedure Set_Debug (On : Boolean) is
    begin
       Debug_On := On;
-      AWS.Headers.Set.Debug (On);
+      AWS.Headers.Debug (On);
    end Set_Debug;
 
    -----------------

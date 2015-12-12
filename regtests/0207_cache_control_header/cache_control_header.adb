@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2010-2012, AdaCore                     --
+--                     Copyright (C) 2010-2015, AdaCore                     --
 --                                                                          --
 --  This is free software;  you can redistribute it  and/or modify it       --
 --  under terms of the  GNU General Public License as published  by the     --
@@ -20,7 +20,7 @@ with Ada.Text_IO;
 
 with AWS.Client;
 with AWS.Config.Set;
-with AWS.Headers.Set;
+with AWS.Headers;
 with AWS.Messages;
 with AWS.MIME;
 with AWS.Response;
@@ -102,20 +102,18 @@ begin
 
    Server.Start (WS, CB'Unrestricted_Access, CNF);
 
-   Headers.Set.Add
-     (H,
-      Messages.Cache_Control_Token, String (Messages.To_Cache_Option (RCD)));
+   H.Add
+     (Messages.Cache_Control_Token, String (Messages.To_Cache_Option (RCD)));
 
    declare
       URL : constant String := Server.Status.Local_URL (WS);
    begin
       R := AWS.Client.Get (URL =>  URL & "/get", Headers => H);
 
-      Headers.Set.Reset (H);
+      H.Reset;
 
-      Headers.Set.Add
-        (H,
-         Messages.Cache_Control_Token,
+      H.Add
+        (Messages.Cache_Control_Token,
          String (Messages.To_Cache_Option
                   ((Messages.Request,
                      Only_If_Cached => True, Min_Fresh => 12, others => <>))));

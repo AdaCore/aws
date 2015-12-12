@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2000-2014, AdaCore                     --
+--                     Copyright (C) 2000-2015, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -27,7 +27,11 @@
 --  covered by the  GNU Public License.                                     --
 ------------------------------------------------------------------------------
 
+with Ada.Characters.Latin_1;
+with Ada.Strings.Fixed;
+with Ada.Strings.Maps;
 with Ada.Strings.Unbounded;
+with Ada.Text_IO;
 
 with AWS.Net.Buffered;
 
@@ -35,6 +39,38 @@ package body AWS.Headers is
 
    use Ada;
    use Ada.Strings.Unbounded;
+   use AWS.Containers;
+
+   use type Strings.Maps.Character_Set;
+
+   Printable_Set : constant Strings.Maps.Character_Set :=
+                     Strings.Maps.To_Set
+                       (Strings.Maps.Character_Range'
+                          (Low  => ' ',
+                           High => Character'Val (126)));
+   --  This is RFC2616 CHAR except CTL
+   --     CHAR           = <any US-ASCII character (octets 0 - 127)>
+   --     CTL            = <any US-ASCII control character
+   --                       (octets 0 - 31) and DEL (127)>
+
+   RFC2616_Separator_Set : constant Strings.Maps.Character_Set :=
+                             Strings.Maps.To_Set
+                               (" ()<>@,;:\""/[]?={}" & Characters.Latin_1.HT);
+
+   RFC2616_Token_Set     : constant Strings.Maps.Character_Set :=
+                             Printable_Set - RFC2616_Separator_Set;
+
+   Debug_Flag : Boolean := False;
+   --  Set to True to output debug information to the standard output
+
+   -----------
+   -- Debug --
+   -----------
+
+   procedure Debug (Activate : Boolean) is
+   begin
+      Debug_Flag := Activate;
+   end Debug;
 
    --------------
    -- Get_Line --
@@ -100,6 +136,102 @@ package body AWS.Headers is
       return L;
    end Length;
 
+   ----------
+   -- Read --
+   ----------
+
+   procedure Read (Headers : in out List; Socket : Net.Socket_Type'Class) is
+
+      use Ada.Strings.Unbounded;
+
+      procedure Parse_Header_Line (Line : String);
+      --  Parse this line, update Headers accordingly
+
+      -----------------------
+      -- Parse_Header_Line --
+      -----------------------
+
+      procedure Parse_Header_Line (Line : String) is
+         use Ada.Strings;
+         Delimiter_Index : Natural;
+      begin
+         if Debug_Flag then
+            Text_IO.Put_Line ('>' & Line);
+         end if;
+
+         --  Put name and value to the container separately
+
+         Delimiter_Index := Fixed.Index
+           (Source => Line,
+            Set    => RFC2616_Token_Set,
+            Test   => Outside);
+
+         if Delimiter_Index = 0                  -- No delimiter
+           or else Delimiter_Index = Line'First  -- Empty name
+           or else Line (Delimiter_Index) /= ':' -- Wrong separator
+         then
+            --  No delimiter, this is not a valid Header Line
+
+            raise Format_Error with Line;
+         end if;
+
+         Add (Headers,
+           Name  => Line (Line'First .. Delimiter_Index - 1),
+           Value => Fixed.Trim
+             (Line (Delimiter_Index + 1 .. Line'Last),
+              Side => Both));
+      end Parse_Header_Line;
+
+      End_Of_Message : constant String := "";
+      Line           : Unbounded_String :=
+                         To_Unbounded_String (Net.Buffered.Get_Line (Socket));
+
+   begin
+      Reset (Headers);
+
+      --  Parse the Line eventually catenated with the next line if it is a
+      --  continuation line see [RFC 2616 - 4.2].
+
+      loop
+         exit when Line = Null_Unbounded_String;
+
+         declare
+            Next_Line : constant String := Net.Buffered.Get_Line (Socket);
+         begin
+            if Next_Line /= End_Of_Message
+              and then
+                (Next_Line (Next_Line'First) = ' '
+                 or else Next_Line (Next_Line'First) = ASCII.HT)
+            then
+               --  Continuing value on the next line. Header fields can be
+               --  extended over multiple lines by preceding each extra
+               --  line with at least one SP or HT.
+
+               Append (Line, Next_Line);
+
+            else
+               --  Handle current line
+
+               Parse_Header_Line (To_String (Line));
+
+               --  Then start another line with read content
+
+               Line := To_Unbounded_String (Next_Line);
+            end if;
+         end;
+      end loop;
+   end Read;
+
+   -----------
+   -- Reset --
+   -----------
+
+   overriding procedure Reset (Headers : in out List) is
+   begin
+      Tables.Reset (Tables.Table_Type (Headers));
+      Headers.Case_Sensitive (False);
+   end Reset;
+
    -----------------
    -- Send_Header --
    -----------------
@@ -111,18 +243,5 @@ package body AWS.Headers is
          Net.Buffered.Put_Line (Socket, Get_Line (Headers, J));
       end loop;
    end Send_Header;
-
-   -----------
-   -- Union --
-   -----------
-
-   overriding function Union
-     (Left, Right : List; Unique : Boolean) return List
-   is
-      subtype Table_Type is Containers.Tables.Table_Type;
-   begin
-      return (Table_Type (Left).Union (Table_Type (Right), Unique)
-              with others => <>);
-   end Union;
 
 end AWS.Headers;

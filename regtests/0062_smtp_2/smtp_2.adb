@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2008-2013, AdaCore                     --
+--                     Copyright (C) 2008-2015, AdaCore                     --
 --                                                                          --
 --  This is free software;  you can redistribute it  and/or modify it       --
 --  under terms of the  GNU General Public License as published  by the     --
@@ -20,7 +20,7 @@ with Ada.Exceptions;
 with Ada.Text_IO;
 
 with AWS.Attachments;
-with AWS.Headers.Set;
+with AWS.Headers;
 with AWS.Messages;
 with AWS.MIME;
 with AWS.Net.SSL;
@@ -147,8 +147,7 @@ begin
       CT_Attac   : Attachments.List;
       CT_Headers : Headers.List;
    begin
-      Headers.Set.Add
-        (CT_Headers, Messages.Content_Type_Token, MIME.Text_Plain);
+      CT_Headers.Add (Messages.Content_Type_Token, MIME.Text_Plain);
 
       Attachments.Add
         (CT_Attac,
@@ -177,8 +176,7 @@ begin
       CTE_Attac   : Attachments.List;
       CTE_Headers : Headers.List;
    begin
-      Headers.Set.Add
-        (CTE_Headers, Messages.Content_Transfer_Encoding_Token, "8bits");
+      CTE_Headers.Add (Messages.Content_Transfer_Encoding_Token, "8bits");
 
       Attachments.Add
         (CTE_Attac,

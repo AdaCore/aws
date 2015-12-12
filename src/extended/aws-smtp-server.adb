@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2008-2013, AdaCore                     --
+--                     Copyright (C) 2008-2015, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -31,7 +31,7 @@ with Ada.Exceptions;
 with Ada.Strings.Fixed;
 with Ada.Text_IO;
 
-with AWS.Headers.Set;
+with AWS.Headers;
 with AWS.Net.Buffered;
 with AWS.SMTP.Messages.Set;
 
@@ -129,9 +129,8 @@ package body AWS.SMTP.Server is
                exit Read_Message_Header when Line = Empty_Line;
                Split_Point := Strings.Fixed.Index (Line, ":");
 
-               AWS.Headers.Set.Add
-                 (Headers,
-                  Name  => Line (Line'First .. Split_Point - 1),
+               Headers.Add
+                 (Name  => Line (Line'First .. Split_Point - 1),
                   Value => Line (Split_Point + 2 .. Line'Last));
             end;
          end loop Read_Message_Header;

@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2008-2014, AdaCore                     --
+--                     Copyright (C) 2008-2015, AdaCore                     --
 --                                                                          --
 --  This is free software;  you can redistribute it  and/or modify it       --
 --  under terms of the  GNU General Public License as published  by the     --
@@ -23,7 +23,7 @@ with Ada.Text_IO;
 with AWS.Attachments;
 with AWS.Client;
 with AWS.Containers.Tables;
-with AWS.Headers.Set;
+with AWS.Headers;
 with AWS.MIME;
 with AWS.Net.Log;
 with AWS.Response;
@@ -131,12 +131,9 @@ begin
       Upload_Directory => ".",
       Port             => 0);
 
-   AWS.Headers.Set.Add
-     (Headers, Name => "X-Message-Seconds", Value => "64");
-   AWS.Headers.Set.Add
-     (Headers, Name => "Custom-Header", Value => "A Value");
-   AWS.Headers.Set.Add
-     (Headers, Name => "Content-Custom-Header", Value => "Something else");
+   Headers.Add (Name => "X-Message-Seconds", Value => "64");
+   Headers.Add (Name => "Custom-Header", Value => "A Value");
+   Headers.Add (Name => "Content-Custom-Header", Value => "Something else");
 
    Text_IO.Put_Line ("Insert attachment...");
 

@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2000-2014, AdaCore                     --
+--                     Copyright (C) 2000-2015, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -33,6 +33,8 @@ with AWS.Containers.Memory_Streams;
 
 package AWS.Parameters.Set is
 
+   pragma Obsolescent ("Use same operations from package AWS.Parameters");
+
    procedure Add
      (Parameter_List : in out List;
       Name, Value    : String;
@@ -47,7 +49,8 @@ package AWS.Parameters.Set is
    --  A new value is always added, so if there is already a parameter with
    --  that name, Get will still return the old value.
 
-   procedure Add (Parameter_List : in out List; Parameters : String);
+   procedure Add (Parameter_List : in out List; Parameters : String)
+     renames Parameters.Add;
    --  Set parameters for the current request. The Parameters string has the
    --  form "name1=value1&name2=value2...". The paramaters are added to the
    --  list. The parameters can start with a '?' (standard Web character
@@ -55,7 +58,8 @@ package AWS.Parameters.Set is
 
    procedure Add
      (Parameter_List : in out List;
-      Parameters     : in out AWS.Containers.Memory_Streams.Stream_Type);
+      Parameters     : in out AWS.Containers.Memory_Streams.Stream_Type)
+     renames Parameters.Add;
    --  Same as above, but use different parameters source. Used to reduce
    --  stack usage on big POST requests. This is the routine used by AWS for
    --  parsing the POST parameters. This routine also control the maximum
@@ -68,19 +72,19 @@ package AWS.Parameters.Set is
       Decode         : Boolean := True);
    --  Same as Add, but replace an existing parameter if there is one
 
-   procedure Case_Sensitive (Parameter_List : in out List; Mode : Boolean);
+   procedure Case_Sensitive (Parameter_List : in out List; Mode : Boolean)
+      renames Parameters.Case_Sensitive;
    --  If Mode is True it will use all parameters with case sensitivity
 
-   procedure Reset (Parameter_List : in out List) with
-     Post => Count (Parameter_List) = 0;
+   procedure Reset (Parameter_List : in out List) renames Parameters.Reset;
    --  Removes all object from the Set. Set will be reinitialized and will be
    --  ready for new use.
 
-   Too_Long_Parameter : exception;
+   Too_Long_Parameter : exception renames Parameters.Too_Long_Parameter;
    --  Raised if the Add routine detects a too long parameter line when reading
    --  parameters from Memory_Stream.
 
-   Too_Many_Parameters : exception;
+   Too_Many_Parameters : exception renames Parameters.Too_Many_Parameters;
    --  Raised when the maximum number of parameters has been reached
 
 end AWS.Parameters.Set;

@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2004-2012, AdaCore                     --
+--                     Copyright (C) 2004-2015, AdaCore                     --
 --                                                                          --
 --  This is free software;  you can redistribute it  and/or modify it       --
 --  under terms of the  GNU General Public License as published  by the     --
@@ -21,7 +21,7 @@
 with Ada.Strings.Unbounded;
 with Ada.Text_IO;
 
-with AWS.Containers.Tables.Set;
+with AWS.Containers.Tables;
 
 procedure Ctable is
 
@@ -34,9 +34,9 @@ procedure Ctable is
    T : Table_Type;
 
 begin
-   Set.Reset (T);
-   Set.Add (T, "one", "un");
-   Set.Add (T, "two", "deux");
+   T.Reset;
+   T.Add ("one", "un");
+   T.Add ("two", "deux");
 
    Put_Line ("All keys:");
 
@@ -62,7 +62,7 @@ begin
 
    Put_Line ("All values 2:");
 
-   Set.Add (T, "one", "1 1 1");
+   T.Add ("one", "1 1 1");
 
    declare
       V : VString_Array := Get_Values (T, "one");

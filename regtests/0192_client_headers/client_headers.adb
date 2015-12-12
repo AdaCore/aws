@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2008-2014, AdaCore                     --
+--                     Copyright (C) 2008-2015, AdaCore                     --
 --                                                                          --
 --  This is free software;  you can redistribute it  and/or modify it       --
 --  under terms of the  GNU General Public License as published  by the     --
@@ -24,7 +24,7 @@ with Ada.Strings.Unbounded;
 
 with AWS.Client;
 with AWS.Config.Set;
-with AWS.Headers.Set;
+with AWS.Headers;
 with AWS.Messages;
 with AWS.MIME;
 with AWS.Net.Log;
@@ -147,7 +147,7 @@ begin
 
    --  AWS.Net.Log.Start (Dump'Unrestricted_Access);
 
-   Headers.Set.Add (HC, Messages.Accept_Encoding_Token, "GZIP");
+   HC.Add (Messages.Accept_Encoding_Token, "GZIP");
 
    AWS.Client.Create (HTTP, Server.Status.Local_URL (WS));
 
@@ -157,18 +157,18 @@ begin
    AWS.Client.Head (HTTP, R, "/2");
    AWS.Client.Post (HTTP, R, URI => "/3", Data => "V=1");
 
-   Headers.Set.Add (H, Messages.Accept_Language_Token, "fr");
-   Headers.Set.Add (H, Messages.If_Modified_Since_Token, "yesterday :)");
-   Headers.Set.Add (H, Messages.Accept_Encoding_Token, "DEFLATE");
+   H.Add (Messages.Accept_Language_Token, "fr");
+   H.Add (Messages.If_Modified_Since_Token, "yesterday :)");
+   H.Add (Messages.Accept_Encoding_Token, "DEFLATE");
 
    AWS.Client.Get (HTTP, R, "/4", Headers => H);
 
-   Headers.Set.Add (H, Messages.User_Agent_Token, "Very_Secret");
+   H.Add (Messages.User_Agent_Token, "Very_Secret");
 
    AWS.Client.Head (HTTP, R, "/5", Headers => H);
 
-   Headers.Set.Update (H, Messages.User_Agent_Token, "Or_Not");
-   Headers.Set.Add (H, Messages.Host_Token, "me");
+   H.Update (Messages.User_Agent_Token, "Or_Not");
+   H.Add (Messages.Host_Token, "me");
 
    AWS.Client.Post (HTTP, R, URI => "/6", Data => "V=2", Headers => H);
 

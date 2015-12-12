@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2005-2014, AdaCore                     --
+--                     Copyright (C) 2005-2015, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -35,7 +35,6 @@ with Ada.Strings.Fixed;
 with Ada.Strings.Unbounded;
 
 with AWS.Digest;
-with AWS.Headers.Set;
 with AWS.Headers.Values;
 with AWS.Messages;
 with AWS.MIME;
@@ -453,15 +452,13 @@ package body AWS.Client.HTTP_Utils is
 
       procedure Build_Root_Part_Header is
       begin
-         AWS.Headers.Set.Add
-           (Headers => Root_Part_Header,
-            Name    => AWS.Messages.Content_Type_Token,
-            Value   => Content_Type);
+         Root_Part_Header.Add
+           (Name  => AWS.Messages.Content_Type_Token,
+            Value => Content_Type);
 
-         AWS.Headers.Set.Add
-           (Headers => Root_Part_Header,
-            Name    => AWS.Messages.Content_Id_Token,
-            Value   => Root_Content_Id);
+         Root_Part_Header.Add
+           (Name  => AWS.Messages.Content_Id_Token,
+            Value => Root_Content_Id);
       end Build_Root_Part_Header;
 
       --------------------

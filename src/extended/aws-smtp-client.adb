@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2000-2013, AdaCore                     --
+--                     Copyright (C) 2000-2015, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -35,7 +35,7 @@ with Ada.Text_IO;
 
 with GNAT.Calendar.Time_IO;
 
-with AWS.Headers.Set;
+with AWS.Headers;
 with AWS.Messages;
 with AWS.MIME;
 with AWS.Net.Buffered;
@@ -610,10 +610,7 @@ package body AWS.SMTP.Client is
                      Encode     => AWS.Attachments.Base64);
 
                when Base64_Data =>
-                  AWS.Headers.Set.Add
-                    (H,
-                     Messages.Content_Transfer_Encoding_Token,
-                     "base64");
+                  H.Add (Messages.Content_Transfer_Encoding_Token, "base64");
 
                   AWS.Attachments.Add
                     (Att_List,

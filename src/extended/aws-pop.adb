@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2003-2014, AdaCore                     --
+--                     Copyright (C) 2003-2015, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -36,7 +36,7 @@ with Ada.Unchecked_Deallocation;
 with GNAT.MD5;
 with GNAT.String_Split;
 
-with AWS.Headers.Set;
+with AWS.Headers;
 with AWS.Headers.Values;
 with AWS.Messages;
 with AWS.Net.Buffered;
@@ -763,7 +763,7 @@ package body AWS.POP is
      (Sock    : AWS.Net.Socket_Type'Class;
       Headers : out AWS.Headers.List) is
    begin
-      AWS.Headers.Set.Read (Sock, Headers);
+      Headers.Read (Sock);
    exception
       when AWS.Headers.Format_Error =>
          null;

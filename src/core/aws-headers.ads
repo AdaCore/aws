@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2000-2014, AdaCore                     --
+--                     Copyright (C) 2000-2015, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -79,8 +79,16 @@ package AWS.Headers is
    --  Returns the length (in bytes) of the header, including the ending
    --  empty line.
 
-   overriding function Union
-     (Left, Right : List; Unique : Boolean) return List;
+   procedure Read (Headers : in out List; Socket : Net.Socket_Type'Class);
+   --  Read and parse HTTP header from the socket
+
+   overriding procedure Reset (Headers : in out List)
+     with Post => Headers.Count = 0;
+   --  Removes all object from Headers. Headers will be reinitialized and will
+   --  be ready for new use.
+
+   procedure Debug (Activate : Boolean);
+   --  Turn on Debug output
 
    --  See AWS.Containers.Tables for inherited routines
 

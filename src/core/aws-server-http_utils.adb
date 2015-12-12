@@ -44,7 +44,6 @@ with GNAT.Regexp;
 with AWS.Attachments;
 with AWS.Digest;
 with AWS.Dispatchers;
-with AWS.Headers.Set;
 with AWS.Headers.Values;
 with AWS.Hotplug;
 with AWS.Log;
@@ -498,7 +497,7 @@ package body AWS.Server.HTTP_Utils is
 
          --  Read header
 
-         AWS.Headers.Set.Read (Sock, Headers);
+         Headers.Read (Sock);
 
          if AWS.Headers.Get_Values
            (Headers, Messages.Content_Type_Token) = MIME.Application_Form_Data
@@ -909,7 +908,7 @@ package body AWS.Server.HTTP_Utils is
 
          --  Read header
 
-         AWS.Headers.Set.Read (Sock, Headers);
+         Headers.Read (Sock);
 
          if AWS.Headers.Get_Values
            (Headers, Messages.Content_Type_Token) = MIME.Application_Form_Data

@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2010-2012, AdaCore                     --
+--                     Copyright (C) 2010-2015, AdaCore                     --
 --                                                                          --
 --  This is free software;  you can redistribute it  and/or modify it       --
 --  under terms of the  GNU General Public License as published  by the     --
@@ -19,7 +19,7 @@
 with Ada.Text_IO;
 
 with AWS.Client;
-with AWS.Headers.Set;
+with AWS.Headers;
 with AWS.Messages;
 with AWS.MIME;
 with AWS.Response;
@@ -76,16 +76,15 @@ procedure ETag_Header is
 begin
    Server.Start (WS, "ETag Header", CB'Unrestricted_Access, Port => 0);
 
-   Headers.Set.Add
-     (H, Messages.ETag_Token, String (Messages.Create_ETag ("azerty")));
+   H.Add (Messages.ETag_Token, String (Messages.Create_ETag ("azerty")));
 
    R := AWS.Client.Get
           (URL => Server.Status.Local_URL (WS) & "/get", Headers => H);
 
-   Headers.Set.Reset (H);
+   H.Reset;
 
-   Headers.Set.Add
-     (H, Messages.ETag_Token,
+   H.Add
+     (Messages.ETag_Token,
       String (Messages.Create_ETag ("qwerty", Weak => True)));
 
    R := AWS.Client.Head
