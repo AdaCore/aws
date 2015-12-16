@@ -29,6 +29,10 @@
 
 package body AWS.Headers.Set is
 
+   ----------
+   -- Read --
+   ----------
+
    procedure Read (Socket : Net.Socket_Type'Class; Headers : in out List) is
    begin
       Headers.Read (Socket);
