@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2002-2014, AdaCore                     --
+--                     Copyright (C) 2002-2015, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -41,17 +41,31 @@ package body AWS.Net.Buffered is
    Input_Limit : Positive := AWS.Default.Input_Line_Size_Limit with Atomic;
 
    procedure Read (Socket : Socket_Type'Class);
-   --  Refill the read-cache, the cache must be empty before the call
+   --  Refill the read-cache, the cache must be empty before the call.
+   --  Have to be used only in routines already called Socket.Get_Read_Cache.
 
-   function Is_Empty (C : Read_Cache) return Boolean with Inline;
+   function Is_Empty (C : Read_Cache_Access) return Boolean is
+      (C.First > C.Last) with Inline_Always;
+
+   function Get_Read_Cache
+     (Socket : Socket_Type'Class) return Read_Cache_Access with Inline;
+   --  Get the socket read cache, create the cache if it is not created
+
+   function Get_Write_Cache
+     (Socket : Socket_Type'Class) return Write_Cache_Access with Inline;
+   --  Get the socket read cache, create the cache if it is not created
 
    -----------
    -- Flush --
    -----------
 
    procedure Flush (Socket : Socket_Type'Class) is
-      C : Write_Cache renames Socket.C.W_Cache;
+      C : Write_Cache_Access renames Socket.C.W_Cache;
    begin
+      if C = null then
+         return;
+      end if;
+
       if C.Last > 0 then
          Send (Socket, C.Buffer (1 .. C.Last));
          C.Last := 0;
@@ -63,7 +77,7 @@ package body AWS.Net.Buffered is
    --------------
 
    function Get_Char (Socket : Socket_Type'Class) return Character is
-      C    : Read_Cache renames Socket.C.R_Cache;
+      C    : constant Read_Cache_Access := Get_Read_Cache (Socket);
       Char : Character;
    begin
       if Is_Empty (C) then
@@ -104,14 +118,33 @@ package body AWS.Net.Buffered is
       end if;
    end Get_Line;
 
-   --------------
-   -- Is_Empty --
-   --------------
+   --------------------
+   -- Get_Read_Cache --
+   --------------------
 
-   function Is_Empty (C : Read_Cache) return Boolean is
+   function Get_Read_Cache
+     (Socket : Socket_Type'Class) return Read_Cache_Access is
    begin
-      return C.First > C.Last;
-   end Is_Empty;
+      if Socket.C.R_Cache = null then
+         Socket.C.R_Cache := new Read_Cache (R_Cache_Size);
+      end if;
+
+      return Socket.C.R_Cache;
+   end Get_Read_Cache;
+
+   ---------------------
+   -- Get_Write_Cache --
+   ---------------------
+
+   function Get_Write_Cache
+     (Socket : Socket_Type'Class) return Write_Cache_Access is
+   begin
+      if Socket.C.W_Cache = null then
+         Socket.C.W_Cache := new Write_Cache (W_Cache_Size);
+      end if;
+
+      return Socket.C.W_Cache;
+   end Get_Write_Cache;
 
    --------------
    -- New_Line --
@@ -127,7 +160,7 @@ package body AWS.Net.Buffered is
    ---------------
 
    function Peek_Char (Socket : Socket_Type'Class) return Character is
-      C : Read_Cache renames Socket.C.R_Cache;
+      C : constant Read_Cache_Access := Get_Read_Cache (Socket);
    begin
       if Is_Empty (C) then
          Read (Socket);
@@ -159,7 +192,8 @@ package body AWS.Net.Buffered is
    ----------
 
    procedure Read (Socket : Socket_Type'Class) is
-      C : Read_Cache renames Socket.C.R_Cache;
+      C : Read_Cache_Access renames Socket.C.R_Cache;
+      --  No need Get_Read_Cache call because all using routines already did it
    begin
       Receive (Socket, C.Buffer, C.Last);
 
@@ -174,7 +208,7 @@ package body AWS.Net.Buffered is
       Data   : out Stream_Element_Array;
       Last   : out Stream_Element_Offset)
    is
-      C : Read_Cache renames Socket.C.R_Cache;
+      C : constant Read_Cache_Access := Get_Read_Cache (Socket);
    begin
       Flush (Socket);
 
@@ -235,10 +269,15 @@ package body AWS.Net.Buffered is
       Data   : out Stream_Element_Array;
       Last   : out Stream_Element_Offset)
    is
-      C      : Read_Cache renames Socket.C.R_Cache;
+      C      : Read_Cache_Access renames Socket.C.R_Cache;
       C_Last : constant Stream_Element_Offset :=
                  Stream_Element_Offset'Min (C.Last, C.First + Data'Length - 1);
    begin
+      if C = null then
+         Last := Last_Index (Data'First, Count => 0);
+         return;
+      end if;
+
       Last := Data'First + C_Last - C.First;
       Data (Data'First .. Last) := C.Buffer (C.First .. C_Last);
       C.First := C_Last + 1;
@@ -283,7 +322,7 @@ package body AWS.Net.Buffered is
          Close (Buffer);
       end Finalize;
 
-      C    : Read_Cache renames Socket.C.R_Cache;
+      C    : constant Read_Cache_Access := Get_Read_Cache (Socket);
       J, K : Stream_Element_Offset;
 
    begin
@@ -389,7 +428,7 @@ package body AWS.Net.Buffered is
      (Socket : Socket_Type'Class;
       Item   : Stream_Element_Array)
    is
-      C         : Write_Cache renames Socket.C.W_Cache;
+      C         : constant Write_Cache_Access := Get_Write_Cache (Socket);
       Next_Last : constant Stream_Element_Offset := C.Last + Item'Length;
    begin
       if Next_Last > C.Max_Size then

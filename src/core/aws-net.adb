@@ -123,6 +123,10 @@ package body AWS.Net is
    overriding procedure Finalize (Socket : in out Socket_Type) is
       procedure Unchecked_Free is
         new Unchecked_Deallocation (RW_Data, RW_Data_Access);
+      procedure Unchecked_Free is
+        new Unchecked_Deallocation (Read_Cache, Read_Cache_Access);
+      procedure Unchecked_Free is
+        new Unchecked_Deallocation (Write_Cache, Write_Cache_Access);
       Cache     : RW_Data_Access := Socket.C;
       Ref_Count : Natural;
    begin
@@ -135,6 +139,8 @@ package body AWS.Net is
 
          if Ref_Count = 0 then
             Free (Socket_Type'Class (Socket));
+            Unchecked_Free (Cache.R_Cache);
+            Unchecked_Free (Cache.W_Cache);
             Unchecked_Free (Cache);
          end if;
       end if;

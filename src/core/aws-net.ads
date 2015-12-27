@@ -435,16 +435,20 @@ private
       Last   : Stream_Element_Offset := 0;
    end record;
 
+   type Read_Cache_Access is access all Read_Cache;
+
    type Write_Cache (Max_Size : Stream_Element_Count) is record
       Buffer : Stream_Element_Array (1 .. Max_Size);
       Last   : Stream_Element_Offset := 0;
    end record;
 
+   type Write_Cache_Access is access all Write_Cache;
+
    type RW_Data is record
       Ref_Count : Utils.Counter (Initial_Value => 1);
       Listening : Boolean  := False; -- True if a listening (server) socket
-      R_Cache   : Read_Cache (R_Cache_Size);
-      W_Cache   : Write_Cache (W_Cache_Size);
+      R_Cache   : Read_Cache_Access;
+      W_Cache   : Write_Cache_Access;
       Can_Wait  : Boolean := False; -- Need for OpenSSL send in Mac OS
       Pack_Size : Stream_Element_Count := 2**15; -- Idem
    end record;
