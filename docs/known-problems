@@ -1,5 +1,12 @@
 Known Problems fixed in AWS 17.0
 
+- OC29-001: Default SOAP date/time type changed to XML_Date_Time
+  Problem: Old version of AWS servers were using XML_Time_Instant, so
+           this change makes the default not compatible with old SOAP
+           client or server.
+  Workaround: Do not use the default, force the Type_Name to be a
+              XML_Time_Instant instead of XML_Date_Time.
+
 - OB17-023: Wrong error code returned for broken request line
   Problem: A server internal error code 500 is returned when a
            broken request line is detected.

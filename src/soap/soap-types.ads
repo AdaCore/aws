@@ -457,7 +457,7 @@ package SOAP.Types is
    function T
      (V         : Calendar.Time;
       Name      : String := "item";
-      Type_Name : String := XML_Date_Time;
+      Type_Name : String := XML_Time_Instant;
       NS        : Name_Space.Object := Name_Space.No_Name_Space;
       Timezone  : TZ     := GMT)
       return XSD_Time_Instant;

@@ -4,7 +4,7 @@
 <awsns:Workorder xmlns:awsns="http://soapaws/">
 <Workorder xsi:type="Workorder">
    <Woid xsi:type="xsd:string">Wo1</Woid>
-   <Updated xsi:type="xsd:dateTime">2002-03-24T15:43:20Z</Updated>
+   <Updated xsi:type="xsd:timeInstant">2002-03-24T15:43:20Z</Updated>
    <State xsi:type="xsd:string">idle</State>
    <Package xsi:type="xsd:string">sot23</Package>
    <Recipe xsi:type="xsd:string">bc847</Recipe>

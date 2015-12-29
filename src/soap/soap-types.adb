@@ -1138,7 +1138,7 @@ package body SOAP.Types is
    function T
      (V         : Calendar.Time;
       Name      : String := "item";
-      Type_Name : String := XML_Date_Time;
+      Type_Name : String := XML_Time_Instant;
       NS        : SOAP.Name_Space.Object := SOAP.Name_Space.No_Name_Space;
       Timezone  : TZ     := GMT)
       return XSD_Time_Instant is
