@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                            Secure Sockets Layer                          --
 --                                                                          --
---                     Copyright (C) 2000-2015, AdaCore                     --
+--                     Copyright (C) 2000-2016, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -148,6 +148,9 @@ package SSL.Thin is
    Null_CTX    : constant SSL_CTX    := SSL_CTX (Null_Pointer);
    Null_Handle : constant SSL_Handle := SSL_Handle (Null_Pointer);
    Null_X509   : constant X509       := X509 (Null_Pointer);
+
+   Null_STACK_OF_X509_NAME : constant STACK_OF_X509_NAME :=
+     STACK_OF_X509_NAME (Null_Pointer);
 
    Null_Private_Key : Private_Key renames Null_Pointer;
 
@@ -315,6 +318,11 @@ package SSL.Thin is
    SSL_MIN_RSA_MODULUS_LENGTH_IN_BYTES : constant := 512 / 8;
    SSL_MAX_KEY_ARG_LENGTH              : constant := 8;
    SSL_MAX_MASTER_KEY_LENGTH           : constant := 48;
+
+   SSL_TLSEXT_ERR_OK            : constant := 0;
+   SSL_TLSEXT_ERR_ALERT_WARNING : constant := 1;
+   SSL_TLSEXT_ERR_ALERT_FATAL   : constant := 2;
+   SSL_TLSEXT_ERR_NOACK         : constant := 3;
 
    BIO_C_SET_CONNECT                 : constant := 100;
    BIO_C_DO_STATE_MACHINE            : constant := 101;
@@ -780,6 +788,18 @@ package SSL.Thin is
      (Ctx : SSL_CTX; Cmd : int; Larg : long; Parg : Pointer) return long
      with Import, Convention => C, External_Name => "SSL_CTX_ctrl";
 
+   function SSL_CTX_callback_ctrl
+     (Ctx : SSL_CTX; Func : int; CB : Pointer) return long
+     with Import, Convention => C, External_Name => "SSL_CTX_callback_ctrl";
+
+   function SSL_CTX_set_tlsext_servername_callback
+     (Ctx : SSL_CTX; CB : Pointer) return long is
+      (SSL_CTX_callback_ctrl (Ctx, SSL_CTRL_SET_TLSEXT_SERVERNAME_CB, CB));
+
+   function SSL_CTX_set_tlsext_servername_arg
+     (Ctx : SSL_CTX; Arg : Pointer) return long is
+     (SSL_CTX_ctrl (Ctx, SSL_CTRL_SET_TLSEXT_SERVERNAME_ARG, 0, Arg));
+
    -------------------------------------
    -- Library initialization routines --
    -------------------------------------
@@ -934,6 +954,9 @@ package SSL.Thin is
    function SSL_get_SSL_CTX (SSL : SSL_Handle) return SSL_CTX
      with Import, Convention => C, External_Name => "SSL_get_SSL_CTX";
 
+   function SSL_set_SSL_CTX (SSL : SSL_Handle; Ctx : SSL_CTX) return SSL_CTX
+     with Import, Convention => C, External_Name => "SSL_set_SSL_CTX";
+
    function SSL_get_shutdown (SSL : SSL_Handle) return int
      with Import, Convention => C, External_Name => "SSL_get_shutdown";
 
@@ -942,6 +965,11 @@ package SSL.Thin is
    is (SSL_ctrl
          (SSL, SSL_CTRL_SET_TLSEXT_HOSTNAME, TLSEXT_NAMETYPE_host_name,
           Name'Address));
+
+   function SSL_get_servername
+     (SSL  : SSL_Handle;
+      Kind : int := TLSEXT_NAMETYPE_host_name) return Cstr.chars_ptr
+     with Import, Convention => C, External_Name => "SSL_get_servername";
 
    ----------------------
    --  Crypto routines --
@@ -1177,6 +1205,10 @@ package SSL.Thin is
    function SSL_load_client_CA_file
      (file : Cstr.chars_ptr) return STACK_OF_X509_NAME
      with Import, Convention => C, External_Name => "SSL_load_client_CA_file";
+
+   function SSL_dup_CA_list
+     (List : STACK_OF_X509_NAME) return  STACK_OF_X509_NAME
+     with Import, Convention => C, External_Name => "SSL_dup_CA_list";
 
    procedure SSL_CTX_set_client_CA_list
      (Ctx : SSL_CTX; list : STACK_OF_X509_NAME)

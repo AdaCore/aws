@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                            Secure Sockets Layer                          --
 --                                                                          --
---                      Copyright (C) 2005-2015, AdaCore                    --
+--                      Copyright (C) 2005-2016, AdaCore                    --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -726,7 +726,7 @@ package SSL.Thin is
      (session     : gnutls_session_t;
       data        : System.Address;
       data_length : a_size_t;
-      c_type      : access C.unsigned;
+      c_type      : access gnutls_server_name_type_t;
       indx        : C.unsigned) return C.int
      with Import, Convention => C;
 
@@ -1187,15 +1187,18 @@ package SSL.Thin is
      (cert : gnutls_x509_crt_t) return time_t
      with Import, Convention => C;
 
-   function gnutls_global_init return C.int
-     with Import, Convention => C;
-
    function gnutls_pcert_list_import_x509_raw
      (pcerts    : access gnutls_pcert_st;
       pcert_max : access C.unsigned;
       data      : a_gnutls_datum_t;
       format    : gnutls_x509_crt_fmt_t;
       flags     : C.unsigned) return C.int
+     with Import, Convention => C;
+
+   procedure gnutls_pcert_deinit (pcerts : in out gnutls_pcert_st)
+     with Import, Convention => C;
+
+   function gnutls_global_init return C.int
      with Import, Convention => C;
 
    procedure gnutls_global_deinit

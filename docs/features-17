@@ -15,6 +15,11 @@ of the feature.
 New features in AWS 17
 ----------------------
 
+NF-17-OA13-048 Server Name Identification (SNI) support (2015-11-17)
+
+    Server can provide different certificates for the clients asking for
+    different hostnames on the same phisical IP address.
+
 NF-17-OA28-005 Add support for non-blocking WebSockets (2015-11-17)
 
     When sending a message to a set of recipient (URI broadcast) the

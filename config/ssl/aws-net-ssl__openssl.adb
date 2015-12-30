@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2000-2015, AdaCore                     --
+--                     Copyright (C) 2000-2016, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -37,7 +37,10 @@ pragma Ada_2012;
 --  AWS.Server.Set_Security.
 
 with Ada.Command_Line;
+with Ada.Containers.Indefinite_Hashed_Maps;
 with Ada.Directories;
+with Ada.Strings.Hash_Case_Insensitive;
+with Ada.Strings.Equal_Case_Insensitive;
 with Ada.Task_Attributes;
 with Ada.Task_Identification;
 with Ada.Task_Termination;
@@ -59,6 +62,7 @@ with AWS.Utils;
 package body AWS.Net.SSL is
 
    use Interfaces;
+   use Ada.Strings;
    use type C.int;
    use type C.long;
    use type TSSL.Pointer;
@@ -90,6 +94,14 @@ package body AWS.Net.SSL is
    Debug_BIO_Method : TSSL.BIO_Method_Access;
    Debug_BIO_Output : TSSL.BIO_Access;
 
+   package Host_Certificates is new Ada.Containers.Indefinite_Hashed_Maps
+     (String, TSSL.SSL_CTX, Hash => Hash_Case_Insensitive,
+      Equivalent_Keys => Equal_Case_Insensitive);
+
+   procedure Set_Session_Cache_Size (Context : TSSL.SSL_CTX; Size : Integer);
+   --  Check the session cache size for specified context. Check error codes
+   --  and raise exception on errors.
+
    protected type TS_SSL is
 
       procedure Set_IO (Socket : in out Socket_Type);
@@ -107,6 +119,21 @@ package body AWS.Net.SSL is
          CRL_Filename         : String;
          Session_Cache_Size   : Natural);
 
+      procedure Prepare
+        (Security_Mode        : Method;
+         Priorities           : String;
+         Ticket_Support       : Boolean;
+         Exchange_Certificate : Boolean;
+         Certificate_Required : Boolean;
+         Trusted_CA_Filename  : String;
+         CRL_Filename         : String;
+         Session_Cache_Size   : Natural);
+
+      procedure Initialize_Host_Certificate
+        (Host                 : String;
+         Certificate_Filename : String;
+         Key_Filename         : String);
+
       procedure Finalize;
 
       procedure Clear_Session_Cache;
@@ -121,10 +148,29 @@ package body AWS.Net.SSL is
       --  Check Certificate Revocation List, if this file has changed reload it
 
    private
-      Context        : TSSL.SSL_CTX := TSSL.Null_CTX;
-      CRL_File       : C.Strings.chars_ptr := C.Strings.Null_Ptr;
-      CRL_Time_Stamp : Calendar.Time := Utils.AWS_Epoch;
+      Default_Context : TSSL.SSL_CTX := TSSL.Null_CTX;
+      CRL_Filename    : C.Strings.chars_ptr := C.Strings.Null_Ptr;
+      CRL_Time_Stamp  : Calendar.Time := Utils.AWS_Epoch;
+
+      Hosts : Host_Certificates.Map;
+
+      Security_Mode        : Method;
+      Ticket_Support       : Boolean;
+      Exchange_Certificate : Boolean;
+      Certificate_Required : Boolean;
+      Session_Cache_Size   : Natural;
+      Priorities           : C.Strings.chars_ptr;
+      Trusted_CA_Filename  : C.Strings.chars_ptr;
+      Trusted_CA_Stack     : TSSL.STACK_OF_X509_NAME :=
+        TSSL.Null_STACK_OF_X509_NAME;
    end TS_SSL;
+
+   function Server_Name_Callback
+     (Session : SSL_Handle;
+      ad      : access C.int; -- documentation not found
+      Hosts   : access Host_Certificates.Map) return C.int
+     with Convention => C;
+   --  Callback to get server name on server side as client sent
 
    type Memory_Access is access all
      Stream_Element_Array (1 .. Stream_Element_Offset'Last);
@@ -251,6 +297,20 @@ package body AWS.Net.SSL is
          Shutdown (New_Socket);
       end loop SSL_Accept;
    end Accept_Socket;
+
+   --------------------------
+   -- Add_Host_Certificate --
+   --------------------------
+
+   procedure Add_Host_Certificate
+     (Config               : SSL.Config;
+      Host                 : String;
+      Certificate_Filename : String;
+      Key_Filename         : String := "") is
+   begin
+      Config.Initialize_Host_Certificate
+        (Host, Certificate_Filename, Key_Filename);
+   end Add_Host_Certificate;
 
    ---------------------
    -- BIO_Debug_Write --
@@ -1015,6 +1075,39 @@ package body AWS.Net.SSL is
    end Send;
 
    --------------------------
+   -- Server_Name_Callback --
+   --------------------------
+
+   function Server_Name_Callback
+     (Session : SSL_Handle;
+      ad      : access C.int; -- documentation not found
+      Hosts   : access Host_Certificates.Map) return C.int
+   is
+      pragma Unreferenced (ad);
+      use C.Strings;
+      Server_Name : constant chars_ptr := TSSL.SSL_get_servername (Session);
+      CH : Host_Certificates.Cursor;
+      Dummy : TSSL.SSL_CTX;
+   begin
+      if Server_Name = Null_Ptr then
+         return TSSL.SSL_TLSEXT_ERR_OK;
+      end if;
+
+      CH := Hosts.Find (Value (Server_Name));
+
+      if Host_Certificates.Has_Element (CH) then
+         Dummy := TSSL.SSL_set_SSL_CTX (Session, Hosts.all (CH));
+      end if;
+
+      return TSSL.SSL_TLSEXT_ERR_OK;
+
+   exception
+      when E : others =>
+         Log_Error (Ada.Exceptions.Exception_Information (E));
+         return TSSL.SSL_TLSEXT_ERR_ALERT_FATAL;
+   end Server_Name_Callback;
+
+   --------------------------
    -- Session_Cache_Number --
    --------------------------
 
@@ -1150,6 +1243,31 @@ package body AWS.Net.SSL is
       else
          Config.Set_Session_Cache_Size (Size);
       end if;
+   end Set_Session_Cache_Size;
+
+   ----------------------------
+   -- Set_Session_Cache_Size --
+   ----------------------------
+
+   procedure Set_Session_Cache_Size
+     (Context : TSSL.SSL_CTX; Size : Integer) is
+   begin
+      case TSSL.SSL_CTX_set_session_cache_mode
+        (Ctx  => Context,
+         Mode => (if Size = 0 then TSSL.SSL_SESS_CACHE_OFF
+                  else TSSL.SSL_SESS_CACHE_SERVER))
+      is
+         when TSSL.SSL_SESS_CACHE_OFF | TSSL.SSL_SESS_CACHE_SERVER => null;
+         when others =>
+            raise Socket_Error with "Unexpected session cache mode";
+      end case;
+
+      Error_If
+        (TSSL.SSL_CTX_ctrl
+           (Ctx  => Context,
+            Cmd  => TSSL.SSL_CTRL_SET_SESS_CACHE_SIZE,
+            Larg => C.long (Size),
+            Parg => TSSL.Null_Pointer) = -1);
    end Set_Session_Cache_Size;
 
    ----------------------
@@ -1737,43 +1855,54 @@ package body AWS.Net.SSL is
       procedure Check_CRL is
          use type Ada.Calendar.Time;
          use type C.Strings.chars_ptr;
+
+         procedure Reload_CRL_File (Context : TSSL.SSL_CTX);
+
+         ---------------------
+         -- Reload_CRL_File --
+         ---------------------
+
+         procedure Reload_CRL_File (Context : TSSL.SSL_CTX) is
+            Store  : constant TSSL.X509_STORE :=
+              TSSL.SSL_CTX_get_cert_store (Context);
+            Lookup : constant TSSL.X509_LOOKUP :=
+              TSSL.X509_STORE_add_lookup
+                (Store, TSSL.X509_LOOKUP_file);
+            Param  : constant TSSL.X509_VERIFY_PARAM :=
+              TSSL.X509_VERIFY_PARAM_new;
+         begin
+            --  Load CRL
+
+            Error_If
+              (TSSL.X509_load_crl_file
+                 (Lookup, CRL_Filename, TSSL.X509_FILETYPE_PEM) /= 1);
+
+            --  Set up certificate store to check CRL
+
+            Error_If
+              (TSSL.X509_VERIFY_PARAM_set_flags
+                 (Param, TSSL.X509_V_FLAG_CRL_CHECK) < 0);
+            Error_If (TSSL.X509_STORE_set1_param (Store, Param) < 0);
+            TSSL.X509_VERIFY_PARAM_free (Param);
+         end Reload_CRL_File;
+
       begin
          --  We need to load the CRL file if CRL_Time_Stamp is AWS_Epoch (it
          --  has never been loaded) or the time stamp has changed on disk.
 
-         if CRL_File /= C.Strings.Null_Ptr then
+         if CRL_Filename /= C.Strings.Null_Ptr then
             declare
                TS : constant Calendar.Time :=
-                      Utils.File_Time_Stamp (C.Strings.Value (CRL_File));
+                      Utils.File_Time_Stamp (C.Strings.Value (CRL_Filename));
             begin
                if CRL_Time_Stamp = Utils.AWS_Epoch
                  or else CRL_Time_Stamp /= TS
                then
                   CRL_Time_Stamp := TS;
-
-                  declare
-                     Store  : constant TSSL.X509_STORE :=
-                                TSSL.SSL_CTX_get_cert_store (Context);
-                     Lookup : constant TSSL.X509_LOOKUP :=
-                                TSSL.X509_STORE_add_lookup
-                                  (Store, TSSL.X509_LOOKUP_file);
-                     Param  : constant TSSL.X509_VERIFY_PARAM :=
-                                TSSL.X509_VERIFY_PARAM_new;
-                  begin
-                     --  Load CRL
-
-                     Error_If
-                       (TSSL.X509_load_crl_file
-                          (Lookup, CRL_File, TSSL.X509_FILETYPE_PEM) /= 1);
-
-                     --  Set up certificate store to check CRL
-
-                     Error_If
-                       (TSSL.X509_VERIFY_PARAM_set_flags
-                          (Param, TSSL.X509_V_FLAG_CRL_CHECK) < 0);
-                     Error_If (TSSL.X509_STORE_set1_param (Store, Param) < 0);
-                     TSSL.X509_VERIFY_PARAM_free (Param);
-                  end;
+                  Reload_CRL_File (Default_Context);
+                  for Context of Hosts loop
+                     Reload_CRL_File (Context);
+                  end loop;
                end if;
             end;
          end if;
@@ -1785,7 +1914,10 @@ package body AWS.Net.SSL is
 
       procedure Clear_Session_Cache is
       begin
-         TSSL.SSL_CTX_flush_sessions (Context, C.long'Last);
+         TSSL.SSL_CTX_flush_sessions (Default_Context, C.long'Last);
+         for Context of Hosts loop
+            TSSL.SSL_CTX_flush_sessions (Context, C.long'Last);
+         end loop;
       end Clear_Session_Cache;
 
       ----------------
@@ -1795,8 +1927,8 @@ package body AWS.Net.SSL is
       procedure File_Error (Prefix, Name : String) is
       begin
          raise Socket_Error
-            with Prefix & " file """ & Name & """ error."
-               & ASCII.LF & Error_Stack;
+           with Prefix & " file """ & Name & """ error." & ASCII.LF
+           & Error_Stack;
       end File_Error;
 
       --------------
@@ -1805,8 +1937,17 @@ package body AWS.Net.SSL is
 
       procedure Finalize is
       begin
-         TSSL.SSL_CTX_free (Context);
-         Context := TSSL.Null_CTX;
+         TSSL.SSL_CTX_free (Default_Context);
+         Default_Context := TSSL.Null_CTX;
+
+         for Context of Hosts loop
+            TSSL.SSL_CTX_free (Context);
+         end loop;
+         Hosts.Clear;
+
+         C.Strings.Free (Trusted_CA_Filename);
+         C.Strings.Free (CRL_Filename);
+         C.Strings.Free (Priorities);
       end Finalize;
 
       ----------------
@@ -1823,14 +1964,31 @@ package body AWS.Net.SSL is
          Certificate_Required : Boolean;
          Trusted_CA_Filename  : String;
          CRL_Filename         : String;
-         Session_Cache_Size   : Natural)
+         Session_Cache_Size   : Natural) is
+      begin
+         Prepare
+           (Security_Mode, Priorities, Ticket_Support, Exchange_Certificate,
+            Certificate_Required, Trusted_CA_Filename, CRL_Filename,
+            Session_Cache_Size);
+         Initialize_Host_Certificate ("", Certificate_Filename, Key_Filename);
+      end Initialize;
+
+      ---------------------------------
+      -- Initialize_Host_Certificate --
+      ---------------------------------
+
+      procedure Initialize_Host_Certificate
+        (Host                 : String;
+         Certificate_Filename : String;
+         Key_Filename         : String)
       is
+         use Interfaces.C;
+         use C.Strings;
+
          type Meth_Func is access function return TSSL.SSL_Method
            with Convention => C;
 
          procedure Set_Certificate;
-
-         procedure Set_Priorities;
 
          Methods : constant array (Method) of Meth_Func :=
                      (SSLv23         => TSSL.SSLv23_method'Access,
@@ -1849,13 +2007,15 @@ package body AWS.Net.SSL is
                       SSLv3_Server   => TSSL.SSLv23_server_method'Access,
                       SSLv3_Client   => TSSL.SSLv23_client_method'Access);
 
+         Context : TSSL.SSL_CTX;
+         Dummy   : C.long;
+
          ---------------------
          -- Set_Certificate --
          ---------------------
 
          procedure Set_Certificate is
-            use Interfaces.C;
-
+            use type TSSL.STACK_OF_X509_NAME;
             PK : constant Private_Key :=
                    Load ((if Key_Filename = ""
                           then Certificate_Filename else Key_Filename));
@@ -1890,104 +2050,134 @@ package body AWS.Net.SSL is
 
             --  Set Trusted Certificate Authority if any
 
-            if Trusted_CA_Filename /= "" then
-               declare
-                  use C.Strings;
-                  CAfile : aliased C.char_array :=
-                             C.To_C (Trusted_CA_Filename);
-                  CA_ptr : constant chars_ptr :=
-                             To_Chars_Ptr (CAfile'Unchecked_Access);
-               begin
-                  Error_If
-                    (TSSL.SSL_CTX_load_verify_locations
-                       (Context, CA_ptr, Null_Ptr) /= 1);
+            if Trusted_CA_Filename /= Null_Ptr then
+               Error_If
+                 (TSSL.SSL_CTX_load_verify_locations
+                    (Context, Trusted_CA_Filename, Null_Ptr) /= 1);
 
-                  if Exchange_Certificate then
-                     --  Let server send to client CA authority names it trust
+               if Exchange_Certificate then
+                  --  Let server send to client CA authority names it trust
 
-                     TSSL.SSL_CTX_set_client_CA_list
-                       (Context, TSSL.SSL_load_client_CA_file (CA_ptr));
+                  if Trusted_CA_Stack = TSSL.Null_STACK_OF_X509_NAME then
+                     Trusted_CA_Stack := TSSL.SSL_load_client_CA_file
+                                           (Trusted_CA_Filename);
+                  else
+                     Trusted_CA_Stack := TSSL.SSL_dup_CA_list
+                                           (Trusted_CA_Stack);
                   end if;
-               end;
-            end if;
 
-            --  Set Certificate Revocation List if any
-
-            if CRL_Filename /= "" then
-               CRL_File := C.Strings.New_String (CRL_Filename);
-               Check_CRL;
+                  TSSL.SSL_CTX_set_client_CA_list (Context, Trusted_CA_Stack);
+               end if;
             end if;
          end Set_Certificate;
 
-         --------------------
-         -- Set_Priorities --
-         --------------------
-
-         procedure Set_Priorities is
-            Pr : aliased C.char_array := C.To_C (Priorities);
-         begin
-            if TSSL.SSL_CTX_set_cipher_list
-              (Context, C.Strings.To_Chars_Ptr (Pr'Unchecked_Access)) = 0
-            then
-               Log_Error (Error_Stack);
-            end if;
-         end Set_Priorities;
-
       begin
-         if Context = TSSL.Null_CTX then
+         if Default_Context /= TSSL.Null_CTX and then Host = "" then
+            return;
+         end if;
+
             --  Initialize context
 
-            Context := TSSL.SSL_CTX_new (Methods (Security_Mode).all);
-            Error_If (Context = TSSL.Null_CTX);
+         Context := TSSL.SSL_CTX_new (Methods (Security_Mode).all);
 
-            if not Ticket_Support then
-               Error_If
-                 (TSSL.SSL_CTX_ctrl
-                    (Ctx  => Context,
-                     Cmd  => TSSL.SSL_CTRL_OPTIONS,
-                     Larg => TSSL.SSL_OP_NO_TICKET,
-                     Parg => TSSL.Null_Pointer) = 0);
-            end if;
+         Error_If (Context = TSSL.Null_CTX);
 
+         if not Ticket_Support then
             Error_If
               (TSSL.SSL_CTX_ctrl
                  (Ctx  => Context,
-                  Cmd  => TSSL.SSL_CTRL_MODE,
-                  Larg => TSSL.SSL_MODE_ENABLE_PARTIAL_WRITE
-                          + TSSL.SSL_MODE_ACCEPT_MOVING_WRITE_BUFFER,
+                  Cmd  => TSSL.SSL_CTRL_OPTIONS,
+                  Larg => TSSL.SSL_OP_NO_TICKET,
                   Parg => TSSL.Null_Pointer) = 0);
-
-            if Exchange_Certificate then
-               --  Client is requested to send its certificate once
-
-               Error_If
-                 (TSSL.SSL_CTX_set_ex_data
-                    (Context, Data_Index, TSSL.Null_Pointer) = -1);
-
-               declare
-                  Mode : C.int :=
-                           TSSL.SSL_VERIFY_PEER + TSSL.SSL_VERIFY_CLIENT_ONCE;
-               begin
-                  if Certificate_Required then
-                     Mode := Mode + TSSL.SSL_VERIFY_FAIL_IF_NO_PEER_CERT;
-                  end if;
-
-                  TSSL.SSL_CTX_set_verify
-                    (Context, Mode, Verify_Callback'Address);
-               end;
-            end if;
-
-            if Certificate_Filename /= "" then
-               Set_Certificate;
-            end if;
-
-            if Priorities /= "" then
-               Set_Priorities;
-            end if;
-
-            TS_SSL.Set_Session_Cache_Size (Session_Cache_Size);
          end if;
-      end Initialize;
+
+         Error_If
+           (TSSL.SSL_CTX_ctrl
+              (Ctx  => Context,
+               Cmd  => TSSL.SSL_CTRL_MODE,
+               Larg => TSSL.SSL_MODE_ENABLE_PARTIAL_WRITE
+               + TSSL.SSL_MODE_ACCEPT_MOVING_WRITE_BUFFER,
+               Parg => TSSL.Null_Pointer) = 0);
+
+         if Exchange_Certificate then
+            --  Client is requested to send its certificate once
+
+            Error_If
+              (TSSL.SSL_CTX_set_ex_data
+                 (Context, Data_Index, TSSL.Null_Pointer) = -1);
+
+            declare
+               Mode : C.int :=
+                 TSSL.SSL_VERIFY_PEER + TSSL.SSL_VERIFY_CLIENT_ONCE;
+            begin
+               if Certificate_Required then
+                  Mode := Mode + TSSL.SSL_VERIFY_FAIL_IF_NO_PEER_CERT;
+               end if;
+
+               TSSL.SSL_CTX_set_verify
+                 (Context, Mode, Verify_Callback'Address);
+            end;
+         end if;
+
+         if Certificate_Filename /= "" then
+            Set_Certificate;
+         end if;
+
+         if Priorities /= Null_Ptr
+           and then TSSL.SSL_CTX_set_cipher_list (Context, Priorities) = 0
+         then
+            Log_Error (Error_Stack);
+            --  Do not try to set priorities with errors again
+            Free (Priorities);
+         end if;
+
+         Set_Session_Cache_Size (Context, Session_Cache_Size);
+
+         Dummy := TSSL.SSL_CTX_set_tlsext_servername_callback
+                    (Context, Server_Name_Callback'Address);
+
+         Dummy := TSSL.SSL_CTX_set_tlsext_servername_arg
+                    (Context, Hosts'Address);
+
+         if Host = "" then
+            Default_Context := Context;
+         else
+            Hosts.Insert (Host, Context);
+         end if;
+
+         if Certificate_Filename /= "" then
+            Check_CRL;
+         end if;
+      end Initialize_Host_Certificate;
+
+      -------------
+      -- Prepare --
+      -------------
+
+      procedure Prepare
+        (Security_Mode        : Method;
+         Priorities           : String;
+         Ticket_Support       : Boolean;
+         Exchange_Certificate : Boolean;
+         Certificate_Required : Boolean;
+         Trusted_CA_Filename  : String;
+         CRL_Filename         : String;
+         Session_Cache_Size   : Natural)
+      is
+         use C.Strings;
+         function New_C_String (Item : String) return chars_ptr is
+           (if Item = "" then Null_Ptr else New_String (Item));
+      begin
+         TS_SSL.Security_Mode        := Security_Mode;
+         TS_SSL.Ticket_Support       := Ticket_Support;
+         TS_SSL.Exchange_Certificate := Exchange_Certificate;
+         TS_SSL.Certificate_Required := Certificate_Required;
+
+         TS_SSL.Session_Cache_Size   := Session_Cache_Size;
+         TS_SSL.CRL_Filename         := New_C_String (CRL_Filename);
+         TS_SSL.Priorities           := New_C_String (Priorities);
+         TS_SSL.Trusted_CA_Filename  := New_C_String (Trusted_CA_Filename);
+      end Prepare;
 
       --------------------------
       -- Session_Cache_Number --
@@ -1996,8 +2186,10 @@ package body AWS.Net.SSL is
       function Session_Cache_Number return Natural is
          use TSSL;
       begin
+         --  ??? Maybe summary ?
          return Natural
-           (SSL_CTX_ctrl (Context, SSL_CTRL_SESS_NUMBER, 0, Null_Pointer));
+           (SSL_CTX_ctrl (Default_Context, SSL_CTRL_SESS_NUMBER, 0,
+            Null_Pointer));
       end Session_Cache_Number;
 
       ------------
@@ -2009,7 +2201,7 @@ package body AWS.Net.SSL is
          use type C.long;
          Inside_IO, Net_IO : aliased BIO_Access;
       begin
-         Socket.SSL := SSL_new (Context);
+         Socket.SSL := SSL_new (Default_Context);
          Error_If (Socket, Socket.SSL = Null_Handle);
 
          Error_If
@@ -2046,22 +2238,10 @@ package body AWS.Net.SSL is
 
       procedure Set_Session_Cache_Size (Size : Natural) is
       begin
-         case TSSL.SSL_CTX_set_session_cache_mode
-                (Ctx  => Context,
-                 Mode => (if Size = 0 then TSSL.SSL_SESS_CACHE_OFF
-                                      else TSSL.SSL_SESS_CACHE_SERVER))
-         is
-            when TSSL.SSL_SESS_CACHE_OFF | TSSL.SSL_SESS_CACHE_SERVER => null;
-            when others =>
-               raise Socket_Error with "Unexpected session cache mode";
-         end case;
-
-         Error_If
-           (TSSL.SSL_CTX_ctrl
-              (Ctx  => Context,
-               Cmd  => TSSL.SSL_CTRL_SET_SESS_CACHE_SIZE,
-               Larg => C.long (Size),
-               Parg => TSSL.Null_Pointer) = -1);
+         Set_Session_Cache_Size (Default_Context, Size);
+         for Context of Hosts loop
+            Set_Session_Cache_Size (Context, Size);
+         end loop;
       end Set_Session_Cache_Size;
 
       -------------------------
@@ -2069,10 +2249,25 @@ package body AWS.Net.SSL is
       -------------------------
 
       procedure Set_Verify_Callback (Callback : System.Address) is
+
+         procedure Set_Callback (Context : TSSL.SSL_CTX);
+
+         ------------------
+         -- Set_Callback --
+         ------------------
+
+         procedure Set_Callback (Context : TSSL.SSL_CTX) is
+         begin
+            Error_If
+              (TSSL.SSL_CTX_set_ex_data
+                 (Context, Data_Index, Callback) = -1);
+         end Set_Callback;
+
       begin
-         Error_If
-           (TSSL.SSL_CTX_set_ex_data
-              (Context, Data_Index, Callback) = -1);
+         Set_Callback (Default_Context);
+         for Context of Hosts loop
+            Set_Callback (Context);
+         end loop;
       end Set_Verify_Callback;
 
    end TS_SSL;

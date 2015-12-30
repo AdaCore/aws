@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2002-2015, AdaCore                     --
+--                     Copyright (C) 2002-2016, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -144,6 +144,15 @@ package AWS.Net.SSL is
    --  associated with all secure sockets sharing the same options. If
    --  Exchange_Certificate is True the client will send its certificate to
    --  the server, if False only the server will send its certificate.
+
+   procedure Add_Host_Certificate
+     (Config               : SSL.Config;
+      Host                 : String;
+      Certificate_Filename : String;
+      Key_Filename         : String := "");
+   --  Sopport for Server name indication (SNI). Client can ask for different
+   --  host names on the same IP address. This routines allow provide different
+   --  certificates for different server host names.
 
    procedure Initialize_Default_Config
      (Certificate_Filename : String;

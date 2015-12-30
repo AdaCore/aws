@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2003-2014, AdaCore                     --
+--                     Copyright (C) 2003-2016, AdaCore                     --
 --                                                                          --
 --  This is free software;  you can redistribute it  and/or modify it       --
 --  under terms of the  GNU General Public License as published  by the     --
@@ -16,7 +16,7 @@
 --  to http://www.gnu.org/licenses for a complete copy of the license.      --
 ------------------------------------------------------------------------------
 
---  Simple test for certificate usage.
+--  Test for server certificates with Server Name Identification (SNI).
 
 with Ada.Exceptions;
 with Ada.Text_IO;
@@ -31,6 +31,7 @@ with AWS.Response;
 with AWS.Server.Status;
 with AWS.Status;
 with AWS.URL;
+with AWS.Utils;
 
 procedure Cert is
 
@@ -123,7 +124,6 @@ procedure Cert is
 begin
    Put_Line ("Start main, wait for server to start...");
 
-   Config.Set.Server_Host (Conf, "localhost");
    Config.Set.Server_Port (Conf, 0);
    Config.Set.Max_Connection (Conf, 5);
    Config.Set.Security (Conf, True);
@@ -134,10 +134,18 @@ begin
 
    Server.Start (HTTP, CB'Unrestricted_Access, Conf);
 
+   --  Connect to localhost and to phisical IP lead to different certificates
+
+   Net.SSL.Add_Host_Certificate
+      (Server.SSL_Config (HTTP).all,
+       Net.Host_Name, "aws-server-2.crt", "aws-server-2.key");
+
    Put_Line ("Server started");
-   New_Line;
 
    Request (AWS.Server.Status.Local_URL (HTTP) & "/simple");
+
+   Request ("https://" & Net.Host_Name & ':'
+            & Utils.Image (Server.Status.Port (HTTP)) & "/simple");
 
    Server.Shutdown (HTTP);
 

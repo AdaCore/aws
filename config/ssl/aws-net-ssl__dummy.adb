@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2006-2014, AdaCore                     --
+--                     Copyright (C) 2006-2016, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -55,6 +55,19 @@ package body AWS.Net.SSL is
    begin
       raise Program_Error with Error_Message;
    end Accept_Socket;
+
+   --------------------------
+   -- Add_Host_Certificate --
+   --------------------------
+
+   procedure Add_Host_Certificate
+     (Config               : SSL.Config;
+      Host                 : String;
+      Certificate_Filename : String;
+      Key_Filename         : String := "") is
+   begin
+      null;
+   end Add_Host_Certificate;
 
    ------------------------
    -- Cipher_Description --

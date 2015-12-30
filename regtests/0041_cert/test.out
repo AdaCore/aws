@@ -15,7 +15,20 @@ Issuer  : C=FR,ST=Ile de France,L=Magny les Hameaux,O=AWS Team,CN=Pascal Obry,EM
 Serial  : ABAB
 => simple ok
 
-Name    : 
+Server certificate as received by the client:
+Name    : localhost
+Subject : C=FR,ST=Ile de France,O=AdaCore,OU=CRM,CN=localhost,EMAIL=aws-test@adacore.com
+Issuer  : C=FR,ST=Ile de France,L=Paris,O=AdaCore,OU=CA,CN=CA-Web-Server,EMAIL=ca-aws@adacore.com
+Serial  : ADA0
+
+Client certificate as received by the server:
+Name    : Jean Dupont
+Subject : C=FR,ST=Ile de France,O=AWS Team,CN=Jean Dupont,EMAIL=jean.dupont@nowhere.com
+Issuer  : C=FR,ST=Ile de France,L=Magny les Hameaux,O=AWS Team,CN=Pascal Obry,EMAIL=aws@obry.net
+Serial  : ABAB
+=> simple ok
+
+Name    :
 Subject : C=US,O=The Go Daddy Group\, Inc.,OU=Go Daddy Class 2 Certification Authority
 Issuer  : C=US,O=The Go Daddy Group\, Inc.,OU=Go Daddy Class 2 Certification Authority
 Serial  : 0

@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2000-2014, AdaCore                     --
+--                     Copyright (C) 2000-2016, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -173,6 +173,10 @@ package AWS.Server is
    procedure Set_SSL_Config
      (Web_Server : in out HTTP; SSL_Config : Net.SSL.Config);
    --  Set the SSL configuration for this server
+
+   function SSL_Config (Web_Server : in out HTTP) return access Net.SSL.Config;
+   --  Returns the access to SSL config of the server. Allow to change SSL
+   --  config on the already created server.
 
    procedure Set_Socket_Constructor
      (Web_Server         : in out HTTP;
@@ -513,10 +517,14 @@ private
       --  Exception handle used for unexpected errors found on the server
       --  implementation.
 
-      SSL_Config         : Net.SSL.Config;
+      SSL_Config         : aliased Net.SSL.Config;
    end record;
 
    overriding procedure Finalize (Web_Server : in out HTTP);
+
+   function SSL_Config
+     (Web_Server : in out HTTP) return access Net.SSL.Config is
+      (Web_Server.SSL_Config'Unchecked_Access);
 
    type Line_Attribute_Record is record
       Server     : access HTTP;
