@@ -47,8 +47,8 @@ package body AWS.Net.Buffered is
    --  Returns true if the read-cache is empty
 
    procedure Read (Socket : Socket_Type'Class)
-     with Pre => Socket.C.R_Cache /= null and then Is_Empty (Socket.C.R_Cache);
-   --  Refill the read-cache, the cache must be empty before the call
+     with Pre => Socket.C.R_Cache /= null;
+   --  Refill the read-cache
 
    function Get_Read_Cache
      (Socket : Socket_Type'Class)

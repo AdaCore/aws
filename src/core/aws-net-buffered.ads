@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2002-2013, AdaCore                     --
+--                     Copyright (C) 2002-2015, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -122,6 +122,8 @@ package AWS.Net.Buffered is
    --  is be returned.
    --  If returned data is without delimiter at the end, it means that socket
    --  is closed from peer or socket error occured and rest of data returned.
+   --  This routine could loose some data on timeout if does not meet delimiter
+   --  longer then Read buffer size.
 
    function Read_Until
      (Socket    : Socket_Type'Class;
