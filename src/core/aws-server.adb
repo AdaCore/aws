@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2000-2014, AdaCore                     --
+--                     Copyright (C) 2000-2016, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -934,6 +934,16 @@ package body AWS.Server is
    begin
       TA.Server.Slots.Socket_Taken (TA.Line);
    end Socket_Taken;
+
+   ----------------
+   -- SSL_Config --
+   ----------------
+
+   function SSL_Config
+     (Web_Server : in out HTTP) return not null access Net.SSL.Config is
+   begin
+      return Web_Server.SSL_Config'Unchecked_Access;
+   end SSL_Config;
 
    -----------
    -- Start --

@@ -174,7 +174,8 @@ package AWS.Server is
      (Web_Server : in out HTTP; SSL_Config : Net.SSL.Config);
    --  Set the SSL configuration for this server
 
-   function SSL_Config (Web_Server : in out HTTP) return access Net.SSL.Config;
+   function SSL_Config
+     (Web_Server : in out HTTP) return not null access Net.SSL.Config;
    --  Returns the access to SSL config of the server. Allow to change SSL
    --  config on the already created server.
 
@@ -521,10 +522,6 @@ private
    end record;
 
    overriding procedure Finalize (Web_Server : in out HTTP);
-
-   function SSL_Config
-     (Web_Server : in out HTTP) return access Net.SSL.Config is
-      (Web_Server.SSL_Config'Unchecked_Access);
 
    type Line_Attribute_Record is record
       Server     : access HTTP;

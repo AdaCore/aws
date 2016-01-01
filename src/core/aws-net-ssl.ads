@@ -150,9 +150,9 @@ package AWS.Net.SSL is
       Host                 : String;
       Certificate_Filename : String;
       Key_Filename         : String := "");
-   --  Sopport for Server name indication (SNI). Client can ask for different
-   --  host names on the same IP address. This routines allow provide different
-   --  certificates for different server host names.
+   --  Support for Server name indication (SNI). Client can ask for different
+   --  host names on the same IP address. This routines provide a way to have
+   --  different certificates for different server host names.
 
    procedure Initialize_Default_Config
      (Certificate_Filename : String;
