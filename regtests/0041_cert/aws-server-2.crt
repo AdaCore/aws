@@ -1,0 +1,87 @@
+Certificate:
+    Data:
+        Version: 3 (0x2)
+        Serial Number: 44448 (0xada0)
+    Signature Algorithm: sha1WithRSAEncryption
+        Issuer: C=FR, ST=Ile de France, L=Paris, O=AdaCore, OU=CA, CN=CA-Web-Server/emailAddress=ca-aws@adacore.com
+        Validity
+            Not Before: Apr 26 02:55:41 2014 GMT
+            Not After : Jul  4 02:55:41 2016 GMT
+        Subject: C=FR, ST=Ile de France, O=AdaCore, OU=CRM, CN=localhost/emailAddress=aws-test@adacore.com
+        Subject Public Key Info:
+            Public Key Algorithm: rsaEncryption
+                Public-Key: (2048 bit)
+                Modulus:
+                    00:df:5b:c1:e0:f9:0b:87:47:e8:34:fe:78:87:16:
+                    c8:4a:1a:cf:d9:4f:a0:af:a6:f8:13:f6:22:20:7c:
+                    bb:52:74:5c:fa:8d:a3:82:e9:65:53:4e:e5:8f:a1:
+                    4c:2b:fb:bc:62:e3:c0:63:15:b9:03:42:15:45:80:
+                    c5:8b:cc:93:9c:76:85:1b:46:fd:3f:82:66:36:de:
+                    0a:73:63:b8:ec:2e:bd:d5:ac:de:06:c4:45:a9:4b:
+                    0f:88:ea:16:60:0a:00:ed:3a:b2:39:ba:6f:12:d9:
+                    ba:7c:9a:5d:f2:5e:2d:31:46:a7:d1:94:69:56:4b:
+                    95:00:d8:74:8b:17:82:e9:5e:90:4f:50:f4:f6:6f:
+                    96:cd:9c:c9:80:68:ca:55:0c:4d:72:f6:fb:b0:30:
+                    dd:42:19:5f:34:81:ed:d2:f2:1e:5b:cf:90:27:c4:
+                    4c:10:2a:bb:b2:fa:af:17:63:dc:f8:f7:4d:50:43:
+                    cd:7d:2b:c6:12:ef:85:ee:fe:cc:dd:e4:b8:83:fe:
+                    5d:a0:73:aa:3f:75:c2:b6:a9:10:e7:3e:34:ea:83:
+                    02:01:fb:fe:d4:4d:f6:fb:0f:b7:53:ae:83:24:f5:
+                    ec:2d:85:6b:07:07:bb:ba:9f:64:9e:77:b8:12:df:
+                    3f:86:49:1a:4a:1e:42:2a:8d:e2:c4:20:a7:22:7f:
+                    b6:21
+                Exponent: 65537 (0x10001)
+        X509v3 extensions:
+            X509v3 Basic Constraints: 
+                CA:FALSE
+            Netscape Comment: 
+                OpenSSL Generated Certificate
+            X509v3 Subject Key Identifier: 
+                E0:82:36:D7:B8:FF:4A:D0:96:D8:5E:89:00:F5:CF:28:7B:4C:20:39
+            X509v3 Authority Key Identifier: 
+                DirName:/C=FR/ST=Ile de France/L=Paris/O=AdaCore/OU=CA/CN=CA-Web-Server/emailAddress=ca-aws@adacore.com
+                serial:DA:72:36:BC:EE:FB:1D:8E
+
+    Signature Algorithm: sha1WithRSAEncryption
+         23:7e:b9:a3:dd:49:9b:f2:c5:fe:60:96:a2:6a:71:3a:19:9a:
+         73:b9:35:41:cb:c3:1a:15:fc:e6:1c:1d:02:e8:c1:c7:36:27:
+         18:b9:ac:65:25:37:65:47:6c:bf:aa:cb:12:d3:dc:db:7d:a6:
+         16:71:fa:ac:96:1d:04:b1:7e:33:0e:6f:57:b2:a1:1e:99:67:
+         c7:e2:ce:eb:25:21:ad:fb:79:8d:3d:82:54:ca:9c:4b:fc:e2:
+         29:2a:11:ca:a4:05:ce:0f:b8:5c:8d:19:26:cc:70:84:91:23:
+         94:aa:95:de:b8:48:67:ee:34:d4:9c:b8:cf:35:8b:29:7b:2c:
+         07:33:3a:5d:1a:8c:94:9e:df:8a:c2:c6:58:b3:73:54:eb:32:
+         76:be:1a:e1:51:f9:89:dd:df:ff:65:dd:bf:26:76:7c:af:35:
+         f8:94:29:ec:8c:d2:f2:f3:ee:c2:50:ad:e9:5a:c4:d9:bb:83:
+         71:03:35:63:4f:c9:76:60:a6:a8:43:62:1f:9b:b4:20:d3:e8:
+         42:a2:a1:60:e9:9a:7f:f9:ea:23:22:76:b4:d9:b5:77:c7:c5:
+         f8:1b:33:2d:58:41:1c:b2:1b:5e:ef:84:21:6a:f7:1c:2c:e2:
+         4e:61:22:3e:24:6b:aa:97:0f:7c:6a:71:c0:f7:28:6d:e4:34:
+         09:97:f0:e5
+-----BEGIN CERTIFICATE-----
+MIIEmjCCA4KgAwIBAgIDAK2gMA0GCSqGSIb3DQEBBQUAMIGPMQswCQYDVQQGEwJG
+UjEWMBQGA1UECAwNSWxlIGRlIEZyYW5jZTEOMAwGA1UEBwwFUGFyaXMxEDAOBgNV
+BAoMB0FkYUNvcmUxCzAJBgNVBAsMAkNBMRYwFAYDVQQDDA1DQS1XZWItU2VydmVy
+MSEwHwYJKoZIhvcNAQkBFhJjYS1hd3NAYWRhY29yZS5jb20wHhcNMTQwNDI2MDI1
+NTQxWhcNMTYwNzA0MDI1NTQxWjB+MQswCQYDVQQGEwJGUjEWMBQGA1UECAwNSWxl
+IGRlIEZyYW5jZTEQMA4GA1UECgwHQWRhQ29yZTEMMAoGA1UECwwDQ1JNMRIwEAYD
+VQQDDAlsb2NhbGhvc3QxIzAhBgkqhkiG9w0BCQEWFGF3cy10ZXN0QGFkYWNvcmUu
+Y29tMIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEA31vB4PkLh0foNP54
+hxbIShrP2U+gr6b4E/YiIHy7UnRc+o2jgullU07lj6FMK/u8YuPAYxW5A0IVRYDF
+i8yTnHaFG0b9P4JmNt4Kc2O47C691azeBsRFqUsPiOoWYAoA7TqyObpvEtm6fJpd
+8l4tMUan0ZRpVkuVANh0ixeC6V6QT1D09m+WzZzJgGjKVQxNcvb7sDDdQhlfNIHt
+0vIeW8+QJ8RMECq7svqvF2Pc+PdNUEPNfSvGEu+F7v7M3eS4g/5doHOqP3XCtqkQ
+5z406oMCAfv+1E32+w+3U66DJPXsLYVrBwe7up9knne4Et8/hkkaSh5CKo3ixCCn
+In+2IQIDAQABo4IBDTCCAQkwCQYDVR0TBAIwADAsBglghkgBhvhCAQ0EHxYdT3Bl
+blNTTCBHZW5lcmF0ZWQgQ2VydGlmaWNhdGUwHQYDVR0OBBYEFOCCNte4/0rQlthe
+iQD1zyh7TCA5MIGuBgNVHSMEgaYwgaOhgZWkgZIwgY8xCzAJBgNVBAYTAkZSMRYw
+FAYDVQQIDA1JbGUgZGUgRnJhbmNlMQ4wDAYDVQQHDAVQYXJpczEQMA4GA1UECgwH
+QWRhQ29yZTELMAkGA1UECwwCQ0ExFjAUBgNVBAMMDUNBLVdlYi1TZXJ2ZXIxITAf
+BgkqhkiG9w0BCQEWEmNhLWF3c0BhZGFjb3JlLmNvbYIJANpyNrzu+x2OMA0GCSqG
+SIb3DQEBBQUAA4IBAQAjfrmj3Umb8sX+YJaianE6GZpzuTVBy8MaFfzmHB0C6MHH
+NicYuaxlJTdlR2y/qssS09zbfaYWcfqslh0EsX4zDm9XsqEemWfH4s7rJSGt+3mN
+PYJUypxL/OIpKhHKpAXOD7hcjRkmzHCEkSOUqpXeuEhn7jTUnLjPNYspeywHMzpd
+GoyUnt+KwsZYs3NU6zJ2vhrhUfmJ3d//Zd2/JnZ8rzX4lCnsjNLy8+7CUK3pWsTZ
+u4NxAzVjT8l2YKaoQ2Ifm7Qg0+hCoqFg6Zp/+eojIna02bV3x8X4GzMtWEEcshte
+74QhavccLOJOYSI+JGuqlw98anHA9yht5DQJl/Dl
+-----END CERTIFICATE-----

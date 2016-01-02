@@ -134,17 +134,40 @@ begin
 
    Server.Start (HTTP, CB'Unrestricted_Access, Conf);
 
-   --  Connect to localhost and to phisical IP lead to different certificates
+   if Net.IPv6_Available then
+      --  Additional Bind and Listen to localhost directly, because when IPv6
+      --  available localhost on server side and on client side could be in
+      --  different families.
+
+      Server.Add_Listening
+        (HTTP, "localhost", Server.Status.Port (HTTP),
+         (if Server.Status.Is_IPv6 (HTTP)
+          then Net.Family_Inet else Net.Family_Inet6));
+   end if;
+
+   --  Connect to phisical IP, Net.Host_Name and to "localhost" lead to
+   --  different certificates.
 
    Net.SSL.Add_Host_Certificate
       (Server.SSL_Config (HTTP).all,
        Net.Host_Name, "aws-server-2.crt", "aws-server-2.key");
+   --  aws-server-2.crt and aws-server-2.key is copied from
+   --  ../0226_client_cert/aws-server.crt and
+   --  ../0226_client_cert/aws-server.key
+
+   Net.SSL.Add_Host_Certificate
+      (Server.SSL_Config (HTTP).all,
+       "localhost", "chain-srv.crt", "test-srv.key");
+   --  chain-srv.crt and test-srv.key taken from ../0246_ctr_chain
 
    Put_Line ("Server started");
 
    Request (AWS.Server.Status.Local_URL (HTTP) & "/simple");
 
    Request ("https://" & Net.Host_Name & ':'
+            & Utils.Image (Server.Status.Port (HTTP)) & "/simple");
+
+   Request ("https://localhost:"
             & Utils.Image (Server.Status.Port (HTTP)) & "/simple");
 
    Server.Shutdown (HTTP);
