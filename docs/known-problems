@@ -1,5 +1,11 @@
 Known Problems fixed in AWS 17.0
 
+- P104-019: Cannot send SOAP arrays with more than 2048 items
+  Problem: A SOAP array with more than 2048 items are not properly
+           handled by the implementation. This is an hard coded
+           limitation.
+  Workaround: None.
+
 - OC29-001: Default SOAP date/time type changed to XML_Date_Time
   Problem: Old version of AWS servers were using XML_Time_Instant, so
            this change makes the default not compatible with old SOAP
