@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2000-2015, AdaCore                     --
+--                     Copyright (C) 2000-2016, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -32,6 +32,7 @@ pragma Ada_2012;
 with Ada.Characters.Handling;
 with Ada.Exceptions;
 with Ada.Strings.Fixed;
+with Ada.Unchecked_Deallocation;
 
 with AWS.Client.XML.Input_Sources;
 
@@ -54,10 +55,6 @@ package body SOAP.Message.XML is
    use SOAP.Message.Reader;
 
    NL : constant String := ASCII.CR & ASCII.LF;
-
-   Max_Object_Size : constant := 2_048;
-   --  This is the maximum number of items in a record or an array supported
-   --  by this implementation.
 
    XML_Header : constant String := "<?xml version='1.0' encoding='UTF-8'?>";
 
@@ -300,6 +297,43 @@ package body SOAP.Message.XML is
                  T_Time_Instant   =>
                    (Types.XML_Time_Instant'Access,
                     Parse_Time_Instant'Access, False));
+
+   type Object_Set_Access is access Types.Object_Set;
+
+   procedure Unchecked_Free is
+     new Unchecked_Deallocation (Types.Object_Set, Object_Set_Access);
+
+   procedure Add_Object
+     (Set      : in out Object_Set_Access;
+      Position : Positive;
+      Object   : Types.Object_Safe_Pointer;
+      Growth   : Positive)
+   with Inline, Pre => Set /= null;
+   --  Adds Object into Set, reallocate Set if needed. The reallocated Set
+   --  array will have Growth more item's slot.
+
+   ----------------
+   -- Add_Object --
+   ----------------
+
+   procedure Add_Object
+     (Set      : in out Object_Set_Access;
+      Position : Positive;
+      Object   : Types.Object_Safe_Pointer;
+      Growth   : Positive)
+   is
+      Old : Object_Set_Access;
+   begin
+      if Position > Set'Last then
+         Old := Set;
+         Set := new Types.Object_Set
+                  (1 .. Positive'Max (Set'Length + Growth, Position));
+         Set (1 .. Old'Length) := Old.all;
+         Unchecked_Free (Old);
+      end if;
+
+      Set (Position) := Object;
+   end Add_Object;
 
    -----------
    -- Error --
@@ -669,13 +703,13 @@ package body SOAP.Message.XML is
 
       LS    : constant State := S;
 
-      OS    : Types.Object_Set (1 .. Max_Object_Size);
+      OS    : Object_Set_Access := new Object_Set (1 .. 512);
       K     : Natural := 0;
+      A     : Types.SOAP_Array;
 
       Field : DOM.Core.Node;
 
       Atts  : constant DOM.Core.Named_Node_Map := Attributes (N);
-
    begin
       Parse_Namespaces (N, S.NS);
 
@@ -700,7 +734,7 @@ package body SOAP.Message.XML is
          while Field /= null loop
             K := K + 1;
 
-            OS (K) := +Parse_Param (Field, S);
+            Add_Object (OS, K, +Parse_Param (Field, S), 256);
 
             Field := Next_Sibling (Field);
          end loop;
@@ -710,7 +744,9 @@ package body SOAP.Message.XML is
          S.A_State := LS.A_State;
          S.Enclosing := LS.Enclosing;
 
-         return Types.A (OS (1 .. K), Name, Type_Name);
+         A := Types.A (OS (1 .. K), Name, Type_Name);
+         Unchecked_Free (OS);
+         return A;
       end;
    end Parse_Array;
 
@@ -1213,7 +1249,7 @@ package body SOAP.Message.XML is
                    (Field, SOAP.Name_Space.Name (S.NS.xsi) & ":type");
 
       --  The record fields temporary store
-      OS     : Types.Object_Set (1 .. Max_Object_Size);
+      OS     : Object_Set_Access := new Object_Set (1 .. 50);
       K      : Natural := 0;
 
       T_Name : Unbounded_String; -- record's type name
@@ -1251,7 +1287,7 @@ package body SOAP.Message.XML is
 
          while Field /= null loop
             K := K + 1;
-            OS (K) := +Parse_Param (Field, S);
+            Add_Object (OS, K, +Parse_Param (Field, S), 25);
             Field := Next_Sibling (Field);
          end loop;
 
@@ -1262,10 +1298,14 @@ package body SOAP.Message.XML is
          declare
             NS : constant SOAP.Name_Space.Object :=
                    Get_Namespace_Object (S.NS, Utils.NS (To_String (T_Name)));
+            R  : Types.SOAP_Record;
          begin
-            return Types.R
+            R := Types.R
               (OS (1 .. K), Name,
                Utils.No_NS (To_String (T_Name)), NS);
+
+            Unchecked_Free (OS);
+            return R;
          end;
       end if;
    end Parse_Record;
