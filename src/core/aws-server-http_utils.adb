@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2005-2015, AdaCore                     --
+--                     Copyright (C) 2005-2016, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -368,10 +368,21 @@ package body AWS.Server.HTTP_Utils is
             Socket : constant Net.Socket_Type'Class := Status.Socket (C_Stat);
             Buffer : Stream_Element_Array (1 .. 4096);
             Last   : Stream_Element_Offset;
+            Agent  : constant String := Status.User_Agent (C_Stat);
+            Fully  : constant Boolean := Fixed.Index (Agent, "Firefox/") > 0
+                                 or else Fixed.Index (Agent, "konqueror/") > 0;
+            --  This flag is for browsers JavaScript engine which do not read
+            --  the server responce until successfully send the whole message
+            --  body. So we have to read the whole body for them to let them
+            --  chanсe to read the server answer.
+            --  Tested for Firefox/43.0 and konqueror/4.14.9.
+            --  Does not need this trick:
+            --  OPR/32.0.1948.69 - Opera
+            --  Midori/0.5
+            --  Chrome/47.0.2526.106
          begin
-            while Socket.Pending > 0 loop
+            while Fully or else Socket.Pending > 0 loop
                Socket.Receive (Buffer, Last);
-               exit when Last < Buffer'Last;
             end loop;
          end;
       end if;
