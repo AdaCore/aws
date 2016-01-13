@@ -365,24 +365,34 @@ package body AWS.Server.HTTP_Utils is
          --  able to close socket gracefully.
 
          declare
+            use Ada.Real_Time;
             Socket : constant Net.Socket_Type'Class := Status.Socket (C_Stat);
             Buffer : Stream_Element_Array (1 .. 4096);
             Last   : Stream_Element_Offset;
+            Length : Integer := Status.Content_Length (C_Stat);
+            Stamp  : constant Time := Clock;
+            Span   : constant Time_Span :=
+              To_Time_Span
+                (AWS.Config.Receive_Timeout (HTTP_Server.Properties));
+            --  To do not spend too much time on wrong working clients
             Agent  : constant String := Status.User_Agent (C_Stat);
             Fully  : constant Boolean := Fixed.Index (Agent, "Firefox/") > 0
                                  or else Fixed.Index (Agent, "konqueror/") > 0;
-            --  This flag is for browsers JavaScript engine which do not read
-            --  the server responce until successfully send the whole message
-            --  body. So we have to read the whole body for them to let them
-            --  chanсe to read the server answer.
+            --  JavaScript engine of some browsers does not read the server
+            --  responce until successfully send the whole message body.
+            --  So we have to read the whole body to let them chance to read
+            --  the server answer.
             --  Tested for Firefox/43.0 and konqueror/4.14.9.
             --  Does not need this trick:
             --  OPR/32.0.1948.69 - Opera
             --  Midori/0.5
             --  Chrome/47.0.2526.106
          begin
-            while Fully or else Socket.Pending > 0 loop
+            while (Fully and then Length > 0 and then Stamp - Clock <= Span)
+              or else Socket.Pending > 0
+            loop
                Socket.Receive (Buffer, Last);
+               Length := Length - Positive (Last);
             end loop;
          end;
       end if;
