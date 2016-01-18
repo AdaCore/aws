@@ -372,12 +372,13 @@ package body AWS.Server.HTTP_Utils is
             Length : Integer := Status.Content_Length (C_Stat);
             Stamp  : constant Time := Clock;
             Span   : constant Time_Span :=
-              To_Time_Span
-                (AWS.Config.Receive_Timeout (HTTP_Server.Properties));
+                       To_Time_Span
+                         (AWS.Config.Receive_Timeout (HTTP_Server.Properties));
             --  To do not spend too much time on wrong working clients
             Agent  : constant String := Status.User_Agent (C_Stat);
-            Fully  : constant Boolean := Fixed.Index (Agent, "Firefox/") > 0
-                                 or else Fixed.Index (Agent, "konqueror/") > 0;
+            Fully  : constant Boolean :=
+                       Fixed.Index (Agent, "Firefox/") > 0
+                       or else Fixed.Index (Agent, "konqueror/") > 0;
             --  JavaScript engine of some browsers does not read the server
             --  responce until successfully send the whole message body.
             --  So we have to read the whole body to let them chance to read
