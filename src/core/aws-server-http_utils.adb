@@ -378,7 +378,7 @@ package body AWS.Server.HTTP_Utils is
             Agent  : constant String := Status.User_Agent (C_Stat);
             Fully  : constant Boolean :=
                        Fixed.Index (Agent, "Firefox/") > 0
-                       or else Fixed.Index (Agent, "konqueror/") > 0;
+                         or else Fixed.Index (Agent, "konqueror/") > 0;
             --  JavaScript engine of some browsers does not read the server
             --  responce until successfully send the whole message body.
             --  So we have to read the whole body to let them chance to read
