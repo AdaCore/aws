@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                        Copyright (C) 2014, AdaCore                       --
+--                     Copyright (C) 2014-2016, AdaCore                     --
 --                                                                          --
 --  This is free software;  you can redistribute it  and/or modify it       --
 --  under terms of the  GNU General Public License as published  by the     --
@@ -50,10 +50,6 @@ procedure ErrCon is
    procedure Print_Error (Message : String) is
       Text : String := Message;
    begin
-      if Text (Text'Last - 4 .. Text'Last) /= Port_Img then
-         Text (Text'Last - 4 .. Text'Last) := Port_Img;
-      end if;
-
       if Text (Text'Last - 10 .. Text'Last) = "[::1]:" & Port_Img then
          Print_Error
            (Text (Text'First .. Text'Last - 11) & "127.0.0.1:" & Port_Img);
@@ -73,39 +69,19 @@ procedure ErrCon is
       end if;
    end Print_Error;
 
+   Hosts : array (1 .. 4) of access String :=
+            (new String'("localhost"),
+             new String'("127.0.0.1"),
+             new String'("255.255.255.255"),
+             new String'("no-way.to-have.such-address"));
+
 begin
-   for J in Port_Vol .. 65000 loop
+   for Host of Hosts loop
       begin
-         Sock.Connect (Host => "localhost", Port => J);
-         Sock.Shutdown;
+         Sock.Connect (Host => Host.all, Port => Port_Vol);
       exception
          when E : AWS.Net.Socket_Error =>
             Print_Error (Ada.Exceptions.Exception_Message (E));
-      end;
-
-      begin
-         Sock.Connect (Host => "127.0.0.1", Port => J);
-         Sock.Shutdown;
-      exception
-         when E : AWS.Net.Socket_Error =>
-            Print_Error (Ada.Exceptions.Exception_Message (E));
-      end;
-
-      begin
-         Sock.Connect (Host => "255.255.255.255", Port => J);
-         Sock.Shutdown;
-      exception
-         when E : AWS.Net.Socket_Error =>
-            Print_Error (Ada.Exceptions.Exception_Message (E));
-      end;
-
-      begin
-         Sock.Connect (Host => "no-way.to-have.such-address", Port => J);
-         Sock.Shutdown;
-      exception
-         when E : AWS.Net.Socket_Error =>
-            Print_Error (Ada.Exceptions.Exception_Message (E));
-            exit;
       end;
    end loop;
 end ErrCon;

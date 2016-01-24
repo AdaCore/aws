@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2000-2014, AdaCore                     --
+--                     Copyright (C) 2000-2016, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -184,11 +184,12 @@ package body AWS.Net.Std is
 
          Addr : constant String := Sockets.Image (Sock_Addr);
          Msg  : constant String :=
+                 (if Ada.Strings.Fixed.Index (Errm, Host) > 0 then Errm else
                   Error_On_Connect (Errm)
                   & (if Sock_Addr.Addr = Sockets.No_Inet_Addr
                      then Host & ':' & Utils.Image (Port)
                      elsif Utils.Match (Addr, Host) then Addr
-                     else Host & ' ' & Addr);
+                     else Host & ' ' & Addr));
       begin
          Log.Error (Socket, Msg);
 
@@ -252,10 +253,6 @@ package body AWS.Net.Std is
       end if;
    exception
       when E : Sockets.Socket_Error | Sockets.Host_Error =>
-         if Close_On_Exception then
-            Sockets.Close_Socket (Socket.S.FD);
-         end if;
-
          Raise_Error (Exception_Message (E));
    end Connect;
 
