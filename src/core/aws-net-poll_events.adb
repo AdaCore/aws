@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2006-2014, AdaCore                     --
+--                     Copyright (C) 2006-2016, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -35,6 +35,9 @@ with Interfaces.C;
 package body AWS.Net.Poll_Events is
 
    procedure Set_Mode (Item : out Pollfd; Mode : Wait_Event_Set);
+
+   procedure Set_Event
+     (Item : out Pollfd; Event : Wait_Event_Type; Value : Boolean);
 
    type Poll_Access is access all Set;
 
@@ -302,6 +305,34 @@ package body AWS.Net.Poll_Events is
       end if;
    end Replace;
 
+   ---------------
+   -- Set_Event --
+   ---------------
+
+   overriding procedure Set_Event
+     (FD_Set : in out Set;
+      Index  : Positive;
+      Event  : Wait_Event_Type;
+      Value  : Boolean) is
+   begin
+      Check_Range (FD_Set, Index);
+      Set_Event (FD_Set.Fds (Index), Event, Value);
+   end Set_Event;
+
+   procedure Set_Event
+     (Item : out Pollfd; Event : Wait_Event_Type; Value : Boolean)
+   is
+      use OS_Lib;
+      To_C : constant array (Wait_Event_Type) of Events_Type :=
+               (Input => POLLIN or POLLPRI, Output => POLLOUT);
+   begin
+      if Value then
+         Item.Events := Item.Events or To_C (Event);
+      else
+         Item.Events := Item.Events and not To_C (Event);
+      end if;
+   end Set_Event;
+
    --------------
    -- Set_Mode --
    --------------
@@ -314,19 +345,10 @@ package body AWS.Net.Poll_Events is
    end Set_Mode;
 
    procedure Set_Mode (Item : out Pollfd; Mode : Wait_Event_Set) is
-      use OS_Lib;
    begin
-      Item.REvents := 0;
-
-      if Mode (Input) then
-         Item.Events := POLLIN or POLLPRI;
-      else
-         Item.Events := 0;
-      end if;
-
-      if Mode (Output) then
-         Item.Events := Item.Events or POLLOUT;
-      end if;
+      for J in Mode'Range loop
+         Set_Event (Item, J, Mode (J));
+      end loop;
    end Set_Mode;
 
    ------------

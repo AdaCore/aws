@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2004-2014, AdaCore                     --
+--                     Copyright (C) 2004-2016, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -97,9 +97,16 @@ package AWS.Net.Generic_Sets is
      (Set    : in out Socket_Set_Type;
       Index  : Socket_Index;
       Mode   : Waiting_Mode)
-   with
-     Pre => In_Range (Set, Index);
+   with Inline, Pre => In_Range (Set, Index);
    --  Change waiting mode for the socket in the set
+
+   procedure Set_Event
+     (Set   : in out Socket_Set_Type;
+      Index : Socket_Index;
+      Event : Wait_Event_Type;
+      Value : Boolean)
+   with Inline, Pre => In_Range (Set, Index);
+   --  Set or reset waiting event for the socket in the set
 
    function Count (Set : Socket_Set_Type) return Socket_Count with Inline;
    --  Returns the number of sockets in the Set

@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2000-2015, AdaCore                     --
+--                     Copyright (C) 2000-2016, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -348,6 +348,13 @@ package AWS.Net is
       Mode   : Wait_Event_Set) is abstract
    with Pre'Class => Index <= Length (FD_Set);
    --  Sets the kind of network events to wait for
+
+   procedure Set_Event
+     (FD_Set : in out Net.FD_Set;
+      Index  : Positive;
+      Event  : Wait_Event_Type;
+      Value  : Boolean) is abstract
+   with Pre'Class => Index <= Length (FD_Set);
 
    function Copy
      (FD_Set : not null access Net.FD_Set;

@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2004-2014, AdaCore                     --
+--                     Copyright (C) 2004-2016, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -341,6 +341,19 @@ package body AWS.Net.Generic_Sets is
    begin
       Set.Set (Index).Data := Data;
    end Set_Data;
+
+   ---------------
+   -- Set_Event --
+   ---------------
+
+   procedure Set_Event
+     (Set   : in out Socket_Set_Type;
+      Index : Socket_Index;
+      Event : Wait_Event_Type;
+      Value : Boolean) is
+   begin
+      Set.Poll.Set_Event (Integer (Index), Event, Value);
+   end Set_Event;
 
    --------------
    -- Set_Mode --
