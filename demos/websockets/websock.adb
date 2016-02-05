@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2012-2014, AdaCore                     --
+--                     Copyright (C) 2012-2016, AdaCore                     --
 --                                                                          --
 --  This is free software;  you can redistribute it  and/or modify it       --
 --  under terms of the  GNU General Public License as published  by the     --
@@ -56,17 +56,19 @@ begin
    --  To analyse the send/received data uncomment the line below
    --  Net.Log.Start (WebSock_CB.W_Log'Access);
 
-   Server.Start
-     (WS,
-      Config   => Config,
-      Callback => WebSock_CB.HW_CB'Access);
-
    --  Start the WebSocket server, this is needed only to receive message
    --  from the WebClient. It is always possible to send messages.
 
    Net.WebSocket.Registry.Control.Start;
 
    Net.WebSocket.Registry.Register ("/echo", WebSock_CB.Create'Access);
+
+   --  Now we can safely start the server
+
+   Server.Start
+     (WS,
+      Config   => Config,
+      Callback => WebSock_CB.HW_CB'Access);
 
    for K in M'Range loop
       M (K) := Character'Val ((Character'Pos ('0') + K mod 10));

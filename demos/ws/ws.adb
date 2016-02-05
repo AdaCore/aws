@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2000-2014, AdaCore                     --
+--                     Copyright (C) 2000-2016, AdaCore                     --
 --                                                                          --
 --  This is free software;  you can redistribute it  and/or modify it       --
 --  under terms of the  GNU General Public License as published  by the     --
@@ -41,12 +41,12 @@ begin
    AWS.Config.Set.Server_Name (Config, "WS Demo");
    AWS.Config.Set.Max_Connection (Config, 5);
 
+   WS_CB.WebSockets.Start;
+
    AWS.Server.Start
      (WS_CB.WS,
       Config   => Config,
       Callback => WS_CB.Service'Access);
-
-   WS_CB.WebSockets.Start;
 
    delay 10 * 60.0;
 

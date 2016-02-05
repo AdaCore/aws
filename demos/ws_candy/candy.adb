@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                        Copyright (C) 2013, AdaCore                       --
+--                     Copyright (C) 2013-2016, AdaCore                     --
 --                                                                          --
 --  This is free software;  you can redistribute it  and/or modify it       --
 --  under terms of the  GNU General Public License as published  by the     --
@@ -65,9 +65,10 @@ begin
    Candy_Miners (15).Start ("Clinkers");
 
    AWS.Config.Set.Reuse_Address (Config, True);
-   Server.Start (WS, Config => Config, Callback => WebSock_CB.HW_CB'Access);
    Net.WebSocket.Registry.Control.Start;
    Net.WebSocket.Registry.Register ("/candy", WebSock_CB.Create'Access);
+
+   Server.Start (WS, Config => Config, Callback => WebSock_CB.HW_CB'Access);
 
    Text_IO.Put_Line
      ("Call me on port" & Positive'Image (AWS.Default.Server_Port));
