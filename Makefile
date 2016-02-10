@@ -1,7 +1,7 @@
 ############################################################################
 #                              Ada Web Server                              #
 #                                                                          #
-#                     Copyright (C) 2003-2015, AdaCore                     #
+#                     Copyright (C) 2003-2016, AdaCore                     #
 #                                                                          #
 #  This is free software;  you can redistribute it  and/or modify it       #
 #  under terms of the  GNU General Public License as published  by the     #
@@ -60,7 +60,7 @@ ALL_OPTIONS	= $(MAKE_OPT) SOCKET="$(SOCKET)" XMLADA="$(XMLADA)" \
 	RM="$(RM)" CP="$(CP)" MKDIR="$(MKDIR)" SED="$(SED)" GCC="$(GCC)" \
 	GPRBUILD="$(GPRBUILD)" ZLIB="$(ZLIB)" BDIR="$(BDIR)" \
 	prefix="$(prefix)" ENABLE_SHARED="$(ENABLE_SHARED)" \
-	SOEXT="$(SOEXT)" BUILD_DOC_SCRIPT="false" GNAT="$(GNAT)" \
+	SOEXT="$(SOEXT)" GNAT="$(GNAT)" \
 	T2A="../../$(BDIR)/static/tools/templates2ada" \
 	LIBRARY_TYPE="$(LIBRARY_TYPE)" PYTHON="$(PYTHON)" \
 	TARGET="$(TARGET)" IS_CROSS=$(IS_CROSS) GPRINSTALL="$(GPRINSTALL)"
