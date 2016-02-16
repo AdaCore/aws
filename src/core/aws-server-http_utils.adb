@@ -105,7 +105,11 @@ package body AWS.Server.HTTP_Utils is
 
       function Status_Page (URI : String) return Response.Data;
       --  Handle status page
-      --
+
+      function Is_Ignored (Answer : Response.Data) return Boolean;
+      --  Returns True if the Answer is to be ignored based on If-Match or
+      --  If-Not-Match and ETag if any.
+
       ------------------
       -- Build_Answer --
       ------------------
@@ -193,6 +197,16 @@ package body AWS.Server.HTTP_Utils is
                         raise;
                   end;
                end if;
+
+               --  Then check if the answer is to be ignored as per
+               --  If-Match/If-None-Match and ETag values.
+
+               if Is_Ignored (Answer) then
+                  Answer := Response.Build
+                    (Status_Code   => Messages.S304,
+                     Content_Type  => "text/plain",
+                     Message_Body  => "Value is not modified (ETag)");
+               end if;
             end;
 
             AWS.Status.Set.Delete_Idle_Session (C_Stat);
@@ -214,6 +228,37 @@ package body AWS.Server.HTTP_Utils is
             Status.Set.Session (C_Stat);
          end if;
       end Create_Session;
+
+      ----------------
+      -- Is_Ignored --
+      ----------------
+
+      function Is_Ignored (Answer : Response.Data) return Boolean is
+      begin
+         if Response.Has_Header (Answer, Messages.ETag_Token) then
+            declare
+               ETag : constant String :=
+                        Response.Header (Answer, Messages.ETag_Token);
+               H    : constant Headers.List := Status.Header (C_Stat);
+            begin
+               --  The request must be ignored if the header If_Match is
+               --  found and the ETag does not correspond or if the header
+               --  If-None-Match is found and the ETag correspond.
+
+               return (H.Exist (Messages.If_Match_Token)
+                       and then Strings.Fixed.Index
+                         (H.Get_Values (Messages.If_Match_Token), ETag) = 0)
+                 or else
+                   (H.Exist (Messages.If_None_Match_Token)
+                    and then Strings.Fixed.Index
+                      (H.Get_Values (Messages.If_None_Match_Token),
+                       ETag) /= 0);
+            end;
+
+         else
+            return False;
+         end if;
+      end Is_Ignored;
 
       -----------------
       -- Status_Page --
