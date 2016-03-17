@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2004-2014, AdaCore                     --
+--                     Copyright (C) 2004-2016, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -42,9 +42,14 @@ package body AWS.Net.Log is
 
    State : Log_State;
 
-   In_Error : Boolean := False with Thread_Local_Storage;
-   In_Event : Boolean := False with Thread_Local_Storage;
-   In_Write : Boolean := False with Thread_Local_Storage;
+   --  Note that the three boolean below are global and shared with all tasks.
+   --  This is not an issue here as they are used only under a critical
+   --  section which allows a single task to enter. This is to avoid recursive
+   --  call if a user's callback is using a socket.
+
+   In_Error : Boolean := False;
+   In_Event : Boolean := False;
+   In_Write : Boolean := False;
 
    -----------
    -- Error --
