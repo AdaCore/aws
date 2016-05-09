@@ -84,7 +84,7 @@ force:
 
 MODULES = config include ssl src gps regtests demos
 
-MODULES_SETUP = ${MODULES:%=%_setup}
+MODULES_SETUP = ${MODULES:%=%_setup} templates_parser_setup
 
 MODULES_INSTALL = ${MODULES:%=%_install}
 
