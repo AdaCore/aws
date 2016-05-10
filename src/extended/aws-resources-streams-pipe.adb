@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2007-2012, AdaCore                     --
+--                     Copyright (C) 2007-2016, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -38,8 +38,19 @@ package body AWS.Resources.Streams.Pipe is
    -----------
 
    overriding procedure Close (Resource : in out Stream_Type) is
+      ED   : constant OS_Lib.File_Descriptor :=
+               Expect.Get_Error_Fd (Resource.Pid);
+      Code : Integer;
+      Err  : aliased String (1 .. 4096);
+      Last : constant Natural := OS_Lib.Read (ED, Err'Address, Err'Length);
    begin
-      Expect.Close (Resource.Pid);
+      Expect.Close (Resource.Pid, Code);
+
+      if Resource.On_Error /= null
+        and then (Code /= 0 or else Last > 0)
+      then
+         Resource.On_Error (Code, Err (1 .. Last));
+      end if;
    end Close;
 
    -----------------
@@ -57,14 +68,16 @@ package body AWS.Resources.Streams.Pipe is
    ----------
 
    procedure Open
-     (Pipe    : out Stream_Type;
-      Command : String;
-      Args    : OS_Lib.Argument_List;
-      Timeout : Integer := 10_000) is
+     (Pipe     : out Stream_Type;
+      Command  : String;
+      Args     : OS_Lib.Argument_List;
+      Timeout  : Integer := 10_000;
+      On_Error : On_Error_Callback := null) is
    begin
       Expect.Non_Blocking_Spawn (Pipe.Pid, Command, Args);
       Pipe.EOF := False;
       Pipe.Timeout := Timeout;
+      Pipe.On_Error := On_Error;
    end Open;
 
    ----------

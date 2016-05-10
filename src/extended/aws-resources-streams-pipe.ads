@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2007-2014, AdaCore                     --
+--                     Copyright (C) 2007-2016, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -41,11 +41,15 @@ package AWS.Resources.Streams.Pipe is
 
    type Stream_Type is new Streams.Stream_Type with private;
 
+   type On_Error_Callback is
+     access procedure (Status : Integer; Error : String);
+
    procedure Open
-     (Pipe    : out Stream_Type;
-      Command : String;
-      Args    : OS_Lib.Argument_List;
-      Timeout : Integer := 10_000);
+     (Pipe     : out Stream_Type;
+      Command  : String;
+      Args     : OS_Lib.Argument_List;
+      Timeout  : Integer := 10_000;
+      On_Error : On_Error_Callback := null);
    --  Open the pipe and connect it to the given command's output. Args are
    --  passed to the command. Timeout is given in milliseconds and corresponds
    --  to the time waiting for output data before timeout. This timeout must be
@@ -73,10 +77,11 @@ private
    use Ada.Strings.Unbounded;
 
    type Stream_Type is new Streams.Stream_Type with record
-      Pid     : Expect.Process_Descriptor;
-      Timeout : Integer;
-      EOF     : Boolean;
-      Buffer  : Unbounded_String;
+      Pid      : Expect.Process_Descriptor;
+      Timeout  : Integer;
+      EOF      : Boolean;
+      Buffer   : Unbounded_String;
+      On_Error : On_Error_Callback;
    end record;
 
 end AWS.Resources.Streams.Pipe;
