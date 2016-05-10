@@ -1,5 +1,5 @@
 [gerrit]
 host=git.adacore.com
 project=aws
-defaultbranch=master
+defaultbranch=gpl-2016
 defaultremote=origin
