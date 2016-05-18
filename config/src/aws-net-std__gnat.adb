@@ -69,8 +69,9 @@ package body AWS.Net.Std is
    --  AWS is not using blocking sockets internally.
 
    To_GNAT : constant array (Family_Type) of Sockets.Family_Type :=
-     (Family_Inet => Sockets.Family_Inet, Family_Inet6 => Sockets.Family_Inet6,
-      Family_Unspec => Sockets.Family_Inet);
+               (Family_Inet   => Sockets.Family_Inet,
+                Family_Inet6  => Sockets.Family_Inet6,
+                Family_Unspec => Sockets.Family_Inet);
 
    -------------------
    -- Accept_Socket --

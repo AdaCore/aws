@@ -1605,7 +1605,6 @@ package body AWS.Server.HTTP_Utils is
             Socket_Taken := True;
 
          when Response.WebSocket =>
-
             Socket_Taken := False;
             Will_Close := True;
 

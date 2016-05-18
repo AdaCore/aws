@@ -299,7 +299,6 @@ package body AWS.Server is
       --  problem.
 
       while not TA.Server.Shutdown loop
-
          declare
             --  Wait for an incoming connection. Each call for the same server
             --  is serialized as some platforms do not handle properly

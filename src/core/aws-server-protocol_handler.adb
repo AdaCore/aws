@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2000-2015, AdaCore                      --
+--                     Copyright (C) 2000-2016, AdaCore                      --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -94,15 +94,15 @@ begin
 
          Expectation_Failed : exception;
 
-         Error_Answer  : Response.Data;
-         Back_OK       : Boolean;
-         First_Line    : Boolean := True;
-         Switch        : constant array (Boolean) of
-                           not null access function
-                             (Socket : Net.Socket_Type'Class;
-                              Events : Net.Wait_Event_Set) return Net.Event_Set
-                           := (True  => Net.Wait'Access,
-                               False => Net.Check'Access);
+         Error_Answer : Response.Data;
+         Back_OK      : Boolean;
+         First_Line   : Boolean := True;
+         Switch       : constant array (Boolean) of
+                          not null access function
+                            (Socket : Net.Socket_Type'Class;
+                             Events : Net.Wait_Event_Set) return Net.Event_Set
+                          := (True  => Net.Wait'Access,
+                              False => Net.Check'Access);
       begin
          Response.Set.Mode (Error_Answer, Response.No_Data);
 
