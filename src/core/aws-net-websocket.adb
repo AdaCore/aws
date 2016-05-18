@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2012-2015, AdaCore                     --
+--                     Copyright (C) 2012-2016, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -174,6 +174,9 @@ package body AWS.Net.WebSocket is
          Unchecked_Free (Socket.P_State.State);
          Unchecked_Free (Socket.P_State);
       end if;
+
+      Free (Socket.Socket);
+      Free (Socket.Mem_Sock);
    end Free;
 
    --------------
