@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2012-2015, AdaCore                     --
+--                     Copyright (C) 2012-2016, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -318,6 +318,7 @@ package body AWS.Net.WebSocket.Registry is
                           (WebSocket,
                            Exception_Message (E),
                            Abnormal_Closure);
+                        Unchecked_Free (WebSocket);
                      end if;
 
                      exit Read_Message;
@@ -338,6 +339,7 @@ package body AWS.Net.WebSocket.Registry is
                         then
                            DB.Unregister (WebSocket);
                            WebSocket.Shutdown;
+                           Unchecked_Free (WebSocket);
 
                         else
                            WebSocket.On_Message (Message);
@@ -381,6 +383,7 @@ package body AWS.Net.WebSocket.Registry is
                DB.Unregister (WebSocket);
                WebSocket_Exception
                  (WebSocket, Exception_Message (E), Protocol_Error);
+               Unchecked_Free (WebSocket);
          end;
       end loop Handle_Message;
    end Message_Reader;
@@ -410,7 +413,7 @@ package body AWS.Net.WebSocket.Registry is
          -------------
 
          procedure Close_To (Position : WebSocket_Set.Cursor) is
-            WebSocket : constant not null access Object'Class :=
+            WebSocket : Object_Class :=
                           WebSocket_Set.Element (Position);
          begin
             if (Except_Peer = "" or else WebSocket.Peer_Addr /= Except_Peer)
@@ -437,6 +440,7 @@ package body AWS.Net.WebSocket.Registry is
                end;
 
                WebSocket.Shutdown;
+               Unchecked_Free (WebSocket);
             end if;
          end Close_To;
 
@@ -475,17 +479,16 @@ package body AWS.Net.WebSocket.Registry is
         (Socket  : in out Object'Class;
          Message : String;
          Timeout : Duration := Forever;
-         Error   : Error_Type := Normal_Closure) is
+         Error   : Error_Type := Normal_Closure)
+      is
+         W : Object_Class;
       begin
          --  Look for WebSocket into the registered set, unregisted it if
          --  present.
 
          if Registered.Contains (Socket.Id) then
-            declare
-               W : constant Object_Class := Registered (Socket.Id);
-            begin
-               Unregister (W);
-            end;
+            W := Registered (Socket.Id);
+            Unregister (W);
          end if;
 
          Socket.State.Errno := Error_Code (Error);
@@ -493,6 +496,8 @@ package body AWS.Net.WebSocket.Registry is
          Socket.Close (Message, Error);
          Socket.On_Close (Message);
          Socket.Shutdown;
+
+         Unchecked_Free (W);
       end Close;
 
       ----------------
@@ -755,7 +760,7 @@ package body AWS.Net.WebSocket.Registry is
                   Set.Next (Sock_Index);
 
                   declare
-                     WS         : constant not null access Object'Class :=
+                     WS         : Object_Class :=
                                     Object_Class (Socks (Sock_Index));
                      Chunk_Size : Stream_Element_Offset := WS.Output_Space;
                   begin
@@ -783,6 +788,7 @@ package body AWS.Net.WebSocket.Registry is
                            Unregister (WS);
                            WebSocket_Exception
                              (WS, Exception_Message (E), Protocol_Error);
+                           Unchecked_Free (WS);
                            --  No more data to send from this socket
                            Pending := 0;
                      end Read_Send;
@@ -827,8 +833,7 @@ package body AWS.Net.WebSocket.Registry is
             when K_UID =>
                if Registered.Contains (To.WS_Id) then
                   declare
-                     WebSocket : constant not null access Object'Class :=
-                                   Registered (To.WS_Id);
+                     WebSocket : Object_Class := Registered (To.WS_Id);
                   begin
                      WebSocket.Set_Timeout (Timeout);
                      WebSocket.Send (Message);
@@ -837,6 +842,7 @@ package body AWS.Net.WebSocket.Registry is
                         Unregister (WebSocket);
                         WebSocket_Exception
                           (WebSocket, Exception_Message (E), Protocol_Error);
+                        Unchecked_Free (WebSocket);
                   end;
 
                else
