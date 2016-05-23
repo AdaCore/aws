@@ -1,5 +1,10 @@
 Known Problems fixed in AWS 17.0
 
+- P324-015: Memory leak when using WebSockets
+  Problem: Each new WebSocket created by the server will use memory
+           that is never freed.
+  Workaround: None.
+
 - P104-019: Cannot send SOAP arrays with more than 2048 items
   Problem: A SOAP array with more than 2048 items are not properly
            handled by the implementation. This is an hard coded
