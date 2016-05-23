@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2000-2015, AdaCore                     --
+--                     Copyright (C) 2000-2016, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -1087,19 +1087,22 @@ package body SOAP.Types is
    function Set
      (V         : Object_Set;
       Name      : String;
-      Type_Name : String := "") return SOAP_Set is
+      Type_Name : String := "";
+      NS        : SOAP.Name_Space.Object := SOAP.Name_Space.No_Name_Space)
+      return SOAP_Set
+   is
+      O_Set : constant Object_Set_Access := new Object_Set'(V);
    begin
       --  All items must have the name of the set
 
-      for K in V'Range loop
-         V (K).O.Name := To_Unbounded_String (Name);
+      for K in O_Set'Range loop
+         O_Set (K).O.Name := To_Unbounded_String (Name);
       end loop;
 
       return
         (Finalization.Controlled
          with To_Unbounded_String (Name), To_Unbounded_String (Type_Name),
-              No_Name_Space,
-              new Natural'(1), new Object_Set'(V));
+              NS,  new Natural'(1), O_Set);
    end Set;
 
    --------------------
