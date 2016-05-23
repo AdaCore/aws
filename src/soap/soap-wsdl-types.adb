@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                        Copyright (C) 2015, AdaCore                       --
+--                     Copyright (C) 2015-2016, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -608,7 +608,7 @@ package body SOAP.WSDL.Types is
                  then "SOAP.Name_Space.Create ("""
                       & Name_Space.Name (NS) & """"
                       & ", """ & Name_Space.Value (NS) & """)"
-                 else "NS")
+                 else To_SOAP.NS)
               & ")";
 
          else
@@ -659,15 +659,19 @@ package body SOAP.WSDL.Types is
          end case;
       end Set_Routine;
 
+      NS_Param : constant String :=
+                   (if NS = "" then "" else ", NS => " & NS);
+
    begin
       case Def.Mode is
          when WSDL.Types.K_Simple =>
             return Set_Routine (WSDL.Types.Find (Def.Ref))
-               & " (" & Object & ", """ & Name & """, """ & Type_Name & """)";
+              & " (" & Object & ", """ & Name & """, """ & Type_Name & """"
+              & NS_Param & ")";
 
          when WSDL.Types.K_Record =>
             return Set_Routine (WSDL.Types.Find (Def.Ref))
-              & " (" & Object & ", """ & Name & """)";
+              & " (" & Object & ", """ & Name & """" & NS_Param & ")";
 
          when WSDL.Types.K_Derived =>
             return For_Derived
@@ -675,14 +679,14 @@ package body SOAP.WSDL.Types is
 
          when WSDL.Types.K_Enumeration =>
             return "SOAP.Types.E (Image (" & Object & "), " & Get_Type_Name
-              & ", " & Get_Name & ")";
+              & ", " & Get_Name & NS_Param & ")";
 
          when WSDL.Types.K_Array =>
             return (if Is_Uniq
                     then "SOAP_Array'(SOAP.Types.A"
                     else "SOAP_Set'(SOAP.Types.Set")
-                   & " (To_Object_Set (" & Object & "), " & Get_Name
-                   & ", " & Get_Type_Name & "))";
+                   & " (To_Object_Set (" & Object & NS_Param & "), " & Get_Name
+                   & ", " & Get_Type_Name & NS_Param & "))";
       end case;
    end To_SOAP;
 

@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2000-2015, AdaCore                     --
+--                     Copyright (C) 2000-2016, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -134,7 +134,9 @@ package SOAP.Utils is
              Type_Name : String := "";
              NS        : Name_Space.Object := Name_Space.No_Name_Space)
              return XSD_Type;
-   function To_Object_Set (From : T_Array) return Types.Object_Set;
+   function To_Object_Set
+     (From : T_Array;
+      NS   : Name_Space.Object) return Types.Object_Set;
    --  Convert an array of T to a Types.Object_Set
 
    generic
@@ -149,7 +151,9 @@ package SOAP.Utils is
              Type_Name : String := "";
              NS        : Name_Space.Object := Name_Space.No_Name_Space)
              return XSD_Type;
-   function To_Object_Set_C (From : T_Array) return Types.Object_Set;
+   function To_Object_Set_C
+     (From : T_Array;
+      NS   : Name_Space.Object) return Types.Object_Set;
    --  As above but for constrained arrays
 
    function Get (Item : Types.Object'Class) return Unbounded_String;

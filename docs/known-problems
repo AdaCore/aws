@@ -1,5 +1,11 @@
 Known Problems fixed in AWS 17.0
 
+- P520-002: Non conformant SOAP/WSDL messages.
+  Problem: AWS does not generates SOAP messages when using a document
+           style WSDL. This prevent interoperability with some other
+           servers.
+  Workaround: None.
+
 - P104-019: Cannot send SOAP arrays with more than 2048 items
   Problem: A SOAP array with more than 2048 items are not properly
            handled by the implementation. This is an hard coded

@@ -3,7 +3,7 @@
 <soapenv:Body
  xmlns:awsns="http://soapaws/"
  xmlns:abc="http://aurn.here.org/abc">
-<getQueueStatusRequest/>
+<abc:getQueueStatusRequest/>
 </soapenv:Body>
 </soapenv:Envelope>
 
@@ -15,34 +15,34 @@ maximumQueueSize = 16
  xmlns:awsns="http://soapaws/"
  xmlns:abc="http://aurn.here.org/abc"
  xmlns:n1="http://aurn.here.org/spatial">
-<executeRequest>
-   <executionTime>XXXX-XX-XXTXX:XX:XXZ</executionTime>
-   <valueA>
-      <latLong>
-         <latitudeDegrees>1.00000000000000</latitudeDegrees>
-         <longitudeDegrees>1.10000000000000</longitudeDegrees>
-      </latLong>
-      <field7>3.00000000000000</field7>
-      <field8>4.00000000000000</field8>
-      <field9>2</field9>
-      <field12>0.90000000000000</field12>
-      <field10>8</field10>
-      <field11>0.60000000000000</field11>
-   </valueA>
-   <valueA>
-      <latLong>
-         <latitudeDegrees>2.00000000000000</latitudeDegrees>
-         <longitudeDegrees>2.10000000000000</longitudeDegrees>
-      </latLong>
-      <field7>3.20000000000000</field7>
-      <field8>4.20000000000000</field8>
-      <field9>2</field9>
-      <field12>0.91000000000000</field12>
-      <field10>81</field10>
-      <field11>0.61000000000000</field11>
-   </valueA>
+<abc:executeRequest>
+   <abc:executionTime>XXXX-XX-XXTXX:XX:XXZ</abc:executionTime>
+   <abc:valueA>
+      <abc:latLong>
+         <n1:latitudeDegrees>1.00000000000000</n1:latitudeDegrees>
+         <n1:longitudeDegrees>1.10000000000000</n1:longitudeDegrees>
+      </abc:latLong>
+      <abc:field7>3.00000000000000</abc:field7>
+      <abc:field8>4.00000000000000</abc:field8>
+      <abc:field9>2</abc:field9>
+      <abc:field12>0.90000000000000</abc:field12>
+      <abc:field10>8</abc:field10>
+      <abc:field11>0.60000000000000</abc:field11>
+   </abc:valueA>
+   <abc:valueA>
+      <abc:latLong>
+         <n1:latitudeDegrees>2.00000000000000</n1:latitudeDegrees>
+         <n1:longitudeDegrees>2.10000000000000</n1:longitudeDegrees>
+      </abc:latLong>
+      <abc:field7>3.20000000000000</abc:field7>
+      <abc:field8>4.20000000000000</abc:field8>
+      <abc:field9>2</abc:field9>
+      <abc:field12>0.91000000000000</abc:field12>
+      <abc:field10>81</abc:field10>
+      <abc:field11>0.61000000000000</abc:field11>
+   </abc:valueA>
 
-</executeRequest>
+</abc:executeRequest>
 </soapenv:Body>
 </soapenv:Envelope>
 
@@ -52,8 +52,8 @@ invocationToken = this_is_the_token 1
 <soapenv:Envelope soapenv:encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" xmlns:soapenc="http://schemas.xmlsoap.org/soap/encoding/" xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
 <soapenv:Body
  xmlns:abc="http://aurn.here.org/abc">
-<executeResponse>
-   <invocationToken>this_is_the_token 2</invocationToken>
-</executeResponse>
+<abc:executeResponse>
+   <abc:invocationToken>this_is_the_token 2</abc:invocationToken>
+</abc:executeResponse>
 </soapenv:Body>
 </soapenv:Envelope>

@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2003-2015, AdaCore                     --
+--                     Copyright (C) 2003-2016, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -1343,7 +1343,11 @@ package body SOAP.Generator is
             Text_IO.Put_Line
               (Tmp_Ads, "   function To_Object_Set");
             Text_IO.Put_Line
-              (Tmp_Ads, "     (From : " & F_Name & ')');
+              (Tmp_Ads, "     (From : " & F_Name & ';');
+            Text_IO.Put_Line
+              (Tmp_Ads, "      NS   : SOAP.Name_Space.Object :=");
+            Text_IO.Put_Line
+              (Tmp_Ads, "               SOAP.Name_Space.No_Name_Space)");
             Text_IO.Put_Line (Tmp_Ads, "      return SOAP.Types.Object_Set");
             Text_IO.Put_Line
               (Tmp_Ads, "      renames "
@@ -2925,9 +2929,18 @@ package body SOAP.Generator is
                   end if;
                end if;
 
+               --  All fields in the record are using the name-space of the
+               --  record itself.
+
                declare
                   T_Name : constant String :=
                              WSDL.Types.Name (N.Typ, NS => True);
+                  Field  : constant String :=
+                             "R." & Format_Name (O, To_String (N.Name));
+                  NS     : constant Name_Space.Object := WSDL.Types.NS (N.Typ);
+                  NS_Ref : constant String :=
+                             To_Unit_Name (Generate_Namespace (NS, False))
+                             & ".Name_Space";
                begin
                   case N.Mode is
                      when WSDL.Types.K_Simple | WSDL.Types.K_Record =>
@@ -2935,40 +2948,39 @@ package body SOAP.Generator is
                           (Rec_Adb,
                            WSDL.Parameters.To_SOAP
                              (N.all,
-                              Object    =>
-                                 "R." & Format_Name (O, To_String (N.Name)),
+                              Object    => Field,
                               Name      => To_String (N.Name),
-                              Type_Name => T_Name));
+                              Type_Name => T_Name,
+                              NS        => "NS"));
 
                      when WSDL.Types.K_Derived =>
                         Text_IO.Put
                           (Rec_Adb,
                            WSDL.Parameters.To_SOAP
                              (N.all,
-                              Object    =>
-                                 "R." & Format_Name (O, To_String (N.Name)),
+                              Object    => Field,
                               Name      => To_String (N.Name),
-                              Type_Name =>  T_Name));
+                              Type_Name => T_Name,
+                              NS        => NS_Ref));
 
                      when WSDL.Types.K_Enumeration =>
                         Text_IO.Put
                           (Rec_Adb,
                            WSDL.Parameters.To_SOAP
                              (N.all,
-                              Object    =>
-                                 "R." & Format_Name (O, To_String (N.Name)),
+                              Object    => Field,
                               Name      => To_String (N.Name),
-                              Type_Name => Format_Name (O, T_Name)));
+                              Type_Name => Format_Name (O, T_Name),
+                              NS        => "NS"));
 
                      when WSDL.Types.K_Array =>
                         Text_IO.Put
                           (Rec_Adb,
                            WSDL.Parameters.To_SOAP
                              (N.all,
-                              Object =>
-                                 "R." & Format_Name (O, To_String (N.Name))
-                                 & ".Item.all",
-                              Name   => To_String (N.Name)));
+                              Object => Field & ".Item.all",
+                              Name   => To_String (N.Name),
+                              NS     => "NS"));
                   end case;
                end;
 
@@ -2981,7 +2993,7 @@ package body SOAP.Generator is
 
                   Text_IO.Put_Line
                     (Rec_Adb,
-                     "         Name, Q_Type_Name, NS => Name_Space);");
+                     "         Name, Q_Type_Name, NS => NS);");
 
                else
                   Text_IO.Put_Line (Rec_Adb, ",");
@@ -2994,7 +3006,7 @@ package body SOAP.Generator is
          if R = null then
             Text_IO.Put_Line
               (Rec_Adb,
-               "         Name, Q_Type_Name, NS => Name_Space);");
+               "         Name, Q_Type_Name, NS => NS);");
          elsif Is_Choice then
             Text_IO.Put_Line (Rec_Adb, "      end case;");
          end if;
@@ -3037,19 +3049,26 @@ package body SOAP.Generator is
             --  For array we want to output references even for standard types
             --  as we have the generated safe-access circuitry.
 
-            if (WSDL.Types.NS (Def.Ref) = O.xsd
-                or else WSDL.Types.NS (Def.Ref) = Name_Space.XSD)
-              and then Def.Mode /= WSDL.Types.K_Array
-            then
-               return;
-            end if;
-
             if Gen and then not Generated.Contains (F_Name) then
-               With_Unit
-                 (File,
-                  To_Unit_Name (Prefix) & '.' & F_Name & "_Type_Pkg",
-                  Elab       => Off,
-                  Use_Clause => True);
+               if WSDL.Is_Standard (WSDL.Types.Name (Def.Ref)) then
+                  --  We want here to add a reference to the standard type but
+                  --  also generate the corresponding root-package with the
+                  --  needed name-space.
+
+                  With_Unit
+                    (File,
+                     To_Unit_Name
+                       (Generate_Namespace (WSDL.Types.NS (Def.Ref), True)),
+                     Elab       => Off,
+                     Use_Clause => True);
+               else
+                  With_Unit
+                    (File,
+                     To_Unit_Name (Prefix) & '.' & F_Name & "_Type_Pkg",
+                     Elab       => Off,
+                     Use_Clause => True);
+               end if;
+
                Text_IO.New_Line (File);
                Generated.Insert (F_Name);
             end if;
@@ -3065,12 +3084,7 @@ package body SOAP.Generator is
 
       begin
          while N /= null loop
-            if (WSDL.Types.NS (N.Typ) /= Name_Space.XSD
-                and then WSDL.Types.NS (N.Typ) /= O.xsd)
-              or else N.Mode = WSDL.Types.K_Array
-            then
-               Output_Refs (WSDL.Types.Find (N.Typ), not For_Derived);
-            end if;
+            Output_Refs (WSDL.Types.Find (N.Typ), not For_Derived);
 
             --  If we are not handling a compound type, only reference the root
             --  type.
@@ -3160,18 +3174,21 @@ package body SOAP.Generator is
 
          --  Either a compound type or an anonymous returned compound type
 
-         if P.Mode in WSDL.Types.Compound_Type
-           or else (Output and then P.Next /= null)
-         then
-            if Output then
-               Generate_References (F_Ads, P);
-            else
-               Generate_References (F_Ads, P.P);
-            end if;
+         if Output then
+            Generate_References (F_Ads, P);
+         elsif P.Mode in WSDL.Types.Compound_Type then
+            Generate_References (F_Ads, P.P);
          end if;
 
          if Def.Mode = WSDL.Types.K_Derived then
-            if not WSDL.Is_Standard (WSDL.Types.Name (Def.Parent)) then
+            if WSDL.Is_Standard (WSDL.Types.Name (Def.Parent)) then
+               With_Unit
+                 (F_Ads,
+                  To_Unit_Name
+                    (Generate_Namespace (WSDL.Types.NS (Def.Parent), True)),
+                  Elab       => Off,
+                  Use_Clause => True);
+            else
                With_Unit
                  (F_Ads,
                   To_Unit_Name
@@ -3179,8 +3196,9 @@ package body SOAP.Generator is
                   & '.' & WSDL.Types.Name (Def.Parent) & "_Type_Pkg",
                   Elab       => Off,
                   Use_Clause => True);
-               Text_IO.New_Line (F_Ads);
             end if;
+
+            Text_IO.New_Line (F_Ads);
          end if;
 
          Put_Types_Header_Spec

@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2000-2015, AdaCore                     --
+--                     Copyright (C) 2000-2016, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -458,12 +458,15 @@ package body SOAP.Utils is
    -- To_Object_Set --
    -------------------
 
-   function To_Object_Set (From : T_Array) return Types.Object_Set is
+   function To_Object_Set
+     (From : T_Array;
+      NS   : Name_Space.Object) return Types.Object_Set
+   is
       use SOAP.Types;
       Result : Types.Object_Set (From'Range);
    begin
       for K in From'Range loop
-         Result (K) := +Get (From (K), Type_Name => Type_Name);
+         Result (K) := +Get (From (K), Type_Name => Type_Name, NS => NS);
       end loop;
 
       return Result;
@@ -473,12 +476,16 @@ package body SOAP.Utils is
    -- To_Object_Set_C --
    ---------------------
 
-   function To_Object_Set_C (From : T_Array) return Types.Object_Set is
+   function To_Object_Set_C
+     (From : T_Array;
+      NS   : Name_Space.Object) return Types.Object_Set
+   is
       use SOAP.Types;
       Result : Types.Object_Set (1 .. Integer (From'Last));
    begin
       for K in From'Range loop
-         Result (Integer (K)) := +Get (From (K), Type_Name => Type_Name);
+         Result (Integer (K)) :=
+           +Get (From (K), Type_Name => Type_Name, NS => NS);
       end loop;
 
       return Result;

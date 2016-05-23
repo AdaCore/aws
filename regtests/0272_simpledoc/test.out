@@ -4,10 +4,10 @@
 <soapenv:Body
  xmlns:awsns="http://soapaws/"
  xmlns:n1="http://simple.doc.net/sd">
-<myMethod>
-   <x>6</x>
-   <y>1.12300</y>
-</myMethod>
+<n1:myMethod>
+   <n1:x>6</n1:x>
+   <n1:y>1.12300</n1:y>
+</n1:myMethod>
 </soapenv:Body>
 </soapenv:Envelope>
 =============== rep
@@ -15,6 +15,6 @@
 <soapenv:Envelope soapenv:encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" xmlns:soapenc="http://schemas.xmlsoap.org/soap/encoding/" xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
 <soapenv:Body
  xmlns:n1="http://simple.doc.net/sd">
-<myMethodResponse/>
+<n1:myMethodResponse/>
 </soapenv:Body>
 </soapenv:Envelope>
