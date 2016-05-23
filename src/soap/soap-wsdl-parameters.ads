@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2003-2015, AdaCore                     --
+--                     Copyright (C) 2003-2016, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -84,10 +84,12 @@ package SOAP.WSDL.Parameters is
    function To_SOAP
      (P            : Parameter;
       Object, Name : String;
-      Type_Name    : String := "") return String;
+      Type_Name    : String := "";
+      NS           : String := "") return String;
    --  Returns the code to create a SOAP parameter with given Name. Object is
    --  the reference to the object to convert. Type_Name is the name of the
-   --  enumeration to convert to/from.
+   --  enumeration to convert to/from. NS is the name-space for Name (not for
+   --  type-name).
 
    function From_SOAP
      (P            : Parameter;
