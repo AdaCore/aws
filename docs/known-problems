@@ -1,5 +1,11 @@
 Known Problems fixed in AWS 17.0
 
+- P520-002: Non conformant SOAP/WSDL messages.
+  Problem: AWS does not generates SOAP messages when using a document
+           style WSDL. This prevent interoperability with some other
+           servers.
+  Workaround: None.
+
 - P324-015: Memory leak when using WebSockets
   Problem: Each new WebSocket created by the server will use memory
            that is never freed.

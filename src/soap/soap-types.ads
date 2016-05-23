@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2001-2015, AdaCore                     --
+--                     Copyright (C) 2001-2016, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -205,7 +205,9 @@ package SOAP.Types is
    function Set
      (V         : Object_Set;
       Name      : String;
-      Type_Name : String := "") return SOAP_Set;
+      Type_Name : String := "";
+      NS        : SOAP.Name_Space.Object := SOAP.Name_Space.No_Name_Space)
+      return SOAP_Set;
    --  Type_Name of the array's elements, if not specified it will be computed
    --  based on element's name.
 

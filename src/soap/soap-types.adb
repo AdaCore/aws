@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2000-2015, AdaCore                     --
+--                     Copyright (C) 2000-2016, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -46,6 +46,7 @@ with SOAP.Utils;
 package body SOAP.Types is
 
    use Ada;
+   use type SOAP.Name_Space.Object;
 
    procedure Unchecked_Free is
       new Ada.Unchecked_Deallocation (Object_Set, Object_Set_Access);
@@ -68,6 +69,13 @@ package body SOAP.Types is
 
    No_Name_Space : SOAP.Name_Space.Object
      renames SOAP.Name_Space.No_Name_Space;
+
+   function Tag_Name (O : Object'Class) return String is
+     (if O.Name_Space /= No_Name_Space
+      then SOAP.Name_Space.Name (O.Name_Space) & ":" & Name (O)
+      else Name (O));
+   --  Returns the tag-name for the enclosing XML node for the given object.
+   --  This is the name-space name and name of the object separated with ':'.
 
    ---------
    -- "+" --
@@ -1087,19 +1095,22 @@ package body SOAP.Types is
    function Set
      (V         : Object_Set;
       Name      : String;
-      Type_Name : String := "") return SOAP_Set is
+      Type_Name : String := "";
+      NS        : SOAP.Name_Space.Object := SOAP.Name_Space.No_Name_Space)
+      return SOAP_Set
+   is
+      O_Set : constant Object_Set_Access := new Object_Set'(V);
    begin
       --  All items must have the name of the set
 
-      for K in V'Range loop
-         V (K).O.Name := To_Unbounded_String (Name);
+      for K in O_Set'Range loop
+         O_Set (K).O.Name := To_Unbounded_String (Name);
       end loop;
 
       return
         (Finalization.Controlled
          with To_Unbounded_String (Name), To_Unbounded_String (Type_Name),
-              No_Name_Space,
-              new Natural'(1), new Object_Set'(V));
+              NS,  new Natural'(1), O_Set);
    end Set;
 
    --------------------
@@ -1391,7 +1402,7 @@ package body SOAP.Types is
       if OC in XSD_String then
          Append (Result, Spaces (Indent));
          Append (Result, "<");
-         Append (Result, Name (OC));
+         Append (Result, Tag_Name (OC));
 
          if Encoding = WSDL.Schema.Encoded then
             if XML_Type (OC) = "" then
@@ -1404,13 +1415,13 @@ package body SOAP.Types is
          Append (Result, '>');
          Utils.Encode (XSD_String (OC).V, Result);
          Append (Result, "</");
-         Append (Result, Name (OC));
+         Append (Result, Tag_Name (OC));
          Append (Result, '>');
 
       else
          Append (Result, Spaces (Indent));
          Append (Result, "<");
-         Append (Result, Name (OC));
+         Append (Result, Tag_Name (OC));
 
          if Encoding = WSDL.Schema.Encoded then
             Append (Result, xsi_type (XML_Type (OC)));
@@ -1419,7 +1430,7 @@ package body SOAP.Types is
          Append (Result, '>');
          Append (Result, Image (OC));
          Append (Result, "</");
-         Append (Result, Name (OC));
+         Append (Result, Tag_Name (OC));
          Append (Result, '>');
       end if;
    end XML_Image;
@@ -1449,7 +1460,7 @@ package body SOAP.Types is
    begin
       Append (Result, Spaces (Indent));
       Append (Result, "<");
-      Append (Result, Name (OC));
+      Append (Result, Tag_Name (OC));
 
       if Encoding = WSDL.Schema.Encoded then
          Append (Result, " xsi_null=""1""");
@@ -1566,7 +1577,7 @@ package body SOAP.Types is
 
       Append (Result, Spaces (Indent));
       Append (Result, '<');
-      Append (Result, O.Name);
+      Append (Result, Tag_Name (O));
       Append (Result, " " & SOAP_Enc & ":arrayType=""");
       Append (Result, Array_Type);
       Append (Result, '[');
@@ -1594,7 +1605,7 @@ package body SOAP.Types is
       --  End array element
 
       Append (Result, Spaces (Indent));
-      Append (Result, Utils.Tag (To_String (O.Name), Start => False));
+      Append (Result, Utils.Tag (Tag_Name (O), Start => False));
    end XML_Image;
 
    overriding procedure XML_Image
@@ -1619,16 +1630,12 @@ package body SOAP.Types is
    is
       use type WSDL.Schema.Encoding_Style;
 
-      Indent   : constant Natural := XML_Indent.Value;
-      Prefix   : constant String := SOAP.Name_Space.Name (O.NS);
-      Tag_Name : constant String :=
-                   (if Encoding = WSDL.Schema.Encoded
-                    then Name (O)
-                    else Name (O)); -- Utils.No_NS (Type_Name (O)));
+      Indent : constant Natural := XML_Indent.Value;
+      Prefix : constant String := SOAP.Name_Space.Name (O.NS);
    begin
       Append (Result, Spaces (Indent));
 
-      Append (Result, "<" & Tag_Name);
+      Append (Result, "<" & Tag_Name (O));
 
       if Encoding = WSDL.Schema.Encoded then
          Append
@@ -1653,7 +1660,7 @@ package body SOAP.Types is
          XML_Indent.Set_Value (Indent);
 
          Append (Result, Spaces (Indent));
-         Append (Result, Utils.Tag (Tag_Name, Start => False));
+         Append (Result, Utils.Tag (Tag_Name (O), Start => False));
       end if;
    end XML_Image;
 
@@ -1668,7 +1675,7 @@ package body SOAP.Types is
    begin
       Append (Result, Spaces (XML_Indent.Value));
       Append (Result, "<");
-      Append (Result, Name (O));
+      Append (Result, Tag_Name (O));
 
       if Encoding = WSDL.Schema.Encoded then
          Append (Result, " type=""");
@@ -1678,7 +1685,7 @@ package body SOAP.Types is
 
       Append (Result, ">");
       Append (Result, O.V);
-      Append (Result, Utils.Tag (Name (O), Start => False));
+      Append (Result, Utils.Tag (Tag_Name (O), Start => False));
    end XML_Image;
 
    function XML_Image (O : Object'Class) return String is

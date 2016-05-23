@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2003-2015, AdaCore                     --
+--                     Copyright (C) 2003-2016, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -188,12 +188,13 @@ package body SOAP.WSDL.Parameters is
    function To_SOAP
      (P            : Parameter;
       Object, Name : String;
-      Type_Name    : String := "") return String
+      Type_Name    : String := "";
+      NS           : String := "") return String
    is
       Def : constant WSDL.Types.Definition :=  WSDL.Types.Find (P.Typ);
    begin
       return WSDL.Types.To_SOAP
-        (Def, Object, Name, Type_Name, WSDL.Types.Both_Value, Is_Uniq (P));
+        (Def, Object, Name, Type_Name, WSDL.Types.Both_Value, Is_Uniq (P), NS);
    end To_SOAP;
 
 end SOAP.WSDL.Parameters;

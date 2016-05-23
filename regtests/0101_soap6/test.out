@@ -4,7 +4,7 @@
   <ns3:getLastResponse xmlns:ns3="urn:datafeed.dukascopy.com"
                        xmlns:ns4="urn:datafeed.dukascopy.com">
 <getLastReturn soapenc:arrayType="ns3:Candle[1]" xsi:type="soapenc:Array">
-   <item xsi:type="ns4:Candle">
+   <ns4:item xsi:type="ns4:Candle">
       <artificial xsi:type="ns5:boolean">0</artificial>
       <closePrice xsi:type="ns6:double">1.74650000000000</closePrice>
       <flat xsi:type="ns7:boolean">0</flat>
@@ -16,7 +16,7 @@
       <time xsi:type="ns13:long">1089143140</time>
       <timeIndex xsi:type="ns14:int">108914314</timeIndex>
       <volume xsi:type="ns15:long">0</volume>
-   </item>
+   </ns4:item>
 </getLastReturn>
 </ns3:getLastResponse>
 </soapenv:Body>
