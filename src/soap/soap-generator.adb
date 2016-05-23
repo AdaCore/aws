@@ -2306,9 +2306,7 @@ package body SOAP.Generator is
                        Def.Mode = WSDL.Types.K_Record and then Def.Is_Choice;
          NS        : constant SOAP.Name_Space.Object := WSDL.Types.NS (P.Typ);
          Pck_NS    : constant String :=
-                       Strings.Fixed.Translate
-                         (Generate_Namespace (NS, False),
-                          Strings.Maps.To_Mapping ("-", "."));
+                       To_Unit_Name (Generate_Namespace (NS, False));
 
          R       : WSDL.Parameters.P_Set;
          N       : WSDL.Parameters.P_Set;
