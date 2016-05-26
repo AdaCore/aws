@@ -1,5 +1,11 @@
 Known Problems fixed in AWS 17.0
 
+- P525-008: PUT response body not read.
+  Problem: AWS client PUT command was not reading the response's message
+           body. This left some data into the socket which was read as part
+           of the next command. This leads to a protocol_error exception.
+  Workaround: None.
+
 - P520-002: Non conformant SOAP/WSDL messages.
   Problem: AWS does not generates SOAP messages when using a document
            style WSDL. This prevent interoperability with some other

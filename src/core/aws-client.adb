@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2000-2015, AdaCore                     --
+--                     Copyright (C) 2000-2016, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -716,7 +716,6 @@ package body AWS.Client is
    is
       use Ada.Real_Time;
       Stamp         : constant Time := Clock;
-      Keep_Alive    : Boolean;
       Try_Count     : Natural := Connection.Retry;
       Auth_Attempts : Auth_Attempts_Count := (others => 2);
       Auth_Is_Over  : Boolean;
@@ -739,11 +738,7 @@ package body AWS.Client is
 
             --  Get answer from server
 
-            Parse_Header (Connection, Result, Keep_Alive);
-
-            if not Keep_Alive then
-               Disconnect (Connection);
-            end if;
+            Get_Response (Connection, Result, not Connection.Streaming);
 
             Decrement_Authentication_Attempt
               (Connection, Auth_Attempts, Auth_Is_Over);
