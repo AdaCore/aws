@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2005-2013, AdaCore                     --
+--                     Copyright (C) 2005-2016, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -31,6 +31,7 @@ pragma Ada_2012;
 
 with AWS.Client;
 with AWS.Response;
+with AWS.Status;
 
 package AWS.Client.HTTP_Utils is
 
@@ -139,6 +140,21 @@ package AWS.Client.HTTP_Utils is
       URI          : String;
       SOAPAction   : String;
       Content_Type : String;
+      Headers      : Header_List := Empty_Header_List);
+   --  Send to the server only a POST request with Data
+   --  and common headers, using a Connection.
+
+   type Method_Kind is new Status.Request_Method
+     with Dynamic_Predicate => Method_Kind in GET | HEAD | PUT | DELETE;
+
+   No_Data : constant Stream_Element_Array := (1 .. 0 => 0);
+
+   procedure Send_Request
+     (Connection   : in out HTTP_Connection;
+      Kind         : Method_Kind;
+      Result       : out Response.Data;
+      URI          : String;
+      Data         : Stream_Element_Array := No_Data;
       Headers      : Header_List := Empty_Header_List);
    --  Send to the server only a POST request with Data
    --  and common headers, using a Connection.

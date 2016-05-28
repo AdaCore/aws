@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2005-2015, AdaCore                     --
+--                     Copyright (C) 2005-2016, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -130,7 +130,7 @@ package body AWS.Client.HTTP_Utils is
       Connection.Opened := True;
 
       if AWS.URL.Security (Connection.Host_URL)
-        and then Connection.Proxy /= No_Data
+        and then Connection.Proxy /= Client.No_Data
       then
          --  We want to connect to the host using HTTPS, this can only be
          --  done by opening a tunnel through the proxy.
@@ -502,7 +502,7 @@ package body AWS.Client.HTTP_Utils is
                        (MIME.Multipart_Form_Data, Boundary));
                end if;
 
-               if SOAPAction /= No_Data then
+               if SOAPAction /= Client.No_Data then
                   --  SOAP header
 
                   if SOAPAction = """""" then
@@ -1165,7 +1165,7 @@ package body AWS.Client.HTTP_Utils is
       User : constant String := To_String (Data.User);
       Pwd  : constant String := To_String (Data.Pwd);
    begin
-      if User /= No_Data and then Pwd /= No_Data then
+      if User /= Client.No_Data and then Pwd /= Client.No_Data then
 
          if Data.Work_Mode = Basic then
             Send_Header
@@ -1226,7 +1226,7 @@ package body AWS.Client.HTTP_Utils is
                   CNonce : constant AWS.Digest.Nonce :=
                              AWS.Digest.Create_Nonce;
                begin
-                  if QOP = No_Data then
+                  if QOP = Client.No_Data then
                      Response := AWS.Digest.Create
                        (Username => User,
                         Realm    => Realm,
@@ -1295,11 +1295,11 @@ package body AWS.Client.HTTP_Utils is
       declare
          Sock : Net.Socket_Type'Class renames Connection.Socket.all;
       begin
-         if Content_Type /= No_Data then
+         if Content_Type /= Client.No_Data then
             Send_Header (Sock, Messages.Content_Type (Content_Type));
          end if;
 
-         if SOAPAction /= No_Data then
+         if SOAPAction /= Client.No_Data then
             --  SOAP header
 
             if SOAPAction = """""" then
@@ -1345,6 +1345,69 @@ package body AWS.Client.HTTP_Utils is
          Send_Header (Sock, Constructor (Value));
       end if;
    end Send_Header;
+
+   ------------------
+   -- Send_Request --
+   ------------------
+
+   procedure Send_Request
+     (Connection   : in out HTTP_Connection;
+      Kind         : Method_Kind;
+      Result       : out Response.Data;
+      URI          : String;
+      Data         : Stream_Element_Array := No_Data;
+      Headers      : Header_List := Empty_Header_List)
+   is
+      use Ada.Real_Time;
+      Stamp         : constant Time := Clock;
+      Try_Count     : Natural := Connection.Retry;
+      Auth_Attempts : Auth_Attempts_Count := (others => 2);
+      Auth_Is_Over  : Boolean;
+   begin
+      Retry : loop
+         begin
+            Open_Send_Common_Header (Connection, Kind'Image, URI, Headers);
+
+            --  If there is some data to send
+
+            if Data'Length > 0 then
+               Send_Header
+                 (Connection.Socket.all,
+                  Messages.Content_Length (Data'Length));
+
+               Net.Buffered.New_Line (Connection.Socket.all);
+
+               --  Send message body
+
+               Net.Buffered.Write (Connection.Socket.all, Data);
+
+            else
+               Net.Buffered.New_Line (Connection.Socket.all);
+            end if;
+
+            Get_Response
+              (Connection, Result,
+               Get_Body => Kind /= HEAD and then not Connection.Streaming);
+
+            Decrement_Authentication_Attempt
+              (Connection, Auth_Attempts, Auth_Is_Over);
+
+            if Auth_Is_Over then
+               return;
+
+            elsif  Kind /= HEAD and then Connection.Streaming then
+               Read_Body (Connection, Result, Store => False);
+            end if;
+
+         exception
+            when E : Net.Socket_Error | Connection_Error =>
+               Error_Processing
+                 (Connection, Try_Count, Result, Kind'Image, E, Stamp);
+
+               exit Retry when not Response.Is_Empty (Result);
+         end;
+      end loop Retry;
+   end Send_Request;
 
    ------------------------
    -- Set_Authentication --
@@ -1392,7 +1455,7 @@ package body AWS.Client.HTTP_Utils is
 
    function Value (V : String) return Unbounded_String is
    begin
-      if V = No_Data then
+      if V = Client.No_Data then
          return Null_Unbounded_String;
       else
          return To_Unbounded_String (V);
