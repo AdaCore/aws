@@ -559,7 +559,7 @@ package body AWS.Client.HTTP_Utils is
          exception
             when E : Net.Socket_Error | Connection_Error =>
                Error_Processing
-                 (Connection, Try_Count, Result, "Upload", E, Stamp);
+                 (Connection, Try_Count, Result, "UPLOAD", E, Stamp);
 
                exit Retry when not Response.Is_Empty (Result);
          end;
@@ -612,7 +612,7 @@ package body AWS.Client.HTTP_Utils is
          exception
             when E : Net.Socket_Error | Connection_Error =>
                Error_Processing
-                 (Connection, Try_Count, Result, "Post", E, Stamp);
+                 (Connection, Try_Count, Result, "POST", E, Stamp);
 
                exit Retry when not Response.Is_Empty (Result);
          end;
