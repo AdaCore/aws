@@ -244,6 +244,82 @@ package body AWS.Client is
       end if;
    end Debug_Message;
 
+   ------------
+   -- Delete --
+   ------------
+
+   function Delete
+     (URL        : String;
+      Data       : String;
+      User       : String          := No_Data;
+      Pwd        : String          := No_Data;
+      Proxy      : String          := No_Data;
+      Proxy_User : String          := No_Data;
+      Proxy_Pwd  : String          := No_Data;
+      Timeouts   : Timeouts_Values := No_Timeout;
+      Headers    : Header_List     := Empty_Header_List) return Response.Data
+   is
+   begin
+      return Delete
+        (URL, Translator.To_Stream_Element_Array (Data),
+         User, Pwd, Proxy, Proxy_User, Proxy_Pwd, Timeouts, Headers);
+   end Delete;
+
+   function Delete
+     (URL        : String;
+      Data       : Stream_Element_Array;
+      User       : String          := No_Data;
+      Pwd        : String          := No_Data;
+      Proxy      : String          := No_Data;
+      Proxy_User : String          := No_Data;
+      Proxy_Pwd  : String          := No_Data;
+      Timeouts   : Timeouts_Values := No_Timeout;
+      Headers    : Header_List     := Empty_Header_List) return Response.Data
+   is
+      Connection : HTTP_Connection;
+      Result     : Response.Data;
+   begin
+      Create (Connection,
+              URL, User, Pwd, Proxy, Proxy_User, Proxy_Pwd,
+              Persistent => False,
+              Timeouts   => Timeouts);
+
+      Delete (Connection, Result, Data, Headers => Headers);
+      Close (Connection);
+      return Result;
+
+   exception
+      when others =>
+         Close (Connection);
+         raise;
+   end Delete;
+
+   procedure Delete
+     (Connection : in out HTTP_Connection;
+      Result     : out Response.Data;
+      Data       : Stream_Element_Array;
+      URI        : String      := No_Data;
+      Headers    : Header_List := Empty_Header_List) is
+   begin
+      Send_Request
+        (Connection, HTTP_Utils.DELETE, Result, URI, Data, Headers);
+   end Delete;
+
+   procedure Delete
+     (Connection : in out HTTP_Connection;
+      Result     : out Response.Data;
+      Data       : String;
+      URI        : String      := No_Data;
+      Headers    : Header_List := Empty_Header_List) is
+   begin
+      Delete
+        (Connection => Connection,
+         Result     => Result,
+         Data       => Translator.To_Stream_Element_Array (Data),
+         URI        => URI,
+         Headers    => Headers);
+   end Delete;
+
    ----------------------
    -- Error_Processing --
    ----------------------
@@ -370,43 +446,10 @@ package body AWS.Client is
       Data_Range : Content_Range   := No_Range;
       Headers    : Header_List     := Empty_Header_List)
    is
-      use Ada.Real_Time;
-      Stamp         : constant Time := Clock;
-
-      Try_Count     : Natural := Connection.Retry;
-
-      Auth_Attempts : Auth_Attempts_Count := (others => 2);
-      Auth_Is_Over  : Boolean;
    begin
       Connection.Data_Range := Data_Range;
-
-      Retry : loop
-         begin
-            Open_Send_Common_Header (Connection, "GET", URI, Headers);
-
-            Net.Buffered.New_Line (Connection.Socket.all);
-
-            Get_Response
-              (Connection, Result, Get_Body => not Connection.Streaming);
-
-            Decrement_Authentication_Attempt
-              (Connection, Auth_Attempts, Auth_Is_Over);
-
-            if Auth_Is_Over then
-               return;
-
-            elsif Connection.Streaming then
-               Read_Body (Connection, Result, Store => False);
-            end if;
-
-         exception
-            when E : Net.Socket_Error | Connection_Error =>
-               Error_Processing
-                 (Connection, Try_Count, Result, "Get", E, Stamp);
-
-               exit Retry when not Response.Is_Empty (Result);
-         end;
-      end loop Retry;
+      Send_Request
+        (Connection, HTTP_Utils.GET, Result, URI, HTTP_Utils.No_Data, Headers);
    end Get;
 
    ---------------------
@@ -484,47 +527,10 @@ package body AWS.Client is
       URI        : String      := No_Data;
       Headers    : Header_List := Empty_Header_List)
    is
-      use Ada.Real_Time;
-      Stamp         : constant Time := Clock;
-      Try_Count     : Natural := Connection.Retry;
-      Auth_Attempts : Auth_Attempts_Count := (others => 2);
-      Auth_Is_Over  : Boolean;
    begin
-      Retry : loop
-         begin
-            Open_Send_Common_Header (Connection, "HEAD", URI, Headers);
-
-            Net.Buffered.New_Line (Connection.Socket.all);
-
-            Get_Response (Connection, Result, Get_Body => False);
-
-            Decrement_Authentication_Attempt
-              (Connection, Auth_Attempts, Auth_Is_Over);
-
-            if Auth_Is_Over then
-               return;
-
-            elsif Connection.Streaming then
-               Read_Body (Connection, Result, Store => False);
-            end if;
-
-         exception
-            when E : Net.Socket_Error =>
-               Debug_Exception (E);
-
-               Disconnect (Connection);
-
-               if Try_Count = 0
-                 or else Clock - Stamp >= Connection.Timeouts.Response
-               then
-                  Result := Response.Build
-                    (MIME.Text_HTML, "Head Timeout", Messages.S408);
-                  exit Retry;
-               end if;
-
-               Try_Count := Try_Count - 1;
-         end;
-      end loop Retry;
+      Send_Request
+        (Connection, HTTP_Utils.HEAD,
+         Result, URI, HTTP_Utils.No_Data, Headers);
    end Head;
 
    ----------
@@ -696,7 +702,6 @@ package body AWS.Client is
       Put (Connection, Result, Data, Headers => Headers);
       Close (Connection);
       return Result;
-
    exception
       when others =>
          Close (Connection);
@@ -712,58 +717,9 @@ package body AWS.Client is
       Result     : out Response.Data;
       Data       : Stream_Element_Array;
       URI        : String      := No_Data;
-      Headers    : Header_List := Empty_Header_List)
-   is
-      use Ada.Real_Time;
-      Stamp         : constant Time := Clock;
-      Try_Count     : Natural := Connection.Retry;
-      Auth_Attempts : Auth_Attempts_Count := (others => 2);
-      Auth_Is_Over  : Boolean;
+      Headers    : Header_List := Empty_Header_List) is
    begin
-      Retry : loop
-
-         begin
-            Open_Send_Common_Header (Connection, "PUT", URI, Headers);
-
-            --  Send message Content_Length
-
-            Send_Header
-              (Connection.Socket.all, Messages.Content_Length (Data'Length));
-
-            Net.Buffered.New_Line (Connection.Socket.all);
-
-            --  Send message body
-
-            Net.Buffered.Write (Connection.Socket.all, Data);
-
-            --  Get answer from server
-
-            Get_Response (Connection, Result, not Connection.Streaming);
-
-            Decrement_Authentication_Attempt
-              (Connection, Auth_Attempts, Auth_Is_Over);
-
-            if Auth_Is_Over then
-               return;
-            end if;
-
-         exception
-            when E : Net.Socket_Error =>
-               Debug_Exception (E);
-
-               Disconnect (Connection);
-
-               if Try_Count = 0
-                 or else Clock - Stamp >= Connection.Timeouts.Response
-               then
-                  Result := Response.Build
-                    (MIME.Text_HTML, "Put Timeout", Messages.S408);
-                  exit Retry;
-               end if;
-
-               Try_Count := Try_Count - 1;
-         end;
-      end loop Retry;
+      Send_Request (Connection, HTTP_Utils.PUT, Result, URI, Data, Headers);
    end Put;
 
    procedure Put

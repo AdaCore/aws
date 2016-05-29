@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2000-2014, AdaCore                     --
+--                     Copyright (C) 2000-2016, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -183,6 +183,32 @@ package AWS.Client is
       Headers    : Header_List     := Empty_Header_List) return Response.Data;
    --  Send to the server URL a PUT request with Data
    --  Put will retry one time if it fails.
+
+   function Delete
+     (URL        : String;
+      Data       : String;
+      User       : String          := No_Data;
+      Pwd        : String          := No_Data;
+      Proxy      : String          := No_Data;
+      Proxy_User : String          := No_Data;
+      Proxy_Pwd  : String          := No_Data;
+      Timeouts   : Timeouts_Values := No_Timeout;
+      Headers    : Header_List     := Empty_Header_List) return Response.Data;
+   --  Send to the server URL a DELETE request with Data
+   --  Delete will retry one time if it fails.
+
+   function Delete
+     (URL        : String;
+      Data       : Stream_Element_Array;
+      User       : String          := No_Data;
+      Pwd        : String          := No_Data;
+      Proxy      : String          := No_Data;
+      Proxy_User : String          := No_Data;
+      Proxy_Pwd  : String          := No_Data;
+      Timeouts   : Timeouts_Values := No_Timeout;
+      Headers    : Header_List     := Empty_Header_List) return Response.Data;
+   --  Send to the server URL a DELETE request with Data
+   --  Delete will retry one time if it fails.
 
    function Post
      (URL          : String;
@@ -418,6 +444,22 @@ package AWS.Client is
       URI        : String          := No_Data;
       Headers    : Header_List     := Empty_Header_List);
    --  Same as Head above but using a Connection
+
+   procedure Delete
+     (Connection : in out HTTP_Connection;
+      Result     : out Response.Data;
+      Data       : String;
+      URI        : String          := No_Data;
+      Headers    : Header_List     := Empty_Header_List);
+   --  Same as Delete above but using a Connection
+
+   procedure Delete
+     (Connection : in out HTTP_Connection;
+      Result     : out Response.Data;
+      Data       : Stream_Element_Array;
+      URI        : String          := No_Data;
+      Headers    : Header_List     := Empty_Header_List);
+   --  Same as Delete above but using a Connection
 
    procedure Put
      (Connection : in out HTTP_Connection;
