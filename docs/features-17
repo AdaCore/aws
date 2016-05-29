@@ -21,13 +21,13 @@ NF-17-P113-055 Add support for If-Match and If-None-Match (2016-02-16)
     be used to fine control cache. A server response 304 is returned if
     one of those headers match the user's ETag.
 
-NF-17-OA13-048 Server Name Identification (SNI) support (2015-11-17)
-
-    Server can provide different certificates for the clients asking for
-    different host names on the same physical IP address.
-
 NF-17-OA28-005 Add support for non-blocking WebSockets (2015-11-17)
 
     When sending a message to a set of recipient (URI broadcast) the
     sending is not blocking. The fastest sockets will get served first
     and won't be blocked by slower ones.
+
+NF-17-OA13-048 Server Name Identification (SNI) support (2015-11-17)
+
+    Server can provide different certificates for the clients asking for
+    different host names on the same physical IP address.
