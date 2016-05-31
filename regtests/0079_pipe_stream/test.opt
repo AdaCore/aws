@@ -1,2 +1,2 @@
 vxworks DEAD "require GNAT.Expect"
-windows DEAD "not task safe"
+windows DEAD "not task safe, see P509-007"
