@@ -96,6 +96,11 @@ package body Ada2WSDL.Generator is
 
    Name_Spaces : NS_Maps.Map;
    NS_Num      : Natural := 0;
+   --  Each name-space is named n<N> where <N> is a number starting at 1
+   --  and incrementing. NS_Num is this number. The Name_Spaces map keep the
+   --  relation between the name-space value (string http://.../) and the
+   --  actual number. The name-spaces are then written into the WSDL document
+   --  header and referenced by the elements of the WSDL.
 
    procedure Insert_NS (Value : String);
    --  Insert a new namespace value into Name_Spaces table
