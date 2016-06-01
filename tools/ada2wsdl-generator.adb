@@ -278,9 +278,7 @@ package body Ada2WSDL.Generator is
    -- Register_Safe_Pointer --
    ---------------------------
 
-   procedure Register_Safe_Pointer
-     (Name, Type_Name, Access_Name : String)
-   is
+   procedure Register_Safe_Pointer (Name, Type_Name, Access_Name : String) is
       use Exceptions;
       D : Definition (Safe_Pointer_Definition);
    begin
@@ -544,6 +542,10 @@ package body Ada2WSDL.Generator is
                   SOAP.Name_Space.Value
                     (SOAP.Name_Space.AWS) & WS_Name & "_def/";
 
+      T_NS    : constant String :=
+                  (SOAP.Name_Space.Value
+                     (SOAP.Name_Space.AWS) & WS_Name & "_pkg/");
+
       procedure Write_Header;
       --  Write WSDL header
 
@@ -651,8 +653,6 @@ package body Ada2WSDL.Generator is
 
       procedure Write_Header is
          use AWS;
-         P : NS_Maps.Cursor;
-         N : Positive;
       begin
          Put_Line ("<?xml version=""1.0"" encoding=""UTF-8""?>");
          Put_Line ("<wsdl:definitions name=""" & WS_Name  & """");
@@ -665,17 +665,21 @@ package body Ada2WSDL.Generator is
          Put_Line ("   " & Name_Space.Image (Name_Space.XSI));
          Put      ("   " & Name_Space.Image (Name_Space.XSD));
 
+         if Options.Document then
+            --  Ensure the main name-space is generated, this is needed if
+            --  the schema is empty (no user defined types), yet the elements
+            --  to be generated for the document style will reference this
+            --  name-space.
+
+            Insert_NS (T_NS);
+         end if;
+
          --  Write all name spaces
 
-         P := Name_Spaces.First;
-
-         while NS_Maps.Has_Element (P) loop
-            N := NS_Maps.Element (P);
-
+         for P in Name_Spaces.Iterate loop
             New_Line;
-            Put ("   xmlns:n" & Utils.Image (N)
+            Put ("   xmlns:n" & Utils.Image (NS_Maps.Element (P))
                  & "=""" & NS_Maps.Key (P) & '"');
-            P := NS_Maps.Next (P);
          end loop;
 
          --  Close definition
@@ -707,24 +711,48 @@ package body Ada2WSDL.Generator is
 
          procedure Write_Message (R : Definition) is
 
-            procedure Write_Part (P : Parameter_Access);
+            Name : constant String := -R.Name;
+
+            procedure Write_Part (P : not null access Parameter);
 
             ----------------
             -- Write_Part --
             ----------------
 
-            procedure Write_Part (P : Parameter_Access) is
-               A : Parameter_Access := P;
+            procedure Write_Part (P : not null access Parameter) is
+               A : access Parameter := P;
             begin
                while A /= null loop
-                  Put_Line
-                    ("      <wsdl:part name=""" & (-A.Name)
-                     & """ type=""" & (-A.XSD_Name) & """/>");
+                  Put ("      <wsdl:part name=""" & (-A.Name) & """ ");
+
+                  --  Whether we have to generate a document style binding or
+                  --  an RPC one. A part for a document style is:
+                  --
+                  --     <part name="" element="" />
+                  --
+                  --  where element is referencing an element in the schema.
+                  --  Those elements are written by Generate_Element routine.
+                  --
+                  --  For an RPC style we use:
+                  --
+                  --     <part name="" type="" />
+
+                  if Options.Document then
+                     declare
+                        Prefix : constant String := NS_Prefix (T_NS);
+                     begin
+                        Put_Line
+                          ("element="""
+                           & Prefix & ':' & (-A.Name) & '_' & Name & """/>");
+                     end;
+
+                  else
+                     Put_Line ("type=""" & (-A.XSD_Name) & """/>");
+                  end if;
+
                   A := A.Next;
                end loop;
             end Write_Part;
-
-            Name : constant String := -R.Name;
 
          begin
             New_Line;
@@ -830,6 +858,64 @@ package body Ada2WSDL.Generator is
 
          procedure Write_Character;
          --  Write the Character schema
+
+         procedure Generate_Element;
+         --  Write the Element for document style binding
+
+         ----------------------
+         -- Generate_Element --
+         ----------------------
+
+         procedure Generate_Element is
+
+            procedure Check_Message (R : Definition)
+              with Pre => R.Def_Mode = Routine;
+
+            ---------------------
+            -- Write_Operation --
+            ---------------------
+
+            procedure Check_Message (R : Definition) is
+
+               Name : constant String := -R.Name;
+
+               procedure Check_Part (P : not null access Parameter);
+
+               ----------------
+               -- Check_Part --
+               ----------------
+
+               procedure Check_Part (P : not null access Parameter) is
+                  A : access Parameter := P;
+               begin
+                  while A /= null loop
+                     Text_IO.Put_Line
+                       ("         <xsd:element name="""
+                        & (-A.Name) & '_' & Name & """"
+                        & " type=""" & (-A.XSD_Name) & """/>");
+                     A := A.Next;
+                  end loop;
+               end Check_Part;
+
+            begin
+               if R.Parameters /= null then
+                  Check_Part (R.Parameters);
+               end if;
+
+               if R.Return_Type /= null then
+                  Check_Part (R.Return_Type);
+               end if;
+            end Check_Message;
+
+         begin
+            Text_IO.New_Line;
+
+            for I in 1 .. Index loop
+               if API (I).Def_Mode = Routine then
+                  Check_Message (API (I));
+               end if;
+            end loop;
+         end Generate_Element;
 
          -----------------
          -- Write_Array --
@@ -949,7 +1035,10 @@ package body Ada2WSDL.Generator is
          end Write_Type;
 
       begin
-         if Schema_Needed or else Character_Schema then
+         if Schema_Needed
+           or else Options.Document
+           or else Character_Schema
+         then
             New_Line;
             Put_Line ("   <wsdl:types>");
             Put
@@ -994,6 +1083,12 @@ package body Ada2WSDL.Generator is
 
             if Character_Schema then
                Write_Character;
+            end if;
+
+            --  Output document/style element
+
+            if Options.Document then
+               Generate_Element;
             end if;
 
             --  Output all structures
