@@ -18,6 +18,7 @@
 
 with Ada.Calendar;
 with Ada.Containers.Indefinite_Hashed_Maps;
+with Ada.Containers.Vectors;
 with Ada.Exceptions;
 with Ada.Strings.Hash;
 with Ada.Strings.Unbounded;
@@ -78,12 +79,10 @@ package body Ada2WSDL.Generator is
       end case;
    end record;
 
-   type Profiles is array (Positive range <>) of Definition;
+   package Profiles is new Containers.Vectors (Positive, Definition);
 
-   Max_Definition : constant := 1_024;
-
-   API   : Profiles (1 .. Max_Definition);
-   Index : Natural := 0;
+   API : Profiles.Vector;
+   --  All definitions found for the current API
 
    Schema_Needed : Boolean := False;
    --  Set to True if a WSDL schema is to be writed
@@ -127,9 +126,9 @@ package body Ada2WSDL.Generator is
    procedure Check_Routine (Name : String) is
       use Exceptions;
    begin
-      for I in 1 .. Index loop
-         if API (I).Def_Mode = Routine
-           and then To_String (API (I).Name) = Name
+      for A of API loop
+         if A.Def_Mode = Routine
+           and then To_String (A.Name) = Name
          then
             Raise_Exception
               (Spec_Error'Identity,
@@ -169,13 +168,13 @@ package body Ada2WSDL.Generator is
 
       Insert_NS (NS);
 
-      if API (Index).Parameters = null then
-         API (Index).Parameters := New_P;
+      if API (API.Last_Index).Parameters = null then
+         API (API.Last_Index).Parameters := New_P;
       else
-         API (Index).Last.Next := New_P;
+         API (API.Last_Index).Last.Next := New_P;
       end if;
 
-      API (Index).Last := New_P;
+      API (API.Last_Index).Last := New_P;
    end New_Component;
 
    ----------------
@@ -195,13 +194,13 @@ package body Ada2WSDL.Generator is
 
       Insert_NS (NS);
 
-      if API (Index).Parameters = null then
-         API (Index).Parameters := New_P;
+      if API (API.Last_Index).Parameters = null then
+         API (API.Last_Index).Parameters := New_P;
       else
-         API (Index).Last.Next := New_P;
+         API (API.Last_Index).Last.Next := New_P;
       end if;
 
-      API (Index).Last := New_P;
+      API (API.Last_Index).Last := New_P;
    end New_Formal;
 
    -----------------
@@ -216,13 +215,13 @@ package body Ada2WSDL.Generator is
          Text_IO.Put_Line ("        " & Name);
       end if;
 
-      if API (Index).Parameters = null then
-         API (Index).Parameters := New_P;
+      if API (API.Last_Index).Parameters = null then
+         API (API.Last_Index).Parameters := New_P;
       else
-         API (Index).Last.Next := New_P;
+         API (API.Last_Index).Last.Next := New_P;
       end if;
 
-      API (Index).Last := New_P;
+      API (API.Last_Index).Last := New_P;
    end New_Literal;
 
    ---------------
@@ -264,8 +263,7 @@ package body Ada2WSDL.Generator is
       D.Max        := Def.Max;
       D.Len        := Def.Len;
 
-      Index := Index + 1;
-      API (Index) := D;
+      API.Append (D);
 
       if not Options.Quiet then
          Text_IO.Put
@@ -298,8 +296,7 @@ package body Ada2WSDL.Generator is
       D.Type_Name   := +Type_Name;
       D.Access_Name := +Access_Name;
 
-      Index := Index + 1;
-      API (Index) := D;
+      API.Append (D);
 
       if not Options.Quiet then
          Text_IO.Put_Line
@@ -332,8 +329,7 @@ package body Ada2WSDL.Generator is
       D.Min        := Def.Min;
       D.Max        := Def.Max;
 
-      Index := Index + 1;
-      API (Index) := D;
+      API.Append (D);
 
       if not Options.Quiet then
          Text_IO.Put
@@ -362,7 +358,7 @@ package body Ada2WSDL.Generator is
            ("        return " & Name & " (" & (-New_P.XSD_Name) & ')');
       end if;
 
-      API (Index).Return_Type := New_P;
+      API (API.Last_Index).Return_Type := New_P;
    end Return_Type;
 
    -----------------
@@ -389,8 +385,7 @@ package body Ada2WSDL.Generator is
       D.Parameters := New_P;
       D.Length     := Length;
 
-      Index := Index + 1;
-      API (Index) := D;
+      API.Append (D);
 
       if not Options.Quiet then
          Text_IO.Put ("   - array (");
@@ -430,8 +425,7 @@ package body Ada2WSDL.Generator is
       D.Name       := +Name;
       D.Parameters := null;
 
-      Index := Index + 1;
-      API (Index) := D;
+      API.Append (D);
 
       if not Options.Quiet then
          Text_IO.Put_Line ("   - enumeration     " & Name);
@@ -453,8 +447,7 @@ package body Ada2WSDL.Generator is
       D.NS   := +NS;
       D.Name := +Name;
 
-      Index := Index + 1;
-      API (Index) := D;
+      API.Append (D);
 
       if not Options.Quiet then
          Text_IO.Put_Line ("   - record          " & Name);
@@ -472,8 +465,7 @@ package body Ada2WSDL.Generator is
 
       D.Name := +Name;
 
-      Index := Index + 1;
-      API (Index) := D;
+      API.Append (D);
 
       if not Options.Quiet then
          Text_IO.Put_Line ("   > " & Comment & "       " & Name);
@@ -518,13 +510,9 @@ package body Ada2WSDL.Generator is
 
    function Type_Exists (NS, Name : String) return Boolean is
    begin
-      for I in 1 .. Index loop
-         if API (I).Def_Mode = Structure
-           or else API (I).Def_Mode = Simple_Type
-           or else API (I).Def_Mode = Enumeration
-           or else API (I).Def_Mode = Table
-         then
-            if -API (I).Name = Name and then -API (I).NS = NS then
+      for A of API loop
+         if A.Def_Mode in Structure | Simple_Type | Enumeration | Table then
+            if -A.Name = Name and then -A.NS = NS then
                return True;
             end if;
          end if;
@@ -633,10 +621,10 @@ package body Ada2WSDL.Generator is
 
          --  Output all operations info
 
-         for I in 1 .. Index loop
-            if API (I).Def_Mode = Routine then
+         for A of API loop
+            if A.Def_Mode = Routine then
                New_Line;
-               Write_Operation (API (I));
+               Write_Operation (A);
             end if;
          end loop;
 
@@ -778,9 +766,9 @@ package body Ada2WSDL.Generator is
          end Write_Message;
 
       begin
-         for I in 1 .. Index loop
-            if API (I).Def_Mode = Routine then
-               Write_Message (API (I));
+         for A of API loop
+            if A.Def_Mode = Routine then
+               Write_Message (A);
             end if;
          end loop;
       end Write_Messages;
@@ -829,14 +817,14 @@ package body Ada2WSDL.Generator is
 
          --  Output all operations info
 
-         for I in 1 .. Index loop
-            if API (I).Def_Mode = Routine then
+         for A of API loop
+            if A.Def_Mode = Routine then
                if Found then
                   New_Line;
                else
                   Found := True;
                end if;
-               Write_Operation (API (I));
+               Write_Operation (A);
             end if;
          end loop;
 
@@ -915,9 +903,9 @@ package body Ada2WSDL.Generator is
          begin
             Text_IO.New_Line;
 
-            for I in 1 .. Index loop
-               if API (I).Def_Mode = Routine then
-                  Check_Message (API (I));
+            for A of API loop
+               if A.Def_Mode = Routine then
+                  Check_Message (A);
                end if;
             end loop;
          end Generate_Element;
@@ -1062,13 +1050,13 @@ package body Ada2WSDL.Generator is
                Global_NS : Unbounded_String;
                Single_NS : Boolean := True;
             begin
-               for I in 1 .. Index loop
-                  case API (I).Def_Mode is
+               for A of API loop
+                  case A.Def_Mode is
                      when Structure | Table | Simple_Type | Enumeration =>
                         if Global_NS = Null_Unbounded_String then
-                           Global_NS := API (I).NS;
+                           Global_NS := A.NS;
 
-                        elsif Global_NS /= API (I).NS then
+                        elsif Global_NS /= A.NS then
                            Single_NS := False;
                         end if;
 
@@ -1098,12 +1086,12 @@ package body Ada2WSDL.Generator is
 
             --  Output all structures
 
-            for I in 1 .. Index loop
-               case API (I).Def_Mode is
-                  when Structure   => Write_Record (API (I));
-                  when Table       => Write_Array (API (I));
-                  when Simple_Type => Write_Type (API (I));
-                  when Enumeration => Write_Enumeration (API (I));
+            for A of API loop
+               case A.Def_Mode is
+                  when Structure   => Write_Record (A);
+                  when Table       => Write_Array (A);
+                  when Simple_Type => Write_Type (A);
+                  when Enumeration => Write_Enumeration (A);
 
                   when Safe_Pointer_Definition | Routine =>
                      null;
