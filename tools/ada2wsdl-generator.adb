@@ -877,7 +877,7 @@ package body Ada2WSDL.Generator is
          -----------------------
 
          procedure Write_Enumeration (E : Definition) is
-            P : Parameter_Access := E.Parameters;
+            P : access Parameter := E.Parameters;
          begin
             New_Line;
             Put_Line ("         <xsd:simpleType name=""" & (-E.Name) & '"');
@@ -899,7 +899,7 @@ package body Ada2WSDL.Generator is
          ------------------
 
          procedure Write_Record (E : Definition) is
-            P : Parameter_Access := E.Parameters;
+            P : access Parameter := E.Parameters;
          begin
             New_Line;
             Put_Line ("         <xsd:complexType name=""" & (-E.Name) & '"');
