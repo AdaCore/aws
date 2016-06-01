@@ -391,12 +391,14 @@ package body Ada2WSDL.Generator is
 
       if not Options.Quiet then
          Text_IO.Put ("   - array (");
+
          if Length = 0 then
             --  An unconstrained array
             Text_IO.Put ("<>");
          else
             Text_IO.Put (AWS.Utils.Image (Length));
          end if;
+
          Text_IO.Put (")");
          Text_IO.Set_Col (22);
          Text_IO.Put (Name & " of " & Component_Type);
@@ -925,19 +927,23 @@ package body Ada2WSDL.Generator is
             Put_Line ("         <xsd:simpleType name=""" & (-E.Name) & '"');
             Put_Line ("                 targetNamespace=""" & (-E.NS) & """>");
             Put_Line ("            <xsd:restriction base="""
-                        & (-P.XSD_Name) & """>");
+                      & (-P.XSD_Name) & """>");
+
             if E.Min /= Null_Unbounded_String then
                Put_Line ("               <xsd:minInclusive value="""
                          & To_String (E.Min) & """/>");
             end if;
+
             if E.Max /= Null_Unbounded_String then
                Put_Line ("               <xsd:maxInclusive value="""
                          & To_String (E.Max) & """/>");
             end if;
+
             if E.Len /= Null_Unbounded_String then
                Put_Line ("               <xsd:Length value="""
                          & To_String (E.Len) & """/>");
             end if;
+
             Put_Line ("            </xsd:restriction>");
             Put_Line ("         </xsd:simpleType>");
          end Write_Type;
