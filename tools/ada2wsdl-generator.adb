@@ -162,6 +162,8 @@ package body Ada2WSDL.Generator is
               & " (" & (-New_P.XSD_Name) & ')');
       end if;
 
+      Insert_NS (NS);
+
       if API (Index).Parameters = null then
          API (Index).Parameters := New_P;
       else
@@ -185,6 +187,8 @@ package body Ada2WSDL.Generator is
            ("        " & Var_Name & " : " & Var_Type
               & " (" & (-New_P.XSD_Name) & ')');
       end if;
+
+      Insert_NS (NS);
 
       if API (Index).Parameters = null then
          API (Index).Parameters := New_P;
@@ -245,6 +249,8 @@ package body Ada2WSDL.Generator is
    begin
       --  We need to write a schema for this derived type
       Schema_Needed := True;
+
+      Insert_NS (NS);
 
       D.NS         := +NS;
       D.Name       := +Name;
@@ -315,6 +321,8 @@ package body Ada2WSDL.Generator is
       --  We need to write a schema for this derived type
       Schema_Needed := True;
 
+      Insert_NS (NS);
+
       D.NS         := +NS;
       D.Name       := +Name;
       D.Parameters := New_P;
@@ -369,6 +377,8 @@ package body Ada2WSDL.Generator is
    begin
       --  We need to write a schema for this record
       Schema_Needed := True;
+
+      Insert_NS (NS);
 
       D.NS         := +NS;
       D.Name       := +Name;
