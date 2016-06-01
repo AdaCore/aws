@@ -152,8 +152,7 @@ package body Ada2WSDL.Generator is
    -------------------
 
    procedure New_Component (NS, Comp_Name, Comp_Type : String) is
-
-      New_P : constant Parameter_Access :=
+      New_P : constant not null Parameter_Access :=
                 new Parameter'
                   (+Comp_Name, +Comp_Type, +To_XSD (NS, Comp_Type), null);
    begin
@@ -177,7 +176,7 @@ package body Ada2WSDL.Generator is
    ----------------
 
    procedure New_Formal (NS, Var_Name, Var_Type : String) is
-      New_P : constant Parameter_Access :=
+      New_P : constant not null Parameter_Access :=
                 new Parameter'
                   (+Var_Name, +Var_Type, +To_XSD (NS, Var_Type), null);
    begin
@@ -201,7 +200,7 @@ package body Ada2WSDL.Generator is
    -----------------
 
    procedure New_Literal (Name : String) is
-      New_P : constant Parameter_Access :=
+      New_P : constant not null Parameter_Access :=
                 new Parameter'(+Name, +"", +"", null);
    begin
       if Options.Verbose then
@@ -239,7 +238,7 @@ package body Ada2WSDL.Generator is
      (NS, Name : String;
       Def      : Type_Data)
    is
-      New_P : constant Parameter_Access :=
+      New_P : constant not null Parameter_Access :=
                 new Parameter'
                   (+Name, Def.Name, +To_XSD (NS, -Def.Name), null);
       D     : Definition (Simple_Type);
@@ -308,7 +307,7 @@ package body Ada2WSDL.Generator is
      (NS, Name : String;
       Def      : Type_Data)
    is
-      New_P : constant Parameter_Access :=
+      New_P : constant not null Parameter_Access :=
                 new Parameter'
                   (+Name, Def.Name, +To_XSD (NS, -Def.Name), null);
       D     : Definition (Simple_Type);
@@ -342,9 +341,11 @@ package body Ada2WSDL.Generator is
    -----------------
 
    procedure Return_Type (NS, Name : String) is
-      New_P : constant Parameter_Access :=
+      New_P : constant not null Parameter_Access :=
                 new Parameter'(+"Result", +Name, +To_XSD (NS, Name), null);
    begin
+      Insert_NS (NS);
+
       if Options.Verbose then
          Text_IO.Put_Line
            ("        return " & Name & " (" & (-New_P.XSD_Name) & ')');
@@ -361,7 +362,7 @@ package body Ada2WSDL.Generator is
      (NS, Name, Component_Type : String;
       Length                   : Natural := 0)
    is
-      New_P : constant Parameter_Access :=
+      New_P : constant not null Parameter_Access :=
                 new Parameter'(+"item", +Component_Type,
                                +To_XSD (NS, Component_Type), null);
       D     : Definition (Table);
@@ -908,7 +909,7 @@ package body Ada2WSDL.Generator is
          ----------------
 
          procedure Write_Type (E : Definition) is
-            P : constant Parameter_Access := E.Parameters;
+            P : constant not null access Parameter := E.Parameters;
          begin
             New_Line;
             Put_Line ("         <xsd:simpleType name=""" & (-E.Name) & '"');
