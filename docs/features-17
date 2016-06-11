@@ -19,6 +19,11 @@ NF-17-P524-002 Add support for DELETE client request (2016-05-28)
 
     AWS now supports the DELETE client request.
 
+NF-17-P504-041 Add support for generating document style WSDL (2016-06-10)
+
+    The tool ada2wsdl will now generate document style WSDL when
+    passed the -doc option.
+
 NF-17-P113-055 Add support for If-Match and If-None-Match (2016-02-16)
 
     AWS now supports the If-Match and If-None-Match headers which can
