@@ -1366,7 +1366,8 @@ package body AWS.Client.HTTP_Utils is
    begin
       Retry : loop
          begin
-            Open_Send_Common_Header (Connection, Kind'Image, URI, Headers);
+            Open_Send_Common_Header
+              (Connection, Method_Kind'Image (Kind), URI, Headers);
 
             --  If there is some data to send
 
@@ -1402,7 +1403,8 @@ package body AWS.Client.HTTP_Utils is
          exception
             when E : Net.Socket_Error | Connection_Error =>
                Error_Processing
-                 (Connection, Try_Count, Result, Kind'Image, E, Stamp);
+                 (Connection, Try_Count, Result, Method_Kind'Image (Kind), E,
+                  Stamp);
 
                exit Retry when not Response.Is_Empty (Result);
          end;
