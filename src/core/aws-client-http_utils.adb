@@ -1403,8 +1403,8 @@ package body AWS.Client.HTTP_Utils is
          exception
             when E : Net.Socket_Error | Connection_Error =>
                Error_Processing
-                 (Connection, Try_Count, Result, Method_Kind'Image (Kind), E,
-                  Stamp);
+                 (Connection, Try_Count, Result,
+                  Method_Kind'Image (Kind), E, Stamp);
 
                exit Retry when not Response.Is_Empty (Result);
          end;
