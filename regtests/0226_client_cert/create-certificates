@@ -1,4 +1,5 @@
 SUBJ="/C=FR/ST=Ile de France/L=Paris/O=AdaCore"
+DAYS=1460
 
 # certificate request for server certificate authority
 
@@ -14,8 +15,8 @@ openssl req -new -newkey rsa:2048 -nodes -keyout CA-clt.key \
 
 # Sign CA requests and get the self signed certificates.
 
-openssl x509 -req -days 800 -in CA-srv.csr -signkey CA-srv.key -out CA-srv.crt
-openssl x509 -req -days 800 -in CA-clt.csr -signkey CA-clt.key -out CA-clt.crt
+openssl x509 -req -days $DAYS -in CA-srv.csr -signkey CA-srv.key -out CA-srv.crt
+openssl x509 -req -days $DAYS -in CA-clt.csr -signkey CA-clt.key -out CA-clt.crt
 
 # If we need CA certificate signed by trusted authority, we should send the
 # CA-srv.csr to the trusted authority and get the signed certificate for some
@@ -43,11 +44,11 @@ echo ADA0 > demoCA/serial
 
 # Sign server certificate by server CA.
 
-openssl ca -in aws-server.csr -days 800 -cert CA-srv.crt -keyfile CA-srv.key \
--batch -out aws-server.crt
+openssl ca -in aws-server.csr -days $DAYS -cert CA-srv.crt \
+ -keyfile CA-srv.key -batch -out aws-server.crt
 
-openssl ca -in aws-client.csr -days 800 -cert CA-clt.crt -keyfile CA-clt.key \
--batch -out aws-client.crt
+openssl ca -in aws-client.csr -days $DAYS -cert CA-clt.crt \
+ -keyfile CA-clt.key -batch -out aws-client.crt
 
 # concatenate client certificate with its private key.
 
