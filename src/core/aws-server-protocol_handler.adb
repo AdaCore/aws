@@ -216,6 +216,10 @@ begin
                      Content_Type => "text/plain",
                      Message_Body => "Unknown Expect header value " & Expect);
 
+                  Send
+                    (Error_Answer, LA.Server.all, LA.Line, LA.Stat, Socket_Taken,
+                     Will_Close);
+
                   raise Expectation_Failed;
                end if;
             end;
@@ -247,9 +251,7 @@ begin
             exit For_Every_Request;
 
          when Expectation_Failed =>
-            Send
-              (Error_Answer, LA.Server.all, LA.Line, LA.Stat, Socket_Taken,
-               Will_Close);
+            null;
 
          when E : Wrong_Request_Line =>
             AWS.Log.Write
@@ -267,9 +269,19 @@ begin
 
             LA.Server.Slots.Mark_Phase (LA.Line, Server_Response);
 
-            Send
-              (Error_Answer, LA.Server.all, LA.Line, LA.Stat, Socket_Taken,
-               Will_Close);
+            --  Protect sending the response since we could get a broken pipe
+            --  error.
+            begin
+               Send
+                 (Error_Answer, LA.Server.all, LA.Line, LA.Stat, Socket_Taken,
+                  Will_Close);
+
+            exception
+               when Net.Socket_Error =>
+                  --  Exit from keep-alive loop in case of socket error
+                  exit For_Every_Request;
+
+            end;
 
          when E : Net.Buffered.Data_Overflow
            | Parameters.Too_Long_Parameter
@@ -307,9 +319,19 @@ begin
 
             LA.Server.Slots.Mark_Phase (LA.Line, Server_Response);
 
-            Send
-              (Error_Answer, LA.Server.all, LA.Line, LA.Stat, Socket_Taken,
-               Will_Close);
+            --  Protect sending the response since we could get a broken pipe
+            --  error.
+            begin
+               Send
+                 (Error_Answer, LA.Server.all, LA.Line, LA.Stat, Socket_Taken,
+                  Will_Close);
+
+            exception
+               when Net.Socket_Error =>
+                  --  Exit from keep-alive loop in case of socket error
+                  exit For_Every_Request;
+
+            end;
 
          when E : others =>
             declare
