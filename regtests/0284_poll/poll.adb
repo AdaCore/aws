@@ -21,6 +21,9 @@ with Ada.Streams;         use Ada.Streams;
 with Ada.Text_IO;         use Ada.Text_IO;
 with AWS.Net.Poll_Events; use AWS.Net;
 with AWS.Net.Std;
+with AWS.OS_Lib;
+with AWS.Utils;
+with Interfaces.C.Strings;
 
 procedure Poll is
    Set : Poll_Events.Set (39);
@@ -32,8 +35,27 @@ procedure Poll is
    Data  : Stream_Element_Array (1 .. 32);
    Last  : Stream_Element_Offset;
 
+   function Error_Message (Errno : Integer) return String;
+
    function Image_State return String;
    --  Returns image of State array in format like eIo or eiO or Eio
+
+   -------------------
+   -- Error_Message --
+   -------------------
+
+   function Error_Message (Errno : Integer) return String is
+      use AWS;
+      use Interfaces.C.Strings;
+      Ptr  : constant chars_ptr := OS_Lib.Socket_StrError (Errno);
+      Code : constant String    := '[' & Utils.Image (Errno) & "] ";
+   begin
+      if Ptr = Null_Ptr then
+         return Code & "Unknown error";
+      else
+         return Code & Value (Ptr);
+      end if;
+   end Error_Message;
 
    -----------------
    -- Image_State --
@@ -58,7 +80,7 @@ procedure Poll is
 
 begin
    Ss (1).Bind (Host => Local, Port => 0);
-   Ss (1).Listen;
+   Ss (1).Listen (Queue_Size => Set.Size);
    Set.Add (Ss (1).Get_FD, (Input => True, others => False));
 
    ------------------
@@ -90,7 +112,8 @@ begin
 
          if State (Error) then
             Put_Line
-              ("Unexpected error on accept" & Ss (Idx).Errno'Img & Idx'Img);
+              ("Unexpected error on accept " & Error_Message (Ss (Idx).Errno)
+               & Idx'Img);
             return;
 
          elsif State (Input) and then State (Output) then
@@ -146,8 +169,8 @@ begin
 
          if State (Error) then
             Put_Line
-              ("Unexpected error on send loop " & Ss (Idx).Errno'Img
-               & Idx'Img);
+              ("Unexpected error on send loop "
+               & Error_Message (Ss (Idx).Errno) & Idx'Img);
          end if;
 
          return;
@@ -194,7 +217,7 @@ begin
 
             if State (Error) then
                Put_Line
-                 ("Unexpected error on test " & Ss (Idx).Errno'Img
+                 ("Unexpected error on test " & Error_Message (Ss (Idx).Errno)
                   & Idx'Img);
             end if;
 
