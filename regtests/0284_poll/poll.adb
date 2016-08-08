@@ -16,6 +16,7 @@
 --  to http://www.gnu.org/licenses for a complete copy of the license.      --
 ------------------------------------------------------------------------------
 
+with Ada.Characters.Handling;
 with Ada.Streams;         use Ada.Streams;
 with Ada.Text_IO;         use Ada.Text_IO;
 with AWS.Net.Poll_Events; use AWS.Net;
@@ -30,6 +31,31 @@ procedure Poll is
    State : Event_Set;
    Data  : Stream_Element_Array (1 .. 32);
    Last  : Stream_Element_Offset;
+
+   function Image_State return String;
+   --  Returns image of State array in format like eIo or eiO or Eio
+
+   -----------------
+   -- Image_State --
+   -----------------
+
+   function Image_State return String is
+      Result : String (1 .. 3);
+      Idx : Positive := Result'First;
+   begin
+      for J in State'Range loop
+         Result (Idx) := J'Img (1);
+
+         if not State (J) then
+            Result (Idx) := Ada.Characters.Handling.To_Lower (Result (Idx));
+         end if;
+
+         Idx := Idx + 1;
+      end loop;
+
+      return Result;
+   end Image_State;
+
 begin
    Ss (1).Bind (Host => Local, Port => 0);
    Ss (1).Listen;
@@ -62,15 +88,21 @@ begin
 
          State := Set.Status (Idx);
 
-         if State = (Input .. Output => True) then
-            Put_Line ("Unexpected state");
+         if State (Error) then
+            Put_Line
+              ("Unexpected error on accept" & Ss (Idx).Errno'Img & Idx'Img);
+            return;
+
+         elsif State (Input) and then State (Output) then
+            Put_Line ("Unexpected state on accept " & Image_State & Idx'Img);
+            return;
 
          elsif State (Output) then
             Set.Set_Mode (Idx, (Input => True, others => False));
 
          elsif State (Input) then
             if Idx /= 1 then
-               Put_Line ("Unexpected input index");
+               Put_Line ("Unexpected input index" & Idx'Img);
             end if;
 
             Std.Accept_Socket (Ss (1), Ss (Set.Length + 1));
@@ -101,7 +133,7 @@ begin
       Set.Wait (0.5, Count);
 
       if Count /= 1 then
-         Put_Line ("Unexpected number of activated sockets");
+         Put_Line ("Unexpected number of activated sockets" & Count'Img);
       end if;
 
       Idx := 1;
@@ -110,13 +142,21 @@ begin
       State := Set.Status (Idx);
 
       if State /= (Input => True, Output => False, Error => False) then
-         Put_Line ("Unexpected state");
+         Put_Line ("Unexpected state on send loop " & Image_State);
+
+         if State (Error) then
+            Put_Line
+              ("Unexpected error on send loop " & Ss (Idx).Errno'Img
+               & Idx'Img);
+         end if;
+
+         return;
       end if;
 
       Ss (Idx).Receive (Data, Last);
 
       if Last /= Data'First then
-         Put_Line ("Unexpected received data length");
+         Put_Line ("Unexpected received data length" & Last'Img);
       end if;
 
       if Integer (Data (Data'First)) /= J then
@@ -150,8 +190,15 @@ begin
          State := Set.Status (Idx);
 
          if State /= (Input => True, Output => False, Error => False) then
-            Put_Line ("Unexpected state");
-            exit;
+            Put_Line ("Unexpected state on test " & Image_State);
+
+            if State (Error) then
+               Put_Line
+                 ("Unexpected error on test " & Ss (Idx).Errno'Img
+                  & Idx'Img);
+            end if;
+
+            return;
          end if;
 
          Ss (Idx).Receive (Data, Last);
