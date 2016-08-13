@@ -26,7 +26,7 @@ with AWS.Utils;
 with Interfaces.C.Strings;
 
 procedure Poll is
-   Set : Poll_Events.Set (39);
+   Set : Poll_Events.Set (77); -- Have to be odd
    Ss  : array (1 .. Set.Size) of Std.Socket_Type;
    Local : constant String := Localhost (IPv6_Available);
    Count : Integer;
@@ -34,6 +34,8 @@ procedure Poll is
    State : Event_Set;
    Data  : Stream_Element_Array (1 .. 32);
    Last  : Stream_Element_Offset;
+   More  : constant Stream_Element_Offset := 8;
+   Rest  : Natural := 0;
 
    function Error_Message (Errno : Integer) return String;
 
@@ -190,7 +192,7 @@ begin
    Put_Line ("Transmitted");
 
    for J in 2 .. Ss'Last loop
-      Ss (J).Send ((1 .. Data'Length + 8 => Stream_Element (J)));
+      Ss (J).Send ((1 .. Data'Length + More => Stream_Element (J)));
       Ss (J).Set_Timeout (2.0);
    end loop;
 
@@ -226,16 +228,28 @@ begin
 
          Ss (Idx).Receive (Data, Last);
 
-         Put (if Last = Data'Last then "@" else Last'Img);
+         if Last = Data'Last then
+            Put ('@');
 
-         if Idx rem 2 = 0 then
-            Set.Set_Event (Idx, Input, False);
+            if Idx rem 2 = 0 then
+               Set.Set_Event (Idx, Input, False);
+            end if;
+
+         elsif Last = More then
+            Rest := Rest + 1;
+         else
+            Put (" Wrong additional size" & Last'Img);
+            exit;
          end if;
 
          Idx := Idx + 1;
       end loop;
+
+      if Count /= 0 then
+         Put ("Wrong rest count" & Count'Img);
+         exit;
+      end if;
    end loop;
 
-   New_Line;
-
+   Put_Line (Rest'Img);
 end Poll;
