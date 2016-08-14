@@ -26,7 +26,7 @@ with AWS.Utils;
 with Interfaces.C.Strings;
 
 procedure Poll is
-   Set : Poll_Events.Set (77); -- Have to be odd
+   Set : Poll_Events.Set (57); -- Have to be odd
    Ss  : array (1 .. Set.Size) of Std.Socket_Type;
    Local : constant String := Localhost (IPv6_Available);
    Count : Integer;
