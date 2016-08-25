@@ -103,6 +103,34 @@ begin
                              Events : Net.Wait_Event_Set) return Net.Event_Set
                           := (True  => Net.Wait'Access,
                               False => Net.Check'Access);
+
+         function Send_Error_Answer return Boolean;
+         --  Send Error_Answer to the client, returns False if the error
+         --  occured.
+
+         -----------------------
+         -- Send_Error_Answer --
+         -----------------------
+
+         function Send_Error_Answer return Boolean is
+         begin
+            Send
+              (Error_Answer, LA.Server.all, LA.Line, LA.Stat, Socket_Taken,
+               Will_Close);
+            return True;
+         exception
+            when Net.Socket_Error =>
+               Will_Close := True;
+               return False;
+            when E : others =>
+               AWS.Log.Write
+                 (LA.Server.Error_Log,
+                  LA.Stat,
+                  Utils.CRLF_2_Spaces
+                    (Ada.Exceptions.Exception_Information (E)));
+               return False;
+         end Send_Error_Answer;
+
       begin
          Response.Set.Mode (Error_Answer, Response.No_Data);
 
@@ -247,9 +275,7 @@ begin
             exit For_Every_Request;
 
          when Expectation_Failed =>
-            Send
-              (Error_Answer, LA.Server.all, LA.Line, LA.Stat, Socket_Taken,
-               Will_Close);
+            exit For_Every_Request when not Send_Error_Answer;
 
          when E : Wrong_Request_Line =>
             AWS.Log.Write
@@ -267,9 +293,7 @@ begin
 
             LA.Server.Slots.Mark_Phase (LA.Line, Server_Response);
 
-            Send
-              (Error_Answer, LA.Server.all, LA.Line, LA.Stat, Socket_Taken,
-               Will_Close);
+            exit For_Every_Request when not Send_Error_Answer;
 
          when E : Net.Buffered.Data_Overflow
            | Parameters.Too_Long_Parameter
@@ -307,9 +331,7 @@ begin
 
             LA.Server.Slots.Mark_Phase (LA.Line, Server_Response);
 
-            Send
-              (Error_Answer, LA.Server.all, LA.Line, LA.Stat, Socket_Taken,
-               Will_Close);
+            exit For_Every_Request when not Send_Error_Answer;
 
          when E : others =>
             declare
@@ -346,9 +368,7 @@ begin
                if Response.Mode (Error_Answer) /= Response.No_Data then
                   LA.Server.Slots.Mark_Phase (LA.Line, Server_Response);
 
-                  Send
-                    (Error_Answer, LA.Server.all, LA.Line, LA.Stat,
-                     Socket_Taken, Will_Close);
+                  exit For_Every_Request when not Send_Error_Answer;
                end if;
 
             exception
