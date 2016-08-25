@@ -105,8 +105,8 @@ begin
                               False => Net.Check'Access);
 
          function Send_Error_Answer return Boolean;
-         --  Send Error_Answer to the client, returns False if the error
-         --  occured.
+         --  Send Error_Answer to the client, returns False if an(other)
+         --  error occurs while trying to send the error answer.
 
          -----------------------
          -- Send_Error_Answer --
@@ -118,10 +118,12 @@ begin
               (Error_Answer, LA.Server.all, LA.Line, LA.Stat, Socket_Taken,
                Will_Close);
             return True;
+
          exception
             when Net.Socket_Error =>
                Will_Close := True;
                return False;
+
             when E : others =>
                AWS.Log.Write
                  (LA.Server.Error_Log,
