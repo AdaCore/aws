@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2000-2014, AdaCore                     --
+--                     Copyright (C) 2000-2016, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -618,13 +618,13 @@ package body AWS.Status is
    function Preferred_Coding (D : Data) return Messages.Content_Encoding is
 
       Best_Encoding : Messages.Content_Encoding := Messages.Identity;
-      Next_Encoding : Messages.Content_Encoding;
+      Next_Encoding : Messages.Content_Encoding := Messages.Identity;
 
       Supported     : Boolean := False;
       --  Next coding supported by AWS
 
       Best_QValue : Float := 0.0;
-      Next_QValue : Float;
+      Next_QValue : Float := 1.0;
 
       procedure Named_Value (Name, Value : String; Quit : in out Boolean);
 
