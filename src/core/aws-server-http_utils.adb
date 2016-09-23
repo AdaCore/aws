@@ -39,6 +39,7 @@ with Ada.Strings.Unbounded;
 with Ada.Text_IO;
 
 with GNAT.MD5;
+with GNAT.OS_Lib;
 with GNAT.Regexp;
 
 with AWS.Attachments;
@@ -501,6 +502,9 @@ package body AWS.Server.HTTP_Utils is
          Root_Part_CID                : String);
       --  Store attachments coming from the client browser
 
+      function Get_File_Upload_UID return String;
+      --  Returns a unique id for each file upload
+
       Status_Multipart_Boundary : Unbounded_String;
       Status_Root_Part_CID      : Unbounded_String;
       Status_Content_Type       : Unbounded_String;
@@ -528,11 +532,8 @@ package body AWS.Server.HTTP_Utils is
          function Target_Filename (Filename : String) return String is
             Upload_Path : constant String :=
                             CNF.Upload_Directory (HTTP_Server.Properties);
-            UID         : Natural;
          begin
-            File_Upload_UID.Get (UID);
-
-            return Upload_Path & Utils.Image (UID) & '.' & Filename;
+            return Upload_Path & Get_File_Upload_UID & '.' & Filename;
          end Target_Filename;
 
          Name            : Unbounded_String;
@@ -917,6 +918,21 @@ package body AWS.Server.HTTP_Utils is
          end if;
       end Get_File_Data;
 
+      -------------------------
+      -- Get_File_Upload_UID --
+      -------------------------
+
+      function Get_File_Upload_UID return String is
+         use GNAT;
+         UID : Natural;
+      begin
+         File_Upload_UID.Get (UID);
+
+         return Utils.Image
+           (OS_Lib.Pid_To_Integer (OS_Lib.Current_Process_Id))
+           & "-" & Utils.Image (UID);
+      end Get_File_Upload_UID;
+
       -----------------------
       -- Store_Attachments --
       -----------------------
@@ -937,14 +953,11 @@ package body AWS.Server.HTTP_Utils is
          function Attachment_Filename (Extension : String) return String is
             Upload_Path : constant String :=
                             CNF.Upload_Directory (HTTP_Server.Properties);
-            UID         : Natural;
          begin
-            File_Upload_UID.Get (UID);
-
             if Extension = "" then
-               return Upload_Path & Utils.Image (UID);
+               return Upload_Path & Get_File_Upload_UID;
             else
-               return Upload_Path & Utils.Image (UID) & '.' & Extension;
+               return Upload_Path & Get_File_Upload_UID & '.' & Extension;
             end if;
          end Attachment_Filename;
 

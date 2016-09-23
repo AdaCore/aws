@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2003-2012, AdaCore                     --
+--                     Copyright (C) 2003-2016, AdaCore                     --
 --                                                                          --
 --  This is free software;  you can redistribute it  and/or modify it       --
 --  under terms of the  GNU General Public License as published  by the     --
@@ -85,6 +85,8 @@ procedure Upload3 is
       Answer : in out Response.Data)
    is
       use Ada.Strings;
+      use type Maps.Character_Set;
+
       Error_Message : constant String := Ada.Exceptions.Exception_Message (E);
 
       First : Positive;
@@ -94,7 +96,9 @@ procedure Upload3 is
       Put_Line ("  => " & Ada.Exceptions.Exception_Name (E));
 
       Fixed.Find_Token
-        (Error_Message, Maps.Constants.Decimal_Digit_Set, Inside, First, Last);
+        (Error_Message,
+         Maps.Constants.Decimal_Digit_Set or Maps.To_Set ("-"),
+         Inside, First, Last);
 
       Put_Line
         ("  => " & Fixed.Replace_Slice (Error_Message, First, Last, ""));

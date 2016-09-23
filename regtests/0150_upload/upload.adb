@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2000-2012, AdaCore                     --
+--                     Copyright (C) 2000-2016, AdaCore                     --
 --                                                                          --
 --  This is free software;  you can redistribute it  and/or modify it       --
 --  under terms of the  GNU General Public License as published  by the     --
@@ -48,6 +48,8 @@ procedure Upload is
 
    function CB (Request : Status.Data) return Response.Data is
       use Ada.Strings;
+      use type Maps.Character_Set;
+
       URI    : constant String          := Status.URI (Request);
       P_List : constant Parameters.List := Status.Parameters (Request);
 
@@ -64,7 +66,9 @@ procedure Upload is
          --  Remove number from uploaded filename
 
          Fixed.Find_Token
-           (Server_FN, Maps.Constants.Decimal_Digit_Set, Inside, First, Last);
+           (Server_FN,
+            Maps.Constants.Decimal_Digit_Set or Maps.To_Set ("-"),
+            Inside, First, Last);
 
          Put_Line ("Server Filename = "
                    & Fixed.Replace_Slice (Server_FN, First, Last, ""));

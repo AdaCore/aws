@@ -34,3 +34,9 @@ Known Problems fixed in AWS 17.0
   Problem: A server internal error code 500 is returned when a
            broken request line is detected.
   Workaround: None.
+
+- O925-077 Better randomization of upload's filename
+  Problem: Upload's filename are now composed if the process id. This
+           ensure better randomization of upload filenames across
+           AWS instances.
+  Workaround: None.

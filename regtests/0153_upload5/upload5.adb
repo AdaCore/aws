@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2004-2012, AdaCore                     --
+--                     Copyright (C) 2004-2016, AdaCore                     --
 --                                                                          --
 --  This is free software;  you can redistribute it  and/or modify it       --
 --  under terms of the  GNU General Public License as published  by the     --
@@ -63,9 +63,10 @@ procedure Upload5 is
 
          declare
             use Ada.Strings;
+            use type Maps.Character_Set;
 
-            Server_Filename : constant String
-              := Parameters.Get (P_List, "filename");
+            Server_Filename : constant String :=
+                                Parameters.Get (P_List, "filename");
             First_N : Positive;
             Last_N  : Natural;
          begin
@@ -73,7 +74,8 @@ procedure Upload5 is
 
             Fixed.Find_Token
               (Server_Filename,
-               Maps.Constants.Decimal_Digit_Set, Inside, First_N, Last_N);
+               Maps.Constants.Decimal_Digit_Set or Maps.To_Set ("-"),
+               Inside, First_N, Last_N);
 
             Put_Line ("Server Filename = "
                       & Fixed.Replace_Slice

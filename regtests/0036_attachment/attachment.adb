@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2004-2012, AdaCore                     --
+--                     Copyright (C) 2004-2016, AdaCore                     --
 --                                                                          --
 --  This is free software;  you can redistribute it  and/or modify it       --
 --  under terms of the  GNU General Public License as published  by the     --
@@ -19,6 +19,7 @@
 with Ada.Streams.Stream_IO;
 with Ada.Strings.Fixed;
 with Ada.Strings.Maps;
+with Ada.Strings.Unbounded;
 with Ada.Text_IO;
 
 with AWS.Attachments;
@@ -75,13 +76,27 @@ procedure Attachment is
 
    procedure Output (Filename, Local_Filename, Content_Type : String) is
       use Ada.Streams;
+      use Ada.Strings.Unbounded;
+
+      L_Filename : Unbounded_String := To_Unbounded_String (Local_Filename);
+      C          : constant Natural :=
+                     Strings.Unbounded.Index (L_Filename, "-");
+
       File   : Stream_IO.File_Type;
       Buffer : Stream_Element_Array (1 .. 4_048);
       Last   : Stream_Element_Offset;
    begin
+      --  Convert slashes
+
+      Strings.Unbounded.Translate
+        (L_Filename, Strings.Maps.To_Mapping ("\", "/"));
+
+      --  Now remove the pid
+
+      Strings.Unbounded.Replace_Slice (L_Filename, 3, C, "XpidX-");
+
       Text_IO.Put_Line
-        ("File : "
-         & Fixed.Translate (Local_Filename, Maps.To_Mapping ("\", "/"))
+        ("File : " & To_String (L_Filename)
          & ", " & Filename & ", " & Content_Type);
 
       Stream_IO.Open (File, Stream_IO.In_File, Local_Filename);

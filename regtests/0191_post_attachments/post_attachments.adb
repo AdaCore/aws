@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2008-2012, AdaCore                     --
+--                     Copyright (C) 2008-2016, AdaCore                     --
 --                                                                          --
 --  This is free software;  you can redistribute it  and/or modify it       --
 --  under terms of the  GNU General Public License as published  by the     --
@@ -19,6 +19,7 @@
 with Ada.Streams;
 with Ada.Strings.Fixed;
 with Ada.Strings.Maps;
+with Ada.Strings.Unbounded;
 with Ada.Text_IO;
 
 with AWS.Attachments;
@@ -54,13 +55,25 @@ procedure Post_Attachments is
       -------------------
 
       procedure Output_A_Name (E : Attachments.Element) is
+         use Strings.Unbounded;
+
+         L_Filename : Unbounded_String :=
+                        To_Unbounded_String (Attachments.Local_Filename (E));
+         C          : constant Natural :=
+                        Strings.Unbounded.Index (L_Filename, "-");
       begin
          Text_IO.Put_Line ("Filename       " & Attachments.Filename (E));
-         Text_IO.Put_Line
-           ("Local Filename " &
-              Strings.Fixed.Translate
-              (Attachments.Local_Filename (E),
-               Strings.Maps.To_Mapping ("\", "/")));
+
+         --  Convert slashes
+
+         Strings.Unbounded.Translate
+           (L_Filename, Strings.Maps.To_Mapping ("\", "/"));
+
+         --  Now remove the pid
+
+         Strings.Unbounded.Replace_Slice (L_Filename, 3, C, "XpidX-");
+
+         Text_IO.Put_Line ("Local Filename " & To_String (L_Filename));
       end Output_A_Name;
 
    begin
