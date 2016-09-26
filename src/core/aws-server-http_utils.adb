@@ -924,13 +924,15 @@ package body AWS.Server.HTTP_Utils is
 
       function Get_File_Upload_UID return String is
          use GNAT;
+         Pid : constant Natural := Integer'Max
+                 (0, OS_Lib.Pid_To_Integer (OS_Lib.Current_Process_Id));
+         --  On OS where Current_Process_Id is not support -1 is returned. We
+         --  ensure that in this case the Pid is set to 0 in this case.
          UID : Natural;
       begin
          File_Upload_UID.Get (UID);
 
-         return Utils.Image
-           (OS_Lib.Pid_To_Integer (OS_Lib.Current_Process_Id))
-           & "-" & Utils.Image (UID);
+         return Utils.Image (Pid) & "-" & Utils.Image (UID);
       end Get_File_Upload_UID;
 
       -----------------------
