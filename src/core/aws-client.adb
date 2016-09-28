@@ -621,27 +621,17 @@ package body AWS.Client is
       Attachments  : Attachment_List := Empty_Attachment_List;
       Headers      : Header_List     := Empty_Header_List) is
    begin
-      if Content_Type = No_Data then
-         Internal_Post
-           (Connection,
-            Result,
-            Data,
-            URI,
-            SOAPAction   => No_Data,
-            Content_Type => MIME.Application_Octet_Stream,
-            Attachments  => Attachments,
-            Headers      => Headers);
-      else
-         Internal_Post
-           (Connection,
-            Result,
-            Data,
-            URI,
-            SOAPAction   => No_Data,
-            Content_Type => Content_Type,
-            Attachments  => Attachments,
-            Headers      => Headers);
-      end if;
+      Internal_Post
+        (Connection,
+         Result,
+         Data,
+         URI,
+         SOAPAction   => No_Data,
+         Content_Type => (if Content_Type = No_Data
+                          then MIME.Application_Octet_Stream
+                          else Content_Type),
+         Attachments  => Attachments,
+         Headers      => Headers);
    end Post;
 
    procedure Post
@@ -653,27 +643,17 @@ package body AWS.Client is
       Attachments  : Attachment_List := Empty_Attachment_List;
       Headers      : Header_List     := Empty_Header_List) is
    begin
-      if Content_Type = No_Data then
-         Internal_Post
-           (Connection,
-            Result,
-            Translator.To_Stream_Element_Array (Data),
-            URI,
-            SOAPAction   => No_Data,
-            Content_Type => MIME.Application_Form_Data,
-            Attachments  => Attachments,
-            Headers      => Headers);
-      else
-         Internal_Post
-           (Connection,
-            Result,
-            Translator.To_Stream_Element_Array (Data),
-            URI,
-            SOAPAction   => No_Data,
-            Content_Type => Content_Type,
-            Attachments  => Attachments,
-            Headers      => Headers);
-      end if;
+      Internal_Post
+        (Connection,
+         Result,
+         Translator.To_Stream_Element_Array (Data),
+         URI,
+         SOAPAction   => No_Data,
+         Content_Type => (if Content_Type = No_Data
+                          then MIME.Application_Form_Data
+                          else Content_Type),
+         Attachments  => Attachments,
+         Headers      => Headers);
    end Post;
 
    ---------
