@@ -24,7 +24,7 @@ project Download_Manager is
    for Main use ("download_manager.adb");
 
    package Builder is
-      for Default_Switches ("Ada") use ("-gnat05");
+      for Default_Switches ("Ada") use ("-gnat12");
    end Builder;
 
 end Download_Manager;

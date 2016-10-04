@@ -77,7 +77,7 @@ private
    overriding procedure Finalize   (Dispatcher : in out Handler);
 
    overriding function Dispatch
-     (Dispatcher : Handler;
+     (Dispatcher : in out Handler;
       Request    : Status.Data) return Response.Data;
    --  Returns an error message (code 404) if there is no match for the request
 

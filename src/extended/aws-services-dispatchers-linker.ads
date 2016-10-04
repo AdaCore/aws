@@ -49,7 +49,7 @@ private
    overriding procedure Finalize   (Dispatcher : in out Handler);
 
    overriding function Dispatch
-     (Dispatcher : Handler;
+     (Dispatcher : in out Handler;
       Request    : Status.Data) return Response.Data;
    --  Dispatch to the first dispatcher, if the resources is not found (status
    --  code 404 returned) there try on the second one.

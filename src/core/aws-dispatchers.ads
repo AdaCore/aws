@@ -45,7 +45,7 @@ package AWS.Dispatchers is
      and AWS.Utils.Clonable with private;
 
    function Dispatch
-     (Dispatcher : Handler;
+     (Dispatcher : in out Handler;
       Request    : Status.Data) return Response.Data is abstract;
    --  Call the appropriate inherited dispatcher
 

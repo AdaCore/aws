@@ -40,7 +40,7 @@ package body SOAP.Dispatchers is
    --------------
 
    overriding function Dispatch
-     (Dispatcher : Handler;
+     (Dispatcher : in out Handler;
       Request    : AWS.Status.Data) return AWS.Response.Data is
    begin
       if AWS.Status.Is_SOAP (Request) then

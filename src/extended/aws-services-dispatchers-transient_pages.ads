@@ -51,7 +51,7 @@ package AWS.Services.Dispatchers.Transient_Pages is
 private
 
    overriding function Dispatch
-     (Dispatcher : Handler;
+     (Dispatcher : in out Handler;
       Request    : Status.Data) return Response.Data;
    --  Returns an error message (code 404) if no transient page were found
 

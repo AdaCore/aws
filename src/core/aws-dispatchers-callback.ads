@@ -49,7 +49,7 @@ package AWS.Dispatchers.Callback is
 private
 
    overriding function Dispatch
-     (Dispatcher : Handler;
+     (Dispatcher : in out Handler;
       Request    : Status.Data) return Response.Data;
 
    overriding function Clone (Dispatcher : Handler) return Handler;

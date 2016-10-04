@@ -122,7 +122,7 @@ package body AWS.Services.Dispatchers.URI is
    --------------
 
    overriding function Dispatch
-     (Dispatcher : Handler;
+     (Dispatcher : in out Handler;
       Request    : Status.Data) return Response.Data
    is
       use type Response.Data_Mode;

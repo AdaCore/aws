@@ -34,7 +34,7 @@ with Ada.Containers.Indefinite_Vectors;
 package AWS.Dispatchers.Stacks is
 
    type Dispatch_Item_Interface is interface;
-   function Callback (Object : Dispatch_Item_Interface;
+   function Callback (Object : in out Dispatch_Item_Interface;
                       Request : AWS.Status.Data)
                      return AWS.Response.Data is abstract;
    Not_Handled : exception;
@@ -45,7 +45,7 @@ package AWS.Dispatchers.Stacks is
    type Handler is new AWS.Dispatchers.Handler with private;
    procedure Append_Distpatch_Item (Dispatcher : in out Handler;
                                     Item : Dispatch_Item_Interface'Class);
-   overriding function Dispatch (Dispatcher : Handler;
+   overriding function Dispatch (Dispatcher : in out Handler;
                                  Request    : Status.Data)
                                 return Response.Data;
 

@@ -89,7 +89,7 @@ private
    overriding procedure Finalize (Dispatcher : in out Handler);
 
    overriding function Dispatch
-     (Dispatcher : Handler;
+     (Dispatcher : in out Handler;
       Request    : Status.Data) return Response.Data;
    --  Dispatch will return the value returned by the first callback matching
    --  the request. Note that if a callback returns the Response.Empty message,

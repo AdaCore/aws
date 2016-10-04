@@ -72,7 +72,7 @@ package SOAP.Dispatchers is
 private
 
    overriding function Dispatch
-     (Dispatcher : Handler;
+     (Dispatcher : in out Handler;
       Request    : AWS.Status.Data) return AWS.Response.Data;
 
    type Handler is abstract new AWS.Dispatchers.Handler with record

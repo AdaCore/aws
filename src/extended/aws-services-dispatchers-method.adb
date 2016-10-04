@@ -63,7 +63,7 @@ package body AWS.Services.Dispatchers.Method is
    --------------
 
    overriding function Dispatch
-     (Dispatcher : Handler;
+     (Dispatcher : in out Handler;
       Request    : Status.Data) return Response.Data
    is
       Method : constant Status.Request_Method := Status.Method (Request);

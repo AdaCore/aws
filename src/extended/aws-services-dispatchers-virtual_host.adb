@@ -91,7 +91,7 @@ package body AWS.Services.Dispatchers.Virtual_Host is
    --------------
 
    overriding function Dispatch
-     (Dispatcher : Handler;
+     (Dispatcher : in out Handler;
       Request    : AWS.Status.Data) return AWS.Response.Data
    is
       Hostname : constant String := Status.Host (Request);

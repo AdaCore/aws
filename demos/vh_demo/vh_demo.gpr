@@ -23,7 +23,7 @@ project VH_Demo is
    for Main use ("vh_demo.adb");
 
    package Builder is
-      for Default_Switches ("Ada") use ("-gnat05");
+      for Default_Switches ("Ada") use ("-gnat12");
    end Builder;
 
 end VH_Demo;

@@ -52,7 +52,7 @@ package body AWS.Dispatchers.Callback is
    --------------
 
    overriding function Dispatch
-     (Dispatcher : Handler;
+     (Dispatcher : in out Handler;
       Request    : Status.Data) return Response.Data is
    begin
       return Dispatcher.Callback (Request);

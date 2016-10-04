@@ -35,7 +35,7 @@ package body SOAP.Dispatch_Item is
 
    use Ada.Strings.Unbounded;
 
-   overriding function Callback (Object : SOAP_Item;
+   overriding function Callback (Object : in out SOAP_Item;
                                  Request : AWS.Status.Data)
                                 return AWS.Response.Data is
    begin

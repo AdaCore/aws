@@ -20,9 +20,9 @@ with AWS.MIME;
 
 package body Pages is
 
-   Call_Number : Natural := 0;
 
-   overriding function Callback (Object : First_Page;
+
+   overriding function Callback (Object : in out First_Page;
                                  Request : AWS.Status.Data)
                                 return AWS.Response.Data is
       pragma Unreferenced (Object);
@@ -36,16 +36,15 @@ package body Pages is
       end if;
    end Callback;
 
-   overriding function Callback (Object : Second_Page;
+   overriding function Callback (Object : in out Second_Page;
                                  Request : AWS.Status.Data)
                                 return AWS.Response.Data is
       URI : constant String := AWS.Status.URI (Request);
-      pragma Unreferenced (Object);
    begin
-      Call_Number := Call_Number + 1;
+      Object.Call_Number := Object.Call_Number + 1;
       return AWS.Response.Build (AWS.MIME.Text_HTML,
                                  "<p>Very basic page - your URI :<b>" & URI
-                                   & "</b> call #" & Call_Number'Img);
+                                   & "</b> call #" & Object.Call_Number'Img);
    end Callback;
 
 end Pages;

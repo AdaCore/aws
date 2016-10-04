@@ -59,7 +59,7 @@ package body AWS.Services.Dispatchers.Transient_Pages is
    --------------
 
    overriding function Dispatch
-     (Dispatcher : Handler;
+     (Dispatcher : in out Handler;
       Request    : Status.Data) return Response.Data
    is
       use type Messages.Status_Code;

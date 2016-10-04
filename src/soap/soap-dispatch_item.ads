@@ -56,7 +56,7 @@ private
       Schema : WSDL.Schema.Definition;
       SOAP_Callback : Dispatchers.SOAP_Callback;
    end record;
-   overriding function Callback (Object : SOAP_Item;
+   overriding function Callback (Object : in out SOAP_Item;
                                  Request : AWS.Status.Data)
                                 return AWS.Response.Data;
 

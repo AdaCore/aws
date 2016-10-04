@@ -24,13 +24,15 @@ package Pages is
 
    type First_Page is new AWS.Dispatchers.Stacks.Dispatch_Item_Interface
      with null record;
-   overriding function Callback (Object : First_Page;
+   overriding function Callback (Object : in out First_Page;
                                  Request : AWS.Status.Data)
                                 return AWS.Response.Data;
 
-   type Second_Page is new AWS.Dispatchers.Stacks.Dispatch_Item_Interface
-     with null record;
-   overriding function Callback (Object : Second_Page;
+   type Second_Page is new AWS.Dispatchers.Stacks.Dispatch_Item_Interface with
+      record
+         Call_Number : Natural := 0;
+   end record;
+   overriding function Callback (Object : in out Second_Page;
                                  Request : AWS.Status.Data)
                                 return AWS.Response.Data;
 

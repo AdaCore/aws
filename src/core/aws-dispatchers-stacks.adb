@@ -35,7 +35,7 @@ package body AWS.Dispatchers.Stacks is
       Dispatcher.Stack.Append (Item);
    end Append_Distpatch_Item;
 
-   overriding function Dispatch (Dispatcher : Handler;
+   overriding function Dispatch (Dispatcher : in out Handler;
                                  Request    : Status.Data)
                                 return Response.Data is
       URI : constant String := AWS.Status.URI (Request);

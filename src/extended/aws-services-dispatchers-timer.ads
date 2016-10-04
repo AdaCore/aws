@@ -166,7 +166,7 @@ private
    overriding procedure Finalize   (Dispatcher : in out Handler);
 
    overriding function Dispatch
-     (Dispatcher : Handler;
+     (Dispatcher : in out Handler;
       Request    : Status.Data) return Response.Data;
    --  Dispatch will call the time dispatcher that matches the current time.
    --  Note that if a callback returns the Response.Empty message, Dispatch

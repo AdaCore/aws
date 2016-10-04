@@ -66,7 +66,7 @@ private
    overriding procedure Finalize   (Dispatcher : in out Handler);
 
    overriding function Dispatch
-     (Dispatcher : Handler;
+     (Dispatcher : in out Handler;
       Request    : Status.Data) return Response.Data;
    --  Dispatch to the corresponding method callback, if no such callback
    --  registered it dispatches to the default callback. If there is no default
