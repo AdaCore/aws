@@ -162,7 +162,7 @@ package body REST_Example is
       else
          raise AWS.Dispatchers.Stacks.Not_Handled;
       end if;
-      return AWS.Response.Build (AWS.MIME.Text_Plain, "PUT DELETE OK");
+      return AWS.Response.Build (AWS.MIME.Text_Plain, "DELETE OK");
    end DELETE;
 
    function POST (Object : in out REST_Conf;

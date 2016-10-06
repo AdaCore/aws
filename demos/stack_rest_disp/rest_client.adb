@@ -16,6 +16,7 @@
 --  to http://www.gnu.org/licenses for a complete copy of the license.      --
 ------------------------------------------------------------------------------
 
+with Ada.Streams;
 with Ada.Text_IO;
 
 with AWS.Client;
@@ -47,6 +48,15 @@ begin
       Answer : constant AWS.Response.Data :=
         AWS.Client.Put (Base_URI & "/parameters/new_parameter",
                         Data => "new_value_2");
+   begin
+      Ada.Text_IO.Put_Line (AWS.Response.Message_Body (Answer));
+   end;
+   declare
+      Empty_Stream : constant Ada.Streams.Stream_Element_Array (1 .. 0) :=
+        (others => 0);
+      Answer : constant AWS.Response.Data :=
+        AWS.Client.Delete (Base_URI & "/parameters/host",
+                           Data => Empty_Stream);
    begin
       Ada.Text_IO.Put_Line (AWS.Response.Message_Body (Answer));
    end;
