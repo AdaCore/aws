@@ -35,7 +35,7 @@ library project Src is
    case Shared.XMLAda is
       when "Installed" =>
          for Source_Dirs use project'Source_Dirs &
-           ("xsrc", "soap", "../templates_parser/xsrc");
+           ("xsrc", "rest", "soap", "../templates_parser/xsrc");
       when "Disabled" =>
          null;
    end case;
