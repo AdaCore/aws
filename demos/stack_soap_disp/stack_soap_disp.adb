@@ -25,7 +25,7 @@ with AWS.Server;
 with Pages;
 
 with SOAP_Server_Disp_CB;
-with SOAP.Dispatch_Item;
+with SOAP.Dispatchers.Stack;
 
 procedure Stack_Soap_Disp is
    Stack : AWS.Services.Dispatchers.Stack.Handler;
@@ -34,7 +34,7 @@ procedure Stack_Soap_Disp is
    Page_2 : Pages.Second_Page;
 
    Soap_Handling : AWS.Services.Dispatchers.Stack.Item_Interface'Class :=
-     SOAP.Dispatch_Item.Create (SOAP_Server_Disp_CB.SOAP_CB'Access);
+     SOAP.Dispatchers.Stack.Create (SOAP_Server_Disp_CB.SOAP_CB'Access);
 
    WS : AWS.Server.HTTP;
 

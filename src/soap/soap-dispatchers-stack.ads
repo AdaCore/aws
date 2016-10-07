@@ -27,49 +27,37 @@
 --  covered by the  GNU Public License.                                     --
 ------------------------------------------------------------------------------
 
-with Ada.Strings.Unbounded;
+pragma Ada_2012;
 
-with SOAP.Message.XML;
+with AWS.Services.Dispatchers.Stack;
+with AWS.Response;
+with AWS.Status;
 
-package body SOAP.Dispatch_Item is
+with SOAP.Dispatchers;
+with SOAP.WSDL.Schema;
 
-   use Ada.Strings.Unbounded;
+package SOAP.Dispatchers.Stack is
 
-   overriding function Callback (Object : Item;
-                                 Request : AWS.Status.Data)
-                                return AWS.Response.Data is
-   begin
-      if AWS.Status.Is_SOAP (Request) then
-         declare
-            SOAPAction : constant String := AWS.Status.SOAPAction (Request);
-         begin
-            return Object.SOAP_Callback
-              (SOAPAction,
-               SOAP.Message.XML.Load_Payload
-                 (Unbounded_String'(AWS.Status.Payload (Request)),
-                  Schema => Schema (Item'Class (Object), SOAPAction)),
-               Request);
-         end;
-      else
-         raise AWS.Services.Dispatchers.Stack.Not_Handled;
-      end if;
-   end Callback;
-
-   function Create (Callback : Dispatchers.SOAP_Callback)
-                   return AWS.Services.Dispatchers.Stack.Item_Interface'Class
-   is
-   begin
-      return Item'(Schema => SOAP.WSDL.Schema.Empty,
-                   SOAP_Callback => Callback);
-   end Create;
+   type Item is
+     new AWS.Services.Dispatchers.Stack.Item_Interface with private;
 
    function Schema
      (Object     : Item;
       SOAPAction : String)
-     return WSDL.Schema.Definition is
-      pragma Unreferenced (SOAPAction);
-   begin
-      return Object.Schema;
-   end Schema;
+     return WSDL.Schema.Definition;
 
-end SOAP.Dispatch_Item;
+   function Create (Callback : Dispatchers.SOAP_Callback)
+                   return AWS.Services.Dispatchers.Stack.Item_Interface'Class;
+
+private
+
+   type Item is
+     new AWS.Services.Dispatchers.Stack.Item_Interface with record
+      Schema : WSDL.Schema.Definition;
+      SOAP_Callback : Dispatchers.SOAP_Callback;
+   end record;
+   overriding function Callback (Object : Item;
+                                 Request : AWS.Status.Data)
+                                return AWS.Response.Data;
+
+end SOAP.Dispatchers.Stack;
