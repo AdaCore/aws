@@ -1,10 +1,10 @@
 
                             A W S - Ada Web Server
-                                17.0w release
+                                18.0w release
 
 Authors:
    Dmitriy Anisimkov
-   Pascal Obry                                           December 16th, 2015
+   Pascal Obry                                           October 7th, 2016
 
 
 
@@ -61,17 +61,6 @@ features will be listed in this section. Those features will be
 removed in the next version. Note that you can check usage of those
 features in your application by using the GNAT's -gnatwj option as we
 have tagged all obsolescent features with a pragma.
-
--  The OpenSSL methods: SSLv3, SSLv3_Client, SSLv3_Server are marked
-   obsolescent. Those methods are not supported anymore in OpenSSL
-   (> 1.0.1), until those are removed from AWS they are using the
-   equivalent v23 methods.
-
--  The packages AWS.Parameters.Set, AWS.Containers.Tables.Set and
-   AWS.Headers.Set are now marked obsolescent. The routines to set
-   values have now been merged into the parent packages. The change
-   is then straightforward as in almost all cases it is only needed to
-   remove the "Set." prefix from the call.
 
 
 Pointers
