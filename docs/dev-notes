@@ -151,35 +151,39 @@ Notes on the releases handling
 naming
 ------
 
-AWS version number : vX.Y.Z (Z=0 on master, Z>=1 for releases)
-Release branch     : release-X.Y
-Tags               : vX.Y.Z (Z=0 for the branchpoint and Z>=1 otherwise)
+AWS version number : X.Y
+Release branch     : X
+Tags               : X.Y
+
+Where: X = <2-DIGITS-YEAR>
+       Y = 0w on master
+       Y = 0 for preview
+       Y = 1,2 for minor releases
 
 ---------
 branching
 ---------
 
-When a release is about to be ready a branch is created (release-X.Y):
+When a release is about to be ready a branch is created (X):
 
-   $ git branch release-2.0 master
-
-   $ git tag -a vX.Y.0
+   $ git branch 17 master
 
 At this point some adjustments are needed:
-
-   * on the branch
-
-      $ git checkout release-2.0
-      $ edit src/core/aws.ads (set proper version number: X.Y.1)
-      $ edit readme.txt (likewise)
 
    * on master
 
       $ git checkout master
-      $ edit src/core/aws.ads (set proper version number X.Y+1.0w or X+1.0.0w)
+      $ edit src/core/aws.ads (set proper version number X+1.0w)
       $ edit readme.txt (likewise + clean-up "Changes",
         "Non upward compatible changes" and "Obsolescent features" sections)
       $ clean docs/known-problems
+
+   * on the branch
+
+      $ git checkout 17
+      $ git tag -a X.0
+      $ edit src/core/aws.ads (set proper version number: X.0)
+      $ edit readme.txt (likewise)
 
 -------------
 stabilization
@@ -192,12 +196,12 @@ branch:
 
 For this, <branch_name> may have to be rebased on release branch:
 
-   $ git rebase --onto release-2.0 <branch_name>^ <branch_name>
+   $ git rebase --onto 17 <branch_name>^ <branch_name>
    (if there is a single commit to be merged from <branch_name>)
 
-When the release is fully ready a corresponding tag is created (vX.Y.1):
+When the release is fully ready a corresponding tag is created (X.1):
 
-   $ git tag -a vX.Y.1
+   $ git tag -a X.1
    $ git push --tags
 
 If interim releases are needed to fix some important bugs, as before fixes
