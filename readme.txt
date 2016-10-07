@@ -1,10 +1,10 @@
 
                             A W S - Ada Web Server
-                                17.0w release
+                                17.0 release
 
 Authors:
    Dmitriy Anisimkov
-   Pascal Obry                                           December 16th, 2015
+   Pascal Obry                                           October 7th, 2016
 
 
 
