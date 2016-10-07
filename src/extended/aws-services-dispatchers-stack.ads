@@ -41,7 +41,6 @@ package AWS.Services.Dispatchers.Stack is
    function Callback (Object : Item_Interface;
                       Request : AWS.Status.Data)
                      return AWS.Response.Data is abstract;
-   Not_Handled : exception;
 
    type Handler is new AWS.Dispatchers.Handler with private;
    procedure Append (Dispatcher : in out Handler; Item : Item_Interface'Class);

@@ -33,7 +33,6 @@ with AWS.Services.Dispatchers.Stack;
 with AWS.Response;
 with AWS.Status;
 
-with SOAP.Dispatchers;
 with SOAP.WSDL.Schema;
 
 package SOAP.Dispatchers.Stack is
@@ -46,7 +45,7 @@ package SOAP.Dispatchers.Stack is
       SOAPAction : String)
      return WSDL.Schema.Definition;
 
-   function Create (Callback : Dispatchers.SOAP_Callback)
+   function Create (Callback : SOAP_Callback)
                    return AWS.Services.Dispatchers.Stack.Item_Interface'Class;
 
 private

@@ -16,6 +16,7 @@
 --  to http://www.gnu.org/licenses for a complete copy of the license.      --
 ------------------------------------------------------------------------------
 
+with AWS.Messages;
 with AWS.MIME;
 
 package body Pages is
@@ -32,7 +33,9 @@ package body Pages is
          return AWS.Response.Build (AWS.MIME.Text_HTML,
                                     "<p>Very basic page - only handle / URI");
       else
-         raise AWS.Services.Dispatchers.Stack.Not_Handled;
+         return AWS.Response.Acknowledge
+           (AWS.Messages.S404,
+            "<p>Request not handled by callback</p>");
       end if;
    end Callback;
 

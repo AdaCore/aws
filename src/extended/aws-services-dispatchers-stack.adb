@@ -27,6 +27,8 @@
 --  covered by the  GNU Public License.                                     --
 ------------------------------------------------------------------------------
 
+with AWS.Messages;
+
 package body AWS.Services.Dispatchers.Stack is
 
    procedure Append (Dispatcher : in out Handler;
@@ -39,16 +41,20 @@ package body AWS.Services.Dispatchers.Stack is
                                  Request    : Status.Data)
                                 return Response.Data is
       URI : constant String := AWS.Status.URI (Request);
+      use type Messages.Status_Code;
    begin
       for Item of Dispatcher.Stack loop
+         declare
+            R : constant Response.Data := Item.Callback (Request);
          begin
-            return Item.Callback (Request);
-         exception
-            when Not_Handled =>
-               null;
+            if Response.Status_Code (R) /= Messages.S404 then
+               return R;
+            end if;
          end;
       end loop;
-      raise Not_Handled with "no dispatch item matched your request " & URI;
+      return Response.Acknowledge
+        (Messages.S404,
+         "<p>no dispatch item matched your request " & URI & "</p>");
    end Dispatch;
 
 end AWS.Services.Dispatchers.Stack;

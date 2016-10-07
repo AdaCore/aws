@@ -29,6 +29,7 @@
 
 with Ada.Strings.Unbounded;
 
+with AWS.Messages;
 with SOAP.Message.XML;
 
 package body SOAP.Dispatchers.Stack is
@@ -51,7 +52,9 @@ package body SOAP.Dispatchers.Stack is
                Request);
          end;
       else
-         raise AWS.Services.Dispatchers.Stack.Not_Handled;
+         return AWS.Response.Acknowledge
+           (AWS.Messages.S404,
+            "<p>Request not handled by callback</p>");
       end if;
    end Callback;
 
