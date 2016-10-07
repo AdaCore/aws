@@ -29,7 +29,7 @@
 
 pragma Ada_2012;
 
-with AWS.Dispatchers.Stacks;
+with AWS.Services.Dispatchers.Stack;
 with AWS.Response;
 with AWS.Status;
 
@@ -38,25 +38,25 @@ with SOAP.WSDL.Schema;
 
 package SOAP.Dispatch_Item is
 
-   type SOAP_Item is
-     new AWS.Dispatchers.Stacks.Dispatch_Item_Interface with private;
+   type Item is
+     new AWS.Services.Dispatchers.Stack.Item_Interface with private;
 
    function Schema
-     (Object     : SOAP_Item;
+     (Object     : Item;
       SOAPAction : String)
      return WSDL.Schema.Definition;
 
    function Create (Callback : Dispatchers.SOAP_Callback)
-                   return AWS.Dispatchers.Stacks.Dispatch_Item_Interface'Class;
+                   return AWS.Services.Dispatchers.Stack.Item_Interface'Class;
 
 private
 
-   type SOAP_Item is
-     new AWS.Dispatchers.Stacks.Dispatch_Item_Interface with record
+   type Item is
+     new AWS.Services.Dispatchers.Stack.Item_Interface with record
       Schema : WSDL.Schema.Definition;
       SOAP_Callback : Dispatchers.SOAP_Callback;
    end record;
-   overriding function Callback (Object : SOAP_Item;
+   overriding function Callback (Object : Item;
                                  Request : AWS.Status.Data)
                                 return AWS.Response.Data;
 

@@ -32,7 +32,7 @@ package body Pages is
          return AWS.Response.Build (AWS.MIME.Text_HTML,
                                     "<p>Very basic page - only handle / URI");
       else
-         raise AWS.Dispatchers.Stacks.Not_Handled;
+         raise AWS.Services.Dispatchers.Stack.Not_Handled;
       end if;
    end Callback;
 

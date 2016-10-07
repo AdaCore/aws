@@ -19,7 +19,7 @@
 with Ada.Text_IO;
 
 with AWS.Config;
-with AWS.Dispatchers.Stacks;
+with AWS.Services.Dispatchers.Stack;
 with AWS.Server;
 
 with Pages;
@@ -28,21 +28,21 @@ with SOAP_Server_Disp_CB;
 with SOAP.Dispatch_Item;
 
 procedure Stack_Soap_Disp is
-   Stack : AWS.Dispatchers.Stacks.Handler;
+   Stack : AWS.Services.Dispatchers.Stack.Handler;
 
    Page_1 : Pages.First_Page;
    Page_2 : Pages.Second_Page;
 
-   Soap_Handling : AWS.Dispatchers.Stacks.Dispatch_Item_Interface'Class :=
+   Soap_Handling : AWS.Services.Dispatchers.Stack.Item_Interface'Class :=
      SOAP.Dispatch_Item.Create (SOAP_Server_Disp_CB.SOAP_CB'Access);
 
    WS : AWS.Server.HTTP;
 
 begin
 
-   Stack.Append_Distpatch_Item (Soap_Handling);
-   Stack.Append_Distpatch_Item (Page_1);
-   Stack.Append_Distpatch_Item (Page_2);
+   Stack.Append (Soap_Handling);
+   Stack.Append (Page_1);
+   Stack.Append (Page_2);
 
    AWS.Server.Start
      (WS,

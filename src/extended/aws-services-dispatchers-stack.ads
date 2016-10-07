@@ -27,28 +27,36 @@
 --  covered by the  GNU Public License.                                     --
 ------------------------------------------------------------------------------
 
-package body AWS.Dispatchers.Stacks is
+pragma Ada_2012;
 
-   procedure Append_Distpatch_Item (Dispatcher : in out Handler;
-                                    Item : Dispatch_Item_Interface'Class) is
-   begin
-      Dispatcher.Stack.Append (Item);
-   end Append_Distpatch_Item;
+private with Ada.Containers.Indefinite_Vectors;
 
+with AWS.Dispatchers;
+with AWS.Response;
+with AWS.Status;
+
+package AWS.Services.Dispatchers.Stack is
+
+   type Item_Interface is interface;
+   function Callback (Object : Item_Interface;
+                      Request : AWS.Status.Data)
+                     return AWS.Response.Data is abstract;
+   Not_Handled : exception;
+
+   type Handler is new AWS.Dispatchers.Handler with private;
+   procedure Append (Dispatcher : in out Handler; Item : Item_Interface'Class);
    overriding function Dispatch (Dispatcher : Handler;
                                  Request    : Status.Data)
-                                return Response.Data is
-      URI : constant String := AWS.Status.URI (Request);
-   begin
-      for Item of Dispatcher.Stack loop
-         begin
-            return Item.Callback (Request);
-         exception
-            when Not_Handled =>
-               null;
-         end;
-      end loop;
-      raise Not_Handled with "no dispatch item matched your request " & URI;
-   end Dispatch;
+                                return Response.Data;
 
-end AWS.Dispatchers.Stacks;
+private
+
+   package Item_Set is new Ada.Containers.Indefinite_Vectors
+     (Positive, Item_Interface'Class, "=");
+
+   type Handler is new AWS.Dispatchers.Handler with record
+      Stack : Item_Set.Vector;
+   end record;
+   overriding function Clone (Object : Handler) return Handler is (Object);
+
+end AWS.Services.Dispatchers.Stack;

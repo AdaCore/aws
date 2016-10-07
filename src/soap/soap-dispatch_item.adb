@@ -35,7 +35,7 @@ package body SOAP.Dispatch_Item is
 
    use Ada.Strings.Unbounded;
 
-   overriding function Callback (Object : SOAP_Item;
+   overriding function Callback (Object : Item;
                                  Request : AWS.Status.Data)
                                 return AWS.Response.Data is
    begin
@@ -47,24 +47,24 @@ package body SOAP.Dispatch_Item is
               (SOAPAction,
                SOAP.Message.XML.Load_Payload
                  (Unbounded_String'(AWS.Status.Payload (Request)),
-                  Schema => Schema (SOAP_Item'Class (Object), SOAPAction)),
+                  Schema => Schema (Item'Class (Object), SOAPAction)),
                Request);
          end;
       else
-         raise AWS.Dispatchers.Stacks.Not_Handled;
+         raise AWS.Services.Dispatchers.Stack.Not_Handled;
       end if;
    end Callback;
 
    function Create (Callback : Dispatchers.SOAP_Callback)
-                   return AWS.Dispatchers.Stacks.Dispatch_Item_Interface'Class
+                   return AWS.Services.Dispatchers.Stack.Item_Interface'Class
    is
    begin
-      return SOAP_Item'(Schema => SOAP.WSDL.Schema.Empty,
-                        SOAP_Callback => Callback);
+      return Item'(Schema => SOAP.WSDL.Schema.Empty,
+                   SOAP_Callback => Callback);
    end Create;
 
    function Schema
-     (Object     : SOAP_Item;
+     (Object     : Item;
       SOAPAction : String)
      return WSDL.Schema.Definition is
       pragma Unreferenced (SOAPAction);

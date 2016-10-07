@@ -19,13 +19,13 @@
 with Ada.Text_IO;
 
 with AWS.Config;
-with AWS.Dispatchers.Stacks;
+with AWS.Services.Dispatchers.Stack;
 with AWS.Server;
 
 with Pages;
 
 procedure Stack_Disp is
-   Stack : AWS.Dispatchers.Stacks.Handler;
+   Stack : AWS.Services.Dispatchers.Stack.Handler;
 
    Page_1 : Pages.First_Page;
    Page_2 : Pages.Second_Page;
@@ -34,8 +34,8 @@ procedure Stack_Disp is
 
 begin
 
-   Stack.Append_Distpatch_Item (Page_1);
-   Stack.Append_Distpatch_Item (Page_2);
+   Stack.Append (Page_1);
+   Stack.Append (Page_2);
 
    AWS.Server.Start
      (WS,
