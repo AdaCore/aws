@@ -16,22 +16,22 @@
 --  to http://www.gnu.org/licenses for a complete copy of the license.      --
 ------------------------------------------------------------------------------
 
-with AWS.Dispatchers.Stacks;
+with AWS.Services.Dispatchers.Stack;
 with AWS.Response;
 with AWS.Status;
 
 package Pages is
 
-   type First_Page is new AWS.Dispatchers.Stacks.Dispatch_Item_Interface
+   type First_Page is new AWS.Services.Dispatchers.Stack.Item_Interface
      with null record;
    overriding function Callback (Object : in out First_Page;
                                  Request : AWS.Status.Data)
                                 return AWS.Response.Data;
 
-   type Second_Page is new AWS.Dispatchers.Stacks.Dispatch_Item_Interface with
+   type Second_Page is new AWS.Services.Dispatchers.Stack.Item_Interface with
       record
          Call_Number : Natural := 0;
-   end record;
+      end record;
    overriding function Callback (Object : in out Second_Page;
                                  Request : AWS.Status.Data)
                                 return AWS.Response.Data;

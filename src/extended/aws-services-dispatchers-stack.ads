@@ -27,49 +27,35 @@
 --  covered by the  GNU Public License.                                     --
 ------------------------------------------------------------------------------
 
-with Ada.Strings.Unbounded;
+pragma Ada_2012;
 
-with SOAP.Message.XML;
+private with Ada.Containers.Indefinite_Vectors;
 
-package body SOAP.Dispatch_Item is
+with AWS.Dispatchers;
+with AWS.Response;
+with AWS.Status;
 
-   use Ada.Strings.Unbounded;
+package AWS.Services.Dispatchers.Stack is
 
-   overriding function Callback (Object : in out SOAP_Item;
-                                 Request : AWS.Status.Data)
-                                return AWS.Response.Data is
-   begin
-      if AWS.Status.Is_SOAP (Request) then
-         declare
-            SOAPAction : constant String := AWS.Status.SOAPAction (Request);
-         begin
-            return Object.SOAP_Callback
-              (SOAPAction,
-               SOAP.Message.XML.Load_Payload
-                 (Unbounded_String'(AWS.Status.Payload (Request)),
-                  Schema => Schema (SOAP_Item'Class (Object), SOAPAction)),
-               Request);
-         end;
-      else
-         raise AWS.Dispatchers.Stacks.Not_Handled;
-      end if;
-   end Callback;
+   type Item_Interface is interface;
+   function Callback (Object : in out Item_Interface;
+                      Request : AWS.Status.Data)
+                     return AWS.Response.Data is abstract;
 
-   function Create (Callback : Dispatchers.SOAP_Callback)
-                   return AWS.Dispatchers.Stacks.Dispatch_Item_Interface'Class
-   is
-   begin
-      return SOAP_Item'(Schema => SOAP.WSDL.Schema.Empty,
-                        SOAP_Callback => Callback);
-   end Create;
+   type Handler is new AWS.Dispatchers.Handler with private;
+   procedure Append (Dispatcher : in out Handler; Item : Item_Interface'Class);
+   overriding function Dispatch (Dispatcher : in out Handler;
+                                 Request    : Status.Data)
+                                return Response.Data;
 
-   function Schema
-     (Object     : SOAP_Item;
-      SOAPAction : String)
-     return WSDL.Schema.Definition is
-      pragma Unreferenced (SOAPAction);
-   begin
-      return Object.Schema;
-   end Schema;
+private
 
-end SOAP.Dispatch_Item;
+   package Item_Set is new Ada.Containers.Indefinite_Vectors
+     (Positive, Item_Interface'Class, "=");
+
+   type Handler is new AWS.Dispatchers.Handler with record
+      Stack : Item_Set.Vector;
+   end record;
+   overriding function Clone (Object : Handler) return Handler is (Object);
+
+end AWS.Services.Dispatchers.Stack;

@@ -22,7 +22,7 @@ with Ada.Strings.Hash_Case_Insensitive;
 with AWS.Response;
 with AWS.Status;
 
-with REST.Dispatch_Item;
+with REST.Dispatchers.Stack;
 
 package REST_Example is
 
@@ -37,7 +37,7 @@ package REST_Example is
       Equivalent_Keys => "=",
       "=" => "=");
 
-   type REST_Conf is new REST.Dispatch_Item.REST_Item with record
+   type REST_Conf is new REST.Dispatchers.Stack.Item with record
       Map : String_Maps.Map;
       Post_Call : Natural := 0;
    end record;

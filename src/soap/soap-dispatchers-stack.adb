@@ -27,45 +27,52 @@
 --  covered by the  GNU Public License.                                     --
 ------------------------------------------------------------------------------
 
-pragma Ada_2012;
+with Ada.Strings.Unbounded;
 
-with AWS.Dispatchers.Stacks;
-with AWS.Response;
-with AWS.Status;
+with AWS.Messages;
+with SOAP.Message.XML;
 
-package REST.Dispatch_Item is
+package body SOAP.Dispatchers.Stack is
 
-   type REST_Item is abstract
-     new AWS.Dispatchers.Stacks.Dispatch_Item_Interface with private;
-   overriding function Callback (Object : in out REST_Item;
+   use Ada.Strings.Unbounded;
+
+   overriding function Callback (Object : in out Item;
                                  Request : AWS.Status.Data)
-                                return AWS.Response.Data;
+                                return AWS.Response.Data is
+   begin
+      if AWS.Status.Is_SOAP (Request) then
+         declare
+            SOAPAction : constant String := AWS.Status.SOAPAction (Request);
+         begin
+            return Object.SOAP_Callback
+              (SOAPAction,
+               SOAP.Message.XML.Load_Payload
+                 (Unbounded_String'(AWS.Status.Payload (Request)),
+                  Schema => Schema (Item'Class (Object), SOAPAction)),
+               Request);
+         end;
+      else
+         return AWS.Response.Acknowledge
+           (AWS.Messages.S404,
+            "<p>Request not handled by callback</p>");
+      end if;
+   end Callback;
 
-   function GET (Object : REST_Item;
-                 Request : AWS.Status.Data)
-                return AWS.Response.Data is abstract;
-   --  GET : Get a specific resource using an id.
-   --  One can also get a collection of resource if no id is provided.
-   function PUT (Object : in out REST_Item;
-                 Request : AWS.Status.Data)
-                return AWS.Response.Data is abstract;
-   --  PUT : Update a specific resource using an id.
-   --  Collection of resources can also be updated.
-   --  If the resource doesn't exist and the id is known it will be created.
-   function DELETE (Object : in out REST_Item;
-                    Request : AWS.Status.Data)
-                   return AWS.Response.Data is abstract;
-   --  DELETE : Delete a specific resource using an identifier.
-   --  The collection can be deleted if no id is given.
-   function POST (Object : in out REST_Item;
-                  Request : AWS.Status.Data)
-                 return AWS.Response.Data is abstract;
-   --  POST : Create a new resource.
-   --  Can be used for all operations that don't fit into the other categories.
+   function Create (Callback : Dispatchers.SOAP_Callback)
+                   return AWS.Services.Dispatchers.Stack.Item_Interface'Class
+   is
+   begin
+      return Item'(Schema => SOAP.WSDL.Schema.Empty,
+                   SOAP_Callback => Callback);
+   end Create;
 
-private
+   function Schema
+     (Object     : Item;
+      SOAPAction : String)
+     return WSDL.Schema.Definition is
+      pragma Unreferenced (SOAPAction);
+   begin
+      return Object.Schema;
+   end Schema;
 
-   type REST_Item is abstract
-     new AWS.Dispatchers.Stacks.Dispatch_Item_Interface with null record;
-
-end REST.Dispatch_Item;
+end SOAP.Dispatchers.Stack;

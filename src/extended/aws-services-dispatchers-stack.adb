@@ -27,28 +27,34 @@
 --  covered by the  GNU Public License.                                     --
 ------------------------------------------------------------------------------
 
-package body AWS.Dispatchers.Stacks is
+with AWS.Messages;
 
-   procedure Append_Distpatch_Item (Dispatcher : in out Handler;
-                                    Item : Dispatch_Item_Interface'Class) is
+package body AWS.Services.Dispatchers.Stack is
+
+   procedure Append (Dispatcher : in out Handler;
+                     Item : Item_Interface'Class) is
    begin
       Dispatcher.Stack.Append (Item);
-   end Append_Distpatch_Item;
+   end Append;
 
    overriding function Dispatch (Dispatcher : in out Handler;
                                  Request    : Status.Data)
                                 return Response.Data is
       URI : constant String := AWS.Status.URI (Request);
+      use type Messages.Status_Code;
    begin
       for Item of Dispatcher.Stack loop
+         declare
+            R : constant Response.Data := Item.Callback (Request);
          begin
-            return Item.Callback (Request);
-         exception
-            when Not_Handled =>
-               null;
+            if Response.Status_Code (R) /= Messages.S404 then
+               return R;
+            end if;
          end;
       end loop;
-      raise Not_Handled with "no dispatch item matched your request " & URI;
+      return Response.Acknowledge
+        (Messages.S404,
+         "<p>no dispatch item matched your request " & URI & "</p>");
    end Dispatch;
 
-end AWS.Dispatchers.Stacks;
+end AWS.Services.Dispatchers.Stack;

@@ -27,26 +27,45 @@
 --  covered by the  GNU Public License.                                     --
 ------------------------------------------------------------------------------
 
-package body REST.Dispatch_Item is
+pragma Ada_2012;
 
-   overriding function Callback (Object : in out REST_Item;
+with AWS.Services.Dispatchers.Stack;
+with AWS.Response;
+with AWS.Status;
+
+package REST.Dispatchers.Stack is
+
+   type Item is abstract
+     new AWS.Services.Dispatchers.Stack.Item_Interface with private;
+   overriding function Callback (Object : in out Item;
                                  Request : AWS.Status.Data)
-                                return AWS.Response.Data is
-      Method : constant AWS.Status.Request_Method :=
-        AWS.Status.Method (Request);
-   begin
-      case Method is
-         when AWS.Status.GET =>
-            return GET (REST_Item'Class (Object), Request);
-         when AWS.Status.PUT =>
-            return PUT (REST_Item'Class (Object), Request);
-         when AWS.Status.DELETE =>
-            return DELETE (REST_Item'Class (Object), Request);
-         when AWS.Status.POST =>
-            return POST (REST_Item'Class (Object), Request);
-         when others =>
-            raise AWS.Dispatchers.Stacks.Not_Handled;
-      end case;
-   end Callback;
+                                return AWS.Response.Data;
 
-end REST.Dispatch_Item;
+   function GET (Object : Item;
+                 Request : AWS.Status.Data)
+                return AWS.Response.Data is abstract;
+   --  GET : Get a specific resource using an id.
+   --  One can also get a collection of resource if no id is provided.
+   function PUT (Object : in out Item;
+                 Request : AWS.Status.Data)
+                return AWS.Response.Data is abstract;
+   --  PUT : Update a specific resource using an id.
+   --  Collection of resources can also be updated.
+   --  If the resource doesn't exist and the id is known it will be created.
+   function DELETE (Object : in out Item;
+                    Request : AWS.Status.Data)
+                   return AWS.Response.Data is abstract;
+   --  DELETE : Delete a specific resource using an identifier.
+   --  The collection can be deleted if no id is given.
+   function POST (Object : in out Item;
+                  Request : AWS.Status.Data)
+                 return AWS.Response.Data is abstract;
+   --  POST : Create a new resource.
+   --  Can be used for all operations that don't fit into the other categories.
+
+private
+
+   type Item is abstract
+     new AWS.Services.Dispatchers.Stack.Item_Interface with null record;
+
+end REST.Dispatchers.Stack;

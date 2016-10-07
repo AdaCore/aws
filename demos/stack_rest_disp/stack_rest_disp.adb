@@ -21,26 +21,26 @@ with Ada.Text_IO;
 with GNAT.Sockets;
 
 with AWS.Config.Set;
-with AWS.Dispatchers.Stacks;
+with AWS.Services.Dispatchers.Stack;
 with AWS.Server;
 
 with Pages;
 
 with SOAP_Server_Disp_CB;
-with SOAP.Dispatch_Item;
+with SOAP.Dispatchers.Stack;
 
 with REST_Example;
 
 procedure Stack_Rest_Disp is
 
-   Stack : AWS.Dispatchers.Stacks.Handler;
+   Stack : AWS.Services.Dispatchers.Stack.Handler;
 
    Page_1 : Pages.First_Page;
 
    Rest : REST_Example.REST_Conf;
 
-   Soap_Handling : AWS.Dispatchers.Stacks.Dispatch_Item_Interface'Class :=
-     SOAP.Dispatch_Item.Create (SOAP_Server_Disp_CB.SOAP_CB'Access);
+   Soap_Handling : AWS.Services.Dispatchers.Stack.Item_Interface'Class :=
+     SOAP.Dispatchers.Stack.Create (SOAP_Server_Disp_CB.SOAP_CB'Access);
 
    WS : AWS.Server.HTTP;
 
@@ -53,9 +53,9 @@ begin
 
    AWS.Config.Set.Reuse_Address (Config, True);
 
-   Stack.Append_Distpatch_Item (Soap_Handling);
-   Stack.Append_Distpatch_Item (Page_1);
-   Stack.Append_Distpatch_Item (Rest);
+   Stack.Append (Soap_Handling);
+   Stack.Append (Page_1);
+   Stack.Append (Rest);
 
    AWS.Server.Start
      (WS,

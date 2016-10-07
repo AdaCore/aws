@@ -22,7 +22,7 @@ with Ada.Text_IO;
 
 with GNAT.String_Split;
 
-with AWS.Dispatchers.Stacks;
+with AWS.Messages;
 with AWS.MIME;
 
 package body REST_Example is
@@ -37,6 +37,9 @@ package body REST_Example is
 
    use type Ada.Containers.Count_Type;
 
+   function S404 (Method : String;
+                  Message : String := "") return AWS.Response.Data;
+
    function GET (Object : REST_Conf;
                  Request : AWS.Status.Data)
                 return AWS.Response.Data is
@@ -46,7 +49,7 @@ package body REST_Example is
    begin
       Ada.Text_IO.Put_Line ("GET get called");
       if URI.Length < 2 then
-         raise AWS.Dispatchers.Stacks.Not_Handled;
+         return S404 ("GET", "missing information");
       end if;
       if URI.Element (2) = "parameters" then
          if URI.Length = 2 then
@@ -76,12 +79,9 @@ package body REST_Example is
                   raise REST.REST_Error with ID & " isn't a valid ID";
                end if;
             end;
-         else
-            raise AWS.Dispatchers.Stacks.Not_Handled;
          end if;
-      else
-         raise AWS.Dispatchers.Stacks.Not_Handled;
       end if;
+      return S404 ("GET");
    end GET;
 
    function PUT (Object : in out REST_Conf;
@@ -93,7 +93,7 @@ package body REST_Example is
    begin
       Ada.Text_IO.Put_Line ("PUT get called");
       if URI.Length < 2 then
-         raise AWS.Dispatchers.Stacks.Not_Handled;
+         return S404 ("PUT", "missing information");
       end if;
       if URI.Element (2) = "parameters" then
          if URI.Length = 2 then
@@ -124,10 +124,10 @@ package body REST_Example is
                end if;
             end;
          else
-            raise AWS.Dispatchers.Stacks.Not_Handled;
+            return S404 ("PUT");
          end if;
       else
-         raise AWS.Dispatchers.Stacks.Not_Handled;
+         return S404 ("PUT");
       end if;
       return AWS.Response.Build (AWS.MIME.Text_Plain, "PUT OK");
    end PUT;
@@ -140,7 +140,7 @@ package body REST_Example is
    begin
       Ada.Text_IO.Put_Line ("DELETE get called");
       if URI.Length < 2 then
-         raise AWS.Dispatchers.Stacks.Not_Handled;
+         return S404 ("DELETE", "missing information");
       end if;
       if URI.Element (2) = "parameters" then
          if URI.Length = 2 then
@@ -157,10 +157,10 @@ package body REST_Example is
                end if;
             end;
          else
-            raise AWS.Dispatchers.Stacks.Not_Handled;
+            return S404 ("DELETE");
          end if;
       else
-         raise AWS.Dispatchers.Stacks.Not_Handled;
+         return S404 ("DELETE");
       end if;
       return AWS.Response.Build (AWS.MIME.Text_Plain, "DELETE OK");
    end DELETE;
@@ -175,7 +175,7 @@ package body REST_Example is
       Object.Post_Call := Object.Post_Call + 1;
       Ada.Text_IO.Put_Line ("POST get called :" & Object.Post_Call'Img);
       if URI.Length < 2 then
-         raise AWS.Dispatchers.Stacks.Not_Handled;
+         return S404 ("POST", "missing information");
       end if;
       if URI.Element (2) = "parameters" then
          if URI.Length = 2 then
@@ -210,10 +210,10 @@ package body REST_Example is
                end if;
             end;
          else
-            raise AWS.Dispatchers.Stacks.Not_Handled;
+            return S404 ("POST");
          end if;
       else
-         raise AWS.Dispatchers.Stacks.Not_Handled;
+         return S404 ("POST");
       end if;
       return AWS.Response.Build (AWS.MIME.Text_Plain, "POST OK");
    end POST;
@@ -243,5 +243,14 @@ package body REST_Example is
          return Answer;
       end;
    end Data_To_String;
+
+   function S404 (Method : String;
+                  Message : String := "")
+                 return AWS.Response.Data is
+   begin
+      return AWS.Response.Acknowledge
+        (AWS.Messages.S404,
+         "<p>request not handled by " & Method & " callback - " & Message);
+   end S404;
 
 end REST_Example;

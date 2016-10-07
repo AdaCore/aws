@@ -29,31 +29,34 @@
 
 pragma Ada_2012;
 
-with Ada.Containers.Indefinite_Vectors;
+with AWS.Services.Dispatchers.Stack;
+with AWS.Response;
+with AWS.Status;
 
-package AWS.Dispatchers.Stacks is
+with SOAP.WSDL.Schema;
 
-   type Dispatch_Item_Interface is interface;
-   function Callback (Object : in out Dispatch_Item_Interface;
-                      Request : AWS.Status.Data)
-                     return AWS.Response.Data is abstract;
-   Not_Handled : exception;
+package SOAP.Dispatchers.Stack is
 
-   package Dispatch_Item_Vectors is new Ada.Containers.Indefinite_Vectors
-     (Positive, Dispatch_Item_Interface'Class, "=");
+   type Item is
+     new AWS.Services.Dispatchers.Stack.Item_Interface with private;
 
-   type Handler is new AWS.Dispatchers.Handler with private;
-   procedure Append_Distpatch_Item (Dispatcher : in out Handler;
-                                    Item : Dispatch_Item_Interface'Class);
-   overriding function Dispatch (Dispatcher : in out Handler;
-                                 Request    : Status.Data)
-                                return Response.Data;
+   function Schema
+     (Object     : Item;
+      SOAPAction : String)
+     return WSDL.Schema.Definition;
+
+   function Create (Callback : SOAP_Callback)
+                   return AWS.Services.Dispatchers.Stack.Item_Interface'Class;
 
 private
 
-   type Handler is new AWS.Dispatchers.Handler with record
-      Stack : Dispatch_Item_Vectors.Vector;
+   type Item is
+     new AWS.Services.Dispatchers.Stack.Item_Interface with record
+      Schema : WSDL.Schema.Definition;
+      SOAP_Callback : Dispatchers.SOAP_Callback;
    end record;
-   overriding function Clone (Object : Handler) return Handler is (Object);
+   overriding function Callback (Object : in out Item;
+                                 Request : AWS.Status.Data)
+                                return AWS.Response.Data;
 
-end AWS.Dispatchers.Stacks;
+end SOAP.Dispatchers.Stack;

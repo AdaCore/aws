@@ -27,37 +27,30 @@
 --  covered by the  GNU Public License.                                     --
 ------------------------------------------------------------------------------
 
-pragma Ada_2012;
+with AWS.Messages;
 
-with AWS.Dispatchers.Stacks;
-with AWS.Response;
-with AWS.Status;
+package body REST.Dispatchers.Stack is
 
-with SOAP.Dispatchers;
-with SOAP.WSDL.Schema;
-
-package SOAP.Dispatch_Item is
-
-   type SOAP_Item is
-     new AWS.Dispatchers.Stacks.Dispatch_Item_Interface with private;
-
-   function Schema
-     (Object     : SOAP_Item;
-      SOAPAction : String)
-     return WSDL.Schema.Definition;
-
-   function Create (Callback : Dispatchers.SOAP_Callback)
-                   return AWS.Dispatchers.Stacks.Dispatch_Item_Interface'Class;
-
-private
-
-   type SOAP_Item is
-     new AWS.Dispatchers.Stacks.Dispatch_Item_Interface with record
-      Schema : WSDL.Schema.Definition;
-      SOAP_Callback : Dispatchers.SOAP_Callback;
-   end record;
-   overriding function Callback (Object : in out SOAP_Item;
+   overriding function Callback (Object : in out Item;
                                  Request : AWS.Status.Data)
-                                return AWS.Response.Data;
+                                return AWS.Response.Data is
+      Method : constant AWS.Status.Request_Method :=
+        AWS.Status.Method (Request);
+   begin
+      case Method is
+         when AWS.Status.GET =>
+            return GET (Item'Class (Object), Request);
+         when AWS.Status.PUT =>
+            return PUT (Item'Class (Object), Request);
+         when AWS.Status.DELETE =>
+            return DELETE (Item'Class (Object), Request);
+         when AWS.Status.POST =>
+            return POST (Item'Class (Object), Request);
+         when others =>
+            return AWS.Response.Acknowledge
+              (AWS.Messages.S404,
+               "<p>" & Method'Img & " isn't part of REST API</p>");
+      end case;
+   end Callback;
 
-end SOAP.Dispatch_Item;
+end REST.Dispatchers.Stack;
