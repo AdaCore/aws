@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2006-2013, AdaCore                     --
+--                     Copyright (C) 2006-2016, AdaCore                     --
 --                                                                          --
 --  This is free software;  you can redistribute it  and/or modify it       --
 --  under terms of the  GNU General Public License as published  by the     --
@@ -235,9 +235,9 @@ package body USock is
          First := Strings.Fixed.Index (D, "Server) v");
          Last := Strings.Fixed.Index (D (First .. D'Last), (1 => ASCII.CR));
 
-         D (First + 9 .. First + 13) := "x.y.z";
+         D (First + 9 .. First + 11) := "x.y";
 
-         Text_IO.Put (D (D'First .. First + 13));
+         Text_IO.Put (D (D'First .. First + 11));
          Text_IO.Put_Line (D (Last .. D'Last));
       end;
       Text_IO.Put_Line ("--");
