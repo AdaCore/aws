@@ -215,7 +215,9 @@ package body REST_Example is
       else
          return S404 ("POST");
       end if;
-      return AWS.Response.Build (AWS.MIME.Text_Plain, "POST OK");
+      return AWS.Response.Build (Content_Type => AWS.MIME.Text_Plain,
+                                 Message_Body => "POST OK",
+                                 Status_Code => AWS.Messages.S201);
    end POST;
 
    function Split_String (Item : String; Separator : Character)
