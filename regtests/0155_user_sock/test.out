@@ -14,7 +14,7 @@ Callback... /toto
 Got : --
 HTTP/1.1 200 OK
 Date: xxx, xx xxx xxxx xx:xx:xx xxx
-Server: AWS (Ada Web Server) vx.y.z
+Server: AWS (Ada Web Server) vx.y
 Connection: close
 Content-Type: text/html
 Content-Length: 22
