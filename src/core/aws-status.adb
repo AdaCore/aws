@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2000-2016, AdaCore                     --
+--                     Copyright (C) 2000-2017, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -337,7 +337,8 @@ package body AWS.Status is
 
    function End_Of_Body (D : Data) return Boolean is
    begin
-      return Containers.Memory_Streams.End_Of_File (D.Binary_Data.all);
+      return D.Binary_Data = null
+        or else Containers.Memory_Streams.End_Of_File (D.Binary_Data.all);
    end End_Of_Body;
 
    ------------
