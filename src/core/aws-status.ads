@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2000-2014, AdaCore                     --
+--                     Copyright (C) 2000-2016, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -196,9 +196,9 @@ package AWS.Status is
 
    function Is_Body_Uploaded       (D : Data) return Boolean with Inline;
    --  Returns True if the message body has been uploaded and False if not.
-   --  The reason beeing that the body size is above Upload_Size_Limit.
+   --  The reason being that the body size is above Upload_Size_Limit.
    --  User can upload the file using AWS.Server.Get_Message_Body, the size
-   --  beeing returned by Content_Length.
+   --  being returned by Content_Length.
 
    function Multipart_Boundary     (D : Data) return String with Inline;
    --  Get value for the boundary part in "Content-Type: ...; boundary=..."
