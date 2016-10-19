@@ -337,7 +337,8 @@ package body AWS.Status is
 
    function End_Of_Body (D : Data) return Boolean is
    begin
-      return Containers.Memory_Streams.End_Of_File (D.Binary_Data.all);
+      return D.Binary_Data = null
+        or else Containers.Memory_Streams.End_Of_File (D.Binary_Data.all);
    end End_Of_Body;
 
    ------------
