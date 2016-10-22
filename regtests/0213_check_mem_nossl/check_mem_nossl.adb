@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2011-2014, AdaCore                     --
+--                     Copyright (C) 2011-2016, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -237,6 +237,17 @@ procedure Check_Mem_Nossl is
                String'(Templates.Parse ("check_mem_nossl.tmplt", Trans)));
          end;
 
+      elsif URI = "/template_inc" then
+
+         declare
+            Trans : constant Templates.Translate_Table :=
+                      (1 => Templates.Assoc ("I_FILE", "cm2_txt.tmplt"));
+         begin
+            return Response.Build
+              (MIME.Text_HTML,
+               String'(Templates.Parse ("check_mem_nossl2.tmplt", Trans)));
+         end;
+
       elsif URI = "/stream" then
          Strm := new Resources.Streams.Disk.Stream_Type;
 
@@ -446,6 +457,7 @@ procedure Check_Mem_Nossl is
       Request ("/simple?p1=8&p2=azerty%20qwerty");
       Request ("/file", "check_mem_nossl.adb");
       Request ("/template");
+      Request ("/template_inc");
       Request ("/no-template");
       Request ("/stream", "check_mem_nossl.adb");
       Request ("/stream-unknown");
