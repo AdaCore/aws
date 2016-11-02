@@ -148,7 +148,7 @@ package AWS.Status is
    function Is_Supported
      (D        : Data;
       Encoding : Messages.Content_Encoding) return Boolean;
-   --  Returns True if the content encoding scheme is sported by the client
+   --  Returns True if the content encoding scheme is supported by the client
 
    function Preferred_Coding  (D : Data) return Messages.Content_Encoding;
    --  Returns supported by AWS coding preferred by client from the
