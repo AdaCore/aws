@@ -119,6 +119,9 @@ package AWS.Status is
    function Content_Type      (D : Data) return String with Inline;
    --  Get value for "Content-Type:" header
 
+   function Transfer_Encoding (D : Data) return String with Inline;
+   --  Get value for "Transfer-Encoding:" header
+
    function Expect            (D : Data) return String with Inline;
    --  Get value for "Expect:" header
 

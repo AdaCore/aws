@@ -814,6 +814,15 @@ package body AWS.Status is
       return D.Socket.all;
    end Socket;
 
+   -----------------------
+   -- Transfer_Encoding --
+   -----------------------
+
+   function Transfer_Encoding (D : Data) return String is
+   begin
+      return Headers.Get (D.Header, Messages.Transfer_Encoding_Token);
+   end Transfer_Encoding;
+
    -------------
    -- Upgrade --
    -------------
