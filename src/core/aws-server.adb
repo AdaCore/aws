@@ -239,7 +239,9 @@ package body AWS.Server is
              Line_Attribute.Reference;
    begin
       if not Status.Is_Body_Uploaded (TA.Stat)
-        and then Status.Content_Length (TA.Stat) > 0
+        and then
+          (Status.Content_Length (TA.Stat) > 0
+           or else Status.Transfer_Encoding (TA.Stat) = "chunked")
       then
          HTTP_Utils.Get_Message_Data
            (TA.Server.all, TA.Line, TA.Stat, TA.Expect_100);
