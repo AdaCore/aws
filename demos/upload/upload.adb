@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2011-2012, AdaCore                     --
+--                     Copyright (C) 2011-2016, AdaCore                     --
 --                                                                          --
 --  This is free software;  you can redistribute it  and/or modify it       --
 --  under terms of the  GNU General Public License as published  by the     --
@@ -36,7 +36,7 @@ begin
    Text_IO.Put_Line
      ("Call me on port"
       & Positive'Image (AWS.Default.Server_Port)
-      & ", I will stop in 60 seconds...");
+      & ", press Q to stop the server...");
 
    Server.Start
      (WS, "Upload Demo",
