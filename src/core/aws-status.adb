@@ -425,8 +425,8 @@ package body AWS.Status is
       function To_Lower (Item : String) return String
          renames Ada.Characters.Handling.To_Lower;
 
-      Encoding_Image : constant String
-        := To_Lower (Messages.Content_Encoding'Image (Encoding));
+      Encoding_Image : constant String :=
+                         To_Lower (Messages.Content_Encoding'Image (Encoding));
 
       Found_Encoding  : Boolean := False;
       Enable_Encoding : Boolean := True;
@@ -813,6 +813,15 @@ package body AWS.Status is
    begin
       return D.Socket.all;
    end Socket;
+
+   -----------------------
+   -- Transfer_Encoding --
+   -----------------------
+
+   function Transfer_Encoding (D : Data) return String is
+   begin
+      return Headers.Get (D.Header, Messages.Transfer_Encoding_Token);
+   end Transfer_Encoding;
 
    -------------
    -- Upgrade --

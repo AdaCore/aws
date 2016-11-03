@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2011-2012, AdaCore                     --
+--                     Copyright (C) 2011-2016, AdaCore                     --
 --                                                                          --
 --  This is free software;  you can redistribute it  and/or modify it       --
 --  under terms of the  GNU General Public License as published  by the     --
@@ -17,9 +17,11 @@
 ------------------------------------------------------------------------------
 
 with Ada.Directories;
+with Ada.Streams.Stream_IO;
 
 with AWS.MIME;
 with AWS.Parameters;
+with AWS.Server;
 
 package body Upload_CB is
 
@@ -47,6 +49,33 @@ package body Upload_CB is
            (MIME.Text_HTML,
             "<p>The file is now uploaded into the current directory:</p>"
               & "<p>" & Parameters.Get (P, "filename", 2));
+
+      elsif URI = "/upload2" then
+         --  URI to be used with a chunked encoded uploaded file:
+         --  $ curl --upload-file file.txt \
+         --    --header "Transfer-Encoding: chunked" \
+         --    http://localhost:8080/upload2
+
+         declare
+            use Ada.Streams;
+            File : Stream_IO.File_Type;
+         begin
+            Stream_IO.Create (File, Stream_IO.Out_File, "upload.txt");
+
+            if not Status.Is_Body_Uploaded (Request) then
+               --  For a chunked upload AWS won't have downloaded the body.
+               --  This is up to the user to trigger it.
+               AWS.Server.Get_Message_Body;
+            end if;
+
+            Write (Stream_IO.Stream (File).all, Status.Binary_Data (Request));
+
+            Stream_IO.Close (File);
+         end;
+
+         return Response.Build
+           (MIME.Text_Plain,
+            "The file is now uploaded into the current directory: upload.txt");
       end if;
    end HW_CB;
 

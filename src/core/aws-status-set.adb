@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2000-2015, AdaCore                     --
+--                     Copyright (C) 2000-2016, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -380,18 +380,70 @@ package body AWS.Status.Set is
 
       procedure Read_Whole_Body is
          use Ada.Streams;
-         Buffer : Stream_Element_Array (1 .. 4096);
-         Rest   : Stream_Element_Offset :=
-                    Stream_Element_Offset (D.Content_Length);
-      begin
-         while Rest > Buffer'Length loop
-            Rest := Rest - Buffer'Length;
-            Net.Buffered.Read (Socket, Buffer);
-            Append (D.Binary_Data.all, Buffer);
-         end loop;
 
-         Net.Buffered.Read (Socket, Buffer (1 .. Rest));
-         Append (D.Binary_Data.all, Buffer (1 .. Rest), Trim => True);
+         procedure Read_Chunk (Size : Stream_Element_Offset)
+           with Post =>
+             Containers.Memory_Streams.Size (D.Binary_Data.all)'Old
+               = Containers.Memory_Streams.Size (D.Binary_Data.all) - Size;
+         --  Read a chunk of data of the given Size, the corresponding data is
+         --  added into the Binary_Data.
+
+         ----------------
+         -- Read_Chunk --
+         ----------------
+
+         procedure Read_Chunk (Size : Stream_Element_Offset) is
+            Buffer : Stream_Element_Array (1 .. 4096);
+            Rest   : Stream_Element_Offset := Size;
+         begin
+            while Rest > Buffer'Length loop
+               Rest := Rest - Buffer'Length;
+               Net.Buffered.Read (Socket, Buffer);
+               Append (D.Binary_Data.all, Buffer);
+            end loop;
+
+            Net.Buffered.Read (Socket, Buffer (1 .. Rest));
+            Append (D.Binary_Data.all, Buffer (1 .. Rest), Trim => True);
+         end Read_Chunk;
+
+         TE : constant String  :=
+                Headers.Get (D.Header, Messages.Transfer_Encoding_Token);
+      begin
+         if TE = "chunked" then
+            --  A chuncked message is written on the stream as list of data
+            --  chunk. Each chunk has the following format:
+            --
+            --  <N : the chunk size in hexadecimal> CRLF
+            --  <N * BYTES : the data> CRLF
+            --
+            --  The termination chunk is:
+            --
+            --  0 CRLF
+            --  CRLF
+            --
+
+            Read_Chunks : loop
+               declare
+                  C_Size : constant Stream_Element_Offset :=
+                             Stream_Element_Offset'Value
+                               ("16#" & Net.Buffered.Get_Line (Socket) & '#');
+                  CRLF   : Stream_Element_Array (1 .. 2);
+               begin
+                  if C_Size = 0 then
+                     --  We reached the end of the chunked message, read
+                     --  terminating CRLF.
+                     Net.Buffered.Read (Socket, CRLF);
+                     exit Read_Chunks;
+                  end if;
+
+                  Read_Chunk (Size => C_Size);
+                  Net.Buffered.Read (Socket, CRLF);
+               end;
+            end loop Read_Chunks;
+
+         else
+            Read_Chunk (Size => Stream_Element_Offset (D.Content_Length));
+         end if;
       end Read_Whole_Body;
 
    begin
