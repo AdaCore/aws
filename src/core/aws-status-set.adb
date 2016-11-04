@@ -36,6 +36,7 @@ with AWS.Headers.Values;
 with AWS.Messages;
 with AWS.Net.Buffered;
 with AWS.Parameters;
+with AWS.Resources.Streams.Memory.ZLib;
 with AWS.Server;
 with AWS.Translator;
 with AWS.URL.Set;
@@ -470,6 +471,36 @@ package body AWS.Status.Set is
                --  Boundary'Length - 2 to remove the boundary and also the CRLF
                --  (before the boundary) which is not part of the body.
             end if;
+         end;
+      end if;
+
+      --  Finaly if the body is gzip encoded, decode it now
+
+      if Headers.Get (D.Header, Messages.Content_Encoding_Token) = "gzip" then
+         declare
+            Cpr    : Resources.Streams.Memory.ZLib.Stream_Type;
+            Buffer :  Stream_Element_Array (1 .. 4096);
+            Last   :  Stream_Element_Offset;
+         begin
+            Resources.Streams.Memory.ZLib.Inflate_Initialize (Cpr);
+
+            loop
+               Read (D.Binary_Data.all, Buffer, Last);
+               exit when Last = 0;
+               Resources.Streams.Memory.ZLib.Append (Cpr, Buffer (1 .. Last));
+            end loop;
+
+            Clear (D.Binary_Data.all);
+
+            --  Now read back the uncompressed data
+
+            loop
+               Resources.Streams.Memory.ZLib.Read (Cpr, Buffer, Last);
+               exit when Last = 0;
+               Append (D.Binary_Data.all, Buffer (1 .. Last));
+            end loop;
+
+            Resources.Streams.Memory.ZLib.Clear (Cpr);
          end;
       end if;
    end Read_Body;
