@@ -66,10 +66,9 @@ package body AWS.Parameters is
 
    procedure Add
      (Parameter_List : in out List;
-      Parameters     : in out AWS.Containers.Memory_Streams.Stream_Type)
+      Parameters     : in out AWS.Resources.Streams.Memory.Stream_Type'Class)
    is
       use Ada.Streams;
-      use AWS.Containers.Memory_Streams;
       use AWS.Translator;
 
       Max_Parameters : constant Positive :=
@@ -85,7 +84,7 @@ package body AWS.Parameters is
                  (1 .. Stream_Element_Offset'Min
                          (Stream_Element_Offset
                             (AWS.Config.Input_Line_Size_Limit),
-                          Size (Parameters)));
+                          Parameters.Size));
       First : Stream_Element_Offset := Buffer'First;
       Last  : Stream_Element_Offset;
       Found : Boolean;
@@ -100,10 +99,10 @@ package body AWS.Parameters is
          return;
       end if;
 
-      Reset (Parameters);
+      Parameters.Reset;
 
       loop
-         Read (Parameters, Buffer (First .. Buffer'Last), Last);
+         Parameters.Read (Buffer (First .. Buffer'Last), Last);
 
          Found := False;
 

@@ -40,6 +40,7 @@ with AWS.Resources.Streams.Memory.ZLib;
 with AWS.Server;
 with AWS.Translator;
 with AWS.URL.Set;
+with ZLib;
 
 package body AWS.Status.Set is
 
@@ -55,6 +56,12 @@ package body AWS.Status.Set is
    --  Update some Data fields from the internal Data header container.
    --  The Update_Data_From_Header should be called after the complete
    --  header parsing.
+
+   procedure Create_Stream (D : in out Data)
+     with Pre  => D.Binary_Data = null,
+          Post => D.Binary_Data /= null;
+   --  Create the in-memory stream used to store the message data. This stream
+   --  is either standard or compressed to support GZip content-encoding.
 
    -------------------
    -- Add_Parameter --
@@ -93,10 +100,10 @@ package body AWS.Status.Set is
       Trim   : Boolean := False) is
    begin
       if D.Binary_Data = null then
-         D.Binary_Data := new Containers.Memory_Streams.Stream_Type;
+         Create_Stream (D);
       end if;
 
-      Containers.Memory_Streams.Append (D.Binary_Data.all, Buffer, Trim);
+      D.Binary_Data.Append (Buffer, Trim);
    end Append_Body;
 
    -----------------
@@ -249,20 +256,19 @@ package body AWS.Status.Set is
    procedure Binary (D : in out Data; Parameter : Stream_Element_Array) is
    begin
       if D.Binary_Data = null then
-         D.Binary_Data := new Containers.Memory_Streams.Stream_Type;
+         Create_Stream (D);
 
       else
          --  Clear previous data if exists
 
-         Containers.Memory_Streams.Clear (D.Binary_Data.all);
+         D.Binary_Data.Clear;
       end if;
 
       --  "Trim => True" mean don't remain allocated space at the end of
       --  internal buffer for next data because this routine designed to put
       --  all data at once.
 
-      Containers.Memory_Streams.Append
-        (D.Binary_Data.all, Parameter, Trim => True);
+      D.Binary_Data.Append (Parameter, Trim => True);
    end Binary;
 
    -------------------------------
@@ -287,6 +293,22 @@ package body AWS.Status.Set is
       AWS.URL.Set.Connection_Data (D.URI, Host, Port, Security);
    end Connection_Data;
 
+   -------------------
+   -- Create_Stream --
+   -------------------
+
+   procedure Create_Stream (D : in out Data) is
+   begin
+      if Headers.Get (D.Header, Messages.Content_Encoding_Token) = "gzip" then
+         D.Binary_Data := new Resources.Streams.Memory.ZLib.Stream_Type;
+         Resources.Streams.Memory.ZLib.Stream_Type
+           (D.Binary_Data.all).Inflate_Initialize (Header => ZLib.GZip);
+
+      else
+         D.Binary_Data := new Resources.Streams.Memory.Stream_Type;
+      end if;
+   end Create_Stream;
+
    -------------------------
    -- Delete_Idle_Session --
    -------------------------
@@ -306,10 +328,10 @@ package body AWS.Status.Set is
 
    procedure Free (D : in out Data) is
       procedure Unchecked_Free is new Ada.Unchecked_Deallocation
-        (Containers.Memory_Streams.Stream_Type, Memory_Stream_Access);
+        (Resources.Streams.Memory.Stream_Type'Class, Memory_Stream_Access);
    begin
       if D.Binary_Data /= null then
-         Containers.Memory_Streams.Close (D.Binary_Data.all);
+         D.Binary_Data.Close;
          Unchecked_Free (D.Binary_Data);
       end if;
 
@@ -369,7 +391,6 @@ package body AWS.Status.Set is
       D        : in out Data;
       Boundary : String := "")
    is
-      use Containers.Memory_Streams;
       use type Stream_Element_Offset;
 
       procedure Read_Whole_Body;
@@ -382,10 +403,7 @@ package body AWS.Status.Set is
       procedure Read_Whole_Body is
          use Ada.Streams;
 
-         procedure Read_Chunk (Size : Stream_Element_Offset)
-           with Post =>
-             Containers.Memory_Streams.Size (D.Binary_Data.all)'Old
-               = Containers.Memory_Streams.Size (D.Binary_Data.all) - Size;
+         procedure Read_Chunk (Size : Stream_Element_Offset);
          --  Read a chunk of data of the given Size, the corresponding data is
          --  added into the Binary_Data.
 
@@ -400,11 +418,11 @@ package body AWS.Status.Set is
             while Rest > Buffer'Length loop
                Rest := Rest - Buffer'Length;
                Net.Buffered.Read (Socket, Buffer);
-               Append (D.Binary_Data.all, Buffer);
+               D.Binary_Data.Append (Buffer);
             end loop;
 
             Net.Buffered.Read (Socket, Buffer (1 .. Rest));
-            Append (D.Binary_Data.all, Buffer (1 .. Rest), Trim => True);
+            D.Binary_Data.Append (Buffer (1 .. Rest), Trim => True);
          end Read_Chunk;
 
          TE : constant String  :=
@@ -449,7 +467,7 @@ package body AWS.Status.Set is
 
    begin
       if D.Binary_Data = null then
-         D.Binary_Data := new Stream_Type;
+         Create_Stream (D);
       end if;
 
       if Boundary = "" then
@@ -463,44 +481,13 @@ package body AWS.Status.Set is
                            Translator.To_Stream_Element_Array (Boundary));
          begin
             if Content'Length > Boundary'Length + 2 then
-               Append
-                 (D.Binary_Data.all,
-                  Content (Content'First
+               D.Binary_Data.Append
+                 (Content (Content'First
                     .. Content'Last - Boundary'Length - 2),
                   Trim => True);
                --  Boundary'Length - 2 to remove the boundary and also the CRLF
                --  (before the boundary) which is not part of the body.
             end if;
-         end;
-      end if;
-
-      --  Finaly if the body is gzip encoded, decode it now
-
-      if Headers.Get (D.Header, Messages.Content_Encoding_Token) = "gzip" then
-         declare
-            Cpr    : Resources.Streams.Memory.ZLib.Stream_Type;
-            Buffer :  Stream_Element_Array (1 .. 4096);
-            Last   :  Stream_Element_Offset;
-         begin
-            Resources.Streams.Memory.ZLib.Inflate_Initialize (Cpr);
-
-            loop
-               Read (D.Binary_Data.all, Buffer, Last);
-               exit when Last = 0;
-               Resources.Streams.Memory.ZLib.Append (Cpr, Buffer (1 .. Last));
-            end loop;
-
-            Clear (D.Binary_Data.all);
-
-            --  Now read back the uncompressed data
-
-            loop
-               Resources.Streams.Memory.ZLib.Read (Cpr, Buffer, Last);
-               exit when Last = 0;
-               Append (D.Binary_Data.all, Buffer (1 .. Last));
-            end loop;
-
-            Resources.Streams.Memory.ZLib.Clear (Cpr);
          end;
       end if;
    end Read_Body;

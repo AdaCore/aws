@@ -46,7 +46,7 @@ with AWS.Parameters;
 with AWS.Session;
 with AWS.URL;
 
-private with AWS.Containers.Memory_Streams;
+private with AWS.Resources.Streams.Memory;
 
 package AWS.Status is
 
@@ -345,7 +345,8 @@ package AWS.Status is
 
 private
 
-   type Memory_Stream_Access is access Containers.Memory_Streams.Stream_Type;
+   type Memory_Stream_Access is
+     access Resources.Streams.Memory.Stream_Type'Class;
 
    type Data is record
       --  Connection info

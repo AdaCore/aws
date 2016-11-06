@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2000-2015, AdaCore                     --
+--                     Copyright (C) 2000-2016, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -30,7 +30,7 @@
 pragma Ada_2012;
 
 with AWS.Containers.Tables;
-with AWS.Containers.Memory_Streams;
+with AWS.Resources.Streams.Memory;
 
 package AWS.Parameters is
 
@@ -59,7 +59,7 @@ package AWS.Parameters is
 
    procedure Add
      (Parameter_List : in out List;
-      Parameters     : in out Containers.Memory_Streams.Stream_Type);
+      Parameters     : in out Resources.Streams.Memory.Stream_Type'Class);
    --  Same as above, but use different parameters source. Used to reduce
    --  stack usage on big POST requests. This is the routine used by AWS for
    --  parsing the POST parameters. This routine also control the maximum

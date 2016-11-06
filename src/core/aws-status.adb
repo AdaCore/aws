@@ -204,7 +204,7 @@ package body AWS.Status is
          declare
             Chunk_Size : constant := 10000;
             Size       : constant Stream_Element_Offset :=
-                           Containers.Memory_Streams.Size (D.Binary_Data.all);
+                           D.Binary_Data.Size;
             Chunk      : Stream_Element_Array (1 .. Chunk_Size);
             Last       : Stream_Element_Offset;
             Result     : Unbounded_String;
@@ -229,7 +229,7 @@ package body AWS.Status is
       if D.Binary_Data = null then
          return 0;
       else
-         return Containers.Memory_Streams.Size (D.Binary_Data.all);
+         return D.Binary_Data.Size;
       end if;
    end Binary_Size;
 
@@ -337,8 +337,7 @@ package body AWS.Status is
 
    function End_Of_Body (D : Data) return Boolean is
    begin
-      return D.Binary_Data = null
-        or else Containers.Memory_Streams.End_Of_File (D.Binary_Data.all);
+      return D.Binary_Data = null or else D.Binary_Data.End_Of_File;
    end End_Of_Body;
 
    ------------
@@ -701,7 +700,7 @@ package body AWS.Status is
       if D.Binary_Data = null then
          Last := Buffer'First - 1;
       else
-         Containers.Memory_Streams.Read (D.Binary_Data.all, Buffer, Last);
+         D.Binary_Data.Read (Buffer, Last);
       end if;
    end Read_Body;
 
@@ -735,7 +734,7 @@ package body AWS.Status is
    procedure Reset_Body_Index (D : Data) is
    begin
       if D.Binary_Data /= null then
-         Containers.Memory_Streams.Reset (D.Binary_Data.all);
+         D.Binary_Data.Reset;
       end if;
    end Reset_Body_Index;
 
