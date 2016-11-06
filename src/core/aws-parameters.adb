@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2000-2015, AdaCore                     --
+--                     Copyright (C) 2000-2016, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -42,8 +42,9 @@ with AWS.Utils;
 package body AWS.Parameters is
 
    use Ada.Strings;
-   use type Maps.Character_Set;
    use AWS.Containers;
+
+   use type Maps.Character_Set;
 
    procedure Add_Internal
      (Parameter_List : in out List;
@@ -79,7 +80,7 @@ package body AWS.Parameters is
 
       Count          : Natural := 0;
 
-      Amp   : constant Stream_Element := Character'Pos ('&');
+      Amp    : constant Stream_Element := Character'Pos ('&');
       Buffer : Stream_Element_Array
                  (1 .. Stream_Element_Offset'Min
                          (Stream_Element_Offset
