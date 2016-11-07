@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2000-2015, AdaCore                     --
+--                     Copyright (C) 2000-2016, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -42,8 +42,9 @@ with AWS.Utils;
 package body AWS.Parameters is
 
    use Ada.Strings;
-   use type Maps.Character_Set;
    use AWS.Containers;
+
+   use type Maps.Character_Set;
 
    procedure Add_Internal
      (Parameter_List : in out List;
@@ -65,10 +66,9 @@ package body AWS.Parameters is
 
    procedure Add
      (Parameter_List : in out List;
-      Parameters     : in out AWS.Containers.Memory_Streams.Stream_Type)
+      Parameters     : in out AWS.Resources.Streams.Memory.Stream_Type'Class)
    is
       use Ada.Streams;
-      use AWS.Containers.Memory_Streams;
       use AWS.Translator;
 
       Max_Parameters : constant Positive :=
@@ -79,12 +79,12 @@ package body AWS.Parameters is
 
       Count          : Natural := 0;
 
-      Amp   : constant Stream_Element := Character'Pos ('&');
+      Amp    : constant Stream_Element := Character'Pos ('&');
       Buffer : Stream_Element_Array
                  (1 .. Stream_Element_Offset'Min
                          (Stream_Element_Offset
                             (AWS.Config.Input_Line_Size_Limit),
-                          Size (Parameters)));
+                          Parameters.Size));
       First : Stream_Element_Offset := Buffer'First;
       Last  : Stream_Element_Offset;
       Found : Boolean;
@@ -99,10 +99,10 @@ package body AWS.Parameters is
          return;
       end if;
 
-      Reset (Parameters);
+      Parameters.Reset;
 
       loop
-         Read (Parameters, Buffer (First .. Buffer'Last), Last);
+         Parameters.Read (Buffer (First .. Buffer'Last), Last);
 
          Found := False;
 
