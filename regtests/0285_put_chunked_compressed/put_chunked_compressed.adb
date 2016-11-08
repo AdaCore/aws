@@ -33,6 +33,8 @@ with AWS.Status;
 with AWS.Translator;
 with AWS.Utils;
 
+with ZLib;
+
 procedure Put_Chunked_Compressed is
 
    use Ada;
@@ -125,7 +127,11 @@ procedure Put_Chunked_Compressed is
       Size       : Stream_Element_Offset;
    begin
       while Rest > 0 loop
-         Size := Stream_Element_Offset'Max (Rest, Rest - Chunk_Size);
+         Size := Rest - Chunk_Size;
+
+         if Size < 0 then
+            Size := Rest;
+         end if;
 
          Append (Result, Utils.Hex (Natural (Size)));
          Append (Result, CRLF);
@@ -184,7 +190,10 @@ begin
       Headers,
       Transfer_Encode
         (Translator.Compress
-           (Translator.To_Stream_Element_Array (Message)).all));
+           (Translator.To_Stream_Element_Array (Message),
+            Header => Zlib.GZip).all));
+
+   Net.Shutdown (Sock);
 
    Server.Shutdown (WS);
    Text_IO.Put_Line ("shutdown");
