@@ -171,7 +171,7 @@ begin
 
    Net.Connect
      (Sock,
-      Server.Status.Host (WS),
+      "localhost", --  Server.Status.Host (WS),
       Server.Status.Port (WS));
 
    --  Send message
