@@ -171,7 +171,7 @@ begin
 
    Net.Connect
      (Sock,
-      "localhost", --  Server.Status.Host (WS),
+      Net.Localhost (Server.Status.Is_IPv6 (WS)),
       Server.Status.Port (WS));
 
    --  Send message
