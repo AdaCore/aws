@@ -90,6 +90,12 @@ OpenSSL (optional):
 
    You need to install manually the development libraries.
 
+LibreSSL (optional):
+
+   You need to install manually the development libraries (>= 2.5.0).
+   LibreSSL is an implementation fully compatible with OpenSSL, you
+   just have to configure AWS as with OpenSSL.
+
 GNUTLS (optional):
 
    You need to install manually the development libraries. AWS needs at

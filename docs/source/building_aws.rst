@@ -34,6 +34,15 @@ build `AWS` you need:
   `http://www.openssl.org <http://www.openssl.org>` and  build it. A
   Windows binary distribution may also be downloaded there.
 
+* LibreSSL (**optional**) ;
+
+  .. index:: LibreSSL
+
+  LibreSSL is an Open Source toolkit implementing the *Secure Sockets Layer*
+  which is fully compatible with OpenSSL. It is possible to
+  download the LibreSSL source distribution from
+  `https://www.libressl.org/>` and  build it.
+
 * GNUTLS (**optional**) ;
 
   .. index:: GNUTLS
@@ -109,15 +118,16 @@ To build with `GNUTLS`::
 
 .. index:: GNUTLS build
 
-To build with `OpenSSL`::
+To build with `OpenSSL` or `LibreSSL`::
 
   $ make SOCKET=openssl setup
   $ make build
 
 .. index:: OpenSSL build
+.. index:: LibreSSL build
 
 It is is possible to build `AWS` in debug mode by setting
-`DEBUG` make's variable in :file:`makefile.conf`, or just::
+`DEBUG` make's variable::
 
   $ make DEBUG=true setup build
 
