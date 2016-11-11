@@ -19,5 +19,5 @@
 with "aws";
 
 project Workspace is
-
+   for Main use ("ssl_version.adb", "max_poll_size.adb");
 end Workspace;
