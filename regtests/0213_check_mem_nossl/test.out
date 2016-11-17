@@ -11,6 +11,8 @@ multiple ok 5 1 2 3 4 whatever
 simple ok 2 8 azerty qwerty
 check_mem_nossl.adb
 d68d7791827bb2bd873e93aa6abe4149
+simple include
+testing
 dummy
 check_mem_nossl.adb
 /stream-unknown not found, empty response
@@ -30,6 +32,8 @@ multiple ok 5 1 2 3 4 whatever
 simple ok 2 8 azerty qwerty
 check_mem_nossl.adb
 d68d7791827bb2bd873e93aa6abe4149
+simple include
+testing
 dummy
 check_mem_nossl.adb
 /stream-unknown not found, empty response
@@ -52,6 +56,8 @@ multiple ok 5 1 2 3 4 whatever
 simple ok 2 8 azerty qwerty
 check_mem_nossl.adb
 d68d7791827bb2bd873e93aa6abe4149
+simple include
+testing
 dummy
 check_mem_nossl.adb
 /stream-unknown not found, empty response
@@ -71,6 +77,8 @@ multiple ok 5 1 2 3 4 whatever
 simple ok 2 8 azerty qwerty
 check_mem_nossl.adb
 d68d7791827bb2bd873e93aa6abe4149
+simple include
+testing
 dummy
 check_mem_nossl.adb
 /stream-unknown not found, empty response
@@ -90,6 +98,8 @@ multiple ok 5 1 2 3 4 whatever
 simple ok 2 8 azerty qwerty
 check_mem_nossl.adb
 d68d7791827bb2bd873e93aa6abe4149
+simple include
+testing
 dummy
 check_mem_nossl.adb
 /stream-unknown not found, empty response
@@ -109,6 +119,8 @@ multiple ok 5 1 2 3 4 whatever
 simple ok 2 8 azerty qwerty
 check_mem_nossl.adb
 d68d7791827bb2bd873e93aa6abe4149
+simple include
+testing
 dummy
 check_mem_nossl.adb
 /stream-unknown not found, empty response
@@ -128,6 +140,8 @@ multiple ok 5 1 2 3 4 whatever
 simple ok 2 8 azerty qwerty
 check_mem_nossl.adb
 d68d7791827bb2bd873e93aa6abe4149
+simple include
+testing
 dummy
 check_mem_nossl.adb
 /stream-unknown not found, empty response
@@ -147,6 +161,8 @@ multiple ok 5 1 2 3 4 whatever
 simple ok 2 8 azerty qwerty
 check_mem_nossl.adb
 d68d7791827bb2bd873e93aa6abe4149
+simple include
+testing
 dummy
 check_mem_nossl.adb
 /stream-unknown not found, empty response
@@ -166,6 +182,8 @@ multiple ok 5 1 2 3 4 whatever
 simple ok 2 8 azerty qwerty
 check_mem_nossl.adb
 d68d7791827bb2bd873e93aa6abe4149
+simple include
+testing
 dummy
 check_mem_nossl.adb
 /stream-unknown not found, empty response
@@ -185,6 +203,8 @@ multiple ok 5 1 2 3 4 whatever
 simple ok 2 8 azerty qwerty
 check_mem_nossl.adb
 d68d7791827bb2bd873e93aa6abe4149
+simple include
+testing
 dummy
 check_mem_nossl.adb
 /stream-unknown not found, empty response
@@ -204,6 +224,8 @@ multiple ok 5 1 2 3 4 whatever
 simple ok 2 8 azerty qwerty
 check_mem_nossl.adb
 d68d7791827bb2bd873e93aa6abe4149
+simple include
+testing
 dummy
 check_mem_nossl.adb
 /stream-unknown not found, empty response
@@ -223,6 +245,8 @@ multiple ok 5 1 2 3 4 whatever
 simple ok 2 8 azerty qwerty
 check_mem_nossl.adb
 d68d7791827bb2bd873e93aa6abe4149
+simple include
+testing
 dummy
 check_mem_nossl.adb
 /stream-unknown not found, empty response
