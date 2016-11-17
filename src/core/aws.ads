@@ -31,7 +31,7 @@ pragma Ada_2012;
 
 package AWS with Pure is
 
-   Version      : constant String := "17.0";
+   Version      : constant String := "17.1";
 
    HTTP_10      : constant String := "HTTP/1.0";
    HTTP_11      : constant String := "HTTP/1.1";
