@@ -1,35 +1,29 @@
-
 Building a release
 ------------------
 
-The static AWS libraries are always built, the shared libraries are built
-by default if the plate-form support them (this is automatically detected).
+The static AWS libraries are always built. The shared libraries are built
+by default if the platform supports them (this is automatically detected).
 
-If you have not installed XML/Ada into the standard directory and plan to
-build AWS with SOAP support you must be sure that ADA_PROJECT_PATH point to
-the XML/Ada projects. See XML/Ada documentation.
+If you have not installed XML/Ada in the standard directory and plan to build
+AWS with SOAP support you must be sure that ADA_PROJECT_PATH points to the
+XML/Ada projects. See XML/Ada documentation.
 
-Then building AWS is as simple as:
+Then to build AWS:
 
    $ make setup build install
 
-For information about all possible settings, look make's variables in
+For information about all possible settings, look at make's variables in
 makefile.conf.
 
-Note that you can find more information about the build procedure into
-the AWS User's Guide.
+Note that you can find more information about the build procedure in the AWS
+User's Guide.
 
 This release requires an Ada compiler supporting some Ada 2012 features. It
 is possible to build this release starting with the following compilers:
 
-        GNAT Pro 7.2.2
+        GNAT Pro 7.4.2
 
-        GNAT GPL 2014 Edition
-
-To build with GNAT GPL 2014 in debug mode you need to apply the following
-patch:
-
-   $ git apply workspace/gpl-2014.dif
+        GNAT GPL 2016 Edition
 
 To build the documentation in HTML, PDF and plain text formats you need to
 have a working Sphinx package installed on your system.
@@ -39,12 +33,11 @@ have a working Sphinx package installed on your system.
 Building on Windows
 -------------------
 
-On Windows based system it is possible to build from the standard Windows
-command line using the provided scripts win32\build.cmd. The argument is the
-path where AWS is to be installed. It is recommended to install AWS with
-the compiler, so for example:
+On Windows, you can build from the standard Windows command line using the
+provided scripts win32\build.cmd. The argument is the path where AWS is to be
+installed. It is recommended to install AWS with the compiler, so for example:
 
-   c:> win32\build.cmd c:\gnat\2014
+   c:> win32\build.cmd c:\gnat\2016
 
-An alternative solution is to install either the Cygwin or MSYS toolset. In
-this case the standard procedure described above can be used.
+An alternative is to install either the Cygwin or MSYS toolset. In this case
+the procedure described above using 'make' can be used.
