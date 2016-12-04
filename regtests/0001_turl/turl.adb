@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2000-2015, AdaCore                     --
+--                     Copyright (C) 2000-2016, AdaCore                     --
 --                                                                          --
 --  This is free software;  you can redistribute it  and/or modify it       --
 --  under terms of the  GNU General Public License as published  by the     --
@@ -81,4 +81,5 @@ begin
    Test ("http://192.168.58.44:8083/whatever/me/dev[6]");
    Test ("http://www.myserver.com:12/request?p1=9#fragment");
    Test ("http://www.itserver.com:34/query#fragment?question");
+   Test ("https://onlineadspy.com/suite/social/?&is_active=1059");
 end Turl;

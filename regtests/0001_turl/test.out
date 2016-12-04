@@ -183,3 +183,12 @@ http://www.itserver.com:34/query#fragment?question
    Port      : 34
    URI       : /query
    Fragment  : #fragment?question
+https://onlineadspy.com/suite/social/?&is_active=1059
+https://onlineadspy.com/suite/social/?&is_active=1059
+   Server    : onlineadspy.com
+   Port      : 443
+   URI       : /suite/social/?&is_active=1059
+   *
+   Server    : onlineadspy.com
+   Port      : 443
+   URI       : /suite/social/?&is_active=1059

@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2000-2015, AdaCore                     --
+--                     Copyright (C) 2000-2016, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -90,9 +90,7 @@ package AWS.Containers.Tables is
    --  no parameter with this number.
 
    function Get (Table : Table_Type; N : Positive) return Element with
-     Post => (if N > Count (Table)
-              then Get'Result = Null_Element
-              else Get'Result /= Null_Element);
+     Post => (if N > Count (Table) then Get'Result = Null_Element);
    --  Returns N'th name/value pair. Returns Null_Element if there is no
    --  such item in the table.
 
