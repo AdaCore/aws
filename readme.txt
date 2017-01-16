@@ -67,7 +67,7 @@ Pointers
 --------
 
 AWS Home Page (sources and printable documentations in Postscript and PDF):
-   http://libre.adacore.com/aws
+   http://libre.adacore.com/tools/aws
 
 Templates_Parser sources:
    Templates_Parser module (sources and documentation) is provided with AWS
