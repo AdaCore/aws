@@ -1,6 +1,7 @@
 vxworks6-6.6 DEAD
 windows-2012,!ipv6 OUT test-win7-ipv4.out
 windows-2008R2,!ipv6 OUT test-win7-ipv4.out
+windows-2012R2,!ipv6 OUT test-win7-ipv4.out
 windows-7,!ipv6 OUT test-win7-ipv4.out
 windows-10,!ipv6 OUT test-win7-ipv4.out
 NT,ipv6 OUT test-nt-ipv6.out
