@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2000-2015, AdaCore                     --
+--                     Copyright (C) 2000-2017, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -2049,8 +2049,6 @@ package body AWS.Server.Push is
       Holder : Client_Holder_Access;
       Action : Action_Type) is
    begin
-      --  Waiter_Queue_Element' is necessary to workaround GNAT-2010 bug
-
       Waiter_Queue.Add
         (Waiter_Queue_Element'(Server'Unrestricted_Access, Holder, Action));
       Waiter_Signal;
