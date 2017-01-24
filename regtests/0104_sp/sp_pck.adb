@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2004-2012, AdaCore                     --
+--                     Copyright (C) 2004-2017, AdaCore                     --
 --                                                                          --
 --  This is free software;  you can redistribute it  and/or modify it       --
 --  under terms of the  GNU General Public License as published  by the     --
@@ -67,10 +67,10 @@ package body Sp_Pck is
       Mode_Image : String := Get (P_List, "mode");
       Mode_Value : Server_Push.Mode := Server_Push.Mode'Value (Mode_Image);
 
-      Picture : array (Server_Push.Mode) of Editing.Picture
-        := (Server_Push.Plain     => Editing.To_Picture ("999999.99"),
-            Server_Push.Chunked   => Editing.To_Picture ("##_##9.99"),
-            Server_Push.Multipart => Editing.To_Picture ("zzzzz9.99"));
+      Picture : constant array (Server_Push.Mode) of Editing.Picture :=
+                  (Server_Push.Plain     => Editing.To_Picture ("999999.99"),
+                   Server_Push.Chunked   => Editing.To_Picture ("##_##9.99"),
+                   Server_Push.Multipart => Editing.To_Picture ("zzzzz9.99"));
    begin
       Server_Push.Register
         (Server      => Push,
