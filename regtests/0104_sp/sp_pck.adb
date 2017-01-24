@@ -185,6 +185,12 @@ package body Sp_Pck is
          Server_Push.Send (Push, Data => Data, Content_Type => "text/plain");
 
          Client.Close (Connect (J));
+
+         --  On some platforms the close is not immediate and then the next
+         --  Send above (on the loop) won't fail on the server side. Some
+         --  data are still received/accepted which is wrong for the purpose
+         --  of this test. Add the following delay solves this issue.
+
          delay 1.0;
 
          if not Server_Push.Wait_Send_Completion (10.0) then
