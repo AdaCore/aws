@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2000-2015, AdaCore                     --
+--                     Copyright (C) 2000-2017, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -100,7 +100,7 @@ package body AWS.Containers.Tables is
 
    function Count (Table : Table_Type) return Natural is
    begin
-      return Natural (Data_Table.Length (Table.Data));
+      return Natural (Table.Data.Length);
    end Count;
 
    -----------
@@ -312,6 +312,15 @@ package body AWS.Containers.Tables is
          return (1 .. 0 => Null_Unbounded_String);
       end if;
    end Get_Values;
+
+   --------------
+   -- Is_Empty --
+   --------------
+
+   function Is_Empty (Table : Table_Type) return Boolean is
+   begin
+      return Table.Data.Is_Empty;
+   end Is_Empty;
 
    -------------------
    -- Iterate_Names --

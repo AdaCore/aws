@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2000-2016, AdaCore                     --
+--                     Copyright (C) 2000-2017, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -55,6 +55,9 @@ package AWS.Containers.Tables is
 
    function Count (Table : Table_Type) return Natural;
    --  Returns the number of items in Table
+
+   function Is_Empty (Table : Table_Type) return Boolean;
+   --  Returns true if table is empty
 
    function Name_Count (Table : Table_Type) return Natural;
    --  Returns the number of unique key name in Table
