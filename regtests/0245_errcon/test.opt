@@ -4,6 +4,7 @@ windows-2008R2,!ipv6 OUT test-win7-ipv4.out
 windows-2012R2,!ipv6 OUT test-win7-ipv4.out
 windows-7,!ipv6 OUT test-win7-ipv4.out
 windows-10,!ipv6 OUT test-win7-ipv4.out
+windows-16,!ipv6 OUT test-win7-ipv4.out
 NT,ipv6 OUT test-nt-ipv6.out
 NT,!ipv6 OUT test-nt-ipv4.out
 darwin,ipv6 OUT test-darwin-ipv6.out
