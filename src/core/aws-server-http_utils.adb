@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2005-2016, AdaCore                     --
+--                     Copyright (C) 2005-2017, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -1925,6 +1925,10 @@ package body AWS.Server.HTTP_Utils is
                Last := Length - 1;
             else
                Last := Stream_Element_Offset'Value (R (I_Minus + 1 .. R'Last));
+
+               if Last >= Length then
+                  Last := Length - 1;
+               end if;
             end if;
 
             if R'First = I_Minus then

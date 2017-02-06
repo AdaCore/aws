@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2011-2015, AdaCore                     --
+--                     Copyright (C) 2011-2017, AdaCore                     --
 --                                                                          --
 --  This is free software;  you can redistribute it  and/or modify it       --
 --  under terms of the  GNU General Public License as published  by the     --
@@ -51,6 +51,23 @@ procedure Content_Type_Data_Range is
    Client_Header : Headers.List;
    CHeader       : Containers.Tables.Table_Type
                      renames Containers.Tables.Table_Type (Client_Header);
+
+   ------------------
+   -- Send_Request --
+   ------------------
+
+   procedure Send_Request is
+   begin
+      Client_Data := Client.Get
+                       (AWS.Server.Status.Local_URL (WS) & "/test.txt",
+                        Headers => Client_Header);
+   exception
+      when others =>
+         --  An exception is raised because the client API does not support
+         --  data ranges.
+         null;
+   end Send_Request;
+
 begin
    Config.Set.Server_Host (Conf, "localhost");
    Config.Set.Server_Port (Conf, 0);
@@ -69,14 +86,10 @@ begin
    CHeader.Add (Name => "Range",         Value => "bytes=0-41,46-80");
    CHeader.Add (Name => "Host",
                 Value => "localhost:" & Utils.Image (Server.Status.Port (WS)));
+   Send_Request;
 
-   Client_Data := Client.Get
-                    (AWS.Server.Status.Local_URL (WS) & "/test.txt",
-                     Headers => Client_Header);
+   CHeader.Update (Name => "Range", Value => "bytes=220-888");
+   Send_Request;
 
-exception
-   when others =>
-      --  An exception is raised because the client API does not support
-      --  data ranges.
-      Server.Shutdown (WS);
+   Server.Shutdown (WS);
 end Content_Type_Data_Range;

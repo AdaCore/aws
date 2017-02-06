@@ -1,1 +1,3 @@
 >Content-Type: multipart/byteranges; boundary=aws_range_separator
+>Content-Type: text/plain
+>Content-Range: bytes 220-234/235
