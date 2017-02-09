@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2003-2016, AdaCore                     --
+--                     Copyright (C) 2003-2017, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -2011,7 +2011,7 @@ package body SOAP.Generator is
                   Append (Result, ", ");
                end if;
 
-               Append (Result, To_String (N.Value));
+               Append (Result, Format_Name (O, To_String (N.Value)));
 
                N := N.Next;
             end loop;
@@ -2102,7 +2102,7 @@ package body SOAP.Generator is
             end if;
 
             Text_IO.Put_Line
-              (Enu_Adb, To_String (N.Value)
+              (Enu_Adb, Format_Name (O, To_String (N.Value))
                  & " => return """ & To_String (N.Value) & """;");
 
             N := N.Next;
