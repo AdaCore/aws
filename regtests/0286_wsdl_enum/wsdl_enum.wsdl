@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<definitions name="wsdl_enu"
+   targetNamespace="urn:aws-tst:WSDL_Enu"
+   xmlns:tns="urn:aws-tst:WSDL_Enu"
+   xmlns="http://schemas.xmlsoap.org/wsdl/"
+   xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/"
+   xmlns:soap-enc="http://schemas.xmlsoap.org/soap/encoding/"
+   xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/"
+   xmlns:xsi="http://www.w3.org/1999/XMLSchema-instance"
+   xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+
+   <types>
+      <schema xmlns="http://www.w3.org/2000/10/XMLSchema">
+
+         <simpleType name="Color">
+            <restriction base="xsd:string">
+               <enumeration value="ALL"/>
+               <enumeration value="procedure"/>
+               <enumeration value="Blue"/>
+            </restriction>
+         </simpleType>
+      </schema>
+   </types>
+
+   <message name="Next_Request">
+      <part name="Col" type="tns:Color"/>
+   </message>
+
+   <message name="Next_Response">
+      <documentation />
+      <part name="Result" type="tns:Color"/>
+   </message>
+
+   <portType name="WSDL_Enu_PortType">
+
+      <operation name="Next">
+         <input message="tns:Next_Request"/>
+         <output message="tns:Next_Response"/>
+      </operation>
+
+   </portType>
+
+   <binding name="WSDL_Enu_Binding" type="tns:WSDL_Enu_PortType">
+      <soap:binding style="rpc"
+         transport="http://schemas.xmlsoap.org/soap/http"/>
+
+      <operation name="Next">
+         <soap:operation soapAction="Next"/>
+         <input>
+            <soap:body
+               encodingStyle="http://schemas.xmlsoap.org/soap/encoding/"
+               namespace="urn:aws-tst:WSDL_Enu"
+               use="encoded"/>
+         </input>
+         <output>
+            <soap:body
+               encodingStyle="http://schemas.xmlsoap.org/soap/encoding/"
+               namespace="urn:aws-tst:WSDL_Enu"
+               use="encoded"/>
+         </output>
+      </operation>
+   </binding>
+
+   <service name="wsdl_enu">
+      <port name="WSDL_Enu_Port" binding="tns:WSDL_Enu_Binding">
+         <soap:address location="http://localhost:7706"/>
+      </port>
+   </service>
+</definitions>
