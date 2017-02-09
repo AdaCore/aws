@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2000-2016, AdaCore                     --
+--                     Copyright (C) 2000-2017, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -30,6 +30,7 @@
 pragma Ada_2012;
 
 with Ada.Calendar;
+with Ada.Characters.Handling;
 with Ada.Strings.Fixed;
 with Ada.Unchecked_Deallocation;
 
@@ -249,33 +250,21 @@ package body SOAP.Utils is
    --------------------------
 
    function Is_Ada_Reserved_Word (Name : String) return Boolean is
+      N : constant String := Ada.Characters.Handling.To_Lower (Name);
    begin
-      if Name = "abort"  or else Name = "else" or else Name = "new"
-        or else Name = "return" or else Name = "abs" or else Name = "elsif"
-        or else Name = "not" or else Name = "reverse" or else Name = "abstract"
-        or else Name = "end" or else Name = "null" or else Name = "accept"
-        or else Name = "entry" or else Name = "select" or else Name = "access"
-        or else Name = "exception" or else Name = "separate"
-        or else Name = "aliased" or else Name = "exit" or else Name = "of"
-        or else Name = "subtype" or else Name = "all" or else Name = "or"
-        or else Name = "and" or else Name = "for" or else Name = "others"
-        or else Name = "tagged" or else Name = "array"
-        or else Name = "function" or else Name = "out" or else Name = "task"
-        or else Name = "at" or else Name = "terminate" or else Name = "generic"
-        or else Name = "package" or else Name = "then" or else Name = "begin"
-        or else Name = "goto" or else Name = "pragma" or else Name = "type"
-        or else Name = "body" or else Name = "private" or else Name = "if"
-        or else Name = "procedure" or else Name = "case" or else Name = "in"
-        or else Name = "protected" or else Name = "until"
-        or else Name = "constant" or else Name = "is" or else Name = "use"
-        or else Name = "raise" or else Name = "declare" or else Name = "range"
-        or else Name = "when" or else Name = "delay" or else Name = "limited"
-        or else Name = "record" or else Name = "while" or else Name = "delta"
-        or else Name = "loop" or else Name = "rem" or else Name = "with"
-        or else Name = "digits" or else Name = "renames" or else Name = "do"
-        or else Name = "mod" or else Name = "requeue" or else Name = "xor"
-        or else Name = "synchronized" or else Name = "overriding"
-        or else Name = "interface" or else Name = "some"
+      if N in "abort" | "else" | "new" | "return" | "abs" | "elsif"
+        | "not" | "reverse" | "abstract" | "end" | "null" | "accept"
+        | "entry" | "select" | "access" | "exception" | "separate"
+        | "aliased" | "exit" | "of" | "subtype" | "all" | "or"
+        | "and" | "for" | "others" | "tagged" | "array"
+        | "function" | "out" | "task" | "at" | "terminate" | "generic"
+        | "package" | "then" | "begin" | "goto" | "pragma" | "type"
+        | "body" | "private" | "if" | "procedure" | "case" | "in"
+        | "protected" | "until" | "constant" | "is" | "use"
+        | "raise" | "declare" | "range" | "when" | "delay" | "limited"
+        | "record" | "while" | "delta" | "loop" | "rem" | "with"
+        | "digits" | "renames" | "do" | "mod" | "requeue" | "xor"
+        | "synchronized" | "overriding" | "interface" | "some"
       then
          return True;
       else
