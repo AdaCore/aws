@@ -2207,7 +2207,7 @@ package body SOAP.Generator is
                      Get_Prefix & Get_Name
                        (Strings.Fixed.Translate
                           (Name,
-                           Strings.Maps.To_Mapping ("./:", "___")));
+                           Strings.Maps.To_Mapping ("./:-", "____")));
             File : Text_IO.File_Type;
 
          begin
