@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2003-2015, AdaCore                     --
+--                     Copyright (C) 2003-2017, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -518,7 +518,7 @@ package body Skel is
                            & " Type_Name => """ & T_Name & """)");
                      end if;
 
-                  when WSDL.Types.K_Derived =>
+                  when WSDL.Types.K_Derived | WSDL.Types.K_Enumeration =>
 
                      if Output.Next = null then
                         Text_IO.Put
@@ -540,29 +540,8 @@ package body Skel is
                               Type_Name => T_Name));
                      end if;
 
-                  when WSDL.Types.K_Enumeration =>
-
-                     if Output.Next = null then
-                        Text_IO.Put
-                          (Skel_Adb,
-                           WSDL.Parameters.To_SOAP
-                             (N.all,
-                              Object    => "Result",
-                              Name      => To_String (N.Name),
-                              Type_Name => T_Name));
-                     else
-                        Text_IO.Put
-                          (Skel_Adb,
-                           WSDL.Parameters.To_SOAP
-                             (N.all,
-                              Object    =>
-                                "Result."
-                                   & Format_Name (O, To_String (N.Name)),
-                              Name      => To_String (N.Name),
-                              Type_Name => T_Name));
-                     end if;
-
                   when WSDL.Types.K_Array =>
+
                      if Output.Next = null then
                         --  A single array as returned parameter
                         Text_IO.Put
