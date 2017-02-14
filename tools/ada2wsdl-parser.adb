@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2003-2015, AdaCore                     --
+--                     Copyright (C) 2003-2017, AdaCore                     --
 --                                                                          --
 --  This is free software;  you can redistribute it  and/or modify it       --
 --  under terms of the  GNU General Public License as published  by the     --
@@ -582,8 +582,6 @@ package body Ada2WSDL.Parser is
                     To_Unbounded_String (Name_Space (E));
 
                   --  Set array's type name
-
-                  E := CND;
 
                   Deferred_U_Arrays (U_Array_Index).Name :=
                     To_Unbounded_String
