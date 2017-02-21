@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2000-2015, AdaCore                     --
+--                     Copyright (C) 2000-2017, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -142,7 +142,6 @@ package body SOAP.Client is
       if AWS.Response.Status_Code (Response)
         in AWS.Messages.Success | AWS.Messages.S500
       then
-
          --  In Asynchronous mode allow an empty message body. In this specific
          --  case there is nothing to read from the connection (socket).
 
