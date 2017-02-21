@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2003-2015, AdaCore                     --
+--                     Copyright (C) 2003-2017, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -218,6 +218,10 @@ package body SOAP.WSDL.Parser is
 
    procedure Get_Min_Max (S_Min, S_Max : String; Min, Max : out Natural);
    --  Returns the Min, Max values for the given string
+
+   procedure Set_Binding_Style (O : in out Object'Class; N : DOM.Core.Node);
+   --  Returns the binding style (value of attribute style) specified on the
+   --  node N. Returns the empty string if not defined.
 
    -----------
    -- Debug --
@@ -1095,14 +1099,7 @@ package body SOAP.WSDL.Parser is
 
       --  Check for binding style
 
-      if Characters.Handling.To_Lower
-        (XML.Get_Attr_Value (N, "style")) = "document"
-        and then not O.Accept_Document
-      then
-         O.Style := WSDL.Schema.Document;
-      else
-         O.Style := WSDL.Schema.RPC;
-      end if;
+      Set_Binding_Style (O, N);
 
       --  Check for transport (only HTTP is supported)
 
@@ -2329,6 +2326,32 @@ package body SOAP.WSDL.Parser is
          end;
       end loop;
    end Register_Name_Spaces;
+
+   -----------------------
+   -- Set_Binding_Style --
+   -----------------------
+
+   procedure Set_Binding_Style (O : in out Object'Class; N : DOM.Core.Node) is
+      Style : constant String :=
+                Characters.Handling.To_Lower (XML.Get_Attr_Value (N, "style"));
+   begin
+      if Style = "" then
+         null;
+
+      elsif Style = "document" then
+         if O.Accept_Document then
+            O.Style := WSDL.Schema.RPC;
+         else
+            O.Style := WSDL.Schema.Document;
+         end if;
+
+      elsif Style = "rpc" then
+         O.Style := WSDL.Schema.RPC;
+
+      else
+         raise WSDL_Error with "Unknown binding style '" & Style & ''';
+      end if;
+   end Set_Binding_Style;
 
    ---------------------
    -- Skip_Annotation --
