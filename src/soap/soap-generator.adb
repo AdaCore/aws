@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2003-2016, AdaCore                     --
+--                     Copyright (C) 2003-2017, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -544,15 +544,16 @@ package body SOAP.Generator is
          Stub.New_Procedure
            (O, Proc, Documentation, SOAPAction, Namespace,
             Input, Output, Fault);
-         Generate_Call_Signature (Input);
       end if;
 
       if O.Gen_Skel then
          Skel.New_Procedure
            (O, Proc, Documentation, SOAPAction, Namespace,
             Input, Output, Fault);
-         Generate_Call_Signature (Output);
       end if;
+
+      Generate_Call_Signature (Input);
+      Generate_Call_Signature (Output);
 
       --  Skip line after procedure signatures
 
