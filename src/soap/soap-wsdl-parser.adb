@@ -1345,6 +1345,10 @@ package body SOAP.WSDL.Parser is
          O.SOAPAction := +XML.Get_Attr_Value (N, "soapAction");
       end if;
 
+      --  Check wether the binding style is declared here
+
+      Set_Binding_Style (O, N);
+
       N := XML.Next_Sibling (N);
 
       --  Check that input/output is literal
