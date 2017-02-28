@@ -417,11 +417,9 @@ package body SOAP.Generator is
             elsif Characters.Handling.Is_Upper (Name (K))
               and then not Characters.Handling.Is_Upper (Name (K - 1))
               and then K > Name'First
-              and then Name (K - 1) /= '_'
-              and then Name (K - 1) /= '.'
+              and then Name (K - 1) not in '_' | '.' | '-'
               and then K < Name'Last
-              and then Name (K + 1) /= '_'
-              and then Name (K + 1) /= '.'
+              and then Name (K + 1) not in '_' | '.' | '-'
             then
                Append (Result, "_" & Name (K));
 
