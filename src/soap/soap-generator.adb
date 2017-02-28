@@ -405,8 +405,8 @@ package body SOAP.Generator is
       function Ada_Format (Name : String) return String is
          Result : Unbounded_String;
       begin
-         --  No need to reformat this name
          if not O.Ada_Style then
+            --  No need to reformat this name
             return Name;
          end if;
 
