@@ -2,7 +2,7 @@ from test_support import *
 import sys
 
 exec_cmd('ada2wsdl',
-         ['-q', '-f', '-I.', '-doc', '-Pwsdl_a_main',
+         ['-q', '-f', '-I.', '-doc', '-lit', '-Pwsdl_a_main',
           '-a', 'http://localhost:7701', 'wsdl_a.ads', '-o', 'wsdl_a.wsdl'])
 exec_cmd('wsdl2aws',
          ['-q', '-f', '-doc', '-cb', '-types', 'wsdl_a', 'wsdl_a.wsdl'])

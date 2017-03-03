@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2003-2016, AdaCore                     --
+--                     Copyright (C) 2003-2017, AdaCore                     --
 --                                                                          --
 --  This is free software;  you can redistribute it  and/or modify it       --
 --  under terms of the  GNU General Public License as published  by the     --
@@ -586,7 +586,12 @@ package body Ada2WSDL.Generator is
                Put_Line ("               encodingStyle="""
                            & "http://schemas.xmlsoap.org/soap/encoding/""");
                Put_Line ("               namespace=""" & NS & '"');
-               Put_Line ("               use=""encoded""/>");
+
+               if Options.Literal then
+                  Put_Line ("               use=""literal""/>");
+               else
+                  Put_Line ("               use=""encoded""/>");
+               end if;
             end Write_SOAP_Body;
 
             Name : constant String := -R.Name;

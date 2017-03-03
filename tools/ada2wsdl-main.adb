@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2003-2015, AdaCore                     --
+--                     Copyright (C) 2003-2017, AdaCore                     --
 --                                                                          --
 --  This is free software;  you can redistribute it  and/or modify it       --
 --  under terms of the  GNU General Public License as published  by the     --
@@ -50,7 +50,7 @@ procedure Ada2WSDL.Main is
    begin
       loop
          case GNAT.Command_Line.Getopt
-           ("f q v a: o: s: t: I: P: n: noenum d doc")
+           ("f q v a: o: s: t: I: P: n: noenum d doc lit")
          is
 
             when ASCII.NUL =>
@@ -116,6 +116,15 @@ procedure Ada2WSDL.Main is
                   raise Parameter_Error;
                end if;
 
+            when 'l' =>
+               if GNAT.Command_Line.Full_Switch = "lit" then
+                  Options.Literal := True;
+
+               else
+                  Usage;
+                  raise Parameter_Error;
+               end if;
+
             when others =>
                Usage;
                raise Parameter_Error;
@@ -137,6 +146,13 @@ procedure Ada2WSDL.Main is
          Text_IO.Put_Line
            (Text_IO.Standard_Error, "Ada2WSDL: file name missing");
          Usage;
+         raise Parameter_Error;
+      end if;
+
+      if Options.Document and then not Options.Literal then
+         Text_IO.Put_Line
+           (Text_IO.Standard_Error,
+            "Ada2WSDL:  document/encoded not supported");
          raise Parameter_Error;
       end if;
 
@@ -186,6 +202,7 @@ procedure Ada2WSDL.Main is
       Put_Line ("  -q       Quiet mode");
       Put_Line ("  -v       Verbose mode - output the version");
       Put_Line ("  -doc     Generate document style WSDL binding");
+      Put_Line ("  -lit     Generate literal data style WSDL encoding");
       Put_Line
         ("  -P proj  A project file to use for building the spec");
       Put_Line ("  -o file  WSDL file, <filename>.wsdl by default");

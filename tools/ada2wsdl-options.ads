@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2003-2015, AdaCore                     --
+--                     Copyright (C) 2003-2017, AdaCore                     --
 --                                                                          --
 --  This is free software;  you can redistribute it  and/or modify it       --
 --  under terms of the  GNU General Public License as published  by the     --
@@ -57,6 +57,9 @@ package Ada2WSDL.Options is
 
    Document : Boolean := False;
    --  Whether to generate document style binding instead of RPC
+
+   Literal     : Boolean := False;
+   --  Whether to generate literal style parameters instead of encoded
 
    Debug          : Boolean := False;
    --  Do not generate date/time tag into the WSDL document for being able to
