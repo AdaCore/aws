@@ -3827,7 +3827,8 @@ package body SOAP.Generator is
             Put_Line (File, "      (Conf, " & U_Name & ".Server.Port);");
             Put_Line (File, "   Disp := SOAP.Dispatchers.Callback.Create");
             Put_Line (File, "     (CB'Unrestricted_Access,");
-            Put_Line (File, "      " & U_Name & ".CB.SOAP_CB'Access);");
+            Put_Line (File, "      " & U_Name & ".CB.SOAP_CB'Access,");
+            Put_Line (File, "      " & U_Name & ".Schema);");
             New_Line (File);
             Put_Line (File, "   AWS.Server.Start (WS, Disp, Conf);");
             New_Line (File);
