@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2015-2016, AdaCore                     --
+--                     Copyright (C) 2015-2017, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -389,6 +389,8 @@ package body SOAP.WSDL.Types is
 
       procedure Set_Record (Def : Definition);
 
+      procedure Set_Enumeration (Def : Definition);
+
       -----------------
       -- Set_Aliases --
       -----------------
@@ -409,6 +411,22 @@ package body SOAP.WSDL.Types is
             S_Def.Insert (Name, Root_Type);
          end if;
       end Set_Aliases;
+
+      ---------------------
+      -- Set_Enumeration --
+      ---------------------
+
+      procedure Set_Enumeration (Def : Definition) is
+         N_N  : constant Name_Space.Object :=
+                  SOAP.WSDL.Types.NS (Def.Ref);
+         Name : constant String :=
+                  Name_Space.Name (N_N)
+                & ":" & SOAP.WSDL.Types.Name (Def.Ref);
+      begin
+         if not S_Def.Contains (Name) then
+            S_Def.Insert (Name, "@enum");
+         end if;
+      end Set_Enumeration;
 
       ----------------
       -- Set_Record --
@@ -436,6 +454,9 @@ package body SOAP.WSDL.Types is
          begin
             if D.Mode in WSDL.Types.K_Derived then
                Set_Aliases (D);
+
+            elsif D.Mode in WSDL.Types.K_Enumeration then
+               Set_Enumeration (D);
 
             elsif D.Mode =  WSDL.Types.K_Record then
                Set_Record (D);

@@ -145,7 +145,10 @@ package body SOAP.Generator is
    --
    --     proc.param         ->  type_name
    --     record.field       ->  type_name
-   --     type_name          ->  type_name
+   --     type_name          ->  type_name | @enum
+   --
+   --  The special tag @enum above is to be able to differentiate between
+   --  xsd:string and enumeration literal.
    --
    --  And some special keys:
    --
