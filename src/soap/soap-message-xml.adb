@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2000-2016, AdaCore                     --
+--                     Copyright (C) 2000-2017, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -1129,7 +1129,7 @@ package body SOAP.Message.XML is
    begin
       Parse_Namespaces (Ref, S.NS);
 
-      if  Encoding = WSDL.Schema.Encoded then
+      if Encoding = WSDL.Schema.Encoded then
          XSI_Type :=
            Get_Named_Item (Atts, SOAP.Name_Space.Name (S.NS.xsi) & ":type");
 
