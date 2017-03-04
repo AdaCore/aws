@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2000-2016, AdaCore                     --
+--                     Copyright (C) 2000-2017, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -67,7 +67,7 @@ package body SOAP.Message.XML is
       T_Int, T_Float, T_Double, T_Long, T_Short, T_Byte,
       T_Unsigned_Long, T_Unsigned_Int, T_Unsigned_Short, T_Unsigned_Byte,
       T_String, T_Boolean, T_Time_Instant, T_Date_Time,
-      T_Base64, T_Base64_Bin);
+      T_Base64, T_Base64_Bin, T_Enum);
 
    type Namespaces is record
       xsd   : SOAP.Name_Space.Object := SOAP.Name_Space.XSD;
@@ -235,8 +235,9 @@ package body SOAP.Message.XML is
       S    : in out State) return Types.Object'Class;
 
    function Parse_Enumeration
-     (Name : String;
-      N    : DOM.Core.Node) return Types.Object'Class;
+     (Name      : String;
+      N         : DOM.Core.Node;
+      Type_Name : String := "") return Types.Object'Class;
 
    procedure Error (Node : DOM.Core.Node; Message : String) with No_Return;
    --  Raises SOAP_Error with the Message as exception message
@@ -273,6 +274,8 @@ package body SOAP.Message.XML is
                    (Types.XML_Double'Access, Parse_Double'Access, False),
                  T_String         =>
                    (Types.XML_String'Access, Parse_String'Access, False),
+                 T_Enum           =>
+                   (null, null, False),
                  T_Boolean        =>
                    (Types.XML_Boolean'Access, Parse_Boolean'Access, False),
                  T_Base64         =>
@@ -908,12 +911,15 @@ package body SOAP.Message.XML is
    -----------------------
 
    function Parse_Enumeration
-     (Name : String;
-      N    : DOM.Core.Node) return Types.Object'Class is
+     (Name      : String;
+      N         : DOM.Core.Node;
+      Type_Name : String := "") return Types.Object'Class is
    begin
       return Types.E
         (Node_Value (First_Child (N)),
-         Utils.No_NS (SOAP.XML.Get_Attr_Value (N, "type")),
+         (if Type_Name = ""
+          then Utils.No_NS (SOAP.XML.Get_Attr_Value (N, "type"))
+          else Type_Name),
          Name);
    end Parse_Enumeration;
 
@@ -1129,7 +1135,7 @@ package body SOAP.Message.XML is
    begin
       Parse_Namespaces (Ref, S.NS);
 
-      if  Encoding = WSDL.Schema.Encoded then
+      if Encoding = WSDL.Schema.Encoded then
          XSI_Type :=
            Get_Named_Item (Atts, SOAP.Name_Space.Name (S.NS.xsi) & ":type");
 
@@ -1218,6 +1224,9 @@ package body SOAP.Message.XML is
                   --  for the real type here.
 
                   return Parse_Record (Name, Ref, S);
+
+               elsif S_Type = T_Enum then
+                  return Parse_Enumeration (Name, Ref, S_xsd);
 
                else
                   return With_NS
@@ -1530,6 +1539,10 @@ package body SOAP.Message.XML is
                 else Type_Name);
 
    begin
+      if T_Name = "@enum" then
+         return T_Enum;
+      end if;
+
       for K in Handlers'Range loop
          if Handlers (K).Name /= null
            and then

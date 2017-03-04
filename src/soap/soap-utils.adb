@@ -239,8 +239,8 @@ package body SOAP.Utils is
    end Get;
 
    function Get (Item : Types.Object'Class) return String is
-      Enum : constant Types.SOAP_Enumeration
-        := Types.SOAP_Enumeration (Item);
+      Enum : constant Types.SOAP_Enumeration :=
+               Types.SOAP_Enumeration (Item);
    begin
       return Types.Image (Enum);
    end Get;

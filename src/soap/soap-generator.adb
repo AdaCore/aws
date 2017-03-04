@@ -145,7 +145,10 @@ package body SOAP.Generator is
    --
    --     proc.param         ->  type_name
    --     record.field       ->  type_name
-   --     type_name          ->  type_name
+   --     type_name          ->  type_name | @enum
+   --
+   --  The special tag @enum above is to be able to differentiate between
+   --  xsd:string and enumeration literal.
    --
    --  And some special keys:
    --
@@ -987,8 +990,12 @@ package body SOAP.Generator is
       --  Returns True if Name is defined inside a record in the Input
       --  or Output parameter list.
 
-      procedure Output_Parameters (P : WSDL.Parameters.P_Set);
-      --  Output SOAP operation parameters for the schema definitions
+      procedure Output_Parameters
+        (P         : WSDL.Parameters.P_Set;
+         Is_Output : Boolean);
+      --  Output SOAP operation parameters for the schema definitions.
+      --  Is_Output is true if the P corresponds to output parameters of a
+      --  SOAP procedure.
 
       ----------------------------
       -- Finalize_Types_Package --
@@ -3295,7 +3302,10 @@ package body SOAP.Generator is
       -- Output_Parameters --
       -----------------------
 
-      procedure Output_Parameters (P : WSDL.Parameters.P_Set) is
+      procedure Output_Parameters
+        (P         : WSDL.Parameters.P_Set;
+         Is_Output : Boolean)
+      is
          N : WSDL.Parameters.P_Set := P;
       begin
          while N /= null loop
@@ -3305,6 +3315,12 @@ package body SOAP.Generator is
                Output_Schema_Definition
                  (Key   => Proc & "." & To_String (P.Name),
                   Value => T_Name);
+
+               if Is_Output then
+                  Output_Schema_Definition
+                    (Key   => Proc & "Response." & To_String (P.Name),
+                     Value => T_Name);
+               end if;
             end;
 
             N := N.Next;
@@ -3494,7 +3510,7 @@ package body SOAP.Generator is
          Value =>
            Types.Encoding_Style'Image (O.Encoding (WSDL.Parser.Output)));
 
-      Output_Parameters (Input);
+      Output_Parameters (Input, False);
 
       Text_IO.New_Line (Type_Adb);
 
@@ -3506,7 +3522,7 @@ package body SOAP.Generator is
             Value =>
               Types.Encoding_Style'Image (O.Encoding (WSDL.Parser.Output)));
 
-         Output_Parameters (Output);
+         Output_Parameters (Output, True);
 
          --  Also if the return object is a record we need to output the
          --  schema information for this specific record.
@@ -3827,7 +3843,8 @@ package body SOAP.Generator is
             Put_Line (File, "      (Conf, " & U_Name & ".Server.Port);");
             Put_Line (File, "   Disp := SOAP.Dispatchers.Callback.Create");
             Put_Line (File, "     (CB'Unrestricted_Access,");
-            Put_Line (File, "      " & U_Name & ".CB.SOAP_CB'Access);");
+            Put_Line (File, "      " & U_Name & ".CB.SOAP_CB'Access,");
+            Put_Line (File, "      " & U_Name & ".Schema);");
             New_Line (File);
             Put_Line (File, "   AWS.Server.Start (WS, Disp, Conf);");
             New_Line (File);
