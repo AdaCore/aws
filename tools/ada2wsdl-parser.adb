@@ -805,7 +805,10 @@ package body Ada2WSDL.Parser is
                            then
                               Generator.Register_Derived
                                 (Name_Space (E), Name,
-                                 (To_Unbounded_String ("string"),
+                                 (To_Unbounded_String
+                                      (SOAP.Name_Space.Value
+                                         (SOAP.Name_Space.XSD)),
+                                  To_Unbounded_String ("string"),
                                   Null_Unbounded_String,
                                   Null_Unbounded_String,
                                   Len));
@@ -1024,10 +1027,11 @@ package body Ada2WSDL.Parser is
 
          function Build_Type
            (Name  : String;
+            NS    : String := SOAP.Name_Space.Value (SOAP.Name_Space.XSD);
             First : Long_Long_Integer := Long_Long_Integer'Last;
             Last  : Long_Long_Integer := Long_Long_Integer'First)
             return Generator.Type_Data
-         is (+Name,
+         is (+NS, +Name,
              (if First = Long_Long_Integer'Last
               then Null_Unbounded_String
               else +Long_Long_Integer'Image (First)),
@@ -1041,7 +1045,8 @@ package body Ada2WSDL.Parser is
             First : Long_Float := Long_Float'Last;
             Last  : Long_Float := Long_Float'First)
             return Generator.Type_Data
-         is (+Name,
+         is (+SOAP.Name_Space.Value (SOAP.Name_Space.XSD),
+             +Name,
              (if First = Long_Float'Last
               then Null_Unbounded_String
               else +Long_Float'Image (First)),
@@ -1288,7 +1293,7 @@ package body Ada2WSDL.Parser is
          begin
             Index := Index + 1;
             Deferred_Types (Index) := E;
-            return Build_Type (Name);
+            return Build_Type (Name, Name_Space (Declarations.Names (E) (1)));
          end Register_Deferred;
 
          E   : Asis.Element := Elem;
@@ -1474,7 +1479,7 @@ package body Ada2WSDL.Parser is
                      elsif Ilb >= Long_Long_Integer (SOAP.Types.Byte'First)
                        and then Iub <= Long_Long_Integer (SOAP.Types.Byte'Last)
                      then
-                        return Build_Type ("byte", Ilb, Iub);
+                        return Build_Type ("byte", First => Ilb, Last => Iub);
 
                      elsif Ilb = Long_Long_Integer (SOAP.Types.Short'First)
                        and then
@@ -1486,7 +1491,7 @@ package body Ada2WSDL.Parser is
                        and then
                          Iub <= Long_Long_Integer (SOAP.Types.Short'Last)
                      then
-                        return Build_Type ("short", Ilb, Iub);
+                        return Build_Type ("short", First => Ilb, Last => Iub);
 
                      elsif Ilb = Long_Long_Integer (Integer'First)
                        and then Iub = Long_Long_Integer (Integer'Last)
@@ -1496,7 +1501,8 @@ package body Ada2WSDL.Parser is
                      elsif Ilb >= Long_Long_Integer (Integer'First)
                        and then Iub <= Long_Long_Integer (Integer'Last)
                      then
-                        return Build_Type ("integer", Ilb, Iub);
+                        return Build_Type
+                          ("integer", First => Ilb, Last => Iub);
 
                      elsif Ilb = Long_Long_Integer (Long_Integer'First)
                        and then Iub = Long_Long_Integer (Long_Integer'Last)
@@ -1504,7 +1510,7 @@ package body Ada2WSDL.Parser is
                         return Build_Type ("long");
 
                      else
-                        return Build_Type ("long", Ilb, Iub);
+                        return Build_Type ("long", First => Ilb, Last => Iub);
                      end if;
                   end;
 
@@ -1515,7 +1521,8 @@ package body Ada2WSDL.Parser is
                      Get_Range (Elem, Ilb, Iub);
 
                      return Build_Type
-                       (Image (Text.Element_Image (Tn)), Ilb, Iub);
+                       (Image (Text.Element_Image (Tn)),
+                        First => Ilb, Last => Iub);
                   end;
                end if;
 

@@ -315,7 +315,7 @@ package body Ada2WSDL.Generator is
    is
       New_P : constant not null Parameter_Access :=
                 new Parameter'
-                  (+Name, Def.Name, +To_XSD (NS, -Def.Name), null);
+                  (+Name, Def.Name, +To_XSD (-Def.NS, -Def.Name), null);
       D     : Definition (Simple_Type);
    begin
       --  We need to write a schema for this derived type
