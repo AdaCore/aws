@@ -1319,8 +1319,14 @@ package body Ada2WSDL.Parser is
             Tn := E;
          end if;
 
+         if Elements.Expression_Kind (E) = A_Selected_Component then
+            E := Expressions.Selector (E);
+         end if;
+
          if Flat_Element_Kind (E) /= An_Ordinary_Type_Declaration
            and then Flat_Element_Kind (E) /= A_Subtype_Declaration
+           and then Flat_Element_Kind (E) /= A_Derived_Type_Definition
+           and then Flat_Element_Kind (E) /= A_Selected_Component
          then
             CND := Expressions.Corresponding_Name_Declaration (E);
 

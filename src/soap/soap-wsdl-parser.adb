@@ -63,12 +63,15 @@ package body SOAP.WSDL.Parser is
    package String_List is new Containers.Indefinite_Vectors (Positive, String);
 
    function Get_Node
-     (Parent  : DOM.Core.Node;
-      Element : String;
-      Name    : String        := "";
-      NS      : Boolean       := False) return DOM.Core.Node;
+     (Parent           : DOM.Core.Node;
+      Element          : String;
+      Name             : String  := "";
+      Target_Namespace : String  := "";
+      NS               : Boolean := False) return DOM.Core.Node;
    --  Returns child node named Element having the value Name for attribute
-   --  "name" if specified.
+   --  "name" and Target_Namespace for attribute "targetNamespace" if
+   --  specified. Note that Element can specified a hierarchy of names
+   --  separated with dots (e.g. Elem1.Elem2.Elem3) as an XML path.
 
    function "+" (Str : String) return Unbounded_String
      renames To_Unbounded_String;
@@ -434,10 +437,11 @@ package body SOAP.WSDL.Parser is
    --------------
 
    function Get_Node
-     (Parent  : DOM.Core.Node;
-      Element : String;
-      Name    : String        := "";
-      NS      : Boolean       := False) return DOM.Core.Node
+     (Parent           : DOM.Core.Node;
+      Element          : String;
+      Name             : String  := "";
+      Target_Namespace : String  := "";
+      NS               : Boolean := False) return DOM.Core.Node
    is
       function Get_Node_Int
         (Parent  : DOM.Core.Node;
@@ -459,8 +463,10 @@ package body SOAP.WSDL.Parser is
       begin
          if Element = "" then
             --  No more element to look for
-            if Name = ""
-              or else XML.Get_Attr_Value (Parent, "name") = Name
+            if Name in "" | XML.Get_Attr_Value (Parent, "name")
+              and then
+                Target_Namespace
+                   in "" | XML.Get_Attr_Value (Parent, "targetNamespace")
             then
                --  There is no attribute to look for or we are in the right
                --  node, return this node.
@@ -916,14 +922,14 @@ package body SOAP.WSDL.Parser is
 
          procedure Look_Schema (S : DOM.Core.Node) is
          begin
-            D := Get_Node (S, "element", T_No_NS);
+            D := Get_Node (S, "element", T_No_NS, URL);
 
             if D = null and then Context (Complex_Type) then
-               D := Get_Node (S, "complexType", T_No_NS);
+               D := Get_Node (S, "complexType", T_No_NS, URL);
             end if;
 
             if D = null and then Context (Simple_Type) then
-               D := Get_Node (S, "simpleType", T_No_NS);
+               D := Get_Node (S, "simpleType", T_No_NS, URL);
             end if;
          end Look_Schema;
 
