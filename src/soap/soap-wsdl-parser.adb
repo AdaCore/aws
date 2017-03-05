@@ -891,8 +891,8 @@ package body SOAP.WSDL.Parser is
       T_No_NS : constant String := Utils.No_NS (Type_Name);
       T_NS    : constant String := Utils.NS (Type_Name);
       TNS     : constant Name_Space.Object := Get_Target_Name_Space (N);
-      D       : DOM.Core.Node;
       All_NS  : constant String_List.Vector := Get_Namespaces_For (N);
+      D       : DOM.Core.Node;
    begin
       Trace ("(Look_For_Schema)", N);
 
