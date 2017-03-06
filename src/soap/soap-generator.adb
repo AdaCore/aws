@@ -3283,7 +3283,7 @@ package body SOAP.Generator is
                   return;
                end if;
 
-               if P.Mode = WSDL.Types.K_Record then
+               if P.Mode in WSDL.Types.Compound_Type then
                   Check_Record (P.P, Mode);
                end if;
 
