@@ -41,7 +41,10 @@ procedure WSDL_Ada_Name is
    procedure WSDL_Demo_Client is
       use Ada;
    begin
-      Text_IO.Put_Line (R.Hello_Demo.Client.Say_Hello (First_Name => "AWS"));
+      Text_IO.Put_Line
+        (R.Hello_Demo.Client.Say_Hello
+           (First_Name => "AWS",
+            Endpoint   => AWS.Server.Status.Local_URL (H_Server)));
    end WSDL_Demo_Client;
 
    function Say_Hello (Firstname : String) return String;
@@ -80,7 +83,7 @@ procedure WSDL_Ada_Name is
 begin
    Config.Set.Server_Name (CNF, "WSDL Hello demo");
    Config.Set.Server_Host (CNF, "localhost");
-   Config.Set.Server_Port (CNF, R.Hello_Demo.Server.Port);
+   Config.Set.Server_Port (CNF, 0);
 
    Server.Start (H_Server, CB'Unrestricted_Access, CNF);
 
@@ -91,10 +94,12 @@ begin
 
       if AWS.Server.Status.Is_IPv6 (H_Server) then
          Server.Add_Listening
-           (H_Server, "localhost", R.Hello_Demo.Server.Port, Net.FAMILY_INET);
+           (H_Server, "localhost",
+            AWS.Server.Status.Port (H_Server), Net.FAMILY_INET);
       else
          Server.Add_Listening
-           (H_Server, "localhost", R.Hello_Demo.Server.Port, Net.FAMILY_INET6);
+           (H_Server, "localhost",
+            AWS.Server.Status.Port (H_Server), Net.FAMILY_INET6);
       end if;
    end if;
 
