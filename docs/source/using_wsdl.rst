@@ -498,7 +498,7 @@ ada2wsdl limitations
 
 * Do not handle constrained arrays into a records.
 
-* Unbounded_String are supported with full interoperability  only inside a record.
+* Unbounded_String are supported with full interoperability only inside a record.
 
 * Only unconstrained arrays are supported
 
