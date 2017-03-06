@@ -452,6 +452,12 @@ ada2wsdl
   Force creation of the `WSDL` file. Overwrite exiting file
   with the same name.
 
+*-doc*
+  Generate document's style binding (default is RPC)
+
+*-lit*
+  Generate literal's style binding (default is encoded)
+
 *-I path*
   Add path option for the `ASIS` compilation step. This option can
   appear any number of time on the command line.
