@@ -854,7 +854,7 @@ It is hard to know all current limitations as the `WSDL` and
 
 * WSDL type inheritance not supported.
 
-* The the Document/Encoded SOAP messages' style is not supported
+* The Document/Encoded SOAP messages' style is not supported
 
 * complexType with xs:choice are only supported with a single occurence
   of each choice.
