@@ -1066,6 +1066,9 @@ package body Ada2WSDL.Parser is
          --  supposed to be a simple expression for a range declaration:
          --  range -2**5 .. 2**7 or mod 2**15;
 
+         function Is_Calendar (T : Asis.Declaration) return Boolean;
+         --  Returns true if the declaration is inside the Ada.Calendar package
+
          -------------------
          -- Compute_Value --
          -------------------
@@ -1257,6 +1260,19 @@ package body Ada2WSDL.Parser is
                end if;
             end if;
          end Get_Range;
+
+         -----------------
+         -- Is_Calendar --
+         -----------------
+
+         function Is_Calendar (T : Asis.Declaration) return Boolean is
+         begin
+            return Characters.Handling.To_Lower
+              (Image
+                 (Compilation_Units.Unit_Full_Name
+                      (Elements.Enclosing_Compilation_Unit (T))))
+                  = "ada.calendar";
+         end Is_Calendar;
 
          -----------------------
          -- Register_Deferred --
@@ -1551,6 +1567,9 @@ package body Ada2WSDL.Parser is
                      else
                         return Build_Type ("unbounded_string");
                      end if;
+
+                  elsif Name = "time" and then Is_Calendar (E) then
+                     return Build_Type ("time");
 
                   else
                      Raise_Spec_Error
