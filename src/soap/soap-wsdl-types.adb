@@ -565,7 +565,7 @@ package body SOAP.WSDL.Types is
             D : constant Definition := Find (Def.Parent, Registered);
          begin
             if D = No_Definition then
-               return Name  (Def.Parent, True);
+               return Name (Def.Parent, True);
             else
                return Root_Type_For (D, Registered);
             end if;

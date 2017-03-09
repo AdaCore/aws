@@ -205,7 +205,7 @@ package body SOAP.WSDL.Parser is
       Type_Name : String;
       Document  : WSDL.Object;
       Context   : Look_Context := Look_All) return DOM.Core.Node;
-   --  Look for schema starting at
+   --  Look for schema starting at N
 
    function Is_Character
      (N         : DOM.Core.Node;
@@ -2158,7 +2158,9 @@ package body SOAP.WSDL.Parser is
          P.Name      := O.Current_Name;
          P.Elmt_Name := O.Elmt_Name;
          P.Typ       := Types.Create
-           (Name, Get_Target_Name_Space (DOM.Core.Nodes.Parent_Node (E)));
+                          (Name,
+                           Get_Target_Name_Space
+                             (DOM.Core.Nodes.Parent_Node (E)));
          D.Ref := Types.Create (Name, Types.NS (P.Typ));
 
          while N /= null

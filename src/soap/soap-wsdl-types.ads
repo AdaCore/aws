@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                        Copyright (C) 2015, AdaCore                       --
+--                     Copyright (C) 2015-2017, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -145,7 +145,7 @@ package SOAP.WSDL.Types is
    function Find (O : Object; Registered : Boolean := False) return Definition;
    --  Returns the type definition for the given type name and name-space or
    --  No_Definition if not found. Note that the standard xsd types are not
-   --  registered their, only the types as found in the schema. If Registered
+   --  registered there, only the types as found in the schema. If Registered
    --  is true only check for registered type into this package.
 
    function Count return Natural;

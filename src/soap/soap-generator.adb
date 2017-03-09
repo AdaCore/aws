@@ -1084,7 +1084,7 @@ package body SOAP.Generator is
 
          --  Array's element type name
 
-         Q_Name  : constant String :=
+         E_Name  : constant String :=
                      (if Def = WSDL.Types.No_Definition
                       then WSDL.Types.Name (P.P.Typ, True)
                       else WSDL.Types.Name (Def.E_Type, True));
@@ -1372,7 +1372,7 @@ package body SOAP.Generator is
          Text_IO.Put_Line
            (Arr_Ads,
             "      " & Set_Type (WSDL.Types.Find (Def.E_Type))
-            & ", """ & Q_Name & """, " & Set_Routine (P) & ");");
+            & ", """ & E_Name & """, " & Set_Routine (P) & ");");
 
          Finalize_Types_Package (Prefix, Arr_Ads, Arr_Adb, No_Body => True);
       end Generate_Array;
