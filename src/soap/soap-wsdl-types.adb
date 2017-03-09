@@ -31,6 +31,7 @@ with Ada.Containers.Indefinite_Vectors;
 with Ada.Text_IO;
 
 with SOAP.Utils;
+with SOAP.WSDL.Name_Spaces;
 
 package body SOAP.WSDL.Types is
 
@@ -153,8 +154,11 @@ package body SOAP.WSDL.Types is
 
          else
             declare
+               P_NS   : constant Name_Space.Object := Def.Parent.NS;
                P_Name : constant String :=
-                          Utils.No_NS (Types.Name (Def.Parent));
+                          Utils.To_Name
+                            (Types.Name (Def.Parent,
+                             NS => not WSDL.Name_Spaces.Is_XSD (P_NS)));
             begin
                return "From_" & P_Name & "_Type"
                  & " ("
@@ -634,8 +638,12 @@ package body SOAP.WSDL.Types is
 
          else
             declare
+               P_NS   : constant Name_Space.Object := Def.Parent.NS;
                P_Name : constant String :=
-                          Utils.No_NS (Types.Name (Def.Parent));
+                          Utils.To_Name
+                            (Types.Name
+                               (Def.Parent,
+                                NS => not WSDL.Name_Spaces.Is_XSD (P_NS)));
             begin
                return For_Derived
                  (WSDL.Types.Find (Def.Parent),

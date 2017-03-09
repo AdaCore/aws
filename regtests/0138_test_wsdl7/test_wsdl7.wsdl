@@ -14,7 +14,7 @@
  xmlns="http://schemas.xmlsoap.org/wsdl/">
 
 <types>
- <schema targetNamespace="http://www.dummy.net/AdaName.wsdl"
+ <schema targetNamespace="http://www.dummy.net/AdaName.wsdl/types"
   xmlns:SOAP-ENV="http://schemas.xmlsoap.org/soap/envelope/"
   xmlns:SOAP-ENC="http://schemas.xmlsoap.org/soap/encoding/"
   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
