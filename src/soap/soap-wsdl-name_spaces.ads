@@ -51,4 +51,7 @@ package SOAP.WSDL.Name_Spaces is
    function Is_XSD (Name : String) return Boolean;
    --  Returns true if the Name corresponds to the XSD URL
 
+   function Is_XSD (NS : Name_Space.Object) return Boolean;
+   --  Returns true if NS corresponds to the XSD URL
+
 end SOAP.WSDL.Name_Spaces;
