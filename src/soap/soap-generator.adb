@@ -2340,6 +2340,24 @@ package body SOAP.Generator is
          Text_IO.New_Line (Tmp_Ads);
          Header_Box (O, Tmp_Ads, "Record " & F_Name);
 
+         --  Generate the schema definitions
+
+         N := R;
+
+         Text_IO.Put_Line
+           (Type_Adb, "   --  Definitions for record " & Name);
+
+         while N /= null loop
+            Output_Schema_Definition
+              (Key   => Name & "." & To_String (N.Name),
+               Value => WSDL.Types.Name
+                          ((if N.Is_Set then N.E_Typ else N.Typ),
+                           NS => True));
+            N := N.Next;
+         end loop;
+
+         Text_IO.New_Line (Type_Adb);
+
          --  Is types are to be reused from an Ada spec ?
 
          if Types_Spec (O) = "" then
@@ -2352,23 +2370,12 @@ package body SOAP.Generator is
 
             Max := 1;
 
-            Text_IO.Put_Line
-              (Type_Adb, "   --  Definitions for record " & Name);
-
             while N /= null loop
                Count := Count + 1;
                Max := Positive'Max
                  (Max, Format_Name (O, To_String (N.Name))'Length);
-
-               Output_Schema_Definition
-                 (Key   => Name & "." & To_String (N.Name),
-                  Value => WSDL.Types.Name
-                             ((if N.Is_Set then N.E_Typ else N.Typ),
-                              NS => True));
                N := N.Next;
             end loop;
-
-            Text_IO.New_Line (Type_Adb);
 
             --  Output field
 
