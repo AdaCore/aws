@@ -951,13 +951,6 @@ package body SOAP.WSDL.Parser is
                exit when D /= null;
             end loop;
          end if;
-
-         --  Then check all mixed-schemas
-
-         if D = null then
-            WSDL.Schema.For_All
-              (Namespace => "", Process => Look_Schema'Access);
-         end if;
       end;
 
       return D;
@@ -980,21 +973,7 @@ package body SOAP.WSDL.Parser is
 
       Parse_Definitions (O, N, Document);
 
-      --  Record this schema as the targetNamespace schema
-
-      declare
-         Embedded_Schema : constant DOM.Core.Node :=
-                             Get_Node (DOM.Core.Node (Document),
-                                       "definitions.types.schema");
-      begin
-         if Embedded_Schema /= null then
-            Schema.Register
-               (Name_Space.Value (Get_Target_Name_Space (Embedded_Schema)),
-                Embedded_Schema);
-         end if;
-      end;
-
-      --  Then we load all external schemas
+      --  Then we load all schemas
 
       Parse_Schema (O, DOM.Core.Node (Document), "definitions.types.schema");
 
@@ -1902,60 +1881,63 @@ package body SOAP.WSDL.Parser is
       Root  : DOM.Core.Node;
       XPath : String)
    is
-      N : constant DOM.Core.Node := Get_Node (Root, XPath);
+      N : DOM.Core.Node := Get_Node (Root, XPath);
+      C : DOM.Core.Node;
    begin
-      if N /= null then
-         declare
-            NL : constant DOM.Core.Node_List :=
-                   DOM.Core.Nodes.Child_Nodes (N);
-         begin
-            for K in 0 .. DOM.Core.Nodes.Length (NL) - 1 loop
-               declare
-                  S : constant DOM.Core.Node := DOM.Core.Nodes.Item (NL, K);
-                  L : constant String :=
-                        XML.Get_Attr_Value (S, "schemaLocation");
-               begin
-                  if DOM.Core.Nodes.Local_Name (S) = "import"
-                    and then L /= ""
-                    and then (L'Length < 7
-                              or else L (L'First .. L'First + 6) /= "http://")
-                  then
-                     --  Register the root node of the schema under the
-                     --  corresponding namespace.
+      while N /= null loop
 
-                     declare
-                        N : constant DOM.Core.Node :=
-                              DOM.Core.Node
-                                (Load
-                                   (XML.Get_Attr_Value (S, "schemaLocation")));
-                     begin
-                        Trace ("(Parse_Schema) "
-                               & XML.Get_Attr_Value (S, "namespace"),
-                               XML.First_Child (N));
+         if DOM.Core.Nodes.Local_Name (N) = "schema" then
+            --  Register this schema
 
-                        Schema.Register
-                          (XML.Get_Attr_Value (S, "namespace"),
-                           XML.First_Child (N));
+            Schema.Register
+              (Name_Space.Value (Get_Target_Name_Space (N)), N);
 
-                        Register_Name_Spaces (N);
+            --  Look for import in this schema
 
-                        --  Check recursively for imported schema
+            C := XML.First_Child (N);
 
-                        Parse_Schema (O, N, "schema");
-                     end;
-                  end if;
-               end;
+            while C /= null loop
+               if DOM.Core.Nodes.Local_Name (C) = "import" then
+                  declare
+                     L : constant String :=
+                           XML.Get_Attr_Value (C, "schemaLocation");
+                  begin
+                     if L /= ""
+                       and then
+                         (L'Length < 7
+                          or else L (L'First .. L'First + 6) /= "http://")
+                     then
+                        --  Register the root node of the schema under the
+                        --  corresponding namespace.
+
+                        declare
+                           N : constant DOM.Core.Node :=
+                                 DOM.Core.Node (Load (L));
+                        begin
+                           Trace ("(Parse_Schema) "
+                                  & XML.Get_Attr_Value (C, "namespace"),
+                                  XML.First_Child (N));
+
+                           Schema.Register
+                             (XML.Get_Attr_Value (C, "namespace"),
+                              XML.First_Child (N));
+
+                           Register_Name_Spaces (XML.First_Child (N));
+
+                           --  Check recursively for imported schema
+
+                           Parse_Schema (O, N, "schema");
+                        end;
+                     end if;
+                  end;
+               end if;
+
+               C := XML.Next_Sibling (C);
             end loop;
-         end;
-
-         --  If this schema has no targetNamespace then it is a schema
-         --  containing definition for different name-space. Record it as
-         --  a mixed name-space.
-
-         if XML.Get_Attr_Value (N, "targetNamespace") = "" then
-            Schema.Register ("", N);
          end if;
-      end if;
+
+         N := XML.Next_Sibling (N);
+      end loop;
    end Parse_Schema;
 
    -------------------
@@ -2330,9 +2312,13 @@ package body SOAP.WSDL.Parser is
                --  We can have multiple prefix pointing to the same URL
                --  (namespace). But an URL must be unique
 
-               WSDL.Name_Spaces.Register
-                 (DOM.Core.Nodes.Local_Name (N),
-                  DOM.Core.Nodes.Node_Value (N));
+               if not WSDL.Name_Spaces.Contains
+                 (DOM.Core.Nodes.Local_Name (N))
+               then
+                  WSDL.Name_Spaces.Register
+                    (DOM.Core.Nodes.Local_Name (N),
+                     DOM.Core.Nodes.Node_Value (N));
+               end if;
 
                if not WSDL.Name_Spaces.Contains
                  (DOM.Core.Nodes.Node_Value (N))

@@ -26,6 +26,7 @@ with Ada.Text_IO;
 
 with GNAT.Calendar.Time_IO;
 
+with AWS.Containers.String_Vectors;
 with AWS.Utils;
 with SOAP.Name_Space;
 with SOAP.Types;
@@ -862,6 +863,9 @@ package body Ada2WSDL.Generator is
          procedure Generate_Element;
          --  Write the Element for document style binding
 
+         procedure Write_Schema_For (NS : String);
+         --  Write schema definitions for the given name-space
+
          ----------------------
          -- Generate_Element --
          ----------------------
@@ -924,8 +928,8 @@ package body Ada2WSDL.Generator is
          procedure Write_Array (E : Definition) is
          begin
             New_Line;
-            Put_Line ("         <xsd:complexType name=""" & (-E.Name) & '"');
-            Put_Line ("                 targetNamespace=""" & (-E.NS) & """>");
+            Put_Line
+              ("         <xsd:complexType name=""" & (-E.Name) & """>");
             Put_Line ("            <xsd:complexContent>");
             Put_Line ("               <xsd:restriction "
                       & "base=""soapenc:Array"">");
@@ -966,8 +970,7 @@ package body Ada2WSDL.Generator is
             P : access Parameter := E.Parameters;
          begin
             New_Line;
-            Put_Line ("         <xsd:simpleType name=""" & (-E.Name) & '"');
-            Put_Line ("                 targetNamespace=""" & (-E.NS) & """>");
+            Put_Line ("         <xsd:simpleType name=""" & (-E.Name) & """>");
             Put_Line ("            <xsd:restriction base=""xsd:string"">");
 
             while P /= null loop
@@ -988,8 +991,7 @@ package body Ada2WSDL.Generator is
             P : access Parameter := E.Parameters;
          begin
             New_Line;
-            Put_Line ("         <xsd:complexType name=""" & (-E.Name) & '"');
-            Put_Line ("                 targetNamespace=""" & (-E.NS) & """>");
+            Put_Line ("         <xsd:complexType name=""" & (-E.Name) & """>");
             Put_Line ("            <xsd:all>");
 
             while P /= null loop
@@ -1002,6 +1004,51 @@ package body Ada2WSDL.Generator is
             Put_Line ("         </xsd:complexType>");
          end Write_Record;
 
+         ----------------------
+         -- Write_Schema_For --
+         ----------------------
+
+         procedure Write_Schema_For (NS : String) is
+         begin
+            New_Line;
+            Put
+              ("      <xsd:schema"
+               & " xmlns:xsd=""http://www.w3.org/2001/XMLSchema""");
+            New_Line;
+            Put ("         targetNamespace=""" & NS & '"');
+            Put_Line (">");
+
+            if Character_Schema then
+               Write_Character;
+            end if;
+
+            --  Output document/style element
+
+            if Options.Document then
+               Generate_Element;
+            end if;
+
+            --  Output all structures
+
+            for A of API loop
+               if A.Def_Mode in Structure | Table | Simple_Type | Enumeration
+                 and then -A.NS = NS
+               then
+                  case A.Def_Mode is
+                     when Structure   => Write_Record (A);
+                     when Table       => Write_Array (A);
+                     when Simple_Type => Write_Type (A);
+                     when Enumeration => Write_Enumeration (A);
+
+                     when Safe_Pointer_Definition | Routine =>
+                        null;
+                  end case;
+               end if;
+            end loop;
+
+            Put_Line ("      </xsd:schema>");
+         end Write_Schema_For;
+
          ----------------
          -- Write_Type --
          ----------------
@@ -1010,8 +1057,7 @@ package body Ada2WSDL.Generator is
             P : constant not null access Parameter := E.Parameters;
          begin
             New_Line;
-            Put_Line ("         <xsd:simpleType name=""" & (-E.Name) & '"');
-            Put_Line ("                 targetNamespace=""" & (-E.NS) & """>");
+            Put_Line ("         <xsd:simpleType name=""" & (-E.Name) & """>");
             Put_Line ("            <xsd:restriction base="""
                       & (-P.XSD_Name) & """>");
 
@@ -1034,78 +1080,34 @@ package body Ada2WSDL.Generator is
             Put_Line ("         </xsd:simpleType>");
          end Write_Type;
 
+         Schemas : AWS.Containers.String_Vectors.Vector;
+         --  Record all schemas defined
+
       begin
          if Schema_Needed
            or else Options.Document
            or else Character_Schema
          then
-            New_Line;
-            Put_Line ("   <wsdl:types>");
-            Put
-              ("      <xsd:schema"
-               & " xmlns:xsd=""http://www.w3.org/2001/XMLSchema""");
-
-            --  The following code is to check if all schema definitions are
-            --  having the same namespace. If so, we place a targetNamespace
-            --  node into the main schema node. This is to work around a
-            --  Microsoft .Net toolset bug where targetNamespace into schema's
-            --  type definitions are not taken into account. This is of course
-            --  mandatory to avoid name clashes (in Ada two types with the same
-            --  name in different packages for example).
-
-            declare
-               Global_NS : Unbounded_String;
-               Single_NS : Boolean := True;
-            begin
-               for A of API loop
-                  case A.Def_Mode is
-                     when Structure | Table | Simple_Type | Enumeration =>
-                        if Global_NS = Null_Unbounded_String then
-                           Global_NS := A.NS;
-
-                        elsif Global_NS /= A.NS then
-                           Single_NS := False;
-                        end if;
-
-                     when Safe_Pointer_Definition | Routine =>
-                        null;
-                  end case;
-               end loop;
-
-               if Single_NS then
-                  New_Line;
-                  Put ("         targetNamespace=""" & (-Global_NS) & '"');
-               end if;
-
-               --  Finally, close schema
-               Put_Line (">");
-            end;
-
-            if Character_Schema then
-               Write_Character;
-            end if;
-
-            --  Output document/style element
-
-            if Options.Document then
-               Generate_Element;
-            end if;
-
-            --  Output all structures
-
             for A of API loop
                case A.Def_Mode is
-                  when Structure   => Write_Record (A);
-                  when Table       => Write_Array (A);
-                  when Simple_Type => Write_Type (A);
-                  when Enumeration => Write_Enumeration (A);
-
+                  when Structure | Table | Simple_Type | Enumeration =>
+                     if not Schemas.Contains (-A.NS) then
+                        Schemas.Append (-A.NS);
+                     end if;
                   when Safe_Pointer_Definition | Routine =>
                      null;
                end case;
             end loop;
 
-            Put_Line ("      </xsd:schema>");
+            --  Now write all needed schemas
+
+            New_Line;
+            Put ("   <wsdl:types>");
+
+            for S of Schemas loop
+               Write_Schema_For (S);
+            end loop;
+
             Put_Line ("   </wsdl:types>");
          end if;
       end Write_Schema;
