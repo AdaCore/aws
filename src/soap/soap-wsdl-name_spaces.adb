@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                       Copyright (C) 2015, AdaCore                        --
+--                     Copyright (C) 2015-2017, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -80,6 +80,11 @@ package body SOAP.WSDL.Name_Spaces is
         and then (NS (Name) = SOAP.Name_Space.XSD_URL
                   or else NS (Name) = "http://www.w3.org/2000/10/XMLSchema"
                   or else NS (Name) = "http://www.w3.org/1999/XMLSchema");
+   end Is_XSD;
+
+   function Is_XSD (NS : Name_Space.Object) return Boolean is
+   begin
+      return Is_XSD (Name_Space.Name (NS));
    end Is_XSD;
 
    --------------

@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2000-2016, AdaCore                     --
+--                     Copyright (C) 2000-2017, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -61,6 +61,9 @@ package SOAP.Utils is
 
    function With_NS (NS, Name : String) return String;
    --  Returns NS:Name if NS is not empty otherwise just return Name
+
+   function To_Name (Q_Name : String) return String;
+   --  Returns a valid Ada name out of a fully qualified name
 
    function Is_Ada_Reserved_Word (Name : String) return Boolean;
    --  Returns True if Name is an Ada reserved word

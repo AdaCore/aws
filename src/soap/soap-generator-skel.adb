@@ -326,6 +326,8 @@ package body Skel is
       while N /= null loop
          declare
             use type WSDL.Schema.Encoding_Style;
+            Q_Name : constant String :=
+                       Utils.To_Name (WSDL.Types.Name (N.Typ, NS => True));
             T_Name : constant String := WSDL.Types.Name (N.Typ);
          begin
             Text_IO.Put      (Skel_Adb, "         ");
@@ -381,8 +383,12 @@ package body Skel is
                     (Skel_Adb, WSDL.To_Ada (WSDL.To_Type (T_Name)));
                   Output_Parameters (N);
 
-               when WSDL.Types.K_Derived | WSDL.Types.K_Enumeration =>
+               when WSDL.Types.K_Enumeration =>
                   Text_IO.Put_Line (Skel_Adb, T_Name & "_Type");
+                  Output_Parameters (N);
+
+               when WSDL.Types.K_Derived =>
+                  Text_IO.Put_Line (Skel_Adb, Q_Name & "_Type");
                   Output_Parameters (N);
 
                when WSDL.Types.K_Array =>

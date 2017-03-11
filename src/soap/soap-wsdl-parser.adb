@@ -63,12 +63,15 @@ package body SOAP.WSDL.Parser is
    package String_List is new Containers.Indefinite_Vectors (Positive, String);
 
    function Get_Node
-     (Parent  : DOM.Core.Node;
-      Element : String;
-      Name    : String        := "";
-      NS      : Boolean       := False) return DOM.Core.Node;
+     (Parent           : DOM.Core.Node;
+      Element          : String;
+      Name             : String  := "";
+      Target_Namespace : String  := "";
+      NS               : Boolean := False) return DOM.Core.Node;
    --  Returns child node named Element having the value Name for attribute
-   --  "name" if specified.
+   --  "name" and Target_Namespace for attribute "targetNamespace" if
+   --  specified. Note that Element can specified a hierarchy of names
+   --  separated with dots (e.g. Elem1.Elem2.Elem3) as an XML path.
 
    function "+" (Str : String) return Unbounded_String
      renames To_Unbounded_String;
@@ -202,7 +205,7 @@ package body SOAP.WSDL.Parser is
       Type_Name : String;
       Document  : WSDL.Object;
       Context   : Look_Context := Look_All) return DOM.Core.Node;
-   --  Look for schema starting at
+   --  Look for schema starting at N
 
    function Is_Character
      (N         : DOM.Core.Node;
@@ -434,10 +437,11 @@ package body SOAP.WSDL.Parser is
    --------------
 
    function Get_Node
-     (Parent  : DOM.Core.Node;
-      Element : String;
-      Name    : String        := "";
-      NS      : Boolean       := False) return DOM.Core.Node
+     (Parent           : DOM.Core.Node;
+      Element          : String;
+      Name             : String  := "";
+      Target_Namespace : String  := "";
+      NS               : Boolean := False) return DOM.Core.Node
    is
       function Get_Node_Int
         (Parent  : DOM.Core.Node;
@@ -454,13 +458,17 @@ package body SOAP.WSDL.Parser is
          Element : String;
          Name    : String) return DOM.Core.Node
       is
+         TNS  : constant String :=
+                  (if Target_Namespace = ""
+                   then ""
+                   else Name_Space.Value (Get_Target_Name_Space (Parent)));
          N, R : DOM.Core.Node;
          E    : Natural;
       begin
          if Element = "" then
             --  No more element to look for
-            if Name = ""
-              or else XML.Get_Attr_Value (Parent, "name") = Name
+            if Name in "" | XML.Get_Attr_Value (Parent, "name")
+              and then Target_Namespace = TNS
             then
                --  There is no attribute to look for or we are in the right
                --  node, return this node.
@@ -891,8 +899,8 @@ package body SOAP.WSDL.Parser is
       T_No_NS : constant String := Utils.No_NS (Type_Name);
       T_NS    : constant String := Utils.NS (Type_Name);
       TNS     : constant Name_Space.Object := Get_Target_Name_Space (N);
-      D       : DOM.Core.Node;
       All_NS  : constant String_List.Vector := Get_Namespaces_For (N);
+      D       : DOM.Core.Node;
    begin
       Trace ("(Look_For_Schema)", N);
 
@@ -916,14 +924,14 @@ package body SOAP.WSDL.Parser is
 
          procedure Look_Schema (S : DOM.Core.Node) is
          begin
-            D := Get_Node (S, "element", T_No_NS);
+            D := Get_Node (S, "element", T_No_NS, URL);
 
             if D = null and then Context (Complex_Type) then
-               D := Get_Node (S, "complexType", T_No_NS);
+               D := Get_Node (S, "complexType", T_No_NS, URL);
             end if;
 
             if D = null and then Context (Simple_Type) then
-               D := Get_Node (S, "simpleType", T_No_NS);
+               D := Get_Node (S, "simpleType", T_No_NS, URL);
             end if;
          end Look_Schema;
 
@@ -2112,10 +2120,9 @@ package body SOAP.WSDL.Parser is
          P   : Parameters.Parameter (Types.K_Derived);
          D   : Types.Definition (Types.K_Derived);
       begin
-         P.Name      := O.Current_Name;
-         P.Elmt_Name := O.Elmt_Name;
-         P.Typ       := Types.Create
-           (Name, Get_Target_Name_Space (DOM.Core.Nodes.Parent_Node (N)));
+         P.Name        := O.Current_Name;
+         P.Elmt_Name   := O.Elmt_Name;
+         P.Typ         := Types.Create (Name, Get_Target_Name_Space (N));
          D.Constraints := Constraints;
 
          D.Ref    := Types.Create (Name, Types.NS (P.Typ));
@@ -2152,7 +2159,9 @@ package body SOAP.WSDL.Parser is
          P.Name      := O.Current_Name;
          P.Elmt_Name := O.Elmt_Name;
          P.Typ       := Types.Create
-           (Name, Get_Target_Name_Space (DOM.Core.Nodes.Parent_Node (E)));
+                          (Name,
+                           Get_Target_Name_Space
+                             (DOM.Core.Nodes.Parent_Node (E)));
          D.Ref := Types.Create (Name, Types.NS (P.Typ));
 
          while N /= null
@@ -2281,17 +2290,21 @@ package body SOAP.WSDL.Parser is
            or else (To_Type (-Base) = P_Character
                     and then not Is_Character (N, -Base, Document))
          then
-            N := Look_For_Schema (N, -Base, Document);
+            declare
+               B : constant DOM.Core.Node :=
+                     Look_For_Schema
+                       (DOM.Core.Nodes.Parent_Node (N), -Base, Document);
+            begin
+               if B = null then
+                  raise WSDL_Error
+                    with "Definition for " & (-Base) & " not found.";
 
-            if N = null then
-               raise WSDL_Error
-                 with "Definition for " & (-Base) & " not found.";
-
-            else
-               O.No_Param := True;
-               Parse_Element (O, N, Document);
-               O.No_Param := False;
-            end if;
+               else
+                  O.No_Param := True;
+                  Parse_Element (O, B, Document);
+                  O.No_Param := False;
+               end if;
+            end;
          end if;
 
          return Build_Derived (-Name, -Base, C, N);

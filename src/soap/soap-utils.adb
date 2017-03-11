@@ -32,6 +32,7 @@ pragma Ada_2012;
 with Ada.Calendar;
 with Ada.Characters.Handling;
 with Ada.Strings.Fixed;
+with Ada.Strings.Maps;
 with Ada.Unchecked_Deallocation;
 
 with Unicode.CES.Basic_8bit;
@@ -442,6 +443,17 @@ package body SOAP.Utils is
             Timezone  => Types.TZ'Value (TI (TZ_Range)));
       end if;
    end Time_Instant;
+
+   -------------
+   -- To_Name --
+   -------------
+
+   function To_Name (Q_Name : String) return String is
+      use Ada;
+   begin
+      return Strings.Fixed.Translate
+        (Q_Name, Strings.Maps.To_Mapping (":", "_"));
+   end To_Name;
 
    -------------------
    -- To_Object_Set --

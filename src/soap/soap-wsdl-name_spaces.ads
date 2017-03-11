@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                       Copyright (C) 2015, AdaCore                        --
+--                     Copyright (C) 2015-2017, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -49,6 +49,9 @@ package SOAP.WSDL.Name_Spaces is
    --  Get the name-space corresponding value for Key
 
    function Is_XSD (Name : String) return Boolean;
-   --  Returns true is the Name corresponds to the XSD URL
+   --  Returns true if the Name corresponds to the XSD URL
+
+   function Is_XSD (NS : Name_Space.Object) return Boolean;
+   --  Returns true if NS corresponds to the XSD URL
 
 end SOAP.WSDL.Name_Spaces;

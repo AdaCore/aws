@@ -7,7 +7,6 @@
    xmlns:soapenc="http://schemas.xmlsoap.org/soap/encoding/"
    xmlns:wsdlsoap="http://schemas.xmlsoap.org/wsdl/soap/"
    xmlns:apachesoap="http://xml.apache.org/xml-soap"
-   xmlns:intf="urn:datafeed.dukascopy.com"
    xmlns:impl="urn:datafeed.dukascopy.com">
 
  <types>

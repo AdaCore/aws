@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2003-2015, AdaCore                     --
+--                     Copyright (C) 2003-2017, AdaCore                     --
 --                                                                          --
 --  This is free software;  you can redistribute it  and/or modify it       --
 --  under terms of the  GNU General Public License as published  by the     --
@@ -23,6 +23,7 @@ package Ada2WSDL.Generator is
    use Ada.Strings.Unbounded;
 
    type Type_Data is record
+      NS       : Unbounded_String;
       Name     : Unbounded_String;
       Min, Max : Unbounded_String;
       Len      : Unbounded_String;
