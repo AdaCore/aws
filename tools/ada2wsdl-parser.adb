@@ -1172,8 +1172,8 @@ package body Ada2WSDL.Parser is
             LB, UB : Asis.Expression;
 
          begin
-            Lower := 0;
-            Upper := 0;
+            Lower := Long_Long_Integer'Last;
+            Upper := Long_Long_Integer'First;
 
             case Flat_Element_Kind (E) is
                when A_Signed_Integer_Type_Definition =>
@@ -1223,8 +1223,8 @@ package body Ada2WSDL.Parser is
             LB, UB : Asis.Expression;
 
          begin
-            Lower := 0.0;
-            Upper := 0.0;
+            Lower := Long_Float'Last;
+            Upper := Long_Float'First;
 
             case Flat_Element_Kind (E) is
                when A_Floating_Point_Definition =>

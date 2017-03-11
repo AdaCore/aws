@@ -14,13 +14,13 @@ maximumQueueSize = 16
 <soapenv:Body
  xmlns:awsns="http://soapaws/"
  xmlns:abc="http://aurn.here.org/abc"
- xmlns:n1="http://aurn.here.org/spatial">
+ xmlns:sp="http://aurn.here.org/spatial">
 <abc:executeRequest>
    <abc:executionTime>XXXX-XX-XXTXX:XX:XXZ</abc:executionTime>
    <abc:valueA>
       <abc:latLong>
-         <n1:latitudeDegrees>1.00000000000000</n1:latitudeDegrees>
-         <n1:longitudeDegrees>1.10000000000000</n1:longitudeDegrees>
+         <sp:latitudeDegrees>1.00000000000000</sp:latitudeDegrees>
+         <sp:longitudeDegrees>1.10000000000000</sp:longitudeDegrees>
       </abc:latLong>
       <abc:field7>3.00000000000000</abc:field7>
       <abc:field8>4.00000000000000</abc:field8>
@@ -31,8 +31,8 @@ maximumQueueSize = 16
    </abc:valueA>
    <abc:valueA>
       <abc:latLong>
-         <n1:latitudeDegrees>2.00000000000000</n1:latitudeDegrees>
-         <n1:longitudeDegrees>2.10000000000000</n1:longitudeDegrees>
+         <sp:latitudeDegrees>2.00000000000000</sp:latitudeDegrees>
+         <sp:longitudeDegrees>2.10000000000000</sp:longitudeDegrees>
       </abc:latLong>
       <abc:field7>3.20000000000000</abc:field7>
       <abc:field8>4.20000000000000</abc:field8>
