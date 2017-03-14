@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2002-2014, AdaCore                     --
+--                     Copyright (C) 2002-2017, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -680,6 +680,30 @@ package AWS.LDAP.Thin is
    function ldap_msgtype (lm : LDAPMessage) return C.int
      with Import, Convention => C;
 
+   subtype Constr_Char_Array is C.char_array (C.size_t);
+   type Constr_Char_Array_Access is access Constr_Char_Array;
+
+   type Ber_Val is record
+      BV_Len : C.unsigned_long;
+      BV_Val : Constr_Char_Array_Access;
+   end record;
+
+   type Ber_Val_Access is access Ber_Val;
+   type Ber_Val_Array is array (C.size_t range <>) of aliased Ber_Val_Access;
+   subtype Constr_Ber_Val_Array is Ber_Val_Array (C.size_t);
+   type Constr_Ber_Val_Array_Access is access Constr_Ber_Val_Array;
+   --  This is a "struct berval **" on the C side. We emulate this with a
+   --  pointer to a constrained Ber_Val_Array. Note that it is not possible to
+   --  dereference an Constr_Ber_Val_Array_Access at the Ada level because this
+   --  is a dummy type which is very big! To access individual element you
+   --  should use Item routine below.
+
+   function Item
+     (Set   : Constr_Ber_Val_Array_Access;
+      Index : C.int) return C.char_array
+     with Inline;
+   --  Returns item at positon Index in Set
+
    subtype Attribute_Set is C.Strings.chars_ptr_array (C.size_t);
    type Attribute_Set_Access is access all Attribute_Set;
    --  This is a "char **" on the C side. We emulate this with a pointer to a
@@ -694,13 +718,20 @@ package AWS.LDAP.Thin is
      with Inline;
    --  Returns item at positon Index in Set
 
-   function ldap_get_values
+   function ldap_get_values_len
      (ld      : LDAP_Type;
       entries : LDAPMessage;
-      target  : chars_ptr) return Attribute_Set_Access
+      target  : chars_ptr) return Constr_Ber_Val_Array_Access
      with Import, Convention => C;
 
    function ldap_count_values (V : Attribute_Set_Access) return C.int
+     with Import, Convention => C;
+
+   function ldap_count_values_len
+     (V : Constr_Ber_Val_Array_Access) return C.int
+     with Import, Convention => C;
+
+   procedure ldap_value_free_len (V : Constr_Ber_Val_Array_Access)
      with Import, Convention => C;
 
    procedure ldap_value_free (V : Attribute_Set_Access)

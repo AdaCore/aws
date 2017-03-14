@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                      Copyright (C) 2003-2013, AdaCore                    --
+--                      Copyright (C) 2003-2017, AdaCore                    --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -571,25 +571,25 @@ package body AWS.LDAP.Client is
       Target : String) return String_Set
    is
       C_Target : chars_ptr := New_String (Target);
-      Attribs  : Thin.Attribute_Set_Access;
+      Attribs  : Thin.Constr_Ber_Val_Array_Access;
       N        : Natural := 0;
    begin
       Check_Handle (Dir);
 
-      Attribs := Thin.ldap_get_values (Dir, Node, C_Target);
+      Attribs := Thin.ldap_get_values_len (Dir, Node, C_Target);
       Free (C_Target);
 
-      N := Natural (Thin.ldap_count_values (Attribs));
+      N := Natural (Thin.ldap_count_values_len (Attribs));
 
       declare
          Result : String_Set (1 .. N);
       begin
          for K in Result'Range loop
-            Result (K) :=
-              To_Unbounded_String (Value (Thin.Item (Attribs, IC.int (K))));
+            Result (K) := To_Unbounded_String
+              (IC.To_Ada (Thin.Item (Attribs, IC.int (K)), False));
          end loop;
 
-         Thin.ldap_value_free (Attribs);
+         Thin.ldap_value_free_len (Attribs);
 
          return Result;
       end;

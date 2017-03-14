@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2002-2014, AdaCore                     --
+--                     Copyright (C) 2002-2017, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -28,6 +28,37 @@
 ------------------------------------------------------------------------------
 
 package body AWS.LDAP.Thin is
+
+   ----------
+   -- Item --
+   ----------
+
+   function Item
+     (Set   : Constr_Ber_Val_Array_Access;
+      Index : C.int) return C.char_array
+   is
+      use type C.size_t;
+
+      function Value (Item : Ber_Val_Access) return C.char_array;
+      --  Get value from Item pointer and return a char_array
+
+      -----------
+      -- Value --
+      -----------
+
+      function Value (Item : Ber_Val_Access) return C.char_array is
+         Result : C.char_array (0 .. C.size_t (Item.BV_Len) - 1);
+      begin
+         for I in Result'Range loop
+            Result (I) := Item.BV_Val (I);
+         end loop;
+
+         return Result;
+      end Value;
+
+   begin
+      return Value (Set (C.size_t'First + C.size_t (Index) - 1));
+   end Item;
 
    ----------
    -- Item --
