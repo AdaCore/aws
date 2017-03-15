@@ -694,7 +694,7 @@ package AWS.LDAP.Thin is
    type Constr_Ber_Val_Array_Access is access Constr_Ber_Val_Array;
    --  This is a "struct berval **" on the C side. We emulate this with a
    --  pointer to a constrained Ber_Val_Array. Note that it is not possible to
-   --  dereference an Constr_Ber_Val_Array_Access at the Ada level because this
+   --  dereference a Constr_Ber_Val_Array_Access at the Ada level because this
    --  is a dummy type which is very big! To access individual element you
    --  should use Item routine below.
 
