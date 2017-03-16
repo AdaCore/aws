@@ -3414,9 +3414,6 @@ package body SOAP.Generator is
 
                            T_Name : constant String :=
                                       WSDL.Types.Name (Def.Ref, True);
---                             Key    : constant String :=
---                                        WSDL.Types.Name (Def.Ref, True);
-
                         begin
                            if WSDL.Types.NS (Def.Ref) /= Name_Space.XSD then
                               Generate (WSDL.Types.Find (Def.Parent));
