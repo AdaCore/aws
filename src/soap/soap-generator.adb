@@ -3369,12 +3369,12 @@ package body SOAP.Generator is
                T_Name : constant String := WSDL.Types.Name (N.Typ, NS => True);
             begin
                Output_Schema_Definition
-                 (Key   => Proc & "." & To_String (P.Name),
+                 (Key   => Proc & "." & To_String (N.Name),
                   Value => T_Name);
 
                if Is_Output then
                   Output_Schema_Definition
-                    (Key   => Proc & "Response." & To_String (P.Name),
+                    (Key   => Proc & "Response." & To_String (N.Name),
                      Value => T_Name);
                end if;
             end;
