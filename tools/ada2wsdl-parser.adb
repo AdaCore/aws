@@ -463,9 +463,18 @@ package body Ada2WSDL.Parser is
             declare
                Elem : constant Asis.Element :=
                         Declarations.Result_Profile (Node.Spec);
+               E    : Asis.Element := Elem;
             begin
+               if Elements.Expression_Kind (E) = A_Selected_Component then
+                  E := Expressions.Selector (E);
+               end if;
+
+               E := Expressions.Corresponding_Name_Declaration (E);
+
+               E := Declarations.Type_Declaration_View (E);
+
                Generator.Return_Type
-                 (Name_Space (Elem),
+                 (Name_Space (E),
                   To_String (Type_Def (Elem, Base => False).Name));
             end;
          end if;
