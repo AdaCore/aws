@@ -28,7 +28,7 @@
 <xsd:minInclusive value="-1.00000000000000E+00"/>
 <xsd:simpleType name="T8">
 <xsd:restriction base="xsd:string">
-<xsd:Length value="10"/>
+<xsd:length value="10"/>
 <xsd:simpleType name="T9">
 <xsd:restriction base="xsd:string">
 <xsd:simpleType name="TA">
