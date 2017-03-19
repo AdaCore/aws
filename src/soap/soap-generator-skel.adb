@@ -104,6 +104,14 @@ package body Skel is
                      " V (SOAP_Base64'(SOAP.Parameters.Get (Params, """);
                   Text_IO.Put      (Skel_Adb, To_String (N.Name));
                   Text_IO.Put_Line (Skel_Adb, """)));");
+
+               elsif WSDL.To_Type (T_Name) = WSDL.P_Character then
+                  Text_IO.Put
+                    (Skel_Adb,
+                     " SOAP.Utils.Get (SOAP.Parameters.Argument (Params, """);
+                  Text_IO.Put      (Skel_Adb, To_String (N.Name));
+                  Text_IO.Put_Line (Skel_Adb, """));");
+
                else
                   Text_IO.Put
                     (Skel_Adb, " SOAP.Parameters.Get (Params, """);

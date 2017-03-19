@@ -170,7 +170,20 @@ package body SOAP.WSDL.Types is
    begin
       case Def.Mode is
          when WSDL.Types.K_Derived =>
-            return For_Derived (Def, Object);
+            if Is_Character (Def) then
+               declare
+                  P_Type : constant WSDL.Parameter_Type :=
+                             WSDL.To_Type (Types.Name (Def.Ref));
+                  I_Type : constant String := WSDL.Set_Type (P_Type);
+               begin
+                  return WSDL.V_Routine (P_Type, Constrained => True)
+                    & " (" & I_Type & " ("
+                    & Object & "))";
+               end;
+
+            else
+               return For_Derived (Def, Object);
+            end if;
 
          when WSDL.Types.K_Enumeration =>
             return Types.Name (Def.Ref) & "_Type'Value ("
@@ -571,10 +584,13 @@ package body SOAP.WSDL.Types is
 
    function Root_Type_For
      (Def        : Definition;
-      Registered : Boolean := False) return String is
+      Registered : Boolean := False) return String
+   is
+      T_Name : constant String := WSDL.Types.Name (Def.Ref, NS => True);
    begin
-      if WSDL.Is_Standard (To_String (Def.Ref.Name)) then
+      if Def.Mode /= K_Derived or else WSDL.Is_Standard (T_Name) then
          return Name (Def.Ref, NS => True);
+
       else
          declare
             D : constant Definition := Find (Def.Parent, Registered);
@@ -676,8 +692,13 @@ package body SOAP.WSDL.Types is
                  (WSDL.To_Type (T_Name), Constrained => True);
 
             when WSDL.Types.K_Derived =>
-               return WSDL.Set_Routine
-                 (Types.Name (Def.Parent), Constrained => True);
+               if WSDL.To_Type (T_Name) = P_Character then
+                  return WSDL.Set_Routine
+                    (Types.Name (Def.Ref), Constrained => False);
+               else
+                  return WSDL.Set_Routine
+                    (Types.Name (Def.Parent), Constrained => True);
+               end if;
 
             when WSDL.Types.K_Enumeration =>
                return WSDL.Set_Routine (WSDL.P_String, Constrained => True);
@@ -714,8 +735,14 @@ package body SOAP.WSDL.Types is
               & " (" & Object & ", """ & Name & """" & NS_Param & ")";
 
          when WSDL.Types.K_Derived =>
-            return For_Derived
-              (WSDL.Types.Find (Def.Ref), Object, Def.Ref.NS);
+            if Is_Character (Def) then
+               return Set_Routine (WSDL.Types.Find (Def.Ref))
+                 & " (" & Object & ", """ & Name & """, """ & Type_Name & """"
+                 & NS_Param & ")";
+            else
+               return For_Derived
+                 (WSDL.Types.Find (Def.Ref), Object, Def.Ref.NS);
+            end if;
 
          when WSDL.Types.K_Enumeration =>
             return "SOAP.Types.E (Image (" & Object & "), " & Get_Type_Name
