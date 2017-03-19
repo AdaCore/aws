@@ -133,6 +133,10 @@ package SOAP.WSDL.Types is
    --  Returns True is the type is constrained and so can appear as-is in a
    --  record component for example.
 
+   function Is_Character (Def : Definition) return Boolean;
+   --  Returns True if the definition corresponds to a character (type derived
+   --  from xsd:string with a constraint of length 1).
+
    No_Definition : constant Definition;
 
    procedure Register (Def : Definition) with

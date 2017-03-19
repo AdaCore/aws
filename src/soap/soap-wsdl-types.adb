@@ -486,6 +486,17 @@ package body SOAP.WSDL.Types is
                  when K_Simple      => "simple");
    end Image;
 
+   ------------------
+   -- Is_Character --
+   ------------------
+
+   function Is_Character (Def : Definition) return Boolean is
+   begin
+      return Def.Mode = K_Derived
+        and then Def.Constraints.Length = 1
+        and then Def.Parent.Name = "string";
+   end Is_Character;
+
    --------------------
    -- Is_Constrained --
    --------------------
