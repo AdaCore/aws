@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2003-2015, AdaCore                     --
+--                     Copyright (C) 2003-2017, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -547,6 +547,15 @@ package body Stub is
                            "V (SOAP_Base64'(SOAP.Parameters.Get "
                            & "(R_Param, """
                            & To_String (Output.Name) & """)));");
+
+                     elsif WSDL.To_Type (T_Name) = WSDL.P_Character then
+                        Text_IO.Put
+                          (Stub_Adb,
+                           " SOAP.Utils.Get "
+                           & "(SOAP.Parameters.Argument (R_Param, """);
+                        Text_IO.Put      (Stub_Adb, To_String (Output.Name));
+                        Text_IO.Put_Line (Stub_Adb, """));");
+
                      else
                         Text_IO.Put_Line
                           (Stub_Adb,

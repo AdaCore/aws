@@ -813,7 +813,30 @@ package body SOAP.WSDL.Parser is
       S : constant DOM.Core.Node := Look_For_Schema (N, Type_Name, Document);
 
    begin
-      return S /= null and then Is_Character_Schema (S);
+      if S /= null and then Is_Character_Schema (S) then
+         --  Generate the Character derived type reference
+
+         declare
+            Def : WSDL.Types.Definition (WSDL.Types.K_Derived);
+         begin
+            Def.Ref := WSDL.Types.Create
+              (Type_Name,
+               Get_Target_Name_Space (S));
+
+            Def.Parent := WSDL.Types.Create
+                ("string",
+                 SOAP.Name_Space.Create ("xsd", SOAP.Name_Space.XSD_URL));
+
+            Def.Constraints.Length := 1;
+
+            WSDL.Types.Register (Def);
+         end;
+
+         return True;
+
+      else
+         return False;
+      end if;
    end Is_Character;
 
    ---------------

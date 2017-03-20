@@ -88,9 +88,6 @@ package body Ada2WSDL.Generator is
    Schema_Needed : Boolean := False;
    --  Set to True if a WSDL schema is to be writed
 
-   Character_Schema : Boolean := False;
-   --  Set to Trus if a WSDL Character schema must be generated
-
    package NS_Maps is new Ada.Containers.Indefinite_Hashed_Maps
      (String, Positive, Ada.Strings.Hash, "=", "=");
 
@@ -266,7 +263,16 @@ package body Ada2WSDL.Generator is
       D.Max        := Def.Max;
       D.Len        := Def.Len;
 
-      API.Append (D);
+      if Name = "Character" and then -Def.Len = "1" then
+         --  We special case the Character schema as we don't want it to
+         --  interfer with the current defintion. As soon as we found it we
+         --  prepend it into to API to ensure that it is generated in the
+         --  final schema.
+         API.Prepend (D);
+
+      else
+         API.Append (D);
+      end if;
 
       if not Options.Quiet then
          Text_IO.Put
@@ -486,7 +492,22 @@ package body Ada2WSDL.Generator is
       Insert_NS (NS);
 
       if Ada_Type = "character" then
-         Character_Schema := True;
+         --  First generate the Character derived type if needed
+
+         declare
+            Def : constant Type_Data :=
+                    (NS   => +SOAP.Name_Space.XSD_URL,
+                     Name => +"String",
+                     Min  => Null_Unbounded_String,
+                     Max  => Null_Unbounded_String,
+                     Len  => +"1");
+         begin
+            Register_Derived
+              (NS   => Name_Space.Value (Name_Space.AWS) & "Standard_pkg/",
+               Name => "Character",
+               Def  => Def);
+         end;
+
          return NS_Prefix
            (Name_Space.Value (Name_Space.AWS) & "Standard_pkg/")
            & ":Character";
@@ -857,9 +878,6 @@ package body Ada2WSDL.Generator is
          procedure Write_Enumeration (E : Definition);
          --  Write an enumeration type definition (simpleType)
 
-         procedure Write_Character;
-         --  Write the Character schema
-
          procedure Generate_Element;
          --  Write the Element for document style binding
 
@@ -945,23 +963,6 @@ package body Ada2WSDL.Generator is
             Put_Line ("         </xsd:complexType>");
          end Write_Array;
 
-         ---------------------
-         -- Write_Character --
-         ---------------------
-
-         procedure Write_Character is
-         begin
-            New_Line;
-            Put_Line ("         <xsd:simpleType name=""Character""");
-            Put_Line ("                 targetNamespace="""
-                      & Name_Space.Value (Name_Space.AWS)
-                      & "Standard_pkg/" & """>");
-            Put_Line ("            <xsd:restriction base=""xsd:string"">");
-            Put_Line ("               <xsd:length value=""1""/>");
-            Put_Line ("            </xsd:restriction>");
-            Put_Line ("         </xsd:simpleType>");
-         end Write_Character;
-
          -----------------------
          -- Write_Enumeration --
          -----------------------
@@ -1018,10 +1019,6 @@ package body Ada2WSDL.Generator is
             Put ("         targetNamespace=""" & NS & '"');
             Put_Line (">");
 
-            if Character_Schema then
-               Write_Character;
-            end if;
-
             --  Output document/style element
 
             if Options.Document then
@@ -1072,7 +1069,7 @@ package body Ada2WSDL.Generator is
             end if;
 
             if E.Len /= Null_Unbounded_String then
-               Put_Line ("               <xsd:Length value="""
+               Put_Line ("               <xsd:length value="""
                          & To_String (E.Len) & """/>");
             end if;
 
@@ -1084,10 +1081,7 @@ package body Ada2WSDL.Generator is
          --  Record all schemas defined
 
       begin
-         if Schema_Needed
-           or else Options.Document
-           or else Character_Schema
-         then
+         if Schema_Needed or else Options.Document then
             for A of API loop
                case A.Def_Mode is
                   when Structure | Table | Simple_Type | Enumeration =>
