@@ -1653,9 +1653,27 @@ package body Ada2WSDL.Parser is
       Analyse_Node (Body_Structure'Access);
 
       --  Analyse deferred types
-      for K in 1 .. Index loop
-         Analyse_Type (Deferred_Types (K));
-      end loop;
+
+      declare
+         Prev_Index : Natural;
+         First      : Positive := 1;
+      begin
+         --  When analysing the deferred types we could have some more types
+         --  discoverred. Do the analyse of the defintions until there is no
+         --  more added into the deferred list.
+
+         loop
+            Prev_Index := Index;
+
+            for K in First .. Index loop
+               Analyse_Type (Deferred_Types (K));
+            end loop;
+
+            exit when Prev_Index = Index;
+
+            First := Prev_Index;
+         end loop;
+      end;
    end Analyse_Structure;
 
    --------------

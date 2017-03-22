@@ -268,7 +268,10 @@ package body Ada2WSDL.Generator is
          --  interfer with the current defintion. As soon as we found it we
          --  prepend it into to API to ensure that it is generated in the
          --  final schema.
-         API.Prepend (D);
+
+         if API (API.First_Index).Element.Name /= Name then
+            API.Prepend (D);
+         end if;
 
       else
          API.Append (D);
