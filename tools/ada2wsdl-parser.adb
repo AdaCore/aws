@@ -1632,7 +1632,12 @@ package body Ada2WSDL.Parser is
 
                      E := Definitions.Access_To_Object_Definition (E);
 
-                     return Build_Type (Image (Text.Element_Image (E)));
+                     E := Definitions.Subtype_Mark (E);
+
+                     E := Declarations.Corresponding_First_Subtype
+                       (Expressions.Corresponding_Name_Declaration (E));
+
+                     return Register_Deferred (E);
 
                   else
                      Raise_Spec_Error

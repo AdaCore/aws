@@ -2392,7 +2392,20 @@ package body SOAP.Generator is
               (Key   => Name & "." & To_String (N.Name),
                Value => WSDL.Types.Name
                           ((if N.Is_Set then N.E_Typ else N.Typ),
-                           NS => True));
+                          NS => True));
+
+            --  If N is an array, generate the schema definition for the
+            --  array's elements.
+
+            if N.Mode = WSDL.Types.K_Array then
+               Output_Schema_Definition
+                 (Key   => To_String (N.Name) & ".item",
+                  Value => WSDL.Types.Name
+                             ((if N.Is_Set or else N.P = null
+                               then N.E_Typ else N.P.Typ),
+                             NS => True));
+            end if;
+
             N := N.Next;
          end loop;
 
