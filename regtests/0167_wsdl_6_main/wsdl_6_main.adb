@@ -314,7 +314,9 @@ begin
    Config.Set.Server_Port (Conf, WSDL_6_Service.Server.Port);
 
    Disp := SOAP.Dispatchers.Callback.Create
-     (Wsdl_6_Server.HTTP_CB'Access, WSDL_6_Service.CB.SOAP_CB'Access);
+     (WSDL_6_Server.HTTP_CB'Access,
+      WSDL_6_Service.CB.SOAP_CB'Access,
+      WSDL_6_Service.Schema);
 
    AWS.Server.Start (WS, Disp, Conf);
 

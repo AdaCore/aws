@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2003-2017, AdaCore                     --
+--                       Copyright (C) 2017, AdaCore                        --
 --                                                                          --
 --  This is free software;  you can redistribute it  and/or modify it       --
 --  under terms of the  GNU General Public License as published  by the     --
@@ -16,54 +16,61 @@
 --  to http://www.gnu.org/licenses for a complete copy of the license.      --
 ------------------------------------------------------------------------------
 
-with Ada.Strings.Unbounded;
 with Ada.Text_IO;
 
+with AWS;
 with AWS.Config.Set;
-with AWS.Server;
-
+with AWS.Response;
+with AWS.Server.Status;
+with AWS.Status;
 with SOAP.Dispatchers.Callback;
 
-with WSDL_3;
-with WSDL_3_Server;
-with WSDL_3_Service.Client;
-with WSDL_3_Service.Types;
+with WSDL_Char_Record_Data_Service.CB;
+with WSDL_Char_Record_Data_Service.Client;
+with WSDL_Char_Record_Data_Service.Server;
+with WSDL_Char_Record_Data_Service.Types;
 
-procedure WSDL_3_Main is
+with WSDL_Char_Record_Types;
+
+procedure WSDL_Char_Record_Main is
 
    use Ada;
-   use Ada.Strings.Unbounded;
+   use WSDL_Char_Record_Data_Service.Client;
+   use WSDL_Char_Record_Data_Service.Types;
+
+   package WCRT renames WSDL_Char_Record_Types;
+
    use AWS;
 
-   WS   : Server.HTTP;
+   function CB (Request : Status.Data) return Response.Data is
+      R : Response.Data;
+   begin
+      return R;
+   end CB;
 
-   H    : WSDL_3_Server.Handler;
-
-   Conf : Config.Object := Config.Get_Current;
-
-   R1   : WSDL_3_Service.Types.Rec1_Type;
-   R2   : WSDL_3_Service.Types.Rec2_Type;
-   R3   : WSDL_3_Service.Types.Rec3_Type;
+   WS   : AWS.Server.HTTP;
+   Conf : Config.Object;
+   Disp : WSDL_Char_Record_Data_Service.CB.Handler;
 
 begin
-   H := SOAP.Dispatchers.Callback.Create
-     (WSDL_3_Server.HTTP_CB'Access,
-      WSDL_3_Server.SOAP_CB'Access,
-      WSDL_3_Service.Schema);
+   Config.Set.Server_Port (Conf, 0);
 
-   Config.Set.Server_Host (Conf, "localhost");
-   Config.Set.Server_Port (Conf, 7703);
+   Disp := SOAP.Dispatchers.Callback.Create
+     (CB'Unrestricted_Access,
+      WSDL_Char_Record_Data_Service.CB.SOAP_CB'Access,
+      WSDL_Char_Record_Data_Service.Schema);
 
-   Server.Start (WS, H, Conf);
+   AWS.Server.Start (WS, Disp, Conf);
 
-   R1 := (-4, 2, 89);
-   R2 := (R1, 'c', To_Unbounded_String ("toto"), 1.45);
-   R3 := (S => WSDL_3.My_Set_Safe_Pointer.To_Safe_Pointer
-            (WSDL_3.My_Set'(1, 7, 8, 10, 0, 0, 3)));
+   declare
+      L : WCRT.Record_Type :=
+            (Value => 2,
+             C     => 'C');
+   begin
+      L := Test_1 (L, Endpoint => Server.Status.Local_URL (WS));
+      Text_IO.Put_Line (Integer'Image (L.Value));
+      Text_IO.Put_Line (String'(1 => L.C));
+   end;
 
-   Text_IO.Put_Line ("R1 = " & WSDL_3_Service.Client.Image_Rec1 (R1));
-   Text_IO.Put_Line ("R2 = " & WSDL_3_Service.Client.Image_Rec2 (R2));
-   Text_IO.Put_Line ("R3 = " & WSDL_3_Service.Client.Image_Rec3 (R3));
-
-   Server.Shutdown (WS);
-end WSDL_3_Main;
+   AWS.Server.Shutdown (WS);
+end WSDL_Char_Record_Main;

@@ -66,9 +66,9 @@ package body SOAP.Utils is
       Name      : String := "item";
       Type_Name : String := "Character";
       NS        : Name_Space.Object := Name_Space.No_Name_Space)
-      return Types.SOAP_Enumeration is
+      return Types.XSD_String is
    begin
-      return SOAP.Types.E (String'(1 => V), Type_Name, Name, NS);
+      return Types.S (String'(1 => V), Name, Type_Name, NS);
    end C;
 
    ------------
@@ -569,7 +569,7 @@ package body SOAP.Utils is
       return To_Unbounded_String (Types.V (O));
    end V;
 
-   function V (O : Types.SOAP_Enumeration) return Character is
+   function V (O : Types.XSD_String) return Character is
    begin
       return Types.V (O) (1);
    end V;

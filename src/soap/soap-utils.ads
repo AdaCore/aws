@@ -172,7 +172,7 @@ package SOAP.Utils is
    --  Returns the Unbounded_String representation for the SOAP string
    --  parameter.
 
-   function V (O : Types.SOAP_Enumeration) return Character;
+   function V (O : Types.XSD_String) return Character;
    --  Returns the character representation for the SOAP string
    --  parameter. This is supposed to be a string with a single character
    --  to map to Ada type.
@@ -198,7 +198,7 @@ package SOAP.Utils is
       Name      : String := "item";
       Type_Name : String := "Character";
       NS        : Name_Space.Object := Name_Space.No_Name_Space)
-      return Types.SOAP_Enumeration;
+      return Types.XSD_String;
    --  Returns the SOAP string for the given Character value and name
 
    --  Smart pointers support used for array access in SOAP record. The memory
