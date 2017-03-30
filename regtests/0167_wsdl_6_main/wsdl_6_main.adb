@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2003-2012, AdaCore                     --
+--                     Copyright (C) 2003-2017, AdaCore                     --
 --                                                                          --
 --  This is free software;  you can redistribute it  and/or modify it       --
 --  under terms of the  GNU General Public License as published  by the     --
@@ -25,9 +25,9 @@ with Ada.Text_IO;
 
 with AWS.Config.Set;
 with AWS.Net.Log.Callbacks;
+with AWS.Response;
 with AWS.Server;
 with AWS.Status;
-with AWS.Response;
 with SOAP.Dispatchers.Callback;
 with SOAP.Types;
 
@@ -51,8 +51,8 @@ procedure WSDL_6_Main is
       use Ada.Strings.Unbounded;
       use Ada.Text_IO;
 
-      use type SOAP.Types.Long;
       use type SOAP.Types.Byte;
+      use type SOAP.Types.Long;
 
       ---------------
       -- Double_IO --
@@ -314,7 +314,9 @@ begin
    Config.Set.Server_Port (Conf, WSDL_6_Service.Server.Port);
 
    Disp := SOAP.Dispatchers.Callback.Create
-     (Wsdl_6_Server.HTTP_CB'Access, WSDL_6_Service.CB.SOAP_CB'Access);
+     (WSDL_6_Server.HTTP_CB'Access,
+      WSDL_6_Service.CB.SOAP_CB'Access,
+      WSDL_6_Service.Schema);
 
    AWS.Server.Start (WS, Disp, Conf);
 
