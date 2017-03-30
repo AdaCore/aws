@@ -1060,6 +1060,10 @@ package body SOAP.Generator is
             else
                if Def.Mode = WSDL.Types.K_Derived then
                   return Set_Type (WSDL.Types.Find (Def.Parent));
+
+               elsif Def.Mode = WSDL.Types.K_Enumeration then
+                  return "SOAP.Types.SOAP_Enumeration";
+
                else
                   return "SOAP.Types.SOAP_Record";
                end if;
@@ -2101,21 +2105,56 @@ package body SOAP.Generator is
 
          --  Is types are to be reused from an Ada  spec ?
 
-         if Types_Spec (O) = "" then
-            Text_IO.Put_Line
-              (Enu_Ads,
-               "   type " & F_Name & " is " & Image (Def.E_Def) & ";");
-         else
-            Text_IO.Put_Line
-              (Enu_Ads, "   subtype " & F_Name & " is "
-               & Types_Spec (O) & "." & WSDL.Types.Name (Def.Ref) & ";");
-         end if;
-
          Text_IO.New_Line (Tmp_Ads);
 
          Text_IO.Put_Line
            (Tmp_Ads, "   subtype " & F_Name & " is "
             & To_Unit_Name (To_String (Prefix)) & "." & F_Name & ';');
+
+         if Types_Spec (O) = "" then
+            Text_IO.Put_Line
+              (Enu_Ads,
+               "   type " & F_Name & " is " & Image (Def.E_Def) & ";");
+
+            Text_IO.Put_Line
+              (Enu_Ads, "   function To_" & F_Name);
+            Text_IO.Put_Line
+              (Enu_Ads, "     (D : " & F_Name & ')');
+            Text_IO.Put_Line
+              (Enu_Ads,
+               "      return " & F_Name & " is (D);");
+            Text_IO.Put_Line
+              (Enu_Ads, "   function From_" & F_Name);
+            Text_IO.Put_Line
+              (Enu_Ads,
+               "     (D : " & F_Name & ')');
+            Text_IO.Put_Line
+              (Enu_Ads,
+               "     return " & F_Name & " is (D);");
+         else
+            Text_IO.Put_Line
+              (Enu_Ads, "   subtype " & F_Name & " is "
+               & Types_Spec (O) & "." & WSDL.Types.Name (Def.Ref) & ";");
+
+            Text_IO.Put_Line
+              (Enu_Ads, "   function To_" & F_Name);
+            Text_IO.Put_Line
+              (Enu_Ads, "     (D : " & F_Name & ')');
+            Text_IO.Put_Line
+              (Enu_Ads,
+               "      return "
+               & Types_Spec (O) & "." & WSDL.Types.Name (Def.Ref)
+               & " is (D);");
+            Text_IO.Put_Line
+              (Enu_Ads, "   function From_" & F_Name);
+            Text_IO.Put_Line
+              (Enu_Ads,
+               "     (D : "
+               & Types_Spec (O) & "." & WSDL.Types.Name (Def.Ref)  & ')');
+            Text_IO.Put_Line
+              (Enu_Ads,
+               "     return " & F_Name & " is (D);");
+         end if;
 
          --  Generate Image function
 
@@ -2156,6 +2195,75 @@ package body SOAP.Generator is
 
          Text_IO.Put_Line (Enu_Adb, "      end case;");
          Text_IO.Put_Line (Enu_Adb, "   end Image;");
+
+         --  From/To string
+
+         Text_IO.Put_Line
+           (Enu_Ads,
+            "   function To_String_Type");
+         Text_IO.Put_Line
+           (Enu_Ads,
+            "     (D : " & F_Name & ")");
+         Text_IO.Put_Line
+           (Enu_Ads,
+            "      return String is (Image (D));");
+
+         Text_IO.Put_Line
+           (Enu_Ads,
+            "   function From_String_Type");
+         Text_IO.Put_Line
+           (Enu_Ads,
+            "     (D : String)");
+         Text_IO.Put_Line
+           (Enu_Ads,
+            "      return " & F_Name & " is (" & F_Name & "'Value (D));");
+
+         --  Value function
+
+         Text_IO.Put_Line
+           (Enu_Ads,
+            "   function Value (S : String) return " & F_Name
+            & " renames From_String_Type;");
+
+         --  For array support
+
+         Text_IO.New_Line (Enu_Ads);
+         Text_IO.Put_Line
+           (Enu_Ads,
+            "   function To_" & F_Name);
+         Text_IO.Put_Line
+           (Enu_Ads,
+            "     (O : SOAP.Types.Object'Class)");
+         Text_IO.Put_Line
+           (Enu_Ads,
+            "      return " & F_Name & " is");
+         Text_IO.Put_Line
+           (Enu_Ads,
+            "       (From_String_Type "
+            & "(SOAP.Types.V (SOAP.Types.SOAP_Enumeration (O))));");
+
+         Text_IO.New_Line (Enu_Ads);
+         Text_IO.Put_Line
+           (Enu_Ads,
+            "   function To_SOAP_Object");
+         Text_IO.Put_Line
+           (Enu_Ads,
+            "     (D         : " & F_Name & ';');
+         Text_IO.Put_Line
+           (Enu_Ads,
+            "      Name      : String := ""item"";");
+         Text_IO.Put_Line
+           (Enu_Ads,
+            "      Type_Name : String := Q_Type_Name;");
+         Text_IO.Put_Line
+           (Enu_Ads,
+            "      NS        : SOAP.Name_Space.Object := Name_Space)");
+         Text_IO.Put_Line
+           (Enu_Ads,
+            "      return SOAP.Types.SOAP_Enumeration is");
+         Text_IO.Put_Line
+           (Enu_Ads,
+            "        (SOAP.Types.E (Image (D), Type_Name, Name, NS));");
 
          Finalize_Types_Package (Prefix, Enu_Ads, Enu_Adb);
       end Generate_Enumeration;
