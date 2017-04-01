@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2003-2015, AdaCore                     --
+--                     Copyright (C) 2003-2017, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -221,10 +221,12 @@ package body CB is
       Text_IO.New_Line (CB_Adb);
       Text_IO.Put_Line (CB_Adb, "with SOAP.Message.Response.Error;");
       Text_IO.New_Line (CB_Adb);
-      Text_IO.Put_Line (CB_Adb, "with " & Types_Spec (O) & ";");
+      Text_IO.Put_Line
+        (CB_Adb, "with " & Types_Spec (O, With_Clause => True) & ";");
 
       if Types_Spec (O) /= Procs_Spec (O) then
-         Text_IO.Put_Line (CB_Adb, "with " & Procs_Spec (O) & ";");
+         Text_IO.Put_Line
+           (CB_Adb, "with " & Procs_Spec (O, With_Clause => True) & ";");
       end if;
 
       Text_IO.New_Line (CB_Adb);

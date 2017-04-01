@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2003-2015, AdaCore                     --
+--                     Copyright (C) 2003-2017, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -74,11 +74,17 @@ package SOAP.Generator is
    -- Query --
    -----------
 
-   function Procs_Spec (O : Object) return String;
-   --  Returns the spec where SOAP service procedures are defined
+   function Procs_Spec
+     (O           : Object;
+      With_Clause : Boolean := False) return String;
+   --  Returns the spec where SOAP service procedures are defined. With_Clause
+   --  is true if the result is to be used in a with clause.
 
-   function Types_Spec (O : Object) return String;
-   --  Returns the spec where SOAP types are defined
+   function Types_Spec
+     (O           : Object;
+      With_Clause : Boolean := False) return String;
+   --  Returns the spec where SOAP types are defined. With_Clause
+   --  is true if the result is to be used in a with clause.
 
    --------------
    -- Settings --

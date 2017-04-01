@@ -663,12 +663,17 @@ package body SOAP.Generator is
    -- Procs_Spec --
    ----------------
 
-   function Procs_Spec (O : Object) return String is
+   function Procs_Spec
+     (O           : Object;
+      With_Clause : Boolean := False) return String
+   is
+      Prefix : constant String :=
+                 (if With_Clause then "" else "Standard.");
    begin
       if O.Spec /= Null_Unbounded_String then
-         return To_String (O.Spec);
+         return Prefix & To_String (O.Spec);
       elsif O.Types_Spec /= Null_Unbounded_String then
-         return To_String (O.Types_Spec);
+         return Prefix & To_String (O.Types_Spec);
       else
          return "";
       end if;
@@ -1993,7 +1998,8 @@ package body SOAP.Generator is
             Text_IO.Put_Line
               (Tmp_Ads,
                "   function From_" & Q_Name
-               & " (D : " & Types_Spec (O) & "." & Utils.No_NS (Name) & ")");
+               & " (D : " & Types_Spec (O) & "." & Utils.No_NS (Name)
+               & ")");
             Text_IO.Put_Line
               (Tmp_Ads, "     return " & F_Name);
             Text_IO.Put_Line
@@ -3796,12 +3802,12 @@ package body SOAP.Generator is
       Text_IO.New_Line (File);
 
       if Types_Spec (O) /= "" then
-         With_Unit (File, Types_Spec (O));
+         With_Unit (File, Types_Spec (O, With_Clause => True));
          Text_IO.New_Line (File);
       end if;
 
       if Procs_Spec (O) /= "" and then Procs_Spec (O) /= Types_Spec (O) then
-         With_Unit (File, Procs_Spec (O));
+         With_Unit (File, Procs_Spec (O, With_Clause => True));
          Text_IO.New_Line (File);
       end if;
 
@@ -4276,12 +4282,17 @@ package body SOAP.Generator is
    -- Types_Spec --
    ----------------
 
-   function Types_Spec (O : Object) return String is
+   function Types_Spec
+     (O           : Object;
+      With_Clause : Boolean := False) return String
+   is
+      Prefix : constant String :=
+                 (if With_Clause then "" else "Standard.");
    begin
       if O.Types_Spec /= Null_Unbounded_String then
-         return To_String (O.Types_Spec);
+         return Prefix & To_String (O.Types_Spec);
       elsif O.Spec /= Null_Unbounded_String then
-         return To_String (O.Spec);
+         return Prefix & To_String (O.Spec);
       else
          return "";
       end if;
