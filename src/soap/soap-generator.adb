@@ -1287,7 +1287,7 @@ package body SOAP.Generator is
                   Text_IO.Put_Line
                     (Tmp_Ads, "      return " & F_Name & "_Safe_Access");
                   Text_IO.Put_Line
-                    (Tmp_Ads, "      renames " & Procs_Spec (O) & "."
+                    (Tmp_Ads, "      renames " & Types_Spec (O) & "."
                      & WSDL.Types.Name (P.Typ)
                      & "_Safe_Pointer.To_Safe_Pointer;");
                   Text_IO.Put_Line
@@ -1313,7 +1313,7 @@ package body SOAP.Generator is
                Text_IO.Put_Line
                  (Arr_Ads, "      return " & F_Name & "_Safe_Access");
                Text_IO.Put_Line
-                 (Arr_Ads, "      renames " & Procs_Spec (O) & "."
+                 (Arr_Ads, "      renames " & Types_Spec (O) & "."
                   & WSDL.Types.Name (P.Typ)
                   & "_Safe_Pointer.To_Safe_Pointer;");
                Text_IO.Put_Line

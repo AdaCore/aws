@@ -24,7 +24,4 @@ package WSDL_Enum_Array_Data is
 
    function Test_1 (Item : Record_Type) return Record_Type;
 
-   package List_Type_Safe_Pointer
-     renames WSDL_Enum_Array_Types.List_Type_Safe_Pointer;
-
 end WSDL_Enum_Array_Data;
