@@ -731,7 +731,7 @@ package body SOAP.Message.XML is
 
          --  Set state for the enclosing elements
 
-         S.Enclosing := To_Unbounded_String (Name);
+         S.Enclosing := To_Unbounded_String (Type_Name);
          S.A_State := A_Type;
 
          while Field /= null loop

@@ -1121,6 +1121,16 @@ package body SOAP.Generator is
          Initialize_Types_Package
            (P, F_Name, False, Prefix, Arr_Ads, Arr_Adb, Regen => Regen);
 
+         Text_IO.Put_Line
+           (Type_Adb,
+            "   --  Definitions for array "
+            &  WSDL.Types.Name (P.Typ, NS => True));
+
+         Output_Schema_Definition
+           (Key   =>  WSDL.Types.Name (P.Typ, NS => True) & ".item",
+            Value => E_Name);
+         Text_IO.New_Line (Type_Adb);
+
          if not Regen then
             Text_IO.New_Line (Tmp_Ads);
             Text_IO.Put_Line
@@ -2512,12 +2522,14 @@ package body SOAP.Generator is
             --  array's elements.
 
             if N.Mode = WSDL.Types.K_Array then
-               Output_Schema_Definition
-                 (Key   => To_String (N.Name) & ".item",
-                  Value => WSDL.Types.Name
-                             ((if N.Is_Set or else N.P = null
-                               then N.E_Typ else N.P.Typ),
-                             NS => True));
+               declare
+                  Def : constant WSDL.Types.Definition :=
+                          WSDL.Types.Find (N.Typ);
+               begin
+                  Output_Schema_Definition
+                    (Key   => To_String (N.Name) & ".item",
+                     Value => WSDL.Types.Name (Def.E_Type, NS => True));
+               end;
             end if;
 
             N := N.Next;
@@ -3156,9 +3168,10 @@ package body SOAP.Generator is
                           (Rec_Adb,
                            WSDL.Parameters.To_SOAP
                              (N.all,
-                              Object => Field & ".Item.all",
-                              Name   => To_String (N.Name),
-                              NS     => "NS"));
+                              Object    => Field & ".Item.all",
+                              Name      => To_String (N.Name),
+                              Type_Name => T_Name,
+                              NS        => "NS"));
                   end case;
                end;
 
