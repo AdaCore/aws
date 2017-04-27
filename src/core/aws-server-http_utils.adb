@@ -68,7 +68,6 @@ with AWS.Utils;
 
 package body AWS.Server.HTTP_Utils is
 
-   use Ada;
    use Ada.Streams;
    use Ada.Strings;
    use Ada.Strings.Unbounded;

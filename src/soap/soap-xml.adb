@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2003-2014, AdaCore                     --
+--                     Copyright (C) 2003-2017, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -40,7 +40,6 @@ package body SOAP.XML is
    -----------------
 
    function First_Child (Parent : DOM.Core.Node) return DOM.Core.Node is
-      use type DOM.Core.Node;
       use type DOM.Core.Node_Types;
       N : DOM.Core.Node;
    begin
@@ -66,7 +65,6 @@ package body SOAP.XML is
       Name : String;
       NS   : Boolean := True) return String
    is
-      use type DOM.Core.Node;
 
       A : DOM.Core.Node;
    begin
@@ -95,7 +93,6 @@ package body SOAP.XML is
    function Get_Ref (N : DOM.Core.Node) return DOM.Core.Node is
 
       use Ada;
-      use type DOM.Core.Node;
 
       function Body_Node (N : DOM.Core.Node) return DOM.Core.Node;
       --  Returns Payload body node for N being inside this node
@@ -149,7 +146,6 @@ package body SOAP.XML is
    ------------------
 
    function Next_Sibling (N : DOM.Core.Node) return DOM.Core.Node is
-      use type DOM.Core.Node;
       use type DOM.Core.Node_Types;
       M : DOM.Core.Node := N;
    begin

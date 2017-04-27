@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2010-2012, AdaCore                     --
+--                     Copyright (C) 2010-2017, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -143,8 +143,6 @@ package body AWS.Cookie is
       Path    : String := "/";
       Secure  : Boolean := False)
    is
-      use type Response.Data_Mode;
-
       Value_Part     : constant String :=
                          Key & "=" & URL.Encode (Value) & "; ";
       Path_Part      : constant String :=

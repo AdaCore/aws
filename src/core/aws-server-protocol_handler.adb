@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2000-2016, AdaCore                      --
+--                     Copyright (C) 2000-2017, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -89,7 +89,6 @@ begin
 
    For_Every_Request : loop
       declare
-         use Ada.Exceptions;
          use type Response.Data_Mode;
 
          Expectation_Failed : exception;

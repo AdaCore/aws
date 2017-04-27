@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2005-2015, AdaCore                     --
+--                     Copyright (C) 2005-2017, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -33,8 +33,6 @@ with SOAP.Name_Space;
 with SOAP.Utils;
 
 package body SOAP.Types.Untyped is
-
-   use Ada;
 
    -------
    -- S --

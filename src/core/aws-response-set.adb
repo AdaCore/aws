@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2002-2015, AdaCore                     --
+--                     Copyright (C) 2002-2017, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -322,7 +322,6 @@ package body AWS.Response.Set is
    --------------
 
    function Is_Valid (D : Data) return Boolean is
-      use type Messages.Status_Code;
       Redirection_Code : Boolean;
    begin
       case D.Status_Code is

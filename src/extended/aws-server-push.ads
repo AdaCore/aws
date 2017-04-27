@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2000-2015, AdaCore                     --
+--                     Copyright (C) 2000-2017, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -292,8 +292,6 @@ private
    package Group_Sets is new Ada.Containers.Indefinite_Hashed_Sets
      (String, Ada.Strings.Hash, Equivalent_Elements => "=");
    --  Package instance to keep each client subscribed groups
-
-   use Ada.Streams;
 
    type Message_Type
      (Size : Stream_Element_Count; Thin_Size : Natural) is

@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2000-2016, AdaCore                     --
+--                     Copyright (C) 2000-2017, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -44,7 +44,6 @@ with ZLib;
 
 package body AWS.Status.Set is
 
-   use Ada;
    use Ada.Strings;
 
    use AWS;
@@ -216,8 +215,6 @@ package body AWS.Status.Set is
             --  our parser could think that it is name/value delimiter.
 
             declare
-               use Ada.Streams;
-
                Auth_Str : constant String :=
                             Translator.To_String
                               (Translator.Base64_Decode
@@ -391,8 +388,6 @@ package body AWS.Status.Set is
       D        : in out Data;
       Boundary : String := "")
    is
-      use type Stream_Element_Offset;
-
       procedure Read_Whole_Body;
       --  Read the whole body (Content_Length octets)
 
@@ -401,7 +396,6 @@ package body AWS.Status.Set is
       ---------------------
 
       procedure Read_Whole_Body is
-         use Ada.Streams;
 
          procedure Read_Chunk (Size : Stream_Element_Offset);
          --  Read a chunk of data of the given Size, the corresponding data is

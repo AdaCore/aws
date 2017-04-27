@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                   Copyright (C) 2005-2014, AdaCore                       --
+--                   Copyright (C) 2005-2017, AdaCore                       --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -29,11 +29,7 @@
 
 pragma Ada_2012;
 
-with Ada.Streams;
-
 package body AWS.Net.Acceptors is
-
-   use Ada.Streams;
 
    Signal_Index   : constant := 1;
    First_Index    : constant := 2;

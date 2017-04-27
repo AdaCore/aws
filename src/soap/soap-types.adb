@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2000-2016, AdaCore                     --
+--                     Copyright (C) 2000-2017, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -39,13 +39,11 @@ with Ada.Unchecked_Deallocation;
 with AWS.Utils;
 with GNAT.Calendar.Time_IO;
 
-with SOAP.Name_Space;
 with SOAP.Types.Untyped;
 with SOAP.Utils;
 
 package body SOAP.Types is
 
-   use Ada;
    use type SOAP.Name_Space.Object;
 
    procedure Unchecked_Free is

@@ -21,7 +21,6 @@ with Ada.Containers.Indefinite_Hashed_Maps;
 with Ada.Containers.Vectors;
 with Ada.Exceptions;
 with Ada.Strings.Hash;
-with Ada.Strings.Unbounded;
 with Ada.Text_IO;
 
 with GNAT.Calendar.Time_IO;
@@ -37,7 +36,6 @@ with Ada2WSDL.Options;
 package body Ada2WSDL.Generator is
 
    use Ada;
-   use Ada.Strings.Unbounded;
    use SOAP;
 
    --  Data structure for API's description

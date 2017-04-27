@@ -117,7 +117,7 @@ abstract project Shared is
    --  Options used for all Ada units in both Debug and Release modes
 
    Common_Options :=
-     ("-gnat2012", "-gnatwcfijkmRuv", "-gnaty3abBcdefhiIklmnoOprstx")
+     ("-gnat2012", "-gnatwcfijkmruv", "-gnaty3abBcdefhiIklmnoOprstx")
      & Global_Options;
    --  Common options used for the Debug and Release modes
 
@@ -134,11 +134,13 @@ abstract project Shared is
       case Build is
          when "Debug" =>
             for Default_Switches ("Ada") use Common_Options & Debug_Options;
-            for Default_Switches ("C") use ("-g");
+            for Default_Switches ("C")
+              use ("-g", "-Wno-implicit-function-declaration");
 
          when "Release" =>
             for Default_Switches ("Ada") use Common_Options & Release_Options;
-            for Default_Switches ("C") use ("-O2");
+            for Default_Switches ("C")
+              use ("-O2", "-Wno-implicit-function-declaration");
       end case;
 
       case S_Target is

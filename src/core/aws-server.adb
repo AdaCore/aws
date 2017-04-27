@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2000-2016, AdaCore                     --
+--                     Copyright (C) 2000-2017, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -47,7 +47,6 @@ with AWS.Templates;
 
 package body AWS.Server is
 
-   use Ada;
    use type Net.Socket_Access;
 
    procedure Start
@@ -279,8 +278,6 @@ package body AWS.Server is
    ----------
 
    task body Line is
-      use Ada.Exceptions;
-
       TA : constant Line_Attribute.Attribute_Handle :=
              Line_Attribute.Reference;
    begin

@@ -29,7 +29,6 @@
 
 pragma Ada_2012;
 
-with Ada.Calendar;
 with Ada.Containers.Doubly_Linked_Lists;
 with Ada.Real_Time;
 with Ada.Text_IO;
@@ -47,8 +46,6 @@ with AWS.Utils;
 
 package body AWS.Server.Push is
 
-   use Ada;
-   use Ada.Exceptions;
    use AWS.Net;
 
    type Phase_Type is (Available, Going, Waiting);

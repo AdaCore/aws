@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2008-2014, AdaCore                     --
+--                     Copyright (C) 2008-2017, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -34,7 +34,6 @@ with Ada.Unchecked_Conversion;
 with GNAT.MD5;
 
 with AWS.Digest;
-with AWS.Translator;
 with AWS.Utils;
 
 package body AWS.Jabber.Digest_Md5 is

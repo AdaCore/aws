@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2000-2016, AdaCore                     --
+--                     Copyright (C) 2000-2017, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -36,7 +36,6 @@ with AWS.URL;
 with AWS.Config;
 with AWS.Server;
 with AWS.Translator;
-with AWS.URL;
 with AWS.Utils;
 
 package body AWS.Parameters is
@@ -172,8 +171,6 @@ package body AWS.Parameters is
       Count          : in out Natural;
       Max_Parameters : Positive)
    is
-      use Ada.Strings;
-
       procedure Add (Name, Value : String) with Inline;
       --  Add Str as parameter, check for Max_Parameters
 

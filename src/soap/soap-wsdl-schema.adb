@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                       Copyright (C) 2015, AdaCore                        --
+--                    Copyright (C) 2015-2017, AdaCore                      --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -34,8 +34,6 @@ package body SOAP.WSDL.Schema is
 
    use Ada;
    use Ada.Strings.Unbounded;
-
-   use type DOM.Core.Node;
 
    type Data is record
       URL  : Unbounded_String;

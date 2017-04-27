@@ -41,13 +41,10 @@ with DOM.Core.Nodes;
 with AWS.Utils;
 with SOAP.Utils;
 with SOAP.WSDL.Name_Spaces;
-with SOAP.WSDL.Schema;
-with SOAP.WSDL.Types;
 with SOAP.XML;
 
 package body SOAP.WSDL.Parser is
 
-   use Ada;
    use type DOM.Core.Node;
 
    Verbose_Mode  : Verbose_Level := 0;

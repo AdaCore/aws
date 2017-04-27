@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2005-2016, AdaCore                     --
+--                     Copyright (C) 2005-2017, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -35,7 +35,6 @@ with AWS.Status;
 
 package AWS.Client.HTTP_Utils is
 
-   use Ada.Strings.Unbounded;
    use AWS.Client;
 
    Connection_Error : exception renames Client.Connection_Error;

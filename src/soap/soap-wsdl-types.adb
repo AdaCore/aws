@@ -214,9 +214,6 @@ package body SOAP.WSDL.Types is
                  & " (" & I_Type & " ("
                  & Object & "))";
             end;
-
-         when others =>
-            return "";
       end case;
    end From_SOAP;
 

@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2000-2016, AdaCore                     --
+--                     Copyright (C) 2000-2017, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -29,7 +29,6 @@
 
 pragma Ada_2012;
 
-with Ada.Strings.Fixed;
 with Ada.Strings.Maps;
 with Ada.Unchecked_Deallocation;
 with Interfaces.C;

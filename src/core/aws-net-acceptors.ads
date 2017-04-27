@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2005-2014, AdaCore                     --
+--                     Copyright (C) 2005-2017, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -32,7 +32,6 @@ pragma Ada_2012;
 --  Waiting on a group of sockets for reading and accept new connections
 
 with Ada.Containers.Doubly_Linked_Lists;
-with Ada.Exceptions;
 
 with AWS.Net;
 with AWS.Net.Generic_Sets;
@@ -41,9 +40,6 @@ with AWS.Utils;
 private with Ada.Real_Time;
 
 package AWS.Net.Acceptors is
-
-   use Ada;
-   use Ada.Exceptions;
 
    type Acceptor_Type is limited private;
 

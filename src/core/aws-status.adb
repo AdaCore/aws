@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2000-2016, AdaCore                     --
+--                     Copyright (C) 2000-2017, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -693,9 +693,7 @@ package body AWS.Status is
    procedure Read_Body
      (D      : Data;
       Buffer : out Stream_Element_Array;
-      Last   : out Stream_Element_Offset)
-   is
-      use type Stream_Element_Offset;
+      Last   : out Stream_Element_Offset) is
    begin
       if D.Binary_Data = null then
          Last := Buffer'First - 1;

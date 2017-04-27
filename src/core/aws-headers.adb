@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2000-2015, AdaCore                     --
+--                     Copyright (C) 2000-2017, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -141,8 +141,6 @@ package body AWS.Headers is
    ----------
 
    procedure Read (Headers : in out List; Socket : Net.Socket_Type'Class) is
-
-      use Ada.Strings.Unbounded;
 
       procedure Parse_Header_Line (Line : String);
       --  Parse this line, update Headers accordingly
