@@ -41,8 +41,6 @@ package body AWS.Net.Poll_Events is
 
    type Poll_Access is access all Set;
 
-   subtype Timeout_Type is Interfaces.C.int;
-
    procedure Check_Range (FD_Set : Set; Index : Positive) with Inline;
 
    procedure Wait

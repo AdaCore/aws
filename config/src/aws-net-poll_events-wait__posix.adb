@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2004-2014, AdaCore                     --
+--                     Copyright (C) 2004-2017, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -28,6 +28,8 @@
 ------------------------------------------------------------------------------
 
 pragma Ada_2012;
+
+with AWS.Net.Poll_Events.G_Poll;
 
 --  Wait implementation on top of posix select call
 
