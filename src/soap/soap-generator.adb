@@ -37,6 +37,7 @@ with Ada.Text_IO;
 with GNAT.Calendar.Time_IO;
 
 with AWS.Containers.Key_Value;
+with AWS.Containers.String_Vectors;
 with AWS.Templates;
 with AWS.Utils;
 
@@ -134,6 +135,9 @@ package body SOAP.Generator is
    --  Use_Clause is set. A pragma Elaborate_All is issued for this unit if
    --  Elab is set.
 
+   procedure Close_File (File : in out Text_IO.File_Type);
+   --  Close given files and reset the Withed_Unit set for this file
+
    procedure Output_Comment
      (File    : Text_IO.File_Type;
       Comment : String;
@@ -174,6 +178,9 @@ package body SOAP.Generator is
    Skel_Adb : Text_IO.File_Type;
    CB_Ads   : Text_IO.File_Type; -- Child with all callback routines
    CB_Adb   : Text_IO.File_Type;
+
+   Withed_Unit : AWS.Containers.String_Vectors.Vector;
+   --  List of withed unit, used to avoid duplicate
 
    --  Stub generator routines
 
@@ -283,6 +290,25 @@ package body SOAP.Generator is
 
    package body CB is separate;
 
+   ----------------
+   -- Close_File --
+   ----------------
+
+   procedure Close_File (File : in out Text_IO.File_Type) is
+      Name : constant String := Text_IO.Name (File);
+      K    : Positive := 1;
+   begin
+      Text_IO.Close (File);
+
+      while K <= Withed_Unit.Last_Index loop
+         if Strings.Fixed.Index (Withed_Unit (K), Name) /= 0 then
+            Withed_Unit.Delete (K);
+         else
+            K := K + 1;
+         end if;
+      end loop;
+   end Close_File;
+
    -------------
    -- CVS_Tag --
    -------------
@@ -318,7 +344,7 @@ package body SOAP.Generator is
       Text_IO.New_Line (Root);
       Text_IO.Put_Line (Root, "end " & U_Name & ";");
 
-      Text_IO.Close (Root);
+      Close_File (Root);
 
       --  Types
 
@@ -331,12 +357,12 @@ package body SOAP.Generator is
          Text_IO.Put_Line (Type_Ads, Buffer (1 .. Last));
       end loop;
 
-      Text_IO.Close (Tmp_Ads);
+      Close_File (Tmp_Ads);
 
       Text_IO.New_Line (Type_Ads);
       Text_IO.Put_Line (Type_Ads, "end " & U_Name & ".Types;");
 
-      Text_IO.Close (Type_Ads);
+      Close_File (Type_Ads);
 
       --  Generate binding style information
 
@@ -357,30 +383,30 @@ package body SOAP.Generator is
 
       Text_IO.Put_Line (Type_Adb, "end " & U_Name & ".Types;");
 
-      Text_IO.Close (Type_Adb);
+      Close_File (Type_Adb);
 
       --  Stub
 
       if O.Gen_Stub then
          Stub.End_Service (O, Name);
-         Text_IO.Close (Stub_Ads);
-         Text_IO.Close (Stub_Adb);
+         Close_File (Stub_Ads);
+         Close_File (Stub_Adb);
       end if;
 
       --  Skeleton
 
       if O.Gen_Skel then
          Skel.End_Service (O, Name);
-         Text_IO.Close (Skel_Ads);
-         Text_IO.Close (Skel_Adb);
+         Close_File (Skel_Ads);
+         Close_File (Skel_Adb);
       end if;
 
       --  Callbacks
 
       if O.Gen_CB then
          CB.End_Service (O, Name);
-         Text_IO.Close (CB_Ads);
-         Text_IO.Close (CB_Adb);
+         Close_File (CB_Ads);
+         Close_File (CB_Adb);
       end if;
    end End_Service;
 
@@ -1023,7 +1049,7 @@ package body SOAP.Generator is
          Text_IO.New_Line (F_Ads);
          Text_IO.Put_Line
            (F_Ads, "end " & To_Unit_Name (To_String (Prefix)) & ';');
-         Text_IO.Close (F_Ads);
+         Close_File (F_Ads);
 
          if No_Body then
             Text_IO.Delete (F_Adb);
@@ -1031,7 +1057,7 @@ package body SOAP.Generator is
             Text_IO.New_Line (F_Adb);
             Text_IO.Put_Line
               (F_Adb, "end " & To_Unit_Name (To_String (Prefix)) & ';');
-            Text_IO.Close (F_Adb);
+            Close_File (F_Adb);
          end if;
       end Finalize_Types_Package;
 
@@ -2387,7 +2413,6 @@ package body SOAP.Generator is
 
                if Leaf then
                   With_Unit (File, "SOAP.Name_Space");
-                  Text_IO.New_Line (File);
                end if;
 
                Text_IO.Put_Line (File, "package " & To_Unit_Name (N) & " is");
@@ -2410,7 +2435,7 @@ package body SOAP.Generator is
 
                Text_IO.Put_Line (File, "end " & To_Unit_Name (N) & ';');
 
-               Text_IO.Close (File);
+               Close_File (File);
             end if;
             return N;
          end Gen_Package;
@@ -3260,7 +3285,6 @@ package body SOAP.Generator is
                      Use_Clause => True);
                end if;
 
-               Text_IO.New_Line (File);
                Generated.Insert (Q_Name);
             end if;
 
@@ -3361,7 +3385,6 @@ package body SOAP.Generator is
               (Type_Ads,
                To_Unit_Name (To_String (Prefix)),
                Use_Clause => True);
-            Text_IO.New_Line (Type_Ads);
          end if;
 
          Text_IO.Create
@@ -4060,7 +4083,7 @@ package body SOAP.Generator is
             Put_Line (File, "end " & To_Unit_Name (Filename) & ";");
          end if;
 
-         Text_IO.Close (File);
+         Close_File (File);
       end Generate_Main;
 
       -------------------
@@ -4212,7 +4235,7 @@ package body SOAP.Generator is
                Text_IO.Put_Line (Root, "--  " & Buffer (1 .. Last));
             end loop;
 
-            Text_IO.Close (File);
+            Close_File (File);
          end;
 
          Text_IO.Put_Line (Root, "   pragma Style_Checks (On);");
@@ -4328,36 +4351,45 @@ package body SOAP.Generator is
      (File       : Text_IO.File_Type;
       Name       : String;
       Elab       : Elab_Pragma := Single;
-      Use_Clause : Boolean := False) is
+      Use_Clause : Boolean := False)
+   is
+      Key : constant String := Text_IO.Name (File) & "?" & Name;
    begin
-      Text_IO.Put_Line (File, "with " & Name & ';');
+      if not Withed_Unit.Contains (Key) then
+         Withed_Unit.Append (Key);
 
-      if Elab = Children then
-         declare
-            Index : Natural := Name'First;
-         begin
-            loop
-               Index := Strings.Fixed.Index (Name (Index .. Name'Last), ".");
-               exit when Index = 0;
-               Text_IO.Put_Line
-                 (File,
-                  "pragma Elaborate_All (" & Name (Name'First .. Index - 1)
-                  & ");");
-               Index := Index + 1;
-            end loop;
-         end;
-      end if;
+         Text_IO.Put_Line (File, "with " & Name & ';');
 
-      case Elab is
-         when Off =>
-            null;
+         if Elab = Children then
+            declare
+               Index : Natural := Name'First;
+            begin
+               loop
+                  Index :=
+                    Strings.Fixed.Index (Name (Index .. Name'Last), ".");
+                  exit when Index = 0;
 
-         when Single | Children =>
-            Text_IO.Put_Line (File, "pragma Elaborate_All (" & Name & ");");
-      end case;
+                  Text_IO.Put_Line
+                    (File,
+                     "pragma Elaborate_All (" & Name (Name'First .. Index - 1)
+                     & ");");
+                  Index := Index + 1;
+               end loop;
+            end;
+         end if;
 
-      if Use_Clause then
-         Text_IO.Put_Line (File, "use " & Name & ';');
+         case Elab is
+            when Off =>
+               null;
+
+            when Single | Children =>
+               Text_IO.Put_Line (File, "pragma Elaborate_All (" & Name & ");");
+         end case;
+
+         if Use_Clause then
+            Text_IO.Put_Line (File, "use " & Name & ';');
+            Text_IO.New_Line (File);
+         end if;
       end if;
    end With_Unit;
 
