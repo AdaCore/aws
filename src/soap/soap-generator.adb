@@ -3582,7 +3582,6 @@ package body SOAP.Generator is
                               Generate (WSDL.Types.Find (Def.Parent));
 
                               if not Name_Set.Exists (T_Name) then
-
                                  Name_Set.Add (T_Name);
 
                                  Generate_Derived (T_Name, Def, N);
@@ -3596,7 +3595,6 @@ package body SOAP.Generator is
 
                   when WSDL.Types.K_Enumeration =>
                      if not Name_Set.Exists (T_Name) then
-
                         Name_Set.Add (T_Name);
 
                         Generate_Enumeration (T_Name & "_Type", N);
@@ -3633,7 +3631,6 @@ package body SOAP.Generator is
                      Output_Types (N.P);
 
                      if not Name_Set.Exists (T_Name) then
-
                         Name_Set.Add (T_Name);
 
                         Generate_Record (T_Name, "_Type", N);
