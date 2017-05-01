@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2012-2014, AdaCore                     --
+--                     Copyright (C) 2012-2017, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -35,7 +35,6 @@ with Interfaces.C.Strings;
 
 with AWS.Net.Log;
 with AWS.Resources;
-with AWS.Utils;
 
 with SSL.Thin;
 
@@ -247,7 +246,6 @@ package body AWS.Net.SSL.Certificate.Impl is
       function To_Hex
         (Bin : Stream_Element_Array; Len : C.size_t) return Unbounded_String
       is
-         use type C.size_t;
          R : Unbounded_String;
       begin
          for K in Bin'First .. Bin'First + Stream_Element_Offset (Len) - 1 loop

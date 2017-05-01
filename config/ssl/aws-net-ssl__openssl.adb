@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2000-2016, AdaCore                     --
+--                     Copyright (C) 2000-2017, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -809,7 +809,6 @@ package body AWS.Net.SSL is
    ----------
 
    function Load (Filename : String) return Private_Key is
-      use type TSSL.Private_Key;
       Key  : aliased TSSL.Private_Key := TSSL.RSA_new;
       IO   : constant TSSL.BIO_Access := TSSL.BIO_new (TSSL.BIO_s_file);
       Name : aliased C.char_array := C.To_C (Filename);
@@ -1166,7 +1165,6 @@ package body AWS.Net.SSL is
 
    function Session_Reused (Socket : Socket_Type) return Boolean is
       use TSSL;
-      use type C.long;
       Rc : constant C.long :=
              SSL_ctrl -- SSL_session_reused is macro in OpenSSL sources
                (Socket.SSL, SSL_CTRL_GET_SESSION_REUSED, 0, Null_Pointer);
@@ -2198,7 +2196,6 @@ package body AWS.Net.SSL is
 
       procedure Set_IO (Socket : in out Socket_Type) is
          use TSSL;
-         use type C.long;
          Inside_IO, Net_IO : aliased BIO_Access;
       begin
          Socket.SSL := SSL_new (Default_Context);
