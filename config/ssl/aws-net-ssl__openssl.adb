@@ -39,8 +39,8 @@ pragma Ada_2012;
 with Ada.Command_Line;
 with Ada.Containers.Indefinite_Hashed_Maps;
 with Ada.Directories;
-with Ada.Strings.Hash_Case_Insensitive;
 with Ada.Strings.Equal_Case_Insensitive;
+with Ada.Strings.Hash_Case_Insensitive;
 with Ada.Task_Attributes;
 with Ada.Task_Identification;
 with Ada.Task_Termination;
@@ -61,8 +61,8 @@ with AWS.Utils;
 
 package body AWS.Net.SSL is
 
-   use Interfaces;
    use Ada.Strings;
+   use Interfaces;
    use type C.int;
    use type C.long;
    use type TSSL.Pointer;
@@ -1980,8 +1980,8 @@ package body AWS.Net.SSL is
          Certificate_Filename : String;
          Key_Filename         : String)
       is
-         use Interfaces.C;
          use C.Strings;
+         use Interfaces.C;
 
          type Meth_Func is access function return TSSL.SSL_Method
            with Convention => C;
