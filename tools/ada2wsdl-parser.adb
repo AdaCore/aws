@@ -1857,7 +1857,8 @@ package body Ada2WSDL.Parser is
       -------------------
 
       function Get_Tree_Name return String is
-         F_Name    : constant String := To_String (Options.File_Name);
+         F_Name    : constant String :=
+                       Directories.Base_Name (To_String (Options.File_Name));
          Dot_Index : Natural;
          Last      : Natural;
 
