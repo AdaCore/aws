@@ -1,10 +1,10 @@
 
                             A W S - Ada Web Server
-                                18.0w release
+                               GPL 2017 release
 
 Authors:
    Dmitriy Anisimkov
-   Pascal Obry                                           October 7th, 2016
+   Pascal Obry                                              May 11th, 2017
 
 
 
