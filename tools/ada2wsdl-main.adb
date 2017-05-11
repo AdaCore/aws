@@ -109,7 +109,7 @@ procedure Ada2WSDL.Main is
                   Options.Document := True;
 
                elsif GNAT.Command_Line.Full_Switch = "d" then
-                  Options.Debug := True;
+                  Options.Timestamp := False;
 
                else
                   Usage;
@@ -211,6 +211,7 @@ procedure Ada2WSDL.Main is
       Put_Line ("  -s name  Web Service name (default package name)");
       Put_Line ("  -n name  Schema root name (default soapaws)");
       Put_Line ("  -noenum  Map Ada enumeration to xsd:string");
+      Put_Line ("  -d       no date/time stamp in WSDL");
 
       Set_Output (Current_Output.all);
    end Usage;

@@ -61,7 +61,7 @@ package Ada2WSDL.Options is
    Literal     : Boolean := False;
    --  Whether to generate literal style parameters instead of encoded
 
-   Debug          : Boolean := False;
+   Timestamp   : Boolean := True;
    --  Do not generate date/time tag into the WSDL document for being able to
    --  compare them. This is an internal option only.
 
