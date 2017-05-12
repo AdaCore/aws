@@ -19,7 +19,7 @@
 with Ada.Text_IO;
 
 with AWS.Config.Set;
-with AWS.Server;
+with AWS.Server.Status;
 
 with SOAP.Dispatchers.Callback;
 
@@ -44,15 +44,22 @@ begin
       Schema => WSDL_1b_Service.Schema);
 
    Config.Set.Server_Host (Conf, "localhost");
-   Config.Set.Server_Port (Conf, 7701);
+   Config.Set.Server_Port (Conf, 0);
 
    Server.Start (WS, H, Conf);
 
-   WSDL_1b_Service.Client.Print (12);
-   WSDL_1b_Service.Client.Print (98712);
-   WSDL_1b_Service.Client.Print_Small (122);
-   Text_IO.Put_Line (WSDL_1b_Service.Client.Image (789));
-   Text_IO.Put_Line (WSDL_1b_Service.Client.Image (-1));
+   WSDL_1b_Service.Client.Print
+     (12, Endpoint => Server.Status.Local_URL (WS));
+   WSDL_1b_Service.Client.Print
+     (98712, Endpoint => Server.Status.Local_URL (WS));
+   WSDL_1b_Service.Client.Print_Small
+     (122, Endpoint => Server.Status.Local_URL (WS));
+   Text_IO.Put_Line
+     (WSDL_1b_Service.Client.Image
+        (789, Endpoint => Server.Status.Local_URL (WS)));
+   Text_IO.Put_Line
+     (WSDL_1b_Service.Client.Image
+        (-1, Endpoint => Server.Status.Local_URL (WS)));
 
    Server.Shutdown (WS);
 end WSDL_1b_Main;
