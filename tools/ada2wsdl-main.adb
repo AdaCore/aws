@@ -17,6 +17,7 @@
 ------------------------------------------------------------------------------
 
 with Ada.Command_Line;
+with Ada.Directories;
 with Ada.Exceptions;
 with Ada.Strings.Unbounded;
 with Ada.Text_IO;
@@ -135,7 +136,9 @@ procedure Ada2WSDL.Main is
         To_Unbounded_String (GNAT.Command_Line.Get_Argument);
 
       if Options.WSDL_File_Name = Null_Unbounded_String then
-         Options.WSDL_File_Name := Options.File_Name;
+         Options.WSDL_File_Name :=
+           To_Unbounded_String
+             (Directories.Base_Name (To_String (Options.File_Name)));
          Append (Options.WSDL_File_Name, ".wsdl");
       end if;
 
