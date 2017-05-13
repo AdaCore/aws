@@ -1031,6 +1031,20 @@ package body Ada2WSDL.Parser is
          --  Register a deferred type to be generated after first
          --  pass. Returns the name of the type.
 
+         function Register_Deferred_I
+           (E     : Asis.Declaration;
+            First : Long_Long_Integer := Long_Long_Integer'Last;
+            Last  : Long_Long_Integer := Long_Long_Integer'First)
+            return Generator.Type_Data;
+         --  Same as above for integer and optional range
+
+         function Register_Deferred_F
+           (E     : Asis.Declaration;
+            First : Long_Float := Long_Float'Last;
+            Last  : Long_Float := Long_Float'First)
+            return Generator.Type_Data;
+         --  Same as above for float and optional range
+
          function "+" (Str : String)
            return Unbounded_String renames To_Unbounded_String;
 
@@ -1051,11 +1065,11 @@ package body Ada2WSDL.Parser is
 
          function Build_Type_F
            (Name  : String;
+            NS    : String := SOAP.Name_Space.Value (SOAP.Name_Space.XSD);
             First : Long_Float := Long_Float'Last;
             Last  : Long_Float := Long_Float'First)
             return Generator.Type_Data
-         is (+SOAP.Name_Space.Value (SOAP.Name_Space.XSD),
-             +Name,
+         is (+NS, +Name,
              (if First = Long_Float'Last
               then Null_Unbounded_String
               else +Long_Float'Image (First)),
@@ -1313,6 +1327,48 @@ package body Ada2WSDL.Parser is
             return Build_Type (Name, Name_Space (Declarations.Names (E) (1)));
          end Register_Deferred;
 
+         -------------------------
+         -- Register_Deferred_F --
+         -------------------------
+
+         function Register_Deferred_F
+           (E     : Asis.Declaration;
+            First : Long_Float := Long_Float'Last;
+            Last  : Long_Float := Long_Float'First)
+            return Generator.Type_Data
+         is
+            Name : constant String :=
+                     Image
+                       (Declarations.Defining_Name_Image
+                          (Declarations.Names (E) (1)));
+         begin
+            Index := Index + 1;
+            Deferred_Types (Index) := E;
+            return Build_Type_F
+              (Name, Name_Space (Declarations.Names (E) (1)), First, Last);
+         end Register_Deferred_F;
+
+         -------------------------
+         -- Register_Deferred_I --
+         -------------------------
+
+         function Register_Deferred_I
+           (E     : Asis.Declaration;
+            First : Long_Long_Integer := Long_Long_Integer'Last;
+            Last  : Long_Long_Integer := Long_Long_Integer'First)
+            return Generator.Type_Data
+         is
+            Name : constant String :=
+                     Image
+                       (Declarations.Defining_Name_Image
+                          (Declarations.Names (E) (1)));
+         begin
+            Index := Index + 1;
+            Deferred_Types (Index) := E;
+            return Build_Type
+              (Name, Name_Space (Declarations.Names (E) (1)), First, Last);
+         end Register_Deferred_I;
+
          E   : Asis.Element := Elem;
          CFS : Asis.Declaration;
          CND : Asis.Declaration;
@@ -1402,20 +1458,34 @@ package body Ada2WSDL.Parser is
                      Get_Range (E, Ilb, Iub);
 
                      if Dig <= Float'Digits then
-                        return Build_Type_F ("float", Ilb, Iub);
+                        return Build_Type_F
+                          ("float", First => Ilb, Last => Iub);
                      else
-                        return Build_Type_F ("long_float", Ilb, Iub);
+                        return Build_Type_F
+                          ("long_float", First => Ilb, Last => Iub);
                      end if;
                   end;
 
                else
                   declare
+                     NS_Name  : constant String := Name_Space (Tn);
+                     NS_Type  : constant String := Name_Space (CFS);
+                     Name     : constant String :=
+                                  Image (Text.Element_Image (Tn));
                      Ilb, Iub : Long_Float;
                   begin
                      Get_Range (Elem, Ilb, Iub);
 
-                     return Build_Type_F
-                       (Image (Text.Element_Image (Tn)), Ilb, Iub);
+                     --  If the type is not un the current package (so in
+                     --  different name space). We need to analyse it later
+                     --  so, we do register a differred analysis for this type.
+
+                     if NS_Name = NS_Type or else Is_Standard (CFS) then
+                        return Build_Type_F
+                          (Name, NS_Type, First => Ilb, Last => Iub);
+                     else
+                        return Register_Deferred_F (CFS, Ilb, Iub);
+                     end if;
                   end;
                end if;
 
@@ -1486,7 +1556,23 @@ package body Ada2WSDL.Parser is
                   end;
 
                else
-                  return Build_Type (Image (Text.Element_Image (Tn)));
+                  declare
+                     NS_Name  : constant String := Name_Space (Tn);
+                     NS_Type  : constant String := Name_Space (CFS);
+                     Name     : constant String :=
+                                  Image (Text.Element_Image (Tn));
+                  begin
+                     --  If the type is not un the current package (so in
+                     --  different name space). We need to analyse it later
+                     --  so, we do register a differred analysis for this type.
+
+                     if NS_Name = NS_Type or else Is_Standard (CFS) then
+                        return Build_Type (Name, NS_Type);
+                     else
+                        return Register_Deferred (CFS);
+                     end if;
+                  end;
+
                end if;
 
             when A_Signed_Integer_Type_Definition =>
@@ -1544,13 +1630,24 @@ package body Ada2WSDL.Parser is
 
                else
                   declare
+                     NS_Name  : constant String := Name_Space (Tn);
+                     NS_Type  : constant String := Name_Space (CFS);
+                     Name     : constant String :=
+                                  Image (Text.Element_Image (Tn));
                      Ilb, Iub : Long_Long_Integer;
                   begin
                      Get_Range (Elem, Ilb, Iub);
 
-                     return Build_Type
-                       (Image (Text.Element_Image (Tn)),
-                        First => Ilb, Last => Iub);
+                     --  If the type is not un the current package (so in
+                     --  different name space). We need to analyse it later
+                     --  so, we do register a differred analysis for this type.
+
+                     if NS_Name = NS_Type or else Is_Standard (CFS) then
+                        return Build_Type
+                          (Name, NS_Type, First => Ilb, Last => Iub);
+                     else
+                        return Register_Deferred_I (CFS, Ilb, Iub);
+                     end if;
                   end;
                end if;
 
