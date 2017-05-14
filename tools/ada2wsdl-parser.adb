@@ -1162,10 +1162,18 @@ package body Ada2WSDL.Parser is
          begin
             N1 := SOAP.Types.Unsigned_Long'Value (VI (VI'First .. E - 1));
             N2 := SOAP.Types.Unsigned_Long'Value (VI (E + 2 .. VI'Last));
-            N := N1;
-            for K in 1 .. N2 - 1 loop
-               N := N * N1;
-            end loop;
+
+            if N1 =  2 and then N2 = 64 then
+               N := SOAP.Types.Unsigned_Long'Last;
+
+            else
+               N := N1;
+               for K in 1 .. N2 - 1 loop
+                  N := N * N1;
+               end loop;
+
+               N := N - 1;
+            end if;
 
             return N;
          end Compute_Value;
@@ -1430,40 +1438,45 @@ package body Ada2WSDL.Parser is
                      end if;
 
                      if Modulus = SOAP.Types.Unsigned_Long
-                       (SOAP.Types.Unsigned_Byte'Modulus)
+                       (SOAP.Types.Unsigned_Byte'Modulus - 1)
                      then
                         return Build_Type ("unsigned_byte");
 
                      elsif Modulus < SOAP.Types.Unsigned_Long
-                       (SOAP.Types.Unsigned_Byte'Modulus)
+                       (SOAP.Types.Unsigned_Byte'Modulus - 1)
                      then
                         return Build_Type
                           ("unsigned_byte",
                            Last => Long_Long_Integer (Modulus - 1));
 
                      elsif Modulus = SOAP.Types.Unsigned_Long
-                       (SOAP.Types.Unsigned_Short'Modulus)
+                       (SOAP.Types.Unsigned_Short'Modulus - 1)
                      then
                         return Build_Type ("unsigned_short");
 
                      elsif Modulus < SOAP.Types.Unsigned_Long
-                       (SOAP.Types.Unsigned_Short'Modulus)
+                       (SOAP.Types.Unsigned_Short'Modulus - 1)
                      then
                         return Build_Type
                           ("unsigned_short",
                            Last => Long_Long_Integer (Modulus - 1));
 
                      elsif Modulus = SOAP.Types.Unsigned_Long
-                       (SOAP.Types.Unsigned_Int'Modulus)
+                       (SOAP.Types.Unsigned_Int'Modulus - 1)
                      then
                         return Build_Type ("unsigned_int");
 
                      elsif Modulus < SOAP.Types.Unsigned_Long
-                       (SOAP.Types.Unsigned_Int'Modulus)
+                       (SOAP.Types.Unsigned_Int'Modulus - 1)
                      then
                         return Build_Type
                           ("unsigned_int",
                            Last => Long_Long_Integer (Modulus - 1));
+
+                     elsif Modulus = SOAP.Types.Unsigned_Long
+                       (SOAP.Types.Unsigned_Long'Modulus - 1)
+                     then
+                        return Build_Type ("unsigned_long");
 
                      else
                         return Build_Type
