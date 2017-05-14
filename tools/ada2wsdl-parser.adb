@@ -273,6 +273,9 @@ package body Ada2WSDL.Parser is
       --  Returns the name space for element E. Name space is defined as
       --  follow: http://soapaws/<unit_name>_pkg/
 
+      function Is_Standard (T : Asis.Declaration) return Boolean;
+      --  Returns True if type T is declared in Standard
+
       ------------------
       -- Analyse_Node --
       ------------------
@@ -526,9 +529,6 @@ package body Ada2WSDL.Parser is
          procedure Analyse_Array_Component (Component : Asis.Element);
          --  Analyse an array component
 
-         function Is_Standard (T : Asis.Declaration) return Boolean;
-         --  Returns True if type T is declared in Standard
-
          -----------------------------
          -- Analyse_Array_Component --
          -----------------------------
@@ -658,18 +658,6 @@ package body Ada2WSDL.Parser is
                   Comp_Type => To_String (Type_Name));
             end loop;
          end Analyse_Field;
-
-         -----------------
-         -- Is_Standard --
-         -----------------
-
-         function Is_Standard (T : Asis.Declaration) return Boolean is
-         begin
-            return Characters.Handling.To_Lower
-              (Image
-                 (Compilation_Units.Unit_Full_Name
-                    (Elements.Enclosing_Compilation_Unit (T)))) = "standard";
-         end Is_Standard;
 
          Name      : constant String :=
                         Image
@@ -986,6 +974,18 @@ package body Ada2WSDL.Parser is
                   Message => "Only arrays with numeric indexes supported.");
          end;
       end Array_Type_Suffix;
+
+      -----------------
+      -- Is_Standard --
+      -----------------
+
+      function Is_Standard (T : Asis.Declaration) return Boolean is
+      begin
+         return Characters.Handling.To_Lower
+           (Image
+              (Compilation_Units.Unit_Full_Name
+                   (Elements.Enclosing_Compilation_Unit (T)))) = "standard";
+      end Is_Standard;
 
       ----------------
       -- Name_Space --
