@@ -671,7 +671,7 @@ package body Ada2WSDL.Parser is
                     (Elements.Enclosing_Compilation_Unit (T)))) = "standard";
          end Is_Standard;
 
-         Name       : constant String :=
+         Name      : constant String :=
                         Image
                           (Declarations.Defining_Name_Image
                              (Declarations.Names (Elem) (1)));
