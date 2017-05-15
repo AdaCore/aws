@@ -214,6 +214,9 @@ package body Ada2WSDL.Parser is
    Index          : Natural := 0;
    --  Current Index in the Deferred_Types array
 
+   procedure Append_Deferred (E : Asis.Element);
+   --  Append a new element into the list of deferred types
+
    ----------------
    -- Add_Option --
    ----------------
@@ -1322,8 +1325,7 @@ package body Ada2WSDL.Parser is
                        (Declarations.Defining_Name_Image
                           (Declarations.Names (E) (1)));
          begin
-            Index := Index + 1;
-            Deferred_Types (Index) := E;
+            Append_Deferred (E);
             return Build_Type (Name, Name_Space (Declarations.Names (E) (1)));
          end Register_Deferred;
 
@@ -1342,8 +1344,7 @@ package body Ada2WSDL.Parser is
                        (Declarations.Defining_Name_Image
                           (Declarations.Names (E) (1)));
          begin
-            Index := Index + 1;
-            Deferred_Types (Index) := E;
+            Append_Deferred (E);
             return Build_Type_F
               (Name, Name_Space (Declarations.Names (E) (1)), First, Last);
          end Register_Deferred_F;
@@ -1363,8 +1364,7 @@ package body Ada2WSDL.Parser is
                        (Declarations.Defining_Name_Image
                           (Declarations.Names (E) (1)));
          begin
-            Index := Index + 1;
-            Deferred_Types (Index) := E;
+            Append_Deferred (E);
             return Build_Type
               (Name, Name_Space (Declarations.Names (E) (1)), First, Last);
          end Register_Deferred_I;
@@ -1790,6 +1790,16 @@ package body Ada2WSDL.Parser is
          end loop;
       end;
    end Analyse_Structure;
+
+   ---------------------
+   -- Append_Deferred --
+   ---------------------
+
+   procedure Append_Deferred (E : Asis.Element) is
+   begin
+      Index := Index + 1;
+      Deferred_Types (Index) := E;
+   end Append_Deferred;
 
    --------------
    -- Clean_Up --
