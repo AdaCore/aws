@@ -632,6 +632,13 @@ package body Ada2WSDL.Parser is
                end;
             end if;
 
+            --  Append the type of the field into the list of deferred type to
+            --  analyse later if needed. Indeed if this type is only used into
+            --  the record and is defined into a separate package we need to
+            --  analyse it to get the corresponding WSDL definition.
+
+            Append_Deferred (Declarations.Corresponding_First_Subtype (CND));
+
             declare
                T : constant Flat_Element_Kinds :=
                      Flat_Element_Kind
