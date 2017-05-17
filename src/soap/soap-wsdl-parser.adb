@@ -1451,6 +1451,7 @@ package body SOAP.WSDL.Parser is
       N        : DOM.Core.Node;
       Document : WSDL.Object) return Parameters.Parameter
    is
+      P_Name : constant String := XML.Get_Attr_Value (N, "name");
       P_Type : constant String := XML.Get_Attr_Value (N, "type", True);
       S_Min  : constant String := XML.Get_Attr_Value (N, "minOccurs", True);
       S_Max  : constant String := XML.Get_Attr_Value (N, "maxOccurs", True);
@@ -1481,7 +1482,7 @@ package body SOAP.WSDL.Parser is
                          (Utils.NS (P_Type), Name_Space.XSD);
             begin
                return
-                 (Types.K_Simple, +XML.Get_Attr_Value (N, "name"),
+                 (Types.K_Simple, +P_Name,
                   O.Elmt_Name, Doc,
                   Typ    => Types.Create (Utils.No_NS (P_Type), NS),
                   Min    => Min,
@@ -1523,7 +1524,7 @@ package body SOAP.WSDL.Parser is
                     "types.schema definition for " & P_Type & " not found.";
 
                else
-                  O.Self.Current_Name := +XML.Get_Attr_Value (N, "name");
+                  O.Self.Current_Name := +P_Name;
 
                   declare
                      P : Parameters.Parameter := Parse_Simple (O, R, Document);
@@ -1539,14 +1540,14 @@ package body SOAP.WSDL.Parser is
                declare
                   P : Parameters.Parameter := Parse_Array (O, R, Document);
                begin
-                  P.Name := +XML.Get_Attr_Value (N, "name");
+                  P.Name := +P_Name;
                   P.Min := Min;
                   P.Max := Max;
                   return P;
                end;
 
             else
-               O.Self.Current_Name := +XML.Get_Attr_Value (N, "name");
+               O.Self.Current_Name := +P_Name;
 
                if Min = 1 and then Max = 1 then
                   declare
