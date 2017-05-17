@@ -1462,6 +1462,11 @@ package body SOAP.WSDL.Parser is
    begin
       Trace ("(Parse_Parameter)", N);
 
+      if P_Type = "" then
+         raise WSDL_Error
+           with "unsupported element '" & P_Name & "' with anonymous type";
+      end if;
+
       Get_Min_Max (S_Min, S_Max, Min, Max);
 
       D := XML.First_Child (N);
