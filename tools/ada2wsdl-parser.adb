@@ -1,4 +1,4 @@
-------------------------------------------------------------------------------
+----------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
 --                     Copyright (C) 2003-2017, AdaCore                     --
@@ -28,6 +28,7 @@ with Ada.Text_IO;
 with Ada.Unchecked_Deallocation;
 
 with GNAT.OS_Lib;
+with GNAT.Regpat;
 
 with Asis;
 with Asis.Ada_Environments;
@@ -1114,65 +1115,155 @@ package body Ada2WSDL.Parser is
          function Compute_Value
            (V : Asis.Expression) return Long_Float
          is
-            VI  : constant String := Image (Text.Element_Image (V));
-            M   : constant Natural := Strings.Fixed.Index (VI, "-");
-            E   : constant Natural := Strings.Fixed.Index (VI, "**");
-            N   : Long_Float;
-            Exp : Natural := 1;
+            use type Regpat.Match_Location;
+            VI  : constant String :=
+                    Strings.Fixed.Trim
+                      (Image (Text.Element_Image (V)), Strings.Both);
 
+            --  [+-] n
+            R1  : constant Regpat.Pattern_Matcher :=
+                    Regpat.Compile ("^([+-]?[\d_.]+)$");
+            --  [+-] n ** exp
+            R2  : constant Regpat.Pattern_Matcher :=
+                    Regpat.Compile ("^([+-]?[\d_.]+) *\*\* *(\+?[\d_]+)$");
+            --  [+-] n ** exp - n
+            R3  : constant Regpat.Pattern_Matcher :=
+                    Regpat.Compile
+                      ("^([+-]?[\d_.]+) *\*\* *(\+?[\d_]+) *- *([\d_.]+)$");
+            --  [+-] n ** exp + n
+            R4  : constant Regpat.Pattern_Matcher :=
+                    Regpat.Compile
+                      ("^([+-]?[\d_.]+) *\*\* *(\+?[\d_]+) *\+ *([\d_.]+)$");
+            M   : Regpat.Match_Array (1 .. 3);
          begin
-            if E = 0 and then M /= 0 then
-               --  We have a simple minus before a number
-               return -Long_Float'Value (VI (M + 1 .. VI'Last));
+            Regpat.Match (R1, VI, M);
 
-            elsif M < E then
-               Exp := Natural'Value (VI (E + 2 .. VI'Last));
-
-               if M = 0 then
-                  N := Long_Float'Value (VI (VI'First .. E - 1));
-               else
-                  N := -Long_Float'Value (VI (M + 1 .. E - 1));
-               end if;
-
-               return N ** Exp;
-
-            else
-               --  expressions not supported
-               --  ???
-               return 0.0;
+            if M (1) /= Regpat.No_Match and then M (1).Last = VI'Last then
+               return Long_Float'Value
+                 (VI (M (1).First .. M (1).Last));
             end if;
+
+            Regpat.Match (R2, VI, M);
+
+            if M (1) /= Regpat.No_Match
+              and then M (2) /= Regpat.No_Match
+              and then M (2).Last = VI'Last
+            then
+               return Long_Float'Value (VI (M (1).First .. M (1).Last))
+                 ** Integer'Value (VI (M (2).First .. M (2).Last));
+            end if;
+
+            Regpat.Match (R3, VI, M);
+
+            if M (1) /= Regpat.No_Match
+              and then M (2) /= Regpat.No_Match
+              and then M (3) /= Regpat.No_Match
+              and then M (3).Last = VI'Last
+            then
+               if VI (M (1).First .. M (1).Last) = "1.0"
+                 and then VI (M (2).First .. M (2).Last) = "256"
+               then
+                  return Long_Float'Last;
+               else
+                  return
+                    Long_Float'Value (VI (M (1).First .. M (1).Last))
+                    ** Integer'Value (VI (M (2).First .. M (2).Last))
+                    - Long_Float'Value (VI (M (3).First .. M (3).Last));
+               end if;
+            end if;
+
+            Regpat.Match (R4, VI, M);
+
+            if M (1) /= Regpat.No_Match
+              and then M (2) /= Regpat.No_Match
+              and then M (3) /= Regpat.No_Match
+              and then M (3).Last = VI'Last
+            then
+               return Long_Float'Value (VI (M (1).First .. M (1).Last))
+                 ** Integer'Value (VI (M (2).First .. M (2).Last))
+                 + Long_Float'Value (VI (M (3).First .. M (3).Last));
+            end if;
+
+            --  The expression is not supported
+
+            return 0.0;
          end Compute_Value;
 
          function Compute_Value
            (V : Asis.Expression) return Long_Long_Integer
          is
-            VI  : constant String := Image (Text.Element_Image (V));
-            M   : constant Natural := Strings.Fixed.Index (VI, "-");
-            E   : constant Natural := Strings.Fixed.Index (VI, "**");
-            N   : Long_Long_Integer;
-            Exp : Natural := 1;
-
+            use type Regpat.Match_Location;
+            VI  : constant String :=
+                    Strings.Fixed.Trim
+                      (Image (Text.Element_Image (V)), Strings.Both);
+            --  [+-] n
+            R1  : constant Regpat.Pattern_Matcher :=
+                    Regpat.Compile ("^([+-]?[\d_]+)$");
+            --  [+-] n ** exp
+            R2  : constant Regpat.Pattern_Matcher :=
+                    Regpat.Compile ("^([+-]?[\d_]+) *\*\* *(\+?[\d_]+)$");
+            --  [+-] n ** exp - n
+            R3  : constant Regpat.Pattern_Matcher :=
+                    Regpat.Compile
+                      ("^([+-]?[\d_]+) *\*\* *(\+?[\d_]+) *- *([\d_]+)$");
+            --  [+-] n ** exp + n
+            R4  : constant Regpat.Pattern_Matcher :=
+                    Regpat.Compile
+                      ("^([+-]?[\d_]+) *\*\* *(\+?[\d_]+) *\+ *([\d_]+)$");
+            M   : Regpat.Match_Array (1 .. 3);
          begin
-            if E = 0 and then M /= 0 then
-               --  We have a simple minus before a number
-               return -Long_Long_Integer'Value (VI (M + 1 .. VI'Last));
+            Regpat.Match (R1, VI, M);
 
-            elsif M < E then
-               Exp := Natural'Value (VI (E + 2 .. VI'Last));
-
-               if M = 0 then
-                  N := Long_Long_Integer'Value (VI (VI'First .. E - 1));
-               else
-                  N := -Long_Long_Integer'Value (VI (M + 1 .. E - 1));
-               end if;
-
-               return N ** Exp;
-
-            else
-               --  expressions not supported
-               --  ???
-               return 0;
+            if M (1) /= Regpat.No_Match and then M (1).Last = VI'Last then
+               return Long_Long_Integer'Value
+                 (VI (M (1).First .. M (1).Last));
             end if;
+
+            Regpat.Match (R2, VI, M);
+
+            if M (1) /= Regpat.No_Match
+              and then M (2) /= Regpat.No_Match
+              and then M (2).Last = VI'Last
+            then
+               return Long_Long_Integer'Value (VI (M (1).First .. M (1).Last))
+                 ** Integer'Value (VI (M (2).First .. M (2).Last));
+            end if;
+
+            Regpat.Match (R3, VI, M);
+
+            if M (1) /= Regpat.No_Match
+              and then M (2) /= Regpat.No_Match
+              and then M (3) /= Regpat.No_Match
+              and then M (3).Last = VI'Last
+            then
+               if VI (M (1).First .. M (1).Last) = "2"
+                 and then VI (M (2).First .. M (2).Last) = "63"
+                 and then VI (M (3).First .. M (3).Last) = "1"
+               then
+                  return Long_Long_Integer'Last;
+               else
+                  return
+                    Long_Long_Integer'Value (VI (M (1).First .. M (1).Last))
+                    ** Integer'Value (VI (M (2).First .. M (2).Last))
+                    - Long_Long_Integer'Value (VI (M (3).First .. M (3).Last));
+               end if;
+            end if;
+
+            Regpat.Match (R4, VI, M);
+
+            if M (1) /= Regpat.No_Match
+              and then M (2) /= Regpat.No_Match
+              and then M (3) /= Regpat.No_Match
+              and then M (3).Last = VI'Last
+            then
+               return Long_Long_Integer'Value (VI (M (1).First .. M (1).Last))
+                 ** Integer'Value (VI (M (2).First .. M (2).Last))
+                 + Long_Long_Integer'Value (VI (M (3).First .. M (3).Last));
+            end if;
+
+            --  The expression is not supported
+
+            return 0;
          end Compute_Value;
 
          function Compute_Value

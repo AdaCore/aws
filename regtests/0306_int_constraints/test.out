@@ -1,0 +1,27 @@
+ 12
+-13
+-20
+==============================
+<xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+<xsd:simpleType name="T1">
+<xsd:restriction base="xsd:short">
+<xsd:minInclusive value="-20000"/>
+<xsd:maxInclusive value=" 20000"/>
+<xsd:simpleType name="T2">
+<xsd:restriction base="xsd:short">
+<xsd:minInclusive value="-20000"/>
+<xsd:maxInclusive value=" 20000"/>
+<xsd:simpleType name="T3">
+<xsd:restriction base="xsd:int">
+<xsd:minInclusive value="-20000"/>
+<xsd:maxInclusive value=" 20000"/>
+<xsd:simpleType name="T4">
+<xsd:restriction base="xsd:float">
+<xsd:minInclusive value="-1.50000000000000E+00"/>
+<xsd:maxInclusive value=" 1.50000000000000E+00"/>
+<xsd:complexType name="Rec">
+<xsd:all>
+<xsd:element name="V1" type="n1:T1"/>
+<xsd:element name="V2" type="n1:T2"/>
+<xsd:element name="V3" type="n1:T3"/>
+<xsd:element name="V4" type="n1:T4"/>
