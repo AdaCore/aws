@@ -1238,7 +1238,6 @@ package body Ada2WSDL.Parser is
 
                if Flat_Element_Kind (LB) = A_Function_Call then
                   Lower := Compute_Value (LB);
-
                elsif Flat_Element_Kind (LB) = A_First_Attribute then
                   Lower := Long_Long_Integer'Last;
                else
