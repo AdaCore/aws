@@ -238,6 +238,7 @@ package body AWS.Net.WebSocket.Protocol.RFC6455 is
       D_Header : Stream_Element_Array (1 .. 2) := (0, 0);
       Header   : Frame_Header;
       for Header'Address use D_Header'Address;
+      pragma Import (Ada, Header);  --  Disable default initialization
 
       D_16     : Stream_Element_Array (1 .. 2);
       for D_16'Alignment use Interfaces.Unsigned_16'Alignment;
@@ -577,6 +578,7 @@ package body AWS.Net.WebSocket.Protocol.RFC6455 is
       D_Header : Stream_Element_Array (1 .. 2) := (0, 0);
       Header   : Frame_Header;
       for Header'Address use D_Header'Address;
+      pragma Import (Ada, Header);  --  Disable default initialization
 
       D_16     : Stream_Element_Array (1 .. 2);
       for D_16'Alignment use Interfaces.Unsigned_16'Alignment;

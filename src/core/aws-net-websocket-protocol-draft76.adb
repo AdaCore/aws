@@ -182,6 +182,7 @@ package body AWS.Net.WebSocket.Protocol.Draft76 is
       V1 : constant Interfaces.Unsigned_32 := WS_Key_Value (K1);
       B1 : Stream_Element_Array (1 .. 4);
       for B1'Address use V1'Address;
+      pragma Import (Ada, B1);  --  disable default initialization
 
       --  Key 2
 
@@ -190,6 +191,7 @@ package body AWS.Net.WebSocket.Protocol.Draft76 is
       V2 : constant Interfaces.Unsigned_32 := WS_Key_Value (K2);
       B2 : Stream_Element_Array (1 .. 4);
       for B2'Address use V2'Address;
+      pragma Import (Ada, B2);  --  disable default initialization
 
       --  Body
 
@@ -200,6 +202,7 @@ package body AWS.Net.WebSocket.Protocol.Draft76 is
       D  : MD5.Message_Digest;
       S  : Stream_Element_Array (1 .. D'Length);
       for S'Address use D'Address;
+      pragma Import (Ada, S);  --  disable default initialization
 
    begin
       if B'Length /= 8 then
