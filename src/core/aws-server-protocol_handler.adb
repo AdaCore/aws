@@ -245,6 +245,10 @@ begin
                      Content_Type => "text/plain",
                      Message_Body => "Unknown Expect header value " & Expect);
 
+                  Send
+                    (Error_Answer, LA.Server.all, LA.Line, LA.Stat, Socket_Taken,
+                     Will_Close);
+
                   raise Expectation_Failed;
                end if;
             end;
