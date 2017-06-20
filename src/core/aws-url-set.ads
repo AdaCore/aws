@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2007-2013, AdaCore                     --
+--                     Copyright (C) 2007-2017, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -48,6 +48,11 @@ package AWS.URL.Set is
       Port     : Positive;
       Security : Boolean);
    --  Update connection data, used by the server
+
+   procedure Security (URL : in out Object; Flag : Boolean);
+   --  Update protocol security flag of the URL.
+   --  Change port to default of new protocol if port was default on
+   --  previous protocol.
 
    procedure Parse
      (Item           : in out Object;

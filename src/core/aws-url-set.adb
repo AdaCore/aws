@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2007-2015, AdaCore                     --
+--                     Copyright (C) 2007-2017, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -505,5 +505,31 @@ package body AWS.URL.Set is
             "Reference Web root parent directory");
       end if;
    end Parse;
+
+   --------------
+   -- Security --
+   --------------
+
+   procedure Security (URL : in out Object; Flag : Boolean) is
+      Port_Default : constant Boolean :=
+        (URL.Protocol = HTTPS and then URL.Port = Default_HTTPS_Port)
+        or else (URL.Protocol = HTTP and then URL.Port = Default_HTTP_Port)
+        or else (URL.Protocol = FTP and then URL.Port = Default_FTP_Port);
+   begin
+      if Flag then
+         URL.Protocol := HTTPS;
+
+         if Port_Default then
+            URL.Port := Default_HTTPS_Port;
+         end if;
+
+      else
+         URL.Protocol := HTTP;
+
+         if Port_Default then
+            URL.Port := Default_HTTP_Port;
+         end if;
+      end if;
+   end Security;
 
 end AWS.URL.Set;
