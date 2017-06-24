@@ -82,12 +82,12 @@ package body SOAP.Message.XML is
       Name_Space   : SOAP.Name_Space.Object;
       Wrapper_Name : Unbounded_String;
       Parameters   : SOAP.Parameters.List;
-      A_State      : Type_State := Void;
+      A_State      : Type_State := Void; -- array element type
       NS           : Namespaces;
       Strict       : Boolean    := True;
       Style        : WSDL.Schema.Binding_Style := WSDL.Schema.RPC;
       Schema       : WSDL.Schema.Definition;
-      Enclosing    : Unbounded_String; -- enclosing element type (record)
+      Enclosing    : Unbounded_String; -- enclosing element type (array record)
    end record;
 
    function To_Type
@@ -1079,7 +1079,9 @@ package body SOAP.Message.XML is
       Name     : constant String := Local_Name (N);
       Key      : constant String :=
                    (if S.Enclosing /= Null_Unbounded_String
-                    then To_String (S.Enclosing) & "." & Name
+                    then (if S.A_State = Void
+                          then To_String (S.Enclosing) & '.' & Name
+                          else To_String (S.Enclosing) & ".item")
                     else Name);
       Encoding : constant SOAP.Types.Encoding_Style :=
                    WSDL.Schema.Get_Encoding_Style
@@ -1251,7 +1253,12 @@ package body SOAP.Message.XML is
       use type DOM.Core.Node_Types;
       use type WSDL.Schema.Binding_Style;
 
-      Key    : constant String := To_String (S.Enclosing) & '.' & Name;
+      Key      : constant String :=
+                   (if S.Enclosing /= Null_Unbounded_String
+                    then (if S.A_State = Void
+                          then To_String (S.Enclosing) & '.' & Name
+                          else To_String (S.Enclosing) & ".item")
+                    else Name);
       Field  : DOM.Core.Node := SOAP.XML.Get_Ref (N);
       xsd    : constant String :=
                  SOAP.XML.Get_Attr_Value
@@ -1293,6 +1300,7 @@ package body SOAP.Message.XML is
          --  Set state for the enclosing elements
 
          S.Enclosing := To_Unbounded_String (Utils.No_NS (To_String (T_Name)));
+         S.A_State := Void;
 
          while Field /= null loop
             K := K + 1;
@@ -1303,6 +1311,7 @@ package body SOAP.Message.XML is
          --  Restore state
 
          S.Enclosing := LS.Enclosing;
+         S.A_State := LS.A_State;
 
          declare
             NS : constant SOAP.Name_Space.Object :=
