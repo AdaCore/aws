@@ -740,7 +740,6 @@ package body SOAP.Generator is
    is
       use Ada.Strings.Fixed;
       use type SOAP.WSDL.Parameters.P_Set;
-      use type SOAP.WSDL.Types.Kind;
 
       procedure Put_Indent (Last : Character := ' ');
       --  Ouput proper indentation spaces
@@ -2493,8 +2492,6 @@ package body SOAP.Generator is
          P      : WSDL.Parameters.P_Set;
          Output : Boolean               := False)
       is
-         use type SOAP.Name_Space.Object;
-
          F_Name    : constant String := Format_Name (O, Name & Suffix);
          Def       : constant WSDL.Types.Definition := WSDL.Types.Find (P.Typ);
          Is_Choice : constant Boolean :=
@@ -3242,8 +3239,6 @@ package body SOAP.Generator is
          P           : WSDL.Parameters.P_Set;
          For_Derived : Boolean := False)
       is
-         use type Name_Space.Object;
-
          procedure Output_Refs (Def : WSDL.Types.Definition; Gen : Boolean);
          --  Recursivelly output with/use clauses for derived types
 
@@ -3684,7 +3679,6 @@ package body SOAP.Generator is
       ---------------
 
       function Type_Name (N : WSDL.Parameters.P_Set) return String is
-         use type WSDL.Parameter_Type;
          T_Name : constant String := WSDL.Types.Name (N.Typ);
          Q_Name : constant String :=
                     Utils.To_Name (WSDL.Types.Name (N.Typ, True));

@@ -456,9 +456,7 @@ package body AWS.Client is
    ---------------------
 
    function Get_Certificate
-     (Connection : HTTP_Connection) return Net.SSL.Certificate.Object
-   is
-      use type Net.Socket_Access;
+     (Connection : HTTP_Connection) return Net.SSL.Certificate.Object is
    begin
       if not Connection.Opened then
          --  SSL socket have to be created to get certificate

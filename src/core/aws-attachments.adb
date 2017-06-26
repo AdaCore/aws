@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2004-2015, AdaCore                     --
+--                     Copyright (C) 2004-2017, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -61,8 +61,6 @@ package body AWS.Attachments is
       Name        : String := "";
       Encode      : Encoding := None)
    is
-      use type Attachment_Table.Vector;
-
       Data : constant Content := File
         (Filename, Encode, Content_Id, MIME.Content_Type (Filename));
    begin

@@ -129,8 +129,6 @@ package body CB is
       pragma Unreferenced (SOAPAction, Namespace, Documentation);
       pragma Unreferenced (Input, Output, Fault);
 
-      use type WSDL.Parameters.P_Set;
-
       L_Proc : constant String := Format_Name (O, Proc);
    begin
       Text_IO.New_Line (CB_Adb);

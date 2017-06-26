@@ -205,9 +205,7 @@ package body Stub is
       procedure Output_Enumeration
         (K      : Positive;
          Prefix : String;
-         N      : WSDL.Parameters.P_Set)
-      is
-         use type WSDL.Parameter_Type;
+         N      : WSDL.Parameters.P_Set) is
       begin
          Text_IO.Put (Stub_Adb, "SOAP.Types.E");
 
@@ -236,7 +234,6 @@ package body Stub is
          N      : WSDL.Parameters.P_Set)
       is
          use Ada.Strings.Fixed;
-         use type WSDL.Types.Kind;
       begin
          if N /= null then
             if K = 1 then
@@ -279,9 +276,7 @@ package body Stub is
       procedure Output_Record
         (K      : Positive;
          Prefix : String;
-         N      : WSDL.Parameters.P_Set)
-      is
-         use Ada.Strings.Fixed;
+         N      : WSDL.Parameters.P_Set) is
       begin
          Text_IO.Put (Stub_Adb, "To_SOAP_Object (");
 
@@ -361,7 +356,6 @@ package body Stub is
          Prefix : String;
          N      : WSDL.Parameters.P_Set)
       is
-         use type WSDL.Parameter_Type;
          P_Type : constant WSDL.Parameter_Type :=
                     WSDL.To_Type (WSDL.Types.Name (N.Typ));
       begin
@@ -389,10 +383,8 @@ package body Stub is
 
       L_Proc : constant String := Format_Name (O, Proc);
 
-      use type AWS.Client.Timeouts_Values;
       use type Name_Space.Object;
       use type WSDL.Parameter_Type;
-      use type WSDL.Types.Kind;
 
    begin
       --  Spec
@@ -532,7 +524,6 @@ package body Stub is
             --  A single parameter is returned
 
             declare
-               use type WSDL.Schema.Encoding_Style;
                T_Name : constant String := WSDL.Types.Name (Output.Typ);
             begin
                Text_IO.Put (Stub_Adb, "                 := ");

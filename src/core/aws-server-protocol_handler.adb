@@ -37,7 +37,6 @@ with AWS.Log;
 with AWS.Messages;
 with AWS.Net.Buffered;
 with AWS.Parameters;
-with AWS.Resources;
 with AWS.Response.Set;
 with AWS.Server.HTTP_Utils;
 with AWS.Server.Status;
@@ -50,8 +49,6 @@ separate (AWS.Server)
 procedure Protocol_Handler (LA : in out Line_Attribute_Record) is
 
    use AWS.Server.HTTP_Utils;
-
-   use type Resources.Content_Length_Type;
 
    Case_Sensitive_Parameters : constant Boolean :=
                                  CNF.Case_Sensitive_Parameters

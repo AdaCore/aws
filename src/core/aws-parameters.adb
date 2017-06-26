@@ -29,7 +29,6 @@
 
 with Ada.Streams;
 with Ada.Strings.Fixed;
-with Ada.Strings.Maps;
 with Ada.Strings.Unbounded;
 with AWS.URL;
 
@@ -41,9 +40,6 @@ with AWS.Utils;
 package body AWS.Parameters is
 
    use Ada.Strings;
-   use AWS.Containers;
-
-   use type Maps.Character_Set;
 
    procedure Add_Internal
      (Parameter_List : in out List;

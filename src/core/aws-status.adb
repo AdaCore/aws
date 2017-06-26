@@ -37,8 +37,6 @@ with AWS.Utils;
 
 package body AWS.Status is
 
-   use Ada.Strings;
-
    ---------------------
    -- Accept_Encoding --
    ---------------------

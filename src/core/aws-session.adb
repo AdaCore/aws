@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2000-2014, AdaCore                     --
+--                     Copyright (C) 2000-2017, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -698,7 +698,6 @@ package body AWS.Session is
 
       use type Calendar.Time;
       use type Real_Time.Time;
-      use type Session_Set.Cursor;
 
       Now_Monoton  : constant Real_Time.Time := Real_Time.Clock;
       Now_Calendar : constant Calendar.Time  := Calendar.Clock;

@@ -71,7 +71,6 @@ package body AWS.Server.HTTP_Utils is
    use Ada.Streams;
    use Ada.Strings;
    use Ada.Strings.Unbounded;
-   use AWS.Templates;
 
    protected File_Upload_UID is
       procedure Get (ID : out Natural);
@@ -218,7 +217,6 @@ package body AWS.Server.HTTP_Utils is
       --------------------
 
       procedure Create_Session is
-         use type Session.Id;
       begin
          if CNF.Session (HTTP_Server.Properties)
            and then (not Status.Has_Session (C_Stat)
@@ -1599,8 +1597,6 @@ package body AWS.Server.HTTP_Utils is
          Net.Buffered.New_Line (Sock);
          Net.Buffered.Flush (Sock);
       end Send_WebSocket_Handshake_Error;
-
-      use type Response.Data;
 
    begin
       case Response.Mode (Answer) is

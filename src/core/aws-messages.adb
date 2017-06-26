@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2000-2014, AdaCore                     --
+--                     Copyright (C) 2000-2017, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -411,8 +411,6 @@ package body AWS.Messages is
    function To_Cache_Data
      (Kind : Cache_Kind; Value : Cache_Option) return Cache_Data
    is
-      use AWS.Headers;
-
       Result : Cache_Data (Kind);
 
       procedure Simple_Value (Item : String; Quit : in out Boolean);

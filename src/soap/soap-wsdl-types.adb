@@ -91,9 +91,7 @@ package body SOAP.WSDL.Types is
 
    function Find
      (O          : Object;
-      Registered : Boolean := False) return Definition
-   is
-      use type Name_Space.Object;
+      Registered : Boolean := False) return Definition is
    begin
       --  First check for a known definition, including a possible type with
       --  name Character which is not an Ada character.

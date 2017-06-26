@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2000-2012, AdaCore                     --
+--                     Copyright (C) 2000-2017, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -141,7 +141,6 @@ package body AWS.Resources.Streams.Disk is
      (Resource : in out Stream_Type;
       To       : Stream_Element_Offset)
    is
-      use type Stream_IO.Count;
       Size : constant Stream_Element_Offset :=
                Stream_Element_Offset (Stream_IO.Size (Resource.File));
       Pos  : Stream_Element_Offset := To;

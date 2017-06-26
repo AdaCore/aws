@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2000-2015, AdaCore                     --
+--                     Copyright (C) 2000-2017, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -636,7 +636,6 @@ package body AWS.SMTP.Client is
       CC          : Recipients := No_Recipient;
       BCC         : Recipients := No_Recipient)
    is
-      use type AWS.Attachments.Root_MIME_Kind;
       Sock     : Net.Socket_Access;
       Answer   : Server_Reply;
       Boundary : Unbounded_String;

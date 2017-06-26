@@ -278,8 +278,6 @@ package body AWS.Client.HTTP_Utils is
       Result     : out Response.Data;
       Get_Body   : Boolean         := True)
    is
-      use type Messages.Status_Code;
-
       procedure Disconnect;
       --  close connection socket
 

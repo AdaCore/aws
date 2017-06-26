@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2003-2013, AdaCore                     --
+--                     Copyright (C) 2003-2017, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -46,8 +46,6 @@ package body AWS.Services.Web_Mail is
 
    use Ada;
    use Ada.Strings.Unbounded;
-
-   use AWS;
 
    function Login (Request : Status.Data) return Response.Data;
    --  Get the login data from Request and returns the summary of the mailbox

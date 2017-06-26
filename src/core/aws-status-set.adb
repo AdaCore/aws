@@ -46,8 +46,6 @@ package body AWS.Status.Set is
 
    use Ada.Strings;
 
-   use AWS;
-
    procedure Authorization (D : in out Data);
    --  Parse the Authorization parameters from the Authorization header value
 

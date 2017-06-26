@@ -333,7 +333,6 @@ package body Skel is
 
       while N /= null loop
          declare
-            use type WSDL.Schema.Encoding_Style;
             Q_Name : constant String :=
                        Utils.To_Name (WSDL.Types.Name (N.Typ, NS => True));
             T_Name : constant String := WSDL.Types.Name (N.Typ);

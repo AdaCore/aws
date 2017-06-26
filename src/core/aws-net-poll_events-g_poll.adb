@@ -35,11 +35,8 @@ is
    use Interfaces;
 
    use type C.int;
-   use type C.long;
    use type OS_Lib.Events_Type;
    use type OS_Lib.FD_Type;
-   use type OS_Lib.timeval_tv_sec_t;
-   use type OS_Lib.timeval_tv_usec_t;
 
    function C_Select
      (Nfds      : C.int;

@@ -1415,7 +1415,6 @@ package body AWS.Server.Push is
       Thin_Id      : String             := "";
       Client_Gone  : access procedure (Client_Id : String) := null)
    is
-      use type Ada.Containers.Count_Type;
       Holder : Client_Holder_Access;
       Queue  : Tables.Map;
       WQ     : Waiter_Queues.List;

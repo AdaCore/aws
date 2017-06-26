@@ -102,7 +102,7 @@ package body SOAP.WSDL.Parameters is
    procedure Output (P : access Parameter) is
 
       use Ada;
-      use type Parameters.P_Set;
+      --  use type Parameters.P_Set;
 
       procedure Output (P : access Parameter; K : Natural);
 

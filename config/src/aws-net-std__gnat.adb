@@ -31,7 +31,6 @@ pragma Ada_2012;
 
 with Ada.Strings.Maps;
 with Ada.Unchecked_Deallocation;
-with Interfaces.C;
 
 with GNAT.Sockets;
 
@@ -41,7 +40,6 @@ with AWS.OS_Lib;
 package body AWS.Net.Std is
 
    use GNAT;
-   use type Interfaces.C.int;
 
    type Socket_Hidden is record
       FD : Sockets.Socket_Type := Sockets.No_Socket;
@@ -513,9 +511,7 @@ package body AWS.Net.Std is
 
    overriding function Is_Peer_Closed
      (Socket : Socket_Type;
-      E      : Exception_Occurrence) return Boolean
-   is
-      use type Sockets.Error_Type;
+      E      : Exception_Occurrence) return Boolean is
    begin
       return Is_Peer_Closed (Net.Socket_Type (Socket), E)
         or else Get_Socket_Errno (E) = OS_Lib.ECONNRESET;
@@ -527,9 +523,7 @@ package body AWS.Net.Std is
 
    overriding function Is_Timeout
      (Socket : Socket_Type;
-      E      : Exception_Occurrence) return Boolean
-   is
-      use type Sockets.Error_Type;
+      E      : Exception_Occurrence) return Boolean is
    begin
       return Is_Timeout (Net.Socket_Type (Socket), E)
         or else Get_Socket_Errno (E) = OS_Lib.ETIMEDOUT;

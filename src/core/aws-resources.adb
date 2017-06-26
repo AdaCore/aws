@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2002-2012, AdaCore                     --
+--                     Copyright (C) 2002-2017, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -27,12 +27,10 @@
 --  covered by the GNU Public License.                                      --
 ------------------------------------------------------------------------------
 
-with AWS.Resources.Files;
 with AWS.Resources.Embedded;
+with AWS.Resources.Files;
 
 package body AWS.Resources is
-
-   use Ada;
 
    ----------
    -- "or" --

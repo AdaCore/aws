@@ -58,8 +58,6 @@ package body SOAP.WSDL is
       Result   : out WSDL.Parameter_Type;
       Standard : out Boolean)
    is
-      use SOAP.WSDL;
-
       L_Type : constant String := Characters.Handling.To_Lower (Ada_Type);
 
    begin
@@ -440,7 +438,6 @@ package body SOAP.WSDL is
 
    function To_XSD (P : WSDL.Parameter_Type) return String is
       use SOAP.Types;
-      use SOAP.WSDL;
    begin
       case P is
          when P_Long           => return XML_Long;

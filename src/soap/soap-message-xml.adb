@@ -1351,7 +1351,6 @@ package body SOAP.Message.XML is
       Type_Name : String;
       N         : DOM.Core.Node) return Types.Object'Class
    is
-      use type DOM.Core.Node;
       use type DOM.Core.Node_Types;
 
       L : constant DOM.Core.Node_List := Child_Nodes (N);
@@ -1451,7 +1450,6 @@ package body SOAP.Message.XML is
      (Name : String;
       N    : DOM.Core.Node) return Types.Object'Class
    is
-      use type DOM.Core.Node;
       use type DOM.Core.Node_Types;
 
       L : constant DOM.Core.Node_List := Child_Nodes (N);

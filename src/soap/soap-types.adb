@@ -290,7 +290,6 @@ package body SOAP.Types is
    ---------
 
    function Get (O : Object'Class) return XSD_Any_Type is
-      use type Ada.Tags.Tag;
    begin
       return Any (O, Name (O));
    end Get;
