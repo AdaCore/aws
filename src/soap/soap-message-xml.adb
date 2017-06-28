@@ -1534,6 +1534,10 @@ package body SOAP.Message.XML is
                  then Schema (SOAP.Name_Space.XSD_URL)
                  else "");
 
+      ----------
+      -- Is_A --
+      ----------
+
       function Is_A
         (T1_Name, T2_Name : String;
          NS               : String) return Boolean
