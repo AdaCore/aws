@@ -87,6 +87,18 @@ package body SOAP.WSDL.Name_Spaces is
       return Is_XSD (Name_Space.Name (NS));
    end Is_XSD;
 
+   -------------
+   -- Iterate --
+   -------------
+
+   procedure Iterate
+     (Process : not null access procedure (Key, Value : String)) is
+   begin
+      for C in NS.Iterate loop
+         Process (Name_Spaces.Key (C), Name_Spaces.Element (C));
+      end loop;
+   end Iterate;
+
    --------------
    -- Register --
    --------------
