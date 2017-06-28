@@ -242,6 +242,19 @@ package body SOAP.Message.XML is
    procedure Error (Node : DOM.Core.Node; Message : String) with No_Return;
    --  Raises SOAP_Error with the Message as exception message
 
+   Null_String : constant String := (1 => ASCII.NUL);
+
+   function Get_Schema_Type
+     (Type_Name : String;
+      Schema    : WSDL.Schema.Definition;
+      NS        : Namespaces;
+      Default   : String := Null_String) return String;
+   --  Returns the type definition as found in the schema. Check for a possible
+   --  prefix change, that is n1:type_name can be named n2:type_name if n1 and
+   --  n2 are in fact the same name-space (same URL). If there is no prefix
+   --  or the definition is not found then the default value is returned if
+   --  defined, otherwise Type_Name is returned as-is.
+
    type Parse_Type is access
      function (Name      : String;
                Type_Name : String;
@@ -380,6 +393,81 @@ package body SOAP.Message.XML is
 
       return "";
    end Get_Namespace_Value;
+
+   ----------------
+   -- Get_Schema --
+   ----------------
+
+   function Get_Schema_Type
+     (Type_Name : String;
+      Schema    : WSDL.Schema.Definition;
+      NS        : Namespaces;
+      Default   : String := Null_String) return String
+   is
+      P : constant String := Utils.NS (Type_Name);
+   begin
+      if Schema.Contains (Type_Name) then
+         --  The type_name is found in the schema, returns the corresponding
+         --  type definition.
+
+         return Schema (Type_Name);
+
+      elsif P = "" then
+         --  We have no prefix, just return the type or the default value
+
+         return (if Default = Null_String then Type_Name else Default);
+
+      else
+         --  We have a prefix n1:name, we want to check for a possible n2:name
+         --  definition as n1 could have been renamed n2.
+
+         declare
+            use type SOAP.Name_Space.Object;
+
+            Result : Unbounded_String :=
+                       To_Unbounded_String
+                         (if Default = Null_String
+                          then Type_Name else Default);
+         begin
+            --  Get URL for NS prefix P
+
+            for K in NS.User'Range loop
+               if NS.User (K) /= SOAP.Name_Space.No_Name_Space then
+                  if SOAP.Name_Space.Name (NS.User (K)) = P then
+                     --  We have found the definition for n1
+
+                     if Schema.Contains
+                       (SOAP.Name_Space.Value (NS.User (K)))
+                     then
+                        --  The URL for the name-space is defined
+
+                        if Schema.Contains
+                          (Utils.With_NS
+                             (Schema (SOAP.Name_Space.Value (NS.User (K))),
+                              Type_Name))
+                        then
+                           --  And we have n2:name also defined, that is the
+                           --  definition we are looking for.
+
+                           Result := To_Unbounded_String
+                             (Schema
+                               (Utils.With_NS
+                                 (Schema (SOAP.Name_Space.Value (NS.User (K))),
+                                  Type_Name)));
+                           exit;
+                        end if;
+                     end if;
+                  end if;
+
+               else
+                  exit;
+               end if;
+            end loop;
+
+            return To_String (Result);
+         end;
+      end if;
+   end Get_Schema_Type;
 
    -----------
    -- Image --
@@ -1146,9 +1234,7 @@ package body SOAP.Message.XML is
          end if;
 
       else
-         if S.Schema.Contains (Key) then
-            xsd := To_Unbounded_String (S.Schema (Key));
-         end if;
+         xsd := To_Unbounded_String (Get_Schema_Type (Key, S.Schema, S.NS));
       end if;
 
       NS := Get_Namespace_Object (S.NS, Utils.NS (To_String (xsd)));
@@ -1272,13 +1358,13 @@ package body SOAP.Message.XML is
       LS     : constant State := S;
 
    begin
-      if (S.Style = WSDL.Schema.Document or else xsd = "")
-        and then S.Schema.Contains (Key)
-      then
+      if S.Style = WSDL.Schema.Document or else xsd = "" then
          --  This should be done only for document style binding, but let's
          --  do it also for the RPC binding. It can help parsing non fully
          --  conformant messages.
-         T_Name := To_Unbounded_String (S.Schema (Key));
+
+         T_Name := To_Unbounded_String
+           (Get_Schema_Type (Key, S.Schema, S.NS, xsd));
 
       else
          T_Name := To_Unbounded_String (xsd);
@@ -1544,10 +1630,7 @@ package body SOAP.Message.XML is
       is (T1_Name = Utils.With_NS (NS, T2_Name)) with Inline;
       --  Returns True if T1_Name is equal to T2_Name based on namespace
 
-      T_Name : constant String :=
-               (if Schema.Contains (Type_Name)
-                then Schema (Type_Name)
-                else Type_Name);
+      T_Name : constant String := Get_Schema_Type (Type_Name, Schema, NS);
 
    begin
       if T_Name = "@enum" then
