@@ -4210,6 +4210,25 @@ package body SOAP.Generator is
          Value => Utils.No_NS (SOAP.Name_Space.Name (O.enc)));
       Text_IO.New_Line (Type_Adb);
 
+      --  Then the user's name-spaces
+
+      declare
+         procedure Write_NS (Key, Value : String);
+
+         --------------
+         -- Write_NS --
+         --------------
+
+         procedure Write_NS (Key, Value : String) is
+         begin
+            Output_Schema_Definition (Key, Value);
+         end Write_NS;
+
+      begin
+         SOAP.WSDL.Name_Spaces.Iterate (Write_NS'Access);
+         Text_IO.New_Line (Type_Adb);
+      end;
+
       if O.WSDL_File /= Null_Unbounded_String then
          Text_IO.New_Line (Root);
          Text_IO.Put_Line (Root, "   pragma Style_Checks (Off);");
