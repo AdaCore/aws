@@ -30,7 +30,7 @@
 with AWS.URL;
 with AWS.Utils;
 
-separate (SOAP.Generator)
+separate (WSDL2AWS.Generator)
 package body Skel is
 
    -----------------
@@ -63,17 +63,18 @@ package body Skel is
       Proc          : String;
       Documentation : String;
       SOAPAction    : String;
-      Namespace     : Name_Space.Object;
+      Namespace     : SOAP.Name_Space.Object;
       Input         : WSDL.Parameters.P_Set;
       Output        : WSDL.Parameters.P_Set;
       Fault         : WSDL.Parameters.P_Set)
    is
       pragma Unreferenced (Namespace, Fault);
 
+      use all type SOAP.WSDL.Parameter_Type;
+
       use Ada.Strings.Fixed;
-      use type WSDL.Parameter_Type;
+      use type SOAP.WSDL.Schema.Binding_Style;
       use type WSDL.Parameters.P_Set;
-      use type WSDL.Schema.Binding_Style;
       use type WSDL.Types.Kind;
 
       procedure Output_Parameters (N : WSDL.Parameters.P_Set);
@@ -98,14 +99,14 @@ package body Skel is
             when WSDL.Types.K_Simple =>
                --  Check for Base64 case
 
-               if WSDL.To_Type (T_Name) = WSDL.P_B64 then
+               if SOAP.WSDL.To_Type (T_Name) = P_B64 then
                   Text_IO.Put
                     (Skel_Adb,
                      " V (SOAP_Base64'(SOAP.Parameters.Get (Params, """);
                   Text_IO.Put      (Skel_Adb, To_String (N.Name));
                   Text_IO.Put_Line (Skel_Adb, """)));");
 
-               elsif WSDL.To_Type (T_Name) = WSDL.P_Character then
+               elsif SOAP.WSDL.To_Type (T_Name) = P_Character then
                   Text_IO.Put
                     (Skel_Adb,
                      " SOAP.Utils.Get (SOAP.Parameters.Argument (Params, """);
@@ -206,7 +207,7 @@ package body Skel is
         (Skel_Adb, "      return AWS.Response.Data");
       Text_IO.Put_Line (Skel_Adb, "   is");
 
-      if O.Style = WSDL.Schema.RPC then
+      if O.Style = SOAP.WSDL.Schema.RPC then
          Text_IO.Put_Line
            (Skel_Adb, "      Proc_Name : constant String");
          Text_IO.Put_Line
@@ -266,7 +267,7 @@ package body Skel is
 
       --  Then check the procedure name
 
-      if O.Style = WSDL.Schema.RPC then
+      if O.Style = SOAP.WSDL.Schema.RPC then
          if O.Debug then
             Text_IO.Put_Line
               (Skel_Adb,
@@ -334,7 +335,8 @@ package body Skel is
       while N /= null loop
          declare
             Q_Name : constant String :=
-                       Utils.To_Name (WSDL.Types.Name (N.Typ, NS => True));
+                       SOAP.Utils.To_Name
+                         (WSDL.Types.Name (N.Typ, NS => True));
             T_Name : constant String := WSDL.Types.Name (N.Typ);
          begin
             Text_IO.Put      (Skel_Adb, "         ");
@@ -387,7 +389,7 @@ package body Skel is
             case N.Mode is
                when WSDL.Types.K_Simple =>
                   Text_IO.Put_Line
-                    (Skel_Adb, WSDL.To_Ada (WSDL.To_Type (T_Name)));
+                    (Skel_Adb, SOAP.WSDL.To_Ada (SOAP.WSDL.To_Type (T_Name)));
                   Output_Parameters (N);
 
                when WSDL.Types.K_Enumeration =>
@@ -439,7 +441,8 @@ package body Skel is
          then
             Text_IO.Put_Line
               (Skel_Adb,
-               WSDL.To_Ada (WSDL.To_Type (WSDL.Types.Name (Output.Typ))));
+               SOAP.WSDL.To_Ada
+                 (SOAP.WSDL.To_Type (WSDL.Types.Name (Output.Typ))));
          else
             Text_IO.Put_Line
               (Skel_Adb, L_Proc & "_Result");
@@ -509,7 +512,8 @@ package body Skel is
                         --  A single simple parameter as return
 
                         Text_IO.Put
-                          (Skel_Adb, WSDL.Set_Routine (WSDL.To_Type (T_Name)));
+                          (Skel_Adb,
+                           SOAP.WSDL.Set_Routine (SOAP.WSDL.To_Type (T_Name)));
 
                         Text_IO.Put
                           (Skel_Adb,
@@ -521,8 +525,9 @@ package body Skel is
 
                         Text_IO.Put
                           (Skel_Adb,
-                           WSDL.Set_Routine
-                             (WSDL.To_Type (T_Name), Constrained => True));
+                           SOAP.WSDL.Set_Routine
+                             (SOAP.WSDL.To_Type (T_Name),
+                              Constrained => True));
 
                         Text_IO.Put
                           (Skel_Adb, " (Result."

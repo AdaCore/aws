@@ -29,7 +29,7 @@
 
 pragma Ada_2012;
 
-separate (SOAP.Generator)
+separate (WSDL2AWS.Generator)
 package body CB is
 
    Tmp_Adb  : Text_IO.File_Type; -- Temporary file with callback definitions
@@ -121,7 +121,7 @@ package body CB is
       Proc          : String;
       Documentation : String;
       SOAPAction    : String;
-      Namespace     : Name_Space.Object;
+      Namespace     : SOAP.Name_Space.Object;
       Input         : WSDL.Parameters.P_Set;
       Output        : WSDL.Parameters.P_Set;
       Fault         : WSDL.Parameters.P_Set)

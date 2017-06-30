@@ -27,67 +27,35 @@
 --  covered by the  GNU Public License.                                     --
 ------------------------------------------------------------------------------
 
---  This package provides services to handle WSDL
+separate (WSDL2AWS.Generator)
+package body Name_Set is
 
-with DOM.Core;
+   Set : array (1 .. 512) of Unbounded_String;
+   S   : Natural := 0;
 
-package SOAP.WSDL is
+   ---------
+   -- Add --
+   ---------
 
-   WSDL_Error : exception;
+   procedure Add (Name : String) is
+   begin
+      S := S + 1;
+      Set (S) := To_Unbounded_String (Name);
+   end Add;
 
-   type Object is new DOM.Core.Document;
+   ------------
+   -- Exists --
+   ------------
 
-   function Load (Filename : String) return Object;
-   --  Load and parse a WSDL document and return the XML tree representation
+   function Exists (Name : String) return Boolean is
+   begin
+      for K in 1 .. S loop
+         if To_String (Set (K)) = Name then
+            return True;
+         end if;
+      end loop;
 
-   type Parameter_Type is
-     (P_Long, P_Integer, P_Short, P_Byte, P_Float, P_Double, P_String,
-      P_Character, P_Boolean, P_Time, P_B64, P_Unsigned_Long, P_Unsigned_Int,
-      P_Unsigned_Short, P_Unsigned_Byte, P_Any_Type);
-   --  These are the types supported by the WSDL parser
+      return False;
+   end Exists;
 
-   function Is_Standard (XSD_Type : String) return Boolean;
-   --  Returns true is XSD_Type is a standard type (not an array or a record)
-
-   function To_Type (XSD_Type : String) return Parameter_Type;
-   --  Returns the Ada parameter style for the XML type XSD_Type
-
-   function From_Type (P : Parameter_Type) return String;
-   --  Returns the xsd type for the given parameter
-
-   function To_Ada
-     (P           : Parameter_Type;
-      Constrained : Boolean := False) return String;
-   --  Returns P's Ada type string representation
-
-   procedure From_Ada
-     (Ada_Type : String;
-      Result   : out WSDL.Parameter_Type;
-      Standard : out Boolean);
-   --  Set Result with the type corresponding to the Ada type name
-
-   function To_XSD (P : WSDL.Parameter_Type) return String;
-   --  Returns the XSD type corresponding to P
-
-   function V_Routine
-     (P           : Parameter_Type;
-      Constrained : Boolean := False) return String;
-   --  Returns the V routine to use to get value for a Parameter_Type
-
-   function Get_Routine
-     (P           : Parameter_Type;
-      Constrained : Boolean := False) return String;
-   --  Returns the Get routine to use to get value for a Parameter_Type
-
-   function Set_Routine
-     (P           : Parameter_Type;
-      Constrained : Boolean := False) return String;
-   function Set_Routine
-     (P           : String;
-      Constrained : Boolean := False) return String;
-   --  Returns the constructor to use to create a Parameter_Type
-
-   function Set_Type (P : Parameter_Type) return String;
-   --  Returns SOAP type for P
-
-end SOAP.WSDL;
+end Name_Set;

@@ -29,7 +29,7 @@
 
 with SOAP.Client;
 
-separate (SOAP.Generator)
+separate (WSDL2AWS.Generator)
 package body Stub is
 
    -----------------
@@ -95,12 +95,12 @@ package body Stub is
       Proc          : String;
       Documentation : String;
       SOAPAction    : String;
-      Namespace     : Name_Space.Object;
+      Namespace     : SOAP.Name_Space.Object;
       Input         : WSDL.Parameters.P_Set;
       Output        : WSDL.Parameters.P_Set;
       Fault         : WSDL.Parameters.P_Set)
    is
-      use type SOAP.WSDL.Parameters.P_Set;
+      use type WSDL.Parameters.P_Set;
 
       procedure Output_Parameter
         (K      : Positive;
@@ -299,7 +299,7 @@ package body Stub is
       -------------------
 
       procedure Output_Result (N : WSDL.Parameters.P_Set) is
-         use type WSDL.Parameter_Type;
+         use all type SOAP.WSDL.Parameter_Type;
          use type WSDL.Types.Kind;
       begin
          if N.Mode = WSDL.Types.K_Array then
@@ -323,7 +323,8 @@ package body Stub is
          else
 
             if N.Mode = WSDL.Types.K_Simple
-              and then WSDL.To_Type (WSDL.Types.Name (N.Typ)) = WSDL.P_String
+                 and then
+               SOAP.WSDL.To_Type (WSDL.Types.Name (N.Typ)) = P_String
             then
                --  First call operator to convert the string to an unbounded
                --  string.
@@ -356,16 +357,16 @@ package body Stub is
          Prefix : String;
          N      : WSDL.Parameters.P_Set)
       is
-         P_Type : constant WSDL.Parameter_Type :=
-                    WSDL.To_Type (WSDL.Types.Name (N.Typ));
+         P_Type : constant SOAP.WSDL.Parameter_Type :=
+                    SOAP.WSDL.To_Type (WSDL.Types.Name (N.Typ));
       begin
          if Prefix /= "" then
             --  Inside a record
             Text_IO.Put
               (Stub_Adb,
-               WSDL.Set_Routine (P_Type, Constrained => True));
+               SOAP.WSDL.Set_Routine (P_Type, Constrained => True));
          else
-            Text_IO.Put (Stub_Adb, WSDL.Set_Routine (P_Type));
+            Text_IO.Put (Stub_Adb, SOAP.WSDL.Set_Routine (P_Type));
          end if;
 
          Text_IO.Put
@@ -383,8 +384,8 @@ package body Stub is
 
       L_Proc : constant String := Format_Name (O, Proc);
 
-      use type Name_Space.Object;
-      use type WSDL.Parameter_Type;
+      use all type SOAP.WSDL.Parameter_Type;
+      use type SOAP.Name_Space.Object;
 
    begin
       --  Spec
@@ -429,14 +430,14 @@ package body Stub is
       Text_IO.Put
         (Stub_Adb, "        (""" & To_String (O.Prefix) & Proc & """, P_Set");
 
-      if Namespace = Name_Space.No_Name_Space then
+      if Namespace = SOAP.Name_Space.No_Name_Space then
          Text_IO.Put_Line (Stub_Adb, ");");
       else
          Text_IO.Put_Line (Stub_Adb, ",");
          Text_IO.Put_Line
            (Stub_Adb, "         SOAP.Name_Space.Create ("""
-            & Name_Space.Name (Namespace) & """, """
-            & Name_Space.Value (Namespace) & """));");
+            & SOAP.Name_Space.Name (Namespace) & """, """
+            & SOAP.Name_Space.Value (Namespace) & """));");
       end if;
 
       if O.Debug then
@@ -532,14 +533,14 @@ package body Stub is
 
                   when WSDL.Types.K_Simple =>
 
-                     if WSDL.To_Type (T_Name) = WSDL.P_B64 then
+                     if SOAP.WSDL.To_Type (T_Name) = P_B64 then
                         Text_IO.Put_Line
                           (Stub_Adb,
                            "V (SOAP_Base64'(SOAP.Parameters.Get "
                            & "(R_Param, """
                            & To_String (Output.Name) & """)));");
 
-                     elsif WSDL.To_Type (T_Name) = WSDL.P_Character then
+                     elsif SOAP.WSDL.To_Type (T_Name) = P_Character then
                         Text_IO.Put
                           (Stub_Adb,
                            " SOAP.Utils.Get "

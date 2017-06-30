@@ -31,8 +31,9 @@ with Ada.Text_IO;
 with Ada.Unchecked_Deallocation;
 
 with AWS.Utils;
+with SOAP.WSDL;
 
-package body SOAP.WSDL.Parameters is
+package body WSDL2AWS.WSDL.Parameters is
 
    ------------
    -- Append --
@@ -129,7 +130,8 @@ package body SOAP.WSDL.Parameters is
                Text_IO.Put ("[simple] " & Min_Max);
                Text_IO.Put_Line
                  (To_String (P.Name) & " ; "
-                  & To_Ada (To_Type (Types.Name (P.Typ))));
+                  & SOAP.WSDL.To_Ada
+                      (SOAP.WSDL.To_Type (Types.Name (P.Typ))));
 
             else
                declare
@@ -196,4 +198,4 @@ package body SOAP.WSDL.Parameters is
         (Def, Object, Name, Type_Name, WSDL.Types.Both_Value, Is_Uniq (P), NS);
    end To_SOAP;
 
-end SOAP.WSDL.Parameters;
+end WSDL2AWS.WSDL.Parameters;

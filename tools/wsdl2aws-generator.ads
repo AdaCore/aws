@@ -30,20 +30,19 @@
 with AWS.Client;
 
 with SOAP.Name_Space;
-with SOAP.WSDL.Parameters;
-with SOAP.WSDL.Parser;
+
+with WSDL2AWS.WSDL.Parameters;
+with WSDL2AWS.WSDL.Parser;
 
 private with Ada.Strings.Unbounded;
 
-package SOAP.Generator is
+package WSDL2AWS.Generator is
 
    use AWS;
 
-   Version : constant String := "3.0.0";
-
    Generator_Error : exception;
 
-   type Object is new SOAP.WSDL.Parser.Object with private;
+   type Object is new WSDL2AWS.WSDL.Parser.Object with private;
 
    overriding procedure Start_Service
      (O                  : in out Object;
@@ -63,7 +62,7 @@ package SOAP.Generator is
       Proc          : String;
       Documentation : String;
       SOAPAction    : String;
-      Namespace     : Name_Space.Object;
+      Namespace     : SOAP.Name_Space.Object;
       Input         : WSDL.Parameters.P_Set;
       Output        : WSDL.Parameters.P_Set;
       Fault         : WSDL.Parameters.P_Set);
@@ -160,7 +159,7 @@ private
 
    use Ada.Strings.Unbounded;
 
-   type Object is new SOAP.WSDL.Parser.Object with record
+   type Object is new WSDL2AWS.WSDL.Parser.Object with record
       Quiet      : Boolean := False;
       Gen_Stub   : Boolean := True;
       Gen_Skel   : Boolean := True;
@@ -186,4 +185,4 @@ private
       Timeouts   : Client.Timeouts_Values := Client.No_Timeout;
    end record;
 
-end SOAP.Generator;
+end WSDL2AWS.Generator;

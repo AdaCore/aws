@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2003-2012, AdaCore                     --
+--                       Copyright (C) 2017, AdaCore                        --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -27,35 +27,7 @@
 --  covered by the  GNU Public License.                                     --
 ------------------------------------------------------------------------------
 
-separate (SOAP.Generator)
-package body Name_Set is
+pragma Ada_2012;
 
-   Set : array (1 .. 512) of Unbounded_String;
-   S   : Natural := 0;
-
-   ---------
-   -- Add --
-   ---------
-
-   procedure Add (Name : String) is
-   begin
-      S := S + 1;
-      Set (S) := To_Unbounded_String (Name);
-   end Add;
-
-   ------------
-   -- Exists --
-   ------------
-
-   function Exists (Name : String) return Boolean is
-   begin
-      for K in 1 .. S loop
-         if To_String (Set (K)) = Name then
-            return True;
-         end if;
-      end loop;
-
-      return False;
-   end Exists;
-
-end Name_Set;
+package WSDL2AWS.WSDL with Pure is
+end WSDL2AWS.WSDL;

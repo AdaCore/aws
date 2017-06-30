@@ -28,18 +28,20 @@ with GNAT.String_Split;
 
 with AWS.Client;
 with AWS.Response;
-with SOAP.Generator;
 with SOAP.Name_Space;
-with SOAP.WSDL.Parser;
+with SOAP.WSDL;
 
-procedure WSDL2AWS is
+with WSDL2AWS.Generator;
+with WSDL2AWS.WSDL.Parser;
+
+procedure WSDL2AWS.Main is
 
    use Ada.Exceptions;
    use Ada.Strings.Unbounded;
    use GNAT;
 
    use AWS;
-   use type SOAP.WSDL.Parser.Verbose_Level;
+   use type WSDL2AWS.WSDL.Parser.Verbose_Level;
 
    Syntax_Error : exception;
 
@@ -50,7 +52,7 @@ procedure WSDL2AWS is
    --  Get WSDL document pointed to by URL, returns the name of the local
    --  filename.
 
-   Gen : SOAP.Generator.Object;
+   Gen : Generator.Object;
    Def : SOAP.WSDL.Object;
 
    Filename     : Unbounded_String;
@@ -61,7 +63,7 @@ procedure WSDL2AWS is
 
    WSDL_Des     : Boolean := False;
 
-   Verbose      : SOAP.WSDL.Parser.Verbose_Level := 0;
+   Verbose      : WSDL2AWS.WSDL.Parser.Verbose_Level := 0;
 
    Gen_CB       : Boolean := False;
    Types        : Boolean := False;
@@ -136,7 +138,7 @@ procedure WSDL2AWS is
          end if;
       end loop;
 
-      SOAP.Generator.Options (Gen, To_String (All_Options));
+      Generator.Options (Gen, To_String (All_Options));
 
       --  Now parse arguments
 
@@ -148,17 +150,17 @@ procedure WSDL2AWS is
             when ASCII.NUL => exit;
 
             when 'q' =>
-               SOAP.Generator.Quiet (Gen);
+               Generator.Quiet (Gen);
 
             when 'a' =>
-               SOAP.Generator.Ada_Style (Gen);
+               Generator.Ada_Style (Gen);
 
             when 'e' =>
-               SOAP.Generator.Endpoint (Gen, GNAT.Command_Line.Parameter);
+               Generator.Endpoint (Gen, GNAT.Command_Line.Parameter);
 
             when 'f' =>
                Force := True;
-               SOAP.Generator.Overwrite (Gen);
+               Generator.Overwrite (Gen);
 
             when 'o' =>
                Out_Filename
@@ -166,22 +168,23 @@ procedure WSDL2AWS is
 
             when 'd' =>
                if Command_Line.Full_Switch = "doc" then
-                  SOAP.WSDL.Parser.Accept_Document (Gen);
+                  WSDL2AWS.WSDL.Parser.Accept_Document (Gen);
                elsif Command_Line.Full_Switch = "d" then
-                  SOAP.Generator.Disable_Time_Stamp (Gen);
+                  Generator.Disable_Time_Stamp (Gen);
                elsif Command_Line.Full_Switch = "debug" then
-                  SOAP.Generator.Debug (Gen);
+                  Generator.Debug (Gen);
                else
                   raise Syntax_Error;
                end if;
 
             when 's' =>
                if Command_Line.Full_Switch = "spec" then
-                  SOAP.Generator.Specs_From (Gen, GNAT.Command_Line.Parameter);
+                  Generator.Specs_From
+                    (Gen, GNAT.Command_Line.Parameter);
                   Spec := True;
 
                elsif Command_Line.Full_Switch = "s" then
-                  SOAP.WSDL.Parser.Continue_On_Error;
+                  WSDL2AWS.WSDL.Parser.Continue_On_Error;
 
                else
                   raise Syntax_Error;
@@ -189,7 +192,7 @@ procedure WSDL2AWS is
 
             when 'v' =>
                Verbose := Verbose + 1;
-               SOAP.WSDL.Parser.Verbose (Verbose);
+               WSDL2AWS.WSDL.Parser.Verbose (Verbose);
 
             when 'w' =>
                if Command_Line.Full_Switch = "wsdl" then
@@ -200,10 +203,10 @@ procedure WSDL2AWS is
 
             when 'c' =>
                if Command_Line.Full_Switch = "cvs" then
-                  SOAP.Generator.CVS_Tag (Gen);
+                  Generator.CVS_Tag (Gen);
 
                elsif Command_Line.Full_Switch = "cb" then
-                  SOAP.Generator.Gen_CB (Gen);
+                  Generator.Gen_CB (Gen);
                   Gen_CB := True;
 
                else
@@ -212,7 +215,7 @@ procedure WSDL2AWS is
 
             when 'm' =>
                if Command_Line.Full_Switch = "main" then
-                  SOAP.Generator.Main (Gen, GNAT.Command_Line.Parameter);
+                  Generator.Main (Gen, GNAT.Command_Line.Parameter);
                   Main := True;
 
                else
@@ -221,10 +224,10 @@ procedure WSDL2AWS is
 
             when 'n' =>
                if Command_Line.Full_Switch = "nostub" then
-                  SOAP.Generator.No_Stub (Gen);
+                  Generator.No_Stub (Gen);
 
                elsif Command_Line.Full_Switch = "noskel" then
-                  SOAP.Generator.No_Skel (Gen);
+                  Generator.No_Skel (Gen);
 
                elsif Command_Line.Full_Switch = "n" then
                   SOAP.Name_Space.Set_AWS_NS
@@ -245,7 +248,8 @@ procedure WSDL2AWS is
                   Pp := To_Unbounded_String (GNAT.Command_Line.Parameter);
 
                elsif Command_Line.Full_Switch = "p" then
-                  SOAP.Generator.Set_Prefix (Gen, GNAT.Command_Line.Parameter);
+                  Generator.Set_Prefix
+                    (Gen, GNAT.Command_Line.Parameter);
 
                else
                   raise Syntax_Error;
@@ -253,7 +257,8 @@ procedure WSDL2AWS is
 
             when 't' =>
                if Command_Line.Full_Switch = "types" then
-                  SOAP.Generator.Types_From (Gen, GNAT.Command_Line.Parameter);
+                  Generator.Types_From
+                    (Gen, GNAT.Command_Line.Parameter);
                   Types := True;
 
                elsif Command_Line.Full_Switch = "timeouts" then
@@ -266,7 +271,7 @@ procedure WSDL2AWS is
 
                      case String_Split.Slice_Count (Slices) is
                         when 1 =>
-                           SOAP.Generator.Set_Timeouts
+                           Generator.Set_Timeouts
                              (Gen,
                               Client.Timeouts
                                 (Connect => Duration'Value (Slice (Slices, 1)),
@@ -274,7 +279,7 @@ procedure WSDL2AWS is
                                  Receive => Duration'Value
                                    (Slice (Slices, 1))));
                         when 3 =>
-                           SOAP.Generator.Set_Timeouts
+                           Generator.Set_Timeouts
                              (Gen,
                               Client.Timeouts
                                 (Connect => Duration'Value (Slice (Slices, 1)),
@@ -282,7 +287,7 @@ procedure WSDL2AWS is
                                  Receive => Duration'Value
                                    (Slice (Slices, 3))));
                         when 4 =>
-                           SOAP.Generator.Set_Timeouts
+                           Generator.Set_Timeouts
                              (Gen,
                               Client.Timeouts
                                 (Connect  => Duration'Value
@@ -304,7 +309,7 @@ procedure WSDL2AWS is
                end if;
 
             when 'x' =>
-               SOAP.Generator.Exclude (Gen, GNAT.Command_Line.Parameter);
+               Generator.Exclude (Gen, GNAT.Command_Line.Parameter);
 
             when others =>
                raise Program_Error;
@@ -330,7 +335,7 @@ begin
       end if;
 
    elsif Proxy /= Null_Unbounded_String then
-      SOAP.Generator.Set_Proxy
+      Generator.Set_Proxy
         (Gen, To_String (Proxy), To_String (Pu), To_String (Pp));
 
    end if;
@@ -365,7 +370,7 @@ begin
    --  Set WSDL file
 
    if WSDL_Des then
-      SOAP.Generator.WSDL_File (Gen, To_String (Filename));
+      Generator.WSDL_File (Gen, To_String (Filename));
    end if;
 
    --  Load WSDL document, return it
@@ -374,14 +379,14 @@ begin
 
    --  Parse the document and generate the code
 
-   SOAP.WSDL.Parser.Parse (Gen, Def);
+   WSDL2AWS.WSDL.Parser.Parse (Gen, Def);
 
    Ada.Command_Line.Set_Exit_Status (Ada.Command_Line.Success);
 
 exception
    when Syntax_Error | Command_Line.Invalid_Switch =>
       New_Line;
-      Put_Line ("wsdl2aws SOAP Generator v" & SOAP.Generator.Version);
+      Put_Line ("wsdl2aws SOAP Generator v" & Version);
       New_Line;
       Put_Line ("Usage: wsdl2aws [options] <file|URL>");
       Put_Line ("   -q           Quiet mode");
@@ -421,9 +426,9 @@ exception
 
    when E : others =>
       New_Line;
-      Put_Line ("wsdl2aws SOAP Generator v" & SOAP.Generator.Version);
+      Put_Line ("wsdl2aws SOAP Generator v" & Version);
       New_Line;
       Put_Line ("Error: " & Exception_Information (E));
       New_Line;
       Ada.Command_Line.Set_Exit_Status (Ada.Command_Line.Failure);
-end WSDL2AWS;
+end WSDL2AWS.Main;

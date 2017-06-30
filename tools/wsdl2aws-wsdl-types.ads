@@ -32,7 +32,7 @@ with Ada.Strings.Unbounded;
 with SOAP.Name_Space;
 with SOAP.WSDL.Schema;
 
-package SOAP.WSDL.Types is
+package WSDL2AWS.WSDL.Types is
 
    use Ada.Strings.Unbounded;
 
@@ -40,14 +40,15 @@ package SOAP.WSDL.Types is
 
    type Object is private;
 
-   function Create (Name : String; NS : Name_Space.Object) return Object;
+   function Create
+     (Name : String; NS : SOAP.Name_Space.Object) return Object;
    --  Create a full reference for a type
 
    function Name (O : Object; NS : Boolean := False) return String;
    --  Returns the name of the type, qualified with the name-space if NS
    --  is true.
 
-   function NS (O : Object) return Name_Space.Object;
+   function NS (O : Object) return SOAP.Name_Space.Object;
    --  Retrurns the name-space for the type
 
    --  Kind of types
@@ -174,7 +175,7 @@ package SOAP.WSDL.Types is
    --  Set constaints from the type hierarchy
 
    function From_SOAP
-     (Def          : WSDL.Types.Definition;
+     (Def          : Definition;
       Object       : String;
       Type_Name    : String := "";
       Is_SOAP_Type : Boolean := False;
@@ -199,20 +200,20 @@ package SOAP.WSDL.Types is
    --  generated otherwise it is the variable name visible in the scope of
    --  the generated code.
 
-   function Get_Schema_Definition return WSDL.Schema.Definition;
+   function Get_Schema_Definition return SOAP.WSDL.Schema.Definition;
    --  Get the schema definition part for types defined in the WSDL
 
 private
 
    type Object is record
       Name : Unbounded_String;
-      NS   : Name_Space.Object;
+      NS   : SOAP.Name_Space.Object;
    end record;
 
    No_Type : constant Object :=
-               (Null_Unbounded_String, Name_Space.No_Name_Space);
+               (Null_Unbounded_String, SOAP.Name_Space.No_Name_Space);
 
    No_Definition : constant Definition :=
                      (K_Enumeration, No_Type, null);
 
-end SOAP.WSDL.Types;
+end WSDL2AWS.WSDL.Types;

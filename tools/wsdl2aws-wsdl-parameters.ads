@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2003-2016, AdaCore                     --
+--                     Copyright (C) 2003-2017, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -29,9 +29,9 @@
 
 with Ada.Strings.Unbounded;
 
-with SOAP.WSDL.Types;
+with WSDL2AWS.WSDL.Types;
 
-package SOAP.WSDL.Parameters is
+package WSDL2AWS.WSDL.Parameters is
 
    use Ada.Strings.Unbounded;
    use type WSDL.Types.Kind;
@@ -100,4 +100,4 @@ package SOAP.WSDL.Parameters is
    --  Is_SOAP_Type is true if Object is alreay a SOAP types object. So there
    --  is no need for a convertion in this context.
 
-end SOAP.WSDL.Parameters;
+end WSDL2AWS.WSDL.Parameters;

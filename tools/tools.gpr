@@ -32,10 +32,16 @@ project Tools is
 
    case Shared.XMLAda is
       when "Installed" =>
-         for Main use project'Main & ("wsdl2aws.adb");
+         for Main use project'Main & ("wsdl2aws-main.adb");
       when "Disabled" =>
-         for Locally_Removed_Files use
-           Project'Locally_Removed_Files & ("wsdl2aws.adb");
+         for Locally_Removed_Files use Project'Locally_Removed_Files &
+           ("wsdl2aws.ads", "wsdl2aws-generator.adb", "wsdl2aws-generator.ads",
+            "wsdl2aws-generator-cb.adb", "wsdl2aws-generator-name_set.adb",
+            "wsdl2aws-generator-skel.adb", "wsdl2aws-generator-stub.adb",
+            "wsdl2aws-main.adb", "wsdl2aws-wsdl-parameters.adb",
+            "wsdl2aws-wsdl-parameters.ads", "wsdl2aws-wsdl-parser.adb",
+            "wsdl2aws-wsdl-parser.ads", "wsdl2aws-wsdl-types.adb",
+            "wsdl2aws-wsdl-types.ads");
    end case;
 
    case Shared.ASIS is
@@ -81,6 +87,7 @@ project Tools is
    package Builder is
       for Switches (others) use Shared.Builder'Switches (others);
       for Executable ("ada2wsdl-main.adb") use "ada2wsdl";
+      for Executable ("wsdl2aws-main.adb") use "wsdl2aws";
    end Builder;
 
    ---------

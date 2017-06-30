@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2003-2015, AdaCore                     --
+--                     Copyright (C) 2003-2017, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -29,16 +29,17 @@
 
 with SOAP.Name_Space;
 with SOAP.Types;
-with SOAP.WSDL.Parameters;
 with SOAP.WSDL.Schema;
+
+with WSDL2AWS.WSDL.Parameters;
 
 private with Ada.Strings.Unbounded;
 private with Ada.Containers.Indefinite_Ordered_Sets;
-private with SOAP.WSDL.Types;
+private with WSDL2AWS.WSDL.Types;
 
-package SOAP.WSDL.Parser is
+package WSDL2AWS.WSDL.Parser is
 
-   WSDL_Error : exception renames WSDL.WSDL_Error;
+   WSDL_Error : exception renames SOAP.WSDL.WSDL_Error;
 
    type Parameter_Mode is (Input, Output, Fault);
    --  Kind of parameters in the WSDL
@@ -67,7 +68,7 @@ package SOAP.WSDL.Parser is
       Proc          : String;
       Documentation : String;
       SOAPAction    : String;
-      Namespace     : Name_Space.Object;
+      Namespace     : SOAP.Name_Space.Object;
       Input         : Parameters.P_Set;
       Output        : Parameters.P_Set;
       Fault         : Parameters.P_Set) is null;
@@ -76,7 +77,7 @@ package SOAP.WSDL.Parser is
 
    procedure Parse
      (O        : in out Object'Class;
-      Document : WSDL.Object);
+      Document : SOAP.WSDL.Object);
    --  Parse document, call routines above
 
    -------------------
@@ -101,11 +102,12 @@ package SOAP.WSDL.Parser is
    procedure Exclude (O : in out Object; Operation : String);
    --  Register operation to be excluded from the code generation
 
-   function Style (O : Object'Class) return WSDL.Schema.Binding_Style;
+   function Style (O : Object'Class) return SOAP.WSDL.Schema.Binding_Style;
    --  Returns the binding style for the parsed WSDL
 
    function Encoding
-     (O : Object'Class; Kind : Parameter_Mode) return Types.Encoding_Style;
+     (O : Object'Class; Kind : Parameter_Mode)
+      return SOAP.Types.Encoding_Style;
    --  Returns the encoding style for the proc
 
    function xsd (O : Object'Class) return SOAP.Name_Space.Object;
@@ -136,7 +138,7 @@ private
       Proc            : Unbounded_String; -- SOAP procedure name
       Documentation   : Unbounded_String; -- Associated documentation
       SOAPAction      : Unbounded_String; -- SOAPAction string
-      Namespace       : Name_Space.Object;
+      Namespace       : SOAP.Name_Space.Object;
       Mode            : Parameter_Mode;   -- Current parameter parsing mode
       Params          : All_Parameters;   -- All parameters
       Current_Name    : Unbounded_String; -- Current parameter name
@@ -147,15 +149,17 @@ private
       Accept_Document : Boolean := False;
       Exclude         : Name_Set.Set;     -- Operation to exclude from gen
       No_Param        : Boolean := False; -- Disable param generation
-      Style           : WSDL.Schema.Binding_Style := SOAP.WSDL.Schema.RPC;
+      Style           : SOAP.WSDL.Schema.Binding_Style := SOAP.WSDL.Schema.RPC;
       --  Input/Output encoding
-      I_Encoding      : WSDL.Schema.Encoding_Style := WSDL.Schema.Encoded;
-      O_Encoding      : WSDL.Schema.Encoding_Style := WSDL.Schema.Encoded;
+      I_Encoding      : SOAP.WSDL.Schema.Encoding_Style :=
+                          SOAP.WSDL.Schema.Encoded;
+      O_Encoding      : SOAP.WSDL.Schema.Encoding_Style :=
+                          SOAP.WSDL.Schema.Encoded;
       --  Name-spaces as defined in WSDL definition node
-      xsd             : Name_Space.Object := Name_Space.XSD;
-      xsi             : Name_Space.Object := Name_Space.XSI;
-      env             : Name_Space.Object := Name_Space.SOAPENV;
-      enc             : Name_Space.Object := Name_Space.SOAPENC;
+      xsd             : SOAP.Name_Space.Object := SOAP.Name_Space.XSD;
+      xsi             : SOAP.Name_Space.Object := SOAP.Name_Space.XSI;
+      env             : SOAP.Name_Space.Object := SOAP.Name_Space.SOAPENV;
+      enc             : SOAP.Name_Space.Object := SOAP.Name_Space.SOAPENC;
    end record;
 
-end SOAP.WSDL.Parser;
+end WSDL2AWS.WSDL.Parser;
