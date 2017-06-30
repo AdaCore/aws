@@ -321,6 +321,15 @@ package body SOAP.Generator is
       O.Debug := True;
    end Debug;
 
+   ------------------------
+   -- Disable_Time_Stamp --
+   ------------------------
+
+   procedure Disable_Time_Stamp (O : in out Object) is
+   begin
+      O.Stamp := False;
+   end Disable_Time_Stamp;
+
    -----------------
    -- End_Service --
    -----------------
@@ -735,7 +744,11 @@ package body SOAP.Generator is
       Text_IO.Put_Line (File, "--  wsdl2aws SOAP Generator v" & Version);
       Text_IO.Put_Line (File, "--");
       Text_IO.Put_Line (File, Version_String);
-      Text_IO.Put_Line (File, Time_Stamp);
+
+      if O.Stamp then
+         Text_IO.Put_Line (File, Time_Stamp);
+      end if;
+
       Text_IO.Put_Line (File, "--");
       Text_IO.Put_Line (File, "--  $ wsdl2aws " & To_String (O.Options));
       Text_IO.New_Line (File);

@@ -153,6 +153,9 @@ package SOAP.Generator is
    procedure Debug (O : in out Object);
    --  Activate the debug code generator
 
+   procedure Disable_Time_Stamp (O : in out Object);
+   --  De not generate time-stamp
+
 private
 
    use Ada.Strings.Unbounded;
@@ -167,6 +170,7 @@ private
       Force      : Boolean := False;
       First_Proc : Boolean := True;
       Debug      : Boolean := False;
+      Stamp      : Boolean := True;
       Unit       : Unbounded_String;
       Spec       : Unbounded_String;
       Types_Spec : Unbounded_String;

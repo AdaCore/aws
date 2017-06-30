@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2003-2015, AdaCore                     --
+--                     Copyright (C) 2003-2017, AdaCore                     --
 --                                                                          --
 --  This is free software;  you can redistribute it  and/or modify it       --
 --  under terms of the  GNU General Public License as published  by the     --
@@ -143,7 +143,7 @@ procedure WSDL2AWS is
       loop
          case Command_Line.Getopt
            ("d q a e: f v s o: p: proxy: pu: pp: doc wsdl cvs nostub noskel "
-            & "x: cb types: spec: main: n: timeouts:")
+            & "x: debug cb types: spec: main: n: timeouts:")
          is
             when ASCII.NUL => exit;
 
@@ -168,6 +168,8 @@ procedure WSDL2AWS is
                if Command_Line.Full_Switch = "doc" then
                   SOAP.WSDL.Parser.Accept_Document (Gen);
                elsif Command_Line.Full_Switch = "d" then
+                  SOAP.Generator.Disable_Time_Stamp (Gen);
+               elsif Command_Line.Full_Switch = "debug" then
                   SOAP.Generator.Debug (Gen);
                else
                   raise Syntax_Error;
@@ -383,7 +385,8 @@ exception
       New_Line;
       Put_Line ("Usage: wsdl2aws [options] <file|URL>");
       Put_Line ("   -q           Quiet mode");
-      Put_Line ("   -d           Generate debug code");
+      Put_Line ("   -d           no date/time stamp in generated sources");
+      Put_Line ("   -debug       Generate debug code");
       Put_Line ("   -a           Ada style identifiers");
       Put_Line ("   -f           Force files creation stub/skeleton/types");
       Put_Line ("   -e URL       Endpoint to use");
