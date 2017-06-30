@@ -58,12 +58,6 @@ package body SOAP.Generator is
    --  Returns Name formated with the Ada style if O.Ada_Style is true and
    --  Name unchanged otherwise.
 
-   function Time_Stamp return String;
-   --  Returns a time stamp Ada comment line
-
-   function Version_String return String;
-   --  Returns a version string Ada comment line
-
    procedure Put_File_Header (O : Object; File : Text_IO.File_Type);
    --  Add a standard file header into file
 
@@ -710,6 +704,32 @@ package body SOAP.Generator is
    ---------------------
 
    procedure Put_File_Header (O : Object; File : Text_IO.File_Type) is
+
+      function Time_Stamp return String;
+      --  Returns a time stamp Ada comment line
+
+      function Version_String return String;
+      --  Returns a version string Ada comment line
+
+      ----------------
+      -- Time_Stamp --
+      ----------------
+
+      function Time_Stamp return String is
+      begin
+         return "--  This file was generated on "
+           & GNAT.Calendar.Time_IO.Image
+           (Ada.Calendar.Clock, "%A %d %B %Y at %T");
+      end Time_Stamp;
+      --------------------
+      -- Version_String --
+      --------------------
+
+      function Version_String return String is
+      begin
+         return "--  AWS " & AWS.Version & " - SOAP " & SOAP.Version;
+      end Version_String;
+
    begin
       Text_IO.New_Line (File);
       Text_IO.Put_Line (File, "--  wsdl2aws SOAP Generator v" & Version);
@@ -4294,17 +4314,6 @@ package body SOAP.Generator is
 
    package body Stub is separate;
 
-   ----------------
-   -- Time_Stamp --
-   ----------------
-
-   function Time_Stamp return String is
-   begin
-      return "--  This file was generated on "
-        & GNAT.Calendar.Time_IO.Image
-            (Ada.Calendar.Clock, "%A %d %B %Y at %T");
-   end Time_Stamp;
-
    ------------------
    -- To_Unit_Name --
    ------------------
@@ -4343,15 +4352,6 @@ package body SOAP.Generator is
          return "";
       end if;
    end Types_Spec;
-
-   --------------------
-   -- Version_String --
-   --------------------
-
-   function Version_String return String is
-   begin
-      return "--  AWS " & AWS.Version & " - SOAP " & SOAP.Version;
-   end Version_String;
 
    ---------------
    -- With_Unit --
