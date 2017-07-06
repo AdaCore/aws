@@ -31,6 +31,7 @@ pragma Ada_2012;
 
 with Ada.Calendar;
 with Ada.Exceptions;
+with Ada.Strings.Fixed;
 with Ada.Text_IO;
 
 with GNAT.Calendar.Time_IO;
@@ -337,14 +338,28 @@ package body AWS.SMTP.Client is
    -------------------------
 
    procedure Put_Translated_Line
-     (Sock : Net.Socket_Type'Class;
-      Text : String) is
+     (Sock : Net.Socket_Type'Class; Text : String)
+   is
+      use Ada.Strings;
+      First  : Natural := Text'First;
+      LF_Dot : Natural;
    begin
       if Text'Length > 0 and then Text (Text'First) = '.' then
          Net.Buffered.Put (Sock, ".");
       end if;
 
-      Net.Buffered.Put_Line (Sock, Text);
+      loop
+         LF_Dot := Fixed.Index (Text, ASCII.LF & '.', First);
+         exit when LF_Dot = 0;
+
+         Net.Buffered.Put (Sock, Text (First .. LF_Dot + 1));
+
+         --  Write dot after line feed twice
+
+         First := LF_Dot + 1;
+      end loop;
+
+      Net.Buffered.Put_Line (Sock, Text (First .. Text'Last));
    end Put_Translated_Line;
 
    ----------

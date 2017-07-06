@@ -4,7 +4,9 @@ To           John Doe <john.doe@nothere.net>
 Subject      First message
 Content-Type 
 First message body
-
+.
+.al
+..br
 
 xxxxxxxxxxxxxxxxxxxxxxxxxxxxxx 2
 From         My Name <my.name@righthere.fr>

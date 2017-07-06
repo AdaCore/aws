@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2008-2015, AdaCore                     --
+--                     Copyright (C) 2008-2017, AdaCore                     --
 --                                                                          --
 --  This is free software;  you can redistribute it  and/or modify it       --
 --  under terms of the  GNU General Public License as published  by the     --
@@ -48,6 +48,7 @@ procedure SMTP_2 is
    Status : SMTP.Status;
    Attac  : Attachments.List;
    Alter  : Attachments.Alternatives;
+   EOL    : constant String := ASCII.CR & ASCII.LF;
 
 begin
    Get_Free_Port (Port);
@@ -73,7 +74,7 @@ begin
       From    => SMTP.E_Mail ("Pascal Obry", "obry@nowhere.org"),
       To      => SMTP.E_Mail ("John Doe", "john.doe@nothere.net"),
       Subject => "First message",
-      Message => "First message body",
+      Message => "First message body" & EOL & "." & EOL & ".al" & EOL & "..br",
       Status  => Status);
 
    SMTP_Pck.Callback.Wait; Text_IO.Flush;

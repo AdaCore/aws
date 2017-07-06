@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2008-2015, AdaCore                     --
+--                     Copyright (C) 2008-2017, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -114,12 +114,6 @@ package body AWS.SMTP.Server is
       -----------------------
 
       procedure Read_Message_Body is
-
-         State : Natural range 0 .. 2 := 0;
-         --  State = 1 when first CRLF (empty line) has been read, 2 when a
-         --  dot ('.' & CRLF) has been read. When state = 2 we have reach the
-         --  end of the message.
-
       begin
          Read_Message_Header : loop
             declare
@@ -135,27 +129,20 @@ package body AWS.SMTP.Server is
             end;
          end loop Read_Message_Header;
 
+         --  https://tools.ietf.org/html/rfc5321#section-4.5.2
+
          Read_Message : loop
             declare
-               Line : constant String := Net.Buffered.Get_Line (Sock);
+               Line  : constant String := Net.Buffered.Get_Line (Sock);
+               First : Natural := Line'First;
             begin
-               if State = 0 and then Line = Empty_Line then
-                  State := State + 1;
+               exit Read_Message when Line = ".";
 
-               elsif State = 1 and then Line = "." then
-                  exit Read_Message;
-
-               else
-                  case State is
-                     when 0 => null;
-                     when 1 => Append (Message_Body, CRLF);
-                     when others => raise Constraint_Error;
-                  end case;
-
-                  State := 0;
+               if Line'Length > 0 and then Line (Line'First) = '.' then
+                  First := First + 1;
                end if;
 
-               Append (Message_Body, Line & CRLF);
+               Append (Message_Body, Line (First .. Line'Last) & CRLF);
             end;
          end loop Read_Message;
       end Read_Message_Body;
