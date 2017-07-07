@@ -1234,7 +1234,8 @@ package body SOAP.Message.XML is
          end if;
 
       else
-         xsd := To_Unbounded_String (Get_Schema_Type (Key, S.Schema, S.NS));
+         xsd := To_Unbounded_String
+                  (Get_Schema_Type (Key, S.Schema, S.NS, ""));
       end if;
 
       NS := Get_Namespace_Object (S.NS, Utils.NS (To_String (xsd)));
