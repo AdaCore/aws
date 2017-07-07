@@ -29,6 +29,8 @@
 
 pragma Ada_2012;
 
+with Ada.Calendar.Formatting;
+with Ada.Calendar.Time_Zones;
 with Ada.Float_Text_IO;
 with Ada.Long_Float_Text_IO;
 with Ada.Strings.Fixed;
@@ -1289,8 +1291,16 @@ package body SOAP.Types is
    end V;
 
    function V (O : XSD_Time_Instant) return Calendar.Time is
+      package ACF renames Ada.Calendar.Formatting;
    begin
-      return O.T;
+      return ACF.Time_Of
+        (Year      => Calendar.Year (O.T),
+         Month     => Calendar.Month (O.T),
+         Day       => Calendar.Day (O.T),
+         Hour      => ACF.Hour (O.T),
+         Minute    => ACF.Minute (O.T),
+         Second    => ACF.Second (O.T),
+         Time_Zone => Calendar.Time_Zones.Time_Offset (O.Timezone));
    end V;
 
    function V (O : XSD_Unsigned_Long) return Unsigned_Long is
