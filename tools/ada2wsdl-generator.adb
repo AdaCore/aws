@@ -468,11 +468,12 @@ package body Ada2WSDL.Generator is
    -- Start_Routine --
    -------------------
 
-   procedure Start_Routine (Name, Comment : String) is
+   procedure Start_Routine (NS, Name, Comment : String) is
       D : Definition (Routine);
    begin
       Check_Routine (Name);
 
+      D.NS := +NS;
       D.Name := +Name;
 
       API.Append (D);
