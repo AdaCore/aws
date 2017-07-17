@@ -885,7 +885,7 @@ package body Ada2WSDL.Generator is
          procedure Write_Enumeration (E : Definition);
          --  Write an enumeration type definition (simpleType)
 
-         procedure Generate_Element;
+         procedure Generate_Element (E : Definition);
          --  Write the Element for document style binding
 
          procedure Write_Schema_For (NS : String);
@@ -895,7 +895,7 @@ package body Ada2WSDL.Generator is
          -- Generate_Element --
          ----------------------
 
-         procedure Generate_Element is
+         procedure Generate_Element (E : Definition) is
 
             procedure Check_Message (R : Definition)
               with Pre => R.Def_Mode = Routine;
@@ -937,13 +937,7 @@ package body Ada2WSDL.Generator is
             end Check_Message;
 
          begin
-            Text_IO.New_Line;
-
-            for A of API loop
-               if A.Def_Mode = Routine then
-                  Check_Message (A);
-               end if;
-            end loop;
+            Check_Message (E);
          end Generate_Element;
 
          -----------------
@@ -1026,16 +1020,11 @@ package body Ada2WSDL.Generator is
             Put ("         targetNamespace=""" & NS & '"');
             Put_Line (">");
 
-            --  Output document/style element
-
-            if Options.Document then
-               Generate_Element;
-            end if;
-
             --  Output all structures
 
             for A of API loop
-               if A.Def_Mode in Structure | Table | Simple_Type | Enumeration
+               if A.Def_Mode in Structure | Table | Simple_Type
+                 | Enumeration | Routine
                  and then -A.NS = NS
                then
                   case A.Def_Mode is
@@ -1043,8 +1032,12 @@ package body Ada2WSDL.Generator is
                      when Table       => Write_Array (A);
                      when Simple_Type => Write_Type (A);
                      when Enumeration => Write_Enumeration (A);
+                     when Routine     =>
+                        if Options.Document then
+                           Generate_Element (A);
+                        end if;
 
-                     when Safe_Pointer_Definition | Routine =>
+                     when Safe_Pointer_Definition =>
                         null;
                   end case;
                end if;
@@ -1095,7 +1088,13 @@ package body Ada2WSDL.Generator is
                      if not Schemas.Contains (-A.NS) then
                         Schemas.Append (-A.NS);
                      end if;
-                  when Safe_Pointer_Definition | Routine =>
+
+                  when Routine =>
+                     if not Schemas.Contains (-A.NS) then
+                        Schemas.Append (-A.NS);
+                     end if;
+
+                  when Safe_Pointer_Definition =>
                      null;
                end case;
             end loop;
