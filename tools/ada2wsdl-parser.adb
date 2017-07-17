@@ -498,11 +498,12 @@ package body Ada2WSDL.Parser is
                       Flat_Element_Kind (Node.Spec);
       begin
          begin
-            if Arg_Kind = A_Function_Declaration then
-               Generator.Start_Routine (Node.Spec_Name.all, "function ");
-            else
-               Generator.Start_Routine (Node.Spec_Name.all, "procedure");
-            end if;
+            Generator.Start_Routine
+              (Name_Space (Node.Spec),
+               Node.Spec_Name.all,
+               (if Arg_Kind = A_Function_Declaration
+                then "function "
+                else "procedure"));
          exception
             when E : Spec_Error =>
                Raise_Spec_Error (Node.Spec, Exception_Message (E));

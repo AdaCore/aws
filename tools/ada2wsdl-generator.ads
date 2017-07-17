@@ -33,7 +33,7 @@ package Ada2WSDL.Generator is
    -- Routine --
    -------------
 
-   procedure Start_Routine (Name, Comment : String);
+   procedure Start_Routine (NS, Name, Comment : String);
    --  Must be called when a new routine named Name has been parsed in the
    --  Ada spec file. Comment is displayed before the procedure name.
 
