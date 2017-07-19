@@ -373,16 +373,7 @@ package body Stub is
            (Stub_Adb,
             " (" & Prefix & Format_Name (O, To_String (N.Name))
               & ", """ & To_String (N.Name) & ""","
-              & " Type_Name => """ & WSDL.Types.Name (N.Typ, True) & """");
-
-         if WSDL.Types.Name (N.Typ, True) = SOAP.Types.XML_Time_Instant then
-            Text_IO.Put
-              (Stub_Adb,
-               ", Timezone => "
-               & "Integer (Ada.Calendar.Time_Zones.UTC_Time_Offset) / 60");
-         end if;
-
-         Text_IO.Put (Stub_Adb, ")");
+              & " Type_Name => """ & WSDL.Types.Name (N.Typ, True) & """)");
 
          if Prefix /= "" and then N.Next /= null then
             Text_IO.Put (Stub_Adb, ",");
@@ -751,7 +742,7 @@ package body Stub is
 
       Text_IO.Put_Line (Stub_Ads, "pragma Warnings (Off);");
       Text_IO.New_Line (Stub_Ads);
-      With_Unit (Stub_Ads, "Ada.Calendar.Time_Zones", Elab => Off);
+      With_Unit (Stub_Ads, "Ada.Calendar", Elab => Off);
       Text_IO.New_Line (Stub_Ads);
       With_Unit (Stub_Ads, "SOAP.Types", Elab => Children);
       Text_IO.New_Line (Stub_Ads);
@@ -796,8 +787,6 @@ package body Stub is
 
       Text_IO.Put_Line (Stub_Adb, "   use SOAP.Types;");
       Text_IO.Put_Line (Stub_Adb, "   use type SOAP.Parameters.List;");
-      Text_IO.Put_Line
-        (Stub_Adb, "   use type Ada.Calendar.Time_Zones.Time_Offset;");
       Text_IO.New_Line (Stub_Adb);
       Text_IO.Put_Line (Stub_Adb, "   pragma Style_Checks (Off);");
    end Start_Service;

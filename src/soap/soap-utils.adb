@@ -29,6 +29,9 @@
 
 pragma Ada_2012;
 
+with Ada.Calendar.Formatting;
+with Ada.Calendar.Time_Zones;
+
 with Ada.Calendar;
 with Ada.Characters.Handling;
 with Ada.Strings.Fixed;
@@ -414,34 +417,36 @@ package body SOAP.Utils is
       return Types.XSD_Time_Instant
    is
       use Ada.Calendar;
-      subtype Year_Range is Positive range TI'First .. TI'First + 3;
-      subtype Month_Range is Positive range TI'First + 5 .. TI'First + 6;
-      subtype Day_Range is Positive range TI'First + 8 .. TI'First + 9;
-      subtype Hour_Range is Positive range TI'First + 11 .. TI'First + 12;
+      use Ada.Calendar.Formatting;
+      use type Ada.Calendar.Time_Zones.Time_Offset;
+
+      subtype Year_Range   is Positive range TI'First      .. TI'First + 3;
+      subtype Month_Range  is Positive range TI'First + 5  .. TI'First + 6;
+      subtype Day_Range    is Positive range TI'First + 8  .. TI'First + 9;
+      subtype Hour_Range   is Positive range TI'First + 11 .. TI'First + 12;
       subtype Minute_Range is Positive range TI'First + 14 .. TI'First + 15;
       subtype Second_Range is Positive range TI'First + 17 .. TI'First + 18;
-      subtype TZ_Range is Positive range TI'First + 19 .. TI'First + 21;
-      T : Time;
+      subtype TZ_Range     is Positive range TI'First + 19 .. TI'First + 21;
+
+      T        : Types.Local_Time;
+      T_Offset : Time_Zones.Time_Offset := 0;
+
    begin
       --  timeInstant format is CCYY-MM-DDThh:mm:ss[[+|-]hh:mm | Z]
 
-      T := Time_Of (Year    => Year_Number'Value (TI (Year_Range)),
-                    Month   => Month_Number'Value (TI (Month_Range)),
-                    Day     => Day_Number'Value (TI (Day_Range)),
-                    Seconds => Duration
-                      (Natural'Value (TI (Hour_Range)) * 3600
-                       + Natural'Value (TI (Minute_Range)) * 60
-                       + Natural'Value (TI (Second_Range))));
-
-      if TI'Length < 22 then
-         --  No timezone data
-         return Types.T (T, Name, Type_Name => Type_Name);
-      else
-         return Types.T
-           (T, Name,
-            Type_Name => Type_Name,
-            Timezone  => Types.TZ'Value (TI (TZ_Range)));
+      if TI'Length >= TZ_Range'Last then
+         T_Offset := Time_Zones.Time_Offset'Value (TI (TZ_Range));
       end if;
+
+      T := Time_Of (Year      => Year_Number'Value (TI (Year_Range)),
+                    Month     => Month_Number'Value (TI (Month_Range)),
+                    Day       => Day_Number'Value (TI (Day_Range)),
+                    Hour      => Hour_Number'Value (TI (Hour_Range)),
+                    Minute    => Minute_Number'Value (TI (Minute_Range)),
+                    Second    => Second_Number'Value (TI (Second_Range)),
+                    Time_Zone => T_Offset * 60);
+
+      return Types.T (T, Name, Type_Name => Type_Name);
    end Time_Instant;
 
    -------------

@@ -29,7 +29,6 @@
 
 pragma Ada_2012;
 
-with Ada.Calendar.Formatting;
 with Ada.Calendar.Time_Zones;
 with Ada.Float_Text_IO;
 with Ada.Long_Float_Text_IO;
@@ -792,14 +791,17 @@ package body SOAP.Types is
 
    overriding function Image (O : XSD_Time_Instant) return String is
 
-      function Image (Timezone : TZ) return String;
+      function Image
+        (Timezone : Calendar.Time_Zones.Time_Offset) return String;
       --  Returns Image for the TZ
 
       -----------
       -- Image --
       -----------
 
-      function Image (Timezone : TZ) return String is
+      function Image
+        (Timezone : Calendar.Time_Zones.Time_Offset) return String
+      is
 
          subtype Str2 is String (1 .. 2);
 
@@ -820,19 +822,28 @@ package body SOAP.Types is
             end if;
          end I2D;
 
+         use type Calendar.Time_Zones.Time_Offset;
+
+         H : constant Natural := Natural (abs Timezone) / 60;
+         M : constant Natural := Natural (abs Timezone) rem 60;
+
       begin
          if Timezone = 0 then
             return "Z";
+
          elsif Timezone >= 0 then
-            return '+' & I2D (Timezone) & ":00";
+            return '+' & I2D (H) & ':' & I2D (M);
+
          else
-            return '-' & I2D (abs Timezone) & ":00";
+            return '-' & I2D (H) & ':' & I2D (M);
          end if;
       end Image;
 
+      use type Ada.Calendar.Time_Zones.Time_Offset;
+
    begin
       return GNAT.Calendar.Time_IO.Image (O.T, "%Y-%m-%dT%H:%M:%S")
-        & Image (O.Timezone);
+        & Image (Calendar.Time_Zones.UTC_Time_Offset (O.T));
    end Image;
 
    overriding function Image (O : XSD_Unsigned_Long) return String is
@@ -1146,17 +1157,16 @@ package body SOAP.Types is
    -------
 
    function T
-     (V         : Calendar.Time;
+     (V         : Local_Time;
       Name      : String := "item";
       Type_Name : String := XML_Time_Instant;
-      NS        : SOAP.Name_Space.Object := SOAP.Name_Space.No_Name_Space;
-      Timezone  : TZ     := GMT)
+      NS        : SOAP.Name_Space.Object := SOAP.Name_Space.No_Name_Space)
       return XSD_Time_Instant is
    begin
       return
         (Finalization.Controlled
          with To_Unbounded_String (Name),
-         To_Unbounded_String (Type_Name), NS, V, Timezone);
+         To_Unbounded_String (Type_Name), NS, V);
    end T;
 
    ---------------
@@ -1291,16 +1301,8 @@ package body SOAP.Types is
    end V;
 
    function V (O : XSD_Time_Instant) return Calendar.Time is
-      package ACF renames Ada.Calendar.Formatting;
    begin
-      return ACF.Time_Of
-        (Year      => Calendar.Year (O.T),
-         Month     => Calendar.Month (O.T),
-         Day       => Calendar.Day (O.T),
-         Hour      => ACF.Hour (O.T),
-         Minute    => ACF.Minute (O.T),
-         Second    => ACF.Second (O.T),
-         Time_Zone => Calendar.Time_Zones.Time_Offset (O.Timezone));
+      return O.T;
    end V;
 
    function V (O : XSD_Unsigned_Long) return Unsigned_Long is

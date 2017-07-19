@@ -1,4 +1,4 @@
-from test_support import *
+from test_support import exec_cmd, build, run
 import re
 
 exec_cmd('wsdl2aws', ['-q', '-f', 'gettst.wsdl'])
@@ -7,6 +7,8 @@ run('dl2_server', output_file="out.tmp")
 
 # Change dateTime
 
+r1 = r'(\d\d\d\d-\d\d-\d\dT\d\d:\d\d:\d\dZ)'
+r2 = r'(\d\d\d\d-\d\d-\d\dT\d\d:\d\d:\d\d\+\d\d:\d\d)'
+
 for l in open('out.tmp').readlines():
-    print(re.sub(r"\d\d\d\d-\d\d-\d\dT\d\d:\d\d:\d\dZ",
-                 "XXXX-XX-XXTXX:XX:XXZ", l))
+    print(re.sub(r1+r'|'+r2, "XXXX-XX-XXTXX:XX:XXZ", l))

@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2001-2016, AdaCore                     --
+--                     Copyright (C) 2001-2017, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -446,6 +446,10 @@ package SOAP.Types is
    -- TimeInstant --
    -----------------
 
+   subtype Local_Time is Calendar.Time;
+   --  All times are local time. This means that a timeInstant is always
+   --  converted to a local time for the running host.
+
    XML_Time_Instant : aliased constant String := "xsd:timeInstant";
    XML_Date_Time    : aliased constant String := "xsd:dateTime";
 
@@ -453,18 +457,14 @@ package SOAP.Types is
 
    overriding function Image (O : XSD_Time_Instant) return String;
 
-   subtype TZ is Integer range -11 .. +11;
-   GMT : constant TZ := 0;
-
    function T
-     (V         : Calendar.Time;
+     (V         : Local_Time;
       Name      : String := "item";
       Type_Name : String := XML_Time_Instant;
-      NS        : Name_Space.Object := Name_Space.No_Name_Space;
-      Timezone  : TZ     := GMT)
+      NS        : Name_Space.Object := Name_Space.No_Name_Space)
       return XSD_Time_Instant;
 
-   function V (O : XSD_Time_Instant) return Calendar.Time;
+   function V (O : XSD_Time_Instant) return Local_Time;
    --  Returns a GMT date and time
 
    -------------------
@@ -616,7 +616,7 @@ package SOAP.Types is
    --  Returns O value as a Boolean. Raises Data_Error if O is not a SOAP
    --  Boolean.
 
-   function Get (O : Object'Class) return Ada.Calendar.Time;
+   function Get (O : Object'Class) return Local_Time;
    --  Returns O value as a Time. Raises Data_Error if O is not a SOAP
    --  Time.
 
@@ -750,8 +750,7 @@ private
    end record;
 
    type XSD_Time_Instant is new Scalar with record
-      T        : Ada.Calendar.Time;
-      Timezone : TZ;
+      T : Local_Time;
    end record;
 
    type XSD_Unsigned_Long is new Scalar with record

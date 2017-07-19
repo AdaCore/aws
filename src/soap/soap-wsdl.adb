@@ -319,7 +319,7 @@ package body SOAP.WSDL is
          when P_Float          => return "Float";
          when P_Double         => return "Long_Float";
          when P_Boolean        => return "Boolean";
-         when P_Time           => return "Ada.Calendar.Time";
+         when P_Time           => return "SOAP.Types.Local_Time";
          when P_B64            => return "String";
          when P_Character      => return "Character";
          when P_Unsigned_Long  => return "SOAP.Types.Unsigned_Long";
