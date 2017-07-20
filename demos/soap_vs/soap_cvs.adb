@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                    Copyright (C) 2000-2015, AdaCore                      --
+--                    Copyright (C) 2000-2017, AdaCore                      --
 --                                                                          --
 --  This is free software;  you can redistribute it  and/or modify it       --
 --  under terms of the  GNU General Public License as published  by the     --
@@ -137,7 +137,7 @@ procedure SOAP_CVS is
 
       P_Set : Parameters.List :=
         +I (12, "num") & B (True, "bool") & S ("Just me", "state")
-        & F (3.8, "doub") & T (Clock, "dat", Timezone => 3)
+        & F (3.8, "doub") & T (Clock, "dat")
         & S ("%*kkk/:", "bin");
 
       P     : Message.Payload.Object;
