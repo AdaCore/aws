@@ -795,7 +795,6 @@ package body Ada2WSDL.Parser is
                         Len    : Unbounded_String;
                      begin
                         if B_Name = "string" then
-
                            if Flat_Element_Kind (C) = An_Index_Constraint then
                               declare
                                  R       : constant Asis.Discrete_Range_List :=
