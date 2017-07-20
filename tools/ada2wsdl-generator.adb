@@ -17,6 +17,7 @@
 ------------------------------------------------------------------------------
 
 with Ada.Calendar;
+with Ada.Characters.Handling;
 with Ada.Containers.Indefinite_Hashed_Maps;
 with Ada.Containers.Vectors;
 with Ada.Exceptions;
@@ -493,7 +494,7 @@ package body Ada2WSDL.Generator is
    begin
       Insert_NS (NS);
 
-      if Ada_Type = "character" then
+      if Characters.Handling.To_Lower (Ada_Type) = "character" then
          --  First generate the Character derived type if needed
 
          declare
