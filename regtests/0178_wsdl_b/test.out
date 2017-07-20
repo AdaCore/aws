@@ -1,23 +1,23 @@
 
    - array (12)      Toto of Integer (xsd:int)
    - array (<>)      Set_Of_Int of Integer (xsd:int)
-   - derived         XYZ is new Set_Of_Int (n1:Set_Of_Int)
+   - derived         XYZ is new Set_Of_Int (n2:Set_Of_Int)
    - array (2)       ABC of Integer (xsd:int)
    - array (10)      Set_Of_Int_10 of Integer (xsd:int)
    - array (20)      Set_Of_Int_20 of Integer (xsd:int)
    - record          Rec
-        C : ABC (n1:ABC)
-        D : Arr1 (n2:Arr1)
-        E : Arr2 (n2:Arr2)
+        C : ABC (n2:ABC)
+        D : Arr1 (n3:Arr1)
+        E : Arr2 (n3:Arr2)
    - record          Complex_Rec
-        R : Rec (n2:Rec)
-        SI : Set_Of_Int_1_10 (n1:Set_Of_Int_1_10)
-        SI2 : Set_Of_Int_10 (n1:Set_Of_Int_10)
-        SI3 : Set_Of_Int_20 (n1:Set_Of_Int_20)
+        R : Rec (n3:Rec)
+        SI : Set_Of_Int_1_10 (n2:Set_Of_Int_1_10)
+        SI2 : Set_Of_Int_10 (n2:Set_Of_Int_10)
+        SI3 : Set_Of_Int_20 (n2:Set_Of_Int_20)
    - array (10)      Set_Of_Int_1_10 of Integer (xsd:int)
    > function        Echo_Complex_Rec
-        C_Rec : Complex_Rec (n1:Complex_Rec)
-        return Complex_Rec (n1:Complex_Rec)
+        C_Rec : Complex_Rec (n2:Complex_Rec)
+        return Complex_Rec (n2:Complex_Rec)
    - array (23)      Arr1 of Integer (xsd:int)
    - array (32)      Arr2 of Integer (xsd:int)
    - record          Rec

@@ -11,15 +11,15 @@
         Rank : Ranks_Table (n2:Ranks_Table)
    > procedure       Unregister
         Server_Name : string (xsd:string)
-   - array (<>)      Options_Table of Option_Data (n2:Option_Data)
    - record          Option_Data
         Short_Name : unbounded_string (xsd:string)
         Full_Name : unbounded_string (xsd:string)
         Description : unbounded_string (xsd:string)
-   - array (<>)      Files_Table of Unbounded_String (xsd:string)
-   - array (15)      Ranks_Table of Framework.Rank_Data (n2:Framework.Rank_Data)
+   - array (<>)      Options_Table of Option_Data (n2:Option_Data)
+   - array (<>)      Files_Table of unbounded_string (xsd:string)
    - record          Rank_Data
         R_Name : unbounded_string (xsd:string)
         Count : Integer (xsd:int)
+   - array (15)      Ranks_Table of Rank_Data (n2:Rank_Data)
 
 WSDL document register.wsdl is created for register.ads.

@@ -377,12 +377,13 @@ package body Ada2WSDL.Generator is
    -----------------
 
    procedure Start_Array
-     (NS, Name, Component_Type : String;
-      Length                   : Natural := 0)
+     (NS, Name                     : String;
+      Component_NS, Component_Type : String;
+      Length                       : Natural := 0)
    is
       New_P : constant not null Parameter_Access :=
                 new Parameter'(+"item", +Component_Type,
-                               +To_XSD (NS, Component_Type), null);
+                               +To_XSD (Component_NS, Component_Type), null);
       D     : Definition (Table);
    begin
       --  We need to write a schema for this record
