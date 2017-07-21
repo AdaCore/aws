@@ -17,6 +17,7 @@
 ------------------------------------------------------------------------------
 
 with Ada.Calendar;
+with Ada.Characters.Handling;
 with Ada.Containers.Indefinite_Hashed_Maps;
 with Ada.Containers.Vectors;
 with Ada.Exceptions;
@@ -376,12 +377,13 @@ package body Ada2WSDL.Generator is
    -----------------
 
    procedure Start_Array
-     (NS, Name, Component_Type : String;
-      Length                   : Natural := 0)
+     (NS, Name                     : String;
+      Component_NS, Component_Type : String;
+      Length                       : Natural := 0)
    is
       New_P : constant not null Parameter_Access :=
                 new Parameter'(+"item", +Component_Type,
-                               +To_XSD (NS, Component_Type), null);
+                               +To_XSD (Component_NS, Component_Type), null);
       D     : Definition (Table);
    begin
       --  We need to write a schema for this record
@@ -493,7 +495,7 @@ package body Ada2WSDL.Generator is
    begin
       Insert_NS (NS);
 
-      if Ada_Type = "character" then
+      if Characters.Handling.To_Lower (Ada_Type) = "character" then
          --  First generate the Character derived type if needed
 
          declare

@@ -93,8 +93,7 @@ package body SOAP.Message.XML is
    function To_Type
      (Type_Name : String;
       NS        : Namespaces;
-      Schema    : WSDL.Schema.Definition)
-      return Type_State;
+      Schema    : WSDL.Schema.Definition) return Type_State;
    --  Given the Type_Name and the namespaces return the proper type
 
    procedure Load_XML

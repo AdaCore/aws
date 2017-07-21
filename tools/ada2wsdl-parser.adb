@@ -520,8 +520,9 @@ package body Ada2WSDL.Parser is
          use Extensions.Flat_Kinds;
 
          type U_Array_Def is record
-            Name, NS, Comp_Type : Unbounded_String;
-            Length              : Positive;
+            Name, NS           : Unbounded_String;
+            Comp_NS, Comp_Type : Unbounded_String;
+            Length             : Positive;
          end record;
 
          Deferred_U_Arrays : array (1 .. 100) of U_Array_Def;
@@ -531,17 +532,24 @@ package body Ada2WSDL.Parser is
          procedure Analyse_Field (Component : Asis.Element);
          --  Analyse a field from the record
 
-         procedure Analyse_Array_Component (Component : Asis.Element);
-         --  Analyse an array component
+         function Analyse_Array_Component
+           (Component : Asis.Element)  return Generator.Type_Data;
+         --  Analyse an array component and return the corresponding type
+         --  definition.
 
          -----------------------------
          -- Analyse_Array_Component --
          -----------------------------
 
-         procedure Analyse_Array_Component (Component : Asis.Element) is
-            E : Asis.Element :=
-                  (Definitions.Subtype_Mark
-                     (Definitions.Component_Subtype_Indication (Component)));
+         function Analyse_Array_Component
+           (Component : Asis.Element) return Generator.Type_Data
+         is
+            E      : Asis.Element :=
+                       (Definitions.Subtype_Mark
+                          (Definitions.Component_Subtype_Indication
+                             (Component)));
+            E_Type : constant Generator.Type_Data :=
+                       Type_Def (E, False);
          begin
             if Elements.Expression_Kind (E) = A_Selected_Component then
                E := Expressions.Selector (E);
@@ -551,6 +559,8 @@ package body Ada2WSDL.Parser is
               (Expressions.Corresponding_Name_Declaration (E));
 
             Analyse_Type (E);
+
+            return E_Type;
          end Analyse_Array_Component;
 
          -------------------
@@ -567,6 +577,7 @@ package body Ada2WSDL.Parser is
             Names : constant Defining_Name_List :=
                       Declarations.Names (Component);
             E         : Asis.Element := Elem;
+            E_Type    : Generator.Type_Data;
             CND       : Asis.Element;
             Type_Name : Unbounded_String;
 
@@ -589,8 +600,10 @@ package body Ada2WSDL.Parser is
 
                   E := Definitions.Array_Component_Definition (E);
 
-                  Deferred_U_Arrays (U_Array_Index).Comp_Type :=
-                    To_Unbounded_String (Image (Text.Element_Image (E)));
+                  E_Type := Analyse_Array_Component (E);
+
+                  Deferred_U_Arrays (U_Array_Index).Comp_NS := E_Type.NS;
+                  Deferred_U_Arrays (U_Array_Index).Comp_Type := E_Type.Name;
 
                   Deferred_U_Arrays (U_Array_Index).NS :=
                     To_Unbounded_String (Name_Space (E));
@@ -677,6 +690,7 @@ package body Ada2WSDL.Parser is
                              (Declarations.Names (Elem) (1)));
          E         : Asis.Definition :=
                        Declarations.Type_Declaration_View (Elem);
+         E_Type    : Generator.Type_Data;
          Type_Kind : constant Flat_Element_Kinds := Flat_Element_Kind (E);
 
       begin
@@ -703,6 +717,7 @@ package body Ada2WSDL.Parser is
                      Generator.Start_Array
                        (To_String (Deferred_U_Arrays (K).NS),
                         To_String (Deferred_U_Arrays (K).Name),
+                        To_String (Deferred_U_Arrays (K).Comp_NS),
                         To_String (Deferred_U_Arrays (K).Comp_Type),
                         Deferred_U_Arrays (K).Length);
                   end loop;
@@ -711,8 +726,8 @@ package body Ada2WSDL.Parser is
             when A_Constrained_Array_Definition =>
 
                declare
-                  S : constant Asis.Definition_List :=
-                        Definitions.Discrete_Subtype_Definitions (E);
+                  S           : constant Asis.Definition_List :=
+                                  Definitions.Discrete_Subtype_Definitions (E);
                   Array_Len   : Natural;
                   Type_Suffix : Unbounded_String;
                   C           : Asis.Element;
@@ -740,12 +755,13 @@ package body Ada2WSDL.Parser is
                   E := Definitions.Array_Component_Definition (E);
 
                   if not Generator.Type_Exists (Name_Space (E), Name) then
+                     E_Type := Analyse_Array_Component (E);
+
                      Generator.Start_Array
                        (Name_Space (E), Name,
-                        Image (Text.Element_Image (E)),
+                        To_String (E_Type.NS),
+                        To_String (E_Type.Name),
                         Array_Len);
-
-                     Analyse_Array_Component (E);
                   end if;
                end;
 
@@ -754,11 +770,12 @@ package body Ada2WSDL.Parser is
                E := Definitions.Array_Component_Definition (E);
 
                if not Generator.Type_Exists (Name_Space (E), Name) then
+                  E_Type := Analyse_Array_Component (E);
+
                   Generator.Start_Array
                     (Name_Space (E), Name,
-                     Image (Text.Element_Image (E)));
-
-                  Analyse_Array_Component (E);
+                     To_String (E_Type.NS),
+                     To_String (E_Type.Name));
                end if;
 
             when A_Derived_Type_Definition =>
@@ -795,7 +812,6 @@ package body Ada2WSDL.Parser is
                         Len    : Unbounded_String;
                      begin
                         if B_Name = "string" then
-
                            if Flat_Element_Kind (C) = An_Index_Constraint then
                               declare
                                  R       : constant Asis.Discrete_Range_List :=
@@ -847,13 +863,15 @@ package body Ada2WSDL.Parser is
                            if not Generator.Type_Exists
                              (Name_Space (Comp), Name)
                            then
+                              E_Type := Analyse_Array_Component (Comp);
+
                               Generator.Start_Array
                                 (Name_Space (Comp), Name,
-                                 Image (Text.Element_Image (Comp)),
+                                 To_String (E_Type.NS),
+                                 To_String (E_Type.Name),
                                  Array_Len);
-
-                              Analyse_Array_Component (Comp);
                            end if;
+
                            return;
                         end;
                      end if;
@@ -903,11 +921,13 @@ package body Ada2WSDL.Parser is
                         if not Generator.Type_Exists
                           (Name_Space (Comp), Name)
                         then
+                           E_Type := Analyse_Array_Component (Comp);
+
                            Generator.Start_Array
                              (Name_Space (Comp), Name,
-                              Image (Text.Element_Image (Comp)),
+                              To_String (E_Type.NS),
+                              To_String (E_Type.Name),
                               Array_Len);
-                           Analyse_Array_Component (Comp);
                         end if;
                      end;
 
@@ -1301,27 +1321,27 @@ package body Ada2WSDL.Parser is
          procedure Get_Range
            (E : Asis.Element; Lower, Upper : out Long_Long_Integer)
          is
-            C      : Asis.Element;
+            C      : Asis.Element := E;
             LB, UB : Asis.Expression;
 
          begin
             Lower := Long_Long_Integer'Last;
             Upper := Long_Long_Integer'First;
 
-            case Flat_Element_Kind (E) is
-               when A_Signed_Integer_Type_Definition =>
-                  C := Definitions.Integer_Constraint (E);
+            if Flat_Element_Kind (C) = An_Ordinary_Type_Declaration then
+               C := Declarations.Type_Declaration_View (C);
+            end if;
 
-               when An_Ordinary_Type_Declaration =>
-                  C := Definitions.Subtype_Constraint
-                    (Definitions.Parent_Subtype_Indication
-                       (Declarations.Type_Declaration_View (E)));
+            case Flat_Element_Kind (C) is
+               when A_Signed_Integer_Type_Definition =>
+                  C := Definitions.Integer_Constraint (C);
 
                when A_Derived_Type_Definition =>
-                  C := Definitions.Subtype_Constraint (E);
+                  C := Definitions.Subtype_Constraint
+                    (Definitions.Parent_Subtype_Indication (C));
 
                when others =>
-                  C := E;
+                  null;
             end case;
 
             if Flat_Element_Kind (C) = A_Simple_Expression_Range then

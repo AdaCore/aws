@@ -1162,11 +1162,14 @@ package body WSDL2AWS.Generator is
                        (if Def = WSDL.Types.No_Definition
                         then P.Typ
                         else Def.E_Type);
+         Q_Name  : constant String :=
+                     (WSDL.Types.Name
+                        (E_Type.Ref,
+                         NS => E_Type.Mode = WSDL.Types.K_Derived));
          T_Name  : constant String :=
-                     SOAP.Utils.To_Name
-                       (WSDL.Types.Name
-                          (E_Type.Ref,
-                           NS => E_Type.Mode = WSDL.Types.K_Derived));
+                     (if WSDL.Types.Is_Character (E_Type)
+                      then SOAP.Utils.No_NS (Q_Name)
+                      else SOAP.Utils.To_Name (Q_Name));
 
          --  Array's element type name
 
