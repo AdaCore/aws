@@ -61,7 +61,7 @@ begin
 
    Host := SMTP.Initialize
              (Net.Localhost (Net.IPv6_Available), Port,
-              AWS.Net.SSL.Is_Supported, Family => Family);
+              AWS.Net.SSL.Is_Supported, Family => Family, Timeout => 1.0);
 
    SMTP.Server.Start (Server, Host, SMTP_Pck.Dump_Mail'Access);
 

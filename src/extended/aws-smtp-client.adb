@@ -146,6 +146,7 @@ package body AWS.SMTP.Client is
       --  Open server
       Sock := Net.Socket (Security => Server.Secure);
 
+      Sock.Set_Timeout (Server.Timeout);
       Sock.Connect
         (To_String (Server.Name), Server.Port, Family => Server.Family);
 

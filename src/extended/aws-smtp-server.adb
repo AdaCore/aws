@@ -241,6 +241,7 @@ package body AWS.SMTP.Server is
 
       Server.Host.Sock := Net.Socket (Security => False);
 
+      Server.Host.Sock.Set_Timeout (Server.Host.Timeout);
       Server.Host.Sock.Bind (Port => Host.Port, Family => Host.Family);
       Server.Host.Sock.Listen;
 

@@ -70,7 +70,8 @@ package AWS.SMTP.Client is
       Port        : Positive := Default_SMTP_Port;
       Secure      : Boolean := False;
       Family      : Net.Family_Type := Net.Family_Unspec;
-      Credential  : access constant Authentication.Credential'Class := null)
+      Credential  : access constant Authentication.Credential'Class := null;
+      Timeout     : Duration := Net.Forever)
       return Receiver renames SMTP.Initialize;
 
    procedure Send

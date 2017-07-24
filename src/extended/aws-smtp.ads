@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2000-2014, AdaCore                     --
+--                     Copyright (C) 2000-2017, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -61,7 +61,8 @@ package AWS.SMTP is
       Port        : Positive := Default_SMTP_Port;
       Secure      : Boolean := False;
       Family      : Net.Family_Type := Net.Family_Unspec;
-      Credential  : access constant Authentication.Credential'Class := null)
+      Credential  : access constant Authentication.Credential'Class := null;
+      Timeout     : Duration := Net.Forever)
       return Receiver;
    --  Create a Server composed of the Name and the Port (default SMTP port
    --  is 25), this server will be used to send SMTP message.
@@ -144,12 +145,13 @@ private
    use Ada.Strings.Unbounded;
 
    type Receiver is record
-      Family : Net.Family_Type;
-      Name   : Unbounded_String;
-      Port   : Positive;
-      Secure : Boolean;
-      Sock   : Net.Socket_Access;
-      Auth   : access constant Authentication.Credential'Class;
+      Family  : Net.Family_Type;
+      Name    : Unbounded_String;
+      Port    : Positive;
+      Secure  : Boolean;
+      Sock    : Net.Socket_Access;
+      Auth    : access constant Authentication.Credential'Class;
+      Timeout : Duration;
    end record;
 
    type Status is record
