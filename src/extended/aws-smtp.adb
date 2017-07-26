@@ -108,7 +108,8 @@ package body AWS.SMTP is
    begin
       Reply :=
         (Reply_Code'Value (Buffer (Buffer'First .. Buffer'First + 2)),
-         To_Unbounded_String (Buffer (Buffer'First + 4 .. Buffer'Last)));
+         To_Unbounded_String (Buffer (Buffer'First + 4 .. Buffer'Last)),
+         Null_Unbounded_String);
    end Check_Answer;
 
    -----------
@@ -117,7 +118,7 @@ package body AWS.SMTP is
 
    procedure Clear (Status : in out SMTP.Status) is
    begin
-      Status := (Requested_Action_Ok, Null_Unbounded_String);
+      Status := (Requested_Action_Ok, others => <>);
    end Clear;
 
    ------------
@@ -268,5 +269,14 @@ package body AWS.SMTP is
    begin
       return To_String (Status.Reason);
    end Status_Message;
+
+   --------------
+   -- Warnings --
+   --------------
+
+   function Warnings (Status : SMTP.Status) return Unbounded_String is
+   begin
+      return Status.Warnings;
+   end Warnings;
 
 end AWS.SMTP;

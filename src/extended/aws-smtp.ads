@@ -35,7 +35,7 @@ pragma Ada_2012;
 
 with AWS.Net;
 
-private with Ada.Strings.Unbounded;
+with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
 limited with AWS.SMTP.Authentication;
 
 package AWS.SMTP is
@@ -107,6 +107,14 @@ package AWS.SMTP is
    --  If Is_Ok is False, this function return the reason of the problem. The
    --  return message is the error message as reported by the server.
 
+   function Warnings
+     (Status : SMTP.Status) return Unbounded_String with Inline;
+   --  Returns warnings during recipient addresses processing
+
+   function Warnings (Status : SMTP.Status) return String is
+      (To_String (Warnings (Status)));
+   --  Returns warnings during recipient addresses processing
+
    function Status_Code (Status : SMTP.Status) return Reply_Code with Inline;
    --  Returns the code replied by the server
 
@@ -142,8 +150,6 @@ package AWS.SMTP is
 
 private
 
-   use Ada.Strings.Unbounded;
-
    type Receiver is record
       Family  : Net.Family_Type;
       Name    : Unbounded_String;
@@ -155,8 +161,9 @@ private
    end record;
 
    type Status is record
-      Code   : Reply_Code;
-      Reason : Unbounded_String;
+      Code     : Reply_Code;
+      Reason   : Unbounded_String;
+      Warnings : Unbounded_String;
    end record;
 
    type E_Mail_Data is record

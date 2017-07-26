@@ -82,10 +82,13 @@ package AWS.SMTP.Client is
       Message : String;
       Status  : out SMTP.Status;
       CC      : Recipients := No_Recipient;
-      BCC     : Recipients := No_Recipient);
+      BCC     : Recipients := No_Recipient;
+      To_All  : Boolean    := True);
    --  Send a message via Server. The email is a simple message composed of a
    --  subject and a text message body. Raise Server_Error in case of an
    --  unrecoverable error (e.g. can't contact the server).
+   --  If To_All is False email is sent even if some email addresses
+   --  in recipient list are not correct.
 
    type Attachment is private;
    --  This is an attachment object, either a File or some Base64 encoded
@@ -113,11 +116,14 @@ package AWS.SMTP.Client is
       Attachments : Attachment_Set;
       Status      : out SMTP.Status;
       CC          : Recipients := No_Recipient;
-      BCC         : Recipients := No_Recipient);
+      BCC         : Recipients := No_Recipient;
+      To_All      : Boolean    := True);
    --  Send a message via Server. The email is a MIME message composed of a
    --  subject, a message and a set of MIME encoded files. Raise Server_Error
    --  in case of an unrecoverable error (e.g. can't contact the server).
    --  Raises Constraint_Error if a file attachment cannot be opened.
+   --  If To_All is False email is sent even if some email addresses in
+   --  recipient list are not correct.
 
    type Message_File is new String;
 
@@ -129,7 +135,8 @@ package AWS.SMTP.Client is
       Filename : Message_File;
       Status   : out SMTP.Status;
       CC       : Recipients := No_Recipient;
-      BCC      : Recipients := No_Recipient);
+      BCC      : Recipients := No_Recipient;
+      To_All   : Boolean    := True);
    --  Send filename content via Server. The email is a message composed of a
    --  subject and a message body coming from a file. Raises Server_Error in
    --  case of an unrecoverable error (e.g. can't contact the server). Raises
@@ -147,10 +154,13 @@ package AWS.SMTP.Client is
       Message : String;
       Status  : out SMTP.Status;
       CC      : Recipients := No_Recipient;
-      BCC     : Recipients := No_Recipient);
+      BCC     : Recipients := No_Recipient;
+      To_All  : Boolean    := True);
    --  Send a message via Server. The mail is a simple message composed of a
    --  subject and a text message body. Raise Server_Error in case of an
    --  unrecoverable error (e.g. can't contact the server).
+   --  If To_All is False email is sent even if some email addresses
+   --  in recipient list are not correct.
 
    procedure Send
      (Server : Receiver;
@@ -159,11 +169,14 @@ package AWS.SMTP.Client is
       Source : String;
       Status : out SMTP.Status;
       CC     : Recipients := No_Recipient;
-      BCC    : Recipients := No_Recipient);
+      BCC    : Recipients := No_Recipient;
+      To_All : Boolean    := True);
    --  Send a message via Server. The email Source has already been composed by
    --  other means, such as the GNATcoll email facilities.
    --  Raise Server_Error in case of an unrecoverable error, e.g. can't contact
    --  the server.
+   --  If To_All is False email is sent even if some email addresses in
+   --  recipient list are not correct.
 
    procedure Send
      (Server      : Receiver;
@@ -174,11 +187,14 @@ package AWS.SMTP.Client is
       Attachments : Attachment_Set;
       Status      : out SMTP.Status;
       CC          : Recipients := No_Recipient;
-      BCC         : Recipients := No_Recipient);
+      BCC         : Recipients := No_Recipient;
+      To_All      : Boolean    := True);
    --  Send a message via Server. The email is a MIME message composed of a
    --  subject, a message and a set of files MIME encoded. Raise Server_Error
    --  in case of an unrecoverable error (e.g. can't contact the server).
    --  Raises Constraint_Error if a file attachment cannot be opened.
+   --  If To_All is False email is sent even if some email addresses in
+   --  recipient list are not correct.
 
    procedure Send
      (Server      : Receiver;
@@ -188,7 +204,8 @@ package AWS.SMTP.Client is
       Attachments : AWS.Attachments.List;
       Status      : out SMTP.Status;
       CC          : Recipients := No_Recipient;
-      BCC         : Recipients := No_Recipient);
+      BCC         : Recipients := No_Recipient;
+      To_All      : Boolean    := True);
    --  As above but takes an attachment list which support complex attachments
    --  like multiplart/alternative.
 
