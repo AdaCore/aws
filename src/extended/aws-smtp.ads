@@ -141,7 +141,7 @@ package AWS.SMTP is
 
    type Recipients is array (Positive range <>) of E_Mail_Data;
 
-   No_Recipient : constant Recipients (1 .. 0);
+   No_Recipient : constant Recipients;
 
 private
 
