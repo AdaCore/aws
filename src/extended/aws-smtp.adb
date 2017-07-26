@@ -274,9 +274,9 @@ package body AWS.SMTP is
    -- Warnings --
    --------------
 
-   function Warnings (Status : SMTP.Status) return Unbounded_String is
+   function Warnings (Status : SMTP.Status) return String is
    begin
-      return Status.Warnings;
+      return To_String (Status.Warnings);
    end Warnings;
 
 end AWS.SMTP;
