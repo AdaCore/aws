@@ -8,7 +8,7 @@ run('dl2_server', output_file="out.tmp")
 # Change dateTime
 
 r1 = r'(\d\d\d\d-\d\d-\d\dT\d\d:\d\d:\d\dZ)'
-r2 = r'(\d\d\d\d-\d\d-\d\dT\d\d:\d\d:\d\d\+\d\d:\d\d)'
+r2 = r'(\d\d\d\d-\d\d-\d\dT\d\d:\d\d:\d\d[\+\-]\d\d:\d\d)'
 
 for l in open('out.tmp').readlines():
     print(re.sub(r1+r'|'+r2, "XXXX-XX-XXTXX:XX:XXZ", l))
