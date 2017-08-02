@@ -1,7 +1,7 @@
 ############################################################################
 #                              Ada Web Server                              #
 #                                                                          #
-#                     Copyright (C) 2003-2016, AdaCore                     #
+#                     Copyright (C) 2003-2017, AdaCore                     #
 #                                                                          #
 #  This is free software;  you can redistribute it  and/or modify it       #
 #  under terms of the  GNU General Public License as published  by the     #
@@ -177,6 +177,8 @@ GPR_STATIC = -XLIBRARY_TYPE=static -XXMLADA_BUILD=static
 GPR_SHARED = -XLIBRARY_TYPE=relocatable -XXMLADA_BUILD=relocatable
 GPR_OTHER  = -XLIBRARY_TYPE=$(OTHER_LIBRARY_TYPE) \
 		-XXMLADA_BUILD=$(OTHER_LIBRARY_TYPE)
+GPR_DEFAULT = -XLIBRARY_TYPE=$(DEFAULT_LIBRARY_TYPE) \
+		-XXMLADA_BUILD=$(DEFAULT_LIBRARY_TYPE)
 
 #######################################################################
 #  build
@@ -239,7 +241,7 @@ endif
 
 install-native: install-clean
 	$(GPRINSTALL) $(GPROPTS) -p -f --prefix=$(TPREFIX) \
-		-XLIBRARY_TYPE=$(DEFAULT_LIBRARY_TYPE) aws.gpr
+		$(GPR_DEFAULT) aws.gpr
 	$(GPRINSTALL) $(GPROPTS) -p -f --prefix=$(TPREFIX) \
 		$(GPR_STATIC) --mode=usage \
 		--install-name=aws tools/tools.gpr
@@ -250,8 +252,7 @@ endif
 
 install-cross: install-clean
 	$(GPRINSTALL) $(GPROPTS) -p -f --prefix=$(TPREFIX) \
-		--target=$(TARGET) \
-		-XLIBRARY_TYPE=$(DEFAULT_LIBRARY_TYPE) aws.gpr
+		--target=$(TARGET) $(GPR_DEFAULT) aws.gpr
 	$(GPRINSTALL) $(GPROPTS) -p -f --prefix=$(TPREFIX) --mode=usage \
 		--target=$(TARGET) $(GPROPTS) \
 		--install-name=aws tools/tools.gpr
