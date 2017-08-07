@@ -84,11 +84,11 @@ if errorlevel 1 goto error
 
 rem ----------------------------------------------- INSTALL
 :install
-gprinstall --prefix=%1 -p -f %GPROPTS% -XLIBRARY_TYPE=static aws.gpr
+gprinstall --prefix=%1 -p -f %GPROPTS% -XLIBRARY_TYPE=static -XXMLADA_BUILD=static aws.gpr
 if errorlevel 1 goto error
-gprinstall --prefix=%1 -p -f %GPROPTS% -XLIBRARY_TYPE=static --mode=usage --install-name=aws tools/tools.gpr
+gprinstall --prefix=%1 -p -f %GPROPTS% -XLIBRARY_TYPE=static -XXMLADA_BUILD=static --mode=usage --install-name=aws tools/tools.gpr
 if errorlevel 1 goto error
-gprinstall --prefix=%1 -p -f %GPROPTS% -XLIBRARY_TYPE=relocatable --build-name=relocatable aws.gpr
+gprinstall --prefix=%1 -p -f %GPROPTS% -XLIBRARY_TYPE=relocatable -XXMLADA_BUILD=relocatable --build-name=relocatable aws.gpr
 if errorlevel 1 goto error
 
 goto exit
