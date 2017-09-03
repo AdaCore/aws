@@ -114,7 +114,6 @@ package body AWS.Net.Std is
       Reuse_Address : Boolean     := False;
       Family        : Family_Type := Family_Unspec)
    is
-      use Ada.Strings.Maps;
       Inet_Addr : Sockets.Inet_Addr_Type;
       Created   : Boolean := False;
    begin

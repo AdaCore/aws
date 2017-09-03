@@ -839,8 +839,6 @@ package body SOAP.Types is
          end if;
       end Image;
 
-      use type Ada.Calendar.Time_Zones.Time_Offset;
-
    begin
       return GNAT.Calendar.Time_IO.Image (O.T, "%Y-%m-%dT%H:%M:%S")
         & Image (Calendar.Time_Zones.UTC_Time_Offset (O.T));

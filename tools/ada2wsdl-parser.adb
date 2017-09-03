@@ -379,7 +379,6 @@ package body Ada2WSDL.Parser is
       -----------------------------------
 
       procedure Analyse_Package_Instantiation (Node : Link) is
-         use Extensions.Flat_Kinds;
          G_Unit : constant Asis.Expression :=
                     Declarations.Generic_Unit_Name (Node.Spec);
          --  The generic unit name (name after the reserved word is)
@@ -988,8 +987,6 @@ package body Ada2WSDL.Parser is
          Type_Suffix : out Unbounded_String;
          Length      : out Positive)
       is
-         use Extensions.Flat_Kinds;
-
          Low : constant Asis.Expression := Definitions.Lower_Bound (E);
          Up  : constant Asis.Expression := Definitions.Upper_Bound (E);
       begin

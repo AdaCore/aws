@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2000-2015, AdaCore                     --
+--                     Copyright (C) 2000-2017, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -39,7 +39,6 @@ private with Unicode.CES;
 private package SOAP.Message.Reader is
 
    use DOM.Core;
-   use Sax.Readers;
 
    type Tree_Reader is new Sax.Readers.Reader with private;
    --  Tree_Reader create a DOM tree using the SAX parser

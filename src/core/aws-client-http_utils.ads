@@ -35,8 +35,6 @@ with AWS.Status;
 
 package AWS.Client.HTTP_Utils is
 
-   use AWS.Client;
-
    Connection_Error : exception renames Client.Connection_Error;
    Protocol_Error   : exception renames Client.Protocol_Error;
 

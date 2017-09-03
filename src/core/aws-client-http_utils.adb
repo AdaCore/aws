@@ -45,8 +45,6 @@ with AWS.Utils;
 
 package body AWS.Client.HTTP_Utils is
 
-   use AWS.Client;
-
    function Image (Data_Range : Content_Range) return String;
    --  Returns the partial content range parameter to be passed to the Range
    --  header.
