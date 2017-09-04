@@ -369,8 +369,6 @@ package body AWS.Net.Std is
    is
       package CS renames Interfaces.C.Strings;
       use type C.int;
-      use type C.unsigned;
-      use type OS_Lib.Addr_Info_Access;
 
       C_Node : aliased C.char_array := C.To_C (Host);
       P_Node : CS.chars_ptr;
@@ -604,8 +602,6 @@ package body AWS.Net.Std is
 
    overriding function Is_Any_Address (Socket : Socket_Type) return Boolean is
       use type C.int;
-      use type C.short;
-      use type C.unsigned_long;
       use type In6_Addr;
       use type OS_Lib.sa_family_t;
       use type OS_Lib.socklen_t;
@@ -634,7 +630,6 @@ package body AWS.Net.Std is
 
    overriding function Is_IPv6 (Socket : Socket_Type) return Boolean is
       use type C.int;
-      use type C.short;
       use type OS_Lib.sa_family_t;
       use type OS_Lib.socklen_t;
 

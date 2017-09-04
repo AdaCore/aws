@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2006-2016, AdaCore                     --
+--                     Copyright (C) 2006-2017, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -816,11 +816,8 @@ package body AWS.Net.SSL is
    --------------
 
    procedure Finalize (Config : in out TS_SSL) is
-      use type TSSL.gnutls_anon_client_credentials_t;
-      use type TSSL.gnutls_anon_server_credentials_t;
       use type TSSL.gnutls_certificate_credentials_t;
       use type TSSL.gnutls_priority_t;
-      use type TSSL.gnutls_privkey_t;
 
       procedure Unchecked_Free is
         new Unchecked_Deallocation (PCert_Array, PCert_Array_Access);
@@ -1000,8 +997,6 @@ package body AWS.Net.SSL is
    ------------------
 
    procedure Generate_RSA is
-      use type TSSL.gnutls_rsa_params_t;
-
       New_One : aliased TSSL.gnutls_rsa_params_t;
       OK      : Boolean;
    begin
@@ -1120,11 +1115,6 @@ package body AWS.Net.SSL is
       CRL_Filename         : String;
       Session_Cache_Size   : Natural)
    is
-      use type TSSL.gnutls_anon_client_credentials_t;
-      use type TSSL.gnutls_anon_server_credentials_t;
-      use type TSSL.gnutls_certificate_credentials_t;
-      use type TSSL.gnutls_dh_params_t;
-
       procedure Set_Certificate;
       --  Set credentials from Cetificate_Filename and Key_Filename
 

@@ -612,8 +612,6 @@ package body AWS.LDAP.Client is
      (Host : String;
       Port : Positive := Default_Port) return Directory
    is
-      use type Thin.LDAP_Type;
-
       C_Host : chars_ptr := New_String (Host);
       Dir    : Directory;
    begin
