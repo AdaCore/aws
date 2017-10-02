@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2012-2015, AdaCore                     --
+--                     Copyright (C) 2012-2017, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -62,6 +62,8 @@ package AWS.Net.WebSocket.Registry is
    --  Sending messages
 
    type Recipient is private;
+
+   No_Recipient : constant Recipient;
 
    function Create (URI : String; Origin : String := "") return Recipient with
      Pre => URI'Length >  0;
@@ -168,6 +170,8 @@ private
             Origin     : Regexp  := Compile ("");
       end case;
    end record;
+
+   No_Recipient : constant Recipient := (K_UID, No_UID);
 
    procedure Start;
    --  Start the WebServer's servers
