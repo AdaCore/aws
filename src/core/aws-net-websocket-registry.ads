@@ -65,21 +65,25 @@ package AWS.Net.WebSocket.Registry is
    No_Recipient : constant Recipient;
 
    function Create (URI : String; Origin : String := "") return Recipient
-     with Pre => URI'Length >  0;
+     with Pre  => URI'Length >  0,
+          Post => Create'Result /= No_Recipient;
    --  A recipient with only an URI is called a broadcast as it designate all
    --  registered WebSocket for this specific URI. If Origin is specified then
    --  it designates a single client.
    --
    --  Note that both URI and Origin can be regular expressions.
 
-   function Create (Id : UID) return Recipient;
+   function Create (Id : UID) return Recipient
+     with Pre  => Id /= No_UID,
+          Post => Create'Result /= No_Recipient;
    --  A recipient for a specific WebSocket
 
    procedure Send
      (To          : Recipient;
       Message     : String;
       Except_Peer : String := "";
-      Timeout     : Duration := Forever);
+      Timeout     : Duration := Forever)
+     with Pre => To /= No_Recipient;
    --  Send a message to the WebSocket designated by Origin and URI. Do not
    --  send this message to the peer whose address is given by Except_Peer.
    --  Except_Peer must be the address as reported by AWS.Net.Peer_Addr. It is
@@ -90,21 +94,24 @@ package AWS.Net.WebSocket.Registry is
      (To          : Recipient;
       Message     : Unbounded_String;
       Except_Peer : String := "";
-      Timeout     : Duration := Forever);
+      Timeout     : Duration := Forever)
+     with Pre => To /= No_Recipient;
    --  As above but with an Unbounded_String
 
    procedure Send
      (To      : Recipient;
       Message : String;
       Request : AWS.Status.Data;
-      Timeout : Duration := Forever);
+      Timeout : Duration := Forever)
+     with Pre => To /= No_Recipient;
    --  As above but filter out the client having set the given request
 
    procedure Send
      (To      : Recipient;
       Message : Unbounded_String;
       Request : AWS.Status.Data;
-      Timeout : Duration := Forever);
+      Timeout : Duration := Forever)
+     with Pre => To /= No_Recipient;
    --  As above but with an Unbounded_String
 
    procedure Close
@@ -112,7 +119,8 @@ package AWS.Net.WebSocket.Registry is
       Message     : String;
       Except_Peer : String := "";
       Timeout     : Duration := Forever;
-      Error       : Error_Type := Normal_Closure);
+      Error       : Error_Type := Normal_Closure)
+     with Pre => To /= No_Recipient;
    --  Close connections
 
    --  Targetting a single WebSocket, these routines are equivalent to the
@@ -182,7 +190,8 @@ private
    --  Register a new WebSocket, returns a reference to the registered
    --  WebSocket or null if it was impossible to register it.
 
-   procedure Watch (WebSocket : in out Object_Class);
+   procedure Watch (WebSocket : in out Object_Class)
+     with Pre => WebSocket /= null;
    --  Watched WebSocket for incoming data
 
 end AWS.Net.WebSocket.Registry;
