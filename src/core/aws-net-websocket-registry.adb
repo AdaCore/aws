@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2012-2016, AdaCore                     --
+--                     Copyright (C) 2012-2017, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -797,8 +797,7 @@ package body AWS.Net.WebSocket.Registry is
                   if Pending = 0 then
                      --  No more data for this socket, first free memory
 
-                     WebSocket.Object'Class
-                       (Socks (Sock_Index).all).Mem_Sock.Free;
+                     Free (Object'Class (Socks (Sock_Index).all).Mem_Sock);
 
                      --  Then the Set.Remove (on the socket set) move the last
                      --  socket in the set to the location of the removed
@@ -935,6 +934,11 @@ package body AWS.Net.WebSocket.Registry is
             Count := Count + 1;
             Signal_Socket;
          end if;
+
+      exception
+         when others =>
+            Unregister (WebSocket);
+            raise;
       end Watch;
 
    end DB;
