@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2003-2017, AdaCore                     --
+--                     Copyright (C) 2003-2018, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -116,6 +116,9 @@ package WSDL2AWS.Generator is
    --  definition are already coded in Ada, it is preferable to reuse them to
    --  not have to convert to/from both definitions.
 
+   procedure Traces (O : in out Object);
+   --  Generate traces callbacks from client stub code
+
    procedure Types_From (O : in out Object; Spec : String);
    --  Use type definitions for Array and Record from this Ada spec instead of
    --  the one defined above. If there is no spec defined above, the procs are
@@ -172,6 +175,7 @@ private
       Stamp      : Boolean := True;
       Unit       : Unbounded_String;
       Spec       : Unbounded_String;
+      Traces     : Boolean := False;
       Types_Spec : Unbounded_String;
       Main       : Unbounded_String;
       Prefix     : Unbounded_String;

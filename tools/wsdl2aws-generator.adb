@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2003-2017, AdaCore                     --
+--                     Copyright (C) 2003-2018, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -918,15 +918,27 @@ package body WSDL2AWS.Generator is
             Text_IO.Put_Line (File, "   function " & L_Proc);
          end if;
 
-         if Mode in Stub_Header then
-            Put_Indent ('(');
-            Text_IO.Put (File, "Connection : AWS.Client.HTTP_Connection");
-         end if;
+         Put_Indent ('(');
+         Text_IO.Put (File, "Connection : AWS.Client.HTTP_Connection");
 
          if Input /= null then
             Text_IO.Put_Line (File, ";");
             Put_Indent;
             Input_Parameters;
+         end if;
+
+         if O.Traces then
+            Text_IO.Put_Line (File, ";");
+            Put_Indent;
+            Text_IO.Put_Line
+               (File,
+                "Pre_Call_Callback  : Pre_Call_CB "
+                & ":= Null_Pre_Call_Callback'Access;");
+            Put_Indent;
+            Text_IO.Put
+               (File,
+                "Post_Call_Callback : Post_Call_CB "
+                & ":= Null_Post_Call_Callback'Access");
          end if;
 
          if Input /= null or else Mode in Stub_Header then
@@ -969,7 +981,22 @@ package body WSDL2AWS.Generator is
             Text_IO.Put (File, (Max_Len - 8) * ' ');
             Text_IO.Put
               (File, " : AWS.Client.Timeouts_Values := "
-               & To_String (O.Unit) & ".Timeouts");
+                  & To_String (O.Unit) & ".Timeouts");
+
+            if O.Traces then
+               Text_IO.Put_Line (File, ";");
+               Put_Indent;
+               Text_IO.Put_Line
+                  (File,
+                   "Pre_Call_Callback  : Pre_Call_CB "
+                   & ":= Null_Pre_Call_Callback'Access;");
+               Put_Indent;
+               Text_IO.Put
+                  (File,
+                   "Post_Call_Callback : Post_Call_CB "
+                   & ":= Null_Post_Call_Callback'Access");
+            end if;
+
          end if;
 
          if Input /= null or else Mode in Stub_Header then
@@ -4359,6 +4386,15 @@ package body WSDL2AWS.Generator is
       return Strings.Fixed.Translate
         (Filename, Strings.Maps.To_Mapping ("-", "."));
    end To_Unit_Name;
+
+   ------------
+   -- Traces --
+   ------------
+
+   procedure Traces (O : in out Object) is
+   begin
+      O.Traces := True;
+   end Traces;
 
    ----------------
    -- Types_From --
