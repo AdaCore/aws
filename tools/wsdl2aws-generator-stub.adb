@@ -450,6 +450,14 @@ package body Stub is
             "                & SOAP.Message.XML.Image (Payload, Schema));");
       end if;
 
+      if O.Gen_CB then
+         Text_IO.Put_Line
+            (Stub_Adb,
+             "      Pre_Call_Callback (Connection, " &
+                """" & To_String (O.Prefix) & Proc & """, " &
+                "Payload, Schema);");
+      end if;
+
       Text_IO.New_Line (Stub_Adb);
       Text_IO.Put_Line (Stub_Adb, "      declare");
       Text_IO.Put_Line
@@ -486,6 +494,14 @@ package body Stub is
             "                   "
             & "& SOAP.Message.XML.Image (Response, Schema));");
          Text_IO.New_Line (Stub_Adb);
+      end if;
+
+      if O.Gen_CB then
+         Text_IO.Put_Line
+            (Stub_Adb,
+             "      Post_Call_Callback (Connection, " &
+                """" & To_String (O.Prefix) & Proc & """, " &
+                "Payload, Response, Schema);");
       end if;
 
       Text_IO.Put_Line
@@ -744,6 +760,9 @@ package body Stub is
       Text_IO.New_Line (Stub_Ads);
       With_Unit (Stub_Ads, "Ada.Calendar", Elab => Off);
       Text_IO.New_Line (Stub_Ads);
+      if O.Gen_CB then
+         With_Unit (Stub_Ads, "SOAP.Client.Callback", Elab => Off);
+      end if;
       With_Unit (Stub_Ads, "SOAP.Types", Elab => Children);
       Text_IO.New_Line (Stub_Ads);
       With_Unit (Stub_Ads, U_Name & ".Types", Elab => Off);
@@ -755,6 +774,10 @@ package body Stub is
       Text_IO.Put_Line (Stub_Ads, "package " & U_Name & ".Client is");
       Text_IO.New_Line (Stub_Ads);
       Text_IO.Put_Line (Stub_Ads, "   use " & U_Name & ".Types;");
+
+      if O.Gen_CB then
+         Text_IO.Put_Line (Stub_Ads, "   use SOAP.Client.Callback;");
+      end if;
 
       Text_IO.New_Line (Stub_Ads);
       Text_IO.Put_Line
@@ -789,6 +812,7 @@ package body Stub is
       Text_IO.Put_Line (Stub_Adb, "   use type SOAP.Parameters.List;");
       Text_IO.New_Line (Stub_Adb);
       Text_IO.Put_Line (Stub_Adb, "   pragma Style_Checks (Off);");
+      Text_IO.New_Line (Stub_Adb);
    end Start_Service;
 
 end Stub;
