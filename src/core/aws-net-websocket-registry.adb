@@ -797,7 +797,7 @@ package body AWS.Net.WebSocket.Registry is
                   if Pending = 0 then
                      --  No more data for this socket, first free memory
 
-                     Free (Object'Class (Socks (Sock_Index).all).Mem_Sock);
+                     Free (Object_Class (Socks (Sock_Index)).Mem_Sock);
 
                      --  Then the Set.Remove (on the socket set) move the last
                      --  socket in the set to the location of the removed
