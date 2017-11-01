@@ -86,6 +86,7 @@ begin
 
    For_Every_Request : loop
       declare
+         use Ada.Streams;
          use type Response.Data_Mode;
 
          Expectation_Failed : exception;
@@ -249,7 +250,8 @@ begin
             LA.Server.Slots.Mark_Phase (LA.Line, Client_Data);
 
             if AWS.Status.Content_Length (LA.Stat)
-               <= CNF.Upload_Size_Limit (LA.Server.Properties)
+               <= Stream_Element_Count
+                    (CNF.Upload_Size_Limit (LA.Server.Properties))
             then
                Get_Message_Data
                  (LA.Server.all, LA.Line, LA.Stat, LA.Expect_100);

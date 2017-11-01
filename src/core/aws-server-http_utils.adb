@@ -412,7 +412,7 @@ package body AWS.Server.HTTP_Utils is
             Socket : constant Net.Socket_Type'Class := Status.Socket (C_Stat);
             Buffer : Stream_Element_Array (1 .. 4096);
             Last   : Stream_Element_Offset;
-            Length : Integer := Status.Content_Length (C_Stat);
+            Length : Stream_Element_Count := Status.Content_Length (C_Stat);
             Stamp  : constant Time := Clock;
             Span   : constant Time_Span :=
                        To_Time_Span
@@ -436,7 +436,7 @@ package body AWS.Server.HTTP_Utils is
               or else Socket.Pending > 0
             loop
                Socket.Receive (Buffer, Last);
-               Length := Length - Positive (Last);
+               Length := Length - Stream_Element_Count (Last);
             end loop;
          end;
       end if;

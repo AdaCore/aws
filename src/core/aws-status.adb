@@ -315,7 +315,7 @@ package body AWS.Status is
    -- Content_Length --
    --------------------
 
-   function Content_Length (D : Data) return Natural is
+   function Content_Length (D : Data) return Stream_Element_Count is
    begin
       return D.Content_Length;
    end Content_Length;

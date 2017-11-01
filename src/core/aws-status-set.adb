@@ -625,7 +625,7 @@ package body AWS.Status.Set is
                               (D.Header, Messages.Content_Length_Token);
       begin
          if Content_Length /= "" then
-            D.Content_Length := Integer'Value (Content_Length);
+            D.Content_Length := Stream_Element_Count'Value (Content_Length);
 
          --  Special case for the websockets draft76: even though there is no
          --  Content-Length header, the message contains 8 bytes that are part

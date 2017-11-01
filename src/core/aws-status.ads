@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2000-2016, AdaCore                     --
+--                     Copyright (C) 2000-2017, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -103,20 +103,20 @@ package AWS.Status is
    -- Header --
    ------------
 
-   function Header            (D : Data) return Headers.List with Inline;
+   function Header          (D : Data) return Headers.List with Inline;
    --  Returns the list of header lines for the request
 
-   function Accept_Encoding   (D : Data) return String with Inline;
+   function Accept_Encoding (D : Data) return String with Inline;
    --  Get the value for "Accept-Encoding:" header
 
-   function Connection        (D : Data) return String with Inline;
+   function Connection      (D : Data) return String with Inline;
    --  Get the value for "Connection:" header
 
-   function Content_Length    (D : Data) return Natural with Inline;
+   function Content_Length  (D : Data) return Stream_Element_Count with Inline;
    --  Get the value for "Content-Length:" header, this is the number of
    --  bytes in the message body.
 
-   function Content_Type      (D : Data) return String with Inline;
+   function Content_Type    (D : Data) return String with Inline;
    --  Get value for "Content-Type:" header
 
    function Transfer_Encoding (D : Data) return String with Inline;
@@ -364,7 +364,7 @@ private
       Monotonic_Time    : Real_Time.Time;
       Binary_Data       : Memory_Stream_Access;
       Uploaded          : Boolean               := False;
-      Content_Length    : Natural               := 0;
+      Content_Length    : Stream_Element_Count  := 0;
       Keep_Alive        : Boolean;
       File_Up_To_Date   : Boolean               := False;
       Attachments       : AWS.Attachments.List;
