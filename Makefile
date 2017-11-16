@@ -239,7 +239,8 @@ ifneq (,$(wildcard $(TPREFIX)/share/gpr/manifests/aws))
 	-$(GPRINSTALL) $(GPROPTS) --uninstall --prefix=$(TPREFIX) aws
 endif
 
-GPRINST_OPTS=-p -f --prefix=$(TPREFIX) --build-var=AWS_BUILD,LIBRARY_TYPE
+GPRINST_OPTS=-p -f --prefix=$(TPREFIX) \
+	--build-var=LIBRARY_TYPE --build-var=AWS_BUILD
 
 install-native: install-clean
 	$(GPRINSTALL) $(GPROPTS) $(GPRINST_OPTS) $(GPR_DEFAULT) \
