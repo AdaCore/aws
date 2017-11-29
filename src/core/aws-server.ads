@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2000-2016, AdaCore                     --
+--                     Copyright (C) 2000-2017, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -203,6 +203,9 @@ package AWS.Server is
 
    function Session_Name return String;
    --  Returns the current session cookie name
+
+   function Session_Private_Name return String;
+   --  Returns the current private session cookie name
 
    ---------------
    -- Other API --

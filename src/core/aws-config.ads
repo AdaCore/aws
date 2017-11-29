@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2000-2014, AdaCore                     --
+--                     Copyright (C) 2000-2017, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -96,6 +96,9 @@ package AWS.Config is
 
    function Session_Name (O : Object) return String with Inline;
    --  Name of the cookie session
+
+   function Session_Private_Name (O : Object) return String with Inline;
+   --  Name of the private cookie session
 
    function Server_Priority (O : Object) return System.Any_Priority
      with Inline;
@@ -458,6 +461,7 @@ private
       Upload_Size_Limit,
       Session,
       Session_Name,
+      Session_Private_Name,
       Cleaner_Wait_For_Client_Timeout,
       Cleaner_Client_Header_Timeout,
       Cleaner_Client_Data_Timeout,
@@ -667,6 +671,9 @@ private
 
                            Session_Name                    =>
                              (Str, +Default.Session_Name),
+
+                           Session_Private_Name            =>
+                             (Str, +Default.Session_Private_Name),
 
                            Security                        =>
                              (Bool, Default.Security),

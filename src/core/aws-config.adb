@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2000-2014, AdaCore                     --
+--                     Copyright (C) 2000-2017, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -707,6 +707,15 @@ package body AWS.Config is
    begin
       return To_String (O.P (Session_Name).Str_Value);
    end Session_Name;
+
+   --------------------------
+   -- Session_Private_Name --
+   --------------------------
+
+   function Session_Private_Name (O : Object) return String is
+   begin
+      return To_String (O.P (Session_Private_Name).Str_Value);
+   end Session_Private_Name;
 
    ----------------------------
    -- SSL_Session_Cache_Size --

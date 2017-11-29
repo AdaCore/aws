@@ -362,6 +362,15 @@ package body AWS.Server is
       return Result;
    end Line_Tasks;
 
+   --------------------------
+   -- Session_Private_Name --
+   --------------------------
+
+   function Session_Private_Name return String is
+   begin
+      return AWS.Config.Session_Private_Name (Server.Get_Current.Config);
+   end Session_Private_Name;
+
    ----------------------
    -- Protocol_Handler --
    ----------------------

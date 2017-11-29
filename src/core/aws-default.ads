@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2000-2014, AdaCore                     --
+--                     Copyright (C) 2000-2017, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -105,6 +105,7 @@ package AWS.Default with Pure is
 
    Session                         : constant Boolean  := False;
    Session_Name                    : constant String   := "AWS";
+   Session_Private_Name            : constant String   := "AWS_Private";
    Session_Cleanup_Interval        : constant Duration := Five_Minutes;
    Session_Lifetime                : constant Duration := Ten_Minutes;
    Session_Id_Length               : constant Positive := 11;
