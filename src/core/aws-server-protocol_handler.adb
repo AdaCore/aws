@@ -40,7 +40,6 @@ with AWS.Parameters;
 with AWS.Response.Set;
 with AWS.Server.HTTP_Utils;
 with AWS.Server.Status;
-with AWS.Session;
 with AWS.Status.Set;
 with AWS.Utils;
 
