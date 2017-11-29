@@ -1488,6 +1488,15 @@ package body AWS.Server.HTTP_Utils is
                Value => CNF.Session_Name (HTTP_Server.Properties) & '='
                         & Session.Image (AWS.Status.Session (C_Stat))
                         & "; path=/; Version=1");
+
+            --  And the internal private session
+
+            Response.Set.Add_Header
+              (D     => Answer,
+               Name  => Messages.Set_Cookie_Token,
+               Value => CNF.Session_Private_Name (HTTP_Server.Properties) & '='
+                        & AWS.Status.Session_Private (C_Stat)
+                        & "; path=/; Version=1");
          end if;
 
          --  Date
