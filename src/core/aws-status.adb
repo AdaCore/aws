@@ -768,6 +768,22 @@ package body AWS.Status is
       return D.Session_Created;
    end Session_Created;
 
+   ---------------------
+   -- Session_Private --
+   ---------------------
+
+   function Session_Private (D : Data) return String is
+   begin
+      if Has_Session (D) then
+         return D.Session_Private;
+
+      else
+         raise Constraint_Error
+           with "Can't use AWS session feature "
+             & "if session support not activated.";
+      end if;
+   end Session_Private;
+
    -----------------------
    -- Session_Timed_out --
    -----------------------
