@@ -43,7 +43,6 @@ with AWS.Utils.Streams;
 
 package body AWS.Session is
 
-   use Ada;
    use Ada.Exceptions;
    use Ada.Streams;
    use Ada.Strings.Unbounded;
@@ -74,8 +73,9 @@ package body AWS.Session is
    --  table of session ID
 
    type Session_Node is record
-      Time_Stamp : Real_Time.Time;
-      Root       : Key_Value_Set_Access;
+      Created_Stamp : Calendar.Time;
+      Time_Stamp    : Real_Time.Time;
+      Root          : Key_Value_Set_Access;
    end record;
 
    package Session_Set is new Ada.Containers.Ordered_Maps (Id, Session_Node);
@@ -110,6 +110,9 @@ package body AWS.Session is
 
       entry Add_Session (SID : Id);
       --  Add a new session ID into the database
+
+      function Creation_Stamp (SID : Id) return Calendar.Time;
+      --  Returns the creation date for this session
 
       entry New_Session (SID : out Id);
       --  Add a new session SID into the database
@@ -280,6 +283,15 @@ package body AWS.Session is
       return New_Id;
    end Create;
 
+   --------------------
+   -- Creation_Stamp --
+   --------------------
+
+   function Creation_Stamp (SID : Id) return Calendar.Time is
+   begin
+      return Database.Creation_Stamp (SID);
+   end Creation_Stamp;
+
    ---------------------
    -- Cleaner_Control --
    ---------------------
@@ -342,8 +354,9 @@ package body AWS.Session is
          Cursor   : Session_Set.Cursor;
          Success  : Boolean;
       begin
-         New_Node := (Time_Stamp => Real_Time.Clock,
-                      Root       => new Key_Value.Map);
+         New_Node := (Created_Stamp => Calendar.Clock,
+                      Time_Stamp    => Real_Time.Clock,
+                      Root          => new Key_Value.Map);
 
          Sessions.Insert (SID, New_Node, Cursor, Success);
 
@@ -351,6 +364,20 @@ package body AWS.Session is
             Unchecked_Free (New_Node.Root);
          end if;
       end Add_Session;
+
+      --------------------
+      -- Creation_Stamp --
+      --------------------
+
+      function Creation_Stamp (SID : Id) return Calendar.Time is
+         Cursor : constant Session_Set.Cursor := Sessions.Find (SID);
+      begin
+         if Session_Set.Has_Element (Cursor) then
+            return Session_Set.Element (Cursor).Created_Stamp;
+         else
+            return Calendar.Clock;
+         end if;
+      end Creation_Stamp;
 
       ---------------------
       -- Delete_If_Empty --
@@ -501,8 +528,9 @@ package body AWS.Session is
 
       entry New_Session (SID : out Id) when Lock_Counter = 0 is
          New_Node : constant Session_Node :=
-                      (Time_Stamp => Real_Time.Clock,
-                       Root       => new Key_Value.Map);
+                      (Created_Stamp => Calendar.Clock,
+                       Time_Stamp    => Real_Time.Clock,
+                       Root          => new Key_Value.Map);
 
          Cursor   : Session_Set.Cursor;
          Success  : Boolean;

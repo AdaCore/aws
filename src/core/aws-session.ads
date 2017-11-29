@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2000-2014, AdaCore                     --
+--                     Copyright (C) 2000-2017, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -37,6 +37,8 @@ private with AWS.Config;
 
 package AWS.Session is
 
+   use Ada;
+
    type Id is private;
 
    type Value_Kind is (Int, Str, Real, Bool, User);
@@ -46,6 +48,9 @@ package AWS.Session is
    function Create return Id with
      Post => Create'Result /= No_Session;
    --  Create a new uniq Session Id
+
+   function Creation_Stamp (SID : Id) return Calendar.Time;
+   --  Returns the creation date of this session
 
    procedure Delete (SID : Id) with
      Post => not Exist (SID);
