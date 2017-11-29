@@ -65,6 +65,7 @@ package body AWS.Session is
                        User => 'U');
 
    package Key_Value renames Containers.Key_Value;
+
    type Key_Value_Set_Access is access Key_Value.Map;
 
    procedure Unchecked_Free is new Ada.Unchecked_Deallocation
@@ -77,8 +78,7 @@ package body AWS.Session is
       Root       : Key_Value_Set_Access;
    end record;
 
-   package Session_Set is
-     new Ada.Containers.Ordered_Maps (Id, Session_Node);
+   package Session_Set is new Ada.Containers.Ordered_Maps (Id, Session_Node);
 
    procedure Get_Node
      (Sessions : in out Session_Set.Map;
