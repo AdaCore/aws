@@ -301,10 +301,10 @@ package body AWS.Status.Set is
    function Create_Private_Hash
      (SID : AWS.Session.Id) return GNAT.MD5.Message_Digest
    is
-      Stamp : constant Calendar.Time := AWS.Session.Creation_Stamp (SID);
-      L_SID : constant String        := AWS.Session.Image (SID);
+      P_Key : constant String  := AWS.Session.Private_Key (SID);
+      L_SID : constant String  := AWS.Session.Image (SID);
    begin
-      return MD5.Digest (Calendar.Seconds (Stamp)'Img & L_SID);
+      return MD5.Digest (P_Key & L_SID);
    end Create_Private_Hash;
 
    -------------------
