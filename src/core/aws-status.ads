@@ -47,6 +47,7 @@ with AWS.Session;
 with AWS.URL;
 
 private with AWS.Resources.Streams.Memory;
+private with GNAT.MD5;
 
 package AWS.Status is
 
@@ -247,6 +248,10 @@ package AWS.Status is
    function Has_Session            (D : Data) return Boolean with Inline;
    --  Returns true if a session ID has been received
 
+   function Session_Private        (D : Data) return String with Inline;
+   --  Returns the private Session ID for the request. Raises Constraint_Error
+   --  if server's session support not activated.
+
    function Session                (D : Data) return Session.Id with Inline;
    --  Returns the Session ID for the request. Raises Constraint_Error if
    --  server's session support not activated.
@@ -345,8 +350,12 @@ package AWS.Status is
 
 private
 
+   use GNAT;
+
    type Memory_Stream_Access is
      access Resources.Streams.Memory.Stream_Type'Class;
+
+   No_Session_Private : constant MD5.Message_Digest := (others => ASCII.NUL);
 
    type Data is record
       --  Connection info
@@ -386,9 +395,10 @@ private
       Auth_Response     : Unbounded_String; -- for Digest
 
       --  Session
-      Session_Id        : AWS.Session.Id        := AWS.Session.No_Session;
-      Session_Created   : Boolean               := False;
-      Session_Timed_Out : Boolean               := False;
+      Session_Id        : AWS.Session.Id     := AWS.Session.No_Session;
+      Session_Private   : MD5.Message_Digest := No_Session_Private;
+      Session_Created   : Boolean            := False;
+      Session_Timed_Out : Boolean            := False;
    end record;
 
 end AWS.Status;

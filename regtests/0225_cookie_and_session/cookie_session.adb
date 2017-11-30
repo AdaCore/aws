@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                        Copyright (C) 2012, AdaCore                       --
+--                     Copyright (C) 2012-2017, AdaCore                     --
 --                                                                          --
 --  This is free software;  you can redistribute it  and/or modify it       --
 --  under terms of the  GNU General Public License as published  by the     --
@@ -62,12 +62,18 @@ begin
       declare
          L : String := Headers.Get_Line (HL, K);
          I : Natural := Strings.Fixed.Index (L, "AWS=SID-");
+         O : Positive := 8;
       begin
          if L (L'First .. L'First + Messages.Set_Cookie_Token'Length - 1)
            = Messages.Set_Cookie_Token
          then
+            if I = 0 then
+               I := Strings.Fixed.Index (L, "AWS_Private=");
+               O := 12;
+            end if;
+
             if I /= 0 then
-               I := I + 8;
+               I := I + O;
                while L (I) /= ';' loop
                   L (I) := 'x';
                   I := I + 1;

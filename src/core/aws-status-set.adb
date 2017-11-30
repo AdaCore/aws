@@ -31,6 +31,8 @@ with Ada.Characters.Handling;
 with Ada.Strings.Fixed;
 with Ada.Unchecked_Deallocation;
 
+with GNAT.MD5;
+
 with AWS.Headers;
 with AWS.Headers.Values;
 with AWS.Messages;
@@ -59,6 +61,10 @@ package body AWS.Status.Set is
           Post => D.Binary_Data /= null;
    --  Create the in-memory stream used to store the message data. This stream
    --  is either standard or compressed to support GZip content-encoding.
+
+   function Create_Private_Hash
+     (SID : AWS.Session.Id) return GNAT.MD5.Message_Digest with Inline;
+   --  Returns the binary private digest for the SID
 
    -------------------
    -- Add_Parameter --
@@ -287,6 +293,19 @@ package body AWS.Status.Set is
    begin
       AWS.URL.Set.Connection_Data (D.URI, Host, Port, Security);
    end Connection_Data;
+
+   -------------------------
+   -- Create_Private_Hash --
+   -------------------------
+
+   function Create_Private_Hash
+     (SID : AWS.Session.Id) return GNAT.MD5.Message_Digest
+   is
+      P_Key : constant String  := AWS.Session.Private_Key (SID);
+      L_SID : constant String  := AWS.Session.Image (SID);
+   begin
+      return MD5.Digest (P_Key & L_SID);
+   end Create_Private_Hash;
 
    -------------------
    -- Create_Stream --
@@ -571,6 +590,7 @@ package body AWS.Status.Set is
       D.Auth_URI          := Null_Unbounded_String;
       D.Auth_Response     := Null_Unbounded_String;
       D.Session_Id        := AWS.Session.No_Session;
+      D.Session_Private   := No_Session_Private;
       D.Session_Created   := False;
       D.Session_Timed_Out := False;
       D.SOAP_Action       := False;
@@ -588,6 +608,11 @@ package body AWS.Status.Set is
    procedure Session (D : in out Data) is
    begin
       D.Session_Id      := AWS.Session.Create;
+
+      --  Create the session's private key
+
+      D.Session_Private := Create_Private_Hash (D.Session_Id);
+
       D.Session_Created := True;
    end Session;
 
@@ -615,7 +640,8 @@ package body AWS.Status.Set is
    -----------------------------
 
    procedure Update_Data_From_Header (D : in out Data) is
-      AWS_Session_Name : constant String := Server.Session_Name;
+      AWS_Session_Name      : constant String := Server.Session_Name;
+      AWS_Session_Priv_Name : constant String := Server.Session_Private_Name;
    begin
       Authorization (D);
 
@@ -647,10 +673,9 @@ package body AWS.Status.Set is
                          Get_Values (D.Header, Messages.Cookie_Token);
       begin
          for Idx in Cookies_Set'Range loop
-
             declare
                --  The expected Cookie line is:
-               --  Cookie: ... AWS=<cookieID>[,;] ...
+               --  Cookie: ... AWS=<cookieID>[,;] AWS_Private=<key>[,;] ...
 
                use type AWS.Session.Id;
 
@@ -665,6 +690,9 @@ package body AWS.Status.Set is
                   Quit  : in out Boolean);
                --  Called for every named value read from the header value
 
+               SID_Found   : Boolean := False;
+               P_SID_Found : Boolean := False;
+
                -----------------
                -- Named_Value --
                -----------------
@@ -676,42 +704,49 @@ package body AWS.Status.Set is
                begin
                   --  Check if it is current process Cookie
 
-                  if Name /= AWS_Session_Name then
-                     return;
+                  if Name = AWS_Session_Name then
+                     D.Session_Id := AWS.Session.Value (Value);
+
+                     --  Check if the cookie value was correct
+
+                     if D.Session_Id = AWS.Session.No_Session then
+                        return;
+                     end if;
+
+                     --  Check if cookie exists in the server
+
+                     if not AWS.Session.Exist (D.Session_Id) then
+                        --  Reset to empty cookie if session does not exist.
+                        --  This is a case where a session has timed out.
+
+                        D.Session_Id        := AWS.Session.No_Session;
+                        D.Session_Private   := No_Session_Private;
+                        D.Session_Timed_Out := True;
+
+                        return;
+                     end if;
+
+                     --  Check if the session has expired, even though it
+                     --  hasn't been deleted yet by the cleaner task.
+
+                     if AWS.Session.Has_Expired (D.Session_Id) then
+                        AWS.Session.Delete (D.Session_Id);
+                        D.Session_Id        := AWS.Session.No_Session;
+                        D.Session_Private   := No_Session_Private;
+                        D.Session_Timed_Out := True;
+                        return;
+                     end if;
+
+                     SID_Found := True;
+
+                  elsif Name = AWS_Session_Priv_Name then
+                     if Value'Length = D.Session_Private'Length then
+                        D.Session_Private := Value;
+                        P_SID_Found := True;
+                     end if;
                   end if;
 
-                  D.Session_Id := AWS.Session.Value (Value);
-
-                  --  Check if the cookie value was correct
-
-                  if D.Session_Id = AWS.Session.No_Session then
-                     return;
-                  end if;
-
-                  --  Check if cookie exists in the server
-
-                  if not AWS.Session.Exist (D.Session_Id) then
-                     --  Reset to empty cookie if session does not exist.
-                     --  This is a case where a session has timed out.
-
-                     D.Session_Id        := AWS.Session.No_Session;
-                     D.Session_Timed_Out := True;
-
-                     return;
-                  end if;
-
-                  --  Check if the session has expired, even though it hasn't
-                  --  been deleted yet by the cleaner task.
-
-                  if AWS.Session.Has_Expired (D.Session_Id) then
-                     AWS.Session.Delete (D.Session_Id);
-                     D.Session_Id        := AWS.Session.No_Session;
-                     D.Session_Timed_Out := True;
-                     return;
-                  end if;
-
-                  --  If all filters done, we found our cookie !
-                  Quit := True;
+                  Quit := SID_Found and then P_SID_Found;
                end Named_Value;
 
                -----------
@@ -724,10 +759,20 @@ package body AWS.Status.Set is
             begin
                Parse (To_String (Cookies_Set (Idx)));
 
-               --  Exit when we have found an existing cookie
-               exit when D.Session_Id /= AWS.Session.No_Session;
+               --  Exit when we have found the session cookies
+
+               exit when D.Session_Id /= AWS.Session.No_Session
+                 and then D.Session_Private /= Null_Unbounded_String;
             end;
          end loop;
+
+         --  Now double check that the session id is valid and has not been
+         --  compromised.
+
+         if D.Session_Private /= Create_Private_Hash (SID => D.Session_Id) then
+            --  There is mismatch, could be a corrupted session id
+            D.Session_Id := AWS.Session.No_Session;
+         end if;
       end;
    end Update_Data_From_Header;
 
