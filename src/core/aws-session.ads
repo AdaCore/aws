@@ -52,6 +52,9 @@ package AWS.Session is
    function Creation_Stamp (SID : Id) return Calendar.Time;
    --  Returns the creation date of this session
 
+   function Private_Key (SID : Id) return String;
+   --  Return the private key for this session
+
    procedure Delete (SID : Id) with
      Post => not Exist (SID);
    --  Delete session, does nothing if SID does not exist.

@@ -37,6 +37,8 @@ with Ada.Strings.Unbounded;
 with Ada.Text_IO;
 with Ada.Unchecked_Deallocation;
 
+with System.Address_Image;
+
 with AWS.Containers.Key_Value;
 with AWS.Default;
 with AWS.Utils.Streams;
@@ -113,6 +115,9 @@ package body AWS.Session is
 
       function Creation_Stamp (SID : Id) return Calendar.Time;
       --  Returns the creation date for this session
+
+      function Private_Key (SID : Id) return String;
+      --  Returns the session's private key
 
       entry New_Session (SID : out Id);
       --  Add a new session SID into the database
@@ -598,8 +603,25 @@ package body AWS.Session is
 
             Session_Set.Next (Cursor);
          end loop;
-
       end Prepare_Expired_SID;
+
+      -----------------
+      -- Private_Key --
+      -----------------
+
+      function Private_Key (SID : Id) return String is
+         Cursor : constant Session_Set.Cursor := Sessions.Find (SID);
+         Node   : Session_Node;
+      begin
+         if Session_Set.Has_Element (Cursor) then
+            Node := Session_Set.Element (Cursor);
+
+            return Duration'Image (Calendar.Seconds (Node.Created_Stamp))
+              & System.Address_Image (Node.Root.all'Address);
+         end if;
+
+         return "";
+      end Private_Key;
 
       ------------
       -- Remove --
@@ -998,6 +1020,15 @@ package body AWS.Session is
 
       Close (File);
    end Load;
+
+   -----------------
+   -- Private_Key --
+   -----------------
+
+   function Private_Key (SID : Id) return String is
+   begin
+      return Database.Private_Key (SID);
+   end Private_Key;
 
    ------------
    -- Remove --
