@@ -37,8 +37,6 @@ with Ada.Strings.Unbounded;
 with Ada.Text_IO;
 with Ada.Unchecked_Deallocation;
 
-with System.Address_Image;
-
 with AWS.Containers.Key_Value;
 with AWS.Default;
 with AWS.Utils.Streams;
@@ -50,6 +48,9 @@ package body AWS.Session is
    use Ada.Strings.Unbounded;
 
    SID_Prefix     : constant String := "SID-";
+
+   Private_Key_Length : constant := 10;
+   --  Length of the string used for the private key
 
    Check_Interval : Duration := Default.Session_Cleanup_Interval;
    --  Check for obsolete section interval
@@ -76,6 +77,7 @@ package body AWS.Session is
 
    type Session_Node is record
       Created_Stamp : Calendar.Time;
+      Private_Key   : String (1 .. Private_Key_Length);
       Time_Stamp    : Real_Time.Time;
       Root          : Key_Value_Set_Access;
    end record;
@@ -359,9 +361,11 @@ package body AWS.Session is
          Cursor   : Session_Set.Cursor;
          Success  : Boolean;
       begin
-         New_Node := (Created_Stamp => Calendar.Clock,
-                      Time_Stamp    => Real_Time.Clock,
-                      Root          => new Key_Value.Map);
+         New_Node :=
+           (Created_Stamp => Calendar.Clock,
+            Time_Stamp    => Real_Time.Clock,
+            Private_Key   => Utils.Random_String (Private_Key_Length),
+            Root          => new Key_Value.Map);
 
          Sessions.Insert (SID, New_Node, Cursor, Success);
 
@@ -535,6 +539,8 @@ package body AWS.Session is
          New_Node : constant Session_Node :=
                       (Created_Stamp => Calendar.Clock,
                        Time_Stamp    => Real_Time.Clock,
+                       Private_Key   =>
+                         Utils.Random_String (Private_Key_Length),
                        Root          => new Key_Value.Map);
 
          Cursor   : Session_Set.Cursor;
@@ -611,16 +617,13 @@ package body AWS.Session is
 
       function Private_Key (SID : Id) return String is
          Cursor : constant Session_Set.Cursor := Sessions.Find (SID);
-         Node   : Session_Node;
       begin
          if Session_Set.Has_Element (Cursor) then
-            Node := Session_Set.Element (Cursor);
-
-            return Duration'Image (Calendar.Seconds (Node.Created_Stamp))
-              & System.Address_Image (Node.Root.all'Address);
+            return Session_Set.Element (Cursor).Private_Key;
+         else
+            --  Must not be null as used as a key for an HVAC
+            return ".!.";
          end if;
-
-         return "";
       end Private_Key;
 
       ------------
