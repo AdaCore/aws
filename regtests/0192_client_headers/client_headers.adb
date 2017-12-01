@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2008-2015, AdaCore                     --
+--                     Copyright (C) 2008-2018, AdaCore                     --
 --                                                                          --
 --  This is free software;  you can redistribute it  and/or modify it       --
 --  under terms of the  GNU General Public License as published  by the     --
@@ -16,11 +16,11 @@
 --  to http://www.gnu.org/licenses for a complete copy of the license.      --
 ------------------------------------------------------------------------------
 
-with Ada.Text_IO;
 with Ada.Streams;
 with Ada.Strings.Fixed;
 with Ada.Strings.Maps;
 with Ada.Strings.Unbounded;
+with Ada.Text_IO;
 
 with AWS.Client;
 with AWS.Config.Set;
@@ -86,8 +86,20 @@ procedure Client_Headers is
                   Replace_Slice (Value, K, K + 2, ":x");
                end loop;
 
+               --  Check for wavefront
+
                if Element (Value, Length (Value)) = 'w' then
                   Replace_Slice (Value, Length (Value), Length (Value), "");
+               end if;
+
+               --  Check for rc
+
+               if Length (Value) > 6
+                 and then
+                   Slice (Value, Length (Value) - 2, Length (Value)) = "xrc"
+               then
+                  Replace_Slice
+                    (Value, Length (Value) - 2, Length (Value), "x");
                end if;
 
                Text_IO.Put_Line (Header & ": " & To_String (Value));
