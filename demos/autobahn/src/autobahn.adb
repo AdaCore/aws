@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2013-2016, AdaCore                     --
+--                     Copyright (C) 2013-2017, AdaCore                     --
 --                                                                          --
 --  This is free software;  you can redistribute it  and/or modify it       --
 --  under terms of the  GNU General Public License as published  by the     --
@@ -29,8 +29,6 @@ procedure Autobahn is
 
    use Ada;
    use AWS;
-   use AWS.Config;
-   use type AWS.Net.Socket_Access;
 
    WS     : Server.HTTP;
    Config : AWS.Config.Object;
