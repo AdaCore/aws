@@ -621,7 +621,7 @@ package body AWS.Session is
          if Session_Set.Has_Element (Cursor) then
             return Session_Set.Element (Cursor).Private_Key;
          else
-            --  Must not be null as used as a key for an HVAC
+            --  Must not be null as used as a key for an HMAC
             return ".!.";
          end if;
       end Private_Key;
