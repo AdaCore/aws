@@ -453,9 +453,7 @@ package body Stub is
       if O.Gen_CB then
          Text_IO.Put_Line
             (Stub_Adb,
-             "      Pre_Call_Callback (Connection, " &
-                """" & To_String (O.Prefix) & Proc & """, " &
-                "Payload, Schema);");
+             "      Pre_Call_Callback (Connection, Payload, Schema);");
       end if;
 
       Text_IO.New_Line (Stub_Adb);
@@ -499,9 +497,7 @@ package body Stub is
       if O.Gen_CB then
          Text_IO.Put_Line
             (Stub_Adb,
-             "      Post_Call_Callback (Connection, " &
-                """" & To_String (O.Prefix) & Proc & """, " &
-                "Payload, Response, Schema);");
+             "      Post_Call_Callback (Connection, Payload, Response, Schema);");
       end if;
 
       Text_IO.Put_Line
