@@ -315,7 +315,7 @@ package body AWS.Status is
    -- Content_Length --
    --------------------
 
-   function Content_Length (D : Data) return Natural is
+   function Content_Length (D : Data) return Stream_Element_Count is
    begin
       return D.Content_Length;
    end Content_Length;
@@ -767,6 +767,22 @@ package body AWS.Status is
    begin
       return D.Session_Created;
    end Session_Created;
+
+   ---------------------
+   -- Session_Private --
+   ---------------------
+
+   function Session_Private (D : Data) return String is
+   begin
+      if Has_Session (D) then
+         return D.Session_Private;
+
+      else
+         raise Constraint_Error
+           with "Can't use AWS session feature "
+             & "if session support not activated.";
+      end if;
+   end Session_Private;
 
    -----------------------
    -- Session_Timed_out --

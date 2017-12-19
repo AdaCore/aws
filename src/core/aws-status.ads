@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2000-2016, AdaCore                     --
+--                     Copyright (C) 2000-2017, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -47,6 +47,7 @@ with AWS.Session;
 with AWS.URL;
 
 private with AWS.Resources.Streams.Memory;
+private with GNAT.MD5;
 
 package AWS.Status is
 
@@ -103,20 +104,20 @@ package AWS.Status is
    -- Header --
    ------------
 
-   function Header            (D : Data) return Headers.List with Inline;
+   function Header          (D : Data) return Headers.List with Inline;
    --  Returns the list of header lines for the request
 
-   function Accept_Encoding   (D : Data) return String with Inline;
+   function Accept_Encoding (D : Data) return String with Inline;
    --  Get the value for "Accept-Encoding:" header
 
-   function Connection        (D : Data) return String with Inline;
+   function Connection      (D : Data) return String with Inline;
    --  Get the value for "Connection:" header
 
-   function Content_Length    (D : Data) return Natural with Inline;
+   function Content_Length  (D : Data) return Stream_Element_Count with Inline;
    --  Get the value for "Content-Length:" header, this is the number of
    --  bytes in the message body.
 
-   function Content_Type      (D : Data) return String with Inline;
+   function Content_Type    (D : Data) return String with Inline;
    --  Get value for "Content-Type:" header
 
    function Transfer_Encoding (D : Data) return String with Inline;
@@ -247,6 +248,10 @@ package AWS.Status is
    function Has_Session            (D : Data) return Boolean with Inline;
    --  Returns true if a session ID has been received
 
+   function Session_Private        (D : Data) return String with Inline;
+   --  Returns the private Session ID for the request. Raises Constraint_Error
+   --  if server's session support not activated.
+
    function Session                (D : Data) return Session.Id with Inline;
    --  Returns the Session ID for the request. Raises Constraint_Error if
    --  server's session support not activated.
@@ -345,8 +350,12 @@ package AWS.Status is
 
 private
 
+   use GNAT;
+
    type Memory_Stream_Access is
      access Resources.Streams.Memory.Stream_Type'Class;
+
+   No_Session_Private : constant MD5.Message_Digest := (others => ASCII.NUL);
 
    type Data is record
       --  Connection info
@@ -364,7 +373,7 @@ private
       Monotonic_Time    : Real_Time.Time;
       Binary_Data       : Memory_Stream_Access;
       Uploaded          : Boolean               := False;
-      Content_Length    : Natural               := 0;
+      Content_Length    : Stream_Element_Count  := 0;
       Keep_Alive        : Boolean;
       File_Up_To_Date   : Boolean               := False;
       Attachments       : AWS.Attachments.List;
@@ -386,9 +395,10 @@ private
       Auth_Response     : Unbounded_String; -- for Digest
 
       --  Session
-      Session_Id        : AWS.Session.Id        := AWS.Session.No_Session;
-      Session_Created   : Boolean               := False;
-      Session_Timed_Out : Boolean               := False;
+      Session_Id        : AWS.Session.Id     := AWS.Session.No_Session;
+      Session_Private   : MD5.Message_Digest := No_Session_Private;
+      Session_Created   : Boolean            := False;
+      Session_Timed_Out : Boolean            := False;
    end record;
 
 end AWS.Status;

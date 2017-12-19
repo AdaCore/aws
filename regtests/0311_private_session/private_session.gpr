@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2013-2017, AdaCore                     --
+--                       Copyright (C) 2017, AdaCore                        --
 --                                                                          --
 --  This is free software;  you can redistribute it  and/or modify it       --
 --  under terms of the  GNU General Public License as published  by the     --
@@ -16,35 +16,14 @@
 --  to http://www.gnu.org/licenses for a complete copy of the license.      --
 ------------------------------------------------------------------------------
 
-with Ada.Text_IO;
+with "aws";
 
-with AWS.Config.Set;
-with AWS.Default;
-with AWS.Net.WebSocket.Registry.Control;
-with AWS.Server;
+project Private_Session is
 
-with Autobahn_CB;
+   for Main use ("private_session.adb");
 
-procedure Autobahn is
+   for Source_Dirs use (".");
+   for Object_Dir  use "obj";
+   for Exec_Dir    use ".";
 
-   use Ada;
-   use AWS;
-
-   WS     : Server.HTTP;
-   Config : AWS.Config.Object;
-begin
-   AWS.Config.Set.Reuse_Address (Config, True);
-
-   Text_IO.Put_Line
-     ("Call me on port" & Positive'Image (AWS.Default.Server_Port));
-
-   Net.WebSocket.Registry.Control.Start;
-   Net.WebSocket.Registry.Register ("/echo", Autobahn_CB.Create'Access);
-
-   Server.Start (WS, Config   => Config, Callback => Autobahn_CB.HW_CB'Access);
-
-   Text_IO.Put_Line ("You can now press Q to exit.");
-   Server.Wait (Server.Q_Key_Pressed);
-
-   Server.Shutdown (WS);
-end Autobahn;
+end Private_Session;

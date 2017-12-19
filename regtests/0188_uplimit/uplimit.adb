@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2008-2014, AdaCore                     --
+--                     Copyright (C) 2008-2017, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -84,7 +84,8 @@ procedure Uplimit is
          elsif not Is_Up and then Status.Binary_Size (Request) = 0 then
             return Response.Build
                      (MIME.Text_Plain,
-                      Integer'Image (Status.Content_Length (Request))
+                      Stream_Element_Count'Image
+                        (Status.Content_Length (Request))
                       & " bytes of message body ignored.",
                       Messages.S413);
          end if;
@@ -107,7 +108,8 @@ procedure Uplimit is
                   (MIME.Text_Plain,
                    URI & " ok server uploaded: " & Boolean'Image (Is_Up)
                    & Stream_Element_Offset'Image (Status.Binary_Size (Request))
-                   & Integer'Image (Status.Content_Length (Request))
+                   & Stream_Element_Count'Image
+                       (Status.Content_Length (Request))
                    & ' ' & AWS.Translator.To_String (Prev));
 
       else

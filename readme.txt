@@ -4,8 +4,7 @@
 
 Authors:
    Dmitriy Anisimkov
-   Pascal Obry                                           October 4th, 2017
-
+   Pascal Obry
 
 
 AWS stand for Ada Web Server. It is a small yet powerful HTTP component to

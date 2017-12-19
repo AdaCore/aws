@@ -412,7 +412,7 @@ package body AWS.Server.HTTP_Utils is
             Socket : constant Net.Socket_Type'Class := Status.Socket (C_Stat);
             Buffer : Stream_Element_Array (1 .. 4096);
             Last   : Stream_Element_Offset;
-            Length : Integer := Status.Content_Length (C_Stat);
+            Length : Stream_Element_Count := Status.Content_Length (C_Stat);
             Stamp  : constant Time := Clock;
             Span   : constant Time_Span :=
                        To_Time_Span
@@ -436,7 +436,7 @@ package body AWS.Server.HTTP_Utils is
               or else Socket.Pending > 0
             loop
                Socket.Receive (Buffer, Last);
-               Length := Length - Positive (Last);
+               Length := Length - Stream_Element_Count (Last);
             end loop;
          end;
       end if;
@@ -1487,6 +1487,15 @@ package body AWS.Server.HTTP_Utils is
                Name  => Messages.Set_Cookie_Token,
                Value => CNF.Session_Name (HTTP_Server.Properties) & '='
                         & Session.Image (AWS.Status.Session (C_Stat))
+                        & "; path=/; Version=1");
+
+            --  And the internal private session
+
+            Response.Set.Add_Header
+              (D     => Answer,
+               Name  => Messages.Set_Cookie_Token,
+               Value => CNF.Session_Private_Name (HTTP_Server.Properties) & '='
+                        & AWS.Status.Session_Private (C_Stat)
                         & "; path=/; Version=1");
          end if;
 

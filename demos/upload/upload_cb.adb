@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2011-2016, AdaCore                     --
+--                     Copyright (C) 2011-2017, AdaCore                     --
 --                                                                          --
 --  This is free software;  you can redistribute it  and/or modify it       --
 --  under terms of the  GNU General Public License as published  by the     --
@@ -19,6 +19,7 @@
 with Ada.Directories;
 with Ada.Streams.Stream_IO;
 
+with AWS.Messages;
 with AWS.MIME;
 with AWS.Parameters;
 with AWS.Server;
@@ -77,6 +78,8 @@ package body Upload_CB is
            (MIME.Text_Plain,
             "The file is now uploaded into the current directory: upload.txt");
       end if;
+
+      return Response.Acknowledge (Status_Code => Messages.S404);
    end HW_CB;
 
 end Upload_CB;

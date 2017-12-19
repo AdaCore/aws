@@ -29,6 +29,7 @@
 
 pragma Ada_2012;
 
+with Ada.Streams;
 with Ada.Tags;
 with Ada.Text_IO;
 with Ada.Unchecked_Deallocation;
@@ -234,6 +235,7 @@ package body AWS.Server is
    ----------------------
 
    procedure Get_Message_Body is
+      use type Ada.Streams.Stream_Element_Count;
       TA : constant Line_Attribute.Attribute_Handle :=
              Line_Attribute.Reference;
    begin
@@ -359,6 +361,15 @@ package body AWS.Server is
 
       return Result;
    end Line_Tasks;
+
+   --------------------------
+   -- Session_Private_Name --
+   --------------------------
+
+   function Session_Private_Name return String is
+   begin
+      return AWS.Config.Session_Private_Name (Server.Get_Current.Config);
+   end Session_Private_Name;
 
    ----------------------
    -- Protocol_Handler --

@@ -239,25 +239,28 @@ ifneq (,$(wildcard $(TPREFIX)/share/gpr/manifests/aws))
 	-$(GPRINSTALL) $(GPROPTS) --uninstall --prefix=$(TPREFIX) aws
 endif
 
+GPRINST_OPTS=-p -f --prefix=$(TPREFIX) \
+	--build-var=LIBRARY_TYPE --build-var=AWS_BUILD
+
 install-native: install-clean
-	$(GPRINSTALL) $(GPROPTS) -p -f --prefix=$(TPREFIX) \
-		$(GPR_DEFAULT) aws.gpr
-	$(GPRINSTALL) $(GPROPTS) -p -f --prefix=$(TPREFIX) \
-		$(GPR_STATIC) --mode=usage \
+	$(GPRINSTALL) $(GPROPTS) $(GPRINST_OPTS) $(GPR_DEFAULT) \
+		--build-name=$(DEFAULT_LIBRARY_TYPE) aws.gpr
+	$(GPRINSTALL) $(GPROPTS) $(GPRINST_OPTS) $(GPR_STATIC) --mode=usage \
+		--build-name=$(DEFAULT_LIBRARY_TYPE) \
 		--install-name=aws tools/tools.gpr
 ifeq (${ENABLE_SHARED}, true)
-	$(GPRINSTALL) $(GPROPTS) -p -f --prefix=$(TPREFIX) \
+	$(GPRINSTALL) $(GPROPTS) $(GPRINST_OPTS) \
 		$(GPR_OTHER) --build-name=$(OTHER_LIBRARY_TYPE) aws.gpr
 endif
 
 install-cross: install-clean
-	$(GPRINSTALL) $(GPROPTS) -p -f --prefix=$(TPREFIX) \
+	$(GPRINSTALL) $(GPROPTS) $(GPRINST_OPTS) \
 		--target=$(TARGET) $(GPR_DEFAULT) aws.gpr
-	$(GPRINSTALL) $(GPROPTS) -p -f --prefix=$(TPREFIX) --mode=usage \
+	$(GPRINSTALL) $(GPROPTS)  $(GPRINST_OPTS) --mode=usage \
 		--target=$(TARGET) $(GPROPTS) \
 		--install-name=aws tools/tools.gpr
 ifeq (${ENABLE_SHARED}, true)
-	$(GPRINSTALL) $(GPROPTS) -p -f --prefix=$(TPREFIX) \
+	$(GPRINSTALL) $(GPROPTS) $(GPRINST_OPTS) \
 		--target=$(TARGET) $(GPR_OTHER) \
 		--build-name=$(OTHER_LIBRARY_TYPE) aws.gpr
 endif

@@ -1084,19 +1084,37 @@ package body AWS.Client.HTTP_Utils is
       Set_Keep_Alive (Response.Header
         (Answer, Messages.Proxy_Connection_Token));
 
-      --  ??? We handle a single cookie on the client side. This must be
-      --  fixed. Every cookie received should be stored and sent back to the
-      --  server.
+      --  Read and store all cookies from response header
 
       declare
-         Set_Cookie : constant String :=
-                        Response.Header (Answer, Messages.Set_Cookie_Token);
+         Set_Cookies : constant Headers.VString_Array :=
+                         Response.Header (Answer)
+                         .Get_Values (Messages.Set_Cookie_Token);
+         Cookie      : Unbounded_String;
+         I           : Natural;
       begin
-         --  Set the new cookie, only if the server sent Set-Cookie
-         --  header line.
+         for K in Set_Cookies'Range loop
+            if Set_Cookies (K) /= Null_Unbounded_String then
+               I := Strings.Unbounded.Index (Set_Cookies (K), ";");
 
-         if Set_Cookie /= "" then
-            Connection.Cookie := +Set_Cookie;
+               if Cookie /= Null_Unbounded_String then
+                  Append (Cookie, "; ");
+               end if;
+
+               --  We found a cookie NAME=VALUE, record it
+
+               if I = 0 then
+                  Append (Cookie, Set_Cookies (K));
+               else
+                  Append (Cookie, Slice (Set_Cookies (K), 1, I - 1));
+               end if;
+            end if;
+         end loop;
+
+         --  If we have some value, update the connection status
+
+         if Cookie /= Null_Unbounded_String then
+            Connection.Cookie := Cookie;
          end if;
       end;
 

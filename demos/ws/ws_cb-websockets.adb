@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                      Copyright (C) 2014, AdaCore                         --
+--                    Copyright (C) 2014-2017, AdaCore                      --
 --                                                                          --
 --  This is free software;  you can redistribute it  and/or modify it       --
 --  under terms of the  GNU General Public License as published  by the     --
@@ -47,7 +47,6 @@ package body WS_CB.WebSockets is
      (Socket  : AWS.Net.Socket_Access;
       Request : AWS.Status.Data) return AWS.Net.WebSocket.Object'Class
    is
-      use AWS.Net;
       use AWS.Status;
 
       Client_Tag : constant String :=
