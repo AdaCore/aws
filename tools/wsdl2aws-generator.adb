@@ -927,7 +927,7 @@ package body WSDL2AWS.Generator is
             Input_Parameters;
          end if;
 
-         if O.Gen_CB then
+         if O.Traces then
             Text_IO.Put_Line (File, ";");
             Put_Indent;
             Text_IO.Put_Line
@@ -983,7 +983,7 @@ package body WSDL2AWS.Generator is
               (File, " : AWS.Client.Timeouts_Values := "
                   & To_String (O.Unit) & ".Timeouts");
 
-            if O.Gen_CB then
+            if O.Traces then
                Text_IO.Put_Line (File, ";");
                Put_Indent;
                Text_IO.Put_Line
@@ -4386,6 +4386,15 @@ package body WSDL2AWS.Generator is
       return Strings.Fixed.Translate
         (Filename, Strings.Maps.To_Mapping ("-", "."));
    end To_Unit_Name;
+
+   ------------
+   -- Traces --
+   ------------
+
+   procedure Traces (O : in out Object) is
+   begin
+      O.Traces := True;
+   end Traces;
 
    ----------------
    -- Types_From --
