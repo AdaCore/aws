@@ -76,6 +76,20 @@ package body AWS.Status.Set is
       Decode      : Boolean := True;
       Replace     : Boolean := False) is
    begin
+      Add_Parameter
+        (D       => D,
+         Name    => To_Unbounded_String (Name),
+         Value   => To_Unbounded_String (Value),
+         Decode  => Decode,
+         Replace => Replace);
+   end Add_Parameter;
+
+   procedure Add_Parameter
+     (D           : in out Data;
+      Name, Value : Unbounded_String;
+      Decode      : Boolean := True;
+      Replace     : Boolean := False) is
+   begin
       if Replace then
          AWS.URL.Set.Parameters (D.URI'Access).all.Update
            (Name, Value, Decode);

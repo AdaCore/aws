@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2000-2015, AdaCore                     --
+--                     Copyright (C) 2000-2017, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -37,6 +37,7 @@ with AWS.Parameters;
 package AWS.URL is
 
    use Ada;
+   use Ada.Strings.Unbounded;
 
    --  The general URL form as described in RFC2616 is:
    --
@@ -207,9 +208,10 @@ package AWS.URL is
    function Decode (Str : String) return String;
    --  This is the opposite of Encode above
 
+   function Decode (Str : Unbounded_String) return Unbounded_String;
+
 private
 
-   use Ada.Strings.Unbounded;
    use type Ada.Strings.Maps.Character_Set;
 
    type Path_Status is (Valid, Wrong);

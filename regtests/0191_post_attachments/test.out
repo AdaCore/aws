@@ -30,4 +30,5 @@ Filename       file1.dat
 Local Filename ./XpidX-6.file1.dat
 Filename       file2.dat
 Local Filename ./XpidX-7.file2.dat
+big-data size 3036000 bytes
 shutdown

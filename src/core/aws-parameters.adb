@@ -29,7 +29,6 @@
 
 with Ada.Streams;
 with Ada.Strings.Fixed;
-with Ada.Strings.Unbounded;
 with AWS.URL;
 
 with AWS.Config;
@@ -157,6 +156,18 @@ package body AWS.Parameters is
       end if;
    end Add;
 
+   procedure Add
+     (Parameter_List : in out List;
+      Name, Value    : Unbounded_String;
+      Decode         : Boolean) is
+   begin
+      if Decode then
+         Parameter_List.Add (URL.Decode (Name), URL.Decode (Value));
+      else
+         Parameter_List.Add (Name, Value);
+      end if;
+   end Add;
+
    ------------------
    -- Add_Internal --
    ------------------
@@ -246,6 +257,18 @@ package body AWS.Parameters is
       end if;
    end Update;
 
+   procedure Update
+     (Parameter_List : in out List;
+      Name, Value    : Unbounded_String;
+      Decode         : Boolean) is
+   begin
+      if Decode then
+         Parameter_List.Update (URL.Decode (Name), URL.Decode (Value));
+      else
+         Parameter_List.Update (Name, Value);
+      end if;
+   end Update;
+
    ----------------
    -- URI_Format --
    ----------------
@@ -253,7 +276,6 @@ package body AWS.Parameters is
    function URI_Format
      (Parameter_List : List; Limit : Positive := Positive'Last) return String
    is
-      use Ada.Strings.Unbounded;
       Delimiter : Character := '?';
       Parameters : Unbounded_String;
       Size : Positive := 1;
@@ -267,8 +289,9 @@ package body AWS.Parameters is
          begin
             Append
               (Parameters,
-               Delimiter & Encode (Item.Name)
-               & (if Item.Value = "" then "" else '=' &  Encode (Item.Value)));
+               Delimiter & Encode (To_String (Item.Name))
+               & (if Item.Value = "" then ""
+                  else '=' &  Encode (To_String (Item.Value))));
          end;
 
          if J = 1 then

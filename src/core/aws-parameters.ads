@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2000-2016, AdaCore                     --
+--                     Copyright (C) 2000-2017, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -29,6 +29,7 @@
 
 pragma Ada_2012;
 
+with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
 with AWS.Containers.Tables;
 with AWS.Resources.Streams.Memory;
 
@@ -49,6 +50,11 @@ package AWS.Parameters is
 
    procedure Add
      (Parameter_List : in out List; Name, Value : String; Decode : Boolean);
+
+   procedure Add
+     (Parameter_List : in out List;
+      Name, Value    : Unbounded_String;
+      Decode         : Boolean);
    --  URL decode and add Name=Value pair into parameters
 
    procedure Add (Parameter_List : in out List; Parameters : String);
@@ -68,6 +74,11 @@ package AWS.Parameters is
 
    procedure Update
      (Parameter_List : in out List; Name, Value : String; Decode : Boolean);
+
+   procedure Update
+     (Parameter_List : in out List;
+      Name, Value    : Unbounded_String;
+      Decode         : Boolean);
 
    Too_Long_Parameter : exception;
    --  Raised if the Add routine detects a too long parameter line when reading

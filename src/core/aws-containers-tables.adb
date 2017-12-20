@@ -56,8 +56,8 @@ package body AWS.Containers.Tables is
 
    procedure Update_Internal
      (Table : in out Table_Type;
-      Name  : String;
-      Value : String;
+      Name  : Unbounded_String;
+      Value : Unbounded_String;
       N     : Natural);
    --  Update the N-th Value with the given Name into the Table.
    --  The container could already have more than one value associated with
@@ -72,6 +72,12 @@ package body AWS.Containers.Tables is
    ---------
 
    procedure Add (Table : in out Table_Type; Name, Value : String) is
+   begin
+      Table.Add
+        (To_Unbounded_String (Name), To_Unbounded_String (Value));
+   end Add;
+
+   procedure Add (Table : in out Table_Type; Name, Value : Unbounded_String) is
    begin
       Update_Internal (Table, Name, Value, 0);
    end Add;
@@ -137,43 +143,31 @@ package body AWS.Containers.Tables is
    procedure Generic_Iterate_Names
      (Table : Table_Type; Separator : String)
    is
-      use type Ada.Containers.Count_Type;
-
       CN  : Index_Table.Cursor;
       NI  : Name_Indexes.Vector;
       Idx : Key_Positive;
-
    begin
       CN := Index_Table.First (Table.Index);
 
       while Index_Table.Has_Element (CN) loop
          NI := Index_Table.Element (CN);
 
-         Idx := Name_Indexes.Element (NI, 1);
+         declare
+            Value : Unbounded_String;
+         begin
+            for J in 1 .. Positive (Name_Indexes.Length (NI)) loop
+               Idx := Name_Indexes.Element (NI, J);
 
-         if Name_Indexes.Length (NI) = 1 then
+               Append
+                 (Value,
+                  (if Value = Null_Unbounded_String then "" else Separator)
+                  & Data_Table.Element (Table.Data, Idx).Value);
+            end loop;
+
             Process
-              (Data_Table.Element (Table.Data, Idx).Name,
-               Data_Table.Element (Table.Data, Idx).Value);
-         else
-            declare
-               Value : Unbounded_String;
-            begin
-               for J in 1 .. Positive (Name_Indexes.Length (NI)) loop
-                  Idx := Name_Indexes.Element (NI, J);
-
-                  Append (Value, Data_Table.Element (Table.Data, Idx).Value);
-
-                  if J < Positive (Name_Indexes.Length (NI)) then
-                     Append (Value, Separator);
-                  end if;
-               end loop;
-
-               Process
-                 (Data_Table.Element (Table.Data, Idx).Name,
-                  To_String (Value));
-            end;
-         end if;
+              (To_String (Data_Table.Element (Table.Data, Idx).Name),
+               To_String (Value));
+         end;
 
          CN := Index_Table.Next (CN);
       end loop;
@@ -194,8 +188,7 @@ package body AWS.Containers.Tables is
       Get_Indexes (Table, Name, Value, Found);
 
       if Found and then N <= Natural (Name_Indexes.Length (Value)) then
-         return Data_Table.Element
-           (Table.Data, Name_Indexes.Element (Value, N)).Value;
+         return To_String (Table.Data (Name_Indexes.Element (Value, N)).Value);
       else
          return "";
       end if;
@@ -241,7 +234,7 @@ package body AWS.Containers.Tables is
      (Table : Table_Type; N : Positive := 1) return String is
    begin
       if N <= Natural (Data_Table.Length (Table.Data)) then
-         return Data_Table.Element (Table.Data, Key_Positive (N)).Name;
+         return To_String (Table.Data (Key_Positive (N)).Name);
       else
          return "";
       end if;
@@ -275,7 +268,7 @@ package body AWS.Containers.Tables is
      (Table : Table_Type; N : Positive := 1) return String is
    begin
       if N <= Natural (Data_Table.Length (Table.Data)) then
-         return Data_Table.Element (Table.Data, Key_Positive (N)).Value;
+         return To_String (Table.Data (Key_Positive (N)).Value);
       else
          return "";
       end if;
@@ -300,10 +293,8 @@ package body AWS.Containers.Tables is
             Result : VString_Array (1 .. Last);
          begin
             for I in 1 .. Last loop
-               Result (I)
-                  := To_Unbounded_String
-                   (Data_Table.Element
-                        (Table.Data, Name_Indexes.Element (Value, I)).Value);
+               Result (I) :=
+                 Table.Data (Name_Indexes.Element (Value, I)).Value;
             end loop;
             return Result;
          end;
@@ -384,7 +375,7 @@ package body AWS.Containers.Tables is
          declare
             Item : constant Element := Right.Get (J);
          begin
-            if not Unique or else not Left.Exist (Item.Name) then
+            if not Unique or else not Left.Exist (To_String (Item.Name)) then
                Result.Add (Item.Name, Item.Value);
             end if;
          end;
@@ -403,21 +394,35 @@ package body AWS.Containers.Tables is
       Value : String;
       N     : Positive := 1) is
    begin
+      Update_Internal
+        (Table, To_Unbounded_String (Name), To_Unbounded_String (Value), N);
+   end Update;
+
+   ------------
+   -- Update --
+   ------------
+
+   procedure Update
+     (Table : in out Table_Type;
+      Name  : Unbounded_String;
+      Value : Unbounded_String;
+      N     : Positive := 1) is
+   begin
       Update_Internal (Table, Name, Value, N);
    end Update;
 
-   ---------------------
-   -- Update_Internal --
-   ---------------------
+   ------------
+   -- Update --
+   ------------
 
    procedure Update_Internal
      (Table : in out Table_Type;
-      Name  : String;
-      Value : String;
+      Name  : Unbounded_String;
+      Value : Unbounded_String;
       N     : Natural)
    is
       L_Key  : constant String :=
-                 Normalize_Name (Name, not Table.Case_Sensitive);
+                 Normalize_Name (To_String (Name), not Table.Case_Sensitive);
 
       Cursor : Index_Table.Cursor := Index_Table.Find (Table.Index, L_Key);
 
@@ -434,11 +439,7 @@ package body AWS.Containers.Tables is
          Item : in out Name_Index_Table)
       is
          pragma Unreferenced (Key);
-         NV : constant Element :=
-                (Name_Length  => Name'Length,
-                 Value_Length => Value'Length,
-                 Name         => Name,
-                 Value        => Value);
+         NV : constant Element := (Name => Name, Value => Value);
       begin
          if N = 0 or else N = Natural (Name_Indexes.Length (Item)) + 1 then
             --  Add item at the end of the table

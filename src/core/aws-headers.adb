@@ -82,7 +82,7 @@ package body AWS.Headers is
       if Pair.Name = "" then
          return "";
       else
-         return Pair.Name & ": " & Pair.Value;
+         return To_String (Pair.Name & ": " & Pair.Value);
       end if;
    end Get_Line;
 

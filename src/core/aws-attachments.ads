@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2004-2014, AdaCore                     --
+--                     Copyright (C) 2004-2017, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -59,11 +59,21 @@ package AWS.Attachments is
    --  be base64 encoded.
 
    function Value
-     (Data         : String;
+     (Data         : Unbounded_String;
       Name         : String := "";
       Encode       : Encoding := None;
       Content_Id   : String := "";
       Content_Type : String := MIME.Text_Plain) return Content;
+   --  An unbounded string as content
+
+   function Value
+     (Data         : String;
+      Name         : String := "";
+      Encode       : Encoding := None;
+      Content_Id   : String := "";
+      Content_Type : String := MIME.Text_Plain) return Content
+   is (Value (To_Unbounded_String (Data), Name, Encode, Content_Id,
+              Content_Type));
    --  A string as content
 
    type Attachment_Kind is (Data, Alternative);

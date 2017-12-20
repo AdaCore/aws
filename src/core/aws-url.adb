@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2000-2013, AdaCore                     --
+--                     Copyright (C) 2000-2017, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -136,6 +136,41 @@ package body AWS.URL is
       end loop;
 
       return Res (1 .. K);
+   end Decode;
+
+   function Decode (Str : Unbounded_String) return Unbounded_String is
+      use Characters.Handling;
+      Res : Unbounded_String;
+      I   : Positive := 1;
+   begin
+      if Str = Null_Unbounded_String then
+         return Null_Unbounded_String;
+      end if;
+
+      loop
+         if Element (Str, I) = '%'
+           and then I + 2 <= Length (Str)
+           and then Is_Hexadecimal_Digit (Element (Str, I + 1))
+           and then Is_Hexadecimal_Digit (Element (Str, I + 2))
+         then
+            Append
+              (Res,
+               Character'Val (Utils.Hex_Value (Slice (Str, I + 1, I + 2))));
+            I := I + 2;
+
+         elsif Element (Str, I) = '+' then
+            --  A plus is used for spaces in forms value for example
+            Append (Res, ' ');
+
+         else
+            Append (Res, Element (Str, I));
+         end if;
+
+         I := I + 1;
+         exit when I > Length (Str);
+      end loop;
+
+      return Res;
    end Decode;
 
    ------------

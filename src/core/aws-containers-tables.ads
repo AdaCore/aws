@@ -43,9 +43,9 @@ package AWS.Containers.Tables is
 
    Empty_Table : constant Table_Type;
 
-   type Element (Name_Length, Value_Length : Natural) is record
-      Name  : String (1 .. Name_Length);
-      Value : String (1 .. Value_Length);
+   type Element is record
+      Name  : Unbounded_String;
+      Value : Unbounded_String;
    end record;
    --  Data type to store name/value pair retrieved from a Table_Type
 
@@ -126,12 +126,15 @@ package AWS.Containers.Tables is
    --  element into result when element with the same name already exists in
    --  the Left container.
 
+   procedure Add (Table : in out Table_Type; Name, Value : String);
+
    procedure Add
      (Table       : in out Table_Type;
-      Name, Value : String)
+      Name, Value : Unbounded_String)
    with Post => Count (Table) = Count (Table'Old) + 1
                or else
-                Count (Table, Name) = Count (Table'Old, Name) + 1;
+                Count (Table, To_String (Name))
+                = Count (Table'Old, To_String (Name)) + 1;
    --  Add a new Key/Value pair into Table. A new value is always added,
    --  even if there is already an entry with the same name.
 
@@ -139,19 +142,26 @@ package AWS.Containers.Tables is
      (Table : in out Table_Type;
       Name  : String;
       Value : String;
+      N     : Positive := 1);
+
+   procedure Update
+     (Table : in out Table_Type;
+      Name  : Unbounded_String;
+      Value : Unbounded_String;
       N     : Positive := 1)
    with
      Pre  =>
        --  Count + 1 means it is added at the end of the table
-       N <= Count (Table, Name) + 1,
+       N <= Count (Table, To_String (Name)) + 1,
      Post =>
        --  Value already exists, it is updated
-       (N <= Count (Table'Old, Name)
-        and then Count (Table, Name) = Count  (Table'Old, Name))
+       (N <= Count (Table'Old, To_String (Name))
+        and then Count (Table, To_String (Name))
+                 = Count  (Table'Old, To_String (Name)))
        --  New value appended
        or else
-         (N = Count (Table'Old, Name) + 1
-          and then N = Count (Table, Name));
+         (N = Count (Table'Old, To_String (Name)) + 1
+          and then N = Count (Table, To_String (Name)));
    --  Update the N-th Value with the given Name into the Table.
    --  The container could already have more than one value associated with
    --  this name.
@@ -168,7 +178,7 @@ package AWS.Containers.Tables is
 
 private
 
-   Null_Element : constant Element := (0, 0, "", "");
+   Null_Element : constant Element := (others => Null_Unbounded_String);
 
    type Key_Positive is new Positive;
 

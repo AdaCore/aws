@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2000-2014, AdaCore                     --
+--                     Copyright (C) 2000-2017, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -117,6 +117,14 @@ package AWS.Status.Set is
    --  If Decode is true, decodes Name and Value. This is used when handling
    --  multipart/form-data for example. If Replace is True the paramater named
    --  Name will be set with Value (or added if not already present).
+
+   procedure Add_Parameter
+     (D           : in out Data;
+      Name, Value : Unbounded_String;
+      Decode      : Boolean := True;
+      Replace     : Boolean := False)
+   with Inline;
+   --  The same as above but with Unbounded_String Name and Value
 
    procedure Add_Parameters (D : in out Data; Parameters : String)
      with Inline;

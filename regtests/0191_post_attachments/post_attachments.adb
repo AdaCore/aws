@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2008-2016, AdaCore                     --
+--                     Copyright (C) 2008-2017, AdaCore                     --
 --                                                                          --
 --  This is free software;  you can redistribute it  and/or modify it       --
 --  under terms of the  GNU General Public License as published  by the     --
@@ -25,6 +25,7 @@ with Ada.Text_IO;
 with AWS.Attachments;
 with AWS.Client;
 with AWS.Headers;
+with AWS.Messages;
 with AWS.MIME;
 with AWS.Net.Log;
 with AWS.Parameters;
@@ -38,15 +39,18 @@ procedure Post_Attachments is
 
    use Ada;
    use Ada.Streams;
+   use Ada.Strings.Unbounded;
    use AWS;
+
+   Data_Name : constant String := "big-data";
 
    --------
    -- CB --
    --------
 
    function CB (Request : Status.Data) return Response.Data is
-      Params  : constant Parameters.List := Status.Parameters (Request);
-      Attachs : constant Attachments.List := Status.Attachments (Request);
+      Params  : Parameters.List;
+      Attachs : Attachments.List;
 
       procedure Output_A_Name (E : Attachments.Element);
 
@@ -77,11 +81,25 @@ procedure Post_Attachments is
       end Output_A_Name;
 
    begin
-      Text_IO.Put_Line ("*** ID =" & Parameters.Get (Params, "ID"));
+      if not Status.Is_Body_Uploaded (Request) then
+         Server.Get_Message_Body;
+      end if;
+
+      Params  := Status.Parameters (Request);
+      Attachs := Status.Attachments (Request);
+
+      Text_IO.Put_Line ("*** ID =" & Params.Get ("ID"));
       Text_IO.Put_Line
-        ("*** N Attachments = "
-           & Natural'Image (Attachments.Count (Attachs)));
+        ("*** N Attachments = " & Natural'Image (Attachments.Count (Attachs)));
+
       Attachments.Iterate (Attachs, Output_A_Name'Access);
+
+      if Params.Exist (Data_Name) then
+         Text_IO.Put_Line
+           (Data_Name & " size"
+            & Length (Params.Get_Values (Data_Name) (1))'Img & " bytes");
+      end if;
+
       return Response.Build (MIME.Text_HTML, "ok");
    end CB;
 
@@ -159,6 +177,27 @@ begin
       Attachments  => Attachments);
 
    Text_IO.New_Line;
+
+   declare
+      Content : Unbounded_String;
+      Sample  : constant String :=
+                  "1234567890qwertyuioplkjhgfdszxcvbnmMNBVCXZASDFGHJKLPOIUYTW";
+      Headers : AWS.Headers.List;
+   begin
+      for J in 10_001 .. 56_000 loop
+         Append (Content, Sample & J'Img & ASCII.LF);
+      end loop;
+
+      Headers.Add
+        (AWS.Messages.Content_Disposition_Token, "name=""" & Data_Name & '"');
+      --  !!! No name for Data_Name parameter in callback without this header.
+      --  Maybe need some fix.
+
+      Attachments.Add
+        (Name    => Data_Name,
+         Data    => AWS.Attachments.Value (Content),
+         Headers => Headers);
+   end;
 
    AWS.Client.Post
      (WC, R, URI => "/Upload", Data => "ID=104",

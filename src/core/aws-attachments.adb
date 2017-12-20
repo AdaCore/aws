@@ -480,7 +480,7 @@ package body AWS.Attachments is
 
          --  Send alternatives
 
-         for  Part of Attachment.Parts loop
+         for Part of Attachment.Parts loop
             Net.Buffered.Put_Line (Socket, Pref_Suf & To_String (A_Boundary));
             Net.Buffered.Put_Line
               (Socket, Messages.Content_Type (To_String (Part.Content_Type)));
@@ -514,7 +514,6 @@ package body AWS.Attachments is
       ------------------
 
       procedure Send_Content (Attachment : Element) is
-
       begin
          --  Send multipart message start boundary
 
@@ -539,6 +538,7 @@ package body AWS.Attachments is
          ------------------
 
          procedure Send_Content is
+            Content_Len : constant Positive := Length (Data.Content);
 
             procedure Send;
             --  Send standard content
@@ -551,8 +551,18 @@ package body AWS.Attachments is
             ----------
 
             procedure Send is
+               Chunk_Shift : constant := 1023;
+               K           : Positive := 1;
+               L           : Natural;
             begin
-               Net.Buffered.Put_Line (Socket, To_String (Data.Content));
+               loop
+                  L := Integer'Min (K + Chunk_Shift, Content_Len);
+                  Net.Buffered.Put (Socket, Slice (Data.Content, K, L));
+                  exit when L = Content_Len;
+                  K := L + 1;
+               end loop;
+
+               Net.Buffered.New_Line (Socket);
             end Send;
 
             -----------------
@@ -561,7 +571,6 @@ package body AWS.Attachments is
 
             procedure Send_Base64 is
                Chunk_Size  : constant := 60;
-               Content_Len : constant Positive := Length (Data.Content);
                K           : Positive := 1;
             begin
                while K <= Content_Len loop
@@ -713,12 +722,12 @@ package body AWS.Attachments is
       Net.Buffered.New_Line (Socket);
    end Send_MIME_Header;
 
-   ----------
-   -- Data --
-   ----------
+   -----------
+   -- Value --
+   -----------
 
    function Value
-     (Data         : String;
+     (Data         : Unbounded_String;
       Name         : String := "";
       Encode       : Encoding := None;
       Content_Id   : String := "";
@@ -727,12 +736,12 @@ package body AWS.Attachments is
       CD : Unbounded_String;
    begin
       if Encode = Base64 then
-         CD := +Translator.Base64_Encode (Data);
+         Translator.Base64_Encode (Data, CD);
       else
-         CD := +Data;
+         CD := Data;
       end if;
 
-      return Content'(Attachments.Data, Data'Length,
+      return Content'(Attachments.Data, Length (Data),
                       Content_Id   => +Content_Id,
                       Content_Type => +Content_Type,
                       Filename     => +Name,
