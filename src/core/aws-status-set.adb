@@ -31,7 +31,7 @@ with Ada.Characters.Handling;
 with Ada.Strings.Fixed;
 with Ada.Unchecked_Deallocation;
 
-with GNAT.MD5;
+with GNAT.SHA256;
 
 with AWS.Headers;
 with AWS.Headers.Values;
@@ -63,7 +63,7 @@ package body AWS.Status.Set is
    --  is either standard or compressed to support GZip content-encoding.
 
    function Create_Private_Hash
-     (SID : AWS.Session.Id) return GNAT.MD5.Message_Digest with Inline;
+     (SID : AWS.Session.Id) return GNAT.SHA256.Message_Digest with Inline;
    --  Returns the binary private digest for the SID
 
    -------------------
@@ -313,14 +313,14 @@ package body AWS.Status.Set is
    -------------------------
 
    function Create_Private_Hash
-     (SID : AWS.Session.Id) return GNAT.MD5.Message_Digest
+     (SID : AWS.Session.Id) return GNAT.SHA256.Message_Digest
    is
       P_Key   : constant String  := AWS.Session.Private_Key (SID);
       L_SID   : constant String  := AWS.Session.Image (SID);
-      Context : MD5.Context      := MD5.HMAC_Initial_Context (P_Key);
+      Context : SHA256.Context   := SHA256.HMAC_Initial_Context (P_Key);
    begin
-      MD5.Update (Context, L_SID);
-      return MD5.Digest (Context);
+      SHA256.Update (Context, L_SID);
+      return SHA256.Digest (Context);
    end Create_Private_Hash;
 
    -------------------

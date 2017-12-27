@@ -18,7 +18,7 @@
 
 with Ada.Text_IO;
 
-with GNAT.MD5;
+with GNAT.SHA256;
 
 with AWS.Client;
 with AWS.Config.Set;
@@ -41,7 +41,7 @@ procedure Private_Session is
    Conf : Config.Object;
 
    SID   : Session.Id := Session.No_Session;
-   P_SID : String (1 .. MD5.Message_Digest'Length);
+   P_SID : String (1 .. SHA256.Message_Digest'Length);
    --  The compromise session
 
    function CB (Request : Status.Data) return Response.Data;

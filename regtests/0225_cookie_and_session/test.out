@@ -1,4 +1,4 @@
 Set-Cookie: key1=val1; Path=/; Max-Age=315360000; Version=1;
 Set-Cookie: key2=val2; Path=/; Max-Age=315360000; Version=1;
 Set-Cookie: AWS=SID-xxxxxxxxxxx; path=/; Version=1
-Set-Cookie: AWS_Private=xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx; path=/; Version=1
+Set-Cookie: AWS_Private=xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx; path=/; Version=1

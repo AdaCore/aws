@@ -47,7 +47,7 @@ with AWS.Session;
 with AWS.URL;
 
 private with AWS.Resources.Streams.Memory;
-private with GNAT.MD5;
+private with GNAT.SHA256;
 
 package AWS.Status is
 
@@ -355,7 +355,8 @@ private
    type Memory_Stream_Access is
      access Resources.Streams.Memory.Stream_Type'Class;
 
-   No_Session_Private : constant MD5.Message_Digest := (others => ASCII.NUL);
+   No_Session_Private : constant SHA256.Message_Digest :=
+                          (others => ASCII.NUL);
 
    type Data is record
       --  Connection info
@@ -395,10 +396,10 @@ private
       Auth_Response     : Unbounded_String; -- for Digest
 
       --  Session
-      Session_Id        : AWS.Session.Id     := AWS.Session.No_Session;
-      Session_Private   : MD5.Message_Digest := No_Session_Private;
-      Session_Created   : Boolean            := False;
-      Session_Timed_Out : Boolean            := False;
+      Session_Id        : AWS.Session.Id        := AWS.Session.No_Session;
+      Session_Private   : SHA256.Message_Digest := No_Session_Private;
+      Session_Created   : Boolean               := False;
+      Session_Timed_Out : Boolean               := False;
    end record;
 
 end AWS.Status;
