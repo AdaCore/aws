@@ -449,24 +449,15 @@ package body SOAP.Utils is
                TZ := -TZ;
             end if;
          end if;
-
-         T := Time_Of (Year      => Year_Number'Value (TI (Year_Range)),
-                       Month     => Month_Number'Value (TI (Month_Range)),
-                       Day       => Day_Number'Value (TI (Day_Range)),
-                       Hour      => Hour_Number'Value (TI (Hour_Range)),
-                       Minute    => Minute_Number'Value (TI (Minute_Range)),
-                       Second    => Second_Number'Value (TI (Second_Range)),
-                       Time_Zone => TZ);
-      else
-        -- No time zone specified, assume local time
-        T := Ada.Calendar.Time_Of (Year    => Year_Number'Value (TI (Year_Range)),
-                                   Month   => Month_Number'Value (TI (Month_Range)),
-                                   Day     => Day_Number'Value (TI (Day_Range)),
-                                   Seconds => Duration
-                                      (Natural'Value (TI (Hour_Range)) * 3600
-                                          + Natural'Value (TI (Minute_Range)) * 60
-                                          + Natural'Value (TI (Second_Range))));
       end if;
+
+      T := Time_Of (Year      => Year_Number'Value (TI (Year_Range)),
+                    Month     => Month_Number'Value (TI (Month_Range)),
+                    Day       => Day_Number'Value (TI (Day_Range)),
+                    Hour      => Hour_Number'Value (TI (Hour_Range)),
+                    Minute    => Minute_Number'Value (TI (Minute_Range)),
+                    Second    => Second_Number'Value (TI (Second_Range)),
+                    Time_Zone => TZ);
 
       return Types.T (T, Name, Type_Name => Type_Name);
    end Time_Instant;
