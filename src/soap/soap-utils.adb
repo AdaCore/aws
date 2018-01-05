@@ -450,7 +450,7 @@ package body SOAP.Utils is
             end if;
          end if;
       end if;
- 
+
       T := Time_Of (Year      => Year_Number'Value (TI (Year_Range)),
                     Month     => Month_Number'Value (TI (Month_Range)),
                     Day       => Day_Number'Value (TI (Day_Range)),
