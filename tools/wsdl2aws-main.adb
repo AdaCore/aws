@@ -145,7 +145,7 @@ procedure WSDL2AWS.Main is
       loop
          case Command_Line.Getopt
            ("d q a e: f v s o: p: proxy: pu: pp: doc wsdl cvs nostub noskel "
-            & "x: debug cb types: spec: main: n: timeouts:")
+            & "x: debug cb traces types: spec: main: n: timeouts:")
          is
             when ASCII.NUL => exit;
 
@@ -304,6 +304,9 @@ procedure WSDL2AWS.Main is
                      end case;
                   end;
 
+               elsif Command_Line.Full_Switch = "traces" then
+                  Generator.Traces (Gen);
+
                else
                   raise Syntax_Error;
                end if;
@@ -406,7 +409,8 @@ exception
       Put_Line ("   -cvs         Add CVS tag in unit's headers");
       Put_Line ("   -nostub      Do not create stub units");
       Put_Line ("   -noskel      Do not create skeleton units");
-      Put_Line ("   -cb          Generate SOAP callback routine");
+      Put_Line ("   -cb          Generate SOAP server callback routine");
+      Put_Line ("   -traces      Generate SOAP client callbacks");
       Put_Line ("   -x operation Exclude operation from code generation");
       Put_Line ("   -spec  spec  Use procs/types from Ada spec");
       Put_Line ("   -types spec  Use types from Ada spec");
