@@ -2,7 +2,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2012-2015, AdaCore                     --
+--                     Copyright (C) 2012-2018, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -180,6 +180,10 @@ pragma Style_Checks ("M32766");
  || defined (__OpenBSD__) \
  || defined (__FreeBSD__)
 # include <sys/time.h>
+#endif
+
+#if defined (__QNX__)
+# include <sys/select.h>
 #endif
 
 #define CND(name, comment) \
