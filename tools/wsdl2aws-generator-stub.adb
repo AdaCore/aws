@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2003-2017, AdaCore                     --
+--                     Copyright (C) 2003-2018, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -450,8 +450,15 @@ package body Stub is
             "                & SOAP.Message.XML.Image (Payload, Schema));");
       end if;
 
+      if O.Traces then
+         Text_IO.Put_Line
+            (Stub_Adb,
+             "      Pre_Call_Callback (Connection, Payload, Schema);");
+      end if;
+
       Text_IO.New_Line (Stub_Adb);
       Text_IO.Put_Line (Stub_Adb, "      declare");
+
       Text_IO.Put_Line
         (Stub_Adb,
          "         Response : constant SOAP.Message.Response.Object'Class");
@@ -486,6 +493,13 @@ package body Stub is
             "                   "
             & "& SOAP.Message.XML.Image (Response, Schema));");
          Text_IO.New_Line (Stub_Adb);
+      end if;
+
+      if O.Traces then
+         Text_IO.Put_Line
+            (Stub_Adb,
+             "         Post_Call_Callback (Connection,"
+             & " Payload, Response, Schema);");
       end if;
 
       Text_IO.Put_Line
@@ -702,6 +716,11 @@ package body Stub is
          end loop;
       end;
 
+      if O.Traces then
+         Text_IO.Put
+           (Stub_Adb, ", Pre_Call_Callback, Post_Call_Callback");
+      end if;
+
       Text_IO.Put_Line (Stub_Adb, ");");
 
       if Output /= null then
@@ -744,6 +763,9 @@ package body Stub is
       Text_IO.New_Line (Stub_Ads);
       With_Unit (Stub_Ads, "Ada.Calendar", Elab => Off);
       Text_IO.New_Line (Stub_Ads);
+      if O.Traces then
+         With_Unit (Stub_Ads, "SOAP.Client.Callback", Elab => Off);
+      end if;
       With_Unit (Stub_Ads, "SOAP.Types", Elab => Children);
       Text_IO.New_Line (Stub_Ads);
       With_Unit (Stub_Ads, U_Name & ".Types", Elab => Off);
@@ -755,6 +777,10 @@ package body Stub is
       Text_IO.Put_Line (Stub_Ads, "package " & U_Name & ".Client is");
       Text_IO.New_Line (Stub_Ads);
       Text_IO.Put_Line (Stub_Ads, "   use " & U_Name & ".Types;");
+
+      if O.Traces then
+         Text_IO.Put_Line (Stub_Ads, "   use SOAP.Client.Callback;");
+      end if;
 
       Text_IO.New_Line (Stub_Ads);
       Text_IO.Put_Line
@@ -789,6 +815,7 @@ package body Stub is
       Text_IO.Put_Line (Stub_Adb, "   use type SOAP.Parameters.List;");
       Text_IO.New_Line (Stub_Adb);
       Text_IO.Put_Line (Stub_Adb, "   pragma Style_Checks (Off);");
+      Text_IO.New_Line (Stub_Adb);
    end Start_Service;
 
 end Stub;
