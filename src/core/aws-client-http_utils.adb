@@ -207,7 +207,9 @@ package body AWS.Client.HTTP_Utils is
 
          declare
             SS : Net.SSL.Socket_Type :=
-                   Net.SSL.Secure_Client (Sock.all, Connection.SSL_Config);
+                   Net.SSL.Secure_Client
+                     (Sock.all, Connection.SSL_Config,
+                      Host => URL.Host (Connection.Host_URL));
          begin
             Net.Free (Sock);
             Connection.Socket := new Net.SSL.Socket_Type'(SS);

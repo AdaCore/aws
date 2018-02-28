@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2000-2017, AdaCore                     --
+--                     Copyright (C) 2000-2018, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -260,6 +260,9 @@ package body AWS.Net.SSL is
    procedure Set_Accept_State (Socket : Socket_Type);
    --  Server session initialization
 
+   procedure Set_Connect_State (Socket : Socket_Type; Host : String);
+   --  Client session initialization
+
    -------------------------
    -- Abort_DH_Generation --
    -------------------------
@@ -413,8 +416,7 @@ package body AWS.Net.SSL is
          Socket.Sessn := null;
       end if;
 
-      TSSL.SSL_set_connect_state (Socket.SSL);
-      Error_If (TSSL.SSL_set_tlsext_host_name (Socket.SSL, C.To_C (Host)) = 0);
+      Set_Connect_State (Socket, Host);
 
       if Wait then
          --  Do handshake only in case of wait connection completion
@@ -944,12 +946,13 @@ package body AWS.Net.SSL is
 
    function Secure_Client
      (Socket : Net.Socket_Type'Class;
-      Config : SSL.Config := Null_Config) return Socket_Type
+      Config : SSL.Config := Null_Config;
+      Host   : String     := "") return Socket_Type
    is
       Result : Socket_Type;
    begin
       Secure (Socket, Result, Config);
-      TSSL.SSL_set_connect_state (Result.SSL);
+      Set_Connect_State (Result, Host);
       return Result;
    end Secure_Client;
 
@@ -1216,6 +1219,20 @@ package body AWS.Net.SSL is
    begin
       Socket.Config := Config;
    end Set_Config;
+
+   -----------------------
+   -- Set_Connect_State --
+   -----------------------
+
+   procedure Set_Connect_State (Socket : Socket_Type; Host : String) is
+   begin
+      TSSL.SSL_set_connect_state (Socket.SSL);
+
+      if Host /= "" then
+         Error_If
+           (TSSL.SSL_set_tlsext_host_name (Socket.SSL, C.To_C (Host)) = 0);
+      end if;
+   end Set_Connect_State;
 
    ---------------
    -- Set_Debug --

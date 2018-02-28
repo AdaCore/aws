@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2006-2017, AdaCore                     --
+--                     Copyright (C) 2006-2018, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -251,7 +251,7 @@ package body AWS.Net.SSL is
       Certificate_Filename : String;
       Key_Filename         : String);
 
-   procedure Session_Client (Socket : in out Socket_Type);
+   procedure Session_Client (Socket : in out Socket_Type; Host : String);
    procedure Session_Server (Socket : in out Socket_Type);
    --  Bind the SSL socket handle with the socket
 
@@ -580,17 +580,11 @@ package body AWS.Net.SSL is
       Host   : String;
       Port   : Positive;
       Wait   : Boolean     := True;
-      Family : Family_Type := Family_Unspec)
-   is
-      SNI : constant C.char_array := C.To_C (Host);
+      Family : Family_Type := Family_Unspec) is
    begin
       Net.Std.Connect (NSST (Socket), Host, Port, Wait, Family);
 
-      Session_Client (Socket);
-
-      Check_Error_Code
-        (TSSL.gnutls_server_name_set
-           (Socket.SSL, TSSL.GNUTLS_NAME_DNS, SNI'Address, Host'Length));
+      Session_Client (Socket, Host);
 
       if Wait then
          Do_Handshake (Socket);
@@ -1560,12 +1554,13 @@ package body AWS.Net.SSL is
 
    function Secure_Client
      (Socket : Net.Socket_Type'Class;
-      Config : SSL.Config := Null_Config) return Socket_Type
+      Config : SSL.Config := Null_Config;
+      Host   : String     := "") return Socket_Type
    is
       Result : Socket_Type;
    begin
       Secure (Socket, Result, Config);
-      Session_Client (Result);
+      Session_Client (Result, Host);
       return Result;
    end Secure_Client;
 
@@ -1786,7 +1781,7 @@ package body AWS.Net.SSL is
    -- Session_Client --
    --------------------
 
-   procedure Session_Client (Socket : in out Socket_Type) is
+   procedure Session_Client (Socket : in out Socket_Type; Host : String) is
       use TSSL;
    begin
       Check_Config (Socket);
@@ -1812,6 +1807,12 @@ package body AWS.Net.SSL is
          Socket);
 
       Session_Transport (Socket);
+
+      if Host /= "" then
+         Check_Error_Code
+           (TSSL.gnutls_server_name_set
+              (Socket.SSL, TSSL.GNUTLS_NAME_DNS, Host'Address, Host'Length));
+      end if;
    end Session_Client;
 
    ------------------

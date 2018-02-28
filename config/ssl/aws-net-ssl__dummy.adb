@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2006-2017, AdaCore                     --
+--                     Copyright (C) 2006-2018, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -234,9 +234,10 @@ package body AWS.Net.SSL is
 
    function Secure_Client
      (Socket : Net.Socket_Type'Class;
-      Config : SSL.Config := Null_Config) return Socket_Type
+      Config : SSL.Config := Null_Config;
+      Host   : String     := "") return Socket_Type
    is
-      pragma Unreferenced (Socket, Config);
+      pragma Unreferenced (Socket, Config, Host);
       S : Socket_Type;
    begin
       raise Program_Error with Error_Message;

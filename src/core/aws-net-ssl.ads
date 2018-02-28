@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2002-2016, AdaCore                     --
+--                     Copyright (C) 2002-2018, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -182,11 +182,14 @@ package AWS.Net.SSL is
 
    function Secure_Client
      (Socket : Net.Socket_Type'Class;
-      Config : SSL.Config := Null_Config) return Socket_Type;
+      Config : SSL.Config := Null_Config;
+      Host   : String     := "") return Socket_Type;
    --  Make client side SSL connection from plain socket.
    --  SSL handshake does not performed. SSL handshake would be made
    --  automatically on first Read/Write, or explicitly by the Do_Handshake
    --  call. Do not free or close source socket after this call.
+   --  Host parameter is hostname to connect and used to send over SSL
+   --  connection to server if defined.
 
    function Secure_Server
      (Socket : Net.Socket_Type'Class;
