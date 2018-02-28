@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2005-2017, AdaCore                     --
+--                     Copyright (C) 2005-2018, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -144,7 +144,7 @@ package body AWS.Client.HTTP_Utils is
             use AWS.URL;
             Host_Address : constant String :=
                              Host (Connection.Host_URL, IPv6_Brackets => True)
-                             & Port_Not_Default (Connection.Host_URL);
+                             & ':' & Port (Connection.Host_URL);
          begin
             Send_Header
               (Sock.all, "CONNECT " & Host_Address & ' ' & HTTP_Version);
@@ -206,7 +206,8 @@ package body AWS.Client.HTTP_Utils is
          --  around this tunnel.
 
          declare
-            SS : Net.SSL.Socket_Type := Net.SSL.Secure_Client (Sock.all);
+            SS : Net.SSL.Socket_Type :=
+                   Net.SSL.Secure_Client (Sock.all, Connection.SSL_Config);
          begin
             Net.Free (Sock);
             Connection.Socket := new Net.SSL.Socket_Type'(SS);
