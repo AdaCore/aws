@@ -83,6 +83,41 @@ package body AWS.Client.HTTP_Utils is
       Security    : constant Boolean := AWS.URL.Security (Connect_URL);
       Sock        : Net.Socket_Access;
 
+      procedure Get_SSL_Session;
+      --  Get SSL session data from connectio socket and store it into
+      --  connection record.
+
+      procedure Set_SSL_Session;
+      --  Set SSL session data from connection record to connection socket
+
+      ---------------------
+      -- Get_SSL_Session --
+      ---------------------
+
+      procedure Get_SSL_Session is
+      begin
+         if Connection.SSL_Session /= Net.SSL.Null_Session then
+            Net.SSL.Free (Connection.SSL_Session);
+         end if;
+
+         Connection.SSL_Session :=
+           Net.SSL.Socket_Type (Connection.Socket.all).Session_Data;
+      end Get_SSL_Session;
+
+      ---------------------
+      -- Set_SSL_Session --
+      ---------------------
+
+      procedure Set_SSL_Session is
+      begin
+         if Connection.SSL_Session /= Net.SSL.Null_Session then
+            --  Try to reuse SSL session to speedup handshake
+
+            Net.SSL.Socket_Type (Connection.Socket.all).Set_Session_Data
+              (Connection.SSL_Session);
+         end if;
+      end Set_SSL_Session;
+
    begin
       pragma Assert (not Connection.Opened);
       --  This should never be called with an open connection
@@ -102,12 +137,7 @@ package body AWS.Client.HTTP_Utils is
 
          Net.SSL.Socket_Type (Sock.all).Set_Config (Connection.SSL_Config);
 
-         if Connection.SSL_Session /= Net.SSL.Null_Session then
-            --  Try to reuse SSL session to speedup handshake
-
-            Net.SSL.Socket_Type (Sock.all).Set_Session_Data
-              (Connection.SSL_Session);
-         end if;
+         Set_SSL_Session;
       end if;
 
       Sock.Set_Timeout (Connection.Timeouts.Connect);
@@ -117,11 +147,7 @@ package body AWS.Client.HTTP_Utils is
       if Security then
          --  Save SSL session to be able to reuse it later
 
-         if Connection.SSL_Session /= Net.SSL.Null_Session then
-            Net.SSL.Free (Connection.SSL_Session);
-         end if;
-
-         Connection.SSL_Session := Net.SSL.Socket_Type (Sock.all).Session_Data;
+         Get_SSL_Session;
       end if;
 
       Connection.Opened := True;
@@ -214,10 +240,14 @@ package body AWS.Client.HTTP_Utils is
             Net.Free (Sock);
             Connection.Socket := new Net.SSL.Socket_Type'(SS);
 
-            --  Do explicit handshake for be able to get server certificate
-            --  after connect.
+            Set_SSL_Session;
+
+            --  Do explicit handshake to be able to get server certificate
+            --  and SSL session after.
 
             SS.Do_Handshake;
+
+            Get_SSL_Session;
          end;
       end if;
 
