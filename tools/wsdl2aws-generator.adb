@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2003-2017, AdaCore                     --
+--                     Copyright (C) 2003-2018, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -3648,7 +3648,6 @@ package body WSDL2AWS.Generator is
                      end if;
 
                   when WSDL.Types.K_Array =>
-
                      Output_Types (N.P);
 
                      declare
@@ -3674,7 +3673,6 @@ package body WSDL2AWS.Generator is
                      end;
 
                   when WSDL.Types.K_Record =>
-
                      Output_Types (N.P);
 
                      if not Name_Set.Exists (T_Name) then

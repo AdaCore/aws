@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2003-2017, AdaCore                     --
+--                     Copyright (C) 2003-2018, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -1072,9 +1072,7 @@ package body WSDL2AWS.WSDL.Parser is
                  (SOAP.XML.First_Child (SOAP.XML.First_Child (R))));
          end if;
 
-         if not SOAP.WSDL.Is_Standard
-           (WSDL.Types.Name (O.Array_Elements))
-         then
+         if not SOAP.WSDL.Is_Standard (WSDL.Types.Name (O.Array_Elements)) then
             --  This is not a standard type, parse it
             declare
                N : DOM.Core.Node :=

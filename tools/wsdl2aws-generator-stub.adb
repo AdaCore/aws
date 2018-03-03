@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2003-2017, AdaCore                     --
+--                     Copyright (C) 2003-2018, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -532,7 +532,6 @@ package body Stub is
                case Output.Mode is
 
                   when WSDL.Types.K_Simple =>
-
                      if SOAP.WSDL.To_Type (T_Name) = P_B64 then
                         Text_IO.Put_Line
                           (Stub_Adb,
@@ -568,7 +567,6 @@ package body Stub is
                      Text_IO.Put_Line (Stub_Adb, ");");
 
                   when WSDL.Types.K_Enumeration =>
-
                      Text_IO.Put_Line
                        (Stub_Adb, Result_Type (O, Proc, Output));
                      Text_IO.Put_Line

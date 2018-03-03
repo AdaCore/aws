@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                       Copyright (C) 2015, AdaCore                        --
+--                    Copyright (C) 2015-2018, AdaCore                      --
 --                                                                          --
 --  This is free software;  you can redistribute it  and/or modify it       --
 --  under terms of the  GNU General Public License as published  by the     --
@@ -53,8 +53,7 @@ package body Dl2_Server_CB is
    function SOAP_CB is
      new testingservice.Server.getQueueStatus_CB (getQueueStatus);
 
-   function SOAP_CB_E is
-     new testingservice.Server.execute_CB (execute);
+   function SOAP_CB_E is new testingservice.Server.execute_CB (execute);
 
    function SOAP_Wrapper   is new SOAP.Utils.SOAP_Wrapper (SOAP_CB);
    function SOAP_Wrapper_E is new SOAP.Utils.SOAP_Wrapper (SOAP_CB_E);

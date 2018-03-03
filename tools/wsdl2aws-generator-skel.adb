@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2003-2017, AdaCore                     --
+--                     Copyright (C) 2003-2018, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -507,7 +507,6 @@ package body Skel is
             begin
                case N.Mode is
                   when WSDL.Types.K_Simple =>
-
                      if Output.Next = null then
                         --  A single simple parameter as return
 
@@ -537,7 +536,6 @@ package body Skel is
                      end if;
 
                   when WSDL.Types.K_Derived | WSDL.Types.K_Enumeration =>
-
                      if Output.Next = null then
                         Text_IO.Put
                           (Skel_Adb,
@@ -559,7 +557,6 @@ package body Skel is
                      end if;
 
                   when WSDL.Types.K_Array =>
-
                      if Output.Next = null then
                         --  A single array as returned parameter
                         Text_IO.Put
