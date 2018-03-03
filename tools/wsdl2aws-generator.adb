@@ -156,6 +156,9 @@ package body WSDL2AWS.Generator is
    --     @<proc>.encoding   ->  [literal/encoded] (encoding for proc name)
    --     @param1[:param_n]  ->  operation         (operation for signature)
 
+   function Is_String (N : WSDL.Parameters.P_Set) return Boolean;
+   --  Returns True is N is a string
+
    S_Gen    : SOAP.WSDL.Schema.Definition;
    --  Keep record of generated schema definitions to avoid dupliace
 
@@ -502,6 +505,18 @@ package body WSDL2AWS.Generator is
       Text_IO.Put_Line
         (File, "   " & String'(1 .. 6 + Name'Length => '-'));
    end Header_Box;
+
+   ---------------
+   -- Is_String --
+   ---------------
+
+   function Is_String (N : WSDL.Parameters.P_Set) return Boolean is
+      use type WSDL.Types.Kind;
+      use all type SOAP.WSDL.Parameter_Type;
+   begin
+      return N.Mode = WSDL.Types.K_Simple
+        and then SOAP.WSDL.To_Type (WSDL.Types.Name (N.Typ)) = P_String;
+   end Is_String;
 
    ----------
    -- Main --
