@@ -299,8 +299,6 @@ package body Stub is
       -------------------
 
       procedure Output_Result (N : WSDL.Parameters.P_Set) is
-         use all type SOAP.WSDL.Parameter_Type;
-         use type WSDL.Types.Kind;
       begin
          if N.Mode = WSDL.Types.K_Array then
             declare
@@ -321,11 +319,7 @@ package body Stub is
             end;
 
          else
-
-            if N.Mode = WSDL.Types.K_Simple
-                 and then
-               SOAP.WSDL.To_Type (WSDL.Types.Name (N.Typ)) = P_String
-            then
+            if Is_String (N) then
                --  First call operator to convert the string to an unbounded
                --  string.
                Text_IO.Put (Stub_Adb, "+");
