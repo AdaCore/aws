@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2003-2014, AdaCore                     --
+--                     Copyright (C) 2003-2018, AdaCore                     --
 --                                                                          --
 --  This is free software;  you can redistribute it  and/or modify it       --
 --  under terms of the  GNU General Public License as published  by the     --
@@ -20,7 +20,7 @@ with Asis;
 
 package Ada2WSDL is
 
-   Version : constant String := "1.3.1";
+   Version : constant String := "1.4";
 
    Fatal_Error     : exception;
    --  Raised when a non-recoverable error has been found

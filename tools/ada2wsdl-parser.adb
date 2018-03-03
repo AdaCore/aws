@@ -479,7 +479,8 @@ package body Ada2WSDL.Parser is
 
                Generator.Return_Type
                  (Name_Space (E),
-                  To_String (Type_Def (Elem, Base => False).Name));
+                  To_String (Type_Def (Elem, Base => False).Name),
+                  Node.Spec_Name.all);
             end;
          end if;
       end Analyse_Profile;
