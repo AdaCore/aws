@@ -1453,7 +1453,7 @@ package body WSDL2AWS.WSDL.Parser is
          O.SOAPAction := +SOAP.XML.Get_Attr_Value (N, "soapAction");
       end if;
 
-      --  Check wether the binding style is declared here
+      --  Check whether the binding style is declared here
 
       Set_Binding_Style (O, N);
 
