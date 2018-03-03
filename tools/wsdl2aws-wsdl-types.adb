@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2015-2017, AdaCore                     --
+--                     Copyright (C) 2015-2018, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -411,11 +411,15 @@ package body WSDL2AWS.WSDL.Types is
       -----------------
 
       procedure Set_Aliases (Def : Definition) is
+         use type SOAP.Name_Space.Object;
+
          N_N  : constant SOAP.Name_Space.Object :=
                   WSDL.Types.NS (Def.Ref);
          Name : constant String :=
-                  SOAP.Name_Space.Name (N_N)
-                & ":" & WSDL.Types.Name (Def.Ref);
+                  (if N_N = SOAP.Name_Space.No_Name_Space
+                   then ""
+                   else SOAP.Name_Space.Name (N_N) & ':')
+                  & WSDL.Types.Name (Def.Ref);
 
          Root_Type : constant String :=
                        (if Def.Mode = WSDL.Types.K_Derived
