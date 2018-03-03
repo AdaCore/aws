@@ -1259,9 +1259,7 @@ package body WSDL2AWS.WSDL.Parser is
             ET     : constant String :=
                        SOAP.XML.Get_Attr_Value (N, "type", NS => True);
          begin
-            if N /= null
-              and then DOM.Core.Nodes.Local_Name (N) = "element"
-            then
+            if DOM.Core.Nodes.Local_Name (N) = "element" then
                if ET = "" then
                   --  Move to complexType node
                   N := SOAP.XML.First_Child (N);
