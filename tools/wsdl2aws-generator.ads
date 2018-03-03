@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2003-2017, AdaCore                     --
+--                     Copyright (C) 2003-2018, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -62,6 +62,7 @@ package WSDL2AWS.Generator is
       Proc          : String;
       Documentation : String;
       SOAPAction    : String;
+      Wrapper_Name  : String;
       Namespace     : SOAP.Name_Space.Object;
       Input         : WSDL.Parameters.P_Set;
       Output        : WSDL.Parameters.P_Set;

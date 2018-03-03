@@ -200,6 +200,7 @@ package body WSDL2AWS.Generator is
          Proc          : String;
          Documentation : String;
          SOAPAction    : String;
+         Wrapper_Name  : String;
          Namespace     : SOAP.Name_Space.Object;
          Input         : WSDL.Parameters.P_Set;
          Output        : WSDL.Parameters.P_Set;
@@ -227,6 +228,7 @@ package body WSDL2AWS.Generator is
          Proc          : String;
          Documentation : String;
          SOAPAction    : String;
+         Wrapper_Name  : String;
          Namespace     : SOAP.Name_Space.Object;
          Input         : WSDL.Parameters.P_Set;
          Output        : WSDL.Parameters.P_Set;
@@ -254,6 +256,7 @@ package body WSDL2AWS.Generator is
          Proc          : String;
          Documentation : String;
          SOAPAction    : String;
+         Wrapper_Name  : String;
          Namespace     : SOAP.Name_Space.Object;
          Input         : WSDL.Parameters.P_Set;
          Output        : WSDL.Parameters.P_Set;
@@ -542,6 +545,7 @@ package body WSDL2AWS.Generator is
       Proc          : String;
       Documentation : String;
       SOAPAction    : String;
+      Wrapper_Name  : String;
       Namespace     : SOAP.Name_Space.Object;
       Input         : WSDL.Parameters.P_Set;
       Output        : WSDL.Parameters.P_Set;
@@ -589,13 +593,13 @@ package body WSDL2AWS.Generator is
 
       if O.Gen_Stub then
          Stub.New_Procedure
-           (O, Proc, Documentation, SOAPAction, Namespace,
+           (O, Proc, Documentation, SOAPAction, Wrapper_Name, Namespace,
             Input, Output, Fault);
       end if;
 
       if O.Gen_Skel then
          Skel.New_Procedure
-           (O, Proc, Documentation, SOAPAction, Namespace,
+           (O, Proc, Documentation, SOAPAction, Wrapper_Name, Namespace,
             Input, Output, Fault);
       end if;
 
@@ -608,7 +612,7 @@ package body WSDL2AWS.Generator is
 
       if O.Gen_CB then
          CB.New_Procedure
-           (O, Proc, Documentation, SOAPAction, Namespace,
+           (O, Proc, Documentation, SOAPAction, Wrapper_Name, Namespace,
             Input, Output, Fault);
       end if;
    end New_Procedure;

@@ -95,6 +95,7 @@ package body Stub is
       Proc          : String;
       Documentation : String;
       SOAPAction    : String;
+      Wrapper_Name  : String;
       Namespace     : SOAP.Name_Space.Object;
       Input         : WSDL.Parameters.P_Set;
       Output        : WSDL.Parameters.P_Set;
@@ -378,6 +379,9 @@ package body Stub is
 
       L_Proc : constant String := Format_Name (O, Proc);
 
+      W_Name : constant String := (if O.Style = SOAP.WSDL.Schema.Document
+                                   then Wrapper_Name else Proc);
+
       use all type SOAP.WSDL.Parameter_Type;
       use type SOAP.Name_Space.Object;
 
@@ -422,7 +426,8 @@ package body Stub is
       Text_IO.Put_Line
         (Stub_Adb, "      Payload := SOAP.Message.Payload.Build");
       Text_IO.Put
-        (Stub_Adb, "        (""" & To_String (O.Prefix) & Proc & """, P_Set");
+        (Stub_Adb,
+         "        (""" & To_String (O.Prefix) & W_Name & """, P_Set");
 
       if Namespace = SOAP.Name_Space.No_Name_Space then
          Text_IO.Put_Line (Stub_Adb, ");");

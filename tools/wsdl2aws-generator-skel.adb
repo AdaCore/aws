@@ -63,12 +63,13 @@ package body Skel is
       Proc          : String;
       Documentation : String;
       SOAPAction    : String;
+      Wrapper_Name  : String;
       Namespace     : SOAP.Name_Space.Object;
       Input         : WSDL.Parameters.P_Set;
       Output        : WSDL.Parameters.P_Set;
       Fault         : WSDL.Parameters.P_Set)
    is
-      pragma Unreferenced (Namespace, Fault);
+      pragma Unreferenced (Wrapper_Name, Namespace, Fault);
 
       use all type SOAP.WSDL.Parameter_Type;
 

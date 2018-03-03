@@ -1659,6 +1659,8 @@ package body WSDL2AWS.WSDL.Parser is
       Operation : DOM.Core.Node;
       Document  : SOAP.WSDL.Object)
    is
+      use type SOAP.WSDL.Schema.Binding_Style;
+
       procedure Get_Element (M : DOM.Core.Node);
       --  Returns the element node which contains parameters for node M
 
@@ -1695,7 +1697,8 @@ package body WSDL2AWS.WSDL.Parser is
          end if;
       end Get_Element;
 
-      N : DOM.Core.Node;
+      N            : DOM.Core.Node;
+      Wrapper_Name : Unbounded_String;
 
    begin
       Trace ("(Parse_PortType)", Operation);
@@ -1715,6 +1718,9 @@ package body WSDL2AWS.WSDL.Parser is
       if N /= null then
          O.Mode := Input;
          Get_Element (N);
+
+         --  Record the wrapper name for the document binding
+         Wrapper_Name := O.Elmt_Name;
       end if;
 
       --  Output parameters
@@ -1747,7 +1753,11 @@ package body WSDL2AWS.WSDL.Parser is
       end if;
 
       New_Procedure
-        (O, -O.Proc, -O.Documentation, -O.SOAPAction, O.Namespace,
+        (O, -O.Proc, -O.Documentation, -O.SOAPAction,
+         (if O.Style = SOAP.WSDL.Schema.Document
+          then -Wrapper_Name
+          else -O.SOAPAction),
+         O.Namespace,
          O.Params (Input), O.Params (Output), O.Params (Fault));
 
       Parameters.Release (O.Params (Input));
