@@ -151,7 +151,8 @@ package body CB is
       end if;
 
       Text_IO.Put_Line
-        (Tmp_Adb, "SOAPAction = """ & To_String (O.Prefix) & Proc & """ then");
+        (Tmp_Adb, "SOAPAction = """
+         & To_String (O.Prefix) & SOAPAction & """ then");
       Text_IO.Put_Line (Tmp_Adb, "         return " & Proc
                           & "_CB (SOAPAction, Payload, Request);");
       Text_IO.New_Line (Tmp_Adb);
