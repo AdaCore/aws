@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2003-2017, AdaCore                     --
+--                     Copyright (C) 2003-2018, AdaCore                     --
 --                                                                          --
 --  This is free software;  you can redistribute it  and/or modify it       --
 --  under terms of the  GNU General Public License as published  by the     --
@@ -951,18 +951,38 @@ package body Ada2WSDL.Generator is
             New_Line;
             Put_Line
               ("         <xsd:complexType name=""" & (-E.Name) & """>");
-            Put_Line ("            <xsd:complexContent>");
-            Put_Line ("               <xsd:restriction "
-                      & "base=""soapenc:Array"">");
-            Put_Line ("                  <xsd:attribute "
-                      & "ref=""soapenc:arrayType"""
-                      & " wsdl:arrayType=""" & (-E.Parameters.XSD_Name)
-                      & (if E.Length = 0
-                         then "[]"
-                         else "[" & AWS.Utils.Image (E.Length) & "]")
-                      & """/>");
-            Put_Line ("               </xsd:restriction>");
-            Put_Line ("            </xsd:complexContent>");
+
+            if Options.SEA then
+               --  Generate old style SOAP-Encoded array. This is kept for
+               --  compatibility reasons.
+
+               Put_Line ("            <xsd:complexContent>");
+               Put_Line ("               <xsd:restriction "
+                         & "base=""soapenc:Array"">");
+               Put_Line ("                  <xsd:attribute "
+                         & "ref=""soapenc:arrayType"""
+                         & " wsdl:arrayType=""" & (-E.Parameters.XSD_Name)
+                         & (if E.Length = 0
+                           then "[]"
+                           else "[" & AWS.Utils.Image (E.Length) & "]")
+                         & """/>");
+               Put_Line ("               </xsd:restriction>");
+               Put_Line ("            </xsd:complexContent>");
+
+            else
+               --  Generate WSDL schema style array
+
+               Put_Line ("            <xsd:sequence>");
+
+               Put_Line ("               <xsd:element name=""x"" type="""
+                         & (-E.Parameters.XSD_Name) & '"');
+               Put_Line ("                    minOccurs=""0"" maxOccurs="""
+                         & (if E.Length = 0
+                           then "unbounded"
+                           else AWS.Utils.Image (E.Length)) & """/>");
+               Put_Line ("            </xsd:sequence>");
+            end if;
+
             Put_Line ("         </xsd:complexType>");
          end Write_Array;
 

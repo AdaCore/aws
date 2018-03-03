@@ -51,7 +51,7 @@ procedure Ada2WSDL.Main is
    begin
       loop
          case GNAT.Command_Line.Getopt
-           ("f q v a: o: s: t: I: P: n: noenum d doc lit")
+           ("f q v a: o: s: t: I: P: n: noenum d doc lit sea")
          is
 
             when ASCII.NUL =>
@@ -75,8 +75,12 @@ procedure Ada2WSDL.Main is
                  To_Unbounded_String (GNAT.Command_Line.Parameter);
 
             when 's' =>
-               Options.WS_Name :=
-                 To_Unbounded_String (GNAT.Command_Line.Parameter);
+               if GNAT.Command_Line.Full_Switch = "sea" then
+                  Options.SEA := True;
+               else
+                  Options.WS_Name :=
+                    To_Unbounded_String (GNAT.Command_Line.Parameter);
+               end if;
 
             when 'q' =>
                Options.Quiet := True;
@@ -214,6 +218,7 @@ procedure Ada2WSDL.Main is
       Put_Line ("  -s name  Web Service name (default package name)");
       Put_Line ("  -n name  Schema root name (default soapaws)");
       Put_Line ("  -noenum  Map Ada enumeration to xsd:string");
+      Put_Line ("  -soa     Generate old style SOAP Encoded array");
       Put_Line ("  -d       no date/time stamp in WSDL");
 
       Set_Output (Current_Output.all);
