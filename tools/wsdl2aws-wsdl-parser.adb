@@ -901,7 +901,8 @@ package body WSDL2AWS.WSDL.Parser is
       N : DOM.Core.Node) return Boolean
    is
       pragma Unreferenced (O);
-      L : DOM.Core.Node := N;
+      L            : DOM.Core.Node := N;
+      Is_Extension : Boolean := False;
    begin
       if SOAP.Utils.No_NS (DOM.Core.Nodes.Node_Name (L)) = "element"
         and then SOAP.XML.First_Child (L) /= null
@@ -933,6 +934,7 @@ package body WSDL2AWS.WSDL.Parser is
             elsif SOAP.Utils.No_NS (DOM.Core.Nodes.Node_Name (L))
               = "extension"
             then
+               Is_Extension := True;
                L := SOAP.XML.First_Child (L);
             end if;
          end if;
@@ -949,9 +951,18 @@ package body WSDL2AWS.WSDL.Parser is
          then
             L := SOAP.XML.First_Child (L);
 
+            --  If we have a single element we must ensure that there is no
+            --  minOccurs or maxOccurs defined otherwise this is an array.
+
             if L /= null
               and then
                 SOAP.Utils.No_NS (DOM.Core.Nodes.Node_Name (L)) = "element"
+              and then
+                (SOAP.XML.Next_Sibling (L) /= null
+                 or else Is_Extension
+                 or else
+                   (SOAP.XML.Get_Attr_Value (L, "minOccurs") = ""
+                    and then SOAP.XML.Get_Attr_Value (L, "maxOccurs") = ""))
             then
                return True;
             end if;
