@@ -670,6 +670,52 @@ package body WSDL2AWS.WSDL.Parser is
                   return True;
                end if;
             end if;
+
+         elsif L /= null
+           and then
+             SOAP.Utils.No_NS (DOM.Core.Nodes.Node_Name (L)) = "sequence"
+         then
+            L := SOAP.XML.First_Child (L);
+
+            if L /= null
+              and then
+                SOAP.Utils.No_NS (DOM.Core.Nodes.Node_Name (L)) = "element"
+            then
+               --  Element must have minOccurs and maxOccurs attribute
+
+               declare
+                  Min_Occurs : constant String :=
+                                 SOAP.XML.Get_Attr_Value
+                                   (L, "minOccurs", False);
+                  Max_Occurs : constant String :=
+                                 SOAP.XML.Get_Attr_Value
+                                   (L, "maxOccurs", False);
+                  E_Type     : constant String :=
+                                 SOAP.XML.Get_Attr_Value (L, "type", True);
+                  E_NS       : constant String :=
+                                 SOAP.Utils.NS (E_Type);
+               begin
+                  if Min_Occurs /= "" and then Max_Occurs /= "" then
+                     if Max_Occurs = "unbounded" then
+                        O.Self.Array_Length := 0;
+                     else
+                        O.Self.Array_Length := Natural'Value (Max_Occurs);
+                     end if;
+
+                     --  And so the element type is on type attribute
+
+                     O.Self.Array_Elements :=
+                       Types.Create
+                         (E_Type,
+                          (if E_NS = ""
+                           then Get_Target_Name_Space (L)
+                           else SOAP.Name_Space.Create
+                             (E_NS, SOAP.WSDL.Name_Spaces.Get (E_NS))));
+
+                     return True;
+                  end if;
+               end;
+            end if;
          end if;
       end if;
 
