@@ -135,13 +135,6 @@ procedure Ada2WSDL.Main is
       Options.File_Name :=
         To_Unbounded_String (GNAT.Command_Line.Get_Argument);
 
-      if Options.WSDL_File_Name = Null_Unbounded_String then
-         Options.WSDL_File_Name :=
-           To_Unbounded_String
-             (Directories.Base_Name (To_String (Options.File_Name)));
-         Append (Options.WSDL_File_Name, ".wsdl");
-      end if;
-
       --  If there is no argument file name or no destination directory,
       --  we will get empty strings here
 
@@ -150,6 +143,13 @@ procedure Ada2WSDL.Main is
            (Text_IO.Standard_Error, "Ada2WSDL: file name missing");
          Usage;
          raise Parameter_Error;
+      end if;
+
+      if Options.WSDL_File_Name = Null_Unbounded_String then
+         Options.WSDL_File_Name :=
+           To_Unbounded_String
+             (Directories.Base_Name (To_String (Options.File_Name)));
+         Append (Options.WSDL_File_Name, ".wsdl");
       end if;
 
       if Options.Document and then not Options.Literal then
