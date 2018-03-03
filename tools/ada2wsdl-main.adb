@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2003-2017, AdaCore                     --
+--                     Copyright (C) 2003-2018, AdaCore                     --
 --                                                                          --
 --  This is free software;  you can redistribute it  and/or modify it       --
 --  under terms of the  GNU General Public License as published  by the     --
@@ -145,7 +145,7 @@ procedure Ada2WSDL.Main is
       --  If there is no argument file name or no destination directory,
       --  we will get empty strings here
 
-      if To_String (Options.File_Name) = Null_Unbounded_String then
+      if Options.File_Name = Null_Unbounded_String then
          Text_IO.Put_Line
            (Text_IO.Standard_Error, "Ada2WSDL: file name missing");
          Usage;
