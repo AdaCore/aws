@@ -1,10 +1,10 @@
 
                             A W S - Ada Web Server
-                                18.1 release
+                                18.2 release
 
 Authors:
    Dmitriy Anisimkov
-   Pascal Obry                                           October 21st, 2017
+   Pascal Obry                                            March 7th, 2018
 
 
 
