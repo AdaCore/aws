@@ -205,6 +205,9 @@ else
 build: build-native
 endif
 
+gps: build
+	$(GPS) -Paws.gpr $(GPROPTS) $(GPR_SHARED) &
+
 #######################################################################
 #  clean
 
