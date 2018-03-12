@@ -122,15 +122,6 @@ Reporting bugs
 You can report bugs to AdaCore: report@adacore.com
 
 
-AWS User's Mailing List
------------------------
-
-A good way to keep informed of AWS news and to share experiences with other
-AWS users is to register to the AWS dedicated mailing list. See:
-
-   http://lists.adacore.com/mailman/listinfo/aws
-
-
 Contributors
 ------------
 
