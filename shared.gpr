@@ -71,7 +71,7 @@ abstract project Shared is
          for Exec_Dir use Project'Exec_Dir & "/debug/" & Library_Type;
       when "Release" =>
          for Exec_Dir use Project'Exec_Dir & "/release/" & Library_Type;
-      end case;
+   end case;
 
    for Object_Dir use Project'Exec_Dir & "/obj";
    for Library_Dir use Project'Exec_Dir & "/lib";
