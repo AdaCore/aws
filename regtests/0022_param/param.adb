@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2000-2012, AdaCore                     --
+--                     Copyright (C) 2000-2018, AdaCore                     --
 --                                                                          --
 --  This is free software;  you can redistribute it  and/or modify it       --
 --  under terms of the  GNU General Public License as published  by the     --
@@ -130,7 +130,7 @@ begin
       Request (URL & "/call call");
       Request (URL & "/call?p1=8&p2=azerty%3e%20%26%3c%3fqwerty");
       Request (URL & "/call call?p1=8&p2=azerty%3e%20qwerty");
-      Request (URL & "/call%20call%3fp1=a%20a%3f");
+      Request (URL & "/call%20call?p1=a%20a%3f");
       Request (URL & "/spec?p%261=1%3d1&p%3D2=2%262");
       Request (URL & "/dup?p1=p-1.1&P1=p-1.2&P2=p-2.1&p2=p-2.2");
    end;

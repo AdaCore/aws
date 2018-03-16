@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2005-2017, AdaCore                     --
+--                     Copyright (C) 2005-2018, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -1275,11 +1275,7 @@ package body AWS.Server.HTTP_Utils is
 
       function Resource return String is
       begin
-         if I3 = 0 then
-            return URL.Decode (Command (I1 + 1 .. I2 - 1));
-         else
-            return URL.Decode (Command (I1 + 1 .. I3 - 1));
-         end if;
+         return Command (I1 + 1 .. (if I3 = 0 then I2 else I3) - 1);
       end Resource;
 
    begin

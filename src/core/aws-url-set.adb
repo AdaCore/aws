@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2007-2017, AdaCore                     --
+--                     Copyright (C) 2007-2018, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -170,6 +170,9 @@ package body AWS.URL.Set is
       P, F        : Natural;
       Scheme      : Unbounded_String;
 
+      function "+" (S : String) return Unbounded_String
+         renames To_Unbounded_String;
+
       procedure Parse (URL : String);
       --  Parse URL, the URL must not contain the HTTP_Token prefix.
       --  If a hostname is specified, the URL should start with "//"
@@ -183,9 +186,6 @@ package body AWS.URL.Set is
       -----------
 
       procedure Parse (URL : String) is
-
-         function "+" (S : String) return Unbounded_String
-            renames To_Unbounded_String;
 
          procedure Set_Host (First, Last : Positive);
 
@@ -214,7 +214,7 @@ package body AWS.URL.Set is
                --  which must be part of the path.
 
                declare
-                  File : constant String := URL (Start .. URL'Last);
+                  File : constant String := Decode (PF);
                begin
                   if File = ".." or else File = "." then
                      Item.Path := +File;
@@ -230,13 +230,13 @@ package body AWS.URL.Set is
                --  parent directories which must be part of the path.
 
                declare
-                  File : constant String := URL (I3 + 1 .. URL'Last);
+                  File : constant String := Decode (URL (I3 + 1 .. URL'Last));
                begin
                   if File = ".." or else File = "." then
-                     Item.Path := +URL (Start .. URL'Last);
+                     Item.Path := +Decode (PF);
                      Item.File := +"";
                   else
-                     Item.Path := +URL (Start .. I3);
+                     Item.Path := +Decode (URL (Start .. I3));
                      Item.File := +File;
                   end if;
                end;
@@ -419,7 +419,7 @@ package body AWS.URL.Set is
          Item.Fragment := Null_Unbounded_String;
 
       else
-         Item.Fragment := To_Unbounded_String (L_URL (F .. L_URL'Last));
+         Item.Fragment := +Decode (L_URL (F .. L_URL'Last));
          F := F - 1;
       end if;
 
