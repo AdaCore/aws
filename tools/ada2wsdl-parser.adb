@@ -1,7 +1,7 @@
 ----------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2003-2017, AdaCore                     --
+--                     Copyright (C) 2003-2018, AdaCore                     --
 --                                                                          --
 --  This is free software;  you can redistribute it  and/or modify it       --
 --  under terms of the  GNU General Public License as published  by the     --
@@ -67,8 +67,6 @@ package body Ada2WSDL.Parser is
    use A4G.GNAT_Int;
    use Asis.Extensions;
    pragma Warnings (Off, A4G.GNAT_Int);
-
-   use type Asis.Errors.Error_Kinds;
 
    subtype String_Access is OS_Lib.String_Access;
 
