@@ -448,6 +448,7 @@ package body Skel is
               (Skel_Adb,
                SOAP.WSDL.To_Ada
                  (SOAP.WSDL.To_Type (WSDL.Types.Name (Output.Typ))));
+
          else
             Text_IO.Put (Skel_Adb, L_Proc & "_Result");
          end if;
