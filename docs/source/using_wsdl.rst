@@ -502,6 +502,9 @@ ada2wsdl
   Specify the path to the tree file directory to use. This is needed when
   using a project file the object directory is not the current directory.
 
+*-d*
+  Do not generate date/time in WSDL.
+
 *-v*
   Verbose mode, display the parsed spec.
 
@@ -676,6 +679,9 @@ a `WSDL` document on the Web by passing it's `URL`.
   Quiet mode (no output)
 
 *-d*
+  Do not generate date/time in Ada comment.
+
+*-debug*
   Generate debug code. Will output some information about the payload to
   help debug a Web Service.
 
