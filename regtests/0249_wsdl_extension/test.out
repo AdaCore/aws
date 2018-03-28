@@ -4,12 +4,12 @@ Service ecc
 
 Procedure ServerExit SOAPAction:
    Input
-      [record] parameters ; ServerExit
+      [record] ServerExit ; ServerExit
          [set] {0 .. unbounded} fieldsToNull ; string_Set [string]
          [simple] Id ; String
          [set] {0 .. 1} CreatedBy ; string_Set [string]
    Output
-      [record] parameters ; Response
+      [record] Response ; Response
          [simple] ErrorCode ; Integer
          [simple] ErrorMessage ; String
    > ServerExit

@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                       Copyright (C) 2015, AdaCore                        --
+--                    Copyright (C) 2015-2018, AdaCore                      --
 --                                                                          --
 --  This is free software;  you can redistribute it  and/or modify it       --
 --  under terms of the  GNU General Public License as published  by the     --
@@ -18,7 +18,6 @@
 
 with AWS.MIME;
 
-with SOAP.Message;
 with SOAP.Utils;
 
 with Hello_DOC.Server;
@@ -35,8 +34,7 @@ package body Hello_DOC_Server_CB is
 
    function SOAP_CB is new Hello_DOC.Server.sayHello_CB (sayHello);
 
-   function SOAP_Wrapper is
-     new SOAP.Utils.SOAP_Wrapper (Soap_CB, SOAP.Message.Document);
+   function SOAP_Wrapper is new SOAP.Utils.SOAP_Wrapper (SOAP_CB);
 
    --------
    -- CB --
@@ -46,7 +44,7 @@ package body Hello_DOC_Server_CB is
       SOAPAction : constant String := Status.SOAPAction (Request);
    begin
       if SOAPAction = "sayHello" then
-         return SOAP_Wrapper (Request);
+         return SOAP_Wrapper (Request, Hello_DOC.Schema);
       else
          return Response.Build (MIME.Text_HTML, "<p>Not a SOAP request");
       end if;

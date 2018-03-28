@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                      Copyright (C) 2017, AdaCore                         --
+--                    Copyright (C) 2017-2018, AdaCore                      --
 --                                                                          --
 --  This is free software;  you can redistribute it  and/or modify it       --
 --  under terms of the  GNU General Public License as published  by the     --
@@ -53,7 +53,7 @@ procedure Routine_Schema is
    begin
       R.A := 5;
       API_Service.Client.Call
-        (D_Call   => R,
+        (D        => R,
          Endpoint => AWS.Server.Status.Local_URL (H_Server));
    end WSDL_Demo_Client;
 

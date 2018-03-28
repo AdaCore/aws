@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2000-2017, AdaCore                     --
+--                     Copyright (C) 2000-2018, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -98,7 +98,7 @@ package body SOAP.Message.XML is
 
    procedure Load_XML
      (Input : in out Input_Sources.Input_Source'Class;
-      S     : out State);
+      S     : in out State);
    --  Load XML document, set State and ensure the document is freed when an
    --  exception occurs. The Input source is closed before returning.
 
@@ -401,71 +401,97 @@ package body SOAP.Message.XML is
      (Type_Name : String;
       Schema    : WSDL.Schema.Definition;
       NS        : Namespaces;
-      Default   : String := Null_String) return String
-   is
-      P : constant String := Utils.NS (Type_Name);
+      Default   : String := Null_String) return String is
    begin
       if Schema.Contains (Type_Name) then
          --  The type_name is found in the schema, returns the corresponding
          --  type definition.
 
          return Schema (Type_Name);
+      end if;
 
-      elsif P = "" then
-         --  We have no prefix, just return the type or the default value
+      declare
+         P      : constant String := Utils.NS (Type_Name);
+         I      : constant Natural := Strings.Fixed.Index (Type_Name, ".");
+         Prefix : constant String :=
+                    (if I > 0
+                     then Type_Name (Type_Name'First .. I - 1)
+                     else "");
+      begin
+         if Prefix /= ""
+           and then Schema.Contains (Prefix)
+           and then Schema.Contains
+             (Schema (Prefix) & Type_Name (I .. Type_Name'Last))
+         then
+            --  We have a type-name Prefix.Name, Prefix is found in the schema,
+            --  so check for : Value (PREFIX).Name. As Name could be a field
+            --  in a procedure parameter which is a record. And we have the
+            --  definition for the record's fields.
 
-         return (if Default = Null_String then Type_Name else Default);
+            return Schema (Schema (Prefix) & Type_Name (I .. Type_Name'Last));
 
-      else
-         --  We have a prefix n1:name, we want to check for a possible n2:name
-         --  definition as n1 could have been renamed n2.
+         elsif Prefix /= ""
+           and then Schema.Contains (Type_Name (I + 1 .. Type_Name'Last))
+         then
+            return Schema (Type_Name (I + 1 .. Type_Name'Last));
 
-         declare
-            use type SOAP.Name_Space.Object;
+         elsif P = "" then
+            --  We have no prefix, just return the type or the default value
 
-            Result : Unbounded_String :=
-                       To_Unbounded_String
-                         (if Default = Null_String
-                          then Type_Name else Default);
-         begin
-            --  Get URL for NS prefix P
+            return (if Default = Null_String then Type_Name else Default);
 
-            for K in NS.User'Range loop
-               if NS.User (K) /= SOAP.Name_Space.No_Name_Space then
-                  if SOAP.Name_Space.Name (NS.User (K)) = P then
-                     --  We have found the definition for n1
+         else
+            --  We have a prefix n1:name, we want to check for a possible
+            --  n2:name definition as n1 could have been renamed n2.
 
-                     if Schema.Contains
-                       (SOAP.Name_Space.Value (NS.User (K)))
-                     then
-                        --  The URL for the name-space is defined
+            declare
+               use type SOAP.Name_Space.Object;
+
+               Result : Unbounded_String :=
+                          To_Unbounded_String
+                            (if Default = Null_String
+                             then Type_Name else Default);
+            begin
+               --  Get URL for NS prefix P
+
+               for K in NS.User'Range loop
+                  if NS.User (K) /= SOAP.Name_Space.No_Name_Space then
+                     if SOAP.Name_Space.Name (NS.User (K)) = P then
+                        --  We have found the definition for n1
 
                         if Schema.Contains
-                          (Utils.With_NS
-                             (Schema (SOAP.Name_Space.Value (NS.User (K))),
-                              Type_Name))
+                          (SOAP.Name_Space.Value (NS.User (K)))
                         then
-                           --  And we have n2:name also defined, that is the
-                           --  definition we are looking for.
+                           --  The URL for the name-space is defined
 
-                           Result := To_Unbounded_String
-                             (Schema
-                               (Utils.With_NS
-                                 (Schema (SOAP.Name_Space.Value (NS.User (K))),
-                                  Type_Name)));
-                           exit;
+                           if Schema.Contains
+                             (Utils.With_NS
+                                (Schema (SOAP.Name_Space.Value (NS.User (K))),
+                                 Type_Name))
+                           then
+                              --  And we have n2:name also defined, that is the
+                              --  definition we are looking for.
+
+                              Result := To_Unbounded_String
+                                (Schema
+                                  (Utils.With_NS
+                                    (Schema
+                                       (SOAP.Name_Space.Value (NS.User (K))),
+                                        Type_Name)));
+                              exit;
+                           end if;
                         end if;
                      end if;
+
+                  else
+                     exit;
                   end if;
+               end loop;
 
-               else
-                  exit;
-               end if;
-            end loop;
-
-            return To_String (Result);
-         end;
-      end if;
+               return To_String (Result);
+            end;
+         end if;
+      end;
    end Get_Schema_Type;
 
    -----------
@@ -728,7 +754,7 @@ package body SOAP.Message.XML is
 
    procedure Load_XML
      (Input : in out Input_Sources.Input_Source'Class;
-      S     : out State)
+      S     : in out State)
    is
       Reader : Tree_Reader;
       Doc    : DOM.Core.Document;
@@ -908,11 +934,8 @@ package body SOAP.Message.XML is
 
             --  Get SOAP call for this specific signature
 
-            S.Wrapper_Name :=
-              To_Unbounded_String
-                (WSDL.Schema.Get_Call_For_Signature
-                   (S.Schema, To_String (Signature)));
-            S.Enclosing := S.Wrapper_Name;
+            S.Wrapper_Name := Signature;
+            S.Enclosing    := S.Wrapper_Name;
          end Compute_Signature;
 
          declare
@@ -1358,11 +1381,13 @@ package body SOAP.Message.XML is
       LS     : constant State := S;
 
    begin
-      if S.Style = WSDL.Schema.Document or else xsd = "" then
-         --  This should be done only for document style binding, but let's
-         --  do it also for the RPC binding. It can help parsing non fully
-         --  conformant messages.
+      if S.Style = WSDL.Schema.Document then
+         --  This should be done only for document style binding where the
+         --  enclosing element is the type-name (aka element in schema).
 
+         T_Name := To_Unbounded_String (Name);
+
+      elsif xsd = "" then
          T_Name := To_Unbounded_String
            (Get_Schema_Type (Key, S.Schema, S.NS, xsd));
 

@@ -435,22 +435,53 @@ package body Skel is
 
       else
          Text_IO.Put
-           (Skel_Adb, "         Result : constant ");
+           (Skel_Adb, "         Result : ");
+
+         if not Is_Simple_Wrapped_Parameter (O, Output) then
+            Text_IO.Put (Skel_Adb, "constant ");
+         end if;
 
          if Output.Next = null
            and then Output.Mode = WSDL.Types.K_Simple
          then
-            Text_IO.Put_Line
+            Text_IO.Put
               (Skel_Adb,
                SOAP.WSDL.To_Ada
                  (SOAP.WSDL.To_Type (WSDL.Types.Name (Output.Typ))));
          else
-            Text_IO.Put_Line
-              (Skel_Adb, L_Proc & "_Result");
+            Text_IO.Put (Skel_Adb, L_Proc & "_Result");
+         end if;
+
+         if Is_Simple_Wrapped_Parameter (O, Output) then
+            --  A simple wrapped output, assign the result here
+
+            Text_IO.Put_Line (Skel_Adb, ";");
+            Text_IO.Put_Line (Skel_Adb, "      begin");
+
+            Text_IO.Put (Skel_Adb, "         Result");
+
+            if WSDL.Parameters.Length (Output.P) = 1
+              and then Output.P.Mode /= WSDL.Types.K_Array
+            then
+               Text_IO.Put
+                 (Skel_Adb, '.' & To_String (Output.P.Name));
+            end if;
+
+            Text_IO.Put
+              (Skel_Adb, " :=");
+
+            if Is_String (Output.P) then
+               Text_IO.Put (Skel_Adb, " +");
+            end if;
+
+         else
+            Text_IO.New_Line;
+            Text_IO.Put
+              (Skel_Adb, "                   :=");
          end if;
 
          Text_IO.Put
-           (Skel_Adb, "           := " & L_Proc & "_CB." & L_Proc);
+           (Skel_Adb, " " & L_Proc & "_CB." & L_Proc);
 
          if Input /= null then
             Text_IO.New_Line (Skel_Adb);
@@ -459,27 +490,67 @@ package body Skel is
 
       --  Input parameters
 
-      N := Input;
+      if Is_Simple_Wrapped_Parameter (O, Input) then
+         --  A simple wrapped input as parameters, inline all fields as
+         --  parameter for the callback.
 
-      while N /= null loop
-         Text_IO.Put (Skel_Adb, "                ");
+         N := Input.P;
 
-         if N = Input then
-            Text_IO.Put (Skel_Adb, "(");
-         else
-            Text_IO.Put (Skel_Adb, " ");
-         end if;
+         while N /= null loop
+            Text_IO.Put (Skel_Adb, "                ");
 
-         Text_IO.Put (Skel_Adb, Format_Name (O, To_String (N.Name)));
+            if N = Input.P then
+               Text_IO.Put (Skel_Adb, "(");
+            else
+               Text_IO.Put (Skel_Adb, " ");
+            end if;
 
-         if N.Next = null then
-            Text_IO.Put (Skel_Adb, ")");
-         else
-            Text_IO.Put_Line (Skel_Adb, ",");
-         end if;
+            if Is_String (N) then
+               Text_IO.Put (Skel_Adb, '-');
+            end if;
 
-         N := N.Next;
-      end loop;
+            Text_IO.Put
+              (Skel_Adb,
+               Format_Name (O, To_String (Input.Name))
+               & "."
+               & Format_Name (O, To_String (N.Name)));
+
+            if N.Mode = WSDL.Types.K_Array then
+               Text_IO.Put (Skel_Adb, ".Item.all");
+            end if;
+
+            if N.Next = null then
+               Text_IO.Put (Skel_Adb, ")");
+            else
+               Text_IO.Put_Line (Skel_Adb, ",");
+            end if;
+
+            N := N.Next;
+         end loop;
+
+      else
+         N := Input;
+
+         while N /= null loop
+            Text_IO.Put (Skel_Adb, "                ");
+
+            if N = Input then
+               Text_IO.Put (Skel_Adb, "(");
+            else
+               Text_IO.Put (Skel_Adb, " ");
+            end if;
+
+            Text_IO.Put (Skel_Adb, Format_Name (O, To_String (N.Name)));
+
+            if N.Next = null then
+               Text_IO.Put (Skel_Adb, ")");
+            else
+               Text_IO.Put_Line (Skel_Adb, ",");
+            end if;
+
+            N := N.Next;
+         end loop;
+      end if;
 
       Text_IO.Put_Line (Skel_Adb, ";");
 
@@ -487,8 +558,10 @@ package body Skel is
 
       if Output /= null then
 
-         Text_IO.Put_Line
-           (Skel_Adb, "      begin");
+         if not Is_Simple_Wrapped_Parameter (O, Output) then
+            Text_IO.Put_Line
+              (Skel_Adb, "      begin");
+         end if;
 
          Text_IO.Put_Line
            (Skel_Adb, "         R_Params :=");
@@ -505,6 +578,9 @@ package body Skel is
 
             declare
                T_Name : constant String := WSDL.Types.Name (N.Typ, True);
+               NS     : constant SOAP.Name_Space.Object :=
+                          SOAP.WSDL.Name_Spaces.Get
+                            (SOAP.Utils.NS (To_String (N.Elmt_Name)));
             begin
                case N.Mode is
                   when WSDL.Types.K_Simple =>
@@ -518,7 +594,18 @@ package body Skel is
                         Text_IO.Put
                           (Skel_Adb,
                            " (Result, """ & To_String (N.Name) & ""","
-                           & " Type_Name => """ & T_Name & """)");
+                           & " Type_Name => """ & T_Name & '"');
+
+                        if SOAP.Name_Space.Is_Defined (NS) then
+                           Text_IO.Put
+                             (Skel_Adb,
+                              ", NS => SOAP.Name_Space.Create ("""
+                              & SOAP.Name_Space.Name (NS)
+                              & """, """
+                              & SOAP.Name_Space.Value (NS) & """))");
+                        else
+                           Text_IO.Put (Skel_Adb, ")");
+                        end if;
 
                      else
                         --  Multiple value returned, this is a record

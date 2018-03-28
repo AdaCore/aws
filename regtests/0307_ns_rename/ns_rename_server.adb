@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                       Copyright (C) 2017, AdaCore                        --
+--                    Copyright (C) 2017-2018, AdaCore                      --
 --                                                                          --
 --  This is free software;  you can redistribute it  and/or modify it       --
 --  under terms of the  GNU General Public License as published  by the     --
@@ -61,10 +61,12 @@ begin
         & "<soapenv:Body"
         & " xmlns:tns=""http://soapaws/API_def/"""
         & " xmlns:n0=""http://soapaws/API_pkg/"">"
-        & "<n0:P_Call>"
-        & "   <n0:A>9</n0:A>"
-        & "   <n0:B>7</n0:B>"
-        & "</n0:P_Call>"
+        & "<n0:Parameters_Call>"
+        & "   <n0:P>"
+        & "      <n0:A>9</n0:A>"
+        & "      <n0:B>7</n0:B>"
+        & "   </n0:P>"
+        & "</n0:Parameters_Call>"
         & "</soapenv:Body>"
         & "</soapenv:Envelope>";
       Resp : AWS.Response.Data;

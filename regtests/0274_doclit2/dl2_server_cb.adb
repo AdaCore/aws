@@ -22,6 +22,7 @@ with Ada.Text_IO;
 with AWS.MIME;
 
 with SOAP.Message;
+with SOAP.Types;
 with SOAP.Utils;
 
 with testingservice.Server;
@@ -43,8 +44,9 @@ package body Dl2_Server_CB is
      return getQueueStatus_Result;
 
    function execute
-     (executeRequest : ExecuteRequest_Type)
-     return execute_Result;
+     (executionTime : SOAP.Types.Local_Time;
+      valueA        : RecB_Set_Type)
+     return String;
 
    -------------
    -- SOAP_CB --
@@ -80,15 +82,12 @@ package body Dl2_Server_CB is
    -------------
 
    function execute
-     (executeRequest : ExecuteRequest_Type)
-     return execute_Result
-   is
-      R : execute_Result;
+     (executionTime : SOAP.Types.Local_Time;
+      valueA        : RecB_Set_Type)
+     return String is
    begin
       Count := Count + 1;
-      R.invocationToken :=
-        To_Unbounded_String ("this_is_the_token" & Natural'Image (Count));
-      return R;
+      return ("this_is_the_token" & Natural'Image (Count));
    end execute;
 
    --------------------

@@ -1,60 +1,61 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <wsdl:definitions name="GetCasService"
                   targetNamespace="http://simple.doc.net/sd"
+                  xmlns:tns="http://simple.doc.net/sd"
                   xmlns="http://schemas.xmlsoap.org/wsdl/"
                   xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/"
                   xmlns:xsd="http://www.w3.org/2001/XMLSchema"
                   xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/">
-  <types>
-    <schema>
-      <element name="myMethod">
-        <complexType>
-          <sequence>
-            <element name="x" type="xsd:int"/>
-            <element name="y" type="xsd:float"/>
-          </sequence>
-        </complexType>
-      </element>
-      <element name="myMethodResponse">
-        <complexType/>
-      </element>
-    </schema>
-  </types>
+  <wsdl:types>
+    <xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+      <xsd:element name="myMethod">
+        <xsd:complexType>
+          <xsd:sequence>
+            <xsd:element name="x" type="xsd:int"/>
+            <xsd:element name="y" type="xsd:float"/>
+          </xsd:sequence>
+        </xsd:complexType>
+      </xsd:element>
+      <xsd:element name="myMethodResponse">
+        <xsd:complexType/>
+      </xsd:element>
+    </xsd:schema>
+  </wsdl:types>
 
-  <message name="myMethodRequest">
-    <part name="parameters" element="myMethod"/>
-  </message>
+  <wsdl:message name="myMethodRequest">
+    <wsdl:part name="parameters" element="myMethod"/>
+  </wsdl:message>
 
-  <message name="empty">
-    <part name="parameters" element="myMethodResponse"/>
-  </message>
+  <wsdl:message name="empty">
+    <wsdl:part name="parameters" element="myMethodResponse"/>
+  </wsdl:message>
 
-  <portType name="PT">
-    <operation name="call">
-      <input message="myMethodRequest"/>
-      <output message="empty"/>
-    </operation>
-  </portType>
+  <wsdl:portType name="SimpleDocPortType">
+    <wsdl:operation name="call">
+      <wsdl:input message="tns:myMethodRequest"/>
+      <wsdl:output message="tns:empty"/>
+    </wsdl:operation>
+  </wsdl:portType>
 
-<binding name="SimpleDocBinding" type="simpledoc">
+<wsdl:binding name="SimpleDocBinding" type="tns:SimpleDocPortType">
   <soap:binding style="document"
                 transport="http://schemas.xmlsoap.org/soap/http" />
 
-  <operation name="call">
-    <soap:operation soapAction="http://me.here.net/call" />
+  <wsdl:operation name="call">
+    <soap:operation soapAction="call" />
     <wsdl:input>
       <soap:body use="literal" />
     </wsdl:input>
     <wsdl:output>
       <soap:body use="literal" />
     </wsdl:output>
-  </operation>
-</binding>
+  </wsdl:operation>
+</wsdl:binding>
 
 <wsdl:service name="SimpleDocService">
-  <port name="SimpleDocPort" binding="SimpleDocBinding">
+  <wsdl:port name="SimpleDocPort" binding="tns:SimpleDocBinding">
     <soap:address location="http://localhost:1234" />
-  </port>
+  </wsdl:port>
 </wsdl:service>
 
 </wsdl:definitions>

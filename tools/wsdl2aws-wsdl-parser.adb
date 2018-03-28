@@ -1306,6 +1306,30 @@ package body WSDL2AWS.WSDL.Parser is
       elsif DOM.Core.Nodes.Local_Name (N) = "element"
         and then SOAP.XML.First_Child (N) = null
       then
+         --  A reference, create the alias name -> type
+
+         declare
+            Name : constant String :=
+                     SOAP.XML.Get_Attr_Value (N, "name", NS => False);
+            Base : constant String :=
+                     SOAP.XML.Get_Attr_Value (N, "type", NS => True);
+            BNS  : constant String := SOAP.Utils.NS (Base);
+            P    : Parameters.Parameter (Types.K_Derived);
+            D    : Types.Definition (Types.K_Derived);
+         begin
+            P.Typ := Types.Create (Base, Get_Target_Name_Space (N));
+            D.Ref := Types.Create (Name, SOAP.Name_Space.No_Name_Space);
+
+            D.Parent := Types.Create
+              (SOAP.Utils.No_NS (Base),
+               (if BNS = ""
+                then Types.NS (P.Typ)
+                else SOAP.Name_Space.Create
+                  (BNS, SOAP.WSDL.Name_Spaces.Get (BNS))));
+
+            Types.Register (D);
+         end;
+
          Add_Parameter (O, Parse_Parameter (O, N, Document));
 
       else
@@ -1327,6 +1351,11 @@ package body WSDL2AWS.WSDL.Parser is
                   N := Look_For_Schema
                     (N, ET, Document,
                      Look_Context'(Complex_Type => True, others => False));
+
+                  if N = null then
+                     raise WSDL_Error
+                       with "cannot find definition for element " & ET;
+                  end if;
                end if;
             end if;
 
@@ -1485,7 +1514,7 @@ package body WSDL2AWS.WSDL.Parser is
 
       N := SOAP.XML.First_Child (N);
 
-      declare
+      Parse_Name_Space : declare
          NS_Value : constant String :=
                       SOAP.XML.Get_Attr_Value (N, "namespace");
          NS_Name  : constant String :=
@@ -1501,7 +1530,7 @@ package body WSDL2AWS.WSDL.Parser is
                O.Namespace := SOAP.Name_Space.Create (NS_Name, NS_Value);
             end if;
          end if;
-      end;
+      end Parse_Name_Space;
 
       N := Get_Node
         (SOAP.XML.First_Child (DOM.Core.Node (Document)),
@@ -1659,24 +1688,47 @@ package body WSDL2AWS.WSDL.Parser is
       Document : SOAP.WSDL.Object)
    is
       use all type SOAP.WSDL.Parameter_Type;
+      use type SOAP.WSDL.Schema.Binding_Style;
 
-      N  : DOM.Core.Node;
-      ET : Unbounded_String;
+      A_Type    : constant String := SOAP.XML.Get_Attr_Value (Part, "type");
+      A_Element : constant String := SOAP.XML.Get_Attr_Value (Part, "element");
+      N         : DOM.Core.Node;
+      ET        : Unbounded_String;
    begin
       Trace ("(Parse_Part)", Part);
 
-      ET := +SOAP.XML.Get_Attr_Value (Part, "element");
+      if O.Style = SOAP.WSDL.Schema.Document then
+         --  for document style we use element attribute
+         if A_Element = "" then
+            raise WSDL_Error
+              with "No element attribute found for part."
+                   & (if A_Type /= ""
+                      then " (type attribute not valid for document style)"
+                      else "");
+         else
+            ET := +A_Element;
+            O.Elmt_Name := ET;
+         end if;
 
-      if ET = Null_Unbounded_String then
-         ET := +SOAP.XML.Get_Attr_Value (Part, "type");
-         O.Elmt_Name := Null_Unbounded_String;
       else
-         O.Elmt_Name := ET;
-      end if;
+         --  for rpc style we use the type attribute
+         if A_Type = "" then
+            if O.Accept_Document and then A_Element /= "" then
+               ET := +A_Element;
+               O.Elmt_Name := ET;
 
-      if ET = Null_Unbounded_String then
-         raise WSDL_Error
-           with "No type or element attribute found for part element.";
+            else
+               raise WSDL_Error
+                 with "No type attribute found for part."
+                      & (if A_Element /= ""
+                         then " (element attribute not valid for rpc style)"
+                         else "");
+            end if;
+
+         else
+            ET := +A_Type;
+            O.Elmt_Name := Null_Unbounded_String;
+         end if;
       end if;
 
       O.Current_Name := +SOAP.XML.Get_Attr_Value (Part, "name");

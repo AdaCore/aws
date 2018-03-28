@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                       Copyright (C) 2016, AdaCore                        --
+--                     Copyright (C) 2016-2018, AdaCore                     --
 --                                                                          --
 --  This is free software;  you can redistribute it  and/or modify it       --
 --  under terms of the  GNU General Public License as published  by the     --
@@ -25,6 +25,7 @@ with SOAP.Dispatchers.Callback;
 
 with WSDL_a_Server;
 with WSDL_a_Service.Client;
+with WSDL_a_Service.Types;
 
 procedure WSDL_a_Main is
 
@@ -36,6 +37,8 @@ procedure WSDL_a_Main is
    H    : WSDL_a_Server.Handler;
 
    Conf : Config.Object := Config.Get_Current;
+
+   R1, R2 : WSDL_a_Service.Types.R_Type;
 
 begin
    H := SOAP.Dispatchers.Callback.Create
@@ -53,6 +56,10 @@ begin
    WSDL_a_Service.Client.Print_Small (122);
    Text_IO.Put_Line (WSDL_a_Service.Client.Image (789));
    Text_IO.Put_Line (WSDL_a_Service.Client.Image (-1));
+
+   R1.A := 8;
+   R1.B := 2;
+   R2 := WSDL_a_Service.Client.Call (R1);
 
    Server.Shutdown (WS);
 end WSDL_a_Main;

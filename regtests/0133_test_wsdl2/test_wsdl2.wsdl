@@ -7,7 +7,7 @@ targetNamespace="http://example.com/stockquote.wsdl"
           xmlns:xsd1="http://example.com/stockquote/schema"
           xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/"
           xmlns:soapenc="http://schemas.xmlsoap.org/soap/encoding/"
-	  xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/"
+          xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/"
           xmlns="http://schemas.xmlsoap.org/wsdl/">
 
     <types>
@@ -30,8 +30,8 @@ targetNamespace="http://example.com/stockquote.wsdl"
     </types>
 
     <message name="GetTradePricesInput">
-        <part name="tickerSymbol" element="xsd:string"/>
-        <part name="timePeriod" element="xsd1:TimePeriod"/>
+        <part name="tickerSymbol" type="xsd:string"/>
+        <part name="timePeriod" type="xsd1:TimePeriod"/>
     </message>
 
     <message name="GetTradePricesOutput">

@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                       Copyright (C) 2016, AdaCore                        --
+--                     Copyright (C) 2016-2018, AdaCore                     --
 --                                                                          --
 --  This is free software;  you can redistribute it  and/or modify it       --
 --  under terms of the  GNU General Public License as published  by the     --
@@ -26,9 +26,9 @@ package body WSDL_a is
    -- Call --
    ----------
 
-   function Call (X : R) return R is
+   function Call (XC : R) return R is
    begin
-      return R'(A => X.B, B => X.A);
+      return R'(A => XC.B, B => XC.A);
    end Call;
 
    -----------
