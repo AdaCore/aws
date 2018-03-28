@@ -460,15 +460,15 @@ package body AWS.Net.SSL is
       Res : C.int;
    begin
       loop
-         Res := TSSL.SSL_do_handshake (Socket.SSL);
+         Res := SSL_do_handshake (Socket.SSL);
 
          Success := Res = 1;
 
          exit when Success;
 
-         case TSSL.SSL_get_error (Socket.SSL, Res) is
-            when TSSL.SSL_ERROR_WANT_READ  => Socket_Read (Socket);
-            when TSSL.SSL_ERROR_WANT_WRITE => Socket_Write (Socket);
+         case SSL_get_error (Socket.SSL, Res) is
+            when SSL_ERROR_WANT_READ  => Socket_Read (Socket);
+            when SSL_ERROR_WANT_WRITE => Socket_Write (Socket);
             when others                    => exit;
          end case;
       end loop;
