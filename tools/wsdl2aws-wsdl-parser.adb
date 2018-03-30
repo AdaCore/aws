@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2003-2017, AdaCore                     --
+--                     Copyright (C) 2003-2018, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -670,6 +670,52 @@ package body WSDL2AWS.WSDL.Parser is
                   return True;
                end if;
             end if;
+
+         elsif L /= null
+           and then
+             SOAP.Utils.No_NS (DOM.Core.Nodes.Node_Name (L)) = "sequence"
+         then
+            L := SOAP.XML.First_Child (L);
+
+            if L /= null
+              and then
+                SOAP.Utils.No_NS (DOM.Core.Nodes.Node_Name (L)) = "element"
+            then
+               --  Element must have minOccurs and maxOccurs attribute
+
+               declare
+                  Min_Occurs : constant String :=
+                                 SOAP.XML.Get_Attr_Value
+                                   (L, "minOccurs", False);
+                  Max_Occurs : constant String :=
+                                 SOAP.XML.Get_Attr_Value
+                                   (L, "maxOccurs", False);
+                  E_Type     : constant String :=
+                                 SOAP.XML.Get_Attr_Value (L, "type", True);
+                  E_NS       : constant String :=
+                                 SOAP.Utils.NS (E_Type);
+               begin
+                  if Min_Occurs /= "" and then Max_Occurs /= "" then
+                     if Max_Occurs = "unbounded" then
+                        O.Self.Array_Length := 0;
+                     else
+                        O.Self.Array_Length := Natural'Value (Max_Occurs);
+                     end if;
+
+                     --  And so the element type is on type attribute
+
+                     O.Self.Array_Elements :=
+                       Types.Create
+                         (E_Type,
+                          (if E_NS = ""
+                           then Get_Target_Name_Space (L)
+                           else SOAP.Name_Space.Create
+                             (E_NS, SOAP.WSDL.Name_Spaces.Get (E_NS))));
+
+                     return True;
+                  end if;
+               end;
+            end if;
          end if;
       end if;
 
@@ -855,7 +901,8 @@ package body WSDL2AWS.WSDL.Parser is
       N : DOM.Core.Node) return Boolean
    is
       pragma Unreferenced (O);
-      L : DOM.Core.Node := N;
+      L            : DOM.Core.Node := N;
+      Is_Extension : Boolean := False;
    begin
       if SOAP.Utils.No_NS (DOM.Core.Nodes.Node_Name (L)) = "element"
         and then SOAP.XML.First_Child (L) /= null
@@ -887,6 +934,7 @@ package body WSDL2AWS.WSDL.Parser is
             elsif SOAP.Utils.No_NS (DOM.Core.Nodes.Node_Name (L))
               = "extension"
             then
+               Is_Extension := True;
                L := SOAP.XML.First_Child (L);
             end if;
          end if;
@@ -903,9 +951,18 @@ package body WSDL2AWS.WSDL.Parser is
          then
             L := SOAP.XML.First_Child (L);
 
+            --  If we have a single element we must ensure that there is no
+            --  minOccurs or maxOccurs defined otherwise this is an array.
+
             if L /= null
               and then
                 SOAP.Utils.No_NS (DOM.Core.Nodes.Node_Name (L)) = "element"
+              and then
+                (SOAP.XML.Next_Sibling (L) /= null
+                 or else Is_Extension
+                 or else
+                   (SOAP.XML.Get_Attr_Value (L, "minOccurs") = ""
+                    and then SOAP.XML.Get_Attr_Value (L, "maxOccurs") = ""))
             then
                return True;
             end if;
@@ -1072,9 +1129,7 @@ package body WSDL2AWS.WSDL.Parser is
                  (SOAP.XML.First_Child (SOAP.XML.First_Child (R))));
          end if;
 
-         if not SOAP.WSDL.Is_Standard
-           (WSDL.Types.Name (O.Array_Elements))
-         then
+         if not SOAP.WSDL.Is_Standard (WSDL.Types.Name (O.Array_Elements)) then
             --  This is not a standard type, parse it
             declare
                N : DOM.Core.Node :=
@@ -1251,6 +1306,30 @@ package body WSDL2AWS.WSDL.Parser is
       elsif DOM.Core.Nodes.Local_Name (N) = "element"
         and then SOAP.XML.First_Child (N) = null
       then
+         --  A reference, create the alias name -> type
+
+         declare
+            Name : constant String :=
+                     SOAP.XML.Get_Attr_Value (N, "name", NS => False);
+            Base : constant String :=
+                     SOAP.XML.Get_Attr_Value (N, "type", NS => True);
+            BNS  : constant String := SOAP.Utils.NS (Base);
+            P    : Parameters.Parameter (Types.K_Derived);
+            D    : Types.Definition (Types.K_Derived);
+         begin
+            P.Typ := Types.Create (Base, Get_Target_Name_Space (N));
+            D.Ref := Types.Create (Name, SOAP.Name_Space.No_Name_Space);
+
+            D.Parent := Types.Create
+              (SOAP.Utils.No_NS (Base),
+               (if BNS = ""
+                then Types.NS (P.Typ)
+                else SOAP.Name_Space.Create
+                  (BNS, SOAP.WSDL.Name_Spaces.Get (BNS))));
+
+            Types.Register (D);
+         end;
+
          Add_Parameter (O, Parse_Parameter (O, N, Document));
 
       else
@@ -1261,9 +1340,7 @@ package body WSDL2AWS.WSDL.Parser is
             ET     : constant String :=
                        SOAP.XML.Get_Attr_Value (N, "type", NS => True);
          begin
-            if N /= null
-              and then DOM.Core.Nodes.Local_Name (N) = "element"
-            then
+            if DOM.Core.Nodes.Local_Name (N) = "element" then
                if ET = "" then
                   --  Move to complexType node
                   N := SOAP.XML.First_Child (N);
@@ -1274,6 +1351,11 @@ package body WSDL2AWS.WSDL.Parser is
                   N := Look_For_Schema
                     (N, ET, Document,
                      Look_Context'(Complex_Type => True, others => False));
+
+                  if N = null then
+                     raise WSDL_Error
+                       with "cannot find definition for element " & ET;
+                  end if;
                end if;
             end if;
 
@@ -1371,7 +1453,7 @@ package body WSDL2AWS.WSDL.Parser is
          O.SOAPAction := +SOAP.XML.Get_Attr_Value (N, "soapAction");
       end if;
 
-      --  Check wether the binding style is declared here
+      --  Check whether the binding style is declared here
 
       Set_Binding_Style (O, N);
 
@@ -1432,7 +1514,7 @@ package body WSDL2AWS.WSDL.Parser is
 
       N := SOAP.XML.First_Child (N);
 
-      declare
+      Parse_Name_Space : declare
          NS_Value : constant String :=
                       SOAP.XML.Get_Attr_Value (N, "namespace");
          NS_Name  : constant String :=
@@ -1448,7 +1530,7 @@ package body WSDL2AWS.WSDL.Parser is
                O.Namespace := SOAP.Name_Space.Create (NS_Name, NS_Value);
             end if;
          end if;
-      end;
+      end Parse_Name_Space;
 
       N := Get_Node
         (SOAP.XML.First_Child (DOM.Core.Node (Document)),
@@ -1606,24 +1688,47 @@ package body WSDL2AWS.WSDL.Parser is
       Document : SOAP.WSDL.Object)
    is
       use all type SOAP.WSDL.Parameter_Type;
+      use type SOAP.WSDL.Schema.Binding_Style;
 
-      N  : DOM.Core.Node;
-      ET : Unbounded_String;
+      A_Type    : constant String := SOAP.XML.Get_Attr_Value (Part, "type");
+      A_Element : constant String := SOAP.XML.Get_Attr_Value (Part, "element");
+      N         : DOM.Core.Node;
+      ET        : Unbounded_String;
    begin
       Trace ("(Parse_Part)", Part);
 
-      ET := +SOAP.XML.Get_Attr_Value (Part, "element");
+      if O.Style = SOAP.WSDL.Schema.Document then
+         --  for document style we use element attribute
+         if A_Element = "" then
+            raise WSDL_Error
+              with "No element attribute found for part."
+                   & (if A_Type /= ""
+                      then " (type attribute not valid for document style)"
+                      else "");
+         else
+            ET := +A_Element;
+            O.Elmt_Name := ET;
+         end if;
 
-      if ET = Null_Unbounded_String then
-         ET := +SOAP.XML.Get_Attr_Value (Part, "type");
-         O.Elmt_Name := Null_Unbounded_String;
       else
-         O.Elmt_Name := ET;
-      end if;
+         --  for rpc style we use the type attribute
+         if A_Type = "" then
+            if O.Accept_Document and then A_Element /= "" then
+               ET := +A_Element;
+               O.Elmt_Name := ET;
 
-      if ET = Null_Unbounded_String then
-         raise WSDL_Error
-           with "No type or element attribute found for part element.";
+            else
+               raise WSDL_Error
+                 with "No type attribute found for part."
+                      & (if A_Element /= ""
+                         then " (element attribute not valid for rpc style)"
+                         else "");
+            end if;
+
+         else
+            ET := +A_Type;
+            O.Elmt_Name := Null_Unbounded_String;
+         end if;
       end if;
 
       O.Current_Name := +SOAP.XML.Get_Attr_Value (Part, "name");
@@ -1661,6 +1766,8 @@ package body WSDL2AWS.WSDL.Parser is
       Operation : DOM.Core.Node;
       Document  : SOAP.WSDL.Object)
    is
+      use type SOAP.WSDL.Schema.Binding_Style;
+
       procedure Get_Element (M : DOM.Core.Node);
       --  Returns the element node which contains parameters for node M
 
@@ -1697,7 +1804,8 @@ package body WSDL2AWS.WSDL.Parser is
          end if;
       end Get_Element;
 
-      N : DOM.Core.Node;
+      N            : DOM.Core.Node;
+      Wrapper_Name : Unbounded_String;
 
    begin
       Trace ("(Parse_PortType)", Operation);
@@ -1717,6 +1825,9 @@ package body WSDL2AWS.WSDL.Parser is
       if N /= null then
          O.Mode := Input;
          Get_Element (N);
+
+         --  Record the wrapper name for the document binding
+         Wrapper_Name := O.Elmt_Name;
       end if;
 
       --  Output parameters
@@ -1749,7 +1860,11 @@ package body WSDL2AWS.WSDL.Parser is
       end if;
 
       New_Procedure
-        (O, -O.Proc, -O.Documentation, -O.SOAPAction, O.Namespace,
+        (O, -O.Proc, -O.Documentation, -O.SOAPAction,
+         (if O.Style = SOAP.WSDL.Schema.Document
+          then -Wrapper_Name
+          else -O.SOAPAction),
+         O.Namespace,
          O.Params (Input), O.Params (Output), O.Params (Fault));
 
       Parameters.Release (O.Params (Input));

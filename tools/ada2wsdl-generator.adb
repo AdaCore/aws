@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2003-2017, AdaCore                     --
+--                     Copyright (C) 2003-2018, AdaCore                     --
 --                                                                          --
 --  This is free software;  you can redistribute it  and/or modify it       --
 --  under terms of the  GNU General Public License as published  by the     --
@@ -358,9 +358,10 @@ package body Ada2WSDL.Generator is
    -- Return_Type --
    -----------------
 
-   procedure Return_Type (NS, Name : String) is
+   procedure Return_Type (NS, Name, Spec_Name : String) is
       New_P : constant not null Parameter_Access :=
-                new Parameter'(+"Result", +Name, +To_XSD (NS, Name), null);
+                new Parameter'(+Spec_Name & "_Result",
+                               +Name, +To_XSD (NS, Name), null);
    begin
       Insert_NS (NS);
 
@@ -744,45 +745,53 @@ package body Ada2WSDL.Generator is
 
             Name : constant String := -R.Name;
 
-            procedure Write_Part (P : not null access Parameter);
+            procedure Write_Part
+              (Parameters : Boolean; P : not null access Parameter);
 
             ----------------
             -- Write_Part --
             ----------------
 
-            procedure Write_Part (P : not null access Parameter) is
+            procedure Write_Part
+              (Parameters : Boolean; P : not null access Parameter)
+            is
                A : access Parameter := P;
             begin
-               while A /= null loop
-                  Put ("      <wsdl:part name=""" & (-A.Name) & """ ");
+               --  Whether we have to generate a document style binding or
+               --  an RPC one. A part for a document style is:
+               --
+               --     <part name="" element="" />
+               --
+               --  where element is referencing an element in the schema.
+               --  Those elements are written by Generate_Element routine.
+               --  A single part is allowed, if a routine is taking
+               --  multiple parameters they are all inside an
+               --  element/complexType/sequence schema structure.
+               --
+               --  For an RPC style we use multiple:
+               --
+               --     <part name="" type="" />
 
-                  --  Whether we have to generate a document style binding or
-                  --  an RPC one. A part for a document style is:
-                  --
-                  --     <part name="" element="" />
-                  --
-                  --  where element is referencing an element in the schema.
-                  --  Those elements are written by Generate_Element routine.
-                  --
-                  --  For an RPC style we use:
-                  --
-                  --     <part name="" type="" />
+               if Options.Document then
+                  declare
+                     Prefix : constant String := NS_Prefix (T_NS);
+                  begin
+                     Put_Line
+                       ("      <wsdl:part name=""parameters"" "
+                        & "element="""
+                        & Prefix & ':'
+                        & (if Parameters then "Parameters" else "Result")
+                        & '_' & Name & """/>");
+                  end;
 
-                  if Options.Document then
-                     declare
-                        Prefix : constant String := NS_Prefix (T_NS);
-                     begin
-                        Put_Line
-                          ("element="""
-                           & Prefix & ':' & (-A.Name) & '_' & Name & """/>");
-                     end;
-
-                  else
-                     Put_Line ("type=""" & (-A.XSD_Name) & """/>");
-                  end if;
-
-                  A := A.Next;
-               end loop;
+               else
+                  while A /= null loop
+                     Put_Line
+                       ("      <wsdl:part name=""" & (-A.Name) & """ "
+                        & "type=""" & (-A.XSD_Name) & """/>");
+                     A := A.Next;
+                  end loop;
+               end if;
             end Write_Part;
 
          begin
@@ -790,7 +799,7 @@ package body Ada2WSDL.Generator is
 
             if R.Parameters /= null then
                Put_Line ("   <wsdl:message name=""" & Name & "_Request"">");
-               Write_Part (R.Parameters);
+               Write_Part (Parameters => True, P => R.Parameters);
                Put_Line ("   </wsdl:message>");
             end if;
 
@@ -798,7 +807,7 @@ package body Ada2WSDL.Generator is
 
             if R.Return_Type /= null then
                Put_Line ("   <wsdl:message name=""" & Name & "_Response"">");
-               Write_Part (R.Return_Type);
+               Write_Part (Parameters => False, P => R.Return_Type);
                Put_Line ("   </wsdl:message>");
             end if;
          end Write_Message;
@@ -910,31 +919,45 @@ package body Ada2WSDL.Generator is
 
                Name : constant String := -R.Name;
 
-               procedure Check_Part (P : not null access Parameter);
+               procedure Check_Part
+                 (Name : String;
+                  P    : not null access Parameter);
 
                ----------------
                -- Check_Part --
                ----------------
 
-               procedure Check_Part (P : not null access Parameter) is
+               procedure Check_Part
+                 (Name : String;
+                  P    : not null access Parameter)
+               is
                   A : access Parameter := P;
                begin
+                  Text_IO.Put_Line
+                    ("         <element name=""" & Name & """>");
+                  Text_IO.Put_Line ("            <complexType>");
+                  Text_IO.Put_Line ("               <sequence>");
+
                   while A /= null loop
                      Text_IO.Put_Line
-                       ("         <xsd:element name="""
-                        & (-A.Name) & '_' & Name & """"
+                       ("                  <xsd:element name="""
+                        & (-A.Name) & """"
                         & " type=""" & (-A.XSD_Name) & """/>");
                      A := A.Next;
                   end loop;
+
+                  Text_IO.Put_Line ("               </sequence>");
+                  Text_IO.Put_Line ("            </complexType>");
+                  Text_IO.Put_Line ("         </element>");
                end Check_Part;
 
             begin
                if R.Parameters /= null then
-                  Check_Part (R.Parameters);
+                  Check_Part ("Parameters_" & Name, R.Parameters);
                end if;
 
                if R.Return_Type /= null then
-                  Check_Part (R.Return_Type);
+                  Check_Part ("Result_" & Name, R.Return_Type);
                end if;
             end Check_Message;
 
@@ -951,18 +974,38 @@ package body Ada2WSDL.Generator is
             New_Line;
             Put_Line
               ("         <xsd:complexType name=""" & (-E.Name) & """>");
-            Put_Line ("            <xsd:complexContent>");
-            Put_Line ("               <xsd:restriction "
-                      & "base=""soapenc:Array"">");
-            Put_Line ("                  <xsd:attribute "
-                      & "ref=""soapenc:arrayType"""
-                      & " wsdl:arrayType=""" & (-E.Parameters.XSD_Name)
-                      & (if E.Length = 0
-                         then "[]"
-                         else "[" & AWS.Utils.Image (E.Length) & "]")
-                      & """/>");
-            Put_Line ("               </xsd:restriction>");
-            Put_Line ("            </xsd:complexContent>");
+
+            if Options.SEA then
+               --  Generate old style SOAP-Encoded array. This is kept for
+               --  compatibility reasons.
+
+               Put_Line ("            <xsd:complexContent>");
+               Put_Line ("               <xsd:restriction "
+                         & "base=""soapenc:Array"">");
+               Put_Line ("                  <xsd:attribute "
+                         & "ref=""soapenc:arrayType"""
+                         & " wsdl:arrayType=""" & (-E.Parameters.XSD_Name)
+                         & (if E.Length = 0
+                           then "[]"
+                           else "[" & AWS.Utils.Image (E.Length) & "]")
+                         & """/>");
+               Put_Line ("               </xsd:restriction>");
+               Put_Line ("            </xsd:complexContent>");
+
+            else
+               --  Generate WSDL schema style array
+
+               Put_Line ("            <xsd:sequence>");
+
+               Put_Line ("               <xsd:element name=""x"" type="""
+                         & (-E.Parameters.XSD_Name) & '"');
+               Put_Line ("                    minOccurs=""0"" maxOccurs="""
+                         & (if E.Length = 0
+                           then "unbounded"
+                           else AWS.Utils.Image (E.Length)) & """/>");
+               Put_Line ("            </xsd:sequence>");
+            end if;
+
             Put_Line ("         </xsd:complexType>");
          end Write_Array;
 

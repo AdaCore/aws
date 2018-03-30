@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                       Copyright (C) 2016, AdaCore                        --
+--                    Copyright (C) 2016-2018, AdaCore                      --
 --                                                                          --
 --  This is free software;  you can redistribute it  and/or modify it       --
 --  under terms of the  GNU General Public License as published  by the     --
@@ -30,6 +30,6 @@ package WSDL_a is
       A, B : Integer;
    end record;
 
-   function Call (X : R) return R;
+   function Call (XC : R) return R;
 
 end WSDL_a;

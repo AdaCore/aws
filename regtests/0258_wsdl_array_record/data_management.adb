@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                       Copyright (C) 2014, AdaCore                        --
+--                    Copyright (C) 2014-2018, AdaCore                      --
 --                                                                          --
 --  This is free software;  you can redistribute it  and/or modify it       --
 --  under terms of the  GNU General Public License as published  by the     --
@@ -19,8 +19,8 @@
 package body Data_Management is
 
    function Update_Target_Changes
-      (A          : String;
-       Facilities : Facilities_Type) return Boolean is
+     (A          : String;
+      Facilities : Facilities_Type) return Boolean is
    begin
       return True;
    end Update_Target_Changes;

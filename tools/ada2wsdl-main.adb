@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2003-2017, AdaCore                     --
+--                     Copyright (C) 2003-2018, AdaCore                     --
 --                                                                          --
 --  This is free software;  you can redistribute it  and/or modify it       --
 --  under terms of the  GNU General Public License as published  by the     --
@@ -51,7 +51,7 @@ procedure Ada2WSDL.Main is
    begin
       loop
          case GNAT.Command_Line.Getopt
-           ("f q v a: o: s: t: I: P: n: noenum d doc lit")
+           ("f q v a: o: s: t: I: P: n: noenum d doc lit sea")
          is
 
             when ASCII.NUL =>
@@ -75,8 +75,12 @@ procedure Ada2WSDL.Main is
                  To_Unbounded_String (GNAT.Command_Line.Parameter);
 
             when 's' =>
-               Options.WS_Name :=
-                 To_Unbounded_String (GNAT.Command_Line.Parameter);
+               if GNAT.Command_Line.Full_Switch = "sea" then
+                  Options.SEA := True;
+               else
+                  Options.WS_Name :=
+                    To_Unbounded_String (GNAT.Command_Line.Parameter);
+               end if;
 
             when 'q' =>
                Options.Quiet := True;
@@ -135,21 +139,21 @@ procedure Ada2WSDL.Main is
       Options.File_Name :=
         To_Unbounded_String (GNAT.Command_Line.Get_Argument);
 
+      --  If there is no argument file name or no destination directory,
+      --  we will get empty strings here
+
+      if Options.File_Name = Null_Unbounded_String then
+         Text_IO.Put_Line
+           (Text_IO.Standard_Error, "Ada2WSDL: file name missing");
+         Usage;
+         raise Parameter_Error;
+      end if;
+
       if Options.WSDL_File_Name = Null_Unbounded_String then
          Options.WSDL_File_Name :=
            To_Unbounded_String
              (Directories.Base_Name (To_String (Options.File_Name)));
          Append (Options.WSDL_File_Name, ".wsdl");
-      end if;
-
-      --  If there is no argument file name or no destination directory,
-      --  we will get empty strings here
-
-      if To_String (Options.File_Name) = Null_Unbounded_String then
-         Text_IO.Put_Line
-           (Text_IO.Standard_Error, "Ada2WSDL: file name missing");
-         Usage;
-         raise Parameter_Error;
       end if;
 
       if Options.Document and then not Options.Literal then
@@ -214,6 +218,7 @@ procedure Ada2WSDL.Main is
       Put_Line ("  -s name  Web Service name (default package name)");
       Put_Line ("  -n name  Schema root name (default soapaws)");
       Put_Line ("  -noenum  Map Ada enumeration to xsd:string");
+      Put_Line ("  -soa     Generate old style SOAP Encoded array");
       Put_Line ("  -d       no date/time stamp in WSDL");
 
       Set_Output (Current_Output.all);

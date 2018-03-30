@@ -8,8 +8,7 @@ Procedure wsGetSrvRequest SOAPAction:
          [set] {0 .. 1} spatialDomain ; WsSpatialDomain_Set [WsSpatialDomain]
 
    Output
-      [record] wsGetSrvResponse ; WsGetSrvResponse
-         [record] results ; WsGetSrvResults
-            [set] {0 .. 1} bestA ; float_Set [float]
-            [set] {0 .. 1} bestB ; float_Set [float]
+      [record] results ; WsGetSrvResults
+         [set] {0 .. 1} bestA ; float_Set [float]
+         [set] {0 .. 1} bestB ; float_Set [float]
    > wsGetSrvRequest

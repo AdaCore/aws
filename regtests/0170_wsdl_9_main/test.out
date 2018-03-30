@@ -2,7 +2,7 @@
 <soapenv:Envelope soapenv:encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" xmlns:soapenc="http://schemas.xmlsoap.org/soap/encoding/" xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
 <soapenv:Body>
 <ns1:Send_SMSResponse xmlns:ns1="http://soapaws/MG_SOAP_def/">
-<Result xsi:type="xsd:string">OK : test - test</Result>
+<Send_SMS_Result xsi:type="xsd:string">OK : test - test</Send_SMS_Result>
 </ns1:Send_SMSResponse>
 </soapenv:Body>
 </soapenv:Envelope>
@@ -11,7 +11,7 @@
 <soapenv:Envelope soapenv:encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" xmlns:soapenc="http://schemas.xmlsoap.org/soap/encoding/" xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
 <soapenv:Body>
 <ns1:Send_SMSResponse xmlns:ns1="http://soapaws/MG_SOAP_def/">
-<Result xsi:type="xsd:string">OK : test - test</Result>
+<Send_SMS_Result xsi:type="xsd:string">OK : test - test</Send_SMS_Result>
 </ns1:Send_SMSResponse>
 </soapenv:Body>
 </soapenv:Envelope>
@@ -20,7 +20,7 @@
 <soapenv:Envelope soapenv:encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" xmlns:soapenc="http://schemas.xmlsoap.org/soap/encoding/" xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
 <soapenv:Body>
 <ns1:Send_SMSResponse xmlns:ns1="http://soapaws/MG_SOAP_def/">
-<Result xsi:type="xsd:string">OK : test - test</Result>
+<Send_SMS_Result xsi:type="xsd:string">OK : test - test</Send_SMS_Result>
 </ns1:Send_SMSResponse>
 </soapenv:Body>
 </soapenv:Envelope>

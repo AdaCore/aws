@@ -369,6 +369,15 @@ document. In this section we describe the mapping between Ada and
 
   is defined as::
 
+   <xsd:complexType name="Set_Of_Rec">
+     <xsd:sequence>
+        <xsd:element name="x" type="n1:Rec"
+             minOccurs="0" maxOccurs="unbounded"/>
+     </xsd:sequence>
+   </xsd:complexType>
+
+  A SOAP encoded format can be generated with the -sea option:
+
    <complexType name="Set_Of_Rec">
      <complexContent>
        <restriction base="soap-enc:Array">
@@ -419,13 +428,12 @@ document. In this section we describe the mapping between Ada and
   These Ada definitions are fully recognized by :file:`ada2wsdl` and will
   generate standard array and record `WSDL` definitions as seen above::
 
-   <complexType name="Set_Of_Int">
-     <complexContent>
-       <restriction base="soap-enc:Array">
-         <attribute ref="soap-enc:arrayType" wsdl:arrayType="xsd:int[]"/>
-       </restriction>
-     </complexContent>
-   </complexType>
+   <xsd:complexType name="Set_Of_Int">
+     <xsd:sequence>
+        <xsd:element name="x" type="xsd:int"
+             minOccurs="0" maxOccurs="unbounded"/>
+     </xsd:sequence>
+   </xsd:complexType>
 
    <complexType name="Complex_Rec">
      <all>
@@ -472,6 +480,11 @@ ada2wsdl
   Do not generate `WSDL` representation for Ada enumerations, map
   them to standard string. :ref:`Ada_mapping_to_WSDL`.
 
+*-sea*
+  Generate SOAP encoded format for array definitions. This option is
+  kept for compatibility reason, but the schema based definition for
+  arrays is recommended for better interoperability.
+
 *-o file*
   Generate the `WSDL` document into file.
 
@@ -488,6 +501,9 @@ ada2wsdl
 *-t path*
   Specify the path to the tree file directory to use. This is needed when
   using a project file the object directory is not the current directory.
+
+*-d*
+  Do not generate date/time in WSDL.
 
 *-v*
   Verbose mode, display the parsed spec.
@@ -663,6 +679,9 @@ a `WSDL` document on the Web by passing it's `URL`.
   Quiet mode (no output)
 
 *-d*
+  Do not generate date/time in Ada comment.
+
+*-debug*
   Generate debug code. Will output some information about the payload to
   help debug a Web Service.
 

@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                       Copyright (C) 2015, AdaCore                        --
+--                    Copyright (C) 2015-2018, AdaCore                      --
 --                                                                          --
 --  This is free software;  you can redistribute it  and/or modify it       --
 --  under terms of the  GNU General Public License as published  by the     --
@@ -22,6 +22,7 @@ with Ada.Text_IO;
 with AWS.MIME;
 
 with SOAP.Message;
+with SOAP.Types;
 with SOAP.Utils;
 
 with testingservice.Server;
@@ -43,8 +44,9 @@ package body Dl2_Server_CB is
      return getQueueStatus_Result;
 
    function execute
-     (executeRequest : ExecuteRequest_Type)
-     return execute_Result;
+     (executionTime : SOAP.Types.Local_Time;
+      valueA        : RecB_Set_Type)
+     return String;
 
    -------------
    -- SOAP_CB --
@@ -53,8 +55,7 @@ package body Dl2_Server_CB is
    function SOAP_CB is
      new testingservice.Server.getQueueStatus_CB (getQueueStatus);
 
-   function SOAP_CB_E is
-     new testingservice.Server.execute_CB (execute);
+   function SOAP_CB_E is new testingservice.Server.execute_CB (execute);
 
    function SOAP_Wrapper   is new SOAP.Utils.SOAP_Wrapper (SOAP_CB);
    function SOAP_Wrapper_E is new SOAP.Utils.SOAP_Wrapper (SOAP_CB_E);
@@ -81,15 +82,12 @@ package body Dl2_Server_CB is
    -------------
 
    function execute
-     (executeRequest : ExecuteRequest_Type)
-     return execute_Result
-   is
-      R : execute_Result;
+     (executionTime : SOAP.Types.Local_Time;
+      valueA        : RecB_Set_Type)
+     return String is
    begin
       Count := Count + 1;
-      R.invocationToken :=
-        To_Unbounded_String ("this_is_the_token" & Natural'Image (Count));
-      return R;
+      return ("this_is_the_token" & Natural'Image (Count));
    end execute;
 
    --------------------

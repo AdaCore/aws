@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                       Copyright (C) 2015, AdaCore                        --
+--                    Copyright (C) 2015-2018, AdaCore                      --
 --                                                                          --
 --  This is free software;  you can redistribute it  and/or modify it       --
 --  under terms of the  GNU General Public License as published  by the     --
@@ -37,9 +37,7 @@ procedure Dl2_Client (Client : AWS.Client.HTTP_Connection) is
    D : GetQueueStatusRequest_Type;
    R : getQueueStatus_Result;
 
-   De : ExecuteRequest_Type;
    Re : execute_Result;
-
    N  : RecB_Set_Type (1 .. 2) :=
           (((1.0, 1.1), 3.0, 4.0, 2, 0.9, 8, 0.6),
            ((2.0, 2.1), 3.2, 4.2, 2, 0.91, 81, 0.61));
@@ -48,8 +46,9 @@ begin
    Put_Line ("numberQueued     =" & R.numberQueued'Img);
    Put_Line ("maximumQueueSize =" & R.maximumQueueSize'Img);
 
-   De.executionTime := Calendar.Clock;
-   De.valueA := +N;
-   Re := execute (Client, De);
-   Put_Line ("invocationToken = " & To_String (Re.invocationToken));
+   declare
+      Re : constant String := execute (Client, Calendar.Clock, N);
+   begin
+      Put_Line ("invocationToken = " & Re);
+   end;
 end Dl2_Client;

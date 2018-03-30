@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2003-2017, AdaCore                     --
+--                     Copyright (C) 2003-2018, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -95,12 +95,16 @@ package body Stub is
       Proc          : String;
       Documentation : String;
       SOAPAction    : String;
+      Wrapper_Name  : String;
       Namespace     : SOAP.Name_Space.Object;
       Input         : WSDL.Parameters.P_Set;
       Output        : WSDL.Parameters.P_Set;
       Fault         : WSDL.Parameters.P_Set)
    is
+      use type SOAP.WSDL.Schema.Binding_Style;
       use type WSDL.Parameters.P_Set;
+      use type WSDL.Types.Kind;
+      use all type SOAP.WSDL.Parameter_Type;
 
       procedure Output_Parameter
         (K      : Positive;
@@ -299,8 +303,6 @@ package body Stub is
       -------------------
 
       procedure Output_Result (N : WSDL.Parameters.P_Set) is
-         use all type SOAP.WSDL.Parameter_Type;
-         use type WSDL.Types.Kind;
       begin
          if N.Mode = WSDL.Types.K_Array then
             declare
@@ -321,11 +323,7 @@ package body Stub is
             end;
 
          else
-
-            if N.Mode = WSDL.Types.K_Simple
-                 and then
-               SOAP.WSDL.To_Type (WSDL.Types.Name (N.Typ)) = P_String
-            then
+            if Is_String (N) then
                --  First call operator to convert the string to an unbounded
                --  string.
                Text_IO.Put (Stub_Adb, "+");
@@ -359,6 +357,9 @@ package body Stub is
       is
          P_Type : constant SOAP.WSDL.Parameter_Type :=
                     SOAP.WSDL.To_Type (WSDL.Types.Name (N.Typ));
+         NS     : constant SOAP.Name_Space.Object :=
+                    SOAP.WSDL.Name_Spaces.Get
+                      (SOAP.Utils.NS (To_String (N.Elmt_Name)));
       begin
          if Prefix /= "" then
             --  Inside a record
@@ -372,8 +373,18 @@ package body Stub is
          Text_IO.Put
            (Stub_Adb,
             " (" & Prefix & Format_Name (O, To_String (N.Name))
-              & ", """ & To_String (N.Name) & ""","
-              & " Type_Name => """ & WSDL.Types.Name (N.Typ, True) & """)");
+            & ", """ & To_String (N.Name) & ""","
+            & " Type_Name => """ & WSDL.Types.Name (N.Typ, True) & '"');
+
+         if SOAP.Name_Space.Is_Defined (NS) then
+            Text_IO.Put
+              (Stub_Adb,
+               ", NS => SOAP.Name_Space.Create ("""
+               & SOAP.Name_Space.Name (NS)
+               & """, """ & SOAP.Name_Space.Value (NS) & """))");
+         else
+            Text_IO.Put (Stub_Adb, ")");
+         end if;
 
          if Prefix /= "" and then N.Next /= null then
             Text_IO.Put (Stub_Adb, ",");
@@ -384,7 +395,9 @@ package body Stub is
 
       L_Proc : constant String := Format_Name (O, Proc);
 
-      use all type SOAP.WSDL.Parameter_Type;
+      W_Name : constant String := (if O.Style = SOAP.WSDL.Schema.Document
+                                   then Wrapper_Name else Proc);
+
       use type SOAP.Name_Space.Object;
 
    begin
@@ -413,10 +426,47 @@ package body Stub is
         (Stub_Adb, "      P_Set   : SOAP.Parameters.List;");
       Text_IO.Put_Line
         (Stub_Adb, "      Payload : SOAP.Message.Payload.Object;");
+
+      if Is_Simple_Wrapped_Parameter (O, Input) then
+         Text_IO.Put_Line
+           (Stub_Adb,
+            "      " & Format_Name (O, To_String (Input.Name))
+            & " : "
+            & Format_Name (O, WSDL.Types.Name (Input.Typ) & "_Type")
+            & ';');
+      end if;
+
       Text_IO.Put_Line (Stub_Adb, "   begin");
       Text_IO.Put_Line (Stub_Adb, "      --  Set parameters");
 
       --  Set parameters
+
+      if Is_Simple_Wrapped_Parameter (O, Input) then
+         --  Set individual fields of the input record
+
+         declare
+            N : WSDL.Parameters.P_Set := Input.P;
+         begin
+            while N /= null loop
+               Text_IO.Put
+                 (Stub_Adb,
+                  "      " & Format_Name (O, To_String (Input.Name))
+                  & "." & Format_Name (O, To_String (N.Name))
+                  & " := ");
+
+               if Is_String (N)
+                 or else N.Mode = WSDL.Types.K_Array
+               then
+                  Text_IO.Put (Stub_Adb, '+');
+               end if;
+
+               Text_IO.Put_Line
+                 (Stub_Adb, Format_Name (O, To_String (N.Name)) & ';');
+
+               N := N.Next;
+            end loop;
+         end;
+      end if;
 
       if Input /= null then
          Text_IO.Put (Stub_Adb, "      P_Set := ");
@@ -428,7 +478,8 @@ package body Stub is
       Text_IO.Put_Line
         (Stub_Adb, "      Payload := SOAP.Message.Payload.Build");
       Text_IO.Put
-        (Stub_Adb, "        (""" & To_String (O.Prefix) & Proc & """, P_Set");
+        (Stub_Adb,
+         "        (""" & To_String (O.Prefix) & W_Name & """, P_Set");
 
       if Namespace = SOAP.Name_Space.No_Name_Space then
          Text_IO.Put_Line (Stub_Adb, ");");
@@ -532,7 +583,6 @@ package body Stub is
                case Output.Mode is
 
                   when WSDL.Types.K_Simple =>
-
                      if SOAP.WSDL.To_Type (T_Name) = P_B64 then
                         Text_IO.Put_Line
                           (Stub_Adb,
@@ -568,7 +618,6 @@ package body Stub is
                      Text_IO.Put_Line (Stub_Adb, ");");
 
                   when WSDL.Types.K_Enumeration =>
-
                      Text_IO.Put_Line
                        (Stub_Adb, Result_Type (O, Proc, Output));
                      Text_IO.Put_Line
@@ -629,7 +678,30 @@ package body Stub is
          end if;
 
          Text_IO.Put_Line (Stub_Adb, "            begin");
-         Text_IO.Put_Line (Stub_Adb, "               return Result;");
+         Text_IO.Put (Stub_Adb, "               return ");
+
+         if Is_Simple_Wrapped_Parameter (O, Output)
+           and then WSDL.Parameters.Length (Output.P) = 1
+           and then Output.P.Mode /= WSDL.Types.K_Array
+         then
+            --  A simple field as result for a wrapped output, we want to
+            --  return the internal record field only as result.
+
+            declare
+               N : constant WSDL.Parameters.P_Set := Output.P;
+            begin
+               if Is_String (N) then
+                  Text_IO.Put (Stub_Adb, '-');
+               end if;
+
+               Text_IO.Put (Stub_Adb, "Result.");
+               Text_IO.Put_Line (Stub_Adb, To_String (N.Name) & ';');
+            end;
+
+         else
+            Text_IO.Put_Line (Stub_Adb, "Result;");
+         end if;
+
          Text_IO.Put_Line (Stub_Adb, "            end;");
       end if;
 
@@ -681,17 +753,46 @@ package body Stub is
 
       if Output /= null then
          Text_IO.Put_Line (Stub_Adb, "      declare");
-         Text_IO.Put_Line
-           (Stub_Adb, "         Result : constant "
-            & Result_Type (O, Proc, Output) & " :=");
+         Text_IO.Put
+           (Stub_Adb, "         Result : constant ");
+
+         if Is_Simple_Wrapped_Parameter (O, Output)
+           and then WSDL.Parameters.Length (Output.P) = 1
+           and then Output.P.Mode /= WSDL.Types.K_Array
+         then
+            --  A simple wrapped output with a single component, output proper
+            --  type in this case.
+
+            if Output.P.Mode = WSDL.Types.K_Simple then
+               Text_IO.Put
+                 (Stub_Adb,
+                  SOAP.WSDL.To_Ada
+                    (SOAP.WSDL.To_Type (WSDL.Types.Name (Output.P.Typ))));
+            else
+               Text_IO.Put
+                 (Stub_Adb,
+                  Format_Name (O, WSDL.Types.Name (Output.P.Typ) & "_Type"));
+            end if;
+
+         else
+            Text_IO.Put (Stub_Adb, Result_Type (O, Proc, Output));
+         end if;
+
+         Text_IO.Put_Line (Stub_Adb, " :=");
          Text_IO.Put (Stub_Adb, "              ");
       end if;
 
       Text_IO.Put (Stub_Adb, "      Client." & L_Proc & " (Connection");
 
       declare
-         N  : WSDL.Parameters.P_Set := Input;
+         N  : WSDL.Parameters.P_Set;
       begin
+         if Is_Simple_Wrapped_Parameter (O, Input) then
+            N := Input.P;
+         else
+            N := Input;
+         end if;
+
          while N /= null loop
             declare
                Name : constant String := Format_Name (O, To_String (N.Name));

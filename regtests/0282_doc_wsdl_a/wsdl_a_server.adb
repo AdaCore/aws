@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                       Copyright (C) 2016, AdaCore                        --
+--                     Copyright (C) 2016-2018, AdaCore                     --
 --                                                                          --
 --  This is free software;  you can redistribute it  and/or modify it       --
 --  under terms of the  GNU General Public License as published  by the     --
@@ -33,6 +33,7 @@ package body WSDL_a_Server is
    function Image_CB is new WSDL_a_Service.Server.Image_CB (WSDL_a.Image);
    function Print_Small_CB is
       new WSDL_a_Service.Server.Print_Small_CB (WSDL_a.Print_Small);
+   function Call_CB is new WSDL_a_Service.Server.Call_CB (WSDL_a.Call);
 
    -------------
    -- HTTP_CB --
@@ -62,6 +63,9 @@ package body WSDL_a_Server is
 
       elsif SOAPAction = "Print_Small" then
          return Print_Small_CB (SOAPAction, Payload, Request);
+
+      elsif SOAPAction = "Call" then
+         return Call_CB (SOAPAction, Payload, Request);
 
       else
          return Message.Response.Build

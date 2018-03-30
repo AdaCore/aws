@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2003-2017, AdaCore                     --
+--                     Copyright (C) 2003-2018, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -75,10 +75,11 @@ package body WSDL2AWS.Generator is
    --  Put standard header for types spec packages
 
    procedure Put_Types
-     (O      : Object;
-      Proc   : String;
-      Input  : WSDL.Parameters.P_Set;
-      Output : WSDL.Parameters.P_Set);
+     (O          : Object;
+      Proc       : String;
+      SOAPAction : String;
+      Input      : WSDL.Parameters.P_Set;
+      Output     : WSDL.Parameters.P_Set);
    --  This must be called to create the data types for composite objects
 
    type Header_Mode is
@@ -105,6 +106,12 @@ package body WSDL2AWS.Generator is
       Proc   : String;
       Output : WSDL.Parameters.P_Set) return String;
    --  Returns the result type given the output parameters
+
+   function Is_Simple_Wrapped_Parameter
+     (O  : Object;
+      P  : WSDL.Parameters.P_Set) return Boolean;
+   --  Returns True if P is a record with a least one field and we are in
+   --  Document style binding.
 
    procedure Header_Box
      (O    : Object;
@@ -156,6 +163,9 @@ package body WSDL2AWS.Generator is
    --     @<proc>.encoding   ->  [literal/encoded] (encoding for proc name)
    --     @param1[:param_n]  ->  operation         (operation for signature)
 
+   function Is_String (N : WSDL.Parameters.P_Set) return Boolean;
+   --  Returns True is N is a string
+
    S_Gen    : SOAP.WSDL.Schema.Definition;
    --  Keep record of generated schema definitions to avoid dupliace
 
@@ -197,6 +207,7 @@ package body WSDL2AWS.Generator is
          Proc          : String;
          Documentation : String;
          SOAPAction    : String;
+         Wrapper_Name  : String;
          Namespace     : SOAP.Name_Space.Object;
          Input         : WSDL.Parameters.P_Set;
          Output        : WSDL.Parameters.P_Set;
@@ -224,6 +235,7 @@ package body WSDL2AWS.Generator is
          Proc          : String;
          Documentation : String;
          SOAPAction    : String;
+         Wrapper_Name  : String;
          Namespace     : SOAP.Name_Space.Object;
          Input         : WSDL.Parameters.P_Set;
          Output        : WSDL.Parameters.P_Set;
@@ -251,6 +263,7 @@ package body WSDL2AWS.Generator is
          Proc          : String;
          Documentation : String;
          SOAPAction    : String;
+         Wrapper_Name  : String;
          Namespace     : SOAP.Name_Space.Object;
          Input         : WSDL.Parameters.P_Set;
          Output        : WSDL.Parameters.P_Set;
@@ -503,6 +516,36 @@ package body WSDL2AWS.Generator is
         (File, "   " & String'(1 .. 6 + Name'Length => '-'));
    end Header_Box;
 
+   ---------------------------------
+   -- Is_Simple_Wrapped_Parameter --
+   ---------------------------------
+
+   function Is_Simple_Wrapped_Parameter
+     (O  : Object;
+      P  : WSDL.Parameters.P_Set) return Boolean
+   is
+      use type SOAP.WSDL.Schema.Binding_Style;
+      use type WSDL.Parameters.P_Set;
+      use type WSDL.Types.Kind;
+   begin
+      return P /= null
+        and then P.Mode = WSDL.Types.K_Record
+        and then O.Style = SOAP.WSDL.Schema.Document
+        and then WSDL.Parameters.Length (P.P) >= 1;
+   end Is_Simple_Wrapped_Parameter;
+
+   ---------------
+   -- Is_String --
+   ---------------
+
+   function Is_String (N : WSDL.Parameters.P_Set) return Boolean is
+      use type WSDL.Types.Kind;
+      use all type SOAP.WSDL.Parameter_Type;
+   begin
+      return N.Mode = WSDL.Types.K_Simple
+        and then SOAP.WSDL.To_Type (WSDL.Types.Name (N.Typ)) = P_String;
+   end Is_String;
+
    ----------
    -- Main --
    ----------
@@ -527,6 +570,7 @@ package body WSDL2AWS.Generator is
       Proc          : String;
       Documentation : String;
       SOAPAction    : String;
+      Wrapper_Name  : String;
       Namespace     : SOAP.Name_Space.Object;
       Input         : WSDL.Parameters.P_Set;
       Output        : WSDL.Parameters.P_Set;
@@ -570,17 +614,17 @@ package body WSDL2AWS.Generator is
          Text_IO.Put_Line ("   > " & Proc);
       end if;
 
-      Put_Types (O, Proc, Input, Output);
+      Put_Types (O, Proc, Wrapper_Name, Input, Output);
 
       if O.Gen_Stub then
          Stub.New_Procedure
-           (O, Proc, Documentation, SOAPAction, Namespace,
+           (O, Proc, Documentation, SOAPAction, Wrapper_Name, Namespace,
             Input, Output, Fault);
       end if;
 
       if O.Gen_Skel then
          Skel.New_Procedure
-           (O, Proc, Documentation, SOAPAction, Namespace,
+           (O, Proc, Documentation, SOAPAction, Wrapper_Name, Namespace,
             Input, Output, Fault);
       end if;
 
@@ -593,7 +637,7 @@ package body WSDL2AWS.Generator is
 
       if O.Gen_CB then
          CB.New_Procedure
-           (O, Proc, Documentation, SOAPAction, Namespace,
+           (O, Proc, Documentation, SOAPAction, Wrapper_Name, Namespace,
             Input, Output, Fault);
       end if;
    end New_Procedure;
@@ -792,16 +836,21 @@ package body WSDL2AWS.Generator is
       ----------------------
 
       procedure Input_Parameters is
+         use type WSDL2AWS.WSDL.Types.Kind;
       begin
          if Input /= null then
             --  Input parameters
 
-            N := Input;
+            if Is_Simple_Wrapped_Parameter (O, Input) then
+               N := Input.P;
+            else
+               N := Input;
+            end if;
 
             while N /= null loop
                declare
-                  Name : constant String
-                    := Format_Name (O, To_String (N.Name));
+                  Name : constant String :=
+                           Format_Name (O, To_String (N.Name));
                begin
                   Text_IO.Put (File, Name);
                   Text_IO.Put (File, (Max_Len - Name'Length) * ' ');
@@ -850,13 +899,29 @@ package body WSDL2AWS.Generator is
       -------------------------------
 
       procedure Output_Parameters_And_End is
+         use type WSDL2AWS.WSDL.Types.Kind;
       begin
-         if Output /= null then
+         if Is_Simple_Wrapped_Parameter (O, Output) then
+            N := Output.P;
+         else
+            N := Output;
+         end if;
+
+         if N /= null then
             Text_IO.New_Line (File);
             Put_Indent;
             Text_IO.Put (File, "return ");
 
-            Text_IO.Put (File, Result_Type (O, Proc, Output));
+            if Is_Simple_Wrapped_Parameter (O, Output)
+              and then N.Mode = WSDL.Types.K_Record
+            then
+               --  A record inside a record in Document style binding
+               Text_IO.Put
+                 (File,
+                  Format_Name (O, WSDL.Types.Name (N.Typ) & "_Type"));
+            else
+               Text_IO.Put (File, Result_Type (O, Proc, N));
+            end if;
          end if;
 
          --  End header depending on the mode
@@ -896,7 +961,11 @@ package body WSDL2AWS.Generator is
          Max_Len := 10;
       end if;
 
-      N := Input;
+      if Is_Simple_Wrapped_Parameter (O, Input) then
+         N := Input.P;
+      else
+         N := Input;
+      end if;
 
       while N /= null loop
          Max_Len := Positive'Max
@@ -985,20 +1054,28 @@ package body WSDL2AWS.Generator is
    ---------------
 
    procedure Put_Types
-     (O      : Object;
-      Proc   : String;
-      Input  : WSDL.Parameters.P_Set;
-      Output : WSDL.Parameters.P_Set)
+     (O          : Object;
+      Proc       : String;
+      SOAPAction : String;
+      Input      : WSDL.Parameters.P_Set;
+      Output     : WSDL.Parameters.P_Set)
    is
       use Characters.Handling;
       use type WSDL.Parameters.P_Set;
       use type WSDL.Types.Kind;
 
+      use type SOAP.WSDL.Schema.Binding_Style;
+
+      W_Name : constant String :=
+                 (if O.Style = SOAP.WSDL.Schema.Document
+                  then SOAPAction
+                  else Proc);
+
       procedure Generate_Record
-        (Name   : String;
-         Suffix : String;
-         P      : WSDL.Parameters.P_Set;
-         Output : Boolean               := False);
+        (Name      : String;
+         Suffix    : String;
+         P         : WSDL.Parameters.P_Set;
+         Is_Output : Boolean               := False);
       --  Output record definitions (type and routine conversion). Note that
       --  this routine also handles choice records. The current implementation
       --  only handles single occurence of a choice.
@@ -1194,6 +1271,13 @@ package body WSDL2AWS.Generator is
          Output_Schema_Definition
            (Key   =>  WSDL.Types.Name (P.Typ, NS => True) & ".item",
             Value => E_Name);
+
+         if O.Style = SOAP.WSDL.Schema.Document then
+            Output_Schema_Definition
+              (Key   =>  WSDL.Types.Name (P.Typ, NS => True),
+               Value => E_Name);
+         end if;
+
          Text_IO.New_Line (Type_Adb);
 
          if not Regen then
@@ -2536,12 +2620,13 @@ package body WSDL2AWS.Generator is
       ---------------------
 
       procedure Generate_Record
-        (Name   : String;
-         Suffix : String;
-         P      : WSDL.Parameters.P_Set;
-         Output : Boolean               := False)
+        (Name      : String;
+         Suffix    : String;
+         P         : WSDL.Parameters.P_Set;
+         Is_Output : Boolean               := False)
       is
-         F_Name    : constant String := Format_Name (O, Name & Suffix);
+         F_Name    : constant String :=
+                       Format_Name (O, SOAP.Utils.No_NS (Name) & Suffix);
          Def       : constant WSDL.Types.Definition := WSDL.Types.Find (P.Typ);
          Is_Choice : constant Boolean :=
                        Def.Mode = WSDL.Types.K_Record and then Def.Is_Choice;
@@ -2562,9 +2647,9 @@ package body WSDL2AWS.Generator is
 
       begin
          Initialize_Types_Package
-           (P, F_Name, Output, Prefix, Rec_Ads, Rec_Adb);
+           (P, F_Name, Is_Output, Prefix, Rec_Ads, Rec_Adb);
 
-         if Output then
+         if Is_Output then
             R := P;
          else
             R := P.P;
@@ -2600,7 +2685,20 @@ package body WSDL2AWS.Generator is
                   Output_Schema_Definition
                     (Key   => To_String (N.Name) & ".item",
                      Value => WSDL.Types.Name (Def.E_Type, NS => True));
+
+                  if O.Style = SOAP.WSDL.Schema.Document then
+                     Output_Schema_Definition
+                       (Key   => To_String (N.Name),
+                        Value => WSDL.Types.Name (Def.E_Type, NS => True));
+                  end if;
                end;
+
+            elsif N.Mode = WSDL.Types.K_Record
+              and then O.Style = SOAP.WSDL.Schema.Document
+            then
+               Output_Schema_Definition
+                 (Key   => To_String (N.Name),
+                  Value => WSDL.Types.Name (N.Typ, NS => True));
             end if;
 
             N := N.Next;
@@ -2610,8 +2708,12 @@ package body WSDL2AWS.Generator is
 
          --  Is types are to be reused from an Ada spec ?
 
-         if Types_Spec (O) = "" then
-
+         if Types_Spec (O) = ""
+              or else
+            (Is_Simple_Wrapped_Parameter (O, Input) and then P = Input)
+              or else
+            (Is_Simple_Wrapped_Parameter (O, Output) and then P = Output)
+         then
             --  Compute max field width, compute also the number of fields.
             --  During this first iteration we also generate the record fields
             --  information for the schema definition.
@@ -3572,23 +3674,36 @@ package body WSDL2AWS.Generator is
       is
          N : WSDL.Parameters.P_Set := P;
       begin
-         while N /= null loop
+         if Is_Simple_Wrapped_Parameter (O, N) then
             declare
-               T_Name : constant String := WSDL.Types.Name (N.Typ, NS => True);
+               T_Name : constant String :=
+                          WSDL.Types.Name (N.P.Typ, NS => True);
             begin
                Output_Schema_Definition
-                 (Key   => Proc & "." & To_String (N.Name),
+                 (Key   => To_String (N.P.Name),
                   Value => T_Name);
-
-               if Is_Output then
-                  Output_Schema_Definition
-                    (Key   => Proc & "Response." & To_String (N.Name),
-                     Value => T_Name);
-               end if;
             end;
 
-            N := N.Next;
-         end loop;
+         else
+            while N /= null loop
+               declare
+                  T_Name : constant String :=
+                             WSDL.Types.Name (N.Typ, NS => True);
+               begin
+                  Output_Schema_Definition
+                    (Key   => W_Name & "." & To_String (N.Name),
+                     Value => T_Name);
+
+                  if Is_Output then
+                     Output_Schema_Definition
+                       (Key   => W_Name & "Response." & To_String (N.Name),
+                        Value => T_Name);
+                  end if;
+               end;
+
+               N := N.Next;
+            end loop;
+         end if;
       end Output_Parameters;
 
       ------------------
@@ -3648,7 +3763,6 @@ package body WSDL2AWS.Generator is
                      end if;
 
                   when WSDL.Types.K_Array =>
-
                      Output_Types (N.P);
 
                      declare
@@ -3674,13 +3788,13 @@ package body WSDL2AWS.Generator is
                      end;
 
                   when WSDL.Types.K_Record =>
-
                      Output_Types (N.P);
 
                      if not Name_Set.Exists (T_Name) then
                         Name_Set.Add (T_Name);
 
-                        Generate_Record (T_Name, "_Type", N);
+                        Generate_Record
+                          (WSDL.Types.Name (N.Typ, True), "_Type", N);
                      end if;
                end case;
             end;
@@ -3767,12 +3881,24 @@ package body WSDL2AWS.Generator is
       Text_IO.Put_Line (Type_Adb, "   --  Definitions for procedure " & Proc);
 
       Output_Schema_Definition
-        (Key   => '@' & To_String (O.Prefix) & Proc & ".encoding",
+        (Key   => '@' & To_String (O.Prefix) & W_Name & ".encoding",
          Value => SOAP.Types.Encoding_Style'Image
                     (O.Encoding (WSDL.Parser.Input)));
 
       Output_Schema_Definition
-        (Key   => '@' & To_String (O.Prefix) & Proc & "Response.encoding",
+        (Key   => '@' & To_String (O.Prefix) & W_Name & "Response.encoding",
+         Value =>
+           SOAP.Types.Encoding_Style'Image (O.Encoding (WSDL.Parser.Output)));
+
+      Output_Schema_Definition
+        (Key   => '@' & To_String (O.Prefix)
+                  & SOAP.Utils.No_NS (W_Name) & ".encoding",
+         Value => SOAP.Types.Encoding_Style'Image
+                    (O.Encoding (WSDL.Parser.Input)));
+
+      Output_Schema_Definition
+        (Key   => '@' & To_String (O.Prefix)
+                  & SOAP.Utils.No_NS (W_Name) & "Response.encoding",
          Value =>
            SOAP.Types.Encoding_Style'Image (O.Encoding (WSDL.Parser.Output)));
 
@@ -3800,7 +3926,7 @@ package body WSDL2AWS.Generator is
             begin
                while F /= null loop
                   Output_Schema_Definition
-                    (Key   => Proc & "Response." & To_String (F.Name),
+                    (Key   => W_Name & "Response." & To_String (F.Name),
                      Value => WSDL.Types.Name (F.Typ, NS => True));
 
                   F := F.Next;
@@ -3834,7 +3960,7 @@ package body WSDL2AWS.Generator is
             --  Multiple parameters in the output, generate a record in this
             --  case.
 
-            Generate_Record (L_Proc, "_Result", Output, Output => True);
+            Generate_Record (L_Proc, "_Result", Output, Is_Output => True);
          end if;
       end if;
    end Put_Types;
@@ -3931,6 +4057,10 @@ package body WSDL2AWS.Generator is
       Text_IO.Put_Line (File, "     (Str : String)");
       Text_IO.Put_Line (File, "      return Unbounded_String");
       Text_IO.Put_Line (File, "      renames To_Unbounded_String;");
+      Text_IO.Put_Line (File, "   function ""-""");
+      Text_IO.Put_Line (File, "     (Str : Unbounded_String)");
+      Text_IO.Put_Line (File, "      return String");
+      Text_IO.Put_Line (File, "      renames To_String;");
    end Put_Types_Header_Spec;
 
    -----------

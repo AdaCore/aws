@@ -1,17 +1,17 @@
-<xsd:element name="X_Print" type="xsd:int"/>
-<xsd:element name="X_Image" type="xsd:int"/>
-<xsd:element name="Result_Image" type="xsd:string"/>
-<xsd:element name="X_Print_Small" type="n2:Small_Integer"/>
+<xsd:element name="X" type="xsd:int"/>
+<xsd:element name="X" type="xsd:int"/>
+<xsd:element name="Image_Result" type="xsd:string"/>
+<xsd:element name="X" type="n2:Small_Integer"/>
 <xsd:element name="A" type="xsd:int"/>
 <xsd:element name="B" type="xsd:int"/>
-<xsd:element name="X_Call" type="n2:R"/>
-<xsd:element name="Result_Call" type="n2:R"/>
-<wsdl:part name="X" element="n2:X_Print"/>
-<wsdl:part name="X" element="n2:X_Image"/>
-<wsdl:part name="Result" element="n2:Result_Image"/>
-<wsdl:part name="X" element="n2:X_Print_Small"/>
-<wsdl:part name="X" element="n2:X_Call"/>
-<wsdl:part name="Result" element="n2:Result_Call"/>
+<xsd:element name="XC" type="n2:R"/>
+<xsd:element name="Call_Result" type="n2:R"/>
+<wsdl:part name="parameters" element="n2:Parameters_Print"/>
+<wsdl:part name="parameters" element="n2:Parameters_Image"/>
+<wsdl:part name="parameters" element="n2:Result_Image"/>
+<wsdl:part name="parameters" element="n2:Parameters_Print_Small"/>
+<wsdl:part name="parameters" element="n2:Parameters_Call"/>
+<wsdl:part name="parameters" element="n2:Result_Call"/>
  12
  98712
  122

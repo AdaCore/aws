@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2003-2017, AdaCore                     --
+--                     Copyright (C) 2003-2018, AdaCore                     --
 --                                                                          --
 --  This is free software;  you can redistribute it  and/or modify it       --
 --  under terms of the  GNU General Public License as published  by the     --
@@ -42,7 +42,7 @@ package Ada2WSDL.Generator is
    --  parameter will be added into the current routine definition created by
    --  Start_Routine.
 
-   procedure Return_Type (NS, Name : String);
+   procedure Return_Type (NS, Name, Spec_Name : String);
    --  Must be called when a returned type (for a function) has been
    --  parsed. It is fine to not call this routine, for example if current
    --  routine is a procedure there is no need to call it.

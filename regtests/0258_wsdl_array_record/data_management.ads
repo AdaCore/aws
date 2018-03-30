@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                       Copyright (C) 2014, AdaCore                        --
+--                    Copyright (C) 2014-2018, AdaCore                      --
 --                                                                          --
 --  This is free software;  you can redistribute it  and/or modify it       --
 --  under terms of the  GNU General Public License as published  by the     --
@@ -25,8 +25,7 @@ package Data_Management is
 
    type Facility_Fields_Type is (Key, Name, Field1, Field2);
 
-   type Facility_Change is
-   record
+   type Facility_Change is record
       Old_Value : Ada.Strings.Unbounded.Unbounded_String;
       New_Value : Ada.Strings.Unbounded.Unbounded_String;
    end record;
@@ -37,8 +36,7 @@ package Data_Management is
    package Field_Array_Safe_Pointer is new Soap.Utils.Safe_Pointers
      (Field_Array, Field_Array_Access);
 
-   type Facility_Type is
-   record
+   type Facility_Type is record
       Change : Facility_Mark_Type;
       Fields : Field_Array_Safe_Pointer.Safe_Pointer;
    end record;
@@ -46,7 +44,7 @@ package Data_Management is
    type Facilities_Type is array (Positive range <>) of Facility_Type;
 
    function Update_Target_Changes
-      (A          : String;
-       Facilities : Facilities_Type) return Boolean;
+     (A          : String;
+      Facilities : Facilities_Type) return Boolean;
 
 end Data_Management;

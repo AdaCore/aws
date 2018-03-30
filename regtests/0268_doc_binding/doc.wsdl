@@ -3,15 +3,24 @@
    targetNamespace="http://www.ecerami.com/wsdl/HelloService.wsdl"
    xmlns="http://schemas.xmlsoap.org/wsdl/"
    xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/"
+   xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/"
    xmlns:tns="http://www.ecerami.com/wsdl/HelloService.wsdl"
    xmlns:xsd="http://www.w3.org/2001/XMLSchema"
    xmlns:ns1="urn:examples:helloservice">
 
+  <wsdl:types>
+    <xsd:schema xmlns="http://www.w3.org/2001/XMLSchema"
+                targetNamespace="urn:examples:helloservice">
+      <xsd:element name="firstName" type="xsd:string"/>
+      <xsd:element name="greeting" type="xsd:string"/>
+    </xsd:schema>
+  </wsdl:types>
+
    <message name="SayHelloRequest">
-      <part name="firstName" type="xsd:string"/>
+      <part name="firstName" element="ns1:firstName"/>
    </message>
    <message name="SayHelloResponse">
-      <part name="greeting" type="xsd:string"/>
+      <part name="greeting" element="ns1:greeting"/>
    </message>
 
    <portType name="Hello_PortType">

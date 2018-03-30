@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2000-2017, AdaCore                     --
+--                     Copyright (C) 2000-2018, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -798,8 +798,8 @@ package body AWS.Status is
    ----------------
 
    function SOAPAction (D : Data) return String is
-      Result : constant String
-        := Headers.Get (D.Header, Messages.SOAPAction_Token);
+      Result : constant String :=
+                 Headers.Get (D.Header, Messages.SOAPAction_Token);
    begin
       if Result'First < Result'Last
         and then Result (Result'First) = '"'

@@ -1,8 +1,7 @@
 ------------------------------------------------------------------------------
-
 --                              Ada Web Server                              --
 --                                                                          --
---                       Copyright (C) 2015, AdaCore                        --
+--                    Copyright (C) 2015-2018, AdaCore                      --
 --                                                                          --
 --  This is free software;  you can redistribute it  and/or modify it       --
 --  under terms of the  GNU General Public License as published  by the     --
@@ -34,14 +33,13 @@ package body SD_Server_CB is
    use Simpledocservice.Server;
    use Simpledocservice.Types;
 
-   function Call (parameters : myMethod_Type) return call_Result;
+   function Call (X : Integer; Y : Float) return call_Result;
 
    -------------
    -- SOAP_CB --
    -------------
 
-   function SOAP_CB is
-     new Simpledocservice.Server.call_CB (Call);
+   function SOAP_CB is new Simpledocservice.Server.call_CB (Call);
 
    function SOAP_Wrapper is new SOAP.Utils.SOAP_Wrapper (SOAP_CB);
 
@@ -81,7 +79,7 @@ package body SD_Server_CB is
    -- getQueueStatus --
    --------------------
 
-   function Call (parameters : myMethod_Type) return call_Result is
+   function Call (X : Integer; Y : Float) return call_Result is
       R : call_Result;
    begin
       return R;

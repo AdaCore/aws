@@ -84,12 +84,12 @@
   <wsdl:binding name="ComputerUnitSoap" type="tns:ComputerUnitSoap">
     <soap:binding transport="http://schemas.xmlsoap.org/soap/http" />
     <wsdl:operation name="ChangeComputerUnit">
-      <soap:operation soapAction="http://www.webserviceX.NET/ChangeComputerUnit" style="rpc" />
+      <soap:operation soapAction="http://www.webserviceX.NET/ChangeComputerUnit" style="document" />
       <wsdl:input>
-        <soap:body use="encoded" />
+        <soap:body use="literal" />
       </wsdl:input>
       <wsdl:output>
-        <soap:body use="encoded" />
+        <soap:body use="literal" />
       </wsdl:output>
     </wsdl:operation>
   </wsdl:binding>

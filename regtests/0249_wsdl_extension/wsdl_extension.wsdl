@@ -24,7 +24,9 @@
   xmlns="http://www.w3.org/2001/XMLSchema"
   elementFormDefault="qualified"
   attributeFormDefault="unqualified">
-  <import namespace="http://schemas.xmlsoap.org/soap/encoding/" schemaLocation="http://schemas.xmlsoap.org/soap/encoding/"/>
+
+   <import namespace="http://schemas.xmlsoap.org/soap/encoding/"
+           schemaLocation="http://schemas.xmlsoap.org/soap/encoding/"/>
   <!-- operation request element -->
 
   <complexType name="sObject">
@@ -34,15 +36,17 @@
    </sequence>
   </complexType>
 
-  <complexType name="ServerExit">
-   <complexContent>
-    <extension base="ecc:sObject">
-     <sequence>
-      <element name="CreatedBy" nillable="true" minOccurs="0" type="xsd:string"/>
-     </sequence>
-    </extension>
-   </complexContent>
-  </complexType>
+  <element name="ServerExit">
+    <complexType>
+      <complexContent>
+        <extension base="ecc:sObject">
+          <sequence>
+            <element name="CreatedBy" nillable="true" minOccurs="0" type="xsd:string"/>
+          </sequence>
+        </extension>
+      </complexContent>
+    </complexType>
+  </element>
 
   <!-- operation response element -->
   <element name="Response">
@@ -74,14 +78,14 @@
 </portType>
 
 <binding name="ecc" type="tns:eccPortType">
- <SOAP:binding style="rpc" transport="http://schemas.xmlsoap.org/soap/http"/>
+ <SOAP:binding style="document" transport="http://schemas.xmlsoap.org/soap/http"/>
  <operation name="ServerExit">
   <SOAP:operation soapAction=""/>
   <input>
-     <SOAP:body parts="parameters" use="encoded"/>
+     <SOAP:body parts="parameters" use="literal"/>
   </input>
   <output>
-     <SOAP:body parts="parameters" use="encoded"/>
+     <SOAP:body parts="parameters" use="literal"/>
   </output>
  </operation>
 </binding>

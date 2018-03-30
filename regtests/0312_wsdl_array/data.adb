@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2015-2018, AdaCore                     --
+--                       Copyright (C) 2018, AdaCore                        --
 --                                                                          --
 --  This is free software;  you can redistribute it  and/or modify it       --
 --  under terms of the  GNU General Public License as published  by the     --
@@ -16,48 +16,13 @@
 --  to http://www.gnu.org/licenses for a complete copy of the license.      --
 ------------------------------------------------------------------------------
 
-with AWS.MIME;
+package body Data is
 
-with SOAP.Message;
-with SOAP.Utils;
-
-with DOC.Server;
-
-package body DOC_Server_CB is
-
-   use AWS;
-
-   function sayHello (Firstname : String) return String;
-
-   -------------
-   -- SOAP_CB --
-   -------------
-
-   function SOAP_CB is new DOC.Server.sayHello_CB (sayHello);
-
-   function SOAP_Wrapper is new SOAP.Utils.SOAP_Wrapper (SOAP_CB);
-
-   --------
-   -- CB --
-   --------
-
-   function CB (Request : Status.Data) return Response.Data is
-      SOAPAction : constant String := Status.SOAPAction (Request);
+   procedure Call
+     (A1 : Int_Array;
+      A2 : Rec_Array) is
    begin
-      if SOAPAction = "sayHello" then
-         return SOAP_Wrapper (Request, DOC.Schema);
-      else
-         return Response.Build (MIME.Text_HTML, "<p>Not a SOAP request");
-      end if;
-   end CB;
+      null;
+   end Call;
 
-   --------------
-   -- sayHello --
-   --------------
-
-   function sayHello (Firstname : String) return String is
-   begin
-      return "Hello " & Firstname & " and welcome!";
-   end sayHello;
-
-end DOC_Server_CB;
+end Data;
