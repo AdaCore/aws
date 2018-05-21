@@ -2,7 +2,6 @@
 -13
 -20
 ==============================
-<xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema"
 <xsd:simpleType name="T1">
 <xsd:restriction base="xsd:short">
 <xsd:minInclusive value="-20000"/>

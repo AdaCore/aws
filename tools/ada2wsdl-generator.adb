@@ -614,7 +614,10 @@ package body Ada2WSDL.Generator is
                Put_Line ("            <soap:body");
                Put_Line ("               encodingStyle="""
                            & "http://schemas.xmlsoap.org/soap/encoding/""");
-               Put_Line ("               namespace=""" & NS & '"');
+
+               if not (Options.Document and then Options.Literal) then
+                  Put_Line ("               namespace=""" & NS & '"');
+               end if;
 
                if Options.Literal then
                   Put_Line ("               use=""literal""/>");
@@ -1059,8 +1062,8 @@ package body Ada2WSDL.Generator is
          begin
             New_Line;
             Put
-              ("      <xsd:schema"
-               & " xmlns:xsd=""http://www.w3.org/2001/XMLSchema""");
+              ("      <schema"
+               & " xmlns=""http://www.w3.org/2001/XMLSchema""");
             New_Line;
             Put ("         targetNamespace=""" & NS & '"');
             Put_Line (">");
@@ -1088,7 +1091,7 @@ package body Ada2WSDL.Generator is
                end if;
             end loop;
 
-            Put_Line ("      </xsd:schema>");
+            Put_Line ("      </schema>");
          end Write_Schema_For;
 
          ----------------

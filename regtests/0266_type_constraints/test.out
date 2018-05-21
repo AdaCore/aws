@@ -1,7 +1,6 @@
  12
 125
 ==============================
-<xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema"
 <xsd:simpleType name="T1">
 <xsd:restriction base="xsd:int">
 <xsd:minInclusive value=" 1"/>
