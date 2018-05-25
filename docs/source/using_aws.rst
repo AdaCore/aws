@@ -1188,6 +1188,14 @@ Current supported options are:
 
   The name of the status page to used. The default is |STATUS_PAGE|.
 
+*TCP_No_Delay (boolean)*
+
+  .. index:: TCP_No_Delay
+
+  This control the server's socket delay/no-delay option. This option
+  should be used for applications that require lower latency on every
+  packet sent. The default is |TCP_NO_DELAY|.
+
 *TLS_Ticket_Support (boolean)*
 
   .. index:: TLS_Ticket_Support

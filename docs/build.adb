@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2000-2014, AdaCore                     --
+--                     Copyright (C) 2000-2018, AdaCore                     --
 --                                                                          --
 --  This is free software;  you can redistribute it  and/or modify it       --
 --  under terms of the  GNU General Public License as published  by the     --
@@ -120,6 +120,7 @@ begin
    Add ("FT_CLIENT_DATA", Default.Force_Client_Data_Timeout);
    Add ("FT_SERVER_RESPONSE", Default.Force_Server_Response_Timeout);
    Add ("SEND_BUFFER_SIZE", Default.Send_Buffer_Size);
+   Add ("TCP_NO_DELAY", Default.TCP_No_Delay);
    Add ("SEND_TIMEOUT", Default.Send_Timeout);
    Add ("RECEIVE_TIMEOUT", Default.Receive_Timeout);
    Add ("LOGO_IMAGE", Default.Logo_Image);

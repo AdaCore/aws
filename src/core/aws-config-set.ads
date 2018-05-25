@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2000-2014, AdaCore                     --
+--                     Copyright (C) 2000-2018, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -87,6 +87,9 @@ package AWS.Config.Set is
    --  This is the socket buffer size used for sending data. Increasing this
    --  value will give better performances on slow or long distances
    --  connections.
+
+   procedure TCP_No_Delay (O : in out Object; Value : Boolean);
+   --  Set the TCP_NODELAY option for this server
 
    procedure Free_Slots_Keep_Alive_Limit
      (O : in out Object; Value : Natural);

@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2000-2017, AdaCore                     --
+--                     Copyright (C) 2000-2018, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -734,6 +734,15 @@ package body AWS.Config is
    begin
       return To_String (O.P (Status_Page).Str_Value);
    end Status_Page;
+
+   ------------------
+   -- TCP_No_Delay --
+   ------------------
+
+   function TCP_No_Delay (O : Object) return Boolean is
+   begin
+      return O.P (TCP_No_Delay).Bool_Value;
+   end TCP_No_Delay;
 
    ------------------------
    -- TLS_Ticket_Support --

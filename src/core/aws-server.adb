@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2000-2017, AdaCore                     --
+--                     Copyright (C) 2000-2018, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -313,6 +313,9 @@ package body AWS.Server is
                Net.Set_Send_Buffer_Size
                  (Socket.all, AWS.Config.Send_Buffer_Size (TA.Server.Config));
             end if;
+
+            Net.Set_No_Delay
+              (Socket.all, AWS.Config.TCP_No_Delay (TA.Server.Config));
 
             TA.Server.Slots.Set (Socket, TA.Line);
 

@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2000-2017, AdaCore                     --
+--                     Copyright (C) 2000-2018, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -116,6 +116,9 @@ package AWS.Config is
    --  This is the socket buffer size used for sending data. Increasing this
    --  value will give better performances on slow or long distances
    --  connections.
+
+   function TCP_No_Delay (O : Object) return Boolean with Inline;
+   --  Returns wether the TCP_NODELAY option is set for this server
 
    function Free_Slots_Keep_Alive_Limit (O : Object) return Natural
      with Inline;
@@ -446,6 +449,7 @@ private
       Hotplug_Port,
       Max_Connection,
       Send_Buffer_Size,
+      TCP_No_Delay,
       Free_Slots_Keep_Alive_Limit,
       Keep_Alive_Force_Limit,
       Keep_Alive_Close_Limit,
@@ -638,6 +642,9 @@ private
 
                            Send_Buffer_Size                =>
                              (Nat, Default.Send_Buffer_Size),
+
+                           TCP_No_Delay                    =>
+                             (Bool, Default.TCP_No_Delay),
 
                            Free_Slots_Keep_Alive_Limit     =>
                              (Nat, Default.Free_Slots_Keep_Alive_Limit),
