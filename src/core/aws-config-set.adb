@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2000-2014, AdaCore                     --
+--                     Copyright (C) 2000-2018, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -643,6 +643,15 @@ package body AWS.Config.Set is
    begin
       O.P (Status_Page).Str_Value := To_Unbounded_String (Value);
    end Status_Page;
+
+   ------------------
+   -- TCP_No_Delay --
+   ------------------
+
+   procedure TCP_No_Delay (O : in out Object; Value : Boolean) is
+   begin
+      O.P (TCP_No_Delay).Bool_Value := Value;
+   end TCP_No_Delay;
 
    ------------------------
    -- TLS_Ticket_Support --

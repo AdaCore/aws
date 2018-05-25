@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2000-2017, AdaCore                     --
+--                     Copyright (C) 2000-2018, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -69,6 +69,7 @@ package AWS.Default with Pure is
    WebSocket_Message_Queue_Size    : constant          := 10;
    WebSocket_Timeout               : constant Duration := Eight_Hours;
    Send_Buffer_Size                : constant          := 0;
+   TCP_No_Delay                    : constant Boolean  := False;
    Free_Slots_Keep_Alive_Limit     : constant          := 1;
    Keep_Alive_Force_Limit          : constant          := 0;
    Keep_Alive_Close_Limit          : constant          := 0;
