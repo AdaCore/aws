@@ -441,6 +441,28 @@ document. In this section we describe the mapping between Ada and
      </all>
    </complexType>
 
+*Array as routine parameter*
+  When an array is passed as parameter to a `SOAP` routine it is also
+  require to create a corresponding Safe_Pointer when using
+  `Document/Literal` binding and using a user's type package (see
+  `-types` and '`-spec` `wsdl2aws` options). This is needed for the
+  `AWS` generated code to handle this routine. Even if required in a
+  very specific case it is never an error to declare such Safe_Pointer
+  for an array.
+
+  For example::
+
+   type Set_Of_Int is array (Positive range <>) of Integer;
+
+   procedure Call (Values : Set_Of_Int);
+
+  Then the following declarations are required::
+
+   type Set_Of_Int_Access is access Set_Of_Int;
+
+   package Set_Of_Int_Safe_Pointer is
+     new SOAP.Utils.Safe_Pointers (Set_Of_Int, Set_Of_Int_Access);
+
 .. _ada2wsdl:
 
 .. highlight:: ada
