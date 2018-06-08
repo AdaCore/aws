@@ -1,0 +1,18 @@
+==========
+int:  5
+flt:  5.00000E+00
+str: REC
+AWS_TEST
+==========
+int:  6
+flt:  6.10000E+00
+str: ARR1
+AWS_TEST2
+==========
+int:  6
+flt:  6.10000E+00
+str: ARR2
+int:  7
+flt:  7.20000E+00
+str: ARR3
+AWS_TEST2

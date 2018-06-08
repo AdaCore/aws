@@ -1,0 +1,14 @@
+
+with "aws";
+
+project WSDL_Array_Rec_Param is
+
+   for Source_Dirs use ("src", "generated");
+
+   for main use ("wsdl_array_rec_param.adb");
+
+   package builder is
+      for default_switches ("Ada") use ("-m", "-x", "-gnat12");
+   end builder;
+
+end WSDL_Array_Rec_Param;

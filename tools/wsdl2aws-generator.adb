@@ -2672,7 +2672,18 @@ package body WSDL2AWS.Generator is
               (Key   => Name & "." & To_String (N.Name),
                Value => WSDL.Types.Name
                           ((if N.Is_Set then N.E_Typ else N.Typ),
-                          NS => True));
+                           NS => True));
+
+            --  We also generate item.<field> for record inside arrays when
+            --  using the document/literal bindong style.
+
+            if O.Style = SOAP.WSDL.Schema.Document  then
+               Output_Schema_Definition
+                 (Key   => "item." & To_String (N.Name),
+                  Value => WSDL.Types.Name
+                    ((if N.Is_Set then N.E_Typ else N.Typ),
+                     NS => True));
+            end if;
 
             --  If N is an array, generate the schema definition for the
             --  array's elements.
