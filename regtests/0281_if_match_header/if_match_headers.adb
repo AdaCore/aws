@@ -61,6 +61,22 @@ procedure If_Match_Headers is
    CFG  : Config.Object;
    HTTP : AWS.Client.HTTP_Connection;
 
+   -------------
+   -- Print_R --
+   -------------
+
+   procedure Print_R is
+      use Ada.Text_IO;
+      use AWS.Messages;
+   begin
+      Put (AWS.Response.Message_Body (R));
+      if AWS.Response.Status_Code (R) /= S200 then
+         Put_Line (' ' & Image (AWS.Response.Status_Code (R)));
+      else
+         New_Line;
+      end if;
+   end Print_R;
+
 begin
    Config.Set.Server_Name (CFG, "If Match Headers");
    Config.Set.Server_Port (CFG, 0);
@@ -70,7 +86,7 @@ begin
    AWS.Client.Create (HTTP, Server.Status.Local_URL (WS));
 
    AWS.Client.Get (HTTP, R, "/1", Headers => H);
-   Text_IO.Put_Line (AWS.Response.Message_Body (R));
+   Print_R;
 
    --  If-None-Match
 
@@ -78,13 +94,13 @@ begin
      (Messages.If_None_Match_Token,
       String (Messages.Create_ETag (ETag (1))));
    AWS.Client.Get (HTTP, R, "/1", Headers => H);
-   Text_IO.Put_Line (AWS.Response.Message_Body (R));
+   Print_R;
 
    H.Reset;
    H.Add (Messages.If_None_Match_Token,
           String (Messages.Create_ETag (ETag (2))));
    AWS.Client.Get (HTTP, R, "/1", Headers => H);
-   Text_IO.Put_Line (AWS.Response.Message_Body (R));
+   Print_R;
 
    --  If-Match
 
@@ -92,13 +108,13 @@ begin
      (Messages.If_Match_Token,
       String (Messages.Create_ETag (ETag (1))));
    AWS.Client.Get (HTTP, R, "/2", Headers => H);
-   Text_IO.Put_Line (AWS.Response.Message_Body (R));
+   Print_R;
 
    H.Reset;
    H.Add (Messages.If_Match_Token,
           String (Messages.Create_ETag (ETag (2))));
    AWS.Client.Get (HTTP, R, "/2", Headers => H);
-   Text_IO.Put_Line (AWS.Response.Message_Body (R));
+   Print_R;
 
    Server.Shutdown (WS);
    Text_IO.Put_Line ("shutdown");
