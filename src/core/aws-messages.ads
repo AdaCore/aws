@@ -204,6 +204,9 @@ package AWS.Messages is
    function Reason_Phrase (S : Status_Code) return String;
    --  Returns the reason phrase for the status code S, see [RFC 2616 - 6.1.1]
 
+   function With_Body (S : Status_Code) return Boolean;
+   --  Returns True if message with status can have a body
+
    ----------------------
    -- Content encoding --
    ----------------------
@@ -372,6 +375,9 @@ package AWS.Messages is
    --  function.
 
 private
+
+   function With_Body (S : Status_Code) return Boolean is
+     (S not in Informational | S204 | S304);
 
    Unspecified   : constant Cache_Option := "";
    No_Cache      : constant Cache_Option := "no-cache, max-age=0, s-maxage=0";

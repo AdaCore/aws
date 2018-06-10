@@ -201,10 +201,7 @@ package body AWS.Server.HTTP_Utils is
                --  If-Match/If-None-Match and ETag values.
 
                if Is_Ignored (Answer) then
-                  Answer := Response.Build
-                    (Status_Code   => Messages.S304,
-                     Content_Type  => "text/plain",
-                     Message_Body  => "Value is not modified (ETag)");
+                  Answer := Response.Acknowledge (Messages.S304);
                end if;
             end;
 
@@ -1349,6 +1346,7 @@ package body AWS.Server.HTTP_Utils is
          File_Mode : constant Boolean :=
                        Response.Mode (Answer) in
                          Response.File .. Response.Stream;
+         With_Body : constant Boolean := Messages.With_Body (Status_Code);
          F_Status  : File_Status := Changed;
          File      : Resources.File_Type;
          File_Time : Ada.Calendar.Time := Utils.AWS_Epoch;
@@ -1377,14 +1375,12 @@ package body AWS.Server.HTTP_Utils is
             if F_Status = Up_To_Date then
                --  [RFC 2616 - 10.3.5]
                Status_Code := Messages.S304;
-               Net.Buffered.Put_Line
-                 (Sock, Messages.Status_Line (Messages.S304));
             else
                --  File is not found on disk, returns now with 404
                Status_Code := Messages.S404;
-               Net.Buffered.Put_Line
-                 (Sock, Messages.Status_Line (Messages.S404));
             end if;
+
+            Net.Buffered.Put_Line (Sock, Messages.Status_Line (Status_Code));
 
             Send_General_Header (Sock);
             Net.Buffered.New_Line (Sock);
@@ -1392,15 +1388,14 @@ package body AWS.Server.HTTP_Utils is
             return;
 
          elsif Headers.Get_Values
-           (Status.Header (C_Stat), Messages.Range_Token) /= ""
+                 (Status.Header (C_Stat), Messages.Range_Token) /= ""
+           and then With_Body
          then
             --  Partial range request, answer accordingly
             Status_Code := Messages.S206;
-            Net.Buffered.Put_Line (Sock, Messages.Status_Line (Messages.S206));
-
-         else
-            Net.Buffered.Put_Line (Sock, Messages.Status_Line (Status_Code));
          end if;
+
+         Net.Buffered.Put_Line (Sock, Messages.Status_Line (Status_Code));
 
          --  Note. We have to call Create_Resource before send header fields
          --  defined in the Answer to the client, because this call could
@@ -1456,8 +1451,28 @@ package body AWS.Server.HTTP_Utils is
 
          --  Send message body
 
-         Send_Resource
-           (Answer, Method, File, Length, HTTP_Server, Line_Index, C_Stat);
+         if With_Body then
+            Send_Resource
+              (Answer, Method, File, Length, HTTP_Server, Line_Index, C_Stat);
+         else
+            --  RFC-2616 4.4
+            --  ...
+            --  Any response message which "MUST NOT" include a message-body
+            --  (such as the 1xx, 204, and 304 responses and any response to a
+            --  HEAD request) is always terminated by the first empty line
+            --  after the header fields, regardless of the entity-header fields
+            --  present in the message.
+
+            Net.Buffered.New_Line (Sock);
+
+            if Length > 0 then
+               Log.Write
+                 (HTTP_Server.Error_Log, C_Stat,
+                  "Message body was not sent. Response with status '"
+                  & Messages.Image (Status_Code) & "' can't have it.");
+            end if;
+         end if;
+
          Net.Buffered.Flush (Sock);
       end Send_Data;
 

@@ -341,7 +341,19 @@ package body AWS.Client.HTTP_Utils is
          CT_Len : constant Response.Content_Length_Type :=
                     Response.Content_Length (Result);
       begin
-         if TE = "chunked" then
+         if not Messages.With_Body (Response.Status_Code (Result)) then
+            --  RFC-2616 4.4
+            --  ...
+            --  Any response message which "MUST NOT" include a message-body
+            --  (such as the 1xx, 204, and 304 responses and any response to a
+            --  HEAD request) is always terminated by the first empty line
+            --  after the header fields, regardless of the entity-header fields
+            --  present in the message.
+
+            Connection.Transfer := Content_Length;
+            Connection.Length   := 0;
+
+         elsif TE = "chunked" then
 
             --  A chuncked message is written on the stream as list of data
             --  chunk. Each chunk has the following format:
