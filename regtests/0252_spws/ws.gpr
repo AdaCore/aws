@@ -23,8 +23,4 @@ project Ws is
    for Source_Dirs use (".");
    for Main use ("ws.adb");
 
-   package Builder is
-      for Default_Switches ("Ada") use ("-gnat12");
-   end Builder;
-
 end Ws;

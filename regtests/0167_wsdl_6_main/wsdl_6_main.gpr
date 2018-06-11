@@ -21,8 +21,4 @@ with "aws";
 project WSDL_6_Main is
    for Source_Dirs use (".");
    for Main use ("wsdl_6_main.adb");
-
-   package Compiler is
-      for Default_Switches ("Ada") use ("-gnat05");
-   end Compiler;
 end WSDL_6_Main;
