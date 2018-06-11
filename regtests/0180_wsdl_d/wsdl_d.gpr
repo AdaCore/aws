@@ -20,8 +20,4 @@ with "aws";
 
 project WSDL_D is
    for Source_Dirs use (".");
-
-   package Compiler is
-      for Default_Switches ("Ada") use ("-gnat05");
-   end Compiler;
 end WSDL_D;

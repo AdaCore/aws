@@ -22,8 +22,4 @@ project Signed_Key is
    for Source_Dirs use (".");
    for Main use ("signed_key.adb");
 
-   package Builder is
-      for Default_Switches ("Ada") use ("-gnat05");
-   end Builder;
-
 end Signed_Key;

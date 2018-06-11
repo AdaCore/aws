@@ -24,7 +24,7 @@ project D_Management is
    for Main use ("server.adb");
 
    package Builder is
-      for Default_Switches ("Ada") use ("-m", "-gnat05");
+      for Default_Switches ("Ada") use ("-m");
    end Builder;
 
 end D_Management;

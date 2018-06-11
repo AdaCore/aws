@@ -23,7 +23,7 @@ project Check_Mem_Nossl is
    for Main use ("check_mem_nossl.adb");
 
    package Builder is
-      for Default_Switches ("Ada") use ("-g", "-gnat05");
+      for Default_Switches ("Ada") use ("-g");
    end Builder;
 
    package Binder is

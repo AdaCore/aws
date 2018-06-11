@@ -28,7 +28,7 @@ project Doc_Binding is
    for Main use ("doc_binding.adb");
 
    package Builder is
-      for Default_Switches ("Ada") use ("-m", "-gnat05");
+      for Default_Switches ("Ada") use ("-m");
    end Builder;
 
 end Doc_Binding;
