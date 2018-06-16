@@ -325,7 +325,6 @@ CND(SIZEOF_sin_family, "Size of sa.sin_family");
 
 {
 #ifndef AI_PASSIVE
-#define AI_FLAGS_OFFSET -8
 #define AI_FAMILY_OFFSET -7
 #define AI_ADDR_OFFSET -3
 #define AI_CANONNAME_OFFSET -2
@@ -333,13 +332,11 @@ CND(SIZEOF_sin_family, "Size of sa.sin_family");
 #else
   const struct addrinfo ai;
 
-#define AI_FLAGS_OFFSET (long)((long)&ai.ai_flags - (long)&ai)
 #define AI_FAMILY_OFFSET (long)((long)&ai.ai_family - (long)&ai)
 #define AI_CANONNAME_OFFSET (long)((long)&ai.ai_canonname - (long)&ai)
 #define AI_ADDR_OFFSET (long)((long)&ai.ai_addr - (long)&ai)
 #endif
 
-/*NOGEN*/ CND(AI_FLAGS_OFFSET, "???");
 /*NOGEN*/ CND(AI_FAMILY_OFFSET, "???");
 /*NOGEN*/ CND(AI_CANONNAME_OFFSET, "???");
 /*NOGEN*/ CND(AI_ADDR_OFFSET, "???");
