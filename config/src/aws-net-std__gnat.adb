@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2000-2017, AdaCore                     --
+--                     Copyright (C) 2000-2018, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -132,7 +132,8 @@ package body AWS.Net.Std is
 
       if Reuse_Address then
          Sockets.Set_Socket_Option
-           (Socket.S.FD, Option => (Sockets.Reuse_Address, Enabled => True));
+           (Socket.S.FD, Sockets.Socket_Level,
+            Option => (Sockets.Reuse_Address, Enabled => True));
       end if;
 
       Sockets.Bind_Socket
@@ -709,7 +710,8 @@ package body AWS.Net.Std is
    is
       use Sockets;
    begin
-      Set_Socket_Option (Socket.S.FD, Option => (Receive_Buffer, Size));
+      Set_Socket_Option
+        (Socket.S.FD, Socket_Level, Option => (Receive_Buffer, Size));
    exception
       when E : Sockets.Socket_Error =>
          Raise_Exception (E, "Set_Receive_Buffer_Size", Socket);
@@ -725,7 +727,8 @@ package body AWS.Net.Std is
    is
       use Sockets;
    begin
-      Set_Socket_Option (Socket.S.FD, Option => (Send_Buffer, Size));
+      Set_Socket_Option
+        (Socket.S.FD, Socket_Level, Option => (Send_Buffer, Size));
    exception
       when E : Sockets.Socket_Error =>
          Raise_Exception (E, "Set_Send_Buffer_Size", Socket);
