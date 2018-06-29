@@ -440,7 +440,8 @@ package body AWS.Net.Std is
    is
       use Sockets;
    begin
-      return Get_Socket_Option (Socket.S.FD, Name => Receive_Buffer).Size;
+      return Get_Socket_Option
+               (Socket.S.FD, Socket_Level, Name => Receive_Buffer).Size;
    exception
       when E : Sockets.Socket_Error =>
          Raise_Exception (E, "Get_Receive_Buffer_Size", Socket);
