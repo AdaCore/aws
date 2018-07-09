@@ -76,15 +76,21 @@ AWS.Net.Std
 This package is the standard (non-SSL) socket implementation. It exists
 different implementations of this package:
 
-*IPv4*
-  Version based on `GNAT.Sockets`. This is the **default implementation**
-  used.
+*GNAT*
+  Version based on `GNAT.Sockets` from GNAT version 20 and later with IPv6
+  support. This is the **default implementation** used.
 
 *IPv6*
-  As above but supporting IPv6 protocol. To select this implementation
-  just do::
+  Compartible with GNAT before version 20 socket implementation with IPv6
+  support::
 
-    $ make IPv6=true setup
+    $ make setup NETLIB=ipv6
+
+*IPv4*
+  Compartible with GNAT before version 20 socket implementation based on
+  GNAT.Sockets package without IPv6 support::
+
+    $ make setup NETLIB=ipv4
 
 .. _Building:
 

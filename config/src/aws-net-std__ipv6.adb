@@ -185,6 +185,7 @@ package body AWS.Net.Std is
       Port          : Natural;
       Host          : String      := "";
       Reuse_Address : Boolean     := False;
+      IPv6_Only     : Boolean     := False;
       Family        : Family_Type := Family_Unspec)
    is
       use type C.int;
@@ -208,6 +209,12 @@ package body AWS.Net.Std is
       end if;
 
       Socket.S := new Socket_Hidden'(FD => FD, RL => 0);
+
+      if Info.ai_family = OS_Lib.AF_INET6 then
+         Set_Int_Sock_Opt
+           (Socket, OS_Lib.IPV6_V6ONLY, Boolean'Pos (IPv6_Only),
+            Level => OS_Lib.IPPROTO_IPV6);
+      end if;
 
       if Reuse_Address then
          Set_Int_Sock_Opt (Socket, OS_Lib.SO_REUSEADDR, 1);

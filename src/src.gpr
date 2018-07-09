@@ -137,12 +137,8 @@ library project Src is
 
       --  SOCKLIB
 
-      case Shared.SOCKLIB is
-         when "GNAT" =>
-            for Implementation ("AWS.Net.Std") use "aws-net-std__gnat.adb";
-         when "IPv6" =>
-            for Implementation ("AWS.Net.Std") use "aws-net-std__ipv6.adb";
-      end case;
+      for Implementation ("AWS.Net.Std")
+        use "aws-net-std__" & Shared.SOCKLIB & ".adb";
 
       --  Poll
 

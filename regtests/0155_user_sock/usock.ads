@@ -38,6 +38,7 @@ package USock is
       Port          : Natural;
       Host          : String := "";
       Reuse_Address : Boolean := False;
+      IPv6_Only     : Boolean := False;
       Family        : Net.Family_Type := Net.Family_Unspec);
 
    overriding procedure Listen

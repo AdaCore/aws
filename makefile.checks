@@ -7,9 +7,11 @@ $(error DEBUG variable must be set to true or false)
 endif
 endif
 
-ifneq ($(IPv6), true)
-ifneq ($(IPv6), false)
-$(error IPv6 variable must be set to true or false)
+ifneq ($(NETLIB), gnat)
+ifneq ($(NETLIB), ipv4)
+ifneq ($(NETLIB), ipv6)
+$(error NETLIB variable must be set to gnat, ipv6, or ipv4)
+endif
 endif
 endif
 

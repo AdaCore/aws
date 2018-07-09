@@ -16,6 +16,5 @@ function do_run()
 }
 
 do_run std ""
-do_run ipv6 "IPv6=true"
 do_run openssl "SOCKET=openssl"
 do_run gnutls "SOCKET=gnutls"

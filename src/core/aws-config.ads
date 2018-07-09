@@ -76,6 +76,9 @@ package AWS.Config is
    --  Server protocol family. Family_Inet for IPv4, Family_Inet6 for IPv6 and
    --  Family_Unspec for unspecified protocol family.
 
+   function IPv6_Only (O : Object) return Boolean with Inline;
+   --  IPv6 server accepts only IPv6 connections
+
    function Server_Host (O : Object) return String with Inline;
    --  This is the server host. Can be used if the computer has a more than
    --  one IP address. It is possible to have two servers at the same port
@@ -156,7 +159,7 @@ package AWS.Config is
    --  HTTP lines stack size
 
    function Reuse_Address (O : Object) return Boolean with Inline;
-   --  Returns true if bind is allowed to reuse and address (not waiting for
+   --  Returns true if bind is allowed to reuse an address (not waiting for
    --  the delay between two bind to the same port).
 
    ----------
@@ -444,6 +447,7 @@ private
       Admin_Password,
       Admin_Realm,
       Protocol_Family,
+      IPv6_Only,
       Server_Host,
       Server_Port,
       Server_Priority,
@@ -682,6 +686,9 @@ private
 
                            Protocol_Family                 =>
                              (Str, +Default.Protocol_Family),
+
+                           IPv6_Only                       =>
+                             (Bool, Default.IPv6_Only),
 
                            Server_Host                     =>
                              (Str, Null_Unbounded_String),

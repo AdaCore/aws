@@ -235,13 +235,14 @@ package AWS.Server is
       Host          : String;
       Port          : Natural;
       Family        : Net.Family_Type := Net.Family_Unspec;
-      Reuse_Address : Boolean         := False)
-   with Pre => Host'Length > 0;
+      Reuse_Address : Boolean         := False;
+      IPv6_Only     : Boolean         := False);
    --  Add the binded/listening socket on host, port and protocol family. To be
    --  able to connect web enabled application with others in the internal
    --  network, and then give access for external clients by listening on
    --  externally available address. Also it could be used to bind one server
    --  to IPv4 and IPv6 protocols simultaneously.
+   --  IPv6_Only allows restrict IPv6 server to accept only IPv6 connections.
 
    type Task_Id_Array is
      array (Positive range <>) of Ada.Task_Identification.Task_Id;

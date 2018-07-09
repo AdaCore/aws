@@ -860,6 +860,11 @@ CND(SOL_SOCKET, "Options for socket level")
 #endif
 CND(IPPROTO_IP, "Dummy protocol for IP")
 
+#ifndef IPPROTO_IPV6
+# define IPPROTO_IPV6 -1
+#endif
+CND(IPPROTO_IPV6, "IPv6 socket option level")
+
 #ifndef IPPROTO_UDP
 # define IPPROTO_UDP -1
 #endif
@@ -1006,6 +1011,11 @@ CND(IP_DROP_MEMBERSHIP, "Leave a multicast group")
 # define IP_PKTINFO -1
 #endif
 CND(IP_PKTINFO, "Get datagram info")
+
+#ifndef IPV6_V6ONLY
+# define IPV6_V6ONLY -1
+#endif
+CND(IPV6_V6ONLY, "Restricted to IPv6 communications only")
 
 /*
 

@@ -101,11 +101,14 @@ package AWS.Net is
       Port          : Natural;
       Host          : String      := "";
       Reuse_Address : Boolean     := False;
+      IPv6_Only     : Boolean     := False;
       Family        : Family_Type := Family_Unspec) is abstract;
    --  Create the server socket and bind it on the given port.
    --  Using 0 for the port will tell the OS to allocate a non-privileged
    --  free port. The port can be later retrieved using Get_Port on the
    --  bound socket.
+   --  IPv6_Only has meaning only for Family = Family_Inet6 and mean that only
+   --  IPv6 clients allowed to connect.
 
    procedure Listen
      (Socket : Socket_Type; Queue_Size : Positive := 5) is abstract;
