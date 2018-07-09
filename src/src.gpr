@@ -135,15 +135,6 @@ library project Src is
       for Implementation ("Templates_Parser_Tasking")
         use "templates_parser_tasking__standard_tasking.adb";
 
-      --  SOCKLIB
-
-      case Shared.SOCKLIB is
-         when "GNAT" =>
-            for Implementation ("AWS.Net.Std") use "aws-net-std__gnat.adb";
-         when "IPv6" =>
-            for Implementation ("AWS.Net.Std") use "aws-net-std__ipv6.adb";
-      end case;
-
       --  Poll
 
       case Shared.S_Target is

@@ -57,8 +57,9 @@ package body AWS.Net.Std is
    --  the routine name.
 
    function Get_Inet_Addr
-     (Host : String; Passive : Boolean) return Sockets.Inet_Addr_Type
-     with Inline;
+     (Host    : String;
+      Family  : Family_Type;
+      Passive : Boolean) return Sockets.Address_Info;
    --  Returns the inet address for the given host
 
    procedure Set_Non_Blocking_Mode (Socket : Socket_Type);
@@ -68,7 +69,7 @@ package body AWS.Net.Std is
    To_GNAT : constant array (Family_Type) of Sockets.Family_Type :=
                (Family_Inet   => Sockets.Family_Inet,
                 Family_Inet6  => Sockets.Family_Inet6,
-                Family_Unspec => Sockets.Family_Inet);
+                Family_Unspec => Sockets.Family_Unspec);
 
    -------------------
    -- Accept_Socket --
@@ -112,9 +113,11 @@ package body AWS.Net.Std is
       Port          : Natural;
       Host          : String      := "";
       Reuse_Address : Boolean     := False;
+      IPv6_Only     : Boolean     := False;
       Family        : Family_Type := Family_Unspec)
    is
-      Inet_Addr : Sockets.Inet_Addr_Type;
+      use type Sockets.Family_Type;
+      Addr_Info : Sockets.Address_Info;
       Created   : Boolean := False;
    begin
       if Socket.S /= null then
@@ -123,9 +126,17 @@ package body AWS.Net.Std is
 
       Socket.S := new Socket_Hidden;
 
-      Inet_Addr := Get_Inet_Addr (Host, Passive => True);
+      Addr_Info := Get_Inet_Addr (Host, Family, Passive => True);
 
-      Sockets.Create_Socket (Socket.S.FD);
+      Sockets.Create_Socket
+        (Socket.S.FD, Addr_Info.Addr.Family, Addr_Info.Mode, Addr_Info.Level);
+
+      if Addr_Info.Addr.Family = Sockets.Family_Inet6 then
+         Sockets.Set_Socket_Option
+           (Socket.S.FD, Sockets.IP_Protocol_For_IPv6_Level,
+            (Name => Sockets.IPv6_Only, Enabled => IPv6_Only));
+      end if;
+
       Created := True;
 
       Set_Non_Blocking_Mode (Socket);
@@ -138,7 +149,8 @@ package body AWS.Net.Std is
 
       Sockets.Bind_Socket
         (Socket.S.FD,
-         (To_GNAT (Family), Inet_Addr, Sockets.Port_Type (Port)));
+         (Addr_Info.Addr.Family, Addr_Info.Addr.Addr,
+          Sockets.Port_Type (Port)));
 
    exception
       when E : Sockets.Socket_Error | Sockets.Host_Error =>
@@ -160,7 +172,8 @@ package body AWS.Net.Std is
       Wait   : Boolean     := True;
       Family : Family_Type := Family_Unspec)
    is
-      Sock_Addr : Sockets.Sock_Addr_Type;
+      Addr_Info : Sockets.Address_Info;
+      Sock_Addr : Sockets.Sock_Addr_Type := Sockets.No_Sock_Addr;
 
       Close_On_Exception : Boolean := False;
 
@@ -205,11 +218,12 @@ package body AWS.Net.Std is
 
       Socket.S := new Socket_Hidden;
 
-      Sock_Addr := (To_GNAT (Family),
-                    Get_Inet_Addr (Host, Passive => False),
-                    Sockets.Port_Type (Port));
+      Addr_Info := Get_Inet_Addr (Host, Family, Passive => False);
+      Sock_Addr := Addr_Info.Addr;
+      Sock_Addr.Port := Sockets.Port_Type (Port);
 
-      Sockets.Create_Socket (Socket.S.FD);
+      Sockets.Create_Socket
+        (Socket.S.FD, Addr_Info.Addr.Family, Addr_Info.Mode, Addr_Info.Level);
       Close_On_Exception := True;
 
       Set_Non_Blocking_Mode (Socket);
@@ -400,23 +414,32 @@ package body AWS.Net.Std is
    -------------------
 
    function Get_Inet_Addr
-     (Host : String; Passive : Boolean) return Sockets.Inet_Addr_Type
+     (Host    : String;
+      Family  : Family_Type;
+      Passive : Boolean) return Sockets.Address_Info
    is
-      use Strings.Maps;
-      IP : constant Character_Set := To_Set ("0123456789.");
+      Dummy : Socket_Type;
    begin
-      if Host = "" then
-         if Passive then
-            return Sockets.Any_Inet_Addr;
-         else
-            return Sockets.Loopback_Inet_Addr;
+      declare
+         Addr_Info : Sockets.Address_Info_Array :=
+           Sockets.Get_Address_Info
+             (Host, "", To_GNAT (Family), Passive => Passive);
+      begin
+         if Addr_Info'Length = 0 then
+            raise Socket_Error with "Host name " & Host & " not known";
          end if;
-      elsif Is_Subset (To_Set (Host), IP) then
-         --  Only numbers, this is an IP address
-         return Sockets.Inet_Addr (Host);
-      else
-         return Sockets.Addresses (Sockets.Get_Host_By_Name (Host), 1);
-      end if;
+
+         if Family = Family_Unspec and then Passive then
+            --  Prefer IPv6 bind for server if available
+
+            Sockets.Sort (Addr_Info, Sockets.IPv6_TCP_Preferred'Access);
+         end if;
+
+         return Addr_Info (1);
+      end;
+   exception
+      when E : Sockets.Socket_Error =>
+         Raise_Exception (E, "Get_Inet_Addr " & Host, Dummy);
    end Get_Inet_Addr;
 
    --------------
@@ -477,7 +500,7 @@ package body AWS.Net.Std is
 
    function IPv6_Available return Boolean is
    begin
-      return False;
+      return True;
    end IPv6_Available;
 
    --------------------

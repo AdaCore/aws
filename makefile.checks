@@ -7,12 +7,6 @@ $(error DEBUG variable must be set to true or false)
 endif
 endif
 
-ifneq ($(IPv6), true)
-ifneq ($(IPv6), false)
-$(error IPv6 variable must be set to true or false)
-endif
-endif
-
 ifeq  ($(ENABLE_SHARED), )
 ENABLE_SHARED=false
 endif

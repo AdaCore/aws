@@ -307,6 +307,15 @@ package body AWS.Config.Set is
       Process_Options (Input_Line_Size_Limit).Pos_Value := Value;
    end Input_Line_Size_Limit;
 
+   ---------------
+   -- IPv6_Only --
+   ---------------
+
+   procedure IPv6_Only (O : in out Object; Value : Boolean) is
+   begin
+      O.P (IPv6_Only).Bool_Value := Value;
+   end IPv6_Only;
+
    ----------------------------
    -- Keep_Alive_Force_Limit --
    ----------------------------

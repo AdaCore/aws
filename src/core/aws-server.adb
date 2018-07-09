@@ -132,10 +132,12 @@ package body AWS.Server is
       Host          : String;
       Port          : Natural;
       Family        : Net.Family_Type := Net.Family_Unspec;
-      Reuse_Address : Boolean         := False) is
+      Reuse_Address : Boolean         := False;
+      IPv6_Only     : Boolean         := False) is
    begin
       Net.Acceptors.Add_Listening
-        (Web_Server.Acceptor, Host, Port, Family, Reuse_Address);
+        (Web_Server.Acceptor, Host, Port, Family, IPv6_Only => IPv6_Only,
+         Reuse_Address => Reuse_Address);
    end Add_Listening;
 
    ------------
@@ -1095,7 +1097,8 @@ package body AWS.Server is
            CNF.Keep_Alive_Force_Limit (Web_Server.Properties),
          Close_Length        =>
            CNF.Keep_Alive_Close_Limit (Web_Server.Properties),
-         Reuse_Address       => CNF.Reuse_Address (Web_Server.Properties));
+         Reuse_Address       => CNF.Reuse_Address (Web_Server.Properties),
+         IPv6_Only           => CNF.IPv6_Only (Web_Server.Properties));
 
       --  Clone main dispatcher
 

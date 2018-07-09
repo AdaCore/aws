@@ -131,6 +131,7 @@ begin
    Config.Set.Trusted_CA (Conf, "private-ca.crt");
    Config.Set.Certificate (Conf, "aws-server.crt");
    Config.Set.Key (Conf, "aws-server.key");
+   Config.Set.IPv6_Only (Conf, True);
 
    Server.Start (HTTP, CB'Unrestricted_Access, Conf);
 
@@ -140,7 +141,7 @@ begin
       --  different families.
 
       Server.Add_Listening
-        (HTTP, "localhost", Server.Status.Port (HTTP),
+        (HTTP, "", Server.Status.Port (HTTP),
          (if Server.Status.Is_IPv6 (HTTP)
           then Net.Family_Inet else Net.Family_Inet6));
    end if;

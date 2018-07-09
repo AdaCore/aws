@@ -6,7 +6,7 @@ rem    c:> win32/build c:\gnat\2014
 rem
 
 set ROOTDIR=%CD%
-set GPROPTS=-XPRJ_BUILD=Release -XPRJ_TARGET=Windows_NT -XTARGET=win -XPRJ_XMLADA=Installed -XPRJ_LDAP=Installed -XPRJ_ASIS=Disabled -XPRJ_SOCKLIB=GNAT
+set GPROPTS=-XPRJ_BUILD=Release -XPRJ_TARGET=Windows_NT -XTARGET=win -XPRJ_XMLADA=Installed -XPRJ_LDAP=Installed -XPRJ_ASIS=Disabled
 
 if .%1==. goto dusage
 

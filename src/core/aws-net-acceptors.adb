@@ -47,13 +47,14 @@ package body AWS.Net.Acceptors is
       Host          : String;
       Port          : Natural;
       Family        : Family_Type := Family_Unspec;
-      Reuse_Address : Boolean     := False)
+      Reuse_Address : Boolean     := False;
+      IPv6_Only     : Boolean     := False)
    is
       Server : constant Socket_Access :=
                  new Socket_Type'Class'(Acceptor.Constructor (False));
    begin
       Server.Bind
-        (Host => Host, Port => Port, Family => Family,
+        (Host => Host, Port => Port, Family => Family, IPv6_Only => IPv6_Only,
          Reuse_Address => Reuse_Address);
       Server.Listen (Queue_Size => Acceptor.Back_Queue_Size);
 
@@ -406,7 +407,8 @@ package body AWS.Net.Acceptors is
       Force_First_Timeout : Duration    := Forever;
       Force_Length        : Positive    := Positive'Last;
       Close_Length        : Positive    := Positive'Last;
-      Reuse_Address       : Boolean     := False)
+      Reuse_Address       : Boolean     := False;
+      IPv6_Only           : Boolean     := False)
    is
       use type Sets.Socket_Count;
 
@@ -448,7 +450,7 @@ package body AWS.Net.Acceptors is
       end if;
 
       Server.Bind
-        (Host => Host, Port => Port, Family => Family,
+        (Host => Host, Port => Port, Family => Family, IPv6_Only => IPv6_Only,
          Reuse_Address => Reuse_Address);
       Server.Listen (Queue_Size => Queue_Size);
 

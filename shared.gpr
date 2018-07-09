@@ -27,13 +27,6 @@ abstract project Shared is
 
    Processors := External ("PROCESSORS", "0");
 
-   -------------
-   -- SOCKLIB --
-   -------------
-
-   type SOCKLIB_Type is ("GNAT", "IPv6");
-   SOCKLIB : SOCKLIB_Type := external ("PRJ_SOCKLIB", "GNAT");
-
    ------------
    -- SOCKET --
    ------------

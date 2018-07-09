@@ -52,6 +52,7 @@ package AWS.Net.Memory is
       Port          : Natural;
       Host          : String      := "";
       Reuse_Address : Boolean     := False;
+      IPv6_Only     : Boolean     := False;
       Family        : Family_Type := Family_Unspec) is null;
    --  Bind a socket on a given port
 

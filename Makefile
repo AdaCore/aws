@@ -122,14 +122,6 @@ PRJ_ASIS=Disabled
 GEXT_MODULE := $(GEXT_MODULE) gasis_dummy
 endif
 
-#  Sockets
-
-ifeq ($(IPv6), true)
-PRJ_SOCKLIB=IPv6
-else
-PRJ_SOCKLIB=GNAT
-endif
-
 #  Debug
 
 ifeq ($(DEBUG), true)
@@ -152,7 +144,6 @@ GALL_OPTIONS := $(ALL_OPTIONS) \
 	PRJ_BUILD="$(PRJ_BUILD)" \
 	PRJ_XMLADA="$(PRJ_XMLADA)" \
 	PRJ_ASIS="$(PRJ_ASIS)" \
-	PRJ_SOCKLIB="$(PRJ_SOCKLIB)" \
 	PRJ_LDAP="$(PRJ_LDAP)" \
 	PRJ_TARGET="$(PRJ_TARGET)" \
 	TP_XMLADA="$(TP_XMLADA)" \
@@ -167,7 +158,7 @@ ${MODULES_INSTALL}: force
 ${MODULES_CHECK}: force
 	${MAKE} -C ${@:%_check=%} check $(GALL_OPTIONS)
 
-GPROPTS = -XPRJ_BUILD=$(PRJ_BUILD) -XPRJ_SOCKLIB=$(PRJ_SOCKLIB) \
+GPROPTS = -XPRJ_BUILD=$(PRJ_BUILD) \
 		-XPRJ_ASIS=$(PRJ_ASIS) -XPRJ_LDAP=$(PRJ_LDAP) \
 		-XPRJ_XMLADA=$(PRJ_XMLADA) -XTARGET=$(TARGET) \
 		-XPROCESSORS=$(PROCESSORS) -XSOCKET=$(SOCKET) \
@@ -342,7 +333,6 @@ gen_setup:
 	echo "ZLIB=$(ZLIB)" >> makefile.setup
 	echo "XMLADA=$(XMLADA)" >> makefile.setup
 	echo "ASIS=$(ASIS)" >> makefile.setup
-	echo "IPv6=$(IPv6)" >> makefile.setup
 	echo "SOCKET=$(SOCKET)" >> makefile.setup
 	echo "LDAP=$(LDAP)" >> makefile.setup
 	echo "DEBUG=$(DEBUG)" >> makefile.setup
