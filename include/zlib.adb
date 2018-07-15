@@ -1,7 +1,7 @@
 ----------------------------------------------------------------
 --  ZLib for Ada thick binding.                               --
 --                                                            --
---  Copyright (C) 2002-2015, Dmitriy Anisimkov                --
+--  Copyright (C) 2002-2018, Dmitriy Anisimkov                --
 --                                                            --
 --  Open source license information is in the zlib.ads file.  --
 ----------------------------------------------------------------
@@ -223,7 +223,7 @@ package body ZLib is
 
       if Thin.Deflate_Init
            (To_Thin_Access (Filter.Strm),
-            Level      => Thin.Int (Level),
+            level      => Thin.Int (Level),
             method     => Thin.Int (Method),
             windowBits => Win_Bits,
             memLevel   => Thin.Int (Memory_Level),
