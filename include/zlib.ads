@@ -112,7 +112,7 @@ package ZLib is
    --  Full_Flush too often can seriously degrade the compression.
 
    Finish        : constant Flush_Mode;
-   --  Just for tell the compressor that input data is complete
+   --  Just to tell the compressor that input data is complete
 
    ------------------------------------
    -- Compression strategy constants --
@@ -200,12 +200,12 @@ package ZLib is
      (CRC    : in Unsigned_32;
       Data   : in Stream_Element_Array)
      return Unsigned_32 with Inline;
-   --  Compute CRC32, it could be necessary for make gzip format
+   --  Compute CRC32, it could be necessary to make gzip format
 
    procedure CRC32
      (CRC  : in out Unsigned_32;
       Data : in     Stream_Element_Array) with Inline;
-   --  Compute CRC32, it could be necessary for make gzip format
+   --  Compute CRC32, it could be necessary to make gzip format
 
    -------------------------------------------------
    --  Below is more complex low level routines.  --
@@ -237,7 +237,7 @@ package ZLib is
 
    generic
       with procedure Write (Item : in Stream_Element_Array);
-      --  User should provide this routine for accept
+      --  User should provide this routine to accept
       --  compressed/decompressed data.
 
       Buffer_Size : in Stream_Element_Offset := Default_Buffer_Size;
@@ -258,7 +258,7 @@ package ZLib is
       --  thru this routine.
 
       Buffer : in out Stream_Element_Array;
-      --  Buffer for keep remaining data from the previous
+      --  Buffer to keep remaining data from the previous
       --  back read.
 
       Rest_First, Rest_Last : in out Stream_Element_Offset;
