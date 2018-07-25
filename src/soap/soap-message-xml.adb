@@ -808,6 +808,39 @@ package body SOAP.Message.XML is
       function Item_Type (Name : String) return String with Inline;
       --  Returns the array's item type, remove [] if present
 
+      function Get_Type_Name return String;
+      --  Returns the array type name
+
+      -------------------
+      -- Get_Type_Name --
+      -------------------
+
+      function Get_Type_Name return String is
+         use type WSDL.Schema.Encoding_Style;
+      begin
+         if S.Encoding = WSDL.Schema.Literal then
+            declare
+               Enclosing : constant String := To_String (S.Enclosing);
+               A_Name    : Unbounded_String := S.Enclosing;
+            begin
+               if Utils.No_NS (S.Schema.Element (Enclosing)) = Enclosing then
+                  A_Name := To_Unbounded_String (S.Schema.Element (Enclosing));
+               end if;
+
+               return S.Schema.Element (To_String (A_Name) & '.' & Name);
+            end;
+
+         else
+            declare
+               Atts   : constant DOM.Core.Named_Node_Map := Attributes (N);
+               A_Name : constant String :=
+                          SOAP.Name_Space.Name (S.NS.enc) & ":arrayType";
+            begin
+               return Item_Type (Node_Value (Get_Named_Item (Atts, A_Name)));
+            end;
+         end if;
+      end Get_Type_Name;
+
       ---------------
       -- Item_Type --
       ---------------
@@ -826,18 +859,11 @@ package body SOAP.Message.XML is
 
       Field : DOM.Core.Node;
 
-      Atts  : constant DOM.Core.Named_Node_Map := Attributes (N);
    begin
       Parse_Namespaces (N, S.NS);
 
       declare
-         A_Name    : constant String :=
-                       SOAP.Name_Space.Name (S.NS.enc) & ":arrayType";
-         --  Attribute name
-
-         Type_Name : constant String :=
-                       Item_Type (Node_Value (Get_Named_Item (Atts, A_Name)));
-
+         Type_Name : constant String := Get_Type_Name;
          A_Type    : constant Type_State :=
                        To_Type (Type_Name, S.NS, S.Schema);
       begin
@@ -1207,13 +1233,14 @@ package body SOAP.Message.XML is
       --------------
 
       function Is_Array return Boolean is
-         XSI_Type : constant DOM.Core.Node :=
-                      Get_Named_Item
-                        (Atts, SOAP.Name_Space.Name (S.NS.xsi) & ":type");
-         SOAP_Enc : constant DOM.Core.Node :=
-                      Get_Named_Item
-                        (Atts,
-                         SOAP.Name_Space.Name (S.NS.enc) & ":arrayType");
+         XSI_Type  : constant DOM.Core.Node :=
+                       Get_Named_Item
+                         (Atts, SOAP.Name_Space.Name (S.NS.xsi) & ":type");
+         SOAP_Enc  : constant DOM.Core.Node :=
+                       Get_Named_Item
+                         (Atts,
+                          SOAP.Name_Space.Name (S.NS.enc) & ":arrayType");
+         Enclosing : constant String := To_String (S.Enclosing);
       begin
          return
          --  Either we have xsi:type="soapenc:Array"
@@ -1221,7 +1248,16 @@ package body SOAP.Message.XML is
             and then Utils.No_NS (Node_Value (XSI_Type)) = "Array")
            or else
          --  or soapenc:arrayType="..."
-             SOAP_Enc /= null;
+           SOAP_Enc /= null
+           or else
+         --  we have <tyoe-name>.item in the schema (document/literal)
+             (S.Schema.Contains (Enclosing)
+              and then
+              S.Schema.Contains (S.Schema.Element (Enclosing) & '.' & Name)
+              and then
+              S.Schema.Contains
+                (S.Schema.Element (S.Schema.Element (Enclosing) & '.' & Name)
+                 & ".item"));
       end Is_Array;
 
       -------------
