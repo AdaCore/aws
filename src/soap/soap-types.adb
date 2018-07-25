@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2000-2017, AdaCore                     --
+--                     Copyright (C) 2000-2018, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -1585,13 +1585,14 @@ package body SOAP.Types is
       Append (Result, Spaces (Indent));
       Append (Result, '<');
       Append (Result, Tag_Name (O));
-      Append (Result, " " & SOAP_Enc & ":arrayType=""");
-      Append (Result, Array_Type);
-      Append (Result, '[');
-      Append (Result, AWS.Utils.Image (Natural (O.O'Length)));
-      Append (Result, "]""");
 
       if Encoding = WSDL.Schema.Encoded then
+         Append (Result, " " & SOAP_Enc & ":arrayType=""");
+         Append (Result, Array_Type);
+         Append (Result, '[');
+         Append (Result, AWS.Utils.Image (Natural (O.O'Length)));
+         Append (Result, "]""");
+
          Append (Result, xsi_type (XML_Array));
       end if;
 
