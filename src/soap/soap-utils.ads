@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2000-2017, AdaCore                     --
+--                     Copyright (C) 2000-2018, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -130,6 +130,7 @@ package SOAP.Utils is
       type T is private;
       type T_Array is array (Positive range <>) of T;
       type XSD_Type is new Types.Object with private;
+      E_Name    : String;
       Type_Name : String;
       with function
         Get (V         : T;
@@ -147,6 +148,7 @@ package SOAP.Utils is
       type Index is range <>;
       type T_Array is array (Index) of T;
       type XSD_Type is new Types.Object with private;
+      E_Name    : String;
       Type_Name : String;
       with function
         Get (V         : T;

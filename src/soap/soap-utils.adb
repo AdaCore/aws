@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2000-2017, AdaCore                     --
+--                     Copyright (C) 2000-2018, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -485,7 +485,8 @@ package body SOAP.Utils is
       Result : Types.Object_Set (From'Range);
    begin
       for K in From'Range loop
-         Result (K) := +Get (From (K), Type_Name => Type_Name, NS => NS);
+         Result (K) :=
+           +Get (From (K), Name => E_Name, Type_Name => Type_Name, NS => NS);
       end loop;
 
       return Result;
@@ -504,7 +505,7 @@ package body SOAP.Utils is
    begin
       for K in From'Range loop
          Result (Integer (K)) :=
-           +Get (From (K), Type_Name => Type_Name, NS => NS);
+           +Get (From (K), Name => E_Name, Type_Name => Type_Name, NS => NS);
       end loop;
 
       return Result;

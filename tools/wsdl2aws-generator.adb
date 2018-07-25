@@ -1276,6 +1276,26 @@ package body WSDL2AWS.Generator is
             Output_Schema_Definition
               (Key   => WSDL.Types.Name (P.Typ, NS => True),
                Value => ET_Name);
+
+            --  If we have a record inside the array, we need to create the
+            --  corresponding schema definition for each item.
+
+            if P.P /= null and then P.P.Mode = WSDL.Types.K_Record then
+               declare
+                  I : WSDL.Parameters.P_Set := P.P.P;
+               begin
+                  while I /= null loop
+                     Output_Schema_Definition
+                       (Key   => To_String (Def.E_Name)
+                                 & '.' & To_String (I.Name),
+                        Value => WSDL.Types.Name
+                                   ((if I.Is_Set then I.E_Typ else I.Typ),
+                                    NS => True));
+
+                     I := I.Next;
+                  end loop;
+               end;
+            end if;
          end if;
 
          Text_IO.New_Line (Type_Adb);
@@ -1555,6 +1575,7 @@ package body WSDL2AWS.Generator is
          Text_IO.Put_Line
            (Arr_Ads,
             "      " & Set_Type (WSDL.Types.Find (Def.E_Type))
+            & ", """ & To_String (Def.E_Name) & """"
             & ", """ & ET_Name & """, " & Set_Routine (P) & ");");
 
          Finalize_Types_Package (Prefix, Arr_Ads, Arr_Adb, No_Body => True);
@@ -2673,17 +2694,6 @@ package body WSDL2AWS.Generator is
                Value => WSDL.Types.Name
                           ((if N.Is_Set then N.E_Typ else N.Typ),
                            NS => True));
-
-            --  We also generate item.<field> for record inside arrays when
-            --  using the document/literal bindong style.
-
-            if O.Style = SOAP.WSDL.Schema.Document  then
-               Output_Schema_Definition
-                 (Key   => "item." & To_String (N.Name),
-                  Value => WSDL.Types.Name
-                    ((if N.Is_Set then N.E_Typ else N.Typ),
-                     NS => True));
-            end if;
 
             --  If N is an array, generate the schema definition for the
             --  array's elements.
