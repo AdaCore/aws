@@ -1250,7 +1250,7 @@ package body WSDL2AWS.Generator is
 
          --  Array's element type name
 
-         E_Name  : constant String :=
+         ET_Name : constant String :=
                      (if Def = WSDL.Types.No_Definition
                       then WSDL.Types.Name (P.P.Typ, True)
                       else WSDL.Types.Name (Def.E_Type, True));
@@ -1270,12 +1270,12 @@ package body WSDL2AWS.Generator is
 
          Output_Schema_Definition
            (Key   =>  WSDL.Types.Name (P.Typ, NS => True) & ".item",
-            Value => E_Name);
+            Value => ET_Name);
 
          if O.Style = SOAP.WSDL.Schema.Document then
             Output_Schema_Definition
-              (Key   =>  WSDL.Types.Name (P.Typ, NS => True),
-               Value => E_Name);
+              (Key   => WSDL.Types.Name (P.Typ, NS => True),
+               Value => ET_Name);
          end if;
 
          Text_IO.New_Line (Type_Adb);
@@ -1555,7 +1555,7 @@ package body WSDL2AWS.Generator is
          Text_IO.Put_Line
            (Arr_Ads,
             "      " & Set_Type (WSDL.Types.Find (Def.E_Type))
-            & ", """ & E_Name & """, " & Set_Routine (P) & ");");
+            & ", """ & ET_Name & """, " & Set_Routine (P) & ");");
 
          Finalize_Types_Package (Prefix, Arr_Ads, Arr_Adb, No_Body => True);
       end Generate_Array;
