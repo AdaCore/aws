@@ -1262,13 +1262,6 @@ package body WSDL2AWS.Generator is
       --  Returns True if Name is defined inside a record in the Input
       --  or Output parameter list.
 
-      procedure Output_Parameters
-        (P         : WSDL.Parameters.P_Set;
-         Is_Output : Boolean);
-      --  Output SOAP operation parameters for the schema definitions.
-      --  Is_Output is true if the P corresponds to output parameters of a
-      --  SOAP procedure.
-
       ----------------------------
       -- Finalize_Types_Package --
       ----------------------------
@@ -1382,43 +1375,6 @@ package body WSDL2AWS.Generator is
       begin
          Initialize_Types_Package
            (P, F_Name, False, Prefix, Arr_Ads, Arr_Adb, Regen => Regen);
-
-         Text_IO.Put_Line
-           (Type_Adb,
-            "   --  Definitions for array "
-            &  WSDL.Types.Name (P.Typ, NS => True));
-
-         Output_Schema_Definition
-           (Key   =>  WSDL.Types.Name (P.Typ, NS => True) & ".item",
-            Value => ET_Name);
-
-         if O.Style = SOAP.WSDL.Schema.Document then
-            Output_Schema_Definition
-              (Key   => WSDL.Types.Name (P.Typ, NS => True),
-               Value => ET_Name);
-
-            --  If we have a record inside the array, we need to create the
-            --  corresponding schema definition for each item.
-
-            if P.P /= null and then P.P.Mode = WSDL.Types.K_Record then
-               declare
-                  I : WSDL.Parameters.P_Set := P.P.P;
-               begin
-                  while I /= null loop
-                     Output_Schema_Definition
-                       (Key   => To_String (Def.E_Name)
-                                 & '.' & To_String (I.Name),
-                        Value => WSDL.Types.Name
-                                   ((if I.Is_Set then I.E_Typ else I.Typ),
-                                    NS => True));
-
-                     I := I.Next;
-                  end loop;
-               end;
-            end if;
-         end if;
-
-         Text_IO.New_Line (Type_Adb);
 
          if not Regen then
             Text_IO.New_Line (Tmp_Ads);
@@ -2801,52 +2757,6 @@ package body WSDL2AWS.Generator is
          Text_IO.New_Line (Tmp_Ads);
          Header_Box (O, Tmp_Ads, "Record " & F_Name);
 
-         --  Generate the schema definitions
-
-         N := R;
-
-         Text_IO.Put_Line
-           (Type_Adb, "   --  Definitions for record " & Name);
-
-         while N /= null loop
-            Output_Schema_Definition
-              (Key   => Name & "." & To_String (N.Name),
-               Value => WSDL.Types.Name
-                          ((if N.Is_Set then N.E_Typ else N.Typ),
-                           NS => True));
-
-            --  If N is an array, generate the schema definition for the
-            --  array's elements.
-
-            if N.Mode = WSDL.Types.K_Array then
-               declare
-                  Def : constant WSDL.Types.Definition :=
-                          WSDL.Types.Find (N.Typ);
-               begin
-                  Output_Schema_Definition
-                    (Key   => To_String (N.Name) & ".item",
-                     Value => WSDL.Types.Name (Def.E_Type, NS => True));
-
-                  if O.Style = SOAP.WSDL.Schema.Document then
-                     Output_Schema_Definition
-                       (Key   => To_String (N.Name),
-                        Value => WSDL.Types.Name (Def.E_Type, NS => True));
-                  end if;
-               end;
-
-            elsif N.Mode = WSDL.Types.K_Record
-              and then O.Style = SOAP.WSDL.Schema.Document
-            then
-               Output_Schema_Definition
-                 (Key   => To_String (N.Name),
-                  Value => WSDL.Types.Name (N.Typ, NS => True));
-            end if;
-
-            N := N.Next;
-         end loop;
-
-         Text_IO.New_Line (Type_Adb);
-
          --  Is types are to be reused from an Ada spec ?
 
          if Types_Spec (O) = ""
@@ -3805,48 +3715,6 @@ package body WSDL2AWS.Generator is
          return In_Record;
       end Is_Inside_Record;
 
-      -----------------------
-      -- Output_Parameters --
-      -----------------------
-
-      procedure Output_Parameters
-        (P         : WSDL.Parameters.P_Set;
-         Is_Output : Boolean)
-      is
-         N : WSDL.Parameters.P_Set := P;
-      begin
-         if Is_Simple_Wrapped_Parameter (O, N) then
-            declare
-               T_Name : constant String :=
-                          WSDL.Types.Name (N.P.Typ, NS => True);
-            begin
-               Output_Schema_Definition
-                 (Key   => To_String (N.P.Name),
-                  Value => T_Name);
-            end;
-
-         else
-            while N /= null loop
-               declare
-                  T_Name : constant String :=
-                             WSDL.Types.Name (N.Typ, NS => True);
-               begin
-                  Output_Schema_Definition
-                    (Key   => W_Name & "." & To_String (N.Name),
-                     Value => T_Name);
-
-                  if Is_Output then
-                     Output_Schema_Definition
-                       (Key   => W_Name & "Response." & To_String (N.Name),
-                        Value => T_Name);
-                  end if;
-               end;
-
-               N := N.Next;
-            end loop;
-         end if;
-      end Output_Parameters;
-
       ------------------
       -- Output_Types --
       ------------------
@@ -4043,10 +3911,6 @@ package body WSDL2AWS.Generator is
          Value =>
            SOAP.Types.Encoding_Style'Image (O.Encoding (WSDL.Parser.Output)));
 
-      Output_Parameters (Input, False);
-
-      Text_IO.New_Line (Type_Adb);
-
       if Output /= null then
          --  Something in the SOAP procedure output
 
@@ -4055,25 +3919,6 @@ package body WSDL2AWS.Generator is
             Value =>
               SOAP.Types.Encoding_Style'Image
                 (O.Encoding (WSDL.Parser.Output)));
-
-         Output_Parameters (Output, True);
-
-         --  Also if the return object is a record we need to output the
-         --  schema information for this specific record.
-
-         if Output.Mode in WSDL.Types.Compound_Type then
-            declare
-               F : WSDL.Parameters.P_Set := Output.P;
-            begin
-               while F /= null loop
-                  Output_Schema_Definition
-                    (Key   => W_Name & "Response." & To_String (F.Name),
-                     Value => WSDL.Types.Name (F.Typ, NS => True));
-
-                  F := F.Next;
-               end loop;
-            end;
-         end if;
 
          if Output.Next = null then
             --  A single parameter
