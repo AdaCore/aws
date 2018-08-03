@@ -86,6 +86,7 @@ package body SOAP.Message.XML is
       NS           : Namespaces;
       Strict       : Boolean    := True;
       Style        : WSDL.Schema.Binding_Style := WSDL.Schema.RPC;
+      Encoding     : WSDL.Schema.Encoding_Style := WSDL.Schema.Encoded;
       Schema       : WSDL.Schema.Definition;
       Enclosing    : Unbounded_String; -- enclosing element type (array record)
    end record;
@@ -938,6 +939,10 @@ package body SOAP.Message.XML is
             S.Enclosing    := S.Wrapper_Name;
          end Compute_Signature;
 
+         --  Document style is always literal
+
+         S.Encoding := WSDL.Schema.Literal;
+
          declare
             use SOAP.Parameters;
             use type DOM.Core.Node;
@@ -1193,9 +1198,6 @@ package body SOAP.Message.XML is
                           then To_String (S.Enclosing) & '.' & Name
                           else To_String (S.Enclosing) & ".item")
                     else Name);
-      Encoding : constant SOAP.Types.Encoding_Style :=
-                   WSDL.Schema.Get_Encoding_Style
-                     (S.Schema, To_String (S.Wrapper_Name));
 
       Ref  : constant DOM.Core.Node           := SOAP.XML.Get_Ref (N);
       Atts : constant DOM.Core.Named_Node_Map := Attributes (Ref);
@@ -1247,7 +1249,7 @@ package body SOAP.Message.XML is
    begin
       Parse_Namespaces (Ref, S.NS);
 
-      if Encoding = WSDL.Schema.Encoded then
+      if S.Encoding = WSDL.Schema.Encoded then
          XSI_Type :=
            Get_Named_Item (Atts, SOAP.Name_Space.Name (S.NS.xsi) & ":type");
 
@@ -1619,7 +1621,7 @@ package body SOAP.Message.XML is
       end if;
 
       S.Wrapper_Name := To_Unbounded_String (Name);
-      S.Enclosing := S.Wrapper_Name;
+      S.Encoding := WSDL.Schema.Get_Encoding_Style (S.Schema, Name);
 
       for K in 0 .. Length (NL) - 1 loop
          if Item (NL, K).Node_Type /= DOM.Core.Text_Node then
