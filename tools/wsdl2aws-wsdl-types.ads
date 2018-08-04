@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2015-2017, AdaCore                     --
+--                     Copyright (C) 2015-2018, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -123,7 +123,8 @@ package WSDL2AWS.WSDL.Types is
             Is_Choice : Boolean;
 
          when K_Array =>
-            E_Type : Object; -- Array element's type
+            E_Name : Unbounded_String; -- array's element name
+            E_Type : Object;           -- array's element's type
 
          when K_Enumeration =>
             E_Def  : E_Node_Access;

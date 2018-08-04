@@ -86,8 +86,8 @@ package body SOAP.Message.XML is
       NS           : Namespaces;
       Strict       : Boolean    := True;
       Style        : WSDL.Schema.Binding_Style := WSDL.Schema.RPC;
+      Encoding     : WSDL.Schema.Encoding_Style := WSDL.Schema.Encoded;
       Schema       : WSDL.Schema.Definition;
-      Enclosing    : Unbounded_String; -- enclosing element type (array record)
    end record;
 
    function To_Type
@@ -220,18 +220,21 @@ package body SOAP.Message.XML is
       N         : DOM.Core.Node) return Types.Object'Class;
 
    function Parse_Param
-     (N : DOM.Core.Node;
-      S : in out State) return Types.Object'Class;
+     (N      : DOM.Core.Node;
+      Q_Name : String;
+      S      : in out State) return Types.Object'Class;
 
    function Parse_Array
-     (Name : String;
-      N    : DOM.Core.Node;
-      S    : in out State) return Types.Object'Class;
+     (Name   : String;
+      N      : DOM.Core.Node;
+      Q_Name : String;
+      S      : in out State) return Types.Object'Class;
 
    function Parse_Record
-     (Name : String;
-      N    : DOM.Core.Node;
-      S    : in out State) return Types.Object'Class;
+     (Name   : String;
+      N      : DOM.Core.Node;
+      Q_Name : String;
+      S      : in out State) return Types.Object'Class;
 
    function Parse_Enumeration
      (Name      : String;
@@ -797,46 +800,92 @@ package body SOAP.Message.XML is
    -----------------
 
    function Parse_Array
-     (Name : String;
-      N    : DOM.Core.Node;
-      S    : in out State) return Types.Object'Class
+     (Name   : String;
+      N      : DOM.Core.Node;
+      Q_Name : String;
+      S      : in out State) return Types.Object'Class
    is
       use SOAP.Types;
       use type DOM.Core.Node;
 
-      function Item_Type (Name : String) return String with Inline;
-      --  Returns the array's item type, remove [] if present
+      function Get_Type_Name return String;
+      --  Returns the array type name
 
-      ---------------
-      -- Item_Type --
-      ---------------
+      function Get_Item_Name return String;
+      --  Returns the item name in the array
 
-      function Item_Type (Name : String) return String is
-         N : constant Positive := Strings.Fixed.Index (Name, "[");
+      -------------------
+      -- Get_Item_Name --
+      -------------------
+
+      function Get_Item_Name return String is
+         Item : constant DOM.Core.Node := SOAP.XML.First_Child (N);
       begin
-         return Name (Name'First .. N - 1);
-      end Item_Type;
+         if Item = null then
+            return "item";
+         else
+            return Local_Name (Item);
+         end if;
+      end Get_Item_Name;
+
+      LQ_Name : constant String := (if Q_Name = ""
+                                    then Name
+                                    else Q_Name & '.' & Name);
+
+      -------------------
+      -- Get_Type_Name --
+      -------------------
+
+      function Get_Type_Name return String is
+         use type WSDL.Schema.Encoding_Style;
+      begin
+         if S.Encoding = WSDL.Schema.Literal then
+            declare
+               Item_Name : constant String := LQ_Name & '.' & Get_Item_Name;
+            begin
+               if S.Schema.Contains (Item_Name) then
+                  return S.Schema.Element (Item_Name);
+               else
+                  return "";
+               end if;
+            end;
+
+         else
+            declare
+               function Item_Type (Name : String) return String with Inline;
+               --  Returns the array's item type, remove [] if present
+
+               ---------------
+               -- Item_Type --
+               ---------------
+
+               function Item_Type (Name : String) return String is
+                  N : constant Positive := Strings.Fixed.Index (Name, "[");
+               begin
+                  return Name (Name'First .. N - 1);
+               end Item_Type;
+
+               Atts   : constant DOM.Core.Named_Node_Map := Attributes (N);
+               A_Name : constant String :=
+                          SOAP.Name_Space.Name (S.NS.enc) & ":arrayType";
+            begin
+               return Item_Type (Node_Value (Get_Named_Item (Atts, A_Name)));
+            end;
+         end if;
+      end Get_Type_Name;
 
       LS    : constant State := S;
-
       OS    : Object_Set_Access := new Object_Set (1 .. 512);
       K     : Natural := 0;
       A     : Types.SOAP_Array;
 
       Field : DOM.Core.Node;
 
-      Atts  : constant DOM.Core.Named_Node_Map := Attributes (N);
    begin
       Parse_Namespaces (N, S.NS);
 
       declare
-         A_Name    : constant String :=
-                       SOAP.Name_Space.Name (S.NS.enc) & ":arrayType";
-         --  Attribute name
-
-         Type_Name : constant String :=
-                       Item_Type (Node_Value (Get_Named_Item (Atts, A_Name)));
-
+         Type_Name : constant String := Get_Type_Name;
          A_Type    : constant Type_State :=
                        To_Type (Type_Name, S.NS, S.Schema);
       begin
@@ -844,13 +893,12 @@ package body SOAP.Message.XML is
 
          --  Set state for the enclosing elements
 
-         S.Enclosing := To_Unbounded_String (Type_Name);
          S.A_State := A_Type;
 
          while Field /= null loop
             K := K + 1;
 
-            Add_Object (OS, K, +Parse_Param (Field, S), 256);
+            Add_Object (OS, K, +Parse_Param (Field, LQ_Name, S), 256);
 
             Field := Next_Sibling (Field);
          end loop;
@@ -858,7 +906,6 @@ package body SOAP.Message.XML is
          --  Restore state
 
          S.A_State := LS.A_State;
-         S.Enclosing := LS.Enclosing;
 
          A := Types.A (OS (1 .. K), Name, Type_Name);
          Unchecked_Free (OS);
@@ -935,8 +982,11 @@ package body SOAP.Message.XML is
             --  Get SOAP call for this specific signature
 
             S.Wrapper_Name := Signature;
-            S.Enclosing    := S.Wrapper_Name;
          end Compute_Signature;
+
+         --  Document style is always literal
+
+         S.Encoding := WSDL.Schema.Literal;
 
          declare
             use SOAP.Parameters;
@@ -944,7 +994,7 @@ package body SOAP.Message.XML is
             P : DOM.Core.Node := SOAP.XML.First_Child (N);
          begin
             while P /= null loop
-               S.Parameters := S.Parameters & Parse_Param (P, S);
+               S.Parameters := S.Parameters & Parse_Param (P, "", S);
                P := SOAP.XML.Next_Sibling (P);
             end loop;
          end;
@@ -1171,8 +1221,9 @@ package body SOAP.Message.XML is
    -----------------
 
    function Parse_Param
-     (N : DOM.Core.Node;
-      S : in out State) return Types.Object'Class
+     (N      : DOM.Core.Node;
+      Q_Name : String;
+      S      : in out State) return Types.Object'Class
    is
       use type DOM.Core.Node;
       use type DOM.Core.Node_Types;
@@ -1181,21 +1232,19 @@ package body SOAP.Message.XML is
       function Is_Array return Boolean;
       --  Returns True if N is an array node
 
+      function Is_Record return Boolean;
+      --  Returns True if N is a record node
+
       function With_NS
         (O  : Types.Object'Class;
          NS : SOAP.Name_Space.Object) return Types.Object'Class;
       --  Retruns O with the associated name-space
 
       Name     : constant String := Local_Name (N);
-      Key      : constant String :=
-                   (if S.Enclosing /= Null_Unbounded_String
-                    then (if S.A_State = Void
-                          then To_String (S.Enclosing) & '.' & Name
-                          else To_String (S.Enclosing) & ".item")
-                    else Name);
-      Encoding : constant SOAP.Types.Encoding_Style :=
-                   WSDL.Schema.Get_Encoding_Style
-                     (S.Schema, To_String (S.Wrapper_Name));
+      LQ_Name  : constant String := (if Q_Name = ""
+                                     then Name
+                                     else Q_Name & '.' & Name);
+      Key      : constant String := LQ_Name & "@is_a";
 
       Ref  : constant DOM.Core.Node           := SOAP.XML.Get_Ref (N);
       Atts : constant DOM.Core.Named_Node_Map := Attributes (Ref);
@@ -1205,22 +1254,34 @@ package body SOAP.Message.XML is
       --------------
 
       function Is_Array return Boolean is
-         XSI_Type : constant DOM.Core.Node :=
-                      Get_Named_Item
-                        (Atts, SOAP.Name_Space.Name (S.NS.xsi) & ":type");
-         SOAP_Enc : constant DOM.Core.Node :=
-                      Get_Named_Item
-                        (Atts,
-                         SOAP.Name_Space.Name (S.NS.enc) & ":arrayType");
+         XSI_Type  : constant DOM.Core.Node :=
+                       Get_Named_Item
+                         (Atts, SOAP.Name_Space.Name (S.NS.xsi) & ":type");
+         SOAP_Enc  : constant DOM.Core.Node :=
+                       Get_Named_Item
+                         (Atts,
+                          SOAP.Name_Space.Name (S.NS.enc) & ":arrayType");
       begin
          return
+          (S.Schema.Contains (Key) and then S.Schema.Element (Key) = "@array")
+           or else
          --  Either we have xsi:type="soapenc:Array"
            (XSI_Type /= null
             and then Utils.No_NS (Node_Value (XSI_Type)) = "Array")
            or else
          --  or soapenc:arrayType="..."
-             SOAP_Enc /= null;
+           SOAP_Enc /= null;
       end Is_Array;
+
+      ---------------
+      -- Is_Record --
+      ---------------
+
+      function Is_Record return Boolean is
+      begin
+         return S.Schema.Contains (Key)
+           and then S.Schema.Element (Key) = "@record";
+      end Is_Record;
 
       -------------
       -- With_NS --
@@ -1247,7 +1308,7 @@ package body SOAP.Message.XML is
    begin
       Parse_Namespaces (Ref, S.NS);
 
-      if Encoding = WSDL.Schema.Encoded then
+      if S.Encoding = WSDL.Schema.Encoded then
          XSI_Type :=
            Get_Named_Item (Atts, SOAP.Name_Space.Name (S.NS.xsi) & ":type");
 
@@ -1266,7 +1327,10 @@ package body SOAP.Message.XML is
          return Parse_String (Name, Types.XML_String, Ref);
 
       elsif Is_Array then
-         return Parse_Array (Name, Ref, S);
+         return Parse_Array (Name, Ref, Q_Name, S);
+
+      elsif Is_Record then
+         return Parse_Record (Name, Ref, Q_Name, S);
 
       else
          if XSI_Type = null
@@ -1319,7 +1383,7 @@ package body SOAP.Message.XML is
                --  type defined. We have a single tag "<name>" which can
                --  only be the start or a record.
 
-               return Parse_Record (Name, Ref, S);
+               return Parse_Record (Name, Ref, Q_Name, S);
             end if;
 
          else
@@ -1334,7 +1398,7 @@ package body SOAP.Message.XML is
                   --  support schema so there is no way to check
                   --  for the real type here.
 
-                  return Parse_Record (Name, Ref, S);
+                  return Parse_Record (Name, Ref, Q_Name, S);
 
                elsif S_Type = T_Enum then
                   return Parse_Enumeration (Name, Ref, S_xsd);
@@ -1353,25 +1417,24 @@ package body SOAP.Message.XML is
    ------------------
 
    function Parse_Record
-     (Name : String;
-      N    : DOM.Core.Node;
-      S    : in out State) return Types.Object'Class
+     (Name   : String;
+      N      : DOM.Core.Node;
+      Q_Name : String;
+      S      : in out State) return Types.Object'Class
    is
       use SOAP.Types;
       use type DOM.Core.Node;
       use type DOM.Core.Node_Types;
       use type WSDL.Schema.Binding_Style;
 
-      Key      : constant String :=
-                   (if S.Enclosing /= Null_Unbounded_String
-                    then (if S.A_State = Void
-                          then To_String (S.Enclosing) & '.' & Name
-                          else To_String (S.Enclosing) & ".item")
-                    else Name);
-      Field  : DOM.Core.Node := SOAP.XML.Get_Ref (N);
-      xsd    : constant String :=
-                 SOAP.XML.Get_Attr_Value
-                   (Field, SOAP.Name_Space.Name (S.NS.xsi) & ":type");
+      LQ_Name : constant String := (if Q_Name = ""
+                                    then Name
+                                    else Q_Name & '.' & Name);
+      Key     : constant String := LQ_Name & "@is_a";
+      Field   : DOM.Core.Node := SOAP.XML.Get_Ref (N);
+      xsd     : constant String :=
+                  SOAP.XML.Get_Attr_Value
+                    (Field, SOAP.Name_Space.Name (S.NS.xsi) & ":type");
 
       --  The record fields temporary store
       OS     : Object_Set_Access := new Object_Set (1 .. 50);
@@ -1410,18 +1473,16 @@ package body SOAP.Message.XML is
 
          --  Set state for the enclosing elements
 
-         S.Enclosing := To_Unbounded_String (Utils.No_NS (To_String (T_Name)));
          S.A_State := Void;
 
          while Field /= null loop
             K := K + 1;
-            Add_Object (OS, K, +Parse_Param (Field, S), 25);
+            Add_Object (OS, K, +Parse_Param (Field, LQ_Name, S), 25);
             Field := Next_Sibling (Field);
          end loop;
 
          --  Restore state
 
-         S.Enclosing := LS.Enclosing;
          S.A_State := LS.A_State;
 
          declare
@@ -1619,11 +1680,13 @@ package body SOAP.Message.XML is
       end if;
 
       S.Wrapper_Name := To_Unbounded_String (Name);
-      S.Enclosing := S.Wrapper_Name;
+      S.Encoding := WSDL.Schema.Get_Encoding_Style (S.Schema, Name);
 
       for K in 0 .. Length (NL) - 1 loop
          if Item (NL, K).Node_Type /= DOM.Core.Text_Node then
-            S.Parameters := S.Parameters & Parse_Param (Item (NL, K), S);
+            S.Parameters :=
+              S.Parameters
+              & Parse_Param (Item (NL, K), Name, S);
          end if;
       end loop;
    end Parse_Wrapper;

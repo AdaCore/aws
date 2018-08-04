@@ -1104,6 +1104,8 @@ package body WSDL2AWS.WSDL.Parser is
            SOAP.Utils.No_NS (DOM.Core.Nodes.Node_Name (R)) = "complexType");
 
       declare
+         use type SOAP.WSDL.Schema.Binding_Style;
+
          Name : constant String := SOAP.XML.Get_Attr_Value (R, "name", False);
       begin
          --  Set array name, R is a complexType node
@@ -1115,6 +1117,30 @@ package body WSDL2AWS.WSDL.Parser is
 
          D.Ref       := Types.Create (Name, Types.NS (P.Typ));
          D.E_Type    := O.Array_Elements;
+
+         if O.Style = SOAP.WSDL.Schema.Document then
+            --  Check for array's element name
+
+            declare
+               E : DOM.Core.Node := R;
+            begin
+               while E /= null loop
+                  if SOAP.Utils.No_NS (DOM.Core.Nodes.Node_Name (E))
+                    = "element"
+                  then
+                     D.E_Name := To_Unbounded_String
+                       (SOAP.XML.Get_Attr_Value (E, "name", False));
+                  end if;
+
+                  E := SOAP.XML.First_Child (E);
+               end loop;
+            end;
+
+            pragma Assert (D.E_Name /= Null_Unbounded_String);
+
+         else
+            D.E_Name := To_Unbounded_String ("item");
+         end if;
 
          Types.Register (D);
 
