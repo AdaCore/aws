@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2010-2014, AdaCore                     --
+--                     Copyright (C) 2010-2018, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -92,14 +92,15 @@ package AWS.Cookie is
    --  equals "True" is Boolean True returned, else Boolean False is returned.
 
    procedure Set
-     (Content : in out Response.Data;
-      Key     : String;
-      Value   : String;
-      Comment : String := "";
-      Domain  : String := "";
-      Max_Age : Duration := Default.Ten_Years;
-      Path    : String := "/";
-      Secure  : Boolean := False)
+     (Content   : in out Response.Data;
+      Key       : String;
+      Value     : String;
+      Comment   : String := "";
+      Domain    : String := "";
+      Max_Age   : Duration := Default.Ten_Years;
+      Path      : String := "/";
+      Secure    : Boolean := False;
+      HTTP_Only : Boolean := False)
    with Pre => Response.Mode (Content) /= Response.No_Data;
    --  Set a new cookie named 'Key' with value 'Value'. See RFC 2109 for more
    --  information about the individual cookie attributes:
@@ -111,14 +112,15 @@ package AWS.Cookie is
    --      been initialized by a call to AWS.Response.Build
 
    procedure Set
-     (Content : in out Response.Data;
-      Key     : String;
-      Value   : Integer;
-      Comment : String := "";
-      Domain  : String := "";
-      Max_Age : Duration := Default.Ten_Years;
-      Path    : String := "/";
-      Secure  : Boolean := False)
+     (Content   : in out Response.Data;
+      Key       : String;
+      Value     : Integer;
+      Comment   : String := "";
+      Domain    : String := "";
+      Max_Age   : Duration := Default.Ten_Years;
+      Path      : String := "/";
+      Secure    : Boolean := False;
+      HTTP_Only : Boolean := False)
    with Pre => Response.Mode (Content) /= Response.No_Data;
    --  Set a new cookie named 'Key' with Integer value 'Value'. The Integer is
    --  converted to a String, as both cookie keys and values are inherently
@@ -130,14 +132,15 @@ package AWS.Cookie is
    --      been initialized by a call to AWS.Response.Build
 
    procedure Set
-     (Content : in out Response.Data;
-      Key     : String;
-      Value   : Float;
-      Comment : String := "";
-      Domain  : String := "";
-      Max_Age : Duration := Default.Ten_Years;
-      Path    : String := "/";
-      Secure  : Boolean := False)
+     (Content   : in out Response.Data;
+      Key       : String;
+      Value     : Float;
+      Comment   : String := "";
+      Domain    : String := "";
+      Max_Age   : Duration := Default.Ten_Years;
+      Path      : String := "/";
+      Secure    : Boolean := False;
+      HTTP_Only : Boolean := False)
    with Pre => Response.Mode (Content) /= Response.No_Data;
    --  Set a new cookie named 'Key' with Float value 'Value'. The Float is
    --  converted to a String, as both cookie keys and values are inherently
@@ -149,14 +152,15 @@ package AWS.Cookie is
    --      been initialized by a call to AWS.Response.Build
 
    procedure Set
-     (Content : in out Response.Data;
-      Key     : String;
-      Value   : Boolean;
-      Comment : String := "";
-      Domain  : String := "";
-      Max_Age : Duration := Default.Ten_Years;
-      Path    : String := "/";
-      Secure  : Boolean := False)
+     (Content   : in out Response.Data;
+      Key       : String;
+      Value     : Boolean;
+      Comment   : String := "";
+      Domain    : String := "";
+      Max_Age   : Duration := Default.Ten_Years;
+      Path      : String := "/";
+      Secure    : Boolean := False;
+      HTTP_Only : Boolean := False)
    with Pre => Response.Mode (Content) /= Response.No_Data;
    --  Set a new cookie named 'Key' with Boolean value 'Value'. The Boolean is
    --  converted to a String ("False" or "True"), as both cookie keys and

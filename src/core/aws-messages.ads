@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2000-2014, AdaCore                     --
+--                     Copyright (C) 2000-2018, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -142,6 +142,7 @@ package AWS.Messages is
    Max_Age_Token             : constant String := "Max-Age";
    Path_Token                : constant String := "Path";
    Secure_Token              : constant String := "Secure";
+   HTTP_Only_Token           : constant String := "HttpOnly";
 
    --  Other tokens
    Proxy_Connection_Token          : constant String := "Proxy-Connection";

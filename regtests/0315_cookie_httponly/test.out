@@ -1,0 +1,3 @@
+ckey=cval; Path=/; Max-Age=315360000; HttpOnly; Version=1
+date=9; Path=/; Max-Age=3600; HttpOnly; Version=1
+shutdown

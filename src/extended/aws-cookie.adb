@@ -134,14 +134,15 @@ package body AWS.Cookie is
    -----------
 
    procedure Set
-     (Content : in out Response.Data;
-      Key     : String;
-      Value   : String;
-      Comment : String := "";
-      Domain  : String := "";
-      Max_Age : Duration := Default.Ten_Years;
-      Path    : String := "/";
-      Secure  : Boolean := False)
+     (Content   : in out Response.Data;
+      Key       : String;
+      Value     : String;
+      Comment   : String := "";
+      Domain    : String := "";
+      Max_Age   : Duration := Default.Ten_Years;
+      Path      : String := "/";
+      Secure    : Boolean := False;
+      HTTP_Only : Boolean := False)
    is
 
       procedure Add (Str : String);
@@ -189,6 +190,10 @@ package body AWS.Cookie is
          Add (Messages.Secure_Token);
       end if;
 
+      if HTTP_Only then
+         Add (Messages.HTTP_Only_Token);
+      end if;
+
       Add (Version_Token);
 
       Response.Set.Add_Header
@@ -198,36 +203,39 @@ package body AWS.Cookie is
    end Set;
 
    procedure Set
-     (Content : in out Response.Data;
-      Key     : String;
-      Value   : Integer;
-      Comment : String := "";
-      Domain  : String := "";
-      Max_Age : Duration := Default.Ten_Years;
-      Path    : String := "/";
-      Secure  : Boolean := False)
+     (Content   : in out Response.Data;
+      Key       : String;
+      Value     : Integer;
+      Comment   : String := "";
+      Domain    : String := "";
+      Max_Age   : Duration := Default.Ten_Years;
+      Path      : String := "/";
+      Secure    : Boolean := False;
+      HTTP_Only : Boolean := False)
    is
       String_Value : constant String := Utils.Image (Value);
    begin
-      Set (Content => Content,
-           Key     => Key,
-           Value   => String_Value,
-           Comment => Comment,
-           Domain  => Domain,
-           Max_Age => Max_Age,
-           Path    => Path,
-           Secure  => Secure);
+      Set (Content   => Content,
+           Key       => Key,
+           Value     => String_Value,
+           Comment   => Comment,
+           Domain    => Domain,
+           Max_Age   => Max_Age,
+           Path      => Path,
+           Secure    => Secure,
+           HTTP_Only => HTTP_Only);
    end Set;
 
    procedure Set
-     (Content : in out Response.Data;
-      Key     : String;
-      Value   : Float;
-      Comment : String := "";
-      Domain  : String := "";
-      Max_Age : Duration := Default.Ten_Years;
-      Path    : String := "/";
-      Secure  : Boolean := False)
+     (Content   : in out Response.Data;
+      Key       : String;
+      Value     : Float;
+      Comment   : String := "";
+      Domain    : String := "";
+      Max_Age   : Duration := Default.Ten_Years;
+      Path      : String := "/";
+      Secure    : Boolean := False;
+      HTTP_Only : Boolean := False)
    is
       String_Value : constant String :=
                        Trim (Float'Image (Value), Ada.Strings.Left);
@@ -239,37 +247,41 @@ package body AWS.Cookie is
            Domain  => Domain,
            Max_Age => Max_Age,
            Path    => Path,
-           Secure  => Secure);
+           Secure  => Secure,
+           HTTP_Only => HTTP_Only);
    end Set;
 
    procedure Set
-     (Content : in out Response.Data;
-      Key     : String;
-      Value   : Boolean;
-      Comment : String := "";
-      Domain  : String := "";
-      Max_Age : Duration := Default.Ten_Years;
-      Path    : String := "/";
-      Secure  : Boolean := False) is
+     (Content   : in out Response.Data;
+      Key       : String;
+      Value     : Boolean;
+      Comment   : String := "";
+      Domain    : String := "";
+      Max_Age   : Duration := Default.Ten_Years;
+      Path      : String := "/";
+      Secure    : Boolean := False;
+      HTTP_Only : Boolean := False) is
    begin
       if Value then
-         Set (Content => Content,
-              Key     => Key,
-              Value   => "True",
-              Comment => Comment,
-              Domain  => Domain,
-              Max_Age => Max_Age,
-              Path    => Path,
-              Secure  => Secure);
+         Set (Content   => Content,
+              Key       => Key,
+              Value     => "True",
+              Comment   => Comment,
+              Domain    => Domain,
+              Max_Age   => Max_Age,
+              Path      => Path,
+              Secure    => Secure,
+              HTTP_Only => HTTP_Only);
       else
-         Set (Content => Content,
-              Key     => Key,
-              Value   => "False",
-              Comment => Comment,
-              Domain  => Domain,
-              Max_Age => Max_Age,
-              Path    => Path,
-              Secure  => Secure);
+         Set (Content   => Content,
+              Key       => Key,
+              Value     => "False",
+              Comment   => Comment,
+              Domain    => Domain,
+              Max_Age   => Max_Age,
+              Path      => Path,
+              Secure    => Secure,
+              HTTP_Only => HTTP_Only);
       end if;
    end Set;
 
