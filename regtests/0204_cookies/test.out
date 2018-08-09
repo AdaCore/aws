@@ -1,5 +1,5 @@
-ckey=cval; Path=/; Max-Age=315360000; Version=1;
-date=9; Path=/; Max-Age=3600; Version=1;
-z=7.63000E%2B01; Path=/justhere; Max-Age=315360000; Version=1;
-Ephemere=value; Path=/po; Version=1;
+ckey=cval; Path=/; Max-Age=315360000; Version=1
+date=9; Path=/; Max-Age=3600; Version=1
+z=7.63000E%2B01; Path=/justhere; Max-Age=315360000; Version=1
+Ephemere=value; Path=/po; Version=1
 shutdown
