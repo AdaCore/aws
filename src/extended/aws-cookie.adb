@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2010-2017, AdaCore                     --
+--                     Copyright (C) 2010-2018, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -143,44 +143,58 @@ package body AWS.Cookie is
       Path    : String := "/";
       Secure  : Boolean := False)
    is
-      Value_Part     : constant String :=
-                         Key & "=" & URL.Encode (Value) & "; ";
-      Path_Part      : constant String :=
-                         Messages.Path_Token & "=" & Path & "; ";
-      Cookie_UString : Unbounded_String :=
-                         To_Unbounded_String (Value_Part & Path_Part);
+
+      procedure Add (Str : String);
+      --  Add value with separator if needed into the cookie value
+
+      Cookie_Content : Unbounded_String;
+
+      ---------
+      -- Add --
+      ---------
+
+      procedure Add (Str : String) is
+      begin
+         if Cookie_Content /= Null_Unbounded_String then
+            Append (Cookie_Content, "; ");
+         end if;
+
+         Append (Cookie_Content, Str);
+      end Add;
+
+      Value_Part : constant String := Key & "=" & URL.Encode (Value);
+      Path_Part  : constant String := Messages.Path_Token & "=" & Path;
+
    begin
       if Response.Mode (Content) = Response.No_Data then
          raise Response_Data_Not_Initialized;
       end if;
 
+      Add (Value_Part);
+      Add (Path_Part);
+
       if Max_Age /= No_Max_Age then
-         Append
-           (Cookie_UString,
-            Messages.Max_Age_Token & "="
-            & Utils.Image (Natural (Max_Age)) & "; ");
+         Add (Messages.Max_Age_Token & "=" & Utils.Image (Natural (Max_Age)));
       end if;
 
       if Comment /= "" then
-         Append
-           (Cookie_UString, Messages.Comment_Token & "=" & Comment & "; ");
+         Add (Messages.Comment_Token & "=" & Comment);
       end if;
 
       if Domain /= "" then
-         Append
-           (Cookie_UString, Messages.Domain_Token & "=" & Domain & "; ");
+         Add (Messages.Domain_Token & "=" & Domain);
       end if;
 
       if Secure then
-         Append (Cookie_UString, Messages.Secure_Token & "; ");
+         Add (Messages.Secure_Token);
       end if;
 
-      Append (Cookie_UString, Version_Token & "; ");
+      Add (Version_Token);
 
       Response.Set.Add_Header
         (Content,
          Name  => Messages.Set_Cookie_Token,
-         Value => To_String (Cookie_UString));
+         Value => To_String (Cookie_Content));
    end Set;
 
    procedure Set
