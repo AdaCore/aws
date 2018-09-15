@@ -24,7 +24,7 @@ project Test_Mail is
    for Main use ("test_mail.adb");
 
    package Builder is
-      for Default_Switches ("Ada") use ("-gnat05");
+      for Default_Switches ("Ada") use ("-gnat12");
    end Builder;
 
 end Test_Mail;

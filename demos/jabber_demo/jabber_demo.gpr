@@ -24,7 +24,7 @@ project Jabber_Demo is
    for Main use ("jabber_demo.adb");
 
    package Builder is
-      for Default_Switches ("Ada") use ("-gnat05");
+      for Default_Switches ("Ada") use ("-gnat12");
    end Builder;
 
 end Jabber_Demo;

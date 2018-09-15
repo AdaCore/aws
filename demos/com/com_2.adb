@@ -105,8 +105,8 @@ begin
 
    --  Exit when last message received
 
-   loop
-      exit when Last_Message_Received;
+   while not Last_Message_Received loop
+    --  exit when ;
       delay 1.0;
    end loop;
 

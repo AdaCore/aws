@@ -24,7 +24,7 @@ project Agent is
    for Main use ("agent.adb");
 
    package Builder is
-      for Default_Switches ("Ada") use ("-gnat05");
+      for Default_Switches ("Ada") use ("-gnat12");
    end Builder;
 
 end Agent;
