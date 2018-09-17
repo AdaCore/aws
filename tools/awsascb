@@ -9,8 +9,8 @@ pcks = sys.argv[1:]
 # Initialize the list of CB to aggregate passed on the command line
 
 if len(pcks) == 0:
-    print("missing Ada unit service names in argument")
-    exit
+    sys.stderr.write("missing Ada unit service names in argument\n")
+    sys.exit(1)
 
 # First: write the spec
 
