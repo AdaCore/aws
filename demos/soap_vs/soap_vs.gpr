@@ -24,7 +24,7 @@ project SOAP_VS is
    for Main use ("soap_cvs.adb", "soap_svs.adb");
 
    package Builder is
-      for Default_Switches ("Ada") use ("-gnat05");
+      for Default_Switches ("Ada") use ("-gnat12");
    end Builder;
 
 end SOAP_VS;

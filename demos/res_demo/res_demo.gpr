@@ -23,7 +23,7 @@ project Res_Demo is
    for Main use ("res_demo.adb");
 
    package Builder is
-      for Default_Switches ("Ada") use ("-m", "-gnat05");
+      for Default_Switches ("Ada") use ("-m", "-gnat12");
    end Builder;
 
 end Res_Demo;

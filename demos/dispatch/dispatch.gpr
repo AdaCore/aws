@@ -24,7 +24,7 @@ project Dispatch is
    for Main use ("dispatch.adb");
 
    package Builder is
-      for Default_Switches ("Ada") use ("-gnat05");
+      for Default_Switches ("Ada") use ("-gnat12");
    end Builder;
 
 end Dispatch;

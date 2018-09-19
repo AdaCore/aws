@@ -24,7 +24,7 @@ project Auth is
    for Main use ("auth.adb");
 
    package Builder is
-      for Default_Switches ("Ada") use ("-gnat05");
+      for Default_Switches ("Ada") use ("-gnat12");
    end Builder;
 
 end Auth;

@@ -116,7 +116,7 @@ You can report bugs to AdaCore: report@adacore.com
 Contributors
 ------------
 
-Thanks to the contributors and peoples who send feedbacks, ideas
+Thanks to the contributors and peoples who send feedback, ideas
 about AWS. In the early stage of the project this is very valuable.
 
 So thanks goes to Georg Bauhaus, Ted Dennison, Wiljan Derks, Sune Falck,
