@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2000-2017, AdaCore                     --
+--                     Copyright (C) 2000-2018, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -225,7 +225,9 @@ begin
 
          --  Is there something to read ?
 
-         if AWS.Status.Content_Length (LA.Stat) = 0 then
+         if AWS.Status.Content_Length (LA.Stat) = 0
+           and then AWS.Status.Transfer_Encoding (LA.Stat) /= "chunked"
+         then
             LA.Server.Slots.Mark_Phase (LA.Line, Server_Processing);
 
          else
