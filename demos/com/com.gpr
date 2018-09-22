@@ -24,7 +24,7 @@ project Com is
    for Main use ("com_1.adb", "com_2.adb");
 
    package Builder is
-      for Default_Switches ("Ada") use ("-gnat05");
+      for Default_Switches ("Ada") use ("-gnat12");
    end Builder;
 
 end Com;

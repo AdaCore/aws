@@ -24,7 +24,7 @@ project SOAP_Disp is
    for Main use ("soap_client.adb", "soap_server_disp.adb");
 
    package Builder is
-      for Default_Switches ("Ada") use ("-gnat05");
+      for Default_Switches ("Ada") use ("-gnat12");
    end Builder;
 
 end SOAP_Disp;

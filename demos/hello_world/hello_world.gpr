@@ -23,7 +23,7 @@ project Hello_World is
    for Main use ("hello_world.adb");
 
    package Builder is
-      for Default_Switches ("Ada") use ("-gnat05");
+      for Default_Switches ("Ada") use ("-gnat12");
    end Builder;
 
 end Hello_World;
