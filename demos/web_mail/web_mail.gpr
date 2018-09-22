@@ -24,7 +24,7 @@ project Web_Mail is
    for Main use ("web_mail.adb");
 
    package Builder is
-      for Default_Switches ("Ada") use ("-gnat05");
+      for Default_Switches ("Ada") use ("-gnat12");
    end Builder;
 
 end Web_Mail;

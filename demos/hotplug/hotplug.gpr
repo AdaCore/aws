@@ -24,7 +24,7 @@ project Hotplug is
    for Main use ("main.adb", "hotplug.adb");
 
    package Builder is
-      for Default_Switches ("Ada") use ("-gnat05");
+      for Default_Switches ("Ada") use ("-gnat12");
    end Builder;
 
 end Hotplug;

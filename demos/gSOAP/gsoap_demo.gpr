@@ -29,7 +29,7 @@ project gSOAP_Demo is
                  "hello_doc_client.adb", "hello_doc_server.adb");
 
    package Builder is
-      for Default_Switches ("Ada") use ("-m", "-gnat05");
+      for Default_Switches ("Ada") use ("-m", "-gnat12");
    end Builder;
 
 end gSOAP_Demo;

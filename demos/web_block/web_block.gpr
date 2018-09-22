@@ -24,7 +24,7 @@ project Web_Block is
    for Main use ("web_block.adb");
 
    package Builder is
-      for Default_Switches ("Ada") use ("-m", "-gnat05");
+      for Default_Switches ("Ada") use ("-m", "-gnat12");
    end Builder;
 
 end Web_Block;
