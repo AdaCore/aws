@@ -1,4 +1,4 @@
-Verify call: test-clt-CA-root DF851D3CB65C0CC1 -clt-CA-root,EMAIL=ca@adacore.com OK
+Verify call: test-clt-CA-root 84C4AE55E9DF2F5C -clt-CA-root,EMAIL=ca@adacore.com OK
 Verify call: test-clt-CA-1 03E9 -clt-CA-root,EMAIL=ca@adacore.com OK
 Verify call: test-clt-CA-2 03EA -clt-CA-1,EMAIL=ca@adacore.com OK
 Verify call: test-clt-CA-3 03EB -clt-CA-2,EMAIL=ca@adacore.com OK
