@@ -56,6 +56,7 @@ procedure SSLCfg is
               or Text = "Base64 unexpected header error."
               or Text = "Error in parsing."
               or Text = "No certificate was found."
+              or Text = "The requested data were not available."
             then
                Put_Line ("Expected error about wrong data");
 
