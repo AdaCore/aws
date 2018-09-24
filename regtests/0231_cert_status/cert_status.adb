@@ -192,7 +192,7 @@ begin
       Key_Filename         => "aws-server.key",
       Exchange_Certificate => True,
       Certificate_Required => True,
-      Trusted_CA_Filename  => "CA-clt.crt");
+      Trusted_CA_Filename  => "private-ca.crt");
 
    Net.SSL.Certificate.Set_Verify_Callback
      (SSL, Verify_Cert'Unrestricted_Access);

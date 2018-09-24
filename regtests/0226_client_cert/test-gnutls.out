@@ -5,8 +5,8 @@ Client certificate from verify routine:
 Name       : test-client-cert
 Subject    : C=FR,ST=Ile de France,O=AdaCore,OU=CRM,CN=test-client-cert,EMAIL=aws-test@adacore.com
 Issuer     : C=FR,ST=Ile de France,L=Paris,O=AdaCore,OU=CA,CN=CA-Web-Client,EMAIL=aws-clt@adacore.com
-Activation : 2018-09-24 06:22:41
-Expiration : 2022-09-23 06:22:41
+Activation : 2016-07-07 07:45:33
+Expiration : 2020-10-14 07:45:33
 Verified   : FALSE
 
 Client connection closed by peer.
@@ -16,8 +16,8 @@ Client certificate from verify routine:
 Name       : test-client-cert
 Subject    : C=FR,ST=Ile de France,O=AdaCore,OU=CRM,CN=test-client-cert,EMAIL=aws-test@adacore.com
 Issuer     : C=FR,ST=Ile de France,L=Paris,O=AdaCore,OU=CA,CN=CA-Web-Client,EMAIL=aws-clt@adacore.com
-Activation : 2018-09-24 06:22:41
-Expiration : 2022-09-23 06:22:41
+Activation : 2016-07-07 07:45:33
+Expiration : 2020-10-14 07:45:33
 Verified   : TRUE
 
 
@@ -25,8 +25,8 @@ Server certificate as received by the client:
 Name       : localhost
 Subject    : C=FR,ST=Ile de France,O=AdaCore,OU=CRM,CN=localhost,EMAIL=aws-test@adacore.com
 Issuer     : C=FR,ST=Ile de France,L=Paris,O=AdaCore,OU=CA,CN=CA-Web-Server,EMAIL=ca-aws@adacore.com
-Activation : 2018-09-24 06:22:41
-Expiration : 2022-09-23 06:22:41
+Activation : 2016-07-07 07:45:33
+Expiration : 2020-10-14 07:45:33
 Verified   : TRUE
 
 
@@ -34,8 +34,8 @@ Client certificate as received by the server:
 Name       : test-client-cert
 Subject    : C=FR,ST=Ile de France,O=AdaCore,OU=CRM,CN=test-client-cert,EMAIL=aws-test@adacore.com
 Issuer     : C=FR,ST=Ile de France,L=Paris,O=AdaCore,OU=CA,CN=CA-Web-Client,EMAIL=aws-clt@adacore.com
-Activation : 2018-09-24 06:22:41
-Expiration : 2022-09-23 06:22:41
+Activation : 2016-07-07 07:45:33
+Expiration : 2020-10-14 07:45:33
 Verified   : TRUE
 
 => simple ok
@@ -47,8 +47,8 @@ Server certificate as received by the client:
 Name       : localhost
 Subject    : C=FR,ST=Ile de France,O=AdaCore,OU=CRM,CN=localhost,EMAIL=aws-test@adacore.com
 Issuer     : C=FR,ST=Ile de France,L=Paris,O=AdaCore,OU=CA,CN=CA-Web-Server,EMAIL=ca-aws@adacore.com
-Activation : 2018-09-24 06:22:41
-Expiration : 2022-09-23 06:22:41
+Activation : 2016-07-07 07:45:33
+Expiration : 2020-10-14 07:45:33
 Verified   : TRUE
 
 
@@ -56,8 +56,8 @@ Client certificate as received by the server:
 Name       : test-client-cert
 Subject    : C=FR,ST=Ile de France,O=AdaCore,OU=CRM,CN=test-client-cert,EMAIL=aws-test@adacore.com
 Issuer     : C=FR,ST=Ile de France,L=Paris,O=AdaCore,OU=CA,CN=CA-Web-Client,EMAIL=aws-clt@adacore.com
-Activation : 2018-09-24 06:22:41
-Expiration : 2022-09-23 06:22:41
+Activation : 2016-07-07 07:45:33
+Expiration : 2020-10-14 07:45:33
 Verified   : FALSE
 
 => simple ok
@@ -67,8 +67,8 @@ Server certificate as received by the client:
 Name       : localhost
 Subject    : C=FR,ST=Ile de France,O=AdaCore,OU=CRM,CN=localhost,EMAIL=aws-test@adacore.com
 Issuer     : C=FR,ST=Ile de France,L=Paris,O=AdaCore,OU=CA,CN=CA-Web-Server,EMAIL=ca-aws@adacore.com
-Activation : 2018-09-24 06:22:41
-Expiration : 2022-09-23 06:22:41
+Activation : 2016-07-07 07:45:33
+Expiration : 2020-10-14 07:45:33
 Verified   : FALSE
 
 
@@ -76,24 +76,24 @@ Client certificate as received by the server:
 No certificate.
 => simple ok
 
-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
+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
-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
+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
-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
+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
-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
+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
-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
-LnY9yE6b1w==
+y1jbHRAYWRhY29yZS5jb22CCQDda28cudwa6DANBgkqhkiG9w0BAQUFAAOCAQEAl4WeoF/DA2MvO8wX
+PMuvWNpN4Gg0RRXQgG3iNkYVtccAscXO4HL4c9q8IZfiBzGMxwwi6+PskHnpbKfQrA8ug13j7JK9AHE
+FCh3iUEXUxTsc1gvvzdikdFoUyyTr5g903pd7bSbPybXDdSLnfuvprTmLklt27CHaxAP48OI4l6VeSM
+Rp0lYTaW5D+V3E0NVWHjd86c66jEl+wUbcolpE3xu+Njha0Ynwb5q3YkulEUS/09ttkdw6uR0Q1TXrT
+uEMFI1LsKZCOcr9ycf/s7kQXZ/cmlQ0ZOP7c3siWfNI5JAbKehhTJPPIf9RiKmCsKw9mHiYdrq70US5
+swZCo60KCw==
