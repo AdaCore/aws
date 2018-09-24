@@ -42,7 +42,7 @@ with Interfaces.C.Strings;
 
 package body AWS.Net is
 
-   Timeout_Token : constant String := " timeout.";
+   Timeout_Token : constant String := " timeout ";
 
    ---------
    -- Add --
@@ -690,7 +690,11 @@ package body AWS.Net is
 
       if Result = Event_Set'(others => False) then
          Raise_Socket_Error
-           (Socket, Wait_Event_Type'Image (Mode) & Timeout_Token);
+           (Socket,
+            Wait_Event_Type'Image (Mode) & Timeout_Token
+            & Utils.Image (Socket.Timeout));
+         --  Can't use just Timeout in tests output becuse it can differ from
+         --  stable Socket.Timeout value on Send operation.
 
       elsif Result = Event_Set'(Error => True, others => False) then
          Raise_Socket_Error

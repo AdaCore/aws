@@ -1,12 +1,12 @@
 Got length 1234
-Got length 0 INPUT timeout.
+Got length 0 INPUT timeout 1.00
 Got length 1234
-Got length 0 INPUT timeout.
+Got length 0 INPUT timeout 1.00
 Got length 1234
-Got length 0 INPUT timeout.
+Got length 0 INPUT timeout 1.00
 Got length 1234
-Got length 0 INPUT timeout.
+Got length 0 INPUT timeout 1.00
 Got length 1234
-Got length 0 INPUT timeout.
+Got length 0 INPUT timeout 1.00
 Got length 100000
-Server side OUTPUT timeout.
+Server side OUTPUT timeout 1.00
