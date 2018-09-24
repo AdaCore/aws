@@ -1,5 +1,5 @@
 Start.
-OUTPUT timeout.
-OUTPUT timeout.
-OUTPUT timeout.
+OUTPUT timeout 0.10
+OUTPUT timeout 0.10
+OUTPUT timeout 0.10
 Done.
