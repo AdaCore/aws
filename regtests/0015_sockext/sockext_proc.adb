@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2004-2012, AdaCore                     --
+--                     Copyright (C) 2004-2018, AdaCore                     --
 --                                                                          --
 --  This is free software;  you can redistribute it  and/or modify it       --
 --  under terms of the  GNU General Public License as published  by the     --
@@ -18,18 +18,19 @@
 
 --  Test for detect output buffer overflow
 
-with Ada.Text_IO;
 with Ada.Exceptions;
 with Ada.Streams;
+with Ada.Text_IO;
 
 with AWS.Net.Buffered;
 with Stack_Size;
 
 procedure SockExt_Proc (Security : Boolean) is
 
-   use AWS;
    use Ada;
    use Ada.Streams;
+
+   use AWS;
 
    Sample1, Sample2 : Stream_Element_Array (1 .. 1000);
 
@@ -52,7 +53,7 @@ procedure SockExt_Proc (Security : Boolean) is
    -----------------
 
    task body Client_Side is
-      Client     : Net.Socket_Type'Class := Net.Socket (Security);
+      Client : Net.Socket_Type'Class := Net.Socket (Security);
    begin
       accept Start;
 
