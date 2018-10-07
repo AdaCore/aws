@@ -1,6 +1,6 @@
 
                             A W S - Ada Web Server
-                                19.0 release
+                                20.0 release
 
 Authors:
    Dmitriy Anisimkov
