@@ -1,5 +1,0 @@
-[gerrit]
-host=git.adacore.com
-project=aws
-defaultbranch=master
-defaultremote=origin
