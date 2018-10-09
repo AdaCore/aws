@@ -29,10 +29,13 @@
 
 with Ada.Unchecked_Deallocation;
 
+with AWS.Default;
 with AWS.Headers;
 with AWS.Messages;
 with AWS.Net.WebSocket.Protocol.Draft76;
 with AWS.Net.WebSocket.Protocol.RFC6455;
+with AWS.Response;
+with AWS.Status.Set;
 with AWS.Translator;
 
 package body AWS.Net.WebSocket is
@@ -309,6 +312,87 @@ package body AWS.Net.WebSocket is
       return Socket.Version;
    end Protocol_Version;
 
+   ------------------
+   -- Read_Message --
+   ------------------
+
+   function Read_Message
+      (WebSocket : in out Object_Class;
+       Message   : in out Ada.Strings.Unbounded.Unbounded_String)
+      return Boolean
+   is
+      Data : Stream_Element_Array (1 .. 4_096);
+      Last : Stream_Element_Offset;
+   begin
+      begin
+         WebSocket.Receive (Data, Last);
+      exception
+         when E : Socket_Error =>
+            --  FD = No_Socket means Websocket is already closed
+            --  and unregistered in other task
+
+            if WebSocket.Get_FD /= Net.No_Socket then
+               WebSocket_Exception
+                 (WebSocket,
+                  Exception_Message (E),
+                  Abnormal_Closure);
+               On_Error (WebSocket);
+            end if;
+            return True;
+      end;
+
+      case WebSocket.Kind is
+         when Text | Binary =>
+            Append
+              (Message,
+               Translator.To_String (Data (Data'First .. Last)));
+
+            if WebSocket.End_Of_Message then
+
+               --  Validate the message as being valid UTF-8 string
+
+               if WebSocket.Kind = Text
+                 and then not Utils.Is_Valid_UTF8 (Message)
+               then
+                  On_Error (WebSocket);
+                  WebSocket.Shutdown;
+                  On_Free (WebSocket);
+               else
+                  WebSocket.On_Message (Message);
+                  On_Success (WebSocket);
+               end if;
+               return True;
+            end if;
+
+         when Connection_Close =>
+            On_Error (WebSocket);
+            WebSocket.On_Close (To_String (Message));
+            WebSocket.Shutdown;
+            On_Free (WebSocket);
+            return True;
+
+         when Ping | Pong =>
+            if WebSocket.End_Of_Message then
+               On_Success (WebSocket);
+               return True;
+            end if;
+
+         when Connection_Open =>
+            --  Note that the On_Open message has been handled at the
+            --  time the WebSocket was registered.
+            return True;
+
+         when Unknown =>
+            On_Error (WebSocket);
+            WebSocket.On_Error ("Unknown frame type");
+            WebSocket.On_Close ("Unknown frame type");
+            WebSocket.Shutdown;
+            On_Free (WebSocket);
+            return True;
+      end case;
+      return False;
+   end Read_Message;
+
    -------------
    -- Receive --
    -------------
@@ -411,5 +495,28 @@ package body AWS.Net.WebSocket is
    begin
       return AWS.Status.URI (Socket.Request);
    end URI;
+
+   -------------------------
+   -- WebSocket_Exception --
+   -------------------------
+
+   procedure WebSocket_Exception
+     (WebSocket : not null access Object'Class;
+      Message   : String;
+      Error     : Error_Type) is
+   begin
+      WebSocket.State.Errno := Error_Code (Error);
+      WebSocket.On_Error (Message);
+
+      if Error /= Abnormal_Closure then
+         WebSocket.On_Close (Message);
+      end if;
+
+      WebSocket.Shutdown;
+   exception
+      when others =>
+         --  Never propagate an exception at this point
+         null;
+   end WebSocket_Exception;
 
 end AWS.Net.WebSocket;

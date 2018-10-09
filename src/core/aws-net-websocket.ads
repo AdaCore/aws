@@ -321,4 +321,29 @@ private
                    User_04                    => 3003,
                    User_05                    => 3004);
 
+   procedure WebSocket_Exception
+     (WebSocket : not null access Object'Class;
+      Message   : String;
+      Error     : Error_Type);
+   --  Call when an exception is caught. In this case we want to send the
+   --  error message, the close message and shutdown the socket.
+
+   generic
+      with procedure Receive
+         (Socket : not null access Object'Class;
+          Data   : out Ada.Streams.Stream_Element_Array;
+          Last   : out Ada.Streams.Stream_Element_Offset);
+      with procedure On_Success (Socket : Object_Class) is null;
+      with procedure On_Error (Socket : Object_Class) is null;
+      with procedure On_Free (Socket : in out Object_Class) is null;
+   function Read_Message
+      (WebSocket : in out Object_Class;
+       Message   : in out Ada.Strings.Unbounded.Unbounded_String)
+      return Boolean;
+   --  Process the current message on the socket.
+   --  Return True if a complete message was read.
+   --  Data is accumulated in Message, until the message is complete. At this
+   --  stage, Socket.On_Message will be called.
+   --  In case of error, other callbacks will be used as appropriate.
+
 end AWS.Net.WebSocket;

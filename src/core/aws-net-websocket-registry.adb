@@ -41,7 +41,6 @@ with AWS.Net.Memory;
 with AWS.Net.Poll_Events;
 with AWS.Net.Std;
 with AWS.Net.WebSocket;
-with AWS.Translator;
 with AWS.Utils;
 
 package body AWS.Net.WebSocket.Registry is
@@ -82,13 +81,6 @@ package body AWS.Net.WebSocket.Registry is
    function Same_WS (Left, Right : Object_Class) return Boolean is
      (Left.Id = Right.Id);
    --  Equality is based on the unique id
-
-   procedure WebSocket_Exception
-     (WebSocket : not null access Object'Class;
-      Message   : String;
-      Error     : Error_Type);
-   --  Call when an exception is caught. In this case we want to send the
-   --  error message, the close message and shutdown the socket.
 
    package WebSocket_Set is
      new Containers.Ordered_Maps (UID, Object_Class, "=" => Same_WS);
@@ -286,9 +278,45 @@ package body AWS.Net.WebSocket.Registry is
 
    task body Message_Reader is
       WebSocket : Object_Class;
-      Data      : Stream_Element_Array (1 .. 4_096);
-      Last      : Stream_Element_Offset;
       Message   : Unbounded_String;
+
+      procedure Do_Free (WebSocket : in out Object_Class);
+      procedure Do_Register (WebSocket : Object_Class);
+      procedure Do_Unregister (WebSocket : Object_Class);
+
+      -------------
+      -- Do_Free --
+      -------------
+
+      procedure Do_Free (WebSocket : in out Object_Class) is
+      begin
+         Unchecked_Free (WebSocket);
+      end Do_Free;
+
+      -----------------
+      -- Do_Register --
+      -----------------
+
+      procedure Do_Register (WebSocket : Object_Class) is
+      begin
+         DB.Watch (WebSocket);
+      end Do_Register;
+
+      -------------------
+      -- Do_Unregister --
+      -------------------
+
+      procedure Do_Unregister (WebSocket : Object_Class) is
+      begin
+         DB.Unregister (WebSocket);
+      end Do_Unregister;
+
+      function Read_Message is new AWS.Net.WebSocket.Read_Message
+         (Receive    => DB.Receive,
+          On_Success => Do_Register,
+          On_Error   => Do_Unregister,
+          On_Free    => Do_Free);
+
    begin
       Handle_Message : loop
          begin
@@ -304,79 +332,9 @@ package body AWS.Net.WebSocket.Registry is
             --  frames with possibly some control frames in between text or
             --  binary ones. This loop handles those cases.
 
-            Read_Message : loop
-               begin
-                  DB.Receive (WebSocket, Data, Last);
-               exception
-                  when E : Socket_Error =>
-                     --  FD = No_Socket means Websocket is allready closed
-                     --  and unregistred in other task
-
-                     if WebSocket.Get_FD /= Net.No_Socket then
-                        DB.Unregister (WebSocket);
-                        WebSocket_Exception
-                          (WebSocket,
-                           Exception_Message (E),
-                           Abnormal_Closure);
-                        Unchecked_Free (WebSocket);
-                     end if;
-
-                     exit Read_Message;
-               end;
-
-               case WebSocket.Kind is
-                  when Text | Binary =>
-                     Append
-                       (Message,
-                        Translator.To_String (Data (Data'First .. Last)));
-
-                     if WebSocket.End_Of_Message then
-
-                        --  Validate the message as being valid UTF-8 string
-
-                        if WebSocket.Kind = Text
-                          and then not Utils.Is_Valid_UTF8 (Message)
-                        then
-                           DB.Unregister (WebSocket);
-                           WebSocket.Shutdown;
-                           Unchecked_Free (WebSocket);
-
-                        else
-                           WebSocket.On_Message (Message);
-                           DB.Watch (WebSocket);
-                        end if;
-
-                        exit Read_Message;
-                     end if;
-
-                  when Connection_Close =>
-                     DB.Unregister (WebSocket);
-                     WebSocket.On_Close (To_String (Message));
-                     WebSocket.Shutdown;
-                     Unchecked_Free (WebSocket);
-                     exit Read_Message;
-
-                  when Ping | Pong =>
-                     if WebSocket.End_Of_Message then
-                        DB.Watch (WebSocket);
-                        exit Read_Message;
-                     end if;
-
-                  when Connection_Open =>
-                     --  Note that the On_Open message has been handled at the
-                     --  time the WebSocket was registered.
-                     exit Read_Message;
-
-                  when Unknown =>
-                     DB.Unregister (WebSocket);
-                     WebSocket.On_Error ("Unknown frame type");
-                     WebSocket.On_Close ("Unknown frame type");
-                     WebSocket.Shutdown;
-                     Unchecked_Free (WebSocket);
-                     exit Read_Message;
-
-               end case;
-            end loop Read_Message;
+            loop
+               exit when Read_Message (WebSocket, Message);
+            end loop;
 
          exception
             when E : others =>
@@ -1237,28 +1195,5 @@ package body AWS.Net.WebSocket.Registry is
          Unchecked_Free (WebSocket);
          raise;
    end Watch;
-
-   -------------------------
-   -- WebSocket_Exception --
-   -------------------------
-
-   procedure WebSocket_Exception
-     (WebSocket : not null access Object'Class;
-      Message   : String;
-      Error     : Error_Type) is
-   begin
-      WebSocket.State.Errno := Error_Code (Error);
-      WebSocket.On_Error (Message);
-
-      if Error /= Abnormal_Closure then
-         WebSocket.On_Close (Message);
-      end if;
-
-      WebSocket.Shutdown;
-   exception
-      when others =>
-         --  Never propagate an exception at this point
-         null;
-   end WebSocket_Exception;
 
 end AWS.Net.WebSocket.Registry;
