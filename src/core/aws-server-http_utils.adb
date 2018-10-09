@@ -320,8 +320,8 @@ package body AWS.Server.HTTP_Utils is
          end if;
 
          if URI = Admin_URI then
-
             --  Status page
+
             begin
                Answer := Response.Build
                  (Content_Type => MIME.Text_HTML,
