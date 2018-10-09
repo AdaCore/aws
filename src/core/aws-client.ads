@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2000-2016, AdaCore                     --
+--                     Copyright (C) 2000-2018, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -139,7 +139,8 @@ package AWS.Client is
       Data_Range         : Content_Range   := No_Range;
       Follow_Redirection : Boolean         := False;
       Certificate        : String          := Default.Client_Certificate;
-      Headers            : Header_List     := Empty_Header_List)
+      Headers            : Header_List     := Empty_Header_List;
+      User_Agent         : String          := Default.User_Agent)
       return Response.Data;
    --  Retrieve the message data given a specific URL. It open a connection
    --  with the server and ask for the resource specified in the URL it then
@@ -167,7 +168,8 @@ package AWS.Client is
       Proxy_User : String          := No_Data;
       Proxy_Pwd  : String          := No_Data;
       Timeouts   : Timeouts_Values := No_Timeout;
-      Headers    : Header_List     := Empty_Header_List) return Response.Data;
+      Headers    : Header_List     := Empty_Header_List;
+      User_Agent : String          := Default.User_Agent) return Response.Data;
    --  Idem as above but we do not get the message body.
    --  Head will retry one time if it fails.
 
@@ -180,7 +182,8 @@ package AWS.Client is
       Proxy_User : String          := No_Data;
       Proxy_Pwd  : String          := No_Data;
       Timeouts   : Timeouts_Values := No_Timeout;
-      Headers    : Header_List     := Empty_Header_List) return Response.Data;
+      Headers    : Header_List     := Empty_Header_List;
+      User_Agent : String          := Default.User_Agent) return Response.Data;
    --  Send to the server URL a PUT request with Data
    --  Put will retry one time if it fails.
 
@@ -193,7 +196,8 @@ package AWS.Client is
       Proxy_User : String          := No_Data;
       Proxy_Pwd  : String          := No_Data;
       Timeouts   : Timeouts_Values := No_Timeout;
-      Headers    : Header_List     := Empty_Header_List) return Response.Data;
+      Headers    : Header_List     := Empty_Header_List;
+      User_Agent : String          := Default.User_Agent) return Response.Data;
    --  Send to the server URL a DELETE request with Data
    --  Delete will retry one time if it fails.
 
@@ -206,7 +210,8 @@ package AWS.Client is
       Proxy_User : String          := No_Data;
       Proxy_Pwd  : String          := No_Data;
       Timeouts   : Timeouts_Values := No_Timeout;
-      Headers    : Header_List     := Empty_Header_List) return Response.Data;
+      Headers    : Header_List     := Empty_Header_List;
+      User_Agent : String          := Default.User_Agent) return Response.Data;
    --  Send to the server URL a DELETE request with Data
    --  Delete will retry one time if it fails.
 
@@ -221,7 +226,8 @@ package AWS.Client is
       Proxy_Pwd    : String          := No_Data;
       Timeouts     : Timeouts_Values := No_Timeout;
       Attachments  : Attachment_List := Empty_Attachment_List;
-      Headers      : Header_List     := Empty_Header_List)
+      Headers      : Header_List     := Empty_Header_List;
+      User_Agent   : String          := Default.User_Agent)
       return Response.Data;
    --  Send to the server URL a POST request with Data
    --  Post will retry one time if it fails.
@@ -237,7 +243,8 @@ package AWS.Client is
       Proxy_Pwd    : String          := No_Data;
       Timeouts     : Timeouts_Values := No_Timeout;
       Attachments  : Attachment_List := Empty_Attachment_List;
-      Headers      : Header_List     := Empty_Header_List)
+      Headers      : Header_List     := Empty_Header_List;
+      User_Agent   : String          := Default.User_Agent)
       return Response.Data;
    --  Idem as above but with binary data
 
@@ -252,7 +259,9 @@ package AWS.Client is
       Proxy_Pwd   : String          := No_Data;
       Timeouts    : Timeouts_Values := No_Timeout;
       Attachments : Attachment_List := Empty_Attachment_List;
-      Headers     : Header_List     := Empty_Header_List) return Response.Data;
+      Headers     : Header_List     := Empty_Header_List;
+      User_Agent  : String          := Default.User_Agent)
+      return Response.Data;
    --  Send to the server URL a POST request with Data
    --  Post will retry one time if it fails.
 
@@ -267,7 +276,8 @@ package AWS.Client is
       Timeouts   : Timeouts_Values := No_Timeout;
       Headers    : Header_List     := Empty_Header_List;
       Progress   : access procedure
-        (Total, Sent : Stream_Element_Offset) := null)
+        (Total, Sent : Stream_Element_Offset) := null;
+      User_Agent : String          := Default.User_Agent)
       return Response.Data;
    --  This is a file upload request. Filename file's content will be send to
    --  the server at address URL.

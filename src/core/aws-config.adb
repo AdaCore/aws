@@ -816,6 +816,15 @@ package body AWS.Config is
       return O.P (Upload_Size_Limit).Pos_Value;
    end Upload_Size_Limit;
 
+   ----------------
+   -- User_Agent --
+   ----------------
+
+   function User_Agent return String is
+   begin
+      return To_String (Process_Options (User_Agent).Str_Value);
+   end User_Agent;
+
    ----------------------------------
    -- WebSocket_Message_Queue_Size --
    ----------------------------------

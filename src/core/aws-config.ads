@@ -418,6 +418,9 @@ package AWS.Config is
    function WebSocket_Priority return System.Any_Priority;
    --  Set the priority used by the WebSocket service
 
+   function User_Agent return String with Inline;
+   --  Returns the User_Agent header value
+
 private
 
    use Ada.Strings.Unbounded;
@@ -497,6 +500,7 @@ private
       Session_Cleaner_Priority,
       Service_Priority,
       Config_Directory,
+      User_Agent,
       Transient_Cleanup_Interval,
       Transient_Lifetime,
       Input_Line_Size_Limit,
@@ -761,6 +765,9 @@ private
 
                         Config_Directory             =>
                           (Str, +Default.Config_Directory),
+
+                        User_Agent                   =>
+                          (Str, +Default.User_Agent),
 
                         Transient_Cleanup_Interval   =>
                           (Dur, Default.Transient_Cleanup_Interval),

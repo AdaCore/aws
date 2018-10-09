@@ -726,6 +726,15 @@ package body AWS.Config.Set is
       O.P (Upload_Size_Limit).Pos_Value := Value;
    end Upload_Size_Limit;
 
+   ----------------
+   -- User_Agent --
+   ----------------
+
+   procedure User_Agent (Value : String) is
+   begin
+      Process_Options (User_Agent).Str_Value := +Value;
+   end User_Agent;
+
    ----------------------------------
    -- WebSocket_Message_Queue_Size --
    ----------------------------------
