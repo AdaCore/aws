@@ -47,6 +47,19 @@ package body AWS.Net.WebSocket is
       State : Net.WebSocket.Protocol.State_Class;
    end record;
 
+   procedure Unchecked_Free is new Ada.Unchecked_Deallocation
+      (AWS.Client.HTTP_Connection, HTTP_Connection_Access);
+   procedure Unchecked_Free is new Unchecked_Deallocation
+     (Net.WebSocket.Protocol.State'Class,
+      Net.WebSocket.Protocol.State_Class);
+
+   procedure Initialize
+      (Self     : in out Object'Class;
+       Socket   : Socket_Access;
+       Protocol : Net.WebSocket.Protocol.State_Class;
+       Headers  : AWS.Headers.List);
+   --  Initialize the fields of Self
+
    -----------
    -- Close --
    -----------
@@ -67,12 +80,10 @@ package body AWS.Net.WebSocket is
      (Socket  : Socket_Access;
       Request : AWS.Status.Data) return Object'Class
    is
-
-      Headers      : constant AWS.Headers.List := AWS.Status.Header (Request);
-      Version      : Natural := 0;
-      Protocol     : Net.WebSocket.Protocol.State_Class;
-      WS_UID_Value : Natural := 0;
-
+      Result   : Object;
+      Protocol : Net.WebSocket.Protocol.State_Class;
+      Headers  : constant AWS.Headers.List :=
+         AWS.Status.Header (Request);
    begin
       if Headers.Exist (Messages.Sec_WebSocket_Key1_Token)
         and then Headers.Exist (Messages.Sec_WebSocket_Key2_Token)
@@ -82,32 +93,9 @@ package body AWS.Net.WebSocket is
          Protocol := new Net.WebSocket.Protocol.RFC6455.State;
       end if;
 
-      if Headers.Exist (Messages.Sec_WebSocket_Version_Token) then
-         declare
-            Value : constant String :=
-                      Headers.Get (Messages.Sec_WebSocket_Version_Token);
-         begin
-            if Utils.Is_Number (Value) then
-               Version := Natural'Value (Value);
-            end if;
-         end;
-      end if;
-
-      WS_UID.Increment (Value => WS_UID_Value);
-
-      return Object'
-        (Net.Socket_Type with
-           Socket   => Socket,
-           Id       => UID (WS_UID_Value),
-           Request  => Request,
-           Version  => Version,
-           State    => new Internal_State'
-                            (Kind          => Unknown,
-                             Errno         => Interfaces.Unsigned_16'Last,
-                             Last_Activity => Calendar.Clock),
-           P_State  => new Protocol_State'(State => Protocol),
-           Mem_Sock => null,
-           In_Mem   => False);
+      Initialize (Result, Socket, Protocol, Headers);
+      Result.Request := Request;
+      return Result;
    end Create;
 
    --------------------
@@ -167,9 +155,6 @@ package body AWS.Net.WebSocket is
          new Unchecked_Deallocation (Internal_State, Internal_State_Access);
       procedure Unchecked_Free is
          new Unchecked_Deallocation (Protocol_State, Protocol_State_Access);
-      procedure Unchecked_Free is new Unchecked_Deallocation
-        (Net.WebSocket.Protocol.State'Class,
-         Net.WebSocket.Protocol.State_Class);
    begin
       Unchecked_Free (Socket.State);
 
@@ -236,6 +221,44 @@ package body AWS.Net.WebSocket is
    begin
       return Socket.Id;
    end Get_UID;
+
+   ----------------
+   -- Initialize --
+   ----------------
+
+   procedure Initialize
+      (Self     : in out Object'Class;
+       Socket   : Socket_Access;
+       Protocol : Net.WebSocket.Protocol.State_Class;
+       Headers  : AWS.Headers.List)
+   is
+      Version      : Natural := 0;
+      WS_UID_Value : Natural := 0;
+   begin
+      if Headers.Exist (Messages.Sec_WebSocket_Version_Token) then
+         declare
+            Value : constant String :=
+                      Headers.Get (Messages.Sec_WebSocket_Version_Token);
+         begin
+            if Utils.Is_Number (Value) then
+               Version := Natural'Value (Value);
+            end if;
+         end;
+      end if;
+
+      WS_UID.Increment (Value => WS_UID_Value);
+
+      Self.Socket   := Socket;
+      Self.Id       := UID (WS_UID_Value);
+      Self.Version  := Version;
+      Self.State    := new Internal_State'
+         (Kind          => Unknown,
+          Errno         => Interfaces.Unsigned_16'Last,
+          Last_Activity => Calendar.Clock);
+      Self.P_State  := new Protocol_State'(State => Protocol);
+      Self.Mem_Sock := null;
+      Self.In_Mem   := False;
+   end Initialize;
 
    ------------------
    -- Is_Listening --
