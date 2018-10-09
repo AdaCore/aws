@@ -609,6 +609,15 @@ package body AWS.Config is
       return O.P (Send_Timeout).Dur_Value;
    end Send_Timeout;
 
+   -------------------
+   -- Server_Header --
+   -------------------
+
+   function Server_Header (O : Object) return String is
+   begin
+      return To_String (O.P (Server_Header).Str_Value);
+   end Server_Header;
+
    -----------------
    -- Server_Host --
    -----------------

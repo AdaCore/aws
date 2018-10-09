@@ -526,6 +526,15 @@ package body AWS.Config.Set is
       O.P (Send_Timeout).Dur_Value := Value;
    end Send_Timeout;
 
+   -------------------
+   -- Server_Header --
+   -------------------
+
+   procedure Server_Header (O : in out Object; Value : String) is
+   begin
+      O.P (Server_Header).Str_Value := To_Unbounded_String (Value);
+   end Server_Header;
+
    -----------------
    -- Server_Host --
    -----------------

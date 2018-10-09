@@ -88,6 +88,8 @@ package AWS.Default with Pure is
 
    User_Agent                      : constant String :=
                                        "AWS (Ada Web Server) v" & Version;
+   Server_Header                   : constant String :=
+                                       User_Agent;
 
    --  Log values. The character '@' in the error log filename prefix is
    --  replaced by the running program name.

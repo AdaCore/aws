@@ -104,6 +104,9 @@ package AWS.Config is
      with Inline;
    --  Returns the priority used by the HTTP and WebSockets servers
 
+   function Server_Header (O : Object) return String with Inline;
+   --  Returns the Server header value
+
    ----------------
    -- Connection --
    ----------------
@@ -435,6 +438,7 @@ private
       Server_Host,
       Server_Port,
       Server_Priority,
+      Server_Header,
       Security,
       Certificate,
       Key,
@@ -669,6 +673,9 @@ private
 
                            Server_Priority                 =>
                              (Nat, Default.Server_Priority),
+
+                           Server_Header                   =>
+                             (Str, +Default.Server_Header),
 
                            Hotplug_Port                    =>
                              (Pos, Default.Hotplug_Port),

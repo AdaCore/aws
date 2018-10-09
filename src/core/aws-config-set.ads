@@ -75,6 +75,9 @@ package AWS.Config.Set is
    procedure Server_Priority (O : in out Object; Value : System.Any_Priority);
    --  Set the priority used by the HTTP and WebSockets servers
 
+   procedure Server_Header (O : in out Object; Value : String);
+   --  Set the server header (value used by the Server: request header)
+
    ----------------
    -- Connection --
    ----------------
