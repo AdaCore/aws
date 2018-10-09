@@ -70,4 +70,10 @@ package AWS.Net.WebSocket.Protocol.Draft76 is
      (Sock : Net.Socket_Type'Class; Request : AWS.Status.Data);
    --  Send specific header for this protocol
 
+   overriding procedure Add_Connect_Headers
+     (Protocol : State;
+      URI      : String;
+      Headers  : in out AWS.Headers.List);
+   --  See inherited documentation
+
 end AWS.Net.WebSocket.Protocol.Draft76;

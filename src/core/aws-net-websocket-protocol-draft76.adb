@@ -43,6 +43,21 @@ package body AWS.Net.WebSocket.Protocol.Draft76 is
 
    use Ada.Text_IO;
 
+   -------------------------
+   -- Add_Connect_Headers --
+   -------------------------
+
+   overriding procedure Add_Connect_Headers
+     (Protocol : State;
+      URI      : String;
+      Headers  : in out AWS.Headers.List)
+   is
+      pragma Unreferenced (Protocol, URI, Headers);
+   begin
+      raise Program_Error
+        with "Connecting with draft76 protocol is not supported";
+   end Add_Connect_Headers;
+
    --------------------
    -- End_Of_Message --
    --------------------

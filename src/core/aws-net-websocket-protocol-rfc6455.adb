@@ -119,6 +119,50 @@ package body AWS.Net.WebSocket.Protocol.RFC6455 is
    function Create_Random_Mask return Masking_Key;
    --  Create a random masking key
 
+   -------------------------
+   -- Add_Connect_Headers --
+   -------------------------
+
+   overriding procedure Add_Connect_Headers
+      (Protocol : State;
+       URI      : String;
+       Headers  : in out AWS.Headers.List)
+   is
+      pragma Unreferenced (Protocol);
+      Ints : array (1 .. 4) of AWS.Utils.Random_Integer :=
+              (others => AWS.Utils.Random);
+      H : Stream_Element_Array (1 .. 16) with Import, Address => Ints'Address;
+
+   begin
+      Headers.Add ("Host", URI);
+      Headers.Add ("Upgrade", "websocket");
+      Headers.Add ("Connection", "Upgrade");
+      Headers.Add ("Sec-WebSocket-Key", Translator.Base64_Encode (H));
+      Headers.Add ("Sec-WebSocket-Protocol", "chat");
+      Headers.Add ("Sec-WebSocket-Version", "13");
+   end Add_Connect_Headers;
+
+   ----------------------------
+   -- Check_Connect_Response --
+   ----------------------------
+
+   overriding function Check_Connect_Response
+      (Protocol : State;
+       Request  : AWS.Headers.List;
+       Response : AWS.Response.Data)
+      return Boolean
+   is
+      pragma Unreferenced (Protocol);
+      Expected : constant String :=
+                   Get_Websocket_Accept
+                      (AWS.Headers.Get
+                         (Request, AWS.Messages.Sec_WebSocket_Key_Token));
+      Actual : constant String := AWS.Response.Header
+                (Response, AWS.Messages.Sec_WebSocket_Accept_Token);
+   begin
+      return Expected = Actual;
+   end Check_Connect_Response;
+
    -----------
    -- Close --
    -----------
@@ -530,11 +574,13 @@ package body AWS.Net.WebSocket.Protocol.RFC6455 is
       if Socket.State.Kind = Text then
          Send_Frame_Header
            (Protocol, Socket, O_Text, Stream_Element_Offset (Len_Data),
-            Has_Mask => From_Client, Mask => Mask);
+            Has_Mask => From_Client,
+            Mask     => Mask);
       else
          Send_Frame_Header
            (Protocol, Socket, O_Binary, Stream_Element_Offset (Len_Data),
-            Has_Mask => From_Client, Mask => Mask);
+            Has_Mask => From_Client,
+            Mask     => Mask);
       end if;
 
       Send_Data : loop
@@ -542,7 +588,8 @@ package body AWS.Net.WebSocket.Protocol.RFC6455 is
 
          declare
             S : Stream_Element_Array :=
-               Translator.To_Stream_Element_Array (Slice (Data, First, Last));
+                 Translator.To_Stream_Element_Array
+                    (Slice (Data, First, Last));
          begin
             if From_Client then
                for Idx in S'Range loop
@@ -595,6 +642,7 @@ package body AWS.Net.WebSocket.Protocol.RFC6455 is
                   xor Mask (Stream_Element_Offset (Mask_Pos));
                Mask_Pos := Mask_Pos + 1;
             end loop;
+
             Net.Buffered.Write (Socket, D);
          end;
 

@@ -277,6 +277,7 @@ package AWS.Client is
    ---------------------------------------
 
    type HTTP_Connection is limited private;
+   type HTTP_Connection_Access is access all HTTP_Connection;
 
    function Create
      (Host        : String;
@@ -558,8 +559,6 @@ private
    Undefined_Length : Response.Content_Length_Type
      renames Response.Undefined_Length;
 
-   type HTTP_Connection_Access is access all HTTP_Connection;
-
    type Authentication_Level is (WWW, Proxy);
 
    type Authentication_Type is record
@@ -644,9 +643,7 @@ private
    --  Check timeout and Try_Count and set error responce into Result
    --  if necessary.
 
-   function Get_Socket
-      (Connection : HTTP_Connection)
-      return Net.Socket_Access
+   function Get_Socket (Connection : HTTP_Connection) return Net.Socket_Access
       is (Connection.Socket);
 
 end AWS.Client;

@@ -139,6 +139,46 @@ package AWS.Net.WebSocket is
    --  Send a close frame to the WebSocket
 
    --
+   --  Client side
+   --
+
+   procedure Connect
+     (Socket : in out Object'Class;
+      URI    : String);
+   --  Connect to a remote server using websockets.
+   --  Socket can then be used to Send messages to the server. It will
+   --  also receive data from the server, via the On_Message, when you call
+   --  Poll
+
+   function Poll
+     (Socket  : in out Object'Class;
+      Timeout : Duration) return Boolean;
+   --  Wait for up to Timeout seconds for some message.
+   --
+   --  In the websockets protocol, a message can be split (by the server)
+   --  onto several frames, so that for instance the server doesn't have to
+   --  store the whole message in its memory.
+   --  The size of those frames, however, is not limited, and they will
+   --  therefore possibly be split into several chunks by the transport
+   --  layer.
+   --
+   --  These function waits until it either receives a close or an error, or
+   --  the beginning of a message frame. In the latter case, the function
+   --  will then block until it has receives all chunks of that frame, which
+   --  might take longer than Timeout.
+   --
+   --  The function will return early if it doesn't receive the beginning
+   --  of a frame within Timeout seconds.
+   --
+   --  When a full frame has been received, it will be sent to the
+   --  Socket.On_Message primitive operation. Remember this might not be the
+   --  whole message however, and you should check Socket.End_Of_Message to
+   --  check.
+   --
+   --  Return True if a message was processed, False if nothing happened during
+   --  Timeout.
+
+   --
    --  Simple accessors to WebSocket state
    --
 
@@ -223,8 +263,6 @@ private
    end record;
    type Internal_State_Access is access Internal_State;
 
-   type HTTP_Connection_Access is access all AWS.Client.HTTP_Connection;
-
    type Protocol_State;
    type Protocol_State_Access is access Protocol_State;
 
@@ -238,14 +276,14 @@ private
       Mem_Sock : Net.Socket_Access;
       In_Mem   : Boolean := False;
 
-      Connection : HTTP_Connection_Access;
+      Connection : AWS.Client.HTTP_Connection_Access;
       --  Only set when the web socket is initialized as a client.
       --  It is used to keep the connection open while the socket
       --  exists.
    end record;
 
-   function Is_Client_Side (Socket : Object'Class) return Boolean
-      is (Socket.Connection /= null);
+   function Is_Client_Side (Socket : Object'Class) return Boolean is
+      (AWS.Client."/=" (Socket.Connection, null));
    --  True if this is a socket from client to server. Its messages
    --  then need to be masked.
 
@@ -304,15 +342,15 @@ private
    No_Object : constant Object'Class :=
                  Object'
                    (Net.Socket_Type with
-                    Socket   => null,
-                    Id       => No_UID,
-                    Request  => <>,
-                    Version  => 0,
-                    State    => null,
-                    P_State  => null,
-                    Mem_Sock => null,
+                    Socket     => null,
+                    Id         => No_UID,
+                    Request    => <>,
+                    Version    => 0,
+                    State      => null,
+                    P_State    => null,
+                    Mem_Sock   => null,
                     Connection => null,
-                    In_Mem   => False);
+                    In_Mem     => False);
 
    --  Error codes corresponding to all errors
 

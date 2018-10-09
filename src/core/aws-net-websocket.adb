@@ -48,7 +48,7 @@ package body AWS.Net.WebSocket is
    end record;
 
    procedure Unchecked_Free is new Ada.Unchecked_Deallocation
-      (AWS.Client.HTTP_Connection, HTTP_Connection_Access);
+      (AWS.Client.HTTP_Connection, AWS.Client.HTTP_Connection_Access);
    procedure Unchecked_Free is new Unchecked_Deallocation
      (Net.WebSocket.Protocol.State'Class,
       Net.WebSocket.Protocol.State_Class);
@@ -69,8 +69,68 @@ package body AWS.Net.WebSocket is
       Message : String;
       Error   : Error_Type := Normal_Closure) is
    begin
+      --  When the user explicitly closes a web socket, we do not call
+      --  On_Close (this is only called when the other end closes the socket)
+
       Socket.P_State.State.Close (Socket, Message, Error_Code (Error));
+   exception
+      when AWS.Net.Socket_Error =>
+         null;
    end Close;
+
+   -------------
+   -- Connect --
+   -------------
+
+   procedure Connect
+     (Socket : in out Object'Class;
+      URI    : String)
+   is
+      Headers  : AWS.Headers.List := AWS.Headers.Empty_List;
+      Resp     : AWS.Response.Data;
+      Protocol : AWS.Net.WebSocket.Protocol.State_Class;
+   begin
+      --  Initially, the connection is initiated with standard http GET.
+
+      Socket.Connection := new AWS.Client.HTTP_Connection;
+      Protocol := new Net.WebSocket.Protocol.RFC6455.State;
+
+      AWS.Client.Create
+        (Socket.Connection.all,
+         Host        => URI,
+         User        => AWS.Client.No_Data,
+         Pwd         => AWS.Client.No_Data,
+         Proxy       => AWS.Client.No_Data,
+         Proxy_User  => AWS.Client.No_Data,
+         Proxy_Pwd   => AWS.Client.No_Data,
+         Persistent  => False,
+         Certificate => AWS.Default.Client_Certificate,
+         Timeouts    => AWS.Client.No_Timeout);
+
+      Protocol.Add_Connect_Headers (URI, Headers);
+
+      AWS.Client.Get
+        (Socket.Connection.all,
+         Result      => Resp,
+         URI         => AWS.Client.No_Data,
+         Data_Range  => AWS.Client.No_Range,
+         Headers     => Headers);
+
+      if not Protocol.Check_Connect_Response (Headers, Resp) then
+         Unchecked_Free (Protocol);
+         Unchecked_Free (Socket.Connection);
+         raise AWS.Client.Protocol_Error with "Invalid accept from server";
+      end if;
+
+      Initialize
+         (Socket,
+          AWS.Client.Get_Socket (Socket.Connection.all),
+          Protocol,
+          Headers);
+      AWS.Status.Set.Request (Socket.Request, "GET", URI, "1.1");
+
+      Socket.On_Open ("WebSocket connected with " & URI);
+   end Connect;
 
    ------------
    -- Create --
@@ -83,7 +143,7 @@ package body AWS.Net.WebSocket is
       Result   : Object;
       Protocol : Net.WebSocket.Protocol.State_Class;
       Headers  : constant AWS.Headers.List :=
-         AWS.Status.Header (Request);
+                   AWS.Status.Header (Request);
    begin
       if Headers.Exist (Messages.Sec_WebSocket_Key1_Token)
         and then Headers.Exist (Messages.Sec_WebSocket_Key2_Token)
@@ -151,6 +211,7 @@ package body AWS.Net.WebSocket is
    ----------
 
    overriding procedure Free (Socket : in out Object) is
+      use type AWS.Client.HTTP_Connection_Access;
       procedure Unchecked_Free is
          new Unchecked_Deallocation (Internal_State, Internal_State_Access);
       procedure Unchecked_Free is
@@ -163,7 +224,13 @@ package body AWS.Net.WebSocket is
          Unchecked_Free (Socket.P_State);
       end if;
 
-      Free (Socket.Socket);
+      if Socket.Connection /= null then
+         --  Also closes Socket.Socket, since it is shared
+         Unchecked_Free (Socket.Connection);
+      else
+         Free (Socket.Socket);
+      end if;
+
       Free (Socket.Mem_Sock);
    end Free;
 
@@ -326,6 +393,62 @@ package body AWS.Net.WebSocket is
       return Socket.Socket.Pending;
    end Pending;
 
+   ----------
+   -- Poll --
+   ----------
+
+   function Poll
+     (Socket  : in out Object'Class;
+      Timeout : Duration)
+     return Boolean
+   is
+      procedure Do_Receive
+         (Socket : not null access Object'Class;
+          Data   : out Ada.Streams.Stream_Element_Array;
+          Last   : out Ada.Streams.Stream_Element_Offset);
+      --  Fetch available data on the socket
+
+      ----------------
+      -- Do_Receive --
+      ----------------
+
+      procedure Do_Receive
+         (Socket : not null access Object'Class;
+          Data   : out Ada.Streams.Stream_Element_Array;
+          Last   : out Ada.Streams.Stream_Element_Offset) is
+      begin
+         Socket.Receive (Data, Last);
+      end Do_Receive;
+
+      function Read_Message is new AWS.Net.WebSocket.Read_Message
+         (Receive => Do_Receive);
+
+      Obj   : Object_Class := Socket'Unrestricted_Access;
+      Event : AWS.Net.Event_Set;
+      Msg   : Ada.Strings.Unbounded.Unbounded_String;
+   begin
+      Event := Socket.Poll
+         ((AWS.Net.Input => True, others => False), Timeout => Timeout);
+
+      if Event (AWS.Net.Input) then
+         --  Block until we have received all chunks of the frame
+         while not Read_Message (Obj, Msg) loop
+            null;
+         end loop;
+         return True;
+
+      elsif Event (AWS.Net.Error) then
+         Socket.On_Error ("Socket error");
+      end if;
+
+      return False;
+
+   exception
+      when AWS.Net.Socket_Error =>
+         --  Socket has been closed
+         return False;
+   end Poll;
+
    ----------------------
    -- Protocol_Version --
    ----------------------
@@ -361,6 +484,7 @@ package body AWS.Net.WebSocket is
                   Abnormal_Closure);
                On_Error (WebSocket);
             end if;
+
             return True;
       end;
 
@@ -371,7 +495,6 @@ package body AWS.Net.WebSocket is
                Translator.To_String (Data (Data'First .. Last)));
 
             if WebSocket.End_Of_Message then
-
                --  Validate the message as being valid UTF-8 string
 
                if WebSocket.Kind = Text
@@ -384,6 +507,7 @@ package body AWS.Net.WebSocket is
                   WebSocket.On_Message (Message);
                   On_Success (WebSocket);
                end if;
+
                return True;
             end if;
 
@@ -413,6 +537,7 @@ package body AWS.Net.WebSocket is
             On_Free (WebSocket);
             return True;
       end case;
+
       return False;
    end Read_Message;
 

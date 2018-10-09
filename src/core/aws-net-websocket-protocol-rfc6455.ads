@@ -69,6 +69,16 @@ package AWS.Net.WebSocket.Protocol.RFC6455 is
      (Sock : Net.Socket_Type'Class; Request : AWS.Status.Data);
    --  Send specific header for this protocol
 
+   overriding procedure Add_Connect_Headers
+     (Protocol : State;
+      URI      : String;
+      Headers  : in out AWS.Headers.List);
+   overriding function Check_Connect_Response
+     (Protocol : State;
+      Request  : AWS.Headers.List;
+      Response : AWS.Response.Data) return Boolean;
+   --  See inherited documentation
+
 private
 
    --  Protocol specific status
