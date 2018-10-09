@@ -39,15 +39,18 @@ package AWS.Net.WebSocket.Protocol is
    subtype Status_Code is Interfaces.Unsigned_16 range 0 .. 4_999;
 
    procedure Send
-     (Protocol : in out State;
-      Socket   : Object;
-      Data     : Stream_Element_Array) is abstract;
-   --  Encode and send data to the WebSocket
+     (Protocol    : in out State;
+      Socket      : Object;
+      Data        : Stream_Element_Array;
+      From_Client : Boolean := False) is abstract;
+   --  Encode and send data to the WebSocket.
+   --  From_Client is true for messages sent from client to server.
 
    procedure Send
-     (Protocol : in out State;
-      Socket   : Object;
-      Data     : Unbounded_String) is abstract;
+     (Protocol    : in out State;
+      Socket      : Object;
+      Data        : Unbounded_String;
+      From_Client : Boolean := False) is abstract;
    --  Same as above but for an Unbounded_String. This version supports large
    --  messages possibly sent fragmented.
 

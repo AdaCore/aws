@@ -35,15 +35,17 @@ package AWS.Net.WebSocket.Protocol.Draft76 is
    type State is new Protocol.State with null record;
 
    overriding procedure Send
-     (Protocol : in out State;
-      Socket   : Object;
-      Data     : Stream_Element_Array);
+     (Protocol    : in out State;
+      Socket      : Object;
+      Data        : Stream_Element_Array;
+      From_Client : Boolean := False);
    --  Encode and send data to the WebSocket
 
    overriding procedure Send
-     (Protocol : in out State;
-      Socket   : Object;
-      Data     : Unbounded_String);
+     (Protocol    : in out State;
+      Socket      : Object;
+      Data        : Unbounded_String;
+      From_Client : Boolean := False);
    --  Same as above but for an Unbounded_String. This version supports large
    --  messages possibly sent fragmented.
 

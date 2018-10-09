@@ -35,6 +35,7 @@ with Ada.Strings.Unbounded;
 with AWS.Status;
 
 private with Ada.Calendar;
+private with AWS.Client;
 private with Interfaces;
 
 package AWS.Net.WebSocket is
@@ -82,6 +83,8 @@ package AWS.Net.WebSocket is
    --  Create a new instance of the WebSocket, this is used by AWS internal
    --  server to create a default WebSocket if no other constructor are
    --  provided. It is also needed when deriving from WebSocket.
+   --
+   --  This function must be registered via AWS.Net.WebSocket.Registry.Register
 
    procedure On_Message (Socket : in out Object; Message : String) is null;
    --  Default implementation does nothing, it needs to be overriden by the
@@ -218,8 +221,9 @@ private
       Errno         : Interfaces.Unsigned_16 := Interfaces.Unsigned_16'Last;
       Last_Activity : Calendar.Time;
    end record;
-
    type Internal_State_Access is access Internal_State;
+
+   type HTTP_Connection_Access is access all AWS.Client.HTTP_Connection;
 
    type Protocol_State;
    type Protocol_State_Access is access Protocol_State;
@@ -233,7 +237,17 @@ private
       P_State  : Protocol_State_Access;
       Mem_Sock : Net.Socket_Access;
       In_Mem   : Boolean := False;
+
+      Connection : HTTP_Connection_Access;
+      --  Only set when the web socket is initialized as a client.
+      --  It is used to keep the connection open while the socket
+      --  exists.
    end record;
+
+   function Is_Client_Side (Socket : Object'Class) return Boolean
+      is (Socket.Connection /= null);
+   --  True if this is a socket from client to server. Its messages
+   --  then need to be masked.
 
    --  Routines read/write from a WebSocket, this handles the WebSocket
    --  protocol.
@@ -297,6 +311,7 @@ private
                     State    => null,
                     P_State  => null,
                     Mem_Sock => null,
+                    Connection => null,
                     In_Mem   => False);
 
    --  Error codes corresponding to all errors

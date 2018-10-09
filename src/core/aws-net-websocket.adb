@@ -445,7 +445,8 @@ package body AWS.Net.WebSocket is
       end if;
 
       Socket.P_State.State.Send
-        (Socket, Translator.To_Stream_Element_Array (Message));
+        (Socket, Translator.To_Stream_Element_Array (Message),
+         From_Client => Is_Client_Side (Socket));
    end Send;
 
    procedure Send
@@ -459,7 +460,8 @@ package body AWS.Net.WebSocket is
          Socket.State.Kind := Text;
       end if;
 
-      Socket.P_State.State.Send (Socket, Message);
+      Socket.P_State.State.Send
+         (Socket, Message, From_Client => Is_Client_Side (Socket));
    end Send;
 
    procedure Send
