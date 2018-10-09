@@ -106,6 +106,9 @@ package body AWS.Net.WebSocket.Protocol.RFC6455 is
    function Is_Valid_Close_Code (Error : Error_Type) return Boolean;
    --  Returns True if the Error code is valid
 
+   function Get_Websocket_Accept (Key : String) return String;
+   --  Compute the 'Accept' response based on the key sent by the client
+
    -----------
    -- Close --
    -----------
@@ -130,6 +133,32 @@ package body AWS.Net.WebSocket.Protocol.RFC6455 is
    begin
       return Protocol.Remaining = 0 and then Protocol.Last_Fragment;
    end End_Of_Message;
+
+   --------------------------
+   -- Get_Websocket_Accept --
+   --------------------------
+
+   function Get_Websocket_Accept (Key : String) return String is
+      use GNAT;
+      GUID     : constant String := "258EAFA5-E914-47DA-95CA-C5AB0DC85B11";
+      Trim_Key : constant String := Strings.Fixed.Trim (Key, Strings.Both);
+   begin
+      declare
+         SHA : constant String := SHA1.Digest (Trim_Key & GUID);
+         --  The SHA-1 as a string
+         Hex : Stream_Element_Array (1 .. SHA'Length / 2);
+         --  The SHA-1 as an hexadecimal array
+         --  ??? Use new service to retrieve the SHA-1 in binary format when
+         --  GNAT GPL supports it.
+      begin
+         for K in 1 .. SHA'Length / 2 loop
+            Hex (Stream_Element_Offset (K)) :=
+              Stream_Element'Value ("16#" & SHA (K * 2 - 1 .. K * 2) & '#');
+         end loop;
+
+         return Translator.Base64_Encode (Hex);
+      end;
+   end Get_Websocket_Accept;
 
    --------------------
    -- Is_Error_Valid --
@@ -647,32 +676,11 @@ package body AWS.Net.WebSocket.Protocol.RFC6455 is
    procedure Send_Header
      (Sock : Net.Socket_Type'Class; Request : AWS.Status.Data)
    is
-      use GNAT;
-
-      GUID : constant String :=
-               "258EAFA5-E914-47DA-95CA-C5AB0DC85B11";
-      --  As specified into the RFC-6455
-      Key  : constant String :=
-               Strings.Fixed.Trim
-                 (AWS.Status.Sec_WebSocket_Key (Request), Strings.Both);
+      Acc : constant String :=
+              Get_Websocket_Accept
+                (AWS.Status.Sec_WebSocket_Key (Request));
    begin
-      declare
-         SHA : constant String := SHA1.Digest (Key & GUID);
-         --  The SHA-1 as a string
-         Hex : Stream_Element_Array (1 .. SHA'Length / 2);
-         --  The SHA-1 as an hexadecimal array
-         --  ??? Use new service to retrieve the SHA-1 in binary format when
-         --  GNAT GPL supports it.
-      begin
-         for K in 1 .. SHA'Length / 2 loop
-            Hex (Stream_Element_Offset (K)) :=
-              Stream_Element'Value ("16#" & SHA (K * 2 - 1 .. K * 2) & '#');
-         end loop;
-
-         Net.Buffered.Put_Line
-           (Sock,
-            Messages.Sec_WebSocket_Accept (Translator.Base64_Encode (Hex)));
-      end;
+      Net.Buffered.Put_Line (Sock, Messages.Sec_WebSocket_Accept (Acc));
    end Send_Header;
 
 end AWS.Net.WebSocket.Protocol.RFC6455;
