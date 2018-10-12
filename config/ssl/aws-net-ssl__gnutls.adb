@@ -37,6 +37,7 @@ with Ada.Directories;
 with Ada.Strings.Hash;
 with Ada.Strings.Hash_Case_Insensitive;
 with Ada.Strings.Equal_Case_Insensitive;
+with Ada.Strings.Maps.Constants;
 with Ada.Text_IO;
 with Ada.Unchecked_Conversion;
 with Ada.Unchecked_Deallocation;
@@ -57,6 +58,7 @@ package body AWS.Net.SSL is
 
    use Interfaces;
    use Ada.Strings;
+   use Ada.Strings.Maps;
 
    use type C.int;
    use type C.unsigned;
@@ -80,6 +82,9 @@ package body AWS.Net.SSL is
      with Atomic_Components;
    --  0 element for current use, 1 element for remain usage after creation new
    --  0 element.
+
+   IP_Address_Characters : constant Character_Set :=
+                             To_Set (".:") or Constants.Decimal_Digit_Set;
 
    function Copy (Item : TSSL.gnutls_datum_t) return TSSL.gnutls_datum_t;
    --  Creates gnutls_datum_t copy
@@ -1808,7 +1813,10 @@ package body AWS.Net.SSL is
 
       Session_Transport (Socket);
 
-      if Host /= "" then
+      if Host /= "" and then not (To_Set (Host) <= IP_Address_Characters) then
+         --  GNUTLS does not allow to set physical address text representation
+         --  as server name.
+
          Check_Error_Code
            (TSSL.gnutls_server_name_set
               (Socket.SSL, TSSL.GNUTLS_NAME_DNS, Host'Address, Host'Length));
