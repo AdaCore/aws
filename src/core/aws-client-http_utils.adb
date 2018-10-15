@@ -745,7 +745,12 @@ package body AWS.Client.HTTP_Utils is
               (Sock.all, Method & ' ' & Encoded_URI & ' ' & HTTP_Version);
          end if;
 
-         Send_Header (Sock.all, Messages.Connection (Persistence));
+         --  Unless Header already contains connection info (like would be
+         --  the case for web sockets for instance)
+
+         if not Header.Exist (Messages.Connection_Token) then
+            Send_Header (Sock.all, Messages.Connection (Persistence));
+         end if;
 
       else
          --  We have a proxy configured, in thoses case we want to send the

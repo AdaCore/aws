@@ -146,7 +146,7 @@ package AWS.Client is
    --  return it in the Response.Data structure.
    --  If User/Pwd are given then it uses it to access the URL.
    --
-   --  Eventually it connect through a PROXY using if necessary the Proxy
+   --  Optionally it connects through a PROXY using if necessary the Proxy
    --  authentication Proxy_User:Proxy_Pwd.
    --
    --  Only Basic authentication is supported (i.e. Digest is not). Digest
@@ -277,6 +277,7 @@ package AWS.Client is
    ---------------------------------------
 
    type HTTP_Connection is limited private;
+   type HTTP_Connection_Access is access all HTTP_Connection;
 
    function Create
      (Host        : String;
@@ -534,6 +535,9 @@ package AWS.Client is
    --  Set debug mode on/off. If debug is activated the request header and the
    --  server response header will be displayed.
 
+   function Get_Socket (Connection : HTTP_Connection) return Net.Socket_Access;
+   --  Retrieve the socket used for the connection
+
 private
 
    use Ada;
@@ -554,8 +558,6 @@ private
 
    Undefined_Length : Response.Content_Length_Type
      renames Response.Undefined_Length;
-
-   type HTTP_Connection_Access is access all HTTP_Connection;
 
    type Authentication_Level is (WWW, Proxy);
 
@@ -640,5 +642,8 @@ private
       Stamp      : Ada.Real_Time.Time);
    --  Check timeout and Try_Count and set error responce into Result
    --  if necessary.
+
+   function Get_Socket (Connection : HTTP_Connection) return Net.Socket_Access
+      is (Connection.Socket);
 
 end AWS.Client;

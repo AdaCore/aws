@@ -34,15 +34,17 @@ package AWS.Net.WebSocket.Protocol.RFC6455 is
    type State is new Protocol.State with private;
 
    overriding procedure Send
-     (Protocol : in out State;
-      Socket   : Object;
-      Data     : Stream_Element_Array);
-   --  Encode and send data to the WebSocket
+     (Protocol    : in out State;
+      Socket      : Object;
+      Data        : Stream_Element_Array;
+      From_Client : Boolean := False);
+   --  Encode and send data to the WebSocket.
 
    overriding procedure Send
-     (Protocol : in out State;
-      Socket   : Object;
-      Data     : Unbounded_String);
+     (Protocol    : in out State;
+      Socket      : Object;
+      Data        : Unbounded_String;
+      From_Client : Boolean := False);
    --  Same as above but for an Unbounded_String. This version supports large
    --  messages possibly sent fragmented.
 
@@ -67,10 +69,21 @@ package AWS.Net.WebSocket.Protocol.RFC6455 is
      (Sock : Net.Socket_Type'Class; Request : AWS.Status.Data);
    --  Send specific header for this protocol
 
+   overriding procedure Add_Connect_Headers
+     (Protocol : State;
+      URI      : String;
+      Headers  : in out AWS.Headers.List);
+   overriding function Check_Connect_Response
+     (Protocol : State;
+      Request  : AWS.Headers.List;
+      Response : AWS.Response.Data) return Boolean;
+   --  See inherited documentation
+
 private
 
    --  Protocol specific status
 
+   type Masking_Key_Index is mod 4;
    type Masking_Key is new Stream_Element_Array (0 .. 3);
    for Masking_Key'Size use 32;
 

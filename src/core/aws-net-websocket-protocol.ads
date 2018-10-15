@@ -29,6 +29,8 @@
 
 --  Parent of all implemented protocols which are for internal use only
 
+with AWS.Headers;
+with AWS.Response;
 with Interfaces;
 
 package AWS.Net.WebSocket.Protocol is
@@ -39,15 +41,18 @@ package AWS.Net.WebSocket.Protocol is
    subtype Status_Code is Interfaces.Unsigned_16 range 0 .. 4_999;
 
    procedure Send
-     (Protocol : in out State;
-      Socket   : Object;
-      Data     : Stream_Element_Array) is abstract;
-   --  Encode and send data to the WebSocket
+     (Protocol    : in out State;
+      Socket      : Object;
+      Data        : Stream_Element_Array;
+      From_Client : Boolean := False) is abstract;
+   --  Encode and send data to the WebSocket.
+   --  From_Client is true for messages sent from client to server.
 
    procedure Send
-     (Protocol : in out State;
-      Socket   : Object;
-      Data     : Unbounded_String) is abstract;
+     (Protocol    : in out State;
+      Socket      : Object;
+      Data        : Unbounded_String;
+      From_Client : Boolean := False) is abstract;
    --  Same as above but for an Unbounded_String. This version supports large
    --  messages possibly sent fragmented.
 
@@ -67,5 +72,18 @@ package AWS.Net.WebSocket.Protocol is
 
    function End_Of_Message (Protocol : State) return Boolean is abstract;
    --  Returns True if we have read a whole message
+
+   procedure Add_Connect_Headers
+     (Protocol : State;
+      URI      : String;
+      Headers  : in out AWS.Headers.List) is abstract;
+   --  Add all required headers to establish a websocket connection to a server
+
+   function Check_Connect_Response
+     (Protocol_Ignored : State;
+      Request_Ignored  : AWS.Headers.List;
+      Response_Ignored : AWS.Response.Data) return Boolean is (True);
+   --  Check whether the server's response matches the headers we sent to
+   --  establish a connection.
 
 end AWS.Net.WebSocket.Protocol;

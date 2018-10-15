@@ -56,6 +56,9 @@ package body AWS.Net.WebSocket.Protocol.RFC6455 is
    pragma Warnings (Off);
    --  This is needed to kill warnings on big-endian targets
 
+   No_Masking_Key : constant Masking_Key := (others => 0);
+   --  The masking-key when sending from client to server
+
    type Frame_Header is record
       FIN            : Bit;
       RSV1           : Bit;
@@ -89,8 +92,12 @@ package body AWS.Net.WebSocket.Protocol.RFC6455 is
      (Protocol    : in out State;
       Socket      : Object;
       Opcd        : Opcode;
-      Data_Length : Stream_Element_Offset);
-   --  Send the frame header only
+      Data_Length : Stream_Element_Offset;
+      Has_Mask    : Boolean := False;
+      Mask        : Masking_Key := No_Masking_Key);
+   --  Send the frame header only.
+   --  Mask and Has_Mask should be set when sending from client to server, and
+   --  left to the default from server to client.
 
    procedure Send_Frame
      (Protocol : in out State;
@@ -105,6 +112,56 @@ package body AWS.Net.WebSocket.Protocol.RFC6455 is
 
    function Is_Valid_Close_Code (Error : Error_Type) return Boolean;
    --  Returns True if the Error code is valid
+
+   function Get_Websocket_Accept (Key : String) return String;
+   --  Compute the 'Accept' response based on the key sent by the client
+
+   function Create_Random_Mask return Masking_Key;
+   --  Create a random masking key
+
+   -------------------------
+   -- Add_Connect_Headers --
+   -------------------------
+
+   overriding procedure Add_Connect_Headers
+      (Protocol : State;
+       URI      : String;
+       Headers  : in out AWS.Headers.List)
+   is
+      pragma Unreferenced (Protocol);
+      Ints : array (1 .. 4) of AWS.Utils.Random_Integer :=
+              (others => AWS.Utils.Random);
+      H : Stream_Element_Array (1 .. 16) with Import, Address => Ints'Address;
+
+   begin
+      Headers.Add ("Host", URI);
+      Headers.Add ("Upgrade", "websocket");
+      Headers.Add ("Connection", "Upgrade");
+      Headers.Add ("Sec-WebSocket-Key", Translator.Base64_Encode (H));
+      Headers.Add ("Sec-WebSocket-Protocol", "chat");
+      Headers.Add ("Sec-WebSocket-Version", "13");
+   end Add_Connect_Headers;
+
+   ----------------------------
+   -- Check_Connect_Response --
+   ----------------------------
+
+   overriding function Check_Connect_Response
+      (Protocol : State;
+       Request  : AWS.Headers.List;
+       Response : AWS.Response.Data)
+      return Boolean
+   is
+      pragma Unreferenced (Protocol);
+      Expected : constant String :=
+                   Get_Websocket_Accept
+                      (AWS.Headers.Get
+                         (Request, AWS.Messages.Sec_WebSocket_Key_Token));
+      Actual : constant String := AWS.Response.Header
+                (Response, AWS.Messages.Sec_WebSocket_Accept_Token);
+   begin
+      return Expected = Actual;
+   end Check_Connect_Response;
 
    -----------
    -- Close --
@@ -122,6 +179,17 @@ package body AWS.Net.WebSocket.Protocol.RFC6455 is
       Protocol.Close_Sent := True;
    end Close;
 
+   ------------------------
+   -- Create_Random_Mask --
+   ------------------------
+
+   function Create_Random_Mask return Masking_Key is
+      Int : constant AWS.Utils.Random_Integer := AWS.Utils.Random;
+      Arr : Masking_Key with Import, Address => Int'Address;
+   begin
+      return Arr;
+   end Create_Random_Mask;
+
    --------------------
    -- End_Of_Message --
    --------------------
@@ -130,6 +198,32 @@ package body AWS.Net.WebSocket.Protocol.RFC6455 is
    begin
       return Protocol.Remaining = 0 and then Protocol.Last_Fragment;
    end End_Of_Message;
+
+   --------------------------
+   -- Get_Websocket_Accept --
+   --------------------------
+
+   function Get_Websocket_Accept (Key : String) return String is
+      use GNAT;
+      GUID     : constant String := "258EAFA5-E914-47DA-95CA-C5AB0DC85B11";
+      Trim_Key : constant String := Strings.Fixed.Trim (Key, Strings.Both);
+   begin
+      declare
+         SHA : constant String := SHA1.Digest (Trim_Key & GUID);
+         --  The SHA-1 as a string
+         Hex : Stream_Element_Array (1 .. SHA'Length / 2);
+         --  The SHA-1 as an hexadecimal array
+         --  ??? Use new service to retrieve the SHA-1 in binary format when
+         --  GNAT GPL supports it.
+      begin
+         for K in 1 .. SHA'Length / 2 loop
+            Hex (Stream_Element_Offset (K)) :=
+              Stream_Element'Value ("16#" & SHA (K * 2 - 1 .. K * 2) & '#');
+         end loop;
+
+         return Translator.Base64_Encode (Hex);
+      end;
+   end Get_Websocket_Accept;
 
    --------------------
    -- Is_Error_Valid --
@@ -236,19 +330,16 @@ package body AWS.Net.WebSocket.Protocol.RFC6455 is
       end Read_Payload;
 
       D_Header : Stream_Element_Array (1 .. 2) := (0, 0);
-      Header   : Frame_Header;
-      for Header'Address use D_Header'Address;
+      Header   : Frame_Header with Address => D_Header'Address;
       pragma Import (Ada, Header);  --  Disable default initialization
 
       D_16     : Stream_Element_Array (1 .. 2);
       for D_16'Alignment use Interfaces.Unsigned_16'Alignment;
-      L_16     : Interfaces.Unsigned_16;
-      for L_16'Address use D_16'Address;
+      L_16     : Interfaces.Unsigned_16 with Address => D_16'Address;
 
       D_64     : Stream_Element_Array (1 .. 8);
       for D_64'Alignment use Interfaces.Unsigned_64'Alignment;
-      L_64     : Interfaces.Unsigned_64;
-      for L_64'Address use D_64'Address;
+      L_64     : Interfaces.Unsigned_64 with Address => D_64'Address;
 
       To_Read  : Stream_Element_Offset;
 
@@ -365,8 +456,7 @@ package body AWS.Net.WebSocket.Protocol.RFC6455 is
                   declare
                      D : Stream_Element_Array (1 .. 2) :=
                            Data (Data'First .. Data'First + 1);
-                     E : Interfaces.Unsigned_16;
-                     for E'Address use D'Address;
+                     E : Interfaces.Unsigned_16 with Address => D'Address;
                   begin
                      if Default_Bit_Order = Low_Order_First then
                         Byte_Swapping.Swap2 (E'Address);
@@ -464,29 +554,53 @@ package body AWS.Net.WebSocket.Protocol.RFC6455 is
    ----------
 
    overriding procedure Send
-     (Protocol : in out State;
-      Socket   : Object;
-      Data     : Unbounded_String)
+     (Protocol    : in out State;
+      Socket      : Object;
+      Data        : Unbounded_String;
+      From_Client : Boolean := False)
    is
       Len_Data   : constant Natural := Length (Data);
       Chunk_Size : constant Positive := 4_096;
       First      : Positive := 1;
       Last       : Natural;
+
+      Mask       : Masking_Key;
+      Mask_Pos   : Masking_Key_Index := 0;
    begin
+      if From_Client then
+         Mask := Create_Random_Mask;
+      end if;
+
       if Socket.State.Kind = Text then
          Send_Frame_Header
-           (Protocol, Socket, O_Text, Stream_Element_Offset (Len_Data));
+           (Protocol, Socket, O_Text, Stream_Element_Offset (Len_Data),
+            Has_Mask => From_Client,
+            Mask     => Mask);
       else
          Send_Frame_Header
-           (Protocol, Socket, O_Binary, Stream_Element_Offset (Len_Data));
+           (Protocol, Socket, O_Binary, Stream_Element_Offset (Len_Data),
+            Has_Mask => From_Client,
+            Mask     => Mask);
       end if;
 
       Send_Data : loop
          Last := Positive'Min (Len_Data, First + Chunk_Size - 1);
 
-         Net.Buffered.Write
-           (Socket,
-            Translator.To_Stream_Element_Array (Slice (Data, First, Last)));
+         declare
+            S : Stream_Element_Array :=
+                 Translator.To_Stream_Element_Array
+                    (Slice (Data, First, Last));
+         begin
+            if From_Client then
+               for Idx in S'Range loop
+                  S (Idx) := S (Idx)
+                     xor Mask (Stream_Element_Offset (Mask_Pos));
+                  Mask_Pos := Mask_Pos + 1;
+               end loop;
+            end if;
+
+            Net.Buffered.Write (Socket, S);
+         end;
 
          exit Send_Data when Last = Len_Data;
 
@@ -497,19 +611,44 @@ package body AWS.Net.WebSocket.Protocol.RFC6455 is
    end Send;
 
    overriding procedure Send
-     (Protocol : in out State;
-      Socket   : Object;
-      Data     : Stream_Element_Array) is
+     (Protocol    : in out State;
+      Socket      : Object;
+      Data        : Stream_Element_Array;
+      From_Client : Boolean := False)
+   is
+      Mask     : Masking_Key;
+      Mask_Pos : Masking_Key_Index := 0;
    begin
+      if From_Client then
+         Mask := Create_Random_Mask;
+      end if;
+
       if Socket.State.Kind = Text then
-         Send_Frame_Header (Protocol, Socket, O_Text, Data'Length);
+         Send_Frame_Header (Protocol, Socket, O_Text, Data'Length,
+                            Has_Mask => From_Client, Mask => Mask);
       else
-         Send_Frame_Header (Protocol, Socket, O_Binary, Data'Length);
+         Send_Frame_Header (Protocol, Socket, O_Binary, Data'Length,
+                            Has_Mask => From_Client, Mask => Mask);
       end if;
 
       --  Send payload
 
-      Net.Buffered.Write (Socket, Data);
+      if From_Client then
+         declare
+            D : Stream_Element_Array (Data'Range);
+         begin
+            for Idx in Data'Range loop
+               D (Idx) := Data (Idx)
+                  xor Mask (Stream_Element_Offset (Mask_Pos));
+               Mask_Pos := Mask_Pos + 1;
+            end loop;
+
+            Net.Buffered.Write (Socket, D);
+         end;
+
+      else
+         Net.Buffered.Write (Socket, Data);
+      end if;
 
       Net.Buffered.Flush (Socket);
    end Send;
@@ -544,8 +683,7 @@ package body AWS.Net.WebSocket.Protocol.RFC6455 is
          declare
             D : Stream_Element_Array (1 .. 2);
             for D'Alignment use Interfaces.Unsigned_16'Alignment;
-            E : Interfaces.Unsigned_16 := Error;
-            for E'Address use D'Address;
+            E : Interfaces.Unsigned_16 := Error with Address => D'Address;
          begin
             if Default_Bit_Order = Low_Order_First then
                Byte_Swapping.Swap2 (E'Address);
@@ -569,30 +707,30 @@ package body AWS.Net.WebSocket.Protocol.RFC6455 is
      (Protocol    : in out State;
       Socket      : Object;
       Opcd        : Opcode;
-      Data_Length : Stream_Element_Offset)
+      Data_Length : Stream_Element_Offset;
+      Has_Mask    : Boolean := False;
+      Mask        : Masking_Key := No_Masking_Key)
    is
       pragma Unreferenced (Protocol);
       use GNAT;
       use System;
 
       D_Header : Stream_Element_Array (1 .. 2) := (0, 0);
-      Header   : Frame_Header;
-      for Header'Address use D_Header'Address;
+      Header   : Frame_Header with Address => D_Header'Address;
       pragma Import (Ada, Header);  --  Disable default initialization
 
       D_16     : Stream_Element_Array (1 .. 2);
       for D_16'Alignment use Interfaces.Unsigned_16'Alignment;
-      L_16     : Interfaces.Unsigned_16;
-      for L_16'Address use D_16'Address;
+      L_16     : Interfaces.Unsigned_16 with Address => D_16'Address;
 
       D_64     : Stream_Element_Array (1 .. 8);
       for D_64'Alignment use Interfaces.Unsigned_64'Alignment;
-      L_64     : Interfaces.Unsigned_64;
-      for L_64'Address use D_64'Address;
+      L_64     : Interfaces.Unsigned_64 with Address => D_64'Address;
+
    begin
       Header.FIN := 1;
       Header.Opcd := Opcd;
-      Header.Mask := 0;
+      Header.Mask := (if Has_Mask then 1 else 0);
       Header.RSV1 := 0;
       Header.RSV2 := 0;
       Header.RSV3 := 0;
@@ -638,6 +776,14 @@ package body AWS.Net.WebSocket.Protocol.RFC6455 is
       else
          Net.Buffered.Write (Socket, D_64);
       end if;
+
+      --  Compute masking-key, when sending from client to server
+
+      if Has_Mask then
+         for J in Mask'Range loop
+            Net.Buffered.Write (Socket, (1 => Mask (J)));
+         end loop;
+      end if;
    end Send_Frame_Header;
 
    -----------------
@@ -647,32 +793,11 @@ package body AWS.Net.WebSocket.Protocol.RFC6455 is
    procedure Send_Header
      (Sock : Net.Socket_Type'Class; Request : AWS.Status.Data)
    is
-      use GNAT;
-
-      GUID : constant String :=
-               "258EAFA5-E914-47DA-95CA-C5AB0DC85B11";
-      --  As specified into the RFC-6455
-      Key  : constant String :=
-               Strings.Fixed.Trim
-                 (AWS.Status.Sec_WebSocket_Key (Request), Strings.Both);
+      Acc : constant String :=
+              Get_Websocket_Accept
+                (AWS.Status.Sec_WebSocket_Key (Request));
    begin
-      declare
-         SHA : constant String := SHA1.Digest (Key & GUID);
-         --  The SHA-1 as a string
-         Hex : Stream_Element_Array (1 .. SHA'Length / 2);
-         --  The SHA-1 as an hexadecimal array
-         --  ??? Use new service to retrieve the SHA-1 in binary format when
-         --  GNAT GPL supports it.
-      begin
-         for K in 1 .. SHA'Length / 2 loop
-            Hex (Stream_Element_Offset (K)) :=
-              Stream_Element'Value ("16#" & SHA (K * 2 - 1 .. K * 2) & '#');
-         end loop;
-
-         Net.Buffered.Put_Line
-           (Sock,
-            Messages.Sec_WebSocket_Accept (Translator.Base64_Encode (Hex)));
-      end;
+      Net.Buffered.Put_Line (Sock, Messages.Sec_WebSocket_Accept (Acc));
    end Send_Header;
 
 end AWS.Net.WebSocket.Protocol.RFC6455;

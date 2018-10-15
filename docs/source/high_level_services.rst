@@ -1435,8 +1435,8 @@ some high level services on the server side and also on the client side.
 
 .. _WebSockets_on_the_client:
 
-WebSockets on the client
-------------------------
+WebSockets on the client (javascript)
+-------------------------------------
 
 The WebSocket is created on the client side. As there is some differences
 between Web browsers, AWS provides a wrapper routine to create a
@@ -1498,6 +1498,42 @@ possible to redefine them::
 Likewise for the other events.
 
 .. _WebSockets_on_the_server:
+
+WebSockets on the client (Ada)
+------------------------------
+
+AWS also supports writing websocket clients directly in Ada. Here is an
+example::
+
+   type MySocket is new AWS.Net.WebSocket.Object with null record;
+   overriding procedure On_Message (Self : in out MySocket; Str : String);
+   --  You would likely also override On_Error and On_Close
+
+   overriding procedure On_Message (Self : in out MySocket; Str : String) is
+   begin
+      Ada.Text_IO.Put_Line ("++ Got message '" & Str & "'");
+   end On_Message;
+
+   declare
+      Socket     : MySocket;
+   begin
+      AWS.Net.WebSocket.Connect (Socket, "ws://localhost:8765");
+
+      --  Send one message
+      Socket.Send ("some message");
+
+      --  Then wait for any number of messages from the server. Give up if
+      --  no message is available for 2s. If messages become available, the
+      --  procedure On_Message will be called.
+      while Socket.Poll (Timeout => 2.0) loop
+         null;
+      end loop;
+
+      Socket.Close ("");
+   end;
+
+You are responsible for checking regularly whether any message has been
+received from the server.
 
 WebSockets on the server
 ------------------------

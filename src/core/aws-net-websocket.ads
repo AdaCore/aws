@@ -35,6 +35,7 @@ with Ada.Strings.Unbounded;
 with AWS.Status;
 
 private with Ada.Calendar;
+private with AWS.Client;
 private with Interfaces;
 
 package AWS.Net.WebSocket is
@@ -82,6 +83,8 @@ package AWS.Net.WebSocket is
    --  Create a new instance of the WebSocket, this is used by AWS internal
    --  server to create a default WebSocket if no other constructor are
    --  provided. It is also needed when deriving from WebSocket.
+   --
+   --  This function must be registered via AWS.Net.WebSocket.Registry.Register
 
    procedure On_Message (Socket : in out Object; Message : String) is null;
    --  Default implementation does nothing, it needs to be overriden by the
@@ -134,6 +137,46 @@ package AWS.Net.WebSocket is
       Message : String;
       Error   : Error_Type := Normal_Closure);
    --  Send a close frame to the WebSocket
+
+   --
+   --  Client side
+   --
+
+   procedure Connect
+     (Socket : in out Object'Class;
+      URI    : String);
+   --  Connect to a remote server using websockets.
+   --  Socket can then be used to Send messages to the server. It will
+   --  also receive data from the server, via the On_Message, when you call
+   --  Poll
+
+   function Poll
+     (Socket  : in out Object'Class;
+      Timeout : Duration) return Boolean;
+   --  Wait for up to Timeout seconds for some message.
+   --
+   --  In the websockets protocol, a message can be split (by the server)
+   --  onto several frames, so that for instance the server doesn't have to
+   --  store the whole message in its memory.
+   --  The size of those frames, however, is not limited, and they will
+   --  therefore possibly be split into several chunks by the transport
+   --  layer.
+   --
+   --  These function waits until it either receives a close or an error, or
+   --  the beginning of a message frame. In the latter case, the function
+   --  will then block until it has receives all chunks of that frame, which
+   --  might take longer than Timeout.
+   --
+   --  The function will return early if it doesn't receive the beginning
+   --  of a frame within Timeout seconds.
+   --
+   --  When a full frame has been received, it will be sent to the
+   --  Socket.On_Message primitive operation. Remember this might not be the
+   --  whole message however, and you should check Socket.End_Of_Message to
+   --  check.
+   --
+   --  Return True if a message was processed, False if nothing happened during
+   --  Timeout.
 
    --
    --  Simple accessors to WebSocket state
@@ -218,7 +261,6 @@ private
       Errno         : Interfaces.Unsigned_16 := Interfaces.Unsigned_16'Last;
       Last_Activity : Calendar.Time;
    end record;
-
    type Internal_State_Access is access Internal_State;
 
    type Protocol_State;
@@ -233,7 +275,17 @@ private
       P_State  : Protocol_State_Access;
       Mem_Sock : Net.Socket_Access;
       In_Mem   : Boolean := False;
+
+      Connection : AWS.Client.HTTP_Connection_Access;
+      --  Only set when the web socket is initialized as a client.
+      --  It is used to keep the connection open while the socket
+      --  exists.
    end record;
+
+   function Is_Client_Side (Socket : Object'Class) return Boolean is
+      (AWS.Client."/=" (Socket.Connection, null));
+   --  True if this is a socket from client to server. Its messages
+   --  then need to be masked.
 
    --  Routines read/write from a WebSocket, this handles the WebSocket
    --  protocol.
@@ -290,14 +342,15 @@ private
    No_Object : constant Object'Class :=
                  Object'
                    (Net.Socket_Type with
-                    Socket   => null,
-                    Id       => No_UID,
-                    Request  => <>,
-                    Version  => 0,
-                    State    => null,
-                    P_State  => null,
-                    Mem_Sock => null,
-                    In_Mem   => False);
+                    Socket     => null,
+                    Id         => No_UID,
+                    Request    => <>,
+                    Version    => 0,
+                    State      => null,
+                    P_State    => null,
+                    Mem_Sock   => null,
+                    Connection => null,
+                    In_Mem     => False);
 
    --  Error codes corresponding to all errors
 
@@ -320,5 +373,30 @@ private
                    User_03                    => 3002,
                    User_04                    => 3003,
                    User_05                    => 3004);
+
+   procedure WebSocket_Exception
+     (WebSocket : not null access Object'Class;
+      Message   : String;
+      Error     : Error_Type);
+   --  Call when an exception is caught. In this case we want to send the
+   --  error message, the close message and shutdown the socket.
+
+   generic
+      with procedure Receive
+         (Socket : not null access Object'Class;
+          Data   : out Ada.Streams.Stream_Element_Array;
+          Last   : out Ada.Streams.Stream_Element_Offset);
+      with procedure On_Success (Socket : Object_Class) is null;
+      with procedure On_Error (Socket : Object_Class) is null;
+      with procedure On_Free (Socket : in out Object_Class) is null;
+   function Read_Message
+      (WebSocket : in out Object_Class;
+       Message   : in out Ada.Strings.Unbounded.Unbounded_String)
+      return Boolean;
+   --  Process the current message on the socket.
+   --  Return True if a complete message was read.
+   --  Data is accumulated in Message, until the message is complete. At this
+   --  stage, Socket.On_Message will be called.
+   --  In case of error, other callbacks will be used as appropriate.
 
 end AWS.Net.WebSocket;
