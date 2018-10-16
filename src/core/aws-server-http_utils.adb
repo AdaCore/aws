@@ -320,8 +320,8 @@ package body AWS.Server.HTTP_Utils is
          end if;
 
          if URI = Admin_URI then
-
             --  Status page
+
             begin
                Answer := Response.Build
                  (Content_Type => MIME.Text_HTML,
@@ -1514,8 +1514,14 @@ package body AWS.Server.HTTP_Utils is
 
          --  Server
 
-         Net.Buffered.Put_Line
-           (Sock, "Server: AWS (Ada Web Server) v" & Version);
+         declare
+            Server : constant String :=
+                       CNF.Server_Header (HTTP_Server.Properties);
+         begin
+            if Server /= "" then
+               Net.Buffered.Put_Line (Sock, "Server: " & Server);
+            end if;
+         end;
 
          if Will_Close then
             --  We have decided to close connection after answering the client

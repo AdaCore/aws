@@ -142,5 +142,7 @@ begin
    Add ("SESSION_ID_LENGTH", Default.Session_Id_Length);
    Add ("TLS_TICKET_SUPPORT", Default.TLS_Ticket_Support);
    Add ("CONFIG_DIRECTORY", Default.Config_Directory);
+   Add ("USER_AGENT", Default.User_Agent);
+   Add ("SERVER_HEADER", Default.Server_Header);
    Text_IO.Put_Line ("""""""");
 end Build;

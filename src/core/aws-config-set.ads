@@ -75,6 +75,9 @@ package AWS.Config.Set is
    procedure Server_Priority (O : in out Object; Value : System.Any_Priority);
    --  Set the priority used by the HTTP and WebSockets servers
 
+   procedure Server_Header (O : in out Object; Value : String);
+   --  Set the server header (value used by the Server: request header)
+
    ----------------
    -- Connection --
    ----------------
@@ -394,6 +397,9 @@ package AWS.Config.Set is
 
    procedure Input_Line_Size_Limit (Value : Positive);
    --  Maximum length of an HTTP parameter
+
+   procedure User_Agent (Value : String);
+   --  Set the user agent for client request heaser
 
    procedure Parameter
      (Config        : in out Object;

@@ -609,6 +609,15 @@ package body AWS.Config is
       return O.P (Send_Timeout).Dur_Value;
    end Send_Timeout;
 
+   -------------------
+   -- Server_Header --
+   -------------------
+
+   function Server_Header (O : Object) return String is
+   begin
+      return To_String (O.P (Server_Header).Str_Value);
+   end Server_Header;
+
    -----------------
    -- Server_Host --
    -----------------
@@ -806,6 +815,15 @@ package body AWS.Config is
    begin
       return O.P (Upload_Size_Limit).Pos_Value;
    end Upload_Size_Limit;
+
+   ----------------
+   -- User_Agent --
+   ----------------
+
+   function User_Agent return String is
+   begin
+      return To_String (Process_Options (User_Agent).Str_Value);
+   end User_Agent;
 
    ----------------------------------
    -- WebSocket_Message_Queue_Size --

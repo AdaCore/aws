@@ -104,6 +104,9 @@ package AWS.Config is
      with Inline;
    --  Returns the priority used by the HTTP and WebSockets servers
 
+   function Server_Header (O : Object) return String with Inline;
+   --  Returns the Server header value
+
    ----------------
    -- Connection --
    ----------------
@@ -415,6 +418,9 @@ package AWS.Config is
    function WebSocket_Priority return System.Any_Priority;
    --  Set the priority used by the WebSocket service
 
+   function User_Agent return String with Inline;
+   --  Returns the User_Agent header value
+
 private
 
    use Ada.Strings.Unbounded;
@@ -435,6 +441,7 @@ private
       Server_Host,
       Server_Port,
       Server_Priority,
+      Server_Header,
       Security,
       Certificate,
       Key,
@@ -493,6 +500,7 @@ private
       Session_Cleaner_Priority,
       Service_Priority,
       Config_Directory,
+      User_Agent,
       Transient_Cleanup_Interval,
       Transient_Lifetime,
       Input_Line_Size_Limit,
@@ -670,6 +678,9 @@ private
                            Server_Priority                 =>
                              (Nat, Default.Server_Priority),
 
+                           Server_Header                   =>
+                             (Str, +Default.Server_Header),
+
                            Hotplug_Port                    =>
                              (Pos, Default.Hotplug_Port),
 
@@ -754,6 +765,9 @@ private
 
                         Config_Directory             =>
                           (Str, +Default.Config_Directory),
+
+                        User_Agent                   =>
+                          (Str, +Default.User_Agent),
 
                         Transient_Cleanup_Interval   =>
                           (Dur, Default.Transient_Cleanup_Interval),

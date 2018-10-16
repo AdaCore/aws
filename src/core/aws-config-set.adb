@@ -526,6 +526,15 @@ package body AWS.Config.Set is
       O.P (Send_Timeout).Dur_Value := Value;
    end Send_Timeout;
 
+   -------------------
+   -- Server_Header --
+   -------------------
+
+   procedure Server_Header (O : in out Object; Value : String) is
+   begin
+      O.P (Server_Header).Str_Value := To_Unbounded_String (Value);
+   end Server_Header;
+
    -----------------
    -- Server_Host --
    -----------------
@@ -716,6 +725,15 @@ package body AWS.Config.Set is
    begin
       O.P (Upload_Size_Limit).Pos_Value := Value;
    end Upload_Size_Limit;
+
+   ----------------
+   -- User_Agent --
+   ----------------
+
+   procedure User_Agent (Value : String) is
+   begin
+      Process_Options (User_Agent).Str_Value := +Value;
+   end User_Agent;
 
    ----------------------------------
    -- WebSocket_Message_Queue_Size --

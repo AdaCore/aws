@@ -187,9 +187,13 @@ package body AWS.Client.HTTP_Utils is
             URI    => "/",
             Method => "CONNECT");
 
-         Send_Header
-           (Sock.all,
-            Messages.User_Agent (To_String (Connection.User_Agent)));
+         declare
+            User_Agent : constant String := To_String (Connection.User_Agent);
+         begin
+            if User_Agent /= "" then
+               Send_Header (Sock.all, Messages.User_Agent (User_Agent));
+            end if;
+         end;
 
          --  Empty line to terminate the connect
 
@@ -812,10 +816,15 @@ package body AWS.Client.HTTP_Utils is
         (Sock.all, Messages.Accept_Language_Token,
          Messages.Accept_Language'Access, "fr, ru, us", Header);
 
-      Send_Header
-        (Sock.all, Messages.User_Agent_Token,
-         Messages.User_Agent'Access,
-         To_String (Connection.User_Agent), Header);
+      declare
+         User_Agent : constant String := To_String (Connection.User_Agent);
+      begin
+         if User_Agent /= "" then
+            Send_Header
+              (Sock.all, Messages.User_Agent_Token,
+               Messages.User_Agent'Access, User_Agent, Header);
+         end if;
+      end;
 
       if Connection.Data_Range /= No_Range then
          Send_Header

@@ -1099,6 +1099,14 @@ Current supported options are:
   Number of seconds to timeout when sending chunk of data. The default is
   |SEND_TIMEOUT| seconds.
 
+*Server_Header (string)*
+
+  .. index:: Server_Header
+
+  The value to be used for the HTTP Server header. The default is
+  |SERVER_HEADER|. If the value is set to the empty string, the server
+  header is not sent.
+
 *Server_Host (string)*
 
   .. index:: Server_Host
@@ -1240,6 +1248,14 @@ Current supported options are:
   This is to set the directory where upload files must be stored. By
   default uploaded files are written in the current directory. The
   default is |UPLOAD_DIR|.
+
+*User_Agent (string)*
+
+  .. index:: User_Agent
+
+  The value to be used for the HTTP User_Agent header. The default value
+  is |USER_AGENT|. If the value is set to the empty string, the User_Agent
+  header is not sent.
 
 *WebSocket_Message_Queue_Size (positive)*
 
