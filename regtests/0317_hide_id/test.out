@@ -8,7 +8,7 @@ Host:
 Accept: text/html, */*
 Accept-Encoding: deflate, gzip
 Accept-Language: fr, ru, us
-User-Agent: AWS (Ada Web Server) v19.0
+User-Agent: AWS (Ada Web Server) v##.#
 
 
 

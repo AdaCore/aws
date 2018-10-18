@@ -21,6 +21,8 @@ with Ada.Text_IO; use Ada.Text_IO;
 
 with AWS.Client;
 with AWS.Config.Set;
+with AWS.Default;
+with AWS.Messages;
 with AWS.Net.Log;
 with AWS.Response;
 with AWS.Server.Status;
@@ -43,6 +45,9 @@ procedure Hide_Id is
    Last  : Positive;
 
    Adjust : constant Streams.Stream_Element_Offset := AWS.Version'Length - 4;
+
+   Default_User_Agent : constant String :=
+                          Messages.User_Agent (Default.User_Agent);
 
    --------------
    -- HTTP_Log --
@@ -147,6 +152,15 @@ procedure Hide_Id is
    begin
       while not End_Of_File (F) loop
          Get_Line (F, Buffer, Last);
+
+         if Last > 1 and then Buffer (Last) = ASCII.CR then
+            Last := Last - 1;
+         end if;
+
+         if Buffer (1 .. Last) = Default_User_Agent then
+            Buffer (Last - 3  .. Last) := "##.#";
+         end if;
+
          Put_Line (Buffer (1 .. Last));
       end loop;
    end Output;
