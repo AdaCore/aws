@@ -130,12 +130,10 @@ begin
                   Last := Last - 1;
                end if;
 
-               if Text (1 .. Last) = "An unexpected TLS packet was received."
-                 or else Text (1 .. Last)
-                         = "A record packet with illegal version was received."
-                 or else Text (1 .. Last)
-                         = "1408F10B:SSL routines:SSL3_GET_RECORD:"
-                           & "wrong version number" -- OpenSSL
+               if Text (1 .. Last) in "An unexpected TLS packet was received."
+                 | "A record packet with illegal version was received."
+                 | "A packet with illegal or unsupported version was received."
+                 | "1408F10B:SSL routines:SSL3_GET_RECORD:wrong version number"
                then
                   Put_Line ("Expected error about wrong data received");
                else
