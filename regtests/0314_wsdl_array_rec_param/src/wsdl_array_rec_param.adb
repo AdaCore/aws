@@ -49,6 +49,7 @@ begin
 
    Config.Set.Server_Port
      (Conf, AWS_Test_Service.Server.Port);
+   Config.Set.Server_Host (Conf, "localhost");
 
    Disp := SOAP.Dispatchers.Callback.Create
      (CB'Unrestricted_access,
