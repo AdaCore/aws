@@ -19,6 +19,7 @@
 with AWS.Messages;
 with AWS.Parameters;
 with AWS.Session;
+with Ada.Streams;
 
 package body Runme_CB is
 
@@ -78,7 +79,7 @@ package body Runme_CB is
             & "<p>go = "
             &  Parameters.Get (P_List, "go")
             & "<p>length = "
-            &  Positive'Image (Status.Content_Length (Request)));
+            &  Ada.Streams.Stream_Element_Offset'Image (Status.Content_Length (Request)));
 
       elsif URI = "/upload" then
          return Response.Build
