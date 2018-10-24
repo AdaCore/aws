@@ -75,7 +75,7 @@ package AWS.Net.WebSocket.Protocol is
 
    procedure Add_Connect_Headers
      (Protocol : State;
-      URI      : String;
+      Host     : String;
       Headers  : in out AWS.Headers.List) is abstract;
    --  Add all required headers to establish a websocket connection to a server
 
