@@ -219,6 +219,8 @@ private
    HTTP  : constant Unbounded_String := To_Unbounded_String ("http");
    HTTPS : constant Unbounded_String := To_Unbounded_String ("https");
    FTP   : constant Unbounded_String := To_Unbounded_String ("ftp");
+   WS    : constant Unbounded_String := To_Unbounded_String ("ws");
+   WSS   : constant Unbounded_String := To_Unbounded_String ("wss");
 
    type Object is record
       User       : Unbounded_String;
