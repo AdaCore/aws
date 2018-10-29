@@ -163,6 +163,8 @@ package body AWS.URL.Set is
       FTP_Token   : constant String := "ftp:";
       HTTP_Token  : constant String := "http:";
       HTTPS_Token : constant String := "https:";
+      WS_Token    : constant String := "ws:";
+      WSS_Token   : constant String := "wss:";
 
       L_URL       : constant String :=
                       Strings.Fixed.Translate
@@ -444,6 +446,18 @@ package body AWS.URL.Set is
       elsif Utils.Match (L_URL (L_URL'First .. P), HTTPS_Token) then
          Item.Port := Default_HTTPS_Port;
          Parse (L_URL (L_URL'First + HTTPS_Token'Length .. P));
+         Item.Protocol := HTTPS;
+
+      elsif Utils.Match (L_URL (L_URL'First .. P), WS_Token) then
+         --  Initial handshake is via http
+         Item.Port := Default_HTTP_Port;
+         Parse (L_URL (L_URL'First + WS_Token'Length .. P));
+         Item.Protocol := HTTP;
+
+      elsif Utils.Match (L_URL (L_URL'First .. P), WSS_Token) then
+         --  Initial handshake is via https
+         Item.Port := Default_HTTPS_Port;
+         Parse (L_URL (L_URL'First + WSS_Token'Length .. P));
          Item.Protocol := HTTPS;
 
       elsif Utils.Match (L_URL (L_URL'First .. P), FTP_Token) then

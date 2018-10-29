@@ -386,7 +386,9 @@ package body AWS.URL is
    function Port_Not_Default (URL : Object) return String is
    begin
       if (URL.Port = Default_HTTP_Port and then URL.Protocol = HTTP)
+        or else (URL.Port = Default_HTTP_Port and then URL.Protocol = WS)
         or else (URL.Port = Default_HTTPS_Port and then URL.Protocol = HTTPS)
+        or else (URL.Port = Default_HTTPS_Port and then URL.Protocol = WSS)
         or else (URL.Port = Default_FTP_Port and then URL.Protocol = FTP)
       then
          return "";
@@ -660,7 +662,7 @@ package body AWS.URL is
 
    function Security (URL : Object) return Boolean is
    begin
-      return URL.Protocol = HTTPS;
+      return URL.Protocol = HTTPS or else URL.Protocol = WSS;
    end Security;
 
    ---------

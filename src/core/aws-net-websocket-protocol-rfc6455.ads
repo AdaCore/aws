@@ -71,7 +71,7 @@ package AWS.Net.WebSocket.Protocol.RFC6455 is
 
    overriding procedure Add_Connect_Headers
      (Protocol : State;
-      URI      : String;
+      Host     : String;
       Headers  : in out AWS.Headers.List);
    overriding function Check_Connect_Response
      (Protocol : State;

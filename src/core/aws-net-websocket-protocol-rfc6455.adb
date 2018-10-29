@@ -125,7 +125,7 @@ package body AWS.Net.WebSocket.Protocol.RFC6455 is
 
    overriding procedure Add_Connect_Headers
       (Protocol : State;
-       URI      : String;
+       Host     : String;
        Headers  : in out AWS.Headers.List)
    is
       pragma Unreferenced (Protocol);
@@ -134,11 +134,10 @@ package body AWS.Net.WebSocket.Protocol.RFC6455 is
       H : Stream_Element_Array (1 .. 16) with Import, Address => Ints'Address;
 
    begin
-      Headers.Add ("Host", URI);
-      Headers.Add ("Upgrade", "websocket");
+      Headers.Add ("Host", Host);
+      Headers.Add ("Upgrade", "WebSocket");
       Headers.Add ("Connection", "Upgrade");
       Headers.Add ("Sec-WebSocket-Key", Translator.Base64_Encode (H));
-      Headers.Add ("Sec-WebSocket-Protocol", "chat");
       Headers.Add ("Sec-WebSocket-Version", "13");
    end Add_Connect_Headers;
 

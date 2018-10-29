@@ -37,6 +37,7 @@ with AWS.Net.WebSocket.Protocol.RFC6455;
 with AWS.Response;
 with AWS.Status.Set;
 with AWS.Translator;
+with AWS.URL;
 
 package body AWS.Net.WebSocket is
 
@@ -89,6 +90,7 @@ package body AWS.Net.WebSocket is
       Headers  : AWS.Headers.List := AWS.Headers.Empty_List;
       Resp     : AWS.Response.Data;
       Protocol : AWS.Net.WebSocket.Protocol.State_Class;
+      URL      : constant AWS.URL.Object := AWS.URL.Parse (URI);
    begin
       --  Initially, the connection is initiated with standard http GET.
 
@@ -107,7 +109,7 @@ package body AWS.Net.WebSocket is
          Certificate => AWS.Default.Client_Certificate,
          Timeouts    => AWS.Client.No_Timeout);
 
-      Protocol.Add_Connect_Headers (URI, Headers);
+      Protocol.Add_Connect_Headers (AWS.URL.Host (URL), Headers);
 
       AWS.Client.Get
         (Socket.Connection.all,
