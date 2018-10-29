@@ -158,7 +158,13 @@ procedure Hide_Id is
          end if;
 
          if Buffer (1 .. Last) = Default_User_Agent then
-            Buffer (Last - 3  .. Last) := "##.#";
+            for J in reverse Buffer'Range loop
+               if Buffer (J) = 'v' then
+                  Last := J + 4;
+                  Buffer (J + 1 .. Last) := "##.#";
+                  exit;
+               end if;
+            end loop;
          end if;
 
          Put_Line (Buffer (1 .. Last));
