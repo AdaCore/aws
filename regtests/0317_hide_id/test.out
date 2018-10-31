@@ -1,7 +1,6 @@
 =============== First
 
 
-@@@ SENT ( 189/ 189 buffer usage) @@@
 
 Connection: Close
 Host:
@@ -11,9 +10,9 @@ Accept-Language: fr, ru, us
 User-Agent: AWS (Ada Web Server) v##.#
 
 
+@@@ SENT ( 189/ 189 buffer usage) @@@
 
 
-@@@ SENT ( 159/ 159 buffer usage) @@@
 
 Date:
 Server: justme_server
@@ -22,10 +21,10 @@ Content-Type: text/html
 Content-Length: 16
 
 <p>Hello world !
+@@@ SENT ( 159/ 159 buffer usage) @@@
 =============== Second
 
 
-@@@ SENT ( 176/ 176 buffer usage) @@@
 
 Connection: Close
 Host:
@@ -35,9 +34,9 @@ Accept-Language: fr, ru, us
 User-Agent: justme_client
 
 
+@@@ SENT ( 176/ 176 buffer usage) @@@
 
 
-@@@ SENT ( 159/ 159 buffer usage) @@@
 
 Date:
 Server: justme_server
@@ -46,10 +45,10 @@ Content-Type: text/html
 Content-Length: 16
 
 <p>Hello world !
+@@@ SENT ( 159/ 159 buffer usage) @@@
 =============== Third
 
 
-@@@ SENT ( 149/ 149 buffer usage) @@@
 
 Connection: Close
 Host:
@@ -58,9 +57,9 @@ Accept-Encoding: deflate, gzip
 Accept-Language: fr, ru, us
 
 
+@@@ SENT ( 149/ 149 buffer usage) @@@
 
 
-@@@ SENT ( 159/ 159 buffer usage) @@@
 
 Date:
 Server: justme_server
@@ -69,3 +68,4 @@ Content-Type: text/html
 Content-Length: 16
 
 <p>Hello world !
+@@@ SENT ( 159/ 159 buffer usage) @@@

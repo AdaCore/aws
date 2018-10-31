@@ -74,30 +74,26 @@ procedure Hide_Id is
       begin
          New_Line (F, 2);
 
-         --  Adjust size depending on the AWS version length
-
          S1 := Last;
          S2 := Data'Last;
-
-         case Direction is
-            when Net.Log.Sent    =>
-               S1 := S1 - Adjust;
-               S2 := S2 - Adjust;
-            when Net.Log.Received =>
-               S1 := S1 - Adjust;
-         end case;
-
-         Put_Line (F, "@@@ " & Net.Log.Data_Direction'Image (Direction)
-                   & " ("
-                   & Streams.Stream_Element_Offset'Image (S1) & "/"
-                   & Streams.Stream_Element_Offset'Image (S2)
-                   & " buffer usage) @@@");
 
          for I in Data'First .. Last loop
             K := K + 1;
             Buffer (K) := Character'Val (Data (I));
 
             if Buffer (K) = ASCII.CR or else Buffer (K) = ASCII.LF then
+               if Buffer (1 .. K - 1) = Default_User_Agent then
+                  --  Adjust size depending on the AWS version length
+
+                  case Direction is
+                     when Net.Log.Sent    =>
+                        S1 := S1 - Adjust;
+                        S2 := S2 - Adjust;
+                     when Net.Log.Received =>
+                        S1 := S1 - Adjust;
+                  end case;
+               end if;
+
                Output := True;
             end if;
 
@@ -118,6 +114,12 @@ procedure Hide_Id is
          end loop;
 
          New_Line (F);
+
+         Put_Line (F, "@@@ " & Net.Log.Data_Direction'Image (Direction)
+                   & " ("
+                   & Streams.Stream_Element_Offset'Image (S1) & "/"
+                   & Streams.Stream_Element_Offset'Image (S2)
+                   & " buffer usage) @@@");
       end Write;
 
    begin
