@@ -151,6 +151,12 @@ procedure SSL_Reuse is
             Text_IO.Put_Line ("!!! Session not reused");
          end if;
 
+         if Net.SSL.Session_Id_Image (Sessions (J)) = Client.Session_Id_Image
+           and then not Client.Session_Reused
+         then
+            Text_IO.Put_Line ("!!! Session reused");
+         end if;
+
          Client.Shutdown;
       end loop;
    end Create_Reuse_Sessions;

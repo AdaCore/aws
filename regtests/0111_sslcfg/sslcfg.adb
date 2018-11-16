@@ -48,15 +48,17 @@ procedure SSLCfg is
             Text : constant String := Ada.Exceptions.Exception_Message (E);
          begin
             if Fixed.Index (Text, ":fopen:No such file or directory") > 0
-              or Text = "file ""absent-file"" does not exist"
+              or else Fixed.Index (Text, "Key file ""absent-file"" error.") = 1
+              or else Text = "file ""absent-file"" does not exist"
             then
                Put_Line ("Expected error about absent file");
 
             elsif Fixed.Index (Text, ":PEM_read_bio:no start line") > 0
-              or Text = "Base64 unexpected header error."
-              or Text = "Error in parsing."
-              or Text = "No certificate was found."
-              or Text = "The requested data were not available."
+              or else Fixed.Index (Text, "Key file ""sslcfg.adb"" error.") = 1
+              or else Text in "Base64 unexpected header error."
+                | "Error in parsing."
+                | "No certificate was found."
+                | "The requested data were not available."
             then
                Put_Line ("Expected error about wrong data");
 

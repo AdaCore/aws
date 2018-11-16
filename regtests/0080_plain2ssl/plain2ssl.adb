@@ -134,6 +134,8 @@ begin
                  | "A record packet with illegal version was received."
                  | "A packet with illegal or unsupported version was received."
                  | "1408F10B:SSL routines:SSL3_GET_RECORD:wrong version number"
+                 | "1408F10B:SSL routines:ssl3_get_record:wrong version number"
+                 | "1404C10B:SSL routines:ST_OK:wrong version number"
                then
                   Put_Line ("Expected error about wrong data received");
                else

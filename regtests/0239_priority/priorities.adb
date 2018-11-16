@@ -107,12 +107,18 @@ procedure Priorities is
 
    function Is_Handshake_Error (Text : String) return Boolean is
    begin
-      return Text = "No or insufficient priorities were set."
-        or else Text = "No supported cipher suites have been found."
-        or else Text = "error:1408A0C1:SSL routines:ssl3_get_client_hello:"
-                       & "no shared cipher"
-        or else Text = "14077410:SSL routines:SSL23_GET_SERVER_HELLO:"
-                       & "sslv3 alert handshake failure";
+      return Text in "No or insufficient priorities were set."
+        | "error:1408A0C1:lib(20):func(138):reason(193)"
+        | "No supported cipher suites have been found."
+        | "error:1408A0C1:SSL routines:ssl3_get_client_hello:no shared cipher"
+        | "error:1417A0C1:SSL routines:tls_post_process_client_hello:no shared"
+          & " cipher"
+        | "14077410:SSL routines:SSL23_GET_SERVER_HELLO:sslv3 alert handshake"
+          & " failure"
+        | "14094410:SSL routines:ssl3_read_bytes:sslv3 alert handshake"
+          & " failure"
+        | "14004410:SSL routines:CONNECT_CR_SRVR_HELLO:sslv3 alert handshake"
+          & " failure";
    end Is_Handshake_Error;
 
    -----------
