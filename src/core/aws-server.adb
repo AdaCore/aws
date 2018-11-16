@@ -421,7 +421,7 @@ package body AWS.Server is
    procedure Set_Security
      (Web_Server           : in out HTTP;
       Certificate_Filename : String;
-      Security_Mode        : Net.SSL.Method := Net.SSL.SSLv23_Server;
+      Security_Mode        : Net.SSL.Method := Net.SSL.TLS_Server;
       Key_Filename         : String         := "") is
    begin
       AWS.Config.Set.Certificate (Web_Server.Properties, Certificate_Filename);

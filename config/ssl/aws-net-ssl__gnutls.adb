@@ -1073,7 +1073,7 @@ package body AWS.Net.SSL is
    procedure Initialize
      (Config               : in out SSL.Config;
       Certificate_Filename : String;
-      Security_Mode        : Method     := SSLv23;
+      Security_Mode        : Method     := TLS;
       Priorities           : String     := "";
       Ticket_Support       : Boolean    := False;
       Key_Filename         : String     := "";
@@ -1132,8 +1132,8 @@ package body AWS.Net.SSL is
 
          else
             case Security_Mode is
-               when SSLv3 | SSLv3_Server | SSLv3_Client =>
-                  return "NORMAL:-VERS-TLS-ALL:+VERS-SSL3.0";
+               when TLS | TLS_Server | TLS_Client =>
+                  return "NORMAL";
 
                when TLSv1 | TLSv1_Server | TLSv1_Client =>
                   return "NORMAL:-VERS-TLS-ALL:+VERS-TLS1.0";
@@ -1144,8 +1144,6 @@ package body AWS.Net.SSL is
                when TLSv1_2 | TLSv1_2_Server | TLSv1_2_Client =>
                   return "NORMAL:-VERS-TLS-ALL:+VERS-TLS1.2";
 
-               when SSLv23 | SSLv23_Server | SSLv23_Client =>
-                  return "NORMAL:+VERS-TLS-ALL:+VERS-SSL3.0";
             end case;
          end if;
       end Get_Priorities;
@@ -1273,7 +1271,7 @@ package body AWS.Net.SSL is
 
    procedure Initialize_Default_Config
      (Certificate_Filename : String;
-      Security_Mode        : Method   := SSLv23;
+      Security_Mode        : Method   := TLS;
       Priorities           : String   := "";
       Ticket_Support       : Boolean  := False;
       Key_Filename         : String   := "";

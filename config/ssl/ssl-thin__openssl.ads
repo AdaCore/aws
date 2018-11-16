@@ -191,7 +191,6 @@ package SSL.Thin is
    SSL_CTRL_SESS_MISSES              : constant := 29;
    SSL_CTRL_SESS_TIMEOUTS            : constant := 30;
    SSL_CTRL_SESS_CACHE_FULL          : constant := 31;
-   SSL_CTRL_OPTIONS                  : constant := 32;
    SSL_CTRL_MODE                     : constant := 33;
    SSL_CTRL_GET_READ_AHEAD           : constant := 40;
    SSL_CTRL_SET_READ_AHEAD           : constant := 41;
@@ -677,15 +676,16 @@ package SSL.Thin is
    -- Multithread data access setup locking routines --
    ----------------------------------------------------
 
-   function  CRYPTO_num_locks return Natural
-     with Import, Convention => C, External_Name => "CRYPTO_num_locks";
+   function CRYPTO_num_locks return Natural
+     with Import, Convention => C, External_Name => "__aws_CRYPTO_num_locks";
 
    procedure CRYPTO_set_id_callback (Id_Function : Pointer)
-     with Import, Convention => C, External_Name => "CRYPTO_set_id_callback";
+     with Import, Convention => C,
+          External_Name => "__aws_CRYPTO_set_id_callback";
 
    procedure CRYPTO_set_locking_callback (Locking_Function : Pointer)
      with Import, Convention => C,
-          External_Name => "CRYPTO_set_locking_callback";
+          External_Name => "__aws_CRYPTO_set_locking_callback";
 
    function CRYPTO_get_locking_callback return Pointer
      with Import, Convention => C,
@@ -693,16 +693,16 @@ package SSL.Thin is
 
    procedure CRYPTO_set_dynlock_create_callback (Create_Function : Pointer)
      with Import, Convention => C,
-          External_Name => "CRYPTO_set_dynlock_create_callback";
+          External_Name => "__aws_CRYPTO_set_dynlock_create_callback";
 
    procedure CRYPTO_set_dynlock_lock_callback (Lock_Function : Pointer)
      with Import, Convention => C,
-          External_Name => "CRYPTO_set_dynlock_lock_callback";
+          External_Name => "__aws_CRYPTO_set_dynlock_lock_callback";
 
    procedure CRYPTO_set_dynlock_destroy_callback
      (Destroy_Function : Pointer)
      with Import, Convention => C,
-          External_Name => "CRYPTO_set_dynlock_destroy_callback";
+          External_Name => "__aws_CRYPTO_set_dynlock_destroy_callback";
 
    function CRYPTO_get_dynlock_create_callback  return Pointer
      with Import, Convention => C,
@@ -720,32 +720,34 @@ package SSL.Thin is
    -- OpenSSL version information routines --
    ------------------------------------------
 
-   SSLEAY_VERSION  : constant := 0;
-   SSLEAY_CFLAGS   : constant := 2;
-   SSLEAY_BUILT_ON : constant := 3;
-   SSLEAY_PLATFORM : constant := 4;
-   SSLEAY_DIR      : constant := 5;
+   OPENSSL_VERSION0 : constant := 0;
+   OPENSSL_CFLAGS   : constant := 2;
+   OPENSSL_BUILT_ON : constant := 3;
+   OPENSSL_PLATFORM : constant := 4;
+   OPENSSL_DIR      : constant := 5;
 
-   function SSLeay return long
-     with Import, Convention => C, External_Name => "SSLeay";
+   function OpenSSL_version_num return long
+     with Import, Convention => C, External_Name => "OpenSSL_version_num";
    --  Returns OpenSSL numeric release version identifier
 
-   function SSLeay_version_info (T : int) return Cstr.chars_ptr
-     with Import, Convention => C, External_Name => "SSLeay_version";
+   function SSLeay return long renames OpenSSL_version_num;
+
+   function OpenSSL_version (T : int) return Cstr.chars_ptr
+     with Import, Convention => C, External_Name => "OpenSSL_version";
    --  Returns version information line
 
    -------------------------------
    -- Context control routines  --
    -------------------------------
 
-   function SSLv23_method        return SSL_Method
-     with Import, Convention => C, External_Name => "SSLv23_method";
+   function TLS_method         return SSL_Method
+     with Import, Convention => C, External_Name => "TLS_method";
 
-   function SSLv23_server_method return SSL_Method
-     with Import, Convention => C, External_Name => "SSLv23_server_method";
+   function TLS_server_method  return SSL_Method
+     with Import, Convention => C, External_Name => "TLS_server_method";
 
-   function SSLv23_client_method return SSL_Method
-     with Import, Convention => C, External_Name => "SSLv23_client_method";
+   function TLS_client_method  return SSL_Method
+     with Import, Convention => C, External_Name => "TLS_client_method";
 
    function TLSv1_method         return SSL_Method
      with Import, Convention => C, External_Name => "TLSv1_method";
@@ -784,6 +786,11 @@ package SSL.Thin is
      with Import, Convention => C,
           External_Name => "SSL_CTX_set_quiet_shutdown";
 
+   function SSL_CTX_set_options
+     (Ctx : SSL_CTX; Op : unsigned_long) return unsigned_long
+     with Import, Convention => C,
+          External_Name => "__aws_SSL_CTX_set_options";
+
    function SSL_CTX_ctrl
      (Ctx : SSL_CTX; Cmd : int; Larg : long; Parg : Pointer) return long
      with Import, Convention => C, External_Name => "SSL_CTX_ctrl";
@@ -807,11 +814,8 @@ package SSL.Thin is
    function CRYPTO_set_mem_functions (M, R, F : System.Address) return int
      with Import, Convention => C, External_Name => "CRYPTO_set_mem_functions";
 
-   procedure SSL_library_init
-     with Import, Convention => C, External_Name => "SSL_library_init";
-
-   procedure SSL_load_error_strings
-     with Import, Convention => C, External_Name => "SSL_load_error_strings";
+   function SSL_library_init return int
+     with Import, Convention => C, External_Name => "__aws_SSL_library_init";
 
    procedure ERR_load_crypto_strings
      with Import, Convention => C, External_Name => "ERR_load_crypto_strings";
@@ -979,11 +983,11 @@ package SSL.Thin is
    type EVP_MD is new Pointer;
    type EVP_MD_CTX is new Pointer;
 
-   function EVP_MD_CTX_create return EVP_MD_CTX
-     with Import, Convention => C, External_Name => "EVP_MD_CTX_create";
+   function EVP_MD_CTX_new return EVP_MD_CTX
+     with Import, Convention => C, External_Name => "EVP_MD_CTX_new";
 
-   procedure EVP_MD_CTX_destroy (Ctx : EVP_MD_CTX)
-     with Import, Convention => C, External_Name => "EVP_MD_CTX_destroy";
+   procedure EVP_MD_CTX_free (Ctx : EVP_MD_CTX)
+     with Import, Convention => C, External_Name => "EVP_MD_CTX_free";
 
    function EVP_DigestInit (ctx : EVP_MD_CTX; kind : EVP_MD) return int
      with Import, Convention => C, External_Name => "EVP_DigestInit";
@@ -1230,7 +1234,8 @@ package SSL.Thin is
      (Args                          : long;
       Argp                          : Pointer;
       New_Func, Dup_Func, Free_Func : Pointer) return int
-     with Import, Convention => C, External_Name => "SSL_CTX_get_ex_new_index";
+     with Import, Convention => C,
+          External_Name => "__aws_SSL_CTX_get_ex_new_index";
 
    function SSL_CTX_set_ex_data
      (Ctx : SSL_CTX; Idx : int; Arg : Pointer) return int
@@ -1246,14 +1251,12 @@ package SSL.Thin is
      (SSL : SSL_Handle; Is_Export : int; Keylength : int) return RSA
      with Convention => C;
 
-   procedure SSL_CTX_set_tmp_rsa_callback
-     (Ctx : SSL_CTX; RSA_CB : Tmp_RSA_Callback)
-     with Import, Convention => C,
-          External_Name => "SSL_CTX_set_tmp_rsa_callback";
-
    procedure SSL_set_tmp_rsa_callback
      (SSL : SSL_Handle; RSA_CB : Tmp_RSA_Callback)
-     with Import, Convention => C, External_Name => "SSL_set_tmp_rsa_callback";
+     with Import, Convention => C,
+                  External_Name => "__aws_SSL_set_tmp_rsa_callback";
+   --  This call do nothing in version 1.1 and later, remove it on older
+   --  versions support terminate.
 
    type Tmp_DH_Callback is access function
      (SSL : SSL_Handle; Is_Export : int; Keylength : int) return DH
@@ -1651,6 +1654,9 @@ package SSL.Thin is
 
    function SSL_get1_session (SSL : SSL_Handle) return SSL_Session
      with Import, Convention => C, External_Name => "SSL_get1_session";
+
+   function SSL_session_reused (SSL : SSL_Handle) return int
+     with Import, Convention => C, External_Name => "__aws_SSL_session_reused";
 
    function SSL_SESSION_get_id
      (s : SSL_Session; len : access unsigned) return Pointer

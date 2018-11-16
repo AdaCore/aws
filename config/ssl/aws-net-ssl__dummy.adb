@@ -148,7 +148,7 @@ package body AWS.Net.SSL is
    procedure Initialize
      (Config               : in out SSL.Config;
       Certificate_Filename : String;
-      Security_Mode        : Method     := SSLv23;
+      Security_Mode        : Method     := TLS;
       Priorities           : String     := "";
       Ticket_Support       : Boolean    := False;
       Key_Filename         : String     := "";
@@ -167,7 +167,7 @@ package body AWS.Net.SSL is
 
    procedure Initialize_Default_Config
      (Certificate_Filename : String;
-      Security_Mode        : Method     := SSLv23;
+      Security_Mode        : Method     := TLS;
       Priorities           : String     := "";
       Ticket_Support       : Boolean    := False;
       Key_Filename         : String     := "";

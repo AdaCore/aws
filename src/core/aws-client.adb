@@ -207,7 +207,7 @@ package body AWS.Client is
 
          if Connection.Default_SSL_Config then
             Net.SSL.Initialize
-              (Connection.SSL_Config, Certificate, Net.SSL.SSLv23_Client);
+              (Connection.SSL_Config, Certificate, Net.SSL.TLS_Client);
          else
             Connection.SSL_Config := SSL_Config;
          end if;

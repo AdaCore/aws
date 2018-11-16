@@ -111,15 +111,23 @@ package AWS.Net.SSL is
    --------------------
 
    type Method is
-     (SSLv23,   SSLv23_Server,   SSLv23_Client,  -- Highest available SSL/TLS
-      TLSv1,    TLSv1_Server,    TLSv1_Client,   -- TLS 1.0
-      TLSv1_1,  TLSv1_1_Server,  TLSv1_1_Client, -- TLS 1.1
-      TLSv1_2,  TLSv1_2_Server,  TLSv1_2_Client, -- TLS 1.2
-      SSLv3,    SSLv3_Server,    SSLv3_Client);  -- SSLv3 (obsolescent)
+     (TLS,     TLS_Server,     TLS_Client,      -- Highest available TLS
+      TLSv1,   TLSv1_Server,   TLSv1_Client,    -- TLS 1.0
+      TLSv1_1, TLSv1_1_Server, TLSv1_1_Client,  -- TLS 1.1
+      TLSv1_2, TLSv1_2_Server, TLSv1_2_Client); -- TLS 1.2
 
-   pragma Obsolescent (SSLv3, "use SSLv23 instead");
-   pragma Obsolescent (SSLv3_Server, "use SSLv23_Server instead");
-   pragma Obsolescent (SSLv3_Client, "use SSLv23_Client instead");
+   SSLv23        : constant Method := TLS
+     with Obsolescent => "use TLS instead";
+   SSLv23_Server : constant Method := TLS_Server
+     with Obsolescent => "use TLS_Server instead";
+   SSLv23_Client : constant Method := TLS_Client
+     with Obsolescent => "use TLS_Client instead";
+   SSLv3         : constant Method := TLS
+     with Obsolescent => "use TLS instead";
+   SSLv3_Server  : constant Method := TLS_Server
+     with Obsolescent => "use TLS_Server instead";
+   SSLv3_Client  : constant Method := TLS_Client
+     with Obsolescent => "use TLS_Client instead";
 
    type Config is private;
 
@@ -128,7 +136,7 @@ package AWS.Net.SSL is
    procedure Initialize
      (Config               : in out SSL.Config;
       Certificate_Filename : String;
-      Security_Mode        : Method     := SSLv23;
+      Security_Mode        : Method     := TLS;
       Priorities           : String     := "";
       Ticket_Support       : Boolean    := False;
       Key_Filename         : String     := "";
@@ -156,7 +164,7 @@ package AWS.Net.SSL is
 
    procedure Initialize_Default_Config
      (Certificate_Filename : String;
-      Security_Mode        : Method     := SSLv23;
+      Security_Mode        : Method     := TLS;
       Priorities           : String     := "";
       Ticket_Support       : Boolean    := False;
       Key_Filename         : String     := "";

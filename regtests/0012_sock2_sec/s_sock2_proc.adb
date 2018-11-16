@@ -22,6 +22,7 @@ with Ada.Text_IO;
 with Ada.Exceptions;
 with Ada.Streams;
 
+with AWS.Net.Log;
 with AWS.Net.SSL;
 
 procedure S_Sock2_Proc (Security : Boolean) is
@@ -83,11 +84,27 @@ procedure S_Sock2_Proc (Security : Boolean) is
          accept Stop;
    end Client_Side;
 
+   --------------------
+   -- Error_Callback --
+   --------------------
+
+   procedure Error_Callback
+     (Socket : Net.Socket_Type'Class; Message : String) is
+   begin
+      Text_IO.Put_Line ("# " & Message);
+   end Error_Callback;
+
+   --  The callback procedure which is called for every socket error
+
 begin
    for J in Sample'Range loop
       Sample (J) := Stream_Element
                       (J mod Stream_Element_Offset (Stream_Element'Last));
    end loop;
+
+   Net.Log.Start (Write => null,
+                  Event => null,
+                  Error => Error_Callback'Unrestricted_Access);
 
    Text_IO.Put_Line ("start");
 
