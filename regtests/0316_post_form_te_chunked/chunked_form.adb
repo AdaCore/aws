@@ -59,7 +59,8 @@ begin
       Callback   => Service'Unrestricted_Access,
       Port       => 0);
 
-   S.Connect (Server.Status.Host (WS), Server.Status.Port (WS));
+   S.Connect
+     (Net.Localhost (Server.Status.Is_IPv6 (WS)), Server.Status.Port (WS));
 
    Net.Buffered.Put_Line (S, "POST / HTTP/1.1");
    Net.Buffered.Put_Line (S, "Host: 127.0.0.1:8383");
