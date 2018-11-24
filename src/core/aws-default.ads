@@ -94,11 +94,13 @@ package AWS.Default with Pure is
    --  Log values. The character '@' in the error log filename prefix is
    --  replaced by the running program name.
 
+   Log_Activated                   : constant Boolean := False;
    Log_File_Directory              : constant String := "./";
 
    Log_Split_Mode                  : constant String := "NONE";
    Log_Filename_Prefix             : constant String := "@";
 
+   Error_Log_Activated             : constant Boolean := False;
    Error_Log_Split_Mode            : constant String := "NONE";
    Error_Log_Filename_Prefix       : constant String := "@_error";
 

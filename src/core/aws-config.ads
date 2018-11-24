@@ -187,6 +187,9 @@ package AWS.Config is
    -- Log --
    ---------
 
+   function Log_Activated (O : Object) return Boolean with Inline;
+   --  Whether the default log should be activated
+
    function Log_File_Directory (O : Object) return String with Inline;
    --  This point to the directory where log files will be written. The
    --  directory returned will end with a directory separator.
@@ -208,6 +211,9 @@ package AWS.Config is
    function Log_Extended_Fields_Length (O : Object) return Natural with Inline;
    --  Returns the number of extended http log fileds identifiers.
    --  If returned value is zero then http log is not extended.
+
+   function Error_Log_Activated (O : Object) return Boolean with Inline;
+   --  Whether the error log should be activated
 
    function Error_Log_Filename_Prefix (O : Object) return String with Inline;
    --  This is the prefix to use for the log filename
@@ -466,8 +472,10 @@ private
       Log_Extended_Fields,
       Log_Split_Mode,
       Log_Size_Limit,
+      Log_Activated,
       Error_Log_Filename_Prefix,
       Error_Log_Split_Mode,
+      Error_Log_Activated,
       Upload_Directory,
       Upload_Size_Limit,
       Session,
@@ -633,11 +641,17 @@ private
                            Log_Size_Limit                  =>
                              (Nat, Default.Log_Size_Limit),
 
+                           Log_Activated                   =>
+                             (Bool, Default.Log_Activated),
+
                            Error_Log_Filename_Prefix       =>
                              (Str, +Default.Error_Log_Filename_Prefix),
 
                            Error_Log_Split_Mode            =>
                              (Str, +Default.Error_Log_Split_Mode),
+
+                           Error_Log_Activated             =>
+                             (Bool, Default.Error_Log_Activated),
 
                            Upload_Directory                =>
                              (Dir, +Default.Upload_Directory),

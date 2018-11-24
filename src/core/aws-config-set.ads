@@ -142,6 +142,9 @@ package AWS.Config.Set is
    -- Log --
    ---------
 
+   procedure Log_Activated (O : in out Object; Value : Boolean);
+   --  Whether the default log should be activated
+
    procedure Log_File_Directory (O : in out Object; Value : String);
    --  This point to the directory where log files will be written. The
    --  directory returned will end with a directory separator.
@@ -190,6 +193,9 @@ package AWS.Config.Set is
    --  cs(<header>) Any header field name sent from client to server
    --  sc(<header>) Any header field name sent from server to client
    --  x-<appfield> Any application defined field name
+
+   procedure Error_Log_Activated (O : in out Object; Value : Boolean);
+   --  Whether the error log should be activated
 
    procedure Error_Log_Filename_Prefix (O : in out Object; Value : String);
    --  This is the prefix to use for the log filename
