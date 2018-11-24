@@ -869,6 +869,13 @@ Current supported options are:
   The name of the down arrow image to use in the status page. The default is
   |DOWN_IMAGE|.
 
+*Error_Log_Activated (boolean)*
+
+  .. index:: Error_Log_Activated
+
+  A boolean to enable or disable the error log. By default the
+  error log activation is set to |ERROR_LOG_ACTIVATED|.
+
 *Error_Log_Filename_Prefix (string)*
 
   .. index:: Log_Filename_Prefix
@@ -966,6 +973,13 @@ Current supported options are:
   The HTTP lines stack size. The stack size must be adjusted for each
   applications depending on the use of the stack done by the callback
   procedures. The default is |LINE_STACK_SIZE|.
+
+*Log_Activated (boolean)*
+
+  .. index:: Log_Activated
+
+  A boolean to enable or disable the standard log. By default the
+  standard log activation is set to |LOG_ACTIVATED|.
 
 *Log_Extended_Fields (string list)*
 

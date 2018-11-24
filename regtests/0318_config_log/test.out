@@ -1,0 +1,26 @@
+started
+shutdown
+> File : conflog-xxxx-xx-xx.log
+127.0.0.1 | 127.0.0.1 | - | GET | /one | HTTP/1.1 | 200 | 3 | 1 |
+127.0.0.1 | 127.0.0.1 | - | GET | /azerty | HTTP/1.1 | 404 | 16 | 2 |
+127.0.0.1 | 127.0.0.1 | - | GET | /file | HTTP/1.1 | 404 | 0 | 3 |
+127.0.0.1 | 127.0.0.1 | - | GET | /one | HTTP/1.1 | 200 | 3 | 4 |
+127.0.0.1 | 127.0.0.1 | - | GET | /file | HTTP/1.1 | 404 | 0 | 5 |
+127.0.0.1 | 127.0.0.1 | - | GET | /error | HTTP/1.1 | 500 | 67 | 6 |
+127.0.0.1 | 127.0.0.1 | - | GET | /azerty | HTTP/1.1 | 404 | 16 | 7 |
+127.0.0.1 | 127.0.0.1 | - | GET | /error | HTTP/1.1 | 500 | 67 | 8 |
+127.0.0.1 | 127.0.0.1 | - | GET | /one | HTTP/1.1 | 200 | 3 | 9 |
+127.0.0.1 | 127.0.0.1 | - | GET | /azerty | HTTP/1.1 | 404 | 16 | 10 |
+127.0.0.1 | 127.0.0.1 | - | GET | /file | HTTP/1.1 | 404 | 0 | 11 |
+127.0.0.1 | 127.0.0.1 | login | GET | /azerty | HTTP/1.1 | 404 | 16 | 12 |
+127.0.0.1 | 127.0.0.1 | login | GET | /one | HTTP/1.1 | 200 | 3 | 13 |
+127.0.0.1 | 127.0.0.1 | login | GET | /file | HTTP/1.1 | 404 | 0 | 14 |
+127.0.0.1 | 127.0.0.1 | login | GET | /error | HTTP/1.1 | 500 | 67 | 15 |
+127.0.0.1 | 127.0.0.1 | login | GET | /one | HTTP/1.1 | 200 | 3 | 16 |
+127.0.0.1 | 127.0.0.1 | login | GET | /file | HTTP/1.1 | 404 | 0 | 17 |
+127.0.0.1 | 127.0.0.1 | - | GET | /header/line/error | HTTP/1.1 | 500 | 67 | - |
+> File : conflog_error.log
+127.0.0.1 | - | - | [<date>] | "GET | /error | HTTP/1.1" | raised | CONSTRAINT_ERROR | : | CB | at | 6 |
+127.0.0.1 | - | - | [<date>] | "GET | /error | HTTP/1.1" | raised | CONSTRAINT_ERROR | : | CB | at | 8 |
+127.0.0.1 | - | login | [<date>] | "GET | /error | HTTP/1.1" | raised | CONSTRAINT_ERROR | : | CB | at | 15 |
+127.0.0.1 | - | - | [<date>] | "GET | /header/line/error | HTTP/1.1" | raised | AWS.HEADERS.FORMAT_ERROR | : | header | line | error |

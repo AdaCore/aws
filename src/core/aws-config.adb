@@ -246,6 +246,15 @@ package body AWS.Config is
       return To_String (O.P (Down_Image).Str_Value);
    end Down_Image;
 
+   -------------------------
+   -- Error_Log_Activated --
+   -------------------------
+
+   function Error_Log_Activated (O : Object) return Boolean is
+   begin
+      return O.P (Error_Log_Activated).Bool_Value;
+   end Error_Log_Activated;
+
    -------------------------------
    -- Error_Log_Filename_Prefix --
    -------------------------------
@@ -415,6 +424,15 @@ package body AWS.Config is
       Read_If_Present (Ini.Program_Ini_File (Full_Path => True));
       Read_If_Present (Ini.Program_Ini_File (Full_Path => False));
    end Load_Config;
+
+   -------------------
+   -- Log_Activated --
+   -------------------
+
+   function Log_Activated (O : Object) return Boolean is
+   begin
+      return O.P (Log_Activated).Bool_Value;
+   end Log_Activated;
 
    -----------------------------------------
    -- Log_Extended_Fields_Generic_Iterate --

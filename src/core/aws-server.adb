@@ -1175,6 +1175,22 @@ package body AWS.Server is
       if SC = 1 then
          First_Server.all;
       end if;
+
+      --  Activate log if requested
+
+      if CNF.Log_Activated (Web_Server.Properties) then
+         Log.Start
+           (Web_Server,
+            Split_Mode => AWS.Log.Split_Mode'Value
+              (CNF.Log_Split_Mode (Web_Server.Properties)));
+      end if;
+
+      if CNF.Error_Log_Activated (Web_Server.Properties) then
+         Log.Start_Error
+           (Web_Server,
+            Split_Mode => AWS.Log.Split_Mode'Value
+              (CNF.Error_Log_Split_Mode (Web_Server.Properties)));
+      end if;
    end Start;
 
    ----------

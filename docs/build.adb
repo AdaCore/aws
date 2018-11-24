@@ -96,6 +96,8 @@ begin
    Add ("SERVER_NAME", Default.Server_Name);
    Add ("SERVER_PORT", Default.Server_Port);
    Add ("HOTPLUG_PORT", Default.Hotplug_Port);
+   Add ("ERROR_LOG_ACTIVATED", Default.Error_Log_Activated);
+   Add ("LOG_ACTIVATED", Default.Log_Activated);
    Add ("LOG_FILE_DIR", Default.Log_File_Directory);
    Add ("LOG_SPLIT_MODE", Default.Log_Split_Mode);
    Add ("ERROR_LOG_SPLIT_MODE", Default.Error_Log_Split_Mode);

@@ -197,6 +197,15 @@ package body AWS.Config.Set is
       O.P (Down_Image).Str_Value := To_Unbounded_String (Value);
    end Down_Image;
 
+   -------------------------
+   -- Error_Log_Activated --
+   -------------------------
+
+   procedure Error_Log_Activated (O : in out Object; Value : Boolean) is
+   begin
+      O.P (Error_Log_Activated).Bool_Value := Value;
+   end Error_Log_Activated;
+
    -------------------------------
    -- Error_Log_Filename_Prefix --
    -------------------------------
@@ -324,6 +333,15 @@ package body AWS.Config.Set is
    begin
       O.P (Line_Stack_Size).Pos_Value := Value;
    end Line_Stack_Size;
+
+   -------------------
+   -- Log_Activated --
+   -------------------
+
+   procedure Log_Activated (O : in out Object; Value : Boolean) is
+   begin
+      O.P (Log_Activated).Bool_Value := Value;
+   end Log_Activated;
 
    -------------------------
    -- Log_Extended_Fields --
