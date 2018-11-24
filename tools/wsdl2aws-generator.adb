@@ -4229,7 +4229,7 @@ package body WSDL2AWS.Generator is
             Put_Line (File, "   end CB;");
             New_Line (File);
             Put_Line (File, "   WS   : AWS.Server.HTTP;");
-            Put_Line (File, "   Conf : Config.Object;");
+            Put_Line (File, "   Conf : Config.Object := Config.Get_Current;");
             Put_Line (File, "   Disp : " & U_Name & ".CB.Handler;");
             New_Line (File);
             Put_Line (File, "begin");
