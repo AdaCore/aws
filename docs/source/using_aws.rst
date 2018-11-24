@@ -878,7 +878,7 @@ Current supported options are:
 
 *Error_Log_Filename_Prefix (string)*
 
-  .. index:: Log_Filename_Prefix
+  .. index:: Error_Log_Filename_Prefix
 
   This is to set the filename prefix for the log file. By default the
   log filename prefix is the program name (without extension) followed
@@ -886,7 +886,7 @@ Current supported options are:
 
 *Error_Log_Split_Mode [None/Each_Run/Daily/Monthly]*
 
-  .. index:: Log_Split_Mode
+  .. index:: Error_Log_Split_Mode
 
   It indicates how to split the error logs. Each_Run means that a new log file
   is used each time the process is started. Daily and Monthly will use a
