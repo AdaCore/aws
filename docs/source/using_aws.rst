@@ -880,9 +880,9 @@ Current supported options are:
 
   .. index:: Error_Log_Filename_Prefix
 
-  This is to set the filename prefix for the log file. By default the
-  log filename prefix is the program name (without extension) followed
-  by "_error".
+  This is to set the filename prefix for the error log file. By
+  default the error log filename prefix is the program name (without
+  extension) followed by "_error".
 
 *Error_Log_Split_Mode [None/Each_Run/Daily/Monthly]*
 
