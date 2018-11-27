@@ -259,8 +259,8 @@ package body S_AFile_Pack is
          begin
             if ASU.To_String (Session) /= Sessn then
                Text_IO.Put_Line
-                 ("Server and client sessions differ "
-                  & ASU.To_String (Session) & ' ' & Sessn);
+                 ("Server and client sessions differ """
+                  & ASU.To_String (Session) & """ """ & Sessn & '"');
             end if;
          end;
 
@@ -287,6 +287,8 @@ package body S_AFile_Pack is
       Config.Set.Server_Port    (CNF, 0);
       Config.Set.Security       (CNF, Protocol = "https");
       Config.Set.Max_Connection (CNF, 16);
+      Config.Set.Security_Mode  (CNF, "TLSv1_2_Server");
+      --  TLS 1.3 does not provide equal session id in client and server
 
       Server.Start (WS, CB'Access, CNF);
 
