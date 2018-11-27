@@ -18,7 +18,7 @@
 
 with "aws";
 
-project Sock2_Sec is
+project SShort is
    for Source_Dirs use (".", "../common");
    for Main use ("sshort.adb");
-end Sock2_Sec;
+end SShort;

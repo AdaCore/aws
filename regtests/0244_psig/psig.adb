@@ -30,7 +30,7 @@ procedure Psig is
    use AWS.Translator;
    Key : Private_Key := Load ("psig.key");
 begin
-   Set_Debug (11);
+   Set_Debug (2);
    for J in Hash_Method loop
       Put_Line (J'Img & ' ' & Base64_Encode (Signature (J'Img, Key, J)));
    end loop;

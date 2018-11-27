@@ -32,6 +32,7 @@ with Ada.Command_Line;
 with Ada.Exceptions;
 with Ada.IO_Exceptions;
 with Ada.Streams;
+with Ada.Strings.Fixed;
 with Ada.Strings.Unbounded;
 with Ada.Text_IO.Editing;
 
@@ -519,7 +520,10 @@ procedure Check_Mem is
 
       Session := To_Unbounded_String (AWS.Client.SSL_Session_Id (Connect));
 
-      if Session = Null_Unbounded_String then
+      if Session = Null_Unbounded_String
+        and then Ada.Strings.Fixed.Index
+          (AWS.Client.Cipher_Description (Connect), "TLS1.3") = 0
+      then
          Check ("!!! Empty SSL session.");
       end if;
 

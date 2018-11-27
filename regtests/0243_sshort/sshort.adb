@@ -80,6 +80,8 @@ procedure SShort is
 
          Last := 0;
 
+         Client.Send ((1 => 11));
+
          loop
             First := Last + 1;
             Client.Receive (Buffer (First .. Buffer'Last), Last);
@@ -88,7 +90,8 @@ procedure SShort is
 
          if Buffer (1 .. Last) /= Sample (1 .. SShort.Last) then
             if Buffer (1 .. Last) = Sample (1 .. Last) then
-               Ada.Text_IO.Put_Line ("Data shorter");
+               Ada.Text_IO.Put_Line
+                 ("Data shorter " & SShort.Last'Img & Last'Img);
             else
                Ada.Text_IO.Put_Line ("Data differ");
             end if;
@@ -168,6 +171,10 @@ begin
       Peer.Send (Sample (First .. Last));
 
       Client_Side.Receive;
+
+      if Peer.Receive /= (1 => 11) then
+         Ada.Text_IO.Put_Line ("Unexpected responce");
+      end if;
 
       select Client_Side.Received (More => True);
       or delay 0.25;
