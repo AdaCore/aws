@@ -163,7 +163,7 @@ package body AWS.Client is
       --  we connect to the Web server.
 
       if URL.Host (Host_URL) = "" then
-         raise URL.URL_Error with "wrong host specififed or missing protocol.";
+         raise URL.URL_Error with "wrong host specified or missing protocol.";
       end if;
 
       if Proxy = No_Data then
