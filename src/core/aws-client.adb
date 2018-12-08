@@ -1173,10 +1173,11 @@ package body AWS.Client is
       function Content_Length return Stream_Element_Offset is
       begin
          return 2 * Boundary'Length  -- 2 boundaries
-           + 2                       -- second one end with "--"
+           + 4                       -- two boundaries start with "--"
+           + 2                       -- second one ends with "--"
            + 10                      -- 5 lines with CR+LF
-           + CT'Length               -- content length header
-           + CD'Length               -- content disposition head
+           + CT'Length               -- content type header
+           + CD'Length               -- content disposition header
            + File_Size
            + 2;                      -- CR+LF after file data
       end Content_Length;
