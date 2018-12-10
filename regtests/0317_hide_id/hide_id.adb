@@ -120,6 +120,7 @@ procedure Hide_Id is
                    & Streams.Stream_Element_Offset'Image (S1) & "/"
                    & Streams.Stream_Element_Offset'Image (S2)
                    & " buffer usage) @@@");
+         Flush (F);
       end Write;
 
    begin
@@ -193,14 +194,17 @@ begin
    Last := Hello'Last - Utils.Image (Server.Status.Port (WS))'Length;
 
    Put_Line (DS, "=============== First");
+   Flush (DS);
    Result := Client.Get (Server.Status.Local_URL (WS) & Hello (1 .. Last));
 
    Put_Line (DS, "=============== Second");
+   Flush (DS);
    Result := Client.Get
      (Server.Status.Local_URL (WS) & Hello (1 .. Last),
       User_Agent => Config.User_Agent);
 
    Put_Line (DS, "=============== Third");
+   Flush (DS);
    Result := Client.Get
      (Server.Status.Local_URL (WS) & Hello (1 .. Last),
       User_Agent => "");
