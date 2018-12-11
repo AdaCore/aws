@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2008-2017, AdaCore                     --
+--                     Copyright (C) 2008-2018, AdaCore                     --
 --                                                                          --
 --  This is free software;  you can redistribute it  and/or modify it       --
 --  under terms of the  GNU General Public License as published  by the     --
@@ -62,13 +62,16 @@ procedure Client_Headers is
       begin
          if Headers.Exist (H, Header) then
             declare
-               Value : Unbounded_String :=
-                         To_Unbounded_String
-                           (Strings.Fixed.Translate
-                              (Headers.Get (H, Header),
-                               Strings.Maps.To_Mapping
-                                 ("0123456789", "xxxxxxxxxx")));
-               K     : Natural;
+               Pattern : constant String := "AWS (Ada Web Server) v";
+               Value   : Unbounded_String :=
+                           To_Unbounded_String
+                             (Strings.Fixed.Translate
+                                (Headers.Get (H, Header),
+                                 Strings.Maps.To_Mapping
+                                   ("0123456789", "xxxxxxxxxx")));
+               Idx     : constant Natural :=
+                           Strings.Unbounded.Index (Value, Pattern);
+               K       : Natural;
             begin
                loop
                   K := Index (Value, "xx.");
@@ -86,20 +89,10 @@ procedure Client_Headers is
                   Replace_Slice (Value, K, K + 2, ":x");
                end loop;
 
-               --  Check for wavefront
-
-               if Element (Value, Length (Value)) = 'w' then
-                  Replace_Slice (Value, Length (Value), Length (Value), "");
-               end if;
-
-               --  Check for rc
-
-               if Length (Value) > 6
-                 and then
-                   Slice (Value, Length (Value) - 2, Length (Value)) = "xrc"
-               then
+               if Idx /= 0 then
                   Replace_Slice
-                    (Value, Length (Value) - 2, Length (Value), "x");
+                    (Value, Idx +  Pattern'Length, Length (Value), "");
+                  Append (Value, "x.x");
                end if;
 
                Text_IO.Put_Line (Header & ": " & To_String (Value));
