@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2003-2012, AdaCore                     --
+--                     Copyright (C) 2003-2018, AdaCore                     --
 --                                                                          --
 --  This is free software;  you can redistribute it  and/or modify it       --
 --  under terms of the  GNU General Public License as published  by the     --
@@ -44,6 +44,9 @@ procedure Redirect is
       if URI = "/first" then
          return Response.URL ("/second");
 
+      elsif URI = "/move" then
+         return Response.Moved ("/second", "page moved", AWS.MIME.Text_Plain);
+
       elsif URI = "/second" then
          return Response.Build (MIME.Text_HTML, "That's good!");
 
@@ -71,7 +74,44 @@ procedure Redirect is
       end if;
 
       Text_IO.Put_Line (Response.Location (R));
+
+      R := Client.Get
+             (Server.Status.Local_URL (WS) & "/first",
+              Follow_Redirection => True);
+
+      Text_IO.Put_Line
+           (Response.Status_Code (R)'Img & ' ' & Response.Message_Body (R));
+
+      R := Client.Get
+             (Server.Status.Local_URL (WS) & "/move",
+              Follow_Redirection => True);
+
+      Text_IO.Put_Line
+        (Response.Status_Code (R)'Img & ' ' & Response.Message_Body (R));
    end Call_It;
+
+   --------------------
+   -- Test_Connected --
+   --------------------
+
+   procedure Test_Connected is
+      Connect : Client.HTTP_Connection;
+      R       : Response.Data;
+   begin
+      Client.Create (Connect, Server.Status.Local_URL (WS));
+      Client.Get (Connect, R, "/first");
+
+      Text_IO.Put_Line
+        (Response.Status_Code (R)'Img & ' ' & Response.Location (R) & ' '
+         & Response.Message_Body (R));
+
+      Client.Get (Connect, R, "/move");
+
+      Text_IO.Put_Line
+        (Response.Status_Code (R)'Img & ' ' & Response.Location (R) & ' '
+         & Response.Message_Body (R));
+   end Test_Connected;
+
 
 begin
    Server.Start
@@ -79,6 +119,7 @@ begin
    Text_IO.Put_Line ("started"); Ada.Text_IO.Flush;
 
    Call_It;
+   Test_Connected;
 
    Server.Shutdown (WS);
    Text_IO.Put_Line ("shutdown");

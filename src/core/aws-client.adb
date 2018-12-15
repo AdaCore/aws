@@ -39,6 +39,7 @@ with AWS.MIME;
 with AWS.Net.Buffered;
 with AWS.Net.SSL;
 with AWS.Translator;
+with AWS.URL.Set;
 
 package body AWS.Client is
 
@@ -391,7 +392,8 @@ package body AWS.Client is
    is
       use type Messages.Status_Code;
 
-      Result : Response.Data;
+      Result   : Response.Data;
+      Host_URL : AWS.URL.Object;
    begin
       declare
          Connection : HTTP_Connection;
@@ -402,6 +404,8 @@ package body AWS.Client is
                  Certificate => Certificate,
                  Timeouts    => Timeouts,
                  User_Agent  => User_Agent);
+
+         Host_URL := Connection.Host_URL; -- For the redirection case
 
          Get (Connection, Result,
               Data_Range => Data_Range, Headers => Headers);
@@ -431,12 +435,26 @@ package body AWS.Client is
            and then SC /= Messages.S300 -- multiple choices
            and then SC /= Messages.S304 -- not modified, no redirection
          then
-            return Get
-              (Response.Location (Result), User, Pwd,
-               Proxy, Proxy_User, Proxy_Pwd, Timeouts,
-               Data_Range, Follow_Redirection,
-               Certificate => Certificate,
-               User_Agent  => User_Agent);
+            declare
+               use AWS.URL;
+               Location : AWS.URL.Object :=
+                            AWS.URL.Parse (Response.Location (Result));
+            begin
+               if Host (Location) = "" then
+                  Set.Connection_Data
+                    (Location,
+                     Host (Host_URL),
+                     Port (Host_URL),
+                     Security (Host_URL));
+               end if;
+
+               return Get
+                 (AWS.URL.URL (Location), User, Pwd,
+                  Proxy, Proxy_User, Proxy_Pwd, Timeouts,
+                  Data_Range, Follow_Redirection,
+                  Certificate => Certificate,
+                  User_Agent  => User_Agent);
+            end;
          else
             return Result;
          end if;
