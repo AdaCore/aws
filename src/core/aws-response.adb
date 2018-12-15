@@ -575,6 +575,7 @@ package body AWS.Response is
    function Moved
      (Location      : String;
       Message       : String                := Default_Moved_Message;
+      Content_Type  : String                := AWS.MIME.Text_HTML;
       Cache_Control : Messages.Cache_Option := Messages.Unspecified)
       return Data
    is
@@ -605,7 +606,7 @@ package body AWS.Response is
       Set.Location      (Result, Location);
       Set.Status_Code   (Result, Messages.S301);
       Set.Message_Body  (Result, Message_Body);
-      Set.Content_Type  (Result, AWS.MIME.Text_HTML);
+      Set.Content_Type  (Result, Content_Type);
       Set.Cache_Control (Result, Cache_Control);
       return Result;
    end Moved;
