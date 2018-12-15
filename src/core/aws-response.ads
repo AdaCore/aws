@@ -216,12 +216,13 @@ package AWS.Response is
    function Moved
      (Location      : String;
       Message       : String                := Default_Moved_Message;
+      Content_Type  : String                := AWS.MIME.Text_HTML;
       Cache_Control : Messages.Cache_Option := Messages.Unspecified)
       return Data
    with Post => not Is_Empty (Moved'Result)
                 and then Status_Code (Moved'Result) = Messages.S301;
    --  This send back a moved message (Messages.S301) with the specified
-   --  message body.
+   --  message body and content type.
    --  This is a permanent redirection, and the client browser is encouraged
    --  to update links so that the next query for the URL goes directly to
    --  the new location.

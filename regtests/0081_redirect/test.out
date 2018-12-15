@@ -1,4 +1,8 @@
 started
 OK, status is good
 /second
+S200 That's good!
+S200 That's good!
+S302 /second
+S301 /second page moved
 shutdown
