@@ -17,14 +17,15 @@
 ------------------------------------------------------------------------------
 
 with Ada.Streams;
-with Ada.Text_IO; use Ada.Text_IO;
+with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
+with Ada.Text_IO;           use Ada.Text_IO;
 
 with AWS.Client;
 with AWS.Config.Set;
 with AWS.Default;
 with AWS.Messages;
 with AWS.Net.Log;
-with AWS.Response;
+with AWS.Response.Set;
 with AWS.Server.Status;
 with AWS.Status;
 with AWS.Utils;
@@ -41,8 +42,13 @@ procedure Hide_Id is
 
    DS     : File_Type;
 
-   Hello : String   := "/876543210";
+   Hello : constant String   := "/876543210";
    Last  : Positive;
+
+   Request_Header : constant String := "X-Request";
+   Answer_Header  : constant String := "X-Answer";
+   Header : Client.Header_List;
+   Answer_Data : Unbounded_String;
 
    Adjust : constant Streams.Stream_Element_Offset := AWS.Version'Length - 4;
 
@@ -59,20 +65,23 @@ procedure Hide_Id is
       Data      : Streams.Stream_Element_Array;
       Last      : Streams.Stream_Element_Offset)
    is
-      procedure Write (F : File_Type);
+      F : Unbounded_String;
+      R : Boolean := False; -- Request
+
+      procedure Write;
       --  Write info into file F
 
       -----------
       -- Write --
       -----------
 
-      procedure Write (F : File_Type) is
+      procedure Write is
          Buffer : String (1 .. 1024);
          K      : Natural := 0;
          Output : Boolean := False;
          S1, S2 : Streams.Stream_Element_Offset;
       begin
-         New_Line (F, 2);
+         Append (F, ASCII.LF & ASCII.LF);
 
          S1 := Last;
          S2 := Data'Last;
@@ -98,7 +107,7 @@ procedure Hide_Id is
             end if;
 
             if Output then
-               Put (F, Buffer (K));
+               Append (F, Buffer (K));
             end if;
 
             if Buffer (K) = ASCII.LF then
@@ -109,25 +118,33 @@ procedure Hide_Id is
                  or else Buffer (1 .. K) = "Host:"
                then
                   Output := False;
+
+               elsif Buffer (1 .. K - 1) = Request_Header then
+                  R := True;
                end if;
             end if;
          end loop;
 
-         New_Line (F);
-
-         Put_Line (F, "@@@ " & Net.Log.Data_Direction'Image (Direction)
-                   & " ("
-                   & Streams.Stream_Element_Offset'Image (S1) & "/"
-                   & Streams.Stream_Element_Offset'Image (S2)
-                   & " buffer usage) @@@");
-         Flush (F);
+         Append (F, ASCII.LF & "@@@ "
+                 & Net.Log.Data_Direction'Image (Direction)
+                 & " (" & Streams.Stream_Element_Offset'Image (S1) & "/"
+                 & Streams.Stream_Element_Offset'Image (S2)
+                 & " buffer usage) @@@");
       end Write;
 
    begin
       case Direction is
-         when Net.Log.Sent     => Write (DS);
+         when Net.Log.Sent     =>
+            Write;
+
+            if R then
+               Put_Line (DS, To_String (F));
+            else
+               Answer_Data := F;
+            end if;
          when Net.Log.Received => null;
       end case;
+
    end HTTP_Log;
 
    -----------
@@ -136,13 +153,16 @@ procedure Hide_Id is
 
    function HW_CB (Request : Status.Data) return AWS.Response.Data is
       URI : constant String := AWS.Status.URI (Request);
+      Answer : AWS.Response.Data :=
+                 AWS.Response.Build
+                   ("text/html",
+                    (if URI = Hello (1 .. Last)
+                     then "<p>Hello world !"
+                     else "<p>Hum..."));
    begin
-      if URI = Hello (1 .. Last) then
-         delay 0.25; -- wait a bit to have more chance to get a sync log
-         return AWS.Response.Build ("text/html", "<p>Hello world !");
-      else
-         return AWS.Response.Build ("text/html", "<p>Hum...");
-      end if;
+      Response.Set.Add_Header
+        (Answer, Answer_Header, Status.Header (Request).Get (Request_Header));
+      return Answer;
    end HW_CB;
 
    ------------
@@ -194,20 +214,36 @@ begin
    Last := Hello'Last - Utils.Image (Server.Status.Port (WS))'Length;
 
    Put_Line (DS, "=============== First");
-   Flush (DS);
-   Result := Client.Get (Server.Status.Local_URL (WS) & Hello (1 .. Last));
+   Answer_Data := Null_Unbounded_String;
+   Header.Update (Request_Header, "1st-First");
+   Result := Client.Get
+     (Server.Status.Local_URL (WS) & Hello (1 .. Last), Headers => Header);
+   while Answer_Data = Null_Unbounded_String loop
+      delay Duration'Small;
+   end loop;
+   Put_Line (DS, To_String (Answer_Data));
 
    Put_Line (DS, "=============== Second");
-   Flush (DS);
+   Answer_Data := Null_Unbounded_String;
+   Header.Update (Request_Header, "2nd-Second");
    Result := Client.Get
      (Server.Status.Local_URL (WS) & Hello (1 .. Last),
-      User_Agent => Config.User_Agent);
+      User_Agent => Config.User_Agent, Headers => Header);
+   while Answer_Data = Null_Unbounded_String loop
+      delay Duration'Small;
+   end loop;
+   Put_Line (DS, To_String (Answer_Data));
 
    Put_Line (DS, "=============== Third");
-   Flush (DS);
+   Answer_Data := Null_Unbounded_String;
+   Header.Update (Request_Header, "3rd-Third");
    Result := Client.Get
      (Server.Status.Local_URL (WS) & Hello (1 .. Last),
-      User_Agent => "");
+      User_Agent => "", Headers => Header);
+   while Answer_Data = Null_Unbounded_String loop
+      delay Duration'Small;
+   end loop;
+   Put_Line (DS, To_String (Answer_Data));
 
    Server.Shutdown (WS);
    Net.Log.Stop;
