@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2012-2017, AdaCore                     --
+--                     Copyright (C) 2012-2018, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -277,8 +277,6 @@ package body AWS.Net.WebSocket.Registry is
    --------------------
 
    task body Message_Reader is
-      WebSocket : Object_Class;
-      Message   : Unbounded_String;
 
       procedure Do_Free (WebSocket : in out Object_Class);
       procedure Do_Register (WebSocket : Object_Class);
@@ -319,6 +317,9 @@ package body AWS.Net.WebSocket.Registry is
 
    begin
       Handle_Message : loop
+         declare
+            WebSocket : Object_Class;
+            Message   : Unbounded_String;
          begin
             Message := Null_Unbounded_String;
 
