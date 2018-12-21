@@ -145,7 +145,9 @@ package body AWS.Net.WebSocket.Registry is
         (To          : Recipient;
          Message     : Unbounded_String;
          Except_Peer : String;
-         Timeout     : Duration := Forever);
+         Timeout     : Duration := Forever;
+         Error       : access procedure (Socket : Object'Class;
+                                         Action : out Action_Kind) := null);
       --  Send the given message to all matching WebSockets
 
       procedure Send
@@ -640,7 +642,9 @@ package body AWS.Net.WebSocket.Registry is
         (To          : Recipient;
          Message     : Unbounded_String;
          Except_Peer : String;
-         Timeout     : Duration := Forever)
+         Timeout     : Duration := Forever;
+         Error       : access procedure (Socket : Object'Class;
+                                         Action : out Action_Kind) := null)
       is
 
          procedure Initialize_Recipients (Position : WebSocket_Set.Cursor);
@@ -710,8 +714,37 @@ package body AWS.Net.WebSocket.Registry is
 
             --  Send actual data to the WebSocket depending on their status
 
-            loop
-               Set.Wait (Forever, Count);
+            Send_Message : loop
+               Set.Wait (Timeout, Count);
+
+               --  Timeout reached, some sockets are not responding
+
+               if Count = 0 then
+                  for K in 1 .. Set.Length loop
+                     declare
+                        W : Object_Class := Object_Class (Socks (K));
+                        A : Action_Kind := None;
+                     begin
+                        if Error = null then
+                           DB.Unregister (W);
+                           Unchecked_Free (W);
+
+                        else
+                           Error (W.all, A);
+
+                           case A is
+                              when Close =>
+                                 DB.Unregister (W);
+                                 Unchecked_Free (W);
+                              when None =>
+                                 null;
+                           end case;
+                        end if;
+                     end;
+                  end loop;
+
+                  exit Send_Message;
+               end if;
 
                Sock_Index := 1;
 
@@ -782,8 +815,8 @@ package body AWS.Net.WebSocket.Registry is
                   end if;
                end loop;
 
-               exit when Set.Length = 0;
-            end loop;
+               exit Send_Message when Set.Length = 0;
+            end loop Send_Message;
          end Send_To_Recipients;
 
       begin
@@ -1043,9 +1076,11 @@ package body AWS.Net.WebSocket.Registry is
      (To          : Recipient;
       Message     : Unbounded_String;
       Except_Peer : String := "";
-      Timeout     : Duration := Forever) is
+      Timeout     : Duration := Forever;
+      Error       : access procedure (Socket : Object'Class;
+                                      Action : out Action_Kind) := null) is
    begin
-      DB.Send (To, Message, Except_Peer, Timeout);
+      DB.Send (To, Message, Except_Peer, Timeout, Error);
    exception
       when others =>
          --  Should never fails even if the WebSocket is closed by peer
@@ -1056,33 +1091,41 @@ package body AWS.Net.WebSocket.Registry is
      (To          : Recipient;
       Message     : String;
       Except_Peer : String := "";
-      Timeout     : Duration := Forever) is
+      Timeout     : Duration := Forever;
+      Error       : access procedure (Socket : Object'Class;
+                                      Action : out Action_Kind) := null) is
    begin
-      Send (To, To_Unbounded_String (Message), Except_Peer, Timeout);
+      Send (To, To_Unbounded_String (Message), Except_Peer, Timeout, Error);
    end Send;
 
    procedure Send
      (To      : Recipient;
       Message : Unbounded_String;
       Request : AWS.Status.Data;
-      Timeout : Duration := Forever) is
+      Timeout : Duration := Forever;
+      Error   : access procedure (Socket : Object'Class;
+                                  Action : out Action_Kind) := null) is
    begin
       Send
         (To, Message,
          Except_Peer => AWS.Status.Socket (Request).Peer_Addr,
-         Timeout     => Timeout);
+         Timeout     => Timeout,
+         Error       => Error);
    end Send;
 
    procedure Send
      (To      : Recipient;
       Message : String;
       Request : AWS.Status.Data;
-      Timeout : Duration := Forever) is
+      Timeout : Duration := Forever;
+      Error   : access procedure (Socket : Object'Class;
+                                  Action : out Action_Kind) := null) is
    begin
       Send
         (To, To_Unbounded_String (Message),
          Except_Peer => AWS.Status.Socket (Request).Peer_Addr,
-         Timeout     => Timeout);
+         Timeout     => Timeout,
+         Error       => Error);
    end Send;
 
    procedure Send

@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2012-2017, AdaCore                     --
+--                     Copyright (C) 2012-2018, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -78,11 +78,15 @@ package AWS.Net.WebSocket.Registry is
           Post => Create'Result /= No_Recipient;
    --  A recipient for a specific WebSocket
 
+   type Action_Kind is (None, Close);
+
    procedure Send
      (To          : Recipient;
       Message     : String;
       Except_Peer : String := "";
-      Timeout     : Duration := Forever)
+      Timeout     : Duration := Forever;
+      Error       : access procedure (Socket : Object'Class;
+                                      Action : out Action_Kind) := null)
      with Pre => To /= No_Recipient;
    --  Send a message to the WebSocket designated by Origin and URI. Do not
    --  send this message to the peer whose address is given by Except_Peer.
@@ -94,7 +98,9 @@ package AWS.Net.WebSocket.Registry is
      (To          : Recipient;
       Message     : Unbounded_String;
       Except_Peer : String := "";
-      Timeout     : Duration := Forever)
+      Timeout     : Duration := Forever;
+      Error       : access procedure (Socket : Object'Class;
+                                      Action : out Action_Kind) := null)
      with Pre => To /= No_Recipient;
    --  As above but with an Unbounded_String
 
@@ -102,7 +108,9 @@ package AWS.Net.WebSocket.Registry is
      (To      : Recipient;
       Message : String;
       Request : AWS.Status.Data;
-      Timeout : Duration := Forever)
+      Timeout : Duration := Forever;
+      Error   : access procedure (Socket : Object'Class;
+                                  Action : out Action_Kind) := null)
      with Pre => To /= No_Recipient;
    --  As above but filter out the client having set the given request
 
@@ -110,7 +118,9 @@ package AWS.Net.WebSocket.Registry is
      (To      : Recipient;
       Message : Unbounded_String;
       Request : AWS.Status.Data;
-      Timeout : Duration := Forever)
+      Timeout : Duration := Forever;
+      Error   : access procedure (Socket : Object'Class;
+                                  Action : out Action_Kind) := null)
      with Pre => To /= No_Recipient;
    --  As above but with an Unbounded_String
 
