@@ -62,9 +62,6 @@ package AWS.Net is
    No_Socket : constant := -1;
    --  Represents closed socket file descriptor
 
-   type FD_Set (Size : Natural) is abstract tagged private;
-   --  Abstract type for waiting of network events on group of sockets FD
-
    type Event_Type is (Error, Input, Output);
    --  Error  - socket is in error state.
    --  Input  - socket ready for read.
@@ -311,17 +308,20 @@ package AWS.Net is
    --  Returns True if the message associated with the Exception_Occurence for
    --  a Socket_Error is a "socket closed by peer".
 
+   --------------------
+   -- Socket FD sets --
+   --------------------
+
+   type FD_Set (Size : Natural) is abstract tagged private;
+   --  Abstract type for waiting of network events on group of sockets FD
+
+   type FD_Set_Access is access all FD_Set'Class;
+
    function To_FD_Set
      (Socket : Socket_Type;
       Events : Wait_Event_Set;
       Size   : Positive := 1) return FD_Set'Class;
    --  Create appropriate socket FD set and put Socket fd there
-
-   --------------------
-   -- Socket FD sets --
-   --------------------
-
-   type FD_Set_Access is access all FD_Set'Class;
 
    procedure Add
      (FD_Set : in out FD_Set_Access;
