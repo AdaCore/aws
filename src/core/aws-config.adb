@@ -359,6 +359,15 @@ package body AWS.Config is
       return Process_Options (Input_Line_Size_Limit).Pos_Value;
    end Input_Line_Size_Limit;
 
+   ---------------
+   -- IPv6_Only --
+   ---------------
+
+   function IPv6_Only (O : Object) return Boolean is
+   begin
+      return O.P (IPv6_Only).Bool_Value;
+   end IPv6_Only;
+
    -----------------------------
    -- Is_WebSocket_Origin_Set --
    -----------------------------

@@ -119,9 +119,11 @@ package body USock is
       Port          : Natural;
       Host          : String := "";
       Reuse_Address : Boolean := False;
+      IPv6_Only     : Boolean := False;
       Family        : Net.Family_Type := Net.Family_Unspec)
    is
-      pragma Unreferenced (Socket, Port, Host, Reuse_Address, Family);
+      pragma Unreferenced
+        (Socket, Port, Host, Reuse_Address, IPv6_Only, Family);
    begin
       Socket.Server := True;
       Text_IO.Put_Line ("Bind on U_Socket");

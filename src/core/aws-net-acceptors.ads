@@ -59,7 +59,8 @@ package AWS.Net.Acceptors is
       Force_First_Timeout : Duration    := Forever;
       Force_Length        : Positive    := Positive'Last;
       Close_Length        : Positive    := Positive'Last;
-      Reuse_Address       : Boolean     := False);
+      Reuse_Address       : Boolean     := False;
+      IPv6_Only           : Boolean     := False);
    --  Prepare Acceptor to accept sockets and wait for incoming data from the
    --  given Host and Port. Use Queue_Size for the Listen call.
    --  Timeout is to wait for the next data from the socket, should be longer
@@ -75,7 +76,8 @@ package AWS.Net.Acceptors is
       Host          : String;
       Port          : Natural;
       Family        : Family_Type := Family_Unspec;
-      Reuse_Address : Boolean     := False);
+      Reuse_Address : Boolean     := False;
+      IPv6_Only     : Boolean     := False);
    --  Add the binded/listening socket on host, port and protocol family. To be
    --  able to connect web enabled application with others in the internal
    --  network, and then give access for external clients by listening on

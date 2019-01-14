@@ -61,6 +61,7 @@ package AWS.Default with Pure is
    Admin_Password                  : constant String   := "";
    Admin_Realm                     : constant String   := "AWS Admin Page";
    Protocol_Family                 : constant String   := "FAMILY_UNSPEC";
+   IPv6_Only                       : constant Boolean  := False;
    Server_Port                     : constant          := 8080;
    Hotplug_Port                    : constant          := 8888;
    Max_Connection                  : constant          := 5;

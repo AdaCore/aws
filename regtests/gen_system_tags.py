@@ -27,6 +27,8 @@ def generate_tags(filename):
                     tags.append("gnutls")
                 else:
                     tags.append("!gnutls")
+        elif key == "NETLIB":
+            tags.append(value)
         else:
             if value == "true":
                 tags.append(key)

@@ -31,8 +31,8 @@ abstract project Shared is
    -- SOCKLIB --
    -------------
 
-   type SOCKLIB_Type is ("GNAT", "IPv6");
-   SOCKLIB : SOCKLIB_Type := external ("PRJ_SOCKLIB", "GNAT");
+   type SOCKLIB_Type is ("gnat", "ipv6", "ipv4");
+   SOCKLIB : SOCKLIB_Type := external ("PRJ_SOCKLIB", "gnat");
 
    ------------
    -- SOCKET --

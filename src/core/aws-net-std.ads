@@ -51,8 +51,11 @@ package AWS.Net.Std is
       Port          : Natural;
       Host          : String      := "";
       Reuse_Address : Boolean     := False;
+      IPv6_Only     : Boolean     := False;
       Family        : Family_Type := Family_Unspec);
-   --  Bind a socket on a given port
+   --  Bind a socket on a given port.
+   --  IPv6_Only has meaning only for Family = Family_Inet6 and mean that only
+   --  IPv6 clients allowed to connect.
 
    overriding procedure Listen
      (Socket     : Socket_Type;

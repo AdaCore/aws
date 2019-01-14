@@ -41,6 +41,9 @@ procedure ErrCon is
    Unreach_Err : constant String :=
                    '[' & Utils.Image (Natural (OS_Lib.ENETUNREACH)) & ']';
 
+   No_Ent_Err : constant String :=
+                   '[' & Utils.Image (Natural (OS_Lib.ENOENT)) & ']';
+
    procedure Print_Error (Message : String);
 
    -----------------
@@ -63,6 +66,11 @@ procedure ErrCon is
          Text_IO.Put_Line
            (Fixed.Replace_Slice
               (Text, Text'First, Unreach_Err'Length, "[UNREACH]"));
+
+      elsif Utils.Match (Text, No_Ent_Err) then
+         Text_IO.Put_Line
+           (Fixed.Replace_Slice
+              (Text, Text'First, No_Ent_Err'Length, "[NO_NAME]"));
 
       else
          Text_IO.Put_Line (Text);

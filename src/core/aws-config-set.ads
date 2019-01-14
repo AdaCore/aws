@@ -46,6 +46,9 @@ package AWS.Config.Set is
    --  Set the server protocol family. Family_Inet for IPv4, Family_Inet6 for
    --  IPv6 and Family_Unspec for unspecified protocol family.
 
+   procedure IPv6_Only (O : in out Object; Value : Boolean);
+   --  Set the mode when IPv6 server allows connect only IPv6 clients
+
    procedure Server_Host (O : in out Object; Value : String);
    --  This is the server host as set by the HTTP object declaration
 

@@ -124,11 +124,7 @@ endif
 
 #  Sockets
 
-ifeq ($(IPv6), true)
-PRJ_SOCKLIB=IPv6
-else
-PRJ_SOCKLIB=GNAT
-endif
+PRJ_SOCKLIB=$(NETLIB)
 
 #  Debug
 
@@ -205,8 +201,8 @@ else
 build: build-native
 endif
 
-gps: build
-	$(GPS) -Paws.gpr $(GPROPTS) $(GPR_SHARED) &
+gps: setup
+	$(GPS) $(GPROPTS) $(GPR_SHARED) -Paws.gpr &
 
 #######################################################################
 #  clean
@@ -342,7 +338,7 @@ gen_setup:
 	echo "ZLIB=$(ZLIB)" >> makefile.setup
 	echo "XMLADA=$(XMLADA)" >> makefile.setup
 	echo "ASIS=$(ASIS)" >> makefile.setup
-	echo "IPv6=$(IPv6)" >> makefile.setup
+	echo "NETLIB=$(NETLIB)" >> makefile.setup
 	echo "SOCKET=$(SOCKET)" >> makefile.setup
 	echo "LDAP=$(LDAP)" >> makefile.setup
 	echo "DEBUG=$(DEBUG)" >> makefile.setup

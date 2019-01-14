@@ -40,6 +40,8 @@ to work properly. Of course we try to avoid this as much as possible
 but we really prefer to have a clean API instead of keeping awkward
 implementations.
 
+- New parameter IPv6_Only in the Bind routine of the AWS.Net.Socket_Type
+  hierarhy. If user code has the Bind overriden, this parameter must be added.
 
 Obsolescent features
 --------------------

@@ -62,9 +62,6 @@ package AWS.Net is
    No_Socket : constant := -1;
    --  Represents closed socket file descriptor
 
-   type FD_Set (Size : Natural) is abstract tagged private;
-   --  Abstract type for waiting of network events on group of sockets FD
-
    type Event_Type is (Error, Input, Output);
    --  Error  - socket is in error state.
    --  Input  - socket ready for read.
@@ -101,11 +98,14 @@ package AWS.Net is
       Port          : Natural;
       Host          : String      := "";
       Reuse_Address : Boolean     := False;
+      IPv6_Only     : Boolean     := False;
       Family        : Family_Type := Family_Unspec) is abstract;
    --  Create the server socket and bind it on the given port.
    --  Using 0 for the port will tell the OS to allocate a non-privileged
    --  free port. The port can be later retrieved using Get_Port on the
    --  bound socket.
+   --  IPv6_Only has meaning only for Family = Family_Inet6 and mean that only
+   --  IPv6 clients allowed to connect.
 
    procedure Listen
      (Socket : Socket_Type; Queue_Size : Positive := 5) is abstract;
@@ -308,17 +308,20 @@ package AWS.Net is
    --  Returns True if the message associated with the Exception_Occurence for
    --  a Socket_Error is a "socket closed by peer".
 
+   --------------------
+   -- Socket FD sets --
+   --------------------
+
+   type FD_Set (Size : Natural) is abstract tagged private;
+   --  Abstract type for waiting of network events on group of sockets FD
+
+   type FD_Set_Access is access all FD_Set'Class;
+
    function To_FD_Set
      (Socket : Socket_Type;
       Events : Wait_Event_Set;
       Size   : Positive := 1) return FD_Set'Class;
    --  Create appropriate socket FD set and put Socket fd there
-
-   --------------------
-   -- Socket FD sets --
-   --------------------
-
-   type FD_Set_Access is access all FD_Set'Class;
 
    procedure Add
      (FD_Set : in out FD_Set_Access;
