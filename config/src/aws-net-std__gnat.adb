@@ -510,7 +510,8 @@ package body AWS.Net.Std is
    overriding function Is_Any_Address (Socket : Socket_Type) return Boolean is
       use Sockets;
    begin
-      return Get_Socket_Name (Socket.S.FD).Addr = Any_Inet_Addr;
+      return Get_Socket_Name (Socket.S.FD).Addr
+               in Any_Inet6_Addr | Any_Inet_Addr;
    exception
       when E : Sockets.Socket_Error =>
          Raise_Exception (E, "Is_Any_Address", Socket);
