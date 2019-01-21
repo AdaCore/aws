@@ -1,0 +1,4 @@
+[REFUSED] Connection refused to localhost 127.0.0.1:10123
+[REFUSED] Connection refused to 127.0.0.1:10123
+[10049] Cannot assign requested address on connect to 255.255.255.255:10123
+[11001] Neither nodename nor servname provided, or not known: no-way.to-have.such-address
