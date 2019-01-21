@@ -1,5 +1,6 @@
 vxworks6-6.6 DEAD
 windows-2012,ipv4 OUT test-win7-ipv4.out
+windows-2012,gnat OUT test-win2012.out
 windows-2008R2,ipv4 OUT test-win7-ipv4.out
 windows-2012R2,ipv4 OUT test-win7-ipv4.out
 windows-7,ipv4 OUT test-win7-ipv4.out
@@ -7,8 +8,9 @@ windows-10,ipv4 OUT test-win7-ipv4.out
 windows-2016,ipv4 OUT test-win7-ipv4.out
 NT,!ipv4 OUT test-nt-ipv6.out
 NT,ipv4 OUT test-nt-ipv4.out
-darwin,!ipv4 OUT test-darwin-ipv6.out
+darwin,ipv6 OUT test-darwin-ipv6.out
 darwin,ipv4 OUT test-darwin-ipv4.out
+darwin,gnat OUT test-darwin.out
 freebsd,!ipv4 OUT test-freebsd-ipv6.out
 freebsd,ipv4 OUT test-freebsd-ipv4.out
 vxworks6,!vxworks6-6.6 OUT test-vxworks.out
