@@ -131,7 +131,9 @@ begin
    Config.Set.Trusted_CA (Conf, "private-ca.crt");
    Config.Set.Certificate (Conf, "aws-server.crt");
    Config.Set.Key (Conf, "aws-server.key");
-   Config.Set.IPv6_Only (Conf, True);
+   Config.Set.IPv6_Only (Conf, Net.IPv6_Available);
+   Config.Set.Protocol_Family
+     (Conf, (if Net.IPv6_Available then "Family_Inet6" else "Family_Inet"));
 
    Server.Start (HTTP, CB'Unrestricted_Access, Conf);
 
