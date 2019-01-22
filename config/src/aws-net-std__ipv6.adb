@@ -84,9 +84,18 @@ package body AWS.Net.Std is
      (Host   : String;
       Port   : Natural;
       Family : Family_Type;
-      Flags  : C.int := 0) return OS_Lib.Addr_Info_Access;
+      Flags  : C.int := 0) return not null OS_Lib.Addr_Info_Access;
    --  Returns the inet address information for the given host and port.
    --  Flags should be used from getaddrinfo C routine.
+
+   function Select_IPv6_If_Present
+     (Chain : not null OS_Lib.Addr_Info_Access)
+      return not null OS_Lib.Addr_Info_Access;
+   --  Choose IPv6 address if it exists in the chain. This function is needed
+   --  because getaddrinfo returns IPv4 addresses first for Passive flag in
+   --  hints and IPv6 addresses first for calls without Passive flag. Without
+   --  this call the server is going to be bound to IPv4 address even if IPv6
+   --  local address exists.
 
    function Get_Int_Sock_Opt
      (Socket : Socket_Type; Name : C.int) return Integer;
@@ -190,8 +199,12 @@ package body AWS.Net.Std is
    is
       use type C.int;
 
-      Info  : constant OS_Lib.Addr_Info_Access :=
+      Raw   : constant not null OS_Lib.Addr_Info_Access :=
                 Get_Addr_Info (Host, Port, Family, OS_Lib.AI_PASSIVE);
+      Info  : constant not null OS_Lib.Addr_Info_Access :=
+                (if Family = Family_Unspec
+                 then Select_IPv6_If_Present (Raw)
+                 else Raw);
       FD    : C.int;
       Res   : C.int;
       Errno : Integer;
@@ -204,7 +217,7 @@ package body AWS.Net.Std is
       FD := C_Socket (Info.ai_family, Info.ai_socktype, Info.ai_protocol);
 
       if FD = Failure then
-         OS_Lib.FreeAddrInfo (Info);
+         OS_Lib.FreeAddrInfo (Raw);
          Raise_Socket_Error (OS_Lib.Socket_Errno);
       end if;
 
@@ -222,7 +235,7 @@ package body AWS.Net.Std is
 
       Res := C_Bind (FD, Info.ai_addr, C.int (Info.ai_addrlen));
 
-      OS_Lib.FreeAddrInfo (Info);
+      OS_Lib.FreeAddrInfo (Raw);
 
       if Res = Failure then
          Errno := OS_Lib.Socket_Errno;
@@ -372,7 +385,7 @@ package body AWS.Net.Std is
      (Host   : String;
       Port   : Natural;
       Family : Family_Type;
-      Flags  : C.int := 0) return OS_Lib.Addr_Info_Access
+      Flags  : C.int := 0) return not null OS_Lib.Addr_Info_Access
    is
       package CS renames Interfaces.C.Strings;
       use type C.int;
@@ -821,6 +834,30 @@ package body AWS.Net.Std is
             Last      => Last);
       end if;
    end Receive;
+
+   ----------------------------
+   -- Select_IPv6_If_Present --
+   ----------------------------
+
+   function Select_IPv6_If_Present
+     (Chain : not null OS_Lib.Addr_Info_Access)
+      return not null OS_Lib.Addr_Info_Access
+   is
+      use type OS_Lib.Addr_Info_Access, C.int;
+      Result : OS_Lib.Addr_Info_Access := Chain;
+   begin
+      loop
+         if Result.ai_family = OS_Lib.AF_INET6 then
+            return Result;
+         end if;
+
+         Result := Result.ai_next;
+
+         exit when Result = null;
+      end loop;
+
+      return Chain;
+   end Select_IPv6_If_Present;
 
    ----------
    -- Send --
