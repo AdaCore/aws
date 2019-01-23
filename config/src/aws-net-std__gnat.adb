@@ -421,7 +421,9 @@ package body AWS.Net.Std is
       Dummy : Socket_Type;
    begin
       declare
-         Addr_Info : Sockets.Address_Info_Array :=
+         use type Sockets.Family_Type;
+
+         Addr_Info : constant Sockets.Address_Info_Array :=
                        Sockets.Get_Address_Info
                          (Host, "", To_GNAT (Family), Passive => Passive);
       begin
@@ -432,10 +434,14 @@ package body AWS.Net.Std is
          if Family = Family_Unspec and then Passive then
             --  Prefer IPv6 bind for server if available
 
-            Sockets.Sort (Addr_Info, Sockets.IPv6_TCP_Preferred'Access);
+            for AI of Addr_Info loop
+               if AI.Addr.Family = Sockets.Family_Inet6 then
+                  return AI;
+               end if;
+            end loop;
          end if;
 
-         return Addr_Info (1);
+         return Addr_Info (Addr_Info'First);
       end;
    exception
       when E : Sockets.Socket_Error =>
