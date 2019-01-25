@@ -32,6 +32,11 @@ pragma Ada_2012;
 with Ada.Containers.Indefinite_Ordered_Maps;
 with Ada.Containers.Indefinite_Vectors;
 with Ada.Containers.Ordered_Maps;
+
+pragma Warnings (Off, "is an internal GNAT unit");
+with Ada.Strings.Unbounded.Aux;
+pragma Warnings (On, "is an internal GNAT unit");
+
 with Ada.Unchecked_Deallocation;
 with GNAT.Regpat;
 
@@ -143,7 +148,7 @@ package body AWS.Net.WebSocket.Registry is
 
       procedure Send
         (To          : Recipient;
-         Message     : Unbounded_String;
+         Message     : String;
          Except_Peer : String;
          Timeout     : Duration := Forever;
          Error       : access procedure (Socket : Object'Class;
@@ -640,7 +645,7 @@ package body AWS.Net.WebSocket.Registry is
 
       procedure Send
         (To          : Recipient;
-         Message     : Unbounded_String;
+         Message     : String;
          Except_Peer : String;
          Timeout     : Duration := Forever;
          Error       : access procedure (Socket : Object'Class;
@@ -675,7 +680,7 @@ package body AWS.Net.WebSocket.Registry is
                --  Send all data to a memory socket. This is a special
                --  circuitry where all sent data are actually stored into
                --  a buffer. This is necessary to be able to get raw data
-               --  denpending on the protocol.
+               --  depending on the protocol.
                --
                --  ??? for supporting a large set of WebSocket it would be
                --  good to share the memory buffer. There is actually one
@@ -1078,9 +1083,14 @@ package body AWS.Net.WebSocket.Registry is
       Except_Peer : String := "";
       Timeout     : Duration := Forever;
       Error       : access procedure (Socket : Object'Class;
-                                      Action : out Action_Kind) := null) is
+                                      Action : out Action_Kind) := null)
+   is
+      use Ada.Strings.Unbounded.Aux;
+      S  : Big_String_Access;
+      L  : Natural;
    begin
-      DB.Send (To, Message, Except_Peer, Timeout, Error);
+      Get_String (Message, S, L);
+      DB.Send (To, S (1 .. L), Except_Peer, Timeout, Error);
    exception
       when others =>
          --  Should never fails even if the WebSocket is closed by peer
@@ -1095,7 +1105,7 @@ package body AWS.Net.WebSocket.Registry is
       Error       : access procedure (Socket : Object'Class;
                                       Action : out Action_Kind) := null) is
    begin
-      Send (To, To_Unbounded_String (Message), Except_Peer, Timeout, Error);
+      DB.Send (To, Message, Except_Peer, Timeout, Error);
    end Send;
 
    procedure Send
@@ -1104,10 +1114,15 @@ package body AWS.Net.WebSocket.Registry is
       Request : AWS.Status.Data;
       Timeout : Duration := Forever;
       Error   : access procedure (Socket : Object'Class;
-                                  Action : out Action_Kind) := null) is
+                                  Action : out Action_Kind) := null)
+   is
+      use Ada.Strings.Unbounded.Aux;
+      S  : Big_String_Access;
+      L  : Natural;
    begin
+      Get_String (Message, S, L);
       Send
-        (To, Message,
+        (To, S (1 .. L),
          Except_Peer => AWS.Status.Socket (Request).Peer_Addr,
          Timeout     => Timeout,
          Error       => Error);
@@ -1122,7 +1137,7 @@ package body AWS.Net.WebSocket.Registry is
                                   Action : out Action_Kind) := null) is
    begin
       Send
-        (To, To_Unbounded_String (Message),
+        (To, Message,
          Except_Peer => AWS.Status.Socket (Request).Peer_Addr,
          Timeout     => Timeout,
          Error       => Error);
