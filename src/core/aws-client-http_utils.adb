@@ -792,6 +792,12 @@ package body AWS.Client.HTTP_Utils is
 
       AWS.Headers.Send_Header (Sock.all, Header);
 
+      if Debug_On then
+         for J in 1 .. Header.Count loop
+            Debug_Message ("> ", Header.Get_Line (J));
+         end loop;
+      end if;
+
       --  Cookie
 
       if Connection.Cookie /= No_Data then
@@ -1368,7 +1374,9 @@ package body AWS.Client.HTTP_Utils is
          Sock : Net.Socket_Type'Class renames Connection.Socket.all;
       begin
          if Content_Type /= Client.No_Data then
-            Send_Header (Sock, Messages.Content_Type (Content_Type));
+            Send_Header
+              (Sock, Messages.Content_Type_Token,
+               Messages.Content_Type'Access, Content_Type, Headers);
          end if;
 
          if SOAPAction /= Client.No_Data then

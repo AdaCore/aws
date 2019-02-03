@@ -312,8 +312,10 @@ package AWS.Messages is
 
    function Cookie (Value : String) return String with Inline;
 
+   function Content_Type (Format : String) return String with Inline;
+
    function Content_Type
-     (Format : String; Boundary : String := "") return String with Inline;
+     (Format : String; Boundary : String) return String with Inline;
 
    function Cache_Control (Option : Cache_Option) return String with Inline;
 
@@ -392,5 +394,8 @@ private
    All_Private   : constant Private_Option := To_Unbounded_String ("*");
    Private_Unset : constant Private_Option :=
                      Private_Option (Null_Unbounded_String);
+
+   function Content_Type (Format : String) return String is
+     (Content_Type (Format, ""));
 
 end AWS.Messages;
