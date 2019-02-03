@@ -53,6 +53,7 @@ with GNAT.Command_Line;
 
 with AWS.Client;
 with AWS.Default;
+with AWS.Headers;
 with AWS.Resources;
 with AWS.Response;
 with AWS.Messages;
@@ -98,6 +99,7 @@ procedure Agent is
                           To_Unbounded_String (Default.Client_Certificate);
    Was_Iterations     : Boolean := False;
    Previous_Code      : Messages.Status_Code := Messages.S100;
+   Header             : Headers.List;
 
    function Parse_Command_Line return Boolean;
    --  Parse Agent command line. Returns False on error
@@ -133,8 +135,8 @@ procedure Agent is
    begin
       loop
          case GNAT.Command_Line.Getopt
-           ("f o d h v u: p: a: pu: pp: pa: proxy: k i: if: s sc: r c cc: t:"
-            & " bc")
+           ("f o d h hd: v u: p: a: pu: pp: pa: proxy: k i: if: s sc: r c cc:"
+            & " t: bc")
          is
             when ASCII.NUL =>
                exit;
@@ -146,8 +148,20 @@ procedure Agent is
                return False;
 
             when 'h' =>
-               Usage;
-               return False;
+               if GNAT.Command_Line.Full_Switch = "hd" then
+                  declare
+                     P : constant String := GNAT.Command_Line.Parameter;
+                     H : constant String := Utils.Head_Before (P, ":");
+                     V : constant String :=
+                           P (P'First + H'Length + 1 .. P'Last);
+                  begin
+                     Header.Add (H, V);
+                  end;
+
+               else
+                  Usage;
+                  return False;
+               end if;
 
             when 'b' =>
                Break_On_Code := GNAT.Command_Line.Full_Switch = "bc";
@@ -305,6 +319,8 @@ procedure Agent is
       Text_IO.Put_Line ("       -if          File name to send.");
       Text_IO.Put_Line ("       -v           AWS and SSL version.");
       Text_IO.Put_Line ("       -h           This help screen.");
+      Text_IO.Put_Line ("       -hd <header> Set request header in Name:Value"
+                          & " format.");
       Text_IO.Put_Line ("       -proxy <proxy_url>");
       Text_IO.Put_Line ("       -u <user_name>");
       Text_IO.Put_Line ("       -p <password>");
@@ -369,6 +385,7 @@ begin
                   To_String (Proxy),
                   To_String (Proxy_User), To_String (Proxy_Pwd),
                   Follow_Redirection => Follow_Redirection,
+                  Headers            => Header,
                   Certificate        => To_String (Client_Cert));
             end if;
 
@@ -376,12 +393,14 @@ begin
             Client.Put
               (Connection => Connect,
                Result     => Data,
+               Headers    => Header,
                Data       => Data_To_Send.all);
 
          when Status.POST =>
             Client.Post
               (Connection => Connect,
                Result     => Data,
+               Headers    => Header,
                Data       => Data_To_Send.all);
 
          when others => null;
