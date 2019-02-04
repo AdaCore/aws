@@ -5,7 +5,7 @@
 Connection: Close
 Host:
 Accept: text/html, */*
-Accept-Encoding: deflate, gzip
+Accept-Encoding: gzip, deflate
 Accept-Language: fr, ru, us
 User-Agent:
 
@@ -28,7 +28,7 @@ Content-Length: 16
 Connection: Close
 Host:
 Accept: text/html, */*
-Accept-Encoding: deflate, gzip
+Accept-Encoding: gzip, deflate
 Accept-Language: fr, ru, us
 User-Agent:
 

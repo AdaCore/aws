@@ -816,7 +816,7 @@ package body AWS.Client.HTTP_Utils is
 
       Send_Header
         (Sock.all, Messages.Accept_Encoding_Token,
-         Messages.Accept_Encoding'Access, "deflate, gzip", Header);
+         Messages.Accept_Encoding'Access, "gzip, deflate", Header);
 
       Send_Header
         (Sock.all, Messages.Accept_Language_Token,

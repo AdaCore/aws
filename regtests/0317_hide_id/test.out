@@ -6,7 +6,7 @@ Connection: Close
 X-Request: 1st-First
 Host:
 Accept: text/html, */*
-Accept-Encoding: deflate, gzip
+Accept-Encoding: gzip, deflate
 Accept-Language: fr, ru, us
 User-Agent: AWS (Ada Web Server) v##.#
 
@@ -32,7 +32,7 @@ Connection: Close
 X-Request: 2nd-Second
 Host:
 Accept: text/html, */*
-Accept-Encoding: deflate, gzip
+Accept-Encoding: gzip, deflate
 Accept-Language: fr, ru, us
 User-Agent: justme_client
 
@@ -58,7 +58,7 @@ Connection: Close
 X-Request: 3rd-Third
 Host:
 Accept: text/html, */*
-Accept-Encoding: deflate, gzip
+Accept-Encoding: gzip, deflate
 Accept-Language: fr, ru, us
 
 
