@@ -423,11 +423,13 @@ package body AWS.Client is
          if Follow_Redirection and then SC = Messages.S305 then
             --  This is "Use Proxy" message, Location point to the proxy to
             --  use. We do not have the login/password for the proxy.
+
             return Get
               (URL, User, Pwd, Response.Location (Result),
                Timeouts           => Timeouts,
                Follow_Redirection => Follow_Redirection,
                Certificate        => Certificate,
+               Headers            => Headers,
                User_Agent         => User_Agent);
 
          elsif Follow_Redirection
@@ -453,6 +455,7 @@ package body AWS.Client is
                   Proxy, Proxy_User, Proxy_Pwd, Timeouts,
                   Data_Range, Follow_Redirection,
                   Certificate => Certificate,
+                  Headers     => Headers,
                   User_Agent  => User_Agent);
             end;
          else
