@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                    Copyright (C) 2014-2015, AdaCore                      --
+--                    Copyright (C) 2014-2019, AdaCore                      --
 --                                                                          --
 --  This is free software;  you can redistribute it  and/or modify it       --
 --  under terms of the  GNU General Public License as published  by the     --
@@ -18,9 +18,11 @@
 
 --  Example of Server Push with WebSocket protocol usage.
 
+with Ada.Exceptions;
 with Ada.Text_IO;
 
 with AWS.Config.Set;
+with AWS.Net.Log;
 with AWS.Server.Status;
 
 with WS_CB;
@@ -28,12 +30,26 @@ with WS_CB;
 procedure WS is
    use Ada;
    Config : AWS.Config.Object;
+
+   procedure On_Error (Socket : AWS.Net.Socket_Type'Class; Message : String);
+
+   --------------
+   -- On_Error --
+   --------------
+
+   procedure On_Error (Socket : AWS.Net.Socket_Type'Class; Message : String) is
+   begin
+      Text_IO.Put_Line ("# " & Message);
+   end On_Error;
+
 begin
    AWS.Config.Set.Reuse_Address (Config, True);
    AWS.Config.Set.Server_Host (Config, "127.0.0.1");
    AWS.Config.Set.Server_Port (Config, 0);
    AWS.Config.Set.Server_Name (Config, "Test");
    AWS.Config.Set.Max_Connection (Config, 5);
+
+   AWS.Net.Log.Start (null, Error => On_Error'Unrestricted_Access);
 
    AWS.Server.Start
      (WS_CB.WS,
@@ -58,4 +74,11 @@ begin
    WS_CB.Wait.Close;
 
    AWS.Server.Shutdown (WS_CB.WS);
+
+exception
+   when E : others =>
+      Text_IO.Put_Line (Ada.Exceptions.Exception_Information (E));
+
+      WS_CB.Wait.Close;
+      AWS.Server.Shutdown (WS_CB.WS);
 end WS;
