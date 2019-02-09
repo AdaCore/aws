@@ -278,7 +278,7 @@ package body AWS.Net.Std is
       package SC renames OS_Lib;
 
       Option : constant Option_Type :=
-                 Get_Socket_Option (Socket.S.FD, Name => Error);
+                 Get_Socket_Option (Socket.S.FD, Socket_Level, Name => Error);
    begin
       case Option.Error is
          when Success                                       =>
@@ -485,7 +485,8 @@ package body AWS.Net.Std is
    is
       use Sockets;
    begin
-      return Get_Socket_Option (Socket.S.FD, Name => Send_Buffer).Size;
+      return Get_Socket_Option
+               (Socket.S.FD, Socket_Level, Name => Send_Buffer).Size;
    exception
       when E : Sockets.Socket_Error =>
          Raise_Exception (E, "Get_Send_Buffer_Size", Socket);
