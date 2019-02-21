@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2003-2018, AdaCore                     --
+--                     Copyright (C) 2003-2019, AdaCore                     --
 --                                                                          --
 --  This is free software;  you can redistribute it  and/or modify it       --
 --  under terms of the  GNU General Public License as published  by the     --
@@ -218,7 +218,7 @@ procedure Ada2WSDL.Main is
       Put_Line ("  -s name  Web Service name (default package name)");
       Put_Line ("  -n name  Schema root name (default soapaws)");
       Put_Line ("  -noenum  Map Ada enumeration to xsd:string");
-      Put_Line ("  -soa     Generate old style SOAP Encoded array");
+      Put_Line ("  -sea     Generate old style SOAP Encoded array");
       Put_Line ("  -d       no date/time stamp in WSDL");
 
       Set_Output (Current_Output.all);
