@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2000-2012, AdaCore                     --
+--                     Copyright (C) 2000-2019, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -138,7 +138,8 @@ package body AWS.Config.Ini is
    begin
       Text_IO.Open (Name => Filename,
                     File => File,
-                    Mode => Text_IO.In_File);
+                    Mode => Text_IO.In_File,
+                    Form => "shared=no");
       Line := 0;
 
       while not Text_IO.End_Of_File (File) loop
@@ -186,6 +187,12 @@ package body AWS.Config.Ini is
       end loop;
 
       Text_IO.Close (File);
+
+   exception
+      when others =>
+         if Text_IO.Is_Open (File) then
+            Text_IO.Close (File);
+         end if;
    end Read;
 
 end AWS.Config.Ini;
