@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                       Copyright (C) 2014, AdaCore                        --
+--                     Copyright (C) 2014-2019, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -53,7 +53,7 @@ package AWS.Net.Websocket.Handshake_Error is
 private
 
    type Object is new WebSocket.Object with record
-      Status_Code   : Messages.Client_Error;
+      Status_Code   : AWS.Messages.Client_Error;
       Reason_Phrase : Unbounded_String;
    end record;
 
