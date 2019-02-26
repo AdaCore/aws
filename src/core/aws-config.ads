@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2000-2018, AdaCore                     --
+--                     Copyright (C) 2000-2019, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -405,6 +405,9 @@ package AWS.Config is
    function WebSocket_Message_Queue_Size return Positive with Inline;
    --  This is the size of the queue containing incoming messages
 
+   function WebSocket_Send_Message_Queue_Size return Positive with Inline;
+   --  This is the size of the queue containing messages to send
+
    function Max_WebSocket return Positive with Inline;
    --  The maximum number of simultaneous WebSocket opened. Note that that
    --  there could be more WebSocket registered when counting the closing
@@ -520,6 +523,7 @@ private
       Max_WebSocket_Handler,
       MIME_Types,
       WebSocket_Message_Queue_Size,
+      WebSocket_Send_Message_Queue_Size,
       WebSocket_Origin,
       WebSocket_Priority,
       Max_WebSocket,
@@ -813,6 +817,9 @@ private
 
                         WebSocket_Message_Queue_Size =>
                           (Pos, Default.WebSocket_Message_Queue_Size),
+
+                        WebSocket_Send_Message_Queue_Size =>
+                          (Pos, Default.WebSocket_Send_Message_Queue_Size),
 
                         WebSocket_Origin             =>
                           (Regexp, False, Pattern => <>,

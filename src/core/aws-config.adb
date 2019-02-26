@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2000-2018, AdaCore                     --
+--                     Copyright (C) 2000-2019, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -887,6 +887,15 @@ package body AWS.Config is
    begin
       return Process_Options (WebSocket_Priority).Nat_Value;
    end WebSocket_Priority;
+
+   ---------------------------------------
+   -- WebSocket_Send_Message_Queue_Size --
+   ---------------------------------------
+
+   function WebSocket_Send_Message_Queue_Size return Positive is
+   begin
+      return Process_Options (WebSocket_Send_Message_Queue_Size).Pos_Value;
+   end WebSocket_Send_Message_Queue_Size;
 
    -----------------------
    -- WebSocket_Timeout --

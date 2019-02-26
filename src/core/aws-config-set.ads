@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2000-2018, AdaCore                     --
+--                     Copyright (C) 2000-2019, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -393,6 +393,9 @@ package AWS.Config.Set is
 
    procedure WebSocket_Message_Queue_Size (Value : Positive);
    --  This is the size of the queue containing incoming messages
+
+   procedure WebSocket_Send_Message_Queue_Size (Value : Positive);
+   --  This is the size of the queue containing messages to send
 
    procedure WebSocket_Origin (Value : String);
    --  This is regular expression to restrict WebSocket to a specific origin
