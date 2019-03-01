@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2012-2015, AdaCore                     --
+--                     Copyright (C) 2012-2019, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -35,6 +35,7 @@ with Ada.Strings.Unbounded;
 with AWS.Status;
 
 private with Ada.Calendar;
+private with Ada.Containers.Doubly_Linked_Lists;
 private with AWS.Client;
 private with Interfaces;
 
@@ -266,6 +267,13 @@ private
    type Protocol_State;
    type Protocol_State_Access is access Protocol_State;
 
+   type Message_Data is record
+      Mem_Sock : Net.Socket_Access;
+      Timeout  : Duration;
+   end record;
+
+   package Message_List is new Containers.Doubly_Linked_Lists (Message_Data);
+
    type Object is new Net.Socket_Type with record
       Socket   : Net.Socket_Access;
       Id       : UID;
@@ -273,6 +281,7 @@ private
       Version  : Natural;
       State    : Internal_State_Access;
       P_State  : Protocol_State_Access;
+      Messages : Message_List.List;
       Mem_Sock : Net.Socket_Access;
       In_Mem   : Boolean := False;
 
@@ -349,6 +358,7 @@ private
                     Version    => 0,
                     State      => null,
                     P_State    => null,
+                    Messages   => Message_List.Empty_List,
                     Mem_Sock   => null,
                     Connection => null,
                     In_Mem     => False);

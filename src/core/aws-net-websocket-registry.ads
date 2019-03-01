@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2012-2018, AdaCore                     --
+--                     Copyright (C) 2012-2019, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -81,13 +81,15 @@ package AWS.Net.WebSocket.Registry is
    type Action_Kind is (None, Close);
 
    procedure Send
-     (To          : Recipient;
-      Message     : String;
-      Except_Peer : String := "";
-      Timeout     : Duration := Forever;
-      Error       : access procedure (Socket : Object'Class;
-                                      Action : out Action_Kind) := null)
-     with Pre => To /= No_Recipient;
+     (To           : Recipient;
+      Message      : String;
+      Except_Peer  : String := "";
+      Timeout      : Duration := Forever;
+      Asynchronous : Boolean := False;
+      Error        : access procedure (Socket : Object'Class;
+                                       Action : out Action_Kind) := null)
+     with Pre => To /= No_Recipient
+                 and then (if Asynchronous then Error = null);
    --  Send a message to the WebSocket designated by Origin and URI. Do not
    --  send this message to the peer whose address is given by Except_Peer.
    --  Except_Peer must be the address as reported by AWS.Net.Peer_Addr. It is
@@ -95,33 +97,39 @@ package AWS.Net.WebSocket.Registry is
    --  which has sent the message triggering a response.
 
    procedure Send
-     (To          : Recipient;
-      Message     : Unbounded_String;
-      Except_Peer : String := "";
-      Timeout     : Duration := Forever;
-      Error       : access procedure (Socket : Object'Class;
-                                      Action : out Action_Kind) := null)
-     with Pre => To /= No_Recipient;
+     (To           : Recipient;
+      Message      : Unbounded_String;
+      Except_Peer  : String := "";
+      Timeout      : Duration := Forever;
+      Asynchronous : Boolean := False;
+      Error        : access procedure (Socket : Object'Class;
+                                       Action : out Action_Kind) := null)
+     with Pre => To /= No_Recipient
+                 and then (if Asynchronous then Error = null);
    --  As above but with an Unbounded_String
 
    procedure Send
-     (To      : Recipient;
-      Message : String;
-      Request : AWS.Status.Data;
-      Timeout : Duration := Forever;
-      Error   : access procedure (Socket : Object'Class;
-                                  Action : out Action_Kind) := null)
-     with Pre => To /= No_Recipient;
+     (To           : Recipient;
+      Message      : String;
+      Request      : AWS.Status.Data;
+      Timeout      : Duration := Forever;
+      Asynchronous : Boolean := False;
+      Error        : access procedure (Socket : Object'Class;
+                                       Action : out Action_Kind) := null)
+     with Pre => To /= No_Recipient
+                 and then (if Asynchronous then Error = null);
    --  As above but filter out the client having set the given request
 
    procedure Send
-     (To      : Recipient;
-      Message : Unbounded_String;
-      Request : AWS.Status.Data;
-      Timeout : Duration := Forever;
-      Error   : access procedure (Socket : Object'Class;
-                                  Action : out Action_Kind) := null)
-     with Pre => To /= No_Recipient;
+     (To           : Recipient;
+      Message      : Unbounded_String;
+      Request      : AWS.Status.Data;
+      Timeout      : Duration := Forever;
+      Asynchronous : Boolean := False;
+      Error        : access procedure (Socket : Object'Class;
+                                       Action : out Action_Kind) := null)
+     with Pre => To /= No_Recipient
+                 and then (if Asynchronous then Error = null);
    --  As above but with an Unbounded_String
 
    procedure Close
@@ -138,26 +146,29 @@ package AWS.Net.WebSocket.Registry is
    --  with other WebSocket activity to and from the clients.
 
    procedure Send
-     (Socket    : in out Object'Class;
-      Message   : String;
-      Is_Binary : Boolean := False;
-      Timeout   : Duration := Forever);
+     (Socket       : in out Object'Class;
+      Message      : String;
+      Is_Binary    : Boolean := False;
+      Timeout      : Duration := Forever;
+      Asynchronous : Boolean := False);
    --  This default implementation just send a message to the client. The
    --  message is sent in a single chunk (not fragmented).
 
    procedure Send
-     (Socket    : in out Object'Class;
-      Message   : Unbounded_String;
-      Is_Binary : Boolean := False;
-      Timeout   : Duration := Forever);
+     (Socket       : in out Object'Class;
+      Message      : Unbounded_String;
+      Is_Binary    : Boolean := False;
+      Timeout      : Duration := Forever;
+      Asynchronous : Boolean := False);
    --  Same as above but can be used for large messages. The message is
    --  possibly sent fragmented.
 
    procedure Send
-     (Socket    : in out Object'Class;
-      Message   : Stream_Element_Array;
-      Is_Binary : Boolean := True;
-      Timeout   : Duration := Forever);
+     (Socket       : in out Object'Class;
+      Message      : Stream_Element_Array;
+      Is_Binary    : Boolean := True;
+      Timeout      : Duration := Forever;
+      Asynchronous : Boolean := False);
    --  As above but for a Stream_Element_Array
 
    procedure Close
