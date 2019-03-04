@@ -836,6 +836,8 @@ begin
               (API2_Service.Client.Get ("voiture", Endpoint => Local_URL)));
          Put_Line (API2_Service.Client.Get_Last_Key (Endpoint => Local_URL));
       end;
+
+      Session.Clear;
    end loop;
 
    Server.Stopped;

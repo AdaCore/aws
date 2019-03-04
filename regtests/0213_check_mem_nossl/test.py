@@ -21,41 +21,39 @@ exec_cmd('ada2wsdl', ['-q', '-f', '-o', 'api2.wsdl', 'api2.ads'],
 exec_cmd('wsdl2aws', ['-q', '-f', '-types', 'api2', '-cb', 'api2.wsdl'],
          ignore_error=True)
 
+EXEC='check_mem_nossl'
+
 #  Build driver
-build('check_mem_nossl')
+build(EXEC)
 
-#  Run driver (2 loops)
-run('check_mem_nossl', ['2'])
-exec_cmd('gnatmem', ['5', '-i', 'gmem.out', './check_mem_nossl'],
-         output_file='check_mem_nossl.run1')
+first_high=False
+first_final=False
 
-#  Run driver (10 loops)
-run('check_mem_nossl', ['10'])
-exec_cmd('gnatmem', ['5', '-i', 'gmem.out', './check_mem_nossl'],
-         output_file='check_mem_nossl.run2')
+#  Run driver 2 times
+for r in range(0, 2):
+    run(EXEC, [str(r * 8 + 2)])
+    ofn = open("run%d.out" % r, "w+");
+    exec_cmd('gnatmem', ['5', '-t', '-i', 'gmem.out', EXEC],
+              output_file=ofn)
+    ofn.seek(0)
+    for line in ofn:
+       if line[0:8] == "   Final":
+           if first_final:
+               if first_final == line:
+                   print "OK final water mark"
+               else:
+                   print first_final + line
+           else:
+              first_final = line
 
-#  Now check that final water-mark for run1 and run2 is equal
-r1 = open ('check_mem_nossl.run1').readlines()
-r2 = open ('check_mem_nossl.run2').readlines()
+       elif line[0:7] == "   High":
+           if first_high:
+               if first_high == line:
+                   print "OK high water mark"
+               else:
+                   print first_high + line
+               break
+           else:
+              first_high = line
 
-fr1 = "1"
-fr2 = "2"
-
-for item in r1:
-    if item[0:8] == "   Final":
-        fr1 = item;
-for item in r2:
-    if item[0:8] == "   Final":
-        fr2 = item;
-
-if fr1 != fr2:
-    logging.error(fr1 + "!=" + fr2)
-
-    print "run 1"
-    for l in r1:
-        print l
-
-    print ""
-    print "run 2"
-    for l in r2:
-        print l
+    ofn.close()
