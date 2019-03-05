@@ -56,12 +56,6 @@ package body AWS.Net.Std is
    --  Raise and log exception Socket_Error with E's message and a reference to
    --  the routine name.
 
-   function Get_Inet_Addr
-     (Host    : String;
-      Family  : Family_Type;
-      Passive : Boolean) return Sockets.Address_Info;
-   --  Returns the inet address for the given host
-
    procedure Set_Non_Blocking_Mode (Socket : Socket_Type);
    --  Set the socket to the non-blocking mode.
    --  AWS is not using blocking sockets internally.
@@ -114,11 +108,7 @@ package body AWS.Net.Std is
       Host          : String      := "";
       Reuse_Address : Boolean     := False;
       IPv6_Only     : Boolean     := False;
-      Family        : Family_Type := Family_Unspec)
-   is
-      use type Sockets.Family_Type;
-      Addr_Info : Sockets.Address_Info;
-      Created   : Boolean := False;
+      Family        : Family_Type := Family_Unspec) is
    begin
       if Socket.S /= null then
          Socket := Socket_Type'(Net.Socket_Type with others => <>);
@@ -126,39 +116,59 @@ package body AWS.Net.Std is
 
       Socket.S := new Socket_Hidden;
 
-      Addr_Info := Get_Inet_Addr (Host, Family, Passive => True);
+      declare
+         use GNAT.Sockets;
+         Keep_Excp : Exceptions.Exception_Occurrence;
+         Addresses : Address_Info_Array :=
+                       Get_Address_Info
+                         (Host, "", To_GNAT (Family), Passive => True);
+      begin
+         if Family = Family_Unspec then
+            Sort (Addresses, IPv6_TCP_Preferred'Access);
+         end if;
 
-      Sockets.Create_Socket
-        (Socket.S.FD, Addr_Info.Addr.Family, Addr_Info.Mode, Addr_Info.Level);
+         for Addr_Info of Addresses loop
+            Check_Address : begin
+               Create_Socket
+                 (Socket.S.FD, Addr_Info.Addr.Family, Addr_Info.Mode,
+                  Addr_Info.Level);
 
-      if Addr_Info.Addr.Family = Sockets.Family_Inet6 then
-         Sockets.Set_Socket_Option
-           (Socket.S.FD, Sockets.IP_Protocol_For_IPv6_Level,
-            (Name => Sockets.IPv6_Only, Enabled => IPv6_Only));
-      end if;
+               if Addr_Info.Addr.Family = Sockets.Family_Inet6 then
+                  Set_Socket_Option
+                    (Socket.S.FD, IP_Protocol_For_IPv6_Level,
+                     (Name => Sockets.IPv6_Only, Enabled => IPv6_Only));
+               end if;
 
-      Created := True;
+               Set_Non_Blocking_Mode (Socket);
 
-      Set_Non_Blocking_Mode (Socket);
+               Set_Socket_Option
+                 (Socket.S.FD, Socket_Level,
+                  Option => (Sockets.Reuse_Address, Enabled => Reuse_Address));
 
-      if Reuse_Address then
-         Sockets.Set_Socket_Option
-           (Socket.S.FD, Sockets.Socket_Level,
-            Option => (Sockets.Reuse_Address, Enabled => True));
-      end if;
+               Bind_Socket
+                 (Socket.S.FD,
+                  (Addr_Info.Addr.Family, Addr_Info.Addr.Addr,
+                   Sockets.Port_Type (Port)));
 
-      Sockets.Bind_Socket
-        (Socket.S.FD,
-         (Addr_Info.Addr.Family, Addr_Info.Addr.Addr,
-          Sockets.Port_Type (Port)));
+               return;
+
+            exception
+               when E : Sockets.Socket_Error | Sockets.Host_Error =>
+                  if Socket.S.FD /= Sockets.No_Socket then
+                     Sockets.Close_Socket (Socket.S.FD);
+                     Socket.S.FD := Sockets.No_Socket;
+                  end if;
+
+                  Exceptions.Save_Occurrence (Keep_Excp, E);
+            end Check_Address;
+         end loop;
+
+         Raise_Exception (Keep_Excp, "Bind", Socket);
+      end;
 
    exception
       when E : Sockets.Socket_Error | Sockets.Host_Error =>
-         if Created then
-            Sockets.Close_Socket (Socket.S.FD);
-         end if;
-
-         Raise_Exception (E, "Bind", Socket);
+         Raise_Exception (E, "Get_Address_Info", Socket);
    end Bind;
 
    -------------
@@ -172,7 +182,6 @@ package body AWS.Net.Std is
       Wait   : Boolean     := True;
       Family : Family_Type := Family_Unspec)
    is
-      Addr_Info : Sockets.Address_Info;
       Sock_Addr : Sockets.Sock_Addr_Type := Sockets.No_Sock_Addr;
 
       Close_On_Exception : Boolean := False;
@@ -218,51 +227,82 @@ package body AWS.Net.Std is
 
       Socket.S := new Socket_Hidden;
 
-      Addr_Info := Get_Inet_Addr (Host, Family, Passive => False);
-      Sock_Addr := Addr_Info.Addr;
-      Sock_Addr.Port := Sockets.Port_Type (Port);
-
-      Sockets.Create_Socket
-        (Socket.S.FD, Addr_Info.Addr.Family, Addr_Info.Mode, Addr_Info.Level);
-      Close_On_Exception := True;
-
-      Set_Non_Blocking_Mode (Socket);
-
       declare
          use GNAT.Sockets;
+         Keep_Excp : Exceptions.Exception_Occurrence;
+         Addresses : constant Address_Info_Array :=
+                       Get_Address_Info
+                         (Host, "", To_GNAT (Family), Passive => False);
       begin
-         Connect_Socket (Socket.S.FD, Sock_Addr);
-      exception
-         when E : GNAT.Sockets.Socket_Error =>
-            --  Ignore EWOULDBLOCK and EINPROGRESS errors, because we are
-            --  using none blocking connect.
-            --  ??? Note, we should change this when GNAT will support
-            --  Non-blocking connect.
+         for Addr_Info of Addresses loop
+            Check_Address : begin
+               Sock_Addr := Addr_Info.Addr;
+               Sock_Addr.Port := Sockets.Port_Type (Port);
 
-            case Resolve_Exception (E) is
-               when Operation_Now_In_Progress
-                    | Resource_Temporarily_Unavailable => null;
-               when others =>
-                  Raise_Error (Exception_Message (E));
-            end case;
+               Sockets.Create_Socket
+                 (Socket.S.FD, Addr_Info.Addr.Family, Addr_Info.Mode,
+                  Addr_Info.Level);
+               Close_On_Exception := True;
+
+               Set_Non_Blocking_Mode (Socket);
+
+               begin
+                  Connect_Socket (Socket.S.FD, Sock_Addr);
+               exception
+                  when E : GNAT.Sockets.Socket_Error =>
+                     --  Ignore EWOULDBLOCK and EINPROGRESS errors, because we
+                     --  are using none blocking connect.
+                     --  ??? Note, we should change this when GNAT will support
+                     --  Non-blocking connect.
+
+                     case Resolve_Exception (E) is
+                        when Operation_Now_In_Progress
+                           | Resource_Temporarily_Unavailable =>
+                           null;
+                        when others =>
+                           raise;
+                     end case;
+               end;
+
+               if Wait then
+                  declare
+                     Events : constant Event_Set :=
+                                Net.Wait
+                                  (Socket, (Output => True, Input => False));
+                  begin
+                     if Events (Error) then
+                        --  Raise original exception to keep trying in next
+                        --  address iteration.
+
+                        raise GNAT.Sockets.Socket_Error with
+                           Error_Message (Errno (Socket));
+
+                     elsif not Events (Output) then
+                        Raise_Error (OS_Lib.ETIMEDOUT);
+                     end if;
+                  end;
+               end if;
+
+               if Net.Log.Is_Event_Active then
+                  Net.Log.Event (Net.Log.Connect, Socket);
+               end if;
+
+               return;
+
+            exception
+               when E : Sockets.Socket_Error | Sockets.Host_Error =>
+                  if Close_On_Exception then
+                     Sockets.Close_Socket (Socket.S.FD);
+                     Close_On_Exception := False;
+                  end if;
+
+                  Save_Occurrence (Keep_Excp, E);
+            end Check_Address;
+         end loop;
+
+         Raise_Error (Exception_Message (Keep_Excp));
       end;
 
-      if Wait then
-         declare
-            Events : constant Event_Set :=
-                       Net.Wait (Socket, (Output => True, Input => False));
-         begin
-            if Events (Error) then
-               Raise_Error (Std.Errno (Socket));
-            elsif not Events (Output) then
-               Raise_Error (OS_Lib.ETIMEDOUT);
-            end if;
-         end;
-      end if;
-
-      if Net.Log.Is_Event_Active then
-         Net.Log.Event (Net.Log.Connect, Socket);
-      end if;
    exception
       when E : Sockets.Socket_Error | Sockets.Host_Error =>
          Raise_Error (Exception_Message (E));
@@ -408,45 +448,6 @@ package body AWS.Net.Std is
          return Sockets.To_C (Socket.S.FD);
       end if;
    end Get_FD;
-
-   -------------------
-   -- Get_Inet_Addr --
-   -------------------
-
-   function Get_Inet_Addr
-     (Host    : String;
-      Family  : Family_Type;
-      Passive : Boolean) return Sockets.Address_Info
-   is
-      Dummy : Socket_Type;
-   begin
-      declare
-         use type Sockets.Family_Type;
-
-         Addr_Info : constant Sockets.Address_Info_Array :=
-                       Sockets.Get_Address_Info
-                         (Host, "", To_GNAT (Family), Passive => Passive);
-      begin
-         if Addr_Info'Length = 0 then
-            raise Socket_Error with "Host name " & Host & " not known";
-         end if;
-
-         if Family = Family_Unspec and then Passive then
-            --  Prefer IPv6 bind for server if available
-
-            for AI of Addr_Info loop
-               if AI.Addr.Family = Sockets.Family_Inet6 then
-                  return AI;
-               end if;
-            end loop;
-         end if;
-
-         return Addr_Info (Addr_Info'First);
-      end;
-   exception
-      when E : Sockets.Socket_Error =>
-         Raise_Exception (E, "Get_Inet_Addr " & Host, Dummy);
-   end Get_Inet_Addr;
 
    --------------
    -- Get_Port --
