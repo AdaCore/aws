@@ -51,6 +51,7 @@ procedure Doc_Lit_Record is
       R : API.T;
    begin
       R.V := To_Unbounded_String ("from client");
+      R.A := 11#AAA#;
       API_Service.Client.Call
         (O        => R,
          Endpoint => AWS.Server.Status.Local_URL (H_Server));
