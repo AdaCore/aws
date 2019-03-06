@@ -47,11 +47,13 @@ procedure Multiple_Schema is
 
    procedure WSDL_Demo_Client is
       use Ada;
-      R : API.Child_Service.Types.Rec_Type;
+      R : API.Child_Service.Types.Rec_Type :=
+        (V => To_Unbounded_String ("from client"),
+         A => 11#AAAA#,
+         B => To_Unbounded_String ("B value"),
+         C => 5,
+         D => 9912);
    begin
-      R.V := To_Unbounded_String ("from client");
-      R.C := 5;
-      R.D := 9912;
       API.Child_Service.Client.Call
         (O        => R,
          Endpoint => AWS.Server.Status.Local_URL (H_Server));
