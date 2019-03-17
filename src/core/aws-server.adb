@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2000-2018, AdaCore                     --
+--                     Copyright (C) 2000-2019, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -272,9 +272,12 @@ package body AWS.Server is
    end Give_Back_Socket;
 
    procedure Give_Back_Socket
-     (Web_Server : in out HTTP; Socket : Net.Socket_Type'Class) is
+     (Web_Server : in out HTTP; Socket : Net.Socket_Type'Class)
+   is
+      S : constant not null Net.Socket_Access :=
+            new Net.Socket_Type'Class'(Socket);
    begin
-      Give_Back_Socket (Web_Server, new Net.Socket_Type'Class'(Socket));
+      Give_Back_Socket (Web_Server, S);
    end Give_Back_Socket;
 
    ----------
