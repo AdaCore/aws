@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2000-2015, AdaCore                     --
+--                     Copyright (C) 2000-2019, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -612,9 +612,12 @@ package body AWS.Net is
    end Socket;
 
    function Socket
-     (Security : Boolean) return not null access Socket_Type'Class is
+     (Security : Boolean) return not null access Socket_Type'Class
+   is
+      Result : constant not null Socket_Access :=
+                 new Socket_Type'Class'(Socket (Security));
    begin
-      return new Socket_Type'Class'(Socket (Security));
+      return Result;
    end Socket;
 
    -----------------
