@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2003-2018, AdaCore                     --
+--                     Copyright (C) 2003-2019, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -3389,14 +3389,22 @@ package body WSDL2AWS.Generator is
                               NS        => "NS"));
 
                      when WSDL.Types.K_Array =>
-                        Text_IO.Put
-                          (Rec_Adb,
-                           WSDL.Parameters.To_SOAP
-                             (N.all,
-                              Object    => Field & ".Item.all",
-                              Name      => To_String (N.Name),
-                              Type_Name => T_Name,
-                              NS        => "NS"));
+                        declare
+                           E_Name : constant String :=
+                                      To_String (N.Elmt_Name);
+                        begin
+                           Text_IO.Put
+                             (Rec_Adb,
+                              WSDL.Parameters.To_SOAP
+                                (N.all,
+                                 Object    => Field & ".Item.all",
+                                 Name      => To_String (N.Name),
+                                 Type_Name =>
+                                   (if O.Style = SOAP.WSDL.Schema.RPC
+                                    then E_Name
+                                    else T_Name),
+                                 NS        => "NS"));
+                        end;
                   end case;
                end;
 
