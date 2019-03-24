@@ -544,9 +544,9 @@ package body AWS.Net.SSL is
 
    procedure Free (Key : in out Private_Key) is
    begin
-      if Key /= Private_Key (TSSL.Null_Pointer) then
-         TSSL.RSA_free (TSSL.Private_Key (Key));
-         Key := Private_Key (TSSL.Null_Pointer);
+      if Key /= Null_Private_Key then
+         EVP_PKEY_free (Key);
+         Key := Null_Private_Key;
       end if;
    end Free;
 
@@ -811,7 +811,7 @@ package body AWS.Net.SSL is
    ----------
 
    function Load (Filename : String) return Private_Key is
-      Key  : aliased TSSL.Private_Key := TSSL.RSA_new;
+      Key  : aliased Private_Key := EVP_PKEY_new;
       IO   : constant TSSL.BIO_Access := TSSL.BIO_new (TSSL.BIO_s_file);
       Name : aliased C.char_array := C.To_C (Filename);
       Pwd  : aliased C.char_array :=
@@ -819,20 +819,20 @@ package body AWS.Net.SSL is
    begin
       if TSSL.BIO_read_filename
            (IO, C.Strings.To_Chars_Ptr (Name'Unchecked_Access)) = 0
-        or else TSSL.PEM_read_bio_RSAPrivateKey
+        or else PEM_read_bio_PrivateKey
                   (IO, Key'Access, null,
-                   (if Pwd'Length = 1       -- 1 means just the nul char
+                   (if Pwd'Length <= 1       -- 1 means just the nul char
                     then TSSL.Null_Pointer
                     else Pwd'Address)) /= Key
       then
          TSSL.BIO_free (IO);
-         TSSL.RSA_free (Key);
+         EVP_PKEY_free (Key);
          File_Error ("Key", Filename);
       end if;
 
       TSSL.BIO_free (IO);
 
-      return Private_Key (Key);
+      return Key;
    end Load;
 
    ---------------
@@ -1440,7 +1440,7 @@ package body AWS.Net.SSL is
       Hash : Hash_Method) return Stream_Element_Array
    is
       use TSSL;
-      use type C.unsigned;
+      use type C.unsigned, C.size_t;
 
       To_EVP_MD : constant array (Hash_Method) of EVP_MD :=
                     (MD5    => EVP_md5,
@@ -1450,39 +1450,41 @@ package body AWS.Net.SSL is
                      SHA384 => EVP_sha384,
                      SHA512 => EVP_sha512);
 
-      To_NID : constant array (Hash_Method) of C.int :=
-                 (MD5    => NID_md5,
-                  SHA1   => NID_sha1,
-                  SHA224 => NID_sha224,
-                  SHA256 => NID_sha256,
-                  SHA384 => NID_sha384,
-                  SHA512 => NID_sha512);
+      Md     : constant EVP_MD := To_EVP_MD (Hash);
+      D_Ctx  : constant EVP_MD_CTX := EVP_MD_CTX_new;
+      Dig    : Stream_Element_Array
+                 (1 .. Stream_Element_Offset (EVP_MD_size (Md)));
+      D_Size : aliased C.unsigned := Dig'Length;
 
-      Md  : constant EVP_MD := To_EVP_MD (Hash);
-      Ctx : constant EVP_MD_CTX := EVP_MD_CTX_new;
-      Dig : Stream_Element_Array
-              (1 .. Stream_Element_Offset (EVP_MD_size (Md)));
-      Res : Stream_Element_Array
-              (1 .. Stream_Element_Offset (RSA_size (RSA (Key))));
-      Len : aliased C.unsigned := Dig'Length;
+      S_Ctx  : EVP_PKEY_CTX;
+      Res    : Stream_Element_Array
+                 (1 .. Stream_Element_Offset (EVP_PKEY_size (Key)));
+      S_Size : aliased C.size_t := Res'Length;
    begin
-      Error_If (EVP_DigestInit (Ctx, Md) = 0);
-      Error_If (EVP_DigestUpdate (Ctx, Ptr, Size) = 0);
-      Error_If (EVP_DigestFinal (Ctx, Dig'Address, Len'Access) = 0);
+      Error_If (EVP_DigestInit (D_Ctx, Md) = 0);
+      Error_If (EVP_DigestUpdate (D_Ctx, Ptr, Size) = 0);
+      Error_If (EVP_DigestFinal (D_Ctx, Dig'Address, D_Size'Access) = 0);
+      EVP_MD_CTX_free (D_Ctx);
 
-      if Len /= Dig'Length then
+      if D_Size /= Dig'Length then
          raise Program_Error with "Digest length error";
       end if;
 
-      EVP_MD_CTX_free (Ctx);
-
-      Len := Res'Length;
+      S_Ctx := SSL.EVP_PKEY_CTX_new (Key, ENGINE (Null_Pointer));
+      Error_If (S_Ctx = EVP_PKEY_CTX (Null_Pointer));
+      Error_If (EVP_PKEY_sign_init (S_Ctx) <= 0);
+      Error_If (EVP_PKEY_CTX_set_signature_md (S_Ctx, To_EVP_MD (Hash)) <= 0);
       Error_If
-        (RSA_sign
-           (To_NID (Hash), Dig'Address, Dig'Length, Res'Address, Len'Access,
-            RSA (Key)) /= 1);
+        (EVP_PKEY_sign
+           (S_Ctx, Res'Address, S_Size'Access, Dig'Address, Dig'Length) <= 0);
+      EVP_PKEY_CTX_free (S_Ctx);
 
-      return Res;
+      if S_Size > Res'Length then
+         raise Program_Error with
+           "Signature length error " & S_Size'Img & Res'Length'Img;
+      end if;
+
+      return Res (1 .. Stream_Element_Offset (S_Size));
    end Signature;
 
    -----------------
@@ -2042,7 +2044,7 @@ package body AWS.Net.SSL is
             end if;
 
             Error_If
-              (TSSL.SSL_CTX_use_RSAPrivateKey (Context, TSSL.RSA (PK)) /= 1);
+              (TSSL.SSL_CTX_use_PrivateKey (Context, TSSL.EVP_PKEY (PK)) /= 1);
             Error_If (TSSL.SSL_CTX_check_private_key (Ctx => Context) /= 1);
 
             if Exchange_Certificate then

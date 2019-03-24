@@ -130,7 +130,11 @@ package SSL.Thin is
    subtype RSA            is Pointer;
    subtype DH             is Pointer;
 
-   subtype Private_Key is RSA;
+   type ENGINE is new Pointer;
+   type EVP_PKEY_CTX is new Pointer;
+   type EVP_PKEY is new Pointer;
+
+   subtype Private_Key is EVP_PKEY;
 
    type SSL_CTX            is new Pointer;
    type SSL_Handle         is new Pointer;
@@ -152,7 +156,7 @@ package SSL.Thin is
    Null_STACK_OF_X509_NAME : constant STACK_OF_X509_NAME :=
      STACK_OF_X509_NAME (Null_Pointer);
 
-   Null_Private_Key : Private_Key renames Null_Pointer;
+   Null_Private_Key : Private_Key := Private_Key (Null_Pointer);
 
    subtype Error_Code is unsigned_long;
 
@@ -631,6 +635,30 @@ package SSL.Thin is
    NID_no_rev_avail                 : constant := 403;
    NID_anyExtendedKeyUsage          : constant := 910;
 
+   EVP_PKEY_OP_UNDEFINED     : constant := 0;
+   EVP_PKEY_OP_PARAMGEN      : constant := 2 ** 1;
+   EVP_PKEY_OP_KEYGEN        : constant := 2 ** 2;
+   EVP_PKEY_OP_SIGN          : constant := 2 ** 3;
+   EVP_PKEY_OP_VERIFY        : constant := 2 ** 4;
+   EVP_PKEY_OP_VERIFYRECOVER : constant := 2 ** 5;
+   EVP_PKEY_OP_SIGNCTX       : constant := 2 ** 6;
+   EVP_PKEY_OP_VERIFYCTX     : constant := 2 ** 7;
+   EVP_PKEY_OP_ENCRYPT       : constant := 2 ** 8;
+   EVP_PKEY_OP_DECRYPT       : constant := 2 ** 9;
+   EVP_PKEY_OP_DERIVE        : constant := 2 ** 10;
+
+   EVP_PKEY_OP_TYPE_SIG  : constant := EVP_PKEY_OP_SIGN + EVP_PKEY_OP_VERIFY
+                             + EVP_PKEY_OP_VERIFYRECOVER
+                             + EVP_PKEY_OP_SIGNCTX + EVP_PKEY_OP_VERIFYCTX;
+
+   EVP_PKEY_CTRL_MD            : constant := 1;
+   EVP_PKEY_CTRL_PEER_KEY      : constant := 2;
+   EVP_PKEY_CTRL_PKCS7_ENCRYPT : constant := 3;
+   EVP_PKEY_CTRL_PKCS7_DECRYPT : constant := 4;
+   EVP_PKEY_CTRL_PKCS7_SIGN    : constant := 5;
+   EVP_PKEY_CTRL_SET_MAC_KEY   : constant := 6;
+   EVP_PKEY_CTRL_DIGESTINIT    : constant := 7;
+
    type ASN1_STRING is record
       length : int;
       stype  : int;
@@ -979,7 +1007,6 @@ package SSL.Thin is
    --  Crypto routines --
    ----------------------
 
-   type EVP_PKEY is new Pointer;
    type EVP_MD is new Pointer;
    type EVP_MD_CTX is new Pointer;
 
@@ -1049,8 +1076,37 @@ package SSL.Thin is
    function EVP_sha512 return EVP_MD
      with Import, Convention => C, External_Name => "EVP_sha512";
 
+   function EVP_PKEY_CTX_new (key : EVP_PKEY; e : ENGINE) return EVP_PKEY_CTX
+     with Import, Convention => C, External_Name => "EVP_PKEY_CTX_new";
+
+   procedure EVP_PKEY_CTX_free (key : EVP_PKEY_CTX)
+     with Import, Convention => C, External_Name => "EVP_PKEY_CTX_free";
+
+   function EVP_PKEY_sign_init (ctx : EVP_PKEY_CTX) return int
+     with Import, Convention => C, External_Name => "EVP_PKEY_sign_init";
+
+   function EVP_PKEY_CTX_ctrl
+     (ctx : EVP_PKEY_CTX; keytype, optype, cmd, p1 : int; p2 : Pointer)
+      return int
+     with Import, Convention => C, External_Name => "EVP_PKEY_CTX_ctrl";
+
+   function EVP_PKEY_CTX_set_signature_md
+     (ctx : EVP_PKEY_CTX; md : EVP_MD) return int
+   is
+     (EVP_PKEY_CTX_ctrl
+        (ctx, -1, EVP_PKEY_OP_TYPE_SIG, EVP_PKEY_CTRL_MD, 0, Pointer (md)));
+
+   function EVP_PKEY_sign
+     (ctx : EVP_PKEY_CTX;
+      sig : Pointer; siglen : access size_t;
+      tbs : Pointer; tbslen : size_t) return int
+     with Import, Convention => C, External_Name => "EVP_PKEY_sign";
+
    function RSA_new return RSA
      with Import, Convention => C, External_Name => "RSA_new";
+
+   procedure ENV_PKEY_free (key : EVP_PKEY)
+     with Import, Convention => C, External_Name => "ENV_PKEY_free";
 
    procedure RSA_free (key : RSA)
      with Import, Convention => C, External_Name => "RSA_free";
@@ -1076,6 +1132,9 @@ package SSL.Thin is
    function RSA_generate_key_ex
      (key : RSA; bits : int; e : BIGNUM; cb : Pointer) return int
      with Import, Convention => C, External_Name => "RSA_generate_key_ex";
+
+   function EVP_PKEY_size (key : EVP_PKEY) return int
+     with Import, Convention => C, External_Name => "EVP_PKEY_size";
 
    function RSA_size (key : RSA) return int
      with Import, Convention => C, External_Name => "RSA_size";
@@ -1144,6 +1203,10 @@ package SSL.Thin is
       cb : pem_password_cb;
       u  : Pointer) return X509
      with Import, Convention => C, External_Name => "PEM_read_bio_X509";
+
+   function SSL_CTX_use_PrivateKey (Ctx : SSL_CTX; PK : EVP_PKEY) return int
+     with Import, Convention => C,
+          External_Name => "SSL_CTX_use_PrivateKey";
 
    function SSL_CTX_use_RSAPrivateKey (Ctx : SSL_CTX; PK : RSA) return int
      with Import, Convention => C,
