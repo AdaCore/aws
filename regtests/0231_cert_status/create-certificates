@@ -4,16 +4,19 @@ set -e
 
 SUBJ="/C=FR/ST=Ile de France"
 DAYS=1460
+PKEY=ec:ecparam.pem
+
+openssl ecparam -name prime256v1 -out ecparam.pem
 
 # certificate request for server certificate authority
 
-openssl req -new -newkey rsa:2048 -nodes -keyout CA-srv.key \
+openssl req -new -newkey $PKEY -nodes -keyout CA-srv.key \
 -out CA-srv.csr \
 -subj "$SUBJ/O=AdaCore/OU=CA/CN=CA-Web-Server/emailAddress=ca-aws@adacore.com/"
 
 # certificate request for client certificate authority
 
-openssl req -new -newkey rsa:2048 -nodes -keyout CA-clt.key \
+openssl req -new -newkey $PKEY -nodes -keyout CA-clt.key \
 -out CA-clt.csr -subj \
 "$SUBJ/L=Magny les Hameaux/O=AWS Team/CN=Pascal Obry/emailAddress=aws@obry.net/"
 
@@ -28,7 +31,7 @@ openssl x509 -req -days $DAYS -in CA-clt.csr -signkey CA-clt.key -out CA-clt.crt
 
 # Generate server certificate requests
 
-openssl req -new -newkey rsa:2048 -nodes -keyout aws-server.key \
+openssl req -new -newkey $PKEY -nodes -keyout aws-server.key \
 -out aws-server.csr \
 -subj "$SUBJ/O=AdaCore/OU=CRM/CN=localhost/emailAddress=aws-test@adacore.com/"
 
@@ -36,7 +39,7 @@ openssl req -new -newkey rsa:2048 -nodes -keyout aws-server.key \
 
 openssl req \
 -subj "$SUBJ/O=AWS Team/CN=Jean Dupont/emailAddress=jean.dupont@nowhere.com/" \
--new -newkey rsa:2048 -sha256 -nodes -keyout aws-client.key \
+-new -newkey $PKEY -sha256 -nodes -keyout aws-client.key \
 -out aws-client.csr
 
 # Initialize a demo CA directory, see CA_default section in

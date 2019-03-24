@@ -4,8 +4,8 @@ Server started
 Client certificate from verify routine:
 Subject    : C=FR,ST=Ile de France,L=Magny les Hameaux,O=AWS Team,CN=Pascal Obry,EMAIL=aws@obry.net
 Issuer     : C=FR,ST=Ile de France,L=Magny les Hameaux,O=AWS Team,CN=Pascal Obry,EMAIL=aws@obry.net
-Activation : 2018-09-01 07:34:23
-Expiration : 2022-08-31 07:34:23
+Activation : 2019-03-22 11:16:50
+Expiration : 2023-03-21 11:16:50
 Verified   : TRUE
 Status     :  0
 Message    : ok
@@ -13,10 +13,28 @@ Message    : ok
 Client certificate from verify routine:
 Subject    : C=FR,ST=Ile de France,O=AWS Team,CN=Jean Dupont,EMAIL=jean.dupont@nowhere.com
 Issuer     : C=FR,ST=Ile de France,L=Magny les Hameaux,O=AWS Team,CN=Pascal Obry,EMAIL=aws@obry.net
-Activation : 2018-09-01 07:34:23
-Expiration : 2018-09-11 07:34:23
-Verified   : FALSE
-Status     :  10
-Message    : certificate has expired
+Activation : 2019-03-22 11:16:50
+Expiration : 2019-04-01 11:16:50
+Verified   : TRUE
+Status     :  0
+Message    : ok
 
-Client connection closed by peer.
+
+Server certificate as received by the client:
+Subject    : C=FR,ST=Ile de France,O=AdaCore,OU=CRM,CN=localhost,EMAIL=aws-test@adacore.com
+Issuer     : C=FR,ST=Ile de France,O=AdaCore,OU=CA,CN=CA-Web-Server,EMAIL=ca-aws@adacore.com
+Activation : 2019-03-22 11:16:50
+Expiration : 2023-03-21 11:16:50
+Verified   : FALSE
+
+
+Client certificate as received by the server:
+Subject    : C=FR,ST=Ile de France,O=AWS Team,CN=Jean Dupont,EMAIL=jean.dupont@nowhere.com
+Issuer     : C=FR,ST=Ile de France,L=Magny les Hameaux,O=AWS Team,CN=Pascal Obry,EMAIL=aws@obry.net
+Activation : 2019-03-22 11:16:50
+Expiration : 2019-04-01 11:16:50
+Verified   : TRUE
+
+
+=> simple ok
+
