@@ -10,6 +10,8 @@ XML/Ada projects. See XML/Ada documentation.
 
 Then to build AWS:
 
+   $ git clone --recursive https://github.com/AdaCore/aws
+   $ cd aws
    $ make setup build install
 
 For information about all possible settings, look at make's variables in
