@@ -4,8 +4,8 @@ Server started
 Client certificate from verify routine:
 Subject    : C=FR,ST=Ile de France,O=AWS Team,CN=Jean Dupont,EMAIL=jean.dupont@nowhere.com
 Issuer     : C=FR,ST=Ile de France,L=Magny les Hameaux,O=AWS Team,CN=Pascal Obry,EMAIL=aws@obry.net
-Activation : 2018-09-01 07:34:23
-Expiration : 2018-09-11 07:34:23
+Activation : 2019-03-22 11:16:50
+Expiration : 2019-04-01 11:16:50
 Verified   : FALSE
 Status     :  1026
 Message    : GNUTLS_CERT_INVALID GNUTLS_CERT_EXPIRED
