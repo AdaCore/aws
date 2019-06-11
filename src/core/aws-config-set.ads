@@ -301,7 +301,8 @@ package AWS.Config.Set is
    --  Enable security (HTTPS/SSL) if Value is True
 
    procedure Certificate (O : in out Object; Filename : String);
-   --  Set the certificate to be used with the secure server
+   --  Set the certificate filename in PEM format to be used with the secure
+   --  server.
 
    procedure Key (O : in out Object; Filename : String);
    --  Set the key to be used with the secure server
