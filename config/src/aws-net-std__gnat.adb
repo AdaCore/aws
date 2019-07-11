@@ -121,7 +121,8 @@ package body AWS.Net.Std is
          Keep_Excp : Exceptions.Exception_Occurrence;
          Addresses : Address_Info_Array :=
                        Get_Address_Info
-                         (Host, "", To_GNAT (Family), Passive => True);
+                         (Host, Utils.Image (Port), To_GNAT (Family),
+                          Passive => True);
       begin
          if Family = Family_Unspec then
             Sort (Addresses, IPv6_TCP_Preferred'Access);
@@ -145,10 +146,7 @@ package body AWS.Net.Std is
                  (Socket.S.FD, Socket_Level,
                   Option => (Sockets.Reuse_Address, Enabled => Reuse_Address));
 
-               Bind_Socket
-                 (Socket.S.FD,
-                  (Addr_Info.Addr.Family, Addr_Info.Addr.Addr,
-                   Sockets.Port_Type (Port)));
+               Bind_Socket (Socket.S.FD, Addr_Info.Addr);
 
                return;
 
