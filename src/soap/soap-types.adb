@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2000-2018, AdaCore                     --
+--                     Copyright (C) 2000-2019, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -791,6 +791,8 @@ package body SOAP.Types is
 
    overriding function Image (O : XSD_Time_Instant) return String is
 
+      use type GNAT.Calendar.Time_IO.Picture_String;
+
       function Image
         (Timezone : Calendar.Time_Zones.Time_Offset) return String;
       --  Returns Image for the TZ
@@ -839,8 +841,14 @@ package body SOAP.Types is
          end if;
       end Image;
 
+      Has_Sub_Second : constant Boolean :=
+                         GNAT.Calendar.Sub_Second (O.T) /= 0.0;
+
+      Format         : constant GNAT.Calendar.Time_IO.Picture_String :=
+                         "%Y-%m-%dT%H:%M:%S"
+                         & (if Has_Sub_Second then ".%i" else "");
    begin
-      return GNAT.Calendar.Time_IO.Image (O.T, "%Y-%m-%dT%H:%M:%S")
+      return GNAT.Calendar.Time_IO.Image (O.T, Format)
         & Image (Calendar.Time_Zones.UTC_Time_Offset (O.T));
    end Image;
 
