@@ -29,7 +29,6 @@
 
 pragma Ada_2012;
 
-with Ada.Calendar.Time_Zones;
 with Ada.Float_Text_IO;
 with Ada.Long_Float_Text_IO;
 with Ada.Strings.Fixed;
@@ -790,58 +789,8 @@ package body SOAP.Types is
    end Image;
 
    overriding function Image (O : XSD_Time_Instant) return String is
-
-      function Image
-        (Timezone : Calendar.Time_Zones.Time_Offset) return String;
-      --  Returns Image for the TZ
-
-      -----------
-      -- Image --
-      -----------
-
-      function Image
-        (Timezone : Calendar.Time_Zones.Time_Offset) return String
-      is
-
-         subtype Str2 is String (1 .. 2);
-
-         function I2D (N : Natural) return Str2;
-         --  Returns N image with 2 characters padding with 0 is needed
-
-         ---------
-         -- I2D --
-         ---------
-
-         function I2D (N : Natural) return Str2 is
-            V : constant String := Natural'Image (N);
-         begin
-            if N > 9 then
-               return V (V'First + 1 .. V'Last);
-            else
-               return '0' & V (V'First + 1 .. V'Last);
-            end if;
-         end I2D;
-
-         use type Calendar.Time_Zones.Time_Offset;
-
-         H : constant Natural := Natural (abs Timezone) / 60;
-         M : constant Natural := Natural (abs Timezone) rem 60;
-
-      begin
-         if Timezone = 0 then
-            return "Z";
-
-         elsif Timezone >= 0 then
-            return '+' & I2D (H) & ':' & I2D (M);
-
-         else
-            return '-' & I2D (H) & ':' & I2D (M);
-         end if;
-      end Image;
-
    begin
-      return GNAT.Calendar.Time_IO.Image (O.T, "%Y-%m-%dT%H:%M:%S")
-        & Image (Calendar.Time_Zones.UTC_Time_Offset (O.T));
+      return GNAT.Calendar.Time_IO.Image (O.T, "%Y-%m-%dT%H:%M:%S") & 'Z';
    end Image;
 
    overriding function Image (O : XSD_Unsigned_Long) return String is

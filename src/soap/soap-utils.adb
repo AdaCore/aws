@@ -29,14 +29,12 @@
 
 pragma Ada_2012;
 
-with Ada.Calendar.Formatting;
-with Ada.Calendar.Time_Zones;
-
-with Ada.Calendar;
 with Ada.Characters.Handling;
 with Ada.Strings.Fixed;
 with Ada.Strings.Maps;
 with Ada.Unchecked_Deallocation;
+
+with GNAT.Calendar.Time_IO;
 
 with Unicode.CES.Basic_8bit;
 with Unicode.CES.Utf8;
@@ -414,52 +412,12 @@ package body SOAP.Utils is
    function Time_Instant
      (TI, Name  : String;
       Type_Name : String := Types.XML_Time_Instant)
-      return Types.XSD_Time_Instant
-   is
-      use Ada.Calendar;
-      use Ada.Calendar.Formatting;
-      use type Ada.Calendar.Time_Zones.Time_Offset;
-
-      subtype Year_Range      is Positive range TI'First      .. TI'First + 3;
-      subtype Month_Range     is Positive range TI'First + 5  .. TI'First + 6;
-      subtype Day_Range       is Positive range TI'First + 8  .. TI'First + 9;
-      subtype Hour_Range      is Positive range TI'First + 11 .. TI'First + 12;
-      subtype Minute_Range    is Positive range TI'First + 14 .. TI'First + 15;
-      subtype Second_Range    is Positive range TI'First + 17 .. TI'First + 18;
-      subtype TZ_Type_Range   is Positive range TI'First + 19 .. TI'First + 19;
-      subtype TZ_Hour_Range   is Positive range TI'First + 20 .. TI'First + 21;
-      subtype TZ_Minute_Range is Positive range TI'First + 23 .. TI'First + 24;
-
-      T  : Types.Local_Time;
-      TZ : Time_Zones.Time_Offset := 0;
+      return Types.XSD_Time_Instant is
    begin
       --  timeInstant format is CCYY-MM-DDThh:mm:ss[[+|-]hh:mm | Z]
 
-      if TI'Last >= TZ_Type_Range'Last then
-         --  Time zone specified
-
-         if TI'Last >= TZ_Hour_Range'Last then
-            TZ := Time_Zones.Time_Offset'Value (TI (TZ_Hour_Range)) * 60;
-
-            if TI'Last = TZ_Minute_Range'Last then
-               TZ := TZ + Time_Zones.Time_Offset'Value (TI (TZ_Minute_Range));
-            end if;
-
-            if TI (TZ_Type_Range) = "-" then
-               TZ := -TZ;
-            end if;
-         end if;
-      end if;
-
-      T := Time_Of (Year      => Year_Number'Value (TI (Year_Range)),
-                    Month     => Month_Number'Value (TI (Month_Range)),
-                    Day       => Day_Number'Value (TI (Day_Range)),
-                    Hour      => Hour_Number'Value (TI (Hour_Range)),
-                    Minute    => Minute_Number'Value (TI (Minute_Range)),
-                    Second    => Second_Number'Value (TI (Second_Range)),
-                    Time_Zone => TZ);
-
-      return Types.T (T, Name, Type_Name => Type_Name);
+      return Types.T
+        (GNAT.Calendar.Time_IO.Value (TI), Name, Type_Name => Type_Name);
    end Time_Instant;
 
    -------------

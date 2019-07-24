@@ -16,7 +16,7 @@
 --  to http://www.gnu.org/licenses for a complete copy of the license.      --
 ------------------------------------------------------------------------------
 
-with Ada.Calendar;
+with Ada.Calendar.Formatting;
 with Ada.Integer_Text_IO;
 with Ada.Strings.Unbounded;
 with Ada.Text_IO;
@@ -316,6 +316,7 @@ procedure Interoplab_Main1 is
    ----------------
 
    procedure T_echoDate is
+      use Ada.Calendar.Formatting;
       use type Ada.Calendar.Time;
 
       T   : constant Ada.Calendar.Time
@@ -328,7 +329,8 @@ procedure Interoplab_Main1 is
       if Res = T then
          Text_IO.Put_Line ("ok");
       else
-         Text_IO.Put_Line ("nok");
+         Text_IO.Put_Line
+           ("nok " & Image (T, True) & ' ' & Image (Res, True));
       end if;
       Text_IO.New_Line;
    end T_echoDate;
