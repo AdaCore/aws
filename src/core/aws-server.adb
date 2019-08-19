@@ -898,7 +898,7 @@ package body AWS.Server is
       begin
          pragma Assert (Count > 0);
 
-         Table (Index).Sock := Socket;
+         Table (Index).Sock := Socket_Access (Socket);
          Table (Index).Alive_Counter := 0;
          Table (Index).Alive_Time_Stamp := Ada.Calendar.Clock;
          Table (Index).Activity_Counter := Table (Index).Activity_Counter + 1;

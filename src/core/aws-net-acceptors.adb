@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                   Copyright (C) 2005-2017, AdaCore                       --
+--                   Copyright (C) 2005-2019, AdaCore                       --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -507,7 +507,7 @@ package body AWS.Net.Acceptors is
 
       procedure Add (S : not null access Socket_Type'Class) is
       begin
-         Sockets.Append (S);
+         Sockets.Append (Socket_Access (S));
       end Add;
 
       -----------
@@ -647,7 +647,7 @@ package body AWS.Net.Acceptors is
                       and then Acceptor.W_Signal /= null;
 
          if Success then
-            Buffer.Append (S);
+            Buffer.Append (Socket_Access (S));
             Acceptor.W_Signal.Send ((1 => Socket_Command));
          end if;
       end Add;

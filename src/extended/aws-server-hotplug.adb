@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2000-2017, AdaCore                     --
+--                     Copyright (C) 2000-2019, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -120,7 +120,7 @@ package body AWS.Server.Hotplug is
       Line   : String_Split.Slice_Set;
       N      : Natural := 0;
    begin
-      Hotplug_Server.Start (Port, Web_Server, Host => Host);
+      Hotplug_Server.Start (Port, HTTP_Access (Web_Server), Host => Host);
       AWS.Hotplug.Set_Mode (Web_Server.Filters, Register_Mode);
 
       Text_IO.Open (File, Text_IO.In_File, Authorization_File);
