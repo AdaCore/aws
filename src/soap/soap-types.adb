@@ -997,12 +997,15 @@ package body SOAP.Types is
    -- N --
    -------
 
-   function N (Name : String  := "item") return XSD_Null is
+   function N
+     (Name      : String;
+      Type_Name : String;
+      NS        : SOAP.Name_Space.Object := SOAP.Name_Space.No_Name_Space)
+      return XSD_Null is
    begin
       return
         (Finalization.Controlled
-         with To_Unbounded_String (Name), Null_Unbounded_String,
-              No_Name_Space);
+         with To_Unbounded_String (Name), To_Unbounded_String (Type_Name), NS);
    end N;
 
    ----------
@@ -1478,7 +1481,11 @@ package body SOAP.Types is
       Append (Result, Tag_Name (OC));
 
       if Encoding = WSDL.Schema.Encoded then
-         Append (Result, " xsi_null=""1""");
+         if XML_Type (OC) /= "" then
+            Append (Result, xsi_type (XML_Type (OC)));
+         end if;
+
+         Append (Result, " xsi:nil=""true""");
       end if;
 
       Append (Result, "/>");
@@ -1723,12 +1730,6 @@ package body SOAP.Types is
    overriding function XML_Type (O : XSD_Any_Type) return String is
    begin
       return XML_Type (O.O.O.all);
-   end XML_Type;
-
-   overriding function XML_Type (O : XSD_Null) return String is
-      pragma Unreferenced (O);
-   begin
-      return XML_Null;
    end XML_Type;
 
    --------------

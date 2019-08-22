@@ -2,7 +2,7 @@
 <soap:Envelope soap:encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" xmlns:soapenc="http://schemas.xmlsoap.org/soap/encoding/" xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/1999/XMLSchema-instance">
 <soap:Body>
 <m:MultiplyResponse xmlns:m="http://tempuri.org/message/">
-<Result xsi_null="1"/>
+<Result xsi:nil="true"/>
 </m:MultiplyResponse>
 </soap:Body>
 </soap:Envelope>

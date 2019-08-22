@@ -348,18 +348,19 @@ package SOAP.Types is
    -- Null --
    ----------
 
-   XML_Null : constant String := "1";
-
    type XSD_Null is new Scalar with private;
 
-   overriding function XML_Type   (O : XSD_Null) return String;
    overriding procedure XML_Image
      (O        : XSD_Null;
       Result   : in out Unbounded_String;
       Encoding : Encoding_Style := WSDL.Schema.Encoded;
       Schema   : WSDL.Schema.Definition := WSDL.Schema.Empty);
 
-   function N (Name : String  := "item") return XSD_Null;
+   function N
+     (Name      : String;
+      Type_Name : String;
+      NS        : SOAP.Name_Space.Object := SOAP.Name_Space.No_Name_Space)
+      return XSD_Null;
 
    overriding function Is_Empty (O : XSD_Null) return Boolean;
 
