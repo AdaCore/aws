@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2001-2017, AdaCore                     --
+--                     Copyright (C) 2001-2019, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -165,7 +165,7 @@ package SOAP.Types is
 
    type SOAP_Array is new Composite with private;
 
-   overriding function Image      (O : SOAP_Array) return String;
+   overriding function Image (O : SOAP_Array) return String;
    overriding procedure XML_Image
      (O        : SOAP_Array;
       Result   : in out Unbounded_String;
@@ -369,7 +369,7 @@ package SOAP.Types is
 
    type SOAP_Record is new Composite with private;
 
-   overriding function Image      (O : SOAP_Record) return String;
+   overriding function Image (O : SOAP_Record) return String;
    overriding procedure XML_Image
      (O        : SOAP_Record;
       Result   : in out Unbounded_String;
