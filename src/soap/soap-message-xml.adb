@@ -34,8 +34,6 @@ with Ada.Exceptions;
 with Ada.Strings.Fixed;
 with Ada.Unchecked_Deallocation;
 
-with GNAT.Calendar;
-
 with AWS.Client.XML.Input_Sources;
 
 with DOM.Core.Nodes;
@@ -143,86 +141,72 @@ package body SOAP.Message.XML is
    function Parse_Any_Type
      (Name      : String;
       Type_Name : String;
-      N         : DOM.Core.Node;
-      Is_Nil    : Boolean) return Types.Object'Class;
+      N         : DOM.Core.Node) return Types.Object'Class;
 
    function Parse_Long
      (Name      : String;
       Type_Name : String;
-      N         : DOM.Core.Node;
-      Is_Nil    : Boolean) return Types.Object'Class;
+      N         : DOM.Core.Node) return Types.Object'Class;
 
    function Parse_Int
      (Name      : String;
       Type_Name : String;
-      N         : DOM.Core.Node;
-      Is_Nil    : Boolean) return Types.Object'Class;
+      N         : DOM.Core.Node) return Types.Object'Class;
 
    function Parse_Short
      (Name      : String;
       Type_Name : String;
-      N         : DOM.Core.Node;
-      Is_Nil    : Boolean) return Types.Object'Class;
+      N         : DOM.Core.Node) return Types.Object'Class;
 
    function Parse_Byte
      (Name      : String;
       Type_Name : String;
-      N         : DOM.Core.Node;
-      Is_Nil    : Boolean) return Types.Object'Class;
+      N         : DOM.Core.Node) return Types.Object'Class;
 
    function Parse_Float
      (Name      : String;
       Type_Name : String;
-      N         : DOM.Core.Node;
-      Is_Nil    : Boolean) return Types.Object'Class;
+      N         : DOM.Core.Node) return Types.Object'Class;
 
    function Parse_Double
      (Name      : String;
       Type_Name : String;
-      N         : DOM.Core.Node;
-      Is_Nil    : Boolean) return Types.Object'Class;
+      N         : DOM.Core.Node) return Types.Object'Class;
 
    function Parse_String
      (Name      : String;
       Type_Name : String;
-      N         : DOM.Core.Node;
-      Is_Nil    : Boolean) return Types.Object'Class;
+      N         : DOM.Core.Node) return Types.Object'Class;
 
    function Parse_Boolean
      (Name      : String;
       Type_Name : String;
-      N         : DOM.Core.Node;
-      Is_Nil    : Boolean) return Types.Object'Class;
+      N         : DOM.Core.Node) return Types.Object'Class;
 
    function Parse_Base64
      (Name      : String;
       Type_Name : String;
-      N         : DOM.Core.Node;
-      Is_Nil    : Boolean) return Types.Object'Class;
+      N         : DOM.Core.Node) return Types.Object'Class;
 
    function Parse_Unsigned_Long
      (Name      : String;
       Type_Name : String;
-      N         : DOM.Core.Node;
-      Is_Nil    : Boolean) return Types.Object'Class;
+      N         : DOM.Core.Node) return Types.Object'Class;
 
    function Parse_Unsigned_Int
      (Name      : String;
       Type_Name : String;
-      N         : DOM.Core.Node;
-      Is_Nil    : Boolean) return Types.Object'Class;
+      N         : DOM.Core.Node) return Types.Object'Class;
 
    function Parse_Unsigned_Short
      (Name      : String;
       Type_Name : String;
-      N         : DOM.Core.Node;
-      Is_Nil    : Boolean) return Types.Object'Class;
+      N         : DOM.Core.Node) return Types.Object'Class;
 
    function Parse_Unsigned_Byte
      (Name      : String;
       Type_Name : String;
-      N         : DOM.Core.Node;
-      Is_Nil    : Boolean) return Types.Object'Class;
+      N         : DOM.Core.Node) return Types.Object'Class;
 
    function Parse_Untyped
      (Name : String;
@@ -233,8 +217,7 @@ package body SOAP.Message.XML is
    function Parse_Time_Instant
      (Name      : String;
       Type_Name : String;
-      N         : DOM.Core.Node;
-      Is_Nil    : Boolean) return Types.Object'Class;
+      N         : DOM.Core.Node) return Types.Object'Class;
 
    function Parse_Param
      (N      : DOM.Core.Node;
@@ -277,8 +260,7 @@ package body SOAP.Message.XML is
    type Parse_Type is access
      function (Name      : String;
                Type_Name : String;
-               N         : DOM.Core.Node;
-               Is_Nil    : Boolean) return Types.Object'Class;
+               N         : DOM.Core.Node) return Types.Object'Class;
 
    type Type_Handler is record
       Name    : access constant String;
@@ -806,12 +788,11 @@ package body SOAP.Message.XML is
    function Parse_Any_Type
      (Name      : String;
       Type_Name : String;
-      N         : DOM.Core.Node;
-      Is_Nil    : Boolean) return Types.Object'Class is
+      N         : DOM.Core.Node) return Types.Object'Class is
    begin
       --  ??? We have no type information, in this implementation we map the
       --  value into a xsd:string.
-      return Parse_String (Name, Type_Name, N, Is_Nil);
+      return Parse_String (Name, Type_Name, N);
    end Parse_Any_Type;
 
    -----------------
@@ -939,8 +920,7 @@ package body SOAP.Message.XML is
    function Parse_Base64
      (Name      : String;
       Type_Name : String;
-      N         : DOM.Core.Node;
-      Is_Nil    : Boolean) return Types.Object'Class
+      N         : DOM.Core.Node) return Types.Object'Class
    is
       use type DOM.Core.Node;
 
@@ -949,7 +929,7 @@ package body SOAP.Message.XML is
       Normalize (N);
       Value := First_Child (N);
 
-      if Is_Nil or else Value = null then
+      if Value = null then
          --  No node found, this is an empty Base64 content
          return Types.B64 ("", Name, Type_Name);
 
@@ -1028,15 +1008,13 @@ package body SOAP.Message.XML is
    function Parse_Boolean
      (Name      : String;
       Type_Name : String;
-      N         : DOM.Core.Node;
-      Is_Nil    : Boolean) return Types.Object'Class
+      N         : DOM.Core.Node) return Types.Object'Class
    is
       Value : constant DOM.Core.Node := First_Child (N);
    begin
-      if not Is_Nil
-        and then (Node_Value (Value) = "1"
-                  or else Node_Value (Value) = "true"
-                  or else Node_Value (Value) = "TRUE")
+      if Node_Value (Value) = "1"
+        or else Node_Value (Value) = "true"
+        or else Node_Value (Value) = "TRUE"
       then
          return Types.B (True, Name);
       else
@@ -1052,16 +1030,11 @@ package body SOAP.Message.XML is
    function Parse_Byte
      (Name      : String;
       Type_Name : String;
-      N         : DOM.Core.Node;
-      Is_Nil    : Boolean) return Types.Object'Class
+      N         : DOM.Core.Node) return Types.Object'Class
    is
       Value : constant DOM.Core.Node := First_Child (N);
-      V     : constant Types.Byte :=
-                (if Is_Nil
-                 then 0
-                 else Types.Byte'Value (Node_Value (Value)));
    begin
-      return Types.B (V, Name, Type_Name);
+      return Types.B (Types.Byte'Value (Node_Value (Value)), Name, Type_Name);
    end Parse_Byte;
 
    --------------------
@@ -1086,16 +1059,11 @@ package body SOAP.Message.XML is
    function Parse_Double
      (Name      : String;
       Type_Name : String;
-      N         : DOM.Core.Node;
-      Is_Nil    : Boolean) return Types.Object'Class
+      N         : DOM.Core.Node) return Types.Object'Class
    is
       Value : constant DOM.Core.Node := First_Child (N);
-      V     : constant Long_Float :=
-                (if Is_Nil
-                 then 0.0
-                 else Long_Float'Value (Node_Value (Value)));
    begin
-      return Types.D (V, Name, Type_Name);
+      return Types.D (Long_Float'Value (Node_Value (Value)), Name, Type_Name);
    end Parse_Double;
 
    -----------------------
@@ -1157,16 +1125,11 @@ package body SOAP.Message.XML is
    function Parse_Float
      (Name      : String;
       Type_Name : String;
-      N         : DOM.Core.Node;
-      Is_Nil    : Boolean) return Types.Object'Class
+      N         : DOM.Core.Node) return Types.Object'Class
    is
       Value : constant DOM.Core.Node := First_Child (N);
-      V     : constant Float :=
-                (if Is_Nil
-                 then 0.0
-                 else Float'Value (Node_Value (Value)));
    begin
-      return Types.F (V, Name, Type_Name);
+      return Types.F (Float'Value (Node_Value (Value)), Name, Type_Name);
    end Parse_Float;
 
    ------------------
@@ -1189,16 +1152,11 @@ package body SOAP.Message.XML is
    function Parse_Int
      (Name      : String;
       Type_Name : String;
-      N         : DOM.Core.Node;
-      Is_Nil    : Boolean) return Types.Object'Class
+      N         : DOM.Core.Node) return Types.Object'Class
    is
       Value : constant DOM.Core.Node := First_Child (N);
-      V     : constant Integer :=
-                (if Is_Nil
-                 then 0
-                 else Integer'Value (Node_Value (Value)));
    begin
-      return Types.I (V, Name, Type_Name);
+      return Types.I (Integer'Value (Node_Value (Value)), Name, Type_Name);
    end Parse_Int;
 
    ----------------
@@ -1208,16 +1166,11 @@ package body SOAP.Message.XML is
    function Parse_Long
      (Name      : String;
       Type_Name : String;
-      N         : DOM.Core.Node;
-      Is_Nil    : Boolean) return Types.Object'Class
+      N         : DOM.Core.Node) return Types.Object'Class
    is
       Value : constant DOM.Core.Node := First_Child (N);
-      V     : constant Types.Long :=
-                (if Is_Nil
-                 then 0
-                 else Types.Long'Value (Node_Value (Value)));
    begin
-      return Types.L (V, Name, Type_Name);
+      return Types.L (Types.Long'Value (Node_Value (Value)), Name, Type_Name);
    end Parse_Long;
 
    ----------------------
@@ -1387,7 +1340,7 @@ package body SOAP.Message.XML is
       NS := Get_Namespace_Object (S.NS, Utils.NS (To_String (xsd)));
 
       if To_String (S.Wrapper_Name) = "Fault" then
-         return Parse_String (Name, Types.XML_String, Ref, False);
+         return Parse_String (Name, Types.XML_String, Ref);
 
       elsif Is_Array then
          return Parse_Array (Name, Ref, Q_Name, S);
@@ -1403,9 +1356,12 @@ package body SOAP.Message.XML is
             --  No xsi:type attribute found
 
             if Get_Named_Item
-              (Atts, SOAP.Name_Space.Name (S.NS.xsi) & ":null") /= null
+                (Atts, SOAP.Name_Space.Name (S.NS.xsi) & ":null") /= null
+              or else
+                Get_Named_Item
+                  (Atts, SOAP.Name_Space.Name (S.NS.xsi) & ":nil") /= null
             then
-               return Types.N (Name);
+               return Types.N (Name, "");
 
             elsif S_Type /= null
               and then First_Child (Ref).Node_Type = DOM.Core.Text_Node
@@ -1466,8 +1422,12 @@ package body SOAP.Message.XML is
                   return Parse_Enumeration (Name, Ref, S_xsd);
 
                else
-                  return With_NS
-                    (Handlers (S_Type).Handler (Name, S_xsd, Ref, Is_Nil), NS);
+                  if Is_Nil then
+                     return Types.N (Name, S_xsd, NS);
+                  else
+                     return With_NS
+                       (Handlers (S_Type).Handler (Name, S_xsd, Ref), NS);
+                  end if;
                end if;
             end;
          end if;
@@ -1569,16 +1529,11 @@ package body SOAP.Message.XML is
    function Parse_Short
      (Name      : String;
       Type_Name : String;
-      N         : DOM.Core.Node;
-      Is_Nil    : Boolean) return Types.Object'Class
+      N         : DOM.Core.Node) return Types.Object'Class
    is
       Value : constant DOM.Core.Node := First_Child (N);
-      V     : constant Types.Short :=
-                (if Is_Nil
-                 then 0
-                 else Types.Short'Value (Node_Value (Value)));
    begin
-      return Types.S (V, Name, Type_Name);
+      return Types.S (Types.Short'Value (Node_Value (Value)), Name, Type_Name);
    end Parse_Short;
 
    ------------------
@@ -1588,8 +1543,7 @@ package body SOAP.Message.XML is
    function Parse_String
      (Name      : String;
       Type_Name : String;
-      N         : DOM.Core.Node;
-      Is_Nil    : Boolean) return Types.Object'Class
+      N         : DOM.Core.Node) return Types.Object'Class
    is
       use type DOM.Core.Node_Types;
 
@@ -1597,19 +1551,14 @@ package body SOAP.Message.XML is
       S : Unbounded_String;
       P : DOM.Core.Node;
    begin
-      if Is_Nil then
-         return Types.S (Null_Unbounded_String, Name, Type_Name);
+      for I in 0 .. Length (L) - 1 loop
+         P := Item (L, I);
+         if P.Node_Type = DOM.Core.Text_Node then
+            Append (S, Node_Value (P));
+         end if;
+      end loop;
 
-      else
-         for I in 0 .. Length (L) - 1 loop
-            P := Item (L, I);
-            if P.Node_Type = DOM.Core.Text_Node then
-               Append (S, Node_Value (P));
-            end if;
-         end loop;
-
-         return Types.S (S, Name, Type_Name);
-      end if;
+      return Types.S (S, Name, Type_Name);
    end Parse_String;
 
    ------------------------
@@ -1619,16 +1568,12 @@ package body SOAP.Message.XML is
    function Parse_Time_Instant
      (Name      : String;
       Type_Name : String;
-      N         : DOM.Core.Node;
-      Is_Nil    : Boolean) return Types.Object'Class
+      N         : DOM.Core.Node) return Types.Object'Class
    is
       Value : constant DOM.Core.Node := First_Child (N);
+      TI    : constant String        := Node_Value (Value);
    begin
-      if Is_Nil then
-         return Types.T (GNAT.Calendar.No_Time, Name, Type_Name);
-      else
-         return Utils.Time_Instant (Node_Value (Value), Name, Type_Name);
-      end if;
+      return Utils.Time_Instant (TI, Name, Type_Name);
    end Parse_Time_Instant;
 
    -------------------------
@@ -1638,16 +1583,12 @@ package body SOAP.Message.XML is
    function Parse_Unsigned_Byte
      (Name      : String;
       Type_Name : String;
-      N         : DOM.Core.Node;
-      Is_Nil    : Boolean) return Types.Object'Class
+      N         : DOM.Core.Node) return Types.Object'Class
    is
       Value : constant DOM.Core.Node := First_Child (N);
-      V     : constant Types.Unsigned_Byte :=
-                (if Is_Nil
-                 then 0
-                 else Types.Unsigned_Byte'Value (Node_Value (Value)));
    begin
-      return Types.UB (V, Name, Type_Name);
+      return Types.UB
+        (Types.Unsigned_Byte'Value (Node_Value (Value)), Name, Type_Name);
    end Parse_Unsigned_Byte;
 
    ------------------------
@@ -1657,16 +1598,12 @@ package body SOAP.Message.XML is
    function Parse_Unsigned_Int
      (Name      : String;
       Type_Name : String;
-      N         : DOM.Core.Node;
-      Is_Nil    : Boolean) return Types.Object'Class
+      N         : DOM.Core.Node) return Types.Object'Class
    is
       Value : constant DOM.Core.Node := First_Child (N);
-      V     : constant Types.Unsigned_Int :=
-                (if Is_Nil
-                 then 0
-                 else Types.Unsigned_Int'Value (Node_Value (Value)));
    begin
-      return Types.UI (V, Name, Type_Name);
+      return Types.UI
+        (Types.Unsigned_Int'Value (Node_Value (Value)), Name, Type_Name);
    end Parse_Unsigned_Int;
 
    -------------------------
@@ -1676,16 +1613,12 @@ package body SOAP.Message.XML is
    function Parse_Unsigned_Long
      (Name      : String;
       Type_Name : String;
-      N         : DOM.Core.Node;
-      Is_Nil    : Boolean) return Types.Object'Class
+      N         : DOM.Core.Node) return Types.Object'Class
    is
       Value : constant DOM.Core.Node := First_Child (N);
-      V     : constant Types.Unsigned_Long :=
-                (if Is_Nil
-                 then 0
-                 else Types.Unsigned_Long'Value (Node_Value (Value)));
    begin
-      return Types.UL (V, Name, Type_Name);
+      return Types.UL
+        (Types.Unsigned_Long'Value (Node_Value (Value)), Name, Type_Name);
    end Parse_Unsigned_Long;
 
    --------------------------
@@ -1695,16 +1628,12 @@ package body SOAP.Message.XML is
    function Parse_Unsigned_Short
      (Name      : String;
       Type_Name : String;
-      N         : DOM.Core.Node;
-      Is_Nil    : Boolean) return Types.Object'Class
+      N         : DOM.Core.Node) return Types.Object'Class
    is
       Value : constant DOM.Core.Node := First_Child (N);
-      V     : constant Types.Unsigned_Short :=
-                (if Is_Nil
-                 then 0
-                 else Types.Unsigned_Short'Value (Node_Value (Value)));
    begin
-      return Types.US (V, Name, Type_Name);
+      return Types.US
+        (Types.Unsigned_Short'Value (Node_Value (Value)), Name, Type_Name);
    end Parse_Unsigned_Short;
 
    -------------------
