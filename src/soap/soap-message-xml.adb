@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2000-2018, AdaCore                     --
+--                     Copyright (C) 2000-2019, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -1240,6 +1240,9 @@ package body SOAP.Message.XML is
          NS : SOAP.Name_Space.Object) return Types.Object'Class;
       --  Retruns O with the associated name-space
 
+      function Is_Nil return Boolean;
+      --  Check if xsi:nil attribute is present and return True if set
+
       Name     : constant String := Local_Name (N);
       LQ_Name  : constant String := (if Q_Name = ""
                                      then Name
@@ -1272,6 +1275,19 @@ package body SOAP.Message.XML is
          --  or soapenc:arrayType="..."
            SOAP_Enc /= null;
       end Is_Array;
+
+      ------------
+      -- Is_Nil --
+      ------------
+
+      function Is_Nil return Boolean is
+         XSI_Nil : constant DOM.Core.Node :=
+                     Get_Named_Item
+                       (Atts, SOAP.Name_Space.Name (S.NS.xsi) & ":nil");
+      begin
+         return XSI_Nil /= null
+           and then (Node_Value (XSI_Nil) in "true" | "TRUE");
+      end Is_Nil;
 
       ---------------
       -- Is_Record --
@@ -1340,9 +1356,12 @@ package body SOAP.Message.XML is
             --  No xsi:type attribute found
 
             if Get_Named_Item
-              (Atts, SOAP.Name_Space.Name (S.NS.xsi) & ":null") /= null
+                (Atts, SOAP.Name_Space.Name (S.NS.xsi) & ":null") /= null
+              or else
+                Get_Named_Item
+                  (Atts, SOAP.Name_Space.Name (S.NS.xsi) & ":nil") /= null
             then
-               return Types.N (Name);
+               return Types.N (Name, "");
 
             elsif S_Type /= null
               and then First_Child (Ref).Node_Type = DOM.Core.Text_Node
@@ -1389,8 +1408,7 @@ package body SOAP.Message.XML is
          else
             declare
                S_xsd  : constant String     := To_String (xsd);
-               S_Type : constant Type_State :=
-                          To_Type (S_xsd, S.NS, S.Schema);
+               S_Type : constant Type_State := To_Type (S_xsd, S.NS, S.Schema);
             begin
                if S_Type = T_Undefined then
                   --  Not a known basic type, let's try to parse a
@@ -1404,8 +1422,12 @@ package body SOAP.Message.XML is
                   return Parse_Enumeration (Name, Ref, S_xsd);
 
                else
-                  return With_NS
-                    (Handlers (S_Type).Handler (Name, S_xsd, Ref), NS);
+                  if Is_Nil then
+                     return Types.N (Name, S_xsd, NS);
+                  else
+                     return With_NS
+                       (Handlers (S_Type).Handler (Name, S_xsd, Ref), NS);
+                  end if;
                end if;
             end;
          end if;
