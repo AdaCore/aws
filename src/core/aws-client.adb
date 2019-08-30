@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2000-2018, AdaCore                     --
+--                     Copyright (C) 2000-2019, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -1108,15 +1108,41 @@ package body AWS.Client is
    begin
       Connection.Self.Streaming := Streaming;
 
-      Internal_Post
-        (Connection   => Connection.Self.all,
-         Result       => Result,
-         Data         => AWS.Translator.To_Stream_Element_Array (Data),
-         URI          => No_Data,
-         SOAPAction   => SOAPAction,
-         Content_Type => MIME.Text_XML,
-         Attachments  => Attachments,
-         Headers      => Headers);
+      --  For large payload (> 100kb) we use a slow version but safe
+      --  version of To_Stream_Element_Array which uses the heap.
+
+      if Data'Length > 100 * 1_024 then
+         declare
+            SEA_Data : Utils.Stream_Element_Array_Access :=
+                         AWS.Translator.To_Stream_Element_Array (Data);
+         begin
+            Internal_Post
+              (Connection   => Connection.Self.all,
+               Result       => Result,
+               Data         => SEA_Data.all,
+               URI          => No_Data,
+               SOAPAction   => SOAPAction,
+               Content_Type => MIME.Text_XML,
+               Attachments  => Attachments,
+               Headers      => Headers);
+
+            Utils.Unchecked_Free (SEA_Data);
+         exception
+            when others =>
+               Utils.Unchecked_Free (SEA_Data);
+         end;
+
+      else
+         Internal_Post
+           (Connection   => Connection.Self.all,
+            Result       => Result,
+            Data         => AWS.Translator.To_Stream_Element_Array (Data),
+            URI          => No_Data,
+            SOAPAction   => SOAPAction,
+            Content_Type => MIME.Text_XML,
+            Attachments  => Attachments,
+            Headers      => Headers);
+      end if;
 
       Connection.Self.Streaming := Save_Streaming;
    end SOAP_Post;
