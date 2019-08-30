@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2002-2017, AdaCore                     --
+--                     Copyright (C) 2002-2019, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -409,7 +409,9 @@ package body AWS.Response.Set is
 
          RSM.Append
            (RSM.Stream_Type'Class (D.Stream.all),
-            Translator.To_Stream_Element_Array (Slice (Value, First, Last)));
+            Stream_Element_Array'
+              (Translator.To_Stream_Element_Array
+                 (Slice (Value, First, Last))));
 
          First := Last + 1;
 

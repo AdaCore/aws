@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2003-2013, AdaCore                     --
+--                     Copyright (C) 2003-2019, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -26,6 +26,8 @@
 --  however invalidate any other reasons why the executable file  might be  --
 --  covered by the  GNU Public License.                                     --
 ------------------------------------------------------------------------------
+
+with Ada.Streams;
 
 with AWS.Config;
 with AWS.MIME;
@@ -135,12 +137,15 @@ package body AWS.Services.Split_Pages is
             Stream := new AWS.Resources.Streams.Memory.Stream_Type;
 
             declare
+               use Ada.Streams;
+
                Page : constant Unbounded_String :=
                         Parse (Template, Split_Set, Cached);
             begin
                AWS.Resources.Streams.Memory.Append
                  (AWS.Resources.Streams.Memory.Stream_Type (Stream.all),
-                  Translator.To_Stream_Element_Array (To_String (Page)));
+                  Stream_Element_Array'
+                    (Translator.To_Stream_Element_Array (To_String (Page))));
 
                if Result = Null_Unbounded_String then
                   Result := Page;

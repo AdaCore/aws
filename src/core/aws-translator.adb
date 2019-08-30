@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2000-2014, AdaCore                     --
+--                     Copyright (C) 2000-2019, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -89,9 +89,12 @@ package body AWS.Translator is
       --  Convert a Stream_Element_Array to a string
 
       function To_Stream_Element_Array
-        (Data : String) return Stream_Element_Array
-        with Inline;
+        (Data : String) return Stream_Element_Array with Inline;
       --  Convert a String to a Stream_Element_Array
+
+      function To_Stream_Element_Array
+        (Data : String) return Utils.Stream_Element_Array_Access with Inline;
+      --  As above but designed for large objects
 
    end Conversion;
 
@@ -555,6 +558,11 @@ package body AWS.Translator is
    function To_Stream_Element_Array
      (Data : String)
       return Stream_Element_Array
+      renames Conversion.To_Stream_Element_Array;
+
+   function To_Stream_Element_Array
+     (Data : String)
+      return Utils.Stream_Element_Array_Access
       renames Conversion.To_Stream_Element_Array;
 
    ---------------

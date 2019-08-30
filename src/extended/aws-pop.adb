@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2003-2017, AdaCore                     --
+--                     Copyright (C) 2003-2019, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -252,8 +252,8 @@ package body AWS.POP is
    --------------
 
    overriding procedure Finalize (Attachment : in out POP.Attachment) is
-      use type Utils.Counter_Access;
       use type AWS.Resources.Streams.Stream_Access;
+      use type Utils.Counter_Access;
       procedure Unchecked_Free is new Unchecked_Deallocation
         (AWS.Resources.Streams.Stream_Type'Class,
          AWS.Resources.Streams.Stream_Access);
@@ -418,6 +418,8 @@ package body AWS.POP is
 
          loop
             declare
+               use Ada.Streams;
+
                Response : constant String :=
                             Net.Buffered.Get_Line (Mailbox.Sock);
             begin
@@ -432,7 +434,8 @@ package body AWS.POP is
                else
                   Resources.Streams.Memory.Append
                     (Stream_Type (Attachment.Content.all),
-                     Translator.To_Stream_Element_Array (Response & CRLF));
+                     Stream_Element_Array'
+                       (Translator.To_Stream_Element_Array (Response & CRLF)));
                end if;
             end;
          end loop;
