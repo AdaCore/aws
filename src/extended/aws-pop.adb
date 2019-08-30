@@ -252,8 +252,8 @@ package body AWS.POP is
    --------------
 
    overriding procedure Finalize (Attachment : in out POP.Attachment) is
-      use type Utils.Counter_Access;
       use type AWS.Resources.Streams.Stream_Access;
+      use type Utils.Counter_Access;
       procedure Unchecked_Free is new Unchecked_Deallocation
         (AWS.Resources.Streams.Stream_Type'Class,
          AWS.Resources.Streams.Stream_Access);
