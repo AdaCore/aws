@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2003-2013, AdaCore                     --
+--                     Copyright (C) 2003-2019, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -63,6 +63,9 @@ package body Conversion is
 
       function To_Stream_Element_Array
         (Data : String) return Stream_Element_Array with Inline;
+
+      function To_Stream_Element_Array
+        (Data : String) return Utils.Stream_Element_Array_Access with Inline;
 
       function To_String
         (Data : Stream_Element_Array) return String with Inline;
@@ -145,6 +148,20 @@ package body Conversion is
          return Result;
       end To_Stream_Element_Array;
 
+      function To_Stream_Element_Array
+        (Data : String) return Utils.Stream_Element_Array_Access
+      is
+         Result : constant Utils.Stream_Element_Array_Access :=
+                    new Stream_Element_Array
+                          (Stream_Element_Offset (Data'First)
+                           .. Stream_Element_Offset (Data'Last));
+      begin
+         for K in Data'Range loop
+            Result (Stream_Element_Offset (K)) := Character'Pos (Data (K));
+         end loop;
+         return Result;
+      end To_Stream_Element_Array;
+
       ---------------
       -- To_String --
       ---------------
@@ -177,6 +194,12 @@ package body Conversion is
       else
          return Portable.To_Stream_Element_Array (Data);
       end if;
+   end To_Stream_Element_Array;
+
+   function To_Stream_Element_Array
+     (Data : String) return Utils.Stream_Element_Array_Access is
+   begin
+      return Portable.To_Stream_Element_Array (Data);
    end To_Stream_Element_Array;
 
    ---------------
