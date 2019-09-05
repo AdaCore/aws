@@ -18,3 +18,4 @@ vxworks6,!vxworks6-6.6 OUT test-vxworks.out
 gnat OUT test.out
 ipv6 OUT test-ipv6.out
 ipv4,!vxworks6-6.6 OUT test-ipv4.out
+linux-rhES7 OUT test-rhES7.out
