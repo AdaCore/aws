@@ -178,6 +178,11 @@ package AWS.Config is
    --  directory returned will end with a directory separator.
 
    function Upload_Size_Limit (O : Object) return Positive with Inline;
+   --  Size limit for the client uploading data before calling the user's
+   --  callback or dispatcher handler. User can call
+   --  AWS.Status.Is_Body_Uploaded to check if client data is uploaded or not
+   --  because of this limit. User can still approve the uploading data above
+   --  this limit by using AWS.Server.Get_Message_Body.
 
    function Directory_Browser_Page (O : Object) return String with Inline;
    --  Filename for the directory browser template page
