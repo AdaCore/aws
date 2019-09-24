@@ -1,7 +1,7 @@
 ----------------------------------------------------------------
 --  ZLib for Ada thick binding.                               --
 --                                                            --
---  Copyright (C) 2002-2018, Dmitriy Anisimkov                --
+--  Copyright (C) 2002-2019, Dmitriy Anisimkov                --
 --                                                            --
 --  Open source license information is in the zlib.ads file.  --
 ----------------------------------------------------------------
@@ -63,15 +63,15 @@ package body ZLib is
    --  Simple_GZip_Header'Last <= Footer_Array'Last.
 
    Return_Code : constant array (Thin.Int range <>) of Return_Code_Enum :=
-     (0 => OK,
-      1 => STREAM_END,
-      2 => NEED_DICT,
-     -1 => ERRNO,
-     -2 => STREAM_ERROR,
-     -3 => DATA_ERROR,
-     -4 => MEM_ERROR,
-     -5 => BUF_ERROR,
-     -6 => VERSION_ERROR);
+     (Thin.Z_OK            => OK,
+      Thin.Z_STREAM_END    => STREAM_END,
+      Thin.Z_NEED_DICT     => NEED_DICT,
+      Thin.Z_ERRNO         => ERRNO,
+      Thin.Z_STREAM_ERROR  => STREAM_ERROR,
+      Thin.Z_DATA_ERROR    => DATA_ERROR,
+      Thin.Z_MEM_ERROR     => MEM_ERROR,
+      Thin.Z_BUF_ERROR     => BUF_ERROR,
+      Thin.Z_VERSION_ERROR => VERSION_ERROR);
 
    Flate : constant array (Boolean) of Flate_Type :=
              (True  => (Step => Thin.Deflate'Access,
