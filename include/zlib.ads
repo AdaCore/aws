@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                       ZLib for Ada thick binding.                        --
 --                                                                          --
---                Copyright (C) 2002-2014, Dmitriy Anisimkov                --
+--                Copyright (C) 2002-2019, Dmitriy Anisimkov                --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -129,7 +129,7 @@ package ZLib is
 
    type Filter_Type is tagged limited private;
    --  The filter is for compression and for decompression.
-   --  The usage of the type is depend of its initialization.
+   --  The usage of the type depends on its initialization.
 
    function Version return String with Inline;
    --  Return string representation of the ZLib version

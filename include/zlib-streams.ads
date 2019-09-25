@@ -1,7 +1,7 @@
 ----------------------------------------------------------------
 --  ZLib for Ada thick binding.                               --
 --                                                            --
---  Copyright (C) 2002-2015, Dmitriy Anisimkov                --
+--  Copyright (C) 2002-2019, Dmitriy Anisimkov                --
 --                                                            --
 --  Open source license information is in the zlib.ads file.  --
 ----------------------------------------------------------------
@@ -14,14 +14,14 @@ package ZLib.Streams is
 
    type Stream_Access is access all Root_Stream_Type'Class;
 
-   type Stream_Type is  new Root_Stream_Type with private;
+   type Stream_Type is new Root_Stream_Type with private;
 
-   procedure Read
+   overriding procedure Read
      (Stream : in out Stream_Type;
       Item   :    out Stream_Element_Array;
       Last   :    out Stream_Element_Offset);
 
-   procedure Write
+   overriding procedure Write
      (Stream : in out Stream_Type;
       Item   : in     Stream_Element_Array);
 
@@ -50,9 +50,9 @@ package ZLib.Streams is
       Mode              : in     Stream_Mode;
       Back              : in     Stream_Access;
       Back_Compressed   : in     Boolean;
-      Level             : in     Compression_Level := Default_Compression;
-      Strategy          : in     Strategy_Type     := Default_Strategy;
-      Header            : in     Header_Type       := Default;
+      Level             : in     Compression_Level     := Default_Compression;
+      Strategy          : in     Strategy_Type         := Default_Strategy;
+      Header            : in     Header_Type           := Default;
       Read_Buffer_Size  : in     Stream_Element_Offset := Default_Buffer_Size;
       Write_Buffer_Size : in     Stream_Element_Offset := Default_Buffer_Size);
    --  Create the Comression/Decompression stream.
