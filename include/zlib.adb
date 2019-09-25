@@ -86,8 +86,6 @@ package body ZLib is
 
    procedure Raise_Error (Message : in String) with Inline;
 
-   procedure Check_Error (Stream : in Z_Stream; Code : in Thin.Int);
-
    procedure Free is new Ada.Unchecked_Deallocation
      (Z_Stream, Z_Stream_Access);
 
@@ -111,19 +109,6 @@ package body ZLib is
       Out_Last  :    out Stream_Element_Offset;
       Flush     : in     Flush_Mode);
    --  translate routine without additional headers
-
-   -----------------
-   -- Check_Error --
-   -----------------
-
-   procedure Check_Error (Stream : in Z_Stream; Code : in Thin.Int) is
-   begin
-      if Code /= Thin.Z_OK then
-         Raise_Error
-            (Return_Code_Enum'Image (Return_Code (Code))
-              & ": " & Last_Error_Message (Stream));
-      end if;
-   end Check_Error;
 
    -----------
    -- Close --
@@ -532,8 +517,16 @@ package body ZLib is
 
       if Code = Thin.Z_STREAM_END then
          Filter.Stream_End := True;
-      else
-         Check_Error (Filter.Strm.all, Code);
+
+      elsif Code /= Thin.Z_OK
+        and then
+          (Code /= Thin.Z_BUF_ERROR
+           or else Flush = No_Flush
+           or else In_Data'Length > 0)
+      then
+         Raise_Error
+           (Return_Code_Enum'Image (Return_Code (Code))
+            & ": " & Last_Error_Message (Filter.Strm.all));
       end if;
 
       In_Last  := In_Data'Last
