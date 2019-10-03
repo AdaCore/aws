@@ -4,14 +4,15 @@
 Introduction
 ************
 
-`AWS` stand for *Ada Web Server*. It is an Ada implementation of the
+`AWS` stands for *Ada Web Server*. It is an Ada implementation of the
 `HTTP/1.1` protocol as defined in the RFC-2616 from June 1999.
 
-The goal is not to build a full Web server but more to make it possible
-to use a Web browser (like Internet Explorer, or Netscape Navigator) to
-control an Ada application. As we'll see later it is also possible to
-have two Ada programs exchange informations via the `HTTP` protocol. This
-is possible as `AWS` also implement the client side of the HTTP protocol.
+The goal is not to build a full Web server but more to make it
+possible to use a Web browser (like Firefox or Chrome) to control an
+Ada application. As we'll see later it is also possible to have two
+Ada programs exchange informations via the `HTTP` protocol. This is
+possible as `AWS` also implements the client side of the HTTP
+protocol.
 
 Moreover with this library it is possible to have more than one server
 in a single application. It is then possible to export different kind
