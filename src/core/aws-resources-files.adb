@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2002-2017, AdaCore                     --
+--                     Copyright (C) 2002-2019 AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -125,8 +125,6 @@ package body AWS.Resources.Files is
       Form : String    := "";
       GZip : in out Boolean)
    is
-      use type AWS.Resources.Streams.Stream_Access;
-
       File_Kind : constant Resources.File_Instance := Resources.Exist (Name);
       Stream    : AWS.Resources.Streams.Stream_Access;
 
