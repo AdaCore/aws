@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2007-2018, AdaCore                     --
+--                     Copyright (C) 2007-2019, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -206,7 +206,7 @@ package body AWS.URL.Set is
          ---------------------
 
          procedure Parse_Path_File (Start : Positive) is
-            PF : constant String := URL (Start .. URL'Last);
+            PF : constant String := Decode (URL (Start .. URL'Last));
             I3 : constant Natural :=
                    Strings.Fixed.Index (PF, "/", Strings.Backward);
          begin
@@ -216,7 +216,7 @@ package body AWS.URL.Set is
                --  which must be part of the path.
 
                declare
-                  File : constant String := Decode (PF);
+                  File : constant String := PF;
                begin
                   if File = ".." or else File = "." then
                      Item.Path := +File;
@@ -232,13 +232,13 @@ package body AWS.URL.Set is
                --  parent directories which must be part of the path.
 
                declare
-                  File : constant String := Decode (URL (I3 + 1 .. URL'Last));
+                  File : constant String := PF (I3 + 1 .. PF'Last);
                begin
                   if File = ".." or else File = "." then
-                     Item.Path := +Decode (PF);
+                     Item.Path := +PF;
                      Item.File := +"";
                   else
-                     Item.Path := +Decode (URL (Start .. I3));
+                     Item.Path := +PF (PF'First .. I3);
                      Item.File := +File;
                   end if;
                end;

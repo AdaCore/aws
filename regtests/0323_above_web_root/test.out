@@ -1,0 +1,8 @@
+Error on http://www.myserver.com:89/api/../../?value=1 - Wrong URL: (/../) Reference Web root parent directory.
+Error on http://www.myserver.com:89/../../?value=2 - Wrong URL: (/../../) Reference Web root parent directory.
+Error on http://www.myserver.com:89/api/../..?value=3 - Wrong URL: (/..) Reference Web root parent directory.
+Error on http://www.myserver.com:89/../..?value=4 - Wrong URL: (/../..) Reference Web root parent directory.
+Error on http://www.myserver.com:89/api/..%2F..%2F?value=5 - Wrong URL: (/../) Reference Web root parent directory.
+Error on http://www.myserver.com:89/..%2F..%2F?value=6 - Wrong URL: (/../../) Reference Web root parent directory.
+Error on http://www.myserver.com:89/api/..%2F..?value=7 - Wrong URL: (/..) Reference Web root parent directory.
+Error on http://www.myserver.com:89/..%2F..?value=8 - Wrong URL: (/../..) Reference Web root parent directory.
