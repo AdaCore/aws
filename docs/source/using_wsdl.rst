@@ -191,6 +191,9 @@ document. In this section we describe the mapping between Ada and
 *Ada.Calendar.Time*
   Mapped to **xsd:dateTime**
 
+*Duration*
+  Mapped to **xsd:duration**
+
 *SOAP.Utils.SOAP_Base64*
   Mapped to **xsd:base64Binary**. `SOAP.Utils.SOAP_Base64` is a
   subtype of string which is is recognized by `ada2wsdl` to
