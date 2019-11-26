@@ -468,6 +468,26 @@ package SOAP.Types is
    function V (O : XSD_Time_Instant) return Local_Time;
    --  Returns a GMT date and time
 
+   --------------
+   -- Duration --
+   --------------
+
+   XML_Duration : aliased constant String := "xsd:duration";
+
+   type XSD_Duration is new Scalar with private;
+
+   overriding function Image (O : XSD_Duration) return String;
+
+   function D
+     (V         : Duration;
+      Name      : String := "item";
+      Type_Name : String := XML_Duration;
+      NS        : Name_Space.Object := Name_Space.No_Name_Space)
+      return XSD_Duration;
+
+   function V (O : XSD_Duration) return Duration;
+   --  Returns the Ada duration
+
    -------------------
    -- Unsigned_Long --
    -------------------
@@ -621,6 +641,10 @@ package SOAP.Types is
    --  Returns O value as a Time. Raises Data_Error if O is not a SOAP
    --  Time.
 
+   function Get (O : Object'Class) return Duration;
+   --  Returns O value as a Duration. Raises Data_Error if O is not a SOAP
+   --  Duration.
+
    function Get (O : Object'Class) return Unsigned_Long;
    --  Returns O value as a Unsigned_Long. Raises Data_Error if O is not a SOAP
    --  Unsigned_Long.
@@ -752,6 +776,10 @@ private
 
    type XSD_Time_Instant is new Scalar with record
       T : Local_Time;
+   end record;
+
+   type XSD_Duration is new Scalar with record
+      V : Duration;
    end record;
 
    type XSD_Unsigned_Long is new Scalar with record

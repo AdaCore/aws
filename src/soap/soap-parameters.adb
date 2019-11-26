@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2000-2017, AdaCore                     --
+--                     Copyright (C) 2000-2019, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -149,6 +149,20 @@ package body SOAP.Parameters is
       end if;
    end Check_Boolean;
 
+   --------------------
+   -- Check_Duration --
+   --------------------
+
+   procedure Check_Duration (P : List; Name : String) is
+      O : constant Types.Object'Class := Argument (P, Name);
+   begin
+      if O not in Types.XSD_Duration then
+         raise Data_Error
+           with "(check) XSD_Duration expected, found object "
+             & Ada.Tags.Expanded_Name (O'Tag);
+      end if;
+   end Check_Duration;
+
    -----------------
    -- Check_Float --
    -----------------
@@ -285,6 +299,11 @@ package body SOAP.Parameters is
    end Get;
 
    function Get (P : List; Name : String) return Ada.Calendar.Time is
+   begin
+      return Types.Get (Argument (P, Name));
+   end Get;
+
+   function Get (P : List; Name : String) return Duration is
    begin
       return Types.Get (Argument (P, Name));
    end Get;

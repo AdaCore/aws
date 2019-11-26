@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2000-2014, AdaCore                     --
+--                     Copyright (C) 2000-2019, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -99,6 +99,10 @@ package SOAP.Parameters is
    --  Returns parameter named Name in P as a Time value. Raises
    --  Types.Data_Error if this parameter does not exist or is not a time.
 
+   function Get (P : List; Name : String) return Duration with Inline;
+   --  Returns parameter named Name in P as a Duration value. Raises
+   --  Types.Data_Error if this parameter does not exist or is not a Duration.
+
    function Get (P : List; Name : String) return Types.Unsigned_Long
      with Inline;
    --  Returns parameter named Name in P as a Unsigned_Long value. Raises
@@ -166,6 +170,9 @@ package SOAP.Parameters is
 
    procedure Check_Time_Instant (P : List; Name : String);
    --  Checks that parameter named Name exist and is a Time_Instant value
+
+   procedure Check_Duration (P : List; Name : String);
+   --  Checks that parameter named Name exists and is a Duration value
 
    procedure Check_Base64 (P : List; Name : String);
    --  Checks that parameter named Name exist and is a Base64 value
