@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2004-2012, AdaCore                     --
+--                     Copyright (C) 2004-2019, AdaCore                     --
 --                                                                          --
 --  This is free software;  you can redistribute it  and/or modify it       --
 --  under terms of the  GNU General Public License as published  by the     --
@@ -68,8 +68,8 @@ procedure AnyType is
    procedure AnyType_Client is
       use Ada;
       Param1 : Types.Set_Of_int_Type := (12, 9);
-      Param2 : Types.Set_Of_x_Type
-        := (Any (I (45)), Any (I (12)), Any (D (8.209)));
+      Param2 : Types.Set_Of_X_Type :=
+                 (Any (I (45)), Any (I (12)), Any (D (Long_Float'(8.209))));
    begin
       declare
          Result : Types.Set_Of_x_Type := Client.Call (Param1, Param2);

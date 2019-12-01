@@ -208,6 +208,19 @@ package body SOAP.Types is
               NS, V);
    end D;
 
+   function D
+     (V         : Duration;
+      Name      : String := "item";
+      Type_Name : String := XML_Duration;
+      NS        : SOAP.Name_Space.Object := SOAP.Name_Space.No_Name_Space)
+      return XSD_Duration is
+   begin
+      return
+        (Finalization.Controlled
+         with To_Unbounded_String (Name), To_Unbounded_String (Type_Name),
+              NS, V);
+   end D;
+
    -------
    -- E --
    -------
@@ -520,6 +533,30 @@ package body SOAP.Types is
 
       else
          Get_Error ("timeInstant", O);
+      end if;
+   end Get;
+
+   function Get (O : Object'Class) return Duration is
+      use type Ada.Tags.Tag;
+   begin
+      if O'Tag = Types.XSD_Duration'Tag then
+         return V (XSD_Duration (O));
+
+      elsif O'Tag = Types.Untyped.Untyped'Tag then
+         begin
+            return V (Utils.Duration (V (XSD_String (O)), Name (O)));
+         exception
+            when others =>
+               Get_Error ("duration", O);
+         end;
+
+      elsif O'Tag = Types.XSD_Any_Type'Tag
+        and then XSD_Any_Type (O).O.O'Tag = Types.XSD_Duration'Tag
+      then
+         return V (XSD_Duration (XSD_Any_Type (O).O.O.all));
+
+      else
+         Get_Error ("duration", O);
       end if;
    end Get;
 
@@ -850,6 +887,93 @@ package body SOAP.Types is
    begin
       return GNAT.Calendar.Time_IO.Image (O.T, Format)
         & Image (Calendar.Time_Zones.UTC_Time_Offset (O.T));
+   end Image;
+
+   overriding function Image (O : XSD_Duration) return String is
+      use Ada.Calendar;
+
+      function P (Value : Natural; Key : Character) return String is
+        (if Value > 0 then AWS.Utils.Image (Value) & Key else "");
+
+      Negative : constant Boolean := O.V < 0.0;
+      Base     : constant Calendar.Time := Calendar.Clock;
+      Next     : constant Calendar.Time := Base + abs (O.V);
+
+      B_Y, N_Y : Calendar.Year_Number;
+      B_M, N_M : Calendar.Month_Number;
+      B_D, N_D : Calendar.Day_Number;
+      B_H, N_H : GNAT.Calendar.Minute_Number;
+      B_I, N_I : GNAT.Calendar.Minute_Number;
+      B_S, N_S : GNAT.Calendar.Minute_Number;
+      S_S      : GNAT.Calendar.Second_Duration; -- Ignored
+
+      B_DW, N_DW       : GNAT.Calendar.Day_In_Year_Number;
+      Y, M, D, H, I, S : Natural;
+      N                : Natural;
+   begin
+      --  Get base and next date/time, and then we compute the difference
+      --  represented in number of years, months, days, hours, minutes and
+      --  seconds.
+
+      GNAT.Calendar.Split (Base, B_Y, B_M, B_D, B_H, B_I, B_S, S_S);
+      GNAT.Calendar.Split (Next, N_Y, N_M, N_D, N_H, N_I, N_S, S_S);
+
+      --  Time
+
+      if N_S >= B_S then
+         S := N_S - B_S;
+         N := 0;
+      else
+         S := 60 - B_S + N_S;
+         N := 1;
+      end if;
+
+      if N_I >= B_I then
+         I := N_I - B_I - N;
+         N := 0;
+      else
+         I := 60 - B_I + N_I;
+         N := 1;
+      end if;
+
+      if N_H >= B_H then
+         H := N_H - B_H - N;
+         N := 0;
+      else
+         H := 24 - B_H + N_H;
+         N := 1;
+      end if;
+
+      --  Date
+
+      B_DW := GNAT.Calendar.Day_In_Year (Base);
+      N_DW := GNAT.Calendar.Day_In_Year (Next);
+
+      if N_DW >= B_DW then
+         D := N_DW - B_DW - N;
+         N := 0;
+      else
+         D := 7 - B_DW + N_DW;
+         N := 1;
+      end if;
+
+      if N_M >= B_M then
+         M := N_M - B_M + N;
+         N := 0;
+      else
+         M := 12 - B_M + N_M;
+         N := 1;
+      end if;
+
+      Y := N_Y - B_Y + N;
+
+      --  Time
+
+      return (if Negative then "-" else "")
+        & 'P'
+        & P (Y, 'Y') & P (M, 'M') & P (D, 'D')  -- date
+        & (if H + I + S /= 0 then "T" else "")  -- date / time sep if needed
+        & P (H, 'H') & P (I, 'M') & P (S, 'S'); -- time
    end Image;
 
    overriding function Image (O : XSD_Unsigned_Long) return String is
@@ -1312,6 +1436,11 @@ package body SOAP.Types is
    function V (O : XSD_Time_Instant) return Calendar.Time is
    begin
       return O.T;
+   end V;
+
+   function V (O : XSD_Duration) return Duration is
+   begin
+      return O.V;
    end V;
 
    function V (O : XSD_Unsigned_Long) return Unsigned_Long is

@@ -66,7 +66,7 @@ package body SOAP.Message.XML is
      (Void, T_Undefined, T_Any_Type,
       T_Int, T_Float, T_Double, T_Long, T_Short, T_Byte,
       T_Unsigned_Long, T_Unsigned_Int, T_Unsigned_Short, T_Unsigned_Byte,
-      T_String, T_Boolean, T_Time_Instant, T_Date_Time,
+      T_String, T_Boolean, T_Time_Instant, T_Date_Time, T_Duration,
       T_Base64, T_Base64_Bin, T_Enum);
 
    type Namespaces is record
@@ -219,6 +219,11 @@ package body SOAP.Message.XML is
       Type_Name : String;
       N         : DOM.Core.Node) return Types.Object'Class;
 
+   function Parse_Duration
+     (Name      : String;
+      Type_Name : String;
+      N         : DOM.Core.Node) return Types.Object'Class;
+
    function Parse_Param
      (N      : DOM.Core.Node;
       Q_Name : String;
@@ -314,7 +319,10 @@ package body SOAP.Message.XML is
                     Parse_Time_Instant'Access, False),
                  T_Time_Instant   =>
                    (Types.XML_Time_Instant'Access,
-                    Parse_Time_Instant'Access, False));
+                    Parse_Time_Instant'Access, False),
+                 T_Duration       =>
+                   (Types.XML_Duration'Access,
+                    Parse_Duration'Access, False));
 
    type Object_Set_Access is access Types.Object_Set;
 
@@ -1065,6 +1073,21 @@ package body SOAP.Message.XML is
    begin
       return Types.D (Long_Float'Value (Node_Value (Value)), Name, Type_Name);
    end Parse_Double;
+
+   ------------------------
+   -- Parse_Time_Instant --
+   ------------------------
+
+   function Parse_Duration
+     (Name      : String;
+      Type_Name : String;
+      N         : DOM.Core.Node) return Types.Object'Class
+   is
+      Value : constant DOM.Core.Node := First_Child (N);
+      D     : constant String        := Node_Value (Value);
+   begin
+      return Utils.Duration (D, Name, Type_Name);
+   end Parse_Duration;
 
    -----------------------
    -- Parse_Enumeration --

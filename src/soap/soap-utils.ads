@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2000-2018, AdaCore                     --
+--                     Copyright (C) 2000-2019, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -74,6 +74,16 @@ package SOAP.Utils is
       Type_Name : String := Types.XML_Time_Instant)
       return Types.XSD_Time_Instant;
    --  Returns the timeInstant given an string encoded time
+
+   function Duration
+     (D, Name   : String;
+      Type_Name : String := Types.XML_Duration)
+      return Types.XSD_Duration
+     with Pre => D'Length > 2
+                 and then (D (D'First) = 'P'
+                           or else
+                          (D (D'First) = '-' and then D (D'First + 1) = 'P'));
+   --  Returns the XSD_Duration given an string encoded time
 
    ----------------------------------
    -- Basic_8bit string conversion --

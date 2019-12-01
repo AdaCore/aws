@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2003-2017, AdaCore                     --
+--                     Copyright (C) 2003-2019, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -43,7 +43,7 @@ package SOAP.WSDL is
    type Parameter_Type is
      (P_Long, P_Integer, P_Short, P_Byte, P_Float, P_Double, P_String,
       P_Character, P_Boolean, P_Time, P_B64, P_Unsigned_Long, P_Unsigned_Int,
-      P_Unsigned_Short, P_Unsigned_Byte, P_Any_Type);
+      P_Unsigned_Short, P_Unsigned_Byte, P_Duration, P_Any_Type);
    --  These are the types supported by the WSDL parser
 
    function Is_Standard (XSD_Type : String) return Boolean;

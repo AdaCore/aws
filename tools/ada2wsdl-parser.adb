@@ -1,7 +1,7 @@
 ----------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2003-2018, AdaCore                     --
+--                     Copyright (C) 2003-2019, AdaCore                     --
 --                                                                          --
 --  This is free software;  you can redistribute it  and/or modify it       --
 --  under terms of the  GNU General Public License as published  by the     --
@@ -1555,6 +1555,15 @@ package body Ada2WSDL.Parser is
                   else
                      return Register_Deferred (CFS);
                   end if;
+               end if;
+
+            when An_Ordinary_Fixed_Point_Definition =>
+               if Characters.Handling.To_Lower
+                 (Image (Text.Element_Image (Elem))) = "duration"
+               then
+                  return Build_Type ("duration");
+               else
+                  return Register_Deferred (CFS);
                end if;
 
             when A_Floating_Point_Definition =>
