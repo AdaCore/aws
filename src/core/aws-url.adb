@@ -91,7 +91,7 @@ package body AWS.URL is
 
    function Code (C : Character) return Escape_Code is
    begin
-      return Utils.Hex (Character'Pos (C));
+      return Utils.Hex (Character'Pos (C), 2);
    end Code;
 
    Hex_Escape : constant ASCII_7_Set :=  Build_Hex_Escape;

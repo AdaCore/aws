@@ -240,7 +240,10 @@ private
                                Strings.Maps.To_Set ("&=+ <>?#%@")
                                or Strings.Maps.To_Set
                                     (Span => (Low  => Character'Val (128),
-                                              High => Character'Last));
+                                              High => Character'Last))
+                               or Strings.Maps.To_Set
+                                    (Span => (Low  => Character'First,
+                                              High => Character'Val (31)));
    Default_Encoding_Set : constant Strings.Maps.Character_Set :=
                             Parameters_Encoding_Set
                             or Strings.Maps.To_Set (";/:$,""{}|\^[]`'");
