@@ -51,6 +51,9 @@ begin
    Server.Start (WS, H, Conf);
 
    WSDL_D_Service.Client.Print (12.0);
+   WSDL_D_Service.Client.Print (12.1);
+   WSDL_D_Service.Client.Print (12.2);
+   WSDL_D_Service.Client.Print (12.35);
    WSDL_D_Service.Client.Print (98712.0);
    Text_IO.Put_Line (WSDL_D_Service.Client.Image (789.0));
    Text_IO.Put_Line (WSDL_D_Service.Client.Image (-2.0));

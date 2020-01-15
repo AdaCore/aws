@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2000-2019, AdaCore                     --
+--                     Copyright (C) 2000-2020, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -88,7 +88,13 @@ package body SOAP.Utils is
       use Ada.Calendar;
       use Ada.Calendar.Arithmetic;
 
+      use type Strings.Maps.Character_Set;
+
       subtype S_Duration is Standard.Duration;
+
+      Numeric_Set : constant Strings.Maps.Character_Set :=
+                      Strings.Maps.Constants.Decimal_Digit_Set
+                      or Strings.Maps.To_Set (".");
 
       Minute    : constant := 60;
       Hour      : constant := 60 * Minute;
@@ -127,25 +133,25 @@ package body SOAP.Utils is
          L := Strings.Fixed.Index
            (D,
             From => K,
-            Set  => Strings.Maps.Constants.Decimal_Digit_Set,
+            Set  => Numeric_Set,
             Test => Strings.Outside);
 
          exit when L = 0;
 
          declare
-            Value : constant Natural :=  Natural'Value (D (K .. L - 1));
+            Value : constant S_Duration :=  S_Duration'Value (D (K .. L - 1));
             Key   : constant Character := D (L);
          begin
             case Key is
                when 'Y' =>
-                  B_Year := B_Year + Value;
+                  B_Year := B_Year + Natural (Value);
 
                when 'M' =>
                   if Time_Mode then
                      Seconds := Seconds + S_Duration (Value * Minute);
 
                   else
-                     B_Month := B_Month + Value;
+                     B_Month := B_Month + Natural (Value);
 
                      while B_Month > 12 loop
                         B_Year := B_Year + 1;
@@ -157,10 +163,10 @@ package body SOAP.Utils is
                   N_Day := Calendar.Arithmetic.Day_Count (Value);
 
                when 'H' =>
-                  Seconds := Seconds + S_Duration (Value * Hour);
+                  Seconds := Seconds + Value * Hour;
 
                when 'S' =>
-                  Seconds := Seconds + S_Duration (Value);
+                  Seconds := Seconds + Value;
 
                when others =>
                   null;
