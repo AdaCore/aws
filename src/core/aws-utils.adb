@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2000-2015, AdaCore                     --
+--                     Copyright (C) 2000-2020, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -476,14 +476,15 @@ package body AWS.Utils is
    -- Image --
    -----------
 
-   function Image (D : Duration) return String is
+   function Image (D : Duration; Aft : Positive := 2) return String is
       D_Img : constant String  := Duration'Image (D);
       K     : constant Natural := Strings.Fixed.Index (D_Img, ".");
+      Last  : constant Positive := Positive'Min (K + Aft, D_Img'Last);
    begin
       if K = 0 then
          return D_Img (D_Img'First + 1 .. D_Img'Last);
       else
-         return D_Img (D_Img'First + 1 .. K + 2);
+         return D_Img (D_Img'First + 1 .. Last);
       end if;
    end Image;
 
