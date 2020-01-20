@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2000-2015, AdaCore                     --
+--                     Copyright (C) 2000-2020, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -105,11 +105,11 @@ package AWS.Utils is
        and then Image'Result (Image'Result'First) /= ' ';
    --  Returns image of N without the leading blank
 
-   function Image (D : Duration) return String with
+   function Image (D : Duration; Aft : Positive := 2) return String with
      Post => Image'Result'Length > 0
              and then Image'Result (Image'Result'First) /= ' ';
-   --  Returns image of D without the leading blank and with only 2 decimals
-   --  numbers.
+   --  Returns image of D without the leading blank and with only Aft decimals
+   --  digits.
 
    function Significant_Image
      (Item : Duration; N : Positive) return String
