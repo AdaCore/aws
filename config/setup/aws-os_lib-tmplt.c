@@ -2,7 +2,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2012-2018, AdaCore                     --
+--                     Copyright (C) 2012-2020, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -319,7 +319,8 @@ CND(FD_SETSIZE, "Max fd value");
 #define SIZEOF_sin_family sizeof (sa.sin_family) * 8
 CND(SIZEOF_sin_family, "Size of sa.sin_family");
 
-#define SIN_FAMILY_OFFSET (long)((long)&sa.sin_family - (long)&sa)
+#define SIN_FAMILY_OFFSET (uintptr_t)((uintptr_t)&sa.sin_family    \
+                                    - (uintptr_t)&sa)
 /*NOGEN*/ CND(SIN_FAMILY_OFFSET, "sin_family offset in record");
 }
 
@@ -332,9 +333,11 @@ CND(SIZEOF_sin_family, "Size of sa.sin_family");
 #else
   const struct addrinfo ai;
 
-#define AI_FAMILY_OFFSET (long)((long)&ai.ai_family - (long)&ai)
-#define AI_CANONNAME_OFFSET (long)((long)&ai.ai_canonname - (long)&ai)
-#define AI_ADDR_OFFSET (long)((long)&ai.ai_addr - (long)&ai)
+#define AI_FAMILY_OFFSET (uintptr_t)((uintptr_t)&ai.ai_family \
+                                     - (uintptr_t)&ai)
+#define AI_CANONNAME_OFFSET (uintptr_t)((uintptr_t)&ai.ai_canonname \
+                                        - (uintptr_t)&ai)
+#define AI_ADDR_OFFSET (uintptr_t)((uintptr_t)&ai.ai_addr - (uintptr_t)&ai)
 #endif
 
 /*NOGEN*/ CND(AI_FAMILY_OFFSET, "???");
