@@ -50,6 +50,7 @@ begin
 
    Server.Start (WS, H, Conf);
 
+   WSDL_D_Service.Client.Print (0.0);
    WSDL_D_Service.Client.Print (12.0);
    WSDL_D_Service.Client.Print (12.1);
    WSDL_D_Service.Client.Print (12.2);

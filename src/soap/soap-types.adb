@@ -981,13 +981,22 @@ package body SOAP.Types is
 
       SS := Duration (S) + SS; -- Seconds + Sub_Seconds
 
-      --  Time
+      declare
+         Has_Date : constant Boolean := (Y + M + D) > 0;
+         Has_Time : constant Boolean := (Duration (H + I) + SS) > 0.0;
+      begin
+         if not Has_Date and not Has_Time then
+            return "P0Y";
+         else
+            --  Time
 
-      return (if Negative then "-" else "")
-        & 'P'
-        & P (Y, 'Y') & P (M, 'M') & P (D, 'D')   -- date
-        & (if H + I + S /= 0 then "T" else "")   -- date / time sep if needed
-        & P (H, 'H') & P (I, 'M') & P (SS, 'S'); -- time
+            return (if Negative then "-" else "")
+              & 'P'
+              & P (Y, 'Y') & P (M, 'M') & P (D, 'D')   -- date
+              & (if Has_Time then "T" else "")         -- time sep if needed
+              & P (H, 'H') & P (I, 'M') & P (SS, 'S'); -- time
+         end if;
+      end;
    end Image;
 
    overriding function Image (O : XSD_Unsigned_Long) return String is
