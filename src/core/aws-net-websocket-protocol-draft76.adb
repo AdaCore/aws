@@ -111,12 +111,11 @@ package body AWS.Net.WebSocket.Protocol.Draft76 is
    ----------
 
    overriding procedure Send
-     (Protocol    : in out State;
-      Socket      : Object;
-      Data        : Stream_Element_Array;
-      From_Client : Boolean := False)
+     (Protocol : in out State;
+      Socket   : Object;
+      Data     : Stream_Element_Array)
    is
-      pragma Unreferenced (Protocol, From_Client);
+      pragma Unreferenced (Protocol);
       D_Header : constant Stream_Element_Array (1 .. 1) := (1 => 16#00#);
       D_Footer : constant Stream_Element_Array (1 .. 1) := (1 => 16#FF#);
    begin
@@ -131,15 +130,13 @@ package body AWS.Net.WebSocket.Protocol.Draft76 is
    end Send;
 
    overriding procedure Send
-     (Protocol    : in out State;
-      Socket      : Object;
-      Data        : Unbounded_String;
-      From_Client : Boolean := False) is
+     (Protocol : in out State;
+      Socket   : Object;
+      Data     : Unbounded_String) is
    begin
       Send
         (Protocol, Socket,
-         Translator.To_Stream_Element_Array (To_String (Data)),
-         From_Client => From_Client);
+         Translator.To_Stream_Element_Array (To_String (Data)));
    end Send;
 
    -----------------
