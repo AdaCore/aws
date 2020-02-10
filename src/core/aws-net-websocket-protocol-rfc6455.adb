@@ -555,16 +555,15 @@ package body AWS.Net.WebSocket.Protocol.RFC6455 is
    overriding procedure Send
      (Protocol    : in out State;
       Socket      : Object;
-      Data        : Unbounded_String;
-      From_Client : Boolean := False)
+      Data        : Unbounded_String)
    is
-      Len_Data   : constant Natural := Length (Data);
-      Chunk_Size : constant Positive := 4_096;
-      First      : Positive := 1;
-      Last       : Natural;
-
-      Mask       : Masking_Key;
-      Mask_Pos   : Masking_Key_Index := 0;
+      From_Client : constant Boolean := Socket.Is_Client_Side;
+      Len_Data    : constant Natural := Length (Data);
+      Chunk_Size  : constant Positive := 4_096;
+      First       : Positive := 1;
+      Last        : Natural;
+      Mask        : Masking_Key;
+      Mask_Pos    : Masking_Key_Index := 0;
    begin
       if From_Client then
          Mask := Create_Random_Mask;
@@ -610,11 +609,12 @@ package body AWS.Net.WebSocket.Protocol.RFC6455 is
    end Send;
 
    overriding procedure Send
-     (Protocol    : in out State;
-      Socket      : Object;
-      Data        : Stream_Element_Array;
-      From_Client : Boolean := False)
+     (Protocol : in out State;
+      Socket   : Object;
+      Data     : Stream_Element_Array)
    is
+      From_Client : constant Boolean := Socket.Is_Client_Side;
+
       Mask     : Masking_Key;
       Mask_Pos : Masking_Key_Index := 0;
    begin
