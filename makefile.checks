@@ -23,8 +23,8 @@ ifeq  ($(XMLADA), )
 XMLADA=false
 endif
 
-ifeq  ($(ASIS), )
-ASIS=false
+ifeq  ($(LAL), )
+LAL=false
 endif
 
 ifneq  ($(ZLIB), true)
@@ -35,8 +35,8 @@ ifeq ($(PRJ_TARGET), vxworks)
 ifeq ($(ENABLE_SHARED), true)
 $(error shared libraries not supported on cross platforms)
 endif
-ifeq ($(ASIS), true)
-$(error ASIS not supported on cross platforms)
+ifeq ($(LAL), true)
+$(error LAL not supported on cross platforms)
 endif
 ifeq ($(LDAP), true)
 $(error LDAP not supported on cross platforms)
@@ -55,9 +55,9 @@ $(error DEFAULT_LIBRARY_TYPE variable must be set to static or relocatable)
 endif
 endif
 
-ifneq ($(ASIS), true)
-ifneq ($(ASIS), false)
-$(error ASIS variable must be set to true or false)
+ifneq ($(LAL), true)
+ifneq ($(LAL), false)
+$(error LAL variable must be set to true or false)
 endif
 endif
 
@@ -73,9 +73,9 @@ $(error LDAP variable must be set to true or false)
 endif
 endif
 
-ifeq ($(ASIS), true)
+ifeq ($(LAL), true)
 ifeq ($(XMLADA), false)
-$(error ASIS is set and requires XMLADA to be installed. \
+$(error LaL is set and requires XMLADA to be installed. \
 	You may be missing XMLADA=true)
 endif
 endif

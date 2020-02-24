@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2003-2015, AdaCore                     --
+--                     Copyright (C) 2003-2020, AdaCore                     --
 --                                                                          --
 --  This is free software;  you can redistribute it  and/or modify it       --
 --  under terms of the  GNU General Public License as published  by the     --
@@ -16,7 +16,7 @@
 --  to http://www.gnu.org/licenses for a complete copy of the license.      --
 ------------------------------------------------------------------------------
 
-with "../.build/projects/aws_asis";
+with "../.build/projects/aws_lal";
 with "../shared";
 with "../aws";
 with "../win32/win32";
@@ -44,7 +44,7 @@ project Tools is
             "wsdl2aws-wsdl-types.ads");
    end case;
 
-   case Shared.ASIS is
+   case Shared.LAL is
       when "Installed" =>
          for Main use project'Main & ("ada2wsdl-main.adb");
       when "Disabled" =>
