@@ -1199,7 +1199,7 @@ package body AWS.Client is
                     Messages.Content_Type (MIME.Content_Type (Filename));
       CD        : constant String :=
                     Messages.Content_Disposition
-                      ("form-data", "filename", Filename);
+                      ("form-data", "filename", URL.Encode (Filename));
       File_Size : constant Stream_Element_Offset :=
                     Stream_Element_Offset (Utils.File_Size (Filename));
 

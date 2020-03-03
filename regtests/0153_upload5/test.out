@@ -9,3 +9,10 @@ Client Filename = upload5.adb
 Server Filename = upload_dir/.upload5.adb
 => call ok
 
+Client Filename = file%29.txt
+Server Filename = upload_dir/.file%29.txt
+=> call ok
+
+Client Filename = fi%87le%12.txt
+Server Filename = upload_dir/.fi%87le%12.txt
+=> call ok
