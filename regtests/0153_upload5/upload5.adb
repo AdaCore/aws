@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2004-2016, AdaCore                     --
+--                     Copyright (C) 2004-2020, AdaCore                     --
 --                                                                          --
 --  This is free software;  you can redistribute it  and/or modify it       --
 --  under terms of the  GNU General Public License as published  by the     --
@@ -102,7 +102,8 @@ procedure Upload5 is
 
             else
                return Response.Build
-                 (MIME.Text_HTML, "Server file not found!");
+                 (MIME.Text_HTML,
+                  "Server file not found! : " & Server_Filename);
             end if;
          end;
 
@@ -152,6 +153,8 @@ begin
    begin
       Request (URL, "test.out");
       Request (URL, "upload5.adb");
+      Request (URL, "file%29.txt");
+      Request (URL, "fi%87le%12.txt");
    end;
 
    Server.Shutdown (HTTP);

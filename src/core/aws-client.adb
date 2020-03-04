@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2000-2019, AdaCore                     --
+--                     Copyright (C) 2000-2020, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -1188,7 +1188,7 @@ package body AWS.Client is
       URI        : String      := No_Data;
       Headers    : Header_List := Empty_Header_List;
       Progress   : access procedure
-        (Total, Sent : Stream_Element_Offset) := null)
+                     (Total, Sent : Stream_Element_Offset) := null)
    is
       use Ada.Real_Time;
       Stamp    : constant Time   := Clock;
@@ -1199,7 +1199,7 @@ package body AWS.Client is
                     Messages.Content_Type (MIME.Content_Type (Filename));
       CD        : constant String :=
                     Messages.Content_Disposition
-                      ("form-data", "filename", Filename);
+                      ("form-data", "filename", URL.Encode (Filename));
       File_Size : constant Stream_Element_Offset :=
                     Stream_Element_Offset (Utils.File_Size (Filename));
 
@@ -1346,7 +1346,7 @@ package body AWS.Client is
       Timeouts   : Timeouts_Values := No_Timeout;
       Headers    : Header_List     := Empty_Header_List;
       Progress   : access procedure
-        (Total, Sent : Stream_Element_Offset) := null;
+                     (Total, Sent : Stream_Element_Offset) := null;
       User_Agent : String          := Default.User_Agent) return Response.Data
    is
       Connection : HTTP_Connection;

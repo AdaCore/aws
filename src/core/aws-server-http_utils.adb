@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2005-2018, AdaCore                     --
+--                     Copyright (C) 2005-2020, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -515,28 +515,40 @@ package body AWS.Server.HTTP_Utils is
         (Start_Boundary, End_Boundary : String;
          Parse_Boundary               : Boolean)
       is
-         function Target_Filename (Filename : String) return String;
-         --  Returns the full path name for the file as stored on the
-         --  server side.
+
+         procedure Target_Filename
+           (Filename                                 : String;
+            Server_Filename, Decoded_Server_Filename : out Unbounded_String);
+         --  Returns the full path names (std and decoded) for the
+         --  file as stored on the server side.
 
          ---------------------
          -- Target_Filename --
          ---------------------
 
-         function Target_Filename (Filename : String) return String is
-            Upload_Path : constant String :=
-                            CNF.Upload_Directory (HTTP_Server.Properties);
+         procedure Target_Filename
+           (Filename                                 : String;
+            Server_Filename, Decoded_Server_Filename : out Unbounded_String)
+         is
+            Upload_Path     : constant String :=
+                                CNF.Upload_Directory (HTTP_Server.Properties);
+            File_Upload_UID : constant String := Get_File_Upload_UID;
          begin
-            return Upload_Path & Get_File_Upload_UID & '.' & Filename;
+            Server_Filename := To_Unbounded_String
+              (Upload_Path & File_Upload_UID & '.' & Filename);
+
+            Decoded_Server_Filename := To_Unbounded_String
+              (Upload_Path & File_Upload_UID & '.' & URL.Decode (Filename));
          end Target_Filename;
 
-         Name            : Unbounded_String;
-         Filename        : Unbounded_String;
-         Server_Filename : Unbounded_String;
-         Is_File_Upload  : Boolean;
-         Headers         : AWS.Headers.List;
+         Name                    : Unbounded_String;
+         Filename                : Unbounded_String;
+         Server_Filename         : Unbounded_String;
+         Decoded_Server_Filename : Unbounded_String;
+         Is_File_Upload          : Boolean;
+         Headers                 : AWS.Headers.List;
 
-         End_Found       : Boolean := False;
+         End_Found               : Boolean := False;
          --  Set to true when the end-boundary has been found
 
       begin -- File_Upload
@@ -591,7 +603,8 @@ package body AWS.Server.HTTP_Utils is
                L_Name     : constant String :=
                               AWS.Headers.Values.Search (Data, "name");
                L_Filename : constant String :=
-                              AWS.Headers.Values.Search (Data, "filename");
+                              URL.Decode
+                                (AWS.Headers.Values.Search (Data, "filename"));
                --  Get the simple name as we do not want to expose the client
                --  full pathname to the user's callback. Microsoft Internet
                --  Explorer sends the full pathname, Firefox only send the
@@ -603,7 +616,7 @@ package body AWS.Server.HTTP_Utils is
 
                if Is_File_Upload then
                   Filename := To_Unbounded_String
-                    (Directories.Simple_Name (L_Filename));
+                    (URL.Encode (Directories.Simple_Name (L_Filename)));
                end if;
             end;
 
@@ -621,8 +634,9 @@ package body AWS.Server.HTTP_Utils is
                --  Set Server_Filename, the name of the file in the local file
                --  sytstem.
 
-               Server_Filename := To_Unbounded_String
-                 (Target_Filename (To_String (Filename)));
+               Target_Filename
+                 (To_String (Filename),
+                  Server_Filename, Decoded_Server_Filename);
 
                if To_String (Filename) /= "" then
                   --  First value is the unique name on the server side
@@ -642,7 +656,7 @@ package body AWS.Server.HTTP_Utils is
                   --  signature has been read.
 
                   Get_File_Data
-                    (To_String (Server_Filename),
+                    (To_String (Decoded_Server_Filename),
                      To_String (Filename),
                      Start_Boundary,
                      File_Upload,
@@ -653,9 +667,10 @@ package body AWS.Server.HTTP_Utils is
                   --  physical file will be removed. It will also be possible
                   --  to work with the attachment instead of the parameters set
                   --  above.
+
                   AWS.Attachments.Add
                     (Attachments,
-                     Filename   => To_String (Server_Filename),
+                     Filename   => To_String (Decoded_Server_Filename),
                      Name       => To_String (Filename),
                      Content_Id => To_String (Name),
                      Headers    => Headers);
