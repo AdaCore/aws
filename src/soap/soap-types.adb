@@ -76,6 +76,25 @@ package body SOAP.Types is
    --  Returns the tag-name for the enclosing XML node for the given object.
    --  This is the name-space name and name of the object separated with ':'.
 
+   generic
+      type T is digits <>;
+      Inf : T;
+      with procedure Put (Result : out String; V : T);
+   function F_Image_G (V : T) return String;
+   --  Generic routine to get the Image of a floating point number, this is
+   --  used for Float and Long_Float to support the NaN and +/-INF special
+   --  values.
+
+   generic
+      type T is digits <>;
+      type XSD_T is new Scalar with private;
+      Inf : T;
+      Name : String;
+      with function V (O : XSD_T) return T is <>;
+   function F_Get_G (O : Object'Class) return T;
+   --  Get a floating point number out of an XSD string representation. This
+   --  routine supports special NaN and +/-INF values.
+
    ---------
    -- "+" --
    ---------
@@ -200,7 +219,9 @@ package body SOAP.Types is
       Name      : String := "item";
       Type_Name : String := XML_Double;
       NS        : SOAP.Name_Space.Object := SOAP.Name_Space.No_Name_Space)
-      return XSD_Double is
+      return XSD_Double
+   is
+      pragma Suppress (Validity_Check);
    begin
       return
         (Finalization.Controlled
@@ -261,13 +282,87 @@ package body SOAP.Types is
       Name      : String := "item";
       Type_Name : String := XML_Float;
       NS        : SOAP.Name_Space.Object := SOAP.Name_Space.No_Name_Space)
-      return XSD_Float is
+      return XSD_Float
+   is
+      pragma Suppress (Validity_Check);
    begin
       return
         (Finalization.Controlled
          with To_Unbounded_String (Name), To_Unbounded_String (Type_Name),
               NS, V);
    end F;
+
+   -------------
+   -- F_Get_G --
+   -------------
+
+   function F_Get_G (O : Object'Class) return T is
+      pragma Suppress (Validity_Check);
+
+      use type Ada.Tags.Tag;
+   begin
+      if O'Tag = XSD_T'Tag then
+         return V (XSD_T (O));
+
+      elsif O'Tag = Types.Untyped.Untyped'Tag then
+         begin
+            declare
+               S : constant String := V (XSD_String (O));
+            begin
+               if S = "NaN" then
+                  return T'Invalid_Value;
+
+               elsif S = "-INF" then
+                  return -Inf;
+
+               elsif S = "INF" then
+                  return Inf;
+
+               else
+                  return T'Value (S);
+               end if;
+            end;
+         exception
+            when others =>
+               Get_Error (Name, O);
+         end;
+
+      elsif O'Tag = Types.XSD_Any_Type'Tag
+        and then XSD_Any_Type (O).O.O'Tag = XSD_T'Tag
+      then
+         return V (XSD_T (XSD_Any_Type (O).O.O.all));
+
+      else
+         Get_Error (Name, O);
+      end if;
+   end F_Get_G;
+
+   ---------------
+   -- F_Image_G --
+   ---------------
+
+   function F_Image_G (V : T) return String is
+   begin
+      if not V'Valid then
+         if V = Inf then
+            return "+INF";
+
+         elsif V = -Inf then
+            return "-INF";
+
+         else
+            return "NaN";
+         end if;
+
+      else
+         declare
+            Result : String (1 .. T'Width * 2);
+         begin
+            Put (Result, V);
+            return Strings.Fixed.Trim (Result, Strings.Both);
+         end;
+      end if;
+   end F_Image_G;
 
    --------------
    -- Finalize --
@@ -405,51 +500,27 @@ package body SOAP.Types is
    end Get;
 
    function Get (O : Object'Class) return Float is
-      use type Ada.Tags.Tag;
+      pragma Suppress (Validity_Check);
+
+      function Get_Float is new F_Get_G
+        (T     => Float,
+         XSD_T => XSD_Float,
+         Inf   => Float_Infinity,
+         Name  => "Float");
    begin
-      if O'Tag = Types.XSD_Float'Tag then
-         return V (XSD_Float (O));
-
-      elsif O'Tag = Types.Untyped.Untyped'Tag then
-         begin
-            return Float'Value (V (XSD_String (O)));
-         exception
-            when others =>
-               Get_Error ("Float", O);
-         end;
-
-      elsif O'Tag = Types.XSD_Any_Type'Tag
-        and then XSD_Any_Type (O).O.O'Tag = Types.XSD_Float'Tag
-      then
-         return V (XSD_Float (XSD_Any_Type (O).O.O.all));
-
-      else
-         Get_Error ("Float", O);
-      end if;
+      return Get_Float (O);
    end Get;
 
    function Get (O : Object'Class) return Long_Float is
-      use type Ada.Tags.Tag;
+      pragma Suppress (Validity_Check);
+
+      function Get_Double is new F_Get_G
+        (T     => Long_Float,
+         XSD_T => XSD_Double,
+         Inf   => Long_Float_Infinity,
+         Name  => "Double");
    begin
-      if O'Tag = Types.XSD_Double'Tag then
-         return V (XSD_Double (O));
-
-      elsif O'Tag = Types.Untyped.Untyped'Tag then
-         begin
-            return Long_Float'Value (V (XSD_String (O)));
-         exception
-            when others =>
-               Get_Error ("Double", O);
-         end;
-
-      elsif O'Tag = Types.XSD_Any_Type'Tag
-        and then XSD_Any_Type (O).O.O'Tag = Types.XSD_Double'Tag
-      then
-         return V (XSD_Double (XSD_Any_Type (O).O.O.all));
-
-      else
-         Get_Error ("Double", O);
-      end if;
+      return Get_Double (O);
    end Get;
 
    function Get (O : Object'Class) return String is
@@ -799,17 +870,44 @@ package body SOAP.Types is
    end Image;
 
    overriding function Image (O : XSD_Float) return String is
-      Result : String (1 .. Long_Float'Width);
+
+      pragma Suppress (Validity_Check);
+
+      procedure Put (R : out String; V : Float);
+
+      ---------
+      -- Put --
+      ---------
+
+      procedure Put (R : out String; V : Float) is
+      begin
+         Float_Text_IO.Put (R, V, Exp => 0);
+      end Put;
+
+      function Image is new F_Image_G (Float, Float_Infinity, Put);
    begin
-      Float_Text_IO.Put (Result, O.V, Exp => 0);
-      return Strings.Fixed.Trim (Result, Strings.Both);
+      return Image (O.V);
    end Image;
 
    overriding function Image (O : XSD_Double) return String is
-      Result : String (1 .. Long_Long_Float'Width);
+
+      pragma Suppress (Validity_Check);
+
+      procedure Put (R : out String; V : Long_Float);
+
+      ---------
+      -- Put --
+      ---------
+
+      procedure Put (R : out String; V : Long_Float) is
+      begin
+         Long_Float_Text_IO.Put (R, V, Exp => 0);
+      end Put;
+
+      function Image is new F_Image_G (Long_Float, Long_Float_Infinity, Put);
+
    begin
-      Long_Float_Text_IO.Put (Result, O.V, Exp => 0);
-      return Strings.Fixed.Trim (Result, Strings.Both);
+      return Image (O.V);
    end Image;
 
    overriding function Image (O : XSD_String) return String is
@@ -1432,11 +1530,13 @@ package body SOAP.Types is
    end V;
 
    function V (O : XSD_Float) return Float is
+      pragma Suppress (Validity_Check);
    begin
       return O.V;
    end V;
 
    function V (O : XSD_Double) return Long_Float is
+      pragma Suppress (Validity_Check);
    begin
       return O.V;
    end V;

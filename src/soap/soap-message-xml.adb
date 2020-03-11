@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2000-2019, AdaCore                     --
+--                     Copyright (C) 2000-2020, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -1069,9 +1069,26 @@ package body SOAP.Message.XML is
       Type_Name : String;
       N         : DOM.Core.Node) return Types.Object'Class
    is
+      pragma Suppress (Validity_Check);
+
       Value : constant DOM.Core.Node := First_Child (N);
+      V     : constant String := Node_Value (Value);
+      D     : Long_Float := 0.0;
    begin
-      return Types.D (Long_Float'Value (Node_Value (Value)), Name, Type_Name);
+      if V = "NaN" then
+         D := Long_Float'Invalid_Value;
+
+      elsif V = "+INF" then
+         D := Long_Float_Infinity;
+
+      elsif V = "-INF" then
+         D := -Long_Float_Infinity;
+
+      else
+         D := Long_Float'Value (V);
+      end if;
+
+      return Types.D (D, Name, Type_Name);
    end Parse_Double;
 
    ------------------------
@@ -1150,9 +1167,26 @@ package body SOAP.Message.XML is
       Type_Name : String;
       N         : DOM.Core.Node) return Types.Object'Class
    is
+      pragma Suppress (Validity_Check);
+
       Value : constant DOM.Core.Node := First_Child (N);
+      V     : constant String := Node_Value (Value);
+      F     : Float := 0.0;
    begin
-      return Types.F (Float'Value (Node_Value (Value)), Name, Type_Name);
+      if V = "NaN" then
+         F := Float'Invalid_Value;
+
+      elsif V = "+INF" then
+         F := Float_Infinity;
+
+      elsif V = "-INF" then
+         F := -Float_Infinity;
+
+      else
+         F := Float'Value (V);
+      end if;
+
+      return Types.F (F, Name, Type_Name);
    end Parse_Float;
 
    ------------------

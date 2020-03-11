@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2000-2019, AdaCore                     --
+--                     Copyright (C) 2000-2020, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -274,11 +274,13 @@ package body SOAP.Parameters is
    end Get;
 
    function Get (P : List; Name : String) return Float is
+      pragma Suppress (Validity_Check);
    begin
       return Types.Get (Argument (P, Name));
    end Get;
 
    function Get (P : List; Name : String) return Long_Float is
+      pragma Suppress (Validity_Check);
    begin
       return Types.Get (Argument (P, Name));
    end Get;

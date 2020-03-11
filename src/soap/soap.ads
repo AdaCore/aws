@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2000-2018, AdaCore                     --
+--                     Copyright (C) 2000-2020, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -41,5 +41,13 @@ package SOAP is
 
    No_SOAPAction : constant String := (1 => ASCII.NUL);
    --  Value used to specify that there was no SOAPAction specified
+
+private
+
+   function Float_Infinity return Float
+     with Import, Convention => Intrinsic, External_Name => "__builtin_inff";
+
+   function Long_Float_Infinity return Long_Float
+     with Import, Convention => Intrinsic, External_Name => "__builtin_inf";
 
 end SOAP;
