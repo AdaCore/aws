@@ -6,7 +6,7 @@
  xmlns:tns="http://simple.doc.net/sd">
  <tns:myMethod>
    <tns:x>6</tns:x>
-   <tns:y>1.12300</tns:y>
+   <tns:y>1.12300E+00</tns:y>
  </tns:myMethod>
 </soapenv:Body>
 </soapenv:Envelope>

@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2003-2015, AdaCore                     --
+--                     Copyright (C) 2003-2020, AdaCore                     --
 --                                                                          --
 --  This is free software;  you can redistribute it  and/or modify it       --
 --  under terms of the  GNU General Public License as published  by the     --
@@ -263,7 +263,7 @@ procedure Interoplab_Main1 is
       Text_IO.Put_Line ("Echo Float");
       FIO.Put (TinteropLab.Client.echoFloat (2.345), Aft => 5, Exp => 0);
       Text_IO.New_Line;
-      FIO.Put (TinteropLab.Client.echoFloat (456.8765), Aft => 5, Exp => 0);
+      FIO.Put (TinteropLab.Client.echoFloat (456.8765));
       Text_IO.New_Line;
       Text_IO.New_Line;
    end T_echoFloat;

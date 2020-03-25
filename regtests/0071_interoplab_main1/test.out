@@ -31,7 +31,7 @@ Echo ArrayOfint
 
 Echo Float
  2.34500
-456.87650
+4.56876E+02
 
 Echo Struct
           6
@@ -60,4 +60,3 @@ two
           3
  3.30
 three
-

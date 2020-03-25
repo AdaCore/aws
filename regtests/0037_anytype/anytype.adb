@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2004-2019, AdaCore                     --
+--                     Copyright (C) 2004-2020, AdaCore                     --
 --                                                                          --
 --  This is free software;  you can redistribute it  and/or modify it       --
 --  under terms of the  GNU General Public License as published  by the     --
@@ -41,6 +41,7 @@ procedure AnyType is
    use Ada;
    use AWS;
    use SOAP.Types;
+
    use AnyType_Service;
 
    H_Server : AWS.Server.HTTP;
@@ -124,6 +125,10 @@ procedure AnyType is
    function Trim (Str : String) return String is
       K : Natural := Str'Last;
    begin
+      if Str'Length > 4 and then Str (K - 3 .. K) = "E+00" then
+         K := K - 4;
+      end if;
+
       while Str (K) = '0' loop
          K := K - 1;
       end loop;

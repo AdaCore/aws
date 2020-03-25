@@ -6,12 +6,12 @@
 <getLastReturn soapenc:arrayType="ns3:Candle[1]" xsi:type="soapenc:Array">
    <ns4:item xsi:type="ns4:Candle">
       <artificial xsi:type="ns5:boolean">0</artificial>
-      <closePrice xsi:type="ns6:double">1.74650000000000</closePrice>
+      <closePrice xsi:type="ns6:double">1.74650000000000E+00</closePrice>
       <flat xsi:type="ns7:boolean">0</flat>
       <id xsi:type="ns8:int">533</id>
-      <maxPrice xsi:type="ns9:double">1.74650000000000</maxPrice>
-      <minPrice xsi:type="ns10:double">1.74590000000000</minPrice>
-      <openPrice xsi:type="ns11:double">1.74650000000000</openPrice>
+      <maxPrice xsi:type="ns9:double">1.74650000000000E+00</maxPrice>
+      <minPrice xsi:type="ns10:double">1.74590000000000E+00</minPrice>
+      <openPrice xsi:type="ns11:double">1.74650000000000E+00</openPrice>
       <periodType xsi:type="ns12:int">0</periodType>
       <time xsi:type="ns13:long">1089143140</time>
       <timeIndex xsi:type="ns14:int">108914314</timeIndex>

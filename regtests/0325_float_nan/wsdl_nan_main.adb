@@ -40,18 +40,30 @@ procedure WSDL_NaN_Main is
      with Import, Convention => Intrinsic, External_Name => "__builtin_inf";
 
    procedure T_Float (V : Float) is
-      F : Float := 0.0;
+      Min : constant Float := 10.0 ** (-Float'Digits);
+      Max : constant Float := 10.0 ** (Float'Digits);
+      F   : Float := 0.0;
    begin
       F := WSDL_NaN_Service.Client.Echo_F (V);
-      Float_Text_IO.Put (F, Exp => 0);
+      if F <= Min or else V >= Max then
+         Float_Text_IO.Put (F);
+      else
+         Float_Text_IO.Put (F, Exp => 0);
+      end if;
       Text_IO.New_Line;
    end T_Float;
 
    procedure T_Double (V : Long_Float) is
-      F : Long_Float := 0.0;
+      Min : constant Long_Float := 10.0 ** (-Long_Float'Digits);
+      Max : constant Long_Float := 10.0 ** (Long_Float'Digits);
+      F   : Long_Float := 0.0;
    begin
       F := WSDL_NaN_Service.Client.Echo_D (V);
-      Long_Float_Text_IO.Put (F, Exp => 0);
+      if F <= Min or else V >= Max then
+         Long_Float_Text_IO.Put (F);
+      else
+         Long_Float_Text_IO.Put (F, Exp => 0);
+      end if;
       Text_IO.New_Line;
    end T_Double;
 
@@ -77,6 +89,10 @@ begin
    --  Float
 
    T_Float (1.1);
+   T_Float (0.00001);
+   T_Float (0.000001);
+   T_Float (1.0E8);
+   T_Float (1.0E-15);
    T_Float (+Float_Infinity);
    T_Float (-Float_Infinity);
    T_Float (Float'Invalid_Value);
@@ -84,6 +100,10 @@ begin
    --  Long Float
 
    T_Double (1.2);
+   T_Double (0.00000000000001);
+   T_Double (0.000000000000001);
+   T_Double (1.0E16);
+   T_Double (1.0E-25);
    T_Double (+Long_Float_Infinity);
    T_Double (-Long_Float_Infinity);
    T_Double (Long_Float'Invalid_Value);

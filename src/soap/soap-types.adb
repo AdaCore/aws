@@ -881,10 +881,11 @@ package body SOAP.Types is
 
       procedure Put (R : out String; V : Float) is
       begin
-         Float_Text_IO.Put (R, V, Exp => 0);
+         Float_Text_IO.Put (R, V);
       end Put;
 
       function Image is new F_Image_G (Float, Float_Infinity, Put);
+
    begin
       return Image (O.V);
    end Image;
@@ -901,7 +902,7 @@ package body SOAP.Types is
 
       procedure Put (R : out String; V : Long_Float) is
       begin
-         Long_Float_Text_IO.Put (R, V, Exp => 0);
+         Long_Float_Text_IO.Put (R, V);
       end Put;
 
       function Image is new F_Image_G (Long_Float, Long_Float_Infinity, Put);

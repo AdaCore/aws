@@ -4,7 +4,7 @@
 <soapenv:Body
  xmlns:awsns="http://soapaws/">
 <xElement>2</xElement>
-<yElement>8.10000</yElement>
+<yElement>8.10000E+00</yElement>
 </soapenv:Body>
 </soapenv:Envelope>
 
