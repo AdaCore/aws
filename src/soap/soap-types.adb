@@ -30,8 +30,6 @@
 pragma Ada_2012;
 
 with Ada.Calendar.Time_Zones;
-with Ada.Float_Text_IO;
-with Ada.Long_Float_Text_IO;
 with Ada.Strings.Fixed;
 with Ada.Tags;
 with Ada.Task_Attributes;
@@ -79,7 +77,6 @@ package body SOAP.Types is
    generic
       type T is digits <>;
       Inf : T;
-      with procedure Put (Result : out String; V : T);
    function F_Image_G (V : T) return String;
    --  Generic routine to get the Image of a floating point number, this is
    --  used for Float and Long_Float to support the NaN and +/-INF special
@@ -355,12 +352,7 @@ package body SOAP.Types is
          end if;
 
       else
-         declare
-            Result : String (1 .. T'Width * 2);
-         begin
-            Put (Result, V);
-            return Strings.Fixed.Trim (Result, Strings.Both);
-         end;
+         return Strings.Fixed.Trim (T'Image (V), Strings.Both);
       end if;
    end F_Image_G;
 
@@ -873,18 +865,7 @@ package body SOAP.Types is
 
       pragma Suppress (Validity_Check);
 
-      procedure Put (R : out String; V : Float);
-
-      ---------
-      -- Put --
-      ---------
-
-      procedure Put (R : out String; V : Float) is
-      begin
-         Float_Text_IO.Put (R, V);
-      end Put;
-
-      function Image is new F_Image_G (Float, Float_Infinity, Put);
+      function Image is new F_Image_G (Float, Float_Infinity);
 
    begin
       return Image (O.V);
@@ -894,18 +875,7 @@ package body SOAP.Types is
 
       pragma Suppress (Validity_Check);
 
-      procedure Put (R : out String; V : Long_Float);
-
-      ---------
-      -- Put --
-      ---------
-
-      procedure Put (R : out String; V : Long_Float) is
-      begin
-         Long_Float_Text_IO.Put (R, V);
-      end Put;
-
-      function Image is new F_Image_G (Long_Float, Long_Float_Infinity, Put);
+      function Image is new F_Image_G (Long_Float, Long_Float_Infinity);
 
    begin
       return Image (O.V);
