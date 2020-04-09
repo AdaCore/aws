@@ -5,8 +5,11 @@ rem
 rem    c:> win32/build c:\gnat\2014
 rem
 
+rem The followinng variable can be set to std, openssl or gnutls
+set SOCKET=std
+
 set ROOTDIR=%CD%
-set GPROPTS=-XPRJ_BUILD=Release -XPRJ_TARGET=Windows_NT -XTARGET=win -XPRJ_XMLADA=Installed -XPRJ_LDAP=Installed -XPRJ_ASIS=Disabled -XPRJ_SOCKLIB=gnat
+set GPROPTS=-XPRJ_BUILD=Release -XPRJ_TARGET=Windows_NT -XTARGET=win -XPRJ_XMLADA=Installed -XPRJ_LDAP=Installed -XPRJ_ASIS=Disabled -XPRJ_SOCKLIB=gnat -XSOCKET=%SOCKET%
 
 if .%1==. goto dusage
 
@@ -46,13 +49,13 @@ echo abstract project AWS_Lib_Shared is > aws_lib_shared.gpr
 echo for Source_Files use (); >> aws_lib_shared.gpr
 echo type SSL_Library_Kind is ("relocatable", "static"); >> aws_lib_shared.gpr
 echo SSL_Library_Type : SSL_Library_Kind := external ("SSL_LIBRARY_TYPE", "relocatable"); >> aws_lib_shared.gpr
-echo LIB_Path := "";  >> aws_lib_shared.gpr
-echo S_SSL_Lib := ""; >> aws_lib_shared.gpr
-echo R_SSL_Lib := ""; >> aws_lib_shared.gpr
-echo S_CRY_Lib := ""; >> aws_lib_shared.gpr
-echo R_CRY_Lib := ""; >> aws_lib_shared.gpr
-echo S_TLS_Lib := ""; >> aws_lib_shared.gpr
-echo R_TLS_Lib := ""; >> aws_lib_shared.gpr
+echo LIB_Path := "./";  >> aws_lib_shared.gpr
+echo S_SSL_Lib := "ssl"; >> aws_lib_shared.gpr
+echo R_SSL_Lib := "ssl32"; >> aws_lib_shared.gpr
+echo S_CRY_Lib := "crypto"; >> aws_lib_shared.gpr
+echo R_CRY_Lib := "eay32"; >> aws_lib_shared.gpr
+echo S_TLS_Lib := "gnutls"; >> aws_lib_shared.gpr
+echo R_TLS_Lib := "gnutls"; >> aws_lib_shared.gpr
 echo LIBZ_Path := Project'Project_Dir & "..\..\..\lib\aws\static"; >> aws_lib_shared.gpr
 echo end AWS_Lib_Shared; >> aws_lib_shared.gpr
 
@@ -70,7 +73,7 @@ echo for Source_Dirs use (); >> aws_config.gpr
 echo type Boolean_Type is ("true", "false"); >> aws_config.gpr
 echo Zlib_Exists : Boolean_Type := "false"; >> aws_config.gpr
 echo type SOCKET_Type is ("std", "openssl", "gnutls"); >> aws_config.gpr
-echo SOCKET : SOCKET_Type := "std"; >> aws_config.gpr
+echo SOCKET : SOCKET_Type := "%SOCKET%"; >> aws_config.gpr
 echo end AWS_Config; >> aws_config.gpr
 
 cd ..\..
@@ -81,6 +84,10 @@ gprbuild -p %GPROPTS% -XLIBRARY_TYPE=static -XXMLADA_BUILD=static tools/tools.gp
 if errorlevel 1 goto error
 gprbuild -p %GPROPTS% -XLIBRARY_TYPE=relocatable -XXMLADA_BUILD=relocatable aws.gpr
 if errorlevel 1 goto error
+
+rem ----------------------------------------------- UNINSTALL
+:uninstall
+gprinstall --prefix=%1 -f --uninstall %GPROPTS% aws
 
 rem ----------------------------------------------- INSTALL
 :install
