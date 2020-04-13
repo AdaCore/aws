@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2000-2019, AdaCore                     --
+--                     Copyright (C) 2000-2020, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -469,6 +469,8 @@ package body AWS.Translator is
       State : in out Encoding_State)
    is
       Encoded_Length : Integer;
+      Base_Elem      : constant access constant Base64_Encode_Array :=
+                         Base64 (MIME)'Access;
    begin
       case State.Current_State is
          when 1 =>
@@ -489,7 +491,7 @@ package body AWS.Translator is
 
       Encoded_Length := 4 * ((State.Count + 2) / 3);
 
-      if State.To_Char = Base64 (MIME)'Access then
+      if State.To_Char = Base_Elem then
          for I in State.Last .. Encoded_Length loop
             Add ('=');
          end loop;
