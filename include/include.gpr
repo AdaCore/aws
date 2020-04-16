@@ -64,6 +64,10 @@ library project Include is
          when others =>
             null;
       end case;
+
+      for Default_Switches ("Ada") use
+        Compiler'Default_Switches ("Ada")
+        & Shared.Adaflags;
    end Compiler;
 
    -------------

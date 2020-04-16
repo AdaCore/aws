@@ -90,6 +90,7 @@ abstract project Shared is
 
    Adaflags := External_As_List ("ADAFLAGS", " ");
    Cflags   := External_As_List ("CFLAGS", " ");
+   Cppflags := External_As_List ("CPPFLAGS", " ");
    Ldflags  := External_As_List ("LDFLAGS", " ");
 
    ---------
@@ -157,7 +158,7 @@ abstract project Shared is
       for Default_Switches ("Ada") use
         Compiler'Default_Switches ("Ada") & Adaflags;
       for Default_Switches ("C") use
-        Compiler'Default_Switches ("C") & Cflags;
+        Compiler'Default_Switches ("C") & Cflags & Cppflags;
 
    end Compiler;
 
