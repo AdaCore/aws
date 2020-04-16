@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2000-2017, AdaCore                     --
+--                     Copyright (C) 2000-2020, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -318,14 +318,18 @@ package body AWS.Session is
       -- Start --
       -----------
 
-      procedure Start (Check_Interval : Duration; Lifetime : Duration) is
+      procedure Start
+        (Check_Interval : Duration;
+         Lifetime       : Duration;
+         Init_Cleaner   : out Boolean) is
       begin
          S_Count := S_Count + 1;
+         Init_Cleaner := False;
 
          if S_Count = 1 then
             Session.Check_Interval := Start.Check_Interval;
             Session.Lifetime       := Real_Time.To_Time_Span (Start.Lifetime);
-            Cleaner_Task := new Cleaner;
+            Init_Cleaner := True;
          end if;
       end Start;
 

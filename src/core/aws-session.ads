@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2000-2017, AdaCore                     --
+--                     Copyright (C) 2000-2020, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -252,7 +252,10 @@ private
 
    protected Cleaner_Control is
 
-      procedure Start (Check_Interval : Duration; Lifetime : Duration);
+      procedure Start
+        (Check_Interval : Duration;
+         Lifetime       : Duration;
+         Init_Cleaner   : out Boolean);
       --  Launch the cleaner task the first time and does nothing after
 
       procedure Stop (Need_Release : out Boolean);
