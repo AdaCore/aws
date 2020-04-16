@@ -367,7 +367,7 @@ procedure AwsRes is
 
    function Header return String is
    begin
-      return "--  AWSRes v" & Version & " - Genarated on " &
+      return "--  AWSRes v" & Version & " - Generated on " &
         GNAT.Calendar.Time_IO.Image (Calendar.Clock, "%B %d %Y at %T");
    end Header;
 
