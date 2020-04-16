@@ -1391,7 +1391,7 @@ package body WSDL2AWS.WSDL.Parser is
 
             if N = null then
                if SOAP.XML.Get_Attr_Value (Parent, "abstract") = "true" then
-                  raise WSDL_Error with "abstract complexType not suported.";
+                  raise WSDL_Error with "abstract complexType not supported.";
                end if;
             end if;
          end;
