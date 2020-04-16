@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2000-2012, AdaCore                     --
+--                     Copyright (C) 2000-2020, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -80,9 +80,18 @@ package body AWS.Session.Control is
    -----------
 
    procedure Start
-     (Session_Check_Interval : Duration; Session_Lifetime : Duration) is
+     (Session_Check_Interval : Duration; Session_Lifetime : Duration)
+   is
+      Init_Cleaner : Boolean;
    begin
-      Cleaner_Control.Start (Session_Check_Interval, Session_Lifetime);
+      Cleaner_Control.Start
+        (Session_Check_Interval, Session_Lifetime, Init_Cleaner);
+
+      --  Wether the cleaner task is to be initialized
+
+      if Init_Cleaner then
+         Cleaner_Task := new Cleaner;
+      end if;
    end Start;
 
 end AWS.Session.Control;
