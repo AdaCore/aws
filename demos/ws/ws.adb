@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2000-2016, AdaCore                     --
+--                     Copyright (C) 2000-2020, AdaCore                     --
 --                                                                          --
 --  This is free software;  you can redistribute it  and/or modify it       --
 --  under terms of the  GNU General Public License as published  by the     --
@@ -22,7 +22,8 @@
 with Ada.Text_IO;
 
 with AWS.Config.Set;
-with AWS.Server;
+with AWS.Log;
+with AWS.Server.Log;
 
 with WS_CB.WebSockets;
 
@@ -34,6 +35,10 @@ begin
    Text_IO.Put_Line ("AWS " & AWS.Version);
    Text_IO.Put_Line ("Kill me when you want me to stop...");
    Text_IO.Put_Line ("I will stop in 10 minutes anyway !");
+
+   Text_IO.Put_Line
+     ("For the WebSocket demo, open in browser websocket-messages-test.Html");
+   Text_IO.Put_Line ("   firefox websocket-messages-test.html");
 
    AWS.Config.Set.Reuse_Address (Config, True);
    AWS.Config.Set.Server_Host (Config, "127.0.0.1");
@@ -47,6 +52,9 @@ begin
      (WS_CB.WS,
       Config   => Config,
       Callback => WS_CB.Service'Access);
+
+   AWS.Server.Log.Start_Error
+     (WS_CB.WS, AWS.Log.Daily, Filename_Prefix => "tlog_error");
 
    delay 10 * 60.0;
 
