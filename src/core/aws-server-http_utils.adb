@@ -1712,14 +1712,19 @@ package body AWS.Server.HTTP_Utils is
                      end if;
 
                   exception
-                     when others =>
-                        Send_WebSocket_Handshake_Error (Messages.S403);
+                     when E : others =>
+                        Send_WebSocket_Handshake_Error
+                          (Messages.S403,
+                           Exception_Message (E));
                         WS.Shutdown;
                   end;
 
                exception
-                  when others =>
-                     Send_WebSocket_Handshake_Error (Messages.S403);
+                  when E : others =>
+                     Send_WebSocket_Handshake_Error
+                       (Messages.S403,
+                        Exception_Message (E));
+                     raise;
                end;
 
             else
