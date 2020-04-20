@@ -1318,8 +1318,8 @@ package body AWS.Server.HTTP_Utils is
       Socket_Taken : in out Boolean;
       Will_Close   : in out Boolean)
    is
-      LA           : constant Line_Attribute.Attribute_Handle :=
-                       Line_Attribute.Reference;
+      LA          : constant Line_Attribute.Attribute_Handle :=
+                      Line_Attribute.Reference;
 
       Status_Code : Messages.Status_Code := Response.Status_Code (Answer);
       Length      : Resources.Content_Length_Type := 0;
