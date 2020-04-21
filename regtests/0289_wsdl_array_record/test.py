@@ -5,7 +5,7 @@ os.mkdir('generated')
 os.mkdir('obj')
 os.chdir('src')
 
-exec_cmd('ada2wsdl', ['-q', '-a', 'http://localhost:8787',
+exec_cmd('ada2wsdl', ['-q', '-Pdefault', '-a', 'http://localhost:8787',
                       '-f', 'wsdl_array_record_data.ads',
                       '-o', '../generated/wsdl_array_record.wsdl'])
 

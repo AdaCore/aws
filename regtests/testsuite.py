@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 #                              Ada Web Server
 #
-#                     Copyright (C) 2003-2015, AdaCore
+#                     Copyright (C) 2003-2020, AdaCore
 #
 #  This library is free software; you can redistribute it and/or modify
 #  This is free software;  you can redistribute it  and/or modify it
@@ -82,8 +82,8 @@ class Runner(object):
                 "DEBUG", "true", "Debug", "Release")
             os.environ["PRJ_XMLADA"] = c.get(
                 "XMLADA", "true", "Installed", "Disabled")
-            os.environ["PRJ_ASIS"] = c.get(
-                "ASIS", "true", "Installed", "Disabled")
+            os.environ["PRJ_LAL"] = c.get(
+                "LAL", "true", "Installed", "Disabled")
             os.environ["PRJ_LDAP"] = c.get(
                 "LDAP", "true", "Installed", "Disabled")
             os.environ["PRJ_SOCKLIB"] = c.get("NETLIB")

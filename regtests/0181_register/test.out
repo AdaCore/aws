@@ -5,21 +5,21 @@
         Description : string (xsd:string)
         Help : string (xsd:string)
         Demo : string (xsd:string)
-        Options : Options_Table (n2:Options_Table)
-        Type_In : Files_Table (n2:Files_Table)
-        Type_Out : Files_Table (n2:Files_Table)
-        Rank : Ranks_Table (n2:Ranks_Table)
+        Options : Options_Table (n1:Options_Table)
+        Type_In : Files_Table (n1:Files_Table)
+        Type_Out : Files_Table (n1:Files_Table)
+        Rank : Ranks_Table (n1:Ranks_Table)
    > procedure       Unregister
         Server_Name : string (xsd:string)
    - record          Option_Data
         Short_Name : unbounded_string (xsd:string)
         Full_Name : unbounded_string (xsd:string)
         Description : unbounded_string (xsd:string)
-   - array (<>)      Options_Table of Option_Data (n2:Option_Data)
+   - array (<>)      Options_Table of Option_Data (n1:Option_Data)
    - array (<>)      Files_Table of unbounded_string (xsd:string)
    - record          Rank_Data
         R_Name : unbounded_string (xsd:string)
         Count : Integer (xsd:int)
-   - array (15)      Ranks_Table of Rank_Data (n2:Rank_Data)
+   - array (15)      Ranks_Table of Rank_Data (n1:Rank_Data)
 
 WSDL document register.wsdl is created for register.ads.

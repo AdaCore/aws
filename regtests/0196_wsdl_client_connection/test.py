@@ -1,7 +1,7 @@
 from test_support import *
 
 exec_cmd('ada2wsdl',
-         ['-q', '-f', '-I.', '-Papi_main',
+         ['-q', '-f', '-Papi_main',
           '-a', 'http://localhost:7711', 'api.ads', '-o', 'api.wsdl'])
 exec_cmd('wsdl2aws',
          ['-q', '-f', '-cb', '-types', 'api', '-main', 'srv_main', 'api.wsdl'])

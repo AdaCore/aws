@@ -3,10 +3,10 @@ import re
 
 build('mwsdl')
 
-exec_cmd('ada2wsdl', ['-q', '-f', '-Pmwsdl.gpr', 'pck-serv1.ads',
+exec_cmd('ada2wsdl', ['-q', '-f', '-Pmwsdl.gpr', 'src/pck-serv1.ads',
                       '-o', 'serv1.wsdl'])
 
-exec_cmd('ada2wsdl', ['-q', '-f', '-Pmwsdl.gpr', 'pck-serv2.ads',
+exec_cmd('ada2wsdl', ['-q', '-f', '-Pmwsdl.gpr', 'src/pck-serv2.ads',
                       '-o', 'serv2.wsdl'])
 
 exec_cmd('wsdl2aws', ['-q', '-f', '-n', 'soapaws1', '-cb', '-types', 'pck',

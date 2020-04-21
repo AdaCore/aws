@@ -6,8 +6,7 @@
    xmlns:soapenc="http://schemas.xmlsoap.org/soap/encoding/"
    xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/"
    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-   xmlns:xsd="http://www.w3.org/2001/XMLSchema"
-   xmlns:n1="http://soapaws/Standard_pkg/">
+   xmlns:xsd="http://www.w3.org/2001/XMLSchema">
 
    <wsdl:message name="Call_Me_Request">
       <wsdl:part name="P1" type="xsd:string"/>

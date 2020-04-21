@@ -9,6 +9,8 @@
         C : ABC (n2:ABC)
         D : Arr1 (n3:Arr1)
         E : Arr2 (n3:Arr2)
+   - array (23)      Arr1 of Integer (xsd:int)
+   - array (32)      Arr2 of Integer (xsd:int)
    - record          Complex_Rec
         R : Rec (n3:Rec)
         SI : Set_Of_Int_1_10 (n2:Set_Of_Int_1_10)
@@ -18,8 +20,6 @@
    > function        Echo_Complex_Rec
         C_Rec : Complex_Rec (n2:Complex_Rec)
         return Complex_Rec (n2:Complex_Rec)
-   - array (23)      Arr1 of Integer (xsd:int)
-   - array (32)      Arr2 of Integer (xsd:int)
    - record          Rec
         A : Integer (xsd:int)
         B : Integer (xsd:int)

@@ -2,7 +2,7 @@ from test_support import *
 import string
 
 exec_cmd('ada2wsdl',
-         ['-q', '-f', '-I.', '-Ptcons_main',
+         ['-q', '-f', '-Ptcons_main',
           '-a', 'http://localhost:7701', 'tcons.ads', '-o', 'tcons.wsdl'])
 exec_cmd('wsdl2aws',
          ['-q', '-f', '-cb', '-types', 'tcons', 'tcons.wsdl'])

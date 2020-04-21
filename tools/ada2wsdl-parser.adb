@@ -1,7 +1,7 @@
 ----------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2003-2019, AdaCore                     --
+--                     Copyright (C) 2003-2020, AdaCore                     --
 --                                                                          --
 --  This is free software;  you can redistribute it  and/or modify it       --
 --  under terms of the  GNU General Public License as published  by the     --
@@ -16,35 +16,21 @@
 --  to http://www.gnu.org/licenses for a complete copy of the license.      --
 ------------------------------------------------------------------------------
 
-with Ada.Characters.Conversions;
 with Ada.Characters.Handling;
-with Ada.Directories;
 with Ada.Exceptions;
 with Ada.Strings;
 with Ada.Strings.Fixed;
 with Ada.Strings.Maps;
 with Ada.Strings.Unbounded;
 with Ada.Text_IO;
-with Ada.Unchecked_Deallocation;
 
-with GNAT.OS_Lib;
-with GNAT.Regpat;
+with Langkit_Support.Text;
+with Libadalang.Analysis;
+with Libadalang.Common;
+with Libadalang.Project_Provider;
 
-with Asis;
-with Asis.Ada_Environments;
-with Asis.Compilation_Units;
-with Asis.Declarations;
-with Asis.Definitions;
-with Asis.Elements;
-with Asis.Errors;
-with Asis.Exceptions;
-with Asis.Expressions;
-with Asis.Extensions.Flat_Kinds;
-with Asis.Implementation;
-with Asis.Iterator;
-with Asis.Text;
-
-with A4G.GNAT_Int;
+with GNATCOLL.Projects;
+with GNATCOLL.VFS;
 
 with AWS.Utils;
 with SOAP.Name_Space;
@@ -58,2193 +44,1015 @@ package body Ada2WSDL.Parser is
    use Ada;
    use Ada.Exceptions;
    use Ada.Strings.Unbounded;
-   use Asis;
-   use GNAT;
 
-   --  The Compile routine is defined in Asis.Extensions in recent ASIS
-   --  version, it was defined in A4G.GNAT_Int in older ones.
+   use Libadalang.Analysis;
+   use Libadalang.Common;
 
-   use A4G.GNAT_Int;
-   use Asis.Extensions;
-   pragma Warnings (Off, A4G.GNAT_Int);
+   use type SOAP.Types.Unsigned_Long;
 
-   subtype String_Access is OS_Lib.String_Access;
+   package TxT renames Langkit_Support.Text;
 
-   ------------------------------
-   -- File and Directory names --
-   ------------------------------
+   function "+"
+     (Str : String) return Unbounded_String renames To_Unbounded_String;
 
-   Tree_Name    : String_Access;
-   --  We need it in more, then one routine, so we define it here
-
-   Max_Argument : constant := 1_024;
-
-   Arg_List     : OS_Lib.Argument_List (1 .. Max_Argument);
-   --  -I options from the Ada2WSDL command line transformed into the
-   --  form appropriate for calling gcc to create the tree file.
-
-   Arg_Index    : Natural := 0;
-
-   GPRBUILD     : constant String_Access :=
-                    OS_Lib.Locate_Exec_On_Path ("gprbuild");
-
-   ----------------------
-   -- Status variables --
-   ----------------------
-
-   My_Context : Asis.Context;
-
-   Spec_File  : Text_IO.File_Type;
-
-   -----------------------
-   -- Local subprograms --
-   -----------------------
-
-   procedure Create_Tree;
-   --  Creates a tree file or checks if the tree file already exists,
-   --  depending on options
-
-   type Element_Node;
-   type Link is access all Element_Node;
-
-   type Element_Node is record
-      Spec      : Asis.Element := Nil_Element;
-      Spec_Name : String_Access;
-      --  Not used for incomplete type declarations
-      Up        : Link;
-      Down      : Link;
-      Prev      : Link;
-      Next      : Link;
-      Last      : Link;
-   end record;
-   --  An element of a dynamic structure representing a "skeleton" of the body
-   --  to be generated
-   --
-   --  Logically this structure is a list of elements representing local
-   --  bodies and sublists representing the bodies which are a components of
-   --  some local body. Each list and sublist is represented by its first
-   --  element. For this first list element, the field Last is used to point
-   --  to the last element in this list to speed up adding the new element if
-   --  we do not have to order alphabetically the local bodies.
-
-   Body_Structure : aliased Element_Node;
-   --  This is a "design" for a body to generate. It contains references
-   --  to the elements from the argument spec for which body samples should
-   --  be generated, ordered alphabetically. The top of this link structure
-   --  is the Element representing a unit declaration from the argument
-   --  compilation unit.
-
-   ------------------------------------------------
-   -- Actuals for Traverse_Element instantiation --
-   ------------------------------------------------
-
-   type Body_State is record
-      Argument_Spec   : Boolean := True;
-      --  Flag indicating if we are in the very beginning (very top)
-      --  of scanning the argument library unit declaration
-
-      Current_List    : Link;
-      --  Declaration list in which a currently processed spec
-      --  should be inserted;
-
-      Last_Top        : Link;
-      --  An element which represents a declaration from which the currently
-      --  processed sublist was originated
-
-      New_List_Needed : Boolean := False;
-      --  Flag indication if a new sublist should be created
-   end record;
-
-   procedure Create_Element_Node
-     (Element : Asis.Element;
-      Control : in out Traverse_Control;
-      State   : in out Body_State);
-   --  When visiting an Element representing something for which a body
-   --  sample may be required, we check if the body is really required
-   --  and insert the corresponding Element on the right place in Body_State
-   --  if it is.
-
-   procedure Go_Up
-     (Element : Asis.Element;
-      Control : in out Traverse_Control;
-      State   : in out Body_State);
-   --  When leaving a [generic] package declaration or a protected [type]
-   --  declaration, we have to go one step up in Body_State structure.
-
-   procedure Create_Structure is new Iterator.Traverse_Element
-     (State_Information => Body_State,
-      Pre_Operation     => Create_Element_Node,
-      Post_Operation    => Go_Up);
-   --  Creates Body_Structure by traversing an argument spec and choosing
-   --  specs to create body samples for
-
-   --------------------
-   -- Local Routines --
-   --------------------
-
-   function Name (Elem : Asis.Element) return String;
-   --  Returns a defining name string image for a declaration which
-   --  defines exactly one name. This should definitely be made an extension
-   --  query
-
-   function Image (Str : Wide_String) return String;
-   --  Returns the trimed string representation of Str
-
-   procedure Analyse_Structure;
-   --  Go through all entities and generate WSDL
-
-   procedure Emergency_Clean_Up;
-   --  Does clean up actions in case if an exception was raised during
-   --  creating a body sample (closes a Context, dissociates it, finalizes
-   --  ASIS, closes and deletes needed files.
-
-   ------------------------------------
-   -- Deferred Asis types to analyse --
-   ------------------------------------
-
-   type Element_Set is array (Positive range <>) of Asis.Element;
+   -----------------------------------
+   -- Deferred LaL types to analyse --
+   -----------------------------------
 
    Max_Deferred_Types : constant := 1_024;
 
-   Deferred_Types : Element_Set (1 .. Max_Deferred_Types);
+   type Element_Set is array (Positive range 1 .. Max_Deferred_Types)
+     of Type_Decl;
+
+   Deferred_Types : Element_Set;
    --  Records all types tha can't be analysed at some point. For example we
    --  can't parse a type while parsing the spec.
 
    Index          : Natural := 0;
    --  Current Index in the Deferred_Types array
 
-   procedure Append_Deferred (E : Asis.Element);
+   procedure Append_Deferred (Node : Base_Type_Decl'Class);
    --  Append a new element into the list of deferred types
 
-   ----------------
-   -- Add_Option --
-   ----------------
+   function Get_Safe_Pointer_Type
+     (Node : Base_Type_Decl) return Base_Type_Decl;
+   --  type My_Type is ...
+   --  package SP is new SOAP.Utils.Safe_Pointer (My_Type, My_Access);
+   --  O : SP.Safe_Pointer;
+   --
+   --  Parameter Node is the SP.Safe_Pointer type declaration.
+   --  We want to return the type My_Type.
+   --
+   --  This is very dependant on the Safe_Pointer implementation.
 
-   procedure Add_Option (Option : String) is
+   function Name_Space (Node : Ada_Node'Class) return String;
+   --  Returns the name space for element Node. Name space is defined as
+   --  follow: http://soapaws/<unit_name>_pkg/
+
+   function Img
+     (Name       : Ada_Node'Class;
+      Lower_Case : Boolean := False) return String is
+     (if Lower_Case
+      then Characters.Handling.To_Lower (TxT.Image (Name.Text))
+      else TxT.Image (Name.Text));
+   --  Return string representation of Name
+
+   generic
+      type T is private;
+      Zero : T;
+      with function Value (Str : String) return T;
+      with function "+" (Left, Right : T) return T is <>;
+      with function "-" (Left, Right : T) return T is <>;
+      with function "**" (Left, Right : T) return T is <>;
+   function Compute_Value_G (Node : Expr) return T;
+   --  Compute the value for expression Node
+
+   generic
+      type T is private;
+      with function Compute_Value (Node : Expr) return T is <>;
+   procedure Get_Range_G (Node : Bin_Op; Lower, Upper : out T);
+   --  Get the Lower and Upper bounds of a range expression
+
+   generic
+      type T is private;
+      First : T;
+      Last  : T;
+      with procedure Get_Range (Node : Bin_Op; Lower, Upper : out T) is <>;
+   procedure Get_Type_Range_G
+     (Node         : Ada_Node'Class;
+      Lower, Upper : out T;
+      Top_Decl     : Boolean := False);
+   --  Get the range of a given type, either the range of the top declaration
+   --  or the one of the base type if Top_Decl isi False.
+
+   procedure Get_Range_Derived
+     (Node : Base_Type_Decl; Min, Max : out Unbounded_String);
+   --  Get range Min and Max for a derived type
+
+   function Get_Range_Expr
+     (Node     : Ada_Node'Class;
+      Top_Decl : Boolean := False) return Bin_Op;
+   --  Return the range expression for Node, either the top one found in
+   --  Node or the one in the base type going up into the derived/subtype
+   --  definitions.
+
+   function Get_Base_Type
+     (Node : Derived_Type_Def'Class) return Base_Type_Decl;
+   --  Get the base type for Node
+
+   function Get_Base_Type
+     (Node : Subtype_Decl'Class) return Base_Type_Decl;
+   --  Likewise for a subtype
+
+   function Unit_Name (Node : Ada_Node'Class) return String is
+     (Img (Node.P_Top_Level_Decl (Node.Unit).P_Defining_Name));
+   --  Name of the enclosing unit where Node is declared
+
+   function Is_Standard (Node : Ada_Node'Class) return Boolean is
+     (Characters.Handling.To_Lower (Unit_Name (Node)) = "standard");
+   --  True if Node is declared into the standard Ada package
+
+   function Is_Calendar (Node : Ada_Node'Class) return Boolean is
+     (Characters.Handling.To_Lower (Unit_Name (Node)) = "ada.calendar");
+   --  True if Node is declared into the Ada.Calendar package
+
+   function Is_SOAP_Type (Node : Ada_Node'Class) return Boolean is
+     (Characters.Handling.To_Lower (Unit_Name (Node)) = "soap.types");
+   --  True if Node is declared into AWS's SOAP.Types package
+
+   function Type_Definition
+     (Node : Base_Type_Decl;
+      Name : String;
+      Decl : Ada_Node'Class;
+      Base : Boolean) return Generator.Type_Data;
+   --  Get the type date for the given Node. Decl is the point of declaration
+   --  for the type/object and so used to get the name space. If Base is set
+   --  to True we resolve all the derived/subtype definition to get information
+   --  about the base type.
+
+   function Type_Definition
+     (Node : Type_Decl'Class;
+      Base : Boolean) return Generator.Type_Data;
+   --  Likewise for a type-decle
+
+   function Type_Definition
+     (Node : Type_Expr'Class;
+      Base : Boolean) return Generator.Type_Data;
+   --  Likewise for a type-expr
+
+   procedure Analyze_Type (Node : Type_Decl'Class);
+   --  Analyze a type declaration (array, derived, etc.)
+
+   procedure Analyze_Subtype (Node : Subtype_Decl'Class);
+   --  Analyze a subtype declaration
+
+   procedure Analyze_Array
+     (T_Decl : Base_Type_Decl;
+      T_Name : String;
+      Decl   : Ada_Node'Class;
+      Node   : Array_Type_Def'Class);
+   --  Analyze an array type declaration
+
+   function Analyze_Array_Component
+     (Node : Component_Def'Class) return Generator.Type_Data;
+   --  Analyze an array component
+
+   procedure Array_Type_Suffix
+     (Lower, Upper : Long_Long_Integer;
+      Type_Suffix  : out Unbounded_String;
+      Length       : out Natural);
+
+   ---------------------
+   -- Compute_Value_G --
+   ---------------------
+
+   function Compute_Value_G (Node : Expr) return T is
+      Result : T := Zero;
    begin
-      if Option (Option'First .. Option'First + 1) /= "-I" then
-         Arg_Index := Arg_Index + 1;
-         Arg_List (Arg_Index) := new String'(Option);
+      case Node.Kind is
+         when Ada_Bin_Op =>
+            declare
+               Op    : constant Bin_Op := Node.As_Bin_Op;
+               Left  : constant T := Compute_Value_G (Op.F_Left);
+               Right : constant T := Compute_Value_G (Op.F_Right);
+            begin
+               case Op.F_Op.Kind is
+                  when Ada_Op_Plus =>
+                     Result := Left + Right;
+
+                  when Ada_Op_Minus =>
+                     Result := Left - Right;
+
+                  when Ada_Op_Pow =>
+                     Result := Left ** Right;
+
+                  when others =>
+                     null;
+               end case;
+            end;
+
+         when Ada_Un_Op =>
+            declare
+               Op  : constant Un_Op := Node.As_Un_Op;
+               Val : constant T := Compute_Value_G (Op.F_Expr);
+            begin
+               case Op.F_Op.Kind is
+                  when Ada_Op_Plus =>
+                     Result := Val;
+
+                  when Ada_Op_Minus =>
+                     Result := Zero - Val;
+
+                  when others =>
+                     null;
+               end case;
+            end;
+
+         when Ada_Paren_Expr =>
+            Result := Compute_Value_G (Node.As_Paren_Expr.F_Expr);
+
+         when Ada_Int_Literal | Ada_Real_Literal =>
+            Result := Value (Img (Node));
+
+         when Ada_Attribute_Ref =>
+            --  Handle 'First and 'Last only to get a range expressed
+            --  using Integer'First for example.
+            declare
+               A     : constant Attribute_Ref := Node.As_Attribute_Ref;
+               T     : constant Name := A.F_Prefix;
+               N     : constant Identifier := A.F_Attribute;
+               N_Img : constant String := Img (N);
+               E     : constant Bin_Op :=
+                         Get_Range_Expr (T.P_Name_Designated_Type);
+            begin
+               if E.Kind = Ada_Bin_Op then
+                  if N_Img = "First" then
+                     Result := Compute_Value_G (E.As_Bin_Op.F_Left);
+                  elsif N_Img = "Last" then
+                     Result := Compute_Value_G (E.As_Bin_Op.F_Right);
+                  end if;
+               end if;
+            end;
+
+         when others =>
+            null;
+      end case;
+
+      return Result;
+   end Compute_Value_G;
+
+   -------------------
+   -- Compute_Value --
+   -------------------
+
+   function "**" (Left, Right : Long_Long_Integer) return Long_Long_Integer
+     is (Left ** Integer (Right));
+
+   function Compute_Value is new Compute_Value_G
+     (T     => Long_Long_Integer,
+      Zero  => 0,
+      Value => Long_Long_Integer'Value);
+
+   function "**"
+     (Left, Right : SOAP.Types.Unsigned_Long) return SOAP.Types.Unsigned_Long
+   is (Left ** Integer (Right));
+
+   function Compute_Value is new Compute_Value_G
+     (T     => SOAP.Types.Unsigned_Long,
+      Zero  => 0,
+      Value => SOAP.Types.Unsigned_Long'Value);
+
+   function "**" (Left, Right : Long_Float) return Long_Float
+     is (Left ** Integer (Right));
+
+   function Compute_Value is new Compute_Value_G
+     (T     => Long_Float,
+      Zero  => 0.0,
+      Value => Long_Float'Value);
+
+   -----------------
+   -- Get_Range_G --
+   -----------------
+
+   procedure Get_Range_G (Node : Bin_Op; Lower, Upper : out T)  is
+      Left  : constant Expr := Node.F_Left;
+      Right : constant Expr := Node.F_Right;
+   begin
+      Lower := Compute_Value (Left);
+      Upper := Compute_Value (Right);
+   end Get_Range_G;
+
+   ----------------------
+   -- Get_Type_Range_G --
+   ----------------------
+
+   procedure Get_Type_Range_G
+     (Node         : Ada_Node'Class;
+      Lower, Upper : out T;
+      Top_Decl     : Boolean := False)
+   is
+      E         : constant Bin_Op := Get_Range_Expr (Node, Top_Decl);
+      T_Name    : constant String :=
+                    (if Node.Kind = Ada_Type_Decl
+                     then Img (Node.As_Base_Type_Decl.F_Name,
+                               Lower_Case => True)
+                     else "");
+      Is_Std_LL : constant Boolean :=
+                    Node.Kind = Ada_Type_Decl
+                        and then
+                    ((Is_Standard (Node)
+                      and then T_Name = "long_long_integer")
+                        or else
+                     (Is_SOAP_Type (Node)
+                      and then T_Name in "long" | "unsigned_long"));
+   begin
+      Lower := Last;
+      Upper := First;
+
+      if E /= No_Bin_Op and then E.Kind = Ada_Bin_Op then
+         --  Do not try to compute range for Long_Long_Integer as this will
+         --  overflow in Get_Range while computing last (2**64 - 1). Likewise
+         --  for SOAP long and unsigned long.
+
+         if Is_Std_LL then
+            Lower := First;
+            Upper := Last;
+         else
+            Get_Range (E.As_Bin_Op, Lower, Upper);
+         end if;
       end if;
-   end Add_Option;
+   end Get_Type_Range_G;
 
-   -----------------------
-   -- Analyse_Structure --
-   -----------------------
+   ---------------
+   -- Get_Range --
+   ---------------
 
-   procedure Analyse_Structure is
+   procedure Get_Range is new Get_Range_G (T => Long_Long_Integer);
+   procedure Get_Range is new Get_Range_G (T => Long_Float);
 
-      procedure Analyse_Package (Node : Link);
-      --  Analyse a package declaration, the package name is used as
-      --  the Web Service name.
+   procedure Get_Range is new Get_Type_Range_G
+     (T     => Long_Long_Integer,
+      First => Long_Long_Integer'First,
+      Last  => Long_Long_Integer'Last);
 
-      procedure Analyse_Package_Instantiation (Node : Link);
-      --  Checks if this instantiation is to create a safe pointer, in this
-      --  case records the type and access type for later used.
+   procedure Get_Range is new Get_Type_Range_G
+     (T     => Long_Float,
+      First => Long_Float'First,
+      Last  => Long_Float'Last);
 
-      procedure Analyse_Routine (Node : Link);
-      --  Node is a procedure or function, analyse its spec profile
+   -----------------------------
+   -- Analyze_Array_Component --
+   -----------------------------
 
-      procedure Analyse_Type (Elem : Asis.Element);
-      --  Node is a subtype or type, analyse its definition
+   function Analyze_Array_Component
+     (Node : Component_Def'Class) return Generator.Type_Data
+   is
+      C_Type : constant Base_Type_Decl :=
+                 Node.F_Type_Expr.P_Designated_Type_Decl;
+      C_Name : constant String := Img (C_Type.F_Name);
+      E_Type : constant Generator.Type_Data :=
+                 Type_Definition (C_Type, C_Name, C_Type, False);
+      T_Decl : constant Base_Type_Decl :=
+                 (if C_Type.Kind = Ada_Subtype_Decl
+                  then C_Type.As_Subtype_Decl.F_Subtype.P_Designated_Type_Decl
+                  else C_Type.As_Base_Type_Decl);
 
-      procedure Analyse_Profile (Node : Link);
-      --  Generates an entry_body_formal_part, parameter or parameter
-      --  and result profile for the body of a program unit
-      --  represented by Node. Upon exit, sets Change_Line is set True
-      --  if the following "is" for the body should be generated on a new line
+   begin
+      Analyze_Type (T_Decl.As_Type_Decl);
 
-      procedure Array_Type_Suffix
-        (E           : Asis.Element;
-         Type_Suffix : out Unbounded_String;
-         Length      : out Positive);
+      return E_Type;
+   end Analyze_Array_Component;
 
-      function Type_Def
-        (Elem : Asis.Element;
-         Base : Boolean) return Generator.Type_Data;
-      --  Returns the type name for Elem. If Base is true the returned name is
-      --  the base type for the given element.
+   -------------------
+   -- Analyze_Array --
+   -------------------
 
-      procedure Analyse_Node (Node : Link);
-      --  Analyse a Node, handles procedure or function only
+   procedure Analyze_Array
+     (T_Decl : Base_Type_Decl;
+      T_Name : String;
+      Decl   : Ada_Node'Class;
+      Node   : Array_Type_Def'Class)
+   is
+      Components   : constant Component_Def := Node.F_Component_Type;
+      Array_Len    : Natural := 0;
+      Type_Suffix  : Unbounded_String;
+      Lower, Upper : Long_Long_Integer;
+   begin
+      Get_Range (T_Decl, Lower, Upper);
+      Array_Type_Suffix (Lower, Upper, Type_Suffix, Array_Len);
 
-      procedure Analyse_Node_List (List : Link);
-      --  Call Analyse_Node for each element in List
-
-      function Name_Space (E : Asis.Element) return String;
-      --  Returns the name space for element E. Name space is defined as
-      --  follow: http://soapaws/<unit_name>_pkg/
-
-      function Is_Standard (T : Asis.Declaration) return Boolean;
-      --  Returns True if type T is declared in Standard
-
-      ------------------
-      -- Analyse_Node --
-      ------------------
-
-      procedure Analyse_Node (Node : Link) is
-         use Extensions.Flat_Kinds;
-
-         Arg_Kind : constant Flat_Element_Kinds :=
-                      Flat_Element_Kind (Node.Spec);
+      declare
+         E_Type : constant Generator.Type_Data :=
+                    Analyze_Array_Component (Components);
       begin
-         case Arg_Kind is
+         Generator.Start_Array
+           (Name_Space (Decl), T_Name,
+            To_String (E_Type.NS),
+            To_String (E_Type.Name),
+            Array_Len);
+      end;
+   end Analyze_Array;
 
-            when A_Function_Declaration
-              | A_Procedure_Declaration
-              =>
-               Analyse_Routine (Node);
+     ------------------
+     -- Analyze_Type --
+     ------------------
 
-            when An_Entry_Declaration
-              | A_Single_Protected_Declaration
-              | A_Protected_Type_Declaration
-              | A_Single_Task_Declaration
-              | A_Task_Type_Declaration
-              | A_Generic_Package_Declaration
-              | An_Incomplete_Type_Declaration
-              | A_Generic_Function_Declaration
-              | A_Generic_Procedure_Declaration
-              =>
-               null;
+   procedure Analyze_Type (Node : Type_Decl'Class) is
 
-            when A_Package_Declaration =>
-               Analyse_Package (Node);
+      T_Name : constant String := Img (Node.F_Name);
+      T_Decl : constant Base_Type_Decl := Node.As_Base_Type_Decl;
+      NS     : constant String := Name_Space (Node);
 
-            when A_Package_Instantiation =>
-               Analyse_Package_Instantiation (Node);
+      type U_Array_Def is record
+         Name, NS           : Unbounded_String;
+         Comp_NS, Comp_Type : Unbounded_String;
+         Length             : Natural;
+      end record;
 
-            when A_Subtype_Declaration | An_Ordinary_Type_Declaration =>
-               Analyse_Type (Node.Spec);
+      Deferred_U_Arrays : array (1 .. 100) of U_Array_Def;
+      U_Array_Index     : Natural := 0;
+      Def               : Generator.Type_Data;
 
-            when others =>
-               Text_IO.Put_Line
-                 (Text_IO.Standard_Error,
-                  "ada2wsdl: unexpected element in the body structure");
-               Text_IO.Put
-                 (Text_IO.Standard_Error,
-                  "ada2wsdl: " & Arg_Kind'Img);
-               raise Fatal_Error;
-         end case;
+      procedure Analyze_Derived (Node : Derived_Type_Def'Class);
+      --  Analyze a derived type definition
 
-         if Node.Down /= null then
-            Analyse_Node_List (Node.Down);
-         end if;
-      end Analyse_Node;
+      procedure Analyze_Enumeration (Node : Enum_Type_Def'Class);
+      --  Analyzye an enumeration definition
 
-      -----------------------
-      -- Analyse_Node_List --
-      -----------------------
+      procedure Analyze_Numeric (Node : Type_Def'Class);
+      --  Analyze a numeric type (Integer, Float)
 
-      procedure Analyse_Node_List (List : Link) is
-         Next_Node  : Link;
-         List_Start : Link := List;
-      begin
-         --  Here we have to go to the beginning of the list
-
-         while List_Start.Prev /= null loop
-            List_Start := List_Start.Prev;
-         end loop;
-
-         Next_Node := List_Start;
-
-         loop
-            Analyse_Node (Next_Node);
-
-            if Next_Node.Next /= null then
-               Next_Node := Next_Node.Next;
-            else
-               exit;
-            end if;
-         end loop;
-      end Analyse_Node_List;
+      procedure Analyze_Record (Node : Record_Type_Def'Class);
+      --  Analyze a record type definition
 
       ---------------------
-      -- Analyse_Package --
+      -- Analyze_Derived --
       ---------------------
 
-      procedure Analyse_Package (Node : Link) is
+      procedure Analyze_Derived (Node : Derived_Type_Def'Class) is
+         B_Type : constant Base_Type_Decl := Get_Base_Type (Node);
+         B_Def  : constant Type_Def := B_Type.As_Type_Decl.F_Type_Def;
+         B_Name : constant String := Img (B_Type.F_Name);
       begin
-         if Options.WS_Name = Null_Unbounded_String then
-            Options.WS_Name := To_Unbounded_String
-              (Strings.Fixed.Translate
-                 (Node.Spec_Name.all,
-                  Strings.Maps.To_Mapping (".", "-")));
+         if T_Name = "Safe_Pointer" then
+            return;
          end if;
-      end Analyse_Package;
 
-      -----------------------------------
-      -- Analyse_Package_Instantiation --
-      -----------------------------------
-
-      procedure Analyse_Package_Instantiation (Node : Link) is
-         G_Unit : constant Asis.Expression :=
-                    Declarations.Generic_Unit_Name (Node.Spec);
-         --  The generic unit name (name after the reserved word is)
-         G_Name : constant String := Image (Text.Element_Image (G_Unit));
-      begin
-         if G_Name = "SOAP.Utils.Safe_Pointers" then
-            --  This is the safe pointer AWS/SOAP runtime type support
-
+         if B_Def.Kind = Ada_Array_Type_Def then
             declare
-               Actual : Asis.Association_List :=
-                          Declarations.Generic_Actual_Part (Node.Spec);
+               A_Def        : constant Array_Type_Def :=
+                                B_Def.As_Array_Type_Def;
+               Components   : constant Component_Def :=
+                                A_Def.F_Component_Type;
+               Len          : Unbounded_String;
+               Lower, Upper : Long_Long_Integer;
+               Type_Suffix  : Unbounded_String;
+               Array_Len    : Integer;
             begin
-               if Actual'Length = 2 then
-                  --  There is only two formal parameters, the first one is
-                  --  the type, the second the access type to the first one.
+               Get_Range (T_Decl, Lower, Upper);
 
-                  for K in Actual'Range loop
-                     Actual (K) := Expressions.Actual_Parameter (Actual (K));
-                  end loop;
+               if Lower /= Long_Long_Integer'Last then
+                  Array_Type_Suffix (Lower, Upper, Type_Suffix, Array_Len);
+                  Len := To_Unbounded_String (AWS.Utils.Image (Array_Len));
+               end if;
 
-                  Generator.Register_Safe_Pointer
-                    (Name        => Node.Spec_Name.all,
-                     Type_Name   => Image (Text.Element_Image (Actual (1))),
-                     Access_Name => Image (Text.Element_Image (Actual (2))));
+               if B_Name = "String" then
+                  Generator.Register_Derived
+                    (NS, T_Name,
+                     (To_Unbounded_String
+                          (SOAP.Name_Space.Value
+                             (SOAP.Name_Space.XSD)),
+                      To_Unbounded_String ("string"),
+                      Null_Unbounded_String,
+                      Null_Unbounded_String,
+                      Len));
+
+                  return;
+
+               else
+                  --  We have constraint, register an array, otherwise we
+                  --  will register a derived type.
+
+                  if Array_Len /= 0 then
+                     if not Generator.Type_Exists
+                       (Name_Space (Components), T_Name)
+                     then
+                        declare
+                           E_Type : constant Generator.Type_Data :=
+                                      Analyze_Array_Component (Components);
+                        begin
+                           Generator.Start_Array
+                             (Name_Space (Components), T_Name,
+                              To_String (E_Type.NS),
+                              To_String (E_Type.Name),
+                              Array_Len);
+                        end;
+                     end if;
+
+                     return;
+                  end if;
                end if;
             end;
          end if;
-      end Analyse_Package_Instantiation;
 
-      ----------------------
-      -- Analyse_Profile --
-      ----------------------
-
-      procedure Analyse_Profile (Node : Link) is
-
-         use Extensions.Flat_Kinds;
-
-         Arg_Kind   : constant Flat_Element_Kinds :=
-                        Flat_Element_Kind (Node.Spec);
-         Parameters : constant Asis.Element_List :=
-                        Declarations.Parameter_Profile (Node.Spec);
-      begin
-         if not Elements.Is_Nil (Parameters) then
-
-            for I in Parameters'Range loop
-               declare
-                  Elem  : constant Asis.Element :=
-                            Declarations.Declaration_Subtype_Mark
-                              (Parameters (I));
-                  Mode  : constant Asis.Mode_Kinds :=
-                            Elements.Mode_Kind (Parameters (I));
-                  Names : constant Defining_Name_List :=
-                            Declarations.Names (Parameters (I));
-                  E     : Asis.Element := Elem;
-               begin
-                  --  For each name create a new formal parameter
-
-                  if not (Mode = An_In_Mode
-                          or else Mode = A_Default_In_Mode)
-                  then
-                     Raise_Spec_Error
-                       (Parameters (I),
-                        Message => "only in mode supported.");
-                  end if;
-
-                  if Elements.Expression_Kind (E) = A_Selected_Component then
-                     E := Expressions.Selector (E);
-                  end if;
-
-                  E := Expressions.Corresponding_Name_Declaration (E);
-
-                  E := Declarations.Type_Declaration_View (E);
-
-                  for K in Names'Range loop
-                     Generator.New_Formal
-                       (NS       => Name_Space (E),
-                        Var_Name => Image (Text.Element_Image (Names (K))),
-                        Var_Type => To_String
-                          (Type_Def (Elem, Base => False).Name));
-                  end loop;
-               end;
-            end loop;
+         if not Generator.Type_Exists (NS, T_Name) then
+            Def := Type_Definition (Analyze_Type.Node, Base => True);
+            Generator.Register_Derived (NS, T_Name, Def);
          end if;
-
-         if Arg_Kind = A_Function_Declaration
-           or else Arg_Kind = A_Generic_Function_Declaration
-         then
-            declare
-               Elem : constant Asis.Element :=
-                        Declarations.Result_Profile (Node.Spec);
-               E    : Asis.Element := Elem;
-            begin
-               if Elements.Expression_Kind (E) = A_Selected_Component then
-                  E := Expressions.Selector (E);
-               end if;
-
-               E := Expressions.Corresponding_Name_Declaration (E);
-
-               E := Declarations.Type_Declaration_View (E);
-
-               Generator.Return_Type
-                 (Name_Space (E),
-                  To_String (Type_Def (Elem, Base => False).Name),
-                  Node.Spec_Name.all);
-            end;
-         end if;
-      end Analyse_Profile;
-
-      ---------------------
-      -- Analyse_Routine --
-      ---------------------
-
-      procedure Analyse_Routine (Node : Link) is
-         use Extensions.Flat_Kinds;
-
-         Arg_Kind : constant Flat_Element_Kinds :=
-                      Flat_Element_Kind (Node.Spec);
-      begin
-         begin
-            Generator.Start_Routine
-              (Name_Space (Node.Spec),
-               Node.Spec_Name.all,
-               (if Arg_Kind = A_Function_Declaration
-                then "function "
-                else "procedure"));
-         exception
-            when E : Spec_Error =>
-               Raise_Spec_Error (Node.Spec, Exception_Message (E));
-         end;
-
-         Analyse_Profile (Node);
-      end Analyse_Routine;
+      end Analyze_Derived;
 
       ------------------
-      -- Analyse_Type --
+      -- Analyze_Enum --
       ------------------
 
-      procedure Analyse_Type (Elem : Asis.Definition) is
-         use Extensions.Flat_Kinds;
+      procedure Analyze_Enumeration
+        (Node : Enum_Type_Def'Class) is
+      begin
+         Generator.Start_Enumeration (NS, T_Name);
 
-         type U_Array_Def is record
-            Name, NS           : Unbounded_String;
-            Comp_NS, Comp_Type : Unbounded_String;
-            Length             : Positive;
-         end record;
+         for Literal of Node.F_Enum_Literals loop
+            Generator.New_Literal (Img (Literal));
+         end loop;
+      end Analyze_Enumeration;
 
-         Deferred_U_Arrays : array (1 .. 100) of U_Array_Def;
-         U_Array_Index     : Natural := 0;
-         Def               : Generator.Type_Data;
+      ---------------------
+      -- Analyze_Numeric --
+      ---------------------
 
-         procedure Analyse_Field (Component : Asis.Element);
-         --  Analyse a field from the record
+      procedure Analyze_Numeric
+        (Node : Type_Def'Class) is
+      begin
+         if not Is_Standard (Node) then
+            Def := Type_Definition (T_Decl.As_Type_Decl, Base => True);
+            Generator.Register_Type (NS, T_Name, Def);
+         end if;
+      end Analyze_Numeric;
 
-         function Analyse_Array_Component
-           (Component : Asis.Element)  return Generator.Type_Data;
-         --  Analyse an array component and return the corresponding type
-         --  definition.
+      --------------------
+      -- Analyze_Record --
+      --------------------
 
-         -----------------------------
-         -- Analyse_Array_Component --
-         -----------------------------
+      procedure Analyze_Record (Node : Record_Type_Def'Class) is
 
-         function Analyse_Array_Component
-           (Component : Asis.Element) return Generator.Type_Data
-         is
-            E      : Asis.Element :=
-                       (Definitions.Subtype_Mark
-                          (Definitions.Component_Subtype_Indication
-                             (Component)));
-            E_Type : constant Generator.Type_Data :=
-                       Type_Def (E, False);
-         begin
-            if Elements.Expression_Kind (E) = A_Selected_Component then
-               E := Expressions.Selector (E);
-            end if;
-
-            E := Declarations.Corresponding_First_Subtype
-              (Expressions.Corresponding_Name_Declaration (E));
-
-            Analyse_Type (E);
-
-            return E_Type;
-         end Analyse_Array_Component;
+         procedure Analyze_Field (Node : Component_Decl);
+         --  ???
 
          -------------------
-         -- Analyse_Field --
+         -- Analyze_Field --
          -------------------
 
-         procedure Analyse_Field (Component : Asis.Element) is
-
-            ODV   : constant Asis.Element :=
-                      Declarations.Object_Declaration_View (Component);
-            Elem  : constant Asis.Element :=
-                      Definitions.Subtype_Mark
-                        (Definitions.Component_Subtype_Indication (ODV));
-            Names : constant Defining_Name_List :=
-                      Declarations.Names (Component);
-            E         : Asis.Element := Elem;
-            E_Type    : Generator.Type_Data;
-            CND       : Asis.Element;
-            Type_Name : Unbounded_String;
-
+         procedure Analyze_Field (Node : Component_Decl) is
+            C_Def  : constant Component_Def := Node.F_Component_Def;
+            F_Decl : Base_Type_Decl :=
+                       C_Def.F_Type_Expr.P_Designated_Type_Decl;
+            T_Name : Unbounded_String;
          begin
-            if Elements.Expression_Kind (E) = A_Selected_Component then
-               E := Expressions.Selector (E);
-            end if;
+            --  Append the type of the field into the list of deferred type
+            --  to analyse later if needed. Indeed if this type is only used
+            --  into the record and is defined into a separate package we
+            --  need to analyse it to get the corresponding WSDL definition.
 
-            CND := Expressions.Corresponding_Name_Declaration (E);
-
-            E := Declarations.Type_Declaration_View (CND);
-
-            if Flat_Element_Kind (E) = An_Unconstrained_Array_Definition then
+            if F_Decl.Kind = Ada_Type_Decl
+              and then F_Decl.As_Type_Decl.F_Type_Def.Kind = Ada_Array_Type_Def
+            then
+               --  An array
                declare
-                  Type_Suffix : Unbounded_String;
+                  A_Def               : constant Array_Type_Def :=
+                                          F_Decl.As_Type_Decl
+                                            .F_Type_Def.As_Array_Type_Def;
+                  Components          : constant Component_Def :=
+                                          A_Def.F_Component_Type;
+                  E_Type              : constant Generator.Type_Data :=
+                                          Analyze_Array_Component (Components);
+                  Lower, Upper        : Long_Long_Integer;
+                  Type_Suffix         : Unbounded_String;
+                  Has_Decl_Constraint : Boolean;
                begin
                   U_Array_Index := U_Array_Index + 1;
 
                   --  Set array's component type information
 
-                  E := Definitions.Array_Component_Definition (E);
-
-                  E_Type := Analyse_Array_Component (E);
-
-                  Deferred_U_Arrays (U_Array_Index).Comp_NS := E_Type.NS;
-                  Deferred_U_Arrays (U_Array_Index).Comp_Type := E_Type.Name;
+                  Deferred_U_Arrays (U_Array_Index).Comp_NS :=
+                    E_Type.NS;
+                  Deferred_U_Arrays (U_Array_Index).Comp_Type :=
+                    E_Type.Name;
 
                   Deferred_U_Arrays (U_Array_Index).NS :=
-                    To_Unbounded_String (Name_Space (E));
+                    To_Unbounded_String (Name_Space (F_Decl));
 
                   --  Set array's type name
 
                   Deferred_U_Arrays (U_Array_Index).Name :=
-                    To_Unbounded_String
-                      (Image
-                        (Text.Element_Image
-                          (Declarations.Names (CND) (1))));
+                    To_Unbounded_String (Img (F_Decl.F_Name));
 
-                  --  Get array's constraint, an array inside a record must be
-                  --  constrained.
+                  --  Do we have constraints on the base type
 
-                  E := Definitions.Subtype_Constraint
-                         (Definitions.Component_Subtype_Indication (ODV));
+                  Get_Range
+                    (C_Def.F_Type_Expr, Lower, Upper, Top_Decl => True);
 
-                  declare
-                     R : constant Asis.Discrete_Range_List :=
-                           Definitions.Discrete_Ranges (E);
-                  begin
-                     if R'Length /= 1 then
-                        Raise_Spec_Error
-                          (E,
-                           Message => "Arrays with multiple dimensions not "
-                             & "supported.");
-                     end if;
+                  Has_Decl_Constraint :=
+                    Lower /= Long_Long_Integer'Last
+                    and then Upper /= Long_Long_Integer'First;
 
-                     --  Add array's name suffix
+                  Get_Range
+                    (C_Def.F_Type_Expr, Lower, Upper, Top_Decl => False);
 
-                     Array_Type_Suffix
-                       (R (1), Type_Suffix,
-                        Deferred_U_Arrays (U_Array_Index).Length);
+                  Array_Type_Suffix
+                    (Lower, Upper,
+                     Type_Suffix,
+                     Deferred_U_Arrays (U_Array_Index).Length);
 
+                  if Has_Decl_Constraint then
                      Append (Deferred_U_Arrays (U_Array_Index).Name,
                              Type_Suffix);
-                  end;
+                  end if;
 
-                  Type_Name := Deferred_U_Arrays (U_Array_Index).Name;
+                  T_Name := Deferred_U_Arrays (U_Array_Index).Name;
                end;
             end if;
 
-            --  Append the type of the field into the list of deferred type to
-            --  analyse later if needed. Indeed if this type is only used into
-            --  the record and is defined into a separate package we need to
-            --  analyse it to get the corresponding WSDL definition.
+            --  Check for a subtype
 
-            Append_Deferred (Declarations.Corresponding_First_Subtype (CND));
-
-            declare
-               T : constant Flat_Element_Kinds :=
-                     Flat_Element_Kind
-                       (Declarations.Type_Declaration_View
-                          (Declarations.Corresponding_First_Subtype (CND)));
-            begin
-               if Flat_Element_Kind (CND) = A_Subtype_Declaration
-                 and then T /= A_Signed_Integer_Type_Definition
-                 and then T /= A_Floating_Point_Definition
-               then
-                  --  This is a subtype field
-                  Type_Name := To_Unbounded_String
-                    (Image (Text.Element_Image (ODV)));
-               end if;
-            end;
-
-            if Type_Name = Null_Unbounded_String then
-               --  If type name not set, then compute it now
-               Type_Name := Type_Def (Elem, Base => False).Name;
-            end if;
-
-            for K in Names'Range loop
-               Generator.New_Component
-                 (NS        => Name_Space
-                    (Declarations.Type_Declaration_View (CND)),
-                  Comp_Name => Image (Text.Element_Image (Names (K))),
-                  Comp_Type => To_String (Type_Name));
-            end loop;
-         end Analyse_Field;
-
-         Name      : constant String :=
-                        Image
-                          (Declarations.Defining_Name_Image
-                             (Declarations.Names (Elem) (1)));
-         E         : Asis.Definition :=
-                       Declarations.Type_Declaration_View (Elem);
-         E_Type    : Generator.Type_Data;
-         Type_Kind : constant Flat_Element_Kinds := Flat_Element_Kind (E);
-
-      begin
-         case Type_Kind is
-            when A_Record_Type_Definition =>
-
-               if not Generator.Type_Exists (Name_Space (E), Name) then
-                  Generator.Start_Record (Name_Space (E), Name);
-
-                  E := Definitions.Record_Definition (E);
-
-                  declare
-                     R : constant Asis.Record_Component_List :=
-                           Definitions.Record_Components (E);
-                  begin
-                     for K in R'Range loop
-                        Analyse_Field (R (K));
-                     end loop;
-                  end;
-
-                  --  Create now all deferred arrays
-
-                  for K in 1 .. U_Array_Index loop
-                     Generator.Start_Array
-                       (To_String (Deferred_U_Arrays (K).NS),
-                        To_String (Deferred_U_Arrays (K).Name),
-                        To_String (Deferred_U_Arrays (K).Comp_NS),
-                        To_String (Deferred_U_Arrays (K).Comp_Type),
-                        Deferred_U_Arrays (K).Length);
-                  end loop;
-               end if;
-
-            when A_Constrained_Array_Definition =>
-
+            if F_Decl.Kind = Ada_Subtype_Decl then
                declare
-                  S           : constant Asis.Definition_List :=
-                                  Definitions.Discrete_Subtype_Definitions (E);
-                  Array_Len   : Natural;
-                  Type_Suffix : Unbounded_String;
-                  C           : Asis.Element;
+                  S_Decl : constant Base_Type_Decl :=
+                             Get_Base_Type (F_Decl.As_Subtype_Decl);
                begin
-                  if S'Length /= 1 then
-                     Raise_Spec_Error
-                       (E,
-                        Message => "Arrays with multiple dimensions not "
-                          & "supported.");
-                  end if;
-
-                  if Flat_Element_Kind (S (1))
-                    = A_Discrete_Simple_Expression_Range_As_Subtype_Definition
-                  then
-                     --  This is the constraint (a .. b)
-                     C := S (1);
-                  else
-                     --  This is a subtype definition as constraint
-                     --  (Positive range a .. b)
-                     C := Definitions.Subtype_Constraint (S (1));
-                  end if;
-
-                  Array_Type_Suffix (C, Type_Suffix, Array_Len);
-
-                  E := Definitions.Array_Component_Definition (E);
-
-                  if not Generator.Type_Exists (Name_Space (E), Name) then
-                     E_Type := Analyse_Array_Component (E);
-
-                     Generator.Start_Array
-                       (Name_Space (E), Name,
-                        To_String (E_Type.NS),
-                        To_String (E_Type.Name),
-                        Array_Len);
-                  end if;
+                  Append_Deferred (S_Decl);
+                  T_Name := To_Unbounded_String (Img (F_Decl.F_Name));
                end;
-
-            when An_Unconstrained_Array_Definition =>
-
-               E := Definitions.Array_Component_Definition (E);
-
-               if not Generator.Type_Exists (Name_Space (E), Name) then
-                  E_Type := Analyse_Array_Component (E);
-
-                  Generator.Start_Array
-                    (Name_Space (E), Name,
-                     To_String (E_Type.NS),
-                     To_String (E_Type.Name));
-               end if;
-
-            when A_Derived_Type_Definition =>
-
-               declare
-                  TDV  : constant Asis.Element :=
-                           Declarations.Type_Declaration_View
-                             (Definitions.Corresponding_Root_Type (E));
-                  PST  : Asis.Element;
-                  C    : Asis.Constraint;
-                  Comp : Asis.Element;
-               begin
-                  if Flat_Element_Kind (TDV)
-                    = An_Unconstrained_Array_Definition
-                    or else Flat_Element_Kind (TDV)
-                    = A_Constrained_Array_Definition
-                  then
-                     --  This is derived type from an array, we have to create
-                     --  a new array definition if this derived type as a set
-                     --  of constraint.
-
-                     PST := Definitions.Parent_Subtype_Indication (E);
-
-                     C    := Definitions.Subtype_Constraint (PST);
-                     Comp := Definitions.Array_Component_Definition (TDV);
-
-                     --  Check whether the base name is a standard Ada string
-
-                     declare
-                        B_Name : constant String :=
-                                   Characters.Handling.To_Lower
-                                     (Image (Text.Element_Image
-                                       (Definitions.Subtype_Mark (PST))));
-                        Len    : Unbounded_String;
-                     begin
-                        if B_Name = "string" then
-                           if Flat_Element_Kind (C) = An_Index_Constraint then
-                              declare
-                                 R       : constant Asis.Discrete_Range_List :=
-                                               Definitions.Discrete_Ranges (C);
-                                 Dummy   : Unbounded_String;
-                                 Str_Len : Natural;
-                              begin
-                                 Array_Type_Suffix (R (1), Dummy, Str_Len);
-                                 Len := To_Unbounded_String
-                                   (AWS.Utils.Image (Str_Len));
-                              end;
-                           end if;
-
-                           if not Generator.Type_Exists
-                             (Name_Space (E), Name)
-                           then
-                              Generator.Register_Derived
-                                (Name_Space (E), Name,
-                                 (To_Unbounded_String
-                                      (SOAP.Name_Space.Value
-                                         (SOAP.Name_Space.XSD)),
-                                  To_Unbounded_String ("string"),
-                                  Null_Unbounded_String,
-                                  Null_Unbounded_String,
-                                  Len));
-                           end if;
-
-                           return;
-                        end if;
-                     end;
-
-                     if Flat_Element_Kind (C) = An_Index_Constraint then
-                        --  This derived type has constraints
-                        declare
-                           R           : constant Asis.Discrete_Range_List :=
-                                           Definitions.Discrete_Ranges (C);
-                           Type_Suffix : Unbounded_String;
-                           Array_Len   : Natural;
-                        begin
-                           if R'Length /= 1 then
-                              Raise_Spec_Error
-                                (C,
-                                 Message => "Arrays with multiple dimensions"
-                                   & " not supported.");
-                           end if;
-
-                           Array_Type_Suffix (R (1), Type_Suffix, Array_Len);
-
-                           if not Generator.Type_Exists
-                             (Name_Space (Comp), Name)
-                           then
-                              E_Type := Analyse_Array_Component (Comp);
-
-                              Generator.Start_Array
-                                (Name_Space (Comp), Name,
-                                 To_String (E_Type.NS),
-                                 To_String (E_Type.Name),
-                                 Array_Len);
-                           end if;
-
-                           return;
-                        end;
-                     end if;
-                  end if;
-               end;
-
-               if not Generator.Type_Exists (Name_Space (E), Name) then
-                  Generator.Register_Derived
-                    (Name_Space (E), Name,
-                     Type_Def (Elem, Base => False));
-               end if;
-
-            when A_Subtype_Indication =>
-
-               declare
-                  CFS  : constant Asis.Declaration :=
-                           Declarations.Corresponding_First_Subtype (Elem);
-                  TDV  : constant Asis.Definition :=
-                           Declarations.Type_Declaration_View (CFS);
-                  C    : Asis.Constraint;
-                  Comp : Asis.Element;
-               begin
-                  if Flat_Element_Kind (TDV)
-                    = An_Unconstrained_Array_Definition
-                  then
-                     --  This is a subtype of an unconstraint array, create
-                     --  the corresponding array definition.
-
-                     C    := Definitions.Subtype_Constraint (E);
-                     Comp := Definitions.Array_Component_Definition (TDV);
-
-                     declare
-                        R           : constant Asis.Discrete_Range_List :=
-                                        Definitions.Discrete_Ranges (C);
-                        Type_Suffix : Unbounded_String;
-                        Array_Len   : Natural;
-                     begin
-                        if R'Length /= 1 then
-                           Raise_Spec_Error
-                             (C,
-                              Message => "Arrays with multiple dimensions"
-                                & " not supported.");
-                        end if;
-
-                        Array_Type_Suffix (R (1), Type_Suffix, Array_Len);
-
-                        if not Generator.Type_Exists
-                          (Name_Space (Comp), Name)
-                        then
-                           E_Type := Analyse_Array_Component (Comp);
-
-                           Generator.Start_Array
-                             (Name_Space (Comp), Name,
-                              To_String (E_Type.NS),
-                              To_String (E_Type.Name),
-                              Array_Len);
-                        end if;
-                     end;
-
-                  else
-                     if not Generator.Type_Exists (Name_Space (E), Name) then
-                        Generator.Register_Type
-                          (Name_Space (E), Name,
-                           Type_Def (Elem, Base => True));
-                     end if;
-                  end if;
-               end;
-
-            when An_Enumeration_Type_Definition =>
-
-               if not Options.Enum_To_String then
-                  if not Generator.Type_Exists (Name_Space (E), Name) then
-                     Generator.Start_Enumeration (Name_Space (E), Name);
-
-                     declare
-                        D : constant Asis.Declaration_List :=
-                              Definitions.Enumeration_Literal_Declarations (E);
-                     begin
-                        for K in D'Range loop
-                           Generator.New_Literal
-                             (Image
-                                (Text.Element_Image
-                                   (Declarations.Names (D (K)) (1))));
-                        end loop;
-                     end;
-                  end if;
-               end if;
-
-            when A_Signed_Integer_Type_Definition
-               | A_Modular_Type_Definition
-               | A_Floating_Point_Definition
-                 =>
-
-               if not Is_Standard (Elem)
-                 and then not Generator.Type_Exists (Name_Space (E), Name)
-               then
-                  --  We do not want to generate types declared in standard
-                  Def := Type_Def (Elem, Base => True);
-                  Generator.Register_Type (Name_Space (E), Name, Def);
-               end if;
-
-            when others =>
-               --  A type definition not handled by this version
-               null;
-         end case;
-      end Analyse_Type;
-
-      -----------------------
-      -- Array_Type_Suffix --
-      -----------------------
-
-      procedure Array_Type_Suffix
-        (E           : Asis.Element;
-         Type_Suffix : out Unbounded_String;
-         Length      : out Positive)
-      is
-         Low : constant Asis.Expression := Definitions.Lower_Bound (E);
-         Up  : constant Asis.Expression := Definitions.Upper_Bound (E);
-      begin
-         declare
-            Low_Str : constant String := Image (Text.Element_Image (Low));
-            Up_Str  : constant String := Image (Text.Element_Image (Up));
-         begin
-            Length := Integer'Value (Up_Str) - Integer'Value (Low_Str) + 1;
-            Type_Suffix := To_Unbounded_String ("_" & Low_Str & "_" & Up_Str);
-         exception
-            when others =>
-               Raise_Spec_Error
-                 (E,
-                  Message => "Only arrays with numeric indexes supported.");
-         end;
-      end Array_Type_Suffix;
-
-      -----------------
-      -- Is_Standard --
-      -----------------
-
-      function Is_Standard (T : Asis.Declaration) return Boolean is
-      begin
-         return Characters.Handling.To_Lower
-           (Image
-              (Compilation_Units.Unit_Full_Name
-                   (Elements.Enclosing_Compilation_Unit (T)))) = "standard";
-      end Is_Standard;
-
-      ----------------
-      -- Name_Space --
-      ----------------
-
-      function Name_Space (E : Asis.Element) return String is
-         NS : String :=
-                Image (Compilation_Units.Unit_Full_Name
-                       (Elements.Enclosing_Compilation_Unit (E)));
-      begin
-         Strings.Fixed.Translate (NS, Strings.Maps.To_Mapping (".", "/"));
-
-         declare
-            Res : String (1 .. NS'Length + Strings.Fixed.Count (NS, "/") * 4);
-            I   : Natural := 0;
-         begin
-            for K in NS'Range loop
-               I := I + 1;
-               if NS (K) = '/' then
-                  Res (I .. I + 4) := "_pkg/";
-                  I := I + 4;
-               else
-                  Res (I) := NS (K);
-               end if;
-            end loop;
-
-            return SOAP.Name_Space.Value (SOAP.Name_Space.AWS) & Res & "_pkg/";
-         end;
-      end Name_Space;
-
-      --------------
-      -- Type_Def --
-      --------------
-
-      function Type_Def
-        (Elem : Asis.Element;
-         Base : Boolean) return Generator.Type_Data
-      is
-         use Extensions.Flat_Kinds;
-
-         function Register_Deferred
-           (E : Asis.Declaration) return Generator.Type_Data;
-         --  Register a deferred type to be generated after first
-         --  pass. Returns the name of the type.
-
-         function Register_Deferred_I
-           (E     : Asis.Declaration;
-            First : Long_Long_Integer := Long_Long_Integer'Last;
-            Last  : Long_Long_Integer := Long_Long_Integer'First)
-            return Generator.Type_Data;
-         --  Same as above for integer and optional range
-
-         function Register_Deferred_F
-           (E     : Asis.Declaration;
-            First : Long_Float := Long_Float'Last;
-            Last  : Long_Float := Long_Float'First)
-            return Generator.Type_Data;
-         --  Same as above for float and optional range
-
-         function "+" (Str : String)
-           return Unbounded_String renames To_Unbounded_String;
-
-         function Build_Type
-           (Name  : String;
-            NS    : String := SOAP.Name_Space.Value (SOAP.Name_Space.XSD);
-            First : Long_Long_Integer := Long_Long_Integer'Last;
-            Last  : Long_Long_Integer := Long_Long_Integer'First)
-            return Generator.Type_Data
-         is (+NS, +Name,
-             (if First = Long_Long_Integer'Last
-              then Null_Unbounded_String
-              else +Long_Long_Integer'Image (First)),
-             (if Last = Long_Long_Integer'First
-              then Null_Unbounded_String
-              else +Long_Long_Integer'Image (Last)),
-             Null_Unbounded_String);
-
-         function Build_Type_F
-           (Name  : String;
-            NS    : String := SOAP.Name_Space.Value (SOAP.Name_Space.XSD);
-            First : Long_Float := Long_Float'Last;
-            Last  : Long_Float := Long_Float'First)
-            return Generator.Type_Data
-         is (+NS, +Name,
-             (if First = Long_Float'Last
-              then Null_Unbounded_String
-              else +Long_Float'Image (First)),
-             (if Last = Long_Float'First
-              then Null_Unbounded_String
-              else +Long_Float'Image (Last)),
-             Null_Unbounded_String);
-
-         procedure Get_Range
-           (E : Asis.Element; Lower, Upper : out Long_Long_Integer);
-         procedure Get_Range
-           (E : Asis.Element; Lower, Upper : out Long_Float);
-         --  Returns the range constraint for the given type pointed to by E
-
-         function Compute_Value
-           (V : Asis.Expression) return Long_Long_Integer;
-         function Compute_Value
-           (V : Asis.Expression) return Long_Float;
-         function Compute_Value
-           (V : Asis.Expression) return SOAP.Types.Unsigned_Long;
-         --  Retruns the computed value for the given expression. This is
-         --  supposed to be a simple expression for a range declaration:
-         --  range -2**5 .. 2**7 or mod 2**15;
-
-         function Is_Calendar (T : Asis.Declaration) return Boolean;
-         --  Returns true if the declaration is inside the Ada.Calendar package
-
-         -------------------
-         -- Compute_Value --
-         -------------------
-
-         function Compute_Value
-           (V : Asis.Expression) return Long_Float
-         is
-            use type Regpat.Match_Location;
-            VI  : constant String :=
-                    Strings.Fixed.Trim
-                      (Image (Text.Element_Image (V)), Strings.Both);
-
-            --  [+-] n
-            R1  : constant Regpat.Pattern_Matcher :=
-                    Regpat.Compile ("^([+-]?[\d_.]+)$");
-            --  [+-] n ** exp
-            R2  : constant Regpat.Pattern_Matcher :=
-                    Regpat.Compile ("^([+-]?[\d_.]+) *\*\* *(\+?[\d_]+)$");
-            --  [+-] n ** exp - n
-            R3  : constant Regpat.Pattern_Matcher :=
-                    Regpat.Compile
-                      ("^([+-]?[\d_.]+) *\*\* *(\+?[\d_]+) *- *([\d_.]+)$");
-            --  [+-] n ** exp + n
-            R4  : constant Regpat.Pattern_Matcher :=
-                    Regpat.Compile
-                      ("^([+-]?[\d_.]+) *\*\* *(\+?[\d_]+) *\+ *([\d_.]+)$");
-            M   : Regpat.Match_Array (1 .. 3);
-         begin
-            Regpat.Match (R1, VI, M);
-
-            if M (1) /= Regpat.No_Match and then M (1).Last = VI'Last then
-               return Long_Float'Value
-                 (VI (M (1).First .. M (1).Last));
-            end if;
-
-            Regpat.Match (R2, VI, M);
-
-            if M (1) /= Regpat.No_Match
-              and then M (2) /= Regpat.No_Match
-              and then M (2).Last = VI'Last
-            then
-               return Long_Float'Value (VI (M (1).First .. M (1).Last))
-                 ** Integer'Value (VI (M (2).First .. M (2).Last));
-            end if;
-
-            Regpat.Match (R3, VI, M);
-
-            if M (1) /= Regpat.No_Match
-              and then M (2) /= Regpat.No_Match
-              and then M (3) /= Regpat.No_Match
-              and then M (3).Last = VI'Last
-            then
-               if VI (M (1).First .. M (1).Last) = "1.0"
-                 and then VI (M (2).First .. M (2).Last) = "256"
-               then
-                  return Long_Float'Last;
-               else
-                  return
-                    Long_Float'Value (VI (M (1).First .. M (1).Last))
-                    ** Integer'Value (VI (M (2).First .. M (2).Last))
-                    - Long_Float'Value (VI (M (3).First .. M (3).Last));
-               end if;
-            end if;
-
-            Regpat.Match (R4, VI, M);
-
-            if M (1) /= Regpat.No_Match
-              and then M (2) /= Regpat.No_Match
-              and then M (3) /= Regpat.No_Match
-              and then M (3).Last = VI'Last
-            then
-               return Long_Float'Value (VI (M (1).First .. M (1).Last))
-                 ** Integer'Value (VI (M (2).First .. M (2).Last))
-                 + Long_Float'Value (VI (M (3).First .. M (3).Last));
-            end if;
-
-            --  The expression is not supported
-
-            return 0.0;
-         end Compute_Value;
-
-         function Compute_Value
-           (V : Asis.Expression) return Long_Long_Integer
-         is
-            use type Regpat.Match_Location;
-            VI  : constant String :=
-                    Strings.Fixed.Trim
-                      (Image (Text.Element_Image (V)), Strings.Both);
-            --  [+-] n
-            R1  : constant Regpat.Pattern_Matcher :=
-                    Regpat.Compile ("^([+-]?[\d_]+)$");
-            --  [+-] n ** exp
-            R2  : constant Regpat.Pattern_Matcher :=
-                    Regpat.Compile ("^([+-]?[\d_]+) *\*\* *(\+?[\d_]+)$");
-            --  [+-] n ** exp - n
-            R3  : constant Regpat.Pattern_Matcher :=
-                    Regpat.Compile
-                      ("^([+-]?[\d_]+) *\*\* *(\+?[\d_]+) *- *([\d_]+)$");
-            --  [+-] n ** exp + n
-            R4  : constant Regpat.Pattern_Matcher :=
-                    Regpat.Compile
-                      ("^([+-]?[\d_]+) *\*\* *(\+?[\d_]+) *\+ *([\d_]+)$");
-            M   : Regpat.Match_Array (1 .. 3);
-         begin
-            Regpat.Match (R1, VI, M);
-
-            if M (1) /= Regpat.No_Match and then M (1).Last = VI'Last then
-               return Long_Long_Integer'Value
-                 (VI (M (1).First .. M (1).Last));
-            end if;
-
-            Regpat.Match (R2, VI, M);
-
-            if M (1) /= Regpat.No_Match
-              and then M (2) /= Regpat.No_Match
-              and then M (2).Last = VI'Last
-            then
-               return Long_Long_Integer'Value (VI (M (1).First .. M (1).Last))
-                 ** Integer'Value (VI (M (2).First .. M (2).Last));
-            end if;
-
-            Regpat.Match (R3, VI, M);
-
-            if M (1) /= Regpat.No_Match
-              and then M (2) /= Regpat.No_Match
-              and then M (3) /= Regpat.No_Match
-              and then M (3).Last = VI'Last
-            then
-               if VI (M (1).First .. M (1).Last) = "2"
-                 and then VI (M (2).First .. M (2).Last) = "63"
-                 and then VI (M (3).First .. M (3).Last) = "1"
-               then
-                  return Long_Long_Integer'Last;
-               else
-                  return
-                    Long_Long_Integer'Value (VI (M (1).First .. M (1).Last))
-                    ** Integer'Value (VI (M (2).First .. M (2).Last))
-                    - Long_Long_Integer'Value (VI (M (3).First .. M (3).Last));
-               end if;
-            end if;
-
-            Regpat.Match (R4, VI, M);
-
-            if M (1) /= Regpat.No_Match
-              and then M (2) /= Regpat.No_Match
-              and then M (3) /= Regpat.No_Match
-              and then M (3).Last = VI'Last
-            then
-               return Long_Long_Integer'Value (VI (M (1).First .. M (1).Last))
-                 ** Integer'Value (VI (M (2).First .. M (2).Last))
-                 + Long_Long_Integer'Value (VI (M (3).First .. M (3).Last));
-            end if;
-
-            --  The expression is not supported
-
-            return 0;
-         end Compute_Value;
-
-         function Compute_Value
-           (V : Asis.Expression) return SOAP.Types.Unsigned_Long
-         is
-            use type SOAP.Types.Unsigned_Long;
-            VI     : constant String := Image (Text.Element_Image (V));
-            E      : constant Natural := Strings.Fixed.Index (VI, "**");
-            N      : SOAP.Types.Unsigned_Long;
-            N1, N2 : SOAP.Types.Unsigned_Long;
-         begin
-            N1 := SOAP.Types.Unsigned_Long'Value (VI (VI'First .. E - 1));
-            N2 := SOAP.Types.Unsigned_Long'Value (VI (E + 2 .. VI'Last));
-
-            if N1 =  2 and then N2 = 64 then
-               N := SOAP.Types.Unsigned_Long'Last;
 
             else
-               N := N1;
-               for K in 1 .. N2 - 1 loop
-                  N := N * N1;
-               end loop;
-
-               N := N - 1;
+               Append_Deferred (F_Decl);
             end if;
 
-            return N;
-         end Compute_Value;
+            --  If type-name still not known, compute it now
 
-         ---------------
-         -- Get_Range --
-         ---------------
-
-         procedure Get_Range
-           (E : Asis.Element; Lower, Upper : out Long_Long_Integer)
-         is
-            C      : Asis.Element := E;
-            LB, UB : Asis.Expression;
-
-         begin
-            Lower := Long_Long_Integer'Last;
-            Upper := Long_Long_Integer'First;
-
-            if Flat_Element_Kind (C) = An_Ordinary_Type_Declaration then
-               C := Declarations.Type_Declaration_View (C);
+            if T_Name = Null_Unbounded_String then
+               T_Name := Type_Definition
+                 (F_Decl.As_Type_Decl, Base => False).Name;
             end if;
 
-            case Flat_Element_Kind (C) is
-               when A_Signed_Integer_Type_Definition =>
-                  C := Definitions.Integer_Constraint (C);
-
-               when A_Derived_Type_Definition =>
-                  C := Definitions.Subtype_Constraint
-                    (Definitions.Parent_Subtype_Indication (C));
-
-               when others =>
-                  null;
-            end case;
-
-            if Flat_Element_Kind (C) = A_Simple_Expression_Range then
-               LB := Definitions.Lower_Bound (C);
-               UB := Definitions.Upper_Bound (C);
-
-               if Flat_Element_Kind (LB) = A_Function_Call then
-                  Lower := Compute_Value (LB);
-               elsif Flat_Element_Kind (LB) = A_First_Attribute then
-                  Lower := Long_Long_Integer'Last;
-               else
-                  Lower := Long_Long_Integer'Value
-                    (Image (Expressions.Value_Image (LB)));
-               end if;
-
-               if Flat_Element_Kind (UB) = A_Function_Call then
-                  Upper := Compute_Value (UB);
-               elsif Flat_Element_Kind (UB) = A_Last_Attribute then
-                  Upper := Long_Long_Integer'First;
-               else
-                  Upper := Long_Long_Integer'Value
-                    (Image (Expressions.Value_Image (UB)));
-               end if;
+            if Img (F_Decl.F_Name, Lower_Case => True) = "safe_pointer" then
+               F_Decl := Get_Safe_Pointer_Type (F_Decl);
             end if;
-         end Get_Range;
 
-         procedure Get_Range
-           (E : Asis.Element; Lower, Upper : out Long_Float)
-         is
-            C      : Asis.Element;
-            LB, UB : Asis.Expression;
-
-         begin
-            Lower := Long_Float'Last;
-            Upper := Long_Float'First;
-
-            case Flat_Element_Kind (E) is
-               when A_Floating_Point_Definition =>
-                  C := Definitions.Real_Range_Constraint (E);
-
-               when An_Ordinary_Type_Declaration =>
-                  C := Definitions.Subtype_Constraint
-                    (Definitions.Parent_Subtype_Indication
-                       (Declarations.Type_Declaration_View (E)));
-
-               when A_Derived_Type_Definition =>
-                  C := Definitions.Subtype_Constraint (E);
-
-               when others =>
-                  C := E;
-            end case;
-
-            if Flat_Element_Kind (C) = A_Simple_Expression_Range then
-               LB := Definitions.Lower_Bound (C);
-               UB := Definitions.Upper_Bound (C);
-
-               if Flat_Element_Kind (LB) = A_Function_Call then
-                  Lower := Compute_Value (LB);
-               elsif Flat_Element_Kind (LB) = A_First_Attribute then
-                  Lower := Long_Float'Last;
-               else
-                  Lower := Long_Float'Value
-                    (Image (Expressions.Value_Image (LB)));
-               end if;
-
-               if Flat_Element_Kind (UB) = A_Function_Call then
-                  Upper := Compute_Value (UB);
-               elsif Flat_Element_Kind (UB) = A_Last_Attribute then
-                  Upper := Long_Float'First;
-               else
-                  Upper := Long_Float'Value
-                    (Image (Expressions.Value_Image (UB)));
-               end if;
-            end if;
-         end Get_Range;
-
-         -----------------
-         -- Is_Calendar --
-         -----------------
-
-         function Is_Calendar (T : Asis.Declaration) return Boolean is
-         begin
-            return Characters.Handling.To_Lower
-              (Image
-                 (Compilation_Units.Unit_Full_Name
-                      (Elements.Enclosing_Compilation_Unit (T))))
-                  = "ada.calendar";
-         end Is_Calendar;
-
-         -----------------------
-         -- Register_Deferred --
-         -----------------------
-
-         function Register_Deferred
-           (E : Asis.Declaration) return Generator.Type_Data
-         is
-            Name : constant String :=
-                     Image
-                       (Declarations.Defining_Name_Image
-                          (Declarations.Names (E) (1)));
-         begin
-            Append_Deferred (E);
-            return Build_Type (Name, Name_Space (Declarations.Names (E) (1)));
-         end Register_Deferred;
-
-         -------------------------
-         -- Register_Deferred_F --
-         -------------------------
-
-         function Register_Deferred_F
-           (E     : Asis.Declaration;
-            First : Long_Float := Long_Float'Last;
-            Last  : Long_Float := Long_Float'First)
-            return Generator.Type_Data
-         is
-            Name : constant String :=
-                     Image
-                       (Declarations.Defining_Name_Image
-                          (Declarations.Names (E) (1)));
-         begin
-            Append_Deferred (E);
-            return Build_Type_F
-              (Name, Name_Space (Declarations.Names (E) (1)), First, Last);
-         end Register_Deferred_F;
-
-         -------------------------
-         -- Register_Deferred_I --
-         -------------------------
-
-         function Register_Deferred_I
-           (E     : Asis.Declaration;
-            First : Long_Long_Integer := Long_Long_Integer'Last;
-            Last  : Long_Long_Integer := Long_Long_Integer'First)
-            return Generator.Type_Data
-         is
-            Name : constant String :=
-                     Image
-                       (Declarations.Defining_Name_Image
-                          (Declarations.Names (E) (1)));
-         begin
-            Append_Deferred (E);
-            return Build_Type
-              (Name, Name_Space (Declarations.Names (E) (1)), First, Last);
-         end Register_Deferred_I;
-
-         E   : Asis.Element := Elem;
-         CFS : Asis.Declaration;
-         CND : Asis.Declaration;
-         Tn  : Asis.Element := Elem;
+            for C_Name of Node.F_Ids loop
+               Generator.New_Component
+                 (NS        => Name_Space (F_Decl),
+                  Comp_Name => Img (C_Name),
+                  Comp_Type => To_String (T_Name));
+            end loop;
+         end Analyze_Field;
 
       begin
-         if Elements.Expression_Kind (E) = A_Selected_Component then
-            E := Expressions.Selector (E);
-         end if;
-
-         if Flat_Element_Kind (E) = An_Ordinary_Type_Declaration
-           and then Flat_Element_Kind (Declarations.Type_Declaration_View (E))
-            = A_Derived_Type_Definition
-         then
-            E := Declarations.Type_Declaration_View (E);
-         end if;
-
-         if Flat_Element_Kind (E) = A_Derived_Type_Definition then
-            E := Definitions.Subtype_Mark
-                   (Definitions.Parent_Subtype_Indication (E));
-            Tn := E;
-         end if;
-
-         if Elements.Expression_Kind (E) = A_Selected_Component then
-            E := Expressions.Selector (E);
-         end if;
-
-         if Flat_Element_Kind (E) /= An_Ordinary_Type_Declaration
-           and then Flat_Element_Kind (E) /= A_Subtype_Declaration
-           and then Flat_Element_Kind (E) /= A_Derived_Type_Definition
-           and then Flat_Element_Kind (E) /= A_Selected_Component
-         then
-            CND := Expressions.Corresponding_Name_Declaration (E);
-
-         else
-            CND := Elem;
-         end if;
-
-         CFS := Declarations.Corresponding_First_Subtype (CND);
-
-         --  Get type view
-
-         E := Declarations.Type_Declaration_View (CFS);
-
-         case Flat_Element_Kind (E) is
-
-            when A_Record_Type_Definition =>
-               --  This is a record, checks if the record definition has
-               --  been parsed.
-
-               return Register_Deferred (CFS);
-
-            when An_Enumeration_Type_Definition =>
-               --  Handle special enumerations like Boolean and Character
-
-               if Characters.Handling.To_Lower
-                    (Image (Text.Element_Image (Elem))) = "character"
-               then
-                  return Build_Type ("character");
-
-               elsif Characters.Handling.To_Lower
-                       (Image (Text.Element_Image (Elem))) = "boolean"
-               then
-                  return Build_Type ("boolean");
-
-               else
-                  if Options.Enum_To_String then
-                     return Build_Type ("string");
-
-                  else
-                     return Register_Deferred (CFS);
-                  end if;
-               end if;
-
-            when An_Ordinary_Fixed_Point_Definition =>
-               if Characters.Handling.To_Lower
-                 (Image (Text.Element_Image (Elem))) = "duration"
-               then
-                  return Build_Type ("duration");
-               else
-                  return Register_Deferred (CFS);
-               end if;
-
-            when A_Floating_Point_Definition =>
-               --  This is a floating point type, check the constraint to
-               --  return the proper mapping.
-
-               if Base then
-                  declare
-                     Dig      : constant Integer :=
-                                  Integer'Value
-                                    (Image (Expressions.Value_Image
-                                     (Definitions.Digits_Expression (E))));
-                     Ilb, Iub : Long_Float;
-                  begin
-                     Get_Range (E, Ilb, Iub);
-
-                     if Dig <= Float'Digits then
-                        return Build_Type_F
-                          ("float", First => Ilb, Last => Iub);
-                     else
-                        return Build_Type_F
-                          ("long_float", First => Ilb, Last => Iub);
-                     end if;
-                  end;
-
-               else
-                  declare
-                     NS_Name  : constant String := Name_Space (Tn);
-                     NS_Type  : constant String := Name_Space (CFS);
-                     Name     : constant String :=
-                                  Image (Text.Element_Image (Tn));
-                     Ilb, Iub : Long_Float;
-                  begin
-                     Get_Range (Elem, Ilb, Iub);
-
-                     --  If the type is not un the current package (so in
-                     --  different name space). We need to analyse it later
-                     --  so, we do register a differred analysis for this type.
-
-                     if NS_Name = NS_Type or else Is_Standard (CFS) then
-                        return Build_Type_F
-                          (Name, NS_Type, First => Ilb, Last => Iub);
-                     else
-                        return Register_Deferred_F (CFS, Ilb, Iub);
-                     end if;
-                  end;
-               end if;
-
-            when A_Modular_Type_Definition =>
-               --  This is an integer type, check the constraint to return the
-               --  proper mapping.
-
-               if Base then
-                  declare
-                     use type SOAP.Types.Unsigned_Long;
-                     Mod_Node : constant Asis.Expression :=
-                                  Definitions.Mod_Static_Expression (E);
-                     Modulus  : SOAP.Types.Unsigned_Long;
-                  begin
-                     if Flat_Element_Kind (Mod_Node) = A_Function_Call then
-                        Modulus := Compute_Value (Mod_Node);
-                     else
-                        Modulus := SOAP.Types.Unsigned_Long'Value
-                          (Image (Expressions.Value_Image (Mod_Node)));
-                     end if;
-
-                     if Modulus = SOAP.Types.Unsigned_Long
-                       (SOAP.Types.Unsigned_Byte'Modulus - 1)
-                     then
-                        return Build_Type ("unsigned_byte");
-
-                     elsif Modulus < SOAP.Types.Unsigned_Long
-                       (SOAP.Types.Unsigned_Byte'Modulus - 1)
-                     then
-                        return Build_Type
-                          ("unsigned_byte",
-                           Last => Long_Long_Integer (Modulus - 1));
-
-                     elsif Modulus = SOAP.Types.Unsigned_Long
-                       (SOAP.Types.Unsigned_Short'Modulus - 1)
-                     then
-                        return Build_Type ("unsigned_short");
-
-                     elsif Modulus < SOAP.Types.Unsigned_Long
-                       (SOAP.Types.Unsigned_Short'Modulus - 1)
-                     then
-                        return Build_Type
-                          ("unsigned_short",
-                           Last => Long_Long_Integer (Modulus - 1));
-
-                     elsif Modulus = SOAP.Types.Unsigned_Long
-                       (SOAP.Types.Unsigned_Int'Modulus - 1)
-                     then
-                        return Build_Type ("unsigned_int");
-
-                     elsif Modulus < SOAP.Types.Unsigned_Long
-                       (SOAP.Types.Unsigned_Int'Modulus - 1)
-                     then
-                        return Build_Type
-                          ("unsigned_int",
-                           Last => Long_Long_Integer (Modulus - 1));
-
-                     elsif Modulus = SOAP.Types.Unsigned_Long
-                       (SOAP.Types.Unsigned_Long'Modulus - 1)
-                     then
-                        return Build_Type ("unsigned_long");
-
-                     else
-                        return Build_Type
-                          ("unsigned_long",
-                           Last => Long_Long_Integer (Modulus - 1));
-                     end if;
-                  end;
-
-               else
-                  declare
-                     NS_Name  : constant String := Name_Space (Tn);
-                     NS_Type  : constant String := Name_Space (CFS);
-                     Name     : constant String :=
-                                  Image (Text.Element_Image (Tn));
-                  begin
-                     --  If the type is not un the current package (so in
-                     --  different name space). We need to analyse it later
-                     --  so, we do register a differred analysis for this type.
-
-                     if NS_Name = NS_Type or else Is_Standard (CFS) then
-                        return Build_Type (Name, NS_Type);
-                     else
-                        return Register_Deferred (CFS);
-                     end if;
-                  end;
-
-               end if;
-
-            when A_Signed_Integer_Type_Definition =>
-               --  This is an integer type, check the constraint to return the
-               --  proper mapping.
-
-               if Base then
-                  declare
-                     Ilb, Iub : Long_Long_Integer;
-                  begin
-                     Get_Range (E, Ilb, Iub);
-
-                     if Ilb = Long_Long_Integer (SOAP.Types.Byte'First)
-                       and then Iub = Long_Long_Integer (SOAP.Types.Byte'Last)
-                     then
-                        return Build_Type ("byte");
-
-                     elsif Ilb >= Long_Long_Integer (SOAP.Types.Byte'First)
-                       and then Iub <= Long_Long_Integer (SOAP.Types.Byte'Last)
-                     then
-                        return Build_Type ("byte", First => Ilb, Last => Iub);
-
-                     elsif Ilb = Long_Long_Integer (SOAP.Types.Short'First)
-                       and then
-                         Iub = Long_Long_Integer (SOAP.Types.Short'Last)
-                     then
-                        return Build_Type ("short");
-
-                     elsif Ilb >= Long_Long_Integer (SOAP.Types.Short'First)
-                       and then
-                         Iub <= Long_Long_Integer (SOAP.Types.Short'Last)
-                     then
-                        return Build_Type ("short", First => Ilb, Last => Iub);
-
-                     elsif Ilb = Long_Long_Integer (Integer'First)
-                       and then Iub = Long_Long_Integer (Integer'Last)
-                     then
-                        return Build_Type ("integer");
-
-                     elsif Ilb >= Long_Long_Integer (Integer'First)
-                       and then Iub <= Long_Long_Integer (Integer'Last)
-                     then
-                        return Build_Type
-                          ("integer", First => Ilb, Last => Iub);
-
-                     elsif Ilb = Long_Long_Integer (Long_Integer'First)
-                       and then Iub = Long_Long_Integer (Long_Integer'Last)
-                     then
-                        return Build_Type ("long");
-
-                     else
-                        return Build_Type ("long", First => Ilb, Last => Iub);
-                     end if;
-                  end;
-
-               else
-                  declare
-                     NS_Name  : constant String := Name_Space (Tn);
-                     NS_Type  : constant String := Name_Space (CFS);
-                     Name     : constant String :=
-                                  Image (Text.Element_Image (Tn));
-                     Ilb, Iub : Long_Long_Integer;
-                  begin
-                     Get_Range (Elem, Ilb, Iub);
-
-                     --  If the type is not un the current package (so in
-                     --  different name space). We need to analyse it later
-                     --  so, we do register a differred analysis for this type.
-
-                     if NS_Name = NS_Type or else Is_Standard (CFS) then
-                        return Build_Type
-                          (Name, NS_Type, First => Ilb, Last => Iub);
-                     else
-                        return Register_Deferred_I (CFS, Ilb, Iub);
-                     end if;
-                  end;
-               end if;
-
-            when A_Derived_Type_Definition =>
-               --  This is a derived type definition, analyse the name after
-               --  the "is new".
-               --  Record the type to generate the corresponding schema.
-
-               return Register_Deferred (CFS);
-
-            when A_Constrained_Array_Definition
-              | An_Unconstrained_Array_Definition
-              =>
-               --  If this array definition is the standard Ada String,
-               --  returns it, no need to analyse this further.
-
-               declare
-                  T_Name : constant String :=
-                             Characters.Handling.To_Lower
-                               (Image (Text.Element_Image (Elem)));
-               begin
-                  --  Check for specific array name like String and Base64
-
-                  if  T_Name = "string" then
-                     return Build_Type ("string");
-
-                  elsif T_Name = "soap_base64"
-                    or else T_Name = "utils.soap_base64"
-                    or else T_Name = "soap.utils.soap_base64"
-                  then
-                     --  This is the SOAP Base64 runtime type support
-                     return Build_Type ("SOAP_Base64");
-                  else
-                     return Register_Deferred (CFS);
-                  end if;
-               end;
-
-            when A_Private_Type_Definition =>
-               E := Declarations.Names (CFS) (1);
-
-               declare
-                  Name : constant String :=
-                           Characters.Handling.To_Lower
-                             (Image (Declarations.Defining_Name_Image (E)));
-               begin
-                  if Name = "unbounded_string" then
-                     if Base then
-                        return Build_Type ("string");
-                     else
-                        return Build_Type ("unbounded_string");
-                     end if;
-
-                  elsif Name = "time" and then Is_Calendar (E) then
-                     return Build_Type ("time");
-
-                  else
-                     Raise_Spec_Error
-                       (E, Message => "unsupported private type " & Name);
-                  end if;
-               end;
-
-            when A_Derived_Record_Extension_Definition =>
-               --  This can be a safe pointer object
-
-               declare
-                  Name : constant String :=
-                           Characters.Handling.To_Lower
-                             (Image
-                                (Declarations.Defining_Name_Image
-                                   (Declarations.Names (CFS) (1))));
-               begin
-                  if Name = "safe_pointer" then
-                     --  We have a Safe_Pointer definition here, let's get the
-                     --  corresponding type.
-
-                     --  Get the record definition
-
-                     E := Definitions.Record_Definition (E);
-
-                     --  Get first record element type
-
-                     E := Definitions.Subtype_Mark
-                       (Definitions.Component_Subtype_Indication
-                          (Declarations.Object_Declaration_View
-                             (Definitions.Record_Components (E) (1))));
-
-                     --  Get the corresponding type
-
-                     E := Declarations.Type_Declaration_View
-                       (Declarations.Corresponding_First_Subtype
-                          (Expressions.Corresponding_Name_Declaration (E)));
-
-                     E := Definitions.Access_To_Object_Definition (E);
-
-                     E := Definitions.Subtype_Mark (E);
-
-                     E := Declarations.Corresponding_First_Subtype
-                       (Expressions.Corresponding_Name_Declaration (E));
-
-                     return Register_Deferred (E);
-
-                  else
-                     Raise_Spec_Error
-                       (E, Message => "unsupported record extension " & Name);
-                  end if;
-               end;
-
-            when others =>
-               E := Declarations.Names (CFS) (1);
-               Raise_Spec_Error
-                 (E,
-                  Message => "unsupported element kind "
-                             & Image (Declarations.Defining_Name_Image (E)));
-         end case;
-      end Type_Def;
+         Generator.Start_Record (NS, T_Name);
+
+         for Field of Node.F_Record_Def.F_Components.F_Components loop
+            Analyze_Field (Field.As_Component_Decl);
+         end loop;
+
+         --  Create now all deferred arrays
+
+         for K in 1 .. U_Array_Index loop
+            Generator.Start_Array
+              (To_String (Deferred_U_Arrays (K).NS),
+               To_String (Deferred_U_Arrays (K).Name),
+               To_String (Deferred_U_Arrays (K).Comp_NS),
+               To_String (Deferred_U_Arrays (K).Comp_Type),
+               Deferred_U_Arrays (K).Length);
+         end loop;
+      end Analyze_Record;
+
+      T_Def : constant Type_Def := Node.F_Type_Def;
 
    begin
-      Analyse_Node (Body_Structure'Access);
+      if not Generator.Type_Exists (NS, T_Name) then
+         case T_Def.Kind is
+            when Ada_Derived_Type_Def =>
+               Analyze_Derived (T_Def.As_Derived_Type_Def);
 
-      --  Analyse deferred types
+            when Ada_Signed_Int_Type_Def
+               | Ada_Floating_Point_Def
+               | Ada_Mod_Int_Type_Def
+               =>
+               Analyze_Numeric (T_Def);
 
-      declare
-         Prev_Index : Natural;
-         First      : Positive := 1;
-      begin
-         --  When analysing the deferred types we could have some more types
-         --  discoverred. Do the analyse of the defintions until there is no
-         --  more added into the deferred list.
+            when Ada_Enum_Type_Def =>
+               Analyze_Enumeration (T_Def.As_Enum_Type_Def);
 
-         loop
-            Prev_Index := Index;
+            when Ada_Record_Type_Def =>
+               Analyze_Record (T_Def.As_Record_Type_Def);
 
-            for K in First .. Index loop
-               Analyse_Type (Deferred_Types (K));
-            end loop;
+            when Ada_Array_Type_Def =>
+               Analyze_Array
+                 (T_Decl, T_Name, T_Decl, T_Def.As_Array_Type_Def);
 
-            exit when Prev_Index = Index;
+            when others =>
+               null;
+         end case;
+      end if;
+   end Analyze_Type;
 
-            First := Prev_Index;
-         end loop;
-      end;
-   end Analyse_Structure;
+   -----------------------
+   -- Array_Type_Suffix --
+   -----------------------
+
+   procedure Array_Type_Suffix
+     (Lower, Upper : Long_Long_Integer;
+      Type_Suffix  : out Unbounded_String;
+      Length       : out Natural)
+   is
+      function I (N : Long_Long_Integer) return String
+        is (AWS.Utils.Image (Positive (N)));
+   begin
+      if Lower /= Long_Long_Integer'Last then
+         Length := Natural (Upper - Lower + 1);
+
+         Type_Suffix :=
+           To_Unbounded_String ('_' & I (Lower) & '_' & I (Upper));
+
+      else
+         Length := 0;
+      end if;
+   end Array_Type_Suffix;
+
+   ---------------------
+   -- Analyze_Subtype --
+   ---------------------
+
+   procedure Analyze_Subtype (Node : Subtype_Decl'Class) is
+
+      T_Name       : constant String := Img (Node.F_Name);
+      NS           : constant String := Name_Space (Node);
+
+      T_Decl       : constant Base_Type_Decl :=
+                       Node.F_Subtype.P_Designated_Type_Decl;
+      T_Def        : constant Type_Def := T_Decl.As_Type_Decl.F_Type_Def;
+      Lower, Upper : Long_Long_Integer;
+      Type_Suffix  : Unbounded_String;
+      Array_Len    : Natural;
+   begin
+      if not Generator.Type_Exists (NS, T_Name) then
+         if T_Def.Kind = Ada_Array_Type_Def then
+            Get_Range (Node, Lower, Upper);
+            Array_Type_Suffix (Lower, Upper, Type_Suffix, Array_Len);
+
+            declare
+               A_Def      : constant Array_Type_Def :=
+                              T_Def.As_Array_Type_Def;
+               Components : constant Component_Def :=
+                              A_Def.F_Component_Type;
+               E_Type     : constant Generator.Type_Data :=
+                              Analyze_Array_Component (Components);
+            begin
+               Generator.Start_Array
+                 (Name_Space (T_Decl), T_Name,
+                  To_String (E_Type.NS),
+                  To_String (E_Type.Name),
+                  Array_Len);
+            end;
+
+            --  ?? check if this can be used:
+            --     Analyze_Array
+            --       (T_Decl, T_Name, Node, T_Def.As_Array_Type_Def);
+         else
+            Generator.Register_Derived
+              (Name_Space (Node), T_Name,
+               Type_Definition (T_Decl.As_Type_Decl, Base => True));
+         end if;
+      end if;
+   end Analyze_Subtype;
 
    ---------------------
    -- Append_Deferred --
    ---------------------
 
-   procedure Append_Deferred (E : Asis.Element) is
+   procedure Append_Deferred (Node : Base_Type_Decl'Class) is
    begin
       Index := Index + 1;
-      Deferred_Types (Index) := E;
+      Deferred_Types (Index) := Node.As_Type_Decl;
    end Append_Deferred;
 
-   --------------
-   -- Clean_Up --
-   --------------
+   -------------------
+   -- Get_Base_Type --
+   -------------------
 
-   procedure Clean_Up is
-   begin
-      --  Deleting the tree file itself
-
-      Directories.Delete_File (Tree_Name.all);
-
-      --  And the corresponding ALI file
-
-      Directories.Delete_File
-        (Tree_Name (Tree_Name'First .. Tree_Name'Last - 3) & "ali");
-   exception
-      when others =>
-         null;
-   end Clean_Up;
-
-   -------------------------
-   -- Create_Element_Node --
-   -------------------------
-
-   procedure Create_Element_Node
-     (Element : Asis.Element;
-      Control : in out Traverse_Control;
-      State   : in out Body_State)
+   function Get_Base_Type
+     (Node : Derived_Type_Def'Class) return Base_Type_Decl
    is
-      use Extensions.Flat_Kinds;
-
-      Arg_Kind     : constant Flat_Element_Kinds :=
-                       Flat_Element_Kind (Element);
-      Current_Node : Link;
-
-      procedure Insert_In_List
-        (State    : in out Body_State;
-         El       : Asis.Element;
-         New_Node :     out Link);
-      --  Inserts an argument Element in the current list, keeping the
-      --  alphabetic ordering. Creates a new sublist if needed.
-      --  New_Node returns the reference to the newly inserted node
-
-      --------------------
-      -- Insert_In_List --
-      --------------------
-
-      procedure Insert_In_List
-        (State    : in out Body_State;
-         El       : Asis.Element;
-         New_Node : out Link) is
-      begin
-         New_Node      := new Element_Node;
-         New_Node.Spec := El;
-
-         New_Node.Spec_Name := new String'(Name (El));
-
-         if State.New_List_Needed then
-            --  Here we have to set up a new sub-list:
-            State.Current_List    := New_Node;
-            New_Node.Up           := State.Last_Top;
-            State.Last_Top.Down   := New_Node;
-            State.New_List_Needed := False;
-
-            New_Node.Last := New_Node;
-            --  We've just created a new list. It contains a single element
-            --  which is its last Element, so we are setting the link to the
-            --  last element to the Prev field of the list head element
-
-         else
-            --  Here we have to insert New_Node in an existing list,
-            --  keeping the alphabetical order of program unit names
-
-            New_Node.Up := State.Current_List.Up;
-
-            if Arg_Kind = An_Incomplete_Type_Declaration then
-               --  No need for alphabetical ordering, inserting in the
-               --  very beginning:
-
-               New_Node.Last := State.Current_List.Last;
-               --  New_Node will be the head element of the list, so we have
-               --  to copy into this new head element the reference to the
-               --  last element of the list.
-
-               New_Node.Next           := State.Current_List;
-               State.Current_List.Prev := New_Node;
-               State.Current_List      := New_Node;
-            else
-
-               New_Node.Prev                := State.Current_List.Last;
-               State.Current_List.Last.Next := New_Node;
-               State.Current_List.Last      := New_Node;
-            end if;
-
-         end if;
-      end Insert_In_List;
-
-      --  Start of the processing of Create_Element_Node
-
+      Base : Base_Type_Decl;
    begin
-      if State.Argument_Spec then
-         Body_Structure.Spec      := Element;
-         State.Argument_Spec      := False;
-         Body_Structure.Spec_Name := new String'(Name (Element));
-         Current_Node             := Body_Structure'Access;
+      Base := Node.F_Subtype_Indication.P_Designated_Type_Decl;
 
-      elsif Arg_Kind = A_Defining_Identifier then
-         --  Skipping a defining name of a spec which may contain local
-         --  specs requiring bodies
-         null;
-
-      elsif Arg_Kind = A_Protected_Definition then
-         --  We just have to go one level down to process protected items
-         null;
-
-      elsif not (Arg_Kind = A_Procedure_Declaration
-                   or else Arg_Kind = A_Function_Declaration
-                   or else Arg_Kind = A_Subtype_Declaration
-                   or else Arg_Kind = An_Ordinary_Type_Declaration
-                   or else Arg_Kind = A_Package_Declaration)
-      then
-         --  Do nothing if this is not a procedure or function
-         null;
-
-      else
-         Insert_In_List (State, Element, Current_Node);
+      if Base.Kind = Ada_Subtype_Decl then
+         Base := Base.As_Subtype_Decl.F_Subtype.P_Designated_Type_Decl;
       end if;
 
-      if Arg_Kind = A_Package_Declaration
-        or else Arg_Kind = A_Generic_Package_Declaration
-        or else Arg_Kind = A_Single_Protected_Declaration
-        or else Arg_Kind = A_Protected_Type_Declaration
-      then
-         --  Here we may have specs requiring bodies inside a construct
-         State.New_List_Needed := True;
-         State.Last_Top        := Current_Node;
+      return Base;
+   end Get_Base_Type;
 
-      elsif Arg_Kind = A_Protected_Definition then
-         --  We have to skip this syntax level
-         null;
-
-      elsif Arg_Kind = A_Package_Instantiation then
-         --  We want to keep track of all package instantiations to analyse
-         --  those that are used to create a safe pointer for array in
-         --  records.
-         Insert_In_List (State, Element, Current_Node);
-
-      else
-         --  No need to go deeper
-         Control := Abandon_Children;
-      end if;
-   end Create_Element_Node;
-
-   -----------------
-   -- Create_Tree --
-   -----------------
-
-   procedure Create_Tree is
-
-      File_Name : String_Access;
-      Success   : Boolean := False;
-
-      function Get_Tree_Name return String;
-      --  Returns the name of the tree file
-
-      ----------
-      -- Free --
-      ----------
-
-      procedure Unchecked_Free is
-        new Ada.Unchecked_Deallocation (String, String_Access);
-
-      -------------------
-      -- Get_Tree_Name --
-      -------------------
-
-      function Get_Tree_Name return String is
-         F_Name    : constant String :=
-                       Directories.Base_Name (To_String (Options.File_Name));
-         Dot_Index : Natural;
-         Last      : Natural;
-
-      begin
-         Dot_Index := Strings.Fixed.Index (F_Name, ".", Strings.Backward);
-
-         if Dot_Index = 0 then
-            Last := F_Name'Last;
-         else
-            Last := Dot_Index - 1;
-         end if;
-
-         return To_String (Options.Tree_File_Path)
-           & F_Name (F_Name'First .. Last) & ".adt";
-      end Get_Tree_Name;
-
-   begin
-      File_Name := new String'(To_String (Options.File_Name));
-
-      Compile
-        (File_Name, Arg_List (Arg_List'First .. Arg_Index), Success,
-         GCC          => GPRBUILD,
-         Use_GPRBUILD => True);
-
-      if not Success then
-         Text_IO.Put_Line
-           (Text_IO.Standard_Error,
-            "ada2wsdl: cannot create the tree file for " & File_Name.all);
-         raise Parameter_Error;
-      end if;
-
-      Tree_Name := new String'(Get_Tree_Name);
-
-      if not Directories.Exists (Tree_Name.all) then
-         Text_IO.Put_Line
-           (Text_IO.Standard_Error,
-            "ada2wsdl: after compilation, cannot find tree file "
-            & Tree_Name.all);
-         Text_IO.Put_Line
-           (Text_IO.Standard_Error, "ada2wsdl: consider using -t option");
-         raise Parameter_Error;
-      end if;
-
-      Unchecked_Free (File_Name);
-   end Create_Tree;
-
-   ------------------------
-   -- Emergency_Clean_Up --
-   ------------------------
-
-   procedure Emergency_Clean_Up is
-   begin
-      if Ada_Environments.Is_Open (My_Context) then
-         Ada_Environments.Close (My_Context);
-      end if;
-
-      Ada_Environments.Dissociate (My_Context);
-
-      Implementation.Finalize;
-
-      if Text_IO.Is_Open (Spec_File) then
-         --  No need to keep a broken body in case of an emergency clean up
-         Text_IO.Close (Spec_File);
-      end if;
-   end Emergency_Clean_Up;
-
-   -----------
-   -- Go_Up --
-   -----------
-
-   procedure Go_Up
-     (Element : Asis.Element;
-      Control : in out Traverse_Control;
-      State   : in out Body_State)
+   function Get_Base_Type
+     (Node : Subtype_Decl'Class) return Base_Type_Decl
    is
-      pragma Unreferenced (Control);
-
-      use Extensions.Flat_Kinds;
-
-      Arg_Kind : constant Flat_Element_Kinds := Flat_Element_Kind (Element);
+      Base : Base_Type_Decl;
    begin
-      if not (Arg_Kind = A_Package_Declaration
-              or else Arg_Kind = A_Generic_Package_Declaration
-              or else Arg_Kind = A_Single_Protected_Declaration
-              or else Arg_Kind = A_Protected_Type_Declaration)
+      Base := Node.F_Subtype.P_Designated_Type_Decl;
+
+      if Base.Kind = Ada_Subtype_Decl then
+         Base := Base.As_Subtype_Decl.F_Subtype.P_Designated_Type_Decl;
+      end if;
+
+      return Base;
+   end Get_Base_Type;
+
+   -----------------------
+   -- Get_Range_Derived --
+   -----------------------
+
+   procedure Get_Range_Derived
+     (Node : Base_Type_Decl; Min, Max : out Unbounded_String)
+   is
+      T_Def  : constant Type_Def := Node.As_Type_Decl.F_Type_Def;
+      P_Type : constant Base_Type_Decl :=
+                 Get_Base_Type (T_Def.As_Derived_Type_Def);
+   begin
+      if T_Def.As_Derived_Type_Def.F_Subtype_Indication.F_Constraint
+        = No_Constraint
       then
          return;
       end if;
 
-      if State.New_List_Needed then
-         --  No local body is needed for a given construct
-         State.New_List_Needed := False;
+      case P_Type.As_Type_Decl.F_Type_Def.Kind is
+         when Ada_Signed_Int_Type_Def =>
+            declare
+               Lower, Upper : Long_Long_Integer;
+            begin
+               Get_Range (Node, Lower, Upper);
 
-      else
-         --  We have to reset the current list:
+               Min := +Long_Long_Integer'Image (Lower);
+               Max := +Long_Long_Integer'Image (Upper);
+            end;
 
-         if State.Current_List /= null then
-            State.Current_List := State.Current_List.Up;
+         when Ada_Floating_Point_Def =>
+            declare
+               Lower, Upper : Long_Float;
+            begin
+               Get_Range (Node, Lower, Upper);
 
-            while State.Current_List.Prev /= null loop
-               State.Current_List := State.Current_List.Prev;
-            end loop;
+               Min := +Long_Float'Image (Lower);
+               Max := +Long_Float'Image (Upper);
+            end;
+
+         when others =>
+            null;
+      end case;
+   end Get_Range_Derived;
+
+   ---------------------------
+   -- Get_Safe_Pointer_Type --
+   ---------------------------
+
+   function Get_Safe_Pointer_Type
+     (Node : Base_Type_Decl) return Base_Type_Decl
+   is
+      F_Def  : constant Type_Def := Node.As_Type_Decl.F_Type_Def;
+      R_Def  : constant Base_Record_Def :=
+                 F_Def.As_Derived_Type_Def.F_Record_Extension;
+      --  The record extension
+      R_Comp : constant Component_List := R_Def.F_Components;
+      --  All components of the record
+      Comp_1 : constant Component_Decl :=
+                 R_Comp.F_Components.Child (1).As_Component_Decl;
+      --  First component is the access type to T
+      T_Comp : constant Subtype_Indication :=
+                 Comp_1.F_Component_Def.F_Type_Expr.As_Subtype_Indication;
+      --  Subtype of the access type
+      A_Type : constant Base_Type_Decl := T_Comp.P_Designated_Type_Decl;
+      --  This is the access type
+   begin
+      --  Get the type for this access type
+      return A_Type.As_Type_Decl.F_Type_Def.As_Type_Access_Def.
+        F_Subtype_Indication.P_Designated_Type_Decl;
+   end Get_Safe_Pointer_Type;
+
+   --------------------
+   -- Get_Range_Expr --
+   --------------------
+
+   function Get_Range_Expr
+     (Node     : Ada_Node'Class;
+      Top_Decl : Boolean := False) return Bin_Op
+   is
+
+      function From_Subtype (Node : Subtype_Indication) return Bin_Op;
+      --  Get Bin_Op from the subtype indication
+
+      ------------------
+      -- From_Subtype --
+      ------------------
+
+      function From_Subtype (Node : Subtype_Indication) return Bin_Op is
+         R : constant Constraint'Class := Node.F_Constraint;
+      begin
+         if R = No_Constraint then
+            if Top_Decl then
+               return No_Bin_Op;
+            else
+               return Get_Range_Expr
+                 (Node.P_Designated_Type_Decl.As_Type_Decl);
+            end if;
+
+         else
+            if R.Kind = Ada_Range_Constraint then
+               return R.As_Range_Constraint.F_Range.F_Range.As_Bin_Op;
+            elsif R.Kind = Ada_Index_Constraint then
+               return R.As_Index_Constraint.F_Constraints.Child (1).As_Bin_Op;
+            else
+               return No_Bin_Op;
+            end if;
          end if;
-      end if;
-   end Go_Up;
+      end From_Subtype;
 
-   -----------
-   -- Image --
-   -----------
+      function Get_Range_Op (R : Range_Spec) return Bin_Op is
+        (if R = No_Range_Spec
+         then No_Bin_Op
+         else R.F_Range.As_Bin_Op);
 
-   function Image (Str : Wide_String) return String is
-      use AWS;
    begin
-      return Strings.Fixed.Trim
-        (Characters.Conversions.To_String (Str),
-         Left  => Utils.Spaces,
-         Right => Utils.Spaces);
-   end Image;
+      case Node.Kind is
+         when Ada_Bin_Op =>
+            return Node.As_Bin_Op;
+
+         when Ada_Type_Decl =>
+            declare
+               T : constant Type_Decl := Node.As_Type_Decl;
+               D : constant Type_Def := T.F_Type_Def;
+            begin
+               case D.Kind is
+                  when Ada_Signed_Int_Type_Def =>
+                     return Get_Range_Op (D.As_Signed_Int_Type_Def.F_Range);
+
+                  when Ada_Real_Type_Def =>
+                     return Get_Range_Op (D.As_Floating_Point_Def.F_Range);
+
+                  when Ada_Derived_Type_Def =>
+                     declare
+                        T_Der : constant Derived_Type_Def :=
+                                  D.As_Derived_Type_Def;
+                     begin
+                        return From_Subtype (T_Der.F_Subtype_Indication);
+                     end;
+
+                  when Ada_Array_Type_Def =>
+                     declare
+                        Indices : constant Array_Indices :=
+                                    D.As_Array_Type_Def.F_Indices;
+                     begin
+                        if Indices.Kind = Ada_Constrained_Array_Indices then
+                           declare
+                              List : constant Constraint_List :=
+                                       Indices.As_Constrained_Array_Indices
+                                         .F_List;
+                           begin
+                              if List.Children_Count > 1 then
+                                 Raise_Spec_Error
+                                   (Node,
+                                    Message =>
+                                      "Arrays with multiple"
+                                    & " dimentsion not supported.");
+                              end if;
+
+                              return Get_Range_Expr (List.Child (1)).As_Bin_Op;
+                           end;
+
+                        else
+                           return No_Bin_Op;
+                        end if;
+                     end;
+
+                  when others =>
+                     return No_Bin_Op;
+               end case;
+            end;
+
+         when Ada_Subtype_Decl =>
+            return Get_Range_Expr (Node.As_Subtype_Decl.F_Subtype);
+
+         when Ada_Subtype_Indication =>
+            return From_Subtype (Node.As_Subtype_Indication);
+
+         when others =>
+            return No_Bin_Op;
+      end case;
+   end Get_Range_Expr;
 
    ----------------
-   -- Initialize --
+   -- Name_Space --
    ----------------
 
-   procedure Initialize is
+   function Name_Space (Node : Ada_Node'Class) return String is
+      NS : String := Unit_Name (Node);
    begin
-      Create_Tree;
-      Options.Initialized := True;
-   exception
-      when others =>
-         Options.Initialized := False;
-         raise;
-   end Initialize;
+      Strings.Fixed.Translate (NS, Strings.Maps.To_Mapping (".", "/"));
 
-   ----------
-   -- Name --
-   ----------
+      declare
+         Res : String (1 .. NS'Length + Strings.Fixed.Count (NS, "/") * 4);
+         I   : Natural := 0;
+      begin
+         for K in NS'Range loop
+            I := I + 1;
+            if NS (K) = '/' then
+               Res (I .. I + 4) := "_pkg/";
+               I := I + 4;
+            else
+               Res (I) := NS (K);
+            end if;
+         end loop;
 
-   function Name (Elem : Asis.Element) return String is
-      Def_Name : constant Asis.Element := Declarations.Names (Elem) (1);
-   begin
-      return Characters.Conversions.To_String
-        (Declarations.Defining_Name_Image (Def_Name));
-   end Name;
+         return SOAP.Name_Space.Value (SOAP.Name_Space.AWS) & Res & "_pkg/";
+      end;
+   end Name_Space;
 
    -----------
    -- Start --
@@ -2252,87 +1060,796 @@ package body Ada2WSDL.Parser is
 
    procedure Start is
 
-      use Text_IO;
+      function Load_Project return LaL.Unit_Provider_Reference;
+      --  Load the project file designated by the first command-line argument
 
-      CU         : Asis.Compilation_Unit;
-      My_Control : Traverse_Control := Continue;
-      My_State   : Body_State;
+      function Parser (Node : Ada_Node'Class) return Visit_Status;
+      --  Main LaL parser callback
+
+      ------------
+      -- Parser --
+      ------------
+
+      function Parser (Node : Ada_Node'Class) return Visit_Status is
+
+         Result : constant Visit_Status := Into;
+
+         procedure Analyze_Package (Node : Ada_Node'Class);
+         --  A package declaration, the main goal is to create the
+         --  corresponding name-space.
+
+         procedure Analyze_Routine (Node : Ada_Node'Class);
+         --  A procedure or function declaration, analyse the parameters
+
+         procedure Analyze_Package_Instantiation (Node : Ada_Node'Class);
+         --  Analyze a package instantiation
+
+         ---------------------
+         -- Analyze_Package --
+         ---------------------
+
+         procedure Analyze_Package (Node : Ada_Node'Class) is
+            Self : constant Package_Decl := As_Package_Decl (Node);
+         begin
+            if Options.WS_Name = Null_Unbounded_String then
+               Options.WS_Name := To_Unbounded_String
+                 (Strings.Fixed.Translate
+                    (Img (Self.F_Package_Name),
+                     Strings.Maps.To_Mapping (".", "-")));
+            end if;
+         end Analyze_Package;
+
+         ---------------------
+         -- Analyze_Routine --
+         ---------------------
+
+         procedure Analyze_Routine (Node : Ada_Node'Class) is
+
+            procedure Analyze_Profile (Node : Subp_Spec'Class);
+
+            ---------------------
+            -- Analyze_Profile --
+            ---------------------
+
+            procedure Analyze_Profile (Node : Subp_Spec'Class) is
+               Parameters : constant Param_Spec_Array := Node.P_Params;
+            begin
+               for P of Parameters loop
+                  declare
+                     P_Names : constant Defining_Name_List := P.F_Ids;
+                     P_Mode  : constant Ada_Mode := P.F_Mode;
+                     P_Type  : constant Type_Expr := P.F_Type_Expr;
+                  begin
+                     if not (P_Mode = Ada_Mode_In
+                             or else P_Mode = Ada_Mode_Default)
+                     then
+                        Raise_Spec_Error
+                          (P, Message => "only in mode supported.");
+                     end if;
+
+                     --  Iterated over all parameters
+
+                     for Name of P_Names loop
+                        declare
+                           Def : constant Generator.Type_Data :=
+                                   Type_Definition (P_Type, Base => False);
+                        begin
+                           Generator.New_Formal
+                             (NS       => To_String (Def.NS),
+                              Var_Name => Img (Name),
+                              Var_Type => To_String (Def.Name));
+                        end;
+                     end loop;
+                  end;
+               end loop;
+
+               if Node.F_Subp_Kind.Kind = Ada_Subp_Kind_Function then
+                  declare
+                     R_Name    : constant String :=
+                                   Img (Node.F_Subp_Name);
+                     P_Returns : constant Type_Expr := Node.P_Returns;
+                     B_Type    : constant Base_Type_Decl :=
+                                   P_Returns.P_Designated_Type_Decl;
+                  begin
+                     Generator.Return_Type
+                       (Name_Space (B_Type),
+                        To_String
+                          (Type_Definition (P_Returns, Base => False).Name),
+                        R_Name);
+                  end;
+               end if;
+            end Analyze_Profile;
+
+            Self         : constant Subp_Spec := As_Subp_Spec (Node);
+            Routine_Kind : constant Ada_Node_Kind_Type :=
+                             Self.F_Subp_Kind.Kind;
+
+         begin
+            begin
+               Generator.Start_Routine
+                 (Name_Space (Node),
+                  Img (Self.F_Subp_Name),
+                  (if Routine_Kind = Ada_Subp_Kind_Function
+                   then "function "
+                   else "procedure"));
+            exception
+               when E : Spec_Error =>
+                  Raise_Spec_Error (Node, Exception_Message (E));
+            end;
+
+            Analyze_Profile (Self);
+         end Analyze_Routine;
+
+         -----------------------------------
+         -- Analyze_Package_Instantiation --
+         -----------------------------------
+
+         procedure Analyze_Package_Instantiation (Node : Ada_Node'Class) is
+            G_Pck  : constant Generic_Package_Instantiation :=
+                       Node.As_Generic_Package_Instantiation;
+            G_Name : constant String :=
+                       Img (G_Pck.F_Generic_Pkg_Name, Lower_Case => True);
+         begin
+            if G_Name = "soap.utils.safe_pointers" then
+               declare
+                  Params : constant Assoc_List := G_Pck.F_Params;
+               begin
+                  if Params.Children_Count = 2 then
+                     declare
+                        P : constant array (1 .. 2) of Param_Assoc :=
+                              (Params.List_Child (1).As_Param_Assoc,
+                               Params.List_Child (2).As_Param_Assoc);
+                     begin
+                        Generator.Register_Safe_Pointer
+                          (Name        => Img (G_Pck.F_Name),
+                           Type_Name   => Img (P (1).F_R_Expr.As_Identifier),
+                           Access_Name => Img (P (2).F_R_Expr.As_Identifier));
+                     end;
+                  end if;
+               end;
+            end if;
+         end Analyze_Package_Instantiation;
+
+      begin
+         case Kind (Node) is
+            when Ada_Package_Decl =>
+               Analyze_Package (Node);
+
+            when Ada_Subp_Spec =>
+               Analyze_Routine (Node);
+
+            when Ada_Type_Decl =>
+               Analyze_Type (Node.As_Type_Decl);
+
+            when Ada_Subtype_Decl =>
+               Analyze_Subtype (Node.As_Subtype_Decl);
+
+            when Ada_Generic_Package_Instantiation =>
+               Analyze_Package_Instantiation (Node);
+
+            when others =>
+               null;
+         end case;
+
+         return Result;
+      end Parser;
+
+      ------------------
+      -- Load_Project --
+      ------------------
+
+      function Load_Project return LaL.Unit_Provider_Reference is
+         package GPR renames GNATCOLL.Projects;
+         package LAL_GPR renames Libadalang.Project_Provider;
+
+         use type GNATCOLL.VFS.Filesystem_String;
+
+         Project_Filename : constant String :=
+                              To_String (Options.Project_Filename);
+         Project_File     : constant GNATCOLL.VFS.Virtual_File :=
+                              GNATCOLL.VFS.Create (+Project_Filename);
+
+         Env     : GPR.Project_Environment_Access;
+         Project : constant GPR.Project_Tree_Access := new GPR.Project_Tree;
+      begin
+         GPR.Initialize (Env);
+         Project.Load (Project_File, Env);
+         return LAL_GPR.Create_Project_Unit_Provider (Project, Env => Env);
+      end Load_Project;
+
+      Context  : constant Analysis_Context :=
+                   Create_Context
+                     ("UTF-8",
+                      Unit_Provider =>
+                        (if Options.Project_Filename = Null_Unbounded_String
+                         then No_Unit_Provider_Reference
+                         else Load_Project));
+      Unit     : Analysis_Unit;
 
    begin
-      Asis.Implementation.Initialize;
+      Unit := Get_From_File (Context, To_String (Options.File_Name));
 
-      Ada_Environments.Associate
-        (My_Context,
-        "My_Context",
-        "-C1 " & Characters.Conversions.To_Wide_String (Tree_Name.all));
+      --  check for diagnostic infor in unit
 
-      Ada_Environments.Open (My_Context);
+      if Unit.Has_Diagnostics then
+         for D of Unit.Diagnostics loop
+            Text_IO.Put_Line (Unit.Format_GNU_Diagnostic (D));
+         end loop;
 
-      CU := Extensions.Main_Unit_In_Current_Tree (My_Context);
-
-      if Compilation_Units.Is_Nil (CU) then
-         Put_Line
-           (Standard_Error,
-            "Nothing to be done for " & To_String (Options.File_Name));
-         return;
-
-      else
-         --  And here we have to do the job
-
-         Create_Structure
-           (Element => Elements.Unit_Declaration (CU),
-            Control => My_Control,
-            State   => My_State);
-
-         if not Options.Quiet then
-            New_Line;
-         end if;
-
-         Analyse_Structure;
-
-         if not Options.Quiet then
-            New_Line;
-            Put_Line
-              ("WSDL document " & To_String (Options.WSDL_File_Name)
-                 & " is created for " & To_String (Options.File_Name) & '.');
-         end if;
-      end if;
-
-      Ada_Environments.Close (My_Context);
-
-      Ada_Environments.Dissociate (My_Context);
-
-      Implementation.Finalize;
-
-   exception
-
-      when Ex : Asis.Exceptions.ASIS_Inappropriate_Context
-             |  Asis.Exceptions.ASIS_Inappropriate_Container
-             |  Asis.Exceptions.ASIS_Inappropriate_Compilation_Unit
-             |  Asis.Exceptions.ASIS_Inappropriate_Element
-             |  Asis.Exceptions.ASIS_Inappropriate_Line
-             |  Asis.Exceptions.ASIS_Inappropriate_Line_Number
-             |  Asis.Exceptions.ASIS_Failed
-        =>
-         New_Line (Standard_Error);
-
-         Put_Line (Standard_Error, "Unexpected bug in Ada2WSDL v" & Version);
-         Put      (Standard_Error, Exception_Name (Ex));
-         Put_Line (Standard_Error, " raised");
-         Put
-           (Standard_Error, "ada2wsdl: ASIS Diagnosis is "
-              & Characters.Conversions.To_String
-                  (Asis.Implementation.Diagnosis));
-         New_Line (Standard_Error);
-         Put      (Standard_Error, "ada2wsdl: Status Value   is ");
-         Put_Line (Standard_Error, Asis.Errors.Error_Kinds'Image
-                   (Asis.Implementation.Status));
-         Emergency_Clean_Up;
          raise Fatal_Error;
 
-      when others =>
-         Emergency_Clean_Up;
-         raise;
+      else
+         Traverse (Root (Unit), Parser'Access);
+
+         declare
+            Prev_Index : Natural;
+            First      : Positive := Deferred_Types'First;
+         begin
+            --  When analysing the deferred types we could have some more types
+            --  discoverred. Do the analyse of the defintions until there is no
+            --  more added into the deferred list.
+
+            loop
+               Prev_Index := Index;
+
+               for K in First .. Index loop
+                  Analyze_Type (Deferred_Types (K));
+               end loop;
+
+               exit when Prev_Index = Index;
+
+               First := Prev_Index;
+            end loop;
+         end;
+
+         if not Options.Quiet then
+            Text_IO.New_Line;
+            Text_IO.Put_Line
+              ("WSDL document " & To_String (Options.WSDL_File_Name)
+               & " is created for " & To_String (Options.File_Name) & '.');
+         end if;
+      end if;
    end Start;
+
+   --------------
+   -- Type_Def --
+   --------------
+
+   function Type_Definition
+     (Node : Base_Type_Decl;
+      Name : String;
+      Decl : Ada_Node'Class;
+      Base : Boolean) return Generator.Type_Data
+   is
+
+      function Register_Deferred
+        (Node : Base_Type_Decl'Class) return Generator.Type_Data;
+      --  Register a deferred type to be generated after first
+      --  pass. Returns the name of the type.
+
+      function Register_Deferred_I
+        (Node  : Base_Type_Decl'Class;
+         First : Long_Long_Integer := Long_Long_Integer'Last;
+         Last  : Long_Long_Integer := Long_Long_Integer'First)
+            return Generator.Type_Data;
+      --  Same as above for integer and optional range
+
+      function Register_Deferred_F
+        (Node  : Base_Type_Decl'Class;
+         First : Long_Float := Long_Float'Last;
+         Last  : Long_Float := Long_Float'First)
+            return Generator.Type_Data;
+      --  Same as above for float and optional range
+
+      function Build_Type
+        (Name  : String;
+         NS    : String := SOAP.Name_Space.Value (SOAP.Name_Space.XSD);
+         First : Long_Long_Integer := Long_Long_Integer'Last;
+         Last  : Long_Long_Integer := Long_Long_Integer'First)
+            return Generator.Type_Data
+      is (+NS, +Name,
+          (if First = Long_Long_Integer'Last
+           then Null_Unbounded_String
+           else +Long_Long_Integer'Image (First)),
+          (if Last = Long_Long_Integer'First
+           then Null_Unbounded_String
+           else +Long_Long_Integer'Image (Last)),
+          Null_Unbounded_String);
+
+      function Build_Type_F
+        (Name  : String;
+         NS    : String := SOAP.Name_Space.Value (SOAP.Name_Space.XSD);
+         First : Long_Float := Long_Float'Last;
+         Last  : Long_Float := Long_Float'First)
+         return Generator.Type_Data
+      is (+NS, +Name,
+          (if First = Long_Float'Last
+           then Null_Unbounded_String
+           else +Long_Float'Image (First)),
+          (if Last = Long_Float'First
+           then Null_Unbounded_String
+           else +Long_Float'Image (Last)),
+          Null_Unbounded_String);
+
+      function Build_Array
+        (Node : Base_Type_Decl) return Generator.Type_Data;
+      --  Build an array
+
+      function Build_Private
+        (Node : Base_Type_Decl) return Generator.Type_Data;
+      --  Build a private part
+
+      function Build_Integer
+        (Node : Base_Type_Decl) return Generator.Type_Data;
+      --  Build an integer
+
+      function Build_Float
+        (Node : Base_Type_Decl) return Generator.Type_Data;
+      --  Build a floating point
+
+      function Build_Enumeration
+        (Node : Base_Type_Decl) return Generator.Type_Data;
+      --  Build an enumeration
+
+      function Build_Fixed_Point
+        (Node : Base_Type_Decl) return Generator.Type_Data;
+      --  Build a fixed point
+
+      function Build_Modular
+        (Node : Base_Type_Decl) return Generator.Type_Data;
+      --  Build an unsigned type
+
+      function Build_Derived
+        (Node : Base_Type_Decl) return Generator.Type_Data;
+      --  Build a derived type
+
+      -----------------
+      -- Build_Array --
+      -----------------
+
+      function Build_Array
+        (Node : Base_Type_Decl) return Generator.Type_Data
+      is
+         T_Name : constant String := Characters.Handling.To_Lower (Name);
+      begin
+         if T_Name = "string" then
+            return Build_Type ("string");
+
+         elsif T_Name = "soap_base64"
+           or else T_Name = "utils.soap_base64"
+           or else T_Name = "soap.utils.soap_base64"
+         then
+            return Build_Type ("SOAP_Base64");
+
+         else
+            return Register_Deferred (Node);
+         end if;
+      end Build_Array;
+
+      -----------------------
+      -- Build_Enumeration --
+      -----------------------
+
+      function Build_Enumeration
+        (Node : Base_Type_Decl) return Generator.Type_Data
+      is
+         T_Name : constant String := Characters.Handling.To_Lower (Name);
+      begin
+         if T_Name = "character" then
+            return Build_Type ("character");
+
+         elsif T_Name = "boolean" then
+            return Build_Type ("boolean");
+
+         else
+            if Options.Enum_To_String then
+               return Build_Type ("string");
+            else
+               return Register_Deferred (Node);
+            end if;
+         end if;
+      end Build_Enumeration;
+
+      -----------------------
+      -- Build_Fixed_Point --
+      -----------------------
+
+      function Build_Fixed_Point
+        (Node : Base_Type_Decl) return Generator.Type_Data
+      is
+         T_Name : constant String := Characters.Handling.To_Lower (Name);
+      begin
+         if T_Name = "duration" then
+            return Build_Type ("duration");
+         else
+            return Register_Deferred (Node);
+         end if;
+      end Build_Fixed_Point;
+
+      -------------------
+      -- Build_Private --
+      -------------------
+
+      function Build_Private
+        (Node : Base_Type_Decl) return Generator.Type_Data
+      is
+         T_Name : constant String := Characters.Handling.To_Lower (Name);
+      begin
+         if T_Name in "unbounded_string"
+           | "unbounded.unbounded_string"
+             | "strings.unbounded.unbounded_string"
+               | "ada.strings.unbounded.unbounded_string"
+         then
+            if Base then
+               return Build_Type ("string");
+            else
+               return Build_Type ("unbounded_string");
+            end if;
+
+         elsif T_Name in "time" | "calendar.time" | "ada.calendar.time"
+           and then Is_Calendar (Node)
+         then
+            return Build_Type ("time");
+
+         else
+            Raise_Spec_Error
+              (Node, Message => "unsupported private type " & Name);
+         end if;
+      end Build_Private;
+
+      -------------------
+      -- Build_Modular --
+      -------------------
+
+      function Build_Modular
+        (Node : Base_Type_Decl) return Generator.Type_Data
+      is
+         T_Def   : constant Type_Def := Node.As_Type_Decl.F_Type_Def;
+         Modulus : constant SOAP.Types.Unsigned_Long :=
+                     Compute_Value (T_Def.As_Mod_Int_Type_Def.F_Expr);
+
+         --------------
+         -- Get_Last --
+         --------------
+
+         function Get_Last return Long_Long_Integer is
+           (if Modulus = 0
+            then Long_Long_Integer'First
+            else Long_Long_Integer (Modulus - 1));
+
+      begin
+         if Base then
+            if Modulus = SOAP.Types.Unsigned_Long
+              (SOAP.Types.Unsigned_Byte'Modulus)
+            then
+               return Build_Type ("unsigned_byte");
+
+            elsif Modulus < SOAP.Types.Unsigned_Long
+              (SOAP.Types.Unsigned_Byte'Modulus)
+            then
+               return Build_Type ("unsigned_byte", Last => Get_Last);
+
+            elsif Modulus = SOAP.Types.Unsigned_Long
+              (SOAP.Types.Unsigned_Short'Modulus)
+            then
+               return Build_Type ("unsigned_short");
+
+            elsif Modulus < SOAP.Types.Unsigned_Long
+              (SOAP.Types.Unsigned_Short'Modulus)
+            then
+               return Build_Type ("unsigned_short", Last => Get_Last);
+
+            elsif Modulus = SOAP.Types.Unsigned_Long
+              (SOAP.Types.Unsigned_Int'Modulus)
+            then
+               return Build_Type ("unsigned_int");
+
+            elsif Modulus < SOAP.Types.Unsigned_Long
+              (SOAP.Types.Unsigned_Int'Modulus)
+            then
+               return Build_Type ("unsigned_int", Last => Get_Last);
+
+            elsif Modulus < SOAP.Types.Unsigned_Long
+              (SOAP.Types.Unsigned_Long'Modulus - 1)
+            then
+               return Build_Type ("unsigned_long", Last => Get_Last);
+
+            else
+               return Build_Type ("unsigned_long");
+            end if;
+
+         else
+            declare
+               NS      : constant String := Name_Space (Decl);
+               NS_Type : constant String := Name_Space (T_Def);
+            begin
+               --  If the type is not un the current package (so in
+               --  different name space). We need to analyse it later
+               --  so, we do register a differred analysis for this type.
+
+               if NS = NS_Type or else Is_Standard (Node) then
+                  return Build_Type (Name, NS_Type, Last => Get_Last);
+               else
+                  return Register_Deferred (Node);
+               end if;
+            end;
+         end if;
+      end Build_Modular;
+
+      -------------------
+      -- Build_Integer --
+      -------------------
+
+      function Build_Integer
+        (Node : Base_Type_Decl) return Generator.Type_Data
+      is
+         Ilb, Iub : Long_Long_Integer;
+      begin
+         Get_Range (Node, Ilb, Iub);
+
+         if Base then
+            if Ilb = Long_Long_Integer (SOAP.Types.Byte'First)
+              and then Iub = Long_Long_Integer (SOAP.Types.Byte'Last)
+            then
+               return Build_Type ("byte");
+
+            elsif Ilb >= Long_Long_Integer (SOAP.Types.Byte'First)
+              and then Iub <= Long_Long_Integer (SOAP.Types.Byte'Last)
+            then
+               return Build_Type ("byte", First => Ilb, Last => Iub);
+
+            elsif Ilb = Long_Long_Integer (SOAP.Types.Short'First)
+              and then
+                Iub = Long_Long_Integer (SOAP.Types.Short'Last)
+            then
+               return Build_Type ("short");
+
+            elsif Ilb >= Long_Long_Integer (SOAP.Types.Short'First)
+              and then
+                Iub <= Long_Long_Integer (SOAP.Types.Short'Last)
+            then
+               return Build_Type ("short", First => Ilb, Last => Iub);
+
+            elsif Ilb = Long_Long_Integer (Integer'First)
+              and then Iub = Long_Long_Integer (Integer'Last)
+            then
+               return Build_Type ("integer");
+
+            elsif Ilb >= Long_Long_Integer (Integer'First)
+              and then Iub <= Long_Long_Integer (Integer'Last)
+            then
+               return Build_Type
+                 ("integer", First => Ilb, Last => Iub);
+
+            elsif Ilb = Long_Long_Integer (Long_Integer'First)
+              and then Iub = Long_Long_Integer (Long_Integer'Last)
+            then
+               return Build_Type ("long");
+
+            else
+               return Build_Type ("long", First => Ilb, Last => Iub);
+            end if;
+
+         else
+            declare
+               NS      : constant String := Name_Space (Decl);
+               NS_Type : constant String := Name_Space (Node);
+            begin
+               --  If the type is not in the current package (so in
+               --  different name space). We need to analyse it later
+               --  so, we do register a differred analysis for this type.
+
+               if NS = NS_Type or else Is_Standard (Node) then
+                  return Build_Type (Name, NS);
+               else
+                  return Register_Deferred_I (Node, Ilb, Iub);
+               end if;
+            end;
+         end if;
+      end Build_Integer;
+
+      -----------------
+      -- Build_Float --
+      -----------------
+
+      function Build_Float
+        (Node : Base_Type_Decl) return Generator.Type_Data
+      is
+         T_Def    : constant Floating_Point_Def :=
+                      Node.As_Type_Decl.F_Type_Def.As_Floating_Point_Def;
+         Dig      : constant Integer :=
+                      Integer'Value (Img (T_Def.F_Num_Digits));
+         Ilb, Iub : Long_Float;
+      begin
+         Get_Range (Node, Ilb, Iub);
+
+         if Base then
+            if Dig <= Float'Digits then
+               if Ilb = Long_Float (Float'First)
+                 and then Iub = Long_Float (Float'Last)
+               then
+                  return Build_Type_F ("float");
+               else
+                  return Build_Type_F
+                    ("float", First => Ilb, Last => Iub);
+               end if;
+
+            else
+               if Ilb = Long_Float'First and then Iub = Long_Float'Last then
+                  return Build_Type_F ("long_float");
+               else
+                  return Build_Type_F
+                    ("long_float", First => Ilb, Last => Iub);
+               end if;
+            end if;
+
+         else
+            declare
+               NS      : constant String := Name_Space (Decl);
+               NS_Type : constant String := Name_Space (Node);
+            begin
+               --  If the type is not un the current package (so in
+               --  different name space). We need to analyse it later
+               --  so, we do register a differred analysis for this type.
+
+               if NS = NS_Type or else Is_Standard (Node) then
+                  return Build_Type_F (Name, NS);
+               else
+                  return Register_Deferred_F (Node, Ilb, Iub);
+               end if;
+            end;
+         end if;
+      end Build_Float;
+
+      -------------------
+      -- Build_Derived --
+      -------------------
+
+      function Build_Derived
+        (Node : Base_Type_Decl) return Generator.Type_Data
+      is
+         T_Name : constant String := Characters.Handling.To_Lower (Name);
+      begin
+         if T_Name = "safe_pointer" then
+            declare
+               I_Type : constant Base_Type_Decl :=
+                          Get_Safe_Pointer_Type (Node);
+            begin
+               return Register_Deferred (I_Type);
+            end;
+
+         else
+            if Base then
+               declare
+                  T_Def  : constant Type_Def :=
+                             Node.As_Type_Decl.F_Type_Def;
+                  P_Type : constant Base_Type_Decl :=
+                             Get_Base_Type (T_Def.As_Derived_Type_Def);
+                  Name   : constant String := Img (P_Type.F_Name);
+                  Def    : Generator.Type_Data :=
+                             Type_Definition (P_Type, Name, P_Type, False);
+               begin
+                  Get_Range_Derived (Node, Def.Min, Def.Max);
+
+                  return Def;
+               end;
+
+            else
+               return Register_Deferred (Node);
+            end if;
+         end if;
+      end Build_Derived;
+
+      -----------------------
+      -- Register_Deferred --
+      -----------------------
+
+      function Register_Deferred
+        (Node : Base_Type_Decl'Class) return Generator.Type_Data
+      is
+         T_Name : constant String := Img (Node.F_Name);
+      begin
+         Append_Deferred (Node);
+         return Build_Type (T_Name, Name_Space (Node));
+      end Register_Deferred;
+
+      -------------------------
+      -- Register_Deferred_F --
+      -------------------------
+
+      function Register_Deferred_F
+        (Node  : Base_Type_Decl'Class;
+         First : Long_Float := Long_Float'Last;
+         Last  : Long_Float := Long_Float'First) return Generator.Type_Data
+      is
+         T_Name : constant String := Img (Node.F_Name);
+      begin
+         Append_Deferred (Node);
+         return Build_Type_F (T_Name, Name_Space (Node), First, Last);
+      end Register_Deferred_F;
+
+      -------------------------
+      -- Register_Deferred_I --
+      -------------------------
+
+      function Register_Deferred_I
+        (Node  : Base_Type_Decl'Class;
+         First : Long_Long_Integer := Long_Long_Integer'Last;
+         Last  : Long_Long_Integer := Long_Long_Integer'First)
+         return Generator.Type_Data
+      is
+         T_Name : constant String := Img (Node.F_Name);
+      begin
+         Append_Deferred (Node);
+         return Build_Type (T_Name, Name_Space (Node), First, Last);
+      end Register_Deferred_I;
+
+      T_Decl : constant Base_Type_Decl :=
+                 (if Node.Kind = Ada_Subtype_Decl
+                  then Node.As_Subtype_Decl.F_Subtype.P_Designated_Type_Decl
+                  else Node.As_Base_Type_Decl);
+
+      T_Def : constant Type_Def := T_Decl.As_Type_Decl.F_Type_Def;
+
+   begin
+      case T_Def.Kind is
+         when Ada_Signed_Int_Type_Def =>
+            return Build_Integer (Node);
+
+         when Ada_Floating_Point_Def =>
+            return Build_Float (Node);
+
+         when Ada_Derived_Type_Def =>
+            return Build_Derived (Node);
+
+         when Ada_Record_Type_Def =>
+            return Register_Deferred (Node);
+
+         when Ada_Array_Type_Def =>
+            return Build_Array (T_Decl);
+
+         when Ada_Private_Type_Def =>
+            return Build_Private (Node);
+
+         when Ada_Enum_Type_Def =>
+            return Build_Enumeration (Node);
+
+         when Ada_Ordinary_Fixed_Point_Def =>
+            return Build_Fixed_Point (Node);
+
+         when Ada_Mod_Int_Type_Def =>
+            return Build_Modular (Node);
+
+         when others =>
+            Raise_Spec_Error
+              (Node,
+               Message => "unsupported element kind " & Name);
+      end case;
+   end Type_Definition;
+
+   function Type_Definition
+     (Node : Type_Decl'Class;
+      Base : Boolean) return Generator.Type_Data
+   is
+      E_Name : constant Defining_Name := Node.As_Base_Type_Decl.F_Name;
+      T_Name : constant String := Img (E_Name);
+   begin
+      return Type_Definition (Node.As_Base_Type_Decl, T_Name, Node, Base);
+   end Type_Definition;
+
+   function Type_Definition
+     (Node : Type_Expr'Class;
+      Base : Boolean) return Generator.Type_Data
+   is
+      E_Name : constant Name := Node.P_Type_Name;
+      T_Name : constant String := Img (E_Name);
+      Decl   : Base_Type_Decl := Node.P_Designated_Type_Decl;
+   begin
+      if Decl.Kind = Ada_Subtype_Decl then
+         Decl := Decl.As_Subtype_Decl.F_Subtype.P_Designated_Type_Decl;
+      end if;
+
+      return Type_Definition (Decl, T_Name, Node, Base);
+   end Type_Definition;
 
 end Ada2WSDL.Parser;

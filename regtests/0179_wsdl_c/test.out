@@ -1,8 +1,8 @@
 
    - new type        My_Int is byte (xsd:byte)
-   - new type        My_Number is byte (xsd:byte)
-   - new type        Big_Number is long (xsd:long)
-   - derived         S_Int is new Positive (xsd:int)
+   - derived         My_Number is new byte (xsd:byte)
+   - derived         Big_Number is new long (xsd:long)
+   - derived         S_Int is new Integer (xsd:int)
    - derived         L_Int is new Long_Integer (xsd:int)
    - new type        My_Float is float (xsd:float)
    - new type        My_Double is long_float (xsd:double)

@@ -9,7 +9,7 @@ rem The followinng variable can be set to std, openssl or gnutls
 set SOCKET=std
 
 set ROOTDIR=%CD%
-set GPROPTS=-XPRJ_BUILD=Release -XPRJ_TARGET=Windows_NT -XTARGET=win -XPRJ_XMLADA=Installed -XPRJ_LDAP=Installed -XPRJ_ASIS=Disabled -XPRJ_SOCKLIB=gnat -XSOCKET=%SOCKET%
+set GPROPTS=-XPRJ_BUILD=Release -XPRJ_TARGET=Windows_NT -XTARGET=win -XPRJ_XMLADA=Installed -XPRJ_LDAP=Installed -XPRJ_LAL=Disabled -XPRJ_SOCKLIB=gnat -XSOCKET=%SOCKET%
 
 if .%1==. goto dusage
 
@@ -59,9 +59,9 @@ echo R_TLS_Lib := "gnutls"; >> aws_lib_shared.gpr
 echo LIBZ_Path := Project'Project_Dir & "..\..\..\lib\aws\static"; >> aws_lib_shared.gpr
 echo end AWS_Lib_Shared; >> aws_lib_shared.gpr
 
-echo project aws_asis is > aws_asis.gpr
-echo for Source_Files use (); >> aws_asis.gpr
-echo end aws_asis; >> aws_asis.gpr
+echo project aws_lal is > aws_lal.gpr
+echo for Source_Files use (); >> aws_lal.gpr
+echo end aws_lal; >> aws_lal.gpr
 
 echo with "xmlada"; > aws_xmlada.gpr
 echo project aws_xmlada is >> aws_xmlada.gpr

@@ -6,7 +6,7 @@ os.mkdir('obj')
 os.mkdir('bin')
 
 exec_cmd('ada2wsdl', ['-q', '-Papi.gpr', '-a', 'http://localhost:8787',
-                      '-f', 'enumeration_test.ads', '-lit',
+                      '-f', 'src/enumeration_test.ads', '-lit',
                       '-o', 'generated/enumeration_demo.wsdl'])
 
 os.chdir('generated')

@@ -1,7 +1,7 @@
 from test_support import *
 
 exec_cmd('ada2wsdl',
-         ['-q', '-f', '-I.', '-Pwsdl_ntr_main',
+         ['-q', '-f', '-Pwsdl_ntr_main',
           '-a', 'http://localhost:7701', 'src/wsdl_ntr.ads',
           '-o', 'wsdl_ntr.wsdl'])
 exec_cmd('wsdl2aws',
