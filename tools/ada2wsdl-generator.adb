@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2003-2018, AdaCore                     --
+--                     Copyright (C) 2003-2020, AdaCore                     --
 --                                                                          --
 --  This is free software;  you can redistribute it  and/or modify it       --
 --  under terms of the  GNU General Public License as published  by the     --
@@ -311,7 +311,7 @@ package body Ada2WSDL.Generator is
 
       if not Options.Quiet then
          Text_IO.Put_Line
-           ("   - safe pointer  " & Name
+           ("   - safe pointer    " & Name
               & " (" & Type_Name & ", " & Access_Name & ")");
       end if;
    end Register_Safe_Pointer;
