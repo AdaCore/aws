@@ -97,34 +97,6 @@ package body Ada2WSDL.Parser is
       else TxT.Image (Name.Text));
    --  Return string representation of Name
 
-   generic
-      type T is private;
-      Zero : T;
-      with function Value (Str : String) return T;
-      with function "+" (Left, Right : T) return T is <>;
-      with function "-" (Left, Right : T) return T is <>;
-      with function "**" (Left, Right : T) return T is <>;
-   function Compute_Value_G (Node : Expr) return T;
-   --  Compute the value for expression Node
-
-   generic
-      type T is private;
-      with function Compute_Value (Node : Expr) return T is <>;
-   procedure Get_Range_G (Node : Bin_Op; Lower, Upper : out T);
-   --  Get the Lower and Upper bounds of a range expression
-
-   generic
-      type T is private;
-      First : T;
-      Last  : T;
-      with procedure Get_Range (Node : Bin_Op; Lower, Upper : out T) is <>;
-   procedure Get_Type_Range_G
-     (Node         : Ada_Node'Class;
-      Lower, Upper : out T;
-      Top_Decl     : Boolean := False);
-   --  Get the range of a given type, either the range of the top declaration
-   --  or the one of the base type if Top_Decl isi False.
-
    procedure Get_Range_Derived
      (Node : Base_Type_Decl; Min, Max : out Unbounded_String);
    --  Get range Min and Max for a derived type
@@ -202,84 +174,173 @@ package body Ada2WSDL.Parser is
       Type_Suffix  : out Unbounded_String;
       Length       : out Natural);
 
-   ---------------------
-   -- Compute_Value_G --
-   ---------------------
+   package Compute is
 
-   function Compute_Value_G (Node : Expr) return T is
-      Result : T := Zero;
-   begin
-      case Node.Kind is
-         when Ada_Bin_Op =>
-            declare
-               Op    : constant Bin_Op := Node.As_Bin_Op;
-               Left  : constant T := Compute_Value_G (Op.F_Left);
-               Right : constant T := Compute_Value_G (Op.F_Right);
-            begin
-               case Op.F_Op.Kind is
-                  when Ada_Op_Plus =>
-                     Result := Left + Right;
+      generic
+         type T is private;
+         Zero : T;
+         with function Value (Str : String) return T;
+         with function "+" (Left, Right : T) return T is <>;
+         with function "-" (Left, Right : T) return T is <>;
+         with function "**" (Left, Right : T) return T is <>;
+      function Value_G (Node : Expr) return T;
+      --  Compute the value for expression Node
 
-                  when Ada_Op_Minus =>
-                     Result := Left - Right;
+      generic
+         type T is private;
+         with function Compute_Value (Node : Expr) return T is <>;
+      procedure Range_G (Node : Bin_Op; Lower, Upper : out T);
+      --  Get the Lower and Upper bounds of a range expression
 
-                  when Ada_Op_Pow =>
-                     Result := Left ** Right;
+      generic
+         type T is private;
+         First : T;
+         Last  : T;
+         with procedure Get_Range (Node : Bin_Op; Lower, Upper : out T) is <>;
+      procedure Type_Range_G
+        (Node         : Ada_Node'Class;
+         Lower, Upper : out T;
+         Top_Decl     : Boolean := False);
+      --  Get the range of a given type, either the range of the top
+      --  declaration or the one of the base type if Top_Decl isi False.
 
-                  when others =>
-                     null;
-               end case;
-            end;
+   end Compute;
 
-         when Ada_Un_Op =>
-            declare
-               Op  : constant Un_Op := Node.As_Un_Op;
-               Val : constant T := Compute_Value_G (Op.F_Expr);
-            begin
-               case Op.F_Op.Kind is
-                  when Ada_Op_Plus =>
-                     Result := Val;
+   package body Compute is
 
-                  when Ada_Op_Minus =>
-                     Result := Zero - Val;
+      -----------------
+      -- Get_Range_G --
+      -----------------
 
-                  when others =>
-                     null;
-               end case;
-            end;
+      procedure Range_G (Node : Bin_Op; Lower, Upper : out T)  is
+         Left  : constant Expr := Node.F_Left;
+         Right : constant Expr := Node.F_Right;
+      begin
+         Lower := Compute_Value (Left);
+         Upper := Compute_Value (Right);
+      end Range_G;
 
-         when Ada_Paren_Expr =>
-            Result := Compute_Value_G (Node.As_Paren_Expr.F_Expr);
+      ----------------------
+      -- Get_Type_Range_G --
+      ----------------------
 
-         when Ada_Int_Literal | Ada_Real_Literal =>
-            Result := Value (Img (Node));
+      procedure Type_Range_G
+        (Node         : Ada_Node'Class;
+         Lower, Upper : out T;
+         Top_Decl     : Boolean := False)
+      is
+         E         : constant Bin_Op := Get_Range_Expr (Node, Top_Decl);
+         T_Name    : constant String :=
+                       (if Node.Kind = Ada_Type_Decl
+                        then Img (Node.As_Base_Type_Decl.F_Name,
+                          Lower_Case => True)
+                        else "");
+         Is_Std_LL : constant Boolean :=
+                       Node.Kind = Ada_Type_Decl
+                           and then
+                             ((Is_Standard (Node)
+                               and then T_Name = "long_long_integer")
+                              or else
+                                (Is_SOAP_Type (Node)
+                                 and then T_Name in "long" | "unsigned_long"));
+      begin
+         Lower := Last;
+         Upper := First;
 
-         when Ada_Attribute_Ref =>
-            --  Handle 'First and 'Last only to get a range expressed
-            --  using Integer'First for example.
-            declare
-               A     : constant Attribute_Ref := Node.As_Attribute_Ref;
-               T     : constant Name := A.F_Prefix;
-               N     : constant Identifier := A.F_Attribute;
-               N_Img : constant String := Img (N);
-               E     : constant Bin_Op :=
-                         Get_Range_Expr (T.P_Name_Designated_Type);
-            begin
-               if E.Kind = Ada_Bin_Op then
-                  if N_Img = "First" then
-                     Result := Compute_Value_G (E.As_Bin_Op.F_Left);
-                  elsif N_Img = "Last" then
-                     Result := Compute_Value_G (E.As_Bin_Op.F_Right);
+         if E /= No_Bin_Op and then E.Kind = Ada_Bin_Op then
+            --  Do not try to compute range for Long_Long_Integer as this
+            --  will overflow in Get_Range while computing last (2**64 -
+            --  1). Likewise for SOAP long and unsigned long.
+
+            if Is_Std_LL then
+               Lower := First;
+               Upper := Last;
+            else
+               Get_Range (E.As_Bin_Op, Lower, Upper);
+            end if;
+         end if;
+      end Type_Range_G;
+
+      ---------------------
+      -- Compute_Value_G --
+      ---------------------
+
+      function Value_G (Node : Expr) return T is
+         Result : T := Zero;
+      begin
+         case Node.Kind is
+            when Ada_Bin_Op =>
+               declare
+                  Op    : constant Bin_Op := Node.As_Bin_Op;
+                  Left  : constant T := Value_G (Op.F_Left);
+                  Right : constant T := Value_G (Op.F_Right);
+               begin
+                  case Op.F_Op.Kind is
+                     when Ada_Op_Plus =>
+                        Result := Left + Right;
+
+                     when Ada_Op_Minus =>
+                        Result := Left - Right;
+
+                     when Ada_Op_Pow =>
+                        Result := Left ** Right;
+
+                     when others =>
+                        null;
+                  end case;
+               end;
+
+            when Ada_Un_Op =>
+               declare
+                  Op  : constant Un_Op := Node.As_Un_Op;
+                  Val : constant T := Value_G (Op.F_Expr);
+               begin
+                  case Op.F_Op.Kind is
+                     when Ada_Op_Plus =>
+                        Result := Val;
+
+                     when Ada_Op_Minus =>
+                        Result := Zero - Val;
+
+                     when others =>
+                        null;
+                  end case;
+               end;
+
+            when Ada_Paren_Expr =>
+               Result := Value_G (Node.As_Paren_Expr.F_Expr);
+
+            when Ada_Int_Literal | Ada_Real_Literal =>
+               Result := Value (Img (Node));
+
+            when Ada_Attribute_Ref =>
+               --  Handle 'First and 'Last only to get a range expressed
+               --  using Integer'First for example.
+               declare
+                  A     : constant Attribute_Ref := Node.As_Attribute_Ref;
+                  T     : constant Name := A.F_Prefix;
+                  N     : constant Identifier := A.F_Attribute;
+                  N_Img : constant String := Img (N);
+                  E     : constant Bin_Op :=
+                            Get_Range_Expr (T.P_Name_Designated_Type);
+               begin
+                  if E.Kind = Ada_Bin_Op then
+                     if N_Img = "First" then
+                        Result := Value_G (E.As_Bin_Op.F_Left);
+                     elsif N_Img = "Last" then
+                        Result := Value_G (E.As_Bin_Op.F_Right);
+                     end if;
                   end if;
-               end if;
-            end;
+               end;
 
-         when others =>
-            null;
-      end case;
+            when others =>
+               null;
+         end case;
 
-      return Result;
-   end Compute_Value_G;
+         return Result;
+      end Value_G;
+
+   end Compute;
 
    -------------------
    -- Compute_Value --
@@ -288,7 +349,7 @@ package body Ada2WSDL.Parser is
    function "**" (Left, Right : Long_Long_Integer) return Long_Long_Integer
      is (Left ** Integer (Right));
 
-   function Compute_Value is new Compute_Value_G
+   function Compute_Value is new Compute.Value_G
      (T     => Long_Long_Integer,
       Zero  => 0,
       Value => Long_Long_Integer'Value);
@@ -297,7 +358,7 @@ package body Ada2WSDL.Parser is
      (Left, Right : SOAP.Types.Unsigned_Long) return SOAP.Types.Unsigned_Long
    is (Left ** Integer (Right));
 
-   function Compute_Value is new Compute_Value_G
+   function Compute_Value is new Compute.Value_G
      (T     => SOAP.Types.Unsigned_Long,
       Zero  => 0,
       Value => SOAP.Types.Unsigned_Long'Value);
@@ -305,103 +366,27 @@ package body Ada2WSDL.Parser is
    function "**" (Left, Right : Long_Float) return Long_Float
      is (Left ** Integer (Right));
 
-   function Compute_Value is new Compute_Value_G
+   function Compute_Value is new Compute.Value_G
      (T     => Long_Float,
       Zero  => 0.0,
       Value => Long_Float'Value);
-
-   -----------------
-   -- Get_Range_G --
-   -----------------
-
-   procedure Get_Range_G (Node : Bin_Op; Lower, Upper : out T)  is
-      Left  : constant Expr := Node.F_Left;
-      Right : constant Expr := Node.F_Right;
-   begin
-      Lower := Compute_Value (Left);
-      Upper := Compute_Value (Right);
-   end Get_Range_G;
-
-   ----------------------
-   -- Get_Type_Range_G --
-   ----------------------
-
-   procedure Get_Type_Range_G
-     (Node         : Ada_Node'Class;
-      Lower, Upper : out T;
-      Top_Decl     : Boolean := False)
-   is
-      E         : constant Bin_Op := Get_Range_Expr (Node, Top_Decl);
-      T_Name    : constant String :=
-                    (if Node.Kind = Ada_Type_Decl
-                     then Img (Node.As_Base_Type_Decl.F_Name,
-                               Lower_Case => True)
-                     else "");
-      Is_Std_LL : constant Boolean :=
-                    Node.Kind = Ada_Type_Decl
-                        and then
-                    ((Is_Standard (Node)
-                      and then T_Name = "long_long_integer")
-                        or else
-                     (Is_SOAP_Type (Node)
-                      and then T_Name in "long" | "unsigned_long"));
-   begin
-      Lower := Last;
-      Upper := First;
-
-      if E /= No_Bin_Op and then E.Kind = Ada_Bin_Op then
-         --  Do not try to compute range for Long_Long_Integer as this will
-         --  overflow in Get_Range while computing last (2**64 - 1). Likewise
-         --  for SOAP long and unsigned long.
-
-         if Is_Std_LL then
-            Lower := First;
-            Upper := Last;
-         else
-            Get_Range (E.As_Bin_Op, Lower, Upper);
-         end if;
-      end if;
-   end Get_Type_Range_G;
 
    ---------------
    -- Get_Range --
    ---------------
 
-   procedure Get_Range is new Get_Range_G (T => Long_Long_Integer);
-   procedure Get_Range is new Get_Range_G (T => Long_Float);
+   procedure Get_Range is new Compute.Range_G (T => Long_Long_Integer);
+   procedure Get_Range is new Compute.Range_G (T => Long_Float);
 
-   procedure Get_Range is new Get_Type_Range_G
+   procedure Get_Range is new Compute.Type_Range_G
      (T     => Long_Long_Integer,
       First => Long_Long_Integer'First,
       Last  => Long_Long_Integer'Last);
 
-   procedure Get_Range is new Get_Type_Range_G
+   procedure Get_Range is new Compute.Type_Range_G
      (T     => Long_Float,
       First => Long_Float'First,
       Last  => Long_Float'Last);
-
-   -----------------------------
-   -- Analyze_Array_Component --
-   -----------------------------
-
-   function Analyze_Array_Component
-     (Node : Component_Def'Class) return Generator.Type_Data
-   is
-      C_Type : constant Base_Type_Decl :=
-                 Node.F_Type_Expr.P_Designated_Type_Decl;
-      C_Name : constant String := Img (C_Type.F_Name);
-      E_Type : constant Generator.Type_Data :=
-                 Type_Definition (C_Type, C_Name, C_Type, False);
-      T_Decl : constant Base_Type_Decl :=
-                 (if C_Type.Kind = Ada_Subtype_Decl
-                  then C_Type.As_Subtype_Decl.F_Subtype.P_Designated_Type_Decl
-                  else C_Type.As_Base_Type_Decl);
-
-   begin
-      Analyze_Type (T_Decl.As_Type_Decl);
-
-      return E_Type;
-   end Analyze_Array_Component;
 
    -------------------
    -- Analyze_Array --
@@ -433,9 +418,79 @@ package body Ada2WSDL.Parser is
       end;
    end Analyze_Array;
 
-     ------------------
-     -- Analyze_Type --
-     ------------------
+   -----------------------------
+   -- Analyze_Array_Component --
+   -----------------------------
+
+   function Analyze_Array_Component
+     (Node : Component_Def'Class) return Generator.Type_Data
+   is
+      C_Type : constant Base_Type_Decl :=
+                 Node.F_Type_Expr.P_Designated_Type_Decl;
+      C_Name : constant String := Img (C_Type.F_Name);
+      E_Type : constant Generator.Type_Data :=
+                 Type_Definition (C_Type, C_Name, C_Type, False);
+      T_Decl : constant Base_Type_Decl :=
+                 (if C_Type.Kind = Ada_Subtype_Decl
+                  then C_Type.As_Subtype_Decl.F_Subtype.P_Designated_Type_Decl
+                  else C_Type.As_Base_Type_Decl);
+
+   begin
+      Analyze_Type (T_Decl.As_Type_Decl);
+
+      return E_Type;
+   end Analyze_Array_Component;
+
+   ---------------------
+   -- Analyze_Subtype --
+   ---------------------
+
+   procedure Analyze_Subtype (Node : Subtype_Decl'Class) is
+
+      T_Name       : constant String := Img (Node.F_Name);
+      NS           : constant String := Name_Space (Node);
+
+      T_Decl       : constant Base_Type_Decl :=
+                       Node.F_Subtype.P_Designated_Type_Decl;
+      T_Def        : constant Type_Def := T_Decl.As_Type_Decl.F_Type_Def;
+      Lower, Upper : Long_Long_Integer;
+      Type_Suffix  : Unbounded_String;
+      Array_Len    : Natural;
+   begin
+      if not Generator.Type_Exists (NS, T_Name) then
+         if T_Def.Kind = Ada_Array_Type_Def then
+            Get_Range (Node, Lower, Upper);
+            Array_Type_Suffix (Lower, Upper, Type_Suffix, Array_Len);
+
+            declare
+               A_Def      : constant Array_Type_Def :=
+                              T_Def.As_Array_Type_Def;
+               Components : constant Component_Def :=
+                              A_Def.F_Component_Type;
+               E_Type     : constant Generator.Type_Data :=
+                              Analyze_Array_Component (Components);
+            begin
+               Generator.Start_Array
+                 (Name_Space (T_Decl), T_Name,
+                  To_String (E_Type.NS),
+                  To_String (E_Type.Name),
+                  Array_Len);
+            end;
+
+            --  ?? check if this can be used:
+            --     Analyze_Array
+            --       (T_Decl, T_Name, Node, T_Def.As_Array_Type_Def);
+         else
+            Generator.Register_Derived
+              (Name_Space (Node), T_Name,
+               Type_Definition (T_Decl.As_Type_Decl, Base => True));
+         end if;
+      end if;
+   end Analyze_Subtype;
+
+   ------------------
+   -- Analyze_Type --
+   ------------------
 
    procedure Analyze_Type (Node : Type_Decl'Class) is
 
@@ -734,6 +789,16 @@ package body Ada2WSDL.Parser is
       end if;
    end Analyze_Type;
 
+   ---------------------
+   -- Append_Deferred --
+   ---------------------
+
+   procedure Append_Deferred (Node : Base_Type_Decl'Class) is
+   begin
+      Index := Index + 1;
+      Deferred_Types (Index) := Node.As_Type_Decl;
+   end Append_Deferred;
+
    -----------------------
    -- Array_Type_Suffix --
    -----------------------
@@ -756,63 +821,6 @@ package body Ada2WSDL.Parser is
          Length := 0;
       end if;
    end Array_Type_Suffix;
-
-   ---------------------
-   -- Analyze_Subtype --
-   ---------------------
-
-   procedure Analyze_Subtype (Node : Subtype_Decl'Class) is
-
-      T_Name       : constant String := Img (Node.F_Name);
-      NS           : constant String := Name_Space (Node);
-
-      T_Decl       : constant Base_Type_Decl :=
-                       Node.F_Subtype.P_Designated_Type_Decl;
-      T_Def        : constant Type_Def := T_Decl.As_Type_Decl.F_Type_Def;
-      Lower, Upper : Long_Long_Integer;
-      Type_Suffix  : Unbounded_String;
-      Array_Len    : Natural;
-   begin
-      if not Generator.Type_Exists (NS, T_Name) then
-         if T_Def.Kind = Ada_Array_Type_Def then
-            Get_Range (Node, Lower, Upper);
-            Array_Type_Suffix (Lower, Upper, Type_Suffix, Array_Len);
-
-            declare
-               A_Def      : constant Array_Type_Def :=
-                              T_Def.As_Array_Type_Def;
-               Components : constant Component_Def :=
-                              A_Def.F_Component_Type;
-               E_Type     : constant Generator.Type_Data :=
-                              Analyze_Array_Component (Components);
-            begin
-               Generator.Start_Array
-                 (Name_Space (T_Decl), T_Name,
-                  To_String (E_Type.NS),
-                  To_String (E_Type.Name),
-                  Array_Len);
-            end;
-
-            --  ?? check if this can be used:
-            --     Analyze_Array
-            --       (T_Decl, T_Name, Node, T_Def.As_Array_Type_Def);
-         else
-            Generator.Register_Derived
-              (Name_Space (Node), T_Name,
-               Type_Definition (T_Decl.As_Type_Decl, Base => True));
-         end if;
-      end if;
-   end Analyze_Subtype;
-
-   ---------------------
-   -- Append_Deferred --
-   ---------------------
-
-   procedure Append_Deferred (Node : Base_Type_Decl'Class) is
-   begin
-      Index := Index + 1;
-      Deferred_Types (Index) := Node.As_Type_Decl;
-   end Append_Deferred;
 
    -------------------
    -- Get_Base_Type --
@@ -888,33 +896,6 @@ package body Ada2WSDL.Parser is
             null;
       end case;
    end Get_Range_Derived;
-
-   ---------------------------
-   -- Get_Safe_Pointer_Type --
-   ---------------------------
-
-   function Get_Safe_Pointer_Type
-     (Node : Base_Type_Decl) return Base_Type_Decl
-   is
-      F_Def  : constant Type_Def := Node.As_Type_Decl.F_Type_Def;
-      R_Def  : constant Base_Record_Def :=
-                 F_Def.As_Derived_Type_Def.F_Record_Extension;
-      --  The record extension
-      R_Comp : constant Component_List := R_Def.F_Components;
-      --  All components of the record
-      Comp_1 : constant Component_Decl :=
-                 R_Comp.F_Components.Child (1).As_Component_Decl;
-      --  First component is the access type to T
-      T_Comp : constant Subtype_Indication :=
-                 Comp_1.F_Component_Def.F_Type_Expr.As_Subtype_Indication;
-      --  Subtype of the access type
-      A_Type : constant Base_Type_Decl := T_Comp.P_Designated_Type_Decl;
-      --  This is the access type
-   begin
-      --  Get the type for this access type
-      return A_Type.As_Type_Decl.F_Type_Def.As_Type_Access_Def.
-        F_Subtype_Indication.P_Designated_Type_Decl;
-   end Get_Safe_Pointer_Type;
 
    --------------------
    -- Get_Range_Expr --
@@ -1027,6 +1008,33 @@ package body Ada2WSDL.Parser is
       end case;
    end Get_Range_Expr;
 
+   ---------------------------
+   -- Get_Safe_Pointer_Type --
+   ---------------------------
+
+   function Get_Safe_Pointer_Type
+     (Node : Base_Type_Decl) return Base_Type_Decl
+   is
+      F_Def  : constant Type_Def := Node.As_Type_Decl.F_Type_Def;
+      R_Def  : constant Base_Record_Def :=
+                 F_Def.As_Derived_Type_Def.F_Record_Extension;
+      --  The record extension
+      R_Comp : constant Component_List := R_Def.F_Components;
+      --  All components of the record
+      Comp_1 : constant Component_Decl :=
+                 R_Comp.F_Components.Child (1).As_Component_Decl;
+      --  First component is the access type to T
+      T_Comp : constant Subtype_Indication :=
+                 Comp_1.F_Component_Def.F_Type_Expr.As_Subtype_Indication;
+      --  Subtype of the access type
+      A_Type : constant Base_Type_Decl := T_Comp.P_Designated_Type_Decl;
+      --  This is the access type
+   begin
+      --  Get the type for this access type
+      return A_Type.As_Type_Decl.F_Type_Def.As_Type_Access_Def.
+        F_Subtype_Indication.P_Designated_Type_Decl;
+   end Get_Safe_Pointer_Type;
+
    ----------------
    -- Name_Space --
    ----------------
@@ -1066,6 +1074,29 @@ package body Ada2WSDL.Parser is
       function Parser (Node : Ada_Node'Class) return Visit_Status;
       --  Main LaL parser callback
 
+      ------------------
+      -- Load_Project --
+      ------------------
+
+      function Load_Project return LaL.Unit_Provider_Reference is
+         package GPR renames GNATCOLL.Projects;
+         package LAL_GPR renames Libadalang.Project_Provider;
+
+         use type GNATCOLL.VFS.Filesystem_String;
+
+         Project_Filename : constant String :=
+                              To_String (Options.Project_Filename);
+         Project_File     : constant GNATCOLL.VFS.Virtual_File :=
+                              GNATCOLL.VFS.Create (+Project_Filename);
+
+         Env     : GPR.Project_Environment_Access;
+         Project : constant GPR.Project_Tree_Access := new GPR.Project_Tree;
+      begin
+         GPR.Initialize (Env);
+         Project.Load (Project_File, Env);
+         return LAL_GPR.Create_Project_Unit_Provider (Project, Env => Env);
+      end Load_Project;
+
       ------------
       -- Parser --
       ------------
@@ -1098,6 +1129,36 @@ package body Ada2WSDL.Parser is
                      Strings.Maps.To_Mapping (".", "-")));
             end if;
          end Analyze_Package;
+
+         -----------------------------------
+         -- Analyze_Package_Instantiation --
+         -----------------------------------
+
+         procedure Analyze_Package_Instantiation (Node : Ada_Node'Class) is
+            G_Pck  : constant Generic_Package_Instantiation :=
+                       Node.As_Generic_Package_Instantiation;
+            G_Name : constant String :=
+                       Img (G_Pck.F_Generic_Pkg_Name, Lower_Case => True);
+         begin
+            if G_Name = "soap.utils.safe_pointers" then
+               declare
+                  Params : constant Assoc_List := G_Pck.F_Params;
+               begin
+                  if Params.Children_Count = 2 then
+                     declare
+                        P : constant array (1 .. 2) of Param_Assoc :=
+                              (Params.List_Child (1).As_Param_Assoc,
+                               Params.List_Child (2).As_Param_Assoc);
+                     begin
+                        Generator.Register_Safe_Pointer
+                          (Name        => Img (G_Pck.F_Name),
+                           Type_Name   => Img (P (1).F_R_Expr.As_Identifier),
+                           Access_Name => Img (P (2).F_R_Expr.As_Identifier));
+                     end;
+                  end if;
+               end;
+            end if;
+         end Analyze_Package_Instantiation;
 
          ---------------------
          -- Analyze_Routine --
@@ -1180,36 +1241,6 @@ package body Ada2WSDL.Parser is
             Analyze_Profile (Self);
          end Analyze_Routine;
 
-         -----------------------------------
-         -- Analyze_Package_Instantiation --
-         -----------------------------------
-
-         procedure Analyze_Package_Instantiation (Node : Ada_Node'Class) is
-            G_Pck  : constant Generic_Package_Instantiation :=
-                       Node.As_Generic_Package_Instantiation;
-            G_Name : constant String :=
-                       Img (G_Pck.F_Generic_Pkg_Name, Lower_Case => True);
-         begin
-            if G_Name = "soap.utils.safe_pointers" then
-               declare
-                  Params : constant Assoc_List := G_Pck.F_Params;
-               begin
-                  if Params.Children_Count = 2 then
-                     declare
-                        P : constant array (1 .. 2) of Param_Assoc :=
-                              (Params.List_Child (1).As_Param_Assoc,
-                               Params.List_Child (2).As_Param_Assoc);
-                     begin
-                        Generator.Register_Safe_Pointer
-                          (Name        => Img (G_Pck.F_Name),
-                           Type_Name   => Img (P (1).F_R_Expr.As_Identifier),
-                           Access_Name => Img (P (2).F_R_Expr.As_Identifier));
-                     end;
-                  end if;
-               end;
-            end if;
-         end Analyze_Package_Instantiation;
-
       begin
          case Kind (Node) is
             when Ada_Package_Decl =>
@@ -1233,29 +1264,6 @@ package body Ada2WSDL.Parser is
 
          return Result;
       end Parser;
-
-      ------------------
-      -- Load_Project --
-      ------------------
-
-      function Load_Project return LaL.Unit_Provider_Reference is
-         package GPR renames GNATCOLL.Projects;
-         package LAL_GPR renames Libadalang.Project_Provider;
-
-         use type GNATCOLL.VFS.Filesystem_String;
-
-         Project_Filename : constant String :=
-                              To_String (Options.Project_Filename);
-         Project_File     : constant GNATCOLL.VFS.Virtual_File :=
-                              GNATCOLL.VFS.Create (+Project_Filename);
-
-         Env     : GPR.Project_Environment_Access;
-         Project : constant GPR.Project_Tree_Access := new GPR.Project_Tree;
-      begin
-         GPR.Initialize (Env);
-         Project.Load (Project_File, Env);
-         return LAL_GPR.Create_Project_Unit_Provider (Project, Env => Env);
-      end Load_Project;
 
       Context  : constant Analysis_Context :=
                    Create_Context
@@ -1426,6 +1434,45 @@ package body Ada2WSDL.Parser is
          end if;
       end Build_Array;
 
+      -------------------
+      -- Build_Derived --
+      -------------------
+
+      function Build_Derived
+        (Node : Base_Type_Decl) return Generator.Type_Data
+      is
+         T_Name : constant String := Characters.Handling.To_Lower (Name);
+      begin
+         if T_Name = "safe_pointer" then
+            declare
+               I_Type : constant Base_Type_Decl :=
+                          Get_Safe_Pointer_Type (Node);
+            begin
+               return Register_Deferred (I_Type);
+            end;
+
+         else
+            if Base then
+               declare
+                  T_Def  : constant Type_Def :=
+                             Node.As_Type_Decl.F_Type_Def;
+                  P_Type : constant Base_Type_Decl :=
+                             Get_Base_Type (T_Def.As_Derived_Type_Def);
+                  Name   : constant String := Img (P_Type.F_Name);
+                  Def    : Generator.Type_Data :=
+                             Type_Definition (P_Type, Name, P_Type, False);
+               begin
+                  Get_Range_Derived (Node, Def.Min, Def.Max);
+
+                  return Def;
+               end;
+
+            else
+               return Register_Deferred (Node);
+            end if;
+         end if;
+      end Build_Derived;
+
       -----------------------
       -- Build_Enumeration --
       -----------------------
@@ -1466,36 +1513,130 @@ package body Ada2WSDL.Parser is
          end if;
       end Build_Fixed_Point;
 
-      -------------------
-      -- Build_Private --
-      -------------------
+      -----------------
+      -- Build_Float --
+      -----------------
 
-      function Build_Private
+      function Build_Float
         (Node : Base_Type_Decl) return Generator.Type_Data
       is
-         T_Name : constant String := Characters.Handling.To_Lower (Name);
+         T_Def    : constant Floating_Point_Def :=
+                      Node.As_Type_Decl.F_Type_Def.As_Floating_Point_Def;
+         Dig      : constant Integer :=
+                      Integer'Value (Img (T_Def.F_Num_Digits));
+         Ilb, Iub : Long_Float;
       begin
-         if T_Name in "unbounded_string"
-           | "unbounded.unbounded_string"
-             | "strings.unbounded.unbounded_string"
-               | "ada.strings.unbounded.unbounded_string"
-         then
-            if Base then
-               return Build_Type ("string");
+         Get_Range (Node, Ilb, Iub);
+
+         if Base then
+            if Dig <= Float'Digits then
+               if Ilb = Long_Float (Float'First)
+                 and then Iub = Long_Float (Float'Last)
+               then
+                  return Build_Type_F ("float");
+               else
+                  return Build_Type_F
+                    ("float", First => Ilb, Last => Iub);
+               end if;
+
             else
-               return Build_Type ("unbounded_string");
+               if Ilb = Long_Float'First and then Iub = Long_Float'Last then
+                  return Build_Type_F ("long_float");
+               else
+                  return Build_Type_F
+                    ("long_float", First => Ilb, Last => Iub);
+               end if;
             end if;
 
-         elsif T_Name in "time" | "calendar.time" | "ada.calendar.time"
-           and then Is_Calendar (Node)
-         then
-            return Build_Type ("time");
+         else
+            declare
+               NS      : constant String := Name_Space (Decl);
+               NS_Type : constant String := Name_Space (Node);
+            begin
+               --  If the type is not un the current package (so in
+               --  different name space). We need to analyse it later
+               --  so, we do register a differred analysis for this type.
+
+               if NS = NS_Type or else Is_Standard (Node) then
+                  return Build_Type_F (Name, NS);
+               else
+                  return Register_Deferred_F (Node, Ilb, Iub);
+               end if;
+            end;
+         end if;
+      end Build_Float;
+
+      -------------------
+      -- Build_Integer --
+      -------------------
+
+      function Build_Integer
+        (Node : Base_Type_Decl) return Generator.Type_Data
+      is
+         Ilb, Iub : Long_Long_Integer;
+      begin
+         Get_Range (Node, Ilb, Iub);
+
+         if Base then
+            if Ilb = Long_Long_Integer (SOAP.Types.Byte'First)
+              and then Iub = Long_Long_Integer (SOAP.Types.Byte'Last)
+            then
+               return Build_Type ("byte");
+
+            elsif Ilb >= Long_Long_Integer (SOAP.Types.Byte'First)
+              and then Iub <= Long_Long_Integer (SOAP.Types.Byte'Last)
+            then
+               return Build_Type ("byte", First => Ilb, Last => Iub);
+
+            elsif Ilb = Long_Long_Integer (SOAP.Types.Short'First)
+              and then
+                Iub = Long_Long_Integer (SOAP.Types.Short'Last)
+            then
+               return Build_Type ("short");
+
+            elsif Ilb >= Long_Long_Integer (SOAP.Types.Short'First)
+              and then
+                Iub <= Long_Long_Integer (SOAP.Types.Short'Last)
+            then
+               return Build_Type ("short", First => Ilb, Last => Iub);
+
+            elsif Ilb = Long_Long_Integer (Integer'First)
+              and then Iub = Long_Long_Integer (Integer'Last)
+            then
+               return Build_Type ("integer");
+
+            elsif Ilb >= Long_Long_Integer (Integer'First)
+              and then Iub <= Long_Long_Integer (Integer'Last)
+            then
+               return Build_Type
+                 ("integer", First => Ilb, Last => Iub);
+
+            elsif Ilb = Long_Long_Integer (Long_Integer'First)
+              and then Iub = Long_Long_Integer (Long_Integer'Last)
+            then
+               return Build_Type ("long");
+
+            else
+               return Build_Type ("long", First => Ilb, Last => Iub);
+            end if;
 
          else
-            Raise_Spec_Error
-              (Node, Message => "unsupported private type " & Name);
+            declare
+               NS      : constant String := Name_Space (Decl);
+               NS_Type : constant String := Name_Space (Node);
+            begin
+               --  If the type is not in the current package (so in
+               --  different name space). We need to analyse it later
+               --  so, we do register a differred analysis for this type.
+
+               if NS = NS_Type or else Is_Standard (Node) then
+                  return Build_Type (Name, NS);
+               else
+                  return Register_Deferred_I (Node, Ilb, Iub);
+               end if;
+            end;
          end if;
-      end Build_Private;
+      end Build_Integer;
 
       -------------------
       -- Build_Modular --
@@ -1577,168 +1718,35 @@ package body Ada2WSDL.Parser is
       end Build_Modular;
 
       -------------------
-      -- Build_Integer --
+      -- Build_Private --
       -------------------
 
-      function Build_Integer
-        (Node : Base_Type_Decl) return Generator.Type_Data
-      is
-         Ilb, Iub : Long_Long_Integer;
-      begin
-         Get_Range (Node, Ilb, Iub);
-
-         if Base then
-            if Ilb = Long_Long_Integer (SOAP.Types.Byte'First)
-              and then Iub = Long_Long_Integer (SOAP.Types.Byte'Last)
-            then
-               return Build_Type ("byte");
-
-            elsif Ilb >= Long_Long_Integer (SOAP.Types.Byte'First)
-              and then Iub <= Long_Long_Integer (SOAP.Types.Byte'Last)
-            then
-               return Build_Type ("byte", First => Ilb, Last => Iub);
-
-            elsif Ilb = Long_Long_Integer (SOAP.Types.Short'First)
-              and then
-                Iub = Long_Long_Integer (SOAP.Types.Short'Last)
-            then
-               return Build_Type ("short");
-
-            elsif Ilb >= Long_Long_Integer (SOAP.Types.Short'First)
-              and then
-                Iub <= Long_Long_Integer (SOAP.Types.Short'Last)
-            then
-               return Build_Type ("short", First => Ilb, Last => Iub);
-
-            elsif Ilb = Long_Long_Integer (Integer'First)
-              and then Iub = Long_Long_Integer (Integer'Last)
-            then
-               return Build_Type ("integer");
-
-            elsif Ilb >= Long_Long_Integer (Integer'First)
-              and then Iub <= Long_Long_Integer (Integer'Last)
-            then
-               return Build_Type
-                 ("integer", First => Ilb, Last => Iub);
-
-            elsif Ilb = Long_Long_Integer (Long_Integer'First)
-              and then Iub = Long_Long_Integer (Long_Integer'Last)
-            then
-               return Build_Type ("long");
-
-            else
-               return Build_Type ("long", First => Ilb, Last => Iub);
-            end if;
-
-         else
-            declare
-               NS      : constant String := Name_Space (Decl);
-               NS_Type : constant String := Name_Space (Node);
-            begin
-               --  If the type is not in the current package (so in
-               --  different name space). We need to analyse it later
-               --  so, we do register a differred analysis for this type.
-
-               if NS = NS_Type or else Is_Standard (Node) then
-                  return Build_Type (Name, NS);
-               else
-                  return Register_Deferred_I (Node, Ilb, Iub);
-               end if;
-            end;
-         end if;
-      end Build_Integer;
-
-      -----------------
-      -- Build_Float --
-      -----------------
-
-      function Build_Float
-        (Node : Base_Type_Decl) return Generator.Type_Data
-      is
-         T_Def    : constant Floating_Point_Def :=
-                      Node.As_Type_Decl.F_Type_Def.As_Floating_Point_Def;
-         Dig      : constant Integer :=
-                      Integer'Value (Img (T_Def.F_Num_Digits));
-         Ilb, Iub : Long_Float;
-      begin
-         Get_Range (Node, Ilb, Iub);
-
-         if Base then
-            if Dig <= Float'Digits then
-               if Ilb = Long_Float (Float'First)
-                 and then Iub = Long_Float (Float'Last)
-               then
-                  return Build_Type_F ("float");
-               else
-                  return Build_Type_F
-                    ("float", First => Ilb, Last => Iub);
-               end if;
-
-            else
-               if Ilb = Long_Float'First and then Iub = Long_Float'Last then
-                  return Build_Type_F ("long_float");
-               else
-                  return Build_Type_F
-                    ("long_float", First => Ilb, Last => Iub);
-               end if;
-            end if;
-
-         else
-            declare
-               NS      : constant String := Name_Space (Decl);
-               NS_Type : constant String := Name_Space (Node);
-            begin
-               --  If the type is not un the current package (so in
-               --  different name space). We need to analyse it later
-               --  so, we do register a differred analysis for this type.
-
-               if NS = NS_Type or else Is_Standard (Node) then
-                  return Build_Type_F (Name, NS);
-               else
-                  return Register_Deferred_F (Node, Ilb, Iub);
-               end if;
-            end;
-         end if;
-      end Build_Float;
-
-      -------------------
-      -- Build_Derived --
-      -------------------
-
-      function Build_Derived
+      function Build_Private
         (Node : Base_Type_Decl) return Generator.Type_Data
       is
          T_Name : constant String := Characters.Handling.To_Lower (Name);
       begin
-         if T_Name = "safe_pointer" then
-            declare
-               I_Type : constant Base_Type_Decl :=
-                          Get_Safe_Pointer_Type (Node);
-            begin
-               return Register_Deferred (I_Type);
-            end;
+         if T_Name in "unbounded_string"
+           | "unbounded.unbounded_string"
+             | "strings.unbounded.unbounded_string"
+               | "ada.strings.unbounded.unbounded_string"
+         then
+            if Base then
+               return Build_Type ("string");
+            else
+               return Build_Type ("unbounded_string");
+            end if;
+
+         elsif T_Name in "time" | "calendar.time" | "ada.calendar.time"
+           and then Is_Calendar (Node)
+         then
+            return Build_Type ("time");
 
          else
-            if Base then
-               declare
-                  T_Def  : constant Type_Def :=
-                             Node.As_Type_Decl.F_Type_Def;
-                  P_Type : constant Base_Type_Decl :=
-                             Get_Base_Type (T_Def.As_Derived_Type_Def);
-                  Name   : constant String := Img (P_Type.F_Name);
-                  Def    : Generator.Type_Data :=
-                             Type_Definition (P_Type, Name, P_Type, False);
-               begin
-                  Get_Range_Derived (Node, Def.Min, Def.Max);
-
-                  return Def;
-               end;
-
-            else
-               return Register_Deferred (Node);
-            end if;
+            Raise_Spec_Error
+              (Node, Message => "unsupported private type " & Name);
          end if;
-      end Build_Derived;
+      end Build_Private;
 
       -----------------------
       -- Register_Deferred --

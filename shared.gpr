@@ -138,22 +138,10 @@ abstract project Shared is
             for Default_Switches ("C")
               use ("-g", "-Wno-implicit-function-declaration");
 
-            for Switches ("ada2wsdl-parser.adb")
-              use Common_Options & Debug_Options & ("-gnaty-o");
-            --  Do not check for for alphabetical order of routine for
-            --  this unit which is using many generic unit requiring
-            --  specific ordering.
-
          when "Release" =>
             for Default_Switches ("Ada") use Common_Options & Release_Options;
             for Default_Switches ("C")
               use ("-O2", "-Wno-implicit-function-declaration");
-
-            for Switches ("ada2wsdl-parser.adb")
-              use Common_Options & Release_Options & ("-gnaty-o");
-            --  Do not check for for alphabetical order of routine for
-            --  this unit which is using many generic unit requiring
-            --  specific ordering.
 
       end case;
 
