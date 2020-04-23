@@ -176,6 +176,9 @@ package body Ada2WSDL.Parser is
 
    package Compute is
 
+      --  Compute package is used to compute the range and values for
+      --  Bin_Op and Expr nodes.
+
       generic
          type T is private;
          Zero : T;
@@ -448,11 +451,11 @@ package body Ada2WSDL.Parser is
    procedure Analyze_Subtype (Node : Subtype_Decl'Class) is
 
       T_Name       : constant String := Img (Node.F_Name);
-      NS           : constant String := Name_Space (Node);
-
       T_Decl       : constant Base_Type_Decl :=
                        Node.F_Subtype.P_Designated_Type_Decl;
+      NS           : constant String := Name_Space (Node);
       T_Def        : constant Type_Def := T_Decl.As_Type_Decl.F_Type_Def;
+
       Lower, Upper : Long_Long_Integer;
       Type_Suffix  : Unbounded_String;
       Array_Len    : Natural;
@@ -477,9 +480,6 @@ package body Ada2WSDL.Parser is
                   Array_Len);
             end;
 
-            --  ?? check if this can be used:
-            --     Analyze_Array
-            --       (T_Decl, T_Name, Node, T_Def.As_Array_Type_Def);
          else
             Generator.Register_Derived
               (Name_Space (Node), T_Name,
@@ -630,7 +630,7 @@ package body Ada2WSDL.Parser is
       procedure Analyze_Record (Node : Record_Type_Def'Class) is
 
          procedure Analyze_Field (Node : Component_Decl);
-         --  ???
+         --  Analyze every record fields
 
          -------------------
          -- Analyze_Field --
@@ -935,6 +935,10 @@ package body Ada2WSDL.Parser is
          end if;
       end From_Subtype;
 
+      ------------------
+      -- Get_Range_Op --
+      ------------------
+
       function Get_Range_Op (R : Range_Spec) return Bin_Op is
         (if R = No_Range_Spec
          then No_Bin_Op
@@ -1084,13 +1088,13 @@ package body Ada2WSDL.Parser is
 
          use type GNATCOLL.VFS.Filesystem_String;
 
+         Project          : constant GPR.Project_Tree_Access :=
+                              new GPR.Project_Tree;
          Project_Filename : constant String :=
                               To_String (Options.Project_Filename);
          Project_File     : constant GNATCOLL.VFS.Virtual_File :=
                               GNATCOLL.VFS.Create (+Project_Filename);
-
-         Env     : GPR.Project_Environment_Access;
-         Project : constant GPR.Project_Tree_Access := new GPR.Project_Tree;
+         Env              : GPR.Project_Environment_Access;
       begin
          GPR.Initialize (Env);
          Project.Load (Project_File, Env);
@@ -1293,9 +1297,10 @@ package body Ada2WSDL.Parser is
             Prev_Index : Natural;
             First      : Positive := Deferred_Types'First;
          begin
-            --  When analysing the deferred types we could have some more types
-            --  discoverred. Do the analyse of the defintions until there is no
-            --  more added into the deferred list.
+            --  When analysing the deferred types we could have some
+            --  more types discoverred. Do the analyse of the
+            --  defintions until there is no more added into the
+            --  deferred list.
 
             loop
                Prev_Index := Index;
@@ -1423,9 +1428,9 @@ package body Ada2WSDL.Parser is
          if T_Name = "string" then
             return Build_Type ("string");
 
-         elsif T_Name = "soap_base64"
-           or else T_Name = "utils.soap_base64"
-           or else T_Name = "soap.utils.soap_base64"
+         elsif T_Name in "soap_base64"
+                       | "utils.soap_base64"
+                       | "soap.utils.soap_base64"
          then
             return Build_Type ("SOAP_Base64");
 
@@ -1727,9 +1732,9 @@ package body Ada2WSDL.Parser is
          T_Name : constant String := Characters.Handling.To_Lower (Name);
       begin
          if T_Name in "unbounded_string"
-           | "unbounded.unbounded_string"
-             | "strings.unbounded.unbounded_string"
-               | "ada.strings.unbounded.unbounded_string"
+                    | "unbounded.unbounded_string"
+                    | "strings.unbounded.unbounded_string"
+                    | "ada.strings.unbounded.unbounded_string"
          then
             if Base then
                return Build_Type ("string");
