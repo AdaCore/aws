@@ -3,7 +3,7 @@ import string
 
 exec_cmd('ada2wsdl',
          ['-q', '-f', '-Ptcons2_main',
-          '-a', 'http://localhost:7701', 'tcons2.ads', '-o', 'tcons2.wsdl'])
+          '-a', 'http://localhost:7715', 'tcons2.ads', '-o', 'tcons2.wsdl'])
 exec_cmd('wsdl2aws',
          ['-q', '-f', '-cb', '-types', 'tcons2', 'tcons2.wsdl'])
 
