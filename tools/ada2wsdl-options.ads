@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2003-2018, AdaCore                     --
+--                     Copyright (C) 2003-2020, AdaCore                     --
 --                                                                          --
 --  This is free software;  you can redistribute it  and/or modify it       --
 --  under terms of the  GNU General Public License as published  by the     --
@@ -22,12 +22,11 @@ package Ada2WSDL.Options is
 
    use Ada.Strings.Unbounded;
 
-   Initialized : Boolean := False;
-   --  Set to True by Initialize, if initialization is successful
+   LaL : Boolean := False;
 
    Verbose        : Boolean := False;
    --  If this flag is set ON, Ada2WSDL generates the message about itself,
-   --  including ASIS/GNAT version with which it is built.
+   --  including GNAT version with which it is built.
 
    Quiet          : Boolean := False;
    --  If this flag is set ON, Ada2WSDL does not output information about the
@@ -47,6 +46,9 @@ package Ada2WSDL.Options is
 
    WS_Name        : Unbounded_String;
    --  Name of the Web Service, default value is the name of the Ada package
+
+   Project_Filename : Unbounded_String;
+   --  The project filename passed to the -P option
 
    Tree_File_Path : Unbounded_String;
    --  Path to the generated tree file, this is needed when, for example, using

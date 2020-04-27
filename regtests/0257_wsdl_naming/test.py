@@ -2,7 +2,7 @@ from test_support import *
 import os.path
 
 exec_cmd('ada2wsdl',
-         ['-q', '-f', '-I.', '-Pwsdl_naming_main',
+         ['-q', '-f', '-Pwsdl_naming_main',
           '-a', 'http://localhost:7709', 'wsdl_naming.ads',
           '-s', 'api', '-n', 'nsans',
           '-o', 'wsdl_naming.wsdl'])

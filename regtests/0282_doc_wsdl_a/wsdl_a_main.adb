@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2016-2018, AdaCore                     --
+--                     Copyright (C) 2016-2020, AdaCore                     --
 --                                                                          --
 --  This is free software;  you can redistribute it  and/or modify it       --
 --  under terms of the  GNU General Public License as published  by the     --
@@ -25,6 +25,7 @@ with SOAP.Dispatchers.Callback;
 
 with WSDL_a_Server;
 with WSDL_a_Service.Client;
+with WSDL_a_Service.Server;
 with WSDL_a_Service.Types;
 
 procedure WSDL_a_Main is
@@ -47,7 +48,7 @@ begin
       Schema => WSDL_a_Service.Schema);
 
    Config.Set.Server_Host (Conf, "localhost");
-   Config.Set.Server_Port (Conf, 7701);
+   Config.Set.Server_Port (Conf, WSDL_a_Service.Server.Port);
 
    Server.Start (WS, H, Conf);
 

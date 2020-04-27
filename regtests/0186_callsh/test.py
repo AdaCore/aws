@@ -2,7 +2,7 @@ from test_support import *
 import string
 
 exec_cmd('ada2wsdl',
-         ['-q', '-d', '-f', '-I.', '-Pcallsh', 'callsh.ads',
+         ['-q', '-d', '-f', '-Pcallsh', 'callsh.ads',
           '-o', 'callsh.wsdl'])
 
 with open('callsh.wsdl') as result:

@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2003-2013, AdaCore                     --
+--                     Copyright (C) 2003-2020, AdaCore                     --
 --                                                                          --
 --  This is free software;  you can redistribute it  and/or modify it       --
 --  under terms of the  GNU General Public License as published  by the     --
@@ -16,55 +16,30 @@
 --  to http://www.gnu.org/licenses for a complete copy of the license.      --
 ------------------------------------------------------------------------------
 
-with Ada.Characters.Conversions;
-with Ada.Characters.Handling;
 with Ada.Exceptions;
-with Ada.Strings.Fixed;
+with Ada.Strings.Unbounded;
 
-with Asis.Declarations;
-with Asis.Elements;
-with Asis.Text;
+with Langkit_Support.Slocs;
 
-with AWS.Utils;
+with Ada2WSDL.Options;
 
 package body Ada2WSDL is
 
    use Ada;
-   use Asis;
-   use AWS;
+   use Ada.Strings.Unbounded;
 
    --------------
    -- Location --
    --------------
 
-   function Location (E : Asis.Element) return String is
-
-      function Image (Str : Wide_String) return String;
-      --  Return Str as a lower-case and trimmed string
-
-      -----------
-      -- Image --
-      -----------
-
-      function Image (Str : Wide_String) return String is
-      begin
-         return Characters.Handling.To_Lower
-           (Strings.Fixed.Trim
-              (Characters.Conversions.To_String (Str), Strings.Both));
-      end Image;
-
-      E_Span    : constant Text.Span := Text.Element_Span (E);
-      Unit      : constant Asis.Declaration :=
-                    Elements.Unit_Declaration
-                      (Elements.Enclosing_Compilation_Unit (E));
-      --  Unit containing element E
-
-      Unit_Name : constant Asis.Element := Declarations.Names (Unit) (1);
-      --  Unit name
+   function Location (Node : LaL.Ada_Node'Class) return String is
+      Sloc : constant Langkit_Support.Slocs.Source_Location_Range :=
+               LaL.Sloc_Range (Node);
    begin
-      return Image (Text.Element_Image (Unit_Name)) & ".ads:"
-        & Utils.Image (E_Span.First_Line)
-        & ':' & Utils.Image (E_Span.First_Column);
+      return To_String (Options.File_Name)
+        & ':'
+        & Langkit_Support.Slocs.Image
+           (Langkit_Support.Slocs.Start_Sloc (Sloc));
    end Location;
 
    ----------------------
@@ -72,11 +47,11 @@ package body Ada2WSDL is
    ----------------------
 
    procedure Raise_Spec_Error
-     (E       : Asis.Element;
+     (Node    : LaL.Ada_Node'Class;
       Message : String) is
    begin
       Exceptions.Raise_Exception
-        (Spec_Error'Identity, Location (E) & ": " & Message);
+        (Spec_Error'Identity, Location (Node) & ": " & Message);
    end Raise_Spec_Error;
 
 end Ada2WSDL;

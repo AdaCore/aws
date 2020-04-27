@@ -41,7 +41,7 @@ Creating WSDL documents
 
 .. index:: ada2wsdl
 
-Note that this tool is based on `ASIS`.
+Note that this tool is based on `LibAdaLang`.
 
 .. _Using_ada2wsdl:
 
@@ -49,7 +49,7 @@ Using ada2wsdl
 --------------
 
 `ada2wsdl` can be used on any Ada spec file to generated a
-`WSDL` document. The Ada spec is parsed using `ASIS`.
+`WSDL` document. The Ada spec is parsed using `LibAdaLang`.
 
 .. highlight:: sh
 
@@ -493,10 +493,6 @@ ada2wsdl
 
 *-lit*
   Generate literal's style binding (default is encoded)
-
-*-I path*
-  Add path option for the `ASIS` compilation step. This option can
-  appear any number of time on the command line.
 
 *-n name*
   Specify the schema name space root name. The default value is "soapaws".

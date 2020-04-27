@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2003-2019, AdaCore                     --
+--                     Copyright (C) 2003-2020, AdaCore                     --
 --                                                                          --
 --  This is free software;  you can redistribute it  and/or modify it       --
 --  under terms of the  GNU General Public License as published  by the     --
@@ -51,9 +51,8 @@ procedure Ada2WSDL.Main is
    begin
       loop
          case GNAT.Command_Line.Getopt
-           ("f q v a: o: s: t: I: P: n: noenum d doc lit sea")
+           ("l f q v a: o: s: t: I: P: n: noenum d doc lit sea")
          is
-
             when ASCII.NUL =>
                exit;
 
@@ -103,11 +102,9 @@ procedure Ada2WSDL.Main is
                Text_IO.New_Line;
                Text_IO.Put_Line ("Ada2WSDL v" & Version);
 
-            when 'I' =>
-               Parser.Add_Option ("-I" & GNAT.Command_Line.Parameter);
-
             when 'P' =>
-               Parser.Add_Option ("-P" & GNAT.Command_Line.Parameter);
+               Options.Project_Filename :=
+                 To_Unbounded_String (GNAT.Command_Line.Parameter);
 
             when 'd' =>
                if GNAT.Command_Line.Full_Switch = "doc" then
@@ -124,6 +121,9 @@ procedure Ada2WSDL.Main is
             when 'l' =>
                if GNAT.Command_Line.Full_Switch = "lit" then
                   Options.Literal := True;
+
+               elsif GNAT.Command_Line.Full_Switch = "l" then
+                  Options.LaL := True;
 
                else
                   Usage;
@@ -227,12 +227,6 @@ procedure Ada2WSDL.Main is
 begin
    Parse_Command_Line;
 
-   Parser.Initialize;
-
-   if not Options.Initialized then
-      return;
-   end if;
-
    declare
       Filename : constant String := To_String (Options.WSDL_File_Name);
    begin
@@ -250,8 +244,6 @@ begin
 
       Generator.Write (Filename);
    end;
-
-   Parser.Clean_Up;
 
 exception
 
@@ -274,33 +266,18 @@ exception
          Text_IO.Set_Output (Text_IO.Standard_Error);
          Text_IO.New_Line;
 
-         if Exception_Identity (E) = Program_Error'Identity
-           and then
-             Exception_Message (E) = "Inconsistent versions of GNAT and ASIS"
-         then
-            Text_IO.Put_Line ("Ada2WSDL v" & Version);
-            Text_IO.New_Line;
-            Text_IO.Put ("is inconsistent with the GNAT version");
-            Text_IO.New_Line;
-            Text_IO.Put_Line
-              ("Check your installation of GNAT, ASIS and the GNAT toolset");
+         Text_IO.Put_Line ("Unexpected bug in Ada2WSDL v" & Version);
+         Text_IO.New_Line;
+         Text_IO.Put (Exception_Name (E));
+         Text_IO.Put (" was raised: ");
 
+         if Exception_Message (E)'Length = 0 then
+            Text_IO.Put_Line ("(no exception message)");
          else
-            Text_IO.Put_Line ("Unexpected bug in Ada2WSDL v" & Version);
-            Text_IO.New_Line;
-            Text_IO.Put (Exception_Name (E));
-            Text_IO.Put (" was raised: ");
-
-            if Exception_Message (E)'Length = 0 then
-               Text_IO.Put_Line ("(no exception message)");
-            else
-               Text_IO.Put_Line (Exception_Message (E));
-            end if;
-
-            Text_IO.Put_Line ("Please report.");
-            Text_IO.Set_Output (Current_Output.all);
+            Text_IO.Put_Line (Exception_Message (E));
          end if;
-      end;
 
-      Parser.Clean_Up;
+         Text_IO.Put_Line ("Please report.");
+         Text_IO.Set_Output (Current_Output.all);
+      end;
 end Ada2WSDL.Main;

@@ -1,7 +1,7 @@
 ############################################################################
 #                              Ada Web Server                              #
 #                                                                          #
-#                     Copyright (C) 2003-2017, AdaCore                     #
+#                     Copyright (C) 2003-2020, AdaCore                     #
 #                                                                          #
 #  This is free software;  you can redistribute it  and/or modify it       #
 #  under terms of the  GNU General Public License as published  by the     #
@@ -56,7 +56,7 @@ endif
 all: build
 
 ALL_OPTIONS	= $(MAKE_OPT) SOCKET="$(SOCKET)" XMLADA="$(XMLADA)" \
-	ASIS="$(ASIS)" EXEEXT="$(EXEEXT)" LDAP="$(LDAP)" DEBUG="$(DEBUG)" \
+	EXEEXT="$(EXEEXT)" LDAP="$(LDAP)" DEBUG="$(DEBUG)" \
 	RM="$(RM)" CP="$(CP)" MKDIR="$(MKDIR)" SED="$(SED)" GCC="$(GCC)" \
 	GPRBUILD="$(GPRBUILD)" ZLIB="$(ZLIB)" BDIR="$(BDIR)" \
 	prefix="$(prefix)" ENABLE_SHARED="$(ENABLE_SHARED)" \
@@ -112,14 +112,14 @@ else
 PRJ_LDAP=Disabled
 endif
 
-#  ASIS
+#  LAL
 
-ifeq (${ASIS}, true)
-PRJ_ASIS=Installed
-GEXT_MODULE := $(GEXT_MODULE) gasis_setup
+ifeq (${LAL}, true)
+PRJ_LAL=Installed
+GEXT_MODULE := $(GEXT_MODULE) lal_setup
 else
-PRJ_ASIS=Disabled
-GEXT_MODULE := $(GEXT_MODULE) gasis_dummy
+PRJ_LAL=Disabled
+GEXT_MODULE := $(GEXT_MODULE) lal_dummy
 endif
 
 #  Sockets
@@ -147,7 +147,7 @@ I_INC	= $(TPREFIX)/include/aws
 GALL_OPTIONS := $(ALL_OPTIONS) \
 	PRJ_BUILD="$(PRJ_BUILD)" \
 	PRJ_XMLADA="$(PRJ_XMLADA)" \
-	PRJ_ASIS="$(PRJ_ASIS)" \
+	PRJ_LAL="$(PRJ_LAL)" \
 	PRJ_SOCKLIB="$(PRJ_SOCKLIB)" \
 	PRJ_LDAP="$(PRJ_LDAP)" \
 	PRJ_TARGET="$(PRJ_TARGET)" \
@@ -164,10 +164,10 @@ ${MODULES_CHECK}: force
 	${MAKE} -C ${@:%_check=%} check $(GALL_OPTIONS)
 
 GPROPTS = -XPRJ_BUILD=$(PRJ_BUILD) -XPRJ_SOCKLIB=$(PRJ_SOCKLIB) \
-		-XPRJ_ASIS=$(PRJ_ASIS) -XPRJ_LDAP=$(PRJ_LDAP) \
-		-XPRJ_XMLADA=$(PRJ_XMLADA) -XTARGET=$(TARGET) \
+		-XPRJ_LDAP=$(PRJ_LDAP) \
+		-XPRJ_XMLADA=$(PRJ_XMLADA) -XPRJ_LAL=$(PRJ_LAL) \
 		-XPROCESSORS=$(PROCESSORS) -XSOCKET=$(SOCKET) \
-		-XPRJ_TARGET=$(PRJ_TARGET)
+		-XPRJ_TARGET=$(PRJ_TARGET) -XTARGET=$(TARGET) \
 
 GPR_STATIC = -XLIBRARY_TYPE=static -XXMLADA_BUILD=static
 GPR_SHARED = -XLIBRARY_TYPE=relocatable -XXMLADA_BUILD=relocatable
@@ -276,16 +276,16 @@ check: $(MODULES_CHECK)
 
 PRJDIR = $(BROOTDIR)/projects
 
-gasis_dummy:
-	echo "abstract project AWS_ASIS is" > $(PRJDIR)/aws_asis.gpr;
-	echo "   for Source_Dirs use ();" >> $(PRJDIR)/aws_asis.gpr;
-	echo "end AWS_ASIS;" >> $(PRJDIR)/aws_asis.gpr;
+lal_dummy:
+	echo "abstract project AWS_LAL is" > $(PRJDIR)/aws_lal.gpr;
+	echo "   for Source_Dirs use ();" >> $(PRJDIR)/aws_lal.gpr;
+	echo "end AWS_LAL;" >> $(PRJDIR)/aws_lal.gpr;
 
-gasis_setup:
-	echo 'with "asis";' > $(PRJDIR)/aws_asis.gpr
-	echo "abstract project AWS_ASIS is" >> $(PRJDIR)/aws_asis.gpr
-	echo "   for Source_Dirs use ();" >> $(PRJDIR)/aws_asis.gpr
-	echo "end AWS_ASIS;" >> $(PRJDIR)/aws_asis.gpr
+lal_setup:
+	echo 'with "libadalang";' > $(PRJDIR)/aws_lal.gpr
+	echo "abstract project AWS_LAL is" >> $(PRJDIR)/aws_lal.gpr
+	echo "   for Source_Dirs use ();" >> $(PRJDIR)/aws_lal.gpr
+	echo "end AWS_LAL;" >> $(PRJDIR)/aws_lal.gpr
 
 gxmlada_dummy:
 	echo "abstract project AWS_XMLADA is" > $(PRJDIR)/aws_xmlada.gpr
@@ -337,7 +337,7 @@ gen_setup:
 	echo "ENABLE_SHARED=$(ENABLE_SHARED)" >> makefile.setup
 	echo "ZLIB=$(ZLIB)" >> makefile.setup
 	echo "XMLADA=$(XMLADA)" >> makefile.setup
-	echo "ASIS=$(ASIS)" >> makefile.setup
+	echo "LAL=$(LAL)" >> makefile.setup
 	echo "NETLIB=$(NETLIB)" >> makefile.setup
 	echo "SOCKET=$(SOCKET)" >> makefile.setup
 	echo "LDAP=$(LDAP)" >> makefile.setup
