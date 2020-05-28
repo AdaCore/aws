@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2000-2019, AdaCore                     --
+--                     Copyright (C) 2000-2020, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -442,10 +442,12 @@ package body AWS.Net is
      (Socket : Socket_Type'Class; Data : Stream_Element_Array)
    is
       use Ada.Real_Time;
-      Save  : constant Boolean := Socket.C.Can_Wait;
-      First : Stream_Element_Offset := Data'First;
-      Last  : Stream_Element_Offset;
-      Stamp : Time;
+      Chunk_Size : constant := 100 * 1_024;
+      Save       : constant Boolean := Socket.C.Can_Wait;
+      First      : Stream_Element_Offset := Data'First;
+      Chunk_Last : Stream_Element_Offset := Data'Last;
+      Last       : Stream_Element_Offset;
+      Stamp      : Time;
    begin
       Socket.C.Can_Wait := True;
 
@@ -466,7 +468,10 @@ package body AWS.Net is
       end if;
 
       loop
-         Send (Socket, Data (First .. Data'Last), Last);
+         Chunk_Last :=
+           Stream_Element_Offset'Min (Data'Last, First + Chunk_Size - 1);
+
+         Send (Socket, Data (First .. Chunk_Last), Last);
 
          exit when Last = Data'Last;
 

@@ -678,17 +678,47 @@ package body AWS.Client is
       Attachments  : Attachment_List := Empty_Attachment_List;
       Headers      : Header_List     := Empty_Header_List) is
    begin
-      Internal_Post
-        (Connection,
-         Result,
-         Translator.To_Stream_Element_Array (Data),
-         URI,
-         SOAPAction   => No_Data,
-         Content_Type => (if Content_Type = No_Data
-                          then MIME.Application_Form_Data
-                          else Content_Type),
-         Attachments  => Attachments,
-         Headers      => Headers);
+      --  For message larger than 20kb the conversion to Stream_Element_Array
+      --  may create a stack overflow.
+
+      if Data'Length > 20 * 1024 then
+         declare
+            SEA : Utils.Stream_Element_Array_Access :=
+                    Translator.To_Stream_Element_Array (Data);
+         begin
+            Internal_Post
+              (Connection,
+               Result,
+               SEA.all,
+               URI,
+               SOAPAction   => No_Data,
+               Content_Type => (if Content_Type = No_Data
+                                then MIME.Application_Form_Data
+                                else Content_Type),
+               Attachments  => Attachments,
+               Headers      => Headers);
+
+            Utils.Unchecked_Free (SEA);
+
+         exception
+            when others =>
+               Utils.Unchecked_Free (SEA);
+               raise;
+         end;
+
+      else
+         Internal_Post
+           (Connection,
+            Result,
+            Translator.To_Stream_Element_Array (Data),
+            URI,
+            SOAPAction   => No_Data,
+            Content_Type => (if Content_Type = No_Data
+                             then MIME.Application_Form_Data
+                             else Content_Type),
+            Attachments  => Attachments,
+            Headers      => Headers);
+      end if;
    end Post;
 
    ---------
