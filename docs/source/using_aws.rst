@@ -862,6 +862,17 @@ Current supported options are:
   Specify the filename for the directory browser template page. The
   default value is |DIRECTORY_BROWSER_PAGE|.
 
+*Disable_Program_Ini (boolean)*
+
+  .. index:: Disable_Program_Ini
+
+  Specify whether the configuration file :file:`program_name.ini` should be
+  parsed or not. If this option is set to FALSE the program specific
+  configuration file won't be parsed. This may be useful if another
+  application is using such a file and cannot be shared. This setting
+  is expected to be set in :file:`aws.ini` before the :file:`program_name.ini`
+  file is parsed. The default value is |DISABLE_PROGRAM_INI|.
+
 *Down_Image (string)*
 
   .. index:: Down_Image

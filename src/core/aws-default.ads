@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2000-2019, AdaCore                     --
+--                     Copyright (C) 2000-2020, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -157,6 +157,7 @@ package AWS.Default with Pure is
    Security                        : constant Boolean := False;
    Security_Mode                   : constant String  := "TLS";
    Config_Directory                : constant String  := ".config/ada-web-srv";
+   Disable_Program_Ini             : constant Boolean := False;
    Cipher_Priorities               : constant String  := "";
    TLS_Ticket_Support              : constant Boolean := False;
    Certificate                     : constant String  := "cert.pem";
