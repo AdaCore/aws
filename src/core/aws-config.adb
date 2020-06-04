@@ -439,8 +439,11 @@ package body AWS.Config is
       Read_If_Present
         (Config_Directory & OS_Lib.Directory_Separator & "aws.ini");
       Read_If_Present ("aws.ini");
-      Read_If_Present (Ini.Program_Ini_File (Full_Path => True));
-      Read_If_Present (Ini.Program_Ini_File (Full_Path => False));
+
+      if not Disable_Program_Ini then
+         Read_If_Present (Ini.Program_Ini_File (Full_Path => True));
+         Read_If_Present (Ini.Program_Ini_File (Full_Path => False));
+      end if;
    end Load_Config;
 
    -------------------
