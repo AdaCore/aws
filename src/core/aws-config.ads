@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2000-2019, AdaCore                     --
+--                     Copyright (C) 2000-2020, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -382,6 +382,9 @@ package AWS.Config is
    function Config_Directory return String with Inline;
    --  Directory where AWS parameter files are located
 
+   function Disable_Program_Ini return Boolean with Inline;
+   --  Whether the <program_name>.ini file should be read
+
    function Transient_Cleanup_Interval return Duration with Inline;
    --  Number of seconds between each run of the cleaner task to remove
    --  transient pages.
@@ -520,6 +523,7 @@ private
       Session_Cleaner_Priority,
       Service_Priority,
       Config_Directory,
+      Disable_Program_Ini,
       User_Agent,
       Transient_Cleanup_Interval,
       Transient_Lifetime,
@@ -795,6 +799,9 @@ private
 
                         Config_Directory             =>
                           (Str, +Default.Config_Directory),
+
+                        Disable_Program_Ini          =>
+                          (Bool, Default.Disable_Program_Ini),
 
                         User_Agent                   =>
                           (Str, +Default.User_Agent),

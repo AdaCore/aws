@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2000-2018, AdaCore                     --
+--                     Copyright (C) 2000-2020, AdaCore                     --
 --                                                                          --
 --  This is free software;  you can redistribute it  and/or modify it       --
 --  under terms of the  GNU General Public License as published  by the     --
@@ -144,6 +144,7 @@ begin
    Add ("SESSION_ID_LENGTH", Default.Session_Id_Length);
    Add ("TLS_TICKET_SUPPORT", Default.TLS_Ticket_Support);
    Add ("CONFIG_DIRECTORY", Default.Config_Directory);
+   Add ("DISABLE_PROGRAM_INI", Default.Disable_Program_Ini);
    Add ("USER_AGENT", Default.User_Agent);
    Add ("SERVER_HEADER", Default.Server_Header);
    Text_IO.Put_Line ("""""""");

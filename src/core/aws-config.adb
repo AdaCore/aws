@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2000-2019, AdaCore                     --
+--                     Copyright (C) 2000-2020, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -237,6 +237,15 @@ package body AWS.Config is
       return To_String (O.P (Directory_Browser_Page).Str_Value);
    end Directory_Browser_Page;
 
+   -------------------------
+   -- Disable_Program_Ini --
+   -------------------------
+
+   function Disable_Program_Ini return Boolean is
+   begin
+      return Process_Options (Disable_Program_Ini).Bool_Value;
+   end Disable_Program_Ini;
+
    ----------------
    -- Down_Image --
    ----------------
@@ -430,8 +439,11 @@ package body AWS.Config is
       Read_If_Present
         (Config_Directory & OS_Lib.Directory_Separator & "aws.ini");
       Read_If_Present ("aws.ini");
-      Read_If_Present (Ini.Program_Ini_File (Full_Path => True));
-      Read_If_Present (Ini.Program_Ini_File (Full_Path => False));
+
+      if not Disable_Program_Ini then
+         Read_If_Present (Ini.Program_Ini_File (Full_Path => True));
+         Read_If_Present (Ini.Program_Ini_File (Full_Path => False));
+      end if;
    end Load_Config;
 
    -------------------

@@ -1,0 +1,13 @@
+Disable Program Ini : FALSE
+AWS Module
+./
+8080
+10
+prog_config.ini-directory_browser_page
+
+Disable Program Ini : TRUE
+AWS Module
+./
+8080
+5
+aws.ini-directory_browser_page
