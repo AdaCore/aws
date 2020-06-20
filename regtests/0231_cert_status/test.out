@@ -4,8 +4,8 @@ Server started
 Client certificate from verify routine:
 Subject    : C=FR,ST=Ile de France,L=Magny les Hameaux,O=AWS Team,CN=Pascal Obry,EMAIL=aws@obry.net
 Issuer     : C=FR,ST=Ile de France,L=Magny les Hameaux,O=AWS Team,CN=Pascal Obry,EMAIL=aws@obry.net
-Activation : 2019-03-22 11:16:50
-Expiration : 2023-03-21 11:16:50
+Activation : 2020-06-20 17:22:09
+Expiration : 2024-06-19 17:22:09
 Verified   : TRUE
 Status     :  0
 Message    : ok
@@ -13,8 +13,8 @@ Message    : ok
 Client certificate from verify routine:
 Subject    : C=FR,ST=Ile de France,O=AWS Team,CN=Jean Dupont,EMAIL=jean.dupont@nowhere.com
 Issuer     : C=FR,ST=Ile de France,L=Magny les Hameaux,O=AWS Team,CN=Pascal Obry,EMAIL=aws@obry.net
-Activation : 2019-03-22 11:16:50
-Expiration : 2019-04-01 11:16:50
+Activation : 2020-06-20 17:22:09
+Expiration : 2024-06-19 17:22:09
 Verified   : TRUE
 Status     :  0
 Message    : ok
@@ -23,16 +23,16 @@ Message    : ok
 Server certificate as received by the client:
 Subject    : C=FR,ST=Ile de France,O=AdaCore,OU=CRM,CN=localhost,EMAIL=aws-test@adacore.com
 Issuer     : C=FR,ST=Ile de France,O=AdaCore,OU=CA,CN=CA-Web-Server,EMAIL=ca-aws@adacore.com
-Activation : 2019-03-22 11:16:50
-Expiration : 2023-03-21 11:16:50
+Activation : 2020-06-20 17:22:09
+Expiration : 2024-06-19 17:22:09
 Verified   : FALSE
 
 
 Client certificate as received by the server:
 Subject    : C=FR,ST=Ile de France,O=AWS Team,CN=Jean Dupont,EMAIL=jean.dupont@nowhere.com
 Issuer     : C=FR,ST=Ile de France,L=Magny les Hameaux,O=AWS Team,CN=Pascal Obry,EMAIL=aws@obry.net
-Activation : 2019-03-22 11:16:50
-Expiration : 2019-04-01 11:16:50
+Activation : 2020-06-20 17:22:09
+Expiration : 2024-06-19 17:22:09
 Verified   : TRUE
 
 

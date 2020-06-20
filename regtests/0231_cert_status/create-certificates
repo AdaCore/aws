@@ -1,5 +1,6 @@
-# Change date for mo than 10 days before current date and run this file to
-# regenerate certificates for
+# Script to create certificates for the test. The expiration date of the
+# certificates will happen after number of days defined in DAYS variable.
+
 set -e
 
 SUBJ="/C=FR/ST=Ile de France"
@@ -58,7 +59,7 @@ openssl ca -in aws-server.csr -days $DAYS -cert CA-srv.crt \
 
 # Sign client certificate by server CA.
 
-openssl ca -in aws-client.csr -days 10 -cert CA-clt.crt \
+openssl ca -in aws-client.csr -days $DAYS -cert CA-clt.crt \
  -keyfile CA-clt.key -batch -out aws-client.crt
 
 # concatenate client certificate with its private key.
