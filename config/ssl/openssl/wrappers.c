@@ -89,12 +89,12 @@ int __aws_CRYPTO_num_locks(void) {
   return CRYPTO_num_locks();
 }
 
-void __aws_SSL_set_tmp_rsa_callback(SSL_CTX *ctx,
+void __aws_SSL_set_tmp_rsa_callback(SSL *ssl,
 				    RSA *(*tmp_rsa_callback)(SSL *ssl,
 							     int is_export,
 							     int keylength))
 {
-  SSL_set_tmp_rsa_callback(ctx, tmp_rsa_callback);
+  SSL_set_tmp_rsa_callback(ssl, tmp_rsa_callback);
 }
 
 int __aws_SSL_library_init(void)
