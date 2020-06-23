@@ -68,12 +68,10 @@ procedure Priorities is
    Previous_Chipher : ASU.Unbounded_String;
 
    Ciphers : ASU.Unbounded_String :=
-               To_Unbounded_String
-                 (if GNUTLS
-                  then "NORMAL"
-                       & (if Net.SSL.Version > "GNUTLS 3.6.3"
-                          then ":-VERS-TLS1.3" else "")
-                  else "DEFAULT");
+               To_Unbounded_String (if GNUTLS then "NORMAL" else "DEFAULT");
+
+   No_TLS13 : constant ASU.Unbounded_String :=
+                To_Unbounded_String ("NORMAL:-VERS-TLS1.3");
    --  TLS 1.3 gives no informative error message in GNUTLS 3.6.4:
    --  "The TLS connection was non-properly terminated."
    --  It say nothing about lack of common ciphers.
@@ -272,6 +270,12 @@ begin
             if Is_Handshake_Error (Ada.Exceptions.Exception_Message (E)) then
                Send_Stop_To_Server;
                exit;
+            elsif Ada.Exceptions.Exception_Message (E)
+              = "The TLS connection was non-properly terminated."
+              and then ASU.Index (Previous_Chipher, "TLS1.3") > 0
+            then
+               Print ("Disable TLS-1.3; " & To_String (Ciphers));
+               Ciphers := To_Unbounded_String ("NORMAL:-VERS-TLS1.3");
             else
                raise;
             end if;
@@ -279,16 +283,19 @@ begin
 
       Counter := Counter + 1;
 
-      Append
-        (Ciphers, ":-" & Utils.Head_Before (Client.Cipher_Description, " "));
+      if Client.Get_FD /= Net.No_Socket then
+         Append
+           (Ciphers,
+            ":-" & Utils.Head_Before (Client.Cipher_Description, " "));
 
-      if To_String (Previous_Chipher) = Client.Cipher_Description then
-         Put_Line ("The same cipher " & To_String (Previous_Chipher));
-      else
-         Previous_Chipher := To_Unbounded_String (Client.Cipher_Description);
+         if To_String (Previous_Chipher) = Client.Cipher_Description then
+            Put_Line ("The same cipher " & To_String (Previous_Chipher));
+         else
+            Previous_Chipher := To_Unbounded_String (Client.Cipher_Description);
+         end if;
+
+         Client.Shutdown;
       end if;
-
-      Client.Shutdown;
 
       Net.SSL.Release (Config);
    end loop;
