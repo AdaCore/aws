@@ -47,8 +47,8 @@ package AWS.Net.WebSocket is
    type Object_Class is access all Object'Class;
     --  To implement your own handling of messages, you need to extend this
     --  type and override at least the On_Message primitive operation.
-    --  In addition, you need to register a factory (to create new objects based
-    --  on the URI) using AWS.Net.WebSocket.Registry.Register).
+    --  In addition, you need to register a factory (to create new objects
+    --  based on the URI) using AWS.Net.WebSocket.Registry.Register).
 
    No_Object : constant Object'Class;
 
@@ -80,16 +80,6 @@ package AWS.Net.WebSocket is
    --  The following three methods are the one to override or redefine. In fact
    --  the default Send implementation should be ok for most usages.
    --
-
-   function Create
-     (Socket  : Socket_Access;
-      Request : AWS.Status.Data) return Object'Class
-   with Pre => Socket /= null;
-   --  Create a new instance of the WebSocket, this is used by AWS internal
-   --  server to create a default WebSocket if no other constructor are
-   --  provided. It is also needed when deriving from WebSocket.
-   --
-   --  This function must be registered via AWS.Net.WebSocket.Registry.Register
 
    procedure On_Message (Socket : in out Object; Message : String) is null;
    --  Default implementation does nothing, it needs to be overridden by the
@@ -261,7 +251,22 @@ package AWS.Net.WebSocket is
    --  Returns a unique id for the given socket. The uniqueness for this socket
    --  is guaranteed during the lifetime of the application.
 
+
    overriding function Is_Secure (Socket : Object) return Boolean;
+
+   -----------------------
+   -- Internal services --
+   -----------------------
+   --  These subprograms are used internally by AWS, and do not need to be
+   --  called explicitly in user code.
+
+   procedure Setup_Socket
+     (WS      : not null Object_Class;
+      Socket  : not null Socket_Access;
+      Request : AWS.Status.Data);
+   --  Setup WS.
+   --  It will be called automatically for any websocket returned by a factory,
+   --  so in general you do not need to call it explicitly.
 
 private
 
@@ -355,6 +360,8 @@ private
      (Socket : Object; Size : Natural) is null;
 
    overriding procedure Free (Socket : in out Object);
+   --  This is called automatically when the socket is no longer needed, do not
+   --  call directly from user code.
 
    No_UID    : constant UID := 0;
 

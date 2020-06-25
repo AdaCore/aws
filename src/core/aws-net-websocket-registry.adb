@@ -90,6 +90,11 @@ package body AWS.Net.WebSocket.Registry is
      (Left.Id = Right.Id);
    --  Equality is based on the unique id
 
+   function Create_Default_Socket
+      (Request_Ignored : AWS.Status.Data) return Object_Class
+      is (new Object);
+   --  Default factory
+
    package WebSocket_Map is
      new Ada.Containers.Ordered_Maps (UID, Object_Class, "=" => Same_WS);
 
@@ -1187,7 +1192,7 @@ package body AWS.Net.WebSocket.Registry is
          end loop;
       end if;
 
-      return Create'Access;
+      return Create_Default_Socket'Access;
    end Constructor;
 
    ------------
@@ -1314,17 +1319,15 @@ package body AWS.Net.WebSocket.Registry is
       Factories.Insert (URI, Factory);
    end Register;
 
-   function Register (WebSocket : Object'Class) return Object_Class is
-      WS      : Object_Class := new Object'Class'(WebSocket);
+   procedure Register (WebSocket : in out Object_Class) is
       Success : Boolean;
    begin
-      DB.Register (WS, Success);
+      DB.Register (WebSocket, Success);
 
       if not Success then
-         Unchecked_Free (WS);
+         Free (WebSocket.all);
+         Unchecked_Free (WebSocket);
       end if;
-
-      return WS;
    end Register;
 
    ----------------------

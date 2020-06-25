@@ -134,32 +134,6 @@ package body AWS.Net.WebSocket is
       Socket.On_Open ("WebSocket connected with " & URI);
    end Connect;
 
-   ------------
-   -- Create --
-   ------------
-
-   function Create
-     (Socket  : Socket_Access;
-      Request : AWS.Status.Data) return Object'Class
-   is
-      Result   : Object;
-      Protocol : Net.WebSocket.Protocol.State_Class;
-      Headers  : constant AWS.Headers.List :=
-                   AWS.Status.Header (Request);
-   begin
-      if Headers.Exist (Messages.Sec_WebSocket_Key1_Token)
-        and then Headers.Exist (Messages.Sec_WebSocket_Key2_Token)
-      then
-         Protocol := new Net.WebSocket.Protocol.Draft76.State;
-      else
-         Protocol := new Net.WebSocket.Protocol.RFC6455.State;
-      end if;
-
-      Initialize (Result, Socket, Protocol, Headers);
-      Result.Request := Request;
-      return Result;
-   end Create;
-
    --------------------
    -- End_Of_Message --
    --------------------
@@ -626,6 +600,30 @@ package body AWS.Net.WebSocket is
 
       Socket.P_State.State.Send (Socket, Message);
    end Send;
+
+   ------------------
+   -- Setup_Socket --
+   ------------------
+
+   procedure Setup_Socket
+     (WS      : not null Object_Class;
+      Socket  : not null Socket_Access;
+      Request : AWS.Status.Data)
+   is
+      Protocol : Net.WebSocket.Protocol.State_Class;
+      Headers  : constant AWS.Headers.List := AWS.Status.Header (Request);
+   begin
+      if Headers.Exist (Messages.Sec_WebSocket_Key1_Token)
+        and then Headers.Exist (Messages.Sec_WebSocket_Key2_Token)
+      then
+         Protocol := new Net.WebSocket.Protocol.Draft76.State;
+      else
+         Protocol := new Net.WebSocket.Protocol.RFC6455.State;
+      end if;
+
+      Initialize (WS.all, Socket, Protocol, Headers);
+      WS.Request := Request;
+   end Setup_Socket;
 
    --------------
    -- Shutdown --
