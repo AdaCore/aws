@@ -503,6 +503,7 @@ package body AWS.Net.WebSocket is
                  and then not Utils.Is_Valid_UTF8 (Message)
                then
                   On_Error (WebSocket);
+                  WebSocket.On_Close (To_String (Message));
                   WebSocket.Shutdown;
                   On_Free (WebSocket);
                else
@@ -634,7 +635,9 @@ package body AWS.Net.WebSocket is
      (Socket : Object;
       How    : Shutmode_Type := Shut_Read_Write) is
    begin
-      Socket.Socket.Shutdown (How);
+      if Socket.Socket /= null then
+         Socket.Socket.Shutdown (How);
+      end if;
    end Shutdown;
 
    ---------
