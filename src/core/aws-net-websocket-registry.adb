@@ -47,7 +47,6 @@ with AWS.Net.Memory;
 with AWS.Net.Poll_Events;
 with AWS.Net.Std;
 with AWS.Net.WebSocket;
-with AWS.Translator;
 with AWS.Utils;
 
 package body AWS.Net.WebSocket.Registry is
@@ -182,22 +181,6 @@ package body AWS.Net.WebSocket.Registry is
         (Socket       : in out Object'Class;
          Message      : String;
          Is_Binary    : Boolean := False;
-         Timeout      : Duration := Forever;
-         Asynchronous : Boolean := False);
-
-      procedure Send
-        (Socket       : in out Object'Class;
-         Message      : Unbounded_String;
-         Is_Binary    : Boolean := False;
-         Timeout      : Duration := Forever;
-         Asynchronous : Boolean := False);
-      --  Same as above but can be used for large messages. The message is
-      --  possibly sent fragmented.
-
-      procedure Send
-        (Socket       : in out Object'Class;
-         Message      : Stream_Element_Array;
-         Is_Binary    : Boolean := True;
          Timeout      : Duration := Forever;
          Asynchronous : Boolean := False);
 
@@ -908,6 +891,7 @@ package body AWS.Net.WebSocket.Registry is
                        (Chunk_Size, Pending);
 
                      Read_Send : declare
+                        --  ??? Might blow up if Chunk_Size > 2Mb
                         Data : Stream_Element_Array (1 .. Chunk_Size);
                         Last : Stream_Element_Offset;
                      begin
@@ -1023,18 +1007,6 @@ package body AWS.Net.WebSocket.Registry is
          Timeout      : Duration := Forever;
          Asynchronous : Boolean := False) is
       begin
-         DB.Send
-           (Socket, To_Unbounded_String (Message),
-            Is_Binary, Timeout, Asynchronous);
-      end Send;
-
-      procedure Send
-        (Socket       : in out Object'Class;
-         Message      : Unbounded_String;
-         Is_Binary    : Boolean := False;
-         Timeout      : Duration := Forever;
-         Asynchronous : Boolean := False) is
-      begin
          if Asynchronous then
             Socket.In_Mem := True;
             Socket.Send (Message, Is_Binary);
@@ -1053,18 +1025,6 @@ package body AWS.Net.WebSocket.Registry is
             Socket.Set_Timeout (Timeout);
             Socket.Send (Message, Is_Binary);
          end if;
-      end Send;
-
-      procedure Send
-        (Socket       : in out Object'Class;
-         Message      : Stream_Element_Array;
-         Is_Binary    : Boolean := True;
-         Timeout      : Duration := Forever;
-         Asynchronous : Boolean := False) is
-      begin
-         DB.Send
-           (Socket, Translator.To_Unbounded_String (Message),
-            Is_Binary, Timeout, Asynchronous);
       end Send;
 
       ---------------------
@@ -1392,12 +1352,7 @@ package body AWS.Net.WebSocket.Registry is
       L  : Natural;
    begin
       Get_String (Message, S, L);
-      Send
-        (To, S (1 .. L),
-         Except_Peer  => AWS.Status.Socket (Request).Peer_Addr,
-         Timeout      => Timeout,
-         Asynchronous => Asynchronous,
-         Error        => Error);
+      Send (To, S (1 .. L), Request, Timeout, Asynchronous, Error);
    end Send;
 
    procedure Send
@@ -1432,9 +1387,14 @@ package body AWS.Net.WebSocket.Registry is
       Message      : Unbounded_String;
       Is_Binary    : Boolean := False;
       Timeout      : Duration := Forever;
-      Asynchronous : Boolean := False) is
+      Asynchronous : Boolean := False)
+   is
+      use Ada.Strings.Unbounded.Aux;
+      S  : Big_String_Access;
+      L  : Natural;
    begin
-      DB.Send (Socket, Message, Is_Binary, Timeout, Asynchronous);
+      Get_String (Message, S, L);
+      DB.Send (Socket, S (1 .. L), Is_Binary, Timeout, Asynchronous);
    end Send;
 
    procedure Send
@@ -1442,9 +1402,16 @@ package body AWS.Net.WebSocket.Registry is
       Message      : Stream_Element_Array;
       Is_Binary    : Boolean := True;
       Timeout      : Duration := Forever;
-      Asynchronous : Boolean := False) is
+      Asynchronous : Boolean := False)
+   is
+      A : String (Natural (Message'First) .. Natural (Message'Last))
+         with Import;
+      for A'Address use Message'Address;
+      pragma Compile_Time_Error
+         (Character'Size /= Stream_Element'Size,
+          "A character size is not the size of a byte");
    begin
-      DB.Send (Socket, Message, Is_Binary, Timeout, Asynchronous);
+      Send (Socket, A, Is_Binary, Timeout, Asynchronous);
    end Send;
 
    --------------
