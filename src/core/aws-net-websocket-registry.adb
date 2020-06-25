@@ -380,10 +380,12 @@ package body AWS.Net.WebSocket.Registry is
 
          exception
             when E : others =>
-               DB.Unregister (WebSocket);
+               Do_Unregister (WebSocket);
                WebSocket_Exception
-                 (WebSocket, Exception_Message (E), Protocol_Error);
-               Unchecked_Free (WebSocket);
+                  (WebSocket, Exception_Message (E), Protocol_Error);
+               WebSocket.On_Close (Exception_Message (E));
+               WebSocket.Shutdown;
+               Do_Free (WebSocket);
          end;
       end loop Handle_Message;
    end Message_Reader;
@@ -697,7 +699,7 @@ package body AWS.Net.WebSocket.Registry is
 
          if Natural (Registered.Length) = Config.Max_WebSocket then
             --  Let's try to close a WebSocket for which the activity has
-            --  timedout.
+            --  timed out.
 
             declare
                use type Calendar.Time;
@@ -909,27 +911,43 @@ package body AWS.Net.WebSocket.Registry is
                         Data : Stream_Element_Array (1 .. Chunk_Size);
                         Last : Stream_Element_Offset;
                      begin
+                        --  ??? Useless copy of the data in memory. Would be
+                        --  nice to remove this.
                         WS.Mem_Sock.Receive (Data, Last);
                         pragma Assert (Last = Data'Last);
 
-                        WS.Send (Data, Last);
+                        if Last /= 0 then
+                           WS.Set_Timeout (Timeout);
+                           WS.Send (Data, Last);
+                        end if;
 
-                        Pending := Pending - Chunk_Size;
+                        Pending := Pending - Last;
                      exception
                         when E : others =>
                            Unregister (WS);
                            WebSocket_Exception
                              (WS, Exception_Message (E), Protocol_Error);
+
+                           WS.Close (Exception_Message (E), Going_Away);
+                           WS.On_Close (Exception_Message (E));
+
+                           --  ??? if we free it now, there might be a reader
+                           --  in parallel that is using this socket...
                            Unchecked_Free (WS);
+
                            --  No more data to send from this socket
                            Pending := 0;
+
+                           Socks (Sock_Index) := null;
                      end Read_Send;
                   end;
 
                   if Pending = 0 then
                      --  No more data for this socket, first free memory
 
-                     Free (Object_Class (Socks (Sock_Index)).Mem_Sock);
+                     if Socks (Sock_Index) /= null then
+                        Free (Object_Class (Socks (Sock_Index)).Mem_Sock);
+                     end if;
 
                      --  Then the Set.Remove (on the socket set) move the last
                      --  socket in the set to the location of the removed
@@ -973,6 +991,11 @@ package body AWS.Net.WebSocket.Registry is
                         Unregister (WebSocket);
                         WebSocket_Exception
                           (WebSocket, Exception_Message (E), Protocol_Error);
+
+                        WebSocket.On_Close (Exception_Message (E));
+                        WebSocket.Close (Exception_Message (E), Going_Away);
+
+                        --  Do not free, it might be used by another
                         Unchecked_Free (WebSocket);
                   end;
 

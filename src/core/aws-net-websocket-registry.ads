@@ -141,7 +141,7 @@ package AWS.Net.WebSocket.Registry is
      with Pre => To /= No_Recipient;
    --  Close connections
 
-   --  Targetting a single WebSocket, these routines are equivalent to the
+   --  Targeting a single WebSocket, these routines are equivalent to the
    --  Net.WebSocket ones but are thread-safe. That is, they can be mixed
    --  with other WebSocket activity to and from the clients.
 
