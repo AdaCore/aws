@@ -29,6 +29,10 @@
 
 with Ada.Unchecked_Deallocation;
 
+pragma Warnings (Off, "is an internal GNAT unit");
+with Ada.Strings.Unbounded.Aux;
+pragma Warnings (On, "is an internal GNAT unit");
+
 with AWS.Default;
 with AWS.Headers;
 with AWS.Messages;
@@ -587,30 +591,27 @@ package body AWS.Net.WebSocket is
    procedure Send
      (Socket    : in out Object;
       Message   : String;
-      Is_Binary : Boolean := False) is
+      Is_Binary : Boolean := False)
+   is
+      A : Stream_Element_Array
+         (Stream_Element_Offset (Message'First) ..
+          Stream_Element_Offset (Message'Last)) with Import;
+      for A'Address use Message'Address;
    begin
-      if Is_Binary then
-         Socket.State.Kind := Binary;
-      else
-         Socket.State.Kind := Text;
-      end if;
-
-      Socket.P_State.State.Send
-        (Socket, Translator.To_Stream_Element_Array (Message));
+      Send (Socket, A, Is_Binary);
    end Send;
 
    procedure Send
      (Socket    : in out Object;
       Message   : Unbounded_String;
-      Is_Binary : Boolean := False) is
+      Is_Binary : Boolean := False)
+   is
+      use Ada.Strings.Unbounded.Aux;
+      S  : Big_String_Access;
+      L  : Natural;
    begin
-      if Is_Binary then
-         Socket.State.Kind := Binary;
-      else
-         Socket.State.Kind := Text;
-      end if;
-
-      Socket.P_State.State.Send (Socket, Message);
+      Get_String (Message, S, L);
+      Send (Socket, String (S (1 .. L)), Is_Binary);
    end Send;
 
    procedure Send
@@ -618,12 +619,7 @@ package body AWS.Net.WebSocket is
       Message   : Stream_Element_Array;
       Is_Binary : Boolean := True) is
    begin
-      if Is_Binary then
-         Socket.State.Kind := Binary;
-      else
-         Socket.State.Kind := Text;
-      end if;
-
+      Socket.State.Kind := (if Is_Binary then Binary else Text);
       Socket.P_State.State.Send (Socket, Message);
    end Send;
 
