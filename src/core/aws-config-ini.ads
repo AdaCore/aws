@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2000-2012, AdaCore                     --
+--                     Copyright (C) 2000-2020, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -41,8 +41,7 @@ package AWS.Config.Ini is
      (Config   : in out Object;
       Filename : String);
    --  Read Filename and update the configuration object with the
-   --  options read from it. Raises Ada.Text_IO.Name_Error if Filename does
-   --  not exist. Raises Constraint_Error in case of wrong any parameter name
-   --  or value.
+   --  options read from it. Raises Constraint_Error in case of wrong
+   --  any parameter name or value.
 
 end AWS.Config.Ini;
