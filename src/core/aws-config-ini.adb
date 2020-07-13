@@ -193,6 +193,8 @@ package body AWS.Config.Ini is
          if Text_IO.Is_Open (File) then
             Text_IO.Close (File);
          end if;
+
+         raise;
    end Read;
 
 end AWS.Config.Ini;

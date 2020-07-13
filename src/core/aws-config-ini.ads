@@ -40,9 +40,12 @@ package AWS.Config.Ini is
    procedure Read
      (Config   : in out Object;
       Filename : String);
-   --  Read Filename and update the configuration object with the
-   --  options read from it. Raises Ada.Text_IO.Name_Error if Filename does
-   --  not exist. Raises Constraint_Error in case of wrong any parameter name
-   --  or value.
+   --  Read Filename and update the configuration object with the options read
+   --  from it.
+   --  Raises Constraint_Error in case of wrong any parameter name or value.
+   --  Raises Ada.Text_IO.Status_Error if the Filename is already open.
+   --  Raises Ada.Text_IO.Name_Error if Filename does not exist.
+   --  Raises Ada.Text_IO.Use_Error if the external environment does not
+   --  support opening for an external file with the given name.
 
 end AWS.Config.Ini;
