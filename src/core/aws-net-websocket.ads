@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2012-2019, AdaCore                     --
+--                     Copyright (C) 2012-2020, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -108,7 +108,9 @@ package AWS.Net.WebSocket is
    --  As above but activated when a WebSocket is opened
 
    procedure On_Close (Socket : in out Object; Message : String) is null;
-   --  As above but activated when a WebSocket is closed
+   --  As above but activated when a WebSocket is closed. This may be
+   --  called from a protected object, so should not do any
+   --  potentially blocking operation.
 
    procedure On_Error (Socket : in out Object; Message : String) is null;
    --  As above but activated when a WebSocket error is detected
