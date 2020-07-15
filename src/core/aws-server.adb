@@ -314,13 +314,12 @@ package body AWS.Server is
                               Accept_Socket_Serialized (TA.Server);
             Need_Shutdown : Boolean;
          begin
-            if AWS.Config.Send_Buffer_Size (TA.Server.Config) /= 0 then
+            if CNF.Send_Buffer_Size (TA.Server.Config) /= 0 then
                Net.Set_Send_Buffer_Size
-                 (Socket.all, AWS.Config.Send_Buffer_Size (TA.Server.Config));
+                 (Socket.all, CNF.Send_Buffer_Size (TA.Server.Config));
             end if;
 
-            Net.Set_No_Delay
-              (Socket.all, AWS.Config.TCP_No_Delay (TA.Server.Config));
+            Net.Set_No_Delay (Socket.all, CNF.TCP_No_Delay (TA.Server.Config));
 
             TA.Server.Slots.Set (Socket, TA.Line);
 
@@ -376,7 +375,7 @@ package body AWS.Server is
 
    function Session_Private_Name return String is
    begin
-      return AWS.Config.Session_Private_Name (Server.Get_Current.Config);
+      return CNF.Session_Private_Name (Server.Get_Current.Config);
    end Session_Private_Name;
 
    ----------------------
@@ -391,7 +390,7 @@ package body AWS.Server is
 
    function Session_Name return String is
    begin
-      return AWS.Config.Session_Name (Server.Get_Current.Config);
+      return CNF.Session_Name (Server.Get_Current.Config);
    end Session_Name;
 
    ---------
@@ -429,15 +428,15 @@ package body AWS.Server is
       Security_Mode        : Net.SSL.Method := Net.SSL.TLS_Server;
       Key_Filename         : String         := "") is
    begin
-      AWS.Config.Set.Certificate (Web_Server.Properties, Certificate_Filename);
+      CNF.Set.Certificate (Web_Server.Properties, Certificate_Filename);
 
       if Key_Filename = "" then
-         AWS.Config.Set.Key (Web_Server.Properties, Certificate_Filename);
+         CNF.Set.Key (Web_Server.Properties, Certificate_Filename);
       else
-         AWS.Config.Set.Key (Web_Server.Properties, Key_Filename);
+         CNF.Set.Key (Web_Server.Properties, Key_Filename);
       end if;
 
-      AWS.Config.Set.Security_Mode
+      CNF.Set.Security_Mode
         (Web_Server.Properties, Net.SSL.Method'Image (Security_Mode));
    end Set_Security;
 
@@ -1165,7 +1164,7 @@ package body AWS.Server is
 
       --  Initialize session server
 
-      if AWS.Config.Session (Web_Server.Properties) then
+      if CNF.Session (Web_Server.Properties) then
          AWS.Session.Control.Start
            (Session_Check_Interval => CNF.Session_Cleanup_Interval,
             Session_Lifetime       => CNF.Session_Lifetime);

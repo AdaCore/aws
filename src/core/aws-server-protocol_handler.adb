@@ -32,7 +32,6 @@
 
 with Ada.Exceptions;
 
-with AWS.Config;
 with AWS.Log;
 with AWS.Messages;
 with AWS.Net.Buffered;

@@ -34,7 +34,6 @@ with Ada.Real_Time;
 with Ada.Text_IO;
 with Ada.Unchecked_Deallocation;
 
-with AWS.Config;
 with AWS.Messages;
 with AWS.MIME;
 with AWS.Net.Buffered;
@@ -186,7 +185,7 @@ package body AWS.Server.Push is
       Counter     : Wait_Counter_Type := 0;
    end Waiter_Information;
 
-   task Waiter with Priority => AWS.Config.Service_Priority is
+   task Waiter with Priority => CNF.Service_Priority is
       entry Resume;
    end Waiter;
 
