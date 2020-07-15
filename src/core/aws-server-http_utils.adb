@@ -413,7 +413,7 @@ package body AWS.Server.HTTP_Utils is
             Stamp  : constant Time := Clock;
             Span   : constant Time_Span :=
                        To_Time_Span
-                         (AWS.Config.Receive_Timeout (HTTP_Server.Properties));
+                         (CNF.Receive_Timeout (HTTP_Server.Properties));
             --  To do not spend too much time on wrong working clients
             Agent  : constant String := Status.User_Agent (C_Stat);
             Fully  : constant Boolean :=
@@ -1656,9 +1656,9 @@ package body AWS.Server.HTTP_Utils is
             Socket_Taken := False;
             Will_Close := True;
 
-            if not AWS.Config.Is_WebSocket_Origin_Set
+            if not CNF.Is_WebSocket_Origin_Set
               or else GNAT.Regexp.Match
-                (Status.Origin (C_Stat), AWS.Config.WebSocket_Origin)
+                (Status.Origin (C_Stat), CNF.WebSocket_Origin)
             then
                --  Get the WebSocket
 

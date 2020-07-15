@@ -32,7 +32,6 @@ pragma Ada_2012;
 with Ada.Strings.Unbounded;
 with GNAT.Calendar.Time_IO;
 
-with AWS.Config;
 with AWS.Hotplug.Get_Status;
 with AWS.Server.Log;
 with AWS.Session;
@@ -83,7 +82,7 @@ package body AWS.Server.Status is
 
    function Is_Security_Activated (Server : HTTP) return Boolean is
    begin
-      return AWS.Config.Security (Server.Properties);
+      return CNF.Security (Server.Properties);
    end Is_Security_Activated;
 
    --------------------------
@@ -92,7 +91,7 @@ package body AWS.Server.Status is
 
    function Is_Session_Activated (Server : HTTP) return Boolean is
    begin
-      return AWS.Config.Session (Server.Properties);
+      return CNF.Session (Server.Properties);
    end Is_Session_Activated;
 
    -----------------
@@ -549,7 +548,7 @@ package body AWS.Server.Status is
          end Field_Id;
 
          procedure LEFGI is new
-           AWS.Config.Log_Extended_Fields_Generic_Iterate (Field_Id);
+           CNF.Log_Extended_Fields_Generic_Iterate (Field_Id);
 
       begin
          LEFGI (Server.Properties);
