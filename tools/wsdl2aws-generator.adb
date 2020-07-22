@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2003-2019, AdaCore                     --
+--                     Copyright (C) 2003-2020, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -3358,7 +3358,7 @@ package body WSDL2AWS.Generator is
                              & ".Name_Space";
                begin
                   case N.Mode is
-                     when WSDL.Types.K_Simple | WSDL.Types.K_Record =>
+                     when WSDL.Types.K_Simple =>
                         Text_IO.Put
                           (Rec_Adb,
                            WSDL.Parameters.To_SOAP
@@ -3367,6 +3367,16 @@ package body WSDL2AWS.Generator is
                               Name      => To_String (N.Name),
                               Type_Name => T_Name,
                               NS        => "NS"));
+
+                     when WSDL.Types.K_Record =>
+                        Text_IO.Put
+                          (Rec_Adb,
+                           WSDL.Parameters.To_SOAP
+                             (N.all,
+                              Object    => Field,
+                              Name      => To_String (N.Name),
+                              Type_Name => T_Name,
+                              NS        => NS_Ref));
 
                      when WSDL.Types.K_Derived =>
                         Text_IO.Put
@@ -3403,7 +3413,7 @@ package body WSDL2AWS.Generator is
                                    (if O.Style = SOAP.WSDL.Schema.RPC
                                     then E_Name
                                     else T_Name),
-                                 NS        => "NS"));
+                                 NS        => NS_Ref));
                         end;
                   end case;
                end;

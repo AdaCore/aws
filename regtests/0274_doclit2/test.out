@@ -18,10 +18,10 @@ maximumQueueSize = 16
 <abc:executeRequest>
    <abc:executionTime>XXXX-XX-XXTXX:XX:XXZ</abc:executionTime>
    <abc:valueA>
-      <abc:latLong>
+      <sp:latLong>
          <sp:latitudeDegrees>1.00000000000000E+00</sp:latitudeDegrees>
          <sp:longitudeDegrees>1.10000000000000E+00</sp:longitudeDegrees>
-      </abc:latLong>
+      </sp:latLong>
       <abc:field7>3.00000000000000E+00</abc:field7>
       <abc:field8>4.00000000000000E+00</abc:field8>
       <abc:field9>2</abc:field9>
@@ -30,10 +30,10 @@ maximumQueueSize = 16
       <abc:field11>6.00000000000000E-01</abc:field11>
    </abc:valueA>
    <abc:valueA>
-      <abc:latLong>
+      <sp:latLong>
          <sp:latitudeDegrees>2.00000000000000E+00</sp:latitudeDegrees>
          <sp:longitudeDegrees>2.10000000000000E+00</sp:longitudeDegrees>
-      </abc:latLong>
+      </sp:latLong>
       <abc:field7>3.20000000000000E+00</abc:field7>
       <abc:field8>4.20000000000000E+00</abc:field8>
       <abc:field9>2</abc:field9>
