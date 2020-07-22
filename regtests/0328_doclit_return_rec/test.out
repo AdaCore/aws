@@ -1,0 +1,21 @@
+@ Begin Test1
+@   Input Rec.Status = SUCCESS
+@   Input Rec.Message = good
+@ End Test1
+@ Begin Test2
+@   Input Stat = FAILURE
+@ End Test2
+@ Begin Test3
+@   Output Rec.Status = SUCCESS
+@   Output Rec.Message = A test message from server.
+@ End Test3
+xmlns:n1="http://soapaws/Types_AWS_pkg/"
+xmlns:n2="http://soapaws/Test_AWS_pkg/"
+<n2:Result_Test3>
+<n1:Test3_Result>
+</n1:Test3_Result>
+</n2:Result_Test3>
+<Result_Test3>
+<Test3_Result>
+</Test3_Result>
+</Result_Test3>
