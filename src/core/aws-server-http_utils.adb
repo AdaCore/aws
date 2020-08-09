@@ -1348,7 +1348,6 @@ package body AWS.Server.HTTP_Utils is
 
       procedure Send_Data is
          use type AWS.Status.Request_Method;
-         use type Calendar.Time;
 
          type File_Status is (Changed, Up_To_Date, Not_Found);
 
@@ -1372,8 +1371,8 @@ package body AWS.Server.HTTP_Utils is
 
                if Utils.Is_Valid_HTTP_Date (Status.If_Modified_Since (C_Stat))
                  and then
-                   File_Time
-                     = Messages.To_Time (Status.If_Modified_Since (C_Stat))
+                   Messages.To_HTTP_Date (File_Time)
+                     = Status.If_Modified_Since (C_Stat)
                --  Equal used here see [RFC 2616 - 14.25]
                then
                   F_Status := Up_To_Date;
