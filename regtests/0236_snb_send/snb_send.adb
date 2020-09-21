@@ -27,11 +27,13 @@
 --  covered by the  GNU Public License.                                     --
 ------------------------------------------------------------------------------
 
-with AWS.Net.Log;
-with AWS.Net.SSL;
 with Ada.Exceptions;
 with Ada.Streams;
 with Ada.Text_IO;
+
+with AWS.Net.Log;
+with AWS.Net.SSL;
+with AWS.Utils;
 
 with GNAT.MD5;
 
@@ -47,9 +49,24 @@ procedure SNB_Send is
    MD5R : GNAT.MD5.Context;
    MD5W : GNAT.MD5.Context;
 
+   Socket_Timeout : constant Duration := 0.25;
+   Timeout_Image  : constant String :=
+     AWS.Utils.Significant_Image (Socket_Timeout, 2);
+
+   -----------
+   -- Error --
+   -----------
+
    procedure Error (Socket : Socket_Type'Class; Message : String) is
+      Last : constant Positive := Message'Last -
+        (if Message'Length > Timeout_Image'Length
+           and then Message
+                      (Message'Last - Timeout_Image'Length .. Message'Last)
+                    = ' ' & Timeout_Image
+         then Timeout_Image'Length
+         else 0);
    begin
-      Put_Line ("error: " & Message);
+      Put_Line ("error: " & Message (Message'First .. Last));
    end Error;
 
 begin
@@ -80,7 +97,7 @@ begin
          --  Put_Line ("Receive" & Last'Img);
       end loop;
 
-      S (J).Set_Timeout (0.2);
+      S (J).Set_Timeout (Socket_Timeout);
    end loop;
 
    SSL.Initialize (Conf, "cert.pem");
