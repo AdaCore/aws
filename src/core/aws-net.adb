@@ -701,7 +701,7 @@ package body AWS.Net is
            (Socket,
             Wait_Event_Type'Image (Mode) & Timeout_Token
             & Utils.Significant_Image (Socket.Timeout, 2));
-         --  Can't use just Timeout in tests output becuse it can differ from
+         --  Can't use just Timeout in tests output because it can differ from
          --  stable Socket.Timeout value on Send operation.
 
       elsif Result = Event_Set'(Error => True, others => False) then
