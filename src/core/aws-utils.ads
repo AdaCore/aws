@@ -116,7 +116,6 @@ package AWS.Utils is
    with Post =>
      Significant_Image'Result'Length > 0
      and then Significant_Image'Result (Significant_Image'Result'First) /= ' ';
-
    --  Returns image of D without the leading blank and with N significant
    --  digits. If number of digits in integer part is more than N, the image
    --  would represent the whole integer part.
