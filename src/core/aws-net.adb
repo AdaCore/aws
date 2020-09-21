@@ -700,7 +700,7 @@ package body AWS.Net is
          Raise_Socket_Error
            (Socket,
             Wait_Event_Type'Image (Mode) & Timeout_Token
-            & Utils.Image (Socket.Timeout));
+            & Utils.Significant_Image (Socket.Timeout, 2));
          --  Can't use just Timeout in tests output becuse it can differ from
          --  stable Socket.Timeout value on Send operation.
 
