@@ -294,8 +294,7 @@ package body AWS.Net.Poll_Events is
                Poll_Timeout := Timeout - To_Duration (Clock - Stamp);
 
                if Poll_Timeout < 0.0 then
-                  Count := 0;
-                  return;
+                  Poll_Timeout := 0.0;
                end if;
             end if;
 
