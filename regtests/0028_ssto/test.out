@@ -1,9 +1,9 @@
 start
 accept
-INPUT timeout 1.00
+INPUT timeout 1.0
 receive
-INPUT timeout 1.00
+INPUT timeout 1.0
 send
-OUTPUT timeout 1.00
+OUTPUT timeout 1.0
 client task done.
 done.
