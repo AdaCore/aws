@@ -542,7 +542,7 @@ package body Ada2WSDL.Parser is
                Len          : Unbounded_String;
                Lower, Upper : Long_Long_Integer;
                Type_Suffix  : Unbounded_String;
-               Array_Len    : Integer;
+               Array_Len    : Integer := 0;
             begin
                Get_Range (T_Decl, Lower, Upper);
 
