@@ -1005,7 +1005,7 @@ package body SOAP.Types is
          S := N_S - B_S - N;
          N := 0;
       else
-         S := 60 - B_S + N_S;
+         S := 60 - B_S + N_S - N;
          N := 1;
       end if;
 
@@ -1013,7 +1013,7 @@ package body SOAP.Types is
          I := N_I - B_I - N;
          N := 0;
       else
-         I := 60 - B_I + N_I;
+         I := 60 - B_I + N_I - N;
          N := 1;
       end if;
 
@@ -1021,7 +1021,7 @@ package body SOAP.Types is
          H := N_H - B_H - N;
          N := 0;
       else
-         H := 24 - B_H + N_H;
+         H := 24 - B_H + N_H - N;
          N := 1;
       end if;
 
@@ -1034,7 +1034,7 @@ package body SOAP.Types is
          D := N_DW - B_DW - N;
          N := 0;
       else
-         D := 7 - B_DW + N_DW;
+         D := 7 - B_DW + N_DW - N;
          N := 1;
       end if;
 
@@ -1042,7 +1042,7 @@ package body SOAP.Types is
          M := N_M - B_M + N;
          N := 0;
       else
-         M := 12 - B_M + N_M;
+         M := 12 - B_M + N_M - N;
          N := 1;
       end if;
 
