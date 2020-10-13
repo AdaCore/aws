@@ -39,6 +39,7 @@ pragma Ada_2012;
 with Ada.Command_Line;
 with Ada.Containers.Indefinite_Hashed_Maps;
 with Ada.Directories;
+with Ada.Strings.Fixed;
 with Ada.Strings.Equal_Case_Insensitive;
 with Ada.Strings.Hash_Case_Insensitive;
 with Ada.Task_Attributes;
@@ -1088,6 +1089,7 @@ package body AWS.Net.SSL is
       pragma Unreferenced (ad);
       use C.Strings;
       Server_Name : constant chars_ptr := TSSL.SSL_get_servername (Session);
+      Server_Name_String : constant String := Value (Server_Name);
       CH : Host_Certificates.Cursor;
       Dummy : TSSL.SSL_CTX;
    begin
@@ -1095,7 +1097,27 @@ package body AWS.Net.SSL is
          return TSSL.SSL_TLSEXT_ERR_OK;
       end if;
 
-      CH := Hosts.Find (Value (Server_Name));
+      CH := Hosts.Find (Server_Name_String);
+
+      if not Host_Certificates.Has_Element (CH) then
+         declare
+            First_Dot_Position : constant Natural :=
+              Ada.Strings.Fixed.Index (Server_Name_String, ".");
+         begin
+            if First_Dot_Position > 0 then
+               declare
+                  Wildcard_Pattern : String
+                    (1 .. Server_Name_String'Last + 2 - First_Dot_Position);
+               begin
+                  Wildcard_Pattern (1) := '*';
+                  Wildcard_Pattern (2 .. Wildcard_Pattern'Last) :=
+                    Server_Name_String
+                      (First_Dot_Position .. Server_Name_String'Last);
+                  CH := Hosts.Find (Wildcard_Pattern);
+               end;
+            end if;
+         end;
+      end if;
 
       if Host_Certificates.Has_Element (CH) then
          Dummy := TSSL.SSL_set_SSL_CTX (Session, Hosts.all (CH));
