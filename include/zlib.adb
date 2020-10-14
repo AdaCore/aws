@@ -518,6 +518,9 @@ package body ZLib is
       if Code = Thin.Z_STREAM_END then
          Filter.Stream_End := True;
 
+      elsif Code = Thin.Z_BUF_ERROR then
+         Raise_Error (Return_Code_Enum'Image (Return_Code (Code)));
+
       elsif Code /= Thin.Z_OK
         and then
           (Code /= Thin.Z_BUF_ERROR
