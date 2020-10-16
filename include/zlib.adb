@@ -497,6 +497,7 @@ package body ZLib is
       Out_Last  :    out Stream_Element_Offset;
       Flush     : in     Flush_Mode)
    is
+      use type Thin.ULong;
       Code : Thin.Int;
 
    begin
@@ -522,7 +523,8 @@ package body ZLib is
         and then
           (Code /= Thin.Z_BUF_ERROR
            or else Flush = No_Flush
-           or else In_Data'Length > 0)
+           or else In_Data'Length > 0
+           or else Total_In (Filter.Strm.all) = 0)
       then
          Raise_Error
            (Return_Code_Enum'Image (Return_Code (Code))
