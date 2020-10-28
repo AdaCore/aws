@@ -32,9 +32,13 @@ openssl x509 -req -days $DAYS -in CA-clt.csr -signkey CA-clt.key -out CA-clt.crt
 
 # Generate server certificate requests
 
-openssl req -new -newkey $PKEY -nodes -keyout aws-server.key \
--out aws-server.csr \
+openssl req -new -newkey $PKEY -nodes -keyout aws-server1.key \
+-out aws-server1.csr \
 -subj "$SUBJ/O=AdaCore/OU=CRM/CN=localhost/emailAddress=aws-test@adacore.com/"
+
+openssl req -new -newkey $PKEY -nodes -keyout aws-server2.key \
+-out aws-server2.csr \
+-subj "$SUBJ/O=AdaCore/OU=Test/CN=localhost/emailAddress=Test-AWS@AdaCore.com/"
 
 # Generate client certificate requests
 
@@ -52,10 +56,13 @@ touch demoCA/index.txt
 touch demoCA/index.txt.attr
 echo ADAC > demoCA/serial
 
-# Sign server certificate by server CA.
+# Sign server certificates by server CA.
 
-openssl ca -in aws-server.csr -days $DAYS -cert CA-srv.crt \
- -keyfile CA-srv.key -batch -out aws-server.crt
+openssl ca -in aws-server1.csr -days $DAYS -cert CA-srv.crt \
+ -keyfile CA-srv.key -batch -out aws-server1.crt
+
+openssl ca -in aws-server2.csr -days $DAYS -cert CA-srv.crt \
+ -keyfile CA-srv.key -batch -out aws-server2.crt
 
 # Sign client certificate by server CA.
 
@@ -69,7 +76,7 @@ rm aws-client.crt aws-client.key
 
 # remove certificate requests
 
-rm CA-clt.csr CA-srv.csr aws-client.csr aws-server.csr
+rm CA-clt.csr CA-srv.csr aws-client.csr aws-server?.csr
 
 # remove demo CA directory and CA private keys.
 
