@@ -174,7 +174,29 @@ procedure Cert_Status is
 
    HTTP : Server.HTTP;
    Conf : Config.Object;
-   SSL  : Net.SSL.Config;
+
+   ---------------------
+   -- Set_Certificate --
+   ---------------------
+
+   procedure Set_Certificate (Index : Character) is
+      SSL : Net.SSL.Config;
+   begin
+      --  SSL config, no trusted CA
+
+      Net.SSL.Initialize
+        (SSL,
+         Certificate_Filename => "aws-server" & Index & ".crt",
+         Key_Filename         => "aws-server" & Index & ".key",
+         Exchange_Certificate => True,
+         Certificate_Required => True,
+         Trusted_CA_Filename  => "CA-clt.crt");
+
+      Net.SSL.Certificate.Set_Verify_Callback
+        (SSL, Verify_Cert'Unrestricted_Access);
+
+      Server.Set_SSL_Config (HTTP, SSL);
+   end Set_Certificate;
 
 begin
    Put_Line ("Start main, wait for server to start...");
@@ -184,20 +206,7 @@ begin
    Config.Set.Max_Connection (Conf, 5);
    Config.Set.Security (Conf, True);
 
-   --  SSL config, no trusted CA
-
-   Net.SSL.Initialize
-     (SSL,
-      Certificate_Filename => "aws-server.crt",
-      Key_Filename         => "aws-server.key",
-      Exchange_Certificate => True,
-      Certificate_Required => True,
-      Trusted_CA_Filename  => "CA-clt.crt");
-
-   Net.SSL.Certificate.Set_Verify_Callback
-     (SSL, Verify_Cert'Unrestricted_Access);
-
-   Server.Set_SSL_Config (HTTP, SSL);
+   Set_Certificate ('1');
 
    --  Run
 
@@ -205,6 +214,10 @@ begin
 
    Put_Line ("Server started");
    New_Line;
+
+   Request (AWS.Server.Status.Local_URL (HTTP) & "/simple");
+
+   Set_Certificate ('2');
 
    Request (AWS.Server.Status.Local_URL (HTTP) & "/simple");
 

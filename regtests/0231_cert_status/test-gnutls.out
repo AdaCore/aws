@@ -4,23 +4,56 @@ Server started
 Client certificate from verify routine:
 Subject    : C=FR,ST=Ile de France,O=AWS Team,CN=Jean Dupont,EMAIL=jean.dupont@nowhere.com
 Issuer     : C=FR,ST=Ile de France,L=Magny les Hameaux,O=AWS Team,CN=Pascal Obry,EMAIL=aws@obry.net
-Activation : 2020-06-20 17:22:09
-Expiration : 2024-06-19 17:22:09
+Activation : 2020-10-28 03:39:23
+Expiration : 2024-10-27 03:39:23
 Verified   : TRUE
 Status     :  0
-Message    :
+Message    : 
+
 
 Server certificate as received by the client:
 Subject    : C=FR,ST=Ile de France,O=AdaCore,OU=CRM,CN=localhost,EMAIL=aws-test@adacore.com
 Issuer     : C=FR,ST=Ile de France,O=AdaCore,OU=CA,CN=CA-Web-Server,EMAIL=ca-aws@adacore.com
-Activation : 2020-06-20 17:22:09
-Expiration : 2024-06-19 17:22:09
+Activation : 2020-10-28 03:39:23
+Expiration : 2024-10-27 03:39:23
 Verified   : FALSE
+
 
 Client certificate as received by the server:
 Subject    : C=FR,ST=Ile de France,O=AWS Team,CN=Jean Dupont,EMAIL=jean.dupont@nowhere.com
 Issuer     : C=FR,ST=Ile de France,L=Magny les Hameaux,O=AWS Team,CN=Pascal Obry,EMAIL=aws@obry.net
-Activation : 2020-06-20 17:22:09
-Expiration : 2024-06-19 17:22:09
+Activation : 2020-10-28 03:39:23
+Expiration : 2024-10-27 03:39:23
 Verified   : TRUE
+
+
 => simple ok
+
+Client certificate from verify routine:
+Subject    : C=FR,ST=Ile de France,O=AWS Team,CN=Jean Dupont,EMAIL=jean.dupont@nowhere.com
+Issuer     : C=FR,ST=Ile de France,L=Magny les Hameaux,O=AWS Team,CN=Pascal Obry,EMAIL=aws@obry.net
+Activation : 2020-10-28 03:39:23
+Expiration : 2024-10-27 03:39:23
+Verified   : TRUE
+Status     :  0
+Message    : 
+
+
+Server certificate as received by the client:
+Subject    : C=FR,ST=Ile de France,O=AdaCore,OU=Test,CN=localhost,EMAIL=Test-AWS@AdaCore.com
+Issuer     : C=FR,ST=Ile de France,O=AdaCore,OU=CA,CN=CA-Web-Server,EMAIL=ca-aws@adacore.com
+Activation : 2020-10-28 03:39:23
+Expiration : 2024-10-27 03:39:23
+Verified   : FALSE
+
+
+Client certificate as received by the server:
+Subject    : C=FR,ST=Ile de France,O=AWS Team,CN=Jean Dupont,EMAIL=jean.dupont@nowhere.com
+Issuer     : C=FR,ST=Ile de France,L=Magny les Hameaux,O=AWS Team,CN=Pascal Obry,EMAIL=aws@obry.net
+Activation : 2020-10-28 03:39:23
+Expiration : 2024-10-27 03:39:23
+Verified   : TRUE
+
+
+=> simple ok
+

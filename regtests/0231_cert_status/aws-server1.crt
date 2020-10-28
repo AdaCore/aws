@@ -5,18 +5,18 @@ Certificate:
         Signature Algorithm: ecdsa-with-SHA256
         Issuer: C=FR, ST=Ile de France, O=AdaCore, OU=CA, CN=CA-Web-Server/emailAddress=ca-aws@adacore.com
         Validity
-            Not Before: Jun 20 17:22:09 2020 GMT
-            Not After : Jun 19 17:22:09 2024 GMT
+            Not Before: Oct 28 03:39:23 2020 GMT
+            Not After : Oct 27 03:39:23 2024 GMT
         Subject: C=FR, ST=Ile de France, O=AdaCore, OU=CRM, CN=localhost/emailAddress=aws-test@adacore.com
         Subject Public Key Info:
             Public Key Algorithm: id-ecPublicKey
                 Public-Key: (256 bit)
                 pub:
-                    04:ea:d7:7d:2d:8a:ce:4c:c3:1c:00:bf:e6:7b:05:
-                    ce:4e:de:16:ea:12:08:1b:1a:0b:73:5a:b8:73:7e:
-                    17:d8:43:a7:f9:02:5c:5a:9d:bc:e9:63:e2:0d:96:
-                    c1:b0:28:fe:43:c3:92:d2:5a:78:22:ed:2b:69:3f:
-                    b8:84:9a:12:38
+                    04:fc:00:4c:d4:86:be:32:b4:a4:ab:28:b5:99:5e:
+                    74:ca:34:e9:ca:ed:f0:7f:8f:6b:ea:c7:08:bd:28:
+                    8f:1f:dd:a1:19:b3:77:95:87:89:43:88:6e:85:ef:
+                    46:b9:a3:37:b9:ad:aa:af:6b:2c:58:c8:cf:9a:1a:
+                    c7:b0:fe:35:3b
                 ASN1 OID: prime256v1
                 NIST CURVE: P-256
         X509v3 extensions:
@@ -25,31 +25,31 @@ Certificate:
             Netscape Comment: 
                 OpenSSL Generated Certificate
             X509v3 Subject Key Identifier: 
-                DF:D9:74:9E:27:7D:3D:14:9B:7A:76:B1:44:0B:A2:A6:D7:30:4B:CA
+                04:E6:70:A4:E4:CB:BF:34:C6:3E:A4:EC:20:A7:62:C8:A3:8F:48:88
             X509v3 Authority Key Identifier: 
                 DirName:/C=FR/ST=Ile de France/O=AdaCore/OU=CA/CN=CA-Web-Server/emailAddress=ca-aws@adacore.com
-                serial:46:B0:9E:02:EB:D3:03:37:0B:4E:64:36:8A:8F:65:43:B7:18:9D:C6
+                serial:17:9F:E4:C6:40:A4:E7:86:AD:9E:84:3C:50:B5:56:B6:59:88:23:CB
 
     Signature Algorithm: ecdsa-with-SHA256
-         30:45:02:21:00:d0:23:06:a7:9e:ac:e3:0f:58:6d:67:64:7f:
-         57:96:b1:5f:b9:94:f8:ea:58:1e:89:9b:a5:ac:d6:66:92:37:
-         a5:02:20:0c:00:65:85:e4:7c:c3:c0:36:2d:04:88:0d:34:07:
-         e4:24:57:f4:41:c9:48:6e:bb:0e:78:c6:54:0a:65:e0:ef
+         30:45:02:21:00:d2:84:12:6f:07:ea:0b:66:65:6b:89:be:2b:
+         90:96:2d:fe:f9:57:09:50:92:74:ce:36:f3:95:3f:72:cd:8f:
+         15:02:20:5b:00:1d:da:56:ef:92:80:ac:92:04:f9:5a:ef:bc:
+         5c:ba:c6:4d:42:35:c7:62:86:9b:96:11:e5:89:15:94:b7
 -----BEGIN CERTIFICATE-----
 MIIC9zCCAp2gAwIBAgIDAK2sMAoGCCqGSM49BAMCMH8xCzAJBgNVBAYTAkZSMRYw
 FAYDVQQIDA1JbGUgZGUgRnJhbmNlMRAwDgYDVQQKDAdBZGFDb3JlMQswCQYDVQQL
 DAJDQTEWMBQGA1UEAwwNQ0EtV2ViLVNlcnZlcjEhMB8GCSqGSIb3DQEJARYSY2Et
-YXdzQGFkYWNvcmUuY29tMB4XDTIwMDYyMDE3MjIwOVoXDTI0MDYxOTE3MjIwOVow
+YXdzQGFkYWNvcmUuY29tMB4XDTIwMTAyODAzMzkyM1oXDTI0MTAyNzAzMzkyM1ow
 fjELMAkGA1UEBhMCRlIxFjAUBgNVBAgMDUlsZSBkZSBGcmFuY2UxEDAOBgNVBAoM
 B0FkYUNvcmUxDDAKBgNVBAsMA0NSTTESMBAGA1UEAwwJbG9jYWxob3N0MSMwIQYJ
 KoZIhvcNAQkBFhRhd3MtdGVzdEBhZGFjb3JlLmNvbTBZMBMGByqGSM49AgEGCCqG
-SM49AwEHA0IABOrXfS2KzkzDHAC/5nsFzk7eFuoSCBsaC3NauHN+F9hDp/kCXFqd
-vOlj4g2WwbAo/kPDktJaeCLtK2k/uISaEjijggEHMIIBAzAJBgNVHRMEAjAAMCwG
+SM49AwEHA0IABPwATNSGvjK0pKsotZledMo06crt8H+Pa+rHCL0ojx/doRmzd5WH
+iUOIboXvRrmjN7mtqq9rLFjIz5oax7D+NTujggEHMIIBAzAJBgNVHRMEAjAAMCwG
 CWCGSAGG+EIBDQQfFh1PcGVuU1NMIEdlbmVyYXRlZCBDZXJ0aWZpY2F0ZTAdBgNV
-HQ4EFgQU39l0nid9PRSbenaxRAuiptcwS8owgagGA1UdIwSBoDCBnaGBhKSBgTB/
+HQ4EFgQUBOZwpOTLvzTGPqTsIKdiyKOPSIgwgagGA1UdIwSBoDCBnaGBhKSBgTB/
 MQswCQYDVQQGEwJGUjEWMBQGA1UECAwNSWxlIGRlIEZyYW5jZTEQMA4GA1UECgwH
 QWRhQ29yZTELMAkGA1UECwwCQ0ExFjAUBgNVBAMMDUNBLVdlYi1TZXJ2ZXIxITAf
-BgkqhkiG9w0BCQEWEmNhLWF3c0BhZGFjb3JlLmNvbYIURrCeAuvTAzcLTmQ2io9l
-Q7cYncYwCgYIKoZIzj0EAwIDSAAwRQIhANAjBqeerOMPWG1nZH9XlrFfuZT46lge
-iZulrNZmkjelAiAMAGWF5HzDwDYtBIgNNAfkJFf0QclIbrsOeMZUCmXg7w==
+BgkqhkiG9w0BCQEWEmNhLWF3c0BhZGFjb3JlLmNvbYIUF5/kxkCk54atnoQ8ULVW
+tlmII8swCgYIKoZIzj0EAwIDSAAwRQIhANKEEm8H6gtmZWuJviuQli3++VcJUJJ0
+zjbzlT9yzY8VAiBbAB3aVu+SgKySBPla77xcusZNQjXHYoablhHliRWUtw==
 -----END CERTIFICATE-----
