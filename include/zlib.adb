@@ -1,7 +1,7 @@
 ----------------------------------------------------------------
 --  ZLib for Ada thick binding.                               --
 --                                                            --
---  Copyright (C) 2002-2019, Dmitriy Anisimkov                --
+--  Copyright (C) 2002-2020, Dmitriy Anisimkov                --
 --                                                            --
 --  Open source license information is in the zlib.ads file.  --
 ----------------------------------------------------------------
@@ -386,6 +386,7 @@ package body ZLib is
       In_Last    : Stream_Element_Offset;
       Item_First : Stream_Element_Offset := Item'First;
       V_Flush    : Flush_Mode := Flush;
+      No_Byte    : Boolean := False;
 
    begin
       pragma Assert (Rest_First in Buffer'First .. Buffer'Last + 1);
@@ -401,6 +402,7 @@ package body ZLib is
 
             if Rest_Last < Buffer'First then
                V_Flush := Finish;
+               No_Byte := True;
             end if;
          end if;
 
@@ -415,6 +417,9 @@ package body ZLib is
          Rest_First := In_Last + 1;
 
          exit when Stream_End (Filter)
+           or else (No_Byte
+                    and then Last < Item_First
+                    and then V_Flush = Finish)
            or else Last = Item'Last
            or else (Last >= Item'First and then Allow_Read_Some);
 
