@@ -386,7 +386,6 @@ package body ZLib is
       In_Last    : Stream_Element_Offset;
       Item_First : Stream_Element_Offset := Item'First;
       V_Flush    : Flush_Mode := Flush;
-      No_Byte    : Boolean := False;
 
    begin
       pragma Assert (Rest_First in Buffer'First .. Buffer'Last + 1);
@@ -402,7 +401,6 @@ package body ZLib is
 
             if Rest_Last < Buffer'First then
                V_Flush := Finish;
-               No_Byte := True;
             end if;
          end if;
 
@@ -417,9 +415,6 @@ package body ZLib is
          Rest_First := In_Last + 1;
 
          exit when Stream_End (Filter)
-           or else (No_Byte
-                    and then Last < Item_First
-                    and then V_Flush = Finish)
            or else Last = Item'Last
            or else (Last >= Item'First and then Allow_Read_Some);
 
@@ -502,8 +497,13 @@ package body ZLib is
       Out_Last :    out Stream_Element_Offset;
       Flush    : in     Flush_Mode)
    is
-      use type Thin.ULong;
+      use type Thin.ULong, Thin.UInt;
       Code : Thin.Int;
+
+      function Colon_Before_Message (Message : String) return String is
+        (if Message = "" then "" else ": " & Message);
+      --  Returns empty string if Message is empty, otherwice prepend ": "
+      --  before it and return.
 
    begin
       if not Is_Open (Filter) then
@@ -518,8 +518,7 @@ package body ZLib is
       Set_In  (Filter.Strm.all, In_Data'Address, In_Data'Length);
 
       Code := Flate (Filter.Compression).Step
-        (To_Thin_Access (Filter.Strm),
-         Thin.Int (Flush));
+                (To_Thin_Access (Filter.Strm), Thin.Int (Flush));
 
       if Code = Thin.Z_STREAM_END then
          Filter.Stream_End := True;
@@ -529,17 +528,20 @@ package body ZLib is
           (Code /= Thin.Z_BUF_ERROR
            or else Flush = No_Flush
            or else In_Data'Length > 0
-           or else Total_In (Filter.Strm.all) = 0)
+           or else Total_In (Filter.Strm.all) = 0
+           or else (In_Data'Length = 0
+                    and then Flush = Finish
+                    and then Avail_Out (Filter.Strm.all) = Out_Data'Length))
       then
          Raise_Error
            (Return_Code_Enum'Image (Return_Code (Code))
-            & ": " & Last_Error_Message (Filter.Strm.all));
+            & Colon_Before_Message (Last_Error_Message (Filter.Strm.all)));
       end if;
 
       In_Last  := In_Data'Last
-         - Stream_Element_Offset (Avail_In (Filter.Strm.all));
+        - Stream_Element_Offset (Avail_In (Filter.Strm.all));
       Out_Last := Out_Data'Last
-         - Stream_Element_Offset (Avail_Out (Filter.Strm.all));
+        - Stream_Element_Offset (Avail_Out (Filter.Strm.all));
    end Translate_Auto;
 
    --------------------
