@@ -2,33 +2,44 @@
  2
  3
  4
+ 0 0
 Created file with length  18
  1
  2
  3
  4
+End of stream: BUF_ERROR
+
 Created file with length  17
  1
  2
  3
  4
+End of stream: BUF_ERROR
+
 Created file with length  16
  1
  2
  3
  4
+End of stream: BUF_ERROR
+
 Created file with length  15
  1
  2
  3
  4
+End of stream: BUF_ERROR
+
 Created file with length  14
  1
  2
  3
  4
+End of stream: BUF_ERROR
+
 Created file with length  13
  1
  2
  3
-OK: End_Error raised
+OK: BUF_ERROR

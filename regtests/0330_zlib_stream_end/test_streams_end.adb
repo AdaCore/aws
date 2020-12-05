@@ -17,6 +17,7 @@
 ------------------------------------------------------------------------------
 
 with Ada.Direct_IO;
+with Ada.Exceptions;
 with Ada.Streams;           use Ada.Streams;
 with Ada.Streams.Stream_IO; use Ada.Streams.Stream_IO;
 with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
@@ -35,8 +36,8 @@ procedure Test_Streams_End is
    begin
       Create (F, Out_File, Filename);
       ZLib.Streams.Create
-         (Z, ZLib.Streams.Out_Stream,
-          ZLib.Streams.Stream_Access (Stream (F)), True);
+         (Z, ZLib.Streams.Out_Stream, ZLib.Streams.Stream_Access (Stream (F)),
+          Back_Compressed => True);
       S := Z'Unchecked_Access;
       for I in 1 .. 4 loop
          Sword'Write (S, I);
@@ -50,16 +51,30 @@ procedure Test_Streams_End is
       Z : aliased ZLib.Streams.Stream_Type;
       S : Stream_Access;
       W : Sword;
+      Rest : Stream_Element_Array (1 .. 1);
+      Last : Stream_Element_Offset;
    begin
       Open (F, In_File, Filename);
       ZLib.Streams.Create
-         (Z, ZLib.Streams.In_Stream,
-          ZLib.Streams.Stream_Access (Stream (F)), True);
+         (Z, ZLib.Streams.In_Stream, ZLib.Streams.Stream_Access (Stream (F)),
+          Back_Compressed => True);
       S := Z'Unchecked_Access;
       for I in 1 .. 4 loop
          Sword'Read (S, W);
          Put_Line (W'Image);
       end loop;
+
+      begin
+         for J in 1 .. 2 loop
+            Z.Read (Rest, Last);
+            Put (Last'Img);
+         end loop;
+      exception
+         when E : ZLib.ZLib_Error =>
+            Put_Line ("End of stream: " & Ada.Exceptions.Exception_Message (E));
+      end;
+      New_Line;
+
       ZLib.Streams.Close (Z);
       Close (F);
    end Readfile;
@@ -96,6 +111,6 @@ begin
       Shorten_One ("Streamtest.xxx");
    end loop;
 exception
-   when E : Ada.Text_IO.End_Error =>
-      Put_Line ("OK: End_Error raised");
+   when E : ZLib.ZLib_Error =>
+      Put_Line ("OK: " & Ada.Exceptions.Exception_Message (E));
 end Test_Streams_End;
