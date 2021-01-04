@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<wsdl:definitions name="WSDL_B"
+   targetNamespace="http://soapaws/WSDL_B_def/"
+   xmlns:tns="http://soapaws/WSDL_B_def/"
+   xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/"
+   xmlns:soapenc="http://schemas.xmlsoap.org/soap/encoding/"
+   xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/"
+   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+   xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+   xmlns:n1="http://soapaws/Standard_pkg/"
+   xmlns:n2="http://soapaws/WSDL_B_pkg/">
+
+   <wsdl:types>
+      <schema xmlns="http://www.w3.org/2001/XMLSchema"
+         targetNamespace="http://soapaws/WSDL_B_pkg/">
+
+         <xsd:complexType name="Set_Of_Int">
+            <xsd:sequence>
+               <xsd:element name="x" type="xsd:int"
+                    minOccurs="0" maxOccurs="unbounded"/>
+            </xsd:sequence>
+         </xsd:complexType>
+
+         <xsd:simpleType name="XYZ">
+            <xsd:restriction base="n2:Set_Of_Int">
+            </xsd:restriction>
+         </xsd:simpleType>
+      </schema>
+   </wsdl:types>
+
+   <wsdl:portType name="WSDL_B_PortType">
+   </wsdl:portType>
+
+   <wsdl:binding name="WSDL_B_Binding" type="tns:WSDL_B_PortType">
+      <soap:binding style="rpc"
+         transport="http://schemas.xmlsoap.org/soap/http"/>
+   </wsdl:binding>
+
+   <wsdl:service name="WSDL_B_Service">
+      <wsdl:port name="WSDL_B_Port" binding="tns:WSDL_B_Binding">
+         <soap:address location="No Endpoint Defined"/>
+      </wsdl:port>
+   </wsdl:service>
+</wsdl:definitions>

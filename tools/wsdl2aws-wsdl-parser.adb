@@ -2205,7 +2205,23 @@ package body WSDL2AWS.WSDL.Parser is
          NS => True);
 
       if N /= null then
-         Location := +SOAP.XML.Get_Attr_Value (N, "location");
+         declare
+            Loc : constant String := SOAP.XML.Get_Attr_Value (N, "location");
+         begin
+            --  Validate location
+
+            if Loc'Length < 8
+                or else
+              (Loc (Loc'First .. Loc'First + 6) /= "http://"
+               and then Loc (Loc'First .. Loc'First + 7) /= "https://")
+            then
+               raise WSDL_Error
+                 with  "location is not a valid end-point, "
+                       & "consider using option -e";
+            else
+               Location := +Loc;
+            end if;
+         end;
       end if;
 
       Start_Service (O, -Name, -Root_Documentation, -Documentation, -Location);
