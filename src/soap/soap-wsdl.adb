@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2003-2019, AdaCore                     --
+--                     Copyright (C) 2003-2021, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -31,6 +31,7 @@
 
 with Ada.Characters.Handling;
 with Ada.Strings.Fixed;
+with Ada.Text_IO;
 
 with DOM.Readers;
 with Input_Sources.File;
@@ -230,6 +231,10 @@ package body SOAP.WSDL is
       Close (Source);
 
       return Object (DOM.Readers.Get_Tree (Reader));
+   exception
+      when Text_IO.Name_Error =>
+         Text_IO.Put_Line ("error: cannot open file " & Filename);
+         raise;
    end Load;
 
    -----------------

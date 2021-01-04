@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2003-2018, AdaCore                     --
+--                     Copyright (C) 2003-2021, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -78,7 +78,8 @@ package WSDL2AWS.WSDL.Parser is
 
    procedure Parse
      (O        : in out Object'Class;
-      Document : SOAP.WSDL.Object);
+      Document : SOAP.WSDL.Object;
+      Filename : String);
    --  Parse document, call routines above
 
    -------------------
@@ -136,6 +137,7 @@ private
 
    type Object is tagged limited record
       Self            : Object_Access := Object'Unchecked_Access;
+      Dir             : Unbounded_String; -- current parsed directory
       Proc            : Unbounded_String; -- SOAP procedure name
       Documentation   : Unbounded_String; -- Associated documentation
       SOAPAction      : Unbounded_String; -- SOAPAction string

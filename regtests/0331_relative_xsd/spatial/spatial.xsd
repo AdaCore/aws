@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!-- This XSD contains spatial data types which are not specific to
+     any single service. -->
+
+<xs:schema xmlns="http://aurn.here.org/spatial"
+           xmlns:xs="http://www.w3.org/2001/XMLSchema"
+           targetNamespace="http://aurn.here.org/spatial"
+           xmlns:tns="http://aurn.here.org/spatial"
+           elementFormDefault="qualified">
+
+   <xs:simpleType name="LatitudeDegrees">
+      <xs:restriction base="xs:double">
+         <xs:minInclusive value="-90" />
+         <xs:maxInclusive value="90" />
+      </xs:restriction>
+   </xs:simpleType>
+
+   <xs:complexType name="LatLongDegrees">
+      <xs:sequence>
+         <xs:element name="latitudeDegrees" type="LatitudeDegrees" />
+         <xs:element name="longitudeDegrees" type="LongitudeDegrees" />
+      </xs:sequence>
+   </xs:complexType>
+
+   <xs:simpleType name="LongitudeDegrees">
+      <xs:restriction base="xs:double">
+         <xs:minExclusive value="-180" />
+         <xs:maxInclusive value="180" />
+      </xs:restriction>
+   </xs:simpleType>
+
+</xs:schema>

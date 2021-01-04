@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2003-2018, AdaCore                     --
+--                     Copyright (C) 2003-2021, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -31,10 +31,13 @@ pragma Ada_2012;
 
 with Ada.Characters.Handling;
 with Ada.Containers.Indefinite_Vectors;
+with Ada.Directories;
 with Ada.Exceptions;
 with Ada.Strings.Fixed;
 with Ada.Strings.Maps;
 with Ada.Text_IO;
+
+with GNAT.OS_Lib;
 
 with DOM.Core.Nodes;
 
@@ -172,8 +175,10 @@ package body WSDL2AWS.WSDL.Parser is
    procedure Parse_Schema
      (O     : in out Object'Class;
       Root  : DOM.Core.Node;
-      XPath : String);
-   --  Parse a schema node
+      XPath : String;
+      Dir   : String);
+   --  Parse a schema node, relative schama path is interpreted as relative to
+   --  Dir.
 
    function Is_Array
      (O : Object'Class;
@@ -1050,20 +1055,31 @@ package body WSDL2AWS.WSDL.Parser is
 
    procedure Parse
      (O        : in out Object'Class;
-      Document : SOAP.WSDL.Object)
+      Document : SOAP.WSDL.Object;
+      Filename : String)
    is
       N     : constant DOM.Core.Node :=
                 SOAP.XML.First_Child (DOM.Core.Node (Document));
       NL    : constant DOM.Core.Node_List := DOM.Core.Nodes.Child_Nodes (N);
       Found : Boolean := False;
    begin
+      --  First set the directory containing the parsed WSDL, this is needed to
+      --  be able to find imported xsd using relative paths.
+
+      O.Dir := To_Unbounded_String
+        (Directories.Containing_Directory (Filename));
+
       --  First we want to parse the definitions node to get the namespaces
 
       Parse_Definitions (O, N, Document);
 
       --  Then we load all schemas
 
-      Parse_Schema (O, DOM.Core.Node (Document), "definitions.types.schema");
+      Parse_Schema
+        (O,
+         DOM.Core.Node (Document),
+         "definitions.types.schema",
+         To_String (O.Dir));
 
       --  Look for the service node
 
@@ -2077,13 +2093,13 @@ package body WSDL2AWS.WSDL.Parser is
    procedure Parse_Schema
      (O     : in out Object'Class;
       Root  : DOM.Core.Node;
-      XPath : String)
+      XPath : String;
+      Dir   : String)
    is
       N : DOM.Core.Node := Get_Node (Root, XPath);
       C : DOM.Core.Node;
    begin
       while N /= null loop
-
          if DOM.Core.Nodes.Local_Name (N) = "schema" then
             --  Register this schema
 
@@ -2109,8 +2125,11 @@ package body WSDL2AWS.WSDL.Parser is
                         --  corresponding namespace.
 
                         declare
+                           --  Handle relative paths
+                           S : constant String :=
+                                 GNAT.OS_Lib.Normalize_Pathname (L, Dir);
                            N : constant DOM.Core.Node :=
-                                 DOM.Core.Node (SOAP.WSDL.Load (L));
+                                 DOM.Core.Node (SOAP.WSDL.Load (S));
                         begin
                            Trace ("(Parse_Schema) "
                                   & SOAP.XML.Get_Attr_Value (C, "namespace"),
@@ -2124,7 +2143,9 @@ package body WSDL2AWS.WSDL.Parser is
 
                            --  Check recursively for imported schema
 
-                           Parse_Schema (O, N, "schema");
+                           Parse_Schema
+                             (O, N, "schema",
+                              Directories.Containing_Directory (S));
                         end;
                      end if;
                   end;

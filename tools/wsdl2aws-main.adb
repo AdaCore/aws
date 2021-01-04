@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2003-2020, AdaCore                     --
+--                     Copyright (C) 2003-2021, AdaCore                     --
 --                                                                          --
 --  This is free software;  you can redistribute it  and/or modify it       --
 --  under terms of the  GNU General Public License as published  by the     --
@@ -382,7 +382,8 @@ begin
 
    --  Parse the document and generate the code
 
-   WSDL2AWS.WSDL.Parser.Parse (Gen, Def);
+   WSDL2AWS.WSDL.Parser.Parse
+     (Gen, Def, OS_Lib.Normalize_Pathname (To_String (Filename)));
 
    Ada.Command_Line.Set_Exit_Status (Ada.Command_Line.Success);
 
