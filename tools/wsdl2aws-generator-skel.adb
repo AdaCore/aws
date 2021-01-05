@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2003-2018, AdaCore                     --
+--                     Copyright (C) 2003-2021, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -772,7 +772,8 @@ package body Skel is
       pragma Unreferenced (Root_Documentation);
 
       U_Name : constant String         := To_Unit_Name (Format_Name (O, Name));
-      URL    : constant AWS.URL.Object := AWS.URL.Parse (Location);
+      URL    : constant AWS.URL.Object :=
+                 AWS.URL.Parse (Get_Endpoint (O, Location));
    begin
       --  Spec
 

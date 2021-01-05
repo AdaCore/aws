@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2003-2020, AdaCore                     --
+--                     Copyright (C) 2003-2021, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -189,5 +189,11 @@ private
       Endpoint   : Unbounded_String;
       Timeouts   : Client.Timeouts_Values := Client.No_Timeout;
    end record;
+
+   function Get_Endpoint (O : Object; Location : String) return String
+     is (if O.Endpoint = Null_Unbounded_String
+         then Location
+         else To_String (O.Endpoint));
+   --  Returns Location or if forced on command line O.Endpoint
 
 end WSDL2AWS.Generator;

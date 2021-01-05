@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2003-2020, AdaCore                     --
+--                     Copyright (C) 2003-2021, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -4370,16 +4370,10 @@ package body WSDL2AWS.Generator is
       Text_IO.Put_Line (Root, "package " & U_Name & " is");
       Text_IO.New_Line (Root);
 
-      if O.Endpoint = Null_Unbounded_String then
-         Text_IO.Put_Line
-           (Root,
-            "   URL      : constant String := """ & Location & """;");
-      else
-         Text_IO.Put_Line
-           (Root,
-            "   URL      : constant String := """
-            & To_String (O.Endpoint) & """;");
-      end if;
+      Text_IO.Put_Line
+        (Root,
+         "   URL      : constant String := """
+         & Get_Endpoint (O, Location) & """;");
 
       Text_IO.Put_Line
         (Root,
