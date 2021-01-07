@@ -4311,7 +4311,23 @@ package body WSDL2AWS.Generator is
                   Characters.Handling.To_Lower (Format_Name (O, Name));
 
    begin
-      O.Location := To_Unbounded_String (Location);
+      O.Location := To_Unbounded_String (Get_Endpoint (O, Location));
+
+      Validate_Location : declare
+         Loc : constant String := To_String (O.Location);
+      begin
+         --  Validate location
+
+         if Loc'Length < 8
+           or else
+             (Loc (Loc'First .. Loc'First + 6) /= "http://"
+              and then Loc (Loc'First .. Loc'First + 7) /= "https://")
+         then
+            raise WSDL.Parser.WSDL_Error
+              with  "location is not a valid end-point, "
+              & "consider using option -e";
+         end if;
+      end Validate_Location;
 
       if not O.Quiet then
          Text_IO.New_Line;
