@@ -175,20 +175,21 @@ package AWS.Messages is
      (S100, S101, S102,
       --  1xx : Informational - Request received, continuing process
 
-      S200, S201, S202, S203, S204, S205, S206, S207,
+      S200, S201, S202, S203, S204, S205, S206, S207, S208, S226,
       --  2xx : Success - The action was successfully received, understood and
       --  accepted
 
-      S300, S301, S302, S303, S304, S305, S307,
+      S300, S301, S302, S303, S304, S305, S306, S307, S308,
       --  3xx : Redirection - Further action must be taken in order to
       --  complete the request
 
       S400, S401, S402, S403, S404, S405, S406, S407, S408, S409,
-      S410, S411, S412, S413, S414, S415, S416, S417, S422, S423, S424,
+      S410, S411, S412, S413, S414, S415, S416, S417, S418, S421, S422, S423,
+      S424, S425, S426, S428, S429, S431, S451,
       --  4xx : Client Error - The request contains bad syntax or cannot be
       --  fulfilled
 
-      S500, S501, S502, S503, S504, S505, S507
+      S500, S501, S502, S503, S504, S505, S506, S507, S508, S510, S511
       --  5xx : Server Error - The server failed to fulfill an apparently
       --  valid request
       );
