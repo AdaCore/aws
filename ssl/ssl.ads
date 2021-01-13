@@ -29,12 +29,11 @@
 
 pragma Ada_2012;
 
---  Binding to OpenSSL library
+--  Binding to SSL library (OpenSSL or GNUTLS depend on configuration)
 
 package SSL with Pure is
 
-   --  There is only one children SSL.Thin for the thin binding to the
-   --  SSL library OpenSSL. The SSL_Wrappers is independent package to stub all
-   --  SSL.Thin routines.
+   --  There is only one child package SSL.Thin for the thin binding to the SSL
+   --  library.
 
 end SSL;
