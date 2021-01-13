@@ -195,10 +195,10 @@ package AWS.Messages is
       );
 
    subtype Informational is Status_Code range S100 .. S102;
-   subtype Success       is Status_Code range S200 .. S207;
-   subtype Redirection   is Status_Code range S300 .. S307;
-   subtype Client_Error  is Status_Code range S400 .. S424;
-   subtype Server_Error  is Status_Code range S500 .. S507;
+   subtype Success       is Status_Code range S200 .. S226;
+   subtype Redirection   is Status_Code range S300 .. S308;
+   subtype Client_Error  is Status_Code range S400 .. S451;
+   subtype Server_Error  is Status_Code range S500 .. S511;
 
    function Image (S : Status_Code) return String;
    --  Returns Status_Code image. This value does not contain the leading S
