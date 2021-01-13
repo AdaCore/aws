@@ -12,13 +12,13 @@ echo 01 > demoCA/crlnumber
 
 # Create CA cert
 
-openssl genrsa -out private-ca.key 1024
+openssl genrsa -out private-ca.key
 openssl req -new -batch -subj '/C=FR/ST=Paris/O=ACME/OU=CA/' -key private-ca.key -out private-ca.csr
 openssl x509 -req -days 365 -in private-ca.csr -signkey private-ca.key -out private-ca.crt
 
 # Create server cert
 
-openssl genrsa -out aws-server.key 1024
+openssl genrsa -out aws-server.key
 openssl req -new -batch -subj '/C=FR/ST=Paris/O=ACME/OU=server/CN=localhost/' -key aws-server.key -out aws-server.csr
 
 CA_BATCH="openssl ca -batch -config ca.cnf"
@@ -29,7 +29,7 @@ cat aws-server.crt aws-server.key > cert.pem
 # Create client certs
 
 mk_client() {
-  openssl genrsa -out aws-client$1.key 1024
+  openssl genrsa -out aws-client$1.key
   openssl req -new -batch -subj "/C=FR/ST=Paris/O=ACME/OU=clients/CN=client$1/" -key aws-client$1.key -out aws-client$1.csr
   $CA_BATCH -in aws-client$1.csr -cert private-ca.crt -keyfile private-ca.key -out aws-client$1.crt
   cat aws-client$1.crt aws-client$1.key > aws-client$1.pem
