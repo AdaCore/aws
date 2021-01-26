@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2015-2018, AdaCore                     --
+--                     Copyright (C) 2015-2021, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -172,16 +172,7 @@ package body WSDL2AWS.WSDL.Types is
       case Def.Mode is
          when WSDL.Types.K_Derived =>
             if Is_Character (Def) then
-               declare
-                  P_Type : constant SOAP.WSDL.Parameter_Type :=
-                             SOAP.WSDL.To_Type (Types.Name (Def.Ref));
-                  I_Type : constant String := SOAP.WSDL.Set_Type (P_Type);
-               begin
-                  return SOAP.WSDL.V_Routine (P_Type, Constrained => True)
-                    & " (" & I_Type & " ("
-                    & Object & "))";
-               end;
-
+               return "SOAP.Utils.Get (" & Object & ")";
             else
                return For_Derived (Def, Object);
             end if;
@@ -206,15 +197,7 @@ package body WSDL2AWS.WSDL.Types is
               & " (SOAP.Types.SOAP_Record (" & Object & "))";
 
          when WSDL.Types.K_Simple =>
-            declare
-               P_Type : constant SOAP.WSDL.Parameter_Type :=
-                          SOAP.WSDL.To_Type (Types.Name (Def.Ref));
-               I_Type : constant String := SOAP.WSDL.Set_Type (P_Type);
-            begin
-               return SOAP.WSDL.V_Routine (P_Type, Constrained => True)
-                 & " (" & I_Type & " ("
-                 & Object & "))";
-            end;
+            return "SOAP.Types.Get (" & Object & ")";
       end case;
    end From_SOAP;
 
