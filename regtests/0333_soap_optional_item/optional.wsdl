@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="utf-8"?>
+<definitions name="toptional"
+             xmlns="http://schemas.xmlsoap.org/wsdl/"
+             xmlns:w="http://schemas.xmlsoap.org/wsdl/"
+             xmlns:ns1="http://nsoptional.org/xsd"
+             xmlns:ns2="http://nsoptional.org/"
+             xmlns:tns="http://tempuri.org/4s4c/1/3/wsdl/def/interopLab"
+             xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+             xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/"
+             xmlns:soap-enc="http://schemas.xmlsoap.org/soap/encoding/"
+             targetNamespace="http://tempuri.org/4s4c/1/3/wsdl/def/interopLab">
+
+	<types>
+	  <schema xmlns="http://www.w3.org/2001/XMLSchema"
+                  targetNamespace="http://nsoptional.org/xsd">
+	    <import namespace="http://schemas.xmlsoap.org/soap/encoding/"/>
+	    <complexType name="SOAPStruct">
+	      <all>
+		<element name="varInt" type="int"/>
+		<element name="varFloat" type="float"/>
+		<element name="varString" type="string"/>
+	      </all>
+	    </complexType>
+          </schema>
+	</types>
+
+	<message name="echoStringRequest">
+	  <part name="inputString" type="xsd:string"/>
+	</message>
+	<message name="echoStringResponse">
+	  <part name="outputString" type="xsd:string"/>
+	</message>
+
+	<message name="echoStructRequest">
+	  <part name="inputStruct" type="ns1:SOAPStruct"/>
+	</message>
+	<message name="echoStructResponse">
+	  <part name="outputStruct" type="ns1:SOAPStruct"/>
+	</message>
+
+	<portType name="interopTestPortType">
+	  <operation name="echoString">
+	    <input message="tns:echoStringRequest"/>
+	    <output message="tns:echoStringResponse"/>
+	  </operation>
+
+	  <operation name="echoStruct">
+	    <input message="tns:echoStructRequest"/>
+	    <output message="tns:echoStructResponse"/>
+	  </operation>
+	</portType>
+
+	<binding name="interopTestBinding" type="tns:interopTestPortType">
+	  <soap:binding style="rpc"
+                        transport="http://schemas.xmlsoap.org/soap/http"/>
+	  <operation name="echoString">
+	    <soap:operation soapAction="http://nsoptional.org/#echoString"/>
+	    <input>
+	      <soap:body use="encoded"
+                         namespace="http://nsoptional.org/"
+                         encodingStyle="http://schemas.xmlsoap.org/soap/encoding/"/>
+	    </input>
+	    <output>
+	      <soap:body use="encoded"
+                         namespace="http://nsoptional.org/"
+                         encodingStyle="http://schemas.xmlsoap.org/soap/encoding/"/>
+	    </output>
+	  </operation>
+
+	  <operation name="echoStruct">
+	    <soap:operation soapAction="http://nsoptional.org/"/>
+	    <input>
+	      <soap:body use="encoded"
+                         namespace="http://nsoptional.org/"
+                         encodingStyle="http://schemas.xmlsoap.org/soap/encoding/"/>
+	    </input>
+	    <output>
+	      <soap:body use="encoded"
+                         namespace="http://nsoptional.org/"
+                         encodingStyle="http://schemas.xmlsoap.org/soap/encoding/"/>
+	    </output>
+	  </operation>
+	</binding>
+
+	<service name="toptional">
+	  <port name="interopTestPort" binding="tns:interopTestBinding">
+	    <soap:address location="http://localhost:9113"/>
+	  </port>
+	</service>
+</definitions>

@@ -396,7 +396,12 @@ package body SOAP.Utils is
    function Get (Item : Types.Object'Class) return Character is
       Str : constant String := String'(Types.Get (Item));
    begin
-      return Str (1);
+      --  Str is empty if passed as optional parameter (xsi:nil)
+      if Str'Length = 0 then
+         return ASCII.NUL;
+      else
+         return Str (Str'First);
+      end if;
    end Get;
 
    function Get (Item : Types.Object'Class) return String is
