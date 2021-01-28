@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2000-2019, AdaCore                     --
+--                     Copyright (C) 2000-2021, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -31,6 +31,8 @@ pragma Ada_2012;
 
 with Ada.Finalization;
 with Ada.Strings.Unbounded;
+
+with Unicode;
 
 with AWS.Response;
 with AWS.Status;
@@ -92,6 +94,20 @@ package SOAP.Utils is
    function To_Utf8 (Str : String) return String with Inline;
    function To_Utf8 (Str : Unbounded_String) return Unbounded_String;
    --  Convert the Basic_8bit encoded Str string to Utf-8
+
+   subtype Unicode_Char is Unicode.Unicode_Char;
+
+   type Utf8_Map_Callback is
+     not null access function (C : Unicode_Char) return Character;
+
+   function Default_Utf8_Mapping (C : Unicode_Char) return Character;
+   --  The default maping replace all invalid character to question mark
+
+   procedure Set_Utf8_Map (Callback : Utf8_Map_Callback);
+   --  Callback is the Unicode to 8bit character conversion routine. By
+   --  default all characters outside the character range are converted to
+   --  question mark. This routine can be used to put in place some
+   --  equivalences and is used by From_Utf8 below.
 
    function From_Utf8 (Str : String) return String with Inline;
    function From_Utf8 (Str : Unbounded_String) return Unbounded_String;
