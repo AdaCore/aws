@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2000-2020, AdaCore                     --
+--                     Copyright (C) 2000-2021, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -47,6 +47,10 @@ with SOAP.Message.XML;
 
 package body SOAP.Utils is
 
+   Last_Character_Index : constant Unicode_Char :=
+                            Character'Pos (Character'Last);
+   Utf8_Map             : Utf8_Map_Callback := Default_Utf8_Mapping'Access;
+
    ---------
    -- Any --
    ---------
@@ -74,6 +78,17 @@ package body SOAP.Utils is
    begin
       return Types.S (String'(1 => V), Name, Type_Name, NS);
    end C;
+
+   --------------------------
+   -- Default_Utf8_Mapping --
+   --------------------------
+
+   function Default_Utf8_Mapping (C : Unicode_Char) return Character is
+      pragma Unreferenced (C);
+      Invalid_Utf8_Character : constant Character := '?';
+   begin
+      return Invalid_Utf8_Character;
+   end Default_Utf8_Mapping;
 
    --------------
    -- Duration --
@@ -239,16 +254,20 @@ package body SOAP.Utils is
    ---------------
 
    function From_Utf8 (Str : String) return String is
+      A : String_Access := From_Utf8 (Str);
+      R : constant String := A.all;
    begin
-      return Unicode.CES.Basic_8bit.From_Utf32
-        (Unicode.CES.Utf8.To_Utf32 (Str));
+      Free (A);
+      return R;
    end From_Utf8;
 
    function From_Utf8 (Str : Unbounded_String) return Unbounded_String is
+      use type Unicode_Char;
+
       Idx      : Integer := 1;
       Buf      : String (1 .. 6);
       Buf_Last : Integer := 0;
-      Ch32     : Unicode.Unicode_Char;
+      Ch32     : Unicode_Char;
       W        : Integer;
       Result   : Unbounded_String;
    begin
@@ -267,18 +286,24 @@ package body SOAP.Utils is
          Unicode.CES.Utf8.Read (Buf, W, Ch32);
          W := W - 1;
 
-         for I in 1 .. Buf_Last - W loop
+         Buf_Last := Buf_Last - W;
+
+         for I in 1 .. Buf_Last loop
             Buf (I) := Buf (I + W);
          end loop;
 
-         Buf_Last := Buf_Last - W;
-         Append (Result, Character'Val (Ch32));
+         if Ch32 > Last_Character_Index then
+            Append (Result, Utf8_Map (Ch32));
+         else
+            Append (Result, Character'Val (Ch32));
+         end if;
       end loop;
 
       return Result;
    end From_Utf8;
 
    function From_Utf8 (Str : String) return String_Access is
+      use type Unicode_Char;
 
       Result : String_Access := new String (1 .. 2000);
       Last   : Integer := 0;
@@ -317,6 +342,7 @@ package body SOAP.Utils is
             Result (1 .. Old'Last) := Old.all;
             Free (Old);
          end if;
+
          Last := Last + 1;
          Result (Last) := Ch;
       end Append;
@@ -324,8 +350,9 @@ package body SOAP.Utils is
       Idx      : Integer := Str'First;
       Buf      : String (1 .. 6);
       Buf_Last : Integer := 0;
-      Ch32     : Unicode.Unicode_Char;
+      Ch32     : Unicode_Char;
       W        : Integer;
+
    begin
       loop
          while Idx <= Str'Last and then Buf_Last < Buf'Last loop
@@ -340,12 +367,17 @@ package body SOAP.Utils is
          Unicode.CES.Utf8.Read (Buf, W, Ch32);
          W := W - 1;
 
-         for I in 1 .. Buf_Last - W loop
+         Buf_Last := Buf_Last - W;
+
+         for I in 1 .. Buf_Last loop
             Buf (I) := Buf (I + W);
          end loop;
 
-         Buf_Last := Buf_Last - W;
-         Append (Character'Val (Ch32));
+         if Ch32 > Last_Character_Index then
+            Append (Utf8_Map (Ch32));
+         else
+            Append (Character'Val (Ch32));
+         end if;
       end loop;
 
       Adjust_Result;
@@ -491,6 +523,15 @@ package body SOAP.Utils is
       end To_Safe_Pointer;
 
    end Safe_Pointers;
+
+   ------------------
+   -- Set_Utf8_Map --
+   ------------------
+
+   procedure Set_Utf8_Map (Callback : Utf8_Map_Callback) is
+   begin
+      Utf8_Map := Callback;
+   end Set_Utf8_Map;
 
    ------------------
    -- SOAP_Wrapper --
