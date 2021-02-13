@@ -26,12 +26,12 @@ build('check_mem_nossl')
 
 #  Run driver (2 loops)
 run('check_mem_nossl', ['2'])
-exec_cmd('gnatmem', ['5', '-i', 'gmem.out', './check_mem_nossl'],
+exec_cmd('gnatmem', ['5', '-t', '-i', 'gmem.out', './check_mem_nossl'],
          output_file='check_mem_nossl.run1')
 
 #  Run driver (10 loops)
 run('check_mem_nossl', ['10'])
-exec_cmd('gnatmem', ['5', '-i', 'gmem.out', './check_mem_nossl'],
+exec_cmd('gnatmem', ['5', '-t', '-i', 'gmem.out', './check_mem_nossl'],
          output_file='check_mem_nossl.run2')
 
 #  Now check that final water-mark for run1 and run2 is equal

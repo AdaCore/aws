@@ -1575,6 +1575,8 @@ package body AWS.Net.SSL is
       end if;
    end Socket_Write;
 
+   Keep_M, Keep_R, Keep_F : System.Address;
+
    -------------
    -- Locking --
    -------------
@@ -1708,6 +1710,12 @@ package body AWS.Net.SSL is
                DH_Params (J) := TSSL.Null_Pointer;
             end if;
          end loop;
+
+         if Keep_M /= System.Null_Address
+           and then TSSL.CRYPTO_set_mem_functions (Keep_M, Keep_R, Keep_F) = 0
+         then
+            Keep_M := System.Null_Address;
+         end if;
 
          Finalized := True;
       end Finalize;
@@ -2368,6 +2376,8 @@ package body AWS.Net.SSL is
    end Version;
 
 begin
+   TSSL.CRYPTO_get_mem_functions (M => Keep_M, R => Keep_R, F => Keep_F);
+
    --  Set the RTL memory allocation routines is necessary only to be able
    --  gnatmem control memory leak allocated inside of OpenSSL library.
 
@@ -2380,7 +2390,8 @@ begin
       --  we are unable to setup our own memory allocation routines. GNATMEM
       --  would not be aware of memory allocations inside of OpenSSL in this
       --  case, but AWS is able to run anyway.
-      null;
+
+      Keep_M := System.Null_Address; -- To do not restore back
    end if;
 
    Locking.Initialize;

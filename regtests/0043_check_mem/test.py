@@ -5,12 +5,12 @@ build('check_mem')
 
 #  Run driver (2 loops)
 run('check_mem', ['2'])
-exec_cmd('gnatmem', ['5', '-i', 'gmem.out', './check_mem'],
+exec_cmd('gnatmem', ['5', '-t', '-i', 'gmem.out', './check_mem'],
          output_file='check_mem.run1')
 
 #  Run driver (10 loops)
 run('check_mem', ['10'])
-exec_cmd('gnatmem', ['5', '-i', 'gmem.out', './check_mem'],
+exec_cmd('gnatmem', ['5', '-t', '-i', 'gmem.out', './check_mem'],
          output_file='check_mem.run2')
 
 #  Now check that final water-mark for run1 and run2 is equal
