@@ -290,6 +290,7 @@ begin
 
          if To_String (Previous_Chipher) = Client.Cipher_Description then
             Put_Line ("The same cipher " & To_String (Previous_Chipher));
+            exit;
          else
             Previous_Chipher := To_Unbounded_String (Client.Cipher_Description);
          end if;

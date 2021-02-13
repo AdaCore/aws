@@ -1,47 +1,38 @@
 Start main, wait for server to start...
 Server started
-
 Server certificate as received by the client:
 Name    : localhost
 Subject : C=FR,ST=Ile de France,O=AWS Team,CN=localhost,EMAIL=aws@obry.net
 Issuer  : C=FR,ST=Ile de France,L=Magny les Hameaux,O=AWS Team,CN=Pascal Obry,EMAIL=aws@obry.net
 Serial  : ABAA
-
 Client certificate as received by the server:
 Name    : Jean Dupont
 Subject : C=FR,ST=Ile de France,O=AWS Team,CN=Jean Dupont,EMAIL=jean.dupont@nowhere.com
 Issuer  : C=FR,ST=Ile de France,L=Magny les Hameaux,O=AWS Team,CN=Pascal Obry,EMAIL=aws@obry.net
-Serial  : ABAB
+Serial  : ABAC
 => simple ok
-
-
 Server certificate as received by the client:
 Name    : localhost
 Subject : C=FR,ST=Ile de France,O=AdaCore,OU=CRM,CN=localhost,EMAIL=aws-test@adacore.com
-Issuer  : C=FR,ST=Ile de France,L=Paris,O=AdaCore,OU=CA,CN=CA-Web-Server,EMAIL=ca-aws@adacore.com
-Serial  : ADA0
-
+Issuer  : C=FR,ST=Ile de France,L=Magny les Hameaux,O=AWS Team,CN=Pascal Obry,EMAIL=aws@obry.net
+Serial  : ABAB
 Client certificate as received by the server:
 Name    : Jean Dupont
 Subject : C=FR,ST=Ile de France,O=AWS Team,CN=Jean Dupont,EMAIL=jean.dupont@nowhere.com
 Issuer  : C=FR,ST=Ile de France,L=Magny les Hameaux,O=AWS Team,CN=Pascal Obry,EMAIL=aws@obry.net
-Serial  : ABAB
+Serial  : ABAC
 => simple ok
-
-
 Server certificate as received by the client:
 Name    : test-srv
 Subject : C=FR,ST=Ile de France,L=Paris,O=AdaCore,OU=test,CN=test-srv,EMAIL=test-srv@adacore.com
 Issuer  : C=FR,ST=Ile de France,L=Paris,O=AdaCore,OU=CA-office,CN=test-srv-CA-8,EMAIL=ca@adacore.com
 Serial  : 271A
-
 Client certificate as received by the server:
 Name    : Jean Dupont
 Subject : C=FR,ST=Ile de France,O=AWS Team,CN=Jean Dupont,EMAIL=jean.dupont@nowhere.com
 Issuer  : C=FR,ST=Ile de France,L=Magny les Hameaux,O=AWS Team,CN=Pascal Obry,EMAIL=aws@obry.net
-Serial  : ABAB
+Serial  : ABAC
 => simple ok
-
 Name    :
 Subject : C=US,O=The Go Daddy Group\, Inc.,OU=Go Daddy Class 2 Certification Authority
 Issuer  : C=US,O=The Go Daddy Group\, Inc.,OU=Go Daddy Class 2 Certification Authority
