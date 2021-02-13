@@ -839,6 +839,9 @@ package SSL.Thin is
    -- Library initialization routines --
    -------------------------------------
 
+   procedure CRYPTO_get_mem_functions (M, R, F : out System.Address)
+     with Import, Convention => C, External_Name => "CRYPTO_get_mem_functions";
+
    function CRYPTO_set_mem_functions (M, R, F : System.Address) return int
      with Import, Convention => C, External_Name => "CRYPTO_set_mem_functions";
 
