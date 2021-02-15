@@ -322,6 +322,9 @@ package SSL.Thin is
    SSL_MAX_KEY_ARG_LENGTH              : constant := 8;
    SSL_MAX_MASTER_KEY_LENGTH           : constant := 48;
 
+   OPENSSL_NPN_NEGOTIATED : constant := 1;
+   OPENSSL_NPN_NO_OVERLAP : constant := 2;
+
    SSL_TLSEXT_ERR_OK            : constant := 0;
    SSL_TLSEXT_ERR_ALERT_WARNING : constant := 1;
    SSL_TLSEXT_ERR_ALERT_FATAL   : constant := 2;
@@ -1730,5 +1733,33 @@ package SSL.Thin is
 
    procedure SSL_SESSION_free (session : SSL_Session)
      with Import, Convention => C, External_Name => "SSL_SESSION_free";
+
+   function SSL_CTX_set_alpn_protos
+     (Ctx : SSL_CTX; Protos : char_array; Protos_Len : unsigned) return int
+     with Import, Convention => C, External_Name => "SSL_CTX_set_alpn_protos";
+
+   procedure SSL_get0_alpn_selected
+     (SSL : SSL_Handle; Data : access Cstr.chars_ptr; Len : access unsigned)
+     with Import, Convention => C, External_Name => "SSL_get0_alpn_selected";
+
+   type ALPN_Callback_Access is access function
+     (SSL    : SSL_Handle;
+      Out_Pr : access Cstr.chars_ptr;
+      Outlen : access unsigned_char;
+      In_Pr  : Cstr.chars_ptr;
+      Inlen  : unsigned;
+      Arg    : Pointer) return int with Convention => C;
+
+   procedure SSL_CTX_set_alpn_select_cb
+     (Ctx : SSL_CTX; Cb : ALPN_Callback_Access; Arg : Pointer)
+     with Import, Convention => C,
+          External_Name => "SSL_CTX_set_alpn_select_cb";
+
+   function SSL_select_next_proto
+     (Out_Pr : not null access Cstr.chars_ptr;
+      Outlen : not null access unsigned_char;
+      Server : Cstr.chars_ptr; Server_Len : unsigned;
+      Client : Cstr.chars_ptr; Client_Len : unsigned) return int
+     with Import, Convention => C, External_Name => "SSL_select_next_proto";
 
 end SSL.Thin;

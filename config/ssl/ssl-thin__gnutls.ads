@@ -1520,6 +1520,22 @@ package SSL.Thin is
      (key : access gnutls_datum_t; key_size : C.unsigned) return C.int
      with Import, Convention => C;
 
+   ---------------------------------------------------
+   -- Application Layer Protocol Negotiation (ALPN) --
+   ---------------------------------------------------
+
+   function gnutls_alpn_set_protocols
+     (session        : gnutls_session_t;
+      protocols      : a_gnutls_datum_t;
+      protocols_size : C.unsigned;
+      flags          : C.unsigned) return C.int
+     with Import, Convention => C;
+
+   function gnutls_alpn_get_selected_protocol
+     (session  : gnutls_session_t;
+      protocol : access gnutls_datum_t) return C.int
+     with Import, Convention => C;
+
    --------------------------------------------------------------------
    -- Tricks to support AWS.Net.SSL specification compatibility with --
    -- OpenSSL thin binding.                                          --
