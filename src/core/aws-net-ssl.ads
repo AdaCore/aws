@@ -37,10 +37,13 @@ with Ada.Calendar;
 
 with System;
 
+with AWS.Containers.String_Vectors;
 with AWS.Net.Std;
 with SSL.Thin;
 
 package AWS.Net.SSL is
+
+   package SV renames AWS.Containers.String_Vectors;
 
    Socket_Error : exception renames Net.Socket_Error;
 
@@ -136,15 +139,16 @@ package AWS.Net.SSL is
    procedure Initialize
      (Config               : in out SSL.Config;
       Certificate_Filename : String;
-      Security_Mode        : Method     := TLS;
-      Priorities           : String     := "";
-      Ticket_Support       : Boolean    := False;
-      Key_Filename         : String     := "";
-      Exchange_Certificate : Boolean    := False;
-      Certificate_Required : Boolean    := False;
-      Trusted_CA_Filename  : String     := "";
-      CRL_Filename         : String     := "";
-      Session_Cache_Size   : Natural    := 16#4000#);
+      Security_Mode        : Method    := TLS;
+      Priorities           : String    := "";
+      Ticket_Support       : Boolean   := False;
+      Key_Filename         : String    := "";
+      Exchange_Certificate : Boolean   := False;
+      Certificate_Required : Boolean   := False;
+      Trusted_CA_Filename  : String    := "";
+      CRL_Filename         : String    := "";
+      Session_Cache_Size   : Natural   := 16#4000#;
+      ALPN                 : SV.Vector := SV.Empty_Vector);
    --  Initialize the SSL layer into Config. Certificate_Filename must point
    --  to a valid certificate. Security mode can be used to change the
    --  security method used by AWS. Key_Filename must be specified if the key
@@ -152,6 +156,7 @@ package AWS.Net.SSL is
    --  associated with all secure sockets sharing the same options. If
    --  Exchange_Certificate is True the client will send its certificate to
    --  the server, if False only the server will send its certificate.
+   --  ALPN is abbreviation of Application Layer Protocol Negotiation.
 
    procedure Add_Host_Certificate
      (Config               : SSL.Config;
@@ -164,19 +169,25 @@ package AWS.Net.SSL is
 
    procedure Initialize_Default_Config
      (Certificate_Filename : String;
-      Security_Mode        : Method     := TLS;
-      Priorities           : String     := "";
-      Ticket_Support       : Boolean    := False;
-      Key_Filename         : String     := "";
-      Exchange_Certificate : Boolean    := False;
-      Certificate_Required : Boolean    := False;
-      Trusted_CA_Filename  : String     := "";
-      CRL_Filename         : String     := "";
-      Session_Cache_Size   : Natural    := 16#4000#);
+      Security_Mode        : Method    := TLS;
+      Priorities           : String    := "";
+      Ticket_Support       : Boolean   := False;
+      Key_Filename         : String    := "";
+      Exchange_Certificate : Boolean   := False;
+      Certificate_Required : Boolean   := False;
+      Trusted_CA_Filename  : String    := "";
+      CRL_Filename         : String    := "";
+      Session_Cache_Size   : Natural   := 16#4000#;
+      ALPN                 : SV.Vector := SV.Empty_Vector);
    --  As above but for the default SSL configuration which is will be used
    --  for any socket not setting explicitly an SSL config object. Not that
    --  this routine can only be called once. Subsequent calls are no-op. To
    --  be effective it must be called before any SSL socket is created.
+
+   procedure ALPN_Set (Config : SSL.Config; Protocols : SV.Vector);
+   --  This function is to be used by both clients and servers, to declare the
+   --  supported ALPN protocols (Application Layer Protocol Negotiation), which
+   --  are used during negotiation with peer.
 
    procedure Release (Config : in out SSL.Config);
    --  Release memory associated with the Config object
@@ -206,6 +217,13 @@ package AWS.Net.SSL is
    --  SSL handshake does not performed. SSL handshake would be made
    --  automatically on first Read/Write, or explicitly by the Do_Handshake
    --  call. Do not free or close source socket after this call.
+
+   function ALPN_Get (Socket : Socket_Type) return String;
+   --  This function allows you to get the negotiated protocol name. The
+   --  returned protocol should be treated as opaque, constant value and only
+   --  valid during the session life. The selected protocol is the first
+   --  supported by the list sent by the client.
+   --  Empty if no supported protocol found.
 
    procedure Do_Handshake (Socket : in out Socket_Type);
    --  Wait for a SSL/TLS handshake to take place. You need to call this

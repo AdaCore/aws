@@ -69,8 +69,18 @@ package body AWS.Net.SSL is
 
    subtype Datum_Type is Certificate.Impl.Datum_Type;
 
+   type String_Access is access all String (Positive);
+   function To_String_Access is
+     new Unchecked_Conversion (TSSL.a_unsigned_char_t, String_Access);
+
+   function To_String (Datum : TSSL.gnutls_datum_t) return String is
+     (To_String_Access (Datum.data) (1 .. Integer (Datum.size)));
+
    function Load_File (Filename : String) return Datum_Type
      renames Certificate.Impl.Load_File;
+
+   procedure ALPN_Set (Socket : Socket_Type);
+   --  Set ALPN from config to secure socket before handshake
 
    type PCert_Array is
      array (Positive range <>) of aliased TSSL.gnutls_pcert_st
@@ -163,7 +173,7 @@ package body AWS.Net.SSL is
 
    function Equal (Left, Right : TSSL.gnutls_datum_t) return Boolean;
 
-   function Hash (Item : TSSL.gnutls_datum_t) return Containers.Hash_Type;
+   function Hash (Item : TSSL.gnutls_datum_t) return Ada.Containers.Hash_Type;
 
    procedure Check_File (Prefix, Filename : String);
    --  Check that Filename is present, raise an exception adding
@@ -175,14 +185,14 @@ package body AWS.Net.SSL is
    end record;
 
    package Session_Container is
-     new Containers.Hashed_Maps
+     new Ada.Containers.Hashed_Maps
            (Key_Type        => TSSL.gnutls_datum_t,
             Element_Type    => Session_Element,
             Hash            => Hash,
             Equivalent_Keys => Equal);
 
    package Time_Set is
-     new Containers.Ordered_Maps
+     new Ada.Containers.Ordered_Maps
            (Key_Type     => Calendar.Time,
             Element_Type => TSSL.gnutls_datum_t,
             "<"          => Calendar."<",
@@ -235,6 +245,7 @@ package body AWS.Net.SSL is
       CRL_File       : C.Strings.chars_ptr := C.Strings.Null_Ptr;
       CRL_Semaphore  : Utils.Semaphore;
       CRL_Time_Stamp : Calendar.Time := Utils.AWS_Epoch;
+      ALPN           : SV.Vector;
    end record;
 
    procedure Initialize
@@ -284,7 +295,8 @@ package body AWS.Net.SSL is
          Certificate_Required : Boolean;
          Trusted_CA_Filename  : String;
          CRL_Filename         : String;
-         Session_Cache_Size   : Natural);
+         Session_Cache_Size   : Natural;
+         ALPN                 : SV.Vector);
 
    private
       Done : Boolean := False;
@@ -444,6 +456,68 @@ package body AWS.Net.SSL is
       Config.PCert_Lists.Insert
         (Host, (new PCert_Array'(Load_PCert_List (4)), TLS_PK));
    end Add_Host_Certificate;
+
+   --------------
+   -- ALPN_Get --
+   --------------
+
+   function ALPN_Get (Socket : Socket_Type) return String is
+      use type System.Address;
+      Datum : aliased TSSL.gnutls_datum_t;
+      Code  : constant C.int :=
+                TSSL.gnutls_alpn_get_selected_protocol
+                  (Socket.SSL, Datum'Access);
+   begin
+      if Code = TSSL.GNUTLS_E_REQUESTED_DATA_NOT_AVAILABLE then
+         Datum.data := System.Null_Address;
+      else
+         Check_Error_Code (Code);
+      end if;
+
+      if Datum.data = System.Null_Address then
+         return "";
+      end if;
+
+      return To_String (Datum);
+   end ALPN_Get;
+
+   --------------
+   -- ALPN_Set --
+   --------------
+
+   procedure ALPN_Set (Socket : Socket_Type) is
+      type Datum_List is
+        array (1 .. Natural (Socket.Config.ALPN.Length)) of
+          aliased TSSL.gnutls_datum_t
+      with Convention => C;
+
+      type Datum_List_Access is access all Datum_List;
+
+      function To_Datum_Access is new Ada.Unchecked_Conversion
+        (Datum_List_Access, TSSL.a_gnutls_datum_t);
+
+      Datums : aliased Datum_List;
+
+   begin
+      for J in Datums'Range loop
+         Datums (J).data := Socket.Config.ALPN (J).Element.all'Address;
+         Datums (J).size := Socket.Config.ALPN (J).Element'Length;
+      end loop;
+
+      Check_Error_Code
+        (TSSL.gnutls_alpn_set_protocols
+           (Socket.SSL, To_Datum_Access (Datums'Access), Datums'Length,
+            flags => 0));
+   end ALPN_Set;
+
+   --------------
+   -- ALPN_Set --
+   --------------
+
+   procedure ALPN_Set (Config : SSL.Config; Protocols : SV.Vector) is
+   begin
+      Config.ALPN := Protocols;
+   end ALPN_Set;
 
    ------------------
    -- Check_Config --
@@ -742,9 +816,11 @@ package body AWS.Net.SSL is
          Certificate_Required : Boolean;
          Trusted_CA_Filename  : String;
          CRL_Filename         : String;
-         Session_Cache_Size   : Natural) is
+         Session_Cache_Size   : Natural;
+         ALPN                 : SV.Vector) is
       begin
          if not Done then
+            Default_Config.ALPN := ALPN;
             Initialize
               (Default_Config,
                Certificate_Filename,  Security_Mode, Priorities,
@@ -1029,14 +1105,9 @@ package body AWS.Net.SSL is
    ----------
 
    function Hash
-     (Item : TSSL.gnutls_datum_t) return Containers.Hash_Type
-   is
-      type String_Access is access all String (Positive);
-      function To_Access is
-        new Unchecked_Conversion (TSSL.a_unsigned_char_t, String_Access);
+     (Item : TSSL.gnutls_datum_t) return Ada.Containers.Hash_Type is
    begin
-      return Strings.Hash
-        (To_Access (Item.data) (1 .. Natural (Item.size)));
+      return Strings.Hash (To_String (Item));
    end Hash;
 
    -----------
@@ -1073,19 +1144,22 @@ package body AWS.Net.SSL is
    procedure Initialize
      (Config               : in out SSL.Config;
       Certificate_Filename : String;
-      Security_Mode        : Method     := TLS;
-      Priorities           : String     := "";
-      Ticket_Support       : Boolean    := False;
-      Key_Filename         : String     := "";
-      Exchange_Certificate : Boolean    := False;
-      Certificate_Required : Boolean    := False;
-      Trusted_CA_Filename  : String     := "";
-      CRL_Filename         : String     := "";
-      Session_Cache_Size   : Natural    := 16#4000#) is
+      Security_Mode        : Method    := TLS;
+      Priorities           : String    := "";
+      Ticket_Support       : Boolean   := False;
+      Key_Filename         : String    := "";
+      Exchange_Certificate : Boolean   := False;
+      Certificate_Required : Boolean   := False;
+      Trusted_CA_Filename  : String    := "";
+      CRL_Filename         : String    := "";
+      Session_Cache_Size   : Natural   := 16#4000#;
+      ALPN                 : SV.Vector := SV.Empty_Vector) is
    begin
       if Config = null then
          Config := new TS_SSL;
       end if;
+
+      Config.ALPN := ALPN;
 
       Initialize
         (Config.all,
@@ -1271,20 +1345,21 @@ package body AWS.Net.SSL is
 
    procedure Initialize_Default_Config
      (Certificate_Filename : String;
-      Security_Mode        : Method   := TLS;
-      Priorities           : String   := "";
-      Ticket_Support       : Boolean  := False;
-      Key_Filename         : String   := "";
-      Exchange_Certificate : Boolean  := False;
-      Certificate_Required : Boolean  := False;
-      Trusted_CA_Filename  : String   := "";
-      CRL_Filename         : String   := "";
-      Session_Cache_Size   : Natural  := 16#4000#) is
+      Security_Mode        : Method    := TLS;
+      Priorities           : String    := "";
+      Ticket_Support       : Boolean   := False;
+      Key_Filename         : String    := "";
+      Exchange_Certificate : Boolean   := False;
+      Certificate_Required : Boolean   := False;
+      Trusted_CA_Filename  : String    := "";
+      CRL_Filename         : String    := "";
+      Session_Cache_Size   : Natural   := 16#4000#;
+      ALPN                 : SV.Vector := SV.Empty_Vector) is
    begin
       Default_Config_Sync.Initialize
         (Certificate_Filename, Security_Mode, Priorities, Ticket_Support,
          Key_Filename, Exchange_Certificate, Certificate_Required,
-         Trusted_CA_Filename, CRL_Filename, Session_Cache_Size);
+         Trusted_CA_Filename, CRL_Filename, Session_Cache_Size, ALPN);
    end Initialize_Default_Config;
 
    procedure Initialize_Default_Config is
@@ -1993,6 +2068,8 @@ package body AWS.Net.SSL is
       --  Retrieve_Certificate for client.
 
       TSSL.gnutls_session_set_ptr (Socket.SSL, Socket.Config.all'Address);
+
+      ALPN_Set (Socket);
    end Session_Transport;
 
    ----------------
