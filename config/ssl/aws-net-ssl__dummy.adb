@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2006-2018, AdaCore                     --
+--                     Copyright (C) 2006-2021, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -68,6 +68,24 @@ package body AWS.Net.SSL is
    begin
       null;
    end Add_Host_Certificate;
+
+   --------------
+   -- ALPN_Get --
+   --------------
+
+   function ALPN_Get (Socket : Socket_Type) return String is
+   begin
+      return "";
+   end ALPN_Get;
+
+   --------------
+   -- ALPN_Set --
+   --------------
+
+   procedure ALPN_Set (Config : SSL.Config; Protocols : SV.Vector) is
+   begin
+      null;
+   end ALPN_Set;
 
    ------------------------
    -- Cipher_Description --
@@ -148,15 +166,16 @@ package body AWS.Net.SSL is
    procedure Initialize
      (Config               : in out SSL.Config;
       Certificate_Filename : String;
-      Security_Mode        : Method     := TLS;
-      Priorities           : String     := "";
-      Ticket_Support       : Boolean    := False;
-      Key_Filename         : String     := "";
-      Exchange_Certificate : Boolean    := False;
-      Certificate_Required : Boolean    := False;
-      Trusted_CA_Filename  : String     := "";
-      CRL_Filename         : String     := "";
-      Session_Cache_Size   : Natural    := 16#4000#) is
+      Security_Mode        : Method    := TLS;
+      Priorities           : String    := "";
+      Ticket_Support       : Boolean   := False;
+      Key_Filename         : String    := "";
+      Exchange_Certificate : Boolean   := False;
+      Certificate_Required : Boolean   := False;
+      Trusted_CA_Filename  : String    := "";
+      CRL_Filename         : String    := "";
+      Session_Cache_Size   : Natural   := 16#4000#;
+      ALPN                 : SV.Vector := SV.Empty_Vector) is
    begin
       raise Program_Error with Error_Message;
    end Initialize;
@@ -167,15 +186,16 @@ package body AWS.Net.SSL is
 
    procedure Initialize_Default_Config
      (Certificate_Filename : String;
-      Security_Mode        : Method     := TLS;
-      Priorities           : String     := "";
-      Ticket_Support       : Boolean    := False;
-      Key_Filename         : String     := "";
-      Exchange_Certificate : Boolean    := False;
-      Certificate_Required : Boolean    := False;
-      Trusted_CA_Filename  : String     := "";
-      CRL_Filename         : String     := "";
-      Session_Cache_Size   : Natural    := 16#4000#) is
+      Security_Mode        : Method    := TLS;
+      Priorities           : String    := "";
+      Ticket_Support       : Boolean   := False;
+      Key_Filename         : String    := "";
+      Exchange_Certificate : Boolean   := False;
+      Certificate_Required : Boolean   := False;
+      Trusted_CA_Filename  : String    := "";
+      CRL_Filename         : String    := "";
+      Session_Cache_Size   : Natural   := 16#4000#;
+      ALPN                 : SV.Vector := SV.Empty_Vector) is
    begin
       raise Program_Error with Error_Message;
    end Initialize_Default_Config;
