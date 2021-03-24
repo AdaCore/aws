@@ -405,13 +405,15 @@ package body AWS.Client.HTTP_Utils is
       Append (Result, "bytes=");
 
       if Data_Range.First /= Undefined then
-         Append (Result, Utils.Image (Natural (Data_Range.First)));
+         Append
+           (Result, Utils.Image (Stream_Element_Offset (Data_Range.First)));
       end if;
 
       Append (Result, "-");
 
       if Data_Range.Last /= Undefined then
-         Append (Result, Utils.Image (Natural (Data_Range.Last)));
+         Append
+           (Result, Utils.Image (Stream_Element_Offset (Data_Range.Last)));
       end if;
 
       return To_String (Result);

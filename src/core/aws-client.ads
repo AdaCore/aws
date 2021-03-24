@@ -103,7 +103,8 @@ package AWS.Client is
    -- Messages --
    --------------
 
-   type Content_Bound is new Integer range -1 .. Integer'Last;
+   type Content_Bound is new
+     Stream_Element_Offset range -1 .. Stream_Element_Offset'Last;
 
    Undefined : constant Content_Bound := -1;
 
