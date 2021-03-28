@@ -176,6 +176,8 @@ package AWS.Net.Std is
    overriding function Errno (Socket : Socket_Type) return Integer;
    --  Returns and clears error state in socket
 
+   overriding function Is_Secure (Socket : Socket_Type) return Boolean;
+
 private
 
    type Socket_Hidden;
@@ -199,5 +201,8 @@ private
    --  Function to concatenate error message with connection address in human
    --  readable manner. Declare in specification because it is common code for
    --  GNAT and IPv6 implementations.
+
+   overriding function Is_Secure (Socket : Socket_Type) return Boolean
+   is (False);
 
 end AWS.Net.Std;

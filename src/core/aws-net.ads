@@ -228,6 +228,9 @@ package AWS.Net is
    --  Returns true if the socket has been marked to accept connections with
    --  listen.
 
+   function Is_Secure (Socket : Socket_Type) return Boolean is abstract;
+   --  Returns True if socket is secure
+
    function IPv6_Available return Boolean;
    --  Returns True if IPv6 available in OS and in AWS socket implementation
 

@@ -85,6 +85,8 @@ package USock is
 
    overriding function Is_Listening (Socket : U_Socket) return Boolean;
 
+   overriding function Is_Secure (Socket : U_Socket) return Boolean;
+
    overriding procedure Set_Send_Buffer_Size
      (Socket : U_Socket;
       Size   : Natural);
@@ -114,5 +116,8 @@ private
    type U_Socket is new Net.Socket_Type with record
       Server : Boolean := False;
    end record;
+
+   overriding function Is_Secure (Socket : U_Socket) return Boolean
+   is (False);
 
 end USock;

@@ -257,6 +257,8 @@ package AWS.Net.WebSocket is
    --  Returns a unique id for the given socket. The uniqueness for this socket
    --  is guaranteed during the lifetime of the application.
 
+   overriding function Is_Secure (Socket : Object) return Boolean;
+
 private
 
    type Internal_State is record
@@ -411,5 +413,8 @@ private
    --  Data is accumulated in Message, until the message is complete. At this
    --  stage, Socket.On_Message will be called.
    --  In case of error, other callbacks will be used as appropriate.
+
+   overriding function Is_Secure (Socket : Object) return Boolean
+   is (Socket.Socket.Is_Secure);
 
 end AWS.Net.WebSocket;
