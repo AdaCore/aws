@@ -150,6 +150,8 @@ package AWS.Net.Memory is
    overriding function Errno (Socket : Socket_Type) return Integer;
    --  Returns and clears error state in socket
 
+   overriding function Is_Secure (Socket : Socket_Type) return Boolean;
+
 private
 
    type Element_Access is access Stream_Element_Array;
@@ -170,5 +172,8 @@ private
    --  Release memory associated with the socket object
 
    overriding procedure Initialize (Socket : in out Socket_Type);
+
+   overriding function Is_Secure (Socket : Socket_Type) return Boolean
+   is (False);
 
 end AWS.Net.Memory;

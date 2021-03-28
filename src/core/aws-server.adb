@@ -30,7 +30,6 @@
 pragma Ada_2012;
 
 with Ada.Streams;
-with Ada.Tags;
 with Ada.Text_IO;
 with Ada.Unchecked_Deallocation;
 
@@ -77,8 +76,6 @@ package body AWS.Server is
      (Server : not null access HTTP)
       return not null access Net.Socket_Type'Class
    is
-      use type Ada.Tags.Tag;
-
       New_Socket : Net.Socket_Access;
 
       procedure Accept_Error (E : Ada.Exceptions.Exception_Occurrence);
@@ -101,7 +98,7 @@ package body AWS.Server is
       Net.Acceptors.Get (Server.Acceptor, New_Socket, Accept_Error'Access);
 
       if CNF.Security (Server.Properties)
-        and then New_Socket'Tag /= Net.SSL.Socket_Type'Tag
+        and then not New_Socket.Is_Secure
       then
          declare
             SSL_Socket : Net.Socket_Access;

@@ -336,6 +336,8 @@ package AWS.Net.SSL is
       Key  : Private_Key;
       Hash : Hash_Method) return Stream_Element_Array with Inline;
 
+   overriding function Is_Secure (Socket : Socket_Type) return Boolean;
+
 private
 
    package TSSL renames Standard.SSL.Thin;
@@ -424,5 +426,8 @@ private
       Key  : Private_Key;
       Hash : Hash_Method) return Stream_Element_Array
    is (Signature (Data'Address, Data'Length, Key, Hash));
+
+   overriding function Is_Secure (Socket : Socket_Type) return Boolean
+   is (True);
 
 end AWS.Net.SSL;

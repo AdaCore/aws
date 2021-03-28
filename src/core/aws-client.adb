@@ -493,7 +493,7 @@ package body AWS.Client is
          Connect (Connection.Self.all);
       end if;
 
-      if Connection.Socket.all in AWS.Net.SSL.Socket_Type'Class then
+      if Connection.Socket.Is_Secure then
          return Net.SSL.Certificate.Get
            (Net.SSL.Socket_Type (Connection.Socket.all));
       else
