@@ -177,7 +177,7 @@ private
    function Image (Answer : Server_Reply) return String;
    --  Returns the string representation for Answer
 
-   procedure Add (Answer : in out Server_Reply; Status : in out SMTP.Status);
+   procedure Add (Answer : Server_Reply; Status : in out SMTP.Status);
    --  Add status code and reason to the list of server's reply
 
    procedure Check_Answer

@@ -89,7 +89,7 @@ package body AWS.SMTP is
    -- Add --
    ---------
 
-   procedure Add (Answer : in out Server_Reply; Status : in out SMTP.Status) is
+   procedure Add (Answer : Server_Reply; Status : in out SMTP.Status) is
    begin
       Utils.Append_With_Sep
         (Status.Reason, Image (Answer), Sep => String'(1 => ASCII.LF));
