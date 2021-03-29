@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2000-2017, AdaCore                     --
+--                     Copyright (C) 2000-2021, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -103,7 +103,7 @@ package body AWS.URL is
    -- Decode --
    ------------
 
-   function Decode (Str : String) return String is
+   function Decode (Str : String; In_Params : Boolean) return String is
       Res : String (1 .. Str'Length);
       K   : Natural := 0;
       I   : Positive := Str'First;
@@ -123,7 +123,7 @@ package body AWS.URL is
             Res (K) := Character'Val (Utils.Hex_Value (Str (I + 1 .. I + 2)));
             I := I + 2;
 
-         elsif Str (I) = '+' then
+         elsif In_Params and then Str (I) = '+' then
             --  A plus is used for spaces in forms value for example
             Res (K) := ' ';
 
@@ -136,6 +136,11 @@ package body AWS.URL is
       end loop;
 
       return Res (1 .. K);
+   end Decode;
+
+   function Decode (Str : String) return String is
+   begin
+      return Decode (Str, In_Params => True);
    end Decode;
 
    function Decode (Str : Unbounded_String) return Unbounded_String is
