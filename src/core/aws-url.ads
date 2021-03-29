@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2000-2017, AdaCore                     --
+--                     Copyright (C) 2000-2021, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -247,5 +247,9 @@ private
    Default_Encoding_Set : constant Strings.Maps.Character_Set :=
                             Parameters_Encoding_Set
                             or Strings.Maps.To_Set (";/:$,""{}|\^[]`'");
+
+   function Decode (Str : String; In_Params : Boolean) return String;
+   --  Decode URL Str. In_Params is set to True when decoding the
+   --  parameters URL's fragment.
 
 end AWS.URL;

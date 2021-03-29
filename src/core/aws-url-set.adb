@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2007-2019, AdaCore                     --
+--                     Copyright (C) 2007-2021, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -206,7 +206,30 @@ package body AWS.URL.Set is
          ---------------------
 
          procedure Parse_Path_File (Start : Positive) is
-            PF : constant String := Decode (URL (Start .. URL'Last));
+
+            function Parameters_Start return Positive;
+            --  Get the start of the parameters if any. We need that as only
+            --  the URL parameters must decode plus characters as spaces.
+
+            ----------------------
+            -- Parameters_Start --
+            ----------------------
+
+            function Parameters_Start return Positive is
+            begin
+               for K in Start .. URL'Last loop
+                  if URL (K) = '?' then
+                     return K;
+                  end if;
+               end loop;
+
+               return URL'Last;
+            end Parameters_Start;
+
+            P  : constant Positive := Parameters_Start;
+            PF : constant String :=
+                   Decode (URL (Start .. P), In_Params => False)
+                   & Decode (URL (P + 1 .. URL'Last), In_Params => True);
             I3 : constant Natural :=
                    Strings.Fixed.Index (PF, "/", Strings.Backward);
          begin
