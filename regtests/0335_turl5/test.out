@@ -1,0 +1,15 @@
+http://ftp.ch.debian.org/debian/pool/main/g/git/git_2.20.1-2+deb10u3_amd64.deb
+http://ftp.ch.debian.org/debian/pool/main/g/git/git_2.20.1-2+deb10u3_amd64.deb
+Server     : ftp.ch.debian.org
+Port       : 80
+Path       : /debian/pool/main/g/git/
+File       : git_2.20.1-2+deb10u3_amd64.deb
+Parameters :
+URI        : /debian/pool/main/g/git/git_2.20.1-2+deb10u3_amd64.deb
+*
+Server     : ftp.ch.debian.org
+Port       : 80
+Path       : /debian/pool/main/g/git/
+File       : git_2.20.1-2+deb10u3_amd64.deb
+Parameters :
+URI        : /debian/pool/main/g/git/git_2.20.1-2+deb10u3_amd64.deb
