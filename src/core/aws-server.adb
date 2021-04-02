@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2000-2019, AdaCore                     --
+--                     Copyright (C) 2000-2021, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -95,29 +95,47 @@ package body AWS.Server is
       end Accept_Error;
 
    begin
-      Net.Acceptors.Get (Server.Acceptor, New_Socket, Accept_Error'Access);
+      loop
+         Net.Acceptors.Get (Server.Acceptor, New_Socket, Accept_Error'Access);
 
-      if CNF.Security (Server.Properties)
-        and then not New_Socket.Is_Secure
-      then
-         declare
-            SSL_Socket : Net.Socket_Access;
-         begin
-            SSL_Socket := new Net.SSL.Socket_Type'
-              (Net.SSL.Secure_Server (New_Socket.all, Server.SSL_Config));
-
-            Net.Free (New_Socket);
-            return SSL_Socket;
-         exception
-            when others =>
-               Net.Shutdown (New_Socket.all);
+         if CNF.Security (Server.Properties)
+           and then not New_Socket.Is_Secure
+         then
+            declare
+               SSL_Socket : Net.Socket_Access;
+            begin
+               SSL_Socket := new Net.SSL.Socket_Type'
+                 (Net.SSL.Secure_Server (New_Socket.all, Server.SSL_Config));
                Net.Free (New_Socket);
-               raise;
-         end;
+               --  Now do the handshake need for HTTP/2 ALPN
+               Net.SSL.Socket_Type (SSL_Socket.all).Do_Handshake;
+               return SSL_Socket;
+            exception
+               when Net.Socket_Error =>
+                  if New_Socket = null then
+                     --  It mean error in SSL handshake, shutdown socket and
+                     --  get another one in next iteration.
 
-      else
-         return New_Socket;
-      end if;
+                     SSL_Socket.Shutdown;
+
+                  else
+                     --  Unexpected error
+
+                     Net.Shutdown (New_Socket.all);
+                     Net.Free (New_Socket);
+                     raise;
+                  end if;
+
+               when others =>
+                  Net.Shutdown (New_Socket.all);
+                  Net.Free (New_Socket);
+                  raise;
+            end;
+
+         else
+            return New_Socket;
+         end if;
+      end loop;
    end Accept_Socket_Serialized;
 
    -------------------
@@ -320,7 +338,14 @@ package body AWS.Server is
 
             TA.Server.Slots.Set (Socket, TA.Line);
 
-            Protocol_Handler (TA.all);
+            if Socket.Is_Secure
+              and then Net.SSL.Socket_Type (Socket.all).ALPN_Get = "h2"
+            then
+               --  Protocol_Handler_V2 (TA.all);
+               null;
+            else
+               Protocol_Handler (TA.all);
+            end if;
 
             TA.Server.Slots.Release (TA.Line, Need_Shutdown);
 
@@ -1073,6 +1098,9 @@ package body AWS.Server is
               CNF.CRL_File (Web_Server.Properties),
             Session_Cache_Size   =>
               CNF.SSL_Session_Cache_Size (Web_Server.Properties));
+
+         Net.SSL.ALPN_Set
+           (Web_Server.SSL_Config, Net.SSL.SV.To_Vector ("h2", 1));
       end if;
 
       --  Create the Web Server socket set
