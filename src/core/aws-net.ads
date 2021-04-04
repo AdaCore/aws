@@ -38,6 +38,7 @@ with Ada.Exceptions;
 with Ada.Finalization;
 with Ada.Streams;
 
+private with AWS.Containers.Key_Value;
 private with AWS.Utils;
 private with Interfaces.C;
 
@@ -410,6 +411,15 @@ package AWS.Net is
    function Localhost (IPv6 : Boolean) return String;
    --  Returns "::1" if IPv6 is true or "127.0.0.1" otherwise
 
+   procedure Set_Host_Alias (Alias, Host : String);
+   --  Set alias for host. When Connect call will be to Alias then the real
+   --  plain socket connection will be performed to Host. But the servername
+   --  information into the SSL socket will be set to Alias.
+   --  This routine can be called one or few times from main task before first
+   --  call to Connect. Note that the Alias is case sensitive, i.e. if you set
+   --  alias www.google.com for localhost and call for www.Google.com you are
+   --  going to connect to original address.
+
 private
 
    type FD_Set (Size : Natural) is abstract tagged null record;
@@ -500,5 +510,11 @@ private
       Code   : Interfaces.C.int) return Stream_Element_Offset;
    --  This routine is necessary for both sockets implementations because
    --  GNAT.Sockets support only 2 control codes (at least in GNAT GPL 2013).
+
+   Aliases : Containers.Key_Value.Map;
+
+   function Wildcard_Before_Dot (Name : String) return String;
+   --  Replace leading part before first dot to wildcard character.
+   --  Returns the same string if no dot in the Name.
 
 end AWS.Net;

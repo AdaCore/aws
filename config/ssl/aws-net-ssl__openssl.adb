@@ -1176,10 +1176,25 @@ package body AWS.Net.SSL is
          return TSSL.SSL_TLSEXT_ERR_OK;
       end if;
 
-      CH := Hosts.Find (Value (Server_Name));
+      declare
+         Host : constant String := Value (Server_Name);
+      begin
+         CH := Hosts.Find (Host);
+
+         if not Host_Certificates.Has_Element (CH) then
+            declare
+               Wilded : constant String := Wildcard_Before_Dot (Host);
+            begin
+               if Wilded /= Host then
+                  CH := Hosts.Find (Wilded);
+               end if;
+            end;
+         end if;
+      end;
 
       if Host_Certificates.Has_Element (CH) then
-         Dummy := TSSL.SSL_set_SSL_CTX (Session, Hosts.all (CH));
+         Dummy := TSSL.SSL_set_SSL_CTX
+           (Session, Host_Certificates.Element (CH));
       end if;
 
       return TSSL.SSL_TLSEXT_ERR_OK;

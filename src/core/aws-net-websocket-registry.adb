@@ -54,12 +54,12 @@ package body AWS.Net.WebSocket.Registry is
 
    use GNAT;
    use GNAT.Regpat;
-   use type Containers.Count_Type;
+   use type Ada.Containers.Count_Type;
 
    --  Container for URI based registered constructors
 
    package Constructors is
-     new Containers.Indefinite_Ordered_Maps (String, Factory);
+     new Ada.Containers.Indefinite_Ordered_Maps (String, Factory);
 
    Factories : Constructors.Map;
 
@@ -71,7 +71,7 @@ package body AWS.Net.WebSocket.Registry is
    end record;
 
    package Pattern_Constructors is
-     new Containers.Indefinite_Vectors (Positive, P_Data);
+     new Ada.Containers.Indefinite_Vectors (Positive, P_Data);
 
    Pattern_Factories : Pattern_Constructors.Vector;
 
@@ -91,11 +91,11 @@ package body AWS.Net.WebSocket.Registry is
    --  Equality is based on the unique id
 
    package WebSocket_Map is
-     new Containers.Ordered_Maps (UID, Object_Class, "=" => Same_WS);
+     new Ada.Containers.Ordered_Maps (UID, Object_Class, "=" => Same_WS);
 
-   package WebSocket_Set is new Containers.Ordered_Sets (UID);
+   package WebSocket_Set is new Ada.Containers.Ordered_Sets (UID);
 
-   package WebSocket_List is new Containers.Doubly_Linked_Lists (UID);
+   package WebSocket_List is new Ada.Containers.Doubly_Linked_Lists (UID);
 
    --  The socket set with all sockets to wait for data
 

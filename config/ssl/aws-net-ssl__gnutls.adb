@@ -1562,18 +1562,22 @@ package body AWS.Net.SSL is
 
       function Get_Server_Name return String is
          RC : constant C.int := TSSL.gnutls_server_name_get
-           (Session, SN'Address, Size'Unchecked_Access,
-            Kind'Access, 0);
+           (Session, SN'Address, Size'Unchecked_Access, Kind'Access, 0);
+
       begin
          case RC is
          when TSSL.GNUTLS_E_SHORT_MEMORY_BUFFER =>
-            Log_Error ("Requested server name too long " & C.To_Ada (SN)
-                       & Size'Img);
+            Log_Error
+              ("Requested server name too long " & C.To_Ada (SN) & Size'Img);
+
             return "";
+
          when TSSL.GNUTLS_E_REQUESTED_DATA_NOT_AVAILABLE =>
             return "";
+
          when TSSL.GNUTLS_E_SUCCESS =>
             return C.To_Ada (SN);
+
          when others =>
             raise Socket_Error with
               "gnutls_server_name_get error code " & RC'Img;
@@ -1583,7 +1587,9 @@ package body AWS.Net.SSL is
    begin
       if Cfg.PCert_Lists.Length = 1 then
          --  Server does not expect different SNI requests
+
          CN := Cfg.PCert_Lists.First;
+
       else
          declare
             Server_Name : constant String := Get_Server_Name;
@@ -1591,9 +1597,20 @@ package body AWS.Net.SSL is
             CN := Cfg.PCert_Lists.Find (Server_Name);
 
             if not Host_Certificates.Has_Element (CN) then
-               Log_Error
-                 ("Certifiace for server '" & Server_Name & "' not found");
-               CN := Cfg.PCert_Lists.Find ("");
+               declare
+                  Wilded : constant String :=
+                             Wildcard_Before_Dot (Server_Name);
+               begin
+                  if Wilded /= Server_Name then
+                     CN := Cfg.PCert_Lists.Find (Wilded);
+                  end if;
+               end;
+
+               if not Host_Certificates.Has_Element (CN) then
+                  Log_Error
+                    ("Certifiace for server '" & Server_Name & "' not found");
+                  CN := Cfg.PCert_Lists.Find ("");
+               end if;
             end if;
          end;
       end if;

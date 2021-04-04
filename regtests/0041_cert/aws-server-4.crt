@@ -1,0 +1,70 @@
+Certificate:
+    Data:
+        Version: 1 (0x0)
+        Serial Number: 43949 (0xabad)
+        Signature Algorithm: sha256WithRSAEncryption
+        Issuer: C=FR, ST=Ile de France, L=Magny les Hameaux, O=AWS Team, CN=Pascal Obry/emailAddress=aws@obry.net
+        Validity
+            Not Before: Apr  4 13:07:01 2021 GMT
+            Not After : Apr  4 13:07:01 2022 GMT
+        Subject: C=FR, ST=Ile de France, O=AdaCore, OU=WILD, CN=*.ada-web.org/emailAddress=aws-test@adacore.com
+        Subject Public Key Info:
+            Public Key Algorithm: rsaEncryption
+                RSA Public-Key: (2048 bit)
+                Modulus:
+                    00:b7:3c:61:3d:3f:c7:5f:97:35:b1:ea:22:c0:ab:
+                    a4:73:c6:7f:f4:80:12:69:2c:04:d3:4c:ea:c7:8a:
+                    8f:aa:46:14:9e:25:ec:4c:42:1d:6c:51:62:7e:62:
+                    aa:1d:7e:90:c8:d3:8a:d5:1a:39:59:14:39:71:9e:
+                    f1:fb:cf:a8:18:ef:3d:66:24:33:2b:2b:2c:35:38:
+                    be:bc:46:a3:0d:1a:fe:f8:b6:6d:a2:8d:18:72:f7:
+                    40:84:40:99:e8:f1:2d:bd:dc:d7:2a:10:62:96:61:
+                    3d:e5:eb:73:ee:58:6f:9c:8d:da:94:85:4c:84:16:
+                    ed:89:fb:63:36:38:d7:00:fd:75:a4:96:cb:05:37:
+                    94:f0:e0:74:bf:a4:1d:b5:da:39:2a:70:0e:67:21:
+                    09:9f:61:c6:41:41:df:8a:1a:a1:ee:2e:24:94:7c:
+                    8f:a8:e0:f6:b5:99:ac:85:05:3c:73:9e:b9:25:f4:
+                    ee:b1:3f:31:79:f0:ed:95:40:52:89:1a:92:9e:f0:
+                    cc:4d:c8:3e:66:0c:45:51:02:e6:5f:c6:be:61:d1:
+                    af:04:b5:4a:b4:3c:3a:89:d9:99:c5:c5:0f:84:3b:
+                    99:ef:f9:26:7a:7f:fc:44:49:37:98:66:e4:7d:9a:
+                    7e:e3:ce:49:d6:49:89:1f:ea:6b:eb:12:52:5a:0e:
+                    da:2f
+                Exponent: 65537 (0x10001)
+    Signature Algorithm: sha256WithRSAEncryption
+         1f:b4:65:b0:40:fc:02:73:f2:33:64:5e:5c:e1:6e:12:41:7f:
+         29:f6:b7:86:83:12:df:7a:9a:17:83:0e:8b:50:dc:78:e6:7d:
+         eb:ee:79:fa:c1:95:d0:c2:77:a6:4c:e9:5c:2e:49:f8:c8:17:
+         5b:4c:4c:4c:b2:ed:f1:d1:ae:70:fb:e3:f9:7c:ad:10:ed:08:
+         d2:e0:6c:d5:25:8f:c7:ba:d5:17:f3:8e:72:19:f2:39:cb:11:
+         5b:15:ad:b9:c3:aa:49:65:b5:5f:1a:7c:e4:19:18:c0:32:65:
+         c7:5a:48:24:f2:c5:d1:6f:91:a1:c8:2c:e2:77:d9:72:b2:70:
+         6e:35:4c:25:96:56:36:df:e7:70:a5:a9:be:1c:62:48:ef:e2:
+         5a:ef:86:73:b9:57:96:9c:5b:a7:58:df:e3:f3:5f:ea:4c:f4:
+         41:8b:cc:57:42:03:a3:2e:1e:09:e5:cf:ee:04:88:a3:1a:b1:
+         86:01:4a:23:d6:33:d2:fd:a5:8c:55:00:ab:b3:7c:29:f2:98:
+         9a:37:9b:f6:d6:1f:66:ca:43:5a:fa:08:70:79:fd:7a:27:e5:
+         2d:74:6f:21:fc:39:0c:0c:7d:f9:b8:6c:dc:b6:47:db:29:5c:
+         e0:7f:6c:ad:c0:de:41:bc:91:d9:07:7d:68:bd:7a:c4:d9:e4:
+         4b:69:c3:0e
+-----BEGIN CERTIFICATE-----
+MIIDgjCCAmoCAwCrrTANBgkqhkiG9w0BAQsFADCBhzELMAkGA1UEBhMCRlIxFjAU
+BgNVBAgMDUlsZSBkZSBGcmFuY2UxGjAYBgNVBAcMEU1hZ255IGxlcyBIYW1lYXV4
+MREwDwYDVQQKDAhBV1MgVGVhbTEUMBIGA1UEAwwLUGFzY2FsIE9icnkxGzAZBgkq
+hkiG9w0BCQEWDGF3c0BvYnJ5Lm5ldDAeFw0yMTA0MDQxMzA3MDFaFw0yMjA0MDQx
+MzA3MDFaMIGDMQswCQYDVQQGEwJGUjEWMBQGA1UECAwNSWxlIGRlIEZyYW5jZTEQ
+MA4GA1UECgwHQWRhQ29yZTENMAsGA1UECwwEV0lMRDEWMBQGA1UEAwwNKi5hZGEt
+d2ViLm9yZzEjMCEGCSqGSIb3DQEJARYUYXdzLXRlc3RAYWRhY29yZS5jb20wggEi
+MA0GCSqGSIb3DQEBAQUAA4IBDwAwggEKAoIBAQC3PGE9P8dflzWx6iLAq6Rzxn/0
+gBJpLATTTOrHio+qRhSeJexMQh1sUWJ+YqodfpDI04rVGjlZFDlxnvH7z6gY7z1m
+JDMrKyw1OL68RqMNGv74tm2ijRhy90CEQJno8S293NcqEGKWYT3l63PuWG+cjdqU
+hUyEFu2J+2M2ONcA/XWklssFN5Tw4HS/pB212jkqcA5nIQmfYcZBQd+KGqHuLiSU
+fI+o4Pa1mayFBTxznrkl9O6xPzF58O2VQFKJGpKe8MxNyD5mDEVRAuZfxr5h0a8E
+tUq0PDqJ2ZnFxQ+EO5nv+SZ6f/xESTeYZuR9mn7jzknWSYkf6mvrElJaDtovAgMB
+AAEwDQYJKoZIhvcNAQELBQADggEBAB+0ZbBA/AJz8jNkXlzhbhJBfyn2t4aDEt96
+mheDDotQ3HjmfevuefrBldDCd6ZM6VwuSfjIF1tMTEyy7fHRrnD74/l8rRDtCNLg
+bNUlj8e61RfzjnIZ8jnLEVsVrbnDqklltV8afOQZGMAyZcdaSCTyxdFvkaHILOJ3
+2XKycG41TCWWVjbf53Clqb4cYkjv4lrvhnO5V5acW6dY3+PzX+pM9EGLzFdCA6Mu
+Hgnlz+4EiKMasYYBSiPWM9L9pYxVAKuzfCnymJo3m/bWH2bKQ1r6CHB5/Xon5S10
+byH8OQwMffm4bNy2R9spXOB/bK3A3kG8kdkHfWi9esTZ5Etpww4=
+-----END CERTIFICATE-----

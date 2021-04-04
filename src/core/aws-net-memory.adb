@@ -34,7 +34,8 @@ package body AWS.Net.Memory is
 
    Anonymous_Port : constant Natural := Natural'Last;
 
-   package Sockets_Map is new Containers.Ordered_Maps (Positive, Socket_Type);
+   package Sockets_Map is new Ada.Containers.Ordered_Maps
+     (Positive, Socket_Type);
 
    --  Make sure that the socket registry is thread safe
 

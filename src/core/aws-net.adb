@@ -584,6 +584,15 @@ package body AWS.Net is
       end if;
    end Set_Blocking_Mode;
 
+   --------------------
+   -- Set_Host_Alias --
+   --------------------
+
+   procedure Set_Host_Alias (Alias, Host : String) is
+   begin
+      Aliases.Insert (Alias, Host);
+   end Set_Host_Alias;
+
    -----------------
    -- Set_Timeout --
    -----------------
@@ -717,5 +726,19 @@ package body AWS.Net is
    begin
       Wait_For (Mode, Socket, Socket.Timeout);
    end Wait_For;
+
+   -------------------------
+   -- Wildcard_Before_Dot --
+   -------------------------
+
+   function Wildcard_Before_Dot (Name : String) return String is
+      Dot : constant Natural := Strings.Fixed.Index (Name, ".");
+   begin
+      if Dot = 0 then
+         return Name;
+      else
+         return '*' & Name (Dot .. Name'Last);
+      end if;
+   end Wildcard_Before_Dot;
 
 end AWS.Net;
