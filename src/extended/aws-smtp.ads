@@ -58,7 +58,7 @@ package AWS.SMTP is
 
    function Initialize
      (Server_Name : String;
-      Port        : Positive := Default_SMTP_Port;
+      Port        : Natural := Default_SMTP_Port;
       Secure      : Boolean := False;
       Family      : Net.Family_Type := Net.Family_Unspec;
       Credential  : access constant Authentication.Credential'Class := null;
@@ -150,7 +150,7 @@ private
    type Receiver is record
       Family  : Net.Family_Type;
       Name    : Unbounded_String;
-      Port    : Positive;
+      Port    : Natural;
       Secure  : Boolean;
       Sock    : Net.Socket_Access;
       Auth    : access constant Authentication.Credential'Class;

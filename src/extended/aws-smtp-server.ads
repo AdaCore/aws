@@ -45,6 +45,9 @@ package AWS.SMTP.Server is
       Action : Callback);
    --  Start the server. This must be called once
 
+   function Port (Server : Handle) return Positive;
+   --  Returns bound port of the server
+
    procedure Shutdown (Server : in out Handle);
    --  Stop the server and release all associated memory
 
@@ -62,5 +65,8 @@ private
       Action         : Callback;
       Shutdown       : Boolean; -- True if shutdown is in progress
    end record;
+
+   function Port (Server : Handle) return Positive is
+     (Server.Host.Port);
 
 end AWS.SMTP.Server;

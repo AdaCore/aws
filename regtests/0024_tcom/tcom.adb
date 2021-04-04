@@ -32,8 +32,6 @@ with AWS.Parameters;
 with AWS.Messages;
 with AWS.Utils;
 
-with Get_Free_Port;
-
 procedure Tcom is
 
    use Ada;
@@ -46,8 +44,6 @@ procedure Tcom is
    end record;
 
    type Context_Access is access all Context;
-
-   Free_Port : Positive := 1254;
 
    function Callback
      (Server     : String;
@@ -105,24 +101,21 @@ procedure Tcom is
    LH : constant String := Net.Localhost (Net.IPv6_Available);
 
 begin
-   Get_Free_Port (Free_Port);
+   Com_Server.Start (Context => C'Access, Host => LH, Port => 0);
 
-   Com_Server.Start
-     (Context => C'Access, Host => LH, Port => Free_Port);
-
-   R := Communication.Client.Send_Message (LH, Free_Port, "zero");
+   R := Communication.Client.Send_Message (LH, Com_Server.Port, "zero");
 
    Put_Line ("R1 : " & Response.Message_Body (R));
    New_Line;
 
    R := Communication.Client.Send_Message
-     (LH, Free_Port, "one", (1 => +"first"));
+     (LH, Com_Server.Port, "one", (1 => +"first"));
 
    Put_Line ("R2 : " & Response.Message_Body (R));
    New_Line;
 
    R := Communication.Client.Send_Message
-     (LH, Free_Port, "two", (+"first", +"second"));
+     (LH, Com_Server.Port, "two", (+"first", +"second"));
 
    Put_Line ("R3 : " & Response.Message_Body (R));
    New_Line;

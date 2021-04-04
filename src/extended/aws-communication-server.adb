@@ -32,7 +32,7 @@ with Ada.Unchecked_Conversion;
 with AWS.Config.Set;
 with AWS.Messages;
 with AWS.Parameters;
-with AWS.Server;
+with AWS.Server.Status;
 with AWS.Status;
 with AWS.Utils;
 
@@ -59,6 +59,15 @@ package body AWS.Communication.Server is
 
    function Receive (Request : Status.Data) return Response.Data;
    --  Handle communication server message
+
+   ----------
+   -- Port --
+   ----------
+
+   function Port return Positive is
+   begin
+      return AWS.Server.Status.Port (Com_Server);
+   end Port;
 
    -------------
    -- Receive --
@@ -125,7 +134,7 @@ package body AWS.Communication.Server is
    -----------
 
    procedure Start
-     (Port : Positive; Context : T_Access; Host : String := "")
+     (Port : Natural; Context : T_Access; Host : String := "")
    is
       CB  : constant Internal_Callback := Receive'Access;
       CNF : Config.Object;

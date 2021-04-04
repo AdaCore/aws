@@ -29,8 +29,6 @@ with AWS.SMTP.Server;
 
 with SMTP_Pck;
 
-with Get_Free_Port;
-
 procedure SMTP_2 is
 
    use Ada;
@@ -41,7 +39,6 @@ procedure SMTP_2 is
    From_Email : constant String := "my.name@righthere.fr";
    Filename   : constant String := "ada.gif";
 
-   Port   : Positive := 9025;
    Family : Net.Family_Type;
    Host   : SMTP.Receiver;
    Server : SMTP.Server.Handle;
@@ -51,8 +48,6 @@ procedure SMTP_2 is
    EOL    : constant String := ASCII.CR & ASCII.LF;
 
 begin
-   Get_Free_Port (Port);
-
    if Net.IPv6_Available then
       Family := Net.Family_Inet6;
    else
@@ -60,10 +55,16 @@ begin
    end if;
 
    Host := SMTP.Initialize
-             (Net.Localhost (Net.IPv6_Available), Port,
+             (Net.Localhost (Net.IPv6_Available), 0,
               AWS.Net.SSL.Is_Supported, Family => Family, Timeout => 1.0);
 
    SMTP.Server.Start (Server, Host, SMTP_Pck.Dump_Mail'Access);
+
+   --  Recreate Host with port defined
+
+   Host := SMTP.Initialize
+     (Net.Localhost (Net.IPv6_Available), SMTP.Server.Port (Server),
+      AWS.Net.SSL.Is_Supported, Family => Family, Timeout => 1.0);
 
    --  Send simple message
 

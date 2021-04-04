@@ -32,7 +32,6 @@ with AWS.Utils;
 with SOAP_Hotplug_Pack;
 with SOAP_Hotplug_CB;
 with SOAP_Hotplug_Pack_Service.Client;
-with Get_Free_Port;
 
 procedure Test_SOAP_Hotplug is
 
@@ -47,8 +46,7 @@ procedure Test_SOAP_Hotplug is
 
    Localhost    : constant String := "127.0.0.1";
    HTTP_Local   : constant String := "http://" & Localhost & ':';
-   Hotplug_Port : Natural := 1135;
-   Com_Port     : Natural := 2122;
+   Com_Port     : aliased Positive;
 
    -------------
    -- Request --
@@ -71,11 +69,31 @@ procedure Test_SOAP_Hotplug is
    R  : Response.Data;
    CF : Config.Object;
 
+   function Hotplug_Port return Positive is
+     (AWS.Server.Status.Port (WS));
+
 begin
    Text_IO.Put_Line ("Starting main server...");
 
-   Get_Free_Port (Hotplug_Port);
-   Get_Free_Port (Com_Port);
+   Config.Set.Server_Name    (CF, "Main");
+   Config.Set.Admin_URI      (CF, "/Admin-Page");
+   Config.Set.Server_Host    (CF, Localhost);
+   Config.Set.Server_Port    (CF, 0);
+   Config.Set.Max_Connection (CF, 3);
+
+   Server.Start (SOAP_Hotplug_CB.Main_Server, SOAP_Hotplug_CB.Main'Access, CF);
+
+   --  Send some requests
+
+   Request (3, 7);
+   Request (9, 2);
+
+   --  Start hotplug now
+
+   Config.Set.Server_Name    (CF, "Hotplug");
+   Config.Set.Server_Port    (CF, 0);
+
+   Server.Start (WS, SOAP_Hotplug_CB.Hotplug'Access, CF);
 
    --  Write access file
 
@@ -89,29 +107,9 @@ begin
       Text_IO.Close (F);
    end;
 
-   Config.Set.Server_Name    (CF, "Main");
-   Config.Set.Admin_URI      (CF, "/Admin-Page");
-   Config.Set.Server_Host    (CF, Localhost);
-   Config.Set.Server_Port    (CF, 0);
-   Config.Set.Max_Connection (CF, 3);
-
-   Server.Start (SOAP_Hotplug_CB.Main_Server, SOAP_Hotplug_CB.Main'Access, CF);
-
    Server.Hotplug.Activate
-     (SOAP_Hotplug_CB.Main_Server'Access, Com_Port, "hotplug_access.ini",
-      Host => Localhost);
-
-   --  Send some requests
-
-   Request (3, 7);
-   Request (9, 2);
-
-   --  Start hotplug now
-
-   Config.Set.Server_Name    (CF, "Hotplug");
-   Config.Set.Server_Port    (CF, Hotplug_Port);
-
-   Server.Start (WS, SOAP_Hotplug_CB.Hotplug'Access, CF);
+     (SOAP_Hotplug_CB.Main_Server'Access, 0, "hotplug_access.ini",
+      Host => Localhost, Bound_Port => Com_Port'Access);
 
    R := Client.Hotplug.Register
           ("hp_test", SOAP_Hotplug_CB.Password,

@@ -175,8 +175,8 @@ package body AWS.SMTP is
 
    function Initialize
      (Server_Name : String;
-      Port        : Positive := Default_SMTP_Port;
-      Secure      : Boolean  := False;
+      Port        : Natural := Default_SMTP_Port;
+      Secure      : Boolean := False;
       Family      : Net.Family_Type := Net.Family_Unspec;
       Credential  : access constant Authentication.Credential'Class := null;
       Timeout     : Duration := Net.Forever)
