@@ -52,14 +52,18 @@ package AWS.Server.Hotplug is
 
    procedure Activate
      (Web_Server         : not null access HTTP;
-      Port               : Positive;
+      Port               : Natural;
       Authorization_File : String;
       Register_Mode      : AWS.Hotplug.Register_Mode := AWS.Hotplug.Add;
-      Host               : String                    := "");
+      Host               : String                    := "";
+      Bound_Port         : access Positive           := null);
    --  Start hotplug server listening at the specified Port for the Web_Server.
    --  Only client modules listed in the authorization file will be able to
    --  connect to this server. For better securite the host of redictection
    --  must also be specified.
+   --  If Port is zero then the hotplug will be bound on any free port. The
+   --  Bound_Port access parameter should be defined in this case and bound
+   --  port will be written there.
 
    procedure Shutdown;
    --  Shutdown hotplug server

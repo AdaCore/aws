@@ -100,10 +100,11 @@ package body AWS.Server.Hotplug is
 
    procedure Activate
      (Web_Server         : not null access HTTP;
-      Port               : Positive;
+      Port               : Natural;
       Authorization_File : String;
       Register_Mode      : AWS.Hotplug.Register_Mode := AWS.Hotplug.Add;
-      Host               : String                    := "")
+      Host               : String                    := "";
+      Bound_Port         : access Positive           := null)
    is
       use Ada.Characters.Handling;
 
@@ -121,6 +122,11 @@ package body AWS.Server.Hotplug is
       N      : Natural := 0;
    begin
       Hotplug_Server.Start (Port, HTTP_Access (Web_Server), Host => Host);
+
+      if Bound_Port /= null then
+         Bound_Port.all := Hotplug_Server.Port;
+      end if;
+
       AWS.Hotplug.Set_Mode (Web_Server.Filters, Register_Mode);
 
       Text_IO.Open (File, Text_IO.In_File, Authorization_File);

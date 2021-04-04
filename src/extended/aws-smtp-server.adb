@@ -245,6 +245,10 @@ package body AWS.SMTP.Server is
       Server.Host.Sock.Bind (Port => Host.Port, Family => Host.Family);
       Server.Host.Sock.Listen;
 
+      if Host.Port = 0 then
+         Server.Host.Port := Server.Host.Sock.Get_Port;
+      end if;
+
       Server.Action := Action;
 
       Server.Server_Handler.Start;

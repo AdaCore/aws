@@ -30,7 +30,6 @@ with AWS.Server.Status;
 with AWS.Utils;
 
 with Hotplug_Pack;
-with Get_Free_Port;
 
 procedure Test_Hotplug is
 
@@ -43,8 +42,8 @@ procedure Test_Hotplug is
    procedure Request (URI : String);
    --  Request URI resource to main server, output result
 
-   Hotplug_Port : Natural := 1235;
-   Com_Port     : Natural := 2222;
+
+   Com_Port : aliased Positive;
 
    -------------
    -- Request --
@@ -64,11 +63,32 @@ procedure Test_Hotplug is
    CFG : Config.Object;
    R   : Response.Data;
 
+   function Hotplug_Port return Positive is
+     (AWS.Server.Status.Port (WS));
+
 begin
    Text_IO.Put_Line ("Starting main server...");
 
-   Get_Free_Port (Hotplug_Port);
-   Get_Free_Port (Com_Port);
+   Config.Set.Server_Name    (CFG, "Main");
+   Config.Set.Admin_URI      (CFG, "/Admin-Page");
+   Config.Set.Server_Host    (CFG, Localhost);
+   Config.Set.Server_Port    (CFG, 0);
+   Config.Set.Max_Connection (CFG, 3);
+
+   Server.Start (Hotplug_Pack.Main_Server, Hotplug_Pack.Main'Access, CFG);
+
+   --  Send some requests
+
+   Request ("MkHuoi");
+   Request ("toto");
+   Request ("Hotplug");
+
+   --  Start hotplug now
+
+   Config.Set.Server_Name    (CFG, "Hotplug");
+   Config.Set.Server_Port    (CFG, 0);
+
+   Server.Start (WS, Hotplug_Pack.Hotplug'Access, CFG);
 
    --  Write access file
 
@@ -82,30 +102,9 @@ begin
       Text_IO.Close (F);
    end;
 
-   Config.Set.Server_Name    (CFG, "Main");
-   Config.Set.Admin_URI      (CFG, "/Admin-Page");
-   Config.Set.Server_Host    (CFG, Localhost);
-   Config.Set.Server_Port    (CFG, 0);
-   Config.Set.Max_Connection (CFG, 3);
-
-   Server.Start (Hotplug_Pack.Main_Server, Hotplug_Pack.Main'Access, CFG);
-
    Server.Hotplug.Activate
-     (Hotplug_Pack.Main_Server'Access, Com_Port, "hotplug_access.ini",
-      Host => Localhost);
-
-   --  Send some requests
-
-   Request ("MkHuoi");
-   Request ("toto");
-   Request ("Hotplug");
-
-   --  Start hotplug now
-
-   Config.Set.Server_Name    (CFG, "Hotplug");
-   Config.Set.Server_Port    (CFG, Hotplug_Port);
-
-   Server.Start (WS, Hotplug_Pack.Hotplug'Access, CFG);
+     (Hotplug_Pack.Main_Server'Access, 0, "hotplug_access.ini",
+      Host => Localhost, Bound_Port => Com_Port'Access);
 
    R := Client.Hotplug.Register
           ("hp_test", Hotplug_Pack.Password,
