@@ -32,7 +32,6 @@ pragma Ada_2012;
 with Ada.Strings.Unbounded;
 
 private with Ada.Containers.Indefinite_Ordered_Maps;
-private with Ada.Containers.Indefinite_Vectors;
 private with Ada.Containers.Vectors;
 
 package AWS.Containers.Tables is
@@ -188,7 +187,7 @@ private
    subtype Name_Index_Table is Name_Indexes.Vector;
 
    package Data_Table is
-     new Ada.Containers.Indefinite_Vectors (Key_Positive, Element);
+     new Ada.Containers.Vectors (Key_Positive, Element);
 
    package Index_Table is new Ada.Containers.Indefinite_Ordered_Maps
      (String, Name_Index_Table, "<", Name_Indexes."=");
