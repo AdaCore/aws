@@ -154,9 +154,16 @@ begin
    Net.SSL.Add_Host_Certificate
       (Server.SSL_Config (HTTP).all,
        Net.Host_Name, "aws-server-2.crt", "aws-server-2.key");
-   --  aws-server-2.crt and aws-server-2.key is copied from
-   --  ../0226_client_cert/aws-server.crt and
-   --  ../0226_client_cert/aws-server.key
+
+   Net.SSL.Add_Host_Certificate
+      (Server.SSL_Config (HTTP).all,
+       "www.ada-web.org", "aws-server-3.crt", "aws-server-3.key");
+   Net.Set_Host_Alias ("www.ada-web.org", Net.Localhost (Net.IPv6_Available));
+
+   Net.SSL.Add_Host_Certificate
+     (Server.SSL_Config (HTTP).all,
+      "*.ada-web.org", "aws-server-4.crt", "aws-server-4.key");
+   Net.Set_Host_Alias ("site.ada-web.org", Net.Localhost (Net.IPv6_Available));
 
    Net.SSL.Add_Host_Certificate
       (Server.SSL_Config (HTTP).all,
@@ -171,6 +178,12 @@ begin
             & Utils.Image (Server.Status.Port (HTTP)) & "/simple");
 
    Request ("https://localhost:"
+            & Utils.Image (Server.Status.Port (HTTP)) & "/simple");
+
+   Request ("https://www.ada-web.org:"
+            & Utils.Image (Server.Status.Port (HTTP)) & "/simple");
+
+   Request ("https://site.ada-web.org:"
             & Utils.Image (Server.Status.Port (HTTP)) & "/simple");
 
    Server.Shutdown (HTTP);

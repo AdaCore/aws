@@ -276,7 +276,8 @@ private
       Timeout  : Duration;
    end record;
 
-   package Message_List is new Containers.Doubly_Linked_Lists (Message_Data);
+   package Message_List is new Ada.Containers.Doubly_Linked_Lists
+     (Message_Data);
 
    type Object is new Net.Socket_Type with record
       Socket   : Net.Socket_Access;

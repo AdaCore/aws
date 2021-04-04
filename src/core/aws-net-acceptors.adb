@@ -287,7 +287,7 @@ package body AWS.Net.Acceptors is
          end if;
 
          declare
-            use type Containers.Count_Type;
+            use type Ada.Containers.Count_Type;
             Count : Sets.Socket_Count;
             S     : Socket_Access;
          begin

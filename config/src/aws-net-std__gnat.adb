@@ -181,6 +181,11 @@ package body AWS.Net.Std is
       Family : Family_Type := Family_Unspec)
    is
       Sock_Addr : Sockets.Sock_Addr_Type := Sockets.No_Sock_Addr;
+      C_Host    : constant Containers.Key_Value.Cursor := Aliases.Find (Host);
+      Real_Host : constant String :=
+                    (if Containers.Key_Value.Has_Element (C_Host)
+                     then Containers.Key_Value.Element (C_Host)
+                     else Host);
 
       Close_On_Exception : Boolean := False;
 
@@ -202,12 +207,12 @@ package body AWS.Net.Std is
 
          Addr : constant String := Sockets.Image (Sock_Addr);
          Msg  : constant String :=
-                 (if Ada.Strings.Fixed.Index (Errm, Host) > 0 then Errm else
-                  Error_On_Connect (Errm)
+                  (if Ada.Strings.Fixed.Index (Errm, Real_Host) > 0 then Errm
+                   else Error_On_Connect (Errm)
                   & (if Sock_Addr.Addr = Sockets.No_Inet_Addr
-                     then Host & ':' & Utils.Image (Port)
-                     elsif Utils.Match (Addr, Host) then Addr
-                     else Host & ' ' & Addr));
+                     then Real_Host & ':' & Utils.Image (Port)
+                     elsif Utils.Match (Addr, Real_Host) then Addr
+                     else Real_Host & ' ' & Addr));
       begin
          Log.Error (Socket, Msg);
 
@@ -230,7 +235,7 @@ package body AWS.Net.Std is
          Keep_Excp : Exceptions.Exception_Occurrence;
          Addresses : constant Address_Info_Array :=
                        Get_Address_Info
-                         (Host, "", To_GNAT (Family), Passive => False);
+                         (Real_Host, "", To_GNAT (Family), Passive => False);
       begin
          for Addr_Info of Addresses loop
             Check_Address : begin
