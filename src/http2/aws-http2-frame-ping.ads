@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2000-2021, AdaCore                     --
+--                      Copyright (C) 2021, AdaCore                         --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -27,16 +27,37 @@
 --  covered by the  GNU Public License.                                     --
 ------------------------------------------------------------------------------
 
-pragma Ada_2012;
+package AWS.HTTP2.Frame.Ping is
 
-package AWS with Pure is
+   type Object is new Frame.Object with private;
 
-   Version      : constant String := "20.0";
+   function Read
+     (Sock   : Net.Socket_Type'Class;
+      Header : Frame.Object) return Object
+     with Pre => Header.Is_Defined;
+   --  Read a PING frame from Sock return the corresponding object
 
-   HTTP_10      : constant String := "HTTP/1.0";
-   HTTP_11      : constant String := "HTTP/1.1";
-   HTTP_2       : constant String := "HTTP/2";
+   type Opaque_Data is new Stream_Element_Array (1 .. 8);
 
-   HTTP_Version : String renames HTTP_11;
+   function Create (Data : Opaque_Data) return Object
+     with Post => Create'Result.Is_Defined
+                  and then Create'Result.Kind = K_Ping;
+   --  Create a PING frame (stream id is always 0)
 
-end AWS;
+   overriding procedure Send_Payload
+     (Self : Object; Sock : Net.Socket_Type'Class);
+   --  Send payload content
+
+private
+
+   --  RFC-7540 6.7
+   --
+   --  +---------------------------------------------------------------+
+   --  |                      Opaque Data (64)                         |
+   --  +---------------------------------------------------------------+
+
+   type Object is new Frame.Object with record
+      Data : Opaque_Data;
+   end record;
+
+end AWS.HTTP2.Frame.Ping;

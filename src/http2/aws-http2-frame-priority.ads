@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2000-2021, AdaCore                     --
+--                      Copyright (C) 2021, AdaCore                         --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -27,16 +27,64 @@
 --  covered by the  GNU Public License.                                     --
 ------------------------------------------------------------------------------
 
-pragma Ada_2012;
+with System;
 
-package AWS with Pure is
+package AWS.HTTP2.Frame.Priority is
 
-   Version      : constant String := "20.0";
+   type Object is new Frame.Object with private;
 
-   HTTP_10      : constant String := "HTTP/1.0";
-   HTTP_11      : constant String := "HTTP/1.1";
-   HTTP_2       : constant String := "HTTP/2";
+   type Payload is record
+      E                 : Bit_1;
+      Stream_Dependency : HTTP2.Stream_Id;
+      Weight            : Byte_1;
+   end record;
 
-   HTTP_Version : String renames HTTP_11;
+   function Create
+     (Stream_Id         : HTTP2.Stream_Id;
+      Stream_Dependency : HTTP2.Stream_Id;
+      Weight            : Byte_1) return Object
+     with Pre => Stream_Id /= Stream_Dependency;
+   --  Create a PRIORITY frame (stream id is always 0)
 
-end AWS;
+   function Read
+     (Sock   : Net.Socket_Type'Class;
+      Header : Frame.Object) return Object
+     with Pre => Header.Is_Defined;
+   --  Read PRIORITY frame from sock
+
+   overriding procedure Send_Payload
+     (Self : Object; Sock : Net.Socket_Type'Class);
+   --  Send the priority frame payload
+
+   overriding procedure Dump_Payload (Self : Object);
+
+private
+
+   --  RFC-7540 6.3
+   --
+   --  +-+-------------------------------------------------------------+
+   --  |E|                  Stream Dependency (31)                     |
+   --  +-+-------------+-----------------------------------------------+
+   --  |   Weight (8)  |
+   --  +-+-------------+
+
+   for Payload'Bit_Order use System.High_Order_First;
+   for Payload'Scalar_Storage_Order use System.High_Order_First;
+   for Payload use record
+      E                 at 0 range 31 .. 31;
+      Stream_Dependency at 0 range  0 .. 30;
+      Weight            at 4 range  0 ..  7;
+   end record;
+
+   type Payload_View (Flat : Boolean := False) is record
+      case Flat is
+         when False => P : Payload;
+         when True =>  S : Stream_Element_Array (1 .. Payload'Size / 8);
+      end case;
+   end record with Unchecked_Union;
+
+   type Object is new Frame.Object with record
+      Data : Payload_View;
+   end record;
+
+end AWS.HTTP2.Frame.Priority;

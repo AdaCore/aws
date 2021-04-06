@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2000-2021, AdaCore                     --
+--                      Copyright (C) 2021, AdaCore                         --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -27,16 +27,73 @@
 --  covered by the  GNU Public License.                                     --
 ------------------------------------------------------------------------------
 
-pragma Ada_2012;
+private with Ada.Containers.Indefinite_Vectors;
+private with Ada.Containers.Indefinite_Ordered_Maps;
 
-package AWS with Pure is
+package AWS.HTTP2.HPACK.Table is
 
-   Version      : constant String := "20.0";
+   type Object is tagged private;
+   type Object_Access is access all Object;
 
-   HTTP_10      : constant String := "HTTP/1.0";
-   HTTP_11      : constant String := "HTTP/1.1";
-   HTTP_2       : constant String := "HTTP/2";
+   type Name_Value (N_Length : Positive; V_Length : Natural) is record
+      Name  : String (1 .. N_Length);
+      Value : String (1 .. V_Length);
+   end record;
 
-   HTTP_Version : String renames HTTP_11;
+   procedure Insert (Self : in out Object; Name, Value : String);
+   --  Insert Name & Value pair into the dynamic table
 
-end AWS;
+   function Get_Name (Self : Object; Index : Positive) return String;
+   --  Get Name at the given index in the table
+
+   function Get_Name_Value (Self : Object; Index : Positive) return Name_Value;
+   --  Get Name & Value pair at the given index in the table
+
+   function Get_Name_Value_Index
+     (Self  : Object;
+      Name  : String;
+      Value : String := "";
+      Both  : out Boolean) return Positive;
+   --  Get the index of the Name (and Value if specificed). Both is set to true
+   --  if the pair is found and False if only the Name has been found.
+
+   procedure Init (Self : in out Object);
+   --  Initialize the table
+
+   procedure Dump (Self : Object);
+   --  Dump table content for debug
+
+private
+
+   use Ada;
+
+   package Index_NV is
+     new Containers.Indefinite_Vectors (Positive, Name_Value);
+
+   type Ids is record
+      Index : Positive;
+      Rank  : Positive;
+   end record;
+
+   package NV_Index is
+     new Containers.Indefinite_Ordered_Maps (String, Ids);
+
+   type Static_Table is record
+      T_IN : Index_NV.Vector;
+      T_NI : NV_Index.Map;
+   end record;
+
+   type Dynamic_Table is record
+      T_IN   : Index_NV.Vector;
+      T_NI   : NV_Index.Map;
+      Size   : Natural := 0;
+      Length : Natural := 0;
+      Rank   : Natural := 0;
+   end record;
+
+   type Object is tagged record
+      Static  : Static_Table;
+      Dynamic : Dynamic_Table;
+   end record;
+
+end AWS.HTTP2.HPACK.Table;

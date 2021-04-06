@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2000-2021, AdaCore                     --
+--                      Copyright (C) 2021, AdaCore                         --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -27,16 +27,62 @@
 --  covered by the  GNU Public License.                                     --
 ------------------------------------------------------------------------------
 
-pragma Ada_2012;
+with Ada.Text_IO;
 
-package AWS with Pure is
+with AWS.Net.Buffered;
 
-   Version      : constant String := "20.0";
+package body AWS.HTTP2.Frame.Window_Update is
 
-   HTTP_10      : constant String := "HTTP/1.0";
-   HTTP_11      : constant String := "HTTP/1.1";
-   HTTP_2       : constant String := "HTTP/2";
+   ------------
+   -- Create --
+   ------------
 
-   HTTP_Version : String renames HTTP_11;
+   function Create (Size_Increment : Size_Increment_Type) return Object is
+      Len : constant Stream_Element_Count :=
+              Stream_Element_Count (Payload'Size / 8);
+   begin
+      return O : Object do
+         O.Header.H.Stream_Id := 0;
+         O.Header.H.Length    := Length_Type (Len);
+         O.Header.H.Kind      := K_Window_Update;
+         O.Header.H.R         := 0;
+         O.Header.H.Flags     := 0;
 
-end AWS;
+         O.Data.P.Size_Increment := Size_Increment;
+      end return;
+   end Create;
+
+   ----------
+   -- Dump --
+   ----------
+
+   procedure Dump (O : Object) is
+   begin
+      Ada.Text_IO.Put_Line
+        ("   Window_Update : " & O.Data.P.Size_Increment'Img);
+   end Dump;
+
+   ----------
+   -- Read --
+   ----------
+
+   function Read
+     (Sock   : Net.Socket_Type'Class;
+      Header : Frame.Object) return Object is
+   begin
+      return O : Object := (Header with Data => <>) do
+         Net.Buffered.Read (Sock, O.Data.S);
+      end return;
+   end Read;
+
+   ------------------
+   -- Send_Payload --
+   ------------------
+
+   overriding procedure Send_Payload
+     (Self : Object; Sock : Net.Socket_Type'Class) is
+   begin
+      Net.Buffered.Write (Sock, Self.Data.S);
+   end Send_Payload;
+
+end AWS.HTTP2.Frame.Window_Update;

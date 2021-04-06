@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2000-2021, AdaCore                     --
+--                      Copyright (C) 2021, AdaCore                         --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -27,16 +27,41 @@
 --  covered by the  GNU Public License.                                     --
 ------------------------------------------------------------------------------
 
-pragma Ada_2012;
+with AWS.HTTP2.Frame.Data;
+with AWS.HTTP2.Frame.Headers;
 
-package AWS with Pure is
+package body AWS.HTTP2.Message is
 
-   Version      : constant String := "20.0";
+   ------------
+   -- Create --
+   ------------
 
-   HTTP_10      : constant String := "HTTP/1.0";
-   HTTP_11      : constant String := "HTTP/1.1";
-   HTTP_2       : constant String := "HTTP/2";
+   function Create
+     (Headers : AWS.Headers.List;
+      Payload : Unbounded_String)
+      return Object is
+   begin
+      return O : Object do
+         O.Headers := Headers;
+         O.Payload := Payload;
+      end return;
+   end Create;
 
-   HTTP_Version : String renames HTTP_11;
+   ---------------
+   -- To_Frames --
+   ---------------
 
-end AWS;
+   function To_Frames
+     (Self      : Object;
+      Ctx       : in out Context;
+      Stream_Id : HTTP2.Stream_Id)
+      return AWS.HTTP2.Frame.List.Object
+   is
+      List : Frame.List.Object;
+   begin
+      List.Append (Frame.Headers.Create (Ctx.Table, Stream_Id, Self.Headers));
+      List.Append (Frame.Data.Create (Stream_Id, To_String (Self.Payload)));
+      return List;
+   end To_Frames;
+
+end AWS.HTTP2.Message;

@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2000-2021, AdaCore                     --
+--                      Copyright (C) 2021, AdaCore                         --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -27,16 +27,42 @@
 --  covered by the  GNU Public License.                                     --
 ------------------------------------------------------------------------------
 
-pragma Ada_2012;
+with AWS.Headers;
+with AWS.HTTP2.HPACK.Table;
 
-package AWS with Pure is
+package AWS.HTTP2.Frame.Continuation is
 
-   Version      : constant String := "20.0";
+   type Object is new Frame.Object with private;
 
-   HTTP_10      : constant String := "HTTP/1.0";
-   HTTP_11      : constant String := "HTTP/1.1";
-   HTTP_2       : constant String := "HTTP/2";
+   function Read
+     (Sock   : Net.Socket_Type'Class;
+      Header : Frame.Object) return Object;
 
-   HTTP_Version : String renames HTTP_11;
+   function Create
+     (Table       : not null access HTTP2.HPACK.Table.Object;
+      List        : Headers.List;
+      End_Headers : Boolean := True) return Object
+     with Post => (if End_Headers then Create'Result.Flags = End_Headers_Flag);
 
-end AWS;
+   overriding procedure Send_Payload
+     (Self : Object; Sock : Net.Socket_Type'Class);
+
+private
+
+   --  RFC-7540 6.10
+   --
+   --  +-+-------------+-----------------------------------------------+
+   --  |                   Header Block Fragment (*)                 ...
+   --  +---------------------------------------------------------------+
+
+   type Payload_View is record
+      S : Utils.Stream_Element_Array_Access;
+   end record;
+
+   type Object is new Frame.Object with record
+      Data : Payload_View;
+   end record;
+
+   overriding procedure Release (Self : in out Object);
+
+end AWS.HTTP2.Frame.Continuation;

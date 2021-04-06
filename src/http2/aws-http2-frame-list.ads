@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2000-2021, AdaCore                     --
+--                      Copyright (C) 2021, AdaCore                         --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -27,16 +27,18 @@
 --  covered by the  GNU Public License.                                     --
 ------------------------------------------------------------------------------
 
-pragma Ada_2012;
+--  A list of frame
 
-package AWS with Pure is
+with Ada.Containers.Indefinite_Vectors;
 
-   Version      : constant String := "20.0";
+package AWS.HTTP2.Frame.List is
 
-   HTTP_10      : constant String := "HTTP/1.0";
-   HTTP_11      : constant String := "HTTP/1.1";
-   HTTP_2       : constant String := "HTTP/2";
+   subtype Count_Type is Containers.Count_Type;
 
-   HTTP_Version : String renames HTTP_11;
+   package List is new Containers.Indefinite_Vectors (Positive, Object'Class);
 
-end AWS;
+   subtype Object is List.Vector;
+
+   Empty_List : constant Object := List.Empty_Vector;
+
+end AWS.HTTP2.Frame.List;

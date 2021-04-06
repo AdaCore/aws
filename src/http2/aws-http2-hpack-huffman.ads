@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2000-2021, AdaCore                     --
+--                      Copyright (C) 2021, AdaCore                         --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -27,16 +27,12 @@
 --  covered by the  GNU Public License.                                     --
 ------------------------------------------------------------------------------
 
-pragma Ada_2012;
+package AWS.HTTP2.HPACK.Huffman is
 
-package AWS with Pure is
+   function Decode (Str : Stream_Element_Array) return String;
+   --  Decode huffman encoded Str
 
-   Version      : constant String := "20.0";
+   function Encode (Str : String) return Stream_Element_Array;
+   --  Encode Str using huffman encoding
 
-   HTTP_10      : constant String := "HTTP/1.0";
-   HTTP_11      : constant String := "HTTP/1.1";
-   HTTP_2       : constant String := "HTTP/2";
-
-   HTTP_Version : String renames HTTP_11;
-
-end AWS;
+end AWS.HTTP2.HPACK.Huffman;
