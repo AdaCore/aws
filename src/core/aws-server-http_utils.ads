@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2005-2015, AdaCore                     --
+--                     Copyright (C) 2005-2021, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -40,6 +40,11 @@ package AWS.Server.HTTP_Utils is
 
    Wrong_Request_Line : exception;
    --  Raised when a non well formed request line is detected
+
+   function Build_Answer
+     (HTTP_Server : in out AWS.Server.HTTP;
+      C_Stat      : in out AWS.Status.Data) return Response.Data;
+   --  Build the Answer that should be sent to the client's browser
 
    procedure Answer_To_Client
      (HTTP_Server  : in out AWS.Server.HTTP;
