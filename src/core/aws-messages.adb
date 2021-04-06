@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2000-2017, AdaCore                     --
+--                     Copyright (C) 2000-2021, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -309,6 +309,15 @@ package body AWS.Messages is
    begin
       return Range_Token & HD & Value;
    end Data_Range;
+
+   ----------
+   -- Date --
+   ----------
+
+   function Date (Date : Calendar.Time) return String is
+   begin
+      return Date_Token & HD & To_HTTP_Date (Date);
+   end Date;
 
    ----------
    -- ETag --

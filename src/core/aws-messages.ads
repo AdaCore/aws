@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2000-2018, AdaCore                     --
+--                     Copyright (C) 2000-2021, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -327,6 +327,9 @@ package AWS.Messages is
    --  Note that this is not part of HTTP/1.1 standard, it is there because
    --  there is a lot of implementation around using it. This header is used
    --  in multipart data.
+
+   function Date (Date : Calendar.Time) return String with Inline;
+   --  The date header
 
    function ETag (Value : ETag_Value) return String with Inline;
 
