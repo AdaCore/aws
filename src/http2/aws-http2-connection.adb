@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2000-2021, AdaCore                     --
+--                      Copyright (C) 2021, AdaCore                         --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -27,16 +27,26 @@
 --  covered by the  GNU Public License.                                     --
 ------------------------------------------------------------------------------
 
-pragma Ada_2012;
+package body AWS.HTTP2.Connection is
 
-package AWS with Pure is
+   ---------
+   -- Set --
+   ---------
 
-   Version      : constant String := "20.0";
+   procedure Set
+     (Self   : in out Object;
+      Values : Frame.Settings.Set) is
+   begin
+      for V of Values loop
+         Self.Values (V.Id) := Natural (V.Value);
+      end loop;
+   end Set;
 
-   HTTP_10      : constant String := "HTTP/1.0";
-   HTTP_11      : constant String := "HTTP/1.1";
-   HTTP_2       : constant String := "HTTP/2";
+   procedure Set
+     (Self                  : in out Object;
+      Window_Size_Increment : Frame.Window_Update.Size_Increment_Type) is
+   begin
+      Self.Window_Size_Increment := Window_Size_Increment;
+   end Set;
 
-   HTTP_Version : String renames HTTP_11;
-
-end AWS;
+end AWS.HTTP2.Connection;

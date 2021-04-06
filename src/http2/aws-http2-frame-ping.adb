@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2000-2021, AdaCore                     --
+--                      Copyright (C) 2021, AdaCore                         --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -27,16 +27,48 @@
 --  covered by the  GNU Public License.                                     --
 ------------------------------------------------------------------------------
 
-pragma Ada_2012;
+with AWS.Net.Buffered;
 
-package AWS with Pure is
+package body AWS.HTTP2.Frame.Ping is
 
-   Version      : constant String := "20.0";
+   ------------
+   -- Create --
+   ------------
 
-   HTTP_10      : constant String := "HTTP/1.0";
-   HTTP_11      : constant String := "HTTP/1.1";
-   HTTP_2       : constant String := "HTTP/2";
+   function Create (Data : Opaque_Data) return Object is
+   begin
+      return O : Object do
+         O.Header.H.Stream_Id := 0;
+         O.Header.H.Length    := 8;
+         O.Header.H.Kind      := K_Ping;
+         O.Header.H.R         := 0;
+         O.Header.H.Flags     := 0;
 
-   HTTP_Version : String renames HTTP_11;
+         O.Data := Data;
+      end return;
+   end Create;
 
-end AWS;
+   ----------
+   -- Read --
+   ----------
+
+   function Read
+     (Sock   : Net.Socket_Type'Class;
+      Header : Frame.Object) return Object is
+   begin
+      return O : Object := (Header with Data => <>) do
+         Net.Buffered.Read (Sock, Stream_Element_Array (O.Data));
+      end return;
+   end Read;
+
+   ------------------
+   -- Send_Payload --
+   ------------------
+
+   overriding procedure Send_Payload
+     (Self : Object; Sock : Net.Socket_Type'Class) is
+   begin
+      Net.Buffered.Write (Sock, Stream_Element_Array (Self.Data));
+   end Send_Payload;
+
+end AWS.HTTP2.Frame.Ping;

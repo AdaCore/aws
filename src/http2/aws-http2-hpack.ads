@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2000-2021, AdaCore                     --
+--                      Copyright (C) 2021, AdaCore                         --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -27,16 +27,28 @@
 --  covered by the  GNU Public License.                                     --
 ------------------------------------------------------------------------------
 
-pragma Ada_2012;
+--  Support for HAPCK (Header compression) for HTTP/2 protocol
 
-package AWS with Pure is
+with Ada.Streams;
 
-   Version      : constant String := "20.0";
+with AWS.Headers;
 
-   HTTP_10      : constant String := "HTTP/1.0";
-   HTTP_11      : constant String := "HTTP/1.1";
-   HTTP_2       : constant String := "HTTP/2";
+limited with AWS.HTTP2.HPACK.Table;
 
-   HTTP_Version : String renames HTTP_11;
+package AWS.HTTP2.HPACK is
 
-end AWS;
+   use Ada.Streams;
+
+   generic
+      with function End_Of_Stream return Boolean;
+      with function Get_Byte return Stream_Element;
+   function Decode
+     (Table : not null access HPACK.Table.Object) return AWS.Headers.List;
+   --  Decode a stream and return the conrresponding header list
+
+   function Encode
+     (Table : not null access HPACK.Table.Object;
+      List  : Headers.List) return Stream_Element_Array;
+   --  Encode the header list
+
+end AWS.HTTP2.HPACK;

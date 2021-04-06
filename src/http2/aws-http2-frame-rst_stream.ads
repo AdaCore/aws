@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2000-2021, AdaCore                     --
+--                      Copyright (C) 2021, AdaCore                         --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -27,16 +27,53 @@
 --  covered by the  GNU Public License.                                     --
 ------------------------------------------------------------------------------
 
-pragma Ada_2012;
+with System;
 
-package AWS with Pure is
+package AWS.HTTP2.Frame.RST_Stream is
 
-   Version      : constant String := "20.0";
+   type Object is new Frame.Object with private;
 
-   HTTP_10      : constant String := "HTTP/1.0";
-   HTTP_11      : constant String := "HTTP/1.1";
-   HTTP_2       : constant String := "HTTP/2";
+   type Payload is record
+      Error_Code : Error_Codes;
+   end record;
 
-   HTTP_Version : String renames HTTP_11;
+   function Read
+     (Sock   : Net.Socket_Type'Class;
+      Header : Frame.Object) return Object
+     with Pre => Header.Is_Defined;
+   --  Read a RST_Stream frame from Sock return the corresponding object
 
-end AWS;
+   function Create (Error_Code : Error_Codes) return Object;
+   --  Create an RST_Stream frame (stream id is 0)
+
+   overriding procedure Send_Payload
+     (Self : Object; Sock : Net.Socket_Type'Class)
+     with Pre => Self.Is_Defined;
+   --  Send payload content
+
+private
+
+   --  RFC-7540 6.4
+   --
+   --  +---------------------------------------------------------------+
+   --  |                        Error Code (32)                        |
+   --  +---------------------------------------------------------------+
+
+   for Payload'Bit_Order use System.High_Order_First;
+   for Payload'Scalar_Storage_Order use System.High_Order_First;
+   for Payload use record
+      Error_Code at 0 range 0 .. 31;
+   end record;
+
+   type Payload_View (Flat : Boolean := False) is record
+      case Flat is
+         when False => P : Payload;
+         when True =>  S : Stream_Element_Array (1 .. Payload'Size / 8);
+      end case;
+   end record with Unchecked_Union;
+
+   type Object is new Frame.Object with record
+      Data : Payload_View;
+   end record;
+
+end AWS.HTTP2.Frame.RST_Stream;

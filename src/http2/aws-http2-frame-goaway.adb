@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2000-2021, AdaCore                     --
+--                      Copyright (C) 2021, AdaCore                         --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -27,16 +27,71 @@
 --  covered by the  GNU Public License.                                     --
 ------------------------------------------------------------------------------
 
-pragma Ada_2012;
+with AWS.Net.Buffered;
 
-package AWS with Pure is
+package body AWS.HTTP2.Frame.GoAway is
 
-   Version      : constant String := "20.0";
+   ------------
+   -- Create --
+   ------------
 
-   HTTP_10      : constant String := "HTTP/1.0";
-   HTTP_11      : constant String := "HTTP/1.1";
-   HTTP_2       : constant String := "HTTP/2";
+   function Create
+     (Stream_Id : Stream.Id;
+      Error     : Error_Codes) return Object is
+   begin
+      return O : Object do
+         O.Header.H.Stream_Id := 0;
+         O.Header.H.Length    := 8;
+         O.Header.H.Kind      := K_GoAway;
+         O.Header.H.R         := 0;
+         O.Header.H.Flags     := 0;
 
-   HTTP_Version : String renames HTTP_11;
+         O.Data.S := new Stream_Element_Array
+                           (1 .. Stream_Element_Offset (O.Header.H.Length));
 
-end AWS;
+         O.Data.P := (R          => 0,
+                      Stream_Id  => Stream_Id,
+                      Error_Code => Error_Codes'Pos (Error),
+                      Debug_Data => null);
+      end return;
+   end Create;
+
+   ----------
+   -- Read --
+   ----------
+
+   function Read
+     (Sock   : Net.Socket_Type'Class;
+      Header : Frame.Object) return Object
+   is
+      Len : constant Stream_Element_Count :=
+              Stream_Element_Count (Header.Header.H.Length) - 8;
+   begin
+      return O : Object := (Header with Data => <>) do
+         if Len > 0 then
+            O.Data.S := new Stream_Element_Array (1 .. Len);
+            Net.Buffered.Read (Sock, O.Data.S.all);
+         end if;
+      end return;
+   end Read;
+
+   -------------
+   -- Release --
+   -------------
+
+   overriding procedure Release (Self : in out Object) is
+   begin
+      Utils.Unchecked_Free (Self.Data.S);
+   end Release;
+
+   ------------------
+   -- Send_Payload --
+   ------------------
+
+   overriding procedure Send_Payload
+     (Self : Object; Sock : Net.Socket_Type'Class) is
+   begin
+      Net.Buffered.Write (Sock, Self.Data.S.all);
+   end Send_Payload;
+
+end AWS.HTTP2.Frame.GoAway;

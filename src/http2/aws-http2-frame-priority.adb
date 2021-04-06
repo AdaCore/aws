@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2000-2021, AdaCore                     --
+--                      Copyright (C) 2021, AdaCore                         --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -27,16 +27,67 @@
 --  covered by the  GNU Public License.                                     --
 ------------------------------------------------------------------------------
 
-pragma Ada_2012;
+with Ada.Text_IO;
 
-package AWS with Pure is
+with AWS.Net.Buffered;
 
-   Version      : constant String := "20.0";
+package body AWS.HTTP2.Frame.Priority is
 
-   HTTP_10      : constant String := "HTTP/1.0";
-   HTTP_11      : constant String := "HTTP/1.1";
-   HTTP_2       : constant String := "HTTP/2";
+   ------------
+   -- Create --
+   ------------
 
-   HTTP_Version : String renames HTTP_11;
+   function Create
+     (Stream_Id         : HTTP2.Stream_Id;
+      Stream_Dependency : HTTP2.Stream_Id;
+      Weight            : Byte_1) return Object
+   is
+      Len : constant Stream_Element_Count :=
+              Stream_Element_Count (Payload'Size / 8);
+   begin
+      return O : Object do
+         O.Header.H.Stream_Id := Stream_Id;
+         O.Header.H.Length    := Length_Type (Len);
+         O.Header.H.Kind      := K_Priority;
+         O.Header.H.R         := 0;
+         O.Header.H.Flags     := 0;
 
-end AWS;
+         O.Data.P.Stream_Dependency := Stream_Dependency;
+         O.Data.P.Weight            := Weight;
+      end return;
+   end Create;
+
+   ----------
+   -- Dump --
+   ----------
+
+   overriding procedure Dump_Payload (Self : Object) is
+   begin
+      Text_IO.Put_Line ("   S: " & Self.Data.P.Stream_Dependency'Img
+                        & " W: " & Self.Data.P.Weight'Img);
+   end Dump_Payload;
+
+   ----------
+   -- Read --
+   ----------
+
+   function Read
+     (Sock   : Net.Socket_Type'Class;
+      Header : Frame.Object) return Object is
+   begin
+      return O : Object := (Header with Data => <>) do
+         Net.Buffered.Read (Sock, O.Data.S);
+      end return;
+   end Read;
+
+   ------------------
+   -- Send_Payload --
+   ------------------
+
+   overriding procedure Send_Payload
+     (Self : Object; Sock : Net.Socket_Type'Class) is
+   begin
+      Net.Buffered.Write (Sock, Self.Data.S);
+   end Send_Payload;
+
+end AWS.HTTP2.Frame.Priority;

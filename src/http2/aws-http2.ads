@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2000-2021, AdaCore                     --
+--                      Copyright (C) 2021, AdaCore                         --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -27,16 +27,48 @@
 --  covered by the  GNU Public License.                                     --
 ------------------------------------------------------------------------------
 
-pragma Ada_2012;
+limited with AWS.HTTP2.HPACK.Table;
+limited with AWS.HTTP2.Connection;
 
-package AWS with Pure is
+package AWS.HTTP2 with Pure is
 
-   Version      : constant String := "20.0";
+   type Bit_1 is mod 2 ** 1 with Size => 1;
 
-   HTTP_10      : constant String := "HTTP/1.0";
-   HTTP_11      : constant String := "HTTP/1.1";
-   HTTP_2       : constant String := "HTTP/2";
+   type Byte_1 is mod 2 **  8 with Size => 8;
+   type Byte_2 is mod 2 ** 16 with Size => 16;
+   type Byte_3 is mod 2 ** 24 with Size => 24;
+   type Byte_4 is mod 2 ** 32 with Size => 32;
 
-   HTTP_Version : String renames HTTP_11;
+   type Stream_Id is new Natural range 0 .. 2 ** 31 - 1;
 
-end AWS;
+   Protocol_Error : exception;
+
+   type Error_Codes is
+     (C_No_Error, C_Protocol_Error, C_Internal_Error, C_Flow_Control_Error,
+      C_Settings_Timeout, C_Stream_Closed, C_Frame_Size_Error,
+      C_Refused_Stream, C_Cancel, C_Compression_Error, C_Connect_Error,
+      C_Enhance_Your_CALM, C_Inadequate_Security, C_HTTP_1_1_Required);
+   --  Error codes that are used in RST_Stream and GoAway frames
+
+   type Context
+     (Table    : not null access HTTP2.HPACK.Table.Object;
+      Settings : not null access HTTP2.Connection.Object) is null record;
+
+private
+
+   for Error_Codes use (C_No_Error            => 16#0#,
+                        C_Protocol_Error      => 16#1#,
+                        C_Internal_Error      => 16#2#,
+                        C_Flow_Control_Error  => 16#3#,
+                        C_Settings_Timeout    => 16#4#,
+                        C_Stream_Closed       => 16#5#,
+                        C_Frame_Size_Error    => 16#6#,
+                        C_Refused_Stream      => 16#7#,
+                        C_Cancel              => 16#8#,
+                        C_Compression_Error   => 16#9#,
+                        C_Connect_Error       => 16#A#,
+                        C_Enhance_Your_CALM   => 16#B#,
+                        C_Inadequate_Security => 16#C#,
+                        C_HTTP_1_1_Required   => 16#D#);
+
+end AWS.HTTP2;

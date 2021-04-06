@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2000-2021, AdaCore                     --
+--                      Copyright (C) 2021, AdaCore                         --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -27,16 +27,64 @@
 --  covered by the  GNU Public License.                                     --
 ------------------------------------------------------------------------------
 
-pragma Ada_2012;
+with Ada.Strings.Unbounded;
 
-package AWS with Pure is
+with AWS.Headers;
+with AWS.HTTP2.Frame.List;
 
-   Version      : constant String := "20.0";
+package AWS.HTTP2.Message is
 
-   HTTP_10      : constant String := "HTTP/1.0";
-   HTTP_11      : constant String := "HTTP/1.1";
-   HTTP_2       : constant String := "HTTP/2";
+   use Ada.Strings.Unbounded;
+   use type AWS.HTTP2.Frame.List.Count_Type;
 
-   HTTP_Version : String renames HTTP_11;
+   type Object is tagged private;
 
-end AWS;
+   Undefined : constant Object;
+
+   function Is_Defined (Self : Object) return Boolean;
+
+   function Create
+     (Headers : AWS.Headers.List;
+      Payload : Unbounded_String)
+      return Object
+     with Pre  => Length (Payload) > 0 or else not Headers.Is_Empty,
+          Post => Create'Result.Is_Defined;
+   --  Create a message based on the given headers and payload
+
+   function Headers (Self : Object) return AWS.Headers.List
+     with Pre => Self.Is_Defined;
+   --  Get the headers for this message
+
+   function Payload (Self : Object) return Unbounded_String
+     with Pre => Self.Is_Defined;
+   --  Get the payload for this message
+
+   function To_Frames
+     (Self      : Object;
+      Ctx       : in out Context;
+      Stream_Id : HTTP2.Stream_Id) return AWS.HTTP2.Frame.List.Object
+     with Pre  => Self.Is_Defined,
+          Post => To_Frames'Result.Length > 0
+                    and then
+                  (for all P of To_Frames'Result =>
+                     P.Is_Defined and then P.Stream_Id = Stream_Id);
+   --  Get frames for this message. The headers is returned as an HEADERS frame
+   --  and the payload as a DATA frame.
+
+private
+
+   type Object is tagged record
+      Headers : AWS.Headers.List;
+      Payload : Unbounded_String;
+   end record;
+
+   Undefined : constant Object :=
+                 (AWS.Headers.Empty_List, Null_Unbounded_String);
+
+   function Headers (Self : Object) return AWS.Headers.List is (Self.Headers);
+
+   function Payload (Self : Object) return Unbounded_String is (Self.Payload);
+
+   function Is_Defined (Self : Object) return Boolean is (Self /= Undefined);
+
+end AWS.HTTP2.Message;
