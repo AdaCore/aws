@@ -42,6 +42,7 @@ with AWS.Server.HTTP_Utils;
 with AWS.Server.Log;
 with AWS.Services.Transient_Pages.Control;
 with AWS.Session.Control;
+with AWS.Status.Set;
 with AWS.Status.Translate_Set;
 with AWS.Templates;
 
@@ -55,7 +56,10 @@ package body AWS.Server is
    --  Start web server with current configuration
 
    procedure Protocol_Handler (LA : in out Line_Attribute_Record);
-   --  Handle the lines, this is where all the HTTP protocol is defined
+   --  Handle the lines, this is where all the HTTP/1.1 protocol is defined
+
+   procedure Protocol_Handler_V2 (LA : in out Line_Attribute_Record);
+   --  Handle the lines, this is where all the HTTP/2 protocol is defined
 
    function Accept_Socket_Serialized
      (Server : not null access HTTP)
@@ -102,14 +106,14 @@ package body AWS.Server is
            and then not New_Socket.Is_Secure
          then
             declare
-               SSL_Socket : Net.Socket_Access;
+               SSL_Socket : Net.SSL.Socket_Type;
             begin
-               SSL_Socket := new Net.SSL.Socket_Type'
-                 (Net.SSL.Secure_Server (New_Socket.all, Server.SSL_Config));
+               SSL_Socket := Net.SSL.Secure_Server
+                 (New_Socket.all, Server.SSL_Config);
                Net.Free (New_Socket);
-               --  Now do the handshake need for HTTP/2 ALPN
-               Net.SSL.Socket_Type (SSL_Socket.all).Do_Handshake;
-               return SSL_Socket;
+               SSL_Socket.Do_Handshake; -- Handshake need for HTTP/2 ALPN
+               pragma Warnings (Off);
+               return new Net.SSL.Socket_Type'(SSL_Socket);
             exception
                when Net.Socket_Error =>
                   if New_Socket = null then
@@ -341,8 +345,9 @@ package body AWS.Server is
             if Socket.Is_Secure
               and then Net.SSL.Socket_Type (Socket.all).ALPN_Get = "h2"
             then
-               --  Protocol_Handler_V2 (TA.all);
-               null;
+               --  Protocol is secure H2
+               AWS.Status.Set.Protocol (TA.Stat, AWS.Status.H2);
+               Protocol_Handler_V2 (TA.all);
             else
                Protocol_Handler (TA.all);
             end if;
@@ -405,6 +410,9 @@ package body AWS.Server is
    ----------------------
 
    procedure Protocol_Handler (LA : in out Line_Attribute_Record) is separate;
+
+   procedure Protocol_Handler_V2
+     (LA : in out Line_Attribute_Record) is separate;
 
    ------------------
    -- Session_Name --
@@ -881,7 +889,7 @@ package body AWS.Server is
          pragma Assert
            ((Table (Index).Phase = Closed
                and then -- If phase is closed, then Sock must be null
-               Table (Index).Sock = null)
+             Table (Index).Sock = null)
             or else -- or phase is not closed
               Table (Index).Phase /= Closed);
 
