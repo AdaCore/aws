@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2005-2020, AdaCore                     --
+--                     Copyright (C) 2005-2021, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -93,11 +93,83 @@ package body AWS.Server.HTTP_Utils is
    is
       use type Messages.Status_Code;
 
-      Admin_URI : constant String := CNF.Admin_URI (HTTP_Server.Properties);
-      Answer    : Response.Data;
+      Answer     : Response.Data :=
+                     Build_Answer (HTTP_Server, C_Stat);
 
-      procedure Build_Answer;
-      --  Build the Answer that should be sent to the client's browser
+      Need_Purge : Boolean := False;
+
+   begin
+      if HTTP_Server.Slots.Phase (Line_Index) = Client_Data then
+         --  User callback did not read clients message body. If client do not
+         --  support 100 (Continue) response, we have to close
+         --  socket to discard pending client data.
+
+         Need_Purge := Status.Expect (C_Stat) /= Messages.S100_Continue;
+
+         if not Will_Close then
+            Will_Close := Need_Purge;
+         end if;
+
+         if Response.Status_Code (Answer) < Messages.S300 then
+            Log.Write
+              (HTTP_Server.Error_Log,
+               C_Stat,
+               "User does not upload server data but return status "
+               & Messages.Image (Response.Status_Code (Answer)));
+         end if;
+      end if;
+
+      Send (Answer, HTTP_Server, Line_Index, C_Stat, Socket_Taken, Will_Close);
+
+      if Need_Purge then
+         --  User callback did not read client data and client does not support
+         --  100 (Continue) response. We need clear socket input buffers to be
+         --  able to close socket gracefully.
+
+         declare
+            use Ada.Real_Time;
+            Socket : constant Net.Socket_Type'Class := Status.Socket (C_Stat);
+            Buffer : Stream_Element_Array (1 .. 4096);
+            Last   : Stream_Element_Offset;
+            Length : Stream_Element_Count := Status.Content_Length (C_Stat);
+            Stamp  : constant Time := Clock;
+            Span   : constant Time_Span :=
+                       To_Time_Span
+                         (CNF.Receive_Timeout (HTTP_Server.Properties));
+            --  To do not spend too much time on wrong working clients
+            Agent  : constant String := Status.User_Agent (C_Stat);
+            Fully  : constant Boolean :=
+                       Fixed.Index (Agent, "Firefox/") > 0
+                         or else Fixed.Index (Agent, "konqueror/") > 0;
+            --  JavaScript engine of some browsers does not read the server
+            --  responce until successfully send the whole message body.
+            --  So we have to read the whole body to let them chance to read
+            --  the server answer.
+            --  Tested for Firefox/43.0 and konqueror/4.14.9.
+            --  Does not need this trick:
+            --  OPR/32.0.1948.69 - Opera
+            --  Midori/0.5
+            --  Chrome/47.0.2526.106
+         begin
+            while (Fully and then Length > 0 and then Stamp - Clock <= Span)
+              or else Socket.Pending > 0
+            loop
+               Socket.Receive (Buffer, Last);
+               Length := Length - Stream_Element_Count (Last);
+            end loop;
+         end;
+      end if;
+   end Answer_To_Client;
+
+   ------------------
+   -- Build_Answer --
+   ------------------
+
+   function Build_Answer
+     (HTTP_Server : in out AWS.Server.HTTP;
+      C_Stat      : in out AWS.Status.Data) return Response.Data
+   is
+      use type Status.Protocol_State;
 
       procedure Create_Session;
       --  Create a session if needed
@@ -109,105 +181,7 @@ package body AWS.Server.HTTP_Utils is
       --  Returns True if the Answer is to be ignored based on If-Match or
       --  If-Not-Match and ETag if any.
 
-      ------------------
-      -- Build_Answer --
-      ------------------
-
-      procedure Build_Answer is
-         URL : constant AWS.URL.Object := AWS.Status.URI (C_Stat);
-         URI : constant String         := AWS.URL.Abs_Path (URL);
-      begin
-         --  Check if the status page, status page logo or status page images
-         --  are requested. These are AWS internal data that should not be
-         --  handled by AWS users.
-
-         --  AWS Internal status page handling
-
-         if Admin_URI'Length > 0
-           and then
-             URI'Length >= Admin_URI'Length
-             and then
-               URI (URI'First .. URI'First + Admin_URI'Length - 1) = Admin_URI
-         then
-            Answer := Status_Page (URI);
-
-            --  Check if the URL is trying to reference resource above Web root
-            --  directory.
-
-         elsif CNF.Check_URL_Validity (HTTP_Server.Properties)
-           and then not AWS.URL.Is_Valid (URL)
-         then
-            --  403 status code "Forbidden"
-
-            Answer := Response.Build
-              (Status_Code   => Messages.S403,
-               Content_Type  => "text/plain",
-               Message_Body  => "Request " & URI & ASCII.LF
-               & " trying to reach resource above the Web root directory.");
-
-            --  Check if we have a websockets request
-
-         elsif Headers.Values.Unnamed_Value_Exists
-           (Status.Connection (C_Stat), "upgrade", Case_Sensitive => False)
-           and then
-             Headers.Values.Unnamed_Value_Exists
-               (Status.Upgrade (C_Stat), "websocket", Case_Sensitive => False)
-         then
-            Answer := Response.WebSocket;
-
-         else
-            --  Otherwise, check if a session needs to be created
-
-            Create_Session;
-
-            --  and get answer from client callback
-
-            declare
-               use type Dispatchers.Handler_Class_Access;
-               Found : Boolean;
-            begin
-               --  Check the hotplug filters
-
-               Hotplug.Apply (HTTP_Server.Filters, C_Stat, Found, Answer);
-
-               --  If no one applied, run the user callback
-
-               if not Found then
-                  if HTTP_Server.New_Dispatcher /= null then
-                     HTTP_Server.Dispatcher_Sem.Write;
-                     Dispatchers.Free (HTTP_Server.Dispatcher);
-                     HTTP_Server.Dispatcher := HTTP_Server.New_Dispatcher;
-                     HTTP_Server.New_Dispatcher := null;
-                     HTTP_Server.Dispatcher_Sem.Release_Write;
-                  end if;
-
-                  HTTP_Server.Dispatcher_Sem.Read;
-
-                  --  Be sure to always release the read semaphore
-
-                  begin
-                     Answer := Dispatchers.Dispatch
-                       (HTTP_Server.Dispatcher.all, C_Stat);
-
-                     HTTP_Server.Dispatcher_Sem.Release_Read;
-                  exception
-                     when others =>
-                        HTTP_Server.Dispatcher_Sem.Release_Read;
-                        raise;
-                  end;
-               end if;
-
-               --  Then check if the answer is to be ignored as per
-               --  If-Match/If-None-Match and ETag values.
-
-               if Is_Ignored (Answer) then
-                  Answer := Response.Acknowledge (Messages.S304);
-               end if;
-            end;
-
-            AWS.Status.Set.Delete_Idle_Session (C_Stat);
-         end if;
-      end Build_Answer;
+      Admin_URI : constant String := CNF.Admin_URI (HTTP_Server.Properties);
 
       --------------------
       -- Create_Session --
@@ -372,72 +346,117 @@ package body AWS.Server.HTTP_Utils is
          return Answer;
       end Status_Page;
 
-      Need_Purge : Boolean := False;
+            URL : constant AWS.URL.Object := AWS.Status.URI (C_Stat);
+      URI : constant String         := AWS.URL.Abs_Path (URL);
+
+      Answer : Response.Data;
 
    begin
-      Build_Answer;
+      --  Check if the status page, status page logo or status page images
+      --  are requested. These are AWS internal data that should not be
+      --  handled by AWS users.
 
-      if HTTP_Server.Slots.Phase (Line_Index) = Client_Data then
-         --  User callback did not read clients message body. If client do not
-         --  support 100 (Continue) response, we have to close
-         --  socket to discard pending client data.
+      --  AWS Internal status page handling
 
-         Need_Purge := Status.Expect (C_Stat) /= Messages.S100_Continue;
+      if Admin_URI'Length > 0
+        and then
+          URI'Length >= Admin_URI'Length
+          and then
+            URI (URI'First .. URI'First + Admin_URI'Length - 1) = Admin_URI
+      then
+         Answer := Status_Page (URI);
 
-         if not Will_Close then
-            Will_Close := Need_Purge;
-         end if;
+         --  Check if the URL is trying to reference resource above Web root
+         --  directory.
 
-         if Response.Status_Code (Answer) < Messages.S300 then
-            Log.Write
-              (HTTP_Server.Error_Log,
-               C_Stat,
-               "User does not upload server data but return status "
-               & Messages.Image (Response.Status_Code (Answer)));
-         end if;
-      end if;
+      elsif CNF.Check_URL_Validity (HTTP_Server.Properties)
+        and then not AWS.URL.Is_Valid (URL)
+      then
+         --  403 status code "Forbidden"
 
-      Send (Answer, HTTP_Server, Line_Index, C_Stat, Socket_Taken, Will_Close);
+         Answer := Response.Build
+           (Status_Code   => Messages.S403,
+            Content_Type  => "text/plain",
+            Message_Body  => "Request " & URI & ASCII.LF
+            & " trying to reach resource above the Web root directory.");
 
-      if Need_Purge then
-         --  User callback did not read client data and client does not support
-         --  100 (Continue) response. We need clear socket input buffers to be
-         --  able to close socket gracefully.
+         --  Check if we have a websockets request
+
+      elsif Headers.Values.Unnamed_Value_Exists
+        (Status.Connection (C_Stat), "upgrade", Case_Sensitive => False)
+        and then
+          Headers.Values.Unnamed_Value_Exists
+            (Status.Upgrade (C_Stat), "websocket", Case_Sensitive => False)
+      then
+         Answer := Response.WebSocket;
+
+      else
+         --  Otherwise, check if a session needs to be created
+
+         Create_Session;
+
+         --  and get answer from client callback
 
          declare
-            use Ada.Real_Time;
-            Socket : constant Net.Socket_Type'Class := Status.Socket (C_Stat);
-            Buffer : Stream_Element_Array (1 .. 4096);
-            Last   : Stream_Element_Offset;
-            Length : Stream_Element_Count := Status.Content_Length (C_Stat);
-            Stamp  : constant Time := Clock;
-            Span   : constant Time_Span :=
-                       To_Time_Span
-                         (CNF.Receive_Timeout (HTTP_Server.Properties));
-            --  To do not spend too much time on wrong working clients
-            Agent  : constant String := Status.User_Agent (C_Stat);
-            Fully  : constant Boolean :=
-                       Fixed.Index (Agent, "Firefox/") > 0
-                         or else Fixed.Index (Agent, "konqueror/") > 0;
-            --  JavaScript engine of some browsers does not read the server
-            --  responce until successfully send the whole message body.
-            --  So we have to read the whole body to let them chance to read
-            --  the server answer.
-            --  Tested for Firefox/43.0 and konqueror/4.14.9.
-            --  Does not need this trick:
-            --  OPR/32.0.1948.69 - Opera
-            --  Midori/0.5
-            --  Chrome/47.0.2526.106
+            use type Dispatchers.Handler_Class_Access;
+            Found : Boolean;
          begin
-            while (Fully and then Length > 0 and then Stamp - Clock <= Span)
-              or else Socket.Pending > 0
-            loop
-               Socket.Receive (Buffer, Last);
-               Length := Length - Stream_Element_Count (Last);
-            end loop;
+            --  Check the hotplug filters
+
+            Hotplug.Apply (HTTP_Server.Filters, C_Stat, Found, Answer);
+
+            --  If no one applied, run the user callback
+
+            if not Found then
+               if HTTP_Server.New_Dispatcher /= null then
+                  HTTP_Server.Dispatcher_Sem.Write;
+                  Dispatchers.Free (HTTP_Server.Dispatcher);
+                  HTTP_Server.Dispatcher := HTTP_Server.New_Dispatcher;
+                  HTTP_Server.New_Dispatcher := null;
+                  HTTP_Server.Dispatcher_Sem.Release_Write;
+               end if;
+
+               HTTP_Server.Dispatcher_Sem.Read;
+
+               --  Be sure to always release the read semaphore
+
+               begin
+                  Answer := Dispatchers.Dispatch
+                    (HTTP_Server.Dispatcher.all, C_Stat);
+
+                  HTTP_Server.Dispatcher_Sem.Release_Read;
+
+                  --  Switching protocol if needed
+
+                  if Status.Protocol (C_Stat) = Status.Upgrade_To_H2C then
+                     Response.Set.Status_Code (Answer, Messages.S101);
+
+                     Response.Set.Add_Header
+                       (Answer, Messages.Connection_Token, "Upgrade");
+                     Response.Set.Add_Header
+                       (Answer, Messages.Upgrade_Token, "h2c");
+                  end if;
+
+               exception
+                  when others =>
+                     HTTP_Server.Dispatcher_Sem.Release_Read;
+                     raise;
+               end;
+            end if;
+
+            --  Then check if the answer is to be ignored as per
+            --  If-Match/If-None-Match and ETag values.
+
+            if Is_Ignored (Answer) then
+               Answer := Response.Acknowledge (Messages.S304);
+            end if;
          end;
+
+         AWS.Status.Set.Delete_Idle_Session (C_Stat);
       end if;
-   end Answer_To_Client;
+
+      return Answer;
+   end Build_Answer;
 
    ---------------------
    -- File_Upload_UID --
