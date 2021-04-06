@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2000-2017, AdaCore                     --
+--                     Copyright (C) 2000-2021, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -53,6 +53,8 @@ package AWS.Status.Set is
    procedure Read_Header (Socket : Net.Socket_Type'Class; D : in out Data);
    --  Read all header data from the socket and fill the appropriate
    --  data's fields.
+
+   procedure Headers (D : in out Data; Headers : AWS.Headers.List);
 
    procedure Read_Body
      (Socket   : Net.Socket_Type'Class;
@@ -161,5 +163,7 @@ package AWS.Status.Set is
 
    procedure Uploaded (D : in out Data);
    --  Server calls this on complete upload
+
+   procedure Protocol (D : in out Data; State : Protocol_State);
 
 end AWS.Status.Set;
