@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2002-2015, AdaCore                     --
+--                     Copyright (C) 2002-2021, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -97,6 +97,10 @@ package AWS.Net.Buffered is
 
    function Get_Char (Socket : Socket_Type'Class) return Character with Inline;
    --  Returns a single character read from socket
+
+   function Get_Byte
+     (Socket : Socket_Type'Class) return Stream_Element with Inline;
+   --  Returns a single byte read from socket
 
    function Peek_Char (Socket : Socket_Type'Class) return Character
      with Inline;
