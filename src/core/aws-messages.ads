@@ -167,6 +167,10 @@ package AWS.Messages is
    S100_Continue : constant String := "100-continue";
    --  Supported expect header value
 
+   --  HTTP2 specific
+
+   HTTP2_Settings : constant String := "HTTP2-Settings";
+
    -----------------
    -- Status Code --
    -----------------
