@@ -45,6 +45,8 @@ package AWS.HTTP2.Stream is
 
    function Is_Defined (Self : Object) return Boolean;
 
+   function "<" (Left, Right : Object) return Boolean;
+
    subtype Id is Stream_Id;
 
    function Create
@@ -102,6 +104,8 @@ private
       Is_Ready    : Boolean            := False;
       Window_Size : Natural;
    end record;
+
+   function "<" (Left, Right : Object) return Boolean is (Left.Id < Right.Id);
 
    Undefined : constant Object :=
                  (null, 0, Idle, Frame.List.Empty_List, False, 0);
