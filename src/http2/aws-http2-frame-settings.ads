@@ -85,6 +85,8 @@ package AWS.HTTP2.Frame.Settings is
      (Self : Object; Sock : Net.Socket_Type'Class)
      with Pre => Self.Is_Defined;
 
+   overriding function Validate (Self : Object) return Error_Codes;
+
    overriding procedure Dump_Payload (Self : Object);
 
 private

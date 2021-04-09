@@ -56,6 +56,8 @@ package AWS.HTTP2.Frame.Priority is
      (Self : Object; Sock : Net.Socket_Type'Class);
    --  Send the priority frame payload
 
+   overriding function Validate (Self : Object) return Error_Codes;
+
    overriding procedure Dump_Payload (Self : Object);
 
 private

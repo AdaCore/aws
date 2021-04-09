@@ -90,4 +90,21 @@ package body AWS.HTTP2.Frame.Priority is
       Net.Buffered.Write (Sock, Self.Data.S);
    end Send_Payload;
 
+   --------------
+   -- Validate --
+   --------------
+
+   overriding function Validate (Self : Object) return Error_Codes is
+   begin
+      if Self.Header.H.Stream_Id = 0
+        or else Self.Stream_Id = Self.Data.P.Stream_Dependency
+      then
+         return C_Protocol_Error;
+      elsif Self.Header.H.Length /= 5 then
+         return C_Frame_Size_Error;
+      else
+         return C_No_Error;
+      end if;
+   end Validate;
+
 end AWS.HTTP2.Frame.Priority;
