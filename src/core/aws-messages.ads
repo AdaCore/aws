@@ -58,6 +58,13 @@ package AWS.Messages is
    -- HTTP header tokens --
    ------------------------
 
+   --  HTTP/2 header tokens RFC 7540
+
+   Status_Token              : constant String := ":status";
+   Method_Token              : constant String := ":method";
+   Path2_Token               : constant String := ":path";
+   Scheme_Token              : constant String := ":scheme";
+
    --  General header tokens RFC 2616
    Cache_Control_Token       : constant String := "Cache-Control";
    Connection_Token          : constant String := "Connection";
