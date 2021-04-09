@@ -62,6 +62,8 @@ package AWS.HTTP2.Frame.Headers is
      (Self : Object; Sock : Net.Socket_Type'Class);
    --  Send payload content
 
+   overriding function Validate (Self : Object) return Error_Codes;
+
 private
 
    --  RFC-7540 6.2

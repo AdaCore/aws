@@ -103,6 +103,13 @@ package AWS.HTTP2.Frame is
      with Pre => Self.Is_Defined;
    --  The length of the frame payload
 
+   function Validate (Self : Object) return Error_Codes
+     with Pre'Class => Self.Is_Defined;
+   --  Validate the frame content and return an error code different than
+   --  C_No_Error if the frame is malformed. This default implementation return
+   --  C_No_Error and is supposed to be overriden by frame implementation. if
+   --  needed.
+
    --  Debug oritented routines:
 
    procedure Dump (Self : Object'Class; Message : String);

@@ -139,6 +139,44 @@ package body AWS.HTTP2.Frame.Settings is
       Net.Buffered.Write (Sock, Self.Data.S.all);
    end Send_Payload;
 
+   --------------
+   -- Validate --
+   --------------
+
+   overriding function Validate (Self : Object) return Error_Codes is
+   begin
+      if Self.Header.H.Stream_Id /= 0 then
+         return C_Protocol_Error;
+
+      elsif Self.Has_Flag (Ack_Flag) and then Self.Header.H.Length /= 0 then
+         return C_Frame_Size_Error;
+
+      elsif Self.Header.H.Length mod 6 /= 0 then
+         return C_Frame_Size_Error;
+
+      else
+         for K in 1 .. Self.Size loop
+            if Self.Data.P (K).Id = MAX_FRAME_SIZE
+              and then Self.Data.P (K).Value not in 2**14 .. 2**24 - 1
+            then
+               return C_Protocol_Error;
+
+            elsif Self.Data.P (K).Id = ENABLE_PUSH
+              and then Self.Data.P (K).Value > 1
+            then
+               return C_Protocol_Error;
+
+            elsif Self.Data.P (K).Id = INITIAL_WINDOW_SIZE
+              and then Self.Data.P (K).Value > 2 ** 31 - 1
+            then
+               return C_Flow_Control_Error;
+            end if;
+         end loop;
+
+         return C_No_Error;
+      end if;
+   end Validate;
+
    ------------
    -- Values --
    ------------

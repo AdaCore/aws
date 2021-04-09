@@ -51,6 +51,8 @@ package AWS.HTTP2.Frame.RST_Stream is
      with Pre => Self.Is_Defined;
    --  Send payload content
 
+   overriding function Validate (Self : Object) return Error_Codes;
+
 private
 
    --  RFC-7540 6.4

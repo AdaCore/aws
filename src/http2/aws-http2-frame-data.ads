@@ -54,6 +54,8 @@ package AWS.HTTP2.Frame.Data is
      with Pre => Self.Is_Defined;
    --  Send the payload data
 
+   overriding function Validate (Self : Object) return Error_Codes;
+
    function Payload (Self : Object) return Unbounded_String
      with Pre => Self.Is_Defined;
    --  Returns the payload content

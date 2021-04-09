@@ -47,6 +47,8 @@ package AWS.HTTP2.Frame.Continuation is
    overriding procedure Send_Payload
      (Self : Object; Sock : Net.Socket_Type'Class);
 
+   overriding function Validate (Self : Object) return Error_Codes;
+
 private
 
    --  RFC-7540 6.10

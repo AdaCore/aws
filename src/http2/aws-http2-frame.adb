@@ -117,34 +117,34 @@ package body AWS.HTTP2.Frame is
       --  Get the frame payload
 
       case H.Header.H.Kind is
-         when K_Data =>
+         when K_Data          =>
             return Frame.Data.Read (Sock, H);
 
-         when K_Settings =>
+         when K_Settings      =>
             return Frame.Settings.Read (Sock, H);
 
-         when K_Headers =>
+         when K_Headers       =>
             return Frame.Headers.Read (Sock, H);
 
          when K_Window_Update =>
             return Frame.Window_Update.Read (Sock, H);
 
-         when K_RST_Stream =>
+         when K_RST_Stream    =>
             return Frame.RST_Stream.Read (Sock, H);
 
-         when K_GoAway =>
+         when K_GoAway        =>
             return Frame.GoAway.Read (Sock, H);
 
-         when K_Continuation =>
+         when K_Continuation  =>
             return Frame.Continuation.Read (Sock, H);
 
-         when K_Ping =>
+         when K_Ping          =>
             return Frame.Ping.Read (Sock, H);
 
-         when K_Priority =>
+         when K_Priority      =>
             return Frame.Priority.Read (Sock, H);
 
-         when K_Push_Promise =>
+         when K_Push_Promise  =>
             return Frame.Push_Promise.Read (Sock, H);
       end case;
    end Read;
@@ -176,5 +176,14 @@ package body AWS.HTTP2.Frame is
    begin
       Self.Header.H.Flags := Flags;
    end Set_Flags;
+
+   --------------
+   -- Validate --
+   --------------
+
+   function Validate (Self : Object) return Error_Codes is
+   begin
+      return C_No_Error;
+   end Validate;
 
 end AWS.HTTP2.Frame;
