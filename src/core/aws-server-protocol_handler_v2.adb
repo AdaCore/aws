@@ -34,10 +34,11 @@ with Ada.Containers;
 with Ada.Streams;
 with Ada.Text_IO;
 
-with AWS.Headers.Set;
+with AWS.Headers;
 with AWS.Log;
 with AWS.Messages;
 with AWS.Net.Buffered;
+with AWS.Server.Context;
 with AWS.Server.HTTP_Utils;
 with AWS.Server.Status;
 with AWS.Status.Set;
@@ -70,7 +71,6 @@ procedure Protocol_Handler_V2 (LA : in out Line_Attribute_Record) is
 
    use type AWS.Status.Protocol_State;
    use type HTTP2.Frame.Flags_Type;
-   use type HTTP2.Frame.Length_Type;
    use type HTTP2.Stream_Id;
 
    use all type HTTP2.Frame.Kind_Type;
@@ -93,8 +93,7 @@ procedure Protocol_Handler_V2 (LA : in out Line_Attribute_Record) is
       Stream_Id : HTTP2.Stream.Id) return AWS.HTTP2.Frame.List.Object;
 
    procedure Queue_Settings_Frame;
-   --  Queue server settings frame
-   --  ??? need rework
+   --  Queue server settings frame (default configuration)
 
    procedure Set_Status (Status : in out AWS.Status.Data);
    --  Set standard/common status data for the response
@@ -125,7 +124,7 @@ procedure Protocol_Handler_V2 (LA : in out Line_Attribute_Record) is
    Free_Slots   : Natural := 0 with Warnings => Off;
    --  ??? not handled for now
 
-   Settings : HTTP2.Connection.Object;
+   Settings : aliased HTTP2.Connection.Object;
    --  Connection settings
 
    H_Table  : aliased HTTP2.HPACK.Table.Object;
@@ -133,6 +132,8 @@ procedure Protocol_Handler_V2 (LA : in out Line_Attribute_Record) is
    --  ??? and maybe set the pointer to this table into a frame object as it
    --  ??? is needed (and passed as parameter) for header & continuation
    --  ??? frame.
+
+   Ctx : Context.Object (LA.Server, LA.Line, H_Table'Access, Settings'Access);
 
    --------------------------
    -- Handle_Control_Frame --
@@ -164,21 +165,16 @@ procedure Protocol_Handler_V2 (LA : in out Line_Attribute_Record) is
       if Frame.Kind = K_Settings
         and then Frame.Flags /= HTTP2.Frame.Ack_Flag
       then
-         --  Settings.Set (HTTP2.Frame.Settings.Object (Frame).Values);
          Handle (HTTP2.Frame.Settings.Object (Frame));
+         Answers.Prepend (HTTP2.Frame.Settings.Ack);
 
       elsif Frame.Kind = K_Settings
         and then Frame.Flags = HTTP2.Frame.Ack_Flag
       then
-         Answers.Append (HTTP2.Frame.Settings.Ack);
+         Answers.Prepend (HTTP2.Frame.Settings.Ack);
 
       elsif Frame.Kind = K_Window_Update then
-         if Frame.Length = 4 then
-            Handle (HTTP2.Frame.Window_Update.Object (Frame));
-         else
-            --  ??? push an error frame into answer with FRAME_SIZE_ERROR
-            null;
-         end if;
+         Handle (HTTP2.Frame.Window_Update.Object (Frame));
       end if;
    end Handle_Control_Frame;
 
@@ -195,8 +191,6 @@ procedure Protocol_Handler_V2 (LA : in out Line_Attribute_Record) is
       Frame            : constant HTTP2.Frame.Settings.Object :=
                            HTTP2.Frame.Settings.Create (Settings_Payload);
    begin
-      --  ??? to be handled
-      Frame.Dump ("HTTP2 Settings");
       Settings.Set (Frame.Values);
    end Handle_HTTP2_Settings;
 
@@ -206,7 +200,37 @@ procedure Protocol_Handler_V2 (LA : in out Line_Attribute_Record) is
 
    function Handle_Message
      (Status    : in out AWS.Status.Data;
-      Stream_Id : HTTP2.Stream.Id) return AWS.HTTP2.Frame.List.Object is
+      Stream_Id : HTTP2.Stream.Id) return AWS.HTTP2.Frame.List.Object
+   is
+      use type Response.Data_Mode;
+
+      function Create_Message
+        (H : Headers.List;
+         R : in out Response.Data) return HTTP2.Message.Object;
+      --  Create a response message object for the given headers and response
+      --  data.
+
+      --------------------
+      -- Create_Message --
+      --------------------
+
+      function Create_Message
+        (H : Headers.List;
+         R : in out Response.Data) return HTTP2.Message.Object is
+      begin
+         --  Add needed content type
+
+         if Response.Mode (R) = Response.File then
+            return HTTP2.Message.Create
+              (Headers  => H,
+               Filename => Response.Filename (R));
+         else
+            return HTTP2.Message.Create
+              (Headers => H,
+               Payload => Response.Message_Body (R));
+         end if;
+      end Create_Message;
+
    begin
       if Extended_Log then
          AWS.Log.Set_Field
@@ -239,27 +263,25 @@ procedure Protocol_Handler_V2 (LA : in out Line_Attribute_Record) is
             "s-free-slots", Utils.Image (Free_Slots));
       end if;
 
-      declare
-         R  : constant Response.Data :=
-                Server.HTTP_Utils.Build_Answer (LA.Server.all, Status);
-         H  : Headers.List := Response.Header (R);
-      begin
-         --  ??? we need to extract send_general_header from http_utils
-         --  to set the headers here.
-         Headers.Set.Add (H, ":status", "200");
---         Headers.Set.Add (H, ":status=200", "");
+      LA.Server.Slots.Mark_Phase (LA.Line, Client_Data);
 
+      declare
+         R : Response.Data :=
+               Server.HTTP_Utils.Build_Answer (LA.Server.all, Status);
+         H : Headers.List := Response.Header (R);
+      begin
          --  The general headers
 
-         Headers.Set.Add (H, Messages.Date_Token,
-                          Messages.To_HTTP_Date (Utils.GMT_Clock));
+         H.Add
+           (Messages.Date_Token,
+            Messages.To_HTTP_Date (Utils.GMT_Clock));
 
          declare
             Server : constant String :=
                        CNF.Server_Header (LA.Server.Properties);
          begin
             if Server /= "" then
-               Headers.Set.Add (H, Messages.Server_Token, Server);
+               H.Add (Messages.Server_Token, Server);
             end if;
          end;
 
@@ -269,50 +291,54 @@ procedure Protocol_Handler_V2 (LA : in out Line_Attribute_Record) is
             --  This is an HTTP connection with session but there is no session
             --  ID set yet. So, send cookie to client browser.
 
-            Headers.Set.Add
-              (H,
-               Messages.Set_Cookie_Token,
+            H.Add
+              (Messages.Set_Cookie_Token,
                CNF.Session_Name (LA.Server.Properties) & '='
                & Session.Image (AWS.Status.Session (Status))
                & "; path=/; Version=1");
 
             --  And the internal private session
 
-            Headers.Set.Add
-              (H, Messages.Set_Cookie_Token,
+            H.Add
+              (Messages.Set_Cookie_Token,
                CNF.Session_Private_Name (LA.Server.Properties) & '='
                & AWS.Status.Session_Private (Status)
                & "; path=/; Version=1");
          end if;
 
+         if Response.Mode (R) = Response.File then
+            H.Add
+              (Messages.Content_Type_Token,
+               Response.Content_Type (R));
+         end if;
+
+         --  Create response Message
+
+         Ctx.Status := LA.Stat;
+         Ctx.Response := R;
+
          declare
-            RM : constant HTTP2.Message.Object :=
-                   HTTP2.Message.Create
-                     (Headers => H,
-                      Payload => Response.Message_Body (R));
+            RM : constant HTTP2.Message.Object := Create_Message (H, R);
          begin
-            --  ??? handle only Data_Mode = Message
-            return RM.To_Frames (H_Table'Access, Stream_Id);
+            return RM.To_Frames (Ctx, Stream_Id);
          end;
       end;
    end Handle_Message;
 
    procedure Handle_Message (Stream : HTTP2.Stream.Object) is
-      M : constant HTTP2.Message.Object := Stream.Message (H_Table'Access);
+      M : constant HTTP2.Message.Object := Stream.Message (Ctx);
    begin
       Set_Status (LA.Stat);
 
-      --  Use M to fill the message body
-      --  ??? see Get_Message_Data on v2 protocol handler
-
       AWS.Status.Set.Headers (LA.Stat, M.Headers);
 
-      --  And set the request line
-
-      --  ??? We need to properly check the method (:method GET, ...)
+      --  And set the request information using an HTTP/1 request line format
 
       AWS.Server.HTTP_Utils.Parse_Request_Line
-        ("GET " & M.Headers.Get (":path") & " HTTP_2", LA.Stat);
+        (M.Headers.Get (Messages.Method_Token) & ' '
+         & M.Headers.Get (Messages.Path2_Token)
+         & " HTTP_2",
+         LA.Stat);
 
       Answers.Append (Handle_Message (LA.Stat, Stream.Identifier));
    end Handle_Message;
@@ -402,8 +428,8 @@ begin
    else
       --  First frame should be a setting frame
       declare
-         Frame     : constant HTTP2.Frame.Object'Class :=
-                       HTTP2.Frame.Read (Sock_Ptr.all);
+         Frame : constant HTTP2.Frame.Object'Class :=
+                   HTTP2.Frame.Read (Sock_Ptr.all);
       begin
          Settings.Set (HTTP2.Frame.Settings.Object (Frame).Values);
       end;
@@ -435,6 +461,8 @@ begin
                              Answers.First_Element;
                Stream_Id : constant HTTP2.Stream.Id := Frame.Stream_Id;
             begin
+               LA.Server.Slots.Mark_Phase (LA.Line, Server_Response);
+
                Answers.Delete_First;
 
                Frame.Dump ("SEND");
@@ -448,6 +476,8 @@ begin
          end loop;
 
          --  Get frame
+
+         LA.Server.Slots.Mark_Phase (LA.Line, Wait_For_Client);
 
          declare
             use type HTTP2.Error_Codes;
