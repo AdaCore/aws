@@ -29,6 +29,8 @@
 
 with Ada.Strings.Unbounded;
 
+with AWS.Utils;
+
 package AWS.HTTP2.Frame.Data is
 
    use Ada.Strings.Unbounded;
@@ -46,6 +48,12 @@ package AWS.HTTP2.Frame.Data is
    function Create
      (Stream_Id   : HTTP2.Stream_Id;
       Content     : String) return Object
+     with Pre => Stream_Id > 0 and then Content'Length > 0;
+   --  Create a DATA frame with given content and stream id
+
+   function Create
+     (Stream_Id   : HTTP2.Stream_Id;
+      Content     : Utils.Stream_Element_Array_Access) return Object
      with Pre => Stream_Id > 0 and then Content'Length > 0;
    --  Create a DATA frame with given content and stream id
 
