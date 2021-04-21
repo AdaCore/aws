@@ -40,6 +40,7 @@ package AWS.HTTP2.Frame.Continuation is
 
    function Create
      (Table       : not null access HTTP2.HPACK.Table.Object;
+      Stream_Id   : HTTP2.Stream_Id;
       List        : Headers.List;
       End_Headers : Boolean := True) return Object
      with Post => (if End_Headers then Create'Result.Flags = End_Headers_Flag);
