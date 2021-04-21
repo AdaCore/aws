@@ -67,7 +67,7 @@ package body AWS.HTTP2.Stream is
 
    function Message
      (Self : Object;
-      Ctx  : in out Context) return HTTP2.Message.Object
+      Ctx  : in out Server.Context.Object) return HTTP2.Message.Object
    is
       H       : Headers.List;
       Payload : Unbounded_String;

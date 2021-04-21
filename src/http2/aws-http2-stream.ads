@@ -28,6 +28,7 @@
 ------------------------------------------------------------------------------
 
 with AWS.Net;
+with AWS.Server.Context;
 
 with AWS.HTTP2.Frame;
 with AWS.HTTP2.Frame.List;
@@ -82,7 +83,7 @@ package AWS.HTTP2.Stream is
 
    function Message
      (Self  : Object;
-      Ctx   : in out Context) return HTTP2.Message.Object
+      Ctx   : in out Server.Context.Object) return HTTP2.Message.Object
      with Pre => Self.Is_Defined and then Self.Is_Message_Ready;
    --  Get message ready on this stream
 
