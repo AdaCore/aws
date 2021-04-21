@@ -2037,6 +2037,7 @@ package body AWS.Server.HTTP_Utils is
 
       begin
          --  Check range definition
+
          if N_Range /= N_Minus
            or else Equal = 0
            or else Ranges (Ranges'First .. Equal - 1) /= "bytes"
@@ -2052,6 +2053,7 @@ package body AWS.Server.HTTP_Utils is
 
          else
             --  Then we will send a multipart/byteranges
+
             Net.Buffered.Put_Line
               (Sock,
                Messages.Content_Type
