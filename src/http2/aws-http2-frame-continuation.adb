@@ -38,6 +38,7 @@ package body AWS.HTTP2.Frame.Continuation is
 
    function Create
      (Table       : not null access HTTP2.HPACK.Table.Object;
+      Stream_Id   : HTTP2.Stream_Id;
       List        : Headers.List;
       End_Headers : Boolean := True) return Object is
    begin
@@ -47,7 +48,7 @@ package body AWS.HTTP2.Frame.Continuation is
               new Stream_Element_Array'(HPACK.Encode (Table, List));
          end if;
 
-         O.Header.H.Stream_Id := 1;
+         O.Header.H.Stream_Id := Stream_Id;
          O.Header.H.Length    := Length_Type (O.Data.S'Length);
          O.Header.H.Kind      := K_Continuation;
          O.Header.H.R         := 0;
