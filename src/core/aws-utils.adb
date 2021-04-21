@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2000-2020, AdaCore                     --
+--                     Copyright (C) 2000-2021, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -90,6 +90,76 @@ package body AWS.Utils is
       end if;
       Append (Content, Value);
    end Append_With_Sep;
+
+   -------------------
+   -- Buffered_Data --
+   -------------------
+
+   package body Buffered_Data is
+
+      Content : Stream_Element_Array_Access :=
+                  new Stream_Element_Array (1 .. Max_Size);
+      Pos     : Stream_Element_Offset := 0;
+
+      ---------
+      -- Add --
+      ---------
+
+      procedure Add (Data : Stream_Element_Array) is
+         First : Stream_Element_Offset := Data'First;
+         Free  : Stream_Element_Count;
+         Chunk : Stream_Element_Count;
+      begin
+         while First <= Data'Last loop
+            --  Free room on the buffer
+
+            Free := Max_Size - Pos;
+
+            --  The max chunk size which can be added to content
+
+            Chunk := Stream_Element_Count'Min (Data'Length, Free);
+
+            Pos := Pos + 1;
+
+            Content (Pos .. Pos + Chunk - 1) :=
+              Data (First .. First + Chunk - 1);
+
+            First := First + Chunk;
+            Pos := Pos + Chunk - 1;
+
+            --  If the buffer is full, handle it
+
+            if Pos = Max_Size then
+               Action (Content);
+               Content := new Stream_Element_Array (1 .. Max_Size);
+               Pos := 0;
+            end if;
+         end loop;
+      end Add;
+
+      -----------
+      -- Flush --
+      -----------
+
+      procedure Flush is
+      begin
+         if Pos > 0 then
+            Action (new Stream_Element_Array'(Content (1 .. Pos)));
+            Pos := 0;
+            Unchecked_Free (Content);
+         end if;
+      end Flush;
+
+      ------------
+      -- Length --
+      ------------
+
+      function Length return Stream_Element_Count is
+      begin
+         return Pos;
+      end Length;
+
+   end Buffered_Data;
 
    --------------
    -- Compress --
