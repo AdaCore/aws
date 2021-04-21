@@ -31,7 +31,6 @@ pragma Ada_2012;
 
 with Ada.Characters.Handling;
 with Ada.Directories;
-with Ada.Streams;
 with Ada.Streams.Stream_IO;
 with Ada.Strings.Fixed;
 with Ada.Strings.Maps;
@@ -68,7 +67,6 @@ with AWS.Utils;
 
 package body AWS.Server.HTTP_Utils is
 
-   use Ada.Streams;
    use Ada.Strings;
    use Ada.Strings.Unbounded;
 
@@ -1209,6 +1207,42 @@ package body AWS.Server.HTTP_Utils is
       end loop;
    end Get_Request_Line;
 
+   -------------------------
+   -- Get_Resource_Status --
+   -------------------------
+
+   function Get_Resource_Status
+     (C_Stat    : Status.Data;
+      Filename  : String;
+      File_Time : out Ada.Calendar.Time) return Resource_Status
+   is
+      F_Status : Resource_Status := Changed;
+   begin
+      File_Time := Utils.AWS_Epoch;
+
+      if Filename /= "" then
+         if Resources.Is_Regular_File (Filename) then
+            File_Time := Resources.File_Timestamp (Filename);
+
+            if Utils.Is_Valid_HTTP_Date (Status.If_Modified_Since (C_Stat))
+              and then
+                Messages.To_HTTP_Date (File_Time)
+              = Status.If_Modified_Since (C_Stat)
+              --  Equal used here see [RFC 2616 - 14.25]
+            then
+               F_Status := Up_To_Date;
+            else
+               F_Status := Changed;
+            end if;
+
+         else
+            F_Status := Not_Found;
+         end if;
+      end if;
+
+      return F_Status;
+   end Get_Resource_Status;
+
    ------------------------
    -- Parse_Request_Line --
    ------------------------
@@ -1368,8 +1402,6 @@ package body AWS.Server.HTTP_Utils is
       procedure Send_Data is
          use type AWS.Status.Request_Method;
 
-         type File_Status is (Changed, Up_To_Date, Not_Found);
-
          Sock      : constant Net.Socket_Type'Class :=
                        Status.Socket (C_Stat);
          Method    : constant AWS.Status.Request_Method :=
@@ -1380,30 +1412,11 @@ package body AWS.Server.HTTP_Utils is
                        Response.Mode (Answer) in
                          Response.File .. Response.Stream;
          With_Body : constant Boolean := Messages.With_Body (Status_Code);
-         F_Status  : File_Status := Changed;
+         File_Time : Ada.Calendar.Time;
+         F_Status  : constant Resource_Status :=
+                       Get_Resource_Status (C_Stat, Filename, File_Time);
          File      : Resources.File_Type;
-         File_Time : Ada.Calendar.Time := Utils.AWS_Epoch;
       begin
-         if File_Mode and then Filename /= "" then
-            if Resources.Is_Regular_File (Filename) then
-               File_Time := Resources.File_Timestamp (Filename);
-
-               if Utils.Is_Valid_HTTP_Date (Status.If_Modified_Since (C_Stat))
-                 and then
-                   Messages.To_HTTP_Date (File_Time)
-                     = Status.If_Modified_Since (C_Stat)
-               --  Equal used here see [RFC 2616 - 14.25]
-               then
-                  F_Status := Up_To_Date;
-               else
-                  F_Status := Changed;
-               end if;
-
-            else
-               F_Status := Not_Found;
-            end if;
-         end if;
-
          if F_Status in Up_To_Date .. Not_Found then
             if F_Status = Up_To_Date then
                --  [RFC 2616 - 10.3.5]
@@ -1486,7 +1499,7 @@ package body AWS.Server.HTTP_Utils is
 
          if With_Body then
             Send_Resource
-              (Answer, Method, File, Length, HTTP_Server, Line_Index, C_Stat);
+              (Answer, File, Length, HTTP_Server, Line_Index, C_Stat);
          else
             --  RFC-2616 4.4
             --  ...
@@ -1822,13 +1835,42 @@ package body AWS.Server.HTTP_Utils is
       end if;
    end Send;
 
+   -----------------
+   -- Send_File_G --
+   -----------------
+
+   procedure Send_File_G
+     (HTTP_Server : AWS.Server.HTTP;
+      Line_Index  : Positive;
+      File        : in out Resources.File_Type;
+      Length      : in out Resources.Content_Length_Type)
+   is
+      Buffer_Size : constant := 4 * 1_024;
+      --  Size of the buffer used to send the file
+      Buffer      : Streams.Stream_Element_Array (1 .. Buffer_Size);
+      Last        : Streams.Stream_Element_Offset;
+   begin
+      begin
+         loop
+            Resources.Read (File, Buffer, Last);
+
+            exit when Last < Buffer'First;
+
+            Data (Buffer (1 .. Last));
+
+            Length := Length + Last;
+
+            HTTP_Server.Slots.Check_Data_Timeout (Line_Index);
+         end loop;
+      end;
+   end Send_File_G;
+
    -------------------
    -- Send_Resource --
    -------------------
 
    procedure Send_Resource
      (Answer      : in out Response.Data;
-      Method      : Status.Request_Method;
       File        : in out Resources.File_Type;
       Length      : in out Resources.Content_Length_Type;
       HTTP_Server : AWS.Server.HTTP;
@@ -1838,6 +1880,9 @@ package body AWS.Server.HTTP_Utils is
       use type Status.Request_Method;
 
       Sock        : constant Net.Socket_Type'Class := Status.Socket (C_Stat);
+
+      Method      : constant AWS.Status.Request_Method :=
+                      Status.Method (C_Stat);
 
       Buffer_Size : constant := 4 * 1_024;
       --  Size of the buffer used to send the file
@@ -1869,19 +1914,22 @@ package body AWS.Server.HTTP_Utils is
       ---------------
 
       procedure Send_File is
-         Buffer : Streams.Stream_Element_Array (1 .. Buffer_Size);
+         procedure Data_Received (Content : Stream_Element_Array);
+         --  New data received
+
+         -------------------
+         -- Data_Received --
+         -------------------
+
+         procedure Data_Received (Content : Stream_Element_Array) is
+         begin
+            Net.Buffered.Write (Sock, Content);
+         end Data_Received;
+
+         procedure Send_File_Content is new Send_File_G (Data_Received);
+
       begin
-         loop
-            Resources.Read (File, Buffer, Last);
-
-            exit when Last < Buffer'First;
-
-            Net.Buffered.Write (Sock, Buffer (1 .. Last));
-
-            Length := Length + Last;
-
-            HTTP_Server.Slots.Check_Data_Timeout (Line_Index);
-         end loop;
+         Send_File_Content (HTTP_Server, Line_Index, File, Length);
       end Send_File;
 
       ---------------------
