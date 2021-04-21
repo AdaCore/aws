@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                    Copyright (C) 2000-2015, AdaCore                      --
+--                     Copyright (C) 2000-2021, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -384,7 +384,7 @@ package AWS.Response is
    --  define Content-Encoding header field value.
 
    function Close_Resource (D : Data) return Boolean;
-   --  Returns True if the resource stream must be close
+   --  Returns True if the resource stream must be closed
 
    function Keep_Alive (D : Data) return Boolean with Inline;
    --  Returns True if the user want to keep connection alive
