@@ -2024,6 +2024,7 @@ package body AWS.Server.HTTP_Utils is
          then
             --  Range is wrong, let's send the whole file then
             Send_File;
+            return;
          end if;
 
          if N_Range = 1 then
