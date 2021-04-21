@@ -31,15 +31,17 @@ with Ada.Strings.Unbounded;
 
 with AWS.Headers;
 with AWS.HTTP2.Frame.List;
+with AWS.Response;
+with AWS.Server.Context;
 
 package AWS.HTTP2.Message is
 
    use Ada.Strings.Unbounded;
+
    use type AWS.HTTP2.Frame.List.Count_Type;
+   use type Response.Data_Mode;
 
-   type Object is tagged private;
-
-   Undefined : constant Object;
+   type Object (Mode : Response.Data_Mode) is tagged limited private;
 
    function Is_Defined (Self : Object) return Boolean;
 
@@ -51,17 +53,30 @@ package AWS.HTTP2.Message is
           Post => Create'Result.Is_Defined;
    --  Create a message based on the given headers and payload
 
+   function Create
+     (Headers  : AWS.Headers.List;
+      Filename : String)
+      return Object
+     with Pre  => not Headers.Is_Empty,
+          Post => Create'Result.Is_Defined;
+   --  Create a message based on the given headers and payload
+
    function Headers (Self : Object) return AWS.Headers.List
      with Pre => Self.Is_Defined;
    --  Get the headers for this message
 
    function Payload (Self : Object) return Unbounded_String
-     with Pre => Self.Is_Defined;
+     with Pre => Self.Is_Defined and then Self.Mode = Response.Message;
    --  Get the payload for this message
+
+   function Filename (Self : Object) return String
+     with Pre => Self.Is_Defined
+                 and then Self.Mode in Response.File .. Response.File_Once;
+   --  Get the filename for this message
 
    function To_Frames
      (Self      : Object;
-      Ctx       : in out Context;
+      Ctx       : in out Server.Context.Object;
       Stream_Id : HTTP2.Stream_Id) return AWS.HTTP2.Frame.List.Object
      with Pre  => Self.Is_Defined,
           Post => To_Frames'Result.Length > 0
@@ -73,18 +88,32 @@ package AWS.HTTP2.Message is
 
 private
 
-   type Object is tagged record
+   type Object (Mode : Response.Data_Mode) is tagged limited record
       Headers : AWS.Headers.List;
-      Payload : Unbounded_String;
-   end record;
 
-   Undefined : constant Object :=
-                 (AWS.Headers.Empty_List, Null_Unbounded_String);
+      case Mode is
+         when Response.Message =>
+            Payload  : Unbounded_String;
+
+         when Response.File | Response.File_Once =>
+            Filename : Unbounded_String;
+
+         when Response.No_Data =>
+            null;
+
+         when others =>
+            null;
+      end case;
+   end record;
 
    function Headers (Self : Object) return AWS.Headers.List is (Self.Headers);
 
    function Payload (Self : Object) return Unbounded_String is (Self.Payload);
 
-   function Is_Defined (Self : Object) return Boolean is (Self /= Undefined);
+   function Filename (Self : Object) return String is
+     (To_String (Self.Filename));
+
+   function Is_Defined (Self : Object) return Boolean is
+     (Self.Mode /= Response.No_Data);
 
 end AWS.HTTP2.Message;
