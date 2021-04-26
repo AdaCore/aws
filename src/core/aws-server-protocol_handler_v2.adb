@@ -161,7 +161,20 @@ procedure Protocol_Handler_V2 (LA : in out Line_Attribute_Record) is
       end Handle;
 
    begin
-      if Frame.Kind = K_Settings
+      if Frame.Kind = K_Ping
+        and then not Frame.Has_Flag (HTTP2.Frame.Ack_Flag)
+      then
+         --  A probing ping frame, respond now with the same
+         --  payload (see RFC-7540 / 6.7).
+
+         declare
+            R_Ping : HTTP2.Frame.Object'Class := Frame;
+         begin
+            R_Ping.Set_Flags (HTTP2.Frame.Ack_Flag);
+            Answers.Prepend (R_Ping);
+         end;
+
+      elsif Frame.Kind = K_Settings
         and then not Frame.Has_Flag (HTTP2.Frame.Ack_Flag)
       then
          Handle (HTTP2.Frame.Settings.Object (Frame));
