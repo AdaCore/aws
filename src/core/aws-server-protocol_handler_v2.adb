@@ -70,7 +70,6 @@ procedure Protocol_Handler_V2 (LA : in out Line_Attribute_Record) is
    use AWS.Server.HTTP_Utils;
 
    use type AWS.Status.Protocol_State;
-   use type HTTP2.Frame.Flags_Type;
    use type HTTP2.Stream_Id;
 
    use all type HTTP2.Frame.Kind_Type;
@@ -163,13 +162,13 @@ procedure Protocol_Handler_V2 (LA : in out Line_Attribute_Record) is
 
    begin
       if Frame.Kind = K_Settings
-        and then Frame.Flags /= HTTP2.Frame.Ack_Flag
+        and then not Frame.Has_Flag (HTTP2.Frame.Ack_Flag)
       then
          Handle (HTTP2.Frame.Settings.Object (Frame));
          Answers.Prepend (HTTP2.Frame.Settings.Ack);
 
       elsif Frame.Kind = K_Settings
-        and then Frame.Flags = HTTP2.Frame.Ack_Flag
+        and then Frame.Has_Flag (HTTP2.Frame.Ack_Flag)
       then
          Answers.Prepend (HTTP2.Frame.Settings.Ack);
 
