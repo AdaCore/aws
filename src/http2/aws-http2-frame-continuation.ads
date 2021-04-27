@@ -28,6 +28,7 @@
 ------------------------------------------------------------------------------
 
 with AWS.Headers;
+with AWS.HTTP2.Connection;
 with AWS.HTTP2.HPACK.Table;
 
 package AWS.HTTP2.Frame.Continuation is
@@ -40,6 +41,7 @@ package AWS.HTTP2.Frame.Continuation is
 
    function Create
      (Table       : not null access HTTP2.HPACK.Table.Object;
+      Settings    : not null access Connection.Object;
       Stream_Id   : HTTP2.Stream_Id;
       List        : Headers.List;
       End_Headers : Boolean := True) return Object

@@ -37,6 +37,7 @@ package body AWS.HTTP2.Frame.Push_Promise is
 
    function Create
      (Table             : not null access HTTP2.HPACK.Table.Object;
+      Settings          : not null access Connection.Object;
       Stream_Id         : HTTP2.Stream_Id;
       Promise_Stream_Id : HTTP2.Stream_Id;
       List              : AWS.Headers.List;
@@ -46,7 +47,7 @@ package body AWS.HTTP2.Frame.Push_Promise is
          if List.Length > 0 then
             declare
                H_Fragments : constant Stream_Element_Array :=
-                               HPACK.Encode (Table, List);
+                               HPACK.Encode (Table, Settings, List);
             begin
                O.Data.S := new Stream_Element_Array
                                  (1 .. 4 + H_Fragments'Length);
@@ -70,8 +71,9 @@ package body AWS.HTTP2.Frame.Push_Promise is
    ---------
 
    function Get
-     (Self  : Object;
-      Table : not null access HTTP2.HPACK.Table.Object)
+     (Self     : Object;
+      Table    : not null access HTTP2.HPACK.Table.Object;
+      Settings : not null access HTTP2.Connection.Object)
       return AWS.Headers.List
    is
 
@@ -111,7 +113,7 @@ package body AWS.HTTP2.Frame.Push_Promise is
 
       I := I + 4;
 
-      return Get_Headers (Table);
+      return Get_Headers (Table, Settings);
    end Get;
 
    ----------

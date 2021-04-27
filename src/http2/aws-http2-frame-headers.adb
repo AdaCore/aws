@@ -38,6 +38,7 @@ package body AWS.HTTP2.Frame.Headers is
 
    function Create
      (Table       : not null access HTTP2.HPACK.Table.Object;
+      Settings    : not null access Connection.Object;
       Stream_Id   : HTTP2.Stream_Id;
       List        : AWS.Headers.List;
       End_Headers : Boolean := True) return Object is
@@ -45,7 +46,7 @@ package body AWS.HTTP2.Frame.Headers is
       return O : Object do
          if List.Length > 0 then
             O.Data.S := new Stream_Element_Array'
-                              (HPACK.Encode (Table, List));
+                              (HPACK.Encode (Table, Settings, List));
          end if;
 
          O.Header.H :=
@@ -63,7 +64,8 @@ package body AWS.HTTP2.Frame.Headers is
 
    function Get
      (Self  : Object;
-      Table : not null access HTTP2.HPACK.Table.Object)
+      Table : not null access HTTP2.HPACK.Table.Object;
+      Settings    : not null access HTTP2.Connection.Object)
       return AWS.Headers.List
    is
 
@@ -104,7 +106,7 @@ package body AWS.HTTP2.Frame.Headers is
          I := I + Self.Data.Prio'Size / 8;
       end if;
 
-      return Get_Headers (Table);
+      return Get_Headers (Table, Settings);
    end Get;
 
    ----------

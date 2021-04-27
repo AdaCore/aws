@@ -100,7 +100,9 @@ package body AWS.HTTP2.HPACK is
    ------------
 
    function Decode
-     (Table : not null access HPACK.Table.Object) return AWS.Headers.List
+     (Table    : not null access HPACK.Table.Object;
+      Settings : not null access HTTP2.Connection.Object)
+      return AWS.Headers.List
    is
       Byte : Bit8;
       Bit  : RFC_Byte (G1) with Address => Byte'Address;
@@ -263,7 +265,7 @@ package body AWS.HTTP2.HPACK is
                           else Get_Indexed_Name (Idx));
                Value : constant String := Get_String_Literal;
             begin
-               Table.Insert (Name, Value);
+               Table.Insert (Settings, Name, Value);
                AWS.Headers.Add (Headers, Name, Value);
             end;
 
@@ -340,9 +342,12 @@ package body AWS.HTTP2.HPACK is
    ------------
 
    function Encode
-     (Table : not null access HPACK.Table.Object;
-      List  : Headers.List) return Stream_Element_Array
+     (Table    : not null access HPACK.Table.Object;
+      Settings : not null access Connection.Object;
+      List     : Headers.List) return Stream_Element_Array
    is
+      pragma Unreferenced (Settings);
+
       Res : Utils.Stream_Element_Array_Access :=
               new Stream_Element_Array (1 .. 10000);
       I   : Stream_Element_Offset := 0;

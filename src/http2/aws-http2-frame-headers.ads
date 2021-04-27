@@ -28,6 +28,7 @@
 ------------------------------------------------------------------------------
 
 with AWS.Headers;
+with AWS.HTTP2.Connection;
 with AWS.HTTP2.HPACK.Table;
 
 private with AWS.HTTP2.Frame.Priority;
@@ -45,6 +46,7 @@ package AWS.HTTP2.Frame.Headers is
 
    function Create
      (Table       : not null access HTTP2.HPACK.Table.Object;
+      Settings    : not null access Connection.Object;
       Stream_Id   : HTTP2.Stream_Id;
       List        : AWS.Headers.List;
       End_Headers : Boolean := True) return Object
@@ -52,8 +54,9 @@ package AWS.HTTP2.Frame.Headers is
    --  Create an HEADERS frame with given content and stream id
 
    function Get
-     (Self  : Object;
-      Table : not null access HTTP2.HPACK.Table.Object)
+     (Self     : Object;
+      Table    : not null access HTTP2.HPACK.Table.Object;
+      Settings : not null access HTTP2.Connection.Object)
       return AWS.Headers.List;
    --  Get the header list out of the HEADERS frame. This reads the content of
    --  the payload and decode using HPACK.

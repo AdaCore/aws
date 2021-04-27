@@ -51,8 +51,7 @@ package body AWS.HTTP2.Message is
 
    function Create
      (Headers : AWS.Headers.List;
-      Payload : Unbounded_String)
-      return Object is
+      Payload : Unbounded_String) return Object is
    begin
       return O : Object (Response.Message) do
          O.Headers := Headers;
@@ -62,8 +61,7 @@ package body AWS.HTTP2.Message is
 
    function Create
      (Headers  : AWS.Headers.List;
-      Filename : String)
-      return Object is
+      Filename : String) return Object is
    begin
       return O : Object (Response.File) do
          O.Headers  := Headers;
@@ -190,13 +188,13 @@ package body AWS.HTTP2.Message is
                   if Is_First then
                      List.Append
                        (Frame.Headers.Create
-                          (Ctx.Table, Stream_Id, L,
+                          (Ctx.Table, Ctx.Settings, Stream_Id, L,
                            End_Headers => K = Headers.Count));
                      Is_First := False;
                   else
                      List.Append
                        (Frame.Continuation.Create
-                          (Ctx.Table, Stream_Id, L,
+                          (Ctx.Table, Ctx.Settings, Stream_Id, L,
                            End_Headers => K = Headers.Count));
                   end if;
 
@@ -211,7 +209,7 @@ package body AWS.HTTP2.Message is
          if not L.Is_Empty then
             List.Append
               (Frame.Headers.Create
-                 (Ctx.Table, Stream_Id, L, End_Headers => True));
+                 (Ctx.Table, Ctx.Settings, Stream_Id, L, End_Headers => True));
          end if;
       end Handle_Headers;
 
