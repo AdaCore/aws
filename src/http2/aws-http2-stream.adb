@@ -76,7 +76,7 @@ package body AWS.HTTP2.Stream is
          case F.Kind is
             when K_Headers =>
                H := H.Union
-                      (Frame.Headers.Object (F).Get (Ctx.Table),
+                      (Frame.Headers.Object (F).Get (Ctx.Table, Ctx.Settings),
                        Unique => True);
 
             when K_Data =>

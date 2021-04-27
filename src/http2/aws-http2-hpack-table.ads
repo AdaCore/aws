@@ -27,6 +27,8 @@
 --  covered by the  GNU Public License.                                     --
 ------------------------------------------------------------------------------
 
+limited with AWS.HTTP2.Connection;
+
 private with Ada.Containers.Indefinite_Vectors;
 private with Ada.Containers.Indefinite_Ordered_Maps;
 
@@ -40,7 +42,10 @@ package AWS.HTTP2.HPACK.Table is
       Value : String (1 .. V_Length);
    end record;
 
-   procedure Insert (Self : in out Object; Name, Value : String);
+   procedure Insert
+     (Self        : in out Object;
+      Settings    : not null access HTTP2.Connection.Object;
+      Name, Value : String);
    --  Insert Name & Value pair into the dynamic table
 
    function Get_Name (Self : Object; Index : Positive) return String;
@@ -71,8 +76,8 @@ private
      new Containers.Indefinite_Vectors (Positive, Name_Value);
 
    type Ids is record
-      Index : Positive;
-      Rank  : Positive;
+      Index : Positive; -- index in vector above
+      Rank  : Positive; -- actual rank number for the entry
    end record;
 
    package NV_Index is
@@ -86,9 +91,9 @@ private
    type Dynamic_Table is record
       T_IN   : Index_NV.Vector;
       T_NI   : NV_Index.Map;
-      Size   : Natural := 0;
-      Length : Natural := 0;
-      Rank   : Natural := 0;
+      Size   : Natural := 0; -- size in byte
+      Length : Natural := 0; -- number of items
+      Rank   : Natural := 0; -- rank (index entry) of item
    end record;
 
    type Object is tagged record

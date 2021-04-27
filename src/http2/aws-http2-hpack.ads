@@ -34,6 +34,7 @@ with Ada.Streams;
 with AWS.Headers;
 
 limited with AWS.HTTP2.HPACK.Table;
+limited with AWS.HTTP2.Connection;
 
 package AWS.HTTP2.HPACK is
 
@@ -43,12 +44,15 @@ package AWS.HTTP2.HPACK is
       with function End_Of_Stream return Boolean;
       with function Get_Byte return Stream_Element;
    function Decode
-     (Table : not null access HPACK.Table.Object) return AWS.Headers.List;
+     (Table    : not null access HPACK.Table.Object;
+      Settings : not null access HTTP2.Connection.Object)
+      return AWS.Headers.List;
    --  Decode a stream and return the conrresponding header list
 
    function Encode
-     (Table : not null access HPACK.Table.Object;
-      List  : Headers.List) return Stream_Element_Array;
+     (Table    : not null access HPACK.Table.Object;
+      Settings : not null access Connection.Object;
+      List     : Headers.List) return Stream_Element_Array;
    --  Encode the header list
 
 end AWS.HTTP2.HPACK;

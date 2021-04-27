@@ -30,6 +30,8 @@
 with Ada.Characters.Handling;
 with Ada.Text_IO;
 
+with AWS.HTTP2.Connection;
+
 package body AWS.HTTP2.HPACK.Table is
 
    use Ada.Containers;
@@ -219,9 +221,13 @@ package body AWS.HTTP2.HPACK.Table is
    -- Insert --
    ------------
 
-   procedure Insert (Self : in out Object; Name, Value : String) is
+   procedure Insert
+     (Self        : in out Object;
+      Settings    : not null access HTTP2.Connection.Object;
+      Name, Value : String)
+   is
       N    : constant String := Characters.Handling.To_Lower (Name);
-      V    : constant String := Value; -- Characters.Handling.To_Lower (Value);
+      V    : constant String := Value;
       Item : constant Name_Value := (N'Length, V'Length, N, V);
       Size : constant Positive := NV_Size (Item);
    begin
@@ -238,15 +244,26 @@ package body AWS.HTTP2.HPACK.Table is
          Self.Dynamic.T_IN.Append (Item);
       end;
 
-      --  ??? reduce table size if necessary
---      while Self.Dynamic.Size > SETTINGS_HEADER_TABLE_SIZE loop
---         declare
---            Item : ...
---         begin
---            -- Remoce Item
---            Self.Dynamic.Size := Self.Dynamic.Size - Item|Size;
---         end;
---      end if;
+      --  Clean up table if too large. Remove oldest elements until the table
+      --  size is under the maximum allowed by the server.
+
+      Clean_Up : declare
+         Max_Header_List_Size : constant Integer :=
+                                  Settings.Header_Table_Size;
+      begin
+         while Self.Dynamic.Size > Max_Header_List_Size loop
+            declare
+               Item  : constant Name_Value := Self.Dynamic.T_IN.First_Element;
+            begin
+               Self.Dynamic.T_IN.Delete_First;
+               Self.Dynamic.Size := Self.Dynamic.Size - NV_Size (Item);
+               Self.Dynamic.Length := Self.Dynamic.Length - 1;
+
+               Self.Dynamic.T_NI.Exclude (Item.Name);
+               Self.Dynamic.T_NI.Exclude (Item.Name & '=' & Item.Value);
+            end;
+         end loop;
+      end Clean_Up;
    end Insert;
 
    -------------------
