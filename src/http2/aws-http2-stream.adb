@@ -38,7 +38,6 @@ package body AWS.HTTP2.Stream is
    use Ada.Strings.Unbounded;
 
    use all type HTTP2.Frame.Kind_Type;
-   use type HTTP2.Frame.Flags_Type;
 
    ------------
    -- Create --
@@ -98,12 +97,10 @@ package body AWS.HTTP2.Stream is
      (Self  : in out Object;
       Frame : HTTP2.Frame.Object'Class)
    is
-      End_Stream_Flag  : HTTP2.Frame.Flags_Type
-                          renames HTTP2.Frame.End_Stream_Flag;
-      End_Headers_Flag : HTTP2.Frame.Flags_Type
-                          renames HTTP2.Frame.End_Headers_Flag;
-      End_Stream       : constant Boolean :=
-                           (Frame.Flags and End_Stream_Flag) = End_Stream_Flag;
+      End_Header : constant Boolean :=
+                     (Frame.Has_Flag (HTTP2.Frame.End_Headers_Flag));
+      End_Stream : constant Boolean :=
+                     (Frame.Has_Flag (HTTP2.Frame.End_Stream_Flag));
 
    begin
       case Self.State is
@@ -201,10 +198,8 @@ package body AWS.HTTP2.Stream is
      (Self  : in out Object;
       Frame : HTTP2.Frame.Object'Class)
    is
-      End_Stream_Flag : HTTP2.Frame.Flags_Type
-                          renames HTTP2.Frame.End_Stream_Flag;
-      End_Stream      : constant Boolean :=
-                          (Frame.Flags and End_Stream_Flag) = End_Stream_Flag;
+      End_Stream : constant Boolean :=
+                     Frame.Has_Flag (HTTP2.Frame.End_Stream_Flag);
    begin
       Frame.Send (Self.Sock.all);
 
