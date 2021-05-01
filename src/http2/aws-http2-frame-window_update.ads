@@ -33,6 +33,9 @@ package AWS.HTTP2.Frame.Window_Update is
 
    type Object is new Frame.Object with private;
 
+   Default_Window_Size : constant := 65_535;
+   --  The default window size for new streams
+
    overriding function Is_Defined (Self : Object) return Boolean;
 
    subtype Size_Increment_Type is Byte_4 range 0 .. 2 ** 31 - 1;
