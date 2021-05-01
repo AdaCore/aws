@@ -32,6 +32,7 @@ with Ada.Strings.Unbounded;
 with AWS.Headers;
 with AWS.HTTP2.Frame.Data;
 with AWS.HTTP2.Frame.Headers;
+with AWS.HTTP2.Frame.Window_Update;
 
 package body AWS.HTTP2.Stream is
 
@@ -45,10 +46,18 @@ package body AWS.HTTP2.Stream is
 
    function Create
      (Sock       : not null Net.Socket_Access;
-      Identifier : Id) return Object is
+      Identifier : Id;
+      Weight     : Byte_1 := Frame.Priority.Default_Weight) return Object is
    begin
-      --  ??? Windows_Size of 0 should be fixed
-      return Object'(Sock, Identifier, Idle, Frame.List.Empty_List, False, 0);
+      return Object'
+        (Sock              => Sock,
+         Id                => Identifier,
+         State             => Idle,
+         Frames            => Frame.List.Empty_List,
+         Is_Ready          => False,
+         Window_Size       => Frame.Window_Update.Default_Window_Size,
+         Weight            => Weight,
+         Stream_Dependency => 0);
    end Create;
 
    ----------------------
@@ -97,12 +106,42 @@ package body AWS.HTTP2.Stream is
      (Self  : in out Object;
       Frame : HTTP2.Frame.Object'Class)
    is
+      procedure Handle_Priority (Priority : HTTP2.Frame.Priority.Payload);
+      --  Handle priority information
+
+      procedure Handle_Window_Update
+        (Frame : HTTP2.Frame.Window_Update.Object);
+      --  Handle frame window upade, record corresponding information in the
+      --  frame.
+
+      ---------------------
+      -- Handle_Priority --
+      ---------------------
+
+      procedure Handle_Priority (Priority : HTTP2.Frame.Priority.Payload) is
+      begin
+         Self.Weight := Priority.Weight;
+         Self.Stream_Dependency := Priority.Stream_Dependency;
+      end Handle_Priority;
+
+      --------------------------
+      -- Handle_Window_Update --
+      --------------------------
+
+      procedure Handle_Window_Update
+        (Frame : HTTP2.Frame.Window_Update.Object) is
+      begin
+         Self.Window_Size := Self.Window_Size + Natural (Frame.Size_Increment);
+      end Handle_Window_Update;
+
       End_Header : constant Boolean :=
                      (Frame.Has_Flag (HTTP2.Frame.End_Headers_Flag));
       End_Stream : constant Boolean :=
                      (Frame.Has_Flag (HTTP2.Frame.End_Stream_Flag));
 
    begin
+      --  Handle frame's kind and state
+
       case Self.State is
          when Idle =>
             case Frame.Kind is
@@ -179,15 +218,38 @@ package body AWS.HTTP2.Stream is
             end case;
       end case;
 
-      if Frame.Kind in K_Headers | K_Data then
-         Self.Frames.Append (Frame);
+      --  Handle frame's content if needed
 
-         --  ??? handle a single data frame as a ready message
-         Self.Is_Ready := Frame.Kind = K_Data
-           or else (Frame.Kind = K_Headers
-                    and then (Frame.Has_Flag (End_Stream_Flag)
-                              or else Frame.Has_Flag (End_Headers_Flag)));
-      end if;
+      case Frame.Kind is
+         when K_Priority =>
+            Handle_Priority (HTTP2.Frame.Priority.Object (Frame).Get_Payload);
+
+         when K_Window_Update =>
+            Handle_Window_Update (HTTP2.Frame.Window_Update.Object (Frame));
+
+         when K_Headers | K_Data =>
+            Self.Frames.Append (Frame);
+
+            --  An header frame can have a priority chunk, handle it now
+
+            if Frame.Kind = K_Headers
+              and then Frame.Has_Flag (HTTP2.Frame.Priority_Flag)
+            then
+               Handle_Priority
+                 (HTTP2.Frame.Headers.Object (Frame).Get_Priority);
+            end if;
+
+            --  For a message to be ready we at least need the stream to be in
+            --  open state (i.e. it has received an header frame to open it).
+
+            Self.Is_Ready := Self.State /= Idle
+              and then (Frame.Kind = K_Data
+                        or else (Frame.Kind = K_Headers
+                                 and then (End_Stream or else End_Header)));
+
+         when others =>
+            null;
+      end case;
    end Received_Frame;
 
    ----------------

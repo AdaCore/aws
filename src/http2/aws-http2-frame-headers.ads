@@ -31,7 +31,8 @@ with AWS.Headers;
 with AWS.HTTP2.Connection;
 with AWS.HTTP2.HPACK.Table;
 
-private with AWS.HTTP2.Frame.Priority;
+with AWS.HTTP2.Frame.Priority;
+
 private with AWS.Utils;
 
 package AWS.HTTP2.Frame.Headers is
@@ -52,6 +53,10 @@ package AWS.HTTP2.Frame.Headers is
       End_Headers : Boolean := True) return Object
      with Post => (if End_Headers then Create'Result.Flags = End_Headers_Flag);
    --  Create an HEADERS frame with given content and stream id
+
+   function Get_Priority (Self : Object) return HTTP2.Frame.Priority.Payload
+     with Pre => Self.Is_Defined;
+   --  Return priority frame payload
 
    function Get
      (Self     : Object;
@@ -103,5 +108,8 @@ private
    end record;
 
    overriding procedure Release (Self : in out Object);
+
+   function Get_Priority (Self : Object) return HTTP2.Frame.Priority.Payload is
+     (Self.Data.Prio);
 
 end AWS.HTTP2.Frame.Headers;

@@ -33,6 +33,11 @@ package AWS.HTTP2.Frame.Priority is
 
    type Object is new Frame.Object with private;
 
+   Default_Weight : constant := 16;
+   --  Default weight assigned to streams (RFC-7540 5.3.5). This weight can
+   --  then be changed later wuth a priority frame or a priority chunk in an
+   --  header frame.
+
    type Payload is record
       E                 : Bit_1;
       Stream_Dependency : HTTP2.Stream_Id;
@@ -51,6 +56,18 @@ package AWS.HTTP2.Frame.Priority is
       Header : Frame.Object) return Object
      with Pre => Header.Is_Defined;
    --  Read PRIORITY frame from sock
+
+   function Weight (Self : Object) return Byte_1
+     with Pre => Self.Is_Defined;
+   --  Return the weight payload's value
+
+   function Stream_Dependency (Self : Object) return HTTP2.Stream_Id
+     with Pre => Self.Is_Defined;
+   --  Return the dependent stream id payload's value
+
+   function Get_Payload (Self : Object) return Payload
+     with Pre => Self.Is_Defined;
+   --  Return priority frame payload
 
    overriding procedure Send_Payload
      (Self : Object; Sock : Net.Socket_Type'Class);
@@ -88,5 +105,14 @@ private
    type Object is new Frame.Object with record
       Data : Payload_View;
    end record;
+
+   function Weight (Self : Object) return Byte_1 is
+     (Self.Data.P.Weight);
+
+   function Stream_Dependency (Self : Object) return HTTP2.Stream_Id is
+     (Self.Data.P.Stream_Dependency);
+
+   function Get_Payload (Self : Object) return Payload is
+     (Self.Data.P);
 
 end AWS.HTTP2.Frame.Priority;
