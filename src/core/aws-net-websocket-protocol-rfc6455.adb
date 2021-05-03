@@ -130,7 +130,7 @@ package body AWS.Net.WebSocket.Protocol.RFC6455 is
    is
       pragma Unreferenced (Protocol);
       Ints : array (1 .. 4) of AWS.Utils.Random_Integer :=
-              (others => AWS.Utils.Random);
+               (others => Utils.Random);
       H : Stream_Element_Array (1 .. 16) with Import, Address => Ints'Address;
 
    begin
@@ -183,7 +183,7 @@ package body AWS.Net.WebSocket.Protocol.RFC6455 is
    ------------------------
 
    function Create_Random_Mask return Masking_Key is
-      Int : constant AWS.Utils.Random_Integer := AWS.Utils.Random;
+      Int : constant Utils.Random_Integer := Utils.Random;
       Arr : Masking_Key with Import, Address => Int'Address;
    begin
       return Arr;

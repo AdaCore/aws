@@ -94,6 +94,12 @@ package AWS.Utils is
                          => C in '0' .. '9' | 'a' .. 'z' | 'A' .. 'Z');
    --  Returns random string
 
+   procedure Random_Reset (Seed : Integer);
+   --  This function is needed only if the user wants to get predictable random
+   --  numbers. It means that after calling Random_Reset with the same Seed the
+   --  same sequence of Random and Random_String calls will give the same
+   --  results.
+
    function Image (N : Natural) return String with
      Post => Image'Result'Length > 0
              and then Image'Result (Image'Result'First) /= ' ';
