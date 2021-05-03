@@ -68,7 +68,13 @@ package body AWS.Utils is
    --  Returns True if the string pointed to by Str and terminating to Last
    --  is well-formed UTF-8.
 
-   Random_Generator : Integer_Random.Generator;
+   protected Shared_Random is
+      function Generate return Random_Integer;
+      procedure Reset;
+      procedure Reset (Seed : Integer);
+   private
+      Random_Generator : Integer_Random.Generator;
+   end Shared_Random;
 
    ---------------------
    -- Append_With_Sep --
@@ -885,8 +891,17 @@ package body AWS.Utils is
 
    function Random return Random_Integer is
    begin
-      return Integer_Random.Random (Random_Generator);
+      return Shared_Random.Generate;
    end Random;
+
+   ------------------
+   -- Random_Reset --
+   ------------------
+
+   procedure Random_Reset (Seed : Integer) is
+   begin
+      Shared_Random.Reset (Seed);
+   end Random_Reset;
 
    -------------------
    -- Random_String --
@@ -1002,6 +1017,37 @@ package body AWS.Utils is
       end Seize_Internal;
 
    end Semaphore;
+
+   -------------------
+   -- Shared_Random --
+   -------------------
+
+   protected body Shared_Random is
+
+      --------------
+      -- Generate --
+      --------------
+
+      function Generate return Random_Integer is
+      begin
+         return Integer_Random.Random (Random_Generator);
+      end Generate;
+
+      -----------
+      -- Reset --
+      -----------
+
+      procedure Reset is
+      begin
+         Integer_Random.Reset (Random_Generator);
+      end Reset;
+
+      procedure Reset (Seed : Integer) is
+      begin
+         Integer_Random.Reset (Random_Generator, Seed);
+      end Reset;
+
+   end Shared_Random;
 
    -----------------------
    -- Significant_Image --
@@ -1159,5 +1205,5 @@ package body AWS.Utils is
    end Time_Zone;
 
 begin
-   Integer_Random.Reset (Random_Generator);
+   Shared_Random.Reset;
 end AWS.Utils;
