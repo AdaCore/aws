@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2012-2019, AdaCore                     --
+--                     Copyright (C) 2012-2021, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -160,9 +160,13 @@ package body AWS.Net.WebSocket.Registry is
       entry Get_Socket (WebSocket : out Object_Class);
       --  Get a WebSocket having some data to be sent
 
-      procedure Release_Socket (WebSocket : Object_Class);
+      procedure Release_Socket (WebSocket : in out Object_Class);
       --  Release a socket retrieved with Get_Socket above, this socket will be
       --  then available again.
+
+      procedure Free_Or_Defer (WebSocket : in out Object_Class);
+      --  Free WebSocket immediately if not taken by another task, otherwise
+      --  record it to be freed as soon as it is released.
 
       entry Not_Empty;
       --  Returns if the Set is not empty
@@ -313,7 +317,7 @@ package body AWS.Net.WebSocket.Registry is
 
       procedure Do_Free (WebSocket : in out Object_Class) is
       begin
-         Unchecked_Free (WebSocket);
+         DB.Free_Or_Defer (WebSocket);
       end Do_Free;
 
       -----------------
@@ -426,7 +430,7 @@ package body AWS.Net.WebSocket.Registry is
                end;
 
                WebSocket.Shutdown;
-               Unchecked_Free (WebSocket);
+               DB.Free_Or_Defer (WebSocket);
             end if;
          end Close_To;
 
@@ -483,7 +487,9 @@ package body AWS.Net.WebSocket.Registry is
          Socket.On_Close (Message);
          Socket.Shutdown;
 
-         Unchecked_Free (W);
+         if W /= null then
+            DB.Free_Or_Defer (W);
+         end if;
       end Close;
 
       ----------------
@@ -500,9 +506,11 @@ package body AWS.Net.WebSocket.Registry is
             --  Add watched sockets
 
             for Id of Watched loop
-               FD_Set.Add
-                 (Result,
-                  Registered (Id).all, Registered (Id), FD_Set.Input);
+               if not Registered (Id).To_Free then
+                  FD_Set.Add
+                    (Result,
+                     Registered (Id).all, Registered (Id), FD_Set.Input);
+               end if;
             end loop;
          end return;
       end Create_Set;
@@ -539,7 +547,7 @@ package body AWS.Net.WebSocket.Registry is
             end;
 
             WebSocket.Shutdown;
-            Unchecked_Free (WebSocket);
+            DB.Free_Or_Defer (WebSocket);
          end On_Close;
 
       begin
@@ -551,6 +559,24 @@ package body AWS.Net.WebSocket.Registry is
          Registered.Iterate (On_Close'Access);
          Registered.Clear;
       end Finalize;
+
+      ----------
+      -- Free --
+      ----------
+
+      procedure Free_Or_Defer (WebSocket : in out Object_Class) is
+      begin
+         --  If WebSocket is in Sending it means that it has been
+         --  taken by the Get_Socket call. We cannot free it now, we
+         --  record this socket to be freed as soon as it is released
+         --  (Release_Socket) call.
+
+         if Sending.Contains (WebSocket.Id) then
+            WebSocket.To_Free := True;
+         else
+            Unchecked_Free (WebSocket);
+         end if;
+      end Free_Or_Defer;
 
       ----------------
       -- Get_Socket --
@@ -722,10 +748,19 @@ package body AWS.Net.WebSocket.Registry is
       -- Release_Socket --
       --------------------
 
-      procedure Release_Socket (WebSocket : Object_Class) is
+      procedure Release_Socket (WebSocket : in out Object_Class) is
       begin
          Sending.Exclude (WebSocket.Id);
-         New_Pending := True;
+
+         --  The socket has been recorded to be freed. It is not anymore
+         --  in the registry, we just need to free it now that it has
+         --  been released.
+
+         if WebSocket.To_Free then
+            Unchecked_Free (WebSocket);
+         else
+            New_Pending := True;
+         end if;
       end Release_Socket;
 
       ------------
@@ -853,7 +888,7 @@ package body AWS.Net.WebSocket.Registry is
                      begin
                         if Error = null then
                            DB.Unregister (W);
-                           Unchecked_Free (W);
+                           DB.Free_Or_Defer (W);
 
                         else
                            Error (W.all, A);
@@ -861,7 +896,7 @@ package body AWS.Net.WebSocket.Registry is
                            case A is
                               when Close =>
                                  DB.Unregister (W);
-                                 Unchecked_Free (W);
+                                 DB.Free_Or_Defer (W);
                               when None =>
                                  null;
                            end case;
@@ -916,9 +951,7 @@ package body AWS.Net.WebSocket.Registry is
                            WS.Close (Exception_Message (E), Going_Away);
                            WS.On_Close (Exception_Message (E));
 
-                           --  ??? if we free it now, there might be a reader
-                           --  in parallel that is using this socket...
-                           Unchecked_Free (WS);
+                           DB.Free_Or_Defer (WS);
 
                            --  No more data to send from this socket
                            Pending := 0;
@@ -973,7 +1006,7 @@ package body AWS.Net.WebSocket.Registry is
                      WebSocket.Send (Message);
                   exception
                      when E : others =>
-                        Unregister (WebSocket);
+                        DB.Unregister (WebSocket);
                         WebSocket_Exception
                           (WebSocket, Exception_Message (E), Protocol_Error);
 
@@ -981,7 +1014,7 @@ package body AWS.Net.WebSocket.Registry is
                         WebSocket.Close (Exception_Message (E), Going_Away);
 
                         --  Do not free, it might be used by another
-                        Unchecked_Free (WebSocket);
+                        DB.Free_Or_Defer (WebSocket);
                   end;
 
                else
@@ -1228,7 +1261,7 @@ package body AWS.Net.WebSocket.Registry is
                   DB.Unregister (WS);
                   WebSocket_Exception
                     (WS, Exception_Message (E), Protocol_Error);
-                  Unchecked_Free (WS);
+                  DB.Free_Or_Defer (WS);
                   --  No more data to send from this socket
                   Pending := 0;
             end Read_Send;
@@ -1507,7 +1540,7 @@ package body AWS.Net.WebSocket.Registry is
       DB.Watch (WebSocket);
    exception
       when others =>
-         Unchecked_Free (WebSocket);
+         DB.Free_Or_Defer (WebSocket);
          raise;
    end Watch;
 

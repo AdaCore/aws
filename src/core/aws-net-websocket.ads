@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2012-2020, AdaCore                     --
+--                     Copyright (C) 2012-2021, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -289,6 +289,7 @@ private
       Messages : Message_List.List;
       Mem_Sock : Net.Socket_Access;
       In_Mem   : Boolean := False;
+      To_Free  : Boolean := False;
 
       Connection : AWS.Client.HTTP_Connection_Access;
       --  Only set when the web socket is initialized as a client.
@@ -366,7 +367,8 @@ private
                     Messages   => Message_List.Empty_List,
                     Mem_Sock   => null,
                     Connection => null,
-                    In_Mem     => False);
+                    In_Mem     => False,
+                    To_Free    => False);
 
    --  Error codes corresponding to all errors
 
