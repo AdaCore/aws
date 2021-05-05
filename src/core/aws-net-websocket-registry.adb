@@ -273,6 +273,7 @@ package body AWS.Net.WebSocket.Registry is
                      DB.Remove (WS.Get);
                      Message_Queue.Add (WS);
                   end if;
+
                   K := K + 1;
                end loop;
             end;
