@@ -131,7 +131,7 @@ package body AWS.Net.WebSocket.Registry is
 
    Message_Senders : Message_Sender_Set_Ref;
 
-   Shutdown_Signal : Boolean := False;
+   Shutdown_Signal : Boolean := False with Atomic;
 
    --  Concurrent access to Set above
 
