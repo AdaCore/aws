@@ -352,6 +352,13 @@ private
      (Socket : Object; Size : Natural) is null;
 
    overriding procedure Free (Socket : in out Object);
+   --  Call free in the WebSocket registry which is possibly deferred until the
+   --  object is not used anymore.
+
+   procedure Release_Memory (Socket : in out Object);
+   --  Release all memory used by the WebSocket object. This is called by
+   --  the registry only when the WebSocket is not used anymore by a possible
+   --  deferred free.
 
    No_UID    : constant UID := 0;
 

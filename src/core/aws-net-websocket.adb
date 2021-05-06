@@ -38,6 +38,7 @@ with AWS.Headers;
 with AWS.Messages;
 with AWS.Net.WebSocket.Protocol.Draft76;
 with AWS.Net.WebSocket.Protocol.RFC6455;
+with AWS.Net.WebSocket.Registry;
 with AWS.Response;
 with AWS.Status.Set;
 with AWS.Translator;
@@ -218,27 +219,8 @@ package body AWS.Net.WebSocket is
    ----------
 
    overriding procedure Free (Socket : in out Object) is
-      use type AWS.Client.HTTP_Connection_Access;
-      procedure Unchecked_Free is
-         new Unchecked_Deallocation (Internal_State, Internal_State_Access);
-      procedure Unchecked_Free is
-         new Unchecked_Deallocation (Protocol_State, Protocol_State_Access);
    begin
-      Unchecked_Free (Socket.State);
-
-      if Socket.P_State /= null then
-         Unchecked_Free (Socket.P_State.State);
-         Unchecked_Free (Socket.P_State);
-      end if;
-
-      if Socket.Connection /= null then
-         --  Also closes Socket.Socket, since it is shared
-         Unchecked_Free (Socket.Connection);
-      else
-         Free (Socket.Socket);
-      end if;
-
-      Free (Socket.Mem_Sock);
+      WebSocket.Registry.Free (Socket);
    end Free;
 
    --------------
@@ -561,6 +543,34 @@ package body AWS.Net.WebSocket is
       Socket.P_State.State.Receive (Socket, Data, Last);
       Socket.State.Last_Activity := Calendar.Clock;
    end Receive;
+
+   --------------------
+   -- Release_Memory --
+   --------------------
+
+   procedure Release_Memory (Socket : in out Object) is
+      use type AWS.Client.HTTP_Connection_Access;
+      procedure Unchecked_Free is
+         new Unchecked_Deallocation (Internal_State, Internal_State_Access);
+      procedure Unchecked_Free is
+         new Unchecked_Deallocation (Protocol_State, Protocol_State_Access);
+   begin
+      Unchecked_Free (Socket.State);
+
+      if Socket.P_State /= null then
+         Unchecked_Free (Socket.P_State.State);
+         Unchecked_Free (Socket.P_State);
+      end if;
+
+      if Socket.Connection /= null then
+         --  Also closes Socket.Socket, since it is shared
+         Unchecked_Free (Socket.Connection);
+      else
+         Free (Socket.Socket);
+      end if;
+
+      Free (Socket.Mem_Sock);
+   end Release_Memory;
 
    -------------
    -- Request --

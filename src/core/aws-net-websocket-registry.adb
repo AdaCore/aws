@@ -164,6 +164,7 @@ package body AWS.Net.WebSocket.Registry is
       --  Release a socket retrieved with Get_Socket above, this socket will be
       --  then available again.
 
+      procedure Free_Or_Defer (Id : UID);
       procedure Free_Or_Defer (WebSocket : in out Object_Class);
       --  Free WebSocket immediately if not taken by another task, otherwise
       --  record it to be freed as soon as it is released.
@@ -471,7 +472,7 @@ package body AWS.Net.WebSocket.Registry is
          Timeout : Duration := Forever;
          Error   : Error_Type := Normal_Closure)
       is
-         W : Object_Class;
+         W : Object_Class := null;
       begin
          --  Look for WebSocket into the registered set, unregisted it if
          --  present.
@@ -506,11 +507,13 @@ package body AWS.Net.WebSocket.Registry is
             --  Add watched sockets
 
             for Id of Watched loop
-               if not Registered (Id).To_Free then
-                  FD_Set.Add
-                    (Result,
-                     Registered (Id).all, Registered (Id), FD_Set.Input);
-               end if;
+               declare
+                  W : constant Object_Class := Registered (Id);
+               begin
+                  if not W.To_Free then
+                     FD_Set.Add (Result, W.all, W, FD_Set.Input);
+                  end if;
+               end;
             end loop;
          end return;
       end Create_Set;
@@ -573,8 +576,21 @@ package body AWS.Net.WebSocket.Registry is
 
          if Sending.Contains (WebSocket.Id) then
             WebSocket.To_Free := True;
+
          else
+            if Registered.Contains (WebSocket.Id) then
+               Unregister (Registered (WebSocket.Id));
+            end if;
+
+            Release_Memory (Object (WebSocket.all));
             Unchecked_Free (WebSocket);
+         end if;
+      end Free_Or_Defer;
+
+      procedure Free_Or_Defer (Id : UID) is
+      begin
+         if Registered.Contains (Id) then
+            Free_Or_Defer (Registered (Id));
          end if;
       end Free_Or_Defer;
 
@@ -757,6 +773,7 @@ package body AWS.Net.WebSocket.Registry is
          --  been released.
 
          if WebSocket.To_Free then
+            Release_Memory (Object (WebSocket.all));
             Unchecked_Free (WebSocket);
          else
             New_Pending := True;
@@ -1210,6 +1227,15 @@ package body AWS.Net.WebSocket.Registry is
          Result.WS_Id := Id;
       end return;
    end Create;
+
+   ----------
+   -- Free --
+   ----------
+
+   procedure Free (WebSocket : in out Object'Class) is
+   begin
+      DB.Free_Or_Defer (WebSocket.Id);
+   end Free;
 
    -------------------
    -- Is_Registered --
