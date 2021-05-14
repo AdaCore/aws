@@ -76,7 +76,7 @@ package body AWS.Net.WebSocket.Registry is
 
    --  A queue for WebSocket with pending messages to be read
 
-   package WebSocket_Queue is new Utils.Mailbox_G (Object_Class);
+   package WebSocket_Queue is new Utils.Mailbox_G (UID);
    type Queue_Ref is access WebSocket_Queue.Mailbox;
 
    --  A list of all WebSockets in the registry, this list is used to send or
@@ -98,7 +98,7 @@ package body AWS.Net.WebSocket.Registry is
 
    --  The socket set with all sockets to wait for data
 
-   package FD_Set is new Net.Generic_Sets (Object_Class);
+   package FD_Set is new Net.Generic_Sets (UID);
    use type FD_Set.Socket_Count;
 
    task type Watcher with Priority => Config.WebSocket_Priority is
@@ -159,6 +159,10 @@ package body AWS.Net.WebSocket.Registry is
 
       entry Get_Socket (WebSocket : out Object_Class);
       --  Get a WebSocket having some data to be sent
+
+      procedure Get_Socket (Id : UID; WebSocket : out Object_Class);
+      --  Get a WebSocket Id or null if the WebSocket is not registerred
+      --  anymore.
 
       procedure Release_Socket (WebSocket : in out Object_Class);
       --  Release a socket retrieved with Get_Socket above, this socket will be
@@ -273,14 +277,21 @@ package body AWS.Net.WebSocket.Registry is
             --  signaling socket.
 
             declare
-               --  Skip first entry as it is not a websocket
-               K : FD_Set.Socket_Count := 2;
+               --  Skip first entry as it is the signaling socket not a
+               --  websocket.
+               K     : FD_Set.Socket_Count := 2;
+               WS_Id : UID;
             begin
                while K <= FD_Set.Count (Set) loop
                   if FD_Set.Is_Read_Ready (Set, K) then
-                     WS := FD_Set.Get_Data (Set, K);
-                     DB.Remove (WS);
-                     Message_Queue.Add (WS);
+                     WS_Id := FD_Set.Get_Data (Set, K);
+                     DB.Get_Socket (WS_Id, WS);
+
+                     if WS /= null then
+                        DB.Remove (WS);
+                        Message_Queue.Add (WS_Id);
+                        DB.Release_Socket (WS);
+                     end if;
                   end if;
 
                   K := K + 1;
@@ -292,11 +303,16 @@ package body AWS.Net.WebSocket.Registry is
                --  Send a On_Error message to all registered clients
 
                for K in 2 .. FD_Set.Count (Set) loop
-                  WS := FD_Set.Get_Data (Set, K);
-                  WS.State.Errno := Error_Code (Internal_Server_Error);
-                  WS.On_Error
-                    ("WebSocket Watcher server error, "
-                     & Exception_Message (E));
+                  DB.Get_Socket (FD_Set.Get_Data (Set, K), WS);
+
+                  if WS /= null then
+                     WS.State.Errno := Error_Code (Internal_Server_Error);
+                     WS.On_Error
+                       ("WebSocket Watcher server error, "
+                        & Exception_Message (E));
+                  end if;
+
+                  DB.Release_Socket (WS);
                end loop;
          end;
       end loop;
@@ -348,16 +364,19 @@ package body AWS.Net.WebSocket.Registry is
    begin
       Handle_Message : loop
          declare
+            WS_Id     : UID;
             WebSocket : Object_Class;
             Message   : Unbounded_String;
          begin
             Message := Null_Unbounded_String;
 
-            Message_Queue.Get (WebSocket);
+            Message_Queue.Get (WS_Id);
+
+            DB.Get_Socket (WS_Id, WebSocket);
 
             --  A WebSocket is null when termination is requested
 
-            exit Handle_Message when WebSocket = null;
+            exit Handle_Message when WS_Id = No_UID or else WebSocket = null;
 
             --  A message can be sent in multiple chunks and/or multiple
             --  frames with possibly some control frames in between text or
@@ -367,6 +386,8 @@ package body AWS.Net.WebSocket.Registry is
                exit when Read_Message (WebSocket, Message);
             end loop;
 
+            DB.Release_Socket (WebSocket);
+
          exception
             when E : others =>
                Do_Unregister (WebSocket);
@@ -374,6 +395,7 @@ package body AWS.Net.WebSocket.Registry is
                   (WebSocket, Exception_Message (E), Protocol_Error);
                WebSocket.On_Close (Exception_Message (E));
                WebSocket.Shutdown;
+               DB.Release_Socket (WebSocket);
                Do_Free (WebSocket);
          end;
       end loop Handle_Message;
@@ -502,7 +524,7 @@ package body AWS.Net.WebSocket.Registry is
          return Result : FD_Set.Socket_Set_Type do
             --  Add the signaling socket
 
-            FD_Set.Add (Result, Sig1, null, FD_Set.Input);
+            FD_Set.Add (Result, Sig1, No_UID, FD_Set.Input);
 
             --  Add watched sockets
 
@@ -511,7 +533,7 @@ package body AWS.Net.WebSocket.Registry is
                   W : constant Object_Class := Registered (Id);
                begin
                   if not W.To_Free then
-                     FD_Set.Add (Result, W.all, W, FD_Set.Input);
+                     FD_Set.Add (Result, W.all, W.Id, FD_Set.Input);
                   end if;
                end;
             end loop;
@@ -655,6 +677,21 @@ package body AWS.Net.WebSocket.Registry is
             New_Pending := False;
             requeue Get_Socket;
          end;
+      end Get_Socket;
+
+      ----------------
+      -- Get_Socket --
+      ----------------
+
+      procedure Get_Socket (Id : UID; WebSocket : out Object_Class) is
+      begin
+         if Registered.Contains (Id) then
+            Sending.Insert (Id);
+
+            WebSocket := Registered (Id);
+         else
+            WebSocket := null;
+         end if;
       end Get_Socket;
 
       ----------------
@@ -1511,7 +1548,7 @@ package body AWS.Net.WebSocket.Registry is
       --  Now shutdown all the message readers
 
       for K in Message_Readers'Range loop
-         Message_Queue.Add (null);
+         Message_Queue.Add (No_UID);
       end loop;
 
       for K in Message_Readers'Range loop
