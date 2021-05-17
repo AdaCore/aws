@@ -265,6 +265,8 @@ private
       Kind          : Kind_Type := Unknown;
       Errno         : Interfaces.Unsigned_16 := Interfaces.Unsigned_16'Last;
       Last_Activity : Calendar.Time;
+      To_Free       : Boolean := False;
+      Sending       : Boolean := False;
    end record;
    type Internal_State_Access is access Internal_State;
 
@@ -289,8 +291,6 @@ private
       Messages : Message_List.List;
       Mem_Sock : Net.Socket_Access;
       In_Mem   : Boolean := False;
-      To_Free  : Boolean := False;
-      Sending  : Boolean := False;
 
       Connection : AWS.Client.HTTP_Connection_Access;
       --  Only set when the web socket is initialized as a client.
@@ -375,9 +375,7 @@ private
                     Messages   => Message_List.Empty_List,
                     Mem_Sock   => null,
                     Connection => null,
-                    In_Mem     => False,
-                    To_Free    => False,
-                    Sending    => False);
+                    In_Mem     => False);
 
    --  Error codes corresponding to all errors
 

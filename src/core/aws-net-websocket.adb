@@ -310,7 +310,9 @@ package body AWS.Net.WebSocket is
       Self.State    := new Internal_State'
          (Kind          => Unknown,
           Errno         => Interfaces.Unsigned_16'Last,
-          Last_Activity => Calendar.Clock);
+          Last_Activity => Calendar.Clock,
+          To_Free       => False,
+          Sending       => False);
       Self.P_State  := new Protocol_State'(State => Protocol);
       Self.Mem_Sock := null;
       Self.In_Mem   := False;

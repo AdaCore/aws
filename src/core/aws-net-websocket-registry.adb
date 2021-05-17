@@ -574,7 +574,7 @@ package body AWS.Net.WebSocket.Registry is
                declare
                   W : constant Object_Class := Registered (Id);
                begin
-                  if not W.To_Free then
+                  if not W.State.To_Free then
                      FD_Set.Add (Result, W.all, W.Id, FD_Set.Input);
                   end if;
                end;
@@ -638,8 +638,8 @@ package body AWS.Net.WebSocket.Registry is
          --  record this socket to be freed as soon as it is released
          --  (Release_Socket) call.
 
-         if WebSocket.Sending then
-            WebSocket.To_Free := True;
+         if WebSocket.State.Sending then
+            WebSocket.State.To_Free := True;
 
          else
             if Registered.Contains (WebSocket.Id) then
@@ -697,7 +697,7 @@ package body AWS.Net.WebSocket.Registry is
 
                --  Check if this socket is not yet being used by a sender task
 
-               if WS /= null and then not WS.Sending then
+               if WS /= null and then not WS.State.Sending then
                   --  Check that some messages are to be sent. This is needed
                   --  as some messages could have been dropped if the list was
                   --  too long to avoid congestion.
@@ -705,7 +705,7 @@ package body AWS.Net.WebSocket.Registry is
                   if WS.Messages.Length > 0 then
                      Pending.Delete (Pos);
                      WebSocket := WS;
-                     WebSocket.Sending := True;
+                     WebSocket.State.Sending := True;
                      return;
                   end if;
                end if;
@@ -730,7 +730,7 @@ package body AWS.Net.WebSocket.Registry is
       begin
          if WebSocket_Map.Has_Element (C) then
             WebSocket := Registered (C);
-            WebSocket.Sending := True;
+            WebSocket.State.Sending := True;
          else
             WebSocket := null;
          end if;
@@ -845,13 +845,13 @@ package body AWS.Net.WebSocket.Registry is
 
       procedure Release_Socket (WebSocket : in out Object_Class) is
       begin
-         WebSocket.Sending := False;
+         WebSocket.State.Sending := False;
 
          --  The socket has been recorded to be freed. It is not anymore
          --  in the registry, we just need to free it now that it has
          --  been released.
 
-         if WebSocket.To_Free then
+         if WebSocket.State.To_Free then
             Release_Memory (Object (WebSocket.all));
             Unchecked_Free (WebSocket);
          else
@@ -930,7 +930,7 @@ package body AWS.Net.WebSocket.Registry is
                --  send task (Asynchronously).
 
                if Asynchronous
-                 or else WebSocket.Sending
+                 or else WebSocket.State.Sending
                then
                   declare
                      M : constant Message_Data :=
@@ -1203,7 +1203,7 @@ package body AWS.Net.WebSocket.Registry is
       procedure Unregister (WebSocket : not null access Object'Class) is
       begin
          Registered.Exclude (WebSocket.Id);
-         WebSocket.Sending := False;
+         WebSocket.State.Sending := False;
 
          Remove (WebSocket);
          Signal_Socket;
