@@ -393,8 +393,6 @@ package body AWS.Net.WebSocket.Registry is
                Do_Unregister (WebSocket);
                WebSocket_Exception
                   (WebSocket, Exception_Message (E), Protocol_Error);
-               WebSocket.On_Close (Exception_Message (E));
-               WebSocket.Shutdown;
                DB.Release_Socket (WebSocket);
                Do_Free (WebSocket);
          end;
@@ -1003,7 +1001,6 @@ package body AWS.Net.WebSocket.Registry is
                              (WS, Exception_Message (E), Protocol_Error);
 
                            WS.Close (Exception_Message (E), Going_Away);
-                           WS.On_Close (Exception_Message (E));
 
                            DB.Free_Or_Defer (WS);
 
@@ -1064,7 +1061,6 @@ package body AWS.Net.WebSocket.Registry is
                         WebSocket_Exception
                           (WebSocket, Exception_Message (E), Protocol_Error);
 
-                        WebSocket.On_Close (Exception_Message (E));
                         WebSocket.Close (Exception_Message (E), Going_Away);
 
                         --  Do not free, it might be used by another
