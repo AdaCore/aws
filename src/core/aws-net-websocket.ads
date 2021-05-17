@@ -290,6 +290,7 @@ private
       Mem_Sock : Net.Socket_Access;
       In_Mem   : Boolean := False;
       To_Free  : Boolean := False;
+      Sending  : Boolean := False;
 
       Connection : AWS.Client.HTTP_Connection_Access;
       --  Only set when the web socket is initialized as a client.
@@ -375,7 +376,8 @@ private
                     Mem_Sock   => null,
                     Connection => null,
                     In_Mem     => False,
-                    To_Free    => False);
+                    To_Free    => False,
+                    Sending    => False);
 
    --  Error codes corresponding to all errors
 
