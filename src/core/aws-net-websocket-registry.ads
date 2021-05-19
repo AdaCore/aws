@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2012-2019, AdaCore                     --
+--                     Copyright (C) 2012-2021, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -176,9 +176,17 @@ package AWS.Net.WebSocket.Registry is
       Message : String;
       Timeout : Duration := Forever;
       Error   : Error_Type := Normal_Closure);
+   --  Send a close message to the WebSocket, unregister it and release all
+   --  associated memory.
 
    function Is_Registered (Id : UID) return Boolean;
    --  Returns True if the WebSocket Id is registered and False otherwise
+
+   procedure Free (WebSocket : in out Object'Class);
+   --  Free the WebSocket when not used anymore (Either free immediatly or
+   --  register a deferred free). The difference with Close is that no message
+   --  is sent to the peer. The WebSocket is simply unregistered and memory is
+   --  released when possible.
 
 private
 

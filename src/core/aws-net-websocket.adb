@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2012-2016, AdaCore                     --
+--                     Copyright (C) 2012-2021, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -38,6 +38,7 @@ with AWS.Headers;
 with AWS.Messages;
 with AWS.Net.WebSocket.Protocol.Draft76;
 with AWS.Net.WebSocket.Protocol.RFC6455;
+with AWS.Net.WebSocket.Registry;
 with AWS.Response;
 with AWS.Status.Set;
 with AWS.Translator;
@@ -53,7 +54,8 @@ package body AWS.Net.WebSocket is
    end record;
 
    procedure Unchecked_Free is new Ada.Unchecked_Deallocation
-      (AWS.Client.HTTP_Connection, AWS.Client.HTTP_Connection_Access);
+     (AWS.Client.HTTP_Connection, AWS.Client.HTTP_Connection_Access);
+
    procedure Unchecked_Free is new Unchecked_Deallocation
      (Net.WebSocket.Protocol.State'Class,
       Net.WebSocket.Protocol.State_Class);
@@ -91,12 +93,12 @@ package body AWS.Net.WebSocket is
      (Socket : in out Object'Class;
       URI    : String)
    is
+      URL      : constant AWS.URL.Object := AWS.URL.Parse (URI);
       Headers  : AWS.Headers.List := AWS.Headers.Empty_List;
       Resp     : AWS.Response.Data;
-      Protocol : AWS.Net.WebSocket.Protocol.State_Class;
-      URL      : constant AWS.URL.Object := AWS.URL.Parse (URI);
+      Protocol : Net.WebSocket.Protocol.State_Class;
    begin
-      --  Initially, the connection is initiated with standard http GET.
+      --  Initially, the connection is initiated with standard http GET
 
       Socket.Connection := new AWS.Client.HTTP_Connection;
       Protocol := new Net.WebSocket.Protocol.RFC6455.State;
@@ -217,27 +219,8 @@ package body AWS.Net.WebSocket is
    ----------
 
    overriding procedure Free (Socket : in out Object) is
-      use type AWS.Client.HTTP_Connection_Access;
-      procedure Unchecked_Free is
-         new Unchecked_Deallocation (Internal_State, Internal_State_Access);
-      procedure Unchecked_Free is
-         new Unchecked_Deallocation (Protocol_State, Protocol_State_Access);
    begin
-      Unchecked_Free (Socket.State);
-
-      if Socket.P_State /= null then
-         Unchecked_Free (Socket.P_State.State);
-         Unchecked_Free (Socket.P_State);
-      end if;
-
-      if Socket.Connection /= null then
-         --  Also closes Socket.Socket, since it is shared
-         Unchecked_Free (Socket.Connection);
-      else
-         Free (Socket.Socket);
-      end if;
-
-      Free (Socket.Mem_Sock);
+      WebSocket.Registry.Free (Socket);
    end Free;
 
    --------------
@@ -327,7 +310,9 @@ package body AWS.Net.WebSocket is
       Self.State    := new Internal_State'
          (Kind          => Unknown,
           Errno         => Interfaces.Unsigned_16'Last,
-          Last_Activity => Calendar.Clock);
+          Last_Activity => Calendar.Clock,
+          To_Free       => False,
+          Sending       => False);
       Self.P_State  := new Protocol_State'(State => Protocol);
       Self.Mem_Sock := null;
       Self.In_Mem   := False;
@@ -406,7 +391,7 @@ package body AWS.Net.WebSocket is
    function Poll
      (Socket  : in out Object'Class;
       Timeout : Duration)
-     return Boolean
+      return Boolean
    is
       procedure Do_Receive
          (Socket : not null access Object'Class;
@@ -427,11 +412,11 @@ package body AWS.Net.WebSocket is
       end Do_Receive;
 
       function Read_Message is new AWS.Net.WebSocket.Read_Message
-         (Receive => Do_Receive);
+        (Receive => Do_Receive);
 
       Obj   : Object_Class := Socket'Unrestricted_Access;
       Event : AWS.Net.Event_Set;
-      Msg   : Ada.Strings.Unbounded.Unbounded_String;
+      Msg   : Unbounded_String;
    begin
       Event := Socket.Poll
          ((AWS.Net.Input => True, others => False), Timeout => Timeout);
@@ -469,8 +454,8 @@ package body AWS.Net.WebSocket is
    ------------------
 
    function Read_Message
-      (WebSocket : in out Object_Class;
-       Message   : in out Ada.Strings.Unbounded.Unbounded_String)
+     (WebSocket : in out Object_Class;
+      Message   : in out Unbounded_String)
       return Boolean
    is
       Data : Stream_Element_Array (1 .. 4_096);
@@ -560,6 +545,34 @@ package body AWS.Net.WebSocket is
       Socket.P_State.State.Receive (Socket, Data, Last);
       Socket.State.Last_Activity := Calendar.Clock;
    end Receive;
+
+   --------------------
+   -- Release_Memory --
+   --------------------
+
+   procedure Release_Memory (Socket : in out Object) is
+      use type AWS.Client.HTTP_Connection_Access;
+      procedure Unchecked_Free is
+         new Unchecked_Deallocation (Internal_State, Internal_State_Access);
+      procedure Unchecked_Free is
+         new Unchecked_Deallocation (Protocol_State, Protocol_State_Access);
+   begin
+      Unchecked_Free (Socket.State);
+
+      if Socket.P_State /= null then
+         Unchecked_Free (Socket.P_State.State);
+         Unchecked_Free (Socket.P_State);
+      end if;
+
+      if Socket.Connection /= null then
+         --  Also closes Socket.Socket, since it is shared
+         Unchecked_Free (Socket.Connection);
+      else
+         Free (Socket.Socket);
+      end if;
+
+      Free (Socket.Mem_Sock);
+   end Release_Memory;
 
    -------------
    -- Request --

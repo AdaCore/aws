@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2012-2020, AdaCore                     --
+--                     Copyright (C) 2012-2021, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -265,6 +265,8 @@ private
       Kind          : Kind_Type := Unknown;
       Errno         : Interfaces.Unsigned_16 := Interfaces.Unsigned_16'Last;
       Last_Activity : Calendar.Time;
+      To_Free       : Boolean := False;
+      Sending       : Boolean := False;
    end record;
    type Internal_State_Access is access Internal_State;
 
@@ -351,6 +353,13 @@ private
      (Socket : Object; Size : Natural) is null;
 
    overriding procedure Free (Socket : in out Object);
+   --  Call free in the WebSocket registry which is possibly deferred until the
+   --  object is not used anymore.
+
+   procedure Release_Memory (Socket : in out Object);
+   --  Release all memory used by the WebSocket object. This is called by
+   --  the registry only when the WebSocket is not used anymore by a possible
+   --  deferred free.
 
    No_UID    : constant UID := 0;
 
