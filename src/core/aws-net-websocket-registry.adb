@@ -160,7 +160,7 @@ package body AWS.Net.WebSocket.Registry is
       entry Get_Socket (WebSocket : out Object_Class);
       --  Get a WebSocket having some data to be sent
 
-      procedure Get_Socket (Id : UID; WebSocket : out Object_Class);
+      entry Get_Socket (Id : UID; WebSocket : out Object_Class);
       --  Get a WebSocket Id or null if the WebSocket is not registerred
       --  anymore. Marks the socket as in use, so that it will not get
       --  freed until Release_Socket is called.
@@ -235,6 +235,7 @@ package body AWS.Net.WebSocket.Registry is
       Signal      : Boolean := False;    -- Transient signal, release Not_Emtpy
       S_Signal    : Boolean := False;    -- Shutdown is in progress
       New_Pending : Boolean := False;    -- New pending socket
+      New_State   : Boolean := False;    -- A sokcet has been released
       Count       : Natural := 0;        -- Not counting signaling socket
       Registered  : WebSocket_Map.Map;   -- Contains all the WebSocket ref
       Pending     : WebSocket_List.List; -- Pending messages to be sent
@@ -638,14 +639,14 @@ package body AWS.Net.WebSocket.Registry is
          --  record this socket to be freed as soon as it is released
          --  (Release_Socket) call.
 
+         if Registered.Contains (WebSocket.Id) then
+            Unregister (Registered (WebSocket.Id));
+         end if;
+
          if WebSocket.State.Sending then
             WebSocket.State.To_Free := True;
 
          else
-            if Registered.Contains (WebSocket.Id) then
-               Unregister (Registered (WebSocket.Id));
-            end if;
-
             Release_Memory (Object (WebSocket.all));
             Unchecked_Free (WebSocket);
          end if;
@@ -725,13 +726,29 @@ package body AWS.Net.WebSocket.Registry is
       -- Get_Socket --
       ----------------
 
-      procedure Get_Socket (Id : UID; WebSocket : out Object_Class) is
+      entry Get_Socket (Id : UID; WebSocket : out Object_Class)
+        when New_State or else S_Signal
+      is
          C : constant WebSocket_Map.Cursor := Registered.Find (Id);
       begin
+         New_State := False;
+
          if WebSocket_Map.Has_Element (C) then
-            WebSocket := Registered (C);
-            WebSocket.State.Sending := True;
+            declare
+               W : constant Object_Class := Registered (C);
+            begin
+               if W.State.Sending then
+                  requeue Get_Socket;
+
+               else
+                  WebSocket := W;
+                  WebSocket.State.Sending := True;
+               end if;
+            end;
+
          else
+            --  The socket is not registerred anymore, just leave now
+
             WebSocket := null;
          end if;
       end Get_Socket;
@@ -837,6 +854,7 @@ package body AWS.Net.WebSocket.Registry is
 
          Registered.Insert (WebSocket.Id, WebSocket);
          Success := True;
+         New_State := True;
       end Register;
 
       --------------------
@@ -857,6 +875,8 @@ package body AWS.Net.WebSocket.Registry is
          else
             New_Pending := True;
          end if;
+
+         New_State := True;
       end Release_Socket;
 
       ------------
@@ -1204,6 +1224,7 @@ package body AWS.Net.WebSocket.Registry is
       begin
          Registered.Exclude (WebSocket.Id);
          WebSocket.State.Sending := False;
+         New_State := True;
 
          Remove (WebSocket);
          Signal_Socket;
@@ -1416,9 +1437,12 @@ package body AWS.Net.WebSocket.Registry is
          begin
             Send (WS, Message);
             WS.Messages.Delete_First;
-
-            DB.Release_Socket (WS);
+         exception
+            when others =>
+               null;
          end;
+
+         DB.Release_Socket (WS);
       end loop;
    end Message_Sender;
 
