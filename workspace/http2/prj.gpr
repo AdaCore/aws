@@ -1,0 +1,13 @@
+
+with "../../aws";
+
+project Prj is
+   for Source_Dirs use ("main");
+   for Main use ("srv.adb");
+   for Object_Dir use "obj";
+   for Exec_Dir use ".";
+
+   package Linker is
+      for Switches("Ada") use ("-lz");
+   end Linker;
+end Prj;
