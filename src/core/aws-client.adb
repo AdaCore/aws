@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2000-2020, AdaCore                     --
+--                     Copyright (C) 2000-2021, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -305,6 +305,8 @@ package body AWS.Client is
       URI        : String      := No_Data;
       Headers    : Header_List := Empty_Header_List) is
    begin
+      Connection.F_Headers.Reset;
+
       Send_Request
         (Connection, HTTP_Utils.DELETE, Result, URI, Data, Headers);
    end Delete;
@@ -316,6 +318,8 @@ package body AWS.Client is
       URI        : String      := No_Data;
       Headers    : Header_List := Empty_Header_List) is
    begin
+      Connection.F_Headers.Reset;
+
       Delete
         (Connection => Connection,
          Result     => Result,
@@ -473,10 +477,11 @@ package body AWS.Client is
       Result     : out Response.Data;
       URI        : String          := No_Data;
       Data_Range : Content_Range   := No_Range;
-      Headers    : Header_List     := Empty_Header_List)
-   is
+      Headers    : Header_List     := Empty_Header_List) is
    begin
       Connection.Data_Range := Data_Range;
+      Connection.F_Headers.Reset;
+
       Send_Request
         (Connection, HTTP_Utils.GET, Result, URI, HTTP_Utils.No_Data, Headers);
    end Get;
@@ -554,9 +559,10 @@ package body AWS.Client is
      (Connection : in out HTTP_Connection;
       Result     : out Response.Data;
       URI        : String      := No_Data;
-      Headers    : Header_List := Empty_Header_List)
-   is
+      Headers    : Header_List := Empty_Header_List) is
    begin
+      Connection.F_Headers.Reset;
+
       Send_Request
         (Connection, HTTP_Utils.HEAD,
          Result, URI, HTTP_Utils.No_Data, Headers);
@@ -656,6 +662,8 @@ package body AWS.Client is
       Attachments  : Attachment_List := Empty_Attachment_List;
       Headers      : Header_List     := Empty_Header_List) is
    begin
+      Connection.F_Headers.Reset;
+
       Internal_Post
         (Connection,
          Result,
@@ -678,6 +686,8 @@ package body AWS.Client is
       Attachments  : Attachment_List := Empty_Attachment_List;
       Headers      : Header_List     := Empty_Header_List) is
    begin
+      Connection.F_Headers.Reset;
+
       --  For message larger than 20kb the conversion to Stream_Element_Array
       --  may create a stack overflow.
 
@@ -766,6 +776,8 @@ package body AWS.Client is
       URI        : String      := No_Data;
       Headers    : Header_List := Empty_Header_List) is
    begin
+      Connection.F_Headers.Reset;
+
       Send_Request (Connection, HTTP_Utils.PUT, Result, URI, Data, Headers);
    end Put;
 
@@ -1026,7 +1038,7 @@ package body AWS.Client is
    procedure Set_Headers
      (Connection : in out HTTP_Connection; Headers : Header_List) is
    begin
-      Connection.Headers := Headers;
+      Connection.C_Headers := Headers;
    end Set_Headers;
 
    --------------------
@@ -1318,22 +1330,28 @@ package body AWS.Client is
    begin
       Retry : loop
          begin
-            Open_Send_Common_Header (Connection, "POST", URI, Headers);
+            Open_Set_Common_Header (Connection, "POST", URI, Headers);
 
             declare
                Sock : Net.Socket_Type'Class renames Connection.Socket.all;
             begin
                --  Send message Content-Type (Multipart/form-data)
 
-               Send_Header
-                 (Sock,
-                  Messages.Content_Type (MIME.Multipart_Form_Data, Boundary));
+               Set_Header
+                 (Connection.F_Headers,
+                  Messages.Content_Type_Token,
+                  MIME.Multipart_Form_Data
+                  & "; boundary=""" & Boundary & '"');
 
                --  Send message Content-Length
 
-               Send_Header (Sock, Messages.Content_Length (Content_Length));
+               Set_Header
+                 (Connection.F_Headers,
+                  Messages.Content_Length_Token,
+                  Utils.Image (Content_Length));
 
-               Net.Buffered.New_Line (Sock);
+               AWS.Headers.Send_Header
+                 (Sock, Connection.F_Headers, End_Block => True);
 
                --  Send message body
 

@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2005-2017, AdaCore                     --
+--                     Copyright (C) 2005-2021, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -83,7 +83,7 @@ package AWS.Client.HTTP_Utils is
    --  Read message body and store it into Result if Store is True otherwise
    --  the content is discarded.
 
-   procedure Open_Send_Common_Header
+   procedure Open_Set_Common_Header
      (Connection : in out HTTP_Connection;
       Method     : String;
       URI        : String;
@@ -91,7 +91,7 @@ package AWS.Client.HTTP_Utils is
    --  Open the the Connection if it is not open. Send the common HTTP headers
    --  for all requests like the proxy, authentication, user agent, host.
 
-   procedure Send_Authentication_Header
+   procedure Set_Authentication_Header
      (Connection : in out HTTP_Connection;
       Token      : String;
       Data       : in out Authentication_Type;
@@ -147,29 +147,21 @@ package AWS.Client.HTTP_Utils is
    No_Data : constant Stream_Element_Array := (1 .. 0 => 0);
 
    procedure Send_Request
-     (Connection   : in out HTTP_Connection;
-      Kind         : Method_Kind;
-      Result       : out Response.Data;
-      URI          : String;
-      Data         : Stream_Element_Array := No_Data;
-      Headers      : Header_List := Empty_Header_List);
+     (Connection : in out HTTP_Connection;
+      Kind       : Method_Kind;
+      Result     : out Response.Data;
+      URI        : String;
+      Data       : Stream_Element_Array := No_Data;
+      Headers    : Header_List := Empty_Header_List);
    --  Send to the server only a POST request with Data
    --  and common headers, using a Connection.
 
-   procedure Send_Header
-     (Sock : Net.Socket_Type'Class;
-      Data : String)
+   procedure Set_Header
+     (Headers : in out Header_List;
+      Header  : String;
+      Value   : String := "")
      with Inline;
-   --  Send header Data to socket and call Debug_Message
-
-   procedure Send_Header
-     (Sock        : Net.Socket_Type'Class;
-      Header      : String;
-      Constructor : not null access function (Value : String) return String;
-      Value       : String;
-      Headers     : Header_List)
-     with Inline;
-   --  Send header to socket if this header is not present in Headers. The
+   --  Append header to Headers if this header is not already present. The
    --  actual header data is given by the constructor. Call Debug_Message if
    --  header is sent.
 

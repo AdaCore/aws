@@ -434,6 +434,20 @@ package body AWS.Messages is
            else Reason_Phrase);
    end Status_Line;
 
+   ------------------
+   -- Status_Value --
+   ------------------
+
+   function Status_Value
+     (Code          : Status_Code;
+      Reason_Phrase : String := "") return String is
+   begin
+      return Image (Code) & ' '
+        & (if Reason_Phrase = ""
+           then Messages.Reason_Phrase (Code)
+           else Reason_Phrase);
+   end Status_Value;
+
    -------------------
    -- To_Cache_Data --
    -------------------

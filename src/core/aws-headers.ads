@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2000-2015, AdaCore                     --
+--                     Copyright (C) 2000-2021, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -49,7 +49,10 @@ package AWS.Headers is
    Format_Error : exception;
    --  Raised when header line format is wrong
 
-   procedure Send_Header (Socket : Net.Socket_Type'Class; Headers : List);
+   procedure Send_Header
+     (Socket    : Net.Socket_Type'Class;
+      Headers   : List;
+      End_Block : Boolean := False);
    --  Send all header lines in Headers list to the socket
 
    function Get_Line (Headers : List; N : Positive) return String with

@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                      Copyright (C) 2016, AdaCore                         --
+--                    Copyright (C) 2016-2021, AdaCore                      --
 --                                                                          --
 --  This is free software;  you can redistribute it  and/or modify it       --
 --  under terms of the  GNU General Public License as published  by the     --
@@ -80,25 +80,29 @@ procedure Put_Chunked_Compressed is
    procedure Send
      (Sock    : Net.Socket_Type'Class;
       Headers : AWS.Headers.List;
-      Message : Stream_Element_Array) is
+      Message : Stream_Element_Array)
+   is
+      H_List : AWS.Headers.List;
    begin
       --  Send common headers
 
-      Client.HTTP_Utils.Send_Header
-        (Sock, "PUT /put HTTP/1.1");
-      Client.HTTP_Utils.Send_Header
-        (Sock,
-         Messages.Host ("127.0.0.1:" & Utils.Image (Net.Get_Port (Sock))));
-      Client.HTTP_Utils.Send_Header
-        (Sock, Messages.User_Agent ("AWS testing"));
+      Client.HTTP_Utils.Set_Header
+        (H_List, "PUT", "/put HTTP/1.1");
+      Client.HTTP_Utils.Set_Header
+        (H_List,
+         Messages.Host_Token,
+         "127.0.0.1:" & Utils.Image (Net.Get_Port (Sock)));
+      Client.HTTP_Utils.Set_Header
+        (H_List, Messages.User_Agent_Token, "AWS testing");
 
-      Client.HTTP_Utils.Send_Header
-        (Sock, Messages.Transfer_Encoding ("chunked"));
+      Client.HTTP_Utils.Set_Header
+        (H_List, Messages.Transfer_Encoding_Token, "chunked");
+
+      AWS.Headers.Send_Header (Sock, H_List);
 
       --  Send message headers if any
 
-      AWS.Headers.Send_Header (Sock, Headers);
-      Net.Buffered.New_Line (Sock);
+      AWS.Headers.Send_Header (Sock, Headers, End_Block => True);
 
       --  Send message itself
 

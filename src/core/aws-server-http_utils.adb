@@ -1376,8 +1376,9 @@ package body AWS.Server.HTTP_Utils is
 
       Status_Code : Messages.Status_Code := Response.Status_Code (Answer);
       Length      : Resources.Content_Length_Type := 0;
+      H_List      : Headers.List;
 
-      procedure Send_General_Header (Sock : Net.Socket_Type'Class);
+      procedure Set_General_Header (Status_Code : Messages.Status_Code);
       --  Send the "Date:", "Server:", "Set-Cookie:" and "Connection:" header
 
       procedure Send_Header_Only;
@@ -1426,11 +1427,11 @@ package body AWS.Server.HTTP_Utils is
                Status_Code := Messages.S404;
             end if;
 
-            Net.Buffered.Put_Line (Sock, Messages.Status_Line (Status_Code));
+            Set_General_Header (Status_Code);
 
-            Send_General_Header (Sock);
-            Net.Buffered.New_Line (Sock);
-            Net.Buffered.Flush (Sock);
+            Headers.Send_Header
+              (Socket => Sock, Headers => H_List, End_Block => True);
+
             return;
 
          elsif Headers.Get_Values
@@ -1440,8 +1441,6 @@ package body AWS.Server.HTTP_Utils is
             --  Partial range request, answer accordingly
             Status_Code := Messages.S206;
          end if;
-
-         Net.Buffered.Put_Line (Sock, Messages.Status_Line (Status_Code));
 
          --  Note. We have to call Create_Resource before send header fields
          --  defined in the Answer to the client, because this call could
@@ -1471,12 +1470,7 @@ package body AWS.Server.HTTP_Utils is
             Will_Close := True;
          end if;
 
-         Send_General_Header (Sock);
-
-         --  Send Cache-Control, Location, WWW-Authenticate and others
-         --  user defined header lines.
-
-         Response.Send_Header (Socket => Sock, D => Answer);
+         Set_General_Header (Status_Code);
 
          --  Send file last-modified timestamp info in case of a file
 
@@ -1484,8 +1478,21 @@ package body AWS.Server.HTTP_Utils is
            and then
              not Response.Has_Header (Answer, Messages.Last_Modified_Token)
          then
-            Net.Buffered.Put_Line (Sock, Messages.Last_Modified (File_Time));
+            Headers.Add
+              (Table => H_List,
+               Name  => Messages.Last_Modified_Token,
+               Value => Messages.To_HTTP_Date (File_Time));
          end if;
+
+         --  Send Cache-Control, Location, WWW-Authenticate and others
+         --  user defined header lines.
+
+         Headers.Send_Header
+           (Socket    => Sock,
+            Headers   => H_List,
+            End_Block => False);
+
+         Response.Send_Header (Socket => Sock, D => Answer);
 
          --  Note that we cannot send the Content_Length header at this
          --  point. A server should not send Content_Length if the
@@ -1522,93 +1529,40 @@ package body AWS.Server.HTTP_Utils is
          Net.Buffered.Flush (Sock);
       end Send_Data;
 
-      -------------------------
-      -- Send_General_Header --
-      -------------------------
-
-      procedure Send_General_Header (Sock : Net.Socket_Type'Class) is
-      begin
-         --  Session
-
-         if CNF.Session (HTTP_Server.Properties)
-           and then AWS.Status.Session_Created (C_Stat)
-         then
-            --  This is an HTTP connection with session but there is no session
-            --  ID set yet. So, send cookie to client browser.
-
-            Response.Set.Add_Header
-              (D     => Answer,
-               Name  => Messages.Set_Cookie_Token,
-               Value => CNF.Session_Name (HTTP_Server.Properties) & '='
-                        & Session.Image (AWS.Status.Session (C_Stat))
-                        & "; path=/; Version=1");
-
-            --  And the internal private session
-
-            Response.Set.Add_Header
-              (D     => Answer,
-               Name  => Messages.Set_Cookie_Token,
-               Value => CNF.Session_Private_Name (HTTP_Server.Properties) & '='
-                        & AWS.Status.Session_Private (C_Stat)
-                        & "; path=/; Version=1");
-         end if;
-
-         --  Date
-
-         Net.Buffered.Put_Line
-           (Sock, "Date: " & Messages.To_HTTP_Date (Utils.GMT_Clock));
-
-         --  Server
-
-         declare
-            Server : constant String :=
-                       CNF.Server_Header (HTTP_Server.Properties);
-         begin
-            if Server /= "" then
-               Net.Buffered.Put_Line (Sock, "Server: " & Server);
-            end if;
-         end;
-
-         if Will_Close then
-            --  We have decided to close connection after answering the client
-            Response.Set.Update_Header
-              (Answer, Messages.Connection_Token, Value => "close");
-
-         else
-            Response.Set.Update_Header
-              (Answer, Messages.Connection_Token, Value => "keep-alive");
-         end if;
-      end Send_General_Header;
-
       ----------------------
       -- Send_Header_Only --
       ----------------------
 
       procedure Send_Header_Only is
-         Sock : constant Net.Socket_Type'Class := Status.Socket (C_Stat);
       begin
          --  First let's output the status line
 
-         Net.Buffered.Put_Line (Sock, Messages.Status_Line (Status_Code));
+         Set_General_Header (Status_Code);
 
-         Send_General_Header (Sock);
+         Headers.Add
+           (Table => H_List,
+            Name  => Messages.Content_Type_Token,
+            Value => Response.Content_Type (Answer));
 
-         Net.Buffered.Put_Line
-           (Sock, Messages.Content_Type (Response.Content_Type (Answer)));
+         --  There is no content
+
+         Headers.Add
+           (Table => H_List,
+            Name  => Messages.Content_Length_Token,
+            Value => Utils.Image (Stream_Element_Offset'(0)));
 
          --  Send Cache-Control, Location, WWW-Authenticate and others
          --  user defined header lines.
 
-         Response.Send_Header (Socket => Sock, D => Answer);
+         Headers.Send_Header
+           (Socket    => Status.Socket (C_Stat),
+            Headers   => H_List,
+            End_Block => False);
 
-         --  There is no content
-
-         Net.Buffered.Put_Line (Sock, Messages.Content_Length (0));
-
-         --  End of header
-
-         Net.Buffered.New_Line (Sock);
-         Net.Buffered.Flush (Sock);
+         Response.Send_Header
+           (Socket    => Status.Socket (C_Stat),
+            D         => Answer,
+            End_Block => True);
       end Send_Header_Only;
 
       ------------------------------
@@ -1666,6 +1620,76 @@ package body AWS.Server.HTTP_Utils is
          Net.Buffered.New_Line (Sock);
          Net.Buffered.Flush (Sock);
       end Send_WebSocket_Handshake_Error;
+
+      ------------------------
+      -- Set_General_Header --
+      ------------------------
+
+      procedure Set_General_Header (Status_Code : Messages.Status_Code) is
+      begin
+         --  The status line
+
+         Headers.Add
+           (Table => H_List,
+            Name  => HTTP_Version,
+            Value => Messages.Status_Value (Status_Code));
+
+         --  Date
+
+         Headers.Add
+           (Table => H_List,
+            Name  => Messages.Date_Token,
+            Value => Messages.To_HTTP_Date (Utils.GMT_Clock));
+
+         --  Server
+
+         declare
+            Server : constant String :=
+                       CNF.Server_Header (HTTP_Server.Properties);
+         begin
+            if Server /= "" then
+               Headers.Add
+                 (Table => H_List,
+                  Name  => Messages.Server_Token,
+                  Value => Server);
+            end if;
+         end;
+
+         --  Session
+
+         if CNF.Session (HTTP_Server.Properties)
+           and then AWS.Status.Session_Created (C_Stat)
+         then
+            --  This is an HTTP connection with session but there is no session
+            --  ID set yet. So, send cookie to client browser.
+
+            Headers.Add
+              (Table => H_List,
+               Name  => Messages.Set_Cookie_Token,
+               Value => CNF.Session_Name (HTTP_Server.Properties) & '='
+                        & Session.Image (AWS.Status.Session (C_Stat))
+                        & "; path=/; Version=1");
+
+            --  And the internal private session
+
+            Headers.Add
+              (Table => H_List,
+               Name  => Messages.Set_Cookie_Token,
+               Value => CNF.Session_Private_Name (HTTP_Server.Properties) & '='
+                        & AWS.Status.Session_Private (C_Stat)
+                        & "; path=/; Version=1");
+         end if;
+
+         if Will_Close then
+            --  We have decided to close connection after answering the client
+            Headers.Add
+              (H_List, Messages.Connection_Token, Value => "close");
+
+         else
+            Headers.Add
+              (H_List, Messages.Connection_Token, Value => "keep-alive");
+         end if;
+      end Set_General_Header;
 
    begin
       case Response.Mode (Answer) is

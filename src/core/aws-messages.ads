@@ -366,6 +366,12 @@ package AWS.Messages is
    function Status_Line
      (Code          : Status_Code;
       Reason_Phrase : String := "") return String with Inline;
+   --  The HTTP status line on the form: HTTP/1.1 <code> <reason>
+
+   function Status_Value
+     (Code          : Status_Code;
+      Reason_Phrase : String := "") return String with Inline;
+   --  As above but only with the values : <code> <reason>
 
    function Transfer_Encoding (Encoding : String) return String with Inline;
 

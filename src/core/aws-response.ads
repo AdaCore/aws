@@ -293,8 +293,10 @@ package AWS.Response is
    function Has_Header (D : Data; Name : String) return Boolean with Inline;
    --  Returns True if D headers contains Name
 
-   procedure Send_Header (Socket : Net.Socket_Type'Class; D : Data)
-     with Inline;
+   procedure Send_Header
+     (Socket    : Net.Socket_Type'Class;
+      D         : Data;
+      End_Block : Boolean := False) with Inline;
    --  Send all header lines to the socket
 
    function Status_Code (D : Data) return Messages.Status_Code with Inline;
