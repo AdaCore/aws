@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2000-2017, AdaCore                     --
+--                     Copyright (C) 2000-2021, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -33,6 +33,7 @@ with Ada.Strings.Maps;
 with Ada.Strings.Unbounded;
 with Ada.Text_IO;
 
+with AWS.Messages;
 with AWS.Net.Buffered;
 
 package body AWS.Headers is
@@ -81,6 +82,18 @@ package body AWS.Headers is
    begin
       if Pair.Name = "" then
          return "";
+
+      elsif Pair.Name = Messages.Get_Token
+        or else Pair.Name = Messages.Post_Token
+        or else Pair.Name = Messages.Put_Token
+        or else Pair.Name = Messages.Head_Token
+        or else Pair.Name = Messages.Delete_Token
+        or else Pair.Name = Messages.Connect_Token
+        or else Pair.Name = HTTP_Version
+      then
+         --  And header line
+         return To_String (Pair.Name & " " & Pair.Value);
+
       else
          return To_String (Pair.Name & ": " & Pair.Value);
       end if;
@@ -235,11 +248,18 @@ package body AWS.Headers is
    -----------------
 
    procedure Send_Header
-     (Socket : Net.Socket_Type'Class; Headers : List) is
+     (Socket    : Net.Socket_Type'Class;
+      Headers   : List;
+      End_Block : Boolean := False) is
    begin
       for J in 1 .. Count (Headers) loop
          Net.Buffered.Put_Line (Socket, Get_Line (Headers, J));
       end loop;
+
+      if End_Block then
+         Net.Buffered.New_Line (Socket);
+         Net.Buffered.Flush (Socket);
+      end if;
    end Send_Header;
 
 end AWS.Headers;

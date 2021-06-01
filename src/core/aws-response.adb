@@ -629,9 +629,12 @@ package body AWS.Response is
    -- Send_Header --
    -----------------
 
-   procedure Send_Header (Socket : Net.Socket_Type'Class; D : Data) is
+   procedure Send_Header
+     (Socket    : Net.Socket_Type'Class;
+      D         : Data;
+      End_Block : Boolean := False) is
    begin
-      Headers.Send_Header (Socket, D.Header);
+      Headers.Send_Header (Socket, D.Header, End_Block);
    end Send_Header;
 
    ------------------
