@@ -66,7 +66,7 @@ procedure Protocol_Handler (LA : in out Line_Attribute_Record) is
    Keep_Alive_Limit : constant Natural :=
                         CNF.Free_Slots_Keep_Alive_Limit (LA.Server.Properties);
 
-   Free_Slots   : Natural;
+   Free_Slots   : Natural := 0;
 
    Extended_Log : constant Boolean :=
                     CNF.Log_Extended_Fields_Length (LA.Server.Properties) > 0;

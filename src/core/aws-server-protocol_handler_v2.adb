@@ -120,8 +120,7 @@ procedure Protocol_Handler_V2 (LA : in out Line_Attribute_Record) is
    --  to the client using this socket. The value will be changed by
    --  Set_Close_Status.
 
-   Free_Slots   : Natural := 0 with Warnings => Off;
-   --  ??? not handled for now
+   Free_Slots   : Natural := 0;
 
    Settings : aliased HTTP2.Connection.Object;
    --  Connection settings
@@ -264,6 +263,8 @@ procedure Protocol_Handler_V2 (LA : in out Line_Attribute_Record) is
 
       --  If there is no more slot available and we have many
       --  of them, try to abort one of them.
+
+      LA.Server.Slots.Increment_Slot_Activity_Counter (LA.Line, Free_Slots);
 
       if Multislots and then Free_Slots = 0 then
          Force_Clean (LA.Server.all);
