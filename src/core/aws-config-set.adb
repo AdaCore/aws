@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2000-2019, AdaCore                     --
+--                     Copyright (C) 2000-2021, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -297,6 +297,15 @@ package body AWS.Config.Set is
    begin
       O.P (Hotplug_Port).Pos_Value := Value;
    end Hotplug_Port;
+
+   ---------------------
+   -- HTTP2_Activated --
+   ---------------------
+
+   procedure HTTP2_Activated (O : in out Object; Value : Boolean) is
+   begin
+      O.P (HTTP2_Activated).Bool_Value := Value;
+   end HTTP2_Activated;
 
    ---------------------------
    -- Input_Line_Size_Limit --

@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2000-2020, AdaCore                     --
+--                     Copyright (C) 2000-2021, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -86,6 +86,9 @@ package AWS.Config is
 
    function Server_Port (O : Object) return Natural with Inline;
    --  This is the server port as set by the HTTP object declaration
+
+   function HTTP2_Activated (O : Object) return Boolean with Inline;
+   --  Returns True if the HTTP/2 protocol is activated
 
    function Hotplug_Port (O : Object) return Positive with Inline;
    --  This is the hotplug communication port needed to register and
@@ -467,6 +470,7 @@ private
       Certificate,
       Key,
       Security_Mode,
+      HTTP2_Activated,
       Cipher_Priorities,
       TLS_Ticket_Support,
       Exchange_Certificate,
@@ -639,6 +643,9 @@ private
 
                            Server_Name                     =>
                              (Str, +Default.Server_Name),
+
+                           HTTP2_Activated                 =>
+                             (Bool, Default.HTTP2_Activated),
 
                            WWW_Root                        =>
                              (Dir, +Default.WWW_Root),

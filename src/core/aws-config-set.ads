@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2000-2019, AdaCore                     --
+--                     Copyright (C) 2000-2021, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -54,6 +54,9 @@ package AWS.Config.Set is
 
    procedure Server_Port (O : in out Object; Value : Natural);
    --  This is the server port as set by the HTTP object declaration
+
+   procedure HTTP2_Activated (O : in out Object; Value : Boolean);
+   --  Set to True if the HTTP/2 protocol is to be activated
 
    procedure Hotplug_Port (O : in out Object; Value : Positive);
    --  This is the hotplug communication port needed to register and
