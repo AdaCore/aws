@@ -970,6 +970,13 @@ Current supported options are:
   This is the hotplug communication port needed to register and
   un-register an hotplug module. The default value is |HOTPLUG_PORT|.
 
+*HTTP2_Activated (boolean)*
+
+  .. index:: HTTP2_Activated
+
+  Whether the HTTP2 protocol is to be activated for the server.
+  The default value is |HTTP2_ACTIVATED|.
+
 *Key (string)*
 
   .. index:: Key

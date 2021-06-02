@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2000-2020, AdaCore                     --
+--                     Copyright (C) 2000-2021, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -85,6 +85,7 @@ package AWS.Default with Pure is
    Max_Concurrent_Download           : constant          := 25;
    Reuse_Address                     : constant Boolean  := False;
    MIME_Types                        : constant String   := "aws.mime";
+   HTTP2_Activated                   : constant Boolean  := True;
 
    --  Client configuration
 

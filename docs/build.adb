@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2000-2020, AdaCore                     --
+--                     Copyright (C) 2000-2021, AdaCore                     --
 --                                                                          --
 --  This is free software;  you can redistribute it  and/or modify it       --
 --  under terms of the  GNU General Public License as published  by the     --
@@ -96,6 +96,7 @@ begin
    Add ("SERVER_NAME", Default.Server_Name);
    Add ("SERVER_PORT", Default.Server_Port);
    Add ("HOTPLUG_PORT", Default.Hotplug_Port);
+   Add ("HTTP2_ACTIVATED", Default.HTTP2_Activated);
    Add ("ERROR_LOG_ACTIVATED", Default.Error_Log_Activated);
    Add ("LOG_ACTIVATED", Default.Log_Activated);
    Add ("LOG_FILE_DIR", Default.Log_File_Directory);
