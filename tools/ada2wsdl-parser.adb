@@ -116,6 +116,9 @@ package body Ada2WSDL.Parser is
      (Node : Subtype_Decl'Class) return Base_Type_Decl;
    --  Likewise for a subtype
 
+   function Get_Root_Type (Node : Subtype_Decl'Class) return Base_Type_Decl;
+   --  For a subtype returns the root type
+
    function Unit_Name (Node : Ada_Node'Class) return String is
      (Img (Node.P_Top_Level_Decl (Node.Unit).P_Defining_Name));
    --  Name of the enclosing unit where Node is declared
@@ -452,7 +455,7 @@ package body Ada2WSDL.Parser is
 
       T_Name       : constant String := Img (Node.F_Name);
       T_Decl       : constant Base_Type_Decl :=
-                       Node.F_Subtype.P_Designated_Type_Decl;
+                       Get_Root_Type (Node);
       NS           : constant String := Name_Space (Node);
       T_Def        : constant Type_Def := T_Decl.As_Type_Decl.F_Type_Def;
 
@@ -809,9 +812,12 @@ package body Ada2WSDL.Parser is
       Length       : out Natural)
    is
       function I (N : Long_Long_Integer) return String
-        is (AWS.Utils.Image (Positive (N)));
+        is (AWS.Utils.Image (Natural (N)));
    begin
-      if Lower /= Long_Long_Integer'Last then
+      if Lower /= 0
+        and then Upper /= 0
+        and then Lower /= Long_Long_Integer'Last
+      then
          Length := Natural (Upper - Lower + 1);
 
          Type_Suffix :=
@@ -920,8 +926,7 @@ package body Ada2WSDL.Parser is
             if Top_Decl then
                return No_Bin_Op;
             else
-               return Get_Range_Expr
-                 (Node.P_Designated_Type_Decl.As_Type_Decl);
+               return Get_Range_Expr (Node.P_Designated_Type_Decl);
             end if;
 
          else
@@ -1011,6 +1016,20 @@ package body Ada2WSDL.Parser is
             return No_Bin_Op;
       end case;
    end Get_Range_Expr;
+
+   -------------------
+   -- Get_Root_Type --
+   -------------------
+
+   function Get_Root_Type (Node : Subtype_Decl'Class) return Base_Type_Decl is
+      T : constant Base_Type_Decl := Node.F_Subtype.P_Designated_Type_Decl;
+   begin
+      if T.Kind = Ada_Subtype_Decl then
+         return Get_Root_Type (T.As_Subtype_Decl);
+      else
+         return T;
+      end if;
+   end Get_Root_Type;
 
    ---------------------------
    -- Get_Safe_Pointer_Type --
