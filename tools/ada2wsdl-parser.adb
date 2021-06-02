@@ -1,7 +1,7 @@
 ----------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2003-2020, AdaCore                     --
+--                     Copyright (C) 2003-2021, AdaCore                     --
 --                                                                          --
 --  This is free software;  you can redistribute it  and/or modify it       --
 --  under terms of the  GNU General Public License as published  by the     --
@@ -264,9 +264,9 @@ package body Ada2WSDL.Parser is
          end if;
       end Type_Range_G;
 
-      ---------------------
-      -- Compute_Value_G --
-      ---------------------
+      -------------
+      -- Value_G --
+      -------------
 
       function Value_G (Node : Expr) return T is
          Result : T := Zero;
