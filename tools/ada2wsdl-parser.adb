@@ -645,6 +645,14 @@ package body Ada2WSDL.Parser is
                        C_Def.F_Type_Expr.P_Designated_Type_Decl;
             T_Name : Unbounded_String;
          begin
+            if Node.Kind = Ada_Anonymous_Type_Decl
+              or else C_Def.F_Type_Expr.Kind = Ada_Anonymous_Type
+            then
+               Raise_Spec_Error
+                 (C_Def,
+                  Message => "anonymous access type unsupported in WSDL");
+            end if;
+
             --  Append the type of the field into the list of deferred type
             --  to analyse later if needed. Indeed if this type is only used
             --  into the record and is defined into a separate package we
@@ -1851,6 +1859,11 @@ package body Ada2WSDL.Parser is
 
          when Ada_Mod_Int_Type_Def =>
             return Build_Modular (Node);
+
+         when Ada_Type_Access_Def =>
+            Raise_Spec_Error
+              (Node,
+               Message => "access type " & Name & " unsupported in WSDL");
 
          when others =>
             Raise_Spec_Error

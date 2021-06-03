@@ -1,0 +1,6 @@
+
+ERROR:root:   - record          List
+ada2wsdl: at1.ads:21:4: access type IA unsupported in WSDL
+ERROR:root:   - record          Sample16
+              - record          Sample16_List
+ada2wsdl: at2.ads:26:17: anonymous access type unsupported in WSDL
