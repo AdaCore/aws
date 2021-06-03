@@ -327,6 +327,25 @@ package body Ada2WSDL.Parser is
             when Ada_Int_Literal | Ada_Real_Literal =>
                Result := Value (Img (Node));
 
+            when Ada_Identifier =>
+               declare
+                  R : constant Basic_Decl :=
+                        Node.As_Identifier.P_Referenced_Decl;
+               begin
+                  case R.Kind is
+                     when Ada_Number_Decl =>
+                        --  For : N : constant := 9;
+                        return Value_G (R.As_Number_Decl.F_Expr);
+
+                     when Ada_Object_Decl =>
+                        --  For : N : [constant] Integer := 1;
+                        return Value_G (R.As_Object_Decl.F_Default_Expr);
+
+                     when others =>
+                        null;
+                  end case;
+               end;
+
             when Ada_Attribute_Ref =>
                --  Handle 'First and 'Last only to get a range expressed
                --  using Integer'First for example.

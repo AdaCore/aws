@@ -1,0 +1,8 @@
+   - enumeration     Boolean
+        False
+        True
+   - array (5)       T1 of boolean (xsd:boolean)
+   - array (3)       T2 of Integer (xsd:int)
+   - array (13)      T3 of Float (xsd:float)
+
+WSDL document demo.wsdl is created for demo.ads.
