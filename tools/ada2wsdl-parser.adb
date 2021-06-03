@@ -789,6 +789,7 @@ package body Ada2WSDL.Parser is
             when Ada_Signed_Int_Type_Def
                | Ada_Floating_Point_Def
                | Ada_Mod_Int_Type_Def
+               | Ada_Ordinary_Fixed_Point_Def
                =>
                Analyze_Numeric (T_Def);
 
@@ -980,7 +981,12 @@ package body Ada2WSDL.Parser is
                      return Get_Range_Op (D.As_Signed_Int_Type_Def.F_Range);
 
                   when Ada_Real_Type_Def =>
-                     return Get_Range_Op (D.As_Floating_Point_Def.F_Range);
+                     if D.Kind = Ada_Ordinary_Fixed_Point_Def then
+                        return Get_Range_Op
+                                 (D.As_Ordinary_Fixed_Point_Def.F_Range);
+                     else
+                        return Get_Range_Op (D.As_Floating_Point_Def.F_Range);
+                     end if;
 
                   when Ada_Derived_Type_Def =>
                      declare
@@ -1544,12 +1550,49 @@ package body Ada2WSDL.Parser is
       function Build_Fixed_Point
         (Node : Base_Type_Decl) return Generator.Type_Data
       is
-         T_Name : constant String := Characters.Handling.To_Lower (Name);
+         T_Def    : constant Ordinary_Fixed_Point_Def :=
+                      Node.As_Type_Decl.F_Type_Def.As_Ordinary_Fixed_Point_Def;
+         T_Name   : constant String := Characters.Handling.To_Lower (Name);
+         Ilb, Iub : Long_Float;
       begin
+         Get_Range (Node, Ilb, Iub);
          if T_Name = "duration" then
             return Build_Type ("duration");
+         elsif Base then
+            if Ilb = Long_Float (Float'First)
+              and then Iub = Long_Float (Float'Last)
+            then
+               return Build_Type_F ("float");
+
+            elsif Ilb = Long_Float'First and then Iub = Long_Float'Last then
+               return Build_Type_F ("long_float");
+
+            elsif Ilb >=  Long_Float (Float'First)
+              and then Iub <= Long_Float (Float'Last)
+            then
+               return Build_Type_F
+                 ("float", First => Ilb, Last => Iub);
+
+            else
+               return Build_Type_F
+                 ("long_float", First => Ilb, Last => Iub);
+            end if;
+
          else
-            return Register_Deferred (Node);
+            declare
+               NS      : constant String := Name_Space (Decl);
+               NS_Type : constant String := Name_Space (T_Def);
+            begin
+               --  If the type is not un the current package (so in
+               --  different name space). We need to analyse it later
+               --  so, we do register a differred analysis for this type.
+
+               if NS = NS_Type then
+                  return Build_Type_F (Name, NS);
+               else
+                  return Register_Deferred_F (Node, Ilb, Iub);
+               end if;
+            end;
          end if;
       end Build_Fixed_Point;
 
