@@ -189,6 +189,8 @@ package body Ada2WSDL.Parser is
          with function "+" (Left, Right : T) return T is <>;
          with function "-" (Left, Right : T) return T is <>;
          with function "**" (Left, Right : T) return T is <>;
+         with function "*" (Left, Right : T) return T is <>;
+         with function "/" (Left, Right : T) return T is <>;
       function Value_G (Node : Expr) return T;
       --  Compute the value for expression Node
 
@@ -290,6 +292,12 @@ package body Ada2WSDL.Parser is
 
                      when Ada_Op_Pow =>
                         Result := Left ** Right;
+
+                     when Ada_Op_Div =>
+                        Result := Left / Right;
+
+                     when Ada_Op_Mult =>
+                        Result := Left * Right;
 
                      when others =>
                         null;
