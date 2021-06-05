@@ -344,6 +344,7 @@ package body AWS.Server is
 
             if Socket.Is_Secure
               and then Net.SSL.Socket_Type (Socket.all).ALPN_Get = "h2"
+              and then CNF.HTTP2_Activated (TA.Server.Config)
             then
                --  Protocol is secure H2
                AWS.Status.Set.Protocol (TA.Stat, AWS.Status.H2);

@@ -424,9 +424,12 @@ package body AWS.Server.HTTP_Utils is
 
                   HTTP_Server.Dispatcher_Sem.Release_Read;
 
-                  --  Switching protocol if needed
+                  --  Switching protocol if needed and server has HTTP/2
+                  --  activated.
 
-                  if Status.Protocol (C_Stat) = Status.Upgrade_To_H2C then
+                  if Status.Protocol (C_Stat) = Status.Upgrade_To_H2C
+                    and then AWS.Config.HTTP2_Activated (HTTP_Server.Config)
+                  then
                      Response.Set.Status_Code (Answer, Messages.S101);
 
                      Response.Set.Add_Header

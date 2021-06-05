@@ -264,7 +264,9 @@ begin
          Answer_To_Client
            (LA.Server.all, LA.Line, LA.Stat, Socket_Taken, Will_Close);
 
-         if AWS.Status.Protocol (LA.Stat) = AWS.Status.Upgrade_To_H2C then
+         if AWS.Status.Protocol (LA.Stat) = AWS.Status.Upgrade_To_H2C
+           and then CNF.HTTP2_Activated (LA.Server.Config)
+         then
             AWS.Status.Set.Protocol (LA.Stat, AWS.Status.H2C);
 
             Protocol_Handler_V2 (LA);
