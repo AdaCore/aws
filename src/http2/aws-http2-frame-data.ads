@@ -82,9 +82,16 @@ private
    --  |                           Padding (*)                       ...
    --  +---------------------------------------------------------------+
 
-   type Payload_View (Flat : Boolean := False) is record
+   type Data_View (With_Padding : Boolean := True) is record
+      case With_Padding is
+         when True  => Pad_Length : Padding;
+         when False => null;
+      end case;
+   end record with Unchecked_Union;
+
+   type Payload_View (Flat : Boolean := True) is record
       case Flat is
-         when False => P : Padding;
+         when False => D : not null access Data_View;
          when True =>  S : Utils.Stream_Element_Array_Access;
       end case;
    end record with Unchecked_Union;

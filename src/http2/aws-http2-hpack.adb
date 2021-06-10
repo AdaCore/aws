@@ -220,7 +220,7 @@ package body AWS.HTTP2.HPACK is
       Idx : Stream_Element_Offset;
 
    begin
-      loop
+      while not End_Of_Stream loop
          Byte := Get_Byte;
 
          if Bit.B0 = 1 then
@@ -330,8 +330,6 @@ package body AWS.HTTP2.HPACK is
          end if;
 
          Table.Dump;
-
-         exit when End_Of_Stream;
       end loop;
 
       return Headers;

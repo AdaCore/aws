@@ -32,6 +32,9 @@ with AWS.Net.Buffered;
 
 package body AWS.HTTP2.Frame.Headers is
 
+   function Get_Headers_Offset (Self : Object) return Stream_Element_Offset;
+   --  Get offset of header data (skipping padding & prio if defined)
+
    ------------
    -- Create --
    ------------
@@ -63,13 +66,13 @@ package body AWS.HTTP2.Frame.Headers is
    ---------
 
    function Get
-     (Self  : Object;
-      Table : not null access HTTP2.HPACK.Table.Object;
-      Settings    : not null access HTTP2.Connection.Object)
+     (Self     : Object;
+      Table    : not null access HTTP2.HPACK.Table.Object;
+      Settings : not null access HTTP2.Connection.Object)
       return AWS.Headers.List
    is
 
-      I          : Stream_Element_Offset := Self.Data.S'First;
+      I          : Stream_Element_Offset := Self.Get_Headers_Offset;
       Pad_Length : Length_Type := 0;
 
       function End_Of_Stream return Boolean;
@@ -96,18 +99,31 @@ package body AWS.HTTP2.Frame.Headers is
 
    begin
       if Self.Has_Flag (Padded_Flag) then
-         --  Skip first byte which is the padding length
-         I := I + Self.Data.Pad'Size / 8;
-         Pad_Length := Length_Type (Self.Data.Pad.Pad_Length);
-      end if;
-
-      if Self.Has_Flag (Priority_Flag) then
-         --  Skip the priority data
-         I := I + Self.Data.Prio'Size / 8;
+         Pad_Length := Length_Type (Self.Data.D.Pad_Length);
       end if;
 
       return Get_Headers (Table, Settings);
    end Get;
+
+   ------------------------
+   -- Get_Headers_Offset --
+   ------------------------
+
+   function Get_Headers_Offset (Self : Object) return Stream_Element_Offset is
+      Off : Stream_Element_Offset := Self.Data.S'First;
+   begin
+      if Self.Has_Flag (Padded_Flag) then
+         --  Skip first byte which is the padding length
+         Off := Off + Self.Data.D.Pad_Length'Size / 8;
+      end if;
+
+      if Self.Has_Flag (Priority_Flag) then
+         --  Skip the priority data
+         Off := Off + Self.Data.D.Prio'Size / 8;
+      end if;
+
+      return Off;
+   end Get_Headers_Offset;
 
    ----------
    -- Read --
@@ -153,7 +169,11 @@ package body AWS.HTTP2.Frame.Headers is
 
    overriding function Validate (Self : Object) return Error_Codes is
    begin
-      if Self.Header.H.Stream_Id = 0 then
+      if Self.Header.H.Stream_Id = 0
+           or else
+        (Self.Has_Flag (Padded_Flag)
+         and then Length_Type (Self.Get_Headers_Offset) > Self.Header.H.Length)
+      then
          return C_Protocol_Error;
       else
          return C_No_Error;
