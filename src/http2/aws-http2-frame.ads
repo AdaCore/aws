@@ -204,15 +204,7 @@ private
 
    --  Shared payload object in Data and Headers
 
-   type Padding is record
-      Pad_Length : Byte_1;
-   end record;
-
-   for Padding'Bit_Order use System.High_Order_First;
-   for Padding'Scalar_Storage_Order use System.High_Order_First;
-   for Padding use record
-      Pad_Length at 0 range 0 .. 7;
-   end record;
+   type Padding is new Byte_1 with Size => 8;
 
    function Is_Defined (Self : Object) return Boolean is
      (Self.Counter /= null);

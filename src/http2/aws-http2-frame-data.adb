@@ -76,8 +76,8 @@ package body AWS.HTTP2.Frame.Data is
       --  If we have a padded flag, remove the padding from the payload
 
       if Self.Has_Flag (Padded_Flag) then
-         First := First + Self.Data.P.Pad_Length'Size / 8;
-         Last  := Last - Stream_Element_Offset (Self.Data.P.Pad_Length);
+         First := First + Self.Data.D.Pad_Length'Size / 8;
+         Last  := Last - Stream_Element_Offset (Self.Data.D.Pad_Length);
       end if;
 
       return Translator.To_Unbounded_String (Self.Data.S (First .. Last));

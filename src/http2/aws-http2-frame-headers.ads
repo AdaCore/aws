@@ -55,7 +55,7 @@ package AWS.HTTP2.Frame.Headers is
    --  Create an HEADERS frame with given content and stream id
 
    function Get_Priority (Self : Object) return HTTP2.Frame.Priority.Payload
-     with Pre => Self.Is_Defined;
+     with Pre => Self.Is_Defined and then Self.Has_Flag (Priority_Flag);
    --  Return priority frame payload
 
    function Get
@@ -88,18 +88,25 @@ private
    --  |                           Padding (*)                       ...
    --  +---------------------------------------------------------------+
 
-   type View_Kind is (Flat, Pad, Prio, Pad_Prio);
+   type Data_View_Kind is (Pad, Prio, Pad_Prio);
+
+   type Data_View (Kind : Data_View_Kind := Pad) is record
+      case Kind is
+         when Pad      => Pad_Length    : Padding;
+
+         when Prio     => Prio          : Frame.Priority.Payload;
+
+         when Pad_Prio => PP_Pad_Length : Padding;
+                          PP_Prio       : Frame.Priority.Payload;
+      end case;
+   end record with Unchecked_Union;
+
+   type View_Kind is (Flat, Data);
 
    type Payload_View (Kind : View_Kind := Flat) is record
       case Kind is
-         when Pad      => Pad     : Padding;
-
-         when Prio     => Prio    : Frame.Priority.Payload;
-
-         when Pad_Prio => PP_Pad  : Padding;
-                          PP_Prio : Frame.Priority.Payload;
-
-         when Flat    => S        : Utils.Stream_Element_Array_Access;
+         when Data => D : not null access Data_View;
+         when Flat => S : Utils.Stream_Element_Array_Access;
       end case;
    end record with Unchecked_Union;
 
@@ -110,6 +117,8 @@ private
    overriding procedure Release (Self : in out Object);
 
    function Get_Priority (Self : Object) return HTTP2.Frame.Priority.Payload is
-     (Self.Data.Prio);
+     (if Self.Has_Flag (Padded_Flag)
+      then Self.Data.D.PP_Prio
+      else Self.Data.D.Prio);
 
 end AWS.HTTP2.Frame.Headers;

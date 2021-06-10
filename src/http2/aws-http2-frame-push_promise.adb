@@ -106,7 +106,7 @@ package body AWS.HTTP2.Frame.Push_Promise is
       if Self.Has_Flag (Padded_Flag) then
          --  Skip first byte which is the padding length
          I := I + Self.Data.Pad'Size / 8;
-         Pad_Length := Length_Type (Self.Data.Pad.Pad_Length);
+         Pad_Length := Length_Type (Self.Data.Pad);
       end if;
 
       --  Skip promise stream id
