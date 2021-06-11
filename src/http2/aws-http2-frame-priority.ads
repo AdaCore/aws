@@ -90,9 +90,9 @@ private
    for Payload'Bit_Order use System.High_Order_First;
    for Payload'Scalar_Storage_Order use System.High_Order_First;
    for Payload use record
-      E                 at 0 range 31 .. 31;
-      Stream_Dependency at 0 range  0 .. 30;
-      Weight            at 4 range  0 ..  7;
+      E                 at 0 range 0 .. 0;
+      Stream_Dependency at 0 range 1 .. 31;
+      Weight            at 4 range 0 ..  7;
    end record;
 
    type Payload_View (Flat : Boolean := False) is record
