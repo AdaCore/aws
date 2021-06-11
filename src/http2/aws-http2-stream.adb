@@ -27,9 +27,12 @@
 --  covered by the  GNU Public License.                                     --
 ------------------------------------------------------------------------------
 
+with Ada.Streams;
 with Ada.Strings.Unbounded;
 
 with AWS.Headers;
+with AWS.HTTP2.HPACK;
+with AWS.HTTP2.Frame.Continuation;
 with AWS.HTTP2.Frame.Data;
 with AWS.HTTP2.Frame.Headers;
 with AWS.HTTP2.Frame.Window_Update;
@@ -77,15 +80,111 @@ package body AWS.HTTP2.Stream is
      (Self : Object;
       Ctx  : in out Server.Context.Object) return HTTP2.Message.Object
    is
+      use Ada.Streams;
+
+      L : Frame.List.Object;
+      --  Record all frames for a full header definition (last frame must have
+      --  the end of hedaer flag set).
+
+      function Parse_Header return AWS.Headers.List;
+      --  Parse headers & continuation frames
+
+      ------------------
+      -- Parse_Header --
+      ------------------
+
+      function Parse_Header return AWS.Headers.List is
+
+         I      : Stream_Element_Offset := 1; -- Current header data index
+         EOH    : Boolean := False;           -- End Of Headers
+         Length : Stream_Element_Count := 0;  -- Current header content length
+
+         function End_Of_Stream return Boolean;
+
+         function Next return Stream_Element;
+         --  Get next element from current frame
+
+         function End_Of_Stream return Boolean is (EOH);
+         --  Returns true if end of headers found
+
+         procedure Next_Frame with Inline;
+         --  Move to next frame if available, set EOS otherwise
+
+         ----------
+         -- Next --
+         ----------
+
+         function Next return Stream_Element is
+            F : constant Frame.Object'Class := L.First_Element;
+            E : Stream_Element;
+         begin
+            if Length = 0 then
+               if F.Kind = K_Headers then
+                  Length := Frame.Headers.Object (F).Content_Length;
+               else
+                  Length := Frame.Continuation.Object (F).Content_Length;
+               end if;
+            end if;
+
+            if F.Kind = K_Headers then
+               E := Frame.Headers.Object (F).Get (I);
+            else
+               E := Frame.Continuation.Object (F).Get (I);
+            end if;
+
+            I := I + 1;
+
+            if I > Length then
+               Next_Frame;
+            end if;
+
+            return E;
+         end Next;
+
+         ----------------
+         -- Next_Frame --
+         ----------------
+
+         procedure Next_Frame is
+         begin
+            L.Delete_First;
+
+            if L.Is_Empty then
+               EOH := True;
+            else
+               Length := 0;
+            end if;
+
+            I := 1;
+         end Next_Frame;
+
+         function Get_Headers is new AWS.HTTP2.HPACK.Decode
+           (End_Of_Stream => End_Of_Stream,
+            Get_Byte      => Next);
+
+      begin
+         return Get_Headers (Ctx.Table, Ctx.Settings);
+      end Parse_Header;
+
       H       : Headers.List;
       Payload : Unbounded_String;
+
    begin
       for F of Self.Frames loop
          case F.Kind is
             when K_Headers =>
-               H := H.Union
-                      (Frame.Headers.Object (F).Get (Ctx.Table, Ctx.Settings),
-                       Unique => True);
+               L.Append (F);
+
+               if F.Has_Flag (Frame.End_Headers_Flag) then
+                  H := H.Union (Parse_Header, Unique => True);
+               end if;
+
+            when K_Continuation =>
+               L.Append (F);
+
+               if F.Has_Flag (Frame.End_Headers_Flag) then
+                  H := H.Union (Parse_Header, Unique => True);
+               end if;
 
             when K_Data =>
                Payload := Frame.Data.Object (F).Payload;
@@ -244,8 +343,21 @@ package body AWS.HTTP2.Stream is
 
             Self.Is_Ready := Self.State /= Idle
               and then (Frame.Kind = K_Data
-                        or else (Frame.Kind = K_Headers
-                                 and then (End_Stream or else End_Header)));
+                        or else (Frame.Kind = K_Headers and then End_Header));
+
+         when K_Continuation =>
+            --  A continuation frame is only valid if following an header,
+            --  push_promise or continuation frame.
+
+            if Self.Frames.Last_Element.Kind
+              not in K_Headers | K_Continuation | K_Push_Promise
+            then
+               raise Program_Error with "unexpected continuation frame";
+            end if;
+
+            Self.Frames.Append (Frame);
+
+            Self.Is_Ready := Self.State /= Idle and then End_Header;
 
          when others =>
             null;
