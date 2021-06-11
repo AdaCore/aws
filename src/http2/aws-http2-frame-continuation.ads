@@ -52,6 +52,15 @@ package AWS.HTTP2.Frame.Continuation is
 
    overriding function Validate (Self : Object) return Error_Codes;
 
+   --  Iterator interface
+
+   function Content_Length
+     (Self : Object) return Stream_Element_Count;
+
+   function Get
+     (Self  : Object;
+      Index : Stream_Element_Offset) return Stream_Element;
+
 private
 
    --  RFC-7540 6.10

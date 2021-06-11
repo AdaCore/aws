@@ -35,6 +35,19 @@ package body AWS.HTTP2.Frame.Headers is
    function Get_Headers_Offset (Self : Object) return Stream_Element_Offset;
    --  Get offset of header data (skipping padding & prio if defined)
 
+   --------------------
+   -- Content_Length --
+   --------------------
+
+   function Content_Length (Self : Object) return Stream_Element_Count is
+   begin
+      return Self.Data.S'Length
+        - Get_Headers_Offset (Self)
+        - (if Self.Has_Flag (Padded_Flag)
+           then Stream_Element_Count (Self.Data.D.Pad_Length)
+           else 0);
+   end Content_Length;
+
    ------------
    -- Create --
    ------------
@@ -66,43 +79,11 @@ package body AWS.HTTP2.Frame.Headers is
    ---------
 
    function Get
-     (Self     : Object;
-      Table    : not null access HTTP2.HPACK.Table.Object;
-      Settings : not null access HTTP2.Connection.Object)
-      return AWS.Headers.List
-   is
-
-      I          : Stream_Element_Offset := Self.Get_Headers_Offset;
-      Pad_Length : Length_Type := 0;
-
-      function End_Of_Stream return Boolean;
-
-      function Next return Stream_Element;
-
-      function End_Of_Stream return Boolean is
-        (Length_Type (I) > Self.Header.H.Length - Pad_Length);
-
-      ----------
-      -- Next --
-      ----------
-
-      function Next return Stream_Element is
-         E : constant Stream_Element := Self.Data.S (I);
-      begin
-         I := I + 1;
-         return E;
-      end Next;
-
-      function Get_Headers is new AWS.HTTP2.HPACK.Decode
-        (End_Of_Stream => End_Of_Stream,
-         Get_Byte      => Next);
-
+     (Self  : Object;
+      Index : Stream_Element_Offset) return Stream_Element is
    begin
-      if Self.Has_Flag (Padded_Flag) then
-         Pad_Length := Length_Type (Self.Data.D.Pad_Length);
-      end if;
-
-      return Get_Headers (Table, Settings);
+      return Self.Data.S
+        (Get_Headers_Offset (Self) + Self.Data.S'First - 1 + Index);
    end Get;
 
    ------------------------
@@ -110,7 +91,7 @@ package body AWS.HTTP2.Frame.Headers is
    ------------------------
 
    function Get_Headers_Offset (Self : Object) return Stream_Element_Offset is
-      Off : Stream_Element_Offset := Self.Data.S'First;
+      Off : Stream_Element_Offset := 0;
    begin
       if Self.Has_Flag (Padded_Flag) then
          --  Skip first byte which is the padding length
@@ -168,11 +149,12 @@ package body AWS.HTTP2.Frame.Headers is
    --------------
 
    overriding function Validate (Self : Object) return Error_Codes is
+      Off : constant Length_Type := Length_Type (Get_Headers_Offset (Self));
    begin
       if Self.Header.H.Stream_Id = 0
            or else
         (Self.Has_Flag (Padded_Flag)
-         and then Length_Type (Self.Get_Headers_Offset) > Self.Header.H.Length)
+         and then Off + 1 > Self.Header.H.Length)
       then
          return C_Protocol_Error;
       else

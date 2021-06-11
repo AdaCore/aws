@@ -32,6 +32,16 @@ with AWS.Net.Buffered;
 
 package body AWS.HTTP2.Frame.Continuation is
 
+   --------------------
+   -- Content_Length --
+   --------------------
+
+   function Content_Length
+     (Self : Object) return Stream_Element_Count is
+   begin
+      return Self.Data.S'Length;
+   end Content_Length;
+
    ------------
    -- Create --
    ------------
@@ -56,6 +66,17 @@ package body AWS.HTTP2.Frame.Continuation is
          O.Header.H.Flags     := (if End_Headers then End_Headers_Flag else 0);
       end return;
    end Create;
+
+   ---------
+   -- Get --
+   ---------
+
+   function Get
+     (Self  : Object;
+      Index : Stream_Element_Offset) return Stream_Element is
+   begin
+      return Self.Data.S (Self.Data.S'First - 1 + Index);
+   end Get;
 
    ----------
    -- Read --

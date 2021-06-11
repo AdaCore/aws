@@ -30,7 +30,6 @@
 with AWS.Headers;
 with AWS.HTTP2.Connection;
 with AWS.HTTP2.HPACK.Table;
-
 with AWS.HTTP2.Frame.Priority;
 
 private with AWS.Utils;
@@ -58,19 +57,20 @@ package AWS.HTTP2.Frame.Headers is
      with Pre => Self.Is_Defined and then Self.Has_Flag (Priority_Flag);
    --  Return priority frame payload
 
-   function Get
-     (Self     : Object;
-      Table    : not null access HTTP2.HPACK.Table.Object;
-      Settings : not null access HTTP2.Connection.Object)
-      return AWS.Headers.List;
-   --  Get the header list out of the HEADERS frame. This reads the content of
-   --  the payload and decode using HPACK.
-
    overriding procedure Send_Payload
      (Self : Object; Sock : Net.Socket_Type'Class);
    --  Send payload content
 
    overriding function Validate (Self : Object) return Error_Codes;
+
+   --  Iterator interface
+
+   function Content_Length
+     (Self : Object) return Stream_Element_Count;
+
+   function Get
+     (Self  : Object;
+      Index : Stream_Element_Offset) return Stream_Element;
 
 private
 
