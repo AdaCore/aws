@@ -81,8 +81,8 @@ private
    for Payload'Bit_Order use System.High_Order_First;
    for Payload'Scalar_Storage_Order use System.High_Order_First;
    for Payload use record
-      R              at 0 range 31 .. 31;
-      Size_Increment at 0 range  0 .. 30;
+      R              at 0 range 0 .. 0;
+      Size_Increment at 0 range 1 .. 31;
    end record;
 
    type Payload_View (Flat : Boolean := False) is record
