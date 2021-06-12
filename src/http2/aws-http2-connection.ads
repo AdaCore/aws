@@ -47,9 +47,20 @@ package AWS.HTTP2.Connection is
    --  Record the setting from window update frame
 
    function Header_Table_Size (Self : Object) return Natural;
+   --  The current header table size. Set above as part of initial settings
+   --  handshake.
+
+   function Dynamic_Header_Table_Size (Self : Object) return Natural;
+   --  The dynmaic table size, can be set while parsing HPACK with Dynamic
+   --  Table Size Update block. Default to header table size.
+
+   procedure Set_Dynamic_Header_Table_Size
+     (Self : in out Object; Size : Natural);
+   --  Set the dynmaic table size, can be set while parsing HPACK with Dynamic
+   --  Table Size Update block. Default to header table size.
 
    function Enable_Push (Self : Object) return Boolean;
-   --  Wether the push is supported
+   --  Whether the push is supported
 
    function Max_Concurrent_Streams (Self : Object) return Natural;
    --  The maximum number of stream opened simultaneously
@@ -65,7 +76,7 @@ package AWS.HTTP2.Connection is
 
    function Window_Size_Increment
      (Self : Object) return Frame.Window_Update.Size_Increment_Type;
-   --   Size increment to add to the current initial window size
+   --  Size increment to add to the current initial window size
 
 private
 
@@ -82,31 +93,36 @@ private
                        S.MAX_HEADER_LIST_SIZE   => 1_048_576);
 
    type Object is tagged record
-      Values                : Settings_Set := Default_Values;
-      Window_Size_Increment : Frame.Window_Update.Size_Increment_Type := 0;
+      Values                    : Settings_Set := Default_Values;
+      Window_Size_Increment     : Frame.Window_Update.Size_Increment_Type := 0;
+      Dynamic_Header_Table_Size : Natural :=
+                                    Default_Values (S.HEADER_TABLE_SIZE);
    end record;
 
    function Header_Table_Size (Self : Object) return Natural is
-     (Self.Values (Frame.Settings.HEADER_TABLE_SIZE));
+     (Self.Values (S.HEADER_TABLE_SIZE));
 
    function Enable_Push (Self : Object) return Boolean is
-     (if Self.Values (Frame.Settings.ENABLE_PUSH) = 0 then False else True);
+     (if Self.Values (S.ENABLE_PUSH) = 0 then False else True);
 
    function Max_Concurrent_Streams (Self : Object) return Natural is
-     (Self.Values (Frame.Settings.MAX_CONCURRENT_STREAMS));
+     (Self.Values (S.MAX_CONCURRENT_STREAMS));
 
    function Initial_Window_Size (Self : Object) return Natural is
-     (Self.Values (Frame.Settings.INITIAL_WINDOW_SIZE));
+     (Self.Values (S.INITIAL_WINDOW_SIZE));
 
    function Max_Frame_Size (Self : Object) return Natural is
-     (Self.Values (Frame.Settings.MAX_FRAME_SIZE));
+     (Self.Values (S.MAX_FRAME_SIZE));
 
    function Max_Header_List_Size (Self : Object) return Natural is
-     (Self.Values (Frame.Settings.MAX_HEADER_LIST_SIZE));
+     (Self.Values (S.MAX_HEADER_LIST_SIZE));
 
    function Window_Size_Increment
      (Self : Object)
       return Frame.Window_Update.Size_Increment_Type
    is (Self.Window_Size_Increment);
+
+   function Dynamic_Header_Table_Size (Self : Object) return Natural is
+     (Self.Dynamic_Header_Table_Size);
 
 end AWS.HTTP2.Connection;

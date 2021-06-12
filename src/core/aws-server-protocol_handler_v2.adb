@@ -535,14 +535,22 @@ begin
                      HTTP2.Stream.Create (Sock_Ptr,  Stream_Id));
                end if;
 
-               S (Stream_Id).Received_Frame (Frame);
+               begin
+                  S (Stream_Id).Received_Frame (Frame);
 
-               Put_Line
-                 ("S " & Stream_Id'Img & " - " & S (Stream_Id).State'Img);
+                  Put_Line
+                    ("S " & Stream_Id'Img & " - " & S (Stream_Id).State'Img);
 
-               if S (Stream_Id).Is_Message_Ready then
-                  Handle_Message (S (Stream_Id));
-               end if;
+                  if S (Stream_Id).Is_Message_Ready then
+                     Handle_Message (S (Stream_Id));
+                  end if;
+               exception
+                  when HTTP2.Protocol_Error =>
+                     HTTP2.Frame.GoAway.Create
+                       (Stream_Id => Frame.Stream_Id,
+                        Error     =>
+                           HTTP2.C_Protocol_Error).Send (Sock_Ptr.all);
+               end;
             end if;
          end;
 
