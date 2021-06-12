@@ -47,6 +47,9 @@ package AWS.HTTP2 with Pure is
       C_Enhance_Your_CALM, C_Inadequate_Security, C_HTTP_1_1_Required);
    --  Error codes that are used in RST_Stream and GoAway frames
 
+   Debug : constant Boolean := True;
+   --  Activate some debug output for HTTP/2 protocol
+
 private
 
    for Error_Codes use (C_No_Error            => 16#0#,
