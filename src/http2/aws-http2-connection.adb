@@ -40,6 +40,8 @@ package body AWS.HTTP2.Connection is
       for V of Values loop
          Self.Values (V.Id) := Natural (V.Value);
       end loop;
+
+      Self.Dynamic_Header_Table_Size := Self.Values (S.HEADER_TABLE_SIZE);
    end Set;
 
    procedure Set
@@ -48,5 +50,15 @@ package body AWS.HTTP2.Connection is
    begin
       Self.Window_Size_Increment := Window_Size_Increment;
    end Set;
+
+   ---------------------------
+   -- Set_Header_Table_Size --
+   ---------------------------
+
+   procedure Set_Dynamic_Header_Table_Size
+     (Self : in out Object; Size : Natural) is
+   begin
+      Self.Dynamic_Header_Table_Size := Size;
+   end Set_Dynamic_Header_Table_Size;
 
 end AWS.HTTP2.Connection;

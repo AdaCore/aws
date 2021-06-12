@@ -249,7 +249,7 @@ package body AWS.HTTP2.HPACK.Table is
 
       Clean_Up : declare
          Max_Header_List_Size : constant Integer :=
-                                  Settings.Header_Table_Size;
+                                  Settings.Dynamic_Header_Table_Size;
       begin
          while Self.Dynamic.Size > Max_Header_List_Size loop
             declare

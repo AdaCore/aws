@@ -29,6 +29,7 @@
 
 with Interfaces;
 
+with AWS.HTTP2.Connection;
 with AWS.HTTP2.HPACK.Huffman;
 with AWS.HTTP2.HPACK.Table;
 with AWS.Translator;
@@ -38,10 +39,11 @@ package body AWS.HTTP2.HPACK is
 
    subtype Bit1 is Stream_Element range 0 .. 1;
    subtype Bit2 is Stream_Element range 0 .. 3;
+   subtype Bit3 is Stream_Element range 0 .. 7;
    subtype Bit4 is Stream_Element range 0 .. 15;
    subtype Bit8 is Stream_Element range 0 .. 255;
 
-   type Group_Size is (G1, G2, G4);
+   type Group_Size is (G1, G2, G3, G4);
 
    type RFC_Byte (Group : Group_Size := Group_Size'First) is record
       case Group is
@@ -60,6 +62,9 @@ package body AWS.HTTP2.HPACK is
             B21 : Bit2;
             B22 : Bit2;
             B23 : Bit2;
+
+         when G3 =>
+            B30 : Bit3;
 
          when G4 =>
             B40 : Bit4;
@@ -82,6 +87,8 @@ package body AWS.HTTP2.HPACK is
       B22 at 0 range 2 .. 3;
       B23 at 0 range 0 .. 1;
       --
+      B30 at 0 range 5 .. 7;
+      --
       B40 at 0 range 4 .. 7;
       B41 at 0 range 0 .. 3;
    end record;
@@ -95,6 +102,8 @@ package body AWS.HTTP2.HPACK is
    B_No_Indexing : constant Bit4 := 0;
    --  No Indexing
 
+   B_Dyn_Table   : constant Bit3 := 2#001#;
+
    ------------
    -- Decode --
    ------------
@@ -107,6 +116,7 @@ package body AWS.HTTP2.HPACK is
       Byte : Bit8;
       Bit  : RFC_Byte (G1) with Address => Byte'Address;
       BG2  : RFC_Byte (G2) with Address => Byte'Address;
+      BG3  : RFC_Byte (G3) with Address => Byte'Address;
       BG4  : RFC_Byte (G4) with Address => Byte'Address;
 
       Headers : AWS.Headers.List;
@@ -158,10 +168,11 @@ package body AWS.HTTP2.HPACK is
          use type Interfaces.Unsigned_32;
 
          Mask              : constant Bit8 := 2 ** N - 1;
-         Continuation_Mask : constant Bit8 := 2#0111_1111#;
+         Continuation_Mask : constant Bit8 := 2#00111_1111#;
          Result            : Interfaces.Unsigned_32 := 0;
          B                 : Bit8 := Byte and Mask;
          K                 : Natural := 0;
+         Stop              : Boolean;
       begin
          Result := Interfaces.Unsigned_32 (B);
 
@@ -170,10 +181,12 @@ package body AWS.HTTP2.HPACK is
 
          if B = Mask then
             loop
-               B := Get_Byte and Continuation_Mask;
+               B := Get_Byte;
+               Stop := (B and 2#1000_0000#) = 0;
+               B := B and Continuation_Mask;
                Result := Result + (2 ** K) * Interfaces.Unsigned_32 (B);
                K := K + 7;
-               exit when (B and 2#1000_0000#) = 0;
+               exit when Stop;
             end loop;
          end if;
 
@@ -269,6 +282,23 @@ package body AWS.HTTP2.HPACK is
                AWS.Headers.Add (Headers, Name, Value);
             end;
 
+         elsif BG3.B30 = B_Dyn_Table then
+            --  Dynamic Table Size Update (RFC-7541 / 6.3)
+            --
+            --    0   1   2   3   4   5   6   7
+            --  +---+---+---+---+---+---+---+---+
+            --  | 0 | 0 | 1 |   Max size (5+)   |
+            --  +---+---------------------------+
+
+            Idx := Get_Integer (5);
+
+            if Natural (Idx) > Settings.Header_Table_Size then
+               --  This is a decoding error
+               raise Protocol_Error with "error dynamic table update";
+            else
+               Settings.Set_Dynamic_Header_Table_Size (Natural (Idx));
+            end if;
+
          elsif BG4.B40 = B_II_No_Indexing then
             --  Literal Header Field Never Indexed (RFC-7541 / 6.2.3)
             --
@@ -326,7 +356,7 @@ package body AWS.HTTP2.HPACK is
             end;
 
          else
-            raise Constraint_Error with "hpack unknown data";
+            raise Protocol_Error with "hpack unknown data : " & Byte'Img;
          end if;
 
          Table.Dump;
