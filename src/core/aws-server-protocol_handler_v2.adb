@@ -74,8 +74,6 @@ procedure Protocol_Handler_V2 (LA : in out Line_Attribute_Record) is
 
    use all type HTTP2.Frame.Kind_Type;
 
-   Answers : HTTP2.Frame.List.Object;
-
    procedure Handle_HTTP2_Settings;
    --  This handles the HTTP2-Settings header when doing an upgrade from HTTP/1
    --  to HTTP/2. The header name is HTTP2-Settings and the value is a base64
@@ -120,12 +118,15 @@ procedure Protocol_Handler_V2 (LA : in out Line_Attribute_Record) is
    --  to the client using this socket. The value will be changed by
    --  Set_Close_Status.
 
-   Free_Slots   : Natural := 0;
+   Free_Slots : Natural := 0;
 
-   Settings : aliased HTTP2.Connection.Object;
+   Settings   : aliased HTTP2.Connection.Object;
    --  Connection settings
 
-   H_Table  : aliased HTTP2.HPACK.Table.Object;
+   Answers    : HTTP2.Frame.List.Object;
+   --  Set of frames to be sent
+
+   H_Table    : aliased HTTP2.HPACK.Table.Object;
    --  ??? this table is create for a connection. we probably want to do better
    --  ??? and maybe set the pointer to this table into a frame object as it
    --  ??? is needed (and passed as parameter) for header & continuation
@@ -478,7 +479,9 @@ begin
 
                Answers.Delete_First;
 
-               Frame.Dump ("SEND");
+               if HTTP2.Debug then
+                  Frame.Dump ("SEND");
+               end if;
 
                if Stream_Id = 0 then
                   Frame.Send (Sock_Ptr.all);
@@ -499,9 +502,9 @@ begin
                           HTTP2.Frame.Read (Sock_Ptr.all);
             Stream_Id : constant HTTP2.Stream_Id := Frame.Stream_Id;
          begin
-            delay 0.5;
-
-            Frame.Dump ("GET");
+            if HTTP2.Debug then
+               Frame.Dump ("GET");
+            end if;
 
             --  if a GOAWAY frame is received we need to exit now. Then
             --  check if the frame is valid, if not we need to send back a
@@ -514,8 +517,6 @@ begin
 
             elsif Frame.Validate /= HTTP2.C_No_Error then
                --  Send a GOAWAY response right now
-
-               Put_Line ("FRAME ERROR: " & Frame.Validate'Img);
 
                HTTP2.Frame.GoAway.Create
                  (Stream_Id => Frame.Stream_Id,
@@ -537,9 +538,6 @@ begin
 
                begin
                   S (Stream_Id).Received_Frame (Frame);
-
-                  Put_Line
-                    ("S " & Stream_Id'Img & " - " & S (Stream_Id).State'Img);
 
                   if S (Stream_Id).Is_Message_Ready then
                      Handle_Message (S (Stream_Id));

@@ -359,7 +359,9 @@ package body AWS.HTTP2.HPACK is
             raise Protocol_Error with "hpack unknown data : " & Byte'Img;
          end if;
 
-         Table.Dump;
+         if HTTP2.Debug then
+            Table.Dump;
+         end if;
       end loop;
 
       return Headers;
