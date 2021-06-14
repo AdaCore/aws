@@ -49,10 +49,9 @@ package body AWS.HTTP2.Frame.GoAway is
          O.Data.S := new Stream_Element_Array
                            (1 .. Stream_Element_Offset (O.Header.H.Length));
 
-         O.Data.P := (R          => 0,
-                      Stream_Id  => Stream_Id,
-                      Error_Code => Error_Codes'Pos (Error),
-                      Debug_Data => null);
+         O.Data.P.all := (R          => 0,
+                          Stream_Id  => Stream_Id,
+                          Error_Code => Error_Codes'Pos (Error));
       end return;
    end Create;
 

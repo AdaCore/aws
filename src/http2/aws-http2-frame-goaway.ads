@@ -68,16 +68,10 @@ private
     --  |                  Additional Debug Data (*)                    |
     --  +---------------------------------------------------------------+
 
-   subtype Array_Index is
-     Stream_Element_Offset range 1 .. Stream_Element_Offset'Last;
-   type Maximal_Array_Ptr is access Stream_Element_Array (Array_Index)
-     with Storage_Size => 0;
-
    type Payload is record
       R          : Bit_1;
       Stream_Id  : HTTP2.Stream_Id;
       Error_Code : Byte_4;
-      Debug_Data : Maximal_Array_Ptr;
    end record;
 
    for Payload'Bit_Order use System.High_Order_First;
@@ -88,9 +82,9 @@ private
       Error_Code at 5 range 0 .. 31;
    end record;
 
-   type Payload_View (Flat : Boolean := False) is record
+   type Payload_View (Flat : Boolean := True) is record
       case Flat is
-         when False => P : Payload;
+         when False => P : not null access Payload;
          when True =>  S : Utils.Stream_Element_Array_Access;
       end case;
    end record with Unchecked_Union;
