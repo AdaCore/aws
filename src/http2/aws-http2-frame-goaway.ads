@@ -79,7 +79,7 @@ private
    for Payload use record
       R          at 0 range 0 .. 0;  --  reserved
       Stream_Id  at 0 range 1 .. 31;
-      Error_Code at 5 range 0 .. 31;
+      Error_Code at 4 range 0 .. 31;
    end record;
 
    type Payload_View (Flat : Boolean := True) is record
