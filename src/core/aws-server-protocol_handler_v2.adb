@@ -108,8 +108,8 @@ procedure Protocol_Handler_V2 (LA : in out Line_Attribute_Record) is
    Keep_Alive_Limit : constant Natural :=
                         CNF.Free_Slots_Keep_Alive_Limit (LA.Server.Properties);
 
-   Sock_Ptr     : constant Socket_Access :=
-                    LA.Server.Slots.Get (Index => LA.Line).Sock;
+   Sock             : constant Socket_Access :=
+                        LA.Server.Slots.Get (Index => LA.Line).Sock;
 
    Will_Close   : Boolean := True;
    --  Will_Close is set to true when the connection will be closed by the
@@ -246,19 +246,19 @@ procedure Protocol_Handler_V2 (LA : in out Line_Attribute_Record) is
       if Extended_Log then
          AWS.Log.Set_Field
            (LA.Server.Log, LA.Log_Data,
-            "c-ip", Net.Peer_Addr (Sock_Ptr.all));
+            "c-ip", Net.Peer_Addr (Sock.all));
 
          AWS.Log.Set_Field
            (LA.Server.Log, LA.Log_Data,
-            "c-port", Utils.Image (Net.Peer_Port (Sock_Ptr.all)));
+            "c-port", Utils.Image (Net.Peer_Port (Sock.all)));
 
          AWS.Log.Set_Field
            (LA.Server.Log, LA.Log_Data,
-            "s-ip", Net.Get_Addr (Sock_Ptr.all));
+            "s-ip", Net.Get_Addr (Sock.all));
 
          AWS.Log.Set_Field
            (LA.Server.Log, LA.Log_Data,
-            "s-port", Utils.Image (Net.Get_Port (Sock_Ptr.all)));
+            "s-port", Utils.Image (Net.Get_Port (Sock.all)));
       end if;
 
       --  If there is no more slot available and we have many
@@ -367,7 +367,7 @@ procedure Protocol_Handler_V2 (LA : in out Line_Attribute_Record) is
       --  Disable push support
    begin
       HTTP2.Frame.Settings.Create
-        (HTTP2.Frame.Settings.Set'(1 => SP)).Send (Sock_Ptr.all);
+        (HTTP2.Frame.Settings.Set'(1 => SP)).Send (Sock.all);
    end Queue_Settings_Frame;
 
    ----------------
@@ -380,7 +380,7 @@ procedure Protocol_Handler_V2 (LA : in out Line_Attribute_Record) is
 
       --  Set status socket and peername
 
-      AWS.Status.Set.Socket (Status, Sock_Ptr);
+      AWS.Status.Set.Socket (Status, Sock);
 
       AWS.Status.Set.Case_Sensitive_Parameters
         (Status, Case_Sensitive_Parameters);
@@ -420,12 +420,12 @@ begin
                               16#53#, 16#4d#, 16#0d#, 16#0a#, 16#0d#, 16#0a#);
       Preface            : Stream_Element_Array (1 .. 24);
    begin
-      Net.Buffered.Read (Sock_Ptr.all, Preface);
+      Net.Buffered.Read (Sock.all, Preface);
 
       if Preface /= Connection_Preface then
          HTTP2.Frame.GoAway.Create
            (Stream_Id => 0,
-            Error     => HTTP2.C_Protocol_Error).Send (Sock_Ptr.all);
+            Error     => HTTP2.C_Protocol_Error).Send (Sock.all);
          raise HTTP2.Protocol_Error with "wrong connection preface";
       end if;
    end;
@@ -442,7 +442,7 @@ begin
       --  First frame should be a setting frame
       declare
          Frame : constant HTTP2.Frame.Object'Class :=
-                   HTTP2.Frame.Read (Sock_Ptr.all);
+                   HTTP2.Frame.Read (Sock.all, Settings'Access);
       begin
          Settings.Set (HTTP2.Frame.Settings.Object (Frame).Values);
       end;
@@ -483,7 +483,7 @@ begin
                end if;
 
                if Stream_Id = 0 then
-                  Frame.Send (Sock_Ptr.all);
+                  Frame.Send (Sock.all);
                else
                   S (Stream_Id).Send_Frame (Frame);
                end if;
@@ -496,10 +496,14 @@ begin
 
          begin
             declare
+               use HTTP2;
                use type HTTP2.Error_Codes;
 
+               SA : constant not null access constant Connection.Object :=
+                      Settings'Access;
+
                Frame     : constant HTTP2.Frame.Object'Class :=
-                             HTTP2.Frame.Read (Sock_Ptr.all);
+                             HTTP2.Frame.Read (Sock.all, Settings'Access);
                Stream_Id : constant HTTP2.Stream_Id := Frame.Stream_Id;
             begin
                if HTTP2.Debug then
@@ -515,12 +519,12 @@ begin
 
                   exit For_Every_Frame;
 
-               elsif Frame.Validate /= HTTP2.C_No_Error then
+               elsif Frame.Validate (Settings'Access) /= HTTP2.C_No_Error then
                   --  Send a GOAWAY response right now
 
                   HTTP2.Frame.GoAway.Create
                     (Stream_Id => Frame.Stream_Id,
-                     Error     => Frame.Validate).Send (Sock_Ptr.all);
+                     Error     => Frame.Validate (SA)).Send (Sock.all);
 
                   Will_Close := True;
 
@@ -533,7 +537,7 @@ begin
                   if not S.Contains (Stream_Id) then
                      S.Insert
                        (Stream_Id,
-                        HTTP2.Stream.Create (Sock_Ptr,  Stream_Id));
+                        HTTP2.Stream.Create (Sock,  Stream_Id));
                   end if;
 
                   begin
@@ -547,7 +551,7 @@ begin
                         HTTP2.Frame.GoAway.Create
                           (Stream_Id => Frame.Stream_Id,
                            Error     =>
-                              HTTP2.C_Protocol_Error).Send (Sock_Ptr.all);
+                              HTTP2.C_Protocol_Error).Send (Sock.all);
                         Will_Close := True;
                         exit For_Every_Frame;
                   end;
@@ -556,7 +560,7 @@ begin
          exception
             when Constraint_Error =>
                HTTP2.Frame.Ping.Create
-                 (Flags => HTTP2.Frame.End_Stream_Flag).Send (Sock_Ptr.all);
+                 (Flags => HTTP2.Frame.End_Stream_Flag).Send (Sock.all);
          end;
 
          if not H2C_Answer.Is_Empty then

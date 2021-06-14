@@ -34,6 +34,8 @@ with System;
 
 with AWS.Net;
 
+limited with AWS.HTTP2.Connection;
+
 private with AWS.Utils;
 
 package AWS.HTTP2.Frame is
@@ -63,7 +65,10 @@ package AWS.HTTP2.Frame is
 
    subtype Length_Type is Byte_3 range 0 .. 2 ** 24 - 1;
 
-   function Read (Sock : Net.Socket_Type'Class) return Object'Class;
+   function Read
+     (Sock     : Net.Socket_Type'Class;
+      Settings : not null access constant Connection.Object)
+      return Object'Class;
    --  Read a frame, the frame is composed of a standard header. The header
    --  kind is encoded into the header. The remaining of the frame is read
    --  by dedecated routines the child packegs.
@@ -103,7 +108,9 @@ package AWS.HTTP2.Frame is
      with Pre => Self.Is_Defined;
    --  The length of the frame payload
 
-   function Validate (Self : Object) return Error_Codes
+   function Validate
+     (Self     : Object;
+      Settings : not null access constant Connection.Object) return Error_Codes
      with Pre'Class => Self.Is_Defined;
    --  Validate the frame content and return an error code different than
    --  C_No_Error if the frame is malformed. This default implementation return

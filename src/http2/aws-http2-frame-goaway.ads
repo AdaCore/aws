@@ -52,7 +52,10 @@ package AWS.HTTP2.Frame.GoAway is
      (Self : Object; Sock : Net.Socket_Type'Class);
    --  Send payload content
 
-   overriding function Validate (Self : Object) return Error_Codes;
+   overriding function Validate
+     (Self     : Object;
+      Settings : not null access constant Connection.Object)
+      return Error_Codes;
 
 private
 

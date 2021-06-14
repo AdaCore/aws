@@ -56,7 +56,10 @@ package AWS.HTTP2.Frame.Window_Update is
      with Pre => Self.Is_Defined;
    --  Send frame content to Sock
 
-   overriding function Validate (Self : Object) return Error_Codes
+   overriding function Validate
+     (Self     : Object;
+      Settings : not null access constant Connection.Object)
+      return Error_Codes
      with Pre => Self.Is_Defined;
 
    function Size_Increment (Self : Object) return Size_Increment_Type
