@@ -37,8 +37,8 @@ package body AWS.HTTP2.Frame.Data is
    ------------
 
    function Create
-     (Stream_Id   : HTTP2.Stream_Id;
-      Content     : Utils.Stream_Element_Array_Access) return Object
+     (Stream_Id : HTTP2.Stream_Id;
+      Content   : Utils.Stream_Element_Array_Access) return Object
    is
       Len : constant Stream_Element_Count :=
               Stream_Element_Count (Content'Length);
