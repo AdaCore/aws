@@ -32,7 +32,6 @@
 
 with Ada.Containers;
 with Ada.Streams;
-with Ada.Text_IO;
 
 with AWS.Headers;
 with AWS.Log;
@@ -65,7 +64,6 @@ separate (AWS.Server)
 procedure Protocol_Handler_V2 (LA : in out Line_Attribute_Record) is
 
    use Ada.Streams;
-   use Ada.Text_IO;
 
    use AWS.Server.HTTP_Utils;
 
@@ -423,11 +421,11 @@ begin
    begin
       Net.Buffered.Read (Sock_Ptr.all, Preface);
 
-      if Preface = Connection_Preface then
-         Put_Line ("OK connection preface");
-         Put_Line ("Switched in v2 protocol...");
-      else
-         raise Constraint_Error with "connection preface not found";
+      if Preface /= Connection_Preface then
+         HTTP2.Frame.GoAway.Create
+           (Stream_Id => 0,
+            Error     => HTTP2.C_Protocol_Error).Send (Sock_Ptr.all);
+         raise HTTP2.Protocol_Error with "wrong connection preface";
       end if;
    end;
 
@@ -548,6 +546,8 @@ begin
                        (Stream_Id => Frame.Stream_Id,
                         Error     =>
                            HTTP2.C_Protocol_Error).Send (Sock_Ptr.all);
+                     Will_Close := True;
+                     exit For_Every_Frame;
                end;
             end if;
          end;
@@ -565,7 +565,11 @@ begin
 
 exception
    when Net.Socket_Error =>
+      null;
+
+   when HTTP2.Protocol_Error =>
       Will_Close := True;
+      LA.Server.Slots.Mark_Phase (LA.Line, Server_Response);
       AWS.Status.Set.Free (LA.Stat);
 
    when E : others =>
