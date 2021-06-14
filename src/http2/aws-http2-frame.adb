@@ -66,7 +66,7 @@ package body AWS.HTTP2.Frame is
       Put (Message & " - FRAME: Id:" & Integer (Self.Header.H.Stream_Id)'Img);
       Put ("  L:" & Integer (Self.Header.H.Length)'Img);
       Integer_Text_IO.Put
-        (Integer (Self.Header.H.Length), Width => 8, Base => 16);
+        (Integer (Self.Header.H.Length), Width => 12, Base => 16);
       Put_Line ("  Kind: " & Self.Header.H.Kind'Img
                 & "   Flags:" & Self.Header.H.Flags'Img);
 
@@ -107,12 +107,22 @@ package body AWS.HTTP2.Frame is
    -- Read --
    ----------
 
-   function Read (Sock : Net.Socket_Type'Class) return Object'Class is
+   function Read
+     (Sock     : Net.Socket_Type'Class;
+      Settings : not null access constant Connection.Object)
+      return Object'Class
+   is
       H : Object;
    begin
       --  Get the frame header
 
       Net.Buffered.Read (Sock, H.Header.S);
+
+      --  The frame is invalid, do not try to build the payload, return now
+
+      if H.Validate (Settings) /= C_No_Error then
+         return H;
+      end if;
 
       --  Get the frame payload
 
@@ -181,9 +191,15 @@ package body AWS.HTTP2.Frame is
    -- Validate --
    --------------
 
-   function Validate (Self : Object) return Error_Codes is
+   function Validate
+     (Self     : Object;
+      Settings : not null access Connection.Object) return Error_Codes is
    begin
-      return C_No_Error;
+      if Self.Length > Settings.Max_Frame_Size then
+         return C_Frame_Size_Error;
+      else
+         return C_No_Error;
+      end if;
    end Validate;
 
 end AWS.HTTP2.Frame;

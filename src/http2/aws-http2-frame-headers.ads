@@ -29,8 +29,8 @@
 
 with AWS.Headers;
 with AWS.HTTP2.Connection;
-with AWS.HTTP2.HPACK.Table;
 with AWS.HTTP2.Frame.Priority;
+with AWS.HTTP2.HPACK.Table;
 
 private with AWS.Utils;
 
@@ -61,7 +61,10 @@ package AWS.HTTP2.Frame.Headers is
      (Self : Object; Sock : Net.Socket_Type'Class);
    --  Send payload content
 
-   overriding function Validate (Self : Object) return Error_Codes;
+   overriding function Validate
+     (Self     : Object;
+      Settings : not null access constant Connection.Object)
+      return Error_Codes;
 
    --  Iterator interface
 
