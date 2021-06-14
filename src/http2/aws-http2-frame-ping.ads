@@ -39,7 +39,11 @@ package AWS.HTTP2.Frame.Ping is
 
    type Opaque_Data is new Stream_Element_Array (1 .. 8);
 
-   function Create (Data : Opaque_Data) return Object
+   Default_Data : constant Opaque_Data := (0, 0, 0, 0, 0, 0, 0, 0);
+
+   function Create
+     (Data  : Opaque_Data := Default_Data;
+      Flags : Flags_Type := 0) return Object
      with Post => Create'Result.Is_Defined
                   and then Create'Result.Kind = K_Ping;
    --  Create a PING frame (stream id is always 0)
