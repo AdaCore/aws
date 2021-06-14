@@ -43,7 +43,7 @@ package AWS.HTTP2.Frame.RST_Stream is
      with Pre => Header.Is_Defined;
    --  Read a RST_Stream frame from Sock return the corresponding object
 
-   function Create (Error_Code : Error_Codes) return Object;
+   function Create (Error : Error_Codes) return Object;
    --  Create an RST_Stream frame (stream id is 0)
 
    overriding procedure Send_Payload
