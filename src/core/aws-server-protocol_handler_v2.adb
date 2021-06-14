@@ -47,6 +47,7 @@ with AWS.Utils;
 with AWS.HTTP2.Connection;
 with AWS.HTTP2.Frame.GoAway;
 with AWS.HTTP2.Frame.List;
+with AWS.HTTP2.Frame.Ping;
 with AWS.HTTP2.Frame.Settings;
 with AWS.HTTP2.Frame.Settings;
 with AWS.HTTP2.Frame.Window_Update;
@@ -493,63 +494,69 @@ begin
 
          LA.Server.Slots.Mark_Phase (LA.Line, Wait_For_Client);
 
-         declare
-            use type HTTP2.Error_Codes;
-
-            Frame     : constant HTTP2.Frame.Object'Class :=
-                          HTTP2.Frame.Read (Sock_Ptr.all);
-            Stream_Id : constant HTTP2.Stream_Id := Frame.Stream_Id;
          begin
-            if HTTP2.Debug then
-               Frame.Dump ("GET");
-            end if;
+            declare
+               use type HTTP2.Error_Codes;
 
-            --  if a GOAWAY frame is received we need to exit now. Then
-            --  check if the frame is valid, if not we need to send back a
-            --  GOAWAY immediatly.
-
-            if Frame.Kind = K_GoAway then
-               Will_Close := True;
-
-               exit For_Every_Frame;
-
-            elsif Frame.Validate /= HTTP2.C_No_Error then
-               --  Send a GOAWAY response right now
-
-               HTTP2.Frame.GoAway.Create
-                 (Stream_Id => Frame.Stream_Id,
-                  Error     => Frame.Validate).Send (Sock_Ptr.all);
-
-               Will_Close := True;
-
-               exit For_Every_Frame;
-
-            elsif Stream_Id = 0 then
-               Handle_Control_Frame (Frame);
-
-            else
-               if not S.Contains (Stream_Id) then
-                  S.Insert
-                    (Stream_Id,
-                     HTTP2.Stream.Create (Sock_Ptr,  Stream_Id));
+               Frame     : constant HTTP2.Frame.Object'Class :=
+                             HTTP2.Frame.Read (Sock_Ptr.all);
+               Stream_Id : constant HTTP2.Stream_Id := Frame.Stream_Id;
+            begin
+               if HTTP2.Debug then
+                  Frame.Dump ("GET");
                end if;
 
-               begin
-                  S (Stream_Id).Received_Frame (Frame);
+               --  if a GOAWAY frame is received we need to exit now. Then
+               --  check if the frame is valid, if not we need to send back a
+               --  GOAWAY immediatly.
 
-                  if S (Stream_Id).Is_Message_Ready then
-                     Handle_Message (S (Stream_Id));
+               if Frame.Kind = K_GoAway then
+                  Will_Close := True;
+
+                  exit For_Every_Frame;
+
+               elsif Frame.Validate /= HTTP2.C_No_Error then
+                  --  Send a GOAWAY response right now
+
+                  HTTP2.Frame.GoAway.Create
+                    (Stream_Id => Frame.Stream_Id,
+                     Error     => Frame.Validate).Send (Sock_Ptr.all);
+
+                  Will_Close := True;
+
+                  exit For_Every_Frame;
+
+               elsif Stream_Id = 0 then
+                  Handle_Control_Frame (Frame);
+
+               else
+                  if not S.Contains (Stream_Id) then
+                     S.Insert
+                       (Stream_Id,
+                        HTTP2.Stream.Create (Sock_Ptr,  Stream_Id));
                   end if;
-               exception
-                  when HTTP2.Protocol_Error =>
-                     HTTP2.Frame.GoAway.Create
-                       (Stream_Id => Frame.Stream_Id,
-                        Error     =>
-                           HTTP2.C_Protocol_Error).Send (Sock_Ptr.all);
-                     Will_Close := True;
-                     exit For_Every_Frame;
-               end;
-            end if;
+
+                  begin
+                     S (Stream_Id).Received_Frame (Frame);
+
+                     if S (Stream_Id).Is_Message_Ready then
+                        Handle_Message (S (Stream_Id));
+                     end if;
+                  exception
+                     when HTTP2.Protocol_Error =>
+                        HTTP2.Frame.GoAway.Create
+                          (Stream_Id => Frame.Stream_Id,
+                           Error     =>
+                              HTTP2.C_Protocol_Error).Send (Sock_Ptr.all);
+                        Will_Close := True;
+                        exit For_Every_Frame;
+                  end;
+               end if;
+            end;
+         exception
+            when Constraint_Error =>
+               HTTP2.Frame.Ping.Create
+                 (Flags => HTTP2.Frame.End_Stream_Flag).Send (Sock_Ptr.all);
          end;
 
          if not H2C_Answer.Is_Empty then
