@@ -35,7 +35,7 @@ package body AWS.HTTP2.Frame.RST_Stream is
    -- Create --
    ------------
 
-   function Create (Error_Code : Error_Codes) return Object is
+   function Create (Error : Error_Codes) return Object is
       Len : constant Stream_Element_Count :=
               Stream_Element_Count (Payload'Size / 8);
    begin
@@ -46,7 +46,7 @@ package body AWS.HTTP2.Frame.RST_Stream is
          O.Header.H.R         := 0;
          O.Header.H.Flags     := 0;
 
-         O.Data.P.Error_Code := Error_Code;
+         O.Data.P.Error_Code := Error;
       end return;
    end Create;
 
