@@ -68,7 +68,7 @@ package AWS.HTTP2.Connection is
    function Initial_Window_Size (Self : Object) return Natural;
    --  The window size
 
-   function Max_Frame_Size (Self : Object) return Natural;
+   function Max_Frame_Size (Self : Object) return Frame.Length_Type;
    --  The maximum number of bytes for a frame payload
 
    function Max_Header_List_Size (Self : Object) return Natural;
@@ -111,8 +111,8 @@ private
    function Initial_Window_Size (Self : Object) return Natural is
      (Self.Values (S.INITIAL_WINDOW_SIZE));
 
-   function Max_Frame_Size (Self : Object) return Natural is
-     (Self.Values (S.MAX_FRAME_SIZE));
+   function Max_Frame_Size (Self : Object) return Frame.Length_Type is
+     (Frame.Length_Type (Self.Values (S.MAX_FRAME_SIZE)));
 
    function Max_Header_List_Size (Self : Object) return Natural is
      (Self.Values (S.MAX_HEADER_LIST_SIZE));
