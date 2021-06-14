@@ -35,14 +35,16 @@ package body AWS.HTTP2.Frame.Ping is
    -- Create --
    ------------
 
-   function Create (Data : Opaque_Data) return Object is
+   function Create
+     (Data  : Opaque_Data := Default_Data;
+      Flags : Flags_Type := 0) return Object is
    begin
       return O : Object do
          O.Header.H.Stream_Id := 0;
          O.Header.H.Length    := 8;
          O.Header.H.Kind      := K_Ping;
          O.Header.H.R         := 0;
-         O.Header.H.Flags     := 0;
+         O.Header.H.Flags     := Flags;
 
          O.Data := Data;
       end return;
