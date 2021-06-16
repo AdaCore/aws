@@ -189,7 +189,9 @@ package body AWS.HTTP2.Message is
                      List.Append
                        (Frame.Headers.Create
                           (Ctx.Table, Ctx.Settings, Stream_Id, L,
-                           End_Headers => K = Headers.Count));
+                           Flags => (if K = Headers.Count
+                                     then Frame.End_Headers_Flag
+                                     else 0)));
                      Is_First := False;
                   else
                      List.Append
@@ -209,7 +211,8 @@ package body AWS.HTTP2.Message is
          if not L.Is_Empty then
             List.Append
               (Frame.Headers.Create
-                 (Ctx.Table, Ctx.Settings, Stream_Id, L, End_Headers => True));
+                 (Ctx.Table, Ctx.Settings, Stream_Id, L,
+                  Flags => Frame.End_Headers_Flag));
          end if;
       end Handle_Headers;
 
