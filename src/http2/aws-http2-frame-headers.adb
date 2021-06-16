@@ -53,11 +53,11 @@ package body AWS.HTTP2.Frame.Headers is
    ------------
 
    function Create
-     (Table       : not null access HTTP2.HPACK.Table.Object;
-      Settings    : not null access Connection.Object;
-      Stream_Id   : HTTP2.Stream_Id;
-      List        : AWS.Headers.List;
-      End_Headers : Boolean := True) return Object is
+     (Table     : not null access HTTP2.HPACK.Table.Object;
+      Settings  : not null access Connection.Object;
+      Stream_Id : HTTP2.Stream_Id;
+      List      : AWS.Headers.List;
+      Flags     : Flags_Type := 0) return Object is
    begin
       return O : Object do
          if List.Length > 0 then
@@ -70,7 +70,7 @@ package body AWS.HTTP2.Frame.Headers is
             Length    => Length_Type (O.Data.S'Length),
             Kind      => K_Headers,
             R         => 0,
-            Flags     => (if End_Headers then End_Headers_Flag else 0));
+            Flags     => Flags);
       end return;
    end Create;
 

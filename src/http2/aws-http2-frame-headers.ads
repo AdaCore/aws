@@ -49,8 +49,9 @@ package AWS.HTTP2.Frame.Headers is
       Settings    : not null access Connection.Object;
       Stream_Id   : HTTP2.Stream_Id;
       List        : AWS.Headers.List;
-      End_Headers : Boolean := True) return Object
-     with Post => (if End_Headers then Create'Result.Flags = End_Headers_Flag);
+      Flags       : Flags_Type := 0) return Object
+     with Post => (Create'Result.Flags = Flags)
+                  and then Create'Result.Kind = K_Headers;
    --  Create an HEADERS frame with given content and stream id
 
    function Get_Priority (Self : Object) return HTTP2.Frame.Priority.Payload
