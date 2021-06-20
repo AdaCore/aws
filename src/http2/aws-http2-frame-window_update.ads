@@ -66,7 +66,7 @@ package AWS.HTTP2.Frame.Window_Update is
      with Pre => Self.Is_Defined;
    --  Returns the Windows size increment
 
-   procedure Dump (O : Object);
+   overriding procedure Dump_Payload (O : Object);
 
 private
 
