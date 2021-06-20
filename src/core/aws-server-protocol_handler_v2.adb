@@ -32,6 +32,8 @@
 
 with Ada.Containers;
 with Ada.Streams;
+with Ada.Strings.Fixed;
+with Ada.Strings.Maps.Constants;
 
 with AWS.Headers;
 with AWS.Log;
@@ -400,11 +402,133 @@ procedure Protocol_Handler_V2 (LA : in out Line_Attribute_Record) is
    end Handle_Message;
 
    procedure Handle_Message (Stream : HTTP2.Stream.Object) is
-      M : constant HTTP2.Message.Object := Stream.Message (Ctx);
+
+      use type HTTP2.Error_Codes;
+
+      procedure Validate_Headers
+        (Headers : AWS.Headers.List;
+         Error   : out HTTP2.Error_Codes);
+      --  Validate headers name as required by HTTP/2
+
+      ----------------------
+      -- Validate_Headers --
+      ----------------------
+
+      procedure Validate_Headers
+        (Headers : AWS.Headers.List;
+         Error   : out HTTP2.Error_Codes)
+      is
+         use Ada.Strings;
+         use Ada.Strings.Fixed;
+
+         Header_Found     : Boolean := False;
+         Method_Found     : Boolean := False;
+         Scheme_Found     : Boolean := False;
+         Path_Found       : Boolean := False;
+         Is_Pseudo_Header : Boolean;
+
+      begin
+         Error := HTTP2.C_No_Error;
+
+         for K in 1 .. Headers.Count loop
+            declare
+               Header : constant String := Headers.Get_Name (K);
+               Value  : constant String := Headers.Get_Value (K);
+            begin
+               if Header'Length > 1 and then Header (Header'First) = ':' then
+                  if Header_Found then
+                     --  Pseudo headers must appear first
+                     Error := HTTP2.C_Protocol_Error;
+                     return;
+                  end if;
+
+                  Is_Pseudo_Header := True;
+               else
+                  Is_Pseudo_Header := False;
+                  Header_Found := True;
+               end if;
+
+               if Index (Header, Maps.Constants.Upper_Set) /= 0 then
+                  --  No upper case allowed
+                  Error := HTTP2.C_Protocol_Error;
+                  return;
+
+               elsif Is_Pseudo_Header
+                 and then not
+                   (Header in ":method" | ":scheme" | ":authority" | ":path")
+               then
+                  --  Unknown pseudo header
+                  Error := HTTP2.C_Protocol_Error;
+                  return;
+
+               elsif Header = ":path" and then Value = "" then
+                  --  Empty header path should be rejected
+                  Error := HTTP2.C_Protocol_Error;
+                  return;
+
+               elsif Header = ":method" then
+                  if Method_Found then
+                     --  Duplicate :method pseudo header
+                     Error := HTTP2.C_Protocol_Error;
+                     return;
+                  else
+                     Method_Found := True;
+                  end if;
+
+               elsif Header = ":scheme" then
+                  if Scheme_Found then
+                     --  Duplicate :scheme pseudo header
+                     Error := HTTP2.C_Protocol_Error;
+                     return;
+                  else
+                     Scheme_Found := True;
+                  end if;
+
+               elsif Header = ":path" then
+                  if Path_Found then
+                     --  Duplicate :path pseudo header
+                     Error := HTTP2.C_Protocol_Error;
+                     return;
+                  else
+                     Path_Found := True;
+                  end if;
+
+               elsif Header = "connection" then
+                  --  No connection specific header allowed
+
+                  Error := HTTP2.C_Protocol_Error;
+                  return;
+
+               elsif Header = "te" and then Value /= "trailers" then
+                  --  No TE header except with single value "trailers"
+                  Error := HTTP2.C_Protocol_Error;
+                  return;
+               end if;
+            end;
+         end loop;
+
+         --  Check if mandatory pseudo headers are present
+
+         if not (Method_Found and Scheme_Found and Path_Found) then
+            Error := HTTP2.C_Protocol_Error;
+         end if;
+      end Validate_Headers;
+
+      M       : constant HTTP2.Message.Object := Stream.Message (Ctx);
+      Headers : constant AWS.Headers.List := M.Headers;
+      Error   : HTTP2.Error_Codes;
    begin
       Set_Status (LA.Stat);
 
-      AWS.Status.Set.Headers (LA.Stat, M.Headers);
+      AWS.Status.Set.Headers (LA.Stat, Headers);
+
+      --  Check headers' validity
+
+      Validate_Headers (Headers, Error);
+
+      if Error /= HTTP2.C_No_Error then
+         raise HTTP2.Protocol_Error with "headers validity check fails";
+      end if;
 
       --  And set the request information using an HTTP/1 request line format
 
