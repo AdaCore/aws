@@ -159,6 +159,9 @@ package body AWS.HTTP2.Frame.Headers is
            or else
         (Self.Has_Flag (Padded_Flag)
          and then Off + 1 > Self.Header.H.Length)
+           or else
+        (Self.Has_Flag (Priority_Flag)
+         and then Self.Get_Priority.Stream_Dependency = Self.Stream_Id)
       then
          return C_Protocol_Error;
       else
