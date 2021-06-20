@@ -27,6 +27,8 @@
 --  covered by the  GNU Public License.                                     --
 ------------------------------------------------------------------------------
 
+with Ada.Text_IO;
+
 with AWS.Net.Buffered;
 
 package body AWS.HTTP2.Frame.RST_Stream is
@@ -49,6 +51,15 @@ package body AWS.HTTP2.Frame.RST_Stream is
          O.Data.P.Error_Code := Error;
       end return;
    end Create;
+
+   ------------------
+   -- Dump_Payload --
+   ------------------
+
+   overriding procedure Dump_Payload (Self : Object) is
+   begin
+      Text_IO.Put_Line ("error code: " & Self.Data.P.Error_Code'Img);
+   end Dump_Payload;
 
    ----------
    -- Read --
