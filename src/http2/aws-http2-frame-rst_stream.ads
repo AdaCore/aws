@@ -56,6 +56,8 @@ package AWS.HTTP2.Frame.RST_Stream is
       Settings : not null access constant Connection.Object)
       return Error_Codes;
 
+   overriding procedure Dump_Payload (Self : Object);
+
 private
 
    --  RFC-7540 6.4
