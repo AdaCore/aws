@@ -30,7 +30,6 @@
 --  Support connection settings from settings & windows update frames
 
 with AWS.HTTP2.Frame.Settings;
-with AWS.HTTP2.Frame.Window_Update;
 
 package AWS.HTTP2.Connection is
 
@@ -41,9 +40,13 @@ package AWS.HTTP2.Connection is
       Values : Frame.Settings.Set);
    --  Record all settings from Values extracted from a settings frames
 
-   procedure Set
-     (Self                  : in out Object;
-      Window_Size_Increment : Frame.Window_Update.Size_Increment_Type);
+   procedure Set_Initial_Window_Size
+     (Self  : in out Object;
+      Value : Natural);
+
+   procedure Update_Flow_Control_Window
+     (Self      : in out Object;
+      Increment : Integer);
    --  Record the setting from window update frame
 
    function Header_Table_Size (Self : Object) return Natural;
@@ -65,7 +68,7 @@ package AWS.HTTP2.Connection is
    function Max_Concurrent_Streams (Self : Object) return Natural;
    --  The maximum number of stream opened simultaneously
 
-   function Initial_Window_Size (Self : Object) return Natural;
+   function Initial_Window_Size (Self : Object) return Integer;
    --  The window size
 
    function Max_Frame_Size (Self : Object) return Frame.Length_Type;
@@ -74,13 +77,16 @@ package AWS.HTTP2.Connection is
    function Max_Header_List_Size (Self : Object) return Natural;
    --  The size in bytes of the uncompressed headers list
 
-   function Window_Size_Increment
-     (Self : Object) return Frame.Window_Update.Size_Increment_Type;
-   --  Size increment to add to the current initial window size
+   function Flow_Control_Window_Valid
+     (Current, Increment : Integer) return Boolean with Inline;
+   --  Returns True if an update of the control flow window by the size of
+   --  Increment is still in range (not above max).
+
+   function Flow_Control_Window (Self : Object) return Integer;
 
 private
 
-   type Settings_Set is array (Frame.Settings.Settings_Kind) of Natural;
+   type Settings_Set is array (Frame.Settings.Settings_Kind) of Integer;
 
    package S renames Frame.Settings;
 
@@ -94,9 +100,10 @@ private
 
    type Object is tagged record
       Values                    : Settings_Set := Default_Values;
-      Window_Size_Increment     : Frame.Window_Update.Size_Increment_Type := 0;
       Dynamic_Header_Table_Size : Natural :=
                                     Default_Values (S.HEADER_TABLE_SIZE);
+      Flow_Control_Window       : Integer :=
+                                    Default_Values (S.INITIAL_WINDOW_SIZE);
    end record;
 
    function Header_Table_Size (Self : Object) return Natural is
@@ -108,7 +115,7 @@ private
    function Max_Concurrent_Streams (Self : Object) return Natural is
      (Self.Values (S.MAX_CONCURRENT_STREAMS));
 
-   function Initial_Window_Size (Self : Object) return Natural is
+   function Initial_Window_Size (Self : Object) return Integer is
      (Self.Values (S.INITIAL_WINDOW_SIZE));
 
    function Max_Frame_Size (Self : Object) return Frame.Length_Type is
@@ -117,10 +124,8 @@ private
    function Max_Header_List_Size (Self : Object) return Natural is
      (Self.Values (S.MAX_HEADER_LIST_SIZE));
 
-   function Window_Size_Increment
-     (Self : Object)
-      return Frame.Window_Update.Size_Increment_Type
-   is (Self.Window_Size_Increment);
+   function Flow_Control_Window (Self : Object) return Integer is
+     (Self.Flow_Control_Window);
 
    function Dynamic_Header_Table_Size (Self : Object) return Natural is
      (Self.Dynamic_Header_Table_Size);

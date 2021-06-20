@@ -96,11 +96,13 @@ package AWS.Server.HTTP_Utils is
    --  Get resource status
 
    generic
-      with procedure Data (Content : Stream_Element_Array);
+      with procedure Data (Content : Stream_Element_Array; Stop : out Boolean);
+      Chunk_Size : Stream_Element_Count := 4 * 1024;
    procedure Send_File_G
      (HTTP_Server : AWS.Server.HTTP;
       Line_Index  : Positive;
       File        : in out Resources.File_Type;
+      Start       : Stream_Element_Offset;
       Length      : in out Resources.Content_Length_Type);
 
    procedure Send_Resource

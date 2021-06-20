@@ -27,75 +27,14 @@
 --  covered by the  GNU Public License.                                     --
 ------------------------------------------------------------------------------
 
-with AWS.HTTP2.Frame.Window_Update;
+with Ada.Containers.Indefinite_Doubly_Linked_Lists;
 
-package body AWS.HTTP2.Connection is
+package AWS.HTTP2.Message.List is
 
-   -------------------------------
-   -- Flow_Control_Window_Valid --
-   -------------------------------
+   package List is new Ada.Containers.Indefinite_Doubly_Linked_Lists (Object);
 
-   function Flow_Control_Window_Valid
-     (Current, Increment : Integer) return Boolean
-   is
-      Max  : constant Natural :=
-               Natural (HTTP2.Frame.Window_Update.Size_Increment_Type'Last);
-   begin
-      return Current < 0 or else Increment <= Max - Current;
-   end Flow_Control_Window_Valid;
+   subtype Object is List.List;
 
-   ---------
-   -- Set --
-   ---------
+   Empty_List : constant Object := List.Empty_List;
 
-   procedure Set
-     (Self   : in out Object;
-      Values : Frame.Settings.Set) is
-   begin
-      for V of Values loop
-         Self.Values (V.Id) := Natural (V.Value);
-      end loop;
-
-      Self.Dynamic_Header_Table_Size := Self.Values (S.HEADER_TABLE_SIZE);
-   end Set;
-
-   ---------------------------
-   -- Set_Header_Table_Size --
-   ---------------------------
-
-   procedure Set_Dynamic_Header_Table_Size
-     (Self : in out Object; Size : Natural) is
-   begin
-      Self.Dynamic_Header_Table_Size := Size;
-   end Set_Dynamic_Header_Table_Size;
-
-   -----------------------------
-   -- Set_Initial_Window_Size --
-   -----------------------------
-
-   procedure Set_Initial_Window_Size
-     (Self  : in out Object;
-      Value : Natural)
-   is
-      Prev : constant Natural := Self.Values (S.INITIAL_WINDOW_SIZE);
-   begin
-      --  Self.Values (S.INITIAL_WINDOW_SIZE) :=
-      --    Self.Values (S.INITIAL_WINDOW_SIZE) + Increment;
-      Self.Values (S.INITIAL_WINDOW_SIZE) := Value;
-
-      Self.Flow_Control_Window :=
-        Self.Flow_Control_Window + (Value - Prev);
-   end Set_Initial_Window_Size;
-
-   --------------------------------
-   -- Update_Flow_Control_Window --
-   --------------------------------
-
-   procedure Update_Flow_Control_Window
-     (Self      : in out Object;
-      Increment : Integer) is
-   begin
-      Self.Flow_Control_Window := Self.Flow_Control_Window + Increment;
-   end Update_Flow_Control_Window;
-
-end AWS.HTTP2.Connection;
+end AWS.HTTP2.Message.List;

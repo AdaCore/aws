@@ -27,10 +27,13 @@
 --  covered by the  GNU Public License.                                     --
 ------------------------------------------------------------------------------
 
+with Ada.Containers;
+with Ada.Exceptions;
 with Ada.Streams;
 with Ada.Strings.Unbounded;
 
 with AWS.Headers;
+with AWS.HTTP2.Connection;
 with AWS.HTTP2.HPACK;
 with AWS.HTTP2.Frame.Continuation;
 with AWS.HTTP2.Frame.Data;
@@ -39,6 +42,7 @@ with AWS.HTTP2.Frame.Window_Update;
 
 package body AWS.HTTP2.Stream is
 
+   use Ada.Exceptions;
    use Ada.Strings.Unbounded;
 
    use all type HTTP2.Frame.Kind_Type;
@@ -48,19 +52,21 @@ package body AWS.HTTP2.Stream is
    ------------
 
    function Create
-     (Sock       : not null Net.Socket_Access;
-      Identifier : Id;
-      Weight     : Byte_1 := Frame.Priority.Default_Weight) return Object is
+     (Sock        : not null Net.Socket_Access;
+      Identifier  : Id;
+      Window_Size : Natural;
+      Weight      : Byte_1 := Frame.Priority.Default_Weight) return Object is
    begin
       return Object'
-        (Sock              => Sock,
-         Id                => Identifier,
-         State             => Idle,
-         Frames            => Frame.List.Empty_List,
-         Is_Ready          => False,
-         Window_Size       => Frame.Window_Update.Default_Window_Size,
-         Weight            => Weight,
-         Stream_Dependency => 0);
+        (Sock                => Sock,
+         Id                  => Identifier,
+         State               => Idle,
+         Frames              => Frame.List.Empty_List,
+         Is_Ready            => False,
+         Header_Found        => False,
+         Flow_Control_Window => Window_Size,
+         Weight              => Weight,
+         Stream_Dependency   => 0);
    end Create;
 
    ----------------------
@@ -124,6 +130,10 @@ package body AWS.HTTP2.Stream is
                else
                   Length := Frame.Continuation.Object (F).Content_Length;
                end if;
+
+               if Length = 0 then
+                  raise Protocol_Error with "header with length of 0";
+               end if;
             end if;
 
             if F.Kind = K_Headers then
@@ -164,6 +174,9 @@ package body AWS.HTTP2.Stream is
 
       begin
          return Get_Headers (Ctx.Table, Ctx.Settings);
+      exception
+         when E : others =>
+            raise Protocol_Error with Exception_Message (E);
       end Parse_Header;
 
       H       : Headers.List;
@@ -194,17 +207,20 @@ package body AWS.HTTP2.Stream is
          end case;
       end loop;
 
-      return HTTP2.Message.Create (H, Payload);
+      return HTTP2.Message.Create (H, Payload, Self.Id);
    end Message;
 
-   -------------------
-   -- Receive_Frame --
-   -------------------
+   --------------------
+   -- Received_Frame --
+   --------------------
 
    procedure Received_Frame
      (Self  : in out Object;
-      Frame : HTTP2.Frame.Object'Class)
+      Frame : HTTP2.Frame.Object'Class;
+      Error : out Error_Codes)
    is
+      use type Ada.Containers.Count_Type;
+
       procedure Handle_Priority (Priority : HTTP2.Frame.Priority.Payload);
       --  Handle priority information
 
@@ -228,39 +244,65 @@ package body AWS.HTTP2.Stream is
       --------------------------
 
       procedure Handle_Window_Update
-        (Frame : HTTP2.Frame.Window_Update.Object) is
+        (Frame : HTTP2.Frame.Window_Update.Object)
+      is
+         Incr : constant Natural := Natural (Frame.Size_Increment);
       begin
-         Self.Window_Size := Self.Window_Size + Natural (Frame.Size_Increment);
+         if Connection.Flow_Control_Window_Valid
+           (Self.Flow_Control_Window, Incr)
+         then
+            Self.Flow_Control_Window := Self.Flow_Control_Window + Incr;
+         else
+            Error := HTTP2.C_Flow_Control_Error;
+            return;
+         end if;
       end Handle_Window_Update;
 
-      End_Header : constant Boolean :=
-                     (Frame.Has_Flag (HTTP2.Frame.End_Headers_Flag));
-      End_Stream : constant Boolean :=
-                     (Frame.Has_Flag (HTTP2.Frame.End_Stream_Flag));
+      Has_Prev_Frame : constant Boolean := Self.Frames.Length > 0;
+
+      End_Header     : constant Boolean :=
+                         (Frame.Has_Flag (HTTP2.Frame.End_Headers_Flag));
+      End_Stream     : constant Boolean :=
+                         (Frame.Has_Flag (HTTP2.Frame.End_Stream_Flag));
 
    begin
+      Error := C_No_Error;
+
+      --  A received frame must have an odd number
+
+      if Self.Id /= 0 and then Self.Id mod 2 = 0 then
+         Error := C_Protocol_Error;
+         return;
+      end if;
+
       --  Handle frame's kind and state
 
       case Self.State is
          when Idle =>
             case Frame.Kind is
                when K_Headers =>
-                  Self.State := Open;
+                  Self.State := (if End_Stream and End_Header
+                                 then Half_Closed_Remote
+                                 else Open);
                when K_Push_Promise =>
                   Self.State := Reserved_Remote;
                when K_Priority =>
                   null;
                when others =>
-                  raise Protocol_Error;
+                  Error := C_Protocol_Error;
+                  return;
             end case;
 
          when Open =>
             case Frame.Kind is
                when K_RST_Stream =>
                   Self.State := Closed;
+               when K_Continuation =>
+                  if End_Header then
+                     Self.State := Half_Closed_Remote;
+                  end if;
                when others =>
                   --  All other frames are ok in the open state
-
                   if End_Stream then
                      Self.State := Half_Closed_Remote;
                   end if;
@@ -285,7 +327,8 @@ package body AWS.HTTP2.Stream is
                when K_Priority | K_Headers =>
                   null;
                when others =>
-                  raise Protocol_Error;
+                  Error := C_Protocol_Error;
+                  return;
             end case;
 
          when Half_Closed_Local =>
@@ -294,7 +337,8 @@ package body AWS.HTTP2.Stream is
                   Self.State := Closed;
                when others =>
                   if End_Stream then
-                     Self.State := Closed;
+                     Error := C_Protocol_Error;
+                     return;
                   else
                      null;
                   end if;
@@ -304,29 +348,79 @@ package body AWS.HTTP2.Stream is
             case Frame.Kind is
                when K_RST_Stream =>
                   Self.State := Closed;
+               when K_Data | K_Headers | K_Continuation =>
+                  Error := C_Stream_Closed;
+                  return;
                when others =>
                   null;
             end case;
 
          when Closed =>
             case Frame.Kind is
-               when K_Priority =>
+               when K_Priority | K_RST_Stream =>
+                  null;
+               when K_Window_Update =>
+                  --  Allowed for a short period of time
                   null;
                when others =>
-                  null;
+                  Error := C_Stream_Closed;
+                  return;
             end case;
       end case;
 
       --  Handle frame's content if needed
 
+      if Has_Prev_Frame
+        and then Self.Frames.Last_Element.Kind = K_Continuation
+        and then Frame.Kind /= K_Continuation
+      then
+         Error := C_Protocol_Error;
+         return;
+      end if;
+
       case Frame.Kind is
          when K_Priority =>
+            if Has_Prev_Frame
+              and then not Self.Frames.Last_Element.Has_Flag
+                             (HTTP2.Frame.End_Headers_Flag)
+              and then Self.Frames.Last_Element.Kind
+                         in K_Headers | K_Continuation
+            then
+               Error := C_Protocol_Error;
+               return;
+            end if;
+
             Handle_Priority (HTTP2.Frame.Priority.Object (Frame).Get_Payload);
 
          when K_Window_Update =>
+            if Has_Prev_Frame
+              and then not Self.Frames.Last_Element.Has_Flag
+                             (HTTP2.Frame.End_Headers_Flag)
+              and then Self.Frames.Last_Element.Kind
+                         in K_Headers | K_Continuation
+            then
+               Error := C_Protocol_Error;
+               return;
+            end if;
+
             Handle_Window_Update (HTTP2.Frame.Window_Update.Object (Frame));
 
          when K_Headers | K_Data =>
+            if Frame.Kind = K_Headers then
+               --  An header has already been sent, and so this header must
+               --  have a end-strem flag.
+
+               if not Frame.Has_Flag (HTTP2.Frame.End_Stream_Flag)
+                 and then Self.Header_Found
+               then
+                  Error := C_Protocol_Error;
+                  return;
+
+               else
+                  Self.Header_Found := True;
+               end if;
+            end if;
+
             Self.Frames.Append (Frame);
 
             --  An header frame can have a priority chunk, handle it now
@@ -349,15 +443,18 @@ package body AWS.HTTP2.Stream is
             --  A continuation frame is only valid if following an header,
             --  push_promise or continuation frame.
 
-            if Self.Frames.Last_Element.Kind
-              not in K_Headers | K_Continuation | K_Push_Promise
+            if Has_Prev_Frame
+              and then Self.Frames.Last_Element.Kind
+                         not in K_Headers | K_Continuation | K_Push_Promise
             then
-               raise Program_Error with "unexpected continuation frame";
+               Error := C_Protocol_Error;
+               return;
             end if;
 
             Self.Frames.Append (Frame);
 
-            Self.Is_Ready := Self.State /= Idle and then End_Header;
+            Self.Is_Ready := Self.State /= Idle
+              and then End_Header;
 
          when others =>
             null;
@@ -372,6 +469,8 @@ package body AWS.HTTP2.Stream is
      (Self  : in out Object;
       Frame : HTTP2.Frame.Object'Class)
    is
+      End_Header : constant Boolean :=
+                     (Frame.Has_Flag (HTTP2.Frame.End_Headers_Flag));
       End_Stream : constant Boolean :=
                      Frame.Has_Flag (HTTP2.Frame.End_Stream_Flag);
    begin
@@ -381,7 +480,9 @@ package body AWS.HTTP2.Stream is
          when Idle =>
             case Frame.Kind is
                when K_Headers =>
-                  Self.State := Open;
+                  Self.State := (if End_Stream and End_Header
+                                 then Half_Closed_Remote
+                                 else Open);
                when K_Push_Promise =>
                   Self.State := Reserved_Local;
                when K_Priority =>
@@ -394,6 +495,10 @@ package body AWS.HTTP2.Stream is
             case Frame.Kind is
                when K_RST_Stream =>
                   Self.State := Closed;
+               when K_Continuation =>
+                  if End_Header then
+                     Self.State := Half_Closed_Local;
+                  end if;
                when others =>
                   --  All other frames are ok in the open state
 
@@ -450,15 +555,24 @@ package body AWS.HTTP2.Stream is
                   null;
             end case;
       end case;
+
+      --  Update stream's Flow Control Window
+
+      if Frame.Kind = K_Data then
+         Self.Flow_Control_Window :=
+           Self.Flow_Control_Window - Natural (Frame.Length);
+      end if;
    end Send_Frame;
 
-   ---------------------
-   -- Set_Window_Size --
-   ---------------------
+   --------------------------------
+   -- Update_Flow_Control_Window --
+   --------------------------------
 
-   procedure Set_Window_Size (Self : in out Object; Window_Size : Natural) is
+   procedure Update_Flow_Control_Window
+     (Self      : in out Object;
+      Increment : Integer) is
    begin
-      Self.Window_Size := Window_Size;
-   end Set_Window_Size;
+      Self.Flow_Control_Window := Self.Flow_Control_Window + Increment;
+   end Update_Flow_Control_Window;
 
 end AWS.HTTP2.Stream;
