@@ -56,11 +56,11 @@ package body AWS.HTTP2.Frame.Window_Update is
    -- Dump --
    ----------
 
-   procedure Dump (O : Object) is
+   overriding procedure Dump_Payload (O : Object) is
    begin
       Ada.Text_IO.Put_Line
         ("   Window_Update : " & O.Data.P.Size_Increment'Img);
-   end Dump;
+   end Dump_Payload;
 
    ----------
    -- Read --
