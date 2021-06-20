@@ -57,6 +57,8 @@ package AWS.HTTP2.Frame.GoAway is
       Settings : not null access constant Connection.Object)
       return Error_Codes;
 
+   overriding procedure Dump_Payload (Self : Object);
+
 private
 
    use type Utils.Stream_Element_Array_Access;
