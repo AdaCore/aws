@@ -29,6 +29,8 @@
 
 with System;
 
+with AWS.HTTP2.Stream;
+
 package AWS.HTTP2.Frame.RST_Stream is
 
    type Object is new Frame.Object with private;
@@ -43,7 +45,9 @@ package AWS.HTTP2.Frame.RST_Stream is
      with Pre => Header.Is_Defined;
    --  Read a RST_Stream frame from Sock return the corresponding object
 
-   function Create (Error : Error_Codes) return Object;
+   function Create
+     (Error     : Error_Codes;
+      Stream_Id : Stream.Id) return Object;
    --  Create an RST_Stream frame (stream id is 0)
 
    overriding procedure Send_Payload
@@ -72,7 +76,7 @@ private
       Error_Code at 0 range 0 .. 31;
    end record;
 
-   type Payload_View (Flat : Boolean := False) is record
+   type Payload_View (Flat : Boolean := True) is record
       case Flat is
          when False => P : Payload;
          when True =>  S : Stream_Element_Array (1 .. Payload'Size / 8);

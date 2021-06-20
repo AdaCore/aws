@@ -37,12 +37,15 @@ package body AWS.HTTP2.Frame.RST_Stream is
    -- Create --
    ------------
 
-   function Create (Error : Error_Codes) return Object is
+   function Create
+     (Error     : Error_Codes;
+      Stream_Id : Stream.Id) return Object
+   is
       Len : constant Stream_Element_Count :=
               Stream_Element_Count (Payload'Size / 8);
    begin
       return O : Object do
-         O.Header.H.Stream_Id := 0;
+         O.Header.H.Stream_Id := Stream_Id;
          O.Header.H.Length    := Length_Type (Len);
          O.Header.H.Kind      := K_RST_Stream;
          O.Header.H.R         := 0;
