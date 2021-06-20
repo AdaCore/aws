@@ -120,6 +120,10 @@ package body AWS.HTTP2.Frame is
 
       --  The frame is invalid, do not try to build the payload, return now
 
+      if not H.Header.H.Kind'Valid then
+         H.Header.H.Kind := K_Invalid;
+      end if;
+
       if H.Validate (Settings) /= C_No_Error then
          return H;
       end if;
@@ -156,6 +160,9 @@ package body AWS.HTTP2.Frame is
 
          when K_Push_Promise  =>
             return Frame.Push_Promise.Read (Sock, H);
+
+         when K_Invalid =>
+            raise Protocol_Error;
       end case;
    end Read;
 
@@ -165,6 +172,10 @@ package body AWS.HTTP2.Frame is
 
    procedure Send (Self : Object'Class; Sock : Net.Socket_Type'Class) is
    begin
+      if HTTP2.Debug then
+         Self.Dump ("SEND");
+      end if;
+
       --  Send header
 
       Net.Buffered.Write (Sock, Self.Header.S);
@@ -193,10 +204,31 @@ package body AWS.HTTP2.Frame is
 
    function Validate
      (Self     : Object;
-      Settings : not null access Connection.Object) return Error_Codes is
+      Settings : not null access Connection.Object) return Error_Codes
+   is
+      Kind : Frame.Kind_Type renames Self.Header.H.Kind;
    begin
       if Self.Length > Settings.Max_Frame_Size then
          return C_Frame_Size_Error;
+
+      elsif Kind = K_Invalid then
+         return C_Protocol_Error;
+
+      elsif Kind = K_GoAway and then Self.Header.H.Stream_Id /= 0 then
+         return C_Protocol_Error;
+
+      elsif Kind = K_Priority and then Self.Header.H.Length /= 5 then
+         return C_Frame_Size_Error;
+
+      elsif Kind = K_RST_Stream and then Self.Header.H.Length /= 4 then
+         return C_Frame_Size_Error;
+
+      elsif Kind = K_Ping and then Self.Header.H.Length /= 8 then
+         return C_Frame_Size_Error;
+
+      elsif Kind = K_Window_Update and then Self.Header.H.Length /= 4 then
+         return C_Frame_Size_Error;
+
       else
          return C_No_Error;
       end if;

@@ -50,7 +50,8 @@ package AWS.HTTP2.Frame is
 
    type Kind_Type is (K_Data, K_Headers, K_Priority,
                       K_RST_Stream, K_Settings, K_Push_Promise,
-                      K_Ping, K_GoAway, K_Window_Update, K_Continuation)
+                      K_Ping, K_GoAway, K_Window_Update,
+                      K_Continuation, K_Invalid)
      with Size => 8;
    --  Frame kind, see section 6 RFC 7540
 
@@ -141,7 +142,8 @@ private
                       K_Ping          => 16#6#,
                       K_GoAway        => 16#7#,
                       K_Window_Update => 16#8#,
-                      K_Continuation  => 16#9#);
+                      K_Continuation  => 16#9#,
+                      K_Invalid       => 16#A#);
 
    type Header is record
       Length    : Length_Type;

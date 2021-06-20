@@ -48,11 +48,12 @@ with AWS.HTTP2.Connection;
 with AWS.HTTP2.Frame.GoAway;
 with AWS.HTTP2.Frame.List;
 with AWS.HTTP2.Frame.Ping;
+with AWS.HTTP2.Frame.RST_Stream;
 with AWS.HTTP2.Frame.Settings;
 with AWS.HTTP2.Frame.Settings;
 with AWS.HTTP2.Frame.Window_Update;
 with AWS.HTTP2.HPACK.Table;
-with AWS.HTTP2.Message;
+with AWS.HTTP2.Message.List;
 with AWS.HTTP2.Stream.Set;
 
 separate (AWS.Server)
@@ -78,15 +79,21 @@ procedure Protocol_Handler_V2 (LA : in out Line_Attribute_Record) is
    --  to HTTP/2. The header name is HTTP2-Settings and the value is a base64
    --  encoded of a settings frame payload.
 
-   procedure Handle_Control_Frame (Frame : HTTP2.Frame.Object'Class)
+   procedure Handle_Control_Frame
+     (Frame   : HTTP2.Frame.Object'Class;
+      Streams : in out HTTP2.Stream.Set.Object;
+      Error   : out HTTP2.Error_Codes)
      with Pre => Frame.Stream_Id = 0;
    --  Handle a control frame (Frame id = 0)
 
    procedure Handle_Message (Stream : HTTP2.Stream.Object);
 
+   --  function Handle_Message
+   --    (Status : in out AWS.Status.Data;
+   --     Stream : HTTP2.Stream.Object) return AWS.HTTP2.Frame.List.Object;
    function Handle_Message
-     (Status    : in out AWS.Status.Data;
-      Stream_Id : HTTP2.Stream.Id) return AWS.HTTP2.Frame.List.Object;
+     (Status : in out AWS.Status.Data;
+      Stream : HTTP2.Stream.Object) return AWS.HTTP2.Message.Object;
 
    procedure Queue_Settings_Frame;
    --  Queue server settings frame (default configuration)
@@ -122,6 +129,10 @@ procedure Protocol_Handler_V2 (LA : in out Line_Attribute_Record) is
    Settings   : aliased HTTP2.Connection.Object;
    --  Connection settings
 
+   Deferred_Messages : HTTP2.Message.List.Object;
+   --  Deferreed messages waiting to be sent when the flow control window will
+   --  allow.
+
    Answers    : HTTP2.Frame.List.Object;
    --  Set of frames to be sent
 
@@ -137,7 +148,11 @@ procedure Protocol_Handler_V2 (LA : in out Line_Attribute_Record) is
    -- Handle_Control_Frame --
    --------------------------
 
-   procedure Handle_Control_Frame (Frame : HTTP2.Frame.Object'Class) is
+   procedure Handle_Control_Frame
+     (Frame   : HTTP2.Frame.Object'Class;
+      Streams : in out HTTP2.Stream.Set.Object;
+      Error   : out HTTP2.Error_Codes)
+   is
 
       procedure Handle (Frame : HTTP2.Frame.Settings.Object);
       --  Handle settings frame values
@@ -145,21 +160,69 @@ procedure Protocol_Handler_V2 (LA : in out Line_Attribute_Record) is
       procedure Handle (Frame : HTTP2.Frame.Window_Update.Object);
       --  Handle window update frame value
 
+      package S renames HTTP2.Frame.Settings;
+
       ------------
       -- Handle --
       ------------
 
       procedure Handle (Frame : HTTP2.Frame.Settings.Object) is
+         use type S.Settings_Kind;
+
+         Initial_Window_Size : constant Integer :=
+                                 Settings.Initial_Window_Size;
       begin
          Settings.Set (Frame.Values);
+
+         --  Update the control flow window size of all streams
+
+         for V of Frame.Values loop
+            if V.Id = S.INITIAL_WINDOW_SIZE then
+               declare
+                  Value : constant Natural := Integer (V.Value);
+                  Incr  : constant Integer := Value
+                                                - Initial_Window_Size;
+               begin
+                  for S of Streams loop
+                     if HTTP2.Connection.Flow_Control_Window_Valid
+                       (S.Flow_Control_Window, Value)
+                     then
+                        S.Update_Flow_Control_Window (Incr);
+                     end if;
+                  end loop;
+               end;
+            end if;
+         end loop;
       end Handle;
 
       procedure Handle (Frame : HTTP2.Frame.Window_Update.Object) is
+         Incr : constant Natural := Natural (Frame.Size_Increment);
       begin
-         Settings.Set (Frame.Size_Increment);
+         if HTTP2.Connection.Flow_Control_Window_Valid
+           (Settings.Flow_Control_Window, Incr)
+         then
+            Settings.Update_Flow_Control_Window
+              (Natural (Frame.Size_Increment));
+         else
+            Error := HTTP2.C_Flow_Control_Error;
+            return;
+         end if;
+
+         for S of Streams loop
+            if  HTTP2.Connection.Flow_Control_Window_Valid
+              (S.Flow_Control_Window, Incr)
+            then
+               S.Update_Flow_Control_Window (Incr);
+            else
+               Error := HTTP2.C_Flow_Control_Error;
+               return;
+            end if;
+         end loop;
       end Handle;
 
    begin
+      Error := HTTP2.C_No_Error;
+
       if Frame.Kind = K_Ping
         and then not Frame.Has_Flag (HTTP2.Frame.Ack_Flag)
       then
@@ -210,8 +273,8 @@ procedure Protocol_Handler_V2 (LA : in out Line_Attribute_Record) is
    --------------------
 
    function Handle_Message
-     (Status    : in out AWS.Status.Data;
-      Stream_Id : HTTP2.Stream.Id) return AWS.HTTP2.Frame.List.Object
+     (Status : in out AWS.Status.Data;
+      Stream : HTTP2.Stream.Object) return AWS.HTTP2.Message.Object
    is
       use type Response.Data_Mode;
 
@@ -233,12 +296,14 @@ procedure Protocol_Handler_V2 (LA : in out Line_Attribute_Record) is
 
          if Response.Mode (R) = Response.File then
             return HTTP2.Message.Create
-              (Headers  => H,
-               Filename => Response.Filename (R));
+              (Headers   => H,
+               Filename  => Response.Filename (R),
+               Stream_Id => Stream.Identifier);
          else
             return HTTP2.Message.Create
-              (Headers => H,
-               Payload => Response.Message_Body (R));
+              (Headers   => H,
+               Payload   => Response.Message_Body (R),
+               Stream_Id => Stream.Identifier);
          end if;
       end Create_Message;
 
@@ -330,11 +395,7 @@ procedure Protocol_Handler_V2 (LA : in out Line_Attribute_Record) is
          Ctx.Status := LA.Stat;
          Ctx.Response := R;
 
-         declare
-            RM : constant HTTP2.Message.Object := Create_Message (H, R);
-         begin
-            return RM.To_Frames (Ctx, Stream_Id);
-         end;
+         return Create_Message (H, R);
       end;
    end Handle_Message;
 
@@ -353,7 +414,7 @@ procedure Protocol_Handler_V2 (LA : in out Line_Attribute_Record) is
          & " HTTP_2",
          LA.Stat);
 
-      Answers.Append (Handle_Message (LA.Stat, Stream.Identifier));
+      Deferred_Messages.Append (Handle_Message (LA.Stat, Stream));
    end Handle_Message;
 
    --------------------------
@@ -455,17 +516,52 @@ begin
    --  The maximum number of simultaneous stream has now been negociated
 
    declare
+      use HTTP2;
+      use type HTTP2.Stream.State_Kind;
+
       Max_Stream : constant Containers.Count_Type :=
                      Containers.Count_Type (Settings.Max_Concurrent_Streams);
       S          : HTTP2.Stream.Set.Object (Max_Stream);
+      Last_SID   : HTTP2.Stream.Id := 0;
    begin
       --  We now need to answer to the request made during the upgrade
 
       if AWS.Status.Protocol (LA.Stat) = AWS.Status.H2C then
-         H2C_Answer := Handle_Message (LA.Stat, 1);
+         S.Insert
+           (1,
+            HTTP2.Stream.Create (Sock,  1, Settings.Flow_Control_Window));
+
+         declare
+            M : HTTP2.Message.Object := Handle_Message (LA.Stat, S (1));
+         begin
+            H2C_Answer := M.To_Frames (Ctx, S (1));
+         end;
       end if;
 
       For_Every_Frame : loop
+         if not Deferred_Messages.Is_Empty then
+            declare
+               M : HTTP2.Message.Object :=
+                     Deferred_Messages.First_Element;
+            begin
+               if S (M.Stream_Id).Flow_Control_Window > 0 then
+                  Deferred_Messages.Delete_First;
+
+                  --  Sends as much frame as possible that conform with the
+                  --  current flow control window limit.
+
+                  Answers.Append (M.To_Frames (Ctx, S (M.Stream_Id)));
+
+                  --  If some more data are available, register back the
+                  --  message to send corresponding remaining data frames.
+
+                  if M.More_Frames then
+                     Deferred_Messages.Prepend (M);
+                  end if;
+               end if;
+            end;
+         end if;
+
          --  Send back frames if any waiting
 
          while not Answers.Is_Empty loop
@@ -478,14 +574,17 @@ begin
 
                Answers.Delete_First;
 
-               if HTTP2.Debug then
-                  Frame.Dump ("SEND");
-               end if;
-
                if Stream_Id = 0 then
                   Frame.Send (Sock.all);
                else
                   S (Stream_Id).Send_Frame (Frame);
+
+                  --  Update connection Flow Control Window
+
+                  if Frame.Kind = K_Data then
+                     Settings.Update_Flow_Control_Window
+                       (-Natural (Frame.Length));
+                  end if;
                end if;
             end;
          end loop;
@@ -496,71 +595,141 @@ begin
 
          begin
             declare
-               use HTTP2;
                use type HTTP2.Error_Codes;
 
                SA : constant not null access constant Connection.Object :=
                       Settings'Access;
 
-               Frame     : constant HTTP2.Frame.Object'Class :=
-                             HTTP2.Frame.Read (Sock.all, Settings'Access);
-               Stream_Id : constant HTTP2.Stream_Id := Frame.Stream_Id;
+               Frame      : constant HTTP2.Frame.Object'Class :=
+                              HTTP2.Frame.Read (Sock.all, Settings'Access);
+               Stream_Id  : constant HTTP2.Stream_Id := Frame.Stream_Id;
+               Prev_State : Stream.State_Kind;
+               Error      : Error_Codes;
             begin
                if HTTP2.Debug then
                   Frame.Dump ("GET");
                end if;
 
-               --  if a GOAWAY frame is received we need to exit now. Then
-               --  check if the frame is valid, if not we need to send back a
-               --  GOAWAY immediatly.
+               --  First check that the possibly new stream id is not below
+               --  last stream id.
 
-               if Frame.Kind = K_GoAway then
-                  Will_Close := True;
+               if Frame.Kind in K_Invalid then
+                  --  Check if the frame is valid, if not we
+                  --  need to send back a GOAWAY immediatly.
+                  if Last_SID /= 0
+                    and then S (Last_SID).State = Stream.Open
+                  then
+                     HTTP2.Frame.GoAway.Create
+                       (Stream_Id => Last_SID,
+                        Error     => C_Protocol_Error).Send (Sock.all);
 
-                  exit For_Every_Frame;
+                     Will_Close := True;
+                     exit For_Every_Frame;
 
-               elsif Frame.Validate (Settings'Access) /= HTTP2.C_No_Error then
+                  else
+                     HTTP2.Frame.Ping.Create
+                       (Flags => HTTP2.Frame.End_Stream_Flag).Send (Sock.all);
+                  end if;
+
+               elsif Frame.Validate (Settings'Access) /= C_No_Error then
                   --  Send a GOAWAY response right now
 
                   HTTP2.Frame.GoAway.Create
-                    (Stream_Id => Frame.Stream_Id,
+                    (Stream_Id => Last_SID,
                      Error     => Frame.Validate (SA)).Send (Sock.all);
 
                   Will_Close := True;
+                  exit For_Every_Frame;
 
+               elsif Frame.Kind = K_GoAway then
+                  --  if a GOAWAY frame is received we need to exit now
+
+                  Will_Close := True;
                   exit For_Every_Frame;
 
                elsif Stream_Id = 0 then
-                  Handle_Control_Frame (Frame);
+                  Handle_Control_Frame (Frame, S, Error);
+
+                  if Error /= HTTP2.C_No_Error then
+                     HTTP2.Frame.GoAway.Create
+                       (Stream_Id => Last_SID,
+                        Error     => Error).Send (Sock.all);
+
+                     Will_Close := True;
+                     exit For_Every_Frame;
+                  end if;
 
                else
                   if not S.Contains (Stream_Id) then
-                     S.Insert
-                       (Stream_Id,
-                        HTTP2.Stream.Create (Sock,  Stream_Id));
-                  end if;
-
-                  begin
-                     S (Stream_Id).Received_Frame (Frame);
-
-                     if S (Stream_Id).Is_Message_Ready then
-                        Handle_Message (S (Stream_Id));
-                     end if;
-                  exception
-                     when HTTP2.Protocol_Error =>
+                     --  A new frame, check that Id is greater than last stream
+                     if Frame.Kind /= K_Priority
+                       and then Stream_Id < Last_SID
+                     then
                         HTTP2.Frame.GoAway.Create
-                          (Stream_Id => Frame.Stream_Id,
-                           Error     =>
-                              HTTP2.C_Protocol_Error).Send (Sock.all);
+                          (Stream_Id => Last_SID,
+                           Error     => C_Protocol_Error).Send (Sock.all);
                         Will_Close := True;
                         exit For_Every_Frame;
-                  end;
+
+                     else
+                        if Frame.Kind /= K_Priority then
+                           Last_SID := Stream_Id;
+                        end if;
+
+                        S.Insert
+                          (Stream_Id,
+                           HTTP2.Stream.Create
+                             (Sock, Stream_Id, Settings.Initial_Window_Size));
+                     end if;
+                  end if;
+
+                  --  Keep current stream state before changing the state to
+                  --  conform to live-cycle. (RFC 7540 5.1).
+
+                  Prev_State := S (Stream_Id).State;
+
+                  S (Stream_Id).Received_Frame (Frame, Error);
+
+                  if Error /= C_No_Error then
+                     if Error = C_Flow_Control_Error then
+                        HTTP2.Frame.RST_Stream.Create
+                          (Stream_Id => Stream_Id,
+                           Error     => Error).Send (Sock.all);
+                        exit For_Every_Frame;
+                     else
+                        HTTP2.Frame.GoAway.Create
+                          (Stream_Id => Last_SID,
+                           Error     => Error).Send (Sock.all);
+
+                        Will_Close := True;
+                        exit For_Every_Frame;
+                     end if;
+                  end if;
+
+                  if S (Stream_Id).Is_Message_Ready
+                    and then
+                      (Prev_State /= Stream.Half_Closed_Remote
+                       or else Frame.Kind
+                         in K_Priority | K_Window_Update | K_RST_Stream)
+                  then
+                     Handle_Message (S (Stream_Id));
+                  end if;
                end if;
             end;
          exception
             when Constraint_Error =>
-               HTTP2.Frame.Ping.Create
-                 (Flags => HTTP2.Frame.End_Stream_Flag).Send (Sock.all);
+               if Last_SID /= 0
+                 and then S (Last_SID).State = Stream.Open
+               then
+                  HTTP2.Frame.GoAway.Create
+                    (Stream_Id => Last_SID,
+                     Error     => C_Protocol_Error).Send (Sock.all);
+                  Will_Close := True;
+                  exit For_Every_Frame;
+               else
+                  HTTP2.Frame.Ping.Create
+                    (Flags => HTTP2.Frame.End_Stream_Flag).Send (Sock.all);
+               end if;
          end;
 
          if not H2C_Answer.Is_Empty then

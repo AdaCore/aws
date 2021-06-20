@@ -34,6 +34,8 @@ with AWS.HTTP2.Frame.List;
 with AWS.Response;
 with AWS.Server.Context;
 
+limited with AWS.HTTP2.Stream;
+
 package AWS.HTTP2.Message is
 
    use Ada.Strings.Unbounded;
@@ -41,13 +43,14 @@ package AWS.HTTP2.Message is
    use type AWS.HTTP2.Frame.List.Count_Type;
    use type Response.Data_Mode;
 
-   type Object (Mode : Response.Data_Mode) is tagged limited private;
+   type Object (Mode : Response.Data_Mode) is tagged private;
 
    function Is_Defined (Self : Object) return Boolean;
 
    function Create
-     (Headers : AWS.Headers.List;
-      Payload : Unbounded_String)
+     (Headers   : AWS.Headers.List;
+      Payload   : Unbounded_String;
+      Stream_Id : HTTP2.Stream_Id)
       return Object
      with Pre  => Length (Payload) > 0 or else not Headers.Is_Empty,
           Post => Create'Result.Is_Defined;
@@ -55,11 +58,15 @@ package AWS.HTTP2.Message is
 
    function Create
      (Headers  : AWS.Headers.List;
-      Filename : String)
+      Filename : String;
+      Stream_Id : HTTP2.Stream_Id)
       return Object
      with Pre  => not Headers.Is_Empty,
           Post => Create'Result.Is_Defined;
    --  Create a message based on the given headers and payload
+
+   function Stream_Id (Self : Object) return HTTP2.Stream_Id
+     with Pre => Self.Is_Defined;
 
    function Headers (Self : Object) return AWS.Headers.List
      with Pre => Self.Is_Defined;
@@ -75,21 +82,29 @@ package AWS.HTTP2.Message is
    --  Get the filename for this message
 
    function To_Frames
-     (Self      : Object;
-      Ctx       : in out Server.Context.Object;
-      Stream_Id : HTTP2.Stream_Id) return AWS.HTTP2.Frame.List.Object
+     (Self   : in out Object;
+      Ctx    : in out Server.Context.Object;
+      Stream : HTTP2.Stream.Object) return AWS.HTTP2.Frame.List.Object
      with Pre  => Self.Is_Defined,
           Post => To_Frames'Result.Length > 0
                     and then
-                  (for all P of To_Frames'Result =>
-                     P.Is_Defined and then P.Stream_Id = Stream_Id);
+                  (for all P of To_Frames'Result => P.Is_Defined);
    --  Get frames for this message. The headers is returned as an HEADERS frame
-   --  and the payload as a DATA frame.
+   --  and the payload as a DATA frame. The list may not contain the while data
+   --  payload depending on the current flow control window. If some more data
+   --  is available, More_Frame below will return true.
+
+   function More_Frames (Self : Object) return Boolean;
+   --  Returns True if some more data are available and so should be sent
 
 private
 
-   type Object (Mode : Response.Data_Mode) is tagged limited record
-      Headers : AWS.Headers.List;
+   type Object (Mode : Response.Data_Mode) is tagged record
+      Stream_Id : HTTP2.Stream_Id;
+      Headers   : AWS.Headers.List;
+      Sent      : Natural := 0;
+      Length    : Natural := 0;
+      H_Sent    : Boolean := False; -- Whether the header has been sent
 
       case Mode is
          when Response.Message =>
@@ -115,5 +130,11 @@ private
 
    function Is_Defined (Self : Object) return Boolean is
      (Self.Mode /= Response.No_Data);
+
+   function Stream_Id (Self : Object) return HTTP2.Stream_Id is
+     (Self.Stream_Id);
+
+   function More_Frames (Self : Object) return Boolean is
+      (Self.Sent < Self.Length);
 
 end AWS.HTTP2.Message;

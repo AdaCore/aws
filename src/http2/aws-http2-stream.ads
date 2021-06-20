@@ -52,9 +52,10 @@ package AWS.HTTP2.Stream is
    subtype Id is Stream_Id;
 
    function Create
-     (Sock       : not null Net.Socket_Access;
-      Identifier : Id;
-      Weight     : Byte_1 := Frame.Priority.Default_Weight) return Object
+     (Sock        : not null Net.Socket_Access;
+      Identifier  : Id;
+      Window_Size : Natural;
+      Weight      : Byte_1 := Frame.Priority.Default_Weight) return Object
      with Post => Create'Result.State = Idle
                   and then Create'Result.Is_Defined;
    --  Create a stream object for the given connection
@@ -76,7 +77,8 @@ package AWS.HTTP2.Stream is
 
    procedure Received_Frame
      (Self  : in out Object;
-      Frame : HTTP2.Frame.Object'Class)
+      Frame : HTTP2.Frame.Object'Class;
+      Error : out Error_Codes)
      with Pre => Self.Is_Defined and then Frame.Is_Defined;
    --  Record a stream being received for this stream. Possibly change the
    --  state of the stream or raise an exception if the flow is not correct.
@@ -95,38 +97,41 @@ package AWS.HTTP2.Stream is
      with Pre => Self.Is_Defined;
    --  Returns the assigned stream priority
 
-   function Window_Size (Self : Object) return Natural
+   function Flow_Control_Window (Self : Object) return Integer
      with Pre => Self.Is_Defined;
    --  Return the current window size for this frame (set by the routine below)
 
-   procedure Set_Window_Size (Self : in out Object; Window_Size : Natural)
+   procedure Update_Flow_Control_Window
+     (Self      : in out Object;
+      Increment : Integer)
      with Pre => Self.Is_Defined;
    --  Set the window size for this frame (set via the Window_Update frame)
 
 private
 
    type Object is tagged record
-      Sock              : AWS.Net.Socket_Access;
-      Id                : Stream.Id          := 0;
-      State             : State_Kind         := Idle;
-      Frames            : Frame.List.Object;
-      Is_Ready          : Boolean            := False;
-      Window_Size       : Natural;
-      Weight            : Byte_1;
-      Stream_Dependency : HTTP2.Stream_Id;
+      Sock                : AWS.Net.Socket_Access;
+      Id                  : Stream.Id          := 0;
+      State               : State_Kind         := Idle;
+      Frames              : Frame.List.Object;
+      Is_Ready            : Boolean            := False;
+      Header_Found        : Boolean            := False;
+      Flow_Control_Window : Integer;
+      Weight              : Byte_1;
+      Stream_Dependency   : HTTP2.Stream_Id;
    end record;
 
    function "<" (Left, Right : Object) return Boolean is (Left.Id < Right.Id);
 
    Undefined : constant Object :=
-                 (null, 0, Idle, Frame.List.Empty_List, False, 0, 0, 0);
+                 (null, 0, Idle, Frame.List.Empty_List, False, False, 0, 0, 0);
 
    function State (Self : Object) return State_Kind is (Self.State);
 
    function Identifier (Self : Object) return Id is (Self.Id);
 
-   function Window_Size (Self : Object) return Natural is
-     (Self.Window_Size);
+   function Flow_Control_Window (Self : Object) return Integer is
+     (Self.Flow_Control_Window);
 
    function Priority (Self : Object) return Byte_1 is
      (Self.Weight);

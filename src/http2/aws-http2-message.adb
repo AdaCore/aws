@@ -34,6 +34,7 @@ with AWS.HTTP2.Connection;
 with AWS.HTTP2.Frame.Continuation;
 with AWS.HTTP2.Frame.Data;
 with AWS.HTTP2.Frame.Headers;
+with AWS.HTTP2.Stream;
 with AWS.Messages;
 with AWS.Resources;
 with AWS.Server.HTTP_Utils;
@@ -50,22 +51,30 @@ package body AWS.HTTP2.Message is
    ------------
 
    function Create
-     (Headers : AWS.Headers.List;
-      Payload : Unbounded_String) return Object is
+     (Headers   : AWS.Headers.List;
+      Payload   : Unbounded_String;
+      Stream_Id : HTTP2.Stream_Id) return Object is
    begin
       return O : Object (Response.Message) do
-         O.Headers := Headers;
-         O.Payload := Payload;
+         O.Stream_Id := Stream_Id;
+         O.Headers   := Headers;
+         O.Payload   := Payload;
+         O.Sent      := 0;
+         O.Length    := Length (Payload);
       end return;
    end Create;
 
    function Create
-     (Headers  : AWS.Headers.List;
-      Filename : String) return Object is
+     (Headers   : AWS.Headers.List;
+      Filename  : String;
+      Stream_Id : HTTP2.Stream_Id) return Object is
    begin
       return O : Object (Response.File) do
-         O.Headers  := Headers;
-         O.Filename := To_Unbounded_String (Filename);
+         O.Stream_Id := Stream_Id;
+         O.Headers   := Headers;
+         O.Filename  := To_Unbounded_String (Filename);
+         O.Sent      := 0;
+         O.Length    := Natural (Utils.File_Size (Filename));
       end return;
    end Create;
 
@@ -74,12 +83,18 @@ package body AWS.HTTP2.Message is
    ---------------
 
    function To_Frames
-     (Self      : Object;
-      Ctx       : in out Server.Context.Object;
-      Stream_Id : HTTP2.Stream_Id)
+     (Self   : in out Object;
+      Ctx    : in out Server.Context.Object;
+      Stream : HTTP2.Stream.Object)
       return AWS.HTTP2.Frame.List.Object
    is
       use type Status.Request_Method;
+
+      FCW  : Integer := Stream.Flow_Control_Window;
+      --  Current flow control window, the corresponds to the max frame data
+      --  content that will be sent. That is, the returns list will not exeed
+      --  this value, the remaining frames will be created during a second call
+      --  if More_Frames returns True.
 
       List : Frame.List.Object;
       --  The list of created frames
@@ -96,25 +111,30 @@ package body AWS.HTTP2.Message is
       --  Creates the data frame from filename content
 
       procedure Create_Data_Frame
-        (Content : Utils.Stream_Element_Array_Access);
+        (Content : not null Utils.Stream_Element_Array_Access);
       --  Create a new data frame from Content
 
-      procedure Create_Data_Frame (Content : Stream_Element_Array);
+      procedure Create_Data_Frame
+        (Content : Stream_Element_Array;
+         Stop    : out Boolean);
       --  Create a new data frame from Content
 
       -----------------------
       -- Create_Data_Frame --
       -----------------------
 
-      procedure Create_Data_Frame (Content : Stream_Element_Array) is
+      procedure Create_Data_Frame
+        (Content : Stream_Element_Array;
+         Stop    : out Boolean) is
       begin
          Create_Data_Frame (new Stream_Element_Array'(Content));
+         Stop := True;
       end Create_Data_Frame;
 
       procedure Create_Data_Frame
-        (Content : Utils.Stream_Element_Array_Access) is
+        (Content : not null Utils.Stream_Element_Array_Access) is
       begin
-         List.Append (Frame.Data.Create (Stream_Id, Content));
+         List.Append (Frame.Data.Create (Stream.Identifier, Content));
       end Create_Data_Frame;
 
       ------------------
@@ -125,22 +145,25 @@ package body AWS.HTTP2.Message is
 
          Size       : constant Positive := Length (Data);
          Max_Size   : constant Stream_Element_Count :=
-                        Stream_Element_Count
-                          (Connection.Max_Frame_Size (Ctx.Settings.all));
-         Chunk_Size : constant := 4_096;
+                        Stream_Element_Count (Ctx.Settings.Max_Frame_Size);
+         Chunk_Size : constant Natural := Natural (Stream.Flow_Control_Window);
 
          package Buffer is new Utils.Buffered_Data
            (Max_Size, Create_Data_Frame);
 
-         First : Positive := 1;
+         First : Positive := Self.Sent + 1;
          Last  : Positive;
       begin
-         while First < Size loop
+         while FCW > 0 and then First < Size loop
             Last := Positive'Min (First + Chunk_Size - 1, Size);
 
             Buffer.Add
               (Translator.To_Stream_Element_Array
                  (Slice (Data, First, Last)));
+
+            Self.Sent := Self.Sent + (Last - First + 1);
+
+            FCW := FCW - (Last - First + 1);
 
             First := Last + 1;
          end loop;
@@ -153,13 +176,18 @@ package body AWS.HTTP2.Message is
       ---------------
 
       procedure From_File (File : in out Resources.File_Type) is
-         Length : Resources.Content_Length_Type := 0;
+
+         Chunk_Size : constant Stream_Element_Count :=
+                        Stream_Element_Count (Stream.Flow_Control_Window);
+         Length     : Resources.Content_Length_Type := 0;
 
          procedure Send_File is
-           new Server.HTTP_Utils.Send_File_G (Create_Data_Frame);
+           new Server.HTTP_Utils.Send_File_G (Create_Data_Frame, Chunk_Size);
 
       begin
-         Send_File (Ctx.HTTP.all, Ctx.Line, File, Length);
+         Send_File
+           (Ctx.HTTP.all, Ctx.Line, File,
+            Stream_Element_Offset (Self.Sent), Length);
       end From_File;
 
       --------------------
@@ -188,7 +216,7 @@ package body AWS.HTTP2.Message is
                   if Is_First then
                      List.Append
                        (Frame.Headers.Create
-                          (Ctx.Table, Ctx.Settings, Stream_Id, L,
+                          (Ctx.Table, Ctx.Settings, Stream.Identifier, L,
                            Flags => (if K = Headers.Count
                                      then Frame.End_Headers_Flag
                                      else 0)));
@@ -196,7 +224,7 @@ package body AWS.HTTP2.Message is
                   else
                      List.Append
                        (Frame.Continuation.Create
-                          (Ctx.Table, Ctx.Settings, Stream_Id, L,
+                          (Ctx.Table, Ctx.Settings, Stream.Identifier, L,
                            End_Headers => K = Headers.Count));
                   end if;
 
@@ -211,7 +239,7 @@ package body AWS.HTTP2.Message is
          if not L.Is_Empty then
             List.Append
               (Frame.Headers.Create
-                 (Ctx.Table, Ctx.Settings, Stream_Id, L,
+                 (Ctx.Table, Ctx.Settings, Stream.Identifier, L,
                   Flags => Frame.End_Headers_Flag));
          end if;
       end Handle_Headers;
@@ -229,13 +257,16 @@ package body AWS.HTTP2.Message is
          when Response.Message | Response.Header =>
             --  Set status code
 
-            Headers.Add
-              (Messages.Status_Token,
-               Messages.Image (Status_Code));
+            if not Self.H_Sent then
+               Headers.Add
+                 (Messages.Status_Token,
+                  Messages.Image (Status_Code));
 
-            Headers := Headers.Union (Self.Headers, True);
+               Headers := Headers.Union (Self.Headers, True);
 
-            Handle_Headers (Headers);
+               Handle_Headers (Headers);
+               Self.H_Sent := True;
+            end if;
 
             if With_Body then
                From_Content (Self.Payload);
@@ -276,38 +307,48 @@ package body AWS.HTTP2.Message is
                   File,
                   AWS.Status.Is_Supported (Ctx.Status, Messages.GZip));
 
-               --  Add some standard and file oriented headers
+               if not Self.H_Sent then
+                  --  Add some standard and file oriented headers
 
-               Headers.Add
-                 (Messages.Status_Token,
-                  Messages.Image (Status_Code));
-
-               if Resources.Size (File) /= Resources.Undefined_Length then
                   Headers.Add
-                    (Messages.Content_Length_Token,
-                     Stream_Element_Offset'Image (Resources.Size (File)));
+                    (Messages.Status_Token,
+                     Messages.Image (Status_Code));
+
+                  if Resources.Size (File) /= Resources.Undefined_Length then
+                     Headers.Add
+                       (Messages.Content_Length_Token,
+                        Stream_Element_Offset'Image (Resources.Size (File)));
+                  end if;
+
+                  if not Response.Has_Header
+                    (Ctx.Response,
+                     Messages.Last_Modified_Token)
+                  then
+                     Headers.Add
+                       (Messages.Last_Modified_Token,
+                        Messages.To_HTTP_Date (File_Time));
+                  end if;
+
+                  Headers := Headers.Union (Self.Headers, True);
+
+                  Handle_Headers (Headers);
+
+                  Self.H_Sent := True;
                end if;
-
-               if not Response.Has_Header
-                 (Ctx.Response,
-                  Messages.Last_Modified_Token)
-               then
-                  Headers.Add
-                    (Messages.Last_Modified_Token,
-                     Messages.To_HTTP_Date (File_Time));
-               end if;
-
-               Headers := Headers.Union (Self.Headers, True);
-
-               Handle_Headers (Headers);
 
                --  If file is not found the header only is sufficient,
                --  otherwise let's send the file.
 
                --  ??? File ranges not supported yet
 
-               if With_Body and then F_Status = Changed then
-                  From_File (File);
+               if With_Body then
+                  if F_Status = Changed then
+                     From_File (File);
+                  else
+                     --  Nothing more to do, ensure that More_Frames will be
+                     --  False.
+                     Self.Sent := Self.Length;
+                  end if;
                end if;
             end;
 
