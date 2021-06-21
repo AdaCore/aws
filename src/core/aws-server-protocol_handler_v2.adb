@@ -755,6 +755,15 @@ begin
                        (Flags => HTTP2.Frame.End_Stream_Flag).Send (Sock.all);
                   end if;
 
+               elsif Frame.Kind in K_Push_Promise then
+                  --  A server cannot receive a push-promise frame
+                  HTTP2.Frame.GoAway.Create
+                    (Stream_Id => Last_SID,
+                     Error     => C_Protocol_Error).Send (Sock.all);
+
+                  Will_Close := True;
+                  exit For_Every_Frame;
+
                elsif Frame.Validate (Settings'Access) /= C_No_Error then
                   --  Send a GOAWAY response right now
 
