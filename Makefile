@@ -168,6 +168,7 @@ GPROPTS = -XPRJ_BUILD=$(PRJ_BUILD) -XPRJ_SOCKLIB=$(PRJ_SOCKLIB) \
 		-XPRJ_XMLADA=$(PRJ_XMLADA) -XPRJ_LAL=$(PRJ_LAL) \
 		-XPROCESSORS=$(PROCESSORS) -XSOCKET=$(SOCKET) \
 		-XPRJ_TARGET=$(PRJ_TARGET) -XTARGET=$(TARGET) \
+	        -XTHREAD_SANITIZER=$(THREAD_SANITIZER)
 
 GPR_STATIC = -XLIBRARY_TYPE=static -XXMLADA_BUILD=static
 GPR_SHARED = -XLIBRARY_TYPE=relocatable -XXMLADA_BUILD=relocatable
@@ -344,6 +345,7 @@ gen_setup:
 	echo "DEBUG=$(DEBUG)" >> makefile.setup
 	echo "PROCESSORS=$(PROCESSORS)" >> makefile.setup
 	echo "TARGET=$(TARGET)" >> makefile.setup
+	echo "THREAD_SANITIZER=$(THREAD_SANITIZER)" >> makefile.setup
 	echo "GSOAP=false" >> makefile.setup
 
 setup: gen_setup setup_dir setup_modules setup_config setup_tp $(GEXT_MODULE)
