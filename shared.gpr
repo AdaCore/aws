@@ -27,6 +27,10 @@ abstract project Shared is
 
    Processors := External ("PROCESSORS", "0");
 
+   type Boolean is ("true", "false");
+
+   Thread_Sanitizer : Boolean := External ("THREAD_SANITIZER", "false");
+
    -------------
    -- SOCKLIB --
    -------------
@@ -117,9 +121,19 @@ abstract project Shared is
    Global_Options := ();
    --  Options used for all Ada units in both Debug and Release modes
 
+   Instrument_Options := ();
+   --  Instrumentation option
+
+   case Thread_Sanitizer is
+      when "false" =>
+         null;
+      when "true" =>
+         Instrument_Options := ("-fsanitize=thread");
+   end case;
+
    Common_Options :=
      ("-gnat2012", "-gnatwcfijkmruv", "-gnaty3abBcdefhiIklmnoOprstx")
-     & Global_Options;
+     & Global_Options & Instrument_Options;
    --  Common options used for the Debug and Release modes
 
    Debug_Options :=
@@ -184,7 +198,7 @@ abstract project Shared is
    ------------
 
    package Linker is
-      for Default_Switches ("Ada") use Ldflags;
+      for Default_Switches ("Ada") use Ldflags & Instrument_Options;
    end Linker;
 
    --  LDFLAGS should come first so that command line settings

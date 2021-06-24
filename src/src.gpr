@@ -87,6 +87,9 @@ library project Src is
          end case;
    end case;
 
+   for Library_Options use
+     Project'Library_Options & Shared.Instrument_Options;
+
    case Shared.LDAP is
       when "Installed" =>
          for Source_Dirs use Project'Source_Dirs & ("ldap");
