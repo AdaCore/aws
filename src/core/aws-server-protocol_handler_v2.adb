@@ -863,6 +863,13 @@ begin
                   HTTP2.Frame.Ping.Create
                     (Flags => HTTP2.Frame.End_Stream_Flag).Send (Sock.all);
                end if;
+
+            when Compression_Error =>
+               HTTP2.Frame.GoAway.Create
+                 (Stream_Id => Last_SID,
+                  Error     => C_Compression_Error).Send (Sock.all);
+               Will_Close := True;
+               exit For_Every_Frame;
          end;
 
          if not H2C_Answer.Is_Empty then

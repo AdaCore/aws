@@ -38,7 +38,8 @@ package AWS.HTTP2 with Pure is
 
    type Stream_Id is new Natural range 0 .. 2 ** 31 - 1;
 
-   Protocol_Error : exception;
+   Protocol_Error    : exception;
+   Compression_Error : exception;
 
    type Error_Codes is
      (C_No_Error, C_Protocol_Error, C_Internal_Error, C_Flow_Control_Error,
