@@ -301,7 +301,9 @@ package body AWS.HTTP2.HPACK is
               or else Data
             then
                --  This is a decoding error
-               raise Protocol_Error with "error dynamic table update";
+               raise Protocol_Error with
+                 Exception_Message
+                   (C_Protocol_Error, "error dynamic table update");
             else
                Settings.Set_Dynamic_Header_Table_Size (Natural (Idx));
             end if;
@@ -367,7 +369,9 @@ package body AWS.HTTP2.HPACK is
             Data := True;
 
          else
-            raise Protocol_Error with "hpack unknown data : " & Byte'Img;
+            raise Protocol_Error with
+              Exception_Message
+                (C_Protocol_Error, "hpack unknown data : " & Byte'Img);
          end if;
 
          if HTTP2.Debug then

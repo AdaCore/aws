@@ -162,7 +162,8 @@ package body AWS.HTTP2.Frame is
             return Frame.Push_Promise.Read (Sock, H);
 
          when K_Invalid =>
-            raise Protocol_Error;
+            raise Protocol_Error with
+              Exception_Message (C_Protocol_Error, "invalid frame kind");
       end case;
    end Read;
 
