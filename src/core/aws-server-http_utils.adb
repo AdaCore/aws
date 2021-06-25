@@ -1964,7 +1964,7 @@ package body AWS.Server.HTTP_Utils is
          procedure Send_File_Content is new Send_File_G (Data_Received);
 
       begin
-         Send_File_Content (HTTP_Server, Line_Index, File, 0, Length);
+         Send_File_Content (HTTP_Server, Line_Index, File, 1, Length);
       end Send_File;
 
       ---------------------
