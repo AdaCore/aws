@@ -132,7 +132,9 @@ package body AWS.HTTP2.Stream is
                end if;
 
                if Length = 0 then
-                  raise Protocol_Error with "header with length of 0";
+                  raise Protocol_Error with
+                    Exception_Message
+                      (C_Protocol_Error, "header with length of 0");
                end if;
             end if;
 
@@ -176,7 +178,8 @@ package body AWS.HTTP2.Stream is
          return Get_Headers (Ctx.Table, Ctx.Settings);
       exception
          when E : others =>
-            raise Protocol_Error with Exception_Message (E);
+            raise Protocol_Error with
+              Exception_Message (C_Protocol_Error, Exception_Message (E));
       end Parse_Header;
 
       H       : Headers.List;
@@ -491,7 +494,8 @@ package body AWS.HTTP2.Stream is
                when K_Priority =>
                   null;
                when others =>
-                  raise Protocol_Error;
+                  raise Protocol_Error with
+                    Exception_Message (C_Protocol_Error, "stream state error");
             end case;
 
          when Open =>
@@ -527,7 +531,8 @@ package body AWS.HTTP2.Stream is
                when K_Priority | K_Headers =>
                   null;
                when others =>
-                  raise Protocol_Error;
+                  raise Protocol_Error with
+                    Exception_Message (C_Protocol_Error, "stream state error");
             end case;
 
          when Half_Closed_Local =>

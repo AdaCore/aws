@@ -527,7 +527,8 @@ procedure Protocol_Handler_V2 (LA : in out Line_Attribute_Record) is
       Validate_Headers (Headers, Error);
 
       if Error /= HTTP2.C_No_Error then
-         raise HTTP2.Protocol_Error with "headers validity check fails";
+         raise HTTP2.Protocol_Error with
+           HTTP2.Exception_Message (Error, "headers validity check fails");
       end if;
 
       --  And set the request information using an HTTP/1 request line format
@@ -611,7 +612,9 @@ begin
          HTTP2.Frame.GoAway.Create
            (Stream_Id => 0,
             Error     => HTTP2.C_Protocol_Error).Send (Sock.all);
-         raise HTTP2.Protocol_Error with "wrong connection preface";
+         raise HTTP2.Protocol_Error with
+           HTTP2.Exception_Message
+             (HTTP2.C_Protocol_Error, "wrong connection preface");
       end if;
    end;
 
@@ -864,10 +867,11 @@ begin
                     (Flags => HTTP2.Frame.End_Stream_Flag).Send (Sock.all);
                end if;
 
-            when Compression_Error =>
+            when E : Protocol_Error =>
                HTTP2.Frame.GoAway.Create
                  (Stream_Id => Last_SID,
-                  Error     => C_Compression_Error).Send (Sock.all);
+                  Error     => Exception_Code (Exception_Message (E))).
+                    Send (Sock.all);
                Will_Close := True;
                exit For_Every_Frame;
          end;

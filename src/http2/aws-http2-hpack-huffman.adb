@@ -404,7 +404,8 @@ package body AWS.HTTP2.HPACK.Huffman is
             --  Check for an EOS not at the end of the string
 
             if (V and EOS) = EOS and then K /= Str'Last then
-               raise HTTP2.Compression_Error with "found EOS";
+               raise Protocol_Error with
+                 Exception_Message (C_Compression_Error, "found EOS");
             end if;
 
             for B in reverse 0 .. 7 loop
@@ -427,9 +428,13 @@ package body AWS.HTTP2.HPACK.Huffman is
       end loop;
 
       if Padding > 7 then
-         raise HTTP2.Compression_Error with "more than 7 bits of padding";
+         raise Protocol_Error
+           with Exception_Message
+             (C_Compression_Error, "more than 7 bits of padding");
       elsif Pad_0 then
-         raise HTTP2.Compression_Error with "padding with 0";
+         raise Protocol_Error
+           with Exception_Message
+             (C_Compression_Error, "padding with 0");
       end if;
 
       return Result (1 .. I);
