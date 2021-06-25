@@ -230,7 +230,8 @@ package body AWS.HTTP2.HPACK is
          end;
       end Get_String_Literal;
 
-      Idx : Stream_Element_Offset;
+      Idx  : Stream_Element_Offset;
+      Data : Boolean := False;
 
    begin
       while not End_Of_Stream loop
@@ -252,6 +253,8 @@ package body AWS.HTTP2.HPACK is
             end if;
 
             Get_Indexed_Name_Value (Idx);
+
+            Data := True;
 
          elsif BG2.B20 = B_II then
             --  Incremental indexing - Indexed name (RFC-7541 / 6.2.1)
@@ -282,6 +285,8 @@ package body AWS.HTTP2.HPACK is
                AWS.Headers.Add (Headers, Name, Value);
             end;
 
+            Data := True;
+
          elsif BG3.B30 = B_Dyn_Table then
             --  Dynamic Table Size Update (RFC-7541 / 6.3)
             --
@@ -292,7 +297,9 @@ package body AWS.HTTP2.HPACK is
 
             Idx := Get_Integer (5);
 
-            if Natural (Idx) > Settings.Header_Table_Size then
+            if Natural (Idx) > Settings.Header_Table_Size
+              or else Data
+            then
                --  This is a decoding error
                raise Protocol_Error with "error dynamic table update";
             else
@@ -328,6 +335,8 @@ package body AWS.HTTP2.HPACK is
                AWS.Headers.Add (Headers, Name, Value);
             end;
 
+            Data := True;
+
          elsif BG4.B40 = B_No_Indexing then
             --  No indexing - Indexed Name (RFC-7541 / 6.2.2)
             --
@@ -354,6 +363,8 @@ package body AWS.HTTP2.HPACK is
             begin
                AWS.Headers.Add (Headers, Name, Value);
             end;
+
+            Data := True;
 
          else
             raise Protocol_Error with "hpack unknown data : " & Byte'Img;

@@ -34,11 +34,11 @@ with Ada.Strings.Unbounded;
 
 with AWS.Headers;
 with AWS.HTTP2.Connection;
-with AWS.HTTP2.HPACK;
 with AWS.HTTP2.Frame.Continuation;
 with AWS.HTTP2.Frame.Data;
 with AWS.HTTP2.Frame.Headers;
 with AWS.HTTP2.Frame.Window_Update;
+with AWS.HTTP2.HPACK;
 
 package body AWS.HTTP2.Stream is
 
@@ -203,7 +203,8 @@ package body AWS.HTTP2.Stream is
                Payload := Frame.Data.Object (F).Payload;
 
             when others =>
-               raise Constraint_Error;
+               raise Constraint_Error with
+                 "wrong frame kind registered in message object";
          end case;
       end loop;
 
@@ -275,7 +276,7 @@ package body AWS.HTTP2.Stream is
          return;
       end if;
 
-      --  Handle frame's kind and state
+      --  Handle Stream States - See RFC-7540 5.1
 
       case Self.State is
          when Idle =>
@@ -475,6 +476,8 @@ package body AWS.HTTP2.Stream is
                      Frame.Has_Flag (HTTP2.Frame.End_Stream_Flag);
    begin
       Frame.Send (Self.Sock.all);
+
+      --  Handle Stream States - See RFC-7540 5.1
 
       case Self.State is
          when Idle =>

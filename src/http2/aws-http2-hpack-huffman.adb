@@ -382,8 +382,13 @@ package body AWS.HTTP2.HPACK.Huffman is
       Result : String (1 .. Positive (Str'Length) * 3);
       I      : Natural := 0;
 
+      EOS    : constant Unsigned_32 := 16#fffffffa#;
+
       type Byte_Bits is array (0 .. 7) of Bit with Pack;
-      Iter : Node_Access := Root;
+      Iter    : Node_Access := Root;
+      Padding : Natural := 0;
+      Pad_0   : Boolean := False;
+      V       : Unsigned_32 := 0;
 
    begin
       for K in Str'Range loop
@@ -392,14 +397,40 @@ package body AWS.HTTP2.HPACK.Huffman is
             Bits : Byte_Bits with Size => 8, Address => E'Address;
             C    : Character;
          begin
+            --  Keep last four bytes to check for EOS
+
+            V :=  Shift_Left (V, 8) or Unsigned_32 (E);
+
+            --  Check for an EOS not at the end of the string
+
+            if (V and EOS) = EOS and then K /= Str'Last then
+               raise HTTP2.Compression_Error with "found EOS";
+            end if;
+
             for B in reverse 0 .. 7 loop
-               if Decode_Bit (Iter, Bits (B), C) then
-                  I := I + 1;
-                  Result (I) := C;
-               end if;
+               declare
+                  Bit : constant Huffman.Bit := Bits (B);
+               begin
+                  if Decode_Bit (Iter, Bit, C) then
+                     I := I + 1;
+                     Result (I) := C;
+                     Padding := 0;
+                     Pad_0 := False;
+
+                  else
+                     Padding := Padding + 1;
+                     Pad_0 := Pad_0 or else (Bit = 0);
+                  end if;
+               end;
             end loop;
          end;
       end loop;
+
+      if Padding > 7 then
+         raise HTTP2.Compression_Error with "more than 7 bits of padding";
+      elsif Pad_0 then
+         raise HTTP2.Compression_Error with "padding with 0";
+      end if;
 
       return Result (1 .. I);
    end Decode;
