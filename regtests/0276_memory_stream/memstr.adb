@@ -49,6 +49,7 @@ procedure MemStr is
 
    S      : Mem.Stream_Type;
    Buffer : Stream_Element_Array (1 .. 10);
+   Ptr    : Stream_Access;
    Read   : Stream_Element_Array (1 .. 4);
    Last   : Stream_Element_Offset;
 
@@ -57,14 +58,19 @@ begin
       Buffer (K) := Stream_Element (K);
    end loop;
 
-   Mem.Append (S, Buffer);
+   Ptr := new Stream_Element_Array (Stream_Element_Offset'First
+                                    .. Stream_Element_Offset'First + 9);
+   Ptr.all := Buffer;
+   Mem.Append (S, Ptr);
+   Mem.Set_Index (S, 1);
+
    Display (S);
 
    Mem.Read (S, Read (1 .. 2), Last);
    Display (S);
 
    if Read (1 .. 2) /= Buffer (1 .. 2) then
-      Text_IO.Put_Line ("1. Read failed!");
+      Text_IO.Put_Line ("1. Read failed! " & Read (1)'Img & Read (2)'Img);
    end if;
 
    Mem.Read (S, Read (1 .. 4), Last);
@@ -89,6 +95,16 @@ begin
 
    Mem.Reset (S);
    Display (S);
+
+   for J in Stream_Element_Offset range 4 .. 90 loop
+      Mem.Read (S, Read, Last);
+
+      if Read /= Buffer (Read'Range) then
+         Text_IO.Put_Line (J'Img & ". Read failed!");
+      end if;
+
+      Mem.Set_Index (S, 100 * J + 1);
+   end loop;
 
    Mem.Close (S);
    Display (S);

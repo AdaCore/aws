@@ -43,6 +43,9 @@ package body Memory_Streams is
 
    function Last (Item : in Buffer_Access) return Element_Index with Inline;
 
+   function Length (Item : in Buffer_Access) return Element_Index is
+     (if Item.Steady then Item.Const'Length else Item.Data'Length);
+
    ------------
    -- Append --
    ------------
@@ -157,7 +160,6 @@ package body Memory_Streams is
          Stream.First.Const    := Data;
          Stream.Current        := Stream.First;
          Stream.Last           := Stream.First;
-         Stream.Last_Length    := Data'Length;
          Stream.Current_Offset := Data'First;
 
       else
@@ -166,10 +168,10 @@ package body Memory_Streams is
          Stream.Last.Next       := new Buffer_Type (True);
          Stream.Last            := Stream.Last.Next;
          Stream.Last.Const      := Data;
-         Stream.Last_Length     := Data'Length;
       end if;
 
-      Stream.Length  := Stream.Length + Data'Length;
+      Stream.Last_Length := Data'Length;
+      Stream.Length      := Stream.Length + Data'Length;
    end Append;
 
    procedure Append
@@ -185,7 +187,6 @@ package body Memory_Streams is
          Stream.First.Data     := Data;
          Stream.Current        := Stream.First;
          Stream.Last           := Stream.First;
-         Stream.Last_Length    := Data'Length;
          Stream.Current_Offset := Data'First;
 
       else
@@ -194,10 +195,10 @@ package body Memory_Streams is
          Stream.Last.Next       := new Buffer_Type (False);
          Stream.Last            := Stream.Last.Next;
          Stream.Last.Data       := Data;
-         Stream.Last_Length     := Data'Length;
       end if;
 
-      Stream.Length  := Stream.Length + Data'Length;
+      Stream.Last_Length := Data'Length;
+      Stream.Length      := Stream.Length + Data'Length;
    end Append;
 
    -----------
@@ -211,16 +212,9 @@ package body Memory_Streams is
       while Stream.First /= null loop
          First := Stream.First;
 
-         if First.Next = null then
-            Length := Length + Stream.Last_Length;
-
-         else
-            if First.Steady then
-               Length := Length + First.Const'Length;
-            else
-               Length := Length + First.Data'Length;
-            end if;
-         end if;
+         Length := Length +
+           (if First.Next = null then Stream.Last_Length
+            else Memory_Streams.Length (First));
 
          Stream.First := First.Next;
          Free (First);
@@ -295,33 +289,27 @@ package body Memory_Streams is
    -------------
 
    function Pending (Stream : in Stream_Type) return Element_Offset is
+      B : Buffer_Access := Stream.Current;
+      S : Element_Index'Base;
    begin
-      if Stream.Current = null then
+      if B = null then
          return 0;
-
-      else
-         declare
-            B : Buffer_Access := Stream.Current;
-            S : Element_Offset := 0;
-         begin
-            while B /= null loop
-               if B.Next = null then
-                  if B.Steady then
-                     S := S + Last (B);
-                  else
-                     S := S + Stream.Last_Length - Stream.Current_Offset + 1;
-                  end if;
-
-               else
-                  S := S + Last (B);
-               end if;
-
-               B := B.Next;
-            end loop;
-
-            return S;
-         end;
       end if;
+
+      S := First (Stream.Current) - Stream.Current_Offset;
+
+      loop
+         if B.Next = null then
+            S := S + Stream.Last_Length;
+            exit;
+         else
+            S := S + Length (B);
+         end if;
+
+         B := B.Next;
+      end loop;
+
+      return S;
    end Pending;
 
    ----------
@@ -429,7 +417,8 @@ package body Memory_Streams is
    procedure Reset (Stream : in out Stream_Type) is
    begin
       Stream.Current        := Stream.First;
-      Stream.Current_Offset := 1;
+      Stream.Current_Offset := (if Stream.Current = null then 1
+                                else First (Stream.Current));
    end Reset;
 
    ---------------
@@ -440,21 +429,23 @@ package body Memory_Streams is
      (Stream : in out Stream_Type;
       To     : in     Element_Offset)
    is
-      Idx : Element_Offset := Last (Stream.First);
+      Idx : Element_Offset;
    begin
       if To < 1 or else To > Size (Stream) then
          Stream.Current        := Stream.Last;
          Stream.Current_Offset := Last (Stream.Current) + 1;
 
       else
-         Stream.Current        := Stream.First;
+         Idx := Length (Stream.First);
+
+         Stream.Current := Stream.First;
 
          while Idx < To loop
             Stream.Current := Stream.Current.Next;
-            Idx := Idx + Last (Stream.Current);
+            Idx := Idx + Length (Stream.Current);
          end loop;
 
-         Stream.Current_Offset := Last (Stream.Current) - Idx + To;
+         Stream.Current_Offset := Last (Stream.Current) + To - Idx;
       end if;
    end Set_Index;
 
@@ -486,8 +477,7 @@ package body Memory_Streams is
                    (Stream.Last.Data (1 .. Stream.Last_Length));
       begin
          Free (Stream.Last.Data);
-         Stream.Last.Data   := Ptr;
-         Stream.Last_Length := Ptr'Length;
+         Stream.Last.Data := Ptr;
       end;
    end Trim_Last_Block;
 
