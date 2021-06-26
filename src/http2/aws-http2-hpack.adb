@@ -430,15 +430,50 @@ package body AWS.HTTP2.HPACK is
       ----------
 
       procedure Send (Str : String) is
+
+         procedure Send_Integer (I : Positive; N : Bit8);
+         --  Encode integer I on N bits (RFC-7541 5.1)
+
          H : Bit8;
          S : Stream_Element_Array (1 .. 1) with Address => H'Address;
-      begin
-         --  ??? if Str'Length > 127 (7 bits) we need to encode the
-         --  ??? integer on multiple bytes (5.1).
-         --  ??? also Str is never huffman encoded
 
-         H := Str'Length;
-         Append (S (1));
+         ------------------
+         -- Send_Integer --
+         ------------------
+
+         procedure Send_Integer (I : Positive; N : Bit8) is
+            Last : constant Byte_4 := 2 ** Natural (N);
+            Mask : constant Byte_4 := Last - 1;
+            V    : Byte_4 := Byte_4 (I);
+         begin
+            if V < Mask then
+               H := Bit8 (V);
+               Append (S (1));
+
+            else
+               --  Set 7 bits to one in first byte
+
+               H := Bit8 (Mask);
+               Append (S (1));
+
+               V := V - Mask;
+
+               while V >= Last loop
+                  H := Bit8 ((V mod Last) + Last);
+                  V  := V / Last;
+               end loop;
+
+               --  Finaly encode the remainder (< 2 ** N) into last byte
+
+               H := Bit8 (V);
+               Append (S (1));
+            end if;
+         end Send_Integer;
+
+      begin
+         --  ??? Str is never huffman encoded
+
+         Send_Integer (I => Str'Length, N => 7);
 
          for K in Str'Range loop
             Append (Stream_Element (Character'Pos (Str (K))));
