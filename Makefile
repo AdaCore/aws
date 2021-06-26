@@ -140,6 +140,10 @@ else
 TPREFIX=$(DESTDIR)$(prefix)
 endif
 
+ifndef THREAD_SANITIZER
+THREAD_SANITIZER=false
+endif
+
 #  Install directories
 
 I_INC	= $(TPREFIX)/include/aws
