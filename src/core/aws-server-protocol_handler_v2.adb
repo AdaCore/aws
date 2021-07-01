@@ -261,7 +261,8 @@ procedure Protocol_Handler_V2 (LA : in out Line_Attribute_Record) is
    procedure Handle_HTTP2_Settings is
       HTTP2_Settings   : constant String :=
                            AWS.Headers.Get_Values
-                             (AWS.Status.Header (LA.Stat), "HTTP2-Settings");
+                             (AWS.Status.Header (LA.Stat),
+                              Messages.HTTP2_Settings);
       Settings_Payload : constant Stream_Element_Array :=
                            Translator.Base64_Decode (HTTP2_Settings);
       Frame            : constant HTTP2.Frame.Settings.Object :=
