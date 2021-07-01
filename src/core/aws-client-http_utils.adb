@@ -776,11 +776,8 @@ package body AWS.Client.HTTP_Utils is
          end if;
       end if;
 
-      Connection.F_Headers :=
-        Connection.F_Headers.Union (Headers, Unique => True);
-
-      Connection.F_Headers :=
-        Connection.F_Headers.Union (Connection.C_Headers, Unique => True);
+      Connection.F_Headers.Union (Headers, Unique => True);
+      Connection.F_Headers.Union (Connection.C_Headers, Unique => True);
 
       --  Header command
 

@@ -262,7 +262,7 @@ package body AWS.HTTP2.Message is
                  (Messages.Status_Token,
                   Messages.Image (Status_Code));
 
-               Headers := Headers.Union (Self.Headers, True);
+               Headers.Union (Self.Headers, False);
 
                Handle_Headers (Headers);
                Self.H_Sent := True;
@@ -329,7 +329,7 @@ package body AWS.HTTP2.Message is
                         Messages.To_HTTP_Date (File_Time));
                   end if;
 
-                  Headers := Headers.Union (Self.Headers, True);
+                  Headers.Union (Self.Headers, False);
 
                   Handle_Headers (Headers);
 

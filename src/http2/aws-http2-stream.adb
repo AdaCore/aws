@@ -192,14 +192,14 @@ package body AWS.HTTP2.Stream is
                L.Append (F);
 
                if F.Has_Flag (Frame.End_Headers_Flag) then
-                  H := H.Union (Parse_Header, Unique => True);
+                  H.Union (Parse_Header, Unique => False);
                end if;
 
             when K_Continuation =>
                L.Append (F);
 
                if F.Has_Flag (Frame.End_Headers_Flag) then
-                  H := H.Union (Parse_Header, Unique => True);
+                  H.Union (Parse_Header, Unique => False);
                end if;
 
             when K_Data =>
