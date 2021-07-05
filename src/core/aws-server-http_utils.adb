@@ -37,6 +37,7 @@ with Ada.Strings.Fixed;
 with Ada.Strings.Maps;
 with Ada.Strings.Unbounded;
 with Ada.Text_IO;
+with Ada.Unchecked_Deallocation;
 
 with GNAT.MD5;
 with GNAT.OS_Lib;
@@ -1667,33 +1668,50 @@ package body AWS.Server.HTTP_Utils is
                      --  if the WebSocket is not to be accepted. In this case
                      --  a forbidden message is sent back.
 
-                     WS : constant Net.WebSocket.Object'Class :=
-                            Net.WebSocket.Registry.Constructor
-                              (Status.URI (C_Stat))
-                              (Socket  => Status.Socket (C_Stat),
-                               Request => C_Stat);
+                     procedure Unchecked_Free is
+                       new Ada.Unchecked_Deallocation
+                          (Net.WebSocket.Object'Class,
+                           Net.WebSocket.Object_Class);
+
+                     use type Net.WebSocket.Object_Class;
+                     WS : Net.WebSocket.Object_Class;
+                     Registered : Boolean := False;
                   begin
+                     WS := Net.WebSocket.Registry.Constructor
+                        (Status.URI (C_Stat)) (C_Stat);
+
+                     if WS /= null then
+                        Net.WebSocket.Setup_Socket
+                           (WS, Status.Socket (C_Stat), C_Stat);
+                     end if;
+
                      --  Register this new WebSocket
 
-                     if WS in Net.WebSocket.Handshake_Error.Object'Class then
+                     if WS = null then
+                        Send_WebSocket_Handshake_Error
+                          (Messages.S412, "no route defined");
+
+                     elsif WS.all
+                        in Net.WebSocket.Handshake_Error.Object'Class
+                     then
                         declare
                            E : constant Net.WebSocket.Handshake_Error.Object :=
-                                 Net.WebSocket.Handshake_Error.Object (WS);
+                                 Net.WebSocket.Handshake_Error.Object (WS.all);
                         begin
                            Send_WebSocket_Handshake_Error
                              (E.Status_Code, E.Reason_Phrase);
+                           WS.Free;
+                           Unchecked_Free (WS);
                         end;
 
                      else
                         --  First try to register the WebSocket object
 
-                        declare
-                           use type Net.WebSocket.Object_Class;
-                           W : Net.WebSocket.Object_Class;
                         begin
-                           W := Net.WebSocket.Registry.Utils.Register (WS);
+                           Net.WebSocket.Registry.Utils.Register (WS);
+                           Registered := True;
 
-                           if W = null then
+                           if WS = null then
                               Send_WebSocket_Handshake_Error
                                 (Messages.S412,
                                  "too many WebSocket registered");
@@ -1705,7 +1723,7 @@ package body AWS.Server.HTTP_Utils is
                               Socket_Taken := True;
                               Will_Close := False;
 
-                              Net.WebSocket.Registry.Utils.Watch (W);
+                              Net.WebSocket.Registry.Utils.Watch (WS);
                            end if;
                         end;
                      end if;
@@ -1715,7 +1733,16 @@ package body AWS.Server.HTTP_Utils is
                         Send_WebSocket_Handshake_Error
                           (Messages.S403,
                            Exception_Message (E));
-                        WS.Shutdown;
+
+                        if Registered then
+                           --  Close will automatically free the memory for WS
+                           --  itself, by looking up the pointer in the
+                           --  registry.
+                           Net.WebSocket.Registry.Close
+                              (WS.all, "closed on error");
+                        else
+                           Unchecked_Free (WS);
+                        end if;
                   end;
 
                exception

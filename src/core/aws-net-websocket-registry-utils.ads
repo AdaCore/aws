@@ -31,10 +31,11 @@
 
 package AWS.Net.WebSocket.Registry.Utils is
 
-   function Register (WebSocket : Object'Class) return Object_Class;
-   --  Register WebSocket, returns a pointer to the registered WebSocket or
-   --  null if it was not possible to register the WebSocket. This can happen
-   --  if the server has reached the limit of opened WebSocket for example.
+   procedure Register (WebSocket : in out Object_Class);
+   --  Register WebSocket.
+   --  Free it and set it to null if it was not possible to register the
+   --  WebSocket. This can happen if the server has reached the limit of opened
+   --  WebSocket for example.
 
    procedure Watch (WebSocket : in out Object_Class) with
      Pre => WebSocket /= null;

@@ -35,9 +35,9 @@ package body AWS.Net.WebSocket.Registry.Utils is
    -- Register --
    --------------
 
-   function Register (WebSocket : Object'Class) return Object_Class is
+   procedure Register (WebSocket : in out Object_Class) is
    begin
-      return Net.WebSocket.Registry.Register (WebSocket);
+      Net.WebSocket.Registry.Register (WebSocket);
    end Register;
 
    -----------
