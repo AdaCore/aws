@@ -597,6 +597,8 @@ begin
 
    LA.Log_Data := AWS.Log.Empty_Fields_Table;
 
+   HTTP2.Connection.Set (Settings, LA.Server.Properties);
+
    --  The first bytes on the connection should be a connection preface
 
    declare

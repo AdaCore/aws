@@ -29,11 +29,19 @@
 
 --  Support connection settings from settings & windows update frames
 
+with AWS.Config;
+with AWS.Default;
+
 with AWS.HTTP2.Frame.Settings;
 
 package AWS.HTTP2.Connection is
 
    type Object is tagged private;
+
+   procedure  Set
+     (Self   : in out Object;
+      Config : AWS.Config.Object);
+   --  Set values using the configuration variables
 
    procedure Set
      (Self   : in out Object;
@@ -91,12 +99,18 @@ private
    package S renames Frame.Settings;
 
    Default_Values : constant Settings_Set :=
-                      (S.HEADER_TABLE_SIZE      =>     4_096,
-                       S.ENABLE_PUSH            =>         0,
-                       S.MAX_CONCURRENT_STREAMS =>       250,
-                       S.INITIAL_WINDOW_SIZE    =>    65_535,
-                       S.MAX_FRAME_SIZE         =>    16_384,
-                       S.MAX_HEADER_LIST_SIZE   => 1_048_576);
+                      (S.HEADER_TABLE_SIZE      =>
+                         Default.HTTP2_Header_Table_Size,
+                       S.ENABLE_PUSH            =>
+                         (if Default.HTTP2_Enable_Push then 1 else 0),
+                       S.MAX_CONCURRENT_STREAMS =>
+                         Default.HTTP2_Max_Concurrent_Streams,
+                       S.INITIAL_WINDOW_SIZE    =>
+                         Default.HTTP2_Initial_Window_Size,
+                       S.MAX_FRAME_SIZE         =>
+                         Default.HTTP2_Initial_Window_Size,
+                       S.MAX_HEADER_LIST_SIZE   =>
+                         Default.HTTP2_Max_Header_List_Size);
 
    type Object is tagged record
       Values                    : Settings_Set := Default_Values;

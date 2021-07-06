@@ -84,6 +84,9 @@ package AWS.Config.Set is
    procedure Server_Header (O : in out Object; Value : String);
    --  Set the server header (value used by the Server: request header)
 
+   procedure HTTP2_Enable_Push (O : in out Object; Value : Boolean);
+   --  Whether the server has push support
+
    ----------------
    -- Connection --
    ----------------
@@ -119,6 +122,22 @@ package AWS.Config.Set is
    --  This is the size of the queue for the incoming requests. Higher this
    --  value will be and less "connection refused" will be reported to the
    --  client.
+
+   procedure HTTP2_Header_Table_Size (O : in out Object; Value : Positive);
+   --  HTTP2 max header table size
+
+   procedure HTTP2_Max_Concurrent_Streams
+     (O : in out Object; Value : Positive);
+   --  HTTP2 maximum number of concurrent streams
+
+   procedure HTTP2_Initial_Window_Size (O : in out Object; Value : Positive);
+   --  HTTP2 initial flow control window size
+
+   procedure HTTP2_Max_Frame_Size (O : in out Object; Value : Positive);
+   --  HTTP2 the maximum size (in bytes) of a frame
+
+   procedure HTTP2_Max_Header_List_Size (O : in out Object; Value : Positive);
+   --  HTTP2 the maximum size (in bytes) of the header list
 
    ----------
    -- Data --

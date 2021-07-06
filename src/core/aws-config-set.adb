@@ -307,6 +307,62 @@ package body AWS.Config.Set is
       O.P (HTTP2_Activated).Bool_Value := Value;
    end HTTP2_Activated;
 
+   -----------------------
+   -- HTTP2_Enable_Push --
+   -----------------------
+
+   procedure HTTP2_Enable_Push (O : in out Object; Value : Boolean) is
+   begin
+      O.P (HTTP2_Enable_Push).Bool_Value := Value;
+   end HTTP2_Enable_Push;
+
+   -----------------------------
+   -- HTTP2_Header_Table_Size --
+   -----------------------------
+
+   procedure HTTP2_Header_Table_Size (O : in out Object; Value : Positive) is
+   begin
+      O.P (HTTP2_Header_Table_Size).Pos_Value := Value;
+   end HTTP2_Header_Table_Size;
+
+   -------------------------------
+   -- HTTP2_Initial_Window_Size --
+   -------------------------------
+
+   procedure HTTP2_Initial_Window_Size (O : in out Object; Value : Positive) is
+   begin
+      O.P (HTTP2_Initial_Window_Size).Pos_Value := Value;
+   end HTTP2_Initial_Window_Size;
+
+   ----------------------------------
+   -- HTTP2_Max_Concurrent_Streams --
+   ----------------------------------
+
+   procedure HTTP2_Max_Concurrent_Streams
+     (O : in out Object; Value : Positive) is
+   begin
+      O.P (HTTP2_Max_Concurrent_Streams).Pos_Value := Value;
+   end HTTP2_Max_Concurrent_Streams;
+
+   --------------------------
+   -- HTTP2_Max_Frame_Size --
+   --------------------------
+
+   procedure HTTP2_Max_Frame_Size (O : in out Object; Value : Positive) is
+   begin
+      O.P (HTTP2_Max_Frame_Size).Pos_Value := Value;
+   end HTTP2_Max_Frame_Size;
+
+   --------------------------------
+   -- HTTP2_Max_Header_List_Size --
+   --------------------------------
+
+   procedure HTTP2_Max_Header_List_Size
+     (O : in out Object; Value : Positive) is
+   begin
+      O.P (HTTP2_Max_Header_List_Size).Pos_Value := Value;
+   end HTTP2_Max_Header_List_Size;
+
    ---------------------------
    -- Input_Line_Size_Limit --
    ---------------------------
