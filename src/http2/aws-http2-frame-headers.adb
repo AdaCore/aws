@@ -149,9 +149,7 @@ package body AWS.HTTP2.Frame.Headers is
    --------------
 
    overriding function Validate
-     (Self     : Object;
-      Settings : not null access constant Connection.Object)
-      return Error_Codes
+     (Self : Object; Settings : Connection.Object) return Error_Codes
    is
       Off : constant Length_Type := Length_Type (Get_Headers_Offset (Self));
    begin

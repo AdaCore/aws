@@ -68,8 +68,7 @@ package AWS.HTTP2.Frame is
 
    function Read
      (Sock     : Net.Socket_Type'Class;
-      Settings : not null access constant Connection.Object)
-      return Object'Class;
+      Settings : Connection.Object) return Object'Class;
    --  Read a frame, the frame is composed of a standard header. The header
    --  kind is encoded into the header. The remaining of the frame is read
    --  by dedecated routines the child packegs.
@@ -111,7 +110,7 @@ package AWS.HTTP2.Frame is
 
    function Validate
      (Self     : Object;
-      Settings : not null access constant Connection.Object) return Error_Codes
+      Settings : Connection.Object) return Error_Codes
      with Pre'Class => Self.Is_Defined;
    --  Validate the frame content and return an error code different than
    --  C_No_Error if the frame is malformed. This default implementation return

@@ -74,9 +74,7 @@ package AWS.HTTP2.Frame.Priority is
    --  Send the priority frame payload
 
    overriding function Validate
-     (Self     : Object;
-      Settings : not null access constant Connection.Object)
-      return Error_Codes;
+     (Self : Object; Settings : Connection.Object) return Error_Codes;
 
    overriding procedure Dump_Payload (Self : Object);
 

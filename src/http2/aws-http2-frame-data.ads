@@ -63,9 +63,7 @@ package AWS.HTTP2.Frame.Data is
    --  Send the payload data
 
    overriding function Validate
-     (Self     : Object;
-      Settings : not null access constant Connection.Object)
-      return Error_Codes;
+     (Self : Object; Settings : Connection.Object) return Error_Codes;
 
    function Payload (Self : Object) return Unbounded_String
      with Pre => Self.Is_Defined;

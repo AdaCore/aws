@@ -114,9 +114,7 @@ package body AWS.HTTP2.Frame.GoAway is
    --------------
 
    overriding function Validate
-     (Self     : Object;
-      Settings : not null access constant Connection.Object)
-      return Error_Codes is
+     (Self : Object; Settings : Connection.Object) return Error_Codes is
    begin
       if Self.Header.H.Stream_Id /= 0 then
          return C_Protocol_Error;
