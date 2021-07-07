@@ -63,9 +63,7 @@ package AWS.HTTP2.Frame.Headers is
    --  Send payload content
 
    overriding function Validate
-     (Self     : Object;
-      Settings : not null access constant Connection.Object)
-      return Error_Codes;
+     (Self : Object; Settings : Connection.Object) return Error_Codes;
 
    --  Iterator interface
 

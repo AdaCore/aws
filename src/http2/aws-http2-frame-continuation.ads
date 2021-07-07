@@ -51,9 +51,7 @@ package AWS.HTTP2.Frame.Continuation is
      (Self : Object; Sock : Net.Socket_Type'Class);
 
    overriding function Validate
-     (Self     : Object;
-      Settings : not null access constant Connection.Object)
-      return Error_Codes;
+     (Self : Object; Settings : Connection.Object) return Error_Codes;
 
    --  Iterator interface
 

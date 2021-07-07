@@ -109,7 +109,7 @@ package body AWS.HTTP2.Frame is
 
    function Read
      (Sock     : Net.Socket_Type'Class;
-      Settings : not null access constant Connection.Object)
+      Settings : Connection.Object)
       return Object'Class
    is
       H : Object;
@@ -204,8 +204,7 @@ package body AWS.HTTP2.Frame is
    --------------
 
    function Validate
-     (Self     : Object;
-      Settings : not null access Connection.Object) return Error_Codes
+     (Self : Object; Settings : Connection.Object) return Error_Codes
    is
       Kind : Frame.Kind_Type renames Self.Header.H.Kind;
    begin

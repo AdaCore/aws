@@ -633,7 +633,7 @@ begin
       --  First frame should be a setting frame
       declare
          Frame : constant HTTP2.Frame.Object'Class :=
-                   HTTP2.Frame.Read (Sock.all, Settings'Access);
+                   HTTP2.Frame.Read (Sock.all, Settings);
       begin
          Settings.Set (HTTP2.Frame.Settings.Object (Frame).Values);
       end;
@@ -727,11 +727,8 @@ begin
             declare
                use type HTTP2.Error_Codes;
 
-               SA : constant not null access constant Connection.Object :=
-                      Settings'Access;
-
                Frame      : constant HTTP2.Frame.Object'Class :=
-                              HTTP2.Frame.Read (Sock.all, Settings'Access);
+                              HTTP2.Frame.Read (Sock.all, Settings);
                Stream_Id  : constant HTTP2.Stream_Id := Frame.Stream_Id;
                Prev_State : Stream.State_Kind;
                Error      : Error_Codes;
@@ -770,12 +767,12 @@ begin
                   Will_Close := True;
                   exit For_Every_Frame;
 
-               elsif Frame.Validate (Settings'Access) /= C_No_Error then
+               elsif Frame.Validate (Settings) /= C_No_Error then
                   --  Send a GOAWAY response right now
 
                   HTTP2.Frame.GoAway.Create
                     (Stream_Id => Last_SID,
-                     Error     => Frame.Validate (SA)).Send (Sock.all);
+                     Error     => Frame.Validate (Settings)).Send (Sock.all);
 
                   Will_Close := True;
                   exit For_Every_Frame;
