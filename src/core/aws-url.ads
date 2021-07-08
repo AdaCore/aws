@@ -104,15 +104,11 @@ package AWS.URL is
    --  Returns the port image (preceded by character ':') if it is not the
    --  default port. Returns the empty string otherwise.
 
-   function Abs_Path
-     (URL    : Object;
-      Encode : Boolean := False) return String;
+   function Abs_Path (URL : Object) return String;
    --  Returns the absolute path. This is the complete resource reference
    --  without the query part.
 
-   function Query
-     (URL    : Object;
-      Encode : Boolean := False) return String;
+   function Query (URL : Object) return String;
    --  Returns the Query part of the URL or the empty string if none was
    --  specified. Note that character '?' is not part of the Query and is
    --  therefore not returned.
@@ -136,29 +132,23 @@ package AWS.URL is
    function Security (URL : Object) return Boolean;
    --  Returns True if it is a Secure HTTP (HTTPS) URL
 
-   function Path (URL : Object; Encode : Boolean := False) return String;
+   function Path (URL : Object) return String;
    --  Returns the Path (including the leading slash). If Encode is True then
    --  the URL will be encoded using the Encode routine.
 
-   function File (URL : Object; Encode : Boolean := False) return String;
+   function File (URL : Object) return String;
    --  Returns the File. If Encode is True then the URL will be encoded using
    --  the Encode routine. Not that by File here we mean the latest part of
    --  the URL, it could be a real file or a diretory into the filesystem.
    --  Parent and current directories are part of the path.
 
-   function Parameters
-     (URL    : Object;
-      Encode : Boolean := False) return String;
+   function Parameters (URL : Object) return String;
    --  Returns the Parameters (including the starting ? character). If Encode
    --  is True then the URL will be encoded using the Encode routine.
 
-   function Pathname
-     (URL    : Object;
-      Encode : Boolean := False) return String renames Abs_Path;
+   function Pathname (URL : Object) return String renames Abs_Path;
 
-   function Pathname_And_Parameters
-     (URL    : Object;
-      Encode : Boolean := False) return String;
+   function Pathname_And_Parameters (URL : Object) return String;
    --  Returns the pathname and the parameters. This is equivalent to:
    --  Pathname & Parameters.
 

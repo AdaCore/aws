@@ -55,17 +55,9 @@ package body AWS.URL is
    -- Abs_Path --
    --------------
 
-   function Abs_Path
-     (URL    : Object;
-      Encode : Boolean := False) return String
-   is
-      Result : constant String := To_String (URL.Path & URL.File);
+   function Abs_Path (URL : Object) return String is
    begin
-      if Encode then
-         return AWS.URL.Encode (Result);
-      else
-         return Result;
-      end if;
+      return To_String (URL.Path & URL.File);
    end Abs_Path;
 
    ----------------------
@@ -221,15 +213,9 @@ package body AWS.URL is
    -- File --
    ----------
 
-   function File
-     (URL    : Object;
-      Encode : Boolean := False) return String is
+   function File (URL : Object) return String is
    begin
-      if Encode then
-         return AWS.URL.Encode (To_String (URL.File));
-      else
-         return To_String (URL.File);
-      end if;
+      return To_String (URL.File);
    end File;
 
    --------------
@@ -299,23 +285,9 @@ package body AWS.URL is
       return URL.Parameters;
    end Parameters;
 
-   function Parameters
-     (URL    : Object;
-      Encode : Boolean := False) return String
-   is
-      P : constant String := AWS.Parameters.URI_Format (URL.Parameters);
+   function Parameters (URL : Object) return String is
    begin
-      if P'Length = 0 then
-         --  No parameter, we do not want the leading '?'
-         return "";
-
-      else
-         if Encode then
-            return '?' & AWS.URL.Encode (P (P'First + 1 .. P'Last));
-         else
-            return '?' & P (P'First + 1 .. P'Last);
-         end if;
-      end if;
+      return AWS.Parameters.URI_Format (URL.Parameters);
    end Parameters;
 
    -----------
@@ -347,26 +319,18 @@ package body AWS.URL is
    -- Path --
    ----------
 
-   function Path
-     (URL    : Object;
-      Encode : Boolean := False) return String is
+   function Path (URL : Object) return String is
    begin
-      if Encode then
-         return AWS.URL.Encode (To_String (URL.Path));
-      else
-         return To_String (URL.Path);
-      end if;
+      return To_String (URL.Path);
    end Path;
 
    -----------------------------
    -- Pathname_And_Parameters --
    -----------------------------
 
-   function Pathname_And_Parameters
-     (URL    : Object;
-      Encode : Boolean := False) return String is
+   function Pathname_And_Parameters (URL : Object) return String is
    begin
-      return Pathname (URL, Encode) & Parameters (URL, Encode);
+      return Pathname (URL) & Parameters (URL);
    end Pathname_And_Parameters;
 
    ----------
@@ -413,11 +377,8 @@ package body AWS.URL is
    -- Query --
    -----------
 
-   function Query
-     (URL    : Object;
-      Encode : Boolean := False) return String
-   is
-      P : constant String := Parameters (URL, Encode);
+   function Query (URL : Object) return String is
+      P : constant String := Parameters (URL);
    begin
       return P (P'First + 1 .. P'Last);
    end Query;
