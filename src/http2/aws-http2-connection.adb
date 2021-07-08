@@ -82,6 +82,12 @@ package body AWS.HTTP2.Connection is
       Self.Dynamic_Header_Table_Size := Self.Values (S.HEADER_TABLE_SIZE);
    end Set;
 
+   procedure Set
+     (Self : in out Object; Socket : Net.Socket_Type'Class) is
+   begin
+      Self.Set (Frame.Settings.Object (Frame.Read (Socket, Self)).Values);
+   end Set;
+
    ---------------------------
    -- Set_Header_Table_Size --
    ---------------------------

@@ -33,6 +33,7 @@ with AWS.Config;
 with AWS.Default;
 
 with AWS.HTTP2.Frame.Settings;
+with AWS.Net;
 
 package AWS.HTTP2.Connection is
 
@@ -47,6 +48,11 @@ package AWS.HTTP2.Connection is
      (Self   : in out Object;
       Values : Frame.Settings.Set);
    --  Record all settings from Values extracted from a settings frames
+
+   procedure Set
+     (Self   : in out Object;
+      Socket : Net.Socket_Type'Class);
+   --  Record all settings from a frame read from Socket
 
    procedure Set_Initial_Window_Size
      (Self  : in out Object;
