@@ -246,15 +246,14 @@ package body AWS.URL is
    ----------
 
    function Host
-     (URL : Object; IPv6_Brackets : Boolean := False) return String is
+     (URL : Object; IPv6_Brackets : Boolean := False) return String
+   is
+      Result : constant String := To_String (URL.Host);
    begin
-      if IPv6_Brackets
-        and then Ada.Strings.Unbounded.Index (URL.Host, ":") > 0
-      then
-         return '[' & To_String (URL.Host) & ']';
-      else
-         return To_String (URL.Host);
-      end if;
+      return (if IPv6_Brackets
+                and then Ada.Strings.Fixed.Index (Result, ":") > 0
+              then '[' & Result & ']'
+              else Result);
    end Host;
 
    --------------
@@ -390,10 +389,9 @@ package body AWS.URL is
 
    function Port_Not_Default (URL : Object) return String is
    begin
-      if (URL.Port = Default_HTTP_Port and then URL.Protocol = HTTP)
-        or else (URL.Port = Default_HTTP_Port and then URL.Protocol = WS)
-        or else (URL.Port = Default_HTTPS_Port and then URL.Protocol = HTTPS)
-        or else (URL.Port = Default_HTTPS_Port and then URL.Protocol = WSS)
+      if (URL.Port = Default_HTTP_Port and then URL.Protocol in HTTP | WS)
+        or else (URL.Port = Default_HTTPS_Port
+                 and then URL.Protocol in HTTPS | WSS)
         or else (URL.Port = Default_FTP_Port and then URL.Protocol = FTP)
       then
          return "";
