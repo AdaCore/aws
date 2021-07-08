@@ -631,12 +631,8 @@ begin
 
    else
       --  First frame should be a setting frame
-      declare
-         Frame : constant HTTP2.Frame.Object'Class :=
-                   HTTP2.Frame.Read (Sock.all, Settings);
-      begin
-         Settings.Set (HTTP2.Frame.Settings.Object (Frame).Values);
-      end;
+
+      Settings.Set (Sock.all);
    end if;
 
    --  Now send AWS settings frame
