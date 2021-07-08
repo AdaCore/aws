@@ -743,7 +743,7 @@ package body AWS.Client.HTTP_Utils is
             Send_Header
               (Sock.all,
                Method & ' '
-               & AWS.URL.Pathname_And_Parameters (Connection.Host_URL, False)
+               & AWS.URL.Pathname_And_Parameters (Connection.Host_URL)
                & ' ' & HTTP_Version);
 
          else
