@@ -188,14 +188,11 @@ package body AWS.Client.HTTP_Utils is
             URI    => "/",
             Method => Messages.Connect_Token);
 
-         declare
-            User_Agent : constant String := To_String (Connection.User_Agent);
-         begin
-            if User_Agent /= "" then
-               Set_Header
-                 (Connection.F_Headers, Messages.User_Agent_Token, User_Agent);
-            end if;
-         end;
+         if Connection.User_Agent /= Null_Unbounded_String then
+            Set_Header
+              (Connection.F_Headers, Messages.User_Agent_Token,
+               To_String (Connection.User_Agent));
+         end if;
 
          --  Send CONNECT command with headers to proxy
 
@@ -844,16 +841,12 @@ package body AWS.Client.HTTP_Utils is
          Messages.Accept_Language_Token,
          "fr, ru, us");
 
-      declare
-         User_Agent : constant String := To_String (Connection.User_Agent);
-      begin
-         if User_Agent /= "" then
-            Set_Header
-              (Connection.F_Headers,
-               Messages.User_Agent_Token,
-               User_Agent);
-         end if;
-      end;
+      if Connection.User_Agent /= Null_Unbounded_String then
+         Set_Header
+           (Connection.F_Headers,
+            Messages.User_Agent_Token,
+            To_String (Connection.User_Agent));
+      end if;
 
       if Connection.Data_Range /= No_Range then
          Set_Header
