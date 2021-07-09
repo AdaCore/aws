@@ -197,9 +197,10 @@ package body AWS.Client.HTTP_Utils is
             end if;
          end;
 
-         --  Empty line to terminate the connect
+         --  Send CONNECT command with headers to proxy
 
-         Net.Buffered.New_Line (Sock.all);
+         Headers.Send_Header
+           (Sock.all, Connection.F_Headers, End_Block => True);
 
          --  Wait for reply from the proxy, and check status
 
