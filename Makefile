@@ -184,21 +184,33 @@ GPR_DEFAULT = -XLIBRARY_TYPE=$(DEFAULT_LIBRARY_TYPE) \
 #######################################################################
 #  build
 
-build-native:
+build-tools-native:
 	$(GPRBUILD) -p $(GPROPTS) $(GPR_STATIC) tools/tools.gpr
+
+build-lib-native:
+	$(GPRBUILD) -p $(GPROPTS) aws.gpr
 ifeq (${ENABLE_SHARED}, true)
 	$(GPRBUILD) -p $(GPROPTS) $(GPR_SHARED) aws.gpr
 endif
+
+build-gps-support:
 	$(GPRBUILD) -p $(GPROPTS) $(GPR_STATIC) gps/gps_support.gpr
 	${MAKE} -C gps $(GALL_OPTIONS) after-build
 
-build-cross:
+build-native: build-tools-native build-lib-native build-gps-support
+
+build-tools-cross:
 	$(GPRBUILD) -p --target=$(TARGET) $(GPROPTS) \
 		$(GPR_STATIC) tools/tools.gpr
+
+build-lib-cross:
+	$(GPRBUILD) -p --target=$(TARGET) $(GPROPTS) aws.gpr
 ifeq (${ENABLE_SHARED}, true)
 	$(GPRBUILD) -p --target=$(TARGET) $(GPROPTS) \
 		$(GPR_SHARED) aws.gpr
 endif
+
+build-cross: build-tools-cross build-lib-cross
 
 ifeq (${IS_CROSS}, true)
 build: build-cross
