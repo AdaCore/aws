@@ -343,7 +343,8 @@ package body AWS.Server is
             TA.Server.Slots.Set (Socket, TA.Line);
 
             if Socket.Is_Secure
-              and then Net.SSL.Socket_Type (Socket.all).ALPN_Get = "h2"
+              and then Net.SSL.Socket_Type (Socket.all).ALPN_Get
+                       = Messages.H2_Token
               and then CNF.HTTP2_Activated (TA.Server.Config)
             then
                --  Protocol is secure H2
@@ -1108,8 +1109,11 @@ package body AWS.Server is
             Session_Cache_Size   =>
               CNF.SSL_Session_Cache_Size (Web_Server.Properties));
 
-         Net.SSL.ALPN_Set
-           (Web_Server.SSL_Config, Net.SSL.SV.To_Vector ("h2", 1));
+         if CNF.HTTP2_Activated (Web_Server.Properties) then
+            Net.SSL.ALPN_Set
+              (Web_Server.SSL_Config,
+               Net.SSL.SV.To_Vector (Messages.H2_Token, 1));
+         end if;
       end if;
 
       --  Create the Web Server socket set
