@@ -810,14 +810,11 @@ package body AWS.Status.Set is
             end;
          end loop;
 
-         declare
-            Upgrade : constant String :=
-                        AWS.Headers.Get (D.Header, Messages.Upgrade_Token);
-         begin
-            if Upgrade = "h2c" then
-               D.Protocol := Upgrade_To_H2C;
-            end if;
-         end;
+         if AWS.Headers.Get (D.Header, Messages.Upgrade_Token) =
+           Messages.H2C_Token
+         then
+            D.Protocol := Upgrade_To_H2C;
+         end if;
 
          --  Now double check that the session id is valid and has not been
          --  compromised.

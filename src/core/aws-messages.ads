@@ -65,6 +65,9 @@ package AWS.Messages is
    Path2_Token               : constant String := ":path";
    Scheme_Token              : constant String := ":scheme";
 
+   H2_Token                  : constant String := "h2";
+   H2C_Token                 : constant String := "h2c";
+
    --  General header tokens RFC 2616
    Cache_Control_Token       : constant String := "Cache-Control";
    Connection_Token          : constant String := "Connection";
