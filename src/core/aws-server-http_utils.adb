@@ -433,9 +433,10 @@ package body AWS.Server.HTTP_Utils is
                      Response.Set.Status_Code (Answer, Messages.S101);
 
                      Response.Set.Add_Header
-                       (Answer, Messages.Connection_Token, "Upgrade");
+                       (Answer,
+                        Messages.Connection_Token, Messages.Upgrade_Token);
                      Response.Set.Add_Header
-                       (Answer, Messages.Upgrade_Token, "h2c");
+                       (Answer, Messages.Upgrade_Token, Messages.H2C_Token);
                   end if;
 
                exception
