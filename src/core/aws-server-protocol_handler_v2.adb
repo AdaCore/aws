@@ -428,6 +428,23 @@ procedure Protocol_Handler_V2 (LA : in out Line_Attribute_Record) is
          Path_Found       : Boolean := False;
          Is_Pseudo_Header : Boolean;
 
+         procedure Check_Mandatory (Name : String; Value : Boolean);
+         --  Check mandatory pseude headers exist
+
+         ---------------------
+         -- Check_Mandatory --
+         ---------------------
+
+         procedure Check_Mandatory (Name : String; Value : Boolean) is
+         begin
+            if not Value then
+               AWS.Log.Write
+                 (LA.Server.Error_Log, LA.Stat,
+                  "Pseudo header " & Name & " must exists");
+               Error := HTTP2.C_Protocol_Error;
+            end if;
+         end Check_Mandatory;
+
       begin
          Error := HTTP2.C_No_Error;
 
@@ -438,7 +455,9 @@ procedure Protocol_Handler_V2 (LA : in out Line_Attribute_Record) is
             begin
                if Header'Length > 1 and then Header (Header'First) = ':' then
                   if Header_Found then
-                     --  Pseudo headers must appear first
+                     AWS.Log.Write
+                       (LA.Server.Error_Log, LA.Stat,
+                        "Pseudo headers must appear first");
                      Error := HTTP2.C_Protocol_Error;
                      return;
                   end if;
@@ -450,44 +469,57 @@ procedure Protocol_Handler_V2 (LA : in out Line_Attribute_Record) is
                end if;
 
                if Index (Header, Maps.Constants.Upper_Set) /= 0 then
-                  --  No upper case allowed
+                  AWS.Log.Write
+                    (LA.Server.Error_Log, LA.Stat,
+                     "No upper case allowed");
                   Error := HTTP2.C_Protocol_Error;
                   return;
 
                elsif Is_Pseudo_Header
                  and then not
-                   (Header in ":method" | ":scheme" | ":authority" | ":path")
+                   (Header in Messages.Method_Token | Messages.Scheme_Token
+                            | ":authority" | Messages.Path2_Token)
                then
-                  --  Unknown pseudo header
+                  AWS.Log.Write
+                    (LA.Server.Error_Log, LA.Stat,
+                     "Unknown pseudo header");
                   Error := HTTP2.C_Protocol_Error;
                   return;
 
-               elsif Header = ":path" and then Value = "" then
-                  --  Empty header path should be rejected
+               elsif Header = Messages.Path2_Token and then Value = "" then
+                  AWS.Log.Write
+                    (LA.Server.Error_Log, LA.Stat,
+                     "Empty header path should be rejected");
                   Error := HTTP2.C_Protocol_Error;
                   return;
 
-               elsif Header = ":method" then
+               elsif Header = Messages.Method_Token then
                   if Method_Found then
-                     --  Duplicate :method pseudo header
+                     AWS.Log.Write
+                       (LA.Server.Error_Log, LA.Stat,
+                        "Duplicate :method pseudo header");
                      Error := HTTP2.C_Protocol_Error;
                      return;
                   else
                      Method_Found := True;
                   end if;
 
-               elsif Header = ":scheme" then
+               elsif Header = Messages.Scheme_Token then
                   if Scheme_Found then
-                     --  Duplicate :scheme pseudo header
+                     AWS.Log.Write
+                       (LA.Server.Error_Log, LA.Stat,
+                        "Duplicate :scheme pseudo header");
                      Error := HTTP2.C_Protocol_Error;
                      return;
                   else
                      Scheme_Found := True;
                   end if;
 
-               elsif Header = ":path" then
+               elsif Header = Messages.Path2_Token then
                   if Path_Found then
-                     --  Duplicate :path pseudo header
+                     AWS.Log.Write
+                       (LA.Server.Error_Log, LA.Stat,
+                        "Duplicate :path pseudo header");
                      Error := HTTP2.C_Protocol_Error;
                      return;
                   else
@@ -495,13 +527,16 @@ procedure Protocol_Handler_V2 (LA : in out Line_Attribute_Record) is
                   end if;
 
                elsif Header = "connection" then
-                  --  No connection specific header allowed
-
+                  AWS.Log.Write
+                    (LA.Server.Error_Log, LA.Stat,
+                     "No connection specific header allowed");
                   Error := HTTP2.C_Protocol_Error;
                   return;
 
                elsif Header = "te" and then Value /= "trailers" then
-                  --  No TE header except with single value "trailers"
+                  AWS.Log.Write
+                    (LA.Server.Error_Log, LA.Stat,
+                     "No TE header except with single value ""trailers""");
                   Error := HTTP2.C_Protocol_Error;
                   return;
                end if;
@@ -510,9 +545,9 @@ procedure Protocol_Handler_V2 (LA : in out Line_Attribute_Record) is
 
          --  Check if mandatory pseudo headers are present
 
-         if not (Method_Found and Scheme_Found and Path_Found) then
-            Error := HTTP2.C_Protocol_Error;
-         end if;
+         Check_Mandatory (Messages.Method_Token, Method_Found);
+         Check_Mandatory (Messages.Scheme_Token, Scheme_Found);
+         Check_Mandatory (Messages.Path2_Token, Path_Found);
       end Validate_Headers;
 
       M       : constant HTTP2.Message.Object := Stream.Message (Ctx);
