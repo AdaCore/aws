@@ -177,17 +177,15 @@ package body AWS.HTTP2.Message is
 
       procedure From_File (File : in out Resources.File_Type) is
 
-         Chunk_Size : constant Stream_Element_Count :=
-                        Stream_Element_Count (Stream.Flow_Control_Window);
-         Length     : Resources.Content_Length_Type := 0;
-
-         procedure Send_File is
-           new Server.HTTP_Utils.Send_File_G (Create_Data_Frame, Chunk_Size);
+         procedure Send_File is new Server.HTTP_Utils.Send_File_G
+           (Create_Data_Frame,
+            Chunk_Size => Stream_Element_Count (Stream.Flow_Control_Window));
 
       begin
          Send_File
            (Ctx.HTTP.all, Ctx.Line, File,
-            Stream_Element_Offset (Self.Sent), Length);
+            Start  => Stream_Element_Offset (Self.Sent) + 1,
+            Length => Resources.Content_Length_Type (Self.Sent));
       end From_File;
 
       --------------------
