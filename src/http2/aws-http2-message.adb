@@ -179,7 +179,7 @@ package body AWS.HTTP2.Message is
 
          procedure Send_File is new Server.HTTP_Utils.Send_File_G
            (Create_Data_Frame,
-            Chunk_Size => Stream_Element_Count (Stream.Flow_Control_Window));
+            Chunk_Size => Stream_Element_Count (Ctx.Settings.Max_Frame_Size));
 
       begin
          Send_File
