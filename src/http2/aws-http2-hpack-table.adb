@@ -155,11 +155,11 @@ package body AWS.HTTP2.HPACK.Table is
    begin
       Insert_Static (Self, ":authority", "");
       Insert_Static (Self, ":method", "GET");
-      Insert_Static (Self, ":method", "POST  ");
-      Insert_Static (Self, ":path", "/ ");
+      Insert_Static (Self, ":method", "POST");
+      Insert_Static (Self, ":path", "/");
       Insert_Static (Self, ":path", "/index.html");
-      Insert_Static (Self, ":scheme", "http  ");
-      Insert_Static (Self, ":scheme", "https ");
+      Insert_Static (Self, ":scheme", "http");
+      Insert_Static (Self, ":scheme", "https");
       Insert_Static (Self, ":status", "200");
       Insert_Static (Self, ":status", "204");
       Insert_Static (Self, ":status", "206");
