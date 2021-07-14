@@ -42,7 +42,8 @@ package body AWS.HTTP2 is
         and then E (E'First) = '['
         and then E (E'First + 2) = ']'
       then
-         return Error_Codes'Value (String'(1 => E (E'First + 1)));
+         return Error_Codes'Val
+           (Utils.Hex_Value (String'(1 => E (E'First + 1))));
       else
          return C_No_Error;
       end if;
@@ -57,6 +58,7 @@ package body AWS.HTTP2 is
    is
       Code : constant Natural := Error_Codes'Pos (Error);
    begin
+      pragma Assert (Code < 16);
       return '[' & Utils.Hex (Code) & "] " & Message;
    end Exception_Message;
 
