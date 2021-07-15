@@ -39,7 +39,7 @@ package AWS.HTTP2.Connection is
 
    type Object is tagged private;
 
-   procedure  Set
+   procedure Set
      (Self   : in out Object;
       Config : AWS.Config.Object);
    --  Set values using the configuration variables

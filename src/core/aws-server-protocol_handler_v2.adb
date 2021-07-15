@@ -583,13 +583,9 @@ procedure Protocol_Handler_V2 (LA : in out Line_Attribute_Record) is
    --------------------------
 
    procedure Queue_Settings_Frame is
-      SP : constant HTTP2.Frame.Settings.Payload :=
-             (Id    => HTTP2.Frame.Settings.ENABLE_PUSH,
-              Value => 0);
-      --  Disable push support
+      use HTTP2.Frame.Settings;
    begin
-      HTTP2.Frame.Settings.Create
-        (HTTP2.Frame.Settings.Set'(1 => SP)).Send (Sock.all);
+      Create (To_Set (LA.Server.Properties)).Send (Sock.all);
    end Queue_Settings_Frame;
 
    ----------------
@@ -828,7 +824,9 @@ begin
 
                else
                   if not S.Contains (Stream_Id) then
-                     --  A new frame, check that Id is greater than last stream
+                     --  A new stream, check that Id is greater than last
+                     --  stream.
+
                      if Frame.Kind /= K_Priority
                        and then Stream_Id < Last_SID
                      then
@@ -883,6 +881,7 @@ begin
                   end if;
                end if;
             end;
+
          exception
             when Constraint_Error =>
                if Last_SID /= 0

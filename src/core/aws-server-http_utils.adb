@@ -1875,9 +1875,9 @@ package body AWS.Server.HTTP_Utils is
       Length      : in out Resources.Content_Length_Type)
    is
       --  Size of the buffer used to send the file
-      Buffer      : Streams.Stream_Element_Array (1 .. Chunk_Size);
-      Last        : Streams.Stream_Element_Offset;
-      Stop        : Boolean := False;
+      Buffer : Streams.Stream_Element_Array (1 .. Chunk_Size);
+      Last   : Streams.Stream_Element_Offset;
+      Stop   : Boolean := False;
    begin
       Resources.Set_Index (File, Start);
 
@@ -1885,11 +1885,15 @@ package body AWS.Server.HTTP_Utils is
          loop
             Resources.Read (File, Buffer, Last);
 
-            exit when Last < Buffer'First;
+            if Resources.End_Of_File (File) then
+               Stop := True;
+            end if;
 
             Data (Buffer (1 .. Last), Stop);
 
             Length := Length + Last;
+
+            exit when Stop;
 
             HTTP_Server.Slots.Check_Data_Timeout (Line_Index);
          end loop;
@@ -1947,7 +1951,7 @@ package body AWS.Server.HTTP_Utils is
       procedure Send_File is
          procedure Data_Received
            (Content : Stream_Element_Array;
-            Stop    : out Boolean);
+            Stop    : in out Boolean);
          --  New data received
 
          -------------------
@@ -1956,10 +1960,11 @@ package body AWS.Server.HTTP_Utils is
 
          procedure Data_Received
            (Content : Stream_Element_Array;
-            Stop    : out Boolean) is
+            Stop    : in out Boolean)
+         is
+            pragma Unreferenced (Stop);
          begin
             Net.Buffered.Write (Sock, Content);
-            Stop := False;
          end Data_Received;
 
          procedure Send_File_Content is new Send_File_G (Data_Received);
