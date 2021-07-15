@@ -29,6 +29,7 @@
 
 with System;
 
+with AWS.Config;
 with AWS.Net;
 
 private with AWS.Utils;
@@ -53,6 +54,9 @@ package AWS.HTTP2.Frame.Settings is
    type Set is array (Stream_Element_Offset range <>) of Payload;
 
    Empty_Set : constant Set;
+
+   function To_Set (Config : AWS.Config.Object) return Set;
+   --  Creates settings set from AWS config
 
    overriding function Is_Defined (Self : Object) return Boolean;
 

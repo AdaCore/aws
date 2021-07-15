@@ -37,8 +37,9 @@ package body AWS.HTTP2.Frame.Data is
    ------------
 
    function Create
-     (Stream_Id : HTTP2.Stream_Id;
-      Content   : Utils.Stream_Element_Array_Access) return Object
+     (Stream_Id  : HTTP2.Stream_Id;
+      Content    : Utils.Stream_Element_Array_Access;
+      End_Stream : Boolean) return Object
    is
       Len : constant Stream_Element_Count :=
               Stream_Element_Count (Content'Length);
@@ -48,7 +49,7 @@ package body AWS.HTTP2.Frame.Data is
          O.Header.H.Length    := Length_Type (Len);
          O.Header.H.Kind      := K_Data;
          O.Header.H.R         := 0;
-         O.Header.H.Flags     := End_Stream_Flag;
+         O.Header.H.Flags     := (if End_Stream then End_Stream_Flag else 0);
 
          O.Data.S := Content;
       end return;
@@ -62,7 +63,9 @@ package body AWS.HTTP2.Frame.Data is
      (Stream_Id : HTTP2.Stream_Id;
       Content   : String) return Object is
    begin
-      return Create (Stream_Id, Translator.To_Stream_Element_Array (Content));
+      return Create
+        (Stream_Id, Translator.To_Stream_Element_Array (Content),
+         End_Stream => True);
    end Create;
 
    -------------
