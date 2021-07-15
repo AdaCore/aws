@@ -315,7 +315,7 @@ package body AWS.HTTP2.Message is
                   if Resources.Size (File) /= Resources.Undefined_Length then
                      Headers.Add
                        (Messages.Content_Length_Token,
-                        Stream_Element_Offset'Image (Resources.Size (File)));
+                        Utils.Image (Resources.Size (File)));
                   end if;
 
                   if not Response.Has_Header
