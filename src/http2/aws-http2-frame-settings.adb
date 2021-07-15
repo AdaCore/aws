@@ -139,6 +139,42 @@ package body AWS.HTTP2.Frame.Settings is
       Net.Buffered.Write (Sock, Self.Data.S.all);
    end Send_Payload;
 
+   ------------
+   -- To_Set --
+   ------------
+
+   function To_Set (Config : AWS.Config.Object) return Set is
+      Result : Set (Settings_Kind'Pos (Settings_Kind'First)
+                    .. Settings_Kind'Pos (Settings_Kind'Last));
+
+      procedure Put (Kind : Settings_Kind; Value : Natural) with Inline;
+      --  Put config parameter into result
+
+      ---------
+      -- Put --
+      ---------
+
+      procedure Put (Kind : Settings_Kind; Value : Natural) is
+      begin
+         Result (Settings_Kind'Pos (Kind)) := (Kind, Byte_4 (Value));
+      end Put;
+
+   begin
+      Put (HEADER_TABLE_SIZE,      Config.HTTP2_Header_Table_Size);
+      Put (MAX_CONCURRENT_STREAMS, Config.HTTP2_Max_Concurrent_Streams);
+      Put (INITIAL_WINDOW_SIZE,    Config.HTTP2_Initial_Window_Size);
+      Put (MAX_FRAME_SIZE,         Config.HTTP2_Max_Frame_Size);
+      Put (MAX_HEADER_LIST_SIZE,   Config.HTTP2_Max_Header_List_Size);
+      Put (ENABLE_PUSH,           (if Config.HTTP2_Enable_Push then 1 else 0));
+
+      --  To be sure that all settings were filled
+
+      pragma Assert
+        (for all J in Result'Range => Result (J).Id = Settings_Kind'Val (J));
+
+      return Result;
+   end To_Set;
+
    --------------
    -- Validate --
    --------------

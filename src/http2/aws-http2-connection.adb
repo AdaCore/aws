@@ -48,27 +48,11 @@ package body AWS.HTTP2.Connection is
    -- Set --
    ---------
 
-   procedure  Set
+   procedure Set
      (Self   : in out Object;
       Config : AWS.Config.Object) is
    begin
-      Self.Values (S.HEADER_TABLE_SIZE) :=
-        Config.HTTP2_Header_Table_Size;
-
-      Self.Values (S.ENABLE_PUSH) :=
-        (if Config.HTTP2_Enable_Push then 1 else 0);
-
-      Self.Values (S.MAX_CONCURRENT_STREAMS) :=
-        Config.HTTP2_Max_Concurrent_Streams;
-
-      Self.Values (S.INITIAL_WINDOW_SIZE) :=
-        Config.HTTP2_Initial_Window_Size;
-
-      Self.Values (S.MAX_FRAME_SIZE) :=
-        Config.HTTP2_Max_Frame_Size;
-
-      Self.Values (S.MAX_HEADER_LIST_SIZE) :=
-        Config.HTTP2_Max_Header_List_Size;
+      Self.Set (S.To_Set (Config));
    end Set;
 
    procedure Set

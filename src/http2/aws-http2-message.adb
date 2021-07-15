@@ -111,12 +111,13 @@ package body AWS.HTTP2.Message is
       --  Creates the data frame from filename content
 
       procedure Create_Data_Frame
-        (Content : not null Utils.Stream_Element_Array_Access);
+        (Content    : not null Utils.Stream_Element_Array_Access;
+         End_Stream : Boolean);
       --  Create a new data frame from Content
 
       procedure Create_Data_Frame
         (Content : Stream_Element_Array;
-         Stop    : out Boolean);
+         Stop    : in out Boolean);
       --  Create a new data frame from Content
 
       -----------------------
@@ -125,16 +126,20 @@ package body AWS.HTTP2.Message is
 
       procedure Create_Data_Frame
         (Content : Stream_Element_Array;
-         Stop    : out Boolean) is
+         Stop    : in out Boolean) is
       begin
-         Create_Data_Frame (new Stream_Element_Array'(Content));
-         Stop := True;
+         Create_Data_Frame
+           (new Stream_Element_Array'(Content), End_Stream => Stop);
       end Create_Data_Frame;
 
       procedure Create_Data_Frame
-        (Content : not null Utils.Stream_Element_Array_Access) is
+        (Content    : not null Utils.Stream_Element_Array_Access;
+         End_Stream : Boolean)
+      is
       begin
-         List.Append (Frame.Data.Create (Stream.Identifier, Content));
+         List.Append
+           (Frame.Data.Create
+              (Stream.Identifier, Content, End_Stream => End_Stream));
       end Create_Data_Frame;
 
       ------------------
@@ -147,6 +152,19 @@ package body AWS.HTTP2.Message is
          Max_Size   : constant Stream_Element_Count :=
                         Stream_Element_Count (Ctx.Settings.Max_Frame_Size);
          Chunk_Size : constant Natural := Natural (Stream.Flow_Control_Window);
+
+         procedure Create_Data_Frame
+           (Content : not null Utils.Stream_Element_Array_Access);
+
+         -----------------------
+         -- Create_Data_Frame --
+         -----------------------
+
+         procedure Create_Data_Frame
+           (Content : not null Utils.Stream_Element_Array_Access) is
+         begin
+            Create_Data_Frame (Content, End_Stream => True);
+         end Create_Data_Frame;
 
          package Buffer is new Utils.Buffered_Data
            (Max_Size, Create_Data_Frame);
