@@ -138,13 +138,15 @@ procedure Protocol_Handler_V2 (LA : in out Line_Attribute_Record) is
    Answers    : HTTP2.Frame.List.Object;
    --  Set of frames to be sent
 
-   H_Table    : aliased HTTP2.HPACK.Table.Object;
+   Tab_Dec : aliased HTTP2.HPACK.Table.Object;
+   Tab_Enc : aliased HTTP2.HPACK.Table.Object;
    --  ??? this table is create for a connection. we probably want to do better
    --  ??? and maybe set the pointer to this table into a frame object as it
    --  ??? is needed (and passed as parameter) for header & continuation
    --  ??? frame.
 
-   Ctx : Context.Object (LA.Server, LA.Line, H_Table'Access, Settings'Access);
+   Ctx : Context.Object
+     (LA.Server, LA.Line, Tab_Enc'Access, Tab_Dec'Access, Settings'Access);
 
    --------------------------
    -- Handle_Control_Frame --
@@ -622,9 +624,10 @@ procedure Protocol_Handler_V2 (LA : in out Line_Attribute_Record) is
    H2C_Answer : AWS.HTTP2.Frame.List.Object;
 
 begin
-   --  Initialize the HPACK table to encode/decode headers
+   --  Initialize the HPACK tables to encode/decode headers
 
-   H_Table.Init;
+   Tab_Enc.Init;
+   Tab_Dec := Tab_Enc;
 
    LA.Log_Data := AWS.Log.Empty_Fields_Table;
 

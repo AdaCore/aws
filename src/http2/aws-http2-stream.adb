@@ -175,7 +175,7 @@ package body AWS.HTTP2.Stream is
             Get_Byte      => Next);
 
       begin
-         return Get_Headers (Ctx.Table, Ctx.Settings);
+         return Get_Headers (Ctx.Tab_Dec, Ctx.Settings);
       exception
          when E : others =>
             raise Protocol_Error with

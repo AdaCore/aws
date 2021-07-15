@@ -232,7 +232,7 @@ package body AWS.HTTP2.Message is
                   if Is_First then
                      List.Append
                        (Frame.Headers.Create
-                          (Ctx.Table, Ctx.Settings, Stream.Identifier, L,
+                          (Ctx.Tab_Enc, Ctx.Settings, Stream.Identifier, L,
                            Flags => (if K = Headers.Count
                                      then Frame.End_Headers_Flag
                                      else 0)));
@@ -240,7 +240,7 @@ package body AWS.HTTP2.Message is
                   else
                      List.Append
                        (Frame.Continuation.Create
-                          (Ctx.Table, Ctx.Settings, Stream.Identifier, L,
+                          (Ctx.Tab_Enc, Ctx.Settings, Stream.Identifier, L,
                            End_Headers => K = Headers.Count));
                   end if;
 
@@ -255,7 +255,7 @@ package body AWS.HTTP2.Message is
          if not L.Is_Empty then
             List.Append
               (Frame.Headers.Create
-                 (Ctx.Table, Ctx.Settings, Stream.Identifier, L,
+                 (Ctx.Tab_Enc, Ctx.Settings, Stream.Identifier, L,
                   Flags => Frame.End_Headers_Flag));
          end if;
       end Handle_Headers;
