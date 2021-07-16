@@ -1247,6 +1247,89 @@ package body AWS.Server.HTTP_Utils is
       return F_Status;
    end Get_Resource_Status;
 
+   ----------------
+   -- Log_Commit --
+   ----------------
+
+   procedure Log_Commit
+     (HTTP_Server : in out AWS.Server.HTTP;
+      Answer      : Response.Data;
+      C_Stat      : AWS.Status.Data;
+      Length      : Response.Content_Length_Type)
+   is
+      LA : constant Line_Attribute.Attribute_Handle :=
+             Line_Attribute.Reference;
+      Status_Code : constant Messages.Status_Code :=
+                      Response.Status_Code (Answer);
+   begin
+      if LA.Skip_Log then
+         LA.Skip_Log := False;
+
+      elsif CNF.Log_Extended_Fields_Length (HTTP_Server.Properties) > 0 then
+         declare
+            use Real_Time;
+            use type Strings.Maps.Character_Set;
+            Start : constant Time := Status.Request_Time (C_Stat);
+         begin
+            if Start /= Time_First then
+               Log.Set_Field
+                 (LA.Server.Log, LA.Log_Data, "time-taken",
+                  Utils.Significant_Image (To_Duration (Clock - Start), 3));
+            end if;
+
+            Log.Set_Header_Fields
+              (LA.Server.Log, LA.Log_Data, "cs", Status.Header (C_Stat));
+            Log.Set_Header_Fields
+              (LA.Server.Log, LA.Log_Data, "sc", Response.Header (Answer));
+
+            Log.Set_Field
+              (LA.Server.Log, LA.Log_Data, "cs-method",
+               Status.Method (C_Stat));
+            Log.Set_Field
+              (LA.Server.Log, LA.Log_Data, "cs-username",
+               Status.Authorization_Name (C_Stat));
+            Log.Set_Field
+              (LA.Server.Log, LA.Log_Data, "cs-version",
+               Status.HTTP_Version (C_Stat));
+
+            declare
+               use AWS.URL;
+
+               Encoding : constant Strings.Maps.Character_Set :=
+                            Strings.Maps.To_Set
+                              (Span => (Low  => Character'Val (128),
+                                        High => Character'Last))
+                            or Strings.Maps.To_Set ("+"" ");
+
+               URI      : constant String :=
+                            Encode (Status.URI (C_Stat), Encoding);
+
+               Query    : constant String :=
+                            Parameters.URI_Format
+                              (Status.Parameters (C_Stat));
+            begin
+               Log.Set_Field (LA.Server.Log, LA.Log_Data, "cs-uri-stem", URI);
+               Log.Set_Field
+                 (LA.Server.Log, LA.Log_Data, "cs-uri-query", Query);
+               Log.Set_Field
+                 (LA.Server.Log, LA.Log_Data, "cs-uri", URI & Query);
+            end;
+
+            Log.Set_Field
+              (LA.Server.Log, LA.Log_Data, "sc-status",
+               Messages.Image (Status_Code));
+            Log.Set_Field
+              (LA.Server.Log, LA.Log_Data, "sc-bytes",
+               Utils.Image (Integer (Length)));
+
+            Log.Write (LA.Server.Log, LA.Log_Data);
+         end;
+
+      else
+         Log.Write (HTTP_Server.Log, C_Stat, Status_Code, Length);
+      end if;
+   end Log_Commit;
+
    ------------------------
    -- Parse_Request_Line --
    ------------------------
@@ -1375,9 +1458,6 @@ package body AWS.Server.HTTP_Utils is
       Socket_Taken : in out Boolean;
       Will_Close   : in out Boolean)
    is
-      LA          : constant Line_Attribute.Attribute_Handle :=
-                      Line_Attribute.Reference;
-
       Status_Code : Messages.Status_Code := Response.Status_Code (Answer);
       Length      : Resources.Content_Length_Type := 0;
       H_List      : Headers.List;
@@ -1795,72 +1875,11 @@ package body AWS.Server.HTTP_Utils is
               with "Answer not properly initialized (No_Data)";
       end case;
 
-      if LA.Skip_Log then
-         LA.Skip_Log := False;
+      --  Status code can be modified, set it back for the logging
 
-      elsif CNF.Log_Extended_Fields_Length (HTTP_Server.Properties) > 0 then
-         declare
-            use Real_Time;
-            use type Strings.Maps.Character_Set;
-            Start : constant Time := Status.Request_Time (C_Stat);
-         begin
-            if Start /= Time_First then
-               Log.Set_Field
-                 (LA.Server.Log, LA.Log_Data, "time-taken",
-                  Utils.Significant_Image (To_Duration (Clock - Start), 3));
-            end if;
+      Response.Set.Status_Code (Answer, Status_Code);
 
-            Log.Set_Header_Fields
-              (LA.Server.Log, LA.Log_Data, "cs", Status.Header (C_Stat));
-            Log.Set_Header_Fields
-              (LA.Server.Log, LA.Log_Data, "sc", Response.Header (Answer));
-
-            Log.Set_Field
-              (LA.Server.Log, LA.Log_Data, "cs-method",
-               Status.Method (C_Stat));
-            Log.Set_Field
-              (LA.Server.Log, LA.Log_Data, "cs-username",
-               Status.Authorization_Name (C_Stat));
-            Log.Set_Field
-              (LA.Server.Log, LA.Log_Data, "cs-version",
-               Status.HTTP_Version (C_Stat));
-
-            declare
-               use AWS.URL;
-
-               Encoding : constant Strings.Maps.Character_Set :=
-                            Strings.Maps.To_Set
-                              (Span => (Low  => Character'Val (128),
-                                        High => Character'Last))
-                            or Strings.Maps.To_Set ("+"" ");
-
-               URI      : constant String :=
-                            Encode (Status.URI (C_Stat), Encoding);
-
-               Query    : constant String :=
-                            Parameters.URI_Format
-                              (Status.Parameters (C_Stat));
-            begin
-               Log.Set_Field (LA.Server.Log, LA.Log_Data, "cs-uri-stem", URI);
-               Log.Set_Field
-                 (LA.Server.Log, LA.Log_Data, "cs-uri-query", Query);
-               Log.Set_Field
-                 (LA.Server.Log, LA.Log_Data, "cs-uri", URI & Query);
-            end;
-
-            Log.Set_Field
-              (LA.Server.Log, LA.Log_Data, "sc-status",
-               Messages.Image (Status_Code));
-            Log.Set_Field
-              (LA.Server.Log, LA.Log_Data, "sc-bytes",
-               Utils.Image (Integer (Length)));
-
-            Log.Write (LA.Server.Log, LA.Log_Data);
-         end;
-
-      else
-         Log.Write (HTTP_Server.Log, C_Stat, Status_Code, Length);
-      end if;
+      Log_Commit (HTTP_Server, Answer, C_Stat, Length);
    end Send;
 
    -----------------
