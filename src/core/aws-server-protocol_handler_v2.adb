@@ -770,7 +770,7 @@ begin
                --  First check that the possibly new stream id is not below
                --  last stream id.
 
-               if Frame.Kind in K_Invalid then
+               if Frame.Kind = K_Invalid then
                   --  Check if the frame is valid, if not we
                   --  need to send back a GOAWAY immediatly.
                   if Last_SID /= 0
@@ -875,10 +875,7 @@ begin
                   end if;
 
                   if S (Stream_Id).Is_Message_Ready
-                    and then
-                      (Prev_State /= Stream.Half_Closed_Remote
-                       or else Frame.Kind
-                         in K_Priority | K_Window_Update | K_RST_Stream)
+                    and then Prev_State < Stream.Half_Closed_Remote
                   then
                      Handle_Message (S (Stream_Id));
                   end if;
