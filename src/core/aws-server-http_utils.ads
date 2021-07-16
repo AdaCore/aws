@@ -87,6 +87,13 @@ package AWS.Server.HTTP_Utils is
       Will_Close   : in out Boolean);
    --  Send Answer to the client's browser
 
+   procedure Log_Commit
+     (HTTP_Server : in out AWS.Server.HTTP;
+      Answer      : Response.Data;
+      C_Stat      : AWS.Status.Data;
+      Length      : Response.Content_Length_Type);
+   --  Write log data into log file
+
    type Resource_Status is (Changed, Up_To_Date, Not_Found);
 
    function Get_Resource_Status
