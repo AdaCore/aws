@@ -211,17 +211,6 @@ procedure Protocol_Handler_V2 (LA : in out Line_Attribute_Record) is
             Error := HTTP2.C_Flow_Control_Error;
             return;
          end if;
-
-         for S of Streams loop
-            if  HTTP2.Connection.Flow_Control_Window_Valid
-              (S.Flow_Control_Window, Incr)
-            then
-               S.Update_Flow_Control_Window (Incr);
-            else
-               Error := HTTP2.C_Flow_Control_Error;
-               return;
-            end if;
-         end loop;
       end Handle;
 
    begin
@@ -732,11 +721,16 @@ begin
             begin
                LA.Server.Slots.Mark_Phase (LA.Line, Server_Response);
 
-               Answers.Delete_First;
-
                if Stream_Id = 0 then
                   Frame.Send (Sock.all);
+
                else
+                  exit when Frame.Kind = K_Data
+                    and then
+                      (Settings.Flow_Control_Window < Integer (Frame.Length)
+                       or else S (Stream_Id).Flow_Control_Window <
+                             Integer (Frame.Length));
+
                   S (Stream_Id).Send_Frame (Frame);
 
                   --  Update connection Flow Control Window
@@ -746,6 +740,8 @@ begin
                        (-Natural (Frame.Length));
                   end if;
                end if;
+
+               Answers.Delete_First;
             end;
          end loop;
 
@@ -773,6 +769,7 @@ begin
                if Frame.Kind = K_Invalid then
                   --  Check if the frame is valid, if not we
                   --  need to send back a GOAWAY immediatly.
+
                   if Last_SID /= 0
                     and then S (Last_SID).State = Stream.Open
                   then
@@ -788,8 +785,9 @@ begin
                        (Flags => HTTP2.Frame.End_Stream_Flag).Send (Sock.all);
                   end if;
 
-               elsif Frame.Kind in K_Push_Promise then
+               elsif Frame.Kind = K_Push_Promise then
                   --  A server cannot receive a push-promise frame
+
                   HTTP2.Frame.GoAway.Create
                     (Stream_Id => Last_SID,
                      Error     => C_Protocol_Error).Send (Sock.all);
