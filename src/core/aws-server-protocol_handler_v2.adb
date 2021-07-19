@@ -741,6 +741,12 @@ begin
                   if Frame.Kind = K_Data then
                      Settings.Update_Flow_Control_Window
                        (-Natural (Frame.Length));
+
+                     if Frame.Has_Flag (HTTP2.Frame.End_Stream_Flag) then
+                        Log_Commit
+                          (Ctx.HTTP.all, Ctx.Response, Ctx.Status,
+                           S (Stream_Id).Bytes_Sent);
+                     end if;
                   end if;
                end if;
 

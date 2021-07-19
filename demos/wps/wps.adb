@@ -43,7 +43,7 @@ begin
    end if;
 
    if AWS.Config.Log_Filename_Prefix (Config) /= "" then
-      AWS.Server.Log.Start (WS);
+      AWS.Server.Log.Start (WS, Auto_Flush => True);
    end if;
 
    if AWS.Config.Error_Log_Filename_Prefix (Config) /= "" then

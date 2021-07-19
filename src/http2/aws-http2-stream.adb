@@ -29,7 +29,6 @@
 
 with Ada.Containers;
 with Ada.Exceptions;
-with Ada.Streams;
 with Ada.Strings.Unbounded;
 
 with AWS.Headers;
@@ -65,6 +64,7 @@ package body AWS.HTTP2.Stream is
          Is_Ready            => False,
          Header_Found        => False,
          Flow_Control_Window => Window_Size,
+         Bytes_Sent          => 0,
          Weight              => Weight,
          Stream_Dependency   => 0);
    end Create;
@@ -86,8 +86,6 @@ package body AWS.HTTP2.Stream is
      (Self : Object;
       Ctx  : in out Server.Context.Object) return HTTP2.Message.Object
    is
-      use Ada.Streams;
-
       L : Frame.List.Object;
       --  Record all frames for a full header definition (last frame must have
       --  the end of hedaer flag set).
@@ -569,6 +567,8 @@ package body AWS.HTTP2.Stream is
       if Frame.Kind = K_Data then
          Self.Flow_Control_Window :=
            Self.Flow_Control_Window - Natural (Frame.Length);
+         Self.Bytes_Sent :=
+           Self.Bytes_Sent + Stream_Element_Count (Frame.Length);
       end if;
    end Send_Frame;
 
