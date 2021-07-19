@@ -672,6 +672,9 @@ begin
                      Containers.Count_Type (Settings.Max_Concurrent_Streams);
       S          : HTTP2.Stream.Set.Object (Max_Stream);
       Last_SID   : HTTP2.Stream.Id := 0;
+      In_Header  : Boolean := False;
+      --  Need to avoid unknown extension frame in the middle of a header block
+      --  (RFC 7450, 5.5).
    begin
       --  We now need to answer to the request made during the upgrade
 
@@ -770,9 +773,10 @@ begin
                --  Check if the frame is valid, if not we
                --  need to send back a GOAWAY immediatly.
 
-               if Last_SID /= 0
-                 and then S (Last_SID).State = Stream.Open
-               then
+               if In_Header then
+                  --  Unknown extension frame in the middle of a header block
+                  --  (RFC 7450, 5.5).
+
                   HTTP2.Frame.GoAway.Create
                     (Stream_Id => Stream_Id,
                      Error     => C_Protocol_Error).Send (Sock.all);
@@ -832,6 +836,11 @@ begin
                end if;
 
             else
+               In_Header := Frame.Kind = K_Headers
+                 and then not Frame.Has_Flag (HTTP2.Frame.End_Headers_Flag);
+               --  Need to avoid unknown extension frame in the middle of a
+               --  header block (RFC 7450, 5.5).
+
                if not S.Contains (Stream_Id) then
                   --  A new stream, check that Id is greater than last
                   --  stream.
