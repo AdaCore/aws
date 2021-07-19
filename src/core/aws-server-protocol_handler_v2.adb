@@ -473,7 +473,7 @@ procedure Protocol_Handler_V2 (LA : in out Line_Attribute_Record) is
                then
                   AWS.Log.Write
                     (LA.Server.Error_Log, LA.Stat,
-                     "Unknown pseudo header");
+                     "Unknown pseudo header " & Header);
                   Error := HTTP2.C_Protocol_Error;
                   return;
 
@@ -749,144 +749,151 @@ begin
 
          LA.Server.Slots.Mark_Phase (LA.Line, Wait_For_Client);
 
+         declare
+            use type HTTP2.Error_Codes;
+            use type Ada.Containers.Count_Type;
+
+            Frame      : constant HTTP2.Frame.Object'Class :=
+                           HTTP2.Frame.Read (Sock.all, Settings);
+            Stream_Id  : constant HTTP2.Stream_Id := Frame.Stream_Id;
+            Prev_State : Stream.State_Kind;
+            Error      : Error_Codes;
          begin
-            declare
-               use type HTTP2.Error_Codes;
+            if HTTP2.Debug then
+               Frame.Dump ("GET");
+            end if;
 
-               Frame      : constant HTTP2.Frame.Object'Class :=
-                              HTTP2.Frame.Read (Sock.all, Settings);
-               Stream_Id  : constant HTTP2.Stream_Id := Frame.Stream_Id;
-               Prev_State : Stream.State_Kind;
-               Error      : Error_Codes;
-            begin
-               if HTTP2.Debug then
-                  Frame.Dump ("GET");
-               end if;
+            --  First check that the possibly new stream id is not below
+            --  last stream id.
 
-               --  First check that the possibly new stream id is not below
-               --  last stream id.
+            if Frame.Kind = K_Invalid then
+               --  Check if the frame is valid, if not we
+               --  need to send back a GOAWAY immediatly.
 
-               if Frame.Kind = K_Invalid then
-                  --  Check if the frame is valid, if not we
-                  --  need to send back a GOAWAY immediatly.
-
-                  if Last_SID /= 0
-                    and then S (Last_SID).State = Stream.Open
-                  then
-                     HTTP2.Frame.GoAway.Create
-                       (Stream_Id => Last_SID,
-                        Error     => C_Protocol_Error).Send (Sock.all);
-
-                     Will_Close := True;
-                     exit For_Every_Frame;
-
-                  else
-                     HTTP2.Frame.Ping.Create
-                       (Flags => HTTP2.Frame.End_Stream_Flag).Send (Sock.all);
-                  end if;
-
-               elsif Frame.Kind = K_Push_Promise then
-                  --  A server cannot receive a push-promise frame
-
+               if Last_SID /= 0
+                 and then S (Last_SID).State = Stream.Open
+               then
                   HTTP2.Frame.GoAway.Create
-                    (Stream_Id => Last_SID,
+                    (Stream_Id => Stream_Id,
                      Error     => C_Protocol_Error).Send (Sock.all);
 
                   Will_Close := True;
                   exit For_Every_Frame;
 
-               elsif Frame.Validate (Settings) /= C_No_Error then
-                  --  Send a GOAWAY response right now
+               else
+                  HTTP2.Frame.Ping.Create
+                    (Flags => HTTP2.Frame.End_Stream_Flag).Send (Sock.all);
+               end if;
 
+            elsif Frame.Kind = K_Push_Promise then
+               --  A server cannot receive a push-promise frame
+
+               HTTP2.Frame.GoAway.Create
+                 (Stream_Id => Stream_Id,
+                  Error     => C_Protocol_Error).Send (Sock.all);
+
+               Will_Close := True;
+               exit For_Every_Frame;
+
+            elsif not Frame.Is_Defined then
+               HTTP2.Frame.GoAway.Create
+                 (Stream_Id => Stream_Id,
+                  Error     => C_Protocol_Error).Send (Sock.all);
+
+               Will_Close := True;
+               exit For_Every_Frame;
+
+            elsif Frame.Validate (Settings) /= C_No_Error then
+               --  Send a GOAWAY response right now
+
+               HTTP2.Frame.GoAway.Create
+                 (Stream_Id => Stream_Id,
+                  Error     => Frame.Validate (Settings)).Send (Sock.all);
+
+               Will_Close := True;
+               exit For_Every_Frame;
+
+            elsif Frame.Kind = K_GoAway then
+               --  if a GOAWAY frame is received we need to exit now
+
+               Will_Close := True;
+               exit For_Every_Frame;
+
+            elsif Stream_Id = 0 then
+               Handle_Control_Frame (Frame, S, Error);
+
+               if Error /= HTTP2.C_No_Error then
                   HTTP2.Frame.GoAway.Create
-                    (Stream_Id => Last_SID,
-                     Error     => Frame.Validate (Settings)).Send (Sock.all);
+                    (Stream_Id => 0,
+                     Error     => Error).Send (Sock.all);
 
                   Will_Close := True;
                   exit For_Every_Frame;
+               end if;
 
-               elsif Frame.Kind = K_GoAway then
-                  --  if a GOAWAY frame is received we need to exit now
+            else
+               if not S.Contains (Stream_Id) then
+                  --  A new stream, check that Id is greater than last
+                  --  stream.
 
-                  Will_Close := True;
-                  exit For_Every_Frame;
-
-               elsif Stream_Id = 0 then
-                  Handle_Control_Frame (Frame, S, Error);
-
-                  if Error /= HTTP2.C_No_Error then
+                  if (Frame.Kind /= K_Priority and then Stream_Id < Last_SID)
+                    or else S.Capacity = S.Length
+                  then
                      HTTP2.Frame.GoAway.Create
-                       (Stream_Id => Last_SID,
+                       (Stream_Id => Stream_Id,
+                        Error     => C_Protocol_Error).Send (Sock.all);
+                     Will_Close := True;
+                     exit For_Every_Frame;
+
+                  else
+                     if Frame.Kind /= K_Priority then
+                        Last_SID := Stream_Id;
+                     end if;
+
+                     S.Insert
+                       (Stream_Id,
+                        HTTP2.Stream.Create
+                          (Sock, Stream_Id, Settings.Initial_Window_Size));
+                  end if;
+               end if;
+
+               --  Keep current stream state before changing the state to
+               --  conform to live-cycle. (RFC 7540 5.1).
+
+               Prev_State := S (Stream_Id).State;
+
+               S (Stream_Id).Received_Frame (Frame, Error);
+
+               if Error /= C_No_Error then
+                  if Error = C_Flow_Control_Error then
+                     HTTP2.Frame.RST_Stream.Create
+                       (Stream_Id => Stream_Id,
+                        Error     => Error).Send (Sock.all);
+                     exit For_Every_Frame;
+                  else
+                     HTTP2.Frame.GoAway.Create
+                       (Stream_Id => Stream_Id,
                         Error     => Error).Send (Sock.all);
 
                      Will_Close := True;
                      exit For_Every_Frame;
                   end if;
-
-               else
-                  if not S.Contains (Stream_Id) then
-                     --  A new stream, check that Id is greater than last
-                     --  stream.
-
-                     if Frame.Kind /= K_Priority
-                       and then Stream_Id < Last_SID
-                     then
-                        HTTP2.Frame.GoAway.Create
-                          (Stream_Id => Last_SID,
-                           Error     => C_Protocol_Error).Send (Sock.all);
-                        Will_Close := True;
-                        exit For_Every_Frame;
-
-                     else
-                        if Frame.Kind /= K_Priority then
-                           Last_SID := Stream_Id;
-                        end if;
-
-                        S.Insert
-                          (Stream_Id,
-                           HTTP2.Stream.Create
-                             (Sock, Stream_Id, Settings.Initial_Window_Size));
-                     end if;
-                  end if;
-
-                  --  Keep current stream state before changing the state to
-                  --  conform to live-cycle. (RFC 7540 5.1).
-
-                  Prev_State := S (Stream_Id).State;
-
-                  S (Stream_Id).Received_Frame (Frame, Error);
-
-                  if Error /= C_No_Error then
-                     if Error = C_Flow_Control_Error then
-                        HTTP2.Frame.RST_Stream.Create
-                          (Stream_Id => Stream_Id,
-                           Error     => Error).Send (Sock.all);
-                        exit For_Every_Frame;
-                     else
-                        HTTP2.Frame.GoAway.Create
-                          (Stream_Id => Last_SID,
-                           Error     => Error).Send (Sock.all);
-
-                        Will_Close := True;
-                        exit For_Every_Frame;
-                     end if;
-                  end if;
-
-                  if S (Stream_Id).Is_Message_Ready
-                    and then Prev_State < Stream.Half_Closed_Remote
-                  then
-                     Handle_Message (S (Stream_Id));
-                  end if;
                end if;
-            end;
+
+               if S (Stream_Id).Is_Message_Ready
+                 and then Prev_State < Stream.Half_Closed_Remote
+               then
+                  Handle_Message (S (Stream_Id));
+               end if;
+            end if;
 
          exception
             when Constraint_Error =>
-               if Last_SID /= 0
-                 and then S (Last_SID).State = Stream.Open
+               if Stream_Id /= 0
+                 and then S (Stream_Id).State = Stream.Open
                then
                   HTTP2.Frame.GoAway.Create
-                    (Stream_Id => Last_SID,
+                    (Stream_Id => Stream_Id,
                      Error     => C_Protocol_Error).Send (Sock.all);
                   Will_Close := True;
                   exit For_Every_Frame;
@@ -897,7 +904,7 @@ begin
 
             when E : Protocol_Error =>
                HTTP2.Frame.GoAway.Create
-                 (Stream_Id => Last_SID,
+                 (Stream_Id => Stream_Id,
                   Error     => Exception_Code (Exception_Message (E))).
                     Send (Sock.all);
                Will_Close := True;
