@@ -27,6 +27,8 @@
 --  covered by the  GNU Public License.                                     --
 ------------------------------------------------------------------------------
 
+with Ada.Streams;
+
 with AWS.Net;
 with AWS.Server.Context;
 
@@ -36,6 +38,8 @@ with AWS.HTTP2.Frame.Priority;
 with AWS.HTTP2.Message;
 
 package AWS.HTTP2.Stream is
+
+   use Ada.Streams;
 
    type State_Kind is (Idle, Reserved_Local, Reserved_Remote, Open,
                        Half_Closed_Local, Half_Closed_Remote, Closed);
@@ -107,16 +111,20 @@ package AWS.HTTP2.Stream is
      with Pre => Self.Is_Defined;
    --  Set the window size for this frame (set via the Window_Update frame)
 
+   function Bytes_Sent (Self : Object) return Stream_Element_Count;
+   --  Number of payload bytes send over this stream
+
 private
 
    type Object is tagged record
       Sock                : AWS.Net.Socket_Access;
-      Id                  : Stream.Id          := 0;
-      State               : State_Kind         := Idle;
+      Id                  : Stream.Id            := 0;
+      State               : State_Kind           := Idle;
       Frames              : Frame.List.Object;
-      Is_Ready            : Boolean            := False;
-      Header_Found        : Boolean            := False;
+      Is_Ready            : Boolean              := False;
+      Header_Found        : Boolean              := False;
       Flow_Control_Window : Integer;
+      Bytes_Sent          : Stream_Element_Count := 0;
       Weight              : Byte_1;
       Stream_Dependency   : HTTP2.Stream_Id;
    end record;
@@ -124,7 +132,8 @@ private
    function "<" (Left, Right : Object) return Boolean is (Left.Id < Right.Id);
 
    Undefined : constant Object :=
-                 (null, 0, Idle, Frame.List.Empty_List, False, False, 0, 0, 0);
+                 (null, 0, Idle, Frame.List.Empty_List, False, False, 0, 0, 0,
+                  0);
 
    function State (Self : Object) return State_Kind is (Self.State);
 
@@ -132,6 +141,9 @@ private
 
    function Flow_Control_Window (Self : Object) return Integer is
      (Self.Flow_Control_Window);
+
+   function Bytes_Sent (Self : Object) return Stream_Element_Count is
+     (Self.Bytes_Sent);
 
    function Priority (Self : Object) return Byte_1 is
      (Self.Weight);
