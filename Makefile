@@ -258,28 +258,36 @@ endif
 GPRINST_OPTS=-p -f --prefix=$(TPREFIX) \
 	--build-var=LIBRARY_TYPE --build-var=AWS_BUILD
 
-install-native: install-clean
+install-lib-native:
 	$(GPRINSTALL) $(GPROPTS) $(GPRINST_OPTS) $(GPR_DEFAULT) \
 		--build-name=$(DEFAULT_LIBRARY_TYPE) aws.gpr
-	$(GPRINSTALL) $(GPROPTS) $(GPRINST_OPTS) $(GPR_STATIC) --mode=usage \
-		--build-name=$(DEFAULT_LIBRARY_TYPE) \
-		--install-name=aws tools/tools.gpr
 ifeq (${ENABLE_SHARED}, true)
 	$(GPRINSTALL) $(GPROPTS) $(GPRINST_OPTS) \
 		$(GPR_OTHER) --build-name=$(OTHER_LIBRARY_TYPE) aws.gpr
 endif
 
-install-cross: install-clean
+install-tools-native:
+	$(GPRINSTALL) $(GPROPTS) $(GPRINST_OPTS) $(GPR_STATIC) --mode=usage \
+		--build-name=$(DEFAULT_LIBRARY_TYPE) \
+		--install-name=aws tools/tools.gpr
+
+install-native: install-clean install-lib-native install-tools-native
+
+install-lib-cross:
 	$(GPRINSTALL) $(GPROPTS) $(GPRINST_OPTS) \
 		--target=$(TARGET) $(GPR_DEFAULT) aws.gpr
-	$(GPRINSTALL) $(GPROPTS)  $(GPRINST_OPTS) --mode=usage \
-		--target=$(TARGET) $(GPROPTS) \
-		--install-name=aws tools/tools.gpr
 ifeq (${ENABLE_SHARED}, true)
 	$(GPRINSTALL) $(GPROPTS) $(GPRINST_OPTS) \
 		--target=$(TARGET) $(GPR_OTHER) \
 		--build-name=$(OTHER_LIBRARY_TYPE) aws.gpr
 endif
+
+install-tools-cross:
+	$(GPRINSTALL) $(GPROPTS)  $(GPRINST_OPTS) --mode=usage \
+		--target=$(TARGET) $(GPROPTS) \
+		--install-name=aws tools/tools.gpr
+
+install-cross: install-clean install-lib-cross install-tools-cross
 
 ifeq (${IS_CROSS}, true)
 install: install-cross
