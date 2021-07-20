@@ -364,24 +364,30 @@ package body AWS.Containers.Tables is
    -- Union --
    -----------
 
-   function Union
-     (Left   : Table_Type;
+   procedure Union
+     (Left   : in out Table_Type;
       Right  : Table_Type;
-      Unique : Boolean) return Table_Type
-   is
-      Result : Table_Type := Left;
+      Unique : Boolean) is
    begin
       for J in 1 .. Right.Count loop
          declare
             Item : constant Element := Right.Get (J);
          begin
             if not Unique or else not Left.Exist (To_String (Item.Name)) then
-               Result.Add (Item.Name, Item.Value);
+               Left.Add (Item.Name, Item.Value);
             end if;
          end;
       end loop;
+   end Union;
 
-      return Result;
+   function Union
+     (Left   : Table_Type;
+      Right  : Table_Type;
+      Unique : Boolean) return Table_Type is
+   begin
+      return Result : Table_Type := Left do
+         Union (Result, Right, Unique);
+      end return;
    end Union;
 
    ------------

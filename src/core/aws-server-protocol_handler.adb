@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2000-2018, AdaCore                     --
+--                     Copyright (C) 2000-2021, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -66,7 +66,7 @@ procedure Protocol_Handler (LA : in out Line_Attribute_Record) is
    Keep_Alive_Limit : constant Natural :=
                         CNF.Free_Slots_Keep_Alive_Limit (LA.Server.Properties);
 
-   Free_Slots   : Natural;
+   Free_Slots   : Natural := 0;
 
    Extended_Log : constant Boolean :=
                     CNF.Log_Extended_Fields_Length (LA.Server.Properties) > 0;
@@ -85,6 +85,7 @@ begin
    For_Every_Request : loop
       declare
          use Ada.Streams;
+         use type AWS.Status.Protocol_State;
          use type Response.Data_Mode;
 
          Expectation_Failed : exception;
@@ -262,6 +263,16 @@ begin
 
          Answer_To_Client
            (LA.Server.all, LA.Line, LA.Stat, Socket_Taken, Will_Close);
+
+         if AWS.Status.Protocol (LA.Stat) = AWS.Status.Upgrade_To_H2C
+           and then CNF.HTTP2_Activated (LA.Server.Config)
+         then
+            AWS.Status.Set.Protocol (LA.Stat, AWS.Status.H2C);
+
+            Protocol_Handler_V2 (LA);
+
+            Will_Close := True;
+         end if;
 
       exception
             --  We must never exit the loop with an exception. This loop is

@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2005-2015, AdaCore                     --
+--                     Copyright (C) 2005-2021, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -27,7 +27,9 @@
 --  covered by the  GNU Public License.                                     --
 ------------------------------------------------------------------------------
 
+with Ada.Calendar;
 with Ada.IO_Exceptions;
+with Ada.Streams;
 
 with AWS.Resources;
 with AWS.Response;
@@ -35,11 +37,18 @@ with AWS.Status;
 
 package AWS.Server.HTTP_Utils is
 
+   use Ada.Streams;
+
    Name_Error   : exception renames Ada.IO_Exceptions.Name_Error;
    Device_Error : exception renames Ada.IO_Exceptions.Device_Error;
 
    Wrong_Request_Line : exception;
    --  Raised when a non well formed request line is detected
+
+   function Build_Answer
+     (HTTP_Server : in out AWS.Server.HTTP;
+      C_Stat      : in out AWS.Status.Data) return Response.Data;
+   --  Build the Answer that should be sent to the client's browser
 
    procedure Answer_To_Client
      (HTTP_Server  : in out AWS.Server.HTTP;
@@ -78,9 +87,34 @@ package AWS.Server.HTTP_Utils is
       Will_Close   : in out Boolean);
    --  Send Answer to the client's browser
 
+   procedure Log_Commit
+     (HTTP_Server : in out AWS.Server.HTTP;
+      Answer      : Response.Data;
+      C_Stat      : AWS.Status.Data;
+      Length      : Response.Content_Length_Type);
+   --  Write log data into log file
+
+   type Resource_Status is (Changed, Up_To_Date, Not_Found);
+
+   function Get_Resource_Status
+     (C_Stat    : Status.Data;
+      Filename  : String;
+      File_Time : out Ada.Calendar.Time) return Resource_Status;
+   --  Get resource status
+
+   generic
+      with procedure Data
+        (Content : Stream_Element_Array; Stop : in out Boolean);
+      Chunk_Size : Stream_Element_Count := 4 * 1024;
+   procedure Send_File_G
+     (HTTP_Server : AWS.Server.HTTP;
+      Line_Index  : Positive;
+      File        : in out Resources.File_Type;
+      Start       : Stream_Element_Offset;
+      Length      : in out Resources.Content_Length_Type);
+
    procedure Send_Resource
      (Answer      : in out Response.Data;
-      Method      : Status.Request_Method;
       File        : in out Resources.File_Type;
       Length      : in out Resources.Content_Length_Type;
       HTTP_Server : AWS.Server.HTTP;

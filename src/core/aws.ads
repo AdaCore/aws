@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2000-2018, AdaCore                     --
+--                     Copyright (C) 2000-2021, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -35,6 +35,7 @@ package AWS with Pure is
 
    HTTP_10      : constant String := "HTTP/1.0";
    HTTP_11      : constant String := "HTTP/1.1";
+   HTTP_2       : constant String := "HTTP/2";
 
    HTTP_Version : String renames HTTP_11;
 

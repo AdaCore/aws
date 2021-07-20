@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2005-2018, AdaCore                     --
+--                     Copyright (C) 2005-2021, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -172,32 +172,32 @@ package body AWS.Client.HTTP_Utils is
                              Host (Connection.Host_URL, IPv6_Brackets => True)
                              & ':' & Port (Connection.Host_URL);
          begin
-            Send_Header
-              (Sock.all, "CONNECT " & Host_Address & ' ' & HTTP_Version);
-            Send_Header
-              (Sock.all, Messages.Host (Host_Address));
+            Set_Header
+              (Connection.F_Headers,
+               Messages.Connect_Token, Host_Address & ' ' & HTTP_Version);
+            Set_Header
+              (Connection.F_Headers, Messages.Host_Token, Host_Address);
          end;
 
          --  Proxy Authentication
 
-         Send_Authentication_Header
+         Set_Authentication_Header
            (Connection,
             Messages.Proxy_Authorization_Token,
             Connection.Auth (Proxy),
             URI    => "/",
-            Method => "CONNECT");
+            Method => Messages.Connect_Token);
 
-         declare
-            User_Agent : constant String := To_String (Connection.User_Agent);
-         begin
-            if User_Agent /= "" then
-               Send_Header (Sock.all, Messages.User_Agent (User_Agent));
-            end if;
-         end;
+         if Connection.User_Agent /= Null_Unbounded_String then
+            Set_Header
+              (Connection.F_Headers, Messages.User_Agent_Token,
+               To_String (Connection.User_Agent));
+         end if;
 
-         --  Empty line to terminate the connect
+         --  Send CONNECT command with headers to proxy
 
-         Net.Buffered.New_Line (Sock.all);
+         Headers.Send_Header
+           (Sock.all, Connection.F_Headers, End_Block => True);
 
          --  Wait for reply from the proxy, and check status
 
@@ -521,12 +521,15 @@ package body AWS.Client.HTTP_Utils is
                (AWS.Attachments.Length (Attachments, Boundary));
       end Content_Length;
 
-   begin -- Internal_Post_With_Attachment
+   begin
+      Connection.Self.F_Headers.Reset;
+
       Build_Root_Part_Header;
 
       Retry : loop
          begin
-            Open_Send_Common_Header (Connection, "POST", URI, Headers);
+            Open_Set_Common_Header
+              (Connection, Messages.Post_Token, URI, Headers);
 
             declare
                Sock : Net.Socket_Type'Class renames Connection.Socket.all;
@@ -534,36 +537,37 @@ package body AWS.Client.HTTP_Utils is
                --  Send message Content-Type (multipart/related)
 
                if Content_Type = "" then
-                  Send_Header
-                    (Sock,
-                     Messages.Content_Type
-                       (MIME.Multipart_Related
-                        & "; type=" & Content_Type
-                        & "; start=""" & Root_Content_Id & '"',
-                        Boundary));
+                  Set_Header
+                    (Connection.F_Headers,
+                     Messages.Content_Type_Token,
+                     MIME.Multipart_Related
+                     & "; type=" & Content_Type
+                     & "; start=""" & Root_Content_Id & '"'
+                     & "; boundary=""" & Boundary & '"');
                else
-                  Send_Header
-                    (Sock,
-                     Messages.Content_Type
-                       (MIME.Multipart_Form_Data, Boundary));
+                  Set_Header
+                    (Connection.F_Headers,
+                     Messages.Content_Type_Token,
+                     MIME.Multipart_Form_Data
+                     & "; boundary=""" & Boundary & '"');
                end if;
 
                if SOAPAction /= Client.No_Data then
                   --  SOAP header
 
-                  if SOAPAction = """""" then
-                     --  An empty SOAPAction
-                     Send_Header (Sock, Messages.SOAPAction (""));
-                  else
-                     Send_Header (Sock, Messages.SOAPAction (SOAPAction));
-                  end if;
+                  Set_Header
+                    (Connection.F_Headers,
+                     Messages.SOAPAction_Token, SOAPAction);
                end if;
 
                --  Send message Content-Length
 
-               Send_Header (Sock, Messages.Content_Length (Content_Length));
+               Set_Header
+                 (Connection.F_Headers,
+                  Messages.Content_Length_Token, Utils.Image (Content_Length));
 
-               Net.Buffered.New_Line (Sock);
+               AWS.Headers.Send_Header
+                 (Sock, Connection.F_Headers, End_Block => True);
 
                --  Send multipart message start boundary
 
@@ -571,9 +575,8 @@ package body AWS.Client.HTTP_Utils is
 
                --  Send root part header
 
-               AWS.Headers.Send_Header (Sock, Root_Part_Header);
-
-               Net.Buffered.New_Line (Sock);
+               AWS.Headers.Send_Header
+                 (Sock, Root_Part_Header, End_Block => True);
 
                --  Send root part data
 
@@ -633,6 +636,8 @@ package body AWS.Client.HTTP_Utils is
       Auth_Is_Over  : Boolean;
 
    begin
+      Connection.F_Headers.Reset;
+
       Retry : loop
          begin
             --  Post Data with headers
@@ -665,11 +670,11 @@ package body AWS.Client.HTTP_Utils is
       end loop Retry;
    end Internal_Post_Without_Attachment;
 
-   -----------------------------
-   -- Open_Send_Common_Header --
-   -----------------------------
+   ----------------------------
+   -- Open_Set_Common_Header --
+   ----------------------------
 
-   procedure Open_Send_Common_Header
+   procedure Open_Set_Common_Header
      (Connection : in out HTTP_Connection;
       Method     : String;
       URI        : String;
@@ -677,8 +682,6 @@ package body AWS.Client.HTTP_Utils is
    is
       Sock    : Net.Socket_Access := Connection.Socket;
       No_Data : Unbounded_String renames Null_Unbounded_String;
-      Header  : constant Header_List :=
-                  Headers.Union (Connection.Headers, Unique => True);
 
       function Persistence return String with Inline;
       --  Returns "Keep-Alive" is we have a persistent connection and "Close"
@@ -720,7 +723,7 @@ package body AWS.Client.HTTP_Utils is
                          (Connection.Host_URL, IPv6_Brackets => True)
                        & AWS.URL.Port_Not_Default (Connection.Host_URL);
 
-   begin -- Open_Send_Common_Header
+   begin
       --  Open connection if needed
 
       if not Connection.Opened then
@@ -730,7 +733,7 @@ package body AWS.Client.HTTP_Utils is
 
       Sock.Set_Timeout (Connection.Timeouts.Send);
 
-      --  Header command
+      --  First the the method (request) line
 
       if Connection.Proxy = No_Data
         or else AWS.URL.Security (Connection.Host_URL)
@@ -740,49 +743,62 @@ package body AWS.Client.HTTP_Utils is
          --  required to send the absolute path.
 
          if URI = "" then
-            Send_Header
-              (Sock.all,
-               Method & ' '
-               & AWS.URL.Pathname_And_Parameters (Connection.Host_URL)
+            Set_Header
+              (Connection.F_Headers,
+               Method,
+               AWS.URL.Pathname_And_Parameters (Connection.Host_URL)
                & ' ' & HTTP_Version);
 
          else
-            Send_Header
-              (Sock.all, Method & ' ' & Encoded_URI & ' ' & HTTP_Version);
+            Set_Header
+              (Connection.F_Headers,
+               Method, Encoded_URI & ' ' & HTTP_Version);
          end if;
-
-         --  Unless Header already contains connection info (like would be
-         --  the case for web sockets for instance)
-
-         if not Header.Exist (Messages.Connection_Token) then
-            Send_Header (Sock.all, Messages.Connection (Persistence));
-         end if;
-
       else
          --  We have a proxy configured, in thoses case we want to send the
          --  absolute path and parameters.
 
          if URI = "" then
-            Send_Header
-              (Sock.all,
-               Method & ' '
-               & AWS.URL.URL (Connection.Host_URL) & ' ' & HTTP_Version);
+            Set_Header
+              (Connection.F_Headers,
+               Method,
+               AWS.URL.URL (Connection.Host_URL) & ' ' & HTTP_Version);
 
          else
             --  Send GET http://<host>[:port]/URI HTTP/1.1
-            Send_Header
-              (Sock.all,
-               Method & ' '
-               & URL.Protocol_Name (Connection.Host_URL) & "://"
+            Set_Header
+              (Connection.F_Headers,
+               Method,
+               URL.Protocol_Name (Connection.Host_URL) & "://"
                & Host_Address & Encoded_URI & ' ' & HTTP_Version);
          end if;
+      end if;
 
-         Send_Header
-           (Sock.all, Messages.Proxy_Connection (Persistence));
+      Connection.F_Headers.Union (Headers, Unique => True);
+      Connection.F_Headers.Union (Connection.C_Headers, Unique => True);
+
+      --  Header command
+
+      if Connection.Proxy = No_Data
+        or else AWS.URL.Security (Connection.Host_URL)
+      then
+         --  Unless Header already contains connection info (like would be
+         --  the case for web sockets for instance)
+
+         if not Connection.F_Headers.Exist (Messages.Connection_Token) then
+            Set_Header
+              (Connection.F_Headers, Messages.Connection_Token, Persistence);
+         end if;
+
+      else
+         Set_Header
+           (Connection.F_Headers,
+            Messages.Proxy_Connection_Token,
+            Persistence);
 
          --  Proxy Authentication
 
-         Send_Authentication_Header
+         Set_Authentication_Header
            (Connection,
             Messages.Proxy_Authorization_Token,
             Connection.Auth (Proxy),
@@ -790,66 +806,64 @@ package body AWS.Client.HTTP_Utils is
             Method);
       end if;
 
-      --  Send specific headers
-
-      AWS.Headers.Send_Header (Sock.all, Header);
-
       if Debug_On then
-         for J in 1 .. Header.Count loop
-            Debug_Message ("> ", Header.Get_Line (J));
+         for J in 1 .. Connection.F_Headers.Count loop
+            Debug_Message ("> ", Connection.F_Headers.Get_Line (J));
          end loop;
       end if;
 
       --  Cookie
 
       if Connection.Cookie /= No_Data then
-         Send_Header
-           (Sock.all, Messages.Cookie_Token,
-            Messages.Cookie'Access, To_String (Connection.Cookie), Header);
+         Set_Header
+           (Connection.F_Headers,
+            Messages.Cookie_Token,
+            To_String (Connection.Cookie));
       end if;
 
-      Send_Header
-        (Sock.all, Messages.Host_Token,
-         Messages.Host'Access, Host_Address, Header);
+      Set_Header
+        (Connection.F_Headers,
+         Messages.Host_Token,
+         Host_Address);
 
-      Send_Header
-        (Sock.all, Messages.Accept_Token,
-         Messages.Accept_Type'Access, "text/html, */*", Header);
+      Set_Header
+        (Connection.F_Headers,
+         Messages.Accept_Token,
+         "text/html, */*");
 
-      Send_Header
-        (Sock.all, Messages.Accept_Encoding_Token,
-         Messages.Accept_Encoding'Access, "gzip, deflate", Header);
+      Set_Header
+        (Connection.F_Headers,
+         Messages.Accept_Encoding_Token,
+         "gzip, deflate");
 
-      Send_Header
-        (Sock.all, Messages.Accept_Language_Token,
-         Messages.Accept_Language'Access, "fr, ru, us", Header);
+      Set_Header
+        (Connection.F_Headers,
+         Messages.Accept_Language_Token,
+         "fr, ru, us");
 
-      declare
-         User_Agent : constant String := To_String (Connection.User_Agent);
-      begin
-         if User_Agent /= "" then
-            Send_Header
-              (Sock.all, Messages.User_Agent_Token,
-               Messages.User_Agent'Access, User_Agent, Header);
-         end if;
-      end;
+      if Connection.User_Agent /= Null_Unbounded_String then
+         Set_Header
+           (Connection.F_Headers,
+            Messages.User_Agent_Token,
+            To_String (Connection.User_Agent));
+      end if;
 
       if Connection.Data_Range /= No_Range then
-         Send_Header
-           (Sock.all, Messages.Range_Token,
-            Messages.Data_Range'Access,
-            Image (Connection.Data_Range), Header);
+         Set_Header
+           (Connection.F_Headers,
+            Messages.Range_Token,
+            Image (Connection.Data_Range));
       end if;
 
       --  User Authentication
 
-      Send_Authentication_Header
+      Set_Authentication_Header
         (Connection,
          Messages.Authorization_Token,
          Connection.Auth (WWW),
          URI,
          Method);
-   end Open_Send_Common_Header;
+   end Open_Set_Common_Header;
 
    ------------------
    -- Parse_Header --
@@ -1231,11 +1245,154 @@ package body AWS.Client.HTTP_Utils is
       end loop;
    end Read_Body;
 
-   --------------------------------
-   -- Send_Authentication_Header --
-   --------------------------------
+   ----------------------
+   -- Send_Common_Post --
+   ----------------------
 
-   procedure Send_Authentication_Header
+   procedure Send_Common_Post
+     (Connection   : in out HTTP_Connection;
+      Data         : Stream_Element_Array;
+      URI          : String;
+      SOAPAction   : String;
+      Content_Type : String;
+      Headers      : Header_List := Empty_Header_List) is
+   begin
+      Open_Set_Common_Header (Connection, Messages.Post_Token, URI, Headers);
+
+      if Content_Type /= Client.No_Data then
+         Set_Header
+           (Connection.F_Headers,
+            Messages.Content_Type_Token,
+            Content_Type);
+      end if;
+
+      if SOAPAction /= Client.No_Data then
+         --  SOAP header
+
+         Set_Header
+           (Connection.F_Headers, Messages.SOAPAction_Token, SOAPAction);
+      end if;
+
+      --  Send message Content_Length
+
+      Set_Header
+        (Connection.F_Headers,
+         Messages.Content_Length_Token,
+         Utils.Image (Stream_Element_Offset'(Data'Length)));
+
+      AWS.Headers.Send_Header
+        (Connection.Socket.all, Connection.F_Headers, End_Block => True);
+
+      --  Send message body
+
+      Net.Buffered.Write (Connection.Socket.all, Data);
+   end Send_Common_Post;
+
+   ------------------
+   -- Send_Request --
+   ------------------
+
+   procedure Send_Request
+     (Connection : in out HTTP_Connection;
+      Kind       : Method_Kind;
+      Result     : out Response.Data;
+      URI        : String;
+      Data       : Stream_Element_Array := No_Data;
+      Headers    : Header_List := Empty_Header_List)
+   is
+      use Ada.Real_Time;
+      Stamp         : constant Time := Clock;
+      Try_Count     : Natural := Connection.Retry;
+      Auth_Attempts : Auth_Attempts_Count := (others => 2);
+      Auth_Is_Over  : Boolean;
+   begin
+      Retry : loop
+         begin
+            Open_Set_Common_Header
+              (Connection, Method_Kind'Image (Kind), URI, Headers);
+
+            --  Add content length if needed
+
+            if Data'Length > 0 then
+               Set_Header
+                 (Connection.F_Headers,
+                  Messages.Content_Length_Token,
+                  Utils.Image (Stream_Element_Offset'(Data'Length)));
+            end if;
+
+            --  Send all headers for this connection
+
+            AWS.Headers.Send_Header
+              (Connection.Socket.all,
+               Connection.F_Headers,
+               End_Block => True);
+
+            --  If there is some data to send
+
+            if Data'Length > 0 then
+               --  Send message body
+
+               Net.Buffered.Write (Connection.Socket.all, Data);
+            end if;
+
+            Get_Response
+              (Connection, Result,
+               Get_Body => Kind /= HEAD and then not Connection.Streaming);
+
+            Decrement_Authentication_Attempt
+              (Connection, Auth_Attempts, Auth_Is_Over);
+
+            if Auth_Is_Over then
+               return;
+
+            elsif  Kind /= HEAD and then Connection.Streaming then
+               Read_Body (Connection, Result, Store => False);
+            end if;
+
+         exception
+            when E : Net.Socket_Error | Connection_Error =>
+               Error_Processing
+                 (Connection, Try_Count, Result,
+                  Method_Kind'Image (Kind), E, Stamp);
+
+               exit Retry when not Response.Is_Empty (Result);
+         end;
+      end loop Retry;
+   end Send_Request;
+
+   ------------------------
+   -- Set_Authentication --
+   ------------------------
+
+   procedure Set_Authentication
+     (Auth : out Authentication_Type;
+      User : String;
+      Pwd  : String;
+      Mode : Authentication_Mode) is
+   begin
+      Auth.User      := To_Unbounded_String (User);
+      Auth.Pwd       := To_Unbounded_String (Pwd);
+      Auth.Init_Mode := Mode;
+
+      --  The Digest authentication could not be send without
+      --  server authentication request, because client have to have nonce
+      --  value, so in the Digest and Any authentication modes we are not
+      --  setting up Work_Mode to the exact value.
+      --  But for Basic authentication we are sending just username/password,
+      --  and do not need any information from server to do it.
+      --  So if the client want to authenticate "Basic", we are setting up
+      --  Work_Mode right now.
+
+      if Mode = Basic then
+         Auth.Work_Mode := Basic;
+      end if;
+   end Set_Authentication;
+
+   -------------------------------
+   -- Set_Authentication_Header --
+   -------------------------------
+
+   procedure Set_Authentication_Header
      (Connection : in out HTTP_Connection;
       Token      : String;
       Data       : in out Authentication_Type;
@@ -1248,10 +1405,10 @@ package body AWS.Client.HTTP_Utils is
       if User /= Client.No_Data and then Pwd /= Client.No_Data then
 
          if Data.Work_Mode = Basic then
-            Send_Header
-              (Connection.Socket.all,
-               Token & ": Basic "
-                 & AWS.Translator.Base64_Encode (User & ':' & Pwd));
+            Set_Header
+              (Connection.F_Headers,
+               Token,
+               "Basic " & AWS.Translator.Base64_Encode (User & ':' & Pwd));
 
          elsif Data.Work_Mode = Digest then
 
@@ -1342,184 +1499,38 @@ package body AWS.Client.HTTP_Utils is
                end QOP_Data;
 
             begin
-               Send_Header
-                 (Connection.Socket.all,
-                  Token & ": Digest "
-                    & QOP_Data
-                    & "nonce=""" & Nonce
-                    & """, username=""" & User
-                    & """, realm=""" & Realm
-                    & """, uri=""" & URI
-                    & """, response=""" & Response
-                    & """");
+               Set_Header
+                 (Connection.F_Headers,
+                  Token,
+                  "Digest "
+                  & QOP_Data
+                  & "nonce=""" & Nonce
+                  & """, username=""" & User
+                  & """, realm=""" & Realm
+                  & """, uri=""" & URI
+                  & """, response=""" & Response
+                  & """");
             end;
 
          end if;
       end if;
-   end Send_Authentication_Header;
+   end Set_Authentication_Header;
 
-   ----------------------
-   -- Send_Common_Post --
-   ----------------------
+   ----------------
+   -- Set_Header --
+   ----------------
 
-   procedure Send_Common_Post
-     (Connection   : in out HTTP_Connection;
-      Data         : Stream_Element_Array;
-      URI          : String;
-      SOAPAction   : String;
-      Content_Type : String;
-      Headers      : Header_List := Empty_Header_List) is
-   begin
-      Open_Send_Common_Header (Connection, "POST", URI, Headers);
-
-      declare
-         Sock : Net.Socket_Type'Class renames Connection.Socket.all;
-      begin
-         if Content_Type /= Client.No_Data then
-            Send_Header
-              (Sock, Messages.Content_Type_Token,
-               Messages.Content_Type'Access, Content_Type, Headers);
-         end if;
-
-         if SOAPAction /= Client.No_Data then
-            --  SOAP header
-
-            if SOAPAction = """""" then
-               --  An empty SOAPAction
-               Send_Header (Sock, Messages.SOAPAction (""));
-            else
-               Send_Header (Sock, Messages.SOAPAction (SOAPAction));
-            end if;
-         end if;
-
-         --  Send message Content_Length
-
-         Send_Header (Sock, Messages.Content_Length (Data'Length));
-
-         Net.Buffered.New_Line (Sock);
-
-         --  Send message body
-
-         Net.Buffered.Write (Sock, Data);
-      end;
-   end Send_Common_Post;
-
-   -----------------
-   -- Send_Header --
-   -----------------
-
-   procedure Send_Header
-     (Sock : Net.Socket_Type'Class;
-      Data : String) is
-   begin
-      Net.Buffered.Put_Line (Sock, Data);
-      Debug_Message ("> ", Data);
-   end Send_Header;
-
-   procedure Send_Header
-     (Sock        : Net.Socket_Type'Class;
-      Header      : String;
-      Constructor : not null access function (Value : String) return String;
-      Value       : String;
-      Headers     : Header_List) is
+   procedure Set_Header
+     (Headers : in out Header_List;
+      Header  : String;
+      Value   : String := "") is
    begin
       if not Headers.Exist (Header) then
-         Send_Header (Sock, Constructor (Value));
+         Headers.Add (Header, Value);
+         Debug_Message
+           ("> ", Header & (if Value = "" then "" else "=" & Value));
       end if;
-   end Send_Header;
-
-   ------------------
-   -- Send_Request --
-   ------------------
-
-   procedure Send_Request
-     (Connection   : in out HTTP_Connection;
-      Kind         : Method_Kind;
-      Result       : out Response.Data;
-      URI          : String;
-      Data         : Stream_Element_Array := No_Data;
-      Headers      : Header_List := Empty_Header_List)
-   is
-      use Ada.Real_Time;
-      Stamp         : constant Time := Clock;
-      Try_Count     : Natural := Connection.Retry;
-      Auth_Attempts : Auth_Attempts_Count := (others => 2);
-      Auth_Is_Over  : Boolean;
-   begin
-      Retry : loop
-         begin
-            Open_Send_Common_Header
-              (Connection, Method_Kind'Image (Kind), URI, Headers);
-
-            --  If there is some data to send
-
-            if Data'Length > 0 then
-               Send_Header
-                 (Connection.Socket.all,
-                  Messages.Content_Length (Data'Length));
-
-               Net.Buffered.New_Line (Connection.Socket.all);
-
-               --  Send message body
-
-               Net.Buffered.Write (Connection.Socket.all, Data);
-
-            else
-               Net.Buffered.New_Line (Connection.Socket.all);
-            end if;
-
-            Get_Response
-              (Connection, Result,
-               Get_Body => Kind /= HEAD and then not Connection.Streaming);
-
-            Decrement_Authentication_Attempt
-              (Connection, Auth_Attempts, Auth_Is_Over);
-
-            if Auth_Is_Over then
-               return;
-
-            elsif  Kind /= HEAD and then Connection.Streaming then
-               Read_Body (Connection, Result, Store => False);
-            end if;
-
-         exception
-            when E : Net.Socket_Error | Connection_Error =>
-               Error_Processing
-                 (Connection, Try_Count, Result,
-                  Method_Kind'Image (Kind), E, Stamp);
-
-               exit Retry when not Response.Is_Empty (Result);
-         end;
-      end loop Retry;
-   end Send_Request;
-
-   ------------------------
-   -- Set_Authentication --
-   ------------------------
-
-   procedure Set_Authentication
-     (Auth : out Authentication_Type;
-      User : String;
-      Pwd  : String;
-      Mode : Authentication_Mode) is
-   begin
-      Auth.User      := To_Unbounded_String (User);
-      Auth.Pwd       := To_Unbounded_String (Pwd);
-      Auth.Init_Mode := Mode;
-
-      --  The Digest authentication could not be send without
-      --  server authentication request, because client have to have nonce
-      --  value, so in the Digest and Any authentication modes we are not
-      --  setting up Work_Mode to the exact value.
-      --  But for Basic authentication we are sending just username/password,
-      --  and do not need any information from server to do it.
-      --  So if the client want to authenticate "Basic", we are setting up
-      --  Work_Mode right now.
-
-      if Mode = Basic then
-         Auth.Work_Mode := Basic;
-      end if;
-   end Set_Authentication;
+   end Set_Header;
 
    -------------------------
    -- Set_HTTP_Connection --

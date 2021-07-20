@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2000-2020, AdaCore                     --
+--                     Copyright (C) 2000-2021, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -358,6 +358,70 @@ package body AWS.Config is
    begin
       return O.P (Hotplug_Port).Pos_Value;
    end Hotplug_Port;
+
+   ---------------------
+   -- HTTP2_Activated --
+   ---------------------
+
+   function HTTP2_Activated (O : Object) return Boolean is
+   begin
+      return O.P (HTTP2_Activated).Bool_Value;
+   end HTTP2_Activated;
+
+   -----------------------
+   -- HTTP2_Enable_Push --
+   -----------------------
+
+   function HTTP2_Enable_Push (O : Object) return Boolean is
+   begin
+      return O.P (HTTP2_Enable_Push).Bool_Value;
+   end HTTP2_Enable_Push;
+
+   -----------------------------
+   -- HTTP2_Header_Table_Size --
+   -----------------------------
+
+   function HTTP2_Header_Table_Size (O : Object) return Positive is
+   begin
+      return O.P (HTTP2_Header_Table_Size).Pos_Value;
+   end HTTP2_Header_Table_Size;
+
+   -------------------------------
+   -- HTTP2_Initial_Window_Size --
+   -------------------------------
+
+   function HTTP2_Initial_Window_Size (O : Object) return Positive is
+   begin
+      return O.P (HTTP2_Initial_Window_Size).Pos_Value;
+   end HTTP2_Initial_Window_Size;
+
+   ----------------------------------
+   -- HTTP2_Max_Concurrent_Streams --
+   ----------------------------------
+
+   function HTTP2_Max_Concurrent_Streams
+     (O : Object) return Positive is
+   begin
+      return O.P (HTTP2_Max_Concurrent_Streams).Pos_Value;
+   end HTTP2_Max_Concurrent_Streams;
+
+   --------------------------
+   -- HTTP2_Max_Frame_Size --
+   --------------------------
+
+   function HTTP2_Max_Frame_Size (O : Object) return Positive is
+   begin
+      return O.P (HTTP2_Max_Frame_Size).Pos_Value;
+   end HTTP2_Max_Frame_Size;
+
+   --------------------------------
+   -- HTTP2_Max_Header_List_Size --
+   --------------------------------
+
+   function HTTP2_Max_Header_List_Size (O : Object) return Positive is
+   begin
+      return O.P (HTTP2_Max_Header_List_Size).Pos_Value;
+   end HTTP2_Max_Header_List_Size;
 
    ---------------------------
    -- Input_Line_Size_Limit --

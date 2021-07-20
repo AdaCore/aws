@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2000-2020, AdaCore                     --
+--                     Copyright (C) 2000-2021, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -44,7 +44,7 @@ private with AWS.Default;
 
 package AWS.Config is
 
-   type Object is private;
+   type Object is tagged private;
 
    Default_Config : constant Object;
 
@@ -87,6 +87,9 @@ package AWS.Config is
    function Server_Port (O : Object) return Natural with Inline;
    --  This is the server port as set by the HTTP object declaration
 
+   function HTTP2_Activated (O : Object) return Boolean with Inline;
+   --  Returns True if the HTTP/2 protocol is activated
+
    function Hotplug_Port (O : Object) return Positive with Inline;
    --  This is the hotplug communication port needed to register and
    --  un-register an hotplug module.
@@ -109,6 +112,9 @@ package AWS.Config is
 
    function Server_Header (O : Object) return String with Inline;
    --  Returns the Server header value
+
+   function HTTP2_Enable_Push (O : Object) return Boolean with Inline;
+   --  Whether the server has push support
 
    ----------------
    -- Connection --
@@ -161,6 +167,23 @@ package AWS.Config is
    function Reuse_Address (O : Object) return Boolean with Inline;
    --  Returns true if bind is allowed to reuse an address (not waiting for
    --  the delay between two bind to the same port).
+
+   function HTTP2_Header_Table_Size (O : Object) return Positive with Inline;
+   --  HTTP2 max header table size
+
+   function HTTP2_Max_Concurrent_Streams
+     (O : Object) return Positive with Inline;
+   --  HTTP2 maximum number of concurrent streams
+
+   function HTTP2_Initial_Window_Size (O : Object) return Positive with Inline;
+   --  HTTP2 initial flow control window size
+
+   function HTTP2_Max_Frame_Size (O : Object) return Positive with Inline;
+   --  HTTP2 the maximum size (in bytes) of a frame
+
+   function HTTP2_Max_Header_List_Size
+     (O : Object) return Positive with Inline;
+   --  HTTP2 the maximum size (in bytes) of the header list
 
    ----------
    -- Data --
@@ -467,6 +490,13 @@ private
       Certificate,
       Key,
       Security_Mode,
+      HTTP2_Activated,
+      HTTP2_Header_Table_Size,
+      HTTP2_Enable_Push,
+      HTTP2_Max_Concurrent_Streams,
+      HTTP2_Initial_Window_Size,
+      HTTP2_Max_Frame_Size,
+      HTTP2_Max_Header_List_Size,
       Cipher_Priorities,
       TLS_Ticket_Support,
       Exchange_Certificate,
@@ -640,6 +670,27 @@ private
                            Server_Name                     =>
                              (Str, +Default.Server_Name),
 
+                           HTTP2_Activated                 =>
+                             (Bool, Default.HTTP2_Activated),
+
+                           HTTP2_Header_Table_Size         =>
+                             (Pos, Default.HTTP2_Header_Table_Size),
+
+                           HTTP2_Enable_Push               =>
+                             (Bool, Default.HTTP2_Enable_Push),
+
+                           HTTP2_Max_Concurrent_Streams    =>
+                             (Pos, Default.HTTP2_Max_Concurrent_Streams),
+
+                           HTTP2_Initial_Window_Size       =>
+                             (Pos, Default.HTTP2_Initial_Window_Size),
+
+                           HTTP2_Max_Frame_Size            =>
+                             (Pos, Default.HTTP2_Max_Frame_Size),
+
+                           HTTP2_Max_Header_List_Size      =>
+                             (Pos, Default.HTTP2_Max_Header_List_Size),
+
                            WWW_Root                        =>
                              (Dir, +Default.WWW_Root),
 
@@ -775,7 +826,7 @@ private
                            Max_POST_Parameters             =>
                              (Pos, Default.Max_POST_Parameters));
 
-   type Object is record
+   type Object is tagged record
       P : Parameter_Set (Server_Parameter_Name) := Default_Parameters;
    end record;
 

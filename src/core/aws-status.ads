@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2000-2017, AdaCore                     --
+--                     Copyright (C) 2000-2021, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -64,6 +64,9 @@ package AWS.Status is
 
    type Authorization_Type is (None, Basic, Digest);
 
+   type Protocol_State is (HTTP_1, Upgrade_To_H2C, H2C, H2);
+   --  Protocoal status and upgrade request
+
    ------------------
    -- Request-Line --
    ------------------
@@ -75,6 +78,9 @@ package AWS.Status is
    --  Returns the request method as a String. Useful to get the method String
    --  for an extension-method, ie a method that is not already predefined
    --  in the RFC 2616.
+
+   function Protocol     (D : Data) return Protocol_State with Inline;
+   --  Get the current state of the protocol
 
    function URI          (D : Data) return String with Inline;
    --  Returns the requested resource
@@ -362,6 +368,8 @@ private
       --  Connection info
       Socket            : Net.Socket_Access;
       Peername          : Unbounded_String;
+
+      Protocol          : Protocol_State := HTTP_1;
 
       --  Request
       Header            : Headers.List;

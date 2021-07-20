@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2000-2017, AdaCore                     --
+--                     Copyright (C) 2000-2021, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -155,7 +155,8 @@ package body AWS.Status.Set is
    procedure Authorization (D : in out Data) is
 
       Header_Value : constant String :=
-                       Headers.Get (D.Header, Messages.Authorization_Token);
+                       AWS.Headers.Get
+                         (D.Header, Messages.Authorization_Token);
 
       procedure Named_Value (Name, Value : String; Quit : in out Boolean);
 
@@ -258,7 +259,7 @@ package body AWS.Status.Set is
          end if;
       end Value;
 
-      procedure Parse is new Headers.Values.Parse (Value, Named_Value);
+      procedure Parse is new AWS.Headers.Values.Parse (Value, Named_Value);
 
    begin
       Parse (Header_Value);
@@ -329,7 +330,9 @@ package body AWS.Status.Set is
 
    procedure Create_Stream (D : in out Data) is
    begin
-      if Headers.Get (D.Header, Messages.Content_Encoding_Token) = "gzip" then
+      if AWS.Headers.Get
+           (D.Header, Messages.Content_Encoding_Token) = "gzip"
+      then
          D.Binary_Data := new Resources.Streams.Memory.ZLib.Stream_Type;
          Resources.Streams.Memory.ZLib.Stream_Type
            (D.Binary_Data.all).Inflate_Initialize (Header => ZLib.GZip);
@@ -368,6 +371,15 @@ package body AWS.Status.Set is
       AWS.Attachments.Reset (D.Attachments, Delete_Files => True);
    end Free;
 
+   -------------
+   -- Headers --
+   -------------
+
+   procedure Headers (D : in out Data; Headers : AWS.Headers.List) is
+   begin
+      D.Header := Headers;
+   end Headers;
+
    ----------------
    -- Keep_Alive --
    ----------------
@@ -394,6 +406,15 @@ package body AWS.Status.Set is
    begin
       AWS.URL.Set.Parameters (D.URI'Access).all.Add (D.Binary_Data.all);
    end Parameters_From_Body;
+
+   --------------
+   -- Protocol --
+   --------------
+
+   procedure Protocol (D : in out Data; State : Protocol_State) is
+   begin
+      D.Protocol := State;
+   end Protocol;
 
    -----------
    -- Query --
@@ -453,7 +474,7 @@ package body AWS.Status.Set is
          end Read_Chunk;
 
          TE : constant String  :=
-                Headers.Get (D.Header, Messages.Transfer_Encoding_Token);
+                AWS.Headers.Get (D.Header, Messages.Transfer_Encoding_Token);
       begin
          if TE = "chunked" then
             --  A chuncked message is written on the stream as list of data
@@ -574,6 +595,13 @@ package body AWS.Status.Set is
 
       D.Method_String := To_Unbounded_String (Method);
       D.HTTP_Version  := To_Unbounded_String (HTTP_Version);
+
+      --  At this stage it should be HTTP_11, there is no
+      --  other choices.
+
+      if HTTP_Version = HTTP_11 then
+         D.Protocol := HTTP_1;
+      end if;
 
       --  Parse URI and keep parameters case sensitivity flag
 
@@ -770,7 +798,7 @@ package body AWS.Status.Set is
                -----------
 
                procedure Parse is
-                 new Headers.Values.Parse (Value, Named_Value);
+                 new AWS.Headers.Values.Parse (Value, Named_Value);
 
             begin
                Parse (To_String (Cookies_Set (Idx)));
@@ -781,6 +809,12 @@ package body AWS.Status.Set is
                  and then D.Session_Private /= Null_Unbounded_String;
             end;
          end loop;
+
+         if AWS.Headers.Get (D.Header, Messages.Upgrade_Token) =
+           Messages.H2C_Token
+         then
+            D.Protocol := Upgrade_To_H2C;
+         end if;
 
          --  Now double check that the session id is valid and has not been
          --  compromised.

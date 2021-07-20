@@ -125,6 +125,14 @@ package AWS.Containers.Tables is
    --  element into result when element with the same name already exists in
    --  the Left container.
 
+   procedure Union
+     (Left   : in out Table_Type;
+      Right  : Table_Type;
+      Unique : Boolean);
+   --  Concatenates two tables and put result to Left, If Unique is True do not
+   --  add Right container element into result when element with the same name
+   --  already exists in the Left container.
+
    procedure Add (Table : in out Table_Type; Name, Value : String);
 
    procedure Add

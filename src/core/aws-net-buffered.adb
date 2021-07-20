@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2002-2015, AdaCore                     --
+--                     Copyright (C) 2002-2021, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -78,21 +78,30 @@ package body AWS.Net.Buffered is
    end Flush;
 
    --------------
-   -- Get_Char --
+   -- Get_Byte --
    --------------
 
-   function Get_Char (Socket : Socket_Type'Class) return Character is
+   function Get_Byte (Socket : Socket_Type'Class) return Stream_Element  is
       C    : constant not null access Read_Cache := Get_Read_Cache (Socket);
-      Char : Character;
+      Byte : Stream_Element;
    begin
       if Is_Empty (C) then
          Read (Socket);
       end if;
 
-      Char    := Character'Val (C.Buffer (C.First));
+      Byte    := C.Buffer (C.First);
       C.First := C.First + 1;
 
-      return Char;
+      return Byte;
+   end Get_Byte;
+
+   --------------
+   -- Get_Char --
+   --------------
+
+   function Get_Char (Socket : Socket_Type'Class) return Character is
+   begin
+      return Character'Val (Get_Byte (Socket));
    end Get_Char;
 
    ---------------------

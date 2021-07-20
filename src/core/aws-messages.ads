@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2000-2018, AdaCore                     --
+--                     Copyright (C) 2000-2021, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -57,6 +57,16 @@ package AWS.Messages is
    ------------------------
    -- HTTP header tokens --
    ------------------------
+
+   --  HTTP/2 header tokens RFC 7540
+
+   Status_Token              : constant String := ":status";
+   Method_Token              : constant String := ":method";
+   Path2_Token               : constant String := ":path";
+   Scheme_Token              : constant String := ":scheme";
+
+   H2_Token                  : constant String := "h2";
+   H2C_Token                 : constant String := "h2c";
 
    --  General header tokens RFC 2616
    Cache_Control_Token       : constant String := "Cache-Control";
@@ -166,6 +176,10 @@ package AWS.Messages is
 
    S100_Continue : constant String := "100-continue";
    --  Supported expect header value
+
+   --  HTTP2 specific
+
+   HTTP2_Settings : constant String := "HTTP2-Settings";
 
    -----------------
    -- Status Code --
@@ -328,6 +342,9 @@ package AWS.Messages is
    --  there is a lot of implementation around using it. This header is used
    --  in multipart data.
 
+   function Date (Date : Calendar.Time) return String with Inline;
+   --  The date header
+
    function ETag (Value : ETag_Value) return String with Inline;
 
    function Expires (Date : Calendar.Time) return String with Inline;
@@ -352,6 +369,12 @@ package AWS.Messages is
    function Status_Line
      (Code          : Status_Code;
       Reason_Phrase : String := "") return String with Inline;
+   --  The HTTP status line on the form: HTTP/1.1 <code> <reason>
+
+   function Status_Value
+     (Code          : Status_Code;
+      Reason_Phrase : String := "") return String with Inline;
+   --  As above but only with the values : <code> <reason>
 
    function Transfer_Encoding (Encoding : String) return String with Inline;
 
