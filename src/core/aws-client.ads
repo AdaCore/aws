@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2000-2018, AdaCore                     --
+--                     Copyright (C) 2000-2021, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -611,7 +611,8 @@ private
       Host_URL           : AWS.URL.Object;
       Proxy              : Unbounded_String;
       Proxy_URL          : AWS.URL.Object;
-      Headers            : Header_List;
+      C_Headers          : Header_List;        -- user's connection headers
+      F_Headers          : Header_List;        -- final connection headers
       Auth               : Authentication_Set;
       Opened             : Boolean                      := False;
       Persistent         : Boolean;

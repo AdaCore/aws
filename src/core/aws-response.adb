@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2000-2015, AdaCore                     --
+--                     Copyright (C) 2000-2021, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -275,6 +275,7 @@ package body AWS.Response is
             Resources.Streams.Create (File, D.Stream);
 
             D.Ref_Counter.Stream_Taken := True;
+
          when others =>
             --  Should not be called for others response modes
             raise Constraint_Error;
@@ -628,9 +629,12 @@ package body AWS.Response is
    -- Send_Header --
    -----------------
 
-   procedure Send_Header (Socket : Net.Socket_Type'Class; D : Data) is
+   procedure Send_Header
+     (Socket    : Net.Socket_Type'Class;
+      D         : Data;
+      End_Block : Boolean := False) is
    begin
-      Headers.Send_Header (Socket, D.Header);
+      Headers.Send_Header (Socket, D.Header, End_Block);
    end Send_Header;
 
    ------------------

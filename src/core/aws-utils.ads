@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2000-2020, AdaCore                     --
+--                     Copyright (C) 2000-2021, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -343,6 +343,26 @@ package AWS.Utils is
       end Mailbox;
 
    end Mailbox_G;
+
+   -------------------
+   -- Buffered_Data --
+   -------------------
+
+   generic
+      Max_Size : Stream_Element_Count;
+      with procedure Action (Data : Stream_Element_Array_Access);
+   package Buffered_Data is
+
+      procedure Add (Data : Stream_Element_Array);
+      --  Add some data to the buffer, call Action if Max_Size reached
+
+      procedure Flush;
+      --  Flush buffer and call Action if there is any data remaining
+
+      function Length return Stream_Element_Count;
+      --  Returns the current size of the buffer
+
+   end Buffered_Data;
 
    -------------
    -- Counter --

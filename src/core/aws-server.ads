@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2000-2017, AdaCore                     --
+--                     Copyright (C) 2000-2021, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -29,6 +29,8 @@
 
 pragma Ada_2012;
 
+with Ada.Task_Identification;
+
 with AWS.Config;
 with AWS.Default;
 with AWS.Dispatchers;
@@ -41,9 +43,6 @@ private with Ada.Calendar;
 private with Ada.Exceptions;
 private with Ada.Finalization;
 private with Ada.Task_Attributes;
-
-with Ada.Task_Identification;
-
 private with Ada.Real_Time;
 private with System;
 

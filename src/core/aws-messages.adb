@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2000-2017, AdaCore                     --
+--                     Copyright (C) 2000-2021, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -311,6 +311,15 @@ package body AWS.Messages is
    end Data_Range;
 
    ----------
+   -- Date --
+   ----------
+
+   function Date (Date : Calendar.Time) return String is
+   begin
+      return Date_Token & HD & To_HTTP_Date (Date);
+   end Date;
+
+   ----------
    -- ETag --
    ----------
 
@@ -424,6 +433,20 @@ package body AWS.Messages is
            then Messages.Reason_Phrase (Code)
            else Reason_Phrase);
    end Status_Line;
+
+   ------------------
+   -- Status_Value --
+   ------------------
+
+   function Status_Value
+     (Code          : Status_Code;
+      Reason_Phrase : String := "") return String is
+   begin
+      return Image (Code) & ' '
+        & (if Reason_Phrase = ""
+           then Messages.Reason_Phrase (Code)
+           else Reason_Phrase);
+   end Status_Value;
 
    -------------------
    -- To_Cache_Data --

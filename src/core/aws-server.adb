@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2000-2019, AdaCore                     --
+--                     Copyright (C) 2000-2021, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -42,6 +42,7 @@ with AWS.Server.HTTP_Utils;
 with AWS.Server.Log;
 with AWS.Services.Transient_Pages.Control;
 with AWS.Session.Control;
+with AWS.Status.Set;
 with AWS.Status.Translate_Set;
 with AWS.Templates;
 
@@ -55,7 +56,10 @@ package body AWS.Server is
    --  Start web server with current configuration
 
    procedure Protocol_Handler (LA : in out Line_Attribute_Record);
-   --  Handle the lines, this is where all the HTTP protocol is defined
+   --  Handle the lines, this is where all the HTTP/1.1 protocol is defined
+
+   procedure Protocol_Handler_V2 (LA : in out Line_Attribute_Record);
+   --  Handle the lines, this is where all the HTTP/2 protocol is defined
 
    function Accept_Socket_Serialized
      (Server : not null access HTTP)
@@ -95,29 +99,47 @@ package body AWS.Server is
       end Accept_Error;
 
    begin
-      Net.Acceptors.Get (Server.Acceptor, New_Socket, Accept_Error'Access);
+      loop
+         Net.Acceptors.Get (Server.Acceptor, New_Socket, Accept_Error'Access);
 
-      if CNF.Security (Server.Properties)
-        and then not New_Socket.Is_Secure
-      then
-         declare
-            SSL_Socket : Net.Socket_Access;
-         begin
-            SSL_Socket := new Net.SSL.Socket_Type'
-              (Net.SSL.Secure_Server (New_Socket.all, Server.SSL_Config));
-
-            Net.Free (New_Socket);
-            return SSL_Socket;
-         exception
-            when others =>
-               Net.Shutdown (New_Socket.all);
+         if CNF.Security (Server.Properties)
+           and then not New_Socket.Is_Secure
+         then
+            declare
+               SSL_Socket : Net.SSL.Socket_Type;
+            begin
+               SSL_Socket := Net.SSL.Secure_Server
+                 (New_Socket.all, Server.SSL_Config);
                Net.Free (New_Socket);
-               raise;
-         end;
+               SSL_Socket.Do_Handshake; -- Handshake need for HTTP/2 ALPN
+               pragma Warnings (Off);
+               return new Net.SSL.Socket_Type'(SSL_Socket);
+            exception
+               when Net.Socket_Error =>
+                  if New_Socket = null then
+                     --  It mean error in SSL handshake, shutdown socket and
+                     --  get another one in next iteration.
 
-      else
-         return New_Socket;
-      end if;
+                     SSL_Socket.Shutdown;
+
+                  else
+                     --  Unexpected error
+
+                     Net.Shutdown (New_Socket.all);
+                     Net.Free (New_Socket);
+                     raise;
+                  end if;
+
+               when others =>
+                  Net.Shutdown (New_Socket.all);
+                  Net.Free (New_Socket);
+                  raise;
+            end;
+
+         else
+            return New_Socket;
+         end if;
+      end loop;
    end Accept_Socket_Serialized;
 
    -------------------
@@ -320,7 +342,17 @@ package body AWS.Server is
 
             TA.Server.Slots.Set (Socket, TA.Line);
 
-            Protocol_Handler (TA.all);
+            if Socket.Is_Secure
+              and then Net.SSL.Socket_Type (Socket.all).ALPN_Get
+                       = Messages.H2_Token
+              and then CNF.HTTP2_Activated (TA.Server.Config)
+            then
+               --  Protocol is secure H2
+               AWS.Status.Set.Protocol (TA.Stat, AWS.Status.H2);
+               Protocol_Handler_V2 (TA.all);
+            else
+               Protocol_Handler (TA.all);
+            end if;
 
             TA.Server.Slots.Release (TA.Line, Need_Shutdown);
 
@@ -380,6 +412,9 @@ package body AWS.Server is
    ----------------------
 
    procedure Protocol_Handler (LA : in out Line_Attribute_Record) is separate;
+
+   procedure Protocol_Handler_V2
+     (LA : in out Line_Attribute_Record) is separate;
 
    ------------------
    -- Session_Name --
@@ -856,7 +891,7 @@ package body AWS.Server is
          pragma Assert
            ((Table (Index).Phase = Closed
                and then -- If phase is closed, then Sock must be null
-               Table (Index).Sock = null)
+             Table (Index).Sock = null)
             or else -- or phase is not closed
               Table (Index).Phase /= Closed);
 
@@ -1073,6 +1108,12 @@ package body AWS.Server is
               CNF.CRL_File (Web_Server.Properties),
             Session_Cache_Size   =>
               CNF.SSL_Session_Cache_Size (Web_Server.Properties));
+
+         if CNF.HTTP2_Activated (Web_Server.Properties) then
+            Net.SSL.ALPN_Set
+              (Web_Server.SSL_Config,
+               Net.SSL.SV.To_Vector (Messages.H2_Token, 1));
+         end if;
       end if;
 
       --  Create the Web Server socket set
