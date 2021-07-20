@@ -40,7 +40,6 @@ with AWS.Resources;
 with AWS.Server.HTTP_Utils;
 with AWS.Status;
 with AWS.Translator;
-with AWS.Utils;
 
 package body AWS.HTTP2.Message is
 
@@ -60,7 +59,7 @@ package body AWS.HTTP2.Message is
          O.Headers   := Headers;
          O.Payload   := Payload;
          O.Sent      := 0;
-         O.Length    := Length (Payload);
+         O.Length    := Utils.File_Size_Type (Length (Payload));
       end return;
    end Create;
 
@@ -74,7 +73,7 @@ package body AWS.HTTP2.Message is
          O.Headers   := Headers;
          O.Filename  := To_Unbounded_String (Filename);
          O.Sent      := 0;
-         O.Length    := Natural (Utils.File_Size (Filename));
+         O.Length    := Utils.File_Size (Filename);
       end return;
    end Create;
 
@@ -169,7 +168,7 @@ package body AWS.HTTP2.Message is
          package Buffer is new Utils.Buffered_Data
            (Max_Size, Create_Data_Frame);
 
-         First : Positive := Self.Sent + 1;
+         First : Positive := Natural (Self.Sent) + 1;
          Last  : Positive;
       begin
          while FCW > 0 and then First < Size loop
@@ -179,7 +178,7 @@ package body AWS.HTTP2.Message is
               (Translator.To_Stream_Element_Array
                  (Slice (Data, First, Last)));
 
-            Self.Sent := Self.Sent + (Last - First + 1);
+            Self.Sent := Self.Sent + Utils.File_Size_Type (Last - First + 1);
 
             FCW := FCW - (Last - First + 1);
 

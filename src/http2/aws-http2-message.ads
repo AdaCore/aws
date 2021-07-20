@@ -34,6 +34,8 @@ with AWS.HTTP2.Frame.List;
 with AWS.Response;
 with AWS.Server.Context;
 
+private with AWS.Utils;
+
 limited with AWS.HTTP2.Stream;
 
 package AWS.HTTP2.Message is
@@ -99,11 +101,13 @@ package AWS.HTTP2.Message is
 
 private
 
+   use type Utils.File_Size_Type;
+
    type Object (Mode : Response.Data_Mode) is tagged record
       Stream_Id : HTTP2.Stream_Id;
       Headers   : AWS.Headers.List;
-      Sent      : Natural := 0;
-      Length    : Natural := 0;
+      Sent      : Utils.File_Size_Type := 0;
+      Length    : Utils.File_Size_Type := 0;
       H_Sent    : Boolean := False; -- Whether the header has been sent
 
       case Mode is
