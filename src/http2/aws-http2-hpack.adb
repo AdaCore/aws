@@ -110,14 +110,17 @@ package body AWS.HTTP2.HPACK is
 
    function Decode
      (Table    : not null access HPACK.Table.Object;
-      Settings : not null access HTTP2.Connection.Object)
-      return AWS.Headers.List
+      Settings : not null access HTTP2.Connection.Object) return Headers.List
    is
       Byte : Bit8;
       Bit  : RFC_Byte (G1) with Address => Byte'Address;
       BG2  : RFC_Byte (G2) with Address => Byte'Address;
       BG3  : RFC_Byte (G3) with Address => Byte'Address;
       BG4  : RFC_Byte (G4) with Address => Byte'Address;
+
+      function Get_Byte_Safe return Stream_Element;
+      --  Returns byte, but check for end of stream before and raise exception
+      --  if unexpected.
 
       Headers : AWS.Headers.List;
 
@@ -139,6 +142,20 @@ package body AWS.HTTP2.HPACK is
       function Get_Indexed_Name (Idx : Stream_Element_Count) return String;
       --  Get an indexed name from the HPACK static/dynamic table
       --  RFC 7541 / 6.2
+
+      -------------------
+      -- Get_Byte_Safe --
+      -------------------
+
+      function Get_Byte_Safe return Stream_Element is
+      begin
+         if End_Of_Stream then
+            raise Protocol_Error with Exception_Message
+              (C_Protocol_Error, "unexpected end of stream on hpack decode");
+         end if;
+
+         return Get_Byte;
+      end Get_Byte_Safe;
 
       ----------------------
       -- Get_Indexed_Name --
@@ -181,7 +198,7 @@ package body AWS.HTTP2.HPACK is
 
          if B = Mask then
             loop
-               B := Get_Byte;
+               B := Get_Byte_Safe;
                Stop := (B and 2#1000_0000#) = 0;
                B := B and Continuation_Mask;
                Result := Result + (2 ** K) * Interfaces.Unsigned_32 (B);
@@ -208,7 +225,7 @@ package body AWS.HTTP2.HPACK is
          --   |  String Data (Length octets)  |
          --   +-------------------------------+
 
-         Byte := Get_Byte;
+         Byte := Get_Byte_Safe;
 
          declare
             Length : constant Stream_Element_Count := Get_Integer (7);
@@ -216,7 +233,7 @@ package body AWS.HTTP2.HPACK is
                        (1 .. Stream_Element_Offset (Length));
          begin
             for K in Str'Range loop
-               Str (K) := Get_Byte;
+               Str (K) := Get_Byte_Safe;
             end loop;
 
             if Bit.B0 = 1 then
@@ -249,7 +266,8 @@ package body AWS.HTTP2.HPACK is
 
             if Idx = 0 then
                --  RFC 7541 - 6.1
-               raise Constraint_Error with "indexed header field is 0";
+               raise Protocol_Error with Exception_Message
+                 (C_Protocol_Error, "indexed header field is 0");
             end if;
 
             Get_Indexed_Name_Value (Idx);
@@ -308,19 +326,26 @@ package body AWS.HTTP2.HPACK is
                Settings.Set_Dynamic_Header_Table_Size (Natural (Idx));
             end if;
 
-         elsif BG4.B40 = B_II_No_Indexing then
-            --  Literal Header Field Never Indexed (RFC-7541 / 6.2.3)
+         else
+            pragma Assert (BG4.B40 in B_II_No_Indexing | B_No_Indexing);
+            --  or just pragma Assert (BG4.B30 = 0);
+            --  The same decode processing for both RFC cases
+            --  (RFC-7541 / 6.2.3.).
+            --
+            --  Literal Header Field Never Indexed (RFC-7541 / 6.2.3.).
+            --  No indexing - Indexed Name (RFC-7541 / 6.2.2.).
+
             --
             --     0   1   2   3   4   5   6   7
             --   +---+---+---+---+---+---+---+---+
-            --   | 0 | 0 | 0 | 1 |  Index (4+)   |
+            --   | 0 | 0 | 0 | X |  Index (4+)   |
             --   +---+---+-----------------------+
             --
             --  or
             --
             --     0   1   2   3   4   5   6   7
             --   +---+---+---+---+---+---+---+---+
-            --   | 0 | 0 | 0 | 1 |     0         |
+            --   | 0 | 0 | 0 | X |     0         |
             --   +---+---+-----------------------+
 
             Idx := Get_Integer (4);
@@ -338,40 +363,6 @@ package body AWS.HTTP2.HPACK is
             end;
 
             Data := True;
-
-         elsif BG4.B40 = B_No_Indexing then
-            --  No indexing - Indexed Name (RFC-7541 / 6.2.2)
-            --
-            --     0   1   2   3   4   5   6   7
-            --   +---+---+---+---+---+---+---+---+
-            --   | 0 | 0 | 0 | 0 |  Index (4+)   |
-            --   +---+---+-----------------------+
-            --
-            --  or
-            --
-            --     0   1   2   3   4   5   6   7
-            --   +---+---+---+---+---+---+---+---+
-            --   | 0 | 0 | 0 | 0 |     0         |
-            --   +---+---+-----------------------+
-
-            Idx := Get_Integer (4);
-
-            declare
-               Name  : constant String :=
-                         (if Idx = 0
-                          then Get_String_Literal
-                          else Get_Indexed_Name (Idx));
-               Value : constant String := Get_String_Literal;
-            begin
-               AWS.Headers.Add (Headers, Name, Value);
-            end;
-
-            Data := True;
-
-         else
-            raise Protocol_Error with
-              Exception_Message
-                (C_Protocol_Error, "hpack unknown data : " & Byte'Img);
          end if;
 
          if HTTP2.Debug then

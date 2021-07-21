@@ -548,9 +548,6 @@ package body AWS.HTTP2.HPACK.Huffman is
       end if;
 
       return R (1 .. I);
-   exception
-      when others =>
-         raise Constraint_Error with "huffman encoding error";
    end Encode;
 
 begin
