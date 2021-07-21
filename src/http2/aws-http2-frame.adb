@@ -103,6 +103,19 @@ package body AWS.HTTP2.Frame is
       Self.Counter := new Natural'(1);
    end Initialize;
 
+   --------------
+   -- Is_Valid --
+   --------------
+
+   function Is_Valid
+     (Self     : Object'Class;
+      Settings : Connection.Object;
+      Error    : out Error_Codes) return Boolean is
+   begin
+      Error := Self.Validate (Settings);
+      return Error = C_No_Error;
+   end Is_Valid;
+
    ----------
    -- Read --
    ----------
