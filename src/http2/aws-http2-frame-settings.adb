@@ -107,17 +107,52 @@ package body AWS.HTTP2.Frame.Settings is
      (Sock   : Net.Socket_Type'Class;
       Header : Frame.Object) return Object
    is
-      Len  : constant Stream_Element_Count :=
-               Stream_Element_Count (Header.Header.H.Length);
-      Size : constant Stream_Element_Count :=
-               Len / (Payload'Size / 8);
+      Len  : Length_Type := Header.Header.H.Length;
+      Size : Stream_Element_Count :=
+               Stream_Element_Count (Len) / (Payload'Size / 8);
+      Idx  : Stream_Element_Count := 1;
+      Data : Stream_Element_Array (1 .. Stream_Element_Count (Len));
+      Vect : Set (1 .. Size);
+      for Vect'Address use Data'Address;
+      Head : Frame.Object;
    begin
-      return O : Object := (Header with Size => Size, Data => <>) do
-         if Len > 0 then
-            O.Data.S := new Stream_Element_Array (1 .. Len);
-            Net.Buffered.Read (Sock, O.Data.S.all);
+      if Size = 0 then
+         return (Header with Size => 0, Data => <>);
+      end if;
+
+      Net.Buffered.Read (Sock, Data);
+
+      Head := Header;
+
+      --  Ignore settings with unknown identifier (RFC 7540, 6.5.2.)
+
+      while Idx <= Size loop
+         if Vect (Idx).Id'Valid then
+            Idx := Idx + 1;
+
+         else
+            if Idx < Size then
+               Vect (Idx) := Vect (Size);
+            end if;
+
+            Size := Size - 1;
+            Len  := Len  - (Payload'Size / 8);
          end if;
-      end return;
+      end loop;
+
+      if Size = 0 then
+         --  All setting is invalid, ignore this settings frame, see Is_Ignore
+
+         return (Header with Size => 1, Data => <>);
+      end if;
+
+      Head.Header.H.Length := Len;
+
+      return (Head with Size => Size,
+              Data =>
+                (Flat => True,
+                 S    => new Stream_Element_Array'
+                               (Data (1 .. Stream_Element_Count (Len)))));
    end Read;
 
    -------------

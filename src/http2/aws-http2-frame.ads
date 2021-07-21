@@ -117,6 +117,14 @@ package AWS.HTTP2.Frame is
    --  C_No_Error and is supposed to be overriden by frame implementation. if
    --  needed.
 
+   function Is_Valid
+     (Self     : Object'Class;
+      Settings : Connection.Object;
+      Error    : out Error_Codes) return Boolean
+     with Pre => Self.Is_Defined;
+   --  Set Error to appropriate value with Validate routine and return True if
+   --  Error became C_No_Error, returns False otherwise.
+
    --  Debug oritented routines:
 
    procedure Dump (Self : Object'Class; Message : String);

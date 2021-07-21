@@ -85,6 +85,9 @@ package AWS.HTTP2.Frame.Settings is
    function Values (Self : Object) return Set;
    --  Returns the set of values from this frame
 
+   function Is_Ignored (Self : Object) return Boolean;
+   --  Returns True if the entire frame should be ignored
+
    overriding procedure Send_Payload
      (Self : Object; Sock : Net.Socket_Type'Class)
      with Pre => Self.Is_Defined;
@@ -130,7 +133,7 @@ private
    type Payload_View (Flat : Boolean := False) is record
       case Flat is
          when False => P : Maximal_Array_Ptr;
-         when True =>  S : Utils.Stream_Element_Array_Access;
+         when True  => S : Utils.Stream_Element_Array_Access;
       end case;
    end record with Unchecked_Union;
 
@@ -147,5 +150,8 @@ private
 
    overriding function Is_Defined (Self : Object) return Boolean is
      (Self.Size /= 0 or else Self.Header.H.Flags = Ack_Flag);
+
+   function Is_Ignored (Self : Object) return Boolean is
+      (Self.Size = 1 and then Utils."=" (Self.Data.S, null));
 
 end AWS.HTTP2.Frame.Settings;
