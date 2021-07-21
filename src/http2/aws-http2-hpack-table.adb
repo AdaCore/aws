@@ -81,7 +81,10 @@ package body AWS.HTTP2.HPACK.Table is
          return Self.Dynamic.T_IN (D_Index (Self, Index)).Name;
 
       else
-         raise Constraint_Error; -- ???
+         raise Protocol_Error with Exception_Message
+           (C_Protocol_Error,
+            "wrong name index" & Index'Img & " >"
+            & Natural'Image (Static_Table_Size + Self.Dynamic.Length));
       end if;
    end Get_Name;
 
@@ -99,7 +102,10 @@ package body AWS.HTTP2.HPACK.Table is
          return Self.Dynamic.T_IN (D_Index (Self, Index));
 
       else
-         raise Constraint_Error with "hpack " & Self.Dynamic.Length'Img;
+         raise Protocol_Error with Exception_Message
+           (C_Protocol_Error,
+            "wrong name-value index" & Index'Img & " >"
+            & Natural'Image (Static_Table_Size + Self.Dynamic.Length));
       end if;
    end Get_Name_Value;
 
