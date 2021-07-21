@@ -45,8 +45,7 @@ package AWS.HTTP2.HPACK is
       with function Get_Byte return Stream_Element;
    function Decode
      (Table    : not null access HPACK.Table.Object;
-      Settings : not null access HTTP2.Connection.Object)
-      return AWS.Headers.List;
+      Settings : not null access HTTP2.Connection.Object) return Headers.List;
    --  Decode a stream and return the conrresponding header list
 
    function Encode
