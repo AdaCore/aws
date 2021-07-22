@@ -121,36 +121,34 @@ package body AWS.HTTP2.HPACK.Table is
    is
       Has_Value : constant Boolean := Value /= "";
       N         : constant String := Characters.Handling.To_Lower (Name);
-      V         : constant String := Value;
-      NV        : constant String := N & '=' & V;
+      NV        : constant String := N & '=' & Value;
+      CNI       : NV_Index.Cursor;
    begin
-      Both := False;
+      for With_Value in reverse False .. Has_Value loop
+         CNI := Self.Static.T_NI.Find (if With_Value then NV else N);
 
-      if Has_Value and then Self.Static.T_NI.Contains (NV) then
-         Both := True;
-         return Self.Static.T_NI (NV).Index;
+         if NV_Index.Has_Element (CNI) then
+            Both := With_Value;
+            return NV_Index.Element (CNI).Index;
+         end if;
+      end loop;
 
-      elsif Self.Static.T_NI.Contains (N) then
-         return Self.Static.T_NI (N).Index;
+      for With_Value in reverse False .. Has_Value loop
+         CNI := Self.Dynamic.T_NI.Find (if With_Value then NV else N);
 
-      elsif Has_Value and then Self.Dynamic.T_NI.Contains (NV) then
-         Both := True;
+         if NV_Index.Has_Element (CNI) then
+            Both := With_Value;
 
-         declare
-            Id : constant Ids := Self.Dynamic.T_NI (NV);
-         begin
-            return Id.Index + (Self.Dynamic.Rank - Id.Rank);
-         end;
+            declare
+               Id : constant Ids := NV_Index.Element (CNI);
+            begin
+               return Id.Index + (Self.Dynamic.Rank - Id.Rank);
+            end;
+         end if;
+      end loop;
 
-      elsif Self.Dynamic.T_NI.Contains (N) then
-         declare
-            Id : constant Ids := Self.Dynamic.T_NI (N);
-         begin
-            return Id.Index + (Self.Dynamic.Rank - Id.Rank);
-         end;
-      else
-         raise Constraint_Error;
-      end if;
+      raise Constraint_Error with
+        "Encode unknown header is not implemented";
    end Get_Name_Value_Index;
 
    ----------
@@ -233,7 +231,7 @@ package body AWS.HTTP2.HPACK.Table is
       Name, Value : String)
    is
       N    : constant String := Characters.Handling.To_Lower (Name);
-      V    : constant String := Value;
+      V    : String renames Value;
       Item : constant Name_Value := (N'Length, V'Length, N, V);
       Size : constant Positive := NV_Size (Item);
    begin
@@ -259,7 +257,7 @@ package body AWS.HTTP2.HPACK.Table is
       begin
          while Self.Dynamic.Size > Max_Header_List_Size loop
             declare
-               Item  : constant Name_Value := Self.Dynamic.T_IN.First_Element;
+               Item : constant Name_Value := Self.Dynamic.T_IN.First_Element;
             begin
                Self.Dynamic.T_IN.Delete_First;
                Self.Dynamic.Size := Self.Dynamic.Size - NV_Size (Item);
