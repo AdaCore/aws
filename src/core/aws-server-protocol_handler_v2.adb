@@ -821,7 +821,7 @@ begin
 
                   Go_Away
                     (C_Protocol_Error,
-                     "Unknown frame in the middle of a header block");
+                     "unknown frame in the middle of a header block");
 
                   exit For_Every_Frame;
 
@@ -846,19 +846,19 @@ begin
 
                Go_Away
                  (C_Protocol_Error,
-                  "A server cannot receive a push-promise frame");
+                  "server cannot receive a push-promise frame");
 
                exit For_Every_Frame;
 
             elsif not Frame.Is_Defined then
-               Go_Away (C_Protocol_Error, "Empty frame");
+               Go_Away (C_Protocol_Error, "empty frame " & Frame.Kind'Img);
 
                exit For_Every_Frame;
 
             elsif not Frame.Is_Valid (Settings, Error) then
                --  Send a GOAWAY response right now
 
-               Go_Away (Error, "Invalid frame");
+               Go_Away (Error, "invalid frame " & Frame.Kind'Img);
 
                exit For_Every_Frame;
 
@@ -872,7 +872,7 @@ begin
                Handle_Control_Frame (Frame, S, Error);
 
                if Error /= HTTP2.C_No_Error then
-                  Go_Away (Error, "Invalid control frame");
+                  Go_Away (Error, "invalid control frame " & Frame.Kind'Img);
 
                   exit For_Every_Frame;
                end if;
@@ -891,7 +891,7 @@ begin
                     or else S.Capacity = S.Length
                   then
                      Go_Away
-                       (C_Protocol_Error, "Too many streams were opened");
+                       (C_Protocol_Error, "too many streams were opened");
                      exit For_Every_Frame;
 
                   else

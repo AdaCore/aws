@@ -55,6 +55,9 @@ package AWS.HTTP2.Frame.GoAway is
    overriding function Validate
      (Self : Object; Settings : Connection.Object) return Error_Codes;
 
+   function Last_Stream_Id (Self : Object) return Stream.Id;
+   --  Returns Last_Stream_Id of the Frame
+
    overriding procedure Dump_Payload (Self : Object);
 
 private
@@ -100,5 +103,8 @@ private
 
    overriding function Is_Defined (Self : Object) return Boolean is
      (Frame.Object (Self).Is_Defined and then Self.Data.S /= null);
+
+   function Last_Stream_Id (Self : Object) return Stream.Id is
+     (if Self.Data.P = null then 0 else Self.Data.P.Stream_Id);
 
 end AWS.HTTP2.Frame.GoAway;
