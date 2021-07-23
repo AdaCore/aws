@@ -62,9 +62,6 @@ package AWS.HTTP2.HPACK.Table is
    --  Get the index of the Name (and Value if specificed). Both is set to true
    --  if the pair is found and False if only the Name has been found.
 
-   procedure Init (Self : in out Object);
-   --  Initialize the table
-
    procedure Dump (Self : Object);
    --  Dump table content for debug
 
@@ -97,7 +94,6 @@ private
    end record;
 
    type Object is tagged record
-      Static  : Static_Table;
       Dynamic : Dynamic_Table;
    end record;
 
