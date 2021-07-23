@@ -629,9 +629,6 @@ procedure Protocol_Handler_V2 (LA : in out Line_Attribute_Record) is
 begin
    --  Initialize the HPACK tables to encode/decode headers
 
-   Tab_Enc.Init;
-   Tab_Dec := Tab_Enc;
-
    LA.Log_Data := AWS.Log.Empty_Fields_Table;
 
    HTTP2.Connection.Set (Settings, LA.Server.Properties);
@@ -935,18 +932,6 @@ begin
             end if;
 
          exception
-            when E : Constraint_Error =>
-               if Stream_Id /= 0
-                 and then S (Stream_Id).State = Stream.Open
-               then
-                  Go_Away (C_Protocol_Error, Exception_Message (E));
-                  exit For_Every_Frame;
-
-               else
-                  HTTP2.Frame.Ping.Create
-                    (Flags => HTTP2.Frame.End_Stream_Flag).Send (Sock.all);
-               end if;
-
             when E : Protocol_Error =>
                declare
                   Message : constant String := Exception_Message (E);
