@@ -80,7 +80,7 @@ package body AWS.HTTP2.Frame.GoAway is
       Header : Frame.Object) return Object
    is
       Len : constant Stream_Element_Count :=
-              Stream_Element_Count (Header.Header.H.Length) - 8;
+              Stream_Element_Count (Header.Header.H.Length);
    begin
       return O : Object := (Header with Data => <>) do
          if Len > 0 then

@@ -28,7 +28,6 @@
 ------------------------------------------------------------------------------
 
 with Ada.Containers;
-with Ada.Exceptions;
 with Ada.Strings.Unbounded;
 
 with AWS.Headers;
@@ -41,7 +40,6 @@ with AWS.HTTP2.HPACK;
 
 package body AWS.HTTP2.Stream is
 
-   use Ada.Exceptions;
    use Ada.Strings.Unbounded;
 
    use all type HTTP2.Frame.Kind_Type;
@@ -174,10 +172,6 @@ package body AWS.HTTP2.Stream is
 
       begin
          return Get_Headers (Ctx.Tab_Dec, Ctx.Settings);
-      exception
-         when E : others =>
-            raise Protocol_Error with
-              Exception_Message (C_Protocol_Error, Exception_Message (E));
       end Parse_Header;
 
       H       : Headers.List;
@@ -186,14 +180,7 @@ package body AWS.HTTP2.Stream is
    begin
       for F of Self.Frames loop
          case F.Kind is
-            when K_Headers =>
-               L.Append (F);
-
-               if F.Has_Flag (Frame.End_Headers_Flag) then
-                  H.Union (Parse_Header, Unique => False);
-               end if;
-
-            when K_Continuation =>
+            when K_Headers | K_Continuation =>
                L.Append (F);
 
                if F.Has_Flag (Frame.End_Headers_Flag) then

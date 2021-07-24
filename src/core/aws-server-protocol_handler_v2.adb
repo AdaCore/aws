@@ -103,6 +103,11 @@ procedure Protocol_Handler_V2 (LA : in out Line_Attribute_Record) is
    procedure Set_Status (Status : in out AWS.Status.Data);
    --  Set standard/common status data for the response
 
+   procedure Finalize;
+   --  Free resources on return from Protocol_Handler_V2
+
+   Finalizer : AWS.Utils.Finalizer (Finalize'Access) with Unreferenced;
+
    Case_Sensitive_Parameters : constant Boolean :=
                                  CNF.Case_Sensitive_Parameters
                                    (LA.Server.Properties);
@@ -147,6 +152,15 @@ procedure Protocol_Handler_V2 (LA : in out Line_Attribute_Record) is
 
    Ctx : Context.Object
      (LA.Server, LA.Line, Tab_Enc'Access, Tab_Dec'Access, Settings'Access);
+
+   --------------
+   -- Finalize --
+   --------------
+
+   procedure Finalize is
+   begin
+      AWS.Status.Set.Free (LA.Stat);
+   end Finalize;
 
    --------------------------
    -- Handle_Control_Frame --
@@ -615,9 +629,6 @@ procedure Protocol_Handler_V2 (LA : in out Line_Attribute_Record) is
 begin
    --  Initialize the HPACK tables to encode/decode headers
 
-   Tab_Enc.Init;
-   Tab_Dec := Tab_Enc;
-
    LA.Log_Data := AWS.Log.Empty_Fields_Table;
 
    HTTP2.Connection.Set (Settings, LA.Server.Properties);
@@ -675,6 +686,28 @@ begin
       In_Header  : Boolean := False;
       --  Need to avoid unknown extension frame in the middle of a header block
       --  (RFC 7450, 5.5).
+
+      procedure Go_Away (Error : HTTP2.Error_Codes; Message : String);
+      --  Send GoAway frame, log message to error log and set Will_Close flag
+      --  to True.
+
+      -------------
+      -- Go_Away --
+      -------------
+
+      procedure Go_Away (Error : HTTP2.Error_Codes; Message : String) is
+      begin
+         if Message /= "" then
+            AWS.Log.Write (LA.Server.Error_Log, LA.Stat, Message);
+         end if;
+
+         HTTP2.Frame.GoAway.Create
+           (Stream_Id => Last_SID, Error => Error).Send (Sock.all);
+
+         Will_Close := True;
+      end Go_Away;
+
+
    begin
       --  We now need to answer to the request made during the upgrade
 
@@ -783,11 +816,10 @@ begin
                   --  Unknown extension frame in the middle of a header block
                   --  (RFC 7450, 5.5).
 
-                  HTTP2.Frame.GoAway.Create
-                    (Stream_Id => Stream_Id,
-                     Error     => C_Protocol_Error).Send (Sock.all);
+                  Go_Away
+                    (C_Protocol_Error,
+                     "unknown frame in the middle of a header block");
 
-                  Will_Close := True;
                   exit For_Every_Frame;
 
                else
@@ -795,32 +827,36 @@ begin
                     (Flags => HTTP2.Frame.End_Stream_Flag).Send (Sock.all);
                end if;
 
+            elsif Frame.Kind = K_Settings
+              and then HTTP2.Frame.Settings.Object (Frame).Is_Ignored
+            then
+               --  The case when all settings parameters are unknown.
+               --  An endpoint that receives a SETTINGS frame with any unknown
+               --  or unsupported identifier MUST ignore that setting.
+               --  (RFC 7540, 6.5.2.).
+
+               HTTP2.Frame.Ping.Create
+                 (Flags => HTTP2.Frame.End_Stream_Flag).Send (Sock.all);
+
             elsif Frame.Kind = K_Push_Promise then
                --  A server cannot receive a push-promise frame
 
-               HTTP2.Frame.GoAway.Create
-                 (Stream_Id => Stream_Id,
-                  Error     => C_Protocol_Error).Send (Sock.all);
+               Go_Away
+                 (C_Protocol_Error,
+                  "server cannot receive a push-promise frame");
 
-               Will_Close := True;
                exit For_Every_Frame;
 
             elsif not Frame.Is_Defined then
-               HTTP2.Frame.GoAway.Create
-                 (Stream_Id => Stream_Id,
-                  Error     => C_Protocol_Error).Send (Sock.all);
+               Go_Away (C_Protocol_Error, "empty frame " & Frame.Kind'Img);
 
-               Will_Close := True;
                exit For_Every_Frame;
 
-            elsif Frame.Validate (Settings) /= C_No_Error then
+            elsif not Frame.Is_Valid (Settings, Error) then
                --  Send a GOAWAY response right now
 
-               HTTP2.Frame.GoAway.Create
-                 (Stream_Id => Stream_Id,
-                  Error     => Frame.Validate (Settings)).Send (Sock.all);
+               Go_Away (Error, "invalid frame " & Frame.Kind'Img);
 
-               Will_Close := True;
                exit For_Every_Frame;
 
             elsif Frame.Kind = K_GoAway then
@@ -833,11 +869,8 @@ begin
                Handle_Control_Frame (Frame, S, Error);
 
                if Error /= HTTP2.C_No_Error then
-                  HTTP2.Frame.GoAway.Create
-                    (Stream_Id => 0,
-                     Error     => Error).Send (Sock.all);
+                  Go_Away (Error, "invalid control frame " & Frame.Kind'Img);
 
-                  Will_Close := True;
                   exit For_Every_Frame;
                end if;
 
@@ -854,10 +887,8 @@ begin
                   if (Frame.Kind /= K_Priority and then Stream_Id < Last_SID)
                     or else S.Capacity = S.Length
                   then
-                     HTTP2.Frame.GoAway.Create
-                       (Stream_Id => Stream_Id,
-                        Error     => C_Protocol_Error).Send (Sock.all);
-                     Will_Close := True;
+                     Go_Away
+                       (C_Protocol_Error, "too many streams were opened");
                      exit For_Every_Frame;
 
                   else
@@ -885,12 +916,10 @@ begin
                        (Stream_Id => Stream_Id,
                         Error     => Error).Send (Sock.all);
                      exit For_Every_Frame;
-                  else
-                     HTTP2.Frame.GoAway.Create
-                       (Stream_Id => Stream_Id,
-                        Error     => Error).Send (Sock.all);
 
-                     Will_Close := True;
+                  else
+                     Go_Away (Error, "");
+
                      exit For_Every_Frame;
                   end if;
                end if;
@@ -903,26 +932,13 @@ begin
             end if;
 
          exception
-            when Constraint_Error =>
-               if Stream_Id /= 0
-                 and then S (Stream_Id).State = Stream.Open
-               then
-                  HTTP2.Frame.GoAway.Create
-                    (Stream_Id => Stream_Id,
-                     Error     => C_Protocol_Error).Send (Sock.all);
-                  Will_Close := True;
-                  exit For_Every_Frame;
-               else
-                  HTTP2.Frame.Ping.Create
-                    (Flags => HTTP2.Frame.End_Stream_Flag).Send (Sock.all);
-               end if;
-
             when E : Protocol_Error =>
-               HTTP2.Frame.GoAway.Create
-                 (Stream_Id => Stream_Id,
-                  Error     => Exception_Code (Exception_Message (E))).
-                    Send (Sock.all);
-               Will_Close := True;
+               declare
+                  Message : constant String := Exception_Message (E);
+               begin
+                  Go_Away (Exception_Code (Message), Message);
+               end;
+
                exit For_Every_Frame;
          end;
 
@@ -933,10 +949,6 @@ begin
       end loop For_Every_Frame;
    end;
 
-   --  Release memory for local objects
-
-   AWS.Status.Set.Free (LA.Stat);
-
 exception
    when Net.Socket_Error =>
       null;
@@ -944,7 +956,6 @@ exception
    when HTTP2.Protocol_Error =>
       Will_Close := True;
       LA.Server.Slots.Mark_Phase (LA.Line, Server_Response);
-      AWS.Status.Set.Free (LA.Stat);
 
    when E : others =>
       AWS.Log.Write
@@ -955,5 +966,4 @@ exception
            (Ada.Exceptions.Exception_Information (E)));
 
       Will_Close := True;
-      AWS.Status.Set.Free (LA.Stat);
 end Protocol_Handler_V2;

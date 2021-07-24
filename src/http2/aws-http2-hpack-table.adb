@@ -39,13 +39,15 @@ package body AWS.HTTP2.HPACK.Table is
    Static_Table_Size : constant := 61;
    --  The static table size
 
-   procedure Insert_Static (Self : in out Object; Name, Value : String);
+   Static : Static_Table;
 
-   function D_Index (T : Object; Index : Positive) return Positive
-     is (Positive (T.Dynamic.T_IN.Length) - Index + 62);
+   procedure Insert_Static (Name, Value : String);
 
-   function NV_Size (NV : Name_Value) return Positive
-     is (NV.Name'Length + NV.Value'Length + 32);
+   function D_Index (T : Object; Index : Positive) return Positive is
+     (T.Dynamic.Length - Index + Static_Table_Size + 1);
+
+   function NV_Size (NV : Name_Value) return Positive is
+     (NV.Name'Length + NV.Value'Length + 32);
 
    ----------
    -- Dump --
@@ -75,13 +77,16 @@ package body AWS.HTTP2.HPACK.Table is
    function Get_Name (Self : Object; Index : Positive) return String is
    begin
       if Index <= Static_Table_Size then
-         return Self.Static.T_IN (Index).Name;
+         return Static.T_IN (Index).Name;
 
       elsif Index - Static_Table_Size <= Self.Dynamic.Length then
          return Self.Dynamic.T_IN (D_Index (Self, Index)).Name;
 
       else
-         raise Constraint_Error; -- ???
+         raise Protocol_Error with Exception_Message
+           (C_Protocol_Error,
+            "wrong name index" & Index'Img & " >"
+            & Natural'Image (Static_Table_Size + Self.Dynamic.Length));
       end if;
    end Get_Name;
 
@@ -93,13 +98,16 @@ package body AWS.HTTP2.HPACK.Table is
      (Self : Object; Index : Positive) return Name_Value is
    begin
       if Index <= Static_Table_Size then
-         return Self.Static.T_IN (Index);
+         return Static.T_IN (Index);
 
       elsif Index - Static_Table_Size <= Self.Dynamic.Length then
          return Self.Dynamic.T_IN (D_Index (Self, Index));
 
       else
-         raise Constraint_Error with "hpack " & Self.Dynamic.Length'Img;
+         raise Protocol_Error with Exception_Message
+           (C_Protocol_Error,
+            "wrong name-value index" & Index'Img & " >"
+            & Natural'Image (Static_Table_Size + Self.Dynamic.Length));
       end if;
    end Get_Name_Value;
 
@@ -115,107 +123,35 @@ package body AWS.HTTP2.HPACK.Table is
    is
       Has_Value : constant Boolean := Value /= "";
       N         : constant String := Characters.Handling.To_Lower (Name);
-      V         : constant String := Value;
-      NV        : constant String := N & '=' & V;
+      NV        : constant String := N & '=' & Value;
+      CNI       : NV_Index.Cursor;
    begin
-      Both := False;
+      for With_Value in reverse False .. Has_Value loop
+         CNI := Static.T_NI.Find (if With_Value then NV else N);
 
-      if Has_Value and then Self.Static.T_NI.Contains (NV) then
-         Both := True;
-         return Self.Static.T_NI (NV).Index;
+         if NV_Index.Has_Element (CNI) then
+            Both := With_Value;
+            return NV_Index.Element (CNI).Index;
+         end if;
+      end loop;
 
-      elsif Self.Static.T_NI.Contains (N) then
-         return Self.Static.T_NI (N).Index;
+      for With_Value in reverse False .. Has_Value loop
+         CNI := Self.Dynamic.T_NI.Find (if With_Value then NV else N);
 
-      elsif Has_Value and then Self.Dynamic.T_NI.Contains (NV) then
-         Both := True;
+         if NV_Index.Has_Element (CNI) then
+            Both := With_Value;
 
-         declare
-            Id : constant Ids := Self.Dynamic.T_NI (NV);
-         begin
-            return Id.Index + (Self.Dynamic.Rank - Id.Rank);
-         end;
+            declare
+               Id : constant Ids := NV_Index.Element (CNI);
+            begin
+               return Id.Index + (Self.Dynamic.Rank - Id.Rank);
+            end;
+         end if;
+      end loop;
 
-      elsif Self.Dynamic.T_NI.Contains (N) then
-         declare
-            Id : constant Ids := Self.Dynamic.T_NI (N);
-         begin
-            return Id.Index + (Self.Dynamic.Rank - Id.Rank);
-         end;
-      else
-         raise Constraint_Error;
-      end if;
+      raise Constraint_Error with
+        "Encode unknown header is not implemented";
    end Get_Name_Value_Index;
-
-   ----------
-   -- Init --
-   ----------
-
-   procedure Init (Self : in out Object) is
-   begin
-      Insert_Static (Self, ":authority", "");
-      Insert_Static (Self, ":method", "GET");
-      Insert_Static (Self, ":method", "POST");
-      Insert_Static (Self, ":path", "/");
-      Insert_Static (Self, ":path", "/index.html");
-      Insert_Static (Self, ":scheme", "http");
-      Insert_Static (Self, ":scheme", "https");
-      Insert_Static (Self, ":status", "200");
-      Insert_Static (Self, ":status", "204");
-      Insert_Static (Self, ":status", "206");
-      Insert_Static (Self, ":status", "304");
-      Insert_Static (Self, ":status", "400");
-      Insert_Static (Self, ":status", "404");
-      Insert_Static (Self, ":status", "500");
-      Insert_Static (Self, "accept-charset", "");
-      Insert_Static (Self, "accept-encoding", "gzip, deflate");
-      Insert_Static (Self, "accept-language", "");
-      Insert_Static (Self, "accept-ranges", "");
-      Insert_Static (Self, "accept", "");
-      Insert_Static (Self, "access-control-allow-origin", "");
-      Insert_Static (Self, "age", "");
-      Insert_Static (Self, "allow", "");
-      Insert_Static (Self, "authorization", "");
-      Insert_Static (Self, "cache-control", "");
-      Insert_Static (Self, "content-disposition", "");
-      Insert_Static (Self, "content-encoding", "");
-      Insert_Static (Self, "content-language", "");
-      Insert_Static (Self, "content-length", "");
-      Insert_Static (Self, "content-location", "");
-      Insert_Static (Self, "content-range", "");
-      Insert_Static (Self, "content-type", "");
-      Insert_Static (Self, "cookie", "");
-      Insert_Static (Self, "date", "");
-      Insert_Static (Self, "etag", "");
-      Insert_Static (Self, "expect", "");
-      Insert_Static (Self, "expires", "");
-      Insert_Static (Self, "from", "");
-      Insert_Static (Self, "host", "");
-      Insert_Static (Self, "if-match", "");
-      Insert_Static (Self, "if-modified-since", "");
-      Insert_Static (Self, "if-none-match", "");
-      Insert_Static (Self, "if-range", "");
-      Insert_Static (Self, "if-unmodified-since", "");
-      Insert_Static (Self, "last-modified", "");
-      Insert_Static (Self, "link", "");
-      Insert_Static (Self, "location", "");
-      Insert_Static (Self, "max-forwards", "");
-      Insert_Static (Self, "proxy-authenticate", "");
-      Insert_Static (Self, "proxy-authorization", "");
-      Insert_Static (Self, "range", "");
-      Insert_Static (Self, "referer", "");
-      Insert_Static (Self, "refresh", "");
-      Insert_Static (Self, "retry-after", "");
-      Insert_Static (Self, "server", "");
-      Insert_Static (Self, "set-cookie", "");
-      Insert_Static (Self, "strict-transport-security", "");
-      Insert_Static (Self, "transfer-encoding", "");
-      Insert_Static (Self, "user-agent", "");
-      Insert_Static (Self, "vary", "");
-      Insert_Static (Self, "via", "");
-      Insert_Static (Self, "www-authenticate", "");
-      --  61 values, indexed from 1 .. 61
-   end Init;
 
    ------------
    -- Insert --
@@ -227,7 +163,7 @@ package body AWS.HTTP2.HPACK.Table is
       Name, Value : String)
    is
       N    : constant String := Characters.Handling.To_Lower (Name);
-      V    : constant String := Value;
+      V    : String renames Value;
       Item : constant Name_Value := (N'Length, V'Length, N, V);
       Size : constant Positive := NV_Size (Item);
    begin
@@ -253,7 +189,7 @@ package body AWS.HTTP2.HPACK.Table is
       begin
          while Self.Dynamic.Size > Max_Header_List_Size loop
             declare
-               Item  : constant Name_Value := Self.Dynamic.T_IN.First_Element;
+               Item : constant Name_Value := Self.Dynamic.T_IN.First_Element;
             begin
                Self.Dynamic.T_IN.Delete_First;
                Self.Dynamic.Size := Self.Dynamic.Size - NV_Size (Item);
@@ -270,21 +206,87 @@ package body AWS.HTTP2.HPACK.Table is
    -- Insert_Static --
    -------------------
 
-   procedure Insert_Static (Self : in out Object; Name, Value : String) is
+   procedure Insert_Static (Name, Value : String) is
       Item : constant Name_Value := (Name'Length, Value'Length, Name, Value);
    begin
-      Self.Static.T_IN.Append (Item);
+      Static.T_IN.Append (Item);
 
       declare
-         Index : constant Positive := Positive (Self.Static.T_IN.Length);
-         Id    : constant Ids := (Index, 1);
+         Id : constant Ids :=
+                (Index => Positive (Static.T_IN.Length), Rank => 1);
       begin
-         Self.Static.T_NI.Include (Name, Id);
+         Static.T_NI.Include (Name, Id);
 
          if Value /= "" then
-            Self.Static.T_NI.Include (Name & "=" & Value, Id);
+            Static.T_NI.Include (Name & "=" & Value, Id);
          end if;
       end;
    end Insert_Static;
 
+begin
+   Insert_Static (":authority", "");
+   Insert_Static (":method", "GET");
+   Insert_Static (":method", "POST");
+   Insert_Static (":path", "/");
+   Insert_Static (":path", "/index.html");
+   Insert_Static (":scheme", "http");
+   Insert_Static (":scheme", "https");
+   Insert_Static (":status", "200");
+   Insert_Static (":status", "204");
+   Insert_Static (":status", "206");
+   Insert_Static (":status", "304");
+   Insert_Static (":status", "400");
+   Insert_Static (":status", "404");
+   Insert_Static (":status", "500");
+   Insert_Static ("accept-charset", "");
+   Insert_Static ("accept-encoding", "gzip, deflate");
+   Insert_Static ("accept-language", "");
+   Insert_Static ("accept-ranges", "");
+   Insert_Static ("accept", "");
+   Insert_Static ("access-control-allow-origin", "");
+   Insert_Static ("age", "");
+   Insert_Static ("allow", "");
+   Insert_Static ("authorization", "");
+   Insert_Static ("cache-control", "");
+   Insert_Static ("content-disposition", "");
+   Insert_Static ("content-encoding", "");
+   Insert_Static ("content-language", "");
+   Insert_Static ("content-length", "");
+   Insert_Static ("content-location", "");
+   Insert_Static ("content-range", "");
+   Insert_Static ("content-type", "");
+   Insert_Static ("cookie", "");
+   Insert_Static ("date", "");
+   Insert_Static ("etag", "");
+   Insert_Static ("expect", "");
+   Insert_Static ("expires", "");
+   Insert_Static ("from", "");
+   Insert_Static ("host", "");
+   Insert_Static ("if-match", "");
+   Insert_Static ("if-modified-since", "");
+   Insert_Static ("if-none-match", "");
+   Insert_Static ("if-range", "");
+   Insert_Static ("if-unmodified-since", "");
+   Insert_Static ("last-modified", "");
+   Insert_Static ("link", "");
+   Insert_Static ("location", "");
+   Insert_Static ("max-forwards", "");
+   Insert_Static ("proxy-authenticate", "");
+   Insert_Static ("proxy-authorization", "");
+   Insert_Static ("range", "");
+   Insert_Static ("referer", "");
+   Insert_Static ("refresh", "");
+   Insert_Static ("retry-after", "");
+   Insert_Static ("server", "");
+   Insert_Static ("set-cookie", "");
+   Insert_Static ("strict-transport-security", "");
+   Insert_Static ("transfer-encoding", "");
+   Insert_Static ("user-agent", "");
+   Insert_Static ("vary", "");
+   Insert_Static ("via", "");
+   Insert_Static ("www-authenticate", "");
+
+   --  61 values, indexed from 1 .. 61
+
+   pragma Assert (Static.T_IN.Length = Static_Table_Size);
 end AWS.HTTP2.HPACK.Table;
