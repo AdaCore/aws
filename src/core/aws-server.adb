@@ -893,7 +893,9 @@ package body AWS.Server is
                and then -- If phase is closed, then Sock must be null
              Table (Index).Sock = null)
             or else -- or phase is not closed
-              Table (Index).Phase /= Closed);
+              Table (Index).Phase /= Closed,
+            Table (Index).Phase'Img
+            & ' ' & Boolean'Image (Table (Index).Sock = null));
 
          Count := Count + 1;
 
