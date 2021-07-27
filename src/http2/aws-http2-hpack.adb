@@ -185,14 +185,13 @@ package body AWS.HTTP2.HPACK is
          use type Interfaces.Unsigned_32;
 
          Mask              : constant Bit8 := 2 ** N - 1;
-         Continuation_Mask : constant Bit8 := 2#00111_1111#;
-         Result            : Interfaces.Unsigned_32 := 0;
+         Continuation_Mask : constant Bit8 := 2#0111_1111#;
          B                 : Bit8 := Byte and Mask;
+         Result            : Interfaces.Unsigned_32 :=
+                               Interfaces.Unsigned_32 (B);
          K                 : Natural := 0;
          Stop              : Boolean;
       begin
-         Result := Interfaces.Unsigned_32 (B);
-
          --  Check if this is a case where the integer is span on
          --  multiple bytes (RFC-7541 / 5.1).
 
@@ -247,7 +246,7 @@ package body AWS.HTTP2.HPACK is
          end;
       end Get_String_Literal;
 
-      Idx  : Stream_Element_Offset;
+      Idx  : Stream_Element_Count;
       Data : Boolean := False;
 
    begin
@@ -299,7 +298,10 @@ package body AWS.HTTP2.HPACK is
                           else Get_Indexed_Name (Idx));
                Value : constant String := Get_String_Literal;
             begin
-               Table.Insert (Settings, Name, Value);
+               if Idx = 0 then
+                  Table.Insert (Settings, Name, Value);
+               end if;
+
                AWS.Headers.Add (Headers, Name, Value);
             end;
 
@@ -382,8 +384,6 @@ package body AWS.HTTP2.HPACK is
       Settings : not null access Connection.Object;
       List     : Headers.List) return Stream_Element_Array
    is
-      pragma Unreferenced (Settings);
-
       Res : Utils.Stream_Element_Array_Access :=
               new Stream_Element_Array (1 .. 10000);
       I   : Stream_Element_Offset := 0;
@@ -393,6 +393,9 @@ package body AWS.HTTP2.HPACK is
 
       procedure Send (Str : String);
       --  Record Str into result
+
+      procedure Send_Integer (I : Positive; Prefix : Bit8; N : Bit8);
+      --  Encode integer I on N bits (RFC-7541 5.1) with Prefix
 
       ------------
       -- Append --
@@ -421,58 +424,48 @@ package body AWS.HTTP2.HPACK is
       ----------
 
       procedure Send (Str : String) is
-
-         procedure Send_Integer (I : Positive; N : Bit8);
-         --  Encode integer I on N bits (RFC-7541 5.1)
-
-         H : Bit8;
-         S : Stream_Element_Array (1 .. 1) with Address => H'Address;
-
-         ------------------
-         -- Send_Integer --
-         ------------------
-
-         procedure Send_Integer (I : Positive; N : Bit8) is
-            Last : constant Byte_4 := 2 ** Natural (N);
-            Mask : constant Byte_4 := Last - 1;
-            V    : Byte_4 := Byte_4 (I);
-         begin
-            if V < Mask then
-               H := Bit8 (V);
-               Append (S (1));
-
-            else
-               --  Set 7 bits to one in first byte
-
-               H := Bit8 (Mask);
-               Append (S (1));
-
-               V := V - Mask;
-
-               while V >= Last loop
-                  H := Bit8 ((V mod Last) + Last);
-                  V  := V / Last;
-               end loop;
-
-               --  Finaly encode the remainder (< 2 ** N) into last byte
-
-               H := Bit8 (V);
-               Append (S (1));
-            end if;
-         end Send_Integer;
-
       begin
          --  ??? Str is never huffman encoded
 
-         Send_Integer (I => Str'Length, N => 7);
+         Send_Integer (I => Str'Length, Prefix => 0, N => 7);
 
          for K in Str'Range loop
             Append (Stream_Element (Character'Pos (Str (K))));
          end loop;
       end Send;
 
-      H : Bit8;
-      S : Stream_Element_Array (1 .. 1) with Address => H'Address;
+      ------------------
+      -- Send_Integer --
+      ------------------
+
+      procedure Send_Integer (I : Positive; Prefix : Bit8; N : Bit8) is
+         Last : constant Byte_4 := 2 ** Natural (N);
+         Mask : constant Byte_4 := Last - 1;
+         V    : Byte_4 := Byte_4 (I);
+         Mod7 : constant Byte_4 := 2 ** 7;
+      begin
+         pragma Assert ((Prefix and Bit8 (Mask)) = 0);
+
+         if V < Mask then
+            Append (Prefix or Bit8 (V));
+
+         else
+            --  Set N bits to one in first byte
+
+            Append (Prefix or Stream_Element (Mask));
+
+            V := V - Mask;
+
+            while V >= Mod7 loop
+               Append (Bit8 (V mod Mod7 + Mod7));
+               V := V / Mod7;
+            end loop;
+
+            --  Finaly encode the remainder (< 2 ** N) into last byte
+
+            Append (Bit8 (V));
+         end if;
+      end Send_Integer;
 
    begin
       for K in 1 .. List.Count loop
@@ -480,22 +473,27 @@ package body AWS.HTTP2.HPACK is
             Name  : constant String := List.Get_Name (K);
             Value : constant String := List.Get_Value (K);
             Both  : Boolean := False;
+            Index : constant Natural := Table.Get_Name_Value_Index
+                      (Settings, Name, Value, Both => Both);
          begin
-            H := Stream_Element
-                   (Table.Get_Name_Value_Index
-                      (Name, Value, Both => Both));
-
-            H := H or (if Both
-                       then 2#1000_0000#   --  RFC 7541 / 6.1
-                       else 2#0100_0000#); --  RFC 7541 / 6.2
-
-            Append (S (1));
-
-            --  If we have a value and the indexing above was only for the
-            --  name we need to send the value.
-
-            if not Both and then Value /= "" then
+            if Index = 0 then
+               Append (2#0100_0000#);
+               Send (Name);
                Send (Value);
+
+            else
+               if Both then
+                  Send_Integer (Index, 2#1000_0000#, N => 7); -- RFC 7541 / 6.1
+               else
+                  Send_Integer (Index, 2#0100_0000#, N => 6); -- RFC 7541 / 6.2
+               end if;
+
+               --  If we have a value and the indexing above was only for the
+               --  name we need to send the value.
+
+               if not Both and then Value /= "" then
+                  Send (Value);
+               end if;
             end if;
          end;
       end loop;

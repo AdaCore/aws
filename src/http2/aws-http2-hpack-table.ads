@@ -55,12 +55,18 @@ package AWS.HTTP2.HPACK.Table is
    --  Get Name & Value pair at the given index in the table
 
    function Get_Name_Value_Index
-     (Self  : Object;
-      Name  : String;
-      Value : String := "";
-      Both  : out Boolean) return Positive;
-   --  Get the index of the Name (and Value if specificed). Both is set to true
-   --  if the pair is found and False if only the Name has been found.
+     (Self     : in out Object;
+      Settings : not null access HTTP2.Connection.Object;
+      Name     : String;
+      Value    : String := "";
+      Both     : out Boolean) return Natural;
+   --  Get the index of the Name (and Value if specificed).
+   --  Returns 0 if not found and adds Name to the internal table to search
+   --  later. Both is set to true if the pair is found and False if only the
+   --  Name has been found.
+
+   function Size (Self : Object) return Natural;
+   --  Returns size of the table in bytes
 
    procedure Dump (Self : Object);
    --  Dump table content for debug
@@ -72,13 +78,8 @@ private
    package Index_NV is
      new Containers.Indefinite_Vectors (Positive, Name_Value);
 
-   type Ids is record
-      Index : Positive; -- index in vector above
-      Rank  : Positive; -- actual rank number for the entry
-   end record;
-
    package NV_Index is
-     new Containers.Indefinite_Ordered_Maps (String, Ids);
+     new Containers.Indefinite_Ordered_Maps (String, Positive);
 
    type Static_Table is record
       T_IN : Index_NV.Vector;
@@ -96,5 +97,8 @@ private
    type Object is tagged record
       Dynamic : Dynamic_Table;
    end record;
+
+   function Size (Self : Object) return Natural is
+     (Self.Dynamic.Size);
 
 end AWS.HTTP2.HPACK.Table;
