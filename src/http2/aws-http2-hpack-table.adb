@@ -116,22 +116,24 @@ package body AWS.HTTP2.HPACK.Table is
    --------------------------
 
    function Get_Name_Value_Index
-     (Self  : Object;
-      Name  : String;
-      Value : String := "";
-      Both  : out Boolean) return Positive
+     (Self     : in out Object;
+      Settings : not null access HTTP2.Connection.Object;
+      Name     : String;
+      Value    : String := "";
+      Both     : out Boolean) return Natural
    is
       Has_Value : constant Boolean := Value /= "";
       N         : constant String := Characters.Handling.To_Lower (Name);
       NV        : constant String := N & '=' & Value;
       CNI       : NV_Index.Cursor;
+
    begin
       for With_Value in reverse False .. Has_Value loop
          CNI := Static.T_NI.Find (if With_Value then NV else N);
 
          if NV_Index.Has_Element (CNI) then
             Both := With_Value;
-            return NV_Index.Element (CNI).Index;
+            return NV_Index.Element (CNI);
          end if;
       end loop;
 
@@ -141,16 +143,16 @@ package body AWS.HTTP2.HPACK.Table is
          if NV_Index.Has_Element (CNI) then
             Both := With_Value;
 
-            declare
-               Id : constant Ids := NV_Index.Element (CNI);
-            begin
-               return Id.Index + (Self.Dynamic.Rank - Id.Rank);
-            end;
+            return Self.Dynamic.Rank - NV_Index.Element (CNI)
+                   + Static_Table_Size + 1;
          end if;
       end loop;
 
-      raise Constraint_Error with
-        "Encode unknown header is not implemented";
+      Self.Insert (Settings, Name, Value);
+
+      Both := False;
+
+      return 0;
    end Get_Name_Value_Index;
 
    ------------
@@ -167,16 +169,19 @@ package body AWS.HTTP2.HPACK.Table is
       Item : constant Name_Value := (N'Length, V'Length, N, V);
       Size : constant Positive := NV_Size (Item);
    begin
-      Self.Dynamic.Size := Self.Dynamic.Size + Size;
+      Self.Dynamic.Size   := Self.Dynamic.Size + Size;
       Self.Dynamic.Length := Self.Dynamic.Length + 1;
-      Self.Dynamic.Rank := Self.Dynamic.Rank + 1;
+      Self.Dynamic.Rank   := Self.Dynamic.Rank + 1;
 
       declare
-         Index : constant Positive := Positive (Self.Dynamic.Length);
-         Id    : constant Ids := (Index, Self.Dynamic.Rank);
+         Idx : constant Positive := Self.Dynamic.Rank;
       begin
-         Self.Dynamic.T_NI.Include (N, Id);
-         Self.Dynamic.T_NI.Include (N & "=" & V, Id);
+         Self.Dynamic.T_NI.Include (N, Idx);
+
+         if V /= "" then
+            Self.Dynamic.T_NI.Include (N & "=" & V, Idx);
+         end if;
+
          Self.Dynamic.T_IN.Append (Item);
       end;
 
@@ -212,8 +217,7 @@ package body AWS.HTTP2.HPACK.Table is
       Static.T_IN.Append (Item);
 
       declare
-         Id : constant Ids :=
-                (Index => Positive (Static.T_IN.Length), Rank => 1);
+         Id : constant Positive := Positive (Static.T_IN.Length);
       begin
          Static.T_NI.Include (Name, Id);
 
