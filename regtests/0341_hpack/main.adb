@@ -16,24 +16,41 @@
 --  to http://www.gnu.org/licenses for a complete copy of the license.      --
 ------------------------------------------------------------------------------
 
-with Ada.Streams;           use Ada.Streams;
-with Ada.Text_IO;           use Ada.Text_IO;
+with Ada.Streams;
+with Ada.Text_IO;
 with AWS.Headers;
 with AWS.HTTP2.Connection;
-with AWS.HTTP2.HPACK.Table; use AWS.HTTP2.HPACK;
+with AWS.HTTP2.HPACK.Table;
 
 procedure Main is
-   Settings : aliased AWS.HTTP2.Connection.Object;
+
+   use Ada.Streams;
+   use Ada.Text_IO;
+   use AWS.HTTP2.HPACK;
+
+   Settings         : aliased AWS.HTTP2.Connection.Object;
    Tab_Enc, Tab_Dec : aliased Table.Object;
 
    H : AWS.Headers.List;
 
+   ----------
+   -- Test --
+   ----------
+
    procedure Test is
       Binary : constant Stream_Element_Array :=
                  Encode (Tab_Enc'Access, Settings'Access, H);
-      Index : Stream_Element_Offset := Binary'First;
+      Index  : Stream_Element_Offset := Binary'First;
+
+      -------------------
+      -- End_Of_Stream --
+      -------------------
 
       function End_Of_Stream return Boolean is (Index > Binary'Last);
+
+      ---------------
+      -- Next_Byte --
+      ---------------
 
       function Next_Byte return Stream_Element is
       begin
@@ -42,7 +59,15 @@ procedure Main is
          end return;
       end Next_Byte;
 
+      ------------
+      -- Decode --
+      ------------
+
       function Decode is new AWS.HTTP2.HPACK.Decode (End_Of_Stream, Next_Byte);
+
+      -----------
+      -- Print --
+      -----------
 
       procedure Print (It : AWS.Headers.List) is
       begin
@@ -53,7 +78,9 @@ procedure Main is
       end Print;
 
       M : AWS.Headers.List := Decode (Tab_Dec'Access, Settings'Access);
-      use type AWS.Headers.List, AWS.HTTP2.HPACK.Table.Object;
+
+      use type AWS.Headers.List;
+      use type AWS.HTTP2.HPACK.Table.Object;
 
    begin
       if M /= H then
