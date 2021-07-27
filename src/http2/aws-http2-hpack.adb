@@ -424,14 +424,22 @@ package body AWS.HTTP2.HPACK is
       ----------
 
       procedure Send (Str : String) is
+         HE : constant Stream_Element_Array := Huffman.Encode (Str);
       begin
-         --  ??? Str is never huffman encoded
+         if HE'Length < Str'Length then
+            Send_Integer (I => HE'Length, Prefix => 2#1000_0000#, N => 7);
 
-         Send_Integer (I => Str'Length, Prefix => 0, N => 7);
+            for E of HE loop
+               Append (E);
+            end loop;
 
-         for K in Str'Range loop
-            Append (Stream_Element (Character'Pos (Str (K))));
-         end loop;
+         else
+            Send_Integer (I => Str'Length, Prefix => 0, N => 7);
+
+            for C of Str loop
+               Append (Character'Pos (C));
+            end loop;
+         end if;
       end Send;
 
       ------------------
