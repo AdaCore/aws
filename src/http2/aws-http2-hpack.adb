@@ -298,10 +298,7 @@ package body AWS.HTTP2.HPACK is
                           else Get_Indexed_Name (Idx));
                Value : constant String := Get_String_Literal;
             begin
-               if Idx = 0 then
-                  Table.Insert (Settings, Name, Value);
-               end if;
-
+               Table.Insert (Settings, Name, Value);
                AWS.Headers.Add (Headers, Name, Value);
             end;
 
@@ -494,6 +491,7 @@ package body AWS.HTTP2.HPACK is
                   Send_Integer (Index, 2#1000_0000#, N => 7); -- RFC 7541 / 6.1
                else
                   Send_Integer (Index, 2#0100_0000#, N => 6); -- RFC 7541 / 6.2
+                  Table.Insert (Settings, Name, Value);
                end if;
 
                --  If we have a value and the indexing above was only for the
