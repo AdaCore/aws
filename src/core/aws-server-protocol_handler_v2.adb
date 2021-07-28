@@ -574,11 +574,24 @@ procedure Protocol_Handler_V2 (LA : in out Line_Attribute_Record) is
 
       --  And set the request information using an HTTP/1 request line format
 
-      AWS.Server.HTTP_Utils.Parse_Request_Line
-        (M.Headers.Get (Messages.Method_Token) & ' '
-         & M.Headers.Get (Messages.Path2_Token)
-         & " HTTP_2",
-         LA.Stat);
+      declare
+         Path        : constant String := M.Headers.Get (Messages.Path2_Token);
+         Path_Last   : Positive;
+         Query_First : Positive;
+
+      begin
+         HTTP_Utils.Split_Path (Path, Path_Last, Query_First);
+
+         AWS.Status.Set.Request
+           (LA.Stat,
+            Method       => M.Headers.Get (Messages.Method_Token),
+            URI          => Path (Path'First .. Path_Last),
+            HTTP_Version => HTTP_2);
+
+         AWS.Status.Set.Query
+           (LA.Stat,
+            Parameters => Path (Query_First .. Path'Last));
+      end;
 
       Deferred_Messages.Append (Handle_Message (LA.Stat, Stream));
    end Handle_Message;

@@ -1341,97 +1341,22 @@ package body AWS.Server.HTTP_Utils is
       I1, I2 : Natural;
       --  Index of first space and second space
 
-      I3 : Natural;
-      --  Index of ? if present in the URI (means that there is some
-      --  parameters)
+      Path_Last   : Positive;
+      --  Last index of Path part
 
-      procedure Cut_Command;
-      --  Parse Command and set I1, I2 and I3
-
-      function Method return String with Inline;
-      --  Returns the method
-
-      function Resource return String with Inline;
-      --  Returns first parameter. parameters are separated by spaces
-
-      function Parameters return String;
-      --  Returns parameters if some where specified in the URI
-
-      function HTTP_Version return String with Inline;
-      --  Returns second parameter. parameters are separated by spaces
-
-      -----------------
-      -- Cut_Command --
-      -----------------
-
-      procedure Cut_Command is
-      begin
-         I1  := Fixed.Index (Command, " ");
-         I2  := Fixed.Index (Command (I1 + 1 .. Command'Last), " ", Backward);
-
-         I3  := Fixed.Index (Command (I1 + 1 .. I2 - 1), "?");
-
-         if I1 = 0 or else I2 = 0 or else I1 = I2 then
-            raise Wrong_Request_Line
-              with "Wrong request line '" & Command & ''';
-
-         elsif I3 = 0 then
-            --  Could be encoded ?
-
-            I3  := Fixed.Index (Command (I1 + 1 .. I2 - 1), "%3f");
-
-            if I3 = 0 then
-               I3  := Fixed.Index (Command (I1 + 1 .. I2 - 1), "%3F");
-            end if;
-         end if;
-      end Cut_Command;
-
-      ------------------
-      -- HTTP_Version --
-      ------------------
-
-      function HTTP_Version return String is
-      begin
-         return Command (I2 + 1 .. Command'Last);
-      end HTTP_Version;
-
-      ------------
-      -- Method --
-      ------------
-
-      function Method return String is
-      begin
-         return Command (Command'First .. I1 - 1);
-      end Method;
-
-      ----------------
-      -- Parameters --
-      ----------------
-
-      function Parameters return String is
-      begin
-         if I3 = 0 then
-            return "";
-         else
-            if Command (I3) = '%' then
-               return Command (I3 + 3 .. I2 - 1);
-            else
-               return Command (I3 + 1 .. I2 - 1);
-            end if;
-         end if;
-      end Parameters;
-
-      --------------
-      -- Resource --
-      --------------
-
-      function Resource return String is
-      begin
-         return Command (I1 + 1 .. (if I3 = 0 then I2 else I3) - 1);
-      end Resource;
+      Query_First : Positive;
+      --  First index of Query part
 
    begin
-      Cut_Command;
+      I1 := Fixed.Index (Command, " ");
+      I2 := Fixed.Index (Command (I1 + 1 .. Command'Last), " ", Backward);
+
+      if I1 = 0 or else I2 = 0 or else I1 = I2 then
+         raise Wrong_Request_Line
+           with "Wrong request line '" & Command & ''';
+      end if;
+
+      Split_Path (Command (I1 + 1 .. I2 - 1), Path_Last, Query_First);
 
       --  GET and HEAD can have a set of parameters (query) attached. This is
       --  not really standard see [RFC 2616 - 13.9] but is widely used now.
@@ -1441,9 +1366,15 @@ package body AWS.Server.HTTP_Utils is
       --  prohibited by reading RFC 2616. Other technologies do offer this
       --  feature so AWS do this as well.
 
-      Status.Set.Request (C_Stat, Method, Resource, HTTP_Version);
+      Status.Set.Request
+        (C_Stat,
+         Method       => Command (Command'First .. I1 - 1),
+         URI          => Command (I1 + 1 .. Path_Last),
+         HTTP_Version => Command (I2 + 1 .. Command'Last));
 
-      Status.Set.Query (C_Stat, Parameters);
+      Status.Set.Query
+        (C_Stat,
+         Parameters => Command (Query_First .. I2 - 1));
    end Parse_Request_Line;
 
    ----------
@@ -2277,5 +2208,38 @@ package body AWS.Server.HTTP_Utils is
         or else (Status.HTTP_Version (C_Stat) = HTTP_10
                  and then not Utils.Match (Connection, "keep-alive"));
    end Set_Close_Status;
+
+   ----------------
+   -- Split_Path --
+   ----------------
+
+   procedure Split_Path
+     (Path                   : String;
+      Path_Last, Query_First : out Positive)
+   is
+      Delimiter : Natural := Fixed.Index (Path, "?");
+   begin
+      if Delimiter /= 0 then
+         Path_Last   := Delimiter - 1;
+         Query_First := Delimiter + 1;
+         return;
+      end if;
+
+      --  ? Could be encoded %3f
+
+      Delimiter := Fixed.Index (Path, "%3f");
+
+      if Delimiter = 0 then
+         Delimiter := Fixed.Index (Path, "%3F");
+      end if;
+
+      if Delimiter = 0 then
+         Query_First := Path'Last + 1;
+         Path_Last   := Path'Last;
+      else
+         Query_First := Delimiter + 3;
+         Path_Last   := Delimiter - 1;
+      end if;
+   end Split_Path;
 
 end AWS.Server.HTTP_Utils;
