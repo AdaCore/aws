@@ -82,9 +82,8 @@ package body AWS.Resources.Streams.ZLib is
    begin
       Create (Resource.Source, Source);
 
-      Resource.End_Of_File := False;
-      Resource.Rest_First  := Resource.Buffer'Last + 1;
-      Resource.Rest_Last   := Resource.Buffer'Last;
+      Resource.Rest_First := Resource.Buffer'Last + 1;
+      Resource.Rest_Last  := Resource.Buffer'Last;
 
       ZL.Deflate_Init
         (Resource.Filter, Level, Strategy, Method,
@@ -102,7 +101,7 @@ package body AWS.Resources.Streams.ZLib is
       --  because end of source file would be reached earlier then
       --  end of file of the encoded stream.
 
-      return Resource.End_Of_File;
+      return Resource.Filter.Stream_End;
    end End_Of_File;
 
    --------------------
@@ -135,9 +134,8 @@ package body AWS.Resources.Streams.ZLib is
    begin
       Create (Resource.Source, Source);
 
-      Resource.End_Of_File := False;
-      Resource.Rest_First  := Resource.Buffer'Last + 1;
-      Resource.Rest_Last   := Resource.Buffer'Last;
+      Resource.Rest_First := Resource.Buffer'Last + 1;
+      Resource.Rest_Last  := Resource.Buffer'Last;
 
       ZL.Inflate_Init (Resource.Filter, Window_Bits, Header);
    end Inflate_Initialize;
@@ -176,8 +174,6 @@ package body AWS.Resources.Streams.ZLib is
 
    begin
       Read_Encoded (Resource.Filter, Buffer, Last);
-
-      Resource.End_Of_File := Last < Buffer'Last;
    end Read;
 
    -----------
