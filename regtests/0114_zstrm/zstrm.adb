@@ -18,9 +18,10 @@
 
 --  Test for user defined stream
 
-with Ada.Text_IO;
+with Ada.Command_Line;
 with Ada.Exceptions;
 with Ada.Streams;
+with Ada.Text_IO;
 
 with AWS.Resources.Streams.ZLib;
 
@@ -28,11 +29,14 @@ with Z_User_Strm;
 
 procedure ZStrm is
 
+   use Ada.Command_Line;
    use Ada.Streams;
    use Ada.Text_IO;
    use AWS;
 
-   File_Size : constant := 12_345_678;
+   File_Size : constant Stream_Element_Count :=
+                 (if Argument_Count = 0 then 12_345_678
+                  else Stream_Element_Count'Value (Argument (1)));
 
    Stream : AWS.Resources.Streams.Stream_Access := new Z_User_Strm.File_Tagged;
    Encode : AWS.Resources.Streams.Stream_Access;
@@ -45,6 +49,8 @@ procedure ZStrm is
 
    S_Buffer : Stream_Element_Array (1 .. 1000);
    S_Last   : Stream_Element_Offset;
+
+   Length : Stream_Element_Count := 0;
 
 begin
    Z_User_Strm.Create
@@ -71,12 +77,26 @@ begin
       Resources.Streams.Read (Decode.all, Buffer, Last);
       Resources.Streams.Read (Sample.all, S_Buffer, S_Last);
 
+      Length := Length + Last;
+
       if Buffer (1 .. Last) /= S_Buffer (1 .. S_Last) then
          Ada.Text_IO.Put_Line ("Error.");
       end if;
 
-      exit when Last < Buffer'Last;
+      if Last < Buffer'Last then
+         if not Decode.End_Of_File then
+            Ada.Text_IO.Put_Line ("End of file is not detected.");
+         end if;
+
+         exit;
+      end if;
+
+      exit when Decode.End_Of_File;
    end loop;
+
+   if Length /= File_Size then
+      Ada.Text_IO.Put_Line ("Wrong file size.");
+   end if;
 
    Ada.Text_IO.Put_Line (Stream_Element_Offset'Image (Last));
 end ZStrm;
