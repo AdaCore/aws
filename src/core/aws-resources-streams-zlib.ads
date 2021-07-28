@@ -103,12 +103,11 @@ package AWS.Resources.Streams.ZLib is
 private
 
    type Stream_Type is new Streams.Stream_Type with record
-      Source      : Resources.File_Type;
-      End_Of_File : Boolean;
-      Filter      : ZL.Filter_Type;
-      Buffer      : Stream_Element_Array (1 .. 4096);
-      Rest_First  : Stream_Element_Offset;
-      Rest_Last   : Stream_Element_Offset;
+      Source     : Resources.File_Type;
+      Filter     : ZL.Filter_Type;
+      Buffer     : Stream_Element_Array (1 .. 4096);
+      Rest_First : Stream_Element_Offset;
+      Rest_Last  : Stream_Element_Offset;
    end record;
 
 end AWS.Resources.Streams.ZLib;
