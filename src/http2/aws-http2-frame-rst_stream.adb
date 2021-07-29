@@ -60,8 +60,10 @@ package body AWS.HTTP2.Frame.RST_Stream is
    ------------------
 
    overriding procedure Dump_Payload (Self : Object) is
+      Error : Error_Codes renames Self.Data.P.Error_Code;
    begin
-      Text_IO.Put_Line ("error code: " & Self.Data.P.Error_Code'Img);
+      Text_IO.Put_Line
+        ("error code: " & (if Error'Valid then Error'Img else "unknown"));
    end Dump_Payload;
 
    ----------
