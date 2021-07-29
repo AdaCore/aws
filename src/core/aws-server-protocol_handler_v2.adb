@@ -39,6 +39,7 @@ with AWS.Headers;
 with AWS.Log;
 with AWS.Messages;
 with AWS.Net.Buffered;
+with AWS.Response.Set;
 with AWS.Server.Context;
 with AWS.Server.HTTP_Utils;
 with AWS.Server.Status;
@@ -286,35 +287,6 @@ procedure Protocol_Handler_V2 (LA : in out Line_Attribute_Record) is
    is
       use type Response.Data_Mode;
 
-      function Create_Message
-        (H : Headers.List;
-         R : in out Response.Data) return HTTP2.Message.Object;
-      --  Create a response message object for the given headers and response
-      --  data.
-
-      --------------------
-      -- Create_Message --
-      --------------------
-
-      function Create_Message
-        (H : Headers.List;
-         R : in out Response.Data) return HTTP2.Message.Object is
-      begin
-         --  Add needed content type
-
-         if Response.Mode (R) = Response.File then
-            return HTTP2.Message.Create
-              (Headers   => H,
-               Filename  => Response.Filename (R),
-               Stream_Id => Stream.Identifier);
-         else
-            return HTTP2.Message.Create
-              (Headers   => H,
-               Payload   => Response.Message_Body (R),
-               Stream_Id => Stream.Identifier);
-         end if;
-      end Create_Message;
-
    begin
       if Extended_Log then
          AWS.Log.Set_Field
@@ -354,11 +326,23 @@ procedure Protocol_Handler_V2 (LA : in out Line_Attribute_Record) is
       declare
          R : Response.Data :=
                Server.HTTP_Utils.Build_Answer (LA.Server.all, Status);
-         H : Headers.List := Response.Header (R);
+
+         procedure Add_Header (Name, Value : String) with Inline;
+         --  Add header into response R
+
+         -----------------
+         --  Add_Header --
+         -----------------
+
+         procedure Add_Header (Name, Value : String) is
+         begin
+            Response.Set.Add_Header (R, Name, Value);
+         end Add_Header;
+
       begin
          --  The general headers
 
-         H.Add
+         Add_Header
            (Messages.Date_Token,
             Messages.To_HTTP_Date (Utils.GMT_Clock));
 
@@ -367,7 +351,7 @@ procedure Protocol_Handler_V2 (LA : in out Line_Attribute_Record) is
                        CNF.Server_Header (LA.Server.Properties);
          begin
             if Server /= "" then
-               H.Add (Messages.Server_Token, Server);
+               Add_Header (Messages.Server_Token, Server);
             end if;
          end;
 
@@ -377,7 +361,7 @@ procedure Protocol_Handler_V2 (LA : in out Line_Attribute_Record) is
             --  This is an HTTP connection with session but there is no session
             --  ID set yet. So, send cookie to client browser.
 
-            H.Add
+            Add_Header
               (Messages.Set_Cookie_Token,
                CNF.Session_Name (LA.Server.Properties) & '='
                & Session.Image (AWS.Status.Session (Status))
@@ -385,7 +369,7 @@ procedure Protocol_Handler_V2 (LA : in out Line_Attribute_Record) is
 
             --  And the internal private session
 
-            H.Add
+            Add_Header
               (Messages.Set_Cookie_Token,
                CNF.Session_Private_Name (LA.Server.Properties) & '='
                & AWS.Status.Session_Private (Status)
@@ -393,7 +377,7 @@ procedure Protocol_Handler_V2 (LA : in out Line_Attribute_Record) is
          end if;
 
          if Response.Mode (R) = Response.File then
-            H.Add
+            Add_Header
               (Messages.Content_Type_Token,
                Response.Content_Type (R));
          end if;
@@ -403,7 +387,7 @@ procedure Protocol_Handler_V2 (LA : in out Line_Attribute_Record) is
          Ctx.Status := LA.Stat;
          Ctx.Response := R;
 
-         return Create_Message (H, R);
+         return HTTP2.Message.Create (R, Stream.Identifier);
       end;
    end Handle_Message;
 

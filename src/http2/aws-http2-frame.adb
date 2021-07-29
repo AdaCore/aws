@@ -203,6 +203,19 @@ package body AWS.HTTP2.Frame is
       Net.Buffered.Flush (Sock);
    end Send;
 
+   --------------
+   -- Set_Flag --
+   --------------
+
+   procedure Set_Flag
+     (Self : in out Object; Flag : Flags_Type; Value : Boolean := True) is
+   begin
+      Self.Header.H.Flags :=
+        (if Value
+         then Self.Header.H.Flags or Flag
+         else Self.Header.H.Flags and not Flag);
+   end Set_Flag;
+
    ---------------
    -- Set_Flags --
    ---------------
