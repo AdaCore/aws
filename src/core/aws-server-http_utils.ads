@@ -78,6 +78,13 @@ package AWS.Server.HTTP_Utils is
    --  Parse the request line:
    --  Request-Line = Method SP Request-URI SP HTTP-Version CRLF
 
+   procedure Split_Path
+     (Path                   : String;
+      Path_Last, Query_First : out Positive);
+   --  Splits path from query string if exists.
+   --  If query part does not exist then Path_Last := Path'Last and
+   --  Query_First := Path'Last + 1.
+
    procedure Send
      (Answer       : in out Response.Data;
       HTTP_Server  : in out AWS.Server.HTTP;
