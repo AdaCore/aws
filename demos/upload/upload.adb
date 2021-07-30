@@ -20,8 +20,10 @@
 
 with Ada.Text_IO;
 
+with AWS.Config;
 with AWS.Default;
-with AWS.Server;
+with AWS.Server.Log;
+with AWS.Server.Status;
 
 with Upload_CB;
 
@@ -32,19 +34,25 @@ procedure Upload is
 
    WS : AWS.Server.HTTP;
 
+   Config : constant AWS.Config.Object := AWS.Config.Get_Current;
+
 begin
-   Text_IO.Put_Line
-     ("Call me on port"
-      & Positive'Image (AWS.Default.Server_Port)
-      & ", press Q to stop the server...");
+   if Config.Log_Filename_Prefix /= "" then
+      Server.Log.Start (WS, Auto_Flush => True);
+   end if;
+
+   if Config.Error_Log_Filename_Prefix /= "" then
+      Server.Log.Start_Error (WS);
+   end if;
 
    Server.Start
-     (WS, "Upload Demo",
-      Max_Connection   => 4,
-      Callback         => Upload_CB.HW_CB'Access,
-      Upload_Directory => ".");
+     (Web_Server => WS,
+      Callback   => Upload_CB.HW_CB'Access,
+      Config     => Config);
 
-   Text_IO.Put_Line ("Press Q to quit.");
+   Text_IO.Put_Line
+     ("Call me on port" & Positive'Image (Server.Status.Port (WS))
+      & ", press Q to stop the server...");
 
    Server.Wait (Server.Q_Key_Pressed);
 

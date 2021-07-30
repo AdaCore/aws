@@ -100,6 +100,11 @@ package AWS.HTTP2.Frame is
      with Pre => Self.Is_Defined;
    --  Set the frame's flags
 
+   procedure Set_Flag
+     (Self : in out Object; Flag : Flags_Type; Value : Boolean := True)
+     with Pre => Self.Is_Defined;
+   --  Set the frame's flag to Value
+
    function Has_Flag (Self : Object'Class; Flag : Flags_Type) return Boolean
      with Pre => Self.Is_Defined;
    --  Check if the frame as a Flag set

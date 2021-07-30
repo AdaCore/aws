@@ -93,10 +93,16 @@ package body AWS.HTTP2.Frame.Settings is
 
    overriding procedure Dump_Payload (Self : Object) is
    begin
-      for K in 1 .. Self.Size loop
-         Text_IO.Put_Line ("   S: " & Self.Data.P (K).Id'Img
-                           & " = " & Self.Data.P (K).Value'Img);
-      end loop;
+      if Self.Is_Ignored then
+         Text_IO.Put_Line ("Ignored");
+
+      else
+         for K in 1 .. Self.Size loop
+            Text_IO.Put_Line
+              ("   S: " & Self.Data.P (K).Id'Img
+               & " = " & Self.Data.P (K).Value'Img);
+         end loop;
+      end if;
    end Dump_Payload;
 
    ----------

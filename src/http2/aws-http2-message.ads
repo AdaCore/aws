@@ -50,6 +50,11 @@ package AWS.HTTP2.Message is
    function Is_Defined (Self : Object) return Boolean;
 
    function Create
+     (Answer    : Response.Data;
+      Stream_Id : HTTP2.Stream_Id) return Object
+     with Post => Create'Result.Is_Defined;
+
+   function Create
      (Headers   : AWS.Headers.List;
       Payload   : Unbounded_String;
       Stream_Id : HTTP2.Stream_Id)
@@ -82,6 +87,10 @@ package AWS.HTTP2.Message is
      with Pre => Self.Is_Defined
                  and then Self.Mode in Response.File .. Response.File_Once;
    --  Get the filename for this message
+
+   function Has_Body (Self : Object) return Boolean
+     with Pre => Self.Is_Defined;
+   --  Returns True if message has a body
 
    function To_Frames
      (Self   : in out Object;
@@ -117,15 +126,15 @@ private
          when Response.File | Response.File_Once =>
             Filename : Unbounded_String;
 
-         when Response.No_Data =>
-            null;
-
          when others =>
             null;
       end case;
    end record;
 
    function Headers (Self : Object) return AWS.Headers.List is (Self.Headers);
+
+   function Has_Body (Self : Object) return Boolean is
+     (Self.Mode in Response.Message | Response.File | Response.File_Once);
 
    function Payload (Self : Object) return Unbounded_String is (Self.Payload);
 

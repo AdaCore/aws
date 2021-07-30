@@ -50,6 +50,34 @@ package body AWS.HTTP2.Message is
    ------------
 
    function Create
+     (Answer    : Response.Data;
+      Stream_Id : HTTP2.Stream_Id) return Object is
+   begin
+      return O : Object (Response.Mode (Answer)) do
+         O.Stream_Id := Stream_Id;
+         O.Headers   := Response.Header (Answer);
+
+         case O.Mode is
+            when Response.Message =>
+               O.Payload := Response.Message_Body (Answer);
+               O.Length  := Utils.File_Size_Type
+                              (Length (O.Payload));
+
+            when Response.File | Response.File_Once =>
+               declare
+                  Filename : constant String := Response.Filename (Answer);
+               begin
+                  O.Filename := To_Unbounded_String (Filename);
+                  O.Length   := Utils.File_Size (Filename);
+               end;
+
+            when others =>
+               null;
+         end case;
+      end return;
+   end Create;
+
+   function Create
      (Headers   : AWS.Headers.List;
       Payload   : Unbounded_String;
       Stream_Id : HTTP2.Stream_Id) return Object is
@@ -256,6 +284,10 @@ package body AWS.HTTP2.Message is
               (Frame.Headers.Create
                  (Ctx.Tab_Enc, Ctx.Settings, Stream.Identifier, L,
                   Flags => Frame.End_Headers_Flag));
+         end if;
+
+         if not Self.Has_Body then
+            List (List.Last).Set_Flag (Frame.End_Stream_Flag);
          end if;
       end Handle_Headers;
 
