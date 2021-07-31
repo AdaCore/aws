@@ -74,6 +74,8 @@ package AWS.HTTP2.Frame.Headers is
      (Self  : Object;
       Index : Stream_Element_Offset) return Stream_Element;
 
+   overriding procedure Dump_Payload (Self : Object);
+
 private
 
    --  RFC-7540 6.2
