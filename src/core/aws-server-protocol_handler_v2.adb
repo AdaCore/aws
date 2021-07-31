@@ -872,7 +872,7 @@ begin
                end if;
 
             else
-               In_Header := Frame.Kind = K_Headers
+               In_Header := Frame.Kind in K_Headers | K_Continuation
                  and then not Frame.Has_Flag (HTTP2.Frame.End_Headers_Flag);
                --  Need to avoid unknown extension frame in the middle of a
                --  header block (RFC 7450, 5.5).
