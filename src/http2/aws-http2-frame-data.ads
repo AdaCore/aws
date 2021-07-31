@@ -29,6 +29,7 @@
 
 with Ada.Strings.Unbounded;
 
+with AWS.Status;
 with AWS.Utils;
 
 package AWS.HTTP2.Frame.Data is
@@ -70,6 +71,15 @@ package AWS.HTTP2.Frame.Data is
      with Pre => Self.Is_Defined;
    --  Returns the payload content
 
+   function Payload_Length (Self : Object) return Positive
+     with Pre => Self.Is_Defined;
+   --  Length of the data payload
+
+   procedure Append (Self : Object; Status : in out AWS.Status.Data);
+   --  Append data to the Status
+
+   overriding procedure Dump_Payload (Self : Object);
+
 private
 
    use type Utils.Stream_Element_Array_Access;
@@ -108,5 +118,11 @@ private
 
    overriding function Is_Defined (Self : Object) return Boolean is
      (Frame.Object (Self).Is_Defined and then Self.Data.S /= null);
+
+   function Payload_Length (Self : Object) return Positive is
+     (Self.Data.S'Length -
+        (if Self.Has_Flag (Padded_Flag)
+         then Positive (Self.Data.D.Pad_Length + Padding'Size / 8)
+         else 0));
 
 end AWS.HTTP2.Frame.Data;

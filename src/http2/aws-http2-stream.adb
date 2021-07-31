@@ -28,21 +28,36 @@
 ------------------------------------------------------------------------------
 
 with Ada.Containers;
-with Ada.Strings.Unbounded;
 
-with AWS.Headers;
 with AWS.HTTP2.Connection;
 with AWS.HTTP2.Frame.Continuation;
 with AWS.HTTP2.Frame.Data;
 with AWS.HTTP2.Frame.Headers;
 with AWS.HTTP2.Frame.Window_Update;
 with AWS.HTTP2.HPACK;
+with AWS.Status.Set;
 
 package body AWS.HTTP2.Stream is
 
-   use Ada.Strings.Unbounded;
-
    use all type HTTP2.Frame.Kind_Type;
+
+   procedure Parse_Headers
+     (Self : in out Object; Ctx : in out Server.Context.Object);
+
+   -----------------
+   -- Append_Body --
+   -----------------
+
+   procedure Append_Body (Self : Object; Status : in out AWS.Status.Data) is
+   begin
+      for F of Self.D_Frames loop
+         pragma Assert (F.Kind = K_Data);
+
+         Frame.Data.Object (F).Append (Status);
+      end loop;
+
+      AWS.Status.Set.Uploaded (Status);
+   end Append_Body;
 
    ------------
    -- Create --
@@ -58,13 +73,18 @@ package body AWS.HTTP2.Stream is
         (Sock                => Sock,
          Id                  => Identifier,
          State               => Idle,
-         Frames              => Frame.List.Empty_List,
+         H_Frames            => Frame.List.Empty_List,
+         D_Frames            => Frame.List.Empty_List,
+         Headers             => AWS.Headers.Empty_List,
          Is_Ready            => False,
          Header_Found        => False,
          Flow_Control_Window => Window_Size,
          Bytes_Sent          => 0,
          Weight              => Weight,
-         Stream_Dependency   => 0);
+         Stream_Dependency   => 0,
+         End_Stream          => False,
+         Content_Length      => Undefined_Length,
+         Data_Length         => 0);
    end Create;
 
    ----------------------
@@ -76,17 +96,16 @@ package body AWS.HTTP2.Stream is
       return Self.Is_Ready;
    end Is_Message_Ready;
 
-   -------------
-   -- Message --
-   -------------
+   -------------------
+   -- Parse_Headers --
+   -------------------
 
-   function Message
-     (Self : Object;
-      Ctx  : in out Server.Context.Object) return HTTP2.Message.Object
+   procedure Parse_Headers
+     (Self : in out Object; Ctx : in out Server.Context.Object)
    is
-      L : Frame.List.Object;
-      --  Record all frames for a full header definition (last frame must have
-      --  the end of hedaer flag set).
+      L : Frame.List.Object renames Self.H_Frames;
+      --  Complete header block (last frame must have the end of header flag
+      --  set).
 
       function Parse_Header return AWS.Headers.List;
       --  Parse headers & continuation frames
@@ -174,30 +193,18 @@ package body AWS.HTTP2.Stream is
          return Get_Headers (Ctx.Tab_Dec, Ctx.Settings);
       end Parse_Header;
 
-      H       : Headers.List;
-      Payload : Unbounded_String;
-
    begin
-      for F of Self.Frames loop
-         case F.Kind is
-            when K_Headers | K_Continuation =>
-               L.Append (F);
+      Self.Headers.Union (Parse_Header, Unique => False);
 
-               if F.Has_Flag (Frame.End_Headers_Flag) then
-                  H.Union (Parse_Header, Unique => False);
-               end if;
-
-            when K_Data =>
-               Payload := Frame.Data.Object (F).Payload;
-
-            when others =>
-               raise Constraint_Error with
-                 "wrong frame kind registered in message object";
-         end case;
-      end loop;
-
-      return HTTP2.Message.Create (H, Payload, Self.Id);
-   end Message;
+      declare
+         Content_Length : constant String :=
+                            Self.Headers.Get ("content-length");
+      begin
+         if Content_Length /= "" then
+            Self.Content_Length := Content_Length_Type'Value (Content_Length);
+         end if;
+      end;
+   end Parse_Headers;
 
    --------------------
    -- Received_Frame --
@@ -205,6 +212,7 @@ package body AWS.HTTP2.Stream is
 
    procedure Received_Frame
      (Self  : in out Object;
+      Ctx   : in out Server.Context.Object;
       Frame : HTTP2.Frame.Object'Class;
       Error : out Error_Codes)
    is
@@ -247,7 +255,7 @@ package body AWS.HTTP2.Stream is
          end if;
       end Handle_Window_Update;
 
-      Has_Prev_Frame : constant Boolean := Self.Frames.Length > 0;
+      Has_Prev_Frame : constant Boolean := Self.H_Frames.Length > 0;
 
       End_Header     : constant Boolean :=
                          (Frame.Has_Flag (HTTP2.Frame.End_Headers_Flag));
@@ -360,7 +368,7 @@ package body AWS.HTTP2.Stream is
       --  Handle frame's content if needed
 
       if Has_Prev_Frame
-        and then Self.Frames.Last_Element.Kind = K_Continuation
+        and then Self.H_Frames.Last_Element.Kind = K_Continuation
         and then Frame.Kind /= K_Continuation
       then
          Error := C_Protocol_Error;
@@ -370,10 +378,8 @@ package body AWS.HTTP2.Stream is
       case Frame.Kind is
          when K_Priority =>
             if Has_Prev_Frame
-              and then not Self.Frames.Last_Element.Has_Flag
+              and then not Self.H_Frames.Last_Element.Has_Flag
                              (HTTP2.Frame.End_Headers_Flag)
-              and then Self.Frames.Last_Element.Kind
-                         in K_Headers | K_Continuation
             then
                Error := C_Protocol_Error;
                return;
@@ -383,10 +389,8 @@ package body AWS.HTTP2.Stream is
 
          when K_Window_Update =>
             if Has_Prev_Frame
-              and then not Self.Frames.Last_Element.Has_Flag
+              and then not Self.H_Frames.Last_Element.Has_Flag
                              (HTTP2.Frame.End_Headers_Flag)
-              and then Self.Frames.Last_Element.Kind
-                         in K_Headers | K_Continuation
             then
                Error := C_Protocol_Error;
                return;
@@ -394,56 +398,81 @@ package body AWS.HTTP2.Stream is
 
             Handle_Window_Update (HTTP2.Frame.Window_Update.Object (Frame));
 
-         when K_Headers | K_Data =>
-            if Frame.Kind = K_Headers then
-               --  An header has already been sent, and so this header must
-               --  have a end-strem flag.
+         when K_Headers =>
+            if End_Stream then
+               --  End_Stream flag in header frame spread it to last
+               --  continuation frame in the header block.
 
-               if not Frame.Has_Flag (HTTP2.Frame.End_Stream_Flag)
-                 and then Self.Header_Found
-               then
-                  Error := C_Protocol_Error;
-                  return;
-
-               else
-                  Self.Header_Found := True;
-               end if;
+               Self.End_Stream := True;
             end if;
 
-            Self.Frames.Append (Frame);
+            --  An header has already been sent, and so this header must
+            --  have an end-stream flag.
+
+            if not End_Stream and then Self.Header_Found then
+               Error := C_Protocol_Error;
+               return;
+
+            else
+               Self.Header_Found := True;
+            end if;
+
+            Self.H_Frames.Append (Frame);
 
             --  An header frame can have a priority chunk, handle it now
 
-            if Frame.Kind = K_Headers
-              and then Frame.Has_Flag (HTTP2.Frame.Priority_Flag)
-            then
+            if Frame.Has_Flag (HTTP2.Frame.Priority_Flag) then
                Handle_Priority
                  (HTTP2.Frame.Headers.Object (Frame).Get_Priority);
+            end if;
+
+            if End_Header then
+               Self.Parse_Headers (Ctx);
             end if;
 
             --  For a message to be ready we at least need the stream to be in
             --  open state (i.e. it has received an header frame to open it).
 
             Self.Is_Ready := Self.State /= Idle
-              and then (Frame.Kind = K_Data
-                        or else (Frame.Kind = K_Headers and then End_Header));
+              and then End_Header and then End_Stream;
 
          when K_Continuation =>
             --  A continuation frame is only valid if following an header,
             --  push_promise or continuation frame.
 
-            if Has_Prev_Frame
-              and then Self.Frames.Last_Element.Kind
-                         not in K_Headers | K_Continuation | K_Push_Promise
+            if not Has_Prev_Frame then
+               Error := C_Protocol_Error;
+               return;
+            end if;
+
+            Self.H_Frames.Append (Frame);
+
+            if End_Header then
+               Self.Parse_Headers (Ctx);
+            end if;
+
+            Self.Is_Ready := Self.State /= Idle
+              and then End_Header
+              and then (Self.End_Stream or else End_Stream);
+
+         when K_Data =>
+            Self.D_Frames.Append (Frame);
+
+            Self.Data_Length := Self.Data_Length +
+              Content_Length_Type
+                (HTTP2.Frame.Data.Object (Frame).Payload_Length);
+
+            if Self.Content_Length /= Undefined_Length
+              and then
+                (if End_Stream
+                 then Self.Data_Length /= Self.Content_Length
+                 else Self.Data_Length > Self.Content_Length)
             then
                Error := C_Protocol_Error;
                return;
             end if;
 
-            Self.Frames.Append (Frame);
-
-            Self.Is_Ready := Self.State /= Idle
-              and then End_Header;
+            Self.Is_Ready := Self.State /= Idle and then End_Stream;
 
          when others =>
             null;
