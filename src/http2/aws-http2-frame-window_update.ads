@@ -47,7 +47,9 @@ package AWS.HTTP2.Frame.Window_Update is
           Post => Read'Result.Kind = K_Window_Update;
    --  Read a WINDOW_UPDATE frame from Sock return the corresponding object
 
-   function Create (Size_Increment : Size_Increment_Type) return Object
+   function Create
+     (Stream_Id      : HTTP2.Stream_Id;
+      Size_Increment : Size_Increment_Type) return Object
      with Post => Create'Result.Kind = K_Window_Update;
    --  Create a WINDOW_UPDATE frame out of the set of settings
 

@@ -134,20 +134,21 @@ private
       Headers             : AWS.Headers.List;
       Is_Ready            : Boolean              := False;
       Header_Found        : Boolean              := False;
-      Flow_Control_Window : Integer;
+      Flow_Send_Window    : Integer;
+      Flow_Receive_Window : Integer;
       Bytes_Sent          : Stream_Element_Count := 0;
       Weight              : Byte_1;
       Stream_Dependency   : HTTP2.Stream_Id;
       End_Stream          : Boolean              := False;
       Content_Length      : Content_Length_Type  := Undefined_Length;
-      Data_Length         : Content_Length_Type  := 0;
+      Bytes_Received      : Content_Length_Type  := 0;
    end record;
 
    function "<" (Left, Right : Object) return Boolean is (Left.Id < Right.Id);
 
    Undefined : constant Object :=
                  (null, 0, Idle, Frame.List.Empty_List, Frame.List.Empty_List,
-                  AWS.Headers.Empty_List, False, False, 0, 0, 0, 0, False,
+                  AWS.Headers.Empty_List, False, False, 0, 0, 0, 0, 0, False,
                   Undefined_Length, 0);
 
    function State (Self : Object) return State_Kind is (Self.State);
@@ -155,7 +156,7 @@ private
    function Identifier (Self : Object) return Id is (Self.Id);
 
    function Flow_Control_Window (Self : Object) return Integer is
-     (Self.Flow_Control_Window);
+     (Self.Flow_Send_Window);
 
    function Bytes_Sent (Self : Object) return Stream_Element_Count is
      (Self.Bytes_Sent);

@@ -37,12 +37,15 @@ package body AWS.HTTP2.Frame.Window_Update is
    -- Create --
    ------------
 
-   function Create (Size_Increment : Size_Increment_Type) return Object is
+   function Create
+     (Stream_Id      : HTTP2.Stream_Id;
+      Size_Increment : Size_Increment_Type) return Object
+   is
       Len : constant Stream_Element_Count :=
               Stream_Element_Count (Payload'Size / 8);
    begin
       return O : Object do
-         O.Header.H.Stream_Id := 0;
+         O.Header.H.Stream_Id := Stream_Id;
          O.Header.H.Length    := Length_Type (Len);
          O.Header.H.Kind      := K_Window_Update;
          O.Header.H.R         := 0;

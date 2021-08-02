@@ -29,6 +29,7 @@
 
 with Ada.Containers;
 
+with AWS.Default;
 with AWS.HTTP2.Connection;
 with AWS.HTTP2.Frame.Continuation;
 with AWS.HTTP2.Frame.Data;
@@ -78,13 +79,14 @@ package body AWS.HTTP2.Stream is
          Headers             => AWS.Headers.Empty_List,
          Is_Ready            => False,
          Header_Found        => False,
-         Flow_Control_Window => Window_Size,
+         Flow_Send_Window    => Window_Size,
+         Flow_Receive_Window => Default.HTTP2_Initial_Window_Size,
          Bytes_Sent          => 0,
          Weight              => Weight,
          Stream_Dependency   => 0,
          End_Stream          => False,
          Content_Length      => Undefined_Length,
-         Data_Length         => 0);
+         Bytes_Received      => 0);
    end Create;
 
    ----------------------
@@ -246,9 +248,9 @@ package body AWS.HTTP2.Stream is
          Incr : constant Natural := Natural (Frame.Size_Increment);
       begin
          if Connection.Flow_Control_Window_Valid
-           (Self.Flow_Control_Window, Incr)
+           (Self.Flow_Send_Window, Incr)
          then
-            Self.Flow_Control_Window := Self.Flow_Control_Window + Incr;
+            Self.Flow_Send_Window := Self.Flow_Send_Window + Incr;
          else
             Error := HTTP2.C_Flow_Control_Error;
             return;
@@ -458,15 +460,50 @@ package body AWS.HTTP2.Stream is
          when K_Data =>
             Self.D_Frames.Append (Frame);
 
-            Self.Data_Length := Self.Data_Length +
-              Content_Length_Type
-                (HTTP2.Frame.Data.Object (Frame).Payload_Length);
+            declare
+               package WU renames AWS.HTTP2.Frame.Window_Update;
+               PL : constant Positive :=
+                      HTTP2.Frame.Data.Object (Frame).Payload_Length;
+            begin
+               Self.Bytes_Received := Self.Bytes_Received +
+                 Content_Length_Type (PL);
+               Self.Flow_Receive_Window := Self.Flow_Receive_Window - PL;
+               Ctx.Settings.Update_Flow_Receive_Window (-PL);
+
+               if Self.Flow_Receive_Window
+                 < Positive (Ctx.Settings.Max_Frame_Size)
+               then
+                  WU.Create
+                    (Self.Id,
+                     WU.Size_Increment_Type'Last
+                     - WU.Size_Increment_Type (Self.Flow_Receive_Window))
+                      .Send (Self.Sock.all);
+
+                  Self.Flow_Receive_Window :=
+                    Positive (WU.Size_Increment_Type'Last);
+               end if;
+
+               if Ctx.Settings.Flow_Receive_Window
+                 < Positive (Ctx.Settings.Max_Frame_Size)
+               then
+                  WU.Create
+                    (0,
+                     WU.Size_Increment_Type'Last
+                     - WU.Size_Increment_Type
+                         (Ctx.Settings.Flow_Receive_Window))
+                      .Send (Self.Sock.all);
+
+                  Ctx.Settings.Update_Flow_Receive_Window
+                    (Positive (WU.Size_Increment_Type'Last)
+                     - Ctx.Settings.Flow_Receive_Window);
+               end if;
+            end;
 
             if Self.Content_Length /= Undefined_Length
               and then
                 (if End_Stream
-                 then Self.Data_Length /= Self.Content_Length
-                 else Self.Data_Length > Self.Content_Length)
+                 then Self.Bytes_Received /= Self.Content_Length
+                 else Self.Bytes_Received > Self.Content_Length)
             then
                Error := C_Protocol_Error;
                return;
@@ -581,8 +618,8 @@ package body AWS.HTTP2.Stream is
       --  Update stream's Flow Control Window
 
       if Frame.Kind = K_Data then
-         Self.Flow_Control_Window :=
-           Self.Flow_Control_Window - Natural (Frame.Length);
+         Self.Flow_Send_Window :=
+           Self.Flow_Send_Window - Natural (Frame.Length);
          Self.Bytes_Sent :=
            Self.Bytes_Sent + Stream_Element_Count (Frame.Length);
       end if;
@@ -596,7 +633,7 @@ package body AWS.HTTP2.Stream is
      (Self      : in out Object;
       Increment : Integer) is
    begin
-      Self.Flow_Control_Window := Self.Flow_Control_Window + Increment;
+      Self.Flow_Send_Window := Self.Flow_Send_Window + Increment;
    end Update_Flow_Control_Window;
 
 end AWS.HTTP2.Stream;
