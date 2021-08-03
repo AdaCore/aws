@@ -173,7 +173,7 @@ package body AWS.HTTP2.Frame.Data is
       then
          return C_Protocol_Error;
       else
-         return C_No_Error;
+         return HTTP2.Frame.Object (Self).Validate (Settings);
       end if;
    end Validate;
 

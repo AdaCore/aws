@@ -163,8 +163,9 @@ package body AWS.HTTP2.Frame.Push_Promise is
    begin
       if Self.Header.H.Stream_Id = 0 then
          return C_Protocol_Error;
+
       else
-         return C_No_Error;
+         return HTTP2.Frame.Object (Self).Validate (Settings);
       end if;
    end Validate;
 
