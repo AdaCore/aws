@@ -251,7 +251,7 @@ package body AWS.HTTP2.Frame.Settings is
             end if;
          end loop;
 
-         return C_No_Error;
+         return HTTP2.Frame.Object (Self).Validate (Settings);
       end if;
    end Validate;
 
