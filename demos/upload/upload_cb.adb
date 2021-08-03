@@ -35,6 +35,30 @@ package body Upload_CB is
    function HW_CB (Request : Status.Data) return Response.Data is
       URI : constant String          := Status.URI (Request);
       P   : constant Parameters.List := Status.Parameters (Request);
+
+      procedure Message_Body_To_File (Filename : String);
+      --  Write message body to file
+
+      --------------------------
+      -- Message_Body_To_File --
+      --------------------------
+
+      procedure Message_Body_To_File (Filename : String) is
+         use Ada.Streams;
+         File   : Stream_IO.File_Type;
+         Buffer : Stream_Element_Array (1 .. 4096);
+         Last   : Stream_Element_Count;
+      begin
+         Stream_IO.Create (File, Stream_IO.Out_File, Filename);
+
+         while not Status.End_Of_Body (Request) loop
+            Status.Read_Body (Request, Buffer, Last);
+            Stream_IO.Write (File, Buffer (1 .. Last));
+         end loop;
+
+         Stream_IO.Close (File);
+      end Message_Body_To_File;
+
    begin
       if URI = "/" then
          return Response.File (MIME.Text_HTML, "main.html");
@@ -42,9 +66,23 @@ package body Upload_CB is
       elsif URI = "/upload" then
          --  Rename uploaded file
 
-         Directories.Rename
-           (Parameters.Get (P, "filename"),
-            Parameters.Get (P, "filename", 2));
+         if not Status.Is_Body_Uploaded (Request) then
+            --  For a chunked upload AWS won't have downloaded the body.
+            --  This is up to the user to trigger it.
+            AWS.Server.Get_Message_Body;
+         end if;
+
+         declare
+            Filename : constant String := Parameters.Get (P, "filename");
+         begin
+            if Filename /= "" then
+               Directories.Rename
+                 (Filename,
+                  Parameters.Get (P, "filename", 2));
+            else
+               Message_Body_To_File ("upload.txt");
+            end if;
+         end;
 
          return Response.Build
            (MIME.Text_HTML,
@@ -57,22 +95,13 @@ package body Upload_CB is
          --    --header "Transfer-Encoding: chunked" \
          --    http://localhost:8080/upload2
 
-         declare
-            use Ada.Streams;
-            File : Stream_IO.File_Type;
-         begin
-            Stream_IO.Create (File, Stream_IO.Out_File, "upload.txt");
+         if not Status.Is_Body_Uploaded (Request) then
+            --  For a chunked upload AWS won't have downloaded the body.
+            --  This is up to the user to trigger it.
+            AWS.Server.Get_Message_Body;
+         end if;
 
-            if not Status.Is_Body_Uploaded (Request) then
-               --  For a chunked upload AWS won't have downloaded the body.
-               --  This is up to the user to trigger it.
-               AWS.Server.Get_Message_Body;
-            end if;
-
-            Write (Stream_IO.Stream (File).all, Status.Binary_Data (Request));
-
-            Stream_IO.Close (File);
-         end;
+         Message_Body_To_File ("upload2.txt");
 
          return Response.Build
            (MIME.Text_Plain,

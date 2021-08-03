@@ -233,30 +233,21 @@ package body AWS.HTTP2.Frame is
      (Self : Object; Settings : Connection.Object) return Error_Codes
    is
       Kind : Frame.Kind_Type renames Self.Header.H.Kind;
+      Fixed_Size : constant Length_Type :=
+                     (case Kind is
+                         when K_Priority      => 5,
+                         when K_Ping          => 8,
+                         when K_RST_Stream
+                           | K_Window_Update  => 4,
+                         when others          => 0);
    begin
-      if Self.Length > Settings.Max_Frame_Size then
+      if Self.Length > Settings.Max_Frame_Size
+        or else (Fixed_Size /= 0 and then Self.Header.H.Length /= Fixed_Size)
+      then
          return C_Frame_Size_Error;
 
       elsif Kind = K_Invalid then
          return C_Protocol_Error;
-
-      elsif Kind = K_GoAway
-        and then (Self.Header.H.Stream_Id /= 0
-                  or else Self.Header.H.Length < 8)
-      then
-         return C_Protocol_Error;
-
-      elsif Kind = K_Priority and then Self.Header.H.Length /= 5 then
-         return C_Frame_Size_Error;
-
-      elsif Kind = K_RST_Stream and then Self.Header.H.Length /= 4 then
-         return C_Frame_Size_Error;
-
-      elsif Kind = K_Ping and then Self.Header.H.Length /= 8 then
-         return C_Frame_Size_Error;
-
-      elsif Kind = K_Window_Update and then Self.Header.H.Length /= 4 then
-         return C_Frame_Size_Error;
 
       else
          return C_No_Error;

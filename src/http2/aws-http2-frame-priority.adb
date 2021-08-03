@@ -101,10 +101,9 @@ package body AWS.HTTP2.Frame.Priority is
         or else Self.Stream_Id = Self.Data.P.Stream_Dependency
       then
          return C_Protocol_Error;
-      elsif Self.Header.H.Length /= 5 then
-         return C_Frame_Size_Error;
+
       else
-         return C_No_Error;
+         return HTTP2.Frame.Object (Self).Validate (Settings);
       end if;
    end Validate;
 

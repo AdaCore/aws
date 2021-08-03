@@ -27,6 +27,8 @@
 --  covered by the  GNU Public License.                                     --
 ------------------------------------------------------------------------------
 
+with Ada.Text_IO;
+
 with AWS.HTTP2.HPACK;
 with AWS.Net.Buffered;
 
@@ -73,6 +75,28 @@ package body AWS.HTTP2.Frame.Headers is
             Flags     => Flags);
       end return;
    end Create;
+
+   ------------------
+   -- Dump_Payload --
+   ------------------
+
+   overriding procedure Dump_Payload (Self : Object) is
+   begin
+      if Self.Has_Flag (Priority_Flag) then
+         declare
+            Priority : constant Frame.Priority.Payload := Self.Get_Priority;
+         begin
+            Text_IO.Put_Line
+              ("Priority:" & Priority.Stream_Dependency'Img
+               & Priority.Weight'Img);
+         end;
+      end if;
+
+      if Self.Has_Flag (Padded_Flag) then
+         Text_IO.Put_Line
+           ("Padding:" & Self.Data.D.Pad_Length'Img);
+      end if;
+   end Dump_Payload;
 
    ---------
    -- Get --

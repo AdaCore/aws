@@ -63,6 +63,11 @@ package AWS.HTTP2.Connection is
       Increment : Integer);
    --  Record the setting from window update frame
 
+   procedure Update_Flow_Receive_Window
+     (Self      : in out Object;
+      Increment : Integer);
+   --  Increment Flow_Receive_Window
+
    function Header_Table_Size (Self : Object) return Natural;
    --  The current header table size. Set above as part of initial settings
    --  handshake.
@@ -98,6 +103,8 @@ package AWS.HTTP2.Connection is
 
    function Flow_Control_Window (Self : Object) return Integer;
 
+   function Flow_Receive_Window (Self : Object) return Integer;
+
 private
 
    type Settings_Set is array (Frame.Settings.Settings_Kind) of Integer;
@@ -122,7 +129,9 @@ private
       Values                    : Settings_Set := Default_Values;
       Dynamic_Header_Table_Size : Natural :=
                                     Default_Values (S.HEADER_TABLE_SIZE);
-      Flow_Control_Window       : Integer :=
+      Flow_Send_Window          : Integer :=
+                                    Default_Values (S.INITIAL_WINDOW_SIZE);
+      Flow_Receive_Window       : Integer :=
                                     Default_Values (S.INITIAL_WINDOW_SIZE);
    end record;
 
@@ -145,7 +154,10 @@ private
      (Self.Values (S.MAX_HEADER_LIST_SIZE));
 
    function Flow_Control_Window (Self : Object) return Integer is
-     (Self.Flow_Control_Window);
+     (Self.Flow_Send_Window);
+
+   function Flow_Receive_Window (Self : Object) return Integer is
+     (Self.Flow_Receive_Window);
 
    function Dynamic_Header_Table_Size (Self : Object) return Natural is
      (Self.Dynamic_Header_Table_Size);

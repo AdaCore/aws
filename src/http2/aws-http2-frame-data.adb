@@ -27,10 +27,31 @@
 --  covered by the  GNU Public License.                                     --
 ------------------------------------------------------------------------------
 
+with Ada.Text_IO;
+
 with AWS.Net.Buffered;
+with AWS.Status.Set;
 with AWS.Translator;
 
 package body AWS.HTTP2.Frame.Data is
+
+   ------------
+   -- Append --
+   ------------
+
+   procedure Append (Self : Object; Status : in out AWS.Status.Data) is
+      First : Stream_Element_Offset := Self.Data.S'First;
+      Last  : Stream_Element_Offset := Self.Data.S'Last;
+   begin
+      --  If we have a padded flag, remove the padding from the payload
+
+      if Self.Has_Flag (Padded_Flag) then
+         First := First + Self.Data.D.Pad_Length'Size / 8;
+         Last  := Last - Stream_Element_Offset (Self.Data.D.Pad_Length);
+      end if;
+
+      AWS.Status.Set.Append_Body (Status, Self.Data.S (First .. Last));
+   end Append;
 
    ------------
    -- Create --
@@ -67,6 +88,17 @@ package body AWS.HTTP2.Frame.Data is
         (Stream_Id, Translator.To_Stream_Element_Array (Content),
          End_Stream => True);
    end Create;
+
+   ------------------
+   -- Dump_Payload --
+   ------------------
+
+   overriding procedure Dump_Payload (Self : Object) is
+   begin
+      if Self.Is_Defined and then Self.Has_Flag (Padded_Flag) then
+         Text_IO.Put_Line ("Padding:" & Self.Data.D.Pad_Length'Img);
+      end if;
+   end Dump_Payload;
 
    -------------
    -- Payload --
@@ -130,11 +162,18 @@ package body AWS.HTTP2.Frame.Data is
 
    overriding function Validate
      (Self : Object; Settings : Connection.Object) return Error_Codes is
+
    begin
-      if Self.Header.H.Stream_Id = 0 then
+      if Self.Header.H.Stream_Id = 0
+        or else
+          (Self.Has_Flag (Padded_Flag)
+           and then Length_Type (Self.Data.D.Pad_Length)
+                      + Self.Data.D.Pad_Length'Size / 8
+                    >= Self.Header.H.Length)
+      then
          return C_Protocol_Error;
       else
-         return C_No_Error;
+         return HTTP2.Frame.Object (Self).Validate (Settings);
       end if;
    end Validate;
 

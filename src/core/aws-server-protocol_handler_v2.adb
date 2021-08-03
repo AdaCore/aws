@@ -539,13 +539,14 @@ procedure Protocol_Handler_V2 (LA : in out Line_Attribute_Record) is
          Check_Mandatory (Messages.Path2_Token, Path_Found);
       end Validate_Headers;
 
-      M       : constant HTTP2.Message.Object := Stream.Message (Ctx);
-      Headers : constant AWS.Headers.List := M.Headers;
+      Headers : constant AWS.Headers.List := Stream.Headers;
       Error   : HTTP2.Error_Codes;
    begin
       Set_Status (LA.Stat);
 
       AWS.Status.Set.Headers (LA.Stat, Headers);
+
+      Stream.Append_Body (LA.Stat);
 
       --  Check headers' validity
 
@@ -559,7 +560,7 @@ procedure Protocol_Handler_V2 (LA : in out Line_Attribute_Record) is
       --  And set the request information using an HTTP/1 request line format
 
       declare
-         Path        : constant String := M.Headers.Get (Messages.Path2_Token);
+         Path        : constant String := Headers.Get (Messages.Path2_Token);
          Path_Last   : Positive;
          Query_First : Positive;
 
@@ -568,7 +569,7 @@ procedure Protocol_Handler_V2 (LA : in out Line_Attribute_Record) is
 
          AWS.Status.Set.Request
            (LA.Stat,
-            Method       => M.Headers.Get (Messages.Method_Token),
+            Method       => Headers.Get (Messages.Method_Token),
             URI          => Path (Path'First .. Path_Last),
             HTTP_Version => HTTP_2);
 
@@ -872,7 +873,7 @@ begin
                end if;
 
             else
-               In_Header := Frame.Kind = K_Headers
+               In_Header := Frame.Kind in K_Headers | K_Continuation
                  and then not Frame.Has_Flag (HTTP2.Frame.End_Headers_Flag);
                --  Need to avoid unknown extension frame in the middle of a
                --  header block (RFC 7450, 5.5).
@@ -905,7 +906,7 @@ begin
 
                Prev_State := S (Stream_Id).State;
 
-               S (Stream_Id).Received_Frame (Frame, Error);
+               S (Stream_Id).Received_Frame (Ctx, Frame, Error);
 
                if Error /= C_No_Error then
                   if Error = C_Flow_Control_Error then

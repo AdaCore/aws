@@ -363,10 +363,6 @@ package body AWS.HTTP2.HPACK is
 
             Data := True;
          end if;
-
-         if HTTP2.Debug then
-            Table.Dump;
-         end if;
       end loop;
 
       return Headers;

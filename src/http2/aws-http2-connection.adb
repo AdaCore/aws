@@ -41,7 +41,7 @@ package body AWS.HTTP2.Connection is
       Max  : constant Natural :=
                Natural (HTTP2.Frame.Window_Update.Size_Increment_Type'Last);
    begin
-      return Current < 0 or else Increment <= Max - Current;
+      return Current <= Max - Increment;
    end Flow_Control_Window_Valid;
 
    ---------
@@ -96,8 +96,7 @@ package body AWS.HTTP2.Connection is
       --    Self.Values (S.INITIAL_WINDOW_SIZE) + Increment;
       Self.Values (S.INITIAL_WINDOW_SIZE) := Value;
 
-      Self.Flow_Control_Window :=
-        Self.Flow_Control_Window + (Value - Prev);
+      Self.Flow_Send_Window := Self.Flow_Send_Window + (Value - Prev);
    end Set_Initial_Window_Size;
 
    --------------------------------
@@ -108,7 +107,18 @@ package body AWS.HTTP2.Connection is
      (Self      : in out Object;
       Increment : Integer) is
    begin
-      Self.Flow_Control_Window := Self.Flow_Control_Window + Increment;
+      Self.Flow_Send_Window := Self.Flow_Send_Window + Increment;
    end Update_Flow_Control_Window;
+
+   --------------------------------
+   -- Update_Flow_Receive_Window --
+   --------------------------------
+
+   procedure Update_Flow_Receive_Window
+     (Self      : in out Object;
+      Increment : Integer) is
+   begin
+      Self.Flow_Receive_Window := Self.Flow_Receive_Window + Increment;
+   end Update_Flow_Receive_Window;
 
 end AWS.HTTP2.Connection;

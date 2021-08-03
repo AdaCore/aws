@@ -32,10 +32,11 @@ with Ada.Streams;
 with AWS.Net;
 with AWS.Server.Context;
 
+with AWS.Headers;
 with AWS.HTTP2.Frame;
 with AWS.HTTP2.Frame.List;
 with AWS.HTTP2.Frame.Priority;
-with AWS.HTTP2.Message;
+with AWS.Status;
 
 package AWS.HTTP2.Stream is
 
@@ -81,6 +82,7 @@ package AWS.HTTP2.Stream is
 
    procedure Received_Frame
      (Self  : in out Object;
+      Ctx   : in out Server.Context.Object;
       Frame : HTTP2.Frame.Object'Class;
       Error : out Error_Codes)
      with Pre => Self.Is_Defined and then Frame.Is_Defined;
@@ -91,11 +93,13 @@ package AWS.HTTP2.Stream is
      with Post => (if Is_Message_Ready'Result then Self.State >= Open);
    --  Returns True if a message is ready on this stream
 
-   function Message
-     (Self  : Object;
-      Ctx   : in out Server.Context.Object) return HTTP2.Message.Object
+   procedure Append_Body (Self : Object; Status : in out AWS.Status.Data)
      with Pre => Self.Is_Defined and then Self.Is_Message_Ready;
-   --  Get message ready on this stream
+   --  Append status body from stream data frames
+
+   function Headers (Self : Object) return AWS.Headers.List
+     with Pre => Self.Is_Defined and then Self.Is_Message_Ready;
+   --  Returns headers taken from stream
 
    function Priority (Self : Object) return Byte_1
      with Pre => Self.Is_Defined;
@@ -116,37 +120,52 @@ package AWS.HTTP2.Stream is
 
 private
 
+   subtype Content_Length_Type is
+     Stream_Element_Offset range -1 .. Stream_Element_Offset'Last;
+
+   Undefined_Length : constant Content_Length_Type := -1;
+
    type Object is tagged record
       Sock                : AWS.Net.Socket_Access;
       Id                  : Stream.Id            := 0;
       State               : State_Kind           := Idle;
-      Frames              : Frame.List.Object;
+      H_Frames            : Frame.List.Object; -- Header frames
+      D_Frames            : Frame.List.Object; -- Data frames
+      Headers             : AWS.Headers.List;
       Is_Ready            : Boolean              := False;
       Header_Found        : Boolean              := False;
-      Flow_Control_Window : Integer;
+      Flow_Send_Window    : Integer;
+      Flow_Receive_Window : Integer;
       Bytes_Sent          : Stream_Element_Count := 0;
       Weight              : Byte_1;
       Stream_Dependency   : HTTP2.Stream_Id;
+      End_Stream          : Boolean              := False;
+      Content_Length      : Content_Length_Type  := Undefined_Length;
+      Bytes_Received      : Content_Length_Type  := 0;
    end record;
 
    function "<" (Left, Right : Object) return Boolean is (Left.Id < Right.Id);
 
    Undefined : constant Object :=
-                 (null, 0, Idle, Frame.List.Empty_List, False, False, 0, 0, 0,
-                  0);
+                 (null, 0, Idle, Frame.List.Empty_List, Frame.List.Empty_List,
+                  AWS.Headers.Empty_List, False, False, 0, 0, 0, 0, 0, False,
+                  Undefined_Length, 0);
 
    function State (Self : Object) return State_Kind is (Self.State);
 
    function Identifier (Self : Object) return Id is (Self.Id);
 
    function Flow_Control_Window (Self : Object) return Integer is
-     (Self.Flow_Control_Window);
+     (Self.Flow_Send_Window);
 
    function Bytes_Sent (Self : Object) return Stream_Element_Count is
      (Self.Bytes_Sent);
 
    function Priority (Self : Object) return Byte_1 is
      (Self.Weight);
+
+   function Headers (Self : Object) return AWS.Headers.List is
+     (Self.Headers);
 
    function Is_Defined (Self : Object) return Boolean is (Self /= Undefined);
 
