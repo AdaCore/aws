@@ -50,6 +50,11 @@ package AWS.Server.HTTP_Utils is
       C_Stat      : in out AWS.Status.Data) return Response.Data;
    --  Build the Answer that should be sent to the client's browser
 
+   function Call_For_Dispatcher
+     (HTTP_Server : in out AWS.Server.HTTP;
+      C_Stat      : AWS.Status.Data) return Response.Data;
+   --  Call for the user defined dispatcher in server
+
    procedure Answer_To_Client
      (HTTP_Server  : in out AWS.Server.HTTP;
       Line_Index   : Positive;
