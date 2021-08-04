@@ -239,6 +239,17 @@ package body AWS.Response is
       return To_String (D.Content_Type);
    end Content_Type;
 
+   --------------
+   -- Continue --
+   --------------
+
+   function Continue return Data is
+   begin
+      return Result : Data do
+         Set.Status_Code (Result, Messages.S100);
+      end return;
+   end Continue;
+
    ----------------------
    -- Create_Resource --
    ----------------------

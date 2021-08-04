@@ -272,6 +272,26 @@ package AWS.Response is
    --  with the request. This is used by the callback's chain in the
    --  dispatchers and should not be used by users.
 
+   function Continue return Data with
+     Post => Status_Code (Continue'Result) = Messages.S100
+             and then Mode (Continue'Result) = No_Data;
+   --  Returns an empty message (Data_Mode = No_Data and Status_Code is 100).
+   --  It is to control the client data upload.
+   --
+   --  If upload data size is known from Content-Length header and less than
+   --  Upload_Size_Limit configuration parameter then the client message body
+   --  arrived at once to the dispatcher handler. User can check this by
+   --  calling AWS.Status.Is_Body_Uploaded.
+   --
+   --  If upload data size is unknown or more than Upload_Size_Limit then
+   --  Is_Body_Uploaded returns False and user is able to allow or disable the
+   --  client data upload.
+   --
+   --  If user returns Continue response from dispatcher handler, then next
+   --  time the dispatcher handler will be called with uploaded body from
+   --  client. If user returns some other responses then client body upload
+   --  will be terminated and ignored.
+
    --
    --  API to retrieve response data
    --

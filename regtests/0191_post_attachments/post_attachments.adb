@@ -82,7 +82,8 @@ procedure Post_Attachments is
 
    begin
       if not Status.Is_Body_Uploaded (Request) then
-         Server.Get_Message_Body;
+         Text_IO.Put_Line ("allow client upload");
+         return Response.Continue;
       end if;
 
       Params  := Status.Parameters (Request);
@@ -184,7 +185,7 @@ begin
                   "1234567890qwertyuioplkjhgfdszxcvbnmMNBVCXZASDFGHJKLPOIUYTW";
       Headers : AWS.Headers.List;
    begin
-      for J in 10_001 .. 56_000 loop
+      for J in 10_001 .. 95_000 loop
          Append (Content, Sample & J'Img & ASCII.LF);
       end loop;
 
