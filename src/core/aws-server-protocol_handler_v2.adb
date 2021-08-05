@@ -67,8 +67,9 @@ separate (AWS.Server)
 --  3.3 - in TLS mode both client & server must send a connection preface
 --
 
-procedure Protocol_Handler_V2 (LA : in out Line_Attribute_Record) is
-
+procedure Protocol_Handler_V2
+  (LA : in out Line_Attribute_Record; Check_Preface : Boolean := True)
+is
    use Ada.Streams;
 
    use AWS.Server.HTTP_Utils;
@@ -608,25 +609,23 @@ begin
 
    --  The first bytes on the connection should be a connection preface
 
-   declare
-      Connection_Preface : constant Stream_Element_Array :=
-                             (16#50#, 16#52#, 16#49#, 16#20#, 16#2a#, 16#20#,
-                              16#48#, 16#54#, 16#54#, 16#50#, 16#2f#, 16#32#,
-                              16#2e#, 16#30#, 16#0d#, 16#0a#, 16#0d#, 16#0a#,
-                              16#53#, 16#4d#, 16#0d#, 16#0a#, 16#0d#, 16#0a#);
-      Preface            : Stream_Element_Array (1 .. 24);
-   begin
-      Net.Buffered.Read (Sock.all, Preface);
+   if Check_Preface then
+      declare
+         Preface : Stream_Element_Array
+           (HTTP2.Client_Connection_Preface'Range);
+      begin
+         Net.Buffered.Read (Sock.all, Preface);
 
-      if Preface /= Connection_Preface then
-         HTTP2.Frame.GoAway.Create
-           (Stream_Id => 0,
-            Error     => HTTP2.C_Protocol_Error).Send (Sock.all);
-         raise HTTP2.Protocol_Error with
-           HTTP2.Exception_Message
-             (HTTP2.C_Protocol_Error, "wrong connection preface");
-      end if;
-   end;
+         if Preface /= HTTP2.Client_Connection_Preface then
+            HTTP2.Frame.GoAway.Create
+              (Stream_Id => 0,
+               Error     => HTTP2.C_Protocol_Error).Send (Sock.all);
+            raise HTTP2.Protocol_Error with
+            HTTP2.Exception_Message
+              (HTTP2.C_Protocol_Error, "wrong connection preface");
+         end if;
+      end;
+   end if;
 
    --  Handle the settings frame now. There is two cases:
    --  1. when upgrading from HTTP/1 (h2c) handle HTTP2-Settings payload

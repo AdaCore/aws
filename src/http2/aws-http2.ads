@@ -27,6 +27,8 @@
 --  covered by the  GNU Public License.                                     --
 ------------------------------------------------------------------------------
 
+with Ada.Streams;
+
 package AWS.HTTP2 is
 
    type Bit_1 is mod 2 ** 1 with Size => 1;
@@ -46,6 +48,17 @@ package AWS.HTTP2 is
       C_Refused_Stream, C_Cancel, C_Compression_Error, C_Connect_Error,
       C_Enhance_Your_CALM, C_Inadequate_Security, C_HTTP_1_1_Required);
    --  Error codes that are used in RST_Stream and GoAway frames
+
+   Client_Connection_Preface : constant  Ada.Streams.Stream_Element_Array :=
+                                 (16#50#, 16#52#, 16#49#, 16#20#, 16#2a#,
+                                  16#20#, 16#48#, 16#54#, 16#54#, 16#50#,
+                                  16#2f#, 16#32#, 16#2e#, 16#30#, 16#0d#,
+                                  16#0a#, 16#0d#, 16#0a#, 16#53#, 16#4d#,
+                                  16#0d#, 16#0a#, 16#0d#, 16#0a#);
+   --  "PRI * HTTP/2.0" & CRLF & CRLF & "SM" & CRLF & CRLF
+
+   Client_Connection_Preface_1 : constant String := "PRI * HTTP/2.0";
+   Client_Connection_Preface_2 : constant String := "SM";
 
    function Exception_Message
      (Error : Error_Codes; Message : String) return String;
