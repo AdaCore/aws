@@ -46,6 +46,7 @@ with AWS.Digest;
 with AWS.Dispatchers;
 with AWS.Headers.Values;
 with AWS.Hotplug;
+with AWS.HTTP2;
 with AWS.Log;
 with AWS.Messages;
 with AWS.MIME;
@@ -1208,6 +1209,7 @@ package body AWS.Server.HTTP_Utils is
    ----------------------
 
    procedure Get_Request_Line (C_Stat : in out AWS.Status.Data) is
+      use type Status.Protocol_State;
       Sock : constant Net.Socket_Type'Class := Status.Socket (C_Stat);
    begin
       --  Get and parse request line
@@ -1223,6 +1225,24 @@ package body AWS.Server.HTTP_Utils is
             --  line(s) received where a Request-Line is expected.
 
             if Data /= "" then
+               if not Sock.Is_Secure
+                 and then Data = HTTP2.Client_Connection_Preface_1
+                 and then Net.Buffered.Get_Line (Sock) = ""
+                 and then Net.Buffered.Get_Line (Sock) =
+                            HTTP2.Client_Connection_Preface_2
+                 and then Net.Buffered.Get_Line (Sock) = ""
+                 and then Status.Protocol (C_Stat) = Status.HTTP_1
+               then
+                  --  Plain socket client starts with HTTP/2 connection
+                  --  preface, i.e. client assume that server has HTTP/2
+                  --  support (RFC 7540, 3.4.). Set the Protocol to H2 and
+                  --  check for HTTP/2 server support in Protocol_Handler where
+                  --  this routine is called from.
+
+                  Status.Set.Protocol (C_Stat, Status.H2);
+                  exit;
+               end if;
+
                Parse_Request_Line (Data, C_Stat);
                exit;
             end if;
@@ -1366,19 +1386,35 @@ package body AWS.Server.HTTP_Utils is
       Query_First : Positive;
       --  First index of Query part
 
+      procedure Raise_Wrong_Line;
+      --  Raise Wrong_Request_Line exception with text message
+
+      ----------------------
+      -- Raise_Wrong_Line --
+      ----------------------
+
+      procedure Raise_Wrong_Line is
+      begin
+         raise Wrong_Request_Line with "Wrong request line '" & Command & ''';
+      end Raise_Wrong_Line;
+
    begin
       I1 := Fixed.Index (Command, " ");
 
       if I1 = 0 then
-         raise Wrong_Request_Line
-           with "Wrong request line '" & Command & ''';
+         Raise_Wrong_Line;
       end if;
 
       I2 := Fixed.Index (Command (I1 + 1 .. Command'Last), " ", Backward);
 
-      if I1 = 0 or else I2 = 0 or else I1 = I2 then
-         raise Wrong_Request_Line
-           with "Wrong request line '" & Command & ''';
+      if I2 = 0 or else I1 = I2 then
+         Raise_Wrong_Line;
+      end if;
+
+      if I2 + 5 >= Command'Last
+        or else Command (I2 + 1 .. I2 + 5) /= "HTTP/"
+      then
+         Raise_Wrong_Line;
       end if;
 
       Split_Path (Command (I1 + 1 .. I2 - 1), Path_Last, Query_First);
