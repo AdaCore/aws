@@ -58,7 +58,8 @@ package body AWS.Server is
    procedure Protocol_Handler (LA : in out Line_Attribute_Record);
    --  Handle the lines, this is where all the HTTP/1.1 protocol is defined
 
-   procedure Protocol_Handler_V2 (LA : in out Line_Attribute_Record);
+   procedure Protocol_Handler_V2
+     (LA : in out Line_Attribute_Record; Check_Preface : Boolean := True);
    --  Handle the lines, this is where all the HTTP/2 protocol is defined
 
    function Accept_Socket_Serialized
@@ -414,7 +415,8 @@ package body AWS.Server is
    procedure Protocol_Handler (LA : in out Line_Attribute_Record) is separate;
 
    procedure Protocol_Handler_V2
-     (LA : in out Line_Attribute_Record) is separate;
+     (LA : in out Line_Attribute_Record; Check_Preface : Boolean := True)
+   is separate;
 
    ------------------
    -- Session_Name --

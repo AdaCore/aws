@@ -46,6 +46,7 @@ with AWS.Digest;
 with AWS.Dispatchers;
 with AWS.Headers.Values;
 with AWS.Hotplug;
+with AWS.HTTP2;
 with AWS.Log;
 with AWS.Messages;
 with AWS.MIME;
@@ -90,14 +91,25 @@ package body AWS.Server.HTTP_Utils is
       Will_Close   : in out Boolean)
    is
       use type Messages.Status_Code;
+      use type Response.Data_Mode;
 
-      Answer     : Response.Data :=
-                     Build_Answer (HTTP_Server, C_Stat);
-
-      Need_Purge : Boolean := False;
+      Answer     : Response.Data := Build_Answer (HTTP_Server, C_Stat);
+      Need_Purge : Boolean       := False;
 
    begin
-      if HTTP_Server.Slots.Phase (Line_Index) = Client_Data then
+      if Response.Status_Code (Answer) = Messages.S100
+        and then Response.Mode (Answer) = Response.No_Data
+        and then not Status.Is_Body_Uploaded (C_Stat)
+      then
+         --  Upload message body and call user dispatcher again
+
+         Get_Message_Data
+           (HTTP_Server, Line_Index, C_Stat,
+            Expect_100 => Status.Expect (C_Stat) = Messages.S100_Continue);
+
+         Answer := Call_For_Dispatcher (HTTP_Server, C_Stat);
+
+      elsif HTTP_Server.Slots.Phase (Line_Index) = Client_Data then
          --  User callback did not read clients message body. If client do not
          --  support 100 (Continue) response, we have to close
          --  socket to discard pending client data.
@@ -344,7 +356,7 @@ package body AWS.Server.HTTP_Utils is
          return Answer;
       end Status_Page;
 
-            URL : constant AWS.URL.Object := AWS.Status.URI (C_Stat);
+      URL : constant AWS.URL.Object := AWS.Status.URI (C_Stat);
       URI : constant String         := AWS.URL.Abs_Path (URL);
 
       Answer : Response.Data;
@@ -414,36 +426,20 @@ package body AWS.Server.HTTP_Utils is
                   HTTP_Server.Dispatcher_Sem.Release_Write;
                end if;
 
-               HTTP_Server.Dispatcher_Sem.Read;
+               Answer := Call_For_Dispatcher (HTTP_Server, C_Stat);
+            end if;
 
-               --  Be sure to always release the read semaphore
+            --  Switching protocol if needed and server has HTTP/2
+            --  activated.
 
-               begin
-                  Answer := Dispatchers.Dispatch
-                    (HTTP_Server.Dispatcher.all, C_Stat);
-
-                  HTTP_Server.Dispatcher_Sem.Release_Read;
-
-                  --  Switching protocol if needed and server has HTTP/2
-                  --  activated.
-
-                  if Status.Protocol (C_Stat) = Status.Upgrade_To_H2C
-                    and then AWS.Config.HTTP2_Activated (HTTP_Server.Config)
-                  then
-                     Response.Set.Status_Code (Answer, Messages.S101);
-
-                     Response.Set.Add_Header
-                       (Answer,
-                        Messages.Connection_Token, Messages.Upgrade_Token);
-                     Response.Set.Add_Header
-                       (Answer, Messages.Upgrade_Token, Messages.H2C_Token);
-                  end if;
-
-               exception
-                  when others =>
-                     HTTP_Server.Dispatcher_Sem.Release_Read;
-                     raise;
-               end;
+            if Status.Protocol (C_Stat) = Status.Upgrade_To_H2C
+              and then AWS.Config.HTTP2_Activated (HTTP_Server.Config)
+            then
+               Response.Set.Status_Code (Answer, Messages.S101);
+               Response.Set.Add_Header
+                 (Answer, Messages.Connection_Token, Messages.Upgrade_Token);
+               Response.Set.Add_Header
+                 (Answer, Messages.Upgrade_Token, Messages.H2C_Token);
             end if;
 
             --  Then check if the answer is to be ignored as per
@@ -459,6 +455,30 @@ package body AWS.Server.HTTP_Utils is
 
       return Answer;
    end Build_Answer;
+
+   -------------------------
+   -- Call_For_Dispatcher --
+   -------------------------
+
+   function Call_For_Dispatcher
+     (HTTP_Server : in out AWS.Server.HTTP;
+      C_Stat      : AWS.Status.Data) return Response.Data is
+   begin
+      HTTP_Server.Dispatcher_Sem.Read;
+
+      --  Be sure to always release the read semaphore
+
+      return Answer : constant Response.Data :=
+        Dispatchers.Dispatch (HTTP_Server.Dispatcher.all, C_Stat)
+      do
+         HTTP_Server.Dispatcher_Sem.Release_Read;
+      end return;
+
+   exception
+      when others =>
+         HTTP_Server.Dispatcher_Sem.Release_Read;
+         raise;
+   end Call_For_Dispatcher;
 
    ---------------------
    -- File_Upload_UID --
@@ -1189,6 +1209,7 @@ package body AWS.Server.HTTP_Utils is
    ----------------------
 
    procedure Get_Request_Line (C_Stat : in out AWS.Status.Data) is
+      use type Status.Protocol_State;
       Sock : constant Net.Socket_Type'Class := Status.Socket (C_Stat);
    begin
       --  Get and parse request line
@@ -1204,6 +1225,24 @@ package body AWS.Server.HTTP_Utils is
             --  line(s) received where a Request-Line is expected.
 
             if Data /= "" then
+               if not Sock.Is_Secure
+                 and then Data = HTTP2.Client_Connection_Preface_1
+                 and then Net.Buffered.Get_Line (Sock) = ""
+                 and then Net.Buffered.Get_Line (Sock) =
+                            HTTP2.Client_Connection_Preface_2
+                 and then Net.Buffered.Get_Line (Sock) = ""
+                 and then Status.Protocol (C_Stat) = Status.HTTP_1
+               then
+                  --  Plain socket client starts with HTTP/2 connection
+                  --  preface, i.e. client assume that server has HTTP/2
+                  --  support (RFC 7540, 3.4.). Set the Protocol to H2 and
+                  --  check for HTTP/2 server support in Protocol_Handler where
+                  --  this routine is called from.
+
+                  Status.Set.Protocol (C_Stat, Status.H2);
+                  exit;
+               end if;
+
                Parse_Request_Line (Data, C_Stat);
                exit;
             end if;
@@ -1347,13 +1386,35 @@ package body AWS.Server.HTTP_Utils is
       Query_First : Positive;
       --  First index of Query part
 
+      procedure Raise_Wrong_Line;
+      --  Raise Wrong_Request_Line exception with text message
+
+      ----------------------
+      -- Raise_Wrong_Line --
+      ----------------------
+
+      procedure Raise_Wrong_Line is
+      begin
+         raise Wrong_Request_Line with "Wrong request line '" & Command & ''';
+      end Raise_Wrong_Line;
+
    begin
       I1 := Fixed.Index (Command, " ");
+
+      if I1 = 0 then
+         Raise_Wrong_Line;
+      end if;
+
       I2 := Fixed.Index (Command (I1 + 1 .. Command'Last), " ", Backward);
 
-      if I1 = 0 or else I2 = 0 or else I1 = I2 then
-         raise Wrong_Request_Line
-           with "Wrong request line '" & Command & ''';
+      if I2 = 0 or else I1 = I2 then
+         Raise_Wrong_Line;
+      end if;
+
+      if I2 + 5 >= Command'Last
+        or else Command (I2 + 1 .. I2 + 5) /= "HTTP/"
+      then
+         Raise_Wrong_Line;
       end if;
 
       Split_Path (Command (I1 + 1 .. I2 - 1), Path_Last, Query_First);

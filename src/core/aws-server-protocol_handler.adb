@@ -32,6 +32,7 @@
 
 with Ada.Exceptions;
 
+with AWS.HTTP2.Frame.GoAway;
 with AWS.Log;
 with AWS.Messages;
 with AWS.Net.Buffered;
@@ -193,6 +194,24 @@ begin
 
          Get_Request_Line (LA.Stat);
 
+         if AWS.Status.Protocol (LA.Stat) = AWS.Status.H2 then
+            if CNF.HTTP2_Activated (LA.Server.Config) then
+               Protocol_Handler_V2 (LA, Check_Preface => False);
+
+               Will_Close := True;
+
+               exit For_Every_Request;
+
+            else
+               Error_Answer := Response.Build
+                 (Status_Code  => Messages.S505,
+                  Content_Type => "text/plain",
+                  Message_Body => "HTTP/2 protocol is not supported");
+
+               exit For_Every_Request when not Send_Error_Answer;
+            end if;
+         end if;
+
          First_Line := False;
 
          AWS.Status.Set.Read_Header (Socket => Sock_Ptr.all, D => LA.Stat);
@@ -297,14 +316,25 @@ begin
 
             Will_Close := True;
 
-            Error_Answer := Response.Build
-              (Status_Code  => Messages.S400,
-               Content_Type => "text/plain",
-               Message_Body => Ada.Exceptions.Exception_Message (E));
+            if CNF.HTTP2_Activated (LA.Server.Config) then
+               HTTP2.Frame.GoAway.Create
+                 (Stream_Id => 0,
+                  Error     => HTTP2.C_Protocol_Error).Send (Sock_Ptr.all);
 
-            LA.Server.Slots.Mark_Phase (LA.Line, Server_Response);
+               Will_Close := True;
 
-            exit For_Every_Request when not Send_Error_Answer;
+               exit For_Every_Request;
+
+            else
+               Error_Answer := Response.Build
+                 (Status_Code  => Messages.S400,
+                  Content_Type => "text/plain",
+                  Message_Body => Ada.Exceptions.Exception_Message (E));
+
+               LA.Server.Slots.Mark_Phase (LA.Line, Server_Response);
+
+               exit For_Every_Request when not Send_Error_Answer;
+            end if;
 
          when E : Net.Buffered.Data_Overflow
            | Parameters.Too_Long_Parameter
