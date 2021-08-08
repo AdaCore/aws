@@ -125,64 +125,22 @@ package body AWS.Resources.Files is
       Form : String    := "";
       GZip : in out Boolean)
    is
-      File_Kind : constant Resources.File_Instance := Resources.Exist (Name);
       Stream    : AWS.Resources.Streams.Stream_Access;
-
-      procedure Open_File (Name : String);
-
-      ---------------
-      -- Open_File --
-      ---------------
-
-      procedure Open_File (Name : String) is
-      begin
-         Stream := new AWS.Resources.Streams.Disk.Stream_Type;
-
-         AWS.Resources.Streams.Disk.Open
-           (AWS.Resources.Streams.Disk.Stream_Type (Stream.all), Name, Form);
-      end Open_File;
-
+      In_GZip   : constant Boolean := GZip;
+      Real_Name : constant String  :=
+                    Check_Name (Name, Utils.Is_Regular_File'Access, GZip);
    begin
-      if Is_GZip (Name) then
-         --  Don't try to open file Name & ".gz.gz"
+      if Real_Name = "" then
+         raise IO_Exceptions.Name_Error with "File '" & Name & "' not found.";
+      end if;
 
-         case File_Kind is
-            when Both | Resources.GZip =>
-               GZip := False;
-               Open_File (Name);
+      Stream := new AWS.Resources.Streams.Disk.Stream_Type;
 
-            when Plain | None =>
-               raise IO_Exceptions.Name_Error;
-         end case;
+      AWS.Resources.Streams.Disk.Open
+        (AWS.Resources.Streams.Disk.Stream_Type (Stream.all), Real_Name, Form);
 
-      elsif GZip then
-
-         case File_Kind is
-            when Both | Resources.GZip =>
-               Open_File (Name & ".gz");
-
-            when Plain =>
-               Open_File (Name);
-               GZip := False;
-
-            when None =>
-               raise IO_Exceptions.Name_Error;
-         end case;
-
-      else
-
-         case File_Kind is
-            when Both | Plain =>
-               Open_File (Name);
-
-            when Resources.GZip =>
-               Open_File (Name & ".gz");
-               Stream := Streams.ZLib.Inflate_Create
-                 (Stream, Header => ZLib.GZip);
-
-            when None =>
-               raise IO_Exceptions.Name_Error;
-         end case;
+      if GZip and not In_GZip then
+         Stream := Streams.ZLib.Inflate_Create (Stream, Header => ZLib.GZip);
       end if;
 
       Streams.Create (File, Stream);

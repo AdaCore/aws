@@ -33,7 +33,6 @@ with Ada.Directories;
 with Ada.Strings.Fixed;
 
 with AWS.Headers.Values;
-with AWS.Resources.Streams.Disk.Once;
 with AWS.Resources.Streams.Memory;
 with AWS.Response.Set;
 with AWS.Translator;
@@ -257,33 +256,35 @@ package body AWS.Response is
    procedure Create_Resource
      (D    : in out Data;
       File : out AWS.Resources.File_Type;
-      GZip : Boolean)
-   is
-      use AWS.Resources;
+      GZip : Boolean) is
+   begin
+      AWS.Resources.Streams.Create (File, Create_Stream (D, GZip));
+   end Create_Resource;
 
+   -------------------
+   -- Create_Stream --
+   -------------------
+
+   function Create_Stream
+     (D    : in out Data;
+      GZip : Boolean) return AWS.Resources.Streams.Stream_Access
+   is
       GZip_Out : Boolean := GZip;
+      Stream   : Resources.Streams.Stream_Access;
+
    begin
       case D.Mode is
-         when Response.File =>
-            Open (File, Filename (D), "shared=no", GZip_Out);
+         when File | File_Once =>
+            Stream := Resources.Streams.Open
+              (Filename (D), "shared=no", GZip_Out,
+               Once => D.Mode = File_Once);
 
             if GZip_Out then
                Set.Update_Header (D, Messages.Content_Encoding_Token, "gzip");
             end if;
 
-         when Response.File_Once =>
-            declare
-               Stream : AWS.Resources.Streams.Stream_Access;
-            begin
-               Stream := new AWS.Resources.Streams.Disk.Once.Stream_Type;
-               AWS.Resources.Streams.Disk.Once.Open
-                 (AWS.Resources.Streams.Disk.Once.Stream_Type (Stream.all),
-                  Filename (D), "shared=no");
-               AWS.Resources.Streams.Create (File, Stream);
-            end;
-
          when Response.Stream | Response.Message =>
-            Resources.Streams.Create (File, D.Stream);
+            Stream := D.Stream;
 
             D.Ref_Counter.Stream_Taken := True;
 
@@ -291,7 +292,9 @@ package body AWS.Response is
             --  Should not be called for others response modes
             raise Constraint_Error;
       end case;
-   end Create_Resource;
+
+      return Stream;
+   end Create_Stream;
 
    -----------
    -- Empty --

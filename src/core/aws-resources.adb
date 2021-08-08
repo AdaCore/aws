@@ -29,6 +29,7 @@
 
 with AWS.Resources.Embedded;
 with AWS.Resources.Files;
+with AWS.Resources.Streams;
 
 package body AWS.Resources is
 
@@ -49,14 +50,57 @@ package body AWS.Resources is
       end if;
    end "or";
 
+   ----------------
+   -- Check_Name --
+   ----------------
+
+   function Check_Name
+     (Name  : String;
+      Check : not null access function (Name : String) return Boolean;
+      GZip  : in out Boolean) return String is
+   begin
+      if Is_GZip (Name) then
+         if Check (Name) then
+            GZip := False;
+            return Name;
+         else
+            return "";
+         end if;
+
+      elsif GZip then
+         if Check (Name & GZip_Ext) then
+            return Name & GZip_Ext;
+
+         elsif Check (Name) then
+            GZip := False;
+            return Name;
+
+         else
+            return "";
+         end if;
+
+      elsif Check (Name) then
+         return Name;
+
+      elsif Check (Name & GZip_Ext) then
+         GZip := True;
+         return Name & GZip_Ext;
+
+      else
+         return "";
+      end if;
+   end Check_Name;
+
    -----------
    -- Close --
    -----------
 
    procedure Close (Resource : in out File_Type) is
    begin
-      Close (Resource.all);
-      Unchecked_Free (Resource);
+      if Resource /= null then
+         Close (Resource.all);
+         Unchecked_Free (Resource);
+      end if;
    end Close;
 
    -----------------
@@ -189,13 +233,7 @@ package body AWS.Resources is
       Form : String    := "";
       GZip : in out Boolean) is
    begin
-      --  Try to open the file in memory, if not found open the file on disk
-
-      Resources.Embedded.Open (File, Name, Form, GZip);
-
-      if File = null then
-         Resources.Files.Open (File, Name, Form, GZip);
-      end if;
+      Streams.Create (File, Streams.Open (Name, Form, GZip));
    end Open;
 
    procedure Open

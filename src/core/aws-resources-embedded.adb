@@ -162,6 +162,37 @@ package body AWS.Resources.Embedded is
       end if;
    end File_Timestamp;
 
+   ----------------
+   -- Get_Buffer --
+   ----------------
+
+   function Get_Buffer
+     (Name : String; GZip : in out Boolean) return Buffer_Access
+   is
+      function Has_Embedded (Name : String) return Boolean with Inline;
+      --  Returns True and set Cursor to resource with Name in
+      --  Files_Table if found.
+
+      Cursor : Res_Files.Cursor;
+
+      ------------------
+      -- Has_Embedded --
+      ------------------
+
+      function Has_Embedded (Name : String) return Boolean is
+      begin
+         Cursor := Files_Table.Find (Name);
+         return Res_Files.Has_Element (Cursor);
+      end Has_Embedded;
+
+   begin
+      if Check_Name (Name, Has_Embedded'Access, GZip) = "" then
+         return null;
+      else
+         return Res_Files.Element (Cursor).File_Buffer;
+      end if;
+   end Get_Buffer;
+
    ---------------------
    -- Is_Regular_File --
    ---------------------
@@ -183,63 +214,26 @@ package body AWS.Resources.Embedded is
       Form : String    := "";
       GZip : in out Boolean)
    is
+      use type Buffer_Access;
+
       pragma Unreferenced (Form);
 
-      Stream : Streams.Stream_Access;
-      Found  : Boolean;
-
-      procedure Open_File (Name : String);
-
-      ---------------
-      -- Open_File --
-      ---------------
-
-      procedure Open_File (Name : String) is
-         Cursor : Res_Files.Cursor;
-      begin
-         Cursor := Res_Files.Find (Files_Table, Name);
-
-         if Res_Files.Has_Element (Cursor) then
-            Found := True;
-            Stream := new Streams.Memory.Stream_Type;
-
-            Append (Stream, Res_Files.Element (Cursor).File_Buffer);
-
-         else
-            Found := False;
-         end if;
-      end Open_File;
+      Stream  : AWS.Resources.Streams.Stream_Access;
+      In_GZip : constant Boolean       := GZip;
+      Buffer  : constant Buffer_Access := Get_Buffer (Name, GZip);
 
    begin
-      if Is_GZip (Name) then
-         --  Don't try to open file Name & ".gz.gz"
+      if Buffer = null then
+         File := null;
+         return;
+      end if;
 
-         GZip := False;
+      Stream := new Streams.Memory.Stream_Type;
 
-         Open_File (Name);
+      Streams.Memory.Stream_Type (Stream.all).Append (Buffer);
 
-      elsif GZip then
-         Open_File (Name & GZip_Ext);
-
-         if not Found then
-            Open_File (Name);
-
-            if Found then
-               GZip := False;
-            end if;
-         end if;
-
-      else
-         Open_File (Name);
-
-         if not Found then
-            Open_File (Name & GZip_Ext);
-
-            if Found then
-               Stream
-                 := Streams.ZLib.Inflate_Create (Stream, Header => ZLib.GZip);
-            end if;
-         end if;
+      if GZip and not In_GZip then
+         Stream := Streams.ZLib.Inflate_Create (Stream, Header => ZLib.GZip);
       end if;
 
       Streams.Create (File, Stream);
