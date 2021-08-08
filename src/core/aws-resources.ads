@@ -177,4 +177,20 @@ private
    procedure Unchecked_Free is
       new Ada.Unchecked_Deallocation (Resources.File_Tagged'Class, File_Type);
 
+   function Check_Name
+     (Name  : String;
+      Check : not null access function (Name : String) return Boolean;
+      GZip  : in out Boolean) return String;
+   --  Checks for existence of Name and/or Name & ".gz" resources with provided
+   --  Check routine and returns Name or Name & ".gz" depend on resource
+   --  existence and user preferences expressed in GZip "in" value.
+   --  Empty return value mean that both resources Name and Name & ".gz" does
+   --  not found. If Name already has ".gz" suffix then Name & ".gz" does not
+   --  check for existence.
+   --  GZip "in" True value mean that caller prefer to get Name & ".gz"
+   --  recource instead of Name. GZip "in" False value mean that caller prefer
+   --  to get Name recource instead of Name & ".gz".
+   --  GZip "out" True value mean that Name & ".gz" resource found.
+   --  GZip "out" False value mean that Name resource found.
+
 end AWS.Resources;

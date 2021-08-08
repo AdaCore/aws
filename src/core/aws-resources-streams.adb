@@ -27,6 +27,13 @@
 --  covered by the  GNU Public License.                                     --
 ------------------------------------------------------------------------------
 
+with Ada.IO_Exceptions;
+
+with AWS.Resources.Embedded;
+with AWS.Resources.Streams.Disk.Once;
+with AWS.Resources.Streams.Memory;
+with AWS.Resources.Streams.ZLib;
+
 package body AWS.Resources.Streams is
 
    ------------
@@ -49,6 +56,53 @@ package body AWS.Resources.Streams is
    begin
       return "";
    end Name;
+
+   ----------
+   -- Open --
+   ----------
+
+   function Open
+     (Name : String;
+      Form : String         := "";
+      GZip : in out Boolean;
+      Once : Boolean        := False) return Stream_Access
+   is
+      use type Embedded.Buffer_Access;
+
+      Stream  : Stream_Access;
+      In_GZip : constant Boolean := GZip;
+      Buffer  : constant Embedded.Buffer_Access :=
+                  Embedded.Get_Buffer (Name, GZip);
+   begin
+      if Buffer /= null then
+         Stream := new Memory.Stream_Type;
+         Memory.Stream_Type (Stream.all).Append (Buffer);
+
+      else
+         declare
+            Filename : constant String  :=
+                         Check_Name (Name, Utils.Is_Regular_File'Access, GZip);
+         begin
+            if Filename = "" then
+               raise Ada.IO_Exceptions.Name_Error with
+                 "File '" & Name & "' not found.";
+
+            else
+               Stream := (if Once
+                          then new Disk.Once.Stream_Type
+                          else new Disk.Stream_Type);
+               Disk.Stream_Type (Stream.all).Open (Filename, Form => Form);
+            end if;
+         end;
+      end if;
+
+      if GZip and not In_GZip then
+         return ZLib.Inflate_Create (Stream, Header => ZLib.ZL.GZip);
+
+      else
+         return Stream;
+      end if;
+   end Open;
 
    ----------
    -- Size --

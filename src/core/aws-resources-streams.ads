@@ -66,7 +66,18 @@ package AWS.Resources.Streams is
    procedure Create
      (Resource : out File_Type;
       Stream   : Stream_Access) with Inline;
-   --  Create a resource file from user defined stream
+   --  Create a resource file from stream
+
+   function Open
+     (Name : String;
+      Form : String         := "";
+      GZip : in out Boolean;
+      Once : Boolean        := False) return Stream_Access;
+   --  Create stream by name either from embedded resource or from file.
+   --  Returns null if neither embedded resource nore file can be found with
+   --  such Name. GZip parameter has the same meaning like in
+   --  AWS.Resources.Open routine.
+   --  If Once is True than remove file on Close the stream.
 
 private
 

@@ -77,34 +77,6 @@ package body AWS.HTTP2.Message is
       end return;
    end Create;
 
-   function Create
-     (Headers   : AWS.Headers.List;
-      Payload   : Unbounded_String;
-      Stream_Id : HTTP2.Stream_Id) return Object is
-   begin
-      return O : Object (Response.Message) do
-         O.Stream_Id := Stream_Id;
-         O.Headers   := Headers;
-         O.Payload   := Payload;
-         O.Sent      := 0;
-         O.Length    := Utils.File_Size_Type (Length (Payload));
-      end return;
-   end Create;
-
-   function Create
-     (Headers   : AWS.Headers.List;
-      Filename  : String;
-      Stream_Id : HTTP2.Stream_Id) return Object is
-   begin
-      return O : Object (Response.File) do
-         O.Stream_Id := Stream_Id;
-         O.Headers   := Headers;
-         O.Filename  := To_Unbounded_String (Filename);
-         O.Sent      := 0;
-         O.Length    := Utils.File_Size (Filename);
-      end return;
-   end Create;
-
    ---------------
    -- To_Frames --
    ---------------

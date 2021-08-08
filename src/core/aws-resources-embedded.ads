@@ -75,4 +75,14 @@ package AWS.Resources.Embedded is
    --  embedded resource registered as compressed. If a file is already
    --  registered for this name, Content replace the previous one.
 
+   function Get_Buffer
+     (Name : String; GZip : in out Boolean) return Buffer_Access;
+   --  Get registered embedded resource buffer access by Name. Returns null if
+   --  not found. GZip "in" value defines what resource version is preferred,
+   --  compressed or plain. GZip "out" value defines what resource version was
+   --  found, compressed or plain. In the spetial case when Name has .gz"
+   --  suffix already, GZip "in" value is ignored, routine looks only for Name
+   --  without duplicated additional suffix, and GZip "out" value became False
+   --  if resource was found.
+
 end AWS.Resources.Embedded;

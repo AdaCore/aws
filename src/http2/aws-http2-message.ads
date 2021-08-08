@@ -54,24 +54,6 @@ package AWS.HTTP2.Message is
       Stream_Id : HTTP2.Stream_Id) return Object
      with Post => Create'Result.Is_Defined;
 
-   function Create
-     (Headers   : AWS.Headers.List;
-      Payload   : Unbounded_String;
-      Stream_Id : HTTP2.Stream_Id)
-      return Object
-     with Pre  => Length (Payload) > 0 or else not Headers.Is_Empty,
-          Post => Create'Result.Is_Defined;
-   --  Create a message based on the given headers and payload
-
-   function Create
-     (Headers  : AWS.Headers.List;
-      Filename : String;
-      Stream_Id : HTTP2.Stream_Id)
-      return Object
-     with Pre  => not Headers.Is_Empty,
-          Post => Create'Result.Is_Defined;
-   --  Create a message based on the given headers and payload
-
    function Stream_Id (Self : Object) return HTTP2.Stream_Id
      with Pre => Self.Is_Defined;
 

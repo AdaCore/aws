@@ -116,9 +116,12 @@ package body Templates_Parser.Input is
       File := new File_Record;
       Open (File.all, Name, Form);
    exception
-      when IO_Exceptions.Name_Error =>
-         Free (File);
-         raise Name_Error with "File '" & Name & "' not found.";
+      when others =>
+         if File /= null then
+            Close (File);
+         end if;
+
+         raise;
    end Open;
 
 end Templates_Parser.Input;
