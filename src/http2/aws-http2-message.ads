@@ -27,32 +27,32 @@
 --  covered by the  GNU Public License.                                     --
 ------------------------------------------------------------------------------
 
-with Ada.Strings.Unbounded;
-
 with AWS.Headers;
 with AWS.HTTP2.Frame.List;
 with AWS.Response;
 with AWS.Server.Context;
+with AWS.Status;
 
+private with AWS.Resources.Streams;
 private with AWS.Utils;
 
 limited with AWS.HTTP2.Stream;
 
 package AWS.HTTP2.Message is
 
-   use Ada.Strings.Unbounded;
-
    use type AWS.HTTP2.Frame.List.Count_Type;
    use type Response.Data_Mode;
 
-   type Object (Mode : Response.Data_Mode) is tagged private;
+   type Object is tagged private;
 
    function Is_Defined (Self : Object) return Boolean;
 
    function Create
-     (Answer    : Response.Data;
+     (Answer    : in out Response.Data;
+      Request   : AWS.Status.Data;
       Stream_Id : HTTP2.Stream_Id) return Object
      with Post => Create'Result.Is_Defined;
+   --  GZip mean that peer support for GZip encoding
 
    function Stream_Id (Self : Object) return HTTP2.Stream_Id
      with Pre => Self.Is_Defined;
@@ -60,15 +60,6 @@ package AWS.HTTP2.Message is
    function Headers (Self : Object) return AWS.Headers.List
      with Pre => Self.Is_Defined;
    --  Get the headers for this message
-
-   function Payload (Self : Object) return Unbounded_String
-     with Pre => Self.Is_Defined and then Self.Mode = Response.Message;
-   --  Get the payload for this message
-
-   function Filename (Self : Object) return String
-     with Pre => Self.Is_Defined
-                 and then Self.Mode in Response.File .. Response.File_Once;
-   --  Get the filename for this message
 
    function Has_Body (Self : Object) return Boolean
      with Pre => Self.Is_Defined;
@@ -94,34 +85,20 @@ private
 
    use type Utils.File_Size_Type;
 
-   type Object (Mode : Response.Data_Mode) is tagged record
+   type Object is tagged record
+      Mode      : Response.Data_Mode;
       Stream_Id : HTTP2.Stream_Id;
       Headers   : AWS.Headers.List;
       Sent      : Utils.File_Size_Type := 0;
-      Length    : Utils.File_Size_Type := 0;
       H_Sent    : Boolean := False; -- Whether the header has been sent
-
-      case Mode is
-         when Response.Message =>
-            Payload  : Unbounded_String;
-
-         when Response.File | Response.File_Once =>
-            Filename : Unbounded_String;
-
-         when others =>
-            null;
-      end case;
+      M_Body    : AWS.Resources.Streams.Stream_Access;
    end record;
 
    function Headers (Self : Object) return AWS.Headers.List is (Self.Headers);
 
    function Has_Body (Self : Object) return Boolean is
-     (Self.Mode in Response.Message | Response.File | Response.File_Once);
-
-   function Payload (Self : Object) return Unbounded_String is (Self.Payload);
-
-   function Filename (Self : Object) return String is
-     (To_String (Self.Filename));
+     (Self.Mode in Response.Message | Response.File | Response.File_Once
+        | Response.Stream);
 
    function Is_Defined (Self : Object) return Boolean is
      (Self.Mode /= Response.No_Data);
@@ -130,6 +107,8 @@ private
      (Self.Stream_Id);
 
    function More_Frames (Self : Object) return Boolean is
-      (Self.Sent < Self.Length);
+     (if Self.Has_Body
+      then not Self.M_Body.End_Of_File
+      else not Self.H_Sent);
 
 end AWS.HTTP2.Message;

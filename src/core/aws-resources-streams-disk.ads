@@ -66,16 +66,9 @@ private
 
    use Ada.Strings.Unbounded;
 
-   Buffer_Size : constant := 8_192;
-
    type Stream_Type is new Streams.Stream_Type with record
-      File    : Stream_IO.File_Type;
-      Stream  : Stream_IO.Stream_Access;
-      --  Below are data for buffered access to the file
-      Buffer  : Stream_Element_Array (1 .. Buffer_Size);
-      Current : Stream_Element_Offset := 1;
-      Last    : Stream_Element_Offset := 0;
-      Name    : Unbounded_String;
+      File : Stream_IO.File_Type;
+      Name : Unbounded_String;
    end record;
 
 end AWS.Resources.Streams.Disk;

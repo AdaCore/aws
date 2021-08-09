@@ -29,6 +29,8 @@
 
 with Ada.Calendar;
 with Ada.Streams;
+with Ada.Strings.Unbounded;
+with Ada.Text_IO;
 
 with AWS.HTTP2.Connection;
 with AWS.HTTP2.Frame.Continuation;
@@ -38,43 +40,127 @@ with AWS.HTTP2.Stream;
 with AWS.Messages;
 with AWS.Resources;
 with AWS.Server.HTTP_Utils;
-with AWS.Status;
-with AWS.Translator;
 
 package body AWS.HTTP2.Message is
 
    use Ada.Streams;
+   use Ada.Strings.Unbounded;
 
    ------------
    -- Create --
    ------------
 
    function Create
-     (Answer    : Response.Data;
-      Stream_Id : HTTP2.Stream_Id) return Object is
+     (Answer    : in out Response.Data;
+      Request   : AWS.Status.Data;
+      Stream_Id : HTTP2.Stream_Id) return Object
+   is
+      O : Object;
+
+      procedure Set_Body;
+
+      --------------
+      -- Set_Body --
+      --------------
+
+      procedure Set_Body is
+         Size : Stream_Element_Offset;
+      begin
+         O.M_Body := Response.Create_Stream
+           (Answer, AWS.Status.Is_Supported (Request, Messages.GZip));
+
+         Size := O.M_Body.Size;
+
+         if Size /= Resources.Undefined_Length then
+            O.Headers.Add (Messages.Content_Length_Token, Utils.Image (Size));
+         end if;
+      end Set_Body;
+
    begin
-      return O : Object (Response.Mode (Answer)) do
-         O.Stream_Id := Stream_Id;
-         O.Headers   := Response.Header (Answer);
+      O.Mode      := Response.Mode (Answer);
+      O.Stream_Id := Stream_Id;
 
-         case O.Mode is
-            when Response.Message =>
-               O.Payload := Response.Message_Body (Answer);
-               O.Length  := Utils.File_Size_Type
-                              (Length (O.Payload));
+      case O.Mode is
+         when Response.Message | Response.Header =>
+            --  Set status code
 
-            when Response.File | Response.File_Once =>
-               declare
-                  Filename : constant String := Response.Filename (Answer);
-               begin
-                  O.Filename := To_Unbounded_String (Filename);
-                  O.Length   := Utils.File_Size (Filename);
-               end;
+            O.Headers.Add
+              (Messages.Status_Token,
+               Messages.Image (Response.Status_Code (Answer)));
 
-            when others =>
-               null;
-         end case;
-      end return;
+            if O.Mode /= Response.Header then
+               Set_Body;
+            end if;
+
+         when Response.File | Response.File_Once | Response.Stream =>
+
+            declare
+               use all type Server.HTTP_Utils.Resource_Status;
+               use type Status.Request_Method;
+               use type Ada.Calendar.Time;
+
+               File_Time : Ada.Calendar.Time;
+               F_Status  : constant Server.HTTP_Utils.Resource_Status :=
+                             Server.HTTP_Utils.Get_Resource_Status
+                               (Request,
+                                Response.Filename (Answer),
+                                File_Time);
+
+               Status_Code : Messages.Status_Code :=
+                               Response.Status_Code (Answer);
+               With_Body   : constant Boolean :=
+                               Messages.With_Body (Status_Code)
+                                 and then Status.Method (Request)
+                                 /= Status.HEAD;
+            begin
+               --  Status code header
+
+               case F_Status is
+                  when Changed    =>
+                     if AWS.Headers.Get_Values
+                       (Status.Header (Request), Messages.Range_Token) /= ""
+                       and then With_Body
+                     then
+                        Status_Code := Messages.S200;
+                     end if;
+
+                  when Up_To_Date =>
+                     Status_Code := Messages.S304;
+
+                  when Not_Found  =>
+                     Status_Code := Messages.S404;
+               end case;
+
+               O.Headers.Add
+                 (Messages.Status_Token, Messages.Image (Status_Code));
+
+               if File_Time /= Utils.AWS_Epoch
+                 and then not Response.Has_Header
+                                (Answer, Messages.Last_Modified_Token)
+               then
+                  O.Headers.Add
+                    (Messages.Last_Modified_Token,
+                     Messages.To_HTTP_Date (File_Time));
+               end if;
+
+               if With_Body then
+                  Set_Body;
+               end if;
+            end;
+
+         when Response.WebSocket =>
+            raise Constraint_Error with "websocket is HTTP/1.1 only";
+
+         when Response.Socket_Taken =>
+            raise Constraint_Error with "not yet supported";
+
+         when Response.No_Data =>
+            raise Constraint_Error with "no_data should never happen";
+      end case;
+
+      O.Headers.Union (Response.Header (Answer), False);
+
+      return O;
    end Create;
 
    ---------------
@@ -87,9 +173,10 @@ package body AWS.HTTP2.Message is
       Stream : HTTP2.Stream.Object)
       return AWS.HTTP2.Frame.List.Object
    is
-      use type Status.Request_Method;
-
-      FCW  : Integer := Stream.Flow_Control_Window;
+      FCW  : Integer :=
+               Integer'Min
+                 (Stream.Flow_Control_Window,
+                  Ctx.Settings.Flow_Control_Window);
       --  Current flow control window, the corresponds to the max frame data
       --  content that will be sent. That is, the returns list will not exeed
       --  this value, the remaining frames will be created during a second call
@@ -98,21 +185,11 @@ package body AWS.HTTP2.Message is
       List : Frame.List.Object;
       --  The list of created frames
 
-      Method : constant Status.Request_Method := Status.Method (Ctx.Status);
-
       procedure Handle_Headers (Headers : AWS.Headers.List);
       --  Create the header frames
 
-      procedure From_Content (Data : Unbounded_String);
-      --  Creates the data frame from a content
-
-      procedure From_File (File : in out Resources.File_Type);
-      --  Creates the data frame from filename content
-
-      procedure Create_Data_Frame
-        (Content    : not null Utils.Stream_Element_Array_Access;
-         End_Stream : Boolean);
-      --  Create a new data frame from Content
+      procedure From_Stream;
+      --  Creates the data frame Self.Stream
 
       procedure Create_Data_Frame
         (Content : Stream_Element_Array;
@@ -127,83 +204,39 @@ package body AWS.HTTP2.Message is
         (Content : Stream_Element_Array;
          Stop    : in out Boolean) is
       begin
-         Create_Data_Frame
-           (new Stream_Element_Array'(Content), End_Stream => Stop);
-      end Create_Data_Frame;
-
-      procedure Create_Data_Frame
-        (Content    : not null Utils.Stream_Element_Array_Access;
-         End_Stream : Boolean)
-      is
-      begin
          List.Append
            (Frame.Data.Create
-              (Stream.Identifier, Content, End_Stream => End_Stream));
+              (Stream.Identifier, new Stream_Element_Array'(Content),
+               End_Stream => Stop));
+
+         FCW := FCW - Content'Length;
+
+         if FCW <= 0 then
+            Stop := True;
+         end if;
       end Create_Data_Frame;
 
-      ------------------
-      -- From_Content --
-      ------------------
+      -----------------
+      -- From_Stream --
+      -----------------
 
-      procedure From_Content (Data : Unbounded_String) is
+      procedure From_Stream is
 
-         Size       : constant Positive := Length (Data);
-         Max_Size   : constant Stream_Element_Count :=
-                        Stream_Element_Count (Ctx.Settings.Max_Frame_Size);
-         Chunk_Size : constant Natural := Natural (Stream.Flow_Control_Window);
-
-         procedure Create_Data_Frame
-           (Content : not null Utils.Stream_Element_Array_Access);
-
-         -----------------------
-         -- Create_Data_Frame --
-         -----------------------
-
-         procedure Create_Data_Frame
-           (Content : not null Utils.Stream_Element_Array_Access) is
-         begin
-            Create_Data_Frame (Content, End_Stream => True);
-         end Create_Data_Frame;
-
-         package Buffer is new Utils.Buffered_Data
-           (Max_Size, Create_Data_Frame);
-
-         First : Positive := Natural (Self.Sent) + 1;
-         Last  : Positive;
-      begin
-         while FCW > 0 and then First < Size loop
-            Last := Positive'Min (First + Chunk_Size - 1, Size);
-
-            Buffer.Add
-              (Translator.To_Stream_Element_Array
-                 (Slice (Data, First, Last)));
-
-            Self.Sent := Self.Sent + Utils.File_Size_Type (Last - First + 1);
-
-            FCW := FCW - (Last - First + 1);
-
-            First := Last + 1;
-         end loop;
-
-         Buffer.Flush;
-      end From_Content;
-
-      ---------------
-      -- From_File --
-      ---------------
-
-      procedure From_File (File : in out Resources.File_Type) is
+         File : Resources.File_Type;
 
          procedure Send_File is new Server.HTTP_Utils.Send_File_G
            (Create_Data_Frame,
-            Chunk_Size => Stream_Element_Count (Ctx.Settings.Max_Frame_Size));
-
+            Chunk_Size => Stream_Element_Count
+                            (Positive'Min
+                               (FCW, Positive (Ctx.Settings.Max_Frame_Size))));
       begin
+         Resources.Streams.Create (File, Self.M_Body);
+
          Send_File
            (Ctx.HTTP.all, Ctx.Line, File,
             Start  => Stream_Element_Offset (Self.Sent) + 1,
             Length => Resources.Content_Length_Type (Self.Sent));
-      end From_File;
+      end From_Stream;
 
       --------------------
       -- Handle_Headers --
@@ -222,6 +255,12 @@ package body AWS.HTTP2.Message is
                E_Size  : constant Positive :=
                            32 + Length (Element.Name) + Length (Element.Value);
             begin
+               if Debug then
+                  Ada.Text_IO.Put_Line
+                    ("#hs " & To_String (Element.Name)
+                     & ' ' & To_String (Element.Value));
+               end if;
+
                Size := Size + E_Size;
 
                --  Max header size reached, let's send this as a first frame
@@ -263,123 +302,15 @@ package body AWS.HTTP2.Message is
          end if;
       end Handle_Headers;
 
-      Status_Code : Messages.Status_Code :=
-                      Response.Status_Code (Ctx.Response);
-      With_Body   : constant Boolean :=
-                      Messages.With_Body (Status_Code)
-                        and then Method /= Status.HEAD
-                        and then Self.Mode /= Response.Header;
-      Headers     : AWS.Headers.List;
-
    begin
-      case Self.Mode is
-         when Response.Message | Response.Header =>
-            --  Set status code
+      if not Self.H_Sent then
+         Handle_Headers (Self.Headers);
+         Self.H_Sent := True;
+      end if;
 
-            if not Self.H_Sent then
-               Headers.Add
-                 (Messages.Status_Token,
-                  Messages.Image (Status_Code));
-
-               Headers.Union (Self.Headers, False);
-
-               Handle_Headers (Headers);
-               Self.H_Sent := True;
-            end if;
-
-            if With_Body then
-               From_Content (Self.Payload);
-            end if;
-
-         when Response.File | Response.File_Once | Response.Stream =>
-            declare
-               use all type Server.HTTP_Utils.Resource_Status;
-
-               File_Time : Ada.Calendar.Time;
-               F_Status  : constant Server.HTTP_Utils.Resource_Status :=
-                             Server.HTTP_Utils.Get_Resource_Status
-                               (Ctx.Status,
-                                To_String (Self.Filename),
-                                File_Time);
-               File      : Resources.File_Type;
-            begin
-               --  Status code header
-
-               case F_Status is
-                  when Changed    =>
-                     if AWS.Headers.Get_Values
-                       (Status.Header (Ctx.Status), Messages.Range_Token) /= ""
-                       and then With_Body
-                     then
-                        Status_Code := Messages.S200;
-                     end if;
-
-                  when Up_To_Date =>
-                     Status_Code := Messages.S304;
-
-                  when Not_Found  =>
-                     Status_Code := Messages.S404;
-               end case;
-
-               Response.Create_Resource
-                 (Ctx.Response,
-                  File,
-                  AWS.Status.Is_Supported (Ctx.Status, Messages.GZip));
-
-               if not Self.H_Sent then
-                  --  Add some standard and file oriented headers
-
-                  Headers.Add
-                    (Messages.Status_Token,
-                     Messages.Image (Status_Code));
-
-                  if Resources.Size (File) /= Resources.Undefined_Length then
-                     Headers.Add
-                       (Messages.Content_Length_Token,
-                        Utils.Image (Resources.Size (File)));
-                  end if;
-
-                  if not Response.Has_Header
-                    (Ctx.Response,
-                     Messages.Last_Modified_Token)
-                  then
-                     Headers.Add
-                       (Messages.Last_Modified_Token,
-                        Messages.To_HTTP_Date (File_Time));
-                  end if;
-
-                  Headers.Union (Self.Headers, False);
-
-                  Handle_Headers (Headers);
-
-                  Self.H_Sent := True;
-               end if;
-
-               --  If file is not found the header only is sufficient,
-               --  otherwise let's send the file.
-
-               --  ??? File ranges not supported yet
-
-               if With_Body then
-                  if F_Status = Changed then
-                     From_File (File);
-                  else
-                     --  Nothing more to do, ensure that More_Frames will be
-                     --  False.
-                     Self.Sent := Self.Length;
-                  end if;
-               end if;
-            end;
-
-         when Response.WebSocket =>
-            raise Constraint_Error with "websocket is HTTP/1.1 only";
-
-         when Response.Socket_Taken =>
-            raise Constraint_Error with "not yet supported";
-
-         when Response.No_Data =>
-            raise Constraint_Error with "no_data should never happen";
-      end case;
+      if Self.Has_Body and then FCW > 0 then
+         From_Stream;
+      end if;
 
       return List;
    end To_Frames;
