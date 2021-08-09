@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2000-2017, AdaCore                     --
+--                     Copyright (C) 2000-2021, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -47,8 +47,7 @@ package body AWS.Resources.Streams.Disk is
    overriding function End_Of_File
      (Resource : Stream_Type) return Boolean is
    begin
-      return Resource.Current > Resource.Last
-        and then Stream_IO.End_Of_File (Resource.File);
+      return Stream_IO.End_Of_File (Resource.File);
    end End_Of_File;
 
    ----------
@@ -71,10 +70,8 @@ package body AWS.Resources.Streams.Disk is
    begin
       File.Name := To_Unbounded_String (Name);
 
-      Stream_IO.Open
-        (File.File,
-         Stream_IO.In_File, Name, Form);
-      File.Stream := Stream_IO.Stream (File.File);
+      Stream_IO.Open (File.File, Stream_IO.In_File, Name, Form);
+
    exception
       when Stream_IO.Name_Error =>
          null;
@@ -87,41 +84,9 @@ package body AWS.Resources.Streams.Disk is
    overriding procedure Read
      (Resource : in out Stream_Type;
       Buffer   : out Stream_Element_Array;
-      Last     : out Stream_Element_Offset)
-   is
-      Buf_Len : constant Stream_Element_Offset :=
-                  Resource.Last - Resource.Current + 1;
+      Last     : out Stream_Element_Offset) is
    begin
-      if Buffer'Length <= Natural (Buf_Len) then
-         --  Enough chars in the buffer, return them
-         Buffer := Resource.Buffer
-           (Resource.Current .. Resource.Current + Buffer'Length - 1);
-         Resource.Current := Resource.Current + Buffer'Length;
-         Last := Buffer'Last;
-
-      else
-         --  Return the current buffer
-
-         Buffer (Buffer'First .. Buffer'First + Buf_Len - 1) :=
-           Resource.Buffer (Resource.Current .. Resource.Last);
-
-         --  And read the remaining data directly on the file
-
-         Read (Resource.Stream.all,
-               Buffer (Buffer'First + Buf_Len .. Buffer'Last),
-               Last);
-
-         Resource.Current := Resource.Buffer'First;
-
-         if Last < Buffer'Last then
-            --  There is no more data, set the Resource object
-            Resource.Last := 0;
-
-         else
-            --  Fill Resource buffer
-            Read (Resource.Stream.all, Resource.Buffer, Resource.Last);
-         end if;
-      end if;
+      Stream_IO.Read (Resource.File, Buffer, Last);
    end Read;
 
    -----------

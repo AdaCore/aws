@@ -389,7 +389,7 @@ is
          Ctx.Status := LA.Stat;
          Ctx.Response := R;
 
-         return HTTP2.Message.Create (R, Stream.Identifier);
+         return HTTP2.Message.Create (R, LA.Stat, Stream.Identifier);
       end;
    end Handle_Message;
 
@@ -428,6 +428,10 @@ is
                Header : constant String := Headers.Get_Name (K);
                Value  : constant String := Headers.Get_Value (K);
             begin
+               if HTTP2.Debug then
+                  Ada.Text_IO.Put_Line ("#hg " & Header & ' ' & Value);
+               end if;
+
                if Header'Length > 1 and then Header (Header'First) = ':' then
                   --  Pseudo header
 
@@ -735,9 +739,10 @@ begin
                else
                   exit when Frame.Kind = K_Data
                     and then
-                      (Settings.Flow_Control_Window < Integer (Frame.Length)
-                       or else S (Stream_Id).Flow_Control_Window <
-                             Integer (Frame.Length));
+                      Integer'Min
+                        (Settings.Flow_Control_Window,
+                         S (Stream_Id).Flow_Control_Window)
+                      < Integer (Frame.Length);
 
                   S (Stream_Id).Send_Frame (Frame);
 
