@@ -47,24 +47,20 @@ package body ZLib.Streams is
       Read_Buffer_Size  : in     Stream_Element_Offset := Default_Buffer_Size;
       Write_Buffer_Size : in     Stream_Element_Offset := Default_Buffer_Size)
    is
-
       subtype Buffer_Subtype is Stream_Element_Array (1 .. Read_Buffer_Size);
 
       procedure Init_Filter
-         (Filter   : in out Filter_Type;
-          Compress : in     Boolean);
+        (Filter : in out Filter_Type; Compress : in Boolean);
 
       -----------------
       -- Init_Filter --
       -----------------
 
       procedure Init_Filter
-         (Filter   : in out Filter_Type;
-          Compress : in     Boolean) is
+        (Filter : in out Filter_Type; Compress : in Boolean) is
       begin
          if Compress then
-            Deflate_Init
-              (Filter, Level, Strategy, Header => Header);
+            Deflate_Init (Filter, Level, Strategy, Header => Header);
          else
             Inflate_Init (Filter, Header => Header);
          end if;

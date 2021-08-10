@@ -33,6 +33,9 @@ package ZLib.Streams is
    --  Should not be used untill necessary, becouse it is decreasing
    --  compression.
 
+   function End_Of_Stream (Stream : in Stream_Type) return Boolean;
+   --  Returns True when no more data to read
+
    function Read_Total_In (Stream : in Stream_Type) return Count with Inline;
    --  Return total number of bytes read from back stream so far
 
@@ -97,5 +100,8 @@ private
       Reader : Filter_Type;
       Writer : Filter_Type;
    end record;
+
+   function End_Of_Stream (Stream : in Stream_Type) return Boolean is
+     (Stream_End (Stream.Reader));
 
 end ZLib.Streams;
