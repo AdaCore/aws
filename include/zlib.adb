@@ -1,7 +1,7 @@
 ----------------------------------------------------------------
 --  ZLib for Ada thick binding.                               --
 --                                                            --
---  Copyright (C) 2002-2020, Dmitriy Anisimkov                --
+--  Copyright (C) 2002-2021, Dmitriy Anisimkov                --
 --                                                            --
 --  Open source license information is in the zlib.ads file.  --
 ----------------------------------------------------------------
@@ -240,8 +240,8 @@ package body ZLib is
 
    procedure Generic_Translate
      (Filter          : in out ZLib.Filter_Type;
-      In_Buffer_Size  : in     Integer := Default_Buffer_Size;
-      Out_Buffer_Size : in     Integer := Default_Buffer_Size)
+      In_Buffer_Size  : in     Integer := Default_RBuffer_Size;
+      Out_Buffer_Size : in     Integer := Default_WBuffer_Size)
    is
       In_Buffer  : Stream_Element_Array
                      (1 .. Stream_Element_Offset (In_Buffer_Size));

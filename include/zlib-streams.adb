@@ -1,7 +1,7 @@
 ----------------------------------------------------------------
 --  ZLib for Ada thick binding.                               --
 --                                                            --
---  Copyright (C) 2002-2019, Dmitriy Anisimkov                --
+--  Copyright (C) 2002-2021, Dmitriy Anisimkov                --
 --                                                            --
 --  Open source license information is in the zlib.ads file.  --
 ----------------------------------------------------------------
@@ -41,11 +41,11 @@ package body ZLib.Streams is
       Mode              : in     Stream_Mode;
       Back              : in     Stream_Access;
       Back_Compressed   : in     Boolean;
-      Level             : in     Compression_Level := Default_Compression;
-      Strategy          : in     Strategy_Type     := Default_Strategy;
-      Header            : in     Header_Type       := Default;
-      Read_Buffer_Size  : in     Stream_Element_Offset := Default_Buffer_Size;
-      Write_Buffer_Size : in     Stream_Element_Offset := Default_Buffer_Size)
+      Level             : in     Compression_Level     := Default_Compression;
+      Strategy          : in     Strategy_Type         := Default_Strategy;
+      Header            : in     Header_Type           := Default;
+      Read_Buffer_Size  : in     Stream_Element_Offset := Default_RBuffer_Size;
+      Write_Buffer_Size : in     Stream_Element_Offset := Default_WBuffer_Size)
    is
       subtype Buffer_Subtype is Stream_Element_Array (1 .. Read_Buffer_Size);
 

@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                       ZLib for Ada thick binding.                        --
 --                                                                          --
---                Copyright (C) 2002-2019, Dmitriy Anisimkov                --
+--                Copyright (C) 2002-2021, Dmitriy Anisimkov                --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -125,7 +125,8 @@ package ZLib is
    RLE              : constant Strategy_Type;
    Default_Strategy : constant Strategy_Type;
 
-   Default_Buffer_Size : constant := 4096;
+   Default_RBuffer_Size : constant := 4096 + 5;
+   Default_WBuffer_Size : constant := 4096;
 
    type Filter_Type is tagged limited private;
    --  The filter is for compression and for decompression.
@@ -183,8 +184,8 @@ package ZLib is
         (Item : in Stream_Element_Array);
    procedure Generic_Translate
      (Filter          : in out Filter_Type;
-      In_Buffer_Size  : in     Integer := Default_Buffer_Size;
-      Out_Buffer_Size : in     Integer := Default_Buffer_Size);
+      In_Buffer_Size  : in     Integer := Default_RBuffer_Size;
+      Out_Buffer_Size : in     Integer := Default_WBuffer_Size);
    --  Compress/decompress data fetch from Data_In routine and pass the result
    --  to the Data_Out routine. User should provide Data_In and Data_Out
    --  for compression/decompression data flow.
@@ -240,7 +241,7 @@ package ZLib is
       --  User should provide this routine to accept
       --  compressed/decompressed data.
 
-      Buffer_Size : in Stream_Element_Offset := Default_Buffer_Size;
+      Buffer_Size : in Stream_Element_Offset := Default_WBuffer_Size;
       --  Buffer size for Write user routine
 
    procedure Write
