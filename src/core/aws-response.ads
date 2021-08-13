@@ -405,6 +405,15 @@ package AWS.Response is
    --  if file or embedded resource is in the GZip format this routine would
    --  define Content-Encoding header field value.
 
+   function Create_Stream
+     (D    : in out Data;
+      GZip : Boolean) return AWS.Resources.Streams.Stream_Access;
+   --  Creates the stream access for the data to be sent to the client.
+   --  The resource should be closed and freed after use.
+   --  GZip is true when the http client support GZip decoding,
+   --  if file or embedded resource is in the GZip format this routine would
+   --  define Content-Encoding header field value.
+
    function Close_Resource (D : Data) return Boolean;
    --  Returns True if the resource stream must be closed
 

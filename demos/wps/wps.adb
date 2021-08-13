@@ -35,7 +35,8 @@ procedure WPS is
 begin
    Text_IO.Put_Line ("AWS " & AWS.Version);
    Text_IO.Put_Line
-     ("Server port:" & Integer'Image (AWS.Config.Server_Port (Config)));
+     ("Server http" & (if AWS.Config.Security (Config) then "s" else "")
+      & " port:" & Integer'Image (AWS.Config.Server_Port (Config)));
    Text_IO.Put_Line ("Kill me when you want me to stop or press Q...");
 
    if AWS.Config.Directory_Browser_Page (Config) /= "" then
