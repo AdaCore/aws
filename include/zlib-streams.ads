@@ -91,6 +91,11 @@ private
       --  We need to have this buffer in the record because not all read data
       --  from back stream could be processed during the read operation.
 
+      Ahead_Last : Stream_Element_Offset;
+      --  Sometimes the decompressed data is over but the gzip footer still was
+      --  not read from back stream. We should try to read ahead in case we are
+      --  suspect this to detect end of stream proper.
+
       Buffer_Size : Stream_Element_Offset;
       --  Buffer size for write operation.
       --  We do not need to have this buffer in the record because all data
@@ -102,6 +107,8 @@ private
    end record;
 
    function End_Of_Stream (Stream : in Stream_Type) return Boolean is
-     (Stream_End (Stream.Reader));
+     (Stream_End (Stream.Reader)
+      and then Stream.Rest_First > Stream.Rest_Last
+      and then Stream.Rest_Last >= Stream.Ahead_Last);
 
 end ZLib.Streams;

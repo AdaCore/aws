@@ -29,6 +29,8 @@ procedure Test_Streams_End is
    subtype Sword is
      Integer range -2 ** 15 .. 2 ** 15 - 1 with Object_Size => 16;
 
+   Header : ZLib.Header_Type := ZLib.Default;
+
    procedure Createfile (Filename : String) is
       F : Ada.Streams.Stream_IO.File_Type;
       Z : aliased ZLib.Streams.Stream_Type;
@@ -37,7 +39,7 @@ procedure Test_Streams_End is
       Create (F, Out_File, Filename);
       ZLib.Streams.Create
          (Z, ZLib.Streams.Out_Stream, ZLib.Streams.Stream_Access (Stream (F)),
-          Back_Compressed => True);
+          Back_Compressed => True, Header => Header);
       S := Z'Unchecked_Access;
       for I in 1 .. 4 loop
          Sword'Write (S, I);
@@ -57,11 +59,11 @@ procedure Test_Streams_End is
       Open (F, In_File, Filename);
       ZLib.Streams.Create
          (Z, ZLib.Streams.In_Stream, ZLib.Streams.Stream_Access (Stream (F)),
-          Back_Compressed => True);
+          Back_Compressed => True, Header => Header);
       S := Z'Unchecked_Access;
       for I in 1 .. 4 loop
          Sword'Read (S, W);
-         Put_Line (W'Image);
+         Put_Line (W'Image & (if Z.End_Of_Stream then " last" else ""));
       end loop;
 
       begin
@@ -77,6 +79,12 @@ procedure Test_Streams_End is
 
       ZLib.Streams.Close (Z);
       Close (F);
+
+   exception
+      when E : ZLib.ZLib_Error =>
+         ZLib.Streams.Close (Z);
+         Close (F);
+         raise;
    end Readfile;
 
    procedure Shorten_One (Filename : String) is
@@ -104,13 +112,20 @@ procedure Test_Streams_End is
       Put_Line ("Created file with length " & Integer'Image (Length (Data)));
    end Shorten_One;
 
+   procedure Test is
+   begin
+      Createfile ("Streamtest.xxx");
+      loop
+         Readfile ("Streamtest.xxx");
+         Shorten_One ("Streamtest.xxx");
+      end loop;
+   exception
+      when E : ZLib.ZLib_Error =>
+         Put_Line ("OK: " & Ada.Exceptions.Exception_Message (E));
+   end Test;
+
 begin
-   Createfile ("Streamtest.xxx");
-   loop
-      Readfile ("Streamtest.xxx");
-      Shorten_One ("Streamtest.xxx");
-   end loop;
-exception
-   when E : ZLib.ZLib_Error =>
-      Put_Line ("OK: " & Ada.Exceptions.Exception_Message (E));
+   Test;
+   Header := ZLib.GZip;
+   Test;
 end Test_Streams_End;

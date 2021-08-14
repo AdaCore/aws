@@ -263,8 +263,10 @@ package ZLib is
 
       Rest_First, Rest_Last : in out Stream_Element_Offset;
       --  Rest_First have to be initialized to Buffer'Last + 1
-      --  Rest_Last have to be initialized to Buffer'Last
-      --  before usage.
+      --  Rest_Last have to be initialized to Buffer'Last before usage.
+      --  When no more data provided with first generic parameter procedure
+      --  Read then the Read_First became Buffer'First and the Read_Last became
+      --  Buffer'First - 1.
 
       Allow_Read_Some : in Boolean := False;
       --  Is it allowed to return Last < Item'Last before end of data

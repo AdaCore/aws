@@ -83,6 +83,7 @@ package body ZLib.Streams is
          Stream.Buffer     := new Buffer_Subtype;
          Stream.Rest_First := Stream.Buffer'Last + 1;
          Stream.Rest_Last  := Stream.Buffer'Last;
+         Stream.Ahead_Last := Stream.Buffer'First - 1;
       end if;
    end Create;
 
@@ -100,9 +101,9 @@ package body ZLib.Streams is
       loop
          Flush (Stream.Writer, Buffer, Last, Mode);
 
-         Ada.Streams.Write (Stream.Back.all, Buffer (1 .. Last));
+         exit when Last < Buffer'First;
 
-         exit when Last < Buffer'Last;
+         Ada.Streams.Write (Stream.Back.all, Buffer (1 .. Last));
       end loop;
    end Flush;
 
@@ -146,8 +147,71 @@ package body ZLib.Streams is
           Rest_First => Stream.Rest_First,
           Rest_Last  => Stream.Rest_Last);
 
+      Ahead_First : Stream_Element_Offset;
+      Ahead_Last  : Stream_Element_Offset;
+
    begin
-      Read (Stream.Reader, Item, Last);
+      if Stream.Ahead_Last > Stream.Rest_Last then
+         Last := Item'First - 1;
+         Ahead_First := Stream.Rest_Last + 1;
+
+         loop
+            if Last = Item'Last then
+               Ahead_Last :=
+                 Stream.Rest_Last + Stream.Ahead_Last - Ahead_First + 1;
+               Stream.Buffer
+                 (Stream.Rest_Last + 1 .. Ahead_Last) :=
+                 Stream.Buffer (Ahead_First .. Stream.Ahead_Last);
+               Stream.Ahead_Last := Ahead_Last;
+               return;
+            end if;
+
+            Last := Last + 1;
+
+            Item (Last) := Stream.Buffer (Ahead_First);
+
+            if Ahead_First = Stream.Ahead_Last then
+               Stream.Ahead_Last := Stream.Buffer'First - 1;
+               exit;
+            end if;
+
+            Ahead_First := Ahead_First + 1;
+         end loop;
+
+         if Last < Item'Last then
+            Read (Stream.Reader, Item (Last + 1 .. Item'Last), Last);
+         end if;
+
+      else
+         Read (Stream.Reader, Item, Last);
+      end if;
+
+      if not Stream.Reader.Stream_End
+        and then Stream.Rest_First > Stream.Rest_Last
+      then
+         --  Try read ahead to detect end of stream early
+
+         Read (Stream.Buffer.all, Stream.Rest_Last);
+         Stream.Rest_First := Stream.Buffer'First;
+
+         if Stream.Rest_Last = Stream.Buffer'Last then
+            -- No space to read ahead
+            return;
+         end if;
+
+         Translate
+           (Stream.Reader,
+            Stream.Buffer (Stream.Rest_First .. Stream.Rest_Last),
+            In_Last  => Stream.Rest_First,
+            Out_Data =>
+              Stream.Buffer (Stream.Rest_Last + 1 .. Stream.Buffer'Last),
+            Out_Last => Stream.Ahead_Last,
+            Flush    => (if Stream.Rest_First > Stream.Rest_Last
+                         then Finish
+                         else No_Flush));
+
+         Stream.Rest_First := Stream.Rest_First + 1;
+      end if;
    end Read;
 
    -------------------
