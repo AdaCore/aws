@@ -1,0 +1,7 @@
+with "aws";
+
+project Default is
+
+   for Main use ("zeof.adb");
+
+end Default;
