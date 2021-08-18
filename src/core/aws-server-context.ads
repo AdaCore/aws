@@ -40,9 +40,6 @@ package AWS.Server.Context is
       Tab_Enc  : not null access HTTP2.HPACK.Table.Object;
       Tab_Dec  : not null access HTTP2.HPACK.Table.Object;
       Settings : not null access HTTP2.Connection.Object)
-   is record
-      Status   : AWS.Status.Data;
-      Response : AWS.Response.Data;
-   end record;
+   is null record;
 
 end AWS.Server.Context;
