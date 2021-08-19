@@ -384,12 +384,7 @@ is
                Response.Content_Type (R));
          end if;
 
-         --  Create response Message
-
-         Ctx.Status := LA.Stat;
-         Ctx.Response := R;
-
-         return HTTP2.Message.Create (R, LA.Stat, Stream.Identifier);
+         return HTTP2.Message.Create (R, Stream.Status.all, Stream.Identifier);
       end;
    end Handle_Message;
 
@@ -420,6 +415,20 @@ is
 
          Has_Pseudo : array (Pseudo_Enum) of Boolean := (others => False);
 
+         procedure Log_Error (Message : String);
+         --  Writes message to the error log and set Error to C_Protocol_Error
+
+         ---------------
+         -- Log_Error --
+         ---------------
+
+         procedure Log_Error (Message : String) is
+         begin
+            AWS.Log.Write
+              (LA.Server.Error_Log, Stream.Status.all, Message);
+            Error := HTTP2.C_Protocol_Error;
+         end Log_Error;
+
       begin
          Error := HTTP2.C_No_Error;
 
@@ -436,10 +445,7 @@ is
                   --  Pseudo header
 
                   if Header_Found then
-                     AWS.Log.Write
-                       (LA.Server.Error_Log, LA.Stat,
-                        "pseudo headers must appear first");
-                     Error := HTTP2.C_Protocol_Error;
+                     Log_Error ("pseudo headers must appear first");
                      return;
                   end if;
 
@@ -452,29 +458,21 @@ is
                                  (Header (Header'First + 1 .. Header'Last));
                      begin
                         if Has_Pseudo (PH) then
-                           AWS.Log.Write
-                             (LA.Server.Error_Log, LA.Stat,
-                              "duplicate " & Header & " pseudo header");
-                           Error := HTTP2.C_Protocol_Error;
+                           Log_Error
+                             ("duplicate " & Header & " pseudo header");
                            return;
                         end if;
 
                         Has_Pseudo (PH) := True;
 
                         if PH = Path and then Value = "" then
-                           AWS.Log.Write
-                             (LA.Server.Error_Log, LA.Stat,
-                              "empty header path should be rejected");
-                           Error := HTTP2.C_Protocol_Error;
+                           Log_Error ("empty header path should be rejected");
                            return;
                         end if;
                      end;
 
                   elsif Header /= ":authority" then
-                     AWS.Log.Write
-                       (LA.Server.Error_Log, LA.Stat,
-                        "unknown pseudo header " & Header);
-                     Error := HTTP2.C_Protocol_Error;
+                     Log_Error ("unknown pseudo header " & Header);
                      return;
                   end if;
 
@@ -483,23 +481,16 @@ is
                end if;
 
                if Index (Header, Maps.Constants.Upper_Set) /= 0 then
-                  AWS.Log.Write
-                    (LA.Server.Error_Log, LA.Stat, "no upper case allowed");
-                  Error := HTTP2.C_Protocol_Error;
+                  Log_Error ("no upper case allowed");
                   return;
 
                elsif Header = "connection" then
-                  AWS.Log.Write
-                    (LA.Server.Error_Log, LA.Stat,
-                     "no connection specific header allowed");
-                  Error := HTTP2.C_Protocol_Error;
+                  Log_Error ("no connection specific header allowed");
                   return;
 
                elsif Header = "te" and then Value /= "trailers" then
-                  AWS.Log.Write
-                    (LA.Server.Error_Log, LA.Stat,
-                     "no TE header except with single value ""trailers""");
-                  Error := HTTP2.C_Protocol_Error;
+                  Log_Error
+                    ("no TE header except with single value ""trailers""");
                   return;
                end if;
             end;
@@ -509,24 +500,23 @@ is
 
          for PH in Has_Pseudo'Range loop
             if not Has_Pseudo (PH) then
-               AWS.Log.Write
-                 (LA.Server.Error_Log, LA.Stat,
-                  "pseudo header :"
+               Log_Error
+                 ("pseudo header :"
                   & Ada.Characters.Handling.To_Lower (PH'Img)
                   & " must exists");
-               Error := HTTP2.C_Protocol_Error;
             end if;
          end loop;
       end Validate_Headers;
 
       Headers : constant AWS.Headers.List := Stream.Headers;
       Error   : HTTP2.Error_Codes;
+
    begin
-      Set_Status (LA.Stat);
+      Set_Status (Stream.Status.all);
 
-      AWS.Status.Set.Headers (LA.Stat, Headers);
+      AWS.Status.Set.Headers (Stream.Status.all, Headers);
 
-      Stream.Append_Body (LA.Stat);
+      Stream.Append_Body (Stream.Status.all);
 
       --  Check headers' validity
 
@@ -548,17 +538,17 @@ is
          HTTP_Utils.Split_Path (Path, Path_Last, Query_First);
 
          AWS.Status.Set.Request
-           (LA.Stat,
+           (Stream.Status.all,
             Method       => Headers.Get (Messages.Method_Token),
             URI          => Path (Path'First .. Path_Last),
             HTTP_Version => HTTP_2);
 
          AWS.Status.Set.Query
-           (LA.Stat,
+           (Stream.Status.all,
             Parameters => Path (Query_First .. Path'Last));
       end;
 
-      Deferred_Messages.Append (Handle_Message (LA.Stat, Stream));
+      Deferred_Messages.Append (Handle_Message (Stream.Status.all, Stream));
    end Handle_Message;
 
    --------------------------
@@ -663,27 +653,6 @@ begin
       --  Need to avoid unknown extension frame in the middle of a header block
       --  (RFC 7450, 5.5).
 
-      procedure Go_Away (Error : HTTP2.Error_Codes; Message : String);
-      --  Send GoAway frame, log message to error log and set Will_Close flag
-      --  to True.
-
-      -------------
-      -- Go_Away --
-      -------------
-
-      procedure Go_Away (Error : HTTP2.Error_Codes; Message : String) is
-      begin
-         if Message /= "" then
-            AWS.Log.Write (LA.Server.Error_Log, LA.Stat, Message);
-         end if;
-
-         HTTP2.Frame.GoAway.Create
-           (Stream_Id => Last_SID, Error => Error).Send (Sock.all);
-
-         Will_Close := True;
-      end Go_Away;
-
-
    begin
       --  We now need to answer to the request made during the upgrade
 
@@ -691,6 +660,8 @@ begin
          S.Insert
            (1,
             HTTP2.Stream.Create (Sock,  1, Settings.Flow_Control_Window));
+
+         S (1).Status.all := LA.Stat;
 
          declare
             M : HTTP2.Message.Object := Handle_Message (LA.Stat, S (1));
@@ -702,16 +673,17 @@ begin
       For_Every_Frame : loop
          if not Deferred_Messages.Is_Empty then
             declare
-               M : HTTP2.Message.Object :=
-                     Deferred_Messages.First_Element;
+               M  : HTTP2.Message.Object := Deferred_Messages.First_Element;
+               SM : constant HTTP2.Stream.Set.Maps.Reference_Type :=
+                      S.Reference (M.Stream_Id);
             begin
-               if S (M.Stream_Id).Flow_Control_Window > 0 then
+               if SM.Flow_Control_Window > 0 then
                   Deferred_Messages.Delete_First;
 
                   --  Sends as much frame as possible that conform with the
                   --  current flow control window limit.
 
-                  Answers.Append (M.To_Frames (Ctx, S (M.Stream_Id)));
+                  Answers.Append (M.To_Frames (Ctx, SM));
 
                   --  If some more data are available, register back the
                   --  message to send corresponding remaining data frames.
@@ -730,6 +702,7 @@ begin
                Frame     : constant HTTP2.Frame.Object'Class :=
                              Answers.First_Element;
                Stream_Id : constant HTTP2.Stream.Id := Frame.Stream_Id;
+               Stream    : access HTTP2.Stream.Object;
             begin
                LA.Server.Slots.Mark_Phase (LA.Line, Server_Response);
 
@@ -737,6 +710,8 @@ begin
                   Frame.Send (Sock.all);
 
                else
+                  Stream := S (Stream_Id).Element;
+
                   exit when Frame.Kind = K_Data
                     and then
                       Integer'Min
@@ -744,7 +719,7 @@ begin
                          S (Stream_Id).Flow_Control_Window)
                       < Integer (Frame.Length);
 
-                  S (Stream_Id).Send_Frame (Frame);
+                  Stream.Send_Frame (Frame);
 
                   --  Update connection Flow Control Window
 
@@ -754,8 +729,8 @@ begin
 
                      if Frame.Has_Flag (HTTP2.Frame.End_Stream_Flag) then
                         Log_Commit
-                          (Ctx.HTTP.all, Ctx.Response, Ctx.Status,
-                           S (Stream_Id).Bytes_Sent);
+                          (Ctx.HTTP.all, Stream.Response.all,
+                           Stream.Status.all, Stream.Bytes_Sent);
                      end if;
                   end if;
                end if;
@@ -777,6 +752,49 @@ begin
             Stream_Id  : constant HTTP2.Stream_Id := Frame.Stream_Id;
             Prev_State : Stream.State_Kind;
             Error      : Error_Codes;
+
+            procedure Go_Away (Error : HTTP2.Error_Codes; Message : String);
+            --  Send GoAway frame, log message to error log and set Will_Close
+            --  flag to True.
+
+            -------------
+            -- Go_Away --
+            -------------
+
+            procedure Go_Away (Error : HTTP2.Error_Codes; Message : String) is
+
+               function Get_Status return access AWS.Status.Data;
+
+               ----------------
+               -- Get_Status --
+               ----------------
+
+               function Get_Status return access AWS.Status.Data is
+                  package SM renames HTTP2.Stream.Set.Maps;
+                  CS : constant SM.Cursor :=
+                         (if Stream_Id = 0
+                          then SM.No_Element
+                          else S.Find (Stream_Id));
+               begin
+                  if SM.Has_Element (CS) then
+                     return S (CS).Status;
+                  else
+                     return LA.Stat'Access;
+                  end if;
+               end Get_Status;
+
+            begin
+               if Message /= "" then
+                  AWS.Log.Write
+                    (LA.Server.Error_Log, Get_Status.all, Message);
+               end if;
+
+               HTTP2.Frame.GoAway.Create
+                 (Stream_Id => Last_SID, Error => Error).Send (Sock.all);
+
+               Will_Close := True;
+            end Go_Away;
+
          begin
             if HTTP2.Debug then
                Frame.Dump ("GET");

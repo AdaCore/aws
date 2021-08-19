@@ -77,6 +77,8 @@ package body AWS.HTTP2.Stream is
          H_Frames            => Frame.List.Empty_List,
          D_Frames            => Frame.List.Empty_List,
          Headers             => AWS.Headers.Empty_List,
+         Status              => <>,
+         Response            => <>,
          Is_Ready            => False,
          Header_Found        => False,
          Flow_Send_Window    => Window_Size,

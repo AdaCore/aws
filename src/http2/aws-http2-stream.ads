@@ -36,6 +36,7 @@ with AWS.Headers;
 with AWS.HTTP2.Frame;
 with AWS.HTTP2.Frame.List;
 with AWS.HTTP2.Frame.Priority;
+with AWS.Response;
 with AWS.Status;
 
 package AWS.HTTP2.Stream is
@@ -118,6 +119,10 @@ package AWS.HTTP2.Stream is
    function Bytes_Sent (Self : Object) return Stream_Element_Count;
    --  Number of payload bytes send over this stream
 
+   function Status (Self : Object) return not null access AWS.Status.Data;
+
+   function Response (Self : Object) return not null access AWS.Response.Data;
+
 private
 
    subtype Content_Length_Type is
@@ -132,6 +137,8 @@ private
       H_Frames            : Frame.List.Object; -- Header frames
       D_Frames            : Frame.List.Object; -- Data frames
       Headers             : AWS.Headers.List;
+      Status              : aliased AWS.Status.Data;
+      Response            : aliased AWS.Response.Data;
       Is_Ready            : Boolean              := False;
       Header_Found        : Boolean              := False;
       Flow_Send_Window    : Integer;
@@ -148,8 +155,14 @@ private
 
    Undefined : constant Object :=
                  (null, 0, Idle, Frame.List.Empty_List, Frame.List.Empty_List,
-                  AWS.Headers.Empty_List, False, False, 0, 0, 0, 0, 0, False,
-                  Undefined_Length, 0);
+                  Headers             => AWS.Headers.Empty_List,
+                  Status              => <>,
+                  Response            => <>,
+                  Flow_Send_Window    => 0,
+                  Flow_Receive_Window => 0,
+                  Weight              => 0,
+                  Stream_Dependency   => 0,
+                  others              => <>);
 
    function State (Self : Object) return State_Kind is (Self.State);
 
@@ -166,6 +179,12 @@ private
 
    function Headers (Self : Object) return AWS.Headers.List is
      (Self.Headers);
+
+   function Status (Self : Object) return not null access AWS.Status.Data is
+     (Self.Status'Unrestricted_Access);
+
+   function Response (Self : Object) return not null access AWS.Response.Data
+   is (Self.Response'Unrestricted_Access);
 
    function Is_Defined (Self : Object) return Boolean is (Self /= Undefined);
 
