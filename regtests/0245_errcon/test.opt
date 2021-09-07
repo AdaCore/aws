@@ -15,7 +15,8 @@ darwin,gnat OUT test-darwin.out
 freebsd,!ipv4 OUT test-freebsd-ipv6.out
 freebsd,ipv4 OUT test-freebsd-ipv4.out
 vxworks6,!vxworks6-6.6 OUT test-vxworks.out
-linux-rhES8,x86 OUT test-rhES7-x86.out
+linux-rhES8,x86_64 OUT test-rhES7-x86.out
+linux-rhES8,x86 OUT test-rhES8-x86.out
 gnat OUT test.out
 ipv6 OUT test-ipv6.out
 ipv4,!vxworks6-6.6 OUT test-ipv4.out
