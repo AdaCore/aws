@@ -139,20 +139,21 @@ package body AWS.Client is
    end Create;
 
    procedure Create
-     (Connection  : in out HTTP_Connection;
-      Host        : String;
-      User        : String          := No_Data;
-      Pwd         : String          := No_Data;
-      Proxy       : String          := No_Data;
-      Proxy_User  : String          := No_Data;
-      Proxy_Pwd   : String          := No_Data;
-      Retry       : Natural         := Retry_Default;
-      Persistent  : Boolean         := True;
-      Timeouts    : Timeouts_Values := No_Timeout;
-      Server_Push : Boolean         := False;
-      SSL_Config  : Net.SSL.Config  := Net.SSL.Null_Config;
-      Certificate : String          := Default.Client_Certificate;
-      User_Agent  : String          := Default.User_Agent)
+     (Connection   : in out HTTP_Connection;
+      Host         : String;
+      User         : String          := No_Data;
+      Pwd          : String          := No_Data;
+      Proxy        : String          := No_Data;
+      Proxy_User   : String          := No_Data;
+      Proxy_Pwd    : String          := No_Data;
+      Retry        : Natural         := Retry_Default;
+      Persistent   : Boolean         := True;
+      Timeouts     : Timeouts_Values := No_Timeout;
+      Server_Push  : Boolean         := False;
+      SSL_Config   : Net.SSL.Config  := Net.SSL.Null_Config;
+      Certificate  : String          := Default.Client_Certificate;
+      User_Agent   : String          := Default.User_Agent;
+      HTTP_Version : HTTP_Protocol   := HTTPv1)
    is
       use type Net.SSL.Config;
 
@@ -187,6 +188,8 @@ package body AWS.Client is
       Connection.Streaming                := Server_Push;
       Connection.Certificate              := To_Unbounded_String (Certificate);
       Connection.Timeouts                 := Timeouts;
+      Connection.HTTP_Version             := HTTP_Version;
+      Connection.Config                   := AWS.Config.Get_Current;
 
       Connection.User_Agent := To_Unbounded_String (User_Agent);
 
@@ -391,7 +394,8 @@ package body AWS.Client is
       Follow_Redirection : Boolean         := False;
       Certificate        : String          := Default.Client_Certificate;
       Headers            : Header_List     := Empty_Header_List;
-      User_Agent         : String          := Default.User_Agent)
+      User_Agent         : String          := Default.User_Agent;
+      HTTP_Version       : HTTP_Protocol   := HTTPv1)
       return Response.Data
    is
       use type Messages.Status_Code;
@@ -404,10 +408,11 @@ package body AWS.Client is
       begin
          Create (Connection,
                  URL, User, Pwd, Proxy, Proxy_User, Proxy_Pwd,
-                 Persistent  => False,
-                 Certificate => Certificate,
-                 Timeouts    => Timeouts,
-                 User_Agent  => User_Agent);
+                 Persistent   => False,
+                 Certificate  => Certificate,
+                 Timeouts     => Timeouts,
+                 User_Agent   => User_Agent,
+                 HTTP_Version => HTTP_Version);
 
          Host_URL := Connection.Host_URL; -- For the redirection case
 
@@ -593,7 +598,8 @@ package body AWS.Client is
       Timeouts     : Timeouts_Values := No_Timeout;
       Attachments  : Attachment_List := Empty_Attachment_List;
       Headers      : Header_List     := Empty_Header_List;
-      User_Agent   : String          := Default.User_Agent)
+      User_Agent   : String          := Default.User_Agent;
+      HTTP_Version : HTTP_Protocol   := HTTPv1)
       return Response.Data
    is
       Connection : HTTP_Connection;
@@ -601,9 +607,10 @@ package body AWS.Client is
    begin
       Create (Connection,
               URL, User, Pwd, Proxy, Proxy_User, Proxy_Pwd,
-              Persistent => False,
-              Timeouts   => Timeouts,
-              User_Agent => User_Agent);
+              Persistent   => False,
+              Timeouts     => Timeouts,
+              User_Agent   => User_Agent,
+              HTTP_Version => HTTP_Version);
 
       Post (Connection, Result, Data, Content_Type,
             Attachments => Attachments,
@@ -629,7 +636,8 @@ package body AWS.Client is
       Timeouts     : Timeouts_Values := No_Timeout;
       Attachments  : Attachment_List := Empty_Attachment_List;
       Headers      : Header_List     := Empty_Header_List;
-      User_Agent   : String          := Default.User_Agent)
+      User_Agent   : String          := Default.User_Agent;
+      HTTP_Version : HTTP_Protocol   := HTTPv1)
       return Response.Data
    is
       Connection : HTTP_Connection;
@@ -637,9 +645,10 @@ package body AWS.Client is
    begin
       Create (Connection,
               URL, User, Pwd, Proxy, Proxy_User, Proxy_Pwd,
-              Persistent => False,
-              Timeouts   => Timeouts,
-              User_Agent => User_Agent);
+              Persistent   => False,
+              Timeouts     => Timeouts,
+              User_Agent   => User_Agent,
+              HTTP_Version => HTTP_Version);
 
       Post (Connection, Result, Data, Content_Type,
             Attachments => Attachments,
@@ -1101,27 +1110,29 @@ package body AWS.Client is
    ---------------
 
    function SOAP_Post
-     (URL         : String;
-      Data        : String;
-      SOAPAction  : String;
-      User        : String          := No_Data;
-      Pwd         : String          := No_Data;
-      Proxy       : String          := No_Data;
-      Proxy_User  : String          := No_Data;
-      Proxy_Pwd   : String          := No_Data;
-      Timeouts    : Timeouts_Values := No_Timeout;
-      Attachments : Attachment_List := Empty_Attachment_List;
-      Headers     : Header_List     := Empty_Header_List;
-      User_Agent  : String          := Default.User_Agent) return Response.Data
+     (URL          : String;
+      Data         : String;
+      SOAPAction   : String;
+      User         : String          := No_Data;
+      Pwd          : String          := No_Data;
+      Proxy        : String          := No_Data;
+      Proxy_User   : String          := No_Data;
+      Proxy_Pwd    : String          := No_Data;
+      Timeouts     : Timeouts_Values := No_Timeout;
+      Attachments  : Attachment_List := Empty_Attachment_List;
+      Headers      : Header_List     := Empty_Header_List;
+      User_Agent   : String          := Default.User_Agent;
+      HTTP_Version : HTTP_Protocol   := HTTPv1) return Response.Data
    is
       Connection : HTTP_Connection;
       Result     : Response.Data;
    begin
       Create (Connection,
               URL, User, Pwd, Proxy, Proxy_User, Proxy_Pwd,
-              Persistent => False,
-              Timeouts   => Timeouts,
-              User_Agent => User_Agent);
+              Persistent   => False,
+              Timeouts     => Timeouts,
+              User_Agent   => User_Agent,
+              HTTP_Version => HTTP_Version);
 
       SOAP_Post (Connection, Result, SOAPAction,
                  Data        => Data,

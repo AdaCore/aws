@@ -35,7 +35,7 @@ limited with AWS.HTTP2.Connection;
 package AWS.Server.Context is
 
    type Object
-     (HTTP     : not null access Server.HTTP;
+     (HTTP     : access Server.HTTP;
       Line     : Positive;
       Tab_Enc  : not null access HTTP2.HPACK.Table.Object;
       Tab_Dec  : not null access HTTP2.HPACK.Table.Object;

@@ -256,7 +256,7 @@ package body AWS.HTTP2.Message is
          Resources.Streams.Create (File, Self.M_Body);
 
          Send_File
-           (Ctx.HTTP.all, Ctx.Line, File,
+           (Ctx.HTTP, Ctx.Line, File,
             Start  => Stream_Element_Offset (Self.Sent) + 1,
             Length => Resources.Content_Length_Type (Self.Sent));
       end From_Stream;
