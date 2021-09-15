@@ -47,6 +47,12 @@ package AWS.HTTP2.Stream is
                        Half_Closed_Local, Half_Closed_Remote, Closed);
    --  RFC 7540 5.1 Stream States
 
+   type Direction is (Unknown, Sending, Receiving);
+   --  Stream data direction:
+   --    Unknown   : the stream has not yet been used, state is Idle
+   --    Sending   : some data have been sent to the stream
+   --    Receiving : Soma data have been received from the stream
+
    type Object is tagged private;
 
    Undefined : constant Object;
@@ -126,6 +132,11 @@ package AWS.HTTP2.Stream is
    function Response (Self : Object) return not null access AWS.Response.Data
      with Pre => Self.Is_Defined;
 
+   function Data_Flow (Self : Object) return Direction
+     with Pre  => Self.Is_Defined,
+          Post => Data_Flow'Result = Unknown or else Self.State /= Idle;
+   --  Current stream direction
+
 private
 
    subtype Content_Length_Type is
@@ -152,6 +163,7 @@ private
       End_Stream          : Boolean              := False;
       Content_Length      : Content_Length_Type  := Undefined_Length;
       Bytes_Received      : Content_Length_Type  := 0;
+      Data_Flow           : Direction            := Unknown;
    end record;
 
    function "<" (Left, Right : Object) return Boolean is (Left.Id < Right.Id);
@@ -190,5 +202,7 @@ private
      is (Self.Response'Unrestricted_Access);
 
    function Is_Defined (Self : Object) return Boolean is (Self /= Undefined);
+
+   function Data_Flow (Self : Object) return Direction is (Self.Data_Flow);
 
 end AWS.HTTP2.Stream;
