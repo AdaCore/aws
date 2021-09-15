@@ -48,6 +48,10 @@ package AWS.HTTP2.Frame.GoAway is
       Error     : Error_Codes) return Object;
    --  Create a GOAWAY frame with given content and stream id
 
+   function Error (Self : Object) return Error_Codes
+     with Pre => Self.Is_Defined;
+   --  Returns the frame error code
+
    overriding procedure Send_Payload
      (Self : Object; Sock : Net.Socket_Type'Class);
    --  Send payload content
@@ -107,5 +111,8 @@ private
 
    function Last_Stream_Id (Self : Object) return Stream.Id is
      (if Self.Data.P = null then 0 else Self.Data.P.Stream_Id);
+
+   function Error (Self : Object) return Error_Codes is
+     (Error_Codes'Val (Self.Data.P.Error_Code));
 
 end AWS.HTTP2.Frame.GoAway;
