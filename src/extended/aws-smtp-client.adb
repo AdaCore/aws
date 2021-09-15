@@ -29,6 +29,7 @@
 
 pragma Ada_2012;
 
+with Ada.Assertions;
 with Ada.Calendar;
 with Ada.Exceptions;
 with Ada.Strings.Fixed;
@@ -639,25 +640,24 @@ package body AWS.SMTP.Client is
          declare
             H : AWS.Headers.List;
          begin
-            case A.Kind is
-               when File        =>
-                  AWS.Attachments.Add
-                    (Att_List,
-                     Filename   => To_String (A.Name),
-                     Content_Id => "",
-                     Encode     => AWS.Attachments.Base64);
+            Ada.Assertions.Assert
+              (Check   => A.Kind in File | Base64_Data,
+               Message => "Value outside expected value set");
+            if A.Kind in File then
+               AWS.Attachments.Add
+                 (Att_List,
+                  Filename   => To_String (A.Name),
+                  Content_Id => "",
+                  Encode     => AWS.Attachments.Base64);
+            else
+               H.Add (Messages.Content_Transfer_Encoding_Token, "base64");
 
-               when Base64_Data =>
-                  H.Add (Messages.Content_Transfer_Encoding_Token, "base64");
-
-                  AWS.Attachments.Add
-                    (Att_List,
-                     To_String (A.Name),
-                     AWS.Attachments.Value
-                       (Name   => To_String (A.Name),
-                        Data   => To_String (A.Data)),
-                     Headers => H);
-            end case;
+               AWS.Attachments.Add
+                 (Att_List,
+                  To_String (A.Name),
+                  AWS.Attachments.Value (Name => To_String (A.Name), Data => To_String (A.Data)),
+                  Headers => H);
+            end if;
          end;
       end loop;
 

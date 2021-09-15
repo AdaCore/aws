@@ -29,6 +29,7 @@
 
 pragma Ada_2012;
 
+with Ada.Assertions;
 with Ada.Directories;
 with Ada.IO_Exceptions;
 with Ada.Streams.Stream_IO;
@@ -231,10 +232,10 @@ package body AWS.Attachments is
         (Attachment.Headers, Messages.Content_Disposition_Token)
       then
          Result :=
-           +(AWS.Headers.Values.Search
+           +AWS.Headers.Values.Search
              (AWS.Headers.Get
               (Attachment.Headers, Messages.Content_Disposition_Token),
-               "filename"));
+               "filename");
       end if;
 
       if Result = Null_Unbounded_String
@@ -243,10 +244,10 @@ package body AWS.Attachments is
             (Attachment.Headers, Messages.Content_Type_Token)
       then
          Result :=
-           +(AWS.Headers.Values.Search
+           +AWS.Headers.Values.Search
               (AWS.Headers.Get
                  (Attachment.Headers, Messages.Content_Type_Token),
-               "name"));
+               "name");
       end if;
 
       return To_String (Result);
@@ -503,10 +504,14 @@ package body AWS.Attachments is
 
       procedure Send_Attachment (Attachment : Element) is
       begin
-         case Attachment.Kind is
-            when Data        => Send_Content (Attachment);
-            when Alternative => Send_Alternative (Attachment);
-         end case;
+         Ada.Assertions.Assert
+           (Check   => Attachment.Kind in Data | Alternative,
+            Message => "Value outside expected value set");
+         if Attachment.Kind in Data then
+            Send_Content (Attachment);
+         else
+            Send_Alternative (Attachment);
+         end if;
       end Send_Attachment;
 
       ------------------
@@ -589,10 +594,14 @@ package body AWS.Attachments is
             end Send_Base64;
 
          begin
-            case Data.Encode is
-               when None   => Send;
-               when Base64 => Send_Base64;
-            end case;
+            Ada.Assertions.Assert
+              (Check   => Data.Encode in None | Base64,
+               Message => "Value outside expected value set");
+            if Data.Encode in None then
+               Send;
+            else
+               Send_Base64;
+            end if;
          end Send_Content;
 
          ---------------
@@ -659,19 +668,27 @@ package body AWS.Attachments is
             Stream_IO.Open
               (File, Streams.Stream_IO.In_File, To_String (Data.Filename));
 
-            case Data.Encode is
-               when None   => Send;
-               when Base64 => Send_Base64;
-            end case;
+            Ada.Assertions.Assert
+              (Check   => Data.Encode in None | Base64,
+               Message => "Value outside expected value set");
+            if Data.Encode in None then
+               Send;
+            else
+               Send_Base64;
+            end if;
 
             Stream_IO.Close (File);
          end Send_File;
 
       begin
-         case Data.Kind is
-            when File                 => Send_File;
-            when AWS.Attachments.Data => Send_Content;
-         end case;
+         Ada.Assertions.Assert
+           (Check   => Data.Kind in File | AWS.Attachments.Data,
+            Message => "Value outside expected value set");
+         if Data.Kind in File then
+            Send_File;
+         else
+            Send_Content;
+         end if;
       end Send_Content;
 
    begin

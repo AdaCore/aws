@@ -29,6 +29,7 @@
 
 pragma Ada_2012;
 
+with Ada.Assertions;
 with Ada.Characters.Handling;
 with Ada.Containers.Indefinite_Vectors;
 with Ada.Directories;
@@ -304,13 +305,13 @@ package body WSDL2AWS.WSDL.Parser is
      (O    : Object'Class;
       Kind : Parameter_Mode) return SOAP.Types.Encoding_Style is
    begin
-      case Kind is
-         when Input =>
-            return O.I_Encoding;
-         when Output | Fault =>
-            --  ??? fault taken as output
-            return O.O_Encoding;
-      end case;
+      Ada.Assertions.Assert
+        (Check => Kind in Input | Output | Fault, Message => "Value outside expected value set");
+      if Kind in Input then
+         return O.I_Encoding;
+      else
+         return O.O_Encoding;
+      end if;
    end Encoding;
 
    ---------

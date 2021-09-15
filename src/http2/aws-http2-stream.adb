@@ -262,9 +262,9 @@ package body AWS.HTTP2.Stream is
       Has_Prev_Frame : constant Boolean := Self.H_Frames.Length > 0;
 
       End_Header     : constant Boolean :=
-                         (Frame.Has_Flag (HTTP2.Frame.End_Headers_Flag));
+                         Frame.Has_Flag (HTTP2.Frame.End_Headers_Flag);
       End_Stream     : constant Boolean :=
-                         (Frame.Has_Flag (HTTP2.Frame.End_Stream_Flag));
+                         Frame.Has_Flag (HTTP2.Frame.End_Stream_Flag);
 
    begin
       Error := C_No_Error;
@@ -310,16 +310,13 @@ package body AWS.HTTP2.Stream is
             end case;
 
          when Reserved_Local =>
-            case Frame.Kind is
-               when K_RST_Stream =>
-                  Self.State := Closed;
-               when others =>
-                  if End_Stream then
-                     Self.State := Half_Closed_Remote;
-                  else
-                     null;
-                  end if;
-            end case;
+            if Frame.Kind in K_RST_Stream then
+               Self.State := Closed;
+            else
+               if End_Stream then
+                  Self.State := Half_Closed_Remote;
+               end if;
+            end if;
 
          when Reserved_Remote =>
             case Frame.Kind is
@@ -333,17 +330,14 @@ package body AWS.HTTP2.Stream is
             end case;
 
          when Half_Closed_Local =>
-            case Frame.Kind is
-               when K_RST_Stream =>
-                  Self.State := Closed;
-               when others =>
-                  if End_Stream then
-                     Error := C_Protocol_Error;
-                     return;
-                  else
-                     null;
-                  end if;
-            end case;
+            if Frame.Kind in K_RST_Stream then
+               Self.State := Closed;
+            else
+               if End_Stream then
+                  Error := C_Protocol_Error;
+                  return;
+               end if;
+            end if;
 
          when Half_Closed_Remote =>
             case Frame.Kind is
@@ -527,7 +521,7 @@ package body AWS.HTTP2.Stream is
       Frame : HTTP2.Frame.Object'Class)
    is
       End_Header : constant Boolean :=
-                     (Frame.Has_Flag (HTTP2.Frame.End_Headers_Flag));
+                     Frame.Has_Flag (HTTP2.Frame.End_Headers_Flag);
       End_Stream : constant Boolean :=
                      Frame.Has_Flag (HTTP2.Frame.End_Stream_Flag);
    begin
@@ -589,32 +583,23 @@ package body AWS.HTTP2.Stream is
             end case;
 
          when Half_Closed_Local =>
-            case Frame.Kind is
-               when K_RST_Stream =>
-                  Self.State := Closed;
-               when others =>
-                  null;
-            end case;
+            if Frame.Kind in K_RST_Stream then
+               Self.State := Closed;
+            end if;
 
          when Half_Closed_Remote =>
-            case Frame.Kind is
-               when K_RST_Stream =>
+            if Frame.Kind in K_RST_Stream then
+               Self.State := Closed;
+            else
+               if End_Stream then
                   Self.State := Closed;
-               when others =>
-                  if End_Stream then
-                     Self.State := Closed;
-                  else
-                     null;
-                  end if;
-            end case;
+               end if;
+            end if;
 
          when Closed =>
-            case Frame.Kind is
-               when K_Priority =>
-                  null;
-               when others =>
-                  null;
-            end case;
+            if Frame.Kind in K_Priority then
+               null;
+            end if;
       end case;
 
       --  Update stream's Flow Control Window

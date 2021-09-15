@@ -182,30 +182,22 @@ package body AWS.Translator is
       State : in out Decoding_State;
       Ch    : Character) is
    begin
-      if Ch /= '=' and then Base64_Values (Ch) = 16#ffffffff# then
-         null;
-
-      else
-         case Ch is
-            when '=' =>
-               State.Pad := State.Pad + 1;
-
-            when others =>
-               State.Group := State.Group
-                 or Shift_Left (Base64_Values (Ch), State.J);
-         end case;
-
+      if not (Ch /= '=' and then Base64_Values (Ch) = 16#ffff_ffff#) then
+         if Ch in '=' then
+            State.Pad := State.Pad + 1;
+         else
+            State.Group := State.Group or Shift_Left (Base64_Values (Ch), State.J);
+         end if;
          State.J := State.J - 6;
 
          if State.J < 0 then
-            Add (Character'Val (Shift_Right (State.Group and 16#FF0000#, 16)));
-            Add (Character'Val (Shift_Right (State.Group and 16#00FF00#, 8)));
-            Add (Character'Val (State.Group and 16#0000FF#));
+            Add (Character'Val (Shift_Right (State.Group and 16#FF_0000#, 16)));
+            Add (Character'Val (Shift_Right (State.Group and 16#00_FF00#, 8)));
+            Add (Character'Val (State.Group and 16#00_00FF#));
 
             State.Group := 0;
             State.J     := 18;
          end if;
-
       end if;
    end Add;
 

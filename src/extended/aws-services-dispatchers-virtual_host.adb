@@ -29,6 +29,7 @@
 
 pragma Ada_2012;
 
+with Ada.Assertions;
 with Ada.Strings.Fixed;
 
 with AWS.Dispatchers.Callback;
@@ -113,22 +114,22 @@ package body AWS.Services.Dispatchers.Virtual_Host is
       if Virtual_Host_Table.Has_Element (Cursor) then
          Node := Virtual_Host_Table.Element (Cursor);
 
-         case Node.Mode is
-            when Host     =>
-               declare
-                  P : constant Parameters.List := Status.Parameters (Request);
-               begin
-                  Location := To_Unbounded_String ("http://");
-                  Append (Location, To_String (Node.Hostname));
-                  Append (Location, Status.URI (Request));
-                  Append (Location, Parameters.URI_Format (P));
-               end;
+         Ada.Assertions.Assert
+           (Check => Node.Mode in Host | Callback, Message => "Value outside expected value set");
+         if Node.Mode in Host then
+            declare
+               P : constant Parameters.List := Status.Parameters (Request);
+            begin
+               Location := To_Unbounded_String ("http://");
+               Append (Location, To_String (Node.Hostname));
+               Append (Location, Status.URI (Request));
+               Append (Location, Parameters.URI_Format (P));
+            end;
 
-               return AWS.Response.URL (To_String (Location));
-
-            when Callback =>
-               return Dispatch (Node.Action.all, Request);
-         end case;
+            return AWS.Response.URL (To_String (Location));
+         else
+            return Dispatch (Node.Action.all, Request);
+         end if;
       end if;
 
       if Dispatcher.Action = null then

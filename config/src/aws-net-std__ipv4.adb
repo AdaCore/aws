@@ -230,12 +230,12 @@ package body AWS.Net.Std is
             --  ??? Note, we should change this when GNAT will support
             --  Non-blocking connect.
 
-            case Resolve_Exception (E) is
-               when Operation_Now_In_Progress
-                    | Resource_Temporarily_Unavailable => null;
-               when others =>
-                  Raise_Error (Exception_Message (E));
-            end case;
+            if Resolve_Exception (E) not in
+                Operation_Now_In_Progress |
+                  Resource_Temporarily_Unavailable
+            then
+               Raise_Error (Exception_Message (E));
+            end if;
       end;
 
       if Wait then

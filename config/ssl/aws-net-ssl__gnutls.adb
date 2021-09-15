@@ -630,19 +630,19 @@ package body AWS.Net.SSL is
    procedure Code_Processing
      (Code : C.int; Socket : Socket_Type'Class; Timeout : Duration) is
    begin
-      case Code is
-         when TSSL.GNUTLS_E_INTERRUPTED | TSSL.GNUTLS_E_AGAIN =>
-            case TSSL.gnutls_record_get_direction (Socket.SSL) is
-               when 0      => Wait_For (Input, Socket, Timeout);
-               when 1      => Wait_For (Output, Socket, Timeout);
-               when others =>
-                  Log_Error ("Unexpected gnutls_record_get_direction result");
-                  raise Program_Error;
-            end case;
-
-         when others =>
-            Check_Error_Code (Code, Socket);
-      end case;
+      if Code in TSSL.GNUTLS_E_INTERRUPTED | TSSL.GNUTLS_E_AGAIN then
+         case TSSL.gnutls_record_get_direction (Socket.SSL) is
+            when 0 =>
+               Wait_For (Input, Socket, Timeout);
+            when 1 =>
+               Wait_For (Output, Socket, Timeout);
+            when others =>
+               Log_Error ("Unexpected gnutls_record_get_direction result");
+               raise Program_Error;
+         end case;
+      else
+         Check_Error_Code (Code, Socket);
+      end if;
    end Code_Processing;
 
    procedure Code_Processing (Code : C.int; Socket : Socket_Type'Class) is
