@@ -96,8 +96,8 @@ package body AWS.HTTP2.Message is
 
             declare
                use all type Server.HTTP_Utils.Resource_Status;
-               use type Status.Request_Method;
                use type Ada.Calendar.Time;
+               use type Status.Request_Method;
 
                File_Time : Ada.Calendar.Time;
                F_Status  : constant Server.HTTP_Utils.Resource_Status :=

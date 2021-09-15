@@ -1093,7 +1093,7 @@ package body AWS.Client.HTTP_Utils is
 
       use type Messages.Status_Code;
 
-   begin -- Parse_Header
+   begin
       for Level in Authentication_Level'Range loop
          Connection.Auth (Level).Requested := False;
       end loop;
@@ -1345,7 +1345,7 @@ package body AWS.Client.HTTP_Utils is
             if Auth_Is_Over then
                return;
 
-            elsif  Kind /= HEAD and then Connection.Streaming then
+            elsif Kind /= HEAD and then Connection.Streaming then
                Read_Body (Connection, Result, Store => False);
             end if;
 
@@ -1419,7 +1419,7 @@ package body AWS.Client.HTTP_Utils is
 
                function Get_URI return String;
                --  Returns the real URI where the request is going to be
-               --  sent. It is either Open_Send_Common_Header.URI parameter
+               --  sent. It is either Open_Set_Common_Header.URI parameter
                --  if it exists (without the HTTP parameters part), or URI
                --  part of the Connection.Connect_URL field.
 

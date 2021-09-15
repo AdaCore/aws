@@ -52,7 +52,7 @@ package AWS.HTTP2.Message is
       Request   : AWS.Status.Data;
       Stream_Id : HTTP2.Stream_Id) return Object
      with Post => Create'Result.Is_Defined;
-   --  GZip mean that peer support for GZip encoding
+   --  Create a message out of a response object
 
    function Stream_Id (Self : Object) return HTTP2.Stream_Id
      with Pre => Self.Is_Defined;
@@ -83,6 +83,7 @@ package AWS.HTTP2.Message is
 
 private
 
+   use type Resources.Streams.Stream_Access;
    use type Utils.File_Size_Type;
 
    type Object is tagged record
@@ -91,14 +92,14 @@ private
       Headers   : AWS.Headers.List;
       Sent      : Utils.File_Size_Type := 0;
       H_Sent    : Boolean := False; -- Whether the header has been sent
-      M_Body    : AWS.Resources.Streams.Stream_Access;
+      M_Body    : Resources.Streams.Stream_Access;
    end record;
 
    function Headers (Self : Object) return AWS.Headers.List is (Self.Headers);
 
    function Has_Body (Self : Object) return Boolean is
      (Self.Mode in Response.Message | Response.File | Response.File_Once
-        | Response.Stream);
+        | Response.Stream and then Self.M_Body /= null);
 
    function Is_Defined (Self : Object) return Boolean is
      (Self.Mode /= Response.No_Data);

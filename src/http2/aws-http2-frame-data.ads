@@ -75,7 +75,8 @@ package AWS.HTTP2.Frame.Data is
      with Pre => Self.Is_Defined;
    --  Length of the data payload
 
-   procedure Append (Self : Object; Status : in out AWS.Status.Data);
+   procedure Append (Self : Object; Status : in out AWS.Status.Data)
+     with Pre => Self.Is_Defined;
    --  Append data to the Status
 
    overriding procedure Dump_Payload (Self : Object);

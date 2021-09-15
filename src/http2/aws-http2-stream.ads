@@ -96,7 +96,7 @@ package AWS.HTTP2.Stream is
 
    procedure Append_Body (Self : Object; Status : in out AWS.Status.Data)
      with Pre => Self.Is_Defined and then Self.Is_Message_Ready;
-   --  Append status body from stream data frames
+   --  Append body to Status from stream's data frames
 
    function Headers (Self : Object) return AWS.Headers.List
      with Pre => Self.Is_Defined and then Self.Is_Message_Ready;
@@ -116,12 +116,15 @@ package AWS.HTTP2.Stream is
      with Pre => Self.Is_Defined;
    --  Set the window size for this frame (set via the Window_Update frame)
 
-   function Bytes_Sent (Self : Object) return Stream_Element_Count;
+   function Bytes_Sent (Self : Object) return Stream_Element_Count
+     with Pre => Self.Is_Defined;
    --  Number of payload bytes send over this stream
 
-   function Status (Self : Object) return not null access AWS.Status.Data;
+   function Status (Self : Object) return not null access AWS.Status.Data
+     with Pre => Self.Is_Defined;
 
-   function Response (Self : Object) return not null access AWS.Response.Data;
+   function Response (Self : Object) return not null access AWS.Response.Data
+     with Pre => Self.Is_Defined;
 
 private
 
@@ -184,7 +187,7 @@ private
      (Self.Status'Unrestricted_Access);
 
    function Response (Self : Object) return not null access AWS.Response.Data
-   is (Self.Response'Unrestricted_Access);
+     is (Self.Response'Unrestricted_Access);
 
    function Is_Defined (Self : Object) return Boolean is (Self /= Undefined);
 
