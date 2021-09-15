@@ -28,7 +28,6 @@
 ------------------------------------------------------------------------------
 
 with Ada.Calendar;
-with Ada.Streams;
 with Ada.Strings.Unbounded;
 with Ada.Text_IO;
 
@@ -38,17 +37,40 @@ with AWS.HTTP2.Frame.Data;
 with AWS.HTTP2.Frame.Headers;
 with AWS.HTTP2.Stream;
 with AWS.Messages;
-with AWS.Resources;
+with AWS.Resources.Streams.Memory;
 with AWS.Server.HTTP_Utils;
 
 package body AWS.HTTP2.Message is
 
-   use Ada.Streams;
    use Ada.Strings.Unbounded;
 
    ------------
    -- Create --
    ------------
+
+   function Create
+     (Headers   : AWS.Headers.List;
+      Data      : Stream_Element_Array;
+      Stream_Id : HTTP2.Stream_Id) return Object
+   is
+      O : Object;
+   begin
+      O.Kind      := K_Request;
+      O.Mode      := Response.Stream;
+      O.Stream_Id := Stream_Id;
+      O.Headers   := Headers;
+
+      if Data'Length /= 0 then
+         O.M_Body    := new Resources.Streams.Memory.Stream_Type;
+         Resources.Streams.Memory.Stream_Type (O.M_Body.all).Append (Data);
+      end if;
+
+      O.Headers.Add
+        (Messages.Content_Length_Token,
+         Utils.Image (Stream_Element_Offset (Data'Length)));
+
+      return O;
+   end Create;
 
    function Create
      (Answer    : in out Response.Data;
@@ -77,6 +99,7 @@ package body AWS.HTTP2.Message is
       end Set_Body;
 
    begin
+      O.Kind      := K_Response;
       O.Mode      := Response.Mode (Answer);
       O.Stream_Id := Stream_Id;
 
