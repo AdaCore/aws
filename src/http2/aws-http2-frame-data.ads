@@ -29,6 +29,7 @@
 
 with Ada.Strings.Unbounded;
 
+with AWS.Response;
 with AWS.Status;
 with AWS.Utils;
 
@@ -78,6 +79,10 @@ package AWS.HTTP2.Frame.Data is
    procedure Append (Self : Object; Status : in out AWS.Status.Data)
      with Pre => Self.Is_Defined;
    --  Append data to the Status
+
+   procedure Append (Self : Object; Response : in out AWS.Response.Data)
+     with Pre => Self.Is_Defined;
+   --  Append data to the response
 
    overriding procedure Dump_Payload (Self : Object);
 
