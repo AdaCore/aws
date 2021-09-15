@@ -60,6 +60,17 @@ package body AWS.HTTP2.Stream is
       AWS.Status.Set.Uploaded (Status);
    end Append_Body;
 
+   procedure Append_Body
+     (Self     : Object;
+      Response : in out AWS.Response.Data) is
+   begin
+      for F of Self.D_Frames loop
+         pragma Assert (F.Kind = K_Data);
+
+         Frame.Data.Object (F).Append (Response);
+      end loop;
+   end Append_Body;
+
    ------------
    -- Create --
    ------------

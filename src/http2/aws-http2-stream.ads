@@ -104,6 +104,10 @@ package AWS.HTTP2.Stream is
      with Pre => Self.Is_Defined and then Self.Is_Message_Ready;
    --  Append body to Status from stream's data frames
 
+   procedure Append_Body (Self : Object; Response : in out AWS.Response.Data)
+     with Pre => Self.Is_Defined; --  and then Self.Is_Message_Ready;
+   --  Append body to Response from stream's data frames
+
    function Headers (Self : Object) return AWS.Headers.List
      with Pre => Self.Is_Defined and then Self.Is_Message_Ready;
    --  Returns headers taken from stream
