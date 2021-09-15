@@ -642,8 +642,15 @@ package body AWS.Client.HTTP_Utils is
          begin
             --  Post Data with headers
 
-            Send_Common_Post
+            Set_Common_Post
               (Connection, Data, URI, SOAPAction, Content_Type, Headers);
+
+            AWS.Headers.Send_Header
+              (Connection.Socket.all, Connection.F_Headers, End_Block => True);
+
+            --  Send message body
+
+            Net.Buffered.Write (Connection.Socket.all, Data);
 
             --  Get answer from server
 
@@ -1245,49 +1252,6 @@ package body AWS.Client.HTTP_Utils is
       end loop;
    end Read_Body;
 
-   ----------------------
-   -- Send_Common_Post --
-   ----------------------
-
-   procedure Send_Common_Post
-     (Connection   : in out HTTP_Connection;
-      Data         : Stream_Element_Array;
-      URI          : String;
-      SOAPAction   : String;
-      Content_Type : String;
-      Headers      : Header_List := Empty_Header_List) is
-   begin
-      Open_Set_Common_Header (Connection, Messages.Post_Token, URI, Headers);
-
-      if Content_Type /= Client.No_Data then
-         Set_Header
-           (Connection.F_Headers,
-            Messages.Content_Type_Token,
-            Content_Type);
-      end if;
-
-      if SOAPAction /= Client.No_Data then
-         --  SOAP header
-
-         Set_Header
-           (Connection.F_Headers, Messages.SOAPAction_Token, SOAPAction);
-      end if;
-
-      --  Send message Content_Length
-
-      Set_Header
-        (Connection.F_Headers,
-         Messages.Content_Length_Token,
-         Utils.Image (Stream_Element_Offset'(Data'Length)));
-
-      AWS.Headers.Send_Header
-        (Connection.Socket.all, Connection.F_Headers, End_Block => True);
-
-      --  Send message body
-
-      Net.Buffered.Write (Connection.Socket.all, Data);
-   end Send_Common_Post;
-
    ------------------
    -- Send_Request --
    ------------------
@@ -1515,6 +1479,42 @@ package body AWS.Client.HTTP_Utils is
          end if;
       end if;
    end Set_Authentication_Header;
+
+   ---------------------
+   -- Set_Common_Post --
+   ---------------------
+
+   procedure Set_Common_Post
+     (Connection   : in out HTTP_Connection;
+      Data         : Stream_Element_Array;
+      URI          : String;
+      SOAPAction   : String;
+      Content_Type : String;
+      Headers      : Header_List := Empty_Header_List) is
+   begin
+      Open_Set_Common_Header (Connection, Messages.Post_Token, URI, Headers);
+
+      if Content_Type /= Client.No_Data then
+         Set_Header
+           (Connection.F_Headers,
+            Messages.Content_Type_Token,
+            Content_Type);
+      end if;
+
+      if SOAPAction /= Client.No_Data then
+         --  SOAP header
+
+         Set_Header
+           (Connection.F_Headers, Messages.SOAPAction_Token, SOAPAction);
+      end if;
+
+      --  Send message Content_Length
+
+      Set_Header
+        (Connection.F_Headers,
+         Messages.Content_Length_Token,
+         Utils.Image (Stream_Element_Offset'(Data'Length)));
+   end Set_Common_Post;
 
    ----------------
    -- Set_Header --
