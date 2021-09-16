@@ -45,6 +45,10 @@ package AWS.Net.WebSocket is
 
    type Object is new Net.Socket_Type with private;
    type Object_Class is access all Object'Class;
+    --  To implement your own handling of messages, you need to extend this
+    --  type and override at least the On_Message primitive operation.
+    --  In addition, you need to register a factory (to create new objects
+    --  based on the URI) using AWS.Net.WebSocket.Registry.Register).
 
    No_Object : constant Object'Class;
 
@@ -77,18 +81,8 @@ package AWS.Net.WebSocket is
    --  the default Send implementation should be ok for most usages.
    --
 
-   function Create
-     (Socket  : Socket_Access;
-      Request : AWS.Status.Data) return Object'Class
-   with Pre => Socket /= null;
-   --  Create a new instance of the WebSocket, this is used by AWS internal
-   --  server to create a default WebSocket if no other constructor are
-   --  provided. It is also needed when deriving from WebSocket.
-   --
-   --  This function must be registered via AWS.Net.WebSocket.Registry.Register
-
    procedure On_Message (Socket : in out Object; Message : String) is null;
-   --  Default implementation does nothing, it needs to be overriden by the
+   --  Default implementation does nothing, it needs to be overridden by the
    --  end-user. This is the callback that will get activated for every server
    --  incoming data. It is also important to keep in mind that the thread
    --  handling this WebSocket won't be released until the procedure returns.
@@ -97,11 +91,11 @@ package AWS.Net.WebSocket is
 
    procedure On_Message (Socket : in out Object; Message : Unbounded_String);
    --  Same a above but takes an Unbounded_String. This is supposed to be
-   --  overriden when handling large messages otherwise a stack-overflow could
-   --  be raised. The default implementation of this procedure to to call the
+   --  overridden when handling large messages otherwise a stack-overflow could
+   --  be raised. The default implementation of this procedure to call the
    --  On_Message above with a string.
    --
-   --  So either this version is overriden to handle the incoming messages or
+   --  So either this version is overridden to handle the incoming messages or
    --  the one above if the messages are known to be small.
 
    procedure On_Open (Socket : in out Object; Message : String) is null;
@@ -119,7 +113,7 @@ package AWS.Net.WebSocket is
      (Socket    : in out Object;
       Message   : String;
       Is_Binary : Boolean := False);
-   --  This default implementation just send a message to the client. The
+   --  This default implementation just sends a message to the client. The
    --  message is sent in a single chunk (not fragmented).
 
    procedure Send
@@ -167,7 +161,7 @@ package AWS.Net.WebSocket is
    --
    --  These function waits until it either receives a close or an error, or
    --  the beginning of a message frame. In the latter case, the function
-   --  will then block until it has receives all chunks of that frame, which
+   --  will then block until it has received all chunks of that frame, which
    --  might take longer than Timeout.
    --
    --  The function will return early if it doesn't receive the beginning
@@ -257,7 +251,22 @@ package AWS.Net.WebSocket is
    --  Returns a unique id for the given socket. The uniqueness for this socket
    --  is guaranteed during the lifetime of the application.
 
+
    overriding function Is_Secure (Socket : Object) return Boolean;
+
+   -----------------------
+   -- Internal services --
+   -----------------------
+   --  These subprograms are used internally by AWS, and do not need to be
+   --  called explicitly in user code.
+
+   procedure Setup_Socket
+     (WS      : not null Object_Class;
+      Socket  : not null Socket_Access;
+      Request : AWS.Status.Data);
+   --  Setup WS.
+   --  It will be called automatically for any websocket returned by a factory,
+   --  so in general you do not need to call it explicitly.
 
 private
 
@@ -351,6 +360,8 @@ private
      (Socket : Object; Size : Natural) is null;
 
    overriding procedure Free (Socket : in out Object);
+   --  This is called automatically when the socket is no longer needed, do not
+   --  call directly from user code.
 
    No_UID    : constant UID := 0;
 
