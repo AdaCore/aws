@@ -148,10 +148,9 @@ is
 
    Tab_Dec : aliased HTTP2.HPACK.Table.Object;
    Tab_Enc : aliased HTTP2.HPACK.Table.Object;
-   --  ??? this table is create for a connection. we probably want to do better
-   --  ??? and maybe set the pointer to this table into a frame object as it
-   --  ??? is needed (and passed as parameter) for header & continuation
-   --  ??? frame.
+   --  ??? this table is created for a connection. we probably want to do
+   --  better and maybe set the pointer to this table into a frame object as
+   --  it is needed (and passed as parameter) for header & continuation frame.
 
    Ctx : Context.Object
      (LA.Server, LA.Line, Tab_Enc'Access, Tab_Dec'Access, Settings'Access);
@@ -614,15 +613,16 @@ begin
             HTTP2.Frame.GoAway.Create
               (Stream_Id => 0,
                Error     => HTTP2.C_Protocol_Error).Send (Sock.all);
-            raise HTTP2.Protocol_Error with
-            HTTP2.Exception_Message
-              (HTTP2.C_Protocol_Error, "wrong connection preface");
+
+            raise HTTP2.Protocol_Error
+              with HTTP2.Exception_Message
+                     (HTTP2.C_Protocol_Error, "wrong connection preface");
          end if;
       end;
    end if;
 
    --  Handle the settings frame now. There is two cases:
-   --  1. when upgrading from HTTP/1 (h2c) handle HTTP2-Settings payload
+   --  1. When upgrading from HTTP/1 (h2c) handle HTTP2-Settings payload
    --     (a setting frame).
    --  2. Read the first frame which should be the settings frame if using h2.
 
@@ -744,8 +744,8 @@ begin
          LA.Server.Slots.Mark_Phase (LA.Line, Wait_For_Client);
 
          declare
-            use type HTTP2.Error_Codes;
             use type Ada.Containers.Count_Type;
+            use type HTTP2.Error_Codes;
 
             Frame      : constant HTTP2.Frame.Object'Class :=
                            HTTP2.Frame.Read (Sock.all, Settings);

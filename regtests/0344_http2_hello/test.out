@@ -1,0 +1,4 @@
+started
+R-GET  : Hello World to H2!
+R-POST : Hello World to H2! (Some text as message)
+shutdown

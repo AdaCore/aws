@@ -68,11 +68,13 @@ package AWS.HTTP2.Frame.Headers is
    --  Iterator interface
 
    function Content_Length
-     (Self : Object) return Stream_Element_Count;
+     (Self : Object) return Stream_Element_Count
+     with Pre => Self.Is_Defined;
 
    function Get
      (Self  : Object;
-      Index : Stream_Element_Offset) return Stream_Element;
+      Index : Stream_Element_Offset) return Stream_Element
+     with Pre => Self.Is_Defined;
 
    overriding procedure Dump_Payload (Self : Object);
 

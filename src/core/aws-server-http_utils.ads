@@ -119,7 +119,7 @@ package AWS.Server.HTTP_Utils is
         (Content : Stream_Element_Array; Stop : in out Boolean);
       Chunk_Size : Stream_Element_Count := 4 * 1024;
    procedure Send_File_G
-     (HTTP_Server : AWS.Server.HTTP;
+     (HTTP_Server : access AWS.Server.HTTP;
       Line_Index  : Positive;
       File        : in out Resources.File_Type;
       Start       : Stream_Element_Offset;
@@ -129,7 +129,7 @@ package AWS.Server.HTTP_Utils is
      (Answer      : in out Response.Data;
       File        : in out Resources.File_Type;
       Length      : in out Resources.Content_Length_Type;
-      HTTP_Server : AWS.Server.HTTP;
+      HTTP_Server : access AWS.Server.HTTP;
       Line_Index  : Positive;
       C_Stat      : AWS.Status.Data);
    --  Send the last header line Transfer-Encoding and Content_Length if

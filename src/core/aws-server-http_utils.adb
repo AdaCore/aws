@@ -1582,7 +1582,7 @@ package body AWS.Server.HTTP_Utils is
 
          if With_Body then
             Send_Resource
-              (Answer, File, Length, HTTP_Server, Line_Index, C_Stat);
+              (Answer, File, Length, HTTP_Server.Self, Line_Index, C_Stat);
          else
             --  RFC-2616 4.4
             --  ...
@@ -1879,7 +1879,7 @@ package body AWS.Server.HTTP_Utils is
    -----------------
 
    procedure Send_File_G
-     (HTTP_Server : AWS.Server.HTTP;
+     (HTTP_Server : access AWS.Server.HTTP;
       Line_Index  : Positive;
       File        : in out Resources.File_Type;
       Start       : Stream_Element_Offset;
@@ -1906,7 +1906,13 @@ package body AWS.Server.HTTP_Utils is
 
             exit when Stop;
 
-            HTTP_Server.Slots.Check_Data_Timeout (Line_Index);
+            --  HTTP_Server is only set when used in server context. When used
+            --  in client context it is not defined and we do not check for
+            --  timeout.
+
+            if HTTP_Server /= null then
+               HTTP_Server.Slots.Check_Data_Timeout (Line_Index);
+            end if;
          end loop;
       end;
    end Send_File_G;
@@ -1919,7 +1925,7 @@ package body AWS.Server.HTTP_Utils is
      (Answer      : in out Response.Data;
       File        : in out Resources.File_Type;
       Length      : in out Resources.Content_Length_Type;
-      HTTP_Server : AWS.Server.HTTP;
+      HTTP_Server : access AWS.Server.HTTP;
       Line_Index  : Positive;
       C_Stat      : AWS.Status.Data)
    is
