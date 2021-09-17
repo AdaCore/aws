@@ -27,6 +27,8 @@
 --  covered by the  GNU Public License.                                     --
 ------------------------------------------------------------------------------
 
+with Ada.Streams;
+
 with AWS.Headers;
 with AWS.HTTP2.Frame.List;
 with AWS.Response;
@@ -40,6 +42,8 @@ limited with AWS.HTTP2.Stream;
 
 package AWS.HTTP2.Message is
 
+   use Ada.Streams;
+
    use type AWS.HTTP2.Frame.List.Count_Type;
    use type Response.Data_Mode;
 
@@ -48,11 +52,18 @@ package AWS.HTTP2.Message is
    function Is_Defined (Self : Object) return Boolean;
 
    function Create
+     (Headers   : AWS.Headers.List;
+      Data      : Stream_Element_Array;
+      Stream_Id : HTTP2.Stream_Id) return Object
+     with Post => Create'Result.Is_Defined;
+   --  Create a message out of a request object
+
+   function Create
      (Answer    : in out Response.Data;
       Request   : AWS.Status.Data;
       Stream_Id : HTTP2.Stream_Id) return Object
      with Post => Create'Result.Is_Defined;
-   --  GZip mean that peer support for GZip encoding
+   --  Create a message out of a response object
 
    function Stream_Id (Self : Object) return HTTP2.Stream_Id
      with Pre => Self.Is_Defined;
@@ -83,22 +94,26 @@ package AWS.HTTP2.Message is
 
 private
 
+   use type Resources.Streams.Stream_Access;
    use type Utils.File_Size_Type;
 
+   type Kind_Type is (K_Request, K_Response);
+
    type Object is tagged record
+      Kind      : Kind_Type := K_Response;
       Mode      : Response.Data_Mode;
       Stream_Id : HTTP2.Stream_Id;
       Headers   : AWS.Headers.List;
       Sent      : Utils.File_Size_Type := 0;
       H_Sent    : Boolean := False; -- Whether the header has been sent
-      M_Body    : AWS.Resources.Streams.Stream_Access;
+      M_Body    : Resources.Streams.Stream_Access;
    end record;
 
    function Headers (Self : Object) return AWS.Headers.List is (Self.Headers);
 
    function Has_Body (Self : Object) return Boolean is
      (Self.Mode in Response.Message | Response.File | Response.File_Once
-        | Response.Stream);
+        | Response.Stream and then Self.M_Body /= null);
 
    function Is_Defined (Self : Object) return Boolean is
      (Self.Mode /= Response.No_Data);

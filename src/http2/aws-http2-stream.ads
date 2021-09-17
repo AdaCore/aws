@@ -47,6 +47,12 @@ package AWS.HTTP2.Stream is
                        Half_Closed_Local, Half_Closed_Remote, Closed);
    --  RFC 7540 5.1 Stream States
 
+   type Direction is (Unknown, Sending, Receiving);
+   --  Stream data direction:
+   --    Unknown   : the stream has not yet been used, state is Idle
+   --    Sending   : some data have been sent to the stream
+   --    Receiving : Soma data have been received from the stream
+
    type Object is tagged private;
 
    Undefined : constant Object;
@@ -96,7 +102,11 @@ package AWS.HTTP2.Stream is
 
    procedure Append_Body (Self : Object; Status : in out AWS.Status.Data)
      with Pre => Self.Is_Defined and then Self.Is_Message_Ready;
-   --  Append status body from stream data frames
+   --  Append body to Status from stream's data frames
+
+   procedure Append_Body (Self : Object; Response : in out AWS.Response.Data)
+     with Pre => Self.Is_Defined; --  and then Self.Is_Message_Ready;
+   --  Append body to Response from stream's data frames
 
    function Headers (Self : Object) return AWS.Headers.List
      with Pre => Self.Is_Defined and then Self.Is_Message_Ready;
@@ -116,12 +126,20 @@ package AWS.HTTP2.Stream is
      with Pre => Self.Is_Defined;
    --  Set the window size for this frame (set via the Window_Update frame)
 
-   function Bytes_Sent (Self : Object) return Stream_Element_Count;
+   function Bytes_Sent (Self : Object) return Stream_Element_Count
+     with Pre => Self.Is_Defined;
    --  Number of payload bytes send over this stream
 
-   function Status (Self : Object) return not null access AWS.Status.Data;
+   function Status (Self : Object) return not null access AWS.Status.Data
+     with Pre => Self.Is_Defined;
 
-   function Response (Self : Object) return not null access AWS.Response.Data;
+   function Response (Self : Object) return not null access AWS.Response.Data
+     with Pre => Self.Is_Defined;
+
+   function Data_Flow (Self : Object) return Direction
+     with Pre  => Self.Is_Defined,
+          Post => Data_Flow'Result = Unknown or else Self.State /= Idle;
+   --  Current stream direction
 
 private
 
@@ -149,6 +167,7 @@ private
       End_Stream          : Boolean              := False;
       Content_Length      : Content_Length_Type  := Undefined_Length;
       Bytes_Received      : Content_Length_Type  := 0;
+      Data_Flow           : Direction            := Unknown;
    end record;
 
    function "<" (Left, Right : Object) return Boolean is (Left.Id < Right.Id);
@@ -184,8 +203,10 @@ private
      (Self.Status'Unrestricted_Access);
 
    function Response (Self : Object) return not null access AWS.Response.Data
-   is (Self.Response'Unrestricted_Access);
+     is (Self.Response'Unrestricted_Access);
 
    function Is_Defined (Self : Object) return Boolean is (Self /= Undefined);
+
+   function Data_Flow (Self : Object) return Direction is (Self.Data_Flow);
 
 end AWS.HTTP2.Stream;

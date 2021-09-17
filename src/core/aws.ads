@@ -39,4 +39,6 @@ package AWS with Pure is
 
    HTTP_Version : String renames HTTP_11;
 
+   type HTTP_Protocol is (HTTPv1, HTTPv2);
+
 end AWS;

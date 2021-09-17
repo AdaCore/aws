@@ -60,6 +60,17 @@ package body AWS.HTTP2.Stream is
       AWS.Status.Set.Uploaded (Status);
    end Append_Body;
 
+   procedure Append_Body
+     (Self     : Object;
+      Response : in out AWS.Response.Data) is
+   begin
+      for F of Self.D_Frames loop
+         pragma Assert (F.Kind = K_Data);
+
+         Frame.Data.Object (F).Append (Response);
+      end loop;
+   end Append_Body;
+
    ------------
    -- Create --
    ------------
@@ -88,7 +99,8 @@ package body AWS.HTTP2.Stream is
          Stream_Dependency   => 0,
          End_Stream          => False,
          Content_Length      => Undefined_Length,
-         Bytes_Received      => 0);
+         Bytes_Received      => 0,
+         Data_Flow           => Unknown);
    end Create;
 
    ----------------------
@@ -267,6 +279,8 @@ package body AWS.HTTP2.Stream is
                          (Frame.Has_Flag (HTTP2.Frame.End_Stream_Flag));
 
    begin
+      Self.Data_Flow := Receiving;
+
       Error := C_No_Error;
 
       --  A received frame must have an odd number
@@ -531,6 +545,8 @@ package body AWS.HTTP2.Stream is
       End_Stream : constant Boolean :=
                      Frame.Has_Flag (HTTP2.Frame.End_Stream_Flag);
    begin
+      Self.Data_Flow := Sending;
+
       Frame.Send (Self.Sock.all);
 
       --  Handle Stream States - See RFC-7540 5.1

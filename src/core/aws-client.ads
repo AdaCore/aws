@@ -43,6 +43,7 @@ private with Ada.Finalization;
 private with Ada.Real_Time;
 private with ZLib;
 
+private with AWS.Config;
 private with AWS.URL;
 private with AWS.Utils;
 
@@ -141,7 +142,8 @@ package AWS.Client is
       Follow_Redirection : Boolean         := False;
       Certificate        : String          := Default.Client_Certificate;
       Headers            : Header_List     := Empty_Header_List;
-      User_Agent         : String          := Default.User_Agent)
+      User_Agent         : String          := Default.User_Agent;
+      HTTP_Version       : HTTP_Protocol   := HTTPv1)
       return Response.Data;
    --  Retrieve the message data given a specific URL. It open a connection
    --  with the server and ask for the resource specified in the URL it then
@@ -228,7 +230,8 @@ package AWS.Client is
       Timeouts     : Timeouts_Values := No_Timeout;
       Attachments  : Attachment_List := Empty_Attachment_List;
       Headers      : Header_List     := Empty_Header_List;
-      User_Agent   : String          := Default.User_Agent)
+      User_Agent   : String          := Default.User_Agent;
+      HTTP_Version : HTTP_Protocol   := HTTPv1)
       return Response.Data;
    --  Send to the server URL a POST request with Data
    --  Post will retry one time if it fails.
@@ -245,23 +248,25 @@ package AWS.Client is
       Timeouts     : Timeouts_Values := No_Timeout;
       Attachments  : Attachment_List := Empty_Attachment_List;
       Headers      : Header_List     := Empty_Header_List;
-      User_Agent   : String          := Default.User_Agent)
+      User_Agent   : String          := Default.User_Agent;
+      HTTP_Version : HTTP_Protocol   := HTTPv1)
       return Response.Data;
    --  Idem as above but with binary data
 
    function SOAP_Post
-     (URL         : String;
-      Data        : String;
-      SOAPAction  : String;
-      User        : String          := No_Data;
-      Pwd         : String          := No_Data;
-      Proxy       : String          := No_Data;
-      Proxy_User  : String          := No_Data;
-      Proxy_Pwd   : String          := No_Data;
-      Timeouts    : Timeouts_Values := No_Timeout;
-      Attachments : Attachment_List := Empty_Attachment_List;
-      Headers     : Header_List     := Empty_Header_List;
-      User_Agent  : String          := Default.User_Agent)
+     (URL          : String;
+      Data         : String;
+      SOAPAction   : String;
+      User         : String          := No_Data;
+      Pwd          : String          := No_Data;
+      Proxy        : String          := No_Data;
+      Proxy_User   : String          := No_Data;
+      Proxy_Pwd    : String          := No_Data;
+      Timeouts     : Timeouts_Values := No_Timeout;
+      Attachments  : Attachment_List := Empty_Attachment_List;
+      Headers      : Header_List     := Empty_Header_List;
+      User_Agent   : String          := Default.User_Agent;
+      HTTP_Version : HTTP_Protocol   := HTTPv1)
       return Response.Data;
    --  Send to the server URL a POST request with Data
    --  Post will retry one time if it fails.
@@ -306,20 +311,21 @@ package AWS.Client is
       return HTTP_Connection;
 
    procedure Create
-     (Connection  : in out HTTP_Connection;
-      Host        : String;
-      User        : String          := No_Data;
-      Pwd         : String          := No_Data;
-      Proxy       : String          := No_Data;
-      Proxy_User  : String          := No_Data;
-      Proxy_Pwd   : String          := No_Data;
-      Retry       : Natural         := Retry_Default;
-      Persistent  : Boolean         := True;
-      Timeouts    : Timeouts_Values := No_Timeout;
-      Server_Push : Boolean         := False;
-      SSL_Config  : Net.SSL.Config  := Net.SSL.Null_Config;
-      Certificate : String          := Default.Client_Certificate;
-      User_Agent  : String          := Default.User_Agent);
+     (Connection   : in out HTTP_Connection;
+      Host         : String;
+      User         : String          := No_Data;
+      Pwd          : String          := No_Data;
+      Proxy        : String          := No_Data;
+      Proxy_User   : String          := No_Data;
+      Proxy_Pwd    : String          := No_Data;
+      Retry        : Natural         := Retry_Default;
+      Persistent   : Boolean         := True;
+      Timeouts     : Timeouts_Values := No_Timeout;
+      Server_Push  : Boolean         := False;
+      SSL_Config   : Net.SSL.Config  := Net.SSL.Null_Config;
+      Certificate  : String          := Default.Client_Certificate;
+      User_Agent   : String          := Default.User_Agent;
+      HTTP_Version : HTTP_Protocol   := HTTPv1);
    --  Create a new connection. This is to be used with Keep-Alive client API
    --  below. The connection will be tried Retry times if it fails. If
    --  persistent is True the connection will remain open otherwise it will be
@@ -613,6 +619,7 @@ private
       Proxy_URL          : AWS.URL.Object;
       C_Headers          : Header_List;        -- user's connection headers
       F_Headers          : Header_List;        -- final connection headers
+      HTTP_Version       : HTTP_Protocol                := HTTPv1;
       Auth               : Authentication_Set;
       Opened             : Boolean                      := False;
       Persistent         : Boolean;
@@ -633,6 +640,7 @@ private
       Decode_Buffer      : Utils.Stream_Element_Array_Access;
       Decode_First       : Stream_Element_Offset;
       Decode_Last        : Stream_Element_Offset;
+      Config             : AWS.Config.Object;
    end record;
 
    overriding procedure Finalize (Connection : in out HTTP_Connection);

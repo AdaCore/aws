@@ -30,6 +30,7 @@
 with Ada.Text_IO;
 
 with AWS.Net.Buffered;
+with AWS.Response.Set;
 with AWS.Status.Set;
 with AWS.Translator;
 
@@ -51,6 +52,20 @@ package body AWS.HTTP2.Frame.Data is
       end if;
 
       AWS.Status.Set.Append_Body (Status, Self.Data.S (First .. Last));
+   end Append;
+
+   procedure Append (Self : Object; Response : in out AWS.Response.Data) is
+      First : Stream_Element_Offset := Self.Data.S'First;
+      Last  : Stream_Element_Offset := Self.Data.S'Last;
+   begin
+      --  If we have a padded flag, remove the padding from the payload
+
+      if Self.Has_Flag (Padded_Flag) then
+         First := First + Self.Data.D.Pad_Length'Size / 8;
+         Last  := Last - Stream_Element_Offset (Self.Data.D.Pad_Length);
+      end if;
+
+      AWS.Response.Set.Append_Body (Response, Self.Data.S (First .. Last));
    end Append;
 
    ------------

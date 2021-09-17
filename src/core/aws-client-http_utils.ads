@@ -131,7 +131,7 @@ package AWS.Client.HTTP_Utils is
       Headers      : Header_List           := Empty_Header_List);
    --  Only used by Internal_Post
 
-   procedure Send_Common_Post
+   procedure Set_Common_Post
      (Connection   : in out HTTP_Connection;
       Data         : Stream_Element_Array;
       URI          : String;

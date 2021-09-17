@@ -35,11 +35,17 @@ with Ada.Strings.Fixed;
 
 with AWS.Digest;
 with AWS.Headers.Values;
+with AWS.HTTP2.Connection;
+with AWS.HTTP2.Frame.Settings;
+with AWS.HTTP2.HPACK.Table;
+with AWS.HTTP2.Message;
+with AWS.HTTP2.Stream;
 with AWS.Messages;
 with AWS.MIME;
 with AWS.Net.Buffered;
 with AWS.Net.SSL;
 with AWS.Response.Set;
+with AWS.Server.Context;
 with AWS.Translator;
 with AWS.Utils;
 
@@ -54,6 +60,53 @@ package body AWS.Client.HTTP_Utils is
       Right : Real_Time.Time_Span) return Real_Time.Time;
    --  Returns Real_Time.Time_Last if Right is Real_Time.Time_Span_Last,
    --  otherwise returns Left + Right.
+
+   function HN
+     (Header_Name : String;
+      Is_H2       : Boolean) return String with Inline;
+   --  If Is_H2 the Header_Name is converted to lower case. Note that
+   --  even in HTTP/1 the header name are not case sensitive, but it
+   --  seems that some browsers (like IE) are somewhat broken when
+   --  sending lower-case headers. So we only fold in lower case for
+   --  HTTP/2 where it is mandatory.
+
+   procedure Send_Request_1
+     (Connection : in out HTTP_Connection;
+      Kind       : Method_Kind;
+      Result     : out Response.Data;
+      URI        : String;
+      Data       : Stream_Element_Array := No_Data;
+      Headers    : Header_List := Empty_Header_List);
+   --  Send a simple GET request data For HTTP/1
+
+   procedure Send_Request_2
+     (Connection : in out HTTP_Connection;
+      Kind       : Method_Kind;
+      Result     : out Response.Data;
+      URI        : String;
+      Data       : Stream_Element_Array := No_Data;
+      Headers    : Header_List := Empty_Header_List);
+   --  Send a simple GET request data For HTTP/2
+
+   procedure Internal_Post_Without_Attachment_1
+     (Connection   : in out HTTP_Connection;
+      Result       : out Response.Data;
+      Data         : Stream_Element_Array;
+      URI          : String;
+      SOAPAction   : String;
+      Content_Type : String;
+      Headers      : Header_List := Empty_Header_List);
+   --  Send a simple POST request data For HTTP/1
+
+   procedure Internal_Post_Without_Attachment_2
+     (Connection   : in out HTTP_Connection;
+      Result       : out Response.Data;
+      Data         : Stream_Element_Array;
+      URI          : String;
+      SOAPAction   : String;
+      Content_Type : String;
+      Headers      : Header_List := Empty_Header_List);
+   --  Send a simple POST request data For HTTP/2
 
    ---------
    -- "+" --
@@ -395,6 +448,21 @@ package body AWS.Client.HTTP_Utils is
       Disconnect;
    end Get_Response;
 
+   --------
+   -- HN --
+   --------
+
+   function HN
+     (Header_Name : String;
+      Is_H2       : Boolean) return String is
+   begin
+      if Is_H2 then
+         return Characters.Handling.To_Lower (Header_Name);
+      else
+         return Header_Name;
+      end if;
+   end HN;
+
    -----------
    -- Image --
    -----------
@@ -615,11 +683,29 @@ package body AWS.Client.HTTP_Utils is
       end loop Retry;
    end Internal_Post_With_Attachment;
 
-   --------------------------------------
-   -- Internal_Post_Without_Attachment --
-   --------------------------------------
-
    procedure Internal_Post_Without_Attachment
+     (Connection   : in out HTTP_Connection;
+      Result       : out Response.Data;
+      Data         : Stream_Element_Array;
+      URI          : String;
+      SOAPAction   : String;
+      Content_Type : String;
+      Headers      : Header_List := Empty_Header_List) is
+   begin
+      if Connection.HTTP_Version = HTTPv1 then
+         Internal_Post_Without_Attachment_1
+           (Connection, Result, Data, URI, SOAPAction, Content_Type, Headers);
+      else
+         Internal_Post_Without_Attachment_2
+           (Connection, Result, Data, URI, SOAPAction, Content_Type, Headers);
+      end if;
+   end Internal_Post_Without_Attachment;
+
+   ----------------------------------------
+   -- Internal_Post_Without_Attachment_1 --
+   ----------------------------------------
+
+   procedure Internal_Post_Without_Attachment_1
      (Connection   : in out HTTP_Connection;
       Result       : out Response.Data;
       Data         : Stream_Element_Array;
@@ -642,8 +728,15 @@ package body AWS.Client.HTTP_Utils is
          begin
             --  Post Data with headers
 
-            Send_Common_Post
+            Set_Common_Post
               (Connection, Data, URI, SOAPAction, Content_Type, Headers);
+
+            AWS.Headers.Send_Header
+              (Connection.Socket.all, Connection.F_Headers, End_Block => True);
+
+            --  Send message body
+
+            Net.Buffered.Write (Connection.Socket.all, Data);
 
             --  Get answer from server
 
@@ -668,7 +761,143 @@ package body AWS.Client.HTTP_Utils is
                exit Retry when not Response.Is_Empty (Result);
          end;
       end loop Retry;
-   end Internal_Post_Without_Attachment;
+   end Internal_Post_Without_Attachment_1;
+
+   ----------------------------------------
+   -- Internal_Post_Without_Attachment_2 --
+   ----------------------------------------
+
+   procedure Internal_Post_Without_Attachment_2
+     (Connection   : in out HTTP_Connection;
+      Result       : out Response.Data;
+      Data         : Stream_Element_Array;
+      URI          : String;
+      SOAPAction   : String;
+      Content_Type : String;
+      Headers      : Header_List := Empty_Header_List)
+   is
+      use Ada.Real_Time;
+      use all type HTTP2.Frame.Flags_Type;
+      use all type HTTP2.Frame.Kind_Type;
+      use all type HTTP2.Frame.Settings.Settings_Kind;
+
+      subtype Byte_4 is HTTP2.Byte_4;
+
+      C             : AWS.Config.Object renames Connection.Config;
+      Request       : HTTP2.Message.Object;
+      Stamp         : constant Time := Clock;
+      Try_Count     : Natural := Connection.Retry;
+      Auth_Attempts : Auth_Attempts_Count := (others => 2);
+      Auth_Is_Over  : Boolean;
+      Stream        : HTTP2.Stream.Object;
+      H_Connection  : aliased HTTP2.Connection.Object;
+      Enc_Table     : aliased HTTP2.HPACK.Table.Object;
+      Dec_Table     : aliased HTTP2.HPACK.Table.Object;
+      Settings      : constant HTTP2.Frame.Settings.Set :=
+                        (1 => (HEADER_TABLE_SIZE,
+                               Byte_4 (C.HTTP2_Header_Table_Size)),
+                         2 => (ENABLE_PUSH,
+                               0),
+                         3 => (MAX_CONCURRENT_STREAMS,
+                               Byte_4 (C.HTTP2_Max_Concurrent_Streams)),
+                         4 => (INITIAL_WINDOW_SIZE,
+                               Byte_4 (C.HTTP2_Initial_Window_Size)),
+                         5 => (MAX_FRAME_SIZE,
+                               Byte_4 (C.HTTP2_Max_Frame_Size)),
+                         6 => (MAX_HEADER_LIST_SIZE,
+                               Byte_4 (C.HTTP2_Max_Header_List_Size)));
+      Ctx            : Server.Context.Object (null,
+                                              1,
+                                              Enc_Table'Access,
+                                              Dec_Table'Access,
+                                              H_Connection'Access);
+   begin
+      Connection.F_Headers.Reset;
+
+      Retry : loop
+         begin
+            --  Post Data with headers
+
+            Set_Common_Post
+              (Connection, Data, URI, SOAPAction, Content_Type, Headers);
+
+            if Data'Length > 0 then
+               Set_Header
+                 (Connection.F_Headers,
+                  HN (Messages.Content_Length_Token, True),
+                  Utils.Image (Stream_Element_Offset'(Data'Length)));
+            end if;
+
+            --  Send the HTTP/2 connection preface
+
+            Net.Buffered.Write
+              (Connection.Socket.all, HTTP2.Client_Connection_Preface);
+
+            --  Send the setting frame (stream id 0)
+
+            HTTP2.Frame.Settings.Create
+              (Settings).Send (Connection.Socket.all);
+
+            --  We need to read the settings from server
+
+            declare
+               Frame : constant HTTP2.Frame.Object'Class :=
+                         HTTP2.Frame.Read
+                           (Connection.Socket.all, H_Connection);
+            begin
+               if Frame.Kind /= K_Settings then
+                  raise Constraint_Error with
+                    "server should have answered with a setting frame";
+               end if;
+            end;
+
+            --  Create frames and send them
+
+            Stream := HTTP2.Stream.Create
+              (Connection.Socket, 1, H_Connection.Flow_Control_Window);
+
+            Request := HTTP2.Message.Create
+              (Connection.F_Headers, Data, Stream.Identifier);
+
+            for F of Request.To_Frames (Ctx, Stream) loop
+               Stream.Send_Frame (F);
+            end loop;
+
+            --  Get response
+
+            Stream := HTTP2.Stream.Create
+              (Connection.Socket, 3, H_Connection.Flow_Control_Window);
+
+            while not Stream.Is_Message_Ready loop
+               declare
+                  Frame : constant HTTP2.Frame.Object'Class :=
+                            HTTP2.Frame.Read
+                              (Connection.Socket.all, H_Connection);
+                  Error : HTTP2.Error_Codes;
+               begin
+                  Stream.Received_Frame (Ctx, Frame, Error);
+                  exit when Frame.Has_Flag (HTTP2.Frame.End_Stream_Flag);
+               end;
+            end loop;
+
+            Stream.Append_Body (Result);
+
+            Decrement_Authentication_Attempt
+              (Connection, Auth_Attempts, Auth_Is_Over);
+
+            if Auth_Is_Over then
+               exit Retry;
+            end if;
+
+         exception
+            when E : Net.Socket_Error | Connection_Error =>
+               Error_Processing
+                 (Connection, Try_Count, Result, "POST", E, Stamp);
+
+               exit Retry when not Response.Is_Empty (Result);
+         end;
+      end loop Retry;
+   end Internal_Post_Without_Attachment_2;
 
    ----------------------------
    -- Open_Set_Common_Header --
@@ -680,6 +909,7 @@ package body AWS.Client.HTTP_Utils is
       URI        : String;
       Headers    : Header_List := Empty_Header_List)
    is
+      Is_H2   : constant Boolean := Connection.HTTP_Version = HTTPv2;
       Sock    : Net.Socket_Access := Connection.Socket;
       No_Data : Unbounded_String renames Null_Unbounded_String;
 
@@ -735,6 +965,18 @@ package body AWS.Client.HTTP_Utils is
 
       --  First the the method (request) line
 
+      if Is_H2 then
+         Set_Header
+           (Connection.F_Headers,
+            Messages.Method_Token,
+            Method);
+
+         Set_Header
+           (Connection.F_Headers,
+            Messages.Scheme_Token,
+            AWS.URL.Protocol_Name (Connection.Connect_URL));
+      end if;
+
       if Connection.Proxy = No_Data
         or else AWS.URL.Security (Connection.Host_URL)
       then
@@ -743,34 +985,65 @@ package body AWS.Client.HTTP_Utils is
          --  required to send the absolute path.
 
          if URI = "" then
-            Set_Header
-              (Connection.F_Headers,
-               Method,
-               AWS.URL.Pathname_And_Parameters (Connection.Host_URL)
-               & ' ' & HTTP_Version);
+            if Is_H2 then
+               Set_Header
+                 (Connection.F_Headers,
+                  Messages.Path2_Token,
+                  AWS.URL.Pathname_And_Parameters (Connection.Host_URL));
+            else
+               Set_Header
+                 (Connection.F_Headers,
+                  Method,
+                  AWS.URL.Pathname_And_Parameters (Connection.Host_URL)
+                  & ' ' & HTTP_Version);
+            end if;
 
          else
-            Set_Header
-              (Connection.F_Headers,
-               Method, Encoded_URI & ' ' & HTTP_Version);
+            if Is_H2 then
+               Set_Header
+                 (Connection.F_Headers,
+                  Messages.Path2_Token,
+                  Encoded_URI);
+            else
+               Set_Header
+                 (Connection.F_Headers,
+                  Method, Encoded_URI & ' ' & HTTP_Version);
+            end if;
          end if;
+
       else
          --  We have a proxy configured, in thoses case we want to send the
          --  absolute path and parameters.
 
          if URI = "" then
-            Set_Header
-              (Connection.F_Headers,
-               Method,
-               AWS.URL.URL (Connection.Host_URL) & ' ' & HTTP_Version);
+            if Is_H2 then
+               Set_Header
+                 (Connection.F_Headers,
+                  Messages.Path2_Token,
+                  AWS.URL.URL (Connection.Host_URL));
+            else
+               Set_Header
+                 (Connection.F_Headers,
+                  Method,
+                  AWS.URL.URL (Connection.Host_URL) & ' ' & HTTP_Version);
+            end if;
 
          else
             --  Send GET http://<host>[:port]/URI HTTP/1.1
-            Set_Header
-              (Connection.F_Headers,
-               Method,
-               URL.Protocol_Name (Connection.Host_URL) & "://"
-               & Host_Address & Encoded_URI & ' ' & HTTP_Version);
+
+            if Is_H2 then
+               Set_Header
+                 (Connection.F_Headers,
+                  Messages.Path2_Token,
+                  URL.Protocol_Name (Connection.Host_URL) & "://"
+                  & Host_Address & Encoded_URI);
+            else
+               Set_Header
+                 (Connection.F_Headers,
+                  Method,
+                  URL.Protocol_Name (Connection.Host_URL) & "://"
+                  & Host_Address & Encoded_URI & ' ' & HTTP_Version);
+            end if;
          end if;
       end if;
 
@@ -785,22 +1058,25 @@ package body AWS.Client.HTTP_Utils is
          --  Unless Header already contains connection info (like would be
          --  the case for web sockets for instance)
 
-         if not Connection.F_Headers.Exist (Messages.Connection_Token) then
+         if not Is_H2
+           and then not Connection.F_Headers.Exist (Messages.Connection_Token)
+         then
             Set_Header
-              (Connection.F_Headers, Messages.Connection_Token, Persistence);
+              (Connection.F_Headers,
+               HN (Messages.Connection_Token, Is_H2), Persistence);
          end if;
 
       else
          Set_Header
            (Connection.F_Headers,
-            Messages.Proxy_Connection_Token,
+            HN (Messages.Proxy_Connection_Token, Is_H2),
             Persistence);
 
          --  Proxy Authentication
 
          Set_Authentication_Header
            (Connection,
-            Messages.Proxy_Authorization_Token,
+            HN (Messages.Proxy_Authorization_Token, Is_H2),
             Connection.Auth (Proxy),
             URI,
             Method);
@@ -817,41 +1093,41 @@ package body AWS.Client.HTTP_Utils is
       if Connection.Cookie /= No_Data then
          Set_Header
            (Connection.F_Headers,
-            Messages.Cookie_Token,
+            HN (Messages.Cookie_Token, Is_H2),
             To_String (Connection.Cookie));
       end if;
 
       Set_Header
         (Connection.F_Headers,
-         Messages.Host_Token,
+         HN (Messages.Host_Token, Is_H2),
          Host_Address);
 
       Set_Header
         (Connection.F_Headers,
-         Messages.Accept_Token,
+         HN (Messages.Accept_Token, Is_H2),
          "text/html, */*");
 
       Set_Header
         (Connection.F_Headers,
-         Messages.Accept_Encoding_Token,
+         HN (Messages.Accept_Encoding_Token, Is_H2),
          "gzip, deflate");
 
       Set_Header
         (Connection.F_Headers,
-         Messages.Accept_Language_Token,
+         HN (Messages.Accept_Language_Token, Is_H2),
          "fr, ru, us");
 
       if Connection.User_Agent /= Null_Unbounded_String then
          Set_Header
            (Connection.F_Headers,
-            Messages.User_Agent_Token,
+            HN (Messages.User_Agent_Token, Is_H2),
             To_String (Connection.User_Agent));
       end if;
 
       if Connection.Data_Range /= No_Range then
          Set_Header
            (Connection.F_Headers,
-            Messages.Range_Token,
+            HN (Messages.Range_Token, Is_H2),
             Image (Connection.Data_Range));
       end if;
 
@@ -859,7 +1135,7 @@ package body AWS.Client.HTTP_Utils is
 
       Set_Authentication_Header
         (Connection,
-         Messages.Authorization_Token,
+         HN (Messages.Authorization_Token, Is_H2),
          Connection.Auth (WWW),
          URI,
          Method);
@@ -1093,7 +1369,7 @@ package body AWS.Client.HTTP_Utils is
 
       use type Messages.Status_Code;
 
-   begin -- Parse_Header
+   begin
       for Level in Authentication_Level'Range loop
          Connection.Auth (Level).Requested := False;
       end loop;
@@ -1245,54 +1521,30 @@ package body AWS.Client.HTTP_Utils is
       end loop;
    end Read_Body;
 
-   ----------------------
-   -- Send_Common_Post --
-   ----------------------
-
-   procedure Send_Common_Post
-     (Connection   : in out HTTP_Connection;
-      Data         : Stream_Element_Array;
-      URI          : String;
-      SOAPAction   : String;
-      Content_Type : String;
-      Headers      : Header_List := Empty_Header_List) is
-   begin
-      Open_Set_Common_Header (Connection, Messages.Post_Token, URI, Headers);
-
-      if Content_Type /= Client.No_Data then
-         Set_Header
-           (Connection.F_Headers,
-            Messages.Content_Type_Token,
-            Content_Type);
-      end if;
-
-      if SOAPAction /= Client.No_Data then
-         --  SOAP header
-
-         Set_Header
-           (Connection.F_Headers, Messages.SOAPAction_Token, SOAPAction);
-      end if;
-
-      --  Send message Content_Length
-
-      Set_Header
-        (Connection.F_Headers,
-         Messages.Content_Length_Token,
-         Utils.Image (Stream_Element_Offset'(Data'Length)));
-
-      AWS.Headers.Send_Header
-        (Connection.Socket.all, Connection.F_Headers, End_Block => True);
-
-      --  Send message body
-
-      Net.Buffered.Write (Connection.Socket.all, Data);
-   end Send_Common_Post;
-
    ------------------
    -- Send_Request --
    ------------------
 
    procedure Send_Request
+     (Connection : in out HTTP_Connection;
+      Kind       : Method_Kind;
+      Result     : out Response.Data;
+      URI        : String;
+      Data       : Stream_Element_Array := No_Data;
+      Headers    : Header_List := Empty_Header_List) is
+   begin
+      if Connection.HTTP_Version = HTTPv1 then
+         Send_Request_1 (Connection, Kind, Result, URI, Data, Headers);
+      else
+         Send_Request_2 (Connection, Kind, Result, URI, Data, Headers);
+      end if;
+   end Send_Request;
+
+   --------------------
+   -- Send_Request_1 --
+   --------------------
+
+   procedure Send_Request_1
      (Connection : in out HTTP_Connection;
       Kind       : Method_Kind;
       Result     : out Response.Data;
@@ -1345,7 +1597,7 @@ package body AWS.Client.HTTP_Utils is
             if Auth_Is_Over then
                return;
 
-            elsif  Kind /= HEAD and then Connection.Streaming then
+            elsif Kind /= HEAD and then Connection.Streaming then
                Read_Body (Connection, Result, Store => False);
             end if;
 
@@ -1358,7 +1610,142 @@ package body AWS.Client.HTTP_Utils is
                exit Retry when not Response.Is_Empty (Result);
          end;
       end loop Retry;
-   end Send_Request;
+   end Send_Request_1;
+
+   --------------------
+   -- Send_Request_2 --
+   --------------------
+
+   procedure Send_Request_2
+     (Connection : in out HTTP_Connection;
+      Kind       : Method_Kind;
+      Result     : out Response.Data;
+      URI        : String;
+      Data       : Stream_Element_Array := No_Data;
+      Headers    : Header_List := Empty_Header_List)
+   is
+      use Ada.Real_Time;
+      use all type HTTP2.Frame.Flags_Type;
+      use all type HTTP2.Frame.Kind_Type;
+      use all type HTTP2.Frame.Settings.Settings_Kind;
+
+      subtype Byte_4 is HTTP2.Byte_4;
+
+      C             : AWS.Config.Object renames Connection.Config;
+      Request       : HTTP2.Message.Object;
+      Stamp         : constant Time := Clock;
+      Try_Count     : Natural := Connection.Retry;
+      Auth_Attempts : Auth_Attempts_Count := (others => 2);
+      Auth_Is_Over  : Boolean;
+      Stream        : HTTP2.Stream.Object;
+      H_Connection  : aliased HTTP2.Connection.Object;
+      Enc_Table     : aliased HTTP2.HPACK.Table.Object;
+      Dec_Table     : aliased HTTP2.HPACK.Table.Object;
+      Settings      : constant HTTP2.Frame.Settings.Set :=
+                        (1 => (HEADER_TABLE_SIZE,
+                               Byte_4 (C.HTTP2_Header_Table_Size)),
+                         2 => (ENABLE_PUSH,
+                               0),
+                         3 => (MAX_CONCURRENT_STREAMS,
+                               Byte_4 (C.HTTP2_Max_Concurrent_Streams)),
+                         4 => (INITIAL_WINDOW_SIZE,
+                               Byte_4 (C.HTTP2_Initial_Window_Size)),
+                         5 => (MAX_FRAME_SIZE,
+                               Byte_4 (C.HTTP2_Max_Frame_Size)),
+                         6 => (MAX_HEADER_LIST_SIZE,
+                               Byte_4 (C.HTTP2_Max_Header_List_Size)));
+      Ctx            : Server.Context.Object (null,
+                                              1,
+                                              Enc_Table'Access,
+                                              Dec_Table'Access,
+                                              H_Connection'Access);
+   begin
+      Retry : loop
+         begin
+            --  Create the request HTTP/2 message out of Status.Data
+
+            Open_Set_Common_Header
+              (Connection, Method_Kind'Image (Kind), URI, Headers);
+
+            --  Add content length if needed
+
+            if Data'Length > 0 then
+               Set_Header
+                 (Connection.F_Headers,
+                  HN (Messages.Content_Length_Token, True),
+                  Utils.Image (Stream_Element_Offset'(Data'Length)));
+            end if;
+
+            --  Send the HTTP/2 connection preface
+
+            Net.Buffered.Write
+              (Connection.Socket.all, HTTP2.Client_Connection_Preface);
+
+            --  Send the setting frame (stream id 0)
+
+            HTTP2.Frame.Settings.Create
+              (Settings).Send (Connection.Socket.all);
+
+            --  We need to read the settings from server
+
+            declare
+               Frame : constant HTTP2.Frame.Object'Class :=
+                         HTTP2.Frame.Read
+                           (Connection.Socket.all, H_Connection);
+            begin
+               if Frame.Kind /= K_Settings then
+                  raise Constraint_Error with
+                    "server should have answered with a setting frame";
+               end if;
+            end;
+
+            --  Create frames and send them
+
+            Stream := HTTP2.Stream.Create
+              (Connection.Socket, 1, H_Connection.Flow_Control_Window);
+
+            Request := HTTP2.Message.Create
+              (Connection.F_Headers, Data, Stream.Identifier);
+
+            for F of Request.To_Frames (Ctx, Stream) loop
+               Stream.Send_Frame (F);
+            end loop;
+
+            --  Get response
+
+            Stream := HTTP2.Stream.Create
+              (Connection.Socket, 3, H_Connection.Flow_Control_Window);
+
+            while not Stream.Is_Message_Ready loop
+               declare
+                  Frame : constant HTTP2.Frame.Object'Class :=
+                            HTTP2.Frame.Read
+                              (Connection.Socket.all, H_Connection);
+                  Error : HTTP2.Error_Codes;
+               begin
+                  Stream.Received_Frame (Ctx, Frame, Error);
+                  exit when Frame.Has_Flag (HTTP2.Frame.End_Stream_Flag);
+               end;
+            end loop;
+
+            Stream.Append_Body (Result);
+
+            Decrement_Authentication_Attempt
+              (Connection, Auth_Attempts, Auth_Is_Over);
+
+            if Auth_Is_Over then
+               exit Retry;
+            end if;
+         exception
+            when E : Net.Socket_Error | Connection_Error =>
+               Error_Processing
+                 (Connection, Try_Count, Result,
+                  Method_Kind'Image (Kind), E, Stamp);
+
+               exit Retry when not Response.Is_Empty (Result);
+         end;
+      end loop Retry;
+   end Send_Request_2;
 
    ------------------------
    -- Set_Authentication --
@@ -1419,7 +1806,7 @@ package body AWS.Client.HTTP_Utils is
 
                function Get_URI return String;
                --  Returns the real URI where the request is going to be
-               --  sent. It is either Open_Send_Common_Header.URI parameter
+               --  sent. It is either Open_Set_Common_Header.URI parameter
                --  if it exists (without the HTTP parameters part), or URI
                --  part of the Connection.Connect_URL field.
 
@@ -1515,6 +1902,45 @@ package body AWS.Client.HTTP_Utils is
          end if;
       end if;
    end Set_Authentication_Header;
+
+   ---------------------
+   -- Set_Common_Post --
+   ---------------------
+
+   procedure Set_Common_Post
+     (Connection   : in out HTTP_Connection;
+      Data         : Stream_Element_Array;
+      URI          : String;
+      SOAPAction   : String;
+      Content_Type : String;
+      Headers      : Header_List := Empty_Header_List)
+   is
+      Is_H2 : constant Boolean := Connection.HTTP_Version = HTTPv2;
+   begin
+      Open_Set_Common_Header (Connection, Messages.Post_Token, URI, Headers);
+
+      if Content_Type /= Client.No_Data then
+         Set_Header
+           (Connection.F_Headers,
+            HN (Messages.Content_Type_Token, Is_H2),
+            Content_Type);
+      end if;
+
+      if SOAPAction /= Client.No_Data then
+         --  SOAP header
+
+         Set_Header
+           (Connection.F_Headers,
+            HN (Messages.SOAPAction_Token, Is_H2), SOAPAction);
+      end if;
+
+      --  Send message Content_Length
+
+      Set_Header
+        (Connection.F_Headers,
+         HN (Messages.Content_Length_Token, Is_H2),
+         Utils.Image (Stream_Element_Offset'(Data'Length)));
+   end Set_Common_Post;
 
    ----------------
    -- Set_Header --
