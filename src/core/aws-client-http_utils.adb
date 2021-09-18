@@ -63,7 +63,7 @@ package body AWS.Client.HTTP_Utils is
 
    function HN
      (Header_Name : String;
-      Is_H2       : Boolean) return String with Inline;
+      Is_H2       : Boolean) return String renames Utils.Normalize_Lower;
    --  If Is_H2 the Header_Name is converted to lower case. Note that
    --  even in HTTP/1 the header name are not case sensitive, but it
    --  seems that some browsers (like IE) are somewhat broken when
@@ -447,21 +447,6 @@ package body AWS.Client.HTTP_Utils is
 
       Disconnect;
    end Get_Response;
-
-   --------
-   -- HN --
-   --------
-
-   function HN
-     (Header_Name : String;
-      Is_H2       : Boolean) return String is
-   begin
-      if Is_H2 then
-         return Characters.Handling.To_Lower (Header_Name);
-      else
-         return Header_Name;
-      end if;
-   end HN;
 
    -----------
    -- Image --
