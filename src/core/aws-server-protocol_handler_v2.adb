@@ -337,7 +337,8 @@ is
 
          procedure Add_Header (Name, Value : String) is
          begin
-            Response.Set.Add_Header (R, Name, Value);
+            Response.Set.Add_Header
+              (R, Characters.Handling.To_Lower (Name), Value);
          end Add_Header;
 
       begin
