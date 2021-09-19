@@ -403,7 +403,7 @@ package body AWS.Attachments is
          if not Simple_Alternative then
             --  This is not the first element, we issue an embedded MIME
             --  content.
-            Data (Pref_Suf & Boundary);
+            Put_Line (Pref_Suf & Boundary);
 
             Get_MIME_Header_Content
               (Attachments,
@@ -771,251 +771,21 @@ package body AWS.Attachments is
       Boundary    : String)
    is
 
-      procedure Send_Attachment (Attachment : Element);
-      --  Sends one Attachment, including the start boundary
+      procedure Write (Data : String);
 
-      procedure Send_Content (Attachment : Element);
-      --  Set an in-memory content
+      -----------
+      -- Write --
+      -----------
 
-      procedure Send_Content (Data : Content);
-
-      procedure Send_Alternative (Attachment : Element);
-      --  Send an alternative part
-
-      Pref_Suf : constant String := "--";
-      --  The MIME boundary prefix and suffix
-
-      Simple_Alternative : constant Boolean :=
-                             Root_MIME (Attachments) = Multipart_Alternative;
-
-      ----------------------
-      -- Send_Alternative --
-      ----------------------
-
-      procedure Send_Alternative (Attachment : Element) is
-         A_Boundary : Unbounded_String;
+      procedure Write (Data : String) is
       begin
-         if not Simple_Alternative then
-            --  This is not the first element, we issue an embedded MIME
-            --  content.
-            Net.Buffered.Put_Line (Socket, Pref_Suf & Boundary);
-            Send_MIME_Header
-              (Socket, Attachments,
-               Alternative => True,
-               Boundary    => A_Boundary);
-         else
-            A_Boundary := To_Unbounded_String (Boundary);
-         end if;
+         Net.Buffered.Put (Socket, Data);
+      end Write;
 
-         --  Send alternatives
-
-         for Part of Attachment.Parts loop
-            Net.Buffered.Put_Line (Socket, Pref_Suf & To_String (A_Boundary));
-            Net.Buffered.Put_Line
-              (Socket, Messages.Content_Type (To_String (Part.Content_Type)));
-            Net.Buffered.New_Line (Socket);
-
-            Send_Content (Part);
-         end loop;
-
-         if not Simple_Alternative then
-            --  Ends the alternative part
-            Net.Buffered.New_Line (Socket);
-            Net.Buffered.Put_Line
-              (Socket, Pref_Suf & To_String (A_Boundary) & Pref_Suf);
-         end if;
-      end Send_Alternative;
-
-      ---------------------
-      -- Send_Attachment --
-      ---------------------
-
-      procedure Send_Attachment (Attachment : Element) is
-      begin
-         case Attachment.Kind is
-            when Data        => Send_Content (Attachment);
-            when Alternative => Send_Alternative (Attachment);
-         end case;
-      end Send_Attachment;
-
-      ------------------
-      -- Send_Content --
-      ------------------
-
-      procedure Send_Content (Attachment : Element) is
-      begin
-         --  Send multipart message start boundary
-
-         Net.Buffered.Put_Line (Socket, Pref_Suf & Boundary);
-
-         --  Send header
-
-         AWS.Headers.Send_Header (Socket, Attachment.Headers);
-         Net.Buffered.New_Line (Socket);
-
-         Send_Content (Attachment.Data);
-      end Send_Content;
-
-      procedure Send_Content (Data : Content) is
-
-         procedure Send_File;
-
-         procedure Send_Content;
-
-         ------------------
-         -- Send_Content --
-         ------------------
-
-         procedure Send_Content is
-            Content_Len : constant Positive := Length (Data.Content);
-
-            procedure Send;
-            --  Send standard content
-
-            procedure Send_Base64;
-            --  Send a base64 content
-
-            ----------
-            -- Send --
-            ----------
-
-            procedure Send is
-               Chunk_Shift : constant := 1023;
-               K           : Positive := 1;
-               L           : Natural;
-            begin
-               loop
-                  L := Integer'Min (K + Chunk_Shift, Content_Len);
-                  Net.Buffered.Put (Socket, Slice (Data.Content, K, L));
-                  exit when L = Content_Len;
-                  K := L + 1;
-               end loop;
-
-               Net.Buffered.New_Line (Socket);
-            end Send;
-
-            -----------------
-            -- Send_Base64 --
-            -----------------
-
-            procedure Send_Base64 is
-               Chunk_Size  : constant := 60;
-               K           : Positive := 1;
-            begin
-               while K <= Content_Len loop
-                  if K + Chunk_Size - 1 > Content_Len then
-                     Net.Buffered.Put_Line
-                       (Socket,
-                        Slice (Data.Content, K, Content_Len));
-                     K := Content_Len + 1;
-                  else
-                     Net.Buffered.Put_Line
-                       (Socket,
-                        Slice (Data.Content, K, K + Chunk_Size - 1));
-                     K := K + Chunk_Size;
-                  end if;
-               end loop;
-            end Send_Base64;
-
-         begin
-            case Data.Encode is
-               when None   => Send;
-               when Base64 => Send_Base64;
-            end case;
-         end Send_Content;
-
-         ---------------
-         -- Send_File --
-         ---------------
-
-         procedure Send_File is
-
-            procedure Send;
-            --  Send file as-is
-
-            procedure Send_Base64;
-            --  Send file encoded in Base64
-
-            File : Streams.Stream_IO.File_Type;
-
-            ----------
-            -- Send --
-            ----------
-
-            procedure Send is
-               Buffer : Streams.Stream_Element_Array (1 .. 4_096);
-               Last   : Streams.Stream_Element_Offset;
-            begin
-               --  Send file content
-
-               while not Streams.Stream_IO.End_Of_File (File) loop
-                  Streams.Stream_IO.Read (File, Buffer, Last);
-                  Net.Buffered.Write (Socket, Buffer (1 .. Last));
-               end loop;
-
-               Net.Buffered.New_Line (Socket);
-            exception
-               when Net.Socket_Error =>
-                  --  Properly close the file if needed
-                  if Streams.Stream_IO.Is_Open (File) then
-                     Streams.Stream_IO.Close (File);
-                  end if;
-                  raise;
-            end Send;
-
-            -----------------
-            -- Send_Base64 --
-            -----------------
-
-            procedure Send_Base64 is
-               Buffer_Size   : constant := 60;
-               --  Note that this size must be a multiple of 3, this is
-               --  important to have proper chunk MIME encoding.
-
-               Buffer : Streams.Stream_Element_Array (1 .. Buffer_Size);
-               Last   : Streams.Stream_Element_Offset;
-            begin
-               while not Streams.Stream_IO.End_Of_File (File) loop
-                  Streams.Stream_IO.Read (File, Buffer, Last);
-
-                  Net.Buffered.Put_Line
-                    (Socket,
-                     AWS.Translator.Base64_Encode (Buffer (1 .. Last)));
-               end loop;
-            end Send_Base64;
-
-         begin
-            Stream_IO.Open
-              (File, Streams.Stream_IO.In_File, To_String (Data.Filename));
-
-            case Data.Encode is
-               when None   => Send;
-               when Base64 => Send_Base64;
-            end case;
-
-            Stream_IO.Close (File);
-         end Send_File;
-
-      begin
-         case Data.Kind is
-            when File                 => Send_File;
-            when AWS.Attachments.Data => Send_Content;
-         end case;
-      end Send_Content;
+      procedure Send_Attachments is new Get_Content (Write);
 
    begin
-      --  Send the attachments
-
-      for J in 1 .. Integer (Attachments.Vector.Length) loop
-         Send_Attachment
-           (Attachment_Table.Element
-              (Container => Attachments.Vector,
-               Index     => J));
-      end loop;
-
-      --  Send multipart message end boundary
-
-      Net.Buffered.Put_Line (Socket, Pref_Suf & Boundary & Pref_Suf);
+      Send_Attachments (Attachments, Boundary);
    end Send;
 
    ----------------------
@@ -1028,27 +798,21 @@ package body AWS.Attachments is
       Boundary    : out Unbounded_String;
       Alternative : Boolean := False)
    is
-      L_Boundary : constant String :=
-                     "----=_NextPart_" & Utils.Random_String (10) & "."
-                     & Utils.Image (UID.Value);
+      procedure Write (Data : String);
+
+      -----------
+      -- Write --
+      -----------
+
+      procedure Write (Data : String) is
+      begin
+         Net.Buffered.Put (Socket, Data);
+      end Write;
+
+      procedure Send_Headers is new Get_MIME_Header (Write);
+
    begin
-      UID.Increment;
-
-      Boundary := To_Unbounded_String (L_Boundary);
-
-      if Alternative
-        or else Root_MIME (Attachments) = Multipart_Alternative
-      then
-         Net.Buffered.Put_Line
-           (Socket,
-            Messages.Content_Type ("multipart/alternative", L_Boundary));
-      else
-         Net.Buffered.Put_Line
-           (Socket,
-            Messages.Content_Type ("multipart/mixed", L_Boundary));
-      end if;
-
-      Net.Buffered.New_Line (Socket);
+      Send_Headers (Attachments, Boundary, Alternative);
    end Send_MIME_Header;
 
    -----------
