@@ -73,6 +73,25 @@ package body AWS.Headers is
       Debug_Flag := Activate;
    end Debug;
 
+   -----------------
+   -- Get_Content --
+   -----------------
+
+   procedure Get_Content
+     (Headers   : List;
+      End_Block : Boolean := False)
+   is
+      CRLF : constant String := String'(1 => ASCII.CR, 2 => ASCII.LF);
+   begin
+      for J in 1 .. Count (Headers) loop
+         Data (Get_Line (Headers, J) & CRLF);
+      end loop;
+
+      if End_Block then
+         Data (CRLF);
+      end if;
+   end Get_Content;
+
    --------------
    -- Get_Line --
    --------------
