@@ -269,14 +269,26 @@ package body AWS.Headers is
    procedure Send_Header
      (Socket    : Net.Socket_Type'Class;
       Headers   : List;
-      End_Block : Boolean := False) is
+      End_Block : Boolean := False)
+   is
+      procedure Send (Value : String);
+      --  Send data over socket
+
+      ----------
+      -- Send --
+      ----------
+
+      procedure Send (Value : String) is
+      begin
+         Net.Buffered.Put (Socket, Value);
+      end Send;
+
+      procedure Send_Headers_Content is new Get_Content (Send);
+
    begin
-      for J in 1 .. Count (Headers) loop
-         Net.Buffered.Put_Line (Socket, Get_Line (Headers, J));
-      end loop;
+      Send_Headers_Content (Headers, End_Block);
 
       if End_Block then
-         Net.Buffered.New_Line (Socket);
          Net.Buffered.Flush (Socket);
       end if;
    end Send_Header;
