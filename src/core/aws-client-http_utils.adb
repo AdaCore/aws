@@ -132,6 +132,7 @@ package body AWS.Client.HTTP_Utils is
    procedure Connect (Connection : in out HTTP_Connection) is
       use type Net.Socket_Access;
       use type Net.SSL.Session_Type;
+
       Connect_URL : AWS.URL.Object renames Connection.Connect_URL;
       Security    : constant Boolean := AWS.URL.Security (Connect_URL);
       Sock        : Net.Socket_Access;
@@ -667,6 +668,10 @@ package body AWS.Client.HTTP_Utils is
          end;
       end loop Retry;
    end Internal_Post_With_Attachment;
+
+   --------------------------------------
+   -- Internal_Post_Without_Attachment --
+   --------------------------------------
 
    procedure Internal_Post_Without_Attachment
      (Connection   : in out HTTP_Connection;

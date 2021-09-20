@@ -61,7 +61,7 @@ package body AWS.HTTP2.Message is
       O.Headers   := Headers;
 
       if Data'Length /= 0 then
-         O.M_Body    := new Resources.Streams.Memory.Stream_Type;
+         O.M_Body := new Resources.Streams.Memory.Stream_Type;
          Resources.Streams.Memory.Stream_Type (O.M_Body.all).Append (Data);
       end if;
 
@@ -266,6 +266,8 @@ package body AWS.HTTP2.Message is
       --------------------
 
       procedure Handle_Headers (Headers : AWS.Headers.List) is
+         use Ada;
+
          Max_Size : constant Positive :=
                       Connection.Max_Header_List_Size (Ctx.Settings.all);
          L        : AWS.Headers.List;
@@ -279,7 +281,7 @@ package body AWS.HTTP2.Message is
                            32 + Length (Element.Name) + Length (Element.Value);
             begin
                if Debug then
-                  Ada.Text_IO.Put_Line
+                  Text_IO.Put_Line
                     ("#hs " & To_String (Element.Name)
                      & ' ' & To_String (Element.Value));
                end if;

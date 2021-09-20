@@ -459,6 +459,7 @@ package body AWS.Attachments is
          --  Send header
 
          Get_Header_Content (Attachment.Headers);
+
          New_Line;
 
          Send_Content (Attachment.Data);
