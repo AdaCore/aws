@@ -642,6 +642,9 @@ package body AWS.Client.HTTP_Utils is
                --  Send the attachments
 
                AWS.Attachments.Send (Sock, Attachments, Boundary);
+
+               Net.Buffered.Put_Line
+                 (Sock, Pref_Suf & Boundary & Pref_Suf);
             end;
 
             --  Get answer from server

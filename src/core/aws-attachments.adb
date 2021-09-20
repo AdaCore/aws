@@ -624,10 +624,6 @@ package body AWS.Attachments is
               (Container => Attachments.Vector,
                Index     => J));
       end loop;
-
-      --  Send multipart message end boundary
-
-      Put_Line (Pref_Suf & Boundary & Pref_Suf);
    end Get_Content;
 
    ---------------------
