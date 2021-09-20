@@ -108,6 +108,28 @@ package body AWS.Client.HTTP_Utils is
       Headers      : Header_List := Empty_Header_List);
    --  Send a simple POST request data For HTTP/2
 
+   procedure Internal_Post_With_Attachment_1
+     (Connection   : in out HTTP_Connection;
+      Result       : out Response.Data;
+      Data         : Stream_Element_Array;
+      URI          : String;
+      SOAPAction   : String;
+      Content_Type : String;
+      Attachments  : Attachment_List;
+      Headers      : Header_List := Empty_Header_List);
+   --  Send a simple POST request data For HTTP/1
+
+   procedure Internal_Post_With_Attachment_2
+     (Connection   : in out HTTP_Connection;
+      Result       : out Response.Data;
+      Data         : Stream_Element_Array;
+      URI          : String;
+      SOAPAction   : String;
+      Content_Type : String;
+      Attachments  : Attachment_List;
+      Headers      : Header_List := Empty_Header_List);
+   --  Send a simple POST request data For HTTP/2
+
    ---------
    -- "+" --
    ---------
@@ -512,11 +534,36 @@ package body AWS.Client.HTTP_Utils is
       end if;
    end Internal_Post;
 
-   --------------------------------------
+   -----------------------------------
    -- Internal_Post_With_Attachment --
-   --------------------------------------
+   -----------------------------------
 
    procedure Internal_Post_With_Attachment
+     (Connection   : in out HTTP_Connection;
+      Result       : out Response.Data;
+      Data         : Stream_Element_Array;
+      URI          : String;
+      SOAPAction   : String;
+      Content_Type : String;
+      Attachments  : Attachment_List;
+      Headers      : Header_List          := Empty_Header_List) is
+   begin
+      if Connection.HTTP_Version = HTTPv1 then
+         Internal_Post_With_Attachment_1
+           (Connection, Result, Data, URI, SOAPAction,
+            Content_Type, Attachments, Headers);
+      else
+         Internal_Post_With_Attachment_2
+           (Connection, Result, Data, URI, SOAPAction,
+            Content_Type, Attachments, Headers);
+      end if;
+   end Internal_Post_With_Attachment;
+
+   -------------------------------------
+   -- Internal_Post_With_Attachment_1 --
+   -------------------------------------
+
+   procedure Internal_Post_With_Attachment_1
      (Connection   : in out HTTP_Connection;
       Result       : out Response.Data;
       Data         : Stream_Element_Array;
@@ -670,7 +717,255 @@ package body AWS.Client.HTTP_Utils is
                exit Retry when not Response.Is_Empty (Result);
          end;
       end loop Retry;
-   end Internal_Post_With_Attachment;
+   end Internal_Post_With_Attachment_1;
+
+   -------------------------------------
+   -- Internal_Post_With_Attachment_2 --
+   -------------------------------------
+
+   procedure Internal_Post_With_Attachment_2
+     (Connection   : in out HTTP_Connection;
+      Result       : out Response.Data;
+      Data         : Stream_Element_Array;
+      URI          : String;
+      SOAPAction   : String;
+      Content_Type : String;
+      Attachments  : Attachment_List;
+      Headers      : Header_List          := Empty_Header_List)
+   is
+      use Real_Time;
+
+      use all type HTTP2.Frame.Flags_Type;
+      use all type HTTP2.Frame.Kind_Type;
+      use all type HTTP2.Frame.Settings.Settings_Kind;
+
+      subtype Byte_4 is HTTP2.Byte_4;
+
+      CRLF      : constant Stream_Element_Array := (13, 10);
+
+      C         : AWS.Config.Object renames Connection.Config;
+      Request   : HTTP2.Message.Object;
+      Stamp     : constant Time := Clock;
+      Pref_Suf  : constant String := "--";
+      Boundary  : constant String :=
+                    "AWS_Attachment-" & Utils.Random_String (8);
+
+      Root_Content_Id  : constant String := "<rootpart>";
+      Root_Part_Header : AWS.Headers.List;
+
+      Try_Count        : Natural := Connection.Retry;
+
+      Auth_Attempts    : Auth_Attempts_Count := (others => 2);
+      Auth_Is_Over     : Boolean;
+      Stream           : HTTP2.Stream.Object;
+      H_Connection     : aliased HTTP2.Connection.Object;
+      Enc_Table        : aliased HTTP2.HPACK.Table.Object;
+      Dec_Table        : aliased HTTP2.HPACK.Table.Object;
+      Settings         : constant HTTP2.Frame.Settings.Set :=
+                           (1 => (HEADER_TABLE_SIZE,
+                                  Byte_4 (C.HTTP2_Header_Table_Size)),
+                            2 => (ENABLE_PUSH,
+                                  0),
+                            3 => (MAX_CONCURRENT_STREAMS,
+                                  Byte_4 (C.HTTP2_Max_Concurrent_Streams)),
+                            4 => (INITIAL_WINDOW_SIZE,
+                                  Byte_4 (C.HTTP2_Initial_Window_Size)),
+                            5 => (MAX_FRAME_SIZE,
+                                  Byte_4 (C.HTTP2_Max_Frame_Size)),
+                            6 => (MAX_HEADER_LIST_SIZE,
+                                  Byte_4 (C.HTTP2_Max_Header_List_Size)));
+      Ctx              : Server.Context.Object (null,
+                                                1,
+                                                Enc_Table'Access,
+                                                Dec_Table'Access,
+                                                H_Connection'Access);
+      procedure Build_Root_Part_Header;
+      --  Builds the rootpart header and calculates its size
+
+      function Content_Length return Stream_Element_Offset;
+      --  Returns the total message content length
+
+      ----------------------------
+      -- Build_Root_Part_Header --
+      ----------------------------
+
+      procedure Build_Root_Part_Header is
+      begin
+         Root_Part_Header.Add
+           (Name  => HN (AWS.Messages.Content_Type_Token, True),
+            Value => Content_Type);
+
+         Root_Part_Header.Add
+           (Name  => HN (AWS.Messages.Content_Id_Token, True),
+            Value => Root_Content_Id);
+      end Build_Root_Part_Header;
+
+      --------------------
+      -- Content_Length --
+      --------------------
+
+      function Content_Length return Stream_Element_Offset is
+      begin
+         return 2
+           + Boundary'Length + 2    -- Root part boundary + CR+LF
+           + Stream_Element_Offset (AWS.Headers.Length (Root_Part_Header))
+           + Data'Length            -- Root part data length
+           + Stream_Element_Offset
+               (AWS.Attachments.Length (Attachments, Boundary));
+      end Content_Length;
+
+   begin
+      Connection.Self.F_Headers.Reset;
+
+      Build_Root_Part_Header;
+
+      Retry : loop
+         begin
+            Set_Common_Post
+              (Connection, Data, URI, SOAPAction, Content_Type, Headers);
+
+            if Content_Type = "" then
+               Set_Header
+                 (Connection.F_Headers,
+                  HN (Messages.Content_Type_Token, True),
+                  MIME.Multipart_Related
+                  & "; type=" & Content_Type
+                  & "; start=""" & Root_Content_Id & '"'
+                  & "; boundary=""" & Boundary & '"');
+            else
+               Set_Header
+                 (Connection.F_Headers,
+                  HN (Messages.Content_Type_Token, True),
+                  MIME.Multipart_Form_Data
+                  & "; boundary=""" & Boundary & '"');
+            end if;
+
+            --  Send message Content-Length
+
+            Set_Header
+              (Connection.F_Headers,
+               HN (Messages.Content_Length_Token, True),
+               Utils.Image (Content_Length));
+
+            --  Send the HTTP/2 connection preface
+
+            Net.Buffered.Write
+              (Connection.Socket.all, HTTP2.Client_Connection_Preface);
+
+            --  Send the setting frame (stream id 0)
+
+            HTTP2.Frame.Settings.Create
+              (Settings).Send (Connection.Socket.all);
+
+            --  We need to read the settings from server
+
+            declare
+               Frame : constant HTTP2.Frame.Object'Class :=
+                         HTTP2.Frame.Read
+                           (Connection.Socket.all, H_Connection);
+            begin
+               if Frame.Kind /= K_Settings then
+                  raise Constraint_Error with
+                    "server should have answered with a setting frame";
+               end if;
+            end;
+
+            --  Create frames and send them
+
+            Stream := HTTP2.Stream.Create
+              (Connection.Socket, 1, H_Connection.Flow_Control_Window);
+
+            Request := HTTP2.Message.Create
+              (Connection.F_Headers,
+               Stream_Element_Array'(1 .. 0 => <>),
+               Stream.Identifier);
+
+            --  Append data & attachments
+
+            Request.Append_Body (Pref_Suf & Boundary & CRLF);
+
+            declare
+               procedure Write (Data : String);
+               procedure Write (Data : Stream_Element_Array);
+
+               -----------
+               -- Write --
+               -----------
+
+               procedure Write (Data : String) is
+               begin
+                  Request.Append_Body (Data);
+               end Write;
+
+               procedure Write (Data : Stream_Element_Array) is
+               begin
+                  Request.Append_Body (Data);
+               end Write;
+
+               procedure Append_Attachments is
+                 new AWS.Attachments.Get_Content (Write);
+
+               procedure Append_Header is
+                 new AWS.Headers.Get_Content (Write);
+
+            begin
+               --  Root part header
+
+               Append_Header (Root_Part_Header, End_Block => True);
+
+               --  Data
+
+               if Data'Length /= 0 then
+                  Write (Data);
+                  Write (CRLF);
+               end if;
+
+               --  Attachments
+
+               Append_Attachments (Attachments, Boundary);
+            end;
+
+            Request.Append_Body (Pref_Suf & Boundary & Pref_Suf & CRLF);
+
+            for F of Request.To_Frames (Ctx, Stream) loop
+               Stream.Send_Frame (F);
+            end loop;
+
+            --  Get response
+
+            Stream := HTTP2.Stream.Create
+              (Connection.Socket, 3, H_Connection.Flow_Control_Window);
+
+            while not Stream.Is_Message_Ready loop
+               declare
+                  Frame : constant HTTP2.Frame.Object'Class :=
+                            HTTP2.Frame.Read
+                              (Connection.Socket.all, H_Connection);
+                  Error : HTTP2.Error_Codes;
+               begin
+                  Stream.Received_Frame (Ctx, Frame, Error);
+                  exit when Frame.Has_Flag (HTTP2.Frame.End_Stream_Flag);
+               end;
+            end loop;
+
+            Stream.Append_Body (Result);
+
+            Decrement_Authentication_Attempt
+              (Connection, Auth_Attempts, Auth_Is_Over);
+
+            if Auth_Is_Over then
+               exit Retry;
+            end if;
+
+         exception
+            when E : Net.Socket_Error | Connection_Error =>
+               Error_Processing
+                 (Connection, Try_Count, Result, "UPLOAD", E, Stamp);
+
+               exit Retry when not Response.Is_Empty (Result);
+         end;
+      end loop Retry;
+   end Internal_Post_With_Attachment_2;
 
    --------------------------------------
    -- Internal_Post_Without_Attachment --
