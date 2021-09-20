@@ -58,6 +58,18 @@ package AWS.HTTP2.Message is
      with Post => Create'Result.Is_Defined;
    --  Create a message out of a request object
 
+   procedure Append_Body
+     (Self : in out Object;
+      Data : String)
+     with Pre => Self.Is_Defined and then Data'Length > 0, Inline;
+   --  Append Data to the current body of message
+
+   procedure Append_Body
+     (Self : in out Object;
+      Data : Stream_Element_Array)
+     with Pre => Self.Is_Defined and then Data'Length > 0, Inline;
+   --  Append Data to the current body of message
+
    function Create
      (Answer    : in out Response.Data;
       Request   : AWS.Status.Data;

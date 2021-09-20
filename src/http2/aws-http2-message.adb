@@ -39,10 +39,38 @@ with AWS.HTTP2.Stream;
 with AWS.Messages;
 with AWS.Resources.Streams.Memory;
 with AWS.Server.HTTP_Utils;
+with AWS.Translator;
 
 package body AWS.HTTP2.Message is
 
    use Ada.Strings.Unbounded;
+
+   -----------------
+   -- Append_Body --
+   -----------------
+
+   procedure Append_Body
+     (Self : in out Object;
+      Data : String) is
+   begin
+      if Self.M_Body = null then
+         Self.M_Body := new Resources.Streams.Memory.Stream_Type;
+      end if;
+
+      Resources.Streams.Memory.Stream_Type (Self.M_Body.all).Append
+        (Stream_Element_Array'(Translator.To_Stream_Element_Array (Data)));
+   end Append_Body;
+
+   procedure Append_Body
+     (Self : in out Object;
+      Data : Stream_Element_Array) is
+   begin
+      if Self.M_Body = null then
+         Self.M_Body := new Resources.Streams.Memory.Stream_Type;
+      end if;
+
+      Resources.Streams.Memory.Stream_Type (Self.M_Body.all).Append (Data);
+   end Append_Body;
 
    ------------
    -- Create --
