@@ -81,7 +81,7 @@ package body AWS.HTTP2.Stream is
       Window_Size : Natural;
       Weight      : Byte_1 := Frame.Priority.Default_Weight) return Object is
    begin
-      return Object'
+      return Self : Object := Object'
         (Sock                => Sock,
          Id                  => Identifier,
          State               => Idle,
@@ -100,7 +100,10 @@ package body AWS.HTTP2.Stream is
          End_Stream          => False,
          Content_Length      => Undefined_Length,
          Bytes_Received      => 0,
-         Data_Flow           => Unknown);
+         Data_Flow           => Unknown)
+      do
+         Self.Headers.Case_Sensitive (False);
+      end return;
    end Create;
 
    ----------------------

@@ -100,6 +100,8 @@ procedure Main is
    Size : Positive;
 
 begin
+   H.Case_Sensitive (False);
+
    H.Add (":method", "GET");
    H.Add (":path", "/readme.txt");
    H.Add (":scheme", "https");

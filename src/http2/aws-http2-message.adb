@@ -45,6 +45,12 @@ package body AWS.HTTP2.Message is
 
    use Ada.Strings.Unbounded;
 
+   function HN
+     (Header_Name : String;
+      Is_H2       : Boolean := True)
+      return String renames Utils.Normalize_Lower;
+   --  Fold header name to lower case as required by HTTP/2 protocol
+
    -----------------
    -- Append_Body --
    -----------------
@@ -88,13 +94,15 @@ package body AWS.HTTP2.Message is
       O.Stream_Id := Stream_Id;
       O.Headers   := Headers;
 
+      O.Headers.Case_Sensitive (False);
+
       if Data'Length /= 0 then
          O.M_Body := new Resources.Streams.Memory.Stream_Type;
          Resources.Streams.Memory.Stream_Type (O.M_Body.all).Append (Data);
       end if;
 
       O.Headers.Add
-        (Messages.Content_Length_Token,
+        (HN (Messages.Content_Length_Token),
          Utils.Image (Stream_Element_Offset (Data'Length)));
 
       return O;
@@ -122,7 +130,8 @@ package body AWS.HTTP2.Message is
          Size := O.M_Body.Size;
 
          if Size /= Resources.Undefined_Length then
-            O.Headers.Add (Messages.Content_Length_Token, Utils.Image (Size));
+            O.Headers.Add
+              (HN (Messages.Content_Length_Token), Utils.Image (Size));
          end if;
       end Set_Body;
 
@@ -131,12 +140,14 @@ package body AWS.HTTP2.Message is
       O.Mode      := Response.Mode (Answer);
       O.Stream_Id := Stream_Id;
 
+      O.Headers.Case_Sensitive (False);
+
       case O.Mode is
          when Response.Message | Response.Header =>
             --  Set status code
 
             O.Headers.Add
-              (Messages.Status_Token,
+              (HN (Messages.Status_Token),
                Messages.Image (Response.Status_Code (Answer)));
 
             if O.Mode /= Response.Header then
@@ -190,7 +201,7 @@ package body AWS.HTTP2.Message is
                                 (Answer, Messages.Last_Modified_Token)
                then
                   O.Headers.Add
-                    (Messages.Last_Modified_Token,
+                    (HN (Messages.Last_Modified_Token),
                      Messages.To_HTTP_Date (File_Time));
                end if;
 
@@ -302,6 +313,8 @@ package body AWS.HTTP2.Message is
          Size     : Natural := 0;
          Is_First : Boolean := True;
       begin
+         L.Case_Sensitive (False);
+
          for K in 1 .. Headers.Count loop
             declare
                Element : constant AWS.Headers.Element := Headers.Get (K);

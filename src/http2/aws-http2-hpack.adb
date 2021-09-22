@@ -250,6 +250,8 @@ package body AWS.HTTP2.HPACK is
       Data : Boolean := False;
 
    begin
+      Headers.Case_Sensitive (False);
+
       while not End_Of_Stream loop
          Byte := Get_Byte;
 
