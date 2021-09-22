@@ -130,6 +130,10 @@ package body AWS.Client.HTTP_Utils is
       Headers      : Header_List := Empty_Header_List);
    --  Send a simple POST request data For HTTP/2
 
+   function Get_Settings
+     (Config : AWS.Config.Object) return HTTP2.Frame.Settings.Set;
+   --  Returns the config set from Config
+
    ---------
    -- "+" --
    ---------
@@ -471,6 +475,31 @@ package body AWS.Client.HTTP_Utils is
       Disconnect;
    end Get_Response;
 
+   ------------------
+   -- Get_Settings --
+   ------------------
+
+   function Get_Settings
+     (Config : AWS.Config.Object) return HTTP2.Frame.Settings.Set
+   is
+      use all type HTTP2.Frame.Settings.Settings_Kind;
+      subtype Byte_4 is HTTP2.Byte_4;
+   begin
+      return HTTP2.Frame.Settings.Set'
+        (1 => (HEADER_TABLE_SIZE,
+               Byte_4 (Config.HTTP2_Header_Table_Size)),
+         2 => (ENABLE_PUSH,
+               0),
+         3 => (MAX_CONCURRENT_STREAMS,
+               Byte_4 (Config.HTTP2_Max_Concurrent_Streams)),
+         4 => (INITIAL_WINDOW_SIZE,
+               Byte_4 (Config.HTTP2_Initial_Window_Size)),
+         5 => (MAX_FRAME_SIZE,
+               Byte_4 (Config.HTTP2_Max_Frame_Size)),
+         6 => (MAX_HEADER_LIST_SIZE,
+               Byte_4 (Config.HTTP2_Max_Header_List_Size)));
+   end Get_Settings;
+
    -----------
    -- Image --
    -----------
@@ -737,13 +766,9 @@ package body AWS.Client.HTTP_Utils is
 
       use all type HTTP2.Frame.Flags_Type;
       use all type HTTP2.Frame.Kind_Type;
-      use all type HTTP2.Frame.Settings.Settings_Kind;
-
-      subtype Byte_4 is HTTP2.Byte_4;
 
       CRLF      : constant Stream_Element_Array := (13, 10);
 
-      C         : AWS.Config.Object renames Connection.Config;
       Request   : HTTP2.Message.Object;
       Stamp     : constant Time := Clock;
       Pref_Suf  : constant String := "--";
@@ -762,18 +787,7 @@ package body AWS.Client.HTTP_Utils is
       Enc_Table        : aliased HTTP2.HPACK.Table.Object;
       Dec_Table        : aliased HTTP2.HPACK.Table.Object;
       Settings         : constant HTTP2.Frame.Settings.Set :=
-                           (1 => (HEADER_TABLE_SIZE,
-                                  Byte_4 (C.HTTP2_Header_Table_Size)),
-                            2 => (ENABLE_PUSH,
-                                  0),
-                            3 => (MAX_CONCURRENT_STREAMS,
-                                  Byte_4 (C.HTTP2_Max_Concurrent_Streams)),
-                            4 => (INITIAL_WINDOW_SIZE,
-                                  Byte_4 (C.HTTP2_Initial_Window_Size)),
-                            5 => (MAX_FRAME_SIZE,
-                                  Byte_4 (C.HTTP2_Max_Frame_Size)),
-                            6 => (MAX_HEADER_LIST_SIZE,
-                                  Byte_4 (C.HTTP2_Max_Header_List_Size)));
+                           Get_Settings (Connection.Config);
       Ctx              : Server.Context.Object (null,
                                                 1,
                                                 Enc_Table'Access,
@@ -1067,11 +1081,7 @@ package body AWS.Client.HTTP_Utils is
       use Ada.Real_Time;
       use all type HTTP2.Frame.Flags_Type;
       use all type HTTP2.Frame.Kind_Type;
-      use all type HTTP2.Frame.Settings.Settings_Kind;
 
-      subtype Byte_4 is HTTP2.Byte_4;
-
-      C             : AWS.Config.Object renames Connection.Config;
       Request       : HTTP2.Message.Object;
       Stamp         : constant Time := Clock;
       Try_Count     : Natural := Connection.Retry;
@@ -1082,18 +1092,7 @@ package body AWS.Client.HTTP_Utils is
       Enc_Table     : aliased HTTP2.HPACK.Table.Object;
       Dec_Table     : aliased HTTP2.HPACK.Table.Object;
       Settings      : constant HTTP2.Frame.Settings.Set :=
-                        (1 => (HEADER_TABLE_SIZE,
-                               Byte_4 (C.HTTP2_Header_Table_Size)),
-                         2 => (ENABLE_PUSH,
-                               0),
-                         3 => (MAX_CONCURRENT_STREAMS,
-                               Byte_4 (C.HTTP2_Max_Concurrent_Streams)),
-                         4 => (INITIAL_WINDOW_SIZE,
-                               Byte_4 (C.HTTP2_Initial_Window_Size)),
-                         5 => (MAX_FRAME_SIZE,
-                               Byte_4 (C.HTTP2_Max_Frame_Size)),
-                         6 => (MAX_HEADER_LIST_SIZE,
-                               Byte_4 (C.HTTP2_Max_Header_List_Size)));
+                        Get_Settings (Connection.Config);
       Ctx            : Server.Context.Object (null,
                                               1,
                                               Enc_Table'Access,
