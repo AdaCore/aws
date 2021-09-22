@@ -39,6 +39,7 @@ with Ada.Strings.Maps.Constants;
 with AWS.Headers;
 with AWS.Log;
 with AWS.Messages;
+with AWS.MIME;
 with AWS.Net.Buffered;
 with AWS.Response.Set;
 with AWS.Server.Context;
@@ -548,7 +549,20 @@ is
             Parameters => Path (Query_First .. Path'Last));
       end;
 
-      Deferred_Messages.Append (Handle_Message (Stream.Status.all, Stream));
+      declare
+         use type AWS.Status.Request_Method;
+
+         S  : constant not null access AWS.Status.Data := Stream.Status;
+         CT : constant String := AWS.Status.Content_Type (Stream.Status.all);
+      begin
+         if AWS.Status.Method (S.all) = AWS.Status.POST
+           and then CT = MIME.Application_Form_Data
+         then
+            AWS.Status.Set.Parameters_From_Body (S.all);
+         end if;
+
+         Deferred_Messages.Append (Handle_Message (S.all, Stream));
+      end;
    end Handle_Message;
 
    --------------------------
