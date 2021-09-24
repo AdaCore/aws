@@ -592,7 +592,7 @@ package body AWS.Server.HTTP_Utils is
          End_Found               : Boolean := False;
          --  Set to true when the end-boundary has been found
 
-      begin -- File_Upload
+      begin
          --  Reach the boundary
 
          if Parse_Boundary then
@@ -1017,7 +1017,7 @@ package body AWS.Server.HTTP_Utils is
          End_Found       : Boolean := False;
          --  Set to true when the end-boundary has been found
 
-      begin -- Store_Attachments
+      begin
          --  Reach the boundary
 
          if Parse_Boundary then

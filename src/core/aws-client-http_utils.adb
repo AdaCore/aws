@@ -767,10 +767,11 @@ package body AWS.Client.HTTP_Utils is
       use all type HTTP2.Frame.Flags_Type;
       use all type HTTP2.Frame.Kind_Type;
 
-      CRLF      : constant Stream_Element_Array := (13, 10);
-
-      Request   : HTTP2.Message.Object;
+      CRLF      : constant String := String'(1 => ASCII.CR, 2 => ASCII.LF);
       Stamp     : constant Time := Clock;
+      Settings         : constant HTTP2.Frame.Settings.Set :=
+                           Get_Settings (Connection.Config);
+
       Pref_Suf  : constant String := "--";
       Boundary  : constant String :=
                     "AWS_Attachment-" & Utils.Random_String (8);
@@ -778,21 +779,19 @@ package body AWS.Client.HTTP_Utils is
       Root_Content_Id  : constant String := "<rootpart>";
       Root_Part_Header : AWS.Headers.List;
 
-      Try_Count        : Natural := Connection.Retry;
-
-      Auth_Attempts    : Auth_Attempts_Count := (others => 2);
-      Auth_Is_Over     : Boolean;
-      Stream           : HTTP2.Stream.Object;
-      H_Connection     : aliased HTTP2.Connection.Object;
-      Enc_Table        : aliased HTTP2.HPACK.Table.Object;
-      Dec_Table        : aliased HTTP2.HPACK.Table.Object;
-      Settings         : constant HTTP2.Frame.Settings.Set :=
-                           Get_Settings (Connection.Config);
-      Ctx              : Server.Context.Object (null,
-                                                1,
-                                                Enc_Table'Access,
-                                                Dec_Table'Access,
-                                                H_Connection'Access);
+      Request       : HTTP2.Message.Object;
+      Try_Count     : Natural := Connection.Retry;
+      Auth_Attempts : Auth_Attempts_Count := (others => 2);
+      Auth_Is_Over  : Boolean;
+      Stream        : HTTP2.Stream.Object;
+      H_Connection  : aliased HTTP2.Connection.Object;
+      Enc_Table     : aliased HTTP2.HPACK.Table.Object;
+      Dec_Table     : aliased HTTP2.HPACK.Table.Object;
+      Ctx           : Server.Context.Object (null,
+                                             1,
+                                             Enc_Table'Access,
+                                             Dec_Table'Access,
+                                             H_Connection'Access);
       procedure Build_Root_Part_Header;
       --  Builds the rootpart header and calculates its size
 
@@ -1082,8 +1081,11 @@ package body AWS.Client.HTTP_Utils is
       use all type HTTP2.Frame.Flags_Type;
       use all type HTTP2.Frame.Kind_Type;
 
-      Request       : HTTP2.Message.Object;
       Stamp         : constant Time := Clock;
+      Settings      : constant HTTP2.Frame.Settings.Set :=
+                        Get_Settings (Connection.Config);
+
+      Request       : HTTP2.Message.Object;
       Try_Count     : Natural := Connection.Retry;
       Auth_Attempts : Auth_Attempts_Count := (others => 2);
       Auth_Is_Over  : Boolean;
@@ -1091,13 +1093,11 @@ package body AWS.Client.HTTP_Utils is
       H_Connection  : aliased HTTP2.Connection.Object;
       Enc_Table     : aliased HTTP2.HPACK.Table.Object;
       Dec_Table     : aliased HTTP2.HPACK.Table.Object;
-      Settings      : constant HTTP2.Frame.Settings.Set :=
-                        Get_Settings (Connection.Config);
-      Ctx            : Server.Context.Object (null,
-                                              1,
-                                              Enc_Table'Access,
-                                              Dec_Table'Access,
-                                              H_Connection'Access);
+      Ctx           : Server.Context.Object (null,
+                                             1,
+                                             Enc_Table'Access,
+                                             Dec_Table'Access,
+                                             H_Connection'Access);
    begin
       Connection.F_Headers.Reset;
 

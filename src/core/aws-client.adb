@@ -348,7 +348,7 @@ package body AWS.Client is
       Stamp      : Ada.Real_Time.Time)
    is
       use Real_Time;
-      Message : constant String := Ada.Exceptions.Exception_Information (E);
+      Message : constant String := Exception_Information (E);
    begin
       Debug_Exception (E);
 
