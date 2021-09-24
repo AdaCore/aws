@@ -432,15 +432,18 @@ package body AWS.Net.WebSocket is
       Obj   : Object_Class := Socket'Unrestricted_Access;
       Event : AWS.Net.Event_Set;
       Msg   : Ada.Strings.Unbounded.Unbounded_String;
+
    begin
       Event := Socket.Poll
          ((AWS.Net.Input => True, others => False), Timeout => Timeout);
 
       if Event (AWS.Net.Input) then
          --  Block until we have received all chunks of the frame
-         while not Read_Message (Obj, Msg) loop
-            null;
+
+         loop
+            exit when Read_Message (Obj, Msg);
          end loop;
+
          return True;
 
       elsif Event (AWS.Net.Error) then

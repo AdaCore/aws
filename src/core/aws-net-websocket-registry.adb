@@ -136,6 +136,8 @@ package body AWS.Net.WebSocket.Registry is
 
    Shutdown_Signal : Boolean := False;
 
+   function DB_Unregister (WS : not null access Object'Class) return Boolean;
+
    --  Concurrent access to Set above
 
    protected DB is
@@ -202,8 +204,9 @@ package body AWS.Net.WebSocket.Registry is
         Pre => WebSocket /= null;
       --  Register a new WebSocket
 
-      procedure Unregister (WebSocket : not null access Object'Class);
-      --  Unregister a WebSocket
+      procedure Unregister
+        (WebSocket : not null access Object'Class; Success : out Boolean);
+      --  Unregister a WebSocket and return true if it was registered
 
       function Is_Registered (Id : UID) return Boolean;
       --  Returns True if the WebSocket Id is registered and False otherwise
@@ -330,7 +333,9 @@ package body AWS.Net.WebSocket.Registry is
 
       procedure Do_Unregister (WebSocket : Object_Class) is
       begin
-         DB.Unregister (WebSocket);
+         if DB_Unregister (WebSocket) then
+            null; -- ???
+         end if;
       end Do_Unregister;
 
       function Read_Message is new AWS.Net.WebSocket.Read_Message
@@ -345,8 +350,6 @@ package body AWS.Net.WebSocket.Registry is
             WebSocket : Object_Class;
             Message   : Unbounded_String;
          begin
-            Message := Null_Unbounded_String;
-
             Message_Queue.Get (WebSocket);
 
             --  A WebSocket is null when termination is requested
@@ -409,23 +412,24 @@ package body AWS.Net.WebSocket.Registry is
                 (not To.Origin_Set
                  or else GNAT.Regexp.Match (WebSocket.Origin, To.Origin))
             then
-               DB.Unregister (WebSocket);
-               WebSocket.State.Errno := Error_Code (Error);
+               if DB_Unregister (WebSocket) then
+                  WebSocket.State.Errno := Error_Code (Error);
 
-               --  If an error occurs, we don't want to fail, shutdown the
-               --  socket silently.
+                  --  If an error occurs, we don't want to fail, shutdown the
+                  --  socket silently.
 
-               begin
-                  WebSocket.Set_Timeout (Timeout);
-                  WebSocket.Close (Message, Error);
-                  WebSocket.On_Close (Message);
-               exception
-                  when others =>
-                     null;
-               end;
+                  begin
+                     WebSocket.Set_Timeout (Timeout);
+                     WebSocket.Close (Message, Error);
+                     WebSocket.On_Close (Message);
+                  exception
+                     when others =>
+                        null;
+                  end;
 
-               WebSocket.Shutdown;
-               Unchecked_Free (WebSocket);
+                  WebSocket.Shutdown;
+                  Unchecked_Free (WebSocket);
+               end if;
             end if;
          end Close_To;
 
@@ -467,13 +471,15 @@ package body AWS.Net.WebSocket.Registry is
          Error   : Error_Type := Normal_Closure)
       is
          W : Object_Class;
+         Ignore : Boolean;
       begin
          --  Look for WebSocket into the registered set, unregisted it if
          --  present.
 
          if Registered.Contains (Socket.Id) then
             W := Registered (Socket.Id);
-            Unregister (W);
+
+            Unregister (W, Ignore); -- ??? Ignore
          end if;
 
          Socket.State.Errno := Error_Code (Error);
@@ -851,16 +857,19 @@ package body AWS.Net.WebSocket.Registry is
                         A : Action_Kind := None;
                      begin
                         if Error = null then
-                           DB.Unregister (W);
-                           Unchecked_Free (W);
+                           if DB_Unregister (W) then
+                              Unchecked_Free (W);
+                           end if;
 
                         else
                            Error (W.all, A);
 
                            case A is
                               when Close =>
-                                 DB.Unregister (W);
-                                 Unchecked_Free (W);
+                                 if DB_Unregister (W) then
+                                    Unchecked_Free (W);
+                                 end if;
+
                               when None =>
                                  null;
                            end case;
@@ -894,6 +903,7 @@ package body AWS.Net.WebSocket.Registry is
                         --  ??? Might blow up if Chunk_Size > 2Mb
                         Data : Stream_Element_Array (1 .. Chunk_Size);
                         Last : Stream_Element_Offset;
+                        OK   : Boolean;
                      begin
                         --  ??? Useless copy of the data in memory. Would be
                         --  nice to remove this.
@@ -908,16 +918,17 @@ package body AWS.Net.WebSocket.Registry is
                         Pending := Pending - Last;
                      exception
                         when E : others =>
-                           Unregister (WS);
-                           WebSocket_Exception
-                             (WS, Exception_Message (E), Protocol_Error);
+                           Unregister (WS, OK);
 
-                           WS.Close (Exception_Message (E), Going_Away);
-                           WS.On_Close (Exception_Message (E));
+                           if OK then
+                              WebSocket_Exception
+                                (WS, Exception_Message (E), Protocol_Error);
 
-                           --  ??? if we free it now, there might be a reader
-                           --  in parallel that is using this socket...
-                           Unchecked_Free (WS);
+                              WS.Close (Exception_Message (E), Going_Away);
+                              WS.On_Close (Exception_Message (E));
+
+                              Unchecked_Free (WS);
+                           end if;
 
                            --  No more data to send from this socket
                            Pending := 0;
@@ -967,20 +978,25 @@ package body AWS.Net.WebSocket.Registry is
                if Registered.Contains (To.WS_Id) then
                   declare
                      WebSocket : Object_Class := Registered (To.WS_Id);
+                     OK        : Boolean;
                   begin
                      WebSocket.Set_Timeout (Timeout);
                      WebSocket.Send (Message);
                   exception
                      when E : others =>
-                        Unregister (WebSocket);
-                        WebSocket_Exception
-                          (WebSocket, Exception_Message (E), Protocol_Error);
+                        Unregister (WebSocket, OK);
 
-                        WebSocket.On_Close (Exception_Message (E));
-                        WebSocket.Close (Exception_Message (E), Going_Away);
+                        if OK then
+                           WebSocket_Exception
+                             (WebSocket, Exception_Message (E),
+                              Protocol_Error);
 
-                        --  Do not free, it might be used by another
-                        Unchecked_Free (WebSocket);
+                           WebSocket.On_Close (Exception_Message (E));
+                           WebSocket.Close (Exception_Message (E), Going_Away);
+
+                           --  Do not free, it might be used by another
+                           Unchecked_Free (WebSocket);
+                        end if;
                   end;
 
                else
@@ -1059,13 +1075,20 @@ package body AWS.Net.WebSocket.Registry is
       -- Unregister --
       ----------------
 
-      procedure Unregister (WebSocket : not null access Object'Class) is
+      procedure Unregister
+        (WebSocket : not null access Object'Class; Success : out Boolean)
+      is
+         CU : WebSocket_Map.Cursor := Registered.Find (WebSocket.Id);
       begin
-         Registered.Exclude (WebSocket.Id);
-         Sending.Exclude (WebSocket.Id);
+         Success := WebSocket_Map.Has_Element (CU);
 
-         Remove (WebSocket);
-         Signal_Socket;
+         if Success then
+            Registered.Delete (CU);
+            Sending.Exclude (WebSocket.Id);
+
+            Remove (WebSocket);
+            Signal_Socket;
+         end if;
       end Unregister;
 
       -----------
@@ -1073,6 +1096,7 @@ package body AWS.Net.WebSocket.Registry is
       -----------
 
       procedure Watch (WebSocket : Object_Class) is
+         Ignore : Boolean;
       begin
          if Is_Registered (WebSocket.Id)
            and then not Watched.Contains (WebSocket.Id)
@@ -1084,7 +1108,7 @@ package body AWS.Net.WebSocket.Registry is
 
       exception
          when others =>
-            Unregister (WebSocket);
+            Unregister (WebSocket, Ignore);
             raise;
       end Watch;
 
@@ -1178,6 +1202,17 @@ package body AWS.Net.WebSocket.Registry is
    end Create;
 
    -------------------
+   -- DB_Unregister --
+   -------------------
+
+   function DB_Unregister (WS : not null access Object'Class) return Boolean is
+      Result : Boolean;
+   begin
+      DB.Unregister (WS, Result);
+      return Result;
+   end DB_Unregister;
+
+   -------------------
    -- Is_Registered --
    -------------------
 
@@ -1224,10 +1259,12 @@ package body AWS.Net.WebSocket.Registry is
                Pending := Pending - Chunk_Size;
             exception
                when E : others =>
-                  DB.Unregister (WS);
-                  WebSocket_Exception
-                    (WS, Exception_Message (E), Protocol_Error);
-                  Unchecked_Free (WS);
+                  if DB_Unregister (WS) then
+                     WebSocket_Exception
+                       (WS, Exception_Message (E), Protocol_Error);
+                     Unchecked_Free (WS);
+                  end if;
+
                   --  No more data to send from this socket
                   Pending := 0;
             end Read_Send;

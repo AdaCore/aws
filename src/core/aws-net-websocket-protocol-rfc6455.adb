@@ -124,21 +124,24 @@ package body AWS.Net.WebSocket.Protocol.RFC6455 is
    -------------------------
 
    overriding procedure Add_Connect_Headers
-      (Protocol : State;
-       Host     : String;
-       Headers  : in out AWS.Headers.List)
+     (Protocol : State;
+      Host     : String;
+      Headers  : in out AWS.Headers.List)
    is
+      use AWS.Messages;
+
       pragma Unreferenced (Protocol);
+
       Ints : array (1 .. 4) of AWS.Utils.Random_Integer :=
                (others => Utils.Random);
       H : Stream_Element_Array (1 .. 16) with Import, Address => Ints'Address;
 
    begin
-      Headers.Add ("Host", Host);
-      Headers.Add ("Upgrade", "WebSocket");
-      Headers.Add ("Connection", "Upgrade");
-      Headers.Add ("Sec-WebSocket-Key", Translator.Base64_Encode (H));
-      Headers.Add ("Sec-WebSocket-Version", "13");
+      Headers.Add (Host_Token, Host);
+      Headers.Add (Upgrade_Token, "WebSocket");
+      Headers.Add (Connection_Token, "Upgrade");
+      Headers.Add (Sec_WebSocket_Key_Token, Translator.Base64_Encode (H));
+      Headers.Add (Sec_WebSocket_Version_Token, "13");
    end Add_Connect_Headers;
 
    ----------------------------
@@ -152,12 +155,14 @@ package body AWS.Net.WebSocket.Protocol.RFC6455 is
       return Boolean
    is
       pragma Unreferenced (Protocol);
+
       Expected : constant String :=
                    Get_Websocket_Accept
-                      (AWS.Headers.Get
-                         (Request, AWS.Messages.Sec_WebSocket_Key_Token));
-      Actual : constant String := AWS.Response.Header
-                (Response, AWS.Messages.Sec_WebSocket_Accept_Token);
+                     (AWS.Headers.Get
+                        (Request, Messages.Sec_WebSocket_Key_Token));
+      Actual : constant String :=
+                 AWS.Response.Header
+                   (Response, Messages.Sec_WebSocket_Accept_Token);
    begin
       return Expected = Actual;
    end Check_Connect_Response;
