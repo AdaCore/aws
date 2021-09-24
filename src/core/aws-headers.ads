@@ -88,6 +88,10 @@ package AWS.Headers is
    --  Returns the length (in bytes) of the header, including the ending
    --  empty line.
 
+   generic
+      with function Get_Line return String;
+   procedure Read_G (Headers : in out List);
+
    procedure Read (Headers : in out List; Socket : Net.Socket_Type'Class);
    --  Read and parse HTTP header from the socket
 
