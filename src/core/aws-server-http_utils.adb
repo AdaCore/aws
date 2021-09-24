@@ -41,7 +41,6 @@ with GNAT.MD5;
 with GNAT.OS_Lib;
 with GNAT.Regexp;
 
-with AWS.Attachments;
 with AWS.Digest;
 with AWS.Dispatchers;
 with AWS.Headers.Values;
@@ -498,62 +497,23 @@ package body AWS.Server.HTTP_Utils is
 
    end File_Upload_UID;
 
-   ----------------------
-   -- Get_Message_Data --
-   ----------------------
+   -------------------------
+   -- Multipart_Message_G --
+   -------------------------
 
-   procedure Get_Message_Data
-     (HTTP_Server : AWS.Server.HTTP;
-      Line_Index  : Positive;
-      C_Stat      : in out AWS.Status.Data;
-      Expect_100  : Boolean)
-   is
-      use type Status.Request_Method;
+   package body Multipart_Message_G is
 
-      type Message_Mode is
-        (Root_Attachment,   -- Read the root attachment
-         Attachment,        -- Read an attachment
-         File_Upload);      -- Read a file upload
-
-      procedure Get_File_Data
-        (Server_Filename : String;
-         Filename        : String;
-         Start_Boundary  : String;
-         Mode            : Message_Mode;
-         Headers         : AWS.Headers.List;
-         End_Found       : out Boolean);
-      --  Read file data from the stream, set End_Found if the end-boundary
-      --  signature has been read. Server_Filename is the filename to be used
-      --  for on-disk content (Attachment and File_Upload mode).
-
-      procedure File_Upload
-        (Start_Boundary, End_Boundary : String;
-         Parse_Boundary               : Boolean);
-      --  Handle file upload data coming from the client browser
-
-      procedure Store_Attachments
-        (Start_Boundary, End_Boundary : String;
-         Parse_Boundary               : Boolean;
-         Root_Part_CID                : String);
-      --  Store attachments coming from the client browser
-
-      function Get_File_Upload_UID return String;
-      --  Returns a unique id for each file upload
-
-      Status_Multipart_Boundary : Unbounded_String;
-      Status_Root_Part_CID      : Unbounded_String;
-      Status_Content_Type       : Unbounded_String;
-
-      Sock : constant Net.Socket_Type'Class := Status.Socket (C_Stat);
-
-      Attachments : AWS.Attachments.List;
+      procedure Read is new Headers.Read_G (Get_Line);
+      --  Read header using generic Get_Line
 
       -----------------
       -- File_Upload --
       -----------------
 
       procedure File_Upload
-        (Start_Boundary, End_Boundary : String;
+        (C_Stat                       : in out Status.Data;
+         Attachments                  : in out AWS.Attachments.List;
+         Start_Boundary, End_Boundary : String;
          Parse_Boundary               : Boolean)
       is
 
@@ -572,7 +532,7 @@ package body AWS.Server.HTTP_Utils is
             Server_Filename, Decoded_Server_Filename : out Unbounded_String)
          is
             Upload_Path     : constant String :=
-                                CNF.Upload_Directory (HTTP_Server.Properties);
+                                CNF.Upload_Directory (Server_Config);
             File_Upload_UID : constant String := Get_File_Upload_UID;
          begin
             Server_Filename := To_Unbounded_String
@@ -598,7 +558,7 @@ package body AWS.Server.HTTP_Utils is
          if Parse_Boundary then
             loop
                declare
-                  Data : constant String := Net.Buffered.Get_Line (Sock);
+                  Data : constant String := Get_Line;
                begin
                   exit when Data = Start_Boundary;
 
@@ -612,27 +572,26 @@ package body AWS.Server.HTTP_Utils is
 
          --  Read header
 
-         Headers.Read (Sock);
+         Read (Headers);
 
          if AWS.Headers.Get_Values
            (Headers, Messages.Content_Type_Token) = MIME.Application_Form_Data
          then
             --  This chunk is the form parameter
-            Status.Set.Read_Body
-              (Sock, C_Stat, Boundary => Start_Boundary);
+            Read_Body (C_Stat, Boundary => Start_Boundary);
 
             --  Skip CRLF after boundary
 
             declare
-               Data : constant String := Net.Buffered.Get_Line (Sock)
-                        with Unreferenced;
+               Data : constant String := Get_Line with Unreferenced;
             begin
                null;
             end;
 
             Status.Set.Parameters_From_Body (C_Stat);
 
-            File_Upload (Start_Boundary, End_Boundary, False);
+            File_Upload
+              (C_Stat, Attachments, Start_Boundary, End_Boundary, False);
 
          else
             --  Read file upload parameters
@@ -666,10 +625,10 @@ package body AWS.Server.HTTP_Utils is
             if Is_File_Upload then
                --  This part of the multipart message contains file data
 
-               if CNF.Upload_Directory (HTTP_Server.Properties) = "" then
+               if CNF.Upload_Directory (Server_Config) = "" then
                   raise Constraint_Error
                     with "File upload not supported by server "
-                      & CNF.Server_Name (HTTP_Server.Properties);
+                      & CNF.Server_Name (Server_Config);
                end if;
 
                --  Set Server_Filename, the name of the file in the local file
@@ -697,7 +656,9 @@ package body AWS.Server.HTTP_Utils is
                   --  signature has been read.
 
                   Get_File_Data
-                    (To_String (Decoded_Server_Filename),
+                    (C_Stat,
+                     Attachments,
+                     To_String (Decoded_Server_Filename),
                      To_String (Filename),
                      Start_Boundary,
                      File_Upload,
@@ -718,14 +679,17 @@ package body AWS.Server.HTTP_Utils is
                   Status.Set.Attachments (C_Stat, Attachments);
 
                   if not End_Found then
-                     File_Upload (Start_Boundary, End_Boundary, False);
+                     File_Upload
+                       (C_Stat, Attachments,
+                        Start_Boundary, End_Boundary, False);
                   end if;
 
                else
                   --  There is no file for this multipart, user did not enter
                   --  something in the field.
 
-                  File_Upload (Start_Boundary, End_Boundary, True);
+                  File_Upload
+                    (C_Stat, Attachments, Start_Boundary, End_Boundary, True);
                end if;
 
             else
@@ -736,7 +700,7 @@ package body AWS.Server.HTTP_Utils is
                begin
                   loop
                      declare
-                        L : constant String := Net.Buffered.Get_Line (Sock);
+                        L : constant String := Get_Line;
                      begin
                         End_Found := (L = End_Boundary);
 
@@ -755,7 +719,8 @@ package body AWS.Server.HTTP_Utils is
                end;
 
                if not End_Found then
-                  File_Upload (Start_Boundary, End_Boundary, False);
+                  File_Upload
+                    (C_Stat, Attachments, Start_Boundary, End_Boundary, False);
                end if;
             end if;
          end if;
@@ -766,7 +731,9 @@ package body AWS.Server.HTTP_Utils is
       -------------------
 
       procedure Get_File_Data
-        (Server_Filename : String;
+        (C_Stat          : in out Status.Data;
+         Attachments     : in out AWS.Attachments.List;
+         Server_Filename : String;
          Filename        : String;
          Start_Boundary  : String;
          Mode            : Message_Mode;
@@ -844,7 +811,7 @@ package body AWS.Server.HTTP_Utils is
             Index := Index + 1;
 
             loop
-               Net.Buffered.Read (Sock, Data);
+               Read (Data);
 
                if Data (1) = 13 then
                   Write_Data;
@@ -899,7 +866,7 @@ package body AWS.Server.HTTP_Utils is
          end;
 
          Read_File : loop
-            Net.Buffered.Read (Sock, Data);
+            Read (Data);
 
             while Data (1) = 13 loop
                exit Read_File when Check_EOF;
@@ -912,7 +879,7 @@ package body AWS.Server.HTTP_Utils is
                Write (Buffer, False);
                Index := Buffer'First;
 
-               HTTP_Server.Slots.Check_Data_Timeout (Line_Index);
+               Check_Data_Timeout;
             end if;
          end loop Read_File;
 
@@ -938,7 +905,7 @@ package body AWS.Server.HTTP_Utils is
          --  Check for end-boundary, at this point we have at least two
          --  chars. Either the terminating "--" or CR+LF.
 
-         Net.Buffered.Read (Sock, Data2);
+         Read (Data2);
 
          if Data2 (2) = 10 then
             --  We have CR+LF, it is a start-boundary
@@ -949,7 +916,7 @@ package body AWS.Server.HTTP_Utils is
             --  end-boundary.
 
             End_Found := True;
-            Net.Buffered.Read (Sock, Data2);
+            Read (Data2);
          end if;
 
          if Error = Name_Error then
@@ -987,8 +954,11 @@ package body AWS.Server.HTTP_Utils is
       -----------------------
 
       procedure Store_Attachments
-        (Start_Boundary, End_Boundary : String;
+        (C_Stat                       : in out Status.Data;
+         Attachments                  : in out AWS.Attachments.List;
+         Start_Boundary, End_Boundary : String;
          Parse_Boundary               : Boolean;
+         Multipart_Boundary           : String;
          Root_Part_CID                : String)
       is
          function Attachment_Filename (Extension : String) return String;
@@ -1001,7 +971,7 @@ package body AWS.Server.HTTP_Utils is
 
          function Attachment_Filename (Extension : String) return String is
             Upload_Path : constant String :=
-                            CNF.Upload_Directory (HTTP_Server.Properties);
+                            CNF.Upload_Directory (Server_Config);
          begin
             if Extension = "" then
                return Upload_Path & Get_File_Upload_UID;
@@ -1023,7 +993,7 @@ package body AWS.Server.HTTP_Utils is
          if Parse_Boundary then
             loop
                declare
-                  Data : constant String := Net.Buffered.Get_Line (Sock);
+                  Data : constant String := Get_Line;
                begin
                   exit when Data = Start_Boundary;
 
@@ -1037,21 +1007,18 @@ package body AWS.Server.HTTP_Utils is
 
          --  Read header
 
-         Headers.Read (Sock);
+         Read (Headers);
 
          if AWS.Headers.Get_Values
            (Headers, Messages.Content_Type_Token) = MIME.Application_Form_Data
          then
             --  This chunk is the form parameter
-            Status.Set.Read_Body
-              (Sock, C_Stat,
-               Boundary => "--" & To_String (Status_Multipart_Boundary));
+            Read_Body (C_Stat, Boundary => "--" & Multipart_Boundary);
 
             --  Skip CRLF after boundary
 
             declare
-               Data : constant String := Net.Buffered.Get_Line (Sock)
-                        with Unreferenced;
+               Data : constant String := Get_Line with Unreferenced;
             begin
                null;
             end;
@@ -1059,7 +1026,9 @@ package body AWS.Server.HTTP_Utils is
             Status.Set.Parameters_From_Body (C_Stat);
 
             Store_Attachments
-              (Start_Boundary, End_Boundary, False, Root_Part_CID);
+              (C_Stat, Attachments,
+               Start_Boundary, End_Boundary, False,
+               Multipart_Boundary, Root_Part_CID);
 
          else
             Content_Id := To_Unbounded_String
@@ -1067,9 +1036,10 @@ package body AWS.Server.HTTP_Utils is
 
             --  Read file/field data
 
-            if Content_Id = Status_Root_Part_CID then
+            if Content_Id = Root_Part_CID then
                Get_File_Data
-                 ("", "", Start_Boundary, Root_Attachment, Headers, End_Found);
+                 (C_Stat, Attachments,
+                  "", "", Start_Boundary, Root_Attachment, Headers, End_Found);
 
             else
                Server_Filename := To_Unbounded_String
@@ -1080,7 +1050,8 @@ package body AWS.Server.HTTP_Utils is
                              (Headers, Messages.Content_Type_Token)))));
 
                Get_File_Data
-                 (To_String (Server_Filename), To_String (Server_Filename),
+                 (C_Stat, Attachments,
+                  To_String (Server_Filename), To_String (Server_Filename),
                   Start_Boundary, Attachment, Headers, End_Found);
             end if;
 
@@ -1090,12 +1061,92 @@ package body AWS.Server.HTTP_Utils is
                AWS.Status.Set.Attachments (C_Stat, Attachments);
             else
                Store_Attachments
-                 (Start_Boundary, End_Boundary, False, Root_Part_CID);
+                 (C_Stat, Attachments,
+                  Start_Boundary, End_Boundary, False,
+                  Multipart_Boundary, Root_Part_CID);
             end if;
          end if;
       end Store_Attachments;
 
-   begin -- Get_Message_Data
+   end Multipart_Message_G;
+
+   ----------------------
+   -- Get_Message_Data --
+   ----------------------
+
+   procedure Get_Message_Data
+     (HTTP_Server : AWS.Server.HTTP;
+      Line_Index  : Positive;
+      C_Stat      : in out AWS.Status.Data;
+      Expect_100  : Boolean)
+   is
+      use type Status.Request_Method;
+
+      Status_Multipart_Boundary : Unbounded_String;
+      Status_Root_Part_CID      : Unbounded_String;
+      Status_Content_Type       : Unbounded_String;
+
+      Sock : constant Net.Socket_Type'Class := Status.Socket (C_Stat);
+
+      Attachments : AWS.Attachments.List;
+
+      function Get_Line return String;
+      --  Read a line from Sock
+
+      procedure Read (Buffer : out Stream_Element_Array);
+      --  Fill buffer from Sock
+
+      procedure Read_Body (Stat : in out Status.Data; Boundary : String);
+      --  Read Sock until Boundary is found
+
+      procedure Check_Data_Timeout;
+      --  Check data time-out using server settings
+
+      ------------------------
+      -- Check_Data_Timeout --
+      ------------------------
+
+      procedure Check_Data_Timeout is
+      begin
+         HTTP_Server.Slots.Check_Data_Timeout (Line_Index);
+      end Check_Data_Timeout;
+
+      --------------
+      -- Get_Line --
+      --------------
+
+      function Get_Line return String is
+      begin
+         return Net.Buffered.Get_Line (Sock);
+      end Get_Line;
+
+      ----------
+      -- Read --
+      ----------
+
+      procedure Read (Buffer : out Stream_Element_Array) is
+      begin
+         Net.Buffered.Read (Sock, Buffer);
+      end Read;
+
+      ---------------
+      -- Read_Body --
+      ---------------
+
+      procedure Read_Body (Stat : in out Status.Data; Boundary : String) is
+      begin
+         Status.Set.Read_Body (Sock, Stat, Boundary => Boundary);
+      end Read_Body;
+
+      -----------------------
+      -- Multipart_Message --
+      -----------------------
+
+      package Multipart_Message is new Multipart_Message_G
+        (HTTP_Server.Properties,
+         Get_Line, Read, Read_Body, Check_Data_Timeout);
+
+   begin
       if Expect_100 then
          Net.Buffered.Put_Line (Sock, Messages.Status_Line (Messages.S100));
          Net.Buffered.New_Line (Sock);
@@ -1175,8 +1226,10 @@ package body AWS.Server.HTTP_Utils is
       then
          --  This is a file upload
 
-         File_Upload
-           ("--" & To_String (Status_Multipart_Boundary),
+         Multipart_Message.File_Upload
+           (C_Stat,
+            Attachments,
+            "--" & To_String (Status_Multipart_Boundary),
             "--" & To_String (Status_Multipart_Boundary) & "--",
             True);
 
@@ -1185,10 +1238,13 @@ package body AWS.Server.HTTP_Utils is
       then
          --  Attachments are to be written to separate files
 
-         Store_Attachments
-           ("--" & To_String (Status_Multipart_Boundary),
+         Multipart_Message.Store_Attachments
+           (C_Stat,
+            Attachments,
+            "--" & To_String (Status_Multipart_Boundary),
             "--" & To_String (Status_Multipart_Boundary) & "--",
             True,
+            To_String (Status_Multipart_Boundary),
             To_String (Status_Root_Part_CID));
 
       else

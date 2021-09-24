@@ -31,6 +31,8 @@ with Ada.Calendar;
 with Ada.IO_Exceptions;
 with Ada.Streams;
 
+with AWS.Attachments;
+with AWS.Headers;
 with AWS.Resources;
 with AWS.Response;
 with AWS.Status;
@@ -145,5 +147,53 @@ package AWS.Server.HTTP_Utils is
    --  Set Will_Close properly depending on the HTTP version and current
    --  request status. This routine must be called after Get_Message_header as
    --  the request header must have been parsed.
+
+   generic
+      Server_Config : AWS.Config.Object;
+      with function Get_Line return String;
+      with procedure Read (Buffer : out Stream_Element_Array);
+      with procedure Read_Body (Stat : in out Status.Data; Boundary : String);
+      with procedure Check_Data_Timeout;
+      --  Check for data timeout, Server.Slots.Check_Data_Timeout (Index);
+   package Multipart_Message_G is
+
+      type Message_Mode is
+        (Root_Attachment,   -- Read the root attachment
+         Attachment,        -- Read an attachment
+         File_Upload);      -- Read a file upload
+
+      procedure File_Upload
+        (C_Stat                       : in out Status.Data;
+         Attachments                  : in out AWS.Attachments.List;
+         Start_Boundary, End_Boundary : String;
+         Parse_Boundary               : Boolean);
+      --  Handle file upload data coming from the client browser
+
+      function Get_File_Upload_UID return String;
+      --  Returns a unique id for each file upload
+
+      procedure Get_File_Data
+        (C_Stat          : in out Status.Data;
+         Attachments     : in out AWS.Attachments.List;
+         Server_Filename : String;
+         Filename        : String;
+         Start_Boundary  : String;
+         Mode            : Message_Mode;
+         Headers         : AWS.Headers.List;
+         End_Found       : out Boolean);
+      --  Read file data from the stream, set End_Found if the end-boundary
+      --  signature has been read. Server_Filename is the filename to be used
+      --  for on-disk content (Attachment and File_Upload mode).
+
+      procedure Store_Attachments
+        (C_Stat                       : in out Status.Data;
+         Attachments                  : in out AWS.Attachments.List;
+         Start_Boundary, End_Boundary : String;
+         Parse_Boundary               : Boolean;
+         Multipart_Boundary           : String;
+         Root_Part_CID                : String);
+      --  Store attachments coming from the client browser
+
+   end Multipart_Message_G;
 
 end AWS.Server.HTTP_Utils;
