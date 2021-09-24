@@ -101,10 +101,6 @@ package body AWS.HTTP2.Message is
          Resources.Streams.Memory.Stream_Type (O.M_Body.all).Append (Data);
       end if;
 
-      O.Headers.Add
-        (HN (Messages.Content_Length_Token),
-         Utils.Image (Stream_Element_Offset (Data'Length)));
-
       return O;
    end Create;
 
@@ -370,6 +366,19 @@ package body AWS.HTTP2.Message is
 
    begin
       if not Self.H_Sent then
+         if not Self.Headers.Exist (Messages.Content_Length_Token)
+           and then Self.M_Body /= null
+         then
+            declare
+               Size : constant Stream_Element_Offset := Self.M_Body.Size;
+            begin
+               if Size /= Resources.Undefined_Length then
+                  Self.Headers.Add
+                    (HN (Messages.Content_Length_Token), Utils.Image (Size));
+               end if;
+            end;
+         end if;
+
          Handle_Headers (Self.Headers);
          Self.H_Sent := True;
       end if;
