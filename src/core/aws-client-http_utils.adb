@@ -801,9 +801,6 @@ package body AWS.Client.HTTP_Utils is
       procedure Build_Root_Part_Header;
       --  Builds the rootpart header and calculates its size
 
-      function Content_Length return Stream_Element_Offset;
-      --  Returns the total message content length
-
       ----------------------------
       -- Build_Root_Part_Header --
       ----------------------------
@@ -818,20 +815,6 @@ package body AWS.Client.HTTP_Utils is
            (Name  => HN (AWS.Messages.Content_Id_Token, True),
             Value => Root_Content_Id);
       end Build_Root_Part_Header;
-
-      --------------------
-      -- Content_Length --
-      --------------------
-
-      function Content_Length return Stream_Element_Offset is
-      begin
-         return 2
-           + Boundary'Length + 2    -- Root part boundary + CR+LF
-           + Stream_Element_Offset (AWS.Headers.Length (Root_Part_Header))
-           + Data'Length            -- Root part data length
-           + Stream_Element_Offset
-               (AWS.Attachments.Length (Attachments, Boundary));
-      end Content_Length;
 
    begin
       Connection.Self.F_Headers.Reset;
@@ -858,13 +841,6 @@ package body AWS.Client.HTTP_Utils is
                   MIME.Multipart_Form_Data
                   & "; boundary=""" & Boundary & '"');
             end if;
-
-            --  Send message Content-Length
-
-            Set_Header
-              (Connection.F_Headers,
-               HN (Messages.Content_Length_Token, True),
-               Utils.Image (Content_Length));
 
             if not Connection.H2_Preface_Sent then
                Send_H2_Connection_Preface (Connection, Settings, H_Connection);
@@ -2227,10 +2203,12 @@ package body AWS.Client.HTTP_Utils is
 
       --  Send message Content_Length
 
-      Set_Header
-        (Connection.F_Headers,
-         HN (Messages.Content_Length_Token, Is_H2),
-         Utils.Image (Stream_Element_Offset'(Data'Length)));
+      if not Is_H2 then
+         Set_Header
+           (Connection.F_Headers,
+            HN (Messages.Content_Length_Token, Is_H2),
+            Utils.Image (Stream_Element_Offset'(Data'Length)));
+      end if;
    end Set_Common_Post;
 
    ----------------
