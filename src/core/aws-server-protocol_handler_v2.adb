@@ -928,7 +928,7 @@ begin
                      exit For_Every_Frame;
 
                   else
-                     Go_Away (Error, "");
+                     Go_Away (Error, Error'Img & " from Received_Frame");
 
                      exit For_Every_Frame;
                   end if;
@@ -963,8 +963,14 @@ exception
    when Net.Socket_Error =>
       null;
 
-   when HTTP2.Protocol_Error =>
+   when P : HTTP2.Protocol_Error =>
       Will_Close := True;
+      AWS.Log.Write
+        (LA.Server.Error_Log,
+         LA.Stat,
+         "Exception handler bug "
+         & Utils.CRLF_2_Spaces
+           (Ada.Exceptions.Exception_Information (P)));
       LA.Server.Slots.Mark_Phase (LA.Line, Server_Response);
 
    when E : others =>
