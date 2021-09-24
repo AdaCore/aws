@@ -625,6 +625,7 @@ private
       C_Headers          : Header_List;        -- user's connection headers
       F_Headers          : Header_List;        -- final connection headers
       HTTP_Version       : HTTP_Protocol                := HTTPv1;
+      H2_Preface_Sent    : Boolean                      := False;
       Auth               : Authentication_Set;
       Opened             : Boolean                      := False;
       Persistent         : Boolean;

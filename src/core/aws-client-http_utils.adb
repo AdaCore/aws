@@ -134,6 +134,13 @@ package body AWS.Client.HTTP_Utils is
      (Config : AWS.Config.Object) return HTTP2.Frame.Settings.Set;
    --  Returns the config set from Config
 
+   procedure Send_H2_Connection_Preface
+     (Connection   : in out HTTP_Connection;
+      Settings     : HTTP2.Frame.Settings.Set;
+      H_Connection : HTTP2.Connection.Object)
+     with Pre => not Connection.H2_Preface_Sent;
+   --  Send connection preface and get response from server
+
    ---------
    -- "+" --
    ---------
@@ -765,7 +772,6 @@ package body AWS.Client.HTTP_Utils is
       use Real_Time;
 
       use all type HTTP2.Frame.Flags_Type;
-      use all type HTTP2.Frame.Kind_Type;
 
       CRLF      : constant String := String'(1 => ASCII.CR, 2 => ASCII.LF);
       Stamp     : constant Time := Clock;
@@ -860,28 +866,9 @@ package body AWS.Client.HTTP_Utils is
                HN (Messages.Content_Length_Token, True),
                Utils.Image (Content_Length));
 
-            --  Send the HTTP/2 connection preface
-
-            Net.Buffered.Write
-              (Connection.Socket.all, HTTP2.Client_Connection_Preface);
-
-            --  Send the setting frame (stream id 0)
-
-            HTTP2.Frame.Settings.Create
-              (Settings).Send (Connection.Socket.all);
-
-            --  We need to read the settings from server
-
-            declare
-               Frame : constant HTTP2.Frame.Object'Class :=
-                         HTTP2.Frame.Read
-                           (Connection.Socket.all, H_Connection);
-            begin
-               if Frame.Kind /= K_Settings then
-                  raise Constraint_Error with
-                    "server should have answered with a setting frame";
-               end if;
-            end;
+            if not Connection.H2_Preface_Sent then
+               Send_H2_Connection_Preface (Connection, Settings, H_Connection);
+            end if;
 
             --  Create frames and send them
 
@@ -1079,7 +1066,6 @@ package body AWS.Client.HTTP_Utils is
    is
       use Ada.Real_Time;
       use all type HTTP2.Frame.Flags_Type;
-      use all type HTTP2.Frame.Kind_Type;
 
       Stamp         : constant Time := Clock;
       Settings      : constant HTTP2.Frame.Settings.Set :=
@@ -1115,28 +1101,9 @@ package body AWS.Client.HTTP_Utils is
                   Utils.Image (Stream_Element_Offset'(Data'Length)));
             end if;
 
-            --  Send the HTTP/2 connection preface
-
-            Net.Buffered.Write
-              (Connection.Socket.all, HTTP2.Client_Connection_Preface);
-
-            --  Send the setting frame (stream id 0)
-
-            HTTP2.Frame.Settings.Create
-              (Settings).Send (Connection.Socket.all);
-
-            --  We need to read the settings from server
-
-            declare
-               Frame : constant HTTP2.Frame.Object'Class :=
-                         HTTP2.Frame.Read
-                           (Connection.Socket.all, H_Connection);
-            begin
-               if Frame.Kind /= K_Settings then
-                  raise Constraint_Error with
-                    "server should have answered with a setting frame";
-               end if;
-            end;
+            if not Connection.H2_Preface_Sent then
+               Send_H2_Connection_Preface (Connection, Settings, H_Connection);
+            end if;
 
             --  Create frames and send them
 
@@ -1807,6 +1774,43 @@ package body AWS.Client.HTTP_Utils is
          end if;
       end loop;
    end Read_Body;
+
+   --------------------------------
+   -- Send_H2_Connection_Preface --
+   --------------------------------
+
+   procedure Send_H2_Connection_Preface
+     (Connection   : in out HTTP_Connection;
+      Settings     : HTTP2.Frame.Settings.Set;
+      H_Connection : HTTP2.Connection.Object)
+   is
+      use all type HTTP2.Frame.Kind_Type;
+   begin
+      --  Send the HTTP/2 connection preface
+
+      Net.Buffered.Write
+        (Connection.Socket.all, HTTP2.Client_Connection_Preface);
+
+      --  Send the setting frame (stream id 0)
+
+      HTTP2.Frame.Settings.Create
+        (Settings).Send (Connection.Socket.all);
+
+      --  We need to read the settings from server
+
+      declare
+         Frame : constant HTTP2.Frame.Object'Class :=
+                   HTTP2.Frame.Read
+                     (Connection.Socket.all, H_Connection);
+      begin
+         if Frame.Kind /= K_Settings then
+            raise Constraint_Error with
+              "server should have answered with a setting frame";
+         end if;
+      end;
+
+      Connection.H2_Preface_Sent := True;
+   end Send_H2_Connection_Preface;
 
    ------------------
    -- Send_Request --
