@@ -345,8 +345,6 @@ package body AWS.Net.WebSocket.Registry is
             WebSocket : Object_Class;
             Message   : Unbounded_String;
          begin
-            Message := Null_Unbounded_String;
-
             Message_Queue.Get (WebSocket);
 
             --  A WebSocket is null when termination is requested
