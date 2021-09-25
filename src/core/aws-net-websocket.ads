@@ -412,7 +412,7 @@ private
    --  Process the current message on the socket.
    --  Return True if a complete message was read.
    --  Data is accumulated in Message, until the message is complete. At this
-   --  stage, Socket.On_Message will be called.
+   --  stage, Socket.On_Success will be called.
    --  In case of error, other callbacks will be used as appropriate.
 
    overriding function Is_Secure (Socket : Object) return Boolean
