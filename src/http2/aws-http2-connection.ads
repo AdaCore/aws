@@ -121,7 +121,7 @@ private
                        S.INITIAL_WINDOW_SIZE    =>
                          Default.HTTP2_Initial_Window_Size,
                        S.MAX_FRAME_SIZE         =>
-                         Default.HTTP2_Initial_Window_Size,
+                         Default.HTTP2_Max_Frame_Size,
                        S.MAX_HEADER_LIST_SIZE   =>
                          Default.HTTP2_Max_Header_List_Size);
 
