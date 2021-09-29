@@ -93,10 +93,18 @@ package body AWS.Parameters is
          return;
       end if;
 
-      Parameters.Reset;
-
       loop
          Parameters.Read (Buffer (First .. Buffer'Last), Last);
+
+         --  Take a single line
+         --  ??? We can rewrite this using Get_Line probably
+
+         for J in First .. Last loop
+            if Buffer (J) in 13 | 10 then
+               Last := J - 1;
+               exit;
+            end if;
+         end loop;
 
          Found := False;
 
