@@ -39,14 +39,17 @@ private with Ada.Containers.Doubly_Linked_Lists;
 private with AWS.Client;
 private with Interfaces;
 
+with GNATCOLL.Refcount;
+
 package AWS.Net.WebSocket is
 
    use Ada.Strings.Unbounded;
 
    type Object is new Net.Socket_Type with private;
-   type Object_Class is access all Object'Class;
 
-   No_Object : constant Object'Class;
+   type Object_Class is private;
+
+   No_Object : constant Object_Class;
 
    type Kind_Type
      is (Unknown, Connection_Open, Text, Binary, Ping, Pong, Connection_Close);
@@ -352,21 +355,17 @@ private
 
    overriding procedure Free (Socket : in out Object);
 
+   package Object_References is new GNATCOLL.Refcount.Shared_Pointers
+     (Object'Class);
+
+   type Object_Class is new Object_References.Ref with null record;
+
+   function To_Reference (Socket : Object'Class) return Object_Class;
+
    No_UID    : constant UID := 0;
 
-   No_Object : constant Object'Class :=
-                 Object'
-                   (Net.Socket_Type with
-                    Socket     => null,
-                    Id         => No_UID,
-                    Request    => <>,
-                    Version    => 0,
-                    State      => null,
-                    P_State    => null,
-                    Messages   => Message_List.Empty_List,
-                    Mem_Sock   => null,
-                    Connection => null,
-                    In_Mem     => False);
+   No_Object : constant Object_Class :=
+                 (Object_References.Null_Ref with null record);
 
    --  Error codes corresponding to all errors
 
@@ -391,7 +390,7 @@ private
                    User_05                    => 3004);
 
    procedure WebSocket_Exception
-     (WebSocket : not null access Object'Class;
+     (WebSocket : in out Object'Class;
       Message   : String;
       Error     : Error_Type);
    --  Call when an exception is caught. In this case we want to send the
@@ -399,14 +398,13 @@ private
 
    generic
       with procedure Receive
-         (Socket : not null access Object'Class;
+         (Socket : Object'Class;
           Data   : out Ada.Streams.Stream_Element_Array;
           Last   : out Ada.Streams.Stream_Element_Offset);
-      with procedure On_Success (Socket : Object_Class) is null;
-      with procedure On_Error (Socket : Object_Class) is null;
-      with procedure On_Free (Socket : in out Object_Class) is null;
+      with procedure On_Success (Socket : Object'Class) is null;
+      with procedure On_Error (Socket : Object'Class) is null;
    function Read_Message
-      (WebSocket : in out Object_Class;
+      (WebSocket : in out Object'Class;
        Message   : in out Ada.Strings.Unbounded.Unbounded_String)
       return Boolean;
    --  Process the current message on the socket.

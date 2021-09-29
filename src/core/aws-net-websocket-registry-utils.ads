@@ -37,6 +37,6 @@ package AWS.Net.WebSocket.Registry.Utils is
    --  if the server has reached the limit of opened WebSocket for example.
 
    procedure Watch (WebSocket : in out Object_Class) with
-     Pre => WebSocket /= null;
+     Pre => WebSocket /= No_Object;
 
 end AWS.Net.WebSocket.Registry.Utils;
