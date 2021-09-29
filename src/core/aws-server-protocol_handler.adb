@@ -192,15 +192,16 @@ begin
          AWS.Status.Set.Case_Sensitive_Parameters
            (LA.Stat, Case_Sensitive_Parameters);
 
-         Get_Request_Line (LA.Stat);
+         if AWS.Status.Protocol (LA.Stat) = AWS.Status.HTTP_1 then
+            Get_Request_Line (LA.Stat);
+         end if;
 
          if AWS.Status.Protocol (LA.Stat) = AWS.Status.H2 then
             if CNF.HTTP2_Activated (LA.Server.Config) then
                Protocol_Handler_V2 (LA, Check_Preface => False);
 
+               --  ??? Need to be updated for handling multiple messages
                Will_Close := True;
-
-               exit For_Every_Request;
 
             else
                Error_Answer := Response.Build
@@ -212,76 +213,80 @@ begin
             end if;
          end if;
 
-         First_Line := False;
+         if AWS.Status.Protocol (LA.Stat) = AWS.Status.HTTP_1 then
+            First_Line := False;
 
-         AWS.Status.Set.Read_Header (Socket => Sock_Ptr.all, D => LA.Stat);
+            AWS.Status.Set.Read_Header (Socket => Sock_Ptr.all, D => LA.Stat);
 
-         AWS.Status.Set.Connection_Data
-           (LA.Stat,
-            CNF.Server_Host (LA.Server.Properties),
-            AWS.Server.Status.Port (LA.Server.all),
-            CNF.Security (LA.Server.Properties));
+            AWS.Status.Set.Connection_Data
+              (LA.Stat,
+               CNF.Server_Host (LA.Server.Properties),
+               AWS.Server.Status.Port (LA.Server.all),
+               CNF.Security (LA.Server.Properties));
 
-         LA.Server.Slots.Increment_Slot_Activity_Counter (LA.Line, Free_Slots);
+            LA.Server.Slots.Increment_Slot_Activity_Counter
+              (LA.Line, Free_Slots);
 
-         --  If there is no more slot available and we have many
-         --  of them, try to abort one of them.
+            --  If there is no more slot available and we have many
+            --  of them, try to abort one of them.
 
-         if Multislots and then Free_Slots = 0 then
-            Force_Clean (LA.Server.all);
-         end if;
-
-         if Extended_Log then
-            AWS.Log.Set_Field
-              (LA.Server.Log, LA.Log_Data,
-               "s-free-slots", Utils.Image (Free_Slots));
-         end if;
-
-         Set_Close_Status
-           (LA.Stat,
-            Keep_Alive => Free_Slots >= Keep_Alive_Limit,
-            Will_Close => Will_Close);
-
-         --  Is there something to read ?
-
-         if AWS.Status.Content_Length (LA.Stat) = 0
-           and then AWS.Status.Transfer_Encoding (LA.Stat) /= "chunked"
-         then
-            LA.Server.Slots.Mark_Phase (LA.Line, Server_Processing);
-
-         else
-            declare
-               Expect : constant String := AWS.Status.Expect (LA.Stat);
-            begin
-               LA.Expect_100 := Expect = Messages.S100_Continue;
-
-               if not LA.Expect_100 and then Expect /= "" then
-                  Will_Close := True;
-
-                  Error_Answer := Response.Build
-                    (Status_Code  => Messages.S417,
-                     Content_Type => "text/plain",
-                     Message_Body => "Unknown Expect header value " & Expect);
-
-                  raise Expectation_Failed;
-               end if;
-            end;
-
-            LA.Server.Slots.Mark_Phase (LA.Line, Client_Data);
-
-            if AWS.Status.Content_Length (LA.Stat)
-               <= Stream_Element_Count
-                    (CNF.Upload_Size_Limit (LA.Server.Properties))
-            then
-               Get_Message_Data
-                 (LA.Server.all, LA.Line, LA.Stat, LA.Expect_100);
+            if Multislots and then Free_Slots = 0 then
+               Force_Clean (LA.Server.all);
             end if;
+
+            if Extended_Log then
+               AWS.Log.Set_Field
+                 (LA.Server.Log, LA.Log_Data,
+                  "s-free-slots", Utils.Image (Free_Slots));
+            end if;
+
+            Set_Close_Status
+              (LA.Stat,
+               Keep_Alive => Free_Slots >= Keep_Alive_Limit,
+               Will_Close => Will_Close);
+
+            --  Is there something to read ?
+
+            if AWS.Status.Content_Length (LA.Stat) = 0
+              and then AWS.Status.Transfer_Encoding (LA.Stat) /= "chunked"
+            then
+               LA.Server.Slots.Mark_Phase (LA.Line, Server_Processing);
+
+            else
+               declare
+                  Expect : constant String := AWS.Status.Expect (LA.Stat);
+               begin
+                  LA.Expect_100 := Expect = Messages.S100_Continue;
+
+                  if not LA.Expect_100 and then Expect /= "" then
+                     Will_Close := True;
+
+                     Error_Answer := Response.Build
+                       (Status_Code  => Messages.S417,
+                        Content_Type => "text/plain",
+                        Message_Body =>
+                          "Unknown Expect header value " & Expect);
+
+                     raise Expectation_Failed;
+                  end if;
+               end;
+
+               LA.Server.Slots.Mark_Phase (LA.Line, Client_Data);
+
+               if AWS.Status.Content_Length (LA.Stat)
+                  <= Stream_Element_Count
+                       (CNF.Upload_Size_Limit (LA.Server.Properties))
+               then
+                  Get_Message_Data
+                    (LA.Server.all, LA.Line, LA.Stat, LA.Expect_100);
+               end if;
+            end if;
+
+            AWS.Status.Set.Keep_Alive (LA.Stat, not Will_Close);
+
+            Answer_To_Client
+              (LA.Server.all, LA.Line, LA.Stat, Socket_Taken, Will_Close);
          end if;
-
-         AWS.Status.Set.Keep_Alive (LA.Stat, not Will_Close);
-
-         Answer_To_Client
-           (LA.Server.all, LA.Line, LA.Stat, Socket_Taken, Will_Close);
 
          if AWS.Status.Protocol (LA.Stat) = AWS.Status.Upgrade_To_H2C
            and then CNF.HTTP2_Activated (LA.Server.Config)
@@ -290,6 +295,7 @@ begin
 
             Protocol_Handler_V2 (LA);
 
+            --  ??? Need to be updated for handling multiple messages
             Will_Close := True;
          end if;
 
