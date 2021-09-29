@@ -439,7 +439,7 @@ is
                Value  : constant String := Headers.Get_Value (K);
             begin
                if HTTP2.Debug then
-                  Ada.Text_IO.Put_Line ("#hg " & Header & ' ' & Value);
+                  Text_IO.Put_Line ("#hg " & Header & ' ' & Value);
                end if;
 
                if Header'Length > 1 and then Header (Header'First) = ':' then

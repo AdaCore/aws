@@ -270,7 +270,6 @@ package body AWS.HTTP2.Stream is
             Self.Flow_Send_Window := Self.Flow_Send_Window + Incr;
          else
             Error := HTTP2.C_Flow_Control_Error;
-            return;
          end if;
       end Handle_Window_Update;
 
