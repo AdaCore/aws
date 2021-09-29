@@ -100,10 +100,12 @@ package AWS.Status.Set is
    procedure Parameters (D : in out Data; Set : AWS.Parameters.List);
    --  Associate the parameters in Set to the status data
 
-   procedure Parameters_From_Body (D : in out Data) with Inline;
+   procedure Parameters_From_Body
+     (D : in out Data; Boundary : String := "") with Inline;
    --  Get HTTP parameters from message body for POST form processing.
    --  This routine allow to move big message body into HTTP parameters set
-   --  with low stack usage.
+   --  with low stack usage. If Boundary is set, first the given bounday will
+   --  be skip with any other headers just after until on empty line is found.
 
    procedure Case_Sensitive_Parameters (D : in out Data; Mode : Boolean)
      with Inline;
