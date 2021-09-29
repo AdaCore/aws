@@ -243,7 +243,7 @@ package body AWS.HTTP2.Stream is
       procedure Handle_Window_Update
         (Frame : HTTP2.Frame.Window_Update.Object);
       --  Handle frame window upade, record corresponding information in the
-      --  frame.
+      --  stream and connection.
 
       ---------------------
       -- Handle_Priority --
@@ -268,6 +268,7 @@ package body AWS.HTTP2.Stream is
            (Self.Flow_Send_Window, Incr)
          then
             Self.Flow_Send_Window := Self.Flow_Send_Window + Incr;
+            Ctx.Settings.Update_Flow_Control_Window (Incr);
          else
             Error := HTTP2.C_Flow_Control_Error;
          end if;
