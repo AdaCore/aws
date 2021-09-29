@@ -43,10 +43,10 @@ with AWS.Headers;
 with AWS.Messages;
 with AWS.Net;
 with AWS.Parameters;
+with AWS.Resources.Streams.Memory;
 with AWS.Session;
 with AWS.URL;
 
-private with AWS.Resources.Streams.Memory;
 private with GNAT.SHA256;
 
 package AWS.Status is
@@ -222,6 +222,11 @@ package AWS.Status is
    function Binary_Data (D : Data) return Unbounded_String;
    --  Returns the binary data message content in a Unbounded_String
    --  Note that only the root part of a multipart/related message is returned.
+
+   function Binary_Data
+     (D : Data)
+      return not null access Resources.Streams.Memory.Stream_Type'Class;
+   --  Returns the binary data message as a memory resource stream
 
    function Binary_Size (D : Data) return Stream_Element_Offset with Inline;
    --  Returns size of the binary data message content
@@ -409,5 +414,10 @@ private
       Session_Created   : Boolean               := False;
       Session_Timed_Out : Boolean               := False;
    end record;
+
+   function Binary_Data
+     (D : Data)
+      return not null access Resources.Streams.Memory.Stream_Type'Class
+   is (D.Binary_Data);
 
 end AWS.Status;
