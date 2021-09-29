@@ -35,6 +35,7 @@ with Ada.Strings.Unbounded;
 with AWS.Attachments;
 with AWS.Default;
 with AWS.Headers;
+with AWS.HTTP2;
 with AWS.Net.SSL.Certificate;
 with AWS.Response;
 
@@ -626,6 +627,7 @@ private
       F_Headers          : Header_List;        -- final connection headers
       HTTP_Version       : HTTP_Protocol                := HTTPv1;
       H2_Preface_Sent    : Boolean                      := False;
+      H2_Stream_Id       : AWS.HTTP2.Stream_Id          := 0;
       Auth               : Authentication_Set;
       Opened             : Boolean                      := False;
       Persistent         : Boolean;

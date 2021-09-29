@@ -191,6 +191,8 @@ package body AWS.Client is
       Connection.Timeouts                 := Timeouts;
       Connection.HTTP_Version             := HTTP_Version;
       Connection.Config                   := AWS.Config.Get_Current;
+      Connection.H2_Preface_Sent          := False;
+      Connection.H2_Stream_Id             := 1;
 
       Connection.User_Agent := To_Unbounded_String (User_Agent);
 

@@ -141,6 +141,9 @@ package body AWS.Client.HTTP_Utils is
      with Pre => not Connection.H2_Preface_Sent;
    --  Send connection preface and get response from server
 
+   procedure Next_Stream_Id (Connection : in out HTTP_Connection);
+   --  Update client's stream-id to next value
+
    ---------
    -- "+" --
    ---------
@@ -659,7 +662,7 @@ package body AWS.Client.HTTP_Utils is
       end Content_Length;
 
    begin
-      Connection.Self.F_Headers.Reset;
+      Connection.F_Headers.Reset;
 
       Build_Root_Part_Header;
 
@@ -772,6 +775,7 @@ package body AWS.Client.HTTP_Utils is
       use Real_Time;
 
       use all type HTTP2.Frame.Flags_Type;
+      use all type HTTP2.Frame.Kind_Type;
 
       CRLF      : constant String := String'(1 => ASCII.CR, 2 => ASCII.LF);
       Stamp     : constant Time := Clock;
@@ -817,14 +821,14 @@ package body AWS.Client.HTTP_Utils is
       end Build_Root_Part_Header;
 
    begin
-      Connection.Self.F_Headers.Reset;
+      Connection.F_Headers.Reset;
 
       Build_Root_Part_Header;
 
       Retry : loop
          begin
             Set_Common_Post
-              (Connection, Data, URI, SOAPAction, Content_Type, Headers);
+              (Connection, Data, URI, SOAPAction, "", Headers);
 
             if Content_Type = "" then
                Set_Header
@@ -849,7 +853,10 @@ package body AWS.Client.HTTP_Utils is
             --  Create frames and send them
 
             Stream := HTTP2.Stream.Create
-              (Connection.Socket, 1, H_Connection.Flow_Control_Window);
+              (Connection.Socket,
+               Connection.H2_Stream_Id, H_Connection.Flow_Control_Window);
+
+            Next_Stream_Id (Connection);
 
             Request := HTTP2.Message.Create
               (Connection.F_Headers,
@@ -903,14 +910,38 @@ package body AWS.Client.HTTP_Utils is
 
             Request.Append_Body (Pref_Suf & Boundary & Pref_Suf & CRLF);
 
-            for F of Request.To_Frames (Ctx, Stream) loop
-               Stream.Send_Frame (F);
-            end loop;
+            All_Frames : loop
+               for F of Request.To_Frames (Ctx, Stream) loop
+                  Stream.Send_Frame (F);
+
+                  if F.Kind = HTTP2.Frame.K_Data then
+                     Ctx.Settings.Update_Flow_Control_Window
+                       (-Natural (F.Length));
+                  end if;
+               end loop;
+
+               if Request.More_Frames then
+                  declare
+                     Frame : constant HTTP2.Frame.Object'Class :=
+                               HTTP2.Frame.Read
+                                 (Connection.Socket.all, H_Connection);
+                     Error : HTTP2.Error_Codes;
+                  begin
+                     Stream.Received_Frame (Ctx, Frame, Error);
+                  end;
+
+               else
+                  exit All_Frames;
+               end if;
+            end loop All_Frames;
 
             --  Get response
 
             Stream := HTTP2.Stream.Create
-              (Connection.Socket, 3, H_Connection.Flow_Control_Window);
+              (Connection.Socket,
+               Connection.H2_Stream_Id, H_Connection.Flow_Control_Window);
+
+            Next_Stream_Id (Connection);
 
             while not Stream.Is_Message_Ready loop
                declare
@@ -1128,6 +1159,16 @@ package body AWS.Client.HTTP_Utils is
          end;
       end loop Retry;
    end Internal_Post_Without_Attachment_2;
+
+   --------------------
+   -- Next_Stream_Id --
+   --------------------
+
+   procedure Next_Stream_Id (Connection : in out HTTP_Connection) is
+      use type AWS.HTTP2.Stream_Id;
+   begin
+      Connection.H2_Stream_Id := Connection.H2_Stream_Id + 2;
+   end Next_Stream_Id;
 
    ----------------------------
    -- Open_Set_Common_Header --
@@ -1969,7 +2010,10 @@ package body AWS.Client.HTTP_Utils is
             --  Create frames and send them
 
             Stream := HTTP2.Stream.Create
-              (Connection.Socket, 1, H_Connection.Flow_Control_Window);
+              (Connection.Socket,
+               Connection.H2_Stream_Id, H_Connection.Flow_Control_Window);
+
+            Next_Stream_Id (Connection);
 
             Request := HTTP2.Message.Create
               (Connection.F_Headers, Data, Stream.Identifier);
@@ -1981,7 +2025,10 @@ package body AWS.Client.HTTP_Utils is
             --  Get response
 
             Stream := HTTP2.Stream.Create
-              (Connection.Socket, 3, H_Connection.Flow_Control_Window);
+              (Connection.Socket,
+               Connection.H2_Stream_Id, H_Connection.Flow_Control_Window);
+
+            Next_Stream_Id (Connection);
 
             while not Stream.Is_Message_Ready loop
                declare
