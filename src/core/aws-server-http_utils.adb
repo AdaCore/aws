@@ -589,10 +589,11 @@ package body AWS.Server.HTTP_Utils is
                null;
             end;
 
-            Status.Set.Parameters_From_Body (C_Stat);
-
             File_Upload
               (C_Stat, Attachments, Start_Boundary, End_Boundary, False);
+
+            Status.Set.Parameters_From_Body
+              (C_Stat, (if Is_H2 then Start_Boundary else ""));
 
          else
             --  Read file upload parameters
@@ -1024,12 +1025,16 @@ package body AWS.Server.HTTP_Utils is
                null;
             end;
 
-            Status.Set.Parameters_From_Body (C_Stat);
-
             Store_Attachments
               (C_Stat, Attachments,
                Start_Boundary, End_Boundary, False,
                Multipart_Boundary, Root_Part_CID);
+
+            --  In HTTP/2 the whole message is read with the multipart header
+            --  for the main form data.
+
+            Status.Set.Parameters_From_Body
+              (C_Stat, (if Is_H2 then Start_Boundary else ""));
 
          else
             Content_Id := To_Unbounded_String
@@ -1144,7 +1149,7 @@ package body AWS.Server.HTTP_Utils is
       -----------------------
 
       package Multipart_Message is new Multipart_Message_G
-        (HTTP_Server.Properties,
+        (False, HTTP_Server.Properties,
          Get_Line, Read, Read_Body, Check_Data_Timeout);
 
    begin

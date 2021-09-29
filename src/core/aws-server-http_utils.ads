@@ -149,6 +149,7 @@ package AWS.Server.HTTP_Utils is
    --  the request header must have been parsed.
 
    generic
+      Is_H2         : Boolean;
       Server_Config : AWS.Config.Object;
       with function Get_Line return String;
       with procedure Read (Buffer : out Stream_Element_Array);
