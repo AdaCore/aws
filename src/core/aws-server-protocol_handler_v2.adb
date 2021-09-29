@@ -583,6 +583,10 @@ is
    begin
       AWS.Status.Set.Reset (Status);
 
+      --  With HTTP/2 the whole body is always uploaded when receiving frames
+
+      AWS.Status.Set.Uploaded (Status);
+
       --  Set status socket and peername
 
       AWS.Status.Set.Socket (Status, Sock);
