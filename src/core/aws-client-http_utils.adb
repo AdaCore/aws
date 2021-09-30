@@ -144,6 +144,20 @@ package body AWS.Client.HTTP_Utils is
    procedure Next_Stream_Id (Connection : in out HTTP_Connection);
    --  Update client's stream-id to next value
 
+   procedure Send_H2_Request
+     (Connection : in out HTTP_Connection;
+      Ctx        : in out Server.Context.Object;
+      Stream     : in out HTTP2.Stream.Object;
+      Request    : in out HTTP2.Message.Object);
+   --  Send H2 request
+
+   procedure Get_H2_Response
+     (Connection : in out HTTP_Connection;
+      Ctx        : in out Server.Context.Object;
+      Stream     : in out HTTP2.Stream.Object;
+      Result     : out Response.Data);
+   --  Get H2 response
+
    ---------
    -- "+" --
    ---------
@@ -393,6 +407,32 @@ package body AWS.Client.HTTP_Utils is
          Net.Free (Connection.Socket);
       end if;
    end Disconnect;
+
+   ---------------------
+   -- Get_H2_Response --
+   ---------------------
+
+   procedure Get_H2_Response
+     (Connection : in out HTTP_Connection;
+      Ctx        : in out Server.Context.Object;
+      Stream     : in out HTTP2.Stream.Object;
+      Result     : out Response.Data)
+   is
+   begin
+      while not Stream.Is_Message_Ready loop
+         declare
+            Frame : constant HTTP2.Frame.Object'Class :=
+                      HTTP2.Frame.Read
+                        (Connection.Socket.all, Ctx.Settings.all);
+            Error : HTTP2.Error_Codes;
+         begin
+            Stream.Received_Frame (Ctx, Frame, Error);
+            exit when Frame.Has_Flag (HTTP2.Frame.End_Stream_Flag);
+         end;
+      end loop;
+
+      Stream.Append_Body (Result);
+   end Get_H2_Response;
 
    ------------------
    -- Get_Response --
@@ -774,9 +814,6 @@ package body AWS.Client.HTTP_Utils is
    is
       use Real_Time;
 
-      use all type HTTP2.Frame.Flags_Type;
-      use all type HTTP2.Frame.Kind_Type;
-
       CRLF      : constant String := String'(1 => ASCII.CR, 2 => ASCII.LF);
       Stamp     : constant Time := Clock;
       Settings  : constant HTTP2.Frame.Settings.Set :=
@@ -910,30 +947,7 @@ package body AWS.Client.HTTP_Utils is
 
             Request.Append_Body (Pref_Suf & Boundary & Pref_Suf & CRLF);
 
-            All_Frames : loop
-               for F of Request.To_Frames (Ctx, Stream) loop
-                  Stream.Send_Frame (F);
-
-                  if F.Kind = HTTP2.Frame.K_Data then
-                     Ctx.Settings.Update_Flow_Control_Window
-                       (-Natural (F.Length));
-                  end if;
-               end loop;
-
-               if Request.More_Frames then
-                  declare
-                     Frame : constant HTTP2.Frame.Object'Class :=
-                               HTTP2.Frame.Read
-                                 (Connection.Socket.all, H_Connection);
-                     Error : HTTP2.Error_Codes;
-                  begin
-                     Stream.Received_Frame (Ctx, Frame, Error);
-                  end;
-
-               else
-                  exit All_Frames;
-               end if;
-            end loop All_Frames;
+            Send_H2_Request (Connection, Ctx, Stream, Request);
 
             --  Get response
 
@@ -943,19 +957,7 @@ package body AWS.Client.HTTP_Utils is
 
             Next_Stream_Id (Connection);
 
-            while not Stream.Is_Message_Ready loop
-               declare
-                  Frame : constant HTTP2.Frame.Object'Class :=
-                            HTTP2.Frame.Read
-                              (Connection.Socket.all, H_Connection);
-                  Error : HTTP2.Error_Codes;
-               begin
-                  Stream.Received_Frame (Ctx, Frame, Error);
-                  exit when Frame.Has_Flag (HTTP2.Frame.End_Stream_Flag);
-               end;
-            end loop;
-
-            Stream.Append_Body (Result);
+            Get_H2_Response (Connection, Ctx, Stream, Result);
 
             Decrement_Authentication_Attempt
               (Connection, Auth_Attempts, Auth_Is_Over);
@@ -1828,6 +1830,44 @@ package body AWS.Client.HTTP_Utils is
 
       Connection.H2_Preface_Sent := True;
    end Send_H2_Connection_Preface;
+
+   ---------------------
+   -- Send_H2_Request --
+   ---------------------
+
+   procedure Send_H2_Request
+     (Connection : in out HTTP_Connection;
+      Ctx        : in out Server.Context.Object;
+      Stream     : in out HTTP2.Stream.Object;
+      Request    : in out HTTP2.Message.Object)
+   is
+      use all type HTTP2.Frame.Kind_Type;
+   begin
+      All_Frames : loop
+         for F of Request.To_Frames (Ctx, Stream) loop
+            Stream.Send_Frame (F);
+
+            if F.Kind = HTTP2.Frame.K_Data then
+               Ctx.Settings.Update_Flow_Control_Window
+                 (-Natural (F.Length));
+            end if;
+         end loop;
+
+         if Request.More_Frames then
+            declare
+               Frame : constant HTTP2.Frame.Object'Class :=
+                         HTTP2.Frame.Read
+                           (Connection.Socket.all, Ctx.Settings.all);
+               Error : HTTP2.Error_Codes;
+            begin
+               Stream.Received_Frame (Ctx, Frame, Error);
+            end;
+
+         else
+            exit All_Frames;
+         end if;
+      end loop All_Frames;
+   end Send_H2_Request;
 
    ------------------
    -- Send_Request --
