@@ -431,6 +431,8 @@ package body AWS.Client.HTTP_Utils is
          end;
       end loop;
 
+      Response.Set.Clear (Result);
+
       Stream.Append_Body (Result);
    end Get_H2_Response;
 
@@ -1074,7 +1076,6 @@ package body AWS.Client.HTTP_Utils is
       Headers      : Header_List := Empty_Header_List)
    is
       use Ada.Real_Time;
-      use all type HTTP2.Frame.Flags_Type;
 
       Stamp         : constant Time := Clock;
       Settings      : constant HTTP2.Frame.Settings.Set :=
@@ -1117,33 +1118,25 @@ package body AWS.Client.HTTP_Utils is
             --  Create frames and send them
 
             Stream := HTTP2.Stream.Create
-              (Connection.Socket, 1, H_Connection.Flow_Control_Window);
+              (Connection.Socket,
+               Connection.H2_Stream_Id, H_Connection.Flow_Control_Window);
+
+            Next_Stream_Id (Connection);
 
             Request := HTTP2.Message.Create
               (Connection.F_Headers, Data, Stream.Identifier);
 
-            for F of Request.To_Frames (Ctx, Stream) loop
-               Stream.Send_Frame (F);
-            end loop;
+            Send_H2_Request (Connection, Ctx, Stream, Request);
 
             --  Get response
 
             Stream := HTTP2.Stream.Create
-              (Connection.Socket, 3, H_Connection.Flow_Control_Window);
+              (Connection.Socket,
+               Connection.H2_Stream_Id, H_Connection.Flow_Control_Window);
 
-            while not Stream.Is_Message_Ready loop
-               declare
-                  Frame : constant HTTP2.Frame.Object'Class :=
-                            HTTP2.Frame.Read
-                              (Connection.Socket.all, H_Connection);
-                  Error : HTTP2.Error_Codes;
-               begin
-                  Stream.Received_Frame (Ctx, Frame, Error);
-                  exit when Frame.Has_Flag (HTTP2.Frame.End_Stream_Flag);
-               end;
-            end loop;
+            Next_Stream_Id (Connection);
 
-            Stream.Append_Body (Result);
+            Get_H2_Response (Connection, Ctx, Stream, Result);
 
             Decrement_Authentication_Attempt
               (Connection, Auth_Attempts, Auth_Is_Over);
