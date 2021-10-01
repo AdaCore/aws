@@ -158,6 +158,13 @@ package body AWS.Client.HTTP_Utils is
       Result     : out Response.Data);
    --  Get H2 response
 
+   procedure Handle_H2_Request
+     (Connection   : in out HTTP_Connection;
+      Result       : out Response.Data;
+      Data         : Stream_Element_Array;
+      Auth_Is_Over : out Boolean);
+   --  Send request and get response for HTTP/2 protocol
+
    ---------
    -- "+" --
    ---------
@@ -596,6 +603,71 @@ package body AWS.Client.HTTP_Utils is
          6 => (MAX_HEADER_LIST_SIZE,
                Byte_4 (Config.HTTP2_Max_Header_List_Size)));
    end Get_Settings;
+
+   -----------------------
+   -- Handle_H2_Request --
+   -----------------------
+
+   procedure Handle_H2_Request
+     (Connection   : in out HTTP_Connection;
+      Result       : out Response.Data;
+      Data         : Stream_Element_Array;
+      Auth_Is_Over : out Boolean)
+   is
+      Settings      : constant HTTP2.Frame.Settings.Set :=
+                        Get_Settings (Connection.Config);
+
+      Request       : HTTP2.Message.Object;
+      Auth_Attempts : Auth_Attempts_Count := (others => 2);
+      Stream        : HTTP2.Stream.Object;
+      H_Connection  : aliased HTTP2.Connection.Object;
+      Enc_Table     : aliased HTTP2.HPACK.Table.Object;
+      Dec_Table     : aliased HTTP2.HPACK.Table.Object;
+      Ctx           : Server.Context.Object (null,
+                                             1,
+                                             Enc_Table'Access,
+                                             Dec_Table'Access,
+                                             H_Connection'Access);
+   begin
+      --  Create the request HTTP/2 message out of Status.Data
+
+      if Data'Length > 0 then
+         Set_Header
+           (Connection.F_Headers,
+            HN (Messages.Content_Length_Token, True),
+            Utils.Image (Stream_Element_Offset'(Data'Length)));
+      end if;
+
+      if not Connection.H2_Preface_Sent then
+         Send_H2_Connection_Preface (Connection, Settings, H_Connection);
+      end if;
+
+      --  Create frames and send them
+
+      Stream := HTTP2.Stream.Create
+        (Connection.Socket,
+         Connection.H2_Stream_Id, H_Connection.Flow_Control_Window);
+
+      Next_Stream_Id (Connection);
+
+      Request := HTTP2.Message.Create
+        (Connection.F_Headers, Data, Stream.Identifier);
+
+      Send_H2_Request (Connection, Ctx, Stream, Request);
+
+      --  Get response
+
+      Stream := HTTP2.Stream.Create
+        (Connection.Socket,
+         Connection.H2_Stream_Id, H_Connection.Flow_Control_Window);
+
+      Next_Stream_Id (Connection);
+
+      Get_H2_Response (Connection, Ctx, Stream, Result);
+
+      Decrement_Authentication_Attempt
+        (Connection, Auth_Attempts, Auth_Is_Over);
+   end Handle_H2_Request;
 
    -----------
    -- Image --
@@ -1122,74 +1194,20 @@ package body AWS.Client.HTTP_Utils is
    is
       use Ada.Real_Time;
 
-      Stamp         : constant Time := Clock;
-      Settings      : constant HTTP2.Frame.Settings.Set :=
-                        Get_Settings (Connection.Config);
-
-      Request       : HTTP2.Message.Object;
-      Try_Count     : Natural := Connection.Retry;
-      Auth_Attempts : Auth_Attempts_Count := (others => 2);
-      Auth_Is_Over  : Boolean;
-      Stream        : HTTP2.Stream.Object;
-      H_Connection  : aliased HTTP2.Connection.Object;
-      Enc_Table     : aliased HTTP2.HPACK.Table.Object;
-      Dec_Table     : aliased HTTP2.HPACK.Table.Object;
-      Ctx           : Server.Context.Object (null,
-                                             1,
-                                             Enc_Table'Access,
-                                             Dec_Table'Access,
-                                             H_Connection'Access);
+      Stamp        : constant Time := Clock;
+      Try_Count    : Natural := Connection.Retry;
+      Auth_Is_Over : Boolean;
    begin
       Connection.F_Headers.Reset;
 
       Retry : loop
          begin
-            --  Post Data with headers
-
             Set_Common_Post
               (Connection, Data, URI, SOAPAction, Content_Type, Headers);
 
-            if Data'Length > 0 then
-               Set_Header
-                 (Connection.F_Headers,
-                  HN (Messages.Content_Length_Token, True),
-                  Utils.Image (Stream_Element_Offset'(Data'Length)));
-            end if;
+            Handle_H2_Request (Connection, Result, Data, Auth_Is_Over);
 
-            if not Connection.H2_Preface_Sent then
-               Send_H2_Connection_Preface (Connection, Settings, H_Connection);
-            end if;
-
-            --  Create frames and send them
-
-            Stream := HTTP2.Stream.Create
-              (Connection.Socket,
-               Connection.H2_Stream_Id, H_Connection.Flow_Control_Window);
-
-            Next_Stream_Id (Connection);
-
-            Request := HTTP2.Message.Create
-              (Connection.F_Headers, Data, Stream.Identifier);
-
-            Send_H2_Request (Connection, Ctx, Stream, Request);
-
-            --  Get response
-
-            Stream := HTTP2.Stream.Create
-              (Connection.Socket,
-               Connection.H2_Stream_Id, H_Connection.Flow_Control_Window);
-
-            Next_Stream_Id (Connection);
-
-            Get_H2_Response (Connection, Ctx, Stream, Result);
-
-            Decrement_Authentication_Attempt
-              (Connection, Auth_Attempts, Auth_Is_Over);
-
-            if Auth_Is_Over then
-               exit Retry;
-            end if;
-
+            exit Retry when Auth_Is_Over;
          exception
             when E : Net.Socket_Error | Connection_Error =>
                Error_Processing
@@ -2030,75 +2048,21 @@ package body AWS.Client.HTTP_Utils is
    is
       use Ada.Real_Time;
 
-      Stamp         : constant Time := Clock;
-      Settings      : constant HTTP2.Frame.Settings.Set :=
-                        Get_Settings (Connection.Config);
+      Stamp        : constant Time := Clock;
+      Try_Count    : Natural := Connection.Retry;
+      Auth_Is_Over : Boolean;
 
-      Request       : HTTP2.Message.Object;
-      Try_Count     : Natural := Connection.Retry;
-      Auth_Attempts : Auth_Attempts_Count := (others => 2);
-      Auth_Is_Over  : Boolean;
-      Stream        : HTTP2.Stream.Object;
-      H_Connection  : aliased HTTP2.Connection.Object;
-      Enc_Table     : aliased HTTP2.HPACK.Table.Object;
-      Dec_Table     : aliased HTTP2.HPACK.Table.Object;
-      Ctx            : Server.Context.Object (null,
-                                              1,
-                                              Enc_Table'Access,
-                                              Dec_Table'Access,
-                                              H_Connection'Access);
    begin
       Connection.F_Headers.Reset;
 
       Retry : loop
          begin
-            --  Create the request HTTP/2 message out of Status.Data
-
             Open_Set_Common_Header
               (Connection, Method_Kind'Image (Kind), URI, Headers);
 
-            --  Add content length if needed
+            Handle_H2_Request (Connection, Result, Data, Auth_Is_Over);
 
-            if Data'Length > 0 then
-               Set_Header
-                 (Connection.F_Headers,
-                  HN (Messages.Content_Length_Token, True),
-                  Utils.Image (Stream_Element_Offset'(Data'Length)));
-            end if;
-
-            if not Connection.H2_Preface_Sent then
-               Send_H2_Connection_Preface (Connection, Settings, H_Connection);
-            end if;
-
-            --  Create frames and send them
-
-            Stream := HTTP2.Stream.Create
-              (Connection.Socket,
-               Connection.H2_Stream_Id, H_Connection.Flow_Control_Window);
-
-            Next_Stream_Id (Connection);
-
-            Request := HTTP2.Message.Create
-              (Connection.F_Headers, Data, Stream.Identifier);
-
-            Send_H2_Request (Connection, Ctx, Stream, Request);
-
-            --  Get response
-
-            Stream := HTTP2.Stream.Create
-              (Connection.Socket,
-               Connection.H2_Stream_Id, H_Connection.Flow_Control_Window);
-
-            Next_Stream_Id (Connection);
-
-            Get_H2_Response (Connection, Ctx, Stream, Result);
-
-            Decrement_Authentication_Attempt
-              (Connection, Auth_Attempts, Auth_Is_Over);
-
-            if Auth_Is_Over then
-               exit Retry;
-            end if;
+            exit Retry when Auth_Is_Over;
          exception
             when E : Net.Socket_Error | Connection_Error =>
                Error_Processing
