@@ -79,7 +79,8 @@ package AWS.Client.HTTP_Utils is
    procedure Read_Body
      (Connection : in out HTTP_Connection;
       Result     : out Response.Data;
-      Store      : Boolean);
+      Store      : Boolean)
+     with Pre => HTTP_Version (Connection) = HTTPv1;
    --  Read message body and store it into Result if Store is True otherwise
    --  the content is discarded.
 
