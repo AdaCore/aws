@@ -96,10 +96,10 @@ package body AWS.Resources.Streams is
    is
       use type Embedded.Buffer_Access;
 
-      Stream  : Stream_Access;
       In_GZip : constant Boolean := GZip;
       Buffer  : constant Embedded.Buffer_Access :=
                   Embedded.Get_Buffer (Name, GZip);
+      Stream  : Stream_Access;
    begin
       if Buffer /= null then
          Stream := new Memory.Stream_Type;

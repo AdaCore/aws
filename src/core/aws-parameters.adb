@@ -154,7 +154,9 @@ package body AWS.Parameters is
    ---------
 
    procedure Add
-     (Parameter_List : in out List; Name, Value : String; Decode : Boolean) is
+     (Parameter_List : in out List;
+      Name, Value    : String;
+      Decode         : Boolean) is
    begin
       if Decode then
          Parameter_List.Add (URL.Decode (Name), URL.Decode (Value));
@@ -283,9 +285,9 @@ package body AWS.Parameters is
    function URI_Format
      (Parameter_List : List; Limit : Positive := Positive'Last) return String
    is
-      Delimiter : Character := '?';
+      Delimiter  : Character := '?';
       Parameters : Unbounded_String;
-      Size : Positive := 1;
+      Size       : Positive := 1;
    begin
       for J in 1 .. Parameter_List.Count loop
          declare

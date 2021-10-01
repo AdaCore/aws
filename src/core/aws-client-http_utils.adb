@@ -32,6 +32,7 @@ pragma Ada_2012;
 with Ada.Characters.Handling;
 with Ada.Exceptions;
 with Ada.Strings.Fixed;
+with Ada.Strings.Maps;
 
 with AWS.Digest;
 with AWS.Headers.Values;
@@ -772,10 +773,10 @@ package body AWS.Client.HTTP_Utils is
       Headers      : Header_List          := Empty_Header_List)
    is
       use Real_Time;
-      Stamp     : constant Time := Clock;
-      Pref_Suf  : constant String := "--";
-      Boundary  : constant String :=
-                    "AWS_Attachment-" & Utils.Random_String (8);
+      Stamp    : constant Time := Clock;
+      Pref_Suf : constant String := "--";
+      Boundary : constant String :=
+                   "AWS_Attachment-" & Utils.Random_String (8);
 
       Root_Content_Id  : constant String := "<rootpart>";
       Root_Part_Header : AWS.Headers.List;
@@ -1081,10 +1082,7 @@ package body AWS.Client.HTTP_Utils is
             Decrement_Authentication_Attempt
               (Connection, Auth_Attempts, Auth_Is_Over);
 
-            if Auth_Is_Over then
-               exit Retry;
-            end if;
-
+            exit Retry when Auth_Is_Over;
          exception
             when E : Net.Socket_Error | Connection_Error =>
                Error_Processing
@@ -1246,23 +1244,9 @@ package body AWS.Client.HTTP_Utils is
       --  Returns "Keep-Alive" is we have a persistent connection and "Close"
       --  otherwise.
 
-      function Encoded_URI return String;
-      --  Returns URI encoded (' ' -> '+')
-
-      -----------------
-      -- Encoded_URI --
-      -----------------
-
       function Encoded_URI return String is
-         E_URI : String := URI;
-      begin
-         for K in E_URI'Range loop
-            if E_URI (K) = ' ' then
-               E_URI (K) := '+';
-            end if;
-         end loop;
-         return E_URI;
-      end Encoded_URI;
+        (Strings.Fixed.Translate (URI, Strings.Maps.To_Mapping (" ", "+")));
+      --  Returns URI encoded (' ' -> '+')
 
       -----------------
       -- Persistence --
@@ -1501,6 +1485,7 @@ package body AWS.Client.HTTP_Utils is
                Response.Set.Append_Body
                  (Result, "..." & ASCII.LF & " Response Timeout");
             end if;
+
             Response.Set.Status_Code (Result, Messages.S408);
             exit;
          end if;
@@ -1886,8 +1871,7 @@ package body AWS.Client.HTTP_Utils is
 
       --  Send the setting frame (stream id 0)
 
-      HTTP2.Frame.Settings.Create
-        (Settings).Send (Connection.Socket.all);
+      HTTP2.Frame.Settings.Create (Settings).Send (Connection.Socket.all);
 
       --  We need to read the settings from server
 
