@@ -79,9 +79,7 @@ package body AWS.Headers is
 
    procedure Get_Content
      (Headers   : List;
-      End_Block : Boolean := False)
-   is
-      CRLF : constant String := String'(1 => ASCII.CR, 2 => ASCII.LF);
+      End_Block : Boolean := False) is
    begin
       for J in 1 .. Count (Headers) loop
          Data (Get_Line (Headers, J) & CRLF);

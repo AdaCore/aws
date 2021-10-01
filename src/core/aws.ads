@@ -41,4 +41,6 @@ package AWS with Pure is
 
    type HTTP_Protocol is (HTTPv1, HTTPv2);
 
+   CRLF : constant String := String'(1 => ASCII.CR, 2 => ASCII.LF);
+
 end AWS;

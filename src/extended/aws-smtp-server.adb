@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2008-2017, AdaCore                     --
+--                     Copyright (C) 2008-2021, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -98,7 +98,6 @@ package body AWS.SMTP.Server is
    is
 
       Empty_Line : constant String := "";
-      CRLF       : constant String := ASCII.CR & ASCII.LF;
 
       procedure Read_Message_Body;
       --  Read message body from the current socket and set the Message_Body

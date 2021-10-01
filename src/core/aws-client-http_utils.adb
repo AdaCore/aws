@@ -934,7 +934,6 @@ package body AWS.Client.HTTP_Utils is
    is
       use Real_Time;
 
-      CRLF      : constant String := String'(1 => ASCII.CR, 2 => ASCII.LF);
       Stamp     : constant Time := Clock;
       Settings  : constant HTTP2.Frame.Settings.Set :=
                     Get_Settings (Connection.Config);

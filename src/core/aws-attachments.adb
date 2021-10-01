@@ -339,8 +339,6 @@ package body AWS.Attachments is
      (Attachments : List;
       Boundary    : String)
    is
-      CRLF : constant String := String'(1 => ASCII.CR, 2 => ASCII.LF);
-
       procedure Send_Attachment (Attachment : Element);
       --  Sends one Attachment, including the start boundary
 
@@ -635,7 +633,6 @@ package body AWS.Attachments is
       Boundary    : out Unbounded_String;
       Alternative : Boolean := False)
    is
-      CRLF       : constant String := String'(1 => ASCII.CR, 2 => ASCII.LF);
       L_Boundary : constant String :=
                      "----=_NextPart_" & Utils.Random_String (10) & "."
                      & Utils.Image (UID.Value);
