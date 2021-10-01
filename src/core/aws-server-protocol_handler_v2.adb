@@ -730,7 +730,9 @@ is
             Parameters => Path (Query_First .. Path'Last));
       end;
 
-      if AWS.Status.Method (Stream.Status.all) = AWS.Status.POST then
+      if AWS.Status.Method (Stream.Status.all) = AWS.Status.POST
+        and then AWS.Status.Binary_Size (Stream.Status.all) > 0
+      then
          Handle_POST;
       end if;
 
