@@ -346,6 +346,9 @@ package AWS.Client is
    --  the secure connection. User_Agent can be overridden to whatever you want
    --  the client interface to present itself to the server.
 
+   function HTTP_Version  (Connection : HTTP_Connection) return HTTP_Protocol;
+   --  Returns connection HTTP version
+
    function Get_Certificate
      (Connection : HTTP_Connection) return Net.SSL.Certificate.Object;
    --  Return the certificate used for the secure connection. If this is not a
@@ -673,5 +676,8 @@ private
 
    function Get_Socket (Connection : HTTP_Connection) return Net.Socket_Access
       is (Connection.Socket);
+
+   function HTTP_Version  (Connection : HTTP_Connection) return HTTP_Protocol
+     is (Connection.HTTP_Version);
 
 end AWS.Client;

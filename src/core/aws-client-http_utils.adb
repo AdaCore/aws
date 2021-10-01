@@ -278,7 +278,7 @@ package body AWS.Client.HTTP_Utils is
          begin
             Set_Header
               (Connection.F_Headers,
-               Messages.Connect_Token, Host_Address & ' ' & HTTP_Version);
+               Messages.Connect_Token, Host_Address & ' ' & AWS.HTTP_Version);
             Set_Header
               (Connection.F_Headers, Messages.Host_Token, Host_Address);
          end;
@@ -1261,7 +1261,7 @@ package body AWS.Client.HTTP_Utils is
                  (Connection.F_Headers,
                   Method,
                   AWS.URL.Pathname_And_Parameters (Connection.Host_URL)
-                  & ' ' & HTTP_Version);
+                  & ' ' & AWS.HTTP_Version);
             end if;
 
          else
@@ -1273,7 +1273,7 @@ package body AWS.Client.HTTP_Utils is
             else
                Set_Header
                  (Connection.F_Headers,
-                  Method, Encoded_URI & ' ' & HTTP_Version);
+                  Method, Encoded_URI & ' ' & AWS.HTTP_Version);
             end if;
          end if;
 
@@ -1291,7 +1291,7 @@ package body AWS.Client.HTTP_Utils is
                Set_Header
                  (Connection.F_Headers,
                   Method,
-                  AWS.URL.URL (Connection.Host_URL) & ' ' & HTTP_Version);
+                  AWS.URL.URL (Connection.Host_URL) & ' ' & AWS.HTTP_Version);
             end if;
 
          else
@@ -1308,7 +1308,7 @@ package body AWS.Client.HTTP_Utils is
                  (Connection.F_Headers,
                   Method,
                   URL.Protocol_Name (Connection.Host_URL) & "://"
-                  & Host_Address & Encoded_URI & ' ' & HTTP_Version);
+                  & Host_Address & Encoded_URI & ' ' & AWS.HTTP_Version);
             end if;
          end if;
       end if;
