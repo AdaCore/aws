@@ -138,7 +138,7 @@ package body AWS.Client.HTTP_Utils is
    procedure Send_H2_Connection_Preface
      (Connection   : in out HTTP_Connection;
       Settings     : HTTP2.Frame.Settings.Set;
-      H_Connection : HTTP2.Connection.Object)
+      H_Connection : in out HTTP2.Connection.Object)
      with Pre => not Connection.H2_Preface_Sent;
    --  Send connection preface and get response from server
 
@@ -630,6 +630,10 @@ package body AWS.Client.HTTP_Utils is
                                              Dec_Table'Access,
                                              H_Connection'Access);
    begin
+      --  Set default connection settings
+
+      HTTP2.Connection.Set (H_Connection, Settings);
+
       --  Create the request HTTP/2 message out of Status.Data
 
       if Data'Length > 0 then
@@ -640,6 +644,7 @@ package body AWS.Client.HTTP_Utils is
       end if;
 
       if not Connection.H2_Preface_Sent then
+         --  Update H_Connection with server settings
          Send_H2_Connection_Preface (Connection, Settings, H_Connection);
       end if;
 
@@ -981,6 +986,10 @@ package body AWS.Client.HTTP_Utils is
 
       Build_Root_Part_Header;
 
+      --  Set default connection settings
+
+      HTTP2.Connection.Set (H_Connection, Settings);
+
       Retry : loop
          begin
             Set_Common_Post
@@ -1003,6 +1012,7 @@ package body AWS.Client.HTTP_Utils is
             end if;
 
             if not Connection.H2_Preface_Sent then
+               --  Update H_Connection with server settings
                Send_H2_Connection_Preface (Connection, Settings, H_Connection);
             end if;
 
@@ -1859,7 +1869,7 @@ package body AWS.Client.HTTP_Utils is
    procedure Send_H2_Connection_Preface
      (Connection   : in out HTTP_Connection;
       Settings     : HTTP2.Frame.Settings.Set;
-      H_Connection : HTTP2.Connection.Object)
+      H_Connection : in out HTTP2.Connection.Object)
    is
       use all type HTTP2.Frame.Kind_Type;
    begin
@@ -1882,6 +1892,20 @@ package body AWS.Client.HTTP_Utils is
          if Frame.Kind /= K_Settings then
             raise Constraint_Error with
               "server should have answered with a setting frame";
+
+         else
+            declare
+               S_Frame : constant HTTP2.Frame.Settings.Object :=
+                           HTTP2.Frame.Settings.Object (Frame);
+            begin
+               --  Make sure the settings frame is not an aknowledged, this
+               --  should not happen anyway.
+
+               if not S_Frame.Has_Flag (HTTP2.Frame.Ack_Flag) then
+                  HTTP2.Connection.Set
+                    (H_Connection, HTTP2.Frame.Settings.Values (S_Frame));
+               end if;
+            end;
          end if;
       end;
 
