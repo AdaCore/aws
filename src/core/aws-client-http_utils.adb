@@ -418,12 +418,19 @@ package body AWS.Client.HTTP_Utils is
       Stream     : in out HTTP2.Stream.Object;
       Result     : out Response.Data)
    is
+      Sock       : Net.Socket_Type'Class renames Connection.Socket.all;
+      Keep_Alive : Boolean;
    begin
+      Sock.Set_Timeout (Connection.Timeouts.Receive);
+
+      Response.Set.Clear (Result);
+
+      --  Read response frames
+
       while not Stream.Is_Message_Ready loop
          declare
             Frame : constant HTTP2.Frame.Object'Class :=
-                      HTTP2.Frame.Read
-                        (Connection.Socket.all, Ctx.Settings.all);
+                      HTTP2.Frame.Read (Sock, Ctx.Settings.all);
             Error : HTTP2.Error_Codes;
          begin
             Stream.Received_Frame (Ctx, Frame, Error);
@@ -431,9 +438,47 @@ package body AWS.Client.HTTP_Utils is
          end;
       end loop;
 
-      Response.Set.Clear (Result);
-
       Stream.Append_Body (Result);
+
+      --  Check encoding
+
+      declare
+         TE     : constant String  :=
+                    Response.Header (Result, Messages.Transfer_Encoding_Token);
+         CT_Len : constant Response.Content_Length_Type :=
+                    Response.Content_Length (Result);
+      begin
+         if not Messages.With_Body (Response.Status_Code (Result)) then
+            --  RFC-2616 4.4
+            --  ...
+            --  Any response message which "MUST NOT" include a message-body
+            --  (such as the 1xx, 204, and 304 responses and any response to a
+            --  HEAD request) is always terminated by the first empty line
+            --  after the header fields, regardless of the entity-header fields
+            --  present in the message.
+
+            Connection.Transfer := Content_Length;
+            Connection.Length   := 0;
+
+         elsif TE = "chunked" then
+            raise Protocol_Error with "chunked encoding is not part of HTTP/2";
+
+         elsif CT_Len = Response.Undefined_Length then
+            Connection.Transfer := Until_Close;
+
+         else
+            Connection.Transfer := Content_Length;
+            Connection.Length   := CT_Len;
+         end if;
+      end;
+
+      --  Set headers into Answer
+
+      Response.Set.Headers (Result, Stream.Headers);
+
+      --  Then parse headers
+
+      Read_Parse_Header (Connection, Result, Keep_Alive);
    end Get_H2_Response;
 
    ------------------
@@ -469,7 +514,7 @@ package body AWS.Client.HTTP_Utils is
 
       Response.Set.Clear (Result);
 
-      Parse_Header (Connection, Result, Keep_Alive);
+      Read_Parse_Header (Connection, Result, Keep_Alive);
 
       declare
          TE     : constant String  :=
@@ -1407,22 +1452,52 @@ package body AWS.Client.HTTP_Utils is
          Method);
    end Open_Set_Common_Header;
 
-   ------------------
-   -- Parse_Header --
-   ------------------
+   ---------------
+   -- Read_Body --
+   ---------------
 
-   procedure Parse_Header
+   procedure Read_Body
      (Connection : in out HTTP_Connection;
-      Answer     : out Response.Data;
+      Result     : out Response.Data;
+      Store      : Boolean)
+   is
+      use Ada.Real_Time;
+      Expire : constant Time := Clock + Connection.Timeouts.Response;
+   begin
+      loop
+         declare
+            Buffer : Stream_Element_Array (1 .. 8192);
+            Last   : Stream_Element_Offset;
+         begin
+            Read_Some (Connection, Buffer, Last);
+            exit when Last < Buffer'First;
+
+            if Store then
+               Response.Set.Append_Body
+                 (Result, Buffer (Buffer'First .. Last));
+            end if;
+         end;
+
+         if Clock > Expire then
+            if Store then
+               Response.Set.Append_Body
+                 (Result, "..." & ASCII.LF & " Response Timeout");
+            end if;
+            Response.Set.Status_Code (Result, Messages.S408);
+            exit;
+         end if;
+      end loop;
+   end Read_Body;
+
+   -----------------------
+   -- Read_Parse_Header --
+   -----------------------
+
+   procedure Read_Parse_Header
+     (Connection : in out HTTP_Connection;
+      Answer     : in out Response.Data;
       Keep_Alive : out Boolean)
    is
-      Sock : Net.Socket_Type'Class renames Connection.Socket.all;
-
-      Status : Messages.Status_Code;
-
-      Request_Auth_Mode : array (Authentication_Level) of Authentication_Mode
-        := (others => Any);
-
       procedure Parse_Authenticate_Line
         (Level     : Authentication_Level;
          Auth_Line : String);
@@ -1430,7 +1505,8 @@ package body AWS.Client.HTTP_Utils is
       --  field with the information read on the line. Handle WWW and Proxy
       --  authentication.
 
-      procedure Read_Status_Line;
+      procedure Read_Status_Line
+        with Pre => Connection.HTTP_Version = HTTPv1;
       --  Read the status line
 
       procedure Set_Keep_Alive (Data : String);
@@ -1439,6 +1515,12 @@ package body AWS.Client.HTTP_Utils is
 
       function "+" (S : String) return Unbounded_String
              renames To_Unbounded_String;
+
+      Sock   : Net.Socket_Type'Class renames Connection.Socket.all;
+      Status : Messages.Status_Code;
+
+      Request_Auth_Mode : array (Authentication_Level)
+                            of Authentication_Mode := (others => Any);
 
       -----------------------------
       -- Parse_Authenticate_Line --
@@ -1636,18 +1718,34 @@ package body AWS.Client.HTTP_Utils is
       use type Messages.Status_Code;
 
    begin
+      --  Reset authentication information
+
       for Level in Authentication_Level'Range loop
          Connection.Auth (Level).Requested := False;
       end loop;
-
-      Read_Status_Line;
 
       --  By default we have at least some headers. This value will be
       --  updated if a message body is read.
 
       Response.Set.Mode (Answer, Response.Header);
 
-      Response.Set.Read_Header (Sock, Answer);
+      --  Read headers from server's answer only in HTTP/1.x mode
+
+      if Connection.HTTP_Version = HTTPv1 then
+         Read_Status_Line;
+         Response.Set.Read_Header (Sock, Answer);
+
+      else
+         --  In HTTP/2 the status is encoded in :status pseudo header
+
+         declare
+            S : constant String :=
+                  Response.Header (Answer, Messages.Status_Token);
+         begin
+            Status := Messages.Status_Code'Value ('S' & S);
+            Response.Set.Status_Code (Answer, Status);
+         end;
+      end if;
 
       declare
          use AWS.Response;
@@ -1697,7 +1795,9 @@ package body AWS.Client.HTTP_Utils is
       --  deal with 100 status code.
       --  See [RFC 2616 - 8.2.3] use of the 100 (Continue) Status.
 
-      if Status = Messages.S100 then
+      if Connection.HTTP_Version = HTTPv1
+        and then Status = Messages.S100
+      then
          Read_Status_Line;
          Response.Set.Read_Header (Sock, Answer);
       end if;
@@ -1711,8 +1811,8 @@ package body AWS.Client.HTTP_Utils is
 
       declare
          Set_Cookies : constant Headers.VString_Array :=
-                         Response.Header (Answer)
-                         .Get_Values (Messages.Set_Cookie_Token);
+                         Response.Header (Answer).Get_Values
+                           (Messages.Set_Cookie_Token);
          Cookie      : Unbounded_String;
          I           : Natural;
       begin
@@ -1748,44 +1848,7 @@ package body AWS.Client.HTTP_Utils is
       Parse_Authenticate_Line
         (Proxy,
          Response.Header (Answer, Messages.Proxy_Authenticate_Token));
-   end Parse_Header;
-
-   ---------------
-   -- Read_Body --
-   ---------------
-
-   procedure Read_Body
-     (Connection : in out HTTP_Connection;
-      Result     : out Response.Data;
-      Store      : Boolean)
-   is
-      use Ada.Real_Time;
-      Expire : constant Time := Clock + Connection.Timeouts.Response;
-   begin
-      loop
-         declare
-            Buffer : Stream_Element_Array (1 .. 8192);
-            Last   : Stream_Element_Offset;
-         begin
-            Read_Some (Connection, Buffer, Last);
-            exit when Last < Buffer'First;
-
-            if Store then
-               Response.Set.Append_Body
-                 (Result, Buffer (Buffer'First .. Last));
-            end if;
-         end;
-
-         if Clock > Expire then
-            if Store then
-               Response.Set.Append_Body
-                 (Result, "..." & ASCII.LF & " Response Timeout");
-            end if;
-            Response.Set.Status_Code (Result, Messages.S408);
-            exit;
-         end if;
-      end loop;
-   end Read_Body;
+   end Read_Parse_Header;
 
    --------------------------------
    -- Send_H2_Connection_Preface --
