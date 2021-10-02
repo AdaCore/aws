@@ -124,7 +124,8 @@ package AWS.HTTP2.Frame is
      (Self     : Object'Class;
       Settings : Connection.Object;
       Error    : out Error_Codes) return Boolean
-     with Pre => Self.Is_Defined;
+     with Pre  => Self.Is_Defined,
+          Post => Is_Valid'Result = (Error = C_No_Error);
    --  Set Error to appropriate value with Validate routine and return True if
    --  Error became C_No_Error, returns False otherwise.
 

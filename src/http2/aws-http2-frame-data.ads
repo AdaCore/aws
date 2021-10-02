@@ -50,14 +50,16 @@ package AWS.HTTP2.Frame.Data is
    function Create
      (Stream_Id : HTTP2.Stream_Id;
       Content   : String) return Object
-     with Pre => Stream_Id > 0 and then Content'Length > 0;
+     with Pre  => Stream_Id > 0 and then Content'Length > 0,
+          Post => Create'Result.Kind = K_Data;
    --  Create a DATA frame with given content and stream id
 
    function Create
      (Stream_Id  : HTTP2.Stream_Id;
       Content    : Utils.Stream_Element_Array_Access;
       End_Stream : Boolean) return Object
-     with Pre => Stream_Id > 0 and then Content'Length > 0;
+     with Pre  => Stream_Id > 0 and then Content'Length > 0,
+          Post => Create'Result.Kind = K_Data;
    --  Create a DATA frame with given content and stream id
 
    overriding procedure Send_Payload

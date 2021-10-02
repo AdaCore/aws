@@ -45,7 +45,8 @@ package AWS.HTTP2.Frame.GoAway is
 
    function Create
      (Stream_Id : Stream.Id;
-      Error     : Error_Codes) return Object;
+      Error     : Error_Codes) return Object
+     with Post => Create'Result.Kind = K_GoAway;
    --  Create a GOAWAY frame with given content and stream id
 
    function Error (Self : Object) return Error_Codes

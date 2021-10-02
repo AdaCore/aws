@@ -62,11 +62,13 @@ package AWS.HTTP2 is
    --  "PRI * HTTP/2.0" & CRLF & CRLF & "SM" & CRLF & CRLF
 
    function Exception_Message
-     (Error : Error_Codes; Message : String) return String;
+     (Error : Error_Codes; Message : String) return String
+     with Pre => Message /= "";
    --  Build an exception message with the error code endoded at the start of
    --  the message and surrounded with square brackets.
 
-   function Exception_Code (Exception_Message : String) return Error_Codes;
+   function Exception_Code (Exception_Message : String) return Error_Codes
+     with Pre => Exception_Message'Length > 2;
    --  Extract the execption code from an exception message built with the
    --  Exception_Message routine above.
 
