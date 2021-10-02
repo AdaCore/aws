@@ -28,7 +28,6 @@
 ------------------------------------------------------------------------------
 
 with Ada.Finalization;
-with Ada.Streams;
 
 with System;
 
@@ -41,7 +40,6 @@ private with AWS.Utils;
 package AWS.HTTP2.Frame is
 
    use Ada;
-   use Ada.Streams;
 
    type Object is new Finalization.Controlled with private;
 

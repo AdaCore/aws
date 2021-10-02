@@ -27,8 +27,6 @@
 --  covered by the  GNU Public License.                                     --
 ------------------------------------------------------------------------------
 
-with Ada.Streams;
-
 with AWS.Headers;
 with AWS.HTTP2.Frame.List;
 with AWS.Response;
@@ -41,8 +39,6 @@ private with AWS.Utils;
 limited with AWS.HTTP2.Stream;
 
 package AWS.HTTP2.Message is
-
-   use Ada.Streams;
 
    use type AWS.HTTP2.Frame.List.Count_Type;
    use type Response.Data_Mode;
