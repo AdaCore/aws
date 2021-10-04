@@ -53,9 +53,9 @@ long __aws_SSL_CTX_set_options(SSL_CTX *ctx, long options)
 }
 
 int __aws_SSL_CTX_get_ex_new_index(long argl, void *argp,
-			     CRYPTO_EX_new *newf,
-			     CRYPTO_EX_dup *dupf,
-			     CRYPTO_EX_free *freef)
+                                   CRYPTO_EX_new *newf,
+                                   CRYPTO_EX_dup *dupf,
+                                   CRYPTO_EX_free *freef)
 {
   return SSL_CTX_get_ex_new_index(argl, argp, newf, dupf, freef);
 }
@@ -90,9 +90,9 @@ int __aws_CRYPTO_num_locks(void) {
 }
 
 void __aws_SSL_set_tmp_rsa_callback(SSL *ssl,
-				    RSA *(*tmp_rsa_callback)(SSL *ssl,
-							     int is_export,
-							     int keylength))
+                                    RSA *(*tmp_rsa_callback)(SSL *ssl,
+                                                             int is_export,
+                                                             int keylength))
 {
   SSL_set_tmp_rsa_callback(ssl, tmp_rsa_callback);
 }
