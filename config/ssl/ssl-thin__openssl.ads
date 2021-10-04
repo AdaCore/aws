@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                            Secure Sockets Layer                          --
 --                                                                          --
---                     Copyright (C) 2000-2016, AdaCore                     --
+--                     Copyright (C) 2000-2021, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -758,13 +758,14 @@ package SSL.Thin is
    OPENSSL_DIR      : constant := 5;
 
    function OpenSSL_version_num return long
-     with Import, Convention => C, External_Name => "OpenSSL_version_num";
+     with Import, Convention => C,
+          External_Name => "__aws_OpenSSL_version_num";
    --  Returns OpenSSL numeric release version identifier
 
    function SSLeay return long renames OpenSSL_version_num;
 
    function OpenSSL_version (T : int) return Cstr.chars_ptr
-     with Import, Convention => C, External_Name => "OpenSSL_version";
+     with Import, Convention => C, External_Name => "__aws_OpenSSL_version";
    --  Returns version information line
 
    -------------------------------
@@ -772,13 +773,13 @@ package SSL.Thin is
    -------------------------------
 
    function TLS_method         return SSL_Method
-     with Import, Convention => C, External_Name => "TLS_method";
+     with Import, Convention => C, External_Name => "__aws_TLS_method";
 
    function TLS_server_method  return SSL_Method
-     with Import, Convention => C, External_Name => "TLS_server_method";
+     with Import, Convention => C, External_Name => "__aws_TLS_server_method";
 
    function TLS_client_method  return SSL_Method
-     with Import, Convention => C, External_Name => "TLS_client_method";
+     with Import, Convention => C, External_Name => "__aws_TLS_client_method";
 
    function TLSv1_method         return SSL_Method
      with Import, Convention => C, External_Name => "TLSv1_method";
@@ -1017,10 +1018,10 @@ package SSL.Thin is
    type EVP_MD_CTX is new Pointer;
 
    function EVP_MD_CTX_new return EVP_MD_CTX
-     with Import, Convention => C, External_Name => "EVP_MD_CTX_new";
+     with Import, Convention => C, External_Name => "__aws_EVP_MD_CTX_new";
 
    procedure EVP_MD_CTX_free (Ctx : EVP_MD_CTX)
-     with Import, Convention => C, External_Name => "EVP_MD_CTX_free";
+     with Import, Convention => C, External_Name => "__aws_EVP_MD_CTX_free";
 
    function EVP_DigestInit (ctx : EVP_MD_CTX; kind : EVP_MD) return int
      with Import, Convention => C, External_Name => "EVP_DigestInit";
