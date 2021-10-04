@@ -1,7 +1,7 @@
 /***************************************************************************
  *                             Ada Web Server                              *
  *                                                                         *
- *                    Copyright (C) 2012-2018, AdaCore                     *
+ *                    Copyright (C) 2012-2021, AdaCore                     *
  *                                                                         *
  * This library is free software; you can redistribute it and/or modify    *
  * it under the terms of the GNU General Public License as published by    *
@@ -97,50 +97,77 @@ void __aws_SSL_set_tmp_rsa_callback(SSL *ssl,
   SSL_set_tmp_rsa_callback(ssl, tmp_rsa_callback);
 }
 
+#if (OPENSSL_VERSION_NUMBER >= 0x10100000L)
 int __aws_SSL_library_init(void)
 {
-#if (OPENSSL_VERSION_NUMBER >= 0x10100000L)
   return OPENSSL_init_ssl(OPENSSL_INIT_SSL_DEFAULT, NULL);
 }
 
+unsigned long __aws_OpenSSL_version_num(void)
+{
+  return OpenSSL_version_num();
+}
+
+const char * __aws_OpenSSL_version(int t)
+{
+  return OpenSSL_version(t);
+}
+
+const SSL_METHOD * __aws_TLS_method(void)
+{
+  return TLS_method();
+}
+
+const SSL_METHOD * __aws_TLS_server_method(void)
+{
+  return TLS_server_method();
+}
+
+const SSL_METHOD * __aws_TLS_client_method(void)
+{
+  return TLS_client_method();
+}
+
 #else
+
+int __aws_SSL_library_init(void)
+{
   SSL_load_error_strings();
   return SSL_library_init();
 }
-
-unsigned long OpenSSL_version_num(void)
+unsigned long __aws_OpenSSL_version_num(void)
 {
   return SSLeay();
 }
 
-const char * OpenSSL_version(int t)
+const char * __aws_OpenSSL_version(int t)
 {
-   return SSLeay_version(t);
+  return SSLeay_version(t);
 }
 
-const SSL_METHOD * TLS_method(void)
+const SSL_METHOD * __aws_TLS_method(void)
 {
-   return SSLv23_method();
+  return SSLv23_method();
 }
 
-const SSL_METHOD * TLS_server_method(void)
+const SSL_METHOD * __aws_TLS_server_method(void)
 {
-   return SSLv23_server_method();
+  return SSLv23_server_method();
 }
 
-const SSL_METHOD * TLS_client_method(void)
+const SSL_METHOD * __aws_TLS_client_method(void)
 {
-   return SSLv23_client_method();
+  return SSLv23_client_method();
 }
 
-EVP_MD_CTX * EVP_MD_CTX_new(void)
+#endif
+
+EVP_MD_CTX * __aws_EVP_MD_CTX_new(void)
 {
   return EVP_MD_CTX_create();
 }
 
-void EVP_MD_CTX_free(EVP_MD_CTX *ctx)
+void __aws_EVP_MD_CTX_free(EVP_MD_CTX *ctx)
 {
   EVP_MD_CTX_destroy(ctx);
 }
-#endif
-
