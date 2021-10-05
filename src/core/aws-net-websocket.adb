@@ -409,7 +409,7 @@ package body AWS.Net.WebSocket is
      return Boolean
    is
       procedure Do_Receive
-         (Socket : not null access Object'Class;
+         (Socket : Object'Class;
           Data   : out Ada.Streams.Stream_Element_Array;
           Last   : out Ada.Streams.Stream_Element_Offset);
       --  Fetch available data on the socket
@@ -419,7 +419,7 @@ package body AWS.Net.WebSocket is
       ----------------
 
       procedure Do_Receive
-         (Socket : not null access Object'Class;
+         (Socket : Object'Class;
           Data   : out Ada.Streams.Stream_Element_Array;
           Last   : out Ada.Streams.Stream_Element_Offset) is
       begin
@@ -429,18 +429,20 @@ package body AWS.Net.WebSocket is
       function Read_Message is new AWS.Net.WebSocket.Read_Message
          (Receive => Do_Receive);
 
-      Obj   : Object_Class := Socket'Unrestricted_Access;
       Event : AWS.Net.Event_Set;
       Msg   : Ada.Strings.Unbounded.Unbounded_String;
+
    begin
       Event := Socket.Poll
          ((AWS.Net.Input => True, others => False), Timeout => Timeout);
 
       if Event (AWS.Net.Input) then
          --  Block until we have received all chunks of the frame
-         while not Read_Message (Obj, Msg) loop
-            null;
+
+         loop
+            exit when Read_Message (Socket, Msg);
          end loop;
+
          return True;
 
       elsif Event (AWS.Net.Error) then
@@ -469,7 +471,7 @@ package body AWS.Net.WebSocket is
    ------------------
 
    function Read_Message
-      (WebSocket : in out Object_Class;
+      (WebSocket : in out Object'Class;
        Message   : in out Ada.Strings.Unbounded.Unbounded_String)
       return Boolean
    is
@@ -509,7 +511,6 @@ package body AWS.Net.WebSocket is
                   On_Error (WebSocket);
                   WebSocket.On_Close (To_String (Message));
                   WebSocket.Shutdown;
-                  On_Free (WebSocket);
                else
                   WebSocket.On_Message (Message);
                   On_Success (WebSocket);
@@ -522,7 +523,6 @@ package body AWS.Net.WebSocket is
             On_Error (WebSocket);
             WebSocket.On_Close (To_String (Message));
             WebSocket.Shutdown;
-            On_Free (WebSocket);
             return True;
 
          when Ping | Pong =>
@@ -541,7 +541,6 @@ package body AWS.Net.WebSocket is
             WebSocket.On_Error ("Unknown frame type");
             WebSocket.On_Close ("Unknown frame type");
             WebSocket.Shutdown;
-            On_Free (WebSocket);
             return True;
       end case;
 
@@ -636,6 +635,17 @@ package body AWS.Net.WebSocket is
       end if;
    end Shutdown;
 
+   ------------------
+   -- To_Reference --
+   ------------------
+
+   function To_Reference (Socket : Object'Class) return Object_Class is
+      Result : Object_Class;
+   begin
+      Result.Set (Socket);
+      return Result;
+   end To_Reference;
+
    ---------
    -- URI --
    ---------
@@ -650,7 +660,7 @@ package body AWS.Net.WebSocket is
    -------------------------
 
    procedure WebSocket_Exception
-     (WebSocket : not null access Object'Class;
+     (WebSocket : in out Object'Class;
       Message   : String;
       Error     : Error_Type) is
    begin

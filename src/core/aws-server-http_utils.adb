@@ -1825,7 +1825,7 @@ package body AWS.Server.HTTP_Utils is
                         begin
                            W := Net.WebSocket.Registry.Utils.Register (WS);
 
-                           if W = null then
+                           if W = Net.WebSocket.No_Object then
                               Send_WebSocket_Handshake_Error
                                 (Messages.S412,
                                  "too many WebSocket registered");

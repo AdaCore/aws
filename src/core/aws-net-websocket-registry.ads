@@ -212,7 +212,7 @@ private
    --  WebSocket or null if it was impossible to register it.
 
    procedure Watch (WebSocket : in out Object_Class)
-     with Pre => WebSocket /= null;
+     with Pre => WebSocket /= No_Object;
    --  Watched WebSocket for incoming data
 
 end AWS.Net.WebSocket.Registry;

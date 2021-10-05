@@ -22,6 +22,8 @@ with "../shared";
 with "../include/include";
 with "../ssl/ssl";
 
+with "gnatcoll";
+
 library project Src is
 
    for Languages use ("Ada", "Project file", "Makefile");
