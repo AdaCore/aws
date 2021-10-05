@@ -28,6 +28,7 @@
 ------------------------------------------------------------------------------
 
 with Ada.Calendar;
+with Ada.Characters.Handling;
 with Ada.Strings.Unbounded;
 with Ada.Text_IO;
 
@@ -45,11 +46,8 @@ package body AWS.HTTP2.Message is
 
    use Ada.Strings.Unbounded;
 
-   function HN
-     (Header_Name : String;
-      Is_H2       : Boolean := True)
-      return String renames Utils.Normalize_Lower;
-   --  Fold header name to lower case as required by HTTP/2 protocol
+   function To_Lower
+     (Name : String) return String renames Ada.Characters.Handling.To_Lower;
 
    -----------------
    -- Append_Body --
@@ -127,7 +125,7 @@ package body AWS.HTTP2.Message is
 
          if Size /= Resources.Undefined_Length then
             O.Headers.Add
-              (HN (Messages.Content_Length_Token), Utils.Image (Size));
+              (To_Lower (Messages.Content_Length_Token), Utils.Image (Size));
          end if;
       end Set_Body;
 
@@ -143,7 +141,7 @@ package body AWS.HTTP2.Message is
             --  Set status code
 
             O.Headers.Add
-              (HN (Messages.Status_Token),
+              (To_Lower (Messages.Status_Token),
                Messages.Image (Response.Status_Code (Answer)));
 
             if O.Mode /= Response.Header then
@@ -197,7 +195,7 @@ package body AWS.HTTP2.Message is
                                 (Answer, Messages.Last_Modified_Token)
                then
                   O.Headers.Add
-                    (HN (Messages.Last_Modified_Token),
+                    (To_Lower (Messages.Last_Modified_Token),
                      Messages.To_HTTP_Date (File_Time));
                end if;
 
@@ -374,7 +372,8 @@ package body AWS.HTTP2.Message is
             begin
                if Size /= Resources.Undefined_Length then
                   Self.Headers.Add
-                    (HN (Messages.Content_Length_Token), Utils.Image (Size));
+                    (To_Lower (Messages.Content_Length_Token),
+                     Utils.Image (Size));
                end if;
             end;
          end if;
