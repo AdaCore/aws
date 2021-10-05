@@ -27,6 +27,7 @@
 --  covered by the  GNU Public License.                                     --
 ------------------------------------------------------------------------------
 
+with Ada.Assertions;
 with Ada.Streams;
 
 with AWS.Config;
@@ -72,30 +73,27 @@ package body AWS.Services.Split_Pages is
       is
          pragma Unreferenced (Quit);
       begin
-         case Kind (A) is
-            when Templates.Std =>
-               --  Nothing to be done, copy this association as-is
-               Insert (Split_Set, A);
+         Ada.Assertions.Assert
+           (Check   => Kind (A) in Templates.Std | Templates.Composite,
+            Message => "Value outside expected value set");
+         if Kind (A) in Templates.Std then
+            Insert (Split_Set, A);
+         else
+            declare
+               Vector : Tag renames Composite (A);
+               V      : Templates.Tag;
+            begin
+               for K in Ranges (Range_Line).First .. Ranges (Range_Line).Last loop
+                  if K <= Templates.Size (Vector) then
+                     V := V & Templates.Item (Vector, K);
+                  else
+                     exit;
+                  end if;
+               end loop;
 
-            when Templates.Composite =>
-               --  Copy Vector's items in the indicated range
-               declare
-                  Vector : Tag  renames Composite (A);
-                  V      : Templates.Tag;
-               begin
-                  for K in
-                    Ranges (Range_Line).First .. Ranges (Range_Line).Last
-                  loop
-                     if K <= Templates.Size (Vector) then
-                        V := V & Templates.Item (Vector, K);
-                     else
-                        exit;
-                     end if;
-                  end loop;
-
-                  Insert (Split_Set, Templates.Assoc (Variable (A), V));
-               end;
-         end case;
+               Insert (Split_Set, Templates.Assoc (Variable (A), V));
+            end;
+         end if;
       end Process_Association;
 
       ------------------------------

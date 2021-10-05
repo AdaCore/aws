@@ -33,6 +33,7 @@
 
 --  The generated files are UNIT_NAME.ads and UNIT_NAME.h
 
+with Ada.Assertions;
 with Ada.Characters.Handling;    use Ada.Characters.Handling;
 with Ada.Command_Line;           use Ada.Command_Line;
 with Ada.Exceptions;             use Ada.Exceptions;
@@ -226,40 +227,37 @@ procedure XOSCons is
             null;
 
          when SUB =>
-            case Lang is
-               when Lang_Ada =>
-                  Put ("   subtype " & Info.Constant_Name.all
-                       & " is Interfaces.C."
-                       & Info.Text_Value.all & ";");
-               when Lang_C =>
-                  Put ("#define " & Info.Constant_Name.all & " "
-                       & Info.Text_Value.all);
-            end case;
+            Ada.Assertions.Assert
+              (Check => Lang in Lang_Ada | Lang_C, Message => "Value outside expected value set");
+            if Lang in Lang_Ada then
+               Put
+                 ("   subtype " & Info.Constant_Name.all & " is Interfaces.C."
+                  & Info.Text_Value.all & ";");
+            else
+               Put ("#define " & Info.Constant_Name.all & " " & Info.Text_Value.all);
+            end if;
 
          when others =>
 
             --  All named number cases
 
-            case Lang is
-               when Lang_Ada =>
-                  Put ("   " & Info.Constant_Name.all);
-                  Put (Spaces (Max_Constant_Name_Len
-                                 - Info.Constant_Name'Length));
+            Ada.Assertions.Assert
+              (Check => Lang in Lang_Ada | Lang_C, Message => "Value outside expected value set");
+            if Lang in Lang_Ada then
+               Put ("   " & Info.Constant_Name.all);
+               Put (Spaces (Max_Constant_Name_Len - Info.Constant_Name'Length));
 
-                  if Info.Kind in Named_Number then
-                     Put (" : constant := ");
-                  else
-                     Put (" : constant " & Info.Constant_Type.all);
-                     Put (Spaces (Max_Constant_Type_Len
-                                    - Info.Constant_Type'Length));
-                     Put (" := ");
-                  end if;
-
-               when Lang_C =>
-                  Put ("#define " & Info.Constant_Name.all & " ");
-                  Put (Spaces (Max_Constant_Name_Len
-                                 - Info.Constant_Name'Length));
-            end case;
+               if Info.Kind in Named_Number then
+                  Put (" : constant := ");
+               else
+                  Put (" : constant " & Info.Constant_Type.all);
+                  Put (Spaces (Max_Constant_Type_Len - Info.Constant_Type'Length));
+                  Put (" := ");
+               end if;
+            else
+               Put ("#define " & Info.Constant_Name.all & " ");
+               Put (Spaces (Max_Constant_Name_Len - Info.Constant_Name'Length));
+            end if;
 
             if Info.Kind in Asm_Int_Kind then
                if not Info.Int_Value.Positive then
@@ -353,61 +351,47 @@ procedure XOSCons is
          Info.Line_Number :=
            Integer (Parse_Int (Line (Index1 .. Index2 - 1), CNU).Abs_Value);
 
-         case Info.Kind is
-            when C
-               | CND
-               | CNS
-               | CNU
-               | SUB
-            =>
-               Index1 := Index2 + 1;
-               Find_Colon (Index2);
+         if Info.Kind in C | CND | CNS | CNU | SUB then
+            Index1 := Index2 + 1;
+            Find_Colon (Index2);
 
-               Info.Constant_Name := Field_Alloc;
+            Info.Constant_Name := Field_Alloc;
 
-               if Info.Kind /= SUB
-                    and then
-                  Info.Constant_Name'Length > Max_Constant_Name_Len
-               then
-                  Max_Constant_Name_Len := Info.Constant_Name'Length;
+            if Info.Kind /= SUB and then Info.Constant_Name'Length > Max_Constant_Name_Len then
+               Max_Constant_Name_Len := Info.Constant_Name'Length;
+            end if;
+
+            Index1 := Index2 + 1;
+            Find_Colon (Index2);
+
+            if Info.Kind = C then
+               Info.Constant_Type := Field_Alloc;
+
+               if Info.Constant_Type'Length > Max_Constant_Type_Len then
+                  Max_Constant_Type_Len := Info.Constant_Type'Length;
                end if;
 
                Index1 := Index2 + 1;
                Find_Colon (Index2);
+            end if;
 
-               if Info.Kind = C then
-                  Info.Constant_Type := Field_Alloc;
+            if Info.Kind = CND or else Info.Kind = CNU then
+               Info.Int_Value := Parse_Int (Line (Index1 .. Index2 - 1), Info.Kind);
+               Info.Value_Len := Info.Int_Value.Abs_Value'Img'Length - 1;
 
-                  if Info.Constant_Type'Length > Max_Constant_Type_Len then
-                     Max_Constant_Type_Len := Info.Constant_Type'Length;
-                  end if;
-
-                  Index1 := Index2 + 1;
-                  Find_Colon (Index2);
+               if not Info.Int_Value.Positive then
+                  Info.Value_Len := Info.Value_Len + 1;
                end if;
 
-               if Info.Kind = CND or else Info.Kind = CNU then
-                  Info.Int_Value :=
-                    Parse_Int (Line (Index1 .. Index2 - 1), Info.Kind);
-                  Info.Value_Len := Info.Int_Value.Abs_Value'Img'Length - 1;
+            else
+               Info.Text_Value := Field_Alloc;
+               Info.Value_Len  := Info.Text_Value'Length;
+            end if;
 
-                  if not Info.Int_Value.Positive then
-                     Info.Value_Len := Info.Value_Len + 1;
-                  end if;
-
-               else
-                  Info.Text_Value := Field_Alloc;
-                  Info.Value_Len  := Info.Text_Value'Length;
-               end if;
-
-               if Info.Constant_Name.all = "SIZEOF_unsigned_int" then
-                  Size_Of_Unsigned_Int :=
-                    8 * Integer (Info.Int_Value.Abs_Value);
-               end if;
-
-            when others =>
-               null;
-         end case;
+            if Info.Constant_Name.all = "SIZEOF_unsigned_int" then
+               Size_Of_Unsigned_Int := 8 * Integer (Info.Int_Value.Abs_Value);
+            end if;
+         end if;
 
          Index1 := Index2 + 1;
          Index2 := Line'Last + 1;

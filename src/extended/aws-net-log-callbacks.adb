@@ -29,6 +29,7 @@
 
 pragma Ada_2012;
 
+with Ada.Assertions;
 with Ada.Integer_Text_IO;
 with Ada.Strings.Fixed;
 with Ada.Strings.Maps.Constants;
@@ -210,10 +211,13 @@ package body AWS.Net.Log.Callbacks is
    begin
       Text_IO.Put (File, "Data ");
 
-      case Direction is
-         when Sent     => Text_IO.Put (File, "sent to ");
-         when Received => Text_IO.Put (File, "received from ");
-      end case;
+      Ada.Assertions.Assert
+        (Check => Direction in Sent | Received, Message => "Value outside expected value set");
+      if Direction in Sent then
+         Text_IO.Put (File, "sent to ");
+      else
+         Text_IO.Put (File, "received from ");
+      end if;
 
       Text_IO.Put (File, "socket " & Utils.Image (Get_FD (Socket)));
       Text_IO.Put_Line

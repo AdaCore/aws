@@ -27,6 +27,7 @@
 --  covered by the  GNU Public License.                                     --
 ------------------------------------------------------------------------------
 
+with Ada.Assertions;
 with Ada.Calendar;
 with Ada.Characters.Handling;
 with Ada.Containers.Indefinite_Ordered_Sets;
@@ -1380,9 +1381,9 @@ package body WSDL2AWS.Generator is
                         then P.Typ
                         else Def.E_Type);
          Q_Name  : constant String :=
-                     (WSDL.Types.Name
+                     WSDL.Types.Name
                         (E_Type.Ref,
-                         NS => E_Type.Mode = WSDL.Types.K_Derived));
+                         NS => E_Type.Mode = WSDL.Types.K_Derived);
          T_Name  : constant String :=
                      (if WSDL.Types.Is_Character (E_Type)
                       then SOAP.Utils.No_NS (Q_Name)
@@ -4604,13 +4605,12 @@ package body WSDL2AWS.Generator is
             end;
          end if;
 
-         case Elab is
-            when Off =>
-               null;
-
-            when Single | Children =>
-               Text_IO.Put_Line (File, "pragma Elaborate_All (" & Name & ");");
-         end case;
+         Ada.Assertions.Assert
+           (Check   => Elab in Off | Single | Children,
+            Message => "Value outside expected value set");
+         if Elab in Single | Children then
+            Text_IO.Put_Line (File, "pragma Elaborate_All (" & Name & ");");
+         end if;
 
          if Use_Clause then
             Text_IO.Put_Line (File, "use " & Name & ';');

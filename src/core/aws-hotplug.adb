@@ -27,6 +27,7 @@
 --  covered by the  GNU Public License.                                     --
 ------------------------------------------------------------------------------
 
+with Ada.Assertions;
 with AWS.Client;
 with AWS.Parameters;
 
@@ -177,21 +178,21 @@ package body AWS.Hotplug is
       Item := (To_Unbounded_String (Regexp), GNAT.Regexp.Compile (Regexp), U);
       Cursor := Filter_Table.Find (Filters.Set, Item);
 
-      case Filters.Mode is
-         when Add =>
-            if Filter_Table.Has_Element (Cursor) then
-               raise Register_Error;
-            else
-               Filter_Table.Append (Filters.Set, Item);
-            end if;
-
-         when Replace =>
-            if Filter_Table.Has_Element (Cursor) then
-               Filter_Table.Replace_Element (Filters.Set, Cursor, Item);
-            else
-               Filter_Table.Append (Filters.Set, Item);
-            end if;
-      end case;
+      Ada.Assertions.Assert
+        (Check => Filters.Mode in Add | Replace, Message => "Value outside expected value set");
+      if Filters.Mode in Add then
+         if Filter_Table.Has_Element (Cursor) then
+            raise Register_Error;
+         else
+            Filter_Table.Append (Filters.Set, Item);
+         end if;
+      else
+         if Filter_Table.Has_Element (Cursor) then
+            Filter_Table.Replace_Element (Filters.Set, Cursor, Item);
+         else
+            Filter_Table.Append (Filters.Set, Item);
+         end if;
+      end if;
    end Register;
 
    --------------

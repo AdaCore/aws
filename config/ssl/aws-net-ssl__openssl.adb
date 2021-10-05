@@ -1361,15 +1361,15 @@ package body AWS.Net.SSL is
    procedure Set_Session_Cache_Size
      (Context : TSSL.SSL_CTX; Size : Integer) is
    begin
-      case TSSL.SSL_CTX_set_session_cache_mode
-        (Ctx  => Context,
-         Mode => (if Size = 0 then TSSL.SSL_SESS_CACHE_OFF
-                  else TSSL.SSL_SESS_CACHE_SERVER))
-      is
-         when TSSL.SSL_SESS_CACHE_OFF | TSSL.SSL_SESS_CACHE_SERVER => null;
-         when others =>
-            raise Socket_Error with "Unexpected session cache mode";
-      end case;
+      if TSSL.SSL_CTX_set_session_cache_mode
+          (Ctx  => Context,
+           Mode =>
+             (if Size = 0 then TSSL.SSL_SESS_CACHE_OFF else TSSL.SSL_SESS_CACHE_SERVER)) not in
+          TSSL.SSL_SESS_CACHE_OFF |
+            TSSL.SSL_SESS_CACHE_SERVER
+      then
+         raise Socket_Error with "Unexpected session cache mode";
+      end if;
 
       Error_If
         (TSSL.SSL_CTX_ctrl

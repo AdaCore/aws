@@ -16,6 +16,7 @@
 --  to http://www.gnu.org/licenses for a complete copy of the license.      --
 ------------------------------------------------------------------------------
 
+with Ada.Assertions;
 with Ada.Streams;
 with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
 with Ada.Text_IO;           use Ada.Text_IO;
@@ -94,13 +95,15 @@ procedure Hide_Id is
                if Buffer (1 .. K - 1) = Default_User_Agent then
                   --  Adjust size depending on the AWS version length
 
-                  case Direction is
-                     when Net.Log.Sent    =>
-                        S1 := S1 - Adjust;
-                        S2 := S2 - Adjust;
-                     when Net.Log.Received =>
-                        S1 := S1 - Adjust;
-                  end case;
+                  Ada.Assertions.Assert
+                    (Check   => Direction in Net.Log.Sent | Net.Log.Received,
+                     Message => "Value outside expected value set");
+                  if Direction in Net.Log.Sent then
+                     S1 := S1 - Adjust;
+                     S2 := S2 - Adjust;
+                  else
+                     S1 := S1 - Adjust;
+                  end if;
                end if;
 
                Output := True;
@@ -133,17 +136,18 @@ procedure Hide_Id is
       end Write;
 
    begin
-      case Direction is
-         when Net.Log.Sent     =>
-            Write;
+      Ada.Assertions.Assert
+        (Check   => Direction in Net.Log.Sent | Net.Log.Received,
+         Message => "Value outside expected value set");
+      if Direction in Net.Log.Sent then
+         Write;
 
-            if R then
-               Put_Line (DS, To_String (F));
-            else
-               Answer_Data := F;
-            end if;
-         when Net.Log.Received => null;
-      end case;
+         if R then
+            Put_Line (DS, To_String (F));
+         else
+            Answer_Data := F;
+         end if;
+      end if;
 
    end HTTP_Log;
 

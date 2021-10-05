@@ -324,20 +324,18 @@ package body AWS.Response.Set is
    function Is_Valid (D : Data) return Boolean is
       Redirection_Code : Boolean;
    begin
-      case D.Status_Code is
-         when
-           Messages.S300 | -- Section 10.3.1: Multiple Choices
-           Messages.S301 | -- Section 10.3.2: Moved Permanently
-           Messages.S302 | -- Section 10.3.3: Found
-           Messages.S303 | -- Section 10.3.4: See Other
-           Messages.S305 | -- Section 10.3.6: Use Proxy
-           Messages.S307   -- Section 10.3.8: Temporary Redirect
-           =>
-            Redirection_Code := True;
-
-         when others =>
-            Redirection_Code := False;
-      end case;
+      if D.Status_Code in
+          Messages.S300   | -- Section 10.3.1: Multiple Choices
+            Messages.S301 | -- Section 10.3.2: Moved Permanently
+            Messages.S302 | -- Section 10.3.3: Found
+            Messages.S303 | -- Section 10.3.4: See Other
+            Messages.S305 | -- Section 10.3.6: Use Proxy
+            Messages.S307
+      then
+         Redirection_Code := True;
+      else
+         Redirection_Code := False;
+      end if;
 
       return (Redirection_Code
                 xor not Headers.Exist

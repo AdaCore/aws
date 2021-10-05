@@ -239,15 +239,17 @@ package body AWS.Net.WebSocket.Protocol.RFC6455 is
 
    function Is_Valid_Close_Code (Error : Error_Type) return Boolean is
    begin
-      case Error is
-         when Normal_Closure | Going_Away | Protocol_Error | Unsupported_Data
-           | Invalid_Frame_Payload_Data .. Internal_Server_Error
-           =>
-            return True;
-
-         when others =>
-            return False;
-      end case;
+      if Error in
+          Normal_Closure     |
+            Going_Away       |
+            Protocol_Error   |
+            Unsupported_Data |
+            Invalid_Frame_Payload_Data .. Internal_Server_Error
+      then
+         return True;
+      else
+         return False;
+      end if;
    end Is_Valid_Close_Code;
 
    -------------
@@ -464,16 +466,13 @@ package body AWS.Net.WebSocket.Protocol.RFC6455 is
 
                      --  If we have a wrong code this is a Protocol_Error
 
-                     if (Is_Library_Error (E)
-                         or else Is_Valid_Close_Code (Error (Socket)))
-                       and then
-                         --  A close message must be a valid UTF-8 string
-                         Utils.Is_Valid_UTF8
-                           (Translator.To_String
-                             (Data (Data'First + 2 .. Last)))
+                     if not
+                       ((Is_Library_Error (E) or else Is_Valid_Close_Code (Error (Socket)))
+                        and then
+                        --  A close message must be a valid UTF-8 string
+                        Utils.Is_Valid_UTF8
+                          (Translator.To_String (Data (Data'First + 2 .. Last))))
                      then
-                        null;
-                     else
                         E := Error_Code (Protocol_Error);
                      end if;
 

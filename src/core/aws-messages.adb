@@ -27,6 +27,7 @@
 --  covered by the  GNU Public License.                                     --
 ------------------------------------------------------------------------------
 
+with Ada.Assertions;
 with Ada.Directories;
 
 with AWS.Headers.Values;
@@ -557,56 +558,50 @@ package body AWS.Messages is
            (Result, "max-age=" & Utils.Image (Integer (Data.Max_Age)));
       end if;
 
-      case Data.CKind is
-         when Request =>
-            if Data.Max_Stale /= Unset then
-               if Data.Max_Stale = Any_Max_Stale then
-                  Utils.Append_With_Sep (Result, "max-stale");
-               else
-                  Utils.Append_With_Sep
-                    (Result, "max-stale="
-                     & Utils.Image (Integer (Data.Max_Stale)));
-               end if;
-            end if;
-
-            if Data.Min_Fresh /= Unset then
+      Ada.Assertions.Assert
+        (Check => Data.CKind in Request | Response, Message => "Value outside expected value set");
+      if Data.CKind in Request then
+         if Data.Max_Stale /= Unset then
+            if Data.Max_Stale = Any_Max_Stale then
+               Utils.Append_With_Sep (Result, "max-stale");
+            else
                Utils.Append_With_Sep
-                 (Result, "min-fresh="
-                  & Utils.Image (Integer (Data.Min_Fresh)));
+                 (Result, "max-stale=" & Utils.Image (Integer (Data.Max_Stale)));
             end if;
+         end if;
 
-            if Data.Only_If_Cached then
-               Utils.Append_With_Sep (Result, "only-if-cached");
-            end if;
+         if Data.Min_Fresh /= Unset then
+            Utils.Append_With_Sep (Result, "min-fresh=" & Utils.Image (Integer (Data.Min_Fresh)));
+         end if;
 
-         when Response =>
-            if Data.S_Max_Age /= Unset then
-               Utils.Append_With_Sep
-                 (Result, "s-maxage="
-                  & Utils.Image (Integer (Data.S_Max_Age)));
-            end if;
+         if Data.Only_If_Cached then
+            Utils.Append_With_Sep (Result, "only-if-cached");
+         end if;
+      else
+         if Data.S_Max_Age /= Unset then
+            Utils.Append_With_Sep (Result, "s-maxage=" & Utils.Image (Integer (Data.S_Max_Age)));
+         end if;
 
-            if Data.Public then
-               Utils.Append_With_Sep (Result, "public");
-            end if;
+         if Data.Public then
+            Utils.Append_With_Sep (Result, "public");
+         end if;
 
-            if Data.Private_Field /= Private_Unset then
-               if Data.Private_Field = All_Private then
-                  Utils.Append_With_Sep (Result, "private");
-               else
-                  Utils.Append_With_Sep
-                    (Result, "private=" & To_String (Data.Private_Field));
-               end if;
+         if Data.Private_Field /= Private_Unset then
+            if Data.Private_Field = All_Private then
+               Utils.Append_With_Sep (Result, "private");
+            else
+               Utils.Append_With_Sep (Result, "private=" & To_String (Data.Private_Field));
             end if;
+         end if;
 
-            if Data.Must_Revalidate then
-               Utils.Append_With_Sep (Result, "must-revalidate");
-            end if;
+         if Data.Must_Revalidate then
+            Utils.Append_With_Sep (Result, "must-revalidate");
+         end if;
 
-            if Data.Proxy_Revalidate then
-               Utils.Append_With_Sep (Result, "proxy-revalidate");
-            end if;
-      end case;
+         if Data.Proxy_Revalidate then
+            Utils.Append_With_Sep (Result, "proxy-revalidate");
+         end if;
+      end if;
 
       return Cache_Option (To_String (Result));
    end To_Cache_Option;

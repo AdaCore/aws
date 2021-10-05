@@ -29,6 +29,7 @@
 
 pragma Ada_2012;
 
+with Ada.Assertions;
 with Ada.Containers.Indefinite_Ordered_Maps;
 with Ada.Containers.Indefinite_Vectors;
 with Ada.Containers.Ordered_Maps;
@@ -432,9 +433,9 @@ package body AWS.Net.WebSocket.Registry is
          Registered_Before : constant WebSocket_Map.Map := Registered;
 
       begin
-         case To.Kind is
-            when K_UID =>
-               if Registered.Contains (To.WS_Id) then
+Ada.Assertions.Assert (Check => To.Kind in K_UID | K_URI,                       Message => "Value outside expected value set");
+if To.Kind in K_UID then
+   if Registered.Contains (To.WS_Id) then
                   declare
                      WebSocket : constant not null access Object'Class :=
                                    Registered (To.WS_Id);
@@ -454,10 +455,9 @@ package body AWS.Net.WebSocket.Registry is
                     with "WebSocket " & Utils.Image (Natural (To.WS_Id))
                          & " is not registered";
                end if;
-
-            when K_URI =>
-               Registered_Before.Iterate (Close_To'Access);
-         end case;
+else
+   Registered_Before.Iterate (Close_To'Access);
+end if;
       end Close;
 
       procedure Close
@@ -857,13 +857,10 @@ package body AWS.Net.WebSocket.Registry is
                         else
                            Error (W.all, A);
 
-                           case A is
-                              when Close =>
-                                 DB.Unregister (W);
-                                 Unchecked_Free (W);
-                              when None =>
-                                 null;
-                           end case;
+Ada.Assertions.Assert (Check => A in Close | None,                       Message => "Value outside expected value set");
+if A in Close then
+ DB.Unregister (W);
+                                 Unchecked_Free (W);end if;
                         end if;
                      end;
                   end loop;
@@ -962,9 +959,9 @@ package body AWS.Net.WebSocket.Registry is
          end Send_To_Recipients;
 
       begin
-         case To.Kind is
-            when K_UID =>
-               if Registered.Contains (To.WS_Id) then
+Ada.Assertions.Assert (Check => To.Kind in K_UID | K_URI,                       Message => "Value outside expected value set");
+if To.Kind in K_UID then
+   if Registered.Contains (To.WS_Id) then
                   declare
                      WebSocket : Object_Class := Registered (To.WS_Id);
                   begin
@@ -990,14 +987,13 @@ package body AWS.Net.WebSocket.Registry is
                     with "WebSocket " & Utils.Image (Natural (To.WS_Id))
                          & " is not registered";
                end if;
-
-            when K_URI =>
-               Registered.Iterate (Initialize_Recipients'Access);
+else
+   Registered.Iterate (Initialize_Recipients'Access);
 
                if Last > 0 then
                   Send_To_Recipients (Recipients (1 .. Last));
                end if;
-         end case;
+end if;
       end Send;
 
       procedure Send

@@ -16,6 +16,7 @@
 --  to http://www.gnu.org/licenses for a complete copy of the license.      --
 ------------------------------------------------------------------------------
 
+with Ada.Assertions;
 with Ada.Streams;
 with Ada.Text_IO; use Ada.Text_IO;
 
@@ -74,13 +75,15 @@ procedure Test_Net_Log is
          S1 := Last;
          S2 := Data'Last;
 
-         case Direction is
-            when Net.Log.Sent    =>
-               S1 := S1 - Adjust;
-               S2 := S2 - Adjust;
-            when Net.Log.Received =>
-               S1 := S1 - Adjust;
-         end case;
+         Ada.Assertions.Assert
+           (Check   => Direction in Net.Log.Sent | Net.Log.Received,
+            Message => "Value outside expected value set");
+         if Direction in Net.Log.Sent then
+            S1 := S1 - Adjust;
+            S2 := S2 - Adjust;
+         else
+            S1 := S1 - Adjust;
+         end if;
 
          Put_Line (F, "@@@ " & Net.Log.Data_Direction'Image (Direction)
                    & " (" &
@@ -117,10 +120,14 @@ procedure Test_Net_Log is
       end Write;
 
    begin
-      case Direction is
-         when Net.Log.Sent     => Write (DS);
-         when Net.Log.Received => Write (DR);
-      end case;
+      Ada.Assertions.Assert
+        (Check   => Direction in Net.Log.Sent | Net.Log.Received,
+         Message => "Value outside expected value set");
+      if Direction in Net.Log.Sent then
+         Write (DS);
+      else
+         Write (DR);
+      end if;
    end HTTP_Log;
 
    -----------
