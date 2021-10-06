@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2012-2016, AdaCore                     --
+--                     Copyright (C) 2012-2021, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -53,7 +53,8 @@ package body AWS.Net.WebSocket is
    end record;
 
    procedure Unchecked_Free is new Ada.Unchecked_Deallocation
-      (AWS.Client.HTTP_Connection, AWS.Client.HTTP_Connection_Access);
+     (AWS.Client.HTTP_Connection, AWS.Client.HTTP_Connection_Access);
+
    procedure Unchecked_Free is new Unchecked_Deallocation
      (Net.WebSocket.Protocol.State'Class,
       Net.WebSocket.Protocol.State_Class);
@@ -91,12 +92,12 @@ package body AWS.Net.WebSocket is
      (Socket : in out Object'Class;
       URI    : String)
    is
+      URL      : constant AWS.URL.Object := AWS.URL.Parse (URI);
       Headers  : AWS.Headers.List := AWS.Headers.Empty_List;
       Resp     : AWS.Response.Data;
-      Protocol : AWS.Net.WebSocket.Protocol.State_Class;
-      URL      : constant AWS.URL.Object := AWS.URL.Parse (URI);
+      Protocol : Net.WebSocket.Protocol.State_Class;
    begin
-      --  Initially, the connection is initiated with standard http GET.
+      --  Initially, the connection is initiated with standard http GET
 
       Socket.Connection := new AWS.Client.HTTP_Connection;
       Protocol := new Net.WebSocket.Protocol.RFC6455.State;
@@ -406,7 +407,7 @@ package body AWS.Net.WebSocket is
    function Poll
      (Socket  : in out Object'Class;
       Timeout : Duration)
-     return Boolean
+      return Boolean
    is
       procedure Do_Receive
          (Socket : Object'Class;
@@ -427,11 +428,10 @@ package body AWS.Net.WebSocket is
       end Do_Receive;
 
       function Read_Message is new AWS.Net.WebSocket.Read_Message
-         (Receive => Do_Receive);
+        (Receive => Do_Receive);
 
       Event : AWS.Net.Event_Set;
-      Msg   : Ada.Strings.Unbounded.Unbounded_String;
-
+      Msg   : Unbounded_String;
    begin
       Event := Socket.Poll
          ((AWS.Net.Input => True, others => False), Timeout => Timeout);
@@ -471,8 +471,8 @@ package body AWS.Net.WebSocket is
    ------------------
 
    function Read_Message
-      (WebSocket : in out Object'Class;
-       Message   : in out Ada.Strings.Unbounded.Unbounded_String)
+     (WebSocket : in out Object'Class;
+      Message   : in out Unbounded_String)
       return Boolean
    is
       Data : Stream_Element_Array (1 .. 4_096);
