@@ -536,7 +536,7 @@ private
    end record;
 
    package Line_Attribute is new Ada.Task_Attributes
-     (Line_Attribute_Record, (Line => 1, others => <>));
+     (Line_Attribute_Record, Line_Attribute_Record'(Line => 1, others => <>));
    --  A line specific attribute
 
    procedure Null_Procedure is null;
