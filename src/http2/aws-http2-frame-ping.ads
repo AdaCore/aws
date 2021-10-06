@@ -39,7 +39,7 @@ package AWS.HTTP2.Frame.Ping is
 
    type Opaque_Data is new Stream_Element_Array (1 .. 8);
 
-   Default_Data : constant Opaque_Data := (0, 0, 0, 0, 0, 0, 0, 0);
+   Default_Data : constant Opaque_Data;
 
    function Create
      (Data  : Opaque_Data := Default_Data;
@@ -56,6 +56,8 @@ package AWS.HTTP2.Frame.Ping is
      (Self : Object; Settings : Connection.Object) return Error_Codes;
 
 private
+
+   Default_Data : constant Opaque_Data := (0, 0, 0, 0, 0, 0, 0, 0);
 
    --  RFC-7540 6.7
    --

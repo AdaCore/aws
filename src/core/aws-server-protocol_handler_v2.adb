@@ -35,11 +35,15 @@ with Ada.Containers;
 with Ada.Streams;
 with Ada.Strings.Fixed;
 with Ada.Strings.Maps.Constants;
+with Ada.Strings.Unbounded;
 
-with AWS.Headers;
+with AWS.Attachments;
+with AWS.Headers.Values;
 with AWS.Log;
 with AWS.Messages;
+with AWS.MIME;
 with AWS.Net.Buffered;
+with AWS.Resources.Streams.Memory;
 with AWS.Response.Set;
 with AWS.Server.Context;
 with AWS.Server.HTTP_Utils;
@@ -337,7 +341,8 @@ is
 
          procedure Add_Header (Name, Value : String) is
          begin
-            Response.Set.Add_Header (R, Name, Value);
+            Response.Set.Add_Header
+              (R, Characters.Handling.To_Lower (Name), Value);
          end Add_Header;
 
       begin
@@ -389,12 +394,190 @@ is
 
    procedure Handle_Message (Stream : HTTP2.Stream.Object) is
 
+      use type AWS.Status.Request_Method;
       use type HTTP2.Error_Codes;
 
       procedure Validate_Headers
         (Headers : AWS.Headers.List;
          Error   : out HTTP2.Error_Codes);
       --  Validate headers name as required by HTTP/2
+
+      procedure Handle_POST;
+      --  Process POST message and handle possible parameters and attachments
+
+      -----------------
+      -- Handle_POST --
+      -----------------
+
+      procedure Handle_POST is
+         use Ada.Strings.Unbounded;
+
+         procedure Named_Value
+           (Name, Value : String; Quit : in out Boolean);
+         --  Looking for the Boundary value in the  Content-Type header line
+
+         procedure Value (Item : String; Quit : in out Boolean);
+         --  Reading the first unnamed value into the Status_Content_Type
+         --  variable from the Content-Type header line.
+
+         function Get_Line return String;
+         --  Read a line from Sock
+
+         procedure Read (Buffer : out Stream_Element_Array);
+         --  Fill buffer from Sock
+
+         procedure Read_Body
+           (Stat : in out AWS.Status.Data; Boundary : String);
+         --  Read Sock until Boundary is found
+
+         procedure Check_Data_Timeout;
+         --  Check data time-out using server settings
+
+         Status_Multipart_Boundary : Unbounded_String;
+         Status_Root_Part_CID      : Unbounded_String;
+         Status_Content_Type       : Unbounded_String;
+
+         R_Body : constant not null access
+                    Resources.Streams.Memory.Stream_Type'Class :=
+                      AWS.Status.Binary_Data (Stream.Status.all);
+
+         ------------------------
+         -- Check_Data_Timeout --
+         ------------------------
+
+         procedure Check_Data_Timeout is
+         begin
+            null;
+         end Check_Data_Timeout;
+
+         --------------
+         -- Get_Line --
+         --------------
+
+         function Get_Line return String is
+         begin
+            return R_Body.Get_Line;
+         end Get_Line;
+
+         -----------------
+         -- Named_Value --
+         -----------------
+
+         procedure Named_Value
+           (Name, Value : String; Quit : in out Boolean)
+         is
+            pragma Unreferenced (Quit);
+            L_Name : constant String :=
+                        Ada.Characters.Handling.To_Lower (Name);
+         begin
+            if L_Name = "boundary" then
+               Status_Multipart_Boundary := To_Unbounded_String (Value);
+            elsif L_Name = "start" then
+               Status_Root_Part_CID := To_Unbounded_String (Value);
+            end if;
+         end Named_Value;
+
+         ----------
+         -- Read --
+         ----------
+
+         procedure Read (Buffer : out Stream_Element_Array) is
+            Last : Stream_Element_Offset;
+         begin
+            R_Body.Read (Buffer, Last);
+         end Read;
+
+         ---------------
+         -- Read_Body --
+         ---------------
+
+         procedure Read_Body
+           (Stat     : in out AWS.Status.Data;
+            Boundary : String)
+         is
+            pragma Unreferenced (Stat);
+            Look_For : constant Stream_Element_Array :=
+                         Translator.To_Stream_Element_Array (Boundary);
+            Pos      : Stream_Element_Offset := Look_For'First;
+            Buf      : Stream_Element_Array (1 .. 1);
+         begin
+            null;
+            loop
+               Read (Buf);
+
+               if Buf (Buf'First) = Look_For (Pos) then
+                  exit when Pos = Look_For'Last;
+                  Pos := Pos + 1;
+               else
+                  Pos := Look_For'First;
+               end if;
+            end loop;
+         end Read_Body;
+
+         -----------------------
+         -- Multipart_Message --
+         -----------------------
+
+         package Multipart_Message is new Multipart_Message_G
+           (True, LA.Server.Properties,
+            Get_Line, Read, Read_Body, Check_Data_Timeout);
+
+         -----------
+         -- Value --
+         -----------
+
+         procedure Value (Item : String; Quit : in out Boolean) is
+         begin
+            if Status_Content_Type /= Null_Unbounded_String then
+               --  Only first unnamed value is the Content_Type
+
+               Quit := True;
+
+            elsif Item'Length > 0 then
+               Status_Content_Type := To_Unbounded_String (Item);
+            end if;
+         end Value;
+
+         procedure Parse is new AWS.Headers.Values.Parse (Value, Named_Value);
+
+         S  : constant not null access AWS.Status.Data := Stream.Status;
+         CT : constant String := AWS.Status.Content_Type (Stream.Status.all);
+
+         Attachments : AWS.Attachments.List;
+
+      begin
+         --  Parse Content-Type to get the multipart information
+
+         Parse (CT);
+
+         R_Body.Reset;
+
+         if CT = MIME.Application_Form_Data then
+            AWS.Status.Set.Parameters_From_Body (S.all);
+
+         elsif Status_Content_Type = MIME.Multipart_Form_Data then
+            --  This is a file upload
+
+            Multipart_Message.File_Upload
+              (S.all,
+               Attachments,
+               "--" & To_String (Status_Multipart_Boundary),
+               "--" & To_String (Status_Multipart_Boundary) & "--",
+               True);
+
+         elsif Status_Content_Type = MIME.Multipart_Related then
+            --  Attachments are to be written to separate files
+
+            Multipart_Message.Store_Attachments
+              (S.all,
+               Attachments,
+               "--" & To_String (Status_Multipart_Boundary),
+               "--" & To_String (Status_Multipart_Boundary) & "--",
+               True,
+               To_String (Status_Multipart_Boundary),
+               To_String (Status_Root_Part_CID));
+         end if;
+      end Handle_POST;
 
       ----------------------
       -- Validate_Headers --
@@ -437,7 +620,7 @@ is
                Value  : constant String := Headers.Get_Value (K);
             begin
                if HTTP2.Debug then
-                  Ada.Text_IO.Put_Line ("#hg " & Header & ' ' & Value);
+                  Text_IO.Put_Line ("#hg " & Header & ' ' & Value);
                end if;
 
                if Header'Length > 1 and then Header (Header'First) = ':' then
@@ -547,6 +730,12 @@ is
             Parameters => Path (Query_First .. Path'Last));
       end;
 
+      if AWS.Status.Method (Stream.Status.all) = AWS.Status.POST
+        and then AWS.Status.Binary_Size (Stream.Status.all) > 0
+      then
+         Handle_POST;
+      end if;
+
       Deferred_Messages.Append (Handle_Message (Stream.Status.all, Stream));
    end Handle_Message;
 
@@ -567,6 +756,10 @@ is
    procedure Set_Status (Status : in out AWS.Status.Data) is
    begin
       AWS.Status.Set.Reset (Status);
+
+      --  With HTTP/2 the whole body is always uploaded when receiving frames
+
+      AWS.Status.Set.Uploaded (Status);
 
       --  Set status socket and peername
 
@@ -913,7 +1106,7 @@ begin
                      exit For_Every_Frame;
 
                   else
-                     Go_Away (Error, "");
+                     Go_Away (Error, Error'Img & " from Received_Frame");
 
                      exit For_Every_Frame;
                   end if;
@@ -948,8 +1141,14 @@ exception
    when Net.Socket_Error =>
       null;
 
-   when HTTP2.Protocol_Error =>
+   when P : HTTP2.Protocol_Error =>
       Will_Close := True;
+      AWS.Log.Write
+        (LA.Server.Error_Log,
+         LA.Stat,
+         "Exception handler bug "
+         & Utils.CRLF_2_Spaces
+           (Ada.Exceptions.Exception_Information (P)));
       LA.Server.Slots.Mark_Phase (LA.Line, Server_Response);
 
    when E : others =>

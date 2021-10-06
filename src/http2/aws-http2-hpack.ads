@@ -29,16 +29,12 @@
 
 --  Support for HAPCK (Header compression) for HTTP/2 protocol
 
-with Ada.Streams;
-
 with AWS.Headers;
 
 limited with AWS.HTTP2.HPACK.Table;
 limited with AWS.HTTP2.Connection;
 
 package AWS.HTTP2.HPACK is
-
-   use Ada.Streams;
 
    generic
       with function End_Of_Stream return Boolean;

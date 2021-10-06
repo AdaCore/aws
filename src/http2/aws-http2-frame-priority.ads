@@ -48,7 +48,8 @@ package AWS.HTTP2.Frame.Priority is
      (Stream_Id         : HTTP2.Stream_Id;
       Stream_Dependency : HTTP2.Stream_Id;
       Weight            : Byte_1) return Object
-     with Pre => Stream_Id /= Stream_Dependency;
+     with Pre  => Stream_Id /= Stream_Dependency,
+          Post => Create'Result.Kind = K_Priority;
    --  Create a PRIORITY frame (stream id is always 0)
 
    function Read

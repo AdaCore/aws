@@ -81,7 +81,7 @@ package body AWS.HTTP2.Stream is
       Window_Size : Natural;
       Weight      : Byte_1 := Frame.Priority.Default_Weight) return Object is
    begin
-      return Object'
+      return Self : Object := Object'
         (Sock                => Sock,
          Id                  => Identifier,
          State               => Idle,
@@ -100,7 +100,10 @@ package body AWS.HTTP2.Stream is
          End_Stream          => False,
          Content_Length      => Undefined_Length,
          Bytes_Received      => 0,
-         Data_Flow           => Unknown);
+         Data_Flow           => Unknown)
+      do
+         Self.Headers.Case_Sensitive (False);
+      end return;
    end Create;
 
    ----------------------
@@ -240,7 +243,7 @@ package body AWS.HTTP2.Stream is
       procedure Handle_Window_Update
         (Frame : HTTP2.Frame.Window_Update.Object);
       --  Handle frame window upade, record corresponding information in the
-      --  frame.
+      --  stream and connection.
 
       ---------------------
       -- Handle_Priority --
@@ -265,9 +268,9 @@ package body AWS.HTTP2.Stream is
            (Self.Flow_Send_Window, Incr)
          then
             Self.Flow_Send_Window := Self.Flow_Send_Window + Incr;
+            Ctx.Settings.Update_Flow_Control_Window (Incr);
          else
             Error := HTTP2.C_Flow_Control_Error;
-            return;
          end if;
       end Handle_Window_Update;
 

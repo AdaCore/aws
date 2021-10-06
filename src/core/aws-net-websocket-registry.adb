@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2012-2019, AdaCore                     --
+--                     Copyright (C) 2012-2021, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -131,7 +131,7 @@ package body AWS.Net.WebSocket.Registry is
 
    Message_Senders : Message_Sender_Set_Ref;
 
-   Shutdown_Signal : Boolean := False;
+   Shutdown_Signal : Boolean := False with Atomic;
 
    --  Concurrent access to Set above
 
@@ -273,6 +273,7 @@ package body AWS.Net.WebSocket.Registry is
                      DB.Remove (WS.Get);
                      Message_Queue.Add (WS);
                   end if;
+
                   K := K + 1;
                end loop;
             end;
@@ -370,7 +371,6 @@ package body AWS.Net.WebSocket.Registry is
                   Do_Unregister (WS);
                   WebSocket_Exception
                     (WS, Exception_Message (E), Protocol_Error);
-                  WS.On_Close (Exception_Message (E));
                   WS.Shutdown;
                end;
          end;
@@ -916,7 +916,6 @@ package body AWS.Net.WebSocket.Registry is
                              (WS, Exception_Message (E), Protocol_Error);
 
                            WS.Close (Exception_Message (E), Going_Away);
-                           WS.On_Close (Exception_Message (E));
 
                            --  No more data to send from this socket
                            Pending := 0;
@@ -976,7 +975,6 @@ package body AWS.Net.WebSocket.Registry is
                         WebSocket_Exception
                           (WebSocket, Exception_Message (E), Protocol_Error);
 
-                        WebSocket.On_Close (Exception_Message (E));
                         WebSocket.Close (Exception_Message (E), Going_Away);
                   end;
 

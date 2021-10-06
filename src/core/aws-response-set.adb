@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2002-2019, AdaCore                     --
+--                     Copyright (C) 2002-2021, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -317,6 +317,17 @@ package body AWS.Response.Set is
       D.Mode     := File;
    end Filename;
 
+   -------------
+   -- Headers --
+   -------------
+
+   procedure Headers
+     (D       : in out Data;
+      Headers : AWS.Headers.List) is
+   begin
+      D.Header := Headers;
+   end Headers;
+
    --------------
    -- Is_Valid --
    --------------
@@ -340,11 +351,11 @@ package body AWS.Response.Set is
       end case;
 
       return (Redirection_Code
-                xor not Headers.Exist
+                xor not AWS.Headers.Exist
                           (D.Header,
                            Messages.Location_Token))
         and then (D.Status_Code = Messages.S401
-                    xor not Headers.Exist
+                    xor not AWS.Headers.Exist
                               (D.Header,
                                Messages.WWW_Authenticate_Token));
    end Is_Valid;
@@ -443,7 +454,7 @@ package body AWS.Response.Set is
       --  Set D.Content_Type with the value read from the socket
 
       D.Content_Type := To_Unbounded_String
-        (Headers.Get (D.Header, Messages.Content_Type_Token));
+        (AWS.Headers.Get (D.Header, Messages.Content_Type_Token));
 
       --  Set the Filename if any
 

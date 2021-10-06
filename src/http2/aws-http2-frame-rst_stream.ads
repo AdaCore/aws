@@ -47,8 +47,10 @@ package AWS.HTTP2.Frame.RST_Stream is
 
    function Create
      (Error     : Error_Codes;
-      Stream_Id : Stream.Id) return Object;
-   --  Create an RST_Stream frame (stream id is 0)
+      Stream_Id : Stream.Id) return Object
+     with Pre  => Stream_Id /= 0,
+          Post => Create'Result.Kind = K_RST_Stream;
+   --  Create an RST_Stream frame
 
    overriding procedure Send_Payload
      (Self : Object; Sock : Net.Socket_Type'Class)

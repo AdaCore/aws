@@ -435,8 +435,6 @@ private
    Default_Moved_Message : constant String :=
                              "Page moved<br><a href=""_@_"">Click here</a>";
 
-   CRLF : constant String := ASCII.CR & ASCII.LF;
-
    Default_Authenticate_Message : constant String :=
      "<HTML><HEAD>" & CRLF
      & "<TITLE>401 Authorization Required</TITLE>" & CRLF

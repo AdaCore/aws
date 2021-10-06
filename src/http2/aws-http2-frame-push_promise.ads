@@ -58,14 +58,16 @@ package AWS.HTTP2.Frame.Push_Promise is
       Promise_Stream_Id : HTTP2.Stream_Id;
       List              : AWS.Headers.List;
       End_Headers       : Boolean := True) return Object
-     with Post => (if End_Headers then Create'Result.Flags = End_Headers_Flag);
+     with Post => (if End_Headers then Create'Result.Flags = End_Headers_Flag)
+                  and then Create'Result.Kind = K_Push_Promise;
    --  Create an HEADERS frame with given content and stream id
 
    function Get
      (Self     : Object;
       Table    : not null access HTTP2.HPACK.Table.Object;
       Settings : not null access HTTP2.Connection.Object)
-      return AWS.Headers.List;
+      return AWS.Headers.List
+     with Pre => Self.Is_Defined;
    --  Get the header list out of the HEADERS frame. This reads the content of
    --  the payload and decode using HPACK.
 

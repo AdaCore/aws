@@ -30,7 +30,6 @@
 pragma Ada_2012;
 
 with Ada.Calendar.Time_Zones;
-with Ada.Characters.Handling;
 with Ada.Integer_Text_IO;
 with Ada.Numerics.Discrete_Random;
 with Ada.Numerics.Long_Elementary_Functions;
@@ -882,6 +881,21 @@ package body AWS.Utils is
       return Pattern'Length <= Str'Length
         and then U_Str (1 .. Pattern'Length) = U_Pattern;
    end Match;
+
+   ---------------------
+   -- Normalize_Lower --
+   ---------------------
+
+   function Normalize_Lower
+     (Name     : String;
+      To_Lower : Boolean) return String is
+   begin
+      if To_Lower then
+         return Characters.Handling.To_Lower (Name);
+      else
+         return Name;
+      end if;
+   end Normalize_Lower;
 
    --------------------------
    -- Normalized_Directory --

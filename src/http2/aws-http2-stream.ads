@@ -27,8 +27,6 @@
 --  covered by the  GNU Public License.                                     --
 ------------------------------------------------------------------------------
 
-with Ada.Streams;
-
 with AWS.Net;
 with AWS.Server.Context;
 
@@ -40,8 +38,6 @@ with AWS.Response;
 with AWS.Status;
 
 package AWS.HTTP2.Stream is
-
-   use Ada.Streams;
 
    type State_Kind is (Idle, Reserved_Local, Reserved_Remote, Open,
                        Half_Closed_Local, Half_Closed_Remote, Closed);

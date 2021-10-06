@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2000-2017, AdaCore                     --
+--                     Copyright (C) 2000-2021, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -675,6 +675,8 @@ package body AWS.SMTP.Client is
       BCC         : Recipients := No_Recipient;
       To_All      : Boolean    := True)
    is
+      Pref_Suf : constant String := "--";
+      --  The MIME boundary prefix and suffix
       Sock     : Net.Socket_Access;
       Answer   : Server_Reply;
       Boundary : Unbounded_String;
@@ -708,6 +710,11 @@ package body AWS.SMTP.Client is
 
                AWS.Attachments.Send
                  (Sock.all, Attachments, To_String (Boundary));
+
+               --  Send multipart message end boundary
+
+               Net.Buffered.Put_Line
+                 (Sock.all, Pref_Suf & To_String (Boundary) & Pref_Suf);
 
                Terminate_Mail_Data (Sock.all);
 

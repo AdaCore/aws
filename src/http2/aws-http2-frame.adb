@@ -178,6 +178,11 @@ package body AWS.HTTP2.Frame is
             raise Protocol_Error with
               Exception_Message (C_Protocol_Error, "invalid frame kind");
       end case;
+
+   exception
+      when others =>
+         raise Protocol_Error with
+           Exception_Message (C_Protocol_Error, "corruput frame");
    end Read;
 
    ----------

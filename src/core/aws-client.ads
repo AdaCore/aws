@@ -35,6 +35,7 @@ with Ada.Strings.Unbounded;
 with AWS.Attachments;
 with AWS.Default;
 with AWS.Headers;
+with AWS.HTTP2;
 with AWS.Net.SSL.Certificate;
 with AWS.Response;
 
@@ -164,57 +165,61 @@ package AWS.Client is
    --  Get will retry one time if it fails.
 
    function Head
-     (URL        : String;
-      User       : String          := No_Data;
-      Pwd        : String          := No_Data;
-      Proxy      : String          := No_Data;
-      Proxy_User : String          := No_Data;
-      Proxy_Pwd  : String          := No_Data;
-      Timeouts   : Timeouts_Values := No_Timeout;
-      Headers    : Header_List     := Empty_Header_List;
-      User_Agent : String          := Default.User_Agent) return Response.Data;
+     (URL          : String;
+      User         : String          := No_Data;
+      Pwd          : String          := No_Data;
+      Proxy        : String          := No_Data;
+      Proxy_User   : String          := No_Data;
+      Proxy_Pwd    : String          := No_Data;
+      Timeouts     : Timeouts_Values := No_Timeout;
+      Headers      : Header_List     := Empty_Header_List;
+      User_Agent   : String          := Default.User_Agent;
+      HTTP_Version : HTTP_Protocol   := HTTPv1) return Response.Data;
    --  Idem as above but we do not get the message body.
    --  Head will retry one time if it fails.
 
    function Put
-     (URL        : String;
-      Data       : String;
-      User       : String          := No_Data;
-      Pwd        : String          := No_Data;
-      Proxy      : String          := No_Data;
-      Proxy_User : String          := No_Data;
-      Proxy_Pwd  : String          := No_Data;
-      Timeouts   : Timeouts_Values := No_Timeout;
-      Headers    : Header_List     := Empty_Header_List;
-      User_Agent : String          := Default.User_Agent) return Response.Data;
+     (URL          : String;
+      Data         : String;
+      User         : String          := No_Data;
+      Pwd          : String          := No_Data;
+      Proxy        : String          := No_Data;
+      Proxy_User   : String          := No_Data;
+      Proxy_Pwd    : String          := No_Data;
+      Timeouts     : Timeouts_Values := No_Timeout;
+      Headers      : Header_List     := Empty_Header_List;
+      User_Agent   : String          := Default.User_Agent;
+      HTTP_Version : HTTP_Protocol   := HTTPv1) return Response.Data;
    --  Send to the server URL a PUT request with Data
    --  Put will retry one time if it fails.
 
    function Delete
-     (URL        : String;
-      Data       : String;
-      User       : String          := No_Data;
-      Pwd        : String          := No_Data;
-      Proxy      : String          := No_Data;
-      Proxy_User : String          := No_Data;
-      Proxy_Pwd  : String          := No_Data;
-      Timeouts   : Timeouts_Values := No_Timeout;
-      Headers    : Header_List     := Empty_Header_List;
-      User_Agent : String          := Default.User_Agent) return Response.Data;
+     (URL          : String;
+      Data         : String;
+      User         : String          := No_Data;
+      Pwd          : String          := No_Data;
+      Proxy        : String          := No_Data;
+      Proxy_User   : String          := No_Data;
+      Proxy_Pwd    : String          := No_Data;
+      Timeouts     : Timeouts_Values := No_Timeout;
+      Headers      : Header_List     := Empty_Header_List;
+      User_Agent   : String          := Default.User_Agent;
+      HTTP_Version : HTTP_Protocol   := HTTPv1) return Response.Data;
    --  Send to the server URL a DELETE request with Data
    --  Delete will retry one time if it fails.
 
    function Delete
-     (URL        : String;
-      Data       : Stream_Element_Array;
-      User       : String          := No_Data;
-      Pwd        : String          := No_Data;
-      Proxy      : String          := No_Data;
-      Proxy_User : String          := No_Data;
-      Proxy_Pwd  : String          := No_Data;
-      Timeouts   : Timeouts_Values := No_Timeout;
-      Headers    : Header_List     := Empty_Header_List;
-      User_Agent : String          := Default.User_Agent) return Response.Data;
+     (URL          : String;
+      Data         : Stream_Element_Array;
+      User         : String          := No_Data;
+      Pwd          : String          := No_Data;
+      Proxy        : String          := No_Data;
+      Proxy_User   : String          := No_Data;
+      Proxy_Pwd    : String          := No_Data;
+      Timeouts     : Timeouts_Values := No_Timeout;
+      Headers      : Header_List     := Empty_Header_List;
+      User_Agent   : String          := Default.User_Agent;
+      HTTP_Version : HTTP_Protocol   := HTTPv1) return Response.Data;
    --  Send to the server URL a DELETE request with Data
    --  Delete will retry one time if it fails.
 
@@ -296,18 +301,19 @@ package AWS.Client is
    type HTTP_Connection_Access is access all HTTP_Connection;
 
    function Create
-     (Host        : String;
-      User        : String          := No_Data;
-      Pwd         : String          := No_Data;
-      Proxy       : String          := No_Data;
-      Proxy_User  : String          := No_Data;
-      Proxy_Pwd   : String          := No_Data;
-      Retry       : Natural         := Retry_Default;
-      Persistent  : Boolean         := True;
-      Timeouts    : Timeouts_Values := No_Timeout;
-      Server_Push : Boolean         := False;
-      Certificate : String          := Default.Client_Certificate;
-      User_Agent  : String          := Default.User_Agent)
+     (Host         : String;
+      User         : String          := No_Data;
+      Pwd          : String          := No_Data;
+      Proxy        : String          := No_Data;
+      Proxy_User   : String          := No_Data;
+      Proxy_Pwd    : String          := No_Data;
+      Retry        : Natural         := Retry_Default;
+      Persistent   : Boolean         := True;
+      Timeouts     : Timeouts_Values := No_Timeout;
+      Server_Push  : Boolean         := False;
+      Certificate  : String          := Default.Client_Certificate;
+      User_Agent   : String          := Default.User_Agent;
+      HTTP_Version : HTTP_Protocol   := HTTPv1)
       return HTTP_Connection;
 
    procedure Create
@@ -339,6 +345,9 @@ package AWS.Client is
    --  Certificate can be set to specify the certificate filename to use for
    --  the secure connection. User_Agent can be overridden to whatever you want
    --  the client interface to present itself to the server.
+
+   function HTTP_Version  (Connection : HTTP_Connection) return HTTP_Protocol;
+   --  Returns connection HTTP version
 
    function Get_Certificate
      (Connection : HTTP_Connection) return Net.SSL.Certificate.Object;
@@ -620,6 +629,8 @@ private
       C_Headers          : Header_List;        -- user's connection headers
       F_Headers          : Header_List;        -- final connection headers
       HTTP_Version       : HTTP_Protocol                := HTTPv1;
+      H2_Preface_Sent    : Boolean                      := False;
+      H2_Stream_Id       : AWS.HTTP2.Stream_Id          := 0;
       Auth               : Authentication_Set;
       Opened             : Boolean                      := False;
       Persistent         : Boolean;
@@ -665,5 +676,8 @@ private
 
    function Get_Socket (Connection : HTTP_Connection) return Net.Socket_Access
       is (Connection.Socket);
+
+   function HTTP_Version  (Connection : HTTP_Connection) return HTTP_Protocol
+     is (Connection.HTTP_Version);
 
 end AWS.Client;

@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2002-2017, AdaCore                     --
+--                     Copyright (C) 2002-2021, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -41,6 +41,10 @@ package AWS.Resources.Streams is
      (Resource : in out Stream_Type;
       Buffer   : out Stream_Element_Array;
       Last     : out Stream_Element_Offset) is abstract;
+
+   function Get_Line (Resource : in out Stream_Type'Class) return String;
+   --  Returns a line (set of bytes ending with CR and/or LF) read
+   --  from Resource.
 
    procedure Reset (Resource : in out Stream_Type) is abstract;
 

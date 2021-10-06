@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2000-2017, AdaCore                     --
+--                     Copyright (C) 2000-2021, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -93,10 +93,18 @@ package body AWS.Parameters is
          return;
       end if;
 
-      Parameters.Reset;
-
       loop
          Parameters.Read (Buffer (First .. Buffer'Last), Last);
+
+         --  Take a single line
+         --  ??? We can rewrite this using Get_Line probably
+
+         for J in First .. Last loop
+            if Buffer (J) in 13 | 10 then
+               Last := J - 1;
+               exit;
+            end if;
+         end loop;
 
          Found := False;
 
@@ -138,7 +146,6 @@ package body AWS.Parameters is
 
             exit when Last < Buffer'Last;
          end if;
-
       end loop;
    end Add;
 
@@ -147,7 +154,9 @@ package body AWS.Parameters is
    ---------
 
    procedure Add
-     (Parameter_List : in out List; Name, Value : String; Decode : Boolean) is
+     (Parameter_List : in out List;
+      Name, Value    : String;
+      Decode         : Boolean) is
    begin
       if Decode then
          Parameter_List.Add (URL.Decode (Name), URL.Decode (Value));
@@ -276,9 +285,9 @@ package body AWS.Parameters is
    function URI_Format
      (Parameter_List : List; Limit : Positive := Positive'Last) return String
    is
-      Delimiter : Character := '?';
+      Delimiter  : Character := '?';
       Parameters : Unbounded_String;
-      Size : Positive := 1;
+      Size       : Positive := 1;
    begin
       for J in 1 .. Parameter_List.Count loop
          declare

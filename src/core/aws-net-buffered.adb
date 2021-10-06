@@ -36,7 +36,8 @@ with AWS.Translator;
 package body AWS.Net.Buffered is
 
    CRLF : constant Stream_Element_Array :=
-            Translator.To_Stream_Element_Array (ASCII.CR & ASCII.LF);
+            (1 => Character'Pos (ASCII.CR),
+             2 => Character'Pos (ASCII.LF));
 
    Input_Limit : Positive := AWS.Default.Input_Line_Size_Limit with Atomic;
 
