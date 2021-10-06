@@ -126,7 +126,7 @@ package body AWS.Client is
       Server_Push  : Boolean         := False;
       Certificate  : String          := Default.Client_Certificate;
       User_Agent   : String          := Default.User_Agent;
-      HTTP_Version : HTTP_Protocol   := HTTPv1)
+      HTTP_Version : HTTP_Protocol   := HTTP_Default)
       return HTTP_Connection is
    begin
       return Connection : HTTP_Connection do
@@ -154,7 +154,7 @@ package body AWS.Client is
       SSL_Config   : Net.SSL.Config  := Net.SSL.Null_Config;
       Certificate  : String          := Default.Client_Certificate;
       User_Agent   : String          := Default.User_Agent;
-      HTTP_Version : HTTP_Protocol   := HTTPv1)
+      HTTP_Version : HTTP_Protocol   := HTTP_Default)
    is
       use type Net.SSL.Config;
 
@@ -265,7 +265,7 @@ package body AWS.Client is
       Timeouts     : Timeouts_Values := No_Timeout;
       Headers      : Header_List     := Empty_Header_List;
       User_Agent   : String          := Default.User_Agent;
-      HTTP_Version : HTTP_Protocol   := HTTPv1) return Response.Data
+      HTTP_Version : HTTP_Protocol   := HTTP_Default) return Response.Data
    is
    begin
       return Delete
@@ -285,7 +285,7 @@ package body AWS.Client is
       Timeouts     : Timeouts_Values := No_Timeout;
       Headers      : Header_List     := Empty_Header_List;
       User_Agent   : String          := Default.User_Agent;
-      HTTP_Version : HTTP_Protocol   := HTTPv1) return Response.Data
+      HTTP_Version : HTTP_Protocol   := HTTP_Default) return Response.Data
    is
       Connection : HTTP_Connection;
       Result     : Response.Data;
@@ -401,7 +401,7 @@ package body AWS.Client is
       Certificate        : String          := Default.Client_Certificate;
       Headers            : Header_List     := Empty_Header_List;
       User_Agent         : String          := Default.User_Agent;
-      HTTP_Version       : HTTP_Protocol   := HTTPv1)
+      HTTP_Version       : HTTP_Protocol   := HTTP_Default)
       return Response.Data
    is
       use type Messages.Status_Code;
@@ -540,7 +540,7 @@ package body AWS.Client is
       Timeouts     : Timeouts_Values := No_Timeout;
       Headers      : Header_List     := Empty_Header_List;
       User_Agent   : String          := Default.User_Agent;
-      HTTP_Version : HTTP_Protocol   := HTTPv1)
+      HTTP_Version : HTTP_Protocol   := HTTP_Default)
       return Response.Data
    is
       Connection : HTTP_Connection;
@@ -607,7 +607,7 @@ package body AWS.Client is
       Attachments  : Attachment_List := Empty_Attachment_List;
       Headers      : Header_List     := Empty_Header_List;
       User_Agent   : String          := Default.User_Agent;
-      HTTP_Version : HTTP_Protocol   := HTTPv1)
+      HTTP_Version : HTTP_Protocol   := HTTP_Default)
       return Response.Data
    is
       Connection : HTTP_Connection;
@@ -645,7 +645,7 @@ package body AWS.Client is
       Attachments  : Attachment_List := Empty_Attachment_List;
       Headers      : Header_List     := Empty_Header_List;
       User_Agent   : String          := Default.User_Agent;
-      HTTP_Version : HTTP_Protocol   := HTTPv1)
+      HTTP_Version : HTTP_Protocol   := HTTP_Default)
       return Response.Data
    is
       Connection : HTTP_Connection;
@@ -763,7 +763,7 @@ package body AWS.Client is
       Timeouts     : Timeouts_Values := No_Timeout;
       Headers      : Header_List     := Empty_Header_List;
       User_Agent   : String          := Default.User_Agent;
-      HTTP_Version : HTTP_Protocol   := HTTPv1) return Response.Data
+      HTTP_Version : HTTP_Protocol   := HTTP_Default) return Response.Data
    is
       Connection : HTTP_Connection;
       Result     : Response.Data;
@@ -1132,7 +1132,7 @@ package body AWS.Client is
       Attachments  : Attachment_List := Empty_Attachment_List;
       Headers      : Header_List     := Empty_Header_List;
       User_Agent   : String          := Default.User_Agent;
-      HTTP_Version : HTTP_Protocol   := HTTPv1) return Response.Data
+      HTTP_Version : HTTP_Protocol   := HTTP_Default) return Response.Data
    is
       Connection : HTTP_Connection;
       Result     : Response.Data;
@@ -1416,7 +1416,8 @@ package body AWS.Client is
       Headers    : Header_List     := Empty_Header_List;
       Progress   : access procedure
                      (Total, Sent : Stream_Element_Offset) := null;
-      User_Agent : String          := Default.User_Agent) return Response.Data
+      User_Agent : String          := Default.User_Agent)
+      return Response.Data
    is
       Connection : HTTP_Connection;
       Result     : Response.Data;
