@@ -54,12 +54,13 @@ package AWS.Client.HTTP_Utils is
       Mode : Authentication_Mode);
    --  Internal procedure to set authentication parameters
 
-   procedure Parse_Header
+   procedure Read_Parse_Header
      (Connection : in out HTTP_Connection;
-      Answer     : out Response.Data;
+      Answer     : in out Response.Data;
       Keep_Alive : out Boolean);
-   --  Read server answer and set corresponding variable with the value
-   --  read. Most of the fields are ignored right now.
+   --  Read server answer (in HTTP/1.x only) and set corresponding variable
+   --  with the value read. Most of the fields are ignored right now. For
+   --  HTTP/2 mode Answer's headers are supposed to have been added already.
 
    procedure Connect (Connection : in out HTTP_Connection);
    --  Open the connection. Raises Connection_Error if it is not possible to
@@ -79,7 +80,8 @@ package AWS.Client.HTTP_Utils is
    procedure Read_Body
      (Connection : in out HTTP_Connection;
       Result     : out Response.Data;
-      Store      : Boolean);
+      Store      : Boolean)
+     with Pre => HTTP_Version (Connection) = HTTPv1;
    --  Read message body and store it into Result if Store is True otherwise
    --  the content is discarded.
 

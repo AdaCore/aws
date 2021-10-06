@@ -1,0 +1,18 @@
+started
+
+R1 : /c1 - POST - OK
+     status: S200
+
+R2 : /c1 - GET - OK
+     status: S200
+
+R3 : /c2 - POST - OK
+     status: S300
+
+R4 : /x - POST - not there!
+     status: S404
+
+R5 : /x - GET - not there!
+     status: S404
+
+shutdown

@@ -114,18 +114,19 @@ package body AWS.Client is
    ------------
 
    function Create
-     (Host        : String;
-      User        : String          := No_Data;
-      Pwd         : String          := No_Data;
-      Proxy       : String          := No_Data;
-      Proxy_User  : String          := No_Data;
-      Proxy_Pwd   : String          := No_Data;
-      Retry       : Natural         := Retry_Default;
-      Persistent  : Boolean         := True;
-      Timeouts    : Timeouts_Values := No_Timeout;
-      Server_Push : Boolean         := False;
-      Certificate : String          := Default.Client_Certificate;
-      User_Agent  : String          := Default.User_Agent)
+     (Host         : String;
+      User         : String          := No_Data;
+      Pwd          : String          := No_Data;
+      Proxy        : String          := No_Data;
+      Proxy_User   : String          := No_Data;
+      Proxy_Pwd    : String          := No_Data;
+      Retry        : Natural         := Retry_Default;
+      Persistent   : Boolean         := True;
+      Timeouts     : Timeouts_Values := No_Timeout;
+      Server_Push  : Boolean         := False;
+      Certificate  : String          := Default.Client_Certificate;
+      User_Agent   : String          := Default.User_Agent;
+      HTTP_Version : HTTP_Protocol   := HTTPv1)
       return HTTP_Connection is
    begin
       return Connection : HTTP_Connection do
@@ -134,7 +135,7 @@ package body AWS.Client is
                  Proxy, Proxy_User, Proxy_Pwd,
                  Retry, Persistent, Timeouts,
                  Server_Push,
-                 Net.SSL.Null_Config, Certificate, User_Agent);
+                 Net.SSL.Null_Config, Certificate, User_Agent, HTTP_Version);
       end return;
    end Create;
 
@@ -190,6 +191,8 @@ package body AWS.Client is
       Connection.Timeouts                 := Timeouts;
       Connection.HTTP_Version             := HTTP_Version;
       Connection.Config                   := AWS.Config.Get_Current;
+      Connection.H2_Preface_Sent          := False;
+      Connection.H2_Stream_Id             := 1;
 
       Connection.User_Agent := To_Unbounded_String (User_Agent);
 
@@ -252,44 +255,47 @@ package body AWS.Client is
    ------------
 
    function Delete
-     (URL        : String;
-      Data       : String;
-      User       : String          := No_Data;
-      Pwd        : String          := No_Data;
-      Proxy      : String          := No_Data;
-      Proxy_User : String          := No_Data;
-      Proxy_Pwd  : String          := No_Data;
-      Timeouts   : Timeouts_Values := No_Timeout;
-      Headers    : Header_List     := Empty_Header_List;
-      User_Agent : String          := Default.User_Agent) return Response.Data
+     (URL          : String;
+      Data         : String;
+      User         : String          := No_Data;
+      Pwd          : String          := No_Data;
+      Proxy        : String          := No_Data;
+      Proxy_User   : String          := No_Data;
+      Proxy_Pwd    : String          := No_Data;
+      Timeouts     : Timeouts_Values := No_Timeout;
+      Headers      : Header_List     := Empty_Header_List;
+      User_Agent   : String          := Default.User_Agent;
+      HTTP_Version : HTTP_Protocol   := HTTPv1) return Response.Data
    is
    begin
       return Delete
         (URL, Translator.To_Stream_Element_Array (Data),
          User, Pwd, Proxy, Proxy_User, Proxy_Pwd, Timeouts,
-         Headers, User_Agent);
+         Headers, User_Agent, HTTP_Version);
    end Delete;
 
    function Delete
-     (URL        : String;
-      Data       : Stream_Element_Array;
-      User       : String          := No_Data;
-      Pwd        : String          := No_Data;
-      Proxy      : String          := No_Data;
-      Proxy_User : String          := No_Data;
-      Proxy_Pwd  : String          := No_Data;
-      Timeouts   : Timeouts_Values := No_Timeout;
-      Headers    : Header_List     := Empty_Header_List;
-      User_Agent : String          := Default.User_Agent) return Response.Data
+     (URL          : String;
+      Data         : Stream_Element_Array;
+      User         : String          := No_Data;
+      Pwd          : String          := No_Data;
+      Proxy        : String          := No_Data;
+      Proxy_User   : String          := No_Data;
+      Proxy_Pwd    : String          := No_Data;
+      Timeouts     : Timeouts_Values := No_Timeout;
+      Headers      : Header_List     := Empty_Header_List;
+      User_Agent   : String          := Default.User_Agent;
+      HTTP_Version : HTTP_Protocol   := HTTPv1) return Response.Data
    is
       Connection : HTTP_Connection;
       Result     : Response.Data;
    begin
       Create (Connection,
               URL, User, Pwd, Proxy, Proxy_User, Proxy_Pwd,
-              Persistent => False,
-              Timeouts   => Timeouts,
-              User_Agent => User_Agent);
+              Persistent   => False,
+              Timeouts     => Timeouts,
+              User_Agent   => User_Agent,
+              HTTP_Version => HTTP_Version);
 
       Delete (Connection, Result, Data, Headers => Headers);
       Close (Connection);
@@ -344,7 +350,7 @@ package body AWS.Client is
       Stamp      : Ada.Real_Time.Time)
    is
       use Real_Time;
-      Message : constant String := Ada.Exceptions.Exception_Information (E);
+      Message : constant String := Exception_Information (E);
    begin
       Debug_Exception (E);
 
@@ -525,15 +531,16 @@ package body AWS.Client is
    ----------
 
    function Head
-     (URL        : String;
-      User       : String          := No_Data;
-      Pwd        : String          := No_Data;
-      Proxy      : String          := No_Data;
-      Proxy_User : String          := No_Data;
-      Proxy_Pwd  : String          := No_Data;
-      Timeouts   : Timeouts_Values := No_Timeout;
-      Headers    : Header_List     := Empty_Header_List;
-      User_Agent : String          := Default.User_Agent)
+     (URL          : String;
+      User         : String          := No_Data;
+      Pwd          : String          := No_Data;
+      Proxy        : String          := No_Data;
+      Proxy_User   : String          := No_Data;
+      Proxy_Pwd    : String          := No_Data;
+      Timeouts     : Timeouts_Values := No_Timeout;
+      Headers      : Header_List     := Empty_Header_List;
+      User_Agent   : String          := Default.User_Agent;
+      HTTP_Version : HTTP_Protocol   := HTTPv1)
       return Response.Data
    is
       Connection : HTTP_Connection;
@@ -541,9 +548,10 @@ package body AWS.Client is
    begin
       Create (Connection,
               URL, User, Pwd, Proxy, Proxy_User, Proxy_Pwd,
-              Persistent => False,
-              Timeouts   => Timeouts,
-              User_Agent => User_Agent);
+              Persistent   => False,
+              Timeouts     => Timeouts,
+              User_Agent   => User_Agent,
+              HTTP_Version => HTTP_Version);
 
       Head (Connection, Result, Headers => Headers);
       Close (Connection);
@@ -745,25 +753,27 @@ package body AWS.Client is
    ---------
 
    function Put
-     (URL        : String;
-      Data       : String;
-      User       : String          := No_Data;
-      Pwd        : String          := No_Data;
-      Proxy      : String          := No_Data;
-      Proxy_User : String          := No_Data;
-      Proxy_Pwd  : String          := No_Data;
-      Timeouts   : Timeouts_Values := No_Timeout;
-      Headers    : Header_List     := Empty_Header_List;
-      User_Agent : String          := Default.User_Agent) return Response.Data
+     (URL          : String;
+      Data         : String;
+      User         : String          := No_Data;
+      Pwd          : String          := No_Data;
+      Proxy        : String          := No_Data;
+      Proxy_User   : String          := No_Data;
+      Proxy_Pwd    : String          := No_Data;
+      Timeouts     : Timeouts_Values := No_Timeout;
+      Headers      : Header_List     := Empty_Header_List;
+      User_Agent   : String          := Default.User_Agent;
+      HTTP_Version : HTTP_Protocol   := HTTPv1) return Response.Data
    is
       Connection : HTTP_Connection;
       Result     : Response.Data;
    begin
       Create (Connection,
               URL, User, Pwd, Proxy, Proxy_User, Proxy_Pwd,
-              Persistent => False,
-              Timeouts   => Timeouts,
-              User_Agent => User_Agent);
+              Persistent   => False,
+              Timeouts     => Timeouts,
+              User_Agent   => User_Agent,
+              HTTP_Version => HTTP_Version);
 
       Put (Connection, Result, Data, Headers => Headers);
       Close (Connection);

@@ -73,6 +73,23 @@ package body AWS.Headers is
       Debug_Flag := Activate;
    end Debug;
 
+   -----------------
+   -- Get_Content --
+   -----------------
+
+   procedure Get_Content
+     (Headers   : List;
+      End_Block : Boolean := False) is
+   begin
+      for J in 1 .. Count (Headers) loop
+         Data (Get_Line (Headers, J) & CRLF);
+      end loop;
+
+      if End_Block then
+         Data (CRLF);
+      end if;
+   end Get_Content;
+
    --------------
    -- Get_Line --
    --------------
@@ -155,6 +172,30 @@ package body AWS.Headers is
 
    procedure Read (Headers : in out List; Socket : Net.Socket_Type'Class) is
 
+      function Get_Line return String;
+      --  Read a line from socket
+
+      --------------
+      -- Get_Line --
+      --------------
+
+      function Get_Line return String is
+      begin
+         return Net.Buffered.Get_Line (Socket);
+      end Get_Line;
+
+      procedure Read is new Read_G (Get_Line);
+
+   begin
+      Read (Headers);
+   end Read;
+
+   ------------
+   -- Read_G --
+   ------------
+
+   procedure Read_G (Headers : in out List) is
+
       procedure Parse_Header_Line (Line : String);
       --  Parse this line, update Headers accordingly
 
@@ -194,8 +235,7 @@ package body AWS.Headers is
       end Parse_Header_Line;
 
       End_Of_Message : constant String := "";
-      Line           : Unbounded_String :=
-                         To_Unbounded_String (Net.Buffered.Get_Line (Socket));
+      Line           : Unbounded_String := To_Unbounded_String (Get_Line);
 
    begin
       Reset (Headers);
@@ -207,7 +247,7 @@ package body AWS.Headers is
          exit when Line = Null_Unbounded_String;
 
          declare
-            Next_Line : constant String := Net.Buffered.Get_Line (Socket);
+            Next_Line : constant String := Get_Line;
          begin
             if Next_Line /= End_Of_Message
               and then
@@ -231,7 +271,7 @@ package body AWS.Headers is
             end if;
          end;
       end loop;
-   end Read;
+   end Read_G;
 
    -----------
    -- Reset --
@@ -250,14 +290,26 @@ package body AWS.Headers is
    procedure Send_Header
      (Socket    : Net.Socket_Type'Class;
       Headers   : List;
-      End_Block : Boolean := False) is
+      End_Block : Boolean := False)
+   is
+      procedure Send (Value : String);
+      --  Send data over socket
+
+      ----------
+      -- Send --
+      ----------
+
+      procedure Send (Value : String) is
+      begin
+         Net.Buffered.Put (Socket, Value);
+      end Send;
+
+      procedure Send_Headers_Content is new Get_Content (Send);
+
    begin
-      for J in 1 .. Count (Headers) loop
-         Net.Buffered.Put_Line (Socket, Get_Line (Headers, J));
-      end loop;
+      Send_Headers_Content (Headers, End_Block);
 
       if End_Block then
-         Net.Buffered.New_Line (Socket);
          Net.Buffered.Flush (Socket);
       end if;
    end Send_Header;

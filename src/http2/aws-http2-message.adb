@@ -28,6 +28,7 @@
 ------------------------------------------------------------------------------
 
 with Ada.Calendar;
+with Ada.Characters.Handling;
 with Ada.Strings.Unbounded;
 with Ada.Text_IO;
 
@@ -39,10 +40,41 @@ with AWS.HTTP2.Stream;
 with AWS.Messages;
 with AWS.Resources.Streams.Memory;
 with AWS.Server.HTTP_Utils;
+with AWS.Translator;
 
 package body AWS.HTTP2.Message is
 
    use Ada.Strings.Unbounded;
+
+   function To_Lower
+     (Name : String) return String renames Ada.Characters.Handling.To_Lower;
+
+   -----------------
+   -- Append_Body --
+   -----------------
+
+   procedure Append_Body
+     (Self : in out Object;
+      Data : String) is
+   begin
+      if Self.M_Body = null then
+         Self.M_Body := new Resources.Streams.Memory.Stream_Type;
+      end if;
+
+      Resources.Streams.Memory.Stream_Type (Self.M_Body.all).Append
+        (Stream_Element_Array'(Translator.To_Stream_Element_Array (Data)));
+   end Append_Body;
+
+   procedure Append_Body
+     (Self : in out Object;
+      Data : Stream_Element_Array) is
+   begin
+      if Self.M_Body = null then
+         Self.M_Body := new Resources.Streams.Memory.Stream_Type;
+      end if;
+
+      Resources.Streams.Memory.Stream_Type (Self.M_Body.all).Append (Data);
+   end Append_Body;
 
    ------------
    -- Create --
@@ -60,14 +92,12 @@ package body AWS.HTTP2.Message is
       O.Stream_Id := Stream_Id;
       O.Headers   := Headers;
 
+      O.Headers.Case_Sensitive (False);
+
       if Data'Length /= 0 then
-         O.M_Body    := new Resources.Streams.Memory.Stream_Type;
+         O.M_Body := new Resources.Streams.Memory.Stream_Type;
          Resources.Streams.Memory.Stream_Type (O.M_Body.all).Append (Data);
       end if;
-
-      O.Headers.Add
-        (Messages.Content_Length_Token,
-         Utils.Image (Stream_Element_Offset (Data'Length)));
 
       return O;
    end Create;
@@ -94,7 +124,8 @@ package body AWS.HTTP2.Message is
          Size := O.M_Body.Size;
 
          if Size /= Resources.Undefined_Length then
-            O.Headers.Add (Messages.Content_Length_Token, Utils.Image (Size));
+            O.Headers.Add
+              (To_Lower (Messages.Content_Length_Token), Utils.Image (Size));
          end if;
       end Set_Body;
 
@@ -103,12 +134,14 @@ package body AWS.HTTP2.Message is
       O.Mode      := Response.Mode (Answer);
       O.Stream_Id := Stream_Id;
 
+      O.Headers.Case_Sensitive (False);
+
       case O.Mode is
          when Response.Message | Response.Header =>
             --  Set status code
 
             O.Headers.Add
-              (Messages.Status_Token,
+              (To_Lower (Messages.Status_Token),
                Messages.Image (Response.Status_Code (Answer)));
 
             if O.Mode /= Response.Header then
@@ -162,7 +195,7 @@ package body AWS.HTTP2.Message is
                                 (Answer, Messages.Last_Modified_Token)
                then
                   O.Headers.Add
-                    (Messages.Last_Modified_Token,
+                    (To_Lower (Messages.Last_Modified_Token),
                      Messages.To_HTTP_Date (File_Time));
                end if;
 
@@ -266,12 +299,16 @@ package body AWS.HTTP2.Message is
       --------------------
 
       procedure Handle_Headers (Headers : AWS.Headers.List) is
+         use Ada;
+
          Max_Size : constant Positive :=
                       Connection.Max_Header_List_Size (Ctx.Settings.all);
          L        : AWS.Headers.List;
          Size     : Natural := 0;
          Is_First : Boolean := True;
       begin
+         L.Case_Sensitive (False);
+
          for K in 1 .. Headers.Count loop
             declare
                Element : constant AWS.Headers.Element := Headers.Get (K);
@@ -279,7 +316,7 @@ package body AWS.HTTP2.Message is
                            32 + Length (Element.Name) + Length (Element.Value);
             begin
                if Debug then
-                  Ada.Text_IO.Put_Line
+                  Text_IO.Put_Line
                     ("#hs " & To_String (Element.Name)
                      & ' ' & To_String (Element.Value));
                end if;
@@ -327,6 +364,20 @@ package body AWS.HTTP2.Message is
 
    begin
       if not Self.H_Sent then
+         if not Self.Headers.Exist (Messages.Content_Length_Token)
+           and then Self.M_Body /= null
+         then
+            declare
+               Size : constant Stream_Element_Offset := Self.M_Body.Size;
+            begin
+               if Size /= Resources.Undefined_Length then
+                  Self.Headers.Add
+                    (To_Lower (Messages.Content_Length_Token),
+                     Utils.Image (Size));
+               end if;
+            end;
+         end if;
+
          Handle_Headers (Self.Headers);
          Self.H_Sent := True;
       end if;

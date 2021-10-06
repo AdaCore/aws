@@ -402,9 +402,38 @@ package body AWS.Status.Set is
    -- Parameters_From_Body --
    --------------------------
 
-   procedure Parameters_From_Body (D : in out Data) is
+   procedure Parameters_From_Body
+     (D : in out Data; Boundary : String := "")
+   is
+      use AWS.Resources.Streams;
+
+      R : constant not null access Memory.Stream_Type'Class :=
+            D.Binary_Data;
    begin
-      AWS.URL.Set.Parameters (D.URI'Access).all.Add (D.Binary_Data.all);
+      D.Binary_Data.Reset;
+
+      if Boundary /= "" then
+         Look_Boundary : loop
+            declare
+               Line : constant String := R.Get_Line;
+            begin
+               if Line = Boundary then
+                  --  Boundary found, skip headers until empty line found
+                  loop
+                     declare
+                        Line : constant String := R.Get_Line;
+                     begin
+                        exit Look_Boundary when Line = "";
+                     end;
+                  end loop;
+               end if;
+            end;
+         end loop Look_Boundary;
+      end if;
+
+      --  Now parse body to set parameters
+
+      AWS.URL.Set.Parameters (D.URI'Access).all.Add (R.all);
    end Parameters_From_Body;
 
    --------------

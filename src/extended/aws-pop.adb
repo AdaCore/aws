@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2003-2019, AdaCore                     --
+--                     Copyright (C) 2003-2021, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -47,8 +47,6 @@ package body AWS.POP is
    --  MIME Headers
 
    subtype Stream_Type is AWS.Resources.Streams.Memory.Stream_Type;
-
-   CRLF : constant String := ASCII.CR & ASCII.LF;
 
    procedure Check_Response (Response : String);
    --  Checks server's response, raise POP_Error with server's message

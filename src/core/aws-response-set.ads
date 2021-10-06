@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2002-2014, AdaCore                     --
+--                     Copyright (C) 2002-2021, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -63,6 +63,11 @@ package AWS.Response.Set is
    procedure Read_Header (Socket : Net.Socket_Type'Class; D : in out Data);
    --  Read all header data from the socket and fill appropriate
    --  data's fields.
+
+   procedure Headers
+     (D       : in out Data;
+      Headers : AWS.Headers.List);
+   --  Set response's Headers
 
    procedure Status_Code
      (D     : in out Data;

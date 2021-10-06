@@ -1,0 +1,40 @@
+started
+
+*** ID =100
+*** N Attachments =  0
+R-POST1 : ok
+
+*** ID =101
+*** N Attachments =  2
+Filename       file1.dat
+Local Filename ./XpidX-0.file1.dat
+Filename       file2.dat
+Local Filename ./XpidX-1.file2.dat
+R-POST2 : ok
+
+*** ID =102
+*** N Attachments =  2
+Filename       file1.dat
+Local Filename ./XpidX-2.file1.dat
+Filename       file2.dat
+Local Filename ./XpidX-3.file2.dat
+R-POST3 : ok
+
+*** ID =103
+*** N Attachments =  2
+Filename       file1.dat
+Local Filename ./XpidX-4.file1.dat
+Filename       file2.dat
+Local Filename ./XpidX-5.file2.dat
+R-POST4 : ok
+
+*** ID =104
+*** N Attachments =  2
+Filename       file1.dat
+Local Filename ./XpidX-6.file1.dat
+Filename       file2.dat
+Local Filename ./XpidX-7.file2.dat
+big-data size 5610000 bytes
+R-POST5 : ok
+
+shutdown

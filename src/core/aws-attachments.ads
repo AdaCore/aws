@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2004-2017, AdaCore                     --
+--                     Copyright (C) 2004-2021, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -153,6 +153,14 @@ package AWS.Attachments is
    --  Returns the Attachment with the Content Id
 
    generic
+      with procedure Data (Chunk : String);
+   procedure Get_Content
+     (Attachments : List;
+      Boundary    : String);
+   --  Create the content to be sent for all attachments, call Data for each
+   --  pieve of data.
+
+   generic
       with procedure Action
         (Attachment : Element;
          Index      : Positive;
@@ -193,6 +201,14 @@ package AWS.Attachments is
    with Post => Length'Result > 8;
    --  Returns the complete size of all attachments including the surrounding
    --  boundaries.
+
+   generic
+      with procedure Data (Value : String);
+   procedure Get_MIME_Header
+     (Attachments : List;
+      Boundary    : out Unbounded_String;
+      Alternative : Boolean := False);
+   --  Output MIME header, returns the boundary for the content
 
    procedure Send_MIME_Header
      (Socket      : Net.Socket_Type'Class;

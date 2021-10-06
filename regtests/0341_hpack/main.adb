@@ -77,16 +77,18 @@ procedure Main is
          end loop;
       end Print;
 
-      M : AWS.Headers.List := Decode (Tab_Dec'Access, Settings'Access);
+      M : constant AWS.Headers.List :=
+            Decode (Tab_Dec'Access, Settings'Access);
 
       use type AWS.Headers.List;
       use type AWS.HTTP2.HPACK.Table.Object;
 
    begin
       if M /= H then
-         Ada.Text_IO.Put_Line ("Headers differ");
+         Ada.Text_IO.Put_Line ("============= Headers differ");
          Print (H);
          Print (M);
+         New_Line;
       end if;
 
       if Tab_Enc /= Tab_Dec then
@@ -100,6 +102,8 @@ procedure Main is
    Size : Positive;
 
 begin
+   H.Case_Sensitive (False);
+
    H.Add (":method", "GET");
    H.Add (":path", "/readme.txt");
    H.Add (":scheme", "https");

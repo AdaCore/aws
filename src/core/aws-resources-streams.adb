@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2002-2012, AdaCore                     --
+--                     Copyright (C) 2002-2021, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -28,6 +28,7 @@
 ------------------------------------------------------------------------------
 
 with Ada.IO_Exceptions;
+with Ada.Strings.Unbounded;
 
 with AWS.Resources.Embedded;
 with AWS.Resources.Streams.Disk.Once;
@@ -35,6 +36,8 @@ with AWS.Resources.Streams.Memory;
 with AWS.Resources.Streams.ZLib;
 
 package body AWS.Resources.Streams is
+
+   use Ada.Strings.Unbounded;
 
    ------------
    -- Create --
@@ -46,6 +49,30 @@ package body AWS.Resources.Streams is
    begin
       Resource := File_Type (Stream);
    end Create;
+
+   --------------
+   -- Get_Line --
+   --------------
+
+   function Get_Line (Resource : in out Stream_Type'Class) return String is
+      Result : Unbounded_String;
+      B      : Stream_Element_Array (1 .. 1);
+      L      : Stream_Element_Offset;
+      Stop   : Boolean := False;
+   begin
+      while not Stop and then not Resource.End_Of_File loop
+         Resource.Read (B, L);
+
+         if  B (B'First) not in 13 | 10 then
+            Append (Result, Character'Val (Natural (B (B'First))));
+
+         elsif B (B'First) = 10 then
+            Stop := True;
+         end if;
+      end loop;
+
+      return To_String (Result);
+   end Get_Line;
 
    ----------
    -- Name --
@@ -69,10 +96,10 @@ package body AWS.Resources.Streams is
    is
       use type Embedded.Buffer_Access;
 
-      Stream  : Stream_Access;
       In_GZip : constant Boolean := GZip;
       Buffer  : constant Embedded.Buffer_Access :=
                   Embedded.Get_Buffer (Name, GZip);
+      Stream  : Stream_Access;
    begin
       if Buffer /= null then
          Stream := new Memory.Stream_Type;

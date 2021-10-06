@@ -45,7 +45,10 @@ package AWS.HTTP2.Frame.Continuation is
       Stream_Id   : HTTP2.Stream_Id;
       List        : Headers.List;
       End_Headers : Boolean := True) return Object
-     with Post => (if End_Headers then Create'Result.Flags = End_Headers_Flag);
+     with Pre  => Stream_Id /= 0,
+          Post => (if End_Headers then Create'Result.Flags = End_Headers_Flag)
+                  and then Create'Result.Kind = K_Continuation;
+   --  Create a CONTINUATION frame with given content
 
    overriding procedure Send_Payload
      (Self : Object; Sock : Net.Socket_Type'Class);
@@ -56,11 +59,13 @@ package AWS.HTTP2.Frame.Continuation is
    --  Iterator interface
 
    function Content_Length
-     (Self : Object) return Stream_Element_Count;
+     (Self : Object) return Stream_Element_Count
+     with Pre => Self.Is_Defined;
 
    function Get
      (Self  : Object;
-      Index : Stream_Element_Offset) return Stream_Element;
+      Index : Stream_Element_Offset) return Stream_Element
+     with Pre => Self.Is_Defined;
 
 private
 

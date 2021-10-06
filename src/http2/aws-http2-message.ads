@@ -27,8 +27,6 @@
 --  covered by the  GNU Public License.                                     --
 ------------------------------------------------------------------------------
 
-with Ada.Streams;
-
 with AWS.Headers;
 with AWS.HTTP2.Frame.List;
 with AWS.Response;
@@ -41,8 +39,6 @@ private with AWS.Utils;
 limited with AWS.HTTP2.Stream;
 
 package AWS.HTTP2.Message is
-
-   use Ada.Streams;
 
    use type AWS.HTTP2.Frame.List.Count_Type;
    use type Response.Data_Mode;
@@ -57,6 +53,18 @@ package AWS.HTTP2.Message is
       Stream_Id : HTTP2.Stream_Id) return Object
      with Post => Create'Result.Is_Defined;
    --  Create a message out of a request object
+
+   procedure Append_Body
+     (Self : in out Object;
+      Data : String)
+     with Pre => Self.Is_Defined and then Data'Length > 0, Inline;
+   --  Append Data to the current body of message
+
+   procedure Append_Body
+     (Self : in out Object;
+      Data : Stream_Element_Array)
+     with Pre => Self.Is_Defined and then Data'Length > 0, Inline;
+   --  Append Data to the current body of message
 
    function Create
      (Answer    : in out Response.Data;

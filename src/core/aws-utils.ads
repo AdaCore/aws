@@ -30,6 +30,7 @@
 pragma Ada_2012;
 
 with Ada.Calendar;
+with Ada.Characters.Handling;
 with Ada.Directories;
 with Ada.Finalization;
 with Ada.Streams;
@@ -205,6 +206,12 @@ package AWS.Utils is
 
    function Is_Valid_UTF8 (Value : Unbounded_String) return Boolean;
    --  Likewise for an unbounded string
+
+   function Normalize_Lower (Name : String; To_Lower : Boolean) return String
+     with Post =>
+       (if To_Lower
+        then Normalize_Lower'Result = Characters.Handling.To_Lower (Name)
+        else Normalize_Lower'Result = Name);
 
    ---------------
    -- Semaphore --

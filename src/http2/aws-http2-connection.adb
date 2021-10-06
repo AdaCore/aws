@@ -38,8 +38,8 @@ package body AWS.HTTP2.Connection is
    function Flow_Control_Window_Valid
      (Current, Increment : Integer) return Boolean
    is
-      Max  : constant Natural :=
-               Natural (HTTP2.Frame.Window_Update.Size_Increment_Type'Last);
+      Max : constant Natural :=
+              Natural (HTTP2.Frame.Window_Update.Size_Increment_Type'Last);
    begin
       return Current <= Max - Increment;
    end Flow_Control_Window_Valid;

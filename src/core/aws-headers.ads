@@ -55,6 +55,12 @@ package AWS.Headers is
       End_Block : Boolean := False);
    --  Send all header lines in Headers list to the socket
 
+   generic
+      with procedure Data (Value : String);
+   procedure Get_Content
+     (Headers   : List;
+      End_Block : Boolean := False);
+
    function Get_Line (Headers : List; N : Positive) return String with
      Post =>
        (N > Count (Headers) and then Get_Line'Result'Length = 0)
@@ -81,6 +87,10 @@ package AWS.Headers is
    function Length (Headers : AWS.Headers.List) return Natural;
    --  Returns the length (in bytes) of the header, including the ending
    --  empty line.
+
+   generic
+      with function Get_Line return String;
+   procedure Read_G (Headers : in out List);
 
    procedure Read (Headers : in out List; Socket : Net.Socket_Type'Class);
    --  Read and parse HTTP header from the socket
