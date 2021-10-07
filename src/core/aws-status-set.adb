@@ -647,6 +647,7 @@ package body AWS.Status.Set is
 
       D.Socket            := null;
       D.Peername          := Null_Unbounded_String;
+      D.Protocol          := HTTP_1;
       D.Method            := GET;
       D.Method_String     := Null_Unbounded_String;
       D.Query             := Null_Unbounded_String;
