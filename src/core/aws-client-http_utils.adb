@@ -160,10 +160,11 @@ package body AWS.Client.HTTP_Utils is
    --  Get H2 response
 
    procedure Handle_H2_Request
-     (Connection   : in out HTTP_Connection;
-      Result       : out Response.Data;
-      Data         : Stream_Element_Array;
-      Auth_Is_Over : out Boolean);
+     (Connection    : in out HTTP_Connection;
+      Result        : out Response.Data;
+      Data          : Stream_Element_Array;
+      Auth_Attempts : in out Auth_Attempts_Count;
+      Auth_Is_Over  : out Boolean);
    --  Send request and get response for HTTP/2 protocol
 
    ---------
@@ -610,16 +611,16 @@ package body AWS.Client.HTTP_Utils is
    -----------------------
 
    procedure Handle_H2_Request
-     (Connection   : in out HTTP_Connection;
-      Result       : out Response.Data;
-      Data         : Stream_Element_Array;
-      Auth_Is_Over : out Boolean)
+     (Connection    : in out HTTP_Connection;
+      Result        : out Response.Data;
+      Data          : Stream_Element_Array;
+      Auth_Attempts : in out Auth_Attempts_Count;
+      Auth_Is_Over  : out Boolean)
    is
       Settings      : constant HTTP2.Frame.Settings.Set :=
                         Get_Settings (Connection.Config);
 
       Request       : HTTP2.Message.Object;
-      Auth_Attempts : Auth_Attempts_Count := (others => 2);
       Stream        : HTTP2.Stream.Object;
       H_Connection  : aliased HTTP2.Connection.Object;
       Enc_Table     : aliased HTTP2.HPACK.Table.Object;
@@ -1201,9 +1202,10 @@ package body AWS.Client.HTTP_Utils is
    is
       use Ada.Real_Time;
 
-      Stamp        : constant Time := Clock;
-      Try_Count    : Natural := Connection.Retry;
-      Auth_Is_Over : Boolean;
+      Stamp         : constant Time := Clock;
+      Try_Count     : Natural := Connection.Retry;
+      Auth_Attempts : Auth_Attempts_Count := (others => 2);
+      Auth_Is_Over  : Boolean;
    begin
       Connection.F_Headers.Reset;
 
@@ -1212,7 +1214,8 @@ package body AWS.Client.HTTP_Utils is
             Set_Common_Post
               (Connection, Data, URI, SOAPAction, Content_Type, Headers);
 
-            Handle_H2_Request (Connection, Result, Data, Auth_Is_Over);
+            Handle_H2_Request
+              (Connection, Result, Data, Auth_Attempts, Auth_Is_Over);
 
             exit Retry when Auth_Is_Over;
          exception
@@ -2055,9 +2058,10 @@ package body AWS.Client.HTTP_Utils is
    is
       use Ada.Real_Time;
 
-      Stamp        : constant Time := Clock;
-      Try_Count    : Natural := Connection.Retry;
-      Auth_Is_Over : Boolean;
+      Stamp         : constant Time := Clock;
+      Try_Count     : Natural := Connection.Retry;
+      Auth_Attempts : Auth_Attempts_Count := (others => 2);
+      Auth_Is_Over  : Boolean;
 
    begin
       Connection.F_Headers.Reset;
@@ -2067,7 +2071,8 @@ package body AWS.Client.HTTP_Utils is
             Open_Set_Common_Header
               (Connection, Method_Kind'Image (Kind), URI, Headers);
 
-            Handle_H2_Request (Connection, Result, Data, Auth_Is_Over);
+            Handle_H2_Request
+              (Connection, Result, Data, Auth_Attempts, Auth_Is_Over);
 
             exit Retry when Auth_Is_Over;
          exception

@@ -30,6 +30,7 @@
 pragma Ada_2012;
 
 with Ada.Calendar.Time_Zones;
+with Ada.Real_Time;
 with Ada.Strings.Fixed;
 with Ada.Tags;
 with Ada.Task_Attributes;
@@ -1037,113 +1038,93 @@ package body SOAP.Types is
    end Image;
 
    overriding function Image (O : XSD_Duration) return String is
-      use Ada.Calendar;
+      use Ada.Real_Time;
 
-      function P (Value : Duration; Key : Character) return String is
-        (if Value > 0.0 then AWS.Utils.Image (Value, 8) & Key else "");
+      procedure Divide (Divisor : Seconds_Count; Remainder : out Natural);
+
+      function P (Value : Duration; Key : Character) return String;
 
       function P (Value : Natural; Key : Character) return String is
         (if Value > 0 then AWS.Utils.Image (Value) & Key else "");
 
       Negative : constant Boolean := O.V < 0.0;
-      Base     : constant Calendar.Time := Calendar.Clock;
-      Next     : constant Calendar.Time := Base + abs (O.V);
 
-      B_Y,  N_Y  : Calendar.Year_Number;
-      B_M,  N_M  : Calendar.Month_Number;
-      B_D,  N_D  : Calendar.Day_Number;
-      B_H,  N_H  : GNAT.Calendar.Minute_Number;
-      B_I,  N_I  : GNAT.Calendar.Minute_Number;
-      B_S,  N_S  : GNAT.Calendar.Minute_Number;
-      B_SS, N_SS : GNAT.Calendar.Second_Duration;
+      H, I, S : Natural := 0;
+      TS      : Time_Span;
+      SS      : Duration := 0.0;
+      D       : Seconds_Count := 0;
 
-      B_DW, N_DW       : GNAT.Calendar.Day_In_Year_Number;
-      Y, M, D, H, I, S : Natural;
-      SS               : Duration;
-      N                : Natural;
-   begin
-      --  Get base and next date/time, and then we compute the difference
-      --  represented in number of years, months, days, hours, minutes and
-      --  seconds.
+      ------------
+      -- Divide --
+      ------------
 
-      GNAT.Calendar.Split (Base, B_Y, B_M, B_D, B_H, B_I, B_S, B_SS);
-      GNAT.Calendar.Split (Next, N_Y, N_M, N_D, N_H, N_I, N_S, N_SS);
-
-      --  Time
-
-      if N_SS >= B_SS then
-         SS := N_SS - B_SS;
-         N := 0;
-      else
-         SS := 1.0 - B_SS + N_SS;
-         N := 1;
-      end if;
-
-      if N_S >= B_S then
-         S := N_S - B_S - N;
-         N := 0;
-      else
-         S := 60 - B_S + N_S - N;
-         N := 1;
-      end if;
-
-      if N_I >= B_I then
-         I := N_I - B_I - N;
-         N := 0;
-      else
-         I := 60 - B_I + N_I - N;
-         N := 1;
-      end if;
-
-      if N_H >= B_H then
-         H := N_H - B_H - N;
-         N := 0;
-      else
-         H := 24 - B_H + N_H - N;
-         N := 1;
-      end if;
-
-      --  Date
-
-      B_DW := GNAT.Calendar.Day_In_Year (Base);
-      N_DW := GNAT.Calendar.Day_In_Year (Next);
-
-      if N_DW >= B_DW then
-         D := N_DW - B_DW - N;
-         N := 0;
-      else
-         D := 7 - B_DW + N_DW - N;
-         N := 1;
-      end if;
-
-      if N_M >= B_M then
-         M := N_M - B_M + N;
-         N := 0;
-      else
-         M := 12 - B_M + N_M - N;
-         N := 1;
-      end if;
-
-      Y := N_Y - B_Y + N;
-
-      SS := Duration (S) + SS; -- Seconds + Sub_Seconds
-
-      declare
-         Has_Date : constant Boolean := (Y + M + D) > 0;
-         Has_Time : constant Boolean := (Duration (H + I) + SS) > 0.0;
+      procedure Divide (Divisor : Seconds_Count; Remainder : out Natural) is
       begin
-         if not Has_Date and not Has_Time then
-            return "P0Y";
-         else
-            --  Time
+         Remainder := Natural (D rem Divisor);
+         D         := D / Divisor;
+      end Divide;
 
-            return (if Negative then "-" else "")
-              & 'P'
-              & P (Y, 'Y') & P (M, 'M') & P (D, 'D')   -- date
-              & (if Has_Time then "T" else "")         -- time sep if needed
-              & P (H, 'H') & P (I, 'M') & P (SS, 'S'); -- time
+      -------
+      -- P --
+      -------
+
+      function P (Value : Duration; Key : Character) return String is
+      begin
+         if Value = 0.0 then
+            return "";
          end if;
-      end;
+
+         declare
+            use Ada.Strings;
+            Img   : constant String   := Value'Img;
+            Dot   : constant Natural  := Fixed.Index (Img, ".", Backward);
+            First : constant Positive :=
+                      Img'First + (if Img (Img'First) = ' ' then 1 else 0);
+            Last  : Positive := Img'Last;
+         begin
+            if Dot = 0 then
+               return Img (First .. Img'Last) & Key;
+            else
+               while Last >= First loop
+                  if Img (Last) /= '0' then
+                     exit;
+                  end if;
+                  Last := Last - 1;
+               end loop;
+
+               if Img (Last) = '.' then
+                  Last := Last - 1;
+               end if;
+
+               return Img (First .. Last) & Key;
+            end if;
+         end;
+      end P;
+
+   begin
+      if O.V = 0.0 then
+         return "P0D";
+
+      else
+         Split (Time_Of (0, To_Time_Span (abs O.V)), D, TS);
+
+         if D > 0 then
+            Divide (60, S);
+            if D > 0 then
+               Divide (60, I);
+               if D > 0 then
+                  Divide (24, H);
+               end if;
+            end if;
+         end if;
+
+         SS := Duration (S) + To_Duration (TS); -- Seconds + Sub_Seconds
+      end if;
+
+      return (if Negative then "-" else "")
+        & 'P' & P (Natural (D), 'D')                       -- days
+        & (if H + I > 0 or else SS > 0.0 then "T" else "") -- time sep if need
+        & P (H, 'H') & P (I, 'M') & P (SS, 'S');           -- time
    end Image;
 
    overriding function Image (O : XSD_Unsigned_Long) return String is

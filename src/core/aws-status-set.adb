@@ -51,11 +51,6 @@ package body AWS.Status.Set is
    procedure Authorization (D : in out Data);
    --  Parse the Authorization parameters from the Authorization header value
 
-   procedure Update_Data_From_Header (D : in out Data);
-   --  Update some Data fields from the internal Data header container.
-   --  The Update_Data_From_Header should be called after the complete
-   --  header parsing.
-
    procedure Create_Stream (D : in out Data)
      with Pre  => D.Binary_Data = null,
           Post => D.Binary_Data /= null;
@@ -647,6 +642,7 @@ package body AWS.Status.Set is
 
       D.Socket            := null;
       D.Peername          := Null_Unbounded_String;
+      D.Protocol          := HTTP_1;
       D.Method            := GET;
       D.Method_String     := Null_Unbounded_String;
       D.Query             := Null_Unbounded_String;

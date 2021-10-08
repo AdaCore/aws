@@ -67,6 +67,8 @@ package AWS.Client is
    --  Number of time a data is requested from the Server if the first
    --  time fails.
 
+   HTTP_Default : HTTP_Protocol renames HTTPv1;
+
    --------------
    -- Timeouts --
    --------------
@@ -144,7 +146,7 @@ package AWS.Client is
       Certificate        : String          := Default.Client_Certificate;
       Headers            : Header_List     := Empty_Header_List;
       User_Agent         : String          := Default.User_Agent;
-      HTTP_Version       : HTTP_Protocol   := HTTPv1)
+      HTTP_Version       : HTTP_Protocol   := HTTP_Default)
       return Response.Data;
    --  Retrieve the message data given a specific URL. It open a connection
    --  with the server and ask for the resource specified in the URL it then
@@ -174,7 +176,7 @@ package AWS.Client is
       Timeouts     : Timeouts_Values := No_Timeout;
       Headers      : Header_List     := Empty_Header_List;
       User_Agent   : String          := Default.User_Agent;
-      HTTP_Version : HTTP_Protocol   := HTTPv1) return Response.Data;
+      HTTP_Version : HTTP_Protocol   := HTTP_Default) return Response.Data;
    --  Idem as above but we do not get the message body.
    --  Head will retry one time if it fails.
 
@@ -189,7 +191,7 @@ package AWS.Client is
       Timeouts     : Timeouts_Values := No_Timeout;
       Headers      : Header_List     := Empty_Header_List;
       User_Agent   : String          := Default.User_Agent;
-      HTTP_Version : HTTP_Protocol   := HTTPv1) return Response.Data;
+      HTTP_Version : HTTP_Protocol   := HTTP_Default) return Response.Data;
    --  Send to the server URL a PUT request with Data
    --  Put will retry one time if it fails.
 
@@ -204,7 +206,7 @@ package AWS.Client is
       Timeouts     : Timeouts_Values := No_Timeout;
       Headers      : Header_List     := Empty_Header_List;
       User_Agent   : String          := Default.User_Agent;
-      HTTP_Version : HTTP_Protocol   := HTTPv1) return Response.Data;
+      HTTP_Version : HTTP_Protocol   := HTTP_Default) return Response.Data;
    --  Send to the server URL a DELETE request with Data
    --  Delete will retry one time if it fails.
 
@@ -219,7 +221,7 @@ package AWS.Client is
       Timeouts     : Timeouts_Values := No_Timeout;
       Headers      : Header_List     := Empty_Header_List;
       User_Agent   : String          := Default.User_Agent;
-      HTTP_Version : HTTP_Protocol   := HTTPv1) return Response.Data;
+      HTTP_Version : HTTP_Protocol   := HTTP_Default) return Response.Data;
    --  Send to the server URL a DELETE request with Data
    --  Delete will retry one time if it fails.
 
@@ -236,7 +238,7 @@ package AWS.Client is
       Attachments  : Attachment_List := Empty_Attachment_List;
       Headers      : Header_List     := Empty_Header_List;
       User_Agent   : String          := Default.User_Agent;
-      HTTP_Version : HTTP_Protocol   := HTTPv1)
+      HTTP_Version : HTTP_Protocol   := HTTP_Default)
       return Response.Data;
    --  Send to the server URL a POST request with Data
    --  Post will retry one time if it fails.
@@ -254,7 +256,7 @@ package AWS.Client is
       Attachments  : Attachment_List := Empty_Attachment_List;
       Headers      : Header_List     := Empty_Header_List;
       User_Agent   : String          := Default.User_Agent;
-      HTTP_Version : HTTP_Protocol   := HTTPv1)
+      HTTP_Version : HTTP_Protocol   := HTTP_Default)
       return Response.Data;
    --  Idem as above but with binary data
 
@@ -271,7 +273,7 @@ package AWS.Client is
       Attachments  : Attachment_List := Empty_Attachment_List;
       Headers      : Header_List     := Empty_Header_List;
       User_Agent   : String          := Default.User_Agent;
-      HTTP_Version : HTTP_Protocol   := HTTPv1)
+      HTTP_Version : HTTP_Protocol   := HTTP_Default)
       return Response.Data;
    --  Send to the server URL a POST request with Data
    --  Post will retry one time if it fails.
@@ -287,7 +289,7 @@ package AWS.Client is
       Timeouts   : Timeouts_Values := No_Timeout;
       Headers    : Header_List     := Empty_Header_List;
       Progress   : access procedure
-        (Total, Sent : Stream_Element_Offset) := null;
+                     (Total, Sent : Stream_Element_Offset) := null;
       User_Agent : String          := Default.User_Agent)
       return Response.Data;
    --  This is a file upload request. Filename file's content will be send to
@@ -313,7 +315,7 @@ package AWS.Client is
       Server_Push  : Boolean         := False;
       Certificate  : String          := Default.Client_Certificate;
       User_Agent   : String          := Default.User_Agent;
-      HTTP_Version : HTTP_Protocol   := HTTPv1)
+      HTTP_Version : HTTP_Protocol   := HTTP_Default)
       return HTTP_Connection;
 
    procedure Create
@@ -331,7 +333,7 @@ package AWS.Client is
       SSL_Config   : Net.SSL.Config  := Net.SSL.Null_Config;
       Certificate  : String          := Default.Client_Certificate;
       User_Agent   : String          := Default.User_Agent;
-      HTTP_Version : HTTP_Protocol   := HTTPv1);
+      HTTP_Version : HTTP_Protocol   := HTTP_Default);
    --  Create a new connection. This is to be used with Keep-Alive client API
    --  below. The connection will be tried Retry times if it fails. If
    --  persistent is True the connection will remain open otherwise it will be
