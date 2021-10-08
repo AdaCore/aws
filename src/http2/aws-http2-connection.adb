@@ -67,9 +67,15 @@ package body AWS.HTTP2.Connection is
    end Set;
 
    procedure Set
-     (Self : in out Object; Socket : Net.Socket_Type'Class) is
+     (Self : in out Object; Socket : Net.Socket_Type'Class)
+   is
+      F : constant Frame.Object'Class := Frame.Read (Socket, Self);
    begin
-      Self.Set (Frame.Settings.Object (Frame.Read (Socket, Self)).Values);
+      if F in Frame.Settings.Object'Class then
+         Self.Set (Frame.Settings.Object (F).Values);
+      else
+         raise Protocol_Error with "Wrong frame type " & F.Kind'Img;
+      end if;
    end Set;
 
    ---------------------------
