@@ -32,6 +32,7 @@
 with AWS.Config;
 with AWS.Default;
 
+with AWS.HTTP2.Frame.List;
 with AWS.HTTP2.Frame.Settings;
 with AWS.Net;
 
@@ -104,6 +105,15 @@ package AWS.HTTP2.Connection is
    function Flow_Control_Window (Self : Object) return Integer;
 
    function Flow_Receive_Window (Self : Object) return Integer;
+
+   procedure Handle_Control_Frame
+     (Self             : in out Object;
+      Frame            : HTTP2.Frame.Object'Class;
+      Answers          : in out HTTP2.Frame.List.Object;
+      Add_Flow_Control : out Integer;
+      Error            : out HTTP2.Error_Codes)
+     with Pre => Frame.Stream_Id = 0;
+   --  Handle a control frame (Frame id = 0)
 
 private
 

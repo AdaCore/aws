@@ -264,11 +264,9 @@ package body AWS.HTTP2.Stream is
       is
          Incr : constant Natural := Natural (Frame.Size_Increment);
       begin
-         if Connection.Flow_Control_Window_Valid
-           (Self.Flow_Send_Window, Incr)
+         if Connection.Flow_Control_Window_Valid (Self.Flow_Send_Window, Incr)
          then
             Self.Flow_Send_Window := Self.Flow_Send_Window + Incr;
-            Ctx.Settings.Update_Flow_Control_Window (Incr);
          else
             Error := HTTP2.C_Flow_Control_Error;
          end if;
@@ -505,16 +503,17 @@ package body AWS.HTTP2.Stream is
                if Ctx.Settings.Flow_Receive_Window
                  < Positive (Ctx.Settings.Max_Frame_Size)
                then
-                  WU.Create
-                    (0,
-                     WU.Size_Increment_Type'Last
-                     - WU.Size_Increment_Type
-                         (Ctx.Settings.Flow_Receive_Window))
-                      .Send (Self.Sock.all);
+                  declare
+                     Increment : constant WU.Size_Increment_Type :=
+                                   WU.Size_Increment_Type'Last -
+                                     WU.Size_Increment_Type
+                                       (Ctx.Settings.Flow_Receive_Window);
+                  begin
+                     WU.Create (0, Increment).Send (Self.Sock.all);
 
-                  Ctx.Settings.Update_Flow_Receive_Window
-                    (Positive (WU.Size_Increment_Type'Last)
-                     - Ctx.Settings.Flow_Receive_Window);
+                     Ctx.Settings.Update_Flow_Receive_Window
+                       (Positive (Increment));
+                  end;
                end if;
             end;
 

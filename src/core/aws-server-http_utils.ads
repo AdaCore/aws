@@ -118,13 +118,14 @@ package AWS.Server.HTTP_Utils is
 
    generic
       with procedure Data
-        (Content : Stream_Element_Array; Stop : in out Boolean);
-      Chunk_Size : Stream_Element_Count := 4 * 1024;
+        (Content   : Stream_Element_Array;
+         Next_Size : in out Stream_Element_Count);
    procedure Send_File_G
      (HTTP_Server : access AWS.Server.HTTP;
       Line_Index  : Positive;
       File        : in out Resources.File_Type;
       Start       : Stream_Element_Offset;
+      Chunk_Size  : Stream_Element_Count;
       Length      : in out Resources.Content_Length_Type);
 
    procedure Send_Resource
