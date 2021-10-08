@@ -168,4 +168,9 @@ package AWS.Status.Set is
 
    procedure Protocol (D : in out Data; State : Protocol_State);
 
+   procedure Update_Data_From_Header (D : in out Data);
+   --  Update some Data fields from the internal Data header container.
+   --  The Update_Data_From_Header should be called after the complete
+   --  header parsing.
+
 end AWS.Status.Set;

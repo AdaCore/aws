@@ -709,6 +709,8 @@ is
            HTTP2.Exception_Message (Error, "headers validity check fails");
       end if;
 
+      AWS.Status.Set.Update_Data_From_Header (Stream.Status.all);
+
       --  And set the request information using an HTTP/1 request line format
 
       declare
