@@ -22,6 +22,8 @@ with AWS.Config.Set;
 with AWS.Server;
 
 with SOAP.Dispatchers.Callback;
+with SOAP.Types;
+with SOAP.Utils;
 
 with WSDL_D;
 
@@ -39,6 +41,7 @@ procedure WSDL_D_Main is
    H    : WSDL_D_Server.Handler;
 
    Conf : Config.Object := Config.Get_Current;
+   D : Duration := 0.0;
 
 begin
    H := SOAP.Dispatchers.Callback.Create
@@ -60,6 +63,14 @@ begin
    Text_IO.Put_Line (WSDL_D_Service.Client.Image (789.0));
    Text_IO.Put_Line (WSDL_D_Service.Client.Image (-2.0));
    WSDL_D_Service.Client.Call (WSDL_D.R'(D => 88.0, I => 1));
+
+   for J in 1 .. 15 loop
+      D := (D + 0.000001 * J) * 10;
+      if D /= SOAP.Utils.Duration (SOAP.Types.D (D).Image, "item").V then
+         Text_IO.Put_Line ("Wrong duration " & D'Img & " convertion");
+      end if;
+      WSDL_D_Service.Client.Print (D);
+   end loop;
 
    Server.Shutdown (WS);
 end WSDL_D_Main;
