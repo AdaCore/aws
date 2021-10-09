@@ -93,6 +93,7 @@ package body SOAP.Client is
       return Message.Response.Object'Class
    is
       use type Ada.Streams.Stream_Element_Offset;
+      use type AWS.HTTP_Protocol;
       use type AWS.Messages.Status_Code;
 
       function SOAP_Action return String;
@@ -126,10 +127,14 @@ package body SOAP.Client is
                    SOAP.Message.XML.Image (P, Schema);
       XML_Str  : String_Access := new String (1 .. Length (XML_Data));
       Response : AWS.Response.Data;
+
    begin
       for I in 1 .. Length (XML_Data) loop
          XML_Str (I) := Element (XML_Data, I);
       end loop;
+
+      --  Note that streaming is activated here, this is only for HTTP/1 as in
+      --  HTTP/2 it is not supported. See Load_Response below.
 
       AWS.Client.SOAP_Post
         (Connection, Response, SOAP_Action, XML_Str.all, True);
@@ -153,9 +158,17 @@ package body SOAP.Client is
             end return;
 
          else
-            --  All other cases, read the response from the connection
+            --  All other cases, read the response
 
-            return Message.XML.Load_Response (Connection, Schema => Schema);
+            if AWS.Client.HTTP_Version (Connection) = AWS.HTTPv2 then
+               --  From fully loaded message body in HTTP/2
+               return Message.XML.Load_Response
+                 (Unbounded_String'(AWS.Response.Message_Body (Response)),
+                  Schema => Schema);
+            else
+               --  From the connection useing streaming in HTTP/1
+               return Message.XML.Load_Response (Connection, Schema => Schema);
+            end if;
          end if;
 
       else
