@@ -145,7 +145,7 @@ procedure WSDL2AWS.Main is
       loop
          case Command_Line.Getopt
            ("d q a e: f v s o: p: proxy: pu: pp: doc wsdl cvs nostub noskel "
-            & "x: debug cb traces types: spec: main: n: timeouts:")
+            & "x: http2 debug cb traces types: spec: main: n: timeouts:")
          is
             when ASCII.NUL => exit;
 
@@ -161,6 +161,13 @@ procedure WSDL2AWS.Main is
             when 'f' =>
                Force := True;
                Generator.Overwrite (Gen);
+
+            when 'h' =>
+               if Command_Line.Full_Switch = "http2" then
+                  Generator.HTTP_Version (Gen, HTTPv2);
+               else
+                  raise Syntax_Error;
+               end if;
 
             when 'o' =>
                Out_Filename
@@ -404,6 +411,7 @@ exception
       Put_Line ("   -p name      Name prefix for all SOAPActions");
       Put_Line
         ("   -doc         Document style binding handled as RPC");
+      Put_Line ("   -http2       Use HTTP/2 protocol");
       Put_Line ("   -v           Verbose mode");
       Put_Line ("   -v -v        Very verbose mode");
       Put_Line ("   -wsdl        Add WSDL file in unit comment");

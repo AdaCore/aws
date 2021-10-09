@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2003-2020, AdaCore                     --
+--                     Copyright (C) 2003-2021, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -740,9 +740,15 @@ package body Stub is
       Text_IO.Put_Line
         (Stub_Adb, "        (Connection, Endpoint,");
       Text_IO.Put_Line
-        (Stub_Adb, "         Persistent => False,");
+        (Stub_Adb, "         Persistent   => False,");
       Text_IO.Put
-        (Stub_Adb, "         Timeouts   => Timeouts");
+        (Stub_Adb, "         Timeouts     => Timeouts");
+
+      if O.HTTP_Version = HTTPv2 then
+         Text_IO.Put_Line (Stub_Adb, ",");
+         Text_IO.Put
+           (Stub_Adb, "         HTTP_Version => AWS.HTTPv2");
+      end if;
 
       --  Check if we need to generate proxy authentication
 
@@ -753,15 +759,15 @@ package body Stub is
          Text_IO.Put_Line (Stub_Adb, ",");
          Text_IO.Put_Line
            (Stub_Adb,
-            "                 Proxy      => """
+            "         Proxy        => """
               & To_String (O.Proxy) & """,");
          Text_IO.Put_Line
            (Stub_Adb,
-            "                 Proxy_User => """
+            "         Proxy_User   => """
               & To_String (O.P_User) & """,");
          Text_IO.Put_Line
            (Stub_Adb,
-            "                 Proxy_Pwd  => """
+            "         Proxy_Pwd    => """
               & To_String (O.P_Pwd) & """);");
       end if;
 

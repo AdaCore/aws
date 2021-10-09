@@ -4291,6 +4291,12 @@ package body WSDL2AWS.Generator is
             Put_Line (File, "begin");
             Put_Line (File, "   Config.Set.Server_Port");
             Put_Line (File, "      (Conf, " & U_Name & ".Server.Port);");
+
+            if O.HTTP_Version = HTTPv2 then
+               Put_Line (File, "   Config.Set.HTTP2_Activated");
+               Put_Line (File, "      (Conf, True);");
+            end if;
+
             Put_Line (File, "   Disp := SOAP.Dispatchers.Callback.Create");
             Put_Line (File, "     (CB'Unrestricted_Access,");
             Put_Line (File, "      " & U_Name & ".CB.SOAP_CB'Access,");
