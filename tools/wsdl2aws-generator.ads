@@ -148,6 +148,11 @@ package WSDL2AWS.Generator is
    procedure Set_Prefix (O : in out Object; Prefix : String);
    --  Set the prefix to use for all SOAPActions
 
+   procedure HTTP_Version
+     (O                : in out Object;
+      Protocol_Version : HTTP_Protocol);
+   --  Set the HTTP version to use for generated code
+
    procedure Set_Timeouts
      (O        : in out Object;
       Timeouts : Client.Timeouts_Values);
@@ -164,30 +169,31 @@ private
    use Ada.Strings.Unbounded;
 
    type Object is new WSDL2AWS.WSDL.Parser.Object with record
-      Quiet      : Boolean := False;
-      Gen_Stub   : Boolean := True;
-      Gen_Skel   : Boolean := True;
-      Gen_CB     : Boolean := False;
-      Ada_Style  : Boolean := False;
-      CVS_Tag    : Boolean := False;
-      Force      : Boolean := False;
-      First_Proc : Boolean := True;
-      Debug      : Boolean := False;
-      Stamp      : Boolean := True;
-      Unit       : Unbounded_String;
-      Spec       : Unbounded_String;
-      Traces     : Boolean := False;
-      Types_Spec : Unbounded_String;
-      Main       : Unbounded_String;
-      Prefix     : Unbounded_String;
-      Location   : Unbounded_String;
-      WSDL_File  : Unbounded_String;
-      Proxy      : Unbounded_String;
-      P_User     : Unbounded_String;
-      P_Pwd      : Unbounded_String;
-      Options    : Unbounded_String;
-      Endpoint   : Unbounded_String;
-      Timeouts   : Client.Timeouts_Values := Client.No_Timeout;
+      Quiet        : Boolean := False;
+      Gen_Stub     : Boolean := True;
+      Gen_Skel     : Boolean := True;
+      Gen_CB       : Boolean := False;
+      Ada_Style    : Boolean := False;
+      CVS_Tag      : Boolean := False;
+      Force        : Boolean := False;
+      First_Proc   : Boolean := True;
+      Debug        : Boolean := False;
+      Stamp        : Boolean := True;
+      Unit         : Unbounded_String;
+      Spec         : Unbounded_String;
+      Traces       : Boolean := False;
+      Types_Spec   : Unbounded_String;
+      Main         : Unbounded_String;
+      Prefix       : Unbounded_String;
+      Location     : Unbounded_String;
+      WSDL_File    : Unbounded_String;
+      Proxy        : Unbounded_String;
+      P_User       : Unbounded_String;
+      P_Pwd        : Unbounded_String;
+      Options      : Unbounded_String;
+      HTTP_Version : HTTP_Protocol := HTTPv1;
+      Endpoint     : Unbounded_String;
+      Timeouts     : Client.Timeouts_Values := Client.No_Timeout;
    end record;
 
    function Get_Endpoint (O : Object; Location : String) return String

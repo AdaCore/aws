@@ -516,6 +516,17 @@ package body WSDL2AWS.Generator is
         (File, "   " & String'(1 .. 6 + Name'Length => '-'));
    end Header_Box;
 
+   ------------------
+   -- HTTP_Version --
+   ------------------
+
+   procedure HTTP_Version
+     (O                : in out Object;
+      Protocol_Version : HTTP_Protocol) is
+   begin
+      O.HTTP_Version := Protocol_Version;
+   end HTTP_Version;
+
    ---------------------------------
    -- Is_Simple_Wrapped_Parameter --
    ---------------------------------
