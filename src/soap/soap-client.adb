@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2000-2017, AdaCore                     --
+--                     Copyright (C) 2000-2021, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -122,10 +122,10 @@ package body SOAP.Client is
          end if;
       end SOAP_Action;
 
-      Response : AWS.Response.Data;
       XML_Data : constant Unbounded_String :=
                    SOAP.Message.XML.Image (P, Schema);
       XML_Str  : String_Access := new String (1 .. Length (XML_Data));
+      Response : AWS.Response.Data;
    begin
       for I in 1 .. Length (XML_Data) loop
          XML_Str (I) := Element (XML_Data, I);

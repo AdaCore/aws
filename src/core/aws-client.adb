@@ -1167,7 +1167,7 @@ package body AWS.Client is
       Attachments : Attachment_List := Empty_Attachment_List;
       Headers     : Header_List     := Empty_Header_List)
    is
-      Save_Streaming : constant Boolean := Connection.Streaming;
+      Saved_Streaming : constant Boolean := Connection.Streaming;
    begin
       Connection.Self.Streaming := Streaming;
 
@@ -1207,7 +1207,7 @@ package body AWS.Client is
             Headers      => Headers);
       end if;
 
-      Connection.Self.Streaming := Save_Streaming;
+      Connection.Self.Streaming := Saved_Streaming;
    end SOAP_Post;
 
    --------------------
