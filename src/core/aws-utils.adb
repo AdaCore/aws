@@ -352,6 +352,35 @@ package body AWS.Utils is
       end if;
    end Dequote;
 
+   -----------------
+   -- Dump_Binary --
+   -----------------
+
+   procedure Dump_Binary (Data : Stream_Element_Array) is
+      use Ada.Text_IO;
+
+      Printable : Boolean := True;
+   begin
+      for E of Data loop
+         Put (Hex (Natural (E), 2));
+         Put (" ");
+
+         if Character'Val (E) not in ASCII.CR | ASCII.LF | ' ' .. '~' then
+            Printable := False;
+         end if;
+      end loop;
+      New_Line;
+
+      if Printable then
+         Put ('"');
+         for E of Data loop
+            Put (Character'Val (E));
+         end loop;
+         Put ('"');
+         New_Line;
+      end if;
+   end Dump_Binary;
+
    ---------------
    -- File_Size --
    ---------------

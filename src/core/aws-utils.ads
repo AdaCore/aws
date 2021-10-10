@@ -213,6 +213,10 @@ package AWS.Utils is
         then Normalize_Lower'Result = Characters.Handling.To_Lower (Name)
         else Normalize_Lower'Result = Name);
 
+   procedure Dump_Binary (Data : Stream_Element_Array);
+   --  Print Data to standard output and if all elements of Data represent
+   --  printable characters then print representing string in the next line.
+
    ---------------
    -- Semaphore --
    ---------------

@@ -1927,6 +1927,10 @@ package body AWS.Client.HTTP_Utils is
                      (Connection.Socket.all, H_Connection);
       begin
          if Frame.Kind /= K_Settings then
+            if HTTP2.Debug then
+               Frame.Dump ("UNEXPECTED");
+            end if;
+
             raise Constraint_Error with
               "server should have answered with a setting frame";
 
