@@ -134,6 +134,11 @@ package body AWS.HTTP2.Frame is
       --  The frame is invalid, do not try to build the payload, return now
 
       if not H.Header.H.Kind'Valid then
+         if Debug then
+            Put ("INALID ");
+            Utils.Dump_Binary (H.Header.S);
+         end if;
+
          H.Header.H.Kind := K_Invalid;
       end if;
 

@@ -218,6 +218,12 @@ package body AWS.Client is
          else
             Connection.SSL_Config := SSL_Config;
          end if;
+
+         if HTTP_Version = HTTPv2 then
+            Net.SSL.ALPN_Set
+              (Connection.SSL_Config,
+               Net.SSL.SV.To_Vector (Messages.H2_Token, 1));
+         end if;
       end if;
 
       if Persistent and then Connection.Retry = 0 then
