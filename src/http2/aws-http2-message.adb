@@ -49,6 +49,15 @@ package body AWS.HTTP2.Message is
    function To_Lower
      (Name : String) return String renames Ada.Characters.Handling.To_Lower;
 
+   ------------
+   -- Adjust --
+   ------------
+
+   overriding procedure Adjust (O : in out Object) is
+   begin
+      O.Ref.all := O.Ref.all + 1;
+   end Adjust;
+
    -----------------
    -- Append_Body --
    -----------------
@@ -219,6 +228,35 @@ package body AWS.HTTP2.Message is
       return O;
    end Create;
 
+   --------------
+   -- Finalize --
+   --------------
+
+   overriding procedure Finalize (O : in out Object) is
+      C : constant access Natural := O.Ref;
+   begin
+      O.Ref := null;
+
+      C.all := C.all - 1;
+
+      if C.all = 0 then
+         if O.M_Body /= null then
+            O.M_Body.Close;
+         end if;
+
+         O.Headers.Reset;
+      end if;
+   end Finalize;
+
+   ----------------
+   -- Initialize --
+   ----------------
+
+   overriding procedure Initialize (O : in out Object) is
+   begin
+      O.Ref := new Natural'(1);
+   end Initialize;
+
    ---------------
    -- To_Frames --
    ---------------
@@ -229,7 +267,7 @@ package body AWS.HTTP2.Message is
       Stream : HTTP2.Stream.Object)
       return AWS.HTTP2.Frame.List.Object
    is
-      FCW  : Integer :=
+      FCW  : Natural :=
                Integer'Min
                  (Stream.Flow_Control_Window,
                   Ctx.Settings.Flow_Control_Window);
@@ -248,8 +286,8 @@ package body AWS.HTTP2.Message is
       --  Creates the data frame Self.Stream
 
       procedure Create_Data_Frame
-        (Content : Stream_Element_Array;
-         Stop    : in out Boolean);
+        (Content   : Stream_Element_Array;
+         Next_Size : in out Stream_Element_Count);
       --  Create a new data frame from Content
 
       -----------------------
@@ -257,18 +295,18 @@ package body AWS.HTTP2.Message is
       -----------------------
 
       procedure Create_Data_Frame
-        (Content : Stream_Element_Array;
-         Stop    : in out Boolean) is
+        (Content   : Stream_Element_Array;
+         Next_Size : in out Stream_Element_Count) is
       begin
          List.Append
            (Frame.Data.Create
               (Stream.Identifier, new Stream_Element_Array'(Content),
-               End_Stream => Stop));
+               End_Stream => Next_Size = 0));
 
          FCW := FCW - Content'Length;
 
-         if FCW <= 0 then
-            Stop := True;
+         if FCW < Natural (Next_Size) then
+            Next_Size := Stream_Element_Count (FCW);
          end if;
       end Create_Data_Frame;
 
@@ -281,17 +319,17 @@ package body AWS.HTTP2.Message is
          File : Resources.File_Type;
 
          procedure Send_File is new Server.HTTP_Utils.Send_File_G
-           (Create_Data_Frame,
-            Chunk_Size => Stream_Element_Count
-                            (Positive'Min
-                               (FCW, Positive (Ctx.Settings.Max_Frame_Size))));
+           (Create_Data_Frame);
       begin
          Resources.Streams.Create (File, Self.M_Body);
 
          Send_File
            (Ctx.HTTP, Ctx.Line, File,
-            Start  => Stream_Element_Offset (Self.Sent) + 1,
-            Length => Resources.Content_Length_Type (Self.Sent));
+            Start      => Stream_Element_Offset (Self.Sent) + 1,
+            Chunk_Size => Stream_Element_Count
+                            (Positive'Min
+                              (FCW, Positive (Ctx.Settings.Max_Frame_Size))),
+            Length     => Resources.Content_Length_Type (Self.Sent));
       end From_Stream;
 
       --------------------
@@ -299,8 +337,6 @@ package body AWS.HTTP2.Message is
       --------------------
 
       procedure Handle_Headers (Headers : AWS.Headers.List) is
-         use Ada;
-
          Max_Size : constant Positive :=
                       Connection.Max_Header_List_Size (Ctx.Settings.all);
          L        : AWS.Headers.List;

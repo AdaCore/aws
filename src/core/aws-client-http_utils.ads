@@ -133,6 +133,16 @@ package AWS.Client.HTTP_Utils is
       Headers      : Header_List           := Empty_Header_List);
    --  Only used by Internal_Post
 
+   procedure Internal_Upload
+     (Connection : in out HTTP_Connection;
+      Result     : out Response.Data;
+      Filename   : String;
+      URI        : String;
+      Headers    : Header_List := Empty_Header_List;
+      Progress   : access procedure
+                     (Total, Sent : Stream_Element_Offset) := null);
+   --  Upload file
+
    procedure Set_Common_Post
      (Connection   : in out HTTP_Connection;
       Data         : Stream_Element_Array;

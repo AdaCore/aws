@@ -1279,6 +1279,10 @@ package body AWS.Server.HTTP_Utils is
       loop
          declare
             Data : constant String := Net.Buffered.Get_Line (Sock);
+
+            function Is_Next (Item : String) return Boolean is
+              (Net.Buffered.Get_Line (Sock) = Item);
+
          begin
             --  RFC 2616
             --  4.1 Message Types
@@ -1288,12 +1292,11 @@ package body AWS.Server.HTTP_Utils is
 
             if Data /= "" then
                if not Sock.Is_Secure
-                 and then Data = HTTP2.Client_Connection_Preface_1
-                 and then Net.Buffered.Get_Line (Sock) = ""
-                 and then Net.Buffered.Get_Line (Sock) =
-                            HTTP2.Client_Connection_Preface_2
-                 and then Net.Buffered.Get_Line (Sock) = ""
                  and then Status.Protocol (C_Stat) = Status.HTTP_1
+                 and then Data = HTTP2.Client_Connection_Preface_1
+                 and then Is_Next ("")
+                 and then Is_Next (HTTP2.Client_Connection_Preface_2)
+                 and then Is_Next ("")
                then
                   --  Plain socket client starts with HTTP/2 connection
                   --  preface, i.e. client assume that server has HTTP/2
@@ -1945,28 +1948,30 @@ package body AWS.Server.HTTP_Utils is
       Line_Index  : Positive;
       File        : in out Resources.File_Type;
       Start       : Stream_Element_Offset;
+      Chunk_Size  : Stream_Element_Count;
       Length      : in out Resources.Content_Length_Type)
    is
-      --  Size of the buffer used to send the file
-      Buffer : Streams.Stream_Element_Array (1 .. Chunk_Size);
-      Last   : Streams.Stream_Element_Offset;
-      Stop   : Boolean := False;
+      Next_Size : Stream_Element_Count := Chunk_Size;
    begin
       Resources.Set_Index (File, Start);
 
-      begin
-         loop
+      loop
+         declare
+            --  Size of the buffer used to send the file
+            Last   : Streams.Stream_Element_Offset;
+            Buffer : Streams.Stream_Element_Array (1 .. Next_Size);
+         begin
             Resources.Read (File, Buffer, Last);
 
             if Resources.End_Of_File (File) then
-               Stop := True;
+               Next_Size := 0;
             end if;
 
-            Data (Buffer (1 .. Last), Stop);
+            Data (Buffer (1 .. Last), Next_Size);
 
             Length := Length + Last;
 
-            exit when Stop;
+            exit when Next_Size = 0;
 
             --  HTTP_Server is only set when used in server context. When used
             --  in client context it is not defined and we do not check for
@@ -1975,8 +1980,8 @@ package body AWS.Server.HTTP_Utils is
             if HTTP_Server /= null then
                HTTP_Server.Slots.Check_Data_Timeout (Line_Index);
             end if;
-         end loop;
-      end;
+         end;
+      end loop;
    end Send_File_G;
 
    -------------------
@@ -2029,8 +2034,8 @@ package body AWS.Server.HTTP_Utils is
 
       procedure Send_File is
          procedure Data_Received
-           (Content : Stream_Element_Array;
-            Stop    : in out Boolean);
+           (Content   : Stream_Element_Array;
+            Next_Size : in out Stream_Element_Count);
          --  New data received
 
          -------------------
@@ -2038,10 +2043,10 @@ package body AWS.Server.HTTP_Utils is
          -------------------
 
          procedure Data_Received
-           (Content : Stream_Element_Array;
-            Stop    : in out Boolean)
+           (Content   : Stream_Element_Array;
+            Next_Size : in out Stream_Element_Count)
          is
-            pragma Unreferenced (Stop);
+            pragma Unreferenced (Next_Size);
          begin
             Net.Buffered.Write (Sock, Content);
          end Data_Received;
@@ -2049,7 +2054,10 @@ package body AWS.Server.HTTP_Utils is
          procedure Send_File_Content is new Send_File_G (Data_Received);
 
       begin
-         Send_File_Content (HTTP_Server, Line_Index, File, 1, Length);
+         Send_File_Content
+           (HTTP_Server, Line_Index, File, 1,
+            Chunk_Size => 4 * 1024,
+            Length     => Length);
       end Send_File;
 
       ---------------------

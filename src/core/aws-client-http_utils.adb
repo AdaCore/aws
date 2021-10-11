@@ -33,10 +33,12 @@ with Ada.Characters.Handling;
 with Ada.Exceptions;
 with Ada.Strings.Fixed;
 with Ada.Strings.Maps;
+with Ada.Streams.Stream_IO;
 
 with AWS.Digest;
 with AWS.Headers.Values;
 with AWS.HTTP2.Connection;
+with AWS.HTTP2.Frame.List;
 with AWS.HTTP2.Frame.Settings;
 with AWS.HTTP2.HPACK.Table;
 with AWS.HTTP2.Message;
@@ -45,8 +47,10 @@ with AWS.Messages;
 with AWS.MIME;
 with AWS.Net.Buffered;
 with AWS.Net.SSL;
+with AWS.Resources.Files;
 with AWS.Response.Set;
 with AWS.Server.Context;
+with AWS.Server.HTTP_Utils;
 with AWS.Translator;
 with AWS.Utils;
 
@@ -145,6 +149,12 @@ package body AWS.Client.HTTP_Utils is
    procedure Next_Stream_Id (Connection : in out HTTP_Connection);
    --  Update client's stream-id to next value
 
+   procedure Get_H2_Frame
+     (Connection : in out HTTP_Connection;
+      Ctx        : in out Server.Context.Object;
+      Stream     : in out HTTP2.Stream.Object);
+   --  Process incoming HTTP/2 frame
+
    procedure Send_H2_Request
      (Connection : in out HTTP_Connection;
       Ctx        : in out Server.Context.Object;
@@ -166,6 +176,26 @@ package body AWS.Client.HTTP_Utils is
       Auth_Attempts : in out Auth_Attempts_Count;
       Auth_Is_Over  : out Boolean);
    --  Send request and get response for HTTP/2 protocol
+
+   procedure Internal_Upload_1
+     (Connection : in out HTTP_Connection;
+      Result     : out Response.Data;
+      Filename   : String;
+      URI        : String;
+      Headers    : Header_List := Empty_Header_List;
+      Progress   : access procedure
+                     (Total, Sent : Stream_Element_Offset) := null);
+   --  Upload for HTTP/1
+
+   procedure Internal_Upload_2
+     (Connection : in out HTTP_Connection;
+      Result     : out Response.Data;
+      Filename   : String;
+      URI        : String;
+      Headers    : Header_List := Empty_Header_List;
+      Progress   : access procedure
+                     (Total, Sent : Stream_Element_Offset) := null);
+   --  Upload for HTTP/2
 
    ---------
    -- "+" --
@@ -417,6 +447,41 @@ package body AWS.Client.HTTP_Utils is
       end if;
    end Disconnect;
 
+   ------------------
+   -- Get_H2_Frame --
+   ------------------
+
+   procedure Get_H2_Frame
+     (Connection : in out HTTP_Connection;
+      Ctx        : in out Server.Context.Object;
+      Stream     : in out HTTP2.Stream.Object)
+   is
+      use AWS.HTTP2;
+      Answers : Frame.List.Object;
+      Error   : Error_Codes;
+      Add_FC  : Integer;
+      Frame   : constant HTTP2.Frame.Object'Class :=
+                  HTTP2.Frame.Read (Connection.Socket.all, Ctx.Settings.all);
+   begin
+      if Frame.Stream_Id = 0 then
+         Ctx.Settings.Handle_Control_Frame (Frame, Answers, Add_FC, Error);
+
+         if Add_FC /= 0
+           and then HTTP2.Connection.Flow_Control_Window_Valid
+                      (Stream.Flow_Control_Window, Add_FC)
+         then
+            Stream.Update_Flow_Control_Window (Add_FC);
+         end if;
+
+         for A of Answers loop
+            Stream.Send_Frame (A);
+         end loop;
+
+      else
+         Stream.Received_Frame (Ctx, Frame, Error);
+      end if;
+   end Get_H2_Frame;
+
    ---------------------
    -- Get_H2_Response --
    ---------------------
@@ -427,24 +492,16 @@ package body AWS.Client.HTTP_Utils is
       Stream     : in out HTTP2.Stream.Object;
       Result     : out Response.Data)
    is
-      Sock       : Net.Socket_Type'Class renames Connection.Socket.all;
       Keep_Alive : Boolean;
    begin
-      Sock.Set_Timeout (Connection.Timeouts.Receive);
+      Connection.Socket.Set_Timeout (Connection.Timeouts.Receive);
 
       Response.Set.Clear (Result);
 
       --  Read response frames
 
       while not Stream.Is_Message_Ready loop
-         declare
-            Frame : constant HTTP2.Frame.Object'Class :=
-                      HTTP2.Frame.Read (Sock, Ctx.Settings.all);
-            Error : HTTP2.Error_Codes;
-         begin
-            Stream.Received_Frame (Ctx, Frame, Error);
-            exit when Frame.Has_Flag (HTTP2.Frame.End_Stream_Flag);
-         end;
+         Get_H2_Frame (Connection, Ctx, Stream);
       end loop;
 
       Stream.Append_Body (Result);
@@ -1228,6 +1285,361 @@ package body AWS.Client.HTTP_Utils is
       end loop Retry;
    end Internal_Post_Without_Attachment_2;
 
+   ---------------------
+   -- Internal_Upload --
+   ---------------------
+
+   procedure Internal_Upload
+     (Connection : in out HTTP_Connection;
+      Result     : out Response.Data;
+      Filename   : String;
+      URI        : String;
+      Headers    : Header_List := Empty_Header_List;
+      Progress   : access procedure
+                     (Total, Sent : Stream_Element_Offset) := null) is
+   begin
+      if Connection.HTTP_Version = HTTPv1 then
+         Internal_Upload_1
+           (Connection, Result, Filename, URI, Headers, Progress);
+      else
+         Internal_Upload_2
+           (Connection, Result, Filename, URI, Headers, Progress);
+      end if;
+   end Internal_Upload;
+
+   -----------------------
+   -- Internal_Upload_1 --
+   -----------------------
+
+   procedure Internal_Upload_1
+     (Connection : in out HTTP_Connection;
+      Result     : out Response.Data;
+      Filename   : String;
+      URI        : String;
+      Headers    : Header_List := Empty_Header_List;
+      Progress   : access procedure
+                     (Total, Sent : Stream_Element_Offset) := null)
+   is
+      use Ada.Real_Time;
+      Stamp    : constant Time   := Clock;
+      Pref_Suf : constant String := "--";
+      Boundary : constant String :=
+                   "AWS_File_Upload-" & Utils.Random_String (8);
+      CT        : constant String :=
+                    Messages.Content_Type (MIME.Content_Type (Filename));
+      CD        : constant String :=
+                    Messages.Content_Disposition
+                      ("form-data", "filename", URL.Encode (Filename));
+      File_Size : constant Stream_Element_Offset :=
+                    Stream_Element_Offset (Utils.File_Size (Filename));
+
+      Try_Count     : Natural := Connection.Retry;
+      Auth_Attempts : Auth_Attempts_Count := (others => 2);
+      Auth_Is_Over  : Boolean;
+
+      function Content_Length return Stream_Element_Offset;
+      --  Returns the total message content length
+
+      procedure Send_File;
+      --  Send file content to the server
+
+      --------------------
+      -- Content_Length --
+      --------------------
+
+      function Content_Length return Stream_Element_Offset is
+      begin
+         return 2 * Boundary'Length  -- 2 boundaries
+           + 4                       -- two boundaries start with "--"
+           + 2                       -- second one ends with "--"
+           + 10                      -- 5 lines with CR+LF
+           + CT'Length               -- content type header
+           + CD'Length               -- content disposition header
+           + File_Size
+           + 2;                      -- CR+LF after file data
+      end Content_Length;
+
+      ---------------
+      -- Send_File --
+      ---------------
+
+      procedure Send_File is
+         Sock   : Net.Socket_Type'Class renames Connection.Socket.all;
+         Buffer : Stream_Element_Array (1 .. 4_096);
+         Last   : Stream_Element_Offset;
+         File   : Stream_IO.File_Type;
+         Sent   : Stream_Element_Offset := 0;
+      begin
+         --  Send multipart message start boundary
+
+         Net.Buffered.Put_Line (Sock, Pref_Suf & Boundary);
+
+         --  Send Content-Disposition header
+
+         Net.Buffered.Put_Line (Sock, CD);
+
+         --  Send Content-Type: header
+
+         Net.Buffered.Put_Line (Sock, CT);
+
+         Net.Buffered.New_Line (Sock);
+
+         --  Send file content
+
+         Stream_IO.Open (File, Stream_IO.In_File, Filename);
+
+         while not Stream_IO.End_Of_File (File) loop
+            Stream_IO.Read (File, Buffer, Last);
+            Net.Buffered.Write (Sock, Buffer (1 .. Last));
+
+            if Progress /= null then
+               Sent := Sent + Last;
+               Progress (File_Size, Sent);
+            end if;
+         end loop;
+
+         Stream_IO.Close (File);
+
+         Net.Buffered.New_Line (Sock);
+
+         --  Send multipart message end boundary
+
+         Net.Buffered.Put_Line (Sock, Pref_Suf & Boundary & Pref_Suf);
+
+      exception
+         when Net.Socket_Error =>
+            --  Properly close the file if needed
+            if Stream_IO.Is_Open (File) then
+               Stream_IO.Close (File);
+            end if;
+            raise;
+      end Send_File;
+
+   begin
+      Retry : loop
+         begin
+            Open_Set_Common_Header (Connection, "POST", URI, Headers);
+
+            declare
+               Sock : Net.Socket_Type'Class renames Connection.Socket.all;
+            begin
+               --  Send message Content-Type (Multipart/form-data)
+
+               Set_Header
+                 (Connection.F_Headers,
+                  Messages.Content_Type_Token,
+                  MIME.Multipart_Form_Data
+                  & "; boundary=""" & Boundary & '"');
+
+               --  Send message Content-Length
+
+               Set_Header
+                 (Connection.F_Headers,
+                  Messages.Content_Length_Token,
+                  Utils.Image (Content_Length));
+
+               AWS.Headers.Send_Header
+                 (Sock, Connection.F_Headers, End_Block => True);
+
+               --  Send message body
+
+               Send_File;
+            end;
+
+            --  Get answer from server
+
+            Get_Response
+              (Connection, Result, Get_Body => not Connection.Streaming);
+
+            Decrement_Authentication_Attempt
+              (Connection, Auth_Attempts, Auth_Is_Over);
+
+            if Auth_Is_Over then
+               return;
+
+            elsif Connection.Streaming then
+               Read_Body (Connection, Result, Store => False);
+            end if;
+
+         exception
+            when E : Net.Socket_Error | Connection_Error =>
+               Error_Processing
+                 (Connection, Try_Count, Result, "Upload", E, Stamp);
+
+               exit Retry when not Response.Is_Empty (Result);
+         end;
+      end loop Retry;
+   end Internal_Upload_1;
+
+   -----------------------
+   -- Internal_Upload_2 --
+   -----------------------
+
+   procedure Internal_Upload_2
+     (Connection : in out HTTP_Connection;
+      Result     : out Response.Data;
+      Filename   : String;
+      URI        : String;
+      Headers    : Header_List := Empty_Header_List;
+      Progress   : access procedure
+                     (Total, Sent : Stream_Element_Offset) := null)
+   is
+      use Ada.Real_Time;
+
+      CT        : constant String :=
+                    Messages.Content_Type (MIME.Content_Type (Filename));
+      CD        : constant String :=
+                    Messages.Content_Disposition
+                      ("form-data", "filename", URL.Encode (Filename));
+
+      Stamp     : constant Time := Clock;
+      Settings  : constant HTTP2.Frame.Settings.Set :=
+                    Get_Settings (Connection.Config);
+
+      Pref_Suf  : constant String := "--";
+      Boundary  : constant String :=
+                    "AWS_Attachment-" & Utils.Random_String (8);
+
+      Request       : HTTP2.Message.Object;
+      Try_Count     : Natural := Connection.Retry;
+      Auth_Attempts : Auth_Attempts_Count := (others => 2);
+      Auth_Is_Over  : Boolean;
+      Stream        : HTTP2.Stream.Object;
+      H_Connection  : aliased HTTP2.Connection.Object;
+      Enc_Table     : aliased HTTP2.HPACK.Table.Object;
+      Dec_Table     : aliased HTTP2.HPACK.Table.Object;
+      Ctx           : Server.Context.Object (null,
+                                             1,
+                                             Enc_Table'Access,
+                                             Dec_Table'Access,
+                                             H_Connection'Access);
+
+   begin
+      Connection.F_Headers.Reset;
+
+      Retry : loop
+         begin
+            Open_Set_Common_Header
+              (Connection, Messages.Post_Token, URI, Headers);
+
+            Set_Header
+              (Connection.F_Headers,
+               HN (Messages.Content_Type_Token, True),
+               MIME.Multipart_Form_Data
+               & "; boundary=""" & Boundary & '"');
+
+            if not Connection.H2_Preface_Sent then
+               --  Update H_Connection with server settings
+               Send_H2_Connection_Preface (Connection, Settings, H_Connection);
+            end if;
+
+            --  Create frames and send them
+
+            Stream := HTTP2.Stream.Create
+              (Connection.Socket,
+               Connection.H2_Stream_Id, H_Connection.Flow_Control_Window);
+
+            Next_Stream_Id (Connection);
+
+            Request := HTTP2.Message.Create
+              (Connection.F_Headers,
+               Stream_Element_Array'(1 .. 0 => <>),
+               Stream.Identifier);
+
+            --  Append file content
+
+            Request.Append_Body (Pref_Suf & Boundary & CRLF);
+
+            declare
+               procedure Write (Data : String);
+               procedure Write
+                 (Data      : Stream_Element_Array;
+                  Next_Size : in out Stream_Element_Count);
+
+               Total : constant Stream_Element_Offset :=
+                         Stream_Element_Offset
+                           (Resources.Files.File_Size (Filename));
+
+               Sent  : Stream_Element_Offset := 0;
+
+               -----------
+               -- Write --
+               -----------
+
+               procedure Write (Data : String) is
+               begin
+                  Request.Append_Body (Data);
+               end Write;
+
+               procedure Write
+                 (Data      : Stream_Element_Array;
+                  Next_Size : in out Stream_Element_Count)
+               is
+                  pragma Unreferenced (Next_Size);
+               begin
+                  Request.Append_Body (Data);
+
+                  Sent := Sent + Data'Length;
+
+                  if Progress /= null then
+                     Progress (Total, Sent);
+                  end if;
+               end Write;
+
+               procedure Send_File is
+                 new AWS.Server.HTTP_Utils.Send_File_G (Write);
+
+               Length : Resources.Content_Length_Type := 0;
+
+               File   : Resources.File_Type;
+
+            begin
+               --  Append part headers
+
+               Write (CD & CRLF);
+               Write (CT & CRLF);
+               Write (CRLF);
+
+               Resources.Files.Open (File, Filename);
+
+               Send_File
+                 (null, 1, File, 1,
+                  Chunk_Size => 4 * 1024,
+                  Length     => Length);
+
+               Resources.Close (File);
+
+               Write (CRLF);
+            end;
+
+            Request.Append_Body (Pref_Suf & Boundary & Pref_Suf & CRLF);
+
+            Send_H2_Request (Connection, Ctx, Stream, Request);
+
+            --  Get response
+
+            Stream := HTTP2.Stream.Create
+              (Connection.Socket,
+               Connection.H2_Stream_Id, H_Connection.Flow_Control_Window);
+
+            Next_Stream_Id (Connection);
+
+            Get_H2_Response (Connection, Ctx, Stream, Result);
+
+            Decrement_Authentication_Attempt
+              (Connection, Auth_Attempts, Auth_Is_Over);
+
+            exit Retry when Auth_Is_Over;
+         exception
+            when E : Net.Socket_Error | Connection_Error =>
+               Error_Processing
+                 (Connection, Try_Count, Result, "Upload", E, Stamp);
+
+               exit Retry when not Response.Is_Empty (Result);
+         end;
+      end loop Retry;
+   end Internal_Upload_2;
+
    --------------------
    -- Next_Stream_Id --
    --------------------
@@ -1893,6 +2305,10 @@ package body AWS.Client.HTTP_Utils is
                      (Connection.Socket.all, H_Connection);
       begin
          if Frame.Kind /= K_Settings then
+            if HTTP2.Debug then
+               Frame.Dump ("UNEXPECTED");
+            end if;
+
             raise Constraint_Error with
               "server should have answered with a setting frame";
 
@@ -1937,19 +2353,13 @@ package body AWS.Client.HTTP_Utils is
             end if;
          end loop;
 
-         if Request.More_Frames then
-            declare
-               Frame : constant HTTP2.Frame.Object'Class :=
-                         HTTP2.Frame.Read
-                           (Connection.Socket.all, Ctx.Settings.all);
-               Error : HTTP2.Error_Codes;
-            begin
-               Stream.Received_Frame (Ctx, Frame, Error);
-            end;
+         exit All_Frames when not Request.More_Frames;
 
-         else
-            exit All_Frames;
-         end if;
+         while Ctx.Settings.Flow_Control_Window <= 0
+           or else Stream.Flow_Control_Window <= 0
+         loop
+            Get_H2_Frame (Connection, Ctx, Stream);
+         end loop;
       end loop All_Frames;
    end Send_H2_Request;
 

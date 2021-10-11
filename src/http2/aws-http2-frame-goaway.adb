@@ -27,8 +27,6 @@
 --  covered by the  GNU Public License.                                     --
 ------------------------------------------------------------------------------
 
-with Ada.Text_IO;
-
 with AWS.Net.Buffered;
 
 package body AWS.HTTP2.Frame.GoAway is
@@ -62,13 +60,8 @@ package body AWS.HTTP2.Frame.GoAway is
    ------------------
 
    overriding procedure Dump_Payload (Self : Object) is
-      use Ada.Text_IO;
    begin
-      for E of Self.Data.S.all loop
-         Put (Utils.Hex (Natural (E), 2));
-         Put (" ");
-      end loop;
-      New_Line;
+      Utils.Dump_Binary (Self.Data.S.all);
    end Dump_Payload;
 
    ----------

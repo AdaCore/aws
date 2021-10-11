@@ -58,8 +58,6 @@ with AWS.HTTP2.Frame.List;
 with AWS.HTTP2.Frame.Ping;
 with AWS.HTTP2.Frame.RST_Stream;
 with AWS.HTTP2.Frame.Settings;
-with AWS.HTTP2.Frame.Settings;
-with AWS.HTTP2.Frame.Window_Update;
 with AWS.HTTP2.HPACK.Table;
 with AWS.HTTP2.Message.List;
 with AWS.HTTP2.Stream.Set;
@@ -159,6 +157,8 @@ is
    Ctx : Context.Object
      (LA.Server, LA.Line, Tab_Enc'Access, Tab_Dec'Access, Settings'Access);
 
+   Error_Answer : Response.Data;
+
    --------------
    -- Finalize --
    --------------
@@ -177,91 +177,18 @@ is
       Streams : in out HTTP2.Stream.Set.Object;
       Error   : out HTTP2.Error_Codes)
    is
+      Add_FC : Integer;
+   begin
+      Ctx.Settings.Handle_Control_Frame (Frame, Answers, Add_FC, Error);
 
-      procedure Handle (Frame : HTTP2.Frame.Settings.Object);
-      --  Handle settings frame values
-
-      procedure Handle (Frame : HTTP2.Frame.Window_Update.Object);
-      --  Handle window update frame value
-
-      package S renames HTTP2.Frame.Settings;
-
-      ------------
-      -- Handle --
-      ------------
-
-      procedure Handle (Frame : HTTP2.Frame.Settings.Object) is
-         use type S.Settings_Kind;
-
-         Initial_Window_Size : constant Integer :=
-                                 Settings.Initial_Window_Size;
-      begin
-         Settings.Set (Frame.Values);
-
-         --  Update the control flow window size of all streams
-
-         for V of Frame.Values loop
-            if V.Id = S.INITIAL_WINDOW_SIZE then
-               declare
-                  Value : constant Natural := Integer (V.Value);
-                  Incr  : constant Integer := Value
-                                                - Initial_Window_Size;
-               begin
-                  for S of Streams loop
-                     if HTTP2.Connection.Flow_Control_Window_Valid
-                       (S.Flow_Control_Window, Value)
-                     then
-                        S.Update_Flow_Control_Window (Incr);
-                     end if;
-                  end loop;
-               end;
+      if Add_FC /= 0 then
+         for S of Streams loop
+            if HTTP2.Connection.Flow_Control_Window_Valid
+                 (S.Flow_Control_Window, Add_FC)
+            then
+               S.Update_Flow_Control_Window (Add_FC);
             end if;
          end loop;
-      end Handle;
-
-      procedure Handle (Frame : HTTP2.Frame.Window_Update.Object) is
-         Incr : constant Natural := Natural (Frame.Size_Increment);
-      begin
-         if HTTP2.Connection.Flow_Control_Window_Valid
-           (Settings.Flow_Control_Window, Incr)
-         then
-            Settings.Update_Flow_Control_Window
-              (Natural (Frame.Size_Increment));
-         else
-            Error := HTTP2.C_Flow_Control_Error;
-            return;
-         end if;
-      end Handle;
-
-   begin
-      Error := HTTP2.C_No_Error;
-
-      if Frame.Kind = K_Ping
-        and then not Frame.Has_Flag (HTTP2.Frame.Ack_Flag)
-      then
-         --  A probing ping frame, respond now with the same
-         --  payload (see RFC-7540 / 6.7).
-
-         declare
-            R_Ping : HTTP2.Frame.Object'Class := Frame;
-         begin
-            R_Ping.Set_Flags (HTTP2.Frame.Ack_Flag);
-            Answers.Prepend (R_Ping);
-         end;
-
-      elsif Frame.Kind = K_Settings
-        and then not Frame.Has_Flag (HTTP2.Frame.Ack_Flag)
-      then
-         Handle (HTTP2.Frame.Settings.Object (Frame));
-         Answers.Prepend (HTTP2.Frame.Settings.Ack);
-
-      elsif Frame.Kind = K_Settings
-        and then Frame.Has_Flag (HTTP2.Frame.Ack_Flag)
-      then
-         Answers.Prepend (HTTP2.Frame.Settings.Ack);
-
-      elsif Frame.Kind = K_Window_Update then
-         Handle (HTTP2.Frame.Window_Update.Object (Frame));
       end if;
    end Handle_Control_Frame;
 
@@ -501,7 +428,6 @@ is
             Pos      : Stream_Element_Offset := Look_For'First;
             Buf      : Stream_Element_Array (1 .. 1);
          begin
-            null;
             loop
                Read (Buf);
 
@@ -577,6 +503,12 @@ is
                To_String (Status_Multipart_Boundary),
                To_String (Status_Root_Part_CID));
          end if;
+
+         AWS.Status.Reset_Body_Index (S.all);
+
+         LA.Server.Slots.Mark_Phase (LA.Line, Server_Processing);
+
+         AWS.Status.Set.Uploaded (S.all);
       end Handle_POST;
 
       ----------------------
@@ -736,6 +668,8 @@ is
         and then AWS.Status.Binary_Size (Stream.Status.all) > 0
       then
          Handle_POST;
+
+         LA.Stat := Stream.Status.all;
       end if;
 
       Deferred_Messages.Append (Handle_Message (Stream.Status.all, Stream));
@@ -866,6 +800,8 @@ begin
       end if;
 
       For_Every_Frame : loop
+         Response.Set.Mode (Error_Answer, Response.No_Data);
+
          if not Deferred_Messages.Is_Empty then
             declare
                M  : HTTP2.Message.Object := Deferred_Messages.First_Element;
@@ -1143,23 +1079,41 @@ exception
    when Net.Socket_Error =>
       null;
 
-   when P : HTTP2.Protocol_Error =>
+   when E : HTTP2.Protocol_Error =>
       Will_Close := True;
+
       AWS.Log.Write
         (LA.Server.Error_Log,
          LA.Stat,
          "Exception handler bug "
-         & Utils.CRLF_2_Spaces
-           (Ada.Exceptions.Exception_Information (P)));
+         & Utils.CRLF_2_Spaces (Exception_Information (E)));
       LA.Server.Slots.Mark_Phase (LA.Line, Server_Response);
+
+      HTTP2.Frame.GoAway.Create
+        (Stream_Id => 1, Error => AWS.HTTP2.C_Internal_Error).Send (Sock.all);
 
    when E : others =>
       AWS.Log.Write
         (LA.Server.Error_Log,
          LA.Stat,
          "Exception handler bug "
-         & Utils.CRLF_2_Spaces
-           (Ada.Exceptions.Exception_Information (E)));
+         & Utils.CRLF_2_Spaces (Exception_Information (E)));
+
+      HTTP2.Frame.GoAway.Create
+        (Stream_Id => 1, Error => AWS.HTTP2.C_Internal_Error).Send (Sock.all);
+
+      --  Call exception handler
+
+      Error_Answer := Response.Build
+        (Status_Code  => Messages.S400,
+         Content_Type => "text/plain",
+         Message_Body => Exception_Message (E));
+
+      LA.Server.Exception_Handler
+        (E,
+         LA.Server.Error_Log,
+         AWS.Exceptions.Data'(False, LA.Line, LA.Stat),
+         Error_Answer);
 
       Will_Close := True;
 end Protocol_Handler_V2;

@@ -189,6 +189,9 @@ package AWS.Net.SSL is
    --  supported ALPN protocols (Application Layer Protocol Negotiation), which
    --  are used during negotiation with peer.
 
+   procedure ALPN_Include (Config : SSL.Config; Protocol : String);
+   --  Append protocol into ALPN if it was not there
+
    procedure Release (Config : in out SSL.Config);
    --  Release memory associated with the Config object
 

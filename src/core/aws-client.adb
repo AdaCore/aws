@@ -29,7 +29,6 @@
 
 pragma Ada_2012;
 
-with Ada.Streams.Stream_IO;
 with Ada.Strings.Fixed;
 with Ada.Text_IO;
 
@@ -217,6 +216,10 @@ package body AWS.Client is
               (Connection.SSL_Config, Certificate, Net.SSL.TLS_Client);
          else
             Connection.SSL_Config := SSL_Config;
+         end if;
+
+         if HTTP_Version = HTTPv2 then
+            Net.SSL.ALPN_Include (Connection.SSL_Config, Messages.H2_Token);
          end if;
       end if;
 
@@ -1251,172 +1254,25 @@ package body AWS.Client is
       URI        : String      := No_Data;
       Headers    : Header_List := Empty_Header_List;
       Progress   : access procedure
-                     (Total, Sent : Stream_Element_Offset) := null)
-   is
-      use Ada.Real_Time;
-      Stamp    : constant Time   := Clock;
-      Pref_Suf : constant String := "--";
-      Boundary : constant String :=
-                   "AWS_File_Upload-" & Utils.Random_String (8);
-      CT        : constant String :=
-                    Messages.Content_Type (MIME.Content_Type (Filename));
-      CD        : constant String :=
-                    Messages.Content_Disposition
-                      ("form-data", "filename", URL.Encode (Filename));
-      File_Size : constant Stream_Element_Offset :=
-                    Stream_Element_Offset (Utils.File_Size (Filename));
-
-      Try_Count     : Natural := Connection.Retry;
-      Auth_Attempts : Auth_Attempts_Count := (others => 2);
-      Auth_Is_Over  : Boolean;
-
-      function Content_Length return Stream_Element_Offset;
-      --  Returns the total message content length
-
-      procedure Send_File;
-      --  Send file content to the server
-
-      --------------------
-      -- Content_Length --
-      --------------------
-
-      function Content_Length return Stream_Element_Offset is
-      begin
-         return 2 * Boundary'Length  -- 2 boundaries
-           + 4                       -- two boundaries start with "--"
-           + 2                       -- second one ends with "--"
-           + 10                      -- 5 lines with CR+LF
-           + CT'Length               -- content type header
-           + CD'Length               -- content disposition header
-           + File_Size
-           + 2;                      -- CR+LF after file data
-      end Content_Length;
-
-      ---------------
-      -- Send_File --
-      ---------------
-
-      procedure Send_File is
-         Sock   : Net.Socket_Type'Class renames Connection.Socket.all;
-         Buffer : Stream_Element_Array (1 .. 4_096);
-         Last   : Stream_Element_Offset;
-         File   : Stream_IO.File_Type;
-         Sent   : Stream_Element_Offset := 0;
-      begin
-         --  Send multipart message start boundary
-
-         Net.Buffered.Put_Line (Sock, Pref_Suf & Boundary);
-
-         --  Send Content-Disposition header
-
-         Net.Buffered.Put_Line (Sock, CD);
-
-         --  Send Content-Type: header
-
-         Net.Buffered.Put_Line (Sock, CT);
-
-         Net.Buffered.New_Line (Sock);
-
-         --  Send file content
-
-         Stream_IO.Open (File, Stream_IO.In_File, Filename);
-
-         while not Stream_IO.End_Of_File (File) loop
-            Stream_IO.Read (File, Buffer, Last);
-            Net.Buffered.Write (Sock, Buffer (1 .. Last));
-
-            if Progress /= null then
-               Sent := Sent + Last;
-               Progress (File_Size, Sent);
-            end if;
-         end loop;
-
-         Stream_IO.Close (File);
-
-         Net.Buffered.New_Line (Sock);
-
-         --  Send multipart message end boundary
-
-         Net.Buffered.Put_Line (Sock, Pref_Suf & Boundary & Pref_Suf);
-
-      exception
-         when Net.Socket_Error =>
-            --  Properly close the file if needed
-            if Stream_IO.Is_Open (File) then
-               Stream_IO.Close (File);
-            end if;
-            raise;
-      end Send_File;
-
+                     (Total, Sent : Stream_Element_Offset) := null) is
    begin
-      Retry : loop
-         begin
-            Open_Set_Common_Header (Connection, "POST", URI, Headers);
-
-            declare
-               Sock : Net.Socket_Type'Class renames Connection.Socket.all;
-            begin
-               --  Send message Content-Type (Multipart/form-data)
-
-               Set_Header
-                 (Connection.F_Headers,
-                  Messages.Content_Type_Token,
-                  MIME.Multipart_Form_Data
-                  & "; boundary=""" & Boundary & '"');
-
-               --  Send message Content-Length
-
-               Set_Header
-                 (Connection.F_Headers,
-                  Messages.Content_Length_Token,
-                  Utils.Image (Content_Length));
-
-               AWS.Headers.Send_Header
-                 (Sock, Connection.F_Headers, End_Block => True);
-
-               --  Send message body
-
-               Send_File;
-            end;
-
-            --  Get answer from server
-
-            Get_Response
-              (Connection, Result, Get_Body => not Connection.Streaming);
-
-            Decrement_Authentication_Attempt
-              (Connection, Auth_Attempts, Auth_Is_Over);
-
-            if Auth_Is_Over then
-               return;
-
-            elsif Connection.Streaming then
-               Read_Body (Connection, Result, Store => False);
-            end if;
-
-         exception
-            when E : Net.Socket_Error | Connection_Error =>
-               Error_Processing
-                 (Connection, Try_Count, Result, "Upload", E, Stamp);
-
-               exit Retry when not Response.Is_Empty (Result);
-         end;
-      end loop Retry;
+      Internal_Upload (Connection, Result, Filename, URI, Headers, Progress);
    end Upload;
 
    function Upload
-     (URL        : String;
-      Filename   : String;
-      User       : String          := No_Data;
-      Pwd        : String          := No_Data;
-      Proxy      : String          := No_Data;
-      Proxy_User : String          := No_Data;
-      Proxy_Pwd  : String          := No_Data;
-      Timeouts   : Timeouts_Values := No_Timeout;
-      Headers    : Header_List     := Empty_Header_List;
-      Progress   : access procedure
-                     (Total, Sent : Stream_Element_Offset) := null;
-      User_Agent : String          := Default.User_Agent)
+     (URL          : String;
+      Filename     : String;
+      User         : String          := No_Data;
+      Pwd          : String          := No_Data;
+      Proxy        : String          := No_Data;
+      Proxy_User   : String          := No_Data;
+      Proxy_Pwd    : String          := No_Data;
+      Timeouts     : Timeouts_Values := No_Timeout;
+      Headers      : Header_List     := Empty_Header_List;
+      Progress     : access procedure
+                       (Total, Sent : Stream_Element_Offset) := null;
+      User_Agent   : String          := Default.User_Agent;
+      HTTP_Version : HTTP_Protocol   := HTTP_Default)
       return Response.Data
    is
       Connection : HTTP_Connection;
@@ -1424,9 +1280,10 @@ package body AWS.Client is
    begin
       Create (Connection,
               URL, User, Pwd, Proxy, Proxy_User, Proxy_Pwd,
-              Persistent => False,
-              Timeouts   => Timeouts,
-              User_Agent => User_Agent);
+              Persistent   => False,
+              Timeouts     => Timeouts,
+              User_Agent   => User_Agent,
+              HTTP_Version => HTTP_Version);
 
       Upload
         (Connection, Result, Filename,

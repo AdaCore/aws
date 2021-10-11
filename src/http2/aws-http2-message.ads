@@ -27,6 +27,8 @@
 --  covered by the  GNU Public License.                                     --
 ------------------------------------------------------------------------------
 
+with Ada.Finalization;
+
 with AWS.Headers;
 with AWS.HTTP2.Frame.List;
 with AWS.Response;
@@ -40,10 +42,12 @@ limited with AWS.HTTP2.Stream;
 
 package AWS.HTTP2.Message is
 
+   use Ada;
+
    use type AWS.HTTP2.Frame.List.Count_Type;
    use type Response.Data_Mode;
 
-   type Object is tagged private;
+   type Object is new Finalization.Controlled with private;
 
    function Is_Defined (Self : Object) return Boolean;
 
@@ -107,7 +111,7 @@ private
 
    type Kind_Type is (K_Request, K_Response);
 
-   type Object is tagged record
+   type Object is new Finalization.Controlled with record
       Kind      : Kind_Type := K_Response;
       Mode      : Response.Data_Mode;
       Stream_Id : HTTP2.Stream_Id;
@@ -115,7 +119,12 @@ private
       Sent      : Utils.File_Size_Type := 0;
       H_Sent    : Boolean := False; -- Whether the header has been sent
       M_Body    : Resources.Streams.Stream_Access;
+      Ref       : Utils.Counter_Access;
    end record;
+
+   overriding procedure Adjust (O : in out Object);
+   overriding procedure Initialize (O : in out Object);
+   overriding procedure Finalize (O : in out Object);
 
    function Headers (Self : Object) return AWS.Headers.List is (Self.Headers);
 
