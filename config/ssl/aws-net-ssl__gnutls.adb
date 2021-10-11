@@ -469,10 +469,10 @@ package body AWS.Net.SSL is
                   (Socket.SSL, Datum'Access);
    begin
       if Code = TSSL.GNUTLS_E_REQUESTED_DATA_NOT_AVAILABLE then
-         Datum.data := System.Null_Address;
-      else
-         Check_Error_Code (Code);
+         return "";
       end if;
+
+      Check_Error_Code (Code);
 
       if Datum.data = System.Null_Address then
          return "";
@@ -480,6 +480,17 @@ package body AWS.Net.SSL is
 
       return To_String (Datum);
    end ALPN_Get;
+
+   ------------------
+   -- ALPN_Include --
+   ------------------
+
+   procedure ALPN_Include (Config : SSL.Config; Protocol : String) is
+   begin
+      if not Config.ALPN.Contains (Protocol) then
+         Config.ALPN.Append (Protocol);
+      end if;
+   end ALPN_Include;
 
    --------------
    -- ALPN_Set --

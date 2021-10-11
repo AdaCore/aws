@@ -220,9 +220,7 @@ package body AWS.Client is
          end if;
 
          if HTTP_Version = HTTPv2 then
-            Net.SSL.ALPN_Set
-              (Connection.SSL_Config,
-               Net.SSL.SV.To_Vector (Messages.H2_Token, 1));
+            Net.SSL.ALPN_Include (Connection.SSL_Config, Messages.H2_Token);
          end if;
       end if;
 

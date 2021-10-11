@@ -494,6 +494,10 @@ package body AWS.Server is
      (Web_Server : in out HTTP; SSL_Config : Net.SSL.Config) is
    begin
       Web_Server.SSL_Config := SSL_Config;
+
+      if CNF.HTTP2_Activated (Web_Server.Properties) then
+         Net.SSL.ALPN_Include (Web_Server.SSL_Config, Messages.H2_Token);
+      end if;
    end Set_SSL_Config;
 
    --------------------------------------
@@ -1089,34 +1093,32 @@ package body AWS.Server is
    begin
       --  If it is an SSL connection, initialize the SSL library
 
-      if CNF.Security (Web_Server.Properties)
-        and then Web_Server.SSL_Config = Net.SSL.Null_Config
-      then
-         Net.SSL.Initialize
-           (Web_Server.SSL_Config,
-            CNF.Certificate (Web_Server.Properties),
-            Security_Mode,
-            Priorities           =>
-              CNF.Cipher_Priorities (Web_Server.Properties),
-            Ticket_Support       =>
-              CNF.TLS_Ticket_Support (Web_Server.Properties),
-            Key_Filename         =>
-              CNF.Key (Web_Server.Properties),
-            Exchange_Certificate =>
-              CNF.Exchange_Certificate (Web_Server.Properties),
-            Certificate_Required =>
-              CNF.Certificate_Required (Web_Server.Properties),
-            Trusted_CA_Filename  =>
-              CNF.Trusted_CA (Web_Server.Properties),
-            CRL_Filename         =>
-              CNF.CRL_File (Web_Server.Properties),
-            Session_Cache_Size   =>
-              CNF.SSL_Session_Cache_Size (Web_Server.Properties));
+      if CNF.Security (Web_Server.Properties) then
+         if Web_Server.SSL_Config = Net.SSL.Null_Config then
+            Net.SSL.Initialize
+              (Web_Server.SSL_Config,
+               CNF.Certificate (Web_Server.Properties),
+               Security_Mode,
+               Priorities           =>
+                 CNF.Cipher_Priorities (Web_Server.Properties),
+               Ticket_Support       =>
+                 CNF.TLS_Ticket_Support (Web_Server.Properties),
+               Key_Filename         =>
+                 CNF.Key (Web_Server.Properties),
+               Exchange_Certificate =>
+                 CNF.Exchange_Certificate (Web_Server.Properties),
+               Certificate_Required =>
+                 CNF.Certificate_Required (Web_Server.Properties),
+               Trusted_CA_Filename  =>
+                 CNF.Trusted_CA (Web_Server.Properties),
+               CRL_Filename         =>
+                 CNF.CRL_File (Web_Server.Properties),
+               Session_Cache_Size   =>
+                 CNF.SSL_Session_Cache_Size (Web_Server.Properties));
+         end if;
 
          if CNF.HTTP2_Activated (Web_Server.Properties) then
-            Net.SSL.ALPN_Set
-              (Web_Server.SSL_Config,
-               Net.SSL.SV.To_Vector (Messages.H2_Token, 1));
+            Net.SSL.ALPN_Include (Web_Server.SSL_Config, Messages.H2_Token);
          end if;
       end if;
 

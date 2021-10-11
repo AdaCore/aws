@@ -42,6 +42,7 @@ procedure SSL_ALPN is
    task Client_Side is
       entry Start;
       entry Act (Protocols : SV.Vector);
+      entry Add (Protocol  : String);
    end Client_Side;
 
    -----------------
@@ -86,10 +87,16 @@ procedure SSL_ALPN is
 
          Client.Shutdown;
 
-         accept Act (Protocols : SV.Vector) do
-            Net.SSL.ALPN_Set (Config, Protocols);
-            Enough := Protocols.Is_Empty;
-         end;
+         select
+            accept Act (Protocols : SV.Vector) do
+               Net.SSL.ALPN_Set (Config, Protocols);
+               Enough := Protocols.Is_Empty;
+            end;
+         or
+            accept Add (Protocol : String) do
+               Net.SSL.ALPN_Include (Config, Protocol);
+            end;
+         end select;
       end loop;
 
       Text_IO.Put_Line ("client task done.");
@@ -151,6 +158,11 @@ begin
    Peer.Shutdown;
 
    Client_Side.Act (SV."&" ("ap4", "ap5"));
+   Net.SSL.Accept_Socket (Server, Peer);
+   Peer.Send (Sample);
+   Peer.Shutdown;
+
+   Client_Side.Add ("ap3");
    Net.SSL.Accept_Socket (Server, Peer);
    Peer.Send (Sample);
    Peer.Shutdown;
