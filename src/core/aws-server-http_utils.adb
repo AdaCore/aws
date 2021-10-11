@@ -1279,6 +1279,10 @@ package body AWS.Server.HTTP_Utils is
       loop
          declare
             Data : constant String := Net.Buffered.Get_Line (Sock);
+
+            function Is_Next (Item : String) return Boolean is
+              (Net.Buffered.Get_Line (Sock) = Item);
+
          begin
             --  RFC 2616
             --  4.1 Message Types
@@ -1288,12 +1292,11 @@ package body AWS.Server.HTTP_Utils is
 
             if Data /= "" then
                if not Sock.Is_Secure
-                 and then Data = HTTP2.Client_Connection_Preface_1
-                 and then Net.Buffered.Get_Line (Sock) = ""
-                 and then Net.Buffered.Get_Line (Sock) =
-                            HTTP2.Client_Connection_Preface_2
-                 and then Net.Buffered.Get_Line (Sock) = ""
                  and then Status.Protocol (C_Stat) = Status.HTTP_1
+                 and then Data = HTTP2.Client_Connection_Preface_1
+                 and then Is_Next ("")
+                 and then Is_Next (HTTP2.Client_Connection_Preface_2)
+                 and then Is_Next ("")
                then
                   --  Plain socket client starts with HTTP/2 connection
                   --  preface, i.e. client assume that server has HTTP/2
