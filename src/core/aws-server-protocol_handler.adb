@@ -389,8 +389,7 @@ begin
                AWS.Log.Write
                  (LA.Server.Error_Log,
                   LA.Stat,
-                  Utils.CRLF_2_Spaces
-                    (Ada.Exceptions.Exception_Information (E)));
+                  Utils.CRLF_2_Spaces (Exception_Information (E)));
 
                --  Call exception handler
 
@@ -432,8 +431,7 @@ begin
                     (LA.Server.Error_Log,
                      LA.Stat,
                      "Exception handler bug "
-                     & Utils.CRLF_2_Spaces
-                       (Ada.Exceptions.Exception_Information (E)));
+                     & Utils.CRLF_2_Spaces (Exception_Information (E)));
                   exit For_Every_Request;
             end;
       end;
