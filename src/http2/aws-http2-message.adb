@@ -49,6 +49,15 @@ package body AWS.HTTP2.Message is
    function To_Lower
      (Name : String) return String renames Ada.Characters.Handling.To_Lower;
 
+   ------------
+   -- Adjust --
+   ------------
+
+   overriding procedure Adjust (O : in out Object) is
+   begin
+      O.Ref.all := O.Ref.all + 1;
+   end Adjust;
+
    -----------------
    -- Append_Body --
    -----------------
@@ -219,6 +228,35 @@ package body AWS.HTTP2.Message is
       return O;
    end Create;
 
+   --------------
+   -- Finalize --
+   --------------
+
+   overriding procedure Finalize (O : in out Object) is
+      C : constant access Natural := O.Ref;
+   begin
+      O.Ref := null;
+
+      C.all := C.all - 1;
+
+      if C.all = 0 then
+         if O.M_Body /= null then
+            O.M_Body.Close;
+         end if;
+
+         O.Headers.Reset;
+      end if;
+   end Finalize;
+
+   ----------------
+   -- Initialize --
+   ----------------
+
+   overriding procedure Initialize (O : in out Object) is
+   begin
+      O.Ref := new Natural'(1);
+   end Initialize;
+
    ---------------
    -- To_Frames --
    ---------------
@@ -299,8 +337,6 @@ package body AWS.HTTP2.Message is
       --------------------
 
       procedure Handle_Headers (Headers : AWS.Headers.List) is
-         use Ada;
-
          Max_Size : constant Positive :=
                       Connection.Max_Header_List_Size (Ctx.Settings.all);
          L        : AWS.Headers.List;

@@ -157,6 +157,8 @@ is
    Ctx : Context.Object
      (LA.Server, LA.Line, Tab_Enc'Access, Tab_Dec'Access, Settings'Access);
 
+   Error_Answer : Response.Data;
+
    --------------
    -- Finalize --
    --------------
@@ -501,6 +503,12 @@ is
                To_String (Status_Multipart_Boundary),
                To_String (Status_Root_Part_CID));
          end if;
+
+         AWS.Status.Reset_Body_Index (S.all);
+
+         LA.Server.Slots.Mark_Phase (LA.Line, Server_Processing);
+
+         AWS.Status.Set.Uploaded (S.all);
       end Handle_POST;
 
       ----------------------
@@ -660,6 +668,8 @@ is
         and then AWS.Status.Binary_Size (Stream.Status.all) > 0
       then
          Handle_POST;
+
+         LA.Stat := Stream.Status.all;
       end if;
 
       Deferred_Messages.Append (Handle_Message (Stream.Status.all, Stream));
@@ -790,6 +800,8 @@ begin
       end if;
 
       For_Every_Frame : loop
+         Response.Set.Mode (Error_Answer, Response.No_Data);
+
          if not Deferred_Messages.Is_Empty then
             declare
                M  : HTTP2.Message.Object := Deferred_Messages.First_Element;
@@ -1067,8 +1079,9 @@ exception
    when Net.Socket_Error =>
       null;
 
-   when P : HTTP2.Protocol_Error =>
+   when E : HTTP2.Protocol_Error =>
       Will_Close := True;
+
       AWS.Log.Write
         (LA.Server.Error_Log,
          LA.Stat,
@@ -1076,12 +1089,31 @@ exception
          & Utils.CRLF_2_Spaces (Exception_Information (E)));
       LA.Server.Slots.Mark_Phase (LA.Line, Server_Response);
 
+      HTTP2.Frame.GoAway.Create
+        (Stream_Id => 1, Error => AWS.HTTP2.C_Internal_Error).Send (Sock.all);
+
    when E : others =>
       AWS.Log.Write
         (LA.Server.Error_Log,
          LA.Stat,
          "Exception handler bug "
          & Utils.CRLF_2_Spaces (Exception_Information (E)));
+
+      HTTP2.Frame.GoAway.Create
+        (Stream_Id => 1, Error => AWS.HTTP2.C_Internal_Error).Send (Sock.all);
+
+      --  Call exception handler
+
+      Error_Answer := Response.Build
+        (Status_Code  => Messages.S400,
+         Content_Type => "text/plain",
+         Message_Body => Exception_Message (E));
+
+      LA.Server.Exception_Handler
+        (E,
+         LA.Server.Error_Log,
+         AWS.Exceptions.Data'(False, LA.Line, LA.Stat),
+         Error_Answer);
 
       Will_Close := True;
 end Protocol_Handler_V2;

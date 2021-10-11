@@ -279,18 +279,19 @@ package AWS.Client is
    --  Post will retry one time if it fails.
 
    function Upload
-     (URL        : String;
-      Filename   : String;
-      User       : String          := No_Data;
-      Pwd        : String          := No_Data;
-      Proxy      : String          := No_Data;
-      Proxy_User : String          := No_Data;
-      Proxy_Pwd  : String          := No_Data;
-      Timeouts   : Timeouts_Values := No_Timeout;
-      Headers    : Header_List     := Empty_Header_List;
-      Progress   : access procedure
-                     (Total, Sent : Stream_Element_Offset) := null;
-      User_Agent : String          := Default.User_Agent)
+     (URL          : String;
+      Filename     : String;
+      User         : String          := No_Data;
+      Pwd          : String          := No_Data;
+      Proxy        : String          := No_Data;
+      Proxy_User   : String          := No_Data;
+      Proxy_Pwd    : String          := No_Data;
+      Timeouts     : Timeouts_Values := No_Timeout;
+      Headers      : Header_List     := Empty_Header_List;
+      Progress     : access procedure
+                       (Total, Sent : Stream_Element_Offset) := null;
+      User_Agent   : String          := Default.User_Agent;
+      HTTP_Version : HTTP_Protocol   := HTTP_Default)
       return Response.Data;
    --  This is a file upload request. Filename file's content will be send to
    --  the server at address URL.

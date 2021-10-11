@@ -109,7 +109,7 @@ package body AWS.Resources is
 
    function End_Of_File (Resource : File_Type) return Boolean is
    begin
-      return End_Of_File (Resource.all);
+      return Resource = null or else End_Of_File (Resource.all);
    end End_Of_File;
 
    -----------
