@@ -78,6 +78,15 @@ package body AWS.Net.SSL is
       return "";
    end ALPN_Get;
 
+   ------------------
+   -- ALPN_Include --
+   ------------------
+
+   procedure ALPN_Include (Config : SSL.Config; Protocol : String) is
+   begin
+      null;
+   end ALPN_Include;
+
    --------------
    -- ALPN_Set --
    --------------
