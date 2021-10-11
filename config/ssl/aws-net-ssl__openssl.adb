@@ -109,6 +109,10 @@ package body AWS.Net.SSL is
    function To_Char_Array (Protocols : SV.Vector) return C.char_array;
    --  Converts Protocols to OpenSSL library protocol-list format
 
+   function To_Char_Array (Protocol : String) return C.char_array is
+     (C."&" (C.char'Val (Protocol'Length), C.To_C (Protocol, False)));
+   --  Converts Protocol to OpenSSL library protocol name format
+
    Empty_Char_Array : constant C.char_array := (1 .. 0 => C.nul);
 
    function ALPN_Callback
@@ -153,6 +157,8 @@ package body AWS.Net.SSL is
          Key_Filename         : String);
 
       procedure ALPN_Set (Protos : C.char_array);
+
+      procedure ALPN_Include (Protocol : String);
 
       procedure Finalize;
 
@@ -381,6 +387,15 @@ package body AWS.Net.SSL is
 
       return C.Strings.Value (Data, C.size_t (Size));
    end ALPN_Get;
+
+   ------------------
+   -- ALPN_Include --
+   ------------------
+
+   procedure ALPN_Include (Config : SSL.Config; Protocol : String) is
+   begin
+      Config.ALPN_Include (Protocol);
+   end ALPN_Include;
 
    --------------
    -- ALPN_Set --
@@ -1984,8 +1999,7 @@ package body AWS.Net.SSL is
          Idx := Protos'First;
 
          for P of Protocols loop
-            Protos (Idx) := C.char'Val (P'Length);
-            Protos (Idx + 1 .. Idx + P'Length) := C.To_C (P, False);
+            Protos (Idx .. Idx + P'Length) := To_Char_Array (P);
             Idx := Idx + P'Length + 1;
          end loop;
 
@@ -1998,6 +2012,43 @@ package body AWS.Net.SSL is
    ------------
 
    protected body TS_SSL is
+
+      ------------------
+      -- ALPN_Include --
+      ------------------
+
+      procedure ALPN_Include (Protocol : String) is
+         use type C.size_t, C.char_array;
+
+         Ref : C.Strings.char_array_access;
+         Idx : C.size_t;
+         Len : C.size_t;
+         CA  : constant C.char_array := To_Char_Array (Protocol);
+      begin
+         if ALPN.Is_Empty then
+            ALPN_Set (CA);
+            return;
+         end if;
+
+         Ref := ALPN.Reference.Element;
+
+         Idx := Ref'First;
+
+         loop
+            Len := C.char'Pos (Ref (Idx));
+            if Ref (Idx .. Idx + Len) = CA then
+               --  Already there
+               return;
+            end if;
+
+            Idx := Idx + Len + 1;
+            exit when Idx > Ref'Last;
+         end loop;
+
+         pragma Assert (Idx = Ref'Last + 1);
+
+         ALPN_Set (Ref.all & CA);
+      end ALPN_Include;
 
       --------------
       -- ALPN_Set --
