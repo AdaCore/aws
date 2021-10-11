@@ -267,6 +267,8 @@ package body AWS.HTTP2.Message is
       Stream : HTTP2.Stream.Object)
       return AWS.HTTP2.Frame.List.Object
    is
+      use type HTTP2.Frame.Kind_Type;
+
       FCW  : Natural :=
                Integer'Min
                  (Stream.Flow_Control_Window,
@@ -420,6 +422,12 @@ package body AWS.HTTP2.Message is
 
       if Self.Has_Body and then FCW > 0 then
          From_Stream;
+
+         --  If file is empty the last frame is the header one
+
+         if List (List.Last).Kind = HTTP2.Frame.K_Headers then
+            List (List.Last).Set_Flag (Frame.End_Stream_Flag);
+         end if;
       end if;
 
       return List;
