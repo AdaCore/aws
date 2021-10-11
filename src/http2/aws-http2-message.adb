@@ -290,7 +290,7 @@ package body AWS.HTTP2.Message is
             Start      => Stream_Element_Offset (Self.Sent) + 1,
             Chunk_Size => Stream_Element_Count
                             (Positive'Min
-                               (FCW, Positive (Ctx.Settings.Max_Frame_Size))),
+                              (FCW, Positive (Ctx.Settings.Max_Frame_Size))),
             Length     => Resources.Content_Length_Type (Self.Sent));
       end From_Stream;
 

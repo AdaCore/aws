@@ -426,7 +426,6 @@ is
             Pos      : Stream_Element_Offset := Look_For'First;
             Buf      : Stream_Element_Array (1 .. 1);
          begin
-            null;
             loop
                Read (Buf);
 
@@ -1074,8 +1073,7 @@ exception
         (LA.Server.Error_Log,
          LA.Stat,
          "Exception handler bug "
-         & Utils.CRLF_2_Spaces
-           (Ada.Exceptions.Exception_Information (P)));
+         & Utils.CRLF_2_Spaces (Exception_Information (E)));
       LA.Server.Slots.Mark_Phase (LA.Line, Server_Response);
 
    when E : others =>
@@ -1083,8 +1081,7 @@ exception
         (LA.Server.Error_Log,
          LA.Stat,
          "Exception handler bug "
-         & Utils.CRLF_2_Spaces
-           (Ada.Exceptions.Exception_Information (E)));
+         & Utils.CRLF_2_Spaces (Exception_Information (E)));
 
       Will_Close := True;
 end Protocol_Handler_V2;
