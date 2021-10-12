@@ -788,7 +788,7 @@ begin
       if AWS.Status.Protocol (LA.Stat) = AWS.Status.H2C then
          S.Insert
            (1,
-            HTTP2.Stream.Create (Sock,  1, Settings.Flow_Control_Window));
+            HTTP2.Stream.Create (Sock,  1, Settings.Initial_Window_Size));
 
          S (1).Status.all := LA.Stat;
 
@@ -808,7 +808,9 @@ begin
                SM : constant HTTP2.Stream.Set.Maps.Reference_Type :=
                       S.Reference (M.Stream_Id);
             begin
-               if SM.Flow_Control_Window > 0 then
+               if SM.Flow_Control_Window > 0
+                 and then Settings.Flow_Control_Window > 0
+               then
                   Deferred_Messages.Delete_First;
 
                   --  Sends as much frame as possible that conform with the
