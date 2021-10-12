@@ -261,13 +261,13 @@ package body AWS.Server is
       TA : constant Line_Attribute.Attribute_Handle :=
              Line_Attribute.Reference;
    begin
-      if not Status.Is_Body_Uploaded (TA.Stat)
+      if not Status.Is_Body_Uploaded (TA.Stat.all)
         and then
-          (Status.Content_Length (TA.Stat) > 0
-           or else Status.Transfer_Encoding (TA.Stat) = "chunked")
+          (Status.Content_Length (TA.Stat.all) > 0
+           or else Status.Transfer_Encoding (TA.Stat.all) = "chunked")
       then
          HTTP_Utils.Get_Message_Data
-           (TA.Server.all, TA.Line, TA.Stat, TA.Expect_100);
+           (TA.Server.all, TA.Line, TA.Stat.all, TA.Expect_100);
       end if;
    end Get_Message_Body;
 
@@ -277,7 +277,7 @@ package body AWS.Server is
 
    function Get_Status return Status.Data is
    begin
-      return Line_Attribute.Reference.Stat;
+      return Line_Attribute.Reference.Stat.all;
    end Get_Status;
 
    ----------------------
@@ -307,6 +307,7 @@ package body AWS.Server is
    task body Line is
       TA : constant Line_Attribute.Attribute_Handle :=
              Line_Attribute.Reference;
+      Request : aliased AWS.Status.Data;
    begin
 
       select
@@ -334,6 +335,8 @@ package body AWS.Server is
                               Accept_Socket_Serialized (TA.Server);
             Need_Shutdown : Boolean;
          begin
+            TA.Stat := Request'Unchecked_Access;
+
             if CNF.Send_Buffer_Size (TA.Server.Config) /= 0 then
                Net.Set_Send_Buffer_Size
                  (Socket.all, CNF.Send_Buffer_Size (TA.Server.Config));
@@ -349,7 +352,7 @@ package body AWS.Server is
               and then CNF.HTTP2_Activated (TA.Server.Config)
             then
                --  Protocol is secure H2
-               AWS.Status.Set.Protocol (TA.Stat, AWS.Status.H2);
+               AWS.Status.Set.Protocol (Request, AWS.Status.H2);
                Protocol_Handler_V2 (TA.all);
             else
                Protocol_Handler (TA.all);
@@ -371,7 +374,6 @@ package body AWS.Server is
       when E : others =>
          if not TA.Server.Shutdown then
             declare
-               S      : Status.Data with Warnings => Off;
                Answer : Response.Data;
             begin
                AWS.Log.Write
@@ -380,7 +382,7 @@ package body AWS.Server is
                     & Utils.CRLF_2_Spaces (Exception_Information (E)));
 
                TA.Server.Exception_Handler
-                 (E, TA.Server.Error_Log, (True, TA.Line, S), Answer);
+                 (E, TA.Server.Error_Log, (True, TA.Line, Request), Answer);
             end;
          end if;
    end Line;

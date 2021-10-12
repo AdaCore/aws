@@ -529,7 +529,7 @@ private
    type Line_Attribute_Record is record
       Server     : access HTTP;
       Line       : Positive;
-      Stat       : aliased Status.Data;
+      Stat       : access Status.Data;
       Expect_100 : Boolean := False;
       Skip_Log   : Boolean := False;
       Log_Data   : Log.Fields_Table;
