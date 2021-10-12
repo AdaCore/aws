@@ -75,6 +75,8 @@ procedure Protocol_Handler (LA : in out Line_Attribute_Record) is
    Multislots   : constant Boolean :=
                     CNF.Max_Connection (LA.Server.Properties) > 1;
 
+   Request : AWS.Status.Data renames LA.Stat.all;
+
 begin
    --  This new connection has been initialized because some data are being
    --  sent. We are by default using HTTP/1.1 persistent connection. We will
@@ -112,7 +114,7 @@ begin
          function Send_Error_Answer return Boolean is
          begin
             Send
-              (Error_Answer, LA.Server.all, LA.Line, LA.Stat, Socket_Taken,
+              (Error_Answer, LA.Server.all, LA.Line, Request, Socket_Taken,
                Will_Close);
             return True;
 
@@ -124,7 +126,7 @@ begin
             when E : others =>
                AWS.Log.Write
                  (LA.Server.Error_Log,
-                  LA.Stat,
+                  Request,
                   Utils.CRLF_2_Spaces
                     (Ada.Exceptions.Exception_Information (E)));
                return False;
@@ -169,11 +171,11 @@ begin
             end if;
          end if;
 
-         AWS.Status.Set.Reset (LA.Stat);
+         AWS.Status.Set.Reset (Request);
 
          --  Set status socket and peername
 
-         AWS.Status.Set.Socket (LA.Stat, Sock_Ptr);
+         AWS.Status.Set.Socket (Request, Sock_Ptr);
 
          if Extended_Log then
             AWS.Log.Set_Field (LA.Server.Log, LA.Log_Data,
@@ -190,13 +192,13 @@ begin
          end if;
 
          AWS.Status.Set.Case_Sensitive_Parameters
-           (LA.Stat, Case_Sensitive_Parameters);
+           (Request, Case_Sensitive_Parameters);
 
-         if AWS.Status.Protocol (LA.Stat) = AWS.Status.HTTP_1 then
-            Get_Request_Line (LA.Stat);
+         if AWS.Status.Protocol (Request) = AWS.Status.HTTP_1 then
+            Get_Request_Line (Request);
          end if;
 
-         if AWS.Status.Protocol (LA.Stat) = AWS.Status.H2 then
+         if AWS.Status.Protocol (Request) = AWS.Status.H2 then
             if CNF.HTTP2_Activated (LA.Server.Config) then
                Protocol_Handler_V2 (LA, Check_Preface => False);
 
@@ -213,13 +215,14 @@ begin
             end if;
          end if;
 
-         if AWS.Status.Protocol (LA.Stat) = AWS.Status.HTTP_1 then
+         if AWS.Status.Protocol (Request) = AWS.Status.HTTP_1 then
             First_Line := False;
 
-            AWS.Status.Set.Read_Header (Socket => Sock_Ptr.all, D => LA.Stat);
+            AWS.Status.Set.Read_Header
+              (Socket => Sock_Ptr.all, D => Request);
 
             AWS.Status.Set.Connection_Data
-              (LA.Stat,
+              (Request,
                CNF.Server_Host (LA.Server.Properties),
                AWS.Server.Status.Port (LA.Server.all),
                CNF.Security (LA.Server.Properties));
@@ -241,20 +244,20 @@ begin
             end if;
 
             Set_Close_Status
-              (LA.Stat,
+              (Request,
                Keep_Alive => Free_Slots >= Keep_Alive_Limit,
                Will_Close => Will_Close);
 
             --  Is there something to read ?
 
-            if AWS.Status.Content_Length (LA.Stat) = 0
-              and then AWS.Status.Transfer_Encoding (LA.Stat) /= "chunked"
+            if AWS.Status.Content_Length (Request) = 0
+              and then AWS.Status.Transfer_Encoding (Request) /= "chunked"
             then
                LA.Server.Slots.Mark_Phase (LA.Line, Server_Processing);
 
             else
                declare
-                  Expect : constant String := AWS.Status.Expect (LA.Stat);
+                  Expect : constant String := AWS.Status.Expect (Request);
                begin
                   LA.Expect_100 := Expect = Messages.S100_Continue;
 
@@ -273,25 +276,25 @@ begin
 
                LA.Server.Slots.Mark_Phase (LA.Line, Client_Data);
 
-               if AWS.Status.Content_Length (LA.Stat)
+               if AWS.Status.Content_Length (Request)
                   <= Stream_Element_Count
                        (CNF.Upload_Size_Limit (LA.Server.Properties))
                then
                   Get_Message_Data
-                    (LA.Server.all, LA.Line, LA.Stat, LA.Expect_100);
+                    (LA.Server.all, LA.Line, Request, LA.Expect_100);
                end if;
             end if;
 
-            AWS.Status.Set.Keep_Alive (LA.Stat, not Will_Close);
+            AWS.Status.Set.Keep_Alive (Request, not Will_Close);
 
             Answer_To_Client
-              (LA.Server.all, LA.Line, LA.Stat, Socket_Taken, Will_Close);
+              (LA.Server.all, LA.Line, Request, Socket_Taken, Will_Close);
          end if;
 
-         if AWS.Status.Protocol (LA.Stat) = AWS.Status.Upgrade_To_H2C
+         if AWS.Status.Protocol (Request) = AWS.Status.Upgrade_To_H2C
            and then CNF.HTTP2_Activated (LA.Server.Config)
          then
-            AWS.Status.Set.Protocol (LA.Stat, AWS.Status.H2C);
+            AWS.Status.Set.Protocol (Request, AWS.Status.H2C);
 
             Protocol_Handler_V2 (LA);
 
@@ -316,7 +319,7 @@ begin
          when E : Wrong_Request_Line =>
             AWS.Log.Write
               (LA.Server.Error_Log,
-               LA.Stat,
+               Request,
                Utils.CRLF_2_Spaces
                  (Ada.Exceptions.Exception_Information (E)));
 
@@ -348,7 +351,7 @@ begin
            =>
             AWS.Log.Write
               (LA.Server.Error_Log,
-               LA.Stat,
+               Request,
                Utils.CRLF_2_Spaces
                  (Ada.Exceptions.Exception_Information (E)));
 
@@ -388,7 +391,7 @@ begin
 
                AWS.Log.Write
                  (LA.Server.Error_Log,
-                  LA.Stat,
+                  Request,
                   Utils.CRLF_2_Spaces (Exception_Information (E)));
 
                --  Call exception handler
@@ -396,7 +399,7 @@ begin
                LA.Server.Exception_Handler
                  (E,
                   LA.Server.Error_Log,
-                  AWS.Exceptions.Data'(False, LA.Line, LA.Stat),
+                  AWS.Exceptions.Data'(False, LA.Line, Request),
                   Error_Answer);
 
                --  We have an exception while sending data back to the
@@ -429,7 +432,7 @@ begin
                   --  implementation. Just log the problem and exit.
                   AWS.Log.Write
                     (LA.Server.Error_Log,
-                     LA.Stat,
+                     Request,
                      "Exception handler bug "
                      & Utils.CRLF_2_Spaces (Exception_Information (E)));
                   exit For_Every_Request;
@@ -447,5 +450,5 @@ begin
 
    --  Release memory for local objects
 
-   AWS.Status.Set.Free (LA.Stat);
+   AWS.Status.Set.Free (Request);
 end Protocol_Handler;

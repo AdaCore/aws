@@ -478,6 +478,18 @@ package body AWS.Client.HTTP_Utils is
          end loop;
 
       else
+         if not Stream.Is_Defined then
+            Stream := HTTP2.Stream.Create
+              (Connection.Socket, Frame.Stream_Id,
+               Ctx.Settings.Initial_Window_Size);
+
+            if Connection.H2_Stream_Id < Frame.Stream_Id then
+               Connection.H2_Stream_Id := Frame.Stream_Id;
+            end if;
+         end if;
+
+         pragma Assert (Frame.Stream_Id = Stream.Identifier);
+
          Stream.Received_Frame (Ctx, Frame, Error);
       end if;
    end Get_H2_Frame;
@@ -497,6 +509,8 @@ package body AWS.Client.HTTP_Utils is
       Connection.Socket.Set_Timeout (Connection.Timeouts.Receive);
 
       Response.Set.Clear (Result);
+
+      Stream := HTTP2.Stream.Undefined;
 
       --  Read response frames
 
@@ -710,7 +724,7 @@ package body AWS.Client.HTTP_Utils is
 
       Stream := HTTP2.Stream.Create
         (Connection.Socket,
-         Connection.H2_Stream_Id, H_Connection.Flow_Control_Window);
+         Connection.H2_Stream_Id, H_Connection.Initial_Window_Size);
 
       Next_Stream_Id (Connection);
 
@@ -720,12 +734,6 @@ package body AWS.Client.HTTP_Utils is
       Send_H2_Request (Connection, Ctx, Stream, Request);
 
       --  Get response
-
-      Stream := HTTP2.Stream.Create
-        (Connection.Socket,
-         Connection.H2_Stream_Id, H_Connection.Flow_Control_Window);
-
-      Next_Stream_Id (Connection);
 
       Get_H2_Response (Connection, Ctx, Stream, Result);
 
@@ -1078,7 +1086,7 @@ package body AWS.Client.HTTP_Utils is
 
             Stream := HTTP2.Stream.Create
               (Connection.Socket,
-               Connection.H2_Stream_Id, H_Connection.Flow_Control_Window);
+               Connection.H2_Stream_Id, H_Connection.Initial_Window_Size);
 
             Next_Stream_Id (Connection);
 
@@ -1137,12 +1145,6 @@ package body AWS.Client.HTTP_Utils is
             Send_H2_Request (Connection, Ctx, Stream, Request);
 
             --  Get response
-
-            Stream := HTTP2.Stream.Create
-              (Connection.Socket,
-               Connection.H2_Stream_Id, H_Connection.Flow_Control_Window);
-
-            Next_Stream_Id (Connection);
 
             Get_H2_Response (Connection, Ctx, Stream, Result);
 
@@ -1537,7 +1539,7 @@ package body AWS.Client.HTTP_Utils is
 
             Stream := HTTP2.Stream.Create
               (Connection.Socket,
-               Connection.H2_Stream_Id, H_Connection.Flow_Control_Window);
+               Connection.H2_Stream_Id, H_Connection.Initial_Window_Size);
 
             Next_Stream_Id (Connection);
 
@@ -1617,12 +1619,6 @@ package body AWS.Client.HTTP_Utils is
             Send_H2_Request (Connection, Ctx, Stream, Request);
 
             --  Get response
-
-            Stream := HTTP2.Stream.Create
-              (Connection.Socket,
-               Connection.H2_Stream_Id, H_Connection.Flow_Control_Window);
-
-            Next_Stream_Id (Connection);
 
             Get_H2_Response (Connection, Ctx, Stream, Result);
 

@@ -158,6 +158,7 @@ is
      (LA.Server, LA.Line, Tab_Enc'Access, Tab_Dec'Access, Settings'Access);
 
    Error_Answer : Response.Data;
+   Request      : AWS.Status.Data renames LA.Stat.all;
 
    --------------
    -- Finalize --
@@ -165,7 +166,7 @@ is
 
    procedure Finalize is
    begin
-      AWS.Status.Set.Free (LA.Stat);
+      AWS.Status.Set.Free (Request);
    end Finalize;
 
    --------------------------
@@ -199,7 +200,7 @@ is
    procedure Handle_HTTP2_Settings is
       HTTP2_Settings   : constant String :=
                            AWS.Headers.Get_Values
-                             (AWS.Status.Header (LA.Stat),
+                             (AWS.Status.Header (Request),
                               Messages.HTTP2_Settings);
       Settings_Payload : constant Stream_Element_Array :=
                            Translator.Base64_Decode (HTTP2_Settings);
@@ -668,9 +669,9 @@ is
         and then AWS.Status.Binary_Size (Stream.Status.all) > 0
       then
          Handle_POST;
-
-         LA.Stat := Stream.Status.all;
       end if;
+
+      LA.Stat := Stream.Status;
 
       Deferred_Messages.Append (Handle_Message (Stream.Status.all, Stream));
    end Handle_Message;
@@ -755,7 +756,7 @@ begin
    --     (a setting frame).
    --  2. Read the first frame which should be the settings frame if using h2.
 
-   if AWS.Status.Protocol (LA.Stat) = AWS.Status.H2C then
+   if AWS.Status.Protocol (Request) = AWS.Status.H2C then
       Handle_HTTP2_Settings;
 
    else
@@ -785,15 +786,15 @@ begin
    begin
       --  We now need to answer to the request made during the upgrade
 
-      if AWS.Status.Protocol (LA.Stat) = AWS.Status.H2C then
+      if AWS.Status.Protocol (Request) = AWS.Status.H2C then
          S.Insert
            (1,
-            HTTP2.Stream.Create (Sock,  1, Settings.Flow_Control_Window));
+            HTTP2.Stream.Create (Sock,  1, Settings.Initial_Window_Size));
 
-         S (1).Status.all := LA.Stat;
+         S (1).Status.all := Request;
 
          declare
-            M : HTTP2.Message.Object := Handle_Message (LA.Stat, S (1));
+            M : HTTP2.Message.Object := Handle_Message (Request, S (1));
          begin
             H2C_Answer := M.To_Frames (Ctx, S (1));
          end;
@@ -808,7 +809,9 @@ begin
                SM : constant HTTP2.Stream.Set.Maps.Reference_Type :=
                       S.Reference (M.Stream_Id);
             begin
-               if SM.Flow_Control_Window > 0 then
+               if SM.Flow_Control_Window > 0
+                 and then Settings.Flow_Control_Window > 0
+               then
                   Deferred_Messages.Delete_First;
 
                   --  Sends as much frame as possible that conform with the
@@ -910,7 +913,7 @@ begin
                   if SM.Has_Element (CS) then
                      return S (CS).Status;
                   else
-                     return LA.Stat'Access;
+                     return LA.Stat;
                   end if;
                end Get_Status;
 
@@ -1084,18 +1087,15 @@ exception
 
       AWS.Log.Write
         (LA.Server.Error_Log,
-         LA.Stat,
+         Request,
          "Exception handler bug "
          & Utils.CRLF_2_Spaces (Exception_Information (E)));
       LA.Server.Slots.Mark_Phase (LA.Line, Server_Response);
 
-      HTTP2.Frame.GoAway.Create
-        (Stream_Id => 1, Error => AWS.HTTP2.C_Internal_Error).Send (Sock.all);
-
    when E : others =>
       AWS.Log.Write
         (LA.Server.Error_Log,
-         LA.Stat,
+         Request,
          "Exception handler bug "
          & Utils.CRLF_2_Spaces (Exception_Information (E)));
 
@@ -1112,7 +1112,7 @@ exception
       LA.Server.Exception_Handler
         (E,
          LA.Server.Error_Log,
-         AWS.Exceptions.Data'(False, LA.Line, LA.Stat),
+         AWS.Exceptions.Data'(False, LA.Line, Request),
          Error_Answer);
 
       Will_Close := True;

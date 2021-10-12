@@ -1967,9 +1967,11 @@ package body AWS.Server.HTTP_Utils is
                Next_Size := 0;
             end if;
 
-            Data (Buffer (1 .. Last), Next_Size);
+            if Last >= Buffer'First then
+               Data (Buffer (1 .. Last), Next_Size);
 
-            Length := Length + Last;
+               Length := Length + Last;
+            end if;
 
             exit when Next_Size = 0;
 
