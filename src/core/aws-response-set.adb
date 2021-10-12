@@ -441,16 +441,12 @@ package body AWS.Response.Set is
       D.Mode := Value;
    end Mode;
 
-   -----------------
-   -- Read_Header --
-   -----------------
+   ------------------
+   -- Parse_Header --
+   ------------------
 
-   procedure Read_Header
-     (Socket : Net.Socket_Type'Class;
-      D      : in out Data) is
+   procedure Parse_Header (D : in out Data) is
    begin
-      D.Header.Read (Socket);
-
       --  Set D.Content_Type with the value read from the socket
 
       D.Content_Type := To_Unbounded_String
@@ -464,6 +460,17 @@ package body AWS.Response.Set is
              (AWS.Headers.Get
                (D.Header, Messages.Content_Disposition_Token), "filename"));
       end if;
+   end Parse_Header;
+
+   -----------------
+   -- Read_Header --
+   -----------------
+
+   procedure Read_Header
+     (Socket : Net.Socket_Type'Class;
+      D      : in out Data) is
+   begin
+      D.Header.Read (Socket);
    end Read_Header;
 
    -----------------
