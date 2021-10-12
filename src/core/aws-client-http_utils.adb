@@ -2157,6 +2157,7 @@ package body AWS.Client.HTTP_Utils is
       if Connection.HTTP_Version = HTTPv1 then
          Read_Status_Line;
          Response.Set.Read_Header (Sock, Answer);
+         Response.Set.Parse_Header (Answer);
 
       else
          --  In HTTP/2 the status is encoded in :status pseudo header
@@ -2167,6 +2168,7 @@ package body AWS.Client.HTTP_Utils is
          begin
             Status := Messages.Status_Code'Value ('S' & S);
             Response.Set.Status_Code (Answer, Status);
+            Response.Set.Parse_Header (Answer);
          end;
       end if;
 
@@ -2223,6 +2225,7 @@ package body AWS.Client.HTTP_Utils is
       then
          Read_Status_Line;
          Response.Set.Read_Header (Sock, Answer);
+         Response.Set.Parse_Header (Answer);
       end if;
 
       Set_Keep_Alive (Response.Header (Answer, Messages.Connection_Token));

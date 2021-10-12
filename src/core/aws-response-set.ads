@@ -60,9 +60,12 @@ package AWS.Response.Set is
    --  Should be used inside of server's callback when the user want
    --  to add/modify its own header lines to the response.
 
-   procedure Read_Header (Socket : Net.Socket_Type'Class; D : in out Data);
-   --  Read all header data from the socket and fill appropriate
-   --  data's fields.
+   procedure Read_Header
+     (Socket : Net.Socket_Type'Class; D : in out Data);
+   --  Read all header data from the socket
+
+   procedure Parse_Header (D : in out Data);
+   --  Fill appropriate data fields in D from header list (for fast access)
 
    procedure Headers
      (D       : in out Data;
