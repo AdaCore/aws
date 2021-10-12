@@ -1089,9 +1089,6 @@ exception
          & Utils.CRLF_2_Spaces (Exception_Information (E)));
       LA.Server.Slots.Mark_Phase (LA.Line, Server_Response);
 
-      HTTP2.Frame.GoAway.Create
-        (Stream_Id => 1, Error => AWS.HTTP2.C_Internal_Error).Send (Sock.all);
-
    when E : others =>
       AWS.Log.Write
         (LA.Server.Error_Log,
