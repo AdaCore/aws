@@ -47,6 +47,7 @@ with AWS.Resources.Streams.Memory;
 with AWS.Session;
 with AWS.URL;
 
+private with GNAT.Calendar;
 private with GNAT.SHA256;
 
 package AWS.Status is
@@ -383,12 +384,12 @@ private
       Method_String     : Unbounded_String;
       HTTP_Version      : Unbounded_String;
       URI               : aliased AWS.URL.Object;
-      Calendar_Time     : Calendar.Time;
-      Monotonic_Time    : Real_Time.Time;
+      Calendar_Time     : Ada.Calendar.Time     := GNAT.Calendar.No_Time;
+      Monotonic_Time    : Real_Time.Time        := Real_Time.Time_First;
       Binary_Data       : Memory_Stream_Access;
       Uploaded          : Boolean               := False;
       Content_Length    : Stream_Element_Count  := 0;
-      Keep_Alive        : Boolean;
+      Keep_Alive        : Boolean               := False;
       File_Up_To_Date   : Boolean               := False;
       Attachments       : AWS.Attachments.List;
 

@@ -155,11 +155,11 @@ private
       Response            : aliased AWS.Response.Data;
       Is_Ready            : Boolean              := False;
       Header_Found        : Boolean              := False;
-      Flow_Send_Window    : Integer;
-      Flow_Receive_Window : Integer;
+      Flow_Send_Window    : Integer              := 0;
+      Flow_Receive_Window : Integer              := 0;
       Bytes_Sent          : Stream_Element_Count := 0;
-      Weight              : Byte_1;
-      Stream_Dependency   : HTTP2.Stream_Id;
+      Weight              : Byte_1               := 0;
+      Stream_Dependency   : HTTP2.Stream_Id      := 0;
       End_Stream          : Boolean              := False;
       Content_Length      : Content_Length_Type  := Undefined_Length;
       Bytes_Received      : Content_Length_Type  := 0;
@@ -168,16 +168,7 @@ private
 
    function "<" (Left, Right : Object) return Boolean is (Left.Id < Right.Id);
 
-   Undefined : constant Object :=
-                 (null, 0, Idle, Frame.List.Empty_List, Frame.List.Empty_List,
-                  Headers             => AWS.Headers.Empty_List,
-                  Status              => <>,
-                  Response            => <>,
-                  Flow_Send_Window    => 0,
-                  Flow_Receive_Window => 0,
-                  Weight              => 0,
-                  Stream_Dependency   => 0,
-                  others              => <>);
+   Undefined : constant Object := (others => <>);
 
    function State (Self : Object) return State_Kind is (Self.State);
 

@@ -584,7 +584,7 @@ package body AWS.Status.Set is
       URI          : String;
       HTTP_Version : String) is
    begin
-      D.Calendar_Time  := Calendar.Clock;
+      D.Calendar_Time  := Ada.Calendar.Clock;
       D.Monotonic_Time := Real_Time.Clock;
 
       --  Method is case sensitive
