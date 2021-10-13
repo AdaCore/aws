@@ -735,7 +735,7 @@ begin
    if Check_Preface then
       declare
          Preface : Stream_Element_Array
-           (HTTP2.Client_Connection_Preface'Range);
+                     (HTTP2.Client_Connection_Preface'Range);
       begin
          Net.Buffered.Read (Sock.all, Preface);
 
