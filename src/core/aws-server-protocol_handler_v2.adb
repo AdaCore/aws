@@ -1090,6 +1090,18 @@ exception
          Request,
          "Exception handler bug "
          & Utils.CRLF_2_Spaces (Exception_Information (E)));
+
+      Error_Answer := Response.Build
+        (Status_Code  => Messages.S400,
+         Content_Type => "text/plain",
+         Message_Body => Exception_Message (E));
+
+      LA.Server.Exception_Handler
+        (E,
+         LA.Server.Error_Log,
+         AWS.Exceptions.Data'(False, LA.Line, Request),
+         Error_Answer);
+
       LA.Server.Slots.Mark_Phase (LA.Line, Server_Response);
 
    when E : others =>
