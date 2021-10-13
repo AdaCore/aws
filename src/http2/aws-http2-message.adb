@@ -39,6 +39,7 @@ with AWS.HTTP2.Frame.Headers;
 with AWS.HTTP2.Stream;
 with AWS.Messages;
 with AWS.Resources.Streams.Memory;
+with AWS.Response.Set;
 with AWS.Server.HTTP_Utils;
 with AWS.Translator;
 
@@ -138,10 +139,15 @@ package body AWS.HTTP2.Message is
          end if;
       end Set_Body;
 
+      use type Status.Request_Method;
+
    begin
       O.Kind      := K_Response;
-      O.Mode      := Response.Mode (Answer);
       O.Stream_Id := Stream_Id;
+      O.Mode      := (if Status.Method (Request) = Status.HEAD
+                      then Response.Header
+                      else Response.Mode (Answer));
+
 
       O.Headers.Case_Sensitive (False);
 
@@ -153,7 +159,9 @@ package body AWS.HTTP2.Message is
               (To_Lower (Messages.Status_Token),
                Messages.Image (Response.Status_Code (Answer)));
 
-            if O.Mode /= Response.Header then
+            if O.Mode = Response.Header then
+               Response.Set.Content_Length (Answer, To_Lower => True);
+            else
                Set_Body;
             end if;
 
@@ -162,7 +170,6 @@ package body AWS.HTTP2.Message is
             declare
                use all type Server.HTTP_Utils.Resource_Status;
                use type Ada.Calendar.Time;
-               use type Status.Request_Method;
 
                File_Time : Ada.Calendar.Time;
                F_Status  : constant Server.HTTP_Utils.Resource_Status :=

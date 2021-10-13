@@ -30,6 +30,7 @@
 pragma Ada_2012;
 
 with Ada.Characters.Handling;
+with Ada.Directories;
 with Ada.Strings.Fixed;
 
 with AWS.Digest;
@@ -38,6 +39,7 @@ with AWS.Resources.Streams.Memory.ZLib;
 with AWS.Resources.Streams.ZLib;
 with AWS.Server;
 with AWS.Translator;
+with AWS.Utils;
 
 with ZLib;
 
@@ -218,6 +220,29 @@ package body AWS.Response.Set is
    begin
       D.Close_Stream := State;
    end Close_Resource;
+
+   --------------------
+   -- Content_Length --
+   --------------------
+
+   procedure Content_Length (D : in out Data; To_Lower : Boolean) is
+      Size : constant Content_Length_Type :=
+               (case D.Mode is
+                   when File | File_Once =>
+                     Content_Length_Type
+                       (Ada.Directories.Size (Filename (D))),
+                   when Response.Stream | Response.Message =>
+                     D.Stream.Size,
+                   when others =>
+                     Undefined_Length);
+   begin
+      if Size /= Undefined_Length then
+         Update_Header
+           (D,
+            Utils.Normalize_Lower (Messages.Content_Length_Token, To_Lower),
+            Utils.Image (Size));
+      end if;
+   end Content_Length;
 
    ------------------
    -- Content_Type --
@@ -441,16 +466,12 @@ package body AWS.Response.Set is
       D.Mode := Value;
    end Mode;
 
-   -----------------
-   -- Read_Header --
-   -----------------
+   ------------------
+   -- Parse_Header --
+   ------------------
 
-   procedure Read_Header
-     (Socket : Net.Socket_Type'Class;
-      D      : in out Data) is
+   procedure Parse_Header (D : in out Data) is
    begin
-      D.Header.Read (Socket);
-
       --  Set D.Content_Type with the value read from the socket
 
       D.Content_Type := To_Unbounded_String
@@ -464,6 +485,17 @@ package body AWS.Response.Set is
              (AWS.Headers.Get
                (D.Header, Messages.Content_Disposition_Token), "filename"));
       end if;
+   end Parse_Header;
+
+   -----------------
+   -- Read_Header --
+   -----------------
+
+   procedure Read_Header
+     (Socket : Net.Socket_Type'Class;
+      D      : in out Data) is
+   begin
+      D.Header.Read (Socket);
    end Read_Header;
 
    -----------------
