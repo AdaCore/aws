@@ -518,6 +518,14 @@ package body AWS.Client.HTTP_Utils is
          Get_H2_Frame (Connection, Ctx, Stream);
       end loop;
 
+      --  Set headers into Answer
+
+      Response.Set.Headers (Result, Stream.Headers);
+
+      --  Then parse headers
+
+      Read_Parse_Header (Connection, Result, Keep_Alive);
+
       Stream.Append_Body (Result);
 
       --  Check encoding
@@ -551,14 +559,6 @@ package body AWS.Client.HTTP_Utils is
             Connection.Length   := CT_Len;
          end if;
       end;
-
-      --  Set headers into Answer
-
-      Response.Set.Headers (Result, Stream.Headers);
-
-      --  Then parse headers
-
-      Read_Parse_Header (Connection, Result, Keep_Alive);
    end Get_H2_Response;
 
    ------------------
