@@ -36,6 +36,7 @@ with AWS.HTTP2.Frame.Data;
 with AWS.HTTP2.Frame.Headers;
 with AWS.HTTP2.Frame.Window_Update;
 with AWS.HTTP2.HPACK;
+with AWS.Response.Set;
 with AWS.Status.Set;
 
 package body AWS.HTTP2.Stream is
@@ -64,11 +65,15 @@ package body AWS.HTTP2.Stream is
      (Self     : Object;
       Response : in out AWS.Response.Data) is
    begin
-      for F of Self.D_Frames loop
-         pragma Assert (F.Kind = K_Data);
+      if not Self.D_Frames.Is_Empty then
+         AWS.Response.Set.Mode (Response, AWS.Response.Message);
 
-         Frame.Data.Object (F).Append (Response);
-      end loop;
+         for F of Self.D_Frames loop
+            pragma Assert (F.Kind = K_Data);
+
+            Frame.Data.Object (F).Append (Response);
+         end loop;
+      end if;
    end Append_Body;
 
    ------------
