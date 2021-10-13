@@ -84,6 +84,11 @@ package AWS.Response.Set is
      with Inline;
    --  Set the MIME type for the message body
 
+   procedure Content_Length (D : in out Data; To_Lower : Boolean);
+   --  Set Content-Length header field appropriate to message body size.
+   --  To_Lower True mean that header name Content-Length have to be
+   --  lowercased.
+
    procedure Expires
      (D     : in out Data;
       Value : Calendar.Time)
