@@ -45,6 +45,7 @@ with AWS.Net;
 with AWS.Resources.Streams;
 with AWS.Status;
 
+private with AWS.Utils;
 private with Ada.Finalization;
 private with Ada.Unchecked_Deallocation;
 
@@ -449,10 +450,10 @@ private
      & "</BODY></HTML>" & CRLF;
 
    Undefined_Length : constant Content_Length_Type :=
-                        Content_Length_Type (Resources.Undefined_Length);
+                        Resources.Undefined_Length;
 
    type Release_Controller is record
-      Counter      : Natural := 1;
+      Counter      : Utils.Counter (1);
       --  Data object's Reference counter
 
       Stream_Taken : Boolean := False;

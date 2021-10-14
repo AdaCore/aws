@@ -70,7 +70,7 @@ package body AWS.Response is
 
    overriding procedure Adjust (Object : in out Data) is
    begin
-      Object.Ref_Counter.Counter := Object.Ref_Counter.Counter + 1;
+      Object.Ref_Counter.Counter.Increment;
    end Adjust;
 
    ------------------
@@ -408,6 +408,7 @@ package body AWS.Response is
         (Release_Controller, Release_Controller_Access);
 
       Ref_Counter : Release_Controller_Access := Object.Ref_Counter;
+      Value : Integer;
 
    begin
       --  Ensure call is idempotent
@@ -415,9 +416,9 @@ package body AWS.Response is
       Object.Ref_Counter := null;
 
       if Ref_Counter /= null then
-         Ref_Counter.Counter := Ref_Counter.Counter - 1;
+         Ref_Counter.Counter.Decrement (Value => Value);
 
-         if Ref_Counter.Counter = 0 then
+         if Value = 0 then
             --  No more reference to this object
 
             if not Ref_Counter.Stream_Taken
