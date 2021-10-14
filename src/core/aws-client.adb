@@ -188,10 +188,14 @@ package body AWS.Client is
       Connection.Streaming                := Server_Push;
       Connection.Certificate              := To_Unbounded_String (Certificate);
       Connection.Timeouts                 := Timeouts;
-      Connection.HTTP_Version             := HTTP_Version;
       Connection.Config                   := AWS.Config.Get_Current;
       Connection.H2_Preface_Sent          := False;
       Connection.H2_Stream_Id             := 1;
+
+      --  Server push is not supported in HTTPv2
+
+      Connection.HTTP_Version := (if Server_Push then HTTPv1
+                                  else HTTP_Version);
 
       Connection.User_Agent := To_Unbounded_String (User_Agent);
 
@@ -218,7 +222,7 @@ package body AWS.Client is
             Connection.SSL_Config := SSL_Config;
          end if;
 
-         if HTTP_Version = HTTPv2 then
+         if Connection.HTTP_Version = HTTPv2 then
             Net.SSL.ALPN_Include (Connection.SSL_Config, Messages.H2_Token);
          end if;
       end if;
