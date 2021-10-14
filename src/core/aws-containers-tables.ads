@@ -214,9 +214,4 @@ private
    Empty_Table : constant Table_Type :=
                    (True, Index_Table.Empty_Map, Data_Table.Empty_Vector);
 
-   function Normalize_Name
-     (Name : String; To_Upper : Boolean) return String;
-   --  Returns Name in upper case if To_Upper is set to True and it returns
-   --  Name unchanged otherwise.
-
 end AWS.Containers.Tables;

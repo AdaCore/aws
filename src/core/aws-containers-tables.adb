@@ -41,7 +41,7 @@ pragma Ada_2012;
 --  Each K/V pair is then inserted into the Data table for access by numeric
 --  index. And its numeric index is placed into the map indexed by name.
 
-with Ada.Characters.Handling;
+with AWS.Utils;
 
 package body AWS.Containers.Tables is
 
@@ -66,6 +66,12 @@ package body AWS.Containers.Tables is
    --     N  = 0      => the pair name=value is appended to the table
    --     N  = M + 1  => idem
    --     N  > M + 1  => Constraint_Error raised
+
+   function Normalize_Name
+     (Name : String; To_Lower : Boolean) return String
+      renames Utils.Normalize_Lower;
+   --  Returns Name in lower case if To_Lower is set to True and it returns
+   --  Name unchanged otherwise.
 
    ---------
    -- Add --
@@ -218,10 +224,9 @@ package body AWS.Containers.Tables is
       Cursor := Index_Table.Find
         (Table.Index, Normalize_Name (Name, not Table.Case_Sensitive));
 
-      if not Index_Table.Has_Element (Cursor) then
-         Found := False;
-      else
-         Found   := True;
+      Found := Index_Table.Has_Element (Cursor);
+
+      if Found then
          Indexes := Index_Table.Element (Cursor);
       end if;
    end Get_Indexes;
@@ -336,20 +341,6 @@ package body AWS.Containers.Tables is
       return Natural (Index_Table.Length (Table.Index));
    end Name_Count;
 
-   --------------------
-   -- Normalize_Name --
-   --------------------
-
-   function Normalize_Name
-     (Name : String; To_Upper : Boolean) return String is
-   begin
-      if To_Upper then
-         return Ada.Characters.Handling.To_Upper (Name);
-      else
-         return Name;
-      end if;
-   end Normalize_Name;
-
    -----------
    -- Reset --
    -----------
@@ -427,23 +418,16 @@ package body AWS.Containers.Tables is
       Value : Unbounded_String;
       N     : Natural)
    is
-      L_Key  : constant String :=
-                 Normalize_Name (To_String (Name), not Table.Case_Sensitive);
+      Cursor   : Index_Table.Cursor;
+      Inserted : Boolean;
 
-      Cursor : Index_Table.Cursor := Index_Table.Find (Table.Index, L_Key);
-
-      procedure Process
-        (Key  : String;
-         Item : in out Name_Index_Table);
+      procedure Process (Key : String; Item : in out Name_Index_Table);
 
       -------------
       -- Process --
       -------------
 
-      procedure Process
-        (Key  : String;
-         Item : in out Name_Index_Table)
-      is
+      procedure Process (Key : String; Item : in out Name_Index_Table) is
          pragma Unreferenced (Key);
          NV : constant Element := (Name => Name, Value => Value);
       begin
@@ -469,21 +453,12 @@ package body AWS.Containers.Tables is
       end Process;
 
    begin
-      if not Index_Table.Has_Element (Cursor) then
-         --  Insert empty vector into Table.Index
+      Table.Index.Insert
+        (Normalize_Name (To_String (Name), not Table.Case_Sensitive),
+         Name_Indexes.Empty_Vector, Cursor, Inserted);
 
-         if N > 1 then
-            raise Constraint_Error;
-         end if;
-
-         declare
-            Values  : Name_Index_Table;
-            Success : Boolean;
-         begin
-            Index_Table.Insert
-              (Table.Index, L_Key, Values, Cursor, Success);
-            pragma Assert (Success);
-         end;
+      if Inserted and then N > 1 then
+         raise Constraint_Error;
       end if;
 
       --  Update index vector just in place
