@@ -45,6 +45,9 @@ private with Ada.Real_Time;
 private with ZLib;
 
 private with AWS.Config;
+private with AWS.HTTP2.Connection;
+private with AWS.HTTP2.HPACK.Table;
+private with AWS.HTTP2.Frame.Settings;
 private with AWS.URL;
 private with AWS.Utils;
 
@@ -655,6 +658,10 @@ private
       Decode_First       : Stream_Element_Offset;
       Decode_Last        : Stream_Element_Offset;
       Config             : AWS.Config.Object;
+      H2_Settings        : HTTP2.Frame.Settings.Set (1 .. 6);
+      H2_Connection      : aliased HTTP2.Connection.Object;
+      Enc_Table          : aliased HTTP2.HPACK.Table.Object;
+      Dec_Table          : aliased HTTP2.HPACK.Table.Object;
    end record;
 
    overriding procedure Finalize (Connection : in out HTTP_Connection);

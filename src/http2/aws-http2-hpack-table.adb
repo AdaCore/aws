@@ -49,6 +49,15 @@ package body AWS.HTTP2.HPACK.Table is
    function NV_Size (NV : Name_Value) return Positive is
      (NV.Name'Length + NV.Value'Length + 32);
 
+   -----------
+   -- Clear --
+   -----------
+
+   procedure Clear (Self : in out Object) is
+   begin
+      Self := Object'(others => <>);
+   end Clear;
+
    ----------
    -- Dump --
    ----------

@@ -39,8 +39,6 @@ with AWS.Digest;
 with AWS.Headers.Values;
 with AWS.HTTP2.Connection;
 with AWS.HTTP2.Frame.List;
-with AWS.HTTP2.Frame.Settings;
-with AWS.HTTP2.HPACK.Table;
 with AWS.HTTP2.Message;
 with AWS.HTTP2.Stream;
 with AWS.Messages;
@@ -135,14 +133,7 @@ package body AWS.Client.HTTP_Utils is
       Headers      : Header_List := Empty_Header_List);
    --  Send a simple POST request data For HTTP/2
 
-   function Get_Settings
-     (Config : AWS.Config.Object) return HTTP2.Frame.Settings.Set;
-   --  Returns the config set from Config
-
-   procedure Send_H2_Connection_Preface
-     (Connection   : in out HTTP_Connection;
-      Settings     : HTTP2.Frame.Settings.Set;
-      H_Connection : in out HTTP2.Connection.Object)
+   procedure Send_H2_Connection_Preface (Connection : in out HTTP_Connection)
      with Pre => not Connection.H2_Preface_Sent;
    --  Send connection preface and get response from server
 
@@ -274,6 +265,15 @@ package body AWS.Client.HTTP_Utils is
 
       Sock := Net.Socket (Security);
       Connection.Socket := Sock;
+
+      Connection.H2_Preface_Sent := False;
+
+      --  Set default HTTP2 connection settings
+
+      Connection.H2_Settings := HTTP_Utils.Get_Settings (Connection.Config);
+      HTTP2.Connection.Set (Connection.H2_Connection, Connection.H2_Settings);
+      Connection.Enc_Table.Clear;
+      Connection.Dec_Table.Clear;
 
       if Security then
          --  This is a secure connection, set the SSL config for this socket
@@ -688,24 +688,14 @@ package body AWS.Client.HTTP_Utils is
       Auth_Attempts : in out Auth_Attempts_Count;
       Auth_Is_Over  : out Boolean)
    is
-      Settings      : constant HTTP2.Frame.Settings.Set :=
-                        Get_Settings (Connection.Config);
-
       Request       : HTTP2.Message.Object;
       Stream        : HTTP2.Stream.Object;
-      H_Connection  : aliased HTTP2.Connection.Object;
-      Enc_Table     : aliased HTTP2.HPACK.Table.Object;
-      Dec_Table     : aliased HTTP2.HPACK.Table.Object;
       Ctx           : Server.Context.Object (null,
                                              1,
-                                             Enc_Table'Access,
-                                             Dec_Table'Access,
-                                             H_Connection'Access);
+                                             Connection.Enc_Table'Access,
+                                             Connection.Dec_Table'Access,
+                                             Connection.H2_Connection'Access);
    begin
-      --  Set default connection settings
-
-      HTTP2.Connection.Set (H_Connection, Settings);
-
       --  Create the request HTTP/2 message out of Status.Data
 
       if Data'Length > 0 then
@@ -717,14 +707,14 @@ package body AWS.Client.HTTP_Utils is
 
       if not Connection.H2_Preface_Sent then
          --  Update H_Connection with server settings
-         Send_H2_Connection_Preface (Connection, Settings, H_Connection);
+         Send_H2_Connection_Preface (Connection);
       end if;
 
       --  Create frames and send them
 
       Stream := HTTP2.Stream.Create
         (Connection.Socket,
-         Connection.H2_Stream_Id, H_Connection.Initial_Window_Size);
+         Connection.H2_Stream_Id, Ctx.Settings.Initial_Window_Size);
 
       Next_Stream_Id (Connection);
 
@@ -1006,8 +996,6 @@ package body AWS.Client.HTTP_Utils is
       use Real_Time;
 
       Stamp     : constant Time := Clock;
-      Settings  : constant HTTP2.Frame.Settings.Set :=
-                    Get_Settings (Connection.Config);
 
       Pref_Suf  : constant String := "--";
       Boundary  : constant String :=
@@ -1021,14 +1009,11 @@ package body AWS.Client.HTTP_Utils is
       Auth_Attempts : Auth_Attempts_Count := (others => 2);
       Auth_Is_Over  : Boolean;
       Stream        : HTTP2.Stream.Object;
-      H_Connection  : aliased HTTP2.Connection.Object;
-      Enc_Table     : aliased HTTP2.HPACK.Table.Object;
-      Dec_Table     : aliased HTTP2.HPACK.Table.Object;
       Ctx           : Server.Context.Object (null,
                                              1,
-                                             Enc_Table'Access,
-                                             Dec_Table'Access,
-                                             H_Connection'Access);
+                                             Connection.Enc_Table'Access,
+                                             Connection.Dec_Table'Access,
+                                             Connection.H2_Connection'Access);
       procedure Build_Root_Part_Header;
       --  Builds the rootpart header and calculates its size
 
@@ -1051,10 +1036,6 @@ package body AWS.Client.HTTP_Utils is
       Connection.F_Headers.Reset;
 
       Build_Root_Part_Header;
-
-      --  Set default connection settings
-
-      HTTP2.Connection.Set (H_Connection, Settings);
 
       Retry : loop
          begin
@@ -1079,14 +1060,14 @@ package body AWS.Client.HTTP_Utils is
 
             if not Connection.H2_Preface_Sent then
                --  Update H_Connection with server settings
-               Send_H2_Connection_Preface (Connection, Settings, H_Connection);
+               Send_H2_Connection_Preface (Connection);
             end if;
 
             --  Create frames and send them
 
             Stream := HTTP2.Stream.Create
               (Connection.Socket,
-               Connection.H2_Stream_Id, H_Connection.Initial_Window_Size);
+               Connection.H2_Stream_Id, Ctx.Settings.Initial_Window_Size);
 
             Next_Stream_Id (Connection);
 
@@ -1501,8 +1482,6 @@ package body AWS.Client.HTTP_Utils is
                       ("form-data", "filename", URL.Encode (Filename));
 
       Stamp     : constant Time := Clock;
-      Settings  : constant HTTP2.Frame.Settings.Set :=
-                    Get_Settings (Connection.Config);
 
       Pref_Suf  : constant String := "--";
       Boundary  : constant String :=
@@ -1513,14 +1492,11 @@ package body AWS.Client.HTTP_Utils is
       Auth_Attempts : Auth_Attempts_Count := (others => 2);
       Auth_Is_Over  : Boolean;
       Stream        : HTTP2.Stream.Object;
-      H_Connection  : aliased HTTP2.Connection.Object;
-      Enc_Table     : aliased HTTP2.HPACK.Table.Object;
-      Dec_Table     : aliased HTTP2.HPACK.Table.Object;
       Ctx           : Server.Context.Object (null,
                                              1,
-                                             Enc_Table'Access,
-                                             Dec_Table'Access,
-                                             H_Connection'Access);
+                                             Connection.Enc_Table'Access,
+                                             Connection.Dec_Table'Access,
+                                             Connection.H2_Connection'Access);
 
    begin
       Connection.F_Headers.Reset;
@@ -1538,14 +1514,14 @@ package body AWS.Client.HTTP_Utils is
 
             if not Connection.H2_Preface_Sent then
                --  Update H_Connection with server settings
-               Send_H2_Connection_Preface (Connection, Settings, H_Connection);
+               Send_H2_Connection_Preface (Connection);
             end if;
 
             --  Create frames and send them
 
             Stream := HTTP2.Stream.Create
               (Connection.Socket,
-               Connection.H2_Stream_Id, H_Connection.Initial_Window_Size);
+               Connection.H2_Stream_Id, Ctx.Settings.Initial_Window_Size);
 
             Next_Stream_Id (Connection);
 
@@ -2289,10 +2265,7 @@ package body AWS.Client.HTTP_Utils is
    -- Send_H2_Connection_Preface --
    --------------------------------
 
-   procedure Send_H2_Connection_Preface
-     (Connection   : in out HTTP_Connection;
-      Settings     : HTTP2.Frame.Settings.Set;
-      H_Connection : in out HTTP2.Connection.Object)
+   procedure Send_H2_Connection_Preface (Connection : in out HTTP_Connection)
    is
       use all type HTTP2.Frame.Kind_Type;
    begin
@@ -2303,14 +2276,15 @@ package body AWS.Client.HTTP_Utils is
 
       --  Send the setting frame (stream id 0)
 
-      HTTP2.Frame.Settings.Create (Settings).Send (Connection.Socket.all);
+      HTTP2.Frame.Settings.Create (Connection.H2_Settings).Send
+        (Connection.Socket.all);
 
       --  We need to read the settings from server
 
       declare
          Frame : constant HTTP2.Frame.Object'Class :=
                    HTTP2.Frame.Read
-                     (Connection.Socket.all, H_Connection);
+                     (Connection.Socket.all, Connection.H2_Connection);
       begin
          if Frame.Kind /= K_Settings then
             if HTTP2.Debug then
@@ -2330,7 +2304,8 @@ package body AWS.Client.HTTP_Utils is
 
                if not S_Frame.Has_Flag (HTTP2.Frame.Ack_Flag) then
                   HTTP2.Connection.Set
-                    (H_Connection, HTTP2.Frame.Settings.Values (S_Frame));
+                    (Connection.H2_Connection,
+                     HTTP2.Frame.Settings.Values (S_Frame));
                end if;
             end;
          end if;
