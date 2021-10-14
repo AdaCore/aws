@@ -71,6 +71,9 @@ package AWS.HTTP2.HPACK.Table is
    procedure Dump (Self : Object);
    --  Dump table content for debug
 
+   procedure Clear (Self : in out Object);
+   --  Clear encoding/decoding dynamic table
+
 private
 
    use Ada;
