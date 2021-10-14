@@ -458,8 +458,8 @@ package body AWS.Client.HTTP_Utils is
    is
       use AWS.HTTP2;
       Answers : Frame.List.Object;
-      Error   : Error_Codes;
-      Add_FC  : Integer;
+      Error   : Error_Codes := C_No_Error;
+      Add_FC  : Integer     := 0;
       Frame   : constant HTTP2.Frame.Object'Class :=
                   HTTP2.Frame.Read (Connection.Socket.all, Ctx.Settings.all);
    begin
@@ -1153,7 +1153,10 @@ package body AWS.Client.HTTP_Utils is
 
             exit Retry when Auth_Is_Over;
          exception
-            when E : Net.Socket_Error | Connection_Error =>
+            when E : Net.Socket_Error
+                   | Connection_Error
+                   | HTTP2.Protocol_Error
+              =>
                Error_Processing
                  (Connection, Try_Count, Result, "UPLOAD", E, Stamp);
 
@@ -1278,7 +1281,10 @@ package body AWS.Client.HTTP_Utils is
 
             exit Retry when Auth_Is_Over;
          exception
-            when E : Net.Socket_Error | Connection_Error =>
+            when E : Net.Socket_Error
+                   | Connection_Error
+                   | HTTP2.Protocol_Error
+              =>
                Error_Processing
                  (Connection, Try_Count, Result, "POST", E, Stamp);
 
@@ -1627,7 +1633,10 @@ package body AWS.Client.HTTP_Utils is
 
             exit Retry when Auth_Is_Over;
          exception
-            when E : Net.Socket_Error | Connection_Error =>
+            when E : Net.Socket_Error
+                   | Connection_Error
+                   | HTTP2.Protocol_Error
+              =>
                Error_Processing
                  (Connection, Try_Count, Result, "Upload", E, Stamp);
 
@@ -2485,7 +2494,10 @@ package body AWS.Client.HTTP_Utils is
 
             exit Retry when Auth_Is_Over;
          exception
-            when E : Net.Socket_Error | Connection_Error =>
+            when E : Net.Socket_Error
+                   | Connection_Error
+                   | HTTP2.Protocol_Error
+              =>
                Error_Processing
                  (Connection, Try_Count, Result,
                   Method_Kind'Image (Kind), E, Stamp);

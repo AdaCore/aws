@@ -376,6 +376,11 @@ package body AWS.Server is
             declare
                Answer : Response.Data;
             begin
+               Answer := Response.Build
+                 (Status_Code  => Messages.S500,
+                  Content_Type => "text/plain",
+                  Message_Body => Exception_Message (E));
+
                AWS.Log.Write
                  (TA.Server.Error_Log,
                   "Dead slot " & Utils.Image (TA.Line) & ' '
