@@ -510,6 +510,10 @@ is
          LA.Server.Slots.Mark_Phase (LA.Line, Server_Processing);
 
          AWS.Status.Set.Uploaded (S.all);
+
+         --  Record attachments into status data
+
+         AWS.Status.Set.Attachments (LA.Stat.all, Attachments);
       end Handle_POST;
 
       ----------------------

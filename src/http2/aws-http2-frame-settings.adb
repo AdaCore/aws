@@ -51,7 +51,7 @@ package body AWS.HTTP2.Frame.Settings is
       Ack      : Boolean := False) return Object
    is
       Len : constant Stream_Element_Count :=
-              Stream_Element_Count (Settings'Length * Payload'Size / 8);
+              Settings'Length * Payload'Size / Stream_Element'Size;
    begin
       return O : Object do
          O.Header.H.Stream_Id := 0;
@@ -60,28 +60,25 @@ package body AWS.HTTP2.Frame.Settings is
          O.Header.H.R         := 0;
          O.Header.H.Flags     := (if Ack then Ack_Flag else 0);
 
-         O.Size := Stream_Element_Count (Len / (Payload'Size / 8));
+         O.Size := Settings'Length;
 
          if Settings'Length > 0 then
-            O.Data.S := new Stream_Element_Array
-                          (1 .. Stream_Element_Offset (Len));
+            O.Data.S := new Stream_Element_Array (1 .. Len);
             O.Data.P (1 .. Settings'Length) := Settings;
          end if;
       end return;
    end Create;
 
    function Create (Payload : Stream_Element_Array) return Object is
-      Len : constant Stream_Element_Count :=
-              Stream_Element_Count (Payload'Length);
    begin
       return O : Object do
          O.Header.H.Stream_Id := 0;
-         O.Header.H.Length    := Length_Type (Len);
+         O.Header.H.Length    := Payload'Length;
          O.Header.H.Kind      := K_Settings;
          O.Header.H.R         := 0;
          O.Header.H.Flags     := 0;
 
-         O.Size := Stream_Element_Count (Len / (Payload'Size / 8));
+         O.Size := Payload'Length / (Payload'Size / Stream_Element'Size);
 
          O.Data.S := new Stream_Element_Array'(Payload);
       end return;

@@ -30,6 +30,8 @@
 pragma Ada_2012;
 
 with AWS.Client;
+with AWS.Config;
+with AWS.HTTP2.Frame.Settings;
 with AWS.Response;
 with AWS.Status;
 
@@ -185,5 +187,9 @@ package AWS.Client.HTTP_Utils is
    function Value (V : String) return Unbounded_String;
    --  Returns V as an Unbounded_String if V is not the empty string
    --  otherwise it returns Null_Unbounded_String.
+
+   function Get_Settings
+     (Config : AWS.Config.Object) return HTTP2.Frame.Settings.Set;
+   --  Returns the config set from Config
 
 end AWS.Client.HTTP_Utils;
