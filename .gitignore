@@ -4,6 +4,8 @@
 *.pyc
 *.so
 *~
+*.stdout
+*.stderr
 .build
 .gpsrcs
 demos/web_block_ajax_templates/code.ada
