@@ -651,7 +651,10 @@ is
       --  And set the request information using an HTTP/1 request line format
 
       declare
-         Path        : constant String := Headers.Get (Messages.Path2_Token);
+         Path        : constant String :=
+                         Headers.Get (Messages.Scheme_Token) & "://"
+                         & Headers.Get (Messages.Host_Token)
+                         & Headers.Get (Messages.Path2_Token);
          Path_Last   : Positive;
          Query_First : Positive;
 
