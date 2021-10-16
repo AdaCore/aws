@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2007-2012, AdaCore                     --
+--                     Copyright (C) 2007-2021, AdaCore                     --
 --                                                                          --
 --  This is free software;  you can redistribute it  and/or modify it       --
 --  under terms of the  GNU General Public License as published  by the     --
@@ -45,7 +45,7 @@ procedure URL_Object is
       Port       : constant Positive := Server.Status.Port (WS);
       Port_Image : constant String  := Utils.Image (Port);
       Port_Idx   : constant Natural :=
-        Strings.Fixed.Index (URL_Image, ':' & Port_Image & '/');
+                     Strings.Fixed.Index (URL_Image, ':' & Port_Image & '/');
 
    begin
       Strings.Fixed.Replace_Slice
