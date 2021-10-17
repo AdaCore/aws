@@ -213,6 +213,7 @@ package body AWS.Client.HTTP_Utils is
       use type Net.Socket_Access;
       use type Net.SSL.Session_Type;
 
+      Is_H2       : constant Boolean := Connection.HTTP_Version = HTTPv2;
       Connect_URL : AWS.URL.Object renames Connection.Connect_URL;
       Security    : constant Boolean := AWS.URL.Security (Connect_URL);
       Sock        : Net.Socket_Access;
@@ -317,9 +318,11 @@ package body AWS.Client.HTTP_Utils is
          begin
             Set_Header
               (Connection.F_Headers,
-               Messages.Connect_Token, Host_Address & ' ' & AWS.HTTP_Version);
+               HN (Messages.Connect_Token, Is_H2),
+               Host_Address & ' ' & AWS.HTTP_Version);
             Set_Header
-              (Connection.F_Headers, Messages.Host_Token, Host_Address);
+              (Connection.F_Headers,
+               HN (Messages.Host_Token, Is_H2), Host_Address);
          end;
 
          --  Proxy Authentication
@@ -333,7 +336,8 @@ package body AWS.Client.HTTP_Utils is
 
          if Connection.User_Agent /= Null_Unbounded_String then
             Set_Header
-              (Connection.F_Headers, Messages.User_Agent_Token,
+              (Connection.F_Headers,
+               HN (Messages.User_Agent_Token, Is_H2),
                To_String (Connection.User_Agent));
          end if;
 
