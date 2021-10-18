@@ -95,12 +95,8 @@ is
 
    procedure Handle_Message (Stream : HTTP2.Stream.Object);
 
-   --  function Handle_Message
-   --    (Status : in out AWS.Status.Data;
-   --     Stream : HTTP2.Stream.Object) return AWS.HTTP2.Frame.List.Object;
    function Handle_Message
-     (Status : in out AWS.Status.Data;
-      Stream : HTTP2.Stream.Object) return AWS.HTTP2.Message.Object;
+     (Stream : HTTP2.Stream.Object) return AWS.HTTP2.Message.Object;
 
    procedure Queue_Settings_Frame;
    --  Queue server settings frame (default configuration)
@@ -215,10 +211,11 @@ is
    --------------------
 
    function Handle_Message
-     (Status : in out AWS.Status.Data;
-      Stream : HTTP2.Stream.Object) return AWS.HTTP2.Message.Object
+     (Stream : HTTP2.Stream.Object) return AWS.HTTP2.Message.Object
    is
       use type Response.Data_Mode;
+
+      Status : AWS.Status.Data renames Stream.Status.all;
 
    begin
       if Extended_Log then
@@ -316,7 +313,7 @@ is
                Response.Content_Type (R));
          end if;
 
-         return HTTP2.Message.Create (R, Stream.Status.all, Stream.Identifier);
+         return HTTP2.Message.Create (R, Status, Stream.Identifier);
       end;
    end Handle_Message;
 
@@ -627,15 +624,16 @@ is
          end loop;
       end Validate_Headers;
 
+      Status  : AWS.Status.Data renames Stream.Status.all;
       Headers : constant AWS.Headers.List := Stream.Headers;
       Error   : HTTP2.Error_Codes;
 
    begin
-      Set_Status (Stream.Status.all);
+      AWS.Status.Set.Reset (Status);
 
-      AWS.Status.Set.Headers (Stream.Status.all, Headers);
+      AWS.Status.Set.Headers (Status, Headers);
 
-      Stream.Append_Body (Stream.Status.all);
+      Stream.Append_Body (Status);
 
       --  Check headers' validity
 
@@ -646,15 +644,12 @@ is
            HTTP2.Exception_Message (Error, "headers validity check fails");
       end if;
 
-      AWS.Status.Set.Update_Data_From_Header (Stream.Status.all);
+      AWS.Status.Set.Update_Data_From_Header (Status);
 
       --  And set the request information using an HTTP/1 request line format
 
       declare
-         Path        : constant String :=
-                         Headers.Get (Messages.Scheme_Token) & "://"
-                         & Headers.Get (Messages.Host_Token)
-                         & Headers.Get (Messages.Path2_Token);
+         Path        : constant String := Headers.Get (Messages.Path2_Token);
          Path_Last   : Positive;
          Query_First : Positive;
 
@@ -662,25 +657,29 @@ is
          HTTP_Utils.Split_Path (Path, Path_Last, Query_First);
 
          AWS.Status.Set.Request
-           (Stream.Status.all,
+           (Status,
             Method       => Headers.Get (Messages.Method_Token),
             URI          => Path (Path'First .. Path_Last),
             HTTP_Version => HTTP_2);
 
+         Set_Status (Status);
+
          AWS.Status.Set.Query
-           (Stream.Status.all,
+           (Status,
             Parameters => Path (Query_First .. Path'Last));
       end;
 
-      if AWS.Status.Method (Stream.Status.all) = AWS.Status.POST
-        and then AWS.Status.Binary_Size (Stream.Status.all) > 0
+      if AWS.Status.Method (Status) = AWS.Status.POST
+        and then AWS.Status.Binary_Size (Status) > 0
       then
          Handle_POST;
       end if;
 
+      --  Set back the status caller
+
       LA.Stat := Stream.Status;
 
-      Deferred_Messages.Append (Handle_Message (Stream.Status.all, Stream));
+      Deferred_Messages.Append (Handle_Message (Stream));
    end Handle_Message;
 
    --------------------------
@@ -699,8 +698,6 @@ is
 
    procedure Set_Status (Status : in out AWS.Status.Data) is
    begin
-      AWS.Status.Set.Reset (Status);
-
       --  With HTTP/2 the whole body is always uploaded when receiving frames
 
       AWS.Status.Set.Uploaded (Status);
@@ -801,7 +798,7 @@ begin
          S (1).Status.all := Request;
 
          declare
-            M : HTTP2.Message.Object := Handle_Message (Request, S (1));
+            M : HTTP2.Message.Object := Handle_Message (S (1));
          begin
             H2C_Answer := M.To_Frames (Ctx, S (1));
          end;
