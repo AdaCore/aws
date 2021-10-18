@@ -148,7 +148,6 @@ package body AWS.HTTP2.Message is
                       then Response.Header
                       else Response.Mode (Answer));
 
-
       O.Headers.Case_Sensitive (False);
 
       case O.Mode is
@@ -171,7 +170,7 @@ package body AWS.HTTP2.Message is
                use all type Server.HTTP_Utils.Resource_Status;
                use type Ada.Calendar.Time;
 
-               File_Time : Ada.Calendar.Time;
+               File_Time : Calendar.Time;
                F_Status  : constant Server.HTTP_Utils.Resource_Status :=
                              Server.HTTP_Utils.Get_Resource_Status
                                (Request,
