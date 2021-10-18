@@ -420,7 +420,7 @@ package body AWS.Status is
       Encoding : Messages.Content_Encoding) return Boolean
    is
       function To_Lower (Item : String) return String
-         renames Ada.Characters.Handling.To_Lower;
+         renames Characters.Handling.To_Lower;
 
       Encoding_Image : constant String :=
                          To_Lower (Messages.Content_Encoding'Image (Encoding));
@@ -727,7 +727,7 @@ package body AWS.Status is
       return D.Calendar_Time;
    end Request_Time;
 
-   function Request_Time (D : Data) return Ada.Real_Time.Time is
+   function Request_Time (D : Data) return Real_Time.Time is
    begin
       return D.Monotonic_Time;
    end Request_Time;
