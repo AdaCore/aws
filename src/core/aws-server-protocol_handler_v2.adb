@@ -631,7 +631,7 @@ is
       Error   : HTTP2.Error_Codes;
 
    begin
-      Set_Status (Stream.Status.all);
+      AWS.Status.Set.Reset (Stream.Status.all);
 
       AWS.Status.Set.Headers (Stream.Status.all, Headers);
 
@@ -651,10 +651,7 @@ is
       --  And set the request information using an HTTP/1 request line format
 
       declare
-         Path        : constant String :=
-                         Headers.Get (Messages.Scheme_Token) & "://"
-                         & Headers.Get (Messages.Host_Token)
-                         & Headers.Get (Messages.Path2_Token);
+         Path        : constant String := Headers.Get (Messages.Path2_Token);
          Path_Last   : Positive;
          Query_First : Positive;
 
@@ -667,6 +664,8 @@ is
             URI          => Path (Path'First .. Path_Last),
             HTTP_Version => HTTP_2);
 
+         Set_Status (Stream.Status.all);
+
          AWS.Status.Set.Query
            (Stream.Status.all,
             Parameters => Path (Query_First .. Path'Last));
@@ -677,6 +676,8 @@ is
       then
          Handle_POST;
       end if;
+
+      --  Set back the status caller
 
       LA.Stat := Stream.Status;
 
@@ -699,8 +700,6 @@ is
 
    procedure Set_Status (Status : in out AWS.Status.Data) is
    begin
-      AWS.Status.Set.Reset (Status);
-
       --  With HTTP/2 the whole body is always uploaded when receiving frames
 
       AWS.Status.Set.Uploaded (Status);
