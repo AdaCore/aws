@@ -2181,8 +2181,8 @@ package body AWS.Client.HTTP_Utils is
             ZLib.Inflate_Init (Connection.Decode_Filter, Header => Header);
 
             if Connection.Decode_Buffer = null then
-               Connection.Decode_Buffer
-                 := new Stream_Element_Array (1 .. 8096);
+               Connection.Decode_Buffer :=
+                 new Stream_Element_Array (1 .. 8096);
             end if;
 
             Connection.Decode_First := Connection.Decode_Buffer'Last + 1;
@@ -2217,10 +2217,11 @@ package body AWS.Client.HTTP_Utils is
          Response.Set.Parse_Header (Answer);
       end if;
 
-      Set_Keep_Alive (Response.Header (Answer, Messages.Connection_Token));
+      Set_Keep_Alive
+        (Response.Header (Answer, Messages.Connection_Token));
 
-      Set_Keep_Alive (Response.Header
-        (Answer, Messages.Proxy_Connection_Token));
+      Set_Keep_Alive
+        (Response.Header (Answer, Messages.Proxy_Connection_Token));
 
       --  Read and store all cookies from response header
 

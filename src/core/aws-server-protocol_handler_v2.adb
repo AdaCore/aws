@@ -392,8 +392,7 @@ is
            (Name, Value : String; Quit : in out Boolean)
          is
             pragma Unreferenced (Quit);
-            L_Name : constant String :=
-                        Ada.Characters.Handling.To_Lower (Name);
+            L_Name : constant String := Characters.Handling.To_Lower (Name);
          begin
             if L_Name = "boundary" then
                Status_Multipart_Boundary := To_Unbounded_String (Value);
