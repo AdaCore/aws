@@ -28,6 +28,7 @@
 ------------------------------------------------------------------------------
 
 with AWS.Net.Buffered;
+with AWS.Translator;
 
 package body AWS.HTTP2.Frame.GoAway is
 
@@ -37,11 +38,12 @@ package body AWS.HTTP2.Frame.GoAway is
 
    function Create
      (Stream_Id : Stream.Id;
-      Error     : Error_Codes) return Object is
+      Error     : Error_Codes;
+      Data      : String := "") return Object is
    begin
       return O : Object do
          O.Header.H.Stream_Id := 0;
-         O.Header.H.Length    := 8;
+         O.Header.H.Length    := 8 + Data'Length;
          O.Header.H.Kind      := K_GoAway;
          O.Header.H.R         := 0;
          O.Header.H.Flags     := 0;
@@ -52,8 +54,22 @@ package body AWS.HTTP2.Frame.GoAway is
          O.Data.P.all := (R          => 0,
                           Stream_Id  => Stream_Id,
                           Error_Code => Error_Codes'Pos (Error));
+
+         if Data'Length > 0 then
+            O.Data.S (9 .. O.Data.S'Last) :=
+              Translator.To_Stream_Element_Array (Data);
+         end if;
       end return;
    end Create;
+
+   ----------
+   -- Data --
+   ----------
+
+   function Data (Self : Object) return String is
+   begin
+      return Translator.To_String (Self.Data.S (9 .. Self.Data.S'Last));
+   end Data;
 
    ------------------
    -- Dump_Payload --
