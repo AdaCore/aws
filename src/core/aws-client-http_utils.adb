@@ -558,6 +558,11 @@ package body AWS.Client.HTTP_Utils is
 
          Stream.Append_Body (Result);
 
+         --  Finally close the stream
+
+         Stream.Send_Frame
+           (HTTP2.Frame.GoAway.Create (Stream.Identifier, HTTP2.C_No_Error));
+
          --  Check encoding
 
          declare

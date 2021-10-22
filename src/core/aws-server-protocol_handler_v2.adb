@@ -874,6 +874,13 @@ begin
                end if;
 
                Answers.Delete_First;
+
+               --  For GOAWAY frame we exclude the stream id from the list
+               --  as no more data are expected to be sent.
+
+               if Frame.Kind = K_GoAway then
+                  S.Exclude (Frame.Stream_Id);
+               end if;
             end;
          end loop;
 
@@ -926,6 +933,8 @@ begin
                   AWS.Log.Write
                     (LA.Server.Error_Log, Get_Status.all, Message);
                end if;
+
+               S.Exclude (Stream_Id);
 
                HTTP2.Frame.GoAway.Create
                  (Stream_Id => Last_SID, Error => Error).Send (Sock.all);
