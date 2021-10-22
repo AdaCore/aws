@@ -38,6 +38,7 @@ with Ada.Streams.Stream_IO;
 with AWS.Digest;
 with AWS.Headers.Values;
 with AWS.HTTP2.Connection;
+with AWS.HTTP2.Frame.GoAway;
 with AWS.HTTP2.Frame.List;
 with AWS.HTTP2.Message;
 with AWS.HTTP2.Stream;
@@ -143,7 +144,8 @@ package body AWS.Client.HTTP_Utils is
    procedure Get_H2_Frame
      (Connection : in out HTTP_Connection;
       Ctx        : in out Server.Context.Object;
-      Stream     : in out HTTP2.Stream.Object);
+      Stream     : in out HTTP2.Stream.Object;
+      Result     : out Response.Data);
    --  Process incoming HTTP/2 frame
 
    procedure Send_H2_Request
@@ -458,7 +460,8 @@ package body AWS.Client.HTTP_Utils is
    procedure Get_H2_Frame
      (Connection : in out HTTP_Connection;
       Ctx        : in out Server.Context.Object;
-      Stream     : in out HTTP2.Stream.Object)
+      Stream     : in out HTTP2.Stream.Object;
+      Result     : out Response.Data)
    is
       use AWS.HTTP2;
       Answers : Frame.List.Object;
@@ -467,19 +470,40 @@ package body AWS.Client.HTTP_Utils is
       Frame   : constant HTTP2.Frame.Object'Class :=
                   HTTP2.Frame.Read (Connection.Socket.all, Ctx.Settings.all);
    begin
+      Response.Set.Mode (Result, Response.No_Data);
+
       if Frame.Stream_Id = 0 then
-         Ctx.Settings.Handle_Control_Frame (Frame, Answers, Add_FC, Error);
+         case Frame.Kind is
+            when HTTP2.Frame.K_GoAway =>
+               declare
+                  G : constant HTTP2.Frame.GoAway.Object :=
+                        HTTP2.Frame.GoAway.Object (Frame);
+               begin
+                  if G.Error /= C_No_Error then
+                     --  We map all HTTP/2 GoAway to S400
+                     Result := Response.Build
+                       (Status_Code => Messages.S400,
+                        Content_Type => "text/plain",
+                        Message_Body => (if G.Has_Data then G.Data else ""));
+                     return;
+                  end if;
+               end;
 
-         if Add_FC /= 0
-           and then HTTP2.Connection.Flow_Control_Window_Valid
-                      (Stream.Flow_Control_Window, Add_FC)
-         then
-            Stream.Update_Flow_Control_Window (Add_FC);
-         end if;
+            when others =>
+               Ctx.Settings.Handle_Control_Frame
+                 (Frame, Answers, Add_FC, Error);
 
-         for A of Answers loop
-            Stream.Send_Frame (A);
-         end loop;
+               if Add_FC /= 0
+                 and then HTTP2.Connection.Flow_Control_Window_Valid
+                            (Stream.Flow_Control_Window, Add_FC)
+               then
+                  Stream.Update_Flow_Control_Window (Add_FC);
+               end if;
+
+               for A of Answers loop
+                  Stream.Send_Frame (A);
+               end loop;
+         end case;
 
       else
          if not Stream.Is_Defined then
@@ -519,50 +543,56 @@ package body AWS.Client.HTTP_Utils is
       --  Read response frames
 
       while not Stream.Is_Message_Ready loop
-         Get_H2_Frame (Connection, Ctx, Stream);
+         Get_H2_Frame (Connection, Ctx, Stream, Result);
+         exit when not Response.Is_Empty (Result);
       end loop;
 
-      --  Set headers into Answer
+      if Response.Is_Empty (Result) then
+         --  Set headers into Answer
 
-      Response.Set.Headers (Result, Stream.Headers);
+         Response.Set.Headers (Result, Stream.Headers);
 
-      --  Then parse headers
+         --  Then parse headers
 
-      Read_Parse_Header (Connection, Result, Keep_Alive);
+         Read_Parse_Header (Connection, Result, Keep_Alive);
 
-      Stream.Append_Body (Result);
+         Stream.Append_Body (Result);
 
-      --  Check encoding
+         --  Check encoding
 
-      declare
-         TE     : constant String  :=
-                    Response.Header (Result, Messages.Transfer_Encoding_Token);
-         CT_Len : constant Response.Content_Length_Type :=
-                    Response.Content_Length (Result);
-      begin
-         if not Messages.With_Body (Response.Status_Code (Result)) then
-            --  RFC-2616 4.4
-            --  ...
-            --  Any response message which "MUST NOT" include a message-body
-            --  (such as the 1xx, 204, and 304 responses and any response to a
-            --  HEAD request) is always terminated by the first empty line
-            --  after the header fields, regardless of the entity-header fields
-            --  present in the message.
+         declare
+            TE     : constant String  :=
+                       Response.Header
+                          (Result, Messages.Transfer_Encoding_Token);
+            CT_Len : constant Response.Content_Length_Type :=
+                       Response.Content_Length (Result);
+         begin
+            if not Messages.With_Body (Response.Status_Code (Result)) then
+               --  RFC-2616 4.4
+               --  ...
+               --  Any response message which "MUST NOT" include a
+               --  message-body (such as the 1xx, 204, and 304
+               --  responses and any response to a HEAD request) is
+               --  always terminated by the first empty line after the
+               --  header fields, regardless of the entity-header
+               --  fields present in the message.
 
-            Connection.Transfer := Content_Length;
-            Connection.Length   := 0;
+               Connection.Transfer := Content_Length;
+               Connection.Length   := 0;
 
-         elsif TE = "chunked" then
-            raise Protocol_Error with "chunked encoding is not part of HTTP/2";
+            elsif TE = "chunked" then
+               raise Protocol_Error
+                 with "chunked encoding is not part of HTTP/2";
 
-         elsif CT_Len = Response.Undefined_Length then
-            Connection.Transfer := Until_Close;
+            elsif CT_Len = Response.Undefined_Length then
+               Connection.Transfer := Until_Close;
 
-         else
-            Connection.Transfer := Content_Length;
-            Connection.Length   := CT_Len;
-         end if;
-      end;
+            else
+               Connection.Transfer := Content_Length;
+               Connection.Length   := CT_Len;
+            end if;
+         end;
+      end if;
    end Get_H2_Response;
 
    ------------------
@@ -2330,6 +2360,7 @@ package body AWS.Client.HTTP_Utils is
       Request    : in out HTTP2.Message.Object)
    is
       use all type HTTP2.Frame.Kind_Type;
+      Result : Response.Data;
    begin
       All_Frames : loop
          for F of Request.To_Frames (Ctx, Stream) loop
@@ -2346,7 +2377,7 @@ package body AWS.Client.HTTP_Utils is
          while Ctx.Settings.Flow_Control_Window <= 0
            or else Stream.Flow_Control_Window <= 0
          loop
-            Get_H2_Frame (Connection, Ctx, Stream);
+            Get_H2_Frame (Connection, Ctx, Stream, Result);
          end loop;
       end loop All_Frames;
    end Send_H2_Request;
