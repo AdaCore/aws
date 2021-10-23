@@ -43,6 +43,7 @@ with AWS.Log;
 with AWS.Messages;
 with AWS.MIME;
 with AWS.Net.Buffered;
+with AWS.Parameters;
 with AWS.Resources.Streams.Memory;
 with AWS.Response.Set;
 with AWS.Server.Context;
@@ -873,6 +874,13 @@ begin
                end if;
 
                Answers.Delete_First;
+
+               --  For GOAWAY frame we exclude the stream id from the list
+               --  as no more data are expected to be sent.
+
+               if Frame.Kind = K_GoAway then
+                  S.Exclude (Frame.Stream_Id);
+               end if;
             end;
          end loop;
 
@@ -925,6 +933,8 @@ begin
                   AWS.Log.Write
                     (LA.Server.Error_Log, Get_Status.all, Message);
                end if;
+
+               S.Exclude (Stream_Id);
 
                HTTP2.Frame.GoAway.Create
                  (Stream_Id => Last_SID, Error => Error).Send (Sock.all);
@@ -1107,6 +1117,42 @@ exception
 
       LA.Server.Slots.Mark_Phase (LA.Line, Server_Response);
 
+   when E : Net.Buffered.Data_Overflow
+      | Parameters.Too_Long_Parameter
+      | Parameters.Too_Many_Parameters
+      =>
+
+      HTTP2.Frame.GoAway.Create
+        (Stream_Id => 1,
+         Error     => AWS.HTTP2.C_Refused_Stream,
+         Data      => Exception_Message (E)).Send (Sock.all);
+
+      Will_Close := True;
+
+      if
+        Exception_Identity (E) =
+        Parameters.Too_Many_Parameters'Identity
+      then
+         Error_Answer := Response.Build
+           (Status_Code  => Messages.S403,
+            Content_Type => "text/plain",
+            Message_Body => Ada.Exceptions.Exception_Message (E));
+
+      else
+         Error_Answer := Response.Build
+           (Status_Code  => Messages.S400,
+            Content_Type => "text/plain",
+            Message_Body => Ada.Exceptions.Exception_Message (E));
+      end if;
+
+      LA.Server.Exception_Handler
+        (E,
+         LA.Server.Error_Log,
+         AWS.Exceptions.Data'(False, LA.Line, Request),
+         Error_Answer);
+
+      LA.Server.Slots.Mark_Phase (LA.Line, Server_Response);
+
    when E : others =>
       AWS.Log.Write
         (LA.Server.Error_Log,
@@ -1115,7 +1161,9 @@ exception
          & Utils.CRLF_2_Spaces (Exception_Information (E)));
 
       HTTP2.Frame.GoAway.Create
-        (Stream_Id => 1, Error => AWS.HTTP2.C_Internal_Error).Send (Sock.all);
+        (Stream_Id => 1,
+         Error     => AWS.HTTP2.C_Internal_Error,
+         Data      => Exception_Message (E)).Send (Sock.all);
 
       --  Call exception handler
 
