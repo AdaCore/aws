@@ -465,7 +465,8 @@ package body AWS.HTTP2.HPACK.Huffman is
    ------------
 
    function Encode (Str : String) return Stream_Element_Array is
-      R : Stream_Element_Array (1 .. Stream_Element_Offset (Str'Length));
+      --  ??? to be checked if 3 is the upper limit
+      R : Stream_Element_Array (1 .. Stream_Element_Offset (Str'Length + 3));
       I : Stream_Element_Offset := 0; -- current index on R
       V : Stream_Element := 0;        -- current value
       B : Integer := 8;               -- free bit on V
