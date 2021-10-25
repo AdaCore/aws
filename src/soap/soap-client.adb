@@ -153,7 +153,12 @@ package body SOAP.Client is
          --  case there is nothing to read from the connection (socket).
 
          if Asynchronous
-           and then AWS.Response.Content_Length (Response) = 0
+             and then
+           (AWS.Response.Content_Length (Response) = 0
+            or else
+              (AWS.Client.HTTP_Version (Connection) = AWS.HTTPv2
+               and then AWS.Response.Content_Length (Response) =
+                          AWS.Response.Undefined_Length))
          then
             return S : Message.Response.Object do
                null;
