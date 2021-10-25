@@ -464,11 +464,11 @@ package body AWS.Client.HTTP_Utils is
       Result     : out Response.Data)
    is
       use AWS.HTTP2;
-      Answers : Frame.List.Object;
-      Error   : Error_Codes := C_No_Error;
-      Add_FC  : Integer     := 0;
       Frame   : constant HTTP2.Frame.Object'Class :=
                   HTTP2.Frame.Read (Connection.Socket.all, Ctx.Settings.all);
+      Answers : HTTP2.Frame.List.Object;
+      Error   : Error_Codes := C_No_Error;
+      Add_FC  : Integer     := 0;
    begin
       Response.Set.Mode (Result, Response.No_Data);
 
