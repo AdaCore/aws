@@ -480,12 +480,20 @@ package body AWS.Client.HTTP_Utils is
                         HTTP2.Frame.GoAway.Object (Frame);
                begin
                   if G.Error /= C_No_Error then
-                     --  We map all HTTP/2 GoAway to S400
-                     Result := Response.Build
-                       (Status_Code => Messages.S400,
-                        Content_Type => "text/plain",
-                        Message_Body => (if G.Has_Data then G.Data else ""));
-                     return;
+                     --  We map all HTTP/2 GoAway to HTTP/1 code if present
+
+                     if G.Has_Data and then G.Has_Code_Message then
+                        Result := Response.Build
+                          (Status_Code  => G.Code,
+                           Content_Type => "text/plain",
+                           Message_Body => G.Message);
+                     else
+                        Result := Response.Build
+                          (Status_Code  => Messages.S500,
+                           Content_Type => "text/plain",
+                           Message_Body =>
+                             (if G.Has_Data then G.Data else ""));
+                     end if;
                   end if;
                end;
 
