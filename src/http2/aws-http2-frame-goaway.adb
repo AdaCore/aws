@@ -32,6 +32,26 @@ with AWS.Translator;
 
 package body AWS.HTTP2.Frame.GoAway is
 
+   Data_Prefix : constant Stream_Element_Array :=
+                   Translator.To_Stream_Element_Array ("AWS/");
+   --  AWS will add this specific tag in from of the additional debug data
+   --  and then the corresponding HTTP/1 code, plus the error message prefixed
+   --  with a slash. It makes the additional debug data format as follow:
+   --
+   --    AWS/SXXX/<message>
+
+   ----------
+   -- Code --
+   ----------
+
+   function Code (Self : Object) return Messages.Status_Code is
+   begin
+      return Messages.Status_Code'Value
+        (Translator.To_String
+           (Self.Data.S
+                (9 + Data_Prefix'Length .. 8 + Data_Prefix'Length + 4)));
+   end Code;
+
    ------------
    -- Create --
    ------------
@@ -39,11 +59,13 @@ package body AWS.HTTP2.Frame.GoAway is
    function Create
      (Stream_Id : Stream.Id;
       Error     : Error_Codes;
-      Data      : String := "") return Object is
+      Code      : Messages.Status_Code := Messages.S200;
+      Message   : String := "") return Object is
+
    begin
       return O : Object do
          O.Header.H.Stream_Id := 0;
-         O.Header.H.Length    := 8 + Data'Length;
+         O.Header.H.Length    := 8 + Data_Prefix'Length + 5 + Message'Length;
          O.Header.H.Kind      := K_GoAway;
          O.Header.H.R         := 0;
          O.Header.H.Flags     := 0;
@@ -55,9 +77,19 @@ package body AWS.HTTP2.Frame.GoAway is
                           Stream_Id  => Stream_Id,
                           Error_Code => Error_Codes'Pos (Error));
 
-         if Data'Length > 0 then
-            O.Data.S (9 .. O.Data.S'Last) :=
-              Translator.To_Stream_Element_Array (Data);
+         --  Add AWS Code + Message : AWS/SXXX<message>
+         --  Add data prefix
+
+         O.Data.S (9 .. 8 + Data_Prefix'Length + 5) :=
+           Data_Prefix
+           & Translator.To_Stream_Element_Array
+               (Messages.Status_Code'Image (Code) & '/');
+
+         --  And the message itself if present
+
+         if Message'Length > 0 then
+            O.Data.S (9 + Data_Prefix'Length + 5 .. O.Data.S'Last) :=
+              Translator.To_Stream_Element_Array (Message);
          end if;
       end return;
    end Create;
@@ -79,6 +111,26 @@ package body AWS.HTTP2.Frame.GoAway is
    begin
       Utils.Dump_Binary (Self.Data.S.all);
    end Dump_Payload;
+
+   ----------------------
+   -- Has_Code_Message --
+   ----------------------
+
+   function Has_Code_Message (Self : Object) return Boolean is
+   begin
+      return Self.Data.S (9 .. 8 + Data_Prefix'Length) = Data_Prefix;
+   end Has_Code_Message;
+
+   -------------
+   -- Message --
+   -------------
+
+   function Message (Self : Object) return String is
+   begin
+      return Translator.To_String
+        (Self.Data.S
+           (9 + Data_Prefix'Length + 5 .. Self.Data.S'Last));
+   end Message;
 
    ----------
    -- Read --

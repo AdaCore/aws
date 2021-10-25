@@ -1125,7 +1125,11 @@ exception
       HTTP2.Frame.GoAway.Create
         (Stream_Id => 1,
          Error     => AWS.HTTP2.C_Refused_Stream,
-         Data      => Exception_Message (E)).Send (Sock.all);
+         Code      => (if Exception_Identity (E) =
+                         Parameters.Too_Many_Parameters'Identity
+                       then Messages.S403
+                       else Messages.S400),
+         Message   => Exception_Message (E)).Send (Sock.all);
 
       Will_Close := True;
 
@@ -1163,7 +1167,8 @@ exception
       HTTP2.Frame.GoAway.Create
         (Stream_Id => 1,
          Error     => AWS.HTTP2.C_Internal_Error,
-         Data      => Exception_Message (E)).Send (Sock.all);
+         Code      => Messages.S500,
+         Message   => Exception_Message (E)).Send (Sock.all);
 
       --  Call exception handler
 
