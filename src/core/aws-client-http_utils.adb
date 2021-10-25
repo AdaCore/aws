@@ -464,11 +464,11 @@ package body AWS.Client.HTTP_Utils is
       Result     : out Response.Data)
    is
       use AWS.HTTP2;
-      Answers : Frame.List.Object;
-      Error   : Error_Codes := C_No_Error;
-      Add_FC  : Integer     := 0;
       Frame   : constant HTTP2.Frame.Object'Class :=
                   HTTP2.Frame.Read (Connection.Socket.all, Ctx.Settings.all);
+      Answers : HTTP2.Frame.List.Object;
+      Error   : Error_Codes := C_No_Error;
+      Add_FC  : Integer     := 0;
    begin
       Response.Set.Mode (Result, Response.No_Data);
 
@@ -480,12 +480,20 @@ package body AWS.Client.HTTP_Utils is
                         HTTP2.Frame.GoAway.Object (Frame);
                begin
                   if G.Error /= C_No_Error then
-                     --  We map all HTTP/2 GoAway to S400
-                     Result := Response.Build
-                       (Status_Code => Messages.S400,
-                        Content_Type => "text/plain",
-                        Message_Body => (if G.Has_Data then G.Data else ""));
-                     return;
+                     --  We map all HTTP/2 GoAway to HTTP/1 code if present
+
+                     if G.Has_Data and then G.Has_Code_Message then
+                        Result := Response.Build
+                          (Status_Code  => G.Code,
+                           Content_Type => "text/plain",
+                           Message_Body => G.Message);
+                     else
+                        Result := Response.Build
+                          (Status_Code  => Messages.S500,
+                           Content_Type => "text/plain",
+                           Message_Body =>
+                             (if G.Has_Data then G.Data else ""));
+                     end if;
                   end if;
                end;
 
