@@ -28,6 +28,7 @@
 ------------------------------------------------------------------------------
 
 with AWS.HTTP2.Stream;
+with AWS.Messages;
 
 private with AWS.Utils;
 
@@ -46,9 +47,14 @@ package AWS.HTTP2.Frame.GoAway is
    function Create
      (Stream_Id : Stream.Id;
       Error     : Error_Codes;
-      Data      : String := "") return Object
-     with Post => Create'Result.Kind = K_GoAway;
-   --  Create a GOAWAY frame with given content and stream id
+      Code      : Messages.Status_Code := Messages.S200;
+      Message   : String := "") return Object
+     with Post => Create'Result.Kind = K_GoAway
+                  and then Create'Result.Has_Code_Message;
+   --  Create a GOAWAY frame with given content and stream id. A GOAWAY frame
+   --  can contains optional debug information. The Code and Message if present
+   --  are recorded into the frame's debug data. This make possible to map an
+   --  HTTP/2 error to an HTTP/1 Status_Code.
 
    function Error (Self : Object) return Error_Codes
      with Pre => Self.Is_Defined;
@@ -58,9 +64,21 @@ package AWS.HTTP2.Frame.GoAway is
      with Pre => Self.Is_Defined;
    --  Returns True if the frame contains some additional debug data
 
+   function Has_Code_Message (Self : Object) return Boolean
+     with Pre => Self.Is_Defined and then Self.Has_Data;
+   --  Returns True if the debug data contains an AWS encoded Code & Message
+
    function Data (Self : Object) return String
      with Pre => Self.Is_Defined and then Self.Has_Data;
-   --  Returns the frame additional data
+   --  Returns the frame additional debug data
+
+   function Code (Self : Object) return Messages.Status_Code
+     with Pre => Self.Is_Defined and then Self.Has_Code_Message;
+   --  Returns the status code from frame additional data
+
+   function Message (Self : Object) return String
+     with Pre => Self.Is_Defined and then Self.Has_Code_Message;
+   --  Returns the message from frame additional data
 
    overriding procedure Send_Payload
      (Self : Object; Sock : Net.Socket_Type'Class);

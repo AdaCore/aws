@@ -56,7 +56,8 @@ package body SOAP.Client is
       Proxy_Pwd    : String                     := Not_Specified;
       Timeouts     : AWS.Client.Timeouts_Values := AWS.Client.No_Timeout;
       Asynchronous : Boolean                    := False;
-      Schema       : WSDL.Schema.Definition     := WSDL.Schema.Empty)
+      Schema       : WSDL.Schema.Definition     := WSDL.Schema.Empty;
+      HTTP_Version : AWS.HTTP_Protocol          := AWS.Client.HTTP_Default)
       return Message.Response.Object'Class
    is
       Connection : AWS.Client.HTTP_Connection;
@@ -64,8 +65,9 @@ package body SOAP.Client is
       AWS.Client.Create
         (Connection,
          URL, User, Pwd, Proxy, Proxy_User, Proxy_Pwd,
-         Persistent => False,
-         Timeouts   => Timeouts);
+         Persistent   => False,
+         Timeouts     => Timeouts,
+         HTTP_Version => HTTP_Version);
 
       declare
          Result : constant Message.Response.Object'Class :=
@@ -151,7 +153,12 @@ package body SOAP.Client is
          --  case there is nothing to read from the connection (socket).
 
          if Asynchronous
-           and then AWS.Response.Content_Length (Response) = 0
+             and then
+           (AWS.Response.Content_Length (Response) = 0
+            or else
+              (AWS.Client.HTTP_Version (Connection) = AWS.HTTPv2
+               and then AWS.Response.Content_Length (Response) =
+                          AWS.Response.Undefined_Length))
          then
             return S : Message.Response.Object do
                null;
