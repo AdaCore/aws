@@ -128,6 +128,34 @@ package AWS.Server.HTTP_Utils is
       Chunk_Size  : Stream_Element_Count;
       Length      : in out Resources.Content_Length_Type);
 
+   procedure Parse_Content_Range
+     (H_Value : String;
+      Length  : Stream_Element_Offset;
+      First   : out Stream_Element_Offset;
+      Last    : out Stream_Element_Offset);
+   --  Parse a Content-Ranges header value in H_Value and return the First
+   --  and Last byte to be sent given the Length of the resource.
+
+   generic
+      with procedure Data
+        (Content : Stream_Element_Array;
+         Next_Size : in out Stream_Element_Count);
+      with procedure Send_File
+        (HTTP_Server : access AWS.Server.HTTP;
+         Line_Index  : Positive;
+         File        : in out Resources.File_Type;
+         Start       : Stream_Element_Offset;
+         Chunk_Size  : Stream_Element_Count;
+         Length      : in out Resources.Content_Length_Type);
+      Is_H2 : Boolean;
+   procedure Send_File_Ranges_G
+     (HTTP_Server : access AWS.Server.HTTP;
+      Line_Index  : Positive;
+      File        : in out Resources.File_Type;
+      Ranges      : String;
+      Length      : in out Resources.Content_Length_Type;
+      Answer      : in out Response.Data);
+
    procedure Send_Resource
      (Answer      : in out Response.Data;
       File        : in out Resources.File_Type;
