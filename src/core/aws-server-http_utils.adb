@@ -1434,6 +1434,43 @@ package body AWS.Server.HTTP_Utils is
       end if;
    end Log_Commit;
 
+   -------------------------
+   -- Parse_Content_Range --
+   -------------------------
+
+   procedure Parse_Content_Range
+     (H_Value : String;
+      Length  : Stream_Element_Offset;
+      First   : out Stream_Element_Offset;
+      Last    : out Stream_Element_Offset)
+   is
+      I_Minus : constant Positive := Fixed.Index (H_Value, "-");
+   begin
+      --  Computer First / Last and the range length
+
+      if I_Minus = H_Value'Last then
+         Last := Length - 1;
+
+      else
+         Last := Stream_Element_Offset'Value
+                   (H_Value (I_Minus + 1 .. H_Value'Last));
+
+         if Last >= Length then
+            Last := Length - 1;
+         end if;
+      end if;
+
+      if H_Value'First = I_Minus then
+         --  In this case we want to get the last N bytes from the file
+         First := Length - Last;
+         Last := Length - 1;
+
+      else
+         First := Stream_Element_Offset'Value
+                    (H_Value (H_Value'First .. I_Minus - 1));
+      end if;
+   end Parse_Content_Range;
+
    ------------------------
    -- Parse_Request_Line --
    ------------------------
@@ -1986,6 +2023,156 @@ package body AWS.Server.HTTP_Utils is
       end loop;
    end Send_File_G;
 
+   ------------------------
+   -- Send_File_Ranges_G --
+   ------------------------
+
+   procedure Send_File_Ranges_G
+     (HTTP_Server : access AWS.Server.HTTP;
+      Line_Index  : Positive;
+      File        : in out Resources.File_Type;
+      Ranges      : String;
+      Length      : in out Resources.Content_Length_Type;
+      Answer      : in out Response.Data)
+   is
+      Boundary    : constant String := "aws_range_separator";
+      N_Range     : constant Positive := 1 + Fixed.Count (Ranges, ",");
+      N_Minus     : constant Natural  := Fixed.Count (Ranges, "-");
+      --  Number of ranges defined
+      Equal       : constant Natural := Fixed.Index (Ranges, "=");
+      Buffer_Size : constant := 4 * 1_024;
+      Chunk_Size  : constant := 1_024;
+      --  Size of the buffer used to send the file with the chunked encoding.
+      --  This is the maximum size of each chunk.
+      First, Last : Positive;
+      Dummy       : Stream_Element_Offset := 0;
+
+      procedure Send_Range (R : String);
+      --  Send a single range as defined by R
+
+      procedure Send (Str : String) with Inline;
+
+      ----------
+      -- Send --
+      ----------
+
+      procedure Send (Str : String) is
+      begin
+         Data (Translator.To_Stream_Element_Array (Str), Dummy);
+         Length := Length + Str'Length;
+      end Send;
+
+      ----------------
+      -- Send_Range --
+      ----------------
+
+      procedure Send_Range (R : String) is
+         First    : Stream_Element_Offset;
+         Last     : Stream_Element_Offset;
+         R_Length : Stream_Element_Offset;
+      begin
+         if N_Range /= 1 then
+            --  Send the multipart/byteranges
+            Send ("--" & Boundary & CRLF);
+         end if;
+
+         Parse_Content_Range (R, Length, First, Last);
+
+         R_Length := Last - First + 1;
+
+         if N_Range /= 1 or else not Is_H2 then
+            --  Only issue the Content-Range & Content-Length header in HTTP/1
+            --  or if there is multiple ranges as this will be part of the
+            --  body.
+            --
+            --  Content-Range: bytes <first>-<last>/<length>
+
+            Send
+              (Messages.Content_Range_Token & ": bytes "
+               & Utils.Image (Natural (First)) & "-"
+               & Utils.Image (Natural (Last))
+               & "/" & Utils.Image (Natural (Length))
+               & CRLF);
+            Send (Messages.Content_Length (R_Length) & CRLF & CRLF);
+         end if;
+
+         Resources.Set_Index (File, First + 1);
+
+         declare
+            Buffer : Streams.Stream_Element_Array (1 .. Buffer_Size);
+            Sent   : Stream_Element_Offset := 0;
+            Size   : Stream_Element_Offset := 0;
+            Last   : Stream_Element_Offset;
+         begin
+            loop
+               Size := Stream_Element_Offset'Min
+                 (R_Length - Sent, Buffer_Size);
+
+               exit when Size = 0;
+
+               Resources.Read (File, Buffer (1 .. Size), Last);
+
+               exit when Last < Buffer'First;
+
+               Data (Buffer (1 .. Last), Dummy);
+
+               Sent := Sent + Last;
+
+               HTTP_Server.Slots.Check_Data_Timeout (Line_Index);
+            end loop;
+         end;
+      end Send_Range;
+
+   begin
+      --  In HTTP/2 mode the headers have already been taken care of
+
+      if not Is_H2 then
+         --  Check range definition
+
+         if N_Range /= N_Minus
+           or else Equal = 0
+           or else Ranges (Ranges'First .. Equal - 1) /= "bytes"
+         then
+            --  Range is wrong, let's send the whole file then
+            Send_File (HTTP_Server, Line_Index, File, 1, Chunk_Size, Length);
+            return;
+         end if;
+
+         if N_Range = 1 then
+            Send
+              (Messages.Content_Type (Response.Content_Type (Answer)) & CRLF);
+
+         else
+            --  Then we will send a multipart/byteranges
+
+            Send
+              (Messages.Content_Type
+                 (MIME.Multipart_Byteranges & "; boundary=" & Boundary)
+               & CRLF & CRLF);
+         end if;
+      end if;
+
+      First := Equal + 1;
+
+      for K in 1 .. N_Range loop
+         if K = N_Range then
+            Last := Ranges'Last;
+         else
+            Last := Fixed.Index (Ranges (First .. Ranges'Last), ",") - 1;
+         end if;
+
+         Send_Range (Ranges (First .. Last));
+         First := Last + 2;
+      end loop;
+
+      --  End the multipart/byteranges message
+
+      if N_Range /= 1 then
+         --  Send the multipart/byteranges
+         Send ("--" & Boundary & "--" & CRLF);
+      end if;
+   end Send_File_Ranges_G;
+
    -------------------
    -- Send_Resource --
    -------------------
@@ -2005,9 +2192,6 @@ package body AWS.Server.HTTP_Utils is
       Method      : constant AWS.Status.Request_Method :=
                       Status.Method (C_Stat);
 
-      Buffer_Size : constant := 4 * 1_024;
-      --  Size of the buffer used to send the file
-
       Chunk_Size  : constant := 1_024;
       --  Size of the buffer used to send the file with the chunked encoding.
       --  This is the maximum size of each chunk.
@@ -2016,6 +2200,7 @@ package body AWS.Server.HTTP_Utils is
                       Headers.Get_Values
                         (Status.Header (C_Stat), Messages.Range_Token);
       --  The ranges for partial sending if defined
+
       Close       : constant Boolean := Response.Close_Resource (Answer);
 
       procedure Send_File;
@@ -2028,33 +2213,33 @@ package body AWS.Server.HTTP_Utils is
       --  Send file in chunks, used in HTTP/1.1 and when the message length
       --  is not known)
 
+      procedure Data_Received
+        (Content   : Stream_Element_Array;
+         Next_Size : in out Stream_Element_Count);
+      --  New data received
+
       Last : Streams.Stream_Element_Offset;
+
+      -------------------
+      -- Data_Received --
+      -------------------
+
+      procedure Data_Received
+        (Content   : Stream_Element_Array;
+         Next_Size : in out Stream_Element_Count)
+      is
+         pragma Unreferenced (Next_Size);
+      begin
+         Net.Buffered.Write (Sock, Content);
+      end Data_Received;
+
+      procedure Send_File_Content is new Send_File_G (Data_Received);
 
       ---------------
       -- Send_File --
       ---------------
 
       procedure Send_File is
-         procedure Data_Received
-           (Content   : Stream_Element_Array;
-            Next_Size : in out Stream_Element_Count);
-         --  New data received
-
-         -------------------
-         -- Data_Received --
-         -------------------
-
-         procedure Data_Received
-           (Content   : Stream_Element_Array;
-            Next_Size : in out Stream_Element_Count)
-         is
-            pragma Unreferenced (Next_Size);
-         begin
-            Net.Buffered.Write (Sock, Content);
-         end Data_Received;
-
-         procedure Send_File_Content is new Send_File_G (Data_Received);
-
       begin
          Send_File_Content
            (HTTP_Server, Line_Index, File, 1,
@@ -2127,136 +2312,11 @@ package body AWS.Server.HTTP_Utils is
       -----------------
 
       procedure Send_Ranges is
-
-         Boundary    : constant String := "aws_range_separator";
-         N_Range     : constant Positive := 1 + Fixed.Count (Ranges, ",");
-         N_Minus     : constant Natural  := Fixed.Count (Ranges, "-");
-         --  Number of ranges defined
-         Equal       : constant Natural := Fixed.Index (Ranges, "=");
-         First, Last : Positive;
-
-         procedure Send_Range (R : String);
-         --  Send a single range as defined by R
-
-         ----------------
-         -- Send_Range --
-         ----------------
-
-         procedure Send_Range (R : String) is
-            I_Minus  : constant Positive := Fixed.Index (R, "-");
-            First    : Stream_Element_Offset;
-            Last     : Stream_Element_Offset;
-            R_Length : Stream_Element_Offset;
-         begin
-            if N_Range /= 1 then
-               --  Send the multipart/byteranges
-               Net.Buffered.Put_Line (Sock, "--" & Boundary);
-            end if;
-
-            --  Computer First / Last and the range length
-
-            if I_Minus = R'Last then
-               Last := Length - 1;
-            else
-               Last := Stream_Element_Offset'Value (R (I_Minus + 1 .. R'Last));
-
-               if Last >= Length then
-                  Last := Length - 1;
-               end if;
-            end if;
-
-            if R'First = I_Minus then
-               --  In this case we want to get the last N bytes from the file
-               First := Length - Last;
-               Last := Length - 1;
-            else
-               First := Stream_Element_Offset'Value
-                 (R (R'First .. I_Minus - 1));
-            end if;
-
-            R_Length := Last - First + 1;
-
-            --  Content-Range: bytes <first>-<last>/<length>
-
-            Net.Buffered.Put_Line
-              (Sock, Messages.Content_Range_Token & ": bytes "
-               & Utils.Image (Natural (First)) & "-"
-               & Utils.Image (Natural (Last))
-               & "/" & Utils.Image (Natural (Length)));
-            Net.Buffered.Put_Line (Sock, Messages.Content_Length (R_Length));
-            Net.Buffered.New_Line (Sock);
-
-            Resources.Set_Index (File, First + 1);
-
-            declare
-               Buffer : Streams.Stream_Element_Array (1 .. Buffer_Size);
-               Sent   : Stream_Element_Offset := 0;
-               Size   : Stream_Element_Offset := 0;
-               Last   : Stream_Element_Offset;
-            begin
-               loop
-                  Size := Stream_Element_Offset'Min
-                    (R_Length - Sent, Buffer_Size);
-
-                  exit when Size = 0;
-
-                  Resources.Read (File, Buffer (1 .. Size), Last);
-
-                  exit when Last < Buffer'First;
-
-                  Net.Buffered.Write (Sock, Buffer (1 .. Last));
-
-                  Sent := Sent + Last;
-
-                  HTTP_Server.Slots.Check_Data_Timeout (Line_Index);
-               end loop;
-            end;
-         end Send_Range;
-
+         procedure Send_Ranges_Content is
+           new Send_File_Ranges_G (Data_Received, Send_File_Content, False);
       begin
-         --  Check range definition
-
-         if N_Range /= N_Minus
-           or else Equal = 0
-           or else Ranges (Ranges'First .. Equal - 1) /= "bytes"
-         then
-            --  Range is wrong, let's send the whole file then
-            Send_File;
-            return;
-         end if;
-
-         if N_Range = 1 then
-            Net.Buffered.Put_Line
-              (Sock, Messages.Content_Type (Response.Content_Type (Answer)));
-
-         else
-            --  Then we will send a multipart/byteranges
-
-            Net.Buffered.Put_Line
-              (Sock,
-               Messages.Content_Type
-                 (MIME.Multipart_Byteranges & "; boundary=" & Boundary));
-         end if;
-
-         First := Equal + 1;
-
-         for K in 1 .. N_Range loop
-            if K = N_Range then
-               Last := Ranges'Last;
-            else
-               Last := Fixed.Index (Ranges (First .. Ranges'Last), ",") - 1;
-            end if;
-
-            Send_Range (Ranges (First .. Last));
-            First := Last + 2;
-         end loop;
-
-         --  End the multipart/byteranges message
-
-         if N_Range /= 1 then
-            --  Send the multipart/byteranges
-            Net.Buffered.Put_Line (Sock, "--" & Boundary & "--");
-         end if;
+         Send_Ranges_Content
+           (HTTP_Server, Line_Index, File, Ranges, Length, Answer);
       end Send_Ranges;
 
    begin
