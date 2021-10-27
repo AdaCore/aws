@@ -35,10 +35,10 @@ with AWS.Response;
 with AWS.Server.Context;
 with AWS.Status;
 
+limited with AWS.HTTP2.Stream;
+
 private with AWS.Resources.Streams;
 private with AWS.Utils;
-
-limited with AWS.HTTP2.Stream;
 
 package AWS.HTTP2.Message is
 
