@@ -29,7 +29,7 @@
 
 with Ada.Calendar;
 with Ada.Characters.Handling;
-with Ada.Strings.Unbounded;
+with Ada.Strings.Fixed;
 with Ada.Text_IO;
 
 with AWS.HTTP2.Connection;
@@ -38,14 +38,13 @@ with AWS.HTTP2.Frame.Data;
 with AWS.HTTP2.Frame.Headers;
 with AWS.HTTP2.Stream;
 with AWS.Messages;
+with AWS.MIME;
 with AWS.Resources.Streams.Memory;
 with AWS.Response.Set;
 with AWS.Server.HTTP_Utils;
 with AWS.Translator;
 
 package body AWS.HTTP2.Message is
-
-   use Ada.Strings.Unbounded;
 
    function To_Lower
      (Name : String) return String renames Ada.Characters.Handling.To_Lower;
@@ -101,6 +100,7 @@ package body AWS.HTTP2.Message is
       O.Mode      := Response.Stream;
       O.Stream_Id := Stream_Id;
       O.Headers   := Headers;
+      O.Ranges    := Null_Unbounded_String;
 
       O.Headers.Case_Sensitive (False);
 
@@ -119,6 +119,9 @@ package body AWS.HTTP2.Message is
    is
       O : Object;
 
+      Size : Stream_Element_Offset := -1;
+      --   Size of the resource
+
       procedure Set_Body;
 
       --------------
@@ -126,17 +129,11 @@ package body AWS.HTTP2.Message is
       --------------
 
       procedure Set_Body is
-         Size : Stream_Element_Offset;
       begin
          O.M_Body := Response.Create_Stream
            (Answer, AWS.Status.Is_Supported (Request, Messages.GZip));
 
          Size := O.M_Body.Size;
-
-         if Size /= Resources.Undefined_Length then
-            O.Headers.Add
-              (To_Lower (Messages.Content_Length_Token), Utils.Image (Size));
-         end if;
       end Set_Body;
 
       use type Status.Request_Method;
@@ -147,6 +144,7 @@ package body AWS.HTTP2.Message is
       O.Mode      := (if Status.Method (Request) = Status.HEAD
                       then Response.Header
                       else Response.Mode (Answer));
+      O.Ranges    := Null_Unbounded_String;
 
       O.Headers.Case_Sensitive (False);
 
@@ -162,11 +160,18 @@ package body AWS.HTTP2.Message is
                Response.Set.Content_Length (Answer, To_Lower => True);
             else
                Set_Body;
+
+               if Size /= Resources.Undefined_Length then
+                  O.Headers.Add
+                    (To_Lower (Messages.Content_Length_Token),
+                     Utils.Image (Size));
+               end if;
             end if;
 
          when Response.File | Response.File_Once | Response.Stream =>
 
             declare
+               use Ada.Strings;
                use all type Server.HTTP_Utils.Resource_Status;
                use type Ada.Calendar.Time;
 
@@ -183,15 +188,20 @@ package body AWS.HTTP2.Message is
                                Messages.With_Body (Status_Code)
                                  and then Status.Method (Request)
                                  /= Status.HEAD;
+
+               Ranges      : constant String :=
+                               AWS.Headers.Get_Values
+                                 (Status.Header (Request),
+                                  Messages.Range_Token);
+               --  The ranges for partial sending if defined
+               N_Range     : constant Positive :=
+                               1 + Fixed.Count (Ranges, ",");
             begin
                --  Status code header
 
                case F_Status is
                   when Changed    =>
-                     if AWS.Headers.Get_Values
-                       (Status.Header (Request), Messages.Range_Token) /= ""
-                       and then With_Body
-                     then
+                     if Ranges /= "" and then With_Body then
                         Status_Code := Messages.S200;
                      end if;
 
@@ -216,6 +226,73 @@ package body AWS.HTTP2.Message is
 
                if With_Body then
                   Set_Body;
+               end if;
+
+               --  Check if ranges properly defined, if so add necessary
+               --  headers.
+
+               if Ranges /= ""
+                 and then O.M_Body.Size /= Resources.Undefined_Length
+               then
+                  declare
+                     Boundary : constant String := "aws_range_separator";
+                     N_Minus  : constant Natural := Fixed.Count (Ranges, "-");
+                     Equal    : constant Natural := Fixed.Index (Ranges, "=");
+                     First    : Stream_Element_Offset;
+                     Last     : Stream_Element_Offset;
+                     R_Length : Stream_Element_Offset;
+                  begin
+                     if N_Range = N_Minus
+                       and then Equal /= 0
+                       and then Ranges (Ranges'First .. Equal - 1) = "bytes"
+                     then
+                        O.Ranges := To_Unbounded_String (Ranges);
+
+                        O.Headers.Add
+                          (To_Lower (Messages.Accept_Ranges_Token),
+                           "bytes");
+
+                        if N_Range = 1 then
+                           O.Headers.Add
+                             (To_Lower (Messages.Content_Type_Token),
+                              Response.Content_Type (Answer));
+
+                           Server.HTTP_Utils.Parse_Content_Range
+                             (Ranges (Equal + 1 .. Ranges'Last),
+                              Size, First, Last);
+
+                           R_Length := Last - First + 1;
+
+                           --  Add also the Content-Range & Content-Length
+                           --  header when there is a single range. For
+                           --  multiple range it is not needed as those will
+                           --  be set into the body multipart sections.
+
+                           O.Headers.Add
+                             (To_Lower (Messages.Content_Range_Token),
+                              "bytes "
+                              & Utils.Image (Natural (First)) & "-"
+                              & Utils.Image (Natural (Last))
+                              & "/" & Utils.Image (Natural (Size)));
+
+                           O.Headers.Add
+                             (To_Lower (Messages.Content_Length_Token),
+                              Utils.Image (R_Length));
+
+                        else
+                           O.Headers.Add
+                             (To_Lower (Messages.Content_Type_Token),
+                              MIME.Multipart_Byteranges
+                              & "; boundary=" & Boundary);
+                        end if;
+                     end if;
+                  end;
+               else
+                  if Size /= Resources.Undefined_Length then
+                     O.Headers.Add
+                       (To_Lower (Messages.Content_Length_Token),
+                        Utils.Image (Size));
+                  end if;
                end if;
             end;
 
@@ -328,16 +405,33 @@ package body AWS.HTTP2.Message is
 
          procedure Send_File is new Server.HTTP_Utils.Send_File_G
            (Create_Data_Frame);
+
+         procedure Send_Ranges is new Server.HTTP_Utils.Send_File_Ranges_G
+           (Create_Data_Frame, Send_File, True);
+
+         Length : Resources.Content_Length_Type;
+         Dummy  : Response.Data;
+
       begin
          Resources.Streams.Create (File, Self.M_Body);
 
-         Send_File
-           (Ctx.HTTP, Ctx.Line, File,
-            Start      => Stream_Element_Offset (Self.Sent) + 1,
-            Chunk_Size => Stream_Element_Count
-                            (Positive'Min
-                              (FCW, Positive (Ctx.Settings.Max_Frame_Size))),
-            Length     => Resources.Content_Length_Type (Self.Sent));
+         if Self.Ranges /= Null_Unbounded_String then
+            Length := Resources.Size (File);
+
+            Send_Ranges
+              (Ctx.HTTP, Ctx.Line, File,
+               To_String (Self.Ranges), Length, Dummy);
+
+         else
+            Send_File
+              (Ctx.HTTP, Ctx.Line, File,
+               Start      => Stream_Element_Offset (Self.Sent) + 1,
+               Chunk_Size => Stream_Element_Count
+                               (Positive'Min
+                                  (FCW,
+                                   Positive (Ctx.Settings.Max_Frame_Size))),
+               Length     => Resources.Content_Length_Type (Self.Sent));
+         end if;
       end From_Stream;
 
       --------------------

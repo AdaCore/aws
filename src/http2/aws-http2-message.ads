@@ -37,6 +37,7 @@ with AWS.Status;
 
 limited with AWS.HTTP2.Stream;
 
+private with Ada.Strings.Unbounded;
 private with AWS.Resources.Streams;
 private with AWS.Utils;
 
@@ -106,6 +107,8 @@ package AWS.HTTP2.Message is
 
 private
 
+   use Ada.Strings.Unbounded;
+
    use type Resources.Streams.Stream_Access;
    use type Utils.File_Size_Type;
 
@@ -114,6 +117,7 @@ private
    type Object is new Finalization.Controlled with record
       Kind      : Kind_Type := K_Response;
       Mode      : Response.Data_Mode;
+      Ranges    : Unbounded_String;
       Stream_Id : HTTP2.Stream_Id;
       Headers   : AWS.Headers.List;
       Sent      : Utils.File_Size_Type := 0;
