@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2008-2015, AdaCore                     --
+--                     Copyright (C) 2008-2021, AdaCore                     --
 --                                                                          --
 --  This is free software;  you can redistribute it  and/or modify it       --
 --  under terms of the  GNU General Public License as published  by the     --
@@ -40,6 +40,10 @@ procedure Attachment_Headers is
    use AWS;
 
    function "-" (S : Unbounded_String) return String renames To_String;
+
+   function HN
+     (Header_Name : String;
+      Is_H2       : Boolean) return String renames Utils.Normalize_Lower;
 
    ----------
    -- Dump --
@@ -121,6 +125,7 @@ procedure Attachment_Headers is
    Headers     : AWS.Headers.List;
    Result      : AWS.Response.Data;
    Srv         : Server.HTTP;
+   Is_H2       : constant Boolean := AWS.Client.HTTP_Default = HTTPv2;
 
 begin
    Text_IO.Put_Line ("Start...");
@@ -131,15 +136,19 @@ begin
       Upload_Directory => ".",
       Port             => 0);
 
-   Headers.Add (Name => "X-Message-Seconds", Value => "64");
-   Headers.Add (Name => "Custom-Header", Value => "A Value");
-   Headers.Add (Name => "Content-Custom-Header", Value => "Something else");
+   Headers.Add (Name  => HN ("X-Message-Seconds", Is_H2),
+                Value => "64");
+   Headers.Add (Name  => HN ("Custom-Header", Is_H2),
+                Value => "A Value");
+   Headers.Add (Name  => HN ("Content-Custom-Header", Is_H2),
+                Value => "Something else");
 
    Text_IO.Put_Line ("Insert attachment...");
 
    AWS.Attachments.Add
      (Attachments => Attachments,
-      Filename => "test.txt", Headers => Headers);
+      Filename    => "test.txt",
+      Headers     => Headers);
 
    Text_IO.Put_Line ("Call Post...");
 
