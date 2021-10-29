@@ -217,7 +217,6 @@ is
       use type Response.Data_Mode;
 
       Status : AWS.Status.Data renames Stream.Status.all;
-
    begin
       if Extended_Log then
          AWS.Log.Set_Field
@@ -465,7 +464,7 @@ is
          procedure Parse is new AWS.Headers.Values.Parse (Value, Named_Value);
 
          S  : constant not null access AWS.Status.Data := Stream.Status;
-         CT : constant String := AWS.Status.Content_Type (Stream.Status.all);
+         CT : constant String := AWS.Status.Content_Type (S.all);
 
          Attachments : AWS.Attachments.List;
 
