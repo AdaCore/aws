@@ -65,15 +65,6 @@ package body AWS.Client.HTTP_Utils is
    --  Returns Real_Time.Time_Last if Right is Real_Time.Time_Span_Last,
    --  otherwise returns Left + Right.
 
-   function HN
-     (Header_Name : String;
-      Is_H2       : Boolean) return String renames Utils.Normalize_Lower;
-   --  If Is_H2 the Header_Name is converted to lower case. Note that
-   --  even in HTTP/1 the header name are not case sensitive, but it
-   --  seems that some browsers (like IE) are somewhat broken when
-   --  sending lower-case headers. So we only fold in lower case for
-   --  HTTP/2 where it is mandatory.
-
    procedure Send_Request_1
      (Connection : in out HTTP_Connection;
       Kind       : Method_Kind;
@@ -215,7 +206,6 @@ package body AWS.Client.HTTP_Utils is
       use type Net.Socket_Access;
       use type Net.SSL.Session_Type;
 
-      Is_H2       : constant Boolean := Connection.HTTP_Version = HTTPv2;
       Connect_URL : AWS.URL.Object renames Connection.Connect_URL;
       Security    : constant Boolean := AWS.URL.Security (Connect_URL);
       Sock        : Net.Socket_Access;
@@ -320,11 +310,10 @@ package body AWS.Client.HTTP_Utils is
          begin
             Set_Header
               (Connection.F_Headers,
-               HN (Messages.Connect_Token, Is_H2),
+               Messages.Connect_Token,
                Host_Address & ' ' & AWS.HTTP_Version);
             Set_Header
-              (Connection.F_Headers,
-               HN (Messages.Host_Token, Is_H2), Host_Address);
+              (Connection.F_Headers, Messages.Host_Token, Host_Address);
          end;
 
          --  Proxy Authentication
@@ -339,7 +328,7 @@ package body AWS.Client.HTTP_Utils is
          if Connection.User_Agent /= Null_Unbounded_String then
             Set_Header
               (Connection.F_Headers,
-               HN (Messages.User_Agent_Token, Is_H2),
+               Messages.User_Agent_Token,
                To_String (Connection.User_Agent));
          end if;
 
@@ -748,7 +737,7 @@ package body AWS.Client.HTTP_Utils is
       if Data'Length > 0 then
          Set_Header
            (Connection.F_Headers,
-            HN (Messages.Content_Length_Token, True),
+            Messages.Content_Length_Token,
             Utils.Image (Stream_Element_Offset'(Data'Length)));
       end if;
 
@@ -1071,11 +1060,11 @@ package body AWS.Client.HTTP_Utils is
       procedure Build_Root_Part_Header is
       begin
          Root_Part_Header.Add
-           (Name  => HN (AWS.Messages.Content_Type_Token, True),
+           (Name  => Messages.Content_Type_Token,
             Value => Content_Type);
 
          Root_Part_Header.Add
-           (Name  => HN (AWS.Messages.Content_Id_Token, True),
+           (Name  => Messages.Content_Id_Token,
             Value => Root_Content_Id);
       end Build_Root_Part_Header;
 
@@ -1092,7 +1081,7 @@ package body AWS.Client.HTTP_Utils is
             if Content_Type = "" then
                Set_Header
                  (Connection.F_Headers,
-                  HN (Messages.Content_Type_Token, True),
+                  Messages.Content_Type_Token,
                   MIME.Multipart_Related
                   & "; type=" & Content_Type
                   & "; start=""" & Root_Content_Id & '"'
@@ -1100,7 +1089,7 @@ package body AWS.Client.HTTP_Utils is
             else
                Set_Header
                  (Connection.F_Headers,
-                  HN (Messages.Content_Type_Token, True),
+                  Messages.Content_Type_Token,
                   MIME.Multipart_Form_Data
                   & "; boundary=""" & Boundary & '"');
             end if;
@@ -1555,7 +1544,7 @@ package body AWS.Client.HTTP_Utils is
 
             Set_Header
               (Connection.F_Headers,
-               HN (Messages.Content_Type_Token, True),
+               Messages.Content_Type_Token,
                MIME.Multipart_Form_Data
                & "; boundary=""" & Boundary & '"');
 
@@ -1827,21 +1816,20 @@ package body AWS.Client.HTTP_Utils is
            and then not Connection.F_Headers.Exist (Messages.Connection_Token)
          then
             Set_Header
-              (Connection.F_Headers,
-               HN (Messages.Connection_Token, Is_H2), Persistence);
+              (Connection.F_Headers, Messages.Connection_Token, Persistence);
          end if;
 
       else
          Set_Header
            (Connection.F_Headers,
-            HN (Messages.Proxy_Connection_Token, Is_H2),
+            Messages.Proxy_Connection_Token,
             Persistence);
 
          --  Proxy Authentication
 
          Set_Authentication_Header
            (Connection,
-            HN (Messages.Proxy_Authorization_Token, Is_H2),
+            Messages.Proxy_Authorization_Token,
             Connection.Auth (Proxy),
             URI,
             Method);
@@ -1858,49 +1846,40 @@ package body AWS.Client.HTTP_Utils is
       if Connection.Cookie /= No_Data then
          Set_Header
            (Connection.F_Headers,
-            HN (Messages.Cookie_Token, Is_H2),
+            Messages.Cookie_Token,
             To_String (Connection.Cookie));
       end if;
 
       Set_Header
-        (Connection.F_Headers,
-         HN (Messages.Host_Token, Is_H2),
-         Host_Address);
+        (Connection.F_Headers, Messages.Host_Token, Host_Address);
+
+      Set_Header
+        (Connection.F_Headers, Messages.Accept_Token, "text/html, */*");
 
       Set_Header
         (Connection.F_Headers,
-         HN (Messages.Accept_Token, Is_H2),
-         "text/html, */*");
+         Messages.Accept_Encoding_Token, "gzip, deflate");
 
       Set_Header
-        (Connection.F_Headers,
-         HN (Messages.Accept_Encoding_Token, Is_H2),
-         "gzip, deflate");
-
-      Set_Header
-        (Connection.F_Headers,
-         HN (Messages.Accept_Language_Token, Is_H2),
-         "fr, ru, us");
+        (Connection.F_Headers, Messages.Accept_Language_Token, "fr, ru, us");
 
       if Connection.User_Agent /= Null_Unbounded_String then
          Set_Header
            (Connection.F_Headers,
-            HN (Messages.User_Agent_Token, Is_H2),
-            To_String (Connection.User_Agent));
+            Messages.User_Agent_Token, To_String (Connection.User_Agent));
       end if;
 
       if Connection.Data_Range /= No_Range then
          Set_Header
            (Connection.F_Headers,
-            HN (Messages.Range_Token, Is_H2),
-            Image (Connection.Data_Range));
+            Messages.Range_Token, Image (Connection.Data_Range));
       end if;
 
       --  User Authentication
 
       Set_Authentication_Header
         (Connection,
-         HN (Messages.Authorization_Token, Is_H2),
+         Messages.Authorization_Token,
          Connection.Auth (WWW),
          URI,
          Method);
@@ -2706,7 +2685,7 @@ package body AWS.Client.HTTP_Utils is
       if Content_Type /= Client.No_Data then
          Set_Header
            (Connection.F_Headers,
-            HN (Messages.Content_Type_Token, Is_H2),
+            Messages.Content_Type_Token,
             Content_Type);
       end if;
 
@@ -2714,8 +2693,7 @@ package body AWS.Client.HTTP_Utils is
          --  SOAP header
 
          Set_Header
-           (Connection.F_Headers,
-            HN (Messages.SOAPAction_Token, Is_H2), SOAPAction);
+           (Connection.F_Headers, Messages.SOAPAction_Token, SOAPAction);
       end if;
 
       --  Send message Content_Length
@@ -2723,7 +2701,7 @@ package body AWS.Client.HTTP_Utils is
       if not Is_H2 then
          Set_Header
            (Connection.F_Headers,
-            HN (Messages.Content_Length_Token, Is_H2),
+            Messages.Content_Length_Token,
             Utils.Image (Stream_Element_Offset'(Data'Length)));
       end if;
    end Set_Common_Post;

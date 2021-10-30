@@ -235,6 +235,10 @@ package body AWS.Client is
          --  time before reporting an error.
          Connection.Retry := 1;
       end if;
+
+      if Connection.HTTP_Version = HTTPv2 then
+         Connection.F_Headers.Names_Lowercased (True);
+      end if;
    end Create;
 
    ---------------------
