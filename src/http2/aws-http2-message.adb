@@ -147,24 +147,24 @@ package body AWS.HTTP2.Message is
       O.Ranges    := Null_Unbounded_String;
 
       O.Headers.Case_Sensitive (False);
+      O.Headers.Names_Lowercased (True);
 
       case O.Mode is
          when Response.Message | Response.Header =>
             --  Set status code
 
             O.Headers.Add
-              (To_Lower (Messages.Status_Token),
+              (Messages.Status_Token,
                Messages.Image (Response.Status_Code (Answer)));
 
             if O.Mode = Response.Header then
-               Response.Set.Content_Length (Answer, To_Lower => True);
+               Response.Set.Content_Length (Answer);
             else
                Set_Body;
 
                if Size /= Resources.Undefined_Length then
                   O.Headers.Add
-                    (To_Lower (Messages.Content_Length_Token),
-                     Utils.Image (Size));
+                    (Messages.Content_Length_Token, Utils.Image (Size));
                end if;
             end if;
 
@@ -220,7 +220,7 @@ package body AWS.HTTP2.Message is
                                 (Answer, Messages.Last_Modified_Token)
                then
                   O.Headers.Add
-                    (To_Lower (Messages.Last_Modified_Token),
+                    (Messages.Last_Modified_Token,
                      Messages.To_HTTP_Date (File_Time));
                end if;
 
@@ -248,13 +248,11 @@ package body AWS.HTTP2.Message is
                      then
                         O.Ranges := To_Unbounded_String (Ranges);
 
-                        O.Headers.Add
-                          (To_Lower (Messages.Accept_Ranges_Token),
-                           "bytes");
+                        O.Headers.Add (Messages.Accept_Ranges_Token, "bytes");
 
                         if N_Range = 1 then
                            O.Headers.Add
-                             (To_Lower (Messages.Content_Type_Token),
+                             (Messages.Content_Type_Token,
                               Response.Content_Type (Answer));
 
                            Server.HTTP_Utils.Parse_Content_Range
@@ -269,19 +267,19 @@ package body AWS.HTTP2.Message is
                            --  be set into the body multipart sections.
 
                            O.Headers.Add
-                             (To_Lower (Messages.Content_Range_Token),
+                             (Messages.Content_Range_Token,
                               "bytes "
                               & Utils.Image (Natural (First)) & "-"
                               & Utils.Image (Natural (Last))
                               & "/" & Utils.Image (Natural (Size)));
 
                            O.Headers.Add
-                             (To_Lower (Messages.Content_Length_Token),
+                             (Messages.Content_Length_Token,
                               Utils.Image (R_Length));
 
                         else
                            O.Headers.Add
-                             (To_Lower (Messages.Content_Type_Token),
+                             (Messages.Content_Type_Token,
                               MIME.Multipart_Byteranges
                               & "; boundary=" & Boundary);
                         end if;
@@ -290,7 +288,7 @@ package body AWS.HTTP2.Message is
                else
                   if Size /= Resources.Undefined_Length then
                      O.Headers.Add
-                       (To_Lower (Messages.Content_Length_Token),
+                       (Messages.Content_Length_Token,
                         Utils.Image (Size));
                   end if;
                end if;

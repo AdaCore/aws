@@ -64,6 +64,9 @@ package AWS.Containers.Tables is
    function Case_Sensitive (Table : Table_Type) return Boolean with Inline;
    --  Returns case sensitivity flag of the Table
 
+   function Names_Lowercased (Table : Table_Type) return Boolean with Inline;
+   --  Returns True if the names was lowercased on put into the table
+
    function Count (Table : Table_Type; Name : String) return Natural;
    --  Returns the number of value for Key Name in Table. It returns
    --  0 if Key does not exist.
@@ -173,10 +176,11 @@ package AWS.Containers.Tables is
    --  The container could already have more than one value associated with
    --  this name.
 
-   procedure Case_Sensitive
-     (Table : in out Table_Type;
-      Mode  : Boolean);
+   procedure Case_Sensitive (Table : in out Table_Type; Mode : Boolean);
    --  If Mode is True it will use all parameters with case sensitivity
+
+   procedure Names_Lowercased (Table : in out Table_Type; Mode : Boolean);
+   --  If Mode is True all names will be lowercased on put into the table
 
    procedure Reset (Table : in out Table_Type) with
      Post => Count (Table) = 0;
@@ -205,13 +209,20 @@ private
 
    type Table_Type is tagged record
       Case_Sensitive : Boolean := True;
+      Lowercased     : Boolean := False;
+      --  All names lowercased on set into the table
       Index          : Index_Table.Map;
       --  Index to find appropriate Name/Value pairs in Data by the name
       Data           : Data_Table.Vector;
       --  Ordered array of name and value pairs
    end record;
 
-   Empty_Table : constant Table_Type :=
-                   (True, Index_Table.Empty_Map, Data_Table.Empty_Vector);
+   function Case_Sensitive (Table : Table_Type) return Boolean is
+     (Table.Case_Sensitive);
+
+   function Names_Lowercased (Table : Table_Type) return Boolean is
+     (Table.Lowercased);
+
+   Empty_Table : constant Table_Type := (others => <>);
 
 end AWS.Containers.Tables;
