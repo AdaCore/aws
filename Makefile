@@ -1,7 +1,7 @@
 ############################################################################
 #                              Ada Web Server                              #
 #                                                                          #
-#                     Copyright (C) 2003-2020, AdaCore                     #
+#                     Copyright (C) 2003-2021, AdaCore                     #
 #                                                                          #
 #  This is free software;  you can redistribute it  and/or modify it       #
 #  under terms of the  GNU General Public License as published  by the     #
@@ -371,6 +371,8 @@ gen_setup:
 	echo "TARGET=$(TARGET)" >> makefile.setup
 	echo "THREAD_SANITIZER=$(THREAD_SANITIZER)" >> makefile.setup
 	echo "GSOAP=false" >> makefile.setup
+	echo "SERVER_HTTP2=$(SERVER_HTTP2)" >> makefile.setup
+	echo "CLIENT_HTTP2=$(CLIENT_HTTP2)" >> makefile.setup
 
 setup: gen_setup setup_dir setup_modules setup_config setup_tp $(GEXT_MODULE)
 
