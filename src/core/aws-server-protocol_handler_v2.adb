@@ -217,7 +217,6 @@ is
       use type Response.Data_Mode;
 
       Status : AWS.Status.Data renames Stream.Status.all;
-
    begin
       if Extended_Log then
          AWS.Log.Set_Field
@@ -465,7 +464,7 @@ is
          procedure Parse is new AWS.Headers.Values.Parse (Value, Named_Value);
 
          S  : constant not null access AWS.Status.Data := Stream.Status;
-         CT : constant String := AWS.Status.Content_Type (Stream.Status.all);
+         CT : constant String := AWS.Status.Content_Type (S.all);
 
          Attachments : AWS.Attachments.List;
 
@@ -1164,24 +1163,17 @@ exception
          "Exception handler bug "
          & Utils.CRLF_2_Spaces (Exception_Information (E)));
 
-      HTTP2.Frame.GoAway.Create
-        (Stream_Id => 1,
-         Error     => AWS.HTTP2.C_Internal_Error,
-         Code      => Messages.S500,
-         Message   => Exception_Message (E)).Send (Sock.all);
-
-      --  Call exception handler
-
-      Error_Answer := Response.Build
-        (Status_Code  => Messages.S400,
-         Content_Type => "text/plain",
-         Message_Body => Exception_Message (E));
-
       LA.Server.Exception_Handler
         (E,
          LA.Server.Error_Log,
          AWS.Exceptions.Data'(False, LA.Line, Request),
          Error_Answer);
+
+      HTTP2.Frame.GoAway.Create
+        (Stream_Id => 1,
+         Error     => AWS.HTTP2.C_Internal_Error,
+         Code      => Messages.S500,
+         Message   => Response.Message_Body (Error_Answer)).Send (Sock.all);
 
       Will_Close := True;
 end Protocol_Handler_V2;

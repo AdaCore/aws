@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2012-2017, AdaCore                     --
+--                     Copyright (C) 2012-2021, AdaCore                     --
 --                                                                          --
 --  This is free software;  you can redistribute it  and/or modify it       --
 --  under terms of the  GNU General Public License as published  by the     --
@@ -16,6 +16,8 @@
 --  to http://www.gnu.org/licenses for a complete copy of the license.      --
 ------------------------------------------------------------------------------
 
+with Ada.Containers.Indefinite_Ordered_Sets;
+with Ada.Strings.Equal_Case_Insensitive;
 with Ada.Strings.Fixed;
 with Ada.Text_IO;
 
@@ -31,7 +33,12 @@ with AWS.Status;
 procedure Cookie_Session is
 
    use Ada;
+   use Ada.Strings;
    use AWS;
+
+   package String_Set is new Containers.Indefinite_Ordered_Sets (String);
+
+   S : String_Set.Set;
 
    function Callback (Request : Status.Data) return Response.Data is
       Res : Response.Data;
@@ -64,9 +71,14 @@ begin
          I : Natural := Strings.Fixed.Index (L, "AWS=SID-");
          O : Positive := 8;
       begin
-         if L (L'First .. L'First + Messages.Set_Cookie_Token'Length - 1)
-           = Messages.Set_Cookie_Token
+         if Equal_Case_Insensitive
+           (L (L'First .. L'First + Messages.Set_Cookie_Token'Length - 1),
+            Messages.Set_Cookie_Token)
          then
+            --  Replace header to have casing compatible with HTTP/2
+            L (L'First .. L'First + Messages.Set_Cookie_Token'Length - 1) :=
+              Messages.Set_Cookie_Token;
+
             if I = 0 then
                I := Strings.Fixed.Index (L, "AWS_Private=");
                O := 12;
@@ -79,9 +91,13 @@ begin
                   I := I + 1;
                end loop;
             end if;
-            Text_IO.Put_Line (L);
+            S.Insert (L);
          end if;
       end;
+   end loop;
+
+   for L of S loop
+      Text_IO.Put_Line (L);
    end loop;
 
    Server.Shutdown (WS);

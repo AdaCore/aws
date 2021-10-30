@@ -2059,7 +2059,6 @@ package body AWS.Server.HTTP_Utils is
       procedure Send (Str : String) is
       begin
          Data (Translator.To_Stream_Element_Array (Str), Dummy);
-         Length := Length + Str'Length;
       end Send;
 
       ----------------
@@ -2067,8 +2066,8 @@ package body AWS.Server.HTTP_Utils is
       ----------------
 
       procedure Send_Range (R : String) is
-         First    : Stream_Element_Offset;
-         Last     : Stream_Element_Offset;
+         R_First  : Stream_Element_Offset;
+         R_Last   : Stream_Element_Offset;
          R_Length : Stream_Element_Offset;
       begin
          if N_Range /= 1 then
@@ -2076,9 +2075,9 @@ package body AWS.Server.HTTP_Utils is
             Send ("--" & Boundary & CRLF);
          end if;
 
-         Parse_Content_Range (R, Length, First, Last);
+         Parse_Content_Range (R, Length, R_First, R_Last);
 
-         R_Length := Last - First + 1;
+         R_Length := R_Last - R_First + 1;
 
          if N_Range /= 1 or else not Is_H2 then
             --  Only issue the Content-Range & Content-Length header in HTTP/1
@@ -2089,14 +2088,14 @@ package body AWS.Server.HTTP_Utils is
 
             Send
               (Messages.Content_Range_Token & ": bytes "
-               & Utils.Image (Natural (First)) & "-"
-               & Utils.Image (Natural (Last))
+               & Utils.Image (Natural (R_First)) & "-"
+               & Utils.Image (Natural (R_Last))
                & "/" & Utils.Image (Natural (Length))
                & CRLF);
             Send (Messages.Content_Length (R_Length) & CRLF & CRLF);
          end if;
 
-         Resources.Set_Index (File, First + 1);
+         Resources.Set_Index (File, R_First + 1);
 
          declare
             Buffer : Streams.Stream_Element_Array (1 .. Buffer_Size);
@@ -2148,7 +2147,7 @@ package body AWS.Server.HTTP_Utils is
             Send
               (Messages.Content_Type
                  (MIME.Multipart_Byteranges & "; boundary=" & Boundary)
-               & CRLF & CRLF);
+               & CRLF);
          end if;
       end if;
 
