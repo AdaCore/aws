@@ -2059,7 +2059,6 @@ package body AWS.Server.HTTP_Utils is
       procedure Send (Str : String) is
       begin
          Data (Translator.To_Stream_Element_Array (Str), Dummy);
-         Length := Length + Str'Length;
       end Send;
 
       ----------------
@@ -2148,7 +2147,7 @@ package body AWS.Server.HTTP_Utils is
             Send
               (Messages.Content_Type
                  (MIME.Multipart_Byteranges & "; boundary=" & Boundary)
-               & CRLF & CRLF);
+               & CRLF);
          end if;
       end if;
 
