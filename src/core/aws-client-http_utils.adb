@@ -1835,12 +1835,6 @@ package body AWS.Client.HTTP_Utils is
             Method);
       end if;
 
-      if Debug_On then
-         for J in 1 .. Connection.F_Headers.Count loop
-            Debug_Message ("> ", Connection.F_Headers.Get_Line (J));
-         end loop;
-      end if;
-
       --  Cookie
 
       if Connection.Cookie /= No_Data then
@@ -2286,6 +2280,16 @@ package body AWS.Client.HTTP_Utils is
       Parse_Authenticate_Line
         (Proxy,
          Response.Header (Answer, Messages.Proxy_Authenticate_Token));
+
+      if Debug_On then
+         declare
+            List : constant AWS.Headers.List := Response.Header (Answer);
+         begin
+            for J in 1 .. List.Count loop
+               Debug_Message ("< ", List.Get_Line (J));
+            end loop;
+         end;
+      end if;
    end Read_Parse_Header;
 
    --------------------------------
