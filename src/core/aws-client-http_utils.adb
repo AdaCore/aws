@@ -2145,6 +2145,10 @@ package body AWS.Client.HTTP_Utils is
 
       use type Messages.Status_Code;
 
+      function Get_Content_Encoding return String is
+        (Characters.Handling.To_Lower
+           (Response.Header (Answer, Messages.Content_Encoding_Token)));
+
    begin
       --  Reset authentication information
 
@@ -2164,58 +2168,61 @@ package body AWS.Client.HTTP_Utils is
          Response.Set.Read_Header (Sock, Answer);
          Response.Set.Parse_Header (Answer);
 
+         declare
+
+            procedure Decode_Init (Z_Header : ZLib.Header_Type);
+
+            -----------------
+            -- Decode_Init --
+            -----------------
+
+            procedure Decode_Init (Z_Header : ZLib.Header_Type) is
+               use type Utils.Stream_Element_Array_Access;
+            begin
+               ZLib.Inflate_Init
+                 (Connection.Decode_Filter, Header => Z_Header);
+
+               if Connection.Decode_Buffer = null then
+                  Connection.Decode_Buffer :=
+                    new Stream_Element_Array (1 .. 8096);
+               end if;
+
+               Connection.Decode_First := Connection.Decode_Buffer'Last + 1;
+               Connection.Decode_Last  := Connection.Decode_Buffer'Last;
+            end Decode_Init;
+
+            Content_Encoding : constant String := Get_Content_Encoding;
+
+         begin
+            if ZLib.Is_Open (Connection.Decode_Filter) then
+               ZLib.Close (Connection.Decode_Filter, Ignore_Error => True);
+            end if;
+
+            if Content_Encoding = "gzip" then
+               Decode_Init (ZLib.GZip);
+            elsif Content_Encoding = "deflate" then
+               Decode_Init (ZLib.Default);
+            end if;
+         end;
+
       else
          --  In HTTP/2 the status is encoded in :status pseudo header
 
+         Status := Messages.Status_Code'Value
+                     ('S' & Response.Header (Answer, Messages.Status_Token));
+         Response.Set.Status_Code (Answer, Status);
+         Response.Set.Parse_Header (Answer);
+
          declare
-            S : constant String :=
-                  Response.Header (Answer, Messages.Status_Token);
+            Content_Encoding : constant String := Get_Content_Encoding;
          begin
-            Status := Messages.Status_Code'Value ('S' & S);
-            Response.Set.Status_Code (Answer, Status);
-            Response.Set.Parse_Header (Answer);
+            if Content_Encoding in "gzip" | "deflate" then
+               Response.Set.Data_Encoding
+                 (Answer, Messages.Content_Encoding'Value (Content_Encoding),
+                  Direction => Response.Set.Decode);
+            end if;
          end;
       end if;
-
-      declare
-         use AWS.Response;
-
-         Content_Encoding : constant String :=
-                              Characters.Handling.To_Lower
-                                (Header
-                                   (Answer, Messages.Content_Encoding_Token));
-
-         procedure Decode_Init (Header : ZLib.Header_Type);
-
-         -----------------
-         -- Decode_Init --
-         -----------------
-
-         procedure Decode_Init (Header : ZLib.Header_Type) is
-            use type Utils.Stream_Element_Array_Access;
-         begin
-            ZLib.Inflate_Init (Connection.Decode_Filter, Header => Header);
-
-            if Connection.Decode_Buffer = null then
-               Connection.Decode_Buffer :=
-                 new Stream_Element_Array (1 .. 8096);
-            end if;
-
-            Connection.Decode_First := Connection.Decode_Buffer'Last + 1;
-            Connection.Decode_Last  := Connection.Decode_Buffer'Last;
-         end Decode_Init;
-
-      begin
-         if ZLib.Is_Open (Connection.Decode_Filter) then
-            ZLib.Close (Connection.Decode_Filter, Ignore_Error => True);
-         end if;
-
-         if Content_Encoding = "gzip" then
-            Decode_Init (ZLib.GZip);
-         elsif Content_Encoding = "deflate" then
-            Decode_Init (ZLib.Default);
-         end if;
-      end;
 
       --  ??? we should not expect 100 response message after the body sent.
       --  This code needs to be fixed.
