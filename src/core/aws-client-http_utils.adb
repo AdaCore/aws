@@ -31,9 +31,9 @@ pragma Ada_2012;
 
 with Ada.Characters.Handling;
 with Ada.Exceptions;
+with Ada.Streams.Stream_IO;
 with Ada.Strings.Fixed;
 with Ada.Strings.Maps;
-with Ada.Streams.Stream_IO;
 
 with AWS.Digest;
 with AWS.Headers.Values;
