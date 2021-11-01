@@ -41,6 +41,8 @@ pragma Ada_2012;
 --  Each K/V pair is then inserted into the Data table for access by numeric
 --  index. And its numeric index is placed into the map indexed by name.
 
+with Ada.Strings.Maps.Constants;
+
 with AWS.Utils;
 
 package body AWS.Containers.Tables is
@@ -79,8 +81,7 @@ package body AWS.Containers.Tables is
 
    procedure Add (Table : in out Table_Type; Name, Value : String) is
    begin
-      Table.Add
-        (To_Unbounded_String (Name), To_Unbounded_String (Value));
+      Table.Add (To_Unbounded_String (Name), To_Unbounded_String (Value));
    end Add;
 
    procedure Add (Table : in out Table_Type; Name, Value : Unbounded_String) is
@@ -95,15 +96,6 @@ package body AWS.Containers.Tables is
    procedure Case_Sensitive (Table : in out Table_Type; Mode : Boolean) is
    begin
       Table.Case_Sensitive := Mode;
-   end Case_Sensitive;
-
-   --------------------
-   -- Case_Sensitive --
-   --------------------
-
-   function Case_Sensitive (Table : Table_Type) return Boolean is
-   begin
-      return Table.Case_Sensitive;
    end Case_Sensitive;
 
    -----------
@@ -341,6 +333,15 @@ package body AWS.Containers.Tables is
       return Natural (Index_Table.Length (Table.Index));
    end Name_Count;
 
+   ---------------------
+   -- Names_Lowecased --
+   ---------------------
+
+   procedure Names_Lowercased (Table : in out Table_Type; Mode : Boolean) is
+   begin
+      Table.Lowercased := Mode;
+   end Names_Lowercased;
+
    -----------
    -- Reset --
    -----------
@@ -428,8 +429,18 @@ package body AWS.Containers.Tables is
       -------------
 
       procedure Process (Key : String; Item : in out Name_Index_Table) is
-         pragma Unreferenced (Key);
-         NV : constant Element := (Name => Name, Value => Value);
+
+         function To_Lower_Name return Unbounded_String is
+           (if Table.Case_Sensitive
+            then Translate (Name, Ada.Strings.Maps.Constants.Lower_Case_Map)
+            else To_Unbounded_String (Key));
+         --  Convert Name to lowercased.
+         --  Note that if not Table.Case_Sensitive then the Key is lowercased
+         --  Name already.
+
+         NV : constant Element :=
+               (Name  => (if Table.Lowercased then To_Lower_Name else Name),
+                Value => Value);
       begin
          if N = 0 or else N = Natural (Name_Indexes.Length (Item)) + 1 then
             --  Add item at the end of the table

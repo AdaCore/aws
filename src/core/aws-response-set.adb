@@ -225,22 +225,18 @@ package body AWS.Response.Set is
    -- Content_Length --
    --------------------
 
-   procedure Content_Length (D : in out Data; To_Lower : Boolean) is
+   procedure Content_Length (D : in out Data) is
       Size : constant Content_Length_Type :=
                (case D.Mode is
                    when File | File_Once =>
-                     Content_Length_Type
-                       (Ada.Directories.Size (Filename (D))),
+                     Content_Length_Type (Ada.Directories.Size (Filename (D))),
                    when Response.Stream | Response.Message =>
                      D.Stream.Size,
                    when others =>
                      Undefined_Length);
    begin
       if Size /= Undefined_Length then
-         Update_Header
-           (D,
-            Utils.Normalize_Lower (Messages.Content_Length_Token, To_Lower),
-            Utils.Image (Size));
+         Update_Header (D, Messages.Content_Length_Token, Utils.Image (Size));
       end if;
    end Content_Length;
 
@@ -271,6 +267,7 @@ package body AWS.Response.Set is
          --  The stream is already active, there is nothing to do, we can't
          --  change the encoding when data has alredy been added into the
          --  stream.
+
          return;
       end if;
 
