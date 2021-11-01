@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2004-2014, AdaCore                     --
+--                     Copyright (C) 2004-2021, AdaCore                     --
 --                                                                          --
 --  This is free software;  you can redistribute it  and/or modify it       --
 --  under terms of the  GNU General Public License as published  by the     --
@@ -19,16 +19,16 @@
 --  Test file as attachment
 
 with Ada.Exceptions;
-with Ada.Text_IO;
 with Ada.Strings.Unbounded;
+with Ada.Text_IO;
 
 with AWS.Client;
 with AWS.Config.Set;
 with AWS.Messages;
-with AWS.Net.SSL;
 with AWS.MIME;
-with AWS.Response.Set;
+with AWS.Net.SSL;
 with AWS.Resources.Streams.Disk;
+with AWS.Response.Set;
 with AWS.Server.Status;
 with AWS.Status;
 with AWS.Utils;
@@ -43,8 +43,8 @@ package body S_AFile_Pack is
    WS   : Server.HTTP;
    CNF  : Config.Object;
    FN   : constant String := "test.out";
-   Size : constant Response.Content_Length_Type
-    := Response.Content_Length_Type (Resources.File_Size (FN));
+   Size : constant Response.Content_Length_Type :=
+            Response.Content_Length_Type (Resources.File_Size (FN));
 
    Socket  : Net.Socket_Access;
    Session : ASU.Unbounded_String;

@@ -202,8 +202,7 @@ begin
             if CNF.HTTP2_Activated (LA.Server.Config) then
                Protocol_Handler_V2 (LA, Check_Preface => False);
 
-               --  ??? Need to be updated for handling multiple messages
-               Will_Close := True;
+               Will_Close := False;
 
             else
                Error_Answer := Response.Build
@@ -298,8 +297,7 @@ begin
 
             Protocol_Handler_V2 (LA);
 
-            --  ??? Need to be updated for handling multiple messages
-            Will_Close := True;
+            Will_Close := False;
          end if;
 
       exception
