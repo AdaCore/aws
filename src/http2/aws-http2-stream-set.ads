@@ -27,11 +27,11 @@
 --  covered by the  GNU Public License.                                     --
 ------------------------------------------------------------------------------
 
-with Ada.Containers.Bounded_Ordered_Maps;
+with Ada.Containers.Ordered_Maps;
 
 package AWS.HTTP2.Stream.Set is
 
-   package Maps is new Ada.Containers.Bounded_Ordered_Maps (Stream_Id, Object);
+   package Maps is new Ada.Containers.Ordered_Maps (Stream_Id, Object);
 
    subtype Object is Maps.Map;
 

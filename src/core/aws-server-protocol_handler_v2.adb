@@ -776,13 +776,16 @@ begin
 
    declare
       use HTTP2;
+      use type Containers.Count_Type;
       use type HTTP2.Stream.State_Kind;
 
-      Max_Stream : constant Containers.Count_Type :=
-                     Containers.Count_Type (Settings.Max_Concurrent_Streams);
-      S          : HTTP2.Stream.Set.Object (Max_Stream);
-      Last_SID   : HTTP2.Stream.Id := 0;
-      In_Header  : Boolean := False;
+      Max_Stream    : constant Containers.Count_Type :=
+                        Containers.Count_Type
+                          (Settings.Max_Concurrent_Streams);
+      S             : HTTP2.Stream.Set.Object;
+      Stream_Opened : Containers.Count_Type := 0;
+      Last_SID      : HTTP2.Stream.Id := 0;
+      In_Header     : Boolean := False;
       --  Need to avoid unknown extension frame in the middle of a header block
       --  (RFC 7450, 5.5).
 
@@ -793,6 +796,7 @@ begin
          S.Insert
            (1,
             HTTP2.Stream.Create (Sock,  1, Settings.Initial_Window_Size));
+         Stream_Opened := Stream_Opened + 1;
 
          S (1).Status.all := Request;
 
@@ -827,6 +831,8 @@ begin
 
                   if M.More_Frames then
                      Deferred_Messages.Prepend (M);
+                  else
+                     Stream_Opened := Stream_Opened - 1;
                   end if;
                end if;
             end;
@@ -888,7 +894,6 @@ begin
          LA.Server.Slots.Mark_Phase (LA.Line, Wait_For_Client);
 
          declare
-            use type Ada.Containers.Count_Type;
             use type HTTP2.Error_Codes;
 
             Frame      : constant HTTP2.Frame.Object'Class :=
@@ -1026,7 +1031,7 @@ begin
                   --  stream.
 
                   if (Frame.Kind /= K_Priority and then Stream_Id < Last_SID)
-                    or else S.Capacity = S.Length
+                    or else Stream_Opened > Max_Stream
                   then
                      Go_Away
                        (C_Protocol_Error, "too many streams were opened");
@@ -1041,6 +1046,7 @@ begin
                        (Stream_Id,
                         HTTP2.Stream.Create
                           (Sock, Stream_Id, Settings.Initial_Window_Size));
+                     Stream_Opened := Stream_Opened + 1;
                   end if;
                end if;
 
