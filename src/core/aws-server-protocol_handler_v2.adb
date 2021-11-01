@@ -127,7 +127,7 @@ is
    Sock             : constant Socket_Access :=
                         LA.Server.Slots.Get (Index => LA.Line).Sock;
 
-   Will_Close   : Boolean := True;
+   Will_Close   : Boolean := False;
    --  Will_Close is set to true when the connection will be closed by the
    --  server. It means that the server is about to send the latest message
    --  to the client using this socket. The value will be changed by
