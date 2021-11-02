@@ -31,9 +31,9 @@ pragma Ada_2012;
 
 with Ada.Characters.Handling;
 with Ada.Exceptions;
+with Ada.Streams.Stream_IO;
 with Ada.Strings.Fixed;
 with Ada.Strings.Maps;
-with Ada.Streams.Stream_IO;
 
 with AWS.Digest;
 with AWS.Headers.Values;
@@ -430,6 +430,13 @@ package body AWS.Client.HTTP_Utils is
       use type Net.Socket_Access;
    begin
       if Connection.Opened then
+         if Connection.HTTP_Version = HTTPv2 then
+            --  Properly close the connection
+            HTTP2.Frame.GoAway.Create
+              (Connection.H2_Stream_Id, HTTP2.C_No_Error).
+              Send (Connection.Socket.all);
+         end if;
+
          Connection.Opened := False;
 
          if Connection.Socket /= null then
@@ -554,11 +561,6 @@ package body AWS.Client.HTTP_Utils is
          Read_Parse_Header (Connection, Result, Keep_Alive);
 
          Stream.Append_Body (Result);
-
-         --  Finally close the stream
-
-         Stream.Send_Frame
-           (HTTP2.Frame.GoAway.Create (Stream.Identifier, HTTP2.C_No_Error));
 
          --  Check encoding
 
