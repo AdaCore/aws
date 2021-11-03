@@ -184,7 +184,7 @@ package body AWS.HTTP2.Message is
 
                Status_Code : Messages.Status_Code :=
                                Response.Status_Code (Answer);
-               With_Body   : constant Boolean :=
+               With_Body   : Boolean :=
                                Messages.With_Body (Status_Code)
                                  and then Status.Method (Request)
                                  /= Status.HEAD;
@@ -207,10 +207,14 @@ package body AWS.HTTP2.Message is
 
                   when Up_To_Date =>
                      Status_Code := Messages.S304;
+                     With_Body := False;
 
                   when Not_Found  =>
                      Status_Code := Messages.S404;
+                     With_Body := False;
                end case;
+
+               Response.Set.Status_Code (Answer, Status_Code);
 
                O.Headers.Add
                  (Messages.Status_Token, Messages.Image (Status_Code));
