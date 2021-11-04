@@ -620,11 +620,10 @@ package body AWS.Status.Set is
       D.Method_String := To_Unbounded_String (Method);
       D.HTTP_Version  := To_Unbounded_String (HTTP_Version);
 
-      --  At this stage it should be HTTP_11, there is no
-      --  other choices.
-
-      if HTTP_Version = HTTP_11 then
+      if HTTP_Version in HTTP_10 | HTTP_11 then
          D.Protocol := HTTP_1;
+      elsif HTTP_Version = HTTP_2 then
+         D.Protocol := H2;
       end if;
 
       --  Parse URI and keep parameters case sensitivity flag

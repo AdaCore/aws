@@ -79,6 +79,7 @@ is
 
    use type AWS.Status.Protocol_State;
    use type HTTP2.Stream_Id;
+   use type HTTP2.Stream.Upload_State_Kind;
 
    use all type HTTP2.Frame.Kind_Type;
 
@@ -94,16 +95,15 @@ is
      with Pre => Frame.Stream_Id = 0;
    --  Handle a control frame (Frame id = 0)
 
-   procedure Handle_Message (Stream : HTTP2.Stream.Object);
+   procedure Handle_Message (Stream : in out HTTP2.Stream.Object);
 
    function Handle_Message
      (Stream : HTTP2.Stream.Object) return AWS.HTTP2.Message.Object;
 
+   procedure Handle_Body (Stream : HTTP2.Stream.Object);
+
    procedure Queue_Settings_Frame;
    --  Queue server settings frame (default configuration)
-
-   procedure Set_Status (Status : in out AWS.Status.Data);
-   --  Set standard/common status data for the response
 
    procedure Finalize;
    --  Free resources on return from Protocol_Handler_V2
@@ -166,168 +166,12 @@ is
       AWS.Status.Set.Free (Request);
    end Finalize;
 
-   --------------------------
-   -- Handle_Control_Frame --
-   --------------------------
+   -----------------
+   -- Handle_Body --
+   -----------------
 
-   procedure Handle_Control_Frame
-     (Frame   : HTTP2.Frame.Object'Class;
-      Streams : in out HTTP2.Stream.Set.Object;
-      Error   : out HTTP2.Error_Codes)
-   is
-      Add_FC : Integer;
-   begin
-      Ctx.Settings.Handle_Control_Frame (Frame, Answers, Add_FC, Error);
-
-      if Add_FC /= 0 then
-         for S of Streams loop
-            if HTTP2.Connection.Flow_Control_Window_Valid
-                 (S.Flow_Control_Window, Add_FC)
-            then
-               S.Update_Flow_Control_Window (Add_FC);
-            end if;
-         end loop;
-      end if;
-   end Handle_Control_Frame;
-
-   ---------------------------
-   -- Handle_HTTP2_Settings --
-   ---------------------------
-
-   procedure Handle_HTTP2_Settings is
-      HTTP2_Settings   : constant String :=
-                           AWS.Headers.Get_Values
-                             (AWS.Status.Header (Request),
-                              Messages.HTTP2_Settings);
-      Settings_Payload : constant Stream_Element_Array :=
-                           Translator.Base64_Decode (HTTP2_Settings);
-      Frame            : constant HTTP2.Frame.Settings.Object :=
-                           HTTP2.Frame.Settings.Create (Settings_Payload);
-   begin
-      Settings.Set (Frame.Values);
-   end Handle_HTTP2_Settings;
-
-   --------------------
-   -- Handle_Message --
-   --------------------
-
-   function Handle_Message
-     (Stream : HTTP2.Stream.Object) return AWS.HTTP2.Message.Object
-   is
+   procedure Handle_Body (Stream : HTTP2.Stream.Object) is
       Status : AWS.Status.Data renames Stream.Status.all;
-   begin
-      if Extended_Log then
-         AWS.Log.Set_Field
-           (LA.Server.Log, LA.Log_Data,
-            "c-ip", Net.Peer_Addr (Sock.all));
-
-         AWS.Log.Set_Field
-           (LA.Server.Log, LA.Log_Data,
-            "c-port", Utils.Image (Net.Peer_Port (Sock.all)));
-
-         AWS.Log.Set_Field
-           (LA.Server.Log, LA.Log_Data,
-            "s-ip", Net.Get_Addr (Sock.all));
-
-         AWS.Log.Set_Field
-           (LA.Server.Log, LA.Log_Data,
-            "s-port", Utils.Image (Net.Get_Port (Sock.all)));
-      end if;
-
-      --  If there is no more slot available and we have many
-      --  of them, try to abort one of them.
-
-      LA.Server.Slots.Increment_Slot_Activity_Counter (LA.Line, Free_Slots);
-
-      if Multislots and then Free_Slots = 0 then
-         Force_Clean (LA.Server.all);
-      end if;
-
-      if Extended_Log then
-         AWS.Log.Set_Field
-           (LA.Server.Log, LA.Log_Data,
-            "s-free-slots", Utils.Image (Free_Slots));
-      end if;
-
-      LA.Server.Slots.Mark_Phase (LA.Line, Client_Data);
-
-      declare
-         R : Response.Data :=
-               Server.HTTP_Utils.Build_Answer (LA.Server.all, Status);
-
-         procedure Add_Header (Name, Value : String) with Inline;
-         --  Add header into response R
-
-         -----------------
-         --  Add_Header --
-         -----------------
-
-         procedure Add_Header (Name, Value : String) is
-         begin
-            Response.Set.Add_Header
-              (R, Characters.Handling.To_Lower (Name), Value);
-         end Add_Header;
-
-      begin
-         --  The general headers
-
-         Add_Header
-           (Messages.Date_Token,
-            Messages.To_HTTP_Date (Utils.GMT_Clock));
-
-         if AWS.Response.Content_Type (R) /= "" then
-            Add_Header
-              (Messages.Content_Type_Token,
-               AWS.Response.Content_Type (R));
-         end if;
-
-         declare
-            Server : constant String :=
-                       CNF.Server_Header (LA.Server.Properties);
-         begin
-            if Server /= "" then
-               Add_Header (Messages.Server_Token, Server);
-            end if;
-         end;
-
-         if CNF.Session (LA.Server.Properties)
-           and then AWS.Status.Session_Created (Status)
-         then
-            --  This is an HTTP connection with session but there is no session
-            --  ID set yet. So, send cookie to client browser.
-
-            Add_Header
-              (Messages.Set_Cookie_Token,
-               CNF.Session_Name (LA.Server.Properties) & '='
-               & Session.Image (AWS.Status.Session (Status))
-               & "; path=/; Version=1");
-
-            --  And the internal private session
-
-            Add_Header
-              (Messages.Set_Cookie_Token,
-               CNF.Session_Private_Name (LA.Server.Properties) & '='
-               & AWS.Status.Session_Private (Status)
-               & "; path=/; Version=1");
-         end if;
-
-         return O : constant HTTP2.Message.Object :=
-           HTTP2.Message.Create (R, Status, Stream.Identifier)
-         do
-            Stream.Response.all := R;
-         end return;
-      end;
-   end Handle_Message;
-
-   procedure Handle_Message (Stream : HTTP2.Stream.Object) is
-
-      use type AWS.Status.Request_Method;
-      use type HTTP2.Error_Codes;
-
-      procedure Validate_Headers
-        (Headers : AWS.Headers.List;
-         Error   : out HTTP2.Error_Codes);
-      --  Validate headers name as required by HTTP/2
 
       procedure Handle_POST;
       --  Process POST message and handle possible parameters and attachments
@@ -514,6 +358,194 @@ is
          AWS.Status.Set.Attachments (LA.Stat.all, Attachments);
       end Handle_POST;
 
+      use type AWS.Status.Request_Method;
+
+   begin
+      Stream.Append_Body (Status);
+
+      --  With HTTP/2 the whole body is always uploaded when receiving frames
+
+      AWS.Status.Set.Uploaded (Status);
+
+      if AWS.Status.Method (Status) = AWS.Status.POST
+        and then AWS.Status.Binary_Size (Status) > 0
+      then
+         Handle_POST;
+      end if;
+   end Handle_Body;
+
+   --------------------------
+   -- Handle_Control_Frame --
+   --------------------------
+
+   procedure Handle_Control_Frame
+     (Frame   : HTTP2.Frame.Object'Class;
+      Streams : in out HTTP2.Stream.Set.Object;
+      Error   : out HTTP2.Error_Codes)
+   is
+      Add_FC : Integer;
+   begin
+      Ctx.Settings.Handle_Control_Frame (Frame, Answers, Add_FC, Error);
+
+      if Add_FC /= 0 then
+         for S of Streams loop
+            if HTTP2.Connection.Flow_Control_Window_Valid
+                 (S.Flow_Control_Window, Add_FC)
+            then
+               S.Update_Flow_Control_Window (Add_FC);
+            end if;
+         end loop;
+      end if;
+   end Handle_Control_Frame;
+
+   ---------------------------
+   -- Handle_HTTP2_Settings --
+   ---------------------------
+
+   procedure Handle_HTTP2_Settings is
+      HTTP2_Settings   : constant String :=
+                           AWS.Headers.Get_Values
+                             (AWS.Status.Header (Request),
+                              Messages.HTTP2_Settings);
+      Settings_Payload : constant Stream_Element_Array :=
+                           Translator.Base64_Decode (HTTP2_Settings);
+      Frame            : constant HTTP2.Frame.Settings.Object :=
+                           HTTP2.Frame.Settings.Create (Settings_Payload);
+   begin
+      Settings.Set (Frame.Values);
+   end Handle_HTTP2_Settings;
+
+   --------------------
+   -- Handle_Message --
+   --------------------
+
+   function Handle_Message
+     (Stream : HTTP2.Stream.Object) return AWS.HTTP2.Message.Object
+   is
+      Status : AWS.Status.Data renames Stream.Status.all;
+   begin
+      if Extended_Log then
+         AWS.Log.Set_Field
+           (LA.Server.Log, LA.Log_Data,
+            "c-ip", Net.Peer_Addr (Sock.all));
+
+         AWS.Log.Set_Field
+           (LA.Server.Log, LA.Log_Data,
+            "c-port", Utils.Image (Net.Peer_Port (Sock.all)));
+
+         AWS.Log.Set_Field
+           (LA.Server.Log, LA.Log_Data,
+            "s-ip", Net.Get_Addr (Sock.all));
+
+         AWS.Log.Set_Field
+           (LA.Server.Log, LA.Log_Data,
+            "s-port", Utils.Image (Net.Get_Port (Sock.all)));
+      end if;
+
+      --  If there is no more slot available and we have many
+      --  of them, try to abort one of them.
+
+      LA.Server.Slots.Increment_Slot_Activity_Counter (LA.Line, Free_Slots);
+
+      if Multislots and then Free_Slots = 0 then
+         Force_Clean (LA.Server.all);
+      end if;
+
+      if Extended_Log then
+         AWS.Log.Set_Field
+           (LA.Server.Log, LA.Log_Data,
+            "s-free-slots", Utils.Image (Free_Slots));
+      end if;
+
+      LA.Server.Slots.Mark_Phase (LA.Line, Client_Data);
+
+      declare
+         R : Response.Data :=
+               Server.HTTP_Utils.Build_Answer (LA.Server.all, Status);
+
+         procedure Add_Header (Name, Value : String) with Inline;
+         --  Add header into response R
+
+         -----------------
+         --  Add_Header --
+         -----------------
+
+         procedure Add_Header (Name, Value : String) is
+         begin
+            Response.Set.Add_Header
+              (R, Characters.Handling.To_Lower (Name), Value);
+         end Add_Header;
+
+      begin
+         if Stream.Upload_State = HTTP2.Stream.Upload_Oversize
+           and then Response.Is_Continue (R)
+         then
+            return HTTP2.Message.Undefined;
+         end if;
+
+         --  The general headers
+
+         Add_Header
+           (Messages.Date_Token,
+            Messages.To_HTTP_Date (Utils.GMT_Clock));
+
+         if AWS.Response.Content_Type (R) /= "" then
+            Add_Header
+              (Messages.Content_Type_Token,
+               AWS.Response.Content_Type (R));
+         end if;
+
+         declare
+            Server : constant String :=
+                       CNF.Server_Header (LA.Server.Properties);
+         begin
+            if Server /= "" then
+               Add_Header (Messages.Server_Token, Server);
+            end if;
+         end;
+
+         if CNF.Session (LA.Server.Properties)
+           and then AWS.Status.Session_Created (Status)
+         then
+            --  This is an HTTP connection with session but there is no session
+            --  ID set yet. So, send cookie to client browser.
+
+            Add_Header
+              (Messages.Set_Cookie_Token,
+               CNF.Session_Name (LA.Server.Properties) & '='
+               & Session.Image (AWS.Status.Session (Status))
+               & "; path=/; Version=1");
+
+            --  And the internal private session
+
+            Add_Header
+              (Messages.Set_Cookie_Token,
+               CNF.Session_Private_Name (LA.Server.Properties) & '='
+               & AWS.Status.Session_Private (Status)
+               & "; path=/; Version=1");
+         end if;
+
+         return O : constant HTTP2.Message.Object :=
+           HTTP2.Message.Create (R, Status, Stream.Identifier)
+         do
+            Stream.Response.all := R;
+         end return;
+      end;
+   end Handle_Message;
+
+   --------------------
+   -- Handle_Message --
+   --------------------
+
+   procedure Handle_Message (Stream : in out HTTP2.Stream.Object) is
+
+      use type HTTP2.Error_Codes;
+
+      procedure Validate_Headers
+        (Headers : AWS.Headers.List;
+         Error   : out HTTP2.Error_Codes);
+      --  Validate headers name as required by HTTP/2
+
       ----------------------
       -- Validate_Headers --
       ----------------------
@@ -625,16 +657,19 @@ is
          end loop;
       end Validate_Headers;
 
-      Status  : AWS.Status.Data renames Stream.Status.all;
-      Headers : constant AWS.Headers.List := Stream.Headers;
-      Error   : HTTP2.Error_Codes;
+      Status   : AWS.Status.Data renames Stream.Status.all;
+      Headers  : constant AWS.Headers.List := Stream.Headers;
+      Error    : HTTP2.Error_Codes;
+      Oversize : constant Boolean :=
+                   Stream.Upload_State = HTTP2.Stream.Upload_Oversize;
 
    begin
       AWS.Status.Set.Reset (Status);
 
-      AWS.Status.Set.Headers (Status, Headers);
+      AWS.Status.Set.Case_Sensitive_Parameters
+        (Status, Case_Sensitive_Parameters);
 
-      Stream.Append_Body (Status);
+      AWS.Status.Set.Headers (Status, Headers);
 
       --  Check headers' validity
 
@@ -647,7 +682,7 @@ is
 
       AWS.Status.Set.Update_Data_From_Header (Status);
 
-      --  And set the request information using an HTTP/1 request line format
+      --  And set the request information
 
       declare
          Path        : constant String := Headers.Get (Messages.Path2_Token);
@@ -663,54 +698,14 @@ is
             URI          => Path (Path'First .. Path_Last),
             HTTP_Version => HTTP_2);
 
-         Set_Status (Status);
-
          AWS.Status.Set.Query
            (Status,
             Parameters => Path (Query_First .. Path'Last));
       end;
 
-      if AWS.Status.Method (Status) = AWS.Status.POST
-        and then AWS.Status.Binary_Size (Status) > 0
-      then
-         Handle_POST;
-      end if;
-
-      --  Set back the status caller
-
-      LA.Stat := Stream.Status;
-
-      Deferred_Messages.Append (Handle_Message (Stream));
-   end Handle_Message;
-
-   --------------------------
-   -- Queue_Settings_Frame --
-   --------------------------
-
-   procedure Queue_Settings_Frame is
-      use HTTP2.Frame.Settings;
-   begin
-      Create (To_Set (LA.Server.Properties)).Send (Sock.all);
-   end Queue_Settings_Frame;
-
-   ----------------
-   -- Set_Status --
-   ----------------
-
-   procedure Set_Status (Status : in out AWS.Status.Data) is
-   begin
-      --  With HTTP/2 the whole body is always uploaded when receiving frames
-
-      AWS.Status.Set.Uploaded (Status);
-
       --  Set status socket and peername
 
       AWS.Status.Set.Socket (Status, Sock);
-
-      AWS.Status.Set.Case_Sensitive_Parameters
-        (Status, Case_Sensitive_Parameters);
-
-      --  Need to set the request-line (POST, GET...)
 
       AWS.Status.Set.Connection_Data
         (Status,
@@ -724,7 +719,37 @@ is
          Will_Close => Will_Close);
 
       AWS.Status.Set.Keep_Alive (Status, not Will_Close);
-   end Set_Status;
+
+      if not Oversize then
+         Handle_Body (Stream);
+      end if;
+
+      --  Set back the status caller
+
+      LA.Stat := Stream.Status;
+
+      declare
+         M : constant HTTP2.Message.Object := Handle_Message (Stream);
+      begin
+         if Oversize then
+            Stream.Upload_Decision (Allow => not M.Is_Defined);
+         end if;
+
+         if M.Is_Defined then
+            Deferred_Messages.Append (M);
+         end if;
+      end;
+   end Handle_Message;
+
+   --------------------------
+   -- Queue_Settings_Frame --
+   --------------------------
+
+   procedure Queue_Settings_Frame is
+      use HTTP2.Frame.Settings;
+   begin
+      Create (To_Set (LA.Server.Properties)).Send (Sock.all);
+   end Queue_Settings_Frame;
 
    H2C_Answer : AWS.HTTP2.Frame.List.Object;
 
@@ -1064,18 +1089,29 @@ begin
                      HTTP2.Frame.RST_Stream.Create
                        (Stream_Id => Stream_Id,
                         Error     => Error).Send (Sock.all);
-                     exit For_Every_Frame;
-
                   else
-                     Go_Away (Error, Error'Img & " from Received_Frame");
-
-                     exit For_Every_Frame;
+                     Go_Away
+                       (Error,
+                        Error'Img & " from Received_Frame "
+                        & S (Stream_Id).Error_Detail'Img);
                   end if;
+
+                  exit For_Every_Frame;
                end if;
 
                if S (Stream_Id).Is_Message_Ready
                  and then Prev_State < Stream.Half_Closed_Remote
                then
+                  if S (Stream_Id).Upload_State = Stream.Upload_Accepted then
+                     Handle_Body (S (Stream_Id));
+                     Deferred_Messages.Append (Handle_Message (S (Stream_Id)));
+
+                  elsif S (Stream_Id).Upload_State /= Stream.Upload_Rejected
+                  then
+                     Handle_Message (S (Stream_Id));
+                  end if;
+
+               elsif S (Stream_Id).Upload_State = Stream.Upload_Oversize then
                   Handle_Message (S (Stream_Id));
                end if;
             end if;

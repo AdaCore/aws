@@ -45,7 +45,7 @@ procedure Big_Post is
    function CB (Request : Status.Data) return Response.Data is
    begin
       if not Status.Is_Body_Uploaded (Request) then
-         Server.Get_Message_Body;
+         return Response.Continue;
       end if;
 
       Text_IO.Put_Line

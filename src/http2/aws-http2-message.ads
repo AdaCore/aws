@@ -31,6 +31,7 @@ with Ada.Finalization;
 
 with AWS.Headers;
 with AWS.HTTP2.Frame.List;
+with AWS.Messages;
 with AWS.Response;
 with AWS.Server.Context;
 with AWS.Status;
@@ -49,6 +50,8 @@ package AWS.HTTP2.Message is
    use type Response.Data_Mode;
 
    type Object is new Finalization.Controlled with private;
+
+   Undefined : constant Object;
 
    function Is_Defined (Self : Object) return Boolean;
 
@@ -102,8 +105,13 @@ package AWS.HTTP2.Message is
    --  payload depending on the current flow control window. If some more data
    --  is available, More_Frame below will return true.
 
-   function More_Frames (Self : Object) return Boolean;
+   function More_Frames (Self : Object) return Boolean
+     with Pre => Self.Is_Defined;
    --  Returns True if some more data are available and so should be sent
+
+   function Status_Code (Self : Object) return Messages.Status_Code
+     with Pre => Self.Is_Defined;
+   --  Returns message status code
 
 private
 
@@ -146,5 +154,13 @@ private
      (if Self.Has_Body
       then not Self.M_Body.End_Of_File
       else not Self.H_Sent);
+
+   function Status_Code (Self : Object) return Messages.Status_Code is
+     (Messages.Status_Code'Value
+        ('S' & Self.Headers.Get (Messages.Status_Token)));
+
+   Undefined : constant Object :=
+                 (Finalization.Controlled with Mode => Response.No_Data,
+                  Stream_Id => 0, others => <>);
 
 end AWS.HTTP2.Message;
