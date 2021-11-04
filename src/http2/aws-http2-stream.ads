@@ -43,11 +43,20 @@ package AWS.HTTP2.Stream is
                        Half_Closed_Local, Half_Closed_Remote, Closed);
    --  RFC 7540 5.1 Stream States
 
+   type Upload_State_Kind is
+     (Upload_Idle, Upload_Oversize, Upload_Accepted, Upload_Rejected);
+
    type Direction is (Unknown, Sending, Receiving);
    --  Stream data direction:
    --    Unknown   : the stream has not yet been used, state is Idle
    --    Sending   : some data have been sent to the stream
    --    Receiving : Soma data have been received from the stream
+
+   type Error_Details is
+     (Error_No_Details, Error_Stream_Id_Even, Error_From_Idle,
+      Error_Reserved_Remote, Error_Half_Closed_Local, Error_Half_Closed_Remote,
+      Error_Closed, Error_No_Continuation, Error_Continuation, Error_Priority,
+      Error_Window_Update, Error_Headers, Error_Content_Length);
 
    type Object is tagged private;
 
@@ -105,7 +114,7 @@ package AWS.HTTP2.Stream is
    --  Append body to Response from stream's data frames
 
    function Headers (Self : Object) return AWS.Headers.List
-     with Pre => Self.Is_Defined and then Self.Is_Message_Ready;
+     with Pre => Self.Is_Defined;
    --  Returns headers taken from stream
 
    function Priority (Self : Object) return Byte_1
@@ -137,6 +146,19 @@ package AWS.HTTP2.Stream is
           Post => Data_Flow'Result = Unknown or else Self.State /= Idle;
    --  Current stream direction
 
+   function Upload_State (Self : Object) return Upload_State_Kind
+     with Pre => Self.Is_Defined;
+   --  Returns current upload state
+
+   procedure Upload_Decision (Self : in out Object; Allow : Boolean)
+     with Pre => Self.Is_Defined;
+   --  Set Upload_State to Upload_Accepted or Upload_Rejected depend on Allow
+   --  parameter.
+
+   function Error_Detail (Self : Object) return Error_Details
+     with Pre => Self.Is_Defined;
+   --  Returns error detail
+
 private
 
    subtype Content_Length_Type is
@@ -155,6 +177,7 @@ private
       Response            : aliased AWS.Response.Data;
       Is_Ready            : Boolean              := False;
       Header_Found        : Boolean              := False;
+      Upload_State        : Upload_State_Kind    := Upload_Idle;
       Flow_Send_Window    : Integer              := 0;
       Flow_Receive_Window : Integer              := 0;
       Bytes_Sent          : Stream_Element_Count := 0;
@@ -164,6 +187,7 @@ private
       Content_Length      : Content_Length_Type  := Undefined_Length;
       Bytes_Received      : Content_Length_Type  := 0;
       Data_Flow           : Direction            := Unknown;
+      Error_Detail        : Error_Details        := Error_No_Details;
    end record;
 
    function "<" (Left, Right : Object) return Boolean is (Left.Id < Right.Id);
@@ -195,5 +219,11 @@ private
    function Is_Defined (Self : Object) return Boolean is (Self /= Undefined);
 
    function Data_Flow (Self : Object) return Direction is (Self.Data_Flow);
+
+   function Upload_State (Self : Object) return Upload_State_Kind is
+     (Self.Upload_State);
+
+   function Error_Detail (Self : Object) return Error_Details is
+     (Self.Error_Detail);
 
 end AWS.HTTP2.Stream;

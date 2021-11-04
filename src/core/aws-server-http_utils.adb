@@ -90,14 +90,12 @@ package body AWS.Server.HTTP_Utils is
       Will_Close   : in out Boolean)
    is
       use type Messages.Status_Code;
-      use type Response.Data_Mode;
 
       Answer     : Response.Data := Build_Answer (HTTP_Server, C_Stat);
       Need_Purge : Boolean       := False;
 
    begin
-      if Response.Status_Code (Answer) = Messages.S100
-        and then Response.Mode (Answer) = Response.No_Data
+      if Response.Is_Continue (Answer)
         and then not Status.Is_Body_Uploaded (C_Stat)
       then
          --  Upload message body and call user dispatcher again

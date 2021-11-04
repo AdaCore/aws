@@ -520,7 +520,9 @@ package body AWS.Client.HTTP_Utils is
             end if;
          end if;
 
-         pragma Assert (Frame.Stream_Id = Stream.Identifier);
+         pragma Assert
+           (Frame.Stream_Id = Stream.Identifier,
+            Frame.Stream_Id'Img & Stream.Identifier'Img);
 
          Stream.Received_Frame (Ctx, Frame, Error);
       end if;

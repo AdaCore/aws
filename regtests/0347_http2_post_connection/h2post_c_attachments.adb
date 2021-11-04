@@ -84,8 +84,6 @@ procedure H2Post_C_Attachments is
 
    begin
       if not Status.Is_Body_Uploaded (Request) then
-         Text_IO.Put_Line
-           ("ERROR: allow client upload (should not happen in HTTP/2)");
          return Response.Continue;
       end if;
 

@@ -77,7 +77,7 @@ private
    --  +-+-------------------------------------------------------------+
 
    type Payload is record
-      R              : Bit_1;
+      R              : Bit_1               := 0;
       Size_Increment : Size_Increment_Type := 0;
    end record;
 

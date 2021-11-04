@@ -66,7 +66,7 @@ package body AWS.Net.Buffered is
    -----------
 
    procedure Flush (Socket : Socket_Type'Class) is
-      C : Write_Cache_Access  renames Socket.C.W_Cache;
+      C : Write_Cache_Access renames Socket.C.W_Cache;
    begin
       if C = null then
          return;
