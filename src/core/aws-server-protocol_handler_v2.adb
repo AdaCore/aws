@@ -311,7 +311,11 @@ is
                & "; path=/; Version=1");
          end if;
 
-         return HTTP2.Message.Create (R, Status, Stream.Identifier);
+         return O : constant HTTP2.Message.Object :=
+           HTTP2.Message.Create (R, Status, Stream.Identifier)
+         do
+            Stream.Response.all := R;
+         end return;
       end;
    end Handle_Message;
 
@@ -867,12 +871,12 @@ begin
                   if Frame.Kind = K_Data then
                      Settings.Update_Flow_Control_Window
                        (-Natural (Frame.Length));
+                  end if;
 
-                     if Frame.Has_Flag (HTTP2.Frame.End_Stream_Flag) then
-                        Log_Commit
-                          (Ctx.HTTP.all, Stream.Response.all,
-                           Stream.Status.all, Stream.Bytes_Sent);
-                     end if;
+                  if Frame.Has_Flag (HTTP2.Frame.End_Stream_Flag) then
+                     Log_Commit
+                       (Ctx.HTTP.all, Stream.Response.all,
+                        Stream.Status.all, Stream.Bytes_Sent);
                   end if;
                end if;
 

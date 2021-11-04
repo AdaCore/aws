@@ -1361,8 +1361,8 @@ package body AWS.Server.HTTP_Utils is
       C_Stat      : AWS.Status.Data;
       Length      : Response.Content_Length_Type)
    is
-      LA : constant Line_Attribute.Attribute_Handle :=
-             Line_Attribute.Reference;
+      LA          : constant Line_Attribute.Attribute_Handle :=
+                      Line_Attribute.Reference;
       Status_Code : constant Messages.Status_Code :=
                       Response.Status_Code (Answer);
    begin
