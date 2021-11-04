@@ -214,8 +214,6 @@ is
    function Handle_Message
      (Stream : HTTP2.Stream.Object) return AWS.HTTP2.Message.Object
    is
-      use type Response.Data_Mode;
-
       Status : AWS.Status.Data renames Stream.Status.all;
    begin
       if Extended_Log then
@@ -277,6 +275,12 @@ is
            (Messages.Date_Token,
             Messages.To_HTTP_Date (Utils.GMT_Clock));
 
+         if AWS.Response.Content_Type (R) /= "" then
+            Add_Header
+              (Messages.Content_Type_Token,
+               AWS.Response.Content_Type (R));
+         end if;
+
          declare
             Server : constant String :=
                        CNF.Server_Header (LA.Server.Properties);
@@ -305,12 +309,6 @@ is
                CNF.Session_Private_Name (LA.Server.Properties) & '='
                & AWS.Status.Session_Private (Status)
                & "; path=/; Version=1");
-         end if;
-
-         if Response.Mode (R) = Response.File then
-            Add_Header
-              (Messages.Content_Type_Token,
-               Response.Content_Type (R));
          end if;
 
          return HTTP2.Message.Create (R, Status, Stream.Identifier);

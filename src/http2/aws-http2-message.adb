@@ -285,12 +285,11 @@ package body AWS.HTTP2.Message is
                         end if;
                      end if;
                   end;
-               else
-                  if Size /= Resources.Undefined_Length then
-                     O.Headers.Add
-                       (Messages.Content_Length_Token,
-                        Utils.Image (Size));
-                  end if;
+
+               elsif Size /= Resources.Undefined_Length then
+                  O.Headers.Add
+                    (Messages.Content_Length_Token,
+                     Utils.Image (Size));
                end if;
             end;
 
