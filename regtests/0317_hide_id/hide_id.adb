@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                       Copyright (C) 2018, AdaCore                        --
+--                     Copyright (C) 2018-2021, AdaCore                     --
 --                                                                          --
 --  This is free software;  you can redistribute it  and/or modify it       --
 --  under terms of the  GNU General Public License as published  by the     --
@@ -47,8 +47,8 @@ procedure Hide_Id is
 
    Request_Header : constant String := "X-Request";
    Answer_Header  : constant String := "X-Answer";
-   Header : Client.Header_List;
-   Answer_Data : Unbounded_String;
+   Header         : Client.Header_List;
+   Answer_Data    : Unbounded_String;
 
    Adjust : constant Streams.Stream_Element_Offset := AWS.Version'Length - 4;
 
@@ -152,7 +152,7 @@ procedure Hide_Id is
    -----------
 
    function HW_CB (Request : Status.Data) return AWS.Response.Data is
-      URI : constant String := AWS.Status.URI (Request);
+      URI    : constant String := AWS.Status.URI (Request);
       Answer : AWS.Response.Data :=
                  AWS.Response.Build
                    ("text/html",
