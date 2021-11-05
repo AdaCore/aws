@@ -1033,7 +1033,7 @@ begin
                   --  stream.
 
                   if (Frame.Kind /= K_Priority and then Stream_Id < Last_SID)
-                    or else Stream_Opened > Max_Stream
+                    or else Stream_Opened >= Max_Stream
                   then
                      Go_Away
                        (C_Protocol_Error, "too many streams were opened");
