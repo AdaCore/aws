@@ -1033,7 +1033,7 @@ begin
                   --  stream.
 
                   if (Frame.Kind /= K_Priority and then Stream_Id < Last_SID)
-                    or else Stream_Opened > Max_Stream
+                    or else Stream_Opened >= Max_Stream
                   then
                      Go_Away
                        (C_Protocol_Error, "too many streams were opened");
@@ -1129,6 +1129,8 @@ exception
       | Parameters.Too_Many_Parameters
       =>
 
+      Will_Close := True;
+
       HTTP2.Frame.GoAway.Create
         (Stream_Id => 1,
          Error     => AWS.HTTP2.C_Refused_Stream,
@@ -1137,8 +1139,6 @@ exception
                        then Messages.S403
                        else Messages.S400),
          Message   => Exception_Message (E)).Send (Sock.all);
-
-      Will_Close := True;
 
       if
         Exception_Identity (E) =
@@ -1165,6 +1165,8 @@ exception
       LA.Server.Slots.Mark_Phase (LA.Line, Server_Response);
 
    when E : others =>
+      Will_Close := True;
+
       AWS.Log.Write
         (LA.Server.Error_Log,
          Request,
@@ -1182,6 +1184,4 @@ exception
          Error     => AWS.HTTP2.C_Internal_Error,
          Code      => Messages.S500,
          Message   => Response.Message_Body (Error_Answer)).Send (Sock.all);
-
-      Will_Close := True;
 end Protocol_Handler_V2;
