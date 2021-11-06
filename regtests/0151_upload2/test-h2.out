@@ -1,0 +1,7 @@
+Start main, wait for server to start...
+Server started
+
+Ok, exception received on the server side
+  => ADA.IO_EXCEPTIONS.NAME_ERROR
+  => Cannot create file /this/one/does/not/exists/.file.txt
+=> Cannot create file /this/one/does/not/exists/.file.txt
