@@ -71,7 +71,9 @@ separate (AWS.Server)
 --
 
 procedure Protocol_Handler_V2
-  (LA : in out Line_Attribute_Record; Check_Preface : Boolean := True)
+  (LA            : in out Line_Attribute_Record;
+   Will_Close    : in out Boolean;
+   Check_Preface : Boolean := True)
 is
    use Ada.Streams;
 
@@ -126,12 +128,6 @@ is
 
    Sock             : constant Socket_Access :=
                         LA.Server.Slots.Get (Index => LA.Line).Sock;
-
-   Will_Close   : Boolean := False;
-   --  Will_Close is set to true when the connection will be closed by the
-   --  server. It means that the server is about to send the latest message
-   --  to the client using this socket. The value will be changed by
-   --  Set_Close_Status.
 
    Free_Slots : Natural := 0;
 

@@ -59,7 +59,9 @@ package body AWS.Server is
    --  Handle the lines, this is where all the HTTP/1.1 protocol is defined
 
    procedure Protocol_Handler_V2
-     (LA : in out Line_Attribute_Record; Check_Preface : Boolean := True);
+     (LA            : in out Line_Attribute_Record;
+      Will_Close    : in out Boolean;
+      Check_Preface : Boolean := True);
    --  Handle the lines, this is where all the HTTP/2 protocol is defined
 
    function Accept_Socket_Serialized
@@ -353,7 +355,7 @@ package body AWS.Server is
             then
                --  Protocol is secure H2
                AWS.Status.Set.Protocol (Request, AWS.Status.H2);
-               Protocol_Handler_V2 (TA.all);
+               Protocol_Handler_V2 (TA.all, Will_Close => Need_Shutdown);
             else
                Protocol_Handler (TA.all);
             end if;
@@ -422,8 +424,9 @@ package body AWS.Server is
    procedure Protocol_Handler (LA : in out Line_Attribute_Record) is separate;
 
    procedure Protocol_Handler_V2
-     (LA : in out Line_Attribute_Record; Check_Preface : Boolean := True)
-   is separate;
+     (LA            : in out Line_Attribute_Record;
+      Will_Close    : in out Boolean;
+      Check_Preface : Boolean := True) is separate;
 
    ------------------
    -- Session_Name --
