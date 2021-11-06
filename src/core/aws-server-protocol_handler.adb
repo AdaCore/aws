@@ -200,9 +200,9 @@ begin
 
          if AWS.Status.Protocol (Request) = AWS.Status.H2 then
             if CNF.HTTP2_Activated (LA.Server.Config) then
-               Protocol_Handler_V2 (LA, Check_Preface => False);
-
                Will_Close := False;
+
+               Protocol_Handler_V2 (LA, Will_Close, Check_Preface => False);
 
             else
                Error_Answer := Response.Build
@@ -295,9 +295,9 @@ begin
          then
             AWS.Status.Set.Protocol (Request, AWS.Status.H2C);
 
-            Protocol_Handler_V2 (LA);
-
             Will_Close := False;
+
+            Protocol_Handler_V2 (LA, Will_Close);
          end if;
 
       exception
