@@ -31,6 +31,7 @@ with Ada.Calendar;
 with Ada.Characters.Handling;
 with Ada.Strings.Fixed;
 with Ada.Text_IO;
+with Ada.Unchecked_Deallocation;
 
 with AWS.Containers.Tables;
 with AWS.HTTP2.Connection;
@@ -346,7 +347,10 @@ package body AWS.HTTP2.Message is
    --------------
 
    overriding procedure Finalize (O : in out Object) is
-      C : constant access Natural := O.Ref;
+      use type Utils.Counter_Access;
+      C : Utils.Counter_Access := O.Ref;
+      procedure Unchecked_Free is new Ada.Unchecked_Deallocation
+        (Resources.Streams.Stream_Type'Class, Resources.Streams.Stream_Access);
    begin
       if C /= null then
          O.Ref := null;
@@ -356,9 +360,11 @@ package body AWS.HTTP2.Message is
          if C.all = 0 then
             if O.M_Body /= null then
                O.M_Body.Close;
+               Unchecked_Free (O.M_Body);
             end if;
 
             O.Headers.Reset;
+            Utils.Unchecked_Free (C);
          end if;
       end if;
    end Finalize;

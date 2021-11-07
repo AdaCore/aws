@@ -88,8 +88,11 @@ package body AWS.HTTP2.Frame is
          Ref_Counter.all := Ref_Counter.all - 1;
 
          if Ref_Counter.all = 0 then
+            --  Call to Release (Self); or Self.Release; does not dispatch.
+            --  Need GNAT bug report.
+
+            Release (Object'Class (Self));
             Utils.Unchecked_Free (Ref_Counter);
-            Release (Self);
          end if;
       end if;
    end Finalize;
