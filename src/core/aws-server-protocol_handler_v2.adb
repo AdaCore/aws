@@ -961,8 +961,6 @@ begin
                     (LA.Server.Error_Log, Get_Status.all, Message);
                end if;
 
-               S.Exclude (Stream_Id);
-
                HTTP2.Frame.GoAway.Create
                  (Stream_Id => Last_SID, Error => Error).Send (Sock.all);
 
