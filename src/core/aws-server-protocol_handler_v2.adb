@@ -107,11 +107,6 @@ is
    procedure Queue_Settings_Frame;
    --  Queue server settings frame (default configuration)
 
-   procedure Finalize;
-   --  Free resources on return from Protocol_Handler_V2
-
-   Finalizer : AWS.Utils.Finalizer (Finalize'Access) with Unreferenced;
-
    Case_Sensitive_Parameters : constant Boolean :=
                                  CNF.Case_Sensitive_Parameters
                                    (LA.Server.Properties);
@@ -152,15 +147,6 @@ is
 
    Error_Answer : Response.Data;
    Request      : AWS.Status.Data renames LA.Stat.all;
-
-   --------------
-   -- Finalize --
-   --------------
-
-   procedure Finalize is
-   begin
-      AWS.Status.Set.Free (Request);
-   end Finalize;
 
    -----------------
    -- Handle_Body --
@@ -525,6 +511,7 @@ is
            HTTP2.Message.Create (R, Status, Stream.Identifier)
          do
             Stream.Response.all := R;
+            AWS.Status.Set.Free (Status);
          end return;
       end;
    end Handle_Message;
@@ -802,6 +789,11 @@ begin
       use type Containers.Count_Type;
       use type HTTP2.Stream.State_Kind;
 
+      procedure Finalize;
+      --  Free resources on return from Protocol_Handler_V2
+
+      Finalizer : AWS.Utils.Finalizer (Finalize'Access) with Unreferenced;
+
       Max_Stream    : constant Containers.Count_Type :=
                         Containers.Count_Type
                           (Settings.Max_Concurrent_Streams);
@@ -811,6 +803,19 @@ begin
       In_Header     : Boolean := False;
       --  Need to avoid unknown extension frame in the middle of a header block
       --  (RFC 7450, 5.5).
+
+      --------------
+      -- Finalize --
+      --------------
+
+      procedure Finalize is
+      begin
+         AWS.Status.Set.Free (Request);
+
+         for T of S loop
+            AWS.Status.Set.Free (T.Status.all);
+         end loop;
+      end Finalize;
 
    begin
       --  We now need to answer to the request made during the upgrade
@@ -907,6 +912,7 @@ begin
                --  as no more data are expected to be sent.
 
                if Frame.Kind = K_GoAway then
+                  AWS.Status.Set.Free (Stream.Status.all);
                   S.Exclude (Frame.Stream_Id);
                end if;
             end;
