@@ -174,7 +174,7 @@ package AWS.Server.HTTP_Utils is
       Keep_Alive : Boolean;
       Will_Close : in out Boolean);
    --  Set Will_Close properly depending on the HTTP version and current
-   --  request status. This routine must be called after Get_Message_header as
+   --  request status. This routine must be called after Get_Message_Header as
    --  the request header must have been parsed.
 
    generic

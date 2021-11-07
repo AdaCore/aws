@@ -36,6 +36,7 @@ with AWS.HTTP2.Frame.Data;
 with AWS.HTTP2.Frame.Headers;
 with AWS.HTTP2.Frame.Window_Update;
 with AWS.HTTP2.HPACK;
+with AWS.Messages;
 with AWS.Response.Set;
 with AWS.Status.Set;
 
@@ -97,6 +98,7 @@ package body AWS.HTTP2.Stream is
          Response            => <>,
          Is_Ready            => False,
          Header_Found        => False,
+         Upload_State        => Upload_Idle,
          Flow_Send_Window    => Window_Size,
          Flow_Receive_Window => Default.HTTP2_Initial_Window_Size,
          Bytes_Sent          => 0,
@@ -105,7 +107,8 @@ package body AWS.HTTP2.Stream is
          End_Stream          => False,
          Content_Length      => Undefined_Length,
          Bytes_Received      => 0,
-         Data_Flow           => Unknown)
+         Data_Flow           => Unknown,
+         Error_Detail        => <>)
       do
          Self.Headers.Case_Sensitive (False);
       end return;
@@ -222,10 +225,18 @@ package body AWS.HTTP2.Stream is
 
       declare
          Content_Length : constant String :=
-                            Self.Headers.Get ("content-length");
+                            Self.Headers.Get (Messages.Content_Length_Token);
       begin
          if Content_Length /= "" then
             Self.Content_Length := Content_Length_Type'Value (Content_Length);
+
+            if Ctx.HTTP /= null
+              and then Self.Content_Length >
+                Content_Length_Type
+                  (Server.Config (Ctx.HTTP.all).Upload_Size_Limit)
+            then
+               Self.Upload_State := Upload_Oversize;
+            end if;
          end if;
       end;
    end Parse_Headers;
@@ -241,6 +252,8 @@ package body AWS.HTTP2.Stream is
       Error : out Error_Codes)
    is
       use type Ada.Containers.Count_Type;
+
+      Info : Error_Details renames Self.Error_Detail;
 
       procedure Handle_Priority (Priority : HTTP2.Frame.Priority.Payload);
       --  Handle priority information
@@ -288,11 +301,13 @@ package body AWS.HTTP2.Stream is
       Self.Data_Flow := Receiving;
 
       Error := C_No_Error;
+      Info  := Error_No_Details;
 
       --  A received frame must have an odd number
 
       if Self.Id /= 0 and then Self.Id mod 2 = 0 then
          Error := C_Protocol_Error;
+         Info  := Error_Stream_Id_Even;
          return;
       end if;
 
@@ -311,6 +326,7 @@ package body AWS.HTTP2.Stream is
                   null;
                when others =>
                   Error := C_Protocol_Error;
+                  Info  := Error_From_Idle;
                   return;
             end case;
 
@@ -336,8 +352,6 @@ package body AWS.HTTP2.Stream is
                when others =>
                   if End_Stream then
                      Self.State := Half_Closed_Remote;
-                  else
-                     null;
                   end if;
             end case;
 
@@ -349,6 +363,7 @@ package body AWS.HTTP2.Stream is
                   null;
                when others =>
                   Error := C_Protocol_Error;
+                  Info  := Error_Reserved_Remote;
                   return;
             end case;
 
@@ -358,10 +373,13 @@ package body AWS.HTTP2.Stream is
                   Self.State := Closed;
                when others =>
                   if End_Stream then
-                     Error := C_Protocol_Error;
-                     return;
-                  else
-                     null;
+                     if Self.Upload_State /= Upload_Rejected then
+                        Error := C_Protocol_Error;
+                        Info  := Error_Half_Closed_Local;
+                        return;
+                     end if;
+
+                     Self.State := Closed;
                   end if;
             end case;
 
@@ -371,6 +389,7 @@ package body AWS.HTTP2.Stream is
                   Self.State := Closed;
                when K_Data | K_Headers | K_Continuation =>
                   Error := C_Stream_Closed;
+                  Info  := Error_Half_Closed_Remote;
                   return;
                when others =>
                   null;
@@ -385,6 +404,7 @@ package body AWS.HTTP2.Stream is
                   null;
                when others =>
                   Error := C_Stream_Closed;
+                  Info  := Error_Closed;
                   return;
             end case;
       end case;
@@ -396,6 +416,7 @@ package body AWS.HTTP2.Stream is
         and then Frame.Kind /= K_Continuation
       then
          Error := C_Protocol_Error;
+         Info  := Error_No_Continuation;
          return;
       end if;
 
@@ -406,6 +427,7 @@ package body AWS.HTTP2.Stream is
                              (HTTP2.Frame.End_Headers_Flag)
             then
                Error := C_Protocol_Error;
+               Info  := Error_Priority;
                return;
             end if;
 
@@ -417,6 +439,7 @@ package body AWS.HTTP2.Stream is
                              (HTTP2.Frame.End_Headers_Flag)
             then
                Error := C_Protocol_Error;
+               Info  := Error_Window_Update;
                return;
             end if;
 
@@ -435,6 +458,7 @@ package body AWS.HTTP2.Stream is
 
             if not End_Stream and then Self.Header_Found then
                Error := C_Protocol_Error;
+               Info  := Error_Headers;
                return;
 
             else
@@ -466,6 +490,7 @@ package body AWS.HTTP2.Stream is
 
             if not Has_Prev_Frame then
                Error := C_Protocol_Error;
+               Info  := Error_Continuation;
                return;
             end if;
 
@@ -494,6 +519,7 @@ package body AWS.HTTP2.Stream is
 
                if Self.Flow_Receive_Window
                  < Positive (Ctx.Settings.Max_Frame_Size)
+                 and then Self.Upload_State /= Upload_Rejected
                then
                   WU.Create
                     (Self.Id,
@@ -529,6 +555,7 @@ package body AWS.HTTP2.Stream is
                  else Self.Bytes_Received > Self.Content_Length)
             then
                Error := C_Protocol_Error;
+               Info  := Error_Content_Length;
                return;
             end if;
 
@@ -660,5 +687,16 @@ package body AWS.HTTP2.Stream is
    begin
       Self.Flow_Send_Window := Self.Flow_Send_Window + Increment;
    end Update_Flow_Control_Window;
+
+   ---------------------
+   -- Upload_Decision --
+   ---------------------
+
+   procedure Upload_Decision (Self : in out Object; Allow : Boolean) is
+   begin
+      Self.Upload_State := (if Allow
+                            then Upload_Accepted
+                            else Upload_Rejected);
+   end Upload_Decision;
 
 end AWS.HTTP2.Stream;

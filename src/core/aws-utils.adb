@@ -312,8 +312,8 @@ package body AWS.Utils is
    begin
       return Strings.Fixed.Trim
         (Strings.Fixed.Translate
-           (Str, Strings.Maps.To_Mapping
-              (From => ASCII.CR & ASCII.LF, To   => "  ")),
+           (Str,
+            Strings.Maps.To_Mapping (From => ASCII.CR & ASCII.LF, To => "  ")),
          Strings.Right);
    end CRLF_2_Spaces;
 

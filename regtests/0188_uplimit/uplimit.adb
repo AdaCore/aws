@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2008-2017, AdaCore                     --
+--                     Copyright (C) 2008-2021, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -32,7 +32,7 @@ with Ada.Streams;
 with Ada.Strings.Fixed;
 with Ada.Text_IO;
 
-with AWS.Client;
+with AWS.Client.HTTP_Utils;
 with AWS.Config.Set;
 with AWS.Exceptions;
 with AWS.Log;
@@ -41,6 +41,7 @@ with AWS.MIME;
 with AWS.Net;
 with AWS.Parameters;
 with AWS.Response;
+with AWS.Server.Log;
 with AWS.Server.Status;
 with AWS.Status;
 with AWS.Translator;
@@ -71,21 +72,28 @@ procedure Uplimit is
    --------
 
    function CB (Request : Status.Data) return Response.Data is
+      use type Status.Protocol_State;
       URI    : constant String := Status.URI (Request);
       Buffer : Stream_Element_Array (1 .. 10);
       Prev   : Stream_Element_Array (1 .. 10) := (others => 0);
       Last   : Stream_Element_Offset;
+      Is_H2  : constant Boolean := Status.Protocol (Request) = Status.H2;
       Is_Up  : constant Boolean := Status.Is_Body_Uploaded (Request);
    begin
-      if URI = "/" or else URI = "/noup" then
+      if URI in "/" | "/noup" then
          if URI = "/" then
-            AWS.Server.Get_Message_Body;
+            if not Is_Up then
+               if Is_H2 or else Status.Parameter (Request, "c") = "y" then
+                  return Response.Continue;
+               else
+                  AWS.Server.Get_Message_Body;
+               end if;
+            end if;
 
          elsif not Is_Up and then Status.Binary_Size (Request) = 0 then
             return Response.Build
                      (MIME.Text_Plain,
-                      Stream_Element_Count'Image
-                        (Status.Content_Length (Request))
+                      Utils.Image (Status.Content_Length (Request))
                       & " bytes of message body ignored.",
                       Messages.S413);
          end if;
@@ -96,7 +104,12 @@ procedure Uplimit is
               or else (Prev (1) /= 0 and then Buffer /= Prev)
             then
                return Response.Build
-                        (MIME.Text_Plain, "Data trasfer error", Messages.S500);
+                 (MIME.Text_Plain,
+                  "Data trasfer error '" & AWS.Translator.To_String (Prev)
+                  & "' '" & AWS.Translator.To_String (Buffer) & '''
+                  & Status.Binary_Size (Request)'Img
+                  & ' ' & Status.Protocol (Request)'Img,
+                  Messages.S500);
             end if;
 
             exit when Last < Buffer'Last;
@@ -106,10 +119,10 @@ procedure Uplimit is
 
          return Response.Build
                   (MIME.Text_Plain,
-                   URI & " ok server uploaded: " & Boolean'Image (Is_Up)
-                   & Stream_Element_Offset'Image (Status.Binary_Size (Request))
-                   & Stream_Element_Count'Image
-                       (Status.Content_Length (Request))
+                   URI & " ok server uploaded: "
+                   & Boolean'Image (Status.Is_Body_Uploaded (Request))
+                   & ' ' & Utils.Image (Status.Binary_Size (Request))
+                   & ' ' & Utils.Image (Status.Content_Length (Request))
                    & ' ' & AWS.Translator.To_String (Prev));
 
       else
@@ -150,7 +163,10 @@ procedure Uplimit is
       Server.Set_Unexpected_Exception_Handler
         (HTTP, Problem'Unrestricted_Access);
 
-      Server.Start (HTTP, CB'Unrestricted_Access, Web_Config);
+      --  Server.Log.Start_Error (HTTP, Put_Line'Access, "error");
+
+      Server.Start
+        (HTTP, CB'Unrestricted_Access, Web_Config);
 
       Put_Line ("Server started");
       New_Line;
@@ -184,7 +200,10 @@ begin
    AWS.Client.Post (Client, R, 1200 * "ABCDEFGHIJ", URI => "/noup"); Print;
    AWS.Client.Post (Client, R, 1000 * "9876543210"); Print;
    AWS.Client.Post (Client, R, 1100 * "qwertyuiop"); Print;
+   --  AWS.Client.HTTP_Utils.Debug_On := True;
    AWS.Client.Post (Client, R, 1200 * "QWERTYUIOP"); Print;
+   AWS.Client.HTTP_Utils.Debug_On := False;
+   AWS.Client.Post (Client, R, 1200 * "poiuytrewq", URI => "/?c=y"); Print;
 
    Server.Shutdown (HTTP);
    Put_Line ("Server stopped");

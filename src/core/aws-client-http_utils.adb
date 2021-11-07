@@ -430,11 +430,22 @@ package body AWS.Client.HTTP_Utils is
       use type Net.Socket_Access;
    begin
       if Connection.Opened then
-         if Connection.HTTP_Version = HTTPv2 then
+         if Connection.HTTP_Version = HTTPv2
+           and then Connection.Socket /= null
+         then
             --  Properly close the connection
-            HTTP2.Frame.GoAway.Create
-              (Connection.H2_Stream_Id, HTTP2.C_No_Error).
-              Send (Connection.Socket.all);
+
+            declare
+               GoAway : constant HTTP2.Frame.GoAway.Object :=
+                          HTTP2.Frame.GoAway.Create
+                            (Connection.H2_Stream_Id, HTTP2.C_No_Error);
+            begin
+               GoAway.Send (Connection.Socket.all);
+            exception
+               when Net.Socket_Error =>
+                  --  Be ready that socket already closed
+                  null;
+            end;
          end if;
 
          Connection.Opened := False;
@@ -520,7 +531,9 @@ package body AWS.Client.HTTP_Utils is
             end if;
          end if;
 
-         pragma Assert (Frame.Stream_Id = Stream.Identifier);
+         pragma Assert
+           (Frame.Stream_Id = Stream.Identifier,
+            Frame.Stream_Id'Img & Stream.Identifier'Img);
 
          Stream.Received_Frame (Ctx, Frame, Error);
       end if;

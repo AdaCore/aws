@@ -297,6 +297,9 @@ package AWS.Response is
    --  API to retrieve response data
    --
 
+   function Is_Continue (D : Data) return Boolean;
+   --  Return True if the message (Data_Mode = No_Data and Status_Code is 100)
+
    ------------
    -- Header --
    ------------
@@ -478,6 +481,9 @@ private
    overriding procedure Initialize (Object : in out Data);
    overriding procedure Adjust     (Object : in out Data);
    overriding procedure Finalize   (Object : in out Data);
+
+   function Is_Continue (D : Data) return Boolean is
+     (D.Mode = No_Data and then D.Status_Code = Messages.S100);
 
    procedure Unchecked_Free is new Ada.Unchecked_Deallocation
      (Resources.Streams.Stream_Type'Class, Resources.Streams.Stream_Access);

@@ -37,7 +37,6 @@ with AWS.HTTP2.Frame.Continuation;
 with AWS.HTTP2.Frame.Data;
 with AWS.HTTP2.Frame.Headers;
 with AWS.HTTP2.Stream;
-with AWS.Messages;
 with AWS.MIME;
 with AWS.Resources.Streams.Memory;
 with AWS.Response.Set;
@@ -54,8 +53,11 @@ package body AWS.HTTP2.Message is
    ------------
 
    overriding procedure Adjust (O : in out Object) is
+      use type Utils.Counter_Access;
    begin
-      O.Ref.all := O.Ref.all + 1;
+      if O.Ref /= null then
+         O.Ref.all := O.Ref.all + 1;
+      end if;
    end Adjust;
 
    -----------------
@@ -319,16 +321,18 @@ package body AWS.HTTP2.Message is
    overriding procedure Finalize (O : in out Object) is
       C : constant access Natural := O.Ref;
    begin
-      O.Ref := null;
+      if C /= null then
+         O.Ref := null;
 
-      C.all := C.all - 1;
+         C.all := C.all - 1;
 
-      if C.all = 0 then
-         if O.M_Body /= null then
-            O.M_Body.Close;
+         if C.all = 0 then
+            if O.M_Body /= null then
+               O.M_Body.Close;
+            end if;
+
+            O.Headers.Reset;
          end if;
-
-         O.Headers.Reset;
       end if;
    end Finalize;
 
