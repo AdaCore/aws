@@ -32,6 +32,7 @@ with Ada.Characters.Handling;
 with Ada.Strings.Fixed;
 with Ada.Text_IO;
 
+with AWS.Containers.Tables;
 with AWS.HTTP2.Connection;
 with AWS.HTTP2.Frame.Continuation;
 with AWS.HTTP2.Frame.Data;
@@ -124,6 +125,10 @@ package body AWS.HTTP2.Message is
       Size : Stream_Element_Offset := -1;
       --   Size of the resource
 
+      Remove_CE : Boolean := False;
+      --  To remove Content-Encoding header in case of file not
+      --  found or not changed.
+
       procedure Set_Body;
 
       --------------
@@ -210,10 +215,12 @@ package body AWS.HTTP2.Message is
                   when Up_To_Date =>
                      Status_Code := Messages.S304;
                      With_Body := False;
+                     Remove_CE := True;
 
                   when Not_Found  =>
                      Status_Code := Messages.S404;
                      With_Body := False;
+                     Remove_CE := True;
                end case;
 
                Response.Set.Status_Code (Answer, Status_Code);
@@ -309,7 +316,27 @@ package body AWS.HTTP2.Message is
             raise Constraint_Error with "no_data should never happen";
       end case;
 
-      O.Headers.Union (Response.Header (Answer), False);
+      if Remove_CE then
+         --  Remove content encoding on headers union
+
+         declare
+            List : constant AWS.Headers.List := Response.Header (Answer);
+            Item : AWS.Containers.Tables.Element;
+            CE   : constant String :=
+                     To_Lower (Messages.Content_Encoding_Token);
+         begin
+            for J in 1 .. List.Count loop
+               Item := List.Get (J);
+
+               if To_Lower (To_String (Item.Name)) /= CE then
+                  O.Headers.Add (Item.Name, Item.Value);
+               end if;
+            end loop;
+         end;
+
+      else
+         O.Headers.Union (Response.Header (Answer), False);
+      end if;
 
       return O;
    end Create;

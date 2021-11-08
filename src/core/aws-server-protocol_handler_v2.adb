@@ -1111,16 +1111,6 @@ begin
                   Handle_Message (S (Stream_Id));
                end if;
             end if;
-
-         exception
-            when E : Protocol_Error =>
-               declare
-                  Message : constant String := Exception_Message (E);
-               begin
-                  Go_Away (Exception_Code (Message), Message);
-               end;
-
-               exit For_Every_Frame;
          end;
 
          if not H2C_Answer.Is_Empty then

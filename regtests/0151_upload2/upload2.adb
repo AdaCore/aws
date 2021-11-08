@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2003-2016, AdaCore                     --
+--                     Copyright (C) 2003-2021, AdaCore                     --
 --                                                                          --
 --  This is free software;  you can redistribute it  and/or modify it       --
 --  under terms of the  GNU General Public License as published  by the     --
@@ -16,17 +16,17 @@
 --  to http://www.gnu.org/licenses for a complete copy of the license.      --
 ------------------------------------------------------------------------------
 
+with Ada.Exceptions;
 with Ada.Strings.Fixed;
 with Ada.Strings.Maps.Constants;
 with Ada.Text_IO;
-with Ada.Exceptions;
 
 with AWS.Client;
 with AWS.Config.Set;
 with AWS.Exceptions;
 with AWS.Log;
-with AWS.MIME;
 with AWS.Messages;
+with AWS.MIME;
 with AWS.Net;
 with AWS.Parameters;
 with AWS.Response;
@@ -67,7 +67,7 @@ procedure Upload2 is
          Put_Line ("Server Filename = "
                      & Parameters.Get (P_List, "filename"));
 
-         return Response.Build (MIME.Text_HTML, "call ok");
+         return Response.Build (MIME.Text_Plain, "call ok");
 
       else
          Put_Line ("Unknown URI " & URI);
@@ -104,6 +104,10 @@ procedure Upload2 is
 
       Put_Line
         ("  => " & Fixed.Replace_Slice (Error_Message, First, Last, ""));
+
+      Answer := Response.Build
+                  (MIME.Text_Plain,
+                   Fixed.Replace_Slice (Error_Message, First, Last, ""));
    end Problem;
 
    ------------------
