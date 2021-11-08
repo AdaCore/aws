@@ -74,6 +74,19 @@ package body AWS.Headers is
    end Debug;
 
    -----------------
+   -- Debug_Print --
+   -----------------
+
+   procedure Debug_Print (Headers : List) is
+   begin
+      if Debug_Flag then
+         for J in 1 .. Headers.Count loop
+            Ada.Text_IO.Put_Line ('>' & Headers.Get_Line (J));
+         end loop;
+      end if;
+   end Debug_Print;
+
+   -----------------
    -- Get_Content --
    -----------------
 

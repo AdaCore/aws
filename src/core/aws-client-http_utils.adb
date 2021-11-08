@@ -2220,7 +2220,9 @@ package body AWS.Client.HTTP_Utils is
             end if;
          end;
 
-      else
+      else -- HTTP/2
+         Response.Header (Answer).Debug_Print;
+
          --  In HTTP/2 the status is encoded in :status pseudo header
 
          Status := Messages.Status_Code'Value
