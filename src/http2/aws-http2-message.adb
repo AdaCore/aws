@@ -121,8 +121,7 @@ package body AWS.HTTP2.Message is
       Request   : AWS.Status.Data;
       Stream_Id : HTTP2.Stream_Id) return Object
    is
-      O : Object;
-
+      O    : Object;
       Size : Stream_Element_Offset := -1;
       --   Size of the resource
 

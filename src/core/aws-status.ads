@@ -103,9 +103,8 @@ package AWS.Status is
    --  Returns the HTTP version used by the client
 
    function Request_Time (D : Data) return Calendar.Time with Inline;
-   --  Returns the time of the request
-
    function Request_Time (D : Data) return Real_Time.Time with Inline;
+   --  Returns the time of the request
 
    ------------
    -- Header --

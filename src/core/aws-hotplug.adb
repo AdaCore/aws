@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2000-2012, AdaCore                     --
+--                     Copyright (C) 2000-2021, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -78,8 +78,8 @@ package body AWS.Hotplug is
       Look_For_Filters :
       for K in 1 .. Natural (Filter_Table.Length (Filters.Set)) loop
          declare
-            Item : constant Filter_Data
-              := Filter_Table.Element (Filters.Set, K);
+            Item : constant Filter_Data :=
+                     Filter_Table.Element (Filters.Set, K);
          begin
             if GNAT.Regexp.Match (URI, Item.Regexp) then
                Found := True;
@@ -94,8 +94,8 @@ package body AWS.Hotplug is
                else
                   --  This is a POST, check if it is a SOAP request
                   declare
-                     Resource : constant String
-                       := URI (URI'First + 1 .. URI'Last);
+                     Resource : constant String :=
+                                  URI (URI'First + 1 .. URI'Last);
                   begin
                      if AWS.Status.Is_SOAP (Status) then
                         Data := Client.SOAP_Post
