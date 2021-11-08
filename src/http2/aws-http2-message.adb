@@ -129,6 +129,8 @@ package body AWS.HTTP2.Message is
       --  To remove Content-Encoding header in case of file not
       --  found or not changed.
 
+      Status_Code : Messages.Status_Code := Response.Status_Code (Answer);
+
       procedure Set_Body;
 
       --------------
@@ -160,10 +162,6 @@ package body AWS.HTTP2.Message is
          when Response.Message | Response.Header =>
             --  Set status code
 
-            O.Headers.Add
-              (Messages.Status_Token,
-               Messages.Image (Response.Status_Code (Answer)));
-
             if O.Mode = Response.Header then
                Response.Set.Content_Length (Answer);
             else
@@ -189,8 +187,6 @@ package body AWS.HTTP2.Message is
                                 Response.Filename (Answer),
                                 File_Time);
 
-               Status_Code : Messages.Status_Code :=
-                               Response.Status_Code (Answer);
                With_Body   : Boolean :=
                                Messages.With_Body (Status_Code)
                                  and then Status.Method (Request)
@@ -222,11 +218,6 @@ package body AWS.HTTP2.Message is
                      With_Body := False;
                      Remove_CE := True;
                end case;
-
-               Response.Set.Status_Code (Answer, Status_Code);
-
-               O.Headers.Add
-                 (Messages.Status_Token, Messages.Image (Status_Code));
 
                if File_Time /= Utils.AWS_Epoch
                  and then not Response.Has_Header
@@ -316,27 +307,34 @@ package body AWS.HTTP2.Message is
             raise Constraint_Error with "no_data should never happen";
       end case;
 
-      if Remove_CE then
-         --  Remove content encoding on headers union
+      declare
+         List : constant AWS.Headers.List := Response.Header (Answer);
+         Item : AWS.Containers.Tables.Element;
+         CE   : constant String :=
+                  To_Lower (Messages.Content_Encoding_Token);
+      begin
+         for J in 1 .. List.Count loop
+            Item := List.Get (J);
 
-         declare
-            List : constant AWS.Headers.List := Response.Header (Answer);
-            Item : AWS.Containers.Tables.Element;
-            CE   : constant String :=
-                     To_Lower (Messages.Content_Encoding_Token);
-         begin
-            for J in 1 .. List.Count loop
-               Item := List.Get (J);
+            declare
+               Name : constant String := To_Lower (To_String (Item.Name));
+            begin
+               --  Remove content encoding on headers union if needed and
+               --  always remove the status-code which must be updated.
 
-               if To_Lower (To_String (Item.Name)) /= CE then
+               if (not Remove_CE or else Name /= CE)
+                 and then Name /= Messages.Status_Token
+               then
                   O.Headers.Add (Item.Name, Item.Value);
                end if;
-            end loop;
-         end;
+            end;
+         end loop;
+      end;
 
-      else
-         O.Headers.Union (Response.Header (Answer), False);
-      end if;
+      --  Set status-code
+
+      Response.Set.Status_Code (Answer, Status_Code);
+      O.Headers.Add (Messages.Status_Token, Messages.Image (Status_Code));
 
       return O;
    end Create;
