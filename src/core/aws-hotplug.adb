@@ -90,7 +90,8 @@ package body AWS.Hotplug is
                   Data := Client.Get
                     (To_String (Item.URL)
                      & URI (URI'First + 1 .. URI'Last)
-                     & Parameters);
+                     & Parameters,
+                     HTTP_Version => AWS.Status.HTTP_Version (Status));
                else
                   --  This is a POST, check if it is a SOAP request
                   declare
@@ -101,11 +102,13 @@ package body AWS.Hotplug is
                         Data := Client.SOAP_Post
                           (To_String (Item.URL) & Resource,
                            AWS.Status.Payload (Status),
-                           AWS.Status.SOAPAction (Status));
+                           AWS.Status.SOAPAction (Status),
+                           HTTP_Version => AWS.Status.HTTP_Version (Status));
                      else
                         Data := Client.Post
                           (To_String (Item.URL) & Resource,
-                           AWS.Status.Binary_Data (Status));
+                           AWS.Status.Binary_Data (Status),
+                           HTTP_Version => AWS.Status.HTTP_Version (Status));
                      end if;
                   end;
                end if;
