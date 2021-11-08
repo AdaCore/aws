@@ -153,6 +153,7 @@ package AWS.Server.HTTP_Utils is
       Line_Index  : Positive;
       File        : in out Resources.File_Type;
       Ranges      : String;
+      Chunk_Size  : Stream_Element_Count;
       Length      : in out Resources.Content_Length_Type;
       Answer      : in out Response.Data);
 

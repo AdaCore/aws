@@ -103,6 +103,9 @@ package AWS.Headers is
    procedure Debug (Activate : Boolean);
    --  Turn on Debug output
 
+   procedure Debug_Print (Headers : List);
+   --  Print headers to output if debug flag set
+
    --  See AWS.Containers.Tables for inherited routines
 
 private
