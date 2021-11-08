@@ -384,6 +384,11 @@ package body AWS.Status is
       return To_String (D.HTTP_Version);
    end HTTP_Version;
 
+   function HTTP_Version (D : Data) return HTTP_Protocol is
+   begin
+      return (if D.HTTP_Version = HTTP_2 then HTTPv2 else HTTPv1);
+   end HTTP_Version;
+
    -----------------------
    -- If_Modified_Since --
    -----------------------

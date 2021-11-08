@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2000-2012, AdaCore                     --
+--                     Copyright (C) 2000-2021, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -78,8 +78,8 @@ package body AWS.Hotplug is
       Look_For_Filters :
       for K in 1 .. Natural (Filter_Table.Length (Filters.Set)) loop
          declare
-            Item : constant Filter_Data
-              := Filter_Table.Element (Filters.Set, K);
+            Item : constant Filter_Data :=
+                     Filter_Table.Element (Filters.Set, K);
          begin
             if GNAT.Regexp.Match (URI, Item.Regexp) then
                Found := True;
@@ -90,22 +90,25 @@ package body AWS.Hotplug is
                   Data := Client.Get
                     (To_String (Item.URL)
                      & URI (URI'First + 1 .. URI'Last)
-                     & Parameters);
+                     & Parameters,
+                     HTTP_Version => AWS.Status.HTTP_Version (Status));
                else
                   --  This is a POST, check if it is a SOAP request
                   declare
-                     Resource : constant String
-                       := URI (URI'First + 1 .. URI'Last);
+                     Resource : constant String :=
+                                  URI (URI'First + 1 .. URI'Last);
                   begin
                      if AWS.Status.Is_SOAP (Status) then
                         Data := Client.SOAP_Post
                           (To_String (Item.URL) & Resource,
                            AWS.Status.Payload (Status),
-                           AWS.Status.SOAPAction (Status));
+                           AWS.Status.SOAPAction (Status),
+                           HTTP_Version => AWS.Status.HTTP_Version (Status));
                      else
                         Data := Client.Post
                           (To_String (Item.URL) & Resource,
-                           AWS.Status.Binary_Data (Status));
+                           AWS.Status.Binary_Data (Status),
+                           HTTP_Version => AWS.Status.HTTP_Version (Status));
                      end if;
                   end;
                end if;
