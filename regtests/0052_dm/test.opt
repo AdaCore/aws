@@ -1,1 +1,2 @@
 vxworks DEAD "stack overflow"
+client_http2 DEAD "only supported on HTTP/1"
