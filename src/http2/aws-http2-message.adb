@@ -161,6 +161,8 @@ package body AWS.HTTP2.Message is
       O.Headers.Case_Sensitive (False);
       O.Headers.Names_Lowercased (True);
 
+      O.Headers.Add (Messages.Status_Token, Messages.Image (Status_Code));
+
       case O.Mode is
          when Response.Message | Response.Header =>
             --  Set status code
@@ -342,7 +344,7 @@ package body AWS.HTTP2.Message is
       --  Set status-code
 
       Response.Set.Status_Code (Answer, Status_Code);
-      O.Headers.Add (Messages.Status_Token, Messages.Image (Status_Code));
+      O.Headers.Update (Messages.Status_Token, Messages.Image (Status_Code));
 
       return O;
    end Create;
