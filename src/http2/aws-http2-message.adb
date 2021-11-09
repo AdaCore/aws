@@ -426,6 +426,10 @@ package body AWS.HTTP2.Message is
         (Content   : Stream_Element_Array;
          Next_Size : in out Stream_Element_Count) is
       begin
+         if Next_Size = 0 then
+            Self.B_Sent := True;
+         end if;
+
          List.Append
            (Frame.Data.Create
               (Stream.Identifier, new Stream_Element_Array'(Content),

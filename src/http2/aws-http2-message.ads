@@ -130,6 +130,7 @@ private
       Headers   : AWS.Headers.List;
       Sent      : Utils.File_Size_Type := 0;
       H_Sent    : Boolean := False; -- Whether the header has been sent
+      B_Sent    : Boolean := False; -- Whether the body has been sent
       M_Body    : Resources.Streams.Stream_Access;
       Ref       : Utils.Counter_Access;
    end record;
@@ -152,7 +153,7 @@ private
 
    function More_Frames (Self : Object) return Boolean is
      (if Self.Has_Body
-      then not Self.M_Body.End_Of_File
+      then not Self.B_Sent
       else not Self.H_Sent);
 
    function Status_Code (Self : Object) return Messages.Status_Code is
