@@ -100,12 +100,12 @@ package AWS.Status is
      (D : Data; Name : String; N : Positive := 1) return String with Inline;
 
    function HTTP_Version (D : Data) return String with Inline;
+   function HTTP_Version (D : Data) return HTTP_Protocol with Inline;
    --  Returns the HTTP version used by the client
 
    function Request_Time (D : Data) return Calendar.Time with Inline;
-   --  Returns the time of the request
-
    function Request_Time (D : Data) return Real_Time.Time with Inline;
+   --  Returns the time of the request
 
    ------------
    -- Header --
