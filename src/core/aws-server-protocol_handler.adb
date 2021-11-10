@@ -200,8 +200,6 @@ begin
 
          if AWS.Status.Protocol (Request) = AWS.Status.H2 then
             if CNF.HTTP2_Activated (LA.Server.Config) then
-               Will_Close := False;
-
                Protocol_Handler_V2 (LA, Will_Close, Check_Preface => False);
 
             else
@@ -294,9 +292,6 @@ begin
            and then CNF.HTTP2_Activated (LA.Server.Config)
          then
             AWS.Status.Set.Protocol (Request, AWS.Status.H2C);
-
-            Will_Close := False;
-
             Protocol_Handler_V2 (LA, Will_Close);
          end if;
 
