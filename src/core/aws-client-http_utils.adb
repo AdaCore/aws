@@ -564,7 +564,7 @@ package body AWS.Client.HTTP_Utils is
          exit when not Response.Is_Empty (Result);
       end loop;
 
-      if Response.Is_Empty (Result) then
+      if Stream.Is_Message_Ready then
          --  Set headers into Answer
 
          Response.Set.Headers (Result, Stream.Headers);
@@ -609,6 +609,10 @@ package body AWS.Client.HTTP_Utils is
                Connection.Length   := CT_Len;
             end if;
          end;
+
+         if not Connection.Persistent then
+            Disconnect (Connection);
+         end if;
       end if;
    end Get_H2_Response;
 
@@ -1835,10 +1839,12 @@ package body AWS.Client.HTTP_Utils is
          end if;
 
       else
-         Set_Header
-           (Connection.F_Headers,
-            Messages.Proxy_Connection_Token,
-            Persistence);
+         if not Is_H2 then
+            Set_Header
+              (Connection.F_Headers,
+               Messages.Proxy_Connection_Token,
+               Persistence);
+         end if;
 
          --  Proxy Authentication
 

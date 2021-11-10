@@ -399,7 +399,7 @@ package AWS.Client is
    --  Change Persistent flag of the connection. If persistent is True the
    --  connection will remain open, otherwise it will be closed after each
    --  request, next request and further would be with "Connection: Close"
-   --  header line.
+   --  header line for HTTP/1.x protocol.
 
    procedure Clear_SSL_Session (Connection : in out HTTP_Connection);
    --  Avoid reuse SSL session data after reconnect
