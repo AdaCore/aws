@@ -46,7 +46,20 @@ package body S_AFile_Pack is
    Size : constant Response.Content_Length_Type :=
             Response.Content_Length_Type (Resources.File_Size (FN));
 
-   Socket  : Net.Socket_Access;
+   type Socket_Info is record
+      Pointer   : Net.Socket_Access;
+      This_Port : Positive;
+      Peer_Port : Positive;
+      FD        : Net.FD_Type;
+   end record;
+
+   function Get_Socket_Info (Socket : Net.Socket_Access) return Socket_Info is
+     (Socket, Socket.Get_Port, Socket.Peer_Port, Socket.Get_FD);
+
+   function Image (Info : Socket_Info) return String is
+     (Info.This_Port'Img & Info.Peer_Port'Img & Info.FD'Img);
+
+   Socket  : Socket_Info;
    Session : ASU.Unbounded_String;
    --  Check for the change session and socket
 
@@ -91,26 +104,25 @@ package body S_AFile_Pack is
 
       procedure Same_Socket (Condition : Boolean) is
          use type Net.Socket_Access;
+         Info : constant Socket_Info := Get_Socket_Info (Sock);
       begin
-         if (Sock = Socket
-             and then Sock.Get_FD = Socket.Get_FD
-             and then Sock.Get_Port = Socket.Get_Port) /= Condition
-         then
+         if (Info = Socket) /= Condition then
             if Condition then
-               Text_IO.Put_Line ("Unexpected change socket");
+               Text_IO.Put_Line
+                 ("Unexpected change socket " & URI & Image (Socket)
+                  & Image (Info));
             else
                Text_IO.Put_Line
-                  ("Unexpected same socket " & Sock.Get_FD'Img
-                   & Sock.Get_Port'Img);
+                  ("Unexpected same socket " & URI & Image (Info));
             end if;
          end if;
 
-         Socket := Sock;
+         Socket := Info;
       end Same_Socket;
 
    begin
       if URI = "/first" then
-         Socket := Sock;
+         Socket := Get_Socket_Info (Sock);
          Session :=
            ASU.To_Unbounded_String
              (Net.SSL.Session_Id_Image (Net.SSL.Socket_Type (Sock.all)));
