@@ -43,9 +43,6 @@ package AWS.HTTP2.Frame is
 
    type Object is new Finalization.Controlled with private;
 
-   function Is_Defined (Self : Object) return Boolean;
-   --  Returns True is Self is defined
-
    type Kind_Type is (K_Data, K_Headers, K_Priority,
                       K_RST_Stream, K_Settings, K_Push_Promise,
                       K_Ping, K_GoAway, K_Window_Update,
@@ -55,6 +52,8 @@ package AWS.HTTP2.Frame is
 
    type Flags_Type is mod 2 ** 8 with Size => 8;
 
+   subtype Length_Type is Byte_3 range 0 .. 2 ** 24 - 1;
+
    End_Stream_Flag  : constant Flags_Type;
    Ack_Flag         : constant Flags_Type;
    End_Headers_Flag : constant Flags_Type;
@@ -62,7 +61,8 @@ package AWS.HTTP2.Frame is
    Priority_Flag    : constant Flags_Type;
    --  The fkags that can be attached to a frame
 
-   subtype Length_Type is Byte_3 range 0 .. 2 ** 24 - 1;
+   function Is_Defined (Self : Object) return Boolean;
+   --  Returns True is Self is defined
 
    function Read
      (Sock     : Net.Socket_Type'Class;
