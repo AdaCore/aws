@@ -27,6 +27,7 @@ with AWS.Digest;
 with AWS.Messages;
 with AWS.MIME;
 with AWS.Response;
+with AWS.Server.Log;
 with AWS.Server.Status;
 with AWS.Status;
 with AWS.Utils;
@@ -47,10 +48,7 @@ procedure Partial is
    function File_MD5 (Filename : String) return MD5.Message_Digest;
    --  Compute the MD5 signature for Filename
 
-   procedure Dump_Response
-     (Id          : String;
-      R           : Response.Data;
-      Status_Only : Boolean := False);
+   procedure Dump_Response (Id : String; R : Response.Data);
    --  Dump information about the response
 
    HTTP : Server.HTTP;
@@ -77,11 +75,7 @@ procedure Partial is
    -- Dump_Response --
    -------------------
 
-   procedure Dump_Response
-     (Id          : String;
-      R           : Response.Data;
-      Status_Only : Boolean := False)
-   is
+   procedure Dump_Response (Id : String; R : Response.Data) is
       use type Messages.Status_Code;
       Code : constant Messages.Status_Code := Response.Status_Code (R);
    begin
@@ -92,14 +86,9 @@ procedure Partial is
              (if Is_H2 and then Code = Messages.S200
               then Messages.S206 else Code));
 
-      if Status_Only then
-         Text_IO.New_Line;
-      else
-         Text_IO.Put_Line
-           (" length="
-            & Response.Content_Length_Type'Image
-              (Response.Content_Length (R)));
-      end if;
+      Text_IO.Put_Line
+        (" length="
+         & Response.Content_Length_Type'Image (Response.Content_Length (R)));
    end Dump_Response;
 
    --------------
@@ -126,6 +115,7 @@ procedure Partial is
    end File_MD5;
 
 begin
+   Server.Log.Start_Error (HTTP, Ada.Text_IO.Put_Line'Access, "error");
    Server.Start
      (HTTP, "Test Partial Download.", CB'Unrestricted_Access, Port => 0,
       Max_Connection => 2);
@@ -156,7 +146,7 @@ begin
 
       Client.Get (Connect, R2, URI,
                   (1_024, Client.Content_Bound (Size) - 1_024 - 1));
-      Dump_Response ("R2", R2, Status_Only => True);
+      Dump_Response ("R2", R2);
 
       Stream_IO.Create (File, Stream_IO.Out_File, Filename & ".downloaded");
       Stream_IO.Write (File, Response.Message_Body (R1));

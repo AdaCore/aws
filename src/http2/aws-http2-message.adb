@@ -129,6 +129,9 @@ package body AWS.HTTP2.Message is
       --  To remove Content-Encoding header in case of file not
       --  found or not changed.
 
+      Remove_CL : Boolean := False;
+      --  To remove Content-Length header in case of multiply ranges responce
+
       Status_Code : Messages.Status_Code := Response.Status_Code (Answer);
 
       procedure Set_Body;
@@ -157,6 +160,8 @@ package body AWS.HTTP2.Message is
 
       O.Headers.Case_Sensitive (False);
       O.Headers.Names_Lowercased (True);
+
+      O.Headers.Add (Messages.Status_Token, Messages.Image (Status_Code));
 
       case O.Mode is
          when Response.Message | Response.Header =>
@@ -254,6 +259,10 @@ package body AWS.HTTP2.Message is
 
                         O.Headers.Add (Messages.Accept_Ranges_Token, "bytes");
 
+                        --  Ignore the Content-Length from Answer part
+
+                        Remove_CL := True;
+
                         if N_Range = 1 then
                            O.Headers.Add
                              (Messages.Content_Type_Token,
@@ -292,8 +301,7 @@ package body AWS.HTTP2.Message is
 
                elsif Size /= Resources.Undefined_Length then
                   O.Headers.Add
-                    (Messages.Content_Length_Token,
-                     Utils.Image (Size));
+                    (Messages.Content_Length_Token, Utils.Image (Size));
                end if;
             end;
 
@@ -310,8 +318,8 @@ package body AWS.HTTP2.Message is
       declare
          List : constant AWS.Headers.List := Response.Header (Answer);
          Item : AWS.Containers.Tables.Element;
-         CE   : constant String :=
-                  To_Lower (Messages.Content_Encoding_Token);
+         CE   : constant String := To_Lower (Messages.Content_Encoding_Token);
+         CL   : constant String := To_Lower (Messages.Content_Length_Token);
       begin
          for J in 1 .. List.Count loop
             Item := List.Get (J);
@@ -319,10 +327,12 @@ package body AWS.HTTP2.Message is
             declare
                Name : constant String := To_Lower (To_String (Item.Name));
             begin
-               --  Remove content encoding on headers union if needed and
-               --  always remove the status-code which must be updated.
+               --  Remove content encoding and content length on headers union
+               --  if needed and always remove the status-code which must be
+               --  updated.
 
                if (not Remove_CE or else Name /= CE)
+                 and then (not Remove_CL or else Name /= CL)
                  and then Name /= Messages.Status_Token
                then
                   O.Headers.Add (Item.Name, Item.Value);
@@ -334,7 +344,7 @@ package body AWS.HTTP2.Message is
       --  Set status-code
 
       Response.Set.Status_Code (Answer, Status_Code);
-      O.Headers.Add (Messages.Status_Token, Messages.Image (Status_Code));
+      O.Headers.Update (Messages.Status_Token, Messages.Image (Status_Code));
 
       return O;
    end Create;
@@ -418,6 +428,10 @@ package body AWS.HTTP2.Message is
         (Content   : Stream_Element_Array;
          Next_Size : in out Stream_Element_Count) is
       begin
+         if Next_Size = 0 then
+            Self.B_Sent := True;
+         end if;
+
          List.Append
            (Frame.Data.Create
               (Stream.Identifier, new Stream_Element_Array'(Content),
@@ -447,6 +461,10 @@ package body AWS.HTTP2.Message is
          Length : Resources.Content_Length_Type;
          Dummy  : Response.Data;
 
+         function Chunk_Size return Stream_Element_Count is
+           (Stream_Element_Count
+              (Positive'Min (FCW, Positive (Ctx.Settings.Max_Frame_Size))));
+
       begin
          Resources.Streams.Create (File, Self.M_Body);
 
@@ -455,16 +473,13 @@ package body AWS.HTTP2.Message is
 
             Send_Ranges
               (Ctx.HTTP, Ctx.Line, File,
-               To_String (Self.Ranges), Length, Dummy);
+               To_String (Self.Ranges), Chunk_Size, Length, Dummy);
 
          else
             Send_File
               (Ctx.HTTP, Ctx.Line, File,
                Start      => Stream_Element_Offset (Self.Sent) + 1,
-               Chunk_Size => Stream_Element_Count
-                               (Positive'Min
-                                  (FCW,
-                                   Positive (Ctx.Settings.Max_Frame_Size))),
+               Chunk_Size => Chunk_Size,
                Length     => Resources.Content_Length_Type (Self.Sent));
          end if;
       end From_Stream;
@@ -538,6 +553,7 @@ package body AWS.HTTP2.Message is
    begin
       if not Self.H_Sent then
          if not Self.Headers.Exist (Messages.Content_Length_Token)
+           and then Self.Ranges = Null_Unbounded_String
            and then Self.M_Body /= null
          then
             declare

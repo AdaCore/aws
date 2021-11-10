@@ -2030,6 +2030,7 @@ package body AWS.Server.HTTP_Utils is
       Line_Index  : Positive;
       File        : in out Resources.File_Type;
       Ranges      : String;
+      Chunk_Size  : Stream_Element_Count;
       Length      : in out Resources.Content_Length_Type;
       Answer      : in out Response.Data)
    is
@@ -2038,25 +2039,36 @@ package body AWS.Server.HTTP_Utils is
       N_Minus     : constant Natural  := Fixed.Count (Ranges, "-");
       --  Number of ranges defined
       Equal       : constant Natural := Fixed.Index (Ranges, "=");
-      Buffer_Size : constant := 4 * 1_024;
-      Chunk_Size  : constant := 1_024;
-      --  Size of the buffer used to send the file with the chunked encoding.
-      --  This is the maximum size of each chunk.
       First, Last : Positive;
-      Dummy       : Stream_Element_Offset := 0;
+      Next_Size   : Stream_Element_Offset := Chunk_Size;
 
       procedure Send_Range (R : String);
       --  Send a single range as defined by R
 
-      procedure Send (Str : String) with Inline;
+      procedure Send (Str : String; Last_One : Boolean := False) with Inline;
 
       ----------
       -- Send --
       ----------
 
-      procedure Send (Str : String) is
+      procedure Send (Str : String; Last_One : Boolean := False) is
+         Buffer : constant Stream_Element_Array :=
+                    Translator.To_Stream_Element_Array (Str);
+         First : Stream_Element_Offset := Buffer'First;
+         Last  : Stream_Element_Offset;
       begin
-         Data (Translator.To_Stream_Element_Array (Str), Dummy);
+         loop
+            Last := Stream_Element_Offset'Min
+              (First + Next_Size - 1, Buffer'Last);
+
+            if Last_One and then Last = Buffer'Last then
+               Next_Size := 0;
+            end if;
+
+            Data (Buffer (First .. Last), Next_Size);
+            exit when Last = Buffer'Last;
+            First := Last + 1;
+         end loop;
       end Send;
 
       ----------------
@@ -2089,29 +2101,34 @@ package body AWS.Server.HTTP_Utils is
                & Utils.Image (Natural (R_First)) & "-"
                & Utils.Image (Natural (R_Last))
                & "/" & Utils.Image (Natural (Length))
-               & CRLF);
-            Send (Messages.Content_Length (R_Length) & CRLF & CRLF);
+               & CRLF
+               & Messages.Content_Length (R_Length) & CRLF & CRLF);
          end if;
 
          Resources.Set_Index (File, R_First + 1);
 
          declare
-            Buffer : Streams.Stream_Element_Array (1 .. Buffer_Size);
+            Buffer : Streams.Stream_Element_Array (1 .. Chunk_Size);
             Sent   : Stream_Element_Offset := 0;
             Size   : Stream_Element_Offset := 0;
             Last   : Stream_Element_Offset;
          begin
             loop
-               Size := Stream_Element_Offset'Min
-                 (R_Length - Sent, Buffer_Size);
+               Size := R_Length - Sent;
 
                exit when Size = 0;
+
+               if Size > Next_Size then
+                  Size := Next_Size;
+               elsif N_Range = 1 then
+                  Next_Size := 0;
+               end if;
 
                Resources.Read (File, Buffer (1 .. Size), Last);
 
                exit when Last < Buffer'First;
 
-               Data (Buffer (1 .. Last), Dummy);
+               Data (Buffer (1 .. Last), Next_Size);
 
                Sent := Sent + Last;
 
@@ -2166,7 +2183,7 @@ package body AWS.Server.HTTP_Utils is
 
       if N_Range /= 1 then
          --  Send the multipart/byteranges
-         Send ("--" & Boundary & "--" & CRLF);
+         Send ("--" & Boundary & "--" & CRLF, Last_One => True);
       end if;
    end Send_File_Ranges_G;
 
@@ -2313,7 +2330,7 @@ package body AWS.Server.HTTP_Utils is
            new Send_File_Ranges_G (Data_Received, Send_File_Content, False);
       begin
          Send_Ranges_Content
-           (HTTP_Server, Line_Index, File, Ranges, Length, Answer);
+           (HTTP_Server, Line_Index, File, Ranges, 4096, Length, Answer);
       end Send_Ranges;
 
    begin

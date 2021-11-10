@@ -24,6 +24,7 @@ with AWS.Containers.Tables;
 with AWS.Headers;
 with AWS.MIME;
 with AWS.Response;
+with AWS.Server.Log;
 with AWS.Server.Status;
 with AWS.Status;
 with AWS.Utils;
@@ -45,12 +46,10 @@ procedure Content_Type_Data_Range is
          Filename     => URI (URI'First + 1 .. URI'Last));
    end CB;
 
-   WS            : Server.HTTP;
-   Conf          : Config.Object;
-   Client_Data   : Response.Data;
-   Client_Header : Headers.List;
-   CHeader       : Containers.Tables.Table_Type
-                     renames Containers.Tables.Table_Type (Client_Header);
+   WS          : Server.HTTP;
+   Conf        : Config.Object;
+   Client_Data : Response.Data;
+   CHeader     : Headers.List;
 
    ------------------
    -- Send_Request --
@@ -60,7 +59,7 @@ procedure Content_Type_Data_Range is
    begin
       Client_Data := Client.Get
                        (AWS.Server.Status.Local_URL (WS) & "/test.txt",
-                        Headers => Client_Header);
+                        Headers => CHeader);
    exception
       when others =>
          --  An exception is raised because the client API does not support
@@ -72,8 +71,9 @@ begin
    Config.Set.Server_Host (Conf, "localhost");
    Config.Set.Server_Port (Conf, 0);
 
-   Headers.Debug (True);
+   AWS.Headers.Debug (True);
 
+   Server.Log.Start_Error (WS, Ada.Text_IO.Put_Line'Access, "error");
    Server.Start
      (Web_Server => WS,
       Callback   => CB'Unrestricted_Access,

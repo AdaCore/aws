@@ -1,4 +1,5 @@
 R1 code=S206 length= 1024
 R3 code=S206 length= 1024
-R2 code=S206
+R2 code=S206 length= 1488
+Stop logging.
 OK partial download
