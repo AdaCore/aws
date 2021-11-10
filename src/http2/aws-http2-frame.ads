@@ -157,10 +157,10 @@ private
                       K_Invalid       => 16#A#);
 
    type Header is record
-      Length    : Length_Type;
-      Kind      : Kind_Type := K_Ping;
-      Flags     : Flags_Type;
-      R         : Bit_1;
+      Length    : Length_Type     := 0;
+      Kind      : Kind_Type       := K_Invalid;
+      Flags     : Flags_Type      := 0;
+      R         : Bit_1           := 0;
       Stream_Id : HTTP2.Stream_Id := 0;
    end record
      with Dynamic_Predicate =>
@@ -227,7 +227,7 @@ private
    type Padding is new Byte_1 with Size => 8;
 
    function Is_Defined (Self : Object) return Boolean is
-     (Self.Counter /= null);
+     (Self.Header.H /= Header'(others => <>));
 
    function Kind (Self : Object) return Kind_Type is
      (Self.Header.H.Kind);
