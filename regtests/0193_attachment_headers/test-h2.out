@@ -1,0 +1,24 @@
+Start...
+Insert attachment...
+Call Post...
+Post headers:
+:method
+:path
+:scheme
+accept
+accept-encoding
+accept-language
+content-custom-header
+content-length
+content-type
+custom-header
+host
+user-agent
+x-message-seconds
+Attachment headers:
+content-custom-header
+content-disposition
+content-transfer-encoding
+content-type
+custom-header
+x-message-seconds
