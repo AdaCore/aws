@@ -85,7 +85,10 @@ package body S_AFile_Pack is
                     Net.SSL.Session_Id_Image (Net.SSL.Socket_Type (Sock.all));
          Result : constant Boolean := ASU.To_String (Session) = Sessn;
       begin
-         if (ASU.To_String (Session) = Sessn) /= Condition then
+         if Sessn = "" then
+            Text_IO.Put_Line ("Unexpected empty session");
+
+         elsif (ASU.To_String (Session) = Sessn) /= Condition then
             if Condition then
                Text_IO.Put_Line
                  ("Unexpected session differ " & ASU.To_String (Session)

@@ -405,15 +405,37 @@ procedure Check_Mem is
       package NSC renames Net.SSL.Certificate;
       use type NSC.Object;
 
-      Connect : AWS.Client.HTTP_Connection;
+      SSL_Cfg : Net.SSL.Config;
+      Connect : array (Boolean) of AWS.Client.HTTP_Connection;
+      Index   : Boolean := False;
       Session : Unbounded_String;
       Key     : Net.SSL.Private_Key := Net.SSL.Load (Private_Key_Name);
       Cert_F  : constant NSC.Object := NSC.Load (Certificate_Name);
       Cert_S  : NSC.Object;
+      Srv_URL : constant String := AWS.Server.Status.Local_URL (HTTP);
 
       procedure Request (URL : String; Filename : String := "");
 
       procedure Request (Proc : String; X, Y : Integer);
+
+      procedure Copy_Certificate
+        (Left : in out NSC.Object; Right : NSC.Object);
+      --  Copy from Right to Left and print Right certificate if certificates
+      --  are different.
+
+      ----------------------
+      -- Copy_Certificate --
+      ----------------------
+
+      procedure Copy_Certificate
+        (Left : in out NSC.Object; Right : NSC.Object) is
+      begin
+         if Left /= Right then
+            Check (NSC.Subject (Right));
+         end if;
+
+         Left := Right;
+      end Copy_Certificate;
 
       -------------
       -- Request --
@@ -430,7 +452,8 @@ procedure Check_Mem is
          Data_F : Stream_Element_Array (1 .. Data_R'Last);
          Last_F : Stream_Element_Offset;
       begin
-         AWS.Client.Get (Connect, Answer, URL);
+         Index := not Index;
+         AWS.Client.Get (Connect (Index), Answer, URL);
 
          Response.Message_Body (Answer, Result);
 
@@ -481,9 +504,10 @@ procedure Check_Mem is
       begin
          Payload := SOAP.Message.Payload.Build (Proc, P_Set);
 
+         Index := not Index;
          declare
             Response : constant SOAP.Message.Response.Object'Class :=
-                         SOAP.Client.Call (Connect, "/soap_demo", Payload);
+                         SOAP.Client.Call (Connect (Index), "/soap_demo", Payload);
 
             R_Parameters : constant SOAP.Parameters.List
               := SOAP.Message.Parameters (Response);
@@ -507,24 +531,26 @@ procedure Check_Mem is
       end Request;
 
    begin
-      AWS.Client.Create (Connect, AWS.Server.Status.Local_URL (HTTP));
+      Net.SSL.Initialize (SSL_Cfg, "", Net.SSL.TLSv1_2_Client);
+      AWS.Client.Create (Connect (True),  Srv_URL, SSL_Config => SSL_Cfg);
+      AWS.Client.Create (Connect (False), Srv_URL);
 
-      Cert_S := AWS.Client.Get_Certificate (Connect);
-      Check (NSC.Subject (Cert_S));
+      for C of Connect loop
+         Copy_Certificate (Cert_S, AWS.Client.Get_Certificate (C));
 
-      if Cert_S /= Cert_F then
-         Check ("Wrong server certificate");
-      end if;
+         if Cert_S /= Cert_F then
+            Check ("Wrong server certificate");
+         end if;
+      end loop;
 
       Request ("/simple");
 
-      Session := To_Unbounded_String (AWS.Client.SSL_Session_Id (Connect));
+      Session := To_Unbounded_String (AWS.Client.SSL_Session_Id (Connect (True)));
 
-      if Session = Null_Unbounded_String
-        and then Ada.Strings.Fixed.Index
-          (AWS.Client.Cipher_Description (Connect), "TLS1.3") = 0
-      then
-         Check ("!!! Empty SSL session.");
+      if Session = Null_Unbounded_String then
+         Check
+           ("!!! Empty SSL session at "
+            & AWS.Client.Cipher_Description (Connect (True)));
       end if;
 
       Request ("/simple?p1=8&p2=azerty%20qwerty");
@@ -539,7 +565,9 @@ procedure Check_Mem is
 
       --  Make connection non persistent to check memory leak on session resume
 
-      AWS.Client.Set_Persistent (Connect, False);
+      for C of Connect loop
+         AWS.Client.Set_Persistent (C, False);
+      end loop;
 
       Request ("/simple?p1=8&p2=azerty%20qwerty");
       Request ("/file", "check_mem.adb");
@@ -554,11 +582,17 @@ procedure Check_Mem is
       Request ("addProc", 98, 123);
       Request ("addProc", 5, 9);
 
-      if To_String (Session) /= AWS.Client.SSL_Session_Id (Connect) then
-         Check ("!!! SSL session changed.");
+      if To_String (Session) /= AWS.Client.SSL_Session_Id (Connect (True)) then
+         Check
+           ("!!! SSL session changed at "
+            & AWS.Client.Cipher_Description (Connect (True)));
       end if;
 
-      AWS.Client.Close (Connect);
+      for C of Connect loop
+         AWS.Client.Close (C);
+      end loop;
+
+      Net.SSL.Release (SSL_Cfg);
       Net.SSL.Free (Key);
    end Client;
 
