@@ -19,7 +19,13 @@
 .SILENT:
 
 LIBGPR	= ../$(BDIR)/../../projects/aws_lib_shared.gpr
+
+ifeq (${SOCKET}, openssl)
 LPATH	= $(dir $(shell $(GCC) -print-file-name=libssl.a))
+else ifeq (${SOCKET}, gnutls)
+LPATH	= $(dir $(shell $(GCC) -print-file-name=libgnutls.a))
+endif
+
 ZPATH	= $(dir $(shell $(GCC) -print-file-name=libz.a))
 SDIR	= ../$(BDIR)/../setup
 
@@ -44,8 +50,8 @@ setup_extlib:
 	echo "   for Source_Files use ();" >> $(LIBGPR)
 	echo '   type SSL_Library_Kind is ("relocatable", "static");' >> $(LIBGPR)
 	echo '   SSL_Library_Type : SSL_Library_Kind := external ("SSL_LIBRARY_TYPE", "relocatable");' >> $(LIBGPR)
+	echo '   LIB_Path := "${LPATH}";' >> $(LIBGPR)
 ifeq (${SOCKET}, std)
-	echo '   LIB_Path := "";' >> $(LIBGPR)
 	echo '   S_SSL_Lib := "";' >> $(LIBGPR)
 	echo '   R_SSL_Lib := "";' >> $(LIBGPR)
 	echo '   S_CRY_Lib := "";' >> $(LIBGPR)
@@ -53,7 +59,6 @@ ifeq (${SOCKET}, std)
 	echo '   S_TLS_Lib := "";' >> $(LIBGPR)
 	echo '   R_TLS_Lib := "";' >> $(LIBGPR)
 else
-	echo '   LIB_Path := "${LPATH}";' >> $(LIBGPR)
 	echo '   S_SSL_Lib := "ssl";' >> $(LIBGPR)
 ifeq (${PRJ_TARGET}, Windows_NT)
 	echo '   R_SSL_Lib := "ssl32";' >> $(LIBGPR)
