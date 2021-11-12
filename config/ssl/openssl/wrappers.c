@@ -108,6 +108,11 @@ unsigned long __aws_OpenSSL_version_num(void)
   return OpenSSL_version_num();
 }
 
+void __aws_OPENSSL_thread_stop(void)
+{
+  OPENSSL_thread_stop();
+}
+
 const char * __aws_OpenSSL_version(int t)
 {
   return OpenSSL_version(t);
@@ -144,6 +149,9 @@ const char * __aws_OpenSSL_version(int t)
 {
   return SSLeay_version(t);
 }
+
+void __aws_OPENSSL_thread_stop(void)
+{}
 
 const SSL_METHOD * __aws_TLS_method(void)
 {

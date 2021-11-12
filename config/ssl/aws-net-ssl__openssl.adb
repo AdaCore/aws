@@ -82,8 +82,7 @@ package body AWS.Net.SSL is
 
    function Lib_Realloc
      (Ptr  : System.Address;
-      Size : System.Memory.size_t) return System.Address
-     with Convention => C;
+      Size : System.Memory.size_t) return System.Address with Convention => C;
    --  C library could use null pointer as input parameter for realloc, but
    --  gnatmem does not care about it and logging Free of the null pointer.
 
@@ -1699,7 +1698,8 @@ package body AWS.Net.SSL is
       type Mode_Type is mod 2 ** C.int'Size;
 
       type Task_Data is record
-         TID : Task_Identifier;
+         TID                      : Task_Identifier;
+         Keep_Termination_Handler : Task_Termination.Termination_Handler;
       end record;
 
       subtype Filename_Type is C.Strings.chars_ptr;
@@ -1708,7 +1708,11 @@ package body AWS.Net.SSL is
       Finalized : Boolean := False;
       --  Need to avoid access to finalized protected locking objects
 
-      package Task_Identifiers is new Task_Attributes (Task_Data, (TID => 0));
+      Keep_Termination_Handler : Task_Termination.Termination_Handler;
+      --  To keep previous common task termination handler
+
+      package Task_Identifiers is new Task_Attributes
+        (Task_Data, (TID => 0, Keep_Termination_Handler => null));
 
       procedure Finalize;
 
@@ -1838,13 +1842,18 @@ package body AWS.Net.SSL is
       function Get_Task_Identifier return Task_Identifier is
          TA : constant Task_Identifiers.Attribute_Handle :=
                 Task_Identifiers.Reference;
+         CT : Task_Identification.Task_Id;
       begin
          if TA.TID = 0 then
             Task_Id_Generator.Get_Task_Id (TA.TID);
 
+            CT := Task_Identification.Current_Task;
+
+            TA.Keep_Termination_Handler :=
+              Task_Termination.Specific_Handler (CT);
+
             Task_Termination.Set_Specific_Handler
-              (Task_Identification.Current_Task,
-               Task_Id_Generator.Finalize_Task'Access);
+              (CT, Task_Id_Generator.Finalize_Task'Access);
          end if;
 
          return TA.TID;
@@ -1856,16 +1865,39 @@ package body AWS.Net.SSL is
 
       procedure Initialize is
       begin
-         --  We do not have to install thread id_callback on MS Windows and
-         --  on platforms where getpid returns different id for each thread.
-         --  But it is easier to install it for all platforms.
+         if TSSL.OpenSSL_version_num < 16#10101000# then
+            --  We do not have to install thread id_callback on MS Windows and
+            --  on platforms where getpid returns different id for each thread.
+            --  But it is easier to install it for all platforms.
 
-         TSSL.CRYPTO_set_id_callback (Get_Task_Identifier'Address);
-         TSSL.CRYPTO_set_locking_callback (Locking_Function'Address);
+            TSSL.CRYPTO_set_id_callback (Get_Task_Identifier'Address);
+            TSSL.CRYPTO_set_locking_callback (Locking_Function'Address);
 
-         TSSL.CRYPTO_set_dynlock_create_callback  (Dyn_Create'Address);
-         TSSL.CRYPTO_set_dynlock_lock_callback    (Dyn_Lock'Address);
-         TSSL.CRYPTO_set_dynlock_destroy_callback (Dyn_Destroy'Address);
+            TSSL.CRYPTO_set_dynlock_create_callback  (Dyn_Create'Address);
+            TSSL.CRYPTO_set_dynlock_lock_callback    (Dyn_Lock'Address);
+            TSSL.CRYPTO_set_dynlock_destroy_callback (Dyn_Destroy'Address);
+
+         else
+            --  Do not need any special locking callbacks since OpenSSL version
+            --  1.1.1, but we need to finalize all tasks because of another
+            --  reason.
+            --  OpenSSL finalizes all threads automatically including in GNAT
+            --  tasks, but too late, when GNAT already deallocated task control
+            --  block. We have overriden memory allocation routines with
+            --  CRYPTO_set_mem_functions in this package initialization. And
+            --  when OpenSSL deallocates thread specific memory on GNAT task
+            --  without control block, the new control block automatically
+            --  allocated again and we've got memory leak at task termination.
+            --  If we deallocate OpenSSL thread specific memore before
+            --  deallocation of the GNAT task control block we avoid
+            --  deallocation after the control block gone.
+
+            Keep_Termination_Handler :=
+              Task_Termination.Current_Task_Fallback_Handler;
+
+            Task_Termination.Set_Dependents_Fallback_Handler
+              (Locking.Task_Id_Generator.Finalize_Task'Access);
+         end if;
       end Initialize;
 
       ----------
@@ -1921,9 +1953,32 @@ package body AWS.Net.SSL is
             T     : Task_Identification.Task_Id;
             X     : Exceptions.Exception_Occurrence)
          is
-            pragma Unreferenced (Cause, X);
+            use type Task_Termination.Termination_Handler;
+            TA : Task_Identifiers.Attribute_Handle;
          begin
-            TSSL.ERR_remove_state (C.int (Task_Identifiers.Reference (T).TID));
+            if TSSL.OpenSSL_version_num < 16#10101000# then
+               --  It is task specific termination handler for OpenSSL 1.0 and
+               --  older for locking support.
+
+               TA := Task_Identifiers.Reference (T);
+
+               TSSL.ERR_remove_state (C.int (TA.TID));
+
+               if TA.Keep_Termination_Handler /= null then
+                  TA.Keep_Termination_Handler (Cause, T, X);
+               end if;
+
+            else
+               --  It is common task termination handler for OpenSSL 1.1 and
+               --  newer to avoid memory leak on overriden by
+               --  CRYPTO_set_mem_functions memory allocation routines.
+
+               TSSL.OPENSSL_thread_stop;
+
+               if Keep_Termination_Handler /= null then
+                  Keep_Termination_Handler (Cause, T, X);
+               end if;
+            end if;
          end Finalize_Task;
 
          -----------------
@@ -2578,7 +2633,12 @@ begin
    TSSL.CRYPTO_get_mem_functions (M => Keep_M, R => Keep_R, F => Keep_F);
 
    --  Set the RTL memory allocation routines is necessary only to be able
-   --  gnatmem control memory leak allocated inside of OpenSSL library.
+   --  gnatmem to detect memory leaks allocated inside of OpenSSL library.
+   --  If we do not use gnatmem memory allocation interceptor we don't need
+   --  this interception and all GNAT tasks termination interception too by the
+   --  way. See Locking.Initialize for OpenSSL 1.1.1 and newer comment.
+   --  Would be good to have flag in System.Memory which defines is the gnatmem
+   --  interceptors is in action.
 
    if TSSL.CRYPTO_set_mem_functions
         (M => System.Memory.Alloc'Address,
