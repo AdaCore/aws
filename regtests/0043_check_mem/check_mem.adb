@@ -329,11 +329,7 @@ procedure Check_Mem is
       AWS.Net.SSL.Initialize
         (Config               => SSL_Srv,
          Certificate_Filename => Certificate_Name,
-         Key_Filename         => Private_Key_Name,
-         Session_Cache_Size   => 2);
-
-      --  Session_Cache_Size  => 2 - limit session cache to avoid different
-      --  cache container allocation in different execution.
+         Key_Filename         => Private_Key_Name);
 
       AWS.Server.Set_SSL_Config (HTTP, SSL_Srv);
 
@@ -1051,6 +1047,11 @@ begin
         (K rem 3 = 1, Generation_Logging'Access);
 
       Net.SSL.Release (Config => SSL_Clt);
+
+      if K = 1 then
+         Net.SSL.Set_Session_Cache_Size
+           (Net.SSL.Session_Cache_Number (SSL_Srv), SSL_Srv);
+      end if;
    end loop;
 
    Server.Stopped;
