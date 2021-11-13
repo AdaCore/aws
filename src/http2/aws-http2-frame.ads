@@ -43,9 +43,6 @@ package AWS.HTTP2.Frame is
 
    type Object is new Finalization.Controlled with private;
 
-   function Is_Defined (Self : Object) return Boolean;
-   --  Returns True is Self is defined
-
    type Kind_Type is (K_Data, K_Headers, K_Priority,
                       K_RST_Stream, K_Settings, K_Push_Promise,
                       K_Ping, K_GoAway, K_Window_Update,
@@ -55,6 +52,8 @@ package AWS.HTTP2.Frame is
 
    type Flags_Type is mod 2 ** 8 with Size => 8;
 
+   subtype Length_Type is Byte_3 range 0 .. 2 ** 24 - 1;
+
    End_Stream_Flag  : constant Flags_Type;
    Ack_Flag         : constant Flags_Type;
    End_Headers_Flag : constant Flags_Type;
@@ -62,7 +61,8 @@ package AWS.HTTP2.Frame is
    Priority_Flag    : constant Flags_Type;
    --  The fkags that can be attached to a frame
 
-   subtype Length_Type is Byte_3 range 0 .. 2 ** 24 - 1;
+   function Is_Defined (Self : Object) return Boolean;
+   --  Returns True is Self is defined
 
    function Read
      (Sock     : Net.Socket_Type'Class;
@@ -157,10 +157,10 @@ private
                       K_Invalid       => 16#A#);
 
    type Header is record
-      Length    : Length_Type;
-      Kind      : Kind_Type := K_Ping;
-      Flags     : Flags_Type;
-      R         : Bit_1;
+      Length    : Length_Type     := 0;
+      Kind      : Kind_Type       := K_Invalid;
+      Flags     : Flags_Type      := 0;
+      R         : Bit_1           := 0;
       Stream_Id : HTTP2.Stream_Id := 0;
    end record
      with Dynamic_Predicate =>
@@ -227,7 +227,7 @@ private
    type Padding is new Byte_1 with Size => 8;
 
    function Is_Defined (Self : Object) return Boolean is
-     (Self.Counter /= null);
+     (Self.Header.H /= Header'(others => <>));
 
    function Kind (Self : Object) return Kind_Type is
      (Self.Header.H.Kind);

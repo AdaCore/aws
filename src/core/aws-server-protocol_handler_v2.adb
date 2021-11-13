@@ -72,7 +72,7 @@ separate (AWS.Server)
 
 procedure Protocol_Handler_V2
   (LA            : in out Line_Attribute_Record;
-   Will_Close    : in out Boolean;
+   Will_Close    : out Boolean;
    Check_Preface : Boolean := True)
 is
    use Ada.Streams;
@@ -124,7 +124,7 @@ is
    Sock             : constant Socket_Access :=
                         LA.Server.Slots.Get (Index => LA.Line).Sock;
 
-   Free_Slots : Natural := 0;
+   Free_Slots : Natural := LA.Server.Slots.Free_Slots;
 
    Settings   : aliased HTTP2.Connection.Object;
    --  Connection settings
@@ -737,6 +737,8 @@ is
    H2C_Answer : AWS.HTTP2.Frame.List.Object;
 
 begin
+   Will_Close := False;
+
    --  Initialize the HPACK tables to encode/decode headers
 
    LA.Log_Data := AWS.Log.Empty_Fields_Table;
@@ -804,6 +806,8 @@ begin
       --  Need to avoid unknown extension frame in the middle of a header block
       --  (RFC 7450, 5.5).
 
+      Exit_On_Empty_Answers : Boolean := False;
+
       --------------
       -- Finalize --
       --------------
@@ -860,6 +864,11 @@ begin
                   if M.More_Frames then
                      Deferred_Messages.Prepend (M);
                   else
+                     if not Response.Keep_Alive (SM.Response.all) then
+                        Exit_On_Empty_Answers := True;
+                        Will_Close            := True;
+                     end if;
+
                      Stream_Opened := Stream_Opened - 1;
                   end if;
                end if;
@@ -917,6 +926,10 @@ begin
                end if;
             end;
          end loop;
+
+         exit For_Every_Frame when Answers.Is_Empty
+           and then Exit_On_Empty_Answers
+           and then (for all ST of S => ST.State = HTTP2.Stream.Closed);
 
          --  Get frame
 

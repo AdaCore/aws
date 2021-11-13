@@ -60,7 +60,7 @@ package body AWS.Server is
 
    procedure Protocol_Handler_V2
      (LA            : in out Line_Attribute_Record;
-      Will_Close    : in out Boolean;
+      Will_Close    : out Boolean;
       Check_Preface : Boolean := True);
    --  Handle the lines, this is where all the HTTP/2 protocol is defined
 
@@ -336,6 +336,7 @@ package body AWS.Server is
             Socket        : Net.Socket_Access :=
                               Accept_Socket_Serialized (TA.Server);
             Need_Shutdown : Boolean;
+            Will_Close    : Boolean;
          begin
             TA.Stat := Request'Unchecked_Access;
 
@@ -355,14 +356,15 @@ package body AWS.Server is
             then
                --  Protocol is secure H2
                AWS.Status.Set.Protocol (Request, AWS.Status.H2);
-               Protocol_Handler_V2 (TA.all, Will_Close => Need_Shutdown);
+               Protocol_Handler_V2 (TA.all, Will_Close);
             else
                Protocol_Handler (TA.all);
+               Will_Close := False;
             end if;
 
             TA.Server.Slots.Release (TA.Line, Need_Shutdown);
 
-            if Need_Shutdown then
+            if Need_Shutdown or else Will_Close then
                Socket.Shutdown;
 
                --  Don't use Socket.Free, it does not deallocate Socket
@@ -425,7 +427,7 @@ package body AWS.Server is
 
    procedure Protocol_Handler_V2
      (LA            : in out Line_Attribute_Record;
-      Will_Close    : in out Boolean;
+      Will_Close    : out Boolean;
       Check_Preface : Boolean := True) is separate;
 
    ------------------

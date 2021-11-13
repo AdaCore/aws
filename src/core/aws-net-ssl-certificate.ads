@@ -125,22 +125,18 @@ private
      new Ada.Containers.Indefinite_Holders (Stream_Element_Array);
 
    type Object is record
-      Verified      : Boolean;
-      Status        : Long_Integer;
+      Verified      : Boolean       := False;
+      Status        : Long_Integer  := 0;
       Common_Name   : Unbounded_String;
       Subject       : Unbounded_String;
       Issuer        : Unbounded_String;
       Serial_Number : Unbounded_String;
       DER           : Binary_Holders.Holder;
-      Activation    : Calendar.Time;
-      Expiration    : Calendar.Time;
+      Activation    : Calendar.Time := Utils.AWS_Epoch;
+      Expiration    : Calendar.Time := Utils.AWS_Epoch;
    end record;
 
-   Undefined : constant Object :=
-                 (False, 0, Null_Unbounded_String, Null_Unbounded_String,
-                  Null_Unbounded_String, Null_Unbounded_String,
-                  Binary_Holders.Empty_Holder,
-                  Utils.AWS_Epoch, Utils.AWS_Epoch);
+   Undefined : constant Object := (others => <>);
 
    function Common_Name (Certificate : Object) return String is
      (To_String (Certificate.Common_Name));
