@@ -2172,6 +2172,18 @@ package body AWS.Net.SSL is
       Config.Verify_CB := To_Callback (Callback);
    end Set_Verify_Callback;
 
+   ----------------------------
+   -- Show_Session_Statistic --
+   ----------------------------
+
+   procedure Show_Session_Statistic
+     (Config : SSL.Config;
+      Report : not null access procedure (Line : String)) is
+   begin
+      Report ("cache_size" & Config.Sessions.Get_Size'Img);
+      Report ("number    " & Config.Sessions.Length'Img);
+   end Show_Session_Statistic;
+
    --------------
    -- Shutdown --
    --------------
