@@ -389,6 +389,14 @@ package body AWS.Net.SSL is
       raise Program_Error with Error_Message;
    end Set_Verify_Callback;
 
+   ----------------------------
+   -- Show_Session_Statistic --
+   ----------------------------
+
+   procedure Show_Session_Statistic
+     (Config : SSL.Config;
+      Report : not null access procedure (Line : String)) is null;
+
    --------------
    -- Shutdown --
    --------------

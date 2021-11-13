@@ -341,6 +341,12 @@ package AWS.Net.SSL is
 
    overriding function Is_Secure (Socket : Socket_Type) return Boolean;
 
+   procedure Show_Session_Statistic
+     (Config : SSL.Config;
+      Report : not null access procedure (Line : String));
+   --  Show session statistic for Config. Report will be called for each line
+   --  of the statistic.
+
 private
 
    package TSSL renames Standard.SSL.Thin;

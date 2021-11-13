@@ -172,6 +172,8 @@ package body AWS.Net.SSL is
       procedure Check_CRL;
       --  Check Certificate Revocation List, if this file has changed reload it
 
+      function Get_Context return TSSL.SSL_CTX;
+
    private
       Default_Context : TSSL.SSL_CTX        := TSSL.Null_CTX;
       CRL_Filename    : C.Strings.chars_ptr := C.Strings.Null_Ptr;
@@ -1419,6 +1421,45 @@ package body AWS.Net.SSL is
       Config.Set_Verify_Callback (Callback);
    end Set_Verify_Callback;
 
+   -----------------------------
+   -- Show_Session_Statistic --
+   -----------------------------
+
+   procedure Show_Session_Statistic
+     (Config : SSL.Config;
+      Report : not null access procedure (Line : String))
+   is
+      use TSSL;
+
+      Ctx : constant SSL_CTX := Config.Get_Context;
+
+      procedure Output (Title : String; Cmd : C.int);
+
+      ------------
+      -- Output --
+      ------------
+
+      procedure Output (Title : String; Cmd : C.int) is
+      begin
+         Report (Title & TSSL.SSL_CTX_ctrl (Ctx, Cmd, 0, Null_Pointer)'Img);
+      end Output;
+
+   begin
+      Output ("cache_size         ", SSL_CTRL_GET_SESS_CACHE_SIZE);
+      Output ("number             ", SSL_CTRL_SESS_NUMBER);
+      Output ("connect            ", SSL_CTRL_SESS_CONNECT);
+      Output ("connect_good       ", SSL_CTRL_SESS_CONNECT_GOOD);
+      Output ("connect_renegotiate", SSL_CTRL_SESS_CONNECT_RENEGOTIATE);
+      Output ("accept             ", SSL_CTRL_SESS_ACCEPT);
+      Output ("accept_good        ", SSL_CTRL_SESS_ACCEPT_GOOD);
+      Output ("accept_renegotiate ", SSL_CTRL_SESS_ACCEPT_RENEGOTIATE);
+      Output ("hits               ", SSL_CTRL_SESS_HIT);
+      Output ("cb_hits            ", SSL_CTRL_SESS_CB_HIT);
+      Output ("misses             ", SSL_CTRL_SESS_MISSES);
+      Output ("timeouts           ", SSL_CTRL_SESS_TIMEOUTS);
+      Output ("cache_full         ", SSL_CTRL_SESS_CACHE_FULL);
+   end Show_Session_Statistic;
+
    --------------
    -- Shutdown --
    --------------
@@ -2222,6 +2263,15 @@ package body AWS.Net.SSL is
          C.Strings.Free (CRL_Filename);
          C.Strings.Free (Priorities);
       end Finalize;
+
+      -----------------
+      -- Get_Context --
+      -----------------
+
+      function Get_Context return TSSL.SSL_CTX is
+      begin
+         return Default_Context;
+      end Get_Context;
 
       ----------------
       -- Initialize --
