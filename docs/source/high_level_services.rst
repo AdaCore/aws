@@ -23,7 +23,7 @@ of options to sort directory entries and is based on the templates
 interface :ref:`AWS.Templates`. This means that you can use the
 default directory template or provide your own.
 
-see :ref:`AWS.Services.Directory` for complete spec and services descriptions.
+see :ref:`AWS.Services.Directory` for the complete specification and description of this service.
 
 .. _Dispatchers:
 
@@ -32,17 +32,17 @@ Dispatchers
 
 .. index:: Dispatchers
 
-In many AWS applications it is needed to check the URI to give the
+In many AWS applications it is necessary to process the URI to give the
 right answer. This means that part of the application is a big
-**if/elsif** procedure. Also, in standard callback it is not possible
+**if/elsif** procedure. Also, in the standard callback it is not possible
 to have user data. Both of these restrictions are addressed with the
-Dispatchers facilities.
+Dispatcher facilities.
 
 Working with a dispatcher is quite easy:
 
 * Create a new dispatcher by inheriting from the service you want
   to build.
-* Register a set of action based on rules (strings, regular
+* Register a set of action based on rules (strings or regular
   expressions depending on the service)
 
 .. _Callback_dispatcher:
@@ -56,11 +56,11 @@ Callback dispatcher
 This is a wrapper around the standard callback procedure. It is needed
 to mix dispatcher based callback and access to procedure
 callback. Note that it is not in the `AWS.Services.Dispatchers`
-hierarchy but in `AWS.Dispatchers.Callback` because this is a
+hierarchy but instead in `AWS.Dispatchers.Callback` because this is a
 basic service needed for the server itself. It is referenced here for
-documentation purpose but an AWS server can be built with using it.
+documentation purposes but an AWS server can be built without using it.
 
-see :ref:`AWS.Dispatchers.Callback` for complete spec description.
+see :ref:`AWS.Dispatchers.Callback` for the complete specification.
 
 .. _Method_dispatcher:
 
@@ -74,7 +74,7 @@ This is a dispatcher based on the request method. A different callback
 procedure can be registered for the supported request methods: GET,
 POST, PUT, HEAD.
 
-see :ref:`AWS.Services.Dispatchers.Method` for complete spec description.
+see :ref:`AWS.Services.Dispatchers.Method` for the complete specification.
 
 .. _URI_dispatcher:
 
@@ -88,7 +88,7 @@ This is a dispatcher based on the request resource. A different callback
 procedure can be registered for specific resources. The resource is
 described either by its full name (string) or a regular expression.
 
-see :ref:`AWS.Services.Dispatchers.URI` for complete spec description.
+see :ref:`AWS.Services.Dispatchers.URI` for the complete specification.
 
 .. _Virtual_host_dispatcher:
 
@@ -98,18 +98,18 @@ Virtual host dispatcher
 .. index:: Dispatchers virtual host
 .. index:: virtual host, dispatcher
 
-This is a dispatcher based on the host name. A different callback
-procedure can be registered for specific host. This is also known as
+This is a dispatcher based on the hostname. A different callback
+procedure can be registered for specific hostnames. This enables support for
 virtual hosting.
 
 The same computer can be registered into the DNS with different
 names. So all names point to the same machine. But in fact you want
 each name to be seen as a different Web server. This is called virtual
 hosting. This service will just do that, call different **callback**
-procedures or redirect to some **machine/port** based on the host name
+procedures or redirect to some **machine/port** based on the hostname
 in the client's request.
 
-see :ref:`AWS.Services.Dispatchers.Virtual_Host` for complete spec description.
+see :ref:`AWS.Services.Dispatchers.Virtual_Host` for the complete specification.
 
 .. _Transient_pages_dispatcher:
 
@@ -133,11 +133,11 @@ Timer dispatcher
 .. index:: timer, dispatcher
 
 A timer dispatcher can be used to call different callback routines
-depending on the current date and time. Such dispatcher is composed of
-a set of `Period` activated. When the current date and time is
+depending on the current date and time. Such a dispatcher is composed of
+a set of activation `Period`s . When the current date and time is
 inside a `Period` the corresponding callback is called. A
-`Period` can eventually be repeated. Here are the different kind
-of `Period` supported by `AWS`:
+`Period` can eventually be repeated. Here are the different kinds
+of `Period`s supported by `AWS`:
 
 *Once*
   A unique period in time. The boundaries are fully described using a
@@ -187,12 +187,12 @@ SOAP dispatcher
 .. index:: Dispatchers SOAP
 .. index:: SOAP, dispatcher
 
-`AWS` provides also a `SOAP` specific dispatcher. This is a way to
+`AWS` also provides a `SOAP` specific dispatcher. This is a way to
 automatically route HTTP requests or `SOAP` requests to different
 callback routines.
 
 see :ref:`SOAP_helpers` for more information.
-see :ref:`SOAP.Dispatchers.Callback` for complete spec description.
+see :ref:`SOAP.Dispatchers.Callback` for the complete specification.
 
 .. _Static_Page_server:
 
@@ -203,8 +203,9 @@ Static Page server
 .. index:: Simple Page server
 .. index:: Page server
 
-This service is a ready to use static page server callback. Using it
-is possible to build a simple static page server, as simple as::
+This service is a ready to use static page server callback. It
+is possible to use this service to build a simple static page server;
+this is as simple as::
 
  with AWS.Server;
  with AWS.Services.Page_Server;
@@ -223,7 +224,7 @@ is possible to build a simple static page server, as simple as::
     AWS.Server.Shutdown (WS);
  end WPS;
 
-Build this program and launch it, it will server `HTML` pages and images
+Build this program and execute it to serve `HTML` pages and images
 in the current directory.
 
 It is possible to activate the directory browsing facility of this
@@ -245,7 +246,7 @@ Note that this service uses two template files:
   Note that on Microsoft IE this page will be displayed only if the total
   page size is bigger than 512 bytes or it includes at least one image.
 
-see :ref:`AWS.Services.Page_Server` for a complete spec description.
+see :ref:`AWS.Services.Page_Server` for the complete specification.
 
 .. _Transient_Pages:
 
@@ -260,17 +261,17 @@ server. After this time the resource will be released and will not be
 accessible anymore.
 
 Sometimes you want to reference, in a Web page, a resource that is built
-in memory by the server. This resource can be requested by the client (by
-clicking on the corresponding link) or not, in both cases the page must
+in memory by the server. This resource may or may not be requested by the
+client (by clicking on the corresponding link), in either case the page must
 be released after a certain amount of time to free the associated memory.
 
-This is exactly what the transient pages high level service do
+This is exactly what the transient pages high level service does
 automatically. Each transient page must be registered into the
-service, a specific routine named `Get_URI` can be used to create
+service, then a specific routine named `Get_URI` can be used to create
 a unique `URI` on this server. see :ref:`AWS.Services.Transient_Pages`.
 
-A transient pages dispatcher can be used to build a transient pages
-aware server. see :ref:`Transient_pages_dispatcher`.
+A transient pages dispatcher can be used to build a server supporting
+transient pages. see :ref:`Transient_pages_dispatcher`.
 
 .. _Split_pages:
 
@@ -281,37 +282,37 @@ Split pages
 .. index:: pages, split
 
 It not not very convenient to send back a Web page with a large
-table. In such a case it is better to split the table in chunks (20
-lines or so) and to send only the first page. This page reference the
-next pages and can also contains an index of the pages.
+table. In such a case it is better to split the table into chunks (20
+lines or so) and to send only the first page. This first page reference the
+next pages and can also contain an index of all the pages.
 
-The `AWS`'s split page feature can automatically do that for
+The `AWS`'s split page feature can automatically do this for
 you. Given template `Translate_Table` or `Translate_Set` and the
-max line per page it returns the first page and create a set of
+max line per page it returns the first page and creates a set of
 transient pages for all other pages. A set of template tags are used
 to reference the previous and next page and also to build the page index.
 
-There is different ways to split a set of pages and ready-to-use
+There are different ways to split a set of pages and ready-to-use
 splitters are available:
 
 *Alpha*
-  Split in (at most) 28 pages, one for empty fields, one for all fields
+  Split into (at most) 28 pages, one for empty fields, one for all fields
   that start with a digit, and one for each different initial letter.
   see :ref:`AWS.Services.Split_Pages.Alpha`.
 
 *Alpha.Bounded*
   Same as the alpha splitter, but pages larger than a Max_Per_Page value
-  are further splitted.
+  are further split.
   A secondary index is generated that gives the various pages for a given
   letter. see :ref:`AWS.Services.Split_Pages.Alpha.Bounded`.
 
 *Uniform*
-  Split in pages of length Max_Per_Page (except the last one). This
-  corresponds to the default service in Split_Pages package.
+  Split into pages of length Max_Per_Page (except the last one). This
+  corresponds to the default service in the Split_Pages package.
   see :ref:`AWS.Services.Split_Pages.Uniform`.
 
 *Uniform.Alpha*
-  Same as the uniform splitter, but builds in addition an alphabetical
+  Same as the uniform splitter, but additionally builds an alphabetical
   secondary index from a key field.
   see :ref:`AWS.Services.Split_Pages.Uniform.Alpha`.
 
@@ -330,8 +331,8 @@ Download Manager
 
 .. index:: Download Manager
 
-A server that need to handle lot of large downloads can run out of
-connection to answer the standard Web pages. A solution is to increase the
+A server that needs to handle lot of large downloads can run out of
+connections to answer the standard Web pages. One solution is to increase the
 number of simultaneous connections, but this is not really efficient
 as a task is created for each connection and does not ensure that all
 the connections will be used for the downloads anyway.
@@ -352,7 +353,7 @@ standard callbacks. see :ref:`AWS.Dispatchers.Callback`).
 To start the download manager you need to pass the main server
 dispatcher object. The start routine will return a new dispatcher,
 linked with the download server specific dispatcher, that must be used
-to start the standard Web server. See comment in
+to start the standard Web server. See the comments in
 see :ref:`AWS.Services.Download`.
 
 To queue a download request in the download manager you just need to
@@ -374,7 +375,8 @@ The download manager needs two templates files:
     the URI used to access the resource.
 
   *POSITION*
-    the position in the waiting line (not counting the current served clients).
+    the position in the waiting line (not counting the clients being currently
+    served).
 
 *aws_download_manager_start.thtml*
   This template is used for sending a message to the client when the
@@ -439,8 +441,8 @@ Web Elements
 
 .. index:: Web Elements
 
-`AWS` provides some components to help creating nice looking Web
-interfaces. It is possible to browse those Web Elements using the
+`AWS` provides some components to help in creating nice looking Web
+interfaces. It is possible to browse these Web Elements using the
 `web_elements` demo. Just launch this Web application from the
 demos directory and turn your Web browser to
 `http://localhost:2400 <http://localhost:2400>`_.
@@ -452,8 +454,8 @@ Currently `AWS` provides:
 * Rounded boxes
 * Ajax
 
-All of them are based on templates to be easily reused in other
-applications. The three first are best described by the Web Elements
+All of them are based on templates that can be easily reused in other
+applications. The first three are best described by the Web Elements
 demos as they are 100% design. The `Ajax` one is a bit more complex, we
 will present its use in the following section.
 
@@ -473,11 +475,11 @@ To ease integration we have used the following design:
   icons and javascripts code shared by all web elements and must also be
   copied, see below.
 
-* Each graphic elements (icons) is referenced into the templates with the
+* Each graphic elements (icons) is referenced in the templates with the
   alias `/we_icons/<icon_name>`. So users must provide the right alias
   ("`/we_icons/`") in the  Web server.
 
-* Each JavaScripts code is referenced into the templates with the
+* Each JavaScripts code is referenced in the templates with the
   alias `/we_js/<script>`. So users must provide the right alias
   (`"/we_js/"`) in the  Web server.
 
@@ -501,11 +503,11 @@ a Web page without reloading it from the server.
 Most importantly, `Ajax` changes the way Web applications are
 thought from **page** based to **event** based.
 
-As implemented into `AWS`, `Ajax` support comes as a set of
+As implemented in `AWS`, `Ajax` support comes as a set of
 `JavaScript` templates. Using those templates there is no need to
 know `JavaScript` (except for the `JavaScript` event names) and it
-makes `Ajax` programming lot easier. Two actions are provided,
-one for replacing another for clearing part of the web page content.
+makes `Ajax` programming easier. Two actions are provided,
+one for replacing and another for clearing part of a web page's content.
 
 .. _Steps_to_do_Ajax:
 
@@ -514,8 +516,8 @@ Steps to do Ajax
 
 What are the steps to do `Ajax` ?
 
-Remember, do not think about the Web page but about a specific widget
-(`HTML` fragments) with the associated event and action.
+Remember, do not think about a Web page but rather a specific widget
+(`HTML` fragments) with an associated event and action.
 
 * Include the AWS/Ajax support file
 
@@ -526,17 +528,17 @@ Remember, do not think about the Web page but about a specific widget
 
   There is nothing special here, use your favorite Web designer tool.
 
-* Create Web area
+* Create the Web area
 
   Using some `HTML` <div> tags we create areas where we will place
   `HTML` fragments later. For example when clicking on a button
   (described above) in our Web interface we want to display a new form
   in this area.
 
-* Name the widgets/forms/area using id="name" attribute
+* Name the widgets/forms/area using the id="name" attribute
 
   Give a different name to the widgets using id="name". This name will
-  be later used to identify the widgets on which the envent and
+  later be used to identify the widgets on which the event and
   corresponding action must be placed. We do not want to clutter the Web
   design with `JavaScript` code like `onclick="dothis()"` or
   `onchange="dothat()"`.
@@ -547,7 +549,7 @@ Remember, do not think about the Web page but about a specific widget
   to the widgets and specify in which area the results sent by the
   server will be placed.
 
-This is not the only way to do `Ajax`, we just presented here a simple
+This is not the only way to do `Ajax`, but a simple
 approach that works well with the `AWS/Ajax` templates.
 
 .. _Basic_Ajax_support:
@@ -569,7 +571,7 @@ Let's have a very simple example:
 
    @@INCLUDE@@@ aws.tjs
 
-  Must be included in every Web pages into the `<head>` tag.
+  Must be included into every Web page's `<head>` tag.
 
 * The widget: a button
 
@@ -591,10 +593,10 @@ Let's have a very simple example:
 
   Basically it places an **onclick** attribute (the event) in the `HTML`
   `<input>` identified as **clickme** (the action) above. Here is
-  what happen when the button is clicked:
+  what happens when the button is clicked:
 
-  * send the "/onclick$clickme" HTTP request to the server
-  * asynchronously wait for the answer, when received place the
+  * the "/onclick$clickme" HTTP request is sent to the server
+  * asynchronously waits for the answer, when received places the
     message body into the `<div>` **placeholder**.
 
 .. highlight:: ada
@@ -654,7 +656,7 @@ to erase the content of the **field** widget.
 XML based Ajax
 ^^^^^^^^^^^^^^
 
-In many cases you'll like to update and/or clear multiple areas in your
+In many cases you'll want to update and/or clear multiple areas in your
 Web interface. With the templates above only a single action is
 possible. `AWS` provides support for `XML` based answers. In
 this `XML` documents it is possible to:
@@ -801,7 +803,7 @@ Here is an example of such XML document::
 To register an `Ajax` action to a specific tag id a macro can be
 used. It is named `JS_ACTION` and defined in :file:`ajax_api.tjs`.
 The usage is similar to what is described in the previous section
-(see :ref:`Basic_Ajax_support`) except that in this case we use a macron
+(see :ref:`Basic_Ajax_support`) except that in this case we use a macro
 instead of an include file and we do not have to pass the placeholder.
 
 Let's revisit the first example above to use the `XML`
@@ -811,7 +813,7 @@ Let's revisit the first example above to use the `XML`
 
    @@INCLUDE@@@ aws.tjs
 
-  Must be included in every Web pages into the `<head>` tag.
+  Must be included in every Web page's `<head>` tag.
 
 * The AWS/Ajax API::
 
@@ -834,10 +836,10 @@ Let's revisit the first example above to use the `XML`
 
   Basically it places an **onclick** attribute (the event) in the `HTML`
   `<input>` identified as **clickme** (the action) above. Here is
-  what happen when the button is clicked:
+  what happens when the button is clicked:
 
-  * send the "/onclick$clickme" HTTP request to the server
-  * asynchronously wait for the XML answer, when received parse the
+  * the "/onclick$clickme" HTTP request is sent to the server
+  * asynchronously waits for the XML answer, when received parses the
     answer and perform the actions according to the `XML` content.
 
 To set the placeholder with "**new text**", the `XML` document
@@ -888,8 +890,8 @@ be used to chain multiple actions. Those templates are the function
 body used by the corresponding templates :file:`aws_action_replace.tjs`,
 :file:`aws_action_clear.tjs`.
 
-Let say you want to clear a widget, change the content of another one
-and calling one of your specific `JavaScript` routine when clicking on
+Suppose you want to clear a widget, change the content of another one
+and call one of your specific `JavaScript` routines when clicking on
 a button. It is not possible to have mutiple `onclick` events on
 the same widget, the solution is the following:
 
@@ -934,15 +936,15 @@ than the session as a session is global to the current Web browser
 whereas the context can be different for each individual web pages
 opened.
 
-Instead of parsing a whole page using `AWS.Templates` API the web blocks
+Instead of parsing a whole page using the `AWS.Templates` API the web blocks
 are registered independently using `AWS.Services.Web_Block.Registry`.
-The block is registered together with its templates and a callback to use
+The block is registered together with its templates and the callback to use
 to get user's data for this specific block with the given context.
 
 So using this API, instead of having a set of callbacks returning an
 `AWS.Response.Data` and where the final rendering is to be done
 by the client code, we have a set of callbacks that returns a
-`Translate_Set`. The client just have to fill the set with the
+`Translate_Set`. The client just has to fill the set with the
 data corresponding to the actual request and possibly using the
 context. The final rendering is done by the provided services in
 `Web_Block.Registry`.
@@ -1359,8 +1361,9 @@ Web Cross-References
 When building an `Ajax` Web applications it is required to give ids to
 web elements to be able to reference them. It is also quite common to
 use CSS to give such and such item a specific style. After some time
-it is quite difficult to keep track of all those ids. Are they all
-used ? Don't we reference an id that does not exist anymore ?
+it is quite difficult to keep track of all those ids. This services helps
+answer if they are all used, or we reference an id that does not exist
+anymore.
 
 `webxref` has been designed to help finding such problems.
 
@@ -1430,7 +1433,7 @@ the initial handshake to open a WebSocket is done in pure HTTP protocol. Past
 this initial handshake the socket is switching protocol from HTTP to the one
 called WebSocket protocol.
 
-It is not needed to know the protocol to use the WebSockets, AWS comes with
+It is not necessary to know the protocol used is WebSockets, AWS comes with
 some high level services on the server side and also on the client side.
 
 .. _WebSockets_on_the_client:
@@ -1444,10 +1447,10 @@ WebSocket::
 
  ws = AWS.WebSocket.open('ws://localhost:8080/echo');
 
-This basically create a WebSocket and contact the local server using
+This basically creates a WebSocket and contacts the local server using
 port 8080.
 
-This method is declared into :file:`aws.tjs` which must be included::
+This method is declared in :file:`aws.tjs` which must be included::
 
  @@INCLUDE@@@ aws.tjs
 
@@ -1456,10 +1459,10 @@ A WebSocket Javascript's object has four method's callbacks:
 *onopen*
   Called when the WebSocket has been opened. This means that the
   initial handshake with the server has been accepted. At this point the
-  WebSocket is ready to send and received messages.
+  WebSocket is ready to send and receive messages.
 
 *onmessage*
-  Called for every incoming message. This callback receive a single
+  Called for every incoming message. This callback receives a single
   parameter which is the event. The actual message data can be found in
   **e.data**.
 
@@ -1473,7 +1476,7 @@ A WebSocket Javascript's object has four method's callbacks:
   example. This callback takes a single parameter which is the error
   message.
 
-AWS comes with default implementation of those callbacks. With the
+AWS comes with default implementations of these callbacks. With the
 two optional WebSocket constructor parameters it can be configured to
 fit most needs::
 
