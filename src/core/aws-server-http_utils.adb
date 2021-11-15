@@ -1421,8 +1421,7 @@ package body AWS.Server.HTTP_Utils is
               (LA.Server.Log, LA.Log_Data, "sc-status",
                Messages.Image (Status_Code));
             Log.Set_Field
-              (LA.Server.Log, LA.Log_Data, "sc-bytes",
-               Utils.Image (Integer (Length)));
+              (LA.Server.Log, LA.Log_Data, "sc-bytes", Utils.Image (Length));
 
             Log.Write (LA.Server.Log, LA.Log_Data);
          end;
@@ -2353,7 +2352,10 @@ package body AWS.Server.HTTP_Utils is
          --  then the end of the stream will be determined by closing the
          --  connection. [RFC 1945 - 7.2.2] See the Will_Close local variable.
 
-         if Length /= Resources.Undefined_Length then
+         if Length /= Resources.Undefined_Length
+           and then not Response.Has_Header
+                          (Answer, Messages.Content_Length_Token)
+         then
             Net.Buffered.Put_Line (Sock, Messages.Content_Length (Length));
          end if;
 

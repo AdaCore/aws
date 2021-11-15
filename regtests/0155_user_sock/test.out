@@ -16,8 +16,8 @@ HTTP/1.1 200 OK
 Date: xxx, xx xxx xxxx xx:xx:xx xxx
 Server: AWS (Ada Web Server) vx.y
 Connection: close
-Content-Type: text/html
 Content-Length: 22
+Content-Type: text/html
 
 response from U_Socket
 --

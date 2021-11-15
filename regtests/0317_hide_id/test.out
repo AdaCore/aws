@@ -18,9 +18,9 @@ User-Agent: AWS (Ada Web Server) v##.#
 Date:
 Server: justme_server
 Connection: close
+Content-Length: 16
 X-Answer: 1st-First
 Content-Type: text/html
-Content-Length: 16
 
 <p>Hello world !
 @@@ SENT ( 180/ 180 buffer usage) @@@
@@ -44,9 +44,9 @@ User-Agent: justme_client
 Date:
 Server: justme_server
 Connection: close
+Content-Length: 16
 X-Answer: 2nd-Second
 Content-Type: text/html
-Content-Length: 16
 
 <p>Hello world !
 @@@ SENT ( 181/ 181 buffer usage) @@@
@@ -69,9 +69,9 @@ Accept-Language: fr, ru, us
 Date:
 Server: justme_server
 Connection: close
+Content-Length: 16
 X-Answer: 3rd-Third
 Content-Type: text/html
-Content-Length: 16
 
 <p>Hello world !
 @@@ SENT ( 180/ 180 buffer usage) @@@
