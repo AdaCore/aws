@@ -15,7 +15,7 @@ Sending e-mail
 .. index:: SMTP
 .. index:: Simple Mail Transfer Protocol
 
-`AWS` provides a complete API to send e-mail using `SMTP`
+`AWS` provides a complete API for sending e-mail using the `SMTP`
 protocol. You need to have access to an SMTP server to use this
 feature. The API covers sending simple mail with text message and/or
 with `MIME` attachments (base64 encoded). Here are the steps to
@@ -34,7 +34,8 @@ send a simple e-mail:
 
 * Send the e-mail
 
-  To send an e-mail there is many different API. Let's send a simple text mail::
+  To send an e-mail there are many different APIs. Let's send a simple text
+  mail::
 
    Status : SMTP.Status;
 
@@ -50,11 +51,11 @@ send a simple e-mail:
 
 * Check that everything is ok
 
-  Using above status data it is possible to check that the message was
-  sent or not by the server. The status contain a code and an error
+  Using the Status data it is possible to check whether the message was
+  or wasn't sent by the server. The status contains a code and an error
   message, both of them can be retrieved using specific routines,
   see :ref:`AWS.SMTP`. It is also possible to check that the call was
-  successful with `SMTP.Is_Ok` routine::
+  successful with the `SMTP.Is_Ok` routine::
 
    if not SMTP.Is_Ok (Status) then
       Put_Line ("Can't send message: " & SMTP.Status_Message (Status));
@@ -63,11 +64,11 @@ send a simple e-mail:
 In the above example, the message content was given as a string but it
 is possible to specify a disk file. `AWS` can also send MIME messages
 either from disk files or with in memory base64 encoded binary
-data. The API provides also a way to send messages to multiple
+data. The API also provides a way to send messages to multiple
 recipients at the same time and to send messages with alternative
-contents (text and HTML for example). These features are not described here,
-complete documentation can be found on the spec see :ref:`AWS.SMTP` and
-:ref:`AWS.SMTP.Client`.
+content (text and HTML for example). These features are not described here,
+complete documentation for the specification can be found at :ref:`AWS.SMTP`
+and :ref:`AWS.SMTP.Client`.
 
 .. _Retrieving_e-mail:
 
@@ -92,7 +93,7 @@ We describes here the `POP` API. For a complete description see
   The first step is to authenticate using a user name and
   password. `AWS` supports two methods one called `Clear_Text`
   which is the most used and another one `APOP` which is more secure but
-  almost not supported by `ISP` for the moment (and will probably
+  typically not supported by `ISP` at this time (and will probably
   never be supported as a more secure protocol named `SPA` -Secure
   Password Authentication- could be used instead)::
 
@@ -111,7 +112,7 @@ We describes here the `POP` API. For a complete description see
 
    Bytes : constant Natural := POP.Size (Mailbox);
 
-* Retreiving individual e-mail
+* Retreiving individual e-mails
 
   Each message is numbered starting from 1. A function named `Get`
   will return a message given its mailbox's number::
@@ -139,7 +140,7 @@ We describes here the `POP` API. For a complete description see
 
    Print_All_Subjects (Mailbox, Remove => True);
 
-  It exists a set of routines on a `POP.Message` object to get the subject
+  There exist a set of routines on a `POP.Message` object to get the subject
   the content, the date or any headers. It is also possible to work with
   attachments. See point below.
 
@@ -172,7 +173,7 @@ We describes here the `POP` API. For a complete description see
 
    Write_All_Attachments (Message);
 
-  It is also possible to retrieve the attachment's filename, the content
+  It is also possible to retrieve the attachment's filename and the content
   as a memory stream. See :ref:`AWS.POP`.
 
 * Closing the connection
