@@ -148,6 +148,29 @@ is
    Error_Answer : Response.Data;
    Request      : AWS.Status.Data renames LA.Stat.all;
 
+   procedure Finalize;
+   --  Free resources on return from Protocol_Handler_V2
+
+   procedure Process_Error (E : Exception_Occurrence);
+   --  Call LA.Server.Exception_Handler and Log_Commit in last exception
+   --  handlers.
+
+   Finalizer : AWS.Utils.Finalizer (Finalize'Access) with Unreferenced;
+   S         : HTTP2.Stream.Set.Object;
+
+   --------------
+   -- Finalize --
+   --------------
+
+   procedure Finalize is
+   begin
+      AWS.Status.Set.Free (Request);
+
+      for T of S loop
+         AWS.Status.Set.Free (T.Status.all);
+      end loop;
+   end Finalize;
+
    -----------------
    -- Handle_Body --
    -----------------
@@ -724,6 +747,23 @@ is
       end;
    end Handle_Message;
 
+   -------------------
+   -- Process_Error --
+   -------------------
+
+   procedure Process_Error (E : Exception_Occurrence) is
+   begin
+      LA.Server.Exception_Handler
+        (E,
+         LA.Server.Error_Log,
+         AWS.Exceptions.Data'(False, LA.Line, LA.Stat.all),
+         Error_Answer);
+
+      Log_Commit
+        (Ctx.HTTP.all, Error_Answer, LA.Stat.all,
+         Response.Content_Length (Error_Answer));
+   end Process_Error;
+
    --------------------------
    -- Queue_Settings_Frame --
    --------------------------
@@ -791,15 +831,9 @@ begin
       use type Containers.Count_Type;
       use type HTTP2.Stream.State_Kind;
 
-      procedure Finalize;
-      --  Free resources on return from Protocol_Handler_V2
-
-      Finalizer : AWS.Utils.Finalizer (Finalize'Access) with Unreferenced;
-
       Max_Stream    : constant Containers.Count_Type :=
                         Containers.Count_Type
                           (Settings.Max_Concurrent_Streams);
-      S             : HTTP2.Stream.Set.Object;
       Stream_Opened : Containers.Count_Type := 0;
       Last_SID      : HTTP2.Stream.Id := 0;
       In_Header     : Boolean := False;
@@ -807,19 +841,6 @@ begin
       --  (RFC 7450, 5.5).
 
       Exit_On_Empty_Answers : Boolean := False;
-
-      --------------
-      -- Finalize --
-      --------------
-
-      procedure Finalize is
-      begin
-         AWS.Status.Set.Free (Request);
-
-         for T of S loop
-            AWS.Status.Set.Free (T.Status.all);
-         end loop;
-      end Finalize;
 
    begin
       --  We now need to answer to the request made during the upgrade
@@ -1146,20 +1167,10 @@ exception
 
       AWS.Log.Write
         (LA.Server.Error_Log,
-         Request,
-         "Exception handler bug "
-         & Utils.CRLF_2_Spaces (Exception_Information (E)));
+         LA.Stat.all,
+         Utils.CRLF_2_Spaces (Exception_Information (E)));
 
-      Error_Answer := Response.Build
-        (Status_Code  => Messages.S400,
-         Content_Type => "text/plain",
-         Message_Body => Exception_Message (E));
-
-      LA.Server.Exception_Handler
-        (E,
-         LA.Server.Error_Log,
-         AWS.Exceptions.Data'(False, LA.Line, Request),
-         Error_Answer);
+      Process_Error (E);
 
       LA.Server.Slots.Mark_Phase (LA.Line, Server_Response);
 
@@ -1179,27 +1190,7 @@ exception
                        else Messages.S400),
          Message   => Exception_Message (E)).Send (Sock.all);
 
-      if
-        Exception_Identity (E) =
-        Parameters.Too_Many_Parameters'Identity
-      then
-         Error_Answer := Response.Build
-           (Status_Code  => Messages.S403,
-            Content_Type => "text/plain",
-            Message_Body => Ada.Exceptions.Exception_Message (E));
-
-      else
-         Error_Answer := Response.Build
-           (Status_Code  => Messages.S400,
-            Content_Type => "text/plain",
-            Message_Body => Ada.Exceptions.Exception_Message (E));
-      end if;
-
-      LA.Server.Exception_Handler
-        (E,
-         LA.Server.Error_Log,
-         AWS.Exceptions.Data'(False, LA.Line, Request),
-         Error_Answer);
+      Process_Error (E);
 
       LA.Server.Slots.Mark_Phase (LA.Line, Server_Response);
 
@@ -1208,15 +1199,10 @@ exception
 
       AWS.Log.Write
         (LA.Server.Error_Log,
-         Request,
-         "Exception handler bug "
-         & Utils.CRLF_2_Spaces (Exception_Information (E)));
+         LA.Stat.all,
+         Utils.CRLF_2_Spaces (Exception_Information (E)));
 
-      LA.Server.Exception_Handler
-        (E,
-         LA.Server.Error_Log,
-         AWS.Exceptions.Data'(False, LA.Line, Request),
-         Error_Answer);
+      Process_Error (E);
 
       HTTP2.Frame.GoAway.Create
         (Stream_Id => 1,

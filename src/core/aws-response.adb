@@ -59,6 +59,7 @@ package body AWS.Response is
       else
          Set.Message_Body (Result, Message_Body);
          Set.Content_Type (Result, Content_Type);
+         Set.Content_Length (Result);
       end if;
 
       return Result;
@@ -146,11 +147,12 @@ package body AWS.Response is
    is
       Result : Data;
    begin
-      Set.Status_Code   (Result, Status_Code);
-      Set.Content_Type  (Result, Content_Type);
-      Set.Data_Encoding (Result, Encoding);
-      Set.Message_Body  (Result, Message_Body);
-      Set.Cache_Control (Result, Cache_Control);
+      Set.Status_Code    (Result, Status_Code);
+      Set.Content_Type   (Result, Content_Type);
+      Set.Data_Encoding  (Result, Encoding);
+      Set.Message_Body   (Result, Message_Body);
+      Set.Cache_Control  (Result, Cache_Control);
+      Set.Content_Length (Result);
       return Result;
    end Build;
 
@@ -169,6 +171,7 @@ package body AWS.Response is
       Set.Data_Encoding (Result, Encoding);
       Set.Message_Body  (Result, UString_Message);
       Set.Cache_Control (Result, Cache_Control);
+      Set.Content_Length (Result);
       return Result;
    end Build;
 
@@ -187,6 +190,7 @@ package body AWS.Response is
       Set.Data_Encoding (Result, Encoding);
       Set.Message_Body  (Result, Message_Body);
       Set.Cache_Control (Result, Cache_Control);
+      Set.Content_Length (Result);
       return Result;
    end Build;
 

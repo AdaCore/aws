@@ -173,7 +173,7 @@ package body AWS.HTTP2.Message is
                Set_Body;
 
                if Size /= Resources.Undefined_Length then
-                  O.Headers.Add
+                  O.Headers.Update
                     (Messages.Content_Length_Token, Utils.Image (Size));
                end if;
             end if;
@@ -286,7 +286,7 @@ package body AWS.HTTP2.Message is
                               & Utils.Image (Natural (Last))
                               & "/" & Utils.Image (Natural (Size)));
 
-                           O.Headers.Add
+                           O.Headers.Update
                              (Messages.Content_Length_Token,
                               Utils.Image (R_Length));
 
@@ -300,7 +300,7 @@ package body AWS.HTTP2.Message is
                   end;
 
                elsif Size /= Resources.Undefined_Length then
-                  O.Headers.Add
+                  O.Headers.Update
                     (Messages.Content_Length_Token, Utils.Image (Size));
                end if;
             end;
