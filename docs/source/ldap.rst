@@ -112,6 +112,6 @@ The steps required to read information from an LDAP server are:
 
 See :ref:`AWS.LDAP.Client` for all high level supported API and documentation.
 
-Note that for complete information about `AWS/LDAP` you you should read
-an LDAP API description. `AWS/LDAP` is only a binding and follow the
+Note that for complete information about `AWS/LDAP` you should read
+an LDAP API description. `AWS/LDAP` is only a binding and follows the
 LDAP API closely.
