@@ -7,7 +7,7 @@ Resources
 .. index:: Resources
 .. index:: Self dependant
 
-`AWS` support embedded resources. It means that it is possible to build
+`AWS` supports embedded resources. It means that it is possible to build
 a fully self dependent executable. This is useful when distributing a
 server. The server program contains the code but also the images (`PNG`,
 `JPEG`, `GIF`), the templates, the `HTML` pages... more
@@ -24,7 +24,7 @@ To embbed the files into the executable you must build a resource
 tree. This task is greatly simplified using :file:`AWSRes` tool. For
 example let's say that you want to build a simple server with a single
 page containing some text and one PNG image. The text is handled
-directly in the callback procedure and contain a reference to the
+directly in the callback procedure and contains a reference to the
 image :file:`logo.png`. To build the resource tree::
 
   $ awsres logo.png
@@ -50,7 +50,7 @@ This is really the simplest step. The resource tree must be linked
 with your executable, to do so you just have to 'with' the
 resource tree root into one of your program unit. This will ensure
 that the resource tree will be compiled and linked into the
-executable. `AWS` and `Templates_Parser know` about resource
+executable. `AWS` and `Templates_Parser` know about resource
 files and will pick them up if available.
 
 Note that this is transparent to users. It is possible to build the
