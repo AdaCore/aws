@@ -7,9 +7,9 @@ Using SOAP
 .. index:: SOAP
 .. index:: Simple Object Access Protocol
 
-`SOAP` can be used to implements Web Services. The `SOAP`
+`SOAP` can be used to implement Web Services. The `SOAP`
 implementation uses `AWS HTTP` as the transport layer. `SOAP` is
-platforms and languages independent, to ensure a good
+platform and language independent, to ensure good
 inter-operability, `AWS/SOAP` implementation has been validated through
 `http://validator.soapware.org/ <http://validator.soapware.org/>`_, the version number listed on
 this server corresponds to the AWS version string
@@ -18,20 +18,20 @@ this server corresponds to the AWS version string
 
 This `SOAP` implementation is certainly one with the higher level
 of abstraction. No need to mess with a serializer, to know what is a
-payload or be an `XML` expert. All the low level stuffs are
+payload or be an `XML` expert. All the low level details are
 completely hidden as the `SOAP` type system has been binded as
 much as possible to the Ada type system.
 
 .. index:: WSDL
 .. index:: Web Service Definition Language
 
-The `SOAP` type system has been relaxed to be compatible with
+The `SOAP` type system has been relaxed to be compatible with the
 `WSDL` based `SOAP` implementation. In these implementations, types
 are generally (as in the Microsoft implementation) not part of the
 payload and should be taken from the `WSDL` (Web Services Description
 Language). `AWS/SOAP` is not `WSDL` compliant at this stage, all
-such types are binded into the Ada type system as strings. It is up to
-the programer to convert such strings to the desired type.
+such types are bound into the Ada type system as strings. It is up to
+the programmer to convert such strings to the desired type.
 
 .. _SOAP_Client:
 
@@ -179,7 +179,7 @@ callback procedure:
 SOAP helpers
 ------------
 
-There is two ways to help building the `SOAP`
+There are two ways to help building the `SOAP`
 callbacks. `AWS` provides a `SOAP` specific callback, the spec is::
 
  function SOAP_Callback
@@ -187,7 +187,7 @@ callbacks. `AWS` provides a `SOAP` specific callback, the spec is::
     Payload    : in Message.Payload.Object;
     Request    : in AWS.Status.Data) return AWS.Response.Data;
 
-With both solutions exposed below, `AWS` retrieve the
+With both solutions exposed below, `AWS` retrieves the
 `SOAPAction` and the Payload from the `SOAP` request. This
 is transparent to the user.
 
@@ -195,7 +195,7 @@ is transparent to the user.
 
   .. index:: Utils.SOAP_Wrapper
 
-  It is possible to dispatch to such callback by using the
+  It is possible to dispatch to such a callback by using the
   `SOAP.Utils.SOAP_Wrapper` generic routine::
 
    generic
@@ -234,13 +234,13 @@ is transparent to the user.
 
   .. index:: SOAP Dispatcher
 
-  `AWS` provides also a `SOAP` specific dispatcher. This
-  dispatcher will automatically calls a standard `HTTP` or
+  `AWS` also provides a `SOAP` specific dispatcher. This
+  dispatcher will automatically call a standard `HTTP` or
   `SOAP` callback depending on the request. If `SOAPAction` is
   specified (i.e. it is a `SOAP` request), the dispatcher will call
   the `SOAP` callback otherwise it will call the standard `HTTP`
   callback. This is by far the easiest integration procedure. Using
-  dispatcher the above code will be written::
+  the SOAP dispatcher the above code would be re-written as::
 
    function SOAP_CB
      (SOAPAction : in String;

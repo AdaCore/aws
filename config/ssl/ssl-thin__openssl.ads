@@ -768,6 +768,15 @@ package SSL.Thin is
      with Import, Convention => C, External_Name => "__aws_OpenSSL_version";
    --  Returns version information line
 
+   -------------------------------------
+   -- OPENSSL thread related routines --
+   -------------------------------------
+
+   procedure OPENSSL_thread_stop
+     with Import, Convention => C,
+          External_Name => "__aws_OPENSSL_thread_stop";
+   --  Deallocates resources associated with the current thread
+
    -------------------------------
    -- Context control routines  --
    -------------------------------

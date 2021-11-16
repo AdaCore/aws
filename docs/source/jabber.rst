@@ -6,7 +6,7 @@ Jabber
 
 .. index:: Jabber
 
-`AWS` support part of the Jabber protocol. At this stage only two kind
+`AWS` supports part of the Jabber protocol. At this stage only two kinds
 of messages are supported:
 
 * Presence
@@ -18,7 +18,7 @@ of messages are supported:
   To send messages to a specific JID (Jabber ID)
 
 Note that if you want an application to check the presence or send
-message to users it is recommended to create a specific Jabber ID on the
+messages to users it is recommended to create a specific Jabber ID on the
 server for this application and ask users to accept this specific user
 to check their presence status.
 
@@ -32,7 +32,7 @@ Jabber presence
 
 To check for the presence of another JID you must first have the right
 to do so. The jabber server won't let you see presence of another JID
-unless the JID have permitted you to see its presence.
+unless the JID has permitted you to see its presence.
 
 * First declare the server and status objects::
 

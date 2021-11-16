@@ -142,6 +142,7 @@ procedure TLog_Proc (Extended_Fields : String) is
       I       : AWK.Count;
       Ext_Log : Boolean;
       Parser  : AWK.Session_Type;
+      H_Error : Boolean; -- To mark header error line
    begin
       AWK.Add_File ("tlog-" & Today & ".log", Parser);
       AWK.Add_File ("tlog_error-" & Today & ".log", Parser);
@@ -153,7 +154,6 @@ procedure TLog_Proc (Extended_Fields : String) is
       Text_IO.Put_Line ("> File : " & Hide_Date (AWK.File));
 
       while not AWK.End_Of_Data loop
-
          if AWK.End_Of_File then
             AWK.Get_Line;
             Text_IO.Put_Line ("> File : " & Hide_Date (AWK.File));
@@ -163,6 +163,8 @@ procedure TLog_Proc (Extended_Fields : String) is
 
          Ext_Log := Integer (AWK.NF)
                     = AWS.Config.Log_Extended_Fields_Length (Config);
+
+         H_Error := False;
 
          if AWK.Field (1) (1) = '#' then
             I := 0;
@@ -196,7 +198,37 @@ procedure TLog_Proc (Extended_Fields : String) is
             end if;
 
             for K in I + 1 .. AWK.Count'Min (9 + I, AWK.NF) loop
-               Text_IO.Put (AWK.Field (K));
+               declare
+                  V  : constant String    := AWK.Field (K);
+                  NE : constant AWK.Count := (if Ext_Log then 0 else 1);
+                  H2 : String renames AWS.HTTP_2;
+               begin
+                  case K + NE is
+                     when 7 =>
+                        H_Error := V = "/header/line/error";
+                        Text_IO.Put (V);
+                     when 8 =>
+                        if not H_Error
+                          and then AWS.Client.HTTP_Default = HTTPv2
+                          and then V'Length >= H2'Length
+                          and then V (V'First .. V'First + H2'Length - 1) = H2
+                        then
+                           --  Mask HTTP/2 to HTTP/1.1 to have the same test
+                           --  output.
+
+                           Text_IO.Put
+                             (V (V'First .. V'First + 4) & "1.1"
+                              & V (V'Last
+                                   .. V'Last - 1 + V'Length - H2'Length));
+                        else
+                           Text_IO.Put (V);
+                        end if;
+
+                     when others =>
+                        Text_IO.Put (V);
+                  end case;
+               end;
+
                Text_IO.Put (" | ");
             end loop;
 
