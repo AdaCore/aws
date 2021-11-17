@@ -313,17 +313,14 @@ begin
             AWS.Log.Write
               (LA.Server.Error_Log,
                Request,
-               Utils.CRLF_2_Spaces
-                 (Ada.Exceptions.Exception_Information (E)));
+               Utils.CRLF_2_Spaces (Ada.Exceptions.Exception_Information (E)));
 
             Will_Close := True;
 
-            if CNF.HTTP2_Activated (LA.Server.Config) then
+            if AWS.Status.Protocol (Request) = AWS.Status.H2 then
                HTTP2.Frame.GoAway.Create
                  (Stream_Id => 0,
                   Error     => HTTP2.C_Protocol_Error).Send (Sock_Ptr.all);
-
-               Will_Close := True;
 
                exit For_Every_Request;
 
