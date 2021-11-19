@@ -317,7 +317,10 @@ begin
 
             Will_Close := True;
 
-            if AWS.Status.Protocol (Request) = AWS.Status.H2 then
+            if AWS.Status.Protocol (Request) = AWS.Status.H2
+              or else (CNF.HTTP2_Activated (LA.Server.Properties)
+                       and then not CNF.Security (LA.Server.Properties))
+            then
                HTTP2.Frame.GoAway.Create
                  (Stream_Id => 0,
                   Error     => HTTP2.C_Protocol_Error).Send (Sock_Ptr.all);
