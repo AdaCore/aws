@@ -335,7 +335,15 @@ package body AWS.HTTP2.Message is
                  and then (not Remove_CL or else Name /= CL)
                  and then Name /= Messages.Status_Token
                then
-                  O.Headers.Add (Item.Name, Item.Value);
+                  if Name in CL | CE then
+                     --  Do not duplicate Content-Length and Content-Encoding
+                     --  headers.
+
+                     O.Headers.Update (Item.Name, Item.Value);
+
+                  else
+                     O.Headers.Add (Item.Name, Item.Value);
+                  end if;
                end if;
             end;
          end loop;
@@ -391,7 +399,7 @@ package body AWS.HTTP2.Message is
 
    function To_Frames
      (Self   : in out Object;
-      Ctx    : in out Server.Context.Object;
+      Ctx    : Server.Context.Object;
       Stream : HTTP2.Stream.Object)
       return AWS.HTTP2.Frame.List.Object
    is

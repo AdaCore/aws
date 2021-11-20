@@ -108,6 +108,9 @@ package AWS.Net.Buffered is
    --  actually consume the character, this character will be returned by
    --  the next read operation on the socket.
 
+   function Pending (Socket : Socket_Type'Class) return Stream_Element_Count;
+   --  Returns number of bytes to read in sockets and cache
+
    procedure Read_Buffer
      (Socket : Socket_Type'Class;
       Data   : out Stream_Element_Array;
@@ -142,5 +145,12 @@ package AWS.Net.Buffered is
    procedure Shutdown (Socket : Socket_Type'Class);
    --  Shutdown and close the socket. Release all memory and resources
    --  associated with it.
+
+private
+
+   function Pending (Socket : Socket_Type'Class) return Stream_Element_Count is
+     (Socket.Pending +
+        (if Socket.C = null or else Socket.C.R_Cache = null then 0
+         else Socket.C.R_Cache.Last - Socket.C.R_Cache.First + 1));
 
 end AWS.Net.Buffered;

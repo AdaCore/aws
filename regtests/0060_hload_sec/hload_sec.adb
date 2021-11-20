@@ -18,9 +18,10 @@
 
 --  Test for heavy loading SSL server
 
+with Ada.Command_Line;
 with S_HLoad_Pack;
 
 procedure HLoad_Sec is
 begin
-   S_HLoad_Pack.Run;
+   S_HLoad_Pack.Run (Timed => Ada.Command_Line.Argument_Count > 0);
 end HLoad_Sec;

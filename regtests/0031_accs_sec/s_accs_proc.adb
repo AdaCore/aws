@@ -33,6 +33,8 @@ procedure S_Accs_Proc (Security : Boolean) is
 
    Client_Request_Count : constant := 10;
 
+   package Acceptors is new AWS.Net.Acceptors (Character, ASCII.NUL);
+
    Acceptor  : Acceptors.Acceptor_Type;
    Counter   : AWS.Utils.Counter (0);
    Semaphore : AWS.Utils.Semaphore;

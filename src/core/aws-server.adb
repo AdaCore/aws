@@ -37,6 +37,7 @@ with AWS.Config.Set;
 with AWS.Dispatchers.Callback;
 with AWS.Messages;
 with AWS.MIME;
+with AWS.Net.Buffered;
 with AWS.Net.WebSocket.Registry.Control;
 with AWS.Server.HTTP_Utils;
 with AWS.Server.Log;
@@ -61,12 +62,20 @@ package body AWS.Server is
    procedure Protocol_Handler_V2
      (LA            : in out Line_Attribute_Record;
       Will_Close    : out Boolean;
+      HTTP2_Ref     : HTTP2_Context_References.Ref;
       Check_Preface : Boolean := True);
    --  Handle the lines, this is where all the HTTP/2 protocol is defined
 
+   function Next_Request_Or_Give_Back
+     (LA     : in out Line_Attribute_Record;
+      Sock   : Socket_Access;
+      H2_Ref : HTTP2_Context_References.Ref) return Boolean;
+   --  Return True if there is something in socket read buffer
+
    function Accept_Socket_Serialized
-     (Server : not null access HTTP)
-      return not null access Net.Socket_Type'Class;
+     (Server : not null access HTTP;
+      Data   : out HTTP2_Context_References.Ref)
+      return not null Net.Socket_Access;
    --  Do a protected accept on the HTTP socket. It is not safe to call
    --  multiple accept on the same socket on some platforms.
 
@@ -80,8 +89,9 @@ package body AWS.Server is
    ------------------------------
 
    function Accept_Socket_Serialized
-     (Server : not null access HTTP)
-      return not null access Net.Socket_Type'Class
+     (Server : not null access HTTP;
+      Data   : out HTTP2_Context_References.Ref)
+      return not null Net.Socket_Access
    is
       New_Socket : Net.Socket_Access;
 
@@ -103,7 +113,8 @@ package body AWS.Server is
 
    begin
       loop
-         Net.Acceptors.Get (Server.Acceptor, New_Socket, Accept_Error'Access);
+         HTTP_Acceptors.Get
+           (Server.Acceptor, New_Socket, Data, Accept_Error'Access);
 
          if CNF.Security (Server.Properties)
            and then not New_Socket.Is_Secure
@@ -157,7 +168,7 @@ package body AWS.Server is
       Reuse_Address : Boolean         := False;
       IPv6_Only     : Boolean         := False) is
    begin
-      Net.Acceptors.Add_Listening
+      HTTP_Acceptors.Add_Listening
         (Web_Server.Acceptor, Host, Port, Family, IPv6_Only => IPv6_Only,
          Reuse_Address => Reuse_Address);
    end Add_Listening;
@@ -288,18 +299,15 @@ package body AWS.Server is
 
    procedure Give_Back_Socket
      (Web_Server : in out HTTP;
-      Socket     : not null access Net.Socket_Type'Class) is
+      Socket     : not null Net.Socket_Access) is
    begin
-      Net.Acceptors.Give_Back (Web_Server.Acceptor, Socket);
+      HTTP_Acceptors.Give_Back (Web_Server.Acceptor, Socket);
    end Give_Back_Socket;
 
    procedure Give_Back_Socket
-     (Web_Server : in out HTTP; Socket : Net.Socket_Type'Class)
-   is
-      S : constant not null Net.Socket_Access :=
-            new Net.Socket_Type'Class'(Socket);
+     (Web_Server : in out HTTP; Socket : Net.Socket_Type'Class) is
    begin
-      Give_Back_Socket (Web_Server, S);
+      Give_Back_Socket (Web_Server, new Net.Socket_Type'Class'(Socket));
    end Give_Back_Socket;
 
    ----------
@@ -333,8 +341,9 @@ package body AWS.Server is
             --  is serialized as some platforms do not handle properly
             --  multiple accepts on the same socket.
 
+            HTTP2_Ref     : HTTP2_Context_References.Ref;
             Socket        : Net.Socket_Access :=
-                              Accept_Socket_Serialized (TA.Server);
+                              Accept_Socket_Serialized (TA.Server, HTTP2_Ref);
             Need_Shutdown : Boolean;
             Will_Close    : Boolean;
          begin
@@ -349,14 +358,20 @@ package body AWS.Server is
 
             TA.Server.Slots.Set (Socket, TA.Line);
 
-            if Socket.Is_Secure
+            if not HTTP2_Ref.Is_Null then
+               AWS.Status.Set.Protocol (Request, AWS.Status.H2);
+               Protocol_Handler_V2
+                 (TA.all, Will_Close, HTTP2_Ref, Check_Preface => False);
+
+            elsif Socket.Is_Secure
               and then Net.SSL.Socket_Type (Socket.all).ALPN_Get
                        = Messages.H2_Token
               and then CNF.HTTP2_Activated (TA.Server.Config)
             then
                --  Protocol is secure H2
                AWS.Status.Set.Protocol (Request, AWS.Status.H2);
-               Protocol_Handler_V2 (TA.all, Will_Close);
+               Protocol_Handler_V2 (TA.all, Will_Close, Null_H2_Ref);
+
             else
                Protocol_Handler (TA.all);
                Will_Close := False;
@@ -364,12 +379,20 @@ package body AWS.Server is
 
             TA.Server.Slots.Release (TA.Line, Need_Shutdown);
 
-            if Need_Shutdown or else Will_Close then
+            if Need_Shutdown then
                Socket.Shutdown;
 
                --  Don't use Socket.Free, it does not deallocate Socket
 
                Net.Free (Socket);
+
+            elsif Will_Close then
+               TA.Server.Slots.Get_For_Shutdown (TA.Line, Socket);
+
+               if Socket /= null then
+                  Socket.Shutdown;
+                  TA.Server.Slots.Shutdown_Done (TA.Line);
+               end if;
             end if;
          end;
       end loop;
@@ -410,6 +433,55 @@ package body AWS.Server is
       return Result;
    end Line_Tasks;
 
+   -------------------------------
+   -- Next_Request_Or_Give_Back --
+   -------------------------------
+
+   function Next_Request_Or_Give_Back
+     (LA     : in out Line_Attribute_Record;
+      Sock   : Socket_Access;
+      H2_Ref : HTTP2_Context_References.Ref) return Boolean
+   is
+      use type AWS.Status.Protocol_State;
+      use type Ada.Streams.Stream_Element_Count;
+      Back_OK : Boolean;
+      Switch  : constant array (Boolean) of not null access function
+        (Socket : Net.Socket_Type'Class;
+         Events : Net.Wait_Event_Set) return Net.Event_Set :=
+        (True  => Net.Wait'Access,
+         False => Net.Check'Access);
+      Flag : constant Boolean := LA.Server.Slots.Free_Slots >
+               CNF.Free_Slots_Keep_Alive_Limit (LA.Server.Properties);
+   begin
+      if Net.Buffered.Pending (Sock.all) > 0 then
+         return True;
+      end if;
+
+      if not Switch (Flag)
+        (Sock.all, (Net.Input => True, others => False)) (Net.Input)
+      then
+         LA.Server.Slots.Prepare_Back (LA.Line, Back_OK);
+
+         if Back_OK then
+            HTTP_Acceptors.Give_Back
+              (LA.Server.Acceptor, Sock, H2_Ref, Success => Back_OK);
+
+            if not Back_OK then
+               AWS.Log.Write
+                 (LA.Server.Error_Log,
+                  "Could not put socket back into acceptor, line"
+                  & LA.Line'Img);
+
+               Sock.Shutdown;
+            end if;
+         end if;
+
+         return False;
+      end if;
+
+      return True;
+   end Next_Request_Or_Give_Back;
+
    --------------------------
    -- Session_Private_Name --
    --------------------------
@@ -428,6 +500,7 @@ package body AWS.Server is
    procedure Protocol_Handler_V2
      (LA            : in out Line_Attribute_Record;
       Will_Close    : out Boolean;
+      HTTP2_Ref     : HTTP2_Context_References.Ref;
       Check_Preface : Boolean := True) is separate;
 
    ------------------
@@ -494,7 +567,7 @@ package body AWS.Server is
      (Web_Server         : in out HTTP;
       Socket_Constructor : Net.Socket_Constructor) is
    begin
-      Net.Acceptors.Set_Socket_Constructor
+      HTTP_Acceptors.Set_Socket_Constructor
         (Web_Server.Acceptor, Socket_Constructor);
    end Set_Socket_Constructor;
 
@@ -569,7 +642,7 @@ package body AWS.Server is
       --  Net.Acceptors.Shutdown only sending command into task where the
       --  waiting for accept is.
 
-      Net.Acceptors.Shutdown (Web_Server.Acceptor);
+      HTTP_Acceptors.Shutdown (Web_Server.Acceptor);
 
       --  Release the slots
 
@@ -849,6 +922,7 @@ package body AWS.Server is
       ----------------
 
       procedure Mark_Phase (Index : Positive; Phase : Slot_Phase) is
+         Was : constant Slot_Phase := Table (Index).Phase;
          Mode : constant array (Boolean) of Timeout_Mode :=
                   (True => Force, False => Cleaner);
       begin
@@ -861,6 +935,12 @@ package body AWS.Server is
             raise Net.Socket_Error;
          end if;
 
+         pragma Assert
+           ((if Table (Index).Phase = Closed then Table (Index).Sock = null
+             else True),
+            Table (Index).Phase'Img & ' ' & Phase'Img
+            & ' ' & Boolean'Image (Table (Index).Sock = null));
+
          Table (Index).Phase_Time_Stamp := Real_Time.Clock;
          Table (Index).Phase := Phase;
 
@@ -870,6 +950,9 @@ package body AWS.Server is
          elsif Phase in Abortable_Phase then
             Net.Set_Timeout
               (Table (Index).Sock.all, Timeouts (Mode (Count = 0), Phase));
+
+         elsif Phase = Closed then
+            Table (Index).Sock := null;
          end if;
       end Mark_Phase;
 
@@ -943,14 +1026,12 @@ package body AWS.Server is
       -- Set --
       ---------
 
-      procedure Set
-        (Socket : not null access Net.Socket_Type'Class;
-         Index  : Positive) is
+      procedure Set (Socket : not null Net.Socket_Access; Index : Positive) is
       begin
          pragma Assert (Count > 0);
-
-         Table (Index).Sock := Socket_Access (Socket);
-         Table (Index).Alive_Counter := 0;
+         Table (Index).Phase            := Client_Header;
+         Table (Index).Sock             := Socket;
+         Table (Index).Alive_Counter    := 0;
          Table (Index).Alive_Time_Stamp := Ada.Calendar.Clock;
          Table (Index).Activity_Counter := Table (Index).Activity_Counter + 1;
          Count := Count - 1;
@@ -1136,7 +1217,7 @@ package body AWS.Server is
 
       --  Create the Web Server socket set
 
-      Net.Acceptors.Listen
+      HTTP_Acceptors.Listen
         (Acceptor            => Web_Server.Acceptor,
          Host                => CNF.Server_Host (Web_Server.Properties),
          Port                => CNF.Server_Port (Web_Server.Properties),

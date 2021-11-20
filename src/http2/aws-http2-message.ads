@@ -94,7 +94,7 @@ package AWS.HTTP2.Message is
 
    function To_Frames
      (Self   : in out Object;
-      Ctx    : in out Server.Context.Object;
+      Ctx    : Server.Context.Object;
       Stream : HTTP2.Stream.Object) return AWS.HTTP2.Frame.List.Object
      with Pre  => Self.Is_Defined,
           Post => To_Frames'Result.Length > 0

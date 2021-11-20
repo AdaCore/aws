@@ -31,7 +31,6 @@
 
 with Ada.Calendar;
 
-with AWS.Net.Acceptors;
 with AWS.Templates;
 
 package AWS.Server.Status is
@@ -55,7 +54,7 @@ package AWS.Server.Status is
    function Socket (Server : HTTP) return Net.Socket_Type'Class;
    --  Returns the main server's socket
 
-   function Sockets (Server : HTTP) return Net.Acceptors.Socket_List;
+   function Sockets (Server : HTTP) return Net.Socket_List;
    --  Returns all server's sockets
 
    function Port (Server : HTTP) return Positive;
@@ -76,6 +75,9 @@ package AWS.Server.Status is
 
    function Current_Connections (Server : HTTP) return Natural;
    --  Returns the current number of connections
+
+   function Active_Tasks (Server : HTTP) return Natural;
+   --  Returns the current number of active processing tasks
 
    function Is_Session_Activated (Server : HTTP) return Boolean;
    --  Returns True if the session feature has been activated

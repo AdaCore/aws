@@ -73,6 +73,34 @@ package body AWS.Net.Acceptors is
       To_Close : out    Socket_List;
       On_Error : access procedure (E : Exception_Occurrence) := null)
    is
+      Data : Data_Type;
+   begin
+      Get (Acceptor, Socket, Data, To_Close, On_Error);
+   end Get;
+
+   procedure Get
+     (Acceptor : in out Acceptor_Type;
+      Socket   : out    Socket_Access;
+      Data     : out    Data_Type;
+      On_Error : access procedure (E : Exception_Occurrence) := null)
+   is
+      To_Close : Socket_List;
+   begin
+      Get (Acceptor, Socket, Data, To_Close, On_Error);
+      Shutdown_And_Free (To_Close);
+   exception
+      when others =>
+         Shutdown_And_Free (To_Close);
+         raise;
+   end Get;
+
+   procedure Get
+     (Acceptor : in out Acceptor_Type;
+      Socket   : out    Socket_Access;
+      Data     : out    Data_Type;
+      To_Close : out    Socket_List;
+      On_Error : access procedure (E : Exception_Occurrence) := null)
+   is
       use type Sets.Socket_Count;
 
       function Accept_Listening return Boolean;
@@ -116,7 +144,8 @@ package body AWS.Net.Acceptors is
                Sets.Add
                  (Acceptor.Set,
                   New_Socket,
-                  Data => (Time => Real_Time.Clock, First => True),
+                  Data => (Time => Real_Time.Clock, First => True,
+                           Data => No_Data),
                   Mode => Sets.Input);
 
             exception
@@ -153,7 +182,7 @@ package body AWS.Net.Acceptors is
 
          elsif Ready then
             declare
-               Socket : Socket_Access;
+               SP     : Socket_Data;
                Bytes  : Stream_Element_Array (1 .. 16);
                Last   : Stream_Element_Offset;
             begin
@@ -169,11 +198,13 @@ package body AWS.Net.Acceptors is
 
                for J in 1 .. Last loop
                   if Bytes (J) = Socket_Command then
-                     Acceptor.Box.Get (Socket);
+                     Acceptor.Box.Get (SP);
                      Sets.Add
                        (Acceptor.Set,
-                        Socket,
-                        Data  => (Time => Real_Time.Clock, First => False),
+                        SP.Socket,
+                        Data  => (Time  => Real_Time.Clock,
+                                  First => False,
+                                  Data  => SP.Data),
                         Mode  => Sets.Input);
                   else
                      raise Constraint_Error;
@@ -208,8 +239,8 @@ package body AWS.Net.Acceptors is
       Timeout      : array (Boolean) of Real_Time.Time_Span;
       Oldest_Idx   : Sets.Socket_Count;
       Finalizer    : AWS.Utils.Finalizer (Finalize'Access) with Unreferenced;
-
       Wait_Timeout : Real_Time.Time_Span;
+      Data_Part    : Socket_Data_Type;
 
    begin
       Acceptor.Semaphore.Seize;
@@ -240,7 +271,9 @@ package body AWS.Net.Acceptors is
                Acceptor.Index := Acceptor.Index + 1;
 
             elsif Error or else Ready then
-               Sets.Remove_Socket (Acceptor.Set, Acceptor.Index, Socket);
+               Sets.Remove_Socket
+                 (Acceptor.Set, Acceptor.Index, Socket, Data_Part);
+               Data := Data_Part.Data;
 
                Acceptor.Last := Acceptor.Last - 1;
 
@@ -363,19 +396,21 @@ package body AWS.Net.Acceptors is
 
    procedure Give_Back
      (Acceptor : in out Acceptor_Type;
-      Socket   : not null access Socket_Type'Class;
+      Socket   : not null Socket_Access;
+      Data     : Data_Type := No_Data;
       Success  : out Boolean) is
    begin
-      Acceptor.Box.Add (Socket, Acceptor.Back_Queue_Size, Success);
+      Acceptor.Box.Add ((Socket, Data), Acceptor.Back_Queue_Size, Success);
    end Give_Back;
 
    procedure Give_Back
      (Acceptor : in out Acceptor_Type;
-      Socket   : not null access Socket_Type'Class)
+      Socket   : not null Socket_Access;
+      Data     : Data_Type := No_Data)
    is
       Success : Boolean;
    begin
-      Acceptor.Box.Add (Socket, Positive'Last, Success);
+      Acceptor.Box.Add ((Socket, Data), Positive'Last, Success);
 
       if not Success then
          raise Program_Error;
@@ -505,9 +540,9 @@ package body AWS.Net.Acceptors is
       -- Add --
       ---------
 
-      procedure Add (S : not null access Socket_Type'Class) is
+      procedure Add (S : not null Socket_Access) is
       begin
-         Sockets.Append (Socket_Access (S));
+         Sockets.Append (S);
       end Add;
 
       -----------
@@ -639,7 +674,7 @@ package body AWS.Net.Acceptors is
       ---------
 
       procedure Add
-        (S        : not null access Socket_Type'Class;
+        (S        : Socket_Data;
          Max_Size : Positive;
          Success  : out Boolean) is
       begin
@@ -647,7 +682,7 @@ package body AWS.Net.Acceptors is
                       and then Acceptor.W_Signal /= null;
 
          if Success then
-            Buffer.Append (Socket_Access (S));
+            Buffer.Append (S);
             Acceptor.W_Signal.Send ((1 => Socket_Command));
          end if;
       end Add;
@@ -658,14 +693,17 @@ package body AWS.Net.Acceptors is
 
       procedure Clear is
       begin
-         Shutdown_And_Free (Buffer);
+         for SP of Buffer loop
+            SP.Socket.Shutdown;
+            Free (SP.Socket);
+         end loop;
       end Clear;
 
       ---------
       -- Get --
       ---------
 
-      entry Get (S : out Socket_Access) when Size > 0 is
+      entry Get (S : out Socket_Data) when Size > 0 is
       begin
          S := Buffer.First_Element;
          Buffer.Delete_First;
