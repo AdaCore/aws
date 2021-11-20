@@ -64,8 +64,9 @@ procedure Protocol_Handler (LA : in out Line_Attribute_Record) is
    --  to the client using this socket. The value will be changed by
    --  Set_Close_Status.
 
-   Keep_Alive_Limit : constant Natural :=
-                        CNF.Free_Slots_Keep_Alive_Limit (LA.Server.Properties);
+   Keep_Alive_Close_Limit : constant Natural :=
+                              CNF.Keep_Alive_Close_Limit
+                                (LA.Server.Properties);
 
    Free_Slots   : Natural := 0;
 
@@ -94,14 +95,7 @@ begin
          Expectation_Failed : exception;
 
          Error_Answer : Response.Data;
-         Back_OK      : Boolean;
          First_Line   : Boolean := True;
-         Switch       : constant array (Boolean) of
-                          not null access function
-                            (Socket : Net.Socket_Type'Class;
-                             Events : Net.Wait_Event_Set) return Net.Event_Set
-                          := (True  => Net.Wait'Access,
-                              False => Net.Check'Access);
 
          function Send_Error_Answer return Boolean;
          --  Send Error_Answer to the client, returns False if an(other)
@@ -142,33 +136,14 @@ begin
             --  keep alive request.
 
             Sock_Ptr := LA.Server.Slots.Get (Index => LA.Line).Sock;
+            pragma Assert (Sock_Ptr /= null);
 
          else
             --  Wait/Check to get header (or timeout) and put the socket
             --  back into the acceptor to wait for next client request.
 
-            if not Switch (LA.Server.Slots.Free_Slots > 0)
-              (Sock_Ptr.all,
-               (Net.Input => True, others => False)) (Net.Input)
-            then
-               LA.Server.Slots.Prepare_Back (LA.Line, Back_OK);
-
-               if Back_OK then
-                  Net.Acceptors.Give_Back
-                    (LA.Server.Acceptor, Sock_Ptr, Back_OK);
-
-                  if not Back_OK then
-                     AWS.Log.Write
-                       (LA.Server.Error_Log,
-                        "Could not put socket back into acceptor, line"
-                        & LA.Line'Img);
-
-                     Sock_Ptr.Shutdown;
-                  end if;
-               end if;
-
-               exit For_Every_Request;
-            end if;
+            exit For_Every_Request when not Next_Request_Or_Give_Back
+              (LA, Sock_Ptr, Null_H2_Ref);
          end if;
 
          AWS.Status.Set.Reset (Request);
@@ -200,7 +175,9 @@ begin
 
          if AWS.Status.Protocol (Request) = AWS.Status.H2 then
             if CNF.HTTP2_Activated (LA.Server.Config) then
-               Protocol_Handler_V2 (LA, Will_Close, Check_Preface => False);
+               Protocol_Handler_V2
+                 (LA, Will_Close, Null_H2_Ref, Check_Preface => False);
+               exit For_Every_Request;
 
             else
                Error_Answer := Response.Build
@@ -242,7 +219,8 @@ begin
 
             Set_Close_Status
               (Request,
-               Keep_Alive => Free_Slots >= Keep_Alive_Limit,
+               Keep_Alive => HTTP_Acceptors.Length (LA.Server.Acceptor) <
+                             Keep_Alive_Close_Limit,
                Will_Close => Will_Close);
 
             --  Is there something to read ?
@@ -292,7 +270,8 @@ begin
            and then CNF.HTTP2_Activated (LA.Server.Config)
          then
             AWS.Status.Set.Protocol (Request, AWS.Status.H2C);
-            Protocol_Handler_V2 (LA, Will_Close);
+            Protocol_Handler_V2 (LA, Will_Close, Null_H2_Ref);
+            exit For_Every_Request;
          end if;
 
       exception

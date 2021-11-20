@@ -36,6 +36,7 @@ with AWS.HTTP2.Frame.Data;
 with AWS.HTTP2.Frame.Headers;
 with AWS.HTTP2.Frame.Window_Update;
 with AWS.HTTP2.HPACK;
+with AWS.Server.Context;
 with AWS.Messages;
 with AWS.Response.Set;
 with AWS.Status.Set;
@@ -45,7 +46,7 @@ package body AWS.HTTP2.Stream is
    use all type HTTP2.Frame.Kind_Type;
 
    procedure Parse_Headers
-     (Self : in out Object; Ctx : in out Server.Context.Object);
+     (Self : in out Object; Ctx : Server.Context.Object);
 
    -----------------
    -- Append_Body --
@@ -128,7 +129,7 @@ package body AWS.HTTP2.Stream is
    -------------------
 
    procedure Parse_Headers
-     (Self : in out Object; Ctx : in out Server.Context.Object)
+     (Self : in out Object; Ctx : Server.Context.Object)
    is
       L : Frame.List.Object renames Self.H_Frames;
       --  Complete header block (last frame must have the end of header flag
@@ -247,7 +248,7 @@ package body AWS.HTTP2.Stream is
 
    procedure Received_Frame
      (Self  : in out Object;
-      Ctx   : in out Server.Context.Object;
+      Ctx   : Server.Context.Object;
       Frame : HTTP2.Frame.Object'Class;
       Error : out Error_Codes)
    is

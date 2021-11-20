@@ -29,8 +29,8 @@
 
 --  Context data for the HTTP/2 implementation only
 
-limited with AWS.HTTP2.HPACK.Table;
-limited with AWS.HTTP2.Connection;
+with AWS.HTTP2.HPACK.Table;
+with AWS.HTTP2.Connection;
 
 package AWS.Server.Context is
 

@@ -88,7 +88,7 @@ package body AWS.Net.Generic_Sets is
 
    procedure Add
      (Set    : in out Socket_Set_Type;
-      Socket : Socket_Access;
+      Socket : not null Socket_Access;
       Data   : Data_Type;
       Mode   : Waiting_Mode)
    is
@@ -293,6 +293,31 @@ package body AWS.Net.Generic_Sets is
       Last : constant Socket_Count := Socket_Count (Set.Poll.Length);
    begin
       Socket := Set.Set (Index).Socket;
+
+      if Index < Last then
+         Set.Set (Index) := Set.Set (Last);
+      elsif Index > Last then
+         raise Constraint_Error;
+      end if;
+
+      --  Ensure that removed socket is not accessible
+
+      Set.Set (Last).Socket := null;
+      Set.Set (Last).Allocated := False;
+
+      Set.Poll.Remove (Positive (Index));
+   end Remove_Socket;
+
+   procedure Remove_Socket
+     (Set    : in out Socket_Set_Type;
+      Index  : Socket_Index;
+      Socket : out Socket_Access;
+      Data   : out Data_Type)
+   is
+      Last : constant Socket_Count := Socket_Count (Set.Poll.Length);
+   begin
+      Socket := Set.Set (Index).Socket;
+      Data   := Set.Set (Index).Data;
 
       if Index < Last then
          Set.Set (Index) := Set.Set (Last);

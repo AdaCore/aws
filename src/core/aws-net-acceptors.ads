@@ -39,13 +39,12 @@ with AWS.Utils;
 
 private with Ada.Real_Time;
 
+generic
+   type Data_Type is private;
+   No_Data : Data_Type;
 package AWS.Net.Acceptors is
 
    type Acceptor_Type is limited private;
-
-   package Socket_Lists is new Containers.Doubly_Linked_Lists (Socket_Access);
-
-   subtype Socket_List is Socket_Lists.List;
 
    procedure Listen
      (Acceptor            : in out Acceptor_Type;
@@ -104,10 +103,25 @@ package AWS.Net.Acceptors is
    procedure Get
      (Acceptor : in out Acceptor_Type;
       Socket   : out    Socket_Access;
+      Data     : out    Data_Type;
+      On_Error : access procedure (E : Exception_Occurrence) := null);
+   --  Idem but with Protocol out parameter
+
+   procedure Get
+     (Acceptor : in out Acceptor_Type;
+      Socket   : out    Socket_Access;
       To_Close : out    Socket_List;
       On_Error : access procedure (E : Exception_Occurrence) := null);
    --  Idem but with output socket list which have to be shutdowned and freed.
    --  It should be done out of critical section if any.
+
+   procedure Get
+     (Acceptor : in out Acceptor_Type;
+      Socket   : out    Socket_Access;
+      Data     : out    Data_Type;
+      To_Close : out    Socket_List;
+      On_Error : access procedure (E : Exception_Occurrence) := null);
+   --  Idem but with Protocol out parameter
 
    procedure Shutdown_And_Free (Set : Socket_List);
    --  Use this routine to shutdown and free list of sockets returned from Get
@@ -122,7 +136,8 @@ package AWS.Net.Acceptors is
 
    procedure Give_Back
      (Acceptor : in out Acceptor_Type;
-      Socket   : not null access Socket_Type'Class;
+      Socket   : not null Socket_Access;
+      Data     : Data_Type := No_Data;
       Success  : out Boolean);
    --  Give back socket which has been taken from Get routine above. Generally
    --  this is called from a different task while the Get routine is blocked
@@ -132,7 +147,8 @@ package AWS.Net.Acceptors is
 
    procedure Give_Back
      (Acceptor : in out Acceptor_Type;
-      Socket   : not null access Socket_Type'Class);
+      Socket   : not null Socket_Access;
+      Data     : Data_Type := No_Data);
    --  Idem but do not check sockets queue length
 
    procedure Shutdown (Acceptor : in out Acceptor_Type);
@@ -149,26 +165,34 @@ package AWS.Net.Acceptors is
 
 private
 
+   type Socket_Data is record
+      Socket : Socket_Access;
+      Data   : Data_Type;
+   end record;
+
+   package Socket_Data_Lists is new Ada.Containers.Doubly_Linked_Lists
+     (Socket_Data);
+
    protected type Socket_Box (Acceptor : not null access Acceptor_Type) is
 
       procedure Add
-        (S        : not null access Socket_Type'Class;
+        (S        : Socket_Data;
          Max_Size : Positive;
          Success  : out Boolean);
 
-      entry Get (S : out Socket_Access);
+      entry Get (S : out Socket_Data);
 
       function Size return Natural;
 
       procedure Clear;
 
    private
-      Buffer : Socket_List;
+      Buffer : Socket_Data_Lists.List;
    end Socket_Box;
 
    protected type Server_Sockets_Set is
 
-      procedure Add (S : not null access Socket_Type'Class);
+      procedure Add (S : not null Socket_Access);
 
       function Get return Socket_List;
 
@@ -182,6 +206,7 @@ private
 
    type Socket_Data_Type is record
       Time  : Real_Time.Time;
+      Data  : Data_Type;
       First : Boolean;
    end record;
 
@@ -189,8 +214,8 @@ private
 
    type Acceptor_Type is tagged limited record
       Set                 : Sets.Socket_Set_Type;
-      W_Signal            : access Socket_Type'Class;
-      R_Signal            : access Socket_Type'Class;
+      W_Signal            : Socket_Access;
+      R_Signal            : Socket_Access;
       Servers             : Server_Sockets_Set;
       Box                 : Socket_Box (Acceptor_Type'Access);
       Index               : Sets.Socket_Count;

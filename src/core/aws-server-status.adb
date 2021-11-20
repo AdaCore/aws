@@ -40,13 +40,25 @@ with AWS.Utils;
 
 package body AWS.Server.Status is
 
+   ------------------
+   -- Active_Tasks --
+   ------------------
+
+   function Active_Tasks (Server : HTTP) return Natural is
+   begin
+      return Server.Slots.N - Server.Slots.Free_Slots;
+   end Active_Tasks;
+
    -------------------------
    -- Current_Connections --
    -------------------------
 
    function Current_Connections (Server : HTTP) return Natural is
+      Result : constant Integer :=
+                 HTTP_Acceptors.Length (Server.Acceptor) - 2 +
+                 Active_Tasks (Server);
    begin
-      return Server.Slots.N - Server.Slots.Free_Slots;
+      return (if Result < 0 then 0 else Result);
    end Current_Connections;
 
    ----------
@@ -55,7 +67,7 @@ package body AWS.Server.Status is
 
    function Host (Server : HTTP) return String is
    begin
-      return Net.Acceptors.Server_Socket (Server.Acceptor).Get_Addr;
+      return HTTP_Acceptors.Server_Socket (Server.Acceptor).Get_Addr;
    end Host;
 
    --------------------
@@ -64,7 +76,7 @@ package body AWS.Server.Status is
 
    function Is_Any_Address (Server : HTTP) return Boolean is
    begin
-      return Net.Acceptors.Server_Socket (Server.Acceptor).Is_Any_Address;
+      return HTTP_Acceptors.Server_Socket (Server.Acceptor).Is_Any_Address;
    end Is_Any_Address;
 
    -------------
@@ -73,7 +85,7 @@ package body AWS.Server.Status is
 
    function Is_IPv6 (Server : HTTP) return Boolean is
    begin
-      return Net.Acceptors.Server_Socket (Server.Acceptor).Is_IPv6;
+      return HTTP_Acceptors.Server_Socket (Server.Acceptor).Is_IPv6;
    end Is_IPv6;
 
    ---------------------------
@@ -128,7 +140,7 @@ package body AWS.Server.Status is
 
    function Port (Server : HTTP) return Positive is
    begin
-      return Net.Get_Port (Net.Acceptors.Server_Socket (Server.Acceptor));
+      return Net.Get_Port (HTTP_Acceptors.Server_Socket (Server.Acceptor));
    end Port;
 
    ----------------------
@@ -150,16 +162,16 @@ package body AWS.Server.Status is
 
    function Socket (Server : HTTP) return Net.Socket_Type'Class is
    begin
-      return Net.Acceptors.Server_Socket (Server.Acceptor);
+      return HTTP_Acceptors.Server_Socket (Server.Acceptor);
    end Socket;
 
    -------------
    -- Sockets --
    -------------
 
-   function Sockets (Server : HTTP) return Net.Acceptors.Socket_List is
+   function Sockets (Server : HTTP) return Net.Socket_List is
    begin
-      return Net.Acceptors.Server_Sockets (Server.Acceptor);
+      return HTTP_Acceptors.Server_Sockets (Server.Acceptor);
    end Sockets;
 
    ----------------
@@ -451,7 +463,7 @@ package body AWS.Server.Status is
         Integer (Net.Get_FD (Socket (Server)))));
 
       Insert (Result, Assoc ("ACCEPTOR_LENGTH",
-        Net.Acceptors.Length (Server.Acceptor)));
+        HTTP_Acceptors.Length (Server.Acceptor)));
 
       Insert (Result, Assoc ("CURRENT_CONNECTIONS",
         Current_Connections (Server)));

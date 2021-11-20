@@ -18,9 +18,10 @@
 
 --  Test for heavy loading
 
+with Ada.Command_Line;
 with HLoad_Pack;
 
 procedure HLoad is
 begin
-   HLoad_Pack.Run ("http");
+   HLoad_Pack.Run ("http", Timed => Ada.Command_Line.Argument_Count > 0);
 end HLoad;

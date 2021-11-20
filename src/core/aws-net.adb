@@ -135,7 +135,13 @@ package body AWS.Net is
       Socket.C := null;
 
       if Cache /= null then
-         Cache.Ref_Count.Decrement (Value => Ref_Count);
+         begin
+            Cache.Ref_Count.Decrement (Value => Ref_Count);
+         exception
+            when Program_Error =>
+               --  Protected object can be finalized
+               return;
+         end;
 
          if Ref_Count = 0 then
             Free (Socket_Type'Class (Socket));

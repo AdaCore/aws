@@ -59,7 +59,6 @@ with AWS.HTTP2.Frame.List;
 with AWS.HTTP2.Frame.Ping;
 with AWS.HTTP2.Frame.RST_Stream;
 with AWS.HTTP2.Frame.Settings;
-with AWS.HTTP2.HPACK.Table;
 with AWS.HTTP2.Message.List;
 with AWS.HTTP2.Stream.Set;
 
@@ -73,6 +72,7 @@ separate (AWS.Server)
 procedure Protocol_Handler_V2
   (LA            : in out Line_Attribute_Record;
    Will_Close    : out Boolean;
+   HTTP2_Ref     : HTTP2_Context_References.Ref;
    Check_Preface : Boolean := True)
 is
    use Ada.Streams;
@@ -91,9 +91,7 @@ is
    --  encoded of a settings frame payload.
 
    procedure Handle_Control_Frame
-     (Frame   : HTTP2.Frame.Object'Class;
-      Streams : in out HTTP2.Stream.Set.Object;
-      Error   : out HTTP2.Error_Codes)
+     (Frame : HTTP2.Frame.Object'Class; Error : out HTTP2.Error_Codes)
      with Pre => Frame.Stream_Id = 0;
    --  Handle a control frame (Frame id = 0)
 
@@ -107,6 +105,10 @@ is
    procedure Queue_Settings_Frame;
    --  Queue server settings frame (default configuration)
 
+   function Create_H2_Reference return H2CR.Ref;
+
+   function Create_HTTP2_Context return Context.Object;
+
    Case_Sensitive_Parameters : constant Boolean :=
                                  CNF.Case_Sensitive_Parameters
                                    (LA.Server.Properties);
@@ -118,16 +120,14 @@ is
    Multislots       : constant Boolean :=
                         CNF.Max_Connection (LA.Server.Properties) > 1;
 
-   Keep_Alive_Limit : constant Natural :=
-                        CNF.Free_Slots_Keep_Alive_Limit (LA.Server.Properties);
+   Keep_Alive_Close_Limit : constant Natural :=
+                              CNF.Keep_Alive_Close_Limit
+                                (LA.Server.Properties);
 
    Sock             : constant Socket_Access :=
                         LA.Server.Slots.Get (Index => LA.Line).Sock;
 
-   Free_Slots : Natural := LA.Server.Slots.Free_Slots;
-
-   Settings   : aliased HTTP2.Connection.Object;
-   --  Connection settings
+   Free_Slots : Natural;
 
    Deferred_Messages : HTTP2.Message.List.Object;
    --  Deferreed messages waiting to be sent when the flow control window will
@@ -135,15 +135,6 @@ is
 
    Answers    : HTTP2.Frame.List.Object;
    --  Set of frames to be sent
-
-   Tab_Dec : aliased HTTP2.HPACK.Table.Object;
-   Tab_Enc : aliased HTTP2.HPACK.Table.Object;
-   --  ??? this table is created for a connection. we probably want to do
-   --  better and maybe set the pointer to this table into a frame object as
-   --  it is needed (and passed as parameter) for header & continuation frame.
-
-   Ctx : Context.Object
-     (LA.Server, LA.Line, Tab_Enc'Access, Tab_Dec'Access, Settings'Access);
 
    Error_Answer : Response.Data;
    Request      : AWS.Status.Data renames LA.Stat.all;
@@ -157,6 +148,37 @@ is
 
    Finalizer : AWS.Utils.Finalizer (Finalize'Access) with Unreferenced;
    S         : HTTP2.Stream.Set.Object;
+
+   -------------------------
+   -- Create_H2_Reference --
+   -------------------------
+
+   function Create_H2_Reference return H2CR.Ref is
+   begin
+      if HTTP2_Ref.Is_Null then
+         return Result : H2CR.Ref do
+            Result.Set (HTTP2_Context'(others => <>));
+         end return;
+
+      else
+         return HTTP2_Ref;
+      end if;
+   end Create_H2_Reference;
+
+   H2_Ref : constant H2CR.Ref := Create_H2_Reference;
+
+   --------------------------
+   -- Create_HTTP2_Context --
+   --------------------------
+
+   function Create_HTTP2_Context return Context.Object is
+      Ref : constant H2CR.Element_Access := H2_Ref.Unchecked_Get;
+   begin
+      return (LA.Server, LA.Line, Ref.Tab_Enc'Access, Ref.Tab_Dec'Access,
+              Ref.Settings'Access);
+   end Create_HTTP2_Context;
+
+   Ctx : constant Context.Object := Create_HTTP2_Context;
 
    --------------
    -- Finalize --
@@ -354,8 +376,6 @@ is
 
          AWS.Status.Reset_Body_Index (S.all);
 
-         LA.Server.Slots.Mark_Phase (LA.Line, Server_Processing);
-
          AWS.Status.Set.Uploaded (S.all);
 
          --  Record attachments into status data
@@ -385,10 +405,10 @@ is
 
    procedure Handle_Control_Frame
      (Frame   : HTTP2.Frame.Object'Class;
-      Streams : in out HTTP2.Stream.Set.Object;
       Error   : out HTTP2.Error_Codes)
    is
-      Add_FC : Integer;
+      Add_FC  : Integer;
+      Streams : HTTP2.Stream.Set.Object renames S;
    begin
       Ctx.Settings.Handle_Control_Frame (Frame, Answers, Add_FC, Error);
 
@@ -417,7 +437,7 @@ is
       Frame            : constant HTTP2.Frame.Settings.Object :=
                            HTTP2.Frame.Settings.Create (Settings_Payload);
    begin
-      Settings.Set (Frame.Values);
+      Ctx.Settings.Set (Frame.Values);
    end Handle_HTTP2_Settings;
 
    --------------------
@@ -461,8 +481,6 @@ is
            (LA.Server.Log, LA.Log_Data,
             "s-free-slots", Utils.Image (Free_Slots));
       end if;
-
-      LA.Server.Slots.Mark_Phase (LA.Line, Client_Data);
 
       declare
          R : Response.Data :=
@@ -719,10 +737,8 @@ is
          AWS.Server.Status.Port (LA.Server.all),
          CNF.Security (LA.Server.Properties));
 
-      Set_Close_Status
-        (Status,
-         Keep_Alive => Free_Slots >= Keep_Alive_Limit,
-         Will_Close => Will_Close);
+      Will_Close :=
+        HTTP_Acceptors.Length (LA.Server.Acceptor) >= Keep_Alive_Close_Limit;
 
       AWS.Status.Set.Keep_Alive (Status, not Will_Close);
 
@@ -783,8 +799,6 @@ begin
 
    LA.Log_Data := AWS.Log.Empty_Fields_Table;
 
-   HTTP2.Connection.Set (Settings, LA.Server.Properties);
-
    --  The first bytes on the connection should be a connection preface
 
    if Check_Preface then
@@ -806,23 +820,28 @@ begin
       end;
    end if;
 
-   --  Handle the settings frame now. There is two cases:
-   --  1. When upgrading from HTTP/1 (h2c) handle HTTP2-Settings payload
-   --     (a setting frame).
-   --  2. Read the first frame which should be the settings frame if using h2.
+   if HTTP2_Ref.Is_Null then
+      Ctx.Settings.Set (LA.Server.Properties);
 
-   if AWS.Status.Protocol (Request) = AWS.Status.H2C then
-      Handle_HTTP2_Settings;
+      --  Handle the settings frame now. There is two cases:
+      --  1. When upgrading from HTTP/1 (h2c) handle HTTP2-Settings payload
+      --     (a setting frame).
+      --  2. Read the first frame which should be the settings frame if using
+      --     h2.
 
-   else
-      --  First frame should be a setting frame
+      if AWS.Status.Protocol (Request) = AWS.Status.H2C then
+         Handle_HTTP2_Settings;
 
-      Settings.Set (Sock.all);
+      else
+         --  First frame should be a setting frame
+
+         Ctx.Settings.Set (Sock.all);
+      end if;
+
+      --  Now send AWS settings frame
+
+      Queue_Settings_Frame;
    end if;
-
-   --  Now send AWS settings frame
-
-   Queue_Settings_Frame;
 
    --  The maximum number of simultaneous stream has now been negociated
 
@@ -833,14 +852,12 @@ begin
 
       Max_Stream    : constant Containers.Count_Type :=
                         Containers.Count_Type
-                          (Settings.Max_Concurrent_Streams);
+                          (Ctx.Settings.Max_Concurrent_Streams);
       Stream_Opened : Containers.Count_Type := 0;
       Last_SID      : HTTP2.Stream.Id := 0;
       In_Header     : Boolean := False;
       --  Need to avoid unknown extension frame in the middle of a header block
       --  (RFC 7450, 5.5).
-
-      Exit_On_Empty_Answers : Boolean := False;
 
    begin
       --  We now need to answer to the request made during the upgrade
@@ -848,7 +865,7 @@ begin
       if AWS.Status.Protocol (Request) = AWS.Status.H2C then
          S.Insert
            (1,
-            HTTP2.Stream.Create (Sock,  1, Settings.Initial_Window_Size));
+            HTTP2.Stream.Create (Sock,  1, Ctx.Settings.Initial_Window_Size));
          Stream_Opened := Stream_Opened + 1;
 
          S (1).Status.all := Request;
@@ -864,13 +881,15 @@ begin
          Response.Set.Mode (Error_Answer, Response.No_Data);
 
          if not Deferred_Messages.Is_Empty then
+            LA.Server.Slots.Mark_Phase (LA.Line, Server_Response);
+
             declare
                M  : HTTP2.Message.Object := Deferred_Messages.First_Element;
                SM : constant HTTP2.Stream.Set.Maps.Reference_Type :=
                       S.Reference (M.Stream_Id);
             begin
                if SM.Flow_Control_Window > 0
-                 and then Settings.Flow_Control_Window > 0
+                 and then Ctx.Settings.Flow_Control_Window > 0
                then
                   Deferred_Messages.Delete_First;
 
@@ -886,8 +905,7 @@ begin
                      Deferred_Messages.Prepend (M);
                   else
                      if not Response.Keep_Alive (SM.Response.all) then
-                        Exit_On_Empty_Answers := True;
-                        Will_Close            := True;
+                        Will_Close := True;
                      end if;
 
                      Stream_Opened := Stream_Opened - 1;
@@ -905,8 +923,6 @@ begin
                Stream_Id : constant HTTP2.Stream.Id := Frame.Stream_Id;
                Stream    : access HTTP2.Stream.Object;
             begin
-               LA.Server.Slots.Mark_Phase (LA.Line, Server_Response);
-
                if Stream_Id = 0 then
                   Frame.Send (Sock.all);
 
@@ -916,7 +932,7 @@ begin
                   exit when Frame.Kind = K_Data
                     and then
                       Integer'Min
-                        (Settings.Flow_Control_Window,
+                        (Ctx.Settings.Flow_Control_Window,
                          S (Stream_Id).Flow_Control_Window)
                       < Integer (Frame.Length);
 
@@ -925,7 +941,7 @@ begin
                   --  Update connection Flow Control Window
 
                   if Frame.Kind = K_Data then
-                     Settings.Update_Flow_Control_Window
+                     Ctx.Settings.Update_Flow_Control_Window
                        (-Natural (Frame.Length));
                   end if;
 
@@ -948,19 +964,21 @@ begin
             end;
          end loop;
 
-         exit For_Every_Frame when Answers.Is_Empty
-           and then Exit_On_Empty_Answers
-           and then (for all ST of S => ST.State = HTTP2.Stream.Closed);
+         LA.Server.Slots.Mark_Phase (LA.Line, Client_Header);
+
+         exit For_Every_Frame when Stream_Opened = 0
+           and then Deferred_Messages.Is_Empty
+           and then Answers.Is_Empty
+           and then (Will_Close
+                     or else not Next_Request_Or_Give_Back (LA, Sock, H2_Ref));
 
          --  Get frame
-
-         LA.Server.Slots.Mark_Phase (LA.Line, Wait_For_Client);
 
          declare
             use type HTTP2.Error_Codes;
 
             Frame      : constant HTTP2.Frame.Object'Class :=
-                           HTTP2.Frame.Read (Sock.all, Settings);
+                           HTTP2.Frame.Read (Sock.all, Ctx.Settings.all);
             Stream_Id  : constant HTTP2.Stream_Id := Frame.Stream_Id;
             Prev_State : Stream.State_Kind;
             Error      : Error_Codes;
@@ -1059,7 +1077,7 @@ begin
 
                exit For_Every_Frame;
 
-            elsif not Frame.Is_Valid (Settings, Error) then
+            elsif not Frame.Is_Valid (Ctx.Settings.all, Error) then
                --  Send a GOAWAY response right now
 
                Go_Away (Error, "invalid frame " & Frame.Kind'Img);
@@ -1073,7 +1091,7 @@ begin
                exit For_Every_Frame;
 
             elsif Stream_Id = 0 then
-               Handle_Control_Frame (Frame, S, Error);
+               Handle_Control_Frame (Frame, Error);
 
                if Error /= HTTP2.C_No_Error then
                   Go_Away (Error, "invalid control frame " & Frame.Kind'Img);
@@ -1106,7 +1124,7 @@ begin
                      S.Insert
                        (Stream_Id,
                         HTTP2.Stream.Create
-                          (Sock, Stream_Id, Settings.Initial_Window_Size));
+                          (Sock, Stream_Id, Ctx.Settings.Initial_Window_Size));
                      Stream_Opened := Stream_Opened + 1;
                   end if;
                end if;
@@ -1136,6 +1154,8 @@ begin
                if S (Stream_Id).Is_Message_Ready
                  and then Prev_State < Stream.Half_Closed_Remote
                then
+                  LA.Server.Slots.Mark_Phase (LA.Line, Server_Processing);
+
                   if S (Stream_Id).Upload_State = Stream.Upload_Accepted then
                      Handle_Body (S (Stream_Id));
                      Deferred_Messages.Append (Handle_Message (S (Stream_Id)));
@@ -1146,6 +1166,7 @@ begin
                   end if;
 
                elsif S (Stream_Id).Upload_State = Stream.Upload_Oversize then
+                  LA.Server.Slots.Mark_Phase (LA.Line, Server_Processing);
                   Handle_Message (S (Stream_Id));
                end if;
             end if;
@@ -1159,8 +1180,12 @@ begin
    end;
 
 exception
-   when Net.Socket_Error =>
-      null;
+   when E : Net.Socket_Error =>
+      Will_Close := True;
+
+      if HTTP2.Debug then
+         Ada.Text_IO.Put_Line ("#ex " & Exception_Message (E));
+      end if;
 
    when E : HTTP2.Protocol_Error =>
       Will_Close := True;
@@ -1172,12 +1197,14 @@ exception
 
       Process_Error (E);
 
-      LA.Server.Slots.Mark_Phase (LA.Line, Server_Response);
-
    when E : Net.Buffered.Data_Overflow
       | Parameters.Too_Long_Parameter
       | Parameters.Too_Many_Parameters
       =>
+
+      if HTTP2.Debug then
+         Ada.Text_IO.Put_Line ("#ex " & Exception_Message (E));
+      end if;
 
       Will_Close := True;
 
@@ -1192,8 +1219,6 @@ exception
 
       Process_Error (E);
 
-      LA.Server.Slots.Mark_Phase (LA.Line, Server_Response);
-
    when E : others =>
       Will_Close := True;
 
@@ -1203,6 +1228,8 @@ exception
          Utils.CRLF_2_Spaces (Exception_Information (E)));
 
       Process_Error (E);
+
+      LA.Server.Slots.Mark_Phase (LA.Line, Server_Response);
 
       HTTP2.Frame.GoAway.Create
         (Stream_Id => 1,
