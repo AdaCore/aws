@@ -44,10 +44,13 @@ private with Ada.Exceptions;
 private with Ada.Finalization;
 private with Ada.Task_Attributes;
 private with Ada.Real_Time;
+private with GNATCOLL.Refcount;
 private with System;
 
 private with AWS.Log;
 private with AWS.Net.Acceptors;
+private with AWS.HTTP2.Connection;
+private with AWS.HTTP2.HPACK.Table;
 private with AWS.Hotplug;
 private with AWS.Utils;
 
@@ -217,7 +220,7 @@ package AWS.Server is
 
    procedure Give_Back_Socket
      (Web_Server : in out HTTP;
-      Socket     : not null access Net.Socket_Type'Class);
+      Socket     : not null Net.Socket_Access);
    --  Idem.
    --  Use Socket_Access to avoid memory reallocation for already allocated
    --  sockets.
@@ -251,8 +254,17 @@ package AWS.Server is
 
 private
 
+   pragma Warnings
+     (Off,
+      """Ada"" is already use-visible through previous use_clause at aws-net");
    use Ada;
+   pragma Warnings (On);
+
+   pragma Warnings
+     (Off,
+      """Exceptions"" is already use-visible through previous use_clause at ");
    use Ada.Exceptions;
+   pragma Warnings (On);
 
    procedure Default_Unexpected_Exception_Handler
      (E      : Exception_Occurrence;
@@ -321,7 +333,7 @@ private
    ----------
 
    type Slot is record
-      Sock                  : Socket_Access  := null;
+      Sock                  : Socket_Access;
       Socket_Taken          : Boolean        := False;
       Phase                 : Slot_Phase     := Closed;
       Phase_Time_Stamp      : Real_Time.Time := Real_Time.Clock;
@@ -387,9 +399,7 @@ private
       function Free_Slots return Natural;
       --  Returns number of free slots
 
-      procedure Set
-        (Socket : not null access Net.Socket_Type'Class;
-         Index  : Positive);
+      procedure Set (Socket : not null Net.Socket_Access; Index  : Positive);
       --  Mark slot at position Index to be used. This slot will be associated
       --  with Socket. Phase set to Wait_For_Client.
 
@@ -468,6 +478,21 @@ private
 
    type Line_Set_Access is access Line_Set;
 
+   type HTTP2_Context is record
+      Tab_Enc  : aliased HTTP2.HPACK.Table.Object;
+      Tab_Dec  : aliased HTTP2.HPACK.Table.Object;
+      Settings : aliased HTTP2.Connection.Object;
+   end record;
+
+   package HTTP2_Context_References is new GNATCOLL.Refcount.Shared_Pointers
+     (HTTP2_Context);
+
+   package H2CR renames HTTP2_Context_References;
+
+   Null_H2_Ref : constant HTTP2_Context_References.Ref := H2CR.Null_Ref;
+
+   package HTTP_Acceptors is new Net.Acceptors (H2CR.Ref, Null_H2_Ref);
+
    ----------
    -- HTTP --
    ----------
@@ -483,7 +508,7 @@ private
       --  True when server is shutdown. This will be set to False when server
       --  will be started.
 
-      Acceptor           : Net.Acceptors.Acceptor_Type;
+      Acceptor           : HTTP_Acceptors.Acceptor_Type;
       --  This is the socket set where server socket and keep alive sockets
       --  waiting for read availability.
 

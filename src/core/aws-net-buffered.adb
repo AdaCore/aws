@@ -244,7 +244,7 @@ package body AWS.Net.Buffered is
       --  Data could remain in internal socket buffer, if there is some
       --  space on the buffer, read the socket.
 
-      if Last < Data'Last and then Pending (Socket) > 0 then
+      if Last < Data'Last and then Net.Pending (Socket) > 0 then
          Receive (Socket, Data (Last + 1 .. Data'Last), Last);
       end if;
    end Read;

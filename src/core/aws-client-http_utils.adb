@@ -448,7 +448,8 @@ package body AWS.Client.HTTP_Utils is
             end;
          end if;
 
-         Connection.Opened := False;
+         Connection.Opened             := False;
+         Connection.Disconnect_Counter := Connection.Disconnect_Counter + 1;
 
          if Connection.Socket /= null then
             Connection.Socket.Shutdown;

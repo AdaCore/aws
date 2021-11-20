@@ -30,6 +30,7 @@ with AWS.Config.Set;
 with AWS.MIME;
 with AWS.Parameters;
 with AWS.Response;
+with AWS.Server.Log;
 with AWS.Server.Status;
 with AWS.Status;
 with AWS.Utils;
@@ -160,7 +161,7 @@ package body HLoad_Pack is
 
       task type Client is
          entry Start (Name : String);
-         entry Stop;
+         entry Stop (Disconnect_Counter : out Natural);
       end Client;
 
       WS  : Server.HTTP;
@@ -217,17 +218,23 @@ package body HLoad_Pack is
             end;
          end loop;
 
-         AWS.Client.Close (Connect);
+         accept Stop (Disconnect_Counter : out Natural) do
+            Disconnect_Counter := AWS.Client.Disconnect_Counter (Connect);
+         end Stop;
 
-         accept Stop;
+         AWS.Client.Close (Connect);
 
       exception
          when E : others =>
             Text_IO.Put_Line ("client " & To_String (Name) & " aborted.");
             Text_IO.Put_Line
               (" => " & Exceptions.Exception_Information (E));
-            accept Stop;
+            accept Stop (Disconnect_Counter : out Natural) do
+               Disconnect_Counter := AWS.Client.Disconnect_Counter (Connect);
+            end Stop;
       end Client;
+
+      Disconnect_Counter : Natural;
 
    begin
       Interval_Timer.Reset;
@@ -238,6 +245,10 @@ package body HLoad_Pack is
       Config.Set.Security       (CNF, Protocol = "https");
       Config.Set.Max_Connection (CNF, Max_Line);
       Config.Set.Session        (CNF, True);
+
+      if Timed then
+         Server.Log.Start_Error (WS, Text_IO.Put_Line'Access, "error");
+      end if;
 
       Server.Start (WS, CB'Access, CNF);
 
@@ -251,8 +262,11 @@ package body HLoad_Pack is
       end loop;
 
       for K in Clients'Range loop
-         Clients (K).Stop;
-         Text_IO.Put_Line ("client " & Utils.Image (K) & " stopped.");
+         Clients (K).Stop (Disconnect_Counter);
+         Text_IO.Put_Line
+           ("client " & Utils.Image (K) & " stopped"
+            & (if Timed then ',' & Disconnect_Counter'Img & " reconnects"
+               else "") & '.');
       end loop;
 
       Server.Shutdown (WS);

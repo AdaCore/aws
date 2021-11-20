@@ -34,6 +34,7 @@ pragma Ada_2012;
 --  socket too, this is controlled with the Security boolean on rountine
 --  below. The corresponding implementation will be selected at build time.
 
+with Ada.Containers.Doubly_Linked_Lists;
 with Ada.Exceptions;
 with Ada.Finalization;
 with Ada.Streams;
@@ -56,6 +57,11 @@ package AWS.Net is
    type Socket_Access is access all Socket_Type'Class;
 
    type Socket_Set is array (Positive range <>) of Socket_Access;
+
+   package Socket_Lists is new Containers.Doubly_Linked_Lists
+     (Socket_Access);
+
+   subtype Socket_List is Socket_Lists.List;
 
    subtype FD_Type is Integer;
    --  Represents an external socket file descriptor

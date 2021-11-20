@@ -87,10 +87,10 @@ package AWS.Net.Generic_Sets is
 
    procedure Add
      (Set    : in out Socket_Set_Type;
-      Socket : Socket_Access;
+      Socket : not null Socket_Access;
       Data   : Data_Type;
       Mode   : Waiting_Mode)
-   with Inline, Pre => Socket /= null;
+   with Inline;
    --  Add socket and associated data to the set
 
    procedure Set_Mode
@@ -209,6 +209,14 @@ package AWS.Net.Generic_Sets is
    --  Delete socket from Index position from the Set and return delete socket
    --  access. If the Index is not last position in the set, last socket would
    --  be placed instead of deleted one.
+
+   procedure Remove_Socket
+     (Set    : in out Socket_Set_Type;
+      Index  : Socket_Index;
+      Socket : out Socket_Access;
+      Data   : out Data_Type)
+     with Pre => In_Range (Set, Index);
+   --  Idem but with Data
 
    procedure Update_Socket
      (Set     : in out Socket_Set_Type;

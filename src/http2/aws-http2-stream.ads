@@ -28,7 +28,7 @@
 ------------------------------------------------------------------------------
 
 with AWS.Net;
-with AWS.Server.Context;
+limited with AWS.Server.Context;
 
 with AWS.Headers;
 with AWS.HTTP2.Frame;
@@ -94,7 +94,7 @@ package AWS.HTTP2.Stream is
 
    procedure Received_Frame
      (Self  : in out Object;
-      Ctx   : in out Server.Context.Object;
+      Ctx   : Server.Context.Object;
       Frame : HTTP2.Frame.Object'Class;
       Error : out Error_Codes)
      with Pre => Self.Is_Defined and then Frame.Is_Defined;

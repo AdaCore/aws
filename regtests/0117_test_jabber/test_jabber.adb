@@ -40,6 +40,9 @@ procedure Test_Jabber is
    use Ada.Exceptions;
    use AWS.Jabber.Client;
 
+   package Acceptors is new AWS.Net.Acceptors
+     (Utils.Null_Record, (others => <>));
+
    Verbose  : constant Boolean := False;
    Acceptor : Acceptors.Acceptor_Type;
 

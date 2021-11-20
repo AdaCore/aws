@@ -570,6 +570,9 @@ package AWS.Client is
    function Get_Socket (Connection : HTTP_Connection) return Net.Socket_Access;
    --  Retrieve the socket used for the connection
 
+   function Disconnect_Counter (Connection : HTTP_Connection) return Natural;
+   --  Retrieve the number of disconnections during the connection life
+
 private
 
    use Ada;
@@ -639,6 +642,7 @@ private
       H2_Stream_Id       : AWS.HTTP2.Stream_Id          := 0;
       Auth               : Authentication_Set;
       Opened             : Boolean                      := False;
+      Disconnect_Counter : Natural                      := 0;
       Persistent         : Boolean;
       Streaming          : Boolean;
       Cookie             : Unbounded_String;
@@ -685,9 +689,12 @@ private
    --  if necessary.
 
    function Get_Socket (Connection : HTTP_Connection) return Net.Socket_Access
-      is (Connection.Socket);
+   is (Connection.Socket);
 
    function HTTP_Version  (Connection : HTTP_Connection) return HTTP_Protocol
-     is (Connection.HTTP_Version);
+   is (Connection.HTTP_Version);
+
+   function Disconnect_Counter (Connection : HTTP_Connection) return Natural is
+     (Connection.Disconnect_Counter);
 
 end AWS.Client;
