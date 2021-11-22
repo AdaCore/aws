@@ -117,15 +117,12 @@ is
                         CNF.Log_Extended_Fields_Length
                           (LA.Server.Properties) > 0;
 
-   Multislots       : constant Boolean :=
-                        CNF.Max_Connection (LA.Server.Properties) > 1;
-
    Keep_Alive_Close_Limit : constant Natural :=
                               CNF.Keep_Alive_Close_Limit
                                 (LA.Server.Properties);
 
    Sock             : constant Socket_Access :=
-                        LA.Server.Slots.Get (Index => LA.Line).Sock;
+                        LA.Server.Slots.Get_Socket (Index => LA.Line);
 
    Free_Slots : Natural;
 
@@ -471,10 +468,6 @@ is
       --  of them, try to abort one of them.
 
       LA.Server.Slots.Increment_Slot_Activity_Counter (LA.Line, Free_Slots);
-
-      if Multislots and then Free_Slots = 0 then
-         Force_Clean (LA.Server.all);
-      end if;
 
       if Extended_Log then
          AWS.Log.Set_Field
