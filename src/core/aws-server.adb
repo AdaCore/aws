@@ -444,42 +444,56 @@ package body AWS.Server is
    is
       use type AWS.Status.Protocol_State;
       use type Ada.Streams.Stream_Element_Count;
-      Back_OK : Boolean;
-      Switch  : constant array (Boolean) of not null access function
-        (Socket : Net.Socket_Type'Class;
-         Events : Net.Wait_Event_Set) return Net.Event_Set :=
-        (True  => Net.Wait'Access,
-         False => Net.Check'Access);
-      Flag : constant Boolean := LA.Server.Slots.Free_Slots >
-               CNF.Free_Slots_Keep_Alive_Limit (LA.Server.Properties);
+      Back_OK    : Boolean;
+      Waiter     : FD_Set_Access;
+      Wait_Count : Natural;
+      Wait       : constant Boolean := LA.Server.Slots.Free_Slots >=
+                     CNF.Free_Slots_Keep_Alive_Limit (LA.Server.Properties);
    begin
+      --  If there are few slots available and we have many of them, try to
+      --  release one of them.
+
+      if LA.Server.Slots.N > 1 and then not Wait then
+         Force_Clean (LA.Server.all);
+      end if;
+
       if Net.Buffered.Pending (Sock.all) > 0 then
          return True;
       end if;
 
-      if not Switch (Flag)
-        (Sock.all, (Net.Input => True, others => False)) (Net.Input)
-      then
-         LA.Server.Slots.Prepare_Back (LA.Line, Back_OK);
+      if Wait then
+         LA.Server.Slots.Get_Wait_For_Data (LA.Line, Waiter);
 
-         if Back_OK then
-            HTTP_Acceptors.Give_Back
-              (LA.Server.Acceptor, Sock, H2_Ref, Success => Back_OK);
+         Waiter.Wait
+           (CNF.Cleaner_Client_Header_Timeout (LA.Server.Properties),
+            Wait_Count);
+         LA.Server.Slots.Mark_Phase (LA.Line, Client_Header);
 
-            if not Back_OK then
-               AWS.Log.Write
-                 (LA.Server.Error_Log,
-                  "Could not put socket back into acceptor, line"
-                  & LA.Line'Img);
-
-               Sock.Shutdown;
-            end if;
+         if Wait_Count > 0 and then Waiter.Status (2) (Net.Input) then
+            return True;
          end if;
 
-         return False;
+      elsif Sock.Check ((Net.Input => True, others => False)) (Net.Input) then
+         return True;
       end if;
 
-      return True;
+      LA.Server.Slots.Prepare_Back (LA.Line, Back_OK);
+
+      if Back_OK then
+         HTTP_Acceptors.Give_Back
+           (LA.Server.Acceptor, Sock, H2_Ref, Success => Back_OK);
+
+         if not Back_OK then
+            AWS.Log.Write
+              (LA.Server.Error_Log,
+               "Could not put socket back into acceptor, line"
+               & LA.Line'Img);
+
+            Sock.Shutdown;
+         end if;
+      end if;
+
+      return False;
    end Next_Request_Or_Give_Back;
 
    --------------------------
@@ -674,7 +688,7 @@ package body AWS.Server is
                All_Lines_Terminated := False;
 
                Slot_Index := K;
-               Slot_State := Web_Server.Slots.Get (K).Phase;
+               Slot_State := Web_Server.Slots.Phase (K);
             end if;
          end loop;
 
@@ -765,7 +779,10 @@ package body AWS.Server is
 
          function Test_Slot (S : Positive) return Boolean is
          begin
-            if Is_Abortable (S) then
+            if Table (S).Phase = Wait_For_Client then
+               Table (S).Wait_Breaker.Send ((1 => 0));
+
+            elsif Is_Abortable (S) then
                Get_For_Shutdown (S, Socket);
 
                if Socket /= null then
@@ -867,6 +884,15 @@ package body AWS.Server is
          end if;
       end Get_Peername;
 
+      ----------------
+      -- Get_Socket --
+      ----------------
+
+      function Get_Socket (Index : Positive) return Socket_Access is
+      begin
+         return Table (Index).Sock;
+      end Get_Socket;
+
       ---------------------
       -- Get_Socket_Info --
       ---------------------
@@ -889,6 +915,43 @@ package body AWS.Server is
             end;
          end if;
       end Get_Socket_Info;
+
+      -----------------------
+      -- Get_Wait_For_Data --
+      -----------------------
+
+      procedure Get_Wait_For_Data
+        (Index     : Positive;
+         Reference : out not null FD_Set_Access)
+      is
+         use Ada.Streams;
+         S : Slot renames Table (Index);
+      begin
+         if S.Wait_For_Data.Length = 0 then
+            S.Wait_Receiver.Socket_Pair (S.Wait_Breaker);
+            S.Wait_Receiver.Set_Timeout (0.0);
+            S.Wait_For_Data.Add
+              (S.Wait_Receiver.Get_FD, (Net.Input => True, others => False));
+
+            S.Wait_For_Data.Add
+              (S.Sock.Get_FD, (Net.Input => True, others => False));
+         else
+            while S.Wait_Receiver.Pending > 0 loop
+               declare
+                  Buffer : Stream_Element_Array (1 .. 8);
+                  Last   : Ada.Streams.Stream_Element_Offset;
+               begin
+                  S.Wait_Receiver.Receive (Buffer, Last);
+               end;
+            end loop;
+
+            S.Wait_For_Data.Replace (2, S.Sock.Get_FD);
+         end if;
+
+         S.Phase := Wait_For_Client;
+
+         Reference := S.Wait_For_Data'Access;
+      end Get_Wait_For_Data;
 
       -------------------------------------
       -- Increment_Slot_Activity_Counter --
