@@ -590,12 +590,12 @@ package body AWS.Net.Acceptors is
 
    procedure Shutdown (Acceptor : in out Acceptor_Type) is
    begin
+      Acceptor.Box.Shutdown;
+
       if Acceptor.W_Signal /= null then
          Acceptor.W_Signal.Shutdown;
          Free (Acceptor.W_Signal);
       end if;
-
-      Acceptor.Box.Clear;
 
       --  Loop trying to shutdown directly or over Get routine
 
@@ -678,26 +678,13 @@ package body AWS.Net.Acceptors is
          Max_Size : Positive;
          Success  : out Boolean) is
       begin
-         Success := Natural (Buffer.Length) < Max_Size
-                      and then Acceptor.W_Signal /= null;
+         Success := Open and then Natural (Buffer.Length) < Max_Size;
 
          if Success then
             Buffer.Append (S);
             Acceptor.W_Signal.Send ((1 => Socket_Command));
          end if;
       end Add;
-
-      -----------
-      -- Clear --
-      -----------
-
-      procedure Clear is
-      begin
-         for SP of Buffer loop
-            SP.Socket.Shutdown;
-            Free (SP.Socket);
-         end loop;
-      end Clear;
 
       ---------
       -- Get --
@@ -708,6 +695,20 @@ package body AWS.Net.Acceptors is
          S := Buffer.First_Element;
          Buffer.Delete_First;
       end Get;
+
+      --------------
+      -- Shutdown --
+      --------------
+
+      procedure Shutdown is
+      begin
+         Open := False;
+
+         for SP of Buffer loop
+            SP.Socket.Shutdown;
+            Free (SP.Socket);
+         end loop;
+      end Shutdown;
 
       ----------
       -- Size --

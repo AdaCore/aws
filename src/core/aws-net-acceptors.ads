@@ -184,9 +184,10 @@ private
 
       function Size return Natural;
 
-      procedure Clear;
+      procedure Shutdown;
 
    private
+      Open   : Boolean := True;
       Buffer : Socket_Data_Lists.List;
    end Socket_Box;
 

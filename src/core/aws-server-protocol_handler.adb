@@ -73,9 +73,6 @@ procedure Protocol_Handler (LA : in out Line_Attribute_Record) is
    Extended_Log : constant Boolean :=
                     CNF.Log_Extended_Fields_Length (LA.Server.Properties) > 0;
 
-   Multislots   : constant Boolean :=
-                    CNF.Max_Connection (LA.Server.Properties) > 1;
-
    Request : AWS.Status.Data renames LA.Stat.all;
 
 begin
@@ -135,7 +132,7 @@ begin
             --  First arrived. We do not need to wait for fast comming next
             --  keep alive request.
 
-            Sock_Ptr := LA.Server.Slots.Get (Index => LA.Line).Sock;
+            Sock_Ptr := LA.Server.Slots.Get_Socket (Index => LA.Line);
             pragma Assert (Sock_Ptr /= null);
 
          else
@@ -203,13 +200,6 @@ begin
 
             LA.Server.Slots.Increment_Slot_Activity_Counter
               (LA.Line, Free_Slots);
-
-            --  If there is no more slot available and we have many
-            --  of them, try to abort one of them.
-
-            if Multislots and then Free_Slots = 0 then
-               Force_Clean (LA.Server.all);
-            end if;
 
             if Extended_Log then
                AWS.Log.Set_Field

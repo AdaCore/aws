@@ -35,7 +35,9 @@ with AWS.Config;
 with AWS.Default;
 with AWS.Dispatchers;
 with AWS.Exceptions;
+with AWS.Net.Poll_Events;
 with AWS.Net.SSL;
+with AWS.Net.Std;
 with AWS.Response;
 with AWS.Status;
 
@@ -334,6 +336,9 @@ private
 
    type Slot is record
       Sock                  : Socket_Access;
+      Wait_For_Data         : aliased Net.Poll_Events.Set (2);
+      Wait_Receiver         : Net.Std.Socket_Type;
+      Wait_Breaker          : Net.Std.Socket_Type;
       Socket_Taken          : Boolean        := False;
       Phase                 : Slot_Phase     := Closed;
       Phase_Time_Stamp      : Real_Time.Time := Real_Time.Clock;
@@ -342,12 +347,14 @@ private
       Activity_Counter      : Natural := 0;
       Alive_Counter         : Natural;
    end record;
-
-   --  Abortable is set to true when the line can be aborted by closing the
-   --  associated socket. Phase_Time_Stamp is the last time when Phase of line
-   --  has been changed. The line in Abortable state and with oldest
-   --  Phase_Time_Stamp could be closed.
-   --  Also a line is closed after Keep_Open_Duration seconds of inactivity.
+   --  Wait_For_Data is set of 2 sockets. First is to abort waiting, second is
+   --  main socket waiting for start of new client request in the slot.
+   --  Wait_Receiver is the first socket in set above.
+   --  What Breaker is the socket to send byte will be received by
+   --  Wait_Receiver.
+   --  Phase_Time_Stamp is the last time when Phase of line has been changed.
+   --  The line in Abortable state and with oldest Phase_Time_Stamp could be
+   --  closed.
 
    type Slot_Set is array (Positive range <>) of Slot;
 
@@ -359,6 +366,8 @@ private
       Peername : String (1 .. Peername_Length);
       FD       : Integer;
    end record;
+
+   type FD_Set_Access is access all Net.Poll_Events.Set;
 
    -----------
    -- Slots --
@@ -403,6 +412,9 @@ private
       --  Mark slot at position Index to be used. This slot will be associated
       --  with Socket. Phase set to Wait_For_Client.
 
+      procedure Get_Wait_For_Data
+        (Index : Positive; Reference : out not null FD_Set_Access);
+
       procedure Get_For_Shutdown
         (Index : Positive; Socket : out Socket_Access);
       --  Get socket from the slot for shutdown, Slot phase is set to
@@ -428,6 +440,8 @@ private
       --  Returns information about socket (FD and Peername) associated with
       --  slot Index. If the socket is not opened returns
       --  (FD => 0, Peername => "-")
+
+      function Get_Socket (Index : Positive) return Socket_Access;
 
       function Get_Peername (Index : Positive) return String;
       --  Returns the peername for socket at position Index
