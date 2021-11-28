@@ -881,8 +881,9 @@ begin
                SM : constant HTTP2.Stream.Set.Maps.Reference_Type :=
                       S.Reference (M.Stream_Id);
             begin
-               if SM.Flow_Control_Window > 0
-                 and then Ctx.Settings.Flow_Control_Window > 0
+               if (SM.Flow_Control_Window > 0
+                   and then Ctx.Settings.Flow_Control_Window > 0)
+                 or else not M.Has_Body
                then
                   Deferred_Messages.Delete_First;
 
@@ -909,7 +910,9 @@ begin
 
          --  Send back frames if any waiting
 
-         while not Answers.Is_Empty loop
+         while not Answers.Is_Empty
+           and then Net.Buffered.Pending (Sock.all) = 0
+         loop
             declare
                Frame     : constant HTTP2.Frame.Object'Class :=
                              Answers.First_Element;
