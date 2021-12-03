@@ -34,6 +34,7 @@ pragma Ada_2012;
 with Ada.Command_Line;
 with Ada.Exceptions;
 with Ada.Streams;
+with Ada.Strings.Fixed;
 with Ada.Strings.Unbounded;
 with Ada.Text_IO;
 
@@ -52,6 +53,7 @@ procedure Priorities is
    use all type Ada.Strings.Unbounded.Unbounded_String;
 
    package ASU renames Ada.Strings.Unbounded;
+   package ASF renames Ada.Strings.Fixed;
 
    Server : Net.Socket_Type'Class := Net.Socket (False);
    Client : Net.SSL.Socket_Type;
@@ -68,13 +70,14 @@ procedure Priorities is
    Previous_Chipher : ASU.Unbounded_String;
 
    Ciphers : ASU.Unbounded_String :=
-               To_Unbounded_String (if GNUTLS then "NORMAL" else "DEFAULT");
-
-   No_TLS13 : constant ASU.Unbounded_String :=
-                To_Unbounded_String ("NORMAL:-VERS-TLS1.3");
-   --  TLS 1.3 gives no informative error message in GNUTLS 3.6.4:
-   --  "The TLS connection was non-properly terminated."
-   --  It say nothing about lack of common ciphers.
+               To_Unbounded_String
+                 (if GNUTLS then "NORMAL"
+                  else "DEFAULT"
+                  & ":+TLS13-TLS_AES_128_GCM_SHA256"
+                  & ":+TLS13-TLS_AES_256_GCM_SHA384"
+                  & ":+TLS13-TLS_CHACHA20_POLY1305_SHA256"
+                  & ":+TLS13-TLS_AES_128_CCM_SHA256"
+                  & ":TLS13-TLS_AES_128_CCM_8_SHA256");
 
    task Server_Task is
       entry Start;
@@ -166,6 +169,7 @@ procedure Priorities is
          Certificate_Filename => "aws-server.crt",
          Key_Filename         => "aws-server.key",
          Exchange_Certificate => True,
+         Priorities           => To_String (Ciphers),
          Trusted_CA_Filename  => "private-ca.crt");
 
       accept Start;
@@ -225,6 +229,15 @@ procedure Priorities is
       Net.SSL.Release (Config);
    end Send_Stop_To_Server;
 
+   function Replace_Underscore (S : String) return String is
+   begin
+      return R : String (S'Range) do
+         for J in S'Range loop
+            R (J) := (if S (J) = '_' then '-' else S (J));
+         end loop;
+      end return;
+   end Replace_Underscore;
+
 begin
    Net.Log.Start (Error => Error'Unrestricted_Access, Write => null);
 
@@ -274,6 +287,8 @@ begin
               = "The TLS connection was non-properly terminated."
               and then ASU.Index (Previous_Chipher, "TLS1.3") > 0
             then
+               --  GNUTLS method to disable TLS 1.3
+
                Print ("Disable TLS-1.3; " & To_String (Ciphers));
                Ciphers := To_Unbounded_String ("NORMAL:-VERS-TLS1.3");
             else
@@ -286,11 +301,15 @@ begin
       if Client.Get_FD /= Net.No_Socket then
          Append
            (Ciphers,
-            ":-" & Utils.Head_Before (Client.Cipher_Description, " "));
+            ":-"
+            & (if ASF.Index (Client.Cipher_Description, "TLSv1.3") > 0
+               then "TLS13-" else "")
+            & Utils.Head_Before (Client.Cipher_Description, " "));
 
          if To_String (Previous_Chipher) = Client.Cipher_Description then
             Put_Line ("The same cipher " & To_String (Previous_Chipher));
             exit;
+
          else
             Previous_Chipher := To_Unbounded_String (Client.Cipher_Description);
          end if;
