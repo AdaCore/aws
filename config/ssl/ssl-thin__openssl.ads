@@ -993,6 +993,21 @@ package SSL.Thin is
      (SSL : SSL_Handle; priority : int) return Cstr.chars_ptr
      with Import, Convention => C, External_Name => "SSL_get_cipher_list";
 
+   function SSL_CTX_set_cipher_list
+     (Ctx : SSL_CTX; str : Cstr.chars_ptr) return int
+     with Import, Convention => C, External_Name => "SSL_CTX_set_cipher_list";
+
+   function SSL_CTX_set_ciphersuites
+     (Ctx : SSL_CTX; str : Cstr.chars_ptr) return int
+     with Import, Convention => C, External_Name => "SSL_CTX_set_ciphersuites";
+
+   function OSSL_default_cipher_list return Cstr.chars_ptr
+     with Import, Convention => C, External_Name => "OSSL_default_cipher_list";
+
+   function OSSL_default_ciphersuites return Cstr.chars_ptr
+     with Import, Convention => C,
+          External_Name => "OSSL_default_ciphersuites";
+
    function SSL_shutdown (SSL : SSL_Handle) return int
      with Import, Convention => C, External_Name => "SSL_shutdown";
 
@@ -1280,10 +1295,6 @@ package SSL.Thin is
    function SSL_CTX_set1_param
      (Ctx : SSL_CTX; Param : X509_VERIFY_PARAM) return int
      with Import, Convention => C, External_Name => "SSL_CTX_set1_param";
-
-   function SSL_CTX_set_cipher_list
-     (Ctx : SSL_CTX; str : Cstr.chars_ptr) return int
-     with Import, Convention => C, External_Name => "SSL_CTX_set_cipher_list";
 
    function SSL_load_client_CA_file
      (file : Cstr.chars_ptr) return STACK_OF_X509_NAME

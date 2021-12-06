@@ -42,6 +42,7 @@ with Ada.Containers.Indefinite_Holders;
 with Ada.Directories;
 with Ada.Strings.Equal_Case_Insensitive;
 with Ada.Strings.Hash_Case_Insensitive;
+with Ada.Strings.Unbounded;
 with Ada.Task_Attributes;
 with Ada.Task_Identification;
 with Ada.Task_Termination;
@@ -59,6 +60,8 @@ with AWS.Net.SSL.RSA_DH_Generators;
 with AWS.OS_Lib;
 with AWS.Translator;
 with AWS.Utils;
+
+with GNAT.String_Split;
 
 package body AWS.Net.SSL is
 
@@ -187,6 +190,7 @@ package body AWS.Net.SSL is
       Certificate_Required : Boolean;
       Session_Cache_Size   : Natural;
       Priorities           : C.Strings.chars_ptr;
+      Prio_TLS13           : C.Strings.chars_ptr;
       ALPN                 : Char_Array_Holder.Holder;
       Trusted_CA_Filename  : C.Strings.chars_ptr;
       Trusted_CA_Stack     : TSSL.STACK_OF_X509_NAME :=
@@ -2262,6 +2266,7 @@ package body AWS.Net.SSL is
          C.Strings.Free (Trusted_CA_Filename);
          C.Strings.Free (CRL_Filename);
          C.Strings.Free (Priorities);
+         C.Strings.Free (Prio_TLS13);
       end Finalize;
 
       -----------------
@@ -2444,6 +2449,14 @@ package body AWS.Net.SSL is
             Set_Certificate;
          end if;
 
+         if Prio_TLS13 /= Null_Ptr
+           and then TSSL.SSL_CTX_set_ciphersuites (Context, Prio_TLS13) = 0
+         then
+            Log_Error (Error_Stack);
+            --  Do not try to set Prio_TLS13 with errors again
+            Free (Prio_TLS13);
+         end if;
+
          if Priorities /= Null_Ptr
            and then TSSL.SSL_CTX_set_cipher_list (Context, Priorities) = 0
          then
@@ -2485,10 +2498,151 @@ package body AWS.Net.SSL is
          CRL_Filename         : String;
          Session_Cache_Size   : Natural)
       is
+         use Ada.Strings.Unbounded;
          use C.Strings;
+         use GNAT.String_Split;
+
+         TLS13 : constant String := "TLS13-";
+
+         Prio_TLS13 : Unbounded_String :=
+                           To_Unbounded_String
+                             ("TLS_AES_256_GCM_SHA384"
+                              & ":TLS_CHACHA20_POLY1305_SHA256"
+                              & ":TLS_AES_128_GCM_SHA256");
+         --  Will be C.Strings.Value (TSSL.OSSL_default_ciphersuites);
+         --  in OpenSSL 3.0
+
+         Prio_Slices : Slice_Set;
+         Prio_Others : String (Priorities'First .. Priorities'Last + 1);
+         Last_Others : Natural := Priorities'First - 1;
+
+         Modified_TLS13 : Boolean := False;
+
+         function Has_Cipher_TLS13 (Cipher : String) return Boolean;
+
          function New_C_String (Item : String) return chars_ptr is
            (if Item = "" then Null_Ptr else New_String (Item));
+
+         procedure Append_TLS13_If_Absent (Cipher : String);
+
+         procedure Remove_Cipher_TLS13 (Cipher : String);
+
+         function Is_Substring
+           (S : String; Sub : String; Shift : Natural) return Boolean
+         is
+           (S'Length >= Sub'Length + Shift
+            and then S (S'First + Shift .. S'First + Shift + Sub'Length - 1) =
+                     Sub);
+
+         ----------------------------
+         -- Append_TLS13_If_Absent --
+         ----------------------------
+
+         procedure Append_TLS13_If_Absent (Cipher : String) is
+         begin
+            if not Has_Cipher_TLS13 (Cipher) then
+               if Prio_TLS13 = Null_Unbounded_String then
+                  Prio_TLS13 := To_Unbounded_String (Cipher);
+               else
+                  Append (Prio_TLS13, ':');
+                  Append (Prio_TLS13, Cipher);
+               end if;
+
+               Modified_TLS13 := True;
+            end if;
+         end Append_TLS13_If_Absent;
+
+         ----------------------
+         -- Has_Cipher_TLS13 --
+         ----------------------
+
+         function Has_Cipher_TLS13 (Cipher : String) return Boolean is
+            Idx : constant Natural := Index (Prio_TLS13, Cipher);
+
+            function Right_Start return Boolean is
+              (Idx = 1 or else Element (Prio_TLS13, Idx - 1) = ':');
+
+         begin
+            if Idx = 0 then
+               return False;
+
+            elsif Idx < Length (Prio_TLS13) - Cipher'Length + 1 then
+               --  Not last in the list
+
+               return Element (Prio_TLS13, Idx + Cipher'Length) = ':'
+                 and then Right_Start;
+            end if;
+
+            return Right_Start;
+         end Has_Cipher_TLS13;
+
+         -------------------------
+         -- Remove_Cipher_TLS13 --
+         -------------------------
+
+         procedure Remove_Cipher_TLS13 (Cipher : String) is
+            Idx : Natural;
+         begin
+            if Cipher = "" then
+               Prio_TLS13     := Null_Unbounded_String;
+               Modified_TLS13 := True;
+               return;
+            end if;
+
+            Idx := Index (Prio_TLS13, Cipher);
+
+            if Idx /= 0
+              and then (Idx = 1 or else Element (Prio_TLS13, Idx - 1) = ':')
+            then
+               if Idx = Length (Prio_TLS13) - Cipher'Length + 1 then
+                  if Idx = 1 then
+                     Prio_TLS13 := Null_Unbounded_String;
+                  else
+                     Head (Prio_TLS13, Idx - 2);
+                  end if;
+
+                  Modified_TLS13 := True;
+
+               elsif Element (Prio_TLS13, Idx + Cipher'Length) = ':' then
+                  Replace_Slice (Prio_TLS13, Idx, Idx + Cipher'Length, "");
+                  Modified_TLS13 := True;
+               end if;
+            end if;
+         end Remove_Cipher_TLS13;
+
       begin
+         Create (Prio_Slices, Priorities, ":");
+
+         for S of Prio_Slices loop
+            if Is_Substring (S, TLS13, 0) then
+               Append_TLS13_If_Absent
+                 (S (S'First + TLS13'Length .. S'Last));
+
+            elsif Is_Substring (S, TLS13, 1) then
+               declare
+                  Cipher : constant String :=
+                             S (S'First + TLS13'Length + 1 .. S'Last);
+               begin
+                  if S (S'First) in '!' | '-' | '+' then
+                     Remove_Cipher_TLS13 (Cipher);
+
+                     if S (S'First) = '+' then
+                        Append_TLS13_If_Absent (Cipher);
+                     end if;
+                  end if;
+               end;
+
+            else
+               Prio_Others (Last_Others + 1 .. Last_Others + S'Length) := S;
+               Last_Others := Last_Others + S'Length + 1;
+               Prio_Others (Last_Others) := ':';
+            end if;
+         end loop;
+
+         if Prio_Others (Last_Others) = ':' then
+            Last_Others := Last_Others - 1;
+         end if;
+
          TS_SSL.Security_Mode        := Security_Mode;
          TS_SSL.Ticket_Support       := Ticket_Support;
          TS_SSL.Exchange_Certificate := Exchange_Certificate;
@@ -2496,8 +2650,22 @@ package body AWS.Net.SSL is
 
          TS_SSL.Session_Cache_Size   := Session_Cache_Size;
          TS_SSL.CRL_Filename         := New_C_String (CRL_Filename);
-         TS_SSL.Priorities           := New_C_String (Priorities);
          TS_SSL.Trusted_CA_Filename  := New_C_String (Trusted_CA_Filename);
+         TS_SSL.Priorities           :=
+           New_C_String (Prio_Others (Prio_Others'First .. Last_Others));
+
+         if Modified_TLS13 then
+            if Prio_TLS13 = Null_Unbounded_String then
+               TS_SSL.Security_Mode :=
+                 (case Security_Mode is
+                     when TLS => TLSv1_2,
+                     when TLS_Server => TLSv1_2_Server,
+                     when TLS_Client => TLSv1_2_Client,
+                     when others => Security_Mode);
+            else
+               TS_SSL.Prio_TLS13 := New_String (To_String (Prio_TLS13));
+            end if;
+         end if;
       end Prepare;
 
       --------------------------
