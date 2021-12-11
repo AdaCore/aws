@@ -46,7 +46,6 @@ with AWS.Net.Generic_Sets;
 with AWS.Net.Memory;
 with AWS.Net.Poll_Events;
 with AWS.Net.Std;
-with AWS.Net.WebSocket;
 with AWS.Utils;
 
 package body AWS.Net.WebSocket.Registry is
