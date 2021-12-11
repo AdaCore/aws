@@ -29,7 +29,6 @@
 
 pragma Ada_2012;
 
-with AWS.Client;
 with AWS.Config;
 with AWS.HTTP2.Frame.Settings;
 with AWS.Response;
