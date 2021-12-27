@@ -2097,9 +2097,9 @@ package body AWS.Server.HTTP_Utils is
 
             Send
               (Messages.Content_Range_Token & ": bytes "
-               & Utils.Image (Natural (R_First)) & "-"
-               & Utils.Image (Natural (R_Last))
-               & "/" & Utils.Image (Natural (Length))
+               & Utils.Image (R_First) & "-"
+               & Utils.Image (R_Last)
+               & "/" & Utils.Image (Length)
                & CRLF
                & Messages.Content_Length (R_Length) & CRLF & CRLF);
          end if;
