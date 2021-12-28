@@ -282,9 +282,8 @@ package body AWS.HTTP2.Message is
                            O.Headers.Add
                              (Messages.Content_Range_Token,
                               "bytes "
-                              & Utils.Image (Natural (First)) & "-"
-                              & Utils.Image (Natural (Last))
-                              & "/" & Utils.Image (Natural (Size)));
+                              & Utils.Image (First) & "-" & Utils.Image (Last)
+                              & "/" & Utils.Image (Size));
 
                            O.Headers.Update
                              (Messages.Content_Length_Token,
