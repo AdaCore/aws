@@ -217,8 +217,8 @@ package body AWS.Net.Log.Callbacks is
 
       Text_IO.Put (File, "socket " & Utils.Image (Get_FD (Socket)));
       Text_IO.Put_Line
-        (File, " (" & Utils.Image (Natural (Last))
-         & "/" & Utils.Image (Natural (Data'Last)) & ')');
+        (File,
+         " (" & Utils.Image (Last) & "/" & Utils.Image (Data'Last) & ')');
    end Put_Header;
 
    -------------
