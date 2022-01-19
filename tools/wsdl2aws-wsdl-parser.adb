@@ -1278,7 +1278,7 @@ package body WSDL2AWS.WSDL.Parser is
       Definitions : DOM.Core.Node;
       Document    : SOAP.WSDL.Object)
    is
-      pragma Unreferenced (O, Document);
+      pragma Unreferenced (Document);
 
       Atts : constant DOM.Core.Named_Node_Map :=
                DOM.Core.Nodes.Attributes (Definitions);
