@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                            Secure Sockets Layer                          --
 --                                                                          --
---                     Copyright (C) 2000-2021, AdaCore                     --
+--                     Copyright (C) 2000-2022, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -1552,9 +1552,6 @@ package SSL.Thin is
    function BIO_s_null return BIO_Method_Access
      with Import, Convention => C, External_Name => "BIO_s_null";
 
-   function BIO_new (Method : BIO_Method_St) return BIO_Access
-     with Import, Convention => C, External_Name => "BIO_new";
-
    function BIO_new (Method : BIO_Method_Access) return BIO_Access
      with Import, Convention => C, External_Name => "BIO_new";
 
@@ -1567,62 +1564,50 @@ package SSL.Thin is
       Larg : long;
       Iarg : int) return long
      with Import, Convention => C, External_Name => "BIO_int_ctrl";
-
-   procedure BIO_int_ctrl
-     (Bp : BIO_Access; Cmd : int; Larg : long; Iarg : int)
-     with Import, Convention => C, External_Name => "BIO_int_ctrl";
    --  BIO_set_fd(b,fd,c) BIO_int_ctrl(b,BIO_C_SET_FD,c,fd)
 
    function BIO_ctrl
      (Bp   : BIO_Access;
       Cmd  : int;
-      Larg : long    := 0;
-      Parg : Pointer := Null_Pointer) return long
-     with Import, Convention => C, External_Name => "BIO_ctrl";
-
-   function BIO_pending (Bp : BIO_Access) return int is
-     (int (BIO_ctrl (Bp, BIO_CTRL_PENDING)));
-
-   function BIO_wpending (Bp : BIO_Access) return int is
-     (int (BIO_ctrl (Bp, BIO_CTRL_WPENDING)));
-
-   function BIO_flush (Bp : BIO_Access) return int is
-     (int (BIO_ctrl (Bp, BIO_CTRL_FLUSH)));
-
-   function BIO_reset (Bp : BIO_Access) return int is
-     (int (BIO_ctrl (Bp, BIO_CTRL_RESET)));
-
-   procedure BIO_ctrl
-     (Bp : BIO_Access; Cmd : int; Larg : long; Parg : Pointer)
+      Larg : long;
+      Parg : Cstr.chars_ptr) return long
      with Import, Convention => C, External_Name => "BIO_ctrl";
    --  BIO_get_fd(b,c) = BIO_ctrl(b,BIO_C_GET_FD,0,(char *)c)
    --  BIO_set_mem_eof_return(b,v)
    --  = BIO_ctrl(b,BIO_C_SET_BUF_MEM_EOF_RETURN,v,NULL)
 
-   function BIO_ctrl
-     (Bp   : BIO_Access;
-      Cmd  : int;
-      Larg : long;
-      Parg : Cstr.chars_ptr) return int
-     with Import, Convention => C, External_Name => "BIO_ctrl";
+   function BIO_pending (Bp : BIO_Access) return int is
+     (int (BIO_ctrl (Bp, BIO_CTRL_PENDING, 0, Cstr.Null_Ptr)));
+
+   function BIO_wpending (Bp : BIO_Access) return int is
+     (int (BIO_ctrl (Bp, BIO_CTRL_WPENDING, 0, Cstr.Null_Ptr)));
+
+   function BIO_flush (Bp : BIO_Access) return int is
+     (int (BIO_ctrl (Bp, BIO_CTRL_FLUSH, 0, Cstr.Null_Ptr)));
+
+   function BIO_reset (Bp : BIO_Access) return int is
+     (int (BIO_ctrl (Bp, BIO_CTRL_RESET, 0, Cstr.Null_Ptr)));
 
    function BIO_read_filename
      (Bp : BIO_Access; name : Cstr.chars_ptr) return int
-   is (BIO_ctrl (Bp, BIO_C_SET_FILENAME, BIO_CLOSE + BIO_FP_READ, name));
+   is (int (BIO_ctrl (Bp, BIO_C_SET_FILENAME, BIO_CLOSE + BIO_FP_READ, name)));
 
    function BIO_write_filename
      (Bp : BIO_Access; name : Cstr.chars_ptr) return int
-   is (BIO_ctrl (Bp, BIO_C_SET_FILENAME, BIO_CLOSE + BIO_FP_WRITE, name));
+   is (int
+         (BIO_ctrl (Bp, BIO_C_SET_FILENAME, BIO_CLOSE + BIO_FP_WRITE, name)));
 
    function BIO_append_filename
      (Bp : BIO_Access; name : Cstr.chars_ptr) return int
-   is (BIO_ctrl (Bp, BIO_C_SET_FILENAME, BIO_CLOSE + BIO_FP_APPEND, name));
+   is (int
+         (BIO_ctrl (Bp, BIO_C_SET_FILENAME, BIO_CLOSE + BIO_FP_APPEND, name)));
 
    function BIO_rw_filename
      (Bp : BIO_Access; name : Cstr.chars_ptr) return int
-   is (BIO_ctrl
-         (Bp, BIO_C_SET_FILENAME, BIO_CLOSE + BIO_FP_READ + BIO_FP_WRITE,
-          name));
+   is (int
+         (BIO_ctrl
+            (Bp, BIO_C_SET_FILENAME, BIO_CLOSE + BIO_FP_READ + BIO_FP_WRITE,
+             name)));
 
    function BIO_read
      (BIO : BIO_Access; Data : Pointer; Len : int) return int
@@ -1658,9 +1643,6 @@ package SSL.Thin is
 
    function BIO_number_read (BIO : BIO_Access) return unsigned_long
      with Import, Convention => C, External_Name => "BIO_number_read";
-
-   function BIO_free (BIO : BIO_Access) return int
-     with Import, Convention => C, External_Name => "BIO_free";
 
    procedure BIO_free (BIO : BIO_Access)
      with Import, Convention => C, External_Name => "BIO_free";
