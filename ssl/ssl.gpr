@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2003-2014, AdaCore                     --
+--                     Copyright (C) 2003-2022, AdaCore                     --
 --                                                                          --
 --  This is free software;  you can redistribute it  and/or modify it       --
 --  under terms of the  GNU General Public License as published  by the     --
@@ -21,18 +21,30 @@ with "../shared";
 with "crypto_lib";
 with "ssl_lib";
 
+with "gnatcoll";
+
 library project SSL is
 
    case Shared.Socket is
       when "std" =>
          for Languages use ("Ada", "Project file");
          for Source_Dirs use (".", "../config/ssl");
+         for Excluded_Source_Files use ("ssl-loader.ads");
+
       when "gnutls" =>
          for Languages use ("Ada", "Project file", "C");
          for Source_Dirs use (".", "../config/ssl", "../config/ssl/gnutls");
+
       when others =>
          for Languages use ("Ada", "Project file", "C");
          for Source_Dirs use (".", "../config/ssl", "../config/ssl/openssl");
+   end case;
+
+   case Shared.SSL_Dynamic is
+      when "false" =>
+         for Excluded_Source_Files use ("ssl-loader.ads");
+      when "true" =>
+         null;
    end case;
 
    for Object_Dir use "../" & Shared'Object_Dir & "/ssl";
@@ -65,10 +77,22 @@ library project SSL is
       case Shared.Socket is
          when "std" =>
             for Specification ("SSL.Thin") use "ssl-thin__dummy.ads";
+
          when "ssl" | "openssl" =>
-            for Specification ("SSL.Thin") use "ssl-thin__openssl.ads";
-         when "gnutls" =>
-            for Specification ("SSL.Thin") use "ssl-thin__gnutls.ads";
+            case Shared.SSL_Dynamic is
+               when "false" =>
+                  for Spec ("SSL.Thin") use "ssl-thin__openssl.ads";
+               when "true" =>
+                  for Body ("SSL.Loader") use "ssl-loader__openssl.adb";
+            end case;
+
+          when "gnutls" =>
+            case Shared.SSL_Dynamic is
+               when "false" =>
+                  for Spec ("SSL.Thin") use "ssl-thin__gnutls.ads";
+               when "true" =>
+                  for Body ("SSL.Loader") use "ssl-loader__gnutls.adb";
+            end case;
       end case;
 
    end Naming;

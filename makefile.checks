@@ -31,6 +31,14 @@ ifneq  ($(ZLIB), true)
 ZLIB=false
 endif
 
+ifndef THREAD_SANITIZER
+THREAD_SANITIZER=false
+endif
+
+ifndef SSL_DYNAMIC
+SSL_DYNAMIC=false
+endif
+
 ifeq ($(PRJ_TARGET), vxworks)
 ifeq ($(ENABLE_SHARED), true)
 $(error shared libraries not supported on cross platforms)
@@ -46,6 +54,18 @@ endif
 ifneq ($(ENABLE_SHARED), true)
 ifneq ($(ENABLE_SHARED), false)
 $(error ENABLE_SHARED variable must be set to true or false)
+endif
+endif
+
+ifneq ($(THREAD_SANITIZER), true)
+ifneq ($(THREAD_SANITIZER), false)
+$(error THREAD_SANITIZER variable must be set to true or false)
+endif
+endif
+
+ifneq ($(SSL_DYNAMIC), true)
+ifneq ($(SSL_DYNAMIC), false)
+$(error SSL_DYNAMIC variable must be set to true or false)
 endif
 endif
 

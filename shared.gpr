@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2003-2014, AdaCore                     --
+--                     Copyright (C) 2003-2022, AdaCore                     --
 --                                                                          --
 --  This is free software;  you can redistribute it  and/or modify it       --
 --  under terms of the  GNU General Public License as published  by the     --
@@ -44,6 +44,8 @@ abstract project Shared is
 
    type Socket_Type is ("std", "ssl", "openssl", "gnutls");
    Socket : Socket_Type := external ("SOCKET", "std");
+
+   SSL_Dynamic : Boolean := External ("SSL_DYNAMIC", "false");
 
    --------------------------
    -- Static / Relocatable --

@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2000-2021, AdaCore                     --
+--                     Copyright (C) 2000-2022, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -2430,7 +2430,7 @@ package body AWS.Net.SSL is
 
             Error_If
               (TSSL.SSL_CTX_set_ex_data
-                 (Context, Data_Index, TSSL.Null_Pointer) = -1);
+                 (Context, Data_Index, TSSL.Null_Pointer) = 0);
 
             declare
                Mode : C.int :=
@@ -2747,8 +2747,7 @@ package body AWS.Net.SSL is
          procedure Set_Callback (Context : TSSL.SSL_CTX) is
          begin
             Error_If
-              (TSSL.SSL_CTX_set_ex_data
-                 (Context, Data_Index, Callback) = -1);
+              (TSSL.SSL_CTX_set_ex_data (Context, Data_Index, Callback) = 0);
          end Set_Callback;
 
       begin
@@ -2873,14 +2872,14 @@ begin
 
    Locking.Initialize;
 
-   if TSSL.SSL_library_init = 0 then
-      raise Program_Error with "Unable to init OpenSSL";
+   if TSSL.SSL_library_init /= 0 then
+      Init_Random;
+
+      Data_Index :=
+        TSSL.SSL_CTX_get_ex_new_index
+          (0, TSSL.Null_Pointer, TSSL.Null_Pointer,
+           TSSL.Null_Pointer, TSSL.Null_Pointer);
+   else
+      Data_Index := -1;
    end if;
-
-   Init_Random;
-
-   Data_Index :=
-     TSSL.SSL_CTX_get_ex_new_index
-       (0, TSSL.Null_Pointer, TSSL.Null_Pointer,
-        TSSL.Null_Pointer, TSSL.Null_Pointer);
 end AWS.Net.SSL;

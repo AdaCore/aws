@@ -1,7 +1,7 @@
 ############################################################################
 #                              Ada Web Server                              #
 #                                                                          #
-#                     Copyright (C) 2003-2021, AdaCore                     #
+#                     Copyright (C) 2003-2022, AdaCore                     #
 #                                                                          #
 #  This is free software;  you can redistribute it  and/or modify it       #
 #  under terms of the  GNU General Public License as published  by the     #
@@ -140,10 +140,6 @@ else
 TPREFIX=$(DESTDIR)$(prefix)
 endif
 
-ifndef THREAD_SANITIZER
-THREAD_SANITIZER=false
-endif
-
 #  Install directories
 
 I_INC	= $(TPREFIX)/include/aws
@@ -172,7 +168,8 @@ GPROPTS = -XPRJ_BUILD=$(PRJ_BUILD) -XPRJ_SOCKLIB=$(PRJ_SOCKLIB) \
 		-XPRJ_XMLADA=$(PRJ_XMLADA) -XPRJ_LAL=$(PRJ_LAL) \
 		-XPROCESSORS=$(PROCESSORS) -XSOCKET=$(SOCKET) \
 		-XPRJ_TARGET=$(PRJ_TARGET) -XTARGET=$(TARGET) \
-	        -XTHREAD_SANITIZER=$(THREAD_SANITIZER)
+	        -XTHREAD_SANITIZER=$(THREAD_SANITIZER) \
+                -XSSL_DYNAMIC=$(SSL_DYNAMIC)
 
 GPR_STATIC = -XLIBRARY_TYPE=static -XXMLADA_BUILD=static
 GPR_SHARED = -XLIBRARY_TYPE=relocatable -XXMLADA_BUILD=relocatable
@@ -365,6 +362,7 @@ gen_setup:
 	echo "LAL=$(LAL)" >> makefile.setup
 	echo "NETLIB=$(NETLIB)" >> makefile.setup
 	echo "SOCKET=$(SOCKET)" >> makefile.setup
+	echo "SSL_DYNAMIC=$(SSL_DYNAMIC)" >> makefile.setup
 	echo "LDAP=$(LDAP)" >> makefile.setup
 	echo "DEBUG=$(DEBUG)" >> makefile.setup
 	echo "PROCESSORS=$(PROCESSORS)" >> makefile.setup

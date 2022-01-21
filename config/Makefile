@@ -1,7 +1,7 @@
 ############################################################################
 #                              Ada Web Server                              #
 #                                                                          #
-#                     Copyright (C) 2003-2015, AdaCore                     #
+#                     Copyright (C) 2003-2022, AdaCore                     #
 #                                                                          #
 #  This is free software;  you can redistribute it  and/or modify it       #
 #  under terms of the  GNU General Public License as published  by the     #
@@ -38,6 +38,15 @@ ZPATH = ./
 endif
 endif
 
+ifeq (${SOCKET}, std)
+NO_SSL_LINK = 1
+endif
+
+ifeq (${SSL_DYNAMIC}, true)
+NO_SSL_LINK = 1
+SSL_THIN=$(SDIR)/src/ssl-thin.ads
+endif
+
 $(SDIR)/src:
 	$(MKDIR) $(SDIR)/src
 
@@ -45,13 +54,17 @@ $(SDIR)/xoscons$(EXEEXT): $(SDIR)/src setup/xoscons.adb
 	-$(GPRBUILD) -p -XPRJ_BUILD=Debug -XLIBRARY_TYPE=static \
 		-XPRJ_TARGET=$(PRJ_TARGET) -XTARGET=$(TARGET) -Psetup xoscons
 
+$(SDIR)/dynamo$(EXEEXT): $(SDIR)/src ssl/dynamo/dynamo.adb
+	-$(GPRBUILD) -p -XPRJ_TARGET=$(PRJ_TARGET) -XTARGET=$(TARGET) \
+		-Pssl/dynamo/dynamo.gpr -g -bargs -E
+
 setup_extlib:
 	echo "abstract project AWS_Lib_Shared is" > $(LIBGPR)
 	echo "   for Source_Files use ();" >> $(LIBGPR)
 	echo '   type SSL_Library_Kind is ("relocatable", "static");' >> $(LIBGPR)
 	echo '   SSL_Library_Type : SSL_Library_Kind := external ("SSL_LIBRARY_TYPE", "relocatable");' >> $(LIBGPR)
 	echo '   LIB_Path := "${LPATH}";' >> $(LIBGPR)
-ifeq (${SOCKET}, std)
+ifdef NO_SSL_LINK
 	echo '   S_SSL_Lib := "";' >> $(LIBGPR)
 	echo '   R_SSL_Lib := "";' >> $(LIBGPR)
 	echo '   S_CRY_Lib := "";' >> $(LIBGPR)
@@ -83,7 +96,7 @@ endif
 
 force: ;
 
-setup: $(SDIR)/src/aws-os_lib.ads setup_extlib
+setup: $(SDIR)/src/aws-os_lib.ads $(SSL_THIN) setup_extlib
 
 ifeq (${PRJ_TARGET}, vxworks)
 $(SDIR)/src/aws-os_lib.ads: $(SDIR)/src force
@@ -107,6 +120,13 @@ else
 endif
 	$(RM) -f $(SDIR)/src/aws-os_lib-tmplt*
 endif
+
+$(SSL_THIN): $(SDIR)/src $(SDIR)/dynamo$(EXEEXT)
+	echo Setup SSL dynamic binding
+	$(SDIR)/dynamo$(EXEEXT) ssl/ssl-thin__$(SOCKET).ads \
+		$(SSL_THIN) $(SDIR)/src/ssl-bind.ads SSL.Bind SSL.Loader
+	gnatpp $(SSL_THIN)
+	gnatpp $(SDIR)/src/ssl-bind.ads
 
 install:
 

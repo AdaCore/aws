@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                            Secure Sockets Layer                          --
 --                                                                          --
---                      Copyright (C) 2005-2016, AdaCore                    --
+--                      Copyright (C) 2005-2022, AdaCore                    --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -906,24 +906,6 @@ package SSL.Thin is
 
    function gnutls_credentials_set
      (p1     : gnutls_session_t;
-      c_type : gnutls_credentials_type_t;
-      cred   : System.Address) return C.int
-     with Import, Convention => C;
-
-   function gnutls_credentials_set
-     (p1     : gnutls_session_t;
-      c_type : gnutls_credentials_type_t := GNUTLS_CRD_ANON;
-      cred   : gnutls_anon_client_credentials_t) return C.int
-     with Import, Convention => C;
-
-   function gnutls_credentials_set
-     (p1     : gnutls_session_t;
-      c_type : gnutls_credentials_type_t := GNUTLS_CRD_ANON;
-      cred   : gnutls_anon_server_credentials_t) return C.int
-     with Import, Convention => C;
-
-   function gnutls_credentials_set
-     (p1     : gnutls_session_t;
       c_type : gnutls_credentials_type_t := GNUTLS_CRD_CERTIFICATE;
       cred   : gnutls_certificate_credentials_t) return C.int
      with Import, Convention => C;
@@ -1091,7 +1073,8 @@ package SSL.Thin is
      (key   : gnutls_x509_privkey_t;
       algo  : gnutls_pk_algorithm_t;
       bits  : C.unsigned;
-      flags : C.unsigned) return C.int with Import, Convention => C;
+      flags : C.unsigned) return C.int
+     with Import, Convention => C;
 
    procedure gnutls_x509_privkey_deinit (key : gnutls_x509_privkey_t)
      with Import, Convention => C;
@@ -1202,14 +1185,6 @@ package SSL.Thin is
      with Import, Convention => C;
 
    procedure gnutls_global_deinit
-     with Import, Convention => C;
-
-   procedure gnutls_global_set_mem_functions
-     (alloc_func        : gnutls_alloc_function;
-      secure_alloc_func : gnutls_alloc_function;
-      is_secure_func    : gnutls_is_secure_function;
-      realloc_func      : gnutls_realloc_function;
-      free_func         : gnutls_free_function)
      with Import, Convention => C;
 
    procedure gnutls_global_set_mem_functions
@@ -1506,10 +1481,12 @@ package SSL.Thin is
    -----------------------------
 
    function gnutls_session_ticket_key_generate
-     (key : access gnutls_datum_t) return C.int with Import, Convention => C;
+     (key : access gnutls_datum_t) return C.int
+     with Import, Convention => C;
 
    function gnutls_session_ticket_enable_client
-     (session : gnutls_session_t) return C.int with Import, Convention => C;
+     (session : gnutls_session_t) return C.int
+     with Import, Convention => C;
 
    function gnutls_session_ticket_enable_server
      (session : gnutls_session_t;
