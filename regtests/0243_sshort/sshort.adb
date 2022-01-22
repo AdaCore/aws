@@ -46,7 +46,7 @@ procedure SShort is
    Last   : Stream_Element_Offset;
    Server : Net.Socket_Type'Class := Net.Socket (False);
    Peer   : Net.SSL.Socket_Type;
-   Stamp  : Ada.Calendar.Time;
+   Stamp  : Calendar.Time;
    Config : Net.SSL.Config;
 
    task Client_Side is
@@ -90,10 +90,10 @@ procedure SShort is
 
          if Buffer (1 .. Last) /= Sample (1 .. SShort.Last) then
             if Buffer (1 .. Last) = Sample (1 .. Last) then
-               Ada.Text_IO.Put_Line
+               Text_IO.Put_Line
                  ("Data shorter " & SShort.Last'Img & Last'Img);
             else
-               Ada.Text_IO.Put_Line ("Data differ");
+               Text_IO.Put_Line ("Data differ");
             end if;
             exit;
          end if;
@@ -123,7 +123,7 @@ procedure SShort is
    begin
       Call_Chain (Trace, Last);
 
-      Ada.Text_IO.Put_Line
+      Text_IO.Put_Line
         ("# Network error: "
          & Message & Symbolic.Symbolic_Traceback (Trace (1 .. Last)));
    end Error;
@@ -136,7 +136,7 @@ procedure SShort is
    begin
       First := Last + 1;
 
-      Last := First + Stream_Element_Offset (AWS.Utils.Random rem 256);
+      Last := First + Stream_Element_Offset (Utils.Random rem 256);
 
       for J in First .. Last loop
          Sample (J) := Stream_Element'Mod (Utils.Random);
@@ -158,7 +158,7 @@ begin
 
    Net.SSL.Accept_Socket (Server, Peer);
 
-   Stamp := Ada.Calendar.Clock;
+   Stamp := Calendar.Clock;
 
    for J in 1 .. 10000 loop
       Last := 0;
@@ -173,12 +173,12 @@ begin
       Client_Side.Receive;
 
       if Peer.Receive /= (1 => 11) then
-         Ada.Text_IO.Put_Line ("Unexpected responce");
+         Text_IO.Put_Line ("Unexpected responce");
       end if;
 
       select Client_Side.Received (More => True);
       or delay 0.25;
-         Ada.Text_IO.Put_Line ("Timeout");
+         Text_IO.Put_Line ("Timeout");
       end select;
    end loop;
 
@@ -186,14 +186,17 @@ begin
 
    Peer.Send (Sample (1 .. Last));
 
+   if Peer.Receive /= (1 => 11) then
+      Text_IO.Put_Line ("Unexpected responce");
+   end if;
+
    Client_Side.Received (More => False);
 
    Peer.Shutdown;
    Server.Shutdown;
 
-   if Ada.Command_Line.Argument_Count > 0 then
-      Text_IO.Put_Line
-         (Duration'Image (Ada.Calendar."-" (Ada.Calendar.Clock, Stamp)));
+   if Command_Line.Argument_Count > 0 then
+      Text_IO.Put_Line (Duration'Image (Calendar."-" (Calendar.Clock, Stamp)));
    end if;
 
    Text_IO.Put_Line ("done.");
