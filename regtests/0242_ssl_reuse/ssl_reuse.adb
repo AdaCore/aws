@@ -122,7 +122,8 @@ procedure SSL_Reuse is
    -- Create_Reuse_Sessions --
    ---------------------------
 
-   procedure Create_Reuse_Sessions (Clear : Boolean := False) is
+   procedure Create_Reuse_Sessions
+     (Clear : Boolean := False; Tickets : Boolean := False) is
    begin
       for J in Sessions'Range loop
          Connect_Send_Receive;
@@ -146,9 +147,12 @@ procedure SSL_Reuse is
          Connect_Send_Receive;
 
          if Net.SSL.Session_Id_Image (Sessions (J)) /= Client.Session_Id_Image
+           and then not Tickets
            and then Client.Session_Reused
          then
             Text_IO.Put_Line ("!!! Session not reused");
+            Text_IO.Put_Line (Net.SSL.Session_Id_Image (Sessions (J)));
+            Text_IO.Put_Line (Client.Session_Id_Image);
          end if;
 
          if Net.SSL.Session_Id_Image (Sessions (J)) = Client.Session_Id_Image
@@ -232,7 +236,7 @@ begin
 
    Text_IO.Put_Line ("Sessions creation with client and server tickets");
 
-   Create_Reuse_Sessions (True);
+   Create_Reuse_Sessions (True, Tickets => True);
    --  Text_IO.Put_Line (Net.SSL.Session_Cache_Number (SrvCfg)'Img);
    Text_IO.New_Line;
    --  Do not output Session_Cache_Number here because GNUTLS 3.0.28 put
