@@ -401,6 +401,10 @@ package AWS.Client is
    --  request, next request and further would be with "Connection: Close"
    --  header line for HTTP/1.x protocol.
 
+   procedure Set_Retry
+     (Connection : in out HTTP_Connection; Value : Natural) with Inline;
+   --  Set the number of attempts to get responce from server
+
    procedure Clear_SSL_Session (Connection : in out HTTP_Connection);
    --  Avoid reuse SSL session data after reconnect
 

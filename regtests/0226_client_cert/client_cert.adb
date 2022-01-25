@@ -37,6 +37,7 @@ with AWS.Server.Status;
 with AWS.Status;
 with AWS.Translator;
 with AWS.URL;
+with AWS.Utils;
 
 with GNAT.Traceback.Symbolic;
 
@@ -106,6 +107,7 @@ procedure Client_Cert is
          --  Put_Line ("Status: " & NSC.Status_Message (Cert));
          New_Line;
       end if;
+      Flush;
    end Display_Certificate;
 
    -----------
@@ -141,14 +143,18 @@ procedure Client_Cert is
    procedure Request
      (URL : String; CA : String := ""; Crt : String := Client_Certificate_Name)
    is
+      use type Messages.Status_Code;
+
       O_URL : constant AWS.URL.Object := AWS.URL.Parse (URL);
       R     : Response.Data;
       C     : Client.HTTP_Connection;
       Cert  : NSC.Object;
       Cfg   : Net.SSL.Config;
+
    begin
       Net.SSL.Initialize
         (Cfg,
+         Security_Mode        => Net.SSL.TLS_Client,
          Certificate_Filename => Crt,
          Trusted_CA_Filename  => CA);
 
@@ -157,8 +163,8 @@ procedure Client_Cert is
       begin
          Cert := Client.Get_Certificate (C);
       exception
-         when others =>
-            Put_Line ("Client connection closed by peer.");
+         when E : others =>
+            Put_Line (Ada.Exceptions.Exception_Message (E));
             return;
       end;
 
@@ -166,14 +172,24 @@ procedure Client_Cert is
          Put_Line ("Client certificate could not be on client side.");
       end if;
 
-      New_Line;
-      Put_Line ("Server certificate as received by the client:");
-      Display_Certificate (Cert);
+      Client.Set_Retry (C, 0);
 
       Client.Get (C, R, AWS.URL.Abs_Path (O_URL));
 
-      Put_Line ("=> " & Response.Message_Body (R));
-      New_Line;
+      if Response.Status_Code (R) /= Messages.S400
+        or else not
+          Utils.Match
+            (Response.Message_Body (R),
+             "GET request error. raised AWS.NET.SOCKET_ERROR :")
+        or else NSC.Verified (Cert)
+      then
+         New_Line;
+         Put_Line ("Server certificate as received by the client:");
+         Display_Certificate (Cert);
+
+         Put_Line ("=> " & Response.Message_Body (R));
+         New_Line;
+      end if;
 
       Client.Close (C);
    end Request;

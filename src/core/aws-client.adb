@@ -1098,6 +1098,16 @@ package body AWS.Client is
          Mode => Mode);
    end Set_Proxy_Authentication;
 
+   ---------------
+   -- Set_Retry --
+   ---------------
+
+   procedure Set_Retry
+     (Connection : in out HTTP_Connection; Value : Natural) is
+   begin
+      Connection.Retry := Value;
+   end Set_Retry;
+
    --------------------------
    -- Set_Streaming_Output --
    --------------------------

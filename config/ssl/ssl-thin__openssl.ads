@@ -298,6 +298,7 @@ package SSL.Thin is
    SSL_VERIFY_PEER                   : constant := 1;
    SSL_VERIFY_FAIL_IF_NO_PEER_CERT   : constant := 2;
    SSL_VERIFY_CLIENT_ONCE            : constant := 4;
+   SSL_VERIFY_POST_HANDSHAKE         : constant := 8;
    SSL_F_SSL_VERIFY_CERT_CHAIN       : constant := 207;
 
    SSL_ERROR_NONE             : constant := 0;
