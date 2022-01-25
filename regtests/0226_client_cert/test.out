@@ -9,7 +9,6 @@ Activation : 2018-09-24 06:22:41
 Expiration : 2022-09-23 06:22:41
 Verified   : FALSE
 
-Client connection closed by peer.
 Server 2 started
 
 Client certificate from verify routine:
@@ -29,19 +28,19 @@ Expiration : 2022-09-23 06:22:41
 Verified   : TRUE
 
 
-Server certificate as received by the client:
-Name       : localhost
-Subject    : C=FR,ST=Ile de France,O=AdaCore,OU=CRM,CN=localhost,EMAIL=aws-test@adacore.com
-Issuer     : C=FR,ST=Ile de France,L=Paris,O=AdaCore,OU=CA,CN=CA-Web-Server,EMAIL=ca-aws@adacore.com
+Client certificate as received by the server:
+Name       : test-client-cert
+Subject    : C=FR,ST=Ile de France,O=AdaCore,OU=CRM,CN=test-client-cert,EMAIL=aws-test@adacore.com
+Issuer     : C=FR,ST=Ile de France,L=Paris,O=AdaCore,OU=CA,CN=CA-Web-Client,EMAIL=aws-clt@adacore.com
 Activation : 2018-09-24 06:22:41
 Expiration : 2022-09-23 06:22:41
 Verified   : TRUE
 
 
-Client certificate as received by the server:
-Name       : test-client-cert
-Subject    : C=FR,ST=Ile de France,O=AdaCore,OU=CRM,CN=test-client-cert,EMAIL=aws-test@adacore.com
-Issuer     : C=FR,ST=Ile de France,L=Paris,O=AdaCore,OU=CA,CN=CA-Web-Client,EMAIL=aws-clt@adacore.com
+Server certificate as received by the client:
+Name       : localhost
+Subject    : C=FR,ST=Ile de France,O=AdaCore,OU=CRM,CN=localhost,EMAIL=aws-test@adacore.com
+Issuer     : C=FR,ST=Ile de France,L=Paris,O=AdaCore,OU=CA,CN=CA-Web-Server,EMAIL=ca-aws@adacore.com
 Activation : 2018-09-24 06:22:41
 Expiration : 2022-09-23 06:22:41
 Verified   : TRUE
@@ -51,15 +50,6 @@ Verified   : TRUE
 Server 3 started
 
 
-Server certificate as received by the client:
-Name       : localhost
-Subject    : C=FR,ST=Ile de France,O=AdaCore,OU=CRM,CN=localhost,EMAIL=aws-test@adacore.com
-Issuer     : C=FR,ST=Ile de France,L=Paris,O=AdaCore,OU=CA,CN=CA-Web-Server,EMAIL=ca-aws@adacore.com
-Activation : 2018-09-24 06:22:41
-Expiration : 2022-09-23 06:22:41
-Verified   : TRUE
-
-
 Client certificate as received by the server:
 Name       : test-client-cert
 Subject    : C=FR,ST=Ile de France,O=AdaCore,OU=CRM,CN=test-client-cert,EMAIL=aws-test@adacore.com
@@ -68,8 +58,20 @@ Activation : 2018-09-24 06:22:41
 Expiration : 2022-09-23 06:22:41
 Verified   : FALSE
 
+
+Server certificate as received by the client:
+Name       : localhost
+Subject    : C=FR,ST=Ile de France,O=AdaCore,OU=CRM,CN=localhost,EMAIL=aws-test@adacore.com
+Issuer     : C=FR,ST=Ile de France,L=Paris,O=AdaCore,OU=CA,CN=CA-Web-Server,EMAIL=ca-aws@adacore.com
+Activation : 2018-09-24 06:22:41
+Expiration : 2022-09-23 06:22:41
+Verified   : TRUE
+
 => simple ok
 
+
+Client certificate as received by the server:
+No certificate.
 
 Server certificate as received by the client:
 Name       : localhost
@@ -79,9 +81,6 @@ Activation : 2018-09-24 06:22:41
 Expiration : 2022-09-23 06:22:41
 Verified   : FALSE
 
-
-Client certificate as received by the server:
-No certificate.
 => simple ok
 
 MIIEpDCCA4ygAwIBAgIDAK2hMA0GCSqGSIb3DQEBCwUAMIGQMQswCQYDVQQGEwJGUjEWMBQGA1UECAw
