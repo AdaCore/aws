@@ -46,8 +46,6 @@ package body AWS.HTTP2.Frame is
 
    use Ada.Text_IO;
 
-   use System;
-
    ------------
    -- Adjust --
    ------------
