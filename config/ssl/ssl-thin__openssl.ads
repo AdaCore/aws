@@ -1064,7 +1064,7 @@ package SSL.Thin is
      with Import, Convention => C, External_Name => "EVP_DigestFinal_ex";
 
    function EVP_MD_size (md : EVP_MD) return int
-     with Import, Convention => C, External_Name => "EVP_MD_size";
+     with Import, Convention => C, External_Name => "__aws_EVP_MD_size";
 
    function EVP_PKEY_new return EVP_PKEY
      with Import, Convention => C, External_Name => "EVP_PKEY_new";
@@ -1166,7 +1166,7 @@ package SSL.Thin is
      with Import, Convention => C, External_Name => "RSA_generate_key_ex";
 
    function EVP_PKEY_size (key : EVP_PKEY) return int
-     with Import, Convention => C, External_Name => "EVP_PKEY_size";
+     with Import, Convention => C, External_Name => "__aws_EVP_PKEY_size";
 
    function RSA_size (key : RSA) return int
      with Import, Convention => C, External_Name => "RSA_size";
@@ -1365,7 +1365,8 @@ package SSL.Thin is
    --  Certificate
 
    function SSL_get_peer_certificate (SSL : SSL_Handle) return X509
-     with Import, Convention => C, External_Name => "SSL_get_peer_certificate";
+     with Import, Convention => C,
+          External_Name => "__aws_SSL_get_peer_certificate";
 
    procedure X509_free (X509 : Thin.X509)
      with Import, Convention => C, External_Name => "X509_free";
