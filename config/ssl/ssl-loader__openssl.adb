@@ -190,6 +190,7 @@ package body SSL.Loader is
 
    function Symbol (Name : String) return System.Address is
       AWS_Prefix : constant String := "__aws_";
+      Result     : System.Address;
    begin
       if Name = "__aws_SSL_library_init" then
          return SSL_library_init'Address;
@@ -207,8 +208,21 @@ package body SSL.Loader is
         and then Name (Name'First .. Name'First + AWS_Prefix'Length - 1)
                  = AWS_Prefix
       then
-         return Get_Address
-                  (Name (Name'First + AWS_Prefix'Length .. Name'Last));
+         Result := Get_Address
+                     (Name (Name'First + AWS_Prefix'Length .. Name'Last));
+
+         if Result /= Unsupported'Address then
+            return Result;
+
+         elsif Name = "__aws_SSL_get_peer_certificate" then
+            return Get_Address ("SSL_get1_peer_certificate");
+
+         elsif Name = "__aws_EVP_MD_size" then
+            return Get_Address ("EVP_MD_get_size");
+
+         elsif Name = "__aws_EVP_PKEY_size" then
+            return Get_Address ("EVP_PKEY_get_size");
+         end if;
       end if;
 
       return Get_Address (Name);

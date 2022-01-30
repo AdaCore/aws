@@ -65,6 +65,11 @@ void __aws_CRYPTO_set_id_callback(void * p)
   CRYPTO_set_id_callback(p);
 }
 
+X509 * __aws_SSL_get_peer_certificate(const SSL *ssl)
+{
+  return SSL_get_peer_certificate(ssl);
+}
+
 void __aws_CRYPTO_set_locking_callback(void * p)
 {
   CRYPTO_set_locking_callback(p);
@@ -178,4 +183,14 @@ EVP_MD_CTX * __aws_EVP_MD_CTX_new(void)
 void __aws_EVP_MD_CTX_free(EVP_MD_CTX *ctx)
 {
   EVP_MD_CTX_destroy(ctx);
+}
+
+int __aws_EVP_MD_size (const EVP_MD *md)
+{
+  return EVP_MD_size(md);
+}
+
+int __aws_EVP_PKEY_size (const EVP_PKEY *pkey)
+{
+  return EVP_PKEY_size(pkey);
 }
