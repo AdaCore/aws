@@ -100,7 +100,16 @@ $(error LaL is set and requires XMLADA to be installed. \
 endif
 endif
 
-ifneq ($(SOCKET), std)
+ifeq ($(SOCKET), std)
+ifeq ($(SSL_DYNAMIC), true)
+# SSL_DYNAMIC can be true only together with SOCKET in openssl | gnutls
+SSL_DYNAMIC = false
+ifeq ($(SSL_DYNAMIC), true)
+# We are here only when SSL_DYNAMIC=true in make setup command line
+$(error SSL_DYNAMIC can be true only together with SOCKET = openssl or gnutls)
+endif
+endif
+else # SOCKET /= std
 ifneq ($(SOCKET), openssl)
 ifneq ($(SOCKET), gnutls)
 $(error SOCKET variable must be set to std, openssl or gnutls)
