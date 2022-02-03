@@ -971,8 +971,6 @@ begin
          --  Get frame
 
          declare
-            use type HTTP2.Error_Codes;
-
             Frame      : constant HTTP2.Frame.Object'Class :=
                            HTTP2.Frame.Read (Sock.all, Ctx.Settings.all);
             Stream_Id  : constant HTTP2.Stream_Id := Frame.Stream_Id;
