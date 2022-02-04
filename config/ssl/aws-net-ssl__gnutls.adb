@@ -2471,6 +2471,7 @@ begin
       free_func         => Lib_Free'Access);
 
    if TSSL.gnutls_global_init /= 0 then
-      raise Program_Error;
+      --  Ignore error because it can be dynamic SSL binding
+      null;
    end if;
 end AWS.Net.SSL;
