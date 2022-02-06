@@ -123,10 +123,8 @@ endif
 
 $(SSL_THIN): $(SDIR)/src $(SDIR)/dynamo$(EXEEXT)
 	echo Setup SSL dynamic binding
-	$(SDIR)/dynamo$(EXEEXT) ssl/ssl-thin__$(SOCKET).ads \
-		$(SSL_THIN) $(SDIR)/src/ssl-bind.ads SSL.Bind SSL.Loader
-	gnatpp $(SSL_THIN)
-	gnatpp $(SDIR)/src/ssl-bind.ads
+	$(SDIR)/dynamo$(EXEEXT) ssl/ssl-thin__$(SOCKET).ads $(SSL_THIN) \
+		SSL.Loader
 
 install:
 
