@@ -55,7 +55,6 @@ function Dynamo return Integer is
 
    Source_Path : constant String := Argument (1);
    Main_Source : constant String := Argument (2);
-   Bind_Source : constant String := Argument (3);
 
    Ctx  : constant Analysis_Context := Create_Context;
    Unit : constant Analysis_Unit := Ctx.Get_From_File (Source_Path);
@@ -66,8 +65,7 @@ function Dynamo return Integer is
      (Langkit_Support.Text.Decode (Argument (P), Charset));
    --  Returns P command line argument in Wide_Wide_String type
 
-   Bind_Pkg   : constant Wide_Wide_String := WW_Argument (4);
-   Loader_Pkg : constant Wide_Wide_String := WW_Argument (5);
+   Loader_Pkg : constant Wide_Wide_String := WW_Argument (3);
    No_Rebind  : constant Wide_Wide_String := """_AWS_";
    --  No_Rebind prefix mean that this import should not be rebinded to dinamic
    --  library.
@@ -81,7 +79,6 @@ function Dynamo return Integer is
 
    CU : constant Ada_Node := Unit.Root;
    S  : TIO.File_Type;
-   B  : TIO.File_Type;
 
    procedure Put (File : TIO.File_Type; Item : Wide_Wide_String);
    --  Encode Text as String with Charset and output it into the File
@@ -178,12 +175,7 @@ function Dynamo return Integer is
 
       procedure Apply_Name (Name : Wide_Wide_String) is
       begin
-         Put (S, "Address => Bind.A" & CI);
-
-         Put (B, "   A" & CI & " : constant System.Address := Symbol (");
-         Put (B, Name);
-         Put (B, ");" & WLF);
-
+         Put (S, "Address => " & Loader_Pkg & ".Symbol (" & Name & ")");
          Name_Applied := True;
       end Apply_Name;
 
@@ -321,21 +313,14 @@ begin
    end if;
 
    TIO.Create (S, Name => Main_Source);
-   TIO.Create (B, Name => Bind_Source);
-
-   Put (B, "with " & Loader_Pkg & "; use " & Loader_Pkg & ';' & WLF);
-   Put (B, "with System;" & WLF & WLF);
-   Put (B, "package " & Bind_Pkg & " is" & WLF & WLF);
 
    for Item of CU.Children loop
       if Item.Kind = Ada_Library_Item then
          Flush_S (Item, Skip => False);
-         Put (S, "with " & Bind_Pkg & ';' & WLF & WLF);
+         Put (S, "with " & Loader_Pkg & ';' & WLF & WLF);
          Process_Library_Item (Item);
       end if;
    end loop;
-
-   Put (B, "end " & Bind_Pkg & ';' & WLF & WLF);
 
    declare
       Footer : constant Wide_Wide_String :=
@@ -350,7 +335,6 @@ begin
    end;
 
    TIO.Close (S);
-   TIO.Close (B);
 
    return 0;
 end Dynamo;

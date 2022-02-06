@@ -139,10 +139,9 @@ abstract project Shared is
    --  Common options used for the Debug and Release modes
 
    Debug_Options :=
-     ("-g", "-gnata", "-gnatVa", "-gnatQ", "-gnato", "-gnatwe", "-Wall");
+     ("-g", "-gnata", "-gnatVa", "-gnatQ", "-gnato", "-Wall", "-gnatwe");
 
-   Release_Options :=
-     ("-O2", "-gnatn");
+   Release_Options := ("-O2", "-gnatn");
 
    package Compiler is
 
@@ -158,8 +157,14 @@ abstract project Shared is
             for Default_Switches ("Ada") use Common_Options & Release_Options;
             for Default_Switches ("C")
               use ("-O2", "-Wno-implicit-function-declaration");
-
       end case;
+
+      for Switches ("ssl-thin.ads")
+        use Compiler'Default_Switches ("Ada") & "-gnatyM300";
+      --  The file ssl-thin.ads is generated from ssl-thin__openssl.ads or from
+      --  ssl-thin__gnutls.ads and was reformatted with gnatpp, but gnatpp
+      --  unable to split long line of aspect list, see V117-043. It is because
+      --  we use "-gnatyM300" option to increate maximum line length.
 
       case S_Target is
          when "Darwin" =>
