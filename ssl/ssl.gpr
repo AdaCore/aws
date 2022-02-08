@@ -43,8 +43,14 @@ library project SSL is
    case Shared.SSL_Dynamic is
       when "false" =>
          for Excluded_Source_Files use ("ssl-loader.ads");
+
       when "true" =>
-         null;
+         case Shared.Socket is
+            when "ssl" | "openssl" =>
+               for Excluded_Source_Files use ("wrappers.c");
+            when others =>
+               null;
+         end case;
    end case;
 
    for Object_Dir use "../" & Shared'Object_Dir & "/ssl";
