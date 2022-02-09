@@ -1,15 +1,31 @@
 @echo off
 rem
-rem usage:
+rem usage: win32\build <install directory>
 rem
-rem    c:> win32/build c:\gnat\2014
+rem    c:> win32/build c:\gnatpro\20.2
 rem
 
-rem The followinng variable can be set to std, openssl or gnutls
+rem If SOCKET is set to openssl or gnutls you need to copy the ssl &
+rem crypto libraries and the include files into the GNAT Pro installation :
+rem
+rem   The libraries (libssl.dll & libcrypto.dll):
+rem      c:\gnatpro\20.2\bin
+rem   The openssl directory containing headers:
+rem      c:\gnatpro\20.2\<TARGET>\include
+
 set SOCKET=std
+set TARGET=x86_64-pc-mingw32
+
+rem ~dp to get the directory only
+FOR /F %%G IN ('"where gnatls"') DO SET GNATDIR=%%~dpG
+
+if .%GNATDIR%==. goto nognat
+
+set SSLDIR=%GNATDIR%/%TARGET%
+set C_INCLUDE_PATH=%SSLDIR%/include
 
 set ROOTDIR=%CD%
-set GPROPTS=-XPRJ_BUILD=Release -XPRJ_TARGET=Windows_NT -XTARGET=win -XPRJ_XMLADA=Installed -XPRJ_LDAP=Installed -XPRJ_LAL=Disabled -XPRJ_SOCKLIB=gnat -XSOCKET=%SOCKET%
+set GPROPTS=-XPRJ_BUILD=Release -XPRJ_TARGET=Windows_NT -XTARGET=%TARGET% -XPRJ_XMLADA=Installed -XPRJ_LDAP=Installed -XPRJ_ASIS=Disabled -XPRJ_SOCKLIB=gnat -XSOCKET=%SOCKET%
 
 if .%1==. goto dusage
 
@@ -17,11 +33,11 @@ path %1\bin;%path%
 
 rem ----------------------------------------------- SETUP
 :setup
-mkdir .build\win\setup\src
-copy config\setup\aws-os_lib-tmplt.c .build\win\setup\src
-gprbuild -p -XPRJ_BUILD=Debug -XLIBRARY_TYPE=static -XPRJ_TARGET=Windows_NT -XTARGET=win  -Pconfig\setup xoscons
+mkdir .build\%TARGET%\setup\src
+copy config\setup\aws-os_lib-tmplt.c .build\%TARGET%\setup\src
+gprbuild -p -XPRJ_BUILD=Debug -XLIBRARY_TYPE=static -XPRJ_TARGET=Windows_NT -XTARGET=%TARGET% -Pconfig\setup xoscons
 if errorlevel 1 goto error
-cd .build\win\setup\src
+cd .build\%TARGET%\setup\src
 gcc -C -E -DTARGET=\"windows\" aws-os_lib-tmplt.c > aws-os_lib-tmplt.i
 gcc -S aws-os_lib-tmplt.i
 ..\xoscons aws-os_lib
@@ -49,32 +65,46 @@ echo abstract project AWS_Lib_Shared is > aws_lib_shared.gpr
 echo for Source_Files use (); >> aws_lib_shared.gpr
 echo type SSL_Library_Kind is ("relocatable", "static"); >> aws_lib_shared.gpr
 echo SSL_Library_Type : SSL_Library_Kind := external ("SSL_LIBRARY_TYPE", "relocatable"); >> aws_lib_shared.gpr
-echo LIB_Path := "./";  >> aws_lib_shared.gpr
-echo S_SSL_Lib := "ssl"; >> aws_lib_shared.gpr
-echo R_SSL_Lib := "ssl32"; >> aws_lib_shared.gpr
-echo S_CRY_Lib := "crypto"; >> aws_lib_shared.gpr
-echo R_CRY_Lib := "eay32"; >> aws_lib_shared.gpr
-echo S_TLS_Lib := "gnutls"; >> aws_lib_shared.gpr
-echo R_TLS_Lib := "gnutls"; >> aws_lib_shared.gpr
-echo LIBZ_Path := Project'Project_Dir & "..\..\..\lib\aws\static"; >> aws_lib_shared.gpr
+
+if .%SOCKET%==.std goto std
+
+rem With SSL
+echo LIB_Path  := "%GNATDIR%";  >> aws_lib_shared.gpr
+echo S_SSL_Lib := "ssl";        >> aws_lib_shared.gpr
+echo R_SSL_Lib := "ssl";        >> aws_lib_shared.gpr
+echo S_CRY_Lib := "crypto";     >> aws_lib_shared.gpr
+echo R_CRY_Lib := "crypto";     >> aws_lib_shared.gpr
+echo S_TLS_Lib := "gnutls";     >> aws_lib_shared.gpr
+echo R_TLS_Lib := "gnutls";     >> aws_lib_shared.gpr
+
+goto endcom
+
+rem Without SSL
+:std
+echo LIB_Path  := ""; >> aws_lib_shared.gpr
+echo S_SSL_Lib := ""; >> aws_lib_shared.gpr
+echo R_SSL_Lib := ""; >> aws_lib_shared.gpr
+echo S_CRY_Lib := ""; >> aws_lib_shared.gpr
+echo R_CRY_Lib := ""; >> aws_lib_shared.gpr
+echo S_TLS_Lib := ""; >> aws_lib_shared.gpr
+echo R_TLS_Lib := ""; >> aws_lib_shared.gpr
+
+:endcom
+echo LIBZ_Path := Project'Project_Dir ^& "..\..\..\lib\aws\static"; >> aws_lib_shared.gpr
 echo end AWS_Lib_Shared; >> aws_lib_shared.gpr
 
-echo project aws_lal is > aws_lal.gpr
-echo for Source_Files use (); >> aws_lal.gpr
-echo end aws_lal; >> aws_lal.gpr
-
-echo with "xmlada"; > aws_xmlada.gpr
-echo project aws_xmlada is >> aws_xmlada.gpr
+echo with "xmlada";            > aws_xmlada.gpr
+echo project aws_xmlada is    >> aws_xmlada.gpr
 echo for Source_Files use (); >> aws_xmlada.gpr
-echo end aws_xmlada; >> aws_xmlada.gpr
+echo end aws_xmlada;          >> aws_xmlada.gpr
 
-echo abstract project AWS_Config is > aws_config.gpr
-echo for Source_Dirs use (); >> aws_config.gpr
-echo type Boolean_Type is ("true", "false"); >> aws_config.gpr
-echo Zlib_Exists : Boolean_Type := "false"; >> aws_config.gpr
+echo abstract project AWS_Config is                     > aws_config.gpr
+echo for Source_Dirs use ();                           >> aws_config.gpr
+echo type Boolean_Type is ("true", "false");           >> aws_config.gpr
+echo Zlib_Exists : Boolean_Type := "false";            >> aws_config.gpr
 echo type SOCKET_Type is ("std", "openssl", "gnutls"); >> aws_config.gpr
-echo SOCKET : SOCKET_Type := "%SOCKET%"; >> aws_config.gpr
-echo end AWS_Config; >> aws_config.gpr
+echo SOCKET : SOCKET_Type := "%SOCKET%";               >> aws_config.gpr
+echo end AWS_Config;                                   >> aws_config.gpr
 
 cd ..\..
 
@@ -84,10 +114,6 @@ gprbuild -p %GPROPTS% -XLIBRARY_TYPE=static -XXMLADA_BUILD=static tools/tools.gp
 if errorlevel 1 goto error
 gprbuild -p %GPROPTS% -XLIBRARY_TYPE=relocatable -XXMLADA_BUILD=relocatable aws.gpr
 if errorlevel 1 goto error
-
-rem ----------------------------------------------- UNINSTALL
-:uninstall
-gprinstall --prefix=%1 -f --uninstall %GPROPTS% aws
 
 rem ----------------------------------------------- INSTALL
 :install
@@ -102,7 +128,12 @@ goto exit
 
 rem ----------------------------------------------- USAGE
 :dusage
-echo usage: build gnat-prefix
+echo usage: build install-dir
+goto exit
+
+rem ----------------------------------------------- NO GNAT Pro
+:nognat
+echo No GNAT Pro compiler found
 goto exit
 
 rem ----------------------------------------------- ERROR
