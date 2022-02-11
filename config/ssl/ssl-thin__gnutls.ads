@@ -615,7 +615,7 @@ package SSL.Thin is
      with Import, Convention => C;
 
    function gnutls_alert_get_name
-     (alert : gnutls_alert_description_t) return  CS.chars_ptr
+     (alert : gnutls_alert_description_t) return CS.chars_ptr
      with Import, Convention => C;
 
    function gnutls_cipher_get

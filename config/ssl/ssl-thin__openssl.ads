@@ -1302,7 +1302,7 @@ package SSL.Thin is
      with Import, Convention => C, External_Name => "SSL_load_client_CA_file";
 
    function SSL_dup_CA_list
-     (List : STACK_OF_X509_NAME) return  STACK_OF_X509_NAME
+     (List : STACK_OF_X509_NAME) return STACK_OF_X509_NAME
      with Import, Convention => C, External_Name => "SSL_dup_CA_list";
 
    procedure SSL_CTX_set_client_CA_list
