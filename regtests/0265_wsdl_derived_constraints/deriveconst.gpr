@@ -21,7 +21,7 @@ with "aws";
 project Deriveconst is
 
    for Source_Dirs use (".");
-   for Main use ("deriveconst_main");
+   for Main use ("deriveconst_main.adb");
 
    package Builder is
       for Executable ("deriveconst_main.adb") use "deriveconst";

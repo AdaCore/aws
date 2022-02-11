@@ -20,5 +20,5 @@ with "aws";
 
 project Cookie_Session is
    for Source_Dirs use (".");
-   for Main use ("cookie_session");
+   for Main use ("cookie_session.adb");
 end Cookie_Session;
