@@ -73,15 +73,9 @@ ifdef NO_SSL_LINK
 	echo '   R_TLS_Lib := "";' >> $(LIBGPR)
 else
 	echo '   S_SSL_Lib := "ssl";' >> $(LIBGPR)
-ifeq (${PRJ_TARGET}, Windows_NT)
-	echo '   R_SSL_Lib := "ssl32";' >> $(LIBGPR)
-	echo '   S_CRY_Lib := "crypto";' >> $(LIBGPR)
-	echo '   R_CRY_Lib := "eay32";' >> $(LIBGPR)
-else
 	echo '   R_SSL_Lib := "ssl";' >> $(LIBGPR)
 	echo '   S_CRY_Lib := "crypto";' >> $(LIBGPR)
 	echo '   R_CRY_Lib := "crypto";' >> $(LIBGPR)
-endif
 	echo '   S_TLS_Lib := "gnutls";' >> $(LIBGPR)
 	echo '   R_TLS_Lib := "gnutls";' >> $(LIBGPR)
 endif

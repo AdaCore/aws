@@ -20,5 +20,5 @@ with "aws";
 
 project Many_Parameters is
    for Source_Dirs use (".", "../common");
-   for Main use ("many_parameters");
+   for Main use ("many_parameters.adb");
 end Many_Parameters;
