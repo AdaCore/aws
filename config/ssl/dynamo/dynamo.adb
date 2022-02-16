@@ -27,12 +27,13 @@
 --  covered by the  GNU Public License.                                     --
 ------------------------------------------------------------------------------
 --
---  This program is to convert thin binding specification into dynamic thin
---  binding. Each routine and object aspect list containing Import aspect and
---  not containing Address aspect will be modified to have Address aspect
---  pointing to the Address declared in another package which taken from call
---  to Symbol routine with parameter taken from External_Name aspect value if
---  exists or from lowercased routine/object name.
+--  This program is to convert thin binding specification into optional dynamic
+--  thin binding. Each routine and object aspect list containing Import aspect
+--  and not containing Address aspect will be modified to have Address aspect
+--  pointing to the user defined function call Symbol with String parameter
+--  returning System.Address. String parameter taken either from External_Name
+--  acpect if exists or from lowercased imported object name if External_Name
+--  is absent.
 
 with Ada.Command_Line;
 with Ada.Strings.Wide_Wide_Unbounded;
