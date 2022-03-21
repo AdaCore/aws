@@ -624,6 +624,20 @@ AWS.Response
 
 .. _AWS.Server:
 
+AWS.Response.Set
+================
+
+.. index:: AWS.Response.Set
+
+.. literalinclude:: ../build/apirefs/aws-response-set.ads
+   :language: ada
+
+.. raw:: latex
+
+      \newpage
+
+.. _AWS.Server:
+
 AWS.Server
 ==========
 
