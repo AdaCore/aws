@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2004-2017, AdaCore                     --
+--                     Copyright (C) 2004-2022, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -913,6 +913,16 @@ package body AWS.Net.Std is
             Last      => Last);
       end if;
    end Send;
+
+   -----------------------
+   -- Set_Close_On_Exec --
+   -----------------------
+
+   overriding procedure Set_Close_On_Exec (Socket : Socket_Type) is
+      Status : Boolean;
+   begin
+      Sockets.Set_Close_On_Exec (Socket.S.FD, True, Status);
+   end Set_Close_On_Exec;
 
    ----------------------
    -- Set_Int_Sock_Opt --

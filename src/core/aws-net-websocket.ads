@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2012-2020, AdaCore                     --
+--                     Copyright (C) 2012-2022, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -339,6 +339,8 @@ private
       Port   : Positive;
       Wait   : Boolean     := True;
       Family : Family_Type := Family_Unspec) is null;
+
+   overriding procedure Set_Close_On_Exec (Socket : Object) is null;
 
    overriding procedure Socket_Pair (S1, S2 : out Object) is null;
 
