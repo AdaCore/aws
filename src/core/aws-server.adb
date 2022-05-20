@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2000-2021, AdaCore                     --
+--                     Copyright (C) 2000-2022, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -444,6 +444,7 @@ package body AWS.Server is
    is
       use type AWS.Status.Protocol_State;
       use type Ada.Streams.Stream_Element_Count;
+
       Back_OK    : Boolean;
       Waiter     : FD_Set_Access;
       Wait_Count : Natural;
