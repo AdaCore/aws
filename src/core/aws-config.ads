@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2000-2021, AdaCore                     --
+--                     Copyright (C) 2000-2022, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -167,6 +167,9 @@ package AWS.Config is
    function Reuse_Address (O : Object) return Boolean with Inline;
    --  Returns true if bind is allowed to reuse an address (not waiting for
    --  the delay between two bind to the same port).
+
+   function Close_On_Exec (O : Object) return Boolean with Inline;
+   --  Returns true if socket descriptor are closed on child processes
 
    function HTTP2_Header_Table_Size (O : Object) return Positive with Inline;
    --  HTTP2 max header table size
@@ -542,6 +545,7 @@ private
       Down_Image,
       Logo_Image,
       Line_Stack_Size,
+      Close_On_Exec,
       Reuse_Address,
       Check_URL_Validity,
       Case_Sensitive_Parameters,
@@ -822,6 +826,9 @@ private
 
                            Reuse_Address                   =>
                              (Bool, Default.Reuse_Address),
+
+                           Close_On_Exec                   =>
+                             (Bool, Default.Close_On_Exec),
 
                            Max_POST_Parameters             =>
                              (Pos, Default.Max_POST_Parameters));

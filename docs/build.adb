@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2000-2021, AdaCore                     --
+--                     Copyright (C) 2000-2022, AdaCore                     --
 --                                                                          --
 --  This is free software;  you can redistribute it  and/or modify it       --
 --  under terms of the  GNU General Public License as published  by the     --
@@ -106,6 +106,7 @@ begin
    Add ("UPLOAD_DIR", Default.Upload_Directory);
    Add ("LINE_STACK_SIZE", Default.Line_Stack_Size);
    Add ("REUSE_ADDRESS", Default.Reuse_Address);
+   Add ("CLOSE_ON_EXEC", Default.Close_On_Exec);
    Add ("CHECK_URL_VALIDITY", Default.Check_URL_Validity);
    Add ("DEFAULT_CERTIFICATE", Default.Certificate);
    Add ("DEFAULT_KEY", Default.Key);

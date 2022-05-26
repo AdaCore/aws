@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                       Copyright (C) 2015, AdaCore                        --
+--                     Copyright (C) 2015-2022, AdaCore                      --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -65,6 +65,8 @@ package AWS.Net.Memory is
      (Socket     : Net.Socket_Type'Class;
       New_Socket : in out Socket_Type) is null;
    --  Accept a connection on a socket
+
+   overriding procedure Set_Close_On_Exec (Socket : Socket_Type) is null;
 
    overriding procedure Connect
      (Socket : in out Socket_Type;

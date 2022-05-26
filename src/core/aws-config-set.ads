@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2000-2021, AdaCore                     --
+--                     Copyright (C) 2000-2022, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -74,6 +74,10 @@ package AWS.Config.Set is
    procedure Reuse_Address (O : in out Object; Value : Boolean);
    --  Set the reuse address policy allowing a bind without a dealy to the same
    --  address and port.
+
+   procedure Close_On_Exec (O : in out Object; Value : Boolean);
+   --  Set the close on exec policy forcing the socket descriptors to
+   --  be closed in child processes.
 
    procedure Session_Name (O : in out Object; Value : String);
    --  Name of the cookie session
