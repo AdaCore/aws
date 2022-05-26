@@ -840,6 +840,16 @@ Current supported options are:
   answer. This is a timeout for regular cleaning task. The default is
   |CT_SERVER_RESPONSE| seconds.
 
+*Close_On_Exec (boolean)*
+
+  .. index:: Close_On_Exec
+
+  Set the socket close on exec policy. If set to True the child
+  process spawned from the server won't get access to the server's
+  sockets (listening and connection with clients). That is, all
+  inherited sockets are closed when a child process is executed.
+  platforms. The default is |CLOSE_ONE_EXEC|.
+
 *Config_Directory (string)*
 
   .. index:: Config_Directory

@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2000-2016, AdaCore                     --
+--                     Copyright (C) 2000-2022, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -123,6 +123,9 @@ package AWS.Net is
    --  Accept a connection on a socket. If it raises Socket_Error, all
    --  resources used by new_Socket have been released.
    --  There is not need to call Free or Shutdown.
+
+   procedure Set_Close_On_Exec (Socket : Socket_Type) is abstract;
+   --  Set the close on exec socket flags
 
    type Socket_Constructor is not null access
      function (Security : Boolean) return Socket_Type'Class;

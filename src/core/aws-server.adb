@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2000-2021, AdaCore                     --
+--                     Copyright (C) 2000-2022, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -97,6 +97,11 @@ package body AWS.Server is
 
       procedure Accept_Error (E : Ada.Exceptions.Exception_Occurrence);
 
+      function Set_CLOSEXEC
+        (Sock : Net.Socket_Access) return Net.Socket_Access;
+      --  Returns Sock with flag close on exec set if the server has
+      --  this property.
+
       ------------------
       -- Accept_Error --
       ------------------
@@ -110,6 +115,20 @@ package body AWS.Server is
 
          Force_Clean (Server.all);
       end Accept_Error;
+
+      ------------------
+      -- Set_CLOSEXEC --
+      ------------------
+
+      function Set_CLOSEXEC
+        (Sock : Net.Socket_Access) return Net.Socket_Access is
+      begin
+         if CNF.Close_On_Exec (Server.Properties) then
+            Net.Set_Close_On_Exec (Sock.all);
+         end if;
+
+         return Sock;
+      end Set_CLOSEXEC;
 
    begin
       loop
@@ -127,7 +146,7 @@ package body AWS.Server is
                Net.Free (New_Socket);
                SSL_Socket.Do_Handshake; -- Handshake need for HTTP/2 ALPN
                pragma Warnings (Off);
-               return new Net.SSL.Socket_Type'(SSL_Socket);
+               return Set_CLOSEXEC (new Net.SSL.Socket_Type'(SSL_Socket));
             exception
                when Net.Socket_Error =>
                   if New_Socket = null then
@@ -151,7 +170,7 @@ package body AWS.Server is
             end;
 
          else
-            return New_Socket;
+            return Set_CLOSEXEC (New_Socket);
          end if;
       end loop;
    end Accept_Socket_Serialized;
@@ -444,6 +463,7 @@ package body AWS.Server is
    is
       use type AWS.Status.Protocol_State;
       use type Ada.Streams.Stream_Element_Count;
+
       Back_OK    : Boolean;
       Waiter     : FD_Set_Access;
       Wait_Count : Natural;
@@ -1301,6 +1321,13 @@ package body AWS.Server is
            CNF.Keep_Alive_Close_Limit (Web_Server.Properties),
          Reuse_Address       => CNF.Reuse_Address (Web_Server.Properties),
          IPv6_Only           => CNF.IPv6_Only (Web_Server.Properties));
+
+      --  If Close_On_Exec is set
+
+      if CNF.Close_On_Exec (Web_Server.Properties) then
+         Net.Set_Close_On_Exec
+           (HTTP_Acceptors.Server_Socket (Web_Server.Acceptor));
+      end if;
 
       --  Clone main dispatcher
 

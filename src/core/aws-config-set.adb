@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2000-2021, AdaCore                     --
+--                     Copyright (C) 2000-2022, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -150,6 +150,15 @@ package body AWS.Config.Set is
    begin
       O.P (Cleaner_Wait_For_Client_Timeout).Dur_Value := Value;
    end Cleaner_Wait_For_Client_Timeout;
+
+   -------------------
+   -- Close_On_Exec --
+   -------------------
+
+   procedure Close_On_Exec (O : in out Object; Value : Boolean) is
+   begin
+      O.P (Close_On_Exec).Bool_Value := Value;
+   end Close_On_Exec;
 
    ----------------------
    -- Config_Directory --

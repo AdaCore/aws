@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2002-2014, AdaCore                     --
+--                     Copyright (C) 2002-2022, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -66,6 +66,9 @@ package AWS.Net.Std is
      (Socket     : Net.Socket_Type'Class;
       New_Socket : in out Socket_Type);
    --  Accept a connection on a socket
+
+   overriding procedure Set_Close_On_Exec (Socket : Socket_Type);
+   --  Set the close on exec socket flags
 
    overriding procedure Connect
      (Socket : in out Socket_Type;
