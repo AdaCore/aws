@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2003-2021, AdaCore                     --
+--                     Copyright (C) 2003-2022, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -597,7 +597,6 @@ package body WSDL2AWS.WSDL.Parser is
          --  Look for arrayType in Attributes list
 
          for K in 0 .. DOM.Core.Nodes.Length (Attributes) - 1 loop
-
             declare
                N : constant DOM.Core.Node :=
                      DOM.Core.Nodes.Item (Attributes, K);
@@ -1175,16 +1174,19 @@ package body WSDL2AWS.WSDL.Parser is
             --  This is not a standard type, parse it
             declare
                N : DOM.Core.Node :=
-                     Look_For_Schema (R, WSDL.Types.Name (O.Array_Elements),
+                     Look_For_Schema (R,
+                                      WSDL.Types.Name (O.Array_Elements, True),
                                       Document,
                                       Look_Context'(Complex_Type => True,
                                                     others => False));
             begin
                if N = null then
-                  N := Look_For_Schema (R, WSDL.Types.Name (O.Array_Elements),
-                                        Document,
-                                        Look_Context'(Simple_Type => True,
-                                                      others      => False));
+                  N := Look_For_Schema
+                         (R,
+                          WSDL.Types.Name (O.Array_Elements, True),
+                          Document,
+                          Look_Context'(Simple_Type => True,
+                                        others      => False));
                   Parameters.Append (P.P, Parse_Simple (O, N, Document));
 
                else
