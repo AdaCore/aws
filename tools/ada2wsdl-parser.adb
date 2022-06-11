@@ -62,7 +62,7 @@ package body Ada2WSDL.Parser is
    Max_Deferred_Types : constant := 1_024;
 
    type Element_Set is array (Positive range 1 .. Max_Deferred_Types)
-     of Type_Decl;
+     of Ada_Node;
 
    Deferred_Types : Element_Set;
    --  Records all types tha can't be analysed at some point. For example we
@@ -71,7 +71,7 @@ package body Ada2WSDL.Parser is
    Index          : Natural := 0;
    --  Current Index in the Deferred_Types array
 
-   procedure Append_Deferred (Node : Base_Type_Decl'Class);
+   procedure Append_Deferred (Node : Ada_Node'Class);
    --  Append a new element into the list of deferred types
 
    function Get_Safe_Pointer_Type
@@ -84,6 +84,11 @@ package body Ada2WSDL.Parser is
    --  We want to return the type My_Type.
    --
    --  This is very dependant on the Safe_Pointer implementation.
+
+   function Get_Vector_Type
+     (Node : Type_Decl) return Base_Type_Decl;
+   --  Returns the Element_Type of an instanciation of a Containers.Vectors
+   --  This is very dependant on the Ada.Containers.Vector implementation.
 
    function Name_Space (Node : Ada_Node'Class) return String;
    --  Returns the name space for element Node. Name space is defined as
@@ -136,7 +141,7 @@ package body Ada2WSDL.Parser is
    --  True if Node is declared into AWS's SOAP.Types package
 
    function Type_Definition
-     (Node : Base_Type_Decl;
+     (Node : Ada_Node;
       Name : String;
       Decl : Ada_Node'Class;
       Base : Boolean) return Generator.Type_Data;
@@ -155,7 +160,7 @@ package body Ada2WSDL.Parser is
       Base : Boolean) return Generator.Type_Data;
    --  Likewise for a type-expr
 
-   procedure Analyze_Type (Node : Type_Decl'Class);
+   procedure Analyze_Type (Node : Ada_Node'Class);
    --  Analyze a type declaration (array, derived, etc.)
 
    procedure Analyze_Subtype (Node : Subtype_Decl'Class);
@@ -462,7 +467,7 @@ package body Ada2WSDL.Parser is
                  Node.F_Type_Expr.P_Designated_Type_Decl;
       C_Name : constant String := Img (C_Type.F_Name);
       E_Type : constant Generator.Type_Data :=
-                 Type_Definition (C_Type, C_Name, C_Type, False);
+                 Type_Definition (C_Type.As_Ada_Node, C_Name, C_Type, False);
       T_Decl : constant Base_Type_Decl :=
                  (if C_Type.Kind = Ada_Subtype_Decl
                   then C_Type.As_Subtype_Decl.F_Subtype.P_Designated_Type_Decl
@@ -522,11 +527,9 @@ package body Ada2WSDL.Parser is
    -- Analyze_Type --
    ------------------
 
-   procedure Analyze_Type (Node : Type_Decl'Class) is
+   procedure Analyze_Type (Node : Ada_Node'Class) is
 
-      T_Name : constant String := Img (Node.F_Name);
-      T_Decl : constant Base_Type_Decl := Node.As_Base_Type_Decl;
-      NS     : constant String := Name_Space (Node);
+      NS : constant String := Name_Space (Node);
 
       type U_Array_Def is record
          Name, NS           : Unbounded_String;
@@ -549,6 +552,21 @@ package body Ada2WSDL.Parser is
 
       procedure Analyze_Record (Node : Record_Type_Def'Class);
       --  Analyze a record type definition
+
+      function T_Name return String is
+        (Img
+           (if Node.Kind = Ada_Subtype_Indication
+            then Node.As_Subtype_Indication.F_Name
+            else Node.As_Type_Decl.F_Name));
+      --  Return the Node's type name
+
+      function T_Def return Type_Def is
+        (if Node.Kind = Ada_Subtype_Indication
+         then Node.As_Subtype_Indication.P_Designated_Type_Decl.As_Type_Decl
+              .F_Type_Def
+         else Node.As_Type_Decl.F_Type_Def);
+
+      function T_Decl return Base_Type_Decl is (Node.As_Base_Type_Decl);
 
       ---------------------
       -- Analyze_Derived --
@@ -621,7 +639,8 @@ package body Ada2WSDL.Parser is
          end if;
 
          if not Generator.Type_Exists (NS, T_Name) then
-            Def := Type_Definition (Analyze_Type.Node, Base => True);
+            Def := Type_Definition
+              (Analyze_Type.Node.As_Type_Decl, Base => True);
             Generator.Register_Derived (NS, T_Name, Def);
          end if;
       end Analyze_Derived;
@@ -670,6 +689,7 @@ package body Ada2WSDL.Parser is
             C_Def  : constant Component_Def := Node.F_Component_Def;
             F_Decl : Base_Type_Decl :=
                        C_Def.F_Type_Expr.P_Designated_Type_Decl;
+            V_NS   : Ada_Node := No_Ada_Node;
             T_Name : Unbounded_String;
          begin
             if Node.Kind = Ada_Anonymous_Type_Decl
@@ -742,6 +762,48 @@ package body Ada2WSDL.Parser is
 
                   T_Name := Deferred_U_Arrays (U_Array_Index).Name;
                end;
+
+            --  Check for a private Vector instantiation
+            elsif Img (F_Decl.F_Name, Lower_Case => True) = "vector"
+                 and then
+               F_Decl.As_Type_Decl.F_Type_Def.Kind = Ada_Private_Type_Def
+            then
+               --  The name of the array type is the package instance name
+               declare
+                  V_Type : constant Base_Type_Decl :=
+                             Get_Vector_Type (F_Decl.As_Type_Decl);
+                  E_Type : constant Generator.Type_Data :=
+                             Type_Definition
+                               (V_Type.As_Type_Decl,
+                                Base => False);
+                  A_Inst : constant Name :=
+                             C_Def.F_Type_Expr
+                               .As_Subtype_Indication.F_Name
+                               .As_Dotted_Name.F_Prefix;
+               begin
+                  U_Array_Index := U_Array_Index + 1;
+
+                  --  Set array's component type information
+
+                  Deferred_U_Arrays (U_Array_Index).Comp_NS :=
+                    E_Type.NS;
+                  Deferred_U_Arrays (U_Array_Index).Comp_Type :=
+                    E_Type.Name;
+
+                  V_NS := A_Inst.P_Referenced_Decl.As_Ada_Node;
+
+                  Deferred_U_Arrays (U_Array_Index).NS :=
+                    To_Unbounded_String (Name_Space (V_NS));
+
+                  --  Set array's type name
+
+                  Deferred_U_Arrays (U_Array_Index).Name :=
+                    To_Unbounded_String (Img (A_Inst));
+
+                  Deferred_U_Arrays (U_Array_Index).Length := 0;
+
+                  T_Name := Deferred_U_Arrays (U_Array_Index).Name;
+               end;
             end if;
 
             --  Check for a subtype
@@ -756,7 +818,11 @@ package body Ada2WSDL.Parser is
                end;
 
             else
-               Append_Deferred (F_Decl);
+               if Img (F_Decl.F_Name, Lower_Case => True) = "vector" then
+                  Append_Deferred (C_Def.F_Type_Expr);
+               else
+                  Append_Deferred (F_Decl);
+               end if;
             end if;
 
             --  If type-name still not known, compute it now
@@ -766,13 +832,22 @@ package body Ada2WSDL.Parser is
                  (F_Decl.As_Type_Decl, Base => False).Name;
             end if;
 
+            --  For safe_pointer and vector we want to get the declaration
+            --  of the element type to setup the proper name-space for this
+            --  component.
+            --
+            --  The Get_Safe_Pointer_Type & Get_Vector_Type walk through
+            --  the record defintion to retrieve the type of the instance.
+
             if Img (F_Decl.F_Name, Lower_Case => True) = "safe_pointer" then
                F_Decl := Get_Safe_Pointer_Type (F_Decl);
             end if;
 
             for C_Name of Node.F_Ids loop
                Generator.New_Component
-                 (NS        => Name_Space (F_Decl),
+                 (NS        => Name_Space (if V_NS /= No_Ada_Node
+                                           then V_NS
+                                           else F_Decl),
                   Comp_Name => Img (C_Name),
                   Comp_Type => To_String (T_Name));
             end loop;
@@ -796,8 +871,6 @@ package body Ada2WSDL.Parser is
                Deferred_U_Arrays (K).Length);
          end loop;
       end Analyze_Record;
-
-      T_Def : constant Type_Def := Node.F_Type_Def;
 
    begin
       if not Generator.Type_Exists (NS, T_Name) then
@@ -832,10 +905,10 @@ package body Ada2WSDL.Parser is
    -- Append_Deferred --
    ---------------------
 
-   procedure Append_Deferred (Node : Base_Type_Decl'Class) is
+   procedure Append_Deferred (Node : Ada_Node'Class) is
    begin
       Index := Index + 1;
-      Deferred_Types (Index) := Node.As_Type_Decl;
+      Deferred_Types (Index) := Node.As_Ada_Node;
    end Append_Deferred;
 
    -----------------------
@@ -1102,6 +1175,82 @@ package body Ada2WSDL.Parser is
         F_Subtype_Indication.P_Designated_Type_Decl;
    end Get_Safe_Pointer_Type;
 
+   ----------------------
+   --  Get_Vector_Type --
+   ----------------------
+
+   function Get_Vector_Type
+     (Node : Type_Decl) return Base_Type_Decl
+   is
+      --  See Vector private tagged type implementation in a-convec
+
+      P_Part : constant Base_Type_Decl :=
+                 Node.As_Base_Type_Decl.P_Private_Completion;
+      --  The private part of the record completion
+      F_Def  : constant Type_Def := P_Part.As_Type_Decl.F_Type_Def;
+
+      --  type Vector is new Controlled with record
+      --    Elements : Elements_Access := null;
+      --    Last     : Extended_Index := No_Index;
+      --    TC       : aliased Tamper_Counts;
+      --  end record with Put_Image => Put_Image;
+
+      --  The record defintion
+      R_Def  : constant Base_Record_Def :=
+                 F_Def.As_Derived_Type_Def.F_Record_Extension;
+      --  The record extension
+      R_Comp : constant Component_List := R_Def.F_Components;
+      --  All components of the record
+      Comp_1 : constant Component_Decl :=
+                 R_Comp.F_Components.Child (1).As_Component_Decl;
+      --  First component is the access type to a record containing
+      --  the element's array of type T
+      T_Comp : constant Type_Expr :=
+                 Comp_1.F_Component_Def.F_Type_Expr;
+      --  Subtype of the access type
+      R_Type : constant Base_Type_Decl := T_Comp.P_Designated_Type_Decl;
+      --  This is the access type to the record
+
+      E_Def  : constant Type_Def := R_Type.As_Type_Decl.F_Type_Def;
+      --  The type of the record of element's array
+
+      --  type Elements_Type (Last : Extended_Index) is limited record
+      --    EA : Elements_Array (Index_Type'First .. Last);
+      --  end record;
+
+      E_Rec : constant Base_Type_Decl :=
+                E_Def.As_Type_Access_Def
+                  .F_Subtype_Indication.P_Designated_Type_Decl;
+      --  The Elements_Type record
+      A_Def : constant Type_Def := E_Rec.As_Type_Decl.F_Type_Def;
+      --  The Elements_Type type definition
+      A_Rec : constant Base_Record_Def :=
+                A_Def.As_Record_Type_Def.F_Record_Def;
+      --  The record components
+      A_Comp : constant Component_List := A_Rec.F_Components;
+      A_C1   : constant Component_Decl :=
+                 A_Comp.F_Components.Child (1).As_Component_Decl;
+      --  The first component (EA above)
+      A_CDef : constant Type_Expr :=
+                 A_C1.F_Component_Def.F_Type_Expr;
+      A_Type : constant Base_Type_Decl := A_CDef.P_Designated_Type_Decl;
+      --  This Element_Array subtype
+
+      --  type Elements_Array is
+      --    array (Index_Type range <>) of aliased Element_Type;
+
+      El_Typ : constant Type_Expr :=
+                 A_Type.As_Type_Decl.F_Type_Def
+                   .As_Array_Type_Def.F_Component_Type.F_Type_Expr;
+      --  The subtype of the array's component
+      El_Dcl : constant Base_Type_Decl :=
+                 El_Typ.As_Subtype_Indication.P_Designated_Type_Decl;
+      --  The actual array's element type
+   begin
+      --  Get the type for this access type
+      return El_Dcl;
+   end Get_Vector_Type;
+
    ----------------
    -- Name_Space --
    ----------------
@@ -1180,7 +1329,7 @@ package body Ada2WSDL.Parser is
          --  A procedure or function declaration, analyse the parameters
 
          procedure Analyze_Package_Instantiation (Node : Ada_Node'Class);
-         --  Analyze a package instantiation
+         --  Analyze a package instantiation in the spec
 
          ---------------------
          -- Analyze_Package --
@@ -1202,6 +1351,39 @@ package body Ada2WSDL.Parser is
          -----------------------------------
 
          procedure Analyze_Package_Instantiation (Node : Ada_Node'Class) is
+
+            function T_Decl (E : Expr) return Ada_Node'Class;
+            --  Return the type declaration to use for the name-space
+
+            function T_Name (E : Expr) return Ada_Node'Class;
+            --  Return the type name
+
+            ------------
+            -- T_Decl --
+            ------------
+
+            function T_Decl (E : Expr) return Ada_Node'Class is
+            begin
+               if E.Kind = Ada_Dotted_Name then
+                  return E.As_Dotted_Name.P_Name_Designated_Type;
+               else
+                  return E;
+               end if;
+            end T_Decl;
+
+            ------------
+            -- T_Name --
+            ------------
+
+            function T_Name (E : Expr) return Ada_Node'Class is
+            begin
+               if E.Kind = Ada_Dotted_Name then
+                  return E.As_Dotted_Name.P_Name_Designated_Type.F_Name;
+               else
+                  return E.As_Identifier;
+               end if;
+            end T_Name;
+
             G_Pck  : constant Generic_Package_Instantiation :=
                        Node.As_Generic_Package_Instantiation;
             G_Name : constant String :=
@@ -1221,6 +1403,31 @@ package body Ada2WSDL.Parser is
                           (Name        => Img (G_Pck.F_Name),
                            Type_Name   => Img (P (1).F_R_Expr.As_Identifier),
                            Access_Name => Img (P (2).F_R_Expr.As_Identifier));
+                     end;
+                  end if;
+               end;
+
+            elsif G_Name = "ada.containers.vectors" then
+               --  This is the instance of a standard vector container. The
+               --  name of the package is the name of the array type in WSDL
+               --  and the second parameter the array items' type.
+
+               declare
+                  Params : constant Assoc_List := G_Pck.F_Params;
+               begin
+                  if Params.Children_Count = 2 then
+                     declare
+                        P : constant array (1 .. 2) of Param_Assoc :=
+                              (Params.List_Child (1).As_Param_Assoc,
+                               Params.List_Child (2).As_Param_Assoc);
+                        E : constant Expr := P (2).F_R_Expr;
+                     begin
+                        Generator.Start_Array
+                          (NS             => Name_Space (Node),
+                           Name           => Img (G_Pck.F_Name),
+                           Component_NS   => Name_Space (T_Decl (E)),
+                           Component_Type => Img (T_Name (E)),
+                           Length         => 0);
                      end;
                   end if;
                end;
@@ -1309,7 +1516,7 @@ package body Ada2WSDL.Parser is
          end Analyze_Routine;
 
       begin
-         case Kind (Node) is
+         case Node.Kind is
             when Ada_Package_Decl =>
                Analyze_Package (Node);
 
@@ -1392,7 +1599,7 @@ package body Ada2WSDL.Parser is
    --------------
 
    function Type_Definition
-     (Node : Base_Type_Decl;
+     (Node : Ada_Node;
       Name : String;
       Decl : Ada_Node'Class;
       Base : Boolean) return Generator.Type_Data
@@ -1528,7 +1735,8 @@ package body Ada2WSDL.Parser is
                              Get_Base_Type (T_Def.As_Derived_Type_Def);
                   Name   : constant String := Img (P_Type.F_Name);
                   Def    : Generator.Type_Data :=
-                             Type_Definition (P_Type, Name, P_Type, False);
+                             Type_Definition
+                               (P_Type.As_Ada_Node, Name, P_Type, False);
                begin
                   Get_Range_Derived (Node, Def.Min, Def.Max);
 
@@ -1907,31 +2115,31 @@ package body Ada2WSDL.Parser is
    begin
       case T_Def.Kind is
          when Ada_Signed_Int_Type_Def =>
-            return Build_Integer (Node);
+            return Build_Integer (Node.As_Base_Type_Decl);
 
          when Ada_Floating_Point_Def =>
-            return Build_Float (Node);
+            return Build_Float (Node.As_Base_Type_Decl);
 
          when Ada_Derived_Type_Def =>
-            return Build_Derived (Node);
+            return Build_Derived (Node.As_Base_Type_Decl);
 
          when Ada_Record_Type_Def =>
-            return Register_Deferred (Node);
+            return Register_Deferred (Node.As_Base_Type_Decl);
 
          when Ada_Array_Type_Def =>
             return Build_Array (T_Decl);
 
          when Ada_Private_Type_Def =>
-            return Build_Private (Node);
+            return Build_Private (Node.As_Base_Type_Decl);
 
          when Ada_Enum_Type_Def =>
-            return Build_Enumeration (Node);
+            return Build_Enumeration (Node.As_Base_Type_Decl);
 
          when Ada_Ordinary_Fixed_Point_Def =>
-            return Build_Fixed_Point (Node);
+            return Build_Fixed_Point (Node.As_Base_Type_Decl);
 
          when Ada_Mod_Int_Type_Def =>
-            return Build_Modular (Node);
+            return Build_Modular (Node.As_Base_Type_Decl);
 
          when Ada_Type_Access_Def =>
             Raise_Spec_Error
@@ -1952,7 +2160,7 @@ package body Ada2WSDL.Parser is
       E_Name : constant Defining_Name := Node.As_Base_Type_Decl.F_Name;
       T_Name : constant String := Img (E_Name);
    begin
-      return Type_Definition (Node.As_Base_Type_Decl, T_Name, Node, Base);
+      return Type_Definition (Node.As_Ada_Node, T_Name, Node, Base);
    end Type_Definition;
 
    function Type_Definition
@@ -1967,7 +2175,7 @@ package body Ada2WSDL.Parser is
          Decl := Decl.As_Subtype_Decl.F_Subtype.P_Designated_Type_Decl;
       end if;
 
-      return Type_Definition (Decl, T_Name, Node, Base);
+      return Type_Definition (Decl.As_Ada_Node, T_Name, Node, Base);
    end Type_Definition;
 
 end Ada2WSDL.Parser;
