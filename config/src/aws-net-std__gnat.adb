@@ -189,18 +189,11 @@ package body AWS.Net.Std is
 
       Close_On_Exception : Boolean := False;
 
-      procedure Raise_Error (Errno : Integer) with Inline;
-
       procedure Raise_Error (Errm : String);
 
       -----------------
       -- Raise_Error --
       -----------------
-
-      procedure Raise_Error (Errno : Integer) is
-      begin
-         Raise_Error (Error_Message (Errno));
-      end Raise_Error;
 
       procedure Raise_Error (Errm : String) is
          use type Sockets.Inet_Addr_Type;
@@ -232,7 +225,9 @@ package body AWS.Net.Std is
 
       declare
          use GNAT.Sockets;
+
          Keep_Excp : Exceptions.Exception_Occurrence;
+         Status    : Selector_Status;
          Addresses : constant Address_Info_Array :=
                        Get_Address_Info
                          (Real_Host, "", To_GNAT (Family), Passive => False);
@@ -247,42 +242,39 @@ package body AWS.Net.Std is
                   Addr_Info.Level);
                Close_On_Exception := True;
 
-               Set_Non_Blocking_Mode (Socket);
-
-               begin
-                  Connect_Socket (Socket.S.FD, Sock_Addr);
-               exception
-                  when E : GNAT.Sockets.Socket_Error =>
-                     --  Ignore EWOULDBLOCK and EINPROGRESS errors, because we
-                     --  are using none blocking connect.
-                     --  ??? Note, we should change this when GNAT will support
-                     --  Non-blocking connect.
-
-                     case Resolve_Exception (E) is
-                        when Operation_Now_In_Progress
-                           | Resource_Temporarily_Unavailable =>
-                           null;
-                        when others =>
-                           raise;
-                     end case;
-               end;
-
                if Wait then
-                  declare
-                     Events : constant Event_Set :=
-                                Net.Wait
-                                  (Socket, (Output => True, Input => False));
+                  Connect_Socket
+                    (Socket.S.FD, Sock_Addr,
+                     Timeout => Socket.Timeout, Status => Status);
+
+                  Set_Non_Blocking_Mode (Socket);
+
+                  case Status is
+                     when Completed =>
+                        null;
+                     when Expired =>
+                        Raise_Error (Error_Message (OS_Lib.ETIMEDOUT));
+                     when others =>
+                        Raise_Error ("Connect status " & Status'Img);
+                  end case;
+
+               else
+                  Set_Non_Blocking_Mode (Socket);
+
                   begin
-                     if Events (Error) then
-                        --  Raise original exception to keep trying in next
-                        --  address iteration.
+                     Connect_Socket (Socket.S.FD, Sock_Addr);
+                  exception
+                     when E : GNAT.Sockets.Socket_Error =>
+                        --  Ignore EWOULDBLOCK and EINPROGRESS errors, because
+                        --  we are using none blocking connect.
 
-                        raise GNAT.Sockets.Socket_Error with
-                           Error_Message (Errno (Socket));
-
-                     elsif not Events (Output) then
-                        Raise_Error (OS_Lib.ETIMEDOUT);
-                     end if;
+                        case Resolve_Exception (E) is
+                           when Operation_Now_In_Progress
+                              | Resource_Temporarily_Unavailable =>
+                              null;
+                           when others =>
+                              raise;
+                        end case;
                   end;
                end if;
 
