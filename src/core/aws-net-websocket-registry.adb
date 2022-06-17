@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2012-2021, AdaCore                     --
+--                     Copyright (C) 2012-2022, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -1401,9 +1401,7 @@ package body AWS.Net.WebSocket.Registry is
       Timeout      : Duration := Forever;
       Asynchronous : Boolean := False)
    is
-      A : String (Natural (Message'First) .. Natural (Message'Last))
-         with Import;
-      for A'Address use Message'Address;
+      A : String (1 .. Message'Length) with Import, Address => Message'Address;
       pragma Compile_Time_Error
          (Character'Size /= Stream_Element'Size,
           "A character size is not the size of a byte");
