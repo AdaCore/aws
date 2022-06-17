@@ -245,7 +245,10 @@ package body AWS.Net.Std is
                if Wait then
                   Connect_Socket
                     (Socket.S.FD, Sock_Addr,
-                     Timeout => Socket.Timeout, Status => Status);
+                     Timeout => (if Socket.Timeout > Sockets.Forever
+                                 then Sockets.Forever
+                                 else Socket.Timeout),
+                     Status  => Status);
 
                   Set_Non_Blocking_Mode (Socket);
 
