@@ -1187,7 +1187,7 @@ package body AWS.Net.WebSocket.Registry is
    task body Message_Sender is
 
       WSR : Object_Class;
-      WS  : access Object'Class;
+      WS  : Object_References.Element_Access;
 
       procedure Send (Message : Message_Data);
 
