@@ -754,8 +754,7 @@ package body AWS.Net.WebSocket.Registry is
          Error        : access procedure (Socket : Object'Class;
                                           Action : out Action_Kind) := null)
       is
-         type Object_Set is array (1 .. Natural (Registered.Length)) of
-           Object_Class;
+         type Object_Set is array (Positive range <>) of Object_Class;
 
          procedure Initialize_Recipients (Position : WebSocket_Map.Cursor);
          --  Count recipients and initialize the message's raw data
@@ -763,7 +762,7 @@ package body AWS.Net.WebSocket.Registry is
          procedure Send_To_Recipients (Recipients : Object_Set);
          --  Send message to all recipients
 
-         Recipients : Object_Set;
+         Recipients : Object_Set (1 .. Natural (Registered.Length));
          Last       : Natural := 0;
 
          ---------------------------
@@ -1188,7 +1187,7 @@ package body AWS.Net.WebSocket.Registry is
    task body Message_Sender is
 
       WSR : Object_Class;
-      WS  : access Object'Class;
+      WS  : Object_References.Element_Access;
 
       procedure Send (Message : Message_Data);
 
