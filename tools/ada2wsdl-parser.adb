@@ -968,8 +968,11 @@ package body Ada2WSDL.Parser is
          else
             if R.Kind = Ada_Range_Constraint then
                return R.As_Range_Constraint.F_Range.F_Range.As_Bin_Op;
-            elsif R.Kind = Ada_Index_Constraint then
-               return R.As_Index_Constraint.F_Constraints.Child (1).As_Bin_Op;
+            elsif R.Kind = Ada_Composite_Constraint and then
+              R.As_Composite_Constraint.P_Is_Index_Constraint
+            then
+               return R.As_Composite_Constraint.F_Constraints.Child (1)
+                   .As_Bin_Op;
             else
                return No_Bin_Op;
             end if;
