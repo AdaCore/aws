@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2000-2021, AdaCore                     --
+--                     Copyright (C) 2000-2022, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -29,6 +29,7 @@
 
 pragma Ada_2012;
 
+with Ada.Containers.Vectors;
 with Ada.Finalization;
 with Ada.Strings.Unbounded;
 
@@ -145,6 +146,12 @@ package SOAP.Utils is
    --  Convert a Types.Object_Set to an array of T
 
    generic
+      with package Vector is new Ada.Containers.Vectors (Positive, <>);
+      with function Get (O : Types.Object'Class) return Vector.Element_Type;
+   function To_Vector (From : Types.Object_Set) return Vector.Vector;
+   --  Convert a Types.Object_Set to an vector
+
+   generic
       type T is private;
       type Index is range <>;
       type T_Array is array (Index) of T;
@@ -186,6 +193,22 @@ package SOAP.Utils is
      (From : T_Array;
       NS   : Name_Space.Object) return Types.Object_Set;
    --  As above but for constrained arrays
+
+   generic
+      with package Vector is new Ada.Containers.Vectors (Positive, <>);
+      type XSD_Type is new Types.Object with private;
+      E_Name    : String;
+      Type_Name : String;
+      with function
+        Get (V         : Vector.Element_Type;
+             Name      : String := "item";
+             Type_Name : String := "";
+             NS        : Name_Space.Object := Name_Space.No_Name_Space)
+             return XSD_Type;
+   function To_Object_Set_V
+     (From : Vector.Vector;
+      NS   : Name_Space.Object) return Types.Object_Set;
+   --  Convert a Vector to a Types.Object_Set
 
    function Get (Item : Types.Object'Class) return Unbounded_String;
    --  Returns an Unbounded_String for Item. Item must be a SOAP string object
