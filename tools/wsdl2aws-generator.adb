@@ -559,8 +559,8 @@ package body WSDL2AWS.Generator is
    ---------------
 
    function Is_String (N : WSDL.Parameters.P_Set) return Boolean is
-      use type WSDL.Types.Kind;
       use all type SOAP.WSDL.Parameter_Type;
+      use type WSDL.Types.Kind;
    begin
       return N.Mode = WSDL.Types.K_Simple
         and then SOAP.WSDL.To_Type (WSDL.Types.Name (N.Typ)) = P_String;

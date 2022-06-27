@@ -101,10 +101,11 @@ package body Stub is
       Output        : WSDL.Parameters.P_Set;
       Fault         : WSDL.Parameters.P_Set)
    is
+      use all type SOAP.WSDL.Parameter_Type;
+
       use type SOAP.WSDL.Schema.Binding_Style;
       use type WSDL.Parameters.P_Set;
       use type WSDL.Types.Kind;
-      use all type SOAP.WSDL.Parameter_Type;
 
       procedure Output_Parameter
         (K      : Positive;
