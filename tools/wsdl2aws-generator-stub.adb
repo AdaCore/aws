@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2003-2021, AdaCore                     --
+--                     Copyright (C) 2003-2022, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -171,7 +171,8 @@ package body Stub is
                 then "SOAP_Array" else "SOAP_Set")
                & "'(A (To_Object_Set ("
                & Prefix & Format_Name (O, To_String (N.Name))
-               & ".Item.all" & "), """ & To_String (N.Name) & """, """
+               & (if O.Sp then ".Item.all" else "")
+               & "), """ & To_String (N.Name) & """, """
                & WSDL.Types.Name (N.Typ, True) & """))");
          end if;
 
