@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2003-2021, AdaCore                     --
+--                     Copyright (C) 2003-2022, AdaCore                     --
 --                                                                          --
 --  This is free software;  you can redistribute it  and/or modify it       --
 --  under terms of the  GNU General Public License as published  by the     --
@@ -144,8 +144,8 @@ procedure WSDL2AWS.Main is
 
       loop
          case Command_Line.Getopt
-           ("d q a e: f v s o: p: proxy: pu: pp: doc wsdl cvs nostub noskel "
-            & "x: http2 debug cb traces types: spec: main: n: timeouts:")
+           ("d q a e: f v s sp o: p: proxy: pu: pp: doc wsdl nostub noskel "
+            & "x: http2 debug cb traces types: spec: main: n: timeouts: cvs")
          is
             when ASCII.NUL => exit;
 
@@ -189,6 +189,9 @@ procedure WSDL2AWS.Main is
                   Generator.Specs_From
                     (Gen, GNAT.Command_Line.Parameter);
                   Spec := True;
+
+               elsif Command_Line.Full_Switch = "sp" then
+                  Generator.Gen_Safe_Pointer (Gen);
 
                elsif Command_Line.Full_Switch = "s" then
                   WSDL2AWS.WSDL.Parser.Continue_On_Error;

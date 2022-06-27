@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2003-2021, AdaCore                     --
+--                     Copyright (C) 2003-2022, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -516,7 +516,9 @@ package body Skel is
                & "."
                & Format_Name (O, To_String (N.Name)));
 
-            if N.Mode = WSDL.Types.K_Array then
+            if N.Mode = WSDL.Types.K_Array
+              and then O.Sp
+            then
                Text_IO.Put (Skel_Adb, ".Item.all");
             end if;
 
@@ -663,7 +665,10 @@ package body Skel is
                            WSDL.Parameters.To_SOAP
                              (N.all,
                               Object    => "Result."
-                                           & To_String (N.Name) & ".Item.all",
+                                            & To_String (N.Name)
+                                            & (if O.Sp
+                                               then ".Item.all"
+                                               else ""),
                               Name      => To_String (N.Name),
                               Type_Name => T_Name));
                      end if;

@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2003-2021, AdaCore                     --
+--                     Copyright (C) 2003-2022, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -496,6 +496,15 @@ package body WSDL2AWS.Generator is
    begin
       O.Gen_CB := True;
    end Gen_CB;
+
+   ----------------------
+   -- Gen_Safe_Pointer --
+   ----------------------
+
+   procedure Gen_Safe_Pointer (O : in out Object) is
+   begin
+      O.Sp := True;
+   end Gen_Safe_Pointer;
 
    ----------------
    -- Header_Box --
@@ -1436,11 +1445,13 @@ package body WSDL2AWS.Generator is
             --  Array type
 
             if P.Length = 0 then
-               --  Unconstrained array
-               Text_IO.Put_Line
-                 (Arr_Ads,
-                  "   type " & F_Name & " is array (Positive range <>) of "
-                    & To_Ada_Type (T_Name) & ";");
+               if O.Sp then
+                  --  Unconstrained array
+                  Text_IO.Put_Line
+                    (Arr_Ads,
+                     "   type " & F_Name & " is array (Positive range <>) of "
+                     & To_Ada_Type (T_Name) & ";");
+               end if;
 
             else
                --  A constrained array
@@ -1461,7 +1472,7 @@ package body WSDL2AWS.Generator is
                Text_IO.New_Line (Arr_Ads);
             end if;
 
-            if not Regen then
+            if not Regen and then O.Sp then
                Text_IO.Put_Line
                  (Tmp_Ads, "   subtype " & F_Name);
                Text_IO.Put_Line
@@ -1474,56 +1485,266 @@ package body WSDL2AWS.Generator is
             --  Safe pointer, needed only for unconstrained arrays
 
             if P.Length = 0 then
-               Text_IO.Put_Line
-                 (Arr_Ads, "   type "
-                    & F_Name & "_Access" & " is access all " & F_Name & ';');
+               if O.Sp then
+                  Text_IO.Put_Line
+                    (Arr_Ads, "   type "
+                     & F_Name & "_Access" & " is access all " & F_Name & ';');
 
-               Text_IO.New_Line (Arr_Ads);
-               Text_IO.Put_Line
-                 (Arr_Ads, "   package " & F_Name & "_Safe_Pointer is");
-               Text_IO.Put_Line
-                 (Arr_Ads, "      new SOAP.Utils.Safe_Pointers");
-               Text_IO.Put_Line
-                 (Arr_Ads,
-                  "            (" & F_Name & ", " & F_Name & "_Access);");
+                  Text_IO.New_Line (Arr_Ads);
+                  Text_IO.Put_Line
+                    (Arr_Ads, "   package " & F_Name & "_Safe_Pointer is");
+                  Text_IO.Put_Line
+                    (Arr_Ads, "      new SOAP.Utils.Safe_Pointers");
+                  Text_IO.Put_Line
+                    (Arr_Ads,
+                     "            (" & F_Name & ", " & F_Name & "_Access);");
 
-               Text_IO.New_Line (Arr_Ads);
-               Text_IO.Put_Line
-                 (Arr_Ads, "   subtype " & F_Name & "_Safe_Access");
-               Text_IO.Put_Line
-                 (Arr_Ads, "      is " & F_Name
-                    & "_Safe_Pointer.Safe_Pointer;");
+                  Text_IO.New_Line (Arr_Ads);
+                  Text_IO.Put_Line
+                    (Arr_Ads, "   subtype " & F_Name & "_Safe_Access");
+                  Text_IO.Put_Line
+                    (Arr_Ads, "      is " & F_Name
+                     & "_Safe_Pointer.Safe_Pointer;");
 
-               Text_IO.New_Line (Arr_Ads);
-               Text_IO.Put_Line
-                 (Arr_Ads, "   function ""+""");
-               Text_IO.Put_Line
-                 (Arr_Ads, "     (O : " & F_Name & ')');
-               Text_IO.Put_Line
-                 (Arr_Ads, "      return " & F_Name & "_Safe_Access");
-               Text_IO.Put_Line
-                 (Arr_Ads, "      renames "
-                  & F_Name & "_Safe_Pointer.To_Safe_Pointer;");
-               Text_IO.Put_Line
-                 (Arr_Ads, "   --  Convert an array to a safe pointer");
+                  Text_IO.New_Line (Arr_Ads);
+                  Text_IO.Put_Line
+                    (Arr_Ads, "   function ""+""");
+                  Text_IO.Put_Line
+                    (Arr_Ads, "     (O : " & F_Name & ')');
+                  Text_IO.Put_Line
+                    (Arr_Ads, "      return " & F_Name & "_Safe_Access");
+                  Text_IO.Put_Line
+                    (Arr_Ads, "      renames "
+                     & F_Name & "_Safe_Pointer.To_Safe_Pointer;");
+                  Text_IO.Put_Line
+                    (Arr_Ads, "   --  Convert an array to a safe pointer");
 
-               if not Regen then
-                  Text_IO.New_Line (Tmp_Ads);
+                  if not Regen then
+                     Text_IO.New_Line (Tmp_Ads);
+                     Text_IO.Put_Line
+                       (Tmp_Ads, "   function ""+""");
+                     Text_IO.Put_Line
+                       (Tmp_Ads, "     (O : "
+                        & To_Unit_Name (To_String (Prefix))
+                        & '.' & F_Name & ')');
+                     Text_IO.Put_Line
+                       (Tmp_Ads, "      return "
+                        & To_Unit_Name (To_String (Prefix))
+                        & '.' & F_Name & "_Safe_Access");
+                     Text_IO.Put_Line
+                       (Tmp_Ads, "      renames "
+                        & To_Unit_Name (To_String (Prefix)) & '.' & F_Name
+                        & "_Safe_Pointer.To_Safe_Pointer;");
+                     Text_IO.Put_Line
+                       (Tmp_Ads, "   --  Convert an array to a safe pointer");
+                  end if;
+
+                  Text_IO.New_Line (Arr_Ads);
+
+                  if P.Length = 0 then
+                     Text_IO.Put_Line
+                       (Arr_Ads, "   function To_" & F_Name
+                        & " is new SOAP.Utils.To_T_Array");
+                  else
+                     Text_IO.Put_Line
+                       (Arr_Ads, "   function To_" & F_Name
+                        & " is new SOAP.Utils.To_T_Array_C");
+                  end if;
+
+                  if not Regen then
+                     Text_IO.New_Line (Tmp_Ads);
+                     Text_IO.Put_Line
+                       (Tmp_Ads, "   function To_" & F_Name);
+                     Text_IO.Put_Line
+                       (Tmp_Ads, "     (From : SOAP.Types.Object_Set)");
+                     Text_IO.Put_Line (Tmp_Ads, "      return " & F_Name);
+                     Text_IO.Put_Line
+                       (Tmp_Ads, "      renames "
+                        & To_Unit_Name (To_String (Prefix))
+                        & ".To_" & F_Name & ';');
+                  end if;
+
+                  Text_IO.Put
+                    (Arr_Ads, "     (" & To_Ada_Type (T_Name) & ", ");
+
+                  if P.Length = 0 then
+                     Text_IO.Put (Arr_Ads, F_Name);
+                  else
+                     Text_IO.Put (Arr_Ads, F_Name & "_Index, " & F_Name);
+                  end if;
+
+                  Text_IO.Put_Line (Arr_Ads, ", " & Get_Routine (P) & ");");
+
+                  Text_IO.New_Line (Arr_Ads);
+
+                  if P.Length = 0 then
+                     Text_IO.Put_Line
+                       (Arr_Ads, "   function To_Object_Set"
+                        & " is new SOAP.Utils.To_Object_Set");
+                  else
+                     Text_IO.Put_Line
+                       (Arr_Ads, "   function To_Object_Set"
+                        & " is new SOAP.Utils.To_Object_Set_C");
+                  end if;
+
+                  if not Regen then
+                     Text_IO.New_Line (Tmp_Ads);
+                     Text_IO.Put_Line
+                       (Tmp_Ads, "   function To_Object_Set");
+                     Text_IO.Put_Line
+                       (Tmp_Ads, "     (From : " & F_Name & ';');
+                     Text_IO.Put_Line
+                       (Tmp_Ads, "      NS   : SOAP.Name_Space.Object :=");
+                     Text_IO.Put_Line
+                       (Tmp_Ads,
+                        "               SOAP.Name_Space.No_Name_Space)");
+                     Text_IO.Put_Line
+                       (Tmp_Ads, "      return SOAP.Types.Object_Set");
+                     Text_IO.Put_Line
+                       (Tmp_Ads,
+                        "      renames "
+                        & To_Unit_Name (To_String (Prefix))
+                        & ".To_Object_Set;");
+                  end if;
+
+                  Text_IO.Put
+                    (Arr_Ads, "     (" & To_Ada_Type (T_Name) & ", ");
+
+                  if P.Length = 0 then
+                     Text_IO.Put_Line (Arr_Ads, F_Name & ",");
+                  else
+                     Text_IO.Put_Line
+                       (Arr_Ads, F_Name & "_Index, " & F_Name & ",");
+                  end if;
+
                   Text_IO.Put_Line
-                    (Tmp_Ads, "   function ""+""");
+                    (Arr_Ads,
+                     "      " & Set_Type (WSDL.Types.Find (Def.E_Type))
+                     & ", """ & To_String (Def.E_Name) & """"
+                     & ", """ & ET_Name & """, " & Set_Routine (P) & ");");
+
+               else
+                  --  Package Vector instance
+
                   Text_IO.Put_Line
-                    (Tmp_Ads, "     (O : "
-                     & To_Unit_Name (To_String (Prefix)) & '.' & F_Name & ')');
+                    (Arr_Ads,
+                     "   package "
+                     & F_Name & "_Pck is new Ada.Containers.Vectors");
                   Text_IO.Put_Line
-                    (Tmp_Ads, "      return "
-                     & To_Unit_Name (To_String (Prefix))
-                     & '.' & F_Name & "_Safe_Access");
+                    (Arr_Ads,
+                     "     (Positive, " & To_Ada_Type (T_Name) & ");");
                   Text_IO.Put_Line
-                    (Tmp_Ads, "      renames "
-                     & To_Unit_Name (To_String (Prefix)) & '.' & F_Name
-                     & "_Safe_Pointer.To_Safe_Pointer;");
+                    (Arr_Ads,
+                     "   subtype " & F_Name
+                     & " is " & F_Name & "_Pck.Vector;");
+                  Text_IO.New_Line (Arr_Ads);
+
+                  --  Convert to self (simplify the generator)
+
                   Text_IO.Put_Line
-                    (Tmp_Ads, "   --  Convert an array to a safe pointer");
+                    (Arr_Ads,
+                     "   function ""+"" (V : " & F_Name & ")");
+                  Text_IO.Put_Line
+                    (Arr_Ads,
+                     "     return " & F_Name & " is (V);");
+
+                  --  Convert an Object_Set to a Vector
+
+                  Text_IO.New_Line (Arr_Ads);
+
+                  Text_IO.Put_Line
+                    (Arr_Ads, "   function To_" & F_Name
+                     & " is new SOAP.Utils.To_Vector");
+
+                  if not Regen then
+                     Text_IO.New_Line (Tmp_Ads);
+                     Text_IO.Put_Line
+                       (Tmp_Ads, "   package " & F_Name & "_Pck");
+                     Text_IO.Put_Line
+                       (Tmp_Ads, "     renames "
+                        & To_Unit_Name (To_String (Prefix))
+                        & "." & F_Name & "_Pck;");
+
+                     Text_IO.Put_Line
+                       (Tmp_Ads,
+                        "   subtype " & F_Name
+                        & " is " & F_Name & "_Pck.Vector;");
+
+                     Text_IO.New_Line (Tmp_Ads);
+
+                     Text_IO.Put_Line
+                       (Tmp_Ads,
+                        "   function ""+"" (V : " & F_Name & ")");
+                     Text_IO.Put_Line
+                       (Tmp_Ads,
+                        "     return " & F_Name);
+                     Text_IO.Put_Line
+                       (Tmp_Ads,
+                        "     renames "
+                        & To_Unit_Name (To_String (Prefix))
+                        & ".""+"";");
+
+                     Text_IO.New_Line (Tmp_Ads);
+                     Text_IO.Put_Line
+                       (Tmp_Ads, "   function To_" & F_Name);
+                     Text_IO.Put_Line
+                       (Tmp_Ads, "     (From : SOAP.Types.Object_Set)");
+                     Text_IO.Put_Line
+                       (Tmp_Ads, "      return " & F_Name);
+                     Text_IO.Put_Line
+                       (Tmp_Ads, "      renames "
+                        & To_Unit_Name (To_String (Prefix))
+                        & ".To_" & F_Name & ';');
+                  end if;
+
+                  Text_IO.Put
+                    (Arr_Ads, "     (");
+
+                  if P.Length = 0 then
+                     Text_IO.Put (Arr_Ads, F_Name & "_Pck");
+                  else
+                     Text_IO.Put (Arr_Ads, F_Name & "_Index, " & F_Name);
+                  end if;
+
+                  Text_IO.Put_Line (Arr_Ads, ", " & Get_Routine (P) & ");");
+
+                  --  Convert an Object_Set to a Vector
+
+                  Text_IO.New_Line (Arr_Ads);
+
+                  Text_IO.Put_Line
+                    (Arr_Ads, "   function To_Object_Set"
+                     & " is new SOAP.Utils.To_Object_Set_V");
+
+                  if not Regen then
+                     Text_IO.New_Line (Tmp_Ads);
+                     Text_IO.Put_Line
+                       (Tmp_Ads, "   function To_Object_Set");
+                     Text_IO.Put_Line
+                       (Tmp_Ads, "     (From : " & F_Name & ";");
+                     Text_IO.Put_Line
+                       (Tmp_Ads, "      NS   : SOAP.Name_Space.Object :=");
+                     Text_IO.Put_Line
+                       (Tmp_Ads,
+                        "               SOAP.Name_Space.No_Name_Space)");
+                     Text_IO.Put_Line
+                       (Tmp_Ads, "      return SOAP.Types.Object_Set");
+                     Text_IO.Put_Line
+                       (Tmp_Ads, "      renames "
+                        & To_Unit_Name (To_String (Prefix))
+                        & ".To_Object_Set;");
+                  end if;
+
+                  Text_IO.Put
+                    (Arr_Ads, "     (");
+
+                  Text_IO.Put_Line (Arr_Ads, F_Name & "_Pck,");
+
+                  Text_IO.Put_Line
+                    (Arr_Ads,
+                     "      " & Set_Type (WSDL.Types.Find (Def.E_Type))
+                     & ", """ & To_String (Def.E_Name) & """"
+                     & ", """ & ET_Name & """, " & Set_Routine (P) & ");");
                end if;
             end if;
 
@@ -1545,152 +1766,266 @@ package body WSDL2AWS.Generator is
                end if;
             end if;
 
-            Text_IO.Put_Line
-              (Arr_Ads, "   subtype " & F_Name & " is "
-               & Types_Spec (O) & "." & WSDL.Types.Name (P.Typ) & ";");
-
-            if not Regen then
+            if O.Sp then
                Text_IO.Put_Line
-                 (Tmp_Ads, "   subtype " & F_Name & " is "
+                 (Arr_Ads, "   subtype " & F_Name & " is "
                   & Types_Spec (O) & "." & WSDL.Types.Name (P.Typ) & ";");
-            end if;
-
-            if Is_Inside_Record (S_Name) then
-               --  Only if this array is inside a record and we don't have
-               --  generated this support yet.
 
                if not Regen then
+                  Text_IO.Put_Line
+                    (Tmp_Ads, "   subtype " & F_Name & " is "
+                     & Types_Spec (O) & "." & WSDL.Types.Name (P.Typ) & ";");
+               end if;
+
+            else
+               Text_IO.Put_Line
+                 (Arr_Ads, "   package " & F_Name & "_Pck");
+               Text_IO.Put_Line
+                 (Arr_Ads, "     renames "
+                  & Types_Spec (O) & "." & WSDL.Types.Name (P.Typ) & ";");
+               Text_IO.Put_Line
+                 (Arr_Ads,
+                  "   subtype " & F_Name & " is " & F_Name & "_Pck.Vector;");
+               Text_IO.New_Line (Arr_Ads);
+
+               Text_IO.Put_Line
+                 (Arr_Ads,
+                  "   function ""+"" (V : " & F_Name & ")");
+               Text_IO.Put_Line
+                 (Arr_Ads,
+                  "     return " & F_Name & " is (V);");
+
+               if not Regen then
+                  Text_IO.Put_Line
+                    (Tmp_Ads, "   package " & F_Name & "_Pck");
+                  Text_IO.Put_Line
+                    (Tmp_Ads,
+                     "     renames " & Types_Spec (O) & "."
+                     & WSDL.Types.Name (P.Typ) & ";");
+
+                  Text_IO.Put_Line
+                    (Tmp_Ads,
+                     "   subtype " & F_Name
+                     & " is " & F_Name & "_Pck.Vector;");
                   Text_IO.New_Line (Tmp_Ads);
 
-                  Header_Box (O, Tmp_Ads, "Safe Array " & F_Name);
+                  Text_IO.Put_Line
+                    (Tmp_Ads,
+                     "   function ""+"" (V : " & F_Name & ")");
+                  Text_IO.Put_Line
+                    (Tmp_Ads,
+                     "     return " & F_Name & " is (V);");
+               end if;
+            end if;
 
-                  Text_IO.New_Line (Tmp_Ads);
+            if O.Sp then
+               if Is_Inside_Record (S_Name) then
+                  --  Only if this array is inside a record and we don't have
+                  --  generated this support yet.
+
+                  if not Regen then
+                     Text_IO.New_Line (Tmp_Ads);
+
+                     Header_Box (O, Tmp_Ads, "Safe Array " & F_Name);
+
+                     Text_IO.New_Line (Tmp_Ads);
+                     Text_IO.Put_Line
+                       (Tmp_Ads, "   subtype " & F_Name & "_Safe_Access");
+                     Text_IO.Put_Line
+                       (Tmp_Ads, "      is " & Types_Spec (O) & "."
+                        & WSDL.Types.Name (P.Typ)
+                        & "_Safe_Pointer.Safe_Pointer;");
+
+                     Text_IO.New_Line (Tmp_Ads);
+                     Text_IO.Put_Line
+                       (Tmp_Ads, "   function ""+""");
+                     Text_IO.Put_Line
+                       (Tmp_Ads, "     (O : " & F_Name & ')');
+                     Text_IO.Put_Line
+                       (Tmp_Ads, "      return " & F_Name & "_Safe_Access");
+                     Text_IO.Put_Line
+                       (Tmp_Ads, "      renames " & Types_Spec (O) & "."
+                        & WSDL.Types.Name (P.Typ)
+                        & "_Safe_Pointer.To_Safe_Pointer;");
+                     Text_IO.Put_Line
+                       (Tmp_Ads, "   --  Convert an array to a safe pointer");
+                  end if;
+
+                  Text_IO.New_Line (Arr_Ads);
+
+                  Header_Box (O, Arr_Ads, "Safe Array " & F_Name);
+
+                  Text_IO.New_Line (Arr_Ads);
                   Text_IO.Put_Line
-                    (Tmp_Ads, "   subtype " & F_Name & "_Safe_Access");
+                    (Arr_Ads, "   subtype " & F_Name & "_Safe_Access");
                   Text_IO.Put_Line
-                    (Tmp_Ads, "      is " & Types_Spec (O) & "."
+                    (Arr_Ads, "      is " & Types_Spec (O) & "."
                      & WSDL.Types.Name (P.Typ)
                      & "_Safe_Pointer.Safe_Pointer;");
 
-                  Text_IO.New_Line (Tmp_Ads);
+                  Text_IO.New_Line (Arr_Ads);
                   Text_IO.Put_Line
-                    (Tmp_Ads, "   function ""+""");
+                    (Arr_Ads, "   function ""+""");
                   Text_IO.Put_Line
-                    (Tmp_Ads, "     (O : " & F_Name & ')');
+                    (Arr_Ads, "     (O : " & F_Name & ')');
                   Text_IO.Put_Line
-                    (Tmp_Ads, "      return " & F_Name & "_Safe_Access");
+                    (Arr_Ads, "      return " & F_Name & "_Safe_Access");
                   Text_IO.Put_Line
-                    (Tmp_Ads, "      renames " & Types_Spec (O) & "."
+                    (Arr_Ads, "      renames " & Types_Spec (O) & "."
                      & WSDL.Types.Name (P.Typ)
                      & "_Safe_Pointer.To_Safe_Pointer;");
                   Text_IO.Put_Line
-                    (Tmp_Ads, "   --  Convert an array to a safe pointer");
+                    (Arr_Ads, "   --  Convert an array to a safe pointer");
                end if;
 
                Text_IO.New_Line (Arr_Ads);
 
-               Header_Box (O, Arr_Ads, "Safe Array " & F_Name);
+               if P.Length = 0 then
+                  Text_IO.Put_Line
+                    (Arr_Ads, "   function To_" & F_Name
+                     & " is new SOAP.Utils.To_T_Array");
+               else
+                  Text_IO.Put_Line
+                    (Arr_Ads, "   function To_" & F_Name
+                     & " is new SOAP.Utils.To_T_Array_C");
+               end if;
+
+               if not Regen then
+                  Text_IO.New_Line (Tmp_Ads);
+                  Text_IO.Put_Line
+                    (Tmp_Ads, "   function To_" & F_Name);
+                  Text_IO.Put_Line
+                    (Tmp_Ads, "     (From : SOAP.Types.Object_Set)");
+                  Text_IO.Put_Line (Tmp_Ads, "      return " & F_Name);
+                  Text_IO.Put_Line
+                    (Tmp_Ads, "      renames "
+                     & To_Unit_Name (To_String (Prefix))
+                     & ".To_" & F_Name & ';');
+               end if;
+
+               Text_IO.Put
+                 (Arr_Ads, "     (" & To_Ada_Type (T_Name) & ", ");
+
+               if P.Length = 0 then
+                  Text_IO.Put (Arr_Ads, F_Name);
+               else
+                  Text_IO.Put (Arr_Ads, F_Name & "_Index, " & F_Name);
+               end if;
+
+               Text_IO.Put_Line (Arr_Ads, ", " & Get_Routine (P) & ");");
 
                Text_IO.New_Line (Arr_Ads);
+
+               if P.Length = 0 then
+                  Text_IO.Put_Line
+                    (Arr_Ads, "   function To_Object_Set"
+                     & " is new SOAP.Utils.To_Object_Set");
+               else
+                  Text_IO.Put_Line
+                    (Arr_Ads, "   function To_Object_Set"
+                     & " is new SOAP.Utils.To_Object_Set_C");
+               end if;
+
+               if not Regen then
+                  Text_IO.New_Line (Tmp_Ads);
+                  Text_IO.Put_Line
+                    (Tmp_Ads, "   function To_Object_Set");
+                  Text_IO.Put_Line
+                    (Tmp_Ads, "     (From : " & F_Name & ';');
+                  Text_IO.Put_Line
+                    (Tmp_Ads, "      NS   : SOAP.Name_Space.Object :=");
+                  Text_IO.Put_Line
+                    (Tmp_Ads, "               SOAP.Name_Space.No_Name_Space)");
+                  Text_IO.Put_Line
+                    (Tmp_Ads, "      return SOAP.Types.Object_Set");
+                  Text_IO.Put_Line
+                    (Tmp_Ads, "      renames "
+                     & To_Unit_Name (To_String (Prefix)) & ".To_Object_Set;");
+               end if;
+
+               Text_IO.Put
+                 (Arr_Ads, "     (" & To_Ada_Type (T_Name) & ", ");
+
+               if P.Length = 0 then
+                  Text_IO.Put_Line (Arr_Ads, F_Name & ",");
+               else
+                  Text_IO.Put_Line
+                    (Arr_Ads, F_Name & "_Index, " & F_Name & ",");
+               end if;
+
                Text_IO.Put_Line
-                 (Arr_Ads, "   subtype " & F_Name & "_Safe_Access");
+                 (Arr_Ads,
+                  "      " & Set_Type (WSDL.Types.Find (Def.E_Type))
+                  & ", """ & To_String (Def.E_Name) & """"
+                  & ", """ & ET_Name & """, " & Set_Routine (P) & ");");
+
+            else
+               Text_IO.New_Line (Arr_Ads);
+
                Text_IO.Put_Line
-                 (Arr_Ads, "      is " & Types_Spec (O) & "."
-                  & WSDL.Types.Name (P.Typ) & "_Safe_Pointer.Safe_Pointer;");
+                 (Arr_Ads, "   function To_" & F_Name
+                  & " is new SOAP.Utils.To_Vector");
+
+               if not Regen then
+                  Text_IO.New_Line (Tmp_Ads);
+                  Text_IO.Put_Line
+                    (Tmp_Ads, "   function To_" & F_Name);
+                  Text_IO.Put_Line
+                    (Tmp_Ads, "     (From : SOAP.Types.Object_Set)");
+                  Text_IO.Put_Line
+                    (Tmp_Ads, "      return " & F_Name);
+                  Text_IO.Put_Line
+                    (Tmp_Ads, "      renames "
+                     & To_Unit_Name (To_String (Prefix))
+                     & ".To_" & F_Name & ';');
+               end if;
+
+               Text_IO.Put
+                 (Arr_Ads, "     (");
+
+               if P.Length = 0 then
+                  Text_IO.Put (Arr_Ads, F_Name & "_Pck");
+               else
+                  Text_IO.Put (Arr_Ads, F_Name & "_Index, " & F_Name);
+               end if;
+
+               Text_IO.Put_Line (Arr_Ads, ", " & Get_Routine (P) & ");");
 
                Text_IO.New_Line (Arr_Ads);
+
                Text_IO.Put_Line
-                 (Arr_Ads, "   function ""+""");
+                 (Arr_Ads, "   function To_Object_Set"
+                  & " is new SOAP.Utils.To_Object_Set_V");
+
+               if not Regen then
+                  Text_IO.New_Line (Tmp_Ads);
+                  Text_IO.Put_Line
+                    (Tmp_Ads, "   function To_Object_Set");
+                  Text_IO.Put_Line
+                    (Tmp_Ads, "     (From : " & F_Name & ";");
+                  Text_IO.Put_Line
+                    (Tmp_Ads, "      NS   : SOAP.Name_Space.Object :=");
+                  Text_IO.Put_Line
+                    (Tmp_Ads, "               SOAP.Name_Space.No_Name_Space)");
+                  Text_IO.Put_Line
+                    (Tmp_Ads, "      return SOAP.Types.Object_Set");
+                  Text_IO.Put_Line
+                    (Tmp_Ads, "      renames "
+                     & To_Unit_Name (To_String (Prefix)) & ".To_Object_Set;");
+               end if;
+
+               Text_IO.Put
+                 (Arr_Ads, "     (");
+
+               Text_IO.Put_Line (Arr_Ads, F_Name & "_Pck,");
+
                Text_IO.Put_Line
-                 (Arr_Ads, "     (O : " & F_Name & ')');
-               Text_IO.Put_Line
-                 (Arr_Ads, "      return " & F_Name & "_Safe_Access");
-               Text_IO.Put_Line
-                 (Arr_Ads, "      renames " & Types_Spec (O) & "."
-                  & WSDL.Types.Name (P.Typ)
-                  & "_Safe_Pointer.To_Safe_Pointer;");
-               Text_IO.Put_Line
-                 (Arr_Ads, "   --  Convert an array to a safe pointer");
+                 (Arr_Ads,
+                  "      " & Set_Type (WSDL.Types.Find (Def.E_Type))
+                  & ", """ & To_String (Def.E_Name) & """"
+                  & ", """ & ET_Name & """, " & Set_Routine (P) & ");");
             end if;
          end if;
-
-         Text_IO.New_Line (Arr_Ads);
-
-         if P.Length = 0 then
-            Text_IO.Put_Line
-              (Arr_Ads, "   function To_" & F_Name
-               & " is new SOAP.Utils.To_T_Array");
-         else
-            Text_IO.Put_Line
-              (Arr_Ads, "   function To_" & F_Name
-                 & " is new SOAP.Utils.To_T_Array_C");
-         end if;
-
-         if not Regen then
-            Text_IO.New_Line (Tmp_Ads);
-            Text_IO.Put_Line
-              (Tmp_Ads, "   function To_" & F_Name);
-            Text_IO.Put_Line
-              (Tmp_Ads, "     (From : SOAP.Types.Object_Set)");
-            Text_IO.Put_Line (Tmp_Ads, "      return " & F_Name);
-            Text_IO.Put_Line
-              (Tmp_Ads, "      renames "
-               & To_Unit_Name (To_String (Prefix)) & ".To_" & F_Name & ';');
-         end if;
-
-         Text_IO.Put
-           (Arr_Ads, "     (" & To_Ada_Type (T_Name) & ", ");
-
-         if P.Length = 0 then
-            Text_IO.Put (Arr_Ads, F_Name);
-         else
-            Text_IO.Put (Arr_Ads, F_Name & "_Index, " & F_Name);
-         end if;
-
-         Text_IO.Put_Line (Arr_Ads, ", " & Get_Routine (P) & ");");
-
-         Text_IO.New_Line (Arr_Ads);
-
-         if P.Length = 0 then
-            Text_IO.Put_Line
-              (Arr_Ads, "   function To_Object_Set"
-                 & " is new SOAP.Utils.To_Object_Set");
-         else
-            Text_IO.Put_Line
-              (Arr_Ads, "   function To_Object_Set"
-                 & " is new SOAP.Utils.To_Object_Set_C");
-         end if;
-
-         if not Regen then
-            Text_IO.New_Line (Tmp_Ads);
-            Text_IO.Put_Line
-              (Tmp_Ads, "   function To_Object_Set");
-            Text_IO.Put_Line
-              (Tmp_Ads, "     (From : " & F_Name & ';');
-            Text_IO.Put_Line
-              (Tmp_Ads, "      NS   : SOAP.Name_Space.Object :=");
-            Text_IO.Put_Line
-              (Tmp_Ads, "               SOAP.Name_Space.No_Name_Space)");
-            Text_IO.Put_Line (Tmp_Ads, "      return SOAP.Types.Object_Set");
-            Text_IO.Put_Line
-              (Tmp_Ads, "      renames "
-               & To_Unit_Name (To_String (Prefix)) & ".To_Object_Set;");
-         end if;
-
-         Text_IO.Put
-           (Arr_Ads, "     (" & To_Ada_Type (T_Name) & ", ");
-
-         if P.Length = 0 then
-            Text_IO.Put_Line (Arr_Ads, F_Name & ",");
-         else
-            Text_IO.Put_Line (Arr_Ads, F_Name & "_Index, " & F_Name & ",");
-         end if;
-
-         Text_IO.Put_Line
-           (Arr_Ads,
-            "      " & Set_Type (WSDL.Types.Find (Def.E_Type))
-            & ", """ & To_String (Def.E_Name) & """"
-            & ", """ & ET_Name & """, " & Set_Routine (P) & ");");
 
          Finalize_Types_Package (Prefix, Arr_Ads, Arr_Adb, No_Body => True);
       end Generate_Array;
@@ -3445,7 +3780,8 @@ package body WSDL2AWS.Generator is
                              (Rec_Adb,
                               WSDL.Parameters.To_SOAP
                                 (N.all,
-                                 Object    => Field & ".Item.all",
+                                 Object    =>
+                                   Field & (if O.Sp then ".Item.all" else ""),
                                  Name      => To_String (N.Name),
                                  Type_Name =>
                                    (if O.Style = SOAP.WSDL.Schema.RPC
@@ -3929,7 +4265,11 @@ package body WSDL2AWS.Generator is
                return Format_Name (O, T_Name) & "_Type";
 
             when WSDL.Types.K_Array =>
-               return Format_Name (O, T_Name) & "_Type_Safe_Access";
+               if O.Sp then
+                  return Format_Name (O, T_Name) & "_Type_Safe_Access";
+               else
+                  return Format_Name (O, T_Name) & "_Type";
+               end if;
 
             when WSDL.Types.K_Record =>
                return Format_Name (O, T_Name) & "_Type";
@@ -4039,6 +4379,11 @@ package body WSDL2AWS.Generator is
       Is_NS     : Boolean := False) is
    begin
       With_Unit (File, "Ada.Calendar", Elab => Off);
+
+      if not O.Sp then
+         With_Unit (File, "Ada.Containers.Vectors", Elab => Off);
+      end if;
+
       With_Unit (File, "Ada.Strings.Unbounded", Elab => Off);
       Text_IO.New_Line (File);
 
@@ -4069,25 +4414,31 @@ package body WSDL2AWS.Generator is
          Text_IO.Put_Line (File, "   pragma Elaborate_Body;");
       end if;
 
-      Text_IO.Put_Line (File, "   pragma Warnings (Off, Ada.Calendar);");
+      Text_IO.Put_Line
+        (File, "   pragma Warnings (Off, Ada.Calendar);");
+
+      if not O.Sp then
+         Text_IO.Put_Line
+           (File, "   pragma Warnings (Off, Ada.Containers.Vectors);");
+      end if;
+
       Text_IO.Put_Line
         (File, "   pragma Warnings (Off, Ada.Strings.Unbounded);");
       Text_IO.Put_Line (File, "   pragma Warnings (Off, SOAP.Types);");
       Text_IO.Put_Line (File, "   pragma Warnings (Off, SOAP.Utils);");
       Text_IO.Put_Line (File, "   pragma Warnings (Off, GNAT.Regexp);");
+      Text_IO.New_Line (File);
 
       if Types_Spec (O) /= "" then
          Text_IO.Put_Line
            (File,
             "   pragma Warnings (Off, " & Types_Spec (O) & ");");
-         Text_IO.New_Line (File);
       end if;
 
       if Procs_Spec (O) /= "" and then Procs_Spec (O) /= Types_Spec (O) then
          Text_IO.Put_Line
            (File,
             "   pragma Warnings (Off, " & Procs_Spec (O) & ");");
-         Text_IO.New_Line (File);
       end if;
 
       Text_IO.New_Line (File);
