@@ -1,7 +1,7 @@
 from test_support import exec_cmd, build, run
 import re
 
-exec_cmd('wsdl2aws', ['-q', '-f', 'gettst.wsdl'])
+exec_cmd('wsdl2aws', ['-q', '-f', '-sp', 'gettst.wsdl'])
 build('dl2_server')
 run('dl2_server', output_file="out.tmp")
 
