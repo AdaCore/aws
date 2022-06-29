@@ -1,0 +1,70 @@
+<?xml version="1.0"?>
+<definitions name="StockQuote"
+
+targetNamespace="http://example.com/stockquote.wsdl"
+          xmlns:tns="http://example.com/stockquote.wsdl"
+          xmlns:xsd="http://www.w3.org/2000/10/XMLSchema"
+          xmlns:xsd1="http://example.com/stockquote/schema"
+          xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/"
+          xmlns:soapenc="http://schemas.xmlsoap.org/soap/encoding/"
+          xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/"
+          xmlns="http://schemas.xmlsoap.org/wsdl/">
+
+    <types>
+       <schema targetNamespace="http://example.com/stockquote/schema"
+              xmlns="http://www.w3.org/2000/10/XMLSchema">
+           <complexType name="TimePeriod">
+              <all>
+                  <element name="startTime" type="xsd:timeInstant"/>
+                  <element name="endTime" type="xsd:timeInstant"/>
+              </all>
+           </complexType>
+           <complexType name="ArrayOfFloat">
+              <complexContent>
+                  <restriction base="soapenc:Array">
+                      <attribute ref="soapenc:arrayType" wsdl:arrayType="xsd:float[]"/>
+                  </restriction>
+              </complexContent>
+           </complexType>
+       </schema>
+    </types>
+
+    <message name="GetTradePricesInput">
+        <part name="tickerSymbol" type="xsd:string"/>
+        <part name="timePeriod" type="xsd1:TimePeriod"/>
+    </message>
+
+    <message name="GetTradePricesOutput">
+        <part name="result" type="xsd1:ArrayOfFloat"/>
+        <part name="frequency" type="xsd:float"/>
+    </message>
+
+    <portType name="StockQuotePortType">
+        <operation name="GetLastTradePrice" parameterOrder="tickerSymbol timePeriod frequency">
+           <input message="tns:GetTradePricesInput"/>
+           <output message="tns:GetTradePricesOutput"/>
+        </operation>
+    </portType>
+
+    <binding name="StockQuoteSoapBinding" type="tns:StockQuotePortType">
+        <soap:binding style="rpc" transport="http://schemas.xmlsoap.org/soap/http"/>
+        <operation name="GetLastTradePrice">
+           <soap:operation soapAction="http://localhost/GetTradePrices"/>
+           <input>
+               <soap:body use="encoded" namespace="http://example.com/stockquote.wsdl"
+                          encodingStyle="http://schemas.xmlsoap.org/soap/encoding/"/>
+           </input>
+           <output>
+               <soap:body use="encoded" namespace="http://example.com/stockquote.wsdl"
+                          encodingStyle="http://schemas.xmlsoap.org/soap/encoding/"/>
+           </output>
+        </operation>>
+    </binding>
+
+    <service name="StockQuoteService">
+        <documentation>My first service</documentation>
+        <port name="StockQuotePort" binding="tns:StockQuoteSoapBinding">
+           <soap:address location="http://localhost:9122/stockquote"/>
+        </port>
+    </service>
+</definitions>
