@@ -972,7 +972,7 @@ package body Ada2WSDL.Parser is
               R.As_Composite_Constraint.P_Is_Index_Constraint
             then
                return R.As_Composite_Constraint.F_Constraints.Child (1)
-                   .As_Bin_Op;
+                   .As_Composite_Constraint_Assoc.F_Constraint_Expr.As_Bin_Op;
             else
                return No_Bin_Op;
             end if;
