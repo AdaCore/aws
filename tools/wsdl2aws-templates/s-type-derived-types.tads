@@ -1,0 +1,54 @@
+@@--  Spec chunk to support derived types (chunk for types child package)
+@@--
+
+   --  Derived type @_TYPE_NAME_@
+
+   subtype @_TYPE_NAME_@
+     is @_UNIT_NAME_@.@_TYPE_NAME_@;
+
+@@IF@@ @_IS_EMPTY:TYPE_SPEC_@
+   function To_@_ROUTINE_NAME_@
+     (D : @_TYPE_NAME_@)
+      return @_BASE_NAME_@
+      renames @_UNIT_NAME_@.To_@_ROUTINE_NAME_@;
+
+   function From_@_ROUTINE_NAME_@
+     (D : @_BASE_NAME_@)
+      return @_TYPE_NAME_@
+      renames @_UNIT_NAME_@.From_@_ROUTINE_NAME_@;
+
+   function To_@_TYPE_NAME_@
+     (D : @_BASE_NAME_@)
+      return @_TYPE_NAME_@
+      renames @_UNIT_NAME_@.From_@_ROUTINE_NAME_@;
+
+@@IF@@ @_EXIST:ALIAS_ROUTINE_NAME_@
+   function To_@_ALIAS_ROUTINE_NAME_@
+     (D : @_BASE_NAME_@)
+      return @_TYPE_NAME_@
+      renames @_UNIT_NAME_@.From_@_ROUTINE_NAME_@;
+@@END_IF@@
+@@ELSE@@
+
+   function To_@_QUALIFIED_NAME_@
+     (D : @_TYPE_NAME_@)
+      return @_TYPE_SPEC_@.@_TYPE_REF_@
+      renames @_UNIT_NAME_@.To_@_QUALIFIED_NAME_@_Type;
+
+   function From_@_QUALIFIED_NAME_@
+     (D : @_TYPE_SPEC_@.@_TYPE_REF_@)
+      return @_TYPE_NAME_@
+      renames @_UNIT_NAME_@.From_@_QUALIFIED_NAME_@_Type;
+
+@@IF@@ @_EXIST:ALIAS_ROUTINE_NAME_@
+   function To_@_ALIAS_ROUTINE_NAME_@
+     (D : @_TYPE_NAME_@)
+      return @_BASE_NAME_@
+      renames @_UNIT_NAME_@.To_@_ALIAS_ROUTINE_NAME_@;
+
+   function From_@_ALIAS_ROUTINE_NAME_@
+     (D : @_BASE_NAME_@)
+      return @_TYPE_NAME_@
+      renames @_UNIT_NAME_@.From_@_ALIAS_ROUTINE_NAME_@;
+@@END_IF@@
+@@END_IF@@
