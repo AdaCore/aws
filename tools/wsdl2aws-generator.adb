@@ -63,6 +63,9 @@ package body WSDL2AWS.Generator is
    Template_Enum_Adb   : constant String := "s-type-enum.tadb";
    Template_Enum_Types : constant String := "s-type-enum-types.tads";
 
+   Template_Derived_Ads   : constant String := "s-type-derived.tads";
+   Template_Derived_Types : constant String := "s-type-derived-types.tads";
+
    procedure Generate
      (Filename     : String;
       Template     : String;
@@ -1292,7 +1295,9 @@ package body WSDL2AWS.Generator is
    is
       use Characters.Handling;
 
+      use type AWS.Templates.Tag;
       use type AWS.Templates.Translate_Set;
+
       use type WSDL.Parameters.P_Set;
       use type WSDL.Types.Kind;
 
@@ -1342,6 +1347,12 @@ package body WSDL2AWS.Generator is
          P           : WSDL.Parameters.P_Set;
          For_Derived : Boolean := False);
       --  Generates with/use clauses for all referenced types
+
+      procedure Get_References
+        (Unit_List   : in out AWS.Templates.Tag;
+         P           : WSDL.Parameters.P_Set;
+         For_Derived : Boolean := False);
+      --  Add unit to be with/use into List
 
       procedure Initialize_Types_Package
         (Translations : in out Templates.Translate_Set;
@@ -2122,19 +2133,47 @@ package body WSDL2AWS.Generator is
                            not WSDL.Types.Is_Constrained (Def)
                            and then Types_Spec (O) = "")
                         else P_Name & "_Type"));
-         Prefix       : Unbounded_String;
-         Der_Ads      : Text_IO.File_Type;
-         Der_Adb      : Text_IO.File_Type;
-         Translations : Templates.Translate_Set;
+
+         Prefix           : Unbounded_String;
+         L_Range, U_Range : Unbounded_String;
+         Is_Range         : Boolean := True;
+         Predicate_Kind   : Templates.Tag;
+         Predicate        : Templates.Tag;
+         Der_Ads          : Text_IO.File_Type;
+         Der_Adb          : Text_IO.File_Type;
+         Translations     : Templates.Translate_Set;
       begin
          Initialize_Types_Package
-           (Translations, P, U_Name, False, Prefix, Der_Ads, Der_Adb, Def);
-
-         Text_IO.New_Line (Tmp_Ads);
-
-         Text_IO.New_Line (Der_Ads);
+           (Translations, P, U_Name, False, Prefix, Der_Ads, Der_Adb, Def,
+            Gen => False);
 
          --  Is types are to be reused from an Ada  spec ?
+
+         Translations := Translations
+           & Templates.Assoc ("TYPE_NAME", F_Name)
+           & Templates.Assoc ("BASE_NAME", B_Name)
+           & Templates.Assoc ("QUALIFIED_NAME", Q_Name)
+           & Templates.Assoc ("PARENT_NAME", SOAP.Utils.No_NS (P_Name));
+
+         --  For array support
+
+         Translations := Translations
+           & Templates.Assoc
+               ("FROM_SOAP",
+                WSDL.Types.From_SOAP (Def, Object => "O"))
+           & Templates.Assoc
+               ("TO_SOAP",
+                WSDL.Types.To_SOAP
+                  (Def,
+                   Object    => "D",
+                   Name      => "Name",
+                   Type_Name => "Type_Name",
+                   Name_Kind => WSDL.Types.Both_Var,
+                   NS        => "NS"))
+           & Templates.Assoc
+               ("SET_TYPE",
+                SOAP.WSDL.Set_Type
+                 (SOAP.WSDL.To_Type (WSDL.Types.Root_Type_For (Def))));
 
          if Types_Spec (O) = "" then
             declare
@@ -2156,17 +2195,10 @@ package body WSDL2AWS.Generator is
                if Root_Type = SOAP.WSDL.P_String
                  and then Constraints.Pattern /= Null_Unbounded_String
                then
-                  Text_IO.Put_Line
-                    (Der_Ads,
-                     "   Compiled_Pattern : constant GNAT.Regexp.Regexp :=");
-                  Text_IO.Put_Line
-                    (Der_Ads, "                        GNAT.Regexp.Compile ("""
-                     & To_String (Constraints.Pattern) & """);");
-                  Text_IO.New_Line (Der_Ads);
+                  Translations := Translations
+                    & Templates.Assoc ("CONSTRAINT_PATTERN",
+                                       To_String (Constraints.Pattern));
                end if;
-
-               Text_IO.Put
-                 (Der_Ads, "   type " & F_Name & " is new " & B_Name);
 
                --  Generate constraints if any. We first get the root type to
                --  know if the constraints are on integers, floats or strings.
@@ -2207,17 +2239,14 @@ package body WSDL2AWS.Generator is
                         --  If constraints are found, write them
 
                         if L_Set or U_Set then
-                           Text_IO.New_Line (Der_Ads);
-                           Text_IO.Put
-                             (Der_Ads,
-                              "     range"
-                              & (if not L_Set or else Lower < 0.0
+                           L_Range := To_Unbounded_String
+                             ((if not L_Set or else Lower < 0.0
                                 then " " else "")
                               & (if L_Set
                                 then Float'Image (Lower)
-                                else " " & B_Name & "'First")
-                              & " .."
-                              & (if not U_Set or else Upper < 0.0
+                                else " " & B_Name & "'First"));
+                           U_Range := To_Unbounded_String
+                              ((if not U_Set or else Upper < 0.0
                                 then " " else "")
                               & (if L_Set
                                 then Float'Image (Upper)
@@ -2241,17 +2270,14 @@ package body WSDL2AWS.Generator is
                         --  If constraints are found, write them
 
                         if L_Set or U_Set then
-                           Text_IO.New_Line (Der_Ads);
-                           Text_IO.Put
-                             (Der_Ads,
-                              "     range"
-                              & (if not L_Set or else Lower < 0.0
+                           L_Range := To_Unbounded_String
+                             ((if not L_Set or else Lower < 0.0
                                 then " " else "")
                               & (if L_Set
                                 then Long_Float'Image (Lower)
-                                else B_Name & "'First")
-                              & " .."
-                              & (if not U_Set or else Upper < 0.0
+                                else B_Name & "'First"));
+                           U_Range := To_Unbounded_String
+                              ((if not U_Set or else Upper < 0.0
                                 then " " else "")
                               & (if U_Set
                                 then Long_Float'Image (Upper)
@@ -2261,75 +2287,40 @@ package body WSDL2AWS.Generator is
 
                   when SOAP.WSDL.P_String =>
                      if WSDL.Types.Is_Constrained (Def) then
-                        Text_IO.Put
-                          (Der_Ads,
-                           " (1 .."
-                           & Natural'Image (Constraints.Length) & ')');
-
-                        if Constraints.Pattern /= Null_Unbounded_String then
-                           Text_IO.New_Line (Der_Ads);
-                           Text_IO.Put_Line
-                             (Der_Ads, "     with Dynamic_Predicate => ");
-                           Text_IO.Put
-                             (Der_Ads, "        GNAT.Regexp.Match (String ("
-                             & F_Name & "), Compiled_Pattern)");
-                        end if;
+                        L_Range := To_Unbounded_String ("1");
+                        U_Range := To_Unbounded_String
+                          (Natural'Image (Constraints.Length));
+                        Is_Range := False;
 
                      else
                         declare
                            Unset : Integer renames WSDL.Types.Unset;
                            Empty : Unbounded_String
                                      renames Null_Unbounded_String;
-                           Pred  : Boolean := False;
                         begin
                            if Constraints.Min_Length /= WSDL.Types.Unset
                              or else Constraints.Max_Length /= WSDL.Types.Unset
                              or else Constraints.Pattern /= Empty
                            then
-                              Text_IO.New_Line (Der_Ads);
-                              Text_IO.Put_Line
-                                (Der_Ads, "     with Dynamic_Predicate => ");
-
                               if Constraints.Min_Length /= Unset then
-                                 Text_IO.Put
-                                   (Der_Ads,
-                                    "       Length (Unbounded_String ("
-                                    & F_Name & ")) >="
-                                    & Natural'Image (Constraints.Min_Length));
-                                 Pred := True;
+                                 Predicate_Kind := Predicate_Kind
+                                   & "MIN";
+                                 Predicate := Predicate
+                                   & Constraints.Min_Length;
                               end if;
 
                               if Constraints.Max_Length /= Unset then
-                                 if Pred then
-                                    Text_IO.New_Line (Der_Ads);
-                                 end if;
-
-                                 Text_IO.Put
-                                   (Der_Ads,
-                                    "       "
-                                    & (if Pred
-                                      then "and then "
-                                      else "")
-                                    & "Length (Unbounded_String ("
-                                    & F_Name & ")) <="
-                                    & Natural'Image (Constraints.Max_Length));
-                                    Pred := True;
+                                 Predicate_Kind := Predicate_Kind
+                                   & "MAX";
+                                 Predicate := Predicate
+                                   & Constraints.Max_Length;
                               end if;
 
                               if Constraints.Pattern /= Empty then
-                                 if Pred then
-                                    Text_IO.New_Line (Der_Ads);
-                                 end if;
-
-                                 Text_IO.Put
-                                   (Der_Ads,
-                                    "       "
-                                    & (if Pred
-                                      then "and then "
-                                      else "")
-                                    & "GNAT.Regexp.Match (To_String ("
-                                    & "Unbounded_String ("
-                                    & F_Name & ")), Compiled_Pattern)");
+                                 Predicate_Kind := Predicate_Kind
+                                   & "PATTERN";
+                                 Predicate := Predicate
+                                   & "PATTERN";
                               end if;
                            end if;
                         end;
@@ -2394,350 +2385,64 @@ package body WSDL2AWS.Generator is
                         --  If constraints are found, write them
 
                         if L_Set or U_Set then
-                           Text_IO.New_Line (Der_Ads);
-                           Text_IO.Put
-                             (Der_Ads,
-                              "     range"
-                              & (if L_Set
-                                then Long_Long_Integer'Image (Lower)
-                                else " " & B_Name & "'First")
-                                & " .."
-                                & (if U_Set
-                                  then Long_Long_Integer'Image (Upper)
-                                  else " " & B_Name & "'Last"));
+                           L_Range := To_Unbounded_String
+                             ((if L_Set
+                               then Long_Long_Integer'Image (Lower)
+                               else " " & B_Name & "'First"));
+                           U_Range := To_Unbounded_String
+                             ((if U_Set
+                               then Long_Long_Integer'Image (Upper)
+                               else " " & B_Name & "'Last"));
                         end if;
                      end;
                end case;
             end;
 
-            Text_IO.Put_Line (Der_Ads, ";");
+            Translations := Translations
+              & Templates.Assoc ("LOWER_RANGE", L_Range)
+              & Templates.Assoc ("UPPER_RANGE", U_Range)
+              & Templates.Assoc ("PREDICATE_KIND", Predicate_Kind)
+              & Templates.Assoc ("PREDICATE", Predicate)
+              & Templates.Assoc ("IS_RANGE", Is_Range);
 
             --  Routine to convert to base type
 
             if SOAP.WSDL.Is_Standard (P_Name) then
-               Text_IO.New_Line (Der_Ads);
-
-               Text_IO.Put_Line
-                 (Der_Ads,
-                  "   function To_" & SOAP.Utils.No_NS (P_Name) & "_Type");
-               Text_IO.Put_Line (Der_Ads, "     (D : " & F_Name & ")");
-               Text_IO.Put_Line (Der_Ads, "      return " & B_Name & " is");
-               Text_IO.Put_Line (Der_Ads, "       (" & B_Name & " (D));");
-
-               Text_IO.New_Line (Der_Ads);
-
-               Text_IO.Put_Line
-                 (Der_Ads,
-                  "   function From_" & SOAP.Utils.No_NS (P_Name) & "_Type");
-               Text_IO.Put_Line (Der_Ads, "     (D : " & B_Name & ")");
-               Text_IO.Put_Line (Der_Ads, "      return " & F_Name & " is");
-               Text_IO.Put_Line (Der_Ads, "       (" & F_Name & " (D));");
-
-               Text_IO.New_Line (Der_Ads);
-
-               Text_IO.Put_Line (Der_Ads, "   function To_" & F_Name);
-               Text_IO.Put_Line (Der_Ads, "     (D : " & B_Name & ")");
-               Text_IO.Put_Line
-                 (Der_Ads,
-                  "      return " & F_Name & " renames From_"
-                  & SOAP.Utils.No_NS (P_Name) & "_Type;");
-
+               Translations := Translations
+                 & Templates.Assoc ("ROUTINE_NAME",
+                                    SOAP.Utils.No_NS (P_Name) & "_Type");
             else
-               Text_IO.New_Line (Der_Ads);
-
-               Text_IO.Put_Line (Der_Ads, "   function To_" & B_Name);
-               Text_IO.Put_Line (Der_Ads, "     (D : " & F_Name & ")");
-               Text_IO.Put_Line (Der_Ads, "      return " & B_Name & " is");
-               Text_IO.Put_Line (Der_Ads, "       (" & B_Name & " (D));");
-
-               Text_IO.New_Line (Der_Ads);
-
-               Text_IO.Put_Line (Der_Ads, "   function From_" & B_Name);
-               Text_IO.Put_Line (Der_Ads, "     (D : " & B_Name & ")");
-               Text_IO.Put_Line (Der_Ads, "      return " & F_Name & " is");
-               Text_IO.Put_Line (Der_Ads, "       (" & F_Name & " (D));");
-
-               Text_IO.New_Line (Der_Ads);
-
-               Text_IO.Put_Line (Der_Ads, "   function To_" & F_Name);
-               Text_IO.Put_Line (Der_Ads, "     (D : " & B_Name & ")");
-               Text_IO.Put_Line
-                 (Der_Ads,
-                  "      return " & F_Name & " renames From_" & B_Name & ";");
+               Translations := Translations
+                 & Templates.Assoc ("ROUTINE_NAME", B_Name);
             end if;
-
-            --  For array support
-
-            Text_IO.New_Line (Der_Ads);
-            Text_IO.Put_Line (Der_Ads, "   function To_" & F_Name);
-            Text_IO.Put_Line (Der_Ads, "     (O : SOAP.Types.Object'Class)");
-            Text_IO.Put_Line (Der_Ads, "      return " & F_Name & " is");
-            Text_IO.Put_Line
-              (Der_Ads,
-               "       ("
-               & WSDL.Types.From_SOAP (Def, Object => "O") & ");");
-
-            Text_IO.New_Line (Der_Ads);
-            Text_IO.Put_Line (Der_Ads, "   function To_SOAP_Object");
-            Text_IO.Put_Line (Der_Ads, "     (D         : " & F_Name & ";");
-            Text_IO.Put_Line
-              (Der_Ads, "      Name      : String := ""item"";");
-            Text_IO.Put_Line
-              (Der_Ads, "      Type_Name : String := Q_Type_Name;");
-            Text_IO.Put_Line
-              (Der_Ads, "      NS        : SOAP.Name_Space.Object := "
-               & "Name_Space)");
-            Text_IO.Put_Line
-              (Der_Ads, "      return "
-               &  SOAP.WSDL.Set_Type
-                    (SOAP.WSDL.To_Type (WSDL.Types.Root_Type_For (Def)))
-               & " is");
-            Text_IO.Put_Line
-              (Der_Ads,
-               "        ("
-               & WSDL.Types.To_SOAP
-                 (Def,
-                  Object    => "D",
-                  Name      => "Name",
-                  Type_Name => "Type_Name",
-                  Name_Kind => WSDL.Types.Both_Var,
-                  NS        => "NS") & ");");
 
             --  For Types child package
 
-            Text_IO.Put_Line
-              (Tmp_Ads, "   subtype " & F_Name);
-            Text_IO.Put_Line
-              (Tmp_Ads, "     is " & To_Unit_Name (To_String (Prefix)) & '.'
-               & F_Name & ';');
-
             if SOAP.WSDL.Is_Standard (P_Name) then
-               Text_IO.New_Line (Tmp_Ads);
-
-               Text_IO.Put_Line
-                 (Tmp_Ads,
-                  "   function To_" & SOAP.Utils.No_NS (P_Name) & "_Type");
-               Text_IO.Put_Line (Tmp_Ads, "     (D : " & F_Name & ")");
-               Text_IO.Put_Line (Tmp_Ads, "      return " & B_Name);
-               Text_IO.Put_Line
-                 (Tmp_Ads, "      renames "
-                  & To_Unit_Name (To_String (Prefix))
-                  & ".To_" & SOAP.Utils.No_NS (P_Name) & "_Type;");
-
-               Text_IO.Put_Line
-                 (Tmp_Ads,
-                  "   function From_" & SOAP.Utils.No_NS (P_Name) & "_Type");
-               Text_IO.Put_Line (Tmp_Ads, "     (D : " & B_Name & ")");
-               Text_IO.Put_Line (Tmp_Ads, "      return " & F_Name);
-               Text_IO.Put_Line
-                 (Tmp_Ads, "      renames "
-                  & To_Unit_Name (To_String (Prefix))
-                  & ".From_" & SOAP.Utils.No_NS (P_Name) & "_Type;");
-
-               Text_IO.New_Line (Tmp_Ads);
-
-               Text_IO.Put_Line (Tmp_Ads, "   function To_" & F_Name);
-               Text_IO.Put_Line (Tmp_Ads, "     (D : " & B_Name & ")");
-               Text_IO.Put_Line
-                 (Tmp_Ads,
-                  "      return " & F_Name & " renames "
-                  & To_Unit_Name (To_String (Prefix))
-                  & ".From_"  & SOAP.Utils.No_NS (P_Name) & "_Type;");
-
-               --  The following routine give an alias without the namespace to
-               --  routine with a standard base name. This is mostly for upward
-               --  compatibility with existing code.
-
-               Text_IO.Put_Line
-                 (Tmp_Ads,
-                  "   function To_" & SOAP.Utils.No_NS (Name) & "_Type");
-               Text_IO.Put_Line (Tmp_Ads, "     (D : " & B_Name & ")");
-               Text_IO.Put_Line
-                 (Tmp_Ads,
-                  "      return " & F_Name & " renames "
-                  & To_Unit_Name (To_String (Prefix))
-                  & ".From_"  & SOAP.Utils.No_NS (P_Name) & "_Type;");
-
-            else
-               Text_IO.Put_Line
-                 (Tmp_Ads,
-                  "   function To_" & B_Name & " (D : " & F_Name & ")");
-               Text_IO.Put_Line
-                 (Tmp_Ads, "     return " & B_Name);
-               Text_IO.Put_Line
-                 (Tmp_Ads, "     renames "
-                  & To_Unit_Name (To_String (Prefix)) & ".To_" & B_Name & ';');
-
-               Text_IO.Put_Line
-                 (Tmp_Ads,
-                  "   function From_" & B_Name & " (D : " & B_Name & ")");
-               Text_IO.Put_Line
-                 (Tmp_Ads, "     return " & F_Name);
-               Text_IO.Put_Line
-                 (Tmp_Ads, "     renames "
-                  & To_Unit_Name (To_String (Prefix))
-                  & ".From_" & B_Name & ';');
-
-               Text_IO.New_Line (Tmp_Ads);
-
-               Text_IO.Put_Line (Tmp_Ads, "   function To_" & F_Name);
-               Text_IO.Put_Line (Tmp_Ads, "     (D : " & B_Name & ")");
-               Text_IO.Put_Line
-                 (Tmp_Ads,
-                  "      return " & F_Name & " renames "
-                  & To_Unit_Name (To_String (Prefix))
-                  & ".From_" & B_Name & ";");
+               Translations := Translations
+                 & Templates.Assoc
+                     ("ALIAS_ROUTINE_NAME",
+                      SOAP.Utils.No_NS (Name) & "_Type");
             end if;
 
          else
-            Text_IO.Put_Line
-              (Der_Ads, "   subtype " & F_Name & " is "
-               & Types_Spec (O) & "." & SOAP.Utils.No_NS (Name) & ";");
-
-            --  Routine to convert to base type, as this is a subtype
-            --  just returns the value as-is.
-
-            Text_IO.New_Line (Der_Ads);
-
-            Text_IO.Put_Line (Der_Ads, "   function To_" & Q_Name & "_Type");
-            Text_IO.Put_Line (Der_Ads, "     (D : " & F_Name & ")");
-            Text_IO.Put_Line
-              (Der_Ads,
-               "      return " & Types_Spec (O)
-               & "." & SOAP.Utils.No_NS (Name) & " is (D);");
-
-            Text_IO.New_Line (Der_Ads);
-
-            Text_IO.Put_Line (Der_Ads, "   function From_" & Q_Name & "_Type");
-            Text_IO.Put_Line
-              (Der_Ads, "     (D : " & Types_Spec (O) & "."
-               & SOAP.Utils.No_NS (Name) & ")");
-            Text_IO.Put_Line (Der_Ads, "      return " & F_Name & " is (D);");
-
-            Text_IO.New_Line (Der_Ads);
-            Text_IO.Put_Line (Der_Ads, "   function To_" & F_Name);
-            Text_IO.Put_Line
-              (Der_Ads, "     (D : " & Types_Spec (O)
-               & "." & SOAP.Utils.No_NS (Name) & ")");
-            Text_IO.Put_Line
-              (Der_Ads, "      return " & F_Name
-               & " renames From_" & Q_Name & "_Type;");
+            Translations := Translations
+              & Templates.Assoc
+                  ("TYPE_REF", SOAP.Utils.No_NS (Name));
 
             if SOAP.WSDL.Is_Standard (P_Name) then
-               Text_IO.New_Line (Der_Ads);
-
-               Text_IO.Put_Line
-                 (Der_Ads,
-                  "   function To_" & SOAP.Utils.No_NS (P_Name) & "_Type");
-               Text_IO.Put_Line (Der_Ads, "     (D : " & F_Name & ")");
-               Text_IO.Put_Line (Der_Ads, "      return " & B_Name & " is");
-               Text_IO.Put_Line (Der_Ads, "       (" & B_Name & " (D));");
-
-               Text_IO.Put_Line
-                 (Der_Ads,
-                  "   function From_" & SOAP.Utils.No_NS (P_Name) & "_Type");
-               Text_IO.Put_Line (Der_Ads, "     (D : " & B_Name & ")");
-               Text_IO.Put_Line (Der_Ads, "      return " & F_Name & " is");
-               Text_IO.Put_Line (Der_Ads, "       (" & F_Name & " (D));");
-            end if;
-
-            Output_Comment (Der_Ads, To_String (P.Doc), Indent => 3);
-
-            --  For array support
-
-            Text_IO.New_Line (Der_Ads);
-            Text_IO.Put_Line (Der_Ads, "   function To_" & F_Name);
-            Text_IO.Put_Line (Der_Ads, "     (O : SOAP.Types.Object'Class)");
-            Text_IO.Put_Line (Der_Ads, "      return " & F_Name & " is");
-            Text_IO.Put_Line
-              (Der_Ads,
-               "       ("
-               & WSDL.Types.From_SOAP (Def, Object => "O") & ");");
-
-            Text_IO.New_Line (Der_Ads);
-            Text_IO.Put_Line (Der_Ads, "   function To_SOAP_Object");
-            Text_IO.Put_Line (Der_Ads, "     (D         : " & F_Name & ";");
-            Text_IO.Put_Line
-              (Der_Ads, "      Name      : String := ""item"";");
-            Text_IO.Put_Line
-              (Der_Ads, "      Type_Name : String := Q_Type_Name;");
-            Text_IO.Put_Line
-              (Der_Ads, "      NS        : SOAP.Name_Space.Object := "
-               & "Name_Space)");
-            Text_IO.Put_Line
-              (Der_Ads, "      return "
-               &  SOAP.WSDL.Set_Type
-                    (SOAP.WSDL.To_Type (WSDL.Types.Root_Type_For (Def)))
-               & " is");
-            Text_IO.Put_Line
-              (Der_Ads,
-               "        ("
-               & WSDL.Types.To_SOAP
-                 (Def,
-                  Object    => "D",
-                  Name      => "Name",
-                  Type_Name => "Type_Name",
-                  Name_Kind => WSDL.Types.Both_Var,
-                  NS        => "NS") & ");");
-
-            --  For Types child package
-
-            Text_IO.Put_Line
-              (Tmp_Ads, "   subtype " & F_Name);
-            Text_IO.Put_Line
-              (Tmp_Ads, "     is " & To_Unit_Name (To_String (Prefix)) & '.'
-               & F_Name & ';');
-
-            Output_Comment (Tmp_Ads, To_String (P.Doc), Indent => 3);
-
-            Text_IO.Put_Line
-              (Tmp_Ads, "   function To_" & Q_Name & " (D : " & F_Name & ")");
-            Text_IO.Put_Line
-              (Tmp_Ads, "     return " & Types_Spec (O)
-               & "." & SOAP.Utils.No_NS (Name));
-            Text_IO.Put_Line
-              (Tmp_Ads, "     renames "
-               & To_Unit_Name (To_String (Prefix))
-               & ".To_" & Q_Name & "_Type;");
-
-            Text_IO.Put_Line
-              (Tmp_Ads,
-               "   function From_" & Q_Name
-               & " (D : " & Types_Spec (O) & "." & SOAP.Utils.No_NS (Name)
-               & ")");
-            Text_IO.Put_Line
-              (Tmp_Ads, "     return " & F_Name);
-            Text_IO.Put_Line
-              (Tmp_Ads, "     renames "
-               & To_Unit_Name (To_String (Prefix))
-               & ".From_" & Q_Name & "_Type;");
-
-            if SOAP.WSDL.Is_Standard (P_Name) then
-               Text_IO.New_Line (Tmp_Ads);
-
-               Text_IO.Put_Line
-                 (Tmp_Ads,
-                  "   function To_" & SOAP.Utils.No_NS (P_Name) & "_Type");
-               Text_IO.Put_Line (Tmp_Ads, "     (D : " & F_Name & ")");
-               Text_IO.Put_Line (Tmp_Ads, "      return " & B_Name);
-               Text_IO.Put_Line (Tmp_Ads, "      renames "
-                  & To_Unit_Name (To_String (Prefix))
-                  & ".To_" & SOAP.Utils.No_NS (P_Name) & "_Type;");
-
-               Text_IO.Put_Line
-                 (Tmp_Ads,
-                  "   function From_" & SOAP.Utils.No_NS (P_Name) & "_Type");
-               Text_IO.Put_Line (Tmp_Ads, "     (D : " & B_Name & ")");
-               Text_IO.Put_Line
-                 (Tmp_Ads, "      return " & F_Name);
-               Text_IO.Put_Line
-                 (Tmp_Ads, "      renames "
-                  & To_Unit_Name (To_String (Prefix))
-                  & ".From_" & SOAP.Utils.No_NS (P_Name) & "_Type;");
+               Translations := Translations
+                 & Templates.Assoc
+                     ("ALIAS_ROUTINE_NAME",
+                      SOAP.Utils.No_NS (P_Name) & "_Type");
             end if;
          end if;
 
-         Finalize_Types_Package (Prefix, Der_Ads, Der_Adb, No_Body => True);
+         Generate (Der_Ads, Template_Derived_Ads, Translations);
+         Insert_Types_Def (Template_Derived_Types, Translations);
+
+         Text_IO.Close (Der_Ads);
+         Text_IO.Delete (Der_Adb);
       end Generate_Derived;
 
       --------------------------
@@ -3832,6 +3537,77 @@ package body WSDL2AWS.Generator is
          end loop;
       end Generate_References;
 
+      ---------------------
+      --  Get_References --
+      ---------------------
+
+      procedure Get_References
+        (Unit_List   : in out AWS.Templates.Tag;
+         P           : WSDL.Parameters.P_Set;
+         For_Derived : Boolean := False)
+      is
+         use type Templates.Tag;
+
+         procedure Output_Refs (Def : WSDL.Types.Definition; Gen : Boolean);
+         --  Recursivelly output with/use clauses for derived types
+
+         Generated : String_Store.Set;
+         --  We must ensure that we do not generate the same with clause twice.
+         --  This can happen with derived types on a record.
+
+         -----------------
+         -- Output_Refs --
+         -----------------
+
+         procedure Output_Refs (Def : WSDL.Types.Definition; Gen : Boolean) is
+            Q_Name : constant String := WSDL.Types.Name (Def.Ref, NS => True);
+            F_Name : constant String :=
+                       Format_Name (O, WSDL.Types.Name (Def.Ref));
+            Prefix : constant String :=
+                       Generate_Namespace (WSDL.Types.NS (Def.Ref), False);
+         begin
+            --  For array we want to output references even for standard types
+            --  as we have the generated safe-access circuitry.
+
+            if Gen and then not Generated.Contains (Q_Name) then
+               if SOAP.WSDL.Is_Standard (WSDL.Types.Name (Def.Ref)) then
+                  --  We want here to add a reference to the standard type but
+                  --  also generate the corresponding root-package with the
+                  --  needed name-space.
+
+                  Unit_List := Unit_List
+                    & To_Unit_Name
+                       (Generate_Namespace (WSDL.Types.NS (Def.Ref), True));
+               else
+                  Unit_List := Unit_List
+                     & To_Unit_Name (Prefix) & '.' & F_Name & "_Type_Pkg";
+               end if;
+
+               Generated.Insert (Q_Name);
+            end if;
+
+            if Def.Mode = WSDL.Types.K_Derived
+              and then not SOAP.WSDL.Is_Standard (WSDL.Types.Name (Def.Parent))
+            then
+               Output_Refs (WSDL.Types.Find (Def.Parent), True);
+            end if;
+         end Output_Refs;
+
+         N : WSDL.Parameters.P_Set := P;
+
+      begin
+         while N /= null loop
+            Output_Refs (WSDL.Types.Find (N.Typ), not For_Derived);
+
+            --  If we are not handling a compound type, only reference the root
+            --  type.
+
+            exit when For_Derived;
+
+            N := N.Next;
+         end loop;
+      end Get_References;
+
       -----------------
       -- Get_Routine --
       -----------------
@@ -3891,11 +3667,13 @@ package body WSDL2AWS.Generator is
          Regen        : Boolean := False;
          Gen          : Boolean := True)
       is
+         use type Templates.Tag;
          use type WSDL.Types.Definition;
          use WSDL.Parameters;
 
          F_Name      : constant String := Name & "_Pkg";
          Q_Type_Name : Unbounded_String;
+         Unit_List   : Templates.Tag;
       begin
          Prefix := To_Unbounded_String
            (Generate_Namespace
@@ -3928,6 +3706,27 @@ package body WSDL2AWS.Generator is
                     else Def.Ref), NS => True));
          end if;
 
+         --  Either a compound type or an anonymous returned compound type
+
+         if Output then
+            Get_References (Unit_List, P);
+         elsif P.Mode in WSDL.Types.Compound_Type then
+            Get_References (Unit_List, P.P);
+         end if;
+
+         if Def.Mode = WSDL.Types.K_Derived then
+            if SOAP.WSDL.Is_Standard (WSDL.Types.Name (Def.Parent)) then
+               Unit_List := Unit_List &
+                 To_Unit_Name
+                   (Generate_Namespace (WSDL.Types.NS (Def.Parent), True));
+            else
+               Unit_List := Unit_List &
+                 (To_Unit_Name
+                   (Generate_Namespace (WSDL.Types.NS (Def.Parent), False))
+                    & '.' & WSDL.Types.Name (Def.Parent) & "_Type_Pkg");
+            end if;
+         end if;
+
          Translations := Translations
            & Templates.Assoc ("TYPE_SPEC", Types_Spec (O))
            & Templates.Assoc ("AWS_VERSION",  AWS.Version)
@@ -3935,7 +3734,8 @@ package body WSDL2AWS.Generator is
            & Templates.Assoc ("OPTIONS", To_String (O.Options))
            & Templates.Assoc ("WSDL2AWS_VERSION", WSDL2AWS.Version)
            & Templates.Assoc ("UNIT_NAME", To_Unit_Name (To_String (Prefix)))
-           & Templates.Assoc ("Q_TYPE_NAME", Q_Type_Name);
+           & Templates.Assoc ("Q_TYPE_NAME", Q_Type_Name)
+           & Templates.Assoc ("WITHED_UNITS", Unit_List);
 
          --  Hack should be removed
          if not Gen then
