@@ -1,0 +1,186 @@
+@@--  Spec to support SOAP array types
+@@--
+--  wsdl2aws SOAP Generator v@_WSDL2AWS_VERSION_@
+--
+--  AWS @_AWS_VERSION_@ - SOAP @_SOAP_VERSION_@
+--  This file was generated on @_NOW_@
+--
+--  $ wsdl2aws @_OPTIONS_@
+
+@@TABLE@@
+with @_WITHED_UNITS_@;
+@@END_TABLE@@
+
+@@IF@@ not @_SAFE_POINTER_@
+with Ada.Containers.Vectors;
+@@END_IF@@
+with SOAP.Types;
+with SOAP.Utils;
+
+@@IF@@ not @_IS_EMPTY:TYPE_SPEC_@
+with @_REPLACE(Standard./):TYPE_SPEC_@;
+@@END_IF@@
+
+package @_UNIT_NAME_@ is
+
+@@TABLE@@
+   use @_WITHED_UNITS_@;
+@@END_TABLE@@
+@@IF@@ not @_IS_EMPTY:TYPE_SPEC_@
+   use @_TYPE_SPEC_@;
+@@END_IF@@
+
+   Q_Type_Name : constant String := "@_Q_TYPE_NAME_@";
+
+@@-- TYPE SPEC ----------------------------------------------------------
+@@IF@@ @_IS_EMPTY:TYPE_SPEC_@
+
+@@IF@@ @_LENGTH_@ = 0
+@@--
+@@-- For safe pointers
+@@--
+   @@IF@@ @_SAFE_POINTER_@
+   type @_TYPE_NAME_@ is array (Positive range <>) of @_ELEMENT_TYPE_@;
+
+   type @_TYPE_NAME_@_Access is access all @_TYPE_NAME_@;
+
+   package @_TYPE_NAME_@_Safe_Pointer is
+     new SOAP.Utils.Safe_Pointers (@_TYPE_NAME_@, @_TYPE_NAME_@_Access);
+
+   subtype @_TYPE_NAME_@_Safe_Access
+     is @_TYPE_NAME_@_Safe_Pointer.Safe_Pointer;
+
+   function "+"
+     (O : @_TYPE_NAME_@)
+      return @_TYPE_NAME_@_Safe_Access
+      renames @_TYPE_NAME_@_Safe_Pointer.To_Safe_Pointer;
+   --  Convert an array to a safe pointer
+
+   function To_@_TYPE_NAME_@ is new SOAP.Utils.To_T_Array
+     (@_ELEMENT_TYPE_@,
+      @_TYPE_NAME_@,
+      @_GET_ROUTINE_@);
+
+   function To_Object_Set is new SOAP.Utils.To_Object_Set
+     (@_ELEMENT_TYPE_@,
+      @_TYPE_NAME_@,
+      @_SET_TYPE_@,
+      "@_ELEMENT_NAME_@",
+      "@_QUALIFIED_ELEMENT_TYPE_@",
+      @_SET_ROUTINE_@);
+   @@ELSE@@
+@@--
+@@-- For vectors
+@@--
+   package @_TYPE_NAME_@_Pck is new Ada.Containers.Vectors
+     (Positive, @_ELEMENT_TYPE_@);
+
+   subtype @_TYPE_NAME_@ is @_TYPE_NAME_@_Pck.Vector;
+
+   function "+" (V : @_TYPE_NAME_@)
+     return @_TYPE_NAME_@ is (V);
+
+   function To_@_TYPE_NAME_@ is new SOAP.Utils.To_Vector
+     (@_ELEMENT_TYPE_@_Pck, @_GET_ROUTINE_@);
+
+   function To_Object_Set is new SOAP.Utils.To_Object_Set_V
+     (@_TYPE_NAME_@_Pck,
+      @_SET_TYPE_@,
+      "@_ELEMENT_NAME_@",
+      "@_QUALIFIED_ELEMENT_TYPE_@",
+      @_SET_ROUTINE_@);
+   @@END_IF@@
+
+@@ELSE@@
+   @@IF@@ @_SAFE_POINTER_@
+   subtype @_TYPE_NAME_@_Index is Positive range 1 .. @_LENGTH_@;
+   type @_TYPE_NAME_@ is array (@_TYPE_NAME_@_Index) of @_ELEMENT_TYPE_@;
+
+   function To_@_TYPE_NAME_@ is new SOAP.Utils.To_T_Array_C
+     (@_ELEMENT_TYPE_@,
+      @_TYPE_NAME_@_Index,
+      @_GET_ROUTINE_@);
+
+   function To_Object_Set is new SOAP.Utils.To_Object_Set_C
+     (@_ELEMENT_TYPE_@,
+      @_TYPE_NAME_@_Index,
+      @_SET_TYPE_@,
+      "@_ELEMENT_NAME_@",
+      "@_QUALIFIED_ELEMENT_TYPE_@",
+      @_SET_ROUTINE_@);
+   @@ELSE@@
+   @@--
+   @@-- Unconstraint Vector not yet supported
+   @@END_IF@@
+@@END_IF@@
+@@--
+@@ELSE@@ @@-- TYPE SPEC -------------------------------------------------
+@@IF@@ @_LENGTH_@ > 0
+   subtype @_TYPE_NAME_@_Index is positive range 1 .. @_LENGTH_@;
+@@END_IF@@
+
+@@IF@@ @_SAFE_POINTER_@
+   subtype @_TYPE_NAME_@ is @_TYPE_SPEC_@.@_TYPE_REF_@;
+
+   @@IF@@ @_INSIDE_RECORD_@
+   subtype @_TYPE_NAME_@_Safe_Access
+     is @_TYPE_SPEC_@.@_TYPE_REF_@_Safe_Pointer.Safe_Pointer;
+
+   function "+"
+     (O : @_TYPE_NAME_@)
+      return @_TYPE_NAME_@_Safe_Access
+      renames @_TYPE_SPEC_@.@_TYPE_REF_@_Safe_Pointer.To_Safe_Pointer;
+   --  Convert an array to a safe pointer
+   @@END_IF@@
+
+   @@IF@@ @_LENGTH_@ = 0
+   function To_@_TYPE_NAME_@ is new SOAP.Utils.To_T_Array
+     (@_ELEMENT_TYPE_@,
+      @_TYPE_NAME_@,
+      @_GET_ROUTINE_@);
+
+   function To_Object_Set is new SOAP.Utils.To_Object_Set
+     (@_ELEMENT_TYPE_@,
+      @_TYPE_NAME_@,
+      @_SET_TYPE_@,
+      "@_ELEMENT_NAME_@",
+      "@_QUALIFIED_ELEMENT_TYPE_@",
+      @_SET_ROUTINE_@);
+   @@ELSE@@
+   function To_@_TYPE_NAME_@ is new SOAP.Utils.To_T_Array_C
+     (@_ELEMENT_TYPE_@,
+      @_TYPE_NAME_@_Index,
+      @_SET_TYPE_@,
+      @_TYPE_NAME_@,
+      @_GET_ROUTINE_@);
+
+   function To_Object_Set is new SOAP.Utils.To_Object_Set_C
+     (@_ELEMENT_TYPE_@,
+      @_TYPE_NAME_@_Index,
+      @_TYPE_NAME_@,
+      @_SET_TYPE_@,
+      "@_ELEMENT_NAME_@",
+      "@_QUALIFIED_ELEMENT_TYPE_@",
+      @_SET_ROUTINE_@);
+   @@END_IF@@
+@@ELSE@@ @-- SAFE_POINTER
+   package @_TYPE_NAME_@_Pck
+     renames @_TYPE_SPEC_@.@_TYPE_REF_@;
+   subtype @_TYPE_NAME_@ is @_TYPE_NAME_@_Pck.Vector;
+
+   function "+" (V: @_TYPE_NAME_@)
+     return @_TYPE_NAME_@ is (V);
+
+   function To_@_TYPE_NAME_@ is new SOAP.Utils.To_Vector
+     (@_TYPE_NAME_@_Pck, @_GET_ROUTINE_@);
+
+   function To_Object_Set is new SOAP.Utils.To_Object_Set_V
+     (@_TYPE_NAME_@_Pck,
+      @_SET_TYPE_@,
+      "@_ELEMENT_NAME_@",
+      "@_QUALIFIED_ELEMENT_TYPE_@",
+      @_SET_ROUTINE_@);
+@@END_IF@@
+@@END_IF@@
+
+end @_UNIT_NAME_@;
