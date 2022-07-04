@@ -1379,10 +1379,8 @@ package body WSDL2AWS.Generator is
          Name         : String;
          Output       : Boolean;
          Prefix       : out Unbounded_String;
-         F_Ads, F_Adb : out Text_IO.File_Type;
          Def          : WSDL.Types.Definition := WSDL.Types.No_Definition;
-         Regen        : Boolean := False;
-         Gen          : Boolean := True);
+         Regen        : Boolean := False);
       --  Creates the full namespaces if needed and return it in Prefix.
       --  Creates also the package hierarchy. Returns a spec and body file
       --  descriptor.
@@ -1513,13 +1511,10 @@ package body WSDL2AWS.Generator is
                       else WSDL.Types.Name (Def.E_Type, True));
 
          Prefix       : Unbounded_String;
-         Arr_Ads      : Text_IO.File_Type;
-         Arr_Adb      : Text_IO.File_Type;
          Translations : Templates.Translate_Set;
       begin
          Initialize_Types_Package
-           (Translations, P, F_Name, False, Prefix,
-            Arr_Ads, Arr_Adb, Regen => Regen, Gen => False);
+           (Translations, P, F_Name, False, Prefix, Regen => Regen);
 
          Translations := Translations
            & Templates.Assoc ("TYPE_NAME", F_Name)
@@ -1539,11 +1534,11 @@ package body WSDL2AWS.Generator is
            & Templates.Assoc
                ("TYPE_REF", WSDL.Types.Name (P.Typ));
 
-         Generate (Arr_Ads, Template_Array_Ads, Translations);
-         Insert_Types_Def (Template_Array_Types, Translations);
+         Generate
+           (To_Lower (To_String (Prefix)) & ".ads",
+            Template_Array_Ads, Translations);
 
-         Text_IO.Close (Arr_Ads);
-         Text_IO.Delete (Arr_Adb);
+         Insert_Types_Def (Template_Array_Types, Translations);
       end Generate_Array;
 
       ----------------------
@@ -1576,13 +1571,10 @@ package body WSDL2AWS.Generator is
          Is_Range         : Boolean := True;
          Predicate_Kind   : Templates.Tag;
          Predicate        : Templates.Tag;
-         Der_Ads          : Text_IO.File_Type;
-         Der_Adb          : Text_IO.File_Type;
          Translations     : Templates.Translate_Set;
       begin
          Initialize_Types_Package
-           (Translations, P, U_Name, False, Prefix, Der_Ads, Der_Adb, Def,
-            Gen => False);
+           (Translations, P, U_Name, False, Prefix, Def);
 
          --  Is types are to be reused from an Ada  spec ?
 
@@ -1875,11 +1867,11 @@ package body WSDL2AWS.Generator is
             end if;
          end if;
 
-         Generate (Der_Ads, Template_Derived_Ads, Translations);
-         Insert_Types_Def (Template_Derived_Types, Translations);
+         Generate
+           (To_Lower (To_String (Prefix)) & ".ads",
+            Template_Derived_Ads, Translations);
 
-         Text_IO.Close (Der_Ads);
-         Text_IO.Delete (Der_Adb);
+         Insert_Types_Def (Template_Derived_Types, Translations);
       end Generate_Derived;
 
       --------------------------
@@ -1952,8 +1944,6 @@ package body WSDL2AWS.Generator is
          Def     : constant WSDL.Types.Definition := WSDL.Types.Find (P.Typ);
          N       : WSDL.Types.E_Node_Access := Def.E_Def;
          Prefix  : Unbounded_String;
-         Enu_Ads : Text_IO.File_Type;
-         Enu_Adb : Text_IO.File_Type;
 
          Translations : Templates.Translate_Set :=
                           Templates.Null_Set
@@ -1963,8 +1953,7 @@ package body WSDL2AWS.Generator is
          E_Value      : Templates.Tag;
       begin
          Initialize_Types_Package
-           (Translations, P, F_Name, False, Prefix,
-            Enu_Ads, Enu_Adb, Gen => False);
+           (Translations, P, F_Name, False, Prefix);
 
          while N /= null loop
             E_Name := E_Name & Format_Name (O, To_String (N.Value));
@@ -1976,12 +1965,14 @@ package body WSDL2AWS.Generator is
            & Templates.Assoc ("E_NAME", E_Name)
            & Templates.Assoc ("E_VALUE", E_Value);
 
-         Generate (Enu_Ads, Template_Enum_Ads, Translations);
-         Generate (Enu_Adb, Template_Enum_Adb, Translations);
-         Insert_Types_Def (Template_Enum_Types, Translations);
+         Generate
+           (To_Lower (To_String (Prefix)) & ".ads",
+            Template_Enum_Ads, Translations);
+         Generate
+           (To_Lower (To_String (Prefix)) & ".adb",
+            Template_Enum_Adb, Translations);
 
-         Text_IO.Close (Enu_Ads);
-         Text_IO.Close (Enu_Adb);
+         Insert_Types_Def (Template_Enum_Types, Translations);
       end Generate_Enumeration;
 
       ------------------------
@@ -2197,13 +2188,8 @@ package body WSDL2AWS.Generator is
          Field_To_SOAP      : Templates.Tag;
          Field_Set_Type     : Templates.Tag;
 
-         Rec_Ads : Text_IO.File_Type;
-         Rec_Adb : Text_IO.File_Type;
-
       begin
-         Initialize_Types_Package
-           (Translations, P, F_Name, Is_Output,
-           Prefix, Rec_Ads, Rec_Adb, Gen => False);
+         Initialize_Types_Package (Translations, P, F_Name, Is_Output, Prefix);
 
          if Is_Output then
             R := P;
@@ -2385,12 +2371,14 @@ package body WSDL2AWS.Generator is
             NS_Generated.Insert (SOAP.Name_Space.Name (NS));
          end if;
 
-         Generate (Rec_Ads, Template_Record_Ads, Translations);
-         Generate (Rec_Adb, Template_Record_Adb, Translations);
-         Insert_Types_Def (Template_Record_Types, Translations);
+         Generate
+           (To_Lower (To_String (Prefix)) & ".ads",
+            Template_Record_Ads, Translations);
+         Generate
+           (To_Lower (To_String (Prefix)) & ".adb",
+            Template_Record_Adb, Translations);
 
-         Text_IO.Close (Rec_Ads);
-         Text_IO.Close (Rec_Adb);
+         Insert_Types_Def (Template_Record_Types, Translations);
       end Generate_Record;
 
       -------------------------
@@ -2593,10 +2581,8 @@ package body WSDL2AWS.Generator is
          Name         : String;
          Output       : Boolean;
          Prefix       : out Unbounded_String;
-         F_Ads, F_Adb : out Text_IO.File_Type;
          Def          : WSDL.Types.Definition := WSDL.Types.No_Definition;
-         Regen        : Boolean := False;
-         Gen          : Boolean := True)
+         Regen        : Boolean := False)
       is
          use type Templates.Tag;
          use type WSDL.Types.Definition;
@@ -2621,12 +2607,6 @@ package body WSDL2AWS.Generator is
                To_Unit_Name (To_String (Prefix)),
                Use_Clause => True);
          end if;
-
-         Text_IO.Create
-           (F_Ads, Text_IO.Out_File, To_Lower (To_String (Prefix)) & ".ads");
-
-         Text_IO.Create
-           (F_Adb, Text_IO.Out_File, To_Lower (To_String (Prefix)) & ".adb");
 
          if Def.Mode /= WSDL.Types.K_Simple then
             Q_Type_Name :=
@@ -2667,65 +2647,6 @@ package body WSDL2AWS.Generator is
            & Templates.Assoc ("UNIT_NAME", To_Unit_Name (To_String (Prefix)))
            & Templates.Assoc ("Q_TYPE_NAME", Q_Type_Name)
            & Templates.Assoc ("WITHED_UNITS", Unit_List);
-
-         --  Hack should be removed
-         if not Gen then
-            return;
-         end if;
-
-         if not Regen then
-            With_Unit
-              (Type_Ads,
-               To_Unit_Name (To_String (Prefix)),
-               Use_Clause => True);
-         end if;
-
-         Put_File_Header (O, F_Ads);
-
-         --  Either a compound type or an anonymous returned compound type
-
-         if Output then
-            Generate_References (F_Ads, P);
-         elsif P.Mode in WSDL.Types.Compound_Type then
-            Generate_References (F_Ads, P.P);
-         end if;
-
-         if Def.Mode = WSDL.Types.K_Derived then
-            if SOAP.WSDL.Is_Standard (WSDL.Types.Name (Def.Parent)) then
-               With_Unit
-                 (F_Ads,
-                  To_Unit_Name
-                    (Generate_Namespace (WSDL.Types.NS (Def.Parent), True)),
-                  Elab       => Off,
-                  Use_Clause => True);
-            else
-               With_Unit
-                 (F_Ads,
-                  To_Unit_Name
-                    (Generate_Namespace (WSDL.Types.NS (Def.Parent), False))
-                  & '.' & WSDL.Types.Name (Def.Parent) & "_Type_Pkg",
-                  Elab       => Off,
-                  Use_Clause => True);
-            end if;
-
-            Text_IO.New_Line (F_Ads);
-         end if;
-
-         Put_Types_Header_Spec
-           (O, F_Ads, To_Unit_Name (To_String (Prefix)), Is_NS => True);
-
-         Put_File_Header (O, F_Adb);
-         Put_Types_Header_Body (O, F_Adb, To_Unit_Name (To_String (Prefix)));
-
-         --  Generate qualified type name
-
-         if Def.Mode /= WSDL.Types.K_Simple then
-            Text_IO.New_Line (F_Ads);
-            Text_IO.Put_Line
-              (F_Ads,
-               "   Q_Type_Name : constant String := """
-               & To_String (Q_Type_Name) & """;");
-         end if;
       end Initialize_Types_Package;
 
       ----------------------
