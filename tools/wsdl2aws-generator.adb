@@ -30,6 +30,8 @@
 with Ada.Calendar;
 with Ada.Characters.Handling;
 with Ada.Containers.Indefinite_Ordered_Sets;
+with Ada.Directories;
+with Ada.Environment_Variables;
 with Ada.Strings.Fixed;
 with Ada.Strings.Maps.Constants;
 with Ada.Text_IO;
@@ -68,6 +70,10 @@ package body WSDL2AWS.Generator is
 
    Template_Array_Ads     : constant String := "s-type-array.tads";
    Template_Array_Types   : constant String := "s-type-array-types.tads";
+
+   Template_Record_Ads    : constant String := "s-type-record.tads";
+   Template_Record_Adb    : constant String := "s-type-record.tadb";
+   Template_Record_Types  : constant String := "s-type-record-types.tads";
 
    procedure Generate
      (Filename     : String;
@@ -547,9 +553,19 @@ package body WSDL2AWS.Generator is
    procedure Generate
      (File         : Text_IO.File_Type;
       Template     : String;
-      Translations : Templates.Translate_Set) is
+      Translations : Templates.Translate_Set)
+   is
+      Template_Dir  : constant String :=
+                        Environment_Variables.Value
+                          ("AWS_TEMPLATE_FILES", Default => "./");
+      Template_File : constant String :=
+                        Directories.Compose (Template_Dir, Template);
    begin
-      Text_IO.Put (File, Templates.Parse (Template, Translations));
+      if Directories.Exists (Template_File) then
+         Text_IO.Put (File, Templates.Parse (Template_File, Translations));
+      else
+         Text_IO.Put (File, Templates.Parse (Template, Translations));
+      end if;
    end Generate;
 
    procedure Generate
@@ -602,7 +618,7 @@ package body WSDL2AWS.Generator is
      (Template     : String;
       Translations : Templates.Translate_Set) is
    begin
-      Text_IO.Put (Tmp_Ads, Templates.Parse (Template, Translations));
+      Generate (Tmp_Ads, Template, Translations);
    end Insert_Types_Def;
 
    ---------------------------------
@@ -2166,15 +2182,28 @@ package body WSDL2AWS.Generator is
          Max     : Positive;
          Count   : Natural := 0;
 
-         Prefix       : Unbounded_String;
-         Translations : Templates.Translate_Set;
+         Prefix             : Unbounded_String;
+         Translations       : Templates.Translate_Set;
+         Field_Number       : Templates.Tag;
+         Field_Name         : Templates.Tag;
+         Field_RAW_Name     : Templates.Tag;
+         Field_Type         : Templates.Tag;
+         Field_Comment      : Templates.Tag;
+         Field_Kind         : Templates.Tag;
+         Field_Array_First  : Templates.Tag;
+         Field_Array_Last   : Templates.Tag;
+         Field_Array_Length : Templates.Tag;
+         Field_From_SOAP    : Templates.Tag;
+         Field_To_SOAP      : Templates.Tag;
+         Field_Set_Type     : Templates.Tag;
 
-         Rec_Ads     : Text_IO.File_Type;
+         Rec_Ads : Text_IO.File_Type;
          Rec_Adb : Text_IO.File_Type;
 
       begin
          Initialize_Types_Package
-           (Translations, P, F_Name, Is_Output, Prefix, Rec_Ads, Rec_Adb);
+           (Translations, P, F_Name, Is_Output,
+           Prefix, Rec_Ads, Rec_Adb, Gen => False);
 
          if Is_Output then
             R := P;
@@ -2182,10 +2211,157 @@ package body WSDL2AWS.Generator is
             R := P.P;
          end if;
 
-         --  Generate record type
+         N := R;
 
-         Text_IO.New_Line (Tmp_Ads);
-         Header_Box (O, Tmp_Ads, "Record " & F_Name);
+         while N /= null loop
+            Count := Count + 1;
+            Field_Number   := Field_Number & Count;
+            Field_Name     := Field_Name & Format_Name (O, To_String (N.Name));
+            Field_RAW_Name := Field_RAW_Name & To_String (N.Name);
+            Field_Type     := Field_Type & Format_Name (O, Type_Name (N));
+            Field_Kind     := Field_Kind & N.Mode'Image;
+
+            if N.Mode = WSDL.Types.K_Array then
+               Field_Array_First  := Field_Array_First & N.Min;
+               Field_Array_Last   := Field_Array_Last & N.Min;
+               Field_Array_Length := Field_Array_Length & (N.Max - N.Min + 1);
+            else
+               Field_Array_First  := Field_Array_First & "";
+               Field_Array_Last   := Field_Array_Last & "";
+               Field_Array_Length := Field_Array_Length & "";
+            end if;
+
+            if N.Mode = WSDL.Types.K_Array then
+               Field_Comment := Field_Comment
+                 & "      --  Access items with : result.Item (n)";
+            else
+               Field_Comment := Field_Comment & "";
+            end if;
+
+            declare
+               Def     : constant WSDL.Types.Definition :=
+                           WSDL.Types.Find (N.Typ);
+               T_Name  : constant String := WSDL.Types.Name (Def.Ref);
+               QT_Name : constant String :=
+                          WSDL.Types.Name (N.Typ, NS => True);
+               Field   : constant String :=
+                           "R." & Format_Name (O, To_String (N.Name));
+               Name    : constant String :=
+                           (if Is_Choice
+                            then "E"
+                            else Format_Name (O, To_String (N.Name)));
+               NS      : constant SOAP.Name_Space.Object :=
+                           WSDL.Types.NS (N.Typ);
+               NS_Ref  : constant String :=
+                           To_Unit_Name (Generate_Namespace (NS, False))
+                           & ".Name_Space";
+            begin
+               case N.Mode is
+                  when WSDL.Types.K_Simple =>
+                     Field_From_SOAP := Field_From_SOAP
+                       & WSDL.Parameters.From_SOAP (N.all, Object => Name);
+                     Field_To_SOAP := Field_To_SOAP
+                       & WSDL.Parameters.To_SOAP
+                           (N.all,
+                            Object    => Field,
+                            Name      => To_String (N.Name),
+                            Type_Name => QT_Name,
+                            NS        => "NS");
+                     Field_Set_Type := Field_Set_Type
+                       & SOAP.WSDL.Set_Type (SOAP.WSDL.To_Type (T_Name));
+
+                  when WSDL.Types.K_Derived =>
+                     Field_From_SOAP := Field_From_SOAP
+                       & WSDL.Parameters.From_SOAP (N.all, Object => Name);
+                     Field_To_SOAP := Field_To_SOAP
+                       & WSDL.Parameters.To_SOAP
+                           (N.all,
+                            Object    => Field,
+                            Name      => To_String (N.Name),
+                            Type_Name => QT_Name,
+                            NS        => NS_Ref);
+                     Field_Set_Type := Field_Set_Type
+                       & SOAP.WSDL.Set_Type
+                           (SOAP.WSDL.To_Type
+                              (WSDL.Types.Root_Type_For (Def)));
+
+                  when WSDL.Types.K_Enumeration =>
+                     Field_From_SOAP := Field_From_SOAP
+                       & WSDL.Parameters.From_SOAP (N.all, Object => Name);
+                     Field_To_SOAP := Field_To_SOAP
+                       & WSDL.Parameters.To_SOAP
+                           (N.all,
+                            Object    => Field,
+                            Name      => To_String (N.Name),
+                            Type_Name => Format_Name (O, QT_Name),
+                            NS        => "NS");
+                     Field_Set_Type := Field_Set_Type
+                       & "SOAP.Types.SOAP_Enumeration";
+
+                  when WSDL.Types.K_Array =>
+                     declare
+                        E_Name : constant String := To_String (N.Elmt_Name);
+                     begin
+                        Field_From_SOAP := Field_From_SOAP
+                          & WSDL.Parameters.From_SOAP
+                             (N.all,
+                              Object    => Name,
+                              Type_Name =>
+                                 Format_Name (O, WSDL.Types.Name (Def.Ref)));
+                        Field_To_SOAP := Field_To_SOAP
+                          & WSDL.Parameters.To_SOAP
+                              (N.all,
+                               Object    =>
+                                 Field & (if O.Sp then ".Item.all" else ""),
+                               Name      => To_String (N.Name),
+                               Type_Name =>
+                                 (if O.Style = SOAP.WSDL.Schema.RPC
+                                  then E_Name
+                                  else QT_Name),
+                               NS        => NS_Ref);
+                        Field_Set_Type := Field_Set_Type
+                          & "SOAP.Types.SOAP_Array";
+                     end;
+
+                  when WSDL.Types.K_Record =>
+                     Field_From_SOAP := Field_From_SOAP
+                       & WSDL.Parameters.From_SOAP
+                          (N.all,
+                           Object    => Name,
+                           Type_Name => Format_Name (O, Type_Name (N)));
+                     Field_To_SOAP := Field_To_SOAP
+                       & WSDL.Parameters.To_SOAP
+                           (N.all,
+                            Object    => Field,
+                            Name      => To_String (N.Name),
+                            Type_Name => QT_Name,
+                            NS        => NS_Ref);
+                     Field_Set_Type := Field_Set_Type
+                       & "SOAP.Types.SOAP_Record";
+               end case;
+            end;
+
+            N := N.Next;
+         end loop;
+
+         Translations := Translations
+           & Templates.Assoc ("TYPE_NAME", F_Name)
+           & Templates.Assoc ("IS_CHOICE", Is_Choice)
+           & Templates.Assoc ("FIELD_COUNT", Count)
+           & Templates.Assoc ("FIELD_NAME", Field_Name)
+           & Templates.Assoc ("FIELD_RAW_NAME", Field_RAW_Name)
+           & Templates.Assoc ("FIELD_TYPE", Field_Type)
+           & Templates.Assoc ("FIELD_COMMENT", Field_Comment)
+           & Templates.Assoc ("FIELD_NUMBER", Field_Number)
+           & Templates.Assoc ("FIELD_KIND", Field_Kind)
+           & Templates.Assoc ("FIELD_ARRAY_FIRST", Field_Array_First)
+           & Templates.Assoc ("FIELD_ARRAY_LAST", Field_Array_Last)
+           & Templates.Assoc ("FIELD_ARRAY_LENGTH", Field_Array_Length)
+           & Templates.Assoc ("FIELD_FROM_SOAP", Field_From_SOAP)
+           & Templates.Assoc ("FIELD_TO_SOAP", Field_To_SOAP)
+           & Templates.Assoc ("FIELD_SET_TYPE", Field_Set_Type)
+           & Templates.Assoc ("NAME_SPACE_PACKAGE", Pck_NS)
+           & Templates.Assoc ("TYPE_REF", WSDL.Types.Name (P.Typ));
 
          --  Is types are to be reused from an Ada spec ?
 
@@ -2195,691 +2371,26 @@ package body WSDL2AWS.Generator is
               or else
             (Is_Simple_Wrapped_Parameter (O, Output) and then P = Output)
          then
-            --  Compute max field width, compute also the number of fields.
-            --  During this first iteration we also generate the record fields
-            --  information for the schema definition.
-
-            N := R;
-
-            Max := 1;
-
-            while N /= null loop
-               Count := Count + 1;
-               Max := Positive'Max
-                 (Max, Format_Name (O, To_String (N.Name))'Length);
-               N := N.Next;
-            end loop;
-
-            --  Output field
-
-            N := R;
-
-            Output_Comment (Rec_Ads, To_String (P.Doc), Indent => 3);
-            Text_IO.New_Line (Rec_Ads);
-
-            if N = null then
-               Text_IO.Put_Line
-                 (Rec_Ads, "   type " & F_Name & " is null record;");
-
-            else
-               if Is_Choice then
-                  Text_IO.Put
-                    (Rec_Ads, "   type Choice is (");
-
-                  for K in 1 .. Count loop
-                     Text_IO.Put (Rec_Ads, "C" & AWS.Utils.Image (K));
-                     if K < Count then
-                        Text_IO.Put (Rec_Ads, ", ");
-                     end if;
-                  end loop;
-
-                  Text_IO.Put_Line (Rec_Ads, ");");
-                  Text_IO.New_Line (Rec_Ads);
-
-                  Text_IO.Put_Line
-                    (Rec_Ads,
-                     "   type " & F_Name & " (C : Choice := C1) is record");
-                  Text_IO.Put_Line
-                    (Rec_Ads,
-                     "      case C is");
-
-               else
-                  Text_IO.Put_Line
-                    (Rec_Ads, "   type " & F_Name & " is record");
-               end if;
-
-               Count := 0;
-
-               while N /= null loop
-                  Count := Count + 1;
-
-                  if Is_Choice then
-                     Text_IO.Put_Line
-                       (Rec_Ads,
-                        "         when C" & AWS.Utils.Image (Count) & " =>");
-                     Text_IO.Put (Rec_Ads, "      ");
-                  end if;
-
-                  declare
-                     F_Name : constant String :=
-                                Format_Name (O, To_String (N.Name));
-                  begin
-                     Text_IO.Put
-                       (Rec_Ads, "      "
-                        & F_Name
-                        & String'(1 .. Max - F_Name'Length => ' ') & " : ");
-                  end;
-
-                  Text_IO.Put (Rec_Ads, Format_Name (O, Type_Name (N)));
-
-                  Text_IO.Put_Line (Rec_Ads, ";");
-                  Output_Comment (Rec_Ads, To_String (N.Doc), Indent => 6);
-
-                  if N.Mode = WSDL.Types.K_Array then
-                     Text_IO.Put_Line
-                       (Rec_Ads,
-                        "      --  Access items with : result.Item (n)");
-                  end if;
-
-                  N := N.Next;
-               end loop;
-
-               if Is_Choice then
-                  Text_IO.Put_Line (Rec_Ads, "      end case;");
-               end if;
-
-               Text_IO.Put_Line
-                 (Rec_Ads, "   end record;");
-            end if;
-
-            Text_IO.New_Line (Tmp_Ads);
-            Text_IO.Put_Line (Tmp_Ads, "   subtype " & F_Name);
-            Text_IO.Put_Line
-              (Tmp_Ads, "     is "
-               & To_Unit_Name (To_String (Prefix)) & '.' & F_Name & ';');
+            Translations := Translations
+              & Templates.Assoc ("SIMPLE_WRAPPED_PARAMETER", True);
 
          else
-            Text_IO.New_Line (Rec_Ads);
-            Text_IO.Put_Line
-              (Rec_Ads, "   subtype " & F_Name & " is "
-               & Types_Spec (O) & "." & WSDL.Types.Name (P.Typ) & ";");
-
-            Text_IO.New_Line (Tmp_Ads);
-            Text_IO.Put_Line
-              (Tmp_Ads, "   subtype " & F_Name & " is "
-               & Types_Spec (O) & "." & WSDL.Types.Name (P.Typ) & ";");
+            Translations := Translations
+              & Templates.Assoc ("SIMPLE_WRAPPED_PARAMETER", False);
          end if;
 
-         --  Generate conversion spec
-
-         Text_IO.New_Line (Rec_Ads);
-         Text_IO.Put_Line (Rec_Ads, "   function To_" & F_Name);
-         Text_IO.Put_Line (Rec_Ads, "     (O : SOAP.Types.Object'Class)");
-         Text_IO.Put_Line (Rec_Ads, "      return " & F_Name & ';');
-
-         Text_IO.New_Line (Tmp_Ads);
-         Text_IO.Put_Line (Tmp_Ads, "   function To_" & F_Name);
-         Text_IO.Put_Line (Tmp_Ads, "     (O : SOAP.Types.Object'Class)");
-         Text_IO.Put_Line (Tmp_Ads, "      return " & F_Name);
-         Text_IO.Put_Line
-           (Tmp_Ads, "      renames "
-            & To_Unit_Name (To_String (Prefix)) & ".To_" & F_Name & ';');
-
-         Text_IO.New_Line (Rec_Ads);
-         Text_IO.Put_Line (Rec_Ads, "   function To_SOAP_Object");
-         Text_IO.Put_Line (Rec_Ads, "     (R         : " & F_Name & ';');
-         Text_IO.Put_Line (Rec_Ads, "      Name      : String := ""item"";");
-         Text_IO.Put_Line
-           (Rec_Ads, "      Type_Name : String := Q_Type_Name;");
-         Text_IO.Put_Line
-           (Rec_Ads, "      NS        : SOAP.Name_Space.Object := "
-            & "Name_Space)");
-         Text_IO.Put_Line (Rec_Ads, "      return SOAP.Types.SOAP_Record;");
-
          if not NS_Generated.Contains (SOAP.Name_Space.Name (NS)) then
-            Text_IO.New_Line (Tmp_Ads);
-            Text_IO.Put_Line
-              (Tmp_Ads,
-               "   " & SOAP.Name_Space.Name (NS) & "_Name_Space : "
-               & "SOAP.Name_Space.Object ");
-            Text_IO.Put_Line
-              (Tmp_Ads,
-               "     renames " & Pck_NS & ".Name_Space;");
+            Translations := Translations
+              & Templates.Assoc ("NAME_SPACE", SOAP.Name_Space.Name (NS));
             NS_Generated.Insert (SOAP.Name_Space.Name (NS));
          end if;
 
-         Text_IO.New_Line (Tmp_Ads);
-         Text_IO.Put_Line (Tmp_Ads, "   function To_SOAP_Object");
-         Text_IO.Put_Line (Tmp_Ads, "     (R         : " & F_Name & ';');
-         Text_IO.Put_Line (Tmp_Ads, "      Name      : String := ""item"";");
-         Text_IO.Put_Line
-           (Tmp_Ads, "      Type_Name : String := "
-            & To_Unit_Name (To_String (Prefix)) & ".Q_Type_Name;");
-         Text_IO.Put_Line
-           (Tmp_Ads, "      NS        : SOAP.Name_Space.Object := "
-            & SOAP.Name_Space.Name (NS) & "_Name_Space)");
-         Text_IO.Put_Line (Tmp_Ads, "      return SOAP.Types.SOAP_Record");
-         Text_IO.Put_Line
-           (Tmp_Ads, "      renames "
-            & To_Unit_Name (To_String (Prefix)) & ".To_SOAP_Object;");
-
-         --  Generate conversion body
-
-         Header_Box (O, Rec_Adb, "Record " & F_Name);
-
-         --  SOAP to Ada
-
-         Text_IO.New_Line (Rec_Adb);
-         Text_IO.Put_Line (Rec_Adb, "   function To_" & F_Name);
-         Text_IO.Put_Line (Rec_Adb, "     (O : SOAP.Types.Object'Class)");
-         Text_IO.Put_Line (Rec_Adb, "      return " & F_Name);
-         Text_IO.Put_Line (Rec_Adb, "   is");
-
-         --  Declare the SOAP record object
-
-         Text_IO.Put_Line
-           (Rec_Adb,
-            "      R : constant SOAP.Types.SOAP_Record "
-              & ":= SOAP.Types.SOAP_Record (O);");
-
-         if Is_Choice and then R /= null then
-            --  Generate C_Name helper routine
-
-            Text_IO.New_Line (Rec_Adb);
-            Text_IO.Put_Line
-              (Rec_Adb,
-               "      function C_Name return String is");
-            Text_IO.Put
-              (Rec_Adb,
-               "        (");
-
-            N := R;
-
-            while N /= null loop
-               if N = R then
-                  Text_IO.Put (Rec_Adb, "if");
-               elsif N.Next = null then
-                  Text_IO.Put (Rec_Adb, "         else --");
-               else
-                  Text_IO.Put (Rec_Adb, "         elsif");
-               end if;
-
-               Text_IO.Put_Line
-                 (Rec_Adb,
-                  " SOAP.Types.Exists (R, """
-                  & Format_Name (O, To_String (N.Name)) & """) then");
-               Text_IO.Put
-                 (Rec_Adb,
-                  "           """
-                  & Format_Name (O, To_String (N.Name)) & """");
-               N := N.Next;
-
-               if N = null then
-                  Text_IO.Put_Line (Rec_Adb, ");");
-               else
-                  Text_IO.New_Line (Rec_Adb);
-               end if;
-            end loop;
-
-            --  Generate C_Disc helper routine
-
-            Text_IO.New_Line (Rec_Adb);
-            Text_IO.Put_Line
-              (Rec_Adb,
-               "      function C_Disc return Choice is");
-            Text_IO.Put
-              (Rec_Adb,
-               "        (");
-
-            N := R;
-
-            Count := 0;
-
-            while N /= null loop
-               Count := Count + 1;
-               if N = R then
-                  Text_IO.Put (Rec_Adb, "if");
-               elsif N.Next = null then
-                  Text_IO.Put (Rec_Adb, "         else --");
-               else
-                  Text_IO.Put (Rec_Adb, "         elsif");
-               end if;
-
-               Text_IO.Put_Line
-                 (Rec_Adb,
-                  " SOAP.Types.Exists (R, """
-                  & Format_Name (O, To_String (N.Name)) & """) then");
-               Text_IO.Put
-                 (Rec_Adb,
-                  "           C" & AWS.Utils.Image (Count));
-               N := N.Next;
-
-               if N = null then
-                  Text_IO.Put_Line (Rec_Adb, ");");
-               else
-                  Text_IO.New_Line (Rec_Adb);
-               end if;
-            end loop;
-
-            Text_IO.New_Line (Rec_Adb);
-            Text_IO.Put_Line
-              (Rec_Adb,
-               "      E : constant SOAP.Types.Object'Class "
-               & ":= SOAP.Types.V (R, C_Name);");
-
-         else
-            --  Declare all record's fields
-
-            N := R;
-
-            while N /= null loop
-               Text_IO.Put_Line
-                 (Rec_Adb,
-                  "      " & Format_Name (O, To_String (N.Name))
-                  & " : constant SOAP.Types."
-                  & (if N.Mode = WSDL.Types.K_Array
-                       and then not WSDL.Parameters.Is_Uniq (N.all)
-                     then "Object_Set"
-                     else "Object'Class")
-                  & " := SOAP.Types.V (R, """
-                  & To_String (N.Name) & """);");
-
-               N := N.Next;
-            end loop;
-         end if;
-
-         Text_IO.Put_Line (Rec_Adb, "   begin");
-
-         --  Check size of set minOccurs / maxOccurs
-
-         N := R;
-
-         while N /= null loop
-            if N.Mode = WSDL.Types.K_Array
-              and then not WSDL.Parameters.Is_Uniq (N.all)
-            then
-               Text_IO.Put_Line
-                 (Rec_Adb,
-                  "      if "
-                  & Format_Name (O, To_String (N.Name))
-                  & "'Length not in " & AWS.Utils.Image (N.Min)
-                  & " .. " & AWS.Utils.Image (N.Max) & " then");
-               Text_IO.Put_Line
-                 (Rec_Adb, "         raise SOAP.SOAP_Error");
-               Text_IO.Put_Line
-                 (Rec_Adb, "            with ""Length of "
-                  & Format_Name (O, To_String (N.Name))
-                  & " violate schema definition"";");
-               Text_IO.Put_Line
-                 (Rec_Adb,
-                  "      end if;");
-            end if;
-
-            N := N.Next;
-         end loop;
-
-         if Is_Choice and then R /= null then
-            Text_IO.Put_Line (Rec_Adb, "      case C_Disc is");
-         else
-            Text_IO.Put (Rec_Adb, "      return (");
-         end if;
-
-         --  Aggregate to build the record object
-
-         N := R;
-
-         if N = null then
-            --  An empty record
-            Text_IO.Put_Line (Rec_Adb, "null record);");
-
-         elsif not Is_Choice and then N.Next = null then
-            --  We have a single element into this record, we must use a named
-            --  notation for the aggregate.
-            Text_IO.Put
-              (Rec_Adb, Format_Name (O, To_String (N.Name)) & " => ");
-         end if;
-
-         Count := 0;
-
-         while N /= null loop
-            Count := Count + 1;
-
-            if Is_Choice then
-               Text_IO.Put_Line
-                 (Rec_Adb,
-                  "         when C" & AWS.Utils.Image (Count) & " =>");
-               Text_IO.Put
-                 (Rec_Adb,
-                  "            return (C" & AWS.Utils.Image (Count) & ", ");
-
-            elsif N /= R then
-               Text_IO.Put      (Rec_Adb, "              ");
-            end if;
-
-            declare
-               Def  : constant WSDL.Types.Definition :=
-                        WSDL.Types.Find (N.Typ);
-               Name : constant String :=
-                        (if Is_Choice
-                         then "E"
-                         else Format_Name (O, To_String (N.Name)));
-            begin
-               case N.Mode is
-                  when WSDL.Types.K_Simple
-                     | WSDL.Types.K_Derived
-                     | WSDL.Types.K_Enumeration
-                     =>
-                     Text_IO.Put
-                       (Rec_Adb,
-                        WSDL.Parameters.From_SOAP (N.all, Object => Name));
-
-                  when WSDL.Types.K_Array =>
-                     Text_IO.Put
-                       (Rec_Adb,
-                        WSDL.Parameters.From_SOAP
-                          (N.all,
-                           Object    => Name,
-                           Type_Name =>
-                              Format_Name (O, WSDL.Types.Name (Def.Ref))));
-
-                  when WSDL.Types.K_Record =>
-                     Text_IO.Put
-                       (Rec_Adb,
-                        WSDL.Parameters.From_SOAP
-                          (N.all,
-                           Object    => Name,
-                           Type_Name => Format_Name (O, Type_Name (N))));
-               end case;
-            end;
-
-            if Is_Choice or else N.Next = null then
-               Text_IO.Put_Line (Rec_Adb, ");");
-            else
-               Text_IO.Put_Line (Rec_Adb, ",");
-            end if;
-
-            N := N.Next;
-         end loop;
-
-         if Is_Choice and then R /= null then
-            Text_IO.Put_Line (Rec_Adb, "      end case;");
-         end if;
-
-         --  Generate exception handler
-
-         N := R;
-
-         if N /= null then
-            declare
-               procedure Emit_Check (F_Name, I_Type : String);
-               --  Emit a check for F_Name'Tag = I_Type'Tag
-
-               ----------------
-               -- Emit_Check --
-               ----------------
-
-               procedure Emit_Check (F_Name, I_Type : String) is
-               begin
-                  if Is_Choice then
-                     Text_IO.Put_Line
-                       (Rec_Adb,
-                        "         if C_Disc = C" & AWS.Utils.Image (Count)
-                        & " and then E'Tag /= "
-                        & I_Type & "'Tag then");
-                  else
-                     Text_IO.Put_Line
-                       (Rec_Adb,
-                        "         if " & F_Name & "'Tag /= "
-                        & I_Type & "'Tag then");
-                  end if;
-                  Text_IO.Put_Line
-                    (Rec_Adb, "            raise SOAP.SOAP_Error");
-                  Text_IO.Put_Line
-                    (Rec_Adb, "               with SOAP.Types.Name (R)");
-                  Text_IO.Put_Line
-                    (Rec_Adb, "                  & ""."
-                     & F_Name & " expected "
-                     & I_Type & ", """);
-                  if Is_Choice then
-                     Text_IO.Put_Line
-                       (Rec_Adb,
-                        "                  & ""found "" & External_Tag ("
-                        & "E'Tag);");
-                  else
-                     Text_IO.Put_Line
-                       (Rec_Adb,
-                        "                  & ""found "" & External_Tag ("
-                        & F_Name & "'Tag);");
-                  end if;
-                  Text_IO.Put_Line
-                    (Rec_Adb, "         end if;");
-               end Emit_Check;
-
-            begin
-               Text_IO.Put_Line (Rec_Adb, "   exception");
-               Text_IO.Put_Line (Rec_Adb, "      when Constraint_Error =>");
-
-               Count := 0;
-
-               while N /= null loop
-                  Count := Count + 1;
-                  declare
-                     Def    : constant WSDL.Types.Definition :=
-                                WSDL.Types.Find (N.Typ);
-                     T_Name : constant String := WSDL.Types.Name (Def.Ref);
-                  begin
-                     case N.Mode is
-                        when WSDL.Types.K_Simple =>
-                           Emit_Check
-                             (Format_Name (O, To_String (N.Name)),
-                              SOAP.WSDL.Set_Type (SOAP.WSDL.To_Type (T_Name)));
-
-                        when WSDL.Types.K_Derived =>
-                           Emit_Check
-                             (Format_Name (O, To_String (N.Name)),
-                              SOAP.WSDL.Set_Type
-                                (SOAP.WSDL.To_Type
-                                  (WSDL.Types.Root_Type_For (Def))));
-
-                        when WSDL.Types.K_Enumeration =>
-                           Emit_Check
-                             (Format_Name (O, To_String (N.Name)),
-                              "SOAP.Types.SOAP_Enumeration");
-
-                        when WSDL.Types.K_Array =>
-                           if WSDL.Parameters.Is_Uniq (N.all) then
-                              Emit_Check
-                                (Format_Name (O, To_String (N.Name)),
-                                 "SOAP.Types.SOAP_Array");
-                           end if;
-
-                        when WSDL.Types.K_Record =>
-                           Emit_Check
-                             (Format_Name (O, To_String (N.Name)),
-                              "SOAP.Types.SOAP_Record");
-                     end case;
-                  end;
-                  N := N.Next;
-               end loop;
-            end;
-
-            Text_IO.Put_Line
-              (Rec_Adb,
-               "         raise SOAP.SOAP_Error");
-            Text_IO.Put_Line
-              (Rec_Adb,
-               "            with ""Record "" & SOAP.Types.Name (R) &"
-               & " "" not well formed"";");
-         end if;
-
-         Text_IO.Put_Line (Rec_Adb, "   end To_" & F_Name & ';');
-
-         --  To_SOAP_Object
-
-         Text_IO.New_Line (Rec_Adb);
-         Text_IO.Put_Line (Rec_Adb, "   function To_SOAP_Object");
-
-         Text_IO.Put_Line (Rec_Adb, "     (R         : " & F_Name & ';');
-         Text_IO.Put_Line (Rec_Adb, "      Name      : String := ""item"";");
-         Text_IO.Put_Line
-           (Rec_Adb, "      Type_Name : String := Q_Type_Name;");
-         Text_IO.Put_Line
-           (Rec_Adb, "      NS        : SOAP.Name_Space.Object := "
-            & "Name_Space)");
-         Text_IO.Put_Line (Rec_Adb, "      return SOAP.Types.SOAP_Record");
-         Text_IO.Put_Line (Rec_Adb, "   is");
-         Text_IO.Put_Line (Rec_Adb, "      Result : SOAP.Types.SOAP_Record;");
-         Text_IO.Put_Line (Rec_Adb, "   begin");
-
-         N := R;
-
-         if Is_Choice and then N /= null then
-            Text_IO.Put_Line (Rec_Adb, "      case R.C is");
-         else
-            Text_IO.Put_Line (Rec_Adb, "      Result := SOAP.Types.R");
-         end if;
-
-         if N = null then
-            Text_IO.Put_Line
-              (Rec_Adb, "        (SOAP.Types.Empty_Object_Set,");
-
-         else
-            Count := 0;
-
-            while N /= null loop
-               Count := Count + 1;
-
-               if Is_Choice then
-                  Text_IO.Put_Line
-                    (Rec_Adb,
-                     "         when C" & AWS.Utils.Image (Count) & " =>");
-                  Text_IO.Put_Line
-                    (Rec_Adb, "            Result := SOAP.Types.R");
-                  Text_IO.Put
-                    (Rec_Adb, "              ((1 => +");
-
-               else
-                  if N = R then
-                     if R.Next = null or else Is_Choice then
-                        --  We have a single element into this record, we must
-                        --  use a named notation for the aggregate.
-                        Text_IO.Put (Rec_Adb, "        ((1 => +");
-                     else
-                        Text_IO.Put (Rec_Adb, "        ((+");
-                     end if;
-
-                  else
-                     Text_IO.Put      (Rec_Adb, "          +");
-                  end if;
-               end if;
-
-               --  All fields in the record are using the name-space of the
-               --  record itself.
-
-               declare
-                  T_Name : constant String :=
-                             WSDL.Types.Name (N.Typ, NS => True);
-                  Field  : constant String :=
-                             "R." & Format_Name (O, To_String (N.Name));
-                  NS     : constant SOAP.Name_Space.Object :=
-                             WSDL.Types.NS (N.Typ);
-                  NS_Ref : constant String :=
-                             To_Unit_Name (Generate_Namespace (NS, False))
-                             & ".Name_Space";
-               begin
-                  case N.Mode is
-                     when WSDL.Types.K_Simple =>
-                        Text_IO.Put
-                          (Rec_Adb,
-                           WSDL.Parameters.To_SOAP
-                             (N.all,
-                              Object    => Field,
-                              Name      => To_String (N.Name),
-                              Type_Name => T_Name,
-                              NS        => "NS"));
-
-                     when WSDL.Types.K_Record =>
-                        Text_IO.Put
-                          (Rec_Adb,
-                           WSDL.Parameters.To_SOAP
-                             (N.all,
-                              Object    => Field,
-                              Name      => To_String (N.Name),
-                              Type_Name => T_Name,
-                              NS        => NS_Ref));
-
-                     when WSDL.Types.K_Derived =>
-                        Text_IO.Put
-                          (Rec_Adb,
-                           WSDL.Parameters.To_SOAP
-                             (N.all,
-                              Object    => Field,
-                              Name      => To_String (N.Name),
-                              Type_Name => T_Name,
-                              NS        => NS_Ref));
-
-                     when WSDL.Types.K_Enumeration =>
-                        Text_IO.Put
-                          (Rec_Adb,
-                           WSDL.Parameters.To_SOAP
-                             (N.all,
-                              Object    => Field,
-                              Name      => To_String (N.Name),
-                              Type_Name => Format_Name (O, T_Name),
-                              NS        => "NS"));
-
-                     when WSDL.Types.K_Array =>
-                        declare
-                           E_Name : constant String :=
-                                      To_String (N.Elmt_Name);
-                        begin
-                           Text_IO.Put
-                             (Rec_Adb,
-                              WSDL.Parameters.To_SOAP
-                                (N.all,
-                                 Object    =>
-                                   Field & (if O.Sp then ".Item.all" else ""),
-                                 Name      => To_String (N.Name),
-                                 Type_Name =>
-                                   (if O.Style = SOAP.WSDL.Schema.RPC
-                                    then E_Name
-                                    else T_Name),
-                                 NS        => NS_Ref));
-                        end;
-                  end case;
-               end;
-
-               if N.Next = null or else Is_Choice then
-                  Text_IO.Put_Line (Rec_Adb, "),");
-
-                  if Is_Choice then
-                     Text_IO.Put (Rec_Adb, "      ");
-                  end if;
-
-                  Text_IO.Put_Line
-                    (Rec_Adb,
-                     "         Name, Q_Type_Name, NS => NS);");
-
-               else
-                  Text_IO.Put_Line (Rec_Adb, ",");
-               end if;
-
-               N := N.Next;
-            end loop;
-         end if;
-
-         if R = null then
-            Text_IO.Put_Line
-              (Rec_Adb,
-               "         Name, Q_Type_Name, NS => NS);");
-         elsif Is_Choice then
-            Text_IO.Put_Line (Rec_Adb, "      end case;");
-         end if;
-
-         Text_IO.Put_Line (Rec_Adb, "      return Result;");
-         Text_IO.Put_Line (Rec_Adb, "   end To_SOAP_Object;");
-
-         Finalize_Types_Package (Prefix, Rec_Ads, Rec_Adb);
+         Generate (Rec_Ads, Template_Record_Ads, Translations);
+         Generate (Rec_Adb, Template_Record_Adb, Translations);
+         Insert_Types_Def (Template_Record_Types, Translations);
+
+         Text_IO.Close (Rec_Ads);
+         Text_IO.Close (Rec_Adb);
       end Generate_Record;
 
       -------------------------
