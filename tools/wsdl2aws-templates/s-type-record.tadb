@@ -1,0 +1,148 @@
+@@--  Spec to support SOAP record types
+@@--
+--  wsdl2aws SOAP Generator v@_WSDL2AWS_VERSION_@
+--
+--  AWS @_AWS_VERSION_@ - SOAP @_SOAP_VERSION_@
+--  This file was generated on @_NOW_@
+--
+--  $ wsdl2aws @_OPTIONS_@
+
+with Ada.Tags;
+
+package body @_UNIT_NAME_@ is
+
+   use Ada.Tags;
+   use SOAP.Types;
+
+   function To_@_TYPE_NAME_@
+     (O : SOAP.Types.Object'Class)
+      return @_TYPE_NAME_@
+   is
+      R : constant SOAP.Types.SOAP_Record := SOAP.Types.SOAP_Record (O);
+@@IF@@ @_IS_CHOICE_@ and @_FIELD_COUNT_@ > 0
+      function C_Name return String is
+@@INLINE(   \(if)(    elsif )(\);)@@
+@@TABLE@@
+         SOAP.Types.Exists (R, @_FIELD_NAME_@) then
+            "@_FIELD_NAME_@"
+@@END_TABLE@@
+@@END_INLINE@@
+
+      function C_Disc return Choice is
+@@INLINE(   \(if)(    elsif )(\);)@@
+@@TABLE@@
+         SOAP.Types.Exists (R, @_FIELD_NAME_@) then
+            C_@_FIELD_NUMBER_@
+@@END_TABLE@@
+@@END_INLINE@@
+
+   E : constant SOAP.Types.Object'Class :=
+         SOAP.Types.V (R, C_Name);
+@@ELSE@@ @@-- IS_CHOICE
+@@TABLE@@
+@@IF@@ @_FIELD_KIND_@ = K_ARRAY and @_FIELD_ARRAY_LENGTH_@ > 1
+      @_FIELD_NAME_@ : constant SOAP.Types.Object_Set := SOAP.Types.V (R, "@_FIELD_RAW_NAME_@");
+@@ELSE@@
+      @_FIELD_NAME_@ : constant SOAP.Types.Object'Class := SOAP.Types.V (R, "@_FIELD_RAW_NAME_@");
+@@END_IF@@
+@@END_TABLE@@
+@@END_IF@@
+   begin
+@@TABLE@@
+@@IF@@ @_FIELD_KIND_@ = K_ARRAY and @_FIELD_ARRAY_LENGTH_@ > 1
+      if @_FIELD_NAME_@'Length not in @_FIELD_ARRAY_FIRST_@ .. @_FIELD_ARRAY_LAST_@ then
+         raise SOAP.SOAP_Error
+           with "Length of @_FIELD_NAME_@ violate schema definition";
+      end if;
+@@END_IF@@
+@@END_TABLE@@
+@@--
+@@IF@@ @_FIELD_COUNT_@ = 0
+      return (null record);
+@@ELSE@@
+@@IF@@ @_IS_CHOICE_@
+      case C_Disc is
+@@TABLE@@
+         when C@_FIELD_NUMBER_@ =>
+            return (C@8FIELD_NUMBER_@, @_FIELD_FROM_SOAP_@);
+@@END_TABLE@@
+      end case;
+@@ELSE@@
+      return
+@@INLINE(        \()(,\n         )(\);)@@
+@@TABLE@@
+@_FIELD_FROM_SOAP_@
+@@END_TABLE@@
+@@END_INLINE@@
+@@END_IF@@ @@-- IS_CHOICE
+@@--
+   exception
+      when Constraint_Error =>
+@@IF@@ @_IS_CHOICE_@
+@@TABLE@@
+         if C_Disc = C@_FIELD_NUMBER_@
+           and then E'Tag /= @_SET_TYPE_@'Tag
+         then
+            raise SOAP.SOAP_Error
+              with SOAP.Types.Name (R)
+                 & ".@_FIELD_NAME_@ expected @_SET_TYPE_@, "
+                 & "found " & External_Tag (E'Tag);
+         end if;
+@@END_TABLE@@
+@@--
+@@ELSE@@ @@-- IS_CHOICE
+@@--
+@@TABLE@@
+         if @_FIELD_NAME_@'Tag /= @_FIELD_SET_TYPE_@'Tag then
+            raise SOAP.SOAP_Error
+              with SOAP.Types.Name (R)
+                 & ".@_FIELD_NAME_@ expected @_FIELD_SET_TYPE_@, "
+                 & "found " & External_Tag (@_FIELD_NAME_@'Tag);
+         end if;
+@@END_TABLE@@
+@@END_IF@@
+         raise SOAP.SOAP_Error
+           with "Record @_TYPE_NAME_@ not well formed";
+@@END_IF@@ @@-- FIELD_COUNT = 0
+   end To_@_TYPE_NAME_@;
+
+   function To_SOAP_Object
+     (R         : @_TYPE_NAME_@;
+      Name      : String := "item";
+      Type_Name : String := Q_Type_Name;
+      NS        : SOAP.Name_Space.Object := Name_Space)
+      return SOAP.Types.SOAP_Record
+   is
+      Result : SOAP.Types.SOAP_Record;
+   begin
+@@IF@@ @_IS_CHOICE_@
+      case R.C is
+@@IF@@ @_FIELD_COUNT_@ = 0
+         (SOAP.Types.Empty_Object_Set,
+@@ELSE@@
+@@TABLE@@
+         when C@_FIELD_NUMBER_@ =>
+            Result := SOAP.Types.R
+              @_FIELD_FROM_SOAP_@
+@@END_TABLE@@
+      end case;
+@@END_IF@@
+@@--
+@@ELSE@@ @@-- IS_CHOICE
+@@--
+      Result := SOAP.Types.R
+@@IF@@ @_FIELD_COUNT_@ = 0
+        (SOAP.Types.Empty_Object_Set, Name, Q_Type_Name, NS => NS);
+@@ELSE@@
+@@INLINE(        \(\()(,\n          )(\),)@@
+@@TABLE@@
+@_FIELD_NUMBER_@ => +@_FIELD_TO_SOAP_@
+@@END_TABLE@@
+@@END_INLINE@@
+         Name, Q_Type_Name, NS => NS);
+@@END_IF@@
+@@END_IF@@
+      return Result;
+   end To_SOAP_Object;
+
+end @_UNIT_NAME_@;
