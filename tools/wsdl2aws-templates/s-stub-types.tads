@@ -1,0 +1,21 @@
+
+   --  Returned type for @_PROC_@
+
+   subtype @_PROC_@_Result is @_QUALIFIED_NAME_@_Type;
+
+@@IF@@ @_RESULT_IS_ARRAY_@
+   function To_@_PROC_@_Result
+     (O : SOAP.Types.Object_Set)
+      return @_PROC_@_Result
+      renames To_@_QUALIFIED_NAME_@_Type;
+@@ELSE@@
+   function To_@_PROC_@_Result
+     (O : SOAP.Types.Object'Class)
+      return @_PROC_@_Result
+      renames To_@_QUALIFIED_NAME_@_Type;
+
+   function To_@_PROC_@_Result
+     (L : SOAP.Parameters.List)
+      return @_PROC_@_Result
+      renames To_@_QUALIFIED_NAME_@_Type;
+@@END_IF@@

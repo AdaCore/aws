@@ -27,7 +27,6 @@
 --  covered by the  GNU Public License.                                     --
 ------------------------------------------------------------------------------
 
-with Ada.Calendar;
 with Ada.Characters.Handling;
 with Ada.Containers.Indefinite_Ordered_Sets;
 with Ada.Directories;
@@ -36,11 +35,7 @@ with Ada.Strings.Fixed;
 with Ada.Strings.Maps.Constants;
 with Ada.Text_IO;
 
-with GNAT.Calendar.Time_IO;
-
 with AWS.Containers.Key_Value;
-with AWS.Containers.String_Vectors;
-with AWS.Templates;
 with AWS.Utils;
 
 with SOAP.Types;
@@ -53,13 +48,13 @@ with WSDL2AWS.WSDL.Types;
 with wsdl2aws_templates;
 pragma Unreferenced (wsdl2aws_templates);
 
-pragma Warnings (Off);
-
 package body WSDL2AWS.Generator is
 
    use Ada;
 
-   --  All the templates files used to generate the code
+   use type Templates.Tag;
+
+   --  All the templates files used to generate the type code
 
    Template_Enum_Ads      : constant String := "s-type-enum.tads";
    Template_Enum_Adb      : constant String := "s-type-enum.tadb";
@@ -75,20 +70,31 @@ package body WSDL2AWS.Generator is
    Template_Record_Adb    : constant String := "s-type-record.tadb";
    Template_Record_Types  : constant String := "s-type-record-types.tads";
 
+   Template_Types_Ads     : constant String := "s-types.tads";
+   Template_Types_Adb     : constant String := "s-types.tadb";
+
+   Template_Stub_Types_Ads : constant String := "s-stub-types.tads";
+   Template_Main_Adb       : constant String := "s-main.tadb";
+   Template_Root_Ads       : constant String := "s-root.tads";
+   Template_NS_Pkg_Ads     : constant String := "s-name-space-pkg.tads";
+
    procedure Generate
-     (Filename     : String;
+     (O            : Object;
+      Filename     : String;
       Template     : String;
       Translations : Templates.Translate_Set);
    --  Render a template with associated translations into Filename
 
    procedure Generate
-     (File         : Text_IO.File_Type;
+     (O            : Object;
+      File         : Text_IO.File_Type;
       Template     : String;
       Translations : Templates.Translate_Set);
    --  Render a template with associated translations into File
 
    procedure Insert_Types_Def
-     (Template     : String;
+     (O            : in out Object;
+      Template     : String;
       Translations : Templates.Translate_Set);
    --  Insert a type chunk into the global types definitions
 
@@ -99,44 +105,18 @@ package body WSDL2AWS.Generator is
    --  Returns Name formated with the Ada style if O.Ada_Style is true and
    --  Name unchanged otherwise.
 
-   procedure Put_File_Header (O : Object; File : Text_IO.File_Type);
-   --  Add a standard file header into file
-
-   procedure Put_Types_Header_Spec
-     (O         : Object;
-      File      : Text_IO.File_Type;
-      Unit_Name : String;
-      Elab_Body : Boolean := False;
-      Is_NS     : Boolean := False);
-   --  Put standard header for types body packages
-
-   procedure Put_Types_Header_Body
-     (O : Object; File : Text_IO.File_Type; Unit_Name : String);
-   --  Put standard header for types spec packages
-
    procedure Put_Types
-     (O          : Object;
+     (O          : in out Object;
       Proc       : String;
       SOAPAction : String;
       Input      : WSDL.Parameters.P_Set;
       Output     : WSDL.Parameters.P_Set);
    --  This must be called to create the data types for composite objects
 
-   type Header_Mode is
-     (Stub_Spec, Stub_Body,     -- URL based stub spec/body
-      C_Stub_Spec, C_Stub_Body, -- Connection based stub spec/body
-      Skel_Spec, Skel_Body);    -- skeleton spec/body
-
-   subtype Stub_Header is Header_Mode range Stub_Spec .. C_Stub_Body;
-   subtype Con_Stub_Header is Header_Mode range C_Stub_Spec .. C_Stub_Body;
-
-   procedure Put_Header
-     (File   : Text_IO.File_Type;
-      O      : Object;
+   procedure Gen_Return_Type
+     (O      : in out Object;
       Proc   : String;
-      Input  : WSDL.Parameters.P_Set;
-      Output : WSDL.Parameters.P_Set;
-      Mode   : Header_Mode);
+      Output : WSDL.Parameters.P_Set);
    --  Output procedure header into File. The terminating ';' or 'is' is
    --  outputed depending on Spec value. If Mode is in Con_Stub_Header the
    --  connection based spec is generated, otherwise it is the endpoint based.
@@ -153,40 +133,13 @@ package body WSDL2AWS.Generator is
    --  Returns True if P is a record with a least one field and we are in
    --  Document style binding.
 
-   procedure Header_Box
-     (O    : Object;
-      File : Text_IO.File_Type;
-      Name : String);
-   --  Generate header box
-
    function To_Unit_Name (Filename : String) return String;
    --  Returns the unit name given a filename following the GNAT
    --  naming scheme.
 
-   type Elab_Pragma is (Off, Single, Children);
-   --  Off      - no pragma Elaborate
-   --  Single   - a single pragma for the unit
-   --  Children - a pragma for each child unit
-
-   procedure With_Unit
-     (File       : Text_IO.File_Type;
-      Name       : String;
-      Elab       : Elab_Pragma := Single;
-      Use_Clause : Boolean := False);
-   --  Output a with clause for unit Name, also output a use clause if
-   --  Use_Clause is set. A pragma Elaborate_All is issued for this unit if
-   --  Elab is set.
-
-   procedure Close_File (File : in out Text_IO.File_Type);
-   --  Close given files and reset the Withed_Unit set for this file
-
-   procedure Output_Comment
-     (File    : Text_IO.File_Type;
-      Comment : String;
-      Indent  : Natural);
-   --  Ouput Comment into File wrapped with 80 characters
-
-   procedure Output_Schema_Definition (Key, Value : String);
+   procedure Output_Schema_Definition
+     (O          : in out Object;
+      Key, Value : String);
    --  This is just a key/value pair to record schema definitions for the
    --  runtime. The information format is:
    --
@@ -213,19 +166,7 @@ package body WSDL2AWS.Generator is
    --  Keep record generated name-space renaming in types package to avoid
    --  duplicate.
 
-   Root     : Text_IO.File_Type; -- Parent packages
-   Type_Ads : Text_IO.File_Type; -- Child with all type definitions
-   Type_Adb : Text_IO.File_Type; -- Corresponding body with schema definition
-   Tmp_Ads  : Text_IO.File_Type; -- Temp file for spec types
-   Stub_Ads : Text_IO.File_Type; -- Child with client interface
-   Stub_Adb : Text_IO.File_Type;
-   Skel_Ads : Text_IO.File_Type; -- Child with server interface
-   Skel_Adb : Text_IO.File_Type;
-   CB_Ads   : Text_IO.File_Type; -- Child with all callback routines
-   CB_Adb   : Text_IO.File_Type;
-
-   Withed_Unit : AWS.Containers.String_Vectors.Vector;
-   --  List of withed unit, used to avoid duplicate
+   Types_Gen : String_Store.Set;
 
    --  Stub generator routines
 
@@ -332,30 +273,68 @@ package body WSDL2AWS.Generator is
       O.Ada_Style := True;
    end Ada_Style;
 
+
+   --------------
+   -- Add_TagV --
+   --------------
+
+   procedure Add_TagV
+     (Set                  : in out Templates.Translate_Set;
+      Assoc_Name, Tag_Name : String)
+   is
+      T : Templates.Tag;
+   begin
+      if Templates.Exists (Set, Assoc_Name) then
+         T := Templates.Get (Templates.Get (Set, Assoc_Name));
+      end if;
+
+      T := T & Tag_Name;
+
+      Templates.Insert (Set, Templates.Assoc (Assoc_Name, T));
+   end Add_TagV;
+
+   procedure Add_TagV
+     (Set        : in out Templates.Translate_Set;
+      Assoc_Name : String;
+      Value      : Boolean)
+   is
+      T : Templates.Tag;
+   begin
+      if Templates.Exists (Set, Assoc_Name) then
+         T := Templates.Get (Templates.Get (Set, Assoc_Name));
+      end if;
+
+      T := T & Value;
+
+      Templates.Insert (Set, Templates.Assoc (Assoc_Name, T));
+   end Add_TagV;
+
+   procedure Add_TagV
+     (Set        : in out Templates.Translate_Set;
+      Assoc_Name : String;
+      Tag        : Templates.Tag)
+   is
+      R : Templates.Tag;
+   begin
+      if Templates.Exists (Set, Assoc_Name) then
+         declare
+            T : constant Templates.Tag :=
+                  Templates.Get (Templates.Get (Set, Assoc_Name));
+         begin
+            R := T & Tag;
+         end;
+      else
+         R := +Tag;
+      end if;
+
+      Templates.Insert (Set, Templates.Assoc (Assoc_Name, R));
+   end Add_TagV;
+
    --------
    -- CB --
    --------
 
    package body CB is separate;
-
-   ----------------
-   -- Close_File --
-   ----------------
-
-   procedure Close_File (File : in out Text_IO.File_Type) is
-      Name : constant String := Text_IO.Name (File);
-      K    : Positive := 1;
-   begin
-      Text_IO.Close (File);
-
-      while K <= Withed_Unit.Last_Index loop
-         if Strings.Fixed.Index (Withed_Unit (K), Name) /= 0 then
-            Withed_Unit.Delete (K);
-         else
-            K := K + 1;
-         end if;
-      end loop;
-   end Close_File;
 
    -------------
    -- CVS_Tag --
@@ -390,80 +369,49 @@ package body WSDL2AWS.Generator is
 
    overriding procedure End_Service
      (O    : in out Object;
-      Name : String)
-   is
-      U_Name : constant String := To_Unit_Name (Format_Name (O, Name));
-      Buffer : String (1 .. 512);
-      Last   : Natural;
+      Name : String) is
    begin
-      --  Root
-
-      Text_IO.New_Line (Root);
-      Text_IO.Put_Line (Root, "end " & U_Name & ";");
-
-      Close_File (Root);
-
-      --  Types
-
-      --  Copy Tmp_Ads into Type_Ads
-
-      Text_IO.Reset (Tmp_Ads, Text_IO.In_File);
-
-      while not Text_IO.End_Of_File (Tmp_Ads) loop
-         Text_IO.Get_Line (Tmp_Ads, Buffer, Last);
-         Text_IO.Put_Line (Type_Ads, Buffer (1 .. Last));
-      end loop;
-
-      Close_File (Tmp_Ads);
-
-      Text_IO.New_Line (Type_Ads);
-      Text_IO.Put_Line (Type_Ads, "end " & U_Name & ".Types;");
-
-      Close_File (Type_Ads);
-
       --  Generate binding style information
 
       Output_Schema_Definition
-        (Key   => "@binding.style",
+        (O,
+         Key   => "@binding.style",
          Value => SOAP.WSDL.Schema.Binding_Style'Image (O.Style));
-      Text_IO.New_Line (Type_Adb);
 
       --  Generate the Schema information
 
-      Text_IO.Put_Line (Type_Adb, "   --  Definitions for derived types");
-
       for C in WSDL.Types.Get_Schema_Definition.Iterate loop
          Output_Schema_Definition
-           (Key   => AWS.Containers.Key_Value.Key (C),
+           (O,
+            Key   => AWS.Containers.Key_Value.Key (C),
             Value => AWS.Containers.Key_Value.Element (C));
       end loop;
 
-      Text_IO.Put_Line (Type_Adb, "end " & U_Name & ".Types;");
-
-      Close_File (Type_Adb);
+      Generate
+        (O,
+         Characters.Handling.To_Lower (Format_Name (O, Name)) & "-types.ads",
+         Template_Types_Ads, O.Type_S_Trans);
+      Generate
+        (O,
+         Characters.Handling.To_Lower (Format_Name (O, Name)) & "-types.adb",
+         Template_Types_Adb, O.Type_B_Trans);
 
       --  Stub
 
       if O.Gen_Stub then
          Stub.End_Service (O, Name);
-         Close_File (Stub_Ads);
-         Close_File (Stub_Adb);
       end if;
 
       --  Skeleton
 
       if O.Gen_Skel then
          Skel.End_Service (O, Name);
-         Close_File (Skel_Ads);
-         Close_File (Skel_Adb);
       end if;
 
       --  Callbacks
 
       if O.Gen_CB then
          CB.End_Service (O, Name);
-         Close_File (CB_Ads);
-         Close_File (CB_Adb);
       end if;
    end End_Service;
 
@@ -537,6 +485,96 @@ package body WSDL2AWS.Generator is
       O.Gen_CB := True;
    end Gen_CB;
 
+   ---------------------
+   -- Gen_Return_Type --
+   ---------------------
+
+   procedure Gen_Return_Type
+     (O      : in out Object;
+      Proc   : String;
+      Output : WSDL.Parameters.P_Set)
+   is
+      use type WSDL.Parameters.P_Set;
+      use type WSDL2AWS.WSDL.Types.Kind;
+
+      N                  : WSDL.Parameters.P_Set;
+      Proc_S_Return_Type : Templates.Tag;
+      Proc_B_Return_Type : Templates.Tag;
+
+   begin
+      if Is_Simple_Wrapped_Parameter (O, Output) then
+         N := Output.P;
+      else
+         N := Output;
+      end if;
+
+      if N /= null then
+         if Is_Simple_Wrapped_Parameter (O, Output)
+           and then N.Mode = WSDL.Types.K_Record
+         then
+            --  A record inside a record in Document style binding
+
+            Proc_S_Return_Type := Proc_S_Return_Type
+              & (Format_Name (O, WSDL.Types.Name (N.Typ) & "_Type"));
+         else
+            Proc_S_Return_Type := Proc_S_Return_Type
+              & (Result_Type (O, Proc, N));
+         end if;
+      else
+         Proc_S_Return_Type := Proc_S_Return_Type
+           & "Not_A_Function";
+      end if;
+
+      --  Only done once, ???? can probably be removed after clean-up
+      Add_TagV (O.Stub_S_Trans, "PROC_RETURN_TYPE", Proc_S_Return_Type);
+      Add_TagV (O.Stub_B_Trans, "PROC_RETURN_TYPE", Proc_S_Return_Type);
+      Add_TagV (O.Skel_S_Trans, "PROC_RETURN_TYPE", Proc_S_Return_Type);
+      Add_TagV (O.Skel_B_Trans, "PROC_RETURN_TYPE", Proc_S_Return_Type);
+
+      N := Output;
+
+      if N /= null then
+         if Is_Simple_Wrapped_Parameter (O, Output)
+           and then N.Mode = WSDL.Types.K_Record
+         then
+            --  A record inside a record in Document style binding
+            Proc_B_Return_Type := Proc_B_Return_Type
+              & (Format_Name (O, WSDL.Types.Name (N.Typ) & "_Type"));
+         else
+            Proc_B_Return_Type := Proc_B_Return_Type
+              & (Result_Type (O, Proc, N));
+         end if;
+      else
+         Proc_B_Return_Type := Proc_B_Return_Type
+           & "Not_A_Function";
+      end if;
+
+      Add_TagV
+        (O.Stub_B_Trans, "PROC_CB_RETURN_TYPE", Proc_B_Return_Type);
+      Add_TagV
+        (O.Skel_B_Trans, "PROC_CB_RETURN_TYPE", Proc_S_Return_Type);
+
+      if Output = null then
+         Add_TagV (O.Skel_B_Trans, "SINGLE_OUT_PARAMETER", False);
+         Add_TagV (O.Skel_B_Trans, "OUT_PARAMETER_IS_STRING", False);
+
+      else
+         if Is_Simple_Wrapped_Parameter (O, Output)
+           and then Is_String (Output.P)
+         then
+            Add_TagV (O.Skel_B_Trans, "OUT_PARAMETER_IS_STRING", True);
+         else
+            Add_TagV (O.Skel_B_Trans, "OUT_PARAMETER_IS_STRING", False);
+         end if;
+
+         if Output.Next = null then
+            Add_TagV (O.Skel_B_Trans, "SINGLE_OUT_PARAMETER", True);
+         else
+            Add_TagV (O.Skel_B_Trans, "SINGLE_OUT_PARAMETER", False);
+         end if;
+      end if;
+   end Gen_Return_Type;
+
    ----------------------
    -- Gen_Safe_Pointer --
    ----------------------
@@ -551,53 +589,62 @@ package body WSDL2AWS.Generator is
    --------------
 
    procedure Generate
-     (File         : Text_IO.File_Type;
+     (O            : Object;
+      File         : Text_IO.File_Type;
       Template     : String;
       Translations : Templates.Translate_Set)
    is
+      use type Templates.Translate_Set;
+      use type SOAP.WSDL.Schema.Binding_Style;
+
       Template_Dir  : constant String :=
                         Environment_Variables.Value
                           ("AWS_TEMPLATE_FILES", Default => "./");
       Template_File : constant String :=
                         Directories.Compose (Template_Dir, Template);
+      Final_T       : Templates.Translate_Set := Translations;
    begin
+      Final_T := Final_T
+        & Templates.Assoc ("AWS_VERSION",  AWS.Version)
+        & Templates.Assoc ("SOAP_VERSION", SOAP.Version)
+        & Templates.Assoc ("OPTIONS", To_String (O.Options))
+        & Templates.Assoc ("WSDL2AWS_VERSION", WSDL2AWS.Version)
+        & Templates.Assoc
+            ("HTTP_VERSION", HTTP_Protocol'Image (O.HTTP_Version))
+        & Templates.Assoc ("HTTP_PROXY", O.Proxy)
+        & Templates.Assoc ("HTTP_PROXY_USER", O.P_User)
+        & Templates.Assoc ("HTTP_PROXY_PASSWORD", O.P_Pwd)
+        & Templates.Assoc ("IS_RPC", O.Style = SOAP.WSDL.Schema.RPC)
+        & Templates.Assoc ("DEBUG", O.Debug)
+        & Templates.Assoc ("TRACE", O.Traces);
+
+      if Types_Spec (O) /= "" then
+         Add_TagV (Final_T, "USER_UNITS", Types_Spec (O, With_Clause => True));
+      end if;
+
+      if Procs_Spec (O) /= "" and then Procs_Spec (O) /= Types_Spec (O) then
+         Add_TagV (Final_T, "USER_UNITS", Types_Spec (O, With_Clause => True));
+      end if;
+
       if Directories.Exists (Template_File) then
-         Text_IO.Put (File, Templates.Parse (Template_File, Translations));
+         Text_IO.Put (File, Templates.Parse (Template_File, Final_T));
       else
-         Text_IO.Put (File, Templates.Parse (Template, Translations));
+         Text_IO.Put (File, Templates.Parse (Template, Final_T));
       end if;
    end Generate;
 
    procedure Generate
-     (Filename     : String;
+     (O            : Object;
+      Filename     : String;
       Template     : String;
       Translations : Templates.Translate_Set)
    is
       File : Text_IO.File_Type;
    begin
       Text_IO.Create (File, Text_IO.Out_File, Filename);
-      Generate (File, Template, Translations);
+      Generate (O, File, Template, Translations);
       Text_IO.Close (File);
    end Generate;
-
-   ----------------
-   -- Header_Box --
-   ----------------
-
-   procedure Header_Box
-     (O    : Object;
-      File : Text_IO.File_Type;
-      Name : String)
-   is
-      pragma Unreferenced (O);
-   begin
-      Text_IO.Put_Line
-        (File, "   " & String'(1 .. 6 + Name'Length => '-'));
-      Text_IO.Put_Line
-        (File, "   -- " & Name & " --");
-      Text_IO.Put_Line
-        (File, "   " & String'(1 .. 6 + Name'Length => '-'));
-   end Header_Box;
 
    ------------------
    -- HTTP_Version --
@@ -615,10 +662,38 @@ package body WSDL2AWS.Generator is
    ----------------------
 
    procedure Insert_Types_Def
-     (Template     : String;
-      Translations : Templates.Translate_Set) is
+     (O            : in out Object;
+      Template     : String;
+      Translations : Templates.Translate_Set)
+   is
+      Template_Dir  : constant String :=
+                        Environment_Variables.Value
+                          ("AWS_TEMPLATE_FILES", Default => "./");
+      Template_File : constant String :=
+                        Directories.Compose (Template_Dir, Template);
+
+      T_Name        : constant String :=
+                        Templates.Get
+                          (if Templates.Exists (Translations, "TYPE_NAME")
+                           then Templates.Get (Translations, "TYPE_NAME")
+                           else Templates.Get (Translations, "PROC"));
+      Key           : constant String := T_Name & '@' & Template;
    begin
-      Generate (Tmp_Ads, Template, Translations);
+      if not Types_Gen.Contains (Key) then
+         if Directories.Exists (Template_File) then
+            Add_TagV
+              (O.Type_S_Trans,
+               "TYPE_DECLS",
+               Templates.Parse (Template_File, Translations));
+         else
+            Add_TagV
+              (O.Type_S_Trans,
+               "TYPE_DECLS",
+               Templates.Parse (Template, Translations));
+         end if;
+
+         Types_Gen.Insert (Key);
+      end if;
    end Insert_Types_Def;
 
    ---------------------------------
@@ -682,6 +757,7 @@ package body WSDL2AWS.Generator is
       Fault         : WSDL.Parameters.P_Set)
    is
       use type SOAP.WSDL.Schema.Binding_Style;
+      use type WSDL.Parameters.P_Set;
 
       procedure Generate_Call_Signature (P : WSDL.Parameters.P_Set);
       --  Generate a call signature for Proc. This is needed to be able to map
@@ -694,13 +770,61 @@ package body WSDL2AWS.Generator is
       --  for the document/literal binding to match the payload with the
       --  corresponding data type.
 
+      procedure Add_Proc_Tag
+        (Tag_Name : String;
+         Value    : String);
+      procedure Add_Proc_Tag
+        (Tag_Name : String;
+         Value    : Boolean);
+      procedure Add_Proc_Tag
+        (Tag_Name : String;
+         Value    : Templates.Tag);
+      --  Add a tag for all procedure templates
+
+      procedure Generate_Input_Params
+        (O     : in out Object;
+         Input : WSDL.Parameters.P_Set);
+      --  Generate the input parameters NAME / TYPE
+
+      ------------------
+      -- Add_Proc_Tag --
+      ------------------
+
+      procedure Add_Proc_Tag
+        (Tag_Name : String;
+         Value    : String) is
+      begin
+         Add_TagV (O.Stub_S_Trans, Tag_Name, Value);
+         Add_TagV (O.Stub_B_Trans, Tag_Name, Value);
+         Add_TagV (O.Skel_S_Trans, Tag_Name, Value);
+         Add_TagV (O.Skel_B_Trans, Tag_Name, Value);
+      end Add_Proc_Tag;
+
+      procedure Add_Proc_Tag
+        (Tag_Name : String;
+         Value    : Boolean) is
+      begin
+         Add_TagV (O.Stub_S_Trans, Tag_Name, Value);
+         Add_TagV (O.Stub_B_Trans, Tag_Name, Value);
+         Add_TagV (O.Skel_S_Trans, Tag_Name, Value);
+         Add_TagV (O.Skel_B_Trans, Tag_Name, Value);
+      end Add_Proc_Tag;
+
+      procedure Add_Proc_Tag
+        (Tag_Name : String;
+         Value    : Templates.Tag) is
+      begin
+         Add_TagV (O.Stub_S_Trans, Tag_Name, Value);
+         Add_TagV (O.Stub_B_Trans, Tag_Name, Value);
+         Add_TagV (O.Skel_S_Trans, Tag_Name, Value);
+         Add_TagV (O.Skel_B_Trans, Tag_Name, Value);
+      end Add_Proc_Tag;
+
       -----------------------------
       -- Generate_Call_Signature --
       -----------------------------
 
       procedure Generate_Call_Signature (P : WSDL.Parameters.P_Set) is
-         use type WSDL.Parameters.P_Set;
-
          Sig : Unbounded_String;
          N   : WSDL.Parameters.P_Set := P;
       begin
@@ -717,16 +841,72 @@ package body WSDL2AWS.Generator is
          end loop;
 
          Output_Schema_Definition
-           (To_String (Sig), To_String (O.Prefix) & Proc);
+           (O, To_String (Sig), To_String (O.Prefix) & Proc);
       end Generate_Call_Signature;
+
+      ---------------------------
+      -- Generate_Input_Params --
+      ---------------------------
+
+      procedure Generate_Input_Params
+        (O     : in out Object;
+         Input : WSDL.Parameters.P_Set)
+      is
+         Parameter_Name : Templates.Tag;
+         Parameter_Type : Templates.Tag;
+         N              : WSDL.Parameters.P_Set;
+      begin
+         if Is_Simple_Wrapped_Parameter (O, Input) then
+            N := Input.P;
+         else
+            N := Input;
+         end if;
+
+         while N /= null loop
+            declare
+               Q_Name : constant String :=
+                          SOAP.Utils.To_Name
+                            (WSDL.Types.Name (N.Typ, NS => True));
+               T_Name : constant String := WSDL.Types.Name (N.Typ);
+            begin
+               Parameter_Name := Parameter_Name
+                 & Format_Name (O, To_String (N.Name));
+
+               case N.Mode is
+                  when WSDL.Types.K_Simple =>
+                     Parameter_Type := Parameter_Type
+                       & SOAP.WSDL.To_Ada (SOAP.WSDL.To_Type (T_Name));
+
+                  when WSDL.Types.K_Enumeration =>
+                     Parameter_Type := Parameter_Type
+                       & (T_Name & "_Type");
+
+                  when WSDL.Types.K_Derived =>
+                     Parameter_Type := Parameter_Type
+                       & (Q_Name & "_Type");
+
+                  when WSDL.Types.K_Array =>
+                     Parameter_Type := Parameter_Type
+                       & (Format_Name (O, T_Name) & "_Type");
+
+                  when WSDL.Types.K_Record =>
+                     Parameter_Type := Parameter_Type
+                       & (Format_Name (O, T_Name) & "_Type");
+               end case;
+
+               N := N.Next;
+            end;
+         end loop;
+
+         Add_Proc_Tag ("PARAMETER_NAME", Parameter_Name);
+         Add_Proc_Tag ("PARAMETER_TYPE", Parameter_Type);
+      end Generate_Input_Params;
 
       ---------------------
       -- Generate_Schema --
       ---------------------
 
       procedure Generate_Schema (Prefix : String; P : WSDL.Parameters.P_Set) is
-
-         use type WSDL.Parameters.P_Set;
 
          procedure Generate_Wrapper (Name : String; P : WSDL.Parameters.P_Set);
          --  Handles top-level wrapper
@@ -753,13 +933,13 @@ package body WSDL2AWS.Generator is
          begin
             if E_Name = "" then
                --  This is a set and not an array, inside we have a record
-               Output_Schema_Definition (Name & "@is_a", "@record");
+               Output_Schema_Definition (O, Name & "@is_a", "@record");
             else
-               Output_Schema_Definition (Name & "@is_a", "@array");
+               Output_Schema_Definition (O, Name & "@is_a", "@array");
             end if;
 
             if P.P /= null then
-               Output_Schema_Definition (Q_Name, WSDL.Types.Name (P.P.Typ));
+               Output_Schema_Definition (O, Q_Name, WSDL.Types.Name (P.P.Typ));
                Generate_Wrapper (Q_Name, P.P);
             end if;
          end Generate_Array;
@@ -773,7 +953,7 @@ package body WSDL2AWS.Generator is
          is
             E : WSDL.Parameters.P_Set := P.P;
          begin
-            Output_Schema_Definition (Name & "@is_a", "@record");
+            Output_Schema_Definition (O, Name & "@is_a", "@record");
 
             while E /= null loop
                Generate_Wrapper (Name & '.' & To_String (E.Name), E);
@@ -789,9 +969,9 @@ package body WSDL2AWS.Generator is
            (Name : String; P : WSDL.Parameters.P_Set) is
          begin
             Output_Schema_Definition
-              (Name & "@is_a", WSDL.Types.Name (P.Typ, True));
+              (O, Name & "@is_a", WSDL.Types.Name (P.Typ, True));
             Output_Schema_Definition
-              (Name & "@is_a", WSDL.Types.Name (P.Typ, False));
+              (O, Name & "@is_a", WSDL.Types.Name (P.Typ, False));
          end Generate_Type;
 
          ----------------------
@@ -823,12 +1003,36 @@ package body WSDL2AWS.Generator is
          end loop;
       end Generate_Schema;
 
+      L_Proc : constant String := Format_Name (O, Proc);
+      W_Name : constant String := (if O.Style = SOAP.WSDL.Schema.Document
+                                   then Wrapper_Name else Proc);
+
    begin
       if not O.Quiet then
          Text_IO.Put_Line ("   > " & Proc);
       end if;
 
       Put_Types (O, Proc, Wrapper_Name, Input, Output);
+
+      Generate_Input_Params (O, Input);
+
+      Gen_Return_Type (O, Proc, Output);
+
+      Add_Proc_Tag ("HAS_INPUT", Input /= null);
+      Add_Proc_Tag ("HAS_OUTPUT", Output /= null);
+      Add_Proc_Tag ("PROC", L_Proc);
+      Add_Proc_Tag ("DOCUMENTATION", Documentation);
+      Add_Proc_Tag ("SOAP_ACTION", To_String (O.Prefix) & SOAPAction);
+
+      Add_TagV (O.Stub_B_Trans, "SOAP_PROC", To_String (O.Prefix) & W_Name);
+      Add_TagV (O.Skel_B_Trans, "SOAP_PROC", To_String (O.Prefix) & Proc);
+
+      Add_Proc_Tag
+        ("SIMPLE_WRAPPED_IN_PARAMETER",
+         Is_Simple_Wrapped_Parameter (O, Input));
+      Add_Proc_Tag
+        ("SIMPLE_WRAPPED_OUT_PARAMETER",
+         Is_Simple_Wrapped_Parameter (O, Output));
 
       if O.Gen_Stub then
          Stub.New_Procedure
@@ -857,8 +1061,6 @@ package body WSDL2AWS.Generator is
          Output);
 
       --  Skip line after procedure signatures
-
-      Text_IO.New_Line (Type_Adb);
 
       if O.Gen_CB then
          CB.New_Procedure
@@ -894,58 +1096,19 @@ package body WSDL2AWS.Generator is
       O.Options := To_Unbounded_String (Options);
    end Options;
 
-   --------------------
-   -- Output_Comment --
-   --------------------
-
-   procedure Output_Comment
-     (File    : Text_IO.File_Type;
-      Comment : String;
-      Indent  : Natural)
-   is
-      use Ada.Strings.Fixed;
-      Max_Len : constant Natural := 75 - 4 - Indent;
-      F       : Positive := Comment'First;
-      L       : Positive := F;
-   begin
-      while F < Comment'Last loop
-         L := Positive'Min (Comment'Last, F + Max_Len);
-
-         if L < Comment'Last then
-            while L > F and then Comment (L) /= ' ' loop
-               L := L - 1;
-            end loop;
-
-            if L = F then
-               L := Positive'Min (Comment'Last, F + Max_Len);
-            end if;
-         end if;
-
-         while L > F and then Comment (L) = ' ' loop
-            L := L - 1;
-         end loop;
-
-         Text_IO.Put_Line
-           (File, String'(Indent * ' ') & "--  " & Comment (F .. L));
-         F := L + 1;
-
-         while F < Comment'Last and then Comment (F) = ' ' loop
-            F := F + 1;
-         end loop;
-      end loop;
-   end Output_Comment;
-
    ------------------------------
    -- Output_Schema_Definition --
    ------------------------------
 
-   procedure Output_Schema_Definition (Key, Value : String) is
+   procedure Output_Schema_Definition
+     (O          : in out Object;
+      Key, Value : String) is
    begin
       if not S_Gen.Contains (Key) then
-         Text_IO.Put_Line
-           (Type_Adb,
-            "   Schema.Insert (""" & Key & """, """ & Value & """);");
          S_Gen.Insert (Key, Value);
+
+         Add_TagV (O.Type_B_Trans, "SCHEMA_DECLS_KEY", Key);
+         Add_TagV (O.Type_B_Trans, "SCHEMA_DECLS_VALUE", Value);
       end if;
    end Output_Schema_Definition;
 
@@ -978,335 +1141,12 @@ package body WSDL2AWS.Generator is
       end if;
    end Procs_Spec;
 
-   ---------------------
-   -- Put_File_Header --
-   ---------------------
-
-   procedure Put_File_Header (O : Object; File : Text_IO.File_Type) is
-
-      function Time_Stamp return String;
-      --  Returns a time stamp Ada comment line
-
-      function Version_String return String;
-      --  Returns a version string Ada comment line
-
-      ----------------
-      -- Time_Stamp --
-      ----------------
-
-      function Time_Stamp return String is
-      begin
-         return "--  This file was generated on "
-           & GNAT.Calendar.Time_IO.Image
-           (Ada.Calendar.Clock, "%A %d %B %Y at %T");
-      end Time_Stamp;
-      --------------------
-      -- Version_String --
-      --------------------
-
-      function Version_String return String is
-      begin
-         return "--  AWS " & AWS.Version & " - SOAP " & SOAP.Version;
-      end Version_String;
-
-   begin
-      Text_IO.New_Line (File);
-      Text_IO.Put_Line (File, "--  wsdl2aws SOAP Generator v" & Version);
-      Text_IO.Put_Line (File, "--");
-      Text_IO.Put_Line (File, Version_String);
-
-      if O.Stamp then
-         Text_IO.Put_Line (File, Time_Stamp);
-      end if;
-
-      Text_IO.Put_Line (File, "--");
-      Text_IO.Put_Line (File, "--  $ wsdl2aws " & To_String (O.Options));
-      Text_IO.New_Line (File);
-
-      if O.CVS_Tag then
-         Text_IO.Put_Line (File, "--  $" & "Id$");
-         Text_IO.New_Line (File);
-      end if;
-   end Put_File_Header;
-
-   ----------------
-   -- Put_Header --
-   ----------------
-
-   procedure Put_Header
-     (File   : Text_IO.File_Type;
-      O      : Object;
-      Proc   : String;
-      Input  : WSDL.Parameters.P_Set;
-      Output : WSDL.Parameters.P_Set;
-      Mode   : Header_Mode)
-   is
-      use Ada.Strings.Fixed;
-      use type WSDL.Parameters.P_Set;
-
-      procedure Put_Indent (Last : Character := ' ');
-      --  Ouput proper indentation spaces
-
-      procedure Input_Parameters;
-      --  Output input parameters
-
-      procedure Output_Parameters_And_End;
-      --  Output output parameters for function
-
-      Max_Len : Positive := 8;
-      N       : WSDL.Parameters.P_Set;
-
-      ----------------------
-      -- Input_Parameters --
-      ----------------------
-
-      procedure Input_Parameters is
-         use type WSDL2AWS.WSDL.Types.Kind;
-      begin
-         if Input /= null then
-            --  Input parameters
-
-            if Is_Simple_Wrapped_Parameter (O, Input) then
-               N := Input.P;
-            else
-               N := Input;
-            end if;
-
-            while N /= null loop
-               declare
-                  Name : constant String :=
-                           Format_Name (O, To_String (N.Name));
-               begin
-                  Text_IO.Put (File, Name);
-                  Text_IO.Put (File, (Max_Len - Name'Length) * ' ');
-               end;
-
-               Text_IO.Put (File, " : ");
-
-               case N.Mode is
-                  when WSDL.Types.K_Simple =>
-                     Text_IO.Put
-                       (File,
-                        SOAP.WSDL.To_Ada
-                          (SOAP.WSDL.To_Type (WSDL.Types.Name (N.Typ))));
-
-                  when WSDL.Types.Compound_Type =>
-                     Text_IO.Put
-                       (File,
-                        Format_Name (O, WSDL.Types.Name (N.Typ) & "_Type"));
-
-                  when WSDL.Types.K_Derived =>
-                     Text_IO.Put
-                       (File,
-                        SOAP.Utils.To_Name
-                          (WSDL.Types.Name
-                            (N.Typ,
-                             NS => not SOAP.WSDL.Name_Spaces.Is_XSD
-                                    (WSDL.Types.NS (N.Typ)))) & "_Type");
-
-                  when others =>
-                     Text_IO.Put
-                       (File, WSDL.Types.Name (N.Typ) & "_Type");
-               end case;
-
-               if N.Next /= null then
-                  Text_IO.Put_Line (File, ";");
-                  Put_Indent;
-               end if;
-
-               N := N.Next;
-            end loop;
-         end if;
-      end Input_Parameters;
-
-      -------------------------------
-      -- Output_Parameters_And_End --
-      -------------------------------
-
-      procedure Output_Parameters_And_End is
-         use type WSDL2AWS.WSDL.Types.Kind;
-      begin
-         if Is_Simple_Wrapped_Parameter (O, Output) then
-            N := Output.P;
-         else
-            N := Output;
-         end if;
-
-         if N /= null then
-            Text_IO.New_Line (File);
-            Put_Indent;
-            Text_IO.Put (File, "return ");
-
-            if Is_Simple_Wrapped_Parameter (O, Output)
-              and then N.Mode = WSDL.Types.K_Record
-            then
-               --  A record inside a record in Document style binding
-               Text_IO.Put
-                 (File,
-                  Format_Name (O, WSDL.Types.Name (N.Typ) & "_Type"));
-            else
-               Text_IO.Put (File, Result_Type (O, Proc, N));
-            end if;
-         end if;
-
-         --  End header depending on the mode
-
-         case Mode is
-            when Stub_Spec | Skel_Spec | C_Stub_Spec =>
-               Text_IO.Put_Line (File, ";");
-
-            when Stub_Body | C_Stub_Body =>
-               Text_IO.New_Line (Stub_Adb);
-               Text_IO.Put_Line (Stub_Adb, "   is");
-
-            when Skel_Body =>
-               null;
-         end case;
-      end Output_Parameters_And_End;
-
-      ----------------
-      -- Put_Indent --
-      ----------------
-
-      procedure Put_Indent (Last : Character := ' ') is
-      begin
-         if Mode = Skel_Spec then
-            Text_IO.Put (File, "   ");
-         end if;
-         Text_IO.Put (File, "     " & Last);
-      end Put_Indent;
-
-      L_Proc : constant String := Format_Name (O, Proc);
-
-   begin
-      --  Compute maximum name length
-
-      if Mode in Con_Stub_Header then
-         --  Size of connection parameter
-         Max_Len := 10;
-      end if;
-
-      if Is_Simple_Wrapped_Parameter (O, Input) then
-         N := Input.P;
-      else
-         N := Input;
-      end if;
-
-      while N /= null loop
-         Max_Len := Positive'Max
-           (Max_Len, Format_Name (O, To_String (N.Name))'Length);
-         N := N.Next;
-      end loop;
-
-      if Mode in Con_Stub_Header then
-         --  Ouput header for connection based spec
-
-         if Output = null then
-            Text_IO.Put (File, "   procedure " & L_Proc);
-
-            if Mode in Stub_Header or else Input /= null then
-               Text_IO.New_Line (File);
-            end if;
-
-         else
-            Text_IO.Put_Line (File, "   function " & L_Proc);
-         end if;
-
-         Put_Indent ('(');
-         Text_IO.Put (File, "Connection : AWS.Client.HTTP_Connection");
-
-         if Input /= null then
-            Text_IO.Put_Line (File, ";");
-            Put_Indent;
-            Input_Parameters;
-         end if;
-
-         if O.Traces then
-            Text_IO.Put_Line (File, ";");
-            Put_Indent;
-            Text_IO.Put_Line
-               (File,
-                "Pre_Call_Callback  : Pre_Call_CB "
-                & ":= Null_Pre_Call_Callback'Access;");
-            Put_Indent;
-            Text_IO.Put
-               (File,
-                "Post_Call_Callback : Post_Call_CB "
-                & ":= Null_Post_Call_Callback'Access");
-         end if;
-
-         if Input /= null or else Mode in Stub_Header then
-            Text_IO.Put (File, ")");
-         end if;
-
-      else
-         --  Ouput header for endpoint based spec
-
-         if Output = null then
-            Text_IO.Put (File, "procedure " & L_Proc);
-
-            if Mode in Stub_Header or else Input /= null then
-               Text_IO.New_Line (File);
-            end if;
-
-         else
-            Text_IO.Put_Line (File, "function " & L_Proc);
-         end if;
-
-         if Input /= null or else Mode in Stub_Header then
-            Put_Indent ('(');
-         end if;
-
-         Input_Parameters;
-
-         if Mode in Stub_Header then
-            if Input /= null then
-               Text_IO.Put_Line (File, ";");
-               Put_Indent;
-            end if;
-
-            Text_IO.Put (File, "Endpoint");
-            Text_IO.Put (File, (Max_Len - 8) * ' ');
-            Text_IO.Put_Line
-              (File, " : String := " & To_String (O.Unit) & ".URL;");
-
-            Put_Indent;
-            Text_IO.Put (File, "Timeouts");
-            Text_IO.Put (File, (Max_Len - 8) * ' ');
-            Text_IO.Put
-              (File, " : AWS.Client.Timeouts_Values := "
-                  & To_String (O.Unit) & ".Timeouts");
-
-            if O.Traces then
-               Text_IO.Put_Line (File, ";");
-               Put_Indent;
-               Text_IO.Put_Line
-                  (File,
-                   "Pre_Call_Callback  : Pre_Call_CB "
-                   & ":= Null_Pre_Call_Callback'Access;");
-               Put_Indent;
-               Text_IO.Put
-                  (File,
-                   "Post_Call_Callback : Post_Call_CB "
-                   & ":= Null_Post_Call_Callback'Access");
-            end if;
-
-         end if;
-
-         if Input /= null or else Mode in Stub_Header then
-            Text_IO.Put (File, ")");
-         end if;
-      end if;
-
-      Output_Parameters_And_End;
-   end Put_Header;
-
    ---------------
    -- Put_Types --
    ---------------
 
    procedure Put_Types
-     (O          : Object;
+     (O          : in out Object;
       Proc       : String;
       SOAPAction : String;
       Input      : WSDL.Parameters.P_Set;
@@ -1314,7 +1154,6 @@ package body WSDL2AWS.Generator is
    is
       use Characters.Handling;
 
-      use type AWS.Templates.Tag;
       use type AWS.Templates.Translate_Set;
 
       use type WSDL.Parameters.P_Set;
@@ -1326,6 +1165,8 @@ package body WSDL2AWS.Generator is
                  (if O.Style = SOAP.WSDL.Schema.Document
                   then SOAPAction
                   else Proc);
+
+      D_Gen : String_Store.Set;
 
       procedure Generate_Record
         (Name      : String;
@@ -1361,12 +1202,6 @@ package body WSDL2AWS.Generator is
          Create : Boolean) return String;
       --  Generate the namespace package from NS
 
-      procedure Generate_References
-        (File        : Text_IO.File_Type;
-         P           : WSDL.Parameters.P_Set;
-         For_Derived : Boolean := False);
-      --  Generates with/use clauses for all referenced types
-
       procedure Get_References
         (Unit_List   : in out AWS.Templates.Tag;
          P           : WSDL.Parameters.P_Set;
@@ -1385,12 +1220,6 @@ package body WSDL2AWS.Generator is
       --  Creates also the package hierarchy. Returns a spec and body file
       --  descriptor.
 
-      procedure Finalize_Types_Package
-        (Prefix       : Unbounded_String;
-         F_Ads, F_Adb : in out Text_IO.File_Type;
-         No_Body      : Boolean := False);
-      --  Generate code to terminate the package and close files
-
       procedure Output_Types (P : WSDL.Parameters.P_Set);
       --  Output types conversion routines
 
@@ -1403,30 +1232,6 @@ package body WSDL2AWS.Generator is
       function Is_Inside_Record (Name : String) return Boolean;
       --  Returns True if Name is defined inside a record in the Input
       --  or Output parameter list.
-
-      ----------------------------
-      -- Finalize_Types_Package --
-      ----------------------------
-
-      procedure Finalize_Types_Package
-        (Prefix       : Unbounded_String;
-         F_Ads, F_Adb : in out Text_IO.File_Type;
-         No_Body      : Boolean := False) is
-      begin
-         Text_IO.New_Line (F_Ads);
-         Text_IO.Put_Line
-           (F_Ads, "end " & To_Unit_Name (To_String (Prefix)) & ';');
-         Close_File (F_Ads);
-
-         if No_Body then
-            Text_IO.Delete (F_Adb);
-         else
-            Text_IO.New_Line (F_Adb);
-            Text_IO.Put_Line
-              (F_Adb, "end " & To_Unit_Name (To_String (Prefix)) & ';');
-            Close_File (F_Adb);
-         end if;
-      end Finalize_Types_Package;
 
       --------------------
       -- Generate_Array --
@@ -1532,13 +1337,16 @@ package body WSDL2AWS.Generator is
            & Templates.Assoc
                ("GET_ROUTINE", Get_Routine (P))
            & Templates.Assoc
-               ("TYPE_REF", WSDL.Types.Name (P.Typ));
+               ("TYPE_REF", WSDL.Types.Name (P.Typ))
+           & Templates.Assoc
+               ("DOCUMENTATION", P.Doc);
 
          Generate
-           (To_Lower (To_String (Prefix)) & ".ads",
+           (O,
+            To_Lower (To_String (Prefix)) & ".ads",
             Template_Array_Ads, Translations);
 
-         Insert_Types_Def (Template_Array_Types, Translations);
+         Insert_Types_Def (O, Template_Array_Types, Translations);
       end Generate_Array;
 
       ----------------------
@@ -1582,7 +1390,14 @@ package body WSDL2AWS.Generator is
            & Templates.Assoc ("TYPE_NAME", F_Name)
            & Templates.Assoc ("BASE_NAME", B_Name)
            & Templates.Assoc ("QUALIFIED_NAME", Q_Name)
-           & Templates.Assoc ("PARENT_NAME", SOAP.Utils.No_NS (P_Name));
+           & Templates.Assoc ("PARENT_NAME", SOAP.Utils.No_NS (P_Name))
+           & Templates.Assoc ("DOCUMENTATION", P.Doc);
+
+         if not D_Gen.Contains (B_Name) then
+            D_Gen.Insert (B_Name);
+            Translations := Translations
+              & Templates.Assoc ("UNIQ_DERIVED", True);
+         end if;
 
          --  For array support
 
@@ -1868,10 +1683,10 @@ package body WSDL2AWS.Generator is
          end if;
 
          Generate
-           (To_Lower (To_String (Prefix)) & ".ads",
+           (O, To_Lower (To_String (Prefix)) & ".ads",
             Template_Derived_Ads, Translations);
 
-         Insert_Types_Def (Template_Derived_Types, Translations);
+         Insert_Types_Def (O, Template_Derived_Types, Translations);
       end Generate_Derived;
 
       --------------------------
@@ -1882,65 +1697,9 @@ package body WSDL2AWS.Generator is
         (Name : String;
          P    : WSDL.Parameters.P_Set)
       is
-         use type AWS.Templates.Tag;
-         use type AWS.Templates.Translate_Set;
-
          use type WSDL.Types.E_Node_Access;
 
          F_Name : constant String := Format_Name (O, Name);
-
-         function Image (E : WSDL.Types.E_Node_Access) return String;
-         --  Returns the enumeration definition
-
-         -----------
-         -- Image --
-         -----------
-
-         function Image (E : WSDL.Types.E_Node_Access) return String is
-            Col    : constant Natural := 13 + F_Name'Length;
-            Sep    : constant String := ASCII.LF & "     ";
-            Result : Unbounded_String;
-            N      : WSDL.Types.E_Node_Access := E;
-         begin
-            while N /= null loop
-
-               if Result = Null_Unbounded_String then
-                  Append (Result, "(");
-               else
-                  Append (Result, ", ");
-               end if;
-
-               Append (Result, Format_Name (O, To_String (N.Value)));
-
-               N := N.Next;
-            end loop;
-
-            Append (Result, ")");
-
-            if Col + Length (Result) > 80 then
-               --  Split the result in multiple line
-               Result := Sep & Result;
-
-               declare
-                  Line_Size : constant := 70;
-                  K         : Natural := Line_Size;
-               begin
-                  while K < Length (Result) loop
-                     for I in reverse 1 .. K loop
-                        if Element (Result, I) = ',' then
-                           Insert (Result, I + 1, Sep);
-                           exit;
-                        end if;
-                     end loop;
-
-                     K := K + Line_Size;
-                  end loop;
-               end;
-            end if;
-
-            return To_String (Result);
-         end Image;
-
          Def     : constant WSDL.Types.Definition := WSDL.Types.Find (P.Typ);
          N       : WSDL.Types.E_Node_Access := Def.E_Def;
          Prefix  : Unbounded_String;
@@ -1948,7 +1707,8 @@ package body WSDL2AWS.Generator is
          Translations : Templates.Translate_Set :=
                           Templates.Null_Set
                           & Templates.Assoc
-                              ("TYPE_REF", WSDL.Types.Name (Def.Ref));
+                              ("TYPE_REF", WSDL.Types.Name (Def.Ref))
+                          & Templates.Assoc ("TYPE_NAME", F_Name);
          E_Name       : Templates.Tag;
          E_Value      : Templates.Tag;
       begin
@@ -1966,13 +1726,15 @@ package body WSDL2AWS.Generator is
            & Templates.Assoc ("E_VALUE", E_Value);
 
          Generate
-           (To_Lower (To_String (Prefix)) & ".ads",
+           (O,
+            To_Lower (To_String (Prefix)) & ".ads",
             Template_Enum_Ads, Translations);
          Generate
-           (To_Lower (To_String (Prefix)) & ".adb",
+           (O,
+            To_Lower (To_String (Prefix)) & ".adb",
             Template_Enum_Adb, Translations);
 
-         Insert_Types_Def (Template_Enum_Types, Translations);
+         Insert_Types_Def (O, Template_Enum_Types, Translations);
       end Generate_Enumeration;
 
       ------------------------
@@ -2069,38 +1831,20 @@ package body WSDL2AWS.Generator is
                        (Strings.Fixed.Translate
                           (Name,
                            Strings.Maps.To_Mapping ("./:-", "____")));
-            File : Text_IO.File_Type;
 
+            T    : Templates.Translate_Set;
          begin
             if Create then
-               Text_IO.Create (File, Text_IO.Out_File, To_Lower (N) & ".ads");
-               Put_File_Header (O, File);
+               T := T
+                 & Templates.Assoc ("UNIT_NAME", To_Unit_Name (N));
 
                if Leaf then
-                  With_Unit (File, "SOAP.Name_Space");
+                  T := T
+                    & Templates.Assoc ("NS_NAME", SOAP.Name_Space.Name (NS))
+                    & Templates.Assoc ("NS_VALUE", SOAP.Name_Space.Value (NS));
                end if;
 
-               Text_IO.Put_Line (File, "package " & To_Unit_Name (N) & " is");
-
-               if not Leaf then
-                  Text_IO.Put_Line (File, "   pragma Pure;");
-               end if;
-
-               if Leaf then
-                  Text_IO.Put_Line (File, "   pragma Style_Checks (Off);");
-                  Text_IO.Put_Line
-                    (File,
-                     "   Name_Space : constant SOAP.Name_Space.Object :=");
-                  Text_IO.Put_Line
-                    (File,
-                     "                  SOAP.Name_Space.Create ("""
-                     & SOAP.Name_Space.Name (NS) & """, """
-                     & SOAP.Name_Space.Value (NS) & """);");
-               end if;
-
-               Text_IO.Put_Line (File, "end " & To_Unit_Name (N) & ';');
-
-               Close_File (File);
+               Generate (O, To_Lower (N) & ".ads", Template_NS_Pkg_Ads, T);
             end if;
             return N;
          end Gen_Package;
@@ -2170,7 +1914,6 @@ package body WSDL2AWS.Generator is
          R       : WSDL.Parameters.P_Set;
          N       : WSDL.Parameters.P_Set;
 
-         Max     : Positive;
          Count   : Natural := 0;
 
          Prefix             : Unbounded_String;
@@ -2206,22 +1949,19 @@ package body WSDL2AWS.Generator is
             Field_RAW_Name := Field_RAW_Name & To_String (N.Name);
             Field_Type     := Field_Type & Format_Name (O, Type_Name (N));
             Field_Kind     := Field_Kind & N.Mode'Image;
+            Field_Comment  := Field_Comment & N.Doc;
 
             if N.Mode = WSDL.Types.K_Array then
                Field_Array_First  := Field_Array_First & N.Min;
-               Field_Array_Last   := Field_Array_Last & N.Min;
-               Field_Array_Length := Field_Array_Length & (N.Max - N.Min + 1);
+               Field_Array_Last   := Field_Array_Last & N.Max;
+               Field_Array_Length := Field_Array_Length
+                 & (if N.Max = Positive'Last
+                    then N.Max
+                    else 1 + N.Max - N.Min);
             else
                Field_Array_First  := Field_Array_First & "";
                Field_Array_Last   := Field_Array_Last & "";
                Field_Array_Length := Field_Array_Length & "";
-            end if;
-
-            if N.Mode = WSDL.Types.K_Array then
-               Field_Comment := Field_Comment
-                 & "      --  Access items with : result.Item (n)";
-            else
-               Field_Comment := Field_Comment & "";
             end if;
 
             declare
@@ -2346,8 +2086,9 @@ package body WSDL2AWS.Generator is
            & Templates.Assoc ("FIELD_FROM_SOAP", Field_From_SOAP)
            & Templates.Assoc ("FIELD_TO_SOAP", Field_To_SOAP)
            & Templates.Assoc ("FIELD_SET_TYPE", Field_Set_Type)
-           & Templates.Assoc ("NAME_SPACE_PACKAGE", Pck_NS)
-           & Templates.Assoc ("TYPE_REF", WSDL.Types.Name (P.Typ));
+           & Templates.Assoc ("NAME_SPACE", SOAP.Name_Space.Name (NS))
+           & Templates.Assoc ("TYPE_REF", WSDL.Types.Name (P.Typ))
+           & Templates.Assoc ("DOCUMENTATION", P.Doc);
 
          --  Is types are to be reused from an Ada spec ?
 
@@ -2367,94 +2108,21 @@ package body WSDL2AWS.Generator is
 
          if not NS_Generated.Contains (SOAP.Name_Space.Name (NS)) then
             Translations := Translations
-              & Templates.Assoc ("NAME_SPACE", SOAP.Name_Space.Name (NS));
+              & Templates.Assoc ("NAME_SPACE_PACKAGE", Pck_NS);
             NS_Generated.Insert (SOAP.Name_Space.Name (NS));
          end if;
 
          Generate
-           (To_Lower (To_String (Prefix)) & ".ads",
+           (O,
+            To_Lower (To_String (Prefix)) & ".ads",
             Template_Record_Ads, Translations);
          Generate
-           (To_Lower (To_String (Prefix)) & ".adb",
+           (O,
+            To_Lower (To_String (Prefix)) & ".adb",
             Template_Record_Adb, Translations);
 
-         Insert_Types_Def (Template_Record_Types, Translations);
+         Insert_Types_Def (O, Template_Record_Types, Translations);
       end Generate_Record;
-
-      -------------------------
-      -- Generate_References --
-      -------------------------
-
-      procedure Generate_References
-        (File        : Text_IO.File_Type;
-         P           : WSDL.Parameters.P_Set;
-         For_Derived : Boolean := False)
-      is
-         procedure Output_Refs (Def : WSDL.Types.Definition; Gen : Boolean);
-         --  Recursivelly output with/use clauses for derived types
-
-         Generated : String_Store.Set;
-         --  We must ensure that we do not generate the same with clause twice.
-         --  This can happen with derived types on a record.
-
-         -----------------
-         -- Output_Refs --
-         -----------------
-
-         procedure Output_Refs (Def : WSDL.Types.Definition; Gen : Boolean) is
-            Q_Name : constant String := WSDL.Types.Name (Def.Ref, NS => True);
-            F_Name : constant String :=
-                       Format_Name (O, WSDL.Types.Name (Def.Ref));
-            Prefix : constant String :=
-                       Generate_Namespace (WSDL.Types.NS (Def.Ref), False);
-         begin
-            --  For array we want to output references even for standard types
-            --  as we have the generated safe-access circuitry.
-
-            if Gen and then not Generated.Contains (Q_Name) then
-               if SOAP.WSDL.Is_Standard (WSDL.Types.Name (Def.Ref)) then
-                  --  We want here to add a reference to the standard type but
-                  --  also generate the corresponding root-package with the
-                  --  needed name-space.
-
-                  With_Unit
-                    (File,
-                     To_Unit_Name
-                       (Generate_Namespace (WSDL.Types.NS (Def.Ref), True)),
-                     Elab       => Off,
-                     Use_Clause => True);
-               else
-                  With_Unit
-                    (File,
-                     To_Unit_Name (Prefix) & '.' & F_Name & "_Type_Pkg",
-                     Elab       => Off,
-                     Use_Clause => True);
-               end if;
-
-               Generated.Insert (Q_Name);
-            end if;
-
-            if Def.Mode = WSDL.Types.K_Derived
-              and then not SOAP.WSDL.Is_Standard (WSDL.Types.Name (Def.Parent))
-            then
-               Output_Refs (WSDL.Types.Find (Def.Parent), True);
-            end if;
-         end Output_Refs;
-
-         N : WSDL.Parameters.P_Set := P;
-
-      begin
-         while N /= null loop
-            Output_Refs (WSDL.Types.Find (N.Typ), not For_Derived);
-
-            --  If we are not handling a compound type, only reference the root
-            --  type.
-
-            exit when For_Derived;
-
-            N := N.Next;
-         end loop;
-      end Generate_References;
 
       ---------------------
       --  Get_References --
@@ -2465,10 +2133,8 @@ package body WSDL2AWS.Generator is
          P           : WSDL.Parameters.P_Set;
          For_Derived : Boolean := False)
       is
-         use type Templates.Tag;
-
          procedure Output_Refs (Def : WSDL.Types.Definition; Gen : Boolean);
-         --  Recursivelly output with/use clauses for derived types
+         --  Recursivelly record with/use clauses for derived types
 
          Generated : String_Store.Set;
          --  We must ensure that we do not generate the same with clause twice.
@@ -2584,7 +2250,6 @@ package body WSDL2AWS.Generator is
          Def          : WSDL.Types.Definition := WSDL.Types.No_Definition;
          Regen        : Boolean := False)
       is
-         use type Templates.Tag;
          use type WSDL.Types.Definition;
          use WSDL.Parameters;
 
@@ -2602,10 +2267,9 @@ package body WSDL2AWS.Generator is
          --  Add references into the main types package
 
          if not Regen then
-            With_Unit
-              (Type_Ads,
-               To_Unit_Name (To_String (Prefix)),
-               Use_Clause => True);
+            Add_TagV
+              (O.Type_S_Trans,
+               "WITHED_UNITS", To_Unit_Name (To_String (Prefix)));
          end if;
 
          if Def.Mode /= WSDL.Types.K_Simple then
@@ -2627,23 +2291,19 @@ package body WSDL2AWS.Generator is
 
          if Def.Mode = WSDL.Types.K_Derived then
             if SOAP.WSDL.Is_Standard (WSDL.Types.Name (Def.Parent)) then
-               Unit_List := Unit_List &
-                 To_Unit_Name
-                   (Generate_Namespace (WSDL.Types.NS (Def.Parent), True));
+               Unit_List := Unit_List
+                 & To_Unit_Name
+                     (Generate_Namespace (WSDL.Types.NS (Def.Parent), True));
             else
-               Unit_List := Unit_List &
-                 (To_Unit_Name
-                   (Generate_Namespace (WSDL.Types.NS (Def.Parent), False))
+               Unit_List := Unit_List
+                 & (To_Unit_Name
+                     (Generate_Namespace (WSDL.Types.NS (Def.Parent), False))
                     & '.' & WSDL.Types.Name (Def.Parent) & "_Type_Pkg");
             end if;
          end if;
 
          Translations := Translations
            & Templates.Assoc ("TYPE_SPEC", Types_Spec (O))
-           & Templates.Assoc ("AWS_VERSION",  AWS.Version)
-           & Templates.Assoc ("SOAP_VERSION", SOAP.Version)
-           & Templates.Assoc ("OPTIONS", To_String (O.Options))
-           & Templates.Assoc ("WSDL2AWS_VERSION", WSDL2AWS.Version)
            & Templates.Assoc ("UNIT_NAME", To_Unit_Name (To_String (Prefix)))
            & Templates.Assoc ("Q_TYPE_NAME", Q_Type_Name)
            & Templates.Assoc ("WITHED_UNITS", Unit_List);
@@ -2898,26 +2558,28 @@ package body WSDL2AWS.Generator is
 
       Output_Types (Output);
 
-      Text_IO.Put_Line (Type_Adb, "   --  Definitions for procedure " & Proc);
-
       Output_Schema_Definition
-        (Key   => '@' & To_String (O.Prefix) & W_Name & ".encoding",
+        (O,
+         Key   => '@' & To_String (O.Prefix) & W_Name & ".encoding",
          Value => SOAP.Types.Encoding_Style'Image
                     (O.Encoding (WSDL.Parser.Input)));
 
       Output_Schema_Definition
-        (Key   => '@' & To_String (O.Prefix) & W_Name & "Response.encoding",
+        (O,
+         Key   => '@' & To_String (O.Prefix) & W_Name & "Response.encoding",
          Value =>
            SOAP.Types.Encoding_Style'Image (O.Encoding (WSDL.Parser.Output)));
 
       Output_Schema_Definition
-        (Key   => '@' & To_String (O.Prefix)
+        (O,
+         Key   => '@' & To_String (O.Prefix)
                   & SOAP.Utils.No_NS (W_Name) & ".encoding",
          Value => SOAP.Types.Encoding_Style'Image
                     (O.Encoding (WSDL.Parser.Input)));
 
       Output_Schema_Definition
-        (Key   => '@' & To_String (O.Prefix)
+        (O,
+         Key   => '@' & To_String (O.Prefix)
                   & SOAP.Utils.No_NS (W_Name) & "Response.encoding",
          Value =>
            SOAP.Types.Encoding_Style'Image (O.Encoding (WSDL.Parser.Output)));
@@ -2926,7 +2588,8 @@ package body WSDL2AWS.Generator is
          --  Something in the SOAP procedure output
 
          Output_Schema_Definition
-           (Key   => '@' & To_String (Output.Name) & ".encoding",
+           (O,
+            Key   => '@' & To_String (Output.Name) & ".encoding",
             Value =>
               SOAP.Types.Encoding_Style'Image
                 (O.Encoding (WSDL.Parser.Output)));
@@ -2938,18 +2601,23 @@ package body WSDL2AWS.Generator is
                declare
                   Def : constant WSDL.Types.Definition :=
                           WSDL.Types.Find (Output.Typ, False);
+                  T   : Templates.Translate_Set;
                begin
-                  Text_IO.New_Line (Tmp_Ads);
+                  T := T
+                    & Templates.Assoc
+                        ("PROC", L_Proc)
+                    & Templates.Assoc
+                        ("QUALIFIED_NAME",
+                         Format_Name
+                           (O,
+                            SOAP.Utils.To_Name
+                              (WSDL.Types.Name
+                                   (Output.Typ,
+                                    Def.Mode = WSDL.Types.K_Derived))))
+                    & Templates.Assoc
+                        ("RESULT_IS_ARRAY", Output.Mode = WSDL.Types.K_Array);
 
-                  Text_IO.Put_Line
-                    (Tmp_Ads,
-                     "   subtype " & L_Proc & "_Result is "
-                     & Format_Name
-                       (O,
-                        SOAP.Utils.To_Name
-                          (WSDL.Types.Name
-                            (Output.Typ, Def.Mode = WSDL.Types.K_Derived)))
-                     & "_Type;");
+                  Insert_Types_Def (O, Template_Stub_Types_Ads, T);
                end;
             end if;
 
@@ -2961,115 +2629,6 @@ package body WSDL2AWS.Generator is
          end if;
       end if;
    end Put_Types;
-
-   ---------------------------
-   -- Put_Types_Header_Body --
-   ---------------------------
-
-   procedure Put_Types_Header_Body
-     (O : Object; File : Text_IO.File_Type; Unit_Name : String)
-   is
-      pragma Unreferenced (O);
-   begin
-      With_Unit (File, "Ada.Tags", Elab => Off);
-      Text_IO.New_Line (File);
-
-      Text_IO.Put_Line
-        (File, "package body " & Unit_Name & " is");
-      Text_IO.New_Line (File);
-      Text_IO.Put_Line (File, "   use Ada.Tags;");
-      Text_IO.Put_Line (File, "   use SOAP.Types;");
-      Text_IO.New_Line (File);
-   end Put_Types_Header_Body;
-
-   ---------------------------
-   -- Put_Types_Header_Spec --
-   ---------------------------
-
-   procedure Put_Types_Header_Spec
-     (O         : Object;
-      File      : Text_IO.File_Type;
-      Unit_Name : String;
-      Elab_Body : Boolean := False;
-      Is_NS     : Boolean := False) is
-   begin
-      With_Unit (File, "Ada.Calendar", Elab => Off);
-
-      if not O.Sp then
-         With_Unit (File, "Ada.Containers.Vectors", Elab => Off);
-      end if;
-
-      With_Unit (File, "Ada.Strings.Unbounded", Elab => Off);
-      Text_IO.New_Line (File);
-
-      if not Is_NS then
-         With_Unit (File, "SOAP.Name_Space");
-      end if;
-      With_Unit (File, "SOAP.Types", Elab => Children);
-      With_Unit (File, "SOAP.Utils");
-      Text_IO.New_Line (File);
-      With_Unit (File, "GNAT.Regexp");
-      Text_IO.New_Line (File);
-
-      if Types_Spec (O) /= "" then
-         With_Unit (File, Types_Spec (O, With_Clause => True));
-         Text_IO.New_Line (File);
-      end if;
-
-      if Procs_Spec (O) /= "" and then Procs_Spec (O) /= Types_Spec (O) then
-         With_Unit (File, Procs_Spec (O, With_Clause => True));
-         Text_IO.New_Line (File);
-      end if;
-
-      Text_IO.Put_Line
-        (File, "package " & Unit_Name & " is");
-      Text_IO.New_Line (File);
-
-      if Elab_Body then
-         Text_IO.Put_Line (File, "   pragma Elaborate_Body;");
-      end if;
-
-      Text_IO.Put_Line
-        (File, "   pragma Warnings (Off, Ada.Calendar);");
-
-      if not O.Sp then
-         Text_IO.Put_Line
-           (File, "   pragma Warnings (Off, Ada.Containers.Vectors);");
-      end if;
-
-      Text_IO.Put_Line
-        (File, "   pragma Warnings (Off, Ada.Strings.Unbounded);");
-      Text_IO.Put_Line (File, "   pragma Warnings (Off, SOAP.Types);");
-      Text_IO.Put_Line (File, "   pragma Warnings (Off, SOAP.Utils);");
-      Text_IO.Put_Line (File, "   pragma Warnings (Off, GNAT.Regexp);");
-      Text_IO.New_Line (File);
-
-      if Types_Spec (O) /= "" then
-         Text_IO.Put_Line
-           (File,
-            "   pragma Warnings (Off, " & Types_Spec (O) & ");");
-      end if;
-
-      if Procs_Spec (O) /= "" and then Procs_Spec (O) /= Types_Spec (O) then
-         Text_IO.Put_Line
-           (File,
-            "   pragma Warnings (Off, " & Procs_Spec (O) & ");");
-      end if;
-
-      Text_IO.New_Line (File);
-      Text_IO.Put_Line (File, "   pragma Style_Checks (Off);");
-      Text_IO.New_Line (File);
-      Text_IO.Put_Line (File, "   use Ada.Strings.Unbounded;");
-      Text_IO.New_Line (File);
-      Text_IO.Put_Line (File, "   function ""+""");
-      Text_IO.Put_Line (File, "     (Str : String)");
-      Text_IO.Put_Line (File, "      return Unbounded_String");
-      Text_IO.Put_Line (File, "      renames To_Unbounded_String;");
-      Text_IO.Put_Line (File, "   function ""-""");
-      Text_IO.Put_Line (File, "     (Str : Unbounded_String)");
-      Text_IO.Put_Line (File, "      return String");
-      Text_IO.Put_Line (File, "      renames To_String;");
-   end Put_Types_Header_Spec;
 
    -----------
    -- Quiet --
@@ -3162,12 +2721,9 @@ package body WSDL2AWS.Generator is
       Location           : String)
    is
       use type Client.Timeouts_Values;
+      use type Templates.Translate_Set;
 
       U_Name : constant String := To_Unit_Name (Format_Name (O, Name));
-
-      procedure Create (File : in out Text_IO.File_Type; Filename : String);
-      --  Create Filename, raise execption Generator_Error if the file already
-      --  exists and overwrite mode not activated.
 
       procedure Generate_Main (Filename : String);
       --  Generate the main server's procedure. Either the file exists and is
@@ -3176,105 +2732,23 @@ package body WSDL2AWS.Generator is
 
       function Timeout_Image (Timeout : Duration) return String;
 
-      ------------
-      -- Create --
-      ------------
-
-      procedure Create
-        (File     : in out Text_IO.File_Type;
-         Filename : String) is
-      begin
-         if AWS.Utils.Is_Regular_File (Filename) and then not O.Force then
-            raise Generator_Error
-              with "File " & Filename & " exists, activate overwrite mode.";
-         else
-            Text_IO.Create (File, Text_IO.Out_File, Filename);
-         end if;
-      end Create;
-
       -------------------
       -- Generate_Main --
       -------------------
 
       procedure Generate_Main (Filename : String) is
-         use Text_IO;
-
-         L_Filename        : constant String :=
-                               Characters.Handling.To_Lower (Filename);
-         Template_Filename : constant String := L_Filename & ".amt";
-
-         File : Text_IO.File_Type;
-
+         L_Filename : constant String :=
+                        Characters.Handling.To_Lower (Filename);
       begin
-         Create (File, L_Filename & ".adb");
+         declare
+            T : Templates.Translate_Set;
+         begin
+            T := T
+              & Templates.Assoc ("SOAP_SERVICE", U_Name)
+              & Templates.Assoc ("UNIT_NAME", To_Unit_Name (Filename));
 
-         Put_File_Header (O, File);
-
-         if AWS.Utils.Is_Regular_File (Template_Filename) then
-            --  Use template file
-            declare
-               Translations : constant Templates.Translate_Table :=
-                                (1 => Templates.Assoc
-                                   ("SOAP_SERVICE", U_Name),
-                                 2 => Templates.Assoc
-                                   ("SOAP_VERSION", SOAP.Version),
-                                 3 => Templates.Assoc
-                                   ("AWS_VERSION",  AWS.Version),
-                                 4 => Templates.Assoc
-                                   ("UNIT_NAME", To_Unit_Name (Filename)));
-            begin
-               Put (File, Templates.Parse (Template_Filename, Translations));
-            end;
-
-         else
-            --  Generate a minimal main for the server
-            With_Unit (File, "AWS.Config.Set");
-            With_Unit (File, "AWS.Server");
-            With_Unit (File, "AWS.Status");
-            With_Unit (File, "AWS.Response");
-            With_Unit (File, "SOAP.Dispatchers.Callback");
-            New_Line (File);
-            With_Unit (File, U_Name & ".CB");
-            With_Unit (File, U_Name & ".Server");
-            New_Line (File);
-            Put_Line (File, "procedure " & To_Unit_Name (Filename) & " is");
-            New_Line (File);
-            Put_Line (File, "   use AWS;");
-            New_Line (File);
-            Put_Line (File, "   function CB ");
-            Put_Line (File, "      (Request : Status.Data)");
-            Put_Line (File, "       return Response.Data");
-            Put_Line (File, "   is");
-            Put_Line (File, "      R : Response.Data;");
-            Put_Line (File, "   begin");
-            Put_Line (File, "      return R;");
-            Put_Line (File, "   end CB;");
-            New_Line (File);
-            Put_Line (File, "   WS   : AWS.Server.HTTP;");
-            Put_Line (File, "   Conf : Config.Object := Config.Get_Current;");
-            Put_Line (File, "   Disp : " & U_Name & ".CB.Handler;");
-            New_Line (File);
-            Put_Line (File, "begin");
-            Put_Line (File, "   Config.Set.Server_Port");
-            Put_Line (File, "      (Conf, " & U_Name & ".Server.Port);");
-
-            if O.HTTP_Version = HTTPv2 then
-               Put_Line (File, "   Config.Set.HTTP2_Activated");
-               Put_Line (File, "      (Conf, True);");
-            end if;
-
-            Put_Line (File, "   Disp := SOAP.Dispatchers.Callback.Create");
-            Put_Line (File, "     (CB'Unrestricted_Access,");
-            Put_Line (File, "      " & U_Name & ".CB.SOAP_CB'Access,");
-            Put_Line (File, "      " & U_Name & ".Schema);");
-            New_Line (File);
-            Put_Line (File, "   AWS.Server.Start (WS, Disp, Conf);");
-            New_Line (File);
-            Put_Line (File, "   AWS.Server.Wait (AWS.Server.Forever);");
-            Put_Line (File, "end " & To_Unit_Name (Filename) & ";");
-         end if;
-
-         Close_File (File);
+            Generate (O, L_Filename & ".adb", Template_Main_Adb, T);
+         end;
       end Generate_Main;
 
       -------------------
@@ -3294,6 +2768,22 @@ package body WSDL2AWS.Generator is
                   Characters.Handling.To_Lower (Format_Name (O, Name));
 
    begin
+      O.Type_S_Trans := O.Type_S_Trans
+        & Templates.Assoc ("UNIT_NAME", U_Name);
+
+      O.Type_B_Trans := O.Type_B_Trans
+        & Templates.Assoc ("UNIT_NAME", U_Name);
+
+      O.Root_S_Trans := O.Root_S_Trans
+        & Templates.Assoc ("UNIT_NAME", U_Name)
+        & Templates.Assoc ("ROOT_DOCUMENTATION", Root_Documentation);
+
+      O.Stub_S_Trans := O.Stub_S_Trans
+        & Templates.Assoc ("ROOT_DOCUMENTATION", Root_Documentation);
+
+      O.Skel_S_Trans := O.Skel_S_Trans
+        & Templates.Assoc ("ROOT_DOCUMENTATION", Root_Documentation);
+
       O.Location := To_Unbounded_String (Get_Endpoint (O, Location));
 
       Validate_Location : declare
@@ -3318,107 +2808,44 @@ package body WSDL2AWS.Generator is
          Text_IO.Put_Line ("   " & Root_Documentation);
       end if;
 
-      Create (Root, LL_Name & ".ads");
 
-      Create (Type_Ads, LL_Name & "-types.ads");
-      Text_IO.Create (Tmp_Ads, Text_IO.Out_File);
-
-      Create (Type_Adb, LL_Name & "-types.adb");
-
-      if O.Gen_Stub then
-         Create (Stub_Ads, LL_Name & "-client.ads");
-         Create (Stub_Adb, LL_Name & "-client.adb");
+      if O.Timeouts /= Client.No_Timeout then
+         O.Root_S_Trans := O.Root_S_Trans
+           & Templates.Assoc
+             ("CONNECT_TIMEOUT",
+              Timeout_Image (Client.Connect_Timeout (O.Timeouts)))
+           & Templates.Assoc
+             ("SEND_TIMEOUT",
+              Timeout_Image (Client.Send_Timeout (O.Timeouts)))
+           & Templates.Assoc
+             ("RECEIVE_TIMEOUT",
+              Timeout_Image (Client.Receive_Timeout (O.Timeouts)))
+           & Templates.Assoc
+             ("RESPONSE_TIMEOUT",
+              Timeout_Image (Client.Response_Timeout (O.Timeouts)));
       end if;
 
-      if O.Gen_Skel then
-         Create (Skel_Ads, LL_Name & "-server.ads");
-         Create (Skel_Adb, LL_Name & "-server.adb");
-      end if;
-
-      if O.Gen_CB then
-         Create (CB_Ads, LL_Name & "-cb.ads");
-         Create (CB_Adb, LL_Name & "-cb.adb");
-      end if;
-
-      --  Types
-
-      Put_File_Header (O, Type_Ads);
-      Put_Types_Header_Spec (O, Tmp_Ads, U_Name & ".Types", Elab_Body => True);
-
-      Put_File_Header (O, Type_Adb);
-      Put_Types_Header_Body (O, Type_Adb, U_Name & ".Types");
-
-      --  We have only elaboration code to fill the Schema map with the
-      --  definitions needed to parse literal SOAP messages.
-
-      Text_IO.Put_Line (Type_Adb, "begin");
-
-      --  Root
-
-      Put_File_Header (O, Root);
-
-      if Root_Documentation /= "" then
-         Output_Comment (Root, Root_Documentation, Indent => 0);
-         Text_IO.New_Line (Root);
-      end if;
-
-      With_Unit (Root, "AWS.Client");
-      With_Unit (Root, "SOAP.WSDL.Schema");
-      Text_IO.New_Line (Root);
-
-      Text_IO.Put_Line (Root, "package " & U_Name & " is");
-      Text_IO.New_Line (Root);
-
-      Text_IO.Put_Line
-        (Root,
-         "   URL      : constant String := """
-         & Get_Endpoint (O, Location) & """;");
-
-      Text_IO.Put_Line
-        (Root,
-         "   Timeouts : constant AWS.Client.Timeouts_Values :=");
-
-      if O.Timeouts = Client.No_Timeout then
-         Text_IO.Put_Line
-           (Root, "                AWS.Client.No_Timeout;");
-
-      else
-         Text_IO.Put_Line
-           (Root, "                AWS.Client.Timeouts");
-         Text_IO.Put_Line
-           (Root, "                  (Connect  => "
-            & Timeout_Image (Client.Connect_Timeout (O.Timeouts)) & ',');
-         Text_IO.Put_Line
-           (Root, "                   Send     => "
-            & Timeout_Image (Client.Send_Timeout (O.Timeouts)) & ',');
-         Text_IO.Put_Line
-           (Root, "                   Receive  => "
-            & Timeout_Image (Client.Receive_Timeout (O.Timeouts)) & ',');
-         Text_IO.Put_Line
-           (Root, "                   Response => "
-            & Timeout_Image (Client.Response_Timeout (O.Timeouts)) & ");");
-      end if;
-
-      Text_IO.New_Line (Root);
-      Text_IO.Put_Line
-        (Root, "   Schema   : SOAP.WSDL.Schema.Definition;");
+      O.Root_S_Trans := O.Root_S_Trans
+        & Templates.Assoc ("END_POINT", Get_Endpoint (O, Location));
 
       --  Add namespaces in schema
 
-      Text_IO.Put_Line (Type_Adb, "   --  Definitions for SOAP name-spaces");
       Output_Schema_Definition
-        (Key   => SOAP.Name_Space.Value (O.xsd),
+        (O,
+         Key   => SOAP.Name_Space.Value (O.xsd),
          Value => SOAP.Utils.No_NS (SOAP.Name_Space.Name (O.xsd)));
       Output_Schema_Definition
-        (Key   => SOAP.Name_Space.Value (O.xsi),
+        (O,
+         Key   => SOAP.Name_Space.Value (O.xsi),
          Value => SOAP.Utils.No_NS (SOAP.Name_Space.Name (O.xsi)));
       Output_Schema_Definition
-        (Key   => SOAP.Name_Space.Value (O.env),
+        (O,
+         Key   => SOAP.Name_Space.Value (O.env),
          Value => SOAP.Utils.No_NS (SOAP.Name_Space.Name (O.env)));
       Output_Schema_Definition
-        (Key   => SOAP.Name_Space.Value (O.enc),
+        (O,
+         Key   => SOAP.Name_Space.Value (O.enc),
          Value => SOAP.Utils.No_NS (SOAP.Name_Space.Name (O.enc)));
-      Text_IO.New_Line (Type_Adb);
 
       --  Then the user's name-spaces
 
@@ -3431,18 +2858,16 @@ package body WSDL2AWS.Generator is
 
          procedure Write_NS (Key, Value : String) is
          begin
-            Output_Schema_Definition (Key, Value);
+            Output_Schema_Definition (O, Key, Value);
          end Write_NS;
 
       begin
          SOAP.WSDL.Name_Spaces.Iterate (Write_NS'Access);
-         Text_IO.New_Line (Type_Adb);
       end;
 
-      if O.WSDL_File /= Null_Unbounded_String then
-         Text_IO.New_Line (Root);
-         Text_IO.Put_Line (Root, "   pragma Style_Checks (Off);");
+      --  The WSDL document
 
+      if O.WSDL_File /= Null_Unbounded_String then
          declare
             File   : Text_IO.File_Type;
             Buffer : String (1 .. 1_024);
@@ -3452,23 +2877,18 @@ package body WSDL2AWS.Generator is
 
             while not Text_IO.End_Of_File (File) loop
                Text_IO.Get_Line (File, Buffer, Last);
-               Text_IO.Put_Line (Root, "--  " & Buffer (1 .. Last));
+               Add_TagV (O.Root_S_Trans, "WSDL", Buffer (1 .. Last));
             end loop;
-
-            Close_File (File);
          end;
-
-         Text_IO.Put_Line (Root, "   pragma Style_Checks (On);");
-         Text_IO.New_Line (Root);
       end if;
+
+      Generate (O, LL_Name & ".ads", Template_Root_Ads, O.Root_S_Trans);
 
       O.Unit := To_Unbounded_String (U_Name);
 
       --  Stubs
 
       if O.Gen_Stub then
-         Put_File_Header (O, Stub_Ads);
-         Put_File_Header (O, Stub_Adb);
          Stub.Start_Service
            (O, Name, Root_Documentation, Documentation, Location);
       end if;
@@ -3476,8 +2896,6 @@ package body WSDL2AWS.Generator is
       --  Skeletons
 
       if O.Gen_Skel then
-         Put_File_Header (O, Skel_Ads);
-         Put_File_Header (O, Skel_Adb);
          Skel.Start_Service
            (O, Name, Root_Documentation, Documentation, Location);
       end if;
@@ -3485,8 +2903,6 @@ package body WSDL2AWS.Generator is
       --  Callbacks
 
       if O.Gen_CB then
-         Put_File_Header (O, CB_Ads);
-         Put_File_Header (O, CB_Adb);
          CB.Start_Service
            (O, Name, Root_Documentation, Documentation, Location);
       end if;
@@ -3551,56 +2967,6 @@ package body WSDL2AWS.Generator is
          return "";
       end if;
    end Types_Spec;
-
-   ---------------
-   -- With_Unit --
-   ---------------
-
-   procedure With_Unit
-     (File       : Text_IO.File_Type;
-      Name       : String;
-      Elab       : Elab_Pragma := Single;
-      Use_Clause : Boolean := False)
-   is
-      Key : constant String := Text_IO.Name (File) & "?" & Name;
-   begin
-      if not Withed_Unit.Contains (Key) then
-         Withed_Unit.Append (Key);
-
-         Text_IO.Put_Line (File, "with " & Name & ';');
-
-         if Elab = Children then
-            declare
-               Index : Natural := Name'First;
-            begin
-               loop
-                  Index :=
-                    Strings.Fixed.Index (Name (Index .. Name'Last), ".");
-                  exit when Index = 0;
-
-                  Text_IO.Put_Line
-                    (File,
-                     "pragma Elaborate_All (" & Name (Name'First .. Index - 1)
-                     & ");");
-                  Index := Index + 1;
-               end loop;
-            end;
-         end if;
-
-         case Elab is
-            when Off =>
-               null;
-
-            when Single | Children =>
-               Text_IO.Put_Line (File, "pragma Elaborate_All (" & Name & ");");
-         end case;
-
-         if Use_Clause then
-            Text_IO.Put_Line (File, "use " & Name & ';');
-            Text_IO.New_Line (File);
-         end if;
-      end if;
-   end With_Unit;
 
    ---------------
    -- WSDL_File --

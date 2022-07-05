@@ -8,3 +8,11 @@
    function Image (E : @_TYPE_NAME_@)
      return String
      renames @_UNIT_NAME_@.Image;
+
+   function To_SOAP_Object
+     (R         : @_TYPE_NAME_@;
+      Name      : String := "item";
+      Type_Name : String := @_UNIT_NAME_@.Q_Type_Name;
+      NS        : SOAP.Name_Space.Object := @_REPLACE((.*)\.[^.]*$/\1):UNIT_NAME_@.Name_Space)
+      return SOAP.Types.SOAP_Enumeration
+      renames @_UNIT_NAME_@.To_SOAP_Object;

@@ -1,0 +1,57 @@
+@@--  Server Main
+@@--
+--  wsdl2aws SOAP Generator v@_WSDL2AWS_VERSION_@
+--
+--  AWS @_AWS_VERSION_@ - SOAP @_SOAP_VERSION_@
+--  This file was generated on @_NOW_@
+--
+--  $ wsdl2aws @_OPTIONS_@
+
+with AWS.Config.Set;
+with AWS.Server;
+with AWS.Status;
+with AWS.Response;
+with SOAP.Dispatchers.Callback;
+
+with @_SOAP_SERVICE_@.CB;
+with @_SOAP_SERVICE_@.Server;
+
+procedure @_UNIT_NAME_@ is
+
+   use AWS;
+
+   function CB (Request : Status.Data) return Response.Data;
+   --  Default HTTP callback, not used for this SOAP based
+   --  implementation.
+
+   --------
+   -- CB --
+   --------
+
+   function CB (Request : Status.Data) return Response.Data is
+      R : Response.Data;
+   begin
+      return R;
+   end CB;
+
+   WS   : AWS.Server.HTTP;
+   Conf : Config.Object := Config.Get_Current;
+   Disp : @_SOAP_SERVICE_@.CB.Handler;
+
+begin
+   Config.Set.Server_Port
+     (Conf, @_SOAP_SERVICE_@.Server.Port);
+
+@@IF@@ @_HTTP_VERSION_@ = HTTPV2
+   Config.Set.HTTP2_Activated (Conf, True);
+@@END_IF@@
+
+   Disp := SOAP.Dispatchers.Callback.Create
+             (CB'Unrestricted_Access,
+              @_SOAP_SERVICE_@.CB.SOAP_CB'Access,
+              @_SOAP_SERVICE_@.Schema);
+
+   AWS.Server.Start (WS, Disp, Conf);
+
+   AWS.Server.Wait (AWS.Server.Forever);
+end @_UNIT_NAME_@;

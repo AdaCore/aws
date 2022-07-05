@@ -19,6 +19,7 @@ with @_WITHED_UNITS_@;
 with @_REPLACE(Standard./):TYPE_SPEC_@;
 @@END_IF@@
 
+with SOAP.Parameters;
 with SOAP.Types;
 
 package @_UNIT_NAME_@ is
@@ -34,6 +35,10 @@ package @_UNIT_NAME_@ is
 @@END_IF@@
 
    Q_Type_Name : constant String := "@_Q_TYPE_NAME_@";
+
+@@INLINE(   --  )(\n   --  )()@@
+      @_WRAP(70):DOCUMENTATION_@
+@@END_INLINE@@
 
 @@IF@@ @_IS_EMPTY:TYPE_SPEC_@
 @@IF@@ @_EXIST:CONSTRAINT_PATTERN_@ and not @_IS_EMPTY:PREDICATE_KIND_@
@@ -88,14 +93,14 @@ package @_UNIT_NAME_@ is
       return @_TYPE_NAME_@
       is (D);
 
-   function From_@_QUALIFED_NAME_@_Type
+   function From_@_QUALIFIED_NAME_@_Type
      (D : @_TYPE_NAME_@)
       return @_TYPE_NAME_@
       is (D);
 
    function To_@_TYPE_NAME_@
      (D : @_TYPE_NAME_@)
-      return @_QUALIFIED_NAME_@
+      return @_QUALIFIED_NAME_@_Type
       renames From_@_QUALIFIED_NAME_@_Type;
 
 @@IF@@ @_EXIST:ALIAS_ROUTINE_NAME_@
@@ -116,6 +121,11 @@ package @_UNIT_NAME_@ is
      (O : SOAP.Types.Object'Class)
       return @_TYPE_NAME_@
       is (@_FROM_SOAP_@);
+
+   function To_@_TYPE_NAME_@
+     (L : SOAP.Parameters.List)
+      return @_TYPE_NAME_@
+      is (To_@_TYPE_NAME_@ (SOAP.Parameters.Argument (L, 1)));
 
    function To_SOAP_Object
      (D         : @_TYPE_NAME_@;
