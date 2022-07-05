@@ -14,30 +14,33 @@ package body @_UNIT_NAME_@ is
    use Ada.Tags;
    use SOAP.Types;
 
+   --
+   -- To_@_TYPE_NAME_@
+   --
+
    function To_@_TYPE_NAME_@
      (O : SOAP.Types.Object'Class)
       return @_TYPE_NAME_@
    is
       R : constant SOAP.Types.SOAP_Record := SOAP.Types.SOAP_Record (O);
 @@IF@@ @_IS_CHOICE_@ and @_FIELD_COUNT_@ > 0
+
       function C_Name return String is
-@@INLINE(   \(if)(    elsif )(\);)@@
+@@INLINE(        \(if )(\n         elsif )(\n         else ""\);)@@
 @@TABLE@@
-         SOAP.Types.Exists (R, @_FIELD_NAME_@) then
-            "@_FIELD_NAME_@"
+         SOAP.Types.Exists (R, "@_FIELD_NAME_@") then "@_FIELD_NAME_@"
 @@END_TABLE@@
 @@END_INLINE@@
 
       function C_Disc return Choice is
-@@INLINE(   \(if)(    elsif )(\);)@@
+@@INLINE(        \(if )(\n         elsif )(\n         else C1\);)@@
 @@TABLE@@
-         SOAP.Types.Exists (R, @_FIELD_NAME_@) then
-            C_@_FIELD_NUMBER_@
+         SOAP.Types.Exists (R, "@_FIELD_NAME_@") then C@_FIELD_NUMBER_@
 @@END_TABLE@@
 @@END_INLINE@@
 
-   E : constant SOAP.Types.Object'Class :=
-         SOAP.Types.V (R, C_Name);
+      E : constant SOAP.Types.Object'Class :=
+            SOAP.Types.V (R, C_Name);
 @@ELSE@@ @@-- IS_CHOICE
 @@TABLE@@
 @@IF@@ @_FIELD_KIND_@ = K_ARRAY and @_FIELD_ARRAY_LENGTH_@ > 1
@@ -64,14 +67,14 @@ package body @_UNIT_NAME_@ is
       case C_Disc is
 @@TABLE@@
          when C@_FIELD_NUMBER_@ =>
-            return (C@8FIELD_NUMBER_@, @_FIELD_FROM_SOAP_@);
+            return (C@_FIELD_NUMBER_@, @_FIELD_FROM_SOAP_@);
 @@END_TABLE@@
       end case;
 @@ELSE@@
       return
 @@INLINE(        \()(,\n         )(\);)@@
 @@TABLE@@
-@_FIELD_FROM_SOAP_@
+@_FIELD_NAME_@ => @_FIELD_FROM_SOAP_@
 @@END_TABLE@@
 @@END_INLINE@@
 @@END_IF@@ @@-- IS_CHOICE
@@ -81,11 +84,11 @@ package body @_UNIT_NAME_@ is
 @@IF@@ @_IS_CHOICE_@
 @@TABLE@@
          if C_Disc = C@_FIELD_NUMBER_@
-           and then E'Tag /= @_SET_TYPE_@'Tag
+           and then E'Tag /= @_FIELD_SET_TYPE_@'Tag
          then
             raise SOAP.SOAP_Error
               with SOAP.Types.Name (R)
-                 & ".@_FIELD_NAME_@ expected @_SET_TYPE_@, "
+                 & ".@_FIELD_NAME_@ expected @_FIELD_SET_TYPE_@, "
                  & "found " & External_Tag (E'Tag);
          end if;
 @@END_TABLE@@
@@ -93,18 +96,77 @@ package body @_UNIT_NAME_@ is
 @@ELSE@@ @@-- IS_CHOICE
 @@--
 @@TABLE@@
+@@IF@@ (@_FIELD_KIND_@ /= K_ARRAY) or (@_FIELD_ARRAY_LENGTH_@ = 1)
          if @_FIELD_NAME_@'Tag /= @_FIELD_SET_TYPE_@'Tag then
             raise SOAP.SOAP_Error
               with SOAP.Types.Name (R)
                  & ".@_FIELD_NAME_@ expected @_FIELD_SET_TYPE_@, "
                  & "found " & External_Tag (@_FIELD_NAME_@'Tag);
          end if;
+@@END_IF@@
 @@END_TABLE@@
 @@END_IF@@
          raise SOAP.SOAP_Error
-           with "Record @_TYPE_NAME_@ not well formed";
+           with "Record " & SOAP.Types.Name (R) & " not well formed";
 @@END_IF@@ @@-- FIELD_COUNT = 0
    end To_@_TYPE_NAME_@;
+
+   function To_@_TYPE_NAME_@
+     (P_List : SOAP.Parameters.List)
+      return @_TYPE_NAME_@
+   is
+@@IF@@ @_IS_CHOICE_@ and @_FIELD_COUNT_@ > 0
+      function C_Name return String is
+@@INLINE(        \(if )(\n         elsif )(\n         else ""\);)@@
+@@TABLE@@
+         SOAP.Parameters.Exist (P_List, "@_FIELD_NAME_@") then "@_FIELD_NAME_@"
+@@END_TABLE@@
+@@END_INLINE@@
+
+      function C_Disc return Choice is
+@@INLINE(        \(if )(\n         elsif )(\n         else C1\);)@@
+@@TABLE@@
+         SOAP.Parameters.Exist (P_List, "@_FIELD_NAME_@") then C@_FIELD_NUMBER_@
+@@END_TABLE@@
+@@END_INLINE@@
+      E : constant SOAP.Types.Object'Class :=
+            SOAP.Parameters.Argument (P_List, 1);
+@@ELSE@@ @@-- IS_CHOICE
+@@TABLE@@
+@@IF@@ @_FIELD_KIND_@ = K_ARRAY and @_FIELD_ARRAY_LENGTH_@ > 1
+      @_FIELD_NAME_@ : constant SOAP.Types.Object_Set :=
+                         (1 => +SOAP.Parameters.Argument (P_List, "@_FIELD_RAW_NAME_@"));
+@@ELSE@@
+      @_FIELD_NAME_@ : constant SOAP.Types.Object'Class :=
+                         SOAP.Parameters.Argument (P_List, "@_FIELD_RAW_NAME_@");
+@@END_IF@@
+@@END_TABLE@@
+@@END_IF@@
+   begin
+@@IF@@ @_FIELD_COUNT_@ = 0
+      return (null record);
+@@ELSE@@
+@@IF@@ @_IS_CHOICE_@ and @_FIELD_COUNT_@ > 0
+      case C_Disc is
+@@TABLE@@
+         when C@_FIELD_NUMBER_@ =>
+            return (C@_FIELD_NUMBER_@, @_FIELD_FROM_SOAP_@);
+@@END_TABLE@@
+      end case;
+@@ELSE@@ @@-- IS_CHOICE
+      return
+@@INLINE(        \()(,\n         )(\);)@@
+@@TABLE@@
+@_FIELD_NAME_@ => @_FIELD_FROM_SOAP_@
+@@END_TABLE@@
+@@END_INLINE@@
+@@END_IF@@
+@@END_IF@@
+   end To_@_TYPE_NAME_@;
+
+   --
+   -- To_SOAP_Object
+   --
 
    function To_SOAP_Object
      (R         : @_TYPE_NAME_@;
@@ -123,7 +185,7 @@ package body @_UNIT_NAME_@ is
 @@TABLE@@
          when C@_FIELD_NUMBER_@ =>
             Result := SOAP.Types.R
-              @_FIELD_FROM_SOAP_@
+              ((1 => +@_FIELD_TO_SOAP_@),  Name, Q_Type_Name, NS => NS);
 @@END_TABLE@@
       end case;
 @@END_IF@@
@@ -144,5 +206,26 @@ package body @_UNIT_NAME_@ is
 @@END_IF@@
       return Result;
    end To_SOAP_Object;
+
+   --
+   -- To_Parameter_List
+   --
+
+   function To_Parameter_List
+     (R : @_TYPE_NAME_@)
+      return SOAP.Parameters.List
+   is
+      use type SOAP.Parameters.List;
+
+      NS     : constant SOAP.Name_Space.Object :=
+                 SOAP.Name_Space.No_Name_Space;
+      Result : SOAP.Parameters.List;
+   begin
+@@TABLE@@
+      Result := Result
+        & @_FIELD_TO_SOAP_@;
+@@END_TABLE@@
+      return Result;
+   end To_Parameter_List;
 
 end @_UNIT_NAME_@;

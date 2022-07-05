@@ -1,0 +1,23 @@
+@@--  Skeleton for the name-spaces package hierarchy
+@@--
+--  wsdl2aws SOAP Generator v@_WSDL2AWS_VERSION_@
+--
+--  AWS @_AWS_VERSION_@ - SOAP @_SOAP_VERSION_@
+--  This file was generated on @_NOW_@
+--
+--  $ wsdl2aws @_OPTIONS_@
+
+@@IF@@ not @_IS_EMPTY:NS_NAME_@
+with SOAP.Name_Space;
+
+@@END_IF@@
+package @_UNIT_NAME_@ is
+@@IF@@ @_IS_EMPTY:NS_NAME_@
+   pragma Pure;
+@@ELSE@@
+   pragma Style_Checks (Off);
+   Name_Space : constant SOAP.Name_Space.Object :=
+                  SOAP.Name_Space.Create
+                    ("@_NS_NAME_@", "@_NS_VALUE_@");
+@@END_IF@@
+end @_UNIT_NAME_@;

@@ -22,7 +22,13 @@
       return @_TYPE_NAME_@
       renames @_UNIT_NAME_@.From_@_ROUTINE_NAME_@;
 
+   function To_@_TYPE_NAME_@
+     (O : SOAP.Types.Object'Class)
+      return @_TYPE_NAME_@
+      renames @_UNIT_NAME_@.To_@_TYPE_NAME_@;
+
 @@IF@@ @_EXIST:ALIAS_ROUTINE_NAME_@
+
    function To_@_ALIAS_ROUTINE_NAME_@
      (D : @_BASE_NAME_@)
       return @_TYPE_NAME_@
@@ -50,5 +56,17 @@
      (D : @_BASE_NAME_@)
       return @_TYPE_NAME_@
       renames @_UNIT_NAME_@.From_@_ALIAS_ROUTINE_NAME_@;
+
 @@END_IF@@
 @@END_IF@@
+@@--
+@@-- we need to prefix by the qualified-name as we may otherwise have
+@@-- the multiple To_SOAP_Object on the same derived type (@_TYPE_NAME_@)
+@@-- hierarchy.
+   function From_@_QUALIFIED_NAME_@_To_SOAP_Object
+     (R         : @_TYPE_NAME_@;
+      Name      : String := "item";
+      Type_Name : String := @_UNIT_NAME_@.Q_Type_Name;
+      NS        : SOAP.Name_Space.Object := @_REPLACE((.*)\.[^.]*$/\1):UNIT_NAME_@.Name_Space)
+      return @_SET_TYPE_@
+      renames @_UNIT_NAME_@.To_SOAP_Object;

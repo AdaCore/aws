@@ -7,15 +7,17 @@
 --
 --  $ wsdl2aws @_OPTIONS_@
 
-@@TABLE@@
-with @_WITHED_UNITS_@;
-@@END_TABLE@@
-
 @@IF@@ not @_SAFE_POINTER_@
 with Ada.Containers.Vectors;
 @@END_IF@@
+with Ada.Strings.Unbounded;
+with SOAP.Parameters;
 with SOAP.Types;
 with SOAP.Utils;
+
+@@TABLE@@
+with @_WITHED_UNITS_@;
+@@END_TABLE@@
 
 @@IF@@ not @_IS_EMPTY:TYPE_SPEC_@
 with @_REPLACE(Standard./):TYPE_SPEC_@;
@@ -30,6 +32,24 @@ package @_UNIT_NAME_@ is
    use @_TYPE_SPEC_@;
 @@END_IF@@
 
+   pragma Warnings (Off, Ada.Strings.Unbounded);
+   pragma Warnings (Off, SOAP.Parameters);
+   pragma Warnings (Off, SOAP.Types);
+   pragma Warnings (Off, SOAP.Utils);
+
+   pragma Style_Checks (Off);
+
+   use Ada.Strings.Unbounded;
+
+   function "+"
+     (Str : String)
+      return Unbounded_String
+      renames To_Unbounded_String;
+   function "-"
+     (Str : Unbounded_String)
+      return String
+      renames To_String;
+
    Q_Type_Name : constant String := "@_Q_TYPE_NAME_@";
 
 @@-- TYPE SPEC ----------------------------------------------------------
@@ -41,6 +61,9 @@ package @_UNIT_NAME_@ is
 @@--
    @@IF@@ @_SAFE_POINTER_@
    type @_TYPE_NAME_@ is array (Positive range <>) of @_ELEMENT_TYPE_@;
+@@INLINE(   --  )(\n   --  )()@@
+      @_WRAP(70):DOCUMENTATION_@
+@@END_INLINE@@
 
    type @_TYPE_NAME_@_Access is access all @_TYPE_NAME_@;
 
@@ -60,6 +83,14 @@ package @_UNIT_NAME_@ is
      (@_ELEMENT_TYPE_@,
       @_TYPE_NAME_@,
       @_GET_ROUTINE_@);
+
+   function To_@_TYPE_NAME_@ (O : SOAP.Types.Object'Class)
+     return @_TYPE_NAME_@
+     is (To_@_TYPE_NAME_@ (SOAP.Types.V (SOAP.Types.Composite (O))));
+
+   function To_@_TYPE_NAME_@ (L : SOAP.Parameters.List)
+     return @_TYPE_NAME_@
+     is (To_@_TYPE_NAME_@ (SOAP.Parameters.Argument (L, 1)));
 
    function To_Object_Set is new SOAP.Utils.To_Object_Set
      (@_ELEMENT_TYPE_@,
@@ -81,7 +112,7 @@ package @_UNIT_NAME_@ is
      return @_TYPE_NAME_@ is (V);
 
    function To_@_TYPE_NAME_@ is new SOAP.Utils.To_Vector
-     (@_ELEMENT_TYPE_@_Pck, @_GET_ROUTINE_@);
+     (@_TYPE_NAME_@_Pck, @_GET_ROUTINE_@);
 
    function To_Object_Set is new SOAP.Utils.To_Object_Set_V
      (@_TYPE_NAME_@_Pck,
@@ -99,6 +130,7 @@ package @_UNIT_NAME_@ is
    function To_@_TYPE_NAME_@ is new SOAP.Utils.To_T_Array_C
      (@_ELEMENT_TYPE_@,
       @_TYPE_NAME_@_Index,
+      @_TYPE_NAME_@,
       @_GET_ROUTINE_@);
 
    function To_Object_Set is new SOAP.Utils.To_Object_Set_C
@@ -150,7 +182,6 @@ package @_UNIT_NAME_@ is
    function To_@_TYPE_NAME_@ is new SOAP.Utils.To_T_Array_C
      (@_ELEMENT_TYPE_@,
       @_TYPE_NAME_@_Index,
-      @_SET_TYPE_@,
       @_TYPE_NAME_@,
       @_GET_ROUTINE_@);
 

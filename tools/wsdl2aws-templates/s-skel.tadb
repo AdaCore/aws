@@ -1,0 +1,207 @@
+@@--  Skeleton for building a server
+@@--
+--  wsdl2aws SOAP Generator v@_WSDL2AWS_VERSION_@
+--
+--  AWS @_AWS_VERSION_@ - SOAP @_SOAP_VERSION_@
+--  This file was generated on @_NOW_@
+--
+--  $ wsdl2aws @_OPTIONS_@
+
+@@TABLE@@
+with @_WITHED_UNITS_@;
+@@END_TABLE@@
+
+@@IF@@ @_DEBUG_@
+--  For debug mode
+with Ada.Text_IO;
+with SOAP.Message.XML;
+@@END_IF@@
+
+package body @_UNIT_NAME_@.Server is
+
+   use Ada.Exceptions;
+   use SOAP.Types;
+   use SOAP.Parameters;
+
+@@IF@@ @_DEBUG_@
+   --  For debug mode
+   use Ada.Text_IO;
+@@END_IF@@
+
+   pragma Style_Checks (Off);
+
+@@TABLE@@
+   --
+   -- @_PROC_@_CB
+   --
+
+   function @_PROC_@_CB
+     (SOAPAction : String;
+      Payload    : SOAP.Message.Payload.Object;
+      Request    : AWS.Status.Data)
+      return AWS.Response.Data
+   is
+      Proc_Name : constant String :=
+                    SOAP.Message.Payload.Procedure_Name (Payload);
+      Params    : constant SOAP.Parameters.List :=
+                    SOAP.Message.Parameters (Payload);
+      Response  : SOAP.Message.Response.Object;
+      R_Params  : SOAP.Parameters.List;
+   begin
+@@IF@@ @_DEBUG_@
+      Put_Line ("[SERVER/@_PROC_@_CB] Payload recv : "
+                & AWS.Status.Payload (Request));
+      Put_Line ("[SERVER/@_PROC_@_CB] SOAPAction : " & SOAPAction);
+
+@@END_IF@@
+      if SOAPAction /= "@_SOAP_ACTION_@" then
+         return SOAP.Message.Response.Build
+           (SOAP.Message.Response.Error.Build
+              (SOAP.Message.Response.Error.Client,
+               "SOAPAction " & SOAPAction & " in @_PROC_@, "
+               & "@_SOAP_ACTION_@ expected."));
+      end if;
+
+@@IF@@ @_IS_RPC_@
+@@IF@@ @_DEBUG_@
+      Put_Line ("[SERVER/@_PROC_@_CB] Proc_Name : " & Proc_Name);
+
+@@END_IF@@
+      if Proc_Name /= "@_SOAP_PROC_@" then
+         return SOAP.Message.Response.Build
+           (SOAP.Message.Response.Error.Build
+              (SOAP.Message.Response.Error.Client,
+               "Found procedure " & Proc_Name & " in @_PROC_@_CB, "
+               & "@_SOAP_PROC_@ expected."));
+      end if;
+
+@@END_IF@@
+
+@@IF@@ @_DEBUG_@
+      Put_Line ("[SERVER/@_PROC_@_CB] Payload : "
+                & SOAP.Message.XML.Image (Payload, Schema));
+
+@@END_IF@@
+      Response := SOAP.Message.Response.From (Payload);
+
+@@IF@@ @_HAS_INPUT_@ or @_HAS_OUTPUT_@
+      declare
+@@IF@@ not @_IS_EMPTY:DECL_NAME_@
+         --  Compound helpers
+@@END_IF@@
+@@TABLE'TERSE@@
+@@IF@@ @_DECL_C_KIND_@ = "ARRAY"
+         @_DECL_C_NAME_@ : constant SOAP.Types.SOAP_Array :=
+           SOAP.Parameters.Get (Params, "@_P_NAME_@");
+@@ELSIF@@ @_DECL_C_KIND_@ = "RECORD"
+         @_DECL_C_NAME_@ : constant SOAP.Types.SOAP_Record :=
+           SOAP.Parameters.Get (Params, "@_P_NAME_@");
+@@ELSIF@@ not @_IS_EMPTY:DECL_C_KIND_@
+         @_DECL_C_NAME_@ : constant SOAP.Types.SOAP_Record :=
+           SOAP.Types.R (SOAP.Types.Empty_Object_Set,
+                         "@_P_NAME_@");
+@@END_IF@@
+@@END_TABLE@@
+@@IF@@ not @_IS_EMPTY:DECL_P_NAME_@
+         --  Parameters
+@@END_IF@@
+@@TABLE'TERSE'ALIGN_ON(":")@@
+         @_DECL_P_NAME_@ : constant @_DECL_P_TYPE_@ :=
+           @_DECL_P_GET_@;
+@@END_TABLE@@
+@@END_IF@@
+
+@@-------------------------------
+
+@@IF@@ @_IS_EMPTY:OUT_CB_FIELD_NAME_@
+
+@@IF@@ @_HAS_OUTPUT_@
+         Result : @_PROC_RETURN_TYPE_@ :=
+@@IF@@ @_HAS_INPUT_@
+                    @_PROC_@_CB.@_PROC_@ (@_CB_PARAMETER_NAME_@);
+@@ELSE@@
+                    @_PROC_@_CB.@_PROC_@;
+@@END_IF@@
+      begin
+@@IF@@ @_SINGLE_OUT_PARAMETER_@
+         R_Params := +@_TO_SOAP_@;
+@@ELSE@@
+         R_Params := To_Parameter_List (Result);
+@@END_IF@@
+@@ELSE@@
+      begin
+@@IF@@ @_HAS_INPUT_@
+         @_PROC_@ (@_CB_PARAMETER_NAME_@);
+@@ELSE@@
+         @_PROC_@;
+@@END_IF@@
+@@END_IF@@
+
+@@ELSE@@
+@@-------------------------------
+
+@@IF@@ @_HAS_OUTPUT_@
+         Result : @_PROC_@_Result;
+@@END_IF@@
+      begin
+@@IF@@ @_HAS_OUTPUT_@
+@@IF@@ @_IS_EMPTY:OUT_CB_FIELD_NAME_@
+         Result :=
+@@ELSE@@
+         Result.@_OUT_CB_FIELD_NAME_@ :=
+@@END_IF@@
+@@IF@@ @_OUT_PARAMETER_IS_STRING_@
+@@SET@@ RET_PREFIX = +
+@@ELSE@@
+@@SET@@ RET_PREFIX = ""
+@@END_IF@@
+@@IF@@ @_HAS_INPUT_@
+           @_RET_PREFIX_@@_PROC_@_CB.@_PROC_@ (@_CB_PARAMETER_NAME_@);
+@@ELSE@@
+           @_RET_PREFIX_@@_PROC_@_CB.@_PROC_@;
+@@END_IF@@
+@@IF@@ @_SINGLE_OUT_PARAMETER_@
+         R_Params := +@_TO_SOAP_@;
+@@ELSE@@
+         R_Params := To_Parameter_List (Result);
+@@END_IF@@
+@@ELSE@@
+@@IF@@ @_HAS_INPUT_@
+         @_PROC_@ (@_CB_PARAMETER_NAME_@);
+@@ELSE@@
+         @_PROC_@;
+@@END_IF@@
+@@END_IF@@
+
+@@-------------------------------
+@@END_IF@@
+@@-------------------------------
+
+      exception
+         when E : others =>
+            --  Here we have a problem with user's callback
+            --  return a SOAP error.
+            return SOAP.Message.Response.Build
+              (SOAP.Message.Response.Error.Build
+                 (SOAP.Message.Response.Error.Client,
+                  "Error in @_PROC_@ (" & Exception_Message (E) & ")"));
+      end;
+
+      SOAP.Message.Set_Parameters (Response, R_Params);
+@@IF@@ @_DEBUG_@
+      Put_Line ("[SERVER/@_PROC_@_CB] Response : "
+                & SOAP.Message.XML.Image (Response, Schema));
+@@END_IF@@
+      return SOAP.Message.Response.Build (Response, Schema);
+   exception
+      when E : others =>
+         --  Here we have a problem with some parameters,
+         --  return a SOAP Error?
+         return SOAP.Message.Response.Build
+           (SOAP.Message.Response.Error.Build
+              (SOAP.Message.Response.Error.Client,
+               "Parameter error in @_PROC_@ (" & Exception_Message (E) & ")"));
+   end @_PROC_@_CB;
+@@END_TABLE@@
+
+end @_UNIT_NAME_@.Server;

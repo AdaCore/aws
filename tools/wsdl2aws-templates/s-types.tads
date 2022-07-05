@@ -1,0 +1,72 @@
+@@--  Spec to support SOAP array types
+@@--
+--  wsdl2aws SOAP Generator v@_WSDL2AWS_VERSION_@
+--
+--  AWS @_AWS_VERSION_@ - SOAP @_SOAP_VERSION_@
+--  This file was generated on @_NOW_@
+--
+--  $ wsdl2aws @_OPTIONS_@
+
+with Ada.Calendar;
+with Ada.Containers.Vectors;
+with Ada.Strings.Unbounded;
+
+with SOAP.Name_Space;
+pragma Elaborate_All (SOAP.Name_Space);
+with SOAP.Parameters;
+pragma Elaborate_All (SOAP);
+pragma Elaborate_All (SOAP.Parameters);
+with SOAP.Types;
+pragma Elaborate_All (SOAP);
+pragma Elaborate_All (SOAP.Types);
+with SOAP.Utils;
+pragma Elaborate_All (SOAP.Utils);
+
+with GNAT.Regexp;
+pragma Elaborate_All (GNAT.Regexp);
+
+@@TABLE@@
+with @_WITHED_UNITS_@;
+@@END_TABLE@@
+
+@@TABLE@@
+with @_USER_UNITS_@;
+@@END_TABLE@@
+
+package @_UNIT_NAME_@.Types
+  with Elaborate_Body
+is
+
+@@TABLE@@
+   use @_WITHED_UNITS_@;
+@@END_TABLE@@
+
+@@TABLE@@
+   use Standard.@_USER_UNITS_@;
+@@END_TABLE@@
+
+   pragma Warnings (Off, Ada.Calendar);
+   pragma Warnings (Off, Ada.Containers.Vectors);
+   pragma Warnings (Off, Ada.Strings.Unbounded);
+   pragma Warnings (Off, SOAP.Types);
+   pragma Warnings (Off, SOAP.Utils);
+   pragma Warnings (Off, GNAT.Regexp);
+
+   pragma Style_Checks (Off);
+
+   use Ada.Strings.Unbounded;
+
+   function "+"
+     (Str : String)
+      return Unbounded_String
+      renames To_Unbounded_String;
+   function "-"
+     (Str : Unbounded_String)
+      return String
+      renames To_String;
+
+@@TABLE@@
+   @_TYPE_DECLS_@
+@@END_TABLE@@
+
+end @_UNIT_NAME_@.Types;

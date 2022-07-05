@@ -1,0 +1,21 @@
+@@--  Spec to support SOAP array types
+@@--
+--  wsdl2aws SOAP Generator v@_WSDL2AWS_VERSION_@
+--
+--  AWS @_AWS_VERSION_@ - SOAP @_SOAP_VERSION_@
+--  This file was generated on @_NOW_@
+--
+--  $ wsdl2aws @_OPTIONS_@
+
+with Ada.Tags;
+
+package body @_UNIT_NAME_@.Types is
+
+   use Ada.Tags;
+   use SOAP.Types;
+
+begin
+@@TABLE@@
+   Schema.Insert ("@_SCHEMA_DECLS_KEY_@", "@_SCHEMA_DECLS_VALUE_@");
+@@END_TABLE@@
+end @_UNIT_NAME_@.Types;

@@ -1,0 +1,42 @@
+@@--  Root Package
+@@--
+--  wsdl2aws SOAP Generator v@_WSDL2AWS_VERSION_@
+--
+--  AWS @_AWS_VERSION_@ - SOAP @_SOAP_VERSION_@
+--  This file was generated on @_NOW_@
+--
+--  $ wsdl2aws @_OPTIONS_@
+
+with AWS.Client;
+with SOAP.WSDL.Schema;
+
+@@INLINE(--  )(\n--  )()@@
+      @_WRAP(70):ROOT_DOCUMENTATION_@
+@@END_INLINE@@
+
+package @_UNIT_NAME_@ is
+
+   URL      : constant String := "@_END_POINT_@";
+
+   Timeouts : constant AWS.Client.Timeouts_Values :=
+@@IF@@ @_IS_EMPTY:CONNECT_TIMEOUT_@
+                AWS.Client.No_Timeout;
+@@ELSE@@
+                AWS.Client.Timeouts
+                  (Connect  => @_CONNECT_TIMEOUT_@,
+                   Send     => @_SEND_TIMEOUT_@,
+                   Receive  => @_RECEIVE_TIMEOUT_@,
+                   Response => @_RESPONSE_TIMEOUT_@);
+@@END_IF@@
+
+   Schema   : SOAP.WSDL.Schema.Definition;
+
+@@IF@@ not @_IS_EMPTY:WSDL_@
+   pragma Style_Checks (Off);
+@@TABLE@@
+     -- @_WSDL_@
+@@END_TABLE@@
+   pragma Style_Checks (On);
+@@END_IF@@
+
+end @_UNIT_NAME_@;

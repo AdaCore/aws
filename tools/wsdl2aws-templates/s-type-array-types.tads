@@ -9,6 +9,9 @@
 @@-- For safe pointers
 @@--
    @@IF@@ @_SAFE_POINTER_@
+   subtype @_TYPE_NAME_@
+     is @_UNIT_NAME_@.@_TYPE_NAME_@;
+
    function "+"
      (O : @_UNIT_NAME_@.@_TYPE_NAME_@)
       return @_UNIT_NAME_@.@_TYPE_NAME_@_Safe_Access

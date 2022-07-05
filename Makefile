@@ -183,6 +183,7 @@ GPR_DEFAULT = -XLIBRARY_TYPE=$(DEFAULT_LIBRARY_TYPE) \
 
 #  build awsres tool as needed by wsdl2aws
 build-awsres-tool-native:
+	mkdir -p $(BDIR)/../../$(TARGET)/common/src
 	$(GPRBUILD) -p $(GPROPTS) $(GPR_STATIC) -XTO_BUILD=awsres.adb \
 		tools/tools.gpr
 
@@ -213,7 +214,6 @@ ifeq (${ENABLE_SHARED}, true)
 endif
 
 gen-templates: build-awsres-tool-native force
-	mkdir -p $(BDIR)/../../$(TARGET)/common/src
 	make -C tools/wsdl2aws-templates TARGET=$(TARGET) gen-templates
 
 build-cross: build-tools-cross

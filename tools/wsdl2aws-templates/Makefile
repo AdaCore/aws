@@ -20,4 +20,4 @@ gen-templates:
 	../../.build/$(TARGET)/debug/static/tools/awsres \
 	  -r wsdl2aws_templates \
 	  -o ../../.build/$(TARGET)/common/src \
-	  *.tad*
+	  *.tad[sb]

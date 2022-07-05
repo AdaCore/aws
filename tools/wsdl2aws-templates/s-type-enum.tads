@@ -7,13 +7,18 @@
 --
 --  $ wsdl2aws @_OPTIONS_@
 
+with SOAP.Parameters;
 with SOAP.Types;
+
+@@TABLE@@
+with @_USER_UNITS_@;
+@@END_TABLE@@
 
 package @_UNIT_NAME_@ is
 
    Q_Type_Name : constant String := "@_Q_TYPE_NAME_@";
 
-@@IF@@ @_TYPE_SPEC_@ = ""
+@@IF@@ @_IS_EMPTY:TYPE_SPEC_@
    type @_TYPE_NAME_@ is
 @@INLINE(     \()(, )(\);)@@
 @@TABLE@@
@@ -33,11 +38,11 @@ package @_UNIT_NAME_@ is
 
    function To_@_TYPE_NAME_@
      (D : @_TYPE_NAME_@)
-      return @_TYPE_SPEC_@.@_TYPE_REF_@ is (D);
+      return @_TYPE_NAME_@ is (D);
 
    function From_@_TYPE_NAME_@
      (D : @_TYPE_NAME_@)
-      return @_TYPE_SPEC_@.@_TYPE_REF_@ is (D);
+      return @_TYPE_NAME_@ is (D);
 @@END_IF@@
 
    function Image (E : @_TYPE_NAME_@) return String;
@@ -58,6 +63,11 @@ package @_UNIT_NAME_@ is
      (O : SOAP.Types.Object'Class)
       return @_TYPE_NAME_@ is
         (From_String_Type (SOAP.Types.V (SOAP.Types.SOAP_Enumeration (O))));
+
+   function To_@_TYPE_NAME_@
+     (L : SOAP.Parameters.List)
+      return @_TYPE_NAME_@
+      is (To_@_TYPE_NAME_@ (SOAP.Parameters.Argument (L, 1)));
 
    function To_SOAP_Object
      (D         : @_TYPE_NAME_@;

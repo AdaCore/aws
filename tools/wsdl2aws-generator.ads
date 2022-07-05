@@ -28,6 +28,7 @@
 ------------------------------------------------------------------------------
 
 with AWS.Client;
+with AWS.Templates;
 
 with SOAP.Name_Space;
 
@@ -179,7 +180,6 @@ private
       Ada_Style    : Boolean := False;
       CVS_Tag      : Boolean := False;
       Force        : Boolean := False;
-      First_Proc   : Boolean := True;
       Debug        : Boolean := False;
       Sp           : Boolean := False;
       Stamp        : Boolean := True;
@@ -198,6 +198,17 @@ private
       HTTP_Version : HTTP_Protocol := HTTPv1;
       Endpoint     : Unbounded_String;
       Timeouts     : Client.Timeouts_Values := Client.No_Timeout;
+
+      Root_S_Trans : Templates.Translate_Set; -- service root package
+      Stub_S_Trans : Templates.Translate_Set; -- stub spec
+      Stub_B_Trans : Templates.Translate_Set; -- stub body
+      Skel_S_Trans : Templates.Translate_Set; -- skel spec
+      Skel_B_Trans : Templates.Translate_Set; -- skel body
+      CB_S_Trans   : Templates.Translate_Set; -- callback spec
+      CB_B_Trans   : Templates.Translate_Set; -- callback body
+
+      Type_S_Trans : Templates.Translate_Set;
+      Type_B_Trans : Templates.Translate_Set;
    end record;
 
    function Get_Endpoint (O : Object; Location : String) return String
@@ -205,5 +216,19 @@ private
          then Location
          else To_String (O.Endpoint));
    --  Returns Location or if forced on command line O.Endpoint
+
+   procedure Add_TagV
+     (Set                  : in out Templates.Translate_Set;
+      Assoc_Name, Tag_Name : String);
+
+   procedure Add_TagV
+     (Set        : in out Templates.Translate_Set;
+      Assoc_Name : String;
+      Value      : Boolean);
+
+   procedure Add_TagV
+     (Set        : in out Templates.Translate_Set;
+      Assoc_Name : String;
+      Tag        : Templates.Tag);
 
 end WSDL2AWS.Generator;

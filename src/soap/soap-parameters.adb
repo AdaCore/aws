@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2000-2020, AdaCore                     --
+--                     Copyright (C) 2000-2022, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -71,7 +71,7 @@ package body SOAP.Parameters is
          end if;
       end loop;
 
-      raise Data_Error with "Argument named " & Name & " not found";
+      raise Data_Error with "Argument named " & Name & " not found " & P.N'Img;
    end Argument;
 
    --------------

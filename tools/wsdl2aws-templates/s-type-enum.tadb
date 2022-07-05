@@ -15,10 +15,10 @@ package body @_UNIT_NAME_@ is
 @@TABLE'ALIGN_ON("=>")@@
 @@INLINE(         )( )()@@
 when
-@@IF@@ @_TYPE_SPEC_@
-@_TYPE_SPEC_@.@_E_NAME_@ => return "@_E_VALUE_@";
-@@ELSE@@
+@@IF@@ @_IS_EMPTY:TYPE_SPEC_@
 @_E_NAME_@ => return "@_E_VALUE_@";
+@@ELSE@@
+@_TYPE_SPEC_@.@_E_NAME_@ => return "@_E_VALUE_@";
 @@END_IF@@
 @@END_INLINE@@
 @@END_TABLE@@
