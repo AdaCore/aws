@@ -103,6 +103,13 @@ package body AWS.Messages is
    S508_Message : aliased constant String := "Loop Detected";
    S510_Message : aliased constant String := "Not Extended";
    S511_Message : aliased constant String := "Network Authentication Required";
+   S520_Message : aliased constant String := "Unknown Error";
+   S521_Message : aliased constant String := "Web Server Is Down";
+   S522_Message : aliased constant String := "Connection Timed Out";
+   S523_Message : aliased constant String := "Origin Is Unreachable";
+   S524_Message : aliased constant String := "A timeout occurred";
+   S525_Message : aliased constant String := "SSL Handshake Failed";
+   S526_Message : aliased constant String := "Invalid SSL Certificate";
 
    Status_Messages : constant array (Status_Code) of access constant String :=
                        (S100 => S100_Message'Access,
@@ -166,7 +173,14 @@ package body AWS.Messages is
                         S507 => S507_Message'Access,
                         S508 => S508_Message'Access,
                         S510 => S510_Message'Access,
-                        S511 => S511_Message'Access);
+                        S511 => S511_Message'Access,
+                        S520 => S520_Message'Access,
+                        S521 => S521_Message'Access,
+                        S522 => S522_Message'Access,
+                        S523 => S523_Message'Access,
+                        S524 => S524_Message'Access,
+                        S525 => S525_Message'Access,
+                        S526 => S526_Message'Access);
 
    Month_Name : constant array (Calendar.Month_Number) of String (1 .. 3) :=
                   ("Jan", "Feb", "Mar", "Apr", "May", "Jun",
