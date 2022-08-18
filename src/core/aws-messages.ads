@@ -203,7 +203,8 @@ package AWS.Messages is
       --  4xx : Client Error - The request contains bad syntax or cannot be
       --  fulfilled
 
-      S500, S501, S502, S503, S504, S505, S506, S507, S508, S510, S511
+      S500, S501, S502, S503, S504, S505, S506, S507, S508, S510, S511, S520,
+      S521, S522, S523, S524, S525, S526
       --  5xx : Server Error - The server failed to fulfill an apparently
       --  valid request
       );
@@ -212,7 +213,7 @@ package AWS.Messages is
    subtype Success       is Status_Code range S200 .. S226;
    subtype Redirection   is Status_Code range S300 .. S308;
    subtype Client_Error  is Status_Code range S400 .. S451;
-   subtype Server_Error  is Status_Code range S500 .. S511;
+   subtype Server_Error  is Status_Code range S500 .. S526;
 
    function Image (S : Status_Code) return String;
    --  Returns Status_Code image. This value does not contain the leading S
