@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2012-2017, AdaCore                     --
+--                     Copyright (C) 2012-2022, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -673,12 +673,21 @@ package body AWS.Net.WebSocket.Protocol.RFC6455 is
 
       Error_Code_Needed : constant Boolean :=
                             Opcd = O_Connection_Close and then Error > 0;
-
       Frame_Length      : constant Stream_Element_Offset :=
                             Data'Length + (if Error_Code_Needed then 2 else 0);
+      From_Client       : constant Boolean := Socket.Is_Client_Side;
+      Mask              : Masking_Key;
+      Mask_Pos          : Masking_Key_Index := 0;
 
    begin
-      Send_Frame_Header (Protocol, Socket, Opcd, Frame_Length);
+      if From_Client then
+         Mask := Create_Random_Mask;
+      end if;
+
+      Send_Frame_Header
+        (Protocol, Socket, Opcd, Frame_Length,
+         Has_Mask => From_Client,
+         Mask     => Mask);
 
       --  Send the 2-byte error code for close control frame
 
@@ -697,7 +706,22 @@ package body AWS.Net.WebSocket.Protocol.RFC6455 is
 
       --  Send payload
 
-      Net.Buffered.Write (Socket, Data);
+      if From_Client then
+         declare
+            D : Stream_Element_Array (Data'Range);
+         begin
+            for Idx in Data'Range loop
+               D (Idx) := Data (Idx)
+                  xor Mask (Stream_Element_Offset (Mask_Pos));
+               Mask_Pos := Mask_Pos + 1;
+            end loop;
+
+            Net.Buffered.Write (Socket, D);
+         end;
+
+      else
+         Net.Buffered.Write (Socket, Data);
+      end if;
 
       Net.Buffered.Flush (Socket);
    end Send_Frame;
