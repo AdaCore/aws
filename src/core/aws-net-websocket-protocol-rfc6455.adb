@@ -107,6 +107,14 @@ package body AWS.Net.WebSocket.Protocol.RFC6455 is
       Error    : Status_Code := 0);
    --  Send the frame (header + data)
 
+   procedure Send_Payload
+     (Socket   : Object;
+      Data     : Stream_Element_Array;
+      Has_Mask : Boolean;
+      Mask     : Masking_Key;
+      Flush    : Boolean := True) with Inline;
+   --  Send payload, possibly masked if a client side socket
+
    function Is_Library_Error (Code : Interfaces.Unsigned_16) return Boolean;
    --  Returns True if Code is a valid library error code
 
@@ -568,7 +576,6 @@ package body AWS.Net.WebSocket.Protocol.RFC6455 is
       First       : Positive := 1;
       Last        : Natural;
       Mask        : Masking_Key;
-      Mask_Pos    : Masking_Key_Index := 0;
    begin
       if From_Client then
          Mask := Create_Random_Mask;
@@ -590,19 +597,15 @@ package body AWS.Net.WebSocket.Protocol.RFC6455 is
          Last := Positive'Min (Len_Data, First + Chunk_Size - 1);
 
          declare
-            S : Stream_Element_Array :=
+            S : constant Stream_Element_Array :=
                  Translator.To_Stream_Element_Array
                     (Slice (Data, First, Last));
          begin
-            if From_Client then
-               for Idx in S'Range loop
-                  S (Idx) := S (Idx)
-                     xor Mask (Stream_Element_Offset (Mask_Pos));
-                  Mask_Pos := Mask_Pos + 1;
-               end loop;
-            end if;
-
-            Net.Buffered.Write (Socket, S);
+            Send_Payload
+              (Socket, S,
+               Has_Mask => From_Client,
+               Mask     => Mask,
+               Flush    => False);
          end;
 
          exit Send_Data when Last = Len_Data;
@@ -619,9 +622,7 @@ package body AWS.Net.WebSocket.Protocol.RFC6455 is
       Data     : Stream_Element_Array)
    is
       From_Client : constant Boolean := Socket.Is_Client_Side;
-
-      Mask     : Masking_Key;
-      Mask_Pos : Masking_Key_Index := 0;
+      Mask        : Masking_Key;
    begin
       if From_Client then
          Mask := Create_Random_Mask;
@@ -636,24 +637,10 @@ package body AWS.Net.WebSocket.Protocol.RFC6455 is
 
       --  Send payload
 
-      if From_Client then
-         declare
-            D : Stream_Element_Array (Data'Range);
-         begin
-            for Idx in Data'Range loop
-               D (Idx) := Data (Idx)
-                  xor Mask (Stream_Element_Offset (Mask_Pos));
-               Mask_Pos := Mask_Pos + 1;
-            end loop;
-
-            Net.Buffered.Write (Socket, D);
-         end;
-
-      else
-         Net.Buffered.Write (Socket, Data);
-      end if;
-
-      Net.Buffered.Flush (Socket);
+      Send_Payload
+        (Socket, Data,
+         Has_Mask => From_Client,
+         Mask     => Mask);
    end Send;
 
    ----------------
@@ -677,7 +664,6 @@ package body AWS.Net.WebSocket.Protocol.RFC6455 is
                             Data'Length + (if Error_Code_Needed then 2 else 0);
       From_Client       : constant Boolean := Socket.Is_Client_Side;
       Mask              : Masking_Key;
-      Mask_Pos          : Masking_Key_Index := 0;
 
    begin
       if From_Client then
@@ -704,26 +690,10 @@ package body AWS.Net.WebSocket.Protocol.RFC6455 is
          end;
       end if;
 
-      --  Send payload
-
-      if From_Client then
-         declare
-            D : Stream_Element_Array (Data'Range);
-         begin
-            for Idx in Data'Range loop
-               D (Idx) := Data (Idx)
-                  xor Mask (Stream_Element_Offset (Mask_Pos));
-               Mask_Pos := Mask_Pos + 1;
-            end loop;
-
-            Net.Buffered.Write (Socket, D);
-         end;
-
-      else
-         Net.Buffered.Write (Socket, Data);
-      end if;
-
-      Net.Buffered.Flush (Socket);
+      Send_Payload
+        (Socket, Data,
+         Has_Mask => From_Client,
+         Mask     => Mask);
    end Send_Frame;
 
    -----------------------
@@ -826,5 +796,39 @@ package body AWS.Net.WebSocket.Protocol.RFC6455 is
    begin
       Net.Buffered.Put_Line (Sock, Messages.Sec_WebSocket_Accept (Acc));
    end Send_Header;
+
+   ------------------
+   -- Send_Payload --
+   ------------------
+
+   procedure Send_Payload
+     (Socket   : Object;
+      Data     : Stream_Element_Array;
+      Has_Mask : Boolean;
+      Mask     : Masking_Key;
+      Flush    : Boolean := True) is
+   begin
+      if Has_Mask then
+         declare
+            D        : Stream_Element_Array (Data'Range);
+            Mask_Pos : Masking_Key_Index := 0;
+         begin
+            for Idx in Data'Range loop
+               D (Idx) := Data (Idx)
+                  xor Mask (Stream_Element_Offset (Mask_Pos));
+               Mask_Pos := Mask_Pos + 1;
+            end loop;
+
+            Net.Buffered.Write (Socket, D);
+         end;
+
+      else
+         Net.Buffered.Write (Socket, Data);
+      end if;
+
+      if Flush then
+         Net.Buffered.Flush (Socket);
+      end if;
+   end Send_Payload;
 
 end AWS.Net.WebSocket.Protocol.RFC6455;
