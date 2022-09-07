@@ -239,12 +239,12 @@ package body Ada2WSDL.Parser is
       is
          E         : constant Bin_Op := Get_Range_Expr (Node, Top_Decl);
          T_Name    : constant String :=
-                       (if Node.Kind = Ada_Type_Decl
+                       (if Node.Kind in Ada_Type_Decl
                         then Img (Node.As_Base_Type_Decl.F_Name,
                           Lower_Case => True)
                         else "");
          Is_Std_LL : constant Boolean :=
-                       Node.Kind = Ada_Type_Decl
+                       Node.Kind in Ada_Type_Decl
                            and then
                              ((Is_Standard (Node)
                                and then T_Name = "long_long_integer")
@@ -685,7 +685,7 @@ package body Ada2WSDL.Parser is
             --  into the record and is defined into a separate package we
             --  need to analyse it to get the corresponding WSDL definition.
 
-            if F_Decl.Kind = Ada_Type_Decl
+            if F_Decl.Kind in Ada_Type_Decl
               and then F_Decl.As_Type_Decl.F_Type_Def.Kind = Ada_Array_Type_Def
             then
                --  An array
