@@ -214,4 +214,13 @@ package @_UNIT_NAME_@ is
 @@END_IF@@
 @@END_IF@@
 
+   function To_SOAP_Object
+     (A         : @_TYPE_NAME_@;
+      Name      : String := "item";
+      Type_Name : String := Q_Type_Name;
+      NS        : SOAP.Name_Space.Object := Name_Space)
+      return SOAP.Types.SOAP_Array
+      is (SOAP.Types.SOAP_Array'
+           (SOAP.Types.A (To_Object_Set (A, NS), Name, Type_Name)));
+
 end @_UNIT_NAME_@;
