@@ -851,8 +851,18 @@ package body WSDL2AWS.Generator is
         (O     : in out Object;
          Input : WSDL.Parameters.P_Set)
       is
+         use type WSDL.Types.Kind;
+
          Parameter_Name : Templates.Tag;
          Parameter_Type : Templates.Tag;
+         P_Decl         : Templates.Tag;
+         P_Name         : Templates.Tag;
+         P_Kind         : Templates.Tag;
+         P_Type         : Templates.Tag;
+         P_SOAP_Type    : Templates.Tag;
+         P_Q_Name       : Templates.Tag;
+         P_NS_Name      : Templates.Tag;
+         P_NS_Value     : Templates.Tag;
          N              : WSDL.Parameters.P_Set;
       begin
          if Is_Simple_Wrapped_Parameter (O, Input) then
@@ -899,6 +909,48 @@ package body WSDL2AWS.Generator is
 
          Add_Proc_Tag ("PARAMETER_NAME", Parameter_Name);
          Add_Proc_Tag ("PARAMETER_TYPE", Parameter_Type);
+
+         --  Parameters
+
+         N := Input;
+
+         while N /= null loop
+            P_Decl      := P_Decl & Format_Name (O, To_String (N.Name));
+            P_Name      := P_Name & To_String (N.Name);
+            P_Kind      := P_Kind & WSDL.Types.Kind'Image (N.Mode);
+            P_Type      := P_Type & WSDL.Types.Name (N.Typ, True);
+            P_Q_Name    := P_Q_Name
+                         & SOAP.Utils.To_Name (WSDL.Types.Name (N.Typ, True));
+
+            if N.Mode = WSDL.Types.K_Simple then
+               P_SOAP_Type := P_SOAP_Type
+                                & SOAP.WSDL.Set_Type
+                                    (SOAP.WSDL.To_Type
+                                       (WSDL.Types.Name (N.Typ)));
+            else
+               P_SOAP_Type := P_SOAP_Type & "";
+            end if;
+
+            declare
+               NS     : constant SOAP.Name_Space.Object :=
+                          SOAP.WSDL.Name_Spaces.Get
+                            (SOAP.Utils.NS (To_String (N.Elmt_Name)));
+            begin
+               P_NS_Name  := P_NS_Name & SOAP.Name_Space.Name (NS);
+               P_NS_Value := P_NS_Value & SOAP.Name_Space.Value (NS);
+            end;
+
+            N := N.Next;
+         end loop;
+
+         Add_TagV (O.Stub_B_Trans, "IP_DECL", P_Decl);
+         Add_TagV (O.Stub_B_Trans, "IP_NAME", P_Name);
+         Add_TagV (O.Stub_B_Trans, "IP_KIND", P_Kind);
+         Add_TagV (O.Stub_B_Trans, "IP_TYPE", P_Type);
+         Add_TagV (O.Stub_B_Trans, "IP_SOAP_TYPE", P_SOAP_Type);
+         Add_TagV (O.Stub_B_Trans, "IP_Q_NAME", P_Q_Name);
+         Add_TagV (O.Stub_B_Trans, "IP_NS_NAME", P_NS_Name);
+         Add_TagV (O.Stub_B_Trans, "IP_NS_VALUE", P_NS_Value);
       end Generate_Input_Params;
 
       ---------------------
