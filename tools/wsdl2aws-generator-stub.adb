@@ -76,128 +76,71 @@ package body Stub is
       use type WSDL.Parameters.P_Set;
       use type WSDL.Types.Kind;
 
-      procedure Output_Parameter
-        (K      : Positive;
-         Prefix : String;
-         N      : WSDL.Parameters.P_Set);
-      --  Ouptut parameter
-
-      procedure Output_Simple
-        (K      : Positive;
-         Prefix : String;
-         N      : WSDL.Parameters.P_Set);
-      --  Output a simple parameter
-
-      procedure Output_Derived
-        (K      : Positive;
-         Prefix : String;
-         N      : WSDL.Parameters.P_Set);
-      --  Output a derived type
-
-      procedure Output_Others
-        (K      : Positive;
-         Prefix : String;
-         N      : WSDL.Parameters.P_Set);
-      --  Output a record parameter
+      procedure Input_Parameters
+        (Input : WSDL.Parameters.P_Set);
 
       Decl_Name         : Templates.Tag;
       Decl_Type         : Templates.Tag;
       Decl_Prefix_Name  : Templates.Tag;
       Decl_Field_Name   : Templates.Tag;
       Decl_Field_Kind   : Templates.Tag;
-      To_SOAP           : Templates.Tag;
       From_SOAP         : Templates.Tag;
 
-      --------------------
-      -- Output_Derived --
-      --------------------
-
-      procedure Output_Derived
-        (K      : Positive;
-         Prefix : String;
-         N      : WSDL.Parameters.P_Set)
-      is
-         Q_Name : constant String :=
-                    SOAP.Utils.To_Name (WSDL.Types.Name (N.Typ, True));
-      begin
-         To_SOAP := To_SOAP
-           & ("From_" & Q_Name & "_To_SOAP_Object ("
-              & Format_Name (O, To_String (N.Name))
-              & ", """ & To_String (N.Name) & """)");
-
-         Output_Parameter (K + 1, Prefix, N.Next);
-      end Output_Derived;
-
-      -------------------
-      -- Output_Others --
-      -------------------
-
-      procedure Output_Others
-        (K      : Positive;
-         Prefix : String;
-         N      : WSDL.Parameters.P_Set) is
-      begin
-         To_SOAP := To_SOAP
-           & ("To_SOAP_Object ("
-              & Format_Name (O, To_String (N.Name))
-              & ", """ & To_String (N.Name) & """)");
-
-         Output_Parameter (K + 1, Prefix, N.Next);
-      end Output_Others;
-
       ----------------------
-      -- Output_Parameter --
+      -- Input_Parameters --
       ----------------------
 
-      procedure Output_Parameter
-        (K      : Positive;
-         Prefix : String;
-         N      : WSDL.Parameters.P_Set) is
-      begin
-         if N /= null then
-            case N.Mode is
-               when WSDL.Types.K_Simple =>
-                  Output_Simple (K, Prefix, N);
-
-               when WSDL.Types.K_Derived =>
-                  Output_Derived (K, Prefix, N);
-
-               when others =>
-                  Output_Others (K + 1, Prefix, N);
-            end case;
-         end if;
-      end Output_Parameter;
-
-      -------------------
-      -- Output_Simple --
-      -------------------
-
-      procedure Output_Simple
-        (K      : Positive;
-         Prefix : String;
-         N      : WSDL.Parameters.P_Set)
+      procedure Input_Parameters
+        (Input : WSDL.Parameters.P_Set)
       is
-         P_Type : constant SOAP.WSDL.Parameter_Type :=
-                    SOAP.WSDL.To_Type (WSDL.Types.Name (N.Typ));
-         NS     : constant SOAP.Name_Space.Object :=
-                    SOAP.WSDL.Name_Spaces.Get
-                      (SOAP.Utils.NS (To_String (N.Elmt_Name)));
+         N           : WSDL.Parameters.P_Set := Input;
+         P_Decl      : Templates.Tag;
+         P_Name      : Templates.Tag;
+         P_Kind      : Templates.Tag;
+         P_Type      : Templates.Tag;
+         P_SOAP_Type : Templates.Tag;
+         P_Q_Name    : Templates.Tag;
+         P_NS_Name   : Templates.Tag;
+         P_NS_Value  : Templates.Tag;
       begin
-         To_SOAP := To_SOAP
-           & (SOAP.WSDL.Set_Type (P_Type)
-              & "'(SOAP.Utils.To_SOAP_Object ("
-              & Prefix & Format_Name (O, To_String (N.Name))
-              & ", """ & To_String (N.Name) & ""","
-              & " Type_Name => """ & WSDL.Types.Name (N.Typ, True) & '"'
-              & (if SOAP.Name_Space.Is_Defined (NS)
-                then ", NS => SOAP.Name_Space.Create ("""
-                & SOAP.Name_Space.Name (NS)
-                & """, """ & SOAP.Name_Space.Value (NS) & """)"
-                else "")
-              & "))");
+         while N /= null loop
+            P_Decl      := P_Decl & Format_Name (O, To_String (N.Name));
+            P_Name      := P_Name & To_String (N.Name);
+            P_Kind      := P_Kind & WSDL.Types.Kind'Image (N.Mode);
+            P_Type      := P_Type & WSDL.Types.Name (N.Typ, True);
+            P_Q_Name    := P_Q_Name
+                         & SOAP.Utils.To_Name (WSDL.Types.Name (N.Typ, True));
 
-         Output_Parameter (K + 1, Prefix, N.Next);
-      end Output_Simple;
+            if N.Mode = WSDL.Types.K_Simple then
+               P_SOAP_Type := P_SOAP_Type
+                                & SOAP.WSDL.Set_Type
+                                    (SOAP.WSDL.To_Type
+                                       (WSDL.Types.Name (N.Typ)));
+            else
+               P_SOAP_Type := P_SOAP_Type & "";
+            end if;
+
+            declare
+               NS     : constant SOAP.Name_Space.Object :=
+                          SOAP.WSDL.Name_Spaces.Get
+                            (SOAP.Utils.NS (To_String (N.Elmt_Name)));
+            begin
+               P_NS_Name  := P_NS_Name & SOAP.Name_Space.Name (NS);
+               P_NS_Value := P_NS_Value & SOAP.Name_Space.Value (NS);
+            end;
+
+            N := N.Next;
+         end loop;
+
+         Add_TagV (O.Stub_B_Trans, "P_DECL", P_Decl);
+         Add_TagV (O.Stub_B_Trans, "P_NAME", P_Name);
+         Add_TagV (O.Stub_B_Trans, "P_KIND", P_Kind);
+         Add_TagV (O.Stub_B_Trans, "P_TYPE", P_Type);
+         Add_TagV (O.Stub_B_Trans, "P_SOAP_TYPE", P_SOAP_Type);
+         Add_TagV (O.Stub_B_Trans, "P_Q_NAME", P_Q_Name);
+         Add_TagV (O.Stub_B_Trans, "P_NS_NAME", P_NS_Name);
+         Add_TagV (O.Stub_B_Trans, "P_NS_VALUE", P_NS_Value);
+      end Input_Parameters;
 
       use type SOAP.Name_Space.Object;
 
@@ -239,11 +182,7 @@ package body Stub is
       Add_TagV (O.Stub_B_Trans, "DECL_FIELD_NAME", Decl_Field_Name);
       Add_TagV (O.Stub_B_Trans, "DECL_FIELD_KIND", Decl_Field_Kind);
 
-      if Input /= null then
-         Output_Parameter (1, "", Input);
-      end if;
-
-      Add_TagV (O.Stub_B_Trans, "TO_SOAP", To_SOAP);
+      Input_Parameters (Input);
 
       if Namespace /= SOAP.Name_Space.No_Name_Space then
          Add_TagV
