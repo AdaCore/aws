@@ -76,22 +76,22 @@ Connection : AWS.Client.HTTP_Connection
 @@END_IF@@
 @@END_TABLE@@
 @@END_IF@@
-@@IF@@ not @_IS_EMPTY:P_DECL_@
+@@IF@@ not @_IS_EMPTY:IP_DECL_@
       --  Set Parameters
       P_Set :=
 @@INLINE(        +)(\n        & )(;)@@
 @@TABLE'TERSE@@
-@@IF@@ @_P_KIND_@ = K_SIMPLE
+@@IF@@ @_IP_KIND_@ = K_SIMPLE
 @@INLINE(         )(,)(\)\))@@
-         @_P_SOAP_TYPE_@'(SOAP.Utils.To_SOAP_Object (@_P_DECL_@, "@_P_NAME_@", "@_P_TYPE_@"
-@@IF@@ not @_IS_EMPTY:P_NS_NAME_@
-         SOAP.Name_Space.Create ("@_P_NS_NAME_@", "@_P_NS_VALUE_@")
+         @_IP_SOAP_TYPE_@'(SOAP.Utils.To_SOAP_Object (@_IP_DECL_@, "@_IP_NAME_@", "@_IP_TYPE_@"
+@@IF@@ not @_IS_EMPTY:IP_NS_NAME_@
+         SOAP.Name_Space.Create ("@_IP_NS_NAME_@", "@_IP_NS_VALUE_@")
 @@END_IF@@
 @@END_INLINE@@
-@@ELSIF@@ @_P_KIND_@ = K_DERIVED
-         From_@_P_Q_NAME_@_To_SOAP_Object (@_P_DECL_@, "@_P_NAME_@")
+@@ELSIF@@ @_IP_KIND_@ = K_DERIVED
+         From_@_IP_Q_NAME_@_To_SOAP_Object (@_IP_DECL_@, "@_IP_NAME_@")
 @@ELSE@@
-         To_SOAP_Object (@_P_DECL_@, "@_P_NAME_@")
+         To_SOAP_Object (@_IP_DECL_@, "@_IP_NAME_@")
 @@END_IF@@
 @@END_TABLE@@
 @@END_INLINE@@
