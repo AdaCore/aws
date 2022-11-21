@@ -100,12 +100,6 @@ package body Stub is
          N      : WSDL.Parameters.P_Set);
       --  Output a record parameter
 
-      procedure Output_Array
-        (K      : Positive;
-         Prefix : String;
-         N      : WSDL.Parameters.P_Set);
-      --  Output an array parameter
-
       Decl_Name         : Templates.Tag;
       Decl_Type         : Templates.Tag;
       Decl_Prefix_Name  : Templates.Tag;
@@ -113,28 +107,6 @@ package body Stub is
       Decl_Field_Kind   : Templates.Tag;
       To_SOAP           : Templates.Tag;
       From_SOAP         : Templates.Tag;
-
-      ------------------
-      -- Output_Array --
-      ------------------
-
-      procedure Output_Array
-        (K      : Positive;
-         Prefix : String;
-         N      : WSDL.Parameters.P_Set) is
-      begin
-         if Prefix = "" then
-            To_SOAP := To_SOAP
-              & ((if WSDL.Parameters.Is_Uniq (N.all)
-                 then "SOAP_Array" else "SOAP_Set")
-                 & "'(A (To_Object_Set ("
-                 & Format_Name (O, To_String (N.Name))
-                 & "), """ & To_String (N.Name) & """, """
-                 & WSDL.Types.Name (N.Typ, True) & """))");
-         end if;
-
-         Output_Parameter (K + 1, Prefix, N.Next);
-      end Output_Array;
 
       --------------------
       -- Output_Derived --
@@ -186,9 +158,6 @@ package body Stub is
             case N.Mode is
                when WSDL.Types.K_Simple =>
                   Output_Simple (K, Prefix, N);
-
-               when WSDL.Types.K_Array =>
-                  Output_Array (K, Prefix, N);
 
                when WSDL.Types.K_Derived =>
                   Output_Derived (K, Prefix, N);
