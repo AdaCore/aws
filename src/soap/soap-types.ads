@@ -432,8 +432,8 @@ package SOAP.Types is
    overriding function Image (O : XSD_String) return String;
 
    function S
-     (V    : String;
-      Name : String      := "item";
+     (V         : String;
+      Name      : String      := "item";
       Type_Name : String := XML_String;
       NS        : Name_Space.Object := Name_Space.No_Name_Space)
       return XSD_String;
