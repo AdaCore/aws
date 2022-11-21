@@ -252,6 +252,168 @@ package SOAP.Utils is
       return Types.XSD_String;
    --  Returns the SOAP string for the given Character value and name
 
+   --  To_SOAP_Object
+
+   function To_SOAP_Object
+     (V         : Character;
+      Name      : String := "item";
+      Type_Name : String := "Character";
+      NS        : Name_Space.Object := Name_Space.No_Name_Space)
+      return SOAP.Types.XSD_String
+      renames C;
+
+   function To_SOAP_Object
+     (V         : SOAP.Types.Object'Class;
+      Name      : String := "item";
+      Type_Name : String := "";
+      NS        : Name_Space.Object := Name_Space.No_Name_Space)
+      return SOAP.Types.XSD_Any_Type
+      renames SOAP.Types.Any;
+
+   function To_SOAP_Object
+     (V         : Types.XSD_Any_Type;
+      Name      : String := "item";
+      Type_Name : String := "";
+      NS        : Name_Space.Object := Name_Space.No_Name_Space)
+      return SOAP.Types.XSD_Any_Type
+      renames Any;
+
+   function To_SOAP_Object
+     (V         : String;
+      Name      : String := "item";
+      Type_Name : String := SOAP.Types.XML_Base64;
+      NS        : Name_Space.Object := Name_Space.No_Name_Space)
+      return SOAP.Types.SOAP_Base64
+      renames SOAP.Types.B64;
+
+   function To_SOAP_Object
+     (V         : Boolean;
+      Name      : String := "item";
+      Type_Name : String := SOAP.Types.XML_Boolean;
+      NS        : Name_Space.Object := Name_Space.No_Name_Space)
+      return SOAP.Types.XSD_Boolean
+      renames SOAP.Types.B;
+
+   function To_SOAP_Object
+     (V         : SOAP.Types.Byte;
+      Name      : String := "item";
+      Type_Name : String := SOAP.Types.XML_Byte;
+      NS        : Name_Space.Object := Name_Space.No_Name_Space)
+      return SOAP.Types.XSD_Byte
+      renames SOAP.Types.B;
+
+   function To_SOAP_Object
+     (V         : Long_Float;
+      Name      : String := "item";
+      Type_Name : String := SOAP.Types.XML_Double;
+      NS        : Name_Space.Object := Name_Space.No_Name_Space)
+      return SOAP.Types.XSD_Double
+      renames SOAP.Types.D;
+
+   function To_SOAP_Object
+     (V         : Float;
+      Name      : String := "item";
+      Type_Name : String := SOAP.Types.XML_Float;
+      NS        : Name_Space.Object := Name_Space.No_Name_Space)
+      return SOAP.Types.XSD_Float
+      renames SOAP.Types.F;
+
+   function To_SOAP_Object
+     (V         : Integer;
+      Name      : String := "item";
+      Type_Name : String := SOAP.Types.XML_Int;
+      NS        : Name_Space.Object := Name_Space.No_Name_Space)
+      return SOAP.Types.XSD_Integer
+      renames SOAP.Types.I;
+
+   function To_SOAP_Object
+     (V         : SOAP.Types.Long;
+      Name      : String := "item";
+      Type_Name : String := SOAP.Types.XML_Long;
+      NS        : Name_Space.Object := Name_Space.No_Name_Space)
+      return SOAP.Types.XSD_Long
+      renames SOAP.Types.L;
+
+   function To_SOAP_Object
+     (V         : SOAP.Types.Short;
+      Name      : String := "item";
+      Type_Name : String := SOAP.Types.XML_Short;
+      NS        : Name_Space.Object := Name_Space.No_Name_Space)
+      return SOAP.Types.XSD_Short
+      renames SOAP.Types.S;
+
+   function To_SOAP_Object
+     (V    : String;
+      Name : String      := "item";
+      Type_Name : String := SOAP.Types.XML_String;
+      NS        : Name_Space.Object := Name_Space.No_Name_Space)
+      return SOAP.Types.XSD_String
+      renames SOAP.Types.S;
+
+   function To_SOAP_Object
+     (V         : Unbounded_String;
+      Name      : String  := "item";
+      Type_Name : String := SOAP.Types.XML_String;
+      NS        : Name_Space.Object := Name_Space.No_Name_Space)
+      return SOAP.Types.XSD_String
+      renames SOAP.Types.S;
+
+   function To_SOAP_Object
+     (V         : SOAP.Types.Local_Time;
+      Name      : String := "item";
+      Type_Name : String := SOAP.Types.XML_Time_Instant;
+      NS        : Name_Space.Object := Name_Space.No_Name_Space)
+      return SOAP.Types.XSD_Time_Instant
+      renames SOAP.Types.T;
+
+   function To_SOAP_Object
+     (V         : Standard.Duration;
+      Name      : String := "item";
+      Type_Name : String := SOAP.Types.XML_Duration;
+      NS        : Name_Space.Object := Name_Space.No_Name_Space)
+      return SOAP.Types.XSD_Duration
+      renames SOAP.Types.D;
+
+   function To_SOAP_Object
+     (V         : SOAP.Types.Unsigned_Long;
+      Name      : String := "item";
+      Type_Name : String := SOAP.Types.XML_Unsigned_Long;
+      NS        : Name_Space.Object := Name_Space.No_Name_Space)
+      return SOAP.Types.XSD_Unsigned_Long
+      renames SOAP.Types.UL;
+
+   function To_SOAP_Object
+     (V         : SOAP.Types.Unsigned_Int;
+      Name      : String := "item";
+      Type_Name : String := SOAP.Types.XML_Unsigned_Int;
+      NS        : Name_Space.Object := Name_Space.No_Name_Space)
+      return SOAP.Types.XSD_Unsigned_Int
+      renames SOAP.Types.UI;
+
+   function To_SOAP_Object
+     (V         : SOAP.Types.Unsigned_Short;
+      Name      : String := "item";
+      Type_Name : String := SOAP.Types.XML_Unsigned_Short;
+      NS        : Name_Space.Object := Name_Space.No_Name_Space)
+      return SOAP.Types.XSD_Unsigned_Short
+      renames SOAP.Types.US;
+
+   function To_SOAP_Object
+     (V         : SOAP.Types.Unsigned_Byte;
+      Name      : String := "item";
+      Type_Name : String := SOAP.Types.XML_Unsigned_Byte;
+      NS        : Name_Space.Object := Name_Space.No_Name_Space)
+      return SOAP.Types.XSD_Unsigned_Byte
+      renames SOAP.Types.UB;
+
+   function To_SOAP_Object
+     (V         : String;
+      Type_Name : String;
+      Name      : String := "item";
+      NS        : Name_Space.Object := Name_Space.No_Name_Space)
+      return SOAP.Types.SOAP_Enumeration
+      renames SOAP.Types.E;
+
    --  Smart pointers support used for array access in SOAP record. The memory
    --  used by a safe pointer is released automatically when no more reference
    --  to the object exists.

@@ -184,8 +184,9 @@ package body Stub is
                       (SOAP.Utils.NS (To_String (N.Elmt_Name)));
       begin
          To_SOAP := To_SOAP
-           & (SOAP.WSDL.Set_Routine (P_Type)
-              & " (" & Prefix & Format_Name (O, To_String (N.Name))
+           & (SOAP.WSDL.Set_Type (P_Type)
+              & "'(SOAP.Utils.To_SOAP_Object ("
+              & Prefix & Format_Name (O, To_String (N.Name))
               & ", """ & To_String (N.Name) & ""","
               & " Type_Name => """ & WSDL.Types.Name (N.Typ, True) & '"'
               & (if SOAP.Name_Space.Is_Defined (NS)
@@ -193,7 +194,7 @@ package body Stub is
                 & SOAP.Name_Space.Name (NS)
                 & """, """ & SOAP.Name_Space.Value (NS) & """)"
                 else "")
-              & ')');
+              & "))");
 
          Output_Parameter (K + 1, Prefix, N.Next);
       end Output_Simple;
