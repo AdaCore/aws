@@ -273,7 +273,6 @@ package body WSDL2AWS.Generator is
       O.Ada_Style := True;
    end Ada_Style;
 
-
    --------------
    -- Add_TagV --
    --------------
@@ -1292,6 +1291,9 @@ package body WSDL2AWS.Generator is
          --  Simple name without the ending _Type
 
          Def     : constant WSDL.Types.Definition := WSDL.Types.Find (P.Typ);
+         NS      : constant SOAP.Name_Space.Object := WSDL.Types.NS (P.Typ);
+         Pck_NS  : constant String :=
+                     To_Unit_Name (Generate_Namespace (NS, False));
 
          F_Name  : constant String := Format_Name (O, Name);
          E_Type  : constant WSDL.Types.Definition :=
@@ -1323,6 +1325,7 @@ package body WSDL2AWS.Generator is
 
          Translations := Translations
            & Templates.Assoc ("TYPE_NAME", F_Name)
+           & Templates.Assoc ("NAME_SPACE", SOAP.Name_Space.Name (NS))
            & Templates.Assoc ("LENGTH", P.Length)
            & Templates.Assoc ("INSIDE_RECORD", Is_Inside_Record (S_Name))
            & Templates.Assoc ("QUALIFIED_NAME", Q_Name)
@@ -1340,6 +1343,12 @@ package body WSDL2AWS.Generator is
                ("TYPE_REF", WSDL.Types.Name (P.Typ))
            & Templates.Assoc
                ("DOCUMENTATION", P.Doc);
+
+         if not NS_Generated.Contains (SOAP.Name_Space.Name (NS)) then
+            Translations := Translations
+              & Templates.Assoc ("NAME_SPACE_PACKAGE", Pck_NS);
+            NS_Generated.Insert (SOAP.Name_Space.Name (NS));
+         end if;
 
          Generate
            (O,
@@ -2807,7 +2816,6 @@ package body WSDL2AWS.Generator is
          Text_IO.Put_Line ("Service " & Name);
          Text_IO.Put_Line ("   " & Root_Documentation);
       end if;
-
 
       if O.Timeouts /= Client.No_Timeout then
          O.Root_S_Trans := O.Root_S_Trans
