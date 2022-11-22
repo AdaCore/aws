@@ -113,14 +113,6 @@ package body WSDL2AWS.Generator is
       Output     : WSDL.Parameters.P_Set);
    --  This must be called to create the data types for composite objects
 
-   procedure Gen_Return_Type
-     (O      : in out Object;
-      Proc   : String;
-      Output : WSDL.Parameters.P_Set);
-   --  Output procedure header into File. The terminating ';' or 'is' is
-   --  outputed depending on Spec value. If Mode is in Con_Stub_Header the
-   --  connection based spec is generated, otherwise it is the endpoint based.
-
    function Result_Type
      (O      : Object;
       Proc   : String;
@@ -484,96 +476,6 @@ package body WSDL2AWS.Generator is
       O.Gen_CB := True;
    end Gen_CB;
 
-   ---------------------
-   -- Gen_Return_Type --
-   ---------------------
-
-   procedure Gen_Return_Type
-     (O      : in out Object;
-      Proc   : String;
-      Output : WSDL.Parameters.P_Set)
-   is
-      use type WSDL.Parameters.P_Set;
-      use type WSDL2AWS.WSDL.Types.Kind;
-
-      N                  : WSDL.Parameters.P_Set;
-      Proc_S_Return_Type : Templates.Tag;
-      Proc_B_Return_Type : Templates.Tag;
-
-   begin
-      if Is_Simple_Wrapped_Parameter (O, Output) then
-         N := Output.P;
-      else
-         N := Output;
-      end if;
-
-      if N /= null then
-         if Is_Simple_Wrapped_Parameter (O, Output)
-           and then N.Mode = WSDL.Types.K_Record
-         then
-            --  A record inside a record in Document style binding
-
-            Proc_S_Return_Type := Proc_S_Return_Type
-              & (Format_Name (O, WSDL.Types.Name (N.Typ) & "_Type"));
-         else
-            Proc_S_Return_Type := Proc_S_Return_Type
-              & (Result_Type (O, Proc, N));
-         end if;
-      else
-         Proc_S_Return_Type := Proc_S_Return_Type
-           & "Not_A_Function";
-      end if;
-
-      --  Only done once, ???? can probably be removed after clean-up
-      Add_TagV (O.Stub_S_Trans, "PROC_RETURN_TYPE", Proc_S_Return_Type);
-      Add_TagV (O.Stub_B_Trans, "PROC_RETURN_TYPE", Proc_S_Return_Type);
-      Add_TagV (O.Skel_S_Trans, "PROC_RETURN_TYPE", Proc_S_Return_Type);
-      Add_TagV (O.Skel_B_Trans, "PROC_RETURN_TYPE", Proc_S_Return_Type);
-
-      N := Output;
-
-      if N /= null then
-         if Is_Simple_Wrapped_Parameter (O, Output)
-           and then N.Mode = WSDL.Types.K_Record
-         then
-            --  A record inside a record in Document style binding
-            Proc_B_Return_Type := Proc_B_Return_Type
-              & (Format_Name (O, WSDL.Types.Name (N.Typ) & "_Type"));
-         else
-            Proc_B_Return_Type := Proc_B_Return_Type
-              & (Result_Type (O, Proc, N));
-         end if;
-      else
-         Proc_B_Return_Type := Proc_B_Return_Type
-           & "Not_A_Function";
-      end if;
-
-      Add_TagV
-        (O.Stub_B_Trans, "PROC_CB_RETURN_TYPE", Proc_B_Return_Type);
-      Add_TagV
-        (O.Skel_B_Trans, "PROC_CB_RETURN_TYPE", Proc_S_Return_Type);
-
-      if Output = null then
-         Add_TagV (O.Skel_B_Trans, "SINGLE_OUT_PARAMETER", False);
-         Add_TagV (O.Skel_B_Trans, "OUT_PARAMETER_IS_STRING", False);
-
-      else
-         if Is_Simple_Wrapped_Parameter (O, Output)
-           and then Is_String (Output.P)
-         then
-            Add_TagV (O.Skel_B_Trans, "OUT_PARAMETER_IS_STRING", True);
-         else
-            Add_TagV (O.Skel_B_Trans, "OUT_PARAMETER_IS_STRING", False);
-         end if;
-
-         if Output.Next = null then
-            Add_TagV (O.Skel_B_Trans, "SINGLE_OUT_PARAMETER", True);
-         else
-            Add_TagV (O.Skel_B_Trans, "SINGLE_OUT_PARAMETER", False);
-         end if;
-      end if;
-   end Gen_Return_Type;
-
    ----------------------
    -- Gen_Safe_Pointer --
    ----------------------
@@ -780,10 +682,31 @@ package body WSDL2AWS.Generator is
          Value    : Templates.Tag);
       --  Add a tag for all procedure templates
 
+      procedure Generate_Params
+        (N           : WSDL.Parameters.P_Set;
+         P_Decl      : in out Templates.Tag;
+         P_Name      : in out Templates.Tag;
+         P_Kind      : in out Templates.Tag;
+         P_Type      : in out Templates.Tag;
+         P_SOAP_Type : in out Templates.Tag;
+         P_Q_Name    : in out Templates.Tag;
+         P_NS_Name   : in out Templates.Tag;
+         P_NS_Value  : in out Templates.Tag);
+      --  Generate all tag information for the parameters pointed to by N
+
       procedure Generate_Input_Params
         (O     : in out Object;
          Input : WSDL.Parameters.P_Set);
       --  Generate the input parameters NAME / TYPE
+
+      procedure Generate_Output_Params
+        (O      : in out Object;
+         Proc   : String;
+         Output : WSDL.Parameters.P_Set);
+      --  Output procedure header into File. The terminating ';' or
+      --  'is' is outputed depending on Spec value. If Mode is in
+      --  Con_Stub_Header the connection based spec is generated,
+      --  otherwise it is the endpoint based.
 
       ------------------
       -- Add_Proc_Tag --
@@ -915,31 +838,9 @@ package body WSDL2AWS.Generator is
          N := Input;
 
          while N /= null loop
-            P_Decl      := P_Decl & Format_Name (O, To_String (N.Name));
-            P_Name      := P_Name & To_String (N.Name);
-            P_Kind      := P_Kind & WSDL.Types.Kind'Image (N.Mode);
-            P_Type      := P_Type & WSDL.Types.Name (N.Typ, True);
-            P_Q_Name    := P_Q_Name
-                         & SOAP.Utils.To_Name (WSDL.Types.Name (N.Typ, True));
-
-            if N.Mode = WSDL.Types.K_Simple then
-               P_SOAP_Type := P_SOAP_Type
-                                & SOAP.WSDL.Set_Type
-                                    (SOAP.WSDL.To_Type
-                                       (WSDL.Types.Name (N.Typ)));
-            else
-               P_SOAP_Type := P_SOAP_Type & "";
-            end if;
-
-            declare
-               NS     : constant SOAP.Name_Space.Object :=
-                          SOAP.WSDL.Name_Spaces.Get
-                            (SOAP.Utils.NS (To_String (N.Elmt_Name)));
-            begin
-               P_NS_Name  := P_NS_Name & SOAP.Name_Space.Name (NS);
-               P_NS_Value := P_NS_Value & SOAP.Name_Space.Value (NS);
-            end;
-
+            Generate_Params
+              (N, P_Decl, P_Name, P_Kind, P_Type,
+               P_SOAP_Type, P_Q_Name, P_NS_Name, P_NS_Value);
             N := N.Next;
          end loop;
 
@@ -952,6 +853,166 @@ package body WSDL2AWS.Generator is
          Add_TagV (O.Stub_B_Trans, "IP_NS_NAME", P_NS_Name);
          Add_TagV (O.Stub_B_Trans, "IP_NS_VALUE", P_NS_Value);
       end Generate_Input_Params;
+
+      ----------------------------
+      -- Generate_Output_Params --
+      ----------------------------
+
+      procedure Generate_Output_Params
+        (O      : in out Object;
+         Proc   : String;
+         Output : WSDL.Parameters.P_Set)
+      is
+         use type WSDL2AWS.WSDL.Types.Kind;
+
+         N                  : WSDL.Parameters.P_Set;
+         Proc_S_Return_Type : Templates.Tag;
+         Proc_B_Return_Type : Templates.Tag;
+
+         P_Decl         : Templates.Tag;
+         P_Name         : Templates.Tag;
+         P_Kind         : Templates.Tag;
+         P_Type         : Templates.Tag;
+         P_SOAP_Type    : Templates.Tag;
+         P_Q_Name       : Templates.Tag;
+         P_NS_Name      : Templates.Tag;
+         P_NS_Value     : Templates.Tag;
+
+      begin
+         if Is_Simple_Wrapped_Parameter (O, Output) then
+            N := Output.P;
+         else
+            N := Output;
+         end if;
+
+         if N /= null then
+            if Is_Simple_Wrapped_Parameter (O, Output)
+              and then N.Mode = WSDL.Types.K_Record
+            then
+               --  A record inside a record in Document style binding
+
+               Proc_S_Return_Type := Proc_S_Return_Type
+                 & (Format_Name (O, WSDL.Types.Name (N.Typ) & "_Type"));
+            else
+               Proc_S_Return_Type := Proc_S_Return_Type
+                 & (Result_Type (O, Proc, N));
+            end if;
+         else
+            Proc_S_Return_Type := Proc_S_Return_Type
+              & "Not_A_Function";
+         end if;
+
+         --  Only done once, ???? can probably be removed after clean-up
+         Add_TagV (O.Stub_S_Trans, "PROC_RETURN_TYPE", Proc_S_Return_Type);
+         Add_TagV (O.Stub_B_Trans, "PROC_RETURN_TYPE", Proc_S_Return_Type);
+         Add_TagV (O.Skel_S_Trans, "PROC_RETURN_TYPE", Proc_S_Return_Type);
+         Add_TagV (O.Skel_B_Trans, "PROC_RETURN_TYPE", Proc_S_Return_Type);
+
+         N := Output;
+
+         if N /= null then
+            if Is_Simple_Wrapped_Parameter (O, Output)
+              and then N.Mode = WSDL.Types.K_Record
+            then
+               --  A record inside a record in Document style binding
+               Proc_B_Return_Type := Proc_B_Return_Type
+                 & (Format_Name (O, WSDL.Types.Name (N.Typ) & "_Type"));
+            else
+               Proc_B_Return_Type := Proc_B_Return_Type
+                 & (Result_Type (O, Proc, N));
+            end if;
+         else
+            Proc_B_Return_Type := Proc_B_Return_Type
+              & "Not_A_Function";
+         end if;
+
+         Add_TagV
+           (O.Stub_B_Trans, "PROC_CB_RETURN_TYPE", Proc_B_Return_Type);
+         Add_TagV
+           (O.Skel_B_Trans, "PROC_CB_RETURN_TYPE", Proc_S_Return_Type);
+
+         if Output = null then
+            Add_TagV (O.Skel_B_Trans, "SINGLE_OUT_PARAMETER", False);
+            Add_TagV (O.Skel_B_Trans, "OUT_PARAMETER_IS_STRING", False);
+
+         else
+            if Is_Simple_Wrapped_Parameter (O, Output)
+              and then Is_String (Output.P)
+            then
+               Add_TagV (O.Skel_B_Trans, "OUT_PARAMETER_IS_STRING", True);
+            else
+               Add_TagV (O.Skel_B_Trans, "OUT_PARAMETER_IS_STRING", False);
+            end if;
+
+            if Output.Next = null then
+               Add_TagV (O.Skel_B_Trans, "SINGLE_OUT_PARAMETER", True);
+            else
+               Add_TagV (O.Skel_B_Trans, "SINGLE_OUT_PARAMETER", False);
+            end if;
+         end if;
+
+         --  Output parameters
+
+         if Output /= null
+           and then Output.Next = null
+         then
+            Generate_Params
+              (Output, P_Decl, P_Name, P_Kind, P_Type,
+               P_SOAP_Type, P_Q_Name, P_NS_Name, P_NS_Value);
+         end if;
+
+         Add_TagV (O.Skel_B_Trans, "OP_DECL_NAME", P_Decl);
+         Add_TagV (O.Skel_B_Trans, "OP_NAME", P_Name);
+         Add_TagV (O.Skel_B_Trans, "OP_KIND", P_Kind);
+         Add_TagV (O.Skel_B_Trans, "OP_TYPE", P_Type);
+         Add_TagV (O.Skel_B_Trans, "OP_SOAP_TYPE", P_SOAP_Type);
+         Add_TagV (O.Skel_B_Trans, "OP_Q_NAME", P_Q_Name);
+         Add_TagV (O.Skel_B_Trans, "OP_NS_NAME", P_NS_Name);
+         Add_TagV (O.Skel_B_Trans, "OP_NS_VALUE", P_NS_Value);
+      end Generate_Output_Params;
+
+      ---------------------
+      -- Generate_Params --
+      ---------------------
+
+      procedure Generate_Params
+        (N           : WSDL.Parameters.P_Set;
+         P_Decl      : in out Templates.Tag;
+         P_Name      : in out Templates.Tag;
+         P_Kind      : in out Templates.Tag;
+         P_Type      : in out Templates.Tag;
+         P_SOAP_Type : in out Templates.Tag;
+         P_Q_Name    : in out Templates.Tag;
+         P_NS_Name   : in out Templates.Tag;
+         P_NS_Value  : in out Templates.Tag)
+      is
+         use type WSDL.Types.Kind;
+      begin
+         P_Decl   := P_Decl & Format_Name (O, To_String (N.Name));
+         P_Name   := P_Name & To_String (N.Name);
+         P_Kind   := P_Kind & WSDL.Types.Kind'Image (N.Mode);
+         P_Type   := P_Type & WSDL.Types.Name (N.Typ, True);
+         P_Q_Name := P_Q_Name
+                       & SOAP.Utils.To_Name (WSDL.Types.Name (N.Typ, True));
+
+         if N.Mode = WSDL.Types.K_Simple then
+            P_SOAP_Type := P_SOAP_Type
+                             & SOAP.WSDL.Set_Type
+                                 (SOAP.WSDL.To_Type
+                                    (WSDL.Types.Name (N.Typ)));
+         else
+            P_SOAP_Type := P_SOAP_Type & "";
+         end if;
+
+         declare
+            NS : constant SOAP.Name_Space.Object :=
+                   SOAP.WSDL.Name_Spaces.Get
+                     (SOAP.Utils.NS (To_String (N.Elmt_Name)));
+         begin
+            P_NS_Name  := P_NS_Name & SOAP.Name_Space.Name (NS);
+            P_NS_Value := P_NS_Value & SOAP.Name_Space.Value (NS);
+         end;
+      end Generate_Params;
 
       ---------------------
       -- Generate_Schema --
@@ -1067,7 +1128,7 @@ package body WSDL2AWS.Generator is
 
       Generate_Input_Params (O, Input);
 
-      Gen_Return_Type (O, Proc, Output);
+      Generate_Output_Params (O, Proc, Output);
 
       Add_Proc_Tag ("HAS_INPUT", Input /= null);
       Add_Proc_Tag ("HAS_OUTPUT", Output /= null);

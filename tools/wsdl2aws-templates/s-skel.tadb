@@ -124,7 +124,23 @@ package body @_UNIT_NAME_@.Server is
 @@END_IF@@
       begin
 @@IF@@ @_SINGLE_OUT_PARAMETER_@
-         R_Params := +@_TO_SOAP_@;
+@@IF@@ not @_IS_EMPTY:OP_DECL_NAME_@
+         R_Params :=
+@@INLINE(        +)(\n        & )(;)@@
+@@IF@@ @_OP_KIND_@ = K_SIMPLE
+@@INLINE(         )(,)(\)\))@@
+         @_OP_SOAP_TYPE_@'(SOAP.Utils.To_SOAP_Object (Result, "@_OP_NAME_@", "@_OP_TYPE_@"
+@@IF@@ not @_IS_EMPTY:OP_NS_NAME_@
+         SOAP.Name_Space.Create ("@_OP_NS_NAME_@", "@_OP_NS_VALUE_@")
+@@END_IF@@
+@@END_INLINE@@
+@@ELSIF@@ @_OP_KIND_@ = K_DERIVED
+         From_@_OP_Q_NAME_@_To_SOAP_Object (Result, "@_OP_NAME_@")
+@@ELSE@@
+         To_SOAP_Object (Result, "@_OP_NAME_@")
+@@END_IF@@
+@@END_INLINE@@
+@@END_IF@@
 @@ELSE@@
          R_Params := To_Parameter_List (Result);
 @@END_IF@@
@@ -161,7 +177,23 @@ package body @_UNIT_NAME_@.Server is
            @_RET_PREFIX_@@_PROC_@_CB.@_PROC_@;
 @@END_IF@@
 @@IF@@ @_SINGLE_OUT_PARAMETER_@
-         R_Params := +@_TO_SOAP_@;
+@@IF@@ not @_IS_EMPTY:OP_DECL_NAME_@
+         R_Params :=
+@@INLINE(        +)(\n        & )(;)@@
+@@IF@@ @_OP_KIND_@ = K_SIMPLE
+@@INLINE(         )(,)(\)\))@@
+         @_OP_SOAP_TYPE_@'(SOAP.Utils.To_SOAP_Object (Result, "@_OP_NAME_@", "@_OP_TYPE_@"
+@@IF@@ not @_IS_EMPTY:OP_NS_NAME_@
+         SOAP.Name_Space.Create ("@_OP_NS_NAME_@", "@_OP_NS_VALUE_@")
+@@END_IF@@
+@@END_INLINE@@
+@@ELSIF@@ @_OP_KIND_@ = K_DERIVED
+         From_@_OP_Q_NAME_@_To_SOAP_Object (Result, "@_OP_NAME_@")
+@@ELSE@@
+         To_SOAP_Object (Result, "@_OP_NAME_@")
+@@END_IF@@
+@@END_INLINE@@
+@@END_IF@@
 @@ELSE@@
          R_Params := To_Parameter_List (Result);
 @@END_IF@@

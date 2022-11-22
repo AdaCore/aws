@@ -234,56 +234,6 @@ package body Skel is
       Add_TagV (O.Skel_B_Trans, "DECL_P_TYPE", Parameter_B_Type);
       Add_TagV (O.Skel_B_Trans, "DECL_P_GET", Parameter_Get);
 
-      if Output /= null
-        and then Output.Next = null
-      then
-         declare
-            T_Name : constant String := WSDL.Types.Name (Output.Typ, True);
-            NS     : constant SOAP.Name_Space.Object :=
-                       SOAP.WSDL.Name_Spaces.Get
-                         (SOAP.Utils.NS (To_String (Output.Elmt_Name)));
-         begin
-            if Output.Mode = WSDL.Types.K_Simple then
-               Add_TagV
-                 (O.Skel_B_Trans,
-                  "TO_SOAP",
-                  SOAP.WSDL.Set_Routine (SOAP.WSDL.To_Type (T_Name))
-                  & " (Result, """ & To_String (Output.Name) & ""","
-                  & " Type_Name => """ & T_Name & '"'
-                  & (if SOAP.Name_Space.Is_Defined (NS)
-                    then ", NS => SOAP.Name_Space.Create ("""
-                    & SOAP.Name_Space.Name (NS)
-                    & """, """
-                    & SOAP.Name_Space.Value (NS) & """))"
-                    else ")"));
-
-            elsif Output.Mode = WSDL.Types.K_Array then
-               --  A single array as returned parameter
-               Add_TagV
-                 (O.Skel_B_Trans,
-                  "TO_SOAP",
-                  WSDL.Parameters.To_SOAP
-                    (Output.all,
-                     Object    => "Result",
-                     Name      => To_String (Output.Name),
-                     Type_Name => T_Name));
-
-            else
-               Add_TagV
-                 (O.Skel_B_Trans, "TO_SOAP",
-                  WSDL.Parameters.To_SOAP
-                    (Output.all,
-                     "Result",
-                     To_String (Output.Name),
-                     T_Name));
-            end if;
-         end;
-
-      else
-         Add_TagV
-           (O.Skel_B_Trans, "TO_SOAP", "NO_OUTPUT_PARAMETER");
-      end if;
-
       --  Output parameters
 
       if Output = null then
