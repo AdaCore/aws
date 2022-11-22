@@ -943,7 +943,7 @@ package body WSDL2AWS.Generator is
             N := N.Next;
          end loop;
 
-         Add_TagV (O.Stub_B_Trans, "IP_DECL", P_Decl);
+         Add_TagV (O.Stub_B_Trans, "IP_DECL_NAME", P_Decl);
          Add_TagV (O.Stub_B_Trans, "IP_NAME", P_Name);
          Add_TagV (O.Stub_B_Trans, "IP_KIND", P_Kind);
          Add_TagV (O.Stub_B_Trans, "IP_TYPE", P_Type);
