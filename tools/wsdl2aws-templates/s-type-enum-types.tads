@@ -9,6 +9,16 @@
      return String
      renames @_UNIT_NAME_@.Image;
 
+   function To_@_TYPE_NAME_@
+     (O : SOAP.Types.Object'Class)
+      return @_TYPE_NAME_@
+      renames @_UNIT_NAME_@.To_@_TYPE_NAME_@;
+
+   function To_@_TYPE_NAME_@
+     (L : SOAP.Parameters.List)
+      return @_TYPE_NAME_@
+      renames @_UNIT_NAME_@.To_@_TYPE_NAME_@;
+
    function To_SOAP_Object
      (R         : @_TYPE_NAME_@;
       Name      : String := "item";

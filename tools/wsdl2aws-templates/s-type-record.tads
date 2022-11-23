@@ -101,6 +101,11 @@ C@_FIELD_NUMBER_@
      (P_List : SOAP.Parameters.List)
       return @_TYPE_NAME_@;
 
+   function To_@_TYPE_NAME_@_W
+     (R : SOAP.Parameters.List)
+      return @_TYPE_NAME_@
+      is (To_@_TYPE_NAME_@ (SOAP.Parameters.Argument (R, 1)));
+
    function To_SOAP_Object
      (R         : @_TYPE_NAME_@;
       Name      : String := "item";

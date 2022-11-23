@@ -24,6 +24,11 @@
       return @_TYPE_NAME_@
       renames @_UNIT_NAME_@.To_@_TYPE_NAME_@;
 
+   function To_@_TYPE_NAME_@_W
+     (R : SOAP.Parameters.List)
+      return @_TYPE_NAME_@
+      renames @_UNIT_NAME_@.To_@_TYPE_NAME_@_W;
+
    function To_SOAP_Object
      (R         : @_TYPE_NAME_@;
       Name      : String := "item";
