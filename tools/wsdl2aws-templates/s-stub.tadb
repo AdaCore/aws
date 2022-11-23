@@ -39,8 +39,8 @@ package body @_UNIT_NAME_@.Client is
 @@END_IF@@
 
    pragma Style_Checks (Off);
-
 @@TABLE@@
+
    --
    -- @_PROC_@
    --

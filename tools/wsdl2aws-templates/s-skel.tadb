@@ -59,8 +59,8 @@ package body @_UNIT_NAME_@.Server is
 @@END_IF@@
 
    pragma Style_Checks (Off);
-
 @@TABLE@@
+
    --
    -- @_PROC_@_CB
    --
@@ -106,7 +106,6 @@ package body @_UNIT_NAME_@.Server is
       end if;
 
 @@END_IF@@
-
 @@IF@@ @_DEBUG_@
       Put_Line ("[SERVER/@_PROC_@_CB] Payload : "
                 & SOAP.Message.XML.Image (Payload, Schema));
@@ -140,11 +139,8 @@ package body @_UNIT_NAME_@.Server is
            @_DECL_P_GET_@;
 @@END_TABLE@@
 @@END_IF@@
-
 @@-------------------------------
-
 @@IF@@ @_IS_EMPTY:OUT_CB_FIELD_NAME_@
-
 @@IF@@ @_HAS_OUTPUT_@
          Result : @_PROC_RETURN_TYPE_@ :=
 @@IF@@ @_HAS_INPUT_@
@@ -166,10 +162,10 @@ package body @_UNIT_NAME_@.Server is
          @_PROC_@;
 @@END_IF@@
 @@END_IF@@
-
+@@--
 @@ELSE@@
 @@-------------------------------
-
+@@--
 @@IF@@ @_HAS_OUTPUT_@
          Result : @_PROC_@_Result;
 @@END_IF@@
@@ -202,11 +198,10 @@ package body @_UNIT_NAME_@.Server is
          @_PROC_@;
 @@END_IF@@
 @@END_IF@@
-
+@@--
 @@-------------------------------
 @@END_IF@@
 @@-------------------------------
-
       exception
          when E : others =>
       @@INLINE(         )(\n         )()@@
