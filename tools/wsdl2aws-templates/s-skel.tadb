@@ -28,6 +28,14 @@ R_Params :=
 @@END_IF@@
 @@END_MACRO@@
 @@-- ---------------------------------------------------------------------
+@@MACRO(M_EXCEPTION)@@
+   --  return a SOAP error
+   return SOAP.Message.Response.Build
+     (SOAP.Message.Response.Error.Build
+        (SOAP.Message.Response.Error.Client,
+         "@_$1_@ in @_$2_@ (" & Exception_Message (E) & ")"));
+@@END_MACRO@@
+@@-- ---------------------------------------------------------------------
 @@--
 @@TABLE@@
 with @_WITHED_UNITS_@;
@@ -201,12 +209,9 @@ package body @_UNIT_NAME_@.Server is
 
       exception
          when E : others =>
-            --  Here we have a problem with user's callback
-            --  return a SOAP error.
-            return SOAP.Message.Response.Build
-              (SOAP.Message.Response.Error.Build
-                 (SOAP.Message.Response.Error.Client,
-                  "Error in @_PROC_@ (" & Exception_Message (E) & ")"));
+      @@INLINE(         )(\n         )()@@
+      @_M_EXCEPTION(Error,@_PROC_@)_@
+      @@END_INLINE@@
       end;
 
       SOAP.Message.Set_Parameters (Response, R_Params);
@@ -217,12 +222,9 @@ package body @_UNIT_NAME_@.Server is
       return SOAP.Message.Response.Build (Response, Schema);
    exception
       when E : others =>
-         --  Here we have a problem with some parameters,
-         --  return a SOAP Error?
-         return SOAP.Message.Response.Build
-           (SOAP.Message.Response.Error.Build
-              (SOAP.Message.Response.Error.Client,
-               "Parameter error in @_PROC_@ (" & Exception_Message (E) & ")"));
+      @@INLINE(      )(\n      )()@@
+      @_M_EXCEPTION(Parameter error,@_PROC_@)_@
+      @@END_INLINE@@
    end @_PROC_@_CB;
 @@END_TABLE@@
 
