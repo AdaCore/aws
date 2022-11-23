@@ -84,14 +84,6 @@ package @_UNIT_NAME_@ is
       @_TYPE_NAME_@,
       @_GET_ROUTINE_@);
 
-   function To_@_TYPE_NAME_@ (O : SOAP.Types.Object'Class)
-     return @_TYPE_NAME_@
-     is (To_@_TYPE_NAME_@ (SOAP.Types.V (SOAP.Types.Composite (O))));
-
-   function To_@_TYPE_NAME_@ (L : SOAP.Parameters.List)
-     return @_TYPE_NAME_@
-     is (To_@_TYPE_NAME_@ (SOAP.Parameters.Argument (L, 1)));
-
    function To_Object_Set is new SOAP.Utils.To_Object_Set
      (@_ELEMENT_TYPE_@,
       @_TYPE_NAME_@,
@@ -213,6 +205,14 @@ package @_UNIT_NAME_@ is
       @_SET_ROUTINE_@);
 @@END_IF@@
 @@END_IF@@
+
+   function To_@_TYPE_NAME_@ (O : SOAP.Types.Object'Class)
+     return @_TYPE_NAME_@
+     is (To_@_TYPE_NAME_@ (SOAP.Types.V (SOAP.Types.Composite (O))));
+
+   function To_@_TYPE_NAME_@ (L : SOAP.Parameters.List)
+     return @_TYPE_NAME_@
+     is (To_@_TYPE_NAME_@ (SOAP.Parameters.Argument (L, 1)));
 
    function To_SOAP_Object
      (A         : @_TYPE_NAME_@;

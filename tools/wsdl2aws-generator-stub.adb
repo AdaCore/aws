@@ -169,27 +169,16 @@ package body Stub is
 
                   when WSDL.Types.K_Enumeration =>
                      From_SOAP := From_SOAP
-                       & (Result_Type (O, Proc, Output)
-                          & "("
-                          & T_Name & "_Type'Value"
-                          & " (SOAP.Utils.Get"
-                          & " (SOAP.Parameters.Argument (R_Param, """
-                          & To_String (Output.Name)
-                          & """))))");
+                       & ("To_" & Format_Name (O, T_Name) & "_Type (R_Param)");
 
                   when WSDL.Types.K_Array =>
                      From_SOAP := From_SOAP
-                       & ("To_" & Format_Name (O, T_Name) & "_Type"
-                          & "(V (SOAP_Array'(SOAP.Parameters.Get (R_Param, """
-                          & To_String (Output.Name)
-                          & """))))");
+                       & ("To_" & Format_Name (O, T_Name) & "_Type (R_Param)");
 
                   when WSDL.Types.K_Record =>
                      From_SOAP := From_SOAP
-                       & ("To_" & Format_Name (O, T_Name) & "_Type"
-                          & " (SOAP_Record'(SOAP.Parameters.Get (R_Param, """
-                          & To_String (Output.Name)
-                          & """)))");
+                       & ("To_" & Format_Name (O, T_Name)
+                          & "_Type_W (R_Param)");
                end case;
             end;
 

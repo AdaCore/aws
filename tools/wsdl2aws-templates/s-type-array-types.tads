@@ -35,11 +35,6 @@
      return @_TYPE_NAME_@
      renames @_UNIT_NAME_@."+";
    @@END_IF@@
-
-   function To_@_TYPE_NAME_@
-     (From : SOAP.Types.Object_Set)
-      return @_TYPE_NAME_@
-      renames @_UNIT_NAME_@.To_@_TYPE_NAME_@;
 @@--
 @@ELSE@@ @@-- TYPE SPEC -------------------------------------------------
 @@--
@@ -70,12 +65,17 @@
    function "+" (V: @_TYPE_NAME_@)
      return @_TYPE_NAME_@ is (V);
 @@END_IF@@
+@@END_IF@@
 
    function To_@_TYPE_NAME_@
      (From : SOAP.Types.Object_Set)
       return @_TYPE_NAME_@
       renames @_UNIT_NAME_@.To_@_TYPE_NAME_@;
-@@END_IF@@
+
+   function To_@_TYPE_NAME_@
+     (L : SOAP.Parameters.List)
+      return @_TYPE_NAME_@
+      renames @_UNIT_NAME_@.To_@_TYPE_NAME_@;
 
    function To_Object_Set
      (From : @_TYPE_NAME_@;
