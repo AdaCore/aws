@@ -70,8 +70,8 @@ package body Stub is
       Output        : WSDL.Parameters.P_Set;
       Fault         : WSDL.Parameters.P_Set)
    is
-      pragma Unreferenced (Documentation, SOAPAction, Wrapper_Name, Fault);
-      use all type SOAP.WSDL.Parameter_Type;
+      pragma Unreferenced
+        (Documentation, SOAPAction, Wrapper_Name, Fault, Proc);
 
       use type WSDL.Parameters.P_Set;
       use type WSDL.Types.Kind;
@@ -81,7 +81,6 @@ package body Stub is
       Decl_Prefix_Name  : Templates.Tag;
       Decl_Field_Name   : Templates.Tag;
       Decl_Field_Kind   : Templates.Tag;
-      From_SOAP         : Templates.Tag;
 
       use type SOAP.Name_Space.Object;
 
@@ -135,58 +134,6 @@ package body Stub is
       end if;
 
       if Output /= null then
-         if WSDL.Parameters.Length (Output) = 1 then
-            --  A single parameter is returned
-
-            declare
-               T_Name : constant String := WSDL.Types.Name (Output.Typ);
-            begin
-               case Output.Mode is
-
-                  when WSDL.Types.K_Simple =>
-                     if SOAP.WSDL.To_Type (T_Name) = P_B64 then
-                        From_SOAP := From_SOAP
-                          & ("V (SOAP_Base64'(SOAP.Parameters.Get "
-                             & "(R_Param, """
-                             & To_String (Output.Name) & """)))");
-
-                     elsif SOAP.WSDL.To_Type (T_Name) = P_Character then
-                        From_SOAP := From_SOAP
-                          & ("SOAP.Utils.Get "
-                             & "(SOAP.Parameters.Argument (R_Param, """
-                             & To_String (Output.Name) & """))");
-
-                     else
-                        From_SOAP := From_SOAP
-                          & ("SOAP.Parameters.Get"
-                             & " (R_Param, """
-                             & To_String (Output.Name) & """)");
-                     end if;
-
-                  when WSDL.Types.K_Derived =>
-                     From_SOAP := From_SOAP
-                       & ("To_" & Format_Name (O, Proc) & "_Result (R_Param)");
-
-                  when WSDL.Types.K_Enumeration =>
-                     From_SOAP := From_SOAP
-                       & ("To_" & Format_Name (O, T_Name) & "_Type (R_Param)");
-
-                  when WSDL.Types.K_Array =>
-                     From_SOAP := From_SOAP
-                       & ("To_" & Format_Name (O, T_Name) & "_Type (R_Param)");
-
-                  when WSDL.Types.K_Record =>
-                     From_SOAP := From_SOAP
-                       & ("To_" & Format_Name (O, T_Name)
-                          & "_Type_W (R_Param)");
-               end case;
-            end;
-
-         else
-            From_SOAP := From_SOAP
-              & ("To_" & Format_Name (O, Proc) & "_Result (R_Param)");
-         end if;
-
          if Is_Simple_Wrapped_Parameter (O, Output)
            and then WSDL.Parameters.Length (Output.P) = 1
            and then Output.P.Mode /= WSDL.Types.K_Array
@@ -239,11 +186,6 @@ package body Stub is
                    "OUT_PARAMETER_IS_STRING",
                    False);
       end if;
-
-      Add_TagV
-        (O.Stub_B_Trans,
-         "RESULT_FROM_PARAMS",
-         From_SOAP);
    end New_Procedure;
 
    -------------------
