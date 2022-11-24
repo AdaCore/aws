@@ -142,7 +142,30 @@ Connection : AWS.Client.HTTP_Connection
          else
             declare
                Result : constant @_PROC_CB_RETURN_TYPE_@ :=
-                          @_RESULT_FROM_PARAMS_@;
+@@IF@@ @_SINGLE_OUT_PARAMETER_@
+@@IF@@ @_OP_KIND_@ = K_SIMPLE
+@@IF@@ @_MATCH(.*Character):OP_TYPE_@
+                          SOAP.Utils.Get
+                            (SOAP.Parameters.Argument (R_Param, "@_OP_NAME_@"));
+@@ELSIF@@ @_OP_TYPE_@ = "xsd:base64Binary"
+                          V (SOAP_Base64'
+                              (SOAP.Parameters.Get (R_Param, "@_OP_NAME_@")));
+@@ELSE@@
+@@-- All standard xsd types : xsd:int xsd:float...
+                          SOAP.Parameters.Get (R_Param, "@_OP_NAME_@");
+@@END_IF@@ @@-- Character
+@@ELSIF@@ @_OP_KIND_@ = K_DERIVED
+                          To_@_PROC_@_Result (R_Param);
+@@ELSIF@@ @_OP_KIND_@ = K_ARRAY
+                          To_@_OP_TYPE_NAME_@_Type (R_Param);
+@@ELSIF@@ @_OP_KIND_@ = K_ENUMERATION
+                          To_@_OP_TYPE_NAME_@_Type (R_Param);
+@@ELSIF@@ @_OP_KIND_@ = K_RECORD
+                          To_@_OP_TYPE_NAME_@_Type_W (R_Param);
+@@END_IF@@
+@@ELSE@@
+                          To_@_PROC_@_Result (R_Param);
+@@END_IF@@
             begin
                return @_RET_PREFIX_@@_RETURN_RESULT_@;
             end;

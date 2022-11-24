@@ -688,6 +688,7 @@ package body WSDL2AWS.Generator is
          P_Name      : in out Templates.Tag;
          P_Kind      : in out Templates.Tag;
          P_Type      : in out Templates.Tag;
+         P_Type_Name : in out Templates.Tag;
          P_SOAP_Type : in out Templates.Tag;
          P_Q_Name    : in out Templates.Tag;
          P_NS_Name   : in out Templates.Tag;
@@ -782,6 +783,7 @@ package body WSDL2AWS.Generator is
          P_Name         : Templates.Tag;
          P_Kind         : Templates.Tag;
          P_Type         : Templates.Tag;
+         P_Type_Name    : Templates.Tag;
          P_SOAP_Type    : Templates.Tag;
          P_Q_Name       : Templates.Tag;
          P_NS_Name      : Templates.Tag;
@@ -839,7 +841,7 @@ package body WSDL2AWS.Generator is
 
          while N /= null loop
             Generate_Params
-              (N, P_Decl, P_Name, P_Kind, P_Type,
+              (N, P_Decl, P_Name, P_Kind, P_Type, P_Type_Name,
                P_SOAP_Type, P_Q_Name, P_NS_Name, P_NS_Value);
             N := N.Next;
          end loop;
@@ -848,6 +850,7 @@ package body WSDL2AWS.Generator is
          Add_TagV (O.Stub_B_Trans, "IP_NAME", P_Name);
          Add_TagV (O.Stub_B_Trans, "IP_KIND", P_Kind);
          Add_TagV (O.Stub_B_Trans, "IP_TYPE", P_Type);
+         Add_TagV (O.Stub_B_Trans, "IP_TYPE_NAME", P_Type_Name);
          Add_TagV (O.Stub_B_Trans, "IP_SOAP_TYPE", P_SOAP_Type);
          Add_TagV (O.Stub_B_Trans, "IP_Q_NAME", P_Q_Name);
          Add_TagV (O.Stub_B_Trans, "IP_NS_NAME", P_NS_Name);
@@ -873,6 +876,7 @@ package body WSDL2AWS.Generator is
          P_Name         : Templates.Tag;
          P_Kind         : Templates.Tag;
          P_Type         : Templates.Tag;
+         P_Type_Name    : Templates.Tag;
          P_SOAP_Type    : Templates.Tag;
          P_Q_Name       : Templates.Tag;
          P_NS_Name      : Templates.Tag;
@@ -933,6 +937,7 @@ package body WSDL2AWS.Generator is
 
          if Output = null then
             Add_TagV (O.Skel_B_Trans, "SINGLE_OUT_PARAMETER", False);
+            Add_TagV (O.Stub_B_Trans, "SINGLE_OUT_PARAMETER", False);
             Add_TagV (O.Skel_B_Trans, "OUT_PARAMETER_IS_STRING", False);
 
          else
@@ -946,8 +951,10 @@ package body WSDL2AWS.Generator is
 
             if Output.Next = null then
                Add_TagV (O.Skel_B_Trans, "SINGLE_OUT_PARAMETER", True);
+               Add_TagV (O.Stub_B_Trans, "SINGLE_OUT_PARAMETER", True);
             else
                Add_TagV (O.Skel_B_Trans, "SINGLE_OUT_PARAMETER", False);
+               Add_TagV (O.Stub_B_Trans, "SINGLE_OUT_PARAMETER", False);
             end if;
          end if;
 
@@ -957,7 +964,7 @@ package body WSDL2AWS.Generator is
            and then Output.Next = null
          then
             Generate_Params
-              (Output, P_Decl, P_Name, P_Kind, P_Type,
+              (Output, P_Decl, P_Name, P_Kind, P_Type, P_Type_Name,
                P_SOAP_Type, P_Q_Name, P_NS_Name, P_NS_Value);
          end if;
 
@@ -965,10 +972,21 @@ package body WSDL2AWS.Generator is
          Add_TagV (O.Skel_B_Trans, "OP_NAME", P_Name);
          Add_TagV (O.Skel_B_Trans, "OP_KIND", P_Kind);
          Add_TagV (O.Skel_B_Trans, "OP_TYPE", P_Type);
+         Add_TagV (O.Skel_B_Trans, "OP_TYPE_NAME", P_Type_Name);
          Add_TagV (O.Skel_B_Trans, "OP_SOAP_TYPE", P_SOAP_Type);
          Add_TagV (O.Skel_B_Trans, "OP_Q_NAME", P_Q_Name);
          Add_TagV (O.Skel_B_Trans, "OP_NS_NAME", P_NS_Name);
          Add_TagV (O.Skel_B_Trans, "OP_NS_VALUE", P_NS_Value);
+
+         Add_TagV (O.Stub_B_Trans, "OP_DECL_NAME", P_Decl);
+         Add_TagV (O.Stub_B_Trans, "OP_NAME", P_Name);
+         Add_TagV (O.Stub_B_Trans, "OP_KIND", P_Kind);
+         Add_TagV (O.Stub_B_Trans, "OP_TYPE", P_Type);
+         Add_TagV (O.Stub_B_Trans, "OP_TYPE_NAME", P_Type_Name);
+         Add_TagV (O.Stub_B_Trans, "OP_SOAP_TYPE", P_SOAP_Type);
+         Add_TagV (O.Stub_B_Trans, "OP_Q_NAME", P_Q_Name);
+         Add_TagV (O.Stub_B_Trans, "OP_NS_NAME", P_NS_Name);
+         Add_TagV (O.Stub_B_Trans, "OP_NS_VALUE", P_NS_Value);
       end Generate_Output_Params;
 
       ---------------------
@@ -981,6 +999,7 @@ package body WSDL2AWS.Generator is
          P_Name      : in out Templates.Tag;
          P_Kind      : in out Templates.Tag;
          P_Type      : in out Templates.Tag;
+         P_Type_Name : in out Templates.Tag;
          P_SOAP_Type : in out Templates.Tag;
          P_Q_Name    : in out Templates.Tag;
          P_NS_Name   : in out Templates.Tag;
@@ -988,12 +1007,15 @@ package body WSDL2AWS.Generator is
       is
          use type WSDL.Types.Kind;
       begin
-         P_Decl   := P_Decl & Format_Name (O, To_String (N.Name));
-         P_Name   := P_Name & To_String (N.Name);
-         P_Kind   := P_Kind & WSDL.Types.Kind'Image (N.Mode);
-         P_Type   := P_Type & WSDL.Types.Name (N.Typ, True);
-         P_Q_Name := P_Q_Name
-                       & SOAP.Utils.To_Name (WSDL.Types.Name (N.Typ, True));
+         P_Decl      := P_Decl & Format_Name (O, To_String (N.Name));
+         P_Name      := P_Name & To_String (N.Name);
+         P_Kind      := P_Kind & WSDL.Types.Kind'Image (N.Mode);
+         P_Type      := P_Type & WSDL.Types.Name (N.Typ, True);
+         P_Type_Name := P_Type_Name
+                          & Format_Name
+                              (O, WSDL.Types.Name (N.Typ, False));
+         P_Q_Name    := P_Q_Name
+                          & SOAP.Utils.To_Name (WSDL.Types.Name (N.Typ, True));
 
          if N.Mode = WSDL.Types.K_Simple then
             P_SOAP_Type := P_SOAP_Type
