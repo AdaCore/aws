@@ -84,8 +84,8 @@ Connection : AWS.Client.HTTP_Connection
 @@IF@@ @_IP_KIND_@ = K_SIMPLE
 @@INLINE(         )(,)(\)\))@@
          @_IP_SOAP_TYPE_@'(SOAP.Utils.To_SOAP_Object (@_IP_DECL_NAME_@, "@_IP_NAME_@", "@_IP_TYPE_@"
-@@IF@@ not @_IS_EMPTY:IP_NS_NAME_@
-         SOAP.Name_Space.Create ("@_IP_NS_NAME_@", "@_IP_NS_VALUE_@")
+@@IF@@ not @_IS_EMPTY:IP_ELT_NS_NAME_@ and not (@_IP_NS_VALUE_@ = "http://www.w3.org/2001/XMLSchema")
+         SOAP.Name_Space.Create ("@_IP_ELT_NS_NAME_@", "@_IP_NS_VALUE_@")
 @@END_IF@@
 @@END_INLINE@@
 @@ELSIF@@ @_IP_KIND_@ = K_DERIVED

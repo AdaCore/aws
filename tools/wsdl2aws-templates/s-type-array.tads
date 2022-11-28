@@ -221,6 +221,6 @@ package @_UNIT_NAME_@ is
       NS        : SOAP.Name_Space.Object := Name_Space)
       return SOAP.Types.SOAP_Array
       is (SOAP.Types.SOAP_Array'
-           (SOAP.Types.A (To_Object_Set (A, NS), Name, Type_Name)));
+           (SOAP.Types.A (To_Object_Set (A, NS), Name, Type_Name, NS)));
 
 end @_UNIT_NAME_@;

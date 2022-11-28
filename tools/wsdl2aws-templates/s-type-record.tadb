@@ -6,8 +6,62 @@
 --  This file was generated on @_NOW_@
 --
 --  $ wsdl2aws @_OPTIONS_@
+@@-----------------------------------------------------------------------
+@@MACRO(REC_FIELD)@@
+@@IF@@ (@_RF_KIND_@ = K_ARRAY)
+@@IF@@ @_RF_MAX_@ > 1
+@_$1_@@_$2_@SOAP_Set'(SOAP.Types.Set (To_Object_Set
+@@IF@@ @_SAFE_POINTER_@
+            (R.@_RF_DECL_NAME_@.item.all,
+@@ELSE@@
+            (R.@_RF_DECL_NAME_@,
+@@END_IF@@
+             SOAP.Name_Space.Create ("@_RF_NS_NAME_@", "@_RF_NS_VALUE_@")),
+@@IF@@ @_IS_EMPTY:RF_NS_NAME_@ or (@_RF_NS_VALUE_@ = "http://www.w3.org/2001/XMLSchema")
+             "@_RF_NAME_@", "@_RF_TYPE_@")
+@@ELSE@@
+             "@_RF_NAME_@", "@_RF_TYPE_@",
+             SOAP.Name_Space.Create ("@_RF_NS_NAME_@", "@_RF_NS_VALUE_@"))
+@@END_IF@@
+        )
+@@ELSE@@
+@_$1_@@_$2_@To_SOAP_Object
+@@IF@@ @_SAFE_POINTER_@
+            (R.@_RF_DECL_NAME_@.item.all,
+@@ELSE@@
+            (R.@_RF_DECL_NAME_@,
+@@END_IF@@
+@@IF@@ @_IS_EMPTY:RF_NS_NAME_@ or (@_RF_NS_VALUE_@ = "http://www.w3.org/2001/XMLSchema")
+             "@_RF_NAME_@", "")
+@@ELSE@@
+             "@_RF_NAME_@", "",
+             SOAP.Name_Space.Create ("@_RF_NS_NAME_@", "@_RF_NS_VALUE_@"))
+@@END_IF@@
+@@END_IF@@
+@@--
+@@ELSE@@
+@@--
+@@IF@@ @_RF_KIND_@ = K_SIMPLE
+@_$1_@@_$2_@SOAP.Utils.To_SOAP_Object
+@@ELSIF@@ @_RF_KIND_@ = K_DERIVED
+@_$1_@@_$2_@@_SERVICE_NAME_@.Types.From_@_RF_Q_NAME_@_To_SOAP_Object
+@@ELSE@@
+@_$1_@@_$2_@To_SOAP_Object
+@@END_IF@@
+            (R.@_RF_DECL_NAME_@,
+@@IF@@ @_IS_EMPTY:RF_NS_NAME_@ or (@_RF_NS_VALUE_@ = "http://www.w3.org/2001/XMLSchema")
+             "@_RF_NAME_@", "@_RF_TYPE_@", NS)
+@@ELSE@@
+             "@_RF_NAME_@", "@_RF_TYPE_@",
+             SOAP.Name_Space.Create ("@_RF_NS_NAME_@", "@_RF_NS_VALUE_@"))
+@@END_IF@@
+@@END_IF@@
+@@END_MACRO@@
+@@-----------------------------------------------------------------------
 
 with Ada.Tags;
+
+with @_SERVICE_NAME_@.Types;
 
 package body @_UNIT_NAME_@ is
 
@@ -28,14 +82,14 @@ package body @_UNIT_NAME_@ is
       function C_Name return String is
 @@INLINE(        \(if )(\n         elsif )(\n         else ""\);)@@
 @@TABLE@@
-         SOAP.Types.Exists (R, "@_FIELD_NAME_@") then "@_FIELD_NAME_@"
+         SOAP.Types.Exists (R, "@_RF_DECL_NAME_@") then "@_RF_DECL_NAME_@"
 @@END_TABLE@@
 @@END_INLINE@@
 
       function C_Disc return Choice is
 @@INLINE(        \(if )(\n         elsif )(\n         else C1\);)@@
 @@TABLE@@
-         SOAP.Types.Exists (R, "@_FIELD_NAME_@") then C@_FIELD_NUMBER_@
+         SOAP.Types.Exists (R, "@_RF_DECL_NAME_@") then C@_FIELD_NUMBER_@
 @@END_TABLE@@
 @@END_INLINE@@
 
@@ -43,19 +97,19 @@ package body @_UNIT_NAME_@ is
             SOAP.Types.V (R, C_Name);
 @@ELSE@@ @@-- IS_CHOICE
 @@TABLE@@
-@@IF@@ @_FIELD_KIND_@ = K_ARRAY and @_FIELD_ARRAY_LENGTH_@ > 1
-      @_FIELD_NAME_@ : constant SOAP.Types.Object_Set := SOAP.Types.V (R, "@_FIELD_RAW_NAME_@");
+@@IF@@ @_RF_KIND_@ = K_ARRAY and @_FIELD_ARRAY_LENGTH_@ > 1
+      @_RF_DECL_NAME_@ : constant SOAP.Types.Object_Set := SOAP.Types.V (R, "@_RF_NAME_@");
 @@ELSE@@
-      @_FIELD_NAME_@ : constant SOAP.Types.Object'Class := SOAP.Types.V (R, "@_FIELD_RAW_NAME_@");
+      @_RF_DECL_NAME_@ : constant SOAP.Types.Object'Class := SOAP.Types.V (R, "@_RF_NAME_@");
 @@END_IF@@
 @@END_TABLE@@
 @@END_IF@@
    begin
 @@TABLE@@
-@@IF@@ @_FIELD_KIND_@ = K_ARRAY and @_FIELD_ARRAY_LENGTH_@ > 1
-      if @_FIELD_NAME_@'Length not in @_FIELD_ARRAY_FIRST_@ .. @_FIELD_ARRAY_LAST_@ then
+@@IF@@ @_RF_KIND_@ = K_ARRAY and @_FIELD_ARRAY_LENGTH_@ > 1
+      if @_RF_DECL_NAME_@'Length not in @_FIELD_ARRAY_FIRST_@ .. @_FIELD_ARRAY_LAST_@ then
          raise SOAP.SOAP_Error
-           with "Length of @_FIELD_NAME_@ violate schema definition";
+           with "Length of @_RF_DECL_NAME_@ violate schema definition";
       end if;
 @@END_IF@@
 @@END_TABLE@@
@@ -74,7 +128,7 @@ package body @_UNIT_NAME_@ is
       return
 @@INLINE(        \()(,\n         )(\);)@@
 @@TABLE@@
-@_FIELD_NAME_@ => @_FIELD_FROM_SOAP_@
+@_RF_DECL_NAME_@ => @_FIELD_FROM_SOAP_@
 @@END_TABLE@@
 @@END_INLINE@@
 @@END_IF@@ @@-- IS_CHOICE
@@ -88,7 +142,7 @@ package body @_UNIT_NAME_@ is
          then
             raise SOAP.SOAP_Error
               with SOAP.Types.Name (R)
-                 & ".@_FIELD_NAME_@ expected @_FIELD_SET_TYPE_@, "
+                 & ".@_RF_DECL_NAME_@ expected @_FIELD_SET_TYPE_@, "
                  & "found " & External_Tag (E'Tag);
          end if;
 @@END_TABLE@@
@@ -96,12 +150,12 @@ package body @_UNIT_NAME_@ is
 @@ELSE@@ @@-- IS_CHOICE
 @@--
 @@TABLE@@
-@@IF@@ (@_FIELD_KIND_@ /= K_ARRAY) or (@_FIELD_ARRAY_LENGTH_@ = 1)
-         if @_FIELD_NAME_@'Tag /= @_FIELD_SET_TYPE_@'Tag then
+@@IF@@ (@_RF_KIND_@ /= K_ARRAY) or (@_FIELD_ARRAY_LENGTH_@ = 1)
+         if @_RF_DECL_NAME_@'Tag /= @_FIELD_SET_TYPE_@'Tag then
             raise SOAP.SOAP_Error
               with SOAP.Types.Name (R)
-                 & ".@_FIELD_NAME_@ expected @_FIELD_SET_TYPE_@, "
-                 & "found " & External_Tag (@_FIELD_NAME_@'Tag);
+                 & ".@_RF_DECL_NAME_@ expected @_FIELD_SET_TYPE_@, "
+                 & "found " & External_Tag (@_RF_DECL_NAME_@'Tag);
          end if;
 @@END_IF@@
 @@END_TABLE@@
@@ -119,26 +173,26 @@ package body @_UNIT_NAME_@ is
       function C_Name return String is
 @@INLINE(        \(if )(\n         elsif )(\n         else ""\);)@@
 @@TABLE@@
-         SOAP.Parameters.Exist (P_List, "@_FIELD_NAME_@") then "@_FIELD_NAME_@"
+         SOAP.Parameters.Exist (P_List, "@_RF_DECL_NAME_@") then "@_RF_DECL_NAME_@"
 @@END_TABLE@@
 @@END_INLINE@@
 
       function C_Disc return Choice is
 @@INLINE(        \(if )(\n         elsif )(\n         else C1\);)@@
 @@TABLE@@
-         SOAP.Parameters.Exist (P_List, "@_FIELD_NAME_@") then C@_FIELD_NUMBER_@
+         SOAP.Parameters.Exist (P_List, "@_RF_DECL_NAME_@") then C@_FIELD_NUMBER_@
 @@END_TABLE@@
 @@END_INLINE@@
       E : constant SOAP.Types.Object'Class :=
             SOAP.Parameters.Argument (P_List, 1);
 @@ELSE@@ @@-- IS_CHOICE
 @@TABLE@@
-@@IF@@ @_FIELD_KIND_@ = K_ARRAY and @_FIELD_ARRAY_LENGTH_@ > 1
-      @_FIELD_NAME_@ : constant SOAP.Types.Object_Set :=
-                         (1 => +SOAP.Parameters.Argument (P_List, "@_FIELD_RAW_NAME_@"));
+@@IF@@ @_RF_KIND_@ = K_ARRAY and @_FIELD_ARRAY_LENGTH_@ > 1
+      @_RF_DECL_NAME_@ : constant SOAP.Types.Object_Set :=
+                         (1 => +SOAP.Parameters.Argument (P_List, "@_RF_NAME_@"));
 @@ELSE@@
-      @_FIELD_NAME_@ : constant SOAP.Types.Object'Class :=
-                         SOAP.Parameters.Argument (P_List, "@_FIELD_RAW_NAME_@");
+      @_RF_DECL_NAME_@ : constant SOAP.Types.Object'Class :=
+                         SOAP.Parameters.Argument (P_List, "@_RF_NAME_@");
 @@END_IF@@
 @@END_TABLE@@
 @@END_IF@@
@@ -157,7 +211,7 @@ package body @_UNIT_NAME_@ is
       return
 @@INLINE(        \()(,\n         )(\);)@@
 @@TABLE@@
-@_FIELD_NAME_@ => @_FIELD_FROM_SOAP_@
+@_RF_DECL_NAME_@ => @_FIELD_FROM_SOAP_@
 @@END_TABLE@@
 @@END_INLINE@@
 @@END_IF@@
@@ -185,7 +239,8 @@ package body @_UNIT_NAME_@ is
 @@TABLE@@
          when C@_FIELD_NUMBER_@ =>
             Result := SOAP.Types.R
-              ((1 => +@_FIELD_TO_SOAP_@),  Name, Q_Type_Name, NS => NS);
+              ((@_REC_FIELD(1 => 1, 2 => " => +")_@),
+               Name, Q_Type_Name, NS => NS);
 @@END_TABLE@@
       end case;
 @@END_IF@@
@@ -196,14 +251,21 @@ package body @_UNIT_NAME_@ is
 @@IF@@ @_FIELD_COUNT_@ = 0
         (SOAP.Types.Empty_Object_Set, Name, Q_Type_Name, NS => NS);
 @@ELSE@@
-@@INLINE(        \(\()(,\n          )(\),)@@
+        ((
 @@TABLE@@
-@_FIELD_NUMBER_@ => +@_FIELD_TO_SOAP_@
-@@END_TABLE@@
+           --  @_RF_NAME_@
+@@INLINE(           )(\n          )()@@
+@@IF@@ @_TABLE_LINE_@ = @_NUMBER_LINE_@
+        @_REC_FIELD(1 => @_FIELD_NUMBER_@, 2 => " => +")_@
+@@ELSE@@
+        @_REC_FIELD(1 => @_FIELD_NUMBER_@, 2 => " => +")_@,
+@@END_IF@@
 @@END_INLINE@@
-         Name, Q_Type_Name, NS => NS);
+@@END_TABLE@@
+         ), Name, Q_Type_Name, NS => NS);
 @@END_IF@@
 @@END_IF@@
+
       return Result;
    end To_SOAP_Object;
 
@@ -222,8 +284,9 @@ package body @_UNIT_NAME_@ is
       Result : SOAP.Parameters.List;
    begin
 @@TABLE@@
+      --  @_RF_NAME_@
       Result := Result
-        & @_FIELD_TO_SOAP_@;
+        @_REC_FIELD(1 => "& ")_@;
 @@END_TABLE@@
       return Result;
    end To_Parameter_List;

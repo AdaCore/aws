@@ -15,8 +15,8 @@ R_Params :=
 @@IF@@ @_OP_KIND_@ = K_SIMPLE
 @@INLINE(         )(,)(\)\))@@
          @_OP_SOAP_TYPE_@'(SOAP.Utils.To_SOAP_Object (Result, "@_OP_NAME_@", "@_OP_TYPE_@"
-@@IF@@ not @_IS_EMPTY:OP_NS_NAME_@
-         SOAP.Name_Space.Create ("@_OP_NS_NAME_@", "@_OP_NS_VALUE_@")
+@@IF@@ not @_IS_EMPTY:OP_ELT_NS_NAME_@ and not (@_OP_NS_VALUE_@ = "http://www.w3.org/2001/XMLSchema")
+         SOAP.Name_Space.Create ("@_OP_ELT_NS_NAME_@", "@_OP_NS_VALUE_@")
 @@END_IF@@
 @@END_INLINE@@
 @@ELSIF@@ @_OP_KIND_@ = K_DERIVED
