@@ -68,7 +68,7 @@ C@_FIELD_NUMBER_@
       case C is
 @@TABLE@@
          when C@_FIELD_NUMBER_@ =>
-            @_FIELD_NAME_@ : @_FIELD_TYPE_@;
+            @_RF_DECL_NAME_@ : @_RF_ADA_TYPE_@;
 @@INLINE(            --  )(\n            --  )()@@
       @_WRAP(70):FIELD_COMMENT_@
 @@END_INLINE@@
@@ -78,11 +78,13 @@ C@_FIELD_NUMBER_@
 @@ELSE@@ @@-- IS_CHOICE
    type @_TYPE_NAME_@ is record
 @@TABLE'ALIGN_ON(":")@@
-      @_FIELD_NAME_@ : @_FIELD_TYPE_@;
+      @_RF_DECL_NAME_@ : @_RF_ADA_TYPE_@;
+@@IF@@ not @_IS_EMPTY:FIELD_COMMENT_@
 @@INLINE(      --  )(\n      --  )()@@
       @_WRAP(70):FIELD_COMMENT_@
 @@END_INLINE@@
-@@IF@@ (@_FIELD_KIND_@ = "K_ARRAY") and @_SAFE_POINTER_@
+@@END_IF@@
+@@IF@@ (@_RF_KIND_@ = "K_ARRAY") and @_SAFE_POINTER_@
       --  Access items with : result.Item (n)
 @@END_IF@@
 @@END_TABLE@@
