@@ -98,6 +98,11 @@ package body WSDL2AWS.Generator is
       Translations : Templates.Translate_Set);
    --  Insert a type chunk into the global types definitions
 
+   function Type_Name
+     (O : Object;
+      N : WSDL.Parameters.P_Set) return String;
+   --  Returns the name of the type for parameter on node N
+
    package String_Store is
      new Ada.Containers.Indefinite_Ordered_Sets (String);
 
@@ -1311,9 +1316,6 @@ package body WSDL2AWS.Generator is
       --  this routine also handles choice records. The current implementation
       --  only handles single occurence of a choice.
 
-      function Type_Name (N : WSDL.Parameters.P_Set) return String;
-      --  Returns the name of the type for parameter on node N
-
       procedure Generate_Array
         (Name  : String;
          P     : WSDL.Parameters.P_Set;
@@ -2198,7 +2200,7 @@ package body WSDL2AWS.Generator is
                        & WSDL.Parameters.From_SOAP
                           (N.all,
                            Object    => Name,
-                           Type_Name => Format_Name (O, Type_Name (N)));
+                           Type_Name => Format_Name (O, Type_Name (O, N)));
                      Field_To_SOAP := Field_To_SOAP
                        & WSDL.Parameters.To_SOAP
                            (N.all,
@@ -2377,7 +2379,7 @@ package body WSDL2AWS.Generator is
                end;
 
             when WSDL.Types.K_Record =>
-               return "To_" & Type_Name (P);
+               return "To_" & Type_Name (O, P);
          end case;
       end Get_Routine;
 
@@ -2660,40 +2662,6 @@ package body WSDL2AWS.Generator is
                return "To_SOAP_Object";
          end case;
       end Set_Routine;
-
-      ---------------
-      -- Type_Name --
-      ---------------
-
-      function Type_Name (N : WSDL.Parameters.P_Set) return String is
-         T_Name : constant String := WSDL.Types.Name (N.Typ);
-         Q_Name : constant String :=
-                    SOAP.Utils.To_Name (WSDL.Types.Name (N.Typ, True));
-      begin
-         case N.Mode is
-            when WSDL.Types.K_Simple =>
-               --  This routine is called only for SOAP object in records
-               --  or arrays.
-               return SOAP.WSDL.To_Ada
-                 (SOAP.WSDL.To_Type (T_Name), Constrained => True);
-
-            when WSDL.Types.K_Derived =>
-               return Format_Name (O, Q_Name) & "_Type";
-
-            when WSDL.Types.K_Enumeration =>
-               return Format_Name (O, T_Name) & "_Type";
-
-            when WSDL.Types.K_Array =>
-               if O.Sp then
-                  return Format_Name (O, T_Name) & "_Type_Safe_Access";
-               else
-                  return Format_Name (O, T_Name) & "_Type";
-               end if;
-
-            when WSDL.Types.K_Record =>
-               return Format_Name (O, T_Name) & "_Type";
-         end case;
-      end Type_Name;
 
       L_Proc : constant String := Format_Name (O, Proc);
 
@@ -3081,6 +3049,43 @@ package body WSDL2AWS.Generator is
    begin
       O.Traces := True;
    end Traces;
+
+   ---------------
+   -- Type_Name --
+   ---------------
+
+   function Type_Name
+     (O : Object;
+      N : WSDL.Parameters.P_Set) return String
+   is
+      T_Name : constant String := WSDL.Types.Name (N.Typ);
+      Q_Name : constant String :=
+                 SOAP.Utils.To_Name (WSDL.Types.Name (N.Typ, True));
+   begin
+      case N.Mode is
+         when WSDL.Types.K_Simple =>
+            --  This routine is called only for SOAP object in records
+            --  or arrays.
+            return SOAP.WSDL.To_Ada
+              (SOAP.WSDL.To_Type (T_Name), Constrained => True);
+
+         when WSDL.Types.K_Derived =>
+            return Format_Name (O, Q_Name) & "_Type";
+
+         when WSDL.Types.K_Enumeration =>
+            return Format_Name (O, T_Name) & "_Type";
+
+         when WSDL.Types.K_Array =>
+            if O.Sp then
+               return Format_Name (O, T_Name) & "_Type_Safe_Access";
+            else
+               return Format_Name (O, T_Name) & "_Type";
+            end if;
+
+         when WSDL.Types.K_Record =>
+            return Format_Name (O, T_Name) & "_Type";
+      end case;
+   end Type_Name;
 
    ----------------
    -- Types_From --
