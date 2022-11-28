@@ -433,14 +433,14 @@ package SOAP.Types is
 
    function S
      (V         : String;
-      Name      : String      := "item";
+      Name      : String := "item";
       Type_Name : String := XML_String;
       NS        : Name_Space.Object := Name_Space.No_Name_Space)
       return XSD_String;
 
    function S
      (V         : Unbounded_String;
-      Name      : String  := "item";
+      Name      : String := "item";
       Type_Name : String := XML_String;
       NS        : Name_Space.Object := Name_Space.No_Name_Space)
       return XSD_String;
