@@ -2120,7 +2120,6 @@ package body WSDL2AWS.Generator is
          Field_Array_First  : Templates.Tag;
          Field_Array_Last   : Templates.Tag;
          Field_Array_Length : Templates.Tag;
-         Field_From_SOAP    : Templates.Tag;
          Field_Set_Type     : Templates.Tag;
 
          R_Decl         : Templates.Tag;
@@ -2174,51 +2173,30 @@ package body WSDL2AWS.Generator is
             end if;
 
             declare
-               Def     : constant WSDL.Types.Definition :=
-                           WSDL.Types.Find (N.Typ);
-               T_Name  : constant String := WSDL.Types.Name (Def.Ref);
-               Name    : constant String :=
-                           (if Is_Choice
-                            then "E"
-                            else Format_Name (O, To_String (N.Name)));
+               Def    : constant WSDL.Types.Definition :=
+                          WSDL.Types.Find (N.Typ);
+               T_Name : constant String := WSDL.Types.Name (Def.Ref);
             begin
                case N.Mode is
                   when WSDL.Types.K_Simple =>
-                     Field_From_SOAP := Field_From_SOAP
-                       & WSDL.Parameters.From_SOAP (N.all, Object => Name);
                      Field_Set_Type := Field_Set_Type
                        & SOAP.WSDL.Set_Type (SOAP.WSDL.To_Type (T_Name));
 
                   when WSDL.Types.K_Derived =>
-                     Field_From_SOAP := Field_From_SOAP
-                       & WSDL.Parameters.From_SOAP (N.all, Object => Name);
                      Field_Set_Type := Field_Set_Type
                        & SOAP.WSDL.Set_Type
                            (SOAP.WSDL.To_Type
                               (WSDL.Types.Root_Type_For (Def)));
 
                   when WSDL.Types.K_Enumeration =>
-                     Field_From_SOAP := Field_From_SOAP
-                       & WSDL.Parameters.From_SOAP (N.all, Object => Name);
                      Field_Set_Type := Field_Set_Type
                        & "SOAP.Types.SOAP_Enumeration";
 
                   when WSDL.Types.K_Array =>
-                     Field_From_SOAP := Field_From_SOAP
-                       & WSDL.Parameters.From_SOAP
-                       (N.all,
-                        Object    => Name,
-                        Type_Name =>
-                           Format_Name (O, WSDL.Types.Name (Def.Ref)));
                      Field_Set_Type := Field_Set_Type
                        & "SOAP.Types.SOAP_Array";
 
                   when WSDL.Types.K_Record =>
-                     Field_From_SOAP := Field_From_SOAP
-                       & WSDL.Parameters.From_SOAP
-                          (N.all,
-                           Object    => Name,
-                           Type_Name => Format_Name (O, Type_Name (O, N)));
                      Field_Set_Type := Field_Set_Type
                        & "SOAP.Types.SOAP_Record";
                end case;
@@ -2236,7 +2214,6 @@ package body WSDL2AWS.Generator is
            & Templates.Assoc ("FIELD_ARRAY_FIRST", Field_Array_First)
            & Templates.Assoc ("FIELD_ARRAY_LAST", Field_Array_Last)
            & Templates.Assoc ("FIELD_ARRAY_LENGTH", Field_Array_Length)
-           & Templates.Assoc ("FIELD_FROM_SOAP", Field_From_SOAP)
            & Templates.Assoc ("FIELD_SET_TYPE", Field_Set_Type)
            & Templates.Assoc ("NAME_SPACE", SOAP.Name_Space.Name (NS))
            & Templates.Assoc ("TYPE_REF", WSDL.Types.Name (P.Typ))
