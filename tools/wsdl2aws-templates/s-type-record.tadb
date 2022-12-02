@@ -7,7 +7,7 @@
 --
 --  $ wsdl2aws @_OPTIONS_@
 @@-----------------------------------------------------------------------
-@@MACRO(REC_FIELD)@@
+@@MACRO(REC_FIELD_TO_SOAP)@@
 @@IF@@ (@_RF_KIND_@ = K_ARRAY)
 @@IF@@ @_RF_MAX_@ > 1
 @_$1_@@_$2_@SOAP_Set'(SOAP.Types.Set (To_Object_Set
@@ -58,6 +58,32 @@
 @@END_IF@@
 @@END_MACRO@@
 @@-----------------------------------------------------------------------
+@@MACRO(REC_GET_FIELD_FROM_SOAP)@@
+@@IF@@ @_RF_KIND_@ = K_ARRAY
++To_@_RF_TYPE_NAME_@_Type (@_$1_@)
+@@ELSIF@@ (@_RF_KIND_@ = K_RECORD) or (@_RF_KIND_@ = K_ENUMERATION)
+To_@_RF_TYPE_NAME_@_Type (@_$1_@)
+@@ELSIF@@ @_RF_KIND_@ = K_SIMPLE
+@@IF@@ @_RF_TYPE_NAME_@ = Character
+@@-- ???? MAKES WSDL2AWS crash !!!!
+@@-- @_MATCH(.*Character):RF_TYPE_@
+SOAP.Utils.Get (@_$1_@)
+@@ELSE@@
+SOAP.Types.Get (@_$1_@)
+@@END_IF@@
+@@ELSIF@@ @_RF_KIND_@ = K_DERIVED
+To_@_RF_ADA_TYPE_@ (@_$1_@)
+@@END_IF@@
+@@END_MACRO@@
+@@-----------------------------------------------------------------------
+@@MACRO(REC_FIELD_FROM_SOAP)@@
+@_RF_DECL_NAME_@ => @_REC_GET_FIELD_FROM_SOAP(@_RF_DECL_NAME_@)_@
+@@END_MACRO@@
+@@-----------------------------------------------------------------------
+@@MACRO(REC_FIELD_FROM_SOAP_CHOICE)@@
+@_REC_GET_FIELD_FROM_SOAP(E)_@
+@@END_MACRO@@
+@@-----------------------------------------------------------------------
 
 with Ada.Tags;
 
@@ -96,7 +122,7 @@ package body @_UNIT_NAME_@ is
       E : constant SOAP.Types.Object'Class :=
             SOAP.Types.V (R, C_Name);
 @@ELSE@@ @@-- IS_CHOICE
-@@TABLE@@
+@@TABLE'ALIGN_ON(":")@@
 @@IF@@ @_RF_KIND_@ = K_ARRAY and @_FIELD_ARRAY_LENGTH_@ > 1
       @_RF_DECL_NAME_@ : constant SOAP.Types.Object_Set := SOAP.Types.V (R, "@_RF_NAME_@");
 @@ELSE@@
@@ -121,16 +147,22 @@ package body @_UNIT_NAME_@ is
       case C_Disc is
 @@TABLE@@
          when C@_FIELD_NUMBER_@ =>
-            return (C@_FIELD_NUMBER_@, @_FIELD_FROM_SOAP_@);
+            return (C@_FIELD_NUMBER_@, @_REC_FIELD_FROM_SOAP_CHOICE()_@);
 @@END_TABLE@@
       end case;
 @@ELSE@@
-      return
-@@INLINE(        \()(,\n         )(\);)@@
+      return (
 @@TABLE@@
-@_RF_DECL_NAME_@ => @_FIELD_FROM_SOAP_@
-@@END_TABLE@@
+        -- @_RF_DECL_NAME_@
+@@INLINE(        )(\n        )()@@
+@@IF@@ @_TABLE_LINE_@ = @_NUMBER_LINE_@
+@_REC_FIELD_FROM_SOAP(1 => " => ")_@
+@@ELSE@@
+@_REC_FIELD_FROM_SOAP(1 => " => ")_@,
+@@END_IF@@
 @@END_INLINE@@
+@@END_TABLE@@
+        );
 @@END_IF@@ @@-- IS_CHOICE
 @@--
    exception
@@ -186,13 +218,13 @@ package body @_UNIT_NAME_@ is
       E : constant SOAP.Types.Object'Class :=
             SOAP.Parameters.Argument (P_List, 1);
 @@ELSE@@ @@-- IS_CHOICE
-@@TABLE@@
+@@TABLE'ALIGN_ON(":")@@
 @@IF@@ @_RF_KIND_@ = K_ARRAY and @_FIELD_ARRAY_LENGTH_@ > 1
       @_RF_DECL_NAME_@ : constant SOAP.Types.Object_Set :=
-                         (1 => +SOAP.Parameters.Argument (P_List, "@_RF_NAME_@"));
+        (1 => +SOAP.Parameters.Argument (P_List, "@_RF_NAME_@"));
 @@ELSE@@
       @_RF_DECL_NAME_@ : constant SOAP.Types.Object'Class :=
-                         SOAP.Parameters.Argument (P_List, "@_RF_NAME_@");
+        SOAP.Parameters.Argument (P_List, "@_RF_NAME_@");
 @@END_IF@@
 @@END_TABLE@@
 @@END_IF@@
@@ -204,16 +236,22 @@ package body @_UNIT_NAME_@ is
       case C_Disc is
 @@TABLE@@
          when C@_FIELD_NUMBER_@ =>
-            return (C@_FIELD_NUMBER_@, @_FIELD_FROM_SOAP_@);
+            return (C@_FIELD_NUMBER_@, @_REC_FIELD_FROM_SOAP_CHOICE()_@);
 @@END_TABLE@@
       end case;
 @@ELSE@@ @@-- IS_CHOICE
-      return
-@@INLINE(        \()(,\n         )(\);)@@
+      return (
 @@TABLE@@
-@_RF_DECL_NAME_@ => @_FIELD_FROM_SOAP_@
-@@END_TABLE@@
+        -- @_RF_DECL_NAME_@
+@@INLINE(        )(\n        )()@@
+@@IF@@ @_TABLE_LINE_@ = @_NUMBER_LINE_@
+@_REC_FIELD_FROM_SOAP(1 => " => +")_@
+@@ELSE@@
+@_REC_FIELD_FROM_SOAP(1 => " => +")_@,
+@@END_IF@@
 @@END_INLINE@@
+@@END_TABLE@@
+        );
 @@END_IF@@
 @@END_IF@@
    end To_@_TYPE_NAME_@;
@@ -239,7 +277,7 @@ package body @_UNIT_NAME_@ is
 @@TABLE@@
          when C@_FIELD_NUMBER_@ =>
             Result := SOAP.Types.R
-              ((@_REC_FIELD(1 => 1, 2 => " => +")_@),
+              ((@_REC_FIELD_TO_SOAP(1 => 1, 2 => " => +")_@),
                Name, Q_Type_Name, NS => NS);
 @@END_TABLE@@
       end case;
@@ -256,9 +294,9 @@ package body @_UNIT_NAME_@ is
            --  @_RF_NAME_@
 @@INLINE(           )(\n          )()@@
 @@IF@@ @_TABLE_LINE_@ = @_NUMBER_LINE_@
-        @_REC_FIELD(1 => @_FIELD_NUMBER_@, 2 => " => +")_@
+        @_REC_FIELD_TO_SOAP(1 => @_FIELD_NUMBER_@, 2 => " => +")_@
 @@ELSE@@
-        @_REC_FIELD(1 => @_FIELD_NUMBER_@, 2 => " => +")_@,
+        @_REC_FIELD_TO_SOAP(1 => @_FIELD_NUMBER_@, 2 => " => +")_@,
 @@END_IF@@
 @@END_INLINE@@
 @@END_TABLE@@
@@ -286,7 +324,7 @@ package body @_UNIT_NAME_@ is
 @@TABLE@@
       --  @_RF_NAME_@
       Result := Result
-        @_REC_FIELD(1 => "& ")_@;
+        @_REC_FIELD_TO_SOAP(1 => "& ")_@;
 @@END_TABLE@@
       return Result;
    end To_Parameter_List;
