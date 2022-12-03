@@ -64,9 +64,9 @@
 @@ELSIF@@ (@_RF_KIND_@ = K_RECORD) or (@_RF_KIND_@ = K_ENUMERATION)
 To_@_RF_TYPE_NAME_@_Type (@_$1_@)
 @@ELSIF@@ @_RF_KIND_@ = K_SIMPLE
-@@IF@@ @_RF_TYPE_NAME_@ = Character
-@@-- ???? MAKES WSDL2AWS crash !!!!
-@@-- @_MATCH(.*Character):RF_TYPE_@
+@@-- ???? MATCH makes WSDL2AWS crash, so we use SLICE
+@@-- @@IF@@ @_MATCH(.*Character/):RF_TYPE_@
+@@IF@@ @_SLICE(-8..0):RF_TYPE_@ = "Character"
 SOAP.Utils.Get (@_$1_@)
 @@ELSE@@
 SOAP.Types.Get (@_$1_@)
@@ -170,11 +170,11 @@ package body @_UNIT_NAME_@ is
 @@IF@@ @_IS_CHOICE_@
 @@TABLE@@
          if C_Disc = C@_FIELD_NUMBER_@
-           and then E'Tag /= @_FIELD_SET_TYPE_@'Tag
+           and then E'Tag /= @_RF_ROOT_TYPE_@'Tag
          then
             raise SOAP.SOAP_Error
               with SOAP.Types.Name (R)
-                 & ".@_RF_DECL_NAME_@ expected @_FIELD_SET_TYPE_@, "
+                 & ".@_RF_DECL_NAME_@ expected @_RF_ROOT_TYPE_@, "
                  & "found " & External_Tag (E'Tag);
          end if;
 @@END_TABLE@@
@@ -183,10 +183,10 @@ package body @_UNIT_NAME_@ is
 @@--
 @@TABLE@@
 @@IF@@ (@_RF_KIND_@ /= K_ARRAY) or (@_FIELD_ARRAY_LENGTH_@ = 1)
-         if @_RF_DECL_NAME_@'Tag /= @_FIELD_SET_TYPE_@'Tag then
+         if @_RF_DECL_NAME_@'Tag /= @_RF_ROOT_TYPE_@'Tag then
             raise SOAP.SOAP_Error
               with SOAP.Types.Name (R)
-                 & ".@_RF_DECL_NAME_@ expected @_FIELD_SET_TYPE_@, "
+                 & ".@_RF_DECL_NAME_@ expected @_RF_ROOT_TYPE_@, "
                  & "found " & External_Tag (@_RF_DECL_NAME_@'Tag);
          end if;
 @@END_IF@@

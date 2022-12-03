@@ -107,6 +107,7 @@ package body WSDL2AWS.Generator is
       P_Min          : in out Templates.Tag;
       P_Max          : in out Templates.Tag;
       P_Type         : in out Templates.Tag;
+      P_Root_Type    : in out Templates.Tag;
       P_Type_Name    : in out Templates.Tag;
       P_SOAP_Type    : in out Templates.Tag;
       P_Ada_Type     : in out Templates.Tag;
@@ -586,6 +587,7 @@ package body WSDL2AWS.Generator is
       P_Min          : in out Templates.Tag;
       P_Max          : in out Templates.Tag;
       P_Type         : in out Templates.Tag;
+      P_Root_Type    : in out Templates.Tag;
       P_Type_Name    : in out Templates.Tag;
       P_SOAP_Type    : in out Templates.Tag;
       P_Ada_Type     : in out Templates.Tag;
@@ -618,6 +620,33 @@ package body WSDL2AWS.Generator is
       else
          P_SOAP_Type := P_SOAP_Type & "";
       end if;
+
+      declare
+         Def    : constant WSDL.Types.Definition :=
+                    WSDL.Types.Find (N.Typ);
+         T_Name : constant String := WSDL.Types.Name (Def.Ref);
+      begin
+         case N.Mode is
+            when WSDL.Types.K_Simple =>
+               P_Root_Type := P_Root_Type
+                 & SOAP.WSDL.Set_Type (SOAP.WSDL.To_Type (T_Name));
+
+            when WSDL.Types.K_Derived =>
+               P_Root_Type := P_Root_Type
+                 & SOAP.WSDL.Set_Type
+                     (SOAP.WSDL.To_Type
+                        (WSDL.Types.Root_Type_For (Def)));
+
+            when WSDL.Types.K_Enumeration =>
+               P_Root_Type := P_Root_Type & "SOAP.Types.SOAP_Enumeration";
+
+            when WSDL.Types.K_Array =>
+               P_Root_Type := P_Root_Type & "SOAP.Types.SOAP_Array";
+
+            when WSDL.Types.K_Record =>
+               P_Root_Type := P_Root_Type & "SOAP.Types.SOAP_Record";
+         end case;
+      end;
 
       declare
          NS : constant SOAP.Name_Space.Object :=
@@ -862,6 +891,7 @@ package body WSDL2AWS.Generator is
          P_Min          : Templates.Tag;
          P_Max          : Templates.Tag;
          P_Type         : Templates.Tag;
+         P_Root_Type    : Templates.Tag;
          P_Type_Name    : Templates.Tag;
          P_SOAP_Type    : Templates.Tag;
          P_Ada_Type     : Templates.Tag;
@@ -924,7 +954,7 @@ package body WSDL2AWS.Generator is
          while N /= null loop
             Generate_Params
               (O, N, P_Decl, P_Name, P_Kind, P_Min, P_Max,
-               P_Type, P_Type_Name,
+               P_Type, P_Root_Type, P_Type_Name,
                P_SOAP_Type, P_Ada_Type, P_Q_Name,
                P_NS_Name, P_NS_Value, P_ELT_NS_Name, P_ELT_NS_Value);
             N := N.Next;
@@ -936,6 +966,7 @@ package body WSDL2AWS.Generator is
          Add_TagV (O.Stub_B_Trans, "IP_MIN", P_Min);
          Add_TagV (O.Stub_B_Trans, "IP_MAX", P_Max);
          Add_TagV (O.Stub_B_Trans, "IP_TYPE", P_Type);
+         Add_TagV (O.Stub_B_Trans, "IP_ROOT_TYPE", P_Root_Type);
          Add_TagV (O.Stub_B_Trans, "IP_TYPE_NAME", P_Type_Name);
          Add_TagV (O.Stub_B_Trans, "IP_SOAP_TYPE", P_SOAP_Type);
          Add_TagV (O.Stub_B_Trans, "IP_ADA_TYPE", P_Ada_Type);
@@ -965,6 +996,7 @@ package body WSDL2AWS.Generator is
          P_Min          : Templates.Tag;
          P_Max          : Templates.Tag;
          P_Type         : Templates.Tag;
+         P_Root_Type    : Templates.Tag;
          P_Type_Name    : Templates.Tag;
          P_SOAP_Type    : Templates.Tag;
          P_Ada_Type     : Templates.Tag;
@@ -1057,7 +1089,7 @@ package body WSDL2AWS.Generator is
          then
             Generate_Params
               (O, Output, P_Decl, P_Name, P_Kind, P_Min, P_Max,
-               P_Type, P_Type_Name,
+               P_Type, P_Root_Type, P_Type_Name,
                P_SOAP_Type, P_Ada_Type, P_Q_Name,
                P_NS_Name, P_NS_Value, P_Elt_NS_Name, P_Elt_NS_Value);
          end if;
@@ -1068,6 +1100,7 @@ package body WSDL2AWS.Generator is
          Add_TagV (O.Skel_B_Trans, "OP_MIN", P_Min);
          Add_TagV (O.Skel_B_Trans, "OP_MAX", P_Max);
          Add_TagV (O.Skel_B_Trans, "OP_TYPE", P_Type);
+         Add_TagV (O.Skel_B_Trans, "OP_ROOT_TYPE", P_Root_Type);
          Add_TagV (O.Skel_B_Trans, "OP_TYPE_NAME", P_Type_Name);
          Add_TagV (O.Skel_B_Trans, "OP_SOAP_TYPE", P_SOAP_Type);
          Add_TagV (O.Skel_B_Trans, "OP_ADA_TYPE", P_Ada_Type);
@@ -1083,6 +1116,7 @@ package body WSDL2AWS.Generator is
          Add_TagV (O.Stub_B_Trans, "OP_MIN", P_Min);
          Add_TagV (O.Stub_B_Trans, "OP_MAX", P_Max);
          Add_TagV (O.Stub_B_Trans, "OP_TYPE", P_Type);
+         Add_TagV (O.Stub_B_Trans, "OP_ROOT_TYPE", P_Root_Type);
          Add_TagV (O.Stub_B_Trans, "OP_TYPE_NAME", P_Type_Name);
          Add_TagV (O.Stub_B_Trans, "OP_SOAP_TYPE", P_SOAP_Type);
          Add_TagV (O.Stub_B_Trans, "OP_ADA_TYPE", P_Ada_Type);
@@ -2120,7 +2154,6 @@ package body WSDL2AWS.Generator is
          Field_Array_First  : Templates.Tag;
          Field_Array_Last   : Templates.Tag;
          Field_Array_Length : Templates.Tag;
-         Field_Set_Type     : Templates.Tag;
 
          R_Decl         : Templates.Tag;
          R_Name         : Templates.Tag;
@@ -2128,6 +2161,7 @@ package body WSDL2AWS.Generator is
          R_Min          : Templates.Tag;
          R_Max          : Templates.Tag;
          R_Type         : Templates.Tag;
+         R_Root_Type    : Templates.Tag;
          R_Type_Name    : Templates.Tag;
          R_SOAP_Type    : Templates.Tag;
          R_Ada_Type     : Templates.Tag;
@@ -2151,7 +2185,7 @@ package body WSDL2AWS.Generator is
          while N /= null loop
             Generate_Params
               (O, N, R_Decl, R_Name, R_Kind, R_Min, R_Max,
-               R_Type, R_Type_Name,
+               R_Type, R_Root_Type, R_Type_Name,
                R_SOAP_Type, R_Ada_Type, R_Q_Name,
                R_NS_Name, R_NS_Value, R_Elt_NS_Name, R_Elt_NS_Value);
 
@@ -2172,36 +2206,6 @@ package body WSDL2AWS.Generator is
                Field_Array_Length := Field_Array_Length & "";
             end if;
 
-            declare
-               Def    : constant WSDL.Types.Definition :=
-                          WSDL.Types.Find (N.Typ);
-               T_Name : constant String := WSDL.Types.Name (Def.Ref);
-            begin
-               case N.Mode is
-                  when WSDL.Types.K_Simple =>
-                     Field_Set_Type := Field_Set_Type
-                       & SOAP.WSDL.Set_Type (SOAP.WSDL.To_Type (T_Name));
-
-                  when WSDL.Types.K_Derived =>
-                     Field_Set_Type := Field_Set_Type
-                       & SOAP.WSDL.Set_Type
-                           (SOAP.WSDL.To_Type
-                              (WSDL.Types.Root_Type_For (Def)));
-
-                  when WSDL.Types.K_Enumeration =>
-                     Field_Set_Type := Field_Set_Type
-                       & "SOAP.Types.SOAP_Enumeration";
-
-                  when WSDL.Types.K_Array =>
-                     Field_Set_Type := Field_Set_Type
-                       & "SOAP.Types.SOAP_Array";
-
-                  when WSDL.Types.K_Record =>
-                     Field_Set_Type := Field_Set_Type
-                       & "SOAP.Types.SOAP_Record";
-               end case;
-            end;
-
             N := N.Next;
          end loop;
 
@@ -2214,7 +2218,6 @@ package body WSDL2AWS.Generator is
            & Templates.Assoc ("FIELD_ARRAY_FIRST", Field_Array_First)
            & Templates.Assoc ("FIELD_ARRAY_LAST", Field_Array_Last)
            & Templates.Assoc ("FIELD_ARRAY_LENGTH", Field_Array_Length)
-           & Templates.Assoc ("FIELD_SET_TYPE", Field_Set_Type)
            & Templates.Assoc ("NAME_SPACE", SOAP.Name_Space.Name (NS))
            & Templates.Assoc ("TYPE_REF", WSDL.Types.Name (P.Typ))
            & Templates.Assoc ("DOCUMENTATION", P.Doc)
@@ -2225,6 +2228,7 @@ package body WSDL2AWS.Generator is
            & Templates.Assoc ("RF_MIN", R_Min)
            & Templates.Assoc ("RF_MAX", R_Max)
            & Templates.Assoc ("RF_TYPE", R_Type)
+           & Templates.Assoc ("RF_ROOT_TYPE", R_Root_Type)
            & Templates.Assoc ("RF_TYPE_NAME", R_Type_Name)
            & Templates.Assoc ("RF_SOAP_TYPE", R_SOAP_Type)
            & Templates.Assoc ("RF_ADA_TYPE", R_Ada_Type)
