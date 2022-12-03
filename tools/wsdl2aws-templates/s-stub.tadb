@@ -7,9 +7,15 @@
 --
 --  $ wsdl2aws @_OPTIONS_@
 
-@@TABLE@@
-with @_WITHED_UNITS_@;
-@@END_TABLE@@
+with Ada.Exceptions;
+
+with SOAP.Client;
+with SOAP.Message.Payload;
+with SOAP.Message.Response;
+with SOAP.Message.XML;
+with SOAP.Name_Space;
+with SOAP.Parameters;
+with SOAP.Utils;
 
 @@IF@@ @_DEBUG_@
 --  For debug mode

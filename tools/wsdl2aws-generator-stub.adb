@@ -199,13 +199,9 @@ package body Stub is
    is
       pragma Unreferenced (Root_Documentation);
 
-      use type SOAP.WSDL.Schema.Binding_Style;
-
       U_Name : constant String := To_Unit_Name (Format_Name (O, Name));
       URL    : constant AWS.URL.Object :=
                  AWS.URL.Parse (Get_Endpoint (O, Location));
-      S_With : Templates.Tag;
-      B_With : Templates.Tag;
    begin
       --  Spec
 
@@ -214,33 +210,11 @@ package body Stub is
         & Templates.Assoc ("SERVER_PORT", Positive'(AWS.URL.Port (URL)))
         & Templates.Assoc ("SERVICE_DOCUMENTATION", Documentation);
 
-      S_With := S_With
-        & "Ada.Calendar"
-        & "SOAP.Types";
-
-      O.Stub_S_Trans := O.Stub_S_Trans
-        & Templates.Assoc ("WITHED_UNITS", S_With);
-
       --  Body
 
       O.Stub_B_Trans := O.Stub_B_Trans
         & Templates.Assoc ("UNIT_NAME", U_Name)
-        & Templates.Assoc ("SERVER_PORT", Positive'(AWS.URL.Port (URL)))
-        & Templates.Assoc ("DEBUG", O.Debug)
-        & Templates.Assoc ("IS_RPC", O.Style = SOAP.WSDL.Schema.RPC);
-
-      B_With := B_With
-        & "Ada.Exceptions"
-        & "SOAP.Client"
-        & "SOAP.Message.Payload"
-        & "SOAP.Message.Response"
-        & "SOAP.Message.XML"
-        & "SOAP.Name_Space"
-        & "SOAP.Parameters"
-        & "SOAP.Utils";
-
-      O.Stub_B_Trans := O.Stub_B_Trans
-        & Templates.Assoc ("WITHED_UNITS", B_With);
+        & Templates.Assoc ("SERVER_PORT", Positive'(AWS.URL.Port (URL)));
    end Start_Service;
 
 end Stub;
