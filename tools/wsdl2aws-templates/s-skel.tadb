@@ -37,9 +37,11 @@ R_Params :=
 @@END_MACRO@@
 @@-- ---------------------------------------------------------------------
 @@--
-@@TABLE@@
-with @_WITHED_UNITS_@;
-@@END_TABLE@@
+with Ada.Exceptions;
+with SOAP.Message.Response.Error;
+with SOAP.Name_Space;
+with SOAP.Parameters;
+with SOAP.Utils;
 
 @@IF@@ @_DEBUG_@
 --  For debug mode

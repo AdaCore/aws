@@ -316,8 +316,6 @@ package body Skel is
       U_Name : constant String         := To_Unit_Name (Format_Name (O, Name));
       URL    : constant AWS.URL.Object :=
                  AWS.URL.Parse (Get_Endpoint (O, Location));
-      S_With : Templates.Tag;
-      B_With : Templates.Tag;
    begin
       --  Spec
 
@@ -326,32 +324,11 @@ package body Skel is
         & Templates.Assoc ("SERVER_PORT", Positive'(AWS.URL.Port (URL)))
         & Templates.Assoc ("SERVICE_DOCUMENTATION", Documentation);
 
-      S_With := S_With
-        & "Ada.Calendar"
-        & "System.Assertions"
-        & "AWS.Status"
-        & "AWS.Response"
-        & "SOAP.Message.Payload"
-        & "SOAP.Types";
-
-      O.Skel_S_Trans := O.Skel_S_Trans
-        & Templates.Assoc ("WITHED_UNITS", S_With);
-
       --  Body
 
       O.Skel_B_Trans := O.Skel_B_Trans
         & Templates.Assoc ("UNIT_NAME", U_Name)
         & Templates.Assoc ("SERVER_PORT", Positive'(AWS.URL.Port (URL)));
-
-      B_With := B_With
-        & "Ada.Exceptions"
-        & "SOAP.Message.Response.Error"
-        & "SOAP.Name_Space"
-        & "SOAP.Parameters"
-        & "SOAP.Utils";
-
-      O.Skel_B_Trans := O.Skel_B_Trans
-        & Templates.Assoc ("WITHED_UNITS", B_With);
    end Start_Service;
 
 end Skel;

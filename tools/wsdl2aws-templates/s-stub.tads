@@ -7,9 +7,8 @@
 --
 --  $ wsdl2aws @_OPTIONS_@
 
-@@TABLE@@
-with @_WITHED_UNITS_@;
-@@END_TABLE@@
+with Ada.Calendar;
+with SOAP.Types;
 
 with @_UNIT_NAME_@.Types;
 
