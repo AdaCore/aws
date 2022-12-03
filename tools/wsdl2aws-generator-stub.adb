@@ -49,8 +49,6 @@ package body Stub is
                   Characters.Handling.To_Lower (Format_Name (O, Name))
                   & "-client";
    begin
-      --  Text_IO.Put_Line ("Generate : " & LL_Name);
-
       Generate (O, LL_Name & ".ads", Template_Stub_Ads, O.Stub_S_Trans);
       Generate (O, LL_Name & ".adb", Template_Stub_Adb, O.Stub_B_Trans);
    end End_Service;

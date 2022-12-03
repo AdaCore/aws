@@ -50,8 +50,6 @@ package body Skel is
                   Characters.Handling.To_Lower (Format_Name (O, Name))
                   & "-server";
    begin
-      --  Text_IO.Put_Line ("Generate : " & LL_Name);
-
       Generate (O, LL_Name & ".ads", Template_Skel_Ads, O.Skel_S_Trans);
       Generate (O, LL_Name & ".adb", Template_Skel_Adb, O.Skel_B_Trans);
    end End_Service;
