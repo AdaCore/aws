@@ -7,6 +7,8 @@
 --
 --  $ wsdl2aws @_OPTIONS_@
 --
+@@INCLUDE@@ s-common.macros
+@@--
 @@-- ---------------------------------------------------------------------
 @@MACRO(M_OUT_PARAMS)@@
 @@IF@@ not @_IS_EMPTY:OP_DECL_NAME_@
@@ -14,7 +16,7 @@ R_Params :=
 @@INLINE(           +)(\n           & )(;)@@
 @@IF@@ @_OP_KIND_@ = K_SIMPLE
 @@INLINE(         )(,)(\)\))@@
-         @_OP_SOAP_TYPE_@'(SOAP.Utils.To_SOAP_Object (Result, "@_OP_NAME_@", "@_OP_TYPE_@"
+         @_SET_TYPE(@_OP_TYPE_KIND_@)_@'(SOAP.Utils.To_SOAP_Object (Result, "@_OP_NAME_@", "@_OP_TYPE_@"
 @@IF@@ not @_IS_EMPTY:OP_ELT_NS_NAME_@ and not (@_OP_NS_VALUE_@ = "http://www.w3.org/2001/XMLSchema")
          SOAP.Name_Space.Create ("@_OP_ELT_NS_NAME_@", "@_OP_NS_VALUE_@")
 @@END_IF@@
@@ -178,7 +180,7 @@ package body @_UNIT_NAME_@.Server is
 @@ELSE@@
          Result.@_OUT_CB_FIELD_NAME_@ :=
 @@END_IF@@
-@@IF@@ @_OUT_PARAMETER_IS_STRING_@
+@@IF@@ @_RETURN_TYPE_KIND_@ = P_STRING
 @@SET@@ RET_PREFIX = +
 @@ELSE@@
 @@SET@@ RET_PREFIX = ""

@@ -1,0 +1,43 @@
+@@----------------------------------------------------------------------
+@@-- SET_TYPE - Return SOAP Type for a give simple (K_SIMPLE)
+@@--            parameter kind.
+@@----------------------------------------------------------------------
+@@MACRO(SET_TYPE)@@
+@@IF@@ @_$1_@ = P_LONG
+SOAP.Types.XSD_Long
+@@ELSIF@@ @_$1_@ = P_INTEGER
+SOAP.Types.XSD_Integer
+@@ELSIF@@ @_$1_@ = P_SHORT
+SOAP.Types.XSD_Short
+@@ELSIF@@ @_$1_@ = P_BYTE
+SOAP.Types.XSD_Byte
+@@ELSIF@@ @_$1_@ = P_FLOAT
+SOAP.Types.XSD_Float
+@@ELSIF@@ @_$1_@ = P_DOUBLE
+SOAP.Types.XSD_Double
+@@ELSIF@@ @_$1_@ = P_DURATION
+SOAP.Types.XSD_Duration
+@@ELSIF@@ @_$1_@ = P_BOOLEAN
+SOAP.Types.XSD_Boolean
+@@ELSIF@@ @_$1_@ = P_TIME
+SOAP.Types.XSD_Time_Instant
+@@ELSIF@@ @_$1_@ = P_B64
+SOAP.Types.SOAP_Base64
+@@ELSIF@@ @_$1_@ = P_STRING
+SOAP.Types.XSD_String
+@@ELSIF@@ @_$1_@ = P_CHARACTER
+SOAP.Types.XSD_String
+@@ELSIF@@ @_$1_@ = P_UNSIGNED_LONG
+SOAP.Types.XSD_Unsigned_Long
+@@ELSIF@@ @_$1_@ = P_UNSIGNED_INT
+SOAP.Types.XSD_Unsigned_Int
+@@ELSIF@@ @_$1_@ = P_UNSIGNED_SHORT
+SOAP.Types.XSD_Unsigned_Short
+@@ELSIF@@ @_$1_@ = P_UNSIGNED_BYTE
+SOAP.Types.XSD_Unsigned_Byte
+@@ELSIF@@ @_$1_@ = P_ANY_TYPE
+SOAP.Types.XSD_Any_Type
+@@ELSE@@
+Unknown
+@@END_IF@@
+@@END_MACRO@@

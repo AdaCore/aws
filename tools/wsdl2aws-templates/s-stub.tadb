@@ -6,7 +6,8 @@
 --  This file was generated on @_NOW_@
 --
 --  $ wsdl2aws @_OPTIONS_@
-
+@@INCLUDE@@ s-common.macros
+@@--
 with Ada.Exceptions;
 
 with SOAP.Client;
@@ -89,7 +90,7 @@ Connection : AWS.Client.HTTP_Connection
 @@TABLE'TERSE@@
 @@IF@@ @_IP_KIND_@ = K_SIMPLE
 @@INLINE(         )(,)(\)\))@@
-         @_IP_SOAP_TYPE_@'(SOAP.Utils.To_SOAP_Object (@_IP_DECL_NAME_@, "@_IP_NAME_@", "@_IP_TYPE_@"
+         @_SET_TYPE(@_IP_TYPE_KIND_@)_@'(SOAP.Utils.To_SOAP_Object (@_IP_DECL_NAME_@, "@_IP_NAME_@", "@_IP_TYPE_@"
 @@IF@@ not @_IS_EMPTY:IP_ELT_NS_NAME_@ and not (@_IP_NS_VALUE_@ = "http://www.w3.org/2001/XMLSchema")
          SOAP.Name_Space.Create ("@_IP_ELT_NS_NAME_@", "@_IP_NS_VALUE_@")
 @@END_IF@@
@@ -140,7 +141,7 @@ Connection : AWS.Client.HTTP_Connection
             raise SOAP.SOAP_Error with
                SOAP.Parameters.Get (R_Param, "faultstring");
 @@IF@@ @_HAS_OUTPUT_@
-@@IF@@ @_OUT_PARAMETER_IS_STRING_@
+@@IF@@ @_RETURN_TYPE_KIND_@ = P_STRING
 @@SET@@ RET_PREFIX = -
 @@ELSE@@
 @@SET@@ RET_PREFIX = ""
