@@ -142,9 +142,12 @@ package body Stub is
             declare
                N : constant WSDL.Parameters.P_Set := Output.P;
             begin
-               Add_TagV (O.Stub_B_Trans,
-                         "OUT_PARAMETER_IS_STRING",
-                         Is_String (N));
+               Add_TagV
+                 (O.Stub_B_Trans,
+                  "RETURN_TYPE_KIND",
+                  (if N.Mode = WSDL.Types.K_Simple
+                   then SOAP.WSDL.To_Type (WSDL.Types.Name (N.Typ))'Image
+                   else "NONE"));
 
                Add_TagV
                  (O.Stub_B_Trans,
@@ -158,7 +161,7 @@ package body Stub is
 
          else
             Add_TagV (O.Stub_B_Trans,
-                      "OUT_PARAMETER_IS_STRING",
+                      "RETURN_TYPE_KIND",
                       False);
 
             Add_TagV
@@ -181,8 +184,7 @@ package body Stub is
             "RETURN_RESULT",
             ("None_Is_Procedure"));
          Add_TagV (O.Stub_B_Trans,
-                   "OUT_PARAMETER_IS_STRING",
-                   False);
+                   "RETURN_TYPE_KIND", "NONE");
       end if;
    end New_Procedure;
 
