@@ -142,9 +142,14 @@ Connection : AWS.Client.HTTP_Connection
                SOAP.Parameters.Get (R_Param, "faultstring");
 @@IF@@ @_HAS_OUTPUT_@
 @@IF@@ @_RETURN_TYPE_KIND_@ = P_STRING
-@@SET@@ RET_PREFIX = -
+@@SET@@ RETURN_PREFIX = -
 @@ELSE@@
-@@SET@@ RET_PREFIX = ""
+@@SET@@ RETURN_PREFIX = ""
+@@END_IF@@
+@@IF@@ @_IS_EMPTY:RETURN_RESULT_@
+@@SET@@ RETURN_SEP = ""
+@@ELSE@@
+@@SET@@ RETURN_SEP = .
 @@END_IF@@
          else
             declare
@@ -174,7 +179,7 @@ Connection : AWS.Client.HTTP_Connection
                           To_@_PROC_@_Result (R_Param);
 @@END_IF@@
             begin
-               return @_RET_PREFIX_@@_RETURN_RESULT_@;
+               return @_RETURN_PREFIX_@Result@_RETURN_SEP_@@_RETURN_RESULT_@;
             end;
 @@END_IF@@
          end if;

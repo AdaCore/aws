@@ -150,41 +150,27 @@ package body Stub is
                    else "NONE"));
 
                Add_TagV
-                 (O.Stub_B_Trans,
-                  "RETURN_RESULT",
-                  ("Result." & To_String (N.Name)));
+                 (O.Stub_B_Trans, "RETURN_RESULT", To_String (N.Name));
                Add_TagV
-                 (O.Skel_B_Trans,
-                  "RETURN_RESULT",
-                  ("Result." & To_String (N.Name)));
+                 (O.Skel_B_Trans, "RETURN_RESULT",  To_String (N.Name));
             end;
 
          else
-            Add_TagV (O.Stub_B_Trans,
-                      "RETURN_TYPE_KIND",
-                      False);
-
             Add_TagV
-              (O.Stub_B_Trans,
-               "RETURN_RESULT",
-               ("Result"));
+              (O.Stub_B_Trans, "RETURN_TYPE_KIND", "NONE");
             Add_TagV
-              (O.Skel_B_Trans,
-               "RETURN_RESULT",
-               ("Result"));
+              (O.Stub_B_Trans, "RETURN_RESULT", "");
+            Add_TagV
+              (O.Skel_B_Trans, "RETURN_RESULT", "");
          end if;
 
       else
          Add_TagV
-           (O.Stub_B_Trans,
-            "RETURN_RESULT",
-            ("None_Is_Procedure"));
+           (O.Stub_B_Trans, "RETURN_RESULT", "");
          Add_TagV
-           (O.Skel_B_Trans,
-            "RETURN_RESULT",
-            ("None_Is_Procedure"));
-         Add_TagV (O.Stub_B_Trans,
-                   "RETURN_TYPE_KIND", "NONE");
+           (O.Skel_B_Trans, "RETURN_RESULT", "");
+         Add_TagV
+           (O.Stub_B_Trans, "RETURN_TYPE_KIND", "NONE");
       end if;
    end New_Procedure;
 
