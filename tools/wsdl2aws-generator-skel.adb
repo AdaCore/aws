@@ -91,18 +91,12 @@ package body Skel is
          begin
             if N.Mode = WSDL.Types.K_Array then
                Decl_Kind := Decl_Kind & "ARRAY";
-               Decl_Name := Decl_Name
-                 & (To_String (N.Name)
-                    & "_" & Format_Name (O, T_Name) & "_Array");
-               Decl_P_Name := Decl_P_Name
-                 & To_String (N.Name);
+               Decl_Name := Decl_Name & Format_Name (O, T_Name);
+               Decl_P_Name := Decl_P_Name & To_String (N.Name);
 
             elsif N.Mode = WSDL.Types.K_Record then
-               Decl_Name := Decl_Name
-                 & (To_String (N.Name)
-                    & "_" & Format_Name (O, T_Name) & "_Record");
-               Decl_P_Name := Decl_P_Name
-                 & To_String (N.Name);
+               Decl_Name := Decl_Name & Format_Name (O, T_Name);
+               Decl_P_Name := Decl_P_Name & To_String (N.Name);
 
                if N.P = null then
                   Decl_Kind := Decl_Kind & "NULL_RECORD";
@@ -115,9 +109,9 @@ package body Skel is
          N := N.Next;
       end loop;
 
-      Add_TagV (O.Skel_B_Trans, "DECL_C_NAME", Decl_Name);
+      Add_TagV (O.Skel_B_Trans, "DECL_NAME", Decl_Name);
+      Add_TagV (O.Skel_B_Trans, "DECL_KIND", Decl_Kind);
       Add_TagV (O.Skel_B_Trans, "P_NAME", Decl_P_Name);
-      Add_TagV (O.Skel_B_Trans, "DECL_C_KIND", Decl_Kind);
 
       --  Output parameters
 

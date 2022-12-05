@@ -158,14 +158,14 @@ package body @_UNIT_NAME_@.Server is
          --  Compound helpers
 @@END_IF@@
 @@TABLE'TERSE@@
-@@IF@@ @_DECL_C_KIND_@ = "ARRAY"
-         @_DECL_C_NAME_@ : constant SOAP.Types.SOAP_Array :=
+@@IF@@ @_DECL_KIND_@ = ARRAY
+         @_P_NAME_@_@_DECL_NAME_@_Array : constant SOAP.Types.SOAP_Array :=
            SOAP.Parameters.Get (Params, "@_P_NAME_@");
-@@ELSIF@@ @_DECL_C_KIND_@ = "RECORD"
-         @_DECL_C_NAME_@ : constant SOAP.Types.SOAP_Record :=
+@@ELSIF@@ @_DECL_KIND_@ = RECORD
+         @_P_NAME_@_@_DECL_NAME_@_Record : constant SOAP.Types.SOAP_Record :=
            SOAP.Parameters.Get (Params, "@_P_NAME_@");
-@@ELSIF@@ not @_IS_EMPTY:DECL_C_KIND_@
-         @_DECL_C_NAME_@ : constant SOAP.Types.SOAP_Record :=
+@@ELSIF@@ @_DECL_KIND_@ = NULL_RECORD
+         @_P_NAME_@_@_DECL_NAME_@_Record : constant SOAP.Types.SOAP_Record :=
            SOAP.Types.R (SOAP.Types.Empty_Object_Set,
                          "@_P_NAME_@");
 @@END_IF@@
