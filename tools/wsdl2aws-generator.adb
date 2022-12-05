@@ -925,8 +925,8 @@ package body WSDL2AWS.Generator is
          P_Q_Name         : Templates.Tag;
          P_NS_Name        : Templates.Tag;
          P_NS_Value       : Templates.Tag;
-         P_ELT_NS_Name    : Templates.Tag;
-         P_ELT_NS_Value   : Templates.Tag;
+         P_Elt_NS_Name    : Templates.Tag;
+         P_Elt_NS_Value   : Templates.Tag;
          N                : WSDL.Parameters.P_Set;
       begin
          if Is_Simple_Wrapped_Parameter (O, Input) then
@@ -983,7 +983,7 @@ package body WSDL2AWS.Generator is
               (O, N, P_Decl, P_Name, P_Kind, P_Min, P_Max,
                P_Type, P_Base_Type, P_Root_Type, P_Root_Type_Kind,
                P_Type_Name, P_Type_Kind, P_Ada_Type, P_Q_Name,
-               P_NS_Name, P_NS_Value, P_ELT_NS_Name, P_ELT_NS_Value);
+               P_NS_Name, P_NS_Value, P_Elt_NS_Name, P_Elt_NS_Value);
             N := N.Next;
          end loop;
 
@@ -1002,6 +1002,8 @@ package body WSDL2AWS.Generator is
          Add_TagV (O.Stub_B_Trans, "IP_Q_NAME", P_Q_Name);
          Add_TagV (O.Stub_B_Trans, "IP_NS_NAME", P_NS_Name);
          Add_TagV (O.Stub_B_Trans, "IP_NS_VALUE", P_NS_Value);
+         Add_TagV (O.Stub_B_Trans, "IP_ELT_NS_NAME", P_Elt_NS_Name);
+         Add_TagV (O.Stub_B_Trans, "IP_ELT_NS_VALUE", P_Elt_NS_Value);
 
          Add_TagV (O.Skel_B_Trans, "IP_DECL_NAME", P_Decl);
          Add_TagV (O.Skel_B_Trans, "IP_NAME", P_Name);
@@ -1018,6 +1020,8 @@ package body WSDL2AWS.Generator is
          Add_TagV (O.Skel_B_Trans, "IP_Q_NAME", P_Q_Name);
          Add_TagV (O.Skel_B_Trans, "IP_NS_NAME", P_NS_Name);
          Add_TagV (O.Skel_B_Trans, "IP_NS_VALUE", P_NS_Value);
+         Add_TagV (O.Skel_B_Trans, "IP_ELT_NS_NAME", P_Elt_NS_Name);
+         Add_TagV (O.Skel_B_Trans, "IP_ELT_NS_VALUE", P_Elt_NS_Value);
       end Generate_Input_Params;
 
       ----------------------------
@@ -2289,7 +2293,9 @@ package body WSDL2AWS.Generator is
            & Templates.Assoc ("RF_ADA_TYPE", R_Ada_Type)
            & Templates.Assoc ("RF_Q_NAME", R_Q_Name)
            & Templates.Assoc ("RF_NS_NAME", R_NS_Name)
-           & Templates.Assoc ("RF_NS_VALUE", R_NS_Value);
+           & Templates.Assoc ("RF_NS_VALUE", R_NS_Value)
+           & Templates.Assoc ("RF_ELT_NS_NAME", R_Elt_NS_Name)
+           & Templates.Assoc ("RF_ELT_NS_VALUE", R_Elt_NS_Value);
 
          --  Is types are to be reused from an Ada spec ?
 
