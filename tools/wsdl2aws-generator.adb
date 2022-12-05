@@ -971,6 +971,20 @@ package body WSDL2AWS.Generator is
          Add_TagV (O.Stub_B_Trans, "IP_Q_NAME", P_Q_Name);
          Add_TagV (O.Stub_B_Trans, "IP_NS_NAME", P_NS_Name);
          Add_TagV (O.Stub_B_Trans, "IP_NS_VALUE", P_NS_Value);
+
+         Add_TagV (O.Skel_B_Trans, "IP_DECL_NAME", P_Decl);
+         Add_TagV (O.Skel_B_Trans, "IP_NAME", P_Name);
+         Add_TagV (O.Skel_B_Trans, "IP_KIND", P_Kind);
+         Add_TagV (O.Skel_B_Trans, "IP_MIN", P_Min);
+         Add_TagV (O.Skel_B_Trans, "IP_MAX", P_Max);
+         Add_TagV (O.Skel_B_Trans, "IP_TYPE", P_Type);
+         Add_TagV (O.Skel_B_Trans, "IP_ROOT_TYPE", P_Root_Type);
+         Add_TagV (O.Skel_B_Trans, "IP_TYPE_NAME", P_Type_Name);
+         Add_TagV (O.Skel_B_Trans, "IP_TYPE_KIND", P_Type_Kind);
+         Add_TagV (O.Skel_B_Trans, "IP_ADA_TYPE", P_Ada_Type);
+         Add_TagV (O.Skel_B_Trans, "IP_Q_NAME", P_Q_Name);
+         Add_TagV (O.Skel_B_Trans, "IP_NS_NAME", P_NS_Name);
+         Add_TagV (O.Skel_B_Trans, "IP_NS_VALUE", P_NS_Value);
       end Generate_Input_Params;
 
       ----------------------------
