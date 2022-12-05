@@ -46,9 +46,7 @@ To_@_IP_TYPE_NAME_@_Type (@_$1_@_@_IP_TYPE_NAME_@_Record)
 @@ELSIF@@ @_IP_KIND_@ = K_ENUMERATION
 @_IP_TYPE_NAME_@_Type'Value (SOAP.Utils.Get (SOAP.Parameters.Argument (Params, "@_$1_@")))
 @@ELSIF@@ @_IP_KIND_@ = K_SIMPLE
-@@-- ???? MATCH makes WSDL2AWS crash, so we use SLICE
-@@-- @@IF@@ @_MATCH(.*Character/):IP_TYPE_@
-@@IF@@ @_SLICE(-8..0):IP_TYPE_@ = "Character"
+@@IF@@ @_IP_TYPE_KIND_@ = P_CHARACTER
 SOAP.Utils.Get (SOAP.Parameters.Argument (Params, "@_$1_@"))
 @@ELSIF@@ @_IP_TYPE_KIND_@ = P_B64
 V (SOAP_Base64'(SOAP.Parameters.Get (Params, "@_$1_@")))
