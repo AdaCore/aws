@@ -41,20 +41,26 @@ R_Params :=
 @@MACRO(GET_PARAMETER_FROM_SOAP)@@
 @@IF@@ @_IP_KIND_@ = K_ARRAY
 To_@_IP_TYPE_NAME_@_Type (V (@_$1_@_@_IP_TYPE_NAME_@_Array))
-@@ELSIF@@ (@_IP_KIND_@ = K_RECORD) or (@_IP_KIND_@ = K_ENUMERATION)
+@@ELSIF@@ @_IP_KIND_@ = K_RECORD
 To_@_IP_TYPE_NAME_@_Type (@_$1_@_@_IP_TYPE_NAME_@_Record)
+@@ELSIF@@ @_IP_KIND_@ = K_ENUMERATION
+@_IP_TYPE_NAME_@_Type'Value (SOAP.Utils.Get (SOAP.Parameters.Argument (Params, "@_$1_@")))
 @@ELSIF@@ @_IP_KIND_@ = K_SIMPLE
 @@-- ???? MATCH makes WSDL2AWS crash, so we use SLICE
 @@-- @@IF@@ @_MATCH(.*Character/):IP_TYPE_@
 @@IF@@ @_SLICE(-8..0):IP_TYPE_@ = "Character"
-SOAP.Utils.Get (Params, "@_$1_@")
+SOAP.Utils.Get (SOAP.Parameters.Argument (Params, "@_$1_@"))
 @@ELSIF@@ @_IP_TYPE_KIND_@ = P_B64
 V (SOAP_Base64'(SOAP.Parameters.Get (Params, "@_$1_@")))
 @@ELSE@@
 SOAP.Parameters.Get (Params, "@_$1_@")
 @@END_IF@@
 @@ELSIF@@ @_IP_KIND_@ = K_DERIVED
-To_@_IP_ADA_TYPE_@ (To_@_IP_BASE_TYPE_@ (@_ADA_TYPE(@_IP_ROOT_TYPE_KIND_@)_@'(SOAP.Parameters.Get (Params, "@_$1_@"))))
+@@IF@@ @_IP_BASE_TYPE_@ = @_IP_TYPE_@
+From_@_ADA_TYPE(@_IP_ROOT_TYPE_KIND_@)_@ (SOAP.Parameters.Get (Params, "@_$1_@"))
+@@ELSE@@
+To_@_IP_ADA_TYPE_@ (To_@_IP_BASE_TYPE_@_Type (@_QUALIFIED_ADA_TYPE(@_IP_ROOT_TYPE_KIND_@)_@'(SOAP.Parameters.Get (Params, "@_$1_@"))))
+@@END_IF@@
 @@END_IF@@
 @@END_MACRO@@
 @@-- ---------------------------------------------------------------------
@@ -166,14 +172,10 @@ package body @_UNIT_NAME_@.Server is
                          "@_P_NAME_@");
 @@END_IF@@
 @@END_TABLE@@
-@@IF@@ not @_IS_EMPTY:DECL_P_NAME_@
-         --  Parameters
+@@IF@@ not @_IS_EMPTY:IP_NAME_@
+         --  Parameters:
 @@END_IF@@
 @@TABLE'TERSE'ALIGN_ON(":")@@
---         @_DECL_P_NAME_@ : constant @_DECL_P_TYPE_@ :=
---           @_DECL_P_GET_@;
--- To_tns_PercentCompleteInteger_Type (Tns_Nonnegativeint_Type (Integer'(SOAP.Parameters.Get (Params, "percent"))));
-
          --  @_IP_NAME_@
          @_GET_PARAMETERS_FROM_SOAP(@_IP_NAME_@)_@;
 @@END_TABLE@@

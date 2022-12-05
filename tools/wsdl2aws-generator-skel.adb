@@ -72,87 +72,21 @@ package body Skel is
       pragma Unreferenced
         (Wrapper_Name, Namespace, Fault, Documentation, SOAPAction, Proc);
 
-      use all type SOAP.WSDL.Parameter_Type;
-
       use type WSDL.Parameters.P_Set;
       use type WSDL.Types.Kind;
 
-      procedure Output_Parameters (N : WSDL.Parameters.P_Set);
-      --  Output parameters
-
       N                 : WSDL.Parameters.P_Set;
 
-      Parameter_B_Name  : Templates.Tag;
-      Parameter_B_Type  : Templates.Tag;
-      Parameter_Get     : Templates.Tag;
       Decl_Name         : Templates.Tag;
       Decl_Kind         : Templates.Tag;
       Decl_P_Name       : Templates.Tag;
       CB_Parameter_Name : Templates.Tag;
-
-      -----------------------
-      -- Output_Parameters --
-      -----------------------
-
-      procedure Output_Parameters (N : WSDL.Parameters.P_Set) is
-         T_Name : constant String := WSDL.Types.Name (N.Typ);
-      begin
-         case N.Mode is
-            when WSDL.Types.K_Simple =>
-               --  Check for Base64 case
-
-               if SOAP.WSDL.To_Type (T_Name) = P_B64 then
-                  Parameter_Get := Parameter_Get
-                    & ("V (SOAP_Base64'(SOAP.Parameters.Get (Params, """
-                       & To_String (N.Name)
-                       & """)))");
-
-               elsif SOAP.WSDL.To_Type (T_Name) = P_Character then
-                  Parameter_Get := Parameter_Get
-                    & ("SOAP.Utils.Get (SOAP.Parameters.Argument (Params, """
-                       & To_String (N.Name)
-                       & """))");
-
-               else
-                  Parameter_Get := Parameter_Get
-                    & ("SOAP.Parameters.Get (Params, """
-                       & To_String (N.Name)
-                       & """)");
-               end if;
-
-            when WSDL.Types.K_Derived =>
-               Parameter_Get := Parameter_Get
-                 & WSDL.Parameters.From_SOAP
-                     (N.all,
-                      Object =>
-                         "SOAP.Parameters.Get (Params, """
-                         & To_String (N.Name) & """)",
-                      Is_SOAP_Type => True);
-
-            when WSDL.Types.K_Enumeration =>
-               Parameter_Get := Parameter_Get
-                 & (T_Name & "_Type'Value"
-                    & "(SOAP.Utils.Get (SOAP.Parameters.Argument (Params, """
-                    & To_String (N.Name)
-                    & """)))");
-
-            when WSDL.Types.K_Array =>
-               raise Constraint_Error;
-
-            when WSDL.Types.K_Record =>
-               Parameter_Get := Parameter_Get
-                 & "Not_Yet_Supported";
-         end case;
-      end Output_Parameters;
 
    begin
       N := Input;
 
       while N /= null loop
          declare
-            Q_Name : constant String :=
-                       SOAP.Utils.To_Name
-                         (WSDL.Types.Name (N.Typ, NS => True));
             T_Name : constant String := WSDL.Types.Name (N.Typ);
          begin
             if N.Mode = WSDL.Types.K_Array then
@@ -176,49 +110,6 @@ package body Skel is
                   Decl_Kind := Decl_Kind & "RECORD";
                end if;
             end if;
-
-            Parameter_B_Name := Parameter_B_Name
-              & Format_Name (O, To_String (N.Name));
-
-            case N.Mode is
-               when WSDL.Types.K_Simple =>
-                  Parameter_B_Type := Parameter_B_Type
-                    & SOAP.WSDL.To_Ada (SOAP.WSDL.To_Type (T_Name));
-
-                  Output_Parameters (N);
-
-               when WSDL.Types.K_Enumeration =>
-                  Parameter_B_Type := Parameter_B_Type
-                    & (T_Name & "_Type");
-
-                  Output_Parameters (N);
-
-               when WSDL.Types.K_Derived =>
-                  Parameter_B_Type := Parameter_B_Type
-                    & (Q_Name & "_Type");
-
-                  Output_Parameters (N);
-
-               when WSDL.Types.K_Array =>
-                  Parameter_B_Type := Parameter_B_Type
-                    & (Format_Name (O, T_Name) & "_Type");
-
-                  Parameter_Get := Parameter_Get
-                    & ("To_"
-                       & Format_Name (O, T_Name) & "_Type (V ("
-                       & To_String (N.Name) & "_"
-                       & Format_Name (O, T_Name) & "_Array))");
-
-               when WSDL.Types.K_Record =>
-                  Parameter_B_Type := Parameter_B_Type
-                    & (Format_Name (O, T_Name) & "_Type");
-
-                  Parameter_Get := Parameter_Get
-                    & ("To_"
-                       & Format_Name (O, T_Name) & "_Type ("
-                       & To_String (N.Name) & "_"
-                       & Format_Name (O, T_Name) & "_Record)");
-            end case;
          end;
 
          N := N.Next;
@@ -227,10 +118,6 @@ package body Skel is
       Add_TagV (O.Skel_B_Trans, "DECL_C_NAME", Decl_Name);
       Add_TagV (O.Skel_B_Trans, "P_NAME", Decl_P_Name);
       Add_TagV (O.Skel_B_Trans, "DECL_C_KIND", Decl_Kind);
-
-      Add_TagV (O.Skel_B_Trans, "DECL_P_NAME", Parameter_B_Name);
-      Add_TagV (O.Skel_B_Trans, "DECL_P_TYPE", Parameter_B_Type);
-      Add_TagV (O.Skel_B_Trans, "DECL_P_GET", Parameter_Get);
 
       --  Output parameters
 

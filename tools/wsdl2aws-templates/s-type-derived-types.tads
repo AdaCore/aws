@@ -7,6 +7,7 @@
      is @_UNIT_NAME_@.@_TYPE_NAME_@;
 
 @@IF@@ @_IS_EMPTY:TYPE_SPEC_@
+   -- rtn
    function To_@_ROUTINE_NAME_@
      (D : @_TYPE_NAME_@)
       return @_BASE_NAME_@
@@ -27,15 +28,25 @@
       return @_TYPE_NAME_@
       renames @_UNIT_NAME_@.To_@_TYPE_NAME_@;
 
+@@IF@@ @_REPLACE(.*\.([^.]+)/\1):BASE_NAME_@ /= @_ROUTINE_NAME_@
+   function To_@_REPLACE(.*\.([^.]+)/\1):BASE_NAME_@
+     (D : @_TYPE_NAME_@)
+      return @_BASE_NAME_@
+      renames @_UNIT_NAME_@.To_@_REPLACE(.*\.([^.]+)/\1):BASE_NAME_@;
+
+   function From_@_REPLACE(.*\.([^.]+)/\1):BASE_NAME_@
+     (D : @_BASE_NAME_@)
+      return @_TYPE_NAME_@
+      renames @_UNIT_NAME_@.From_@_REPLACE(.*\.([^.]+)/\1):BASE_NAME_@;
+@@END_IF@@
 @@IF@@ @_EXIST:ALIAS_ROUTINE_NAME_@
 
-   function To_@_ALIAS_ROUTINE_NAME_@
+   function To_@_ALIAS_ROUTINE_NAME_@_Type
      (D : @_BASE_NAME_@)
       return @_TYPE_NAME_@
       renames @_UNIT_NAME_@.From_@_ROUTINE_NAME_@;
 @@END_IF@@
 @@ELSE@@
-
    function To_@_QUALIFIED_NAME_@
      (D : @_TYPE_NAME_@)
       return @_TYPE_SPEC_@.@_TYPE_REF_@
@@ -46,23 +57,33 @@
       return @_TYPE_NAME_@
       renames @_UNIT_NAME_@.From_@_QUALIFIED_NAME_@_Type;
 
-@@IF@@ @_EXIST:ALIAS_ROUTINE_NAME_@
-   function To_@_ALIAS_ROUTINE_NAME_@
+   function To_@_REPLACE(.*\.([^.]+)/\1):BASE_NAME_@
      (D : @_TYPE_NAME_@)
       return @_BASE_NAME_@
-      renames @_UNIT_NAME_@.To_@_ALIAS_ROUTINE_NAME_@;
+      renames @_UNIT_NAME_@.To_@_REPLACE(.*\.([^.]+)/\1):BASE_NAME_@;
 
-   function From_@_ALIAS_ROUTINE_NAME_@
+   function From_@_REPLACE(.*\.([^.]+)/\1):BASE_NAME_@
      (D : @_BASE_NAME_@)
       return @_TYPE_NAME_@
-      renames @_UNIT_NAME_@.From_@_ALIAS_ROUTINE_NAME_@;
+      renames @_UNIT_NAME_@.From_@_REPLACE(.*\.([^.]+)/\1):BASE_NAME_@;
+@@IF@@ @_EXIST:ALIAS_ROUTINE_NAME_@
 
+   function To_@_ALIAS_ROUTINE_NAME_@_Type
+     (D : @_TYPE_NAME_@)
+      return @_BASE_NAME_@
+      renames @_UNIT_NAME_@.To_@_ALIAS_ROUTINE_NAME_@_Type;
+
+   function From_@_ALIAS_ROUTINE_NAME_@_Type
+     (D : @_BASE_NAME_@)
+      return @_TYPE_NAME_@
+      renames @_UNIT_NAME_@.From_@_ALIAS_ROUTINE_NAME_@_Type;
 @@END_IF@@
 @@END_IF@@
 @@--
 @@-- we need to prefix by the qualified-name as we may otherwise have
 @@-- the multiple To_SOAP_Object on the same derived type (@_TYPE_NAME_@)
 @@-- hierarchy.
+
    function From_@_QUALIFIED_NAME_@_To_SOAP_Object
      (R         : @_TYPE_NAME_@;
       Name      : String := "item";

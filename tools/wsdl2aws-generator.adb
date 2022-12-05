@@ -648,13 +648,9 @@ package body WSDL2AWS.Generator is
                   P_Name : constant String :=
                              WSDL.Types.Name (Def.Parent, True);
                   B_Name : constant String :=
-                             SOAP.Utils.To_Name
-                               ((if SOAP.WSDL.Is_Standard (P_Name)
-                                then SOAP.WSDL.To_Ada
-                                  (SOAP.WSDL.To_Type (P_Name),
-                                   not WSDL.Types.Is_Constrained (Def)
-                                   and then Types_Spec (O) = "")
-                                else P_Name & "_Type"));
+                             (if SOAP.WSDL.Is_Standard (P_Name)
+                              then WSDL.Types.Name (N.Typ, True)
+                              else SOAP.Utils.To_Name (P_Name));
                begin
                   P_Base_Type      := P_Base_Type & B_Name;
                   P_Root_Type_Kind := P_Root_Type_Kind
@@ -1951,8 +1947,7 @@ package body WSDL2AWS.Generator is
             if SOAP.WSDL.Is_Standard (P_Name) then
                Translations := Translations
                  & Templates.Assoc
-                     ("ALIAS_ROUTINE_NAME",
-                      SOAP.Utils.No_NS (Name) & "_Type");
+                     ("ALIAS_ROUTINE_NAME", SOAP.Utils.No_NS (Name));
             end if;
 
          else
@@ -1963,8 +1958,7 @@ package body WSDL2AWS.Generator is
             if SOAP.WSDL.Is_Standard (P_Name) then
                Translations := Translations
                  & Templates.Assoc
-                     ("ALIAS_ROUTINE_NAME",
-                      SOAP.Utils.No_NS (P_Name) & "_Type");
+                     ("ALIAS_ROUTINE_NAME", SOAP.Utils.No_NS (P_Name));
             end if;
          end if;
 

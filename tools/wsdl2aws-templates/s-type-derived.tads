@@ -84,6 +84,17 @@ package @_UNIT_NAME_@ is
       return @_TYPE_NAME_@
       renames From_@_ROUTINE_NAME_@;
 
+@@IF@@ @_REPLACE(.*\.([^.]+)/\1):BASE_NAME_@ /= @_ROUTINE_NAME_@
+   function To_@_REPLACE(.*\.([^.]+)/\1):BASE_NAME_@
+     (D : @_TYPE_NAME_@)
+      return @_BASE_NAME_@
+      is (@_BASE_NAME_@ (D));
+
+   function From_@_REPLACE(.*\.([^.]+)/\1):BASE_NAME_@
+     (D : @_BASE_NAME_@)
+      return @_TYPE_NAME_@
+      is (@_TYPE_NAME_@ (D));
+@@END_IF@@
 @@ELSE@@
    subtype @_TYPE_NAME_@ is
      @_TYPE_SPEC_@.@_TYPE_REF_@;
@@ -103,13 +114,23 @@ package @_UNIT_NAME_@ is
       return @_QUALIFIED_NAME_@_Type
       renames From_@_QUALIFIED_NAME_@_Type;
 
-@@IF@@ @_EXIST:ALIAS_ROUTINE_NAME_@
-   function To_@_ALIAS_ROUTINE_NAME_@
+   function To_@_REPLACE(.*\.([^.]+)/\1):BASE_NAME_@
      (D : @_TYPE_NAME_@)
       return @_BASE_NAME_@
       is (@_BASE_NAME_@ (D));
 
-   function From_@_ALIAS_ROUTINE_NAME_@
+   function From_@_REPLACE(.*\.([^.]+)/\1):BASE_NAME_@
+     (D : @_BASE_NAME_@)
+      return @_TYPE_NAME_@
+      is (@_TYPE_NAME_@ (D));
+
+@@IF@@ @_EXIST:ALIAS_ROUTINE_NAME_@
+   function To_@_ALIAS_ROUTINE_NAME_@_Type
+     (D : @_TYPE_NAME_@)
+      return @_BASE_NAME_@
+      is (@_BASE_NAME_@ (D));
+
+   function From_@_ALIAS_ROUTINE_NAME_@_Type
      (D : @_BASE_NAME_@)
       return @_TYPE_NAME_@
       is (@_TYPE_NAME_@ (D));
