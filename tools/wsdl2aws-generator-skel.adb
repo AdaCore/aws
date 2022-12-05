@@ -76,43 +76,9 @@ package body Skel is
       use type WSDL.Types.Kind;
 
       N                 : WSDL.Parameters.P_Set;
-
-      Decl_Name         : Templates.Tag;
-      Decl_Kind         : Templates.Tag;
-      Decl_P_Name       : Templates.Tag;
       CB_Parameter_Name : Templates.Tag;
 
    begin
-      N := Input;
-
-      while N /= null loop
-         declare
-            T_Name : constant String := WSDL.Types.Name (N.Typ);
-         begin
-            if N.Mode = WSDL.Types.K_Array then
-               Decl_Kind := Decl_Kind & "ARRAY";
-               Decl_Name := Decl_Name & Format_Name (O, T_Name);
-               Decl_P_Name := Decl_P_Name & To_String (N.Name);
-
-            elsif N.Mode = WSDL.Types.K_Record then
-               Decl_Name := Decl_Name & Format_Name (O, T_Name);
-               Decl_P_Name := Decl_P_Name & To_String (N.Name);
-
-               if N.P = null then
-                  Decl_Kind := Decl_Kind & "NULL_RECORD";
-               else
-                  Decl_Kind := Decl_Kind & "RECORD";
-               end if;
-            end if;
-         end;
-
-         N := N.Next;
-      end loop;
-
-      Add_TagV (O.Skel_B_Trans, "DECL_NAME", Decl_Name);
-      Add_TagV (O.Skel_B_Trans, "DECL_KIND", Decl_Kind);
-      Add_TagV (O.Skel_B_Trans, "P_NAME", Decl_P_Name);
-
       --  Output parameters
 
       if Output = null then

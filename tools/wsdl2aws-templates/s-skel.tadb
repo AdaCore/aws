@@ -158,16 +158,16 @@ package body @_UNIT_NAME_@.Server is
          --  Compound helpers
 @@END_IF@@
 @@TABLE'TERSE@@
-@@IF@@ @_DECL_KIND_@ = ARRAY
-         @_P_NAME_@_@_DECL_NAME_@_Array : constant SOAP.Types.SOAP_Array :=
-           SOAP.Parameters.Get (Params, "@_P_NAME_@");
-@@ELSIF@@ @_DECL_KIND_@ = RECORD
-         @_P_NAME_@_@_DECL_NAME_@_Record : constant SOAP.Types.SOAP_Record :=
-           SOAP.Parameters.Get (Params, "@_P_NAME_@");
-@@ELSIF@@ @_DECL_KIND_@ = NULL_RECORD
-         @_P_NAME_@_@_DECL_NAME_@_Record : constant SOAP.Types.SOAP_Record :=
-           SOAP.Types.R (SOAP.Types.Empty_Object_Set,
-                         "@_P_NAME_@");
+@@IF@@ @_IP_KIND_@ = K_ARRAY
+         @_IP_NAME_@_@_IP_TYPE_NAME_@_Array : constant SOAP.Types.SOAP_Array :=
+            SOAP.Parameters.Get (Params, "@_IP_NAME_@");
+@@ELSIF@@ (@_IP_KIND_@ = K_RECORD) and (@_IP_COMPOUND_SIZE_@ = 0)
+         @_IP_NAME_@_@_IP_TYPE_NAME_@_Record : constant SOAP.Types.SOAP_Record :=
+            SOAP.Types.R (SOAP.Types.Empty_Object_Set,
+                          "@_IP_NAME_@");
+@@ELSIF@@ @_IP_KIND_@ = K_RECORD
+         @_IP_NAME_@_@_IP_TYPE_NAME_@_Record : constant SOAP.Types.SOAP_Record :=
+            SOAP.Parameters.Get (Params, "@_IP_NAME_@");
 @@END_IF@@
 @@END_TABLE@@
 @@IF@@ not @_IS_EMPTY:IP_NAME_@
