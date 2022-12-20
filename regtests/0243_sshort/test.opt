@@ -1,1 +1,3 @@
-!ssl DEAD
+ssl REQUIRED
+--  Fails on all versions of Windows except Windows 2022
+windows,!windows-2022  XFAIL investigated under VC15-012
