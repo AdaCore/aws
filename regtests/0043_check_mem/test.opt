@@ -1,3 +1,4 @@
-!ssl DEAD
-!xmlada DEAD
+ssl    REQUIRED
+xmlada REQUIRED
 darwin DEAD "no gnatmem"
+windows-2022  XFAIL investigated under VC15-012

@@ -1,2 +1,7 @@
-!ssl DEAD
+ssl REQUIRED
 gnutls OUT test-gnutls.out
+--  The test actually only fails on SuSE 12 and SuSE 15, but as far
+--  as I can tell, we do not produce a SuSE 15 discriminant :-(.
+--  XFAIL the test on all Linux platforms for now as a workaround.
+linux         XFAIL investigated under VC15-012
+windows-2022  XFAIL investigated under VC15-012

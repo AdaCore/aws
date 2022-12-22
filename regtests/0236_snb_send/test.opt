@@ -1,1 +1,2 @@
-!ssl DEAD
+ssl REQUIRED
+windows-2022  XFAIL investigated under VC15-012
