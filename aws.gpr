@@ -108,6 +108,11 @@ aggregate library project AWS is
       for Artifacts ("share/doc/aws/templates_parser/pdf")
         use ("templates_parser/docs/build/latex/*.pdf");
 
+      --  SOAP/WSDL templates
+
+      for Artifacts ("share/examples/aws/wsdl2aws-templates")
+        use ("tools/wsdl2aws-templates/s-*");
+
       --  gps plug-ins
 
       for Artifacts ("share/gps/plug-ins") use ("gps/*.xml", "gps/aws.py");
