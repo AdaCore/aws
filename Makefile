@@ -1,7 +1,7 @@
 ############################################################################
 #                              Ada Web Server                              #
 #                                                                          #
-#                     Copyright (C) 2003-2022, AdaCore                     #
+#                     Copyright (C) 2003-2023, AdaCore                     #
 #                                                                          #
 #  This is free software;  you can redistribute it  and/or modify it       #
 #  under terms of the  GNU General Public License as published  by the     #
@@ -187,7 +187,7 @@ build-awsres-tool-native:
 	$(GPRBUILD) -p $(GPROPTS) $(GPR_STATIC) -XTO_BUILD=awsres.adb \
 		tools/tools.gpr
 
-build-tools-native: build-lib-native
+build-tools-native: gen-templates build-lib-native
 	$(GPRBUILD) -p $(GPROPTS) $(GPR_STATIC) tools/tools.gpr
 
 build-lib-native:
@@ -214,7 +214,8 @@ ifeq (${ENABLE_SHARED}, true)
 endif
 
 gen-templates: build-awsres-tool-native force
-	make -C tools/wsdl2aws-templates TARGET=$(TARGET) gen-templates
+	make -C tools/wsdl2aws-templates \
+		BDIR=$(BDIR) TARGET=$(TARGET) gen-templates
 
 build-cross: build-tools-cross
 
