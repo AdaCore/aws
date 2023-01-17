@@ -394,8 +394,52 @@ document. In this section we describe the mapping between Ada and
 *Array inside a record*
   This part is a bit delicate. A record field must be constrained but a
   `SOAP` arrays is most of the time not constrained at all. To
-  support this `AWS` use a safe access array component. Such a type
-  is built using a generic runtime support package named
+  support this `AWS` use an Ada.Containers.Vectors or a safe access array
+  component (legacy mode). Both support are described below.
+
+*Array inside a record (Ada.Containers.Vectors)*
+  Using an Ada.Containers.Vectors is the preferred way of supporting
+  array inside records.
+
+  For example, let's say that we have an array of integer that we want
+  to put inside a record::
+
+   type Set_Of_Int is array (Positive range <>) of Integer;
+
+  The first step is to create the corresponding Ada.Containers::
+
+   package Set_Of_Int_Type is
+     new Ada.Containers.Vectors (Positive, Integer);
+
+  And then the vectors can be added into the record::
+
+   type Complex_Rec is record
+      SI : Set_Of_Int_Type.Vectors;
+   end record;
+
+  .. highlight:: xml
+
+  These Ada definitions are fully recognized by :file:`ada2wsdl` and will
+  generate standard array and record `WSDL` definitions as seen above::
+
+    <xsd:complexType name="Integer_List_Type">
+       <xsd:sequence>
+          <xsd:element name="x" type="xsd:int"
+                       minOccurs="0" maxOccurs="unbounded"/>
+       </xsd:sequence>
+    </xsd:complexType>
+
+    <xsd:complexType name="Complex_Rec">
+       <xsd:all>
+          <xsd:element name="SI" type="tns:Integer_List_Type"/>
+       </xsd:all>
+    </xsd:complexType>
+
+.. highlight:: ada
+
+*Array inside a record (legacy)*
+  Using a safe pointer array component to support array inside records.
+  Such a type is built using a generic runtime support package named
   `SOAP.Utils.Safe_Pointers`. This package implements a reference
   counter for the array access and will automatically release the memory
   when no more reference exist to a given object.
@@ -444,14 +488,35 @@ document. In this section we describe the mapping between Ada and
      </all>
    </complexType>
 
+.. highlight:: ada
+
 *Array as routine parameter*
-  When an array is passed as parameter to a `SOAP` routine it is also
-  required to create a corresponding Safe_Pointer when using a
+  When an array is passed as parameter to a
+  `SOAP` routine it is also required to create a corresponding
+  Ada.Containers.Vectors or a Safe_Pointer when using a
   `Document/Literal` binding and using a user's type package (see
-  `-types` and '`-spec` `wsdl2aws` options). This is needed for the
-  `AWS` generated code to handle this routine. Even if required in a
-  very specific case it is never an error to declare such a Safe_Pointer
-  for an array.
+  `-types` and '`-spec` `wsdl2aws` options).
+
+*Array as routine parameter (Ada.Containers.Vectors)*
+  This is needed for the `AWS` generated code to handle this routine.
+  Even if required in a very specific case it is never an error to
+  declare such a Ada.Containers.Vectors for an array.
+
+  For example::
+
+   type Set_Of_Int is array (Positive range <>) of Integer;
+
+   procedure Call (Values : Set_Of_Int);
+
+  Then the following declaration is required::
+
+   package Set_Of_Int_Type is
+     new Ada.Containers.Vectors (Positive, Integer);
+
+*Array as routine parameter (legacy)*
+  This is needed for the `AWS` generated code to handle this routine.
+  Even if required in a very specific case it is never an error to
+  declare such a Safe_Pointer for an array.
 
   For example::
 
@@ -540,9 +605,9 @@ ada2wsdl limitations
 
 * Unbounded_String are supported with full interoperability only inside a record.
 
-* Only unconstrained arrays are supported
+* Only unconstrained arrays are supported.
 
-* Arrays with multiple dimensions are not supported
+* Arrays with multiple dimensions are not supported.
 
 .. _Working_with_WSDL_documents:
 
@@ -784,14 +849,142 @@ a `WSDL` document on the Web by passing it's `URL`.
   not specified, the spec definitions are also used from this spec.
 
 *-main filename*
-  Specify the name of the server's procedure main to generate. If
-  file :file:`<filename>.amt` (Ada Main Template) is present, it uses this
-  template file to generate the main procedure. The template can
-  reference the following variable tags:
+  Specify the name of the server's procedure main to generate. See
+  below for the description about the way it is generated.
+
+*-n name*
+  Specify the schema name space root name. The default value is "soapaws".
+
+*-proxy name|IP*
+  Use this proxy to access the `WSDL` document and generate code to access
+  to these Web Services via this proxy. The proxy can be specified by
+  its DNS name or IP address.
+
+*-pu name*
+  User name for the proxy if proxy authentication required.
+
+*-pp password*
+  User password for the proxy if proxy authentication required.
+
+*-sp*
+  Generate legacy Safe Pointers code for the support of array inside
+  records.
+
+*-timeouts [timeouts | connect_timeout,send_timeout,receive_timeout ]*
+  Set the timeouts for the SOAP connection. The timeouts is either a
+  single value used for the connect, send and receive timeouts or three
+  values separated by a colon to set each timeout independently.
+
+.. _wsdl2aws_code_generator:
+
+wsdl2aws code generator
+-----------------------
+
+.. index:: Code generator
+.. highlight:: shell
+
+The `wsdl2aws` tool reads a `WSDL` document and generates - based on
+different templates files - a set of packages. The templates are
+rendered with the Templates_Parser engine.
+
+.. index:: Template files
+
+All the templates can be found in AWS installation under
+`share/examples/aws/wsdl2aws-templates`. They can be copied into the
+directory where `wsdl2aws` is started or pointed to by the environment
+variable `AWS_TEMPLATE_FILES`. One can then change the generated code
+by editing those templates.
+
+The generated packages and the corresponding templates are described
+below:
+
+*<root>*
+  Template::
+
+    s-root.tads
+
+  This is the main package, it eventually contains the full `WSDL` in
+  comments and the description of the services as read from the `WSDL`
+  document.
+
+*<NS>.<type>_type_pkg*
+  Templates::
+
+    s-name-space-pkg.tads
+
+    s-type-record.tads     s-type-record.tadb
+    s-type-enum.tads       s-type-enum.tadb
+    s-type-derived.tads
+    s-type-array.tads
+
+  Contains all the type definitions for non standard Ada types. In
+  these packages we find for example the definition of the records and
+  the operations to convert them to/from SOAP objects. The types
+  defined here have possible constraints like range attributes and/or
+  Dynamic_Predicate aspects for Pattern and/or Length WSDL attributes.
+
+  The root package <NS> is the name-space of the actual type. This
+  ensure that no type name clash will happen. These packages are
+  generally not directly withed.
+
+*<root>.Types*
+  Templates::
+
+    s-types.tads               s-types.tadb
+    s-type-record-types.tads
+    s-type-enum-types.tads
+    s-type-derived-types.tads
+    s-type-array-types.tads
+    s-stub-types.tads
+
+  This package contains the definitions of the types which are not `SOAP`
+  base types. We find here the definitions of the `SOAP` structs
+  and arrays with routines to convert them between the Ada and `SOAP` type
+  model. A subtype definition is also created for every routine's
+  returned type. In fact, all definitions here are only aliases or
+  renamings of types and/or routines generated in other packages rooted
+  with a name-space as described above. This package is the one that
+  user's should import to gain visibility to the type definitions.
+
+  This package also contains the schema object which must be used when
+  calling a Web service or parsing a payload.
+
+*<root>.Client*
+  Templates::
+
+    s-stub.tads   s-stub.tadb
+
+  All specifications to call Web Services.
+
+*<root>.Server*
+  Templates::
+
+    s-skel.tads   s-skel.tadb
+
+  All specifications to build Web Services. These specifications are all
+  generic and must be instantiated with the correct routine to create the
+  web services.
+
+*<root>.CB*
+  Templates::
+
+    s-skel-cb.tads   s-skel-cb.tadb
+
+  The `SOAP` dispatcher callback routine.
+
+*<main>*
+  Template::
+
+    s-main.tadb
+
+  The template used to generate the main procedure (see option -main).
+  The template can reference the following variable tags:
+
+  .. highlight:: ada
 
   *SOAP_SERVICE*
-      The name of the service as described into the `WSDL`
-      document. This tag can be used to include the right units::
+     The name of the service as described into the `WSDL`
+     document. This tag can be used to include the right units::
 
        with @_SOAP_SERVICE_@.Client;
        with @_SOAP_SERVICE_@.CB;
@@ -810,73 +1003,6 @@ a `WSDL` document on the Web by passing it's `URL`.
        begin
           ...
 
-*-n name*
-  Specify the schema name space root name. The default value is "soapaws".
-
-*-proxy name|IP*
-  Use this proxy to access the `WSDL` document and generate code to access
-  to these Web Services via this proxy. The proxy can be specified by
-  its DNS name or IP address.
-
-*-pu name*
-  User name for the proxy if proxy authentication required.
-
-*-pp password*
-  User password for the proxy if proxy authentication required.
-
-*-timeouts [timeouts | connect_timeout,send_timeout,receive_timeout ]*
-  Set the timeouts for the SOAP connection. The timeouts is either a
-  single value used for the connect, send and receive timeouts or three
-  values separated by a colon to set each timeout independently.
-
-.. _wsdl2aws_behind_the_scene:
-
-wsdl2aws behind the scenes
---------------------------
-
-The `wsdl2aws` tool reads a `WSDL` document and creates a root
-package and a set of child packages as described below:
-
-*<root>*
-  This is the main package, it eventually contains the full `WSDL` in
-  comments and the description of the services as read from the `WSDL`
-  document.
-
-*<NS>.<type>_type_pkg*
-  Contains all the type definitions for non standard Ada types. In
-  these packages we find for example the definition of the records and
-  the operations to convert them to/from SOAP objects. The types
-  defined here have possible constraints like range attributes and/or
-  Dynamic_Predicate aspects for Pattern and/or Length WSDL attributes.
-
-  The root package <NS> is the name-space of the actual type. This
-  ensure that no type name clash will happen. These packages are
-  generally not directly :file:`with`ed.
-
-*<root>.Types*
-  This package contains the definitions of the types which are not `SOAP`
-  base types. We find here the definitions of the `SOAP` structs
-  and arrays with routines to convert them between the Ada and `SOAP` type
-  model. A subtype definition is also created for every routine's
-  returned type. In fact, all definitions here are only aliases or
-  renamings of types and/or routines generated in other packages rooted
-  with a name-space as described above. This package is the one that
-  user's should import to gain visibility to the type definitions.
-
-  This package also contains the schema object which must be used when
-  calling a Web service or parsing a payload.
-
-*<root>.Client*
-  All specifications to call Web Services.
-
-*<root>.Server*
-  All specifications to build Web Services. These specifications are all
-  generic and must be instantiated with the correct routine to create the
-  web services.
-
-*<root>.CB*
-  The `SOAP` dispatcher callback routine.
-
 .. _wsdl2aws_limitations:
 
 wsdl2aws limitations
@@ -887,8 +1013,8 @@ wsdl2aws limitations
 It is hard to know all the current limitations due to the complexity of the `WSDL` and
 `SOAP` world is quite complex. We list there all known limitations:
 
-* Some `SOAP` base types are not currently 
-supported: *date, time, xsd:hexBinary, decimal*, but all 
+* Some `SOAP` base types are not currently
+supported: *date, time, xsd:hexBinary, decimal*, but all
 (with the exception of decimal) should be simple to add in the future.
 
 * Multi-dimensional arrays are not supported.
@@ -899,7 +1025,7 @@ supported: *date, time, xsd:hexBinary, decimal*, but all
 
 * WSDL type inheritance is not supported.
 
-* The Document/Encoded SOAP messages' style is not supported
+* The Document/Encoded SOAP messages' style is not supported.
 
 * complexType with xs:choice are only supported with a single occurence
   of each choice.

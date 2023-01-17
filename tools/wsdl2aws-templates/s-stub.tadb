@@ -1,0 +1,243 @@
+@@--  Stub for calling a servive
+@@--
+--  wsdl2aws SOAP Generator v@_WSDL2AWS_VERSION_@
+--
+--  AWS @_AWS_VERSION_@ - SOAP @_SOAP_VERSION_@
+--  This file was generated on @_NOW_@
+--
+--  $ wsdl2aws @_OPTIONS_@
+@@INCLUDE@@ s-common.macros
+@@--
+with Ada.Exceptions;
+
+with SOAP.Client;
+with SOAP.Message.Payload;
+with SOAP.Message.Response;
+with SOAP.Message.XML;
+with SOAP.Name_Space;
+with SOAP.Parameters;
+with SOAP.Utils;
+
+@@IF@@ @_DEBUG_@
+--  For debug mode
+with Ada.Text_IO;
+with SOAP.Message.XML;
+@@END_IF@@
+
+@@IF@@ @_TRACES_@
+--  For the trace mode
+with SOAP.Client.Callback;
+@@END_IF@@
+
+package body @_UNIT_NAME_@.Client is
+
+   use Ada.Exceptions;
+   use SOAP.Types;
+   use SOAP.Parameters;
+@@IF@@ @_DEBUG_@
+
+   --  For debug mode
+   use Ada.Text_IO;
+@@END_IF@@
+@@IF@@ @_TRACES_@
+
+   --  For the trace mode
+   use SOAP.Client.Callback;
+@@END_IF@@
+
+   pragma Style_Checks (Off);
+@@TABLE@@
+
+   --
+   -- @_PROC_@
+   --
+
+@@IF@@ @_HAS_OUTPUT_@
+   function @_PROC_@
+@@ELSE@@
+   procedure @_PROC_@
+@@END_IF@@
+@@INLINE(     \()(;\n      )(\))@@
+Connection : AWS.Client.HTTP_Connection
+@@TABLE'ALIGN_ON(":")'TERSE@@
+      @_PARAMETER_NAME_@ : @_PARAMETER_TYPE_@
+@@END_TABLE@@
+@@END_INLINE@@
+@@IF@@ @_HAS_OUTPUT_@
+      return @_PROC_RETURN_TYPE_@
+@@END_IF@@
+   is
+      P_Set   : SOAP.Parameters.List;
+      Payload : SOAP.Message.Payload.Object;
+@@IF@@ not @_IS_EMPTY:DECL_NAME_@
+      @_DECL_NAME_@ : @_DECL_TYPE_@;
+@@END_IF@@
+   begin
+@@IF@@ not @_IS_EMPTY:DECL_FIELD_NAME_@
+      --  Setup @_DECL_NAME_@ record's fields
+@@TABLE'TERSE@@
+@@IF@@ @_DECL_FIELD_KIND_@ = "ARRAY"
+      @_DECL_PREFIX_NAME_@.@_DECL_FIELD_NAME_@ := +@_DECL_FIELD_NAME_@;
+@@ELSE@@
+      @_DECL_PREFIX_NAME_@.@_DECL_FIELD_NAME_@ := @_DECL_FIELD_NAME_@;
+@@END_IF@@
+@@END_TABLE@@
+@@END_IF@@
+@@IF@@ not @_IS_EMPTY:IP_DECL_NAME_@
+      --  Set Parameters
+      P_Set :=
+@@INLINE(        +)(\n        & )(;)@@
+@@TABLE'TERSE@@
+@@IF@@ @_IP_KIND_@ = K_SIMPLE
+@@INLINE(         )(,)(\)\))@@
+         @_SET_TYPE(@_IP_TYPE_KIND_@)_@'(SOAP.Utils.To_SOAP_Object (@_IP_DECL_NAME_@, "@_IP_NAME_@", "@_IP_TYPE_@"
+@@IF@@ not @_IS_EMPTY:IP_ELT_NS_NAME_@ and not (@_IP_NS_VALUE_@ = "http://www.w3.org/2001/XMLSchema")
+         SOAP.Name_Space.Create ("@_IP_ELT_NS_NAME_@", "@_IP_NS_VALUE_@")
+@@END_IF@@
+@@END_INLINE@@
+@@ELSIF@@ @_IP_KIND_@ = K_DERIVED
+         From_@_IP_Q_NAME_@_To_SOAP_Object (@_IP_DECL_NAME_@, "@_IP_NAME_@")
+@@ELSE@@
+         To_SOAP_Object (@_IP_DECL_NAME_@, "@_IP_NAME_@")
+@@END_IF@@
+@@END_TABLE@@
+@@END_INLINE@@
+@@END_IF@@
+
+      Payload := SOAP.Message.Payload.Build
+@@INLINE(                   \()(,\n                    )(\);)@@
+                   "@_SOAP_PROC_@"
+                   P_Set
+@@IF@@ not @_IS_EMPTY:PROC_NAME_SPACE_NAME_@
+                    SOAP.Name_Space.Create ("@_PROC_NAME_SPACE_NAME_@", "@_PROC_NAME_SPACE_VALUE_@")
+@@END_IF@@
+@@END_INLINE@@
+@@IF@@ @_DEBUG_@
+      Put_Line ("[CLIENT/@_PROC_@] Payload : "
+                & SOAP.Message.XML.Image (Payload, Schema));
+
+@@END_IF@@
+@@IF@@ @_TRACES_@
+      Pre_Call_Callback (Connection, Payload, Schema);
+@@END_IF@@
+
+      declare
+         Response : constant SOAP.Message.Response.Object'Class :=
+                      SOAP.Client.Call
+                        (Connection, "@_SOAP_ACTION_@",
+                         Payload, Schema => Schema);
+         R_Param  : constant SOAP.Parameters.List :=
+                      SOAP.Message.Parameters (Response);
+      begin
+@@IF@@ @_DEBUG_@
+         Put_Line ("[CLIENT/@_PROC_@] Response : "
+                   & SOAP.Message.XML.Image (Response, Schema));
+
+@@END_IF@@
+@@IF@@ @_TRACES_@
+      POst_Call_Callback (Connection, Payload, Response, Schema);
+@@END_IF@@
+         if SOAP.Message.Response.Is_Error (Response) then
+            raise SOAP.SOAP_Error with
+               SOAP.Parameters.Get (R_Param, "faultstring");
+@@IF@@ @_HAS_OUTPUT_@
+@@IF@@ @_RETURN_TYPE_KIND_@ = P_STRING
+@@SET@@ RETURN_PREFIX = -
+@@ELSE@@
+@@SET@@ RETURN_PREFIX = ""
+@@END_IF@@
+@@IF@@ @_IS_EMPTY:RETURN_RESULT_@
+@@SET@@ RETURN_SEP = ""
+@@ELSE@@
+@@SET@@ RETURN_SEP = .
+@@END_IF@@
+         else
+            declare
+               Result : constant @_PROC_CB_RETURN_TYPE_@ :=
+@@IF@@ @_SINGLE_OUT_PARAMETER_@
+@@IF@@ @_OP_KIND_@ = K_SIMPLE
+@@IF@@ @_MATCH(.*Character):OP_TYPE_@
+                          SOAP.Utils.Get
+                            (SOAP.Parameters.Argument (R_Param, "@_OP_NAME_@"));
+@@ELSIF@@ @_OP_TYPE_@ = "xsd:base64Binary"
+                          V (SOAP_Base64'
+                              (SOAP.Parameters.Get (R_Param, "@_OP_NAME_@")));
+@@ELSE@@
+@@-- All standard xsd types : xsd:int xsd:float...
+                          SOAP.Parameters.Get (R_Param, "@_OP_NAME_@");
+@@END_IF@@ @@-- Character
+@@ELSIF@@ @_OP_KIND_@ = K_DERIVED
+                          To_@_PROC_@_Result (R_Param);
+@@ELSIF@@ @_OP_KIND_@ = K_ARRAY
+                          To_@_OP_TYPE_NAME_@_Type (R_Param);
+@@ELSIF@@ @_OP_KIND_@ = K_ENUMERATION
+                          To_@_OP_TYPE_NAME_@_Type (R_Param);
+@@ELSIF@@ @_OP_KIND_@ = K_RECORD
+                          To_@_OP_TYPE_NAME_@_Type_W (R_Param);
+@@END_IF@@
+@@ELSE@@
+                          To_@_PROC_@_Result (R_Param);
+@@END_IF@@
+            begin
+               return @_RETURN_PREFIX_@Result@_RETURN_SEP_@@_RETURN_RESULT_@;
+            end;
+@@END_IF@@
+         end if;
+      end;
+   end @_PROC_@;
+
+@@IF@@ @_HAS_OUTPUT_@
+   function @_PROC_@
+@@ELSE@@
+   procedure @_PROC_@
+@@END_IF@@
+@@INLINE(     \()(;\n      )(\))@@
+@@TABLE'ALIGN_ON(":")'TERSE@@
+      @_PARAMETER_NAME_@ : @_PARAMETER_TYPE_@
+@@END_TABLE@@
+      Endpoint : String := @_UNIT_NAME_@.URL
+      Timeouts : AWS.Client.Timeouts_Values := @_UNIT_NAME_@.Timeouts
+@@END_INLINE@@
+@@IF@@ @_HAS_OUTPUT_@
+      return @_PROC_RETURN_TYPE_@
+@@END_IF@@
+   is
+      Connection : AWS.Client.HTTP_Connection;
+   begin
+      AWS.Client.Create
+        (Connection, Endpoint,
+         Persistent => False,
+         Timeouts   => Timeouts);
+@@IF@@ @_HAS_OUTPUT_@
+      declare
+         Result : constant @_PROC_RETURN_TYPE_@ :=
+@@IF@@ @_TRACES_@
+@@SET@@ CALLTRACE = ", Pre_Call_Callback, Post_Call_Callback"
+@@ELSE@@
+@@SET@@ CALLTRACE = ""
+@@END_IF@@
+@@IF@@ @_IS_EMPTY:PARAMETER_NAME_@
+                    Client.@_PROC_@ (Connection@_CALLTRACE_@);
+@@ELSE@@
+                    Client.@_PROC_@ (Connection, @_PARAMETER_NAME_@@_CALLTRACE_@);
+@@END_IF@@
+      begin
+         AWS.Client.Close (Connection);
+         return Result;
+      end;
+@@ELSE@@
+@@IF@@ @_IS_EMPTY:PARAMETER_NAME_@
+      Client.@_PROC_@ (Connection@_CALLTRACE_@);
+@@ELSE@@
+      Client.@_PROC_@ (Connection, @_PARAMETER_NAME_@@_CALLTRACE_@);
+@@END_IF@@
+      AWS.Client.Close (Connection);
+@@END_IF@@
+   exception
+      when others =>
+         AWS.Client.Close (Connection);
+         raise;
+   end @_PROC_@;
+@@END_TABLE@@
+
+end @_UNIT_NAME_@.Client;

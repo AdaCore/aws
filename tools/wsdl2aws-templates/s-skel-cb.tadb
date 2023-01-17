@@ -1,0 +1,90 @@
+@@--  Stub for calling a servive
+@@--
+--  wsdl2aws SOAP Generator v@_WSDL2AWS_VERSION_@
+--
+--  AWS @_AWS_VERSION_@ - SOAP @_SOAP_VERSION_@
+--  This file was generated on @_NOW_@
+--
+--  $ wsdl2aws @_OPTIONS_@
+
+with Ada.Exceptions;
+with SOAP.Message.Response.Error;
+
+@@TABLE@@
+with @_WITHED_UNITS_@;
+@@END_TABLE@@
+
+@@TABLE@@
+with @_USER_UNITS_@;
+@@END_TABLE@@
+
+package body @_UNIT_NAME_@.CB is
+
+   use Ada.Exceptions;
+   use SOAP;
+
+@@TABLE@@
+   use Standard.@_USER_UNITS_@;
+@@END_TABLE@@
+
+@@TABLE@@
+   function @_PROC_@_CB is
+     new @_CB_UNIT_@.Server.@_FORMATTED_PROC_@_CB
+       (@_PROC_SPEC_@.@_PROC_@);
+
+@@END_TABLE@@
+
+   --
+   -- SOAP_CB
+   --
+
+   function SOAP_CB
+     (SOAPAction : String;
+      Payload    : Message.Payload.Object;
+      Request    : AWS.Status.Data)
+      return Response.Data is
+   begin
+@@TABLE@@
+@@IF@@ @_TABLE_LINE_@ = 1
+      if SOAPAction = "@_SOAP_ACTION_@" then
+@@ELSE@@
+      elsif SOAPAction = "@_SOAP_ACTION_@" then
+@@END_IF@@
+         return @_PROC_@_CB (SOAPAction, Payload, Request);
+@@END_TABLE@@
+      else
+         return Message.Response.Build
+           (Message.Response.Error.Build
+             (Message.Response.Error.Client,
+              "Wrong SOAP action " & SOAPAction));
+      end if;
+   exception
+      when E : others =>
+         return Message.Response.Build
+           (Message.Response.Error.Build
+             (Message.Response.Error.Client,
+              "Error in SOAP_CB for SOAPAction " & SOAPAction
+               & " (" & Exception_Information (E) & ")"));
+   end SOAP_CB;
+
+   --
+   -- Is_SOAPAction_Defined
+   --
+
+   function Is_SOAPAction_Defined
+     (SOAPAction : String) return Boolean is
+   begin
+@@TABLE@@
+@@IF@@ @_TABLE_LINE_@ = 1
+      if SOAPAction = "@_SOAP_ACTION_@" then
+@@ELSE@@
+      elsif SOAPAction = "@_SOAP_ACTION_@" then
+@@END_IF@@
+         return True;
+@@END_TABLE@@
+      else
+         return False;
+      end if;
+   end Is_SOAPAction_Defined;
+
+end @_UNIT_NAME_@.CB;

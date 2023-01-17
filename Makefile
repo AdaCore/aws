@@ -1,7 +1,7 @@
 ############################################################################
 #                              Ada Web Server                              #
 #                                                                          #
-#                     Copyright (C) 2003-2022, AdaCore                     #
+#                     Copyright (C) 2003-2023, AdaCore                     #
 #                                                                          #
 #  This is free software;  you can redistribute it  and/or modify it       #
 #  under terms of the  GNU General Public License as published  by the     #
@@ -181,7 +181,13 @@ GPR_DEFAULT = -XLIBRARY_TYPE=$(DEFAULT_LIBRARY_TYPE) \
 #######################################################################
 #  build
 
-build-tools-native: build-lib-native
+#  build awsres tool as needed by wsdl2aws
+build-awsres-tool-native:
+	mkdir -p $(BDIR)/../common/src
+	$(GPRBUILD) -p $(GPROPTS) $(GPR_STATIC) -XTO_BUILD=awsres.adb \
+		tools/tools.gpr
+
+build-tools-native: gen-templates build-lib-native
 	$(GPRBUILD) -p $(GPROPTS) $(GPR_STATIC) tools/tools.gpr
 
 build-lib-native:
@@ -207,12 +213,16 @@ ifeq (${ENABLE_SHARED}, true)
 		$(GPR_SHARED) aws.gpr
 endif
 
+gen-templates: build-awsres-tool-native force
+	make -C tools/wsdl2aws-templates \
+		BDIR=$(BDIR) TARGET=$(TARGET) gen-templates
+
 build-cross: build-tools-cross
 
 ifeq (${IS_CROSS}, true)
-build: build-cross
+build: gen-templates build-cross
 else
-build: build-native
+build: gen-templates build-native
 endif
 
 gps: setup

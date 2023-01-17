@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2001-2019, AdaCore                     --
+--                     Copyright (C) 2001-2022, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -247,6 +247,7 @@ package SOAP.Types is
       Type_Name : String := XML_Boolean;
       NS        : Name_Space.Object := Name_Space.No_Name_Space)
       return XSD_Boolean;
+
    function V (O : XSD_Boolean) return Boolean;
 
    ----------
@@ -267,6 +268,7 @@ package SOAP.Types is
       Type_Name : String := XML_Byte;
       NS        : Name_Space.Object := Name_Space.No_Name_Space)
       return XSD_Byte;
+
    function V (O : XSD_Byte) return Byte;
 
    ------------
@@ -304,6 +306,7 @@ package SOAP.Types is
       Type_Name : String := XML_Float;
       NS        : Name_Space.Object := Name_Space.No_Name_Space)
       return XSD_Float;
+
    function V (O : XSD_Float) return Float;
 
    -------------
@@ -322,6 +325,7 @@ package SOAP.Types is
       Type_Name : String := XML_Int;
       NS        : Name_Space.Object := Name_Space.No_Name_Space)
       return XSD_Integer;
+
    function V (O : XSD_Integer) return Integer;
 
    ----------
@@ -342,6 +346,7 @@ package SOAP.Types is
       Type_Name : String := XML_Long;
       NS        : Name_Space.Object := Name_Space.No_Name_Space)
       return XSD_Long;
+
    function V (O : XSD_Long) return Long;
 
    ----------
@@ -413,6 +418,7 @@ package SOAP.Types is
       Type_Name : String := XML_Short;
       NS        : Name_Space.Object := Name_Space.No_Name_Space)
       return XSD_Short;
+
    function V (O : XSD_Short) return Short;
 
    ------------
@@ -426,15 +432,15 @@ package SOAP.Types is
    overriding function Image (O : XSD_String) return String;
 
    function S
-     (V    : String;
-      Name : String      := "item";
+     (V         : String;
+      Name      : String := "item";
       Type_Name : String := XML_String;
       NS        : Name_Space.Object := Name_Space.No_Name_Space)
       return XSD_String;
 
    function S
      (V         : Unbounded_String;
-      Name      : String  := "item";
+      Name      : String := "item";
       Type_Name : String := XML_String;
       NS        : Name_Space.Object := Name_Space.No_Name_Space)
       return XSD_String;
@@ -506,6 +512,7 @@ package SOAP.Types is
       Type_Name : String := XML_Unsigned_Long;
       NS        : Name_Space.Object := Name_Space.No_Name_Space)
       return XSD_Unsigned_Long;
+
    function V (O : XSD_Unsigned_Long) return Unsigned_Long;
 
    ------------------
@@ -526,6 +533,7 @@ package SOAP.Types is
       Type_Name : String := XML_Unsigned_Int;
       NS        : Name_Space.Object := Name_Space.No_Name_Space)
       return XSD_Unsigned_Int;
+
    function V (O : XSD_Unsigned_Int) return Unsigned_Int;
 
    --------------------
@@ -546,6 +554,7 @@ package SOAP.Types is
       Type_Name : String := XML_Unsigned_Short;
       NS        : Name_Space.Object := Name_Space.No_Name_Space)
       return XSD_Unsigned_Short;
+
    function V (O : XSD_Unsigned_Short) return Unsigned_Short;
 
    -------------------
@@ -566,6 +575,7 @@ package SOAP.Types is
       Type_Name : String := XML_Unsigned_Byte;
       NS        : Name_Space.Object := Name_Space.No_Name_Space)
       return XSD_Unsigned_Byte;
+
    function V (O : XSD_Unsigned_Byte) return Unsigned_Byte;
 
    -----------------

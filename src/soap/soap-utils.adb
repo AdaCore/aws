@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2000-2021, AdaCore                     --
+--                     Copyright (C) 2000-2022, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -720,6 +720,25 @@ package body SOAP.Utils is
       return Result;
    end To_Object_Set_C;
 
+   ---------------------
+   -- To_Object_Set_V --
+   ---------------------
+
+   function To_Object_Set_V
+     (From : Vector.Vector;
+      NS   : Name_Space.Object) return Types.Object_Set
+   is
+      use SOAP.Types;
+      Result : Types.Object_Set (1 .. Integer (From.Length));
+   begin
+      for K in Result'Range loop
+         Result (K) :=
+           +Get (From (K), Name => E_Name, Type_Name => Type_Name, NS => NS);
+      end loop;
+
+      return Result;
+   end To_Object_Set_V;
+
    ----------------
    -- To_T_Array --
    ----------------
@@ -773,6 +792,21 @@ package body SOAP.Utils is
       end loop;
       return Result;
    end To_Utf8;
+
+   ---------------
+   -- To_Vector --
+   ---------------
+
+   function To_Vector (From : Types.Object_Set) return Vector.Vector is
+      use SOAP.Types;
+      Result : Vector.Vector;
+   begin
+      for K in From'Range loop
+         Result.Append (Get (-From (K)));
+      end loop;
+
+      return Result;
+   end To_Vector;
 
    --------
    -- US --

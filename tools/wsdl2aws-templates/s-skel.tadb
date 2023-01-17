@@ -1,0 +1,265 @@
+@@--  Skeleton for building a server
+@@--
+--  wsdl2aws SOAP Generator v@_WSDL2AWS_VERSION_@
+--
+--  AWS @_AWS_VERSION_@ - SOAP @_SOAP_VERSION_@
+--  This file was generated on @_NOW_@
+--
+--  $ wsdl2aws @_OPTIONS_@
+--
+@@INCLUDE@@ s-common.macros
+@@--
+@@-- ---------------------------------------------------------------------
+@@MACRO(M_OUT_PARAMS)@@
+@@IF@@ not @_IS_EMPTY:OP_DECL_NAME_@
+R_Params :=
+@@INLINE(           +)(\n           & )(;)@@
+@@IF@@ @_OP_KIND_@ = K_SIMPLE
+@@INLINE(         )(,)(\)\))@@
+         @_SET_TYPE(@_OP_TYPE_KIND_@)_@'(SOAP.Utils.To_SOAP_Object (Result, "@_OP_NAME_@", "@_OP_TYPE_@"
+@@IF@@ not @_IS_EMPTY:OP_ELT_NS_NAME_@ and not (@_OP_NS_VALUE_@ = "http://www.w3.org/2001/XMLSchema")
+         SOAP.Name_Space.Create ("@_OP_ELT_NS_NAME_@", "@_OP_NS_VALUE_@")
+@@END_IF@@
+@@END_INLINE@@
+@@ELSIF@@ @_OP_KIND_@ = K_DERIVED
+         From_@_OP_Q_NAME_@_To_SOAP_Object (Result, "@_OP_NAME_@")
+@@ELSE@@
+         To_SOAP_Object (Result, "@_OP_NAME_@")
+@@END_IF@@
+@@END_INLINE@@
+@@END_IF@@
+@@END_MACRO@@
+@@-- ---------------------------------------------------------------------
+@@MACRO(M_EXCEPTION)@@
+   --  return a SOAP error
+   return SOAP.Message.Response.Build
+     (SOAP.Message.Response.Error.Build
+        (SOAP.Message.Response.Error.Client,
+         "@_$1_@ in @_$2_@ (" & Exception_Message (E) & ")"));
+@@END_MACRO@@
+@@-- ---------------------------------------------------------------------
+@@MACRO(GET_PARAMETER_FROM_SOAP)@@
+@@IF@@ @_IP_KIND_@ = K_ARRAY
+To_@_IP_TYPE_NAME_@_Type (V (@_$1_@_@_IP_TYPE_NAME_@_Array))
+@@ELSIF@@ @_IP_KIND_@ = K_RECORD
+To_@_IP_TYPE_NAME_@_Type (@_$1_@_@_IP_TYPE_NAME_@_Record)
+@@ELSIF@@ @_IP_KIND_@ = K_ENUMERATION
+@_IP_TYPE_NAME_@_Type'Value (SOAP.Utils.Get (SOAP.Parameters.Argument (Params, "@_$1_@")))
+@@ELSIF@@ @_IP_KIND_@ = K_SIMPLE
+@@IF@@ @_IP_TYPE_KIND_@ = P_CHARACTER
+SOAP.Utils.Get (SOAP.Parameters.Argument (Params, "@_$1_@"))
+@@ELSIF@@ @_IP_TYPE_KIND_@ = P_B64
+V (SOAP_Base64'(SOAP.Parameters.Get (Params, "@_$1_@")))
+@@ELSE@@
+SOAP.Parameters.Get (Params, "@_$1_@")
+@@END_IF@@
+@@ELSIF@@ @_IP_KIND_@ = K_DERIVED
+@@IF@@ @_IP_BASE_TYPE_@ = @_IP_TYPE_@
+From_@_ADA_TYPE(@_IP_ROOT_TYPE_KIND_@)_@ (SOAP.Parameters.Get (Params, "@_$1_@"))
+@@ELSE@@
+To_@_IP_ADA_TYPE_@ (To_@_IP_BASE_TYPE_@_Type (@_QUALIFIED_ADA_TYPE(@_IP_ROOT_TYPE_KIND_@)_@'(SOAP.Parameters.Get (Params, "@_$1_@"))))
+@@END_IF@@
+@@END_IF@@
+@@END_MACRO@@
+@@-- ---------------------------------------------------------------------
+@@MACRO(GET_PARAMETERS_FROM_SOAP)@@
+@@IF@@ (@_IP_KIND_@ = K_ARRAY) or (@_IP_KIND_@ = K_RECORD)
+@_IP_DECL_NAME_@ : constant @_IP_TYPE_NAME_@_Type :=
+@@ELSIF@@ (@_IP_KIND_@ = K_SIMPLE) and (@_IP_TYPE_KIND_@ = P_STRING)
+@_IP_DECL_NAME_@ : constant String :=
+@@ELSE@@
+@_IP_DECL_NAME_@ : constant @_IP_ADA_TYPE_@ :=
+@@END_IF@@
+           @_GET_PARAMETER_FROM_SOAP(@_IP_NAME_@)_@
+@@END_MACRO@@
+@@-- ---------------------------------------------------------------------
+@@--
+with Ada.Exceptions;
+with SOAP.Message.Response.Error;
+with SOAP.Name_Space;
+with SOAP.Parameters;
+with SOAP.Utils;
+
+@@IF@@ @_DEBUG_@
+--  For debug mode
+with Ada.Text_IO;
+with SOAP.Message.XML;
+@@END_IF@@
+
+package body @_UNIT_NAME_@.Server is
+
+   use Ada.Exceptions;
+   use SOAP.Types;
+   use SOAP.Parameters;
+
+@@IF@@ @_DEBUG_@
+   --  For debug mode
+   use Ada.Text_IO;
+@@END_IF@@
+
+   pragma Style_Checks (Off);
+@@TABLE@@
+
+   --
+   -- @_PROC_@_CB
+   --
+
+   function @_PROC_@_CB
+     (SOAPAction : String;
+      Payload    : SOAP.Message.Payload.Object;
+      Request    : AWS.Status.Data)
+      return AWS.Response.Data
+   is
+      Proc_Name : constant String :=
+                    SOAP.Message.Payload.Procedure_Name (Payload);
+      Params    : constant SOAP.Parameters.List :=
+                    SOAP.Message.Parameters (Payload);
+      Response  : SOAP.Message.Response.Object;
+      R_Params  : SOAP.Parameters.List;
+   begin
+@@IF@@ @_DEBUG_@
+      Put_Line ("[SERVER/@_PROC_@_CB] Payload recv : "
+                & AWS.Status.Payload (Request));
+      Put_Line ("[SERVER/@_PROC_@_CB] SOAPAction : " & SOAPAction);
+
+@@END_IF@@
+      if SOAPAction /= "@_SOAP_ACTION_@" then
+         return SOAP.Message.Response.Build
+           (SOAP.Message.Response.Error.Build
+              (SOAP.Message.Response.Error.Client,
+               "SOAPAction " & SOAPAction & " in @_PROC_@, "
+               & "@_SOAP_ACTION_@ expected."));
+      end if;
+
+@@IF@@ @_IS_RPC_@
+@@IF@@ @_DEBUG_@
+      Put_Line ("[SERVER/@_PROC_@_CB] Proc_Name : " & Proc_Name);
+
+@@END_IF@@
+      if Proc_Name /= "@_SOAP_PROC_@" then
+         return SOAP.Message.Response.Build
+           (SOAP.Message.Response.Error.Build
+              (SOAP.Message.Response.Error.Client,
+               "Found procedure " & Proc_Name & " in @_PROC_@_CB, "
+               & "@_SOAP_PROC_@ expected."));
+      end if;
+
+@@END_IF@@
+@@IF@@ @_DEBUG_@
+      Put_Line ("[SERVER/@_PROC_@_CB] Payload : "
+                & SOAP.Message.XML.Image (Payload, Schema));
+
+@@END_IF@@
+      Response := SOAP.Message.Response.From (Payload);
+
+@@IF@@ @_HAS_INPUT_@ or @_HAS_OUTPUT_@
+      declare
+@@IF@@ not @_IS_EMPTY:DECL_NAME_@
+         --  Compound helpers
+@@END_IF@@
+@@TABLE'TERSE@@
+@@IF@@ @_IP_KIND_@ = K_ARRAY
+         @_IP_NAME_@_@_IP_TYPE_NAME_@_Array : constant SOAP.Types.SOAP_Array :=
+            SOAP.Parameters.Get (Params, "@_IP_NAME_@");
+@@ELSIF@@ (@_IP_KIND_@ = K_RECORD) and (@_IP_COMPOUND_SIZE_@ = 0)
+         @_IP_NAME_@_@_IP_TYPE_NAME_@_Record : constant SOAP.Types.SOAP_Record :=
+            SOAP.Types.R (SOAP.Types.Empty_Object_Set,
+                          "@_IP_NAME_@");
+@@ELSIF@@ @_IP_KIND_@ = K_RECORD
+         @_IP_NAME_@_@_IP_TYPE_NAME_@_Record : constant SOAP.Types.SOAP_Record :=
+            SOAP.Parameters.Get (Params, "@_IP_NAME_@");
+@@END_IF@@
+@@END_TABLE@@
+@@IF@@ not @_IS_EMPTY:IP_NAME_@
+         --  Parameters:
+@@END_IF@@
+@@TABLE'TERSE'ALIGN_ON(":")@@
+         --  @_IP_NAME_@
+         @_GET_PARAMETERS_FROM_SOAP(@_IP_NAME_@)_@;
+@@END_TABLE@@
+@@END_IF@@
+@@-------------------------------
+@@IF@@ @_IS_EMPTY:OUT_CB_FIELD_NAME_@
+@@IF@@ @_HAS_OUTPUT_@
+         Result : @_PROC_RETURN_TYPE_@ :=
+@@IF@@ @_HAS_INPUT_@
+                    @_PROC_@_CB.@_PROC_@ (@_CB_PARAMETER_NAME_@);
+@@ELSE@@
+                    @_PROC_@_CB.@_PROC_@;
+@@END_IF@@
+      begin
+@@IF@@ @_SINGLE_OUT_PARAMETER_@
+         @_M_OUT_PARAMS()_@
+@@ELSE@@
+         R_Params := To_Parameter_List (Result);
+@@END_IF@@
+@@ELSE@@
+      begin
+@@IF@@ @_HAS_INPUT_@
+         @_PROC_@ (@_CB_PARAMETER_NAME_@);
+@@ELSE@@
+         @_PROC_@;
+@@END_IF@@
+@@END_IF@@
+@@--
+@@ELSE@@
+@@-------------------------------
+@@--
+@@IF@@ @_HAS_OUTPUT_@
+         Result : @_PROC_@_Result;
+@@END_IF@@
+      begin
+@@IF@@ @_HAS_OUTPUT_@
+@@IF@@ @_IS_EMPTY:OUT_CB_FIELD_NAME_@
+         Result :=
+@@ELSE@@
+         Result.@_OUT_CB_FIELD_NAME_@ :=
+@@END_IF@@
+@@IF@@ @_RETURN_TYPE_KIND_@ = P_STRING
+@@SET@@ RET_PREFIX = +
+@@ELSE@@
+@@SET@@ RET_PREFIX = ""
+@@END_IF@@
+@@IF@@ @_HAS_INPUT_@
+           @_RET_PREFIX_@@_PROC_@_CB.@_PROC_@ (@_CB_PARAMETER_NAME_@);
+@@ELSE@@
+           @_RET_PREFIX_@@_PROC_@_CB.@_PROC_@;
+@@END_IF@@
+@@IF@@ @_SINGLE_OUT_PARAMETER_@
+         @_M_OUT_PARAMS()_@
+@@ELSE@@
+         R_Params := To_Parameter_List (Result);
+@@END_IF@@
+@@ELSE@@
+@@IF@@ @_HAS_INPUT_@
+         @_PROC_@ (@_CB_PARAMETER_NAME_@);
+@@ELSE@@
+         @_PROC_@;
+@@END_IF@@
+@@END_IF@@
+@@--
+@@-------------------------------
+@@END_IF@@
+@@-------------------------------
+      exception
+         when E : others =>
+      @@INLINE(         )(\n         )()@@
+      @_M_EXCEPTION(Error,@_PROC_@)_@
+      @@END_INLINE@@
+      end;
+
+      SOAP.Message.Set_Parameters (Response, R_Params);
+@@IF@@ @_DEBUG_@
+      Put_Line ("[SERVER/@_PROC_@_CB] Response : "
+                & SOAP.Message.XML.Image (Response, Schema));
+@@END_IF@@
+      return SOAP.Message.Response.Build (Response, Schema);
+   exception
+      when E : others =>
+      @@INLINE(      )(\n      )()@@
+      @_M_EXCEPTION(Parameter error,@_PROC_@)_@
+      @@END_INLINE@@
+   end @_PROC_@_CB;
+@@END_TABLE@@
+
+end @_UNIT_NAME_@.Server;
