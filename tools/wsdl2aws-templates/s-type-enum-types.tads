@@ -1,0 +1,28 @@
+@@--  Spec chunk to support enumeration types (chunk for types child package)
+@@--
+
+   -- Enumeration @_TYPE_NAME_@
+
+   subtype @_TYPE_NAME_@ is @_UNIT_NAME_@.@_TYPE_NAME_@;
+
+   function Image (E : @_TYPE_NAME_@)
+     return String
+     renames @_UNIT_NAME_@.Image;
+
+   function To_@_TYPE_NAME_@
+     (O : SOAP.Types.Object'Class)
+      return @_TYPE_NAME_@
+      renames @_UNIT_NAME_@.To_@_TYPE_NAME_@;
+
+   function To_@_TYPE_NAME_@
+     (L : SOAP.Parameters.List)
+      return @_TYPE_NAME_@
+      renames @_UNIT_NAME_@.To_@_TYPE_NAME_@;
+
+   function To_SOAP_Object
+     (R         : @_TYPE_NAME_@;
+      Name      : String := "item";
+      Type_Name : String := @_UNIT_NAME_@.Q_Type_Name;
+      NS        : SOAP.Name_Space.Object := @_REPLACE((.*)\.[^.]*$/\1):UNIT_NAME_@.Name_Space)
+      return SOAP.Types.SOAP_Enumeration
+      renames @_UNIT_NAME_@.To_SOAP_Object;

@@ -1,0 +1,92 @@
+@@--  Spec chunk to support array types (chunk for types child package)
+@@--
+
+   --  Array @_TYPE_NAME_@
+@@IF@@ not @_IS_EMPTY:NAME_SPACE_PACKAGE_@
+
+   @_NAME_SPACE_@_Name_Space : SOAP.Name_Space.Object
+     renames @_NAME_SPACE_PACKAGE_@.Name_Space;
+@@END_IF@@
+
+@@-- TYPE SPEC ----------------------------------------------------------
+@@IF@@ @_IS_EMPTY:TYPE_SPEC_@
+@@--
+@@-- For safe pointers
+@@--
+   @@IF@@ @_SAFE_POINTER_@
+   subtype @_TYPE_NAME_@
+     is @_UNIT_NAME_@.@_TYPE_NAME_@;
+
+   function "+"
+     (O : @_UNIT_NAME_@.@_TYPE_NAME_@)
+      return @_UNIT_NAME_@.@_TYPE_NAME_@_Safe_Access
+      renames @_UNIT_NAME_@."+";
+   --  Convert an array to a safe pointer
+   @@ELSE@@
+@@--
+@@-- For vectors
+@@--
+   package @_TYPE_NAME_@_Pck
+     renames  @_UNIT_NAME_@.@_TYPE_NAME_@_Pck;
+
+   subtype @_TYPE_NAME_@ is @_TYPE_NAME_@_Pck.Vector;
+
+   function "+" (V : @_TYPE_NAME_@)
+     return @_TYPE_NAME_@
+     renames @_UNIT_NAME_@."+";
+   @@END_IF@@
+@@--
+@@ELSE@@ @@-- TYPE SPEC -------------------------------------------------
+@@--
+@@IF@@ @_LENGTH_@ > 0
+   subtype @_TYPE_NAME_@_Index is positive range 1 .. @_LENGTH_@;
+@@END_IF@@
+
+@@IF@@ @_SAFE_POINTER_@
+   subtype @_TYPE_NAME_@ is @_TYPE_SPEC_@.@_TYPE_REF_@;
+
+   @@IF@@ @_INSIDE_RECORD_@
+   --  Safe Array @_TYPE_NAME_@
+
+   subtype @_TYPE_NAME_@_Safe_Access
+     is @_UNIT_NAME_@.@_TYPE_NAME_@_Safe_Access;
+
+   function "+"
+     (O : @_TYPE_NAME_@)
+      return @_TYPE_NAME_@_Safe_Access
+      renames @_UNIT_NAME_@."+";
+   --  Convert an array to a safe pointer
+   @@END_IF@@
+@@ELSE@@ @-- SAFE_POINTER
+   package @_TYPE_NAME_@_Pck
+     renames @_UNIT_NAME_@.@_TYPE_NAME_@_Pck;
+   subtype @_TYPE_NAME_@ is @_UNIT_NAME_@.@_TYPE_NAME_@;
+
+   function "+" (V: @_TYPE_NAME_@)
+     return @_TYPE_NAME_@ is (V);
+@@END_IF@@
+@@END_IF@@
+
+   function To_@_TYPE_NAME_@
+     (From : SOAP.Types.Object_Set)
+      return @_TYPE_NAME_@
+      renames @_UNIT_NAME_@.To_@_TYPE_NAME_@;
+
+   function To_@_TYPE_NAME_@
+     (L : SOAP.Parameters.List)
+      return @_TYPE_NAME_@
+      renames @_UNIT_NAME_@.To_@_TYPE_NAME_@;
+
+   function To_Object_Set
+     (From : @_TYPE_NAME_@;
+      NS   : SOAP.Name_Space.Object := SOAP.Name_Space.No_Name_Space)
+      return SOAP.Types.Object_Set
+      renames @_UNIT_NAME_@.To_Object_Set;
+
+   function To_SOAP_Object
+     (A         : @_TYPE_NAME_@;
+      Name      : String := "item";
+      Type_Name : String := @_UNIT_NAME_@.Q_Type_Name;
+      NS        : SOAP.Name_Space.Object := @_NAME_SPACE_@_Name_Space)
+      return SOAP.Types.SOAP_Array
+      renames @_UNIT_NAME_@.To_SOAP_Object;

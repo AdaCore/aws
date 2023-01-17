@@ -10,7 +10,7 @@ exec_cmd('ada2wsdl', ['-q', '-P', '../api.gpr', '-a', 'http://localhost:8787',
 
 os.chdir('../generated')
 
-exec_cmd('wsdl2aws', ['-q', '-a', '-types', 'array_rec_enum_types',
+exec_cmd('wsdl2aws', ['-q', '-sp', '-a', '-types', 'array_rec_enum_types',
                       '-spec', 'array_rec_enum_data',
                       '-cb', 'array_rec_enum.wsdl'])
 

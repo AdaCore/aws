@@ -1,0 +1,159 @@
+@@--  Spec to support SOAP derived types
+@@--
+--  wsdl2aws SOAP Generator v@_WSDL2AWS_VERSION_@
+--
+--  AWS @_AWS_VERSION_@ - SOAP @_SOAP_VERSION_@
+--  This file was generated on @_NOW_@
+--
+--  $ wsdl2aws @_OPTIONS_@
+@@IF@@ not @_IS_EMPTY:PREDICATE_KIND_@
+with Ada.Strings.Unbounded;
+with GNAT.Regexp;
+@@END_IF@@
+
+@@TABLE@@
+with @_WITHED_UNITS_@;
+@@END_TABLE@@
+
+@@IF@@ not @_IS_EMPTY:TYPE_SPEC_@
+with @_REPLACE(Standard./):TYPE_SPEC_@;
+@@END_IF@@
+
+with SOAP.Parameters;
+with SOAP.Types;
+
+package @_UNIT_NAME_@ is
+
+@@IF@@ not @_IS_EMPTY:PREDICATE_KIND_@
+   use Ada.Strings.Unbounded;
+@@END_IF@@
+@@TABLE@@
+   use @_WITHED_UNITS_@;
+@@END_TABLE@@
+@@IF@@ not @_IS_EMPTY:TYPE_SPEC_@
+   use @_TYPE_SPEC_@;
+@@END_IF@@
+
+   Q_Type_Name : constant String := "@_Q_TYPE_NAME_@";
+
+@@INLINE(   --  )(\n   --  )()@@
+      @_WRAP(70):DOCUMENTATION_@
+@@END_INLINE@@
+
+@@IF@@ @_IS_EMPTY:TYPE_SPEC_@
+@@IF@@ @_EXIST:CONSTRAINT_PATTERN_@ and not @_IS_EMPTY:PREDICATE_KIND_@
+   Compiled_Pattern : constant GNAT.Regexp.Regexp :=
+                        GNAT.Regexp.Compile ("@_CONSTRAINT_PATTERN_@");
+@@END_IF@@
+@@IF@@ @_IS_RANGE_@
+   type @_TYPE_NAME_@ is new @_BASE_NAME_@
+@@IF@@ not @_IS_EMPTY:LOWER_RANGE_@
+     range @_STRIP:LOWER_RANGE_@ .. @_STRIP:UPPER_RANGE_@
+@@END_IF@@
+@@ELSE@@
+   type @_TYPE_NAME_@ is new @_BASE_NAME_@ (@_STRIP:LOWER_RANGE_@ .. @_STRIP:UPPER_RANGE_@)
+@@END_IF@@
+@@IF@@ not @_IS_EMPTY:PREDICATE_KIND_@
+     with Dynamic_Predicate =>
+@@INLINE(       )(\n       and then )()@@
+@@TABLE@@
+@@IF@@ @_PREDICATE_KIND_@ = "MIN"
+        Length (Unbounded_String (@_TYPE_NAME_@)) >= @_PREDICATE_@
+@@ELSIF@@ @_PREDICATE_KIND_@ = "MAX"
+        Length (Unbounded_String (@_TYPE_NAME_@)) <= @_PREDICATE_@
+@@ELSE@@
+        GNAT.Regexp.Match (To_String (Unbounded_String (@_TYPE_NAME_@)), Compiled_Pattern)
+@@END_IF@@
+@@END_TABLE@@
+@@END_INLINE@@
+@@END_IF@@
+     ;
+
+   function To_@_ROUTINE_NAME_@
+     (D : @_TYPE_NAME_@)
+      return @_BASE_NAME_@
+      is (@_BASE_NAME_@ (D));
+
+   function From_@_ROUTINE_NAME_@
+     (D : @_BASE_NAME_@)
+      return @_TYPE_NAME_@
+      is (@_TYPE_NAME_@ (D));
+
+   function To_@_TYPE_NAME_@
+     (D : @_BASE_NAME_@)
+      return @_TYPE_NAME_@
+      renames From_@_ROUTINE_NAME_@;
+
+@@IF@@ @_REPLACE(.*\.([^.]+)/\1):BASE_NAME_@ /= @_ROUTINE_NAME_@
+   function To_@_REPLACE(.*\.([^.]+)/\1):BASE_NAME_@
+     (D : @_TYPE_NAME_@)
+      return @_BASE_NAME_@
+      is (@_BASE_NAME_@ (D));
+
+   function From_@_REPLACE(.*\.([^.]+)/\1):BASE_NAME_@
+     (D : @_BASE_NAME_@)
+      return @_TYPE_NAME_@
+      is (@_TYPE_NAME_@ (D));
+@@END_IF@@
+@@ELSE@@
+   subtype @_TYPE_NAME_@ is
+     @_TYPE_SPEC_@.@_TYPE_REF_@;
+
+   function To_@_QUALIFIED_NAME_@_Type
+     (D : @_TYPE_NAME_@)
+      return @_TYPE_NAME_@
+      is (D);
+
+   function From_@_QUALIFIED_NAME_@_Type
+     (D : @_TYPE_NAME_@)
+      return @_TYPE_NAME_@
+      is (D);
+
+   function To_@_TYPE_NAME_@
+     (D : @_TYPE_NAME_@)
+      return @_QUALIFIED_NAME_@_Type
+      renames From_@_QUALIFIED_NAME_@_Type;
+
+   function To_@_REPLACE(.*\.([^.]+)/\1):BASE_NAME_@
+     (D : @_TYPE_NAME_@)
+      return @_BASE_NAME_@
+      is (@_BASE_NAME_@ (D));
+
+   function From_@_REPLACE(.*\.([^.]+)/\1):BASE_NAME_@
+     (D : @_BASE_NAME_@)
+      return @_TYPE_NAME_@
+      is (@_TYPE_NAME_@ (D));
+
+@@IF@@ @_EXIST:ALIAS_ROUTINE_NAME_@
+   function To_@_ALIAS_ROUTINE_NAME_@_Type
+     (D : @_TYPE_NAME_@)
+      return @_BASE_NAME_@
+      is (@_BASE_NAME_@ (D));
+
+   function From_@_ALIAS_ROUTINE_NAME_@_Type
+     (D : @_BASE_NAME_@)
+      return @_TYPE_NAME_@
+      is (@_TYPE_NAME_@ (D));
+@@END_IF@@
+@@END_IF@@
+   --  For array support
+
+   function To_@_TYPE_NAME_@
+     (O : SOAP.Types.Object'Class)
+      return @_TYPE_NAME_@
+      is (@_FROM_SOAP_@);
+
+   function To_@_TYPE_NAME_@
+     (L : SOAP.Parameters.List)
+      return @_TYPE_NAME_@
+      is (To_@_TYPE_NAME_@ (SOAP.Parameters.Argument (L, 1)));
+
+   function To_SOAP_Object
+     (D         : @_TYPE_NAME_@;
+      Name      : String := "item";
+      Type_Name : String := Q_Type_Name;
+      NS        : SOAP.Name_Space.Object := Name_Space)
+      return @_SET_TYPE_@
+      is (@_TO_SOAP_@);
+
+end @_UNIT_NAME_@;

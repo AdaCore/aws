@@ -1,0 +1,86 @@
+@@--  Stub for calling a servive
+@@--
+--  wsdl2aws SOAP Generator v@_WSDL2AWS_VERSION_@
+--
+--  AWS @_AWS_VERSION_@ - SOAP @_SOAP_VERSION_@
+--  This file was generated on @_NOW_@
+--
+--  $ wsdl2aws @_OPTIONS_@
+
+with Ada.Calendar;
+with SOAP.Types;
+
+with @_UNIT_NAME_@.Types;
+
+@@INLINE(--  )(\n--  )(\n)@@
+      @_WRAP(70):SERVICE_DOCUMENTATION_@
+@@END_INLINE@@
+package @_UNIT_NAME_@.Client is
+
+   use @_UNIT_NAME_@.Types;
+
+   Connection : constant AWS.Client.HTTP_Connection;
+@@TABLE@@
+
+@@IF@@ @_HAS_OUTPUT_@
+   function @_PROC_@
+@@ELSE@@
+   procedure @_PROC_@
+@@END_IF@@
+@@INLINE(     \()(;\n      )(\))@@
+@@TABLE'ALIGN_ON(":")'TERSE@@
+      @_PARAMETER_NAME_@ : @_PARAMETER_TYPE_@
+@@END_TABLE@@
+      Endpoint           : String := @_UNIT_NAME_@.URL
+      Timeouts           : AWS.Client.Timeouts_Values := @_UNIT_NAME_@.Timeouts
+@@IF@@ @_TRACES_@
+      Pre_Call_Callback  : Pre_Call_CB  := Null_Pre_Call_Callback'Access
+      Post_Call_Callback : Post_Call_CB := Null_Post_Call_Callback'Access
+@@END_IF@@
+@@END_INLINE@@
+@@IF@@ @_HAS_OUTPUT_@
+      return @_PROC_RETURN_TYPE_@;
+@@ELSE@@
+      ;
+@@END_IF@@
+@@IF@@ @_HAS_OUTPUT_@
+   function @_PROC_@
+@@ELSE@@
+   procedure @_PROC_@
+@@END_IF@@
+@@INLINE(     \()(;\n      )(\))@@
+Connection : AWS.Client.HTTP_Connection
+@@IF@@ @_TRACES_@
+Pre_Call_Callback  : Pre_Call_CB  := Null_Pre_Call_Callback'Access
+Post_Call_Callback : Post_Call_CB := Null_Post_Call_Callback'Access
+@@END_IF@@
+@@TABLE'ALIGN_ON(":")'TERSE@@
+      @_PARAMETER_NAME_@ : @_PARAMETER_TYPE_@
+@@END_TABLE@@
+@@END_INLINE@@
+@@IF@@ @_HAS_OUTPUT_@
+      return @_PROC_RETURN_TYPE_@;
+@@ELSE@@
+      ;
+@@END_IF@@
+@@INLINE(   --  )(\n   --  )()@@
+   @_WRAP(70):DOCUMENTATION_@
+@@END_INLINE@@
+   --  Raises SOAP.SOAP_Error if the procedure fails
+@@END_TABLE@@
+
+private
+
+   Connection : constant AWS.Client.HTTP_Connection :=
+                  AWS.Client.Create
+                    (URL,
+@@INLINE(                     )(,\n                     )(\);)@@
+   Timeouts   => Timeouts
+@@IF@@ not @_IS_EMPTY:HTTP_PROXY_@
+   Proxy      => @_HTTP_PROXY_@
+   Proxy_User => @_HTTP_PROXY_USER_@
+   Proxy_Pwd  => @_HTTP_PROXY_PASSWORD_@
+@@END_IF@@
+@@END_INLINE@@
+
+end @_UNIT_NAME_@.Client;

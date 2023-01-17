@@ -1,0 +1,122 @@
+@@--  Spec to support SOAP record types
+@@--
+--  wsdl2aws SOAP Generator v@_WSDL2AWS_VERSION_@
+--
+--  AWS @_AWS_VERSION_@ - SOAP @_SOAP_VERSION_@
+--  This file was generated on @_NOW_@
+--
+--  $ wsdl2aws @_OPTIONS_@
+
+with Ada.Strings.Unbounded;
+
+with SOAP.Parameters;
+with SOAP.Types;
+with SOAP.Utils;
+
+@@TABLE@@
+with @_WITHED_UNITS_@;
+@@END_TABLE@@
+
+@@IF@@ not @_IS_EMPTY:TYPE_SPEC_@
+with @_REPLACE(Standard./):TYPE_SPEC_@;
+@@END_IF@@
+
+package @_UNIT_NAME_@ is
+
+@@TABLE@@
+   use @_WITHED_UNITS_@;
+@@END_TABLE@@
+@@IF@@ not @_IS_EMPTY:TYPE_SPEC_@
+   use @_TYPE_SPEC_@;
+@@END_IF@@
+
+   pragma Warnings (Off, Ada.Strings.Unbounded);
+   pragma Warnings (Off, SOAP.Types);
+   pragma Warnings (Off, SOAP.Utils);
+
+   pragma Style_Checks (Off);
+
+   use Ada.Strings.Unbounded;
+
+   function "+"
+     (Str : String)
+      return Unbounded_String
+      renames To_Unbounded_String;
+   function "-"
+     (Str : Unbounded_String)
+      return String
+      renames To_String;
+
+   Q_Type_Name : constant String := "@_Q_TYPE_NAME_@";
+
+@@INLINE(   --  )(\n   --  )()@@
+      @_WRAP(70):DOCUMENTATION_@
+@@END_INLINE@@
+
+@@IF@@ @_IS_EMPTY:TYPE_SPEC_@ or @_SIMPLE_WRAPPED_PARAMETER_@
+@@IF@@ @_FIELD_COUNT_@ = 0
+   type @_TYPE_NAME_@ is null record;
+@@ELSE@@
+@@IF@@ @_IS_CHOICE_@
+@@INLINE(   type Choice is \()(, )(\);)@@
+@@TABLE@@
+C@_FIELD_NUMBER_@
+@@END_TABLE@@
+@@END_INLINE@@
+
+   type @_TYPE_NAME_@ (C : Choice := C1) is record
+      case C is
+@@TABLE@@
+         when C@_FIELD_NUMBER_@ =>
+            @_RF_DECL_NAME_@ : @_RF_ADA_TYPE_@;
+@@INLINE(            --  )(\n            --  )()@@
+      @_WRAP(70):FIELD_COMMENT_@
+@@END_INLINE@@
+@@END_TABLE@@
+      end case;
+   end record;
+@@ELSE@@ @@-- IS_CHOICE
+   type @_TYPE_NAME_@ is record
+@@TABLE'ALIGN_ON(":")@@
+      @_RF_DECL_NAME_@ : @_RF_ADA_TYPE_@;
+@@IF@@ not @_IS_EMPTY:FIELD_COMMENT_@
+@@INLINE(      --  )(\n      --  )()@@
+      @_WRAP(70):FIELD_COMMENT_@
+@@END_INLINE@@
+@@END_IF@@
+@@IF@@ (@_RF_KIND_@ = "K_ARRAY") and @_SAFE_POINTER_@
+      --  Access items with : result.Item (n)
+@@END_IF@@
+@@END_TABLE@@
+   end record;
+@@END_IF@@
+@@END_IF@@
+@@ELSE@@ @@-- IS_EMPTY:TYPE_SPEC or SIMPLE_WRAPPED_PARAMETER
+   subtype @_TYPE_NAME_@ is @_TYPE_SPEC_@.@_TYPE_REF_@;
+@@END_IF@@
+
+   function To_@_TYPE_NAME_@
+     (O : SOAP.Types.Object'Class)
+      return @_TYPE_NAME_@;
+
+   function To_@_TYPE_NAME_@
+     (P_List : SOAP.Parameters.List)
+      return @_TYPE_NAME_@;
+
+   function To_@_TYPE_NAME_@_W
+     (R : SOAP.Parameters.List)
+      return @_TYPE_NAME_@
+      is (To_@_TYPE_NAME_@ (SOAP.Parameters.Argument (R, 1)));
+
+   function To_SOAP_Object
+     (R         : @_TYPE_NAME_@;
+      Name      : String := "item";
+      Type_Name : String := Q_Type_Name;
+      NS        : SOAP.Name_Space.Object := Name_Space)
+      return SOAP.Types.SOAP_Record;
+
+   function To_Parameter_List
+     (R : @_TYPE_NAME_@)
+      return SOAP.Parameters.List;
+
+end @_UNIT_NAME_@;

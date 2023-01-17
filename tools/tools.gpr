@@ -23,37 +23,47 @@ with "../win32/win32";
 
 project Tools is
 
+   TO_BUILD := external("TO_BUILD", "ALL");
+
    for Languages use ("Ada", "Project file");
 
-   for Source_Dirs use (".", "../templates_parser/tools");
+   for Source_Dirs use (".", "../templates_parser/tools",
+                        "../" & Shared.Target_Dir & "/common/src");
 
-   for Main use ("awsres.adb", "aws_password.adb", "templates2ada.adb",
-                 "webxref.adb", "templatespp.adb");
+   case TO_BUILD is
+      when "ALL" =>
+         for Main use ("awsres.adb", "aws_password.adb", "templates2ada.adb",
+                       "webxref.adb", "templatespp.adb");
 
-   case Shared.XMLAda is
-      when "Installed" =>
-         for Main use project'Main & ("wsdl2aws-main.adb");
-      when "Disabled" =>
-         for Locally_Removed_Files use Project'Locally_Removed_Files &
-           ("wsdl2aws.ads", "wsdl2aws-generator.adb", "wsdl2aws-generator.ads",
-            "wsdl2aws-generator-cb.adb", "wsdl2aws-generator-name_set.adb",
-            "wsdl2aws-generator-skel.adb", "wsdl2aws-generator-stub.adb",
-            "wsdl2aws-main.adb", "wsdl2aws-wsdl-parameters.adb",
-            "wsdl2aws-wsdl-parameters.ads", "wsdl2aws-wsdl-parser.adb",
-            "wsdl2aws-wsdl-parser.ads", "wsdl2aws-wsdl-types.adb",
-            "wsdl2aws-wsdl-types.ads");
-   end case;
+         case Shared.XMLAda is
+            when "Installed" =>
+               for Main use project'Main & ("wsdl2aws-main.adb");
+            when "Disabled" =>
+               for Locally_Removed_Files use Project'Locally_Removed_Files &
+                 ("wsdl2aws.ads", "wsdl2aws-generator.adb",
+                  "wsdl2aws-generator.ads",  "wsdl2aws-generator-cb.adb",
+                  "wsdl2aws-generator-name_set.adb",
+                  "wsdl2aws-generator-skel.adb", "wsdl2aws-generator-stub.adb",
+                  "wsdl2aws-main.adb", "wsdl2aws-wsdl-parameters.adb",
+                  "wsdl2aws-wsdl-parameters.ads", "wsdl2aws-wsdl-parser.adb",
+                  "wsdl2aws-wsdl-parser.ads", "wsdl2aws-wsdl-types.adb",
+                  "wsdl2aws-wsdl-types.ads");
+         end case;
 
-   case Shared.LAL is
-      when "Installed" =>
-         for Main use project'Main & ("ada2wsdl-main.adb");
-      when "Disabled" =>
-         for Locally_Removed_Files use Project'Locally_Removed_Files &
-           ("ada2wsdl.ads", "ada2wsdl.adb",
-            "ada2wsdl-generator.ads", "ada2wsdl-generator.adb",
-            "ada2wsdl-main.ads", "ada2wsdl-main.adb",
-            "ada2wsdl-options.ads",
-            "ada2wsdl-parser.ads", "ada2wsdl-parser.adb");
+         case Shared.LAL is
+            when "Installed" =>
+               for Main use project'Main & ("ada2wsdl-main.adb");
+            when "Disabled" =>
+               for Locally_Removed_Files use Project'Locally_Removed_Files &
+                 ("ada2wsdl.ads", "ada2wsdl.adb",
+                  "ada2wsdl-generator.ads", "ada2wsdl-generator.adb",
+                  "ada2wsdl-main.ads", "ada2wsdl-main.adb",
+                  "ada2wsdl-options.ads",
+                  "ada2wsdl-parser.ads", "ada2wsdl-parser.adb");
+         end case;
+
+      when others =>
+         for Main use (TO_BUILD);
    end case;
 
    for Object_Dir use "../" & Shared'Object_Dir & "/tools";

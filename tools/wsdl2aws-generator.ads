@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2003-2021, AdaCore                     --
+--                     Copyright (C) 2003-2022, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -28,6 +28,7 @@
 ------------------------------------------------------------------------------
 
 with AWS.Client;
+with AWS.Templates;
 
 with SOAP.Name_Space;
 
@@ -164,6 +165,9 @@ package WSDL2AWS.Generator is
    procedure Disable_Time_Stamp (O : in out Object);
    --  De not generate time-stamp
 
+   procedure Gen_Safe_Pointer (O : in out Object);
+   --  Generate old and now deprecated Safe_Pointer for arrays inside record
+
 private
 
    use Ada.Strings.Unbounded;
@@ -176,8 +180,8 @@ private
       Ada_Style    : Boolean := False;
       CVS_Tag      : Boolean := False;
       Force        : Boolean := False;
-      First_Proc   : Boolean := True;
       Debug        : Boolean := False;
+      Sp           : Boolean := False;
       Stamp        : Boolean := True;
       Unit         : Unbounded_String;
       Spec         : Unbounded_String;
@@ -194,6 +198,17 @@ private
       HTTP_Version : HTTP_Protocol := HTTPv1;
       Endpoint     : Unbounded_String;
       Timeouts     : Client.Timeouts_Values := Client.No_Timeout;
+
+      Root_S_Trans : Templates.Translate_Set; -- service root package
+      Stub_S_Trans : Templates.Translate_Set; -- stub spec
+      Stub_B_Trans : Templates.Translate_Set; -- stub body
+      Skel_S_Trans : Templates.Translate_Set; -- skel spec
+      Skel_B_Trans : Templates.Translate_Set; -- skel body
+      CB_S_Trans   : Templates.Translate_Set; -- callback spec
+      CB_B_Trans   : Templates.Translate_Set; -- callback body
+
+      Type_S_Trans : Templates.Translate_Set;
+      Type_B_Trans : Templates.Translate_Set;
    end record;
 
    function Get_Endpoint (O : Object; Location : String) return String
@@ -201,5 +216,19 @@ private
          then Location
          else To_String (O.Endpoint));
    --  Returns Location or if forced on command line O.Endpoint
+
+   procedure Add_TagV
+     (Set                  : in out Templates.Translate_Set;
+      Assoc_Name, Tag_Name : String);
+
+   procedure Add_TagV
+     (Set        : in out Templates.Translate_Set;
+      Assoc_Name : String;
+      Value      : Boolean);
+
+   procedure Add_TagV
+     (Set        : in out Templates.Translate_Set;
+      Assoc_Name : String;
+      Tag        : Templates.Tag);
 
 end WSDL2AWS.Generator;

@@ -1,0 +1,35 @@
+@@--  Stub for calling a servive
+@@--
+--  wsdl2aws SOAP Generator v@_WSDL2AWS_VERSION_@
+--
+--  AWS @_AWS_VERSION_@ - SOAP @_SOAP_VERSION_@
+--  This file was generated on @_NOW_@
+--
+--  $ wsdl2aws @_OPTIONS_@
+
+with AWS.Response;
+with AWS.Status;
+
+with SOAP.Dispatchers.Callback;
+with SOAP.Message.Payload;
+
+package @_UNIT_NAME_@.CB is
+
+   use AWS;
+   use SOAP;
+
+   pragma Style_Checks (Off);
+
+   subtype Handler is SOAP.Dispatchers.Callback.Handler;
+
+   function Is_SOAPAction_Defined
+     (SOAPAction : String) return Boolean;
+   --  Returns True if SOAPAction handled by SOAP_CB below
+
+   function SOAP_CB
+     (SOAPAction : String;
+      Payload    : Message.Payload.Object;
+      Request    : AWS.Status.Data)
+      return Response.Data;
+
+end @_UNIT_NAME_@.CB;
