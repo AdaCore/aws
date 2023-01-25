@@ -1,7 +1,7 @@
 ############################################################################
 #                              Ada Web Server                              #
 #                                                                          #
-#                       Copyright (C) 2021, AdaCore                        #
+#                    Copyright (C) 2021-2023, AdaCore                      #
 #                                                                          #
 #  This is free software;  you can redistribute it  and/or modify it       #
 #  under terms of the  GNU General Public License as published  by the     #
@@ -21,12 +21,14 @@
 URL=http://localhost:1234
 
 ifneq (${XMLADA},false)
+ifneq (${LAL},false)
 all:
 	ada2wsdl -f -a $(URL)  -o hello.wsdl -P hello.gpr hello.ads
 	wsdl2aws -f -spec hello -cb -main hello_server hello.wsdl
 	gprbuild hello.gpr
 else
 all:
+endif
 endif
 
 clean:
