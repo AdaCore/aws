@@ -64,7 +64,7 @@ targetNamespace="http://example.com/stockquote.wsdl"
     <service name="StockQuoteService">
         <documentation>My first service</documentation>
         <port name="StockQuotePort" binding="tns:StockQuoteSoapBinding">
-           <soap:address location="http://localhost:9122/stockquote"/>
+           <soap:address location="http://localhost:9124/stockquote"/>
         </port>
     </service>
 </definitions>
