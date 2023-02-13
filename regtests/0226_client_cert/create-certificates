@@ -1,5 +1,5 @@
 SUBJ="/C=FR/ST=Ile de France/L=Paris/O=AdaCore"
-DAYS=1460
+DAYS=3600
 
 # certificate request for server certificate authority
 
