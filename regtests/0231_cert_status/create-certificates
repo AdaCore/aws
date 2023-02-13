@@ -4,7 +4,7 @@
 set -e
 
 SUBJ="/C=FR/ST=Ile de France"
-DAYS=1460
+DAYS=3600
 PKEY=ec:ecparam.pem
 
 openssl ecparam -name prime256v1 -out ecparam.pem
