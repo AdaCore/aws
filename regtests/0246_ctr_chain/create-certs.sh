@@ -6,7 +6,7 @@
 SUBJ="/C=FR/ST=Ile de France/L=Paris/O=AdaCore"
 KCA=ca$1.key
 SCA=ca$1.crt
-DAYS=1460
+DAYS=3600
 
 # Create root CA
 

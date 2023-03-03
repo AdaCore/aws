@@ -5,51 +5,48 @@ Certificate:
         Signature Algorithm: ecdsa-with-SHA256
         Issuer: C=FR, ST=Ile de France, O=AdaCore, OU=CA, CN=CA-Web-Server/emailAddress=ca-aws@adacore.com
         Validity
-            Not Before: Oct 28 03:39:23 2020 GMT
-            Not After : Oct 27 03:39:23 2024 GMT
+            Not Before: Feb  8 07:19:27 2023 GMT
+            Not After : Dec 17 07:19:27 2032 GMT
         Subject: C=FR, ST=Ile de France, O=AdaCore, OU=CRM, CN=localhost/emailAddress=aws-test@adacore.com
         Subject Public Key Info:
             Public Key Algorithm: id-ecPublicKey
                 Public-Key: (256 bit)
                 pub:
-                    04:fc:00:4c:d4:86:be:32:b4:a4:ab:28:b5:99:5e:
-                    74:ca:34:e9:ca:ed:f0:7f:8f:6b:ea:c7:08:bd:28:
-                    8f:1f:dd:a1:19:b3:77:95:87:89:43:88:6e:85:ef:
-                    46:b9:a3:37:b9:ad:aa:af:6b:2c:58:c8:cf:9a:1a:
-                    c7:b0:fe:35:3b
+                    04:36:31:26:4b:70:67:14:4c:4f:de:81:d9:34:82:
+                    35:a9:ee:f6:1f:15:ee:b5:db:e1:b8:51:3a:6e:bb:
+                    3b:b8:94:87:78:f3:82:50:99:39:f8:1b:25:ae:d9:
+                    57:cf:71:05:83:c1:8a:16:7d:df:ee:36:17:f2:74:
+                    55:22:cf:0c:21
                 ASN1 OID: prime256v1
                 NIST CURVE: P-256
         X509v3 extensions:
             X509v3 Basic Constraints: 
                 CA:FALSE
-            Netscape Comment: 
-                OpenSSL Generated Certificate
             X509v3 Subject Key Identifier: 
-                04:E6:70:A4:E4:CB:BF:34:C6:3E:A4:EC:20:A7:62:C8:A3:8F:48:88
+                29:56:E2:12:9D:67:60:85:D7:F1:63:27:02:55:E0:C5:62:C9:1C:84
             X509v3 Authority Key Identifier: 
                 DirName:/C=FR/ST=Ile de France/O=AdaCore/OU=CA/CN=CA-Web-Server/emailAddress=ca-aws@adacore.com
-                serial:17:9F:E4:C6:40:A4:E7:86:AD:9E:84:3C:50:B5:56:B6:59:88:23:CB
-
+                serial:07:F0:9F:58:51:FA:0C:00:05:73:B4:7B:4A:97:B1:50:84:9D:11:C9
     Signature Algorithm: ecdsa-with-SHA256
-         30:45:02:21:00:d2:84:12:6f:07:ea:0b:66:65:6b:89:be:2b:
-         90:96:2d:fe:f9:57:09:50:92:74:ce:36:f3:95:3f:72:cd:8f:
-         15:02:20:5b:00:1d:da:56:ef:92:80:ac:92:04:f9:5a:ef:bc:
-         5c:ba:c6:4d:42:35:c7:62:86:9b:96:11:e5:89:15:94:b7
+    Signature Value:
+        30:45:02:21:00:a2:96:54:46:78:9b:79:2d:e7:c7:e4:90:1c:
+        92:be:87:a6:c9:34:2e:3c:2d:fd:aa:de:94:46:d9:22:2c:85:
+        35:02:20:51:84:91:f1:51:20:29:4d:50:4e:bf:eb:9a:ff:1c:
+        e8:07:79:40:df:f5:00:58:ac:d2:87:96:be:17:0e:2a:79
 -----BEGIN CERTIFICATE-----
-MIIC9zCCAp2gAwIBAgIDAK2sMAoGCCqGSM49BAMCMH8xCzAJBgNVBAYTAkZSMRYw
+MIICxzCCAm2gAwIBAgIDAK2sMAoGCCqGSM49BAMCMH8xCzAJBgNVBAYTAkZSMRYw
 FAYDVQQIDA1JbGUgZGUgRnJhbmNlMRAwDgYDVQQKDAdBZGFDb3JlMQswCQYDVQQL
 DAJDQTEWMBQGA1UEAwwNQ0EtV2ViLVNlcnZlcjEhMB8GCSqGSIb3DQEJARYSY2Et
-YXdzQGFkYWNvcmUuY29tMB4XDTIwMTAyODAzMzkyM1oXDTI0MTAyNzAzMzkyM1ow
+YXdzQGFkYWNvcmUuY29tMB4XDTIzMDIwODA3MTkyN1oXDTMyMTIxNzA3MTkyN1ow
 fjELMAkGA1UEBhMCRlIxFjAUBgNVBAgMDUlsZSBkZSBGcmFuY2UxEDAOBgNVBAoM
 B0FkYUNvcmUxDDAKBgNVBAsMA0NSTTESMBAGA1UEAwwJbG9jYWxob3N0MSMwIQYJ
 KoZIhvcNAQkBFhRhd3MtdGVzdEBhZGFjb3JlLmNvbTBZMBMGByqGSM49AgEGCCqG
-SM49AwEHA0IABPwATNSGvjK0pKsotZledMo06crt8H+Pa+rHCL0ojx/doRmzd5WH
-iUOIboXvRrmjN7mtqq9rLFjIz5oax7D+NTujggEHMIIBAzAJBgNVHRMEAjAAMCwG
-CWCGSAGG+EIBDQQfFh1PcGVuU1NMIEdlbmVyYXRlZCBDZXJ0aWZpY2F0ZTAdBgNV
-HQ4EFgQUBOZwpOTLvzTGPqTsIKdiyKOPSIgwgagGA1UdIwSBoDCBnaGBhKSBgTB/
+SM49AwEHA0IABDYxJktwZxRMT96B2TSCNanu9h8V7rXb4bhROm67O7iUh3jzglCZ
+OfgbJa7ZV89xBYPBihZ93+42F/J0VSLPDCGjgdgwgdUwCQYDVR0TBAIwADAdBgNV
+HQ4EFgQUKVbiEp1nYIXX8WMnAlXgxWLJHIQwgagGA1UdIwSBoDCBnaGBhKSBgTB/
 MQswCQYDVQQGEwJGUjEWMBQGA1UECAwNSWxlIGRlIEZyYW5jZTEQMA4GA1UECgwH
 QWRhQ29yZTELMAkGA1UECwwCQ0ExFjAUBgNVBAMMDUNBLVdlYi1TZXJ2ZXIxITAf
-BgkqhkiG9w0BCQEWEmNhLWF3c0BhZGFjb3JlLmNvbYIUF5/kxkCk54atnoQ8ULVW
-tlmII8swCgYIKoZIzj0EAwIDSAAwRQIhANKEEm8H6gtmZWuJviuQli3++VcJUJJ0
-zjbzlT9yzY8VAiBbAB3aVu+SgKySBPla77xcusZNQjXHYoablhHliRWUtw==
+BgkqhkiG9w0BCQEWEmNhLWF3c0BhZGFjb3JlLmNvbYIUB/CfWFH6DAAFc7R7Spex
+UISdEckwCgYIKoZIzj0EAwIDSAAwRQIhAKKWVEZ4m3kt58fkkBySvoemyTQuPC39
+qt6URtkiLIU1AiBRhJHxUSApTVBOv+ua/xzoB3lA3/UAWKzSh5a+Fw4qeQ==
 -----END CERTIFICATE-----

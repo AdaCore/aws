@@ -1,4 +1,3 @@
 ssl REQUIRED
 -- gnutls: client sends only certs which match the server's CA (see README)
 gnutls OUT test-gnutls.out
-ALL    XFAIL investigated under VC15-012
