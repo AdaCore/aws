@@ -329,7 +329,6 @@ package body AWS.HTTP2.HPACK.Huffman is
    -----------------
 
    procedure Create_Tree is
-      type Word_Bits is array (0 .. 31) of Bit with Pack;
 
       procedure Insert_Item (K : Unsigned_16);
 
@@ -339,14 +338,11 @@ package body AWS.HTTP2.HPACK.Huffman is
 
       procedure Insert_Item (K : Unsigned_16) is
          C    : constant Code := Table (K);
-         H    : Unsigned_32 := C.Bits;
-         Bits : Word_Bits with Size => 32, Address => H'Address;
-
          Iter : access Node_Access := Root'Access;
       begin
          for K in reverse 0 .. C.N_Bit - 1 loop
             declare
-               B : constant Bit := Bits (K);
+               B : constant Bit := Bit (Shift_Right (C.Bits, K) and 1);
             begin
                if Iter.all = null then
                   Iter.all := new Node'(False, LR => (null, null));
