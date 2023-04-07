@@ -414,6 +414,8 @@ exception
       Put_Line ("   -p name      Name prefix for all SOAPActions");
       Put_Line
         ("   -doc         Document style binding handled as RPC");
+      Put_Line
+        ("   -sp          Use legacy safe-pointers for arrays");
       Put_Line ("   -http2       Use HTTP/2 protocol");
       Put_Line ("   -v           Verbose mode");
       Put_Line ("   -v -v        Very verbose mode");
