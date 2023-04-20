@@ -71,31 +71,47 @@ def build(prj):
         logging.error(process.out)
 
 
-def run(bin, options=None, output_file=None):
-    """Run a test"""
+DEFAULT_RESOURCES = [
+    "*.txt",
+    "*.gz",
+    "*.dat",
+    "*.tmplt",
+    "*.thtml",
+    "*.html",
+    "*.ini",
+    "*.types",
+    "*.mime",
+    "*.gif",
+    "*.png"
+]
+
+
+def run(bin, options=None, output_file=None, resources=None):
+    """Run a test.
+
+    :param resources: list of files that the executable will need to
+        read, relative to the testcase directory.  This is used on
+        cross configurations to send the files to the target platform
+        before running BIN.
+
+        Each item in the list can be a glob pattern.  By default,
+        DEFAULT_RESOURCES will be used.
+    """
     if options is None:
         options = []
     if "TIMEOUT" in os.environ:
         timeout = int(os.environ["TIMEOUT"])
     else:
         timeout = 300
+    if resources is None:
+        resources = DEFAULT_RESOURCES
 
     if Env().is_cross:
         # Import gnatpython excross module only when needed
         from gnatpython.internal.excross import run_cross
         run_cross([bin + Env().target.os.exeext],
                   output=output_file, timeout=timeout,
-                  copy_files_on_target=['*.txt',
-                                        '*.gz',
-                                        '*.dat',
-                                        '*.tmplt',
-                                        '*.thtml',
-                                        '*.html',
-                                        '*.ini',
-                                        '*.types',
-                                        '*.mime',
-                                        '*.gif',
-                                        '*.png'])
+                  copy_files_on_target=resources)
     else:
         if Env().testsuite_config.with_gdb:
             Run(["gdb", "--eval-command=run", "--batch-silent",
@@ -123,7 +139,10 @@ def exec_cmd(bin, options=None, output_file=None, ignore_error=False):
         logging.error(open(output_file).read())
 
 
-def build_and_run(prj):
-    """Compile and run a project and check the output"""
+def build_and_run(prj, resources=None):
+    """Compile and run a project and check the output.
+
+    :param resources: See :func:`run`.
+    """
     build(prj)
-    run(prj)
+    run(prj, resources=resources)
