@@ -109,7 +109,7 @@ def run(bin, options=None, output_file=None, resources=None):
     if Env().is_cross:
         # Import gnatpython excross module only when needed
         from gnatpython.internal.excross import run_cross
-        run_cross([bin + Env().target.os.exeext],
+        run_cross([bin + Env().target.os.exeext] + options,
                   output=output_file, timeout=timeout,
                   copy_files_on_target=resources)
     else:
