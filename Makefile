@@ -213,6 +213,9 @@ ifeq (${ENABLE_SHARED}, true)
 		$(GPR_SHARED) aws.gpr
 endif
 
+build-dynamo:
+	make -C config build-dynamo
+
 gen-templates: build-awsres-tool-native force
 	make -C tools/wsdl2aws-templates \
 		BDIR=$(BDIR) TARGET=$(TARGET) gen-templates

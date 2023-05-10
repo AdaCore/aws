@@ -56,6 +56,7 @@ $(SDIR)/xoscons$(EXEEXT): $(SDIR)/src setup/xoscons.adb
 
 $(SDIR)/dynamo$(EXEEXT): $(SDIR)/src ssl/dynamo/dynamo.adb
 	-$(GPRBUILD) -p -XPRJ_TARGET=$(PRJ_TARGET) -XTARGET=$(TARGET) \
+		-XLIBRARY_TYPE=static \
 		-Pssl/dynamo/dynamo.gpr -g -bargs -E
 
 setup_extlib:
@@ -119,6 +120,8 @@ $(SSL_THIN): $(SDIR)/src $(SDIR)/dynamo$(EXEEXT)
 	echo Setup SSL dynamic binding
 	$(SDIR)/dynamo$(EXEEXT) ssl/ssl-thin__$(SOCKET).ads $(SSL_THIN) \
 		SSL.Loader
+
+build-dynamo: $(SDIR)/dynamo$(EXEEXT)
 
 install:
 
