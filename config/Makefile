@@ -47,17 +47,17 @@ NO_SSL_LINK = 1
 SSL_THIN=$(SDIR)/src/ssl-thin.ads
 endif
 
+GPROPTS = 	-XPRJ_TARGET=$(PRJ_TARGET) -XTARGET=$(TARGET) \
+		-XLIBRARY_TYPE=static
+
 $(SDIR)/src:
 	$(MKDIR) $(SDIR)/src
 
 $(SDIR)/xoscons$(EXEEXT): $(SDIR)/src setup/xoscons.adb
-	-$(GPRBUILD) -p -XPRJ_BUILD=Debug -XLIBRARY_TYPE=static \
-		-XPRJ_TARGET=$(PRJ_TARGET) -XTARGET=$(TARGET) -Psetup xoscons
+	-$(GPRBUILD) -p -XPRJ_BUILD=Debug $(GPROPTS) -Psetup xoscons
 
 $(SDIR)/dynamo$(EXEEXT): $(SDIR)/src ssl/dynamo/dynamo.adb
-	-$(GPRBUILD) -p -XPRJ_TARGET=$(PRJ_TARGET) -XTARGET=$(TARGET) \
-		-XLIBRARY_TYPE=static \
-		-Pssl/dynamo/dynamo.gpr -g -bargs -E
+	-$(GPRBUILD) -p $(GPROPTS) -Pssl/dynamo/dynamo.gpr -g -bargs -E
 
 setup_extlib:
 	echo "abstract project AWS_Lib_Shared is" > $(LIBGPR)
