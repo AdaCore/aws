@@ -23,4 +23,4 @@ os.utime(os.path.join ("icons", "test-dir2"), (tdir, tdir))
 os.utime(os.path.join ("icons", "test-dir3"), (tdir, tdir))
 
 os.environ["TZ"] = "UTC"
-build_and_run('dirop')
+build_and_run('dirop', resources=DEFAULT_RESOURCES + ["icons"])
