@@ -1,1 +1,1 @@
-vxworks DEAD
+!native XFAIL run_cross cannot run executables in the background
