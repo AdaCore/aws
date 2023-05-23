@@ -64,7 +64,7 @@ package body AWS.SMTP.Server is
 
       declare
          Sock : Net.Socket_Type'Class :=
-                  Net.Socket (Security => Server.Host.Secure);
+                  Net.Socket (Security => Server.Host.Security = TLS);
       begin
          loop
             AWS.Net.Accept_Socket (Server.Host.Sock.all, Sock);

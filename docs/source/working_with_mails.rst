@@ -21,7 +21,7 @@ feature. The API covers sending simple mail with text message and/or
 with `MIME` attachments (base64 encoded). Here are the steps to
 send a simple e-mail:
 
-* Initialize the SMTP server
+* Initialize the SMTP server (non secure)
 
   ::
 
@@ -32,6 +32,23 @@ send a simple e-mail:
   it is possible to specify a different one. The hostname specified
   must be a valid SMTP server.
 
+* Initialize the SMTP server secure and with authentication
+
+  ::
+
+   Auth      : aliased constant SMTP.Authentication.Plain.Credential :=
+                 SMTP.Authentication.Plain.Initialize
+                   ("SMTP_Login", "SMTP_Password");
+
+  ::
+
+   SMTP_Server : SMTP.Receiver :=
+                   SMTP.Client.Initialize
+                     (Server_Name => "smtp.hostname",
+                      Port        => 587,
+                      Security    => SMTP.STARTTLS,
+                      Credential  => Auth'Unchecked_Access);
+
 * Send the e-mail
 
   To send an e-mail there are many different APIs. Let's send a simple text
@@ -41,10 +58,10 @@ send a simple e-mail:
 
    SMTP.Client.Send
      (SMTP_Server,
-      From    => SMTP.E_Mail ("Pascal Obry", "p.obry@wanadoo.fr"),
+      From    => SMTP.E_Mail ("Pascal Obry", "pascal@obry.net"),
       To      => SMTP.E_Mail ("John Doe", "john.doe@here.com"),
       Subject => "About AWS SMTP protocol",
-      Message => "AWS can now send mails",
+      Message => "AWS can send mails",
       Status  => Status);
 
   Here Status will contain the SMTP returned status.
