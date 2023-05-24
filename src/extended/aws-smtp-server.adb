@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2008-2021, AdaCore                     --
+--                     Copyright (C) 2008-2023, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -29,10 +29,12 @@
 
 with Ada.Exceptions;
 with Ada.Strings.Fixed;
+with Ada.Strings.Maps;
 with Ada.Text_IO;
 
 with AWS.Headers;
 with AWS.Net.Buffered;
+with AWS.Net.SSL;
 with AWS.SMTP.Messages.Set;
 
 package body AWS.SMTP.Server is
@@ -41,11 +43,12 @@ package body AWS.SMTP.Server is
 
    --  Messages definitions
 
-   DATA : constant String := "DATA";
-   HELO : constant String := "HELO";
-   MAIL : constant String := "MAIL";
-   QUIT : constant String := "QUIT";
-   RCPT : constant String := "RCPT";
+   DATA     : constant String := "DATA";
+   HELO     : constant String := "HELO";
+   MAIL     : constant String := "MAIL";
+   QUIT     : constant String := "QUIT";
+   RCPT     : constant String := "RCPT";
+   STARTTLS : constant String := "STARTTLS";
 
    function Get_Message (Sock : Net.Socket_Type'Class) return Messages.Data;
    --  Get an incoming message from the server
@@ -97,6 +100,8 @@ package body AWS.SMTP.Server is
      (Sock : Net.Socket_Type'Class) return Messages.Data
    is
 
+      S : Net.Socket_Access := new Net.Socket_Type'Class'(Sock);
+
       Empty_Line : constant String := "";
 
       procedure Read_Message_Body;
@@ -116,7 +121,8 @@ package body AWS.SMTP.Server is
       begin
          Read_Message_Header : loop
             declare
-               Line        : constant String := Net.Buffered.Get_Line (Sock);
+               Line        : constant String :=
+                               Net.Buffered.Get_Line (S.all);
                Split_Point : Natural;
             begin
                exit Read_Message_Header when Line = Empty_Line;
@@ -132,7 +138,7 @@ package body AWS.SMTP.Server is
 
          Read_Message : loop
             declare
-               Line  : constant String := Net.Buffered.Get_Line (Sock);
+               Line  : constant String := Net.Buffered.Get_Line (S.all);
                First : Natural := Line'First;
             begin
                exit Read_Message when Line = ".";
@@ -147,47 +153,70 @@ package body AWS.SMTP.Server is
       end Read_Message_Body;
 
    begin
-      Net.Buffered.Put_Line (Sock, "220 AdaSC Service ready");
+      Net.Buffered.Put_Line (S.all, "220 AdaSC Service ready");
       --  ok, service is ready
 
       Read_Message : loop
          declare
-            Line : constant String := Net.Buffered.Get_Line (Sock);
-            Cmd  : constant String := Line (Line'First .. Line'First + 3);
+            Line : constant String := Net.Buffered.Get_Line (S.all);
+            Spc  : constant Natural :=
+                     Strings.Fixed.Index
+                       (Line, Strings.Maps.To_Set (" "));
+            Last : constant Positive :=
+                     (if Spc = 0 then Line'Last else Spc - 1);
+            Cmd  : constant String :=
+                     Line (Line'First .. Last);
          begin
             if Cmd = DATA then
-               Net.Buffered.Put_Line (Sock, SMTP.Message (Start_Mail_Input));
+               Net.Buffered.Put_Line
+                 (S.all, SMTP.Message (Start_Mail_Input));
 
                Read_Message_Body;
                Net.Buffered.Put_Line
-                 (Sock, SMTP.Message (Requested_Action_Ok));
+                 (S.all, SMTP.Message (Requested_Action_Ok));
 
             elsif Cmd = HELO then
                Net.Buffered.Put_Line
-                 (Sock, SMTP.Message (Requested_Action_Ok));
+                 (S.all, SMTP.Message (Requested_Action_Ok));
 
             elsif Cmd = MAIL then
                Net.Buffered.Put_Line
-                 (Sock, SMTP.Message (Requested_Action_Ok));
+                 (S.all, SMTP.Message (Requested_Action_Ok));
 
             elsif Cmd = RCPT then
                Net.Buffered.Put_Line
-                 (Sock, SMTP.Message (Requested_Action_Ok));
+                 (S.all, SMTP.Message (Requested_Action_Ok));
 
             elsif Cmd = QUIT then
-               Net.Buffered.Put_Line (Sock, SMTP.Message (Service_Closing));
+               Net.Buffered.Put_Line
+                 (S.all, SMTP.Message (Service_Closing));
                exit Read_Message;
 
+            elsif Cmd = STARTTLS then
+               --  And upgrade socket to secure one
+
+               declare
+                  S_Sock : constant Net.SSL.Socket_Type :=
+                             Net.SSL.Secure_Server (S.all);
+               begin
+                  Net.Buffered.Put_Line
+                    (S.all, SMTP.Message (Service_Ready));
+                  Net.Buffered.Flush (S.all);
+
+                  Net.Free (S);
+                  S := new Net.Socket_Type'Class'
+                    (Net.Socket_Type'Class (S_Sock));
+               end;
             else
                --  Command is not known
 
-               Net.Buffered.Put_Line (Sock, SMTP.Message (Syntax_Error));
+               Net.Buffered.Put_Line (S.all, SMTP.Message (Syntax_Error));
 
             end if;
          end;
       end loop Read_Message;
 
-      Net.Buffered.Flush (Sock);
+      Net.Buffered.Flush (S.all);
 
       Messages.Set.Set_Body (Message, To_String (Message_Body));
       Messages.Set.Headers (Message, Headers);
