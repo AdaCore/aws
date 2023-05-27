@@ -153,7 +153,7 @@ package body AWS.SMTP.Server is
       end Read_Message_Body;
 
    begin
-      Net.Buffered.Put_Line (S.all, "220 AdaSC Service ready");
+      Net.Buffered.Put_Line (S.all, SMTP.Message (220));
       --  ok, service is ready
 
       Read_Message : loop
