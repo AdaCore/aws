@@ -27,6 +27,6 @@ s = re.compile('.*soapenc:arrayType="([^"]+).*')
 for item in r:
     m = s.match(item)
     if item[0] == '@':
-        print item
+        print(item)
     if m:
-        print m.group(1)
+        print(m.group(1))

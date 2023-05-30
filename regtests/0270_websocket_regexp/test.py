@@ -17,19 +17,19 @@ ws = create_connection("ws://127.0.0.1:"+port+"/echo")
 # Receiving Open connect message, 1 large message and 5 short messages
 for J in range(1, 8):
     result = ws.recv()
-    print result
+    print(result)
 
 # Sending  messages and receiving echo
 for J in range(1, 4):
     ws.send("client message %d" % J)
     result = ws.recv()
-    print result
+    print(result)
 
 ws.close()
 
 # send abnormal header - check free websocket in this case
 ws = create_connection("ws://127.0.0.1:"+port+"/echo")
-ws.sock.send("\xFF\x00")
+ws.sock.send(b"\xFF\x00")
 ws.close()
 
 # for normal ending of test
@@ -39,10 +39,10 @@ ws.close()
 
 # check server output
 res = Server.wait()
-print "Server ends with status %d" % res
+print("Server ends with status %d" % res)
 
-print "Server output:"
+print("Server output:")
 lines = open('server-output').readlines()
 for l in lines:
     if l[0:5] != 'PORT:':
-        print l
+        print(l)
