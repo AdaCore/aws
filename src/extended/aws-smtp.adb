@@ -176,14 +176,14 @@ package body AWS.SMTP is
    function Initialize
      (Server_Name : String;
       Port        : Natural := Default_SMTP_Port;
-      Secure      : Boolean := False;
+      Security    : Secure_Connection := No;
       Family      : Net.Family_Type := Net.Family_Unspec;
       Credential  : access constant Authentication.Credential'Class := null;
       Timeout     : Duration := Net.Forever)
       return Receiver is
    begin
-      return (Family, To_Unbounded_String (Server_Name), Port, Secure, null,
-              Credential, Timeout);
+      return (Family, To_Unbounded_String (Server_Name), Port,
+              Security, null, Credential, Timeout);
    end Initialize;
 
    -----------
@@ -192,7 +192,11 @@ package body AWS.SMTP is
 
    function Is_Ok (Status : SMTP.Status) return Boolean is
    begin
-      return Status.Reason = Null_Unbounded_String;
+      return Status.Reason = Null_Unbounded_String
+        or else Status.Code in Service_Ready
+                             | Auth_Successful
+                             | Requested_Action_Ok
+                             | Start_Mail_Input;
    end Is_Ok;
 
    -------------

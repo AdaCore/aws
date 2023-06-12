@@ -40,6 +40,7 @@ with AWS.Headers;
 with AWS.Messages;
 with AWS.MIME;
 with AWS.Net.Buffered;
+with AWS.Net.SSL;
 with AWS.SMTP.Authentication;
 with AWS.Utils;
 
@@ -143,21 +144,26 @@ package body AWS.SMTP.Client is
       Answer : Server_Reply;
    begin
       --  Clear status code
+
       Clear (Status);
 
-      --  Open server
-      Sock := Net.Socket (Security => Server.Secure);
+      --  Open server. If STARTTLS set then we start with a non secure socket.
+      --  The socket is then upgraded if the STARTTLS is sucessfull (see
+      --  below).
+
+      Sock := Net.Socket (Security => Server.Security = TLS);
 
       Sock.Set_Timeout (Server.Timeout);
       Sock.Connect
         (To_String (Server.Name), Server.Port, Family => Server.Family);
 
       --  Check connect message
+
       Check_Answer (Sock.all, Answer);
 
       if Answer.Code = Service_Ready then
-
          --  Open session
+
          Net.Buffered.Put_Line (Sock.all, "HELO " & Net.Host_Name);
          Check_Answer (Sock.all, Answer);
 
@@ -168,6 +174,30 @@ package body AWS.SMTP.Client is
             Shutdown (Sock);
          end if;
 
+         --  If STARTTLS asked, start swithtching protocol now. This means that
+         --  we upgrade the socket from standard to SSL mode.
+
+         if Server.Security = STARTTLS then
+            Net.Buffered.Put_Line (Sock.all, "STARTTLS");
+            Check_Answer (Sock.all, Answer);
+
+            if Answer.Code /= Service_Ready then
+               Add (Answer, Status);
+               Shutdown (Sock);
+            end if;
+
+            --  And upgrade socket to secure one
+
+            declare
+               S_Sock : constant Net.SSL.Socket_Type :=
+                          Net.SSL.Secure_Client (Sock.all);
+            begin
+               Net.Free (Sock);
+
+               Sock := new Net.Socket_Type'Class'
+                 (Net.Socket_Type'Class (S_Sock));
+            end;
+         end if;
       else
          Add (Answer, Status);
          Shutdown (Sock);

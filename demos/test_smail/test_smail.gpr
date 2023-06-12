@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2008-2023, AdaCore                     --
+--                       Copyright (C) 2023, AdaCore                        --
 --                                                                          --
 --  This is free software;  you can redistribute it  and/or modify it       --
 --  under terms of the  GNU General Public License as published  by the     --
@@ -18,9 +18,13 @@
 
 with "aws";
 
-project SMTP_2 is
-   for Source_Dirs use (".", "../common");
-   for Main use ("smtp_2.adb");
-   for Object_Dir use "obj";
-   for Exec_Dir use ".";
-end SMTP_2;
+project Test_SMail is
+
+   for Source_Dirs use (".");
+   for Main use ("test_smail.adb");
+
+   package Builder is
+      for Default_Switches ("Ada") use ("-gnat12");
+   end Builder;
+
+end Test_SMail;

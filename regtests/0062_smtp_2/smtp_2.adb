@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2008-2017, AdaCore                     --
+--                     Copyright (C) 2008-2023, AdaCore                     --
 --                                                                          --
 --  This is free software;  you can redistribute it  and/or modify it       --
 --  under terms of the  GNU General Public License as published  by the     --
@@ -55,8 +55,10 @@ begin
    end if;
 
    Host := SMTP.Initialize
-             (Net.Localhost (Net.IPv6_Available), 0,
-              AWS.Net.SSL.Is_Supported, Family => Family, Timeout => 1.0);
+     (Net.Localhost (Net.IPv6_Available), 0,
+      Security => (if AWS.Net.SSL.Is_Supported then SMTP.TLS else SMTP.No),
+      Family   => Family,
+      Timeout  => 1.0);
 
    SMTP.Server.Start (Server, Host, SMTP_Pck.Dump_Mail'Access);
 
@@ -64,7 +66,9 @@ begin
 
    Host := SMTP.Initialize
      (Net.Localhost (Net.IPv6_Available), SMTP.Server.Port (Server),
-      AWS.Net.SSL.Is_Supported, Family => Family, Timeout => 1.0);
+      Security => (if AWS.Net.SSL.Is_Supported then SMTP.TLS else SMTP.No),
+      Family   => Family,
+      Timeout  => 1.0);
 
    --  Send simple message
 

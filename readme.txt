@@ -40,8 +40,15 @@ to work properly. Of course we try to avoid this as much as possible
 but we really prefer to have a clean API instead of keeping awkward
 implementations.
 
-- New parameter IPv6_Only in the Bind routine of the AWS.Net.Socket_Type
-  hierarhy. If user code has the Bind overriden, this parameter must be added.
+- To support SMTP secure STARTTLS switching protocol the parameter to
+  SMTP.Initialize has been changed from Secure to Security and
+  instead of a boolean it takes a Secure_Connection enumeration which
+  can be No, TLS or STARTTLS.
+
+  If Secure was set to False, Security must be No.
+
+  If Secure was set to True, Security should probably be TLS except if
+  the STARTTLS swicthing protocol is to be used.
 
 Obsolescent features
 --------------------

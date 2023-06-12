@@ -551,7 +551,9 @@ package body AWS.Services.Web_Mail is
       Load_Context (WM_Session, Context);
 
       WM_SMTP := SMTP.Client.Initialize
-        (-Context.SMTP_Host, Port => Context.SMTP_Server_Port);
+        (-Context.SMTP_Host,
+         Port     => Context.SMTP_Server_Port,
+         Security => SMTP.No);
 
       SMTP.Client.Send
         (WM_SMTP,
