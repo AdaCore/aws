@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2008-2023, AdaCore                     --
+--                       Copyright (C) 2023, AdaCore                        --
 --                                                                          --
 --  This is free software;  you can redistribute it  and/or modify it       --
 --  under terms of the  GNU General Public License as published  by the     --
@@ -18,9 +18,9 @@
 
 with "aws";
 
-project SMTP_2 is
+project SMTP_STARTTLS is
    for Source_Dirs use (".", "../common");
-   for Main use ("smtp_2.adb");
+   for Main use ("smtp_starttls.adb");
    for Object_Dir use "obj";
    for Exec_Dir use ".";
-end SMTP_2;
+end SMTP_STARTTLS;

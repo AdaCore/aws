@@ -52,6 +52,8 @@ package AWS.SMTP is
    -- Receiver --
    --------------
 
+   type Secure_Connection is (No, TLS, STARTTLS);
+
    type Receiver is private;
    --  The receiver part (i.e. a server) of SMTP messages as defined in
    --  RFC 821. This is the SMTP server.
@@ -59,13 +61,11 @@ package AWS.SMTP is
    function Initialize
      (Server_Name : String;
       Port        : Natural := Default_SMTP_Port;
-      Secure      : Boolean := False;
+      Security    : Secure_Connection := No;
       Family      : Net.Family_Type := Net.Family_Unspec;
       Credential  : access constant Authentication.Credential'Class := null;
       Timeout     : Duration := Net.Forever)
       return Receiver;
-   --  Create a Server composed of the Name and the Port (default SMTP port
-   --  is 25), this server will be used to send SMTP message.
 
    ----------------
    -- Reply_Code --
@@ -148,13 +148,13 @@ private
    use Ada.Strings.Unbounded;
 
    type Receiver is record
-      Family  : Net.Family_Type;
-      Name    : Unbounded_String;
-      Port    : Natural;
-      Secure  : Boolean;
-      Sock    : Net.Socket_Access;
-      Auth    : access constant Authentication.Credential'Class;
-      Timeout : Duration;
+      Family   : Net.Family_Type;
+      Name     : Unbounded_String;
+      Port     : Natural;
+      Security : Secure_Connection;
+      Sock     : Net.Socket_Access;
+      Auth     : access constant Authentication.Credential'Class;
+      Timeout  : Duration;
    end record;
 
    type Status is record
