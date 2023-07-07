@@ -813,8 +813,14 @@ package body Ada2WSDL.Parser is
                   S_Decl : constant Base_Type_Decl :=
                              Get_Base_Type (F_Decl.As_Subtype_Decl);
                begin
-                  Append_Deferred (S_Decl);
-                  T_Name := To_Unbounded_String (Img (F_Decl.F_Name));
+                  --  If a subtype of Unbounded_String we record the field as a
+                  --  string.
+                  if Img (S_Decl.F_Name) = "Unbounded_String" then
+                     T_Name := To_Unbounded_String ("string");
+                  else
+                     Append_Deferred (S_Decl);
+                     T_Name := To_Unbounded_String (Img (F_Decl.F_Name));
+                  end if;
                end;
 
             else

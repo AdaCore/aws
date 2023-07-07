@@ -1,0 +1,4 @@
+with "aws";
+project API is
+   for source_dirs use ("src");
+end API;
