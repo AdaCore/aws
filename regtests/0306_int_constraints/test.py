@@ -13,9 +13,9 @@ P = False
 
 print("==============================")
 for l in open("tcons2.wsdl").readlines():
-    if string.find(l, "<wsdl:types>") >= 0:
+    if "<wsdl:types>" in l:
         P = True
-    if string.find(l, "</wsdl:types>") >= 0:
+    if "</wsdl:types>" in l:
         P = False
-    if P is True and string.find(l, "<xsd:") >= 0:
-        print l
+    if P is True and "<xsd:" in l:
+        print(l)

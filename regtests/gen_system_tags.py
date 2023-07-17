@@ -9,8 +9,8 @@ testsuite driver
 import os
 import sys
 
-from gnatpython.arch import Arch
-from gnatpython.main import Main
+from e3.env import Env
+from e3.main import Main
 
 def generate_tags(filename):
     _makefile = open(filename, 'r')
@@ -36,19 +36,20 @@ def generate_tags(filename):
                 tags.append("!" + key)
     _makefile.close()
 
-    arch = Arch()
-    tags.append(arch.platform)
+    env = Env()
+    tags.append(env.platform)
 
     tags_string = ",".join(tags)
     open('testsuite.tags', 'w').write(tags_string.lower() + "\n")
 
-    print "Generating testsuite.tags with: \n" + tags_string.lower()
+    print("Generating testsuite.tags with: \n" + tags_string.lower())
 
 def main():
     _main = Main()
+    _main.argument_parser.add_argument("filename")
     _main.parse_args()
     try:
-        generate_tags(_main.args[0])
+        generate_tags(_main.args.filename)
     except IndexError:
         _main.error("where is makefile.setup ?")
 

@@ -7,29 +7,29 @@ import os
 import sys
 
 from glob import glob
-from gnatpython.env import Env
-from gnatpython.fileutils import cd, mv
-from gnatpython.ex import Run
+from e3.env import Env
+from e3.os.fs import cd, mv
+from e3.os.process import Run
 
-Env().restore(os.environ['TEST_CONFIG'])
+Env().restore(os.environ["TEST_CONFIG"])
 
 # Move to test directory
 ROOT_DIR = os.getcwd()
-TEST_DIR = os.path.dirname(sys.modules['__main__'].__file__)
+TEST_DIR = os.path.dirname(sys.modules["__main__"].__file__)
 TEST_NAME = os.path.basename(TEST_DIR)
 
 
 def setup():
     cd(TEST_DIR)
-    for prj in glob('*.gpr'):
+    for prj in glob("*.gpr"):
         with open(prj) as prj_orig:
             lines = [line for line in prj_orig]
-            with open(prj + '.new', 'w') as prj_new:
+            with open(prj + ".new", "w") as prj_new:
                 for line in lines:
-                    line = line.replace(
-                        '../common', os.path.join(ROOT_DIR, 'common'))
+                    line = line.replace("../common", os.path.join(ROOT_DIR, "common"))
                     prj_new.write(line)
-        mv(prj + '.new', prj)
+        mv(prj + ".new", prj)
+
 
 setup()
 
@@ -39,7 +39,7 @@ def tail(infile_name, outfile_name, nb_line):
 
     If outfile_name is None, print to stdout
     """
-    infile = open(infile_name, 'r')
+    infile = open(infile_name, "r")
     if outfile_name is not None:
         outfile = open(outfile_name, "w")
     pos = 0
@@ -49,7 +49,7 @@ def tail(infile_name, outfile_name, nb_line):
             if outfile_name is not None:
                 outfile.write(line)
             else:
-                print line
+                print(line)
     if outfile_name is not None:
         outfile.close()
     infile.close()
@@ -60,10 +60,10 @@ def build(prj):
     cmd = ["gprbuild"]
     if Env().is_cross:
         cmd.append("--target=" + Env().target.triplet)
-        if Env().target.os.name.startswith('vxworks'):
-            cmd.append('-XPLATFORM=vxworks')
+        if Env().target.os.name.startswith("vxworks"):
+            cmd.append("-XPLATFORM=vxworks")
     cmd = cmd + ["-p", "-gnat2012", "-P" + prj, "-bargs", "-E"]
-    if Env().testsuite_config.with_gprof:
+    if Env().options.with_gprof:
         cmd = cmd + ["-cargs", "-pg", "-O2", "-largs", "-pg"]
     process = Run(cmd)
     if process.status:
@@ -82,7 +82,7 @@ DEFAULT_RESOURCES = [
     "*.types",
     "*.mime",
     "*.gif",
-    "*.png"
+    "*.png",
 ]
 
 
@@ -108,25 +108,38 @@ def run(bin, options=None, output_file=None, resources=None):
 
     if Env().is_cross:
         # Import gnatpython excross module only when needed
-        from gnatpython.internal.excross import run_cross
-        run_cross([bin + Env().target.os.exeext] + options,
-                  output=output_file, timeout=timeout,
-                  copy_files_on_target=resources)
-    else:
-        if Env().testsuite_config.with_gdb:
-            Run(["gdb", "--eval-command=run", "--batch-silent",
-                 "--args", bin] + options, output=output_file, timeout=timeout)
-        elif Env().testsuite_config.with_valgrind:
-            Run(["valgrind", "-q", "./" + bin] + options,
-                output=output_file, timeout=timeout)
-        else:
-            Run(["./" + bin] + options,
-                output=output_file, timeout=timeout)
+        from pycross.runcross.main import run_cross
 
-    if Env().testsuite_config.with_gprof:
-        Run(["gprof", bin] + options,
-            output=os.path.join(Env().PROFILES_DIR,
-                                "%s_%s_gprof.out" % (TEST_NAME, bin)))
+        run_cross(
+            [bin + Env().target.os.exeext] + options,
+            output=output_file,
+            timeout=timeout,
+            copy_files_on_target=resources,
+        )
+    else:
+        if Env().options.with_gdb:
+            Run(
+                ["gdb", "--eval-command=run", "--batch-silent", "--args", bin]
+                + options,
+                output=output_file,
+                timeout=timeout,
+            )
+        elif Env().options.with_valgrind:
+            Run(
+                ["valgrind", "-q", "./" + bin] + options,
+                output=output_file,
+                timeout=timeout,
+            )
+        else:
+            Run(["./" + bin] + options, output=output_file, timeout=timeout)
+
+    if Env().options.with_gprof:
+        Run(
+            ["gprof", bin] + options,
+            output=os.path.join(
+                Env().PROFILES_DIR, f"{TEST_NAME}_{bin}_gprof.out"
+            ),
+        )
 
 
 def exec_cmd(bin, options=None, output_file=None, ignore_error=False):

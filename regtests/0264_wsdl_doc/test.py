@@ -4,11 +4,11 @@ exec_cmd('wsdl2aws', ['-q', '-f', '-sp', '-doc', 'wsdl_doc.wsdl'])
 build_and_run('wsdl_doc')
 
 def output_comment(file):
-    print file
+    print(file)
     lines = open(file).readlines()
     for l in lines[8:]:
         if l[0:3] == "-- " or l[6:9] == "-- " or l[3:6] == "-- ":
-            print l
+            print(l)
 
 for file in ["r_hello_demo-client.ads",
              "r_hello_demo-server.ads",

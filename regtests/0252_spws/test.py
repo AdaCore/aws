@@ -40,15 +40,15 @@ ws = create_connection("ws://127.0.0.1:"+port+"/server_push")
 # Receiving 1 initial message and 5 server_push messages
 for J in range(1, 7):
     result = ws.recv()
-    print result
+    print(result)
 
 ws.close()
 # check server output
 res = Server.wait()
-print "Server ends with status %d" % res
+print("Server ends with status %d" % res)
 
-print "Server output:"
+print("Server output:")
 lines = open('server-output').readlines()
 for l in lines:
     if l[0:5] != 'PORT:':
-        print l
+        print(l)
