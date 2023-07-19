@@ -57,7 +57,7 @@ def tail(infile_name, outfile_name, nb_line):
 
 def build(prj):
     """Compile a project with gprbuild"""
-    cmd = ["gprbuild"]
+    cmd = ["gprbuild", f"-XHost_OS={Env().host.os.name}"]
     if Env().is_cross:
         cmd.append("--target=" + Env().target.triplet)
         if Env().target.os.name.startswith("vxworks"):

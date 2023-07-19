@@ -1,13 +1,15 @@
 from test_support import *
 import os
 
+from e3.env import Env
+
 def create_res(name,content):
     f=open(name,'w')
     f.write(content)
     f.close();
 
 def gen(c):
-    if os.environ.get("OS") == "Windows_NT":
+    if Env().host.os.name == "windows":
         return c * 20;
     else:
         return c * 50;
