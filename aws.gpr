@@ -36,7 +36,7 @@ aggregate library project AWS is
    for Library_Dir use Shared'Library_Dir & "/aws";
 
    case Shared.Library_Type is
-      when "static" =>
+      when "static" | "static-pic" =>
          null;
 
       when "relocatable" =>

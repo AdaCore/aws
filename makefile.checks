@@ -69,12 +69,6 @@ $(error SSL_DYNAMIC variable must be set to true or false)
 endif
 endif
 
-ifneq ($(DEFAULT_LIBRARY_TYPE), static)
-ifneq ($(DEFAULT_LIBRARY_TYPE), relocatable)
-$(error DEFAULT_LIBRARY_TYPE variable must be set to static or relocatable)
-endif
-endif
-
 ifneq ($(LAL), true)
 ifneq ($(LAL), false)
 $(error LAL variable must be set to true or false)
