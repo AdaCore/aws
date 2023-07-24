@@ -1315,7 +1315,7 @@ package body Ada2WSDL.Parser is
          Env              : GPR.Project_Environment_Access;
       begin
          GPR.Initialize (Env);
-         Project.Load (Project_File, Env);
+         Project.Load (Project_File, Env, Report_Missing_Dirs => False);
          return LAL_GPR.Create_Project_Unit_Provider (Project, Env => Env);
       end Load_Project;
 
