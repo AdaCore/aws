@@ -23,6 +23,7 @@ with Ada.Text_IO;
 with AWS.Resources.Embedded;
 with AWS.Utils;
 
+with Config;
 with rdemo;
 
 procedure Deep_Res is
@@ -42,13 +43,7 @@ procedure Deep_Res is
    function Gen (C : Character) return String is
       use Ada.Strings.Fixed;
    begin
-      if Environment_Variables.Exists ("OS")
-        and then Environment_Variables.Value ("OS") = "Windows_NT"
-      then
-         return 20 * C;
-      else
-         return 50 * C;
-      end if;
+      return Config.Path_Component_Length * C;
    end Gen;
 
    ----------

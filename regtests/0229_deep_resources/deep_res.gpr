@@ -27,4 +27,16 @@ project Deep_Res is
       for Default_Switches ("Ada") use ("-gnaty", "-gnatwe");
    end Compiler;
 
+   type OS_Kind is ("linux", "windows");
+   Host_OS : OS_Kind := external ("Host_OS");
+
+   package Naming is
+      case Host_OS is
+         when "linux" =>
+            for Specification ("Config") use "config_linux.ads";
+         when "windows" =>
+            for Specification ("Config") use "config_windows.ads";
+      end case;
+   end Naming;
+
 end Deep_Res;
