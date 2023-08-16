@@ -1,1 +1,2 @@
 !xmlada DEAD
+!native XFAIL pycross mangles non-UTF-8 output; see eng/toolchain/aws#16
