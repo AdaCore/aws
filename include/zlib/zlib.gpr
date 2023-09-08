@@ -34,7 +34,7 @@ library project Zlib is
    --  Always build the static Z library as needed by some AWS tools
 
    case Shared.Library_Type is
-      when "static" =>
+      when "static" | "static-pic" =>
          Zlib_Activated := "Yes";
 
       when "relocatable" =>

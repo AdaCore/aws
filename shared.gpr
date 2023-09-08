@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2003-2022, AdaCore                     --
+--                     Copyright (C) 2003-2023, AdaCore                     --
 --                                                                          --
 --  This is free software;  you can redistribute it  and/or modify it       --
 --  under terms of the  GNU General Public License as published  by the     --
@@ -51,7 +51,7 @@ abstract project Shared is
    -- Static / Relocatable --
    --------------------------
 
-   type Library_Kind is ("relocatable", "static");
+   type Library_Kind is ("relocatable", "static", "static-pic");
    Library_Type : Library_Kind := external ("LIBRARY_TYPE", "static");
 
    ---------------------

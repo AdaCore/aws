@@ -49,6 +49,11 @@ MAKE_OPT	= -s
 BDIR		= $(BROOTDIR)/$(TARGET)/release
 endif
 
+LIBAWS_TYPES=static
+ifeq (${ENABLE_SHARED},true)
+   LIBAWS_TYPES=static relocatable static-pic
+endif
+
 #############################################################################
 #  NO NEED TO CHANGE ANYTHING PAST THIS POINT
 #############################################################################
@@ -173,10 +178,6 @@ GPROPTS = -XPRJ_BUILD=$(PRJ_BUILD) -XPRJ_SOCKLIB=$(PRJ_SOCKLIB) \
 
 GPR_STATIC = -XLIBRARY_TYPE=static -XXMLADA_BUILD=static
 GPR_SHARED = -XLIBRARY_TYPE=relocatable -XXMLADA_BUILD=relocatable
-GPR_OTHER  = -XLIBRARY_TYPE=$(OTHER_LIBRARY_TYPE) \
-		-XXMLADA_BUILD=$(OTHER_LIBRARY_TYPE)
-GPR_DEFAULT = -XLIBRARY_TYPE=$(DEFAULT_LIBRARY_TYPE) \
-		-XXMLADA_BUILD=$(DEFAULT_LIBRARY_TYPE)
 
 #######################################################################
 #  build
@@ -190,11 +191,11 @@ build-awsres-tool-native:
 build-tools-native: gen-templates build-lib-native
 	$(GPRBUILD) -p $(GPROPTS) $(GPR_STATIC) tools/tools.gpr
 
-build-lib-native:
-	$(GPRBUILD) -p $(GPROPTS) aws.gpr
-ifeq (${ENABLE_SHARED}, true)
-	$(GPRBUILD) -p $(GPROPTS) $(GPR_SHARED) aws.gpr
-endif
+build-libs-%:
+	$(GPRBUILD) -p $(GPROPTS) \
+		-XLIBRARY_TYPE=$* -XXMLADA_BUILD=$* aws.gpr
+
+build-lib-native: ${LIBAWS_TYPES:%=build-libs-%}
 
 build-gps-support: build-lib-native
 	$(GPRBUILD) -p $(GPROPTS) $(GPR_STATIC) gps/gps_support.gpr
@@ -206,12 +207,11 @@ build-tools-cross: build-lib-cross
 	$(GPRBUILD) -p --target=$(TARGET) $(GPROPTS) \
 		$(GPR_STATIC) tools/tools.gpr
 
-build-lib-cross:
-	$(GPRBUILD) -p --target=$(TARGET) $(GPROPTS) aws.gpr
-ifeq (${ENABLE_SHARED}, true)
+build-libs-cross-%:
 	$(GPRBUILD) -p --target=$(TARGET) $(GPROPTS) \
-		$(GPR_SHARED) aws.gpr
-endif
+		-XLIBRARY_TYPE=$* -XXMLADA_BUILD=$* aws.gpr
+
+build-lib-cross: ${LIBAWS_TYPES:%=build-libs-cross-%}
 
 build-dynamo:
 	make -C config build-dynamo
@@ -234,18 +234,20 @@ gps: setup
 #######################################################################
 #  clean
 
-clean-native:
+clean-libs-%:
+	$(GPRCLEAN) $(GPROPTS) -XLIBRARY_TYPE=$* -XXMLADA_BUILD=$* aws.gpr
+
+clean-lib-native: ${LIBAWS_TYPES:%=clean-libs-%}
+
+clean-native: clean-libs-native
 	-$(GPRCLEAN) $(GPROPTS) $(GPR_STATIC) tools/tools.gpr
-ifeq (${ENABLE_SHARED}, true)
-	-$(GPRCLEAN) $(GPROPTS) $(GPR_SHARED) aws.gpr
-endif
 	-$(GPRCLEAN) $(GPROPTS) $(GPR_STATIC) gps/gps_support.gpr
 
-clean-cross:
-	-$(GPRCLEAN) $(GPROPTS) --target=$(TARGET) $(GPR_STATIC) aws.gpr
-ifeq (${ENABLE_SHARED}, true)
-	-$(GPRCLEAN) $(GPROPTS) --target=$(TARGET) $(GPR_SHARED) aws.gpr
-endif
+clean-libs-cross-%:
+	$(GPRCLEAN) --target=$(TARGET) \
+		-XLIBRARY_TYPE=$* -XXMLADA_BUILD=$* aws.gpr
+
+clean-cross: ${LIBAWS_TYPES:%=clean-libs-cross-%}
 
 ifeq (${IS_CROSS}, true)
 clean: clean-cross
@@ -268,36 +270,33 @@ endif
 GPRINST_OPTS=-p -f --prefix=$(TPREFIX) \
 	--build-var=LIBRARY_TYPE --build-var=AWS_BUILD
 
-install-lib-native:
-	$(GPRINSTALL) $(GPROPTS) $(GPRINST_OPTS) $(GPR_DEFAULT) \
-		--build-name=$(DEFAULT_LIBRARY_TYPE) aws.gpr
-ifeq (${ENABLE_SHARED}, true)
+install-libs-%:
 	$(GPRINSTALL) $(GPROPTS) $(GPRINST_OPTS) \
-		$(GPR_OTHER) --build-name=$(OTHER_LIBRARY_TYPE) aws.gpr
-endif
+		-XLIBRARY_TYPE=$* -XXMLADA_BUILD=$* \
+		--build-name=$* aws.gpr
+
+install-lib-native: ${LIBAWS_TYPES:%=install-libs-%}
 
 install-tools-native:
 	$(GPRINSTALL) $(GPROPTS) $(GPRINST_OPTS) $(GPR_STATIC) --mode=usage \
-		--build-name=$(DEFAULT_LIBRARY_TYPE) \
+		--build-name=static \
 		--install-name=aws tools/tools.gpr
 
-install-native: install-clean install-lib-native install-tools-native
+install-native: install-clean install-libs-native install-tools-native
 
-install-lib-cross:
+install-libs-cross-%:
 	$(GPRINSTALL) $(GPROPTS) $(GPRINST_OPTS) \
-		--target=$(TARGET) $(GPR_DEFAULT) aws.gpr
-ifeq (${ENABLE_SHARED}, true)
-	$(GPRINSTALL) $(GPROPTS) $(GPRINST_OPTS) \
-		--target=$(TARGET) $(GPR_OTHER) \
-		--build-name=$(OTHER_LIBRARY_TYPE) aws.gpr
-endif
+		--target=$(TARGET) -XLIBRARY_TYPE=$* -XXMLADA_BUILD=$* \
+		--build-name=$* aws.gpr
+
+install-lib-cross: ${LIBAWS_TYPES:%=install-libs-cross-%}
 
 install-tools-cross:
 	$(GPRINSTALL) $(GPROPTS)  $(GPRINST_OPTS) --mode=usage \
 		--target=$(TARGET) $(GPROPTS) \
 		--install-name=aws tools/tools.gpr
 
-install-cross: install-clean install-lib-cross install-tools-cross
+install-cross: install-clean install-libs-cross install-tools-cross
 
 ifeq (${IS_CROSS}, true)
 install: install-cross
@@ -368,7 +367,6 @@ setup_modules: $(MODULES_SETUP)
 
 gen_setup:
 	echo "prefix=$(prefix)" > makefile.setup
-	echo "DEFAULT_LIBRARY_TYPE=$(DEFAULT_LIBRARY_TYPE)" >> makefile.setup
 	echo "ENABLE_SHARED=$(ENABLE_SHARED)" >> makefile.setup
 	echo "ZLIB=$(ZLIB)" >> makefile.setup
 	echo "XMLADA=$(XMLADA)" >> makefile.setup
