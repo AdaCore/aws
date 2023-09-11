@@ -1,2 +1,3 @@
 !xmlada DEAD
-windows OUT test-win.out
+--  Line number discrepancy, see eng/toolchain/aws#20.
+windows-host OUT test-win.out
