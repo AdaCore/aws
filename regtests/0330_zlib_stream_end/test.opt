@@ -1,2 +1,0 @@
-ppc-linux XFAIL Unexpected file length; see eng/toolchain/aws#3.
-ppc64-linux XFAIL Unexpected file length; see eng/toolchain/aws#3.
