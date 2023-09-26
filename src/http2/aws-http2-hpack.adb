@@ -28,6 +28,7 @@
 ------------------------------------------------------------------------------
 
 with Interfaces;
+with System;
 
 with AWS.HTTP2.Connection;
 with AWS.HTTP2.HPACK.Huffman;
@@ -92,6 +93,11 @@ package body AWS.HTTP2.HPACK is
       B40 at 0 range 4 .. 7;
       B41 at 0 range 0 .. 3;
    end record;
+
+   --  Pick an explicit bit indexing order for this record, otherwise
+   --  the position & ranges in the component clauses will be
+   --  interpreted differently depending on endianness.
+   for RFC_Byte'Bit_Order use System.Low_Order_First;
 
    B_II          : constant Bit2 := 2#01#;
    --  Incremental Indexing
