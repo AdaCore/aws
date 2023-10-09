@@ -380,7 +380,6 @@ package body AWS.HTTP2.HPACK.Huffman is
 
       EOS    : constant Unsigned_32 := 16#fffffffa#;
 
-      type Byte_Bits is array (0 .. 7) of Bit with Pack;
       Iter    : Node_Access := Root;
       Padding : Natural := 0;
       Pad_0   : Boolean := False;
@@ -390,7 +389,6 @@ package body AWS.HTTP2.HPACK.Huffman is
       for K in Str'Range loop
          declare
             E    : constant Stream_Element := Str (K);
-            Bits : Byte_Bits with Size => 8, Address => E'Address;
             C    : Character;
          begin
             --  Keep last four bytes to check for EOS
@@ -406,7 +404,8 @@ package body AWS.HTTP2.HPACK.Huffman is
 
             for B in reverse 0 .. 7 loop
                declare
-                  Bit : constant Huffman.Bit := Bits (B);
+                  Bit : constant Huffman.Bit :=
+                          Huffman.Bit (Shift_Right (Unsigned_8 (E), B) and 1);
                begin
                   if Decode_Bit (Iter, Bit, C) then
                      I := I + 1;
