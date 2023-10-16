@@ -1,4 +1,4 @@
-ppc-linux XFAIL Unexpected error code; see eng/toolchain/aws#2.
+ppc-linux,linux-wrlinux-17 OUT test-ebusy.out
 vxworks6 OUT test-vxworks.out
 !vxworks6-6.6 REQUIRED
 windows-2012,ipv4 OUT test-win7-ipv4.out
