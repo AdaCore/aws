@@ -1,5 +1,6 @@
-ppc-linux XFAIL Unexpected error code; see eng/toolchain/aws#2.
-vxworks6-6.6 DEAD
+ppc-linux,linux-wrlinux-17 OUT test-ebusy.out
+vxworks6 OUT test-vxworks.out
+!vxworks6-6.6 REQUIRED
 windows-2012,ipv4 OUT test-win7-ipv4.out
 windows-2012,gnat OUT test-win2012.out
 windows-2016,gnat OUT test-win2012.out
@@ -15,8 +16,7 @@ darwin,ipv4 OUT test-darwin-ipv4.out
 darwin,gnat OUT test-darwin.out
 freebsd,!ipv4 OUT test-freebsd-ipv6.out
 freebsd,ipv4 OUT test-freebsd-ipv4.out
-vxworks6,!vxworks6-6.6 OUT test-vxworks.out
-linux-rhES8 OUT test-rhES8-x86.out
+linux-rhES8 OUT test.out
 gnat OUT test.out
 ipv6 OUT test-ipv6.out
-ipv4,!vxworks6-6.6 OUT test-ipv4.out
+ipv4 OUT test-ipv4.out
