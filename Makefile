@@ -282,7 +282,7 @@ install-tools-native:
 		--build-name=static \
 		--install-name=aws tools/tools.gpr
 
-install-native: install-clean install-libs-native install-tools-native
+install-native: install-clean install-lib-native install-tools-native
 
 install-libs-cross-%:
 	$(GPRINSTALL) $(GPROPTS) $(GPRINST_OPTS) \
