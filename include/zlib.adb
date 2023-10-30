@@ -631,6 +631,8 @@ package body ZLib is
             Flush    => Flush);
 
          CRC32 (Filter.CRC, In_Data (In_Data'First .. In_Last));
+      else
+         In_Last := In_Data'First - 1;
       end if;
 
       if Filter.Stream_End and then Out_Last <= Out_Data'Last then
