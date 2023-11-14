@@ -1,3 +1,2 @@
 !xmlada DEAD
-!native XFAIL run_cross cannot run executables in the background
 ALL XFAIL "depends on network status, timeout may be longer than expected"

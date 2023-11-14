@@ -1,2 +1,0 @@
-ppc-linux XFAIL Server crash; see eng/toolchain/aws#4.
-ppc64-linux XFAIL Server crash; see eng/toolchain/aws#4.

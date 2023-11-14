@@ -21,4 +21,13 @@ with "aws";
 project Test_Streams_End is
    for source_dirs use (".");
    for main use ("test_streams_end.adb");
+
+   -- Use a target-independent serialization protocol for stream
+   -- elements to ensure integers are encoded with consistent
+   -- endianness.  Otherwise, the byte stream passed to zlib would
+   -- differ, and we would need distinct test.out files for
+   -- little-endian vs big-endian platforms.
+   package Binder is
+      for Switches ("Ada") use ("-xdr");
+   end Binder;
 end Test_Streams_End;
