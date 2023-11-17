@@ -1,6 +1,6 @@
 
                             A W S - Ada Web Server
-                                20.0 release
+                                24.0 release
 
 Authors:
    Dmitriy Anisimkov
@@ -66,24 +66,34 @@ Pointers
 --------
 
 AWS Home Page (sources and printable documentations in Postscript and PDF):
-   http://libre.adacore.com/tools/aws
+   https://www.adacore.com/gnatpro/toolsuite/ada-web-server
+   https://github.com/AdaCore/aws
 
 Templates_Parser sources:
-   Templates_Parser module (sources and documentation) is provided with AWS
-   distribution.
+   https://github.com/AdaCore/templates-parser
+
+   Templates_Parser module (sources and documentation) is provided as
+   a separate download and must be unpacked into the AWS root's
+   directory.
+
+   If AWS is used from GitHub, Templates_Parser will be downloaded
+   automatically as a sub-module.
 
 GNU/Ada - GNAT
+   https://www.adacore.com/gnatpro
 
-   You need at least GNAT 2015 GPL Edition or GNAT Pro 7.2
-
-   http://libre.adacore.com/tools/gnat-gpl-edition/
+   Or the GNAT compiler coming with your GNU/Linux distribution.
 
 XML/Ada (optional):
+   https://github.com/AdaCore/xmlada
 
-   You need this library only if you want to use AWS SOAP feature. You need
-   at least XML/Ada version 2.2.0.
+   You need this library only for the AWS SOAP support.
 
-   http://libre.adacore.com/
+Libadalang/Ada (optional):
+   https://www.adacore.com/libadalang
+   https://github.com/AdaCore/libadalang
+
+   You need this library only for the AWS WSDL support.
 
 OpenSSL (optional):
 
