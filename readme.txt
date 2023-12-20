@@ -97,7 +97,7 @@ Libadalang/Ada (optional):
 
 OpenSSL (optional):
 
-   You need to install manually the development libraries (>= 1.0.2).
+   You need to install manually the development libraries (>= 1.1.0).
 
 LibreSSL (optional):
 
