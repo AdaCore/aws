@@ -62,9 +62,6 @@ library project Src is
    for Leading_Library_Options use Shared.Leading_Library_Options;
 
    case Shared.Library_Type is
-      when "static" =>
-         null;
-
       when "relocatable" =>
          case Shared.S_Target is
             when "Windows_NT" =>
@@ -87,6 +84,9 @@ library project Src is
             when "Disabled" =>
                null;
          end case;
+
+      when others =>
+         null;
    end case;
 
    for Library_Options use
