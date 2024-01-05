@@ -18,7 +18,8 @@
 
 .SILENT:
 
-LIBGPR	= ../$(BDIR)/../../projects/aws_lib_shared.gpr
+LIBGPR	= $(PRJ_DIR)/aws_lib_shared.gpr
+XOSCONS = $(abspath $(STP_DIR)/bin/xoscons)
 
 ifeq (${SOCKET}, openssl)
 LPATH	= $(dir $(shell $(GCC) -print-file-name=libssl.a))
@@ -27,7 +28,6 @@ LPATH	= $(dir $(shell $(GCC) -print-file-name=libgnutls.a))
 endif
 
 ZPATH	= $(dir $(shell $(GCC) -print-file-name=libz.a))
-SDIR	= ../$(BDIR)/../setup
 
 #  For native platforms check if the Zlib is working fine and has a correct
 #  version. For embedded platforms we only check if the static libz exists.
@@ -50,16 +50,24 @@ endif
 GPROPTS = 	-XPRJ_TARGET=$(PRJ_TARGET) -XTARGET=$(TARGET) \
 		-XLIBRARY_TYPE=static
 
-$(SDIR)/src:
-	$(MKDIR) $(SDIR)/src
+#  Is out of tree build
+ifeq ($(ISOOT), true)
+	GPROPTS += --relocate-build-tree=$(BLD_DIR) --root-dir=$(SRC_DIR)
+endif
 
-$(SDIR)/xoscons$(EXEEXT): $(SDIR)/src setup/xoscons.adb
+$(SDIR)/src:
+	$(MKDIR) $(STP_DIR)/src
+
+$(PRJ_DIR):
+	$(MKDIR) $(PRJ_DIR)
+
+$(XOSCONS)$(EXEEXT): $(SDIR)/src $(SRC_DIR)/config/setup/xoscons.adb
 	-$(GPRBUILD) -p -XPRJ_BUILD=Debug $(GPROPTS) -Psetup xoscons
 
-$(SDIR)/dynamo$(EXEEXT): $(SDIR)/src ssl/dynamo/dynamo.adb
+$(SDIR)/dynamo$(EXEEXT): $(SDIR)/src $(SRC_DIR)/ssl/dynamo/dynamo.adb
 	-$(GPRBUILD) -p $(GPROPTS) -Pssl/dynamo/dynamo.gpr -g -bargs -E
 
-setup_extlib:
+setup_extlib: $(PRJ_DIR)
 	echo "abstract project AWS_Lib_Shared is" > $(LIBGPR)
 	echo "   for Source_Files use ();" >> $(LIBGPR)
 	echo '   type SSL_Library_Kind is ("relocatable", "static");' >> $(LIBGPR)
@@ -95,33 +103,34 @@ setup: $(SDIR)/src/aws-os_lib.ads $(SSL_THIN) setup_extlib
 
 ifeq (${PRJ_TARGET}, vxworks)
 $(SDIR)/src/aws-os_lib.ads: $(SDIR)/src force
-	$(CP) src/aws-os_lib__vxworks.ads $(SDIR)/src/aws-os_lib.ads
+	$(CP) $(SRC_DIR)/src/aws-os_lib__vxworks.ads \
+		$(STP_DIR)/src/aws-os_lib.ads
 else
-$(SDIR)/src/aws-os_lib.ads: $(SDIR)/src $(SDIR)/xoscons$(EXEEXT) force
+$(SDIR)/src/aws-os_lib.ads: $(SDIR)/src $(XOSCONS)$(EXEEXT) force
 	echo Setup OS specific definitions
-	$(CP) setup/aws-os_lib-tmplt.c $(SDIR)/src
+	$(CP) $(SRC_DIR)/config/setup/aws-os_lib-tmplt.c $(STP_DIR)/src
 ifeq ($(IS_CROSS), true)
-	( cd $(SDIR)/src; \
+	( cd $(STP_DIR)/src; \
 		$(TARGET)-gcc -C -E -DTARGET=\"$(TARGET)\" aws-os_lib-tmplt.c  \
 			> aws-os_lib-tmplt.i; \
 		$(TARGET)-gcc -S aws-os_lib-tmplt.i; \
-		../xoscons aws-os_lib )
+		$(XOSCONS) aws-os_lib )
 else
-	( cd $(SDIR)/src; \
+	( cd $(STP_DIR)/src; \
 		gcc -C -E -DTARGET=\"$(TARGET)\" aws-os_lib-tmplt.c  \
 			> aws-os_lib-tmplt.i; \
 		gcc -S aws-os_lib-tmplt.i; \
-		../xoscons aws-os_lib )
+		$(XOSCONS) aws-os_lib )
 endif
-	$(RM) -f $(SDIR)/src/aws-os_lib-tmplt*
+	$(RM) -f $(STP_DIR)/src/aws-os_lib-tmplt*
 endif
 
-$(SSL_THIN): $(SDIR)/src $(SDIR)/dynamo$(EXEEXT)
+$(SSL_THIN): $(STP_DIR)/src $(STP_DIR)/dynamo$(EXEEXT)
 	echo Setup SSL dynamic binding
-	$(SDIR)/dynamo$(EXEEXT) ssl/ssl-thin__$(SOCKET).ads $(SSL_THIN) \
+	$(STP_DIR)/dynamo$(EXEEXT) ssl/ssl-thin__$(SOCKET).ads $(SSL_THIN) \
 		SSL.Loader
 
-build-dynamo: $(SDIR)/dynamo$(EXEEXT)
+build-dynamo: $(STP_DIR)/dynamo$(EXEEXT)
 
 install:
 

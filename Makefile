@@ -1,7 +1,7 @@
 ############################################################################
 #                              Ada Web Server                              #
 #                                                                          #
-#                     Copyright (C) 2003-2023, AdaCore                     #
+#                     Copyright (C) 2003-2024, AdaCore                     #
 #                                                                          #
 #  This is free software;  you can redistribute it  and/or modify it       #
 #  under terms of the  GNU General Public License as published  by the     #
@@ -18,16 +18,56 @@
 
 .SILENT:
 
-BROOTDIR=.build
+#  BLD_DIR : root build directory
+#  TGT_DIR : target directory
+#  PRJ_DIR : project directory
+#  STP_DIR : setup directory
+#  KND_DIR : kind dir, the debug or release dir
+#  CMN_DIR : directory for common generated files
+
+BLD_DIR := $(CURDIR)
+SRC_DIR := $(CURDIR)
 
 #  NOTE: You should not have to change this makefile. Configuration options
 #  can be changed in makefile.conf
 
-include makefile.conf
+#  Is out of tree build
+ifneq ($(BLD_DIR), $(SRC_DIR))
+GPROOTOPTS = --relocate-build-tree=$(BLD_DIR) --root-dir=$(SRC_DIR)
+ISOOT := true
+else
+ISOOT := false
+endif
+
+include $(SRC_DIR)/makefile.conf
 #  default setup
 
-include makefile.checks
+include $(SRC_DIR)/makefile.checks
 #  consistency checks
+
+TGT_DIR := $(BLD_DIR)/$(TARGET)
+PRJ_DIR := $(TGT_DIR)/projects
+STP_DIR := $(TGT_DIR)/setup
+CMN_DIR := $(TGT_DIR)/common
+
+ifeq ($(DEBUG), true)
+MAKE_OPT	=
+KND_DIR		= $(TGT_DIR)/debug
+else
+MAKE_OPT	= -s
+KND_DIR		= $(TGT_DIR)/release
+endif
+
+# Target dir
+
+ifeq ($(ISOOT), true)
+OOTDIR := /$(TARGET)
+else
+OOTDIR := /$(TARGET)
+endif
+
+# Add path to generated project files
+GPR_PROJECT_PATH := $(PRJ_DIR):$(GPR_PROJECT_PATH)
 
 ifeq (${PRJ_TARGET}, Windows_NT)
 EXEEXT	= .exe
@@ -41,17 +81,18 @@ endif
 EXEEXT	=
 endif
 
-ifeq ($(DEBUG), true)
-MAKE_OPT	=
-BDIR		= $(BROOTDIR)/$(TARGET)/debug
-else
-MAKE_OPT	= -s
-BDIR		= $(BROOTDIR)/$(TARGET)/release
-endif
+#ifeq ($(DEBUG), true)
+#MAKE_OPT	=
+#BDIR		= $(BDIR)$(OOTDIR)/debug
+#else
+#MAKE_OPT	= -s
+#BDIR		= $(BDIR)$(OOTDIR)/release
+#endif
 
-LIBAWS_TYPES=static
+LIBAWS_TYPES := static
+
 ifeq (${ENABLE_SHARED},true)
-   LIBAWS_TYPES=static relocatable static-pic
+   LIBAWS_TYPES += relocatable static-pic
 endif
 
 #############################################################################
@@ -63,12 +104,15 @@ all: build
 ALL_OPTIONS	= $(MAKE_OPT) SOCKET="$(SOCKET)" XMLADA="$(XMLADA)" \
 	EXEEXT="$(EXEEXT)" LDAP="$(LDAP)" DEBUG="$(DEBUG)" \
 	RM="$(RM)" CP="$(CP)" MKDIR="$(MKDIR)" SED="$(SED)" GCC="$(GCC)" \
-	GPRBUILD="$(GPRBUILD)" ZLIB="$(ZLIB)" BDIR="$(BDIR)" \
+	GPRBUILD="$(GPRBUILD)" ZLIB="$(ZLIB)" TDIR="$(TDIR)" \
 	prefix="$(prefix)" ENABLE_SHARED="$(ENABLE_SHARED)" \
 	SOEXT="$(SOEXT)" GNAT="$(GNAT)" SSL_DYNAMIC="$(SSL_DYNAMIC)" \
-	T2A="../../$(BDIR)/static/tools/templates2ada" \
+	T2A="../../$(TDIR)/static/tools/templates2ada" \
 	LIBRARY_TYPE="$(LIBRARY_TYPE)" PYTHON="$(PYTHON)" \
-	TARGET="$(TARGET)" IS_CROSS=$(IS_CROSS) GPRINSTALL="$(GPRINSTALL)"
+	TARGET="$(TARGET)" IS_CROSS=$(IS_CROSS) GPRINSTALL="$(GPRINSTALL)" \
+	SRC_DIR="$(SRC_DIR)" BLD_DIR="$(BLD_DIR)" PRJ_DIR=$(PRJ_DIR) \
+	TGT_DIR="$(TGT_DIR)" STP_DIR="$(STP_DIR)" KND_DIR="$(KND_DIR)" \
+	CMN_DIR="$(CMN_DIR)" ISOOT="$(ISOOT)"
 
 build-doc:
 	echo ""
@@ -174,7 +218,8 @@ GPROPTS = -XPRJ_BUILD=$(PRJ_BUILD) -XPRJ_SOCKLIB=$(PRJ_SOCKLIB) \
 		-XPROCESSORS=$(PROCESSORS) -XSOCKET=$(SOCKET) \
 		-XPRJ_TARGET=$(PRJ_TARGET) -XTARGET=$(TARGET) \
 	        -XTHREAD_SANITIZER=$(THREAD_SANITIZER) \
-                -XSSL_DYNAMIC=$(SSL_DYNAMIC)
+                -XSSL_DYNAMIC=$(SSL_DYNAMIC) -XTGT_DIR=$(TGT_DIR) \
+		$(GPROOTOPTS)
 
 GPR_STATIC = -XLIBRARY_TYPE=static -XXMLADA_BUILD=static
 GPR_SHARED = -XLIBRARY_TYPE=relocatable -XXMLADA_BUILD=relocatable
@@ -183,8 +228,8 @@ GPR_SHARED = -XLIBRARY_TYPE=relocatable -XXMLADA_BUILD=relocatable
 #  build
 
 #  build awsres tool as needed by wsdl2aws
+
 build-awsres-tool-native:
-	mkdir -p $(BDIR)/../common/src
 	$(GPRBUILD) -p $(GPROPTS) $(GPR_STATIC) -XTO_BUILD=awsres.adb \
 		tools/tools.gpr
 
@@ -214,11 +259,11 @@ build-libs-cross-%:
 build-lib-cross: ${LIBAWS_TYPES:%=build-libs-cross-%}
 
 build-dynamo:
-	make -C config build-dynamo
+	make -C config build-dynamo $(ALL_OPTIONS)
 
 gen-templates: build-awsres-tool-native force
 	make -C tools/wsdl2aws-templates \
-		BDIR=$(BDIR) TARGET=$(TARGET) gen-templates
+		gen-templates $(ALL_OPTIONS)
 
 build-cross: build-tools-cross
 
@@ -256,8 +301,7 @@ clean: clean-native
 endif
 	-${MAKE} -C regtests $(GALL_OPTIONS) clean
 	-${MAKE} -C docs $(GALL_OPTIONS) clean
-	-${RM} -fr $(BROOTDIR)
-	-${RM} -f makefile.setup
+	-${RM} -fr $(BDIR)
 
 #######################################################################
 #  install
@@ -308,34 +352,34 @@ endif
 
 check: $(MODULES_CHECK)
 
-PRJDIR = $(BROOTDIR)/projects
-
 lal_dummy:
-	echo "abstract project AWS_LAL is" > $(PRJDIR)/aws_lal.gpr;
-	echo "   for Source_Dirs use ();" >> $(PRJDIR)/aws_lal.gpr;
-	echo "end AWS_LAL;" >> $(PRJDIR)/aws_lal.gpr;
+	echo "abstract project AWS_LAL is" > $(PRJ_DIR)/aws_lal.gpr
+	echo "   for Source_Dirs use ();" >> $(PRJ_DIR)/aws_lal.gpr
+	echo "end AWS_LAL;" >> $(PRJ_DIR)/aws_lal.gpr
 
 lal_setup:
-	echo 'with "libadalang";' > $(PRJDIR)/aws_lal.gpr
-	echo "abstract project AWS_LAL is" >> $(PRJDIR)/aws_lal.gpr
-	echo "   for Source_Dirs use ();" >> $(PRJDIR)/aws_lal.gpr
-	echo "end AWS_LAL;" >> $(PRJDIR)/aws_lal.gpr
+	echo 'with "libadalang";' > $(PRJ_DIR)/aws_lal.gpr
+	echo "abstract project AWS_LAL is" >> $(PRJ_DIR)/aws_lal.gpr
+	echo "   for Source_Dirs use ();" >> $(PRJ_DIR)/aws_lal.gpr
+	echo "end AWS_LAL;" >> $(PRJ_DIR)/aws_lal.gpr
 
 gxmlada_dummy:
-	echo "abstract project AWS_XMLADA is" > $(PRJDIR)/aws_xmlada.gpr
-	echo "   for Source_Dirs use ();" >> $(PRJDIR)/aws_xmlada.gpr
-	echo "end AWS_XMLADA;" >> $(PRJDIR)/aws_xmlada.gpr
+	echo "abstract project AWS_XMLADA is" > $(PRJ_DIR)/aws_xmlada.gpr
+	echo "   for Source_Dirs use ();" >> $(PRJ_DIR)/aws_xmlada.gpr
+	echo "end AWS_XMLADA;" >> $(PRJ_DIR)/aws_xmlada.gpr
 
 gxmlada_setup:
-	echo 'with "xmlada";' > $(PRJDIR)/aws_xmlada.gpr
-	echo "abstract project AWS_XMLADA is" >> $(PRJDIR)/aws_xmlada.gpr
-	echo "   for Source_Dirs use ();" >> $(PRJDIR)/aws_xmlada.gpr
-	echo "end AWS_XMLADA;" >> $(PRJDIR)/aws_xmlada.gpr
+	echo 'with "xmlada";' > $(PRJ_DIR)/aws_xmlada.gpr
+	echo "abstract project AWS_XMLADA is" >> $(PRJ_DIR)/aws_xmlada.gpr
+	echo "   for Source_Dirs use ();" >> $(PRJ_DIR)/aws_xmlada.gpr
+	echo "end AWS_XMLADA;" >> $(PRJ_DIR)/aws_xmlada.gpr
 
 setup_dir:
-	-$(MKDIR) $(PRJDIR)
+	$(MKDIR) -p $(PRJ_DIR)
+	$(MKDIR) -p $(BLD_DIR)
+	$(MKDIR) -p $(CMN_DIR)/src
 
-CONFGPR	= $(PRJDIR)/aws_config.gpr
+CONFGPR	= $(PRJ_DIR)/aws_config.gpr
 
 ifeq (${SOCKET}, ssl)
 SOCKET = openssl
@@ -365,25 +409,28 @@ setup_config:
 
 setup_modules: $(MODULES_SETUP)
 
-gen_setup:
-	echo "prefix=$(prefix)" > makefile.setup
-	echo "ENABLE_SHARED=$(ENABLE_SHARED)" >> makefile.setup
-	echo "ZLIB=$(ZLIB)" >> makefile.setup
-	echo "XMLADA=$(XMLADA)" >> makefile.setup
-	echo "LAL=$(LAL)" >> makefile.setup
-	echo "NETLIB=$(NETLIB)" >> makefile.setup
-	echo "SOCKET=$(SOCKET)" >> makefile.setup
-	echo "SSL_DYNAMIC=$(SSL_DYNAMIC)" >> makefile.setup
-	echo "LDAP=$(LDAP)" >> makefile.setup
-	echo "DEBUG=$(DEBUG)" >> makefile.setup
-	echo "PROCESSORS=$(PROCESSORS)" >> makefile.setup
-	echo "TARGET=$(TARGET)" >> makefile.setup
-	echo "THREAD_SANITIZER=$(THREAD_SANITIZER)" >> makefile.setup
-	echo "GSOAP=false" >> makefile.setup
-	echo "SERVER_HTTP2=$(SERVER_HTTP2)" >> makefile.setup
-	echo "CLIENT_HTTP2=$(CLIENT_HTTP2)" >> makefile.setup
+MSETUP := $(TGT_DIR)/makefile.setup
 
-setup: gen_setup setup_dir setup_modules setup_config setup_tp $(GEXT_MODULE)
+gen_setup: setup_dir
+	echo "prefix=$(prefix)" > $(MSETUP)
+	echo "ENABLE_SHARED=$(ENABLE_SHARED)" >> $(MSETUP)
+	echo "ZLIB=$(ZLIB)" >> $(MSETUP)
+	echo "XMLADA=$(XMLADA)" >> $(MSETUP)
+	echo "LAL=$(LAL)" >> $(MSETUP)
+	echo "NETLIB=$(NETLIB)" >> $(MSETUP)
+	echo "SOCKET=$(SOCKET)" >> $(MSETUP)
+	echo "SSL_DYNAMIC=$(SSL_DYNAMIC)" >> $(MSETUP)
+	echo "LDAP=$(LDAP)" >> $(MSETUP)
+	echo "DEBUG=$(DEBUG)" >> $(MSETUP)
+	echo "PROCESSORS=$(PROCESSORS)" >> $(MSETUP)
+	echo "TARGET=$(TARGET)" >> $(MSETUP)
+	echo "PRJ_TARGET=$(PRJ_TARGET)" >> $(MSETUP)
+	echo "THREAD_SANITIZER=$(THREAD_SANITIZER)" >> $(MSETUP)
+	echo "GSOAP=false" >> $(MSETUP)
+	echo "SERVER_HTTP2=$(SERVER_HTTP2)" >> $(MSETUP)
+	echo "CLIENT_HTTP2=$(CLIENT_HTTP2)" >> $(MSETUP)
+
+setup: gen_setup setup_modules setup_config setup_tp $(GEXT_MODULE)
 
 setup_tp:
 	$(MAKE) -C templates_parser setup $(GALL_OPTIONS)

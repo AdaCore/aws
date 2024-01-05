@@ -18,8 +18,8 @@
 
 --  Project for libcrypto.a external library
 
-with "../.build/projects/aws_config";
-with "../.build/projects/aws_lib_shared";
+with "aws_config";
+with "aws_lib_shared";
 with "dl_lib";
 
 project Crypto_Lib is

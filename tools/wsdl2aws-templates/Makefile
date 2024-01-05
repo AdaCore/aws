@@ -16,8 +16,11 @@
 #  to http://www.gnu.org/licenses for a complete copy of the license.      #
 ############################################################################
 
-gen-templates:
-	../../$(BDIR)/static/tools/awsres \
+$(CMN_DIR)/src:
+	mkdir -p $(CMN_DIR)/src
+
+gen-templates: $(CMN_DIR)/src
+	$(KND_DIR)/static/tools/awsres \
 	  -r wsdl2aws_templates \
-	  -o ../../.build/$(TARGET)/common/src \
+	  -o $(CMN_DIR)/src \
 	  *.tad[sb] *.macros

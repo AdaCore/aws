@@ -18,20 +18,28 @@
 
 .SILENT:
 
+GENERATOR := $(SRC_DIR)/regtests/gen_system_tags.py
+
 build:
 
-testsuite.tags: ../makefile.setup gen_system_tags.py
-	$(PYTHON) gen_system_tags.py ../makefile.setup 2>/dev/null || \
+$(TGT_DIR)/testsuite.tags: $(TGT_DIR)/makefile.setup $(GENERATOR)
+	$(PYTHON) $(GENERATOR) \
+		$(TGT_DIR)/makefile.setup \
+		$(TGT_DIR)/testsuite.tags 2>/dev/null || \
 		(echo "Can not generate system tags. The test are disabled")
 
-setup: testsuite.tags
+setup: $(TGT_DIR)/testsuite.tags
 
 aws_regtests:
-	test -f testsuite.tags || (echo 'Did you run make setup ?'; exit 1)
-	$(PYTHON) testsuite.py --from-build-dir
+	test -f $(TGT_DIR)/testsuite.tags \
+		|| (echo 'Did you run make setup ?'; exit 1)
+	cd $(TGT_DIR) && \
+		$(PYTHON) $(SRC_DIR)/regtests/testsuite.py \
+			--from-build-dir --root-dir=$(BLD_DIR)
 
 install:
 
 clean:
-	-$(RM) -f testsuite.tags testsuite.res testsuite.duration_* *.pyc
+	-$(RM) -f $(TGT_DIR)/testsuite.tags
+	-$(RM) -f testsuite.res testsuite.duration_* *.pyc
 	-$(RM) -fr .outputs .build

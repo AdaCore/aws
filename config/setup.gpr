@@ -25,7 +25,7 @@ project Setup is
 
    for Source_Dirs use ("setup");
    for Object_Dir use "../" & Shared.Target_Dir & "/setup/obj";
-   for Exec_Dir use "../" & Shared.Target_Dir & "/setup";
+   for Exec_Dir use "../" & Shared.Target_Dir & "/setup/bin";
 
    package Compiler is
       for Default_Switches ("Ada") use
