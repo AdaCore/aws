@@ -31,14 +31,6 @@ SRC_DIR := $(CURDIR)
 #  NOTE: You should not have to change this makefile. Configuration options
 #  can be changed in makefile.conf
 
-#  Is out of tree build
-ifneq ($(BLD_DIR), $(SRC_DIR))
-GPROOTOPTS = --relocate-build-tree=$(BLD_DIR) --root-dir=$(SRC_DIR)
-ISOOT := true
-else
-ISOOT := false
-endif
-
 include $(SRC_DIR)/makefile.conf
 #  default setup
 
@@ -81,14 +73,6 @@ endif
 EXEEXT	=
 endif
 
-#ifeq ($(DEBUG), true)
-#MAKE_OPT	=
-#BDIR		= $(BDIR)$(OOTDIR)/debug
-#else
-#MAKE_OPT	= -s
-#BDIR		= $(BDIR)$(OOTDIR)/release
-#endif
-
 LIBAWS_TYPES := static
 
 ifeq (${ENABLE_SHARED},true)
@@ -104,10 +88,9 @@ all: build
 ALL_OPTIONS	= $(MAKE_OPT) SOCKET="$(SOCKET)" XMLADA="$(XMLADA)" \
 	EXEEXT="$(EXEEXT)" LDAP="$(LDAP)" DEBUG="$(DEBUG)" \
 	RM="$(RM)" CP="$(CP)" MKDIR="$(MKDIR)" SED="$(SED)" GCC="$(GCC)" \
-	GPRBUILD="$(GPRBUILD)" ZLIB="$(ZLIB)" TDIR="$(TDIR)" \
+	GPRBUILD="$(GPRBUILD)" ZLIB="$(ZLIB)" \
 	prefix="$(prefix)" ENABLE_SHARED="$(ENABLE_SHARED)" \
 	SOEXT="$(SOEXT)" GNAT="$(GNAT)" SSL_DYNAMIC="$(SSL_DYNAMIC)" \
-	T2A="../../$(TDIR)/static/tools/templates2ada" \
 	LIBRARY_TYPE="$(LIBRARY_TYPE)" PYTHON="$(PYTHON)" \
 	TARGET="$(TARGET)" IS_CROSS=$(IS_CROSS) GPRINSTALL="$(GPRINSTALL)" \
 	SRC_DIR="$(SRC_DIR)" BLD_DIR="$(BLD_DIR)" PRJ_DIR=$(PRJ_DIR) \
@@ -139,60 +122,6 @@ MODULES_INSTALL = ${MODULES:%=%_install}
 
 MODULES_CHECK = ${MODULES:%=%_check}
 
-#  XML/Ada
-
-ifeq (${XMLADA}, true)
-PRJ_XMLADA=Installed
-GEXT_MODULE := gxmlada_setup
-else
-PRJ_XMLADA=Disabled
-GEXT_MODULE := gxmlada_dummy
-endif
-
-ifndef TP_XMLADA
-TP_XMLADA=$(PRJ_XMLADA)
-endif
-
-#  Ldap
-
-ifeq (${LDAP}, true)
-PRJ_LDAP=Installed
-else
-PRJ_LDAP=Disabled
-endif
-
-#  LAL
-
-ifeq (${LAL}, true)
-PRJ_LAL=Installed
-GEXT_MODULE := $(GEXT_MODULE) lal_setup
-else
-PRJ_LAL=Disabled
-GEXT_MODULE := $(GEXT_MODULE) lal_dummy
-endif
-
-#  Sockets
-
-PRJ_SOCKLIB=$(NETLIB)
-
-#  Debug
-
-ifeq ($(DEBUG), true)
-PRJ_BUILD=Debug
-else
-PRJ_BUILD=Release
-endif
-
-ifeq ($(IS_CROSS), true)
-TPREFIX=$(DESTDIR)$(prefix)/$(TARGET)
-else
-TPREFIX=$(DESTDIR)$(prefix)
-endif
-
-#  Install directories
-
-I_INC	= $(TPREFIX)/include/aws
-
 GALL_OPTIONS := $(ALL_OPTIONS) \
 	PRJ_BUILD="$(PRJ_BUILD)" \
 	PRJ_XMLADA="$(PRJ_XMLADA)" \
@@ -211,18 +140,6 @@ ${MODULES_INSTALL}: force
 
 ${MODULES_CHECK}: force
 	${MAKE} -C ${@:%_check=%} check $(GALL_OPTIONS)
-
-GPROPTS = -XPRJ_BUILD=$(PRJ_BUILD) -XPRJ_SOCKLIB=$(PRJ_SOCKLIB) \
-		-XPRJ_LDAP=$(PRJ_LDAP) \
-		-XPRJ_XMLADA=$(PRJ_XMLADA) -XPRJ_LAL=$(PRJ_LAL) \
-		-XPROCESSORS=$(PROCESSORS) -XSOCKET=$(SOCKET) \
-		-XPRJ_TARGET=$(PRJ_TARGET) -XTARGET=$(TARGET) \
-	        -XTHREAD_SANITIZER=$(THREAD_SANITIZER) \
-                -XSSL_DYNAMIC=$(SSL_DYNAMIC) -XTGT_DIR=$(TGT_DIR) \
-		$(GPROOTOPTS)
-
-GPR_STATIC = -XLIBRARY_TYPE=static -XXMLADA_BUILD=static
-GPR_SHARED = -XLIBRARY_TYPE=relocatable -XXMLADA_BUILD=relocatable
 
 #######################################################################
 #  build

@@ -1,7 +1,7 @@
 ############################################################################
 #                              Ada Web Server                              #
 #                                                                          #
-#                     Copyright (C) 2010-2015, AdaCore                     #
+#                     Copyright (C) 2010-2024, AdaCore                     #
 #                                                                          #
 #  This is free software;  you can redistribute it  and/or modify it       #
 #  under terms of the  GNU General Public License as published  by the     #
@@ -16,11 +16,11 @@
 #  to http://www.gnu.org/licenses for a complete copy of the license.      #
 ############################################################################
 
--include ../../makefile.setup
+include $(BLD_DIR)/$(TARGET)/makefile.setup
 
 ifneq (${XMLADA},false)
 all: build_wsdl
-	gprbuild hello_wsdl.gpr
+	gprbuild $(GPROPTS) hello_wsdl.gpr
 else
 all:
 endif
@@ -30,5 +30,5 @@ build_wsdl:
 	wsdl2aws -q -f -doc -timeouts 1,2,2 hello.wsdl
 
 clean:
-	gprclean hello_wsdl.gpr
+	gprclean $(GPROPTS) hello_wsdl.gpr
 	rm -f hello_demo*

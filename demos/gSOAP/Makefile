@@ -1,7 +1,7 @@
 ############################################################################
 #                              Ada Web Server                              #
 #                                                                          #
-#                       Copyright (C) 2015, AdaCore                        #
+#                    Copyright (C) 2015-2024, AdaCore                      #
 #                                                                          #
 #  This is free software;  you can redistribute it  and/or modify it       #
 #  under terms of the  GNU General Public License as published  by the     #
@@ -16,7 +16,7 @@
 #  to http://www.gnu.org/licenses for a complete copy of the license.      #
 ############################################################################
 
--include ../../makefile.setup
+include $(BLD_DIR)/$(TARGET)/makefile.setup
 
 #  uncomment the following to display the SOAP payload
 #  DEBUG=-d
@@ -31,7 +31,7 @@ all:
 else
 ifneq (${XMLADA},false)
 all: build_wsdl
-	gprbuild -p -m gsoap_demo.gpr
+	gprbuild $(GPROPTS) -p -m gsoap_demo.gpr
 	gcc -o c_server_rpc -Ic_rpc c_rpc/soapC.c c_rpc/soapServer.c \
 		c_server_rpc.c -lgsoap
 	gcc -o c_client_rpc -Ic_rpc c_rpc/soapC.c c_rpc/soapClient.c \
@@ -60,7 +60,7 @@ build_wsdl: create-dirs
 	soapcpp2 -c -d c_rpc hello_rpc.h
 
 clean:
-	gprclean gsoap_demo.gpr
+	gprclean $(GPROPTS) gsoap_demo.gpr
 	rm -f hello_rpc-* hello_doc-* hello_doc.h hello_rpc.h
 	rm -f c_*_rpc c_*_doc hello_rpc.ads hello_doc.ads
 	rm -fr c_doc c_rpc obj

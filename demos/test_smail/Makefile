@@ -1,7 +1,7 @@
 ############################################################################
 #                              Ada Web Server                              #
 #                                                                          #
-#                       Copyright (C) 2023, AdaCore                        #
+#                    Copyright (C) 2023-2024, AdaCore                      #
 #                                                                          #
 #  This is free software;  you can redistribute it  and/or modify it       #
 #  under terms of the  GNU General Public License as published  by the     #
@@ -17,7 +17,7 @@
 ############################################################################
 
 all:
-	gprbuild -g test_smail.gpr -bargs -Es
+	gprbuild $(GPROPTS) -g test_smail.gpr -bargs -Es
 
 clean:
-	gprclean test_smail.gpr
+	gprclean $(GPROPTS) test_smail.gpr

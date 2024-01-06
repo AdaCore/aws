@@ -1,7 +1,7 @@
 ############################################################################
 #                              Ada Web Server                              #
 #                                                                          #
-#                     Copyright (C) 2010-2015, AdaCore                     #
+#                     Copyright (C) 2010-2024, AdaCore                     #
 #                                                                          #
 #  This is free software;  you can redistribute it  and/or modify it       #
 #  under terms of the  GNU General Public License as published  by the     #
@@ -17,12 +17,12 @@
 ############################################################################
 
 all: build_res
-	gprbuild res_demo.gpr
+	gprbuild $(GPROPTS) res_demo.gpr
 
 build_res:
 	echo Generate resources for res_demo
 	awsres -q -r rdemo adains.png page3.html
 
 clean:
-	gprclean res_demo.gpr
+	gprclean $(GPROPTS) res_demo.gpr
 	rm -f rdemo*

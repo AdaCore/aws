@@ -1,7 +1,7 @@
 ############################################################################
 #                              Ada Web Server                              #
 #                                                                          #
-#                     Copyright (C) 2010-2015, AdaCore                     #
+#                     Copyright (C) 2010-2024, AdaCore                     #
 #                                                                          #
 #  This is free software;  you can redistribute it  and/or modify it       #
 #  under terms of the  GNU General Public License as published  by the     #
@@ -17,7 +17,7 @@
 ############################################################################
 
 all: build_tpl
-	gprbuild web_block_ajax_templates.gpr
+	gprbuild $(GPROPTS) web_block_ajax_templates.gpr
 
 build_tpl:
 	echo Generate the templates callbacks
@@ -25,5 +25,5 @@ build_tpl:
 	gnat chop -w code.ada
 
 clean:
-	gprclean web_block_ajax_templates.gpr
+	gprclean $(GPROPTS) web_block_ajax_templates.gpr
 	rm -f code.ada wblocks* *~ web_block_ajax_templates

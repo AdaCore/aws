@@ -1,7 +1,7 @@
 ############################################################################
 #                              Ada Web Server                              #
 #                                                                          #
-#                    Copyright (C) 2021-2023, AdaCore                      #
+#                    Copyright (C) 2021-2024, AdaCore                      #
 #                                                                          #
 #  This is free software;  you can redistribute it  and/or modify it       #
 #  under terms of the  GNU General Public License as published  by the     #
@@ -16,7 +16,7 @@
 #  to http://www.gnu.org/licenses for a complete copy of the license.      #
 ############################################################################
 
--include ../../makefile.setup
+include $(BLD_DIR)/$(TARGET)/makefile.setup
 
 URL=http://localhost:1234
 
@@ -25,12 +25,12 @@ ifneq (${LAL},false)
 all:
 	ada2wsdl -f -a $(URL)  -o hello.wsdl -P hello.gpr hello.ads
 	wsdl2aws -f -spec hello -cb -main hello_server hello.wsdl
-	gprbuild hello.gpr
+	gprbuild $(GPROPTS) -m $(GPROPTS) hello.gpr
 else
 all:
 endif
 endif
 
 clean:
-	gprclean hello.gpr
+	gprclean $(GPROPTS) $(GPROPTS) hello.gpr
 	-rm -f hello_service* hello_server.adb hello.wsdl
