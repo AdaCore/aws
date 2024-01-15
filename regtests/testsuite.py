@@ -124,11 +124,8 @@ class AWSTestsuite(Testsuite):
             os.environ["PLATFORM"] = "native"
             # Add current tools in from of PATH
 
-            if not script_directory == os.getcwd():
-                os.environ["GPR_PROJECT_PATH"] = script_directory + os.pathsep + os.environ["GPR_PROJECT_PATH"]
-                os.environ["GPRBUILD_OPTIONS"] = "--relocate-build-tree=" + \
-                    os.getcwd() + "/.." \
-                    " --root-dir=" + script_directory + "../.."
+            os.environ["GPRBUILD_OPTIONS"] = os.environ["GPROPTS"]
+            os.environ["GPRBUILD_OPTIONS"] += " -XLIBRARY_TYPE=static"
 
             os.environ["PATH"] = (
                 build_dir
