@@ -18,7 +18,6 @@ ROOT_DIR = os.getcwd()
 TEST_DIR = os.path.dirname(sys.modules["__main__"].__file__)
 TEST_NAME = os.path.basename(TEST_DIR)
 
-
 def setup():
     cd(TEST_DIR)
     for prj in glob("*.gpr"):
@@ -26,7 +25,8 @@ def setup():
             lines = [line for line in prj_orig]
             with open(prj + ".new", "w") as prj_new:
                 for line in lines:
-                    line = line.replace("../common", os.path.join(ROOT_DIR, "common"))
+                    line = line.replace("../common",
+                                        os.path.join(os.environ['REGTESTS_DIR'], "common"))
                     prj_new.write(line)
         mv(prj + ".new", prj)
 
@@ -54,17 +54,20 @@ def tail(infile_name, outfile_name, nb_line):
         outfile.close()
     infile.close()
 
+GPRBUILD_OPTIONS = []
 
 def build(prj):
     """Compile a project with gprbuild"""
     cmd = ["gprbuild", f"-XHost_OS={Env().host.os.name}"]
+    for O in os.environ.get('GPRBUILD_OPTIONS', "").split():
+        cmd += [O]
     if Env().is_cross:
         cmd.append("--target=" + Env().target.triplet)
         if Env().target.os.name.startswith("vxworks"):
             cmd.append("-XPLATFORM=vxworks")
-    cmd = cmd + ["-p", "-gnat2012", "-P" + prj, "-bargs", "-E"]
+    cmd += ["-p", "-gnat2012", "-P" + prj, "-bargs", "-E"]
     if Env().options.with_gprof:
-        cmd = cmd + ["-cargs", "-pg", "-O2", "-largs", "-pg"]
+        cmd += ["-cargs", "-pg", "-O2", "-largs", "-pg"]
     process = Run(cmd)
     if process.status:
         #  Exit with error

@@ -1,7 +1,7 @@
 ############################################################################
 #                              Ada Web Server                              #
 #                                                                          #
-#                     Copyright (C) 2010-2023, AdaCore                     #
+#                     Copyright (C) 2010-2024, AdaCore                     #
 #                                                                          #
 #  This is free software;  you can redistribute it  and/or modify it       #
 #  under terms of the  GNU General Public License as published  by the     #
@@ -16,11 +16,11 @@
 #  to http://www.gnu.org/licenses for a complete copy of the license.      #
 ############################################################################
 
--include ../../makefile.setup
+include $(BLD_DIR)/$(TARGET)/makefile.setup
 
 ifneq (${XMLADA},false)
 all: build_wsdl
-	gprbuild interoplab.gpr
+	gprbuild $(GPROPTS) interoplab.gpr
 else
 all:
 endif
@@ -30,5 +30,5 @@ build_wsdl:
 	wsdl2aws -q -f -sp -doc -noskel interoplab_main.wsdl
 
 clean:
-	gprclean interoplab.gpr
+	gprclean $(GPROPTS) interoplab.gpr
 	rm -f interoplab.ads interoplab-* soapinterop*

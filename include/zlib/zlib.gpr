@@ -16,7 +16,7 @@
 --  to http://www.gnu.org/licenses for a complete copy of the license.      --
 ------------------------------------------------------------------------------
 
-with "../../.build/projects/aws_config";
+with "aws_config";
 
 with "../../shared";
 

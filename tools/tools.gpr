@@ -16,7 +16,7 @@
 --  to http://www.gnu.org/licenses for a complete copy of the license.      --
 ------------------------------------------------------------------------------
 
-with "../.build/projects/aws_lal";
+with "aws_lal";
 with "../shared";
 with "../aws";
 with "../win32/win32";
@@ -28,7 +28,7 @@ project Tools is
    for Languages use ("Ada", "Project file");
 
    for Source_Dirs use (".", "../templates_parser/tools",
-                        "../" & Shared.Target_Dir & "/common/src");
+                        Shared.Build_Target_Dir & "/common/src");
 
    case TO_BUILD is
       when "ALL" =>

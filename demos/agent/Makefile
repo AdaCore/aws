@@ -1,7 +1,7 @@
 ############################################################################
 #                              Ada Web Server                              #
 #                                                                          #
-#                     Copyright (C) 2010-2015, AdaCore                     #
+#                     Copyright (C) 2010-2024, AdaCore                     #
 #                                                                          #
 #  This is free software;  you can redistribute it  and/or modify it       #
 #  under terms of the  GNU General Public License as published  by the     #
@@ -16,12 +16,12 @@
 #  to http://www.gnu.org/licenses for a complete copy of the license.      #
 ############################################################################
 
--include ../../makefile.setup
+include $(BLD_DIR)/$(TARGET)/makefile.setup
 
 all:
 ifneq (${SOCKET},std)
-	gprbuild agent.gpr
+	gprbuild $(GPROPTS) agent.gpr
 endif
 
 clean:
-	gprclean agent.gpr
+	gprclean $(GPROPTS) agent.gpr

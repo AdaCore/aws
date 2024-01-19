@@ -1,7 +1,7 @@
 ############################################################################
 #                              Ada Web Server                              #
 #                                                                          #
-#                     Copyright (C) 2003-2015, AdaCore                     #
+#                     Copyright (C) 2003-2023, AdaCore                     #
 #                                                                          #
 #  This is free software;  you can redistribute it  and/or modify it       #
 #  under terms of the  GNU General Public License as published  by the     #
@@ -18,9 +18,12 @@
 
 .SILENT:
 
-ALL_API = $(sort $(shell ls ../src/core/*.ads ../src/extended/*.ads \
-	../src/soap/*.ads  ../src/xsrc/*.ads \
-	../templates_parser/src/*.ads ../templates_parser/xsrc/*.ads))
+SDIR := $(SRC_DIR)/src
+
+ALL_API = $(sort $(shell ls $(SDIR)/core/*.ads $(SDIR)/extended/*.ads \
+	$(SDIR)/soap/*.ads $(SDIR)/xsrc/*.ads \
+	$(SRC_DIR)/templates_parser/src/*.ads \
+	$(SRC_DIR)/templates_parser/xsrc/*.ads))
 
 setup:
 
@@ -29,7 +32,7 @@ install:
 check:
 
 after-build:
-	../$(BDIR)/../../$(TARGET)/common/bin/gen_gps_ref $(ALL_API)
+	$(TGT_DIR)/common/bin/gen_gps_ref $(ALL_API)
 
 clean:
 	-$(RM) -f *~ aws_api.xml

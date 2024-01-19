@@ -21,7 +21,7 @@
 --  Note that we are always linking to the shared version of this library as
 --  it is hightly recommended.
 
-with "../.build/projects/aws_lib_shared";
+with "aws_lib_shared";
 with "../shared";
 
 project DL_Lib is

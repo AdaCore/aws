@@ -1,9 +1,9 @@
 #!/usr/bin/env python
 """
-./gen_system_tags.py /path/to/aws/makefile.setup
+./gen_system_tags.py /path/to/aws/makefile.setup /path/to/tags-file
 
 Parse AWS makefile.setup to generate the system tags required by AWS
-testsuite driver
+testsuite driver.
 """
 
 import os
@@ -12,7 +12,7 @@ import sys
 from e3.env import Env
 from e3.main import Main
 
-def generate_tags(filename):
+def generate_tags(filename, output):
     _makefile = open(filename, 'r')
     tags = []
     for line in _makefile:
@@ -40,16 +40,17 @@ def generate_tags(filename):
     tags.append(env.platform)
 
     tags_string = ",".join(tags)
-    open('testsuite.tags', 'w').write(tags_string.lower() + "\n")
+    open(output, 'w').write(tags_string.lower() + "\n")
 
     print("Generating testsuite.tags with: \n" + tags_string.lower())
 
 def main():
     _main = Main()
-    _main.argument_parser.add_argument("filename")
+    _main.argument_parser.add_argument("setup_file")
+    _main.argument_parser.add_argument("tags_file")
     _main.parse_args()
     try:
-        generate_tags(_main.args.filename)
+        generate_tags(_main.args.setup_file, _main.args.tags_file)
     except IndexError:
         _main.error("where is makefile.setup ?")
 
