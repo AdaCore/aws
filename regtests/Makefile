@@ -21,7 +21,7 @@
 GENERATOR := $(SRC_DIR)/regtests/gen_system_tags.py
 
 # Add project path to generated project files
-GPR_PROJECT_PATH := $(SRC_DIR):$(PRJ_DIR):$(GPR_PROJECT_PATH)
+GPR_PROJECT_PATH := $(SRC_DIR)$(PSEP)$(PRJ_DIR)$(PSEP)$(GPR_PROJECT_PATH)
 export GPR_PROJECT_PATH
 
 build:

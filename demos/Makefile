@@ -31,7 +31,7 @@ CMN_DIR := $(TGT_DIR)/common
 include $(BLD_DIR)/$(TARGET)/makefile.setup
 
 # Add project path to generated project files
-GPR_PROJECT_PATH := $(SRC_DIR):$(PRJ_DIR):$(GPR_PROJECT_PATH)
+GPR_PROJECT_PATH := $(SRC_DIR)$(PSEP)$(PRJ_DIR)$(PSEP)$(GPR_PROJECT_PATH)
 export GPR_PROJECT_PATH
 
 # Add path to tools binaries

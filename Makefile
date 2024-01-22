@@ -59,19 +59,7 @@ OOTDIR := /$(TARGET)
 endif
 
 # Add path to generated project files
-GPR_PROJECT_PATH := $(PRJ_DIR):$(GPR_PROJECT_PATH)
-
-ifeq (${PRJ_TARGET}, Windows_NT)
-EXEEXT	= .exe
-OS      = Windows_NT
-else
-ifeq ($(PRJ_TARGET), Darwin)
-OS      = Darwin
-else
-OS      = UNIX
-endif
-EXEEXT	=
-endif
+GPR_PROJECT_PATH := $(PRJ_DIR)$(PSEP)$(GPR_PROJECT_PATH)
 
 LIBAWS_TYPES := static
 
@@ -95,7 +83,7 @@ ALL_OPTIONS	= $(MAKE_OPT) SOCKET="$(SOCKET)" XMLADA="$(XMLADA)" \
 	TARGET="$(TARGET)" IS_CROSS=$(IS_CROSS) GPRINSTALL="$(GPRINSTALL)" \
 	SRC_DIR="$(SRC_DIR)" BLD_DIR="$(BLD_DIR)" PRJ_DIR=$(PRJ_DIR) \
 	TGT_DIR="$(TGT_DIR)" STP_DIR="$(STP_DIR)" KND_DIR="$(KND_DIR)" \
-	CMN_DIR="$(CMN_DIR)" ISOOT="$(ISOOT)"
+	CMN_DIR="$(CMN_DIR)" ISOOT="$(ISOOT)" PSEP="$(PSEP)"
 
 build-doc:
 	echo ""
