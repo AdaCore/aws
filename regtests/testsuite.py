@@ -77,7 +77,7 @@ class AWSTestsuite(Testsuite):
         target_triplet = gcc_target.stdout.decode().rstrip()
 
         if self.env.options.root_dir:
-            build_dir = Path(self.env.options.root_dir[0], target_triplet)
+            build_dir = Path(self.env.options.root_dir, target_triplet)
         else:
             build_dir = Path("..", target_triplet)
 
@@ -143,43 +143,31 @@ class AWSTestsuite(Testsuite):
     def add_options(self, parser: argparse.ArgumentParser) -> None:
         parser.add_argument(
             "--with-Z999",
-            dest="with_Z999",
             action="store_true",
-            default=False,
             help="Add a test that always fail",
         )
         parser.add_argument(
             "--with-gprof",
-            dest="with_gprof",
             action="store_true",
-            default=False,
             help="Generate profiling reports",
         )
         parser.add_argument(
             "--with-gdb",
-            dest="with_gdb",
             action="store_true",
-            default=False,
             help="Run with gdb",
         )
         parser.add_argument(
             "--with-valgrind",
-            dest="with_valgrind",
             action="store_true",
-            default=False,
             help="Run with valgrind",
         )
         parser.add_argument(
             "--from-build-dir",
-            dest="from_build_dir",
             action="store_true",
-            default=False,
             help="Run testsuite from local build (in repository)",
         )
         parser.add_argument(
             "--root-dir",
-            nargs=1,
-            dest="root_dir",
             help="Specify the root dir used to build",
         )
 
