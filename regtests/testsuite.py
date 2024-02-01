@@ -25,11 +25,9 @@ import os
 import sys
 import argparse
 
-from glob import glob
 from makevar import MakeVar
 from subprocess import run
 
-from e3.env import Env
 from e3.testsuite import Testsuite
 from e3.testsuite.driver.adacore import AdaCoreLegacyTestDriver
 from e3.testsuite.testcase_finder import ParsedTest, TestFinder
