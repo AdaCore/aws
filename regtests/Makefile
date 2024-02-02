@@ -39,7 +39,7 @@ aws_regtests:
 		|| (echo 'Did you run make setup ?'; exit 1)
 	cd $(TGT_DIR) && \
 		$(PYTHON) $(SRC_DIR)/regtests/testsuite.py \
-			--from-build-dir --root-dir=$(BLD_DIR)
+			--from-build-dir --target-dir=$(TGT_DIR)
 
 install:
 
