@@ -27,7 +27,7 @@
 --  covered by the  GNU Public License.                                     --
 ------------------------------------------------------------------------------
 
-pragma Ada_2012;
+pragma Ada_2022;
 
 --  This package contains all SOAP types supported by this implementation.
 --  Here are some notes about adding support for a new SOAP type (not a

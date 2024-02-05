@@ -18,8 +18,6 @@
 
 --  Test to do not stuck data in the SSL input buffer
 
-pragma Ada_2012;
-
 with Ada.Calendar;
 with Ada.Command_Line;
 with Ada.Text_IO;

@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2004-2013, AdaCore                     --
+--                     Copyright (C) 2004-2024, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -84,7 +84,7 @@ package body AWS.Services.Split_Pages.Uniform.Alpha is
 
       Clear (Self.S_HREFS_V);
       Clear (Self.S_INDEXES_V);
-      Self.Lines := (others => 0);
+      Self.Lines := [others => 0];
 
       --  Build table
 

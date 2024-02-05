@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2003-2014, AdaCore                     --
+--                     Copyright (C) 2003-2024, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -194,7 +194,7 @@ package body AWS.Services.Transient_Pages is
       begin
          --  Fill with '$'
 
-         URI (1 .. 5 - K_Img'Length) := (others => '$');
+         URI (1 .. 5 - K_Img'Length) := [others => '$'];
 
          --  Add the number
 

@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                       Copyright (C) 2021, AdaCore                        --
+--                     Copyright (C) 2021-2024, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -579,7 +579,7 @@ is
          type Pseudo_Enum is (Method, Scheme, Path);
          --  Pseudo headers have to be exactly one
 
-         Has_Pseudo : array (Pseudo_Enum) of Boolean := (others => False);
+         Has_Pseudo : array (Pseudo_Enum) of Boolean := [others => False];
 
          procedure Log_Error (Message : String);
          --  Writes message to the error log and set Error to C_Protocol_Error

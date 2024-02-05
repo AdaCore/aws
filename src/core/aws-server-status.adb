@@ -27,8 +27,6 @@
 --  covered by the  GNU Public License.                                     --
 ------------------------------------------------------------------------------
 
-pragma Ada_2012;
-
 with Ada.Strings.Unbounded;
 with GNAT.Calendar.Time_IO;
 

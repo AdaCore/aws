@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2004-2012, AdaCore                     --
+--                     Copyright (C) 2004-2024, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -85,7 +85,7 @@ package body AWS.Services.Split_Pages.Alpha is
 
       Clear (Self.HREFS_V);
       Clear (Self.INDEXES_V);
-      Self.Index := (others => 0);
+      Self.Index := [others => 0];
 
       --  Build table
 
@@ -227,13 +227,13 @@ package body AWS.Services.Split_Pages.Alpha is
       end loop;
 
       return To_Set
-        ((Assoc ("PREVIOUS",   Shared.Safe_URI (URIs, Previous)),
+        ([Assoc ("PREVIOUS",   Shared.Safe_URI (URIs, Previous)),
           Assoc ("NEXT",       Shared.Safe_URI (URIs, Next)),
           Assoc ("FIRST",      URIs (URIs'First)),
           Assoc ("LAST",       URIs (URIs'Last)),
           Assoc ("PAGE_INDEX", Positive (Page_Inx)),
           Assoc ("HREFS_V",    Self.HREFS_V),
-          Assoc ("INDEXES_V",  Self.INDEXES_V)));
+          Assoc ("INDEXES_V",  Self.INDEXES_V)]);
    end Get_Translations;
 
    ----------------------

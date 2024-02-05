@@ -27,8 +27,6 @@
 --  covered by the  GNU Public License.                                     --
 ------------------------------------------------------------------------------
 
-pragma Ada_2012;
-
 with Ada.Calendar.Time_Zones;
 with Ada.Real_Time;
 with Ada.Strings.Fixed;

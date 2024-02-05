@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2003-2023, AdaCore                     --
+--                     Copyright (C) 2003-2024, AdaCore                     --
 --                                                                          --
 --  This is free software;  you can redistribute it  and/or modify it       --
 --  under terms of the  GNU General Public License as published  by the     --
@@ -111,7 +111,7 @@ abstract project Shared is
         use "style_checker -l70 -H";
       for VCS_File_Check
         use "style_checker -ign out -ign tmplt -ign sed -ign txt"
-         & " -lang Ada -cp -cy -sp -gnat2012"
+         & " -lang Ada -cp -cy -sp -gnat2020"
          & " -lang XML -l256";
    end Ide;
 
@@ -133,7 +133,7 @@ abstract project Shared is
    end case;
 
    Common_Options :=
-     ("-gnat2012", "-gnatwcfijkmruv", "-gnaty3abBcdefhiIklmnoOprstx")
+     ("-gnat2020", "-gnatwcfijkmruv", "-gnaty3abBcdefhiIklmnoOprstx")
      & Global_Options & Instrument_Options;
    --  Common options used for the Debug and Release modes
 

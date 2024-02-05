@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2000-2020, AdaCore                     --
+--                     Copyright (C) 2000-2024, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -26,8 +26,6 @@
 --  however invalidate any other reasons why the executable file  might be  --
 --  covered by the  GNU Public License.                                     --
 ------------------------------------------------------------------------------
-
-pragma Ada_2012;
 
 with Ada.Containers.Ordered_Maps;
 with Ada.Exceptions;
@@ -60,11 +58,11 @@ package body AWS.Session is
    --  A session is obsolete if not used after Session_Lifetime seconds
 
    Kind_Code      : constant array (Value_Kind) of Character :=
-                      (Int  => 'I',
+                      [Int  => 'I',
                        Real => 'R',
                        Bool => 'B',
                        Str  => 'S',
-                       User => 'U');
+                       User => 'U'];
 
    package Key_Value renames Containers.Key_Value;
 

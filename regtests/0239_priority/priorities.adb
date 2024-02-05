@@ -29,8 +29,6 @@
 
 --  Priority string test
 
-pragma Ada_2012;
-
 with Ada.Command_Line;
 with Ada.Exceptions;
 with Ada.Streams;

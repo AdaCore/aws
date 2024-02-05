@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2007-2015, AdaCore                     --
+--                     Copyright (C) 2007-2024, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -27,7 +27,7 @@
 --  covered by the  GNU Public License.                                     --
 ------------------------------------------------------------------------------
 
-pragma Ada_2012;
+pragma Ada_2022;
 
 private with Ada.Containers.Indefinite_Hashed_Maps;
 private with Ada.Strings.Hash;

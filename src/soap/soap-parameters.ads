@@ -27,7 +27,7 @@
 --  covered by the  GNU Public License.                                     --
 ------------------------------------------------------------------------------
 
-pragma Ada_2012;
+pragma Ada_2022;
 
 with Ada.Strings.Unbounded;
 

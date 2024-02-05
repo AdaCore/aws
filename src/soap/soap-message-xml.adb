@@ -27,8 +27,6 @@
 --  covered by the  GNU Public License.                                     --
 ------------------------------------------------------------------------------
 
-pragma Ada_2012;
-
 with Ada.Characters.Handling;
 with Ada.Exceptions;
 with Ada.Strings.Fixed;
@@ -292,7 +290,7 @@ package body SOAP.Message.XML is
    procedure Error (Node : DOM.Core.Node; Message : String) with No_Return;
    --  Raises SOAP_Error with the Message as exception message
 
-   Null_String : constant String := (1 => ASCII.NUL);
+   Null_String : constant String := [ASCII.NUL];
 
    function Get_Schema_Type
      (Type_Name : String;
@@ -317,7 +315,7 @@ package body SOAP.Message.XML is
    end record;
 
    Handlers : constant array (Type_State) of Type_Handler :=
-                (Void                =>
+                [Void                =>
                    (null, null, False),
                  T_Undefined         =>
                    (Types.XML_Undefined'Access, null, False),
@@ -383,7 +381,7 @@ package body SOAP.Message.XML is
                     Parse_Duration'Access, False),
                  T_Decimal           =>
                    (Types.XML_Decimal'Access,
-                    Parse_Decimal'Access, False));
+                    Parse_Decimal'Access, False)];
 
    type Object_Set_Access is access Types.Object_Set;
 

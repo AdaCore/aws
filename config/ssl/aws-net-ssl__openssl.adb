@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2000-2024, AdaCore                     --
+--                     Copyright (C) 2000-2025, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -27,9 +27,14 @@
 --  covered by the  GNU Public License.                                     --
 ------------------------------------------------------------------------------
 
-pragma Ada_2012;
+pragma Ada_2022;
 
---  Routines here are wrappers around standard sockets and SSL
+--  Routines here are wrappers around standard sockets and SSL.
+--
+--  IMPORTANT: The default certificate used for the SSL connection is
+--  "cert.pem" (in the working directory) if it exists. If this file does
+--  not exists it is required to initialize the SSL layer certificate with
+--  AWS.Server.Set_Security.
 
 with Ada.Command_Line;
 with Ada.Containers.Indefinite_Hashed_Maps;
@@ -120,20 +125,6 @@ package body AWS.Net.SSL is
 
    type Meth_Func is access function return TSSL.SSL_Method
      with Convention => C;
-
-   Methods : constant array (Method) of Meth_Func :=
-               (TLS            => TSSL.TLS_method'Access,
-                TLS_Server     => TSSL.TLS_server_method'Access,
-                TLS_Client     => TSSL.TLS_client_method'Access,
-                TLSv1          => TSSL.TLSv1_method'Access,
-                TLSv1_Server   => TSSL.TLSv1_server_method'Access,
-                TLSv1_Client   => TSSL.TLSv1_client_method'Access,
-                TLSv1_1        => TSSL.TLSv1_1_method'Access,
-                TLSv1_1_Server => TSSL.TLSv1_1_server_method'Access,
-                TLSv1_1_Client => TSSL.TLSv1_1_client_method'Access,
-                TLSv1_2        => TSSL.TLSv1_2_method'Access,
-                TLSv1_2_Server => TSSL.TLSv1_2_server_method'Access,
-                TLSv1_2_Client => TSSL.TLSv1_2_client_method'Access);
 
    protected type TS_SSL is
 
@@ -241,10 +232,10 @@ package body AWS.Net.SSL is
 
    Debug_Level : Natural := 0 with Atomic;
 
-   DH_Params   : array (0 .. 1) of aliased TSSL.DH :=
-                   (others => TSSL.Null_Pointer) with Atomic_Components;
-   RSA_Params  : array (0 .. 1) of aliased TSSL.RSA :=
-                   (others => TSSL.Null_Pointer) with Atomic_Components;
+   DH_Params  : array (0 .. 1) of aliased TSSL.DH :=
+                  [others => TSSL.Null_Pointer] with Atomic_Components;
+   RSA_Params : array (0 .. 1) of aliased TSSL.RSA :=
+                  [others => TSSL.Null_Pointer] with Atomic_Components;
    --  0 element for current use, 1 element for remain usage after creation new
    --  0 element.
 
@@ -453,7 +444,7 @@ package body AWS.Net.SSL is
    overriding function Cipher_Description
      (Socket : Socket_Type) return String
    is
-      Buffer : aliased C.char_array := (1 .. 256 => <>);
+      Buffer : aliased C.char_array := [1 .. 256 => <>];
       Result : constant String :=
                  C.Strings.Value
                    (TSSL.SSL_CIPHER_description
@@ -1197,7 +1188,7 @@ package body AWS.Net.SSL is
       Pack_Size : Stream_Element_Count :=
                     Stream_Element_Count'Min (RW.Pack_Size, Data'Length);
    begin
-      if not Check (Socket, (Input => False, Output => True)) (Output) then
+      if not Check (Socket, [Input => False, Output => True]) (Output) then
          Last := Last_Index (Data'First, 0);
          return;
       end if;
@@ -1715,12 +1706,12 @@ package body AWS.Net.SSL is
       use type C.unsigned, C.size_t;
 
       To_EVP_MD : constant array (Hash_Method) of EVP_MD :=
-                    (MD5    => EVP_md5,
+                    [MD5    => EVP_md5,
                      SHA1   => EVP_sha1,
                      SHA224 => EVP_sha224,
                      SHA256 => EVP_sha256,
                      SHA384 => EVP_sha384,
-                     SHA512 => EVP_sha512);
+                     SHA512 => EVP_sha512];
 
       Md     : constant EVP_MD := To_EVP_MD (Hash);
       D_Ctx  : constant EVP_MD_CTX := EVP_MD_CTX_new;
@@ -2360,9 +2351,25 @@ package body AWS.Net.SSL is
       -----------------------------
 
       procedure Common_Certificate_Init (Context : out TSSL.SSL_CTX) is
+
          use Interfaces.C;
+
+         Methods : constant array (Method) of Meth_Func :=
+                     [TLS            => TSSL.TLS_method'Access,
+                      TLS_Server     => TSSL.TLS_server_method'Access,
+                      TLS_Client     => TSSL.TLS_client_method'Access,
+                      TLSv1          => TSSL.TLSv1_method'Access,
+                      TLSv1_Server   => TSSL.TLSv1_server_method'Access,
+                      TLSv1_Client   => TSSL.TLSv1_client_method'Access,
+                      TLSv1_1        => TSSL.TLSv1_1_method'Access,
+                      TLSv1_1_Server => TSSL.TLSv1_1_server_method'Access,
+                      TLSv1_1_Client => TSSL.TLSv1_1_client_method'Access,
+                      TLSv1_2        => TSSL.TLSv1_2_method'Access,
+                      TLSv1_2_Server => TSSL.TLSv1_2_server_method'Access,
+                      TLSv1_2_Client => TSSL.TLSv1_2_client_method'Access];
+
       begin
-            --  Initialize context
+         --  Initialize context
 
          Context := TSSL.SSL_CTX_new (Methods (Security_Mode).all);
 

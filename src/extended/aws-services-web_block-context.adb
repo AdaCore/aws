@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2007-2015, AdaCore                     --
+--                     Copyright (C) 2007-2024, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -236,7 +236,7 @@ package body AWS.Services.Web_Block.Context is
       if CID'Length = Id'Length then
          return Id (CID);
       else
-         return Id'(others => 'x');
+         return Id'[others => 'x'];
       end if;
    end Value;
 

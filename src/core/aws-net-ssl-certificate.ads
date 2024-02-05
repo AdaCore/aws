@@ -27,7 +27,7 @@
 --  covered by the  GNU Public License.                                     --
 ------------------------------------------------------------------------------
 
-pragma Ada_2012;
+pragma Ada_2022;
 
 with Ada.Calendar;
 
@@ -160,7 +160,7 @@ private
      (Certificate.Status);
 
    function DER (Certificate : Object) return Stream_Element_Array is
-     (if Certificate.DER.Is_Empty then (1 .. 0 => <>)
+     (if Certificate.DER.Is_Empty then [1 .. 0 => <>]
       else Certificate.DER.Element);
 
    overriding function "=" (Left, Right : Object) return Boolean is

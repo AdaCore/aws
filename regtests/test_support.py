@@ -88,7 +88,7 @@ def build(prj):
         cmd.append("--target=" + Env().target.triplet)
         if Env().target.os.name.startswith("vxworks"):
             cmd.append("-XPLATFORM=vxworks")
-    cmd += ["-p", "-gnat2012", "-P" + prj, "-bargs", "-E"]
+    cmd += ["-p", "-gnat2022", "-P" + prj, "-bargs", "-E"]
     if Env().options.with_gprof:
         cmd += ["-cargs", "-pg", "-O2", "-largs", "-pg"]
     process = Run(cmd)

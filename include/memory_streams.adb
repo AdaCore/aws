@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                       Generic memory stream                              --
 --                                                                          --
---                Copyright (C) 2003-2015, Dmitriy Anisimkov                --
+--                Copyright (C) 2003-2024, Dmitriy Anisimkov                --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -24,8 +24,6 @@
 --  however invalidate any other reasons why the executable file  might be  --
 --  covered by the  GNU Public License.                                     --
 ------------------------------------------------------------------------------
-
-pragma Ada_2012;
 
 with Ada.Unchecked_Deallocation;
 

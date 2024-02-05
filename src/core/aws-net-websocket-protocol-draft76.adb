@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2012-2017, AdaCore                     --
+--                     Copyright (C) 2012-2024, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -116,8 +116,8 @@ package body AWS.Net.WebSocket.Protocol.Draft76 is
       Data     : Stream_Element_Array)
    is
       pragma Unreferenced (Protocol);
-      D_Header : constant Stream_Element_Array (1 .. 1) := (1 => 16#00#);
-      D_Footer : constant Stream_Element_Array (1 .. 1) := (1 => 16#FF#);
+      D_Header : constant Stream_Element_Array (1 .. 1) := [16#00#];
+      D_Footer : constant Stream_Element_Array (1 .. 1) := [16#FF#];
    begin
       Net.Buffered.Write (Socket, D_Header);
 
@@ -270,7 +270,7 @@ package body AWS.Net.WebSocket.Protocol.Draft76 is
             S := K * 2 - 1;
             V := Natural'Value ("16#" & D (S .. S + 1) & "#");
 
-            Net.Buffered.Put (Sock, String'(1 => Character'Val (V)));
+            Net.Buffered.Put (Sock, String'[Character'Val (V)]);
          end loop;
       end;
 

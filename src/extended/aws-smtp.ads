@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2000-2017, AdaCore                     --
+--                     Copyright (C) 2000-2024, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -27,7 +27,7 @@
 --  covered by the  GNU Public License.                                     --
 ------------------------------------------------------------------------------
 
-pragma Ada_2012;
+pragma Ada_2022;
 
 --  This library implement the Simple Mail Transfer Protocol. Only part of the
 --  RFC 821 is covered. There is no support to send a message to a console for
@@ -168,7 +168,7 @@ private
       Address : Unbounded_String;
    end record;
 
-   No_Recipient : constant Recipients (1 .. 0) := (others => <>);
+   No_Recipient : constant Recipients := [];
 
    --  Server Reply code/reason
 

@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2000-2024, AdaCore                     --
+--                     Copyright (C) 2000-2025, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -27,9 +27,8 @@
 --  covered by the  GNU Public License.                                     --
 ------------------------------------------------------------------------------
 
-pragma Ada_2012;
+pragma Ada_2022;
 
-with Ada.Calendar;
 with Ada.Calendar.Arithmetic;
 with Ada.Calendar.Formatting;
 with Ada.Calendar.Time_Zones;
@@ -90,7 +89,7 @@ package body SOAP.Utils is
       NS        : Name_Space.Object := Name_Space.No_Name_Space)
       return Types.XSD_String is
    begin
-      return Types.S (String'(1 => V), Name, Type_Name, NS);
+      return Types.S (String'[V], Name, Type_Name, NS);
    end C;
 
    ----------

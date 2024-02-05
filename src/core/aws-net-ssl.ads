@@ -27,7 +27,7 @@
 --  covered by the  GNU Public License.                                     --
 ------------------------------------------------------------------------------
 
-pragma Ada_2012;
+pragma Ada_2022;
 
 --  This is the SSL based implementation of the Net package. The implementation
 --  should depend only on AWS.Net.Std and the SSL library. It is important to
@@ -438,9 +438,9 @@ private
    type Time_Index is mod 2;
 
    DH_Time  : array (Time_Index) of Ada.Calendar.Time :=
-                (0 => Utils.AWS_Epoch, 1 => <>);
+                [0 => Utils.AWS_Epoch, 1 => <>];
    RSA_Time : array (Time_Index) of Ada.Calendar.Time :=
-                (0 => Utils.AWS_Epoch, 1 => <>);
+                [0 => Utils.AWS_Epoch, 1 => <>];
    --  Ada.Calendar.Time could not be Atomic in 32 bit platforms. Use Atomic
    --  index instead.
 

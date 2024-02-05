@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2004-2013, AdaCore                     --
+--                     Copyright (C) 2004-2024, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -77,7 +77,7 @@ package body AWS.Services.Split_Pages.Uniform is
       Compute_Max_Size (Table);
 
       if Max <= Self.Max_Per_Page then
-         return (1 => (First => 1, Last => Max));
+         return [(First => 1, Last => Max)];
       end if;
 
       declare

@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2000-2017, AdaCore                     --
+--                     Copyright (C) 2000-2024, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -26,8 +26,6 @@
 --  however invalidate any other reasons why the executable file  might be  --
 --  covered by the  GNU Public License.                                     --
 ------------------------------------------------------------------------------
-
-pragma Ada_2012;
 
 with Ada.Containers.Doubly_Linked_Lists;
 with Ada.Real_Time;
@@ -133,7 +131,7 @@ package body AWS.Server.Push is
    New_Line : constant String := ASCII.CR & ASCII.LF;
    --  HTTP new line
 
-   Byte0 : constant Stream_Element_Array := (1 => 0);
+   Byte0 : constant Stream_Element_Array := [0];
 
    Boundary  : constant String :=
                  "AWS.Push.Boundary_" & Utils.Random_String (8);
@@ -290,7 +288,7 @@ package body AWS.Server.Push is
          return Translator.To_Stream_Element_Array (Prefix) & Data_To_Send
                 & Translator.To_Stream_Element_Array (Suffix);
       else
-         return (1 .. 0 => 0);
+         return [1 .. 0 => 0];
       end if;
    end Data_Chunk;
 
@@ -751,7 +749,7 @@ package body AWS.Server.Push is
             --  Net.Check is not blocking operation
 
             begin
-               Events := Holder.Socket.Check ((others => True));
+               Events := Holder.Socket.Check ([others => True]);
             exception
                when E : Socket_Error =>
                   --  !!! Most possible it is ENOBUFS or ENOMEM error
@@ -759,7 +757,7 @@ package body AWS.Server.Push is
                   --  error in the socket error log file.
 
                   Holder.Errmsg := To_Unbounded_String (Exception_Message (E));
-                  Events := (others => False);
+                  Events := [others => False];
 
                   if Holder.Socket.all in Net.WebSocket.Object'Class
                     and then Holder.Socket.Get_FD = Net.No_Socket
@@ -1331,7 +1329,7 @@ package body AWS.Server.Push is
                     Timeout);
    begin
       Register
-        (Server, Client_Id, Holder, (1 .. 0 => 0), Content_Type,
+        (Server, Client_Id, Holder, [1 .. 0 => 0], Content_Type,
          Duplicated_Age, Ext_Sock_Alloc => False);
    end Register;
 

@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2004-2013, AdaCore                     --
+--                     Copyright (C) 2004-2024, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -26,8 +26,6 @@
 --  however invalidate any other reasons why the executable file  might be  --
 --  covered by the  GNU Public License.                                     --
 ------------------------------------------------------------------------------
-
-pragma Ada_2012;
 
 with Ada.Integer_Text_IO;
 with Ada.Strings.Fixed;
@@ -62,7 +60,7 @@ package body AWS.Net.Log.Callbacks is
    type Counters is array (Data_Direction) of Natural;
 
    type State is record
-      N        : Counters := (others => 0); -- Number of chars read/written
+      N        : Counters := [others => 0]; -- Number of chars read/written
       Log_File : Text_IO.File_Type;
    end record;
 

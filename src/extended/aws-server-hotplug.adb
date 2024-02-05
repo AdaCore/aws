@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2000-2019, AdaCore                     --
+--                     Copyright (C) 2000-2024, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -70,7 +70,7 @@ package body AWS.Server.Hotplug is
    package Client_Table is new Ada.Containers.Indefinite_Hashed_Maps
      (String, Client_Data, Ada.Strings.Hash, "=");
 
-   Null_Nonce : constant Digest.Nonce := (others => ' ');
+   Null_Nonce : constant Digest.Nonce := [others => ' '];
 
    protected Client_Handler is
 

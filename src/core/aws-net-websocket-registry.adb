@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2012-2022, AdaCore                     --
+--                     Copyright (C) 2012-2024, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -26,8 +26,6 @@
 --  however invalidate any other reasons why the executable file  might be  --
 --  covered by the  GNU Public License.                                     --
 ------------------------------------------------------------------------------
-
-pragma Ada_2012;
 
 with Ada.Containers.Indefinite_Ordered_Maps;
 with Ada.Containers.Indefinite_Vectors;
@@ -826,7 +824,7 @@ package body AWS.Net.WebSocket.Registry is
 
          procedure Send_To_Recipients (Recipients : Object_Set) is
             Wait_Events : constant Wait_Event_Set :=
-                            (Input => False, Output => True);
+                            [Input => False, Output => True];
             Set         : Poll_Events.Set (Recipients'Length);
             Socks       : Object_Set := Recipients;
             Sock_Index  : Positive;
@@ -1039,7 +1037,7 @@ package body AWS.Net.WebSocket.Registry is
          --  If a signal is pending no need to signal again the socket
 
          if not Signal then
-            Net.Send (Sig2, Stream_Element_Array'(1 => 0));
+            Net.Send (Sig2, Stream_Element_Array'[0]);
 
             --  Also activate the signal to release Not_Empty for proper
             --  termination when there is no remaining socket.

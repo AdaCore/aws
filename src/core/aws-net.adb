@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2000-2020, AdaCore                     --
+--                     Copyright (C) 2000-2024, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -501,7 +501,7 @@ package body AWS.Net is
      (Sockets : Socket_Set; Data : Stream_Element_Array)
    is
       Wait_Events : constant Wait_Event_Set :=
-                      (Input => False, Output => True);
+                      [Input => False, Output => True];
       Set         : Poll_Events.Set (Sockets'Length);
       Socks       : Socket_Set (1 .. Sockets'Length) := Sockets;
       Index       : array (Sockets'Range) of Stream_Element_Offset :=
@@ -704,7 +704,7 @@ package body AWS.Net is
    procedure Wait_For
      (Mode : Wait_Event_Type; Socket : Socket_Type'Class; Timeout : Duration)
    is
-      Events : Wait_Event_Set := (others => False);
+      Events : Wait_Event_Set := [others => False];
       Result : Event_Set;
    begin
       Events (Mode) := True;

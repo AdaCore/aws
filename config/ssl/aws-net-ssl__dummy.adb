@@ -458,7 +458,7 @@ package body AWS.Net.SSL is
    is
       pragma Unreferenced (Ptr, Size, Key, Hash);
    begin
-      return (1 .. 0 => <>);
+      return [1 .. 0 => <>];
    end Signature;
 
    -----------------

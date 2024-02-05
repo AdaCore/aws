@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2005-2014, AdaCore                     --
+--                     Copyright (C) 2005-2024, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -26,8 +26,6 @@
 --  however invalidate any other reasons why the executable file  might be  --
 --  covered by the  GNU Public License.                                     --
 ------------------------------------------------------------------------------
-
-pragma Ada_2012;
 
 with Ada.Calendar;
 with Ada.Exceptions;
@@ -242,9 +240,9 @@ package body AWS.Services.Download is
               (MIME.Text_HTML,
                String'(Templates.Parse
                  (S_Tmplt,
-                    (1 => Templates.Assoc ("NAME", To_String (Info.Name)),
+                    [1 => Templates.Assoc ("NAME", To_String (Info.Name)),
                      2 => Templates.Assoc
-                       ("RES_URI", To_String (Info.R_URI))))));
+                       ("RES_URI", To_String (Info.R_URI))])));
          end if;
 
       else
@@ -252,10 +250,10 @@ package body AWS.Services.Download is
            (MIME.Text_HTML,
             String'(Templates.Parse
               (W_Tmplt,
-                 (1 => Templates.Assoc ("NAME", To_String (Info.Name)),
+                 [1 => Templates.Assoc ("NAME", To_String (Info.Name)),
                   2 => Templates.Assoc ("RES_URI", To_String (Info.R_URI)),
                   3 => Templates.Assoc
-                    ("POSITION", Positive (Info.Position))))));
+                    ("POSITION", Positive (Info.Position))])));
       end if;
    end CB;
 

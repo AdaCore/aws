@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2007-2014, AdaCore                     --
+--                     Copyright (C) 2007-2024, AdaCore                     --
 --                                                                          --
 --  This is free software;  you can redistribute it  and/or modify it       --
 --  under terms of the  GNU General Public License as published  by the     --
@@ -91,24 +91,24 @@ procedure Webxref is
 
    type Kind_Set is array (Name_Kind) of Boolean;
 
-   Null_Kind_Set       : constant Kind_Set := (others => False);
+   Null_Kind_Set       : constant Kind_Set := [others => False];
 
    CSS_Kind            : constant Kind_Set :=
-                           (Def_CSS => True, others => False);
+                           [Def_CSS => True, others => False];
 
    Web_Kind            : constant Kind_Set :=
-                           (Ref_CSS | Def_ML => True, others => False);
+                           [Ref_CSS | Def_ML => True, others => False];
 
    Ajax_Response_Kind  : constant Kind_Set :=
-                           (Ref_ML => True, others => False);
+                           [Ref_ML => True, others => False];
 
    Def_Kind            : constant Kind_Set :=
-                           (Def_CSS | Def_ML => True, others => False);
+                           [Def_CSS | Def_ML => True, others => False];
 
    Ref_Kind            : constant Kind_Set :=
-                           (Ref_CSS | Ref_ML => True, others => False);
+                           [Ref_CSS | Ref_ML => True, others => False];
 
-   No_Kind             : constant Kind_Set := (others => False);
+   No_Kind             : constant Kind_Set := [others => False];
 
    procedure Process_CSS (Filename : String);
    --  Process a CSS file
@@ -814,7 +814,7 @@ procedure Webxref is
                exit when First = 0;
 
                Last := Index
-                 (Iterator, String'(1 => C), First + Attribute'Length + 2);
+                 (Iterator, String'[C], First + Attribute'Length + 2);
 
                if Last = 0 then
                   First := Iterator.Last;
