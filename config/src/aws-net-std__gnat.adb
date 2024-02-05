@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2000-2022, AdaCore                     --
+--                     Copyright (C) 2000-2024, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -26,8 +26,6 @@
 --  however invalidate any other reasons why the executable file  might be  --
 --  covered by the  GNU Public License.                                     --
 ------------------------------------------------------------------------------
-
-pragma Ada_2012;
 
 with Ada.Strings.Maps;
 with Ada.Unchecked_Deallocation;
@@ -61,9 +59,9 @@ package body AWS.Net.Std is
    --  AWS is not using blocking sockets internally.
 
    To_GNAT : constant array (Family_Type) of Sockets.Family_Type :=
-               (Family_Inet   => Sockets.Family_Inet,
+               [Family_Inet   => Sockets.Family_Inet,
                 Family_Inet6  => Sockets.Family_Inet6,
-                Family_Unspec => Sockets.Family_Unspec);
+                Family_Unspec => Sockets.Family_Unspec];
 
    -------------------
    -- Accept_Socket --
@@ -783,9 +781,9 @@ package body AWS.Net.Std is
      (Socket : Socket_Type; How : Shutmode_Type := Shut_Read_Write)
    is
       To_GNAT : constant array (Shutmode_Type) of Sockets.Shutmode_Type :=
-                  (Shut_Read_Write => Sockets.Shut_Read_Write,
+                  [Shut_Read_Write => Sockets.Shut_Read_Write,
                    Shut_Read       => Sockets.Shut_Read,
-                   Shut_Write      => Sockets.Shut_Write);
+                   Shut_Write      => Sockets.Shut_Write];
    begin
       if Socket.S /= null then
          if Net.Log.Is_Event_Active then

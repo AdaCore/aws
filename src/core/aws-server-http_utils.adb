@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2005-2021, AdaCore                     --
+--                     Copyright (C) 2005-2024, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -26,8 +26,6 @@
 --  however invalidate any other reasons why the executable file  might be  --
 --  covered by the  GNU Public License.                                     --
 ------------------------------------------------------------------------------
-
-pragma Ada_2012;
 
 with Ada.Characters.Handling;
 with Ada.Directories;
@@ -768,7 +766,7 @@ package body AWS.Server.HTTP_Utils is
          function Check_EOF return Boolean is
 
             Signature : constant Streams.Stream_Element_Array :=
-                          (1 => 13, 2 => 10)
+                          [1 => 13, 2 => 10]
                             & Translator.To_Stream_Element_Array
                                 (Start_Boundary);
 
@@ -2272,8 +2270,8 @@ package body AWS.Server.HTTP_Utils is
          --  Each chunk will have a maximum length of Buffer'Length
 
          CRLF : constant Streams.Stream_Element_Array :=
-                  (1 => Character'Pos (ASCII.CR),
-                   2 => Character'Pos (ASCII.LF));
+                  [1 => Character'Pos (ASCII.CR),
+                   2 => Character'Pos (ASCII.LF)];
 
          Last_Chunk : constant Streams.Stream_Element_Array :=
                         Character'Pos ('0') & CRLF & CRLF;

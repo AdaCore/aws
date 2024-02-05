@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2006-2021, AdaCore                     --
+--                     Copyright (C) 2006-2024, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -419,7 +419,7 @@ package body AWS.Net.SSL is
    is
       pragma Unreferenced (Ptr, Size, Key, Hash);
    begin
-      return (1 .. 0 => <>);
+      return [1 .. 0 => <>];
    end Signature;
 
    -----------------

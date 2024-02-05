@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2006-2018, AdaCore                     --
+--                     Copyright (C) 2006-2024, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -26,8 +26,6 @@
 --  however invalidate any other reasons why the executable file  might be  --
 --  covered by the  GNU Public License.                                     --
 ------------------------------------------------------------------------------
-
-pragma Ada_2012;
 
 with Ada.Characters.Handling;
 with Ada.Containers.Hashed_Maps;
@@ -1389,7 +1387,7 @@ package body AWS.Net.SSL is
         new Unchecked_Conversion (System.Address, Binary_Access);
       Result : constant System.Address := System.Memory.Alloc (Size);
    begin
-      To_Access (Result).all := (others => 0);
+      To_Access (Result).all := [others => 0];
       return Result;
    end Lib_Alloc;
 
@@ -1722,7 +1720,7 @@ package body AWS.Net.SSL is
                      end if;
 
                   when 1 =>
-                     if not Socket.Check ((Output => True, Input => False))
+                     if not Socket.Check ([Output => True, Input => False])
                        (Output)
                      then
                         Last := Last_Index (Data'First, 0);
@@ -2196,9 +2194,9 @@ package body AWS.Net.SSL is
 
       Code : C.int;
       To_C : constant array (Shutmode_Type) of TSSL.gnutls_close_request_t :=
-               (Shut_Read_Write => TSSL.GNUTLS_SHUT_RDWR,
+               [Shut_Read_Write => TSSL.GNUTLS_SHUT_RDWR,
                 Shut_Read       => TSSL.GNUTLS_SHUT_RDWR, -- Absent, use RDWR
-                Shut_Write      => TSSL.GNUTLS_SHUT_WR);
+                Shut_Write      => TSSL.GNUTLS_SHUT_WR];
    begin
       if Socket.IO.Handshaken /= null and then Socket.IO.Handshaken.all then
          --  Must be done only after successful handshake
@@ -2239,12 +2237,12 @@ package body AWS.Net.SSL is
       Hash : Hash_Method) return Stream_Element_Array
    is
       To_C : constant array (Hash_Method) of TSSL.gnutls_mac_algorithm_t
-               := (MD5    => TSSL.GNUTLS_MAC_MD5,
+               := [MD5    => TSSL.GNUTLS_MAC_MD5,
                    SHA1   => TSSL.GNUTLS_MAC_SHA1,
                    SHA224 => TSSL.GNUTLS_MAC_SHA224,
                    SHA256 => TSSL.GNUTLS_MAC_SHA256,
                    SHA384 => TSSL.GNUTLS_MAC_SHA384,
-                   SHA512 => TSSL.GNUTLS_MAC_SHA512);
+                   SHA512 => TSSL.GNUTLS_MAC_SHA512];
       Dat : aliased TSSL.gnutls_datum_t := (Ptr, C.unsigned (Size));
       Sig : aliased TSSL.gnutls_datum_t;
    begin

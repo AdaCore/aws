@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2005-2021, AdaCore                     --
+--                     Copyright (C) 2005-2024, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -26,8 +26,6 @@
 --  however invalidate any other reasons why the executable file  might be  --
 --  covered by the  GNU Public License.                                     --
 ------------------------------------------------------------------------------
-
-pragma Ada_2012;
 
 with Ada.Characters.Handling;
 with Ada.Exceptions;
@@ -409,8 +407,8 @@ package body AWS.Client.HTTP_Utils is
    is
       type Over_Data is array (Authentication_Level) of Boolean;
 
-      Is_Over    : constant Over_Data := (others => True);
-      Over_Level : Over_Data          := (others => True);
+      Is_Over    : constant Over_Data := [others => True];
+      Over_Level : Over_Data          := [others => True];
    begin
       for Level in Authentication_Level'Range loop
          if Connection.Auth (Level).Requested then
@@ -719,7 +717,7 @@ package body AWS.Client.HTTP_Utils is
       subtype Byte_4 is HTTP2.Byte_4;
    begin
       return HTTP2.Frame.Settings.Set'
-        (1 => (HEADER_TABLE_SIZE,
+        [1 => (HEADER_TABLE_SIZE,
                Byte_4 (Config.HTTP2_Header_Table_Size)),
          2 => (ENABLE_PUSH,
                0),
@@ -730,7 +728,7 @@ package body AWS.Client.HTTP_Utils is
          5 => (MAX_FRAME_SIZE,
                Byte_4 (Config.HTTP2_Max_Frame_Size)),
          6 => (MAX_HEADER_LIST_SIZE,
-               Byte_4 (Config.HTTP2_Max_Header_List_Size)));
+               Byte_4 (Config.HTTP2_Max_Header_List_Size))];
    end Get_Settings;
 
    -----------------------
@@ -900,7 +898,7 @@ package body AWS.Client.HTTP_Utils is
 
       Try_Count        : Natural := Connection.Retry;
 
-      Auth_Attempts    : Auth_Attempts_Count := (others => 2);
+      Auth_Attempts    : Auth_Attempts_Count := [others => 2];
       Auth_Is_Over     : Boolean;
 
       procedure Build_Root_Part_Header;
@@ -1062,7 +1060,7 @@ package body AWS.Client.HTTP_Utils is
 
       Request       : HTTP2.Message.Object;
       Try_Count     : Natural := Connection.Retry;
-      Auth_Attempts : Auth_Attempts_Count := (others => 2);
+      Auth_Attempts : Auth_Attempts_Count := [others => 2];
       Auth_Is_Over  : Boolean;
       Stream        : HTTP2.Stream.Object;
       Ctx           : Server.Context.Object (null,
@@ -1129,7 +1127,7 @@ package body AWS.Client.HTTP_Utils is
 
             Request := HTTP2.Message.Create
               (Connection.F_Headers,
-               Stream_Element_Array'(1 .. 0 => <>),
+               Stream_Element_Array'[1 .. 0 => <>],
                Stream.Identifier);
 
             --  Append data & attachments
@@ -1241,7 +1239,7 @@ package body AWS.Client.HTTP_Utils is
       Stamp         : constant Time := Clock;
       Try_Count     : Natural := Connection.Retry;
 
-      Auth_Attempts : Auth_Attempts_Count := (others => 2);
+      Auth_Attempts : Auth_Attempts_Count := [others => 2];
       Auth_Is_Over  : Boolean;
 
    begin
@@ -1303,7 +1301,7 @@ package body AWS.Client.HTTP_Utils is
 
       Stamp         : constant Time := Clock;
       Try_Count     : Natural := Connection.Retry;
-      Auth_Attempts : Auth_Attempts_Count := (others => 2);
+      Auth_Attempts : Auth_Attempts_Count := [others => 2];
       Auth_Is_Over  : Boolean;
    begin
       Connection.F_Headers.Reset;
@@ -1379,7 +1377,7 @@ package body AWS.Client.HTTP_Utils is
                     Stream_Element_Offset (Utils.File_Size (Filename));
 
       Try_Count     : Natural := Connection.Retry;
-      Auth_Attempts : Auth_Attempts_Count := (others => 2);
+      Auth_Attempts : Auth_Attempts_Count := [others => 2];
       Auth_Is_Over  : Boolean;
 
       function Content_Length return Stream_Element_Offset;
@@ -1545,7 +1543,7 @@ package body AWS.Client.HTTP_Utils is
 
       Request       : HTTP2.Message.Object;
       Try_Count     : Natural := Connection.Retry;
-      Auth_Attempts : Auth_Attempts_Count := (others => 2);
+      Auth_Attempts : Auth_Attempts_Count := [others => 2];
       Auth_Is_Over  : Boolean;
       Stream        : HTTP2.Stream.Object;
       Ctx           : Server.Context.Object (null,
@@ -1970,7 +1968,7 @@ package body AWS.Client.HTTP_Utils is
       Status : Messages.Status_Code;
 
       Request_Auth_Mode : array (Authentication_Level)
-                            of Authentication_Mode := (others => Any);
+                            of Authentication_Mode := [others => Any];
 
       -----------------------------
       -- Parse_Authenticate_Line --
@@ -2443,7 +2441,7 @@ package body AWS.Client.HTTP_Utils is
       use Ada.Real_Time;
       Stamp         : constant Time := Clock;
       Try_Count     : Natural := Connection.Retry;
-      Auth_Attempts : Auth_Attempts_Count := (others => 2);
+      Auth_Attempts : Auth_Attempts_Count := [others => 2];
       Auth_Is_Over  : Boolean;
    begin
       Retry : loop
@@ -2516,7 +2514,7 @@ package body AWS.Client.HTTP_Utils is
 
       Stamp         : constant Time := Clock;
       Try_Count     : Natural := Connection.Retry;
-      Auth_Attempts : Auth_Attempts_Count := (others => 2);
+      Auth_Attempts : Auth_Attempts_Count := [others => 2];
       Auth_Is_Over  : Boolean;
 
    begin

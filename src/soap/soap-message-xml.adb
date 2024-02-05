@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2000-2020, AdaCore                     --
+--                     Copyright (C) 2000-2024, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -26,8 +26,6 @@
 --  however invalidate any other reasons why the executable file  might be  --
 --  covered by the  GNU Public License.                                     --
 ------------------------------------------------------------------------------
-
-pragma Ada_2012;
 
 with Ada.Characters.Handling;
 with Ada.Exceptions;
@@ -249,7 +247,7 @@ package body SOAP.Message.XML is
    procedure Error (Node : DOM.Core.Node; Message : String) with No_Return;
    --  Raises SOAP_Error with the Message as exception message
 
-   Null_String : constant String := (1 => ASCII.NUL);
+   Null_String : constant String := [ASCII.NUL];
 
    function Get_Schema_Type
      (Type_Name : String;
@@ -274,7 +272,7 @@ package body SOAP.Message.XML is
    end record;
 
    Handlers : constant array (Type_State) of Type_Handler :=
-                (Void           =>
+                [Void           =>
                    (null, null, False),
                  T_Undefined    =>
                    (Types.XML_Undefined'Access, null, False),
@@ -322,7 +320,7 @@ package body SOAP.Message.XML is
                     Parse_Time_Instant'Access, False),
                  T_Duration       =>
                    (Types.XML_Duration'Access,
-                    Parse_Duration'Access, False));
+                    Parse_Duration'Access, False)];
 
    type Object_Set_Access is access Types.Object_Set;
 

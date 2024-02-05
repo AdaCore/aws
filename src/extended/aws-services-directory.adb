@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2000-2013, AdaCore                     --
+--                     Copyright (C) 2000-2024, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -26,8 +26,6 @@
 --  however invalidate any other reasons why the executable file  might be  --
 --  covered by the  GNU Public License.                                     --
 ------------------------------------------------------------------------------
-
-pragma Ada_2012;
 
 with Ada.Calendar;
 with Ada.Characters.Handling;
@@ -312,9 +310,9 @@ package body AWS.Services.Directory is
       subtype Dir_Order_Range is Order_Mode range Name .. Time;
 
       Dir_Ordr     : array (Dir_Order_Range) of Unbounded_String :=
-        (Name  => To_Unbounded_String (Mode_Param & "&ORDER=DN"),
+        [Name  => To_Unbounded_String (Mode_Param & "&ORDER=DN"),
          SName => To_Unbounded_String (Mode_Param & "&ORDER=DA"),
-         Time  => To_Unbounded_String (Mode_Param & "&ORDER=DT"));
+         Time  => To_Unbounded_String (Mode_Param & "&ORDER=DT")];
       --  Defaults rules to order the directories by Name or by Time
 
       UID_Sq       : Natural := 0;
@@ -581,7 +579,7 @@ package body AWS.Services.Directory is
 
    function To_Order_Mode (C : Order_Char) return Order_Mode is
    begin
-      return Order_Mode'Value (String'(1 => C));
+      return Order_Mode'Value (String'[C]);
    end To_Order_Mode;
 
 end AWS.Services.Directory;

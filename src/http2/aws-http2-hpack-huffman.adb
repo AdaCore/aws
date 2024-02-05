@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                      Copyright (C) 2021, AdaCore                         --
+--                     Copyright (C) 2021-2024, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -66,7 +66,7 @@ package body AWS.HTTP2.HPACK.Huffman is
    end record;
 
    Table : constant array (Unsigned_16 range 0 .. 256) of Code :=
-             ((16#1ff8#,     13),
+             [(16#1ff8#,     13),
               (16#7fffd8#,   23),
               (16#fffffe2#,  28),
               (16#fffffe3#,  28),
@@ -322,7 +322,7 @@ package body AWS.HTTP2.HPACK.Huffman is
               (16#7ffffef#,  27),
               (16#7fffff0#,  27),
               (16#3ffffee#,  26),
-              (16#3fffffff#, 30));
+              (16#3fffffff#, 30)];
 
    -----------------
    -- Create_Tree --
@@ -345,7 +345,7 @@ package body AWS.HTTP2.HPACK.Huffman is
                B : constant Bit := Bit (Shift_Right (C.Bits, K) and 1);
             begin
                if Iter.all = null then
-                  Iter.all := new Node'(False, LR => (null, null));
+                  Iter.all := new Node'(False, LR => [null, null]);
                end if;
 
                declare

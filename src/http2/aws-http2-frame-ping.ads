@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                      Copyright (C) 2021, AdaCore                         --
+--                     Copyright (C) 2021-2024, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -57,7 +57,7 @@ package AWS.HTTP2.Frame.Ping is
 
 private
 
-   Default_Data : constant Opaque_Data := (0, 0, 0, 0, 0, 0, 0, 0);
+   Default_Data : constant Opaque_Data := [0, 0, 0, 0, 0, 0, 0, 0];
 
    --  RFC-7540 6.7
    --

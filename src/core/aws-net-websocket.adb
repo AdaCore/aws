@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2012-2021, AdaCore                     --
+--                     Copyright (C) 2012-2024, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -434,7 +434,7 @@ package body AWS.Net.WebSocket is
       Msg   : Unbounded_String;
    begin
       Event := Socket.Poll
-         ((AWS.Net.Input => True, others => False), Timeout => Timeout);
+         ([AWS.Net.Input => True, others => False], Timeout => Timeout);
 
       if Event (AWS.Net.Input) then
          --  Block until we have received all chunks of the frame

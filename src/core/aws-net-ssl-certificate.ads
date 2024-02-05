@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2003-2015, AdaCore                     --
+--                     Copyright (C) 2003-2024, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -26,8 +26,6 @@
 --  however invalidate any other reasons why the executable file  might be  --
 --  covered by the  GNU Public License.                                     --
 ------------------------------------------------------------------------------
-
-pragma Ada_2012;
 
 with Ada.Calendar;
 
@@ -163,7 +161,7 @@ private
      (Certificate.Status);
 
    function DER (Certificate : Object) return Stream_Element_Array is
-     (if Certificate.DER.Is_Empty then (1 .. 0 => <>)
+     (if Certificate.DER.Is_Empty then [1 .. 0 => <>]
       else Certificate.DER.Element);
 
    overriding function "=" (Left, Right : Object) return Boolean is

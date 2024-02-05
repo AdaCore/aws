@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2000-2022, AdaCore                     --
+--                     Copyright (C) 2000-2024, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -26,8 +26,6 @@
 --  however invalidate any other reasons why the executable file  might be  --
 --  covered by the  GNU Public License.                                     --
 ------------------------------------------------------------------------------
-
-pragma Ada_2012;
 
 with Ada.Streams;
 with Ada.Text_IO;
@@ -800,7 +798,7 @@ package body AWS.Server is
          function Test_Slot (S : Positive) return Boolean is
          begin
             if Table (S).Phase = Wait_For_Client then
-               Table (S).Wait_Breaker.Send ((1 => 0));
+               Table (S).Wait_Breaker.Send ([0]);
 
             elsif Is_Abortable (S) then
                Get_For_Shutdown (S, Socket);

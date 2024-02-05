@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2005-2021, AdaCore                     --
+--                     Copyright (C) 2005-2024, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -26,8 +26,6 @@
 --  however invalidate any other reasons why the executable file  might be  --
 --  covered by the  GNU Public License.                                     --
 ------------------------------------------------------------------------------
-
-pragma Ada_2012;
 
 with AWS.Config;
 with AWS.HTTP2.Frame.Settings;
@@ -157,7 +155,7 @@ package AWS.Client.HTTP_Utils is
    type Method_Kind is new Status.Request_Method
      with Dynamic_Predicate => Method_Kind in GET | HEAD | PUT | DELETE;
 
-   No_Data : constant Stream_Element_Array := (1 .. 0 => 0);
+   No_Data : constant Stream_Element_Array := [1 .. 0 => 0];
 
    procedure Send_Request
      (Connection : in out HTTP_Connection;

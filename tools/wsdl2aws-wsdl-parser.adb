@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2003-2022, AdaCore                     --
+--                     Copyright (C) 2003-2024, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -26,8 +26,6 @@
 --  however invalidate any other reasons why the executable file  might be  --
 --  covered by the  GNU Public License.                                     --
 ------------------------------------------------------------------------------
-
-pragma Ada_2012;
 
 with Ada.Characters.Handling;
 with Ada.Containers.Indefinite_Vectors;
@@ -58,7 +56,7 @@ package body WSDL2AWS.WSDL.Parser is
    type Look_Kind is (Complex_Type, Simple_Type, Element);
    type Look_Context is array (Look_Kind) of Boolean;
 
-   Look_All : constant Look_Context := (others => True);
+   Look_All : constant Look_Context := [others => True];
 
    package String_List is new Containers.Indefinite_Vectors (Positive, String);
 
