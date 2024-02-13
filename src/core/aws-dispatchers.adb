@@ -37,7 +37,7 @@ package body AWS.Dispatchers is
 
    overriding procedure Adjust (Dispatcher : in out Handler) is
    begin
-      Dispatcher.Ref_Counter.all := Dispatcher.Ref_Counter.all + 1;
+      Dispatcher.Ref_Counter.all := @ + 1;
    end Adjust;
 
    --------------
@@ -53,7 +53,7 @@ package body AWS.Dispatchers is
       Dispatcher.Ref_Counter := null;
 
       if Ref_Counter /= null then
-         Ref_Counter.all := Ref_Counter.all - 1;
+         Ref_Counter.all := @ - 1;
          if Ref_Counter.all = 0 then
             Utils.Unchecked_Free (Ref_Counter);
          end if;

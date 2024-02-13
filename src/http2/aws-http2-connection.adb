@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                      Copyright (C) 2021, AdaCore                         --
+--                    Copyright (C) 2021-2024, AdaCore                      --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -189,7 +189,7 @@ package body AWS.HTTP2.Connection is
       --    Self.Values (S.INITIAL_WINDOW_SIZE) + Increment;
       Self.Values (S.INITIAL_WINDOW_SIZE) := Value;
 
-      Self.Flow_Send_Window := Self.Flow_Send_Window + (Value - Prev);
+      Self.Flow_Send_Window := @ + (Value - Prev);
    end Set_Initial_Window_Size;
 
    --------------------------------
@@ -200,7 +200,7 @@ package body AWS.HTTP2.Connection is
      (Self      : in out Object;
       Increment : Integer) is
    begin
-      Self.Flow_Send_Window := Self.Flow_Send_Window + Increment;
+      Self.Flow_Send_Window := @ + Increment;
    end Update_Flow_Control_Window;
 
    --------------------------------
@@ -211,7 +211,7 @@ package body AWS.HTTP2.Connection is
      (Self      : in out Object;
       Increment : Integer) is
    begin
-      Self.Flow_Receive_Window := Self.Flow_Receive_Window + Increment;
+      Self.Flow_Receive_Window := @ + Increment;
    end Update_Flow_Receive_Window;
 
 end AWS.HTTP2.Connection;

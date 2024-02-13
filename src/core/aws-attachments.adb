@@ -513,7 +513,7 @@ package body AWS.Attachments is
                      K := Content_Len + 1;
                   else
                      Put_Line (Slice (Data.Content, K, K + Chunk_Size - 1));
-                     K := K + Chunk_Size;
+                     K := @ + Chunk_Size;
                   end if;
                end loop;
             end Send_Base64;
@@ -701,7 +701,7 @@ package body AWS.Attachments is
       --  Add all content lengths
 
       for J in 1 .. Count (Attachments) loop
-         L := L + Element (Element'(Get (Attachments, J))).Total_Length;
+         L := @ + Element (Element'(Get (Attachments, J))).Total_Length;
       end loop;
 
       return L;

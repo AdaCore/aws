@@ -149,10 +149,10 @@ package body AWS.Translator is
    is
       E : Unsigned_8 := 0;
    begin
-      State.Count := State.Count + 1;
+      State.Count := @ + 1;
       E := Character'Pos (Ch);
 
-      State.Last := State.Last + 1;
+      State.Last := @ + 1;
 
       case State.Current_State is
          when 1 =>
@@ -167,7 +167,7 @@ package body AWS.Translator is
          when 3 =>
             Add (State.To_Char ((Shift_Left (State.Prev_E, 2) and 16#3C#)
               or (Shift_Right (E, 6) and 16#3#)));
-            State.Last := State.Last + 1;
+            State.Last := @ + 1;
             Add (State.To_Char (E and 16#3F#));
             State.Current_State := 1;
       end case;
@@ -186,14 +186,13 @@ package body AWS.Translator is
       else
          case Ch is
             when '=' =>
-               State.Pad := State.Pad + 1;
+               State.Pad := @ + 1;
 
             when others =>
-               State.Group := State.Group
-                 or Shift_Left (Base64_Values (Ch), State.J);
+               State.Group := @ or Shift_Left (Base64_Values (Ch), State.J);
          end case;
 
-         State.J := State.J - 6;
+         State.J := @ - 6;
 
          if State.J < 0 then
             Add (Character'Val (Shift_Right (State.Group and 16#FF0000#, 16)));
@@ -269,7 +268,7 @@ package body AWS.Translator is
 
       procedure Add_Char (Ch : Character) is
       begin
-         Last := Last + 1;
+         Last := @ + 1;
          Result (Last) := Character'Pos (Ch);
       end Add_Char;
 
@@ -425,7 +424,7 @@ package body AWS.Translator is
          while not End_Of_File (Stream) loop
             Read (Stream, Buffer, Last);
             Result (K .. K + Last - 1) := Buffer (1 .. Last);
-            K := K + Last;
+            K := @ + Last;
          end loop;
       end;
 
@@ -485,7 +484,7 @@ package body AWS.Translator is
 
       --  Add Additional '=' character for the missing bits
 
-      State.Last := State.Last + 1;
+      State.Last := @ + 1;
 
       Encoded_Length := 4 * ((State.Count + 2) / 3);
 
@@ -523,27 +522,27 @@ package body AWS.Translator is
       loop
          if QP_Data (K) = '=' then
             if K + 1 <= QP_Data'Last and then QP_Data (K + 1) = ASCII.CR then
-               K := K + 1;
+               K := @ + 1;
 
             elsif K + 2 <= QP_Data'Last then
                declare
                   Hex : constant String := QP_Data (K + 1 .. K + 2);
                begin
                   if Hex /= End_Of_QP then
-                     R := R + 1;
+                     R := @ + 1;
                      Result (R) := Character'Val (Utils.Hex_Value (Hex));
                   end if;
 
-                  K := K + 2;
+                  K := @ + 2;
                end;
             end if;
 
          else
-            R := R + 1;
+            R := @ + 1;
             Result (R) := QP_Data (K);
          end if;
 
-         K := K + 1;
+         K := @ + 1;
 
          exit when K > QP_Data'Last;
       end loop;
@@ -591,7 +590,7 @@ package body AWS.Translator is
                      Stream_Element_Offset'Min (K + Chunk_Size, Data'Last);
          begin
             Append (Result, To_String (Data (K .. Last)));
-            K := K + Chunk_Size + 1;
+            K := @ + Chunk_Size + 1;
          end;
       end loop;
 

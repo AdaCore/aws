@@ -488,7 +488,7 @@ package body AWS.Server.HTTP_Utils is
       procedure Get (ID : out Natural) is
       begin
          ID  := UID;
-         UID := UID + 1;
+         UID := @ + 1;
       end Get;
 
    end File_Upload_UID;
@@ -806,7 +806,7 @@ package body AWS.Server.HTTP_Utils is
 
          begin -- Check_EOF
             Buffer (Index) := 13;
-            Index := Index + 1;
+            Index := @ + 1;
 
             loop
                Read (Data);
@@ -827,7 +827,7 @@ package body AWS.Server.HTTP_Utils is
                   end if;
                end if;
 
-               Index := Index + 1;
+               Index := @ + 1;
             end loop;
          end Check_EOF;
 
@@ -2002,7 +2002,7 @@ package body AWS.Server.HTTP_Utils is
             if Last >= Buffer'First then
                Data (Buffer (1 .. Last), Next_Size);
 
-               Length := Length + Last;
+               Length := @ + Last;
             end if;
 
             exit when Next_Size = 0;
@@ -2127,7 +2127,7 @@ package body AWS.Server.HTTP_Utils is
 
                Data (Buffer (1 .. Last), Next_Size);
 
-               Sent := Sent + Last;
+               Sent := @ + Last;
 
                HTTP_Server.Slots.Check_Data_Timeout (Line_Index);
             end loop;

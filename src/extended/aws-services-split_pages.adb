@@ -87,7 +87,7 @@ package body AWS.Services.Split_Pages is
                     Ranges (Range_Line).First .. Ranges (Range_Line).Last
                   loop
                      if K <= Templates.Size (Vector) then
-                        V := V & Templates.Item (Vector, K);
+                        V := @ & Templates.Item (Vector, K);
                      else
                         exit;
                      end if;

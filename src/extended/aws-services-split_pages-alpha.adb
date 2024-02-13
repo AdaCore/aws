@@ -131,7 +131,7 @@ package body AWS.Services.Split_Pages.Alpha is
                Result (Res_Inx).Last := I - 1;
 
                --  Initialize new entry
-               Res_Inx := Res_Inx + 1;
+               Res_Inx := @ + 1;
                Result (Res_Inx).First := I;
                Set_Entry (New_Initial, Res_Inx);
                Initial := New_Initial;
@@ -175,9 +175,9 @@ package body AWS.Services.Split_Pages.Alpha is
       begin
          if Index = 0 then
             --  This entry has no element
-            Self.HREFS_V := Self.HREFS_V & Self.Default_Href;
+            Self.HREFS_V := @ & Self.Default_Href;
          else
-            Self.HREFS_V := Self.HREFS_V & URIs (Index);
+            Self.HREFS_V := @ & URIs (Index);
          end if;
       end Add_Entry;
 
@@ -187,11 +187,11 @@ package body AWS.Services.Split_Pages.Alpha is
          Self.INDEXES_V := +"<>";
          Add_Entry (Self.Index (1));
 
-         Self.INDEXES_V := Self.INDEXES_V & "0..9";
+         Self.INDEXES_V := @ & "0..9";
          Add_Entry (Self.Index (2));
 
          for C in Character range 'A' .. 'Z' loop
-            Self.INDEXES_V := Self.INDEXES_V & C;
+            Self.INDEXES_V := @ & C;
             Add_Entry (Self.Index (Alpha_Value (C)));
          end loop;
       end if;

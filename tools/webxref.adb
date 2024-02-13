@@ -362,7 +362,7 @@ procedure Webxref is
             NId.Insert (Name, Current);
             IdN.Append
               (Node'(To_Unbounded_String (Name), Null_Kind_Set, Occ => <>));
-            Current := Current + 1;
+            Current := @ + 1;
             return Current - 1;
          end if;
       end Get;
@@ -475,8 +475,8 @@ procedure Webxref is
       Iterator.Buffer
         (Iterator.Blast + 1 .. Iterator.Blast + Iterator.Last) :=
         Iterator.Content (1 .. Iterator.Last);
-      Iterator.Blast := Iterator.Blast + Iterator.Last;
-      Iterator.Line := Iterator.Line + 1;
+      Iterator.Blast := @ + Iterator.Last;
+      Iterator.Line := @ + 1;
    end Next;
 
    ----------

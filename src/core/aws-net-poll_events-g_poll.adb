@@ -79,12 +79,12 @@ begin
 
       if (FD_Events and (OS_Lib.POLLIN or OS_Lib.POLLPRI)) /= 0 then
          FD_SET (Fds.Fds (J).FD, Rfds);
-         Rcount := Rcount + 1;
+         Rcount := @ + 1;
       end if;
 
       if (FD_Events and OS_Lib.POLLOUT) /= 0 then
          FD_SET (Fds.Fds (J).FD, Wfds);
-         Wcount := Wcount + 1;
+         Wcount := @ + 1;
       end if;
 
       FD_SET (Fds.Fds (J).FD, Efds);
@@ -131,7 +131,7 @@ begin
          end if;
 
          if Fds.Fds (J).REvents /= 0 then
-            Result := Result + 1;
+            Result := @ + 1;
          end if;
       end loop;
    end if;

@@ -255,7 +255,8 @@ package body AWS.Net.Log.Callbacks is
             C := 0;
          end if;
 
-         C := C + 1;
+         C := @ + 1;
+
          if Data (K) /= LF then
             Put (F, Natural (Data (K)), Binary_Mode => False);
          end if;

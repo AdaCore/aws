@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                      Copyright (C) 2021, AdaCore                         --
+--                     Copyright (C) 2021-2024, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -52,7 +52,7 @@ package body AWS.HTTP2.Frame is
 
    overriding procedure Adjust (Self : in out Object) is
    begin
-      Self.Counter.all := Self.Counter.all + 1;
+      Self.Counter.all := @ + 1;
    end Adjust;
 
    ----------
@@ -83,7 +83,7 @@ package body AWS.HTTP2.Frame is
       Self.Counter := null;
 
       if Ref_Counter /= null then
-         Ref_Counter.all := Ref_Counter.all - 1;
+         Ref_Counter.all := @ - 1;
 
          if Ref_Counter.all = 0 then
             --  Call to Release (Self); or Self.Release; does not dispatch.

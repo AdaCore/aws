@@ -68,6 +68,8 @@ package body SOAP.Message.Response.Error is
 
       --  Set Faultcode and Faultstring
 
+      --  ??? cannot use @ (visibility issue)
+
       P := P
         & S (String (Faultcode), "faultcode")
         & S (Faultstring, "faultstring");

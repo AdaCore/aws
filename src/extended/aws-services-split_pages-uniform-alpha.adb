@@ -161,8 +161,7 @@ package body AWS.Services.Split_Pages.Uniform.Alpha is
             end loop;
 
             Self.S_HREFS_V :=
-              Self.S_HREFS_V
-                & (URIs (R_Index) & '#'
+              @ & (URIs (R_Index) & '#'
                 & Utils.Image (Line - Ranges (R_Index).First + 1));
          end if;
       end Add_Ref;
@@ -178,7 +177,7 @@ package body AWS.Services.Split_Pages.Uniform.Alpha is
          Add_Ref (Self.Lines (2));
 
          for C in Character range 'A' .. 'Z' loop
-            Self.S_INDEXES_V := Self.S_INDEXES_V & C;
+            Self.S_INDEXES_V := @ & C;
             Add_Ref (Self.Lines (Alpha_Value (C)));
          end loop;
       end if;

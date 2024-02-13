@@ -686,14 +686,14 @@ package body AWS.Messages is
       begin
          --  Calculate day of week by using Zeller's congruence
          if M < 3 then
-            Y := Y - 1;
-            M := M + 10;
+            Y := @ - 1;
+            M := @ + 10;
          else
-            M := M - 2;
+            M := @ - 2;
          end if;
 
          C := Y / 100;     --  first two digits of Year
-         Y := Y mod 100;   --  last two digits of Year
+         Y := @ mod 100;   --  last two digits of Year
 
          return Day_Names (((26 * M - 2) / 10
                             + D

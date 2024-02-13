@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                             Ada Web Server                               --
 --                                                                          --
---                    Copyright (C) 2000-2014, AdaCore                      --
+--                    Copyright (C) 2000-2024, AdaCore                      --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -96,7 +96,7 @@ package body AWS.Communication.Server is
                P : constant String := 'P' & Utils.Image (K);
             begin
                if AWS.Parameters.Get (P_Set, P) /= "" then
-                  I := I + 1;
+                  I := @ + 1;
                   PS (I)
                     := To_Unbounded_String (AWS.Parameters.Get (P_Set, P));
                end if;

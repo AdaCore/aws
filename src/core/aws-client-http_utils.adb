@@ -412,7 +412,7 @@ package body AWS.Client.HTTP_Utils is
    begin
       for Level in Authentication_Level'Range loop
          if Connection.Auth (Level).Requested then
-            Counter (Level)    := Counter (Level) - 1;
+            Counter (Level)    := @ - 1;
             Over_Level (Level) := Counter (Level) = 0;
          end if;
       end loop;
@@ -447,7 +447,7 @@ package body AWS.Client.HTTP_Utils is
          end if;
 
          Connection.Opened             := False;
-         Connection.Disconnect_Counter := Connection.Disconnect_Counter + 1;
+         Connection.Disconnect_Counter := @ + 1;
 
          if Connection.Socket /= null then
             Connection.Socket.Shutdown;

@@ -318,7 +318,7 @@ package body AWS.Services.Download is
             Info := Downloads.First_Element;
             if Calendar.Clock - Info.Time_Stamp > 15.0 then
                Downloads.Delete_First;
-               Count := Count - 1;
+               Count := @ - 1;
             else
                exit Remove_Old_Entries;
             end if;
@@ -364,7 +364,7 @@ package body AWS.Services.Download is
 
       procedure Get_UID (UID : out Positive) is
       begin
-         Data_Manager.UID := Data_Manager.UID + 1;
+         Data_Manager.UID := @ + 1;
          UID := Data_Manager.UID;
       end Get_UID;
 
@@ -394,7 +394,7 @@ package body AWS.Services.Download is
       procedure Insert (Download : Download_Information) is
       begin
          Downloads.Append (Download);
-         Count := Count + 1;
+         Count := @ + 1;
       end Insert;
 
       -----------
@@ -424,7 +424,7 @@ package body AWS.Services.Download is
       procedure Remove (Download : Download_Information) is
       begin
          Downloads.Delete (Index (Download));
-         Count := Count - 1;
+         Count := @ - 1;
          Check_Queue;
       end Remove;
 

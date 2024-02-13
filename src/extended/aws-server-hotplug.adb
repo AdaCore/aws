@@ -133,7 +133,7 @@ package body AWS.Server.Hotplug is
 
       while not Text_IO.End_Of_File (File) loop
          Text_IO.Get_Line (File, Buffer, Last);
-         N := N + 1;
+         N := @ + 1;
          String_Split.Create (Line, Buffer (1 .. Last), Separators => ":");
 
          if String_Split.Slice_Count (Line) /= 4 then

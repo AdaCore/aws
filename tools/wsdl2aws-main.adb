@@ -201,7 +201,7 @@ procedure WSDL2AWS.Main is
                end if;
 
             when 'v' =>
-               Verbose := Verbose + 1;
+               Verbose := @ + 1;
                WSDL2AWS.WSDL.Parser.Verbose (Verbose);
 
             when 'w' =>

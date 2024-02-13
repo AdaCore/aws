@@ -95,7 +95,7 @@ package body AWS.Net.WebSocket.Protocol.Draft76 is
             exit when Byte (Byte'First) = 16#FF#;
 
             Data (Last) := Byte (Byte'First);
-            Last := Last + 1;
+            Last := @ + 1;
          end loop;
       end if;
 
@@ -173,11 +173,11 @@ package body AWS.Net.WebSocket.Protocol.Draft76 is
             if Strings.Maps.Is_In
               (Key (K), Strings.Maps.Constants.Decimal_Digit_Set)
             then
-               I := I + 1;
+               I := @ + 1;
                N (I) := Key (K);
 
             elsif Key (K) = ' ' then
-               Spaces := Spaces + 1;
+               Spaces := @ + 1;
             end if;
          end loop;
 

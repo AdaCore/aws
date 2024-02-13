@@ -103,7 +103,7 @@ package body AWS.Services.Dispatchers.Virtual_Host is
       if K = 0 then
          K := Hostname'Last;
       else
-         K := K - 1;
+         K := @ - 1;
       end if;
 
       Cursor := Dispatcher.Table.Find (Hostname (Hostname'First .. K));

@@ -859,7 +859,7 @@ begin
          S.Insert
            (1,
             HTTP2.Stream.Create (Sock,  1, Ctx.Settings.Initial_Window_Size));
-         Stream_Opened := Stream_Opened + 1;
+         Stream_Opened := @ + 1;
 
          S (1).Status.all := Request;
 
@@ -902,7 +902,7 @@ begin
                         Will_Close := True;
                      end if;
 
-                     Stream_Opened := Stream_Opened - 1;
+                     Stream_Opened := @ - 1;
                   end if;
                end if;
             end;
@@ -1119,7 +1119,7 @@ begin
                        (Stream_Id,
                         HTTP2.Stream.Create
                           (Sock, Stream_Id, Ctx.Settings.Initial_Window_Size));
-                     Stream_Opened := Stream_Opened + 1;
+                     Stream_Opened := @ + 1;
                   end if;
                end if;
 

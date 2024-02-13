@@ -378,7 +378,7 @@ package body AWS.Client is
       else
          Result := Response.Empty;
 
-         Try_Count := Try_Count - 1;
+         Try_Count := @ - 1;
       end if;
 
       Disconnect (Connection);
@@ -886,7 +886,7 @@ package body AWS.Client is
          begin
             Net.Buffered.Read (Sock, Data (Data'First .. Limit), Last);
 
-            Connection.Length := Connection.Length - (Last - Data'First + 1);
+            Connection.Length := @ - (Last - Data'First + 1);
          end Read_Limited;
 
          ---------------

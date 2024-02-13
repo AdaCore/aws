@@ -89,7 +89,7 @@ package body AWS.Net.Buffered is
       end if;
 
       Byte    := C.Buffer (C.First);
-      C.First := C.First + 1;
+      C.First := @ + 1;
 
       return Byte;
    end Get_Byte;
@@ -387,13 +387,13 @@ package body AWS.Net.Buffered is
                return Buffered & C.Buffer (K .. J);
 
             else
-               K := K + 1;
+               K := @ + 1;
             end if;
 
-            J := J + 1;
+            J := @ + 1;
 
          elsif K = Delimiter'First then
-            J := J + 1;
+            J := @ + 1;
          else
             K := Delimiter'First;
          end if;
