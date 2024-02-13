@@ -111,7 +111,7 @@ abstract project Shared is
         use "style_checker -l70 -H";
       for VCS_File_Check
         use "style_checker -ign out -ign tmplt -ign sed -ign txt"
-         & " -lang Ada -cp -cy -sp -gnat2020"
+         & " -lang Ada -cp -cy -sp -gnat2022"
          & " -lang XML -l256";
    end Ide;
 
@@ -133,7 +133,7 @@ abstract project Shared is
    end case;
 
    Common_Options :=
-     ("-gnat2020", "-gnatwcfijkmruv", "-gnaty3abBcdefhiIklmnoOprstx")
+     ("-gnat2022", "-gnatwcfijkmruv", "-gnaty3abBcdefhiIklmnoOprstx")
      & Global_Options & Instrument_Options;
    --  Common options used for the Debug and Release modes
 

@@ -988,7 +988,7 @@ package body SOAP.Message.XML is
          S.A_State := A_Type;
 
          while Field /= null loop
-            K := K + 1;
+            K := @ + 1;
 
             Add_Object (OS, K, +Parse_Param (Field, LQ_Name, S), 256);
 
@@ -1086,8 +1086,8 @@ package body SOAP.Message.XML is
             P : DOM.Core.Node := SOAP.XML.First_Child (N);
          begin
             while P /= null loop
-               S.Parameters := S.Parameters & Parse_Param (P, "", S);
-               P := SOAP.XML.Next_Sibling (P);
+               S.Parameters := @ & Parse_Param (P, "", S);
+               P := SOAP.XML.Next_Sibling (@);
             end loop;
          end;
       end if;
@@ -1391,7 +1391,7 @@ package body SOAP.Message.XML is
                   NS.env := SOAP.Name_Space.Create (Utils.No_NS (Name), Value);
 
                elsif NS.Index < NS.User'Last then
-                  NS.Index := NS.Index + 1;
+                  NS.Index := @ + 1;
                   NS.User (NS.Index) :=
                     SOAP.Name_Space.Create (Utils.No_NS (Name), Value);
                end if;
@@ -1737,7 +1737,7 @@ package body SOAP.Message.XML is
          S.A_State := Void;
 
          while Field /= null loop
-            K := K + 1;
+            K := @ + 1;
             Add_Object (OS, K, +Parse_Param (Field, LQ_Name, S), 25);
             Field := Next_Sibling (Field);
          end loop;

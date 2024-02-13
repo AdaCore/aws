@@ -329,18 +329,17 @@ package body AWS.Services.Directory is
          Item : constant File_Record := File_Tree.Element (Cursor);
       begin
          if Item.Directory then
-            Sizes := Sizes & '-';
-            Names := Names & (Item.Name & '/');
+            Sizes := @ & '-';
+            Names := @ & (Item.Name & '/');
 
          else
             Sizes := Sizes & Utils.File_Size_Type'Image (Item.Size);
-            Names := Names & Item.Name;
+            Names := @ & Item.Name;
          end if;
 
-         Times  := Times
-           & GNAT.Calendar.Time_IO.Image (Item.Time, "%Y/%m/%d %T");
+         Times  := @ & GNAT.Calendar.Time_IO.Image (Item.Time, "%Y/%m/%d %T");
 
-         Is_Dir := Is_Dir & Item.Directory;
+         Is_Dir := @ & Item.Directory;
       end Each_Entry;
 
       ------------
@@ -403,7 +402,7 @@ package body AWS.Services.Directory is
             File_Entry.UID       := UID_Sq;
             File_Entry.Order_Set := Order_Set;
 
-            UID_Sq := UID_Sq + 1;
+            UID_Sq := @ + 1;
 
             File_Tree.Insert (Order_Tree, File_Entry, Cursor, Success);
 

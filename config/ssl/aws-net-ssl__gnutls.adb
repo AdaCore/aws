@@ -1011,8 +1011,8 @@ package body AWS.Net.SSL is
 
          Free (Datum);
 
-         DH_Time (DH_Time_Idx + 1) := Resources.File_Timestamp (Filename);
-         DH_Time_Idx := DH_Time_Idx + 1;
+         DH_Time_Idx := @ + 1;
+         DH_Time (DH_Time_Idx) := Resources.File_Timestamp (Filename);
 
          return True;
       end Loaded;
@@ -1061,8 +1061,8 @@ package body AWS.Net.SSL is
 
       if DH_Params (0) /= null or else not Loaded then
          Check_Error_Code (TSSL.gnutls_dh_params_generate2 (New_One, Bits));
-         DH_Time (DH_Time_Idx + 1) := Calendar.Clock;
-         DH_Time_Idx := DH_Time_Idx + 1;
+         DH_Time_Idx := @ + 1;
+         DH_Time (DH_Time_Idx) := Calendar.Clock;
          Save;
       end if;
 
@@ -1101,8 +1101,8 @@ package body AWS.Net.SSL is
       RSA_Params (1) := RSA_Params (0);
       RSA_Params (0) := New_One;
 
-      RSA_Time (RSA_Time_Idx + 1) := Calendar.Clock;
-      RSA_Time_Idx := RSA_Time_Idx + 1;
+      RSA_Time_Idx := @ + 1;
+      RSA_Time (RSA_Time_Idx) := Calendar.Clock;
 
       RSA_Lock.Unlock;
    end Generate_RSA;
@@ -2361,7 +2361,7 @@ package body AWS.Net.SSL is
       Adt : constant String := CS.Value (text);
    begin
       if Lev (Fst) = ' ' then
-         Fst := Fst + 1;
+         Fst := @ + 1;
       end if;
 
       Debug_Output ("|<" & Prefix & Lev (Fst .. Lev'Last) & ">| " & Adt);

@@ -135,7 +135,7 @@ package body AWS.Net.SSL.RSA_DH_Generators is
       while RSA_DH_Worker /= null and then not RSA_DH_Worker'Terminated loop
          delay 0.125;
 
-         Cnt := Cnt - 1;
+         Cnt := @ - 1;
 
          if Cnt = 0 then
             raise Program_Error with "Generation task is not terminating";

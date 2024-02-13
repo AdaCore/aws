@@ -96,7 +96,7 @@ package body AWS.Services.Transient_Pages is
          Need_Start               : out Boolean) is
       begin
          Need_Start     := Server_Count = 0 and then Cleaner_Task = null;
-         Server_Count   := Server_Count + 1;
+         Server_Count   := @ + 1;
          Clean_Interval := Real_Time.To_Time_Span (Transient_Check_Interval);
       end Register;
 
@@ -106,7 +106,7 @@ package body AWS.Services.Transient_Pages is
 
       procedure Stop (Need_Release : out Boolean) is
       begin
-         Server_Count := Server_Count - 1;
+         Server_Count := @ - 1;
          Need_Release := (Server_Count = 0 and then Cleaner_Task /= null);
       end Stop;
 

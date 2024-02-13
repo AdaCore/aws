@@ -488,7 +488,7 @@ package body AWS.MIME is
                      return To_String (N.Item.MIME_Type);
                   end if;
 
-                  N := N.Next;
+                  N := @.Next;
                end loop;
             end;
          end if;

@@ -322,7 +322,7 @@ package body AWS.Log is
             if First = 0 then
                First := Name'First;
             else
-               First := First + 1;
+               First := @ + 1;
             end if;
 
             Last := Strings.Fixed.Index
@@ -331,7 +331,7 @@ package body AWS.Log is
             if Last = 0 then
                Last := Name'Last;
             else
-               Last := Last - 1;
+               Last := @ - 1;
             end if;
 
             return Name (First .. Last);

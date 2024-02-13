@@ -91,7 +91,7 @@ package body AWS.Services.Web_Block.Context is
 
          while Contexts.Has_Element (Position) and then Last < CIDS'Last loop
             if Now - Contexts.Element (Position).Created > Elapsed then
-               Last := Last + 1;
+               Last := @ + 1;
                CIDS (Last) := Contexts.Key (Position);
             end if;
 

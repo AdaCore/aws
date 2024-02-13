@@ -170,7 +170,7 @@ package body AWS.Headers is
       L : Natural := 2; -- The ending CR+LF
    begin
       for J in 1 .. AWS.Headers.Count (Headers) loop
-         L := L
+         L := @
            + AWS.Headers.Get_Line
                (Headers => Headers,
                 N       => J)'Length + 2;

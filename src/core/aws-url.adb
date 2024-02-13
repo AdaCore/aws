@@ -103,7 +103,7 @@ package body AWS.URL is
       end if;
 
       loop
-         K := K + 1;
+         K := @ + 1;
 
          if Str (I) = '%'
            and then I + 2 <= Str'Last
@@ -121,7 +121,7 @@ package body AWS.URL is
             Res (K) := Str (I);
          end if;
 
-         I := I + 1;
+         I := @ + 1;
          exit when I > Str'Last;
       end loop;
 
@@ -151,7 +151,7 @@ package body AWS.URL is
             Append
               (Res,
                Character'Val (Utils.Hex_Value (Slice (Str, I + 1, I + 2))));
-            I := I + 2;
+            I := @ + 2;
 
          elsif Element (Str, I) = '+' then
             --  A plus is used for spaces in forms value for example
@@ -161,7 +161,7 @@ package body AWS.URL is
             Append (Res, Element (Str, I));
          end if;
 
-         I := I + 1;
+         I := @ + 1;
          exit when I > Length (Str);
       end loop;
 
@@ -185,9 +185,9 @@ package body AWS.URL is
          if Strings.Maps.Is_In (Str (I), Encoding_Set) then
             --  This character must be encoded
 
-            K := K + 1;
+            K := @ + 1;
             Res (K) := '%';
-            K := K + 1;
+            K := @ + 1;
 
             if Str (I) < C_128 then
                --  We keep a table for characters lower than 128 for efficiency
@@ -196,10 +196,10 @@ package body AWS.URL is
                Res (K .. K + 1) := Code (Str (I));
             end if;
 
-            K := K + 1;
+            K := @ + 1;
 
          else
-            K := K + 1;
+            K := @ + 1;
             Res (K) := Str (I);
          end if;
       end loop;
@@ -491,18 +491,19 @@ package body AWS.URL is
             --      then remove that prefix from the input buffer; otherwise,
 
             if Starts_With (Path, "../", I) then
-               I := I + 3;
+               I := @ + 3;
             elsif Starts_With (Path, "./", I) then
-               I := I + 2;
+               I := @ + 2;
 
             --  B.  if the input buffer begins with a prefix of "/./" or "/.",
             --      where "." is a complete path segment, then replace that
             --      prefix with "/" in the input buffer; otherwise,
 
             elsif Starts_With (Path, "/./", I) then
-               I := I + 2;
+               I := @ + 2;
+
             elsif Remaining (Path, I) = "/." then
-               I := I + 1;
+               I := @ + 1;
                Path (I) := '/';
 
             --  C.  if the input buffer begins with a prefix of "/../" or
@@ -512,10 +513,11 @@ package body AWS.URL is
             --      buffer; otherwise,
 
             elsif Starts_With (Path, "/../", I) then
-               I := I + 3;
+               I := @ + 3;
                Go_Up;
+
             elsif Remaining (Path, I) = "/.." then
-               I := I + 2;
+               I := @ + 2;
                Path (I) := '/';
                Go_Up;
 
@@ -523,9 +525,10 @@ package body AWS.URL is
             --      remove that from the input buffer; otherwise,
 
             elsif Remaining (Path, I) = ".." then
-               I := I + 2;
+               I := @ + 2;
+
             elsif Remaining (Path, I) = "." then
-               I := I + 1;
+               I := @ + 1;
 
             else
                --  E.  move the first path segment in the input buffer to the
@@ -535,6 +538,7 @@ package body AWS.URL is
                --      the input buffer.
 
                N := Strings.Fixed.Index (Path, "/", I + 1);
+
                if N in I + 1 .. Path'Last then
                   Append (URL.N_Path, Path (I .. N - 1));
                   I := N;

@@ -65,12 +65,12 @@ package body AWS.POP is
 
    overriding procedure Adjust (Attachment : in out POP.Attachment) is
    begin
-      Attachment.Ref_Count.all := Attachment.Ref_Count.all + 1;
+      Attachment.Ref_Count.all := @ + 1;
    end Adjust;
 
    overriding procedure Adjust (Message : in out POP.Message) is
    begin
-      Message.Ref_Count.all := Message.Ref_Count.all + 1;
+      Message.Ref_Count.all := @ + 1;
    end Adjust;
 
    ----------------------
@@ -83,7 +83,7 @@ package body AWS.POP is
    begin
       while Ptr /= null loop
          Count := Count + 1;
-         Ptr := Ptr.Next;
+         Ptr := @.Next;
       end loop;
 
       return Count;
@@ -260,7 +260,7 @@ package body AWS.POP is
       Attachment.Ref_Count := null;
 
       if Ref_Count /= null then
-         Ref_Count.all := Ref_Count.all - 1;
+         Ref_Count.all := @ - 1;
 
          if Ref_Count.all = 0 then
             if Attachment.Content /= null then
@@ -284,7 +284,7 @@ package body AWS.POP is
       Message.Ref_Count := null;
 
       if Ref_Count /= null then
-         Ref_Count.all := Ref_Count.all - 1;
+         Ref_Count.all := @ - 1;
 
          if Ref_Count.all = 0 then
             Unchecked_Free (Message.Attachments);
@@ -305,8 +305,8 @@ package body AWS.POP is
       while P /= null loop
          Action (P.all, Index, Quit);
          exit when Quit;
-         P := P.Next;
-         Index := Index + 1;
+         P := @.Next;
+         Index := @ + 1;
       end loop;
    end For_Every_Attachment;
 
@@ -509,7 +509,7 @@ package body AWS.POP is
                   Mess.Last        := Mess.Attachments;
                else
                   Mess.Last.Next   := new Attachment'(A);
-                  Mess.Last        := Mess.Last.Next;
+                  Mess.Last        := @.Next;
                end if;
 
                exit when Last;
@@ -549,7 +549,7 @@ package body AWS.POP is
             raise Constraint_Error with "No such attachment";
          end if;
 
-         P := P.Next;
+         P := @.Next;
       end loop;
 
       return P.all;

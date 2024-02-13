@@ -269,14 +269,14 @@ package body AWS.Net.Acceptors is
             Sets.Is_Read_Ready (Acceptor.Set, Acceptor.Index, Ready, Error);
 
             if Accept_Listening then
-               Acceptor.Index := Acceptor.Index + 1;
+               Acceptor.Index := @ + 1;
 
             elsif Error or else Ready then
                Sets.Remove_Socket
                  (Acceptor.Set, Acceptor.Index, Socket, Data_Part);
                Data := Data_Part.Data;
 
-               Acceptor.Last := Acceptor.Last - 1;
+               Acceptor.Last := @ - 1;
 
                if Error then
                   To_Close.Append (Socket);
@@ -299,7 +299,7 @@ package body AWS.Net.Acceptors is
                begin
                   if Diff <= Time_Span_Zero then
                      Sets.Remove_Socket (Acceptor.Set, Acceptor.Index, Socket);
-                     Acceptor.Last := Acceptor.Last - 1;
+                     Acceptor.Last := @ - 1;
                      To_Close.Append (Socket);
 
                   else
@@ -308,7 +308,7 @@ package body AWS.Net.Acceptors is
                         Oldest_Idx   := Acceptor.Index;
                      end if;
 
-                     Acceptor.Index := Acceptor.Index + 1;
+                     Acceptor.Index := @ + 1;
                   end if;
                end;
             end if;
@@ -316,7 +316,7 @@ package body AWS.Net.Acceptors is
 
          if Oldest_Idx > 0 and then Acceptor.Last > Acceptor.Close_Length then
             Sets.Remove_Socket (Acceptor.Set, Oldest_Idx, Socket);
-            Acceptor.Last := Acceptor.Last - 1;
+            Acceptor.Last := @ - 1;
             To_Close.Append (Socket);
          end if;
 

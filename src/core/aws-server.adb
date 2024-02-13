@@ -712,7 +712,7 @@ package body AWS.Server is
 
          delay 0.5;
 
-         Wait_Counter := Wait_Counter + 1;
+         Wait_Counter := @ + 1;
 
          if Wait_Counter > 30 then
             Ada.Text_IO.Put_Line
@@ -881,7 +881,7 @@ package body AWS.Server is
                Mark_Phase (Index, Aborted);
             else
                Mark_Phase (Index, In_Shutdown);
-               Shutdown_Count := Shutdown_Count + 1;
+               Shutdown_Count := @ + 1;
             end if;
          else
             Socket := null;
@@ -1079,7 +1079,7 @@ package body AWS.Server is
             Table (Index).Phase'Img
             & ' ' & Boolean'Image (Table (Index).Sock = null));
 
-         Count := Count + 1;
+         Count := @ + 1;
 
          Shutdown := False;
 
@@ -1114,8 +1114,8 @@ package body AWS.Server is
          Table (Index).Sock             := Socket;
          Table (Index).Alive_Counter    := 0;
          Table (Index).Alive_Time_Stamp := Ada.Calendar.Clock;
-         Table (Index).Activity_Counter := Table (Index).Activity_Counter + 1;
-         Count := Count - 1;
+         Table (Index).Activity_Counter := @ + 1;
+         Count := @ - 1;
       end Set;
 
       ------------------
@@ -1138,7 +1138,7 @@ package body AWS.Server is
       begin
          if Table (Index).Phase = In_Shutdown then
             Mark_Phase (Index, Aborted);
-            Shutdown_Count := Shutdown_Count - 1;
+            Shutdown_Count := @ - 1;
          end if;
       end Shutdown_Done;
 

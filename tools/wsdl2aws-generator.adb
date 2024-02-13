@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2003-2024, AdaCore                     --
+--                     Copyright (C) 2003-2025, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -26,6 +26,8 @@
 --  however invalidate any other reasons why the executable file  might be  --
 --  covered by the  GNU Public License.                                     --
 ------------------------------------------------------------------------------
+
+pragma Ada_2022;
 
 with Ada.Characters.Handling;
 with Ada.Containers.Indefinite_Ordered_Sets;
@@ -308,7 +310,7 @@ package body WSDL2AWS.Generator is
          T := Templates.Get (Templates.Get (Set, Assoc_Name));
       end if;
 
-      T := T & Tag_Name;
+      T := @ & Tag_Name;
 
       Templates.Insert (Set, Templates.Assoc (Assoc_Name, T));
    end Add_TagV;
@@ -324,7 +326,7 @@ package body WSDL2AWS.Generator is
          T := Templates.Get (Templates.Get (Set, Assoc_Name));
       end if;
 
-      T := T & Value;
+      T := @ & Value;
 
       Templates.Insert (Set, Templates.Assoc (Assoc_Name, T));
    end Add_TagV;
@@ -607,36 +609,33 @@ package body WSDL2AWS.Generator is
    is
       use type WSDL.Types.Kind;
    begin
-      P_Decl        := P_Decl & Format_Name (O, To_String (N.Name));
-      P_Choice_Decl := P_Choice_Decl & Boolean'Image (N.In_Choice);
-      P_Name        := P_Name & To_String (N.Name);
-      P_Kind        := P_Kind & WSDL.Types.Kind'Image (N.Mode);
-      P_Min         := P_Min & N.Min;
-      P_Max         := P_Max & N.Max;
-      P_Type        := P_Type & WSDL.Types.Name (N.Typ, True);
-      P_Type_Name   := P_Type_Name
-                         & Format_Name
+      P_Decl        := @ & Format_Name (O, To_String (N.Name));
+      P_Choice_Decl := @ & Boolean'Image (N.In_Choice);
+      P_Name        := @ & To_String (N.Name);
+      P_Kind        := @ & WSDL.Types.Kind'Image (N.Mode);
+      P_Min         := @ & N.Min;
+      P_Max         := @ & N.Max;
+      P_Type        := @ & WSDL.Types.Name (N.Typ, True);
+      P_Type_Name   := @ & Format_Name
                              (O, WSDL.Types.Name (N.Typ, False));
-      P_Q_Name      := P_Q_Name
-                         & SOAP.Utils.To_Name (WSDL.Types.Name (N.Typ, True));
-      P_Ada_Type    := P_Ada_Type & Type_Name (O, N);
+      P_Q_Name      := @ & SOAP.Utils.To_Name (WSDL.Types.Name (N.Typ, True));
+      P_Ada_Type    := @ & Type_Name (O, N);
 
       if N.Mode = WSDL.Types.K_Simple then
-         P_Type_Kind := P_Type_Kind
-           & SOAP.WSDL.To_Type (WSDL.Types.Name (N.Typ))'Image;
+         P_Type_Kind := @ & SOAP.WSDL.To_Type (WSDL.Types.Name (N.Typ))'Image;
       else
-         P_Type_Kind := P_Type_Kind & "";
+         P_Type_Kind := @ & "";
       end if;
 
       if N.Mode /= WSDL.Types.K_Derived then
-         P_Base_Type      := P_Base_Type & "";
-         P_Root_Type_Kind := P_Root_Type_Kind & "";
+         P_Base_Type      := @ & "";
+         P_Root_Type_Kind := @ & "";
       end if;
 
       if N.Mode in WSDL.Types.Compound_Type then
-         P_Compound_Size := P_Compound_Size & WSDL.Parameters.Length (N);
+         P_Compound_Size := @ & WSDL.Parameters.Length (N);
       else
-         P_Compound_Size := P_Compound_Size & 0;
+         P_Compound_Size := @ & 0;
       end if;
 
       declare
@@ -646,11 +645,11 @@ package body WSDL2AWS.Generator is
       begin
          case N.Mode is
             when WSDL.Types.K_Simple =>
-               P_Root_Type := P_Root_Type
+               P_Root_Type := @
                  & SOAP.WSDL.Set_Type (SOAP.WSDL.To_Type (T_Name));
 
             when WSDL.Types.K_Derived =>
-               P_Root_Type := P_Root_Type
+               P_Root_Type := @
                  & SOAP.WSDL.Set_Type
                      (SOAP.WSDL.To_Type
                         (WSDL.Types.Root_Type_For (Def)));
@@ -663,20 +662,20 @@ package body WSDL2AWS.Generator is
                               then WSDL.Types.Name (N.Typ, True)
                               else SOAP.Utils.To_Name (P_Name));
                begin
-                  P_Base_Type      := P_Base_Type & B_Name;
-                  P_Root_Type_Kind := P_Root_Type_Kind
+                  P_Base_Type      := @ & B_Name;
+                  P_Root_Type_Kind := @
                     & SOAP.WSDL.To_Type
                         (WSDL.Types.Root_Type_For (Def))'Image;
                end;
 
             when WSDL.Types.K_Enumeration =>
-               P_Root_Type := P_Root_Type & "SOAP.Types.SOAP_Enumeration";
+               P_Root_Type := @ & "SOAP.Types.SOAP_Enumeration";
 
             when WSDL.Types.K_Array =>
-               P_Root_Type := P_Root_Type & "SOAP.Types.SOAP_Array";
+               P_Root_Type := @ & "SOAP.Types.SOAP_Array";
 
             when WSDL.Types.K_Record =>
-               P_Root_Type := P_Root_Type & "SOAP.Types.SOAP_Record";
+               P_Root_Type := @ & "SOAP.Types.SOAP_Record";
          end case;
       end;
 
@@ -685,16 +684,16 @@ package body WSDL2AWS.Generator is
                 SOAP.WSDL.Name_Spaces.Get
                   (SOAP.Utils.NS (To_String (N.Elmt_Name)));
       begin
-         P_Elt_NS_Name  := P_Elt_NS_Name & SOAP.Name_Space.Name (NS);
-         P_Elt_NS_Value := P_Elt_NS_Value & SOAP.Name_Space.Value (NS);
+         P_Elt_NS_Name  := @ & SOAP.Name_Space.Name (NS);
+         P_Elt_NS_Value := @ & SOAP.Name_Space.Value (NS);
       end;
 
       declare
          NS : constant SOAP.Name_Space.Object :=
                 WSDL.Types.NS (N.Typ);
       begin
-         P_NS_Name  := P_NS_Name & SOAP.Name_Space.Name (NS);
-         P_NS_Value := P_NS_Value & SOAP.Name_Space.Value (NS);
+         P_NS_Name  := @ & SOAP.Name_Space.Name (NS);
+         P_NS_Value := @ & SOAP.Name_Space.Value (NS);
       end;
    end Generate_Params;
 
@@ -951,28 +950,28 @@ package body WSDL2AWS.Generator is
                             (WSDL.Types.Name (N.Typ, NS => True));
                T_Name : constant String := WSDL.Types.Name (N.Typ);
             begin
-               Parameter_Name := Parameter_Name
+               Parameter_Name := @
                  & Format_Name (O, To_String (N.Name));
 
                case N.Mode is
                   when WSDL.Types.K_Simple =>
-                     Parameter_Type := Parameter_Type
+                     Parameter_Type := @
                        & SOAP.WSDL.To_Ada (SOAP.WSDL.To_Type (T_Name));
 
                   when WSDL.Types.K_Enumeration =>
-                     Parameter_Type := Parameter_Type
+                     Parameter_Type := @
                        & (T_Name & "_Type");
 
                   when WSDL.Types.K_Derived =>
-                     Parameter_Type := Parameter_Type
+                     Parameter_Type := @
                        & (Q_Name & "_Type");
 
                   when WSDL.Types.K_Array =>
-                     Parameter_Type := Parameter_Type
+                     Parameter_Type := @
                        & (Format_Name (O, T_Name) & "_Type");
 
                   when WSDL.Types.K_Record =>
-                     Parameter_Type := Parameter_Type
+                     Parameter_Type := @
                        & (Format_Name (O, T_Name) & "_Type");
                end case;
 
@@ -1084,14 +1083,14 @@ package body WSDL2AWS.Generator is
             then
                --  A record inside a record in Document style binding
 
-               Proc_S_Return_Type := Proc_S_Return_Type
+               Proc_S_Return_Type := @
                  & (Format_Name (O, WSDL.Types.Name (N.Typ) & "_Type"));
             else
-               Proc_S_Return_Type := Proc_S_Return_Type
+               Proc_S_Return_Type := @
                  & (Result_Type (O, Proc, N));
             end if;
          else
-            Proc_S_Return_Type := Proc_S_Return_Type
+            Proc_S_Return_Type := @
               & "Not_A_Function";
          end if;
 
@@ -1108,14 +1107,14 @@ package body WSDL2AWS.Generator is
               and then N.Mode = WSDL.Types.K_Record
             then
                --  A record inside a record in Document style binding
-               Proc_B_Return_Type := Proc_B_Return_Type
+               Proc_B_Return_Type := @
                  & (Format_Name (O, WSDL.Types.Name (N.Typ) & "_Type"));
             else
-               Proc_B_Return_Type := Proc_B_Return_Type
+               Proc_B_Return_Type := @
                  & (Result_Type (O, Proc, N));
             end if;
          else
-            Proc_B_Return_Type := Proc_B_Return_Type
+            Proc_B_Return_Type := @
               & "Not_A_Function";
          end if;
 
@@ -1232,6 +1231,7 @@ package body WSDL2AWS.Generator is
                --  This is a set and not an array, inside we have a record
                Output_Schema_Definition
                  (O, Name & "@is_a", (if P.Is_Set then "@set" else "@record"));
+
                if P.Is_Set and then P.P /= null then
                   Output_Schema_Definition
                     (O, Name, WSDL.Types.Name (P.P.Typ, P.Is_Set));
@@ -1855,24 +1855,18 @@ package body WSDL2AWS.Generator is
                              or else Constraints.Pattern /= Empty
                            then
                               if Constraints.Min_Length /= Unset then
-                                 Predicate_Kind := Predicate_Kind
-                                   & "MIN";
-                                 Predicate := Predicate
-                                   & Constraints.Min_Length;
+                                 Predicate_Kind := @ & "MIN";
+                                 Predicate := @ & Constraints.Min_Length;
                               end if;
 
                               if Constraints.Max_Length /= Unset then
-                                 Predicate_Kind := Predicate_Kind
-                                   & "MAX";
-                                 Predicate := Predicate
-                                   & Constraints.Max_Length;
+                                 Predicate_Kind := @ & "MAX";
+                                 Predicate := @ & Constraints.Max_Length;
                               end if;
 
                               if Constraints.Pattern /= Empty then
-                                 Predicate_Kind := Predicate_Kind
-                                   & "PATTERN";
-                                 Predicate := Predicate
-                                   & "PATTERN";
+                                 Predicate_Kind := @ & "PATTERN";
+                                 Predicate := @ & "PATTERN";
                               end if;
                            end if;
                         end;
@@ -2218,8 +2212,8 @@ package body WSDL2AWS.Generator is
          Pck_NS     : constant String :=
                         To_Unit_Name (Generate_Namespace (NS, False));
 
-         R       : WSDL.Parameters.P_Set;
-         N       : WSDL.Parameters.P_Set;
+         R          : WSDL.Parameters.P_Set;
+         N          : WSDL.Parameters.P_Set;
 
          Count       : Natural := 0; -- field count
          C_Count     : Natural := 0; -- choice field count
@@ -2274,27 +2268,27 @@ package body WSDL2AWS.Generator is
                R_Type_Name, R_Type_Kind, R_Ada_Type, R_Q_Name,
                R_NS_Name, R_NS_Value, R_Elt_NS_Name, R_Elt_NS_Value);
 
-            Count := Count + 1;
-            Field_Number   := Field_Number & Count;
-            Field_Comment  := Field_Comment & N.Doc;
+            Count := @ + 1;
+            Field_Number   := @ & Count;
+            Field_Comment  := @ & N.Doc;
 
             if N.In_Choice then
                Last_Choice := Count;
-               C_Count := C_Count + 1;
-               Choice_Field_Number := Choice_Field_Number & C_Count;
+               C_Count := @ + 1;
+               Choice_Field_Number := @ & C_Count;
             else
                Last_Std := Count;
-               Choice_Field_Number := Choice_Field_Number & 0;
+               Choice_Field_Number := @ & 0;
             end if;
 
             if N.Mode = WSDL.Types.K_Array then
-               Field_Array_First  := Field_Array_First & N.Min;
-               Field_Array_Last   := Field_Array_Last & N.Max;
-               Field_Array_Length := Field_Array_Length & N.Max;
+               Field_Array_First  := @ & N.Min;
+               Field_Array_Last   := @ & N.Max;
+               Field_Array_Length := @ & N.Max;
             else
-               Field_Array_First  := Field_Array_First & "";
-               Field_Array_Last   := Field_Array_Last & "";
-               Field_Array_Length := Field_Array_Length & "";
+               Field_Array_First  := @ & "";
+               Field_Array_Last   := @ & "";
+               Field_Array_Length := @ & "";
             end if;
 
             N := N.Next;
@@ -2407,11 +2401,11 @@ package body WSDL2AWS.Generator is
                   --  also generate the corresponding root-package with the
                   --  needed name-space.
 
-                  Unit_List := Unit_List
+                  Unit_List := @
                     & To_Unit_Name
                        (Generate_Namespace (WSDL.Types.NS (Def.Ref), True));
                else
-                  Unit_List := Unit_List
+                  Unit_List := @
                      & (To_Unit_Name (Prefix) & '.' & F_Name & "_Type_Pkg");
                end if;
 
@@ -2545,12 +2539,12 @@ package body WSDL2AWS.Generator is
             begin
                loop
                   if SOAP.WSDL.Is_Standard (WSDL.Types.Name (D.Parent)) then
-                     Unit_List := Unit_List
+                     Unit_List := @
                        & To_Unit_Name
                            (Generate_Namespace
                               (WSDL.Types.NS (D.Parent), True));
                   else
-                     Unit_List := Unit_List
+                     Unit_List := @
                        & (To_Unit_Name
                            (Generate_Namespace
                               (WSDL.Types.NS (D.Parent), False))
@@ -2973,16 +2967,13 @@ package body WSDL2AWS.Generator is
       procedure Generate_Main (Filename : String) is
          L_Filename : constant String :=
                         Characters.Handling.To_Lower (Filename);
+         T          : Templates.Translate_Set;
       begin
-         declare
-            T : Templates.Translate_Set;
-         begin
-            T := T
-              & Templates.Assoc ("SOAP_SERVICE", U_Name)
-              & Templates.Assoc ("UNIT_NAME", To_Unit_Name (Filename));
+         T := T
+           & Templates.Assoc ("SOAP_SERVICE", U_Name)
+           & Templates.Assoc ("UNIT_NAME", To_Unit_Name (Filename));
 
-            Generate (O, L_Filename & ".adb", Template_Main_Adb, T);
-         end;
+         Generate (O, L_Filename & ".adb", Template_Main_Adb, T);
       end Generate_Main;
 
       -------------------

@@ -393,7 +393,7 @@ package body AWS.HTTP2.HPACK.Huffman is
          begin
             --  Keep last four bytes to check for EOS
 
-            V :=  Shift_Left (V, 8) or Unsigned_32 (E);
+            V :=  Shift_Left (@, 8) or Unsigned_32 (E);
 
             --  Check for an EOS not at the end of the string
 
@@ -408,14 +408,14 @@ package body AWS.HTTP2.HPACK.Huffman is
                           Huffman.Bit (Shift_Right (Unsigned_8 (E), B) and 1);
                begin
                   if Decode_Bit (Iter, Bit, C) then
-                     I := I + 1;
+                     I := @ + 1;
                      Result (I) := C;
                      Padding := 0;
                      Pad_0 := False;
 
                   else
-                     Padding := Padding + 1;
-                     Pad_0 := Pad_0 or else (Bit = 0);
+                     Padding := @ + 1;
+                     Pad_0 := @ or else (Bit = 0);
                   end if;
                end;
             end loop;
@@ -488,10 +488,10 @@ package body AWS.HTTP2.HPACK.Huffman is
                   T : Unsigned_32 := H.Bits;
                begin
                   T := Shift_Left (H.Bits, B - N);
-                  T := T and (2 ** B - 1);
-                  V := V or Stream_Element (T);
+                  T := @ and (2 ** B - 1);
+                  V := @ or Stream_Element (T);
 
-                  B := B - N;
+                  B := @ - N;
                end;
 
                if B = 0 then
@@ -506,11 +506,11 @@ package body AWS.HTTP2.HPACK.Huffman is
                declare
                   T : Unsigned_32 := H.Bits;
                begin
-                  T := Shift_Right (T, N - B);
-                  T := T and (2 ** B - 1);
-                  V := V or Stream_Element (T);
+                  T := Shift_Right (@, N - B);
+                  T := @ and (2 ** B - 1);
+                  V := @ or Stream_Element (T);
 
-                  N := N - B;
+                  N := @ - B;
 
                   Push_Byte;
                end;
@@ -524,7 +524,7 @@ package body AWS.HTTP2.HPACK.Huffman is
 
       procedure Push_Byte is
       begin
-         I := I + 1;
+         I := @ + 1;
          R (I) := V;
          V := 0;
          B := 8;
@@ -539,7 +539,7 @@ package body AWS.HTTP2.HPACK.Huffman is
 
       if B /= 8 then
          --  We set all remaing bits to 1
-         V := V or Stream_Element (2 ** B - 1);
+         V := @ or Stream_Element (2 ** B - 1);
          Push_Byte;
       end if;
 

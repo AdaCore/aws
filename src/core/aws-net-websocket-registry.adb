@@ -271,7 +271,7 @@ package body AWS.Net.WebSocket.Registry is
                      Message_Queue.Add (WS);
                   end if;
 
-                  K := K + 1;
+                  K := @ + 1;
                end loop;
             end;
 
@@ -811,7 +811,7 @@ package body AWS.Net.WebSocket.Registry is
                   end;
 
                else
-                  Last := Last + 1;
+                  Last := @ + 1;
                   WS.Set_Timeout (Timeout);
                   Recipients (Last) := WebSocket;
                end if;
@@ -947,7 +947,7 @@ package body AWS.Net.WebSocket.Registry is
                      --  In this case, and only in this case we move to next
                      --  socket position for next iteration.
 
-                     Sock_Index := Sock_Index + 1;
+                     Sock_Index := @ + 1;
                   end if;
                end loop;
 
@@ -1070,7 +1070,7 @@ package body AWS.Net.WebSocket.Registry is
            and then not Watched.Contains (WebSocket.Id)
          then
             Watched.Insert (WebSocket.Id);
-            Count := Count + 1;
+            Count := @ + 1;
             Signal_Socket;
          end if;
 

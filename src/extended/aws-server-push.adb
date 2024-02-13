@@ -246,7 +246,7 @@ package body AWS.Server.Push is
       begin
          case Holder.Kind is
             when Multipart =>
-               Holder.Chunk_Sent := Holder.Chunk_Sent + 1;
+               Holder.Chunk_Sent := @ + 1;
 
                if Holder.Chunk_Sent = 1 then
                   return Delimiter & Messages.Content_Type (Content_Type)
@@ -1746,7 +1746,7 @@ package body AWS.Server.Push is
             Data   => (Server, Holder, Clock + Holder.Timeout),
             Mode   => Write_Sets.Both);
 
-         Counter := Counter + 1;
+         Counter := @ + 1;
       end Add_Item;
 
       -----------------------

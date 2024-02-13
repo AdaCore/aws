@@ -45,8 +45,8 @@ begin
          Item : constant Filter_Data
            := Filter_Table.Element (Filters.Set, Positive (K));
       begin
-         Regexp := Regexp & Item.Regexp_Str;
-         URL    := URL    & Item.URL;
+         Regexp := @ & Item.Regexp_Str;
+         URL    := @ & Item.URL;
       end;
    end loop;
 

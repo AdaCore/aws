@@ -61,7 +61,7 @@ is
 
    procedure FD_SET (FD : OS_Lib.FD_Type; Set : in out FD_Set_Type) is
    begin
-      Set.Count := Set.Count + 1;
+      Set.Count := @ + 1;
       Set.Set (Integer (Set.Count)) := FD;
    end FD_SET;
 

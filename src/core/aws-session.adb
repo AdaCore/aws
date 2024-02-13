@@ -252,9 +252,9 @@ package body AWS.Session is
          if E_Index = Max_Expired and then Check_Interval > 1.0 then
             --  Too many expired session, we should run next expiration check
             --  faster.
-            Next_Run := Next_Run + 1.0;
+            Next_Run := @ + 1.0;
          else
-            Next_Run := Next_Run + Check_Interval;
+            Next_Run := @ + Check_Interval;
          end if;
       end loop Clean_Dead_Sessions;
 
@@ -321,7 +321,7 @@ package body AWS.Session is
          Lifetime       : Duration;
          Init_Cleaner   : out Boolean) is
       begin
-         S_Count := S_Count + 1;
+         S_Count := @ + 1;
          Init_Cleaner := False;
 
          if S_Count = 1 then
@@ -337,7 +337,7 @@ package body AWS.Session is
 
       procedure Stop (Need_Release : out Boolean)  is
       begin
-         S_Count := S_Count - 1;
+         S_Count := @ - 1;
 
          if S_Count = 0 then
             Need_Release := True;
@@ -514,7 +514,7 @@ package body AWS.Session is
       is
          C : constant Session_Set.Cursor := Sessions.Find (SID);
       begin
-         Lock_Counter := Lock_Counter + 1;
+         Lock_Counter := @ + 1;
 
          Found := Session_Set.Has_Element (C);
 
@@ -529,7 +529,7 @@ package body AWS.Session is
 
       procedure Lock_And_Get_Sessions (First : out Session_Set.Cursor) is
       begin
-         Lock_Counter := Lock_Counter + 1;
+         Lock_Counter := @ + 1;
          First := Database.Sessions.First;
       end Lock_And_Get_Sessions;
 
@@ -594,7 +594,7 @@ package body AWS.Session is
             Node := Session_Set.Element (Cursor);
 
             if Node.Time_Stamp + Lifetime < Now then
-               Last := Last + 1;
+               Last := @ + 1;
                Expired_SID (Last) := Session_Set.Key (Cursor);
 
                if Last = Expired_SID'Last then
@@ -704,7 +704,7 @@ package body AWS.Session is
 
       procedure Unlock is
       begin
-         Lock_Counter := Lock_Counter - 1;
+         Lock_Counter := @ - 1;
       end Unlock;
 
    end Database;
@@ -774,7 +774,7 @@ package body AWS.Session is
             Quit);
          exit when Quit;
 
-         Order := Order + 1;
+         Order := @ + 1;
          Session_Set.Next (Cursor);
       end loop;
 
@@ -818,7 +818,7 @@ package body AWS.Session is
             end;
             exit when Quit;
 
-            Order := Order + 1;
+            Order := @ + 1;
          end loop;
       end For_Every_Data;
 

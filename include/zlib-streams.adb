@@ -1,7 +1,8 @@
 ----------------------------------------------------------------
---  ZLib for Ada thick binding.                               --
+--                ZLib for Ada thick binding.                 --
 --                                                            --
---  Copyright (C) 2002-2019, Dmitriy Anisimkov                --
+--         Copyright (C) 2002-2019, Dmitriy Anisimkov         --
+--              Copyright (C) 2019-2024, AdaCore              --
 --                                                            --
 --  Open source license information is in the zlib.ads file.  --
 ----------------------------------------------------------------
@@ -166,7 +167,7 @@ package body ZLib.Streams is
                return;
             end if;
 
-            Last := Last + 1;
+            Last := @ + 1;
 
             Item (Last) := Stream.Buffer (Ahead_First);
 
@@ -175,7 +176,7 @@ package body ZLib.Streams is
                exit;
             end if;
 
-            Ahead_First := Ahead_First + 1;
+            Ahead_First := @ + 1;
          end loop;
 
          if Last < Item'Last then
@@ -210,7 +211,7 @@ package body ZLib.Streams is
                          then Finish
                          else No_Flush));
 
-         Stream.Rest_First := Stream.Rest_First + 1;
+         Stream.Rest_First := @ + 1;
       end if;
    end Read;
 

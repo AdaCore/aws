@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2008-2014, AdaCore                     --
+--                     Copyright (C) 2008-2024, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -413,16 +413,19 @@ package body AWS.Jabber.Client is
          end loop;
 
          K := Start + 1;
+
          while K <= XML'Last and then XML (K) /= ' ' loop
-            K := K + 1;
+            K := @ + 1;
          end loop;
-         K := K - 1;
+
+         K := @ - 1;
 
          --  Look for the end of the current tag
 
          Stop := Start;
+
          while Stop <= XML'Last and then XML (Stop) /= '>' loop
-            Stop := Stop + 1;
+            Stop := @ + 1;
          end loop;
 
          if Start > XML'Last or else Stop > XML'Last then

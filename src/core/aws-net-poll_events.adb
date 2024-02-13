@@ -66,7 +66,7 @@ package body AWS.Net.Poll_Events is
          FD_Set.Max_FD := OS_Lib.FD_Type (FD);
       end if;
 
-      FD_Set.Length := FD_Set.Length + 1;
+      FD_Set.Length := @ + 1;
       FD_Set.Fds (FD_Set.Length).FD := AWS.OS_Lib.FD_Type (FD);
       Set_Mode (FD_Set.Fds (FD_Set.Length), Event);
    end Add;
@@ -134,7 +134,7 @@ package body AWS.Net.Poll_Events is
          exit when Index > FD_Set.Length
            or else FD_Set.Fds (Index).REvents /= 0;
 
-         Index := Index + 1;
+         Index := @ + 1;
       end loop;
    end Next;
 
@@ -153,7 +153,7 @@ package body AWS.Net.Poll_Events is
          raise Constraint_Error;
       end if;
 
-      FD_Set.Length := FD_Set.Length - 1;
+      FD_Set.Length := @ - 1;
    end Remove;
 
    -------------

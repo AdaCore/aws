@@ -116,8 +116,8 @@ package body AWS.Services.Split_Pages.Uniform is
          --  Not yet built
 
          for I in URIs'Range loop
-            Self.HREFS_V   := Self.HREFS_V & URIs (I);
-            Self.INDEXES_V := Self.INDEXES_V & I;
+            Self.HREFS_V   := @ & URIs (I);
+            Self.INDEXES_V := @ & I;
          end loop;
       end if;
 

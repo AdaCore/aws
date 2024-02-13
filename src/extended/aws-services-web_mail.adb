@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2003-2017, AdaCore                     --
+--                     Copyright (C) 2003-2024, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -467,7 +467,8 @@ package body AWS.Services.Web_Mail is
             if Element (Content, K) = ASCII.LF then
                Insert (Content, K + 1, Prefix);
             end if;
-            K := K + 1;
+
+            K := @ + 1;
          end loop;
 
          return Templates.Assoc ("WM_CONTENT", Content);
@@ -619,11 +620,11 @@ package body AWS.Services.Web_Mail is
          pragma Unreferenced (Quit);
          use type Templates.Vector_Tag;
       begin
-         Index_V   := Utils.Image (Index)   & Index_V;
-         Size_V    := POP.Size (Message)    & Size_V;
-         Date_V    := POP.Date (Message)    & Date_V;
-         From_V    := POP.From (Message)    & From_V;
-         Subject_V := POP.Subject (Message) & Subject_V;
+         Index_V   := Utils.Image (Index)   & @;
+         Size_V    := POP.Size (Message)    & @;
+         Date_V    := POP.Date (Message)    & @;
+         From_V    := POP.From (Message)    & @;
+         Subject_V := POP.Subject (Message) & @;
       end Add_Message;
 
       -------------------------

@@ -189,7 +189,8 @@ package body AWS.Digest is
 
       Ctx := Private_Key;
 
-      Nonce_Idx := Nonce_Idx + 1;
+      Nonce_Idx := @ + 1;
+
       Index_Str := Translator.Base64_Encode (To_Byte_Array (Nonce_Idx));
       Timestamp_Str :=
         Translator.Base64_Encode

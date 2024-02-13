@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                      Copyright (C) 2021, AdaCore                         --
+--                     Copyright (C) 2021-2024, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -119,12 +119,12 @@ package body AWS.HTTP2.Frame.Headers is
    begin
       if Self.Has_Flag (Padded_Flag) then
          --  Skip first byte which is the padding length
-         Off := Off + Self.Data.D.Pad_Length'Size / 8;
+         Off := @ + Self.Data.D.Pad_Length'Size / 8;
       end if;
 
       if Self.Has_Flag (Priority_Flag) then
          --  Skip the priority data
-         Off := Off + Self.Data.D.Prio'Size / 8;
+         Off := @ + Self.Data.D.Prio'Size / 8;
       end if;
 
       return Off;

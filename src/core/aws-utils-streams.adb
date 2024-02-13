@@ -57,7 +57,7 @@ package body AWS.Utils.Streams is
    begin
       for S in Str'Range loop
          Item (J) := Stream_Element (Character'Pos (Str (S)));
-         J := J + 1;
+         J := @ + 1;
       end loop;
 
       Last := Item'First + Str'Length - 1;
@@ -103,7 +103,7 @@ package body AWS.Utils.Streams is
    begin
       for Elem of Item loop
          Str (S) := Character'Val (Elem);
-         S := S + 1;
+         S := @ + 1;
       end loop;
 
       Append (Stream.Str, Str);

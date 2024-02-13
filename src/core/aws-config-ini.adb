@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2000-2019, AdaCore                     --
+--                     Copyright (C) 2000-2024, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -54,7 +54,7 @@ package body AWS.Config.Ini is
       if First = 0 then
          First := Exec_Name'First;
       else
-         First := First + 1;
+         First := @ + 1;
       end if;
 
       Last := Strings.Fixed.Index
@@ -63,7 +63,7 @@ package body AWS.Config.Ini is
       if Last = 0 then
          Last := Exec_Name'Last;
       else
-         Last := Last - 1;
+         Last := @ - 1;
       end if;
 
       if Full_Path then
@@ -145,7 +145,7 @@ package body AWS.Config.Ini is
       while not Text_IO.End_Of_File (File) loop
 
          Text_IO.Get_Line (File, Buffer, Last);
-         Line := Line + 1;
+         Line := @ + 1;
 
          --  Remove comments
 

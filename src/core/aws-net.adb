@@ -190,10 +190,11 @@ package body AWS.Net is
          First := Strings.Fixed.Index (M, "[", From => First);
 
          if First /= 0 then
-            First := First + 1;
+            First := @ + 1;
             Last := First;
+
             while Last < M'Last and then M (Last + 1) in '0' .. '9' loop
-               Last := Last + 1;
+               Last := @ + 1;
             end loop;
 
             Errno := Natural'Value (M (First .. Last));
@@ -568,7 +569,7 @@ package body AWS.Net is
                --  In this case, and only in this case we move to next socket
                --  position for next iteration.
 
-               Sock_Index := Sock_Index + 1;
+               Sock_Index := @ + 1;
             end if;
          end loop;
 

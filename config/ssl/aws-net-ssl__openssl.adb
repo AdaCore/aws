@@ -739,9 +739,9 @@ package body AWS.Net.SSL is
            (TSSL.PEM_read_bio_DHparams (IO, DH'Access, null, TSSL.Null_Pointer)
             /= DH);
 
-         DH_Time (DH_Time_Idx + 1) :=
+         DH_Time_Idx := @ + 1;
+         DH_Time (DH_Time_Idx) :=
            Ada.Directories.Modification_Time (Filename);
-         DH_Time_Idx := DH_Time_Idx + 1;
 
          TSSL.BIO_free (IO);
 
@@ -795,8 +795,8 @@ package body AWS.Net.SSL is
          then
             Error_If (not Abort_DH_Flag);
          else
-            DH_Time (DH_Time_Idx + 1) := Ada.Calendar.Clock;
-            DH_Time_Idx := DH_Time_Idx + 1;
+            DH_Time_Idx := @ + 1;
+            DH_Time (DH_Time_Idx) := Ada.Calendar.Clock;
 
             Save;
          end if;
@@ -848,8 +848,8 @@ package body AWS.Net.SSL is
       RSA_Params (1) := RSA_Params (0);
       RSA_Params (0) := RSA;
 
-      RSA_Time (RSA_Time_Idx + 1) := Ada.Calendar.Clock;
-      RSA_Time_Idx := RSA_Time_Idx + 1;
+      RSA_Time_Idx := @ + 1;
+      RSA_Time (RSA_Time_Idx) := Ada.Calendar.Clock;
 
       RSA_Lock.Unlock;
    end Generate_RSA;
@@ -1075,7 +1075,7 @@ package body AWS.Net.SSL is
                    Data'Length - C.int (First - Data'First));
 
          if Len > 0 then
-            First := First + Stream_Element_Offset (Len);
+            First := @ + Stream_Element_Offset (Len);
             Last  := First - 1;
 
             exit when Last = Data'Last;
@@ -2140,7 +2140,7 @@ package body AWS.Net.SSL is
 
          procedure Get_Task_Id (Id : out Task_Identifier) is
          begin
-            Id_Counter := Id_Counter + 1;
+            Id_Counter := @ + 1;
             Id := Id_Counter;
          end Get_Task_Id;
 
@@ -2196,7 +2196,7 @@ package body AWS.Net.SSL is
       --  Calculate length of the result into Idx
 
       for P of Protocols loop
-         Idx := Idx + P'Length + 1;
+         Idx := @ + P'Length + 1;
       end loop;
 
       declare
@@ -2208,7 +2208,7 @@ package body AWS.Net.SSL is
 
          for P of Protocols loop
             Protos (Idx .. Idx + P'Length) := To_Char_Array (P);
-            Idx := Idx + P'Length + 1;
+            Idx := @ + P'Length + 1;
          end loop;
 
          return Protos;
@@ -2249,7 +2249,7 @@ package body AWS.Net.SSL is
                return;
             end if;
 
-            Idx := Idx + Len + 1;
+            Idx := @ + Len + 1;
             exit when Idx > Ref'Last;
          end loop;
 
@@ -2654,7 +2654,7 @@ package body AWS.Net.SSL is
                  TSSL.SSL_VERIFY_PEER + TSSL.SSL_VERIFY_CLIENT_ONCE;
             begin
                if Check_Certificate then
-                  Mode := Mode + TSSL.SSL_VERIFY_FAIL_IF_NO_PEER_CERT;
+                  Mode := @ + TSSL.SSL_VERIFY_FAIL_IF_NO_PEER_CERT;
                end if;
 
                TSSL.SSL_CTX_set_verify
@@ -2866,7 +2866,7 @@ package body AWS.Net.SSL is
          end loop;
 
          if Prio_Others (Last_Others) = ':' then
-            Last_Others := Last_Others - 1;
+            Last_Others := @ - 1;
          end if;
 
          TS_SSL.Security_Mode        := Security_Mode;
