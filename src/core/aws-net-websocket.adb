@@ -320,16 +320,18 @@ package body AWS.Net.WebSocket is
 
       WS_UID.Increment (Value => WS_UID_Value);
 
-      Self.Socket   := Socket;
-      Self.Id       := UID (WS_UID_Value);
-      Self.Version  := Version;
-      Self.State    := new Internal_State'
-         (Kind          => Unknown,
-          Errno         => Interfaces.Unsigned_16'Last,
-          Last_Activity => Calendar.Clock);
-      Self.P_State  := new Protocol_State'(State => Protocol);
-      Self.Mem_Sock := null;
-      Self.In_Mem   := False;
+      Self := (Self with delta
+                 Socket   => Socket,
+                 Id       => UID (WS_UID_Value),
+                 Version  => Version,
+                 State    =>
+                   new Internal_State'
+                     (Kind          => Unknown,
+                      Errno         => Interfaces.Unsigned_16'Last,
+                      Last_Activity => Calendar.Clock),
+                 P_State  => new Protocol_State'(State => Protocol),
+                 Mem_Sock => null,
+                 In_Mem   => False);
    end Initialize;
 
    ------------------
