@@ -42,8 +42,8 @@ is
 begin
    for K in 1 .. Filter_Table.Length (Filters.Set) loop
       declare
-         Item : constant Filter_Data
-           := Filter_Table.Element (Filters.Set, Positive (K));
+         Item : constant Filter_Data :=
+                  Filter_Table.Element (Filters.Set, Positive (K));
       begin
          Regexp := @ & Item.Regexp_Str;
          URL    := @ & Item.URL;

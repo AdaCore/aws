@@ -167,7 +167,6 @@ package body AWS.Resources is
       Resource.LFT := False;
 
       for I in Buffer'Range loop
-
          Read (Resource.all, Byte, Last_Ind);
 
          exit when Last_Ind < Byte'Last;

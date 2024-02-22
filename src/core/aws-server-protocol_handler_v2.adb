@@ -401,8 +401,8 @@ is
    --------------------------
 
    procedure Handle_Control_Frame
-     (Frame   : HTTP2.Frame.Object'Class;
-      Error   : out HTTP2.Error_Codes)
+     (Frame : HTTP2.Frame.Object'Class;
+      Error : out HTTP2.Error_Codes)
    is
       Add_FC  : Integer;
       Streams : HTTP2.Stream.Set.Object renames S;
@@ -674,11 +674,11 @@ is
          end loop;
       end Validate_Headers;
 
-      Status   : AWS.Status.Data renames Stream.Status.all;
       Headers  : constant AWS.Headers.List := Stream.Headers;
-      Error    : HTTP2.Error_Codes;
       Oversize : constant Boolean :=
                    Stream.Upload_State = HTTP2.Stream.Upload_Oversize;
+      Status   : AWS.Status.Data renames Stream.Status.all;
+      Error    : HTTP2.Error_Codes;
 
    begin
       AWS.Status.Set.Reset (Status);

@@ -211,8 +211,10 @@ package body Memory_Streams is
       while Stream.First /= null loop
          First := Stream.First;
 
+         --  ??? TODO: cannot use @ below, visibility bug
          Length := Length +
-           (if First.Next = null then Stream.Last_Length
+           (if First.Next = null
+            then Stream.Last_Length
             else Memory_Streams.Length (First));
 
          Stream.First := First.Next;
@@ -416,7 +418,8 @@ package body Memory_Streams is
    procedure Reset (Stream : in out Stream_Type) is
    begin
       Stream.Current        := Stream.First;
-      Stream.Current_Offset := (if Stream.Current = null then 1
+      Stream.Current_Offset := (if Stream.Current = null
+                                then 1
                                 else First (Stream.Current));
    end Reset;
 

@@ -410,7 +410,7 @@ package body AWS.Response is
         (Release_Controller, Release_Controller_Access);
 
       Ref_Counter : Release_Controller_Access := Object.Ref_Counter;
-      Value : Integer;
+      Value       : Integer;
 
    begin
       --  Ensure call is idempotent

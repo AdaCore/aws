@@ -1,7 +1,8 @@
 ----------------------------------------------------------------
---  ZLib for Ada thick binding.                               --
+--                ZLib for Ada thick binding.                 --
 --                                                            --
---  Copyright (C) 2002-2024, Dmitriy Anisimkov                --
+--         Copyright (C) 2002-2020, Dmitriy Anisimkov         --
+--              Copyright (C) 2021-2024, AdaCore              --
 --                                                            --
 --  Open source license information is in the zlib.ads file.  --
 ----------------------------------------------------------------
@@ -128,8 +129,8 @@ package body ZLib is
          Free (Filter.Strm);
       else
          declare
-            Error_Message : constant String
-              := Last_Error_Message (Filter.Strm.all);
+            Error_Message : constant String :=
+                              Last_Error_Message (Filter.Strm.all);
          begin
             Free (Filter.Strm);
             Raise_Exception
@@ -146,14 +147,11 @@ package body ZLib is
 
    function CRC32
      (CRC  : in Unsigned_32;
-      Data : in Stream_Element_Array)
-      return Unsigned_32
+      Data : in Stream_Element_Array) return Unsigned_32
    is
       use Thin;
    begin
-      return Unsigned_32 (crc32 (ULong (CRC),
-                                 Data'Address,
-                                 Data'Length));
+      return Unsigned_32 (crc32 (ULong (CRC), Data'Address, Data'Length));
    end CRC32;
 
    procedure CRC32
@@ -226,7 +224,7 @@ package body ZLib is
       Out_Last  :    out Stream_Element_Offset;
       Flush     : in     Flush_Mode)
    is
-      No_Data : constant Stream_Element_Array := (1 .. 0 => 0);
+      No_Data : constant Stream_Element_Array := [1 .. 0 => <>];
       Last    : Stream_Element_Offset;
    begin
       Translate (Filter, No_Data, Last, Out_Data, Out_Last, Flush);
@@ -496,12 +494,13 @@ package body ZLib is
       Flush    : in     Flush_Mode)
    is
       use type Thin.ULong, Thin.UInt;
-      Code : Thin.Int;
 
       function Colon_Before_Message (Message : String) return String is
         (if Message = "" then "" else ": " & Message);
       --  Returns empty string if Message is empty, otherwice prepend ": "
       --  before it and return.
+
+      Code : Thin.Int;
 
    begin
       if not Is_Open (Filter) then

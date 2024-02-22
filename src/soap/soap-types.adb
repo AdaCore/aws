@@ -987,7 +987,6 @@ package body SOAP.Types is
       function Image
         (Timezone : Calendar.Time_Zones.Time_Offset) return String
       is
-
          subtype Str2 is String (1 .. 2);
 
          function I2D (N : Natural) return Str2;
@@ -1862,7 +1861,6 @@ package body SOAP.Types is
             then
                return XML_Any_Type;
             end if;
-
          end loop;
 
          --  We have the same type for all items

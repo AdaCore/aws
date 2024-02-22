@@ -354,8 +354,8 @@ package body AWS.SMTP.Client is
          Send (BCC);
 
          if not To_All and then Have_One then
-            Status := (Code => Requested_Action_Ok,
-                       Reason => Null_Unbounded_String,
+            Status := (Code     => Requested_Action_Ok,
+                       Reason   => Null_Unbounded_String,
                        Warnings => Status.Reason);
          end if;
 
@@ -506,7 +506,6 @@ package body AWS.SMTP.Client is
 
          Close (Sock, Status);
       end if;
-
    exception
       --  Raise Server_Error for all problems encountered
 
@@ -569,7 +568,6 @@ package body AWS.SMTP.Client is
 
          Close (Sock, Status);
       end if;
-
    exception
       --  Raise Server_Error for all problems encountered
 
@@ -625,7 +623,6 @@ package body AWS.SMTP.Client is
 
          Close (Sock, Status);
       end if;
-
    exception
       --  Raise Server_Error for all problems encountered
 
@@ -760,7 +757,6 @@ package body AWS.SMTP.Client is
 
          Close (Sock, Status);
       end if;
-
    exception
       --  Raise Server_Error for all problem encountered
 

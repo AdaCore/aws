@@ -365,14 +365,12 @@ package body AWS.LDAP.Client is
    is
       C_DN : chars_ptr := New_String (DN);
       Res  : Thin.Attribute_Set_Access;
-      N    : Natural := 0;
    begin
       Res := Thin.ldap_explode_dn (C_DN, C_Bool (No_Types));
       Free (C_DN);
 
-      N := Natural (Thin.ldap_count_values (Res));
-
       declare
+         N      : constant Natural := Natural (Thin.ldap_count_values (Res));
          Result : String_Set (1 .. N);
       begin
          for K in Result'Range loop
@@ -570,16 +568,15 @@ package body AWS.LDAP.Client is
    is
       C_Target : chars_ptr := New_String (Target);
       Attribs  : Thin.Constr_Ber_Val_Array_Access;
-      N        : Natural := 0;
    begin
       Check_Handle (Dir);
 
       Attribs := Thin.ldap_get_values_len (Dir, Node, C_Target);
       Free (C_Target);
 
-      N := Natural (Thin.ldap_count_values_len (Attribs));
-
       declare
+         N      : constant Natural :=
+                    Natural (Thin.ldap_count_values_len (Attribs));
          Result : String_Set (1 .. N);
       begin
          for K in Result'Range loop
@@ -790,6 +787,7 @@ package body AWS.LDAP.Client is
                Attributes (IC.size_t (K)) :=
                  New_String (To_String (Attrs (K)));
             end loop;
+
             Attributes (Attributes'Last) := Null_Ptr;
 
             Res := Thin.ldap_search_s
@@ -814,7 +812,6 @@ package body AWS.LDAP.Client is
       Free (C_Filter);
 
       return Result;
-
    exception
       when others =>
          Free (C_Base);
@@ -857,7 +854,7 @@ package body AWS.LDAP.Client is
       use LDAP_Mods;
       Position : Cursor := Mods.First;
       CMods    : Thin.LDAPMods
-        (IC.size_t (1) .. IC.size_t (Mods.Last_Index + 1));
+                   (IC.size_t (1) .. IC.size_t (Mods.Last_Index + 1));
    begin
       while Has_Element (Position) loop
          declare
@@ -889,6 +886,7 @@ package body AWS.LDAP.Client is
             Next (Position);
          end;
       end loop;
+
       return CMods;
    end To_C;
 

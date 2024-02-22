@@ -72,6 +72,7 @@ package body AWS.URL is
             Result (C) := Not_Escaped;
          end if;
       end loop;
+
       return Result;
    end Build_Hex_Escape;
 

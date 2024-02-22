@@ -152,7 +152,6 @@ package body AWS.Server is
                      --  get another one in next iteration.
 
                      SSL_Socket.Shutdown;
-
                   else
                      --  Unexpected error
 
@@ -267,6 +266,7 @@ package body AWS.Server is
       --  abortion.
    begin
       Web_Server.Slots.Abort_On_Timeout (Socket, Slot);
+
       if Socket /= null then
          Net.Shutdown (Socket.all);
          Web_Server.Slots.Shutdown_Done (Slot);
@@ -332,11 +332,10 @@ package body AWS.Server is
    ----------
 
    task body Line is
-      TA : constant Line_Attribute.Attribute_Handle :=
-             Line_Attribute.Reference;
+      TA      : constant Line_Attribute.Attribute_Handle :=
+                  Line_Attribute.Reference;
       Request : aliased AWS.Status.Data;
    begin
-
       select
          accept Start
            (Server : HTTP;

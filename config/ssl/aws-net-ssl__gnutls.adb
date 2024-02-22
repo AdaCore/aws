@@ -383,11 +383,15 @@ package body AWS.Net.SSL is
       TLS_PK   : aliased TSSL.gnutls_privkey_t;
 
       Password : constant String :=
-        Net.SSL.Certificate.Get_Password
-          (if Key_Filename = "" then Certificate_Filename else Key_Filename);
+                   Net.SSL.Certificate.Get_Password
+                     (if Key_Filename = ""
+                      then Certificate_Filename
+                      else Key_Filename);
 
       Pwd : CS.chars_ptr :=
-        (if Password = "" then CS.Null_Ptr else CS.New_String (Password));
+              (if Password = ""
+               then CS.Null_Ptr
+               else CS.New_String (Password));
 
       function Load_PCert_List (Try_Size : Positive) return PCert_Array;
 
@@ -611,11 +615,11 @@ package body AWS.Net.SSL is
          exit when Name = CS.Null_Ptr;
 
          Cipher (Utils.Hex (C.unsigned_char'Pos (cs_id (0)), 2)
-            & ' ' & Utils.Hex (C.unsigned_char'Pos (cs_id (1)), 2)
-            & ' ' & CS.Value (TSSL.gnutls_protocol_get_name (min_ver))
-            & ' ' & CS.Value (TSSL.gnutls_kx_get_name (kx))
-            & ' ' & CS.Value (TSSL.gnutls_cipher_get_name (ciph))
-            & ' ' & CS.Value (TSSL.gnutls_mac_get_name (mac)));
+                 & ' ' & Utils.Hex (C.unsigned_char'Pos (cs_id (1)), 2)
+                 & ' ' & CS.Value (TSSL.gnutls_protocol_get_name (min_ver))
+                 & ' ' & CS.Value (TSSL.gnutls_kx_get_name (kx))
+                 & ' ' & CS.Value (TSSL.gnutls_cipher_get_name (ciph))
+                 & ' ' & CS.Value (TSSL.gnutls_mac_get_name (mac)));
       end loop;
    end Ciphers;
 
@@ -1559,7 +1563,7 @@ package body AWS.Net.SSL is
       Kind : aliased TSSL.gnutls_server_name_type_t;
       Size : aliased C.size_t := SN'Length;
       Cfg  : constant Config :=
-        To_Config (TSSL.gnutls_session_get_ptr (Session));
+               To_Config (TSSL.gnutls_session_get_ptr (Session));
       CN   : Host_Certificates.Cursor;
       CH   : Certificate_Holder;
 
@@ -1570,26 +1574,27 @@ package body AWS.Net.SSL is
       ---------------------
 
       function Get_Server_Name return String is
-         RC : constant C.int := TSSL.gnutls_server_name_get
-           (Session, SN'Address, Size'Unchecked_Access, Kind'Access, 0);
-
+         RC : constant C.int :=
+                TSSL.gnutls_server_name_get
+                  (Session, SN'Address, Size'Unchecked_Access, Kind'Access, 0);
       begin
          case RC is
-         when TSSL.GNUTLS_E_SHORT_MEMORY_BUFFER =>
-            Log_Error
-              ("Requested server name too long " & C.To_Ada (SN) & Size'Img);
+            when TSSL.GNUTLS_E_SHORT_MEMORY_BUFFER =>
+               Log_Error
+                 ("Requested server name too long "
+                  & C.To_Ada (SN) & Size'Img);
 
-            return "";
+               return "";
 
-         when TSSL.GNUTLS_E_REQUESTED_DATA_NOT_AVAILABLE =>
-            return "";
+            when TSSL.GNUTLS_E_REQUESTED_DATA_NOT_AVAILABLE =>
+               return "";
 
-         when TSSL.GNUTLS_E_SUCCESS =>
-            return C.To_Ada (SN);
+            when TSSL.GNUTLS_E_SUCCESS =>
+               return C.To_Ada (SN);
 
-         when others =>
-            raise Socket_Error with
-              "gnutls_server_name_get error code " & RC'Img;
+            when others =>
+               raise Socket_Error with
+                 "gnutls_server_name_get error code " & RC'Img;
          end case;
       end Get_Server_Name;
 
@@ -1631,7 +1636,6 @@ package body AWS.Net.SSL is
       privkey.all      := CH.TLS_PK;
 
       return 0;
-
    exception
       when E : others =>
          Log_Error (Exception_Information (E));
@@ -2255,11 +2259,11 @@ package body AWS.Net.SSL is
             signature => Sig'Access));
 
       declare
-         type Array_Access is access all
-            Stream_Element_Array (1 .. Stream_Element_Offset (Sig.size));
+         type Array_Access is access all Stream_Element_Array
+           (1 .. Stream_Element_Offset (Sig.size));
 
-         function To_Result is
-           new Unchecked_Conversion (TSSL.a_unsigned_char_t, Array_Access);
+         function To_Result is new Unchecked_Conversion
+           (TSSL.a_unsigned_char_t, Array_Access);
 
          Result : constant Stream_Element_Array := To_Result (Sig.data).all;
       begin
@@ -2424,7 +2428,6 @@ package body AWS.Net.SSL is
       else
          return TSSL.GNUTLS_E_CERTIFICATE_ERROR;
       end if;
-
    exception
       when E : others =>
          Log_Error (Exception_Message (E));

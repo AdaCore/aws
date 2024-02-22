@@ -100,11 +100,11 @@ package body ZLib.Streams is
       Last   : Stream_Element_Offset;
    begin
       loop
-         Flush (Stream.Writer, Buffer, Last, Mode);
+         Stream.Writer.Flush (Buffer, Last, Mode);
 
          exit when Last < Buffer'First;
 
-         Ada.Streams.Write (Stream.Back.all, Buffer (1 .. Last));
+         Stream.Back.Write (Buffer (1 .. Last));
       end loop;
    end Flush;
 
@@ -129,7 +129,8 @@ package body ZLib.Streams is
 
       procedure Read
         (Item : out Stream_Element_Array;
-         Last : out Stream_Element_Offset);
+         Last : out Stream_Element_Offset)
+        with Inline;
 
       ----------
       -- Read --
@@ -139,7 +140,7 @@ package body ZLib.Streams is
         (Item : out Stream_Element_Array;
          Last : out Stream_Element_Offset) is
       begin
-         Ada.Streams.Read (Stream.Back.all, Item, Last);
+         Stream.Back.Read (Item, Last);
       end Read;
 
       procedure Read is new ZLib.Read
@@ -241,8 +242,8 @@ package body ZLib.Streams is
      (Stream : in out Stream_Type;
       Item   : in     Stream_Element_Array)
    is
-
-      procedure Write (Item : in Stream_Element_Array);
+      procedure Write (Item : in Stream_Element_Array)
+        with Inline;
 
       -----------
       -- Write --
@@ -250,7 +251,7 @@ package body ZLib.Streams is
 
       procedure Write (Item : in Stream_Element_Array) is
       begin
-         Ada.Streams.Write (Stream.Back.all, Item);
+         Stream.Back.Write (Item);
       end Write;
 
       procedure Write is new ZLib.Write

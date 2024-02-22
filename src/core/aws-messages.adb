@@ -678,10 +678,10 @@ package body AWS.Messages is
          Day_Names : constant array (Integer range 0 .. 6) of String (1 .. 3)
            := ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
 
-         C         : Integer;
-         Y         : Integer := Calendar.Year (Date);
-         M         : Integer := Calendar.Month (Date);
-         D         : constant Integer := Calendar.Day (Date);
+         D : constant Integer := Calendar.Day (Date);
+         Y : Integer := Calendar.Year (Date);
+         M : Integer := Calendar.Month (Date);
+         C : Integer;
 
       begin
          --  Calculate day of week by using Zeller's congruence

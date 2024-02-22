@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2000-2021, AdaCore                     --
+--                     Copyright (C) 2000-2024, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -81,7 +81,7 @@ package body AWS.Headers is
    begin
       if Debug_Flag then
          for J in 1 .. Headers.Count loop
-            Ada.Text_IO.Put_Line ('>' & Headers.Get_Line (J));
+            Text_IO.Put_Line ('>' & Headers.Get_Line (J));
          end loop;
       end if;
    end Debug_Print;
@@ -243,8 +243,8 @@ package body AWS.Headers is
          Add (Headers,
            Name  => Line (Line'First .. Delimiter_Index - 1),
            Value => Fixed.Trim
-             (Line (Delimiter_Index + 1 .. Line'Last),
-              Side => Both));
+                      (Line (Delimiter_Index + 1 .. Line'Last),
+                       Side => Both));
       end Parse_Header_Line;
 
       End_Of_Message : constant String := "";

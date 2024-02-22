@@ -1187,8 +1187,8 @@ package body AWS.Net.SSL is
       pragma Unreferenced (ad);
       use C.Strings;
       Server_Name : constant chars_ptr := TSSL.SSL_get_servername (Session);
-      CH : Host_Certificates.Cursor;
-      Dummy : TSSL.SSL_CTX;
+      CH          : Host_Certificates.Cursor;
+      Dummy       : TSSL.SSL_CTX;
    begin
       if Server_Name = Null_Ptr then
          return TSSL.SSL_TLSEXT_ERR_OK;
@@ -2750,6 +2750,7 @@ package body AWS.Net.SSL is
 
       begin
          Set_Callback (Default_Context);
+
          for Context of Hosts loop
             Set_Callback (Context);
          end loop;

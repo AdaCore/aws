@@ -452,7 +452,6 @@ package body AWS.Net.WebSocket is
       end if;
 
       return False;
-
    exception
       when AWS.Net.Socket_Error =>
          --  Socket has been closed
@@ -595,8 +594,8 @@ package body AWS.Net.WebSocket is
       Is_Binary : Boolean := False)
    is
       A : Stream_Element_Array
-         (Stream_Element_Offset (Message'First) ..
-          Stream_Element_Offset (Message'Last)) with Import;
+           (Stream_Element_Offset (Message'First) ..
+            Stream_Element_Offset (Message'Last)) with Import;
       for A'Address use Message'Address;
    begin
       Send (Socket, A, Is_Binary);
@@ -608,8 +607,8 @@ package body AWS.Net.WebSocket is
       Is_Binary : Boolean := False)
    is
       use Ada.Strings.Unbounded.Aux;
-      S  : Big_String_Access;
-      L  : Natural;
+      S : Big_String_Access;
+      L : Natural;
    begin
       Get_String (Message, S, L);
       Send (Socket, String (S (1 .. L)), Is_Binary);

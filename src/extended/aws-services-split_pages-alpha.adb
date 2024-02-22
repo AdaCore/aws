@@ -115,17 +115,14 @@ package body AWS.Services.Split_Pages.Alpha is
             use Ada.Strings.Fixed;
             Name        : constant String :=
                             Trim (Item (Key_Vec, I), Strings.Left);
-            New_Initial : Character;
+            New_Initial : constant Character :=
+                            (if Name = ""
+                             then ' '
+                             else To_Upper (Name (Name'First)));
          begin
-            if Name = "" then
-               New_Initial := ' ';
-            else
-               New_Initial := To_Upper (Name (Name'First));
-            end if;
-
             if New_Initial /= Initial
               and then (Initial not in '0' .. '9'
-                          or else New_Initial not in '0' .. '9')
+                        or else New_Initial not in '0' .. '9')
             then
                --  This is a new entry, record the last item for previous entry
                Result (Res_Inx).Last := I - 1;

@@ -293,8 +293,8 @@ package body AWS.Services.Web_Mail is
       WM_Session : constant Session.Id := Status.Session (Request);
       P_List     : constant Parameters.List := Status.Parameters (Request);
 
-      No_Message : constant Positive
-        := Positive'Value (Parameters.Get (P_List, "NO_MESSAGE"));
+      No_Message : constant Positive :=
+                     Positive'Value (Parameters.Get (P_List, "NO_MESSAGE"));
 
       Context : Context_Data;
       Mailbox : POP.Mailbox;
@@ -335,8 +335,9 @@ package body AWS.Services.Web_Mail is
             if POP.Is_File (Attachment) then
                declare
                   Filename : constant String := POP.Filename (Attachment);
-                  URI      : constant String
-                    := Services.Transient_Pages.Get_URI & "/" & Filename;
+                  URI      : constant String :=
+                               Services.Transient_Pages.Get_URI
+                                 & "/" & Filename;
                   --  We add the filename after the uniq URI to tell the
                   --  browser to use this name to save the file on disk.
                begin
@@ -418,8 +419,7 @@ package body AWS.Services.Web_Mail is
       return Response.Build
         (MIME.Text_HTML,
          Unbounded_String'
-           (Templates.Parse
-              (WWW_Root & "/wm_message.thtml", T)));
+           (Templates.Parse (WWW_Root & "/wm_message.thtml", T)));
    end Message;
 
    -----------
@@ -434,8 +434,8 @@ package body AWS.Services.Web_Mail is
       WM_Session : constant Session.Id := Status.Session (Request);
       P_List     : constant Parameters.List := Status.Parameters (Request);
 
-      No_Message : constant Positive
-        := Positive'Value (Parameters.Get (P_List, "NO_MESSAGE"));
+      No_Message : constant Positive :=
+                     Positive'Value (Parameters.Get (P_List, "NO_MESSAGE"));
 
       Context : Context_Data;
       Mailbox : POP.Mailbox;

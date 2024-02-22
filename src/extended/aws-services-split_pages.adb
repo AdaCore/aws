@@ -56,8 +56,8 @@ package body AWS.Services.Split_Pages is
         (A : Templates.Association; Quit : in out Boolean);
       --  Add A's range into the set if A is a composite object
 
-      Ranges     : constant Ranges_Table
-        := Get_Page_Ranges (Split_Rule, Table);
+      Ranges     : constant Ranges_Table :=
+                     Get_Page_Ranges (Split_Rule, Table);
       URIs       : URI_Table (1 .. Ranges'Length);
       Split_Set  : Templates.Translate_Set;
       Result     : Unbounded_String;

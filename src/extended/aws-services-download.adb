@@ -28,13 +28,12 @@
 ------------------------------------------------------------------------------
 
 with Ada.Calendar;
+with Ada.Containers.Vectors;
 with Ada.Exceptions;
 with Ada.Streams;
 with Ada.Strings.Unbounded;
 with Ada.Text_IO;
 with Ada.Unchecked_Deallocation;
-
-with Ada.Containers.Vectors;
 
 with AWS.Messages;
 with AWS.MIME;
@@ -287,11 +286,10 @@ package body AWS.Services.Download is
       procedure Create_Set (Socket_Set : in out Sock_Set.Socket_Set_Type) is
          use type Net.Socket_Access;
          Info : Download_Information;
-         N    : Positive;
+         N    : constant Positive :=
+                  Positive'Min
+                    (Max_Concurrent_Download, Positive (Downloads.Length));
       begin
-         N := Positive'Min
-           (Max_Concurrent_Download, Positive (Downloads.Length));
-
          for K in 1 .. N loop
             Info := Downloads.Element (K);
 
@@ -316,6 +314,7 @@ package body AWS.Services.Download is
 
          Remove_Old_Entries : while not Downloads.Is_Empty loop
             Info := Downloads.First_Element;
+
             if Calendar.Clock - Info.Time_Stamp > 15.0 then
                Downloads.Delete_First;
                Count := @ - 1;
