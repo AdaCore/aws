@@ -327,8 +327,8 @@ package body AWS.Server.Status is
             Slot_Data := Server.Slots.Get (Index => K);
 
             declare
-               SD : constant Socket_Data
-                 := Server.Slots.Get_Socket_Info (Index => K);
+               SD : constant Socket_Data :=
+                      Server.Slots.Get_Socket_Info (Index => K);
             begin
                Sock      := @ & SD.FD;
                Peer_Name := @ & SD.Peername;

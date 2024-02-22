@@ -192,18 +192,18 @@ package body AWS.HTTP2.Message is
                                 Response.Filename (Answer),
                                 File_Time);
 
-               With_Body   : Boolean :=
-                               Messages.With_Body (Status_Code)
-                                 and then Status.Method (Request)
-                                 /= Status.HEAD;
+               With_Body : Boolean :=
+                             Messages.With_Body (Status_Code)
+                               and then Status.Method (Request)
+                               /= Status.HEAD;
 
-               Ranges      : constant String :=
-                               AWS.Headers.Get_Values
-                                 (Status.Header (Request),
-                                  Messages.Range_Token);
+               Ranges    : constant String :=
+                             AWS.Headers.Get_Values
+                               (Status.Header (Request),
+                                Messages.Range_Token);
                --  The ranges for partial sending if defined
-               N_Range     : constant Positive :=
-                               1 + Fixed.Count (Ranges, ",");
+               N_Range   : constant Positive :=
+                             1 + Fixed.Count (Ranges, ",");
             begin
                --  Status code header
 
@@ -362,9 +362,9 @@ package body AWS.HTTP2.Message is
 
    overriding procedure Finalize (O : in out Object) is
       use type Utils.Counter_Access;
-      C : Utils.Counter_Access := O.Ref;
       procedure Unchecked_Free is new Ada.Unchecked_Deallocation
         (Resources.Streams.Stream_Type'Class, Resources.Streams.Stream_Access);
+      C : Utils.Counter_Access := O.Ref;
    begin
       if C /= null then
          O.Ref := null;

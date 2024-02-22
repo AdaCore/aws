@@ -225,12 +225,10 @@ package body AWS.Net.SSL.Certificate.Impl is
             Socket);
 
          declare
-            type Array_Access is
-               access all Stream_Element_Array
-                            (1 .. Stream_Element_Offset (Datum.size));
-            function To_Array is
-               new Ada.Unchecked_Conversion
-                     (TSSL.a_unsigned_char_t, Array_Access);
+            type Array_Access is access all Stream_Element_Array
+              (1 .. Stream_Element_Offset (Datum.size));
+            function To_Array is new Ada.Unchecked_Conversion
+              (TSSL.a_unsigned_char_t, Array_Access);
          begin
             Result := Binary_Holders.To_Holder (To_Array (Datum.data).all);
             TSSL.gnutls_free (Datum.data);

@@ -1056,7 +1056,6 @@ package body AWS.Client.HTTP_Utils is
             elsif Connection.Streaming then
                Read_Body (Connection, Result, Store => False);
             end if;
-
          exception
             when E : Net.Socket_Error | Connection_Error =>
                Error_Processing
@@ -1307,7 +1306,6 @@ package body AWS.Client.HTTP_Utils is
             elsif Connection.Streaming then
                Read_Body (Connection, Result, Store => False);
             end if;
-
          exception
             when E : Net.Socket_Error | Connection_Error =>
                Error_Processing
@@ -1482,7 +1480,6 @@ package body AWS.Client.HTTP_Utils is
          --  Send multipart message end boundary
 
          Net.Buffered.Put_Line (Sock, Pref_Suf & Boundary & Pref_Suf);
-
       exception
          when Net.Socket_Error =>
             --  Properly close the file if needed
@@ -1949,7 +1946,7 @@ package body AWS.Client.HTTP_Utils is
    begin
       loop
          declare
-            Buffer : Stream_Element_Array (1 .. 8192);
+            Buffer : Stream_Element_Array (1 .. 8_192);
             Last   : Stream_Element_Offset;
          begin
             Read_Some (Connection, Buffer, Last);
@@ -2149,7 +2146,7 @@ package body AWS.Client.HTTP_Utils is
             Line   : constant String    := Net.Buffered.Get_Line (Sock);
             N_Char : constant Character := Net.Buffered.Peek_Char (Sock);
          begin
-            if N_Char = ' ' or else N_Char = ASCII.HT then
+            if N_Char in ' ' | ASCII.HT then
                --  Next line is a continuation line [RFC 2616 - 2.2], but
                --  again this is non standard here, see comment above.
                return Line & Get_Full_Line;
@@ -2239,7 +2236,7 @@ package body AWS.Client.HTTP_Utils is
 
                if Connection.Decode_Buffer = null then
                   Connection.Decode_Buffer :=
-                    new Stream_Element_Array (1 .. 8096);
+                    new Stream_Element_Array (1 .. 8_192);
                end if;
 
                Connection.Decode_First := Connection.Decode_Buffer'Last + 1;
@@ -2387,8 +2384,8 @@ package body AWS.Client.HTTP_Utils is
                Frame.Dump ("UNEXPECTED");
             end if;
 
-            raise Constraint_Error with
-              "server should have answered with a setting frame";
+            raise Constraint_Error
+              with "server should have answered with a setting frame";
 
          else
             declare
@@ -2631,7 +2628,6 @@ package body AWS.Client.HTTP_Utils is
                "Basic " & AWS.Translator.Base64_Encode (User & ':' & Pwd));
 
          elsif Data.Work_Mode = Digest then
-
             declare
                Nonce : constant String := To_String (Data.Nonce);
                Realm : constant String := To_String (Data.Realm);

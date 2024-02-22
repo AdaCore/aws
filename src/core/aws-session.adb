@@ -327,7 +327,7 @@ package body AWS.Session is
          if S_Count = 1 then
             Session.Check_Interval := Start.Check_Interval;
             Session.Lifetime       := Real_Time.To_Time_Span (Start.Lifetime);
-            Init_Cleaner := True;
+            Init_Cleaner           := True;
          end if;
       end Start;
 
@@ -1004,7 +1004,7 @@ package body AWS.Session is
 
       while not End_Of_File (File) loop
          declare
-            SID : constant Id := Id'Input (Stream_Ptr);
+            SID            : constant Id := Id'Input (Stream_Ptr);
             Key_Value_Size : Natural;
          begin
             Database.Add_Session (SID);

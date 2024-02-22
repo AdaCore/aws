@@ -125,7 +125,6 @@ package body AWS.Jabber.Client is
       Account.Stream := new Incoming_Stream (Account.Self);
 
       Account.Is_Running := True;
-
    exception
       when E : others =>
          Text_IO.Put_Line (Exceptions.Exception_Information (E));
@@ -223,7 +222,6 @@ package body AWS.Jabber.Client is
       Subject      : String := "";
       Message_Type : Client.Message_Type := M_Normal)
    is
-
       function Send_Type return String;
       --  Returns the message type
 
@@ -239,24 +237,25 @@ package body AWS.Jabber.Client is
 
       Serial : Serial_Number;
       Result : Ada.Strings.Unbounded.Unbounded_String;
+
    begin
       if Account.Is_Running then
          Account.Serial.Get (Serial);
 
          --  Send Message
 
-         Ada.Strings.Unbounded.Append
+         Append
             (Result, "<message type='" & Send_Type & "'"
                      & " id='msg" & Image (Serial)
                      & "' to='" & String (JID) & "'>");
 
          if Subject /= "" then
-            Ada.Strings.Unbounded.Append
+            Append
                (Result,
                 " <subject>" & Subject & "</subject>");
          end if;
 
-         Ada.Strings.Unbounded.Append
+         Append
             (Result,
              " <body>" & Content & "</body></message>");
 

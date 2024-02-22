@@ -107,14 +107,11 @@ package body AWS.Services.Split_Pages.Uniform.Alpha is
             use Ada.Strings.Fixed;
             Name        : constant String :=
                             Trim (Item (Key_Vec, I), Strings.Left);
-            New_Initial : Character;
+            New_Initial : constant Character :=
+                            (if Name = ""
+                             then ' '
+                             else To_Upper (Name (Name'First)));
          begin
-            if Name = "" then
-               New_Initial := ' ';
-            else
-               New_Initial := To_Upper (Name (Name'First));
-            end if;
-
             if New_Initial /= Initial then
                Add_Entry (New_Initial, I);
                Initial := New_Initial;

@@ -95,6 +95,7 @@ package body AWS.Services.Dispatchers.URI is
            new AWS.Dispatchers.Handler'Class'
              (AWS.Dispatchers.Handler'Class (URI.Action.Clone));
       end if;
+
       return New_URI;
    end Clone;
 
@@ -112,6 +113,7 @@ package body AWS.Services.Dispatchers.URI is
       end if;
 
       New_URI.Reg_URI := new Regpat.Pattern_Matcher'(URI.Reg_URI.all);
+
       return New_URI;
    end Clone;
 

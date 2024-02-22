@@ -388,8 +388,8 @@ package body AWS.HTTP2.HPACK.Huffman is
    begin
       for K in Str'Range loop
          declare
-            E    : constant Stream_Element := Str (K);
-            C    : Character;
+            E : constant Stream_Element := Str (K);
+            C : Character;
          begin
             --  Keep last four bytes to check for EOS
 

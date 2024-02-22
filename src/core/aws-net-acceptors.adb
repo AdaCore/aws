@@ -183,9 +183,9 @@ package body AWS.Net.Acceptors is
 
          elsif Ready then
             declare
-               SP     : Socket_Data;
-               Bytes  : Stream_Element_Array (1 .. 16);
-               Last   : Stream_Element_Offset;
+               SP    : Socket_Data;
+               Bytes : Stream_Element_Array (1 .. 16);
+               Last  : Stream_Element_Offset;
             begin
                --  Read bytes from signalling socket and take sockets from
                --  mailbox.
@@ -491,6 +491,7 @@ package body AWS.Net.Acceptors is
          Family        => Family,
          IPv6_Only     => IPv6_Only,
          Reuse_Address => Reuse_Address);
+
       Server.Listen (Queue_Size => Queue_Size);
 
       Acceptor.Servers.Add (Server);

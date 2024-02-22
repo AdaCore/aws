@@ -209,11 +209,11 @@ package body AWS.Containers.Tables is
       Indexes : out Name_Index_Table;
       Found   : out Boolean)
    is
-      Cursor : Index_Table.Cursor;
+      Cursor : constant Index_Table.Cursor :=
+                 Index_Table.Find
+                   (Table.Index,
+                    Normalize_Name (Name, not Table.Case_Sensitive));
    begin
-      Cursor := Index_Table.Find
-        (Table.Index, Normalize_Name (Name, not Table.Case_Sensitive));
-
       Found := Index_Table.Has_Element (Cursor);
 
       if Found then
@@ -417,9 +417,6 @@ package body AWS.Containers.Tables is
       Value : Unbounded_String;
       N     : Natural)
    is
-      Cursor   : Index_Table.Cursor;
-      Inserted : Boolean;
-
       procedure Process (Key : String; Item : in out Name_Index_Table);
 
       -------------
@@ -460,6 +457,9 @@ package body AWS.Containers.Tables is
             raise Constraint_Error;
          end if;
       end Process;
+
+      Cursor   : Index_Table.Cursor;
+      Inserted : Boolean;
 
    begin
       Table.Index.Insert

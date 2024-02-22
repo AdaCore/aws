@@ -82,7 +82,7 @@ package body AWS.Services.Split_Pages.Uniform is
 
       declare
          Result : Ranges_Table
-           (1 .. (Max + Self.Max_Per_Page - 1) / Self.Max_Per_Page);
+                    (1 .. (Max + Self.Max_Per_Page - 1) / Self.Max_Per_Page);
       begin
          for I in 1 .. Result'Last - 1 loop
             Result (I) := (First => Self.Max_Per_Page *  (I - 1) + 1,

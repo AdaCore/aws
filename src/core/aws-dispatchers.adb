@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2000-2012, AdaCore                     --
+--                     Copyright (C) 2000-2024, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -54,6 +54,7 @@ package body AWS.Dispatchers is
 
       if Ref_Counter /= null then
          Ref_Counter.all := @ - 1;
+
          if Ref_Counter.all = 0 then
             Utils.Unchecked_Free (Ref_Counter);
          end if;

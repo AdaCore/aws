@@ -955,7 +955,6 @@ package body AWS.Server.Push is
       --------------------
 
       procedure Subscribe_Copy (Source : String; Target : String) is
-         CG : Group_Maps.Cursor;
 
          procedure Process (C : Tables.Cursor);
 
@@ -974,6 +973,8 @@ package body AWS.Server.Push is
                Add_To_Groups (Groups, Target, Tables.Key (C), Element);
             end if;
          end Process;
+
+         CG : Group_Maps.Cursor;
 
       begin
          if Source = "" then
@@ -1022,10 +1023,9 @@ package body AWS.Server.Push is
       procedure Unregister
         (Client_Id : Client_Key; Holder : out Client_Holder_Access)
       is
-         Cursor : Tables.Cursor;
+         Cursor : Tables.Cursor :=
+                    Container.Find (Client_Id);
       begin
-         Cursor := Container.Find (Client_Id);
-
          if Tables.Has_Element (Cursor) then
             Holder := Tables.Element (Cursor);
             Unregister (Cursor);
@@ -1139,7 +1139,6 @@ package body AWS.Server.Push is
             Groups.Delete (CG);
             Unchecked_Free (Group);
          end if;
-
       end Unsubscribe_Copy;
 
       ------------------
@@ -1712,9 +1711,9 @@ package body AWS.Server.Push is
       use Real_Time;
       use Write_Sets;
 
-      R_Signal : aliased Net.Socket_Type'Class := Socket (Security => False);
-      Bytes    : Stream_Element_Array (1 .. 32);
-      B_Last   : Stream_Element_Offset;
+      R_Signal   : aliased Net.Socket_Type'Class := Socket (Security => False);
+      Bytes      : Stream_Element_Array (1 .. 32);
+      B_Last     : Stream_Element_Offset;
 
       Queue      : Waiter_Queues.List;
       Queue_Item : Waiter_Queue_Element;
@@ -2123,7 +2122,7 @@ package body AWS.Server.Push is
          Waiter_Information.Size    := Set_Size.Size;
 
          if Size > Max_Size then
-            Max_Size := Size;
+            Max_Size    := Size;
             Max_Size_DT := Calendar.Clock;
          end if;
       end Set_Size;

@@ -159,7 +159,6 @@ package body AWS.POP is
       end;
 
       Mailbox.Sock.Shutdown;
-
    exception
       when POP_Error =>
          Mailbox.Sock.Shutdown;
@@ -544,7 +543,6 @@ package body AWS.POP is
       P : Attachment_Access := Message.Attachments;
    begin
       for K in 2 .. Index loop
-
          if P = null then
             raise Constraint_Error with "No such attachment";
          end if;
@@ -677,7 +675,6 @@ package body AWS.POP is
       --  Authenticate
 
       if Authenticate = Clear_Text then
-
          Net.Buffered.Put_Line (Mailbox.Sock, "USER " & User);
 
          declare
@@ -716,19 +713,17 @@ package body AWS.POP is
          Check_Response (Response);
 
          declare
-            K : Natural;
+            K : constant Natural :=
+                  Strings.Fixed.Index (Response, " ", Strings.Backward);
          begin
-            K := Strings.Fixed.Index (Response, " ", Strings.Backward);
-
-            Mailbox.Message_Count
-              := Natural'Value (Response (Response'First + 4 .. K - 1));
-            Mailbox.Size
-              := Natural'Value (Response (K + 1 .. Response'Last));
+            Mailbox.Message_Count :=
+              Natural'Value (Response (Response'First + 4 .. K - 1));
+            Mailbox.Size :=
+              Natural'Value (Response (K + 1 .. Response'Last));
          end;
       end;
 
       return Mailbox;
-
    exception
       when POP_Error =>
          Mailbox.Sock.Shutdown;

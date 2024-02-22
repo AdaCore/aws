@@ -99,16 +99,16 @@ package body AWS.HTTP2.HPACK is
    --  interpreted differently depending on endianness.
    for RFC_Byte'Bit_Order use System.Low_Order_First;
 
-   B_II          : constant Bit2 := 2#01#;
+   B_II             : constant Bit2 := 2#01#;
    --  Incremental Indexing
 
    B_II_No_Indexing : constant Bit4 := 2#0001#;
    --  Incremental Indexing
 
-   B_No_Indexing : constant Bit4 := 0;
+   B_No_Indexing    : constant Bit4 := 0;
    --  No Indexing
 
-   B_Dyn_Table   : constant Bit3 := 2#001#;
+   B_Dyn_Table      : constant Bit3 := 2#001#;
 
    ------------
    -- Decode --
@@ -484,8 +484,9 @@ package body AWS.HTTP2.HPACK is
             Name  : constant String := List.Get_Name (K);
             Value : constant String := List.Get_Value (K);
             Both  : Boolean := False;
-            Index : constant Natural := Table.Get_Name_Value_Index
-                      (Settings, Name, Value, Both => Both);
+            Index : constant Natural :=
+                      Table.Get_Name_Value_Index
+                        (Settings, Name, Value, Both => Both);
          begin
             if Index = 0 then
                Append (2#0100_0000#);

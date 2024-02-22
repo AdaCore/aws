@@ -132,7 +132,6 @@ package body AWS.Services.Transient_Pages is
 
          Next := Next + Clean_Interval;
       end loop Clean;
-
    exception
       when E : others =>
          Text_IO.Put_Line

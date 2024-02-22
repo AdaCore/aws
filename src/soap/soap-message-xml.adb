@@ -581,8 +581,8 @@ package body SOAP.Message.XML is
 
    function Image
      (O      : Object'Class;
-      Schema : WSDL.Schema.Definition :=
-                 WSDL.Schema.Empty) return Unbounded_String
+      Schema : WSDL.Schema.Definition := WSDL.Schema.Empty)
+      return Unbounded_String
    is
       Message_Body : Unbounded_String;
 
@@ -745,7 +745,6 @@ package body SOAP.Message.XML is
             S.NS.xsd, S.NS.xsi, S.NS.enc, S.NS.env, S.NS.User, S.NS.Index)
             with null record);
       end if;
-
    exception
       when E : others =>
          return Message.Response.Error.Build
@@ -788,7 +787,6 @@ package body SOAP.Message.XML is
             S.NS.xsd, S.NS.xsi, S.NS.enc, S.NS.env, S.NS.User, S.NS.Index)
             with null record);
       end if;
-
    exception
       when E : others =>
          return Message.Response.Error.Build
@@ -809,13 +807,11 @@ package body SOAP.Message.XML is
          S (I) := Element (XML, I);
       end loop;
 
-      declare
-         Result : constant Message.Response.Object'Class :=
-                    Load_Response (S.all, Envelope, Schema);
-      begin
+      return Result : constant Message.Response.Object'Class :=
+                        Load_Response (S.all, Envelope, Schema)
+      do
          Free (S);
-         return Result;
-      end;
+      end return;
    end Load_Response;
 
    --------------
@@ -840,7 +836,6 @@ package body SOAP.Message.XML is
       Parse_Document (Doc, S);
 
       Free (Doc);
-
    exception
       when others =>
          Doc := Get_Tree (Reader);
@@ -1001,6 +996,7 @@ package body SOAP.Message.XML is
 
          A := Types.A (OS (1 .. K), Name, Type_Name);
          Unchecked_Free (OS);
+
          return A;
       end;
    end Parse_Array;
@@ -1530,6 +1526,7 @@ package body SOAP.Message.XML is
          if NS /= SOAP.Name_Space.No_Name_Space then
             Types.Set_Name_Space (L, NS);
          end if;
+
          return L;
       end With_NS;
 
@@ -1749,14 +1746,14 @@ package body SOAP.Message.XML is
          declare
             NS : constant SOAP.Name_Space.Object :=
                    Get_Namespace_Object (S.NS, Utils.NS (To_String (T_Name)));
-            R  : Types.SOAP_Record;
          begin
-            R := Types.R
-              (OS (1 .. K), Name,
-               Utils.No_NS (To_String (T_Name)), NS);
-
-            Unchecked_Free (OS);
-            return R;
+            return R : constant Types.SOAP_Record :=
+                         Types.R
+                           (OS (1 .. K), Name,
+                            Utils.No_NS (To_String (T_Name)), NS)
+            do
+               Unchecked_Free (OS);
+            end return;
          end;
       end if;
    end Parse_Record;
@@ -2001,6 +1998,7 @@ package body SOAP.Message.XML is
    begin
       for I in 0 .. Length (L) - 1 loop
          P := Item (L, I);
+
          if P.Node_Type = DOM.Core.Text_Node then
             Append (S, Node_Value (P));
          end if;

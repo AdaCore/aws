@@ -271,8 +271,7 @@ package body AWS.Client is
       Timeouts     : Timeouts_Values := No_Timeout;
       Headers      : Header_List     := Empty_Header_List;
       User_Agent   : String          := Default.User_Agent;
-      HTTP_Version : HTTP_Protocol   := HTTP_Default) return Response.Data
-   is
+      HTTP_Version : HTTP_Protocol   := HTTP_Default) return Response.Data is
    begin
       return Delete
         (URL, Translator.To_Stream_Element_Array (Data),
@@ -306,7 +305,6 @@ package body AWS.Client is
       Delete (Connection, Result, Data, Headers => Headers);
       Close (Connection);
       return Result;
-
    exception
       when others =>
          Close (Connection);
@@ -559,7 +557,6 @@ package body AWS.Client is
       Close (Connection);
 
       return Result;
-
    exception
       when others =>
          Close (Connection);
@@ -665,6 +662,7 @@ package body AWS.Client is
             Headers     => Headers);
 
       Close (Connection);
+
       return Result;
    exception
       when others =>
@@ -728,7 +726,6 @@ package body AWS.Client is
                Headers      => Headers);
 
             Utils.Unchecked_Free (SEA);
-
          exception
             when others =>
                Utils.Unchecked_Free (SEA);
@@ -999,8 +996,8 @@ package body AWS.Client is
       Result     : in out Ada.Strings.Unbounded.Unbounded_String;
       Wait       : Boolean := True) is
    begin
-      Result :=  Ada.Strings.Unbounded.To_Unbounded_String
-                   (Read_Until (Connection, Delimiter, Wait));
+      Result := To_Unbounded_String
+                  (Read_Until (Connection, Delimiter, Wait));
    end Read_Until;
 
    ---------------------
@@ -1160,8 +1157,8 @@ package body AWS.Client is
                  Headers     => Headers);
 
       Close (Connection);
-      return Result;
 
+      return Result;
    exception
       when others =>
          Close (Connection);
@@ -1297,8 +1294,8 @@ package body AWS.Client is
          Headers => Headers, Progress => Progress);
 
       Close (Connection);
-      return Result;
 
+      return Result;
    exception
       when others =>
          Close (Connection);

@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2000-2021, AdaCore                     --
+--                     Copyright (C) 2000-2024, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -71,7 +71,6 @@ package body AWS.Resources.Streams.Disk is
       File.Name := To_Unbounded_String (Name);
 
       Stream_IO.Open (File.File, Stream_IO.In_File, Name, Form);
-
    exception
       when Stream_IO.Name_Error =>
          null;

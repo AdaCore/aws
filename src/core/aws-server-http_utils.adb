@@ -751,13 +751,13 @@ package body AWS.Server.HTTP_Utils is
            (Buffer : Streams.Stream_Element_Array; Trim : Boolean) with Inline;
          --  Write buffer to the file, handle the Device_Error exception
 
-         File    : Streams.Stream_IO.File_Type;
-         Buffer  : Streams.Stream_Element_Array (1 .. 4 * 1_024);
-         Index   : Streams.Stream_Element_Offset := Buffer'First;
+         File   : Streams.Stream_IO.File_Type;
+         Buffer : Streams.Stream_Element_Array (1 .. 4 * 1_024);
+         Index  : Streams.Stream_Element_Offset := Buffer'First;
 
-         Data    : Streams.Stream_Element_Array (1 .. 1);
-         Data2   : Streams.Stream_Element_Array (1 .. 2);
-         Error   : Error_State := No_Error;
+         Data   : Streams.Stream_Element_Array (1 .. 1);
+         Data2  : Streams.Stream_Element_Array (1 .. 2);
+         Error  : Error_State := No_Error;
 
          ---------------
          -- Check_EOF --
@@ -2265,12 +2265,12 @@ package body AWS.Server.HTTP_Utils is
          --  Note that we do not use a buffered socket here. Opera on SSL
          --  sockets does not like chunk that are not sent in a whole.
 
-         Buffer : Streams.Stream_Element_Array (1 .. Chunk_Size);
+         Buffer     : Streams.Stream_Element_Array (1 .. Chunk_Size);
          --  Each chunk will have a maximum length of Buffer'Length
 
-         CRLF : constant Streams.Stream_Element_Array :=
-                  [1 => Character'Pos (ASCII.CR),
-                   2 => Character'Pos (ASCII.LF)];
+         CRLF       : constant Streams.Stream_Element_Array :=
+                        [1 => Character'Pos (ASCII.CR),
+                         2 => Character'Pos (ASCII.LF)];
 
          Last_Chunk : constant Streams.Stream_Element_Array :=
                         Character'Pos ('0') & CRLF & CRLF;
@@ -2392,7 +2392,6 @@ package body AWS.Server.HTTP_Utils is
       if Close then
          Resources.Close (File);
       end if;
-
    exception
       when others =>
          if Close then

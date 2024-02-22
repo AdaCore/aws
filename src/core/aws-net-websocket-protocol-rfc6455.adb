@@ -166,9 +166,9 @@ package body AWS.Net.WebSocket.Protocol.RFC6455 is
                    Get_Websocket_Accept
                      (AWS.Headers.Get
                         (Request, Messages.Sec_WebSocket_Key_Token));
-      Actual : constant String :=
-                 AWS.Response.Header
-                   (Response, Messages.Sec_WebSocket_Accept_Token);
+      Actual   : constant String :=
+                   AWS.Response.Header
+                     (Response, Messages.Sec_WebSocket_Accept_Token);
    begin
       return Expected = Actual;
    end Check_Connect_Response;

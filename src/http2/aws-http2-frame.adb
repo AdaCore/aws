@@ -238,7 +238,7 @@ package body AWS.HTTP2.Frame is
    function Validate
      (Self : Object; Settings : Connection.Object) return Error_Codes
    is
-      Kind : Frame.Kind_Type renames Self.Header.H.Kind;
+      Kind       : Frame.Kind_Type renames Self.Header.H.Kind;
       Fixed_Size : constant Length_Type :=
                      (case Kind is
                          when K_Priority      => 5,

@@ -81,7 +81,7 @@ package body AWS.Headers is
    begin
       if Debug_Flag then
          for J in 1 .. Headers.Count loop
-            Ada.Text_IO.Put_Line ('>' & Headers.Get_Line (J));
+            Text_IO.Put_Line ('>' & Headers.Get_Line (J));
          end loop;
       end if;
    end Debug_Print;

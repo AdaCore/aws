@@ -90,7 +90,7 @@ package body AWS.Config.Ini is
 
       procedure Set_Value (Key : String; Value : String);
 
-      Line : Natural;
+      Line : Natural := 0;
       --  Current line number parsed
 
       -------------------
@@ -140,7 +140,6 @@ package body AWS.Config.Ini is
                     File => File,
                     Mode => Text_IO.In_File,
                     Form => "shared=no");
-      Line := 0;
 
       while not Text_IO.End_Of_File (File) loop
 
@@ -164,7 +163,6 @@ package body AWS.Config.Ini is
                K_First, K_Last);
 
             if K_Last /= 0 then
-
                declare
                   Key   : constant String := Buffer (K_First .. K_Last);
                   Value : constant String :=
@@ -187,7 +185,6 @@ package body AWS.Config.Ini is
       end loop;
 
       Text_IO.Close (File);
-
    exception
       when others =>
          if Text_IO.Is_Open (File) then

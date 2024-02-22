@@ -424,8 +424,8 @@ package body AWS.MIME is
         (Filename  : Regexp.Regexp;
          MIME_Type : String)
       is
-         Item : constant R_MIME_Type
-           := (Filename, To_Unbounded_String (MIME_Type));
+         Item : constant R_MIME_Type :=
+                  (Filename, To_Unbounded_String (MIME_Type));
       begin
          if R_Table = null then
             R_Table := new Node'(Item, null);
@@ -456,6 +456,7 @@ package body AWS.MIME is
                   if Key_Value.Element (Position) = Content_Type then
                      return Key_Value.Key (Position);
                   end if;
+
                   Key_Value.Next (Position);
                end loop;
             end;

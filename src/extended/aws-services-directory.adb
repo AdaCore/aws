@@ -112,7 +112,6 @@ package body AWS.Services.Directory is
 
    begin
       for I in 1 .. Length (Left.Order_Set) loop
-
          O_C        := Element (Left.Order_Set, I);
          Order_Item := To_Order_Mode (O_C);
          Ascending  := Characters.Handling.Is_Upper (O_C);
@@ -132,10 +131,10 @@ package body AWS.Services.Directory is
 
                elsif not Left.Directory and then not Right.Directory then
                   declare
-                     Mime_Left  : constant String
-                       := Content_Type (To_String (Left.Name));
-                     Mime_Right : constant String
-                       := Content_Type (To_String (Right.Name));
+                     Mime_Left  : constant String :=
+                                    Content_Type (To_String (Left.Name));
+                     Mime_Right : constant String :=
+                                    Content_Type (To_String (Right.Name));
                   begin
                      if Mime_Left /= Mime_Right then
                         return Mime_Left < Mime_Right xor not Ascending;
@@ -151,10 +150,10 @@ package body AWS.Services.Directory is
                elsif not Left.Directory and then not Right.Directory then
                   declare
                      use Ada.Characters.Handling;
-                     Ext_Left  : constant String
-                       := To_Upper (Get_Ext (To_String (Left.Name)));
-                     Ext_Right : constant String
-                       := To_Upper (Get_Ext (To_String (Right.Name)));
+                     Ext_Left  : constant String :=
+                                   To_Upper (Get_Ext (To_String (Left.Name)));
+                     Ext_Right : constant String :=
+                                   To_Upper (Get_Ext (To_String (Right.Name)));
                   begin
                      if Ext_Left /= Ext_Right then
                         return Ext_Left < Ext_Right xor not Ascending;
@@ -169,10 +168,10 @@ package body AWS.Services.Directory is
 
                elsif not Left.Directory and then not Right.Directory then
                   declare
-                     Ext_Left  : constant String
-                       := Get_Ext (To_String (Left.Name));
-                     Ext_Right : constant String
-                       := Get_Ext (To_String (Right.Name));
+                     Ext_Left  : constant String :=
+                                   Get_Ext (To_String (Left.Name));
+                     Ext_Right : constant String :=
+                                   Get_Ext (To_String (Right.Name));
                   begin
                      if Ext_Left /= Ext_Right then
                         return Ext_Left < Ext_Right xor not Ascending;
@@ -184,8 +183,8 @@ package body AWS.Services.Directory is
 
                declare
                   use Ada.Characters.Handling;
-                  Left_Name  : constant  String
-                    := To_Upper (To_String (Left.Name));
+                  Left_Name  : constant  String :=
+                                 To_Upper (To_String (Left.Name));
                   Right_Name : constant String :=
                                  To_Upper (To_String (Right.Name));
                begin

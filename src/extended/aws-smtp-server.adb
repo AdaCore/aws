@@ -99,7 +99,6 @@ package body AWS.SMTP.Server is
    function Get_Message
      (Sock : Net.Socket_Type'Class) return Messages.Data
    is
-
       S : Net.Socket_Access := new Net.Socket_Type'Class'(Sock);
 
       Empty_Line : constant String := "";

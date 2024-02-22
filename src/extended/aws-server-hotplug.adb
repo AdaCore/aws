@@ -351,10 +351,9 @@ package body AWS.Server.Hotplug is
       ---------
 
       function Get (Client : String) return Client_Data is
-         Cursor : Client_Table.Cursor;
+         Cursor : constant Client_Table.Cursor :=
+                    Client_Table.Find (Clients, Client);
       begin
-         Cursor := Client_Table.Find (Clients, Client);
-
          if Client_Table.Has_Element (Cursor) then
             return Client_Table.Element (Cursor);
          else
@@ -370,10 +369,9 @@ package body AWS.Server.Hotplug is
         (Client : String;
          Nonce  : out Digest.Nonce)
       is
-         Cursor : Client_Table.Cursor;
+         Cursor : constant Client_Table.Cursor :=
+                    Client_Table.Find (Clients, Client);
       begin
-         Cursor := Client_Table.Find (Clients, Client);
-
          if Client_Table.Has_Element (Cursor) then
             declare
                CD : Client_Data := Client_Table.Element (Cursor);

@@ -147,7 +147,6 @@ package body AWS.Log is
       end if;
 
       Log.Semaphore.Release;
-
    exception
       when others =>
          Log.Semaphore.Release;
@@ -397,7 +396,6 @@ package body AWS.Log is
       end case;
 
       Text_IO.Open (Log.File, Text_IO.Append_File, To_String (Filename));
-
    exception
       when Text_IO.Name_Error =>
          Text_IO.Create (Log.File, Text_IO.Out_File, To_String (Filename));
@@ -598,8 +596,7 @@ package body AWS.Log is
             -- Process --
             -------------
 
-            procedure Process (Position : Strings_Positive.Cursor)
-            is
+            procedure Process (Position : Strings_Positive.Cursor) is
             begin
                Order (Strings_Positive.Element (Position)) := Position;
             end Process;
@@ -757,7 +754,6 @@ package body AWS.Log is
       end if;
 
       Log.Semaphore.Release;
-
    exception
       when others =>
          Log.Semaphore.Release;
@@ -776,7 +772,6 @@ package body AWS.Log is
       Log.Semaphore.Seize;
 
       if Text_IO.Is_Open (Log.File) then
-
          Check_Split (Log, Now);
 
          Text_IO.Put_Line (Log.File, Data);
@@ -787,7 +782,6 @@ package body AWS.Log is
       end if;
 
       Log.Semaphore.Release;
-
    exception
       when others =>
          Log.Semaphore.Release;
