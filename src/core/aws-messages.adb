@@ -27,6 +27,7 @@
 --  covered by the  GNU Public License.                                     --
 ------------------------------------------------------------------------------
 
+with Ada.Containers.Indefinite_Ordered_Maps;
 with Ada.Directories;
 
 with AWS.Headers.Values;
@@ -34,157 +35,94 @@ with AWS.Utils;
 
 package body AWS.Messages is
 
-   S100_Message : aliased constant String := "Continue";
-   S101_Message : aliased constant String := "Switching Protocols";
+   package Status is
+     new Containers.Indefinite_Ordered_Maps (Status_Code, String);
 
-   S102_Message : aliased constant String := "Processing";
-   --  Introduced in the WebDAV HTTP extension, refer to RFC2518
+   Status_Messages : constant Status.Map :=
+                       [S100 => "Continue",
+                        S101 => "Switching Protocols",
+                        S102 => "Processing",
 
-   S200_Message : aliased constant String := "OK";
-   S201_Message : aliased constant String := "Created";
-   S202_Message : aliased constant String := "Accepted";
-   S203_Message : aliased constant String := "Non-Authoritative Information";
-   S204_Message : aliased constant String := "No Content";
-   S205_Message : aliased constant String := "Reset Content";
-   S206_Message : aliased constant String := "Partial Content";
-   S207_Message : aliased constant String := "Multi-Status"; -- WebDAV
-   S208_Message : aliased constant String := "Already Reported"; -- WebDAV
-   S226_Message : aliased constant String := "IM Used";
+                        --  Introduced in the WebDAV HTTP extension,
+                        --  Refer to RFC2518.
 
-   S300_Message : aliased constant String := "Multiple Choices";
-   S301_Message : aliased constant String := "Moved Permanently";
-   S302_Message : aliased constant String := "Found";
-   S303_Message : aliased constant String := "See Other";
-   S304_Message : aliased constant String := "Not Modified";
-   S305_Message : aliased constant String := "Use Proxy";
-   S306_Message : aliased constant String := "Switch Proxy";
-   S307_Message : aliased constant String := "Temporary Redirect";
-   S308_Message : aliased constant String := "Permanent Redirect";
+                        S200 => "OK",
+                        S201 => "Created",
+                        S202 => "Accepted",
+                        S203 => "Non-Authoritative Information",
+                        S204 => "No Content",
+                        S205 => "Reset Content",
+                        S206 => "Partial Content",
+                        S207 => "Multi-Status", -- WebDAV
+                        S208 => "Already Reported", -- WebDAV
+                        S226 => "IM Used",
 
-   S400_Message : aliased constant String := "Bad Request";
-   S401_Message : aliased constant String := "Unauthorized";
-   S402_Message : aliased constant String := "Payment Required";
-   S403_Message : aliased constant String := "Forbidden";
-   S404_Message : aliased constant String := "Not Found";
-   S405_Message : aliased constant String := "Method Not Allowed";
-   S406_Message : aliased constant String := "Not Acceptable";
-   S407_Message : aliased constant String := "Proxy Authentication Required";
-   S408_Message : aliased constant String := "Request Time-out";
-   S409_Message : aliased constant String := "Conflict";
-   S410_Message : aliased constant String := "Gone";
-   S411_Message : aliased constant String := "Length Required";
-   S412_Message : aliased constant String := "Precondition Failed";
-   S413_Message : aliased constant String := "Request Entity Too Large";
-   S414_Message : aliased constant String := "Request-URI Too Large";
-   S415_Message : aliased constant String := "Unsupported Media Type";
-   S416_Message : aliased constant String := "Requestd range not satisfiable";
-   S417_Message : aliased constant String := "Expectation Failed";
-   S418_Message : aliased constant String := "I'm a teapot"; -- RFC 7168
+                        S300 => "Multiple Choices",
+                        S301 => "Moved Permanently",
+                        S302 => "Found",
+                        S303 => "See Other",
+                        S304 => "Not Modified",
+                        S305 => "Use Proxy",
+                        S306 => "Switch Proxy",
+                        S307 => "Temporary Redirect",
+                        S308 => "Permanent Redirect",
 
-   S421_Message : aliased constant String := "Misdirected Request";
-   S422_Message : aliased constant String := "Unprocessable Entity";
-   S423_Message : aliased constant String := "Locked";
-   S424_Message : aliased constant String := "Failed Dependency"; -- WebDAV
-   S425_Message : aliased constant String := "Too Early";
-   S426_Message : aliased constant String := "Upgrade Required";
-   S428_Message : aliased constant String := "Precondition Required";
-   S429_Message : aliased constant String := "Too Many Requests";
-   S431_Message : aliased constant String := "Request Header Fields Too Large";
-   S451_Message : aliased constant String := "Unavailable For Legal Reasons";
+                        S400 => "Bad Request",
+                        S401 => "Unauthorized",
+                        S402 => "Payment Required",
+                        S403 => "Forbidden",
+                        S404 => "Not Found",
+                        S405 => "Method Not Allowed",
+                        S406 => "Not Acceptable",
+                        S407 => "Proxy Authentication Required",
+                        S408 => "Request Time-out",
+                        S409 => "Conflict",
+                        S410 => "Gone",
+                        S411 => "Length Required",
+                        S412 => "Precondition Failed",
+                        S413 => "Request Entity Too Large",
+                        S414 => "Request-URI Too Large",
+                        S415 => "Unsupported Media Type",
+                        S416 => "Requestd range not satisfiable",
+                        S417 => "Expectation Failed",
+                        S418 => "I'm a teapot", -- RFC 7168
 
-   S500_Message : aliased constant String := "Internal Server Error";
-   S501_Message : aliased constant String := "Not Implemented";
-   S502_Message : aliased constant String := "Bad Gateway";
-   S503_Message : aliased constant String := "Service Unavailable";
-   S504_Message : aliased constant String := "Gateway Time-out";
-   S505_Message : aliased constant String := "HTTP Version not supported";
-   S506_Message : aliased constant String := "Variant Also Negotiates";
-   S507_Message : aliased constant String := "Insufficient Storage"; -- WebDAV
-   S508_Message : aliased constant String := "Loop Detected";
-   S510_Message : aliased constant String := "Not Extended";
-   S511_Message : aliased constant String := "Network Authentication Required";
-   S520_Message : aliased constant String := "Unknown Error";
-   S521_Message : aliased constant String := "Web Server Is Down";
-   S522_Message : aliased constant String := "Connection Timed Out";
-   S523_Message : aliased constant String := "Origin Is Unreachable";
-   S524_Message : aliased constant String := "A timeout occurred";
-   S525_Message : aliased constant String := "SSL Handshake Failed";
-   S526_Message : aliased constant String := "Invalid SSL Certificate";
+                        S421 => "Misdirected Request",
+                        S422 => "Unprocessable Entity",
+                        S423 => "Locked",
+                        S424 => "Failed Dependency", -- WebDAV
+                        S425 => "Too Early",
+                        S426 => "Upgrade Required",
+                        S428 => "Precondition Required",
+                        S429 => "Too Many Requests",
+                        S431 => "Request Header Fields Too Large",
+                        S451 => "Unavailable For Legal Reasons",
 
-   Status_Messages : constant array (Status_Code) of access constant String :=
-                       [S100 => S100_Message'Access,
-                        S101 => S101_Message'Access,
-                        S102 => S102_Message'Access,
-                        S200 => S200_Message'Access,
-                        S201 => S201_Message'Access,
-                        S202 => S202_Message'Access,
-                        S203 => S203_Message'Access,
-                        S204 => S204_Message'Access,
-                        S205 => S205_Message'Access,
-                        S206 => S206_Message'Access,
-                        S207 => S207_Message'Access,
-                        S208 => S208_Message'Access,
-                        S226 => S226_Message'Access,
-                        S300 => S300_Message'Access,
-                        S301 => S301_Message'Access,
-                        S302 => S302_Message'Access,
-                        S303 => S303_Message'Access,
-                        S304 => S304_Message'Access,
-                        S305 => S305_Message'Access,
-                        S306 => S306_Message'Access,
-                        S307 => S307_Message'Access,
-                        S308 => S308_Message'Access,
-                        S400 => S400_Message'Access,
-                        S401 => S401_Message'Access,
-                        S402 => S402_Message'Access,
-                        S403 => S403_Message'Access,
-                        S404 => S404_Message'Access,
-                        S405 => S405_Message'Access,
-                        S406 => S406_Message'Access,
-                        S407 => S407_Message'Access,
-                        S408 => S408_Message'Access,
-                        S409 => S409_Message'Access,
-                        S410 => S410_Message'Access,
-                        S411 => S411_Message'Access,
-                        S412 => S412_Message'Access,
-                        S413 => S413_Message'Access,
-                        S414 => S414_Message'Access,
-                        S415 => S415_Message'Access,
-                        S416 => S416_Message'Access,
-                        S417 => S417_Message'Access,
-                        S418 => S418_Message'Access,
-                        S421 => S421_Message'Access,
-                        S422 => S422_Message'Access,
-                        S423 => S423_Message'Access,
-                        S424 => S424_Message'Access,
-                        S425 => S425_Message'Access,
-                        S426 => S426_Message'Access,
-                        S428 => S428_Message'Access,
-                        S429 => S429_Message'Access,
-                        S431 => S431_Message'Access,
-                        S451 => S451_Message'Access,
-                        S500 => S500_Message'Access,
-                        S501 => S501_Message'Access,
-                        S502 => S502_Message'Access,
-                        S503 => S503_Message'Access,
-                        S504 => S504_Message'Access,
-                        S505 => S505_Message'Access,
-                        S506 => S506_Message'Access,
-                        S507 => S507_Message'Access,
-                        S508 => S508_Message'Access,
-                        S510 => S510_Message'Access,
-                        S511 => S511_Message'Access,
-                        S520 => S520_Message'Access,
-                        S521 => S521_Message'Access,
-                        S522 => S522_Message'Access,
-                        S523 => S523_Message'Access,
-                        S524 => S524_Message'Access,
-                        S525 => S525_Message'Access,
-                        S526 => S526_Message'Access];
+                        S500 => "Internal Server Error",
+                        S501 => "Not Implemented",
+                        S502 => "Bad Gateway",
+                        S503 => "Service Unavailable",
+                        S504 => "Gateway Time-out",
+                        S505 => "HTTP Version not supported",
+                        S506 => "Variant Also Negotiates",
+                        S507 => "Insufficient Storage", -- WebDAV
+                        S508 => "Loop Detected",
+                        S510 => "Not Extended",
+                        S511 => "Network Authentication Required",
+                        S520 => "Unknown Error",
+                        S521 => "Web Server Is Down",
+                        S522 => "Connection Timed Out",
+                        S523 => "Origin Is Unreachable",
+                        S524 => "A timeout occurred",
+                        S525 => "SSL Handshake Failed",
+                        S526 => "Invalid SSL Certificate" ];
 
-   Month_Name : constant array (Calendar.Month_Number) of String (1 .. 3) :=
-                  ["Jan", "Feb", "Mar", "Apr", "May", "Jun",
-                   "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+   Month_Names : constant array (Calendar.Month_Number) of String (1 .. 3) :=
+                   ["Jan", "Feb", "Mar", "Apr", "May", "Jun",
+                    "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+
+   Day_Names  : constant array (Integer range 0 .. 6) of String (1 .. 3) :=
+                  ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
 
    HD : constant String := ": ";
    --  Header delimiter with space for well formatting
@@ -412,7 +350,7 @@ package body AWS.Messages is
 
    function Reason_Phrase (S : Status_Code) return String is
    begin
-      return Status_Messages (S).all;
+      return Status_Messages (S);
    end Reason_Phrase;
 
    --------------------------
@@ -674,10 +612,6 @@ package body AWS.Messages is
       -------------
 
       function Weekday (Date : Calendar.Time) return String is
-
-         Day_Names : constant array (Integer range 0 .. 6) of String (1 .. 3)
-           := ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
-
          D : constant Integer := Calendar.Day (Date);
          Y : Integer := Calendar.Year (Date);
          M : Integer := Calendar.Month (Date);
@@ -704,7 +638,7 @@ package body AWS.Messages is
       end Weekday;
 
       Day  : constant String  := Image (Calendar.Day (Time));
-      Mon  : constant String  := Month_Name (Calendar.Month (Time));
+      Mon  : constant String  := Month_Names (Calendar.Month (Time));
       Year : constant String  := Image (Calendar.Year (Time));
 
       Secs : constant Natural := Truncation (Calendar.Seconds (Time));
@@ -739,7 +673,7 @@ package body AWS.Messages is
         (Month_Name : String) return Calendar.Month_Number is
       begin
          for I in Calendar.Month_Number loop
-            if Month_Name = Messages.Month_Name (I) then
+            if Month_Name = Messages.Month_Names (I) then
                return I;
             end if;
          end loop;

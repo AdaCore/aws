@@ -375,7 +375,7 @@ package body AWS.Net.Buffered is
 
                J := C.First;
             else
-               return [1 .. 0 => 0];
+               return [1 .. 0 => <>];
             end if;
          end if;
 
