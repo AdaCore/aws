@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                       Copyright (C) 2021, AdaCore                        --
+--                     Copyright (C) 2021-2024, AdaCore                     --
 --                                                                          --
 --  This is free software;  you can redistribute it  and/or modify it       --
 --  under terms of the  GNU General Public License as published  by the     --
@@ -21,4 +21,9 @@ with "aws";
 project Hello is
    for Source_Dirs use (".");
    for Main use ("hello_client.adb", "hello_server.adb");
+
+   package Builder is
+      for Default_Switches ("Ada") use ("-gnat2022");
+   end Builder;
+
 end Hello;
