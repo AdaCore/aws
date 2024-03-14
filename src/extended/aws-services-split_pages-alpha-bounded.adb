@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2004-2024, AdaCore                     --
+--                     Copyright (C) 2004-2013, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -85,13 +85,13 @@ package body AWS.Services.Split_Pages.Alpha.Bounded is
             Line := Alpha_Table (In_Inx).First;
 
             for I in 1 .. Nb_Pages (Alpha_Table (In_Inx)) - 1 loop
-               Out_Inx := @ + 1;
+               Out_Inx := Out_Inx + 1;
                Result (Out_Inx) :=
                  (First => Line, Last  => Line + Self.Max_Per_Page - 1);
-               Line := @ + Self.Max_Per_Page;
+               Line := Line + Self.Max_Per_Page;
             end loop;
 
-            Out_Inx := @ + 1;
+            Out_Inx := Out_Inx + 1;
             Result (Out_Inx) :=
               (First => Line, Last  => Alpha_Table (In_Inx).Last);
 
@@ -138,8 +138,8 @@ package body AWS.Services.Split_Pages.Alpha.Bounded is
       end loop;
 
       for I in Self.Index (A) .. Self.Index_Last (A) loop
-         S_INDEXES_V := @ & Integer (I - Self.Index (A) + 1);
-         S_HREFS_V   := @ & URIs (I);
+         S_INDEXES_V := S_INDEXES_V & Integer (I - Self.Index (A) + 1);
+         S_HREFS_V   := S_HREFS_V   & URIs (I);
       end loop;
 
       if Page = Self.Index (A) then

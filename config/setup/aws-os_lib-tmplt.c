@@ -2,7 +2,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2012-2024, AdaCore                     --
+--                     Copyright (C) 2012-2020, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -1071,7 +1071,7 @@ CND(IPV6_V6ONLY, "Restricted to IPv6 communications only")
       Family   : sa_family_t := 0;
       Port     : Interfaces.C.unsigned_short := 0;
       FlowInfo : Interfaces.Unsigned_32 := 0;
-      Addr     : In6_Addr := [others => 0];
+      Addr     : In6_Addr := (others => 0);
       Scope_Id : Interfaces.Unsigned_32 := 0;
    end record;
    pragma Convention (C, Sockaddr_In6);

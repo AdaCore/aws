@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2009-2024, AdaCore                     --
+--                     Copyright (C) 2009-2014, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -26,6 +26,8 @@
 --  however invalidate any other reasons why the executable file  might be  --
 --  covered by the  GNU Public License.                                     --
 ------------------------------------------------------------------------------
+
+pragma Ada_2012;
 
 with AWS.Translator;
 
@@ -57,7 +59,7 @@ package body AWS.Utils.Streams is
    begin
       for S in Str'Range loop
          Item (J) := Stream_Element (Character'Pos (Str (S)));
-         J := @ + 1;
+         J := J + 1;
       end loop;
 
       Last := Item'First + Str'Length - 1;
@@ -103,7 +105,7 @@ package body AWS.Utils.Streams is
    begin
       for Elem of Item loop
          Str (S) := Character'Val (Elem);
-         S := @ + 1;
+         S := S + 1;
       end loop;
 
       Append (Stream.Str, Str);

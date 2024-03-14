@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2000-2024, AdaCore                     --
+--                     Copyright (C) 2000-2014, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -26,6 +26,8 @@
 --  however invalidate any other reasons why the executable file  might be  --
 --  covered by the  GNU Public License.                                     --
 ------------------------------------------------------------------------------
+
+pragma Ada_2012;
 
 with Ada.Calendar;
 with Ada.Command_Line;
@@ -147,6 +149,7 @@ package body AWS.Log is
       end if;
 
       Log.Semaphore.Release;
+
    exception
       when others =>
          Log.Semaphore.Release;
@@ -321,7 +324,7 @@ package body AWS.Log is
             if First = 0 then
                First := Name'First;
             else
-               First := @ + 1;
+               First := First + 1;
             end if;
 
             Last := Strings.Fixed.Index
@@ -330,7 +333,7 @@ package body AWS.Log is
             if Last = 0 then
                Last := Name'Last;
             else
-               Last := @ - 1;
+               Last := Last - 1;
             end if;
 
             return Name (First .. Last);
@@ -396,6 +399,7 @@ package body AWS.Log is
       end case;
 
       Text_IO.Open (Log.File, Text_IO.Append_File, To_String (Filename));
+
    exception
       when Text_IO.Name_Error =>
          Text_IO.Create (Log.File, Text_IO.Out_File, To_String (Filename));
@@ -596,7 +600,8 @@ package body AWS.Log is
             -- Process --
             -------------
 
-            procedure Process (Position : Strings_Positive.Cursor) is
+            procedure Process (Position : Strings_Positive.Cursor)
+            is
             begin
                Order (Strings_Positive.Element (Position)) := Position;
             end Process;
@@ -754,6 +759,7 @@ package body AWS.Log is
       end if;
 
       Log.Semaphore.Release;
+
    exception
       when others =>
          Log.Semaphore.Release;
@@ -772,6 +778,7 @@ package body AWS.Log is
       Log.Semaphore.Seize;
 
       if Text_IO.Is_Open (Log.File) then
+
          Check_Split (Log, Now);
 
          Text_IO.Put_Line (Log.File, Data);
@@ -782,6 +789,7 @@ package body AWS.Log is
       end if;
 
       Log.Semaphore.Release;
+
    exception
       when others =>
          Log.Semaphore.Release;

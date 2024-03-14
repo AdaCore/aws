@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2021-2024, AdaCore                     --
+--                      Copyright (C) 2021, AdaCore                         --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -178,9 +178,9 @@ package body AWS.HTTP2.HPACK.Table is
       Item : constant Name_Value := (N'Length, V'Length, N, V);
       Size : constant Positive := NV_Size (Item);
    begin
-      Self.Dynamic.Size   := @ + Size;
-      Self.Dynamic.Length := @ + 1;
-      Self.Dynamic.Rank   := @ + 1;
+      Self.Dynamic.Size   := Self.Dynamic.Size + Size;
+      Self.Dynamic.Length := Self.Dynamic.Length + 1;
+      Self.Dynamic.Rank   := Self.Dynamic.Rank + 1;
 
       declare
          Idx : constant Positive := Self.Dynamic.Rank;
@@ -206,8 +206,8 @@ package body AWS.HTTP2.HPACK.Table is
                Item : constant Name_Value := Self.Dynamic.T_IN.First_Element;
             begin
                Self.Dynamic.T_IN.Delete_First;
-               Self.Dynamic.Size := @ - NV_Size (Item);
-               Self.Dynamic.Length := @ - 1;
+               Self.Dynamic.Size := Self.Dynamic.Size - NV_Size (Item);
+               Self.Dynamic.Length := Self.Dynamic.Length - 1;
 
                Self.Dynamic.T_NI.Exclude (Item.Name);
                Self.Dynamic.T_NI.Exclude (Item.Name & '=' & Item.Value);

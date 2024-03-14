@@ -225,10 +225,12 @@ package body AWS.Net.SSL.Certificate.Impl is
             Socket);
 
          declare
-            type Array_Access is access all Stream_Element_Array
-              (1 .. Stream_Element_Offset (Datum.size));
-            function To_Array is new Ada.Unchecked_Conversion
-              (TSSL.a_unsigned_char_t, Array_Access);
+            type Array_Access is
+               access all Stream_Element_Array
+                            (1 .. Stream_Element_Offset (Datum.size));
+            function To_Array is
+               new Ada.Unchecked_Conversion
+                     (TSSL.a_unsigned_char_t, Array_Access);
          begin
             Result := Binary_Holders.To_Holder (To_Array (Datum.data).all);
             TSSL.gnutls_free (Datum.data);
@@ -280,16 +282,16 @@ package body AWS.Net.SSL.Certificate.Impl is
       --  Buffer size for the subject and issuer
 
       RC       : C.int;
-      Subject  : aliased C.char_array := [1 .. Buffer_Size => C.nul];
+      Subject  : aliased C.char_array := (1 .. Buffer_Size => C.nul);
       Subj_Len : aliased C.size_t := Buffer_Size;
-      Issuer   : aliased C.char_array := [1 .. Buffer_Size => C.nul];
+      Issuer   : aliased C.char_array := (1 .. Buffer_Size => C.nul);
       Iss_Len  : aliased C.size_t := Buffer_Size;
-      CN       : aliased C.char_array := [1 .. Buffer_Size => C.nul];
+      CN       : aliased C.char_array := (1 .. Buffer_Size => C.nul);
       CN_Len   : aliased C.size_t := Buffer_Size;
 
       T_Activation, T_Expiration : TSSL.time_t;
 
-      Serial     : aliased Stream_Element_Array := [1 .. Buffer_Size => 0];
+      Serial     : aliased Stream_Element_Array := (1 .. Buffer_Size => 0);
       Serial_Len : aliased C.size_t := Buffer_Size;
 
    begin

@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2000-2024, AdaCore                     --
+--                     Copyright (C) 2000-2020, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -26,6 +26,8 @@
 --  however invalidate any other reasons why the executable file  might be  --
 --  covered by the  GNU Public License.                                     --
 ------------------------------------------------------------------------------
+
+pragma Ada_2012;
 
 --  This is the API to handle session data for each client connected
 
@@ -232,7 +234,7 @@ private
 
    type Id is new String (1 .. Config.Session_Id_Length);
 
-   No_Session : constant Id := [others => ' '];
+   No_Session : constant Id := (others => ' ');
 
    task type Cleaner with Priority => Config.Session_Cleaner_Priority is
       entry Stop;

@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2000-2024, AdaCore                     --
+--                     Copyright (C) 2000-2017, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -99,7 +99,7 @@ package AWS.Server.Push is
 
    subtype Group_Set is Containers.Tables.VString_Array;
 
-   Empty_Group : constant Group_Set := [1 .. 0 => Null_Unbounded_String];
+   Empty_Group : constant Group_Set := (1 .. 0 => Null_Unbounded_String);
 
    procedure Register
      (Server            : in out Object;

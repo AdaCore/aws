@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2000-2024, AdaCore                     --
+--                     Copyright (C) 2000-2021, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -185,6 +185,7 @@ package body SOAP.Client is
                  (AWS.Response.Status_Code (Response))),
             Faultstring => AWS.Response.Message_Body (Response));
       end if;
+
    exception
       when others =>
          Free (XML_Str);

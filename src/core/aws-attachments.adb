@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2004-2024, AdaCore                     --
+--                     Copyright (C) 2004-2021, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -26,6 +26,8 @@
 --  however invalidate any other reasons why the executable file  might be  --
 --  covered by the  GNU Public License.                                     --
 ------------------------------------------------------------------------------
+
+pragma Ada_2012;
 
 with Ada.Directories;
 with Ada.IO_Exceptions;
@@ -513,7 +515,7 @@ package body AWS.Attachments is
                      K := Content_Len + 1;
                   else
                      Put_Line (Slice (Data.Content, K, K + Chunk_Size - 1));
-                     K := @ + Chunk_Size;
+                     K := K + Chunk_Size;
                   end if;
                end loop;
             end Send_Base64;
@@ -701,7 +703,7 @@ package body AWS.Attachments is
       --  Add all content lengths
 
       for J in 1 .. Count (Attachments) loop
-         L := @ + Element (Element'(Get (Attachments, J))).Total_Length;
+         L := L + Element (Element'(Get (Attachments, J))).Total_Length;
       end loop;
 
       return L;

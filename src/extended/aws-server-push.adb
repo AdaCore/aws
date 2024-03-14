@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2000-2024, AdaCore                     --
+--                     Copyright (C) 2000-2017, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -26,6 +26,8 @@
 --  however invalidate any other reasons why the executable file  might be  --
 --  covered by the  GNU Public License.                                     --
 ------------------------------------------------------------------------------
+
+pragma Ada_2012;
 
 with Ada.Containers.Doubly_Linked_Lists;
 with Ada.Real_Time;
@@ -131,7 +133,7 @@ package body AWS.Server.Push is
    New_Line : constant String := ASCII.CR & ASCII.LF;
    --  HTTP new line
 
-   Byte0 : constant Stream_Element_Array := [0];
+   Byte0 : constant Stream_Element_Array := (1 => 0);
 
    Boundary  : constant String :=
                  "AWS.Push.Boundary_" & Utils.Random_String (8);
@@ -246,7 +248,7 @@ package body AWS.Server.Push is
       begin
          case Holder.Kind is
             when Multipart =>
-               Holder.Chunk_Sent := @ + 1;
+               Holder.Chunk_Sent := Holder.Chunk_Sent + 1;
 
                if Holder.Chunk_Sent = 1 then
                   return Delimiter & Messages.Content_Type (Content_Type)
@@ -288,7 +290,7 @@ package body AWS.Server.Push is
          return Translator.To_Stream_Element_Array (Prefix) & Data_To_Send
                 & Translator.To_Stream_Element_Array (Suffix);
       else
-         return [1 .. 0 => 0];
+         return (1 .. 0 => 0);
       end if;
    end Data_Chunk;
 
@@ -749,7 +751,7 @@ package body AWS.Server.Push is
             --  Net.Check is not blocking operation
 
             begin
-               Events := Holder.Socket.Check ([others => True]);
+               Events := Holder.Socket.Check ((others => True));
             exception
                when E : Socket_Error =>
                   --  !!! Most possible it is ENOBUFS or ENOMEM error
@@ -757,7 +759,7 @@ package body AWS.Server.Push is
                   --  error in the socket error log file.
 
                   Holder.Errmsg := To_Unbounded_String (Exception_Message (E));
-                  Events := [others => False];
+                  Events := (others => False);
 
                   if Holder.Socket.all in Net.WebSocket.Object'Class
                     and then Holder.Socket.Get_FD = Net.No_Socket
@@ -955,6 +957,7 @@ package body AWS.Server.Push is
       --------------------
 
       procedure Subscribe_Copy (Source : String; Target : String) is
+         CG : Group_Maps.Cursor;
 
          procedure Process (C : Tables.Cursor);
 
@@ -973,8 +976,6 @@ package body AWS.Server.Push is
                Add_To_Groups (Groups, Target, Tables.Key (C), Element);
             end if;
          end Process;
-
-         CG : Group_Maps.Cursor;
 
       begin
          if Source = "" then
@@ -1023,9 +1024,10 @@ package body AWS.Server.Push is
       procedure Unregister
         (Client_Id : Client_Key; Holder : out Client_Holder_Access)
       is
-         Cursor : Tables.Cursor :=
-                    Container.Find (Client_Id);
+         Cursor : Tables.Cursor;
       begin
+         Cursor := Container.Find (Client_Id);
+
          if Tables.Has_Element (Cursor) then
             Holder := Tables.Element (Cursor);
             Unregister (Cursor);
@@ -1139,6 +1141,7 @@ package body AWS.Server.Push is
             Groups.Delete (CG);
             Unchecked_Free (Group);
          end if;
+
       end Unsubscribe_Copy;
 
       ------------------
@@ -1328,7 +1331,7 @@ package body AWS.Server.Push is
                     Timeout);
    begin
       Register
-        (Server, Client_Id, Holder, [1 .. 0 => 0], Content_Type,
+        (Server, Client_Id, Holder, (1 .. 0 => 0), Content_Type,
          Duplicated_Age, Ext_Sock_Alloc => False);
    end Register;
 
@@ -1711,9 +1714,9 @@ package body AWS.Server.Push is
       use Real_Time;
       use Write_Sets;
 
-      R_Signal   : aliased Net.Socket_Type'Class := Socket (Security => False);
-      Bytes      : Stream_Element_Array (1 .. 32);
-      B_Last     : Stream_Element_Offset;
+      R_Signal : aliased Net.Socket_Type'Class := Socket (Security => False);
+      Bytes    : Stream_Element_Array (1 .. 32);
+      B_Last   : Stream_Element_Offset;
 
       Queue      : Waiter_Queues.List;
       Queue_Item : Waiter_Queue_Element;
@@ -1745,7 +1748,7 @@ package body AWS.Server.Push is
             Data   => (Server, Holder, Clock + Holder.Timeout),
             Mode   => Write_Sets.Both);
 
-         Counter := @ + 1;
+         Counter := Counter + 1;
       end Add_Item;
 
       -----------------------
@@ -2122,7 +2125,7 @@ package body AWS.Server.Push is
          Waiter_Information.Size    := Set_Size.Size;
 
          if Size > Max_Size then
-            Max_Size    := Size;
+            Max_Size := Size;
             Max_Size_DT := Calendar.Clock;
          end if;
       end Set_Size;

@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2003-2024, AdaCore                     --
+--                     Copyright (C) 2003-2017, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -26,6 +26,8 @@
 --  however invalidate any other reasons why the executable file  might be  --
 --  covered by the  GNU Public License.                                     --
 ------------------------------------------------------------------------------
+
+pragma Ada_2012;
 
 with Ada.Strings.Unbounded;
 with GNAT.Calendar.Time_IO;
@@ -270,8 +272,8 @@ package body AWS.Server.Status is
 
             Build_Key_Value_List (SID);
 
-            M_Keys   := @ & Keys;
-            M_Values := @ & Values;
+            M_Keys   := M_Keys & Keys;
+            M_Values := M_Values & Values;
 
             Clear (Keys);
             Clear (Values);
@@ -327,11 +329,11 @@ package body AWS.Server.Status is
             Slot_Data := Server.Slots.Get (Index => K);
 
             declare
-               SD : constant Socket_Data :=
-                      Server.Slots.Get_Socket_Info (Index => K);
+               SD : constant Socket_Data
+                 := Server.Slots.Get_Socket_Info (Index => K);
             begin
-               Sock      := @ & SD.FD;
-               Peer_Name := @ & SD.Peername;
+               Sock      := Sock      & SD.FD;
+               Peer_Name := Peer_Name & SD.Peername;
             end;
 
             Phase     := Phase & Slot_Phase'Image (Slot_Data.Phase);
@@ -594,7 +596,7 @@ package body AWS.Server.Status is
          pragma Unreferenced (Quit);
       begin
          Result (Index) := Item;
-         Index := @ + 1;
+         Index := Index + 1;
       end Action;
 
       procedure For_Each is new For_Every_Association (Action);

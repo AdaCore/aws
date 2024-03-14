@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2000-2024, AdaCore                     --
+--                     Copyright (C) 2000-2021, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -196,7 +196,7 @@ package body AWS.Parameters is
 
       procedure Add (Name, Value : String) is
       begin
-         Count := @ + 1;
+         Count := Count + 1;
 
          if Count <= Max_Parameters then
             Add (Parameter_List, Name, Value, Decode => True);
@@ -228,7 +228,7 @@ package body AWS.Parameters is
             --  Last parameter
             E := P'Last;
          else
-            E := @ - 1;
+            E := E - 1;
          end if;
 
          I := Fixed.Index (P (C .. E), "=");
@@ -239,7 +239,7 @@ package body AWS.Parameters is
             I := E;
          else
             S := I + 1;
-            I := @ - 1;
+            I := I - 1;
          end if;
 
          Add (Name => P (C .. I), Value => P (S .. E));

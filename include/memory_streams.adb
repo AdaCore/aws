@@ -2,7 +2,6 @@
 --                       Generic memory stream                              --
 --                                                                          --
 --                Copyright (C) 2003-2015, Dmitriy Anisimkov                --
---                     Copyright (C) 2016-2024, AdaCore                     --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -25,6 +24,8 @@
 --  however invalidate any other reasons why the executable file  might be  --
 --  covered by the  GNU Public License.                                     --
 ------------------------------------------------------------------------------
+
+pragma Ada_2012;
 
 with Ada.Unchecked_Deallocation;
 
@@ -81,7 +82,7 @@ package body Memory_Streams is
         or else Stream.Last_Length = Stream.Last.Data'Length
       then
          Stream.Last.Next := new Buffer_Type (False);
-         Stream.Last      := @.Next;
+         Stream.Last      := Stream.Last.Next;
 
          if Value'Length >= Next_Block_Length or else Trim then
             Stream.Last.Data := new Element_Array (1 .. Value'Length);
@@ -121,7 +122,7 @@ package body Memory_Streams is
                        Value (Value'First .. Split_Value - 1);
 
                   Stream.Last.Next := new Buffer_Type (False);
-                  Stream.Last      := @.Next;
+                  Stream.Last      := Stream.Last.Next;
 
                   if Next_Length >= Next_Block_Length or else Trim then
                      Stream.Last.Data := new Element_Array (1 .. Next_Length);
@@ -139,7 +140,7 @@ package body Memory_Streams is
          end;
       end if;
 
-      Stream.Length := @ + Value'Length;
+      Stream.Length := Stream.Length + Value'Length;
    end Append;
 
    ------------
@@ -170,7 +171,7 @@ package body Memory_Streams is
       end if;
 
       Stream.Last_Length := Data'Length;
-      Stream.Length      := @ + Data'Length;
+      Stream.Length      := Stream.Length + Data'Length;
    end Append;
 
    procedure Append
@@ -197,7 +198,7 @@ package body Memory_Streams is
       end if;
 
       Stream.Last_Length := Data'Length;
-      Stream.Length      := @ + Data'Length;
+      Stream.Length      := Stream.Length + Data'Length;
    end Append;
 
    -----------
@@ -211,10 +212,8 @@ package body Memory_Streams is
       while Stream.First /= null loop
          First := Stream.First;
 
-         --  ??? TODO: cannot use @ below, visibility bug
          Length := Length +
-           (if First.Next = null
-            then Stream.Last_Length
+           (if First.Next = null then Stream.Last_Length
             else Memory_Streams.Length (First));
 
          Stream.First := First.Next;
@@ -301,13 +300,13 @@ package body Memory_Streams is
 
       loop
          if B.Next = null then
-            S := @ + Stream.Last_Length;
+            S := S + Stream.Last_Length;
             exit;
          else
-            S := @ + Length (B);
+            S := S + Length (B);
          end if;
 
-         B := @.Next;
+         B := B.Next;
       end loop;
 
       return S;
@@ -401,7 +400,7 @@ package body Memory_Streams is
             end if;
 
             if Block_Over then
-               Stream.Current := @.Next;
+               Stream.Current := Stream.Current.Next;
 
                Stream.Current_Offset := First (Stream.Current);
             end if;
@@ -418,8 +417,7 @@ package body Memory_Streams is
    procedure Reset (Stream : in out Stream_Type) is
    begin
       Stream.Current        := Stream.First;
-      Stream.Current_Offset := (if Stream.Current = null
-                                then 1
+      Stream.Current_Offset := (if Stream.Current = null then 1
                                 else First (Stream.Current));
    end Reset;
 
@@ -443,8 +441,8 @@ package body Memory_Streams is
          Stream.Current := Stream.First;
 
          while Idx < To loop
-            Stream.Current := @.Next;
-            Idx := @ + Length (Stream.Current);
+            Stream.Current := Stream.Current.Next;
+            Idx := Idx + Length (Stream.Current);
          end loop;
 
          Stream.Current_Offset := Last (Stream.Current) + To - Idx;

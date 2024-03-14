@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2000-2024, AdaCore                     --
+--                     Copyright (C) 2000-2014, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -26,6 +26,8 @@
 --  however invalidate any other reasons why the executable file  might be  --
 --  covered by the  GNU Public License.                                     --
 ------------------------------------------------------------------------------
+
+pragma Ada_2012;
 
 with Ada.Real_Time;
 with Ada.Streams;
@@ -189,10 +191,8 @@ package body AWS.Digest is
 
       Ctx := Private_Key;
 
-      Nonce_Idx := @ + 1;
-
+      Nonce_Idx := Nonce_Idx + 1;
       Index_Str := Translator.Base64_Encode (To_Byte_Array (Nonce_Idx));
-
       Timestamp_Str :=
         Translator.Base64_Encode
           (To_Byte_Array (Modular24_Bits'Mod (Seconds_Now)));

@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2002-2024, AdaCore                     --
+--                     Copyright (C) 2002-2012, AdaCore                     --
 --                                                                          --
 --  This is free software;  you can redistribute it  and/or modify it       --
 --  under terms of the  GNU General Public License as published  by the     --
@@ -202,15 +202,15 @@ procedure AwsRes is
                begin
                   if V < 10 then
                      Text_IO.Put
-                       (O_File, "         [");
+                       (O_File, "         (");
                      Integer_Text_IO.Put (O_File, V, Width => 1);
                   elsif V < 100 then
                      Text_IO.Put
-                       (O_File, "        [");
+                       (O_File, "        (");
                      Integer_Text_IO.Put (O_File, V, Width => 2);
                   else
                      Text_IO.Put
-                       (O_File, "       [");
+                       (O_File, "       (");
                      Integer_Text_IO.Put (O_File, V, Width => 3);
                   end if;
                end;
@@ -234,10 +234,10 @@ procedure AwsRes is
       --  The resource was empty, nothing output yet
 
       if First then
-         Text_IO.Put (O_File, "         [1 .. 0 => <>");
+         Text_IO.Put (O_File, "         (1 .. 0 => <>");
       end if;
 
-      Text_IO.Put_Line (O_File, "];");
+      Text_IO.Put_Line (O_File, ");");
 
       --  Output end of package
 
@@ -318,8 +318,8 @@ procedure AwsRes is
       use Directories;
 
       File_And_Dir : constant Directories.Filter_Type :=
-                       [Directories.Directory | Ordinary_File => True,
-                        others                                => False];
+                       (Directories.Directory | Ordinary_File => True,
+                        others                                => False);
 
       Regexp       : constant GNAT.Regexp.Regexp :=
                        GNAT.Regexp.Compile (Pattern, Glob => True);

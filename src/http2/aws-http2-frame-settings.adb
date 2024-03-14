@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2021-2024, AdaCore                     --
+--                      Copyright (C) 2021, AdaCore                         --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -131,15 +131,15 @@ package body AWS.HTTP2.Frame.Settings is
 
       while Idx <= Size loop
          if Vect (Idx).Id'Valid then
-            Idx := @ + 1;
+            Idx := Idx + 1;
 
          else
             if Idx < Size then
                Vect (Idx) := Vect (Size);
             end if;
 
-            Size := @ - 1;
-            Len  := @ - (Payload'Size / 8);
+            Size := Size - 1;
+            Len  := Len  - (Payload'Size / 8);
          end if;
       end loop;
 

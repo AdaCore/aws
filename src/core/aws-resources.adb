@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2002-2024, AdaCore                     --
+--                     Copyright (C) 2002-2017, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -167,6 +167,7 @@ package body AWS.Resources is
       Resource.LFT := False;
 
       for I in Buffer'Range loop
+
          Read (Resource.all, Byte, Last_Ind);
 
          exit when Last_Ind < Byte'Last;
@@ -181,14 +182,14 @@ package body AWS.Resources is
               and then Buffer (I - 1) = ASCII.CR
             then
                --  And previous char was a CR, skip it
-               Last := @ - 1;
+               Last := Last - 1;
             end if;
 
             Resource.LFT := True;
             exit;
          end if;
 
-         Last := @ + 1;
+         Last := Last + 1;
       end loop;
    end Get_Line;
 

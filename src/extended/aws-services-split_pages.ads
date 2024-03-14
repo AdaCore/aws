@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2003-2024, AdaCore                     --
+--                     Copyright (C) 2003-2014, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -123,8 +123,8 @@ private
    type Alpha_Index is range 1 .. 28;
 
    Alpha_Value : constant array (Character range 'A' .. 'Z') of Alpha_Index
-     := [3,  4,  5,  6,  7,  8,  9, 10, 11, 12, 13, 14, 15,
-         16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28];
+     := (3,  4,  5,  6,  7,  8,  9, 10, 11, 12, 13, 14, 15,
+         16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28);
 
    type Lines_Table is array (Alpha_Index) of Natural;
 

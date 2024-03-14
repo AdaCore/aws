@@ -58,21 +58,25 @@ package body SOAP.Message.Response.Error is
    is
       use SOAP.Types;
       use type SOAP.Parameters.List;
+
+      O : Object;
+      P : SOAP.Parameters.List;
    begin
-      return O : Object do
-         --  Set Wrapper Name
+      --  Set Wrapper Name
 
-         Set_Wrapper_Name (O, "Fault");
+      Set_Wrapper_Name (O, "Fault");
 
-         --  Set Faultcode and Faultstring
+      --  Set Faultcode and Faultstring
 
-         --  Set parameters for this error object
+      P := P
+        & S (String (Faultcode), "faultcode")
+        & S (Faultstring, "faultstring");
 
-         Set_Parameters
-           (O,
-            +S (String (Faultcode), "faultcode")
-            & S (Faultstring, "faultstring"));
-      end return;
+      --  Set parameters for this error object
+
+      Set_Parameters (O, P);
+
+      return O;
    end Build;
 
    ------------

@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2000-2024, AdaCore                     --
+--                     Copyright (C) 2000-2021, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -56,14 +56,15 @@ package body SOAP.Message.Response is
    ----------
 
    function From (P : Message.Payload.Object) return Object is
+      NP : Object;
    begin
-      return NP : Object do
-         Set_Wrapper_Name (NP, Payload.Procedure_Name (P) & "Response");
+      Set_Wrapper_Name (NP, Payload.Procedure_Name (P) & "Response");
 
-         Set_Parameters   (NP, Parameters (P));
+      Set_Parameters   (NP, Parameters (P));
 
-         Set_Name_Space (NP, Name_Space (P));
-      end return;
+      Set_Name_Space (NP, Name_Space (P));
+
+      return NP;
    end From;
 
    --------------

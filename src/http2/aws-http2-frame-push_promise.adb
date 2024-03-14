@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2021-2024, AdaCore                     --
+--                      Copyright (C) 2021, AdaCore                         --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -94,7 +94,7 @@ package body AWS.HTTP2.Frame.Push_Promise is
       function Next return Stream_Element is
          E : constant Stream_Element := Self.Data.S (I);
       begin
-         I := @ + 1;
+         I := I + 1;
          return E;
       end Next;
 
@@ -105,13 +105,13 @@ package body AWS.HTTP2.Frame.Push_Promise is
    begin
       if Self.Has_Flag (Padded_Flag) then
          --  Skip first byte which is the padding length
-         I := @ + Self.Data.Pad'Size / 8;
+         I := I + Self.Data.Pad'Size / 8;
          Pad_Length := Length_Type (Self.Data.Pad);
       end if;
 
       --  Skip promise stream id
 
-      I := @ + 4;
+      I := I + 4;
 
       return Get_Headers (Table, Settings);
    end Get;

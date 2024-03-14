@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2000-2024, AdaCore                     --
+--                     Copyright (C) 2000-2012, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -48,17 +48,17 @@ package body AWS.Communication.Client is
       URL : Unbounded_String := To_Unbounded_String ("http://");
    begin
       if Ada.Strings.Fixed.Index (Server, ":") > 0 then
-         URL := @ & '[' & Server & ']';
+         URL := URL & '[' & Server & ']';
       else
-         URL := @ & Server;
+         URL := URL & Server;
       end if;
 
-      URL := @ & ':' & Utils.Image (Port) & AWS_Com
+      URL := URL & ':' & Utils.Image (Port) & AWS_Com
         & "?HOST=" & Net.Host_Name
         & "&NAME=" & Name;
 
       for K in Parameters'Range loop
-         URL := @ & "&P" & Utils.Image (K) & '=' & Parameters (K);
+         URL := URL & "&P" & Utils.Image (K) & '=' & Parameters (K);
       end loop;
 
       return AWS.Client.Get (To_String (URL));

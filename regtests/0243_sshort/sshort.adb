@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                    Copyright (C) 2014-2024, AdaCore                      --
+--                       Copyright (C) 2014, AdaCore                        --
 --                                                                          --
 --  This is free software;  you can redistribute it  and/or modify it       --
 --  under terms of the  GNU General Public License as published  by the     --
@@ -17,6 +17,8 @@
 ------------------------------------------------------------------------------
 
 --  Test to do not stuck data in the SSL input buffer
+
+pragma Ada_2012;
 
 with Ada.Calendar;
 with Ada.Command_Line;

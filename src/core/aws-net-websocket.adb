@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2012-2024, AdaCore                     --
+--                     Copyright (C) 2012-2021, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -322,18 +322,16 @@ package body AWS.Net.WebSocket is
 
       WS_UID.Increment (Value => WS_UID_Value);
 
-      Self := (Self with delta
-                 Socket   => Socket,
-                 Id       => UID (WS_UID_Value),
-                 Version  => Version,
-                 State    =>
-                   new Internal_State'
-                     (Kind          => Unknown,
-                      Errno         => Interfaces.Unsigned_16'Last,
-                      Last_Activity => Calendar.Clock),
-                 P_State  => new Protocol_State'(State => Protocol),
-                 Mem_Sock => null,
-                 In_Mem   => False);
+      Self.Socket   := Socket;
+      Self.Id       := UID (WS_UID_Value);
+      Self.Version  := Version;
+      Self.State    := new Internal_State'
+         (Kind          => Unknown,
+          Errno         => Interfaces.Unsigned_16'Last,
+          Last_Activity => Calendar.Clock);
+      Self.P_State  := new Protocol_State'(State => Protocol);
+      Self.Mem_Sock := null;
+      Self.In_Mem   := False;
    end Initialize;
 
    ------------------
@@ -436,7 +434,7 @@ package body AWS.Net.WebSocket is
       Msg   : Unbounded_String;
    begin
       Event := Socket.Poll
-         ([AWS.Net.Input => True, others => False], Timeout => Timeout);
+         ((AWS.Net.Input => True, others => False), Timeout => Timeout);
 
       if Event (AWS.Net.Input) then
          --  Block until we have received all chunks of the frame
@@ -452,6 +450,7 @@ package body AWS.Net.WebSocket is
       end if;
 
       return False;
+
    exception
       when AWS.Net.Socket_Error =>
          --  Socket has been closed
@@ -594,8 +593,8 @@ package body AWS.Net.WebSocket is
       Is_Binary : Boolean := False)
    is
       A : Stream_Element_Array
-           (Stream_Element_Offset (Message'First) ..
-            Stream_Element_Offset (Message'Last)) with Import;
+         (Stream_Element_Offset (Message'First) ..
+          Stream_Element_Offset (Message'Last)) with Import;
       for A'Address use Message'Address;
    begin
       Send (Socket, A, Is_Binary);
@@ -607,8 +606,8 @@ package body AWS.Net.WebSocket is
       Is_Binary : Boolean := False)
    is
       use Ada.Strings.Unbounded.Aux;
-      S : Big_String_Access;
-      L : Natural;
+      S  : Big_String_Access;
+      L  : Natural;
    begin
       Get_String (Message, S, L);
       Send (Socket, String (S (1 .. L)), Is_Binary);

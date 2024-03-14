@@ -45,7 +45,7 @@ package body AWS.Services.Callbacks is
         and then URI (URI'First .. URI'First + Prefix'Length - 1) = Prefix
       then
          if Directory (K) = '/' then
-            K := @ - 1;
+            K := K - 1;
          end if;
 
          return Response.File

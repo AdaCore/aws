@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2000-2024, AdaCore                     --
+--                     Copyright (C) 2000-2020, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -190,11 +190,10 @@ package body AWS.Net is
          First := Strings.Fixed.Index (M, "[", From => First);
 
          if First /= 0 then
-            First := @ + 1;
+            First := First + 1;
             Last := First;
-
             while Last < M'Last and then M (Last + 1) in '0' .. '9' loop
-               Last := @ + 1;
+               Last := Last + 1;
             end loop;
 
             Errno := Natural'Value (M (First .. Last));
@@ -502,7 +501,7 @@ package body AWS.Net is
      (Sockets : Socket_Set; Data : Stream_Element_Array)
    is
       Wait_Events : constant Wait_Event_Set :=
-                      [Input => False, Output => True];
+                      (Input => False, Output => True);
       Set         : Poll_Events.Set (Sockets'Length);
       Socks       : Socket_Set (1 .. Sockets'Length) := Sockets;
       Index       : array (Sockets'Range) of Stream_Element_Offset :=
@@ -569,7 +568,7 @@ package body AWS.Net is
                --  In this case, and only in this case we move to next socket
                --  position for next iteration.
 
-               Sock_Index := @ + 1;
+               Sock_Index := Sock_Index + 1;
             end if;
          end loop;
 
@@ -705,7 +704,7 @@ package body AWS.Net is
    procedure Wait_For
      (Mode : Wait_Event_Type; Socket : Socket_Type'Class; Timeout : Duration)
    is
-      Events : Wait_Event_Set := [others => False];
+      Events : Wait_Event_Set := (others => False);
       Result : Event_Set;
    begin
       Events (Mode) := True;

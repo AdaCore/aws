@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2004-2024, AdaCore                     --
+--                     Copyright (C) 2004-2013, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -26,6 +26,8 @@
 --  however invalidate any other reasons why the executable file  might be  --
 --  covered by the  GNU Public License.                                     --
 ------------------------------------------------------------------------------
+
+pragma Ada_2012;
 
 with Ada.Integer_Text_IO;
 with Ada.Strings.Fixed;
@@ -60,7 +62,7 @@ package body AWS.Net.Log.Callbacks is
    type Counters is array (Data_Direction) of Natural;
 
    type State is record
-      N        : Counters := [others => 0]; -- Number of chars read/written
+      N        : Counters := (others => 0); -- Number of chars read/written
       Log_File : Text_IO.File_Type;
    end record;
 
@@ -105,6 +107,7 @@ package body AWS.Net.Log.Callbacks is
 
       for K in Data'First .. Last loop
          if (K - 1) mod Max_Line = 0 then
+
             if K /= Data'First then
                --  This is not before the first line, output characters
                Put_Chars (3, K - Max_Line, K);
@@ -123,8 +126,8 @@ package body AWS.Net.Log.Callbacks is
       --  Output final characters
 
       declare
-         Nb_Last_Line : constant Stream_Element_Offset :=
-                          Last mod Max_Line;
+         Nb_Last_Line : constant Stream_Element_Offset
+           := Last mod Max_Line;
       begin
          Put_Chars
            ((Max_Line - Natural (Nb_Last_Line)) * 3 + 3,
@@ -133,8 +136,8 @@ package body AWS.Net.Log.Callbacks is
 
       Text_IO.New_Line (F, 2);
 
-      Current_State.N (Direction) :=
-        Current_State.N (Direction) + Natural (Last);
+      Current_State.N (Direction)
+        := Current_State.N (Direction) + Natural (Last);
 
       Put_Footer (F);
       Text_IO.Flush (F);
@@ -238,8 +241,8 @@ package body AWS.Net.Log.Callbacks is
       Last      : Stream_Element_Offset)
    is
       Max_Line : constant := 70;
-      LF       : constant Stream_Element :=
-                   Stream_Element (Character'Pos (ASCII.LF));
+      LF       : constant Stream_Element
+        := Stream_Element (Character'Pos (ASCII.LF));
       F        : Text_IO.File_Type renames Current_State.Log_File;
       C        : Natural := 0;
    begin
@@ -254,8 +257,7 @@ package body AWS.Net.Log.Callbacks is
             C := 0;
          end if;
 
-         C := @ + 1;
-
+         C := C + 1;
          if Data (K) /= LF then
             Put (F, Natural (Data (K)), Binary_Mode => False);
          end if;
@@ -263,8 +265,8 @@ package body AWS.Net.Log.Callbacks is
 
       Text_IO.New_Line (F, 2);
 
-      Current_State.N (Direction) :=
-        Current_State.N (Direction) + Natural (Last);
+      Current_State.N (Direction)
+        := Current_State.N (Direction) + Natural (Last);
 
       Put_Footer (F);
       Text_IO.Flush (F);
