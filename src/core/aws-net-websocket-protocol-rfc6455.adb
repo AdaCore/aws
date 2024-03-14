@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2012-2024, AdaCore                     --
+--                     Copyright (C) 2012-2022, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -26,6 +26,8 @@
 --  however invalidate any other reasons why the executable file  might be  --
 --  covered by the  GNU Public License.                                     --
 ------------------------------------------------------------------------------
+
+pragma Ada_2012;
 
 --  This implements the WebSocket protocol as defined in RFC-6455
 
@@ -139,7 +141,7 @@ package body AWS.Net.WebSocket.Protocol.RFC6455 is
       pragma Unreferenced (Protocol);
 
       Ints : array (1 .. 4) of AWS.Utils.Random_Integer :=
-               [others => Utils.Random];
+               (others => Utils.Random);
       H : Stream_Element_Array (1 .. 16) with Import, Address => Ints'Address;
 
    begin
@@ -166,9 +168,9 @@ package body AWS.Net.WebSocket.Protocol.RFC6455 is
                    Get_Websocket_Accept
                      (AWS.Headers.Get
                         (Request, Messages.Sec_WebSocket_Key_Token));
-      Actual   : constant String :=
-                   AWS.Response.Header
-                     (Response, Messages.Sec_WebSocket_Accept_Token);
+      Actual : constant String :=
+                 AWS.Response.Header
+                   (Response, Messages.Sec_WebSocket_Accept_Token);
    begin
       return Expected = Actual;
    end Check_Connect_Response;
@@ -339,7 +341,7 @@ package body AWS.Net.WebSocket.Protocol.RFC6455 is
          end if;
       end Read_Payload;
 
-      D_Header : Stream_Element_Array (1 .. 2) := [0, 0];
+      D_Header : Stream_Element_Array (1 .. 2) := (0, 0);
       Header   : Frame_Header with Address => D_Header'Address;
       pragma Import (Ada, Header);  --  Disable default initialization
 
@@ -710,7 +712,7 @@ package body AWS.Net.WebSocket.Protocol.RFC6455 is
       use GNAT;
       use System;
 
-      D_Header : Stream_Element_Array (1 .. 2) := [0, 0];
+      D_Header : Stream_Element_Array (1 .. 2) := (0, 0);
       Header   : Frame_Header with Address => D_Header'Address;
       pragma Import (Ada, Header);  --  Disable default initialization
 
@@ -776,7 +778,7 @@ package body AWS.Net.WebSocket.Protocol.RFC6455 is
 
       if Has_Mask then
          for J in Mask'Range loop
-            Net.Buffered.Write (Socket, [Mask (J)]);
+            Net.Buffered.Write (Socket, (1 => Mask (J)));
          end loop;
       end if;
    end Send_Frame_Header;

@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2000-2024, AdaCore                     --
+--                     Copyright (C) 2000-2021, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -26,6 +26,8 @@
 --  however invalidate any other reasons why the executable file  might be  --
 --  covered by the  GNU Public License.                                     --
 ------------------------------------------------------------------------------
+
+pragma Ada_2012;
 
 with Ada.Calendar;
 with Ada.Exceptions;
@@ -354,8 +356,8 @@ package body AWS.SMTP.Client is
          Send (BCC);
 
          if not To_All and then Have_One then
-            Status := (Code     => Requested_Action_Ok,
-                       Reason   => Null_Unbounded_String,
+            Status := (Code => Requested_Action_Ok,
+                       Reason => Null_Unbounded_String,
                        Warnings => Status.Reason);
          end if;
 
@@ -420,7 +422,7 @@ package body AWS.SMTP.Client is
       BCC     : Recipients := No_Recipient;
       To_All  : Boolean    := True) is
    begin
-      Send (Server, From, Recipients'[To],
+      Send (Server, From, Recipients'(1 => To),
             Subject, Message, Status, CC, BCC, To_All);
    end Send;
 
@@ -440,7 +442,7 @@ package body AWS.SMTP.Client is
       BCC         : Recipients := No_Recipient;
       To_All      : Boolean    := True) is
    begin
-      Send (Server, From, Recipients'[To],
+      Send (Server, From, Recipients'(1 => To),
             Subject, Message, Attachments, Status, CC, BCC, To_All);
    end Send;
 
@@ -476,7 +478,7 @@ package body AWS.SMTP.Client is
 
          if Is_Ok (Status) then
             Output_Header
-              (Sock.all, From, Recipients'[To], CC, BCC, Subject, Status,
+              (Sock.all, From, Recipients'(1 => To), CC, BCC, Subject, Status,
                To_All => To_All);
 
             if Is_Ok (Status) then
@@ -506,6 +508,7 @@ package body AWS.SMTP.Client is
 
          Close (Sock, Status);
       end if;
+
    exception
       --  Raise Server_Error for all problems encountered
 
@@ -568,6 +571,7 @@ package body AWS.SMTP.Client is
 
          Close (Sock, Status);
       end if;
+
    exception
       --  Raise Server_Error for all problems encountered
 
@@ -623,6 +627,7 @@ package body AWS.SMTP.Client is
 
          Close (Sock, Status);
       end if;
+
    exception
       --  Raise Server_Error for all problems encountered
 
@@ -757,6 +762,7 @@ package body AWS.SMTP.Client is
 
          Close (Sock, Status);
       end if;
+
    exception
       --  Raise Server_Error for all problem encountered
 

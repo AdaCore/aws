@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2004-2024, AdaCore                     --
+--                     Copyright (C) 2004-2014, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -55,7 +55,6 @@ package body AWS.Services.Split_Pages.Shared is
          then
             raise Splitter_Error;
          end if;
-
          return Composite (Association);
       end;
    end Associated_Vector;

@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                   Copyright (C) 2005-2024, AdaCore                       --
+--                   Copyright (C) 2005-2019, AdaCore                       --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -26,6 +26,8 @@
 --  however invalidate any other reasons why the executable file  might be  --
 --  covered by the  GNU Public License.                                     --
 ------------------------------------------------------------------------------
+
+pragma Ada_2012;
 
 package body AWS.Net.Acceptors is
 
@@ -180,9 +182,9 @@ package body AWS.Net.Acceptors is
 
          elsif Ready then
             declare
-               SP    : Socket_Data;
-               Bytes : Stream_Element_Array (1 .. 16);
-               Last  : Stream_Element_Offset;
+               SP     : Socket_Data;
+               Bytes  : Stream_Element_Array (1 .. 16);
+               Last   : Stream_Element_Offset;
             begin
                --  Read bytes from signalling socket and take sockets from
                --  mailbox.
@@ -266,14 +268,14 @@ package body AWS.Net.Acceptors is
             Sets.Is_Read_Ready (Acceptor.Set, Acceptor.Index, Ready, Error);
 
             if Accept_Listening then
-               Acceptor.Index := @ + 1;
+               Acceptor.Index := Acceptor.Index + 1;
 
             elsif Error or else Ready then
                Sets.Remove_Socket
                  (Acceptor.Set, Acceptor.Index, Socket, Data_Part);
                Data := Data_Part.Data;
 
-               Acceptor.Last := @ - 1;
+               Acceptor.Last := Acceptor.Last - 1;
 
                if Error then
                   To_Close.Append (Socket);
@@ -296,7 +298,7 @@ package body AWS.Net.Acceptors is
                begin
                   if Diff <= Time_Span_Zero then
                      Sets.Remove_Socket (Acceptor.Set, Acceptor.Index, Socket);
-                     Acceptor.Last := @ - 1;
+                     Acceptor.Last := Acceptor.Last - 1;
                      To_Close.Append (Socket);
 
                   else
@@ -305,7 +307,7 @@ package body AWS.Net.Acceptors is
                         Oldest_Idx   := Acceptor.Index;
                      end if;
 
-                     Acceptor.Index := @ + 1;
+                     Acceptor.Index := Acceptor.Index + 1;
                   end if;
                end;
             end if;
@@ -313,7 +315,7 @@ package body AWS.Net.Acceptors is
 
          if Oldest_Idx > 0 and then Acceptor.Last > Acceptor.Close_Length then
             Sets.Remove_Socket (Acceptor.Set, Oldest_Idx, Socket);
-            Acceptor.Last := @ - 1;
+            Acceptor.Last := Acceptor.Last - 1;
             To_Close.Append (Socket);
          end if;
 
@@ -483,12 +485,8 @@ package body AWS.Net.Acceptors is
       end if;
 
       Server.Bind
-        (Host          => Host,
-         Port          => Port,
-         Family        => Family,
-         IPv6_Only     => IPv6_Only,
+        (Host => Host, Port => Port, Family => Family, IPv6_Only => IPv6_Only,
          Reuse_Address => Reuse_Address);
-
       Server.Listen (Queue_Size => Queue_Size);
 
       Acceptor.Servers.Add (Server);
@@ -684,7 +682,7 @@ package body AWS.Net.Acceptors is
 
          if Success then
             Buffer.Append (S);
-            Acceptor.W_Signal.Send ([Socket_Command]);
+            Acceptor.W_Signal.Send ((1 => Socket_Command));
          end if;
       end Add;
 

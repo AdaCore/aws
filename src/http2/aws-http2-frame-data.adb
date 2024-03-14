@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2021-2024, AdaCore                     --
+--                      Copyright (C) 2021, AdaCore                         --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -47,8 +47,8 @@ package body AWS.HTTP2.Frame.Data is
       --  If we have a padded flag, remove the padding from the payload
 
       if Self.Has_Flag (Padded_Flag) then
-         First := @ + Self.Data.D.Pad_Length'Size / 8;
-         Last  := @ - Stream_Element_Offset (Self.Data.D.Pad_Length);
+         First := First + Self.Data.D.Pad_Length'Size / 8;
+         Last  := Last - Stream_Element_Offset (Self.Data.D.Pad_Length);
       end if;
 
       AWS.Status.Set.Append_Body (Status, Self.Data.S (First .. Last));
@@ -61,8 +61,8 @@ package body AWS.HTTP2.Frame.Data is
       --  If we have a padded flag, remove the padding from the payload
 
       if Self.Has_Flag (Padded_Flag) then
-         First := @ + Self.Data.D.Pad_Length'Size / 8;
-         Last  := @ - Stream_Element_Offset (Self.Data.D.Pad_Length);
+         First := First + Self.Data.D.Pad_Length'Size / 8;
+         Last  := Last - Stream_Element_Offset (Self.Data.D.Pad_Length);
       end if;
 
       AWS.Response.Set.Append_Body (Response, Self.Data.S (First .. Last));
@@ -126,8 +126,8 @@ package body AWS.HTTP2.Frame.Data is
       --  If we have a padded flag, remove the padding from the payload
 
       if Self.Has_Flag (Padded_Flag) then
-         First := @ + Self.Data.D.Pad_Length'Size / 8;
-         Last  := @ - Stream_Element_Offset (Self.Data.D.Pad_Length);
+         First := First + Self.Data.D.Pad_Length'Size / 8;
+         Last  := Last - Stream_Element_Offset (Self.Data.D.Pad_Length);
       end if;
 
       return Translator.To_Unbounded_String (Self.Data.S (First .. Last));

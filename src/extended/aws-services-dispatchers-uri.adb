@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2000-2024, AdaCore                     --
+--                     Copyright (C) 2000-2014, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -26,6 +26,8 @@
 --  however invalidate any other reasons why the executable file  might be  --
 --  covered by the  GNU Public License.                                     --
 ------------------------------------------------------------------------------
+
+pragma Ada_2012;
 
 with Ada.Unchecked_Deallocation;
 
@@ -95,7 +97,6 @@ package body AWS.Services.Dispatchers.URI is
            new AWS.Dispatchers.Handler'Class'
              (AWS.Dispatchers.Handler'Class (URI.Action.Clone));
       end if;
-
       return New_URI;
    end Clone;
 
@@ -113,7 +114,6 @@ package body AWS.Services.Dispatchers.URI is
       end if;
 
       New_URI.Reg_URI := new Regpat.Pattern_Matcher'(URI.Reg_URI.all);
-
       return New_URI;
    end Clone;
 

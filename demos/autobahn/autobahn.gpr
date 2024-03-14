@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2013-2024, AdaCore                     --
+--                        Copyright (C) 2013, AdaCore                       --
 --                                                                          --
 --  This is free software;  you can redistribute it  and/or modify it       --
 --  under terms of the  GNU General Public License as published  by the     --
@@ -25,7 +25,7 @@ project Autobahn is
    for Object_Dir use "obj";
 
    package Builder is
-      for Default_Switches ("Ada") use ("-gnat2022", "-g", "-gnatwa");
+      for Default_Switches ("Ada") use ("-gnat12", "-g", "-gnatwa");
    end Builder;
 
 end Autobahn;

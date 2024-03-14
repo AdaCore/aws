@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2008-2024, AdaCore                     --
+--                     Copyright (C) 2008-2023, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -99,6 +99,7 @@ package body AWS.SMTP.Server is
    function Get_Message
      (Sock : Net.Socket_Type'Class) return Messages.Data
    is
+
       S : Net.Socket_Access := new Net.Socket_Type'Class'(Sock);
 
       Empty_Line : constant String := "";
@@ -143,7 +144,7 @@ package body AWS.SMTP.Server is
                exit Read_Message when Line = ".";
 
                if Line'Length > 0 and then Line (Line'First) = '.' then
-                  First := @ + 1;
+                  First := First + 1;
                end if;
 
                Append (Message_Body, Line (First .. Line'Last) & CRLF);
@@ -241,7 +242,7 @@ package body AWS.SMTP.Server is
 
       while not Server.Server_Handler'Terminated and then Try > 0 loop
          delay 1.0;
-         Try := @ - 1;
+         Try := Try - 1;
       end loop;
 
       --  If not yet terminated abort

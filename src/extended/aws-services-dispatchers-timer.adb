@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2003-2024, AdaCore                     --
+--                     Copyright (C) 2003-2014, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -26,6 +26,8 @@
 --  however invalidate any other reasons why the executable file  might be  --
 --  covered by the  GNU Public License.                                     --
 ------------------------------------------------------------------------------
+
+pragma Ada_2012;
 
 with Ada.Unchecked_Deallocation;
 
@@ -131,15 +133,15 @@ package body AWS.Services.Dispatchers.Timer is
       -----------------
 
       function Match_Daily (Item : Node_Access) return Boolean is
-         F    : Date_Time renames Item.Period.From;
-         T    : Date_Time renames Item.Period.To;
-         From : constant Calendar.Time :=
-                  Calendar.Formatting.Time_Of
-                    (Year, Month, Day, F.Hour, F.Minute, F.Second);
-         To   : constant Calendar.Time :=
-                  Calendar.Formatting.Time_Of
-                    (Year, Month, Day, T.Hour, T.Minute, T.Second);
+         F        : Date_Time renames Item.Period.From;
+         T        : Date_Time renames Item.Period.To;
+         From, To : Calendar.Time;
       begin
+         From := Calendar.Formatting.Time_Of
+           (Year, Month, Day, F.Hour, F.Minute, F.Second);
+         To := Calendar.Formatting.Time_Of
+           (Year, Month, Day, T.Hour, T.Minute, T.Second);
+
          return From <= Now and then Now <= To;
       end Match_Daily;
 
@@ -148,15 +150,15 @@ package body AWS.Services.Dispatchers.Timer is
       ------------------
 
       function Match_Hourly (Item : Node_Access) return Boolean is
-         F    : Date_Time renames Item.Period.From;
-         T    : Date_Time renames Item.Period.To;
-         From : constant Calendar.Time :=
-                  Calendar.Formatting.Time_Of
-                    (Year, Month, Day, Hour, F.Minute, F.Second);
-         To   : constant Calendar.Time :=
-                  Calendar.Formatting.Time_Of
-                    (Year, Month, Day, Hour, T.Minute, T.Second);
+         F        : Date_Time renames Item.Period.From;
+         T        : Date_Time renames Item.Period.To;
+         From, To : Calendar.Time;
       begin
+         From := Calendar.Formatting.Time_Of
+           (Year, Month, Day, Hour, F.Minute, F.Second);
+         To := Calendar.Formatting.Time_Of
+           (Year, Month, Day, Hour, T.Minute, T.Second);
+
          return From <= Now and then Now <= To;
       end Match_Hourly;
 
@@ -165,16 +167,15 @@ package body AWS.Services.Dispatchers.Timer is
       --------------------
 
       function Match_Minutely (Item : Node_Access) return Boolean is
-         F    : Date_Time renames Item.Period.From;
-         T    : Date_Time renames Item.Period.To;
-         From : constant Calendar.Time :=
-                  Calendar.Formatting.Time_Of
-                    (Year, Month, Day, Hour, Minute, F.Second);
-         To   : constant Calendar.Time :=
-                  Calendar.Formatting.Time_Of
-                (Year, Month, Day, Hour, Minute, T.Second);
-
+         F        : Date_Time renames Item.Period.From;
+         T        : Date_Time renames Item.Period.To;
+         From, To : Calendar.Time;
       begin
+         From := Calendar.Formatting.Time_Of
+           (Year, Month, Day, Hour, Minute, F.Second);
+         To := Calendar.Formatting.Time_Of
+           (Year, Month, Day, Hour, Minute, T.Second);
+
          return From <= Now and then Now <= To;
       end Match_Minutely;
 
@@ -183,15 +184,15 @@ package body AWS.Services.Dispatchers.Timer is
       -------------------
 
       function Match_Monthly (Item : Node_Access) return Boolean is
-         F    : Date_Time renames Item.Period.From;
-         T    : Date_Time renames Item.Period.To;
-         From : constant Calendar.Time :=
-                  Calendar.Formatting.Time_Of
-                    (Year, Month, F.Day, F.Hour, F.Minute, F.Second);
-         To   : constant Calendar.Time :=
-                  Calendar.Formatting.Time_Of
-                    (Year, Month, T.Day, T.Hour, T.Minute, T.Second);
+         F        : Date_Time renames Item.Period.From;
+         T        : Date_Time renames Item.Period.To;
+         From, To : Calendar.Time;
       begin
+         From := Calendar.Formatting.Time_Of
+           (Year, Month, F.Day, F.Hour, F.Minute, F.Second);
+         To := Calendar.Formatting.Time_Of
+           (Year, Month, T.Day, T.Hour, T.Minute, T.Second);
+
          return From <= Now and then Now <= To;
       end Match_Monthly;
 
@@ -217,19 +218,19 @@ package body AWS.Services.Dispatchers.Timer is
       ------------------
 
       function Match_Weekly (Item : Node_Access) return Boolean is
-         F    : Date_Time renames Item.Period.From;
-         T    : Date_Time renames Item.Period.To;
-         From : constant Calendar.Time :=
-                  Calendar.Formatting.Time_Of
-                    (F.Year, F.Month,
-                     F.Day - (Day_Name'Pos (N_Day) - Day_Name'Pos (F.N_Day)),
-                     F.Hour, F.Minute, F.Second);
-         To   : constant Calendar.Time :=
-                  Calendar.Formatting.Time_Of
-                    (T.Year, T.Month,
-                     T.Day + (Day_Name'Pos (T.N_Day) - Day_Name'Pos (N_Day)),
-                     T.Hour, T.Minute, T.Second);
+         F        : Date_Time renames Item.Period.From;
+         T        : Date_Time renames Item.Period.To;
+         From, To : Calendar.Time;
       begin
+         From := Calendar.Formatting.Time_Of
+           (F.Year, F.Month,
+            F.Day - (Day_Name'Pos (N_Day) - Day_Name'Pos (F.N_Day)),
+            F.Hour, F.Minute, F.Second);
+         To := Calendar.Formatting.Time_Of
+           (T.Year, T.Month,
+            T.Day + (Day_Name'Pos (T.N_Day) - Day_Name'Pos (N_Day)),
+            T.Hour, T.Minute, T.Second);
+
          return From <= Now and then Now <= To;
       end Match_Weekly;
 
@@ -238,22 +239,21 @@ package body AWS.Services.Dispatchers.Timer is
       ------------------
 
       function Match_Yearly (Item : Node_Access) return Boolean is
-         F    : Date_Time renames Item.Period.From;
-         T    : Date_Time renames Item.Period.To;
-         From : constant Calendar.Time :=
-                  Calendar.Formatting.Time_Of
-                    (Year, F.Month, F.Day, F.Hour, F.Minute, F.Second);
-         To   : constant Calendar.Time :=
-                  Calendar.Formatting.Time_Of
-                    (Year, T.Month, T.Day, T.Hour, T.Minute, T.Second);
+         F        : Date_Time renames Item.Period.From;
+         T        : Date_Time renames Item.Period.To;
+         From, To : Calendar.Time;
       begin
+         From := Calendar.Formatting.Time_Of
+           (Year, F.Month, F.Day, F.Hour, F.Minute, F.Second);
+         To := Calendar.Formatting.Time_Of
+           (Year, T.Month, T.Day, T.Hour, T.Minute, T.Second);
+
          return From <= Now and then Now <= To;
       end Match_Yearly;
 
    begin
       Calendar.Formatting.Split
         (Now, Year, Month, Day, Hour, Minute, Second, Sub_Second);
-
       N_Day := Calendar.Formatting.Day_Of_Week (Now);
 
       for Item of Dispatcher.Table loop

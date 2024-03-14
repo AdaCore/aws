@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2005-2024, AdaCore                     --
+--                     Copyright (C) 2005-2012, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -64,9 +64,10 @@ package body AWS.Services.Dispatchers.Linker is
       Request    : Status.Data) return Response.Data
    is
       use type Messages.Status_Code;
-      R : constant Response.Data :=
-            AWS.Dispatchers.Dispatch (Dispatcher.First.all, Request);
+      R : Response.Data;
    begin
+      R := AWS.Dispatchers.Dispatch (Dispatcher.First.all, Request);
+
       if Response.Status_Code (R) /= Messages.S404 then
          return R;
       else

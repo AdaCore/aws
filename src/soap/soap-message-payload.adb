@@ -64,7 +64,7 @@ package body SOAP.Message.Payload is
                if N /= SOAP.Name_Space.No_Name_Space
                  and then not Gen.Contains (SOAP.Name_Space.Value (N))
                then
-                  O.Index := @ + 1;
+                  O.Index := O.Index + 1;
                   O.Users_NS (O.Index) :=
                     SOAP.Name_Space.Create (SOAP.Name_Space.Name (N),
                                             SOAP.Name_Space.Value (N));

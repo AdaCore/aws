@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2003-2024, AdaCore                     --
+--                     Copyright (C) 2003-2021, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -26,6 +26,8 @@
 --  however invalidate any other reasons why the executable file  might be  --
 --  covered by the  GNU Public License.                                     --
 ------------------------------------------------------------------------------
+
+pragma Ada_2012;
 
 with Ada.Streams.Stream_IO;
 with Ada.Strings.Fixed;
@@ -65,12 +67,12 @@ package body AWS.POP is
 
    overriding procedure Adjust (Attachment : in out POP.Attachment) is
    begin
-      Attachment.Ref_Count.all := @ + 1;
+      Attachment.Ref_Count.all := Attachment.Ref_Count.all + 1;
    end Adjust;
 
    overriding procedure Adjust (Message : in out POP.Message) is
    begin
-      Message.Ref_Count.all := @ + 1;
+      Message.Ref_Count.all := Message.Ref_Count.all + 1;
    end Adjust;
 
    ----------------------
@@ -83,7 +85,7 @@ package body AWS.POP is
    begin
       while Ptr /= null loop
          Count := Count + 1;
-         Ptr := @.Next;
+         Ptr := Ptr.Next;
       end loop;
 
       return Count;
@@ -159,6 +161,7 @@ package body AWS.POP is
       end;
 
       Mailbox.Sock.Shutdown;
+
    exception
       when POP_Error =>
          Mailbox.Sock.Shutdown;
@@ -259,7 +262,7 @@ package body AWS.POP is
       Attachment.Ref_Count := null;
 
       if Ref_Count /= null then
-         Ref_Count.all := @ - 1;
+         Ref_Count.all := Ref_Count.all - 1;
 
          if Ref_Count.all = 0 then
             if Attachment.Content /= null then
@@ -283,7 +286,7 @@ package body AWS.POP is
       Message.Ref_Count := null;
 
       if Ref_Count /= null then
-         Ref_Count.all := @ - 1;
+         Ref_Count.all := Ref_Count.all - 1;
 
          if Ref_Count.all = 0 then
             Unchecked_Free (Message.Attachments);
@@ -304,8 +307,8 @@ package body AWS.POP is
       while P /= null loop
          Action (P.all, Index, Quit);
          exit when Quit;
-         P := @.Next;
-         Index := @ + 1;
+         P := P.Next;
+         Index := Index + 1;
       end loop;
    end For_Every_Attachment;
 
@@ -508,7 +511,7 @@ package body AWS.POP is
                   Mess.Last        := Mess.Attachments;
                else
                   Mess.Last.Next   := new Attachment'(A);
-                  Mess.Last        := @.Next;
+                  Mess.Last        := Mess.Last.Next;
                end if;
 
                exit when Last;
@@ -543,11 +546,12 @@ package body AWS.POP is
       P : Attachment_Access := Message.Attachments;
    begin
       for K in 2 .. Index loop
+
          if P = null then
             raise Constraint_Error with "No such attachment";
          end if;
 
-         P := @.Next;
+         P := P.Next;
       end loop;
 
       return P.all;
@@ -675,6 +679,7 @@ package body AWS.POP is
       --  Authenticate
 
       if Authenticate = Clear_Text then
+
          Net.Buffered.Put_Line (Mailbox.Sock, "USER " & User);
 
          declare
@@ -713,17 +718,19 @@ package body AWS.POP is
          Check_Response (Response);
 
          declare
-            K : constant Natural :=
-                  Strings.Fixed.Index (Response, " ", Strings.Backward);
+            K : Natural;
          begin
-            Mailbox.Message_Count :=
-              Natural'Value (Response (Response'First + 4 .. K - 1));
-            Mailbox.Size :=
-              Natural'Value (Response (K + 1 .. Response'Last));
+            K := Strings.Fixed.Index (Response, " ", Strings.Backward);
+
+            Mailbox.Message_Count
+              := Natural'Value (Response (Response'First + 4 .. K - 1));
+            Mailbox.Size
+              := Natural'Value (Response (K + 1 .. Response'Last));
          end;
       end;
 
       return Mailbox;
+
    exception
       when POP_Error =>
          Mailbox.Sock.Shutdown;

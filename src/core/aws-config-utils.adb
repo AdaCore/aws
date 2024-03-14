@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2006-2024, AdaCore                      --
+--                     Copyright (C) 2006-2012, AdaCore                      --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -40,8 +40,8 @@ package body AWS.Config.Utils is
 
    procedure Parse_Strings (Vector : in out SV.Vector; Line : String) is
       use Ada.Strings;
-      First : Positive := Line'First;
-      Last  : Natural;
+      First  : Positive := Line'First;
+      Last   : Natural;
 
       procedure Append (Item : String);
 
@@ -174,6 +174,7 @@ package body AWS.Config.Utils is
                Param.Pattern := GNAT.Regexp.Compile (Value);
                Param.Is_Set  := True;
          end case;
+
       exception
          when others =>
             Error

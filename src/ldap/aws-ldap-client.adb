@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                      Copyright (C) 2003-2024, AdaCore                    --
+--                      Copyright (C) 2003-2017, AdaCore                    --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -27,6 +27,8 @@
 --  covered by the  GNU Public License.                                     --
 ------------------------------------------------------------------------------
 
+pragma Ada_2012;
+
 with Ada.Strings.Fixed;
 with Ada.Unchecked_Deallocation;
 
@@ -44,19 +46,19 @@ package body AWS.LDAP.Client is
    use type IC.int;
 
    C_Scope : constant array (Scope_Type) of IC.int :=
-               [LDAP_Scope_Default   => Thin.LDAP_SCOPE_DEFAULT,
+               (LDAP_Scope_Default   => Thin.LDAP_SCOPE_DEFAULT,
                 LDAP_Scope_Base      => Thin.LDAP_SCOPE_BASE,
                 LDAP_Scope_One_Level => Thin.LDAP_SCOPE_ONELEVEL,
-                LDAP_Scope_Subtree   => Thin.LDAP_SCOPE_SUBTREE];
+                LDAP_Scope_Subtree   => Thin.LDAP_SCOPE_SUBTREE);
    --  Map Scope_Type with the corresponding C values
 
    C_Mod_Type : constant array (Mod_Type) of IC.int :=
-                  [LDAP_Mod_Add     => Thin.LDAP_MOD_ADD,
+                  (LDAP_Mod_Add     => Thin.LDAP_MOD_ADD,
                    LDAP_Mod_Replace => Thin.LDAP_MOD_REPLACE,
-                   LDAP_Mod_BValues => Thin.LDAP_MOD_BVALUES];
+                   LDAP_Mod_BValues => Thin.LDAP_MOD_BVALUES);
    --  Map Mod_Type with the corresponsing C values
 
-   C_Bool : constant array (Boolean) of IC.int := [False => 0, True => 1];
+   C_Bool : constant array (Boolean) of IC.int := (False => 0, True => 1);
    --  Map Boolean with the corrsponding C values
 
    function Err_Code_Image (Code : Thin.Return_Code) return String;
@@ -146,34 +148,34 @@ package body AWS.LDAP.Client is
          return Attribute_Set'(1 .. 0 => Null_Unbounded_String);
 
       elsif S2 = "" then
-         return [+S1];
+         return (1 => +S1);
 
       elsif S3 = "" then
-         return [+S1, +S2];
+         return (+S1, +S2);
 
       elsif S4 = "" then
-         return [+S1, +S2, +S3];
+         return (+S1, +S2, +S3);
 
       elsif S5 = "" then
-         return [+S1, +S2, +S3, +S4];
+         return (+S1, +S2, +S3, +S4);
 
       elsif S6 = "" then
-         return [+S1, +S2, +S3, +S4, +S5];
+         return (+S1, +S2, +S3, +S4, +S5);
 
       elsif S7 = "" then
-         return [+S1, +S2, +S3, +S4, +S5, +S6];
+         return (+S1, +S2, +S3, +S4, +S5, +S6);
 
       elsif S8 = "" then
-         return [+S1, +S2, +S3, +S4, +S5, +S6, +S7];
+         return (+S1, +S2, +S3, +S4, +S5, +S6, +S7);
 
       elsif S9 = "" then
-         return [+S1, +S2, +S3, +S4, +S5, +S6, +S7, +S8];
+         return (+S1, +S2, +S3, +S4, +S5, +S6, +S7, +S8);
 
       elsif S10 = "" then
-         return [+S1, +S2, +S3, +S4, +S5, +S6, +S7, +S8, +S9];
+         return (+S1, +S2, +S3, +S4, +S5, +S6, +S7, +S8, +S9);
 
       else
-         return [+S1, +S2, +S3, +S4, +S5, +S6, +S7, +S8, +S9, +S10];
+         return (+S1, +S2, +S3, +S4, +S5, +S6, +S7, +S8, +S9, +S10);
       end if;
    end Attributes;
 
@@ -365,12 +367,14 @@ package body AWS.LDAP.Client is
    is
       C_DN : chars_ptr := New_String (DN);
       Res  : Thin.Attribute_Set_Access;
+      N    : Natural := 0;
    begin
       Res := Thin.ldap_explode_dn (C_DN, C_Bool (No_Types));
       Free (C_DN);
 
+      N := Natural (Thin.ldap_count_values (Res));
+
       declare
-         N      : constant Natural := Natural (Thin.ldap_count_values (Res));
          Result : String_Set (1 .. N);
       begin
          for K in Result'Range loop
@@ -568,15 +572,16 @@ package body AWS.LDAP.Client is
    is
       C_Target : chars_ptr := New_String (Target);
       Attribs  : Thin.Constr_Ber_Val_Array_Access;
+      N        : Natural := 0;
    begin
       Check_Handle (Dir);
 
       Attribs := Thin.ldap_get_values_len (Dir, Node, C_Target);
       Free (C_Target);
 
+      N := Natural (Thin.ldap_count_values_len (Attribs));
+
       declare
-         N      : constant Natural :=
-                    Natural (Thin.ldap_count_values_len (Attribs));
          Result : String_Set (1 .. N);
       begin
          for K in Result'Range loop
@@ -787,7 +792,6 @@ package body AWS.LDAP.Client is
                Attributes (IC.size_t (K)) :=
                  New_String (To_String (Attrs (K)));
             end loop;
-
             Attributes (Attributes'Last) := Null_Ptr;
 
             Res := Thin.ldap_search_s
@@ -812,6 +816,7 @@ package body AWS.LDAP.Client is
       Free (C_Filter);
 
       return Result;
+
    exception
       when others =>
          Free (C_Base);
@@ -854,7 +859,7 @@ package body AWS.LDAP.Client is
       use LDAP_Mods;
       Position : Cursor := Mods.First;
       CMods    : Thin.LDAPMods
-                   (IC.size_t (1) .. IC.size_t (Mods.Last_Index + 1));
+        (IC.size_t (1) .. IC.size_t (Mods.Last_Index + 1));
    begin
       while Has_Element (Position) loop
          declare
@@ -886,7 +891,6 @@ package body AWS.LDAP.Client is
             Next (Position);
          end;
       end loop;
-
       return CMods;
    end To_C;
 

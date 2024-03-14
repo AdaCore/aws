@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2006-2024, AdaCore                     --
+--                     Copyright (C) 2006-2017, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -26,6 +26,8 @@
 --  however invalidate any other reasons why the executable file  might be  --
 --  covered by the  GNU Public License.                                     --
 ------------------------------------------------------------------------------
+
+pragma Ada_2012;
 
 with Ada.Real_Time;
 with Interfaces.C;
@@ -66,7 +68,7 @@ package body AWS.Net.Poll_Events is
          FD_Set.Max_FD := OS_Lib.FD_Type (FD);
       end if;
 
-      FD_Set.Length := @ + 1;
+      FD_Set.Length := FD_Set.Length + 1;
       FD_Set.Fds (FD_Set.Length).FD := AWS.OS_Lib.FD_Type (FD);
       Set_Mode (FD_Set.Fds (FD_Set.Length), Event);
    end Add;
@@ -134,7 +136,7 @@ package body AWS.Net.Poll_Events is
          exit when Index > FD_Set.Length
            or else FD_Set.Fds (Index).REvents /= 0;
 
-         Index := @ + 1;
+         Index := Index + 1;
       end loop;
    end Next;
 
@@ -153,7 +155,7 @@ package body AWS.Net.Poll_Events is
          raise Constraint_Error;
       end if;
 
-      FD_Set.Length := @ - 1;
+      FD_Set.Length := FD_Set.Length - 1;
    end Remove;
 
    -------------
@@ -192,7 +194,7 @@ package body AWS.Net.Poll_Events is
    is
       use OS_Lib;
       To_C : constant array (Wait_Event_Type) of Events_Type :=
-               [Input => POLLIN or POLLPRI, Output => POLLOUT];
+               (Input => POLLIN or POLLPRI, Output => POLLOUT);
    begin
       if Value then
          Item.Events := Item.Events or To_C (Event);
@@ -230,11 +232,11 @@ package body AWS.Net.Poll_Events is
    begin
       Check_Range (FD_Set, Index);
       return
-       [Input  => (FD_Set.Fds (Index).REvents and (POLLIN or POLLPRI))
+       (Input  => (FD_Set.Fds (Index).REvents and (POLLIN or POLLPRI))
                     /= 0,
         Error  => (FD_Set.Fds (Index).REvents
                     and (POLLERR or POLLHUP or POLLNVAL)) /= 0,
-        Output => (FD_Set.Fds (Index).REvents and POLLOUT) /= 0];
+        Output => (FD_Set.Fds (Index).REvents and POLLOUT) /= 0);
    end Status;
 
    ----------

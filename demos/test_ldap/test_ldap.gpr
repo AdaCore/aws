@@ -27,7 +27,7 @@ project Test_LDAP is
    for Main use ("test_ldap.adb");
 
    package Builder is
-      for Default_Switches ("Ada") use ("-gnat2022");
+      for Default_Switches ("Ada") use ("-gnat12");
    end Builder;
 
    package Linker is

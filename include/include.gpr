@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2003-2024, AdaCore                     --
+--                     Copyright (C) 2003-2014, AdaCore                     --
 --                                                                          --
 --  This is free software;  you can redistribute it  and/or modify it       --
 --  under terms of the  GNU General Public License as published  by the     --
@@ -50,11 +50,11 @@ library project Include is
       case Shared.Build is
          when "Debug" =>
             for Default_Switches ("Ada") use
-              ("-gnat2022", "-g") & Shared.Global_Options;
+              ("-gnat2012", "-g") & Shared.Global_Options;
 
          when "Release" =>
             for Default_Switches ("Ada") use
-              ("-gnat2022", "-O2", "-gnatws", "-gnatn") & Shared.Global_Options;
+              ("-gnat2012", "-O2", "-gnatws", "-gnatn") & Shared.Global_Options;
       end case;
 
       case Shared.S_Target is

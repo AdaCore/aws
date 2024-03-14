@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2014-2024, AdaCore                     --
+--                     Copyright (C) 2014-2015, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -28,6 +28,8 @@
 ------------------------------------------------------------------------------
 
 --  Priority string test
+
+pragma Ada_2012;
 
 with Ada.Command_Line;
 with Ada.Exceptions;

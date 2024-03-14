@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2006-2024, AdaCore                     --
+--                     Copyright (C) 2006-2018, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -26,6 +26,8 @@
 --  however invalidate any other reasons why the executable file  might be  --
 --  covered by the  GNU Public License.                                     --
 ------------------------------------------------------------------------------
+
+pragma Ada_2012;
 
 with Ada.Characters.Handling;
 with Ada.Containers.Hashed_Maps;
@@ -383,15 +385,11 @@ package body AWS.Net.SSL is
       TLS_PK   : aliased TSSL.gnutls_privkey_t;
 
       Password : constant String :=
-                   Net.SSL.Certificate.Get_Password
-                     (if Key_Filename = ""
-                      then Certificate_Filename
-                      else Key_Filename);
+        Net.SSL.Certificate.Get_Password
+          (if Key_Filename = "" then Certificate_Filename else Key_Filename);
 
       Pwd : CS.chars_ptr :=
-              (if Password = ""
-               then CS.Null_Ptr
-               else CS.New_String (Password));
+        (if Password = "" then CS.Null_Ptr else CS.New_String (Password));
 
       function Load_PCert_List (Try_Size : Positive) return PCert_Array;
 
@@ -615,11 +613,11 @@ package body AWS.Net.SSL is
          exit when Name = CS.Null_Ptr;
 
          Cipher (Utils.Hex (C.unsigned_char'Pos (cs_id (0)), 2)
-                 & ' ' & Utils.Hex (C.unsigned_char'Pos (cs_id (1)), 2)
-                 & ' ' & CS.Value (TSSL.gnutls_protocol_get_name (min_ver))
-                 & ' ' & CS.Value (TSSL.gnutls_kx_get_name (kx))
-                 & ' ' & CS.Value (TSSL.gnutls_cipher_get_name (ciph))
-                 & ' ' & CS.Value (TSSL.gnutls_mac_get_name (mac)));
+            & ' ' & Utils.Hex (C.unsigned_char'Pos (cs_id (1)), 2)
+            & ' ' & CS.Value (TSSL.gnutls_protocol_get_name (min_ver))
+            & ' ' & CS.Value (TSSL.gnutls_kx_get_name (kx))
+            & ' ' & CS.Value (TSSL.gnutls_cipher_get_name (ciph))
+            & ' ' & CS.Value (TSSL.gnutls_mac_get_name (mac)));
       end loop;
    end Ciphers;
 
@@ -1017,8 +1015,8 @@ package body AWS.Net.SSL is
 
          Free (Datum);
 
-         DH_Time_Idx := @ + 1;
-         DH_Time (DH_Time_Idx) := Resources.File_Timestamp (Filename);
+         DH_Time (DH_Time_Idx + 1) := Resources.File_Timestamp (Filename);
+         DH_Time_Idx := DH_Time_Idx + 1;
 
          return True;
       end Loaded;
@@ -1067,8 +1065,8 @@ package body AWS.Net.SSL is
 
       if DH_Params (0) /= null or else not Loaded then
          Check_Error_Code (TSSL.gnutls_dh_params_generate2 (New_One, Bits));
-         DH_Time_Idx := @ + 1;
-         DH_Time (DH_Time_Idx) := Calendar.Clock;
+         DH_Time (DH_Time_Idx + 1) := Calendar.Clock;
+         DH_Time_Idx := DH_Time_Idx + 1;
          Save;
       end if;
 
@@ -1107,8 +1105,8 @@ package body AWS.Net.SSL is
       RSA_Params (1) := RSA_Params (0);
       RSA_Params (0) := New_One;
 
-      RSA_Time_Idx := @ + 1;
-      RSA_Time (RSA_Time_Idx) := Calendar.Clock;
+      RSA_Time (RSA_Time_Idx + 1) := Calendar.Clock;
+      RSA_Time_Idx := RSA_Time_Idx + 1;
 
       RSA_Lock.Unlock;
    end Generate_RSA;
@@ -1391,7 +1389,7 @@ package body AWS.Net.SSL is
         new Unchecked_Conversion (System.Address, Binary_Access);
       Result : constant System.Address := System.Memory.Alloc (Size);
    begin
-      To_Access (Result).all := [others => 0];
+      To_Access (Result).all := (others => 0);
       return Result;
    end Lib_Alloc;
 
@@ -1563,7 +1561,7 @@ package body AWS.Net.SSL is
       Kind : aliased TSSL.gnutls_server_name_type_t;
       Size : aliased C.size_t := SN'Length;
       Cfg  : constant Config :=
-               To_Config (TSSL.gnutls_session_get_ptr (Session));
+        To_Config (TSSL.gnutls_session_get_ptr (Session));
       CN   : Host_Certificates.Cursor;
       CH   : Certificate_Holder;
 
@@ -1574,27 +1572,26 @@ package body AWS.Net.SSL is
       ---------------------
 
       function Get_Server_Name return String is
-         RC : constant C.int :=
-                TSSL.gnutls_server_name_get
-                  (Session, SN'Address, Size'Unchecked_Access, Kind'Access, 0);
+         RC : constant C.int := TSSL.gnutls_server_name_get
+           (Session, SN'Address, Size'Unchecked_Access, Kind'Access, 0);
+
       begin
          case RC is
-            when TSSL.GNUTLS_E_SHORT_MEMORY_BUFFER =>
-               Log_Error
-                 ("Requested server name too long "
-                  & C.To_Ada (SN) & Size'Img);
+         when TSSL.GNUTLS_E_SHORT_MEMORY_BUFFER =>
+            Log_Error
+              ("Requested server name too long " & C.To_Ada (SN) & Size'Img);
 
-               return "";
+            return "";
 
-            when TSSL.GNUTLS_E_REQUESTED_DATA_NOT_AVAILABLE =>
-               return "";
+         when TSSL.GNUTLS_E_REQUESTED_DATA_NOT_AVAILABLE =>
+            return "";
 
-            when TSSL.GNUTLS_E_SUCCESS =>
-               return C.To_Ada (SN);
+         when TSSL.GNUTLS_E_SUCCESS =>
+            return C.To_Ada (SN);
 
-            when others =>
-               raise Socket_Error with
-                 "gnutls_server_name_get error code " & RC'Img;
+         when others =>
+            raise Socket_Error with
+              "gnutls_server_name_get error code " & RC'Img;
          end case;
       end Get_Server_Name;
 
@@ -1636,6 +1633,7 @@ package body AWS.Net.SSL is
       privkey.all      := CH.TLS_PK;
 
       return 0;
+
    exception
       when E : others =>
          Log_Error (Exception_Information (E));
@@ -1724,7 +1722,7 @@ package body AWS.Net.SSL is
                      end if;
 
                   when 1 =>
-                     if not Socket.Check ([Output => True, Input => False])
+                     if not Socket.Check ((Output => True, Input => False))
                        (Output)
                      then
                         Last := Last_Index (Data'First, 0);
@@ -2198,9 +2196,9 @@ package body AWS.Net.SSL is
 
       Code : C.int;
       To_C : constant array (Shutmode_Type) of TSSL.gnutls_close_request_t :=
-               [Shut_Read_Write => TSSL.GNUTLS_SHUT_RDWR,
+               (Shut_Read_Write => TSSL.GNUTLS_SHUT_RDWR,
                 Shut_Read       => TSSL.GNUTLS_SHUT_RDWR, -- Absent, use RDWR
-                Shut_Write      => TSSL.GNUTLS_SHUT_WR];
+                Shut_Write      => TSSL.GNUTLS_SHUT_WR);
    begin
       if Socket.IO.Handshaken /= null and then Socket.IO.Handshaken.all then
          --  Must be done only after successful handshake
@@ -2241,12 +2239,12 @@ package body AWS.Net.SSL is
       Hash : Hash_Method) return Stream_Element_Array
    is
       To_C : constant array (Hash_Method) of TSSL.gnutls_mac_algorithm_t
-               := [MD5    => TSSL.GNUTLS_MAC_MD5,
+               := (MD5    => TSSL.GNUTLS_MAC_MD5,
                    SHA1   => TSSL.GNUTLS_MAC_SHA1,
                    SHA224 => TSSL.GNUTLS_MAC_SHA224,
                    SHA256 => TSSL.GNUTLS_MAC_SHA256,
                    SHA384 => TSSL.GNUTLS_MAC_SHA384,
-                   SHA512 => TSSL.GNUTLS_MAC_SHA512];
+                   SHA512 => TSSL.GNUTLS_MAC_SHA512);
       Dat : aliased TSSL.gnutls_datum_t := (Ptr, C.unsigned (Size));
       Sig : aliased TSSL.gnutls_datum_t;
    begin
@@ -2259,11 +2257,11 @@ package body AWS.Net.SSL is
             signature => Sig'Access));
 
       declare
-         type Array_Access is access all Stream_Element_Array
-           (1 .. Stream_Element_Offset (Sig.size));
+         type Array_Access is access all
+            Stream_Element_Array (1 .. Stream_Element_Offset (Sig.size));
 
-         function To_Result is new Unchecked_Conversion
-           (TSSL.a_unsigned_char_t, Array_Access);
+         function To_Result is
+           new Unchecked_Conversion (TSSL.a_unsigned_char_t, Array_Access);
 
          Result : constant Stream_Element_Array := To_Result (Sig.data).all;
       begin
@@ -2317,7 +2315,7 @@ package body AWS.Net.SSL is
       Adt : constant String := CS.Value (text);
    begin
       if Lev (Fst) = ' ' then
-         Fst := @ + 1;
+         Fst := Fst + 1;
       end if;
 
       Debug_Output ("|<" & Prefix & Lev (Fst .. Lev'Last) & ">| " & Adt);
@@ -2428,6 +2426,7 @@ package body AWS.Net.SSL is
       else
          return TSSL.GNUTLS_E_CERTIFICATE_ERROR;
       end if;
+
    exception
       when E : others =>
          Log_Error (Exception_Message (E));

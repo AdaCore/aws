@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2012-2024, AdaCore                     --
+--                     Copyright (C) 2012-2022, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -26,6 +26,8 @@
 --  however invalidate any other reasons why the executable file  might be  --
 --  covered by the  GNU Public License.                                     --
 ------------------------------------------------------------------------------
+
+pragma Ada_2012;
 
 --  This implements the WebSocket protocol as defined in RFC-6455
 
@@ -370,7 +372,7 @@ private
    --  Error codes corresponding to all errors
 
    Error_Code : constant array (Error_Type) of Interfaces.Unsigned_16 :=
-                  [Normal_Closure             => 1000,
+                  (Normal_Closure             => 1000,
                    Going_Away                 => 1001,
                    Protocol_Error             => 1002,
                    Unsupported_Data           => 1003,
@@ -387,7 +389,7 @@ private
                    User_02                    => 3001,
                    User_03                    => 3002,
                    User_04                    => 3003,
-                   User_05                    => 3004];
+                   User_05                    => 3004);
 
    procedure WebSocket_Exception
      (WebSocket : in out Object'Class;

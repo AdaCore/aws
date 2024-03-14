@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2003-2024, AdaCore                     --
+--                     Copyright (C) 2003-2014, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -96,7 +96,7 @@ package body AWS.Services.Transient_Pages is
          Need_Start               : out Boolean) is
       begin
          Need_Start     := Server_Count = 0 and then Cleaner_Task = null;
-         Server_Count   := @ + 1;
+         Server_Count   := Server_Count + 1;
          Clean_Interval := Real_Time.To_Time_Span (Transient_Check_Interval);
       end Register;
 
@@ -106,7 +106,7 @@ package body AWS.Services.Transient_Pages is
 
       procedure Stop (Need_Release : out Boolean) is
       begin
-         Server_Count := @ - 1;
+         Server_Count := Server_Count - 1;
          Need_Release := (Server_Count = 0 and then Cleaner_Task /= null);
       end Stop;
 
@@ -132,6 +132,7 @@ package body AWS.Services.Transient_Pages is
 
          Next := Next + Clean_Interval;
       end loop Clean;
+
    exception
       when E : others =>
          Text_IO.Put_Line
@@ -193,7 +194,7 @@ package body AWS.Services.Transient_Pages is
       begin
          --  Fill with '$'
 
-         URI (1 .. 5 - K_Img'Length) := [others => '$'];
+         URI (1 .. 5 - K_Img'Length) := (others => '$');
 
          --  Add the number
 

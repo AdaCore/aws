@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2005-2024, AdaCore                     --
+--                     Copyright (C) 2005-2014, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -27,13 +27,16 @@
 --  covered by the  GNU Public License.                                     --
 ------------------------------------------------------------------------------
 
+pragma Ada_2012;
+
 with Ada.Calendar;
-with Ada.Containers.Vectors;
 with Ada.Exceptions;
 with Ada.Streams;
 with Ada.Strings.Unbounded;
 with Ada.Text_IO;
 with Ada.Unchecked_Deallocation;
+
+with Ada.Containers.Vectors;
 
 with AWS.Messages;
 with AWS.MIME;
@@ -239,9 +242,9 @@ package body AWS.Services.Download is
               (MIME.Text_HTML,
                String'(Templates.Parse
                  (S_Tmplt,
-                    [1 => Templates.Assoc ("NAME", To_String (Info.Name)),
+                    (1 => Templates.Assoc ("NAME", To_String (Info.Name)),
                      2 => Templates.Assoc
-                       ("RES_URI", To_String (Info.R_URI))])));
+                       ("RES_URI", To_String (Info.R_URI))))));
          end if;
 
       else
@@ -249,10 +252,10 @@ package body AWS.Services.Download is
            (MIME.Text_HTML,
             String'(Templates.Parse
               (W_Tmplt,
-                 [1 => Templates.Assoc ("NAME", To_String (Info.Name)),
+                 (1 => Templates.Assoc ("NAME", To_String (Info.Name)),
                   2 => Templates.Assoc ("RES_URI", To_String (Info.R_URI)),
                   3 => Templates.Assoc
-                    ("POSITION", Positive (Info.Position))])));
+                    ("POSITION", Positive (Info.Position))))));
       end if;
    end CB;
 
@@ -286,10 +289,11 @@ package body AWS.Services.Download is
       procedure Create_Set (Socket_Set : in out Sock_Set.Socket_Set_Type) is
          use type Net.Socket_Access;
          Info : Download_Information;
-         N    : constant Positive :=
-                  Positive'Min
-                    (Max_Concurrent_Download, Positive (Downloads.Length));
+         N    : Positive;
       begin
+         N := Positive'Min
+           (Max_Concurrent_Download, Positive (Downloads.Length));
+
          for K in 1 .. N loop
             Info := Downloads.Element (K);
 
@@ -314,10 +318,9 @@ package body AWS.Services.Download is
 
          Remove_Old_Entries : while not Downloads.Is_Empty loop
             Info := Downloads.First_Element;
-
             if Calendar.Clock - Info.Time_Stamp > 15.0 then
                Downloads.Delete_First;
-               Count := @ - 1;
+               Count := Count - 1;
             else
                exit Remove_Old_Entries;
             end if;
@@ -363,7 +366,7 @@ package body AWS.Services.Download is
 
       procedure Get_UID (UID : out Positive) is
       begin
-         Data_Manager.UID := @ + 1;
+         Data_Manager.UID := Data_Manager.UID + 1;
          UID := Data_Manager.UID;
       end Get_UID;
 
@@ -393,7 +396,7 @@ package body AWS.Services.Download is
       procedure Insert (Download : Download_Information) is
       begin
          Downloads.Append (Download);
-         Count := @ + 1;
+         Count := Count + 1;
       end Insert;
 
       -----------
@@ -423,7 +426,7 @@ package body AWS.Services.Download is
       procedure Remove (Download : Download_Information) is
       begin
          Downloads.Delete (Index (Download));
-         Count := @ - 1;
+         Count := Count - 1;
          Check_Queue;
       end Remove;
 

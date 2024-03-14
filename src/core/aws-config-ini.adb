@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2000-2024, AdaCore                     --
+--                     Copyright (C) 2000-2019, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -54,7 +54,7 @@ package body AWS.Config.Ini is
       if First = 0 then
          First := Exec_Name'First;
       else
-         First := @ + 1;
+         First := First + 1;
       end if;
 
       Last := Strings.Fixed.Index
@@ -63,7 +63,7 @@ package body AWS.Config.Ini is
       if Last = 0 then
          Last := Exec_Name'Last;
       else
-         Last := @ - 1;
+         Last := Last - 1;
       end if;
 
       if Full_Path then
@@ -90,7 +90,7 @@ package body AWS.Config.Ini is
 
       procedure Set_Value (Key : String; Value : String);
 
-      Line : Natural := 0;
+      Line : Natural;
       --  Current line number parsed
 
       -------------------
@@ -140,11 +140,12 @@ package body AWS.Config.Ini is
                     File => File,
                     Mode => Text_IO.In_File,
                     Form => "shared=no");
+      Line := 0;
 
       while not Text_IO.End_Of_File (File) loop
 
          Text_IO.Get_Line (File, Buffer, Last);
-         Line := @ + 1;
+         Line := Line + 1;
 
          --  Remove comments
 
@@ -163,6 +164,7 @@ package body AWS.Config.Ini is
                K_First, K_Last);
 
             if K_Last /= 0 then
+
                declare
                   Key   : constant String := Buffer (K_First .. K_Last);
                   Value : constant String :=
@@ -185,6 +187,7 @@ package body AWS.Config.Ini is
       end loop;
 
       Text_IO.Close (File);
+
    exception
       when others =>
          if Text_IO.Is_Open (File) then

@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2012-2024, AdaCore                     --
+--                     Copyright (C) 2012-2017, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -95,7 +95,7 @@ package body AWS.Net.WebSocket.Protocol.Draft76 is
             exit when Byte (Byte'First) = 16#FF#;
 
             Data (Last) := Byte (Byte'First);
-            Last := @ + 1;
+            Last := Last + 1;
          end loop;
       end if;
 
@@ -116,8 +116,8 @@ package body AWS.Net.WebSocket.Protocol.Draft76 is
       Data     : Stream_Element_Array)
    is
       pragma Unreferenced (Protocol);
-      D_Header : constant Stream_Element_Array (1 .. 1) := [16#00#];
-      D_Footer : constant Stream_Element_Array (1 .. 1) := [16#FF#];
+      D_Header : constant Stream_Element_Array (1 .. 1) := (1 => 16#00#);
+      D_Footer : constant Stream_Element_Array (1 .. 1) := (1 => 16#FF#);
    begin
       Net.Buffered.Write (Socket, D_Header);
 
@@ -173,11 +173,11 @@ package body AWS.Net.WebSocket.Protocol.Draft76 is
             if Strings.Maps.Is_In
               (Key (K), Strings.Maps.Constants.Decimal_Digit_Set)
             then
-               I := @ + 1;
+               I := I + 1;
                N (I) := Key (K);
 
             elsif Key (K) = ' ' then
-               Spaces := @ + 1;
+               Spaces := Spaces + 1;
             end if;
          end loop;
 
@@ -270,7 +270,7 @@ package body AWS.Net.WebSocket.Protocol.Draft76 is
             S := K * 2 - 1;
             V := Natural'Value ("16#" & D (S .. S + 1) & "#");
 
-            Net.Buffered.Put (Sock, String'[Character'Val (V)]);
+            Net.Buffered.Put (Sock, String'(1 => Character'Val (V)));
          end loop;
       end;
 
