@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2004-2013, AdaCore                     --
+--                     Copyright (C) 2004-2024, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -44,6 +44,7 @@ package body AWS.Services.Split_Pages.Uniform.Overlapping is
       for I in Result'First + 1 .. Result'Last loop
          Result (I).First := Integer'Max (Result (I).First - This.Overlap, 1);
       end loop;
+
       return Result;
    end Get_Page_Ranges;
 

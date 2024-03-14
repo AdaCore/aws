@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2000-2013, AdaCore                     --
+--                     Copyright (C) 2000-2024, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -26,8 +26,6 @@
 --  however invalidate any other reasons why the executable file  might be  --
 --  covered by the  GNU Public License.                                     --
 ------------------------------------------------------------------------------
-
-pragma Ada_2012;
 
 with Ada.Calendar;
 with Ada.Characters.Handling;
@@ -114,7 +112,6 @@ package body AWS.Services.Directory is
 
    begin
       for I in 1 .. Length (Left.Order_Set) loop
-
          O_C        := Element (Left.Order_Set, I);
          Order_Item := To_Order_Mode (O_C);
          Ascending  := Characters.Handling.Is_Upper (O_C);
@@ -134,10 +131,10 @@ package body AWS.Services.Directory is
 
                elsif not Left.Directory and then not Right.Directory then
                   declare
-                     Mime_Left  : constant String
-                       := Content_Type (To_String (Left.Name));
-                     Mime_Right : constant String
-                       := Content_Type (To_String (Right.Name));
+                     Mime_Left  : constant String :=
+                                    Content_Type (To_String (Left.Name));
+                     Mime_Right : constant String :=
+                                    Content_Type (To_String (Right.Name));
                   begin
                      if Mime_Left /= Mime_Right then
                         return Mime_Left < Mime_Right xor not Ascending;
@@ -153,10 +150,10 @@ package body AWS.Services.Directory is
                elsif not Left.Directory and then not Right.Directory then
                   declare
                      use Ada.Characters.Handling;
-                     Ext_Left  : constant String
-                       := To_Upper (Get_Ext (To_String (Left.Name)));
-                     Ext_Right : constant String
-                       := To_Upper (Get_Ext (To_String (Right.Name)));
+                     Ext_Left  : constant String :=
+                                   To_Upper (Get_Ext (To_String (Left.Name)));
+                     Ext_Right : constant String :=
+                                   To_Upper (Get_Ext (To_String (Right.Name)));
                   begin
                      if Ext_Left /= Ext_Right then
                         return Ext_Left < Ext_Right xor not Ascending;
@@ -171,10 +168,10 @@ package body AWS.Services.Directory is
 
                elsif not Left.Directory and then not Right.Directory then
                   declare
-                     Ext_Left  : constant String
-                       := Get_Ext (To_String (Left.Name));
-                     Ext_Right : constant String
-                       := Get_Ext (To_String (Right.Name));
+                     Ext_Left  : constant String :=
+                                   Get_Ext (To_String (Left.Name));
+                     Ext_Right : constant String :=
+                                   Get_Ext (To_String (Right.Name));
                   begin
                      if Ext_Left /= Ext_Right then
                         return Ext_Left < Ext_Right xor not Ascending;
@@ -186,8 +183,8 @@ package body AWS.Services.Directory is
 
                declare
                   use Ada.Characters.Handling;
-                  Left_Name  : constant  String
-                    := To_Upper (To_String (Left.Name));
+                  Left_Name  : constant  String :=
+                                 To_Upper (To_String (Left.Name));
                   Right_Name : constant String :=
                                  To_Upper (To_String (Right.Name));
                begin
@@ -312,9 +309,9 @@ package body AWS.Services.Directory is
       subtype Dir_Order_Range is Order_Mode range Name .. Time;
 
       Dir_Ordr     : array (Dir_Order_Range) of Unbounded_String :=
-        (Name  => To_Unbounded_String (Mode_Param & "&ORDER=DN"),
+        [Name  => To_Unbounded_String (Mode_Param & "&ORDER=DN"),
          SName => To_Unbounded_String (Mode_Param & "&ORDER=DA"),
-         Time  => To_Unbounded_String (Mode_Param & "&ORDER=DT"));
+         Time  => To_Unbounded_String (Mode_Param & "&ORDER=DT")];
       --  Defaults rules to order the directories by Name or by Time
 
       UID_Sq       : Natural := 0;
@@ -331,18 +328,17 @@ package body AWS.Services.Directory is
          Item : constant File_Record := File_Tree.Element (Cursor);
       begin
          if Item.Directory then
-            Sizes := Sizes & '-';
-            Names := Names & (Item.Name & '/');
+            Sizes := @ & '-';
+            Names := @ & (Item.Name & '/');
 
          else
             Sizes := Sizes & Utils.File_Size_Type'Image (Item.Size);
-            Names := Names & Item.Name;
+            Names := @ & Item.Name;
          end if;
 
-         Times  := Times
-           & GNAT.Calendar.Time_IO.Image (Item.Time, "%Y/%m/%d %T");
+         Times  := @ & GNAT.Calendar.Time_IO.Image (Item.Time, "%Y/%m/%d %T");
 
-         Is_Dir := Is_Dir & Item.Directory;
+         Is_Dir := @ & Item.Directory;
       end Each_Entry;
 
       ------------
@@ -405,7 +401,7 @@ package body AWS.Services.Directory is
             File_Entry.UID       := UID_Sq;
             File_Entry.Order_Set := Order_Set;
 
-            UID_Sq := UID_Sq + 1;
+            UID_Sq := @ + 1;
 
             File_Tree.Insert (Order_Tree, File_Entry, Cursor, Success);
 
@@ -581,7 +577,7 @@ package body AWS.Services.Directory is
 
    function To_Order_Mode (C : Order_Char) return Order_Mode is
    begin
-      return Order_Mode'Value (String'(1 => C));
+      return Order_Mode'Value (String'[C]);
    end To_Order_Mode;
 
 end AWS.Services.Directory;

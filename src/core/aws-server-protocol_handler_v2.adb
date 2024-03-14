@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                       Copyright (C) 2021, AdaCore                        --
+--                     Copyright (C) 2021-2024, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -401,8 +401,8 @@ is
    --------------------------
 
    procedure Handle_Control_Frame
-     (Frame   : HTTP2.Frame.Object'Class;
-      Error   : out HTTP2.Error_Codes)
+     (Frame : HTTP2.Frame.Object'Class;
+      Error : out HTTP2.Error_Codes)
    is
       Add_FC  : Integer;
       Streams : HTTP2.Stream.Set.Object renames S;
@@ -579,7 +579,7 @@ is
          type Pseudo_Enum is (Method, Scheme, Path);
          --  Pseudo headers have to be exactly one
 
-         Has_Pseudo : array (Pseudo_Enum) of Boolean := (others => False);
+         Has_Pseudo : array (Pseudo_Enum) of Boolean := [others => False];
 
          procedure Log_Error (Message : String);
          --  Writes message to the error log and set Error to C_Protocol_Error
@@ -674,11 +674,11 @@ is
          end loop;
       end Validate_Headers;
 
-      Status   : AWS.Status.Data renames Stream.Status.all;
       Headers  : constant AWS.Headers.List := Stream.Headers;
-      Error    : HTTP2.Error_Codes;
       Oversize : constant Boolean :=
                    Stream.Upload_State = HTTP2.Stream.Upload_Oversize;
+      Status   : AWS.Status.Data renames Stream.Status.all;
+      Error    : HTTP2.Error_Codes;
 
    begin
       AWS.Status.Set.Reset (Status);
@@ -859,7 +859,7 @@ begin
          S.Insert
            (1,
             HTTP2.Stream.Create (Sock,  1, Ctx.Settings.Initial_Window_Size));
-         Stream_Opened := Stream_Opened + 1;
+         Stream_Opened := @ + 1;
 
          S (1).Status.all := Request;
 
@@ -902,7 +902,7 @@ begin
                         Will_Close := True;
                      end if;
 
-                     Stream_Opened := Stream_Opened - 1;
+                     Stream_Opened := @ - 1;
                   end if;
                end if;
             end;
@@ -1119,7 +1119,7 @@ begin
                        (Stream_Id,
                         HTTP2.Stream.Create
                           (Sock, Stream_Id, Ctx.Settings.Initial_Window_Size));
-                     Stream_Opened := Stream_Opened + 1;
+                     Stream_Opened := @ + 1;
                   end if;
                end if;
 

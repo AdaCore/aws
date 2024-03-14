@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                      Copyright (C) 2021, AdaCore                         --
+--                     Copyright (C) 2021-2024, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -122,7 +122,7 @@ private
    package S renames Frame.Settings;
 
    Default_Values : constant Settings_Set :=
-                      (S.HEADER_TABLE_SIZE      =>
+                      [S.HEADER_TABLE_SIZE      =>
                          Default.HTTP2_Header_Table_Size,
                        S.ENABLE_PUSH            =>
                          (if Default.HTTP2_Enable_Push then 1 else 0),
@@ -133,7 +133,7 @@ private
                        S.MAX_FRAME_SIZE         =>
                          Default.HTTP2_Max_Frame_Size,
                        S.MAX_HEADER_LIST_SIZE   =>
-                         Default.HTTP2_Max_Header_List_Size);
+                         Default.HTTP2_Max_Header_List_Size];
 
    type Object is tagged record
       Values                    : Settings_Set := Default_Values;

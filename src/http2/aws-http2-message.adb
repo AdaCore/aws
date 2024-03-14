@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                      Copyright (C) 2021, AdaCore                         --
+--                     Copyright (C) 2021-2024, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -58,7 +58,7 @@ package body AWS.HTTP2.Message is
       use type Utils.Counter_Access;
    begin
       if O.Ref /= null then
-         O.Ref.all := O.Ref.all + 1;
+         O.Ref.all := @ + 1;
       end if;
    end Adjust;
 
@@ -192,18 +192,18 @@ package body AWS.HTTP2.Message is
                                 Response.Filename (Answer),
                                 File_Time);
 
-               With_Body   : Boolean :=
-                               Messages.With_Body (Status_Code)
-                                 and then Status.Method (Request)
-                                 /= Status.HEAD;
+               With_Body : Boolean :=
+                             Messages.With_Body (Status_Code)
+                               and then Status.Method (Request)
+                               /= Status.HEAD;
 
-               Ranges      : constant String :=
-                               AWS.Headers.Get_Values
-                                 (Status.Header (Request),
-                                  Messages.Range_Token);
+               Ranges    : constant String :=
+                             AWS.Headers.Get_Values
+                               (Status.Header (Request),
+                                Messages.Range_Token);
                --  The ranges for partial sending if defined
-               N_Range     : constant Positive :=
-                               1 + Fixed.Count (Ranges, ",");
+               N_Range   : constant Positive :=
+                             1 + Fixed.Count (Ranges, ",");
             begin
                --  Status code header
 
@@ -362,14 +362,14 @@ package body AWS.HTTP2.Message is
 
    overriding procedure Finalize (O : in out Object) is
       use type Utils.Counter_Access;
-      C : Utils.Counter_Access := O.Ref;
       procedure Unchecked_Free is new Ada.Unchecked_Deallocation
         (Resources.Streams.Stream_Type'Class, Resources.Streams.Stream_Access);
+      C : Utils.Counter_Access := O.Ref;
    begin
       if C /= null then
          O.Ref := null;
 
-         C.all := C.all - 1;
+         C.all := @ - 1;
 
          if C.all = 0 then
             if O.M_Body /= null then
@@ -444,7 +444,7 @@ package body AWS.HTTP2.Message is
               (Stream.Identifier, new Stream_Element_Array'(Content),
                End_Stream => Next_Size = 0));
 
-         FCW := FCW - Content'Length;
+         FCW := @ - Content'Length;
 
          if FCW < Natural (Next_Size) then
             Next_Size := Stream_Element_Count (FCW);

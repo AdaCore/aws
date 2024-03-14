@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2003-2017, AdaCore                     --
+--                     Copyright (C) 2003-2024, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -293,8 +293,8 @@ package body AWS.Services.Web_Mail is
       WM_Session : constant Session.Id := Status.Session (Request);
       P_List     : constant Parameters.List := Status.Parameters (Request);
 
-      No_Message : constant Positive
-        := Positive'Value (Parameters.Get (P_List, "NO_MESSAGE"));
+      No_Message : constant Positive :=
+                     Positive'Value (Parameters.Get (P_List, "NO_MESSAGE"));
 
       Context : Context_Data;
       Mailbox : POP.Mailbox;
@@ -335,8 +335,9 @@ package body AWS.Services.Web_Mail is
             if POP.Is_File (Attachment) then
                declare
                   Filename : constant String := POP.Filename (Attachment);
-                  URI      : constant String
-                    := Services.Transient_Pages.Get_URI & "/" & Filename;
+                  URI      : constant String :=
+                               Services.Transient_Pages.Get_URI
+                                 & "/" & Filename;
                   --  We add the filename after the uniq URI to tell the
                   --  browser to use this name to save the file on disk.
                begin
@@ -418,8 +419,7 @@ package body AWS.Services.Web_Mail is
       return Response.Build
         (MIME.Text_HTML,
          Unbounded_String'
-           (Templates.Parse
-              (WWW_Root & "/wm_message.thtml", T)));
+           (Templates.Parse (WWW_Root & "/wm_message.thtml", T)));
    end Message;
 
    -----------
@@ -434,8 +434,8 @@ package body AWS.Services.Web_Mail is
       WM_Session : constant Session.Id := Status.Session (Request);
       P_List     : constant Parameters.List := Status.Parameters (Request);
 
-      No_Message : constant Positive
-        := Positive'Value (Parameters.Get (P_List, "NO_MESSAGE"));
+      No_Message : constant Positive :=
+                     Positive'Value (Parameters.Get (P_List, "NO_MESSAGE"));
 
       Context : Context_Data;
       Mailbox : POP.Mailbox;
@@ -467,7 +467,8 @@ package body AWS.Services.Web_Mail is
             if Element (Content, K) = ASCII.LF then
                Insert (Content, K + 1, Prefix);
             end if;
-            K := K + 1;
+
+            K := @ + 1;
          end loop;
 
          return Templates.Assoc ("WM_CONTENT", Content);
@@ -619,11 +620,11 @@ package body AWS.Services.Web_Mail is
          pragma Unreferenced (Quit);
          use type Templates.Vector_Tag;
       begin
-         Index_V   := Utils.Image (Index)   & Index_V;
-         Size_V    := POP.Size (Message)    & Size_V;
-         Date_V    := POP.Date (Message)    & Date_V;
-         From_V    := POP.From (Message)    & From_V;
-         Subject_V := POP.Subject (Message) & Subject_V;
+         Index_V   := Utils.Image (Index)   & @;
+         Size_V    := POP.Size (Message)    & @;
+         Date_V    := POP.Date (Message)    & @;
+         From_V    := POP.From (Message)    & @;
+         Subject_V := POP.Subject (Message) & @;
       end Add_Message;
 
       -------------------------

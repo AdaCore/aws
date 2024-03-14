@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                       Copyright (C) 2017, AdaCore                        --
+--                    Copyright (C) 2017-2024, AdaCore                      --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -26,8 +26,6 @@
 --  however invalidate any other reasons why the executable file  might be  --
 --  covered by the  GNU Public License.                                     --
 ------------------------------------------------------------------------------
-
-pragma Ada_2012;
 
 procedure AWS.Net.Poll_Events.G_Poll
   (Fds : in out Set; Timeout : Timeout_Type; Result : out Integer)
@@ -81,12 +79,12 @@ begin
 
       if (FD_Events and (OS_Lib.POLLIN or OS_Lib.POLLPRI)) /= 0 then
          FD_SET (Fds.Fds (J).FD, Rfds);
-         Rcount := Rcount + 1;
+         Rcount := @ + 1;
       end if;
 
       if (FD_Events and OS_Lib.POLLOUT) /= 0 then
          FD_SET (Fds.Fds (J).FD, Wfds);
-         Wcount := Wcount + 1;
+         Wcount := @ + 1;
       end if;
 
       FD_SET (Fds.Fds (J).FD, Efds);
@@ -133,7 +131,7 @@ begin
          end if;
 
          if Fds.Fds (J).REvents /= 0 then
-            Result := Result + 1;
+            Result := @ + 1;
          end if;
       end loop;
    end if;

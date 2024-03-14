@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2000-2022, AdaCore                     --
+--                     Copyright (C) 2000-2024, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -26,8 +26,6 @@
 --  however invalidate any other reasons why the executable file  might be  --
 --  covered by the  GNU Public License.                                     --
 ------------------------------------------------------------------------------
-
-pragma Ada_2012;
 
 with Ada.Streams;
 with Ada.Text_IO;
@@ -154,7 +152,6 @@ package body AWS.Server is
                      --  get another one in next iteration.
 
                      SSL_Socket.Shutdown;
-
                   else
                      --  Unexpected error
 
@@ -269,6 +266,7 @@ package body AWS.Server is
       --  abortion.
    begin
       Web_Server.Slots.Abort_On_Timeout (Socket, Slot);
+
       if Socket /= null then
          Net.Shutdown (Socket.all);
          Web_Server.Slots.Shutdown_Done (Slot);
@@ -334,11 +332,10 @@ package body AWS.Server is
    ----------
 
    task body Line is
-      TA : constant Line_Attribute.Attribute_Handle :=
-             Line_Attribute.Reference;
+      TA      : constant Line_Attribute.Attribute_Handle :=
+                  Line_Attribute.Reference;
       Request : aliased AWS.Status.Data;
    begin
-
       select
          accept Start
            (Server : HTTP;
@@ -714,7 +711,7 @@ package body AWS.Server is
 
          delay 0.5;
 
-         Wait_Counter := Wait_Counter + 1;
+         Wait_Counter := @ + 1;
 
          if Wait_Counter > 30 then
             Ada.Text_IO.Put_Line
@@ -800,7 +797,7 @@ package body AWS.Server is
          function Test_Slot (S : Positive) return Boolean is
          begin
             if Table (S).Phase = Wait_For_Client then
-               Table (S).Wait_Breaker.Send ((1 => 0));
+               Table (S).Wait_Breaker.Send ([0]);
 
             elsif Is_Abortable (S) then
                Get_For_Shutdown (S, Socket);
@@ -883,7 +880,7 @@ package body AWS.Server is
                Mark_Phase (Index, Aborted);
             else
                Mark_Phase (Index, In_Shutdown);
-               Shutdown_Count := Shutdown_Count + 1;
+               Shutdown_Count := @ + 1;
             end if;
          else
             Socket := null;
@@ -1081,7 +1078,7 @@ package body AWS.Server is
             Table (Index).Phase'Img
             & ' ' & Boolean'Image (Table (Index).Sock = null));
 
-         Count := Count + 1;
+         Count := @ + 1;
 
          Shutdown := False;
 
@@ -1116,8 +1113,8 @@ package body AWS.Server is
          Table (Index).Sock             := Socket;
          Table (Index).Alive_Counter    := 0;
          Table (Index).Alive_Time_Stamp := Ada.Calendar.Clock;
-         Table (Index).Activity_Counter := Table (Index).Activity_Counter + 1;
-         Count := Count - 1;
+         Table (Index).Activity_Counter := @ + 1;
+         Count := @ - 1;
       end Set;
 
       ------------------
@@ -1140,7 +1137,7 @@ package body AWS.Server is
       begin
          if Table (Index).Phase = In_Shutdown then
             Mark_Phase (Index, Aborted);
-            Shutdown_Count := Shutdown_Count - 1;
+            Shutdown_Count := @ - 1;
          end if;
       end Shutdown_Done;
 

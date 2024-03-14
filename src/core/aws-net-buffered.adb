@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2002-2021, AdaCore                     --
+--                     Copyright (C) 2002-2024, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -27,8 +27,6 @@
 --  covered by the  GNU Public License.                                     --
 ------------------------------------------------------------------------------
 
-pragma Ada_2012;
-
 with AWS.Containers.Memory_Streams;
 with AWS.Default;
 with AWS.Translator;
@@ -36,8 +34,8 @@ with AWS.Translator;
 package body AWS.Net.Buffered is
 
    CRLF : constant Stream_Element_Array :=
-            (1 => Character'Pos (ASCII.CR),
-             2 => Character'Pos (ASCII.LF));
+            [1 => Character'Pos (ASCII.CR),
+             2 => Character'Pos (ASCII.LF)];
 
    Input_Limit : Positive := AWS.Default.Input_Line_Size_Limit with Atomic;
 
@@ -91,7 +89,7 @@ package body AWS.Net.Buffered is
       end if;
 
       Byte    := C.Buffer (C.First);
-      C.First := C.First + 1;
+      C.First := @ + 1;
 
       return Byte;
    end Get_Byte;
@@ -377,7 +375,7 @@ package body AWS.Net.Buffered is
 
                J := C.First;
             else
-               return (1 .. 0 => 0);
+               return [1 .. 0 => <>];
             end if;
          end if;
 
@@ -389,13 +387,13 @@ package body AWS.Net.Buffered is
                return Buffered & C.Buffer (K .. J);
 
             else
-               K := K + 1;
+               K := @ + 1;
             end if;
 
-            J := J + 1;
+            J := @ + 1;
 
          elsif K = Delimiter'First then
-            J := J + 1;
+            J := @ + 1;
          else
             K := Delimiter'First;
          end if;

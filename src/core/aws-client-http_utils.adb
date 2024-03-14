@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2005-2021, AdaCore                     --
+--                     Copyright (C) 2005-2024, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -26,8 +26,6 @@
 --  however invalidate any other reasons why the executable file  might be  --
 --  covered by the  GNU Public License.                                     --
 ------------------------------------------------------------------------------
-
-pragma Ada_2012;
 
 with Ada.Characters.Handling;
 with Ada.Exceptions;
@@ -409,12 +407,12 @@ package body AWS.Client.HTTP_Utils is
    is
       type Over_Data is array (Authentication_Level) of Boolean;
 
-      Is_Over    : constant Over_Data := (others => True);
-      Over_Level : Over_Data          := (others => True);
+      Is_Over    : constant Over_Data := [others => True];
+      Over_Level : Over_Data          := [others => True];
    begin
       for Level in Authentication_Level'Range loop
          if Connection.Auth (Level).Requested then
-            Counter (Level)    := Counter (Level) - 1;
+            Counter (Level)    := @ - 1;
             Over_Level (Level) := Counter (Level) = 0;
          end if;
       end loop;
@@ -449,7 +447,7 @@ package body AWS.Client.HTTP_Utils is
          end if;
 
          Connection.Opened             := False;
-         Connection.Disconnect_Counter := Connection.Disconnect_Counter + 1;
+         Connection.Disconnect_Counter := @ + 1;
 
          if Connection.Socket /= null then
             Connection.Socket.Shutdown;
@@ -719,7 +717,7 @@ package body AWS.Client.HTTP_Utils is
       subtype Byte_4 is HTTP2.Byte_4;
    begin
       return HTTP2.Frame.Settings.Set'
-        (1 => (HEADER_TABLE_SIZE,
+        [1 => (HEADER_TABLE_SIZE,
                Byte_4 (Config.HTTP2_Header_Table_Size)),
          2 => (ENABLE_PUSH,
                0),
@@ -730,7 +728,7 @@ package body AWS.Client.HTTP_Utils is
          5 => (MAX_FRAME_SIZE,
                Byte_4 (Config.HTTP2_Max_Frame_Size)),
          6 => (MAX_HEADER_LIST_SIZE,
-               Byte_4 (Config.HTTP2_Max_Header_List_Size)));
+               Byte_4 (Config.HTTP2_Max_Header_List_Size))];
    end Get_Settings;
 
    -----------------------
@@ -900,7 +898,7 @@ package body AWS.Client.HTTP_Utils is
 
       Try_Count        : Natural := Connection.Retry;
 
-      Auth_Attempts    : Auth_Attempts_Count := (others => 2);
+      Auth_Attempts    : Auth_Attempts_Count := [others => 2];
       Auth_Is_Over     : Boolean;
 
       procedure Build_Root_Part_Header;
@@ -1024,7 +1022,6 @@ package body AWS.Client.HTTP_Utils is
             elsif Connection.Streaming then
                Read_Body (Connection, Result, Store => False);
             end if;
-
          exception
             when E : Net.Socket_Error | Connection_Error =>
                Error_Processing
@@ -1062,7 +1059,7 @@ package body AWS.Client.HTTP_Utils is
 
       Request       : HTTP2.Message.Object;
       Try_Count     : Natural := Connection.Retry;
-      Auth_Attempts : Auth_Attempts_Count := (others => 2);
+      Auth_Attempts : Auth_Attempts_Count := [others => 2];
       Auth_Is_Over  : Boolean;
       Stream        : HTTP2.Stream.Object;
       Ctx           : Server.Context.Object (null,
@@ -1129,7 +1126,7 @@ package body AWS.Client.HTTP_Utils is
 
             Request := HTTP2.Message.Create
               (Connection.F_Headers,
-               Stream_Element_Array'(1 .. 0 => <>),
+               Stream_Element_Array'[1 .. 0 => <>],
                Stream.Identifier);
 
             --  Append data & attachments
@@ -1241,7 +1238,7 @@ package body AWS.Client.HTTP_Utils is
       Stamp         : constant Time := Clock;
       Try_Count     : Natural := Connection.Retry;
 
-      Auth_Attempts : Auth_Attempts_Count := (others => 2);
+      Auth_Attempts : Auth_Attempts_Count := [others => 2];
       Auth_Is_Over  : Boolean;
 
    begin
@@ -1275,7 +1272,6 @@ package body AWS.Client.HTTP_Utils is
             elsif Connection.Streaming then
                Read_Body (Connection, Result, Store => False);
             end if;
-
          exception
             when E : Net.Socket_Error | Connection_Error =>
                Error_Processing
@@ -1303,7 +1299,7 @@ package body AWS.Client.HTTP_Utils is
 
       Stamp         : constant Time := Clock;
       Try_Count     : Natural := Connection.Retry;
-      Auth_Attempts : Auth_Attempts_Count := (others => 2);
+      Auth_Attempts : Auth_Attempts_Count := [others => 2];
       Auth_Is_Over  : Boolean;
    begin
       Connection.F_Headers.Reset;
@@ -1379,7 +1375,7 @@ package body AWS.Client.HTTP_Utils is
                     Stream_Element_Offset (Utils.File_Size (Filename));
 
       Try_Count     : Natural := Connection.Retry;
-      Auth_Attempts : Auth_Attempts_Count := (others => 2);
+      Auth_Attempts : Auth_Attempts_Count := [others => 2];
       Auth_Is_Over  : Boolean;
 
       function Content_Length return Stream_Element_Offset;
@@ -1450,7 +1446,6 @@ package body AWS.Client.HTTP_Utils is
          --  Send multipart message end boundary
 
          Net.Buffered.Put_Line (Sock, Pref_Suf & Boundary & Pref_Suf);
-
       exception
          when Net.Socket_Error =>
             --  Properly close the file if needed
@@ -1545,7 +1540,7 @@ package body AWS.Client.HTTP_Utils is
 
       Request       : HTTP2.Message.Object;
       Try_Count     : Natural := Connection.Retry;
-      Auth_Attempts : Auth_Attempts_Count := (others => 2);
+      Auth_Attempts : Auth_Attempts_Count := [others => 2];
       Auth_Is_Over  : Boolean;
       Stream        : HTTP2.Stream.Object;
       Ctx           : Server.Context.Object (null,
@@ -1915,7 +1910,7 @@ package body AWS.Client.HTTP_Utils is
    begin
       loop
          declare
-            Buffer : Stream_Element_Array (1 .. 8192);
+            Buffer : Stream_Element_Array (1 .. 8_192);
             Last   : Stream_Element_Offset;
          begin
             Read_Some (Connection, Buffer, Last);
@@ -1970,7 +1965,7 @@ package body AWS.Client.HTTP_Utils is
       Status : Messages.Status_Code;
 
       Request_Auth_Mode : array (Authentication_Level)
-                            of Authentication_Mode := (others => Any);
+                            of Authentication_Mode := [others => Any];
 
       -----------------------------
       -- Parse_Authenticate_Line --
@@ -2115,7 +2110,7 @@ package body AWS.Client.HTTP_Utils is
             Line   : constant String    := Net.Buffered.Get_Line (Sock);
             N_Char : constant Character := Net.Buffered.Peek_Char (Sock);
          begin
-            if N_Char = ' ' or else N_Char = ASCII.HT then
+            if N_Char in ' ' | ASCII.HT then
                --  Next line is a continuation line [RFC 2616 - 2.2], but
                --  again this is non standard here, see comment above.
                return Line & Get_Full_Line;
@@ -2206,7 +2201,7 @@ package body AWS.Client.HTTP_Utils is
 
                if Connection.Decode_Buffer = null then
                   Connection.Decode_Buffer :=
-                    new Stream_Element_Array (1 .. 8096);
+                    new Stream_Element_Array (1 .. 8_192);
                end if;
 
                Connection.Decode_First := Connection.Decode_Buffer'Last + 1;
@@ -2327,7 +2322,8 @@ package body AWS.Client.HTTP_Utils is
    -- Send_H2_Connection_Preface --
    --------------------------------
 
-   procedure Send_H2_Connection_Preface (Connection : in out HTTP_Connection)
+   procedure Send_H2_Connection_Preface
+     (Connection : in out HTTP_Connection)
    is
       use all type HTTP2.Frame.Kind_Type;
    begin
@@ -2353,8 +2349,8 @@ package body AWS.Client.HTTP_Utils is
                Frame.Dump ("UNEXPECTED");
             end if;
 
-            raise Constraint_Error with
-              "server should have answered with a setting frame";
+            raise Constraint_Error
+              with "server should have answered with a setting frame";
 
          else
             declare
@@ -2443,7 +2439,7 @@ package body AWS.Client.HTTP_Utils is
       use Ada.Real_Time;
       Stamp         : constant Time := Clock;
       Try_Count     : Natural := Connection.Retry;
-      Auth_Attempts : Auth_Attempts_Count := (others => 2);
+      Auth_Attempts : Auth_Attempts_Count := [others => 2];
       Auth_Is_Over  : Boolean;
    begin
       Retry : loop
@@ -2516,7 +2512,7 @@ package body AWS.Client.HTTP_Utils is
 
       Stamp         : constant Time := Clock;
       Try_Count     : Natural := Connection.Retry;
-      Auth_Attempts : Auth_Attempts_Count := (others => 2);
+      Auth_Attempts : Auth_Attempts_Count := [others => 2];
       Auth_Is_Over  : Boolean;
 
    begin
@@ -2596,7 +2592,6 @@ package body AWS.Client.HTTP_Utils is
                "Basic " & AWS.Translator.Base64_Encode (User & ':' & Pwd));
 
          elsif Data.Work_Mode = Digest then
-
             declare
                Nonce : constant String := To_String (Data.Nonce);
                Realm : constant String := To_String (Data.Realm);

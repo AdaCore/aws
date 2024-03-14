@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2000-2014, AdaCore                     --
+--                     Copyright (C) 2000-2024, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -26,8 +26,6 @@
 --  however invalidate any other reasons why the executable file  might be  --
 --  covered by the  GNU Public License.                                     --
 ------------------------------------------------------------------------------
-
-pragma Ada_2012;
 
 with Ada.Characters.Handling;
 with Ada.Containers.Indefinite_Hashed_Maps;
@@ -418,8 +416,8 @@ package body AWS.MIME is
         (Filename  : Regexp.Regexp;
          MIME_Type : String)
       is
-         Item : constant R_MIME_Type
-           := (Filename, To_Unbounded_String (MIME_Type));
+         Item : constant R_MIME_Type :=
+                  (Filename, To_Unbounded_String (MIME_Type));
       begin
          if R_Table = null then
             R_Table := new Node'(Item, null);
@@ -450,6 +448,7 @@ package body AWS.MIME is
                   if Key_Value.Element (Position) = Content_Type then
                      return Key_Value.Key (Position);
                   end if;
+
                   Key_Value.Next (Position);
                end loop;
             end;
@@ -482,7 +481,7 @@ package body AWS.MIME is
                      return To_String (N.Item.MIME_Type);
                   end if;
 
-                  N := N.Next;
+                  N := @.Next;
                end loop;
             end;
          end if;

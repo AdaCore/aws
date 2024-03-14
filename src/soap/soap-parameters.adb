@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2000-2022, AdaCore                     --
+--                     Copyright (C) 2000-2024, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -38,7 +38,7 @@ package body SOAP.Parameters is
    function "&" (P : List; O : Types.Object'Class) return List is
       NP : List := P;
    begin
-      NP.N := NP.N + 1;
+      NP.N := @ + 1;
       NP.V (NP.N) := Types."+" (O);
       return NP;
    end "&";

@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2000-2021, AdaCore                     --
+--                     Copyright (C) 2000-2024, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -27,8 +27,6 @@
 --  covered by the  GNU Public License.                                     --
 ------------------------------------------------------------------------------
 
-pragma Ada_2012;
-
 package AWS with Pure is
 
    Version      : constant String := "20.0";
@@ -41,6 +39,6 @@ package AWS with Pure is
 
    type HTTP_Protocol is (HTTPv1, HTTPv2);
 
-   CRLF : constant String := String'(1 => ASCII.CR, 2 => ASCII.LF);
+   CRLF : constant String := String'[ASCII.CR, ASCII.LF];
 
 end AWS;

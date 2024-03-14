@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2004-2013, AdaCore                     --
+--                     Copyright (C) 2004-2024, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -77,12 +77,12 @@ package body AWS.Services.Split_Pages.Uniform is
       Compute_Max_Size (Table);
 
       if Max <= Self.Max_Per_Page then
-         return (1 => (First => 1, Last => Max));
+         return [(First => 1, Last => Max)];
       end if;
 
       declare
          Result : Ranges_Table
-           (1 .. (Max + Self.Max_Per_Page - 1) / Self.Max_Per_Page);
+                    (1 .. (Max + Self.Max_Per_Page - 1) / Self.Max_Per_Page);
       begin
          for I in 1 .. Result'Last - 1 loop
             Result (I) := (First => Self.Max_Per_Page *  (I - 1) + 1,
@@ -116,8 +116,8 @@ package body AWS.Services.Split_Pages.Uniform is
          --  Not yet built
 
          for I in URIs'Range loop
-            Self.HREFS_V   := Self.HREFS_V & URIs (I);
-            Self.INDEXES_V := Self.INDEXES_V & I;
+            Self.HREFS_V   := @ & URIs (I);
+            Self.INDEXES_V := @ & I;
          end loop;
       end if;
 

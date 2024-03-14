@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2000-2017, AdaCore                     --
+--                     Copyright (C) 2000-2024, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -26,8 +26,6 @@
 --  however invalidate any other reasons why the executable file  might be  --
 --  covered by the  GNU Public License.                                     --
 ------------------------------------------------------------------------------
-
-pragma Ada_2012;
 
 --  Parameters name/value are put into the Table_Type.Data field (vector). The
 --  name as a key and the numeric index as a value is placed into map for fast
@@ -211,11 +209,11 @@ package body AWS.Containers.Tables is
       Indexes : out Name_Index_Table;
       Found   : out Boolean)
    is
-      Cursor : Index_Table.Cursor;
+      Cursor : constant Index_Table.Cursor :=
+                 Index_Table.Find
+                   (Table.Index,
+                    Normalize_Name (Name, not Table.Case_Sensitive));
    begin
-      Cursor := Index_Table.Find
-        (Table.Index, Normalize_Name (Name, not Table.Case_Sensitive));
-
       Found := Index_Table.Has_Element (Cursor);
 
       if Found then
@@ -297,7 +295,7 @@ package body AWS.Containers.Tables is
          end;
 
       else
-         return (1 .. 0 => Null_Unbounded_String);
+         return [];
       end if;
    end Get_Values;
 
@@ -419,9 +417,6 @@ package body AWS.Containers.Tables is
       Value : Unbounded_String;
       N     : Natural)
    is
-      Cursor   : Index_Table.Cursor;
-      Inserted : Boolean;
-
       procedure Process (Key : String; Item : in out Name_Index_Table);
 
       -------------
@@ -462,6 +457,9 @@ package body AWS.Containers.Tables is
             raise Constraint_Error;
          end if;
       end Process;
+
+      Cursor   : Index_Table.Cursor;
+      Inserted : Boolean;
 
    begin
       Table.Index.Insert

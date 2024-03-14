@@ -1,7 +1,8 @@
 ----------------------------------------------------------------
---  ZLib for Ada thick binding.                               --
+--                ZLib for Ada thick binding.                 --
 --                                                            --
---  Copyright (C) 2002-2019, Dmitriy Anisimkov                --
+--         Copyright (C) 2002-2019, Dmitriy Anisimkov         --
+--              Copyright (C) 2019-2024, AdaCore              --
 --                                                            --
 --  Open source license information is in the zlib.ads file.  --
 ----------------------------------------------------------------
@@ -99,11 +100,11 @@ package body ZLib.Streams is
       Last   : Stream_Element_Offset;
    begin
       loop
-         Flush (Stream.Writer, Buffer, Last, Mode);
+         Stream.Writer.Flush (Buffer, Last, Mode);
 
          exit when Last < Buffer'First;
 
-         Ada.Streams.Write (Stream.Back.all, Buffer (1 .. Last));
+         Stream.Back.Write (Buffer (1 .. Last));
       end loop;
    end Flush;
 
@@ -128,7 +129,8 @@ package body ZLib.Streams is
 
       procedure Read
         (Item : out Stream_Element_Array;
-         Last : out Stream_Element_Offset);
+         Last : out Stream_Element_Offset)
+        with Inline;
 
       ----------
       -- Read --
@@ -138,7 +140,7 @@ package body ZLib.Streams is
         (Item : out Stream_Element_Array;
          Last : out Stream_Element_Offset) is
       begin
-         Ada.Streams.Read (Stream.Back.all, Item, Last);
+         Stream.Back.Read (Item, Last);
       end Read;
 
       procedure Read is new ZLib.Read
@@ -166,7 +168,7 @@ package body ZLib.Streams is
                return;
             end if;
 
-            Last := Last + 1;
+            Last := @ + 1;
 
             Item (Last) := Stream.Buffer (Ahead_First);
 
@@ -175,7 +177,7 @@ package body ZLib.Streams is
                exit;
             end if;
 
-            Ahead_First := Ahead_First + 1;
+            Ahead_First := @ + 1;
          end loop;
 
          if Last < Item'Last then
@@ -210,7 +212,7 @@ package body ZLib.Streams is
                          then Finish
                          else No_Flush));
 
-         Stream.Rest_First := Stream.Rest_First + 1;
+         Stream.Rest_First := @ + 1;
       end if;
    end Read;
 
@@ -240,8 +242,8 @@ package body ZLib.Streams is
      (Stream : in out Stream_Type;
       Item   : in     Stream_Element_Array)
    is
-
-      procedure Write (Item : in Stream_Element_Array);
+      procedure Write (Item : in Stream_Element_Array)
+        with Inline;
 
       -----------
       -- Write --
@@ -249,7 +251,7 @@ package body ZLib.Streams is
 
       procedure Write (Item : in Stream_Element_Array) is
       begin
-         Ada.Streams.Write (Stream.Back.all, Item);
+         Stream.Back.Write (Item);
       end Write;
 
       procedure Write is new ZLib.Write

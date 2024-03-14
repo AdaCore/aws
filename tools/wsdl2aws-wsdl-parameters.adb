@@ -90,7 +90,7 @@ package body WSDL2AWS.WSDL.Parameters is
       Result : Natural := 0;
    begin
       while N /= null loop
-         Result := Result + 1;
+         Result := @ + 1;
          N := N.Next;
       end loop;
       return Result;

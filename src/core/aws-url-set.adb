@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2007-2021, AdaCore                     --
+--                     Copyright (C) 2007-2024, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -95,7 +95,7 @@ package body AWS.URL.Set is
          exit when K = 0;
 
          if K > 1 and then Slice (URL_Path, K - 1, K - 1) = ":" then
-            K := K + 1;
+            K := @ + 1;
          else
             Delete (URL_Path, K, K);
          end if;
@@ -445,7 +445,7 @@ package body AWS.URL.Set is
 
       else
          Item.Fragment := +Decode (L_URL (F .. L_URL'Last));
-         F := F - 1;
+         F := @ - 1;
       end if;
 
       --  Checks for parameters
@@ -457,7 +457,7 @@ package body AWS.URL.Set is
 
       else
          Item.Parameters.Add (L_URL (P .. F));
-         P := P - 1;
+         P := @ - 1;
       end if;
 
       --  Checks for prefix

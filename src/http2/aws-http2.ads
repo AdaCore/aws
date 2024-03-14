@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                      Copyright (C) 2021, AdaCore                         --
+--                     Copyright (C) 2021-2024, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -78,11 +78,11 @@ package AWS.HTTP2 is
 private
 
    Client_Connection_Preface : constant Stream_Element_Array :=
-                                 (16#50#, 16#52#, 16#49#, 16#20#, 16#2a#,
+                                 [16#50#, 16#52#, 16#49#, 16#20#, 16#2a#,
                                   16#20#, 16#48#, 16#54#, 16#54#, 16#50#,
                                   16#2f#, 16#32#, 16#2e#, 16#30#, 16#0d#,
                                   16#0a#, 16#0d#, 16#0a#, 16#53#, 16#4d#,
-                                  16#0d#, 16#0a#, 16#0d#, 16#0a#);
+                                  16#0d#, 16#0a#, 16#0d#, 16#0a#];
 
    for Error_Codes use (C_No_Error            => 16#0#,
                         C_Protocol_Error      => 16#1#,

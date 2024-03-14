@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2000-2022, AdaCore                     --
+--                     Copyright (C) 2000-2024, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -26,8 +26,6 @@
 --  however invalidate any other reasons why the executable file  might be  --
 --  covered by the  GNU Public License.                                     --
 ------------------------------------------------------------------------------
-
-pragma Ada_2012;
 
 --  This package provide an easy way to handle server configuration options.
 --
@@ -617,7 +615,7 @@ private
      (Str : String) return Unbounded_String renames To_Unbounded_String;
 
    Default_Parameters : constant Parameter_Set (Server_Parameter_Name) :=
-                          (Cleaner_Wait_For_Client_Timeout =>
+                          [Cleaner_Wait_For_Client_Timeout =>
                              (Dur, Default.Cleaner_Wait_For_Client_Timeout),
 
                            Cleaner_Client_Header_Timeout   =>
@@ -831,7 +829,7 @@ private
                              (Bool, Default.Close_On_Exec),
 
                            Max_POST_Parameters             =>
-                             (Pos, Default.Max_POST_Parameters));
+                             (Pos, Default.Max_POST_Parameters)];
 
    type Object is tagged record
       P : Parameter_Set (Server_Parameter_Name) := Default_Parameters;
@@ -840,7 +838,7 @@ private
    Default_Config : constant Object := (P => Default_Parameters);
 
    Process_Options : Parameter_Set (Process_Parameter_Name) :=
-                       (Session_Cleanup_Interval     =>
+                       [Session_Cleanup_Interval     =>
                           (Dur, Default.Session_Cleanup_Interval),
 
                         Session_Lifetime             =>
@@ -902,6 +900,6 @@ private
                           (Dur, Default.WebSocket_Timeout),
 
                         Context_Lifetime             =>
-                          (Dur, Default.Context_Lifetime));
+                          (Dur, Default.Context_Lifetime)];
 
 end AWS.Config;

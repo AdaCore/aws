@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                       Copyright (C) 2014, AdaCore                        --
+--                    Copyright (C) 2014-2024, AdaCore                      --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -26,8 +26,6 @@
 --  however invalidate any other reasons why the executable file  might be  --
 --  covered by the  GNU Public License.                                     --
 ------------------------------------------------------------------------------
-
-pragma Ada_2012;
 
 with Ada.Directories;
 with Ada.Unchecked_Deallocation;
@@ -137,7 +135,7 @@ package body AWS.Net.SSL.RSA_DH_Generators is
       while RSA_DH_Worker /= null and then not RSA_DH_Worker'Terminated loop
          delay 0.125;
 
-         Cnt := Cnt - 1;
+         Cnt := @ - 1;
 
          if Cnt = 0 then
             raise Program_Error with "Generation task is not terminating";

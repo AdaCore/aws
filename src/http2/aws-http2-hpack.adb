@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                      Copyright (C) 2021, AdaCore                         --
+--                     Copyright (C) 2021-2024, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -99,16 +99,16 @@ package body AWS.HTTP2.HPACK is
    --  interpreted differently depending on endianness.
    for RFC_Byte'Bit_Order use System.Low_Order_First;
 
-   B_II          : constant Bit2 := 2#01#;
+   B_II             : constant Bit2 := 2#01#;
    --  Incremental Indexing
 
    B_II_No_Indexing : constant Bit4 := 2#0001#;
    --  Incremental Indexing
 
-   B_No_Indexing : constant Bit4 := 0;
+   B_No_Indexing    : constant Bit4 := 0;
    --  No Indexing
 
-   B_Dyn_Table   : constant Bit3 := 2#001#;
+   B_Dyn_Table      : constant Bit3 := 2#001#;
 
    ------------
    -- Decode --
@@ -205,9 +205,11 @@ package body AWS.HTTP2.HPACK is
             loop
                B := Get_Byte_Safe;
                Stop := (B and 2#1000_0000#) = 0;
-               B := B and Continuation_Mask;
+               B := @ and Continuation_Mask;
+               --  ??? TODO: cannot use Ada 2022 : Result := @ + ...
+               --  ??? (interfaces not visible).
                Result := Result + (2 ** K) * Interfaces.Unsigned_32 (B);
-               K := K + 7;
+               K := @ + 7;
                exit when Stop;
             end loop;
          end if;
@@ -404,7 +406,7 @@ package body AWS.HTTP2.HPACK is
 
       procedure Append (E : Stream_Element) is
       begin
-         I := I + 1;
+         I := @ + 1;
 
          if I > Res'Last then
             declare
@@ -463,11 +465,11 @@ package body AWS.HTTP2.HPACK is
 
             Append (Prefix or Stream_Element (Mask));
 
-            V := V - Mask;
+            V := @ - Mask;
 
             while V >= Mod7 loop
                Append (Bit8 (V mod Mod7 + Mod7));
-               V := V / Mod7;
+               V := @ / Mod7;
             end loop;
 
             --  Finaly encode the remainder (< 2 ** N) into last byte
@@ -482,8 +484,9 @@ package body AWS.HTTP2.HPACK is
             Name  : constant String := List.Get_Name (K);
             Value : constant String := List.Get_Value (K);
             Both  : Boolean := False;
-            Index : constant Natural := Table.Get_Name_Value_Index
-                      (Settings, Name, Value, Both => Both);
+            Index : constant Natural :=
+                      Table.Get_Name_Value_Index
+                        (Settings, Name, Value, Both => Both);
          begin
             if Index = 0 then
                Append (2#0100_0000#);

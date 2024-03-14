@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2000-2022, AdaCore                     --
+--                     Copyright (C) 2000-2024, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -26,8 +26,6 @@
 --  however invalidate any other reasons why the executable file  might be  --
 --  covered by the  GNU Public License.                                     --
 ------------------------------------------------------------------------------
-
-pragma Ada_2012;
 
 with Ada.Calendar.Arithmetic;
 with Ada.Calendar.Formatting;
@@ -76,7 +74,7 @@ package body SOAP.Utils is
       NS        : Name_Space.Object := Name_Space.No_Name_Space)
       return Types.XSD_String is
    begin
-      return Types.S (String'(1 => V), Name, Type_Name, NS);
+      return Types.S (String'[V], Name, Type_Name, NS);
    end C;
 
    --------------------------
@@ -139,7 +137,7 @@ package body SOAP.Utils is
 
          if D (K) = 'T' then
             Time_Mode := True;
-            K := K + 1;
+            K := @ + 1;
          end if;
 
          --  Check for next non-digit character, all chunk are <n>[K] where
@@ -159,18 +157,18 @@ package body SOAP.Utils is
          begin
             case Key is
                when 'Y' =>
-                  B_Year := B_Year + Natural (Value);
+                  B_Year := @ + Natural (Value);
 
                when 'M' =>
                   if Time_Mode then
-                     Seconds := Seconds + S_Duration (Value * Minute);
+                     Seconds := @ + S_Duration (Value * Minute);
 
                   else
-                     B_Month := B_Month + Natural (Value);
+                     B_Month := @ + Natural (Value);
 
                      while B_Month > 12 loop
-                        B_Year := B_Year + 1;
-                        B_Month := B_Month - 12;
+                        B_Year := @ + 1;
+                        B_Month := @ - 12;
                      end loop;
                   end if;
 
@@ -178,10 +176,10 @@ package body SOAP.Utils is
                   N_Day := Calendar.Arithmetic.Day_Count (Value);
 
                when 'H' =>
-                  Seconds := Seconds + Value * Hour;
+                  Seconds := @ + Value * Hour;
 
                when 'S' =>
-                  Seconds := Seconds + Value;
+                  Seconds := @ + Value;
 
                when others =>
                   null;
@@ -200,14 +198,13 @@ package body SOAP.Utils is
 
       --  Then we need to add the Second and Day count
 
-      Next := Next + N_Day;
-      Next := Next + Seconds;
+      Next := @ + N_Day + Seconds;
 
       declare
          Result : Standard.Duration := Next - Base;
       begin
          if Negative then
-            Result := -Result;
+            Result := -@;
          end if;
 
          return Types.D (Result, Name, Type_Name);
@@ -276,17 +273,17 @@ package body SOAP.Utils is
            and then Buf_Last < Buf'Last
          loop
             Buf (Buf_Last + 1) := Element (Str, Idx);
-            Idx := Idx + 1;
-            Buf_Last := Buf_Last + 1;
+            Idx := @ + 1;
+            Buf_Last := @ + 1;
          end loop;
 
          exit when Buf_Last = 0;
 
          W := 1;
          Unicode.CES.Utf8.Read (Buf, W, Ch32);
-         W := W - 1;
+         W := @ - 1;
 
-         Buf_Last := Buf_Last - W;
+         Buf_Last := @ - W;
 
          for I in 1 .. Buf_Last loop
             Buf (I) := Buf (I + W);
@@ -343,7 +340,7 @@ package body SOAP.Utils is
             Free (Old);
          end if;
 
-         Last := Last + 1;
+         Last := @ + 1;
          Result (Last) := Ch;
       end Append;
 
@@ -357,17 +354,17 @@ package body SOAP.Utils is
       loop
          while Idx <= Str'Last and then Buf_Last < Buf'Last loop
             Buf (Buf_Last + 1) := Str (Idx);
-            Idx := Idx + 1;
-            Buf_Last := Buf_Last + 1;
+            Idx := @ + 1;
+            Buf_Last := @ + 1;
          end loop;
 
          exit when Buf_Last = 0;
 
          W := 1;
          Unicode.CES.Utf8.Read (Buf, W, Ch32);
-         W := W - 1;
+         W := @ - 1;
 
-         Buf_Last := Buf_Last - W;
+         Buf_Last := @ - W;
 
          for I in 1 .. Buf_Last loop
             Buf (I) := Buf (I + W);
@@ -484,7 +481,7 @@ package body SOAP.Utils is
 
       overriding procedure Adjust (SP : in out Safe_Pointer) is
       begin
-         SP.Ref.all := SP.Ref.all + 1;
+         SP.Ref.all := @ + 1;
       end Adjust;
 
       --------------
@@ -499,7 +496,7 @@ package body SOAP.Utils is
          SP.Ref := null;
 
          if Ref /= null then
-            Ref.all := Ref.all - 1;
+            Ref.all := @ - 1;
 
             if Ref.all = 0 then
                Unchecked_Free (SP.Item);
@@ -650,11 +647,11 @@ package body SOAP.Utils is
             TZ := Time_Zones.Time_Offset'Value (TI (TZ_Hour_Range)) * 60;
 
             if TI'Last = TZ_Minute_Range'Last then
-               TZ := TZ + Time_Zones.Time_Offset'Value (TI (TZ_Minute_Range));
+               TZ := @ + Time_Zones.Time_Offset'Value (TI (TZ_Minute_Range));
             end if;
 
             if TI (TZ_Type_Range) = "-" then
-               TZ := -TZ;
+               TZ := -@;
             end if;
          end if;
       end if;
@@ -853,7 +850,7 @@ package body SOAP.Utils is
          if K = 0 then
             K := Name'First;
          else
-            K := K + 1;
+            K := @ + 1;
          end if;
 
          return NS & ':' & Name (K .. Name'Last);

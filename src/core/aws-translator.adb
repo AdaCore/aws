@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2000-2020, AdaCore                     --
+--                     Copyright (C) 2000-2024, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -26,8 +26,6 @@
 --  however invalidate any other reasons why the executable file  might be  --
 --  covered by the  GNU Public License.                                     --
 ------------------------------------------------------------------------------
-
-pragma Ada_2012;
 
 with Interfaces;
 
@@ -105,25 +103,25 @@ package body AWS.Translator is
    --  The base64 character set
 
    Base64 : constant array (Base64_Mode) of aliased Base64_Encode_Array :=
-             (MIME =>
-              ('A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M',
+             [MIME =>
+              ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M',
                'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z',
                'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm',
                'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z',
                '0', '1', '2', '3', '4', '5', '6', '7', '8', '9',
-               '+', '/'),
+               '+', '/'],
               URL =>
-              ('A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M',
+              ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M',
                'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z',
                'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm',
                'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z',
                '0', '1', '2', '3', '4', '5', '6', '7', '8', '9',
-               '-', '_'));
+              '-', '_']];
 
    --  The base64 values
 
    Base64_Values : constant array (Character) of Unsigned_32 :=
-                     ('A' => 0, 'B' => 1, 'C' => 2, 'D' => 3, 'E' => 4,
+                     ['A' => 0, 'B' => 1, 'C' => 2, 'D' => 3, 'E' => 4,
                       'F' => 5, 'G' => 6, 'H' => 7, 'I' => 8, 'J' => 9,
                       'K' => 10, 'L' => 11, 'M' => 12, 'N' => 13, 'O' => 14,
                       'P' => 15, 'Q' => 16, 'R' => 17, 'S' => 18, 'T' => 19,
@@ -138,7 +136,7 @@ package body AWS.Translator is
                       'z' => 51, '0' => 52, '1' => 53, '2' => 54, '3' => 55,
                       '4' => 56, '5' => 57, '6' => 58, '7' => 59, '8' => 60,
                       '9' => 61, '+' => 62, '/' => 63, '-' => 62, '_' => 63,
-                      others => 16#ffffffff#);
+                      others => 16#ffffffff#];
 
    ---------
    -- Add --
@@ -151,10 +149,10 @@ package body AWS.Translator is
    is
       E : Unsigned_8 := 0;
    begin
-      State.Count := State.Count + 1;
+      State.Count := @ + 1;
       E := Character'Pos (Ch);
 
-      State.Last := State.Last + 1;
+      State.Last := @ + 1;
 
       case State.Current_State is
          when 1 =>
@@ -169,7 +167,7 @@ package body AWS.Translator is
          when 3 =>
             Add (State.To_Char ((Shift_Left (State.Prev_E, 2) and 16#3C#)
               or (Shift_Right (E, 6) and 16#3#)));
-            State.Last := State.Last + 1;
+            State.Last := @ + 1;
             Add (State.To_Char (E and 16#3F#));
             State.Current_State := 1;
       end case;
@@ -188,14 +186,13 @@ package body AWS.Translator is
       else
          case Ch is
             when '=' =>
-               State.Pad := State.Pad + 1;
+               State.Pad := @ + 1;
 
             when others =>
-               State.Group := State.Group
-                 or Shift_Left (Base64_Values (Ch), State.J);
+               State.Group := @ or Shift_Left (Base64_Values (Ch), State.J);
          end case;
 
-         State.J := State.J - 6;
+         State.J := @ - 6;
 
          if State.J < 0 then
             Add (Character'Val (Shift_Right (State.Group and 16#FF0000#, 16)));
@@ -271,7 +268,7 @@ package body AWS.Translator is
 
       procedure Add_Char (Ch : Character) is
       begin
-         Last := Last + 1;
+         Last := @ + 1;
          Result (Last) := Character'Pos (Ch);
       end Add_Char;
 
@@ -427,7 +424,7 @@ package body AWS.Translator is
          while not End_Of_File (Stream) loop
             Read (Stream, Buffer, Last);
             Result (K .. K + Last - 1) := Buffer (1 .. Last);
-            K := K + Last;
+            K := @ + Last;
          end loop;
       end;
 
@@ -487,7 +484,7 @@ package body AWS.Translator is
 
       --  Add Additional '=' character for the missing bits
 
-      State.Last := State.Last + 1;
+      State.Last := @ + 1;
 
       Encoded_Length := 4 * ((State.Count + 2) / 3);
 
@@ -525,27 +522,27 @@ package body AWS.Translator is
       loop
          if QP_Data (K) = '=' then
             if K + 1 <= QP_Data'Last and then QP_Data (K + 1) = ASCII.CR then
-               K := K + 1;
+               K := @ + 1;
 
             elsif K + 2 <= QP_Data'Last then
                declare
                   Hex : constant String := QP_Data (K + 1 .. K + 2);
                begin
                   if Hex /= End_Of_QP then
-                     R := R + 1;
+                     R := @ + 1;
                      Result (R) := Character'Val (Utils.Hex_Value (Hex));
                   end if;
 
-                  K := K + 2;
+                  K := @ + 2;
                end;
             end if;
 
          else
-            R := R + 1;
+            R := @ + 1;
             Result (R) := QP_Data (K);
          end if;
 
-         K := K + 1;
+         K := @ + 1;
 
          exit when K > QP_Data'Last;
       end loop;
@@ -593,7 +590,7 @@ package body AWS.Translator is
                      Stream_Element_Offset'Min (K + Chunk_Size, Data'Last);
          begin
             Append (Result, To_String (Data (K .. Last)));
-            K := K + Chunk_Size + 1;
+            K := @ + Chunk_Size + 1;
          end;
       end loop;
 

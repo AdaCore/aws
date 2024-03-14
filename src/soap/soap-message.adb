@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2000-2015, AdaCore                     --
+--                     Copyright (C) 2000-2024, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -164,8 +164,6 @@ package body SOAP.Message is
       end Add_Namespaces;
 
    begin
-      --  Procedure
-
       --  We are called with the Body node opened
 
       if Style = WSDL.Schema.RPC then

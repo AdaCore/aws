@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2012-2022, AdaCore                     --
+--                     Copyright (C) 2012-2024, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -26,8 +26,6 @@
 --  however invalidate any other reasons why the executable file  might be  --
 --  covered by the  GNU Public License.                                     --
 ------------------------------------------------------------------------------
-
-pragma Ada_2012;
 
 with Ada.Containers.Indefinite_Ordered_Maps;
 with Ada.Containers.Indefinite_Vectors;
@@ -273,7 +271,7 @@ package body AWS.Net.WebSocket.Registry is
                      Message_Queue.Add (WS);
                   end if;
 
-                  K := K + 1;
+                  K := @ + 1;
                end loop;
             end;
 
@@ -813,7 +811,7 @@ package body AWS.Net.WebSocket.Registry is
                   end;
 
                else
-                  Last := Last + 1;
+                  Last := @ + 1;
                   WS.Set_Timeout (Timeout);
                   Recipients (Last) := WebSocket;
                end if;
@@ -826,7 +824,7 @@ package body AWS.Net.WebSocket.Registry is
 
          procedure Send_To_Recipients (Recipients : Object_Set) is
             Wait_Events : constant Wait_Event_Set :=
-                            (Input => False, Output => True);
+                            [Input => False, Output => True];
             Set         : Poll_Events.Set (Recipients'Length);
             Socks       : Object_Set := Recipients;
             Sock_Index  : Positive;
@@ -949,7 +947,7 @@ package body AWS.Net.WebSocket.Registry is
                      --  In this case, and only in this case we move to next
                      --  socket position for next iteration.
 
-                     Sock_Index := Sock_Index + 1;
+                     Sock_Index := @ + 1;
                   end if;
                end loop;
 
@@ -1039,7 +1037,7 @@ package body AWS.Net.WebSocket.Registry is
          --  If a signal is pending no need to signal again the socket
 
          if not Signal then
-            Net.Send (Sig2, Stream_Element_Array'(1 => 0));
+            Net.Send (Sig2, Stream_Element_Array'[0]);
 
             --  Also activate the signal to release Not_Empty for proper
             --  termination when there is no remaining socket.
@@ -1072,7 +1070,7 @@ package body AWS.Net.WebSocket.Registry is
            and then not Watched.Contains (WebSocket.Id)
          then
             Watched.Insert (WebSocket.Id);
-            Count := Count + 1;
+            Count := @ + 1;
             Signal_Socket;
          end if;
 

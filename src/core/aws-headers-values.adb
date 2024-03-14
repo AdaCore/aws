@@ -88,7 +88,7 @@ package body AWS.Headers.Values is
             Value_First, Value_Last);
 
          if Name_Last = 0 then
-            Count := Count + 1;
+            Count := @ + 1;
 
             if Count = N then
                return Header_Value (Value_First .. Value_Last);
@@ -220,7 +220,7 @@ package body AWS.Headers.Values is
          --  Do not return the delimiter as part of the value
 
          while Maps.Is_In (Data (Value_Last), EDel) loop
-            Value_Last := Value_Last - 1;
+            Value_Last := @ - 1;
          end loop;
 
       end if;
