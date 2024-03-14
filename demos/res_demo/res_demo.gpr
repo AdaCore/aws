@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2010-2012, AdaCore                     --
+--                     Copyright (C) 2010-2024, AdaCore                     --
 --                                                                          --
 --  This is free software;  you can redistribute it  and/or modify it       --
 --  under terms of the  GNU General Public License as published  by the     --
@@ -23,7 +23,7 @@ project Res_Demo is
    for Main use ("res_demo.adb");
 
    package Builder is
-      for Default_Switches ("Ada") use ("-m", "-gnat12");
+      for Default_Switches ("Ada") use ("-m", "-gnat2022");
    end Builder;
 
 end Res_Demo;
