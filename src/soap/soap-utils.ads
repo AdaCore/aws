@@ -146,7 +146,8 @@ package SOAP.Utils is
    --  Convert a Types.Object_Set to an array of T
 
    generic
-      with package Vector is new Ada.Containers.Vectors (Positive, <>);
+      with package Vector is new Ada.Containers.Vectors
+        (Positive, others => <>);
       with function Get (O : Types.Object'Class) return Vector.Element_Type;
    function To_Vector (From : Types.Object_Set) return Vector.Vector;
    --  Convert a Types.Object_Set to an vector
@@ -195,7 +196,8 @@ package SOAP.Utils is
    --  As above but for constrained arrays
 
    generic
-      with package Vector is new Ada.Containers.Vectors (Positive, <>);
+      with package Vector is new Ada.Containers.Vectors
+        (Positive, others => <>);
       type XSD_Type is new Types.Object with private;
       E_Name    : String;
       Type_Name : String;
