@@ -1,0 +1,26 @@
+Start main, wait for server to start...
+Server started
+
+Start upload0
+Start upload  1
+Client Filename = upload.adb
+Server Filename = ./0.upload.adb
+=> call ok
+
+Start upload  2
+Client Filename = upload.adb
+Server Filename = ./1.upload.adb
+=> call ok
+
+Finish upload0
+
+Start upload1
+Client Filename = upload.adb
+Server Filename = ./2.upload.adb
+=> call ok
+
+Client Filename = upload.adb
+Server Filename = ./3.upload.adb
+=> call ok
+
+Finish upload1

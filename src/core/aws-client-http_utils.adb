@@ -1461,6 +1461,8 @@ package body AWS.Client.HTTP_Utils is
       end Send_File;
 
    begin
+      Connection.F_Headers.Reset;
+
       Retry : loop
          begin
             Open_Set_Common_Header (Connection, "POST", URI, Headers);
@@ -2446,6 +2448,8 @@ package body AWS.Client.HTTP_Utils is
       Auth_Attempts : Auth_Attempts_Count := (others => 2);
       Auth_Is_Over  : Boolean;
    begin
+      Connection.F_Headers.Reset;
+
       Retry : loop
          begin
             Open_Set_Common_Header
