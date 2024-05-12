@@ -806,8 +806,6 @@ package body AWS.Client is
       URI        : String      := No_Data;
       Headers    : Header_List := Empty_Header_List) is
    begin
-      Connection.F_Headers.Reset;
-
       Send_Request (Connection, HTTP_Utils.PUT, Result, URI, Data, Headers);
    end Put;
 
