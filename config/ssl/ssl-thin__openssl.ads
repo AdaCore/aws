@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                            Secure Sockets Layer                          --
 --                                                                          --
---                     Copyright (C) 2000-2022, AdaCore                     --
+--                     Copyright (C) 2000-2024, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -294,12 +294,12 @@ package SSL.Thin is
    SSL_OP_NETSCAPE_DEMO_CIPHER_CHANGE_BUG        : constant := 16#40000000#;
    SSL_OP_CRYPTOPRO_TLSEXT_BUG                   : constant := 16#80000000#;
 
-   SSL_VERIFY_NONE                   : constant := 0;
-   SSL_VERIFY_PEER                   : constant := 1;
-   SSL_VERIFY_FAIL_IF_NO_PEER_CERT   : constant := 2;
-   SSL_VERIFY_CLIENT_ONCE            : constant := 4;
-   SSL_VERIFY_POST_HANDSHAKE         : constant := 8;
-   SSL_F_SSL_VERIFY_CERT_CHAIN       : constant := 207;
+   SSL_VERIFY_NONE                 : constant := 0;
+   SSL_VERIFY_PEER                 : constant := 1;
+   SSL_VERIFY_FAIL_IF_NO_PEER_CERT : constant := 2;
+   SSL_VERIFY_CLIENT_ONCE          : constant := 4;
+   SSL_VERIFY_POST_HANDSHAKE       : constant := 8;
+   SSL_F_SSL_VERIFY_CERT_CHAIN     : constant := 207;
 
    SSL_ERROR_NONE             : constant := 0;
    SSL_ERROR_SSL              : constant := 1;
@@ -1130,8 +1130,10 @@ package SSL.Thin is
 
    function EVP_PKEY_sign
      (ctx : EVP_PKEY_CTX;
-      sig : Pointer; siglen : access size_t;
-      tbs : Pointer; tbslen : size_t) return int
+      sig : Pointer;
+      siglen : access size_t;
+      tbs : Pointer;
+      tbslen : size_t) return int
      with Import, Convention => C, External_Name => "EVP_PKEY_sign";
 
    function RSA_new return RSA
@@ -1144,10 +1146,12 @@ package SSL.Thin is
      with Import, Convention => C, External_Name => "RSA_free";
 
    function RSA_sign
-     (kind : int;
-      m : Pointer; m_len : unsigned;
-      sigret : Pointer; siglen : access unsigned;
-      key : RSA) return int
+     (kind   : int;
+      m      : Pointer;
+      m_len  : unsigned;
+      sigret : Pointer;
+      siglen : access unsigned;
+      key    : RSA) return int
      with Import, Convention => C, External_Name => "RSA_sign";
 
    type Generate_Key_Callback is access

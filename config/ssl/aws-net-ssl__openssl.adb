@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2000-2022, AdaCore                     --
+--                     Copyright (C) 2000-2024, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -98,7 +98,8 @@ package body AWS.Net.SSL is
    Debug_BIO_Output : TSSL.BIO_Access;
 
    package Host_Certificates is new Ada.Containers.Indefinite_Hashed_Maps
-     (String, TSSL.SSL_CTX, Hash => Hash_Case_Insensitive,
+     (String, TSSL.SSL_CTX,
+      Hash            => Hash_Case_Insensitive,
       Equivalent_Keys => Equal_Case_Insensitive);
 
    package Char_Array_Holder is new Ada.Containers.Indefinite_Holders
@@ -217,12 +218,12 @@ package body AWS.Net.SSL is
    --  Need size limitation because Stream_Element_Count is 64 bit and could
    --  not guarantee Atomic on 32 bit platform.
 
-   Debug_Level  : Natural := 0 with Atomic;
+   Debug_Level : Natural := 0 with Atomic;
 
-   DH_Params  : array (0 .. 1) of aliased TSSL.DH :=
-                  (others => TSSL.Null_Pointer) with Atomic_Components;
-   RSA_Params : array (0 .. 1) of aliased TSSL.RSA :=
-                  (others => TSSL.Null_Pointer) with Atomic_Components;
+   DH_Params   : array (0 .. 1) of aliased TSSL.DH :=
+                   (others => TSSL.Null_Pointer) with Atomic_Components;
+   RSA_Params  : array (0 .. 1) of aliased TSSL.RSA :=
+                   (others => TSSL.Null_Pointer) with Atomic_Components;
    --  0 element for current use, 1 element for remain usage after creation new
    --  0 element.
 
@@ -912,8 +913,8 @@ package body AWS.Net.SSL is
    ----------
 
    function Load (Filename : String) return Private_Key is
-      Key  : aliased Private_Key := EVP_PKEY_new;
       IO   : constant TSSL.BIO_Access := TSSL.BIO_new (TSSL.BIO_s_file);
+      Key  : aliased Private_Key := EVP_PKEY_new;
       Name : aliased C.char_array := C.To_C (Filename);
       Pwd  : aliased C.char_array :=
                C.To_C (Net.SSL.Certificate.Get_Password (Filename));
@@ -1048,13 +1049,12 @@ package body AWS.Net.SSL is
    function Secure_Client
      (Socket : Net.Socket_Type'Class;
       Config : SSL.Config := Null_Config;
-      Host   : String     := "") return Socket_Type
-   is
-      Result : Socket_Type;
+      Host   : String     := "") return Socket_Type is
    begin
-      Secure (Socket, Result, Config);
-      Set_Connect_State (Result, Host);
-      return Result;
+      return Result : Socket_Type do
+         Secure (Socket, Result, Config);
+         Set_Connect_State (Result, Host);
+      end return;
    end Secure_Client;
 
    -------------------
@@ -1063,13 +1063,12 @@ package body AWS.Net.SSL is
 
    function Secure_Server
      (Socket : Net.Socket_Type'Class;
-      Config : SSL.Config := Null_Config) return Socket_Type
-   is
-      Result : Socket_Type;
+      Config : SSL.Config := Null_Config) return Socket_Type is
    begin
-      Secure (Socket, Result, Config);
-      Set_Accept_State (Result);
-      return Result;
+      return Result : Socket_Type do
+         Secure (Socket, Result, Config);
+         Set_Accept_State (Result);
+      end return;
    end Secure_Server;
 
    ----------
@@ -1189,8 +1188,8 @@ package body AWS.Net.SSL is
       pragma Unreferenced (ad);
       use C.Strings;
       Server_Name : constant chars_ptr := TSSL.SSL_get_servername (Session);
-      CH : Host_Certificates.Cursor;
-      Dummy : TSSL.SSL_CTX;
+      CH          : Host_Certificates.Cursor;
+      Dummy       : TSSL.SSL_CTX;
    begin
       if Server_Name = Null_Ptr then
          return TSSL.SSL_TLSEXT_ERR_OK;
@@ -2040,7 +2039,6 @@ package body AWS.Net.SSL is
 
    end Locking;
 
-
    ---------------------------------
    -- Start_Parameters_Generation --
    ---------------------------------
@@ -2348,8 +2346,8 @@ package body AWS.Net.SSL is
             use type TSSL.STACK_OF_X509_NAME;
             PK : constant Private_Key :=
                    Load ((if Key_Filename = ""
-                          then Certificate_Filename else Key_Filename));
-
+                          then Certificate_Filename
+                          else Key_Filename));
          begin
             --  Get the single certificate or certificate chain from
             --  the file Cert_Filename.
