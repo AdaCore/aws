@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2004-2014, AdaCore                     --
+--                     Copyright (C) 2004-2024, AdaCore                     --
 --                                                                          --
 --  This is free software;  you can redistribute it  and/or modify it       --
 --  under terms of the  GNU General Public License as published  by the     --
@@ -21,6 +21,7 @@ with AWS.Net.Log;
 with GNAT.Traceback.Symbolic;
 
 with S_Append_Pack;
+with Setup_SSL;
 
 procedure Append_Sec is
 
@@ -41,6 +42,7 @@ procedure Append_Sec is
    end Error;
 
 begin
+   Setup_SSL.Default;
    AWS.Net.Log.Start (Error => Error'Unrestricted_Access, Write => null);
    S_Append_Pack.Run ("https");
 end Append_Sec;

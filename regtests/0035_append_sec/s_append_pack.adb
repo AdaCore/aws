@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2004-2012, AdaCore                     --
+--                     Copyright (C) 2004-2024, AdaCore                     --
 --                                                                          --
 --  This is free software;  you can redistribute it  and/or modify it       --
 --  under terms of the  GNU General Public License as published  by the     --
@@ -26,6 +26,8 @@ with AWS.Response.Set;
 with AWS.Server.Status;
 with AWS.Status;
 with AWS.Utils;
+
+with Setup_SSL;
 
 package body S_Append_Pack is
 
@@ -80,11 +82,14 @@ package body S_Append_Pack is
    procedure Run (Protocol : String) is
       R : Response.Data;
    begin
-      Config.Set.Server_Name    (CNF, "append message " & Protocol);
-      Config.Set.Server_Host    (CNF, "localhost");
-      Config.Set.Server_Port    (CNF, 0);
-      Config.Set.Security       (CNF, Protocol = "https");
-      Config.Set.Max_Connection (CNF, 5);
+      Config.Set.Server_Name        (CNF, "append message " & Protocol);
+      Config.Set.Server_Host        (CNF, "localhost");
+      Config.Set.Server_Port        (CNF, 0);
+      Config.Set.Security           (CNF, Protocol = "https");
+      Config.Set.Max_Connection     (CNF, 5);
+      Config.Set.Server_Certificate (CNF, "cert.pem");
+      Config.Set.Server_Key         (CNF, "");
+      Config.Set.Check_Certificate  (CNF, False);
 
       Server.Start (WS, CB'Access, CNF);
       Ada.Text_IO.Put_Line ("started");

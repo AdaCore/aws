@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2004-2014, AdaCore                     --
+--                     Copyright (C) 2004-2024, AdaCore                     --
 --                                                                          --
 --  This is free software;  you can redistribute it  and/or modify it       --
 --  under terms of the  GNU General Public License as published  by the     --
@@ -37,6 +37,8 @@ with SOAP.Message.Response;
 with SOAP.Message.XML;
 with SOAP.Parameters;
 with SOAP.Types;
+
+with Setup_SSL;
 
 package body S_Test_SOAP5_Pack is
 
@@ -162,6 +164,8 @@ package body S_Test_SOAP5_Pack is
          Security       => Security,
          Port           => 0,
          Max_Connection => 5);
+
+      Setup_SSL.Full (HTTP, False);
 
       Put_Line ("Server started");
       New_Line;

@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2004-2014, AdaCore                     --
+--                     Copyright (C) 2004-2024, AdaCore                     --
 --                                                                          --
 --  This is free software;  you can redistribute it  and/or modify it       --
 --  under terms of the  GNU General Public License as published  by the     --
@@ -24,6 +24,8 @@ with Ada.Streams;
 
 with AWS.Net.Log;
 with AWS.Net.SSL;
+
+with Setup_SSL;
 
 procedure S_Sock2_Proc (Security : Boolean) is
 

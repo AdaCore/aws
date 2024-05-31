@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                         Copyright (C) 2014, AdaCore                       --
+--                    Copyright (C) 2014-2024, AdaCore                      --
 --                                                                          --
 --  This is free software;  you can redistribute it  and/or modify it       --
 --  under terms of the  GNU General Public License as published  by the     --
@@ -19,5 +19,6 @@
 with "aws";
 
 project SNB_Send is
+   for Source_Dirs use (".", "../common");
    for Main use ("snb_send.adb");
 end SNB_Send;

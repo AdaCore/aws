@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2004-2012, AdaCore                     --
+--                     Copyright (C) 2004-2024, AdaCore                     --
 --                                                                          --
 --  This is free software;  you can redistribute it  and/or modify it       --
 --  under terms of the  GNU General Public License as published  by the     --
@@ -17,8 +17,10 @@
 ------------------------------------------------------------------------------
 
 with S_XMLT_Proc;
+with Setup_SSL;
 
 procedure XMLT_Sec is
 begin
+   Setup_SSL.Default;
    S_XMLT_Proc (True);
 end XMLT_Sec;

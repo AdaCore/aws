@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2008-2024, AdaCore                     --
+--                       Copyright (C) 2024, AdaCore                        --
 --                                                                          --
 --  This is free software;  you can redistribute it  and/or modify it       --
 --  under terms of the  GNU General Public License as published  by the     --
@@ -16,9 +16,14 @@
 --  to http://www.gnu.org/licenses for a complete copy of the license.      --
 ------------------------------------------------------------------------------
 
-with "aws";
+with AWS.Server;
 
-project Test_Sec_SOAP is
-   for Source_Dirs use (".", "../common");
-   for Main use ("test_sec_soap.adb");
-end Test_Sec_SOAP;
+package Setup_SSL is
+
+   procedure Full
+     (WS   : in out AWS.Server.HTTP;
+      Mess : Boolean := True);
+
+   procedure Default;
+
+end Setup_SSL;

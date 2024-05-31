@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2004-2012, AdaCore                     --
+--                     Copyright (C) 2004-2024, AdaCore                     --
 --                                                                          --
 --  This is free software;  you can redistribute it  and/or modify it       --
 --  under terms of the  GNU General Public License as published  by the     --
@@ -19,8 +19,10 @@
 --  Test for partial SSL socket send
 
 with S_SockExt_Proc;
+with Setup_SSL;
 
 procedure SockExt_Sec is
 begin
+   Setup_SSL.Default;
    S_SockExt_Proc (True);
 end SockExt_Sec;

@@ -40,6 +40,19 @@ to work properly. Of course we try to avoid this as much as possible
 but we really prefer to have a clean API instead of keeping awkward
 implementations.
 
+- The SSL initialization API has been reworked to have support for
+  certificate and host verification.
+
+  By default AWS is now checking for certificate and host.
+  The parameter Certificate_Required has been renamed
+  Check_Certificate for clariry on the AWS.Net.SSL.Intialize call.
+
+  A new parameter Check_Host has been introduced to enable host
+  verification in the client API.
+
+  Setting both Check_Certificate and Check_Host to False makes AWS
+  behave as in previous version (but this is not recommanded).
+
 - To support SMTP secure STARTTLS switching protocol the parameter to
   SMTP.Initialize has been changed from Secure to Security and
   instead of a boolean it takes a Secure_Connection enumeration which

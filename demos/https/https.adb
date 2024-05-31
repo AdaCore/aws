@@ -43,11 +43,16 @@ begin
    Net.SSL.Certificate.Set_Password_Callback
      (HTTPS_CB.Set_Password'Access);
 
+   --  Certificate for server is self-signed, we disable the
+   --  check for this simple demo.
+
    Net.SSL.Initialize
      (SSL,
-      Certificate_Filename => "aws-server.crt",
-      Key_Filename         => "aws-server.key",
-      Security_Mode        => Net.SSL.TLSv1_2);
+      Server_Certificate   => "aws-server.crt",
+      Server_Key           => "aws-server.key",
+      Security_Mode        => Net.SSL.TLSv1_2,
+      Check_Certificate    => False,
+      Check_Host           => False);
 
    Server.Set_SSL_Config (WS, SSL);
 

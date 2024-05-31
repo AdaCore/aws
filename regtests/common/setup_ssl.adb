@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                    Copyright (C) 2015-2024, AdaCore                      --
+--                       Copyright (C) 2024, AdaCore                        --
 --                                                                          --
 --  This is free software;  you can redistribute it  and/or modify it       --
 --  under terms of the  GNU General Public License as published  by the     --
@@ -16,38 +16,59 @@
 --  to http://www.gnu.org/licenses for a complete copy of the license.      --
 ------------------------------------------------------------------------------
 
-with Ada.Text_IO;
-
-with AWS.Client;
-with AWS.Config;
 with AWS.Net.SSL.Certificate;
-with AWS.Response;
-with AWS.Server.Status;
 
-with Signed_Key_CB;
-with Setup_SSL;
+with CERT_Pwd;
 
-procedure Signed_Key is
+package body Setup_SSL is
 
-   use Ada;
    use AWS;
 
-   WS  : Server.HTTP;
-   SSL : Net.SSL.Config;
-   R   : Response.Data;
+   --------------
+   --  Default --
+   --------------
 
-begin
-   Setup_SSL.Full (WS, True);
+   procedure Default is
+   begin
+      Net.SSL.Initialize_Default_Config
+        (Security_Mode        => Net.SSL.TLS,
+         Client_Certificate   => "cert.pem",
+         Trusted_CA_Filename  => "",
+         Server_Key           => "",
+         Server_Certificate   => "cert.pem",
+         Exchange_Certificate => False,
+         Check_Certificate    => False,
+         Check_Host           => False);
 
-   Server.Start
-     (WS, "HTTPS",
-      Port           => 0,
-      Max_Connection => 5,
-      Security       => True,
-      Callback       => Signed_Key_CB.HW_CB'Access);
+      CERT_Pwd.Message := False;
 
-   R := Client.Get (Server.Status.Local_URL (WS));
-   Text_IO.Put_Line ("R : " & Response.Message_Body (R));
+      Net.SSL.Certificate.Set_Password_Callback
+        (CERT_Pwd.Set_Password'Access);
+   end Default;
 
-   Server.Shutdown (WS);
-end Signed_Key;
+   ----------
+   -- Full --
+   ----------
+
+   procedure Full
+     (WS   : in out AWS.Server.HTTP;
+      Mess : Boolean := True)
+   is
+      SSL : Net.SSL.Config;
+   begin
+      Default;
+
+      CERT_Pwd.Message := Mess;
+
+      Net.SSL.Initialize
+        (SSL,
+         Security_Mode        => Net.SSL.TLS_Server,
+         Server_Certificate   => "aws-server.crt",
+         Server_Key           => "aws-server.key",
+         Exchange_Certificate => True,
+         Check_Certificate    => False);
+
+      Server.Set_SSL_Config (WS, SSL);
+   end Full;
+
+end Setup_SSL;

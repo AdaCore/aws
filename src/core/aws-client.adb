@@ -123,7 +123,6 @@ package body AWS.Client is
       Persistent   : Boolean         := True;
       Timeouts     : Timeouts_Values := No_Timeout;
       Server_Push  : Boolean         := False;
-      Certificate  : String          := Default.Client_Certificate;
       User_Agent   : String          := Default.User_Agent;
       HTTP_Version : HTTP_Protocol   := HTTP_Default)
       return HTTP_Connection is
@@ -134,7 +133,7 @@ package body AWS.Client is
                  Proxy, Proxy_User, Proxy_Pwd,
                  Retry, Persistent, Timeouts,
                  Server_Push,
-                 Net.SSL.Null_Config, Certificate, User_Agent, HTTP_Version);
+                 Net.SSL.Null_Config, User_Agent, HTTP_Version);
       end return;
    end Create;
 
@@ -151,7 +150,6 @@ package body AWS.Client is
       Timeouts     : Timeouts_Values := No_Timeout;
       Server_Push  : Boolean         := False;
       SSL_Config   : Net.SSL.Config  := Net.SSL.Null_Config;
-      Certificate  : String          := Default.Client_Certificate;
       User_Agent   : String          := Default.User_Agent;
       HTTP_Version : HTTP_Protocol   := HTTP_Default)
    is
@@ -186,7 +184,6 @@ package body AWS.Client is
       Connection.Retry                    := Create.Retry;
       Connection.Persistent               := Persistent;
       Connection.Streaming                := Server_Push;
-      Connection.Certificate              := To_Unbounded_String (Certificate);
       Connection.Timeouts                 := Timeouts;
       Connection.Config                   := AWS.Config.Get_Current;
       Connection.H2_Preface_Sent          := False;
@@ -194,7 +191,8 @@ package body AWS.Client is
 
       --  Server push is not supported in HTTPv2
 
-      Connection.HTTP_Version := (if Server_Push then HTTPv1
+      Connection.HTTP_Version := (if Server_Push
+                                  then HTTPv1
                                   else HTTP_Version);
 
       Connection.User_Agent := To_Unbounded_String (User_Agent);
@@ -216,8 +214,7 @@ package body AWS.Client is
          Connection.Default_SSL_Config := SSL_Config = Net.SSL.Null_Config;
 
          if Connection.Default_SSL_Config then
-            Net.SSL.Initialize
-              (Connection.SSL_Config, Certificate, Net.SSL.TLS_Client);
+            Connection.SSL_Config := Net.SSL.Get_Default_Client_Config;
          else
             Connection.SSL_Config := SSL_Config;
          end if;
@@ -409,7 +406,6 @@ package body AWS.Client is
       Timeouts           : Timeouts_Values := No_Timeout;
       Data_Range         : Content_Range   := No_Range;
       Follow_Redirection : Boolean         := False;
-      Certificate        : String          := Default.Client_Certificate;
       Headers            : Header_List     := Empty_Header_List;
       User_Agent         : String          := Default.User_Agent;
       HTTP_Version       : HTTP_Protocol   := HTTP_Default)
@@ -426,7 +422,6 @@ package body AWS.Client is
          Create (Connection,
                  URL, User, Pwd, Proxy, Proxy_User, Proxy_Pwd,
                  Persistent   => False,
-                 Certificate  => Certificate,
                  Timeouts     => Timeouts,
                  User_Agent   => User_Agent,
                  HTTP_Version => HTTP_Version);
@@ -454,7 +449,6 @@ package body AWS.Client is
               (URL, User, Pwd, Response.Location (Result),
                Timeouts           => Timeouts,
                Follow_Redirection => Follow_Redirection,
-               Certificate        => Certificate,
                Headers            => Headers,
                User_Agent         => User_Agent);
 
@@ -480,7 +474,6 @@ package body AWS.Client is
                  (AWS.URL.URL (Location), User, Pwd,
                   Proxy, Proxy_User, Proxy_Pwd, Timeouts,
                   Data_Range, Follow_Redirection,
-                  Certificate => Certificate,
                   Headers     => Headers,
                   User_Agent  => User_Agent);
             end;
@@ -864,7 +857,7 @@ package body AWS.Client is
         (Data : out Stream_Element_Array;
          Last : out Stream_Element_Offset)
       is
-         Sock  : Net.Socket_Type'Class renames Connection.Socket.all;
+         Sock : Net.Socket_Type'Class renames Connection.Socket.all;
 
          procedure Skip_Line;
          --  Skip a line in the sock stream

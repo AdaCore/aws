@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2006-2015, AdaCore                     --
+--                     Copyright (C) 2006-2024, AdaCore                     --
 --                                                                          --
 --  This is free software;  you can redistribute it  and/or modify it       --
 --  under terms of the  GNU General Public License as published  by the     --
@@ -33,6 +33,8 @@ with AWS.Server.Status;
 with AWS.Status;
 with AWS.Translator;
 with AWS.Utils;
+
+with Setup_SSL;
 
 package body S_Sp_Pack is
 
@@ -175,6 +177,8 @@ package body S_Sp_Pack is
          Security       => Protocol = "https",
          Max_Connection => 3);
 
+      Setup_SSL.Full (HTTP, False);
+
       Data := 1000.0;
 
       --  Initialize all the push connections
@@ -185,7 +189,7 @@ package body S_Sp_Pack is
             Host        => AWS.Server.Status.Local_URL (HTTP),
             Timeouts    => Client.Timeouts
               (Connect => 5.0,
-               Send => 15.0, Receive => 15.0, Response => 15.0),
+               Send    => 15.0, Receive => 15.0, Response => 15.0),
             Server_Push => True);
 
          Client.Get (Connect (J), Answer, "/uri?CID=" & Utils.Image (J));

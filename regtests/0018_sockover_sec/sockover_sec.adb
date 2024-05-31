@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2006-2012, AdaCore                     --
+--                     Copyright (C) 2006-2024, AdaCore                     --
 --                                                                          --
 --  This is free software;  you can redistribute it  and/or modify it       --
 --  under terms of the  GNU General Public License as published  by the     --
@@ -19,8 +19,10 @@
 --  Regression test for output buffer overflow
 
 with S_SockOver_Proc;
+with Setup_SSL;
 
 procedure SockOver_Sec is
 begin
+   Setup_SSL.Default;
    S_SockOver_Proc (True);
 end SockOver_Sec;

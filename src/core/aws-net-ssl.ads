@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2002-2018, AdaCore                     --
+--                     Copyright (C) 2002-2024, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -38,8 +38,11 @@ with Ada.Calendar;
 with System;
 
 with AWS.Containers.String_Vectors;
+with AWS.Default;
 with AWS.Net.Std;
 with SSL.Thin;
+
+private with Ada.Strings.Unbounded;
 
 package AWS.Net.SSL is
 
@@ -138,13 +141,15 @@ package AWS.Net.SSL is
 
    procedure Initialize
      (Config               : in out SSL.Config;
-      Certificate_Filename : String;
       Security_Mode        : Method    := TLS;
+      Server_Certificate   : String    := "";
+      Server_Key           : String    := "";
+      Client_Certificate   : String    := "";
       Priorities           : String    := "";
       Ticket_Support       : Boolean   := False;
-      Key_Filename         : String    := "";
       Exchange_Certificate : Boolean   := False;
-      Certificate_Required : Boolean   := False;
+      Check_Certificate    : Boolean   := True;
+      Check_Host           : Boolean   := True;
       Trusted_CA_Filename  : String    := "";
       CRL_Filename         : String    := "";
       Session_Cache_Size   : Natural   := 16#4000#;
@@ -168,21 +173,26 @@ package AWS.Net.SSL is
    --  different certificates for different server host names.
 
    procedure Initialize_Default_Config
-     (Certificate_Filename : String;
-      Security_Mode        : Method    := TLS;
+     (Security_Mode        : Method    := TLS;
+      Server_Certificate   : String    := Default.Server_Certificate;
+      Server_Key           : String    := Default.Server_Key;
+      Client_Certificate   : String    := Default.Client_Certificate;
       Priorities           : String    := "";
       Ticket_Support       : Boolean   := False;
-      Key_Filename         : String    := "";
       Exchange_Certificate : Boolean   := False;
-      Certificate_Required : Boolean   := False;
-      Trusted_CA_Filename  : String    := "";
+      Check_Certificate    : Boolean   := True;
+      Check_Host           : Boolean   := True;
+      Trusted_CA_Filename  : String    := Default.Trusted_CA;
       CRL_Filename         : String    := "";
       Session_Cache_Size   : Natural   := 16#4000#;
       ALPN                 : SV.Vector := SV.Empty_Vector);
-   --  As above but for the default SSL configuration which is will be used
+   --  As above but for the default SSL configuration which will be used
    --  for any socket not setting explicitly an SSL config object. Not that
    --  this routine can only be called once. Subsequent calls are no-op. To
    --  be effective it must be called before any SSL socket is created.
+
+   --  function Get_Default_Config return SSL.Config;
+   --  Returns the default configuration object as defined above
 
    procedure ALPN_Set (Config : SSL.Config; Protocols : SV.Vector);
    --  This function is to be used by both clients and servers, to declare the
@@ -347,7 +357,41 @@ package AWS.Net.SSL is
    --  Show session statistic for Config. Report will be called for each line
    --  of the statistic.
 
+   function Get_Default_Client_Config return SSL.Config;
+
+   function Get_Default_Server_Config return SSL.Config;
+
 private
+
+   pragma Warnings (Off);
+   use Ada.Strings.Unbounded;
+   pragma Warnings (On);
+
+   function "+"
+     (Value : String)
+      return Unbounded_String
+      renames To_Unbounded_String;
+
+   function "-"
+     (Value : Unbounded_String)
+      return String
+      renames To_String;
+
+   type SSL_Data is record
+      Security_Mode        : Method;
+      Server_Certificate   : Unbounded_String;
+      Server_Key           : Unbounded_String;
+      Client_Certificate   : Unbounded_String;
+      Priorities           : Unbounded_String;
+      Ticket_Support       : Boolean;
+      Exchange_Certificate : Boolean;
+      Check_Certificate    : Boolean;
+      Check_Host           : Boolean;
+      Trusted_CA_Filename  : Unbounded_String;
+      CRL_Filename         : Unbounded_String;
+      Session_Cache_Size   : Natural;
+      ALPN                 : SV.Vector;
+   end record;
 
    package TSSL renames Standard.SSL.Thin;
 

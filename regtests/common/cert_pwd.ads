@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2008-2024, AdaCore                     --
+--                       Copyright (C) 2024, AdaCore                        --
 --                                                                          --
 --  This is free software;  you can redistribute it  and/or modify it       --
 --  under terms of the  GNU General Public License as published  by the     --
@@ -16,9 +16,10 @@
 --  to http://www.gnu.org/licenses for a complete copy of the license.      --
 ------------------------------------------------------------------------------
 
-with "aws";
+package CERT_Pwd is
 
-project Test_Sec_SOAP is
-   for Source_Dirs use (".", "../common");
-   for Main use ("test_sec_soap.adb");
-end Test_Sec_SOAP;
+   Message : Boolean := False;
+
+   function Set_Password (File : String) return String;
+
+end CERT_Pwd;

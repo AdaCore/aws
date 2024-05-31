@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2000-2012, AdaCore                     --
+--                     Copyright (C) 2000-2024, AdaCore                     --
 --                                                                          --
 --  This is free software;  you can redistribute it  and/or modify it       --
 --  under terms of the  GNU General Public License as published  by the     --
@@ -19,8 +19,10 @@
 --  Test for big data pending in secure socket
 
 with S_Sock3_Proc;
+with Setup_SSL;
 
 procedure Sock3_Sec is
 begin
+   Setup_SSL.Default;
    S_Sock3_Proc (True);
 end Sock3_Sec;

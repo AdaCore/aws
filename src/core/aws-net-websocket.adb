@@ -33,7 +33,6 @@ pragma Warnings (Off, "is an internal GNAT unit");
 with Ada.Strings.Unbounded.Aux;
 pragma Warnings (On, "is an internal GNAT unit");
 
-with AWS.Default;
 with AWS.Headers;
 with AWS.Messages;
 with AWS.Net.WebSocket.Protocol.Draft76;
@@ -111,7 +110,6 @@ package body AWS.Net.WebSocket is
          Proxy_User  => AWS.Client.No_Data,
          Proxy_Pwd   => AWS.Client.No_Data,
          Persistent  => False,
-         Certificate => AWS.Default.Client_Certificate,
          Timeouts    => AWS.Client.No_Timeout);
 
       Protocol.Add_Connect_Headers (AWS.URL.Host (URL), Headers);

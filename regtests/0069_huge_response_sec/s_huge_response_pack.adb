@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2003-2012, AdaCore                     --
+--                     Copyright (C) 2003-2024, AdaCore                     --
 --                                                                          --
 --  This is free software;  you can redistribute it  and/or modify it       --
 --  under terms of the  GNU General Public License as published  by the     --
@@ -25,6 +25,8 @@ with AWS.Response.Set;
 with AWS.Server.Status;
 with AWS.Status;
 with AWS.Utils;
+
+with Setup_SSL;
 
 package body S_Huge_Response_Pack is
 
@@ -61,6 +63,8 @@ package body S_Huge_Response_Pack is
          Port           => 0,
          Security       => Security,
          Max_Connection => 1);
+
+      Setup_SSL.Full (WS, False);
 
       Ada.Text_IO.Put_Line ("started"); Ada.Text_IO.Flush;
 

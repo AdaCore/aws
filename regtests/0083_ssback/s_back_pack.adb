@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2004-2012, AdaCore                     --
+--                     Copyright (C) 2004-2024, AdaCore                     --
 --                                                                          --
 --  This is free software;  you can redistribute it  and/or modify it       --
 --  under terms of the  GNU General Public License as published  by the     --
@@ -29,6 +29,8 @@ with AWS.Response;
 with AWS.Server.Status;
 with AWS.Status;
 with AWS.Utils;
+
+with Setup_SSL;
 
 package body S_Back_Pack is
 
@@ -245,6 +247,8 @@ package body S_Back_Pack is
             Security       => Security,
             Port           => 0,
             Max_Connection => 5);
+
+         Setup_SSL.Full (WS, False);
       exception
          when others =>
             IO.Stop;

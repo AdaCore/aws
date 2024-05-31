@@ -342,11 +342,16 @@ package AWS.Config is
    function Security (O : Object) return Boolean with Inline;
    --  Is the server working through th SSL
 
-   function Certificate (O : Object) return String with Inline;
+   function Server_Certificate (O : Object) return String with Inline;
    --  Returns the certificate to be used with the secure server. Returns the
    --  empty string if the server is not a secure one.
 
-   function Key (O : Object) return String with Inline;
+   function Client_Certificate (O : Object) return String with Inline;
+   --  Returns the certificate to be used with the secure client. Returns
+   --  the empty string if the client is not a secure one or does not use
+   --  a certificate.
+
+   function Server_Key (O : Object) return String with Inline;
    --  Returns the key to be used with the secure server. Returns the
    --  empty string if the server is not a secure one.
 
@@ -365,10 +370,14 @@ package AWS.Config is
    --  Returns True if the client is requested to send its certificate to the
    --  server.
 
-   function Certificate_Required (O : Object) return Boolean with Inline;
-   --  Returns True if the server must abort the connection if the
-   --  client did not provide trusted certificate. If this option is set
-   --  the Exchange_Certificate must also be set.
+   function Check_Certificate (O : Object) return Boolean with Inline;
+   --  Returns True if the server or client must abort the connection if the
+   --  peer did not provide trusted certificate.
+
+   function Check_Host (O : Object) return Boolean with Inline;
+   --  Returns True if the client must check the server's host name. The
+   --  connection will abort if the server's host name do not match the
+   --  one provided in the certificate.
 
    function Trusted_CA (O : Object) return String with Inline;
    --  Returns the filename containing a list of trusted CA, this is to be used
@@ -490,8 +499,9 @@ private
       Server_Priority,
       Server_Header,
       Security,
-      Certificate,
-      Key,
+      Server_Certificate,
+      Server_Key,
+      Client_Certificate,
       Security_Mode,
       HTTP2_Activated,
       HTTP2_Header_Table_Size,
@@ -503,7 +513,8 @@ private
       Cipher_Priorities,
       TLS_Ticket_Support,
       Exchange_Certificate,
-      Certificate_Required,
+      Check_Certificate,
+      Check_Host,
       Trusted_CA,
       CRL_File,
       SSL_Session_Cache_Size,
@@ -785,11 +796,14 @@ private
                            Security                        =>
                              (Bool, Default.Security),
 
-                           Certificate                     =>
-                             (Str, +Default.Certificate),
+                           Server_Certificate              =>
+                             (Str, +Default.Server_Certificate),
 
-                           Key                             =>
-                             (Str, +Default.Key),
+                           Server_Key                      =>
+                             (Str, +Default.Server_Key),
+
+                           Client_Certificate              =>
+                             (Str, +Default.Client_Certificate),
 
                            Security_Mode                   =>
                              (Str, +Default.Security_Mode),
@@ -803,8 +817,11 @@ private
                            Exchange_Certificate            =>
                              (Bool, Default.Exchange_Certificate),
 
-                           Certificate_Required            =>
-                             (Bool, Default.Certificate_Required),
+                           Check_Certificate               =>
+                             (Bool, Default.Check_Certificate),
+
+                           Check_Host                      =>
+                             (Bool, Default.Check_Host),
 
                            Trusted_CA                      =>
                              (Str, +Default.Trusted_CA),

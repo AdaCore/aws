@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2003-2014, AdaCore                     --
+--                     Copyright (C) 2003-2024, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -67,6 +67,8 @@ with SOAP.Message.Response;
 with SOAP.Message.XML;
 with SOAP.Parameters;
 with SOAP.Types;
+
+with Setup_SSL;
 
 procedure Check_Mem is
 
@@ -328,8 +330,11 @@ procedure Check_Mem is
 
       AWS.Net.SSL.Initialize
         (Config               => SSL_Srv,
-         Certificate_Filename => Certificate_Name,
-         Key_Filename         => Private_Key_Name);
+         Server_Certificate   => Certificate_Name,
+         Server_Key           => Private_Key_Name,
+         Exchange_Certificate => False,
+         Check_Certificate    => False,
+         Check_Host           => False);
 
       AWS.Server.Set_SSL_Config (HTTP, SSL_Srv);
 
@@ -527,9 +532,16 @@ procedure Check_Mem is
       end Request;
 
    begin
-      Net.SSL.Initialize (SSL_Cfg, "", Net.SSL.TLSv1_2_Client);
+      Net.SSL.Initialize
+        (SSL_Cfg,
+         Net.SSL.TLSv1_2_Client,
+         Check_Certificate  => False,
+         Check_Host         => False,
+         Exchange_Certificate => False,
+         Client_Certificate => "");
+
       AWS.Client.Create (Connect (True),  Srv_URL, SSL_Config => SSL_Cfg);
-      AWS.Client.Create (Connect (False), Srv_URL);
+      AWS.Client.Create (Connect (False), Srv_URL, SSL_Config => SSL_Cfg);
 
       for C of Connect loop
          Copy_Certificate (Cert_S, AWS.Client.Get_Certificate (C));
@@ -918,7 +930,7 @@ procedure Check_Mem is
 
       Server := AWS.SMTP.Client.Initialize
         (Server_Name => SMTP_Host,
-         Secure      => Secure,
+         Security    => (if Secure then AWS.SMTP.TLS else AWS.SMTP.No),
          Port        => 25);
 
       AWS.SMTP.Client.Send
@@ -983,6 +995,8 @@ procedure Check_Mem is
    end To_Array;
 
 begin
+   Setup_SSL.Default;
+
    Put_Line ("Start main, wait for server to start...");
 
    Iteration := Integer'Value (Command_Line.Argument (1));
@@ -1003,7 +1017,13 @@ begin
    --  iterations.
 
    for K in 1 ..  Iteration loop
-      Net.SSL.Initialize (Config => SSL_Clt, Certificate_Filename => "");
+      Net.SSL.Initialize
+        (Config             => SSL_Clt,
+         Security_Mode      => Net.SSL.TLS_Client,
+         Check_Certificate  => False,
+         Check_Host         => False,
+         Exchange_Certificate => False,
+         Client_Certificate => "");
 
       Timestamp := Calendar.Clock;
       Client;

@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2004-2018, AdaCore                     --
+--                     Copyright (C) 2004-2024, AdaCore                     --
 --                                                                          --
 --  This is free software;  you can redistribute it  and/or modify it       --
 --  under terms of the  GNU General Public License as published  by the     --
@@ -20,6 +20,8 @@ with Ada.Exceptions;
 with Ada.Streams;
 with Ada.Text_IO;
 with AWS.Net.SSL;
+
+with Setup_SSL;
 
 procedure Plain2SSL is
    use AWS.Net;
@@ -77,6 +79,8 @@ procedure Plain2SSL is
    end Test;
 
 begin
+   Setup_SSL.Default;
+
    for J in Sample'Range loop
       Sample (J) := Stream_Element
                       (J mod (Stream_Element_Offset (Stream_Element'Last)));
@@ -118,6 +122,8 @@ begin
 
       --  Provoke SSL errors
 
+      declare
+        CR : constant String := String'(1 => ASCII.LF);
       begin
          Test (Client, SSL_Peer);
       exception
@@ -136,6 +142,10 @@ begin
                  | "1408F10B:SSL routines:SSL3_GET_RECORD:wrong version number"
                  | "1408F10B:SSL routines:ssl3_get_record:wrong version number"
                  | "1404C10B:SSL routines:ST_OK:wrong version number"
+                 | "0A0000C6:SSL routines::packet length too long" & CR &
+                   "0A000139:SSL routines::record layer failure"
+                 | "0A0001BB:SSL routines::bad record type" & CR &
+                   "0A000139:SSL routines::record layer failure"
                then
                   Put_Line ("Expected error about wrong data received");
                else

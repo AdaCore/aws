@@ -28,6 +28,7 @@ with AWS.SMTP.Client;
 with AWS.SMTP.Server;
 
 with SMTP_Pck;
+with Setup_SSL;
 
 procedure SMTP_2 is
 
@@ -53,6 +54,8 @@ begin
    else
       Family := Net.Family_Inet;
    end if;
+
+   Setup_SSL.Default;
 
    Host := SMTP.Initialize
      (Net.Localhost (Net.IPv6_Available), 0,

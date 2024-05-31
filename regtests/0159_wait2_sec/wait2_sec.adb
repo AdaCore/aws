@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2004-2012, AdaCore                     --
+--                     Copyright (C) 2004-2024, AdaCore                     --
 --                                                                          --
 --  This is free software;  you can redistribute it  and/or modify it       --
 --  under terms of the  GNU General Public License as published  by the     --
@@ -17,8 +17,10 @@
 ------------------------------------------------------------------------------
 
 with S_Wait_Pack;
+with Setup_SSL;
 
 procedure Wait2_Sec is
 begin
+   Setup_SSL.Default;
    S_Wait_Pack.Run (True);
 end Wait2_Sec;

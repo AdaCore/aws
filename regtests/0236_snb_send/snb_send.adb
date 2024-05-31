@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                       Copyright (C) 2014, AdaCore                        --
+--                    Copyright (C) 2014-2024, AdaCore                      --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -37,6 +37,8 @@ with AWS.Utils;
 
 with GNAT.MD5;
 
+with Setup_SSL;
+
 procedure SNB_Send is
    use AWS.Net;
    use Ada.Text_IO;
@@ -70,6 +72,8 @@ procedure SNB_Send is
    end Error;
 
 begin
+   Setup_SSL.Default;
+
    Log.Start (Write => null, Error => SNB_Send.Error'Unrestricted_Access);
 
    for J in Data'Range loop
@@ -100,7 +104,7 @@ begin
       S (J).Set_Timeout (Socket_Timeout);
    end loop;
 
-   SSL.Initialize (Conf, "cert.pem");
+--   SSL.Initialize (Conf, "cert.pem");
 
    S (S'First) := new Socket_Type'Class'
                         (Socket_Type'Class

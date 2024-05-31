@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2003-2017, AdaCore                     --
+--                     Copyright (C) 2003-2024, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -457,7 +457,7 @@ package body AWS.Server.Status is
         CNF.Security (Server.Properties)));
 
       Insert (Result, Assoc ("RSA_KEY",
-        CNF.Key (Server.Properties)));
+        CNF.Server_Key (Server.Properties)));
 
       Insert (Result, Assoc ("SERVER_SOCK",
         Integer (Net.Get_FD (Socket (Server)))));

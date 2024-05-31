@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2003-2016, AdaCore                     --
+--                     Copyright (C) 2003-2024, AdaCore                     --
 --                                                                          --
 --  This is free software;  you can redistribute it  and/or modify it       --
 --  under terms of the  GNU General Public License as published  by the     --
@@ -56,7 +56,6 @@ procedure Cert is
       Sock : constant Net.Socket_Type'Class := Status.Socket (Request);
    begin
       if URI = "/simple" then
-
          New_Line;
          Put_Line ("Client certificate as received by the server:");
          Display_Certificate (Net.SSL.Socket_Type (Sock));
@@ -98,42 +97,59 @@ procedure Cert is
    -------------
 
    procedure Request (URL : String) is
-      O_URL : constant AWS.URL.Object := AWS.URL.Parse (URL);
-      R     : Response.Data;
-      C     : Client.HTTP_Connection;
-      Cert  : Net.SSL.Certificate.Object;
+      O_URL  : constant AWS.URL.Object := AWS.URL.Parse (URL);
+      R      : Response.Data;
+      C      : Client.HTTP_Connection;
+      Cert   : Net.SSL.Certificate.Object;
+      Config : Net.SSL.Config;
    begin
-      Client.Create (C, URL, Certificate => "aws-client.pem");
+      Net.SSL.Initialize
+        (Config,
+         Security_Mode        => Net.SSL.TLS_Client,
+         Client_Certificate   => "aws-client.pem",
+         Exchange_Certificate => True,
+         Trusted_CA_Filename  => "",
+         Check_Certificate    => False,
+         Check_Host           => False);
+
+      Client.Create (C, URL, SSL_Config => Config);
 
       Cert := Client.Get_Certificate (C);
 
-      New_Line;
       Put_Line ("Server certificate as received by the client:");
       Display_Certificate (Cert);
 
       Client.Get (C, R, AWS.URL.Abs_Path (O_URL));
 
       Put_Line ("=> " & Response.Message_Body (R));
-      New_Line;
 
       Client.Close (C);
    end Request;
 
    Conf : Config.Object;
+   SrvCnf : Net.SSL.Config;
 
 begin
    Put_Line ("Start main, wait for server to start...");
 
+   Net.SSL.Initialize
+     (SrvCnf,
+      Security_Mode        => Net.SSL.TLS_Server,
+      Check_Certificate    => False,
+      Check_Host           => False,
+      Server_Certificate   => "aws-server.crt",
+      Server_Key           => "aws-server.key",
+      Exchange_Certificate => True,
+      Trusted_CA_Filename  => "private-ca.crt");
+
    Config.Set.Server_Port (Conf, 0);
    Config.Set.Max_Connection (Conf, 5);
    Config.Set.Security (Conf, True);
-   Config.Set.Exchange_Certificate (Conf, True);
-   Config.Set.Trusted_CA (Conf, "private-ca.crt");
-   Config.Set.Certificate (Conf, "aws-server.crt");
-   Config.Set.Key (Conf, "aws-server.key");
    Config.Set.IPv6_Only (Conf, Net.IPv6_Available);
    Config.Set.Protocol_Family
      (Conf, (if Net.IPv6_Available then "Family_Inet6" else "Family_Inet"));
+
+   Server.Set_SSL_Config (HTTP, SrvCnf);
 
    Server.Start (HTTP, CB'Unrestricted_Access, Conf);
 

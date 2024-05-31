@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2002-2012, AdaCore                     --
+--                     Copyright (C) 2002-2024, AdaCore                     --
 --                                                                          --
 --  This is free software;  you can redistribute it  and/or modify it       --
 --  under terms of the  GNU General Public License as published  by the     --
@@ -22,7 +22,10 @@
 
 with S_TGetParam_Proc;
 
+with Setup_SSL;
+
 procedure TSGetParam is
 begin
+   Setup_SSL.Default;
    S_TGetParam_Proc (Security => True);
 end TSGetParam;

@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                       Copyright (C) 2015, AdaCore                        --
+--                    Copyright (C) 2015-2024, AdaCore                      --
 --                                                                          --
 --  This is free software;  you can redistribute it  and/or modify it       --
 --  under terms of the  GNU General Public License as published  by the     --
@@ -16,16 +16,10 @@
 --  to http://www.gnu.org/licenses for a complete copy of the license.      --
 ------------------------------------------------------------------------------
 
-with Ada.Text_IO;
-
 with AWS.MIME;
 with AWS.Response.Set;
 
 package body Signed_Key_CB is
-
-   use Ada;
-
-   Mess : Boolean := False;
 
    -----------
    -- HW_CB --
@@ -36,20 +30,5 @@ package body Signed_Key_CB is
    begin
       return Response.Build (MIME.Text_HTML, "Hello World!");
    end HW_CB;
-
-   ------------------
-   -- Set_Password --
-   ------------------
-
-   function Set_Password (File : String) return String is
-   begin
-      if not Mess then
-         Text_IO.Put_Line ("Asking for password for " & File);
-      end if;
-
-      Mess := True;
-
-      return "foobar";
-   end Set_Password;
 
 end Signed_Key_CB;

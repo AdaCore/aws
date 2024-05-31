@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2004-2014, AdaCore                     --
+--                     Copyright (C) 2004-2024, AdaCore                     --
 --                                                                          --
 --  This is free software;  you can redistribute it  and/or modify it       --
 --  under terms of the  GNU General Public License as published  by the     --
@@ -375,6 +375,9 @@ package body S_HLoad_Pack is
       Config.Set.Max_Connection     (Cfg, Max_Line);
       Config.Set.Session            (Cfg, True);
       Config.Set.TLS_Ticket_Support (Cfg, False);
+      Config.Set.Server_Certificate (Cfg, "cert.pem");
+      Config.Set.Server_Key         (Cfg, "");
+      Config.Set.Check_Certificate  (Cfg, False);
 
       --  Set SSL session size a bit less than number of clients, to provoke
       --  session extrusion.
