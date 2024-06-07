@@ -189,7 +189,7 @@ clean-libs-%:
 
 clean-lib-native: ${LIBAWS_TYPES:%=clean-libs-%}
 
-clean-native: clean-libs-native
+clean-native: clean-lib-native
 	-$(GPRCLEAN) $(GPROPTS) $(GPR_STATIC) tools/tools.gpr
 	-$(GPRCLEAN) $(GPROPTS) $(GPR_STATIC) gps/gps_support.gpr
 
