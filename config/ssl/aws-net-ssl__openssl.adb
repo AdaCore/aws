@@ -361,7 +361,7 @@ package body AWS.Net.SSL is
       Arg    : TSSL.Pointer) return C.int
    is
       pragma Unreferenced (SSL);
-      ALPN : Char_Array_Holder.Holder with Import;
+      ALPN   : Char_Array_Holder.Holder with Import;
       for ALPN'Address use Arg;
       Server : constant C.Strings.char_array_access :=
                  ALPN.Reference.Element;
@@ -566,7 +566,7 @@ package body AWS.Net.SSL is
          case SSL_get_error (Socket.SSL, Res) is
             when SSL_ERROR_WANT_READ  => Socket_Read (Socket);
             when SSL_ERROR_WANT_WRITE => Socket_Write (Socket);
-            when others                    => exit;
+            when others               => exit;
          end case;
       end loop;
 
@@ -671,8 +671,8 @@ package body AWS.Net.SSL is
          Filename : constant String :=
                       RSA_DH_Generators.Parameters_Filename
                         ("dh-" & Utils.Image (Integer (Bits)), Exist => True);
-         C_Name : aliased C.char_array := C.To_C (Filename);
-         IO : TSSL.BIO_Access;
+         C_Name   : aliased C.char_array := C.To_C (Filename);
+         IO       : TSSL.BIO_Access;
       begin
          if Filename = "" then
             return False;
@@ -706,8 +706,8 @@ package body AWS.Net.SSL is
          Filename : constant String :=
                       RSA_DH_Generators.Parameters_Filename
                         ("dh-" & Utils.Image (Integer (Bits)), Exist => False);
-         C_Name : aliased C.char_array := C.To_C (Filename);
-         BIO : TSSL.BIO_Access;
+         C_Name   : aliased C.char_array := C.To_C (Filename);
+         BIO      : TSSL.BIO_Access;
       begin
          if Filename = "" then
             return;
@@ -913,8 +913,8 @@ package body AWS.Net.SSL is
    ----------
 
    function Load (Filename : String) return Private_Key is
-      IO   : constant TSSL.BIO_Access := TSSL.BIO_new (TSSL.BIO_s_file);
       Key  : aliased Private_Key := EVP_PKEY_new;
+      IO   : constant TSSL.BIO_Access := TSSL.BIO_new (TSSL.BIO_s_file);
       Name : aliased C.char_array := C.To_C (Filename);
       Pwd  : aliased C.char_array :=
                C.To_C (Net.SSL.Certificate.Get_Password (Filename));
@@ -1188,8 +1188,8 @@ package body AWS.Net.SSL is
       pragma Unreferenced (ad);
       use C.Strings;
       Server_Name : constant chars_ptr := TSSL.SSL_get_servername (Session);
-      CH          : Host_Certificates.Cursor;
-      Dummy       : TSSL.SSL_CTX;
+      CH : Host_Certificates.Cursor;
+      Dummy : TSSL.SSL_CTX;
    begin
       if Server_Name = Null_Ptr then
          return TSSL.SSL_TLSEXT_ERR_OK;
@@ -2039,6 +2039,7 @@ package body AWS.Net.SSL is
 
    end Locking;
 
+
    ---------------------------------
    -- Start_Parameters_Generation --
    ---------------------------------
@@ -2346,8 +2347,8 @@ package body AWS.Net.SSL is
             use type TSSL.STACK_OF_X509_NAME;
             PK : constant Private_Key :=
                    Load ((if Key_Filename = ""
-                          then Certificate_Filename
-                          else Key_Filename));
+                          then Certificate_Filename else Key_Filename));
+
          begin
             --  Get the single certificate or certificate chain from
             --  the file Cert_Filename.
@@ -2404,7 +2405,7 @@ package body AWS.Net.SSL is
             return;
          end if;
 
-            --  Initialize context
+         --  Initialize context
 
          Context := TSSL.SSL_CTX_new (Methods (Security_Mode).all);
 
@@ -2750,6 +2751,7 @@ package body AWS.Net.SSL is
 
       begin
          Set_Callback (Default_Context);
+
          for Context of Hosts loop
             Set_Callback (Context);
          end loop;
