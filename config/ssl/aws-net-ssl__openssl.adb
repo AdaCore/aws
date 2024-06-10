@@ -49,6 +49,7 @@ with System.Storage_Elements;
 
 with AWS.Net.Log;
 with AWS.Net.SSL.Certificate.Impl;
+with AWS.Net.SSL.Common;
 with AWS.Net.SSL.RSA_DH_Generators;
 with AWS.OS_Lib;
 with AWS.Translator;
@@ -232,7 +233,6 @@ package body AWS.Net.SSL is
    type Memory_Access is access all
      Stream_Element_Array (1 .. Stream_Element_Offset'Last);
 
-   Default_Data          : SSL_Data;
    Default_Client_Config : Config;
    Default_Server_Config : Config;
 
@@ -868,28 +868,6 @@ package body AWS.Net.SSL is
       RSA_Lock.Unlock;
    end Generate_RSA;
 
-   -----------------------
-   -- Get_Client_Method --
-   -----------------------
-
-   function Get_Client_Method (Mode : Method) return Method is
-     (case Mode is
-         when TLSv1   | TLSv1_Client   => TLSv1_Client,
-         when TLSv1_1 | TLSv1_1_Client => TLSv1_1_Client,
-         when TLSv1_2 | TLSv1_2_Client => TLSv1_2_Client,
-         when others                   => TLS_Client);
-
-   -----------------------
-   -- Get_Server_Method --
-   -----------------------
-
-   function Get_Server_Method (Mode : Method) return Method is
-     (case Mode is
-         when TLSv1   | TLSv1_Server   => TLSv1_Server,
-         when TLSv1_1 | TLSv1_1_Server => TLSv1_1_Server,
-         when TLSv1_2 | TLSv1_2_Server => TLSv1_2_Server,
-         when others                   => TLS_Server);
-
    -------------------------------
    -- Get_Default_Client_Config --
    -------------------------------
@@ -902,7 +880,7 @@ package body AWS.Net.SSL is
          Config := new TS_SSL;
 
          Config.Initialize
-           (Security_Mode        => Get_Client_Method (D.Security_Mode),
+           (Security_Mode        => Common.Get_Client_Method (D.Security_Mode),
             Server_Certificate   => "",
             Server_Key           => "",
             Client_Certificate   => -D.Client_Certificate,
@@ -928,7 +906,7 @@ package body AWS.Net.SSL is
          Config := new TS_SSL;
 
          Config.Initialize
-           (Security_Mode        => Get_Server_Method (D.Security_Mode),
+           (Security_Mode        => Common.Get_Server_Method (D.Security_Mode),
             Server_Certificate   => -D.Server_Certificate,
             Server_Key           => -D.Server_Key,
             Client_Certificate   => "",
@@ -1015,20 +993,11 @@ package body AWS.Net.SSL is
       Session_Cache_Size   : Natural   := 16#4000#;
       ALPN                 : SV.Vector := SV.Empty_Vector) is
    begin
-      Default_Data :=
-        (Security_Mode        => Security_Mode,
-         Server_Certificate   => +Server_Certificate,
-         Server_Key           => +Server_Key,
-         Client_Certificate   => +Client_Certificate,
-         Priorities           => +Priorities,
-         Ticket_Support       => Ticket_Support,
-         Exchange_Certificate => Exchange_Certificate,
-         Check_Certificate    => Check_Certificate,
-         Check_Host           => Check_Host,
-         Trusted_CA_Filename  => +Trusted_CA_Filename,
-         CRL_Filename         => +CRL_Filename,
-         Session_Cache_Size   => Session_Cache_Size,
-         ALPN                 => ALPN);
+      Common.Initialize_Default_Config
+        (Security_Mode, Server_Certificate, Server_Key,
+         Client_Certificate, Priorities, Ticket_Support,
+         Exchange_Certificate, Check_Certificate, Check_Host,
+         Trusted_CA_Filename, CRL_Filename, Session_Cache_Size, ALPN);
    end Initialize_Default_Config;
 
    -----------------

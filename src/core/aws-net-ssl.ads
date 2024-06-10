@@ -415,7 +415,8 @@ private
    type Config is access all TS_SSL;
    pragma No_Strict_Aliasing (Config);
 
-   Null_Config : constant Config := null;
+   Null_Config  : constant Config := null;
+   Default_Data : SSL_Data;
 
    type Socket_Type is new Net.Std.Socket_Type with record
       Config : SSL.Config := Null_Config;
