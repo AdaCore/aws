@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2006-2018, AdaCore                     --
+--                     Copyright (C) 2006-2024, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -45,9 +45,9 @@ with Ada.Unchecked_Deallocation;
 with Interfaces.C.Strings;
 with System.Memory;
 
-with AWS.Config;
 with AWS.Net.Log;
 with AWS.Net.SSL.Certificate.Impl;
+with AWS.Net.SSL.Common;
 with AWS.Net.SSL.RSA_DH_Generators;
 with AWS.OS_Lib;
 with AWS.Resources;
@@ -132,7 +132,10 @@ package body AWS.Net.SSL is
 
    procedure Code_Processing (Code : C.int; Socket : Socket_Type'Class);
 
-   procedure Check_Config (Socket : in out Socket_Type) with Inline;
+   procedure Check_Config
+     (Socket : in out Socket_Type;
+      Server : Boolean)
+     with Inline;
 
    procedure Do_Handshake_Internal (Socket : Socket_Type) with Inline;
    --  The real handshake is done here
@@ -223,6 +226,14 @@ package body AWS.Net.SSL is
       DTI  : Time_Set.Map; --  To remove oldest sessions to fit Size
    end Session_Cache;
 
+   protected Config_Sync is
+
+      function Get_Default_Client_Config return SSL.Config;
+
+      function Get_Default_Server_Config return SSL.Config;
+
+   end Config_Sync;
+
    type Certificate_Holder is record
       PCerts : PCert_Array_Access;
       TLS_PK : aliased TSSL.gnutls_privkey_t;
@@ -248,19 +259,6 @@ package body AWS.Net.SSL is
       ALPN           : SV.Vector;
    end record;
 
-   procedure Initialize
-     (Config               : in out TS_SSL;
-      Certificate_Filename : String;
-      Security_Mode        : Method;
-      Priorities           : String;
-      Ticket_Support       : Boolean;
-      Key_Filename         : String;
-      Exchange_Certificate : Boolean;
-      Certificate_Required : Boolean;
-      Trusted_CA_Filename  : String;
-      CRL_Filename         : String;
-      Session_Cache_Size   : Natural);
-
    procedure Add_Host_Certificate
      (Config               : in out TS_SSL;
       Host                 : String;
@@ -278,38 +276,14 @@ package body AWS.Net.SSL is
 
    procedure Finalize (Config : in out TS_SSL);
 
-   Default_Config : aliased TS_SSL;
-
-   protected Default_Config_Sync is
-
-      procedure Create;
-      --  Create default config with default parameters
-
-      procedure Initialize
-        (Certificate_Filename : String;
-         Security_Mode        : Method;
-         Priorities           : String;
-         Ticket_Support       : Boolean;
-         Key_Filename         : String;
-         Exchange_Certificate : Boolean;
-         Certificate_Required : Boolean;
-         Trusted_CA_Filename  : String;
-         CRL_Filename         : String;
-         Session_Cache_Size   : Natural;
-         ALPN                 : SV.Vector);
-
-   private
-      Done : Boolean := False;
-   end Default_Config_Sync;
-
-   procedure Initialize_Default_Config;
-   --  Initializes default config. It could be called more then once, because
-   --  secondary initialization is ignored.
+   Default_Client_Config : Config;
+   Default_Server_Config : Config;
 
    procedure Secure
      (Source : Net.Socket_Type'Class;
       Target : out Socket_Type;
-      Config : SSL.Config);
+      Config : SSL.Config;
+      Server : Boolean);
    --  Make Target a secure socket for Source using the given configuration
 
    function Retrieve_Certificate
@@ -534,11 +508,16 @@ package body AWS.Net.SSL is
    -- Check_Config --
    ------------------
 
-   procedure Check_Config (Socket : in out Socket_Type) is
+   procedure Check_Config
+     (Socket : in out Socket_Type;
+      Server : Boolean) is
    begin
       if Socket.Config = null then
-         Initialize_Default_Config;
-         Socket.Config := Default_Config'Access;
+         if Server then
+            Socket.Config := Get_Default_Server_Config;
+         else
+            Socket.Config := Get_Default_Client_Config;
+         end if;
       end if;
    end Check_Config;
 
@@ -628,7 +607,8 @@ package body AWS.Net.SSL is
    procedure Clear_Session_Cache (Config : SSL.Config := Null_Config) is
    begin
       if Config = Null_Config then
-         Default_Config.Sessions.Clear;
+         Default_Client_Config.Sessions.Clear;
+         Default_Server_Config.Sessions.Clear;
       else
          Config.Sessions.Clear;
       end if;
@@ -660,6 +640,75 @@ package body AWS.Net.SSL is
    begin
       Code_Processing (Code, Socket, Net.Socket_Type (Socket).Timeout);
    end Code_Processing;
+
+   protected body Config_Sync is
+
+      -------------------------------
+      -- Get_Default_Client_Config --
+      -------------------------------
+
+      function Get_Default_Client_Config return SSL.Config is
+         Config : SSL.Config renames Default_Client_Config;
+         D      : SSL_Data renames Default_Data;
+      begin
+         if Config = null then
+            Config := new TS_SSL;
+
+            Initialize
+              (Config,
+               Security_Mode        =>
+                 Common.Get_Client_Method (D.Security_Mode),
+               Server_Certificate   => "",
+               Server_Key           => "",
+               Client_Certificate   => -D.Client_Certificate,
+               Priorities           => -D.Priorities,
+               Ticket_Support       => D.Ticket_Support,
+               Exchange_Certificate => D.Exchange_Certificate,
+               Check_Certificate    => D.Check_Certificate,
+               Check_Host           => D.Check_Host,
+               Trusted_CA_Filename  => -D.Trusted_CA_Filename,
+               CRL_Filename         => -D.CRL_Filename,
+               Session_Cache_Size   => D.Session_Cache_Size,
+               ALPN                 => D.ALPN);
+         end if;
+
+         return Config;
+      end Get_Default_Client_Config;
+
+      -------------------------------
+      -- Get_Default_Server_Config --
+      -------------------------------
+
+      function Get_Default_Server_Config return SSL.Config is
+         Config : SSL.Config renames Default_Server_Config;
+         D      : SSL_Data renames Default_Data;
+      begin
+         if Config = null then
+            Config := new TS_SSL;
+
+            Initialize
+              (Config,
+               Security_Mode        =>
+                 Common.Get_Server_Method (D.Security_Mode),
+               Server_Certificate   => -D.Server_Certificate,
+               Server_Key           => -D.Server_Key,
+               Client_Certificate   => "",
+               Priorities           => -D.Priorities,
+               Ticket_Support       => D.Ticket_Support,
+               Exchange_Certificate => D.Exchange_Certificate,
+               Check_Certificate    => D.Check_Certificate,
+               Check_Host           => D.Check_Host,
+               Trusted_CA_Filename  => -D.Trusted_CA_Filename,
+               CRL_Filename         => -D.CRL_Filename,
+               Session_Cache_Size   => D.Session_Cache_Size,
+               ALPN                 => D.ALPN);
+         end if;
+
+         return Config;
+      end Get_Default_Server_Config;
+
+   end Config_Sync;
+
 
    -------------
    -- Connect --
@@ -780,69 +829,6 @@ package body AWS.Net.SSL is
    begin
       Text_IO.Put (Text_IO.Current_Error, Text);
    end Debug_Output_Default;
-
-   -------------------------
-   -- Default_Config_Sync --
-   -------------------------
-
-   protected body Default_Config_Sync is
-
-      ------------
-      -- Create --
-      ------------
-
-      procedure Create is
-         package CNF renames AWS.Config;
-         Default : CNF.Object renames CNF.Default_Config;
-      begin
-         if not Done then
-            Initialize
-              (Config               => Default_Config,
-               Certificate_Filename => CNF.Certificate (Default),
-               Security_Mode        => Method'Value
-                                         (CNF.Security_Mode (Default)),
-               Priorities           => CNF.Cipher_Priorities (Default),
-               Ticket_Support       => CNF.TLS_Ticket_Support (Default),
-               Key_Filename         => CNF.Key (Default),
-               Exchange_Certificate => CNF.Exchange_Certificate (Default),
-               Certificate_Required => CNF.Certificate_Required (Default),
-               Trusted_CA_Filename  => CNF.Trusted_CA (Default),
-               CRL_Filename         => CNF.CRL_File (Default),
-               Session_Cache_Size   => 16#4000#);
-            Done := True;
-         end if;
-      end Create;
-
-      ----------------
-      -- Initialize --
-      ----------------
-
-      procedure Initialize
-        (Certificate_Filename : String;
-         Security_Mode        : Method;
-         Priorities           : String;
-         Ticket_Support       : Boolean;
-         Key_Filename         : String;
-         Exchange_Certificate : Boolean;
-         Certificate_Required : Boolean;
-         Trusted_CA_Filename  : String;
-         CRL_Filename         : String;
-         Session_Cache_Size   : Natural;
-         ALPN                 : SV.Vector) is
-      begin
-         if not Done then
-            Default_Config.ALPN := ALPN;
-            Initialize
-              (Default_Config,
-               Certificate_Filename,  Security_Mode, Priorities,
-               Ticket_Support, Key_Filename, Exchange_Certificate,
-               Certificate_Required, Trusted_CA_Filename, CRL_Filename,
-               Session_Cache_Size);
-            Done := True;
-         end if;
-      end Initialize;
-
-   end Default_Config_Sync;
 
    ------------------
    -- Do_Handshake --
@@ -1111,6 +1097,24 @@ package body AWS.Net.SSL is
       RSA_Lock.Unlock;
    end Generate_RSA;
 
+   -------------------------------
+   -- Get_Default_Client_Config --
+   -------------------------------
+
+   function Get_Default_Client_Config return SSL.Config is
+   begin
+      return Config_Sync.Get_Default_Client_Config;
+   end Get_Default_Client_Config;
+
+   -------------------------------
+   -- Get_Default_Server_Config --
+   -------------------------------
+
+   function Get_Default_Server_Config return SSL.Config is
+   begin
+      return Config_Sync.Get_Default_Server_Config;
+   end Get_Default_Server_Config;
+
    ----------
    -- Hash --
    ----------
@@ -1154,52 +1158,23 @@ package body AWS.Net.SSL is
 
    procedure Initialize
      (Config               : in out SSL.Config;
-      Certificate_Filename : String;
       Security_Mode        : Method    := TLS;
+      Server_Certificate   : String    := "";
+      Server_Key           : String    := "";
+      Client_Certificate   : String    := "";
       Priorities           : String    := "";
       Ticket_Support       : Boolean   := False;
-      Key_Filename         : String    := "";
       Exchange_Certificate : Boolean   := False;
-      Certificate_Required : Boolean   := False;
+      Check_Certificate    : Boolean   := True;
+      Check_Host           : Boolean   := True;
       Trusted_CA_Filename  : String    := "";
       CRL_Filename         : String    := "";
       Session_Cache_Size   : Natural   := 16#4000#;
-      ALPN                 : SV.Vector := SV.Empty_Vector) is
-   begin
-      if Config = null then
-         Config := new TS_SSL;
-      end if;
-
-      Config.ALPN := ALPN;
-
-      Initialize
-        (Config.all,
-         Certificate_Filename => Certificate_Filename,
-         Security_Mode        => Security_Mode,
-         Priorities           => Priorities,
-         Ticket_Support       => Ticket_Support,
-         Key_Filename         => Key_Filename,
-         Exchange_Certificate => Exchange_Certificate,
-         Certificate_Required => Certificate_Required,
-         Trusted_CA_Filename  => Trusted_CA_Filename,
-         CRL_Filename         => CRL_Filename,
-         Session_Cache_Size   => Session_Cache_Size);
-   end Initialize;
-
-   procedure Initialize
-     (Config               : in out TS_SSL;
-      Certificate_Filename : String;
-      Security_Mode        : Method;
-      Priorities           : String;
-      Ticket_Support       : Boolean;
-      Key_Filename         : String;
-      Exchange_Certificate : Boolean;
-      Certificate_Required : Boolean;
-      Trusted_CA_Filename  : String;
-      CRL_Filename         : String;
-      Session_Cache_Size   : Natural)
+      ALPN                 : SV.Vector := SV.Empty_Vector)
    is
-      procedure Set_Certificate;
+      pragma Unreferenced (Check_Host);
+
+      procedure Set_Certificate (Certificate, Key : String);
       --  Set credentials from Cetificate_Filename and Key_Filename
 
       function Get_Priorities return String;
@@ -1237,7 +1212,7 @@ package body AWS.Net.SSL is
       -- Set_Certificate --
       ---------------------
 
-      procedure Set_Certificate is
+      procedure Set_Certificate (Certificate, Key : String) is
 
          procedure Final;
 
@@ -1254,7 +1229,7 @@ package body AWS.Net.SSL is
          end Final;
 
       begin
-         Add_Host_Certificate (Config, "", Certificate_Filename, Key_Filename);
+         Add_Host_Certificate (Config, "", Certificate, Key);
 
          TSSL.gnutls_certificate_set_retrieve_function2
            (Config.CC, Retrieve_Certificate'Access);
@@ -1273,7 +1248,13 @@ package body AWS.Net.SSL is
          end if;
       end Set_Certificate;
 
-   begin -- Initialize
+   begin
+      if Config = null then
+         Config := new TS_SSL;
+      end if;
+
+      Config.ALPN := ALPN;
+
       Config.Sessions.Set_Size (Session_Cache_Size);
       Config.Ticket_Support := Ticket_Support;
 
@@ -1291,10 +1272,6 @@ package body AWS.Net.SSL is
       --   GNUTLS_X509_FMT_PEM);
       --   */
 
-      if Certificate_Filename /= "" then
-         Set_Certificate;
-      end if;
-
       if Security_Mode = SSLv23
         or else Security_Mode = TLSv1
         or else Security_Mode = TLSv1_1
@@ -1306,8 +1283,12 @@ package body AWS.Net.SSL is
         or else Security_Mode = TLSv1_2_Server
         or else Security_Mode = SSLv3_Server
       then
+         if Server_Certificate /= "" then
+            Set_Certificate (Server_Certificate, Server_Key);
+         end if;
+
          Config.RCC := Exchange_Certificate;
-         Config.CREQ := Certificate_Required;
+         Config.CREQ := Check_Certificate;
 
          if Ticket_Support then
             Check_Error_Code
@@ -1317,6 +1298,10 @@ package body AWS.Net.SSL is
 
          TSSL.gnutls_certificate_set_params_function
            (Config.CC, Params_Callback'Access);
+      else
+         if Client_Certificate /= "" then
+            Set_Certificate (Client_Certificate, "");
+         end if;
       end if;
 
       TSSL.gnutls_certificate_set_verify_function
@@ -1355,27 +1340,25 @@ package body AWS.Net.SSL is
    -------------------------------
 
    procedure Initialize_Default_Config
-     (Certificate_Filename : String;
-      Security_Mode        : Method    := TLS;
+     (Security_Mode        : Method    := TLS;
+      Server_Certificate   : String    := Default.Server_Certificate;
+      Server_Key           : String    := Default.Server_Key;
+      Client_Certificate   : String    := Default.Client_Certificate;
       Priorities           : String    := "";
       Ticket_Support       : Boolean   := False;
-      Key_Filename         : String    := "";
       Exchange_Certificate : Boolean   := False;
-      Certificate_Required : Boolean   := False;
-      Trusted_CA_Filename  : String    := "";
+      Check_Certificate    : Boolean   := True;
+      Check_Host           : Boolean   := True;
+      Trusted_CA_Filename  : String    := Default.Trusted_CA;
       CRL_Filename         : String    := "";
       Session_Cache_Size   : Natural   := 16#4000#;
       ALPN                 : SV.Vector := SV.Empty_Vector) is
    begin
-      Default_Config_Sync.Initialize
-        (Certificate_Filename, Security_Mode, Priorities, Ticket_Support,
-         Key_Filename, Exchange_Certificate, Certificate_Required,
+      Common.Initialize_Default_Config
+        (Security_Mode, Server_Certificate, Server_Key,
+         Client_Certificate, Priorities, Ticket_Support,
+         Exchange_Certificate, Check_Certificate, Check_Host,
          Trusted_CA_Filename, CRL_Filename, Session_Cache_Size, ALPN);
-   end Initialize_Default_Config;
-
-   procedure Initialize_Default_Config is
-   begin
-      Default_Config_Sync.Create;
    end Initialize_Default_Config;
 
    ---------------
@@ -1534,7 +1517,9 @@ package body AWS.Net.SSL is
       procedure Unchecked_Free is
         new Unchecked_Deallocation (TS_SSL, SSL.Config);
    begin
-      if Config /= null and then Config /= Default_Config'Access then
+      if Config /= null
+        and then Config not in Default_Client_Config | Default_Server_Config
+      then
          Finalize (Config.all);
          Unchecked_Free (Config);
       end if;
@@ -1647,11 +1632,12 @@ package body AWS.Net.SSL is
    procedure Secure
      (Source : Net.Socket_Type'Class;
       Target : out Socket_Type;
-      Config : SSL.Config) is
+      Config : SSL.Config;
+      Server : Boolean) is
    begin
       Std.Socket_Type (Target) := Std.Socket_Type (Source);
       Target.Config := Config;
-      Check_Config (Target);
+      Check_Config (Target, Server);
    end Secure;
 
    -------------------
@@ -1661,13 +1647,12 @@ package body AWS.Net.SSL is
    function Secure_Client
      (Socket : Net.Socket_Type'Class;
       Config : SSL.Config := Null_Config;
-      Host   : String     := "") return Socket_Type
-   is
-      Result : Socket_Type;
+      Host   : String     := "") return Socket_Type is
    begin
-      Secure (Socket, Result, Config);
-      Session_Client (Result, Host);
-      return Result;
+      return Result : Socket_Type do
+         Secure (Socket, Result, Config, Server => False);
+         Session_Client (Result, Host);
+      end return;
    end Secure_Client;
 
    -------------------
@@ -1676,13 +1661,12 @@ package body AWS.Net.SSL is
 
    function Secure_Server
      (Socket : Net.Socket_Type'Class;
-      Config : SSL.Config := Null_Config) return Socket_Type
-   is
-      Result : Socket_Type;
+      Config : SSL.Config := Null_Config) return Socket_Type is
    begin
-      Secure (Socket, Result, Config);
-      Session_Server (Result);
-      return Result;
+      return Result : Socket_Type do
+         Secure (Socket, Result, Config, Server => True);
+         Session_Server (Result);
+      end return;
    end Secure_Server;
 
    ----------
@@ -1875,12 +1859,18 @@ package body AWS.Net.SSL is
    --------------------------
 
    function Session_Cache_Number
-     (Config : SSL.Config := Null_Config) return Natural
-   is
-      Cfg : constant SSL.Config :=
-              (if Config = Null_Config then Default_Config'Access else Config);
+     (Config : SSL.Config := Null_Config) return Natural is
    begin
-      return Cfg.Sessions.Length;
+      if Config /= null then
+         return Config.Sessions.Length;
+      elsif Default_Client_Config /= null then
+         return Default_Client_Config.Sessions.Length;
+      elsif Default_Server_Config /= null then
+         return Default_Server_Config.Sessions.Length;
+      else
+         raise Constraint_Error with
+           "Session_Cache_Size: no default config initialized";
+      end if;
    end Session_Cache_Number;
 
    --------------------
@@ -1890,7 +1880,7 @@ package body AWS.Net.SSL is
    procedure Session_Client (Socket : in out Socket_Type; Host : String) is
       use TSSL;
    begin
-      Check_Config (Socket);
+      Check_Config (Socket, Server => False);
 
       Check_Error_Code
         (gnutls_init
@@ -1989,7 +1979,7 @@ package body AWS.Net.SSL is
       use type C.Strings.chars_ptr;
       use type System.Address;
    begin
-      Check_Config (Socket);
+      Check_Config (Socket, Server => True);
 
       if DH_Params (0) = null
         and then RSA_Params (0) = null
@@ -2134,8 +2124,8 @@ package body AWS.Net.SSL is
      (Size : Natural; Config : SSL.Config := Null_Config) is
    begin
       if Config = Null_Config then
-         Initialize_Default_Config;
-         Default_Config.Sessions.Set_Size (Size);
+         Default_Client_Config.Sessions.Set_Size (Size);
+         Default_Server_Config.Sessions.Set_Size (Size);
       else
          Config.Sessions.Set_Size (Size);
       end if;
