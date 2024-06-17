@@ -38,6 +38,8 @@ with System;
 package SSL.Thin is
 
    use Interfaces;
+   use type C.unsigned;
+
    package CS renames C.Strings;
 
    GNUTLS_MAX_ALGORITHM_NUM : constant := 16#0010#;
@@ -151,6 +153,7 @@ package SSL.Thin is
    GNUTLS_E_OPENPGP_KEYRING_ERROR               : constant := -204;
    GNUTLS_E_X509_UNSUPPORTED_OID                : constant := -205;
    GNUTLS_E_RANDOM_FAILED                       : constant := -206;
+   GNUTLS_E_CERTIFICATE_VERIFICATION_ERROR      : constant := -348;
    GNUTLS_E_UNIMPLEMENTED_FEATURE               : constant := -1250;
 
    GNUTLS_X509_CRT_LIST_IMPORT_FAIL_IF_EXCEED : constant := 1;
@@ -197,7 +200,7 @@ package SSL.Thin is
    GNUTLS_MAC_AEAD    : constant gnutls_mac_algorithm_t := 200;
    --  indicates that MAC is on the cipher
 
-   type gnutls_certificate_verify_flags is new C.int;
+   subtype gnutls_certificate_verify_flags is C.unsigned;
    subtype certificate_verify_flags is gnutls_certificate_verify_flags;
 
    --  GNUTLS_VERIFY_ prefix removed from gnutls_certificate_verify_flags
@@ -215,6 +218,7 @@ package SSL.Thin is
    DISABLE_CRL_CHECKS          : constant certificate_verify_flags := 512;
    ALLOW_UNSORTED_CHAIN        : constant certificate_verify_flags := 2 ** 10;
    DO_NOT_ALLOW_UNSORTED_CHAIN : constant certificate_verify_flags := 2 ** 11;
+   DO_NOT_ALLOW_WILDCARDS      : constant certificate_verify_flags := 2 ** 12;
 
    type gnutls_alert_level_t is (GNUTLS_AL_WARNING, GNUTLS_AL_FATAL);
    for gnutls_alert_level_t use (GNUTLS_AL_WARNING => 1, GNUTLS_AL_FATAL => 2);
@@ -280,7 +284,11 @@ package SSL.Thin is
       GNUTLS_CERT_UNEXPECTED_OWNER,
       GNUTLS_CERT_REVOCATION_DATA_ISSUED_IN_FUTURE,
       GNUTLS_CERT_SIGNER_CONSTRAINTS_FAILURE,
-      GNUTLS_CERT_MISMATCH);
+      GNUTLS_CERT_MISMATCH,
+      GNUTLS_CERT_PURPOSE_MISMATCH,
+      GNUTLS_CERT_MISSING_OCSP_STATUS,
+      GNUTLS_CERT_INVALID_OCSP_STATUS,
+      GNUTLS_CERT_UNKNOWN_CRIT_EXTENSIONS);
    for gnutls_certificate_status_t use
      (GNUTLS_CERT_INVALID                          => 2,
       GNUTLS_CERT_REVOKED                          => 32,
@@ -294,7 +302,11 @@ package SSL.Thin is
       GNUTLS_CERT_UNEXPECTED_OWNER                 => 2**14,
       GNUTLS_CERT_REVOCATION_DATA_ISSUED_IN_FUTURE => 2**15,
       GNUTLS_CERT_SIGNER_CONSTRAINTS_FAILURE       => 2**16,
-      GNUTLS_CERT_MISMATCH                         => 2**17);
+      GNUTLS_CERT_MISMATCH                         => 2**17,
+      GNUTLS_CERT_PURPOSE_MISMATCH                 => 2**18,
+      GNUTLS_CERT_MISSING_OCSP_STATUS              => 2**19,
+      GNUTLS_CERT_INVALID_OCSP_STATUS              => 2**20,
+      GNUTLS_CERT_UNKNOWN_CRIT_EXTENSIONS          => 2**21);
    for gnutls_certificate_status_t'Size use C.int'Size;
 
    type gnutls_certificate_request_t is
@@ -718,7 +730,7 @@ package SSL.Thin is
    function gnutls_server_name_set
      (session     : gnutls_session_t;
       c_type      : gnutls_server_name_type_t;
-      name        : System.Address;
+      name        : CS.chars_ptr;
       name_length : C.size_t) return C.int
      with Import, Convention => C;
 
@@ -826,6 +838,12 @@ package SSL.Thin is
      (session : gnutls_session_t) return gnutls_protocol_t
      with Import, Convention => C;
 
+   procedure gnutls_session_set_verify_cert
+     (session : gnutls_session_t;
+      host    : CS.chars_ptr;
+      flags   : gnutls_certificate_verify_flags)
+     with Import, Convention => C;
+
    function gnutls_protocol_get_name
      (version : gnutls_protocol_t) return CS.chars_ptr
      with Import, Convention => C;
@@ -857,6 +875,10 @@ package SSL.Thin is
 
    function gnutls_session_is_resumed
      (session : gnutls_session_t) return C.int
+     with Import, Convention => C;
+
+   function gnutls_session_get_verify_cert_status
+     (session : gnutls_session_t) return C.unsigned
      with Import, Convention => C;
 
    procedure gnutls_db_set_cache_expiration
@@ -1034,6 +1056,10 @@ package SSL.Thin is
      (res          : gnutls_certificate_credentials_t;
       ca_list      : a_gnutls_x509_crt_t;
       ca_list_size : C.int) return C.int
+     with Import, Convention => C;
+
+   function gnutls_certificate_set_x509_system_trust
+     (cred  : gnutls_certificate_credentials_t) return C.int
      with Import, Convention => C;
 
    function gnutls_certificate_set_x509_crl
