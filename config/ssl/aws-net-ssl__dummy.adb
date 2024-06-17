@@ -170,6 +170,15 @@ package body AWS.Net.SSL is
 
    procedure Generate_RSA is null;
 
+   ---------------------------
+   -- Get_Check_Certificate --
+   ---------------------------
+
+   function Get_Check_Certificate (Config : SSL.Config) return Boolean is
+   begin
+      return False;
+   end Get_Check_Certificate;
+
    -------------------------------
    -- Get_Default_Client_Config --
    -------------------------------

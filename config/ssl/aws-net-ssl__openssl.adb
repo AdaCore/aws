@@ -868,6 +868,15 @@ package body AWS.Net.SSL is
       RSA_Lock.Unlock;
    end Generate_RSA;
 
+   ---------------------------
+   -- Get_Check_Certificate --
+   ---------------------------
+
+   function Get_Check_Certificate (Config : SSL.Config) return Boolean is
+   begin
+      return Config.Get_Check_Certificate;
+   end Get_Check_Certificate;
+
    -------------------------------
    -- Get_Default_Client_Config --
    -------------------------------

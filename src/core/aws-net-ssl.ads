@@ -484,4 +484,6 @@ private
    overriding function Is_Secure (Socket : Socket_Type) return Boolean
    is (True);
 
+   function Get_Check_Certificate (Config : SSL.Config) return Boolean;
+
 end AWS.Net.SSL;

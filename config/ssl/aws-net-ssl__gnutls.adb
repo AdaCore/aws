@@ -244,19 +244,23 @@ package body AWS.Net.SSL is
       Equivalent_Keys => Equal_Case_Insensitive);
 
    type TS_SSL is record
-      CC             : aliased TSSL.gnutls_certificate_credentials_t;
-      PCert_Lists    : Host_Certificates.Map;
-      Priority_Cache : aliased TSSL.gnutls_priority_t;
-      Ticket_Support : Boolean;
-      Ticket_Key     : aliased TSSL.gnutls_datum_t := (System.Null_Address, 0);
-      Sessions       : Session_Cache;
-      RCC            : Boolean := False; -- Request client certificate
-      CREQ           : Boolean := False; -- Certificate is required
-      Verify_CB      : Net.SSL.Certificate.Verify_Callback;
-      CRL_File       : C.Strings.chars_ptr := C.Strings.Null_Ptr;
-      CRL_Semaphore  : Utils.Semaphore;
-      CRL_Time_Stamp : Calendar.Time := Utils.AWS_Epoch;
-      ALPN           : SV.Vector;
+      CC                   : aliased TSSL.gnutls_certificate_credentials_t;
+      PCert_Lists          : Host_Certificates.Map;
+      Priority_Cache       : aliased TSSL.gnutls_priority_t;
+      Ticket_Support       : Boolean;
+      Ticket_Key           : aliased TSSL.gnutls_datum_t :=
+                                  (System.Null_Address, 0);
+      Sessions             : Session_Cache;
+      Exchange_Certificate : Boolean := True; -- Request client certificate
+      Check_Certificate    : Boolean := True; -- Certificate is required
+      Check_Host           : Boolean := True; -- Check host name
+      Host                 : C.Strings.chars_ptr;
+      Verify_CB            : Net.SSL.Certificate.Verify_Callback;
+      Verify_Status        : C.unsigned := 0;
+      CRL_File             : C.Strings.chars_ptr := C.Strings.Null_Ptr;
+      CRL_Semaphore        : Utils.Semaphore;
+      CRL_Time_Stamp       : Calendar.Time := Utils.AWS_Epoch;
+      ALPN                 : SV.Vector;
    end record;
 
    procedure Add_Host_Certificate
@@ -850,6 +854,17 @@ package body AWS.Net.SSL is
          return;
       end if;
 
+      --  Check for verification status
+
+      if Socket.Config.Check_Certificate
+        and then Socket.Config.Verify_Status /= 0
+      then
+         raise Socket_Error
+           with "certificate error "
+              & Certificate.Impl.Status_String
+                  (C.long (Socket.Config.Verify_Status));
+      end if;
+
       loop
          Code := TSSL.gnutls_handshake (Socket.SSL);
 
@@ -1097,6 +1112,15 @@ package body AWS.Net.SSL is
       RSA_Lock.Unlock;
    end Generate_RSA;
 
+   ---------------------------
+   -- Get_Check_Certificate --
+   ---------------------------
+
+   function Get_Check_Certificate (Config : SSL.Config) return Boolean is
+   begin
+      return Config.Check_Certificate;
+   end Get_Check_Certificate;
+
    -------------------------------
    -- Get_Default_Client_Config --
    -------------------------------
@@ -1172,8 +1196,6 @@ package body AWS.Net.SSL is
       Session_Cache_Size   : Natural   := 16#4000#;
       ALPN                 : SV.Vector := SV.Empty_Vector)
    is
-      pragma Unreferenced (Check_Host);
-
       procedure Set_Certificate (Certificate, Key : String);
       --  Set credentials from Cetificate_Filename and Key_Filename
 
@@ -1229,10 +1251,12 @@ package body AWS.Net.SSL is
          end Final;
 
       begin
-         Add_Host_Certificate (Config, "", Certificate, Key);
+         if Certificate /= "" then
+            Add_Host_Certificate (Config, "", Certificate, Key);
 
-         TSSL.gnutls_certificate_set_retrieve_function2
-           (Config.CC, Retrieve_Certificate'Access);
+            TSSL.gnutls_certificate_set_retrieve_function2
+              (Config.CC, Retrieve_Certificate'Access);
+         end if;
 
          if Trusted_CA_Filename /= "" then
             Check_File ("CA", Trusted_CA_Filename);
@@ -1247,6 +1271,8 @@ package body AWS.Net.SSL is
             end if;
          end if;
       end Set_Certificate;
+
+      Res : C.int with Unreferenced;
 
    begin
       if Config = null then
@@ -1272,6 +1298,12 @@ package body AWS.Net.SSL is
       --   GNUTLS_X509_FMT_PEM);
       --   */
 
+      Res := TSSL.gnutls_certificate_set_x509_system_trust (Config.CC);
+
+      Config.Exchange_Certificate := Exchange_Certificate;
+      Config.Check_Certificate    := Check_Certificate;
+      Config.Check_Host           := Check_Host;
+
       if Security_Mode = SSLv23
         or else Security_Mode = TLSv1
         or else Security_Mode = TLSv1_1
@@ -1283,29 +1315,26 @@ package body AWS.Net.SSL is
         or else Security_Mode = TLSv1_2_Server
         or else Security_Mode = SSLv3_Server
       then
-         if Server_Certificate /= "" then
-            Set_Certificate (Server_Certificate, Server_Key);
-         end if;
-
-         Config.RCC := Exchange_Certificate;
-         Config.CREQ := Check_Certificate;
+         Set_Certificate (Server_Certificate, Server_Key);
 
          if Ticket_Support then
             Check_Error_Code
               (TSSL.gnutls_session_ticket_key_generate
                  (Config.Ticket_Key'Access));
          end if;
-
-         TSSL.gnutls_certificate_set_params_function
-           (Config.CC, Params_Callback'Access);
       else
-         if Client_Certificate /= "" then
-            Set_Certificate (Client_Certificate, "");
-         end if;
+         Set_Certificate (Client_Certificate, "");
       end if;
+
+      TSSL.gnutls_certificate_set_params_function
+        (Config.CC, Params_Callback'Access);
 
       TSSL.gnutls_certificate_set_verify_function
         (cred => Config.CC, func => Verify_Callback'Access);
+
+      TSSL.gnutls_certificate_set_verify_flags
+        (res => Config.CC,
+         flags => TSSL.DO_NOT_ALLOW_WILDCARDS);
 
       if CRL_Filename /= "" then
          Config.CRL_File := C.Strings.New_String (CRL_Filename);
@@ -1618,7 +1647,6 @@ package body AWS.Net.SSL is
       privkey.all      := CH.TLS_PK;
 
       return 0;
-
    exception
       when E : others =>
          Log_Error (Exception_Information (E));
@@ -1885,7 +1913,8 @@ package body AWS.Net.SSL is
       Check_Error_Code
         (gnutls_init
            (Socket.SSL'Access,
-            GNUTLS_CLIENT + (if Socket.Config.Ticket_Support then 0
+            GNUTLS_CLIENT + (if Socket.Config.Ticket_Support
+                             then 0
                              else GNUTLS_NO_EXTENSIONS)),
          Socket);
 
@@ -1904,13 +1933,28 @@ package body AWS.Net.SSL is
 
       Session_Transport (Socket);
 
+      C.Strings.Free (Socket.Config.Host);
+      Socket.Config.Host := C.Strings.New_String (Host);
+
       if Host /= "" and then not (To_Set (Host) <= IP_Address_Characters) then
          --  GNUTLS does not allow to set physical address text representation
          --  as server name.
 
          Check_Error_Code
            (TSSL.gnutls_server_name_set
-              (Socket.SSL, TSSL.GNUTLS_NAME_DNS, Host'Address, Host'Length));
+              (Socket.SSL,
+               TSSL.GNUTLS_NAME_DNS,
+               Socket.Config.Host, C.Strings.Strlen (Socket.Config.Host)));
+      end if;
+
+      if Socket.Config.Check_Host then
+         --  Enable hostname validation
+         Check_Error_Code
+           (TSSL.gnutls_credentials_set
+             (Socket.SSL, TSSL.GNUTLS_CRD_CERTIFICATE, Socket.Config.CC),
+            Socket);
+         TSSL.gnutls_session_set_verify_cert
+           (Socket.SSL, Socket.Config.Host, 0);
       end if;
    end Session_Client;
 
@@ -1991,7 +2035,8 @@ package body AWS.Net.SSL is
       Check_Error_Code
         (gnutls_init
            (Socket.SSL'Access,
-            GNUTLS_SERVER + (if Socket.Config.Ticket_Support then 0
+            GNUTLS_SERVER + (if Socket.Config.Ticket_Support
+                             then 0
                              else GNUTLS_NO_EXTENSIONS)),
          Socket);
 
@@ -2012,11 +2057,12 @@ package body AWS.Net.SSL is
         (gnutls_credentials_set (Socket.SSL, cred => Socket.Config.CC),
          Socket);
 
-      if Socket.Config.RCC then
+      if Socket.Config.Exchange_Certificate then
          gnutls_certificate_server_set_request
            (Socket.SSL,
-            (if Socket.Config.CREQ
-             then GNUTLS_CERT_REQUIRE else GNUTLS_CERT_REQUEST));
+            (if Socket.Config.Check_Certificate
+             then GNUTLS_CERT_REQUIRE
+             else GNUTLS_CERT_REQUEST));
 
          if Socket.Config.CRL_File /= C.Strings.Null_Ptr then
             declare
@@ -2216,6 +2262,11 @@ package body AWS.Net.SSL is
       end if;
 
       Net.Std.Shutdown (NSST (Socket), How);
+
+      --  Free now Config items
+
+      C.Strings.Free (Socket.Config.Host);
+      C.Strings.Free (Socket.Config.CRL_File);
    end Shutdown;
 
    ---------------
@@ -2370,12 +2421,14 @@ package body AWS.Net.SSL is
                       (Session, Status'Access);
 
       if Error_Code = TSSL.GNUTLS_E_NO_CERTIFICATE_FOUND
-        and then not Cfg.CREQ
+        and then not Cfg.Check_Certificate
       then
-         return 0;
+         return TSSL.GNUTLS_E_SUCCESS;
       elsif Is_Error (Error_Code) then
-         return TSSL.GNUTLS_E_CERTIFICATE_ERROR;
+         return Error_Code;
       end if;
+
+      Cfg.Verify_Status := Status;
 
       --  Get the peer certificate
 
@@ -2389,16 +2442,19 @@ package body AWS.Net.SSL is
 
       if Cfg.Verify_CB /= null then
          for J in reverse 1 .. Cert_List_Len loop
-            if Is_Error (TSSL.gnutls_x509_crt_init (Cert'Access)) then
-               return TSSL.GNUTLS_E_CERTIFICATE_ERROR;
+            Error_Code := TSSL.gnutls_x509_crt_init (Cert'Access);
+
+            if Is_Error (Error_Code) then
+               return Error_Code;
             end if;
 
-            if Is_Error
-                 (TSSL.gnutls_x509_crt_import
-                    (Cert, To_Array_Access (Cert_List) (J)'Unchecked_Access,
-                     TSSL.GNUTLS_X509_FMT_DER))
-            then
-               return TSSL.GNUTLS_E_CERTIFICATE_ERROR;
+            Error_Code := TSSL.gnutls_x509_crt_import
+              (Cert,
+               To_Array_Access (Cert_List) (J)'Unchecked_Access,
+               TSSL.GNUTLS_X509_FMT_DER);
+
+            if Is_Error (Error_Code) then
+               return Error_Code;
             end if;
 
             if not Cfg.Verify_CB (Net.SSL.Certificate.Impl.Read (Status, Cert))
@@ -2411,12 +2467,11 @@ package body AWS.Net.SSL is
          end loop;
       end if;
 
-      if Status = 0 or else not Cfg.CREQ then
-         return 0;
+      if Status = 0 or else not Cfg.Check_Certificate then
+         return TSSL.GNUTLS_E_SUCCESS;
       else
-         return TSSL.GNUTLS_E_CERTIFICATE_ERROR;
+         return TSSL.GNUTLS_E_CERTIFICATE_VERIFICATION_ERROR;
       end if;
-
    exception
       when E : others =>
          Log_Error (Exception_Message (E));

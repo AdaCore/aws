@@ -75,7 +75,7 @@ Subject    : C=FR,ST=Ile de France,O=AdaCore,OU=CRM,CN=localhost,EMAIL=aws-test@
 Issuer     : C=FR,ST=Ile de France,L=Paris,O=AdaCore,OU=CA,CN=CA-Web-Server,EMAIL=ca-aws@adacore.com
 Activation : 2023-02-07 21:46:34
 Expiration : 2032-12-16 21:46:34
-Verified   : FALSE
+Verified   : TRUE
 
 => simple ok
 
