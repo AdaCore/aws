@@ -108,8 +108,9 @@ begin
    Add ("REUSE_ADDRESS", Default.Reuse_Address);
    Add ("CLOSE_ON_EXEC", Default.Close_On_Exec);
    Add ("CHECK_URL_VALIDITY", Default.Check_URL_Validity);
-   Add ("DEFAULT_CERTIFICATE", Default.Certificate);
-   Add ("DEFAULT_KEY", Default.Key);
+   Add ("DEFAULT_SERVER_CERTIFICATE", Default.Server_Certificate);
+   Add ("DEFAULT_SERVER_KEY", Default.Server_Key);
+   Add ("DEFAULT_CLIENT_CERTIFICATE", Default.Client_Certificate);
    Add ("SECURITY_MODE", Default.Security_Mode);
    Add ("CIPHER_PRIORITIES", Default.Cipher_Priorities);
    Add ("EXCHANGE_CERTIFICATE", Default.Exchange_Certificate);
@@ -140,7 +141,8 @@ begin
    Add ("WebSocket_Timeout", Default.Websocket_Timeout);
    Add ("WWW_ROOT", Default.WWW_Root);
    Add ("MAX_POST_PARAMETERS", Default.Max_POST_Parameters);
-   Add ("CERTIFICATE_REQUIRED", Default.Certificate_Required);
+   Add ("CHECK_CERTIFICATE", Default.Check_Certificate);
+   Add ("CHECK_HOST", Default.Check_Host);
    Add ("TRUSTED_CA", Default.Trusted_CA);
    Add ("CRL_FILE", Default.CRL_File);
    Add ("SESSION_ID_LENGTH", Default.Session_Id_Length);

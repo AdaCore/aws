@@ -780,18 +780,33 @@ Current supported options are:
   If set to `True` the `HTTP` parameters are case
   sensitive. The default value |CASE_SENSITIVE_PARAMETERS|.
 
-*Certificate (string)*
+*Client_Certificate (string)*
 
-  .. index:: Certificate (string)
+  .. index:: Client_Certificate (string)
+
+  Set the certificate file to be used with the secure slients. The
+  default is |DEFAULT_CLIENT_CERTIFICATE|. The certificates must be in
+  `PEM` format.
+
+*Server_Certificate (string)*
+
+  .. index:: Server_Certificate (string)
 
   Set the certificate file to be used with the secure servers. The
-  default is |DEFAULT_CERTIFICATE|. A single certificate or a
+  default is |DEFAULT_SERVER_CERTIFICATE|. A single certificate or a
   certificate chain is supported. The certificates must be in `PEM` format
   and the chain must be sorted starting with the subject's certificate, followed
   by intermediate CA certificates if applicable and ending at the highest
   level (root) CA certificate. If the file contains only a single
   certificate, it can be followed by a private key. In this case the Key
   parameter (see below) must empty.
+
+*Server_Key (string)*
+
+  .. index:: Server_Key
+
+  Set the RSA key file to be used with the secure servers. The
+  default file is |DEFAULT_SERVER_KEY|.
 
 *Check_URL_Validity (boolean)*
 
@@ -920,14 +935,21 @@ Current supported options are:
   If set to True it means that the client will be asked to send its
   certificate to the server. The default value is |EXCHANGE_CERTIFICATE|.
 
-*Certificate_Required (boolean)*
+*Check_Certificate (boolean)*
 
-  .. index:: Certificate_Required
+  .. index:: Check_Certificate
 
-  If set to True the server will reject all SSL connections if the
-  client did not provide a certificate (be it valid or not). The
-  `Exchange_Certificate` option must be set in this case. The
-  default value is |CERTIFICATE_REQUIRED|.
+  If set to True the server or client will reject all SSL connections if the
+  peer did not provide a valid certificate. The default value is
+  |CHECK_CERTIFICATE|.
+
+*Check_Host (boolean)*
+
+  .. index:: Check_Host
+
+  If set to True the client will reject all SSL connections if the
+  host name of the server do not match the one in the certificate. The
+  default value is |CHECK_HOST|.
 
 *Force_Wait_For_Client_Timeout (duration)*
 
@@ -986,13 +1008,6 @@ Current supported options are:
 
   Whether the HTTP2 protocol is to be activated for the server.
   The default value is |HTTP2_ACTIVATED|.
-
-*Key (string)*
-
-  .. index:: Key
-
-  Set the RSA key file to be used with the secure servers. The
-  default file is |DEFAULT_KEY|.
 
 *Line_Stack_Size (positive)*
 
@@ -2073,11 +2088,11 @@ A server is configured as using the HTTPS protocol at the time it is
 started. The only thing to do is to set the Start's Security parameter
 to True. This will start a server and activate the `SSL` layer by
 default. A secure server must use a valid certificate, the default one
-is |DEFAULT_CERTIFICATE|. This certificate has been
-created by the `OpenSSL` or `GNUTLS` tool and is valid until
-year 2008. Yet, this certificate has not been signed. To build a
-secure server user's can rely on, you must have a valid certificate
-signed by one of the **Certificate Authorities**.
+is |DEFAULT_SERVER_CERTIFICATE|. This certificate has been created by
+the `OpenSSL` or `GNUTLS` tool and is valid until year 2017 and is
+meant only for the demos. Furthermore, this certificate has not been
+signed. To build a secure server user's can rely on, you must have a
+valid certificate signed by one of the **Certificate Authorities**.
 
 The certificate to be used must be specified before starting the
 secure server with `AWS.Server.Set_Security`:
@@ -2086,17 +2101,43 @@ secure server with `AWS.Server.Set_Security`:
 
 With a key and certificate files::
 
- AWS.Server.Set_Security
-   (WS,
-    Key_Filename         => "server.key",
-    Certificate_Filename => "server.crt");
+  AWS.Server.Set_Security
+    (WS,
+     Key_Filename         => "aws-server.key",
+     Certificate_Filename => "aws-server.crt");
 
 Or with a self-contained certificate::
 
- AWS.Server.Set_Security (WS, Certificate_Filename => "aws.pem");
+  AWS.Server.Set_Security (WS, Certificate_Filename => "aws.pem");
 
-Or using the `certificate` configuration parameter, see
+Or using the `server_certificate` configuration parameter, see
 :ref:`Configuration_options`.
+
+Alternatively it is possible to set the default SSL options before
+starting the server::
+
+  AWS.Net.SSL.Initialize_Default_Config
+     Security_Mode       => AWS.Net.SSL.TLS_Server,
+     Server_Certificate  => "aws-server.crt",
+     Server_Key          => "aws-server.key",
+     Trusted_CA_Filename => "/etc/ssl/certs/ca-certificates.crt");
+
+Or by using a configuration object::
+
+  HTTP   : Server.HTTP;
+  --  The SSL Web Server
+
+  Config : AWS.Net.SSL.Config;
+  --  SSL configuration object to be passed to server
+
+  AWS.Net.SSL.Initialize
+    (Config,
+     Security_Mode       => AWS.Net.SSL.TLS_Server,
+     Server_Certificate  => "aws-server.crt",
+     Server_Key          => "aws-server.key",
+     Trusted_CA_Filename => "/etc/ssl/certs/ca-certificates.crt");
+
+  Server.Set_SSL_Config (HTTP, Config);
 
 .. _Verify_callback:
 
@@ -2218,8 +2259,8 @@ For this to work the following configuration options must be used:
   The file containing the certificate of the Certificate Authority we
   trust. The CA which has signed the client's certificate.
 
-*Certificate_Required*
-  If no certificate has been received from the client the server will
+*Check_Certificate*
+  If the certificate received from the client is not valid the server will
   reject the connection. If this is not set, we can still validate the
   client's certificate in the verify callback, see :ref:`Verify_callback`
   and for example log the connecting users.
@@ -2363,8 +2404,8 @@ This table summarize the security level achieved with different
 settings of the security oriented configuration parameters.
 
 +------------------------------------+-----+-------------+-------------+------------+
-| Security                           | SSL | Exchange    | Certificate | Trusted CA |
-|                                    |     | Certificate | required    |            |
+| Security                           | SSL | Exchange    | Check       | Trusted CA |
+|                                    |     | Certificate | Certificate |            |
 +====================================+=====+=============+=============+============+
 | Data between the client and the    | Yes | No          | No          | No         |
 | server are encrypted.              |     |             |             |            |
@@ -2507,6 +2548,10 @@ Client side
 ===========
 
 .. index:: Client protocol
+
+Client
+------
+
 .. index:: client HTTP
 
 `AWS` is not only a server it also implement the HTTP and HTTPS
@@ -2522,12 +2567,11 @@ request many URI from the same server using the same connection
 authentication. Only basic (and not digest) authentication is
 supported at this time.
 
-Let's say that you want to retrieve the `contrib.html` Web page from
-Pascal Obry's homepage which is `http://perso.wanadoo.fr/pascal.obry <http://perso.wanadoo.fr/pascal.obry>`_. The
-code to do so is::
+Let's say that you want to retrieve a non-secure Web page which is
+`http://www.mydomain.net <http://www.mydomain.net>`_. The code to do so is::
 
  Data := Client.Get
-           (URL => "http://perso.wanadoo.fr/pascal.obry/contrib.html");
+           (URL => "http://www.mydomain.net");
 
 From there you can ask for the result's content type::
 
@@ -2565,3 +2609,49 @@ authenticating proxy, the call will becomes::
 
 The client upload protocol is implemented. Using `AWS.Client.Upload` it
 is possible to send a file to a server which support the file upload protocol.
+
+Secure Client
+-------------
+
+.. index:: client HTTPS
+
+Most page are now using HTTP/S to ensure proper security when
+retrieving data from the Internet.
+
+The client API will automatically detect that the connection require
+SSL by checking if the URL starts with `https://`. The above example
+will then be::
+
+   Data := Client.Get
+           (URL => "https://www.mydomain.net");
+
+The secure layer will be initialized with AWS's default values. As for
+the server it is possible to configure the SSL client layer by setting
+either the default configuration or using an SSL configuration object.
+
+The default configuration must be set before using AWS's client API::
+
+   AWS.Net.SSL.Initialize_Default_Config
+     (Security_Mode        => Net.SSL.TLS_Client,
+      Client_Certificate   => "cert.pem",
+      Check_Certificate    => True,
+      Check_Host           => True);
+
+Or using a connection object initialized with an SSL configuration
+object::
+
+   Config : AWS.Net.SSL.Config;
+   --  SSL configuration object to be passed to server
+
+   Data   : AWS.Response.Data;
+
+   AWS.Net.SSL.Initialize
+     (Config,
+      Security_Mode       => AWS.Net.SSL.TLS_Client,
+      Client_Certificate  => "my-certificate.pem");
+
+   AWS.Client.Create (Connection,
+                      Host       => "https://www.mydomain.net",
+                      SSL_Config => Config);
+
+   AWS.Client.Get (Connection, Data);
