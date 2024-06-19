@@ -74,14 +74,17 @@ aggregate library project AWS is
    -------------
 
    package Install is
-      --  examples
+      --  Examples
 
       for Artifacts ("share/examples/aws/images")
         use ("demos/runme/aws_*.png");
       for Artifacts ("share/examples/aws/templates")
         use ("demos/web_mail/*html");
 
-      --  support files (templates)
+      for Artifacts ("share/examples/aws/certificates")
+        use ("demos/cert//aws-server.*");
+
+      --  Support files (templates)
 
       for Artifacts ("share/examples/aws/templates")
         use ("templates_parser/tools/templates.tads");
@@ -99,7 +102,7 @@ aggregate library project AWS is
             null;
       end case;
 
-      -- documentations
+      -- Documentations
 
       for Artifacts ("share/doc/aws") use ("docs/build/html");
       for Artifacts ("share/doc/aws/pdf") use ("docs/build/latex/*.pdf");

@@ -2088,8 +2088,8 @@ A server is configured as using the HTTPS protocol at the time it is
 started. The only thing to do is to set the Start's Security parameter
 to True. This will start a server and activate the `SSL` layer by
 default. A secure server must use a valid certificate, the default one
-is |DEFAULT_SERVER_CERTIFICATE|. This certificate has been created by
-the `OpenSSL` or `GNUTLS` tool and is valid until year 2017 and is
+is |DEFAULT_SERVER_CERTIFICATE|. This certificate has been created with
+the `OpenSSL` toolset. It is valid until year 2034 and is
 meant only for the demos. Furthermore, this certificate has not been
 signed. To build a secure server user's can rely on, you must have a
 valid certificate signed by one of the **Certificate Authorities**.
