@@ -109,8 +109,7 @@ procedure Cert is
          Client_Certificate   => "aws-client.pem",
          Exchange_Certificate => True,
          Trusted_CA_Filename  => "",
-         Check_Certificate    => False,
-         Check_Host           => False);
+         Check_Certificate    => False);
 
       Client.Create (C, URL, SSL_Config => Config);
 
@@ -136,7 +135,6 @@ begin
      (SrvCnf,
       Security_Mode        => Net.SSL.TLS_Server,
       Check_Certificate    => False,
-      Check_Host           => False,
       Server_Certificate   => "aws-server.crt",
       Server_Key           => "aws-server.key",
       Exchange_Certificate => True,

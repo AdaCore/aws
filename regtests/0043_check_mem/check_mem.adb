@@ -333,8 +333,7 @@ procedure Check_Mem is
          Server_Certificate   => Certificate_Name,
          Server_Key           => Private_Key_Name,
          Exchange_Certificate => False,
-         Check_Certificate    => False,
-         Check_Host           => False);
+         Check_Certificate    => False);
 
       AWS.Server.Set_SSL_Config (HTTP, SSL_Srv);
 
@@ -536,7 +535,6 @@ procedure Check_Mem is
         (SSL_Cfg,
          Net.SSL.TLSv1_2_Client,
          Check_Certificate  => False,
-         Check_Host         => False,
          Exchange_Certificate => False,
          Client_Certificate => "");
 
@@ -1021,7 +1019,6 @@ begin
         (Config             => SSL_Clt,
          Security_Mode      => Net.SSL.TLS_Client,
          Check_Certificate  => False,
-         Check_Host         => False,
          Exchange_Certificate => False,
          Client_Certificate => "");
 

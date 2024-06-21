@@ -51,8 +51,7 @@ begin
       Server_Certificate   => "aws-server.crt",
       Server_Key           => "aws-server.key",
       Security_Mode        => Net.SSL.TLSv1_2,
-      Check_Certificate    => False,
-      Check_Host           => False);
+      Check_Certificate    => False);
 
    Server.Set_SSL_Config (WS, SSL);
 

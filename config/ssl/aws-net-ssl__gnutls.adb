@@ -253,7 +253,6 @@ package body AWS.Net.SSL is
       Sessions             : Session_Cache;
       Exchange_Certificate : Boolean := True; -- Request client certificate
       Check_Certificate    : Boolean := True; -- Certificate is required
-      Check_Host           : Boolean := True; -- Check host name
       Host                 : C.Strings.chars_ptr;
       Verify_CB            : Net.SSL.Certificate.Verify_Callback;
       Verify_Status        : C.unsigned := 0;
@@ -669,7 +668,6 @@ package body AWS.Net.SSL is
                Ticket_Support       => D.Ticket_Support,
                Exchange_Certificate => D.Exchange_Certificate,
                Check_Certificate    => D.Check_Certificate,
-               Check_Host           => D.Check_Host,
                Trusted_CA_Filename  => -D.Trusted_CA_Filename,
                CRL_Filename         => -D.CRL_Filename,
                Session_Cache_Size   => D.Session_Cache_Size,
@@ -701,7 +699,6 @@ package body AWS.Net.SSL is
                Ticket_Support       => D.Ticket_Support,
                Exchange_Certificate => D.Exchange_Certificate,
                Check_Certificate    => D.Check_Certificate,
-               Check_Host           => D.Check_Host,
                Trusted_CA_Filename  => -D.Trusted_CA_Filename,
                CRL_Filename         => -D.CRL_Filename,
                Session_Cache_Size   => D.Session_Cache_Size,
@@ -1190,7 +1187,6 @@ package body AWS.Net.SSL is
       Ticket_Support       : Boolean   := False;
       Exchange_Certificate : Boolean   := False;
       Check_Certificate    : Boolean   := True;
-      Check_Host           : Boolean   := True;
       Trusted_CA_Filename  : String    := "";
       CRL_Filename         : String    := "";
       Session_Cache_Size   : Natural   := 16#4000#;
@@ -1302,7 +1298,6 @@ package body AWS.Net.SSL is
 
       Config.Exchange_Certificate := Exchange_Certificate;
       Config.Check_Certificate    := Check_Certificate;
-      Config.Check_Host           := Check_Host;
 
       if Security_Mode = SSLv23
         or else Security_Mode = TLSv1
@@ -1377,7 +1372,6 @@ package body AWS.Net.SSL is
       Ticket_Support       : Boolean   := False;
       Exchange_Certificate : Boolean   := False;
       Check_Certificate    : Boolean   := True;
-      Check_Host           : Boolean   := True;
       Trusted_CA_Filename  : String    := Default.Trusted_CA;
       CRL_Filename         : String    := "";
       Session_Cache_Size   : Natural   := 16#4000#;
@@ -1386,7 +1380,7 @@ package body AWS.Net.SSL is
       Common.Initialize_Default_Config
         (Security_Mode, Server_Certificate, Server_Key,
          Client_Certificate, Priorities, Ticket_Support,
-         Exchange_Certificate, Check_Certificate, Check_Host,
+         Exchange_Certificate, Check_Certificate,
          Trusted_CA_Filename, CRL_Filename, Session_Cache_Size, ALPN);
    end Initialize_Default_Config;
 
@@ -1947,7 +1941,7 @@ package body AWS.Net.SSL is
                Socket.Config.Host, C.Strings.Strlen (Socket.Config.Host)));
       end if;
 
-      if Socket.Config.Check_Host then
+      if Socket.Config.Check_Certificate then
          --  Enable hostname validation
          Check_Error_Code
            (TSSL.gnutls_credentials_set

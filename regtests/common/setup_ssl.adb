@@ -37,8 +37,7 @@ package body Setup_SSL is
          Server_Key           => "",
          Server_Certificate   => "cert.pem",
          Exchange_Certificate => False,
-         Check_Certificate    => False,
-         Check_Host           => False);
+         Check_Certificate    => False);
 
       CERT_Pwd.Message := False;
 

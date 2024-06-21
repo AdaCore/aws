@@ -155,7 +155,6 @@ procedure Client_Cert is
       Net.SSL.Initialize
         (Cfg,
          Security_Mode       => Net.SSL.TLS_Client,
-         Check_Host          => False,
          Check_Certificate   => False,
          Client_Certificate  => Crt,
          Trusted_CA_Filename => CA);

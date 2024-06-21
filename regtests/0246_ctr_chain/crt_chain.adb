@@ -91,7 +91,6 @@ procedure Crt_Chain is
    begin
       Net.SSL.Initialize
         (SSL,
-         Check_Host           => False,
          Check_Certificate    => False,
          Server_Certificate   => "chain-clt.crt",
          Server_Key           => "test-clt.key",

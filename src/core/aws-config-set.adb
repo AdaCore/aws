@@ -80,15 +80,6 @@ package body AWS.Config.Set is
       O.P (Check_Certificate).Bool_Value := Value;
    end Check_Certificate;
 
-   ----------------
-   -- Check_Host --
-   ----------------
-
-   procedure Check_Host (O : in out Object; Value : Boolean) is
-   begin
-      O.P (Check_Host).Bool_Value := Value;
-   end Check_Host;
-
    ------------------------
    -- Check_URL_Validity --
    ------------------------

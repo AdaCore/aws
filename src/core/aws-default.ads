@@ -174,7 +174,6 @@ package AWS.Default with Pure is
    Client_Certificate              : constant String  := "cert.pem";
    Exchange_Certificate            : constant Boolean := True;
    Check_Certificate               : constant Boolean := True;
-   Check_Host                      : constant Boolean := True;
    Trusted_CA                      : constant String  :=
                                        "/etc/ssl/certs/ca-certificates.crt";
    CRL_File                        : constant String  := "";

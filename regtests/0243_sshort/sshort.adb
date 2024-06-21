@@ -74,7 +74,6 @@ procedure SShort is
       Net.SSL.Initialize
         (Config,
          Check_Certificate  => False,
-         Check_Host         => False,
          Client_Certificate => "");
 
       Client.Set_Config (Config);
@@ -165,7 +164,6 @@ begin
    Net.SSL.Initialize
      (Config,
       Check_Certificate  => False,
-      Check_Host         => False,
       Server_Certificate => "certificate.pem");
    Peer.Set_Config (Config);
 

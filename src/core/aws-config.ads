@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2000-2022, AdaCore                     --
+--                     Copyright (C) 2000-2024, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -374,11 +374,6 @@ package AWS.Config is
    --  Returns True if the server or client must abort the connection if the
    --  peer did not provide trusted certificate.
 
-   function Check_Host (O : Object) return Boolean with Inline;
-   --  Returns True if the client must check the server's host name. The
-   --  connection will abort if the server's host name do not match the
-   --  one provided in the certificate.
-
    function Trusted_CA (O : Object) return String with Inline;
    --  Returns the filename containing a list of trusted CA, this is to be used
    --  with the Exchange_Certificate option. The filename is on bundle of CAs
@@ -514,7 +509,6 @@ private
       TLS_Ticket_Support,
       Exchange_Certificate,
       Check_Certificate,
-      Check_Host,
       Trusted_CA,
       CRL_File,
       SSL_Session_Cache_Size,
@@ -819,9 +813,6 @@ private
 
                            Check_Certificate               =>
                              (Bool, Default.Check_Certificate),
-
-                           Check_Host                      =>
-                             (Bool, Default.Check_Host),
 
                            Trusted_CA                      =>
                              (Str, +Default.Trusted_CA),

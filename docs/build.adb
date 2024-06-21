@@ -142,7 +142,6 @@ begin
    Add ("WWW_ROOT", Default.WWW_Root);
    Add ("MAX_POST_PARAMETERS", Default.Max_POST_Parameters);
    Add ("CHECK_CERTIFICATE", Default.Check_Certificate);
-   Add ("CHECK_HOST", Default.Check_Host);
    Add ("TRUSTED_CA", Default.Trusted_CA);
    Add ("CRL_FILE", Default.CRL_File);
    Add ("SESSION_ID_LENGTH", Default.Session_Id_Length);

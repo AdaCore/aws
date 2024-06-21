@@ -74,7 +74,6 @@ procedure SSL_Reuse is
       Net.SSL.Initialize
         (SrvCfg,
          Server_Certificate => "cert.pem",
-         Check_Host         => False,
          Check_Certificate  => False,
 --         Exchange_Certificate => False,
          Ticket_Support     => False);
@@ -204,7 +203,6 @@ begin
      (Config,
       Ticket_Support     => False,
       Check_Certificate  => False,
-      Check_Host         => False,
       Client_Certificate => "",
       Security_Mode      => Net.SSL.TLSv1_2);
    --  TLS 1.3 in GNUTLS has some difference with session resumption mechanism
@@ -225,7 +223,6 @@ begin
      (Config,
       Ticket_Support => True,
       Check_Certificate => False,
-      Check_Host         => False,
       Client_Certificate => "",
       Security_Mode => Net.SSL.TLSv1_2);
    --  TLS 1.3 in GNUTLS has some difference with session resumption mechanism
@@ -241,7 +238,6 @@ begin
      (Config,
       Ticket_Support => False,
       Check_Certificate => False,
-      Check_Host         => False,
       Client_Certificate => "",
       Security_Mode => Net.SSL.TLSv1_2);
    --  TLS 1.3 in GNUTLS has some difference with session resumption mechanism
@@ -263,7 +259,6 @@ begin
    Net.SSL.Initialize
      (Config,
       Check_Certificate => False,
-      Check_Host         => False,
       Client_Certificate => "",
       Ticket_Support => True);
    Client.Set_Config (Config);

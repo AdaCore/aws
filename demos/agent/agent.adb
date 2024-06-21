@@ -366,7 +366,6 @@ begin
         (Config              => SSL_Config,
          Security_Mode       => AWS.Net.SSL.TLS_Client,
          Check_Certificate   => Check_Certificate,
-         Check_Host          => Check_Certificate,
          Client_Certificate  => To_String (Client_Cert),
          Trusted_CA_Filename => To_String (Trusted_CA));
    end if;

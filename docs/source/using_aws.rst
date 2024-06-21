@@ -943,14 +943,6 @@ Current supported options are:
   peer did not provide a valid certificate. The default value is
   |CHECK_CERTIFICATE|.
 
-*Check_Host (boolean)*
-
-  .. index:: Check_Host
-
-  If set to True the client will reject all SSL connections if the
-  host name of the server do not match the one in the certificate. The
-  default value is |CHECK_HOST|.
-
 *Force_Wait_For_Client_Timeout (duration)*
 
   .. index:: Force_Wait_For_Client_Timeout
@@ -2634,8 +2626,7 @@ The default configuration must be set before using AWS's client API::
    AWS.Net.SSL.Initialize_Default_Config
      (Security_Mode        => Net.SSL.TLS_Client,
       Client_Certificate   => "cert.pem",
-      Check_Certificate    => True,
-      Check_Host           => True);
+      Check_Certificate    => True);
 
 Or using a connection object initialized with an SSL configuration
 object::

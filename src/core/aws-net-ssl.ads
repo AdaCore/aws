@@ -149,7 +149,6 @@ package AWS.Net.SSL is
       Ticket_Support       : Boolean   := False;
       Exchange_Certificate : Boolean   := False;
       Check_Certificate    : Boolean   := True;
-      Check_Host           : Boolean   := True;
       Trusted_CA_Filename  : String    := "";
       CRL_Filename         : String    := "";
       Session_Cache_Size   : Natural   := 16#4000#;
@@ -181,7 +180,6 @@ package AWS.Net.SSL is
       Ticket_Support       : Boolean   := False;
       Exchange_Certificate : Boolean   := False;
       Check_Certificate    : Boolean   := True;
-      Check_Host           : Boolean   := True;
       Trusted_CA_Filename  : String    := Default.Trusted_CA;
       CRL_Filename         : String    := "";
       Session_Cache_Size   : Natural   := 16#4000#;
@@ -386,7 +384,6 @@ private
       Ticket_Support       : Boolean;
       Exchange_Certificate : Boolean;
       Check_Certificate    : Boolean;
-      Check_Host           : Boolean;
       Trusted_CA_Filename  : Unbounded_String;
       CRL_Filename         : Unbounded_String;
       Session_Cache_Size   : Natural;

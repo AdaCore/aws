@@ -62,7 +62,6 @@ procedure SSL_ALPN is
         (Config,
          Security_Mode      => Net.SSL.TLS_Client,
          Check_Certificate  => False,
-         Check_Host         => False,
          Exchange_Certificate => False,
          Client_Certificate => "");
 

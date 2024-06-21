@@ -172,7 +172,6 @@ procedure Priorities is
          Server_Key           => "aws-server.key",
          Exchange_Certificate => True,
          Check_Certificate    => False,
-         Check_Host           => False,
          Priorities           => To_String (Ciphers),
          Trusted_CA_Filename  => "private-ca.crt");
 
@@ -226,7 +225,6 @@ procedure Priorities is
          Security_Mode       => Net.SSL.TLS_Client,
          Client_Certificate  => "aws-client.pem",
          Check_Certificate   => False,
-         Check_Host          => False,
          Trusted_CA_Filename => "private-ca.crt");
 
       Client.Set_Config (Config);
@@ -267,7 +265,6 @@ begin
             Security_Mode       => Net.SSL.TLS_Client,
             Priorities          => To_String (Ciphers),
             Client_Certificate  => "aws-client.pem",
-            Check_Host          => False,
             Check_Certificate   => False,
             Trusted_CA_Filename => "private-ca.crt");
       exception

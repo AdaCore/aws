@@ -357,11 +357,6 @@ package AWS.Config.Set is
    --  Set to True if the server or client must abort the connection if the
    --  peer did not provide trusted certificate.
 
-   procedure Check_Host (O : in out Object; Value : Boolean);
-   --  Set to True for the client to check the server's host name. The
-   --  connection will abort if the server's host name do not match the
-   --  one provided in the certificate.
-
    procedure Trusted_CA (O : in out Object; Filename : String);
    --  Returns the filename containing a list of trusted CA, this is to be used
    --  with the Exchange_Certificate option. The filename is on bundle of CAs

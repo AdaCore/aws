@@ -64,7 +64,6 @@ package body AWS.Net.SSL.Common is
       Ticket_Support       : Boolean   := False;
       Exchange_Certificate : Boolean   := False;
       Check_Certificate    : Boolean   := True;
-      Check_Host           : Boolean   := True;
       Trusted_CA_Filename  : String    := Default.Trusted_CA;
       CRL_Filename         : String    := "";
       Session_Cache_Size   : Natural   := 16#4000#;
@@ -79,7 +78,6 @@ package body AWS.Net.SSL.Common is
          Ticket_Support       => Ticket_Support,
          Exchange_Certificate => Exchange_Certificate,
          Check_Certificate    => Check_Certificate,
-         Check_Host           => Check_Host,
          Trusted_CA_Filename  => +Trusted_CA_Filename,
          CRL_Filename         => +CRL_Filename,
          Session_Cache_Size   => Session_Cache_Size,
