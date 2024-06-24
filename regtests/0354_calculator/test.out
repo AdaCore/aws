@@ -1,0 +1,42 @@
+Service Calculator
+
+
+Procedure Add SOAPAction:http://tempuri.org/Add
+   Input
+      [record] Add ; Add
+         [simple] intA ; Integer
+         [simple] intB ; Integer
+   Output
+      [record] AddResponse ; AddResponse
+         [simple] AddResult ; Integer
+   > Add
+
+Procedure Subtract SOAPAction:http://tempuri.org/Subtract
+   Input
+      [record] Subtract ; Subtract
+         [simple] intA ; Integer
+         [simple] intB ; Integer
+   Output
+      [record] SubtractResponse ; SubtractResponse
+         [simple] SubtractResult ; Integer
+   > Subtract
+
+Procedure Multiply SOAPAction:http://tempuri.org/Multiply
+   Input
+      [record] Multiply ; Multiply
+         [simple] intA ; Integer
+         [simple] intB ; Integer
+   Output
+      [record] MultiplyResponse ; MultiplyResponse
+         [simple] MultiplyResult ; Integer
+   > Multiply
+
+Procedure Divide SOAPAction:http://tempuri.org/Divide
+   Input
+      [record] Divide ; Divide
+         [simple] intA ; Integer
+         [simple] intB ; Integer
+   Output
+      [record] DivideResponse ; DivideResponse
+         [simple] DivideResult ; Integer
+   > Divide
