@@ -699,6 +699,10 @@ package body WSDL2AWS.WSDL.Parser is
                   E_NS       : constant String :=
                                  SOAP.Utils.NS (E_Type);
                begin
+                  if E_Type = "" then
+                     raise WSDL_Error with "Array type is not defined.";
+                  end if;
+
                   if Min_Occurs /= "" and then Max_Occurs /= "" then
                      if Max_Occurs = "unbounded" then
                         O.Self.Array_Length := 0;
