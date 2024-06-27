@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2000-2022, AdaCore                     --
+--                     Copyright (C) 2000-2024, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -169,12 +169,13 @@ package AWS.Default with Pure is
    Disable_Program_Ini             : constant Boolean := False;
    Cipher_Priorities               : constant String  := "";
    TLS_Ticket_Support              : constant Boolean := False;
-   Certificate                     : constant String  := "cert.pem";
-   Key                             : constant String  := "";
-   Client_Certificate              : constant String  := "";
-   Exchange_Certificate            : constant Boolean := False;
-   Certificate_Required            : constant Boolean := False;
-   Trusted_CA                      : constant String  := "";
+   Server_Certificate              : constant String  := "aws-server.crt";
+   Server_Key                      : constant String  := "aws-server.key";
+   Client_Certificate              : constant String  := "cert.pem";
+   Exchange_Certificate            : constant Boolean := True;
+   Check_Certificate               : constant Boolean := True;
+   Trusted_CA                      : constant String  :=
+                                       "/etc/ssl/certs/ca-certificates.crt";
    CRL_File                        : constant String  := "";
    Check_URL_Validity              : constant Boolean := True;
    SSL_Session_Cache_Size          : constant         := 16#4000#;

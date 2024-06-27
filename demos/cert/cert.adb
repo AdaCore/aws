@@ -75,7 +75,7 @@ begin
    Text_IO.Put_Line
      ("  preferences -> Advanced -> View Certificates -> Import");
    Text_IO.Put_Line
-     ("The certificate password is: demo");
+     ("The certificate password is: foobar");
    Text_IO.New_Line;
 
    --  First configure SSL layer, this is needed to be able to have a
@@ -83,11 +83,11 @@ begin
 
    Net.SSL.Initialize
      (SSL,
-      Certificate_Filename => "aws-server.crt",
-      Key_Filename         => "aws-server.key",
+      Server_Certificate   => "aws-server.crt",
+      Server_Key           => "aws-server.key",
       --  The 3 following configs are from aws.ini
       Exchange_Certificate => Config.Exchange_Certificate (Cnf),
-      Certificate_Required => Config.Certificate_Required (Cnf),
+      Check_Certificate    => Config.Check_Certificate (Cnf),
       Trusted_CA_Filename  => Config.Trusted_CA (Cnf),
       CRL_Filename         => Config.CRL_File (Cnf));
 

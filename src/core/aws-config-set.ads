@@ -326,11 +326,15 @@ package AWS.Config.Set is
    procedure Security (O : in out Object; Value : Boolean);
    --  Enable security (HTTPS/SSL) if Value is True
 
-   procedure Certificate (O : in out Object; Filename : String);
+   procedure Server_Certificate (O : in out Object; Filename : String);
    --  Set the certificate filename in PEM format to be used with the secure
    --  server.
 
-   procedure Key (O : in out Object; Filename : String);
+   procedure Client_Certificate (O : in out Object; Filename : String);
+   --  Set the certificate filename in PEM format to be used with the secure
+   --  client.
+
+   procedure Server_Key (O : in out Object; Filename : String);
    --  Set the key to be used with the secure server
 
    procedure Security_Mode (O : in out Object; Mode : String);
@@ -349,10 +353,9 @@ package AWS.Config.Set is
    procedure Exchange_Certificate (O : in out Object; Value : Boolean);
    --  Set to True to request the client to send its certificate to the server
 
-   procedure Certificate_Required (O : in out Object; Value : Boolean);
-   --  Returns True if the server must abort the connection if the
-   --  client did not provide a certificate. If this option is set
-   --  the Exchange_Certificate must also be set.
+   procedure Check_Certificate (O : in out Object; Value : Boolean);
+   --  Set to True if the server or client must abort the connection if the
+   --  peer did not provide trusted certificate.
 
    procedure Trusted_CA (O : in out Object; Filename : String);
    --  Returns the filename containing a list of trusted CA, this is to be used

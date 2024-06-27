@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                       Copyright (C) 2015, AdaCore                        --
+--                    Copyright (C) 2015-2024, AdaCore                      --
 --                                                                          --
 --  This is free software;  you can redistribute it  and/or modify it       --
 --  under terms of the  GNU General Public License as published  by the     --
@@ -29,6 +29,8 @@ with AWS.Response;
 with AWS.Server.Status;
 with AWS.Status;
 
+with Setup_SSL;
+
 procedure Broken_Request_Line is
 
    use Ada;
@@ -50,6 +52,8 @@ procedure Broken_Request_Line is
    Cfg : AWS.Config.Object;
 
 begin
+   Setup_SSL.Full (WS, False);
+
    if Config.HTTP2_Activated (Cfg) then
       if Net.SSL.Is_Supported then
          --  HTTP/2 Server can answer in HTTP/1 only in secure mode
@@ -62,6 +66,7 @@ begin
    Config.Set.Server_Name (Cfg, "Broken Request Line");
    Config.Set.Server_Port (Cfg, 0);
    Config.Set.Session     (Cfg, True);
+   Config.Set.Check_Certificate (Cfg, False);
 
    Server.Start (WS, CB'Unrestricted_Access, Cfg);
 

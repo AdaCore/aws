@@ -146,7 +146,6 @@ package AWS.Client is
       Timeouts           : Timeouts_Values := No_Timeout;
       Data_Range         : Content_Range   := No_Range;
       Follow_Redirection : Boolean         := False;
-      Certificate        : String          := Default.Client_Certificate;
       Headers            : Header_List     := Empty_Header_List;
       User_Agent         : String          := Default.User_Agent;
       HTTP_Version       : HTTP_Protocol   := HTTP_Default)
@@ -317,7 +316,6 @@ package AWS.Client is
       Persistent   : Boolean         := True;
       Timeouts     : Timeouts_Values := No_Timeout;
       Server_Push  : Boolean         := False;
-      Certificate  : String          := Default.Client_Certificate;
       User_Agent   : String          := Default.User_Agent;
       HTTP_Version : HTTP_Protocol   := HTTP_Default)
       return HTTP_Connection;
@@ -335,7 +333,6 @@ package AWS.Client is
       Timeouts     : Timeouts_Values := No_Timeout;
       Server_Push  : Boolean         := False;
       SSL_Config   : Net.SSL.Config  := Net.SSL.Null_Config;
-      Certificate  : String          := Default.Client_Certificate;
       User_Agent   : String          := Default.User_Agent;
       HTTP_Version : HTTP_Protocol   := HTTP_Default);
    --  Create a new connection. This is to be used with Keep-Alive client API
@@ -655,7 +652,6 @@ private
       Retry              : Natural;
       Timeouts           : Timeouts_Values;
       Data_Range         : Content_Range;
-      Certificate        : Unbounded_String;
       User_Agent         : Unbounded_String;
       SSL_Config         : AWS.Net.SSL.Config;
       Default_SSL_Config : Boolean                      := False;

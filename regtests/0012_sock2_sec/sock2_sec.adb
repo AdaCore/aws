@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2000-2012, AdaCore                     --
+--                     Copyright (C) 2000-2024, AdaCore                     --
 --                                                                          --
 --  This is free software;  you can redistribute it  and/or modify it       --
 --  under terms of the  GNU General Public License as published  by the     --
@@ -18,9 +18,11 @@
 
 --  Test for big data send/receive
 
+with Setup_SSL;
 with S_Sock2_Proc;
 
 procedure Sock2_Sec is
 begin
+   Setup_SSL.Default;
    S_Sock2_Proc (True);
 end Sock2_Sec;

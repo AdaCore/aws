@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2004-2012, AdaCore                     --
+--                     Copyright (C) 2004-2024, AdaCore                     --
 --                                                                          --
 --  This is free software;  you can redistribute it  and/or modify it       --
 --  under terms of the  GNU General Public License as published  by the     --
@@ -23,6 +23,7 @@ with Ada.Exceptions; use Ada.Exceptions;
 with Ada.Text_IO;    use Ada.Text_IO;
 
 with AWS.Client.XML.Input_Sources;
+with AWS.Net.SSL.Certificate;
 with AWS.Response.Set;
 with AWS.Server.Status;
 with AWS.Status;
@@ -34,14 +35,16 @@ with Sax.Readers;    use Sax.Readers;
 
 with Unicode.CES;
 
+with Setup_SSL;
+
 procedure S_XMLT_Proc (Security : Boolean) is
 
    use AWS;
    use AWS.Client.XML.Input_Sources;
 
-   HTTP     : Client.HTTP_Connection;
-   Web      : Server.HTTP;
-
+   HTTP  : Client.HTTP_Connection;
+   Web   : Server.HTTP;
+   SSL   : AWS.Net.SSL.Config;
    Dummy : AWS.Response.Data;
 
    Good_Name : constant String := "/good-doc.xml";
@@ -127,9 +130,13 @@ procedure S_XMLT_Proc (Security : Boolean) is
          raise;
    end Test_Name;
 
+   function Set_Password (File : String) return String is
+   begin
+      return "foobar";
+   end Set_Password;
+
 begin
    --  Parse the command line
-
    Server.Start
      (Web,
       "XML output",
@@ -137,6 +144,8 @@ begin
       Port           => 0,
       Security       => Security,
       Max_Connection => 3);
+
+   Setup_SSL.Full (Web, False);
 
    Client.Create
      (HTTP,

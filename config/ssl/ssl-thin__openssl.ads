@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                            Secure Sockets Layer                          --
 --                                                                          --
---                     Copyright (C) 2000-2022, AdaCore                     --
+--                     Copyright (C) 2000-2024, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -294,12 +294,12 @@ package SSL.Thin is
    SSL_OP_NETSCAPE_DEMO_CIPHER_CHANGE_BUG        : constant := 16#40000000#;
    SSL_OP_CRYPTOPRO_TLSEXT_BUG                   : constant := 16#80000000#;
 
-   SSL_VERIFY_NONE                   : constant := 0;
-   SSL_VERIFY_PEER                   : constant := 1;
-   SSL_VERIFY_FAIL_IF_NO_PEER_CERT   : constant := 2;
-   SSL_VERIFY_CLIENT_ONCE            : constant := 4;
-   SSL_VERIFY_POST_HANDSHAKE         : constant := 8;
-   SSL_F_SSL_VERIFY_CERT_CHAIN       : constant := 207;
+   SSL_VERIFY_NONE                 : constant := 0;
+   SSL_VERIFY_PEER                 : constant := 1;
+   SSL_VERIFY_FAIL_IF_NO_PEER_CERT : constant := 2;
+   SSL_VERIFY_CLIENT_ONCE          : constant := 4;
+   SSL_VERIFY_POST_HANDSHAKE       : constant := 8;
+   SSL_F_SSL_VERIFY_CERT_CHAIN     : constant := 207;
 
    SSL_ERROR_NONE             : constant := 0;
    SSL_ERROR_SSL              : constant := 1;
@@ -541,6 +541,13 @@ package SSL.Thin is
    X509_V_ERR_AKID_ISSUER_SERIAL_MISMATCH        : constant := 31;
    X509_V_ERR_KEYUSAGE_NO_CERTSIGN               : constant := 32;
    X509_V_ERR_APPLICATION_VERIFICATION           : constant := 50;
+
+   X509_CHECK_FLAG_ALWAYS_CHECK_SUBJECT          : constant := 16#1#;
+   X509_CHECK_FLAG_NO_WILDCARDS                  : constant := 16#2#;
+   X509_CHECK_FLAG_NO_PARTIAL_WILDCARDS          : constant := 16#4#;
+   X509_CHECK_FLAG_MULTI_LABEL_WILDCARDS         : constant := 16#8#;
+   X509_CHECK_FLAG_SINGLE_LABEL_SUBDOMAINS       : constant := 16#10#;
+   X509_CHECK_FLAG_NEVER_CHECK_SUBJECT           : constant := 16#20#;
 
    NID_md5       : constant := 4;
    NID_sha1      : constant := 64;
@@ -1130,8 +1137,10 @@ package SSL.Thin is
 
    function EVP_PKEY_sign
      (ctx : EVP_PKEY_CTX;
-      sig : Pointer; siglen : access size_t;
-      tbs : Pointer; tbslen : size_t) return int
+      sig : Pointer;
+      siglen : access size_t;
+      tbs : Pointer;
+      tbslen : size_t) return int
      with Import, Convention => C, External_Name => "EVP_PKEY_sign";
 
    function RSA_new return RSA
@@ -1144,10 +1153,12 @@ package SSL.Thin is
      with Import, Convention => C, External_Name => "RSA_free";
 
    function RSA_sign
-     (kind : int;
-      m : Pointer; m_len : unsigned;
-      sigret : Pointer; siglen : access unsigned;
-      key : RSA) return int
+     (kind   : int;
+      m      : Pointer;
+      m_len  : unsigned;
+      sigret : Pointer;
+      siglen : access unsigned;
+      key    : RSA) return int
      with Import, Convention => C, External_Name => "RSA_sign";
 
    type Generate_Key_Callback is access
@@ -1296,6 +1307,25 @@ package SSL.Thin is
    function SSL_CTX_set1_param
      (Ctx : SSL_CTX; Param : X509_VERIFY_PARAM) return int
      with Import, Convention => C, External_Name => "SSL_CTX_set1_param";
+
+   function SSL_ctrl
+     (SSL  : SSL_Handle;
+      Cmd  : int;
+      Larg : long;
+      parg : Pointer) return long
+     with Import, Convention => C, External_Name => "SSL_ctrl";
+
+   function SSL_set_mode
+     (SSL : SSL_Handle; Mode : long) return long
+   is (SSL_ctrl (SSL, SSL_CTRL_MODE, Mode, System.Null_Address));
+
+   procedure SSL_set_hostflags
+     (SSL : SSL_Handle; Flags : unsigned)
+     with Import, Convention => C, External_Name => "SSL_set_hostflags";
+
+   function SSL_set1_host
+     (SSL : SSL_Handle; Host : Cstr.chars_ptr) return int
+     with Import, Convention => C, External_Name => "SSL_set1_host";
 
    function SSL_load_client_CA_file
      (file : Cstr.chars_ptr) return STACK_OF_X509_NAME

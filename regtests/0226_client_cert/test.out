@@ -1,13 +1,17 @@
 Start main, wait for server to start...
 Server 1 started
 
-Client certificate from verify routine:
-Name       : test-client-cert
-Subject    : C=FR,ST=Ile de France,O=AdaCore,OU=CRM,CN=test-client-cert,EMAIL=aws-test@adacore.com
-Issuer     : C=FR,ST=Ile de France,L=Paris,O=AdaCore,OU=CA,CN=CA-Web-Client,EMAIL=aws-clt@adacore.com
+Client certificate as received by the server:
+No certificate.
+Server certificate as received by the client:
+Name       : localhost
+Subject    : C=FR,ST=Ile de France,O=AdaCore,OU=CRM,CN=localhost,EMAIL=aws-test@adacore.com
+Issuer     : C=FR,ST=Ile de France,L=Paris,O=AdaCore,OU=CA,CN=CA-Web-Server,EMAIL=ca-aws@adacore.com
 Activation : 2023-02-07 21:46:34
 Expiration : 2032-12-16 21:46:34
 Verified   : FALSE
+
+=> simple ok
 
 Server 2 started
 
@@ -79,7 +83,7 @@ Subject    : C=FR,ST=Ile de France,O=AdaCore,OU=CRM,CN=localhost,EMAIL=aws-test@
 Issuer     : C=FR,ST=Ile de France,L=Paris,O=AdaCore,OU=CA,CN=CA-Web-Server,EMAIL=ca-aws@adacore.com
 Activation : 2023-02-07 21:46:34
 Expiration : 2032-12-16 21:46:34
-Verified   : FALSE
+Verified   : TRUE
 
 => simple ok
 

@@ -297,12 +297,15 @@ package body S_AFile_Pack is
       end Call_It;
 
    begin
-      Config.Set.Server_Name    (CNF, "afile " & Protocol);
-      Config.Set.Server_Host    (CNF, "localhost");
-      Config.Set.Server_Port    (CNF, 0);
-      Config.Set.Security       (CNF, Protocol = "https");
-      Config.Set.Max_Connection (CNF, 16);
-      Config.Set.Security_Mode  (CNF, "TLSv1_2_Server");
+      Config.Set.Server_Name        (CNF, "afile " & Protocol);
+      Config.Set.Server_Host        (CNF, "localhost");
+      Config.Set.Server_Port        (CNF, 0);
+      Config.Set.Security           (CNF, Protocol = "https");
+      Config.Set.Max_Connection     (CNF, 16);
+      Config.Set.Security_Mode      (CNF, "TLSv1_2_Server");
+      Config.Set.Server_Certificate (CNF, "cert.pem");
+      Config.Set.Server_Key         (CNF, "");
+      Config.Set.Check_Certificate  (CNF, False);
       --  TLS 1.3 does not provide equal session id in client and server
 
       Server.Start (WS, CB'Access, CNF);

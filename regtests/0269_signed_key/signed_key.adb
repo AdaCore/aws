@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                       Copyright (C) 2015, AdaCore                        --
+--                    Copyright (C) 2015-2024, AdaCore                      --
 --                                                                          --
 --  This is free software;  you can redistribute it  and/or modify it       --
 --  under terms of the  GNU General Public License as published  by the     --
@@ -25,6 +25,7 @@ with AWS.Response;
 with AWS.Server.Status;
 
 with Signed_Key_CB;
+with Setup_SSL;
 
 procedure Signed_Key is
 
@@ -36,15 +37,7 @@ procedure Signed_Key is
    R   : Response.Data;
 
 begin
-   Net.SSL.Certificate.Set_Password_Callback
-     (Signed_Key_CB.Set_Password'Access);
-
-   Net.SSL.Initialize
-     (SSL,
-      Certificate_Filename => "aws-server.crt",
-      Key_Filename         => "aws-server.key");
-
-   Server.Set_SSL_Config (WS, SSL);
+   Setup_SSL.Full (WS, True);
 
    Server.Start
      (WS, "HTTPS",

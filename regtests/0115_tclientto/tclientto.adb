@@ -67,7 +67,7 @@ procedure Tclientto is
    -------------
 
    procedure Request is
-      R : Response.Data;
+      R         : Response.Data;
       Local_URL : constant String := AWS.Server.Status.Local_URL (HTTP);
    begin
       R := Client.Get (Local_URL & "/3sec",

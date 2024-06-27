@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2004-2012, AdaCore                     --
+--                     Copyright (C) 2004-2024, AdaCore                     --
 --                                                                          --
 --  This is free software;  you can redistribute it  and/or modify it       --
 --  under terms of the  GNU General Public License as published  by the     --
@@ -31,6 +31,8 @@ with AWS.Server.Status;
 with AWS.Status;
 with AWS.Translator;
 with AWS.Utils;
+
+with Setup_SSL;
 
 package body S_Sp_Pck is
 
@@ -134,6 +136,8 @@ package body S_Sp_Pck is
          Port           => 0,
          Security       => Security,
          Max_Connection => 3);
+
+      Setup_SSL.Full (HTTP, False);
 
       Data := 1000.0;
 

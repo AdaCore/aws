@@ -23,6 +23,7 @@ with AWS.Net.Log;
 with GNAT.Traceback.Symbolic;
 
 with S_AFile_Pack;
+with Setup_SSL;
 
 procedure AFile_Sec is
 
@@ -43,6 +44,7 @@ procedure AFile_Sec is
    end Error;
 
 begin
+   Setup_SSL.Default;
    AWS.Net.Log.Start (Error => Error'Unrestricted_Access, Write => null);
    S_AFile_Pack.Run ("https");
 end AFile_Sec;

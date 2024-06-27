@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2014-2015, AdaCore                     --
+--                     Copyright (C) 2014-2024, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -44,6 +44,8 @@ with AWS.Net.SSL;
 with AWS.Utils;
 
 with GNAT.Traceback.Symbolic;
+
+with Setup_SSL;
 
 procedure Priorities is
 
@@ -166,9 +168,10 @@ procedure Priorities is
 
       Net.SSL.Initialize
         (Cfg,
-         Certificate_Filename => "aws-server.crt",
-         Key_Filename         => "aws-server.key",
+         Server_Certificate   => "aws-server.crt",
+         Server_Key           => "aws-server.key",
          Exchange_Certificate => True,
+         Check_Certificate    => False,
          Priorities           => To_String (Ciphers),
          Trusted_CA_Filename  => "private-ca.crt");
 
@@ -218,9 +221,11 @@ procedure Priorities is
    procedure Send_Stop_To_Server is
    begin
       Net.SSL.Initialize
-        (Config               => Config,
-         Certificate_Filename => "aws-client.pem",
-         Trusted_CA_Filename  => "private-ca.crt");
+        (Config              => Config,
+         Security_Mode       => Net.SSL.TLS_Client,
+         Client_Certificate  => "aws-client.pem",
+         Check_Certificate   => False,
+         Trusted_CA_Filename => "private-ca.crt");
 
       Client.Set_Config (Config);
       Client.Connect (Host, Port);
@@ -239,6 +244,8 @@ procedure Priorities is
    end Replace_Underscore;
 
 begin
+   Setup_SSL.Default;
+
    Net.Log.Start (Error => Error'Unrestricted_Access, Write => null);
 
    if Ada.Command_Line.Argument_Count > 0 then
@@ -254,10 +261,12 @@ begin
    loop
       begin
          Net.SSL.Initialize
-           (Config               => Config,
-            Priorities           => To_String (Ciphers),
-            Certificate_Filename => "aws-client.pem",
-            Trusted_CA_Filename  => "private-ca.crt");
+           (Config              => Config,
+            Security_Mode       => Net.SSL.TLS_Client,
+            Priorities          => To_String (Ciphers),
+            Client_Certificate  => "aws-client.pem",
+            Check_Certificate   => False,
+            Trusted_CA_Filename => "private-ca.crt");
       exception
          when E : Net.Socket_Error =>
             if Is_Handshake_Error (Ada.Exceptions.Exception_Message (E)) then

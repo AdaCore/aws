@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2002-2012, AdaCore                     --
+--                     Copyright (C) 2002-2024, AdaCore                     --
 --                                                                          --
 --  This is free software;  you can redistribute it  and/or modify it       --
 --  under terms of the  GNU General Public License as published  by the     --
@@ -21,8 +21,10 @@
 --  secure version.
 
 with S_Test_SOAP_Proc;
+with Setup_SSL;
 
 procedure Test_Sec_SOAP is
 begin
+   Setup_SSL.Default;
    S_Test_SOAP_Proc (Security => True);
 end Test_Sec_SOAP;

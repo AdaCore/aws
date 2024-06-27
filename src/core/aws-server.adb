@@ -152,7 +152,6 @@ package body AWS.Server is
                   if New_Socket = null then
                      --  It mean error in SSL handshake, shutdown socket and
                      --  get another one in next iteration.
-
                      SSL_Socket.Shutdown;
 
                   else
@@ -581,12 +580,13 @@ package body AWS.Server is
       Security_Mode        : Net.SSL.Method := Net.SSL.TLS_Server;
       Key_Filename         : String         := "") is
    begin
-      CNF.Set.Certificate (Web_Server.Properties, Certificate_Filename);
+      CNF.Set.Server_Certificate
+        (Web_Server.Properties, Certificate_Filename);
 
       if Key_Filename = "" then
-         CNF.Set.Key (Web_Server.Properties, Certificate_Filename);
+         CNF.Set.Server_Key (Web_Server.Properties, Certificate_Filename);
       else
-         CNF.Set.Key (Web_Server.Properties, Key_Filename);
+         CNF.Set.Server_Key (Web_Server.Properties, Key_Filename);
       end if;
 
       CNF.Set.Security_Mode
@@ -1273,18 +1273,19 @@ package body AWS.Server is
          if Web_Server.SSL_Config = Net.SSL.Null_Config then
             Net.SSL.Initialize
               (Web_Server.SSL_Config,
-               CNF.Certificate (Web_Server.Properties),
                Security_Mode,
+               Server_Certificate   =>
+                 CNF.Server_Certificate (Web_Server.Properties),
+               Server_Key           =>
+                 CNF.Server_Key (Web_Server.Properties),
                Priorities           =>
                  CNF.Cipher_Priorities (Web_Server.Properties),
                Ticket_Support       =>
                  CNF.TLS_Ticket_Support (Web_Server.Properties),
-               Key_Filename         =>
-                 CNF.Key (Web_Server.Properties),
                Exchange_Certificate =>
                  CNF.Exchange_Certificate (Web_Server.Properties),
-               Certificate_Required =>
-                 CNF.Certificate_Required (Web_Server.Properties),
+               Check_Certificate    =>
+                 CNF.Check_Certificate (Web_Server.Properties),
                Trusted_CA_Filename  =>
                  CNF.Trusted_CA (Web_Server.Properties),
                CRL_Filename         =>

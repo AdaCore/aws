@@ -154,9 +154,10 @@ procedure Client_Cert is
    begin
       Net.SSL.Initialize
         (Cfg,
-         Security_Mode        => Net.SSL.TLS_Client,
-         Certificate_Filename => Crt,
-         Trusted_CA_Filename  => CA);
+         Security_Mode       => Net.SSL.TLS_Client,
+         Check_Certificate   => False,
+         Client_Certificate  => Crt,
+         Trusted_CA_Filename => CA);
 
       Client.Create (C, URL, SSL_Config => Cfg);
 
@@ -225,10 +226,10 @@ begin
 
    Net.SSL.Initialize
      (SSL1,
-      Certificate_Filename => "aws-server.crt",
-      Key_Filename         => "aws-server.key",
-      Exchange_Certificate => True,
-      Certificate_Required => True);
+      Server_Certificate   => "aws-server.crt",
+      Server_Key           => "aws-server.key",
+      Exchange_Certificate => False,
+      Check_Certificate    => False);
 
    NSC.Set_Verify_Callback (SSL1, Verify_Cert'Unrestricted_Access);
 
@@ -238,10 +239,10 @@ begin
 
    Net.SSL.Initialize
      (SSL2,
-      Certificate_Filename => "aws-server.crt",
-      Key_Filename         => "aws-server.key",
+      Server_Certificate   => "aws-server.crt",
+      Server_Key           => "aws-server.key",
       Exchange_Certificate => True,
-      Certificate_Required => True,
+      Check_Certificate    => False,
       Trusted_CA_Filename  => "CA-clt.crt");
 
    NSC.Set_Verify_Callback (SSL2, Verify_Cert'Unrestricted_Access);
@@ -274,10 +275,10 @@ begin
 
    Net.SSL.Initialize
      (SSL3,
-      Certificate_Filename => "aws-server.crt",
-      Key_Filename         => "aws-server.key",
+      Server_Certificate   => "aws-server.crt",
+      Server_Key           => "aws-server.key",
       Exchange_Certificate => True,
-      Certificate_Required => False);
+      Check_Certificate    => False);
 
    Server.Set_SSL_Config (HTTP3, SSL3);
 

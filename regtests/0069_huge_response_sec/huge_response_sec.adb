@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2003-2012, AdaCore                     --
+--                     Copyright (C) 2003-2024, AdaCore                     --
 --                                                                          --
 --  This is free software;  you can redistribute it  and/or modify it       --
 --  under terms of the  GNU General Public License as published  by the     --
@@ -17,8 +17,10 @@
 ------------------------------------------------------------------------------
 
 with S_Huge_Response_Pack;
+with Setup_SSL;
 
 procedure Huge_Response_Sec is
 begin
+   Setup_SSL.Default;
    S_Huge_Response_Pack.Run (True);
 end Huge_Response_Sec;

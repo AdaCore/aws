@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                        Copyright (C) 2014, AdaCore                       --
+--                     Copyright (C) 2014-2024, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -38,6 +38,8 @@ with AWS.Net.SSL;
 
 with GNAT.Traceback.Symbolic;
 
+with Setup_SSL;
+
 procedure SSL_Reuse is
 
    use AWS;
@@ -69,7 +71,12 @@ procedure SSL_Reuse is
       Server.Bind (0, "localhost");
       Server.Listen;
 
-      Net.SSL.Initialize (SrvCfg, "cert.pem", Ticket_Support => False);
+      Net.SSL.Initialize
+        (SrvCfg,
+         Server_Certificate => "cert.pem",
+         Check_Certificate  => False,
+--         Exchange_Certificate => False,
+         Ticket_Support     => False);
 
       accept Started;
 
@@ -82,7 +89,11 @@ procedure SSL_Reuse is
          if Last = 1 then
             if Data (1) = 1 then
                Net.SSL.Release (SrvCfg);
-               Net.SSL.Initialize (SrvCfg, "cert.pem", Ticket_Support => True);
+               Net.SSL.Initialize
+                 (SrvCfg,
+                  Server_Certificate => "cert.pem",
+                  Check_Certificate  => False,
+                  Ticket_Support     => True);
             else
                Working := False;
             end if;
@@ -182,12 +193,18 @@ procedure SSL_Reuse is
    end Error;
 
 begin
+   Setup_SSL.Default;
+
    Net.Log.Start (Error => Error'Unrestricted_Access, Write => null);
 
    Server_Side.Started;
 
    Net.SSL.Initialize
-     (Config, "", Ticket_Support => False, Security_Mode => Net.SSL.TLSv1_2);
+     (Config,
+      Ticket_Support     => False,
+      Check_Certificate  => False,
+      Client_Certificate => "",
+      Security_Mode      => Net.SSL.TLSv1_2);
    --  TLS 1.3 in GNUTLS has some difference with session resumption mechanism
 
    Client.Set_Config (Config);
@@ -203,7 +220,11 @@ begin
 
    Net.SSL.Release (Config);
    Net.SSL.Initialize
-     (Config, "", Ticket_Support => True, Security_Mode => Net.SSL.TLSv1_2);
+     (Config,
+      Ticket_Support => True,
+      Check_Certificate => False,
+      Client_Certificate => "",
+      Security_Mode => Net.SSL.TLSv1_2);
    --  TLS 1.3 in GNUTLS has some difference with session resumption mechanism
    Client.Set_Config (Config);
 
@@ -214,7 +235,11 @@ begin
 
    Net.SSL.Release (Config);
    Net.SSL.Initialize
-     (Config, "", Ticket_Support => False, Security_Mode => Net.SSL.TLSv1_2);
+     (Config,
+      Ticket_Support => False,
+      Check_Certificate => False,
+      Client_Certificate => "",
+      Security_Mode => Net.SSL.TLSv1_2);
    --  TLS 1.3 in GNUTLS has some difference with session resumption mechanism
    Client.Set_Config (Config);
 
@@ -231,7 +256,11 @@ begin
    --  ticket support even if client side is not declared to support it.
 
    Net.SSL.Release (Config);
-   Net.SSL.Initialize (Config, "", Ticket_Support => True);
+   Net.SSL.Initialize
+     (Config,
+      Check_Certificate => False,
+      Client_Certificate => "",
+      Ticket_Support => True);
    Client.Set_Config (Config);
 
    Text_IO.Put_Line ("Sessions creation with client and server tickets");

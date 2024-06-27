@@ -26,9 +26,11 @@
 --         -d                      debug mode, view HTTP headers.
 --         -c                      display server certificate.
 --         -sc                     Set cookie.
+--         -ca                     trusted CA certificate
 --         -cc                     client certificate
 --         -t                      wait response timeout.
 --         -v                      show version and exit.
+--         -ncc                    no check certificate.
 --         -proxy <proxy_url>
 --         -u <user_name>
 --         -p <password>
@@ -39,7 +41,7 @@
 --
 --  for example:
 --
---     agent GET http://perso.wanadoo.fr/pascal.obry/contrib.html
+--     agent GET https://ada-lang.io/
 --
 
 with Ada.Text_IO;
@@ -97,9 +99,13 @@ procedure Agent is
    Cookie             : Unbounded_String;
    Client_Cert        : Unbounded_String :=
                           To_Unbounded_String (Default.Client_Certificate);
+   Trusted_CA         : Unbounded_String :=
+                          To_Unbounded_String (Default.Trusted_CA);
+   SSL_Config         : AWS.Net.SSL.Config;
    Was_Iterations     : Boolean := False;
    Previous_Code      : Messages.Status_Code := Messages.S100;
    Header             : Headers.List;
+   Check_Certificate  : Boolean := True;
 
    function Parse_Command_Line return Boolean;
    --  Parse Agent command line. Returns False on error
@@ -136,7 +142,7 @@ procedure Agent is
       loop
          case GNAT.Command_Line.Getopt
            ("f o d h hd: v u: p: a: pu: pp: pa: proxy: k i: if: s sc: r c cc:"
-            & " t: bc")
+            & " ca: t: bc ncc")
          is
             when ASCII.NUL =>
                exit;
@@ -168,6 +174,11 @@ procedure Agent is
 
             when 'f' =>
                Force := True;
+
+            when 'n' =>
+               if GNAT.Command_Line.Full_Switch = "ncc" then
+                  Check_Certificate := False;
+               end if;
 
             when 'o' =>
                File := True;
@@ -213,8 +224,11 @@ procedure Agent is
 
             when 'c' =>
                if GNAT.Command_Line.Full_Switch = "cc" then
-                  Client_Cert
-                    := To_Unbounded_String (GNAT.Command_Line.Parameter);
+                  Client_Cert :=
+                    To_Unbounded_String (GNAT.Command_Line.Parameter);
+               elsif GNAT.Command_Line.Full_Switch = "ca" then
+                  Trusted_CA :=
+                    To_Unbounded_String (GNAT.Command_Line.Parameter);
                else
                   Show_Cert := True;
                end if;
@@ -313,6 +327,8 @@ procedure Agent is
       Text_IO.Put_Line ("       -r           follow redirection.");
       Text_IO.Put_Line ("       -d           debug mode, view HTTP headers.");
       Text_IO.Put_Line ("       -c           display server certificate.");
+      Text_IO.Put_Line ("       -ncc         No certificate check.");
+      Text_IO.Put_Line ("       -ca          Trusted CA certificate.");
       Text_IO.Put_Line ("       -cc          Client certificate.");
       Text_IO.Put_Line ("       -sc          Set cookie.");
       Text_IO.Put_Line ("       -t           wait response timeout.");
@@ -345,49 +361,46 @@ begin
 
    URL_Object := AWS.URL.Parse (To_String (URL));
 
-   if not (Method = Status.GET and then Follow_Redirection) then
-      Client.Create
-        (Connection  => Connect,
-         Host        => To_String (URL),
-         Proxy       => To_String (Proxy),
-         Persistent  => Keep_Alive,
-         Server_Push => Server_Push,
-         Certificate => To_String (Client_Cert),
-         Timeouts    => Timeouts);
+   if AWS.URL.Security (URL_Object) then
+      AWS.Net.SSL.Initialize
+        (Config              => SSL_Config,
+         Security_Mode       => AWS.Net.SSL.TLS_Client,
+         Check_Certificate   => Check_Certificate,
+         Client_Certificate  => To_String (Client_Cert),
+         Trusted_CA_Filename => To_String (Trusted_CA));
+   end if;
 
-      Client.Set_Cookie (Connect, To_String (Cookie));
+   Client.Create
+     (Connection  => Connect,
+      Host        => To_String (URL),
+      Proxy       => To_String (Proxy),
+      Persistent  => Keep_Alive,
+      Server_Push => Server_Push,
+      Timeouts    => Timeouts,
+      SSL_Config  => SSL_Config);
 
-      Client.Set_WWW_Authentication
-        (Connection => Connect,
-         User       => To_String (User),
-         Pwd        => To_String (Pwd),
-         Mode       => WWW_Auth);
+   Client.Set_Cookie (Connect, To_String (Cookie));
 
-      Client.Set_Proxy_Authentication
-        (Connection => Connect,
-         User       => To_String (Proxy_User),
-         Pwd        => To_String (Proxy_Pwd),
-         Mode       => Proxy_Auth);
+   Client.Set_WWW_Authentication
+     (Connection => Connect,
+      User       => To_String (User),
+      Pwd        => To_String (Pwd),
+      Mode       => WWW_Auth);
 
-      if Show_Cert then
-         Show_Certificate (Client.Get_Certificate (Connect));
-      end if;
+   Client.Set_Proxy_Authentication
+     (Connection => Connect,
+      User       => To_String (Proxy_User),
+      Pwd        => To_String (Proxy_Pwd),
+      Mode       => Proxy_Auth);
+
+   if Show_Cert then
+      Show_Certificate (Client.Get_Certificate (Connect));
    end if;
 
    loop
       case Method is
          when Status.GET =>
-            if Keep_Alive then
-               Client.Get (Connect, Data);
-            else
-               Data := Client.Get
-                 (To_String (URL), To_String (User), To_String (Pwd),
-                  To_String (Proxy),
-                  To_String (Proxy_User), To_String (Proxy_Pwd),
-                  Follow_Redirection => Follow_Redirection,
-                  Headers            => Header,
-                  Certificate        => To_String (Client_Cert));
-            end if;
+            Client.Get (Connect, Data, Headers => Header);
 
          when Status.PUT =>
             Client.Put

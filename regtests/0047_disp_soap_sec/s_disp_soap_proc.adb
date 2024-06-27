@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2003-2012, AdaCore                     --
+--                     Copyright (C) 2003-2024, AdaCore                     --
 --                                                                          --
 --  This is free software;  you can redistribute it  and/or modify it       --
 --  under terms of the  GNU General Public License as published  by the     --
@@ -170,8 +170,11 @@ procedure S_Disp_SOAP_Proc (Protocol : String) is
 begin
    Put_Line ("Start main, wait for server to start...");
 
-   AWS.Config.Set.Server_Port (Config, 0);
-   AWS.Config.Set.Security    (Config, Protocol = "https");
+   AWS.Config.Set.Server_Port        (Config, 0);
+   AWS.Config.Set.Security           (Config, Protocol = "https");
+   AWS.Config.Set.Server_Certificate (Config, "cert.pem");
+   AWS.Config.Set.Server_Key         (Config, "");
+   AWS.Config.Set.Check_Certificate  (Config, False);
 
    AWS.Server.Start
      (HTTP,

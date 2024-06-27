@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2003-2015, AdaCore                     --
+--                     Copyright (C) 2003-2024, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -32,7 +32,6 @@ pragma Ada_2012;
 with Ada.Calendar;
 
 private with Ada.Containers.Indefinite_Holders;
-private with Ada.Strings.Unbounded;
 private with AWS.Utils;
 
 package AWS.Net.SSL.Certificate is
@@ -118,8 +117,6 @@ package AWS.Net.SSL.Certificate is
    --  implementation just returns an empty string.
 
 private
-
-   use Ada.Strings.Unbounded;
 
    package Binary_Holders is
      new Ada.Containers.Indefinite_Holders (Stream_Element_Array);

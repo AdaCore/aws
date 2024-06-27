@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                       Copyright (C) 2014, AdaCore                        --
+--                    Copyright (C) 2014-2024, AdaCore                      --
 --                                                                          --
 --  This is free software;  you can redistribute it  and/or modify it       --
 --  under terms of the  GNU General Public License as published  by the     --
@@ -32,6 +32,8 @@ with AWS.Net.Std;
 with AWS.Utils;
 
 with GNAT.Traceback.Symbolic;
+
+with Setup_SSL;
 
 procedure SShort is
 
@@ -69,7 +71,11 @@ procedure SShort is
    begin
       accept Start;
 
-      Net.SSL.Initialize (Config, "");
+      Net.SSL.Initialize
+        (Config,
+         Check_Certificate  => False,
+         Client_Certificate => "");
+
       Client.Set_Config (Config);
 
       Client.Connect (Server.Get_Addr, Server.Get_Port);
@@ -144,6 +150,8 @@ procedure SShort is
    end Set_Fragment;
 
 begin
+   Setup_SSL.Default;
+
    Net.Log.Start (Error => Error'Unrestricted_Access, Write => null);
 
    Text_IO.Put_Line ("start");
@@ -153,7 +161,10 @@ begin
 
    Client_Side.Start;
 
-   Net.SSL.Initialize (Config, "certificate.pem");
+   Net.SSL.Initialize
+     (Config,
+      Check_Certificate  => False,
+      Server_Certificate => "certificate.pem");
    Peer.Set_Config (Config);
 
    Net.SSL.Accept_Socket (Server, Peer);

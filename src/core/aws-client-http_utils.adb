@@ -2329,7 +2329,8 @@ package body AWS.Client.HTTP_Utils is
    -- Send_H2_Connection_Preface --
    --------------------------------
 
-   procedure Send_H2_Connection_Preface (Connection : in out HTTP_Connection)
+   procedure Send_H2_Connection_Preface
+     (Connection : in out HTTP_Connection)
    is
       use all type HTTP2.Frame.Kind_Type;
    begin
@@ -2498,7 +2499,6 @@ package body AWS.Client.HTTP_Utils is
                Error_Processing
                  (Connection, Try_Count, Result,
                   Method_Kind'Image (Kind), E, Stamp);
-
                exit Retry when not Response.Is_Empty (Result);
          end;
       end loop Retry;

@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2000-2022, AdaCore                     --
+--                     Copyright (C) 2000-2024, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -71,23 +71,14 @@ package body AWS.Config.Set is
       O.P (Case_Sensitive_Parameters).Bool_Value := Value;
    end Case_Sensitive_Parameters;
 
-   -----------------
-   -- Certificate --
-   -----------------
+   -----------------------
+   -- Check_Certificate --
+   -----------------------
 
-   procedure Certificate (O : in out Object; Filename : String) is
+   procedure Check_Certificate (O : in out Object; Value : Boolean) is
    begin
-      O.P (Certificate).Str_Value := To_Unbounded_String (Filename);
-   end Certificate;
-
-   --------------------------
-   -- Certificate_Required --
-   --------------------------
-
-   procedure Certificate_Required (O : in out Object; Value : Boolean) is
-   begin
-      O.P (Certificate_Required).Bool_Value := Value;
-   end Certificate_Required;
+      O.P (Check_Certificate).Bool_Value := Value;
+   end Check_Certificate;
 
    ------------------------
    -- Check_URL_Validity --
@@ -150,6 +141,15 @@ package body AWS.Config.Set is
    begin
       O.P (Cleaner_Wait_For_Client_Timeout).Dur_Value := Value;
    end Cleaner_Wait_For_Client_Timeout;
+
+   ------------------------
+   -- Client_Certificate --
+   ------------------------
+
+   procedure Client_Certificate (O : in out Object; Filename : String) is
+   begin
+      O.P (Client_Certificate).Str_Value := To_Unbounded_String (Filename);
+   end Client_Certificate;
 
    -------------------
    -- Close_On_Exec --
@@ -399,15 +399,6 @@ package body AWS.Config.Set is
       O.P (Keep_Alive_Force_Limit).Nat_Value := Value;
    end Keep_Alive_Force_Limit;
 
-   ---------
-   -- Key --
-   ---------
-
-   procedure Key (O : in out Object; Filename : String) is
-   begin
-      O.P (Key).Str_Value := To_Unbounded_String (Filename);
-   end Key;
-
    ---------------------
    -- Line_Stack_Size --
    ---------------------
@@ -627,6 +618,15 @@ package body AWS.Config.Set is
       O.P (Send_Timeout).Dur_Value := Value;
    end Send_Timeout;
 
+   ------------------------
+   -- Server_Certificate --
+   ------------------------
+
+   procedure Server_Certificate (O : in out Object; Filename : String) is
+   begin
+      O.P (Server_Certificate).Str_Value := To_Unbounded_String (Filename);
+   end Server_Certificate;
+
    -------------------
    -- Server_Header --
    -------------------
@@ -644,6 +644,15 @@ package body AWS.Config.Set is
    begin
       O.P (Server_Host).Str_Value := To_Unbounded_String (Value);
    end Server_Host;
+
+   ----------------
+   -- Server_Key --
+   ----------------
+
+   procedure Server_Key (O : in out Object; Filename : String) is
+   begin
+      O.P (Server_Key).Str_Value := To_Unbounded_String (Filename);
+   end Server_Key;
 
    -----------------
    -- Server_Name --

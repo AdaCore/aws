@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                      Copyright (C) 2013-2014, AdaCore                    --
+--                      Copyright (C) 2013-2024, AdaCore                    --
 --                                                                          --
 --  This is free software;  you can redistribute it  and/or modify it       --
 --  under terms of the  GNU General Public License as published  by the     --
@@ -30,6 +30,8 @@ with AWS.Net.SSL.Certificate;
 with AWS.Response;
 with AWS.Server.Status;
 with AWS.Status;
+
+with Setup_SSL;
 
 procedure Crt_Chain is
 
@@ -89,8 +91,9 @@ procedure Crt_Chain is
    begin
       Net.SSL.Initialize
         (SSL,
-         Certificate_Filename => "chain-clt.crt",
-         Key_Filename         => "test-clt.key",
+         Check_Certificate    => False,
+         Server_Certificate   => "chain-clt.crt",
+         Server_Key           => "test-clt.key",
          Trusted_CA_Filename  => "ca-srv.crt");
 
       Client.Create
@@ -125,10 +128,10 @@ procedure Crt_Chain is
 begin
    Net.SSL.Initialize
      (SSL,
-      Certificate_Filename => Config.Certificate (Cnf),
-      Key_Filename         => Config.Key (Cnf),
+      Server_Certificate   => Config.Server_Certificate (Cnf),
+      Server_Key           => Config.Server_Key (Cnf),
       Exchange_Certificate => Config.Exchange_Certificate (Cnf),
-      Certificate_Required => Config.Certificate_Required (Cnf),
+      Check_Certificate    => Config.Check_Certificate (Cnf),
       Trusted_CA_Filename  => Config.Trusted_CA (Cnf));
 
    Net.SSL.Certificate.Set_Verify_Callback

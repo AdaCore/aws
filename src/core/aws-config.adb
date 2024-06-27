@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2000-2022, AdaCore                     --
+--                     Copyright (C) 2000-2024, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -94,23 +94,14 @@ package body AWS.Config is
       return O.P (Case_Sensitive_Parameters).Bool_Value;
    end Case_Sensitive_Parameters;
 
-   -----------------
-   -- Certificate --
-   -----------------
+   -----------------------
+   -- Check_Certificate --
+   -----------------------
 
-   function Certificate (O : Object) return String is
+   function Check_Certificate (O : Object) return Boolean is
    begin
-      return To_String (O.P (Certificate).Str_Value);
-   end Certificate;
-
-   --------------------------
-   -- Certificate_Required --
-   --------------------------
-
-   function Certificate_Required (O : Object) return Boolean is
-   begin
-      return O.P (Certificate_Required).Bool_Value;
-   end Certificate_Required;
+      return O.P (Check_Certificate).Bool_Value;
+   end Check_Certificate;
 
    ------------------------
    -- Check_URL_Validity --
@@ -165,6 +156,15 @@ package body AWS.Config is
    begin
       return O.P (Cleaner_Wait_For_Client_Timeout).Dur_Value;
    end Cleaner_Wait_For_Client_Timeout;
+
+   ------------------------
+   -- Client_Certificate --
+   ------------------------
+
+   function Client_Certificate (O : Object) return String is
+   begin
+      return To_String (O.P (Server_Certificate).Str_Value);
+   end Client_Certificate;
 
    -------------------
    -- Close_On_Exec --
@@ -485,15 +485,6 @@ package body AWS.Config is
       end if;
    end Keep_Alive_Force_Limit;
 
-   ---------
-   -- Key --
-   ---------
-
-   function Key (O : Object) return String is
-   begin
-      return To_String (O.P (Key).Str_Value);
-   end Key;
-
    ---------------------
    -- Line_Stack_Size --
    ---------------------
@@ -665,7 +656,6 @@ package body AWS.Config is
       if Utils.Is_Regular_File (Filename) then
          Ini.Read (Server_Config, Filename);
       end if;
-
    exception
       when others =>
          null;
@@ -725,6 +715,15 @@ package body AWS.Config is
       return O.P (Send_Timeout).Dur_Value;
    end Send_Timeout;
 
+   ------------------------
+   -- Server_Certificate --
+   ------------------------
+
+   function Server_Certificate (O : Object) return String is
+   begin
+      return To_String (O.P (Server_Certificate).Str_Value);
+   end Server_Certificate;
+
    -------------------
    -- Server_Header --
    -------------------
@@ -742,6 +741,15 @@ package body AWS.Config is
    begin
       return To_String (O.P (Server_Host).Str_Value);
    end Server_Host;
+
+   ----------------
+   -- Server_Key --
+   ----------------
+
+   function Server_Key (O : Object) return String is
+   begin
+      return To_String (O.P (Server_Key).Str_Value);
+   end Server_Key;
 
    -----------------
    -- Server_Name --

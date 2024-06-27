@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2004-2021, AdaCore                     --
+--                     Copyright (C) 2004-2024, AdaCore                     --
 --                                                                          --
 --  This is free software;  you can redistribute it  and/or modify it       --
 --  under terms of the  GNU General Public License as published  by the     --
@@ -26,6 +26,8 @@ with AWS.Containers.String_Vectors;
 with AWS.Net.Log;
 with AWS.Net.SSL;
 
+with Setup_SSL;
+
 procedure SSL_ALPN is
 
    use AWS;
@@ -41,6 +43,7 @@ procedure SSL_ALPN is
 
    task Client_Side is
       entry Start;
+      entry Ended;
       entry Act (Protocols : SV.Vector);
       entry Add (Protocol  : String);
    end Client_Side;
@@ -55,7 +58,12 @@ procedure SSL_ALPN is
       Config : Net.SSL.Config;
       Enough : Boolean := False;
    begin
-      Net.SSL.Initialize (Config, "");
+      Net.SSL.Initialize
+        (Config,
+         Security_Mode      => Net.SSL.TLS_Client,
+         Check_Certificate  => False,
+         Exchange_Certificate => False,
+         Client_Certificate => "");
 
       Client.Set_Config (Config);
 
@@ -101,9 +109,11 @@ procedure SSL_ALPN is
 
       Text_IO.Put_Line ("client task done.");
 
+      accept Ended;
    exception
       when E : others =>
-         Text_IO.Put_Line (Exceptions.Exception_Information (E));
+         Text_IO.Put_Line
+           ("Client_Side : " & Exceptions.Exception_Information (E));
    end Client_Side;
 
    --------------------
@@ -125,7 +135,11 @@ begin
    end loop;
 
    Net.SSL.Initialize
-     (Config, Certificate_Filename => "cert.pem", ALPN => SV."&" ("ap2", "ap3"));
+     (Config,
+      Check_Certificate  => False,
+      Server_Certificate => "cert.pem",
+      Server_Key         => "",
+      ALPN => SV."&" ("ap2", "ap3"));
    Peer.Set_Config (Config);
 
    Net.Log.Start
@@ -171,8 +185,9 @@ begin
 
    Server.Shutdown;
 
-   Text_IO.Put_Line ("done.");
+   Client_Side.Ended;
 
+   Text_IO.Put_Line ("done.");
 exception
    when E : others =>
       Text_IO.Put_Line (Exceptions.Exception_Information (E));

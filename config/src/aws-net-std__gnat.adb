@@ -780,7 +780,8 @@ package body AWS.Net.Std is
    --------------
 
    overriding procedure Shutdown
-     (Socket : Socket_Type; How : Shutmode_Type := Shut_Read_Write)
+     (Socket : Socket_Type;
+      How    : Shutmode_Type := Shut_Read_Write)
    is
       To_GNAT : constant array (Shutmode_Type) of Sockets.Shutmode_Type :=
                   (Shut_Read_Write => Sockets.Shut_Read_Write,

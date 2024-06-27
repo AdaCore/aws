@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                       Copyright (C) 2015, AdaCore                        --
+--                    Copyright (C) 2015-2024, AdaCore                      --
 --                                                                          --
 --  This is free software;  you can redistribute it  and/or modify it       --
 --  under terms of the  GNU General Public License as published  by the     --
@@ -24,7 +24,5 @@ package Signed_Key_CB is
    use AWS;
 
    function HW_CB (Request : Status.Data) return Response.Data;
-
-   function Set_Password (File : String) return String;
 
 end Signed_Key_CB;

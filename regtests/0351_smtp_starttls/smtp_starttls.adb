@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                       Copyright (C) 2023, AdaCore                        --
+--                    Copyright (C) 2023-2024, AdaCore                      --
 --                                                                          --
 --  This is free software;  you can redistribute it  and/or modify it       --
 --  under terms of the  GNU General Public License as published  by the     --
@@ -29,6 +29,8 @@ with AWS.SMTP.Server;
 
 with SMTP_Pck;
 
+with Setup_SSL;
+
 procedure SMTP_STARTTLS is
 
    use Ada;
@@ -48,6 +50,8 @@ procedure SMTP_STARTTLS is
    EOL    : constant String := ASCII.CR & ASCII.LF;
 
 begin
+   Setup_SSL.Default;
+
    if Net.IPv6_Available then
       Family := Net.Family_Inet6;
    else
