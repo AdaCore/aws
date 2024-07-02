@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2008-2023, AdaCore                     --
+--                     Copyright (C) 2008-2024, AdaCore                     --
 --                                                                          --
 --  This is free software;  you can redistribute it  and/or modify it       --
 --  under terms of the  GNU General Public License as published  by the     --
@@ -55,7 +55,9 @@ begin
       Family := Net.Family_Inet;
    end if;
 
-   Setup_SSL.Default;
+   if AWS.Net.SSL.Is_Supported then
+      Setup_SSL.Default;
+   end if;
 
    Host := SMTP.Initialize
      (Net.Localhost (Net.IPv6_Available), 0,
