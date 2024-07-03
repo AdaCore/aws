@@ -52,7 +52,10 @@ procedure Broken_Request_Line is
    Cfg : AWS.Config.Object;
 
 begin
-   Setup_SSL.Full (WS, False);
+   if Net.SSL.Is_Supported then
+      Setup_SSL.Full (WS, False);
+      Config.Set.Check_Certificate (Cfg, False);
+   end if;
 
    if Config.HTTP2_Activated (Cfg) then
       if Net.SSL.Is_Supported then
@@ -66,7 +69,6 @@ begin
    Config.Set.Server_Name (Cfg, "Broken Request Line");
    Config.Set.Server_Port (Cfg, 0);
    Config.Set.Session     (Cfg, True);
-   Config.Set.Check_Certificate (Cfg, False);
 
    Server.Start (WS, CB'Unrestricted_Access, Cfg);
 
