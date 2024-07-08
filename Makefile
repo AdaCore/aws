@@ -59,7 +59,7 @@ OOTDIR := /$(TARGET)
 endif
 
 # Add path to generated project files
-GPR_PROJECT_PATH := $(PRJ_DIR)$(PSEP)$(GPR_PROJECT_PATH)
+export GPR_PROJECT_PATH := $(PRJ_DIR)$(PSEP)$(GPR_PROJECT_PATH)
 
 LIBAWS_TYPES := static
 
