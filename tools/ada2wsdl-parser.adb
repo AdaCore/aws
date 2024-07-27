@@ -565,6 +565,9 @@ package body Ada2WSDL.Parser is
       procedure Analyze_Derived (Node : Derived_Type_Def'Class);
       --  Analyze a derived type definition
 
+      procedure Analyze_Subtype (Node : Subtype_Indication'Class);
+      --  Analyze a subtype
+
       procedure Analyze_Enumeration (Node : Enum_Type_Def'Class);
       --  Analyzye an enumeration definition
 
@@ -581,11 +584,7 @@ package body Ada2WSDL.Parser is
             else Node.As_Type_Decl.F_Name));
       --  Return the Node's type name
 
-      function T_Def return Type_Def is
-        (if Node.Kind = Ada_Subtype_Indication
-         then Node.As_Subtype_Indication.P_Designated_Type_Decl.As_Type_Decl
-              .F_Type_Def
-         else Node.As_Type_Decl.F_Type_Def);
+      function T_Def return Type_Def is (Node.As_Type_Decl.F_Type_Def);
 
       function T_Decl return Base_Type_Decl is (Node.As_Base_Type_Decl);
 
@@ -899,29 +898,47 @@ package body Ada2WSDL.Parser is
          end loop;
       end Analyze_Record;
 
+      ---------------------
+      -- Analyze_Subtype --
+      ---------------------
+
+      procedure Analyze_Subtype (Node : Subtype_Indication'Class) is
+      begin
+         Analyze_Type (Node.P_Designated_Type_Decl);
+      end Analyze_Subtype;
+
    begin
       if not Generator.Type_Exists (NS, T_Name) then
-         case T_Def.Kind is
-            when Ada_Derived_Type_Def =>
-               Analyze_Derived (T_Def.As_Derived_Type_Def);
+         case Node.Kind is
+            when Ada_Subtype_Indication =>
+               Analyze_Subtype (Node.As_Subtype_Indication);
 
-            when Ada_Signed_Int_Type_Def
-               | Ada_Floating_Point_Def
-               | Ada_Mod_Int_Type_Def
-               | Ada_Ordinary_Fixed_Point_Def
-               | Ada_Decimal_Fixed_Point_Def
-               =>
-               Analyze_Numeric (T_Def);
+            when Ada_Concrete_Type_Decl =>
+               case T_Def.Kind is
+                  when Ada_Derived_Type_Def =>
+                     Analyze_Derived (T_Def.As_Derived_Type_Def);
 
-            when Ada_Enum_Type_Def =>
-               Analyze_Enumeration (T_Def.As_Enum_Type_Def);
+                  when Ada_Signed_Int_Type_Def
+                     | Ada_Floating_Point_Def
+                     | Ada_Mod_Int_Type_Def
+                     | Ada_Ordinary_Fixed_Point_Def
+                     | Ada_Decimal_Fixed_Point_Def
+                     =>
+                     Analyze_Numeric (T_Def);
 
-            when Ada_Record_Type_Def =>
-               Analyze_Record (T_Def.As_Record_Type_Def);
+                  when Ada_Enum_Type_Def =>
+                     Analyze_Enumeration (T_Def.As_Enum_Type_Def);
 
-            when Ada_Array_Type_Def =>
-               Analyze_Array
-                 (T_Decl, T_Name, T_Decl, T_Def.As_Array_Type_Def);
+                  when Ada_Record_Type_Def =>
+                     Analyze_Record (T_Def.As_Record_Type_Def);
+
+                  when Ada_Array_Type_Def =>
+                     Analyze_Array
+                       (T_Decl, T_Name, T_Decl, T_Def.As_Array_Type_Def);
+
+                  when others =>
+                     null;
+               end case;
 
             when others =>
                null;
