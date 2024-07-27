@@ -80,7 +80,7 @@ package SOAP.Parameters is
    --  Types.Data_Error if this parameter does not exist or is not a Float.
 
    function Get (P : List; Name : String) return Long_Float with Inline;
-   --  Returns parameter named Name in P as a Float value. Raises
+   --  Returns parameter named Name in P as a Double value. Raises
    --  Types.Data_Error if this parameter does not exist or is not a Double.
 
    function Get (P : List; Name : String) return Types.Decimal with Inline;

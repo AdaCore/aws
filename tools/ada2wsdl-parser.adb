@@ -1,7 +1,7 @@
 ----------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2003-2021, AdaCore                     --
+--                     Copyright (C) 2003-2024, AdaCore                     --
 --                                                                          --
 --  This is free software;  you can redistribute it  and/or modify it       --
 --  under terms of the  GNU General Public License as published  by the     --
@@ -1620,14 +1620,14 @@ package body Ada2WSDL.Parser is
         (Node  : Base_Type_Decl'Class;
          First : Long_Long_Integer := Long_Long_Integer'Last;
          Last  : Long_Long_Integer := Long_Long_Integer'First)
-            return Generator.Type_Data;
+         return Generator.Type_Data;
       --  Same as above for integer and optional range
 
       function Register_Deferred_F
         (Node  : Base_Type_Decl'Class;
          First : Long_Float := Long_Float'Last;
          Last  : Long_Float := Long_Float'First)
-            return Generator.Type_Data;
+         return Generator.Type_Data;
       --  Same as above for float and optional range
 
       function Build_Type
@@ -1635,7 +1635,7 @@ package body Ada2WSDL.Parser is
          NS    : String := SOAP.Name_Space.Value (SOAP.Name_Space.XSD);
          First : Long_Long_Integer := Long_Long_Integer'Last;
          Last  : Long_Long_Integer := Long_Long_Integer'First)
-            return Generator.Type_Data
+         return Generator.Type_Data
       is (+NS, +Name,
           (if First = Long_Long_Integer'Last
            then Null_Unbounded_String
@@ -1811,8 +1811,10 @@ package body Ada2WSDL.Parser is
          Ilb, Iub : Long_Float;
       begin
          Get_Range (Node, Ilb, Iub);
+
          if T_Name = "duration" then
             return Build_Type ("duration");
+
          elsif Base then
             if Ilb = Long_Float (Float'First)
               and then Iub = Long_Float (Float'Last)
@@ -1838,7 +1840,7 @@ package body Ada2WSDL.Parser is
                NS      : constant String := Name_Space (Decl);
                NS_Type : constant String := Name_Space (T_Def);
             begin
-               --  If the type is not un the current package (so in
+               --  If the type is not in the current package (so in
                --  different name space). We need to analyse it later
                --  so, we do register a differred analysis for this type.
 
@@ -2042,7 +2044,7 @@ package body Ada2WSDL.Parser is
                NS      : constant String := Name_Space (Decl);
                NS_Type : constant String := Name_Space (T_Def);
             begin
-               --  If the type is not un the current package (so in
+               --  If the type is not in the current package (so in
                --  different name space). We need to analyse it later
                --  so, we do register a differred analysis for this type.
 
