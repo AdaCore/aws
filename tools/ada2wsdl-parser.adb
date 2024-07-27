@@ -146,7 +146,7 @@ package body Ada2WSDL.Parser is
       Name : String;
       Decl : Ada_Node'Class;
       Base : Boolean) return Generator.Type_Data;
-   --  Get the type date for the given Node. Decl is the point of declaration
+   --  Get the type data for the given Node. Decl is the point of declaration
    --  for the type/object and so used to get the name space. If Base is set
    --  to True we resolve all the derived/subtype definition to get information
    --  about the base type.
@@ -154,7 +154,7 @@ package body Ada2WSDL.Parser is
    function Type_Definition
      (Node : Type_Decl'Class;
       Base : Boolean) return Generator.Type_Data;
-   --  Likewise for a type-decle
+   --  Likewise for a type-decl
 
    function Type_Definition
      (Node : Type_Expr'Class;
@@ -1510,7 +1510,7 @@ package body Ada2WSDL.Parser is
                           (P, Message => "only in mode supported.");
                      end if;
 
-                     --  Iterated over all parameters
+                     --  Iterate over all parameters
 
                      for Name of P_Names loop
                         declare
