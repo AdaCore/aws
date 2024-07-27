@@ -75,6 +75,7 @@ To_@_IP_ADA_TYPE_@ (To_@_IP_BASE_TYPE_@_Type (@_QUALIFIED_ADA_TYPE(@_IP_ROOT_TYP
 @@-- ---------------------------------------------------------------------
 @@--
 with Ada.Exceptions;
+with Ada.Strings.Unbounded;
 with SOAP.Message.Response.Error;
 with SOAP.Name_Space;
 with SOAP.Parameters;
@@ -89,6 +90,7 @@ with SOAP.Message.XML;
 package body @_UNIT_NAME_@.Server is
 
    use Ada.Exceptions;
+   use Ada.Strings.Unbounded;
    use SOAP.Types;
    use SOAP.Parameters;
 

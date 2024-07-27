@@ -6,8 +6,10 @@
 --  This file was generated on @_NOW_@
 --
 --  $ wsdl2aws @_OPTIONS_@
-@@IF@@ not @_IS_EMPTY:PREDICATE_KIND_@
+@@IF@@ (@_LOWER:BASE_NAME_@ = "unbounded_string") or not @_IS_EMPTY:PREDICATE_KIND_@
 with Ada.Strings.Unbounded;
+@@END_IF@@
+@@IF@@ not @_IS_EMPTY:PREDICATE_KIND_@
 with GNAT.Regexp;
 @@END_IF@@
 
@@ -24,7 +26,7 @@ with SOAP.Types;
 
 package @_UNIT_NAME_@ is
 
-@@IF@@ not @_IS_EMPTY:PREDICATE_KIND_@
+@@IF@@ (@_LOWER:BASE_NAME_@ = "unbounded_string") or not @_IS_EMPTY:PREDICATE_KIND_@
    use Ada.Strings.Unbounded;
 @@END_IF@@
 @@TABLE@@
