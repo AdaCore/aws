@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2000-2021, AdaCore                     --
+--                     Copyright (C) 2000-2024, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -1016,6 +1016,30 @@ package body AWS.Utils is
       Random_String (Result);
       return Result;
    end Random_String;
+
+   ----------------------------
+   -- Remove_Multiple_Spaces --
+   ----------------------------
+
+   function Remove_Multiple_Spaces (Str : String) return String is
+      R : String   := Str;
+      I : Positive := R'First;
+      C : Positive := R'First + 1;
+   begin
+      if Str'Length = 0 then
+         return R;
+      else
+         while C <= R'Last loop
+            if R (C) /= ' ' or else R (C - 1) /= ' ' then
+               I := I + 1;
+               R (I) := R (C);
+            end if;
+            C := C + 1;
+         end loop;
+
+         return R (R'First .. I);
+      end if;
+   end Remove_Multiple_Spaces;
 
    ------------------
    -- RW_Semaphore --
