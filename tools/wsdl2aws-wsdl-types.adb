@@ -504,7 +504,8 @@ package body WSDL2AWS.WSDL.Types is
    begin
       return (Def.Mode = K_Derived
               and then SOAP.WSDL.Is_Standard (Name (Def.Parent))
-              and then SOAP.WSDL.To_Type (Name (Def.Parent)) = P_String
+              and then SOAP.WSDL.To_Type (Name (Def.Parent))
+                        in P_String | P_Token | P_Normalized_String | P_Any_URI
               and then Def.Constraints.Length /= Unset)
             or else Def.Mode /= K_Derived;
    end Is_Constrained;

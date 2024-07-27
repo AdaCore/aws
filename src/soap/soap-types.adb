@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2000-2021, AdaCore                     --
+--                     Copyright (C) 2000-2024, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -32,6 +32,7 @@ pragma Ada_2012;
 with Ada.Calendar.Time_Zones;
 with Ada.Real_Time;
 with Ada.Strings.Fixed;
+with Ada.Strings.Maps;
 with Ada.Tags;
 with Ada.Task_Attributes;
 with Ada.Unchecked_Deallocation;
@@ -162,6 +163,23 @@ package body SOAP.Types is
               NS, +V);
    end Any;
 
+   ------------
+   -- AnyURI --
+   ------------
+
+   function AnyURI
+     (V         : String;
+      Name      : String := "item";
+      Type_Name : String := "";
+      NS        : SOAP.Name_Space.Object := SOAP.Name_Space.No_Name_Space)
+      return XSD_Any_URI is
+   begin
+      return
+        (Finalization.Controlled
+         with To_Unbounded_String (Name), To_Unbounded_String (Type_Name),
+              NS, To_Unbounded_String (V));
+   end AnyURI;
+
    -------
    -- B --
    -------
@@ -234,6 +252,19 @@ package body SOAP.Types is
       Type_Name : String := XML_Duration;
       NS        : SOAP.Name_Space.Object := SOAP.Name_Space.No_Name_Space)
       return XSD_Duration is
+   begin
+      return
+        (Finalization.Controlled
+         with To_Unbounded_String (Name), To_Unbounded_String (Type_Name),
+              NS, V);
+   end D;
+
+   function D
+     (V         : Decimal;
+      Name      : String := "item";
+      Type_Name : String := XML_Decimal;
+      NS        : SOAP.Name_Space.Object := SOAP.Name_Space.No_Name_Space)
+      return XSD_Decimal is
    begin
       return
         (Finalization.Controlled
@@ -544,6 +575,35 @@ package body SOAP.Types is
       return Get_Double (O);
    end Get;
 
+   function Get (O : Object'Class) return Decimal is
+      use type Ada.Tags.Tag;
+   begin
+      if O'Tag = Types.XSD_Decimal'Tag then
+         return V (XSD_Decimal (O));
+
+      elsif O'Tag = Types.XSD_Null'Tag
+        and then O.Type_Name = XML_Decimal
+      then
+         return 0.0;
+
+      elsif O'Tag = Types.Untyped.Untyped'Tag then
+         begin
+            return Decimal'Value (V (XSD_String (O)));
+         exception
+            when others =>
+               Get_Error ("Decimal", O);
+         end;
+
+      elsif O'Tag = Types.XSD_Any_Type'Tag
+        and then XSD_Any_Type (O).O.O'Tag = Types.XSD_Decimal'Tag
+      then
+         return V (XSD_Decimal (XSD_Any_Type (O).O.O.all));
+
+      else
+         Get_Error ("Decimal", O);
+      end if;
+   end Get;
+
    function Get (O : Object'Class) return String is
       use type Ada.Tags.Tag;
    begin
@@ -551,6 +611,15 @@ package body SOAP.Types is
         or else O'Tag = Types.Untyped.Untyped'Tag
       then
          return V (XSD_String (O));
+
+      elsif O'Tag = Types.XSD_Token'Tag then
+         return V (XSD_Token (O));
+
+      elsif O'Tag = Types.XSD_Normalized_String'Tag then
+         return V (XSD_Normalized_String (O));
+
+      elsif O'Tag = Types.XSD_Any_URI'Tag then
+         return V (XSD_Any_URI (O));
 
       elsif O'Tag = Types.XSD_Null'Tag
         and then O.Type_Name = XML_String
@@ -574,6 +643,15 @@ package body SOAP.Types is
         or else O'Tag = Types.Untyped.Untyped'Tag
       then
          return V (XSD_String (O));
+
+      elsif O'Tag = Types.XSD_Token'Tag then
+         return V (XSD_Token (O));
+
+      elsif O'Tag = Types.XSD_Normalized_String'Tag then
+         return V (XSD_Normalized_String (O));
+
+      elsif O'Tag = Types.XSD_Any_URI'Tag then
+         return V (XSD_Any_URI (O));
 
       elsif O'Tag = Types.XSD_Null'Tag
         and then O.Type_Name = XML_String
@@ -619,7 +697,7 @@ package body SOAP.Types is
       end if;
    end Get;
 
-   function Get (O : Object'Class) return Ada.Calendar.Time is
+   function Get (O : Object'Class) return Local_Date_Time is
       use type Ada.Tags.Tag;
    begin
       if O'Tag = Types.XSD_Time_Instant'Tag then
@@ -628,7 +706,7 @@ package body SOAP.Types is
       elsif O'Tag = Types.XSD_Null'Tag
         and then O.Type_Name = XML_Time_Instant
       then
-         return AWS.Utils.AWS_Epoch;
+         return Local_Date_Time (AWS.Utils.AWS_Epoch);
 
       elsif O'Tag = Types.Untyped.Untyped'Tag then
          begin
@@ -645,6 +723,64 @@ package body SOAP.Types is
 
       else
          Get_Error ("timeInstant", O);
+      end if;
+   end Get;
+
+   function Get (O : Object'Class) return Local_Date is
+      use type Ada.Tags.Tag;
+   begin
+      if O'Tag = Types.XSD_Date'Tag then
+         return V (XSD_Date (O));
+
+      elsif O'Tag = Types.XSD_Null'Tag
+        and then O.Type_Name = XML_Time_Instant
+      then
+         return Local_Date (AWS.Utils.AWS_Epoch);
+
+      elsif O'Tag = Types.Untyped.Untyped'Tag then
+         begin
+            return V (Utils.Date (V (XSD_String (O)), Name (O)));
+         exception
+            when others =>
+               Get_Error ("date", O);
+         end;
+
+      elsif O'Tag = Types.XSD_Any_Type'Tag
+        and then XSD_Any_Type (O).O.O'Tag = Types.XSD_Time_Instant'Tag
+      then
+         return V (XSD_Date (XSD_Any_Type (O).O.O.all));
+
+      else
+         Get_Error ("date", O);
+      end if;
+   end Get;
+
+   function Get (O : Object'Class) return Local_Time is
+      use type Ada.Tags.Tag;
+   begin
+      if O'Tag = Types.XSD_Time'Tag then
+         return V (XSD_Time (O));
+
+      elsif O'Tag = Types.XSD_Null'Tag
+        and then O.Type_Name = XML_Time_Instant
+      then
+         return Local_Time (AWS.Utils.AWS_Epoch);
+
+      elsif O'Tag = Types.Untyped.Untyped'Tag then
+         begin
+            return V (Utils.Time (V (XSD_String (O)), Name (O)));
+         exception
+            when others =>
+               Get_Error ("time", O);
+         end;
+
+      elsif O'Tag = Types.XSD_Any_Type'Tag
+        and then XSD_Any_Type (O).O.O'Tag = Types.XSD_Time_Instant'Tag
+      then
+         return V (XSD_Time (XSD_Any_Type (O).O.O.all));
+
+      else
+         Get_Error ("time", O);
       end if;
    end Get;
 
@@ -900,6 +1036,11 @@ package body SOAP.Types is
       return Image (O.O.O.all);
    end Image;
 
+   overriding function Image (O : XSD_Any_URI) return String is
+   begin
+      return To_String (O.V);
+   end Image;
+
    overriding function Image (O : XSD_Long) return String is
       V : constant String := Long'Image (O.V);
    begin
@@ -960,6 +1101,26 @@ package body SOAP.Types is
       return Image (O.V);
    end Image;
 
+   overriding function Image (O : XSD_Decimal) return String is
+      V : constant String := Decimal'Image (O.V);
+   begin
+      if O.V >= 0.0 then
+         return V (V'First + 1 .. V'Last);
+      else
+         return V;
+      end if;
+   end Image;
+
+   overriding function Image (O : XSD_Normalized_String) return String is
+   begin
+      return To_String (O.V);
+   end Image;
+
+   overriding function Image (O : XSD_Token) return String is
+   begin
+      return To_String (O.V);
+   end Image;
+
    overriding function Image (O : XSD_String) return String is
    begin
       return To_String (O.V);
@@ -981,6 +1142,8 @@ package body SOAP.Types is
       function Image
         (Timezone : Calendar.Time_Zones.Time_Offset) return String;
       --  Returns Image for the TZ
+
+      T : constant Calendar.Time := Calendar.Time (O.T);
 
       -----------
       -- Image --
@@ -1027,14 +1190,86 @@ package body SOAP.Types is
       end Image;
 
       Has_Sub_Second : constant Boolean :=
-                         GNAT.Calendar.Sub_Second (O.T) /= 0.0;
+                         GNAT.Calendar.Sub_Second (T) /= 0.0;
 
       Format         : constant GNAT.Calendar.Time_IO.Picture_String :=
                          "%Y-%m-%dT%H:%M:%S"
                          & (if Has_Sub_Second then ".%i" else "");
    begin
-      return GNAT.Calendar.Time_IO.Image (O.T, Format)
-        & Image (Calendar.Time_Zones.UTC_Time_Offset (O.T));
+      return GNAT.Calendar.Time_IO.Image (T, Format)
+        & Image (Calendar.Time_Zones.UTC_Time_Offset (T));
+   end Image;
+
+   overriding function Image (O : XSD_Date) return String is
+      Format : constant GNAT.Calendar.Time_IO.Picture_String := "%Y-%m-%d";
+   begin
+      return GNAT.Calendar.Time_IO.Image
+        (Calendar.Time (O.T), Format);
+   end Image;
+
+   overriding function Image (O : XSD_Time) return String is
+
+      use type GNAT.Calendar.Time_IO.Picture_String;
+
+      function Image
+        (Timezone : Calendar.Time_Zones.Time_Offset) return String;
+      --  Returns Image for the TZ
+
+      T : constant Calendar.Time := Calendar.Time (O.T);
+
+      -----------
+      -- Image --
+      -----------
+
+      function Image
+        (Timezone : Calendar.Time_Zones.Time_Offset) return String
+      is
+
+         subtype Str2 is String (1 .. 2);
+
+         function I2D (N : Natural) return Str2;
+         --  Returns N image with 2 characters padding with 0 is needed
+
+         ---------
+         -- I2D --
+         ---------
+
+         function I2D (N : Natural) return Str2 is
+            V : constant String := Natural'Image (N);
+         begin
+            if N > 9 then
+               return V (V'First + 1 .. V'Last);
+            else
+               return '0' & V (V'First + 1 .. V'Last);
+            end if;
+         end I2D;
+
+         use type Calendar.Time_Zones.Time_Offset;
+
+         H : constant Natural := Natural (abs Timezone) / 60;
+         M : constant Natural := Natural (abs Timezone) rem 60;
+
+      begin
+         if Timezone = 0 then
+            return "Z";
+
+         elsif Timezone >= 0 then
+            return '+' & I2D (H) & ':' & I2D (M);
+
+         else
+            return '-' & I2D (H) & ':' & I2D (M);
+         end if;
+      end Image;
+
+      Has_Sub_Second : constant Boolean :=
+                         GNAT.Calendar.Sub_Second (T) /= 0.0;
+
+      Format         : constant GNAT.Calendar.Time_IO.Picture_String :=
+                         "%H:%M:%S"
+                         & (if Has_Sub_Second then ".%i" else "");
+   begin
+      return GNAT.Calendar.Time_IO.Image (T, Format)
+        & Image (Calendar.Time_Zones.UTC_Time_Offset (T));
    end Image;
 
    overriding function Image (O : XSD_Duration) return String is
@@ -1301,6 +1536,35 @@ package body SOAP.Types is
       return O.NS;
    end Name_Space;
 
+   function NS
+     (V         : String;
+      Name      : String := "item";
+      Type_Name : String := XML_Normalized_String;
+      NS        : SOAP.Name_Space.Object := SOAP.Name_Space.No_Name_Space)
+      return XSD_Normalized_String
+   is
+      Map : constant Strings.Maps.Character_Mapping :=
+              Strings.Maps.To_Mapping
+                (From => String'(ASCII.LF, ASCII.CR, ASCII.HT),
+                 To   => "   ");
+   begin
+      return
+        (Finalization.Controlled
+         with To_Unbounded_String (Name),
+         To_Unbounded_String (Type_Name), NS,
+         To_Unbounded_String (Strings.Fixed.Translate (V, Map)));
+   end NS;
+
+   function NS
+     (V         : Unbounded_String;
+      Name      : String := "item";
+      Type_Name : String := XML_Normalized_String;
+      NS        : SOAP.Name_Space.Object := SOAP.Name_Space.No_Name_Space)
+      return XSD_Normalized_String is
+   begin
+      return Types.NS (To_String (V), Name, Type_Name, NS);
+   end NS;
+
    -------
    -- R --
    -------
@@ -1441,7 +1705,7 @@ package body SOAP.Types is
    -------
 
    function T
-     (V         : Local_Time;
+     (V         : Local_Date_Time;
       Name      : String := "item";
       Type_Name : String := XML_Time_Instant;
       NS        : SOAP.Name_Space.Object := SOAP.Name_Space.No_Name_Space)
@@ -1452,6 +1716,73 @@ package body SOAP.Types is
          with To_Unbounded_String (Name),
          To_Unbounded_String (Type_Name), NS, V);
    end T;
+
+   function T
+     (V         : String;
+      Name      : String := "item";
+      Type_Name : String := XML_Token;
+      NS        : SOAP.Name_Space.Object := SOAP.Name_Space.No_Name_Space)
+      return XSD_Token
+   is
+      Map : constant Strings.Maps.Character_Mapping :=
+              Strings.Maps.To_Mapping
+                (From => String'(ASCII.LF, ASCII.CR, ASCII.HT),
+                 To   => "   ");
+      L_V : constant String :=
+              Strings.Fixed.Trim
+                (Strings.Fixed.Translate (V, Map),
+                 Side => Strings.Both);
+   begin
+      return
+        (Finalization.Controlled
+         with To_Unbounded_String (Name),
+         To_Unbounded_String (Type_Name), NS,
+         To_Unbounded_String (AWS.Utils.Remove_Multiple_Spaces (L_V)));
+   end T;
+
+   function T
+     (V         : Unbounded_String;
+      Name      : String := "item";
+      Type_Name : String := XML_Token;
+      NS        : SOAP.Name_Space.Object := SOAP.Name_Space.No_Name_Space)
+      return XSD_Token is
+   begin
+      return T (To_String (V), Name, Type_Name, NS);
+   end T;
+
+   --------
+   -- TD --
+   --------
+
+   function TD
+     (V         : Local_Date;
+      Name      : String := "item";
+      Type_Name : String := XML_Date;
+      NS        : SOAP.Name_Space.Object := SOAP.Name_Space.No_Name_Space)
+      return XSD_Date is
+   begin
+      return
+        (Finalization.Controlled
+         with To_Unbounded_String (Name),
+         To_Unbounded_String (Type_Name), NS, V);
+   end TD;
+
+   --------
+   -- TT --
+   --------
+
+   function TT
+     (V         : Local_Time;
+      Name      : String := "item";
+      Type_Name : String := XML_Time;
+      NS        : SOAP.Name_Space.Object := SOAP.Name_Space.No_Name_Space)
+      return XSD_Time is
+   begin
+      return
+        (Finalization.Controlled
+         with To_Unbounded_String (Name),
+         To_Unbounded_String (Type_Name), NS, V);
+   end TT;
 
    ---------------
    -- Type_Name --
@@ -1539,6 +1870,16 @@ package body SOAP.Types is
       return O.O.O;
    end V;
 
+   function V (O : XSD_Any_URI) return String is
+   begin
+      return Utils.From_Utf8 (To_String (O.V));
+   end V;
+
+   function V (O : XSD_Any_URI) return Unbounded_String is
+   begin
+      return To_Unbounded_String (V (O));
+   end V;
+
    function V (O : XSD_Long) return Long is
    begin
       return O.V;
@@ -1571,9 +1912,34 @@ package body SOAP.Types is
       return O.V;
    end V;
 
+   function V (O : XSD_Decimal) return Decimal is
+   begin
+      return O.V;
+   end V;
+
    function V (O : XSD_String) return String is
    begin
       return Utils.From_Utf8 (To_String (O.V));
+   end V;
+
+   function V (O : XSD_Normalized_String) return String is
+   begin
+      return Utils.From_Utf8 (To_String (O.V));
+   end V;
+
+   function V (O : XSD_Normalized_String) return Unbounded_String is
+   begin
+      return To_Unbounded_String (V (O));
+   end V;
+
+   function V (O : XSD_Token) return String is
+   begin
+      return Utils.From_Utf8 (To_String (O.V));
+   end V;
+
+   function V (O : XSD_Token) return Unbounded_String is
+   begin
+      return To_Unbounded_String (V (O));
    end V;
 
    function V (O : XSD_String) return Unbounded_String is
@@ -1586,7 +1952,17 @@ package body SOAP.Types is
       return O.V;
    end V;
 
-   function V (O : XSD_Time_Instant) return Calendar.Time is
+   function V (O : XSD_Time_Instant) return Local_Date_Time is
+   begin
+      return O.T;
+   end V;
+
+   function V (O : XSD_Date) return Local_Date is
+   begin
+      return O.T;
+   end V;
+
+   function V (O : XSD_Time) return Local_Time is
    begin
       return O.T;
    end V;

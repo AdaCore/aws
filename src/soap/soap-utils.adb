@@ -65,6 +65,20 @@ package body SOAP.Utils is
       return SOAP.Types.Any (Types.Object'Class (V), Name, Type_Name, NS);
    end Any;
 
+   ------------
+   -- AnyURI --
+   ------------
+
+   function AnyURI
+     (V         : Unbounded_String;
+      Name      : String := "item";
+      Type_Name : String := Types.XML_Any_URI;
+      NS        : Name_Space.Object := Name_Space.No_Name_Space)
+      return Types.XSD_Any_URI is
+   begin
+      return Types.AnyURI (To_String (V), Name, Type_Name, NS);
+   end AnyURI;
+
    -------
    -- C --
    -------
@@ -78,6 +92,81 @@ package body SOAP.Utils is
    begin
       return Types.S (String'(1 => V), Name, Type_Name, NS);
    end C;
+
+   ----------
+   -- Date --
+   ----------
+
+   function Date
+     (Date, Name  : String;
+      Type_Name   : String := Types.XML_Date)
+      return Types.XSD_Date
+   is
+      use Ada;
+      use Ada.Calendar;
+      use Ada.Calendar.Formatting;
+      use type Ada.Calendar.Time_Zones.Time_Offset;
+
+      --  A time-zone starts with either + | - or Z
+
+      TZ_Pattern : constant Strings.Maps.Character_Set :=
+                   Strings.Maps.To_Set ("+-Z");
+
+      First      : constant Positive := Date'First;
+
+      subtype Year_Range      is Positive range First      .. First + 3;
+      subtype Month_Range     is Positive range First + 5  .. First + 6;
+      subtype Day_Range       is Positive range First + 8  .. First + 9;
+
+      --  If we have franctional second skip them
+
+      TZ_Start : constant Natural :=
+                   Strings.Fixed.Index
+                     (Date, TZ_Pattern, From => Day_Range'Last);
+
+      TZ_First : constant Positive :=
+                   (if TZ_Start /= 0 then TZ_Start else Date'Last + 1);
+
+      subtype TZ_Type_Range   is Positive range TZ_First     .. TZ_First;
+      subtype TZ_Hour_Range   is Positive range TZ_First + 1 .. TZ_First + 2;
+      subtype TZ_Minute_Range is Positive range TZ_First + 4 .. TZ_First + 5;
+
+      T          : Calendar.Time;
+      TZ         : Time_Zones.Time_Offset := 0;
+
+   begin
+      --  data format is (-)CCYY-MM-DD[[+|-]hh:mm | Z]
+
+      --  Check if a time-zone is specified
+
+      if Date'Last >= TZ_Type_Range'Last then
+         --  Time zone specified
+
+         if Date'Last >= TZ_Hour_Range'Last then
+            TZ := Time_Zones.Time_Offset'Value (Date (TZ_Hour_Range)) * 60;
+
+            if Date'Last = TZ_Minute_Range'Last then
+               TZ := TZ
+                 + Time_Zones.Time_Offset'Value (Date (TZ_Minute_Range));
+            end if;
+
+            if Date (TZ_Type_Range) = "-" then
+               TZ := -TZ;
+            end if;
+         end if;
+      end if;
+
+      T := Time_Of (Year       => Year_Number'Value (Date (Year_Range)),
+                    Month      => Month_Number'Value (Date (Month_Range)),
+                    Day        => Day_Number'Value (Date (Day_Range)),
+                    Hour       => Hour_Number'First,
+                    Minute     => Minute_Number'First,
+                    Second     => Second_Number'First,
+                    Sub_Second => 0.0,
+                    Time_Zone  => TZ);
+
+      return Types.TD (Types.Local_Date (T), Name, Type_Name => Type_Name);
+   end Date;
 
    --------------------------
    -- Default_Utf8_Mapping --
@@ -578,6 +667,97 @@ package body SOAP.Utils is
       end if;
    end Tag;
 
+   ----------
+   -- Time --
+   ----------
+
+   function Time
+     (Time, Name  : String;
+      Type_Name   : String := Types.XML_Time)
+      return Types.XSD_Time
+   is
+      use Ada;
+      use Ada.Calendar;
+      use Ada.Calendar.Formatting;
+      use type Ada.Calendar.Time_Zones.Time_Offset;
+
+      --  A time-zone starts with either + | - or Z
+
+      TZ_Pattern : constant Strings.Maps.Character_Set :=
+                   Strings.Maps.To_Set ("+-Z");
+
+      --  A time-instant string may start with a minus sign to specify a year
+      --  Before Common Era. We do not support such date here and so we just
+      --  skip the minus sign if present. Also not that a plus sign is not
+      --  allowed.
+
+      First      : constant Positive :=
+                     (if Time'Length > 1 and then Time (Time'First) = '-'
+                      then Time'First + 1
+                      else Time'First);
+
+      subtype Hour_Range      is Positive range First     .. First + 1;
+      subtype Minute_Range    is Positive range First + 3 .. First + 4;
+      subtype Second_Range    is Positive range First + 6 .. First + 7;
+
+      --  If we have franctional second skip them
+
+      TZ_Start : constant Natural :=
+                   Strings.Fixed.Index
+                     (Time, TZ_Pattern, From => Second_Range'Last);
+
+      TZ_First : constant Positive :=
+                   (if TZ_Start /= 0 then TZ_Start else Time'Last + 1);
+
+      subtype TZ_Type_Range   is Positive range TZ_First     .. TZ_First;
+      subtype TZ_Hour_Range   is Positive range TZ_First + 1 .. TZ_First + 2;
+      subtype TZ_Minute_Range is Positive range TZ_First + 4 .. TZ_First + 5;
+
+      T          : Calendar.Time;
+      TZ         : Time_Zones.Time_Offset := 0;
+      Sub_Second : Second_Duration := 0.0;
+
+   begin
+      --  time format is (-)hh:mm:ss(.sss)[[+|-]hh:mm | Z]
+
+      --  Check if an optional fractional second part is present
+
+      if Second_Range'Last + 1 < TZ_Type_Range'First then
+         Sub_Second := Second_Duration'Value
+           (Time (Second_Range'Last + 1 .. TZ_Type_Range'First - 1));
+      end if;
+
+      --  Check if a time-zone is specified
+
+      if Time'Last >= TZ_Type_Range'Last then
+         --  Time zone specified
+
+         if Time'Last >= TZ_Hour_Range'Last then
+            TZ := Time_Zones.Time_Offset'Value (Time (TZ_Hour_Range)) * 60;
+
+            if Time'Last = TZ_Minute_Range'Last then
+               TZ := TZ
+                 + Time_Zones.Time_Offset'Value (Time (TZ_Minute_Range));
+            end if;
+
+            if Time (TZ_Type_Range) = "-" then
+               TZ := -TZ;
+            end if;
+         end if;
+      end if;
+
+      T := Time_Of (Year       => Year_Number'First,
+                    Month      => Month_Number'First,
+                    Day        => Day_Number'First,
+                    Hour       => Hour_Number'Value (Time (Hour_Range)),
+                    Minute     => Minute_Number'Value (Time (Minute_Range)),
+                    Second     => Second_Number'Value (Time (Second_Range)),
+                    Sub_Second => Sub_Second,
+                    Time_Zone  => TZ);
+
+      return Types.TT (Types.Local_Time (T), Name, Type_Name => Type_Name);
+   end Time;
+
    ------------------
    -- Time_Instant --
    ------------------
@@ -627,7 +807,7 @@ package body SOAP.Utils is
       subtype TZ_Hour_Range   is Positive range TZ_First + 1 .. TZ_First + 2;
       subtype TZ_Minute_Range is Positive range TZ_First + 4 .. TZ_First + 5;
 
-      T          : Types.Local_Time;
+      T          : Calendar.Time;
       TZ         : Time_Zones.Time_Offset := 0;
       Sub_Second : Second_Duration := 0.0;
 
@@ -668,7 +848,7 @@ package body SOAP.Utils is
                     Sub_Second => Sub_Second,
                     Time_Zone  => TZ);
 
-      return Types.T (T, Name, Type_Name => Type_Name);
+      return Types.T (Types.Local_Date_Time (T), Name, Type_Name => Type_Name);
    end Time_Instant;
 
    -------------

@@ -65,7 +65,7 @@ To_@_IP_ADA_TYPE_@ (To_@_IP_BASE_TYPE_@_Type (@_QUALIFIED_ADA_TYPE(@_IP_ROOT_TYP
 @@MACRO(GET_PARAMETERS_FROM_SOAP)@@
 @@IF@@ (@_IP_KIND_@ = K_ARRAY) or (@_IP_KIND_@ = K_RECORD)
 @_IP_DECL_NAME_@ : constant @_IP_TYPE_NAME_@_Type :=
-@@ELSIF@@ (@_IP_KIND_@ = K_SIMPLE) and (@_IP_TYPE_KIND_@ = P_STRING)
+@@ELSIF@@ (@_IP_KIND_@ = K_SIMPLE) and (@_IP_TYPE_KIND_@ = P_STRING or @_IP_TYPE_KIND_@ = P_TOKEN or @_IP_TYPE_KIND_@ = P_NORMALIZED_STRING or @_IP_TYPE_KIND_@ = P_ANY_URI)
 @_IP_DECL_NAME_@ : constant String :=
 @@ELSE@@
 @_IP_DECL_NAME_@ : constant @_IP_ADA_TYPE_@ :=

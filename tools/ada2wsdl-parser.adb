@@ -1704,6 +1704,15 @@ package body Ada2WSDL.Parser is
          if T_Name = "string" then
             return Build_Type ("string");
 
+         elsif T_Name = "soap.types.token" then
+            return Build_Type ("token");
+
+         elsif T_Name = "soap.types.normalized_string" then
+            return Build_Type ("normalizedString");
+
+         elsif T_Name = "soap.types.any_uri" then
+            return Build_Type ("any_uri");
+
          elsif T_Name in "soap_base64"
                        | "utils.soap_base64"
                        | "soap.utils.soap_base64"
@@ -1731,6 +1740,16 @@ package body Ada2WSDL.Parser is
             begin
                return Register_Deferred (I_Type);
             end;
+
+         elsif T_Name = "soap.types.local_date"
+           or else T_Name = "local_date"
+         then
+            return Build_Type ("date");
+
+         elsif T_Name = "soap.types.local_time"
+           or else T_Name = "local_time"
+         then
+            return Build_Type ("time");
 
          else
             if Base then
@@ -2059,7 +2078,19 @@ package body Ada2WSDL.Parser is
          elsif T_Name in "time" | "calendar.time" | "ada.calendar.time"
            and then Is_Calendar (Node)
          then
+            return Build_Type ("datetime");
+
+         elsif T_Name = "soap.types.local_date_time" then
+            return Build_Type ("datetime");
+
+         elsif T_Name = "soap.types.local_time" then
             return Build_Type ("time");
+
+         elsif T_Name = "soap.types.local_date" then
+            return Build_Type ("date");
+
+         elsif T_Name = "soap.types.token" then
+            return Build_Type ("token");
 
          else
             Raise_Spec_Error

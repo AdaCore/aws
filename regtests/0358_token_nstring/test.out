@@ -1,0 +1,4 @@
+Value:             (a   string)
+Token:             (A token)
+Normalized_String: (   A   normalized string )
+Any_URI:           (http://whatever.com)

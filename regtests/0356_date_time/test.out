@@ -1,0 +1,26 @@
+Service WSDL_C_Service
+
+
+Procedure Call SOAPAction:Call
+   Input
+      [simple] DT ; SOAP.Types.Local_Date_Time
+      [simple] DA ; SOAP.Types.Local_Date
+      [simple] TI ; SOAP.Types.Local_Time
+      [simple] DE ; SOAP.Types.Decimal
+   Output
+   > Call
+=========== client
++         SOAP.Types.XSD_Time_Instant'(SOAP.Utils.To_SOAP_Object (DT, "DT", "xsd:timeInstant"))
+&          SOAP.Types.XSD_Date'(SOAP.Utils.To_SOAP_Object (DA, "DA", "xsd:date"))
+&          SOAP.Types.XSD_Time'(SOAP.Utils.To_SOAP_Object (TI, "TI", "xsd:time"))
+&          SOAP.Types.XSD_Decimal'(SOAP.Utils.To_SOAP_Object (DE, "DE", "xsd:decimal"));
+=========== server
+DT : constant SOAP.Types.Local_Date_Time :=
+DA : constant SOAP.Types.Local_Date :=
+TI : constant SOAP.Types.Local_Time :=
+DE : constant SOAP.Types.Decimal :=
+=========== types
+Schema.Insert ("Call.DT@is_a", "xsd:timeInstant");
+Schema.Insert ("Call.DA@is_a", "xsd:date");
+Schema.Insert ("Call.TI@is_a", "xsd:time");
+Schema.Insert ("Call.DE@is_a", "xsd:decimal");

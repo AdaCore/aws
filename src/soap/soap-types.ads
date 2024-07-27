@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2001-2022, AdaCore                     --
+--                     Copyright (C) 2001-2024, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -155,6 +155,29 @@ package SOAP.Types is
       return XSD_Any_Type;
 
    function V (O : XSD_Any_Type) return Object_Access;
+
+   -------------
+   -- Any URI --
+   -------------
+
+   subtype Any_URI is String;
+
+   XML_Any_URI : aliased constant String := "xsd:anyURI";
+
+   type XSD_Any_URI is new Object with private;
+
+   overriding function  Image (O : XSD_Any_URI) return String;
+
+   function AnyURI
+     (V         : String;
+      Name      : String := "item";
+      Type_Name : String := "";
+      NS        : Name_Space.Object := Name_Space.No_Name_Space)
+      return XSD_Any_URI;
+
+   function V (O : XSD_Any_URI) return String;
+
+   function V (O : XSD_Any_URI) return Unbounded_String;
 
    -----------
    -- Array --
@@ -310,6 +333,27 @@ package SOAP.Types is
    function V (O : XSD_Float) return Float;
 
    -------------
+   -- Decimal --
+   -------------
+
+   type Decimal is delta 10.0 ** (-8) digits 32;
+
+   XML_Decimal : aliased constant String := "xsd:decimal";
+
+   type XSD_Decimal is new Scalar with private;
+
+   overriding function Image (O : XSD_Decimal) return String;
+
+   function D
+     (V         : Decimal;
+      Name      : String := "item";
+      Type_Name : String := XML_Decimal;
+      NS        : Name_Space.Object := Name_Space.No_Name_Space)
+      return XSD_Decimal;
+
+   function V (O : XSD_Decimal) return Decimal;
+
+   -------------
    -- Integer --
    -------------
 
@@ -449,11 +493,71 @@ package SOAP.Types is
 
    function V (O : XSD_String) return Unbounded_String;
 
+   -----------------------
+   -- Normalized String --
+   -----------------------
+
+   subtype Normalized_String is String;
+
+   XML_Normalized_String : aliased constant String := "xsd:normalizedString";
+
+   type XSD_Normalized_String is new Scalar with private;
+
+   overriding function Image (O : XSD_Normalized_String) return String;
+
+   function NS
+     (V         : String;
+      Name      : String := "item";
+      Type_Name : String := XML_Normalized_String;
+      NS        : Name_Space.Object := Name_Space.No_Name_Space)
+      return XSD_Normalized_String;
+
+   function NS
+     (V         : Unbounded_String;
+      Name      : String := "item";
+      Type_Name : String := XML_Normalized_String;
+      NS        : Name_Space.Object := Name_Space.No_Name_Space)
+      return XSD_Normalized_String;
+
+   function V (O : XSD_Normalized_String) return String;
+
+   function V (O : XSD_Normalized_String) return Unbounded_String;
+
+   -----------
+   -- Token --
+   -----------
+
+   subtype Token is String;
+
+   XML_Token : aliased constant String := "xsd:token";
+
+   type XSD_Token is new Scalar with private;
+
+   overriding function Image (O : XSD_Token) return String;
+
+   function T
+     (V         : String;
+      Name      : String := "item";
+      Type_Name : String := XML_Token;
+      NS        : Name_Space.Object := Name_Space.No_Name_Space)
+      return XSD_Token;
+
+   function T
+     (V         : Unbounded_String;
+      Name      : String := "item";
+      Type_Name : String := XML_Token;
+      NS        : Name_Space.Object := Name_Space.No_Name_Space)
+      return XSD_Token;
+
+   function V (O : XSD_Token) return String;
+
+   function V (O : XSD_Token) return Unbounded_String;
+
    -----------------
    -- TimeInstant --
    -----------------
 
-   subtype Local_Time is Calendar.Time;
+   subtype Local_Date_Time is Calendar.Time;
    --  All times are local time. This means that a timeInstant is always
    --  converted to a local time for the running host.
 
@@ -465,14 +569,58 @@ package SOAP.Types is
    overriding function Image (O : XSD_Time_Instant) return String;
 
    function T
-     (V         : Local_Time;
+     (V         : Local_Date_Time;
       Name      : String := "item";
       Type_Name : String := XML_Time_Instant;
       NS        : Name_Space.Object := Name_Space.No_Name_Space)
       return XSD_Time_Instant;
 
-   function V (O : XSD_Time_Instant) return Local_Time;
+   function V (O : XSD_Time_Instant) return Local_Date_Time;
    --  Returns a GMT date and time
+
+   ----------
+   -- Date --
+   ----------
+
+   type Local_Date is new Calendar.Time;
+
+   XML_Date : aliased constant String := "xsd:date";
+
+   type XSD_Date is new Scalar with private;
+
+   overriding function Image (O : XSD_Date) return String;
+
+   function TD
+     (V         : Local_Date;
+      Name      : String := "item";
+      Type_Name : String := XML_Date;
+      NS        : Name_Space.Object := Name_Space.No_Name_Space)
+      return XSD_Date;
+
+   function V (O : XSD_Date) return Local_Date;
+   --  Returns a date
+
+   ----------
+   -- Time --
+   ----------
+
+   type Local_Time is new Calendar.Time;
+
+   XML_Time : aliased constant String := "xsd:time";
+
+   type XSD_Time is new Scalar with private;
+
+   overriding function Image (O : XSD_Time) return String;
+
+   function TT
+     (V         : Local_Time;
+      Name      : String := "item";
+      Type_Name : String := XML_Time;
+      NS        : Name_Space.Object := Name_Space.No_Name_Space)
+      return XSD_Time;
+
+   function V (O : XSD_Time) return Local_Time;
+   --  Returns a GMT time
 
    --------------
    -- Duration --
@@ -636,6 +784,10 @@ package SOAP.Types is
    --  Returns O value as a Long_Long_Float. Raises Data_Error if O is not a
    --  SOAP Double.
 
+   function Get (O : Object'Class) return Decimal;
+   --  Returns O value as a Decimal. Raises Data_Error if O is not a SOAP
+   --  Decimal.
+
    function Get (O : Object'Class) return String;
    --  Returns O value as a String. Raises Data_Error if O is not a SOAP
    --  String.
@@ -646,6 +798,14 @@ package SOAP.Types is
    function Get (O : Object'Class) return Boolean;
    --  Returns O value as a Boolean. Raises Data_Error if O is not a SOAP
    --  Boolean.
+
+   function Get (O : Object'Class) return Local_Date_Time;
+   --  Returns O value as a Time. Raises Data_Error if O is not a SOAP
+   --  Date_Time.
+
+   function Get (O : Object'Class) return Local_Date;
+   --  Returns O value as a Time. Raises Data_Error if O is not a SOAP
+   --  Date.
 
    function Get (O : Object'Class) return Local_Time;
    --  Returns O value as a Time. Raises Data_Error if O is not a SOAP
@@ -750,6 +910,10 @@ private
       O : Object_Safe_Pointer;
    end record;
 
+   type XSD_Any_URI is new Scalar with record
+      V : Unbounded_String;
+   end record;
+
    --  Simple SOAP types
 
    type XSD_Long is new Scalar with record
@@ -776,7 +940,19 @@ private
       V : Long_Float;
    end record;
 
+   type XSD_Decimal is new Scalar with record
+      V : Decimal;
+   end record;
+
    type XSD_String is new Scalar with record
+      V : Unbounded_String;
+   end record;
+
+   type XSD_Normalized_String is new Scalar with record
+      V : Unbounded_String;
+   end record;
+
+   type XSD_Token is new Scalar with record
       V : Unbounded_String;
    end record;
 
@@ -785,6 +961,14 @@ private
    end record;
 
    type XSD_Time_Instant is new Scalar with record
+      T : Local_Date_Time;
+   end record;
+
+   type XSD_Date is new Scalar with record
+      T : Local_Date;
+   end record;
+
+   type XSD_Time is new Scalar with record
       T : Local_Time;
    end record;
 
