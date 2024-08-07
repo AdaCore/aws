@@ -290,9 +290,17 @@ begin
               or else (CNF.HTTP2_Activated (LA.Server.Properties)
                        and then not CNF.Security (LA.Server.Properties))
             then
-               HTTP2.Frame.GoAway.Create
-                 (Stream_Id => 0,
-                  Error     => HTTP2.C_Protocol_Error).Send (Sock_Ptr.all);
+               --  We don't want to fail, if the socket is closed already
+               --  we ignore the socket error.
+
+               begin
+                  HTTP2.Frame.GoAway.Create
+                    (Stream_Id => 0,
+                     Error     => HTTP2.C_Protocol_Error).Send (Sock_Ptr.all);
+               exception
+                  when Net.Socket_Error =>
+                     null;
+               end;
 
                exit For_Every_Request;
 
