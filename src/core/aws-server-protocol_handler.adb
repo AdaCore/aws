@@ -118,8 +118,7 @@ begin
                AWS.Log.Write
                  (LA.Server.Error_Log,
                   Request,
-                  Utils.CRLF_2_Spaces
-                    (Ada.Exceptions.Exception_Information (E)));
+                  Utils.CRLF_2_Spaces (Exception_Information (E)));
                return False;
          end Send_Error_Answer;
 
@@ -282,7 +281,7 @@ begin
             AWS.Log.Write
               (LA.Server.Error_Log,
                Request,
-               Utils.CRLF_2_Spaces (Ada.Exceptions.Exception_Information (E)));
+               Utils.CRLF_2_Spaces (Exception_Information (E)));
 
             Will_Close := True;
 
@@ -290,9 +289,17 @@ begin
               or else (CNF.HTTP2_Activated (LA.Server.Properties)
                        and then not CNF.Security (LA.Server.Properties))
             then
-               HTTP2.Frame.GoAway.Create
-                 (Stream_Id => 0,
-                  Error     => HTTP2.C_Protocol_Error).Send (Sock_Ptr.all);
+               --  We don't want to fail, if the socket is closed already
+               --  we ignore the socket error.
+
+               begin
+                  HTTP2.Frame.GoAway.Create
+                    (Stream_Id => 0,
+                     Error     => HTTP2.C_Protocol_Error).Send (Sock_Ptr.all);
+               exception
+                  when Net.Socket_Error =>
+                     null;
+               end;
 
                exit For_Every_Request;
 
@@ -300,7 +307,7 @@ begin
                Error_Answer := Response.Build
                  (Status_Code  => Messages.S400,
                   Content_Type => "text/plain",
-                  Message_Body => Ada.Exceptions.Exception_Message (E));
+                  Message_Body => Exception_Message (E));
 
                LA.Server.Slots.Mark_Phase (LA.Line, Server_Response);
 
@@ -314,8 +321,7 @@ begin
             AWS.Log.Write
               (LA.Server.Error_Log,
                Request,
-               Utils.CRLF_2_Spaces
-                 (Ada.Exceptions.Exception_Information (E)));
+               Utils.CRLF_2_Spaces (Exception_Information (E)));
 
             Will_Close := True;
 
@@ -323,7 +329,7 @@ begin
                Error_Answer := Response.Build
                  (Status_Code  => Messages.S414,
                   Content_Type => "text/plain",
-                  Message_Body => Ada.Exceptions.Exception_Message (E));
+                  Message_Body => Exception_Message (E));
 
             elsif
               Exception_Identity (E) =
@@ -332,13 +338,13 @@ begin
                Error_Answer := Response.Build
                  (Status_Code  => Messages.S403,
                   Content_Type => "text/plain",
-                  Message_Body => Ada.Exceptions.Exception_Message (E));
+                  Message_Body => Exception_Message (E));
 
             else
                Error_Answer := Response.Build
                  (Status_Code  => Messages.S400,
                   Content_Type => "text/plain",
-                  Message_Body => Ada.Exceptions.Exception_Message (E));
+                  Message_Body => Exception_Message (E));
             end if;
 
             LA.Server.Slots.Mark_Phase (LA.Line, Server_Response);
