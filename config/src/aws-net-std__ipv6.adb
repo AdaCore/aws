@@ -919,9 +919,12 @@ package body AWS.Net.Std is
    -----------------------
 
    overriding procedure Set_Close_On_Exec (Socket : Socket_Type) is
-      Status : Boolean;
+      function C_Set_Close_On_Exec
+        (Socket : C.int; Close_On_Exec : C.int) return C.int;
+      pragma Import (C, C_Set_Close_On_Exec, "__gnat_set_close_on_exec");
+      Res : C.int := 0 with Unreferenced;
    begin
-      Sockets.Set_Close_On_Exec (Socket.S.FD, True, Status);
+      Res := C_Set_Close_On_Exec (Socket.S.FD, 1);
    end Set_Close_On_Exec;
 
    ----------------------
