@@ -358,10 +358,11 @@ package AWS.Config.Set is
    --  peer did not provide trusted certificate.
 
    procedure Trusted_CA (O : in out Object; Filename : String);
-   --  Returns the filename containing a list of trusted CA, this is to be used
-   --  with the Exchange_Certificate option. The filename is on bundle of CAs
-   --  that can be trusted. A client certificate signed with one of those CA
-   --  will be accetped by the server.
+   --  Set the trusted filename containing a list of trusted CA, this
+   --  is to be used with the Exchange_Certificate option. The
+   --  filename is a bundle of CAs that can be trusted. A client
+   --  certificate signed with one of those CA will be accepted by the
+   --  server.
 
    procedure CRL_File (O : in out Object; Filename : String);
    --  Returns the filename containing the Certificate Revocation List. This
