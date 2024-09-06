@@ -1,0 +1,117 @@
+<?xml version="1.0" encoding="utf-8"?>
+<xs:schema targetNamespace="http://corp.com/osws/V1/13/0" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns="http://corp.com/osws/V1/13/0" xmlns:pr555svc="http://corp.com/osws/V1/13/0" xmlns:pr545="http://corp.com/cuws" xmlns:pr554="http://corp.com/cpws" xmlns:pr555="http://corp.com/cows" xmlns:pr567="http://corp.com/ccbws" xmlns:pr552="http://corp.com/cbws">
+	<xs:import namespace="http://corp.com/po/w24/w19/w5/w30/13/0" schemaLocation="w5_V1.13.0.xsd"/>
+	<xs:import namespace="http://corp.com/po/w24/w26/w8/w30/13/0" schemaLocation="../w26/w8_V1.13.0.xsd"/>
+	<xs:import namespace="http://corp.com/po/w24/w23/w25/w30/13/0" schemaLocation="../w23/w25_V1.13.0.xsd"/>
+	<xs:import namespace="http://corp.com/po/w24/w26/w13/w30/13/0" schemaLocation="../w26/w13_V1.13.0.xsd"/>
+	<xs:import namespace="http://corp.com/po/w24/w23/w27/w30/13/0" schemaLocation="../w23/w27_V1.13.0.xsd"/>
+	<xs:simpleType name="i127">
+		<xs:restriction base="pr554:i425">
+			<xs:enumeration value="i194"/>
+			<xs:enumeration value="i260"/>
+			<xs:enumeration value="i456"/>
+			<xs:enumeration value="i474"/>
+		</xs:restriction>
+	</xs:simpleType>
+	<xs:element name="i376" type="i376"/>
+	<xs:complexType name="i376">
+		<xs:complexContent>
+			<xs:extension base="i341">
+				<xs:sequence/>
+			</xs:extension>
+		</xs:complexContent>
+	</xs:complexType>
+	<xs:element name="i211" type="i211"/>
+	<xs:complexType name="i211">
+		<xs:complexContent>
+			<xs:extension base="i187">
+				<xs:sequence/>
+			</xs:extension>
+		</xs:complexContent>
+	</xs:complexType>
+	<xs:element name="i210" type="i210"/>
+	<xs:complexType name="i210">
+		<xs:complexContent>
+			<xs:extension base="i187">
+				<xs:sequence/>
+			</xs:extension>
+		</xs:complexContent>
+	</xs:complexType>
+	<xs:element name="i187" type="i187"/>
+	<xs:complexType name="i187">
+		<xs:complexContent>
+			<xs:extension base="pr552:i497">
+				<xs:sequence>
+					<xs:element ref="pr555:i342" minOccurs="1" maxOccurs="1"/>
+				</xs:sequence>
+			</xs:extension>
+		</xs:complexContent>
+	</xs:complexType>
+	<xs:element name="i375" type="i375"/>
+	<xs:complexType name="i375">
+		<xs:complexContent>
+			<xs:extension base="i341">
+				<xs:sequence/>
+			</xs:extension>
+		</xs:complexContent>
+	</xs:complexType>
+	<xs:element name="i282" type="i282"/>
+	<xs:complexType name="i282">
+		<xs:complexContent>
+			<xs:extension base="i341">
+				<xs:sequence>
+					<xs:element name="i127" type="i127" minOccurs="1" maxOccurs="1"/>
+					<xs:element name="i381" type="pr567:i355" minOccurs="0" maxOccurs="unbounded"/>
+				</xs:sequence>
+			</xs:extension>
+		</xs:complexContent>
+	</xs:complexType>
+	<xs:element name="i341" type="i341"/>
+	<xs:complexType name="i341">
+		<xs:complexContent>
+			<xs:extension base="pr552:i497">
+				<xs:sequence>
+					<xs:element ref="pr555:i496" minOccurs="1" maxOccurs="1"/>
+				</xs:sequence>
+			</xs:extension>
+		</xs:complexContent>
+	</xs:complexType>
+	<xs:element name="i172" type="i172"/>
+	<xs:complexType name="i172">
+		<xs:complexContent>
+			<xs:extension base="i341">
+				<xs:sequence/>
+			</xs:extension>
+		</xs:complexContent>
+	</xs:complexType>
+	<xs:element name="i340" type="i340"/>
+	<xs:complexType name="i340">
+		<xs:complexContent>
+			<xs:extension base="i341">
+				<xs:sequence>
+					<xs:element name="i85" type="pr552:i433" minOccurs="1" maxOccurs="1"/>
+				</xs:sequence>
+			</xs:extension>
+		</xs:complexContent>
+	</xs:complexType>
+	<xs:element name="i280" type="i280"/>
+	<xs:complexType name="i280">
+		<xs:complexContent>
+			<xs:extension base="i341">
+				<xs:sequence>
+					<xs:element ref="pr545:i528" minOccurs="1" maxOccurs="1"/>
+				</xs:sequence>
+			</xs:extension>
+		</xs:complexContent>
+	</xs:complexType>
+	<xs:element name="i209" type="i209"/>
+	<xs:complexType name="i209">
+		<xs:complexContent>
+			<xs:extension base="i341">
+				<xs:sequence>
+					<xs:element ref="pr545:i528" minOccurs="1" maxOccurs="1"/>
+				</xs:sequence>
+			</xs:extension>
+		</xs:complexContent>
+	</xs:complexType>
+</xs:schema>

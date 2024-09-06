@@ -1,0 +1,3 @@
+with "aws";
+project WSref is
+end WSref;

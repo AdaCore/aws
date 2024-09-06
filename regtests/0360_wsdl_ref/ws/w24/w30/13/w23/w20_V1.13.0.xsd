@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<xs:schema targetNamespace="http://corp.com/clws" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns="http://corp.com/clws" xmlns:pr560="http://corp.com/clws" xmlns:pr554="http://corp.com/cpws" xmlns:pr567="http://corp.com/ccbws">
+	<xs:import namespace="http://corp.com/po/w24/w26/w8/w30/13/0" schemaLocation="../w26/w8_V1.13.0.xsd"/>
+	<xs:import namespace="http://corp.com/po/w24/w26/w13/w30/13/0" schemaLocation="../w26/w13_V1.13.0.xsd"/>
+	<xs:element name="i16" type="pr560:i128">
+	</xs:element>
+	<xs:element name="i88" type="pr560:i128">
+	</xs:element>
+	<xs:element name="i75" type="pr560:i128">
+	</xs:element>
+	<xs:element name="i128" type="pr560:i128">
+	</xs:element>
+	<xs:element name="i151" type="pr560:i128">
+	</xs:element>
+	<xs:simpleType name="i128">
+		<xs:restriction base="pr554:i425"/>
+	</xs:simpleType>
+	<xs:element name="i52" type="i52"/>
+	<xs:complexType name="i52">
+		<xs:sequence>
+			<xs:element ref="i75" minOccurs="1" maxOccurs="1"/>
+			<xs:element ref="i86" minOccurs="1" maxOccurs="unbounded"/>
+			<xs:element ref="pr567:i461" minOccurs="1" maxOccurs="1"/>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:element name="i86" type="i86"/>
+	<xs:complexType name="i86">
+		<xs:sequence>
+			<xs:element ref="i88" minOccurs="1" maxOccurs="1"/>
+			<xs:element ref="pr567:i461" minOccurs="1" maxOccurs="1"/>
+		</xs:sequence>
+	</xs:complexType>
+</xs:schema>

@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="utf-8"?>
+<xs:schema targetNamespace="http://corp.com/ciws" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns="http://corp.com/ciws" xmlns:infsvc="http://corp.com/ciws" xmlns:pr552="http://corp.com/cbws" xmlns:pr554="http://corp.com/cpws">
+	<xs:import namespace="http://corp.com/po/w24/w26/w13/w30/13/0" schemaLocation="../w26/w13_V1.13.0.xsd"/>
+	<xs:import namespace="http://corp.com/po/w24/w19/w5/w30/13/0" schemaLocation="w5_V1.13.0.xsd"/>
+	<xs:element name="i111" type="i111"/>
+	<xs:complexType name="i111">
+		<xs:complexContent>
+			<xs:extension base="i175">
+				<xs:sequence>
+					<xs:element name="i406" type="pr554:i253" minOccurs="0" maxOccurs="1">
+					</xs:element>
+				</xs:sequence>
+			</xs:extension>
+		</xs:complexContent>
+	</xs:complexType>
+	<xs:element name="i94" type="i94"/>
+	<xs:complexType name="i94">
+		<xs:complexContent>
+			<xs:extension base="i157">
+				<xs:sequence>
+					<xs:element name="i190" type="pr554:i390" minOccurs="1" maxOccurs="1">
+					</xs:element>
+				</xs:sequence>
+			</xs:extension>
+		</xs:complexContent>
+	</xs:complexType>
+	<xs:element name="i175" type="i175"/>
+	<xs:complexType name="i175">
+		<xs:complexContent>
+			<xs:extension base="pr552:i497">
+				<xs:sequence/>
+			</xs:extension>
+		</xs:complexContent>
+	</xs:complexType>
+	<xs:element name="i157" type="i157"/>
+	<xs:complexType name="i157">
+		<xs:complexContent>
+			<xs:extension base="pr552:i245">
+				<xs:sequence/>
+			</xs:extension>
+		</xs:complexContent>
+	</xs:complexType>
+</xs:schema>
