@@ -1,0 +1,17 @@
+Service R_Hello_Demo
+   WSDL File for AnyURI AWS Demo
+
+Procedure sayHello SOAPAction:sayHello
+   Input
+      [simple] firstName ; String
+      [simple] net ; String
+      [simple] id ; String
+   Output
+      [simple] greeting ; String
+   > sayHello
+
+
+=========== client
++         SOAP.Types.XSD_String'(SOAP.Utils.To_SOAP_Object (firstName, "firstName", "xsd:string"))
+&          SOAP.Types.XSD_Any_URI'(SOAP.Utils.To_SOAP_Object (net, "net", "xsd:anyURI"))
+&          SOAP.Types.XSD_Token'(SOAP.Utils.To_SOAP_Object (id, "id", "xsd:token"));

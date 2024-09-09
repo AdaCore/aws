@@ -7,7 +7,7 @@ Procedure ServerExit SOAPAction:
       [record] ServerExit ; ServerExit
          [set] {0 .. unbounded} fieldsToNull ; string_Set [string]
          [simple] Id ; String
-         [set] {0 .. 1} CreatedBy ; string_Set [string]
+         [simple] {0 .. 1} CreatedBy ; String
    Output
       [record] Response ; Response
          [simple] ErrorCode ; Integer

@@ -2507,17 +2507,38 @@ package body WSDL2AWS.Generator is
             Get_References (Unit_List, P.P);
          end if;
 
+         --  Walk through the derivation to get the units for each types in the
+         --  tree.
+
          if Def.Mode = WSDL.Types.K_Derived then
-            if SOAP.WSDL.Is_Standard (WSDL.Types.Name (Def.Parent)) then
-               Unit_List := Unit_List
-                 & To_Unit_Name
-                     (Generate_Namespace (WSDL.Types.NS (Def.Parent), True));
-            else
-               Unit_List := Unit_List
-                 & (To_Unit_Name
-                     (Generate_Namespace (WSDL.Types.NS (Def.Parent), False))
-                    & '.' & WSDL.Types.Name (Def.Parent) & "_Type_Pkg");
-            end if;
+            declare
+               D : WSDL.Types.Definition := Def;
+            begin
+               loop
+                  if SOAP.WSDL.Is_Standard (WSDL.Types.Name (D.Parent)) then
+                     Unit_List := Unit_List
+                       & To_Unit_Name
+                           (Generate_Namespace
+                              (WSDL.Types.NS (D.Parent), True));
+                  else
+                     Unit_List := Unit_List
+                       & (To_Unit_Name
+                           (Generate_Namespace
+                              (WSDL.Types.NS (D.Parent), False))
+                          & '.' & WSDL.Types.Name (D.Parent) & "_Type_Pkg");
+                  end if;
+
+                  --  If Parent is a derived type, we also need to handle it
+
+                  Get_Parent : declare
+                     Next : constant WSDL.Types.Definition :=
+                              WSDL.Types.Find (D.Parent);
+                  begin
+                     exit when Next.Mode /= WSDL.Types.K_Derived;
+                     D := Next;
+                  end Get_Parent;
+               end loop;
+            end;
          end if;
 
          Translations := Translations

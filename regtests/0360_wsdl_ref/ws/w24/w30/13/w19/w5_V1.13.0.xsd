@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<xs:schema targetNamespace="http://corp.com/cbws" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns="http://corp.com/cbws" xmlns:pr552="http://corp.com/cbws" xmlns:pr567="http://corp.com/ccbws" xmlns:pr554="http://corp.com/cpws">
+	<xs:import namespace="http://corp.com/po/w24/w26/w13/w30/13/0" schemaLocation="../w26/w13_V1.13.0.xsd"/>
+	<xs:import namespace="http://corp.com/po/w24/w26/w8/w30/13/0" schemaLocation="../w26/w8_V1.13.0.xsd"/>
+	<xs:element name="i433" type="pr552:i433">
+	</xs:element>
+	<xs:element name="i213" type="pr552:i213">
+	</xs:element>
+	<xs:simpleType name="i433">
+		<xs:restriction base="pr554:i408"/>
+	</xs:simpleType>
+	<xs:simpleType name="i254">
+		<xs:restriction base="pr554:i425">
+			<xs:enumeration value="i533"/>
+			<xs:enumeration value="i576"/>
+		</xs:restriction>
+	</xs:simpleType>
+	<xs:simpleType name="i213">
+		<xs:restriction base="pr554:i354"/>
+	</xs:simpleType>
+	<xs:element name="i497" type="i497"/>
+	<xs:complexType name="i497">
+		<xs:sequence>
+ 			<xs:element ref="i433" minOccurs="1" maxOccurs="1"/>
+			<xs:element ref="i213" minOccurs="1" maxOccurs="1"/>
+			<xs:element name="i138" type="pr567:i291" minOccurs="1" maxOccurs="1"/>
+			<xs:element name="i108" type="pr567:i291" minOccurs="1" maxOccurs="1"/>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:element name="i245" type="i245"/>
+	<xs:complexType name="i245">
+		<xs:complexContent>
+			<xs:extension base="i497">
+				<xs:sequence>
+					<xs:element name="i156" type="i433" minOccurs="1" maxOccurs="1"/>
+					<xs:element name="i254" type="i254" minOccurs="1" maxOccurs="1"/>
+					<xs:element name="i381" type="pr567:i355" minOccurs="0" maxOccurs="unbounded"/>
+				</xs:sequence>
+			</xs:extension>
+		</xs:complexContent>
+	</xs:complexType>
+</xs:schema>

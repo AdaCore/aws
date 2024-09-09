@@ -1,0 +1,221 @@
+Service i179
+
+
+Procedure i53 SOAPAction:http://corp.iws/i53
+   Input
+      [record] i53 ; i53
+         [record] i113 ; i113
+            [derived] i479 ; i253
+            [derived] i88 ; i128
+   Output
+      [record] i451 ; i451
+   > i53
+
+Procedure i87 SOAPAction:http://corp.iws/i87
+   Input
+      [derived] i433 ; i408
+      [derived] i138 ; i408
+      [derived] i108 ; i408
+      [derived] i528 ; i408
+      [derived] i510 ; i339
+      [derived] i7 ; i339
+      [record] i87 ; i87
+         [derived] i433 ; i433
+         [derived] i213 ; i213
+         [derived] i138 ; i291
+         [derived] i108 ; i291
+         [derived] i528 ; i528
+         [enumeration] i271 ; i271
+         [record] i133 ; i133
+            [set] {0 .. 1} i510 ; i510
+            [set] {0 .. 1} i7 ; i550
+            [set] {0 .. 1} i337 ; i425
+            [set] {0 .. 1} i281 ; i425
+            [set] {0 .. 1} i491 ; i354
+            [set] {0 .. 1} i490 ; i425
+            [set] {0 .. 1} i101 ; i425
+   Output
+      [record] i451 ; i451
+   > i87
+
+Procedure i120 SOAPAction:http://corp.iws/i120
+   Input
+      [derived] i433 ; i408
+      [derived] i138 ; i408
+      [derived] i108 ; i408
+      [derived] i496 ; i408
+      [derived] i528 ; i408
+      [derived] i510 ; i339
+      [derived] i7 ; i339
+      [record] i120 ; i120
+         [derived] i433 ; i433
+         [derived] i213 ; i213
+         [derived] i138 ; i291
+         [derived] i108 ; i291
+         [derived] i496 ; i496
+         [derived] i528 ; i528
+         [enumeration] i271 ; i271
+         [record] i133 ; i133
+            [set] {0 .. 1} i510 ; i510
+            [set] {0 .. 1} i7 ; i550
+            [set] {0 .. 1} i337 ; i425
+            [set] {0 .. 1} i281 ; i425
+            [set] {0 .. 1} i491 ; i354
+            [set] {0 .. 1} i490 ; i425
+            [set] {0 .. 1} i101 ; i425
+         [set] {0 .. 1} i88 ; i128
+   Output
+      [record] i451 ; i451
+   > i120
+
+Procedure i119 SOAPAction:http://corp.iws/i119
+   Input
+      [derived] i433 ; i408
+      [derived] i138 ; i408
+      [derived] i108 ; i408
+      [derived] i496 ; i408
+      [record] i119 ; i119
+         [derived] i433 ; i433
+         [derived] i213 ; i213
+         [derived] i138 ; i291
+         [derived] i108 ; i291
+         [derived] i496 ; i496
+   Output
+      [record] i451 ; i451
+   > i119
+
+Procedure i91 SOAPAction:http://corp.iws/i91
+   Input
+      [derived] i433 ; i408
+      [derived] i138 ; i408
+      [derived] i108 ; i408
+      [derived] i496 ; i408
+      [derived] i528 ; i408
+      [derived] i510 ; i339
+      [derived] i7 ; i339
+      [record] i91 ; i91
+         [derived] i433 ; i433
+         [derived] i213 ; i213
+         [derived] i138 ; i291
+         [derived] i108 ; i291
+         [derived] i496 ; i496
+         [derived] i88 ; i128
+         [record:choice] i335 ; i335
+            [derived] i528 ; i528
+            [record] i134 ; i134
+               [enumeration] i271 ; i271
+               [record] i133 ; i133
+                  [set] {0 .. 1} i510 ; i510
+                  [set] {0 .. 1} i7 ; i550
+                  [set] {0 .. 1} i337 ; i425
+                  [set] {0 .. 1} i281 ; i425
+                  [set] {0 .. 1} i491 ; i354
+                  [set] {0 .. 1} i490 ; i425
+                  [set] {0 .. 1} i101 ; i425
+         [set] {0 .. 1} i338 ; i354
+   Output
+      [record] i451 ; i451
+   > i91
+
+Procedure i90 SOAPAction:http://corp.iws/i90
+   Input
+      [derived] i433 ; i408
+      [derived] i138 ; i408
+      [derived] i108 ; i408
+      [derived] i496 ; i408
+      [record] i90 ; i90
+         [derived] i433 ; i433
+         [derived] i213 ; i213
+         [derived] i138 ; i291
+         [derived] i108 ; i291
+         [derived] i496 ; i496
+   Output
+      [record] i451 ; i451
+   > i90
+
+Procedure i57 SOAPAction:http://corp.iws/i57
+   Input
+      [derived] i433 ; i408
+      [derived] i138 ; i408
+      [derived] i108 ; i408
+      [derived] i342 ; i408
+      [derived] i496 ; i408
+      [derived] i244 ; i253
+      [derived] i528 ; i408
+      [derived] i230 ; i408
+      [record] i57 ; i57
+         [derived] i433 ; i433
+         [derived] i213 ; i213
+         [derived] i138 ; i291
+         [derived] i108 ; i291
+         [derived] i342 ; i342
+         [derived] i88 ; i128
+         [set] {0 .. unbounded} i89 ; i89_Set [i89]
+         [set] {0 .. unbounded} i16 ; i128
+   Output
+      [record] i451 ; i451
+   > i57
+
+Procedure i56 SOAPAction:http://corp.iws/i56
+   Input
+      [derived] i433 ; i408
+      [derived] i138 ; i408
+      [derived] i108 ; i408
+      [derived] i342 ; i408
+      [record] i56 ; i56
+         [derived] i433 ; i433
+         [derived] i213 ; i213
+         [derived] i138 ; i291
+         [derived] i108 ; i291
+         [derived] i342 ; i342
+   Output
+      [record] i451 ; i451
+   > i56
+
+Procedure i59 SOAPAction:http://corp.iws/i59
+   Input
+      [derived] i433 ; i408
+      [derived] i138 ; i408
+      [derived] i108 ; i408
+      [derived] i496 ; i408
+      [record] i59 ; i59
+         [derived] i433 ; i433
+         [derived] i213 ; i213
+         [derived] i138 ; i291
+         [derived] i108 ; i291
+         [derived] i496 ; i496
+         [derived] i151 ; i128
+         [derived] i88 ; i128
+   Output
+      [record] i451 ; i451
+   > i59
+
+Procedure i58 SOAPAction:http://corp.iws/i58
+   Input
+      [derived] i433 ; i408
+      [derived] i138 ; i408
+      [derived] i108 ; i408
+      [derived] i496 ; i408
+      [record] i58 ; i58
+         [derived] i433 ; i433
+         [derived] i213 ; i213
+         [derived] i138 ; i291
+         [derived] i108 ; i291
+         [derived] i496 ; i496
+   Output
+      [record] i451 ; i451
+   > i58
+
+Procedure i269 SOAPAction:http://corp.iws/i269
+   Input
+      [derived] i433 ; i408
+      [derived] i138 ; i408
+      [derived] i108 ; i408
+      [record] i269 ; i269
+         [derived] i433 ; i433
+         [derived] i213 ; i213
+         [derived] i138 ; i291
+         [derived] i108 ; i291
+   Output
+      [record] i451 ; i451
+   > i269

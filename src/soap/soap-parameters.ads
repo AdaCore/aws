@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2000-2019, AdaCore                     --
+--                     Copyright (C) 2000-2024, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -29,7 +29,6 @@
 
 pragma Ada_2012;
 
-with Ada.Calendar;
 with Ada.Strings.Unbounded;
 
 with SOAP.Types;
@@ -81,8 +80,12 @@ package SOAP.Parameters is
    --  Types.Data_Error if this parameter does not exist or is not a Float.
 
    function Get (P : List; Name : String) return Long_Float with Inline;
-   --  Returns parameter named Name in P as a Float value. Raises
+   --  Returns parameter named Name in P as a Double value. Raises
    --  Types.Data_Error if this parameter does not exist or is not a Double.
+
+   function Get (P : List; Name : String) return Types.Decimal with Inline;
+   --  Returns parameter named Name in P as a Decimal value. Raises
+   --  Types.Data_Error if this parameter does not exist or is not a Decimal.
 
    function Get (P : List; Name : String) return String with Inline;
    --  Returns parameter named Name in P as a String value. Raises
@@ -95,7 +98,18 @@ package SOAP.Parameters is
    --  Returns parameter named Name in P as a Boolean value. Raises
    --  Types.Data_Error if this parameter does not exist or is not a Boolean.
 
-   function Get (P : List; Name : String) return Ada.Calendar.Time with Inline;
+   function Get
+     (P : List; Name : String) return Types.Local_Date_Time with Inline;
+   --  Returns parameter named Name in P as a Time value. Raises
+   --  Types.Data_Error if this parameter does not exist or is not a Data_Time.
+
+   function Get
+     (P : List; Name : String) return Types.Local_Date with Inline;
+   --  Returns parameter named Name in P as a Time value. Raises
+   --  Types.Data_Error if this parameter does not exist or is not a Date.
+
+   function Get
+     (P : List; Name : String) return Types.Local_Time with Inline;
    --  Returns parameter named Name in P as a Time value. Raises
    --  Types.Data_Error if this parameter does not exist or is not a time.
 

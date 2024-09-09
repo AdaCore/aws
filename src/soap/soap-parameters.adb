@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2000-2022, AdaCore                     --
+--                     Copyright (C) 2000-2024, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -285,6 +285,12 @@ package body SOAP.Parameters is
       return Types.Get (Argument (P, Name));
    end Get;
 
+   function Get (P : List; Name : String) return Types.Decimal is
+      pragma Suppress (Validity_Check);
+   begin
+      return Types.Get (Argument (P, Name));
+   end Get;
+
    function Get (P : List; Name : String) return String is
    begin
       return Types.Get (Argument (P, Name));
@@ -300,7 +306,17 @@ package body SOAP.Parameters is
       return Types.Get (Argument (P, Name));
    end Get;
 
-   function Get (P : List; Name : String) return Ada.Calendar.Time is
+   function Get (P : List; Name : String) return Types.Local_Date_Time is
+   begin
+      return Types.Get (Argument (P, Name));
+   end Get;
+
+   function Get (P : List; Name : String) return Types.Local_Date is
+   begin
+      return Types.Get (Argument (P, Name));
+   end Get;
+
+   function Get (P : List; Name : String) return Types.Local_Time is
    begin
       return Types.Get (Argument (P, Name));
    end Get;

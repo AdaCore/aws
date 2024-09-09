@@ -167,6 +167,9 @@ document. In this section we describe the mapping between Ada and
   Mapped to **xsd:double**, not supported by SOAP, mapped
   for convenience but precision cannot be guaranteed.
 
+*SOAP.Types.Decimal*
+  Mapped to **xsd:decimal**
+
 *Boolean*
   Mapped to **xsd:boolean**
 
@@ -177,19 +180,34 @@ document. In this section we describe the mapping between Ada and
   Mapped to **xsd:string**, note that Unbounded_String should be used
   only inside a record for full interoperability. This is a current limitation.
 
+*SOAP.Types.Normalized_String*
+  Mapped to **xsd:normalizedString**
+
+*SOAP.Types.Token*
+  Mapped to **xsd:token**
+
+*SOAP.Types.Any_URI*
+  Mapped to **xsd:anyURI**
+
 .. highlight:: xml
 
 *Character*
   Mapped to a Character schema definition::
 
-   <simpleType name="Character">
-     <restriction base="xsd:string">
-       <length value="1"/>
-     </restriction>
-   </simpleType>
+   <xsd:simpleType name="Character">
+     <xsd:restriction base="xsd:string">
+       <xsd:length value="1"/>
+     </xsd:restriction>
+   </xsd:simpleType>
 
-*Ada.Calendar.Time*
+*Ada.Calendar.Time* and *SOAP.Types.Local_Date_Time*
   Mapped to **xsd:dateTime**
+
+*SOAP.Types.Local_Date*
+  Mapped to **xsd:date**
+
+*SOAP.Types.Local_Time*
+  Mapped to **xsd:time**
 
 *Duration*
   Mapped to **xsd:duration**
@@ -238,9 +256,9 @@ document. In this section we describe the mapping between Ada and
 
   is defined as::
 
-   <simpleType name="Number" targetNamespace="http://soapaws/WSDL_C_pkg/">
-     <restriction base="xsd:int"/>
-   </simpleType>
+   <xsd:simpleType name="Number" targetNamespace="http://soapaws/WSDL_C_pkg/">
+     <xsd:restriction base="xsd:int"/>
+   </xsd:simpleType>
 
 .. highlight:: ada
 
@@ -254,12 +272,12 @@ document. In this section we describe the mapping between Ada and
 
   is defined as::
 
-   <simpleType name="Number" targetNamespace="http://soapaws/WSDL_C_pkg/">
-     <restriction base="xsd:int">
+   <xsd:simpleType name="Number" targetNamespace="http://soapaws/WSDL_C_pkg/">
+     <xsd:restriction base="xsd:int">
        <xsd:minInclusive value=" 1"/>
        <xsd:maxInclusive value=" 9345"/>
-     </restriction>
-   </simpleType>
+     </xsd:restriction>
+   </xsd:simpleType>
 
   Or for a string::
 
@@ -271,11 +289,11 @@ document. In this section we describe the mapping between Ada and
 
   is defined as::
 
-   <simpleType name="Code" targetNamespace="http://soapaws/WSDL_C_pkg/">
+   <xsd:simpleType name="Code" targetNamespace="http://soapaws/WSDL_C_pkg/">
      <xsd:restriction base="xsd:string">
        <xsd:Length value="10"/>
      </xsd:restriction>
-   </simpleType>
+   </xsd:simpleType>
 
 .. highlight:: ada
 
@@ -289,12 +307,12 @@ document. In this section we describe the mapping between Ada and
 
   is defined as::
 
-   <simpleType name="Small" targetNamespace="http://soapaws/WSDL_C_pkg/">
-     <restriction base="xsd:byte">
+   <xsd:simpleType name="Small" targetNamespace="http://soapaws/WSDL_C_pkg/">
+     <xsd:restriction base="xsd:byte">
        <xsd:minInclusive value=" 1"/>
        <xsd:maxInclusive value=" 10"/>
-     </restriction>
-   </simpleType>
+     </xsd:restriction>
+   </xsd:simpleType>
 
 .. highlight:: ada
 
@@ -307,11 +325,29 @@ document. In this section we describe the mapping between Ada and
 
   is defined as::
 
-   <simpleType name="Count" targetNamespace="http://soapaws/WSDL_C_pkg/">
+   <xsd:simpleType name="Count" targetNamespace="http://soapaws/WSDL_C_pkg/">
      <xsd:restriction base="xsd:unsignedByte">
        <xsd:maxInclusive value=" 13"/>
      </xsd:restriction>
-   </simpleType>
+   </xsd:simpleType>
+
+.. highlight:: ada
+
+*Decimal types*
+  Mapped to a decimal with possible range constraints::
+
+   type Price is delta 0.01 digits 12 range 0.0 .. 1234.1;
+
+  .. highlight:: xml
+
+  is defined as::
+
+   <xsd:simpleType name="Price">
+      <xsd:restriction base="xsd:decimal">
+         <xsd:minInclusive value=" 0.00000000"/>
+         <xsd:maxInclusive value=" 1234.10000000"/>
+      </xsd:restriction>
+   </xsd:simpleType>
 
 .. highlight:: ada
 
@@ -324,13 +360,13 @@ document. In this section we describe the mapping between Ada and
 
   is defined as::
 
-   <simpleType name="Color">
-     <restriction base="xsd:string">
-       <enumeration value="Red"/>
-       <enumeration value="Green"/>
-       <enumeration value="Blue"/>
-     </restriction>
-   </simpleType>
+   <xsd:simpleType name="Color">
+     <xsd:restriction base="xsd:string">
+       <xsd:enumeration value="Red"/>
+       <xsd:enumeration value="Green"/>
+       <xsd:enumeration value="Blue"/>
+     </xsd:restriction>
+   </xsd:simpleType>
 
 .. highlight:: ada
 
@@ -350,16 +386,16 @@ document. In this section we describe the mapping between Ada and
 
   is defined as::
 
-   <complexType name="Rec">
-     <all>
-       <element name="A" type="xsd:int"/>
-       <element name="B" type="xsd:float"/>
-       <element name="C" type="xsd:double"/>
-       <element name="D" type="tns:Character"/>
-       <element name="E" type="xsd:string"/>
-       <element name="F" type="xsd:boolean"/>
-     </all>
-   </complexType>
+   <xsd:complexType name="Rec">
+     <xsd:all>
+       <xsd:element name="A" type="xsd:int"/>
+       <xsd:element name="B" type="xsd:float"/>
+       <xsd:element name="C" type="xsd:double"/>
+       <xsd:element name="D" type="tns:Character"/>
+       <xsd:element name="E" type="xsd:string"/>
+       <xsd:element name="F" type="xsd:boolean"/>
+     </xsd:all>
+   </xsd:complexType>
 
 .. highlight:: ada
 
@@ -381,13 +417,13 @@ document. In this section we describe the mapping between Ada and
 
   A SOAP encoded format can be generated with the -sea option:
 
-   <complexType name="Set_Of_Rec">
-     <complexContent>
-       <restriction base="soap-enc:Array">
-         <attribute ref="soap-enc:arrayType" wsdl:arrayType="tns:Rec[]"/>
-       </restriction>
-     </complexContent>
-   </complexType>
+   <xsd:complexType name="Set_Of_Rec">
+     <xsd:complexContent>
+       <xsd:restriction base="soap-enc:Array">
+         <xsd:attribute ref="soap-enc:arrayType" wsdl:arrayType="tns:Rec[]"/>
+       </xsd:restriction>
+     </xsd:complexContent>
+   </xsd:complexType>
 
 .. highlight:: ada
 
@@ -482,11 +518,11 @@ document. In this section we describe the mapping between Ada and
      </xsd:sequence>
    </xsd:complexType>
 
-   <complexType name="Complex_Rec">
-     <all>
-       <element name="SI" type="tns:Set_Of_Int"/>
-     </all>
-   </complexType>
+   <xsd:complexType name="Complex_Rec">
+     <xsd:all>
+       <xsd:element name="SI" type="tns:Set_Of_Int"/>
+     </xsd:all>
+   </xsd:complexType>
 
 .. highlight:: ada
 

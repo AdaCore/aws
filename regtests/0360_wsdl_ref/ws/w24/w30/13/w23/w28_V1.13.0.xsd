@@ -1,0 +1,295 @@
+<?xml version="1.0" encoding="utf-8"?>
+<xs:schema targetNamespace="http://corp.com/ckws" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns="http://corp.com/ckws" xmlns:pr549="http://corp.com/ckws" xmlns:pr554="http://corp.com/cpws" xmlns:pr567="http://corp.com/ccbws" xmlns:pr544="http://corp.com/cdsuws">
+	<xs:import namespace="http://corp.com/po/w24/w23/w22/w30/13/0" schemaLocation="w22_V1.13.0.xsd"/>
+	<xs:import namespace="http://corp.com/po/w24/w26/w8/w30/13/0" schemaLocation="../w26/w8_V1.13.0.xsd"/>
+	<xs:import namespace="http://corp.com/po/w24/w26/w13/w30/13/0" schemaLocation="../w26/w13_V1.13.0.xsd"/>
+	<xs:element name="i415" type="pr549:i415">
+	</xs:element>
+	<xs:element name="i522" type="pr567:i550">
+	</xs:element>
+	<xs:element name="i578" type="pr549:i578">
+	</xs:element>
+	<xs:element name="i434" type="pr549:i434">
+	</xs:element>
+	<xs:element name="i344" type="pr549:i344">
+	</xs:element>
+	<xs:element name="i314" type="pr554:i471">
+	</xs:element>
+	<xs:element name="i462" type="pr567:i493"/>
+	<xs:element name="i550" type="pr567:i183"/>
+	<xs:element name="i184" type="pr549:i184">
+	</xs:element>
+	<xs:element name="i273" type="pr549:i305"/>
+	<xs:element name="i574" type="pr549:i574">
+	</xs:element>
+	<xs:element name="i364" type="pr549:i574">
+	</xs:element>
+	<xs:element name="i396" type="pr549:i574">
+	</xs:element>
+	<xs:element name="i234" type="pr549:i234">
+	</xs:element>
+	<xs:element name="i511" type="pr549:i511">
+	</xs:element>
+	<xs:simpleType name="i415">
+		<xs:restriction base="pr554:i408">
+			<xs:minLength value="1"/>
+			<xs:maxLength value="10"/>
+		</xs:restriction>
+	</xs:simpleType>
+	<xs:simpleType name="i328">
+		<xs:restriction base="pr554:i425">
+			<xs:enumeration value="i576"/>
+			<xs:enumeration value="i486"/>
+		</xs:restriction>
+	</xs:simpleType>
+	<xs:simpleType name="i326">
+		<xs:restriction base="pr554:i425">
+			<xs:enumeration value="i265"/>
+			<xs:enumeration value="i232"/>
+			<xs:enumeration value="i449"/>
+			<xs:enumeration value="i231"/>
+			<xs:enumeration value="i323"/>
+			<xs:enumeration value="i84"/>
+			<xs:enumeration value="i266"/>
+		</xs:restriction>
+	</xs:simpleType>
+	<xs:simpleType name="i578">
+		<xs:restriction base="pr554:i339"/>
+	</xs:simpleType>
+	<xs:simpleType name="i434">
+		<xs:restriction base="pr554:i408"/>
+	</xs:simpleType>
+	<xs:simpleType name="i344">
+		<xs:restriction base="pr554:i458"/>
+	</xs:simpleType>
+	<xs:simpleType name="i370">
+		<xs:restriction base="pr554:i425">
+			<xs:enumeration value="i521"/>
+			<xs:enumeration value="i526"/>
+		</xs:restriction>
+	</xs:simpleType>
+	<xs:simpleType name="i169">
+		<xs:restriction base="pr554:i425">
+			<xs:enumeration value="i525"/>
+			<xs:enumeration value="i473"/>
+		</xs:restriction>
+	</xs:simpleType>
+	<xs:simpleType name="i184">
+		<xs:restriction base="pr554:i253"/>
+	</xs:simpleType>
+	<xs:simpleType name="i574">
+		<xs:restriction base="pr554:i339"/>
+	</xs:simpleType>
+	<xs:simpleType name="i137">
+		<xs:restriction base="pr554:i425">
+			<xs:enumeration value="i432"/>
+			<xs:enumeration value="i189"/>
+			<xs:enumeration value="i513"/>
+			<xs:enumeration value="i484"/>
+		</xs:restriction>
+	</xs:simpleType>
+	<xs:simpleType name="i238">
+		<xs:restriction base="pr554:i425">
+			<xs:enumeration value="i437"/>
+			<xs:enumeration value="i152"/>
+			<xs:enumeration value="i139"/>
+		</xs:restriction>
+	</xs:simpleType>
+	<xs:simpleType name="i234">
+		<xs:restriction base="pr554:i458"/>
+	</xs:simpleType>
+	<xs:simpleType name="i511">
+		<xs:restriction base="pr554:i399"/>
+	</xs:simpleType>
+	<xs:element name="i478" type="i478"/>
+	<xs:complexType name="i478">
+		<xs:sequence>
+			<xs:element ref="i115" minOccurs="1" maxOccurs="1"/>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:element name="i159" type="i159"/>
+	<xs:complexType name="i159">
+		<xs:sequence>
+			<xs:element ref="i511" minOccurs="0" maxOccurs="1"/>
+			<xs:element ref="pr567:i257" minOccurs="0" maxOccurs="unbounded"/>
+			<xs:element ref="pr567:i535" minOccurs="0" maxOccurs="1"/>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:element name="i115" type="i115"/>
+	<xs:complexType name="i115">
+		<xs:sequence>
+			<xs:element ref="i415" minOccurs="1" maxOccurs="1"/>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:element name="i564" type="i564"/>
+	<xs:complexType name="i564">
+		<xs:sequence>
+			<xs:element ref="i522" minOccurs="1" maxOccurs="1"/>
+			<xs:element name="i370" type="i370" minOccurs="1" maxOccurs="1"/>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:element name="i112" type="i112"/>
+	<xs:complexType name="i112">
+		<xs:sequence>
+			<xs:element ref="pr544:i191" minOccurs="1" maxOccurs="1"/>
+			<xs:element ref="pr567:i363" minOccurs="1" maxOccurs="1"/>
+			<xs:element name="i272" type="pr567:i460" minOccurs="1" maxOccurs="1">
+			</xs:element>
+			<xs:element name="i137" type="i137" minOccurs="1" maxOccurs="1"/>
+			<xs:element ref="pr567:i183" minOccurs="0" maxOccurs="1"/>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:element name="i1" type="i1"/>
+	<xs:complexType name="i1">
+		<xs:complexContent>
+			<xs:extension base="i112">
+				<xs:sequence>
+					<xs:element ref="i578" minOccurs="1" maxOccurs="1"/>
+					<xs:element ref="i396" minOccurs="1" maxOccurs="1"/>
+					<xs:element ref="i364" minOccurs="1" maxOccurs="1"/>
+				</xs:sequence>
+			</xs:extension>
+		</xs:complexContent>
+	</xs:complexType>
+	<xs:element name="i14" type="i14"/>
+	<xs:complexType name="i14">
+		<xs:complexContent>
+			<xs:extension base="i112">
+				<xs:sequence>
+					<xs:element ref="i578" minOccurs="1" maxOccurs="1"/>
+					<xs:element ref="i574" minOccurs="1" maxOccurs="1"/>
+				</xs:sequence>
+			</xs:extension>
+		</xs:complexContent>
+	</xs:complexType>
+	<xs:element name="i13" type="i13"/>
+	<xs:complexType name="i13">
+		<xs:complexContent>
+			<xs:extension base="i112">
+				<xs:sequence>
+					<xs:element ref="i578" minOccurs="1" maxOccurs="1"/>
+				</xs:sequence>
+			</xs:extension>
+		</xs:complexContent>
+	</xs:complexType>
+	<xs:element name="i571" type="i571"/>
+	<xs:complexType name="i571">
+		<xs:sequence>
+			<xs:element ref="i522" minOccurs="1" maxOccurs="1"/>
+			<xs:element name="i370" type="i370" minOccurs="1" maxOccurs="1"/>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:element name="i378" type="i378"/>
+	<xs:complexType name="i378">
+		<xs:sequence>
+			<xs:element name="i325" type="pr554:i339" minOccurs="1" maxOccurs="1">
+			</xs:element>
+			<xs:element name="i541" type="pr554:i339" minOccurs="1" maxOccurs="1">
+			</xs:element>
+			<xs:element name="i212" type="pr554:i399" minOccurs="1" maxOccurs="1">
+			</xs:element>
+			<xs:element name="i402" type="pr554:i339" minOccurs="1" maxOccurs="1">
+			</xs:element>
+			<xs:element name="i371" type="pr554:i339" minOccurs="1" maxOccurs="1">
+			</xs:element>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:element name="i23" type="i23"/>
+	<xs:complexType name="i23">
+		<xs:complexContent>
+			<xs:extension base="i115">
+				<xs:sequence>
+					<xs:element name="i279" type="pr544:i422" minOccurs="1" maxOccurs="1"/>
+				</xs:sequence>
+			</xs:extension>
+		</xs:complexContent>
+	</xs:complexType>
+	<xs:element name="i495" type="i495"/>
+	<xs:complexType name="i495">
+		<xs:sequence>
+			<xs:element ref="i344" minOccurs="1" maxOccurs="1"/>
+			<xs:element name="i73" type="pr567:i460" minOccurs="1" maxOccurs="1">
+			</xs:element>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:element name="i459" type="i459"/>
+	<xs:complexType name="i459">
+		<xs:sequence>
+			<xs:element name="i283" type="pr554:i253" minOccurs="1" maxOccurs="1">
+			</xs:element>
+			<xs:element name="i296" type="pr554:i403" minOccurs="1" maxOccurs="1">
+			</xs:element>
+			<xs:element name="i201" type="pr554:i403" minOccurs="1" maxOccurs="1">
+			</xs:element>
+			<xs:element name="i107" type="pr554:i403" minOccurs="1" maxOccurs="1">
+			</xs:element>
+			<xs:element name="i416" type="pr554:i390" minOccurs="1" maxOccurs="1">
+			</xs:element>
+			<xs:element name="i438" type="pr554:i390" minOccurs="1" maxOccurs="1">
+			</xs:element>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:element name="i529" type="i529"/>
+	<xs:complexType name="i529">
+		<xs:sequence>
+			<xs:element name="i158" type="pr554:i390" minOccurs="1" maxOccurs="1">
+			</xs:element>
+			<xs:element name="i411" type="pr554:i390" minOccurs="1" maxOccurs="1">
+			</xs:element>
+			<xs:element name="i500" type="pr554:i390" minOccurs="1" maxOccurs="1">
+			</xs:element>
+			<xs:element name="i347" type="pr554:i390" minOccurs="1" maxOccurs="1">
+			</xs:element>
+			<xs:element name="i470" type="pr554:i390" minOccurs="1" maxOccurs="1">
+			</xs:element>
+			<xs:element name="i153" type="pr554:i390" minOccurs="1" maxOccurs="1">
+			</xs:element>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:element name="i275" type="i275"/>
+	<xs:complexType name="i275">
+		<xs:sequence>
+			<xs:element ref="pr567:i257" minOccurs="0" maxOccurs="unbounded"/>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:element name="i82" type="i82"/>
+	<xs:complexType name="i82">
+		<xs:complexContent>
+			<xs:extension base="i115">
+				<xs:sequence>
+					<xs:element ref="i434" minOccurs="1" maxOccurs="1"/>
+					<xs:element ref="i234" minOccurs="1" maxOccurs="1"/>
+					<xs:element ref="i344" minOccurs="1" maxOccurs="1"/>
+				</xs:sequence>
+			</xs:extension>
+		</xs:complexContent>
+	</xs:complexType>
+	<xs:element name="i487" type="i487"/>
+	<xs:complexType name="i487">
+		<xs:sequence>
+			<xs:element ref="i462" minOccurs="1" maxOccurs="1"/>
+			<xs:element ref="i550" minOccurs="1" maxOccurs="1"/>
+			<xs:element ref="i273" minOccurs="1" maxOccurs="unbounded"/>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:element name="i305" type="i305"/>
+	<xs:complexType name="i305">
+		<xs:sequence>
+			<xs:element ref="pr567:i494" minOccurs="1" maxOccurs="1"/>
+			<xs:element ref="pr567:i183" minOccurs="1" maxOccurs="1"/>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:element name="i360" type="i360"/>
+	<xs:complexType name="i360">
+		<xs:sequence>
+			<xs:element name="i238" type="i238" minOccurs="1" maxOccurs="1"/>
+			<xs:element name="i388" type="pr567:i460" minOccurs="1" maxOccurs="1">
+			</xs:element>
+			<xs:element name="i145" type="pr567:i460" minOccurs="0" maxOccurs="1">
+			</xs:element>
+			<xs:element name="i160" type="pr567:i460" minOccurs="0" maxOccurs="1">
+			</xs:element>
+			<xs:element ref="pr567:i535" minOccurs="0" maxOccurs="1"/>
+		</xs:sequence>
+	</xs:complexType>
+</xs:schema>

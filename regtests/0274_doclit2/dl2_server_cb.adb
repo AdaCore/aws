@@ -44,7 +44,7 @@ package body Dl2_Server_CB is
      return getQueueStatus_Result;
 
    function execute
-     (executionTime : SOAP.Types.Local_Time;
+     (executionTime : SOAP.Types.Local_Date_Time;
       valueA        : RecB_Set_Type)
      return String;
 
@@ -82,7 +82,7 @@ package body Dl2_Server_CB is
    -------------
 
    function execute
-     (executionTime : SOAP.Types.Local_Time;
+     (executionTime : SOAP.Types.Local_Date_Time;
       valueA        : RecB_Set_Type)
      return String is
    begin

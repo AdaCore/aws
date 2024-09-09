@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2003-2022, AdaCore                     --
+--                     Copyright (C) 2003-2024, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -161,6 +161,8 @@ package body WSDL2AWS.WSDL.Parser is
    function Parse_Set
      (O        : in out Object'Class;
       S        : DOM.Core.Node;
+      P_Min    : String;
+      P_Max    : String;
       Document : SOAP.WSDL.Object) return Parameters.Parameter;
    --  Returns array in node S. A set if used to handle parameters with a
    --  minOccurs or maxOccurs different to 1.
@@ -181,8 +183,9 @@ package body WSDL2AWS.WSDL.Parser is
    --  Dir.
 
    function Is_Array
-     (O : Object'Class;
-      N : DOM.Core.Node) return Boolean;
+     (O        : Object'Class;
+      N        : DOM.Core.Node;
+      Document : SOAP.WSDL.Object) return Boolean;
    --  Returns True if N is an array description node. Set the array element
    --  name into the object.
 
@@ -223,6 +226,11 @@ package body WSDL2AWS.WSDL.Parser is
 
    procedure Get_Min_Max (S_Min, S_Max : String; Min, Max : out Natural);
    --  Returns the Min, Max values for the given string
+
+   function Get_Element_Ref
+     (N        : DOM.Core.Node;
+      Document : SOAP.WSDL.Object) return DOM.Core.Node;
+   --  Returns the element pointed to by N by following possible ref attribute
 
    procedure Set_Binding_Style (O : in out Object'Class; N : DOM.Core.Node);
    --  Returns the binding style (value of attribute style) specified on the
@@ -383,6 +391,29 @@ package body WSDL2AWS.WSDL.Parser is
 
       return To_String (Doc);
    end Get_Documentation;
+
+   ---------------------
+   -- Get_Element_Ref --
+   ---------------------
+
+   function Get_Element_Ref
+     (N        : DOM.Core.Node;
+      Document : SOAP.WSDL.Object) return DOM.Core.Node
+   is
+      Ref : constant String :=
+              SOAP.XML.Get_Attr_Value (N, "ref", True);
+      R   : DOM.Core.Node := N;
+   begin
+      if Ref = "" then
+         --  No ref attribute, this element should have name/type attribute
+         return N;
+      else
+         R := Look_For_Schema (N, Ref, Document,
+                               Look_Context'(Element => True,
+                                             others  => False));
+         return R;
+      end if;
+   end Get_Element_Ref;
 
    -----------------
    -- Get_Min_Max --
@@ -578,8 +609,9 @@ package body WSDL2AWS.WSDL.Parser is
    --------------
 
    function Is_Array
-     (O : Object'Class;
-      N : DOM.Core.Node) return Boolean
+     (O        : Object'Class;
+      N        : DOM.Core.Node;
+      Document : SOAP.WSDL.Object) return Boolean
    is
       function Array_Elements return Types.Object;
       --  Returns array's element type encoded in node L
@@ -619,8 +651,8 @@ package body WSDL2AWS.WSDL.Parser is
                      end if;
 
                      if Last > First + 1 then
-                        O.Self.Array_Length
-                          := Natural'Value (Value (First + 1 .. Last - 1));
+                        O.Self.Array_Length :=
+                          Natural'Value (Value (First + 1 .. Last - 1));
                      else
                         O.Self.Array_Length := 0;
                      end if;
@@ -686,8 +718,10 @@ package body WSDL2AWS.WSDL.Parser is
                 SOAP.Utils.No_NS (DOM.Core.Nodes.Node_Name (L)) = "element"
             then
                --  Element must have minOccurs and maxOccurs attribute
-
                declare
+                  R          : constant DOM.Core.Node :=
+                                 Get_Element_Ref (L, Document);
+
                   Min_Occurs : constant String :=
                                  SOAP.XML.Get_Attr_Value
                                    (L, "minOccurs", False);
@@ -695,7 +729,7 @@ package body WSDL2AWS.WSDL.Parser is
                                  SOAP.XML.Get_Attr_Value
                                    (L, "maxOccurs", False);
                   E_Type     : constant String :=
-                                 SOAP.XML.Get_Attr_Value (L, "type", True);
+                                 SOAP.XML.Get_Attr_Value (R, "type", True);
                   E_NS       : constant String :=
                                  SOAP.Utils.NS (E_Type);
                begin
@@ -703,7 +737,12 @@ package body WSDL2AWS.WSDL.Parser is
                      raise WSDL_Error with "Array type is not defined.";
                   end if;
 
-                  if Min_Occurs /= "" and then Max_Occurs /= "" then
+                  --  If maxOccurs is 1, this is not an array, just an optimnal
+                  --  item if minOccurs is 0 or an item is minOccurs is 1.
+
+                  if Min_Occurs /= "" and then Max_Occurs /= ""
+                    and then Max_Occurs /= "1"
+                  then
                      if Max_Occurs = "unbounded" then
                         O.Self.Array_Length := 0;
                      else
@@ -1029,7 +1068,9 @@ package body WSDL2AWS.WSDL.Parser is
 
          procedure Look_Schema (S : DOM.Core.Node) is
          begin
-            D := Get_Node (S, "element", T_No_NS, URL);
+            if Context (Element) then
+               D := Get_Node (S, "element", T_No_NS, URL);
+            end if;
 
             if D = null and then Context (Complex_Type) then
                D := Get_Node (S, "complexType", T_No_NS, URL);
@@ -1150,17 +1191,27 @@ package body WSDL2AWS.WSDL.Parser is
             --  Check for array's element name
 
             declare
-               E : DOM.Core.Node := R;
+               E   : DOM.Core.Node := R;
             begin
                while E /= null loop
-                  if SOAP.Utils.No_NS (DOM.Core.Nodes.Node_Name (E))
-                    = "element"
-                  then
-                     D.E_Name := To_Unbounded_String
-                       (SOAP.XML.Get_Attr_Value (E, "name", False));
-                  end if;
+                  declare
+                     NN  : constant String :=
+                             SOAP.Utils.No_NS (DOM.Core.Nodes.Node_Name (E));
+                     Ref : DOM.Core.Node;
+                  begin
+                     if NN = "element" then
+                        Ref := Get_Element_Ref (E, Document);
+                        D.E_Name := To_Unbounded_String
+                          (SOAP.XML.Get_Attr_Value (Ref, "name", False));
+                     end if;
 
-                  E := SOAP.XML.First_Child (E);
+                     if NN = "annotation" then
+                        --  Skip this node
+                        E := SOAP.XML.Next_Sibling (E);
+                     else
+                        E := SOAP.XML.First_Child (E);
+                     end if;
+                  end;
                end loop;
             end;
 
@@ -1432,7 +1483,7 @@ package body WSDL2AWS.WSDL.Parser is
 
             Add_Parameter (O, Parse_Record (O, CT_Node, Document));
 
-         elsif Is_Array (O, CT_Node) then
+         elsif Is_Array (O, CT_Node, Document) then
 
             Add_Parameter (O, Parse_Array (O, CT_Node, Document));
 
@@ -1612,8 +1663,6 @@ package body WSDL2AWS.WSDL.Parser is
    is
       use all type SOAP.WSDL.Parameter_Type;
 
-      P_Name : constant String := SOAP.XML.Get_Attr_Value (N, "name");
-      P_Type : constant String := SOAP.XML.Get_Attr_Value (N, "type", True);
       S_Min  : constant String :=
                  SOAP.XML.Get_Attr_Value (N, "minOccurs", True);
       S_Max  : constant String :=
@@ -1625,114 +1674,133 @@ package body WSDL2AWS.WSDL.Parser is
    begin
       Trace ("(Parse_Parameter)", N);
 
-      if P_Type = "" then
-         raise WSDL_Error
-           with "unsupported element '" & P_Name & "' with anonymous type";
-      end if;
-
       Get_Min_Max (S_Min, S_Max, Min, Max);
 
-      D := SOAP.XML.First_Child (N);
+      --  If we have a ref, parse it now
 
-      if D /= null
-        and then SOAP.Utils.No_NS (DOM.Core.Nodes.Node_Name (D)) = "annotation"
-      then
-         Append (Doc, Get_Documentation (SOAP.XML.First_Child (D)));
-      end if;
+      D := Get_Element_Ref (N, Document);
 
-      if (SOAP.WSDL.Is_Standard (P_Type)
-          and then SOAP.WSDL.To_Type (P_Type) /= P_Character)
-        or else Is_Character (N, P_Type, Document)
-      then
-         if Min = 1 and then Max = 1 then
+      declare
+         P_Name : constant String := SOAP.XML.Get_Attr_Value (D, "name");
+         P_Type : constant String := SOAP.XML.Get_Attr_Value (D, "type", True);
+      begin
+         if P_Type = "" then
+            raise WSDL_Error
+              with "unsupported element '" & P_Name & "' with anonymous type";
+         end if;
+
+         if DOM.Core.Nodes.Has_Child_Nodes (D) then
             declare
-               NS  : constant SOAP.Name_Space.Object :=
-                       SOAP.WSDL.Name_Spaces.Get
-                         (SOAP.Utils.NS (P_Type), SOAP.Name_Space.XSD);
+               A : constant DOM.Core.Node := SOAP.XML.First_Child (D);
             begin
-               return
-                 (Types.K_Simple, +P_Name,
-                  O.Elmt_Name, Doc,
-                  Typ    => Types.Create (SOAP.Utils.No_NS (P_Type), NS),
-                  Min    => Min,
-                  Max    => Max,
-                  Is_Set => False,
-                  Next   => null);
+               if A /= null
+                 and then SOAP.Utils.No_NS (DOM.Core.Nodes.Node_Name (A))
+                            = "annotation"
+               then
+                  Append (Doc, Get_Documentation (SOAP.XML.First_Child (A)));
+               end if;
+               if A /= null then
+                  D := A;
+               end if;
             end;
+         end if;
+
+         if (SOAP.WSDL.Is_Standard (P_Type)
+             and then SOAP.WSDL.To_Type (P_Type) /= P_Character)
+           or else Is_Character (D, P_Type, Document)
+         then
+            if Min <= 1 and then Max = 1 then
+               declare
+                  NS  : constant SOAP.Name_Space.Object :=
+                          SOAP.WSDL.Name_Spaces.Get
+                            (SOAP.Utils.NS (P_Type), SOAP.Name_Space.XSD);
+               begin
+                  return
+                    (Types.K_Simple, +P_Name,
+                     O.Elmt_Name, Doc,
+                     Typ    => Types.Create (SOAP.Utils.No_NS (P_Type), NS),
+                     Min    => Min,
+                     Max    => Max,
+                     Is_Set => False,
+                     Next   => null);
+               end;
+
+            else
+               return Parse_Set (O, N, S_Min, S_Max, Document);
+            end if;
+
+         elsif P_Type = "anyType" then
+            raise WSDL_Error with "Type anyType is not supported.";
 
          else
-            return Parse_Set (O, N, Document);
-         end if;
+            if O.Enclosing_Types.Contains (SOAP.Utils.No_NS (P_Type)) then
+               raise WSDL_Error with
+                 "Recursive WSDL definition " & P_Type & " is not supported.";
+            end if;
 
-      elsif P_Type = "anyType" then
-         raise WSDL_Error with "Type anyType is not supported.";
-
-      else
-         if O.Enclosing_Types.Contains (SOAP.Utils.No_NS (P_Type)) then
-            raise WSDL_Error with
-              "Recursive WSDL definition " & P_Type & " is not supported.";
-         end if;
-
-         declare
-            R : DOM.Core.Node;
-         begin
-            R := Look_For_Schema
-              (N, P_Type, Document,
-               Look_Context'(Complex_Type => True,
-                             others       => False));
-
-            if R = null then
-               --  Now check for a simpleType
+            declare
+               R : DOM.Core.Node;
+            begin
                R := Look_For_Schema
-                 (N, P_Type, Document,
-                  Look_Context'(Simple_Type => True,
-                                others      => False));
+                 (D, P_Type, Document,
+                  Look_Context'(Complex_Type => True,
+                                others       => False));
 
                if R = null then
-                  raise WSDL_Error with
-                    "types.schema definition for " & P_Type & " not found.";
+                  --  Now check for a simpleType
+                  R := Look_For_Schema
+                    (D, P_Type, Document,
+                     Look_Context'(Simple_Type => True,
+                                   others      => False));
+
+                  if R = null then
+                     raise WSDL_Error with
+                       "types.schema definition for " & P_Type & " not found.";
+
+                  else
+                     O.Self.Current_Name := +P_Name;
+
+                     declare
+                        P : Parameters.Parameter :=
+                              Parse_Simple (O, R, Document);
+                     begin
+                        P.Min := Min;
+                        P.Max := Max;
+                        return P;
+                     end;
+                  end if;
+               end if;
+
+               if Is_Array (O, R, Document) then
+                  declare
+                     P : Parameters.Parameter := Parse_Array (O, R, Document);
+                  begin
+                     P.Name := +P_Name;
+                     P.Min := Min;
+                     P.Max := Max;
+                     return P;
+                  end;
 
                else
                   O.Self.Current_Name := +P_Name;
 
-                  declare
-                     P : Parameters.Parameter := Parse_Simple (O, R, Document);
-                  begin
-                     P.Min := Min;
-                     P.Max := Max;
-                     return P;
-                  end;
+                  if Min <= 1 and then Max = 1 then
+                     declare
+                        P : Parameters.Parameter :=
+                              Parse_Record (O, R, Document);
+                     begin
+                        P.Min := Min;
+                        P.Max := Max;
+                        return P;
+                     end;
+
+                  else
+                     return Parse_Set (O, D, S_Min, S_Max, Document);
+                  end if;
                end if;
-            end if;
-
-            if Is_Array (O, R) then
-               declare
-                  P : Parameters.Parameter := Parse_Array (O, R, Document);
-               begin
-                  P.Name := +P_Name;
-                  P.Min := Min;
-                  P.Max := Max;
-                  return P;
-               end;
-
-            else
-               O.Self.Current_Name := +P_Name;
-
-               if Min = 1 and then Max = 1 then
-                  declare
-                     P : Parameters.Parameter := Parse_Record (O, R, Document);
-                  begin
-                     P.Min := Min;
-                     P.Max := Max;
-                     return P;
-                  end;
-
-               else
-                  return Parse_Set (O, N, Document);
-               end if;
-            end if;
-         end;
-      end if;
+            end;
+         end if;
+      end;
    end Parse_Parameter;
 
    ----------------
@@ -1938,9 +2006,89 @@ package body WSDL2AWS.WSDL.Parser is
       R        : DOM.Core.Node;
       Document : SOAP.WSDL.Object) return Parameters.Parameter
    is
+      procedure Parse_Complex_Content
+        (P : in out Parameters.Parameter;
+         N : in out DOM.Core.Node);
+      --  Parse complexContent node (possibly recursivelly if an extension
+      --  is defined.
+
+      ---------------------------
+      -- Parse_Complex_Content --
+      ---------------------------
+
+      procedure Parse_Complex_Content
+        (P : in out Parameters.Parameter;
+         N : in out DOM.Core.Node) is
+      begin
+         N := SOAP.XML.First_Child (N);
+
+         --  We have an extension, we need to inline the element
+         --  definition here.
+
+         if N /= null
+           and then  SOAP.Utils.No_NS (DOM.Core.Nodes.Node_Name (N))
+             = "extension"
+         then
+            declare
+               Base : constant String :=
+                        SOAP.XML.Get_Attr_Value (N, "base", True);
+               CT   : DOM.Core.Node;
+            begin
+               --  Get type whose name is Base
+
+               CT := Look_For_Schema
+                  (N, Base, Document,
+                   Look_Context'(Complex_Type => True, others => False));
+
+               --  Move to the sequence
+
+               CT := SOAP.XML.First_Child (CT);
+
+               Skip_Annotation (CT);
+
+               if SOAP.Utils.No_NS (DOM.Core.Nodes.Node_Name (CT))
+                  = "complexContent"
+               then
+                  Parse_Complex_Content (P, CT);
+               end if;
+
+               if CT /= null then
+                  --  Get all elements
+
+                  declare
+                     NL : constant DOM.Core.Node_List :=
+                            DOM.Core.Nodes.Child_Nodes (CT);
+                  begin
+                     for K in 0 .. DOM.Core.Nodes.Length (NL) - 1 loop
+                        declare
+                           N : constant DOM.Core.Node :=
+                                 DOM.Core.Nodes.Item (NL, K);
+                        begin
+                           if DOM.Core.Nodes.Node_Name (N)
+                             /= "#text"
+                           then
+                              Parameters.Append
+                                (P.P, Parse_Parameter (O, N, Document));
+                           end if;
+                        end;
+                     end loop;
+                  end;
+               end if;
+            end;
+
+            --  Move insive extension node to eventually parse other element
+            --  nodes.
+
+            N := SOAP.XML.First_Child (N);
+         end if;
+      end Parse_Complex_Content;
+
+      --  Parse complexContent node (possibly recursivelly if an extension
+      --  is defined.
+
       P : Parameters.Parameter (Types.K_Record);
       D : Types.Definition (Types.K_Record);
-      N : DOM.Core.Node;
+      N : DOM.Core.Node := R;
    begin
       Trace ("(Parse_Record)", R);
 
@@ -1955,15 +2103,19 @@ package body WSDL2AWS.WSDL.Parser is
          raise WSDL_Error with "abstract record not supported";
       end if;
 
+      if SOAP.Utils.No_NS (DOM.Core.Nodes.Node_Name (R)) = "element" then
+         N := Get_Element_Ref (R, Document);
+      end if;
+
       declare
          use type SOAP.WSDL.Schema.Binding_Style;
-         Name : constant String := SOAP.XML.Get_Attr_Value (R, "name", False);
+         Name : constant String := SOAP.XML.Get_Attr_Value (N, "name", False);
       begin
          --  Set record name, R is a complexType or element node
 
          P.Name      := O.Current_Name;
          P.Elmt_Name := O.Elmt_Name;
-         P.Typ       := Types.Create (Name, Get_Target_Name_Space (R));
+         P.Typ       := Types.Create (Name, Get_Target_Name_Space (N));
 
          D.Ref       := Types.Create (Name, Types.NS (P.Typ));
          D.Is_Choice := False;
@@ -2019,56 +2171,7 @@ package body WSDL2AWS.WSDL.Parser is
             if SOAP.Utils.No_NS (DOM.Core.Nodes.Node_Name (N))
               = "complexContent"
             then
-               N := SOAP.XML.First_Child (N);
-
-               --  We have an extension, we need to inline the element
-               --  definition here.
-
-               if N /= null
-                 and then  SOAP.Utils.No_NS (DOM.Core.Nodes.Node_Name (N))
-                   = "extension"
-               then
-                  declare
-                     Base : constant String :=
-                              SOAP.XML.Get_Attr_Value (N, "base", True);
-                     CT   : DOM.Core.Node;
-                  begin
-                     --  Get type whose name is Base
-
-                     CT := Look_For_Schema
-                       (N, Base, Document,
-                        Look_Context'(Complex_Type => True, others => False));
-
-                     --  Move to the sequence
-
-                     CT := SOAP.XML.First_Child (CT);
-
-                     --  Get all elements
-
-                     declare
-                        NL : constant DOM.Core.Node_List :=
-                               DOM.Core.Nodes.Child_Nodes (CT);
-                     begin
-                        for K in 0 .. DOM.Core.Nodes.Length (NL) - 1 loop
-                           declare
-                              N : constant DOM.Core.Node :=
-                                    DOM.Core.Nodes.Item (NL, K);
-                           begin
-                              if DOM.Core.Nodes.Node_Name (N)
-                                /= "#text"
-                              then
-                                 Parameters.Append
-                                   (P.P, Parse_Parameter (O, N, Document));
-                              end if;
-                           end;
-                        end loop;
-                     end;
-                  end;
-
-                  --  Move past extension node
-
-                  N := SOAP.XML.First_Child (N);
-               end if;
+               Parse_Complex_Content (P, N);
             end if;
 
             --  Got to the first element node
@@ -2249,10 +2352,14 @@ package body WSDL2AWS.WSDL.Parser is
    function Parse_Set
      (O        : in out Object'Class;
       S        : DOM.Core.Node;
+      P_Min    : String;
+      P_Max    : String;
       Document : SOAP.WSDL.Object) return Parameters.Parameter
    is
-      P : Parameters.Parameter (Types.K_Array);
-      D : Types.Definition (Types.K_Array);
+      Min_Max_Set : constant Boolean := P_Min /= "" or else P_Max /= "";
+      R           : constant DOM.Core.Node := Get_Element_Ref (S, Document);
+      P           : Parameters.Parameter (Types.K_Array);
+      D           : Types.Definition (Types.K_Array);
    begin
       Trace ("(Parse_Set)", S);
 
@@ -2262,16 +2369,20 @@ package body WSDL2AWS.WSDL.Parser is
 
       declare
          Name  : constant String :=
-                   SOAP.XML.Get_Attr_Value (S, "name", False);
+                   SOAP.XML.Get_Attr_Value (R, "name", False);
          Typ   : constant String :=
-                   SOAP.XML.Get_Attr_Value (S, "type", True);
+                   SOAP.XML.Get_Attr_Value (R, "type", True);
          S_Min : constant String :=
-                   SOAP.XML.Get_Attr_Value (S, "minOccurs", False);
+                   (if Min_Max_Set
+                    then P_Min
+                    else SOAP.XML.Get_Attr_Value (S, "minOccurs", False));
          S_Max : constant String :=
-                   SOAP.XML.Get_Attr_Value (S, "maxOccurs", False);
+                   (if Min_Max_Set
+                    then P_Max
+                    else SOAP.XML.Get_Attr_Value (S, "maxOccurs", False));
          NS    : constant SOAP.Name_Space.Object :=
                    SOAP.WSDL.Name_Spaces.Get
-                     (SOAP.Utils.NS (Typ), Get_Target_Name_Space (S));
+                     (SOAP.Utils.NS (Typ), Get_Target_Name_Space (R));
       begin
          P.Name   := +Name;
          P.Typ    := Types.Create (Typ & "_Set", NS);
@@ -2280,8 +2391,11 @@ package body WSDL2AWS.WSDL.Parser is
 
          Get_Min_Max (S_Min, S_Max, P.Min, P.Max);
 
+         --  If Min = Max then we have a constraint array with a fixed set of
+         --  elements. All other cases are unbounded array.
+
          if P.Min = P.Max then
-            P.Length := P.Min;
+            P.Length := P.Max;
          else
             P.Length := 0;
          end if;

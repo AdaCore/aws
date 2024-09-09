@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<xs:schema targetNamespace="http://corp.com/cdiws" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns="http://corp.com/cdiws" xmlns:pr562="http://corp.com/cdiws" xmlns:pr554="http://corp.com/cpws">
+	<xs:import namespace="http://corp.com/po/w24/w26/w13/w30/13/0" schemaLocation="../w26/w13_V1.13.0.xsd"/>
+	<xs:element name="i274" type="pr562:i274">
+	</xs:element>
+	<xs:simpleType name="i124">
+		<xs:restriction base="pr554:i425">
+			<xs:enumeration value="i389">
+			</xs:enumeration>
+			<xs:enumeration value="i98">
+			</xs:enumeration>
+			<xs:enumeration value="i241">
+			</xs:enumeration>
+		</xs:restriction>
+	</xs:simpleType>
+	<xs:simpleType name="i274">
+		<xs:restriction base="pr554:i408"/>
+	</xs:simpleType>
+</xs:schema>

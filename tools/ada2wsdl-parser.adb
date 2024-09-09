@@ -1,7 +1,7 @@
 ----------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2003-2021, AdaCore                     --
+--                     Copyright (C) 2003-2024, AdaCore                     --
 --                                                                          --
 --  This is free software;  you can redistribute it  and/or modify it       --
 --  under terms of the  GNU General Public License as published  by the     --
@@ -48,6 +48,7 @@ package body Ada2WSDL.Parser is
    use Libadalang.Analysis;
    use Libadalang.Common;
 
+   use type SOAP.Types.Decimal;
    use type SOAP.Types.Unsigned_Long;
 
    package TxT renames Langkit_Support.Text;
@@ -145,7 +146,7 @@ package body Ada2WSDL.Parser is
       Name : String;
       Decl : Ada_Node'Class;
       Base : Boolean) return Generator.Type_Data;
-   --  Get the type date for the given Node. Decl is the point of declaration
+   --  Get the type data for the given Node. Decl is the point of declaration
    --  for the type/object and so used to get the name space. If Base is set
    --  to True we resolve all the derived/subtype definition to get information
    --  about the base type.
@@ -153,7 +154,7 @@ package body Ada2WSDL.Parser is
    function Type_Definition
      (Node : Type_Decl'Class;
       Base : Boolean) return Generator.Type_Data;
-   --  Likewise for a type-decle
+   --  Likewise for a type-decl
 
    function Type_Definition
      (Node : Type_Expr'Class;
@@ -409,12 +410,27 @@ package body Ada2WSDL.Parser is
       Zero  => 0.0,
       Value => Long_Float'Value);
 
+   function "**" (Left, Right : SOAP.Types.Decimal) return SOAP.Types.Decimal
+     is (SOAP.Types.Decimal (Long_Float (Left) ** Integer (Right)));
+
+   function "/" (Left, Right : SOAP.Types.Decimal) return SOAP.Types.Decimal
+     is (SOAP.Types.Decimal (Long_Float (Left) / Long_Float (Right)));
+
+   function "*" (Left, Right : SOAP.Types.Decimal) return SOAP.Types.Decimal
+     is (SOAP.Types.Decimal (Long_Float (Left) * Long_Float (Right)));
+
+   function Compute_Value is new Compute.Value_G
+     (T     => SOAP.Types.Decimal,
+      Zero  => 0.0,
+      Value => SOAP.Types.Decimal'Value);
+
    ---------------
    -- Get_Range --
    ---------------
 
    procedure Get_Range is new Compute.Range_G (T => Long_Long_Integer);
    procedure Get_Range is new Compute.Range_G (T => Long_Float);
+   procedure Get_Range is new Compute.Range_G (T => SOAP.Types.Decimal);
 
    procedure Get_Range is new Compute.Type_Range_G
      (T     => Long_Long_Integer,
@@ -425,6 +441,11 @@ package body Ada2WSDL.Parser is
      (T     => Long_Float,
       First => Long_Float'First,
       Last  => Long_Float'Last);
+
+   procedure Get_Range is new Compute.Type_Range_G
+     (T     => SOAP.Types.Decimal,
+      First => SOAP.Types.Decimal'First,
+      Last  => SOAP.Types.Decimal'Last);
 
    -------------------
    -- Analyze_Array --
@@ -544,6 +565,9 @@ package body Ada2WSDL.Parser is
       procedure Analyze_Derived (Node : Derived_Type_Def'Class);
       --  Analyze a derived type definition
 
+      procedure Analyze_Subtype (Node : Subtype_Indication'Class);
+      --  Analyze a subtype
+
       procedure Analyze_Enumeration (Node : Enum_Type_Def'Class);
       --  Analyzye an enumeration definition
 
@@ -560,11 +584,7 @@ package body Ada2WSDL.Parser is
             else Node.As_Type_Decl.F_Name));
       --  Return the Node's type name
 
-      function T_Def return Type_Def is
-        (if Node.Kind = Ada_Subtype_Indication
-         then Node.As_Subtype_Indication.P_Designated_Type_Decl.As_Type_Decl
-              .F_Type_Def
-         else Node.As_Type_Decl.F_Type_Def);
+      function T_Def return Type_Def is (Node.As_Type_Decl.F_Type_Def);
 
       function T_Decl return Base_Type_Decl is (Node.As_Base_Type_Decl);
 
@@ -878,28 +898,47 @@ package body Ada2WSDL.Parser is
          end loop;
       end Analyze_Record;
 
+      ---------------------
+      -- Analyze_Subtype --
+      ---------------------
+
+      procedure Analyze_Subtype (Node : Subtype_Indication'Class) is
+      begin
+         Analyze_Type (Node.P_Designated_Type_Decl);
+      end Analyze_Subtype;
+
    begin
       if not Generator.Type_Exists (NS, T_Name) then
-         case T_Def.Kind is
-            when Ada_Derived_Type_Def =>
-               Analyze_Derived (T_Def.As_Derived_Type_Def);
+         case Node.Kind is
+            when Ada_Subtype_Indication =>
+               Analyze_Subtype (Node.As_Subtype_Indication);
 
-            when Ada_Signed_Int_Type_Def
-               | Ada_Floating_Point_Def
-               | Ada_Mod_Int_Type_Def
-               | Ada_Ordinary_Fixed_Point_Def
-               =>
-               Analyze_Numeric (T_Def);
+            when Ada_Concrete_Type_Decl =>
+               case T_Def.Kind is
+                  when Ada_Derived_Type_Def =>
+                     Analyze_Derived (T_Def.As_Derived_Type_Def);
 
-            when Ada_Enum_Type_Def =>
-               Analyze_Enumeration (T_Def.As_Enum_Type_Def);
+                  when Ada_Signed_Int_Type_Def
+                     | Ada_Floating_Point_Def
+                     | Ada_Mod_Int_Type_Def
+                     | Ada_Ordinary_Fixed_Point_Def
+                     | Ada_Decimal_Fixed_Point_Def
+                     =>
+                     Analyze_Numeric (T_Def);
 
-            when Ada_Record_Type_Def =>
-               Analyze_Record (T_Def.As_Record_Type_Def);
+                  when Ada_Enum_Type_Def =>
+                     Analyze_Enumeration (T_Def.As_Enum_Type_Def);
 
-            when Ada_Array_Type_Def =>
-               Analyze_Array
-                 (T_Decl, T_Name, T_Decl, T_Def.As_Array_Type_Def);
+                  when Ada_Record_Type_Def =>
+                     Analyze_Record (T_Def.As_Record_Type_Def);
+
+                  when Ada_Array_Type_Def =>
+                     Analyze_Array
+                       (T_Decl, T_Name, T_Decl, T_Def.As_Array_Type_Def);
+
+                  when others =>
+                     null;
+               end case;
 
             when others =>
                null;
@@ -1085,6 +1124,9 @@ package body Ada2WSDL.Parser is
                      if D.Kind = Ada_Ordinary_Fixed_Point_Def then
                         return Get_Range_Op
                                  (D.As_Ordinary_Fixed_Point_Def.F_Range);
+                     elsif D.Kind = Ada_Decimal_Fixed_Point_Def then
+                        return Get_Range_Op
+                                 (D.As_Decimal_Fixed_Point_Def.F_Range);
                      else
                         return Get_Range_Op (D.As_Floating_Point_Def.F_Range);
                      end if;
@@ -1468,7 +1510,7 @@ package body Ada2WSDL.Parser is
                           (P, Message => "only in mode supported.");
                      end if;
 
-                     --  Iterated over all parameters
+                     --  Iterate over all parameters
 
                      for Name of P_Names loop
                         declare
@@ -1620,22 +1662,29 @@ package body Ada2WSDL.Parser is
         (Node  : Base_Type_Decl'Class;
          First : Long_Long_Integer := Long_Long_Integer'Last;
          Last  : Long_Long_Integer := Long_Long_Integer'First)
-            return Generator.Type_Data;
+         return Generator.Type_Data;
       --  Same as above for integer and optional range
 
       function Register_Deferred_F
         (Node  : Base_Type_Decl'Class;
          First : Long_Float := Long_Float'Last;
          Last  : Long_Float := Long_Float'First)
-            return Generator.Type_Data;
+         return Generator.Type_Data;
       --  Same as above for float and optional range
+
+      function Register_Deferred_D
+        (Node  : Base_Type_Decl'Class;
+         First : SOAP.Types.Decimal := SOAP.Types.Decimal'Last;
+         Last  : SOAP.Types.Decimal := SOAP.Types.Decimal'First)
+         return Generator.Type_Data;
+      --  Same as above for decimal and optional range
 
       function Build_Type
         (Name  : String;
          NS    : String := SOAP.Name_Space.Value (SOAP.Name_Space.XSD);
          First : Long_Long_Integer := Long_Long_Integer'Last;
          Last  : Long_Long_Integer := Long_Long_Integer'First)
-            return Generator.Type_Data
+         return Generator.Type_Data
       is (+NS, +Name,
           (if First = Long_Long_Integer'Last
            then Null_Unbounded_String
@@ -1658,6 +1707,21 @@ package body Ada2WSDL.Parser is
           (if Last = Long_Float'First
            then Null_Unbounded_String
            else +Long_Float'Image (Last)),
+          Null_Unbounded_String);
+
+      function Build_Type_D
+        (Name  : String;
+         NS    : String := SOAP.Name_Space.Value (SOAP.Name_Space.XSD);
+         First : SOAP.Types.Decimal := SOAP.Types.Decimal'Last;
+         Last  : SOAP.Types.Decimal := SOAP.Types.Decimal'First)
+         return Generator.Type_Data
+      is (+NS, +Name,
+          (if First = SOAP.Types.Decimal'Last
+           then Null_Unbounded_String
+           else +SOAP.Types.Decimal'Image (First)),
+          (if Last = SOAP.Types.Decimal'First
+           then Null_Unbounded_String
+           else +SOAP.Types.Decimal'Image (Last)),
           Null_Unbounded_String);
 
       function Build_Array
@@ -1684,6 +1748,10 @@ package body Ada2WSDL.Parser is
         (Node : Base_Type_Decl) return Generator.Type_Data;
       --  Build a fixed point
 
+      function Build_Decimal_Fixed_Point
+        (Node : Base_Type_Decl) return Generator.Type_Data;
+      --  Build a decimal fixed point
+
       function Build_Modular
         (Node : Base_Type_Decl) return Generator.Type_Data;
       --  Build an unsigned type
@@ -1704,6 +1772,15 @@ package body Ada2WSDL.Parser is
          if T_Name = "string" then
             return Build_Type ("string");
 
+         elsif T_Name = "soap.types.token" then
+            return Build_Type ("token");
+
+         elsif T_Name = "soap.types.normalized_string" then
+            return Build_Type ("normalizedString");
+
+         elsif T_Name = "soap.types.any_uri" then
+            return Build_Type ("any_uri");
+
          elsif T_Name in "soap_base64"
                        | "utils.soap_base64"
                        | "soap.utils.soap_base64"
@@ -1714,6 +1791,44 @@ package body Ada2WSDL.Parser is
             return Register_Deferred (Node);
          end if;
       end Build_Array;
+
+      -------------------------------
+      -- Build_Decimal_Fixed_Point --
+      -------------------------------
+
+      function Build_Decimal_Fixed_Point
+        (Node : Base_Type_Decl) return Generator.Type_Data
+      is
+         T_Def    : constant Decimal_Fixed_Point_Def :=
+                      Node.As_Type_Decl.F_Type_Def.As_Decimal_Fixed_Point_Def;
+         T_Name   : constant String := Characters.Handling.To_Lower (Name);
+         Ilb, Iub : SOAP.Types.Decimal;
+      begin
+         Get_Range (Node, Ilb, Iub);
+
+         if T_Name = "soap.types.decimal" then
+            return Build_Type ("decimal");
+
+         elsif Base then
+            return Build_Type_D ("decimal", First => Ilb, Last => Iub);
+
+         else
+            declare
+               NS      : constant String := Name_Space (Decl);
+               NS_Type : constant String := Name_Space (T_Def);
+            begin
+               --  If the type is not in the current package (so in
+               --  different name space). We need to analyse it later
+               --  so, we do register a differred analysis for this type.
+
+               if NS = NS_Type then
+                  return Build_Type_D (Name, NS, Ilb, Iub);
+               else
+                  return Register_Deferred_D (Node, Ilb, Iub);
+               end if;
+            end;
+         end if;
+      end Build_Decimal_Fixed_Point;
 
       -------------------
       -- Build_Derived --
@@ -1731,6 +1846,16 @@ package body Ada2WSDL.Parser is
             begin
                return Register_Deferred (I_Type);
             end;
+
+         elsif T_Name = "soap.types.local_date"
+           or else T_Name = "local_date"
+         then
+            return Build_Type ("date");
+
+         elsif T_Name = "soap.types.local_time"
+           or else T_Name = "local_time"
+         then
+            return Build_Type ("time");
 
          else
             if Base then
@@ -1792,8 +1917,10 @@ package body Ada2WSDL.Parser is
          Ilb, Iub : Long_Float;
       begin
          Get_Range (Node, Ilb, Iub);
+
          if T_Name = "duration" then
             return Build_Type ("duration");
+
          elsif Base then
             if Ilb = Long_Float (Float'First)
               and then Iub = Long_Float (Float'Last)
@@ -1819,7 +1946,7 @@ package body Ada2WSDL.Parser is
                NS      : constant String := Name_Space (Decl);
                NS_Type : constant String := Name_Space (T_Def);
             begin
-               --  If the type is not un the current package (so in
+               --  If the type is not in the current package (so in
                --  different name space). We need to analyse it later
                --  so, we do register a differred analysis for this type.
 
@@ -2023,7 +2150,7 @@ package body Ada2WSDL.Parser is
                NS      : constant String := Name_Space (Decl);
                NS_Type : constant String := Name_Space (T_Def);
             begin
-               --  If the type is not un the current package (so in
+               --  If the type is not in the current package (so in
                --  different name space). We need to analyse it later
                --  so, we do register a differred analysis for this type.
 
@@ -2059,7 +2186,19 @@ package body Ada2WSDL.Parser is
          elsif T_Name in "time" | "calendar.time" | "ada.calendar.time"
            and then Is_Calendar (Node)
          then
+            return Build_Type ("datetime");
+
+         elsif T_Name = "soap.types.local_date_time" then
+            return Build_Type ("datetime");
+
+         elsif T_Name = "soap.types.local_time" then
             return Build_Type ("time");
+
+         elsif T_Name = "soap.types.local_date" then
+            return Build_Type ("date");
+
+         elsif T_Name = "soap.types.token" then
+            return Build_Type ("token");
 
          else
             Raise_Spec_Error
@@ -2079,6 +2218,22 @@ package body Ada2WSDL.Parser is
          Append_Deferred (Node);
          return Build_Type (T_Name, Name_Space (Node));
       end Register_Deferred;
+
+      -------------------------
+      -- Register_Deferred_D --
+      -------------------------
+
+      function Register_Deferred_D
+        (Node  : Base_Type_Decl'Class;
+         First : SOAP.Types.Decimal := SOAP.Types.Decimal'Last;
+         Last  : SOAP.Types.Decimal := SOAP.Types.Decimal'First)
+         return Generator.Type_Data
+      is
+         T_Name : constant String := Img (Node.F_Name);
+      begin
+         Append_Deferred (Node);
+            return Build_Type_D (T_Name, Name_Space (Node), First, Last);
+      end Register_Deferred_D;
 
       -------------------------
       -- Register_Deferred_F --
@@ -2143,6 +2298,9 @@ package body Ada2WSDL.Parser is
 
          when Ada_Ordinary_Fixed_Point_Def =>
             return Build_Fixed_Point (Node.As_Base_Type_Decl);
+
+         when Ada_Decimal_Fixed_Point_Def =>
+            return Build_Decimal_Fixed_Point (Node.As_Base_Type_Decl);
 
          when Ada_Mod_Int_Type_Def =>
             return Build_Modular (Node.As_Base_Type_Decl);

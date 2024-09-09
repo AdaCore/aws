@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="utf-8"?>
+<xs:schema targetNamespace="http://corp.com/cpws" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns="http://corp.com/cpws" xmlns:pr554="http://corp.com/cpws">
+	<xs:simpleType name="i390">
+		<xs:restriction base="xs:boolean"/>
+	</xs:simpleType>
+	<xs:simpleType name="i354">
+		<xs:restriction base="xs:dateTime"/>
+	</xs:simpleType>
+	<xs:simpleType name="i476">
+		<xs:restriction base="xs:date"/>
+	</xs:simpleType>
+	<xs:simpleType name="i384">
+		<xs:restriction base="xs:decimal"/>
+	</xs:simpleType>
+	<xs:simpleType name="i351">
+		<xs:restriction base="xs:duration"/>
+	</xs:simpleType>
+	<xs:simpleType name="i408">
+		<xs:restriction base="pr554:i425">
+			<xs:minLength value="1"/>
+			<xs:maxLength value="50"/>
+		</xs:restriction>
+	</xs:simpleType>
+	<xs:simpleType name="i349">
+		<xs:restriction base="xs:language"/>
+	</xs:simpleType>
+	<xs:simpleType name="i471">
+		<xs:restriction base="xs:long"/>
+	</xs:simpleType>
+	<xs:simpleType name="i345">
+		<xs:restriction base="pr554:i471">
+			<xs:maxInclusive value="i579"/>
+		</xs:restriction>
+	</xs:simpleType>
+	<xs:simpleType name="i253">
+		<xs:restriction base="pr554:i471">
+			<xs:minInclusive value="0"/>
+		</xs:restriction>
+	</xs:simpleType>
+	<xs:simpleType name="i252">
+		<xs:restriction base="pr554:i471">
+			<xs:maxInclusive value="0"/>
+		</xs:restriction>
+	</xs:simpleType>
+	<xs:simpleType name="i403">
+		<xs:restriction base="pr554:i253">
+			<xs:maxInclusive value="100"/>
+		</xs:restriction>
+	</xs:simpleType>
+	<xs:simpleType name="i339">
+		<xs:restriction base="pr554:i471">
+			<xs:minInclusive value="1"/>
+		</xs:restriction>
+	</xs:simpleType>
+	<xs:simpleType name="i458">
+		<xs:restriction base="pr554:i253"/>
+	</xs:simpleType>
+	<xs:simpleType name="i399">
+		<xs:restriction base="xs:string">
+			<xs:maxLength value="255"/>
+		</xs:restriction>
+	</xs:simpleType>
+	<xs:simpleType name="i455">
+		<xs:restriction base="xs:time"/>
+	</xs:simpleType>
+	<xs:simpleType name="i425">
+		<xs:restriction base="xs:token">
+			<xs:minLength value="1"/>
+			<xs:maxLength value="255"/>
+		</xs:restriction>
+	</xs:simpleType>
+	<xs:simpleType name="i102">
+		<xs:restriction base="xs:string"/>
+	</xs:simpleType>
+	<xs:simpleType name="i483">
+		<xs:restriction base="xs:anyURI"/>
+	</xs:simpleType>
+	<xs:element name="i451" type="i451"/>
+	<xs:complexType name="i451">
+		<xs:sequence/>
+	</xs:complexType>
+</xs:schema>

@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2000-2021, AdaCore                     --
+--                     Copyright (C) 2000-2024, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -206,6 +206,10 @@ package AWS.Utils is
        (if To_Lower
         then Normalize_Lower'Result = Characters.Handling.To_Lower (Name)
         else Normalize_Lower'Result = Name);
+
+   function Remove_Multiple_Spaces (Str : String) return String
+     with Post => Str'Length >= Remove_Multiple_Spaces'Result'Length;
+   --  Removes multiple consecutive spaces from Str
 
    procedure Dump_Binary (Data : Stream_Element_Array);
    --  Print Data to standard output and if all elements of Data represent

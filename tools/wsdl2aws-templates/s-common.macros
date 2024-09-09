@@ -16,16 +16,26 @@ SOAP.Types.XSD_Byte
 SOAP.Types.XSD_Float
 @@ELSIF@@ @_$1_@ = P_DOUBLE
 SOAP.Types.XSD_Double
+@@ELSIF@@ @_$1_@ = P_DECIMAL
+SOAP.Types.XSD_Decimal
 @@ELSIF@@ @_$1_@ = P_DURATION
 SOAP.Types.XSD_Duration
 @@ELSIF@@ @_$1_@ = P_BOOLEAN
 SOAP.Types.XSD_Boolean
-@@ELSIF@@ @_$1_@ = P_TIME
+@@ELSIF@@ @_$1_@ = P_DATE_TIME
 SOAP.Types.XSD_Time_Instant
+@@ELSIF@@ @_$1_@ = P_DATE
+SOAP.Types.XSD_Date
+@@ELSIF@@ @_$1_@ = P_TIME
+SOAP.Types.XSD_Time
 @@ELSIF@@ @_$1_@ = P_B64
 SOAP.Types.SOAP_Base64
 @@ELSIF@@ @_$1_@ = P_STRING
 SOAP.Types.XSD_String
+@@ELSIF@@ @_$1_@ = P_TOKEN
+SOAP.Types.XSD_Token
+@@ELSIF@@ @_$1_@ = P_NORMALIZED_STRING
+SOAP.Types.XSD_Normalized_String
 @@ELSIF@@ @_$1_@ = P_CHARACTER
 SOAP.Types.XSD_String
 @@ELSIF@@ @_$1_@ = P_UNSIGNED_LONG
@@ -38,8 +48,10 @@ SOAP.Types.XSD_Unsigned_Short
 SOAP.Types.XSD_Unsigned_Byte
 @@ELSIF@@ @_$1_@ = P_ANY_TYPE
 SOAP.Types.XSD_Any_Type
+@@ELSIF@@ @_$1_@ = P_ANY_URI
+SOAP.Types.XSD_Any_URI
 @@ELSE@@
-Unknown
+[COMMON MACRO SET_TYPE Unknown @_$1_@]
 @@END_IF@@
 @@END_MACRO@@
 @@--
@@ -58,10 +70,16 @@ Byte
 Float
 @@ELSIF@@ @_$1_@ = P_DOUBLE
 Long_Float
+@@ELSIF@@ @_$1_@ = P_DECIMAL
+Decimal
 @@ELSIF@@ @_$1_@ = P_DURATION
 Duration
 @@ELSIF@@ @_$1_@ = P_BOOLEAN
 Boolean
+@@ELSIF@@ @_$1_@ = P_DATE_TIME
+Local_Date_Time
+@@ELSIF@@ @_$1_@ = P_DATE
+Local_Date
 @@ELSIF@@ @_$1_@ = P_TIME
 Local_Time
 @@ELSIF@@ @_$1_@ = P_B64
@@ -78,16 +96,22 @@ Unsigned_Int
 Unsigned_Short
 @@ELSIF@@ @_$1_@ = P_UNSIGNED_BYTE
 Unsigned_Byte
+@@ELSIF@@ @_$1_@ = P_ANY_URI
+Unbounded_String
+@@ELSIF@@ @_$1_@ = P_NORMALIZED_STRING
+Unbounded_String
+@@ELSIF@@ @_$1_@ = P_TOKEN
+Unbounded_String
 @@ELSIF@@ @_$1_@ = P_ANY_TYPE
 Unsupported
 @@ELSE@@
-Unknown
+[COMMON MACRO ADA_TYPE Unknown @_$1_@]
 @@END_IF@@
 @@END_MACRO@@
 @@----------------------------------------------------------------------
 @@--
 @@MACRO(QUALIFIED_ADA_TYPE)@@
-@@IF@@ (@_$1_@ = P_LONG) or (@_$1_@ = P_UNSIGNED_LONG) or (@_$1_@ = P_UNSIGNED_INT) or (@_$1_@ = P_UNSIGNED_SHORT) or (@_$1_@ = P_UNSIGNED_BYTE) or (@_$1_@ = P_TIME) or (@_$1_@ = P_DOUBLE) or (@_$1_@ = P_SHORT) or (@_$1_@ = P_BYTE)
+@@IF@@ (@_$1_@ = P_LONG) or (@_$1_@ = P_UNSIGNED_LONG) or (@_$1_@ = P_UNSIGNED_INT) or (@_$1_@ = P_UNSIGNED_SHORT) or (@_$1_@ = P_UNSIGNED_BYTE) or (@_$1_@ = P_DATE_TIME) or (@_$1_@ = P_DATE) or (@_$1_@ = P_TIME) or (@_$1_@ = P_DOUBLE) or (@_$1_@ = P_DECIMAL) or (@_$1_@ = P_SHORT) or (@_$1_@ = P_BYTE)
 SOAP.Types.@_ADA_TYPE(@_$1_@)_@
 @@ELSE@@
 @_ADA_TYPE(@_$1_@)_@

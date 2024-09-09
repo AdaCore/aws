@@ -78,6 +78,20 @@ package SOAP.Utils is
       return Types.XSD_Time_Instant;
    --  Returns the timeInstant given an string encoded time
 
+   function Date
+     (Date,
+      Name      : String;
+      Type_Name : String := Types.XML_Date)
+      return Types.XSD_Date;
+   --  Returns the date given an string encoded date
+
+   function Time
+     (Time,
+      Name      : String;
+      Type_Name : String := Types.XML_Time)
+      return Types.XSD_Time;
+   --  Returns the time given an string encoded time
+
    function Duration
      (D, Name   : String;
       Type_Name : String := Types.XML_Duration)
@@ -238,6 +252,13 @@ package SOAP.Utils is
       return Types.XSD_Any_Type;
    --  Return V with the given name
 
+   function AnyURI
+     (V         : Unbounded_String;
+      Name      : String := "item";
+      Type_Name : String := Types.XML_Any_URI;
+      NS        : Name_Space.Object := Name_Space.No_Name_Space)
+      return Types.XSD_Any_URI;
+
    function US
      (V         : Unbounded_String;
       Name      : String := "item";
@@ -283,6 +304,14 @@ package SOAP.Utils is
    function To_SOAP_Object
      (V         : String;
       Name      : String := "item";
+      Type_Name : String := "";
+      NS        : Name_Space.Object := Name_Space.No_Name_Space)
+      return SOAP.Types.XSD_Any_URI
+      renames SOAP.Types.AnyURI;
+
+   function To_SOAP_Object
+     (V         : String;
+      Name      : String := "item";
       Type_Name : String := SOAP.Types.XML_Base64;
       NS        : Name_Space.Object := Name_Space.No_Name_Space)
       return SOAP.Types.SOAP_Base64
@@ -310,6 +339,14 @@ package SOAP.Utils is
       Type_Name : String := SOAP.Types.XML_Double;
       NS        : Name_Space.Object := Name_Space.No_Name_Space)
       return SOAP.Types.XSD_Double
+      renames SOAP.Types.D;
+
+   function To_SOAP_Object
+     (V         : SOAP.Types.Decimal;
+      Name      : String := "item";
+      Type_Name : String := SOAP.Types.XML_Decimal;
+      NS        : Name_Space.Object := Name_Space.No_Name_Space)
+      return SOAP.Types.XSD_Decimal
       renames SOAP.Types.D;
 
    function To_SOAP_Object
@@ -361,12 +398,44 @@ package SOAP.Utils is
       renames SOAP.Types.S;
 
    function To_SOAP_Object
-     (V         : SOAP.Types.Local_Time;
+     (V    : String;
+      Name : String      := "item";
+      Type_Name : String := SOAP.Types.XML_Normalized_String;
+      NS        : Name_Space.Object := Name_Space.No_Name_Space)
+      return SOAP.Types.XSD_Normalized_String
+      renames SOAP.Types.NS;
+
+   function To_SOAP_Object
+     (V    : String;
+      Name : String      := "item";
+      Type_Name : String := SOAP.Types.XML_Token;
+      NS        : Name_Space.Object := Name_Space.No_Name_Space)
+      return SOAP.Types.XSD_Token
+      renames SOAP.Types.T;
+
+   function To_SOAP_Object
+     (V         : SOAP.Types.Local_Date_Time;
       Name      : String := "item";
       Type_Name : String := SOAP.Types.XML_Time_Instant;
       NS        : Name_Space.Object := Name_Space.No_Name_Space)
       return SOAP.Types.XSD_Time_Instant
       renames SOAP.Types.T;
+
+   function To_SOAP_Object
+     (V         : SOAP.Types.Local_Date;
+      Name      : String := "item";
+      Type_Name : String := SOAP.Types.XML_Date;
+      NS        : Name_Space.Object := Name_Space.No_Name_Space)
+      return SOAP.Types.XSD_Date
+      renames SOAP.Types.TD;
+
+   function To_SOAP_Object
+     (V         : SOAP.Types.Local_Time;
+      Name      : String := "item";
+      Type_Name : String := SOAP.Types.XML_Time;
+      NS        : Name_Space.Object := Name_Space.No_Name_Space)
+      return SOAP.Types.XSD_Time
+      renames SOAP.Types.TT;
 
    function To_SOAP_Object
      (V         : Standard.Duration;

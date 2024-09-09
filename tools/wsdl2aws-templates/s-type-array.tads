@@ -134,7 +134,8 @@ package @_UNIT_NAME_@ is
       @_SET_ROUTINE_@);
    @@ELSE@@
    @@--
-   @@-- Unconstraint Vector not yet supported
+   @@-- Constraint Vector not yet supported
+   --  Constrained Vector not yet supported (length @_LENGTH_@)
    @@END_IF@@
 @@END_IF@@
 @@--

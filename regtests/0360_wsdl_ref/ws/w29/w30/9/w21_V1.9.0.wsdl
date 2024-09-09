@@ -1,0 +1,211 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<wsdl:definitions xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/"
+                  xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/"
+                  xmlns:http="http://schemas.xmlsoap.org/wsdl/http/"
+                  xmlns:xs="http://www.w3.org/2001/XMLSchema"
+                  xmlns:soapenc="http://schemas.xmlsoap.org/soap/encoding/"
+                  xmlns:mime="http://schemas.xmlsoap.org/wsdl/mime/"
+                  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                  xmlns:pr556="http://corp.com/iaws/Webservice"
+                  xmlns:pr554="http://corp.com/cpws"
+                  xmlns:pr508="http://corp.com/iaws"
+                  targetNamespace="http://corp.com/iaws/Webservice">
+	<wsdl:types>
+		<xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+			<xsd:import namespace="http://corp.com/po/w29/w21/w30/9/0" schemaLocation="w21_V1.9.0.xsd"/>
+		</xsd:schema>
+	</wsdl:types>
+
+	<wsdl:message name="i333">
+		<wsdl:part name="i333" element="pr554:i451" />
+	</wsdl:message>
+	<wsdl:message name="i53">
+		<wsdl:part name="i534" element="pr508:i53"/>
+	</wsdl:message>
+	<wsdl:message name="i87">
+		<wsdl:part name="i534" element="pr508:i87"/>
+	</wsdl:message>
+	<wsdl:message name="i120">
+		<wsdl:part name="i534" element="pr508:i120"/>
+	</wsdl:message>
+	<wsdl:message name="i119">
+		<wsdl:part name="i534" element="pr508:i119"/>
+	</wsdl:message>
+	<wsdl:message name="i91">
+		<wsdl:part name="i534" element="pr508:i91"/>
+	</wsdl:message>
+	<wsdl:message name="i90">
+		<wsdl:part name="i534" element="pr508:i90"/>
+	</wsdl:message>
+	<wsdl:message name="i57">
+		<wsdl:part name="i534" element="pr508:i57"/>
+	</wsdl:message>
+	<wsdl:message name="i56">
+		<wsdl:part name="i534" element="pr508:i56"/>
+	</wsdl:message>
+	<wsdl:message name="i59">
+		<wsdl:part name="i534" element="pr508:i59"/>
+	</wsdl:message>
+	<wsdl:message name="i58">
+		<wsdl:part name="i534" element="pr508:i58"/>
+	</wsdl:message>
+	<wsdl:message name="i269">
+		<wsdl:part name="i534" element="pr508:i269"/>
+	</wsdl:message>
+
+	<wsdl:portType name="i481">
+		<wsdl:operation name="i53">
+			<wsdl:input message="pr556:i53"/>
+			<wsdl:output message="pr556:i333"/>
+		</wsdl:operation>
+		<wsdl:operation name="i87">
+			<wsdl:input message="pr556:i87"/>
+			<wsdl:output message="pr556:i333"/>
+		</wsdl:operation>
+		<wsdl:operation name="i120">
+			<wsdl:input message="pr556:i120"/>
+			<wsdl:output message="pr556:i333"/>
+		</wsdl:operation>
+		<wsdl:operation name="i119">
+			<wsdl:input message="pr556:i119"/>
+			<wsdl:output message="pr556:i333"/>
+		</wsdl:operation>
+		<wsdl:operation name="i91">
+			<wsdl:input message="pr556:i91"/>
+			<wsdl:output message="pr556:i333"/>
+		</wsdl:operation>
+		<wsdl:operation name="i90">
+			<wsdl:input message="pr556:i90"/>
+			<wsdl:output message="pr556:i333"/>
+		</wsdl:operation>
+		<wsdl:operation name="i57">
+			<wsdl:input message="pr556:i57"/>
+			<wsdl:output message="pr556:i333"/>
+		</wsdl:operation>
+		<wsdl:operation name="i56">
+			<wsdl:input message="pr556:i56"/>
+			<wsdl:output message="pr556:i333"/>
+		</wsdl:operation>
+		<wsdl:operation name="i59">
+			<wsdl:input message="pr556:i59"/>
+			<wsdl:output message="pr556:i333"/>
+		</wsdl:operation>
+		<wsdl:operation name="i58">
+			<wsdl:input message="pr556:i58"/>
+			<wsdl:output message="pr556:i333"/>
+		</wsdl:operation>
+		<wsdl:operation name="i269">
+			<wsdl:input message="pr556:i269"/>
+			<wsdl:output message="pr556:i333"/>
+		</wsdl:operation>
+	</wsdl:portType>
+
+	<wsdl:binding name="i264" type="pr556:i481">
+		<soap:binding style="document" transport="http://schemas.xmlsoap.org/soap/http"/>
+		<wsdl:operation name="i53">
+			<soap:operation soapAction="http://corp.iws/i53"/>
+			<wsdl:input>
+				<soap:body use="literal"/>
+			</wsdl:input>
+			<wsdl:output>
+				<soap:body use="literal"/>
+			</wsdl:output>
+		</wsdl:operation>
+		<wsdl:operation name="i87">
+			<soap:operation soapAction="http://corp.iws/i87"/>
+			<wsdl:input>
+				<soap:body use="literal"/>
+			</wsdl:input>
+			<wsdl:output>
+				<soap:body use="literal"/>
+			</wsdl:output>
+		</wsdl:operation>
+		<wsdl:operation name="i120">
+			<soap:operation soapAction="http://corp.iws/i120"/>
+			<wsdl:input>
+				<soap:body use="literal"/>
+			</wsdl:input>
+			<wsdl:output>
+				<soap:body use="literal"/>
+			</wsdl:output>
+		</wsdl:operation>
+		<wsdl:operation name="i119">
+			<soap:operation soapAction="http://corp.iws/i119"/>
+			<wsdl:input>
+				<soap:body use="literal"/>
+			</wsdl:input>
+			<wsdl:output>
+				<soap:body use="literal"/>
+			</wsdl:output>
+		</wsdl:operation>
+		<wsdl:operation name="i91">
+			<soap:operation soapAction="http://corp.iws/i91"/>
+			<wsdl:input>
+				<soap:body use="literal"/>
+			</wsdl:input>
+			<wsdl:output>
+				<soap:body use="literal"/>
+			</wsdl:output>
+		</wsdl:operation>
+		<wsdl:operation name="i90">
+			<soap:operation soapAction="http://corp.iws/i90"/>
+			<wsdl:input>
+				<soap:body use="literal"/>
+			</wsdl:input>
+			<wsdl:output>
+				<soap:body use="literal"/>
+			</wsdl:output>
+		</wsdl:operation>
+		<wsdl:operation name="i57">
+			<soap:operation soapAction="http://corp.iws/i57"/>
+			<wsdl:input>
+				<soap:body use="literal"/>
+			</wsdl:input>
+			<wsdl:output>
+				<soap:body use="literal"/>
+			</wsdl:output>
+		</wsdl:operation>
+		<wsdl:operation name="i56">
+			<soap:operation soapAction="http://corp.iws/i56"/>
+			<wsdl:input>
+				<soap:body use="literal"/>
+			</wsdl:input>
+			<wsdl:output>
+				<soap:body use="literal"/>
+			</wsdl:output>
+		</wsdl:operation>
+		<wsdl:operation name="i59">
+			<soap:operation soapAction="http://corp.iws/i59"/>
+			<wsdl:input>
+				<soap:body use="literal"/>
+			</wsdl:input>
+			<wsdl:output>
+				<soap:body use="literal"/>
+			</wsdl:output>
+		</wsdl:operation>
+		<wsdl:operation name="i58">
+			<soap:operation soapAction="http://corp.iws/i58"/>
+			<wsdl:input>
+				<soap:body use="literal"/>
+			</wsdl:input>
+			<wsdl:output>
+				<soap:body use="literal"/>
+			</wsdl:output>
+		</wsdl:operation>
+		<wsdl:operation name="i269">
+			<soap:operation soapAction="http://corp.iws/i269"/>
+			<wsdl:input>
+				<soap:body use="literal"/>
+			</wsdl:input>
+			<wsdl:output>
+				<soap:body use="literal"/>
+			</wsdl:output>
+		</wsdl:operation>
+	</wsdl:binding>
+
+	<wsdl:service name="i179">
+		<wsdl:port name="i481" binding="pr556:i264">
+			<soap:address location="No target address"/>
+		</wsdl:port>
+	</wsdl:service>
+</wsdl:definitions>

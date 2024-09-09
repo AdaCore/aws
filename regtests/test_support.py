@@ -5,6 +5,7 @@ This module contains support functions for all test.py
 import logging
 import os
 import sys
+import re
 
 from glob import glob
 from e3.env import Env
@@ -50,6 +51,28 @@ def tail(infile_name, outfile_name, nb_line):
                 outfile.write(line)
             else:
                 print(line)
+    if outfile_name is not None:
+        outfile.close()
+    infile.close()
+
+def grep(infile_name, outfile_name, patterns):
+    """Write outfile which contains line from infile matching pattern
+
+    If outfile_name is None, print to stdout
+    """
+    infile = open(infile_name, "r")
+    if outfile_name is not None:
+        outfile = open(outfile_name, "w")
+    pos = 0
+    for line in infile:
+        pos = pos + 1
+        for pattern in patterns:
+            r = re.search(pattern, line)
+            if r != None:
+                if outfile_name is not None:
+                    outfile.write(line)
+                else:
+                    print(line[:-1])
     if outfile_name is not None:
         outfile.close()
     infile.close()

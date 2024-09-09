@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2000-2020, AdaCore                     --
+--                     Copyright (C) 2000-2024, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -63,11 +63,12 @@ package body SOAP.Message.XML is
    URL_xsi    : constant String := "http://www.w3.org/1999/XMLSchema-instance";
 
    type Type_State is
-     (Void, T_Undefined, T_Any_Type,
+     (Void, T_Undefined, T_Any_Type, T_Any_URI,
       T_Int, T_Float, T_Double, T_Long, T_Short, T_Byte,
       T_Unsigned_Long, T_Unsigned_Int, T_Unsigned_Short, T_Unsigned_Byte,
-      T_String, T_Boolean, T_Time_Instant, T_Date_Time, T_Duration,
-      T_Base64, T_Base64_Bin, T_Enum);
+      T_String, T_Boolean, T_Time_Instant, T_Date_Time, T_Date, T_Time,
+      T_Duration, T_Decimal, T_Base64, T_Base64_Bin, T_Enum,
+      T_Token, T_Normalized_String);
 
    type Namespaces is record
       xsd   : SOAP.Name_Space.Object := SOAP.Name_Space.XSD;
@@ -143,6 +144,11 @@ package body SOAP.Message.XML is
       Type_Name : String;
       N         : DOM.Core.Node) return Types.Object'Class;
 
+   function Parse_Any_URI
+     (Name      : String;
+      Type_Name : String;
+      N         : DOM.Core.Node) return Types.Object'Class;
+
    function Parse_Long
      (Name      : String;
       Type_Name : String;
@@ -173,6 +179,11 @@ package body SOAP.Message.XML is
       Type_Name : String;
       N         : DOM.Core.Node) return Types.Object'Class;
 
+   function Parse_Decimal
+     (Name      : String;
+      Type_Name : String;
+      N         : DOM.Core.Node) return Types.Object'Class;
+
    function Parse_String
      (Name      : String;
       Type_Name : String;
@@ -184,6 +195,16 @@ package body SOAP.Message.XML is
       N         : DOM.Core.Node) return Types.Object'Class;
 
    function Parse_Base64
+     (Name      : String;
+      Type_Name : String;
+      N         : DOM.Core.Node) return Types.Object'Class;
+
+   function Parse_Token
+     (Name      : String;
+      Type_Name : String;
+      N         : DOM.Core.Node) return Types.Object'Class;
+
+   function Parse_Normalized_String
      (Name      : String;
       Type_Name : String;
       N         : DOM.Core.Node) return Types.Object'Class;
@@ -215,6 +236,16 @@ package body SOAP.Message.XML is
    --  that AWS parser is not aware of the WSDL schema.
 
    function Parse_Time_Instant
+     (Name      : String;
+      Type_Name : String;
+      N         : DOM.Core.Node) return Types.Object'Class;
+
+   function Parse_Date
+     (Name      : String;
+      Type_Name : String;
+      N         : DOM.Core.Node) return Types.Object'Class;
+
+   function Parse_Time
      (Name      : String;
       Type_Name : String;
       N         : DOM.Core.Node) return Types.Object'Class;
@@ -274,55 +305,71 @@ package body SOAP.Message.XML is
    end record;
 
    Handlers : constant array (Type_State) of Type_Handler :=
-                (Void           =>
+                (Void                =>
                    (null, null, False),
-                 T_Undefined    =>
+                 T_Undefined         =>
                    (Types.XML_Undefined'Access, null, False),
-                 T_Any_Type      =>
+                 T_Any_Type          =>
                    (Types.XML_Any_Type'Access, Parse_Any_Type'Access, False),
-                 T_Long          =>
+                 T_Any_URI           =>
+                   (Types.XML_Any_URI'Access, Parse_Any_URI'Access, False),
+                 T_Long              =>
                    (Types.XML_Long'Access, Parse_Long'Access, False),
-                 T_Int            =>
+                 T_Int               =>
                    (Types.XML_Int'Access, Parse_Int'Access, False),
-                 T_Short          =>
+                 T_Short             =>
                    (Types.XML_Short'Access, Parse_Short'Access, False),
-                 T_Byte           =>
+                 T_Byte              =>
                    (Types.XML_Byte'Access, Parse_Byte'Access, False),
-                 T_Float          =>
+                 T_Float             =>
                    (Types.XML_Float'Access, Parse_Float'Access, False),
-                 T_Double         =>
+                 T_Double            =>
                    (Types.XML_Double'Access, Parse_Double'Access, False),
-                 T_String         =>
+                 T_String            =>
                    (Types.XML_String'Access, Parse_String'Access, False),
-                 T_Enum           =>
+                 T_Enum              =>
                    (null, null, False),
-                 T_Boolean        =>
+                 T_Boolean           =>
                    (Types.XML_Boolean'Access, Parse_Boolean'Access, False),
-                 T_Base64         =>
+                 T_Base64            =>
                    (Types.XML_Base64'Access, Parse_Base64'Access, True),
-                 T_Base64_Bin     =>
+                 T_Base64_Bin        =>
                    (Types.XML_Base64_Binary'Access, Parse_Base64'Access, True),
-                 T_Unsigned_Long  =>
+                 T_Token             =>
+                   (Types.XML_Token'Access, Parse_Token'Access, True),
+                 T_Normalized_String =>
+                   (Types.XML_Normalized_String'Access,
+                    Parse_Normalized_String'Access, True),
+                 T_Unsigned_Long     =>
                    (Types.XML_Unsigned_Long'Access,
                     Parse_Unsigned_Long'Access, False),
-                 T_Unsigned_Int   =>
+                 T_Unsigned_Int      =>
                    (Types.XML_Unsigned_Int'Access,
                     Parse_Unsigned_Int'Access, False),
-                 T_Unsigned_Short =>
+                 T_Unsigned_Short    =>
                    (Types.XML_Unsigned_Short'Access,
                     Parse_Unsigned_Short'Access, False),
-                 T_Unsigned_Byte  =>
+                 T_Unsigned_Byte     =>
                    (Types.XML_Unsigned_Byte'Access,
                     Parse_Unsigned_Byte'Access, False),
-                 T_Date_Time   =>
+                 T_Date_Time         =>
                    (Types.XML_Date_Time'Access,
                     Parse_Time_Instant'Access, False),
-                 T_Time_Instant   =>
+                 T_Time_Instant      =>
                    (Types.XML_Time_Instant'Access,
                     Parse_Time_Instant'Access, False),
-                 T_Duration       =>
+                 T_Date              =>
+                   (Types.XML_Date'Access,
+                    Parse_Date'Access, False),
+                 T_Time              =>
+                   (Types.XML_Time'Access,
+                    Parse_Time'Access, False),
+                 T_Duration          =>
                    (Types.XML_Duration'Access,
-                    Parse_Duration'Access, False));
+                    Parse_Duration'Access, False),
+                 T_Decimal           =>
+                   (Types.XML_Decimal'Access,
+                    Parse_Decimal'Access, False));
 
    type Object_Set_Access is access Types.Object_Set;
 
@@ -803,6 +850,31 @@ package body SOAP.Message.XML is
       return Parse_String (Name, Type_Name, N);
    end Parse_Any_Type;
 
+   -------------------
+   -- Parse_Any_URI --
+   -------------------
+
+   function Parse_Any_URI
+     (Name      : String;
+      Type_Name : String;
+      N         : DOM.Core.Node) return Types.Object'Class
+   is
+      use type DOM.Core.Node_Types;
+
+      L : constant DOM.Core.Node_List := Child_Nodes (N);
+      S : Unbounded_String;
+      P : DOM.Core.Node;
+   begin
+      for I in 0 .. Length (L) - 1 loop
+         P := Item (L, I);
+         if P.Node_Type = DOM.Core.Text_Node then
+            Append (S, Node_Value (P));
+         end if;
+      end loop;
+
+      return Types.AnyURI (To_String (S), Name, Type_Name);
+   end Parse_Any_URI;
+
    -----------------
    -- Parse_Array --
    -----------------
@@ -1045,6 +1117,36 @@ package body SOAP.Message.XML is
       return Types.B (Types.Byte'Value (Node_Value (Value)), Name, Type_Name);
    end Parse_Byte;
 
+   ----------------
+   -- Parse_Date --
+   ----------------
+
+   function Parse_Date
+     (Name      : String;
+      Type_Name : String;
+      N         : DOM.Core.Node) return Types.Object'Class
+   is
+      Value : constant DOM.Core.Node := First_Child (N);
+      Date  : constant String        := Node_Value (Value);
+   begin
+      return Utils.Date (Date, Name, Type_Name);
+   end Parse_Date;
+
+   -------------------
+   -- Parse_Decimal --
+   -------------------
+
+   function Parse_Decimal
+     (Name      : String;
+      Type_Name : String;
+      N         : DOM.Core.Node) return Types.Object'Class
+   is
+      Value : constant DOM.Core.Node := First_Child (N);
+   begin
+      return Types.D (Types.Decimal'Value (Node_Value (Value)),
+                      Name, Type_Name);
+   end Parse_Decimal;
+
    --------------------
    -- Parse_Document --
    --------------------
@@ -1272,6 +1374,20 @@ package body SOAP.Message.XML is
          end;
       end loop;
    end Parse_Namespaces;
+
+   -----------------------------
+   -- Parse_Normalized_String --
+   -----------------------------
+
+   function Parse_Normalized_String
+     (Name      : String;
+      Type_Name : String;
+      N         : DOM.Core.Node) return Types.Object'Class
+   is
+      Value : constant DOM.Core.Node := First_Child (N);
+   begin
+      return Types.NS (Node_Value (Value), Name, Type_Name);
+   end Parse_Normalized_String;
 
    -----------------
    -- Parse_Param --
@@ -1615,8 +1731,23 @@ package body SOAP.Message.XML is
          end if;
       end loop;
 
-      return Types.S (S, Name, Type_Name);
+      return Types.XSD_String'(Types.S (S, Name, Type_Name));
    end Parse_String;
+
+   ----------------
+   -- Parse_Time --
+   ----------------
+
+   function Parse_Time
+     (Name      : String;
+      Type_Name : String;
+      N         : DOM.Core.Node) return Types.Object'Class
+   is
+      Value : constant DOM.Core.Node := First_Child (N);
+      Time  : constant String        := Node_Value (Value);
+   begin
+      return Utils.Time (Time, Name, Type_Name);
+   end Parse_Time;
 
    ------------------------
    -- Parse_Time_Instant --
@@ -1632,6 +1763,21 @@ package body SOAP.Message.XML is
    begin
       return Utils.Time_Instant (TI, Name, Type_Name);
    end Parse_Time_Instant;
+
+   -----------------
+   -- Parse_Token --
+   -----------------
+
+   function Parse_Token
+     (Name      : String;
+      Type_Name : String;
+      N         : DOM.Core.Node) return Types.Object'Class
+   is
+      Value : constant DOM.Core.Node := First_Child (N);
+   begin
+      return Types.XSD_Token'
+        (Types.T (Node_Value (Value), Name, Type_Name));
+   end Parse_Token;
 
    -------------------------
    -- Parse_Unsigned_Byte --
