@@ -336,7 +336,18 @@ package SOAP.Types is
    -- Decimal --
    -------------
 
-   type Decimal is delta 10.0 ** (-8) digits 32;
+   --  Ensure a supported value is selected depending on the platform
+   --  being 32bit or 64bit.
+
+   Max_Digits : constant := (if Standard'Max_Integer_Size >= 128
+                             then 38
+                             else 18);
+
+   D_Delta    : constant := (if Standard'Max_Integer_Size >= 128
+                             then 8
+                             else 4);
+
+   type Decimal is delta 10.0 ** (-D_Delta) digits Max_Digits;
 
    XML_Decimal : aliased constant String := "xsd:decimal";
 
