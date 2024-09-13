@@ -45,6 +45,10 @@ procedure WSDL_D_Main is
    D    : SOAP.Types.Decimal := 0.0;
    P    : WSDL_D.Price := 12.99;
 
+   Step : constant := (if Standard'Max_Integer_Size >= 128
+                       then 0.000001
+                       else 0.0001);
+
 begin
    H := SOAP.Dispatchers.Callback.Create
      (WSDL_D_Server.HTTP_CB'Access,
@@ -69,7 +73,7 @@ begin
    WSDL_D_Service.Client.Print_Price (P);
 
    for J in 1 .. 15 loop
-      D := (D + 0.000001 * J) * 10;
+      D := (D + Step * J) * 10;
       if D /= SOAP.Types.XSD_Decimal'(SOAP.Types.D (D)).V then
          Text_IO.Put_Line ("Wrong decimal " & D'Img & " convertion");
       end if;
