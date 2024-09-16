@@ -1050,16 +1050,13 @@ It is hard to know all the current limitations due to the complexity of the `WSD
 `SOAP` world is quite complex. We list there all known limitations:
 
 * Some `SOAP` base types are not currently
-supported: *date, time, xsd:hexBinary, decimal*, but all
-(with the exception of decimal) should be simple to add in the future.
+supported: *xsd:hexBinary*, but all could be added in the future.
 
 * Multi-dimensional arrays are not supported.
 
 * Abstract types are not supported.
 
 * SOAP MIME attachments are not supported.
-
-* WSDL type inheritance is not supported.
 
 * The Document/Encoded SOAP messages' style is not supported.
 
