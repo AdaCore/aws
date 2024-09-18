@@ -415,7 +415,7 @@ document. In this section we describe the mapping between Ada and
      </xsd:sequence>
    </xsd:complexType>
 
-  A SOAP encoded format can be generated with the -sea option:
+  A SOAP encoded format can be generated with the -sea option::
 
    <xsd:complexType name="Set_Of_Rec">
      <xsd:complexContent>
