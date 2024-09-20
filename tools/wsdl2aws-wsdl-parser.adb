@@ -402,16 +402,14 @@ package body WSDL2AWS.WSDL.Parser is
    is
       Ref : constant String :=
               SOAP.XML.Get_Attr_Value (N, "ref", True);
-      R   : DOM.Core.Node := N;
    begin
       if Ref = "" then
          --  No ref attribute, this element should have name/type attribute
          return N;
       else
-         R := Look_For_Schema (N, Ref, Document,
-                               Look_Context'(Element => True,
-                                             others  => False));
-         return R;
+         return Look_For_Schema (N, Ref, Document,
+                                 Look_Context'(Element => True,
+                                               others  => False));
       end if;
    end Get_Element_Ref;
 
@@ -1046,7 +1044,12 @@ package body WSDL2AWS.WSDL.Parser is
       All_NS  : constant String_List.Vector := Get_Namespaces_For (N);
       D       : DOM.Core.Node;
    begin
-      Trace ("(Look_For_Schema)", N);
+      Trace ("(Look_For_Schema "
+             & (if Context (Element) then "E" else "")
+             & (if Context (Complex_Type) then "C" else  "")
+             & (if Context (Simple_Type) then "S" else "")
+             & ")",
+             N);
 
       --  First look for imported schema
 
@@ -1663,14 +1666,14 @@ package body WSDL2AWS.WSDL.Parser is
    is
       use all type SOAP.WSDL.Parameter_Type;
 
-      S_Min  : constant String :=
-                 SOAP.XML.Get_Attr_Value (N, "minOccurs", True);
-      S_Max  : constant String :=
-                 SOAP.XML.Get_Attr_Value (N, "maxOccurs", True);
-      Min    : Natural;
-      Max    : Positive;
-      Doc    : Unbounded_String;
-      D      : DOM.Core.Node := N;
+      S_Min : constant String :=
+                SOAP.XML.Get_Attr_Value (N, "minOccurs", True);
+      S_Max : constant String :=
+                SOAP.XML.Get_Attr_Value (N, "maxOccurs", True);
+      Min   : Natural;
+      Max   : Positive;
+      Doc   : Unbounded_String;
+      D     : DOM.Core.Node := N;
    begin
       Trace ("(Parse_Parameter)", N);
 
@@ -1699,6 +1702,7 @@ package body WSDL2AWS.WSDL.Parser is
                then
                   Append (Doc, Get_Documentation (SOAP.XML.First_Child (A)));
                end if;
+
                if A /= null then
                   D := A;
                end if;
