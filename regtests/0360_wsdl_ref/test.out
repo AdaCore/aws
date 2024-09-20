@@ -151,7 +151,7 @@ Procedure i57 SOAPAction:http://corp.iws/i57
          [derived] i342 ; i342
          [derived] i88 ; i128
          [set] {0 .. unbounded} i89 ; i89_Set [i89]
-         [set] {0 .. unbounded} i16 ; i128
+         [set] {0 .. unbounded} i16 ; i128_Set [i128]
    Output
       [record] i451 ; i451
    > i57
