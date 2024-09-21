@@ -1,0 +1,29 @@
+stages:
+  - check
+  - test
+
+include:
+# Issue check
+  - component: $CI_SERVER_FQDN/eng/gitlab-templates/check-issue@~latest
+
+# Template for testing
+  - component: $CI_SERVER_FQDN/eng/gitlab-templates/test@~latest
+    inputs:
+      job-name: .test
+      needs: [] # There is no "build" job for this CI, we need to override the template
+      anod-args: $ANOD_TEST_ARGS
+      generic-anod-ci-args: --add-dep eng/toolchain/templates-parser
+
+# Native testing
+test-native:
+  extends: .test
+  variables:
+    ANOD_TEST_ARGS: test aws -Qexternal
+
+# Cross testing
+test-cross:
+  extends: .test
+  variables:
+    # Cross testing is not stabilized; see eng/toolchain/aws#17.
+    # For now we only _build_ AWS.
+    ANOD_TEST_ARGS: build aws --target=armhf-linux,,qemu
