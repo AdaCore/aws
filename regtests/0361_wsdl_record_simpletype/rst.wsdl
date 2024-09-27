@@ -1,0 +1,184 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<definitions name="AdaName"
+             targetNamespace="http://www.dummy.net/WAdaName.wsdl"
+             xmlns:tns="http://www.dummy.net/WAdaName.wsdl"
+             xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+             xmlns:ns="http://www.dummy.net/WAdaName.wsdl/types"
+             xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/"
+             xmlns="http://schemas.xmlsoap.org/wsdl/">
+
+  <types>
+    <schema targetNamespace="http://www.dummy.net/WAdaName.wsdl/types"
+            xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+            xmlns:ns="http://www.dummy.net/WAdaName.wsdl/types"
+            xmlns="http://www.w3.org/2001/XMLSchema"
+            elementFormDefault="unqualified"
+            attributeFormDefault="unqualified">
+
+      <element name="Irec" type="ns:Irec"/>
+      <complexType name="Irec">
+        <complexContent>
+          <extension base="ns:OBA">
+	    <sequence>
+	      <element ref="ns:DQN" minOccurs="1" maxOccurs="1"/>
+	      <element ref="ns:BTRO" minOccurs="0" maxOccurs="unbounded"/>
+	      <element ref="ns:ADQN" minOccurs="0" maxOccurs="unbounded"/>
+	    </sequence>
+          </extension>
+        </complexContent>
+      </complexType>
+
+      <complexType name="OBA">
+        <complexContent>
+          <extension base="ns:OBM">
+	    <sequence/>
+          </extension>
+        </complexContent>
+      </complexType>
+
+      <element name="BTRO" type="ns:BTRO"/>
+      <complexType name="BTRO">
+        <complexContent>
+          <extension base="ns:BO">
+	    <sequence>
+	      <element ref="ns:Tid" minOccurs="1" maxOccurs="1"/>
+	      <element ref="ns:PriorityTime" minOccurs="0" maxOccurs="1"/>
+	      <element ref="ns:ATI" minOccurs="0" maxOccurs="unbounded"/>
+	    </sequence>
+          </extension>
+        </complexContent>
+      </complexType>
+
+      <complexType name="BO">
+        <complexContent>
+          <extension base="ns:O">
+	    <sequence>
+	      <element ref="ns:SequenceGroupId" minOccurs="1" maxOccurs="1"/>
+	    </sequence>
+          </extension>
+        </complexContent>
+      </complexType>
+
+      <element name="O" type="ns:O"/>
+      <complexType name="O">
+        <sequence>
+          <element ref="ns:OrderId" minOccurs="1" maxOccurs="1"/>
+        </sequence>
+      </complexType>
+
+      <element name="ATI" type="ns:Tid">
+	<annotation>
+	  <documentation>Some doc</documentation>
+	</annotation>
+      </element>
+      <element name="Tid" type="ns:Tid"/>
+      <simpleType name="Tid">
+        <restriction base="xsd:int">
+          <maxLength value="20"/>
+        </restriction>
+      </simpleType>
+
+      <element name="PriorityTime" type="xsd:datetime"/>
+      <element name="Identifier" type="xsd:int"/>
+
+      <element name="OBM" type="ns:OBM"/>
+      <complexType name="OBM">
+        <complexContent>
+          <extension base="ns:M">
+	    <sequence>
+	      <element ref="ns:OBI" minOccurs="1" maxOccurs="1"/>
+	    </sequence>
+          </extension>
+        </complexContent>
+      </complexType>
+
+      <element name="OBI" type="ns:OBI"/>
+      <simpleType name="OBI">
+        <restriction base="xsd:int"/>
+      </simpleType>
+
+      <element name="M" type="ns:M"/>
+      <complexType name="M">
+        <sequence>
+          <element ref="ns:MessageId" minOccurs="1" maxOccurs="1"/>
+          <element ref="ns:MessageTimeStamp" minOccurs="1" maxOccurs="1"/>
+          <element name="SFIN" type="ns:FIN" minOccurs="1" maxOccurs="1"/>
+          <element name="RFIN" type="ns:FIN" minOccurs="1" maxOccurs="1"/>
+        </sequence>
+      </complexType>
+
+      <element name="MessageId" type="ns:MessageId"/>
+      <simpleType name="MessageId">
+        <restriction base="xsd:int"/>
+      </simpleType>
+
+      <element name="MessageTimeStamp" type="ns:MessageTimeStamp"/>
+      <simpleType name="MessageTimeStamp">
+        <restriction base="xsd:datetime"/>
+      </simpleType>
+
+      <element name="FIN" type="ns:FIN"/>
+      <simpleType name="FIN">
+        <restriction base="xsd:int"/>
+      </simpleType>
+
+      <element name="DQN" type="ns:LQN"/>
+      <element name="ADQN" type="ns:LQN"/>
+
+      <simpleType name="LQN">
+        <restriction base="xsd:int"/>
+      </simpleType>
+
+      <element name="OrderId" type="ns:OrderId"/>
+      <simpleType name="OrderId">
+        <restriction base="xsd:int"/>
+      </simpleType>
+
+      <element name="SequenceGroupId" type="ns:SequenceGroupId"/>
+      <simpleType name="SequenceGroupId">
+        <restriction base="xsd:int"/>
+      </simpleType>
+
+    </schema>
+  </types>
+
+  <message name="getRequest">
+    <part name="InPut" type="ns:Irec"/>
+  </message>
+
+  <message name="getResponse">
+    <part name="CpsNTable" type="ns:Irec"/>
+  </message>
+
+  <portType name="AdaNamePortType">
+    <operation name="callMe">
+      <input message="tns:getRequest"/>
+      <output message="tns:getResponse"/>
+    </operation>
+  </portType>
+
+  <binding name="AdaName" type="tns:AdaNamePortType">
+    <soap:binding style="rpc"
+                  transport="http://schemas.xmlsoap.org/soap/http"/>
+    <operation name="callMe">
+      <soap:operation style="rpc" soapAction=""/>
+      <input>
+        <soap:body use="encoded"
+                   namespace="http://www.dummy.net/WAdaName.wsdl"
+                   encodingStyle="http://schemas.xmlsoap.org/soap/encoding/"/>
+      </input>
+      <output>
+        <soap:body use="encoded"
+                   namespace="http://www.dummy.net/WAdaName.wsdl"
+                   encodingStyle="http://schemas.xmlsoap.org/soap/encoding/"/>
+      </output>
+    </operation>
+  </binding>
+
+  <service name="AdaName">
+    <port name="AdaName" binding="tns:AdaName">
+      <soap:address location="http://localhost:8085"/>
+    </port>
+  </service>
+
+</definitions>

@@ -402,16 +402,14 @@ package body WSDL2AWS.WSDL.Parser is
    is
       Ref : constant String :=
               SOAP.XML.Get_Attr_Value (N, "ref", True);
-      R   : DOM.Core.Node := N;
    begin
       if Ref = "" then
          --  No ref attribute, this element should have name/type attribute
          return N;
       else
-         R := Look_For_Schema (N, Ref, Document,
-                               Look_Context'(Element => True,
-                                             others  => False));
-         return R;
+         return Look_For_Schema (N, Ref, Document,
+                                 Look_Context'(Element => True,
+                                               others  => False));
       end if;
    end Get_Element_Ref;
 
@@ -1046,7 +1044,12 @@ package body WSDL2AWS.WSDL.Parser is
       All_NS  : constant String_List.Vector := Get_Namespaces_For (N);
       D       : DOM.Core.Node;
    begin
-      Trace ("(Look_For_Schema)", N);
+      Trace ("(Look_For_Schema "
+             & (if Context (Element) then "E" else "")
+             & (if Context (Complex_Type) then "C" else  "")
+             & (if Context (Simple_Type) then "S" else "")
+             & ")",
+             N);
 
       --  First look for imported schema
 
@@ -1663,14 +1666,15 @@ package body WSDL2AWS.WSDL.Parser is
    is
       use all type SOAP.WSDL.Parameter_Type;
 
-      S_Min  : constant String :=
-                 SOAP.XML.Get_Attr_Value (N, "minOccurs", True);
-      S_Max  : constant String :=
-                 SOAP.XML.Get_Attr_Value (N, "maxOccurs", True);
-      Min    : Natural;
-      Max    : Positive;
-      Doc    : Unbounded_String;
-      D      : DOM.Core.Node := N;
+      S_Min : constant String :=
+                SOAP.XML.Get_Attr_Value (N, "minOccurs", True);
+      S_Max : constant String :=
+                SOAP.XML.Get_Attr_Value (N, "maxOccurs", True);
+      Min   : Natural;
+      Max   : Positive;
+      Doc   : Unbounded_String;
+      E     : DOM.Core.Node := N; --  the element node
+      D     : DOM.Core.Node := N;
    begin
       Trace ("(Parse_Parameter)", N);
 
@@ -1679,6 +1683,7 @@ package body WSDL2AWS.WSDL.Parser is
       --  If we have a ref, parse it now
 
       D := Get_Element_Ref (N, Document);
+      E := D;
 
       declare
          P_Name : constant String := SOAP.XML.Get_Attr_Value (D, "name");
@@ -1699,6 +1704,7 @@ package body WSDL2AWS.WSDL.Parser is
                then
                   Append (Doc, Get_Documentation (SOAP.XML.First_Child (A)));
                end if;
+
                if A /= null then
                   D := A;
                end if;
@@ -1760,14 +1766,19 @@ package body WSDL2AWS.WSDL.Parser is
                   else
                      O.Self.Current_Name := +P_Name;
 
-                     declare
-                        P : Parameters.Parameter :=
-                              Parse_Simple (O, R, Document);
-                     begin
-                        P.Min := Min;
-                        P.Max := Max;
-                        return P;
-                     end;
+                     if Min <= 1 and then Max = 1 then
+                        declare
+                           P : Parameters.Parameter :=
+                                 Parse_Simple (O, R, Document);
+                        begin
+                           P.Min := Min;
+                           P.Max := Max;
+                           return P;
+                        end;
+
+                     else
+                        return Parse_Set (O, E, S_Min, S_Max, Document);
+                     end if;
                   end if;
                end if;
 
@@ -1795,7 +1806,7 @@ package body WSDL2AWS.WSDL.Parser is
                      end;
 
                   else
-                     return Parse_Set (O, D, S_Min, S_Max, Document);
+                     return Parse_Set (O, E, S_Min, S_Max, Document);
                   end if;
                end if;
             end;
@@ -2407,15 +2418,30 @@ package body WSDL2AWS.WSDL.Parser is
 
          if not SOAP.WSDL.Is_Standard (Typ) then
             --  This is not a standard type, parse it
+
             declare
                N : constant DOM.Core.Node :=
                      Look_For_Schema (S, Typ, Document,
                                       Look_Context'(Complex_Type => True,
-                                                    others => False));
+                                                    others       => False));
             begin
-               --  ??? Right now pretend that it is a record, there is
-               --  certainly some cases not covered here.
-               Parameters.Append (P.P, Parse_Record (O, N, Document));
+               if N = null then
+                  --  Not a complexType record check for a simpleType
+                  declare
+                     N : constant DOM.Core.Node :=
+                           Look_For_Schema
+                             (S, Typ, Document,
+                              Look_Context'(Simple_Type => True,
+                                            others       => False));
+                  begin
+                     if N /= null then
+                        Parameters.Append (P.P, Parse_Simple (O, N, Document));
+                     end if;
+                  end;
+
+               else
+                  Parameters.Append (P.P, Parse_Record (O, N, Document));
+               end if;
             end;
          end if;
 

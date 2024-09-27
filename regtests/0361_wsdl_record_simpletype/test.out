@@ -1,0 +1,25 @@
+Service AdaName
+
+
+Procedure callMe SOAPAction:
+   Input
+      [record] Irec ; Irec
+         [derived] MessageId ; MessageId
+         [derived] MessageTimeStamp ; MessageTimeStamp
+         [derived] SFIN ; FIN
+         [derived] RFIN ; FIN
+         [derived] OBI ; OBI
+         [derived] DQN ; LQN
+         [set] {0 .. unbounded} BTRO ; BTRO_Set [BTRO]
+         [set] {0 .. unbounded} ADQN ; LQN_Set [LQN]
+   Output
+      [record] Irec ; Irec
+         [derived] MessageId ; MessageId
+         [derived] MessageTimeStamp ; MessageTimeStamp
+         [derived] SFIN ; FIN
+         [derived] RFIN ; FIN
+         [derived] OBI ; OBI
+         [derived] DQN ; LQN
+         [set] {0 .. unbounded} BTRO ; BTRO_Set [BTRO]
+         [set] {0 .. unbounded} ADQN ; LQN_Set [LQN]
+   > callMe
