@@ -1,0 +1,24 @@
+Service AdaName
+
+
+Procedure callMe SOAPAction:
+   Input
+      [record] Irec ; Irec
+         [derived] OrderId ; OrderId
+   Output
+      [record] Irec ; Irec
+         [derived] OrderId ; OrderId
+   > callMe
+
+Procedure callMeX SOAPAction:
+   Input
+      [record] IrecX ; IrecX
+         [derived] MessageId ; MessageId
+         [derived] OrderId ; OrderId
+         [set] {1 .. unbounded} SDT ; SDT_Set [SDT]
+   Output
+      [record] IrecX ; IrecX
+         [derived] MessageId ; MessageId
+         [derived] OrderId ; OrderId
+         [set] {1 .. unbounded} SDT ; SDT_Set [SDT]
+   > callMeX
