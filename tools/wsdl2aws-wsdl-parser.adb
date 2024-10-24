@@ -2579,6 +2579,9 @@ package body WSDL2AWS.WSDL.Parser is
 
       Skip_Annotation (N);
 
+      pragma Assert
+        (SOAP.Utils.No_NS (DOM.Core.Nodes.Node_Name (N)) = "restriction");
+
       Base := +SOAP.XML.Get_Attr_Value (N, "base", True);
 
       --  Check if this is an enumeration
@@ -2668,9 +2671,15 @@ package body WSDL2AWS.WSDL.Parser is
                     with "Definition for " & (-Base) & " not found.";
 
                else
-                  O.No_Param := True;
-                  Parse_Element (O, B, Document);
-                  O.No_Param := False;
+                  declare
+                     No_Param : constant Boolean := O.No_Param;
+                  begin
+                     --  We don't want any parameter to be generated for this
+                     --  element. Only recording the derived types is needed.
+                     O.No_Param := True;
+                     Parse_Element (O, B, Document);
+                     O.No_Param := No_Param;
+                  end;
                end if;
             end;
          end if;

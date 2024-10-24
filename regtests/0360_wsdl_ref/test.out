@@ -13,12 +13,6 @@ Procedure i53 SOAPAction:http://corp.iws/i53
 
 Procedure i87 SOAPAction:http://corp.iws/i87
    Input
-      [derived] i433 ; i408
-      [derived] i138 ; i408
-      [derived] i108 ; i408
-      [derived] i528 ; i408
-      [derived] i510 ; i339
-      [derived] i7 ; i339
       [record] i87 ; i87
          [derived] i433 ; i433
          [derived] i213 ; i213
@@ -40,13 +34,6 @@ Procedure i87 SOAPAction:http://corp.iws/i87
 
 Procedure i120 SOAPAction:http://corp.iws/i120
    Input
-      [derived] i433 ; i408
-      [derived] i138 ; i408
-      [derived] i108 ; i408
-      [derived] i496 ; i408
-      [derived] i528 ; i408
-      [derived] i510 ; i339
-      [derived] i7 ; i339
       [record] i120 ; i120
          [derived] i433 ; i433
          [derived] i213 ; i213
@@ -70,10 +57,6 @@ Procedure i120 SOAPAction:http://corp.iws/i120
 
 Procedure i119 SOAPAction:http://corp.iws/i119
    Input
-      [derived] i433 ; i408
-      [derived] i138 ; i408
-      [derived] i108 ; i408
-      [derived] i496 ; i408
       [record] i119 ; i119
          [derived] i433 ; i433
          [derived] i213 ; i213
@@ -86,13 +69,6 @@ Procedure i119 SOAPAction:http://corp.iws/i119
 
 Procedure i91 SOAPAction:http://corp.iws/i91
    Input
-      [derived] i433 ; i408
-      [derived] i138 ; i408
-      [derived] i108 ; i408
-      [derived] i496 ; i408
-      [derived] i528 ; i408
-      [derived] i510 ; i339
-      [derived] i7 ; i339
       [record] i91 ; i91
          [derived] i433 ; i433
          [derived] i213 ; i213
@@ -119,10 +95,6 @@ Procedure i91 SOAPAction:http://corp.iws/i91
 
 Procedure i90 SOAPAction:http://corp.iws/i90
    Input
-      [derived] i433 ; i408
-      [derived] i138 ; i408
-      [derived] i108 ; i408
-      [derived] i496 ; i408
       [record] i90 ; i90
          [derived] i433 ; i433
          [derived] i213 ; i213
@@ -135,14 +107,6 @@ Procedure i90 SOAPAction:http://corp.iws/i90
 
 Procedure i57 SOAPAction:http://corp.iws/i57
    Input
-      [derived] i433 ; i408
-      [derived] i138 ; i408
-      [derived] i108 ; i408
-      [derived] i342 ; i408
-      [derived] i496 ; i408
-      [derived] i244 ; i253
-      [derived] i528 ; i408
-      [derived] i230 ; i408
       [record] i57 ; i57
          [derived] i433 ; i433
          [derived] i213 ; i213
@@ -158,10 +122,6 @@ Procedure i57 SOAPAction:http://corp.iws/i57
 
 Procedure i56 SOAPAction:http://corp.iws/i56
    Input
-      [derived] i433 ; i408
-      [derived] i138 ; i408
-      [derived] i108 ; i408
-      [derived] i342 ; i408
       [record] i56 ; i56
          [derived] i433 ; i433
          [derived] i213 ; i213
@@ -174,10 +134,6 @@ Procedure i56 SOAPAction:http://corp.iws/i56
 
 Procedure i59 SOAPAction:http://corp.iws/i59
    Input
-      [derived] i433 ; i408
-      [derived] i138 ; i408
-      [derived] i108 ; i408
-      [derived] i496 ; i408
       [record] i59 ; i59
          [derived] i433 ; i433
          [derived] i213 ; i213
@@ -192,10 +148,6 @@ Procedure i59 SOAPAction:http://corp.iws/i59
 
 Procedure i58 SOAPAction:http://corp.iws/i58
    Input
-      [derived] i433 ; i408
-      [derived] i138 ; i408
-      [derived] i108 ; i408
-      [derived] i496 ; i408
       [record] i58 ; i58
          [derived] i433 ; i433
          [derived] i213 ; i213
@@ -208,9 +160,6 @@ Procedure i58 SOAPAction:http://corp.iws/i58
 
 Procedure i269 SOAPAction:http://corp.iws/i269
    Input
-      [derived] i433 ; i408
-      [derived] i138 ; i408
-      [derived] i108 ; i408
       [record] i269 ; i269
          [derived] i433 ; i433
          [derived] i213 ; i213

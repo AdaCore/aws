@@ -1,0 +1,156 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<definitions name="AdaName"
+             targetNamespace="http://www.dummy.net/WAdaName.wsdl"
+             xmlns:tns="http://www.dummy.net/WAdaName.wsdl"
+             xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+             xmlns:ns="http://www.dummy.net/WAdaName.wsdl/types"
+             xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/"
+             xmlns="http://schemas.xmlsoap.org/wsdl/">
+
+  <types>
+    <schema targetNamespace="http://www.dummy.net/WAdaName.wsdl/types"
+            xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+            xmlns:ns="http://www.dummy.net/WAdaName.wsdl/types"
+            xmlns="http://www.w3.org/2001/XMLSchema"
+            elementFormDefault="unqualified"
+            attributeFormDefault="unqualified">
+
+
+      <element name="IrecX" type="ns:IrecX"/>
+      <complexType name="IrecX">
+        <complexContent>
+          <extension base="ns:OA">
+	    <sequence>
+	      <element ref="SDT" minOccurs="1" maxOccurs="unbounded"/>
+	    </sequence>
+          </extension>
+        </complexContent>
+      </complexType>
+
+      <element name="Irec" type="ns:Irec"/>
+      <complexType name="Irec">
+        <complexContent>
+	    <sequence>
+	      <element ref="OrderId" minOccurs="1" maxOccurs="1"/>
+	    </sequence>
+        </complexContent>
+      </complexType>
+
+      <element name="SDT" type="ns:SDT"/>
+      <complexType name="SDT">
+	<sequence>
+	  <element ref="OrderId" minOccurs="1" maxOccurs="1"/>
+          <element ref="TID" minOccurs="1" maxOccurs="1"/>
+	</sequence>
+      </complexType>
+
+      <complexType name="OA">
+	<complexContent>
+	  <extension base="ns:M">
+	    <sequence>
+	      <element ref="OrderId" minOccurs="1" maxOccurs="1"/>
+	    </sequence>
+	  </extension>
+	</complexContent>
+      </complexType>
+
+      <complexType name="M">
+	<sequence>
+ 	  <element ref="MessageId" minOccurs="1" maxOccurs="1"/>
+	</sequence>
+      </complexType>
+
+      <element name="MessageId" type="ns:MessageId"/>
+      <simpleType name="MessageId">
+        <restriction base="xsd:int"/>
+      </simpleType>
+
+      <element name="TID" type="ns:TDI"/>
+      <simpleType name="TDI">
+        <restriction base="xsd:int"/>
+      </simpleType>
+
+      <element name="OrderId" type="ns:OrderId"/>
+      <simpleType name="OrderId">
+        <restriction base="ns:Identifier"/>
+      </simpleType>
+
+      <simpleType name="Identifier">
+	<restriction base="TokenType"/>
+      </simpleType>
+
+      <simpleType name="TokenType">
+	<restriction base="xsd:token"/>
+      </simpleType>
+
+    </schema>
+  </types>
+
+  <message name="getRequest">
+    <part name="InPut" type="ns:Irec"/>
+  </message>
+
+  <message name="getResponse">
+    <part name="CpsNTable" type="ns:Irec"/>
+  </message>
+
+  <message name="getRequestX">
+    <part name="InPut" type="ns:IrecX"/>
+  </message>
+
+  <message name="getResponseX">
+    <part name="CpsNTable" type="ns:IrecX"/>
+  </message>
+
+  <portType name="AdaNamePortType">
+    <operation name="callMe">
+      <input message="tns:getRequest"/>
+      <output message="tns:getResponse"/>
+    </operation>
+  </portType>
+
+  <portType name="AdaNamePortTypeX">
+    <operation name="callMeX">
+      <input message="tns:getRequestX"/>
+      <output message="tns:getResponseX"/>
+    </operation>
+  </portType>
+
+  <binding name="AdaName" type="tns:AdaNamePortType">
+    <soap:binding style="rpc"
+                  transport="http://schemas.xmlsoap.org/soap/http"/>
+    <operation name="callMe">
+      <soap:operation style="rpc" soapAction=""/>
+      <input>
+        <soap:body use="encoded"
+                   namespace="http://www.dummy.net/WAdaName.wsdl"
+                   encodingStyle="http://schemas.xmlsoap.org/soap/encoding/"/>
+      </input>
+      <output>
+        <soap:body use="encoded"
+                   namespace="http://www.dummy.net/WAdaName.wsdl"
+                   encodingStyle="http://schemas.xmlsoap.org/soap/encoding/"/>
+      </output>
+    </operation>
+    <operation name="callMeX">
+      <soap:operation style="rpc" soapAction=""/>
+      <input>
+        <soap:body use="encoded"
+                   namespace="http://www.dummy.net/WAdaName.wsdl"
+                   encodingStyle="http://schemas.xmlsoap.org/soap/encoding/"/>
+      </input>
+      <output>
+        <soap:body use="encoded"
+                   namespace="http://www.dummy.net/WAdaName.wsdl"
+                   encodingStyle="http://schemas.xmlsoap.org/soap/encoding/"/>
+      </output>
+    </operation>
+  </binding>
+
+  <service name="AdaName">
+    <port name="AdaName" binding="tns:AdaName">
+      <soap:address location="http://localhost:8085"/>
+    </port>
+  </service>
+
+</definitions>
