@@ -228,7 +228,8 @@ begin
 
    Run : declare
       Account : Jabber.Client.Account;
-      AS : Net.Socket_Type'Class := Acceptors.Server_Socket (Acceptor);
+      AS      : Net.Socket_Type'Class :=
+                  Acceptors.Server_Socket (Acceptor);
    begin
       Set_Host (Account, Localhost (AS.Is_IPv6));
       Set_Port (Account, Port (AS.Get_Port));
