@@ -2263,10 +2263,7 @@ package body WSDL2AWS.Generator is
             if N.Mode = WSDL.Types.K_Array then
                Field_Array_First  := Field_Array_First & N.Min;
                Field_Array_Last   := Field_Array_Last & N.Max;
-               Field_Array_Length := Field_Array_Length
-                 & (if N.Max = Positive'Last
-                    then N.Max
-                    else 1 + N.Max - N.Min);
+               Field_Array_Length := Field_Array_Length & N.Max;
             else
                Field_Array_First  := Field_Array_First & "";
                Field_Array_Last   := Field_Array_Last & "";
