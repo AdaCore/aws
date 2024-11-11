@@ -1187,6 +1187,7 @@ package body AWS.Server is
       Callback                  : Response.Callback;
       Max_Connection            : Positive  := Default.Max_Connection;
       Admin_URI                 : String    := Default.Admin_URI;
+      Host                      : String    := "";
       Port                      : Natural   := Default.Server_Port;
       Security                  : Boolean   := False;
       Session                   : Boolean   := False;
@@ -1196,6 +1197,7 @@ package body AWS.Server is
    begin
       CNF.Set.Server_Name      (Web_Server.Properties, Name);
       CNF.Set.Admin_URI        (Web_Server.Properties, Admin_URI);
+      CNF.Set.Server_Host      (Web_Server.Properties, Host);
       CNF.Set.Server_Port      (Web_Server.Properties, Port);
       CNF.Set.Security         (Web_Server.Properties, Security);
       CNF.Set.Session          (Web_Server.Properties, Session);
