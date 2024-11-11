@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2003-2012, AdaCore                     --
+--                     Copyright (C) 2003-2024, AdaCore                     --
 --                                                                          --
 --  This is free software;  you can redistribute it  and/or modify it       --
 --  under terms of the  GNU General Public License as published  by the     --
@@ -106,16 +106,11 @@ begin
 
    Server.Start (WS, Dispatcher => H, Config => Cfg);
 
-   if Net.IPv6_Available then
+   if Net.IPv6_Available and then AWS.Server.Status.Is_IPv6 (WS) then
       --  Need to start server in opposite protocol family because we do not
       --  know which family would bind localhost.
 
-      if Server.Status.Is_IPv6 (WS) then
-         Config.Set.Protocol_Family (Cfg, "FAMILY_INET");
-      else
-         Config.Set.Protocol_Family (Cfg, "FAMILY_INET6");
-      end if;
-
+      Config.Set.Protocol_Family (Cfg, "FAMILY_INET");
       Config.Set.Server_Port (Cfg, Server.Status.Port (WS));
 
       Server.Start (W6, Dispatcher => H, Config => Cfg);

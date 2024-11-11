@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2004-2017, AdaCore                     --
+--                     Copyright (C) 2004-2024, AdaCore                     --
 --                                                                          --
 --  This is free software;  you can redistribute it  and/or modify it       --
 --  under terms of the  GNU General Public License as published  by the     --
@@ -131,6 +131,7 @@ package body Sp_Pck is
         (HTTP,
          "Testing server push.",
          CB'Access,
+         Host           => "localhost",
          Port           => 0,
          Security       => Security,
          Max_Connection => 3);

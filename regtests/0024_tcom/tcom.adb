@@ -98,7 +98,7 @@ procedure Tcom is
 
    R : Response.Data;
 
-   LH : constant String := Net.Localhost (Net.IPv6_Available);
+   LH : constant String := "localhost";
 
 begin
    Com_Server.Start (Context => C'Access, Host => LH, Port => 0);

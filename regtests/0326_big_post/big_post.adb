@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                       Copyright (C) 2020, AdaCore                        --
+--                     Copyright (C) 2020-2024, AdaCore                     --
 --                                                                          --
 --  This is free software;  you can redistribute it  and/or modify it       --
 --  under terms of the  GNU General Public License as published  by the     --
@@ -58,7 +58,11 @@ procedure Big_Post is
    R      : Response.Data;
 
 begin
-   Server.Start (WS, "Big Post", CB'Unrestricted_Access, Port => 0);
+   Server.Start
+     (WS, "Big Post",
+      CB'Unrestricted_Access,
+      Host => "localhost",
+      Port => 0);
 
    Text_IO.Put_Line ("started");
    Text_IO.Flush;

@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                       Copyright (C) 2012, AdaCore                        --
+--                     Copyright (C) 2012-2024, AdaCore                     --
 --                                                                          --
 --  This is free software;  you can redistribute it  and/or modify it       --
 --  under terms of the  GNU General Public License as published  by the     --
@@ -67,6 +67,7 @@ procedure Upload_Progress is
       Web_Config : Config.Object;
    begin
       Config.Set.Server_Name (Web_Config, "Upload Progress");
+      Config.Set.Server_Host (Web_Config, "localhost");
       Config.Set.Server_Port (Web_Config, 0);
       Config.Set.Max_Connection (Web_Config, 5);
       Config.Set.Upload_Directory (Web_Config, ".");

@@ -284,6 +284,7 @@ procedure Check_Mem_Nossl is
       AWS.Server.Start
         (HTTP, "check_mem2",
          CB'Unrestricted_Access,
+         Host           => "localhost",
          Port           => 0,
          Max_Connection => 5,
          Session        => True);
@@ -659,7 +660,7 @@ procedure Check_Mem_Nossl is
 
    begin
       Time_Tag ("Check_Reconnect");
-      Std.Bind (Server, 0);
+      Std.Bind (Server, 0, "localhost");
       Std.Listen (Server);
 
       Std.Set_Timeout (Server, 0.5);

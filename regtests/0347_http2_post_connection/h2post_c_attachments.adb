@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                       Copyright (C) 2021, AdaCore                        --
+--                     Copyright (C) 2021-2024, AdaCore                     --
 --                                                                          --
 --  This is free software;  you can redistribute it  and/or modify it       --
 --  under terms of the  GNU General Public License as published  by the     --
@@ -138,6 +138,7 @@ procedure H2Post_C_Attachments is
 
 begin
    Config.Set.Server_Name (CNF, "H2 Post Attachments");
+   Config.Set.Server_Host (CNF, "localhost");
    Config.Set.Server_Port (CNF, 0);
    Config.Set.Max_Connection (CNF, 5);
    Config.Set.Upload_Directory (CNF, ".");

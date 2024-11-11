@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2003-2012, AdaCore                     --
+--                     Copyright (C) 2003-2024, AdaCore                     --
 --                                                                          --
 --  This is free software;  you can redistribute it  and/or modify it       --
 --  under terms of the  GNU General Public License as published  by the     --
@@ -91,7 +91,10 @@ procedure Unexph2 is
 begin
    Server.Start
      (HTTP, "Test default unexpected exception handler",
-      CB'Unrestricted_Access, Port => 0, Max_Connection => 3);
+      CB'Unrestricted_Access,
+      Host           => "localhost",
+      Port           => 0,
+      Max_Connection => 3);
 
    R := Client.Get
      (AWS.Server.Status.Local_URL (HTTP) & "/test",

@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                       Copyright (C) 2022, AdaCore                        --
+--                     Copyright (C) 2022-2024, AdaCore                     --
 --                                                                          --
 --  This is free software;  you can redistribute it  and/or modify it       --
 --  under terms of the  GNU General Public License as published  by the     --
@@ -55,6 +55,7 @@ procedure Array_Rec_Int_Main is
 
 begin
    Config.Set.Server_Port (Conf, 0);
+   Config.Set.Server_Host (Conf, "localhost");
 
    Disp := SOAP.Dispatchers.Callback.Create
      (CB'Unrestricted_Access,

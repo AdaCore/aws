@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                       Copyright (C) 2013, AdaCore                        --
+--                     Copyright (C) 2013-2024, AdaCore                     --
 --                                                                          --
 --  This is free software;  you can redistribute it  and/or modify it       --
 --  under terms of the  GNU General Public License as published  by the     --
@@ -41,7 +41,10 @@ procedure Cfilename is
 
 begin
    Server.Start
-     (WS, "cfilename", CB'Unrestricted_Access, Port => 0, Max_Connection => 5);
+     (WS, "cfilename", CB'Unrestricted_Access,
+      Host           => "localhost",
+      Port           => 0,
+      Max_Connection => 5);
    Ada.Text_IO.Put_Line ("started"); Ada.Text_IO.Flush;
 
    delay 1.0;

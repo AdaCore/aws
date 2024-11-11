@@ -43,7 +43,10 @@ procedure Put_Post is
 
 begin
    Server.Start
-     (WS, "simple", CB'Unrestricted_Access, Port => 0, Max_Connection => 5);
+     (WS, "simple", CB'Unrestricted_Access,
+      Host           => "localhost",
+      Port           => 0,
+      Max_Connection => 5);
    Text_IO.Put_Line ("started"); Ada.Text_IO.Flush;
    delay 1.0;
 
