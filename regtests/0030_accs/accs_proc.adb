@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2005-2012, AdaCore                     --
+--                     Copyright (C) 2005-2024, AdaCore                     --
 --                                                                          --
 --  This is free software;  you can redistribute it  and/or modify it       --
 --  under terms of the  GNU General Public License as published  by the     --
@@ -167,7 +167,7 @@ procedure Accs_Proc (Security : Boolean) is
 begin
    Semaphore.Seize;
 
-   Acceptors.Listen (Acceptor, "", 0, 11);
+   Acceptors.Listen (Acceptor, "localhost", 0, 11);
 
    declare
       Servers : array (1 .. 3) of Server_Task;

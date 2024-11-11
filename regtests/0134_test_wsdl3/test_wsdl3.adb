@@ -123,20 +123,14 @@ begin
 
    AWS.Server.Start (H_Server, CB'Unrestricted_Access, CNF);
 
-   if Net.IPv6_Available then
+   if Net.IPv6_Available and then AWS.Server.Status.Is_IPv6 (H_Server) then
       --  Need to start second server on same port but on the different
       --  Protocol_Family because we do not know which family would client try
       --  to connect.
 
-      if AWS.Server.Status.Is_IPv6 (H_Server) then
-         AWS.Server.Add_Listening
-           (H_Server, "localhost", Stock_Quote_Service.Server.Port,
-            Net.FAMILY_INET);
-      else
-         AWS.Server.Add_Listening
-           (H_Server, "localhost", Stock_Quote_Service.Server.Port,
-            Net.FAMILY_INET6);
-      end if;
+      AWS.Server.Add_Listening
+        (H_Server, "localhost", Stock_Quote_Service.Server.Port,
+         Net.FAMILY_INET);
    end if;
 
    WSDL_Demo_Client;

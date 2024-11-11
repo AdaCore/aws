@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2003-2020, AdaCore                     --
+--                     Copyright (C) 2003-2024, AdaCore                     --
 --                                                                          --
 --  This is free software;  you can redistribute it  and/or modify it       --
 --  under terms of the  GNU General Public License as published  by the     --
@@ -500,11 +500,6 @@ begin
    Config.Set.Protocol_Family (CNF, "FAMILY_INET");
 
    Server.Start (H_Server, CB'Unrestricted_Access, CNF);
-
-   if Net.IPv6_Available then
-      Server.Add_Listening
-        (H_Server, "localhost", Tinteroplab.Server.Port, Net.FAMILY_INET6);
-   end if;
 
    T_echoVoid;
    T_echoString;

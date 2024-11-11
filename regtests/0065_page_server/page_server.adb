@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2007-2012, AdaCore                     --
+--                     Copyright (C) 2007-2024, AdaCore                     --
 --                                                                          --
 --  This is free software;  you can redistribute it  and/or modify it       --
 --  under terms of the  GNU General Public License as published  by the     --
@@ -45,6 +45,7 @@ begin
    Text_IO.Close (File);
 
    Config.Set.WWW_Root (Conf, "icons");
+   Config.Set.Server_Host (Conf, "localhost");
    Config.Set.Server_Port (Conf, 0);
 
    Server.Start (WS, Services.Page_Server.Callback'Access, Conf);

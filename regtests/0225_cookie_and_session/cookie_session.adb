@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2012-2021, AdaCore                     --
+--                     Copyright (C) 2012-2024, AdaCore                     --
 --                                                                          --
 --  This is free software;  you can redistribute it  and/or modify it       --
 --  under terms of the  GNU General Public License as published  by the     --
@@ -58,7 +58,10 @@ procedure Cookie_Session is
 
 begin
    Server.Start
-     (WS, "Cookie Session", Callback'Unrestricted_Access, Port => 0,
+     (WS, "Cookie Session",
+      Callback'Unrestricted_Access,
+      Host    => "localhost",
+      Port    => 0,
       Session => True);
 
    Res := Client.Get (Server.Status.Local_URL (WS));

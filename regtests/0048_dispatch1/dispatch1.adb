@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2003-2012, AdaCore                     --
+--                     Copyright (C) 2003-2024, AdaCore                     --
 --                                                                          --
 --  This is free software;  you can redistribute it  and/or modify it       --
 --  under terms of the  GNU General Public License as published  by the     --
@@ -106,6 +106,7 @@ begin
 
    Cfg := AWS.Config.Get_Current;
 
+   AWS.Config.Set.Server_Host (Cfg, "localhost");
    AWS.Config.Set.Server_Port (Cfg, 0);
 
    AWS.Server.Start (WS, Dispatcher => H, Config => Cfg);

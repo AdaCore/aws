@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2004-2012, AdaCore                     --
+--                     Copyright (C) 2004-2024, AdaCore                     --
 --                                                                          --
 --  This is free software;  you can redistribute it  and/or modify it       --
 --  under terms of the  GNU General Public License as published  by the     --
@@ -72,7 +72,8 @@ begin
    Server.Start
      (WS, "stream_response",
       CB'Unrestricted_Access,
-      Port => 0,
+      Host           => "localhost",
+      Port           => 0,
       Max_Connection => 15);
 
    Text_IO.Put_Line ("started"); Ada.Text_IO.Flush;

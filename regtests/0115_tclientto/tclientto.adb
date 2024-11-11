@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2000-2012, AdaCore                     --
+--                     Copyright (C) 2000-2024, AdaCore                     --
 --                                                                          --
 --  This is free software;  you can redistribute it  and/or modify it       --
 --  under terms of the  GNU General Public License as published  by the     --
@@ -131,7 +131,9 @@ begin
    Put_Line ("Start main, wait for server to start...");
 
    Server.Start
-     (HTTP, "Test Client Timeouts", CB'Unrestricted_Access, Port => 0,
+     (HTTP, "Test Client Timeouts", CB'Unrestricted_Access,
+      Host           => "localhost",
+      Port           => 0,
       Max_Connection => 5);
 
    Put_Line ("Server started");

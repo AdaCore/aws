@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2004-2012, AdaCore                     --
+--                     Copyright (C) 2004-2024, AdaCore                     --
 --                                                                          --
 --  This is free software;  you can redistribute it  and/or modify it       --
 --  under terms of the  GNU General Public License as published  by the     --
@@ -52,11 +52,7 @@ procedure NBConn_Proc (Security : Boolean) is
    task body Server_Task is
       Peer : Net.Socket_Access;
    begin
-      if Net.IPv6_Available then
-         Server.Bind (0, Family => Net.Family_Inet6);
-      else
-         Server.Bind (0, Family => Net.Family_Inet);
-      end if;
+      Server.Bind (0, "localhost");
 
       Server.Listen (Queue_Size);
 
@@ -105,7 +101,7 @@ begin
    for J in Clients'Range loop
       Clients (J) := Net.Socket (Security);
       Clients (J).Connect
-        (Net.Localhost (Net.IPv6_Available), Server.Get_Port, Wait => False);
+        (Net.Localhost (Server.Is_IPv6), Server.Get_Port, Wait => False);
       Put_Line ("connect" & Integer'Image (J));
    end loop;
 

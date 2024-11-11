@@ -39,28 +39,22 @@ procedure SMTP_2 is
    From_Name  : constant String := "My Name";
    From_Email : constant String := "my.name@righthere.fr";
    Filename   : constant String := "ada.gif";
+   EOL        : constant String := ASCII.CR & ASCII.LF;
+   Family     : constant Net.Family_Type := Net.Family_Inet;
 
-   Family : Net.Family_Type;
    Host   : SMTP.Receiver;
    Server : SMTP.Server.Handle;
    Status : SMTP.Status;
    Attac  : Attachments.List;
    Alter  : Attachments.Alternatives;
-   EOL    : constant String := ASCII.CR & ASCII.LF;
 
 begin
-   if Net.IPv6_Available then
-      Family := Net.Family_Inet6;
-   else
-      Family := Net.Family_Inet;
-   end if;
-
    if AWS.Net.SSL.Is_Supported then
       Setup_SSL.Default;
    end if;
 
    Host := SMTP.Initialize
-     (Net.Localhost (Net.IPv6_Available), 0,
+     ("localhost", 0,
       Security => (if AWS.Net.SSL.Is_Supported then SMTP.TLS else SMTP.No),
       Family   => Family,
       Timeout  => 1.0);
@@ -70,7 +64,7 @@ begin
    --  Recreate Host with port defined
 
    Host := SMTP.Initialize
-     (Net.Localhost (Net.IPv6_Available), SMTP.Server.Port (Server),
+     ("localhost", SMTP.Server.Port (Server),
       Security => (if AWS.Net.SSL.Is_Supported then SMTP.TLS else SMTP.No),
       Family   => Family,
       Timeout  => 1.0);
