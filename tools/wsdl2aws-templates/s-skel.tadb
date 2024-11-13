@@ -258,6 +258,11 @@ package body @_UNIT_NAME_@.Server is
       return SOAP.Message.Response.Build (Response, Schema);
    exception
       when E : others =>
+@@IF@@ @_DEBUG_@
+         Put_Line ("[SERVER/@_PROC_@_CB] Parameter error : "
+                   & Exception_Information (E));
+
+@@END_IF@@
       @@INLINE(      )(\n      )()@@
       @_M_EXCEPTION(Parameter error,@_PROC_@)_@
       @@END_INLINE@@

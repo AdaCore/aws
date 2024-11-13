@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                    Copyright (C) 2017-2018, AdaCore                      --
+--                    Copyright (C) 2017-2024, AdaCore                      --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -31,6 +31,6 @@ pragma Ada_2012;
 
 package WSDL2AWS with Pure is
 
-   Version : constant String := "4.1.0";
+   Version : constant String := "5.0.0";
 
 end WSDL2AWS;
