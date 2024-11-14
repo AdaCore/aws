@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2000-2022, AdaCore                     --
+--                     Copyright (C) 2000-2024, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -29,14 +29,14 @@
 
 pragma Ada_2012;
 
+with Ada.Calendar;
 with Ada.Calendar.Arithmetic;
 with Ada.Calendar.Formatting;
 with Ada.Calendar.Time_Zones;
-
-with Ada.Calendar;
 with Ada.Characters.Handling;
 with Ada.Strings.Fixed;
 with Ada.Strings.Maps.Constants;
+with Ada.Tags;
 with Ada.Unchecked_Deallocation;
 
 with Unicode.CES.Basic_8bit;
@@ -978,11 +978,24 @@ package body SOAP.Utils is
    ---------------
 
    function To_Vector (From : Types.Object_Set) return Vector.Vector is
+      use type Ada.Tags.Tag;
       use SOAP.Types;
       Result : Vector.Vector;
    begin
       for K in From'Range loop
-         Result.Append (Get (-From (K)));
+         declare
+            E : constant SOAP.Types.Object'Class := -From (K);
+         begin
+            --  A single element which is a SOAP_Set, this is the
+            --  vector to be converted.
+            if E'Tag = SOAP.Types.SOAP_Set'Tag
+              and then From'Length = 1
+            then
+               return To_Vector (V (SOAP.Types.SOAP_Set (E)));
+            else
+               Result.Append (Get (-From (K)));
+            end if;
+         end;
       end loop;
 
       return Result;

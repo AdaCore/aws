@@ -2440,6 +2440,7 @@ package body WSDL2AWS.WSDL.Parser is
                   end;
 
                else
+                  P.Is_Set := False;
                   Parameters.Append (P.P, Parse_Record (O, N, Document));
                end if;
             end;

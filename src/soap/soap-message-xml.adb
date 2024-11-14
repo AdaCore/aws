@@ -89,6 +89,7 @@ package body SOAP.Message.XML is
       Style        : WSDL.Schema.Binding_Style := WSDL.Schema.RPC;
       Encoding     : WSDL.Schema.Encoding_Style := WSDL.Schema.Encoded;
       Schema       : WSDL.Schema.Definition;
+      Last_Node    : DOM.Core.Node;
    end record;
 
    function To_Type
@@ -256,7 +257,7 @@ package body SOAP.Message.XML is
       N         : DOM.Core.Node) return Types.Object'Class;
 
    function Parse_Param
-     (N      : DOM.Core.Node;
+     (N      : in out DOM.Core.Node;
       Q_Name : String;
       S      : in out State) return Types.Object'Class;
 
@@ -267,6 +268,12 @@ package body SOAP.Message.XML is
       S      : in out State) return Types.Object'Class;
 
    function Parse_Record
+     (Name   : String;
+      N      : DOM.Core.Node;
+      Q_Name : String;
+      S      : in out State) return Types.Object'Class;
+
+   function Parse_Set
      (Name   : String;
       N      : DOM.Core.Node;
       Q_Name : String;
@@ -1394,7 +1401,7 @@ package body SOAP.Message.XML is
    -----------------
 
    function Parse_Param
-     (N      : DOM.Core.Node;
+     (N      : in out DOM.Core.Node;
       Q_Name : String;
       S      : in out State) return Types.Object'Class
    is
@@ -1408,6 +1415,9 @@ package body SOAP.Message.XML is
       function Is_Record return Boolean;
       --  Returns True if N is a record node
 
+      function Is_Set return Boolean;
+      --  Returns True if N is a set node
+
       function With_NS
         (O  : Types.Object'Class;
          NS : SOAP.Name_Space.Object) return Types.Object'Class;
@@ -1416,9 +1426,15 @@ package body SOAP.Message.XML is
       function Is_Nil return Boolean;
       --  Check if xsi:nil attribute is present and return True if set
 
+      In_Set   : constant Boolean := S.Last_Node /= null;
+      --  Last_Node must be used only when parsing a set
+
+      No_Key   : constant String := ASCII.NUL & "_";
       Name     : constant String := Local_Name (N);
       LQ_Name  : constant String := (if Q_Name = ""
                                      then Name
+                                     elsif In_Set
+                                     then No_Key
                                      else Q_Name & '.' & Name);
       Key      : constant String := LQ_Name & "@is_a";
 
@@ -1472,6 +1488,16 @@ package body SOAP.Message.XML is
            and then S.Schema.Element (Key) = "@record";
       end Is_Record;
 
+      ------------
+      -- Is_Set --
+      ------------
+
+      function Is_Set return Boolean is
+      begin
+         return S.Schema.Contains (Key)
+           and then S.Schema.Element (Key) = "@set";
+      end Is_Set;
+
       -------------
       -- With_NS --
       -------------
@@ -1506,8 +1532,15 @@ package body SOAP.Message.XML is
          end if;
 
       else
-         xsd := To_Unbounded_String
-                  (Get_Schema_Type (Key, S.Schema, S.NS, ""));
+         if In_Set then
+            --  The element type is given by the Q_Name key for a set as there
+            --  is no enclosing elements.
+            xsd := To_Unbounded_String
+                     (Get_Schema_Type (Q_Name, S.Schema, S.NS, ""));
+         else
+            xsd := To_Unbounded_String
+                     (Get_Schema_Type (Key, S.Schema, S.NS, ""));
+         end if;
       end if;
 
       NS := Get_Namespace_Object (S.NS, Utils.NS (To_String (xsd)));
@@ -1517,6 +1550,21 @@ package body SOAP.Message.XML is
 
       elsif Is_Array then
          return Parse_Array (Name, Ref, Q_Name, S);
+
+      elsif Is_Set then
+         S.Last_Node := null;
+
+         declare
+            Res : constant Types.Object'Class :=
+                    Parse_Set (Name, Ref, Q_Name, S);
+         begin
+            --  Skip sibling nodes and so we want N to be pointing to the
+            --  last set item.
+            N := S.Last_Node;
+            S.Last_Node := null;
+
+            return Res;
+         end;
 
       elsif Is_Record then
          return Parse_Record (Name, Ref, Q_Name, S);
@@ -1694,6 +1742,86 @@ package body SOAP.Message.XML is
          end;
       end if;
    end Parse_Record;
+
+   ---------------
+   -- Parse_Set --
+   ---------------
+
+   function Parse_Set
+     (Name   : String;
+      N      : DOM.Core.Node;
+      Q_Name : String;
+      S      : in out State) return Types.Object'Class
+   is
+      use SOAP.Types;
+      use type DOM.Core.Node;
+      use type WSDL.Schema.Binding_Style;
+
+      LS      : constant State := S;
+      LQ_Name : constant String := (if Q_Name = ""
+                                    then Name
+                                    else Q_Name & '.' & Name);
+      Key     : constant String := LQ_Name & "@is_a";
+
+      Field   : DOM.Core.Node := SOAP.XML.Get_Ref (N);
+      xsd     : constant String :=
+                  SOAP.XML.Get_Attr_Value
+                    (Field, SOAP.Name_Space.Name (S.NS.xsi) & ":type");
+
+      --  The set fields temporary store
+      OS     : Object_Set_Access := new Object_Set (1 .. 50);
+      K      : Natural := 0;
+
+      T_Name : Unbounded_String; -- set's type name
+
+   begin
+      if S.Style = WSDL.Schema.Document then
+         --  This should be done only for document style binding where the
+         --  enclosing element is the type-name (aka element in schema).
+
+         T_Name := To_Unbounded_String (Name);
+
+      elsif xsd = "" then
+         T_Name := To_Unbounded_String
+           (Get_Schema_Type (Key, S.Schema, S.NS, xsd));
+
+      else
+         T_Name := To_Unbounded_String (xsd);
+      end if;
+
+      --  Set state for the enclosing elements
+
+      S.A_State := Void;
+
+      --  Parse all sibling having the same name as part of the set
+
+      while Field /= null
+        and then Name = Local_Name (Field)
+      loop
+         K := K + 1;
+         --  Make sure Last_Node is set before calling Parse_Param as it is
+         --  used to know that we are parsing a set.
+         S.Last_Node := Field;
+         Add_Object (OS, K, +Parse_Param (Field, LQ_Name, S), 25);
+         Field := Next_Sibling (Field);
+      end loop;
+
+      --  Restore state
+
+      S.A_State := LS.A_State;
+
+      declare
+         NS : constant SOAP.Name_Space.Object :=
+                Get_Namespace_Object (S.NS, Utils.NS (To_String (T_Name)));
+         S  : constant Types.SOAP_Set :=
+                Types.Set
+                  (OS (1 .. K), Name,
+                   Utils.No_NS (To_String (T_Name)), NS);
+      begin
+         Unchecked_Free (OS);
+         return S;
+      end;
+   end Parse_Set;
 
    -----------------
    -- Parse_Short --
