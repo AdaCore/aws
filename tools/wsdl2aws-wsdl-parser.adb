@@ -50,10 +50,10 @@ package body WSDL2AWS.WSDL.Parser is
 
    use type DOM.Core.Node;
 
-   Verbose_Mode  : Verbose_Level := 0;
-   Skip_Error    : Boolean       := False;
-   NS_SOAP       : Unbounded_String;
-   NS_Num        : Natural := 0;
+   Verbose_Mode : Verbose_Level := 0;
+   Skip_Error   : Boolean       := False;
+   NS_SOAP      : Unbounded_String;
+   NS_Num       : Natural := 0;
 
    type Look_Kind is (Complex_Type, Simple_Type, Element);
    type Look_Context is array (Look_Kind) of Boolean;

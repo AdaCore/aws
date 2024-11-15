@@ -164,8 +164,6 @@ package body SOAP.Message is
       end Add_Namespaces;
 
    begin
-      --  Procedure
-
       --  We are called with the Body node opened
 
       if Style = WSDL.Schema.RPC then

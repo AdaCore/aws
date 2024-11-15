@@ -1908,11 +1908,15 @@ package body SOAP.Message.XML is
       S.Encoding := WSDL.Schema.Get_Encoding_Style (S.Schema, Name);
 
       for K in 0 .. Length (NL) - 1 loop
-         if Item (NL, K).Node_Type /= DOM.Core.Text_Node then
-            S.Parameters :=
-              S.Parameters
-              & Parse_Param (Item (NL, K), Name, S);
-         end if;
+         declare
+            Item_N : DOM.Core.Node := Item (NL, K);
+         begin
+            if Item_N.Node_Type /= DOM.Core.Text_Node then
+               S.Parameters :=
+                 S.Parameters
+                 & Parse_Param (Item_N, Name, S);
+            end if;
+         end;
       end loop;
    end Parse_Wrapper;
 
