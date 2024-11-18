@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2008-2012, AdaCore                     --
+--                     Copyright (C) 2008-2024, AdaCore                     --
 --                                                                          --
 --  This is free software;  you can redistribute it  and/or modify it       --
 --  under terms of the  GNU General Public License as published  by the     --
@@ -228,9 +228,10 @@ begin
 
    Run : declare
       Account : Jabber.Client.Account;
-      AS : Net.Socket_Type'Class := Acceptors.Server_Socket (Acceptor);
+      AS      : Net.Socket_Type'Class :=
+                  Acceptors.Server_Socket (Acceptor);
    begin
-      Set_Host (Account, Localhost (AS.Is_IPv6));
+      Set_Host (Account, "localhost");
       Set_Port (Account, Port (AS.Get_Port));
 
       Set_Login_Information (Account, "user", "passwd");

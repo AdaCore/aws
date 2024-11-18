@@ -67,6 +67,7 @@ begin
    end if;
 
    Config.Set.Server_Name (Cfg, "Broken Request Line");
+   Config.Set.Server_Host (Cfg, "localhost");
    Config.Set.Server_Port (Cfg, 0);
    Config.Set.Session     (Cfg, True);
 

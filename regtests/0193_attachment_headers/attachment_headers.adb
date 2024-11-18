@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2008-2021, AdaCore                     --
+--                     Copyright (C) 2008-2024, AdaCore                     --
 --                                                                          --
 --  This is free software;  you can redistribute it  and/or modify it       --
 --  under terms of the  GNU General Public License as published  by the     --
@@ -134,6 +134,7 @@ begin
      (Srv, "attachment_headers",
       Upload'Unrestricted_Access,
       Upload_Directory => ".",
+      Host             => "localhost",
       Port             => 0);
 
    Headers.Add (Name  => HN ("X-Message-Seconds", Is_H2),

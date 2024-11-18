@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2004-2014, AdaCore                     --
+--                     Copyright (C) 2004-2024, AdaCore                     --
 --                                                                          --
 --  This is free software;  you can redistribute it  and/or modify it       --
 --  under terms of the  GNU General Public License as published  by the     --
@@ -139,6 +139,7 @@ begin
 
    Server.Start
      (HTTP, "soap_demo", CB'Unrestricted_Access,
+      Host           => "localhost",
       Port           => 0,
       Max_Connection => 5,
       Security       => Security);

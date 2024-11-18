@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2003-2012, AdaCore                     --
+--                     Copyright (C) 2003-2024, AdaCore                     --
 --                                                                          --
 --  This is free software;  you can redistribute it  and/or modify it       --
 --  under terms of the  GNU General Public License as published  by the     --
@@ -171,6 +171,7 @@ begin
    Put_Line ("Start main, wait for server to start...");
 
    AWS.Config.Set.Server_Port (Config, 0);
+   AWS.Config.Set.Server_Host (Config, "localhost");
    AWS.Config.Set.Security    (Config, Protocol = "https");
 
    AWS.Server.Start

@@ -99,6 +99,7 @@ package AWS.Server is
       Callback                  : Response.Callback;
       Max_Connection            : Positive  := Default.Max_Connection;
       Admin_URI                 : String    := Default.Admin_URI;
+      Host                      : String    := "";
       Port                      : Natural   := Default.Server_Port;
       Security                  : Boolean   := False;
       Session                   : Boolean   := False;

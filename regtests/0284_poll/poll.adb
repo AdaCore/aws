@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                        Copyright (C) 2016, AdaCore                       --
+--                     Copyright (C) 2016-2024, AdaCore                     --
 --                                                                          --
 --  This is free software;  you can redistribute it  and/or modify it       --
 --  under terms of the  GNU General Public License as published  by the     --
@@ -26,9 +26,9 @@ with AWS.Utils;
 with Interfaces.C.Strings;
 
 procedure Poll is
-   Set : Poll_Events.Set (45); -- Have to be odd
-   Ss  : array (1 .. Set.Size) of Std.Socket_Type;
-   Local : constant String := Localhost (IPv6_Available);
+   Set   : Poll_Events.Set (45); -- Have to be odd
+   Ss    : array (1 .. Set.Size) of Std.Socket_Type;
+   Local : constant String := "localhost";
    Count : Integer;
    Idx   : Positive;
    State : Event_Set;

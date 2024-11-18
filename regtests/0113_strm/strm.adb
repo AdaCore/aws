@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2000-2012, AdaCore                     --
+--                     Copyright (C) 2000-2024, AdaCore                     --
 --                                                                          --
 --  This is free software;  you can redistribute it  and/or modify it       --
 --  under terms of the  GNU General Public License as published  by the     --
@@ -147,7 +147,9 @@ begin
    Server.Set_Unexpected_Exception_Handler (HTTP, UEH'Unrestricted_Access);
 
    Server.Start
-     (HTTP, "Testing user defined stream.", CB'Unrestricted_Access, Port => 0,
+     (HTTP, "Testing user defined stream.", CB'Unrestricted_Access,
+      Host           => "localhost",
+      Port           => 0,
       Max_Connection => 3);
 
    Server.Log.Start (HTTP);

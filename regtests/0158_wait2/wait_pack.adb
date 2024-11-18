@@ -110,7 +110,7 @@ package body Wait_Pack is
       Set : Sets.Socket_Set_Type;
 
    begin
-      Server.Bind (0);
+      Server.Bind (0, "localhost");
       Server.Listen;
       Server.Set_Blocking_Mode (False);
 

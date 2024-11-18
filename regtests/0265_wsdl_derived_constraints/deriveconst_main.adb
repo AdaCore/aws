@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                       Copyright (C) 2015, AdaCore                        --
+--                      Copyright (C) 2015-2024, AdaCore                    --
 --                                                                          --
 --  This is free software;  you can redistribute it  and/or modify it       --
 --  under terms of the  GNU General Public License as published  by the     --
@@ -140,7 +140,12 @@ procedure Deriveconst_Main is
 begin
    Text_IO.Put_Line ("Run OK");
 
-   Server.Start (HTTP, "name", CB.CB'Access, Port => 0);
+   Server.Start
+     (HTTP, "name",
+      CB.CB'Access,
+      Host => "localhost",
+      Port => 0);
+
    URL := AWS.URL.Parse (Server.Status.Local_URL (HTTP));
 
    Deriveconst_Demo.Client.Call (B1, Endpoint => AWS.URL.URL (URL));

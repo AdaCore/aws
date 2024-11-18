@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                       Copyright (C) 2016, AdaCore                        --
+--                     Copyright (C) 2016-2024, AdaCore                     --
 --                                                                          --
 --  This is free software;  you can redistribute it  and/or modify it       --
 --  under terms of the  GNU General Public License as published  by the     --
@@ -79,6 +79,7 @@ procedure If_Match_Headers is
 
 begin
    Config.Set.Server_Name (CFG, "If Match Headers");
+   Config.Set.Server_Host (CFG, "localhost");
    Config.Set.Server_Port (CFG, 0);
 
    Server.Start (WS, CB'Unrestricted_Access, CFG);

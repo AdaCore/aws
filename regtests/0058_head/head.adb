@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2000-2012, AdaCore                     --
+--                     Copyright (C) 2000-2024, AdaCore                     --
 --                                                                          --
 --  This is free software;  you can redistribute it  and/or modify it       --
 --  under terms of the  GNU General Public License as published  by the     --
@@ -54,7 +54,10 @@ procedure Head is
 begin
    AWS.Server.Start
      (HTTP, "Testing head request.",
-      CB'Unrestricted_Access, Port => 0, Max_Connection => 3);
+      CB'Unrestricted_Access,
+      Host           => "localhost",
+      Port           => 0,
+      Max_Connection => 3);
 
    Client.Create
      (Connection => Connect,

@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                       Copyright (C) 2017, AdaCore                        --
+--                     Copyright (C) 2017-2024, AdaCore                     --
 --                                                                          --
 --  This is free software;  you can redistribute it  and/or modify it       --
 --  under terms of the  GNU General Public License as published  by the     --
@@ -43,6 +43,7 @@ begin
    AWS.Server.Start
      (H_Server, "NS_Rename_Arr_Rec",
       NS_Rename_Arr_Rec_Server_CB.CB'Access,
+      Host => "localhost",
       Port => 0);
 
    Text_IO.Put_Line ("from client:");

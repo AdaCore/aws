@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2003-2012, AdaCore                     --
+--                     Copyright (C) 2003-2024, AdaCore                     --
 --                                                                          --
 --  This is free software;  you can redistribute it  and/or modify it       --
 --  under terms of the  GNU General Public License as published  by the     --
@@ -84,18 +84,12 @@ begin
 
    Server.Start (H_Server, CB'Unrestricted_Access, CNF);
 
-   if Net.IPv6_Available then
+   if Net.IPv6_Available and then AWS.Server.Status.Is_IPv6 (H_Server) then
       --  Need to start second server on same port but on the different
       --  Protocol_Family because we do not know which family would client try
       --  to connect.
-
-      if AWS.Server.Status.Is_IPv6 (H_Server) then
-         Server.Add_Listening
-           (H_Server, "localhost", R_Hello_Demo.Server.Port, Net.FAMILY_INET);
-      else
-         Server.Add_Listening
-           (H_Server, "localhost", R_Hello_Demo.Server.Port, Net.FAMILY_INET6);
-      end if;
+      Server.Add_Listening
+        (H_Server, "localhost", R_Hello_Demo.Server.Port, Net.FAMILY_INET);
    end if;
 
    WSDL_Demo_Client;
