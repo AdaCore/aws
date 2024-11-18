@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2003-2022, AdaCore                     --
+--                     Copyright (C) 2003-2024, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -1224,7 +1224,12 @@ package body WSDL2AWS.Generator is
          begin
             if E_Name = "" then
                --  This is a set and not an array, inside we have a record
-               Output_Schema_Definition (O, Name & "@is_a", "@record");
+               Output_Schema_Definition
+                 (O, Name & "@is_a", (if P.Is_Set then "@set" else "@record"));
+               if P.Is_Set and then P.P /= null then
+                  Output_Schema_Definition
+                    (O, Name, WSDL.Types.Name (P.P.Typ, P.Is_Set));
+               end if;
             else
                Output_Schema_Definition (O, Name & "@is_a", "@array");
             end if;

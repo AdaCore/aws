@@ -2074,11 +2074,12 @@ package body SOAP.Types is
 
       Indent : constant Natural      := XML_Indent.Value;
       OC     : constant Object'Class := Object'Class (O);
+      T_Name : constant String       := Tag_Name (OC);
    begin
       if OC in XSD_String then
          Append (Result, Spaces (Indent));
          Append (Result, "<");
-         Append (Result, Tag_Name (OC));
+         Append (Result, T_Name);
 
          if Encoding = WSDL.Schema.Encoded then
             if XML_Type (OC) = "" then
@@ -2091,13 +2092,13 @@ package body SOAP.Types is
          Append (Result, '>');
          Utils.Encode (XSD_String (OC).V, Result);
          Append (Result, "</");
-         Append (Result, Tag_Name (OC));
+         Append (Result, T_Name);
          Append (Result, '>');
 
       else
          Append (Result, Spaces (Indent));
          Append (Result, "<");
-         Append (Result, Tag_Name (OC));
+         Append (Result, T_Name);
 
          if Encoding = WSDL.Schema.Encoded then
             Append (Result, xsi_type (XML_Type (OC)));
@@ -2106,7 +2107,7 @@ package body SOAP.Types is
          Append (Result, '>');
          Append (Result, Image (OC));
          Append (Result, "</");
-         Append (Result, Tag_Name (OC));
+         Append (Result, T_Name);
          Append (Result, '>');
       end if;
    end XML_Image;
