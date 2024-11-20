@@ -244,9 +244,7 @@ begin
 
       Generator.Write (Filename);
    end;
-
 exception
-
    when Fatal_Error | Parameter_Error =>
       --  Everything has already been reported
       Command_Line.Set_Exit_Status (Ada.Command_Line.Failure);
