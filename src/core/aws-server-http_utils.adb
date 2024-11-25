@@ -1590,10 +1590,12 @@ package body AWS.Server.HTTP_Utils is
          With_Body : constant Boolean := Messages.With_Body (Status_Code);
          File_Time : Ada.Calendar.Time;
          F_Status  : constant Resource_Status :=
-                       Get_Resource_Status (C_Stat, Filename, File_Time);
+                       (if File_Mode
+                        then Get_Resource_Status (C_Stat, Filename, File_Time)
+                        else Changed);
          File      : Resources.File_Type;
       begin
-         if F_Status in Up_To_Date .. Not_Found then
+         if File_Mode and then F_Status in Up_To_Date .. Not_Found then
             if F_Status = Up_To_Date then
                --  [RFC 2616 - 10.3.5]
                Status_Code := Messages.S304;
