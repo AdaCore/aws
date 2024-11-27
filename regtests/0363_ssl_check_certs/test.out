@@ -1,0 +1,55 @@
+-------------------------------------------------
+URL : https://expired.badssl.com
+
+CHECK: default SSL setup
+  Status Code: S400
+  Response: GET request error. raised AWS.CLIENT.CONNECTION_ERROR : certificate verification error : (xx) certificate has expired
+
+CHECK: SSL config with Check_Certificate = TRUE
+  Status Code: S400
+  Response: GET request error. raised AWS.CLIENT.CONNECTION_ERROR : certificate verification error : (xx) certificate has expired
+
+CHECK: SSL config with Check_Certificate = FALSE
+  Status Code: S200
+
+-------------------------------------------------
+URL : https://wrong.host.badssl.com
+
+CHECK: default SSL setup
+  Status Code: S400
+  Response: GET request error. raised AWS.CLIENT.CONNECTION_ERROR : certificate verification error : (xx) hostname mismatch
+
+CHECK: SSL config with Check_Certificate = TRUE
+  Status Code: S400
+  Response: GET request error. raised AWS.CLIENT.CONNECTION_ERROR : certificate verification error : (xx) hostname mismatch
+
+CHECK: SSL config with Check_Certificate = FALSE
+  Status Code: S200
+
+-------------------------------------------------
+URL : https://self-signed.badssl.com
+
+CHECK: default SSL setup
+  Status Code: S400
+  Response: GET request error. raised AWS.CLIENT.CONNECTION_ERROR : certificate verification error : (xx) self-signed certificate
+
+CHECK: SSL config with Check_Certificate = TRUE
+  Status Code: S400
+  Response: GET request error. raised AWS.CLIENT.CONNECTION_ERROR : certificate verification error : (xx) self-signed certificate
+
+CHECK: SSL config with Check_Certificate = FALSE
+  Status Code: S200
+
+-------------------------------------------------
+URL : https://untrusted-root.badssl.com
+
+CHECK: default SSL setup
+  Status Code: S400
+  Response: GET request error. raised AWS.CLIENT.CONNECTION_ERROR : certificate verification error : (xx) self-signed certificate in certificate chain
+
+CHECK: SSL config with Check_Certificate = TRUE
+  Status Code: S400
+  Response: GET request error. raised AWS.CLIENT.CONNECTION_ERROR : certificate verification error : (xx) self-signed certificate in certificate chain
+
+CHECK: SSL config with Check_Certificate = FALSE
+  Status Code: S200
