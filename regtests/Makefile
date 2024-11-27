@@ -16,7 +16,9 @@
 #  to http://www.gnu.org/licenses for a complete copy of the license.      #
 ############################################################################
 
+ifndef VERBOSE_MAKE
 .SILENT:
+endif
 
 GENERATOR := $(SRC_DIR)/regtests/gen_system_tags.py
 
