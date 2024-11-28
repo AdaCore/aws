@@ -1177,6 +1177,9 @@ package body AWS.Net.SSL is
    -- Initialize --
    ----------------
 
+   pragma Style_Checks (Off);
+   pragma Warnings (Off);
+
    procedure Initialize
      (Config               : in out SSL.Config;
       Security_Mode        : Method    := TLS;
@@ -1247,12 +1250,17 @@ package body AWS.Net.SSL is
          end Final;
 
       begin
-         if Certificate /= "" then
-            Add_Host_Certificate (Config, "", Certificate, Key);
+         --  First load default Trusted Certificate Authority
 
-            TSSL.gnutls_certificate_set_retrieve_function2
-              (Config.CC, Retrieve_Certificate'Access);
+         if Check_Certificate
+           and then TSSL.gnutls_certificate_set_x509_system_trust
+             (Config.CC) = -1
+         then
+            raise Socket_Error
+              with "cannot set default CA";
          end if;
+
+         --  Set Trusted Certificate Authority if any
 
          if Trusted_CA_Filename /= "" then
             Check_File ("CA", Trusted_CA_Filename);
@@ -1265,6 +1273,13 @@ package body AWS.Net.SSL is
                raise Socket_Error
                  with "cannot set CA file " & Trusted_CA_Filename;
             end if;
+         end if;
+
+         if Certificate /= "" then
+            Add_Host_Certificate (Config, "", Certificate, Key);
+
+            TSSL.gnutls_certificate_set_retrieve_function2
+              (Config.CC, Retrieve_Certificate'Access);
          end if;
       end Set_Certificate;
 
@@ -1293,8 +1308,6 @@ package body AWS.Net.SSL is
       --   "cert.pem", "key.pem",
       --   GNUTLS_X509_FMT_PEM);
       --   */
-
-      Res := TSSL.gnutls_certificate_set_x509_system_trust (Config.CC);
 
       Config.Exchange_Certificate := Exchange_Certificate;
       Config.Check_Certificate    := Check_Certificate;
