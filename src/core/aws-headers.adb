@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2000-2021, AdaCore                     --
+--                     Copyright (C) 2000-2024, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -218,6 +218,9 @@ package body AWS.Headers is
 
       procedure Parse_Header_Line (Line : String) is
          use Ada.Strings;
+         OWS             : constant Strings.Maps.Character_Set :=
+                             Strings.Maps.To_Set (" " & ASCII.HT);
+         --  OWS is defined in RFC 9110 section 5.6.3
          Delimiter_Index : Natural;
       begin
          if Debug_Flag then
@@ -243,8 +246,9 @@ package body AWS.Headers is
          Add (Headers,
            Name  => Line (Line'First .. Delimiter_Index - 1),
            Value => Fixed.Trim
-             (Line (Delimiter_Index + 1 .. Line'Last),
-              Side => Both));
+                      (Line (Delimiter_Index + 1 .. Line'Last),
+                       Left  => OWS,
+                       Right => OWS));
       end Parse_Header_Line;
 
       End_Of_Message : constant String := "";
