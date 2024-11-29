@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2012-2014, AdaCore                     --
+--                     Copyright (C) 2012-2025, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -27,6 +27,8 @@
 --  covered by the  GNU Public License.                                     --
 ------------------------------------------------------------------------------
 
+pragma Ada_2022;
+
 pragma Style_Checks ("M32766");
 --  Allow long lines
 
@@ -42,7 +44,7 @@ with Interfaces.C.Strings;
 with System;
 with GNAT.OS_Lib;
 
-package AWS.OS_Lib is
+package OS_Lib is
 
    use Interfaces;
 
@@ -333,4 +335,4 @@ private
    pragma Import (C, C_Ioctl, "ioctl");
    pragma Import (C, C_Close, "close");
 
-end AWS.OS_Lib;
+end OS_Lib;

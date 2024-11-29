@@ -2,7 +2,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2012-2024, AdaCore                     --
+--                     Copyright (C) 2012-2025, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -27,6 +27,8 @@
 --  however invalidate any other reasons why the executable file  might be  --
 --  covered by the  GNU Public License.                                     --
 ------------------------------------------------------------------------------
+
+pragma Ada_2022;
 
 pragma Style_Checks ("M32766");
 --  Allow long lines
@@ -56,20 +58,28 @@ pragma Style_Checks ("M32766");
  **  built cross compiler. It uses markup produced in the (pseudo-)assembly
  **  listing:
  **
- **     $target-gcc -DTARGET=\"$target\" -C -E \
- **        aws-os_lib-tmplt.c > aws-os_lib-tmplt.i
- **     $target-gcc -S aws-os_lib-tmplt.i
- **     xoscons aws-os_lib
+ **     $target-gcc -DTARGET=\"$target\" -DSOCKET_$SOCKET -C -E \
+ **        os_lib-tmplt.c > os_lib-tmplt.i
+ **     $target-gcc -S os_lib-tmplt.i
+ **     xoscons os_lib
  **
  **  It is also possible to generate aws-os_lib.ads on a native environment:
  **
- **     gcc -DTARGET=\"$target\" -C -E aws-os_lib-tmplt.c > aws-os_lib-tmplt.i
- **     gcc -S aws-os_lib-tmplt.i
- **     xoscons aws-os_lib
+ **     gcc -DTARGET=\"$target\" -DSOCKET_$SOCKET -C -E \
+ **        aws-os_lib-tmplt.c > os_lib-tmplt.i
+ **     gcc -S os_lib-tmplt.i
+ **     xoscons os_lib
  **/
 
 #ifndef TARGET
 # error Please define TARGET
+#endif
+
+#if defined (SOCKET_openssl)
+#include <openssl/x509.h>
+#include <openssl/ssl.h>
+#elif defined (SOCKET_gnutls)
+#include <gnutls/gnutls.h>
 #endif
 
 /* Feature macro definitions */
@@ -245,7 +255,7 @@ TXT("with GNAT.OS_Lib;")
 
 /*
 
-package AWS.OS_Lib is
+package OS_Lib is
 
    use Interfaces;
 */
@@ -1143,6 +1153,78 @@ CND(IPV6_V6ONLY, "Restricted to IPv6 communications only")
 */
 #endif
 
+/*
+
+   ---------------------------
+   -- Secure Socket options --
+   ---------------------------
+
+*/
+# define OPENSSL_VERSION          0
+# define OPENSSL_CFLAGS           1
+# define OPENSSL_BUILT_ON         2
+# define OPENSSL_PLATFORM         3
+# define OPENSSL_DIR              4
+# define OPENSSL_ENGINES_DIR      5
+# define OPENSSL_VERSION_STRING         6
+# define OPENSSL_FULL_VERSION_STRING    7
+# define OPENSSL_MODULES_DIR            8
+# define OPENSSL_CPU_INFO               9
+
+#if SOCKET == openssl
+#ifndef OPENSSL_VERSION
+# define OPENSSL_VERSION -1
+#endif
+CND(OPENSSL_VERSION, "OpenSSL version")
+
+#ifndef OPENSSL_CFLAGS
+# define OPENSSL_CFLAGS -1
+#endif
+CND(OPENSSL_CFLAGS, "OpenSSL CFLAGS")
+
+#ifndef OPENSSL_BUILT_ON
+# define OPENSSL_BUILT_ON -1
+#endif
+CND(OPENSSL_BUILT_ON, "OpenSSL built on")
+
+#ifndef OPENSSL_PLATFORM
+# define OPENSSL_PLATFORM -1
+#endif
+CND(OPENSSL_PLATFORM, "OpenSSL platform")
+
+#ifndef OPENSSL_DIR
+# define OPENSSL_DIR -1
+#endif
+CND(OPENSSL_DIR, "OpenSSL dir")
+
+#ifndef OPENSSL_ENGINES_DIR
+# define OPENSSL_ENGINES_DIR -1
+#endif
+CND(OPENSSL_ENGINES_DIR, "OpenSSL engine dir")
+
+#ifndef OPENSSL_VERSION_STRING
+# define OPENSSL_VERSION_STRING -1
+#endif
+CND(OPENSSL_VERSION_STRING, "OpenSSL version string")
+
+#ifndef OPENSSL_FULL_VERSION_STRING
+# define OPENSSL_FULL_VERSION_STRING -1
+#endif
+CND(OPENSSL_FULL_VERSION_STRING, "OpenSSL full version string")
+
+#ifndef OPENSSL_MODULES_DIR
+# define OPENSSL_MODULES_DIR -1
+#endif
+CND(OPENSSL_MODULES_DIR, "OpenSSL modules dir")
+
+#ifndef OPENSSL_CPU_INFO
+# define OPENSSL_CPU_INFO -1
+#endif
+CND(OPENSSL_CPU_INFO, "OpenSSL CPU info")
+
+#elif SOCKET == gnutls
+#endif
+
 #if defined (__MINGW32__)
 /*
 
@@ -1194,6 +1276,6 @@ private
 #endif
 /*
 
-end AWS.OS_Lib;
+end OS_Lib;
 */
 }

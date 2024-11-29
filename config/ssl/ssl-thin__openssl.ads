@@ -32,6 +32,8 @@ pragma Ada_2022;
 with Interfaces.C.Strings;
 with System;
 
+with OS_Lib;
+
 package SSL.Thin is
 
    use Interfaces.C;
@@ -759,11 +761,16 @@ package SSL.Thin is
    -- OpenSSL version information routines --
    ------------------------------------------
 
-   OPENSSL_VERSION0 : constant := 0;
-   OPENSSL_CFLAGS   : constant := 2;
-   OPENSSL_BUILT_ON : constant := 3;
-   OPENSSL_PLATFORM : constant := 4;
-   OPENSSL_DIR      : constant := 5;
+   OPENSSL_VERSION0            : constant := OS_Lib.OPENSSL_VERSION;
+   OPENSSL_CFLAGS              : constant := OS_Lib.OPENSSL_CFLAGS;
+   OPENSSL_BUILT_ON            : constant := OS_Lib.OPENSSL_BUILT_ON;
+   OPENSSL_PLATFORM            : constant := OS_Lib.OPENSSL_PLATFORM;
+   OPENSSL_DIR                 : constant := OS_Lib.OPENSSL_DIR;
+   OPENSSL_VERSION_STRING      : constant := OS_Lib.OPENSSL_VERSION_STRING;
+   OPENSSL_FULL_VERSION_STRING : constant :=
+                                   OS_Lib.OPENSSL_FULL_VERSION_STRING;
+   OPENSSL_MODULES_DIR         : constant := OS_Lib.OPENSSL_MODULES_DIR;
+   OPENSSL_CPU_INFO            : constant := OS_Lib.OPENSSL_CPU_INFO;
 
    function OpenSSL_version_num return long
      with Import, Convention => C,

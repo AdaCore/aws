@@ -1,7 +1,7 @@
 ############################################################################
 #                              Ada Web Server                              #
 #                                                                          #
-#                     Copyright (C) 2003-2024, AdaCore                     #
+#                     Copyright (C) 2003-2025, AdaCore                     #
 #                                                                          #
 #  This is free software;  you can redistribute it  and/or modify it       #
 #  under terms of the  GNU General Public License as published  by the     #
@@ -101,30 +101,32 @@ endif
 
 force: ;
 
-setup: $(SDIR)/src/aws-os_lib.ads $(SSL_THIN) setup_extlib
+setup: $(SDIR)/src/os_lib.ads $(SSL_THIN) setup_extlib
 
 ifeq (${PRJ_TARGET}, vxworks)
 $(SDIR)/src/aws-os_lib.ads: $(SDIR)/src force
-	$(CP) $(SRC_DIR)/src/aws-os_lib__vxworks.ads \
-		$(STP_DIR)/src/aws-os_lib.ads
+	$(CP) $(SRC_DIR)/src/os_lib__vxworks.ads \
+		$(STP_DIR)/src/os_lib.ads
 else
-$(SDIR)/src/aws-os_lib.ads: $(SDIR)/src $(XOSCONS)$(EXEEXT) force
+$(SDIR)/src/os_lib.ads: $(SDIR)/src $(XOSCONS)$(EXEEXT) force
 	echo Setup OS specific definitions
-	$(CP) $(SRC_DIR)/config/setup/aws-os_lib-tmplt.c $(STP_DIR)/src
+	$(CP) $(SRC_DIR)/config/setup/os_lib-tmplt.c $(STP_DIR)/src
 ifeq ($(IS_CROSS), true)
 	( cd $(STP_DIR)/src; \
-		$(TARGET)-gcc -C -E -DTARGET=\"$(TARGET)\" aws-os_lib-tmplt.c  \
-			> aws-os_lib-tmplt.i; \
-		$(TARGET)-gcc -S aws-os_lib-tmplt.i; \
-		$(XOSCONS) aws-os_lib )
+		$(TARGET)-gcc -C -E -DTARGET=\"$(TARGET)\" os_lib-tmplt.c \
+			-DSOCKET_$(SOCKET) \
+			> os_lib-tmplt.i; \
+		$(TARGET)-gcc -S os_lib-tmplt.i; \
+		$(XOSCONS) os_lib )
 else
 	( cd $(STP_DIR)/src; \
-		gcc -C -E -DTARGET=\"$(TARGET)\" aws-os_lib-tmplt.c  \
-			> aws-os_lib-tmplt.i; \
-		gcc -S aws-os_lib-tmplt.i; \
-		$(XOSCONS) aws-os_lib )
+		gcc -C -E -DTARGET=\"$(TARGET)\" os_lib-tmplt.c \
+			-DSOCKET_$(SOCKET) \
+			> os_lib-tmplt.i; \
+		gcc -S os_lib-tmplt.i; \
+		$(XOSCONS) os_lib )
 endif
-	$(RM) -f $(STP_DIR)/src/aws-os_lib-tmplt*
+	$(RM) -f $(STP_DIR)/src/os_lib-tmplt*
 endif
 
 $(SSL_THIN): $(STP_DIR)/src $(STP_DIR)/dynamo$(EXEEXT)
