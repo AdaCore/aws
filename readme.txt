@@ -108,7 +108,7 @@ Libadalang/Ada (optional):
 
 OpenSSL (optional):
 
-   You need to install manually the development libraries (>= 1.1.0).
+   You need to install manually the development libraries (>= 3.0.x).
 
 LibreSSL (optional):
 
@@ -119,7 +119,7 @@ LibreSSL (optional):
 GNUTLS (optional):
 
    You need to install manually the development libraries. AWS needs at
-   least version 3.4.6 of GNUTLS.
+   least version 3.6.x of GNUTLS.
 
 OpenLDAP library (optional) :
 
@@ -128,13 +128,6 @@ OpenLDAP library (optional) :
 
    Win32:
       AWS binding will use to the Microsoft LDAP dynamic library.
-
-Windows Services API (optional):
-
-   To build the runme demo as a Windows NT/2000 services you must download
-   the services API made by Ted Dennison for his SETI@Home project.
-
-      http://www.telepath.com/~dennison/Ted/SETI/SETI_Service.html
 
 
 Reporting bugs
