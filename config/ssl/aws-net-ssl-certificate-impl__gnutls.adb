@@ -273,7 +273,8 @@ package body AWS.Net.SSL.Certificate.Impl is
 
       function To_Time (tv_sec : TSSL.time_t) return Calendar.Time is
          use Ada.Calendar;
-         DT : constant Time := Conversions.To_Ada_Time (C.long (tv_sec));
+         DT : constant Time :=
+                Conversions.To_Ada_Time_64 (C.long_long (tv_sec));
       begin
          return DT - Duration (Time_Zones.UTC_Time_Offset (DT)) * 60.0;
       end To_Time;
