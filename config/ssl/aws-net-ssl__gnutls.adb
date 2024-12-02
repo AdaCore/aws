@@ -2502,6 +2502,8 @@ package body AWS.Net.SSL is
    end Write_Socket;
 
 begin
+   Initialize_Default_Config;
+
    TSSL.gnutls_global_set_mem_functions
      (alloc_func        => Lib_Alloc'Address,
       secure_alloc_func => System.Memory.Alloc'Address,

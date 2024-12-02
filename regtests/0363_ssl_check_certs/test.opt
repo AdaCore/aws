@@ -1,0 +1,2 @@
+ssl    REQUIRED
+gnutls OUT test-gnutls.out
