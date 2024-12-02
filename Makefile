@@ -16,7 +16,9 @@
 #  to http://www.gnu.org/licenses for a complete copy of the license.      #
 ############################################################################
 
+ifndef VERBOSE_MAKE
 .SILENT:
+endif
 
 #  BLD_DIR : root build directory
 #  TGT_DIR : target directory
@@ -76,7 +78,7 @@ all: build
 ALL_OPTIONS	= $(MAKE_OPT) SOCKET="$(SOCKET)" XMLADA="$(XMLADA)" \
 	EXEEXT="$(EXEEXT)" LDAP="$(LDAP)" DEBUG="$(DEBUG)" \
 	RM="$(RM)" CP="$(CP)" MKDIR="$(MKDIR)" SED="$(SED)" GCC="$(GCC)" \
-	GPRBUILD="$(GPRBUILD)" ZLIB="$(ZLIB)" \
+	GPRBUILD="$(GPRBUILD)" VERBOSE_MAKE="$(VERBOSE_MAKE)" ZLIB="$(ZLIB)" \
 	prefix="$(prefix)" ENABLE_SHARED="$(ENABLE_SHARED)" \
 	SOEXT="$(SOEXT)" GNAT="$(GNAT)" SSL_DYNAMIC="$(SSL_DYNAMIC)" \
 	LIBRARY_TYPE="$(LIBRARY_TYPE)" PYTHON="$(PYTHON)" \
