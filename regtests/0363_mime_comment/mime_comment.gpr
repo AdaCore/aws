@@ -1,0 +1,4 @@
+with "aws";
+project MIME_Comment is
+   for Main use ("mime_comment.adb");
+end MIME_Comment;

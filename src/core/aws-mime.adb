@@ -362,6 +362,14 @@ package body AWS.MIME is
       while not Resources.End_Of_File (File) loop
          Resources.Get_Line (File, Buffer, Last);
 
+         --  Lines that begin with # are comments. To conform with Apache
+         --  HTTPD, comments on the end of a line are not allowed.
+
+         if Last >= Buffer'First and then Buffer (Buffer'First) = '#' then
+            --  This line is a comment. Treat it like a blank line.
+            Last := 0;
+         end if;
+
          --  Look for the MIME type
 
          Strings.Fixed.Find_Token
