@@ -2589,7 +2589,6 @@ package body AWS.Net.SSL is
          ---------------------
 
          procedure Set_Certificate is
-            use type TSSL.STACK_OF_X509_NAME;
             PK : constant Private_Key :=
                    Load ((if Key_Filename = ""
                           then Certificate_Filename else Key_Filename));
@@ -2624,25 +2623,7 @@ package body AWS.Net.SSL is
 
             --  Set Trusted Certificate Authority if any
 
-            if Trusted_CA_Filename /= Null_Ptr then
-               Error_If
-                 (TSSL.SSL_CTX_load_verify_locations
-                    (Context, Trusted_CA_Filename, Null_Ptr) /= 1);
-
-               if Exchange_Certificate then
-                  --  Let server send to client CA authority names it trust
-
-                  if Trusted_CA_Stack = TSSL.Null_STACK_OF_X509_NAME then
-                     Trusted_CA_Stack := TSSL.SSL_load_client_CA_file
-                                           (Trusted_CA_Filename);
-                  else
-                     Trusted_CA_Stack := TSSL.SSL_dup_CA_list
-                                           (Trusted_CA_Stack);
-                  end if;
-
-                  TSSL.SSL_CTX_set_client_CA_list (Context, Trusted_CA_Stack);
-               end if;
-            end if;
+            Set_Trusted_CA_Certificate (Context);
          end Set_Certificate;
 
       begin
@@ -2888,7 +2869,12 @@ package body AWS.Net.SSL is
 
          TS_SSL.Session_Cache_Size   := Session_Cache_Size;
          TS_SSL.CRL_Filename         := New_C_String (CRL_Filename);
-         TS_SSL.Trusted_CA_Filename  := New_C_String (Trusted_CA_Filename);
+         TS_SSL.Trusted_CA_Filename  :=
+           (if Trusted_CA_Filename /= ""
+              and then Directories.Exists (Trusted_CA_Filename)
+            then New_C_String (Trusted_CA_Filename)
+            else Null_Ptr);
+
          TS_SSL.Priorities           :=
            New_C_String (Prio_Others (Prio_Others'First .. Last_Others));
 
@@ -2975,6 +2961,12 @@ package body AWS.Net.SSL is
          use type TSSL.STACK_OF_X509_NAME;
          use C.Strings;
       begin
+         --  First load default Trusted Certificate Authority
+
+         if Check_Certificate then
+            TSSL.SSL_CTX_set_default_verify_paths (Context);
+         end if;
+
          --  Set Trusted Certificate Authority if any
 
          if Trusted_CA_Filename /= Null_Ptr then
