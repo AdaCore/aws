@@ -234,8 +234,8 @@ package body AWS.Net.SSL is
    Data_Index   : C.int;
    --  Application specific data's index
 
-   Max_Overhead : Stream_Element_Count range 0 .. 2**15 := 180 with Atomic;
-   for Max_Overhead'Size use 16;
+   Max_Overhead : Stream_Element_Count range 0 .. 2**15 := 180
+     with Atomic, Size => 16;
    --  Need size limitation because Stream_Element_Count is 64 bit and could
    --  not guarantee Atomic on 32 bit platform.
 
