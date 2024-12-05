@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2005-2021, AdaCore                     --
+--                     Copyright (C) 2005-2024, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -1604,10 +1604,7 @@ package body AWS.Server.HTTP_Utils is
                Status_Code := Messages.S404;
             end if;
 
-            Set_General_Header (Status_Code);
-
-            Headers.Send_Header
-              (Socket => Sock, Headers => H_List, End_Block => True);
+            Send_Header_Only;
 
             return;
 

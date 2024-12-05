@@ -701,7 +701,12 @@ package body AWS.Client.HTTP_Utils is
       --  and will raise a protocol error.
 
       if Get_Body then
-         Read_Body (Connection, Result, Store => True);
+         if Connection.Transfer /= Content_Length
+           or else Connection.Length > 0
+         then
+            Read_Body (Connection, Result, Store => True);
+         end if;
+
          Connection.Transfer := None;
       end if;
 
