@@ -42,5 +42,8 @@ begin
    Text_IO.Flush;
 
    Server.Shutdown (WS);
+
+   USock.Display_Shutdown;
+
    Text_IO.Put_Line ("shutdown");
 end User_Sock;

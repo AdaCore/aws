@@ -113,6 +113,8 @@ package USock is
 
    function CB (Request : Status.Data) return Response.Data;
 
+   procedure Display_Shutdown;
+
 private
 
    type U_Socket is new Net.Socket_Type with record

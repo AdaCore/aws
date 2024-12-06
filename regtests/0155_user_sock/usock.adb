@@ -35,6 +35,7 @@ package body USock is
    Chunk_Size : constant := 10;
 
    Done       : Boolean := False;
+   Data_Sent  : Boolean := False;
 
    type UString is array (Positive range <>) of Unbounded_String;
 
@@ -65,10 +66,15 @@ package body USock is
 
       procedure Shutdown;
 
+      procedure Increment_Shutdown;
+
+      function Shutdown_Counter return Natural;
+
    private
 
       N_Data : Natural := 1;
       Stop   : Boolean := False;
+      Count  : Natural := 0;
 
    end Data;
 
@@ -77,6 +83,24 @@ package body USock is
    ----------
 
    protected body Data is
+
+      ------------------------
+      -- Increment_Shutdown --
+      ------------------------
+
+      procedure Increment_Shutdown is
+      begin
+         Count := Count + 1;
+      end Increment_Shutdown;
+
+      ----------------------
+      -- Shutdown_Counter --
+      ----------------------
+
+      function Shutdown_Counter return Natural is
+      begin
+         return Count;
+      end Shutdown_Counter;
 
       -----------
       -- Ready --
@@ -201,7 +225,12 @@ package body USock is
    is
       pragma Unreferenced (Socket);
    begin
-      Text_IO.Put_Line ("Shutdown on U_Socket");
+      if Data_Sent then
+         Data.Increment_Shutdown;
+      else
+         Text_IO.Put_Line ("Shutdown on U_Socket");
+      end if;
+
       Data.Shutdown;
    end Shutdown;
 
@@ -244,6 +273,8 @@ package body USock is
       end;
       Text_IO.Put_Line ("--");
       Last := Data'Last;
+
+      Data_Sent := True;
    end Send;
 
    ---------------
@@ -466,5 +497,16 @@ package body USock is
       Text_IO.Put_Line ("Callback... " & AWS.Status.URI (Request));
       return Response.Build (MIME.Text_HTML, "response from U_Socket");
    end CB;
+
+   ----------------------
+   -- Display_Shutdown --
+   ----------------------
+
+   procedure Display_Shutdown is
+   begin
+      for K in 1 .. Data.Shutdown_Counter loop
+         Text_IO.Put_Line ("Shutdown on U_Socket");
+      end loop;
+   end Display_Shutdown;
 
 end USock;
