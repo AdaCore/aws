@@ -37,7 +37,9 @@ begin
 
    Server.Start
      (WS, "User Socket", USock.CB'Access, Port => 0);
-   Text_IO.Put_Line ("started"); Ada.Text_IO.Flush;
+
+   Text_IO.Put_Line ("started");
+   Text_IO.Flush;
 
    Server.Shutdown (WS);
    Text_IO.Put_Line ("shutdown");

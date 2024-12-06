@@ -51,7 +51,7 @@ package body USock is
 
    CRLF       : constant String := ASCII.CR & ASCII.LF;
 
-   Message    : UString :=
+   Message    : constant UString :=
                   (+"GET /toto HTTP/1.0" & CRLF,
                    +"Content-length: 1" & CRLF,
                    +"" & CRLF,
@@ -123,7 +123,7 @@ package body USock is
       Family        : Net.Family_Type := Net.Family_Unspec)
    is
       pragma Unreferenced
-        (Socket, Port, Host, Reuse_Address, IPv6_Only, Family);
+        (Port, Host, Reuse_Address, IPv6_Only, Family);
    begin
       Socket.Server := True;
       Text_IO.Put_Line ("Bind on U_Socket");
