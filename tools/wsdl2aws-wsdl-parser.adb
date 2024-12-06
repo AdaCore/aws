@@ -269,11 +269,12 @@ package body WSDL2AWS.WSDL.Parser is
          Parameters.Append
            (O.Params (O.Mode),
             (WSDL.Types.K_Simple, +Name, O.Elmt_Name, Null_Unbounded_String,
-             Typ    => Types.Create (SOAP.Utils.No_NS (Type_Name), NS),
-             Min    => 1,
-             Max    => 1,
-             Is_Set => False,
-             Next   => null));
+             Typ       => Types.Create (SOAP.Utils.No_NS (Type_Name), NS),
+             Min       => 1,
+             Max       => 1,
+             Is_Set    => False,
+             In_Choice => False,
+             Next      => null));
       end if;
    end Add_Parameter;
 
@@ -1701,6 +1702,7 @@ package body WSDL2AWS.WSDL.Parser is
          P_Type : constant String := SOAP.XML.Get_Attr_Value (D, "type", True);
       begin
          if P_Type = "" then
+            DOM.Core.Nodes.Print (D);
             raise WSDL_Error
               with "Unsupported element '" & P_Name & "' with anonymous type";
          end if;
@@ -1735,11 +1737,12 @@ package body WSDL2AWS.WSDL.Parser is
                   return
                     (Types.K_Simple, +P_Name,
                      O.Elmt_Name, Doc,
-                     Typ    => Types.Create (SOAP.Utils.No_NS (P_Type), NS),
-                     Min    => Min,
-                     Max    => Max,
-                     Is_Set => False,
-                     Next   => null);
+                     Typ       => Types.Create (SOAP.Utils.No_NS (P_Type), NS),
+                     Min       => Min,
+                     Max       => Max,
+                     Is_Set    => False,
+                     In_Choice => False,
+                     Next      => null);
                end;
 
             else
@@ -2028,11 +2031,83 @@ package body WSDL2AWS.WSDL.Parser is
       R        : DOM.Core.Node;
       Document : SOAP.WSDL.Object) return Parameters.Parameter
    is
+      use type Parameters.Parameter;
+
+      package Parameter_Set is
+        new Containers.Indefinite_Vectors (Positive, Parameters.Parameter);
+
       procedure Parse_Complex_Content
         (P : in out Parameters.Parameter;
          N : in out DOM.Core.Node);
       --  Parse complexContent node (possibly recursivelly if an extension
       --  is defined.
+
+      function Get_Elements
+        (Doc       : in out Unbounded_String;
+         E         : DOM.Core.Node;
+         In_Choice : Boolean) return Parameter_Set.Vector;
+      --  Get all elements in child nodes, handle choice node if found. All
+      --  elements are kept into the parsed order. In the WSDL one can found
+      --  elements before and/or after a choice.
+
+      function NN (N : DOM.Core.Node) return String
+        is (SOAP.Utils.No_NS (DOM.Core.Nodes.Node_Name (N)));
+
+      ------------------
+      -- Get_Elements --
+      ------------------
+
+      function Get_Elements
+        (Doc       : in out Unbounded_String;
+         E         : DOM.Core.Node;
+         In_Choice : Boolean) return Parameter_Set.Vector
+      is
+         N   : DOM.Core.Node := E;
+         Set : Parameter_Set.Vector;
+
+      begin
+         while N /= null
+           and then NN (N) /= "element"
+           and then NN (N) /= "annotation"
+           and then NN (N) /= "choice"
+         loop
+            N := SOAP.XML.First_Child (N);
+         end loop;
+
+         while N /= null loop
+            --  Check for annotation
+
+            if NN (N) = "annotation" then
+               Append (Doc, Get_Documentation (SOAP.XML.First_Child (N)));
+
+            elsif NN (N) = "choice" then
+               --  No support for nested choice
+               pragma Assert (In_Choice = False, "embedded choice found");
+               --  No support for multiple choice
+               pragma Assert (not (for some E of Set => E.In_Choice),
+                              "multiple choice in same record");
+
+               Set.Append_Vector
+                 (Get_Elements
+                    (Doc,
+                     SOAP.XML.First_Child (N),
+                     In_Choice => True));
+
+            else
+               declare
+                  P : Parameters.Parameter :=
+                        Parse_Parameter (O, N, Document);
+               begin
+                  P.In_Choice := In_Choice;
+                  Set.Append (P);
+               end;
+            end if;
+
+            N := SOAP.XML.Next_Sibling (N);
+         end loop;
+
+         return Set;
+      end Get_Elements;
 
       ---------------------------
       -- Parse_Complex_Content --
@@ -2048,8 +2123,7 @@ package body WSDL2AWS.WSDL.Parser is
          --  definition here.
 
          if N /= null
-           and then  SOAP.Utils.No_NS (DOM.Core.Nodes.Node_Name (N))
-             = "extension"
+           and then  NN (N) = "extension"
          then
             declare
                Base : constant String :=
@@ -2068,33 +2142,16 @@ package body WSDL2AWS.WSDL.Parser is
 
                Skip_Annotation (CT);
 
-               if SOAP.Utils.No_NS (DOM.Core.Nodes.Node_Name (CT))
-                  = "complexContent"
-               then
+               if NN (CT) = "complexContent" then
                   Parse_Complex_Content (P, CT);
                end if;
 
                if CT /= null then
                   --  Get all elements
 
-                  declare
-                     NL : constant DOM.Core.Node_List :=
-                            DOM.Core.Nodes.Child_Nodes (CT);
-                  begin
-                     for K in 0 .. DOM.Core.Nodes.Length (NL) - 1 loop
-                        declare
-                           N : constant DOM.Core.Node :=
-                                 DOM.Core.Nodes.Item (NL, K);
-                        begin
-                           if DOM.Core.Nodes.Node_Name (N)
-                             /= "#text"
-                           then
-                              Parameters.Append
-                                (P.P, Parse_Parameter (O, N, Document));
-                           end if;
-                        end;
-                     end loop;
-                  end;
+                  for Parameter of Get_Elements (P.Doc, CT, False) loop
+                     Parameters.Append (P.P, Parameter);
+                  end loop;
                end if;
             end;
 
@@ -2116,16 +2173,13 @@ package body WSDL2AWS.WSDL.Parser is
 
       pragma Assert
         (R /= null
-         and then
-           (SOAP.Utils.No_NS (DOM.Core.Nodes.Node_Name (R)) = "complexType"
-            or else
-            SOAP.Utils.No_NS (DOM.Core.Nodes.Node_Name (R)) = "element"));
+         and then (NN (R) = "complexType" or else NN (R) = "element"));
 
       if SOAP.XML.Get_Attr_Value (R, "abstract", False) = "true" then
          raise WSDL_Error with "abstract record not supported";
       end if;
 
-      if SOAP.Utils.No_NS (DOM.Core.Nodes.Node_Name (R)) = "element" then
+      if NN (R) = "element" then
          N := Get_Element_Ref (R, Document);
       end if;
 
@@ -2135,16 +2189,16 @@ package body WSDL2AWS.WSDL.Parser is
       begin
          --  Set record name, R is a complexType or element node
 
-         P.Name      := O.Current_Name;
-         P.Elmt_Name := O.Elmt_Name;
-         P.Typ       := Types.Create (Name, Get_Target_Name_Space (N));
+         P.Name       := O.Current_Name;
+         P.Elmt_Name  := O.Elmt_Name;
+         P.Typ        := Types.Create (Name, Get_Target_Name_Space (N));
 
-         D.Ref       := Types.Create (Name, Types.NS (P.Typ));
-         D.Is_Choice := False;
+         D.Ref        := Types.Create (Name, Types.NS (P.Typ));
+         D.Has_Choice := False;
 
          O.Self.Enclosing_Types.Include (Name);
 
-         if SOAP.Utils.No_NS (DOM.Core.Nodes.Node_Name (R)) = "element" then
+         if NN (R) = "element" then
             --  Skip enclosing element
             N := SOAP.XML.First_Child (R);
 
@@ -2168,57 +2222,28 @@ package body WSDL2AWS.WSDL.Parser is
             N := SOAP.XML.First_Child (N);
 
             if N /= null then
-               if SOAP.Utils.No_NS
-                 (DOM.Core.Nodes.Node_Name (N)) = "choice"
-               then
-                  D.Is_Choice := True;
-                  N := SOAP.XML.First_Child (N);
+               if NN (N) = "complexContent" then
+                  Parse_Complex_Content (P, N);
 
-               elsif SOAP.Utils.No_NS (DOM.Core.Nodes.Node_Name (N))
-                       = "annotation"
-               then
+               elsif NN (N) = "annotation" then
                   Append (P.Doc, Get_Documentation (SOAP.XML.First_Child (N)));
                   N := SOAP.XML.Next_Sibling (N);
                end if;
             end if;
          end if;
 
-         Types.Register (D);
+         declare
+            P_Set : constant Parameter_Set.Vector :=
+                      Get_Elements (P.Doc, N, False);
+         begin
+            D.Has_Choice := (for some P of P_Set => P.In_Choice);
 
-         --  Check for empty complexType
+            Types.Register (D);
 
-         if N /= null then
-            --  Get first element, if we have a complexContent, parse
-
-            if SOAP.Utils.No_NS (DOM.Core.Nodes.Node_Name (N))
-              = "complexContent"
-            then
-               Parse_Complex_Content (P, N);
-            end if;
-
-            --  Got to the first element node
-
-            while N /= null
-              and then
-                SOAP.Utils.No_NS (DOM.Core.Nodes.Node_Name (N)) /= "element"
-            loop
-               N := SOAP.XML.First_Child (N);
+            for Parameter of P_Set loop
+               Parameters.Append (P.P, Parameter);
             end loop;
-
-            while N /= null loop
-               --  Check for annotation
-
-               if SOAP.Utils.No_NS (DOM.Core.Nodes.Node_Name (N))
-                 = "annotation"
-               then
-                  Append (P.Doc, Get_Documentation (SOAP.XML.First_Child (N)));
-               else
-                  Parameters.Append (P.P, Parse_Parameter (O, N, Document));
-               end if;
-
-               N := SOAP.XML.Next_Sibling (N);
-            end loop;
-         end if;
+         end;
 
          O.Enclosing_Types.Exclude (Name);
 

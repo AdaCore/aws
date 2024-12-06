@@ -2202,14 +2202,15 @@ package body WSDL2AWS.Generator is
          P         : WSDL.Parameters.P_Set;
          Is_Output : Boolean               := False)
       is
-         F_Name    : constant String :=
-                       Format_Name (O, SOAP.Utils.No_NS (Name) & Suffix);
-         Def       : constant WSDL.Types.Definition := WSDL.Types.Find (P.Typ);
-         Is_Choice : constant Boolean :=
-                       Def.Mode = WSDL.Types.K_Record and then Def.Is_Choice;
-         NS        : constant SOAP.Name_Space.Object := WSDL.Types.NS (P.Typ);
-         Pck_NS    : constant String :=
-                       To_Unit_Name (Generate_Namespace (NS, False));
+         F_Name     : constant String :=
+                        Format_Name (O, SOAP.Utils.No_NS (Name) & Suffix);
+         Def        : constant WSDL.Types.Definition :=
+                        WSDL.Types.Find (P.Typ);
+         Has_Choice : constant Boolean :=
+                        Def.Mode = WSDL.Types.K_Record and then Def.Has_Choice;
+         NS         : constant SOAP.Name_Space.Object := WSDL.Types.NS (P.Typ);
+         Pck_NS     : constant String :=
+                        To_Unit_Name (Generate_Namespace (NS, False));
 
          R       : WSDL.Parameters.P_Set;
          N       : WSDL.Parameters.P_Set;
@@ -2280,7 +2281,7 @@ package body WSDL2AWS.Generator is
 
          Translations := Translations
            & Templates.Assoc ("TYPE_NAME", F_Name)
-           & Templates.Assoc ("IS_CHOICE", Is_Choice)
+           & Templates.Assoc ("HAS_CHOICE", Has_Choice)
            & Templates.Assoc ("FIELD_COUNT", Count)
            & Templates.Assoc ("FIELD_COMMENT", Field_Comment)
            & Templates.Assoc ("FIELD_NUMBER", Field_Number)
