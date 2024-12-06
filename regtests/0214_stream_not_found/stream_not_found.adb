@@ -73,8 +73,8 @@ procedure Stream_Not_Found is
         ("RC " & URL & " : "
            & Messages.Status_Code'Image (Response.Status_Code (R)));
 
-      if Response.Content_Length (R) = -1 then
-         Text_IO.Put_Line ("OK length is -1");
+      if Response.Content_Length (R) = 0 then
+         Text_IO.Put_Line ("OK length is 0");
       else
          Text_IO.Put_Line
            ("NOK length is " & Utils.Image (Response.Content_Length (R)));
