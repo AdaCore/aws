@@ -1,0 +1,43 @@
+Service data_service
+
+
+Procedure store SOAPAction:store
+   Input
+      [record:choice] body ; myDataService
+         [simple] myOutput ; SOAP.Types.Big_Integer
+         [record:choice] myIncludedData ; myIncludedData
+            [simple] intdInput ; SOAP.Types.Big_Integer
+            [simple] intdOutput ; SOAP.Types.Big_Integer
+   Output
+      [record:choice] body ; myDataService
+         [simple] myOutput ; SOAP.Types.Big_Integer
+         [record:choice] myIncludedData ; myIncludedData
+            [simple] intdInput ; SOAP.Types.Big_Integer
+            [simple] intdOutput ; SOAP.Types.Big_Integer
+   > store
+====== Store C1
+P C1
+   * myOutput  12
+P C2
+   * myIncludedData
+P C1
+   * intdInput  4
+====== Store C2-C1
+P C2
+   * myIncludedData
+P C1
+   * intdInput  6
+P C2
+   * myIncludedData
+P C1
+   * intdInput  4
+====== Store C2-C2
+P C2
+   * myIncludedData
+P C2
+   * intdOutput  9
+P C2
+   * myIncludedData
+P C1
+   * intdInput  4
+Run OK
