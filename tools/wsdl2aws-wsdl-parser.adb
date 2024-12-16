@@ -1694,7 +1694,7 @@ package body WSDL2AWS.WSDL.Parser is
       begin
          if P_Type = "" then
             raise WSDL_Error
-              with "unsupported element '" & P_Name & "' with anonymous type";
+              with "Unsupported element '" & P_Name & "' with anonymous type";
          end if;
 
          if DOM.Core.Nodes.Has_Child_Nodes (D) then
