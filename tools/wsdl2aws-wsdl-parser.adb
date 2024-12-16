@@ -1415,7 +1415,10 @@ package body WSDL2AWS.WSDL.Parser is
          Add_Parameter (O, Parse_Simple (O, CT_Node, Document));
 
       elsif DOM.Core.Nodes.Local_Name (N) = "element"
-        and then SOAP.XML.First_Child (N) = null
+        and then
+          (SOAP.XML.First_Child (N) = null
+           or else DOM.Core.Nodes.Local_Name
+                     (SOAP.XML.First_Child (N)) = "annotation")
       then
          --  A reference, create the alias name -> type
 
