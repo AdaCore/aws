@@ -753,7 +753,7 @@ package body WSDL2AWS.WSDL.Parser is
                        Types.Create
                          (E_Type,
                           (if E_NS = ""
-                           then Get_Target_Name_Space (L)
+                           then Get_Target_Name_Space (R)
                            else SOAP.Name_Space.Create
                              (E_NS, SOAP.WSDL.Name_Spaces.Get (E_NS))));
 
