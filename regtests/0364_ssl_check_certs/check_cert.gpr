@@ -1,0 +1,5 @@
+with "aws";
+project Check_Cert is
+   for Source_Dirs use (".");
+   for Main use ("check_cert.adb");
+end Check_Cert;
