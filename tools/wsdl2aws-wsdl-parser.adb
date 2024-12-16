@@ -1240,20 +1240,28 @@ package body WSDL2AWS.WSDL.Parser is
          if not SOAP.WSDL.Is_Standard (WSDL.Types.Name (O.Array_Elements)) then
             --  This is not a standard type, parse it
             declare
-               N : DOM.Core.Node :=
-                     Look_For_Schema (R,
-                                      WSDL.Types.Name (O.Array_Elements, True),
-                                      Document,
-                                      Look_Context'(Complex_Type => True,
-                                                    others => False));
+               Name : constant String :=
+                        WSDL.Types.Name (O.Array_Elements, True);
+               N    : DOM.Core.Node :=
+                        Look_For_Schema (R,
+                                         Name,
+                                         Document,
+                                         Look_Context'(Complex_Type => True,
+                                                       others       => False));
             begin
                if N = null then
                   N := Look_For_Schema
                          (R,
-                          WSDL.Types.Name (O.Array_Elements, True),
+                          Name,
                           Document,
                           Look_Context'(Simple_Type => True,
                                         others      => False));
+
+                  if N = null then
+                     raise WSDL_Error
+                       with "complexType/simpleType " & Name & " not found.";
+                  end if;
+
                   Parameters.Append (P.P, Parse_Simple (O, N, Document));
 
                else
