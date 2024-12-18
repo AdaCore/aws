@@ -1589,8 +1589,7 @@ package body Ada2WSDL.Parser is
 
       Context  : constant Analysis_Context :=
                    Create_Context
-                     ("UTF-8",
-                      Unit_Provider =>
+                     (Unit_Provider =>
                         (if Options.Project_Filename = Null_Unbounded_String
                          then No_Unit_Provider_Reference
                          else Load_Project));
