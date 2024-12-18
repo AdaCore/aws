@@ -753,7 +753,7 @@ package body WSDL2AWS.WSDL.Parser is
                        Types.Create
                          (E_Type,
                           (if E_NS = ""
-                           then Get_Target_Name_Space (L)
+                           then Get_Target_Name_Space (R)
                            else SOAP.Name_Space.Create
                              (E_NS, SOAP.WSDL.Name_Spaces.Get (E_NS))));
 
@@ -1240,20 +1240,28 @@ package body WSDL2AWS.WSDL.Parser is
          if not SOAP.WSDL.Is_Standard (WSDL.Types.Name (O.Array_Elements)) then
             --  This is not a standard type, parse it
             declare
-               N : DOM.Core.Node :=
-                     Look_For_Schema (R,
-                                      WSDL.Types.Name (O.Array_Elements, True),
-                                      Document,
-                                      Look_Context'(Complex_Type => True,
-                                                    others => False));
+               Name : constant String :=
+                        WSDL.Types.Name (O.Array_Elements, True);
+               N    : DOM.Core.Node :=
+                        Look_For_Schema (R,
+                                         Name,
+                                         Document,
+                                         Look_Context'(Complex_Type => True,
+                                                       others       => False));
             begin
                if N = null then
                   N := Look_For_Schema
                          (R,
-                          WSDL.Types.Name (O.Array_Elements, True),
+                          Name,
                           Document,
                           Look_Context'(Simple_Type => True,
                                         others      => False));
+
+                  if N = null then
+                     raise WSDL_Error
+                       with "complexType/simpleType " & Name & " not found.";
+                  end if;
+
                   Parameters.Append (P.P, Parse_Simple (O, N, Document));
 
                else
@@ -1415,7 +1423,10 @@ package body WSDL2AWS.WSDL.Parser is
          Add_Parameter (O, Parse_Simple (O, CT_Node, Document));
 
       elsif DOM.Core.Nodes.Local_Name (N) = "element"
-        and then SOAP.XML.First_Child (N) = null
+        and then
+          (SOAP.XML.First_Child (N) = null
+           or else DOM.Core.Nodes.Local_Name
+                     (SOAP.XML.First_Child (N)) = "annotation")
       then
          --  A reference, create the alias name -> type
 
@@ -1691,7 +1702,7 @@ package body WSDL2AWS.WSDL.Parser is
       begin
          if P_Type = "" then
             raise WSDL_Error
-              with "unsupported element '" & P_Name & "' with anonymous type";
+              with "Unsupported element '" & P_Name & "' with anonymous type";
          end if;
 
          if DOM.Core.Nodes.Has_Child_Nodes (D) then
