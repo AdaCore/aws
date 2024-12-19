@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2005-2021, AdaCore                     --
+--                     Copyright (C) 2005-2024, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -180,6 +180,10 @@ package body AWS.Client.HTTP_Utils is
       Progress   : access procedure
                      (Total, Sent : Stream_Element_Offset) := null);
    --  Upload for HTTP/2
+
+   function Get_Status_Code (Token : String) return Messages.Status_Code;
+   --  Returns the status-code for the Name representation. Fallback on class
+   --  status code if Name is unknown.
 
    ---------
    -- "+" --
@@ -737,6 +741,31 @@ package body AWS.Client.HTTP_Utils is
          6 => (MAX_HEADER_LIST_SIZE,
                Byte_4 (Config.HTTP2_Max_Header_List_Size)));
    end Get_Settings;
+
+   ---------------------
+   -- Get_Status_Code --
+   ---------------------
+
+   function Get_Status_Code (Token : String) return Messages.Status_Code is
+      S_Str  : constant String := 'S' & Token;
+      --  Status code
+
+      F_Str  : constant String := 'S' & Token (Token'First) & "00";
+      --  Fallback status code. Error class is using the first digit x00 only.
+      --  See RFC 9110 section 15 Status Codes.
+
+      Status : Messages.Status_Code := Messages.S500;
+      --  If Token is not recognized as a status code we finally fallback to
+      --  server error class.
+   begin
+      if Messages.Status_Code'Valid_Value (S_Str) then
+         Status := Messages.Status_Code'Value (S_Str);
+      elsif Messages.Status_Code'Valid_Value (F_Str) then
+         Status := Messages.Status_Code'Value (F_Str);
+      end if;
+
+      return Status;
+   end Get_Status_Code;
 
    -----------------------
    -- Handle_H2_Request --
@@ -2140,10 +2169,9 @@ package body AWS.Client.HTTP_Utils is
          --  It must match Messages.HTTP_Token.
 
          if Utils.Match (Line, Messages.HTTP_Token) then
-            Status :=
-              Messages.Status_Code'Value
-                ('S' & Line (Messages.HTTP_Token'Length + Line'First + 4
-                              .. Messages.HTTP_Token'Length + Line'First + 6));
+            Status := Get_Status_Code
+                        (Line (Messages.HTTP_Token'Length + Line'First + 4
+                         .. Messages.HTTP_Token'Length + Line'First + 6));
             Response.Set.Status_Code (Answer, Status);
 
             --  By default HTTP/1.0 connection is not keep-alive but
@@ -2239,8 +2267,8 @@ package body AWS.Client.HTTP_Utils is
 
          --  In HTTP/2 the status is encoded in :status pseudo header
 
-         Status := Messages.Status_Code'Value
-                     ('S' & Response.Header (Answer, Messages.Status_Token));
+         Status := Get_Status_Code
+                     (Response.Header (Answer, Messages.Status_Token));
          Response.Set.Status_Code (Answer, Status);
          Response.Set.Parse_Header (Answer);
 
