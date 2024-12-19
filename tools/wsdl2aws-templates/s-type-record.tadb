@@ -23,7 +23,7 @@
              "@_RF_NAME_@", "@_RF_TYPE_@",
              SOAP.Name_Space.Create ("@_RF_NS_NAME_@", "@_RF_NS_VALUE_@"))
 @@END_IF@@
-        )
+        )@_$3_@
 @@ELSE@@
 @_$1_@@_$2_@To_SOAP_Object
 @@IF@@ @_SAFE_POINTER_@
@@ -32,10 +32,10 @@
             (R.@_RF_DECL_NAME_@,
 @@END_IF@@
 @@IF@@ @_IS_EMPTY:RF_NS_NAME_@ or (@_RF_NS_VALUE_@ = "http://www.w3.org/2001/XMLSchema")
-             "@_RF_NAME_@", "")
+             "@_RF_NAME_@", "")@_$3_@
 @@ELSE@@
              "@_RF_NAME_@", "",
-             SOAP.Name_Space.Create ("@_RF_NS_NAME_@", "@_RF_NS_VALUE_@"))
+             SOAP.Name_Space.Create ("@_RF_NS_NAME_@", "@_RF_NS_VALUE_@"))@_$3_@
 @@END_IF@@
 @@END_IF@@
 @@--
@@ -50,10 +50,10 @@
 @@END_IF@@
             (R.@_RF_DECL_NAME_@,
 @@IF@@ @_IS_EMPTY:RF_NS_NAME_@ or (@_RF_NS_VALUE_@ = "http://www.w3.org/2001/XMLSchema")
-             "@_RF_NAME_@", "@_RF_TYPE_@", NS)
+             "@_RF_NAME_@", "@_RF_TYPE_@", NS)@_$3_@
 @@ELSE@@
              "@_RF_NAME_@", "@_RF_TYPE_@",
-             SOAP.Name_Space.Create ("@_RF_NS_NAME_@", "@_RF_NS_VALUE_@"))
+             SOAP.Name_Space.Create ("@_RF_NS_NAME_@", "@_RF_NS_VALUE_@"))@_$3_@
 @@END_IF@@
 @@END_IF@@
 @@END_MACRO@@
@@ -77,11 +77,11 @@ To_@_RF_ADA_TYPE_@ (@_$1_@)
 @@END_MACRO@@
 @@-----------------------------------------------------------------------
 @@MACRO(REC_FIELD_FROM_SOAP)@@
-@_RF_DECL_NAME_@ => @_REC_GET_FIELD_FROM_SOAP(@_RF_DECL_NAME_@)_@
+@_RF_DECL_NAME_@ := @_REC_GET_FIELD_FROM_SOAP(@_RF_DECL_NAME_@)_@
 @@END_MACRO@@
 @@-----------------------------------------------------------------------
 @@MACRO(REC_FIELD_FROM_SOAP_CHOICE)@@
-@_REC_GET_FIELD_FROM_SOAP(E)_@
+@_RF_DECL_NAME_@ := @_REC_GET_FIELD_FROM_SOAP(E_C_Object)_@
 @@END_MACRO@@
 @@-----------------------------------------------------------------------
 
@@ -103,33 +103,48 @@ package body @_UNIT_NAME_@ is
       return @_TYPE_NAME_@
    is
       R : constant SOAP.Types.SOAP_Record := SOAP.Types.SOAP_Record (O);
-@@IF@@ @_HAS_CHOICE_@ and @_FIELD_COUNT_@ > 0
+@@IF@@ @_HAS_CHOICE_@
 
       function C_Name return String is
 @@INLINE(        \(if )(\n         elsif )(\n         else ""\);)@@
 @@TABLE@@
+@@IF@@ @_RF_DECL_IN_CHOICE_@
          SOAP.Types.Exists (R, "@_RF_DECL_NAME_@") then "@_RF_DECL_NAME_@"
+@@END_IF@@
 @@END_TABLE@@
 @@END_INLINE@@
 
       function C_Disc return Choice is
-@@INLINE(        \(if )(\n         elsif )(\n         else C1\);)@@
+@@INLINE(        \(if )(\n         elsif )(\n         else C0\);)@@
 @@TABLE@@
-         SOAP.Types.Exists (R, "@_RF_DECL_NAME_@") then C@_FIELD_NUMBER_@
+@@IF@@ @_RF_DECL_IN_CHOICE_@
+         SOAP.Types.Exists (R, "@_RF_DECL_NAME_@") then C@_CHOICE_FIELD_NUMBER_@
+@@END_IF@@
 @@END_TABLE@@
 @@END_INLINE@@
 
-      E : constant SOAP.Types.Object'Class :=
-            SOAP.Types.V (R, C_Name);
-@@ELSE@@ @@-- HAS_CHOICE
+      E_C_Object : constant SOAP.Types.Object'Class :=
+            (if C_Name = ""
+             then SOAP.Types.No_Object
+             else SOAP.Types.V (R, C_Name));
+@@END_IF@@ @@-- HAS_CHOICE
+
 @@TABLE'ALIGN_ON(":")@@
+@@IF@@ not @_RF_DECL_IN_CHOICE_@
 @@IF@@ @_RF_KIND_@ = K_ARRAY and @_FIELD_ARRAY_LENGTH_@ > 1
       @_RF_DECL_NAME_@ : constant SOAP.Types.Object_Set := SOAP.Types.V (R, "@_RF_NAME_@");
 @@ELSE@@
       @_RF_DECL_NAME_@ : constant SOAP.Types.Object'Class := SOAP.Types.V (R, "@_RF_NAME_@");
 @@END_IF@@
-@@END_TABLE@@
 @@END_IF@@
+@@END_TABLE@@
+
+@@IF@@ @_HAS_CHOICE_@
+      Result@_TYPE_NAME_@ : @_TYPE_NAME_@ (C_Disc);
+@@ELSE@@
+      Result@_TYPE_NAME_@ : @_TYPE_NAME_@;
+@@END_IF@@
+@@--
    begin
 @@TABLE@@
 @@IF@@ @_RF_KIND_@ = K_ARRAY and @_FIELD_ARRAY_LENGTH_@ > 1
@@ -143,40 +158,44 @@ package body @_UNIT_NAME_@ is
 @@IF@@ @_FIELD_COUNT_@ = 0
       return (null record);
 @@ELSE@@
-@@IF@@ @_HAS_CHOICE_@
-      case C_Disc is
+@@-- standard fields
 @@TABLE@@
-         when C@_FIELD_NUMBER_@ =>
-            return (C@_FIELD_NUMBER_@, @_REC_FIELD_FROM_SOAP_CHOICE()_@);
+@@IF@@ not @_RF_DECL_IN_CHOICE_@
+      -- @_RF_DECL_NAME_@
+      Result@_TYPE_NAME_@.@_REC_FIELD_FROM_SOAP(1 => " => ")_@;
+@@END_IF@@
+@@END_TABLE@@
+
+@@IF@@ @_HAS_CHOICE_@
+      -- choice fields
+      case C_Disc is
+         when C0 =>
+            null;
+@@TABLE@@
+@@IF@@ @_RF_DECL_IN_CHOICE_@
+          when C@_CHOICE_FIELD_NUMBER_@ =>
+             -- @_RF_DECL_NAME_@
+             Result@_TYPE_NAME_@.@_REC_FIELD_FROM_SOAP_CHOICE(1 => " => ")_@;
+@@END_IF@@
 @@END_TABLE@@
       end case;
-@@ELSE@@
-      return (
-@@TABLE@@
-        -- @_RF_DECL_NAME_@
-@@INLINE(        )(\n        )()@@
-@@IF@@ @_TABLE_LINE_@ = @_NUMBER_LINE_@
-@_REC_FIELD_FROM_SOAP(1 => " => ")_@
-@@ELSE@@
-@_REC_FIELD_FROM_SOAP(1 => " => ")_@,
 @@END_IF@@
-@@END_INLINE@@
-@@END_TABLE@@
-        );
-@@END_IF@@ @@-- HAS_CHOICE
-@@--
+
+      return Result@_TYPE_NAME_@;
    exception
       when Constraint_Error =>
 @@IF@@ @_HAS_CHOICE_@
 @@TABLE@@
-         if C_Disc = C@_FIELD_NUMBER_@
-           and then E'Tag /= @_RF_ROOT_TYPE_@'Tag
+@@IF@@ @_RF_DECL_IN_CHOICE_@
+         if C_Disc = C@_CHOICE_FIELD_NUMBER_@
+           and then E_C_Object'Tag /= @_RF_ROOT_TYPE_@'Tag
          then
             raise SOAP.SOAP_Error
               with SOAP.Types.Name (R)
                  & ".@_RF_DECL_NAME_@ expected @_RF_ROOT_TYPE_@, "
-                 & "found " & External_Tag (E'Tag);
+                 & "found " & External_Tag (E_C_Object'Tag);
          end if;
+@@END_IF@@
 @@END_TABLE@@
 @@--
 @@ELSE@@ @@-- HAS_CHOICE
@@ -192,8 +211,7 @@ package body @_UNIT_NAME_@ is
 @@END_IF@@
 @@END_TABLE@@
 @@END_IF@@
-         raise SOAP.SOAP_Error
-           with "Record " & SOAP.Types.Name (R) & " not well formed";
+         raise;
 @@END_IF@@ @@-- FIELD_COUNT = 0
    end To_@_TYPE_NAME_@;
 
@@ -201,24 +219,33 @@ package body @_UNIT_NAME_@ is
      (P_List : SOAP.Parameters.List)
       return @_TYPE_NAME_@
    is
-@@IF@@ @_HAS_CHOICE_@ and @_FIELD_COUNT_@ > 0
+@@IF@@ @_HAS_CHOICE_@
       function C_Name return String is
 @@INLINE(        \(if )(\n         elsif )(\n         else ""\);)@@
 @@TABLE@@
+@@IF@@ @_RF_DECL_IN_CHOICE_@
          SOAP.Parameters.Exist (P_List, "@_RF_DECL_NAME_@") then "@_RF_DECL_NAME_@"
+@@END_IF@@
 @@END_TABLE@@
 @@END_INLINE@@
 
       function C_Disc return Choice is
-@@INLINE(        \(if )(\n         elsif )(\n         else C1\);)@@
+@@INLINE(        \(if )(\n         elsif )(\n         else C0\);)@@
 @@TABLE@@
-         SOAP.Parameters.Exist (P_List, "@_RF_DECL_NAME_@") then C@_FIELD_NUMBER_@
+@@IF@@ @_RF_DECL_IN_CHOICE_@
+         SOAP.Parameters.Exist (P_List, "@_RF_DECL_NAME_@") then C@_CHOICE_FIELD_NUMBER_@
+@@END_IF@@
 @@END_TABLE@@
 @@END_INLINE@@
-      E : constant SOAP.Types.Object'Class :=
-            SOAP.Parameters.Argument (P_List, 1);
-@@ELSE@@ @@-- HAS_CHOICE
+
+      E_C_Object : constant SOAP.Types.Object'Class :=
+            (if C_Name = ""
+             then SOAP.Types.No_Object
+             else SOAP.Parameters.Argument (P_List, @_"+"(1):"-"(CHOICE_FIELD_COUNT):FIELD_COUNT_@));
+@@END_IF@@
+
 @@TABLE'ALIGN_ON(":")@@
+@@IF@@ not @_RF_DECL_IN_CHOICE_@
 @@IF@@ @_RF_KIND_@ = K_ARRAY and @_FIELD_ARRAY_LENGTH_@ > 1
       @_RF_DECL_NAME_@ : constant SOAP.Types.Object_Set :=
         (1 => +SOAP.Parameters.Argument (P_List, "@_RF_NAME_@"));
@@ -226,34 +253,43 @@ package body @_UNIT_NAME_@ is
       @_RF_DECL_NAME_@ : constant SOAP.Types.Object'Class :=
         SOAP.Parameters.Argument (P_List, "@_RF_NAME_@");
 @@END_IF@@
+@@END_IF@@
 @@END_TABLE@@
+
+@@IF@@ @_HAS_CHOICE_@
+      Result@_TYPE_NAME_@ : @_TYPE_NAME_@ (C_Disc);
+@@ELSE@@
+      Result@_TYPE_NAME_@ : @_TYPE_NAME_@;
 @@END_IF@@
    begin
 @@IF@@ @_FIELD_COUNT_@ = 0
       return (null record);
 @@ELSE@@
-@@IF@@ @_HAS_CHOICE_@ and @_FIELD_COUNT_@ > 0
-      case C_Disc is
+@@-- standard fields
 @@TABLE@@
-         when C@_FIELD_NUMBER_@ =>
-            return (C@_FIELD_NUMBER_@, @_REC_FIELD_FROM_SOAP_CHOICE()_@);
+@@IF@@ not @_RF_DECL_IN_CHOICE_@
+      -- @_RF_DECL_NAME_@
+      Result@_TYPE_NAME_@.@_REC_FIELD_FROM_SOAP(1 => " => ")_@;
+@@END_IF@@
+@@END_TABLE@@
+
+@@IF@@ @_HAS_CHOICE_@
+      -- choice fields
+      case C_Disc is
+         when C0 =>
+            null;
+@@TABLE@@
+@@IF@@ @_RF_DECL_IN_CHOICE_@
+         when C@_CHOICE_FIELD_NUMBER_@ =>
+            -- @_RF_DECL_NAME_@
+            Result@_TYPE_NAME_@.@_REC_FIELD_FROM_SOAP_CHOICE(1 => " => ")_@;
+@@END_IF@@
 @@END_TABLE@@
       end case;
-@@ELSE@@ @@-- HAS_CHOICE
-      return (
-@@TABLE@@
-        -- @_RF_DECL_NAME_@
-@@INLINE(        )(\n        )()@@
-@@IF@@ @_TABLE_LINE_@ = @_NUMBER_LINE_@
-@_REC_FIELD_FROM_SOAP(1 => " => +")_@
-@@ELSE@@
-@_REC_FIELD_FROM_SOAP(1 => " => +")_@,
-@@END_IF@@
-@@END_INLINE@@
-@@END_TABLE@@
-        );
 @@END_IF@@
 @@END_IF@@
+
+      return Result@_TYPE_NAME_@;
    end To_@_TYPE_NAME_@;
 
    --
@@ -267,25 +303,74 @@ package body @_UNIT_NAME_@ is
       NS        : SOAP.Name_Space.Object := Name_Space)
       return SOAP.Types.SOAP_Record
    is
-      Result : SOAP.Types.SOAP_Record;
+
+@@IF@@ @_HAS_CHOICE_@ and @_FIELD_COUNT_@ > 0
+      function C_Object return SOAP.Types.Object_Safe_Pointer is
+      begin
+         case R.C is
+            when C0 =>
+               return O : SOAP.Types.Object_Safe_Pointer do
+                  null;
+               end return;
+@@TABLE@@
+@@IF@@ @_RF_DECL_IN_CHOICE_@
+            when C@_CHOICE_FIELD_NUMBER_@ =>
+@@INLINE(               )(\n     )()@@
+               return @_REC_FIELD_TO_SOAP(1 => "", 2 => "+", 3 => ";")_@
+@@END_INLINE@@
+@@END_IF@@
+@@END_TABLE@@
+         end case;
+      end C_Object;
+@@END_IF@@
+
+      Result@_TYPE_NAME_@ : SOAP.Types.SOAP_Record;
    begin
-@@IF@@ @_HAS_CHOICE_@
+@@IF@@ @_HAS_CHOICE_@ and @_FIELD_COUNT_@ > 0
       case R.C is
-@@IF@@ @_FIELD_COUNT_@ = 0
-         (SOAP.Types.Empty_Object_Set,
+         when C0 =>
+            Result@_TYPE_NAME_@ := SOAP.Types.R
+              ((
+@@IF@@ @_INDEX_LAST_STANDARD_@ = 0
+                1 .. 0 => <>),
 @@ELSE@@
 @@TABLE@@
-         when C@_FIELD_NUMBER_@ =>
-            Result := SOAP.Types.R
-              ((@_REC_FIELD_TO_SOAP(1 => 1, 2 => " => +")_@),
-               Name, Q_Type_Name, NS => NS);
-@@END_TABLE@@
-      end case;
+@@IF@@ not @_RF_DECL_IN_CHOICE_@
+                --  @_RF_NAME_@
+@@INLINE(                )(\n          )()@@
+@@IF@@ @_FIELD_NUMBER_@ = @_INDEX_LAST_STANDARD_@
+        @_REC_FIELD_TO_SOAP(1 => @_FIELD_NUMBER_@, 2 => " => +")_@),
+@@ELSE@@
+        @_REC_FIELD_TO_SOAP(1 => @_FIELD_NUMBER_@, 2 => " => +")_@,
 @@END_IF@@
+@@END_INLINE@@
+@@END_IF@@
+@@END_TABLE@@
+@@END_IF@@
+               Name, Q_Type_Name, NS => NS);
+
+         when others =>
+            Result@_TYPE_NAME_@ := SOAP.Types.R
+              ((
+@@TABLE@@
+@@IF@@ not @_RF_DECL_IN_CHOICE_@
+                --  @_RF_NAME_@
+@@INLINE(                )(\n          )()@@
+@@IF@@ @_FIELD_NUMBER_@ = @_INDEX_LAST_STANDARD_@
+         @_REC_FIELD_TO_SOAP(1 => @_FIELD_NUMBER_@, 2 => " => +")_@,
+@@ELSE@@
+         @_REC_FIELD_TO_SOAP(1 => @_FIELD_NUMBER_@, 2 => " => +")_@,
+@@END_IF@@
+@@END_INLINE@@
+@@END_IF@@
+@@END_TABLE@@
+                @_"+"(1):"-"(CHOICE_FIELD_COUNT):FIELD_COUNT_@ => C_Object),
+               Name, Q_Type_Name, NS => NS);
+      end case;
 @@--
 @@ELSE@@ @@-- HAS_CHOICE
 @@--
-      Result := SOAP.Types.R
+      Result@_TYPE_NAME_@ := SOAP.Types.R
 @@IF@@ @_FIELD_COUNT_@ = 0
         (SOAP.Types.Empty_Object_Set, Name, Q_Type_Name, NS => NS);
 @@ELSE@@
@@ -293,7 +378,7 @@ package body @_UNIT_NAME_@ is
 @@TABLE@@
            --  @_RF_NAME_@
 @@INLINE(           )(\n          )()@@
-@@IF@@ @_TABLE_LINE_@ = @_NUMBER_LINE_@
+@@IF@@ @_FIELD_NUMBER_@ = @_INDEX_LAST_STANDARD_@
         @_REC_FIELD_TO_SOAP(1 => @_FIELD_NUMBER_@, 2 => " => +")_@
 @@ELSE@@
         @_REC_FIELD_TO_SOAP(1 => @_FIELD_NUMBER_@, 2 => " => +")_@,
@@ -304,7 +389,7 @@ package body @_UNIT_NAME_@ is
 @@END_IF@@
 @@END_IF@@
 
-      return Result;
+      return Result@_TYPE_NAME_@;
    end To_SOAP_Object;
 
    --
@@ -319,14 +404,36 @@ package body @_UNIT_NAME_@ is
 
       NS     : constant SOAP.Name_Space.Object :=
                  SOAP.Name_Space.No_Name_Space;
-      Result : SOAP.Parameters.List;
+      Result@_TYPE_NAME_@ : SOAP.Parameters.List;
    begin
 @@TABLE@@
+@@IF@@ not @_RF_DECL_IN_CHOICE_@
       --  @_RF_NAME_@
-      Result := Result
-        @_REC_FIELD_TO_SOAP(1 => "& ")_@;
+      Result@_TYPE_NAME_@ := Result@_TYPE_NAME_@
+        @_REC_FIELD_TO_SOAP(1 => "& ", 2 => "", 3 => ";")_@
+@@END_IF@@
 @@END_TABLE@@
-      return Result;
+@@--
+@@IF@@ @_HAS_CHOICE_@
+
+      --  Fields from the choice
+      case R.C is
+         when C0 =>
+            null;
+@@TABLE@@
+@@IF@@ @_RF_DECL_IN_CHOICE_@
+         when C@_CHOICE_FIELD_NUMBER_@ =>
+            --  @_RF_NAME_@
+            Result@_TYPE_NAME_@ := Result@_TYPE_NAME_@
+@@INLINE(              )(\n      )()@@
+               @_REC_FIELD_TO_SOAP(1 => "& ", 3 => ";")_@
+@@END_INLINE@@
+@@END_IF@@
+@@END_TABLE@@
+      end case;
+@@END_IF@@
+
+      return Result@_TYPE_NAME_@;
    end To_Parameter_List;
 
 end @_UNIT_NAME_@;

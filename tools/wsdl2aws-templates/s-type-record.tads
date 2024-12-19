@@ -49,29 +49,51 @@ package @_UNIT_NAME_@ is
 
    Q_Type_Name : constant String := "@_Q_TYPE_NAME_@";
 
+@@IF@@ @_EXIST:DOCUMENTATION_@
 @@INLINE(   --  )(\n   --  )()@@
       @_WRAP(70):DOCUMENTATION_@
 @@END_INLINE@@
-
+@@END_IF@@
 @@IF@@ @_IS_EMPTY:TYPE_SPEC_@ or @_SIMPLE_WRAPPED_PARAMETER_@
 @@IF@@ @_FIELD_COUNT_@ = 0
    type @_TYPE_NAME_@ is null record;
 @@ELSE@@
 @@IF@@ @_HAS_CHOICE_@
-@@INLINE(   type Choice is \()(, )(\);)@@
+@@INLINE(   type Choice is \(C0, )(, )(\);)@@
 @@TABLE@@
-C@_FIELD_NUMBER_@
+@@IF@@ @_RF_DECL_IN_CHOICE_@
+C@_CHOICE_FIELD_NUMBER_@
+@@END_IF@@
 @@END_TABLE@@
 @@END_INLINE@@
 
-   type @_TYPE_NAME_@ (C : Choice := C1) is record
-      case C is
-@@TABLE@@
-         when C@_FIELD_NUMBER_@ =>
-            @_RF_DECL_NAME_@ : @_RF_ADA_TYPE_@;
+   type @_TYPE_NAME_@ (C : Choice := C0) is record
+@@-- fields not in choice
+@@TABLE'ALIGN_ON(":")@@
+@@IF@@ not @_RF_DECL_IN_CHOICE_@
+      @_RF_DECL_NAME_@ : @_RF_ADA_TYPE_@;
+@@IF@@ @_EXIST:FIELD_COMMENT_@
 @@INLINE(            --  )(\n            --  )()@@
       @_WRAP(70):FIELD_COMMENT_@
 @@END_INLINE@@
+@@END_IF@@
+@@END_IF@@
+@@END_TABLE@@
+
+      case C is
+         when C0 =>
+            null;
+@@-- fields in choice
+@@TABLE@@
+@@IF@@ @_RF_DECL_IN_CHOICE_@
+         when C@_CHOICE_FIELD_NUMBER_@ =>
+            @_RF_DECL_NAME_@ : @_RF_ADA_TYPE_@;
+@@IF@@ @_EXIST:FIELD_COMMENT_@
+@@INLINE(            --  )(\n            --  )()@@
+      @_WRAP(70):FIELD_COMMENT_@
+@@END_INLINE@@
+@@END_IF@@
+@@END_IF@@
 @@END_TABLE@@
       end case;
    end record;

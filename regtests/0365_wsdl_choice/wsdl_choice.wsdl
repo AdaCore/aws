@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<definitions name="WSDL_Choice"
+             targetNamespace="urn:aws:WSDL_Choice"
+             xmlns="http://schemas.xmlsoap.org/wsdl/"
+             xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/"
+             xmlns:xs="http://www.w3.org/2001/XMLSchema"
+             xmlns:tns="urn:aws:WSDL_Choice">
+
+   <types>
+      <schema>
+        <xs:complexType name="R1">
+          <xs:sequence>
+            <xs:element name="state" type="xs:int" />
+            <xs:choice>
+              <xs:element name="percentComplete" type="xs:float" />
+              <xs:element name="statusMessage" type="xs:string" />
+            </xs:choice>
+          </xs:sequence>
+        </xs:complexType>
+
+        <xs:complexType name="RB">
+          <xs:element name="one" type="xs:int" />
+          <xs:element name="two" type="xs:int" />
+        </xs:complexType>
+
+        <xs:complexType name="R2">
+          <xs:complexContent>
+            <xs:extension base="RB">
+              <xs:sequence>
+                <xs:element name="state" type="xs:int" />
+                <xs:choice>
+                  <xs:element name="percentComplete" type="xs:float" />
+                  <xs:element name="statusMessage" type="xs:string" />
+                </xs:choice>
+              </xs:sequence>
+            </xs:extension>
+          </xs:complexContent>
+        </xs:complexType>
+
+      </schema>
+   </types>
+
+   <message name="Try_Request">
+      <part name="Param1" type="R1"/>
+      <part name="Param2" type="R2"/>
+   </message>
+
+   <portType name="WSDL_Choice_portType">
+
+      <operation name="Try">
+         <input message="Try_Request"/>
+      </operation>
+
+   </portType>
+
+   <binding name="WSDL_Choice_Binding" type="WSDL_Choice_PortType">
+      <soap:binding style="rpc"
+         transport="http://schemas.xmlsoap.org/soap/http"/>
+
+      <operation name="Try">
+         <soap:operation soapAction="Try"/>
+         <input>
+            <soap:body
+               encodingStyle="http://schemas.xmlsoap.org/soap/encoding/"
+               namespace="urn:aws:WSDL_Choice"
+               use="encoded"/>
+         </input>
+         <output>
+            <soap:body
+               encodingStyle="http://schemas.xmlsoap.org/soap/encoding/"
+               namespace="urn:aws:WSDL_Choice"
+               use="encoded"/>
+         </output>
+      </operation>
+
+   </binding>
+
+   <service name="WSDL_CHOICE">
+      <port name="WSDL_Choice_Port" binding="WSDL_Choice_Binding">
+         <soap:address location="http://localhost:7705"/>
+      </port>
+   </service>
+</definitions>

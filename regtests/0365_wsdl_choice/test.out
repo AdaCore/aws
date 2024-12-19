@@ -1,0 +1,43 @@
+Service WSDL_CHOICE
+
+
+Procedure Try SOAPAction:Try
+   Input
+      [record:choice] Param1 ; R1
+         [simple] state ; Integer
+         [simple] percentComplete ; Float
+         [simple] statusMessage ; String
+      [record:choice] Param2 ; R2
+         [simple] one ; Integer
+         [simple] two ; Integer
+         [simple] state ; Integer
+         [simple] percentComplete ; Float
+         [simple] statusMessage ; String
+   Output
+   > Try
+====== Try C1 - C0
+P1 C1
+   - state  2
+   * percentComplete  1.27000E+01
+P2 C0
+   - one    1
+   - two    2
+   - state  3
+====== Try C2 - C1
+P1 C2
+   - state  3
+   * statusMessage   R1:whatever
+P2 C1
+   - one    1
+   - two    2
+   - state  3
+   * percentComplete  2.51000E+01
+====== Try C0 - C2
+P1 C0
+   - state  6
+P2 C2
+   - one    1
+   - two    2
+   - state  3
+   * statusMessage   R2:whatever
+Run OK

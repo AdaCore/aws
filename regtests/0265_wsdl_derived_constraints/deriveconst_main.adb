@@ -152,19 +152,27 @@ begin
 
    --  One call with respected constraints
 
+   -- xs:int                       x
+   -- tns:PercentCompleteInteger   0 .. 100
+   -- tns:NonNegativeInt           0 ..
+   -- tns:NonNegativeFloat         0 ..
+   -- tns:Name / xs:string         8 .. 8
+   -- tns:Address / xs:string      5 .. 8
+   -- tns:Code1                    [A-Z][0-9]
+   -- tns:Code2                    [A-Z][0-9][a-z]
    Call (2, 99, 7, 9.0, "12345678", "12345", "A2", "A9z");
 
    --  Some calls with constraints error
 
    Call (3, 88, 7, 9.0, "12345678", "12345", "A2", "A9z");
-   --  fails because of array
+   --  fails because of array (See O_Set where for Id = 3 we use "x" for an tns:Name
 
    Call (4, 101, 7, 9.0, "12345678", "12345", "A2", "A9z");
    Call (5, 99, 7, 9.0, "12345", "12345", "A2", "A9z");
    Call (6, 99, 7, -0.1, "12345678", "12345", "A2", "A9z");
    Call (7, 99, -7, 9.0, "12345678", "12345", "A2", "A9z");
-   Call (8, 99, -7, 9.0, "12345678", "145", "A2", "A9z");
-   Call (9, 99, -7, 9.0, "12345678", "145000000099887", "A2", "A9z");
+   Call (8, 99, 7, 9.0, "12345678", "145", "A2", "A9z");
+   Call (9, 99, 7, 9.0, "12345678", "145000000099887", "A2", "A9z");
    Call (10, 99, 7, 9.0, "12345678", "12345", "Ab", "A9z");
    Call (11, 99, 7, 9.0, "12345678", "12345", "Ab", "A#@");
 
