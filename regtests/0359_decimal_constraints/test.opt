@@ -1,3 +1,3 @@
-!lal DEAD
-!xmlada DEAD
+lal REQUIRED
+xmlada REQUIRED
 32bits OUT test32b.out
