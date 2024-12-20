@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2009-2012, AdaCore                     --
+--                     Copyright (C) 2009-2024, AdaCore                     --
 --                                                                          --
 --  This is free software;  you can redistribute it  and/or modify it       --
 --  under terms of the  GNU General Public License as published  by the     --
@@ -77,7 +77,10 @@ procedure Pauth is
 begin
    Server.Start
      (HTTP, "Test authentication.",
-      CB'Unrestricted_Access, Port => 0, Max_Connection => 3);
+      CB'Unrestricted_Access,
+      Host           => "localhost",
+      Port           => 0,
+      Max_Connection => 3);
 
    Client.Create
      (Connection => Connect,

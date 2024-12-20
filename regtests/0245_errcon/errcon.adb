@@ -86,7 +86,7 @@ procedure ErrCon is
 begin
    for Host of Hosts loop
       begin
-         Sock.Connect (Host => Host.all, Port => Port_Vol);
+         Sock.Connect (Host => Host.all, Port => Port_Vol, Family => Net.Family_Inet);
       exception
          when E : AWS.Net.Socket_Error =>
             Print_Error (Ada.Exceptions.Exception_Message (E));

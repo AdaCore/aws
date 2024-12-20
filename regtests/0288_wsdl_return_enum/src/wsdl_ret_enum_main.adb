@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                       Copyright (C) 2017, AdaCore                        --
+--                     Copyright (C) 2017-2024, AdaCore                     --
 --                                                                          --
 --  This is free software;  you can redistribute it  and/or modify it       --
 --  under terms of the  GNU General Public License as published  by the     --
@@ -50,6 +50,7 @@ procedure WSDL_Ret_Enum_Main is
 
    V : Data_Type;
 begin
+   Config.Set.Server_Host (Conf, "localhost");
    Config.Set.Server_Port (Conf, 0);
 
    Disp := SOAP.Dispatchers.Callback.Create

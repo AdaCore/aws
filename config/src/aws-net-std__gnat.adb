@@ -152,9 +152,16 @@ package body AWS.Net.Std is
 
             exception
                when E : Sockets.Socket_Error | Sockets.Host_Error =>
-                  if Socket.S.FD /= Sockets.No_Socket then
-                     Sockets.Close_Socket (Socket.S.FD);
-                     Socket.S.FD := Sockets.No_Socket;
+                  --  We don't want to fail if Family_Unspec is specified and
+                  --  we try to bind to an IPv6 address. In this case we want
+                  --  to fallback to IPv4 is possible.
+                  if Family /= Family_Unspec
+                    or else Addr_Info.Addr.Family /= Sockets.Family_Inet6
+                  then
+                     if Socket.S.FD /= Sockets.No_Socket then
+                        Sockets.Close_Socket (Socket.S.FD);
+                        Socket.S.FD := Sockets.No_Socket;
+                     end if;
                   end if;
 
                   Exceptions.Save_Occurrence (Keep_Excp, E);
@@ -289,9 +296,16 @@ package body AWS.Net.Std is
 
             exception
                when E : Sockets.Socket_Error | Sockets.Host_Error =>
-                  if Close_On_Exception then
-                     Sockets.Close_Socket (Socket.S.FD);
-                     Close_On_Exception := False;
+                  --  We don't want to fail if Family_Unspec is specified and
+                  --  we try to bind to an IPv6 address. In this case we want
+                  --  to fallback to IPv4 is possible.
+                  if Family /= Family_Unspec
+                    or else Addr_Info.Addr.Family /= Sockets.Family_Inet6
+                  then
+                     if Close_On_Exception then
+                        Sockets.Close_Socket (Socket.S.FD);
+                        Close_On_Exception := False;
+                     end if;
                   end if;
 
                   Save_Occurrence (Keep_Excp, E);

@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2005-2021, AdaCore                     --
+--                     Copyright (C) 2005-2024, AdaCore                     --
 --                                                                          --
 --  This is free software;  you can redistribute it  and/or modify it       --
 --  under terms of the  GNU General Public License as published  by the     --
@@ -117,7 +117,9 @@ procedure Partial is
 begin
    Server.Log.Start_Error (HTTP, Ada.Text_IO.Put_Line'Access, "error");
    Server.Start
-     (HTTP, "Test Partial Download.", CB'Unrestricted_Access, Port => 0,
+     (HTTP, "Test Partial Download.", CB'Unrestricted_Access,
+      Host           => "localhost",
+      Port           => 0,
       Max_Connection => 2);
 
    --  Compute MD5

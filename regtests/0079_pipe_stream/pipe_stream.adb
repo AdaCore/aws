@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2007-2016, AdaCore                     --
+--                     Copyright (C) 2007-2024, AdaCore                     --
 --                                                                          --
 --  This is free software;  you can redistribute it  and/or modify it       --
 --  under terms of the  GNU General Public License as published  by the     --
@@ -169,7 +169,11 @@ procedure Pipe_Stream is
 
 begin
    if Command_Line.Argument_Count = 0 then
-      Server.Start (WS, "pipe", CB'Unrestricted_Access, Port => 0);
+      Server.Start
+        (WS, "pipe",
+         CB'Unrestricted_Access,
+         Host => "localhost",
+         Port => 0);
 
       for T of TA loop
          T := new Tester;

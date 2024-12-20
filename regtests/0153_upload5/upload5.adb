@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2004-2021, AdaCore                     --
+--                     Copyright (C) 2004-2024, AdaCore                     --
 --                                                                          --
 --  This is free software;  you can redistribute it  and/or modify it       --
 --  under terms of the  GNU General Public License as published  by the     --
@@ -141,6 +141,7 @@ begin
    Server.Start
      (HTTP, "upload",
       CB'Unrestricted_Access,
+      Host             => "localhost",
       Port             => 0,
       Max_Connection   => 5,
       Upload_Directory => "upload_dir/");

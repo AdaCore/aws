@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2005-2012, AdaCore                     --
+--                     Copyright (C) 2005-2024, AdaCore                     --
 --                                                                          --
 --  This is free software;  you can redistribute it  and/or modify it       --
 --  under terms of the  GNU General Public License as published  by the     --
@@ -94,7 +94,7 @@ begin
       Sample (J) := Stream_Element (J);
    end loop;
 
-   Std.Bind (Server, 0);
+   Std.Bind (Server, 0, "localhost");
    Std.Listen (Server);
 
    Set_Timeout (S1, 2.0);

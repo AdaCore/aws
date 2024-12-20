@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                       Copyright (C) 2018, AdaCore                        --
+--                     Copyright (C) 2018-2024, AdaCore                     --
 --                                                                          --
 --  This is free software;  you can redistribute it  and/or modify it       --
 --  under terms of the  GNU General Public License as published  by the     --
@@ -57,6 +57,7 @@ begin
      (Web_Server => WS,
       Name       => "test",
       Callback   => Service'Unrestricted_Access,
+      Host       => "localhost",
       Port       => 0);
 
    S.Connect

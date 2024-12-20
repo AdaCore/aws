@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2010-2015, AdaCore                     --
+--                     Copyright (C) 2010-2024, AdaCore                     --
 --                                                                          --
 --  This is free software;  you can redistribute it  and/or modify it       --
 --  under terms of the  GNU General Public License as published  by the     --
@@ -74,7 +74,11 @@ procedure ETag_Header is
    H  : Headers.List;
 
 begin
-   Server.Start (WS, "ETag Header", CB'Unrestricted_Access, Port => 0);
+   Server.Start
+     (WS, "ETag Header",
+      CB'Unrestricted_Access,
+      Host => "localhost",
+      Port => 0);
 
    H.Add (Messages.ETag_Token, String (Messages.Create_ETag ("azerty")));
 

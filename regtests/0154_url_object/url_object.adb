@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2007-2021, AdaCore                     --
+--                     Copyright (C) 2007-2024, AdaCore                     --
 --                                                                          --
 --  This is free software;  you can redistribute it  and/or modify it       --
 --  under terms of the  GNU General Public License as published  by the     --
@@ -138,7 +138,10 @@ procedure URL_Object is
    end Test_Relative_Resolution;
 
 begin
-   Server.Start (WS, "url_object", CB'Unrestricted_Access, Port => 0);
+   Server.Start
+     (WS, "url_object", CB'Unrestricted_Access,
+      Host => "localhost",
+      Port => 0);
    Text_IO.Put_Line ("started"); Ada.Text_IO.Flush;
 
    declare

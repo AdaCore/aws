@@ -51,6 +51,13 @@ package body Ada2WSDL.Parser is
    use type SOAP.Types.Decimal;
    use type SOAP.Types.Unsigned_Long;
 
+   subtype Internal_Integer is Long_Long_Long_Integer;
+   --  The type used for internal computation of range, value... So we can
+   --  safely check range of Long_Integer or Long_Long_Integer on standard
+   --  x86_64 Linux targets where those types are 64bits and Internal_Integer
+   --  will be 128bits. For the later we special case the computation to avoid
+   --  overflow, see in Type_Range_G.
+
    package TxT renames Langkit_Support.Text;
 
    function "+"
@@ -137,10 +144,6 @@ package body Ada2WSDL.Parser is
      (Characters.Handling.To_Lower (Unit_Name (Node)) = "ada.calendar");
    --  True if Node is declared into the Ada.Calendar package
 
-   function Is_SOAP_Type (Node : Ada_Node'Class) return Boolean is
-     (Characters.Handling.To_Lower (Unit_Name (Node)) = "soap.types");
-   --  True if Node is declared into AWS's SOAP.Types package
-
    function Type_Definition
      (Node : Ada_Node;
       Name : String;
@@ -179,7 +182,7 @@ package body Ada2WSDL.Parser is
    --  Analyze an array component
 
    procedure Array_Type_Suffix
-     (Lower, Upper : Long_Long_Integer;
+     (Lower, Upper : Internal_Integer;
       Type_Suffix  : out Unbounded_String;
       Length       : out Natural);
 
@@ -251,20 +254,16 @@ package body Ada2WSDL.Parser is
                         else "");
          Is_Std_LL : constant Boolean :=
                        Node.Kind in Ada_Type_Decl
-                           and then
-                             ((Is_Standard (Node)
-                               and then T_Name = "long_long_integer")
-                              or else
-                                (Is_SOAP_Type (Node)
-                                 and then T_Name in "long" | "unsigned_long"));
+                           and then Is_Standard (Node)
+                           and then T_Name = "long_long_long_integer";
       begin
          Lower := Last;
          Upper := First;
 
          if E /= No_Bin_Op and then E.Kind = Ada_Bin_Op then
-            --  Do not try to compute range for Long_Long_Integer as this
-            --  will overflow in Get_Range while computing last (2**64 -
-            --  1). Likewise for SOAP long and unsigned long.
+            --  Do not try to compute range for Long_Long_Long_Integer as this
+            --  will overflow in Get_Range while computing last (2**127 -
+            --  1).
 
             if Is_Std_LL then
                Lower := First;
@@ -385,13 +384,13 @@ package body Ada2WSDL.Parser is
    -- Compute_Value --
    -------------------
 
-   function "**" (Left, Right : Long_Long_Integer) return Long_Long_Integer
+   function "**" (Left, Right : Internal_Integer) return Internal_Integer
      is (Left ** Integer (Right));
 
    function Compute_Value is new Compute.Value_G
-     (T     => Long_Long_Integer,
+     (T     => Internal_Integer,
       Zero  => 0,
-      Value => Long_Long_Integer'Value);
+      Value => Internal_Integer'Value);
 
    function "**"
      (Left, Right : SOAP.Types.Unsigned_Long) return SOAP.Types.Unsigned_Long
@@ -428,14 +427,14 @@ package body Ada2WSDL.Parser is
    -- Get_Range --
    ---------------
 
-   procedure Get_Range is new Compute.Range_G (T => Long_Long_Integer);
+   procedure Get_Range is new Compute.Range_G (T => Internal_Integer);
    procedure Get_Range is new Compute.Range_G (T => Long_Float);
    procedure Get_Range is new Compute.Range_G (T => SOAP.Types.Decimal);
 
    procedure Get_Range is new Compute.Type_Range_G
-     (T     => Long_Long_Integer,
-      First => Long_Long_Integer'First,
-      Last  => Long_Long_Integer'Last);
+     (T     => Internal_Integer,
+      First => Internal_Integer'First,
+      Last  => Internal_Integer'Last);
 
    procedure Get_Range is new Compute.Type_Range_G
      (T     => Long_Float,
@@ -460,7 +459,7 @@ package body Ada2WSDL.Parser is
       Components   : constant Component_Def := Node.F_Component_Type;
       Array_Len    : Natural := 0;
       Type_Suffix  : Unbounded_String;
-      Lower, Upper : Long_Long_Integer;
+      Lower, Upper : Internal_Integer;
    begin
       Get_Range (T_Decl, Lower, Upper);
       Array_Type_Suffix (Lower, Upper, Type_Suffix, Array_Len);
@@ -512,7 +511,7 @@ package body Ada2WSDL.Parser is
       NS           : constant String := Name_Space (Node);
       T_Def        : constant Type_Def := T_Decl.As_Type_Decl.F_Type_Def;
 
-      Lower, Upper : Long_Long_Integer;
+      Lower, Upper : Internal_Integer;
       Type_Suffix  : Unbounded_String;
       Array_Len    : Natural;
    begin
@@ -608,13 +607,13 @@ package body Ada2WSDL.Parser is
                Components   : constant Component_Def :=
                                 A_Def.F_Component_Type;
                Len          : Unbounded_String;
-               Lower, Upper : Long_Long_Integer;
+               Lower, Upper : Internal_Integer;
                Type_Suffix  : Unbounded_String;
                Array_Len    : Integer := 0;
             begin
                Get_Range (T_Decl, Lower, Upper);
 
-               if Lower /= Long_Long_Integer'Last then
+               if Lower /= Internal_Integer'Last then
                   Array_Type_Suffix (Lower, Upper, Type_Suffix, Array_Len);
                   Len := To_Unbounded_String (AWS.Utils.Image (Array_Len));
                end if;
@@ -737,7 +736,7 @@ package body Ada2WSDL.Parser is
                                           A_Def.F_Component_Type;
                   E_Type              : constant Generator.Type_Data :=
                                           Analyze_Array_Component (Components);
-                  Lower, Upper        : Long_Long_Integer;
+                  Lower, Upper        : Internal_Integer;
                   Type_Suffix         : Unbounded_String;
                   Has_Decl_Constraint : Boolean;
                begin
@@ -764,8 +763,8 @@ package body Ada2WSDL.Parser is
                     (C_Def.F_Type_Expr, Lower, Upper, Top_Decl => True);
 
                   Has_Decl_Constraint :=
-                    Lower /= Long_Long_Integer'Last
-                    and then Upper /= Long_Long_Integer'First;
+                    Lower /= Internal_Integer'Last
+                    and then Upper /= Internal_Integer'First;
 
                   Get_Range
                     (C_Def.F_Type_Expr, Lower, Upper, Top_Decl => False);
@@ -961,16 +960,16 @@ package body Ada2WSDL.Parser is
    -----------------------
 
    procedure Array_Type_Suffix
-     (Lower, Upper : Long_Long_Integer;
+     (Lower, Upper : Internal_Integer;
       Type_Suffix  : out Unbounded_String;
       Length       : out Natural)
    is
-      function I (N : Long_Long_Integer) return String
+      function I (N : Internal_Integer) return String
         is (AWS.Utils.Image (Natural (N)));
    begin
       if Lower /= 0
         and then Upper /= 0
-        and then Lower /= Long_Long_Integer'Last
+        and then Lower /= Internal_Integer'Last
       then
          Length := Natural (Upper - Lower + 1);
 
@@ -1034,12 +1033,12 @@ package body Ada2WSDL.Parser is
       case P_Type.As_Type_Decl.F_Type_Def.Kind is
          when Ada_Signed_Int_Type_Def =>
             declare
-               Lower, Upper : Long_Long_Integer;
+               Lower, Upper : Internal_Integer;
             begin
                Get_Range (Node, Lower, Upper);
 
-               Min := +Long_Long_Integer'Image (Lower);
-               Max := +Long_Long_Integer'Image (Upper);
+               Min := +Internal_Integer'Image (Lower);
+               Max := +Internal_Integer'Image (Upper);
             end;
 
          when Ada_Floating_Point_Def =>
@@ -1086,8 +1085,9 @@ package body Ada2WSDL.Parser is
          else
             if R.Kind = Ada_Range_Constraint then
                return R.As_Range_Constraint.F_Range.F_Range.As_Bin_Op;
-            elsif R.Kind = Ada_Composite_Constraint and then
-              R.As_Composite_Constraint.P_Is_Index_Constraint
+
+            elsif R.Kind = Ada_Composite_Constraint
+              and then R.As_Composite_Constraint.P_Is_Index_Constraint
             then
                return R.As_Composite_Constraint.F_Constraints.Child (1)
                    .As_Composite_Constraint_Assoc.F_Constraint_Expr.As_Bin_Op;
@@ -1660,8 +1660,8 @@ package body Ada2WSDL.Parser is
 
       function Register_Deferred_I
         (Node  : Base_Type_Decl'Class;
-         First : Long_Long_Integer := Long_Long_Integer'Last;
-         Last  : Long_Long_Integer := Long_Long_Integer'First)
+         First : Internal_Integer := Internal_Integer'Last;
+         Last  : Internal_Integer := Internal_Integer'First)
          return Generator.Type_Data;
       --  Same as above for integer and optional range
 
@@ -1682,16 +1682,16 @@ package body Ada2WSDL.Parser is
       function Build_Type
         (Name  : String;
          NS    : String := SOAP.Name_Space.Value (SOAP.Name_Space.XSD);
-         First : Long_Long_Integer := Long_Long_Integer'Last;
-         Last  : Long_Long_Integer := Long_Long_Integer'First)
+         First : Internal_Integer := Internal_Integer'Last;
+         Last  : Internal_Integer := Internal_Integer'First)
          return Generator.Type_Data
       is (+NS, +Name,
-          (if First = Long_Long_Integer'Last
+          (if First = Internal_Integer'Last
            then Null_Unbounded_String
-           else +Long_Long_Integer'Image (First)),
-          (if Last = Long_Long_Integer'First
+           else +Internal_Integer'Image (First)),
+          (if Last = Internal_Integer'First
            then Null_Unbounded_String
-           else +Long_Long_Integer'Image (Last)),
+           else +Internal_Integer'Image (Last)),
           Null_Unbounded_String);
 
       function Build_Type_F
@@ -2019,46 +2019,46 @@ package body Ada2WSDL.Parser is
       function Build_Integer
         (Node : Base_Type_Decl) return Generator.Type_Data
       is
-         Ilb, Iub : Long_Long_Integer;
+         Ilb, Iub : Internal_Integer;
       begin
          Get_Range (Node, Ilb, Iub);
 
          if Base then
-            if Ilb = Long_Long_Integer (SOAP.Types.Byte'First)
-              and then Iub = Long_Long_Integer (SOAP.Types.Byte'Last)
+            if Ilb = Internal_Integer (SOAP.Types.Byte'First)
+              and then Iub = Internal_Integer (SOAP.Types.Byte'Last)
             then
                return Build_Type ("byte");
 
-            elsif Ilb >= Long_Long_Integer (SOAP.Types.Byte'First)
-              and then Iub <= Long_Long_Integer (SOAP.Types.Byte'Last)
+            elsif Ilb >= Internal_Integer (SOAP.Types.Byte'First)
+              and then Iub <= Internal_Integer (SOAP.Types.Byte'Last)
             then
                return Build_Type ("byte", First => Ilb, Last => Iub);
 
-            elsif Ilb = Long_Long_Integer (SOAP.Types.Short'First)
+            elsif Ilb = Internal_Integer (SOAP.Types.Short'First)
               and then
-                Iub = Long_Long_Integer (SOAP.Types.Short'Last)
+                Iub = Internal_Integer (SOAP.Types.Short'Last)
             then
                return Build_Type ("short");
 
-            elsif Ilb >= Long_Long_Integer (SOAP.Types.Short'First)
+            elsif Ilb >= Internal_Integer (SOAP.Types.Short'First)
               and then
-                Iub <= Long_Long_Integer (SOAP.Types.Short'Last)
+                Iub <= Internal_Integer (SOAP.Types.Short'Last)
             then
                return Build_Type ("short", First => Ilb, Last => Iub);
 
-            elsif Ilb = Long_Long_Integer (Integer'First)
-              and then Iub = Long_Long_Integer (Integer'Last)
+            elsif Ilb = Internal_Integer (Integer'First)
+              and then Iub = Internal_Integer (Integer'Last)
             then
                return Build_Type ("integer");
 
-            elsif Ilb >= Long_Long_Integer (Integer'First)
-              and then Iub <= Long_Long_Integer (Integer'Last)
+            elsif Ilb >= Internal_Integer (Integer'First)
+              and then Iub <= Internal_Integer (Integer'Last)
             then
                return Build_Type
                  ("integer", First => Ilb, Last => Iub);
 
-            elsif Ilb = Long_Long_Integer (Long_Integer'First)
-              and then Iub = Long_Long_Integer (Long_Integer'Last)
+            elsif Ilb = Internal_Integer (Long_Integer'First)
+              and then Iub = Internal_Integer (Long_Integer'Last)
             then
                return Build_Type ("long");
 
@@ -2099,10 +2099,10 @@ package body Ada2WSDL.Parser is
          -- Get_Last --
          --------------
 
-         function Get_Last return Long_Long_Integer is
+         function Get_Last return Internal_Integer is
            (if Modulus = 0
-            then Long_Long_Integer'First
-            else Long_Long_Integer (Modulus - 1));
+            then Internal_Integer'First
+            else Internal_Integer (Modulus - 1));
 
       begin
          if Base then
@@ -2256,8 +2256,8 @@ package body Ada2WSDL.Parser is
 
       function Register_Deferred_I
         (Node  : Base_Type_Decl'Class;
-         First : Long_Long_Integer := Long_Long_Integer'Last;
-         Last  : Long_Long_Integer := Long_Long_Integer'First)
+         First : Internal_Integer := Internal_Integer'Last;
+         Last  : Internal_Integer := Internal_Integer'First)
          return Generator.Type_Data
       is
          T_Name : constant String := Img (Node.F_Name);

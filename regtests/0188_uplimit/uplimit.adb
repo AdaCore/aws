@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2008-2021, AdaCore                     --
+--                     Copyright (C) 2008-2024, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -155,6 +155,7 @@ procedure Uplimit is
    procedure Start_Server is
       Web_Config : Config.Object;
    begin
+      Config.Set.Server_Host (Web_Config, "localhost");
       Config.Set.Server_Port (Web_Config, 0);
       Config.Set.Upload_Directory (Web_Config, "./");
       Config.Set.Upload_Size_Limit (Web_Config, 11_000);

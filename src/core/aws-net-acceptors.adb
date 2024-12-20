@@ -54,7 +54,10 @@ package body AWS.Net.Acceptors is
                  new Socket_Type'Class'(Acceptor.Constructor (False));
    begin
       Server.Bind
-        (Host => Host, Port => Port, Family => Family, IPv6_Only => IPv6_Only,
+        (Host          => Host,
+         Port          => Port,
+         Family        => Family,
+         IPv6_Only     => IPv6_Only,
          Reuse_Address => Reuse_Address);
       Server.Listen (Queue_Size => Acceptor.Back_Queue_Size);
 
@@ -485,7 +488,10 @@ package body AWS.Net.Acceptors is
       end if;
 
       Server.Bind
-        (Host => Host, Port => Port, Family => Family, IPv6_Only => IPv6_Only,
+        (Host          => Host,
+         Port          => Port,
+         Family        => Family,
+         IPv6_Only     => IPv6_Only,
          Reuse_Address => Reuse_Address);
       Server.Listen (Queue_Size => Queue_Size);
 

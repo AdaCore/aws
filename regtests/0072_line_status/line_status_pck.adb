@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2004-2012, AdaCore                     --
+--                     Copyright (C) 2004-2024, AdaCore                     --
 --                                                                          --
 --  This is free software;  you can redistribute it  and/or modify it       --
 --  under terms of the  GNU General Public License as published  by the     --
@@ -110,7 +110,10 @@ package body Line_Status_Pck is
       R : Response.Data;
    begin
       Server.Start
-        (WS, "Line Status", CB'Access, Session => True, Port => 0);
+        (WS, "Line Status", CB'Access,
+         Session => True,
+         Host    => "localhost",
+         Port    => 0);
 
       declare
          URL : constant String := Server.Status.Local_URL (WS);

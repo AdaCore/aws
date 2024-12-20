@@ -645,9 +645,9 @@ package body AWS.Net is
    -----------------
 
    procedure Socket_Pair (S1, S2 : out Socket_Type) is
-      Server : Std.Socket_Type;
       subtype STC is Socket_Type'Class;
       Local_Host : constant String := "127.0.0.1";
+      Server     : Std.Socket_Type;
    begin
       Std.Bind (Server, Host => Local_Host, Port => 0);
       Std.Listen (Server);
