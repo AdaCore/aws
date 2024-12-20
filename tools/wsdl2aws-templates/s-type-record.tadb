@@ -103,7 +103,7 @@ package body @_UNIT_NAME_@ is
       return @_TYPE_NAME_@
    is
       R : constant SOAP.Types.SOAP_Record := SOAP.Types.SOAP_Record (O);
-@@IF@@ @_IS_CHOICE_@ and @_FIELD_COUNT_@ > 0
+@@IF@@ @_HAS_CHOICE_@ and @_FIELD_COUNT_@ > 0
 
       function C_Name return String is
 @@INLINE(        \(if )(\n         elsif )(\n         else ""\);)@@
@@ -121,7 +121,7 @@ package body @_UNIT_NAME_@ is
 
       E : constant SOAP.Types.Object'Class :=
             SOAP.Types.V (R, C_Name);
-@@ELSE@@ @@-- IS_CHOICE
+@@ELSE@@ @@-- HAS_CHOICE
 @@TABLE'ALIGN_ON(":")@@
 @@IF@@ @_RF_KIND_@ = K_ARRAY and @_FIELD_ARRAY_LENGTH_@ > 1
       @_RF_DECL_NAME_@ : constant SOAP.Types.Object_Set := SOAP.Types.V (R, "@_RF_NAME_@");
@@ -143,7 +143,7 @@ package body @_UNIT_NAME_@ is
 @@IF@@ @_FIELD_COUNT_@ = 0
       return (null record);
 @@ELSE@@
-@@IF@@ @_IS_CHOICE_@
+@@IF@@ @_HAS_CHOICE_@
       case C_Disc is
 @@TABLE@@
          when C@_FIELD_NUMBER_@ =>
@@ -163,11 +163,11 @@ package body @_UNIT_NAME_@ is
 @@END_INLINE@@
 @@END_TABLE@@
         );
-@@END_IF@@ @@-- IS_CHOICE
+@@END_IF@@ @@-- HAS_CHOICE
 @@--
    exception
       when Constraint_Error =>
-@@IF@@ @_IS_CHOICE_@
+@@IF@@ @_HAS_CHOICE_@
 @@TABLE@@
          if C_Disc = C@_FIELD_NUMBER_@
            and then E'Tag /= @_RF_ROOT_TYPE_@'Tag
@@ -179,7 +179,7 @@ package body @_UNIT_NAME_@ is
          end if;
 @@END_TABLE@@
 @@--
-@@ELSE@@ @@-- IS_CHOICE
+@@ELSE@@ @@-- HAS_CHOICE
 @@--
 @@TABLE@@
 @@IF@@ (@_RF_KIND_@ /= K_ARRAY) or (@_FIELD_ARRAY_LENGTH_@ = 1)
@@ -201,7 +201,7 @@ package body @_UNIT_NAME_@ is
      (P_List : SOAP.Parameters.List)
       return @_TYPE_NAME_@
    is
-@@IF@@ @_IS_CHOICE_@ and @_FIELD_COUNT_@ > 0
+@@IF@@ @_HAS_CHOICE_@ and @_FIELD_COUNT_@ > 0
       function C_Name return String is
 @@INLINE(        \(if )(\n         elsif )(\n         else ""\);)@@
 @@TABLE@@
@@ -217,7 +217,7 @@ package body @_UNIT_NAME_@ is
 @@END_INLINE@@
       E : constant SOAP.Types.Object'Class :=
             SOAP.Parameters.Argument (P_List, 1);
-@@ELSE@@ @@-- IS_CHOICE
+@@ELSE@@ @@-- HAS_CHOICE
 @@TABLE'ALIGN_ON(":")@@
 @@IF@@ @_RF_KIND_@ = K_ARRAY and @_FIELD_ARRAY_LENGTH_@ > 1
       @_RF_DECL_NAME_@ : constant SOAP.Types.Object_Set :=
@@ -232,14 +232,14 @@ package body @_UNIT_NAME_@ is
 @@IF@@ @_FIELD_COUNT_@ = 0
       return (null record);
 @@ELSE@@
-@@IF@@ @_IS_CHOICE_@ and @_FIELD_COUNT_@ > 0
+@@IF@@ @_HAS_CHOICE_@ and @_FIELD_COUNT_@ > 0
       case C_Disc is
 @@TABLE@@
          when C@_FIELD_NUMBER_@ =>
             return (C@_FIELD_NUMBER_@, @_REC_FIELD_FROM_SOAP_CHOICE()_@);
 @@END_TABLE@@
       end case;
-@@ELSE@@ @@-- IS_CHOICE
+@@ELSE@@ @@-- HAS_CHOICE
       return (
 @@TABLE@@
         -- @_RF_DECL_NAME_@
@@ -269,7 +269,7 @@ package body @_UNIT_NAME_@ is
    is
       Result : SOAP.Types.SOAP_Record;
    begin
-@@IF@@ @_IS_CHOICE_@
+@@IF@@ @_HAS_CHOICE_@
       case R.C is
 @@IF@@ @_FIELD_COUNT_@ = 0
          (SOAP.Types.Empty_Object_Set,
@@ -283,7 +283,7 @@ package body @_UNIT_NAME_@ is
       end case;
 @@END_IF@@
 @@--
-@@ELSE@@ @@-- IS_CHOICE
+@@ELSE@@ @@-- HAS_CHOICE
 @@--
       Result := SOAP.Types.R
 @@IF@@ @_FIELD_COUNT_@ = 0

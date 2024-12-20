@@ -477,7 +477,7 @@ package body WSDL2AWS.WSDL.Types is
    begin
       return (case Def.Mode is
                  when K_Record      =>
-                    "record" & (if Def.Is_Choice then ":choice" else ""),
+                    "record" & (if Def.Has_Choice then ":choice" else ""),
                  when K_Array       => "array",
                  when K_Derived     => "derived",
                  when K_Enumeration => "enumeration",

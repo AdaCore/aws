@@ -120,7 +120,7 @@ package WSDL2AWS.WSDL.Types is
             null;
 
          when K_Record =>
-            Is_Choice : Boolean;
+            Has_Choice : Boolean;
 
          when K_Array =>
             E_Name : Unbounded_String; -- array's element name

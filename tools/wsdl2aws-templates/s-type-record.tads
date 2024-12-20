@@ -57,7 +57,7 @@ package @_UNIT_NAME_@ is
 @@IF@@ @_FIELD_COUNT_@ = 0
    type @_TYPE_NAME_@ is null record;
 @@ELSE@@
-@@IF@@ @_IS_CHOICE_@
+@@IF@@ @_HAS_CHOICE_@
 @@INLINE(   type Choice is \()(, )(\);)@@
 @@TABLE@@
 C@_FIELD_NUMBER_@
@@ -75,7 +75,7 @@ C@_FIELD_NUMBER_@
 @@END_TABLE@@
       end case;
    end record;
-@@ELSE@@ @@-- IS_CHOICE
+@@ELSE@@ @@-- HAS_CHOICE
    type @_TYPE_NAME_@ is record
 @@TABLE'ALIGN_ON(":")@@
       @_RF_DECL_NAME_@ : @_RF_ADA_TYPE_@;

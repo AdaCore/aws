@@ -50,6 +50,7 @@ package WSDL2AWS.WSDL.Parameters is
       Min       : Natural := 1;  -- minOccurs
       Max       : Positive := 1; -- maxOccurs
       Is_Set    : Boolean := False;
+      In_Choice : Boolean := False;
 
       case Mode is
          when Types.Compound_Type =>
