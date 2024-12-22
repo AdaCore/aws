@@ -102,6 +102,7 @@ package body WSDL2AWS.Generator is
      (O                : Object;
       N                : WSDL.Parameters.P_Set;
       P_Decl           : in out Templates.Tag;
+      P_Choice_Decl    : in out Templates.Tag;
       P_Name           : in out Templates.Tag;
       P_Kind           : in out Templates.Tag;
       P_Min            : in out Templates.Tag;
@@ -585,6 +586,7 @@ package body WSDL2AWS.Generator is
      (O                : Object;
       N                : WSDL.Parameters.P_Set;
       P_Decl           : in out Templates.Tag;
+      P_Choice_Decl    : in out Templates.Tag;
       P_Name           : in out Templates.Tag;
       P_Kind           : in out Templates.Tag;
       P_Min            : in out Templates.Tag;
@@ -605,18 +607,19 @@ package body WSDL2AWS.Generator is
    is
       use type WSDL.Types.Kind;
    begin
-      P_Decl      := P_Decl & Format_Name (O, To_String (N.Name));
-      P_Name      := P_Name & To_String (N.Name);
-      P_Kind      := P_Kind & WSDL.Types.Kind'Image (N.Mode);
-      P_Min       := P_Min & N.Min;
-      P_Max       := P_Max & N.Max;
-      P_Type      := P_Type & WSDL.Types.Name (N.Typ, True);
-      P_Type_Name := P_Type_Name
-                       & Format_Name
-                           (O, WSDL.Types.Name (N.Typ, False));
-      P_Q_Name    := P_Q_Name
-                       & SOAP.Utils.To_Name (WSDL.Types.Name (N.Typ, True));
-      P_Ada_Type  := P_Ada_Type & Type_Name (O, N);
+      P_Decl        := P_Decl & Format_Name (O, To_String (N.Name));
+      P_Choice_Decl := P_Choice_Decl & Boolean'Image (N.In_Choice);
+      P_Name        := P_Name & To_String (N.Name);
+      P_Kind        := P_Kind & WSDL.Types.Kind'Image (N.Mode);
+      P_Min         := P_Min & N.Min;
+      P_Max         := P_Max & N.Max;
+      P_Type        := P_Type & WSDL.Types.Name (N.Typ, True);
+      P_Type_Name   := P_Type_Name
+                         & Format_Name
+                             (O, WSDL.Types.Name (N.Typ, False));
+      P_Q_Name      := P_Q_Name
+                         & SOAP.Utils.To_Name (WSDL.Types.Name (N.Typ, True));
+      P_Ada_Type    := P_Ada_Type & Type_Name (O, N);
 
       if N.Mode = WSDL.Types.K_Simple then
          P_Type_Kind := P_Type_Kind
@@ -915,6 +918,7 @@ package body WSDL2AWS.Generator is
          Parameter_Name   : Templates.Tag;
          Parameter_Type   : Templates.Tag;
          P_Decl           : Templates.Tag;
+         P_Choice_Decl    : Templates.Tag;
          P_Name           : Templates.Tag;
          P_Kind           : Templates.Tag;
          P_Min            : Templates.Tag;
@@ -985,8 +989,9 @@ package body WSDL2AWS.Generator is
 
          while N /= null loop
             Generate_Params
-              (O, N, P_Decl, P_Name, P_Kind, P_Min, P_Max, P_Compound_Size,
-               P_Type, P_Base_Type, P_Root_Type, P_Root_Type_Kind,
+              (O, N, P_Decl, P_Choice_Decl, P_Name, P_Kind, P_Min, P_Max,
+               P_Compound_Size, P_Type, P_Base_Type,
+               P_Root_Type, P_Root_Type_Kind,
                P_Type_Name, P_Type_Kind, P_Ada_Type, P_Q_Name,
                P_NS_Name, P_NS_Value, P_Elt_NS_Name, P_Elt_NS_Value);
             N := N.Next;
@@ -1047,6 +1052,7 @@ package body WSDL2AWS.Generator is
          Proc_B_Return_Type : Templates.Tag;
 
          P_Decl           : Templates.Tag;
+         P_Choice_Decl    : Templates.Tag;
          P_Name           : Templates.Tag;
          P_Kind           : Templates.Tag;
          P_Min            : Templates.Tag;
@@ -1147,7 +1153,7 @@ package body WSDL2AWS.Generator is
            and then Output.Next = null
          then
             Generate_Params
-              (O, Output, P_Decl, P_Name, P_Kind,
+              (O, Output, P_Decl, P_Choice_Decl, P_Name, P_Kind,
                P_Min, P_Max, P_Compound_Size,
                P_Type, P_Base_Type, P_Root_Type, P_Root_Type_Kind,
                P_Type_Name, P_Type_Kind, P_Ada_Type, P_Q_Name,
@@ -2215,17 +2221,22 @@ package body WSDL2AWS.Generator is
          R       : WSDL.Parameters.P_Set;
          N       : WSDL.Parameters.P_Set;
 
-         Count   : Natural := 0;
+         Count       : Natural := 0; -- field count
+         C_Count     : Natural := 0; -- choice field count
+         Last_Choice : Natural := 0; -- index of last choice item
+         Last_Std    : Natural := 0; -- index of last non choice item
 
-         Prefix             : Unbounded_String;
-         Translations       : Templates.Translate_Set;
-         Field_Number       : Templates.Tag;
-         Field_Comment      : Templates.Tag;
-         Field_Array_First  : Templates.Tag;
-         Field_Array_Last   : Templates.Tag;
-         Field_Array_Length : Templates.Tag;
+         Prefix              : Unbounded_String;
+         Translations        : Templates.Translate_Set;
+         Field_Number        : Templates.Tag;
+         Choice_Field_Number : Templates.Tag;
+         Field_Comment       : Templates.Tag;
+         Field_Array_First   : Templates.Tag;
+         Field_Array_Last    : Templates.Tag;
+         Field_Array_Length  : Templates.Tag;
 
          R_Decl           : Templates.Tag;
+         R_Choice_Decl    : Templates.Tag;
          R_Name           : Templates.Tag;
          R_Kind           : Templates.Tag;
          R_Min            : Templates.Tag;
@@ -2257,7 +2268,8 @@ package body WSDL2AWS.Generator is
 
          while N /= null loop
             Generate_Params
-              (O, N, R_Decl, R_Name, R_Kind, R_Min, R_Max, R_Compound_Size,
+              (O, N, R_Decl, R_Choice_Decl, R_Name, R_Kind, R_Min, R_Max,
+               R_Compound_Size,
                R_Type, R_Base_Type, R_Root_Type, R_Root_Type_Kind,
                R_Type_Name, R_Type_Kind, R_Ada_Type, R_Q_Name,
                R_NS_Name, R_NS_Value, R_Elt_NS_Name, R_Elt_NS_Value);
@@ -2265,6 +2277,15 @@ package body WSDL2AWS.Generator is
             Count := Count + 1;
             Field_Number   := Field_Number & Count;
             Field_Comment  := Field_Comment & N.Doc;
+
+            if N.In_Choice then
+               Last_Choice := Count;
+               C_Count := C_Count + 1;
+               Choice_Field_Number := Choice_Field_Number & C_Count;
+            else
+               Last_Std := Count;
+               Choice_Field_Number := Choice_Field_Number & 0;
+            end if;
 
             if N.Mode = WSDL.Types.K_Array then
                Field_Array_First  := Field_Array_First & N.Min;
@@ -2285,6 +2306,10 @@ package body WSDL2AWS.Generator is
            & Templates.Assoc ("FIELD_COUNT", Count)
            & Templates.Assoc ("FIELD_COMMENT", Field_Comment)
            & Templates.Assoc ("FIELD_NUMBER", Field_Number)
+           & Templates.Assoc ("CHOICE_FIELD_COUNT", C_Count)
+           & Templates.Assoc ("INDEX_LAST_CHOICE", Last_Choice)
+           & Templates.Assoc ("INDEX_LAST_STANDARD", Last_Std)
+           & Templates.Assoc ("CHOICE_FIELD_NUMBER", Choice_Field_Number)
            & Templates.Assoc ("FIELD_ARRAY_FIRST", Field_Array_First)
            & Templates.Assoc ("FIELD_ARRAY_LAST", Field_Array_Last)
            & Templates.Assoc ("FIELD_ARRAY_LENGTH", Field_Array_Length)
@@ -2293,6 +2318,7 @@ package body WSDL2AWS.Generator is
            & Templates.Assoc ("DOCUMENTATION", P.Doc)
 
            & Templates.Assoc ("RF_DECL_NAME", R_Decl)
+           & Templates.Assoc ("RF_DECL_IN_CHOICE", R_Choice_Decl)
            & Templates.Assoc ("RF_NAME", R_Name)
            & Templates.Assoc ("RF_KIND", R_Kind)
            & Templates.Assoc ("RF_MIN", R_Min)

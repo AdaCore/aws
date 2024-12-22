@@ -236,6 +236,9 @@ package body WSDL2AWS.WSDL.Parser is
    --  Returns the binding style (value of attribute style) specified on the
    --  node N. Returns the empty string if not defined.
 
+   function Local_Name (N : DOM.Core.Node) return String
+     renames DOM.Core.Nodes.Local_Name;
+
    -----------
    -- Debug --
    -----------
@@ -445,7 +448,7 @@ package body WSDL2AWS.WSDL.Parser is
       V  : String_List.Vector;
    begin
       Look_For_Import : loop
-         if DOM.Core.Nodes.Local_Name (R) = "import"
+         if Local_Name (R) = "import"
            and then SOAP.XML.Get_Attr_Value (R, "namespace", True) /= ""
          then
             V.Append (SOAP.XML.Get_Attr_Value (R, "namespace", True));
@@ -532,7 +535,7 @@ package body WSDL2AWS.WSDL.Parser is
             R := null;
 
             while N /= null loop
-               if (not NS and then DOM.Core.Nodes.Local_Name (N) = E_Name)
+               if (not NS and then Local_Name (N) = E_Name)
                  or else (NS and then DOM.Core.Nodes.Node_Name (N) = E_Name)
                then
                   --  We found this element, check next one
@@ -632,9 +635,7 @@ package body WSDL2AWS.WSDL.Parser is
                N : constant DOM.Core.Node :=
                      DOM.Core.Nodes.Item (Attributes, K);
             begin
-               if SOAP.Utils.No_NS
-                 (DOM.Core.Nodes.Node_Name (N)) = "arrayType"
-               then
+               if Local_Name (N) = "arrayType" then
                   --  Found get the value removing []
                   declare
                      Value : constant String :=
@@ -685,14 +686,12 @@ package body WSDL2AWS.WSDL.Parser is
          Skip_Annotation (L);
 
          if L /= null
-           and then
-             SOAP.Utils.No_NS (DOM.Core.Nodes.Node_Name (L)) = "complexContent"
+           and then Local_Name (L) = "complexContent"
          then
             L := SOAP.XML.First_Child (L);
 
             if L /= null
-              and then
-                SOAP.Utils.No_NS (DOM.Core.Nodes.Node_Name (L)) = "restriction"
+              and then Local_Name (L) = "restriction"
             then
                L := SOAP.XML.First_Child (L);
 
@@ -707,14 +706,12 @@ package body WSDL2AWS.WSDL.Parser is
             end if;
 
          elsif L /= null
-           and then
-             SOAP.Utils.No_NS (DOM.Core.Nodes.Node_Name (L)) = "sequence"
+           and then Local_Name (L) = "sequence"
          then
             L := SOAP.XML.First_Child (L);
 
             if L /= null
-              and then
-                SOAP.Utils.No_NS (DOM.Core.Nodes.Node_Name (L)) = "element"
+              and then Local_Name (L) = "element"
             then
                --  Element must have minOccurs and maxOccurs attribute
                declare
@@ -809,9 +806,8 @@ package body WSDL2AWS.WSDL.Parser is
             end if;
 
             while N /= null
-              and then DOM.Core.Nodes.Local_Name (N) /= "length"
-              and then DOM.Core.Nodes.Local_Name (N) /= "minLength"
-              and then DOM.Core.Nodes.Local_Name (N) /= "maxLength"
+              and then Local_Name (N)
+                         not in "length" | "minLength" | "maxLength"
             loop
                N := SOAP.XML.Next_Sibling (N);
             end loop;
@@ -824,9 +820,7 @@ package body WSDL2AWS.WSDL.Parser is
       begin
          Trace ("(Is_Character_Schema)", R);
 
-         if SOAP.Utils.No_NS
-           (DOM.Core.Nodes.Node_Name (R)) /= "simpleType"
-         then
+         if Local_Name (R) /= "simpleType" then
             return False;
          end if;
 
@@ -853,7 +847,7 @@ package body WSDL2AWS.WSDL.Parser is
             N := Character_Facet (N, Child => True);
 
             if N /= null
-              and then DOM.Core.Nodes.Local_Name (N) = "length"
+              and then Local_Name (N) = "length"
             then
                --  Check length
 
@@ -863,7 +857,7 @@ package body WSDL2AWS.WSDL.Parser is
                end if;
 
             elsif N /= null
-              and then DOM.Core.Nodes.Local_Name (N) = "minLength"
+              and then Local_Name (N) = "minLength"
             then
 
                if SOAP.XML.Get_Attr_Value (N, "value", False) /= "1" then
@@ -874,7 +868,7 @@ package body WSDL2AWS.WSDL.Parser is
                N := Character_Facet (N);
 
                if N = null
-                 or else DOM.Core.Nodes.Local_Name (N) /= "maxLength"
+                 or else Local_Name (N) /= "maxLength"
                  or else SOAP.XML.Get_Attr_Value (N, "value", False) /= "1"
                then
                   --  Must be a single character
@@ -882,7 +876,7 @@ package body WSDL2AWS.WSDL.Parser is
                end if;
 
             elsif N /= null
-              and then DOM.Core.Nodes.Local_Name (N) = "maxLength"
+              and then Local_Name (N) = "maxLength"
             then
 
                if SOAP.XML.Get_Attr_Value (N, "value", False) /= "1" then
@@ -893,7 +887,7 @@ package body WSDL2AWS.WSDL.Parser is
                N := Character_Facet (N);
 
                if N = null
-                 or else DOM.Core.Nodes.Local_Name (N) /= "minLength"
+                 or else Local_Name (N) /= "minLength"
                  or else SOAP.XML.Get_Attr_Value (N, "value", False) /= "1"
                then
                   --  Must be a single character
@@ -950,14 +944,14 @@ package body WSDL2AWS.WSDL.Parser is
       L            : DOM.Core.Node := N;
       Is_Extension : Boolean := False;
    begin
-      if SOAP.Utils.No_NS (DOM.Core.Nodes.Node_Name (L)) = "element"
+      if Local_Name (L) = "element"
         and then SOAP.XML.First_Child (L) /= null
       then
          --  Handle an element enclosing the complexType
          L := SOAP.XML.First_Child (L);
       end if;
 
-      if SOAP.Utils.No_NS (DOM.Core.Nodes.Node_Name (L)) = "complexType" then
+      if Local_Name (L) = "complexType" then
          L := SOAP.XML.First_Child (L);
 
          Skip_Annotation (L);
@@ -968,18 +962,14 @@ package body WSDL2AWS.WSDL.Parser is
             return True;
 
          else
-            if SOAP.Utils.No_NS (DOM.Core.Nodes.Node_Name (L))
-              = "complexContent"
-            then
+            if Local_Name (L) = "complexContent" then
                L := SOAP.XML.First_Child (L);
             end if;
 
             if L = null then
                raise WSDL_Error with "empty complexContent.";
 
-            elsif SOAP.Utils.No_NS (DOM.Core.Nodes.Node_Name (L))
-              = "extension"
-            then
+            elsif Local_Name (L) = "extension" then
                Is_Extension := True;
                L := SOAP.XML.First_Child (L);
             end if;
@@ -991,10 +981,7 @@ package body WSDL2AWS.WSDL.Parser is
             return True;
          end if;
 
-         if SOAP.Utils.No_NS (DOM.Core.Nodes.Node_Name (L)) = "all"
-           or else SOAP.Utils.No_NS (DOM.Core.Nodes.Node_Name (L)) = "sequence"
-           or else SOAP.Utils.No_NS (DOM.Core.Nodes.Node_Name (L)) = "choice"
-         then
+         if Local_Name (L) in "all" | "sequence" | "choice" then
             L := SOAP.XML.First_Child (L);
 
             --  If we have a single element we must ensure that there is no
@@ -1003,14 +990,12 @@ package body WSDL2AWS.WSDL.Parser is
 
             if L /= null then
                declare
-                  LN  : constant String :=
-                          SOAP.Utils.No_NS (DOM.Core.Nodes.Node_Name (L));
                   Min : constant String :=
                           SOAP.XML.Get_Attr_Value (L, "minOccurs");
                   Max : constant String :=
                           SOAP.XML.Get_Attr_Value (L, "maxOccurs");
                begin
-                  if LN = "element"
+                  if Local_Name (L) = "element"
                     and then
                       (SOAP.XML.Next_Sibling (L) /= null
                        or else Is_Extension
@@ -1144,7 +1129,7 @@ package body WSDL2AWS.WSDL.Parser is
          declare
             S : constant DOM.Core.Node := DOM.Core.Nodes.Item (NL, K);
          begin
-            if DOM.Core.Nodes.Local_Name (S) = "service" then
+            if Local_Name (S) = "service" then
                Parse_Service (O, S, Document);
                Found := True;
             end if;
@@ -1173,8 +1158,7 @@ package body WSDL2AWS.WSDL.Parser is
 
       pragma Assert
         (R /= null
-         and then
-           SOAP.Utils.No_NS (DOM.Core.Nodes.Node_Name (R)) = "complexType");
+         and then Local_Name (R) = "complexType");
 
       declare
          use type SOAP.WSDL.Schema.Binding_Style;
@@ -1199,8 +1183,7 @@ package body WSDL2AWS.WSDL.Parser is
             begin
                while E /= null loop
                   declare
-                     NN  : constant String :=
-                             SOAP.Utils.No_NS (DOM.Core.Nodes.Node_Name (E));
+                     NN  : constant String := Local_Name (E);
                      Ref : DOM.Core.Node;
                   begin
                      if NN = "element" then
@@ -1208,7 +1191,7 @@ package body WSDL2AWS.WSDL.Parser is
                         D.E_Name := To_Unbounded_String
                           (SOAP.XML.Get_Attr_Value (Ref, "name", False));
                      end if;
-
+                     --  ??? esle !!!
                      if NN = "annotation" then
                         --  Skip this node
                         E := SOAP.XML.Next_Sibling (E);
@@ -1320,7 +1303,7 @@ package body WSDL2AWS.WSDL.Parser is
             declare
                S : constant DOM.Core.Node := DOM.Core.Nodes.Item (NL, K);
             begin
-               if SOAP.Utils.No_NS (DOM.Core.Nodes.Node_Name (S)) = "operation"
+               if Local_Name (S) = "operation"
                  and then not O.Exclude.Contains
                    (SOAP.XML.Get_Attr_Value (S, "name"))
                then
@@ -1370,7 +1353,7 @@ package body WSDL2AWS.WSDL.Parser is
             Value : constant String := DOM.Core.Nodes.Node_Value (N);
          begin
             if Value = SOAP.Name_Space.SOAP_URL then
-               NS_SOAP := +DOM.Core.Nodes.Local_Name (N);
+               NS_SOAP := +Local_Name (N);
             end if;
 
             if Name'Length > 5
@@ -1407,9 +1390,7 @@ package body WSDL2AWS.WSDL.Parser is
       Trace ("(Parse_Element)", Element);
 
       while N /= null
-        and then DOM.Core.Nodes.Local_Name (N) /= "complexType"
-        and then DOM.Core.Nodes.Local_Name (N) /= "simpleType"
-        and then DOM.Core.Nodes.Local_Name (N) /= "element"
+        and then Local_Name (N) not in "complexType" | "simpleType" | "element"
       loop
          N := SOAP.XML.First_Child (N);
       end loop;
@@ -1420,14 +1401,13 @@ package body WSDL2AWS.WSDL.Parser is
          CT_Node := N;
       end if;
 
-      if DOM.Core.Nodes.Local_Name (N) = "simpleType" then
+      if Local_Name (N) = "simpleType" then
          Add_Parameter (O, Parse_Simple (O, CT_Node, Document));
 
-      elsif DOM.Core.Nodes.Local_Name (N) = "element"
+      elsif Local_Name (N) = "element"
         and then
           (SOAP.XML.First_Child (N) = null
-           or else DOM.Core.Nodes.Local_Name
-                     (SOAP.XML.First_Child (N)) = "annotation")
+           or else Local_Name (SOAP.XML.First_Child (N)) = "annotation")
       then
          --  A reference, create the alias name -> type
 
@@ -1463,7 +1443,7 @@ package body WSDL2AWS.WSDL.Parser is
             ET     : constant String :=
                        SOAP.XML.Get_Attr_Value (N, "type", NS => True);
          begin
-            if DOM.Core.Nodes.Local_Name (N) = "element" then
+            if Local_Name (N) = "element" then
                if ET = "" then
                   --  Move to complexType node
                   N := SOAP.XML.First_Child (N);
@@ -1593,8 +1573,7 @@ package body WSDL2AWS.WSDL.Parser is
       begin
          while F /= null loop
             declare
-               N_Name : constant String :=
-                          SOAP.Utils.No_NS (DOM.Core.Nodes.Node_Name (F));
+               N_Name : constant String := Local_Name (F);
                E      : SOAP.Types.Encoding_Style;
             begin
                if N_Name in "input" | "output" then
@@ -1712,8 +1691,7 @@ package body WSDL2AWS.WSDL.Parser is
                A : constant DOM.Core.Node := SOAP.XML.First_Child (D);
             begin
                if A /= null
-                 and then SOAP.Utils.No_NS (DOM.Core.Nodes.Node_Name (A))
-                            = "annotation"
+                 and then Local_Name (A) = "annotation"
                then
                   Append (Doc, Get_Documentation (SOAP.XML.First_Child (A)));
                end if;
@@ -2050,9 +2028,6 @@ package body WSDL2AWS.WSDL.Parser is
       --  elements are kept into the parsed order. In the WSDL one can found
       --  elements before and/or after a choice.
 
-      function NN (N : DOM.Core.Node) return String
-        is (SOAP.Utils.No_NS (DOM.Core.Nodes.Node_Name (N)));
-
       ------------------
       -- Get_Elements --
       ------------------
@@ -2067,9 +2042,7 @@ package body WSDL2AWS.WSDL.Parser is
 
       begin
          while N /= null
-           and then NN (N) /= "element"
-           and then NN (N) /= "annotation"
-           and then NN (N) /= "choice"
+           and then Local_Name (N) not in "element" | "annotation" | "choice"
          loop
             N := SOAP.XML.First_Child (N);
          end loop;
@@ -2077,10 +2050,10 @@ package body WSDL2AWS.WSDL.Parser is
          while N /= null loop
             --  Check for annotation
 
-            if NN (N) = "annotation" then
+            if Local_Name (N) = "annotation" then
                Append (Doc, Get_Documentation (SOAP.XML.First_Child (N)));
 
-            elsif NN (N) = "choice" then
+            elsif Local_Name (N) = "choice" then
                --  No support for nested choice
                pragma Assert (In_Choice = False, "embedded choice found");
                --  No support for multiple choice
@@ -2123,7 +2096,7 @@ package body WSDL2AWS.WSDL.Parser is
          --  definition here.
 
          if N /= null
-           and then  NN (N) = "extension"
+           and then  Local_Name (N) = "extension"
          then
             declare
                Base : constant String :=
@@ -2142,7 +2115,7 @@ package body WSDL2AWS.WSDL.Parser is
 
                Skip_Annotation (CT);
 
-               if NN (CT) = "complexContent" then
+               if Local_Name (CT) = "complexContent" then
                   Parse_Complex_Content (P, CT);
                end if;
 
@@ -2173,13 +2146,13 @@ package body WSDL2AWS.WSDL.Parser is
 
       pragma Assert
         (R /= null
-         and then (NN (R) = "complexType" or else NN (R) = "element"));
+         and then (Local_Name (R) in "complexType" | "element"));
 
       if SOAP.XML.Get_Attr_Value (R, "abstract", False) = "true" then
          raise WSDL_Error with "abstract record not supported";
       end if;
 
-      if NN (R) = "element" then
+      if Local_Name (R) = "element" then
          N := Get_Element_Ref (R, Document);
       end if;
 
@@ -2198,7 +2171,7 @@ package body WSDL2AWS.WSDL.Parser is
 
          O.Self.Enclosing_Types.Include (Name);
 
-         if NN (R) = "element" then
+         if Local_Name (R) = "element" then
             --  Skip enclosing element
             N := SOAP.XML.First_Child (R);
 
@@ -2222,10 +2195,10 @@ package body WSDL2AWS.WSDL.Parser is
             N := SOAP.XML.First_Child (N);
 
             if N /= null then
-               if NN (N) = "complexContent" then
+               if Local_Name (N) = "complexContent" then
                   Parse_Complex_Content (P, N);
 
-               elsif NN (N) = "annotation" then
+               elsif Local_Name (N) = "annotation" then
                   Append (P.Doc, Get_Documentation (SOAP.XML.First_Child (N)));
                   N := SOAP.XML.Next_Sibling (N);
                end if;
@@ -2265,7 +2238,7 @@ package body WSDL2AWS.WSDL.Parser is
       C : DOM.Core.Node;
    begin
       while N /= null loop
-         if DOM.Core.Nodes.Local_Name (N) = "schema" then
+         if Local_Name (N) = "schema" then
             --  Register this schema
 
             SOAP.WSDL.Schema.Register
@@ -2276,7 +2249,7 @@ package body WSDL2AWS.WSDL.Parser is
             C := SOAP.XML.First_Child (N);
 
             while C /= null loop
-               if DOM.Core.Nodes.Local_Name (C) = "import" then
+               if Local_Name (C) = "import" then
                   declare
                      L : constant String :=
                            SOAP.XML.Get_Attr_Value (C, "schemaLocation");
@@ -2412,7 +2385,7 @@ package body WSDL2AWS.WSDL.Parser is
 
       pragma Assert
         (S /= null
-         and then SOAP.Utils.No_NS (DOM.Core.Nodes.Node_Name (S)) = "element");
+         and then Local_Name (S) = "element");
 
       declare
          Name  : constant String :=
@@ -2567,8 +2540,7 @@ package body WSDL2AWS.WSDL.Parser is
          D.Ref := Types.Create (Name, Types.NS (P.Typ));
 
          while N /= null
-           and then
-             SOAP.Utils.No_NS (DOM.Core.Nodes.Node_Name (E)) = "enumeration"
+           and then Local_Name (E) = "enumeration"
          loop
             declare
                Value    : constant String :=
@@ -2605,8 +2577,7 @@ package body WSDL2AWS.WSDL.Parser is
 
       pragma Assert
         (R /= null
-           and then
-         SOAP.Utils.No_NS (DOM.Core.Nodes.Node_Name (R)) = "simpleType");
+         and then Local_Name (R) = "simpleType");
 
       Name := +SOAP.XML.Get_Attr_Value (R, "name", False);
 
@@ -2616,8 +2587,7 @@ package body WSDL2AWS.WSDL.Parser is
 
       Skip_Annotation (N);
 
-      pragma Assert
-        (SOAP.Utils.No_NS (DOM.Core.Nodes.Node_Name (N)) = "restriction");
+      pragma Assert (Local_Name (N) = "restriction");
 
       Base := +SOAP.XML.Get_Attr_Value (N, "base", True);
 
@@ -2626,8 +2596,7 @@ package body WSDL2AWS.WSDL.Parser is
       E := SOAP.XML.First_Child (N);
 
       if E /= null
-           and then
-         SOAP.Utils.No_NS (DOM.Core.Nodes.Node_Name (E)) = "enumeration"
+           and then Local_Name (E) = "enumeration"
       then
          return Build_Enumeration (-Name, -Base, E);
 
@@ -2639,8 +2608,7 @@ package body WSDL2AWS.WSDL.Parser is
          begin
             while R /= null loop
                declare
-                  Name  : constant String :=
-                            SOAP.Utils.No_NS (DOM.Core.Nodes.Node_Name (R));
+                  Name  : constant String := Local_Name (R);
                   Value : constant String :=
                             SOAP.XML.Get_Attr_Value (R, "value", True);
                begin
@@ -2744,11 +2712,9 @@ package body WSDL2AWS.WSDL.Parser is
                --  We can have multiple prefix pointing to the same URL
                --  (namespace). But an URL must be unique
 
-               if not SOAP.WSDL.Name_Spaces.Contains
-                 (DOM.Core.Nodes.Local_Name (N))
-               then
+               if not SOAP.WSDL.Name_Spaces.Contains (Local_Name (N)) then
                   SOAP.WSDL.Name_Spaces.Register
-                    (DOM.Core.Nodes.Local_Name (N),
+                    (Local_Name (N),
                      DOM.Core.Nodes.Node_Value (N));
                end if;
 
@@ -2757,7 +2723,7 @@ package body WSDL2AWS.WSDL.Parser is
                then
                   SOAP.WSDL.Name_Spaces.Register
                     (DOM.Core.Nodes.Node_Value (N),
-                     DOM.Core.Nodes.Local_Name (N));
+                     Local_Name (N));
                end if;
             end if;
          end;
@@ -2798,7 +2764,7 @@ package body WSDL2AWS.WSDL.Parser is
    procedure Skip_Annotation (N : in out DOM.Core.Node) is
    begin
       if N /= null
-        and then SOAP.Utils.No_NS (DOM.Core.Nodes.Node_Name (N)) = "annotation"
+        and then Local_Name (N) = "annotation"
       then
          N := SOAP.XML.Next_Sibling (N);
       end if;
@@ -2826,8 +2792,7 @@ package body WSDL2AWS.WSDL.Parser is
             Text_IO.Put_Line ("   Node is null.");
          else
             declare
-               Name : constant String :=
-                        DOM.Core.Nodes.Local_Name (N);
+               Name : constant String := Local_Name (N);
                Atts : constant DOM.Core.Named_Node_Map :=
                         DOM.Core.Nodes.Attributes (N);
             begin
@@ -2838,7 +2803,7 @@ package body WSDL2AWS.WSDL.Parser is
                   declare
                      N     : constant DOM.Core.Node :=
                                DOM.Core.Nodes.Item (Atts, K);
-                     Name  : constant String := DOM.Core.Nodes.Local_Name (N);
+                     Name  : constant String := Local_Name (N);
                      Value : constant String := DOM.Core.Nodes.Node_Value (N);
                   begin
                      Text_IO.Put (Name & " = " & Value);

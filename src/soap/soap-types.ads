@@ -74,6 +74,8 @@ package SOAP.Types is
    type Object is abstract tagged private;
    --  Root type for all SOAP types defined in this package
 
+   No_Object : constant Object'Class;
+
    type Object_Access is access all Object'Class;
 
    type Object_Safe_Pointer is tagged private;
@@ -1012,6 +1014,10 @@ private
    type SOAP_Enumeration is new Scalar with record
       V : Unbounded_String;
    end record;
+
+   No_Object : constant Object'Class :=
+                 Object'Class
+                   (XSD_Null'(Scalar with null record));
 
    --  Composite SOAP types
 
