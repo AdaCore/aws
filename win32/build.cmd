@@ -25,22 +25,27 @@ set SSLDIR=%GNATDIR%/%TARGET%
 set C_INCLUDE_PATH=%SSLDIR%/include
 
 set ROOTDIR=%CD%
-set GPROPTS=-XPRJ_BUILD=Release -XPRJ_TARGET=Windows_NT -XTARGET=%TARGET% -XPRJ_XMLADA=Installed -XPRJ_LDAP=Installed -XPRJ_ASIS=Disabled -XPRJ_SOCKLIB=gnat -XSOCKET=%SOCKET%
+set BDIR=%ROOTDIR%\%TARGET%
+set PDIR=%ROOTDIR%\%TARGET%\projects
+set CDIR=%ROOTDIR%\%TARGET%\common
+
+set GPROPTS=-XPRJ_BUILD=Release -XPRJ_TARGET=Windows_NT -XTARGET=%TARGET% -XPRJ_XMLADA=Installed -XPRJ_LDAP=Installed -XPRJ_ASIS=Disabled -XPRJ_LAL=Disabled -XPRJ_SOCKLIB=gnat -XSOCKET=%SOCKET% -XTGT_DIR=%BDIR% -aP%BDIR%\projects
 
 if .%1==. goto dusage
 
 path %1\bin;%path%
 
-rem ----------------------------------------------- SETUP
-:setup
-mkdir .build\%TARGET%\setup\src
-copy config\setup\aws-os_lib-tmplt.c .build\%TARGET%\setup\src
-gprbuild -p -XPRJ_BUILD=Debug -XLIBRARY_TYPE=static -XPRJ_TARGET=Windows_NT -XTARGET=%TARGET% -Pconfig\setup xoscons
+rem ----------------------------------------------- SETUP SRC
+echo Setup...
+
+mkdir %BDIR%\setup\src
+copy config\setup\aws-os_lib-tmplt.c %BDIR%\setup\src
+gprbuild -p -XPRJ_BUILD=Debug -XLIBRARY_TYPE=static -XPRJ_TARGET=Windows_NT -XTARGET=%TARGET% -XTGT_DIR=%BDIR% -Pconfig\setup xoscons
 if errorlevel 1 goto error
-cd .build\%TARGET%\setup\src
+cd %BDIR%\setup\src
 gcc -C -E -DTARGET=\"windows\" aws-os_lib-tmplt.c > aws-os_lib-tmplt.i
 gcc -S aws-os_lib-tmplt.i
-..\xoscons aws-os_lib
+..\bin\xoscons aws-os_lib
 if errorlevel 1 goto error
 del aws-os_lib-tmplt*
 cd ..
@@ -56,10 +61,12 @@ echo Parser.Add_Option ("-I%1\include\aws"); >> ada2wsdl-options.adb
 echo end Set_Default; >> ada2wsdl-options.adb
 echo end Ada2WSDL.Options; >> ada2wsdl-options.adb
 
-cd ..\..\..
+cd ..\..
 
-mkdir projects
-cd projects
+echo Create projects...
+
+mkdir %PDIR%
+cd %PDIR%
 
 echo abstract project AWS_Lib_Shared is > aws_lib_shared.gpr
 echo for Source_Files use (); >> aws_lib_shared.gpr
@@ -93,11 +100,18 @@ echo R_TLS_Lib := ""; >> aws_lib_shared.gpr
 echo LIBZ_Path := Project'Project_Dir ^& "..\..\..\lib\aws\static"; >> aws_lib_shared.gpr
 echo end AWS_Lib_Shared; >> aws_lib_shared.gpr
 
+rem XML/Ada comes with GNAT, always available
 echo with "xmlada";            > aws_xmlada.gpr
 echo project aws_xmlada is    >> aws_xmlada.gpr
 echo for Source_Files use (); >> aws_xmlada.gpr
 echo end aws_xmlada;          >> aws_xmlada.gpr
 
+rem No LAL
+echo project aws_lal is        > aws_lal.gpr
+echo for Source_Files use (); >> aws_lal.gpr
+echo end aws_lal;             >> aws_lal.gpr
+
+rem The main config project
 echo abstract project AWS_Config is                     > aws_config.gpr
 echo for Source_Dirs use ();                           >> aws_config.gpr
 echo type Boolean_Type is ("true", "false");           >> aws_config.gpr
@@ -106,16 +120,39 @@ echo type SOCKET_Type is ("std", "openssl", "gnutls"); >> aws_config.gpr
 echo SOCKET : SOCKET_Type := "%SOCKET%";               >> aws_config.gpr
 echo end AWS_Config;                                   >> aws_config.gpr
 
-cd ..\..
+cd %ROOTDIR%
 
-rem ----------------------------------------------- BUILD
+rem ----------------------------------------------- MINIMAL BUILD (awsres)
 :build
+echo Build step 1 (minimal)
+
+mkdir %CDIR%\src
+
+gprbuild -p %GPROPTS% -XLIBRARY_TYPE=static -XXMLADA_BUILD=static -XTO_BUILD=awsres.adb tools/tools.gpr
+if errorlevel 1 goto error
+
+rem ----------------------------------------------- SETUP TEMPLATES
+:setup
+echo Generate templates
+
+cd %ROOTDIR%\tools\wsdl2aws-templates
+
+%BDIR%\release\static\tools\awsres -r wsdl2aws_templates -o %CDIR%\src *.tads *.tadb *.macros
+
+rem ----------------------------------------------- FULL BUILD
+echo build step 2 (full)
+
+cd %ROOTDIR%
+
 gprbuild -p %GPROPTS% -XLIBRARY_TYPE=static -XXMLADA_BUILD=static tools/tools.gpr
 if errorlevel 1 goto error
+
 gprbuild -p %GPROPTS% -XLIBRARY_TYPE=relocatable -XXMLADA_BUILD=relocatable aws.gpr
 if errorlevel 1 goto error
 
 rem ----------------------------------------------- INSTALL
+echo Install in %1
+
 :install
 gprinstall --prefix=%1 -p -f %GPROPTS% -XLIBRARY_TYPE=static -XXMLADA_BUILD=static aws.gpr
 if errorlevel 1 goto error
@@ -140,7 +177,7 @@ rem ----------------------------------------------- ERROR
 :error
 echo Couldn't build or install AWS
 chdir /d %ROOTDIR%
-rmdir /S /Q .build
+rmdir /S /Q %TARGET%
 exit /b 1
 
 rem ----------------------------------------------- EXIT
