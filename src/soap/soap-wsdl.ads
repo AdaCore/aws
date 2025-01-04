@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2003-2024, AdaCore                     --
+--                     Copyright (C) 2003-2025, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -41,7 +41,7 @@ package SOAP.WSDL is
    --  Load and parse a WSDL document and return the XML tree representation
 
    type Parameter_Type is
-     (P_Long, P_Integer, P_Short, P_Byte, P_Float, P_Double, P_Decimal,
+     (P_Long, P_Int, P_Integer, P_Short, P_Byte, P_Float, P_Double, P_Decimal,
       P_String, P_Normalized_String, P_Token,
       P_Character, P_Boolean, P_Date_Time, P_Date, P_Time,
       P_B64, P_Unsigned_Long, P_Unsigned_Int,

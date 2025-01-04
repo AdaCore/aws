@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2000-2024, AdaCore                     --
+--                     Copyright (C) 2000-2025, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -64,7 +64,7 @@ package body SOAP.Message.XML is
 
    type Type_State is
      (Void, T_Undefined, T_Any_Type, T_Any_URI,
-      T_Int, T_Float, T_Double, T_Long, T_Short, T_Byte,
+      T_Int, T_Integer, T_Float, T_Double, T_Long, T_Short, T_Byte,
       T_Unsigned_Long, T_Unsigned_Int, T_Unsigned_Short, T_Unsigned_Byte,
       T_String, T_Boolean, T_Time_Instant, T_Date_Time, T_Date, T_Time,
       T_Duration, T_Decimal, T_Base64, T_Base64_Bin, T_Enum,
@@ -156,6 +156,11 @@ package body SOAP.Message.XML is
       N         : DOM.Core.Node) return Types.Object'Class;
 
    function Parse_Int
+     (Name      : String;
+      Type_Name : String;
+      N         : DOM.Core.Node) return Types.Object'Class;
+
+   function Parse_Integer
      (Name      : String;
       Type_Name : String;
       N         : DOM.Core.Node) return Types.Object'Class;
@@ -324,6 +329,8 @@ package body SOAP.Message.XML is
                    (Types.XML_Long'Access, Parse_Long'Access, False),
                  T_Int               =>
                    (Types.XML_Int'Access, Parse_Int'Access, False),
+                 T_Integer           =>
+                   (Types.XML_Integer'Access, Parse_Integer'Access, False),
                  T_Short             =>
                    (Types.XML_Short'Access, Parse_Short'Access, False),
                  T_Byte              =>
@@ -1322,6 +1329,21 @@ package body SOAP.Message.XML is
    begin
       return Types.I (Integer'Value (Node_Value (Value)), Name, Type_Name);
    end Parse_Int;
+
+   -------------------
+   -- Parse_Integer --
+   -------------------
+
+   function Parse_Integer
+     (Name      : String;
+      Type_Name : String;
+      N         : DOM.Core.Node) return Types.Object'Class
+   is
+      Value : constant DOM.Core.Node := First_Child (N);
+   begin
+      return Types.BI
+        (Types.Big_Integer'Value (Node_Value (Value)), Name, Type_Name);
+   end Parse_Integer;
 
    ----------------
    -- Parse_Long --

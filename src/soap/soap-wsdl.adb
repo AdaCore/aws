@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2003-2024, AdaCore                     --
+--                     Copyright (C) 2003-2025, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -83,6 +83,11 @@ package body SOAP.WSDL is
         or else L_Type = "long_integer"
         or else L_Type = "natural"
         or else L_Type = "positive"
+      then
+         Result := P_Int;
+
+      elsif L_Type = "big_integer"
+        or else L_Type = "soap.types.big_integer"
       then
          Result := P_Integer;
 
@@ -166,7 +171,8 @@ package body SOAP.WSDL is
          when P_Normalized_String => return "string";
          when P_Token             => return "string";
          when P_Long              => return "long";
-         when P_Integer           => return "int";
+         when P_Int               => return "int";
+         when P_Integer           => return "big_integer";
          when P_Short             => return "short";
          when P_Byte              => return "byte";
          when P_Float             => return "float";
@@ -207,8 +213,8 @@ package body SOAP.WSDL is
          when P_Character =>
             return "SOAP.Utils.Get";
 
-         when P_Long | P_Integer | P_Short | P_Byte | P_Double | P_Float
-            | P_Boolean | P_Date_Time | P_Date | P_Time
+         when P_Long | P_Int | P_Integer | P_Short | P_Byte | P_Double
+            | P_Float | P_Boolean | P_Date_Time | P_Date | P_Time
             | P_B64 | P_Any_Type | P_Any_URI | P_Unsigned_Long | P_Decimal
             | P_Unsigned_Int | P_Unsigned_Short | P_Unsigned_Byte | P_Duration
             | P_Normalized_String | P_Token
@@ -273,7 +279,8 @@ package body SOAP.WSDL is
    begin
       case P is
          when P_Long              => return "SOAP.Types.L";
-         when P_Integer           => return "SOAP.Types.I";
+         when P_Int               => return "SOAP.Types.I";
+         when P_Integer           => return "SOAP.Types.BI";
          when P_Short             => return "SOAP.Types.S";
          when P_Byte              => return "SOAP.Types.B";
          when P_Float             => return "SOAP.Types.F";
@@ -332,6 +339,7 @@ package body SOAP.WSDL is
    begin
       case P is
          when P_Long              => return "SOAP.Types.XSD_Long";
+         when P_Int               => return "SOAP.Types.XSD_Int";
          when P_Integer           => return "SOAP.Types.XSD_Integer";
          when P_Short             => return "SOAP.Types.XSD_Short";
          when P_Byte              => return "SOAP.Types.XSD_Byte";
@@ -367,7 +375,8 @@ package body SOAP.WSDL is
    begin
       case P is
          when P_Long               => return "SOAP.Types.Long";
-         when P_Integer            => return "Integer";
+         when P_Int                => return "Integer";
+         when P_Integer            => return "SOAP.Types.Big_Integer";
          when P_Short              => return "SOAP.Types.Short";
          when P_Byte               => return "SOAP.Types.Byte";
          when P_Float              => return "Float";
@@ -436,7 +445,10 @@ package body SOAP.WSDL is
       elsif L_Type = "long" then
          Result := P_Long;
 
-      elsif L_Type = "integer" or else L_Type = "int" then
+      elsif L_Type = "int" then
+         Result := P_Int;
+
+      elsif L_Type = "integer" then
          Result := P_Integer;
 
       elsif L_Type = "short" then
@@ -521,7 +533,8 @@ package body SOAP.WSDL is
    begin
       case P is
          when P_Long              => return XML_Long;
-         when P_Integer           => return XML_Int;
+         when P_Int               => return XML_Int;
+         when P_Integer           => return XML_Integer;
          when P_Short             => return XML_Short;
          when P_Byte              => return XML_Byte;
          when P_Float             => return XML_Float;
@@ -565,8 +578,8 @@ package body SOAP.WSDL is
          when P_Character =>
             return "SOAP.Utils.V";
 
-         when P_Long | P_Integer | P_Short | P_Byte | P_Double | P_Float
-            | P_Boolean | P_Date_Time | P_Date | P_Time | P_Any_URI
+         when P_Long | P_Int | P_Integer | P_Short | P_Byte | P_Double
+            | P_Float | P_Boolean | P_Date_Time | P_Date | P_Time | P_Any_URI
             | P_B64 | P_Unsigned_Long | P_Unsigned_Int | P_Decimal
             | P_Unsigned_Short | P_Unsigned_Byte | P_Any_Type | P_Duration
               =>
