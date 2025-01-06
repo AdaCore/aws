@@ -16,7 +16,7 @@ include:
 
 # Native testing
 test-native:
-  extends: ".test:linux:":
+  extends: ".test:linux:"
   variables:
     ANOD_TEST_ARGS: test aws -Qexternal
 
