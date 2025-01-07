@@ -1098,14 +1098,12 @@ package body SOAP.Message.XML is
       N         : DOM.Core.Node) return Types.Object'Class
    is
       Value : constant DOM.Core.Node := First_Child (N);
+      V     : constant String :=
+                Ada.Characters.Handling.To_Lower (Node_Value (Value));
    begin
-      if Node_Value (Value) = "1"
-        or else Node_Value (Value) = "true"
-        or else Node_Value (Value) = "TRUE"
-      then
+      if V = "1" or else V = "true" then
          return Types.B (True, Name);
       else
-         --  ??? we should check for wrong boolean value
          return Types.B (False, Name, Type_Name);
       end if;
    end Parse_Boolean;
