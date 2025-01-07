@@ -1179,7 +1179,7 @@ package body WSDL2AWS.WSDL.Parser is
             --  Check for array's element name
 
             declare
-               E   : DOM.Core.Node := R;
+               E : DOM.Core.Node := R;
             begin
                while E /= null loop
                   declare
@@ -1190,11 +1190,11 @@ package body WSDL2AWS.WSDL.Parser is
                         Ref := Get_Element_Ref (E, Document);
                         D.E_Name := To_Unbounded_String
                           (SOAP.XML.Get_Attr_Value (Ref, "name", False));
-                     end if;
-                     --  ??? esle !!!
-                     if NN = "annotation" then
+
+                     elsif NN = "annotation" then
                         --  Skip this node
                         E := SOAP.XML.Next_Sibling (E);
+
                      else
                         E := SOAP.XML.First_Child (E);
                      end if;
