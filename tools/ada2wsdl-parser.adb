@@ -1,7 +1,7 @@
 ----------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2003-2024, AdaCore                     --
+--                     Copyright (C) 2003-2025, AdaCore                     --
 --                                                                          --
 --  This is free software;  you can redistribute it  and/or modify it       --
 --  under terms of the  GNU General Public License as published  by the     --
@@ -2018,11 +2018,17 @@ package body Ada2WSDL.Parser is
       function Build_Integer
         (Node : Base_Type_Decl) return Generator.Type_Data
       is
+         T_Name   : constant String := Characters.Handling.To_Lower (Name);
          Ilb, Iub : Internal_Integer;
       begin
          Get_Range (Node, Ilb, Iub);
 
-         if Base then
+         --  Special case for SOAP.Types
+
+         if T_Name = "soap.types.big_integer" then
+            return Build_Type ("big_integer");
+
+         elsif Base then
             if Ilb = Internal_Integer (SOAP.Types.Byte'First)
               and then Iub = Internal_Integer (SOAP.Types.Byte'Last)
             then

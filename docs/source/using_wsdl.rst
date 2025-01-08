@@ -157,6 +157,9 @@ document. In this section we describe the mapping between Ada and
 *Integer*
   Mapped to **xsd:int**.
 
+*SOAP.Types.Big_Integer*
+  Mapped to **xsd:integer**
+
 *Float*
   Mapped to **xsd:float**.
 

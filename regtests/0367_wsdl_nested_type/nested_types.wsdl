@@ -1,0 +1,88 @@
+<?xml version="1.0"?>
+<definitions name="data"
+             xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+            xmlns="mycompany:mydataservice"
+            xmlns:mds="mycompany:mydataservice"
+            targetNamespace="mycompany:mydataservice"
+
+			xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/">
+
+  <types>
+
+<xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+            xmlns="mycompany:mydataservice"
+            xmlns:tx="mycompany:mydataservice"
+            targetNamespace="mycompany:mydataservice"
+            version="3.2"
+            elementFormDefault="qualified">
+
+	<xsd:element name="myDataService">
+		<xsd:annotation>
+			<xsd:documentation>Lorem ipsum dolor</xsd:documentation>
+		</xsd:annotation>
+		<xsd:complexType>
+			<xsd:choice>
+				<xsd:element name="myOutput" type="xsd:integer">
+					<xsd:annotation>
+						<xsd:documentation>Lorem ipsum dolor</xsd:documentation>
+					</xsd:annotation>
+				</xsd:element>
+				<xsd:element name="myIncludedData">
+					<xsd:complexType>
+						<xsd:choice>
+							<xsd:element name="intdInput" type="xsd:integer">
+								<xsd:annotation>
+									<xsd:documentation>Lorem ipsum dolor</xsd:documentation>
+								</xsd:annotation>
+							</xsd:element>
+							<xsd:element name="intdOutput" type="xsd:integer">
+								<xsd:annotation>
+									<xsd:documentation>Lorem ipsum dolor</xsd:documentation>
+								</xsd:annotation>
+							</xsd:element>
+						</xsd:choice>
+					</xsd:complexType>
+				</xsd:element>
+			</xsd:choice>
+		</xsd:complexType>
+	</xsd:element>
+</xsd:schema>
+
+
+  </types>
+
+  <message name="store">
+    <part name="body" element="mds:myDataService"/>
+  </message>
+
+  <message name="store_response">
+    <part name="body" element="mds:myDataService"/>
+  </message>
+
+  <portType name="data_port_type">
+    <operation name="store">
+      <input message="tns:store"/>
+      <output message="tns:store_response"/>
+    </operation>
+  </portType>
+
+  <binding name="data_binding" type="tns:data_port_type">
+    <soap:binding style="document" transport="http://schemas.xmlsoap.org/soap/http"/>
+    <operation name="store">
+      <soap:operation soapAction="store"/>
+      <input>
+        <soap:body use="literal"/>
+      </input>
+      <output>
+        <soap:body use="literal"/>
+      </output>
+    </operation>
+  </binding>
+
+  <service name="data_service">
+    <port name="data_port" binding="tns:data_binding">
+      <soap:address location="http://localhost:8080"/>
+    </port>
+  </service>
+
+</definitions>

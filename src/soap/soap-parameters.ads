@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2000-2024, AdaCore                     --
+--                     Copyright (C) 2000-2025, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -66,6 +66,11 @@ package SOAP.Parameters is
    function Get (P : List; Name : String) return Integer with Inline;
    --  Returns parameter named Name in P as an Integer value. Raises
    --  Types.Data_Error if this parameter does not exist or is not an Integer.
+
+   function Get (P : List; Name : String) return Types.Big_Integer with Inline;
+   --  Returns parameter named Name in P as a Big_Integer value. Raises
+   --  Types.Data_Error if this parameter does not exist or is not a
+   --  Big_Integer.
 
    function Get (P : List; Name : String) return Types.Short with Inline;
    --  Returns parameter named Name in P as a Short value. Raises

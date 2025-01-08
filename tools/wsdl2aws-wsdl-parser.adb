@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2003-2024, AdaCore                     --
+--                     Copyright (C) 2003-2025, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -951,6 +951,8 @@ package body WSDL2AWS.WSDL.Parser is
          L := SOAP.XML.First_Child (L);
       end if;
 
+      Skip_Annotation (L);
+
       if Local_Name (L) = "complexType" then
          L := SOAP.XML.First_Child (L);
 
@@ -983,6 +985,7 @@ package body WSDL2AWS.WSDL.Parser is
 
          if Local_Name (L) in "all" | "sequence" | "choice" then
             L := SOAP.XML.First_Child (L);
+            Skip_Annotation (L);
 
             --  If we have a single element we must ensure that there is no
             --  minOccurs or maxOccurs defined (or they are set to 1) otherwise
@@ -1393,6 +1396,7 @@ package body WSDL2AWS.WSDL.Parser is
         and then Local_Name (N) not in "complexType" | "simpleType" | "element"
       loop
          N := SOAP.XML.First_Child (N);
+         Skip_Annotation (N);
       end loop;
 
       if N = null then
@@ -1405,6 +1409,7 @@ package body WSDL2AWS.WSDL.Parser is
          Add_Parameter (O, Parse_Simple (O, CT_Node, Document));
 
       elsif Local_Name (N) = "element"
+        and then SOAP.XML.Get_Attr_Value (N, "type") /= ""
         and then
           (SOAP.XML.First_Child (N) = null
            or else Local_Name (SOAP.XML.First_Child (N)) = "annotation")
@@ -1460,6 +1465,8 @@ package body WSDL2AWS.WSDL.Parser is
                        with "cannot find definition for element " & ET;
                   end if;
                end if;
+
+               Skip_Annotation (N);
             end if;
 
             --  Enter complexType node
@@ -1479,7 +1486,6 @@ package body WSDL2AWS.WSDL.Parser is
             Add_Parameter (O, Parse_Record (O, CT_Node, Document));
 
          elsif Is_Array (O, CT_Node, Document) then
-
             Add_Parameter (O, Parse_Array (O, CT_Node, Document));
 
          else
@@ -1657,6 +1663,83 @@ package body WSDL2AWS.WSDL.Parser is
    is
       use all type SOAP.WSDL.Parameter_Type;
 
+      function Parse_Simple_Def
+        (E            : DOM.Core.Node; -- element node
+         D            : DOM.Core.Node; -- simpleType definition node
+         S_Min, S_Max : String;
+         Min          : Natural;
+         Max          : Natural;
+         P_Name       : String) return Parameters.Parameter;
+
+      function Parse_Complex_Def
+        (E            : DOM.Core.Node; -- element node
+         D            : DOM.Core.Node; -- simpleType definition node
+         S_Min, S_Max : String;
+         Min          : Natural;
+         Max          : Natural;
+         P_Name       : String) return Parameters.Parameter;
+      --  function Parse_Complex_Def
+      --    (Type_Name : String) return Parameters.Parameter;
+      --  Parse a simpleType or complexType with the given type
+      --  name if given.
+
+      -----------------------
+      -- Parse_Complex_Def --
+      -----------------------
+
+      function Parse_Complex_Def
+        (E            : DOM.Core.Node;
+         D            : DOM.Core.Node;
+         S_Min, S_Max : String;
+         Min          : Natural;
+         Max          : Natural;
+         P_Name       : String) return Parameters.Parameter is
+      begin
+         O.Self.Current_Name := +P_Name;
+
+         if Min <= 1 and then Max = 1 then
+            declare
+               P : Parameters.Parameter := Parse_Record (O, D, Document);
+            begin
+               P.Min := Min;
+               P.Max := Max;
+               return P;
+            end;
+
+         else
+            return Parse_Set (O, E, S_Min, S_Max, Document);
+         end if;
+      end Parse_Complex_Def;
+
+      ----------------------
+      -- Parse_Simple_Def --
+      ----------------------
+
+      function Parse_Simple_Def
+        (E            : DOM.Core.Node;
+         D            : DOM.Core.Node;
+         S_Min, S_Max : String;
+         Min          : Natural;
+         Max          : Natural;
+         P_Name       : String) return Parameters.Parameter is
+      begin
+         O.Self.Current_Name := +P_Name;
+
+         if Min <= 1 and then Max = 1 then
+            declare
+               P : Parameters.Parameter :=
+                     Parse_Simple (O, D, Document);
+            begin
+               P.Min := Min;
+               P.Max := Max;
+               return P;
+            end;
+
+         else
+            return Parse_Set (O, E, S_Min, S_Max, Document);
+         end if;
+      end Parse_Simple_Def;
+
       S_Min : constant String :=
                 SOAP.XML.Get_Attr_Value (N, "minOccurs", True);
       S_Max : constant String :=
@@ -1680,12 +1763,6 @@ package body WSDL2AWS.WSDL.Parser is
          P_Name : constant String := SOAP.XML.Get_Attr_Value (D, "name");
          P_Type : constant String := SOAP.XML.Get_Attr_Value (D, "type", True);
       begin
-         if P_Type = "" then
-            DOM.Core.Nodes.Print (D);
-            raise WSDL_Error
-              with "Unsupported element '" & P_Name & "' with anonymous type";
-         end if;
-
          if DOM.Core.Nodes.Has_Child_Nodes (D) then
             declare
                A : constant DOM.Core.Node := SOAP.XML.First_Child (D);
@@ -1698,6 +1775,33 @@ package body WSDL2AWS.WSDL.Parser is
 
                if A /= null then
                   D := A;
+               end if;
+            end;
+         end if;
+
+         if P_Type = "" then
+            declare
+               R : DOM.Core.Node := SOAP.XML.First_Child (E);
+            begin
+               while R /= null
+                 and then Local_Name (R) not in "simpleType" | "complexType"
+               loop
+                  R := SOAP.XML.Next_Sibling (R);
+               end loop;
+
+               if R = null then
+                  DOM.Core.Nodes.Print (D);
+                  raise WSDL_Error
+                    with "Unsupported element '"
+                           & P_Name & "' with anonymous type";
+
+               elsif Local_Name (R) = "simpleType" then
+                  return Parse_Simple_Def
+                    (E, R, S_Min, S_Max, Min, Max, P_Name);
+
+               elsif Local_Name (R) = "complexType" then
+                  return Parse_Complex_Def
+                    (E, R, S_Min, S_Max, Min, Max, P_Name);
                end if;
             end;
          end if;
@@ -1756,21 +1860,8 @@ package body WSDL2AWS.WSDL.Parser is
                        "types.schema definition for " & P_Type & " not found.";
 
                   else
-                     O.Self.Current_Name := +P_Name;
-
-                     if Min <= 1 and then Max = 1 then
-                        declare
-                           P : Parameters.Parameter :=
-                                 Parse_Simple (O, R, Document);
-                        begin
-                           P.Min := Min;
-                           P.Max := Max;
-                           return P;
-                        end;
-
-                     else
-                        return Parse_Set (O, E, S_Min, S_Max, Document);
-                     end if;
+                     return Parse_Simple_Def
+                       (E, R, S_Min, S_Max, Min, Max, P_Name);
                   end if;
                end if;
 
@@ -1785,21 +1876,8 @@ package body WSDL2AWS.WSDL.Parser is
                   end;
 
                else
-                  O.Self.Current_Name := +P_Name;
-
-                  if Min <= 1 and then Max = 1 then
-                     declare
-                        P : Parameters.Parameter :=
-                              Parse_Record (O, R, Document);
-                     begin
-                        P.Min := Min;
-                        P.Max := Max;
-                        return P;
-                     end;
-
-                  else
-                     return Parse_Set (O, E, S_Min, S_Max, Document);
-                  end if;
+                  return Parse_Complex_Def
+                    (E, R, S_Min, S_Max, Min, Max, P_Name);
                end if;
             end;
          end if;
@@ -2158,22 +2236,32 @@ package body WSDL2AWS.WSDL.Parser is
 
       declare
          use type SOAP.WSDL.Schema.Binding_Style;
-         Name : constant String := SOAP.XML.Get_Attr_Value (N, "name", False);
+         Name   : constant String :=
+                    SOAP.XML.Get_Attr_Value (N, "name", False);
+         T_Name : constant String :=
+                    (if Name = ""
+                     then To_String (O.Current_Name)
+                     else Name);
+         --  T_Name is the name of the type. If the "name" attribute is not
+         --  defined we use the current element name as set while parsing
+         --  before coming there. This happens for nested complexType in
+         --  element nodes in the schema.
       begin
          --  Set record name, R is a complexType or element node
 
          P.Name       := O.Current_Name;
          P.Elmt_Name  := O.Elmt_Name;
-         P.Typ        := Types.Create (Name, Get_Target_Name_Space (N));
+         P.Typ        := Types.Create (T_Name, Get_Target_Name_Space (N));
 
-         D.Ref        := Types.Create (Name, Types.NS (P.Typ));
+         D.Ref        := Types.Create (T_Name, Types.NS (P.Typ));
          D.Has_Choice := False;
 
-         O.Self.Enclosing_Types.Include (Name);
+         O.Self.Enclosing_Types.Include (T_Name);
 
          if Local_Name (R) = "element" then
             --  Skip enclosing element
             N := SOAP.XML.First_Child (R);
+            Skip_Annotation (N);
 
             --  This is the case where a complexType is directly put inside
             --  an enclosing element. In this case, and only for the Document
@@ -2182,7 +2270,7 @@ package body WSDL2AWS.WSDL.Parser is
             --  while parsing the part.
 
             if O.Style = SOAP.WSDL.Schema.Document then
-               P.Name := To_Unbounded_String (Name);
+               P.Name := To_Unbounded_String (T_Name);
             end if;
 
          else
@@ -2218,7 +2306,7 @@ package body WSDL2AWS.WSDL.Parser is
             end loop;
          end;
 
-         O.Enclosing_Types.Exclude (Name);
+         O.Enclosing_Types.Exclude (T_Name);
 
          return P;
       end;

@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2001-2024, AdaCore                     --
+--                     Copyright (C) 2001-2025, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -366,24 +366,46 @@ package SOAP.Types is
 
    function V (O : XSD_Decimal) return Decimal;
 
-   -------------
-   -- Integer --
-   -------------
+   ---------
+   -- Int --
+   ---------
 
    XML_Int : aliased constant String := "xsd:int";
 
-   type XSD_Integer is new Scalar with private;
+   type XSD_Int is new Scalar with private;
 
-   overriding function Image (O : XSD_Integer) return String;
+   overriding function Image (O : XSD_Int) return String;
 
    function I
      (V         : Integer;
       Name      : String := "item";
       Type_Name : String := XML_Int;
       NS        : Name_Space.Object := Name_Space.No_Name_Space)
+      return XSD_Int;
+
+   function V (O : XSD_Int) return Integer;
+
+   -------------
+   -- Integer --
+   -------------
+
+   type Big_Integer is range -2**63 .. 2**63 - 1;
+   --  ??? should be replaced by a Big_Integer when migrating to Ada2022
+
+   XML_Integer : aliased constant String := "xsd:integer";
+
+   type XSD_Integer is new Scalar with private;
+
+   overriding function Image (O : XSD_Integer) return String;
+
+   function BI
+     (V         : Big_Integer;
+      Name      : String := "item";
+      Type_Name : String := XML_Integer;
+      NS        : Name_Space.Object := Name_Space.No_Name_Space)
       return XSD_Integer;
 
-   function V (O : XSD_Integer) return Integer;
+   function V (O : XSD_Integer) return Big_Integer;
 
    ----------
    -- Long --
@@ -781,6 +803,10 @@ package SOAP.Types is
    --  Returns O value as an Integer. Raises Data_Error if O is not a SOAP
    --  Integer.
 
+   function Get (O : Object'Class) return Big_Integer;
+   --  Returns O value as a Big_Integer. Raises Data_Error if O is not a SOAP
+   --  Big_Integer.
+
    function Get (O : Object'Class) return Short;
    --  Returns O value as a Short. Raises Data_Error if O is not a SOAP
    --  Short.
@@ -934,6 +960,10 @@ private
    end record;
 
    type XSD_Integer is new Scalar with record
+      V : Big_Integer;
+   end record;
+
+   type XSD_Int is new Scalar with record
       V : Integer;
    end record;
 

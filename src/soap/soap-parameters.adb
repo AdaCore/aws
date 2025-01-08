@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2000-2024, AdaCore                     --
+--                     Copyright (C) 2000-2025, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -259,6 +259,11 @@ package body SOAP.Parameters is
    end Get;
 
    function Get (P : List; Name : String) return Integer is
+   begin
+      return Types.Get (Argument (P, Name));
+   end Get;
+
+   function Get (P : List; Name : String) return Types.Big_Integer is
    begin
       return Types.Get (Argument (P, Name));
    end Get;

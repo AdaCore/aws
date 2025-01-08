@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2000-2022, AdaCore                     --
+--                     Copyright (C) 2000-2025, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -362,8 +362,16 @@ package SOAP.Utils is
       Name      : String := "item";
       Type_Name : String := SOAP.Types.XML_Int;
       NS        : Name_Space.Object := Name_Space.No_Name_Space)
-      return SOAP.Types.XSD_Integer
+      return SOAP.Types.XSD_Int
       renames SOAP.Types.I;
+
+   function To_SOAP_Object
+     (V         : SOAP.Types.Big_Integer;
+      Name      : String := "item";
+      Type_Name : String := SOAP.Types.XML_Integer;
+      NS        : Name_Space.Object := Name_Space.No_Name_Space)
+      return SOAP.Types.XSD_Integer
+      renames SOAP.Types.BI;
 
    function To_SOAP_Object
      (V         : SOAP.Types.Long;

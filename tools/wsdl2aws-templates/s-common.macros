@@ -6,6 +6,8 @@
 @@MACRO(SET_TYPE)@@
 @@IF@@ @_$1_@ = P_LONG
 SOAP.Types.XSD_Long
+@@ELSIF@@ @_$1_@ = P_INT
+SOAP.Types.XSD_Int
 @@ELSIF@@ @_$1_@ = P_INTEGER
 SOAP.Types.XSD_Integer
 @@ELSIF@@ @_$1_@ = P_SHORT
@@ -60,8 +62,10 @@ SOAP.Types.XSD_Any_URI
 @@MACRO(ADA_TYPE)@@
 @@IF@@ @_$1_@ = P_LONG
 Long
-@@ELSIF@@ @_$1_@ = P_INTEGER
+@@ELSIF@@ @_$1_@ = P_INT
 Integer
+@@ELSIF@@ @_$1_@ = P_INTEGER
+Big_Integer
 @@ELSIF@@ @_$1_@ = P_SHORT
 Short
 @@ELSIF@@ @_$1_@ = P_BYTE
@@ -111,7 +115,7 @@ Unsupported
 @@----------------------------------------------------------------------
 @@--
 @@MACRO(QUALIFIED_ADA_TYPE)@@
-@@IF@@ (@_$1_@ = P_LONG) or (@_$1_@ = P_UNSIGNED_LONG) or (@_$1_@ = P_UNSIGNED_INT) or (@_$1_@ = P_UNSIGNED_SHORT) or (@_$1_@ = P_UNSIGNED_BYTE) or (@_$1_@ = P_DATE_TIME) or (@_$1_@ = P_DATE) or (@_$1_@ = P_TIME) or (@_$1_@ = P_DOUBLE) or (@_$1_@ = P_DECIMAL) or (@_$1_@ = P_SHORT) or (@_$1_@ = P_BYTE)
+@@IF@@ (@_$1_@ = P_LONG) or (@_$1_@ = P_UNSIGNED_LONG) or (@_$1_@ = P_UNSIGNED_INT) or (@_$1_@ = P_UNSIGNED_SHORT) or (@_$1_@ = P_UNSIGNED_BYTE) or (@_$1_@ = P_DATE_TIME) or (@_$1_@ = P_DATE) or (@_$1_@ = P_TIME) or (@_$1_@ = P_DOUBLE) or (@_$1_@ = P_DECIMAL) or (@_$1_@ = P_SHORT) or (@_$1_@ = P_BYTE) or (@_$1_@ = P_INTEGER)
 SOAP.Types.@_ADA_TYPE(@_$1_@)_@
 @@ELSE@@
 @_ADA_TYPE(@_$1_@)_@

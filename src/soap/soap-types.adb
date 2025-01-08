@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2000-2024, AdaCore                     --
+--                     Copyright (C) 2000-2025, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -226,6 +226,24 @@ package body SOAP.Types is
          with To_Unbounded_String (Name), To_Unbounded_String (Type_Name),
               NS, To_Unbounded_String (V));
    end B64;
+
+   --------
+   -- BI --
+   --------
+
+   function BI
+     (V         : Big_Integer;
+      Name      : String := "item";
+      Type_Name : String := XML_Integer;
+      NS        : SOAP.Name_Space.Object := SOAP.Name_Space.No_Name_Space)
+      return XSD_Integer is
+   begin
+      return
+        (Finalization.Controlled
+         with To_Unbounded_String (Name),
+              To_Unbounded_String (Type_Name),
+              NS, V);
+   end BI;
 
    -------
    -- D --
@@ -465,8 +483,8 @@ package body SOAP.Types is
    function Get (O : Object'Class) return Integer is
       use type Ada.Tags.Tag;
    begin
-      if O'Tag = Types.XSD_Integer'Tag then
-         return V (XSD_Integer (O));
+      if O'Tag = Types.XSD_Int'Tag then
+         return V (XSD_Int (O));
 
       elsif O'Tag = Types.XSD_Null'Tag
         and then O.Type_Name = XML_Int
@@ -482,12 +500,41 @@ package body SOAP.Types is
          end;
 
       elsif O'Tag = Types.XSD_Any_Type'Tag
+        and then XSD_Any_Type (O).O.O'Tag = Types.XSD_Int'Tag
+      then
+         return V (XSD_Int (XSD_Any_Type (O).O.O.all));
+
+      else
+         Get_Error ("Integer", O);
+      end if;
+   end Get;
+
+   function Get (O : Object'Class) return Big_Integer is
+      use type Ada.Tags.Tag;
+   begin
+      if O'Tag = Types.XSD_Integer'Tag then
+         return V (XSD_Integer (O));
+
+      elsif O'Tag = Types.XSD_Null'Tag
+        and then O.Type_Name = XML_Integer
+      then
+         return 0;
+
+      elsif O'Tag = Types.Untyped.Untyped'Tag then
+         begin
+            return Big_Integer'Value (V (XSD_String (O)));
+         exception
+            when others =>
+               Get_Error ("Big_Integer", O);
+         end;
+
+      elsif O'Tag = Types.XSD_Any_Type'Tag
         and then XSD_Any_Type (O).O.O'Tag = Types.XSD_Integer'Tag
       then
          return V (XSD_Integer (XSD_Any_Type (O).O.O.all));
 
       else
-         Get_Error ("Integer", O);
+         Get_Error ("Big_Integer", O);
       end if;
    end Get;
 
@@ -1012,7 +1059,7 @@ package body SOAP.Types is
       Name      : String := "item";
       Type_Name : String := XML_Int;
       NS        : SOAP.Name_Space.Object := SOAP.Name_Space.No_Name_Space)
-      return XSD_Integer is
+      return XSD_Int is
    begin
       return
         (Finalization.Controlled
@@ -1051,8 +1098,18 @@ package body SOAP.Types is
       end if;
    end Image;
 
-   overriding function Image (O : XSD_Integer) return String is
+   overriding function Image (O : XSD_Int) return String is
       V : constant String := Integer'Image (O.V);
+   begin
+      if O.V >= 0 then
+         return V (V'First + 1 .. V'Last);
+      else
+         return V;
+      end if;
+   end Image;
+
+   overriding function Image (O : XSD_Integer) return String is
+      V : constant String := Big_Integer'Image (O.V);
    begin
       if O.V >= 0 then
          return V (V'First + 1 .. V'Last);
@@ -1885,7 +1942,12 @@ package body SOAP.Types is
       return O.V;
    end V;
 
-   function V (O : XSD_Integer) return Integer is
+   function V (O : XSD_Integer) return Big_Integer is
+   begin
+      return O.V;
+   end V;
+
+   function V (O : XSD_Int) return Integer is
    begin
       return O.V;
    end V;

@@ -1,0 +1,18 @@
+Service WSDL_I_Service
+
+
+Procedure Call SOAPAction:Call
+   Input
+      [simple] AI ; Integer
+      [simple] BI ; SOAP.Types.Big_Integer
+   Output
+   > Call
+=========== client
++         SOAP.Types.XSD_Int'(SOAP.Utils.To_SOAP_Object (AI, "AI", "xsd:int"))
+&          SOAP.Types.XSD_Integer'(SOAP.Utils.To_SOAP_Object (BI, "BI", "xsd:integer"));
+=========== server
+AI : constant Integer :=
+BI : constant SOAP.Types.Big_Integer :=
+=========== types
+Schema.Insert ("Call.AI@is_a", "xsd:int");
+Schema.Insert ("Call.BI@is_a", "xsd:integer");
