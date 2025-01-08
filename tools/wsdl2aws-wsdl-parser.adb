@@ -1193,14 +1193,13 @@ package body WSDL2AWS.WSDL.Parser is
                         Ref := Get_Element_Ref (E, Document);
                         D.E_Name := To_Unbounded_String
                           (SOAP.XML.Get_Attr_Value (Ref, "name", False));
-
-                     elsif NN = "annotation" then
-                        --  Skip this node
-                        E := SOAP.XML.Next_Sibling (E);
-
-                     else
-                        E := SOAP.XML.First_Child (E);
                      end if;
+
+                     --  Move to next node
+
+                     E := (if NN = "annotation"
+                           then SOAP.XML.Next_Sibling (E)
+                           else SOAP.XML.First_Child (E));
                   end;
                end loop;
             end;
