@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                       Copyright (C) 2018, AdaCore                        --
+--                     Copyright (C) 2018-2025, AdaCore                     --
 --                                                                          --
 --  This is free software;  you can redistribute it  and/or modify it       --
 --  under terms of the  GNU General Public License as published  by the     --
@@ -21,7 +21,7 @@ with Ada.Strings.Unbounded;
 
 with AWS.Config.Set;
 with AWS.Response;
-with AWS.Server;
+with AWS.Server.Status;
 with AWS.Status;
 with SOAP.Dispatchers.Callback;
 
@@ -32,6 +32,7 @@ with AWS_Test_Service.Server;
 procedure WSDL_Array_Rec_Param is
 
    use Ada.Text_IO;
+   use Ada.Strings.Unbounded;
    use AWS;
 
    function CB (Request : Status.Data) return Response.Data is
@@ -47,8 +48,7 @@ procedure WSDL_Array_Rec_Param is
 begin
    --  Start server
 
-   Config.Set.Server_Port
-     (Conf, AWS_Test_Service.Server.Port);
+   Config.Set.Server_Port (Conf, 0);
    Config.Set.Server_Host (Conf, "localhost");
 
    Disp := SOAP.Dispatchers.Callback.Create
@@ -62,16 +62,19 @@ begin
 
    Put_Line ("==========");
    Put_Line (AWS_Test_Service.Client.Get_Test_Name
-     ((5, 5.0, Ada.Strings.Unbounded.To_Unbounded_String ("REC"))));
+               ((5, 5.0, To_Unbounded_String ("REC")),
+                Endpoint => Server.Status.Local_URL (WS)));
 
    Put_Line ("==========");
    Put_Line (AWS_Test_Service.Client.Get_Test_Name2
-     ((1 => ((6, 6.1, Ada.Strings.Unbounded.To_Unbounded_String ("ARR1"))))));
+               ((1 => ((6, 6.1, To_Unbounded_String ("ARR1")))),
+                Endpoint => Server.Status.Local_URL (WS)));
 
    Put_Line ("==========");
    Put_Line (AWS_Test_Service.Client.Get_Test_Name2
-     ((1 => ((6, 6.1, Ada.Strings.Unbounded.To_Unbounded_String ("ARR2"))),
-       2 => ((7, 7.2, Ada.Strings.Unbounded.To_Unbounded_String ("ARR3"))))));
+               ((1 => ((6, 6.1, To_Unbounded_String ("ARR2"))),
+                 2 => ((7, 7.2, To_Unbounded_String ("ARR3")))),
+                Endpoint => Server.Status.Local_URL (WS)));
 
    AWS.Server.Shutdown (WS);
 end WSDL_Array_Rec_Param;
