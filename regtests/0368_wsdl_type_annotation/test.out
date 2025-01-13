@@ -1,0 +1,10 @@
+Service InWebservice
+
+
+Procedure call SOAPAction:http://org.call/call
+   Input
+      [record] call ; call
+         [simple] f1 ; Integer
+   Output
+      [record] VoidType ; VoidType
+   > call

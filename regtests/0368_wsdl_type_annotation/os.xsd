@@ -1,0 +1,30 @@
+<?xml  version='1.0' encoding='utf-8' ?>
+<xs:schema
+    targetNamespace="http://repro/services/os"
+    xmlns:xs="http://www.w3.org/2001/XMLSchema"
+    xmlns="http://repro/services/os"
+    >
+	<xs:annotation>
+		<xs:documentation>OS doc</xs:documentation>
+	</xs:annotation>
+
+	<xs:element name="obc" type="obc"/>
+	<xs:complexType name="obc">
+		<xs:complexContent>
+			<xs:extension base="obm">
+				<xs:sequence/>
+			</xs:extension>
+		</xs:complexContent>
+	</xs:complexType>
+
+
+	<xs:element name="obm" type="obm"/>
+	<xs:complexType name="obm">
+		<xs:complexContent>
+				<xs:sequence>
+					<xs:element name="f1" type="xs:int"/>
+				</xs:sequence>
+		</xs:complexContent>
+	</xs:complexType>
+
+</xs:schema>

@@ -1,0 +1,15 @@
+<?xml  version='1.0' encoding='utf-8' ?>
+<xs:schema
+    targetNamespace="http://repro/base/pmt"
+    xmlns:xs="http://www.w3.org/2001/XMLSchema"
+    xmlns="http://repro/base/pmt"
+    xmlns:prm="http://repro/base/pmt">
+	<xs:annotation>
+		<xs:documentation>Prim doc</xs:documentation>
+	</xs:annotation>
+
+	<xs:element name="VoidType" type="VoidType"/>
+	<xs:complexType name="VoidType">
+		<xs:sequence/>
+	</xs:complexType>
+</xs:schema>

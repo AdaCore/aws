@@ -2282,12 +2282,13 @@ package body WSDL2AWS.WSDL.Parser is
             N := SOAP.XML.First_Child (N);
 
             if N /= null then
-               if Local_Name (N) = "complexContent" then
-                  Parse_Complex_Content (P, N);
-
-               elsif Local_Name (N) = "annotation" then
+               if Local_Name (N) = "annotation" then
                   Append (P.Doc, Get_Documentation (SOAP.XML.First_Child (N)));
                   N := SOAP.XML.Next_Sibling (N);
+               end if;
+
+               if Local_Name (N) = "complexContent" then
+                  Parse_Complex_Content (P, N);
                end if;
             end if;
          end if;
