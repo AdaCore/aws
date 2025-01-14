@@ -1,0 +1,27 @@
+<?xml  version='1.0' encoding='utf-8' ?>
+<xs:schema
+    targetNamespace="http://repro/ai"
+    xmlns:xs="http://www.w3.org/2001/XMLSchema"
+    xmlns="http://repro/ai"
+    xmlns:oss="http://repro/services/os"
+    >
+	<xs:annotation>
+		<xs:documentation>xsd doc</xs:documentation>
+	</xs:annotation>
+
+	<xs:import
+            namespace="http://repro/services/os"
+            schemaLocation="os.xsd"/>
+
+	<xs:element name="call" type="call"/>
+	<xs:complexType name="call">
+		<xs:annotation>
+			<xs:documentation>The doc</xs:documentation>
+		</xs:annotation>
+		<xs:complexContent>
+			<xs:extension base="oss:obc">
+				<xs:sequence/>
+			</xs:extension>
+		</xs:complexContent>
+	</xs:complexType>
+</xs:schema>
