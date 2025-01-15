@@ -7,6 +7,9 @@
 --
 --  $ wsdl2aws @_OPTIONS_@
 
+pragma Warnings (Off);
+pragma Style_Checks (Off);
+
 @@IF@@ not @_IS_EMPTY:NS_NAME_@
 with SOAP.Name_Space;
 
@@ -15,7 +18,6 @@ package @_UNIT_NAME_@ is
 @@IF@@ @_IS_EMPTY:NS_NAME_@
    pragma Pure;
 @@ELSE@@
-   pragma Style_Checks (Off);
    Name_Space : constant SOAP.Name_Space.Object :=
                   SOAP.Name_Space.Create
                     ("@_NS_NAME_@", "@_NS_VALUE_@");

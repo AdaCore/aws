@@ -7,6 +7,9 @@
 --
 --  $ wsdl2aws @_OPTIONS_@
 
+pragma Warnings (Off);
+pragma Style_Checks (Off);
+
 with AWS.Config.Set;
 with AWS.Server;
 with AWS.Status;
