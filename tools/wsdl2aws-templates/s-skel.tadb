@@ -74,6 +74,9 @@ To_@_IP_ADA_TYPE_@ (To_@_IP_BASE_TYPE_@_Type (@_QUALIFIED_ADA_TYPE(@_IP_ROOT_TYP
 @@END_MACRO@@
 @@-- ---------------------------------------------------------------------
 @@--
+pragma Warnings (Off);
+pragma Style_Checks (Off);
+
 with Ada.Exceptions;
 with Ada.Strings.Unbounded;
 with SOAP.Message.Response.Error;
@@ -99,7 +102,6 @@ package body @_UNIT_NAME_@.Server is
    use Ada.Text_IO;
 @@END_IF@@
 
-   pragma Style_Checks (Off);
 @@TABLE@@
 
    --

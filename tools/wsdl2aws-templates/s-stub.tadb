@@ -8,6 +8,9 @@
 --  $ wsdl2aws @_OPTIONS_@
 @@INCLUDE@@ s-common.macros
 @@--
+pragma Warnings (Off);
+pragma Style_Checks (Off);
+
 with Ada.Exceptions;
 
 with SOAP.Client;
@@ -45,7 +48,6 @@ package body @_UNIT_NAME_@.Client is
    use SOAP.Client.Callback;
 @@END_IF@@
 
-   pragma Style_Checks (Off);
 @@TABLE@@
 
    --

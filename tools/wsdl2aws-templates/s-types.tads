@@ -7,6 +7,9 @@
 --
 --  $ wsdl2aws @_OPTIONS_@
 
+pragma Warnings (Off);
+pragma Style_Checks (Off);
+
 with Ada.Calendar;
 with Ada.Containers.Vectors;
 with Ada.Strings.Unbounded;
@@ -44,15 +47,6 @@ is
 @@TABLE@@
    use Standard.@_USER_UNITS_@;
 @@END_TABLE@@
-
-   pragma Warnings (Off, Ada.Calendar);
-   pragma Warnings (Off, Ada.Containers.Vectors);
-   pragma Warnings (Off, Ada.Strings.Unbounded);
-   pragma Warnings (Off, SOAP.Types);
-   pragma Warnings (Off, SOAP.Utils);
-   pragma Warnings (Off, GNAT.Regexp);
-
-   pragma Style_Checks (Off);
 
    use Ada.Strings.Unbounded;
 
