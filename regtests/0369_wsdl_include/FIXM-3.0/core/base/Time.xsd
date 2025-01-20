@@ -1,0 +1,254 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<schema
+   attributeFormDefault="unqualified"
+   elementFormDefault="unqualified"
+   targetNamespace="http://www.fixm.aero/base/3.0"
+   version="3.00"
+   xmlns="http://www.w3.org/2001/XMLSchema"
+   xmlns:fb="http://www.fixm.aero/base/3.0"
+   xmlns:ff="http://www.fixm.aero/foundation/3.0"
+   xmlns:xs="http://www.w3.org/2001/XMLSchema">
+   
+   <annotation>
+      <documentation>
+         Copyright (c) 2014 Airservices Australia, EUROCONTROL, JCAB, NATS Limited, NavCanada, 
+         SESAR Joint Undertaking &amp; US FAA 
+         =========================================== 
+         All rights reserved. 
+          
+         Redistribution and use in source and binary forms, with or without modification, 
+         are permitted 
+         provided that the following conditions are met: 
+         * Redistributions of source code must retain the above copyright notice, this list 
+         of conditions and 
+         the disclaimer. 
+         * Redistributions in binary form must reproduce the above copyright notice, this 
+         list of conditions 
+         and the disclaimer in the documentation and/or other materials provided with the 
+         distribution. 
+         * Neither the names of Airservices Australia, EUROCONTROL, JCAB, NATS Limited, NavCanada, 
+         
+         SESAR Joint Undertaking &amp; US FAA nor the names of their contributors may be used 
+         to endorse or 
+         promote products derived from this specification without specific prior written permission. 
+         
+          
+         DISCLAIMER 
+          
+         THIS SPECIFICATION IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" 
+         
+         AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED 
+         
+         WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE 
+         DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR 
+         ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES 
+         (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS 
+         
+         OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY 
+         THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING 
+         NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN 
+         
+         IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE. 
+          
+          
+         Editorial note: this license is an instance of the BSD license template as provided 
+         by the Open 
+         Source Initiative: 
+         http://www.opensource.org/licenses/bsd-license.php 
+          
+         The authoritative reference for FIXM is www.FIXM.aero. 
+          
+         Details on Airservices Australia: http://www.airservicesaustralia.com/ 
+         Details on EUROCONTROL: http://www.eurocontrol.int/ 
+         Details on JCAB: http://www.mlit.go.jp/en/koku/index.html 
+         Details on NATS Limited: http://www.nats.co.uk/ 
+         Details on NavCanada: http://www.navcanada.ca/ 
+         Details on the SESAR JU and its members: http://www.sesarju.eu/players/members 
+         Details on the US FAA: http://www.faa.gov/ 
+         Details on the US FAAs NextGen program: http://www.faa.gov/NextGen 
+      </documentation>
+   </annotation>
+   <include schemaLocation="./Feature.xsd"/>
+   <import namespace="http://www.fixm.aero/foundation/3.0" schemaLocation="./../foundation/Foundation.xsd"/>
+   <annotation>
+      <documentation>
+         The Base.Time schema provides representations for time elements. Schemas should use 
+         these representations in preference XSD representations. 
+      </documentation>
+   </annotation>
+
+   <complexType name="ExtendedMultiTimeType">
+      <annotation>
+         <documentation>
+            ExpandedMultiTime is an extension of TargetMultiTime and hence MultiTime that includes 
+            additional attributes of initial and controlled time for data that requires those 
+            additional time fields. 
+         </documentation>
+      </annotation>
+      <complexContent>
+         <extension base="fb:TargetMultiTimeType">
+            <sequence>
+               <element name="controlled" type="fb:ReportedTimeType" minOccurs="0" maxOccurs="1" nillable="true" > 
+                  <annotation>
+                     <documentation>
+                        Time specified by the controller of control program 
+                     </documentation>
+                  </annotation>
+               </element>
+               <element name="initial" type="fb:ReportedTimeType" minOccurs="0" maxOccurs="1" > 
+                  <annotation>
+                     <documentation>
+                        Time as first specified in the flight plan 
+                     </documentation>
+                  </annotation>
+               </element>
+            </sequence>
+         </extension>
+      </complexContent>
+   </complexType>
+   <element name="ExtendedMultiTime" type="fb:ExtendedMultiTimeType" substitutionGroup="fb:MultiTime" /> 
+
+   <complexType name="MultiTimeType">
+      <annotation>
+         <documentation>
+            MultiTime is a general-purpose structure that records a common pattern of flight 
+            time: 
+             
+            * estimated 
+            * actual 
+            * controlled 
+            * earliest 
+            * etc. 
+             
+            This base implementation of MultiTime contains only "actual" and "estimated" time 
+            values. It is assumed 
+            that users of MultiTime will extend it by adding attributes for the other time types 
+            that they need. It is recommended that these extensions also use cardinality 0..1 
+            for new time elements. 
+             
+            Each of these times is an instance of a ReportedTime, and each recorded time is decorated 
+            with a Provenance block that describes the system that contributed it, so that data 
+            fusion systems can sort out which of the competing times to believe. 
+         </documentation>
+      </annotation>
+      <sequence>
+         <element name="actual" type="fb:ReportedTimeType" minOccurs="0" maxOccurs="1" > 
+            <annotation>
+               <documentation>
+                  Time at which the event is observed to occur 
+               </documentation>
+            </annotation>
+         </element>
+         <element name="estimated" type="fb:ReportedTimeType" minOccurs="0" maxOccurs="1" > 
+            <annotation>
+               <documentation>
+                  Time at which the event is estimated to occur 
+               </documentation>
+            </annotation>
+         </element>
+      </sequence>
+   </complexType>
+   <element name="MultiTime" type="fb:MultiTimeType" /> 
+
+   <complexType name="ReportedTimeType">
+      <annotation>
+         <documentation>
+            ReportedTime is a record of a time instant, together with a Provenance block that 
+            describes the system that 
+            contributed it. 
+         </documentation>
+      </annotation>
+      <attribute name="time" type="ff:TimeType" use="optional" > 
+         <annotation>
+            <documentation>
+               Time at which the event occurred 
+            </documentation>
+         </annotation>
+      </attribute>
+      <attributeGroup ref="fb:ProvenanceType" > 
+         <annotation>
+            <documentation>
+               Source for the time data. 
+            </documentation>
+         </annotation>
+      </attributeGroup>
+   </complexType>
+   <element name="ReportedTime" type="fb:ReportedTimeType" /> 
+
+   <complexType name="TargetMultiTimeType">
+      <annotation>
+         <documentation>
+            TargetMultiTime is an extension of MultiTime that includes target time for use in 
+            data that requires target time in addition to estimated and actual time. 
+         </documentation>
+      </annotation>
+      <complexContent>
+         <extension base="fb:MultiTimeType">
+            <sequence>
+               <element name="target" type="fb:ReportedTimeType" minOccurs="0" maxOccurs="1" > 
+                  <annotation>
+                     <documentation>
+                        Time estimate by qualified personnel 
+                     </documentation>
+                  </annotation>
+               </element>
+            </sequence>
+         </extension>
+      </complexContent>
+   </complexType>
+   <element name="TargetMultiTime" type="fb:TargetMultiTimeType" substitutionGroup="fb:MultiTime" /> 
+
+   <complexType name="TimeSequenceType">
+      <annotation>
+         <documentation>
+            TimeSequence represents important times in a process that spans some time and has 
+            multiple steps. Each element of TimeSequence represents a record of the actual time 
+            associated with each step of the process. TimeSequence does not require that all 
+            steps of the process be present or complete, and it does not permit multiple occurrences 
+            of the same step. 
+             
+            This base implementation of TimeSequence contains only "approval", "begin", "end", 
+            "ready", and "request" times. It is assumed that users of this type will extend it 
+            by adding intermediate steps. 
+         </documentation>
+      </annotation>
+      <sequence>
+         <element name="approval" type="fb:TargetMultiTimeType" minOccurs="0" maxOccurs="1" > 
+            <annotation>
+               <documentation>
+                  Step 2 of the TimeSequence. 
+               </documentation>
+            </annotation>
+         </element>
+         <element name="begin" type="fb:MultiTimeType" minOccurs="0" maxOccurs="1" > 
+            <annotation>
+               <documentation>
+                  Step 4 of the TimeSequence. 
+               </documentation>
+            </annotation>
+         </element>
+         <element name="end" type="fb:MultiTimeType" minOccurs="0" maxOccurs="1" > 
+            <annotation>
+               <documentation>
+                  Step 5 of the TimeSequence. 
+               </documentation>
+            </annotation>
+         </element>
+         <element name="ready" type="fb:MultiTimeType" minOccurs="0" maxOccurs="1" > 
+            <annotation>
+               <documentation>
+                  Step 3 of the TimeSequence. 
+               </documentation>
+            </annotation>
+         </element>
+         <element name="request" type="fb:MultiTimeType" minOccurs="0" maxOccurs="1" > 
+            <annotation>
+               <documentation>
+                  Step 1 of the TimeSequence. 
+               </documentation>
+            </annotation>
+         </element>
+      </sequence>
+   </complexType>
+   <element name="TimeSequence" type="fb:TimeSequenceType" /> 
+</schema>

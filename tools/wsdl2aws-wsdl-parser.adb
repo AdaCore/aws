@@ -2330,12 +2330,12 @@ package body WSDL2AWS.WSDL.Parser is
             SOAP.WSDL.Schema.Register
               (SOAP.Name_Space.Value (Get_Target_Name_Space (N)), N);
 
-            --  Look for import in this schema
+            --  Look for import/include in this schema
 
             C := SOAP.XML.First_Child (N);
 
             while C /= null loop
-               if Local_Name (C) = "import" then
+               if Local_Name (C) in "import" | "include" then
                   declare
                      L : constant String :=
                            SOAP.XML.Get_Attr_Value (C, "schemaLocation");
@@ -2350,26 +2350,36 @@ package body WSDL2AWS.WSDL.Parser is
 
                         declare
                            --  Handle relative paths
-                           S : constant String :=
-                                 GNAT.OS_Lib.Normalize_Pathname (L, Dir);
-                           N : constant DOM.Core.Node :=
-                                 DOM.Core.Node (SOAP.WSDL.Load (S));
+                           File : constant String :=
+                                    GNAT.OS_Lib.Normalize_Pathname (L, Dir);
+                           N    : constant DOM.Core.Node :=
+                                    DOM.Core.Node (SOAP.WSDL.Load (File));
+                           NS   : constant String :=
+                                    (if Local_Name (C) = "import"
+                                     then SOAP.XML.Get_Attr_Value
+                                            (C, "namespace")
+                                     else SOAP.Name_Space.Value
+                                            (Get_Target_Name_Space (C)));
                         begin
                            Trace ("(Parse_Schema) "
-                                  & SOAP.XML.Get_Attr_Value (C, "namespace"),
+                                  & Local_Name (C)
+                                  & " " & File
+                                  & " " & NS,
                                   SOAP.XML.First_Child (N));
 
                            SOAP.WSDL.Schema.Register
-                             (SOAP.XML.Get_Attr_Value (C, "namespace"),
+                             (NS,
                               SOAP.XML.First_Child (N));
 
                            Register_Name_Spaces (SOAP.XML.First_Child (N));
 
-                           --  Check recursively for imported schema
+                           if Local_Name (C) = "import" then
+                              --  Check recursively for imported schema
 
-                           Parse_Schema
-                             (O, N, "schema",
-                              Directories.Containing_Directory (S));
+                              Parse_Schema
+                                (O, N, "schema",
+                                 Directories.Containing_Directory (File));
+                           end if;
                         end;
                      end if;
                   end;

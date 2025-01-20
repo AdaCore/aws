@@ -1,0 +1,409 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<schema
+   attributeFormDefault="unqualified"
+   elementFormDefault="unqualified"
+   targetNamespace="http://www.fixm.aero/flight/3.0"
+   version="3.00"
+   xmlns="http://www.w3.org/2001/XMLSchema"
+   xmlns:fb="http://www.fixm.aero/base/3.0"
+   xmlns:ff="http://www.fixm.aero/foundation/3.0"
+   xmlns:fx="http://www.fixm.aero/flight/3.0"
+   xmlns:xs="http://www.w3.org/2001/XMLSchema">
+   
+   <annotation>
+      <documentation>
+         Copyright (c) 2014 Airservices Australia, EUROCONTROL, JCAB, NATS Limited, NavCanada, 
+         SESAR Joint Undertaking &amp; US FAA 
+         =========================================== 
+         All rights reserved. 
+          
+         Redistribution and use in source and binary forms, with or without modification, 
+         are permitted 
+         provided that the following conditions are met: 
+         * Redistributions of source code must retain the above copyright notice, this list 
+         of conditions and 
+         the disclaimer. 
+         * Redistributions in binary form must reproduce the above copyright notice, this 
+         list of conditions 
+         and the disclaimer in the documentation and/or other materials provided with the 
+         distribution. 
+         * Neither the names of Airservices Australia, EUROCONTROL, JCAB, NATS Limited, NavCanada, 
+         
+         SESAR Joint Undertaking &amp; US FAA nor the names of their contributors may be used 
+         to endorse or 
+         promote products derived from this specification without specific prior written permission. 
+         
+          
+         DISCLAIMER 
+          
+         THIS SPECIFICATION IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" 
+         
+         AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED 
+         
+         WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE 
+         DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR 
+         ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES 
+         (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS 
+         
+         OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY 
+         THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING 
+         NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN 
+         
+         IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE. 
+          
+          
+         Editorial note: this license is an instance of the BSD license template as provided 
+         by the Open 
+         Source Initiative: 
+         http://www.opensource.org/licenses/bsd-license.php 
+          
+         The authoritative reference for FIXM is www.FIXM.aero. 
+          
+         Details on Airservices Australia: http://www.airservicesaustralia.com/ 
+         Details on EUROCONTROL: http://www.eurocontrol.int/ 
+         Details on JCAB: http://www.mlit.go.jp/en/koku/index.html 
+         Details on NATS Limited: http://www.nats.co.uk/ 
+         Details on NavCanada: http://www.navcanada.ca/ 
+         Details on the SESAR JU and its members: http://www.sesarju.eu/players/members 
+         Details on the US FAA: http://www.faa.gov/ 
+         Details on the US FAAs NextGen program: http://www.faa.gov/NextGen 
+      </documentation>
+   </annotation>
+   <include schemaLocation="./Coordination.xsd"/>
+   <include schemaLocation="./Datalink.xsd"/>
+   <include schemaLocation="./Position.xsd"/>
+   <import namespace="http://www.fixm.aero/base/3.0" schemaLocation="./../../base/Base.xsd"/>
+   <import namespace="http://www.fixm.aero/foundation/3.0" schemaLocation="./../../foundation/Foundation.xsd"/>
+   <annotation>
+      <documentation>
+         The EnRouteData package contains the high level en route and status information throughout 
+         the flight. 
+      </documentation>
+   </annotation>
+
+   <complexType name="AirspaceConstraintType">
+      <annotation>
+         <documentation>
+            Represents an airspace that has been constrained such as flow constrained area with 
+            associated controlled time. 
+         </documentation>
+      </annotation>
+      <sequence>
+         <element name="airspaceControlledEntryTime" type="ff:TimeType" minOccurs="0" maxOccurs="1" nillable="true" > 
+            <annotation>
+               <documentation>
+                  .Airspace Entry Time - Controlled: The time at which a flight is required to arrive 
+                  at a constrained airspace element as a result of a tactical slot allocation or a 
+                  Traffic Management Initiative (TMI). 
+               </documentation>
+            </annotation>
+         </element>
+      </sequence>
+      <attribute name="constrainedAirspace" type="fb:ConstrainedAirspaceType" use="optional" > 
+         <annotation>
+            <documentation>
+               Constrained Airspace associated with the airspace controlled entry time. 
+            </documentation>
+         </annotation>
+      </attribute>
+   </complexType>
+   <element name="AirspaceConstraint" type="fx:AirspaceConstraintType" /> 
+
+   <complexType name="BeaconCodeAssignmentType">
+      <annotation>
+         <documentation>
+            Contains information about current, previous and next beacon code assignments along 
+            with the beacon code assigning facility. 
+            .Beacon Code: The assigned four-character numeric code transmitted by the aircraft 
+            transponder in response to a secondary surveillance radar interrogation signal which 
+            is used to assist air traffic controllers to identify aircraft. 
+         </documentation>
+      </annotation>
+      <sequence>
+         <element name="currentBeaconCode" type="fb:BeaconCodeType" minOccurs="0" maxOccurs="1" > 
+            <annotation>
+               <documentation>
+                  Current assigned beacon code. 
+               </documentation>
+            </annotation>
+         </element>
+         <element name="previousBeaconCode" type="fb:BeaconCodeType" minOccurs="0" maxOccurs="1" > 
+            <annotation>
+               <documentation>
+                  .Previous SSR Mode and Beacon Code: The Secondary surveillance radar (SSR) mode and 
+                  code the flight was transponding before the current SSR Mode and Code. 
+                  .Reassigned SSR Mode and Beacon Code: The Secondary Surveillance Radar (SSR) mode 
+                  and beacon code assigned to the flight in the downstream facility, if the flight's 
+                  current beacon code is already in use by another flight in that facility. The next 
+                  beacon code differs from the flight's current beacon code. 
+               </documentation>
+            </annotation>
+         </element>
+         <element name="reassignedBeaconCode" type="fb:BeaconCodeType" minOccurs="0" maxOccurs="1" nillable="true" > 
+            <annotation>
+               <documentation>
+                  .Previous SSR Mode and Beacon Code: The Secondary surveillance radar (SSR) mode and 
+                  code the flight was transponding before the current SSR Mode and Code. 
+                  .Reassigned SSR Mode and Beacon Code: The Secondary Surveillance Radar (SSR) mode 
+                  and beacon code assigned to the flight in the downstream facility, if the flight's 
+                  current beacon code is already in use by another flight in that facility. The next 
+                  beacon code differs from the flight's current beacon code. 
+               </documentation>
+            </annotation>
+         </element>
+         <element name="reassigningUnit" type="fb:AtcUnitReferenceType" minOccurs="0" maxOccurs="1" nillable="true" > 
+            <annotation>
+               <documentation>
+                  .Reassigned Beacon Code Unit: Identifies the downstream unit that assigned the next 
+                  beacon code, in the case the beacon code was already in use by another flight at 
+                  the downstream unit. 
+               </documentation>
+            </annotation>
+         </element>
+      </sequence>
+   </complexType>
+   <element name="BeaconCodeAssignment" type="fx:BeaconCodeAssignmentType" /> 
+
+   <complexType name="ClearedFlightInformationType">
+      <annotation>
+         <documentation>
+            Groups cleared information about the fight 
+         </documentation>
+      </annotation>
+      <sequence>
+         <element name="clearedFlightLevel" type="fb:AltitudeChoiceType" minOccurs="0" maxOccurs="1" > 
+            <annotation>
+               <documentation>
+                  .Cleared Flight Level: The Altitude an aircraft is cleared to maintain as specified 
+                  by ATC.  It may differ from the Cruising Altitude, which is more strategic. 
+               </documentation>
+            </annotation>
+         </element>
+         <element name="clearedSpeed" type="fb:AirspeedChoiceType" minOccurs="0" maxOccurs="1" nillable="true" > 
+            <annotation>
+               <documentation>
+                  .Cleared Speed: The speed (or speed range) cleared from the controller to the pilot. 
+                   The element is tactical in nature. The speed condition indicates whether the aircraft 
+                  will be maintaining, exceeding, or flying more slowly than the associated speed. 
+                  
+               </documentation>
+            </annotation>
+         </element>
+         <element name="directRouting" type="fx:DirectRoutingType" minOccurs="0" maxOccurs="1" > 
+            <annotation>
+               <documentation>
+                  .Cleared Direct To: Contains the optional starting location from which the direct 
+                  clearance is granted and the position the aircraft has been cleared directly to. 
+                  
+               </documentation>
+            </annotation>
+         </element>
+         <element name="heading" type="fb:DirectionType" minOccurs="0" maxOccurs="1" nillable="true" > 
+            <annotation>
+               <documentation>
+                  .Cleared Heading: The heading assigned to a flight by ATC.  It is the magnetic heading 
+                  the aircraft's nose is pointing to. 
+               </documentation>
+            </annotation>
+         </element>
+         <element name="offtrackClearance" type="fb:LateralOfftrackType" minOccurs="0" maxOccurs="1" nillable="true" > 
+            <annotation>
+               <documentation>
+                  .Off Track Clearance: This field specifies the offtrack information applicable to 
+                  the route. 
+               </documentation>
+            </annotation>
+         </element>
+         <element name="rateOfClimbDescend" type="ff:VerticalRateType" minOccurs="0" maxOccurs="1" nillable="true" > 
+            <annotation>
+               <documentation>
+                  .Cleared Rate of Climb/Descent: The flight's current assigned Rate of climb/descent, 
+                  which is part of the current clearance. 
+               </documentation>
+            </annotation>
+         </element>
+      </sequence>
+   </complexType>
+   <element name="ClearedFlightInformation" type="fx:ClearedFlightInformationType" /> 
+
+   <complexType name="ControlElementType">
+      <annotation>
+         <documentation>
+            .Control Element: The constrained aerodrome or airspace element (subject to a Traffic 
+            Management Initiative/Regulation) indicating the reason for a flight being controlled. 
+            
+         </documentation>
+      </annotation>
+      <choice>
+         <element name="airspace" type="fx:AirspaceConstraintType" minOccurs="0" maxOccurs="1" > 
+            <annotation>
+               <documentation>
+                  Represents an airspace that has been constrained such as flow constrained area with 
+                  associated controlled time. 
+               </documentation>
+            </annotation>
+         </element>
+         <element name="arrivalAerodrome" type="ff:AerodromeIcaoCodeType" minOccurs="0" maxOccurs="1" > 
+            <annotation>
+               <documentation>
+                  An arrival aerodrome that is subject to air traffic control management. 
+                  .Arrival Aerodrome: The ICAO designator or the name of the aerodrome at which the 
+                  flight has arrived. 
+               </documentation>
+            </annotation>
+         </element>
+      </choice>
+   </complexType>
+   <element name="ControlElement" type="fx:ControlElementType" /> 
+
+   <complexType name="DirectRoutingType">
+      <annotation>
+         <documentation>
+            .Cleared Direct To: Contains the optional starting location from which the direct 
+            clearance is granted and the position the aircraft has been cleared directly to. 
+            
+         </documentation>
+      </annotation>
+      <sequence>
+         <element name="from" type="fb:SignificantPointType" minOccurs="0" maxOccurs="1" > 
+            <annotation>
+               <documentation>
+                  Location from which the direct clearance is granted. 
+               </documentation>
+            </annotation>
+         </element>
+         <element name="to" type="fb:SignificantPointType" minOccurs="0" maxOccurs="1" > 
+            <annotation>
+               <documentation>
+                  Location to which the direct clearance is granted. 
+               </documentation>
+            </annotation>
+         </element>
+      </sequence>
+   </complexType>
+   <element name="DirectRouting" type="fx:DirectRoutingType" /> 
+
+   <complexType name="EnRouteType">
+      <annotation>
+         <documentation>
+            Groups the en route information about the flight such as the current position, coordination 
+            between air traffic units, and boundary crossing throughout the duration of the flight. 
+            
+         </documentation>
+      </annotation>
+      <complexContent>
+         <extension base="fb:FeatureType">
+            <sequence>
+               <element name="alternateAerodrome" type="fb:AerodromeReferenceType" minOccurs="0" maxOccurs="unbounded" > 
+                  <annotation>
+                     <documentation>
+                        .En Route Alternate Aerodrome: An ICAO designator of the aerodrome to which a flight 
+                        could be diverted while en route, if needed. 
+                     </documentation>
+                  </annotation>
+               </element>
+               <element name="beaconCodeAssignment" type="fx:BeaconCodeAssignmentType" minOccurs="0" maxOccurs="1" > 
+                  <annotation>
+                     <documentation>
+                        Contains information about current, previous and next beacon code assignments along 
+                        with the beacon code assigning facility. 
+                     </documentation>
+                  </annotation>
+               </element>
+               <element name="boundaryCrossings" type="fx:UnitBoundaryType" minOccurs="0" maxOccurs="unbounded" > 
+                  <annotation>
+                     <documentation>
+                        A list of boundary crossings that will be traversed En Route 
+                        .Unit Boundary List: The ordered list of units the flight is expected to traverse, 
+                        based on the planned route of flight and altitude. 
+                     </documentation>
+                  </annotation>
+               </element>
+               <element name="cleared" type="fx:ClearedFlightInformationType" minOccurs="0" maxOccurs="1" > 
+                  <annotation>
+                     <documentation>
+                        Contains the cleared information about the flight. 
+                     </documentation>
+                  </annotation>
+               </element>
+               <element name="controlElement" type="fx:ControlElementType" minOccurs="0" maxOccurs="unbounded" nillable="true" > 
+                  <annotation>
+                     <documentation>
+                        .Control Element: The constrained aerodrome or airspace element (subject to a Traffic 
+                        Management Initiative/Regulation) indicating the reason for a flight being controlled. 
+                        
+                     </documentation>
+                  </annotation>
+               </element>
+               <element name="cpdlcConnection" type="fx:CpdlcConnectionType" minOccurs="0" maxOccurs="1" > 
+                  <annotation>
+                     <documentation>
+                        Groups information regarding CPDLC connection between air traffic control units 
+                     </documentation>
+                  </annotation>
+               </element>
+               <element name="pointout" type="fx:PointoutType" minOccurs="0" maxOccurs="1" nillable="true" > 
+                  <annotation>
+                     <documentation>
+                        A physical or automated action taken by a controller to transfer the radar identification 
+                        of an aircraft to another controller if the aircraft will or may enter the airspace 
+                        or protected airspace of another controller and radio communications will not be 
+                        transferred. 
+                     </documentation>
+                  </annotation>
+               </element>
+               <element name="position" type="fx:AircraftPositionType" minOccurs="0" maxOccurs="1" > 
+                  <annotation>
+                     <documentation>
+                        Contains the current position and associated data of the aircraft. 
+                     </documentation>
+                  </annotation>
+               </element>
+            </sequence>
+            <attribute name="fleetPrioritization" type="fb:FleetPriorityType" use="optional" > 
+               <annotation>
+                  <documentation>
+                     The relative priority of a flight, within a flight operator’s fleet of aircraft, 
+                     defined for a portion or the entire en route phase of flight 
+                  </documentation>
+               </annotation>
+            </attribute>
+         </extension>
+      </complexContent>
+   </complexType>
+   <element name="EnRoute" type="fx:EnRouteType" substitutionGroup="fb:Feature" /> 
+
+   <complexType name="PointoutType">
+      <annotation>
+         <documentation>
+            A physical or automated action taken by a controller to transfer the radar identification 
+            of an aircraft to another controller if the aircraft will or may enter the airspace 
+            or protected airspace of another controller and radio communications will not be 
+            transferred. 
+         </documentation>
+      </annotation>
+      <sequence>
+         <element name="originatingUnit" type="fb:AtcUnitReferenceType" minOccurs="0" maxOccurs="1" > 
+            <annotation>
+               <documentation>
+                  .Point Out - Originating Sector: Identifies the ATC sector originating the point 
+                  out. 
+                  .Point Out - Originating Unit: Identifies the Air Traffic Control unit originating 
+                  the point out. 
+               </documentation>
+            </annotation>
+         </element>
+         <element name="receivingUnit" type="fb:AtcUnitReferenceType" minOccurs="0" maxOccurs="unbounded" > 
+            <annotation>
+               <documentation>
+                  .Point Out - Receiving Sector: Identifies the ATC sector receiving the point out. 
+                  
+                  .Point Out - Receiving Unit: Identifies the Air Traffic Control unit receiving the 
+                  point out. 
+               </documentation>
+            </annotation>
+         </element>
+      </sequence>
+   </complexType>
+   <element name="Pointout" type="fx:PointoutType" /> 
+</schema>

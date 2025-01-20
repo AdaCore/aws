@@ -1,0 +1,458 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<schema
+   attributeFormDefault="unqualified"
+   elementFormDefault="unqualified"
+   targetNamespace="http://www.fixm.aero/flight/3.0"
+   version="3.00"
+   xmlns="http://www.w3.org/2001/XMLSchema"
+   xmlns:fb="http://www.fixm.aero/base/3.0"
+   xmlns:ff="http://www.fixm.aero/foundation/3.0"
+   xmlns:fx="http://www.fixm.aero/flight/3.0"
+   xmlns:xs="http://www.w3.org/2001/XMLSchema">
+   
+   <annotation>
+      <documentation>
+         Copyright (c) 2014 Airservices Australia, EUROCONTROL, JCAB, NATS Limited, NavCanada, 
+         SESAR Joint Undertaking &amp; US FAA 
+         =========================================== 
+         All rights reserved. 
+          
+         Redistribution and use in source and binary forms, with or without modification, 
+         are permitted 
+         provided that the following conditions are met: 
+         * Redistributions of source code must retain the above copyright notice, this list 
+         of conditions and 
+         the disclaimer. 
+         * Redistributions in binary form must reproduce the above copyright notice, this 
+         list of conditions 
+         and the disclaimer in the documentation and/or other materials provided with the 
+         distribution. 
+         * Neither the names of Airservices Australia, EUROCONTROL, JCAB, NATS Limited, NavCanada, 
+         
+         SESAR Joint Undertaking &amp; US FAA nor the names of their contributors may be used 
+         to endorse or 
+         promote products derived from this specification without specific prior written permission. 
+         
+          
+         DISCLAIMER 
+          
+         THIS SPECIFICATION IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" 
+         
+         AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED 
+         
+         WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE 
+         DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR 
+         ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES 
+         (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS 
+         
+         OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY 
+         THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING 
+         NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN 
+         
+         IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE. 
+          
+          
+         Editorial note: this license is an instance of the BSD license template as provided 
+         by the Open 
+         Source Initiative: 
+         http://www.opensource.org/licenses/bsd-license.php 
+          
+         The authoritative reference for FIXM is www.FIXM.aero. 
+          
+         Details on Airservices Australia: http://www.airservicesaustralia.com/ 
+         Details on EUROCONTROL: http://www.eurocontrol.int/ 
+         Details on JCAB: http://www.mlit.go.jp/en/koku/index.html 
+         Details on NATS Limited: http://www.nats.co.uk/ 
+         Details on NavCanada: http://www.navcanada.ca/ 
+         Details on the SESAR JU and its members: http://www.sesarju.eu/players/members 
+         Details on the US FAA: http://www.faa.gov/ 
+         Details on the US FAAs NextGen program: http://www.faa.gov/NextGen 
+      </documentation>
+   </annotation>
+   <include schemaLocation="./Packaging.xsd"/>
+   <import namespace="http://www.fixm.aero/base/3.0" schemaLocation="./../../base/Base.xsd"/>
+   <import namespace="http://www.fixm.aero/foundation/3.0" schemaLocation="./../../foundation/Foundation.xsd"/>
+   <annotation>
+      <documentation>
+         The Dangerous Goods schema contains the information required for the shipment of 
+         dangerous goods. 
+      </documentation>
+   </annotation>
+
+   <complexType name="AdditionalHandlingInformationType">
+      <annotation>
+         <documentation>
+            .Additional Handling Information: Additional information related to the handling 
+            of dangerous goods, as identified on the Shipper's Declaration for Dangerous Goods. 
+            
+         </documentation>
+      </annotation>
+      <sequence>
+         <element name="responsibleAgent" type="ff:PersonOrOrganizationType" minOccurs="0" maxOccurs="1" > 
+            <annotation>
+               <documentation>
+                  Person or organization responsible for infectious substances. 
+               </documentation>
+            </annotation>
+         </element>
+      </sequence>
+   </complexType>
+   <element name="AdditionalHandlingInformation" type="fx:AdditionalHandlingInformationType" /> 
+
+   <simpleType name="AircraftDangerousGoodsLimitationType">
+      <annotation>
+         <documentation>
+            .Aircraft Dangerous Goods Limitation: Describes whether the shipment is packed to 
+            comply with the limitations prescribed for passenger and cargo aircraft or the limitations 
+            for cargo aircraft only. 
+         </documentation>
+      </annotation>
+      <restriction base="xs:string">
+         <enumeration value="PASSENGER_AND_CARGO_AIRCRAFT">
+            <annotation>
+               <documentation>
+                  Specified that the shipment is packed to comply with the limitations prescribed for 
+                  passenger and cargo aircraft. 
+               </documentation>
+            </annotation>
+         </enumeration>
+         <enumeration value="CARGO_AIRCRAFT_ONLY">
+            <annotation>
+               <documentation>
+                  Specified that the shipment is packed to comply with the limitations prescribed for 
+                  the limitations for cargo aircraft only. 
+               </documentation>
+            </annotation>
+         </enumeration>
+      </restriction>
+   </simpleType>
+
+   <complexType name="AirWaybillType">
+      <annotation>
+         <documentation>
+            .Air Waybill Number: The number referencing the air waybill. 
+         </documentation>
+      </annotation>
+      <simpleContent>
+         <extension base="fb:FreeTextType">
+            <attribute name="airWaybillNumber" type="fb:FreeTextType" use="optional" > 
+               <annotation>
+                  <documentation>
+                     .Air Waybill Number: The number referencing the air waybill. 
+                  </documentation>
+               </annotation>
+            </attribute>
+         </extension>
+      </simpleContent>
+   </complexType>
+
+   <complexType name="DangerousGoodsType">
+      <annotation>
+         <documentation>
+            .Shipper's Declaration For Dangerous Goods Summary: The section of the IATA Shipper's 
+            Declaration For Dangerous Goods required at the end portion of the SDDG for a shipment. 
+            
+            .Shipper's Declaration For Dangerous Goods Header: The part of the IATA Shipper's 
+            Declaration For Dangerous Goods that contains the basic header information on who 
+            is sending and receiving this shipment. 
+            .IATA Shipper's Declaration For Dangerous Goods: This is the outermost grouping element 
+            for the information required for the shipment of dangerous goods. 
+         </documentation>
+      </annotation>
+      <complexContent>
+         <extension base="fb:FeatureType">
+            <sequence>
+               <element name="airWayBill" type="fx:AirWaybillType" minOccurs="0" maxOccurs="1" > 
+                  <annotation>
+                     <documentation>
+                        .Air Waybill Number: The number referencing the air waybill. 
+                     </documentation>
+                  </annotation>
+               </element>
+               <element name="handlingInformation" type="fx:AdditionalHandlingInformationType" minOccurs="0" maxOccurs="1" > 
+                  <annotation>
+                     <documentation>
+                        .Additional Handling Information: Additional information related to the handling 
+                        of dangerous goods, as identified on the Shipper's Declaration for Dangerous Goods. 
+                        
+                     </documentation>
+                  </annotation>
+               </element>
+               <element name="packageGroup" type="fx:DangerousGoodsPackageGroupType" minOccurs="0" maxOccurs="unbounded" > 
+                  <annotation>
+                     <documentation>
+                        .Packing Group: A code that indicates the relative degree of danger presented by 
+                        various articles and substances within a Class or Division. 
+                     </documentation>
+                  </annotation>
+               </element>
+               <element name="shippingInformation" type="fx:ShippingInformationType" minOccurs="0" maxOccurs="1" > 
+                  <annotation>
+                     <documentation>
+                        IATA Shipper's Declaration for Dangerous Goods. 
+                     </documentation>
+                  </annotation>
+               </element>
+            </sequence>
+            <attribute name="aircraftLimitation" type="fx:AircraftDangerousGoodsLimitationType" use="optional" > 
+               <annotation>
+                  <documentation>
+                     .Aircraft Dangerous Goods Limitation: Describes whether the shipment is packed to 
+                     comply with the limitations prescribed for passenger and cargo aircraft or the limitations 
+                     for cargo aircraft only. 
+                  </documentation>
+               </annotation>
+            </attribute>
+            <attribute name="guidebookNumber" use="optional" > 
+               <annotation>
+                  <documentation>
+                     .Emergency Response Guidebook Number: A reference to a set of instructions to handle 
+                     a specific dangerous goods situation. 
+                  </documentation>
+               </annotation>
+               <simpleType>
+                  <restriction base="fb:FreeTextType">
+                     <pattern value="[#\d+|\d+]"/>
+                  </restriction>
+               </simpleType>
+            </attribute>
+            <attribute name="onboardLocation" type="fb:FreeTextType" use="optional" > 
+               <annotation>
+                  <documentation>
+                     .On Board Dangerous Goods Location: The location of a dangerous goods shipment inside 
+                     the airframe. 
+                  </documentation>
+               </annotation>
+            </attribute>
+            <attribute name="shipment" type="fx:ShipmentTypeType" use="optional" > 
+               <annotation>
+                  <documentation>
+                     .Shipment Type: An indicator used for dangerous cargo of whether the package is radioactive 
+                     or not. 
+                  </documentation>
+               </annotation>
+            </attribute>
+         </extension>
+      </complexContent>
+   </complexType>
+   <element name="DangerousGoods" type="fx:DangerousGoodsType" substitutionGroup="fb:Feature" /> 
+
+   <complexType name="DeclarationTextType">
+      <annotation>
+         <documentation>
+            .Declaration Text: Consignor: The consignor's statement indicating the dangerous 
+            goods have been packaged and handled according to regulations. 
+            .Declaration Text: Shipper: This shipper's statement indicating the dangerous goods 
+            have been packaged and handled according to regulations. 
+            .Declaration Text: Compliance: The warning message for not complying with the regulations. 
+            
+         </documentation>
+      </annotation>
+      <attribute name="compliance" type="fb:FreeTextType" use="optional" > 
+         <annotation>
+            <documentation>
+               .Declaration Text: Compliance: The warning message for not complying with the regulations. 
+               
+            </documentation>
+         </annotation>
+      </attribute>
+      <attribute name="consignor" type="fb:FreeTextType" use="optional" > 
+         <annotation>
+            <documentation>
+               .Declaration Text: Consignor: The consignor's statement indicating the dangerous 
+               goods have been packaged and handled according to regulations. 
+            </documentation>
+         </annotation>
+      </attribute>
+      <attribute name="shipper" type="fb:FreeTextType" use="optional" > 
+         <annotation>
+            <documentation>
+               .Declaration Text: Shipper: This shipper's statement indicating the dangerous goods 
+               have been packaged and handled according to regulations. 
+            </documentation>
+         </annotation>
+      </attribute>
+   </complexType>
+   <element name="DeclarationText" type="fx:DeclarationTextType" /> 
+
+   <simpleType name="ShipmentTypeType">
+      <annotation>
+         <documentation>
+            .Shipment Type: An indicator used for dangerous cargo of whether the package is radioactive 
+            or not. 
+         </documentation>
+      </annotation>
+      <restriction base="xs:string">
+         <enumeration value="RADIOACTIVE">
+            <annotation>
+               <documentation>
+                  When present, indicates cargo is radioactive. 
+               </documentation>
+            </annotation>
+         </enumeration>
+      </restriction>
+   </simpleType>
+
+   <complexType name="ShippingInformationType">
+      <annotation>
+         <documentation>
+            IATA Shipper's Declaration for Dangerous Goods. 
+         </documentation>
+      </annotation>
+      <sequence>
+         <element name="aerodromeOfLoading" type="fb:AerodromeReferenceType" minOccurs="0" maxOccurs="1" > 
+            <annotation>
+               <documentation>
+                  .Aerodrome of Loading: The aerodrome where dangerous goods were loaded onto the flight. 
+                  
+               </documentation>
+            </annotation>
+         </element>
+         <element name="aerodromeOfUnloading" type="fb:AerodromeReferenceType" minOccurs="0" maxOccurs="1" > 
+            <annotation>
+               <documentation>
+                  .Aerodrome of Unloading: The aerodrome where dangerous goods were unloaded from the 
+                  flight. 
+               </documentation>
+            </annotation>
+         </element>
+         <element name="consignee" type="fx:StructuredPostalAddressType" minOccurs="0" maxOccurs="1" > 
+            <annotation>
+               <documentation>
+                  .Consignee Name and Address: The XML Grouping Element unites the Consignee Name with 
+                  the Postal Structure Address (detailed breakout of address components). 
+                  .Consignee Phone Number: The phone number of the consignee contact department or 
+                  person to call, in the event of an emergency, security event, or when further information 
+                  about the shipment is needed. 
+                  .Consignee Contact Name: The name of the consignee contact department or person responsible 
+                  in the event of an emergency, security event, or when further information about the 
+                  shipment is needed. 
+                  .Consignee Address: Specifies the consignee's mailing address. 
+                  .Consignee Name: Contains the name or legal identity of the organization or person 
+                  receiving the package. 
+               </documentation>
+            </annotation>
+         </element>
+         <element name="declarationText" type="fx:DeclarationTextType" minOccurs="0" maxOccurs="1" > 
+            <annotation>
+               <documentation>
+                  compliance: 
+                   
+                  consignor: 
+                   
+                  shipper: 
+               </documentation>
+            </annotation>
+         </element>
+         <element name="shipper" type="fx:StructuredPostalAddressType" minOccurs="0" maxOccurs="1" > 
+            <annotation>
+               <documentation>
+                  .Shipper Address: The shipper's mailing address. 
+                  .Shipper Emergency Phone Number: Phone number of the shipper or someone who is not 
+                  on board the aircraft and who can be reached in an emergency involving the dangerous 
+                  good. 
+                  .Shipper Name and Address: The XML Grouping Element unites the Shipper (Consignor) 
+                  Name with the Postal Structure Address (detailed breakout of address components). 
+                  
+                  .Shipper Name: The Shipper's name, legal identity, and/or organization. 
+               </documentation>
+            </annotation>
+         </element>
+         <element name="transferAerodromes" minOccurs="0" maxOccurs="1" > 
+            <annotation>
+               <documentation>
+                  .Transfer Aerodromes: A list of the aerodromes through which the package has travelled 
+                  en route to its final destination. 
+               </documentation>
+            </annotation>
+            <simpleType>
+               <list itemType="ff:AerodromeIcaoCodeType"/>
+            </simpleType>
+         </element>
+      </sequence>
+      <attribute name="dangerousGoodsScreeningLocation" type="fb:FreeTextType" use="optional" > 
+         <annotation>
+            <documentation>
+               .Dangerous Goods Screening Location: The name of the Certified Cargo Screening Facility, 
+               as approved by the Transportation Security Administration (TSA), or the location/name 
+               of any screening performed. 
+            </documentation>
+         </annotation>
+      </attribute>
+      <attribute name="departureCountry" type="ff:TextCountryNameType" use="optional" > 
+         <annotation>
+            <documentation>
+               .Departure Country: The Code and Name of the departure country where the package 
+               originated. 
+            </documentation>
+         </annotation>
+      </attribute>
+      <attribute name="destinationCountry" type="ff:TextCountryNameType" use="optional" > 
+         <annotation>
+            <documentation>
+               .Destination Country: The Name and Code of the dangerous good's country of destination. 
+               
+            </documentation>
+         </annotation>
+      </attribute>
+      <attribute name="originCountry" type="ff:TextCountryNameType" use="optional" > 
+         <annotation>
+            <documentation>
+               .Departure Country: The Code and Name of the departure country where the package 
+               originated. 
+            </documentation>
+         </annotation>
+      </attribute>
+      <attribute name="shipmentAuthorizations" type="fb:FreeTextType" use="optional" > 
+         <annotation>
+            <documentation>
+               .Shipment Authorizations: Additional information related to an approval, permission, 
+               or other specific detail regarding the shipment of dangerous goods. 
+            </documentation>
+         </annotation>
+      </attribute>
+      <attribute name="subsidiaryHazardClassAndDivision" type="fb:FreeTextType" use="optional" > 
+         <annotation>
+            <documentation>
+               .Subsidiary Hazard Class and Division: An identifier of any subsidiary hazard class(es)/division(s) 
+               in addition to the primary hazard class and division. 
+            </documentation>
+         </annotation>
+      </attribute>
+      <attribute name="supplementaryInformation" type="fb:FreeTextType" use="optional" > 
+         <annotation>
+            <documentation>
+               .Supplementary Information: Additional information that may be added to the proper 
+               shipping name to more fully describe the goods or to identify a particular condition. 
+               
+               .Supplementary Shipping Information: Additional information that may be added to 
+               the proper shipping name to more fully describe the goods or to identify a particular 
+               condition. 
+            </documentation>
+         </annotation>
+      </attribute>
+   </complexType>
+   <element name="ShippingInformation" type="fx:ShippingInformationType" /> 
+
+   <complexType name="StructuredPostalAddressType">
+      <annotation>
+         <documentation>
+            .Country Name: The name of a country. 
+            .Region Name: The name of the region within a country specific to this address. 
+            .Postal Structured Address: The XML Grouping Element that contains the parts of a 
+            Postal Address broken into its component parts (Structured). 
+            .Post Office Box: The Post Office (PO) Box number portion of a structured postal 
+            address. 
+            .Department: Contains the Department Name portion of the Address. 
+            .Country Code: A code that indicates a country. 
+            .Street: The building number and Street Name portion of the Address. 
+            .City Name: The name of the city the package is being shipped to. 
+            .ZIP or Postal Code: The ZIP/Postal Code corresponding to the street address. 
+         </documentation>
+      </annotation>
+      <complexContent>
+         <extension base="ff:ContactInformationType"/>
+      </complexContent>
+   </complexType>
+   <element name="StructuredPostalAddress" type="fx:StructuredPostalAddressType" substitutionGroup="ff:ContactInformation" /> 
+</schema>

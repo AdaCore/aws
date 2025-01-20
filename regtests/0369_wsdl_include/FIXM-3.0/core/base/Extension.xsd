@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<schema
+   attributeFormDefault="unqualified"
+   elementFormDefault="unqualified"
+   targetNamespace="http://www.fixm.aero/base/3.0"
+   version="3.00"
+   xmlns="http://www.w3.org/2001/XMLSchema"
+   xmlns:fb="http://www.fixm.aero/base/3.0"
+   xmlns:xs="http://www.w3.org/2001/XMLSchema">
+   
+   <annotation>
+      <documentation>
+         Copyright (c) 2014 Airservices Australia, EUROCONTROL, JCAB, NATS Limited, NavCanada, 
+         SESAR Joint Undertaking &amp; US FAA 
+         =========================================== 
+         All rights reserved. 
+          
+         Redistribution and use in source and binary forms, with or without modification, 
+         are permitted 
+         provided that the following conditions are met: 
+         * Redistributions of source code must retain the above copyright notice, this list 
+         of conditions and 
+         the disclaimer. 
+         * Redistributions in binary form must reproduce the above copyright notice, this 
+         list of conditions 
+         and the disclaimer in the documentation and/or other materials provided with the 
+         distribution. 
+         * Neither the names of Airservices Australia, EUROCONTROL, JCAB, NATS Limited, NavCanada, 
+         
+         SESAR Joint Undertaking &amp; US FAA nor the names of their contributors may be used 
+         to endorse or 
+         promote products derived from this specification without specific prior written permission. 
+         
+          
+         DISCLAIMER 
+          
+         THIS SPECIFICATION IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" 
+         
+         AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED 
+         
+         WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE 
+         DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR 
+         ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES 
+         (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS 
+         
+         OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY 
+         THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING 
+         NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN 
+         
+         IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE. 
+          
+          
+         Editorial note: this license is an instance of the BSD license template as provided 
+         by the Open 
+         Source Initiative: 
+         http://www.opensource.org/licenses/bsd-license.php 
+          
+         The authoritative reference for FIXM is www.FIXM.aero. 
+          
+         Details on Airservices Australia: http://www.airservicesaustralia.com/ 
+         Details on EUROCONTROL: http://www.eurocontrol.int/ 
+         Details on JCAB: http://www.mlit.go.jp/en/koku/index.html 
+         Details on NATS Limited: http://www.nats.co.uk/ 
+         Details on NavCanada: http://www.navcanada.ca/ 
+         Details on the SESAR JU and its members: http://www.sesarju.eu/players/members 
+         Details on the US FAA: http://www.faa.gov/ 
+         Details on the US FAAs NextGen program: http://www.faa.gov/NextGen 
+      </documentation>
+   </annotation>
+   <include schemaLocation="./Feature.xsd"/>
+   <annotation>
+      <documentation>
+         Contains all the classes needed to construct extensions to the FIXM model. 
+      </documentation>
+   </annotation>
+
+   <complexType name="ExtensionType">
+      <annotation>
+         <documentation>
+            The Extension type is the base type from which extension (non-core) objects inherit. 
+            
+            Extension objects can be attached to a Flight through the "extensions" element. 
+         </documentation>
+      </annotation>
+      <complexContent>
+         <extension base="fb:FeatureType"/>
+      </complexContent>
+   </complexType>
+   <element name="Extension" type="fb:ExtensionType" substitutionGroup="fb:Feature" /> 
+</schema>

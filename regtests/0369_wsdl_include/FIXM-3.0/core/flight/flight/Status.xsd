@@ -1,0 +1,236 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<schema
+   attributeFormDefault="unqualified"
+   elementFormDefault="unqualified"
+   targetNamespace="http://www.fixm.aero/flight/3.0"
+   version="3.00"
+   xmlns="http://www.w3.org/2001/XMLSchema"
+   xmlns:fb="http://www.fixm.aero/base/3.0"
+   xmlns:fx="http://www.fixm.aero/flight/3.0"
+   xmlns:xs="http://www.w3.org/2001/XMLSchema">
+   
+   <annotation>
+      <documentation>
+         Copyright (c) 2014 Airservices Australia, EUROCONTROL, JCAB, NATS Limited, NavCanada, 
+         SESAR Joint Undertaking &amp; US FAA 
+         =========================================== 
+         All rights reserved. 
+          
+         Redistribution and use in source and binary forms, with or without modification, 
+         are permitted 
+         provided that the following conditions are met: 
+         * Redistributions of source code must retain the above copyright notice, this list 
+         of conditions and 
+         the disclaimer. 
+         * Redistributions in binary form must reproduce the above copyright notice, this 
+         list of conditions 
+         and the disclaimer in the documentation and/or other materials provided with the 
+         distribution. 
+         * Neither the names of Airservices Australia, EUROCONTROL, JCAB, NATS Limited, NavCanada, 
+         
+         SESAR Joint Undertaking &amp; US FAA nor the names of their contributors may be used 
+         to endorse or 
+         promote products derived from this specification without specific prior written permission. 
+         
+          
+         DISCLAIMER 
+          
+         THIS SPECIFICATION IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" 
+         
+         AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED 
+         
+         WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE 
+         DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR 
+         ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES 
+         (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS 
+         
+         OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY 
+         THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING 
+         NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN 
+         
+         IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE. 
+          
+          
+         Editorial note: this license is an instance of the BSD license template as provided 
+         by the Open 
+         Source Initiative: 
+         http://www.opensource.org/licenses/bsd-license.php 
+          
+         The authoritative reference for FIXM is www.FIXM.aero. 
+          
+         Details on Airservices Australia: http://www.airservicesaustralia.com/ 
+         Details on EUROCONTROL: http://www.eurocontrol.int/ 
+         Details on JCAB: http://www.mlit.go.jp/en/koku/index.html 
+         Details on NATS Limited: http://www.nats.co.uk/ 
+         Details on NavCanada: http://www.navcanada.ca/ 
+         Details on the SESAR JU and its members: http://www.sesarju.eu/players/members 
+         Details on the US FAA: http://www.faa.gov/ 
+         Details on the US FAAs NextGen program: http://www.faa.gov/NextGen 
+      </documentation>
+   </annotation>
+   <import namespace="http://www.fixm.aero/base/3.0" schemaLocation="./../../base/Base.xsd"/>
+   <annotation>
+      <documentation>
+         The status package contains information about the flight status. 
+      </documentation>
+   </annotation>
+
+   <simpleType name="AirborneHoldIndicatorType">
+      <annotation>
+         <documentation>
+            .Hold State - Airborne Indicator: Specifies whether or not the aircraft is in an 
+            airborne hold. 
+         </documentation>
+      </annotation>
+      <restriction base="xs:string">
+         <enumeration value="AIRBORNE_HOLD"/>
+         <enumeration value="NOT_AIRBORNE_HOLD"/>
+      </restriction>
+   </simpleType>
+
+   <simpleType name="AirfileIndicatorType">
+      <annotation>
+         <documentation>
+            .Airfile Indicator: An indication the information about this flight was filed from 
+            the air. 
+         </documentation>
+      </annotation>
+      <restriction base="xs:string">
+         <enumeration value="AIRFILE"/>
+      </restriction>
+   </simpleType>
+
+   <simpleType name="FlightAcceptedIndicatorType">
+      <annotation>
+         <documentation>
+            .Flight Plan Accepted: An indicator of acceptance of the flight plan by the appropriate 
+            ATS authority. 
+            .Flight Plan Accepted Indicator: An indicator of acceptance of the flight plan by 
+            the appropriate ATS authority. 
+         </documentation>
+      </annotation>
+      <restriction base="xs:string">
+         <enumeration value="ACCEPTED"/>
+      </restriction>
+   </simpleType>
+
+   <simpleType name="FlightCycleType">
+      <annotation>
+         <documentation>
+            Flight Cycle is contains a mutually exclusive set of values representing stages of 
+            flight. 
+            .Flight Completed Indicator: An indicator that the flight was airborne and is now 
+            completed. 
+            .Flight Cancelled Indicator: Indication the flight has been cancelled after Flight 
+            Object creation. 
+            .Flight Filed Indicator: An indicator that flight information was filed to the appropriate 
+            Air Traffic Services authority. 
+            .Airborne Indicator: An indication of whether the flight is airborne or not. 
+            .Flight Scheduled Indicator: An indicator a flight has been created in the Air Traffic 
+            Services system and is expected to operate. 
+         </documentation>
+      </annotation>
+      <restriction base="xs:string">
+         <enumeration value="FILED"/>
+         <enumeration value="SCHEDULED"/>
+         <enumeration value="AIRBORNE"/>
+         <enumeration value="COMPLETED"/>
+         <enumeration value="CANCELLED"/>
+      </restriction>
+   </simpleType>
+
+   <complexType name="FlightStatusType">
+      <annotation>
+         <documentation>
+            .Flight Status: Identification of the aspect of the flight life cycle. 
+         </documentation>
+      </annotation>
+      <complexContent>
+         <extension base="fb:FeatureType">
+            <attribute name="accepted" type="fx:FlightAcceptedIndicatorType" use="optional" > 
+               <annotation>
+                  <documentation>
+                     .Flight Plan Accepted Indicator: An indicator of acceptance of the flight plan by 
+                     the appropriate ATS authority. 
+                  </documentation>
+               </annotation>
+            </attribute>
+            <attribute name="airborneHold" type="fx:AirborneHoldIndicatorType" use="optional" > 
+               <annotation>
+                  <documentation>
+                     .Hold State - Airborne Indicator: Specifies whether or not the aircraft is in an 
+                     airborne hold. 
+                  </documentation>
+               </annotation>
+            </attribute>
+            <attribute name="airfile" type="fx:AirfileIndicatorType" use="optional" > 
+               <annotation>
+                  <documentation>
+                     .Airfile Indicator: An indication the information about this flight was filed from 
+                     the air. 
+                  </documentation>
+               </annotation>
+            </attribute>
+            <attribute name="flightCycle" type="fx:FlightCycleType" use="optional" > 
+               <annotation>
+                  <documentation>
+                     Flight Cycle is contains a mutually exclusive set of values representing stages of 
+                     flight. 
+                     .Flight Completed Indicator: An indicator that the flight was airborne and is now 
+                     completed. 
+                     .Flight Cancelled Indicator: Indication the flight has been cancelled after Flight 
+                     Object creation. 
+                     .Flight Filed Indicator: An indicator that flight information was filed to the appropriate 
+                     Air Traffic Services authority. 
+                     .Airborne Indicator: An indication of whether the flight is airborne or not. 
+                     .Flight Scheduled Indicator: An indicator a flight has been created in the Air Traffic 
+                     Services system and is expected to operate. 
+                  </documentation>
+               </annotation>
+            </attribute>
+            <attribute name="missedApproach" type="fx:MissedApproachIndicatorType" use="optional" > 
+               <annotation>
+                  <documentation>
+                     .Missed Approach Indicator: An indicator that a flight executed a missed approach. 
+                     
+                  </documentation>
+               </annotation>
+            </attribute>
+            <attribute name="suspended" type="fx:FlightSuspendedIndicatorType" use="optional" > 
+               <annotation>
+                  <documentation>
+                     .Flight Suspended Indicator: An indicator a flight has been suspended in the Air 
+                     Traffic Services system. 
+                  </documentation>
+               </annotation>
+            </attribute>
+         </extension>
+      </complexContent>
+   </complexType>
+   <element name="FlightStatus" type="fx:FlightStatusType" substitutionGroup="fb:Feature" /> 
+
+   <simpleType name="FlightSuspendedIndicatorType">
+      <annotation>
+         <documentation>
+            .Flight Suspended Indicator: An indicator a flight has been suspended in the Air 
+            Traffic Services system. 
+         </documentation>
+      </annotation>
+      <restriction base="xs:string">
+         <enumeration value="SUSPENDED"/>
+         <enumeration value="NOT_SUSPENDED"/>
+      </restriction>
+   </simpleType>
+
+   <simpleType name="MissedApproachIndicatorType">
+      <annotation>
+         <documentation>
+            .Missed Approach Indicator: An indicator that a flight executed a missed approach. 
+            
+         </documentation>
+      </annotation>
+      <restriction base="xs:string">
+         <enumeration value="MISSED_APPROACH"/>
+      </restriction>
+   </simpleType>
+</schema>

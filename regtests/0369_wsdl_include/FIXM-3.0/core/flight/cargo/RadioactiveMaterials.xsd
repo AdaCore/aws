@@ -1,0 +1,350 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<schema
+   attributeFormDefault="unqualified"
+   elementFormDefault="unqualified"
+   targetNamespace="http://www.fixm.aero/flight/3.0"
+   version="3.00"
+   xmlns="http://www.w3.org/2001/XMLSchema"
+   xmlns:fb="http://www.fixm.aero/base/3.0"
+   xmlns:ff="http://www.fixm.aero/foundation/3.0"
+   xmlns:fx="http://www.fixm.aero/flight/3.0"
+   xmlns:xs="http://www.w3.org/2001/XMLSchema">
+   
+   <annotation>
+      <documentation>
+         Copyright (c) 2014 Airservices Australia, EUROCONTROL, JCAB, NATS Limited, NavCanada, 
+         SESAR Joint Undertaking &amp; US FAA 
+         =========================================== 
+         All rights reserved. 
+          
+         Redistribution and use in source and binary forms, with or without modification, 
+         are permitted 
+         provided that the following conditions are met: 
+         * Redistributions of source code must retain the above copyright notice, this list 
+         of conditions and 
+         the disclaimer. 
+         * Redistributions in binary form must reproduce the above copyright notice, this 
+         list of conditions 
+         and the disclaimer in the documentation and/or other materials provided with the 
+         distribution. 
+         * Neither the names of Airservices Australia, EUROCONTROL, JCAB, NATS Limited, NavCanada, 
+         
+         SESAR Joint Undertaking &amp; US FAA nor the names of their contributors may be used 
+         to endorse or 
+         promote products derived from this specification without specific prior written permission. 
+         
+          
+         DISCLAIMER 
+          
+         THIS SPECIFICATION IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" 
+         
+         AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED 
+         
+         WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE 
+         DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR 
+         ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES 
+         (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS 
+         
+         OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY 
+         THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING 
+         NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN 
+         
+         IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE. 
+          
+          
+         Editorial note: this license is an instance of the BSD license template as provided 
+         by the Open 
+         Source Initiative: 
+         http://www.opensource.org/licenses/bsd-license.php 
+          
+         The authoritative reference for FIXM is www.FIXM.aero. 
+          
+         Details on Airservices Australia: http://www.airservicesaustralia.com/ 
+         Details on EUROCONTROL: http://www.eurocontrol.int/ 
+         Details on JCAB: http://www.mlit.go.jp/en/koku/index.html 
+         Details on NATS Limited: http://www.nats.co.uk/ 
+         Details on NavCanada: http://www.navcanada.ca/ 
+         Details on the SESAR JU and its members: http://www.sesarju.eu/players/members 
+         Details on the US FAA: http://www.faa.gov/ 
+         Details on the US FAAs NextGen program: http://www.faa.gov/NextGen 
+      </documentation>
+   </annotation>
+   <import namespace="http://www.fixm.aero/base/3.0" schemaLocation="./../../base/Base.xsd"/>
+   <import namespace="http://www.fixm.aero/foundation/3.0" schemaLocation="./../../foundation/Foundation.xsd"/>
+   <annotation>
+      <documentation>
+         .Radioactive Materials: The XML grouping element for goods that contain radioactive 
+         materials. 
+      </documentation>
+   </annotation>
+
+   <simpleType name="FissileExceptedType">
+      <annotation>
+         <documentation>
+            .Fissile Excepted Indicator: An indicator of whether the restrictions for fissile 
+            material are excepted for a particular package. 
+         </documentation>
+      </annotation>
+      <restriction base="xs:string">
+         <enumeration value="EXCEPTED">
+            <annotation>
+               <documentation>
+                  Indicates the restrictions for fissile material are excepted for a particular package. 
+                  
+               </documentation>
+            </annotation>
+         </enumeration>
+      </restriction>
+   </simpleType>
+
+   <simpleType name="MaterialDispersabilityType">
+      <annotation>
+         <documentation>
+            .Low Dispersible Material Indicator: An indicator the dangerous good is a low dispersible 
+            radioactive material, a solid radioactive material or a solid radioactive material 
+            in a sealed capsule, which has limited dispersibility and is not in powder form. 
+            
+         </documentation>
+      </annotation>
+      <restriction base="xs:string">
+         <enumeration value="LOW_DISPERSIBLE">
+            <annotation>
+               <documentation>
+                  Indicates that the dangerous good is either (1) a low dispersible radioactive material, 
+                  (2) a solid radioactive material, or (3) a solid radioactive material in a sealed 
+                  capsule which has limited dispersibility and is not in powder form. 
+               </documentation>
+            </annotation>
+         </enumeration>
+      </restriction>
+   </simpleType>
+
+   <complexType name="RadioactiveMaterialType">
+      <annotation>
+         <documentation>
+            .Radioactive Materials: The XML grouping element for goods that contain radioactive 
+            materials. 
+         </documentation>
+      </annotation>
+      <sequence>
+         <element name="radionuclide" type="fx:RadionuclideType" minOccurs="0" maxOccurs="1" > 
+            <annotation>
+               <documentation>
+                  .Radionuclide: The XML sub-grouping element for Radioactive Materials. 
+               </documentation>
+            </annotation>
+         </element>
+      </sequence>
+      <attribute name="category" type="fx:RadioactiveMaterialCategoryType" use="optional" > 
+         <annotation>
+            <documentation>
+               .Radioactive Material Category: A category used for radioactive materials in a package, 
+               overpack or freight container, based on their maximum radiation level. 
+            </documentation>
+         </annotation>
+      </attribute>
+      <attribute name="criticalitySafetyIndex" use="optional" > 
+         <annotation>
+            <documentation>
+               .Criticality Safety Index: The dimensionless number (rounded up to the next tenth) 
+               assigned to and placed on the label of a fissile material package to designate the 
+               degree of control of accumulation of packages containing fissile material during 
+               transportation. 
+            </documentation>
+         </annotation>
+         <simpleType>
+            <restriction base="fb:DecimalIndexType">
+               <minInclusive value="0.0"/>
+               <maxInclusive value="100.0"/>
+            </restriction>
+         </simpleType>
+      </attribute>
+      <attribute name="fissileExceptedIndicator" type="fx:FissileExceptedType" use="optional" > 
+         <annotation>
+            <documentation>
+               .Fissile Excepted Indicator: An indicator of whether the restrictions for fissile 
+               material are excepted for a particular package. 
+            </documentation>
+         </annotation>
+      </attribute>
+      <attribute name="transportIndex" use="optional" > 
+         <annotation>
+            <documentation>
+               .Transport Index: A figure representing the radiation level measured at one meter 
+               from the package. 
+            </documentation>
+         </annotation>
+         <simpleType>
+            <restriction base="fb:DecimalIndexType">
+               <minInclusive value="0.0"/>
+               <maxInclusive value="50.0"/>
+            </restriction>
+         </simpleType>
+      </attribute>
+   </complexType>
+   <element name="RadioactiveMaterial" type="fx:RadioactiveMaterialType" /> 
+
+   <complexType name="RadioactiveMaterialActivityType">
+      <annotation>
+         <documentation>
+            .Activity: The measure of the rate of decay, or activity, of a radioactive material. 
+            
+         </documentation>
+      </annotation>
+      <simpleContent>
+         <extension base="ff:UnitOfMeasureType">
+            <attribute name="uom" type="fx:RadioactivityMeasureType" use="required" > 
+               <annotation>
+                  <documentation>
+                     Units of measure of for RadioactiveMaterialActivity. 
+                  </documentation>
+               </annotation>
+            </attribute>
+         </extension>
+      </simpleContent>
+   </complexType>
+
+   <simpleType name="RadioactiveMaterialCategoryType">
+      <annotation>
+         <documentation>
+            .Radioactive Material Category: A category used for radioactive materials in a package, 
+            overpack or freight container, based on their maximum radiation level. 
+         </documentation>
+      </annotation>
+      <restriction base="xs:string">
+         <enumeration value="I_WHITE">
+            <annotation>
+               <documentation>
+                  .Surface radiation &amp;lt;0.5 millirem/hr, 1 meter radiation: N/A 
+               </documentation>
+            </annotation>
+         </enumeration>
+         <enumeration value="II_YELLOW">
+            <annotation>
+               <documentation>
+                  .Surface radiation &amp;lt;50 millirem/hr, 1 meter radiation &amp;lt;1 millirem/hr 
+                  
+               </documentation>
+            </annotation>
+         </enumeration>
+         <enumeration value="III_YELLOW">
+            <annotation>
+               <documentation>
+                  .Surface radiation &amp;gt;50 millirem/hr, 1 meter radiation &amp;gt;1 millirem/hr 
+                  
+               </documentation>
+            </annotation>
+         </enumeration>
+      </restriction>
+   </simpleType>
+
+   <simpleType name="RadioactivityMeasureType">
+      <annotation>
+         <documentation>
+            Units of measure of for RadioactiveMaterialActivity. 
+         </documentation>
+      </annotation>
+      <restriction base="xs:string">
+         <enumeration value="GRAMS">
+            <annotation>
+               <documentation>
+                  NOT a valid measure of a material's radioactivity, but included here to keep in line 
+                  with the Data Dictionary. 
+               </documentation>
+            </annotation>
+         </enumeration>
+         <enumeration value="BECQUERELS">
+            <annotation>
+               <documentation>
+                  The SI unit of radioactive activity (replaces "curie"). 
+               </documentation>
+            </annotation>
+         </enumeration>
+      </restriction>
+   </simpleType>
+
+   <complexType name="RadionuclideType">
+      <annotation>
+         <documentation>
+            .Radionuclide: The XML sub-grouping element for Radioactive Materials. 
+         </documentation>
+      </annotation>
+      <sequence>
+         <element name="activity" type="fx:RadioactiveMaterialActivityType" minOccurs="0" maxOccurs="1" > 
+            <annotation>
+               <documentation>
+                  .Activity: The measure of the rate of decay, or activity, of a radioactive material. 
+                  
+               </documentation>
+            </annotation>
+         </element>
+      </sequence>
+      <attribute name="lowDispersibleMaterialIndicator" type="fx:MaterialDispersabilityType" use="optional" > 
+         <annotation>
+            <documentation>
+               .Low Dispersible Material Indicator: An indicator the dangerous good is a low dispersible 
+               radioactive material, a solid radioactive material or a solid radioactive material 
+               in a sealed capsule, which has limited dispersibility and is not in powder form. 
+               
+            </documentation>
+         </annotation>
+      </attribute>
+      <attribute name="physicalChemicalForm" type="fb:FreeTextType" use="optional" > 
+         <annotation>
+            <documentation>
+               .Physical and Chemical Form: A description of the physical and chemical form when 
+               the dangerous goods are radioactive. 
+            </documentation>
+         </annotation>
+      </attribute>
+      <attribute name="radionuclideId" use="optional" > 
+         <annotation>
+            <documentation>
+               .Radionuclide ID: Identification number of each radionuclide or for mixtures of radionuclides. 
+               
+            </documentation>
+         </annotation>
+         <simpleType>
+            <restriction base="fb:FreeTextType">
+               <pattern value="(UN)|(ID)|(NA)?\d{4}"/>
+            </restriction>
+         </simpleType>
+      </attribute>
+      <attribute name="radionuclideName" type="fb:FreeTextType" use="optional" > 
+         <annotation>
+            <documentation>
+               .Radionuclide Name: The name or symbol of each radionuclide or for mixtures of radionuclides, 
+               an appropriate general description, or a list of the most restrictive nuclides. 
+            </documentation>
+         </annotation>
+      </attribute>
+      <attribute name="specialFormIndicator" type="fx:SpecialFormType" use="optional" > 
+         <annotation>
+            <documentation>
+               .Special Form Indicator: A notation that the material is 'special form' and cannot 
+               produce radioactive contamination. 
+            </documentation>
+         </annotation>
+      </attribute>
+   </complexType>
+   <element name="Radionuclide" type="fx:RadionuclideType" /> 
+
+   <simpleType name="SpecialFormType">
+      <annotation>
+         <documentation>
+            .Special Form Indicator: A notation that the material is 'special form' and cannot 
+            produce radioactive contamination. 
+         </documentation>
+      </annotation>
+      <restriction base="xs:string">
+         <enumeration value="SPECIAL_FORM">
+            <annotation>
+               <documentation>
+                  Indicates that the material is 'special form' and cannot produce radioactive contamination. 
+                  
+               </documentation>
+            </annotation>
+         </enumeration>
+      </restriction>
+   </simpleType>
+</schema>

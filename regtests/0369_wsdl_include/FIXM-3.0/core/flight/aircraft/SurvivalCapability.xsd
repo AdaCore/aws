@@ -1,0 +1,280 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<schema
+   attributeFormDefault="unqualified"
+   elementFormDefault="unqualified"
+   targetNamespace="http://www.fixm.aero/flight/3.0"
+   version="3.00"
+   xmlns="http://www.w3.org/2001/XMLSchema"
+   xmlns:fb="http://www.fixm.aero/base/3.0"
+   xmlns:fx="http://www.fixm.aero/flight/3.0"
+   xmlns:xs="http://www.w3.org/2001/XMLSchema">
+   
+   <annotation>
+      <documentation>
+         Copyright (c) 2014 Airservices Australia, EUROCONTROL, JCAB, NATS Limited, NavCanada, 
+         SESAR Joint Undertaking &amp; US FAA 
+         =========================================== 
+         All rights reserved. 
+          
+         Redistribution and use in source and binary forms, with or without modification, 
+         are permitted 
+         provided that the following conditions are met: 
+         * Redistributions of source code must retain the above copyright notice, this list 
+         of conditions and 
+         the disclaimer. 
+         * Redistributions in binary form must reproduce the above copyright notice, this 
+         list of conditions 
+         and the disclaimer in the documentation and/or other materials provided with the 
+         distribution. 
+         * Neither the names of Airservices Australia, EUROCONTROL, JCAB, NATS Limited, NavCanada, 
+         
+         SESAR Joint Undertaking &amp; US FAA nor the names of their contributors may be used 
+         to endorse or 
+         promote products derived from this specification without specific prior written permission. 
+         
+          
+         DISCLAIMER 
+          
+         THIS SPECIFICATION IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" 
+         
+         AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED 
+         
+         WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE 
+         DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR 
+         ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES 
+         (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS 
+         
+         OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY 
+         THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING 
+         NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN 
+         
+         IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE. 
+          
+          
+         Editorial note: this license is an instance of the BSD license template as provided 
+         by the Open 
+         Source Initiative: 
+         http://www.opensource.org/licenses/bsd-license.php 
+          
+         The authoritative reference for FIXM is www.FIXM.aero. 
+          
+         Details on Airservices Australia: http://www.airservicesaustralia.com/ 
+         Details on EUROCONTROL: http://www.eurocontrol.int/ 
+         Details on JCAB: http://www.mlit.go.jp/en/koku/index.html 
+         Details on NATS Limited: http://www.nats.co.uk/ 
+         Details on NavCanada: http://www.navcanada.ca/ 
+         Details on the SESAR JU and its members: http://www.sesarju.eu/players/members 
+         Details on the US FAA: http://www.faa.gov/ 
+         Details on the US FAAs NextGen program: http://www.faa.gov/NextGen 
+      </documentation>
+   </annotation>
+   <import namespace="http://www.fixm.aero/base/3.0" schemaLocation="./../../base/Base.xsd"/>
+   <annotation>
+      <documentation>
+         Contains information about the aircraft's survival capabilities equipment. 
+      </documentation>
+   </annotation>
+
+   <complexType name="DinghyType">
+      <annotation>
+         <documentation>
+            Describes the aircraft dingy. 
+         </documentation>
+      </annotation>
+      <sequence>
+         <element name="colour" type="fx:DinghyColourType" minOccurs="0" maxOccurs="1" > 
+            <annotation>
+               <documentation>
+                  .Dinghy Color: The color of the dinghies carried by the aircraft. 
+               </documentation>
+            </annotation>
+         </element>
+      </sequence>
+      <attribute name="covered" type="fx:DinghyCoverType" use="optional" > 
+         <annotation>
+            <documentation>
+               .Dinghy Cover Status: Indication of the covered/uncovered nature of the dinghies 
+               carried by the aircraft. 
+            </documentation>
+         </annotation>
+      </attribute>
+      <attribute name="quantity" type="fb:CountType" use="optional" > 
+         <annotation>
+            <documentation>
+               .Dinghy Quantity: The number of dinghies carried by the aircraft. 
+            </documentation>
+         </annotation>
+      </attribute>
+      <attribute name="totalCapacity" type="fb:CountType" use="optional" > 
+         <annotation>
+            <documentation>
+               Dinghy Total Capacity: The total number of persons that can be accommodated by the 
+               dinghies carried on board the aircraft. 
+               .Dinghy Total Capacity: The total number of persons that can be accommodated by the 
+               dinghies carried on board the aircraft. 
+            </documentation>
+         </annotation>
+      </attribute>
+   </complexType>
+   <element name="Dinghy" type="fx:DinghyType" /> 
+
+   <complexType name="DinghyColourType">
+      <annotation>
+         <documentation>
+            .Dinghy Colour: The colour of the dinghies carried by the aircraft. 
+         </documentation>
+      </annotation>
+      <choice>
+         <element name="colourCode" type="fx:DinghyColourCodeType" minOccurs="0" maxOccurs="1" > 
+            <annotation>
+               <documentation>
+                  .Dinghy Color: The color of the dinghies carried by the aircraft. 
+               </documentation>
+            </annotation>
+         </element>
+         <element name="otherColour" type="fb:FreeTextType" minOccurs="0" maxOccurs="1" > 
+            <annotation>
+               <documentation>
+                  Any other color of the dinghy that is not among the standards set. 
+               </documentation>
+            </annotation>
+         </element>
+      </choice>
+   </complexType>
+   <element name="DinghyColour" type="fx:DinghyColourType" /> 
+
+   <simpleType name="DinghyColourCodeType">
+      <annotation>
+         <documentation>
+            .Dinghy Color: The color of the dinghies carried by the aircraft. 
+         </documentation>
+      </annotation>
+      <restriction base="xs:string">
+         <enumeration value="RED"/>
+         <enumeration value="ORANGE"/>
+         <enumeration value="YELLOW"/>
+         <enumeration value="GREEN"/>
+         <enumeration value="BLUE"/>
+         <enumeration value="VIOLET"/>
+         <enumeration value="BLACK"/>
+         <enumeration value="WHITE"/>
+         <enumeration value="GRAY"/>
+         <enumeration value="SILVER"/>
+      </restriction>
+   </simpleType>
+
+   <simpleType name="DinghyCoverType">
+      <annotation>
+         <documentation>
+            .Dinghy Cover Status: Indication of the covered/uncovered nature of the dinghies 
+            carried by the aircraft. 
+         </documentation>
+      </annotation>
+      <restriction base="xs:string">
+         <enumeration value="COVERED"/>
+      </restriction>
+   </simpleType>
+
+   <simpleType name="EmergencyRadioCodeType">
+      <annotation>
+         <documentation>
+            .Emergency Radio Transmitter Type: The type of serviceable communication devices 
+            available on the aircraft that are able to transmit an emergency radio signal. 
+         </documentation>
+      </annotation>
+      <restriction base="xs:string">
+         <enumeration value="ULTRA_HIGH_FREQUENCY"/>
+         <enumeration value="VERY_HIGH_FREQUENCY"/>
+         <enumeration value="EMERGENCY_LOCATOR_TRANSMITTER"/>
+      </restriction>
+   </simpleType>
+
+   <simpleType name="LifeJacketCodeType">
+      <annotation>
+         <documentation>
+            .Life Jacket Type: The type of life jackets available on board the aircraft. 
+         </documentation>
+      </annotation>
+      <restriction base="xs:string">
+         <enumeration value="FLUORESCEIN"/>
+         <enumeration value="VERY_HIGH_FREQUENCY"/>
+         <enumeration value="LIGHTS"/>
+         <enumeration value="ULTRA_HIGH_FREQUENCY"/>
+      </restriction>
+   </simpleType>
+
+   <complexType name="SurvivalCapabilitiesType">
+      <annotation>
+         <documentation>
+            Groups the aircraft survival capabilities. 
+         </documentation>
+      </annotation>
+      <sequence>
+         <element name="dinghyInformation" type="fx:DinghyType" minOccurs="0" maxOccurs="1" > 
+            <annotation>
+               <documentation>
+                  Describes the aircraft dingy. 
+               </documentation>
+            </annotation>
+         </element>
+         <element name="emergencyRadioCode" minOccurs="0" maxOccurs="1" > 
+            <annotation>
+               <documentation>
+                  .Emergency Radio Transmitter Type: The type of serviceable communication devices 
+                  available on the aircraft that are able to transmit an emergency radio signal. 
+               </documentation>
+            </annotation>
+            <simpleType>
+               <list itemType="fx:EmergencyRadioCodeType"/>
+            </simpleType>
+         </element>
+         <element name="lifeJacketCode" minOccurs="0" maxOccurs="1" > 
+            <annotation>
+               <documentation>
+                  .Life Jacket Type: The type of life jackets available on board the aircraft. 
+               </documentation>
+            </annotation>
+            <simpleType>
+               <list itemType="fx:LifeJacketCodeType"/>
+            </simpleType>
+         </element>
+         <element name="survivalEquipmentCode" minOccurs="0" maxOccurs="1" > 
+            <annotation>
+               <documentation>
+                  .Survival Equipment Type: The type of equipment carried on board the aircraft that 
+                  can be used by the crew and passengers to assist survival in harsh environments in 
+                  case of emergency. 
+               </documentation>
+            </annotation>
+            <simpleType>
+               <list itemType="fx:SurvivalEquipmentCodeType"/>
+            </simpleType>
+         </element>
+      </sequence>
+      <attribute name="survivalEquipmentRemarks" type="fb:FreeTextType" use="optional" > 
+         <annotation>
+            <documentation>
+               .Survival Equipment Remarks: A description of survival equipment carried on the aircraft 
+               and any other useful remarks regarding survival equipment. 
+            </documentation>
+         </annotation>
+      </attribute>
+   </complexType>
+   <element name="SurvivalCapabilities" type="fx:SurvivalCapabilitiesType" /> 
+
+   <simpleType name="SurvivalEquipmentCodeType">
+      <annotation>
+         <documentation>
+            .Survival Equipment Type: The type of equipment carried on board the aircraft that 
+            can be used by the crew and passengers to assist survival in harsh environments in 
+            case of emergency. 
+         </documentation>
+      </annotation>
+      <restriction base="xs:string">
+         <enumeration value="POLAR"/>
+         <enumeration value="DESERT"/>
+         <enumeration value="MARITIME"/>
+         <enumeration value="JUNGLE"/>
+      </restriction>
+   </simpleType>
+</schema>

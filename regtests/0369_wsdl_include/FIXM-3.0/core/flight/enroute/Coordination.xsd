@@ -1,0 +1,378 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<schema
+   attributeFormDefault="unqualified"
+   elementFormDefault="unqualified"
+   targetNamespace="http://www.fixm.aero/flight/3.0"
+   version="3.00"
+   xmlns="http://www.w3.org/2001/XMLSchema"
+   xmlns:fb="http://www.fixm.aero/base/3.0"
+   xmlns:ff="http://www.fixm.aero/foundation/3.0"
+   xmlns:fx="http://www.fixm.aero/flight/3.0"
+   xmlns:xs="http://www.w3.org/2001/XMLSchema">
+   
+   <annotation>
+      <documentation>
+         Copyright (c) 2014 Airservices Australia, EUROCONTROL, JCAB, NATS Limited, NavCanada, 
+         SESAR Joint Undertaking &amp; US FAA 
+         =========================================== 
+         All rights reserved. 
+          
+         Redistribution and use in source and binary forms, with or without modification, 
+         are permitted 
+         provided that the following conditions are met: 
+         * Redistributions of source code must retain the above copyright notice, this list 
+         of conditions and 
+         the disclaimer. 
+         * Redistributions in binary form must reproduce the above copyright notice, this 
+         list of conditions 
+         and the disclaimer in the documentation and/or other materials provided with the 
+         distribution. 
+         * Neither the names of Airservices Australia, EUROCONTROL, JCAB, NATS Limited, NavCanada, 
+         
+         SESAR Joint Undertaking &amp; US FAA nor the names of their contributors may be used 
+         to endorse or 
+         promote products derived from this specification without specific prior written permission. 
+         
+          
+         DISCLAIMER 
+          
+         THIS SPECIFICATION IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" 
+         
+         AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED 
+         
+         WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE 
+         DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR 
+         ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES 
+         (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS 
+         
+         OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY 
+         THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING 
+         NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN 
+         
+         IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE. 
+          
+          
+         Editorial note: this license is an instance of the BSD license template as provided 
+         by the Open 
+         Source Initiative: 
+         http://www.opensource.org/licenses/bsd-license.php 
+          
+         The authoritative reference for FIXM is www.FIXM.aero. 
+          
+         Details on Airservices Australia: http://www.airservicesaustralia.com/ 
+         Details on EUROCONTROL: http://www.eurocontrol.int/ 
+         Details on JCAB: http://www.mlit.go.jp/en/koku/index.html 
+         Details on NATS Limited: http://www.nats.co.uk/ 
+         Details on NavCanada: http://www.navcanada.ca/ 
+         Details on the SESAR JU and its members: http://www.sesarju.eu/players/members 
+         Details on the US FAA: http://www.faa.gov/ 
+         Details on the US FAAs NextGen program: http://www.faa.gov/NextGen 
+      </documentation>
+   </annotation>
+   <include schemaLocation="./CoordinationStatus.xsd"/>
+   <import namespace="http://www.fixm.aero/base/3.0" schemaLocation="./../../base/Base.xsd"/>
+   <import namespace="http://www.fixm.aero/foundation/3.0" schemaLocation="./../../foundation/Foundation.xsd"/>
+   <annotation>
+      <documentation>
+         The Coordination package contains details of transfer of control between the air 
+         traffic control units as the flight progresses through the boundaries along the route. 
+         
+      </documentation>
+   </annotation>
+
+   <complexType name="AltitudeInTransitionType">
+      <annotation>
+         <documentation>
+            .Boundary Crossing Level - Transition/Coordinated: An altitude (flight level) at 
+            or above/below which an aircraft will cross the associated boundary point. 
+            .Boundary Crossing Level - Transition - Proposed: The proposed altitude (flight level) 
+            at or above/below which an aircraft will cross the associated boundary point, as 
+            requested by the accepting controller from the transferring controller. 
+            .Boundary Crossing Level - Transition: An altitude (flight level) at or above/below 
+            which (specified in Boundary Crossing Condition) an aircraft will cross the associated 
+            boundary point. 
+         </documentation>
+      </annotation>
+      <simpleContent>
+         <extension base="ff:AltitudeType">
+            <attribute name="crossingCondition" type="fx:BoundaryCrossingConditionType" use="optional" > 
+               <annotation>
+                  <documentation>
+                     .Boundary Crossing Level - Transition/Coordinated: An altitude (flight level) at 
+                     or above/below which an aircraft will cross the associated boundary point. 
+                     .Boundary Crossing Level - Transition - Proposed: The proposed altitude (flight level) 
+                     at or above/below which an aircraft will cross the associated boundary point, as 
+                     requested by the accepting controller from the transferring controller. 
+                  </documentation>
+               </annotation>
+            </attribute>
+         </extension>
+      </simpleContent>
+   </complexType>
+
+   <complexType name="BoundaryCrossingType">
+      <annotation>
+         <documentation>
+            Abstract Boundary Crossing contains shared data between the BoundaryCrossingProposed 
+            and BoundaryCrossingCoordinated classes. 
+         </documentation>
+      </annotation>
+      <sequence>
+         <element name="altitude" type="fb:AltitudeChoiceType" minOccurs="0" maxOccurs="1" > 
+            <annotation>
+               <documentation>
+                  .Boundary Crossing Level - Cleared/Coordinated: The cleared altitude (flight level) 
+                  at which the aircraft will cross the boundary crossing point if in level cruising 
+                  flight or, if the aircraft is climbing or descending at the boundary crossing point, 
+                  the cleared flight level to which it is proceeding. 
+                  .Boundary Crossing Level - Cleared Block - Proposed: The proposed vertical range 
+                  of levels transmitted as the boundary crossing level during negotiation between controllers. 
+                  
+                  .Boundary Crossing Level - Transition/Coordinated: An altitude (flight level) at 
+                  or above/below which an aircraft will cross the associated boundary point. 
+                  .Boundary Crossing Level - Cleared Block/Coordinated: A vertical range of levels 
+                  transmitted as the boundary crossing level. 
+                  .Boundary Crossing Level - Proposed: If the aircraft is at level cruising, the proposed 
+                  altitude (flight level) at which the aircraft will cross the boundary crossing point. 
+                   If the aircraft is climbing or descending at the boundary crossing point, then the 
+                  proposed cruise flight level to which it is proceeding when it crosses the boundary 
+                  crossing point. 
+               </documentation>
+            </annotation>
+         </element>
+         <element name="altitudeInTransition" type="fx:AltitudeInTransitionType" minOccurs="0" maxOccurs="1" > 
+            <annotation>
+               <documentation>
+                  Negotiated boundary crossing transition altitude. 
+               </documentation>
+            </annotation>
+         </element>
+         <element name="crossingPoint" type="fb:SignificantPointType" minOccurs="0" maxOccurs="1" > 
+            <annotation>
+               <documentation>
+                  .Boundary Crossing Point/Coordinated: The point where the flight will cross an ATS 
+                  facility boundary. 
+                  .Boundary Crossing Point - Proposed: The proposed point where the flight will cross 
+                  an ATS facility boundary, as requested by the accepting controller from the transferring 
+                  controller. 
+               </documentation>
+            </annotation>
+         </element>
+         <element name="crossingSpeed" type="fb:AirspeedChoiceType" minOccurs="0" maxOccurs="1" > 
+            <annotation>
+               <documentation>
+                  .Boundary Crossing - Assigned Speed - Proposed: During negotiation between controllers, 
+                  the proposed clearance information assigning a speed (or range of speeds) and speed 
+                  condition to the flight at the boundary point.  The speed condition indicates whether 
+                  the aircraft will be maintaining, exceeding, or flying more slowly than the assigned 
+                  boundary crossing speed. 
+                  .Boundary Crossing - Assigned Speed/Coordinated: Clearance information assigning 
+                  a speed (or range of speeds) and speed condition to the flight at the boundary point. 
+                   The speed condition indicates whether the aircraft will be maintaining, exceeding, 
+                  or flying more slowly than the assigned boundary crossing speed. 
+               </documentation>
+            </annotation>
+         </element>
+         <element name="offtrack" type="fb:LateralOfftrackType" minOccurs="0" maxOccurs="1" > 
+            <annotation>
+               <documentation>
+                  .Boundary Crossing - Off Track Information - Proposed: Provides the off track clearance 
+                  information, if the flight is proposed to be off track at the boundary crossing point. 
+                   For the boundary crossing point, the off track information includes the off track 
+                  direction, the distance and the reason the aircraft is off track. 
+                  .Boundary Crossing - Off Track Information/Coordinated: Provides the off track clearance 
+                  information, if the flight will be off track at the boundary crossing point.  For 
+                  the boundary crossing point, the off track information includes the off track direction, 
+                  the distance and the reason the aircraft is off track. 
+               </documentation>
+            </annotation>
+         </element>
+      </sequence>
+      <attribute name="crossingTime" type="ff:TimeType" use="optional" > 
+         <annotation>
+            <documentation>
+               .Boundary Crossing Time - Proposed: The estimated time when the flight will cross 
+               the Boundary Crossing Point - Proposed, as requested by the accepting controller 
+               from the transferring controller. 
+               .Boundary Crossing Time/Coordinated: The estimated time at which a flight will cross 
+               the associated boundary crossing point. 
+            </documentation>
+         </annotation>
+      </attribute>
+   </complexType>
+   <element name="BoundaryCrossing" type="fx:BoundaryCrossingType" /> 
+
+   <simpleType name="BoundaryCrossingConditionType">
+      <annotation>
+         <documentation>
+            .Boundary Crossing Condition: Indicator of whether an aircraft will cross an associated 
+            boundary crossing point at or above, or at or below the altitude specified by the 
+            Boundary Crossing Level - Transition. 
+         </documentation>
+      </annotation>
+      <restriction base="xs:string">
+         <enumeration value="AT_OR_ABOVE">
+            <annotation>
+               <documentation>
+                  Indicates that the transition altitude is at or above the specified. 
+               </documentation>
+            </annotation>
+         </enumeration>
+         <enumeration value="AT_OR_BELOW">
+            <annotation>
+               <documentation>
+                  Indicates that the transition altitude is at or below the specified. 
+               </documentation>
+            </annotation>
+         </enumeration>
+      </restriction>
+   </simpleType>
+
+   <complexType name="HandoffType">
+      <annotation>
+         <documentation>
+            An action taken to transfer the radar identification of an aircraft from one controller 
+            to another controller if the aircraft will enter the receiving controller's airspace 
+            and radio communications with the aircraft will be transferred. 
+         </documentation>
+      </annotation>
+      <sequence>
+         <element name="coordinationStatus" type="fx:CoordinationStatusType" minOccurs="0" maxOccurs="1" > 
+            <annotation>
+               <documentation>
+                  .Coordination Status: The status of Coordination and Transfer of Control between 
+                  the currently Controlling Air Traffic Service Unit (ATSU) to the downstream to be 
+                  Controlling ATSU. 
+               </documentation>
+            </annotation>
+         </element>
+         <element name="receivingUnit" type="fb:AtcUnitReferenceType" minOccurs="0" maxOccurs="1" > 
+            <annotation>
+               <documentation>
+                  .Handoff Receiving Sector: Identifies the ATC sector receiving control of the aircraft 
+                  as a result of a handoff. 
+                  .Handoff Receiving Unit: The Air Traffic Control unit receiving control of the aircraft 
+                  as a result of a handoff. 
+               </documentation>
+            </annotation>
+         </element>
+         <element name="transferringUnit" type="fb:AtcUnitReferenceType" minOccurs="0" maxOccurs="1" > 
+            <annotation>
+               <documentation>
+                  .Handoff Transferring Unit: The Air Traffic Control unit transferring control of 
+                  the aircraft as a result of a handoff. 
+                  .Handoff Transferring Sector: Identifies the ATC sector transferring control of the 
+                  aircraft as a result of a handoff. 
+               </documentation>
+            </annotation>
+         </element>
+      </sequence>
+   </complexType>
+   <element name="Handoff" type="fx:HandoffType" /> 
+
+   <complexType name="UnitBoundaryType">
+      <annotation>
+         <documentation>
+            Represents an Unit boundary that will be traversed En Route. 
+            .Unit Boundary: Identifies the unit whose boundary the flight is expected to traverse, 
+            based on the planned route of flight and altitude. 
+         </documentation>
+      </annotation>
+      <complexContent>
+         <extension base="fb:AtcUnitReferenceType">
+            <sequence>
+               <element name="boundaryCrossingCoordinated" type="fx:BoundaryCrossingType" minOccurs="0" maxOccurs="1" > 
+                  <annotation>
+                     <documentation>
+                        Coordinated boundary crossing information with associated details including altitude, 
+                        crossing point and crossing time. 
+                     </documentation>
+                  </annotation>
+               </element>
+               <element name="boundaryCrossingProposed" type="fx:BoundaryCrossingType" minOccurs="0" maxOccurs="1" > 
+                  <annotation>
+                     <documentation>
+                        A proposed boundary crossing information with associated details including altitude, 
+                        crossing point and crossing time. 
+                     </documentation>
+                  </annotation>
+               </element>
+               <element name="downstreamUnit" type="fb:AtcUnitReferenceType" minOccurs="0" maxOccurs="1" > 
+                  <annotation>
+                     <documentation>
+                        .Delegated Unit Indicator: Indicates whether or not the controlling unit has been 
+                        delegated authority for the flight based on agreement with the unit in whose Area 
+                        of Responsibility (AOR) the flight is currently located. 
+                        .Downstream Unit: The next unit the flight will be controlled by based on the planned 
+                        route of flight, altitude, and accepted constraints. 
+                     </documentation>
+                  </annotation>
+               </element>
+               <element name="handoff" type="fx:HandoffType" minOccurs="0" maxOccurs="1" > 
+                  <annotation>
+                     <documentation>
+                        An action taken to transfer the radar identification of an aircraft from one controller 
+                        to another controller if the aircraft will enter the receiving controller's airspace 
+                        and radio communications with the aircraft will be transferred. 
+                     </documentation>
+                  </annotation>
+               </element>
+               <element name="upstreamUnit" type="fb:AtcUnitReferenceType" minOccurs="0" maxOccurs="1" > 
+                  <annotation>
+                     <documentation>
+                        .Upstream Unit: The unit the flight will enter prior to this unit, based on the planned 
+                        route of flight, altitude, and accepted constraints. 
+                        .Delegated Unit Indicator: Indicates whether or not the controlling unit has been 
+                        delegated authority for the flight based on agreement with the unit in whose Area 
+                        of Responsibility (AOR) the flight is currently located. 
+                     </documentation>
+                  </annotation>
+               </element>
+            </sequence>
+            <attribute name="unitBoundaryIndicator" type="fx:UnitBoundaryIndicatorType" use="optional" > 
+               <annotation>
+                  <documentation>
+                     .Unit Boundary Indicator: An indicator of the status of the boundary crossing in 
+                     the Unit Boundary List as a past crossing, the current or next crossing, or a future 
+                     crossing. 
+                  </documentation>
+               </annotation>
+            </attribute>
+         </extension>
+      </complexContent>
+   </complexType>
+   <element name="UnitBoundary" type="fx:UnitBoundaryType" substitutionGroup="fb:AtcUnitReference" /> 
+
+   <simpleType name="UnitBoundaryIndicatorType">
+      <annotation>
+         <documentation>
+            .Unit Boundary Indicator: An indicator of the status of the boundary crossing in 
+            the Unit Boundary List as a past crossing, the current or next crossing, or a future 
+            crossing. 
+         </documentation>
+      </annotation>
+      <restriction base="xs:string">
+         <enumeration value="PAST">
+            <annotation>
+               <documentation>
+                  Indicates a past traversed Air Traffic Control Unit. 
+               </documentation>
+            </annotation>
+         </enumeration>
+         <enumeration value="CURRENT">
+            <annotation>
+               <documentation>
+                  Indicates a Current Air Traffic Control Unit. 
+               </documentation>
+            </annotation>
+         </enumeration>
+         <enumeration value="FUTURE">
+            <annotation>
+               <documentation>
+                  Indicates a future Air Traffic control unit. 
+               </documentation>
+            </annotation>
+         </enumeration>
+      </restriction>
+   </simpleType>
+</schema>

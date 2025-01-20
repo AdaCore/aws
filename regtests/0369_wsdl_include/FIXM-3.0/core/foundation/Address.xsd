@@ -1,0 +1,283 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<schema
+   attributeFormDefault="unqualified"
+   elementFormDefault="unqualified"
+   targetNamespace="http://www.fixm.aero/foundation/3.0"
+   version="3.00"
+   xmlns="http://www.w3.org/2001/XMLSchema"
+   xmlns:ff="http://www.fixm.aero/foundation/3.0"
+   xmlns:xs="http://www.w3.org/2001/XMLSchema">
+   
+   <annotation>
+      <documentation>
+         Copyright (c) 2014 Airservices Australia, EUROCONTROL, JCAB, NATS Limited, NavCanada, 
+         SESAR Joint Undertaking &amp; US FAA 
+         =========================================== 
+         All rights reserved. 
+          
+         Redistribution and use in source and binary forms, with or without modification, 
+         are permitted 
+         provided that the following conditions are met: 
+         * Redistributions of source code must retain the above copyright notice, this list 
+         of conditions and 
+         the disclaimer. 
+         * Redistributions in binary form must reproduce the above copyright notice, this 
+         list of conditions 
+         and the disclaimer in the documentation and/or other materials provided with the 
+         distribution. 
+         * Neither the names of Airservices Australia, EUROCONTROL, JCAB, NATS Limited, NavCanada, 
+         
+         SESAR Joint Undertaking &amp; US FAA nor the names of their contributors may be used 
+         to endorse or 
+         promote products derived from this specification without specific prior written permission. 
+         
+          
+         DISCLAIMER 
+          
+         THIS SPECIFICATION IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" 
+         
+         AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED 
+         
+         WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE 
+         DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR 
+         ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES 
+         (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS 
+         
+         OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY 
+         THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING 
+         NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN 
+         
+         IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE. 
+          
+          
+         Editorial note: this license is an instance of the BSD license template as provided 
+         by the Open 
+         Source Initiative: 
+         http://www.opensource.org/licenses/bsd-license.php 
+          
+         The authoritative reference for FIXM is www.FIXM.aero. 
+          
+         Details on Airservices Australia: http://www.airservicesaustralia.com/ 
+         Details on EUROCONTROL: http://www.eurocontrol.int/ 
+         Details on JCAB: http://www.mlit.go.jp/en/koku/index.html 
+         Details on NATS Limited: http://www.nats.co.uk/ 
+         Details on NavCanada: http://www.navcanada.ca/ 
+         Details on the SESAR JU and its members: http://www.sesarju.eu/players/members 
+         Details on the US FAA: http://www.faa.gov/ 
+         Details on the US FAAs NextGen program: http://www.faa.gov/NextGen 
+      </documentation>
+   </annotation>
+   <annotation>
+      <documentation>
+         The Address schema contains all FIXM definitions for addresses and other contact 
+         information. 
+      </documentation>
+   </annotation>
+
+   <complexType name="ContactInformationType">
+      <annotation>
+         <documentation>
+            Information required to enable contact with the responsible person and/or organisation. 
+             This model is derived from ISO19115-2003:Geographic Information- Metadata. 
+         </documentation>
+      </annotation>
+      <sequence>
+         <element name="address" type="ff:PostalAddressType" minOccurs="0" maxOccurs="1" > 
+            <annotation>
+               <documentation>
+                  Optional postal address of the contact. 
+               </documentation>
+            </annotation>
+         </element>
+         <element name="onlineContact" type="ff:OnlineContactType" minOccurs="0" maxOccurs="1" > 
+            <annotation>
+               <documentation>
+                  Optional e-mail address of the contact. 
+               </documentation>
+            </annotation>
+         </element>
+         <element name="phoneFax" type="ff:TelephoneContactType" minOccurs="0" maxOccurs="1" > 
+            <annotation>
+               <documentation>
+                  Optional phone or facsimile number of the contact. 
+               </documentation>
+            </annotation>
+         </element>
+      </sequence>
+      <attribute name="name" type="ff:TextNameType" use="optional" > 
+         <annotation>
+            <documentation>
+               The official name of the contact. In case of the organization use, it is the name 
+               of the person within the organization who is the contact point. 
+                
+               If the usage of  ContactInformation is associated with a person, this field should 
+               not be used, insead, the Person class' name should be used instead. 
+            </documentation>
+         </annotation>
+      </attribute>
+      <attribute name="title" type="ff:TextNameType" use="optional" > 
+         <annotation>
+            <documentation>
+               The official title of the contact. 
+            </documentation>
+         </annotation>
+      </attribute>
+   </complexType>
+   <element name="ContactInformation" type="ff:ContactInformationType" /> 
+
+   <complexType name="OnlineContactType">
+      <annotation>
+         <documentation>
+            On-line or Network information that can be used to contact the individual or organisation, 
+            including eMail address and web site page. 
+         </documentation>
+      </annotation>
+      <attribute name="email" type="ff:TextAddressType" use="optional" > 
+         <annotation>
+            <documentation>
+               The address of the electronic mailbox of the responsible organisation or individual. 
+               
+            </documentation>
+         </annotation>
+      </attribute>
+   </complexType>
+   <element name="OnlineContact" type="ff:OnlineContactType" /> 
+
+   <complexType name="PostalAddressType">
+      <annotation>
+         <documentation>
+            Physical address at which the organization or individual may be contacted. Derived 
+            from ISO19115-2003 
+         </documentation>
+      </annotation>
+      <attribute name="administrativeArea" type="ff:TextNameType" use="optional" > 
+         <annotation>
+            <documentation>
+               The state or province of the location or organisation. 
+            </documentation>
+         </annotation>
+      </attribute>
+      <attribute name="city" type="ff:TextCityType" use="optional" > 
+         <annotation>
+            <documentation>
+               The city of the location or organisation. 
+            </documentation>
+         </annotation>
+      </attribute>
+      <attribute name="countryCode" type="ff:TextCountryCodeType" use="optional" > 
+         <annotation>
+            <documentation>
+               The country of the physical address for the location or organisation.  ISO 3166 abbreviations. 
+               
+            </documentation>
+         </annotation>
+      </attribute>
+      <attribute name="countryName" type="ff:TextCountryNameType" use="optional" > 
+         <annotation>
+            <documentation>
+               The country of the physical address for the location or organisation.  Full name, 
+               not ISO 3166 abbreviations. 
+            </documentation>
+         </annotation>
+      </attribute>
+      <attribute name="deliveryPoint" type="ff:TextAddressType" use="optional" > 
+         <annotation>
+            <documentation>
+               The street address line for the location.  More than one address line may be used. 
+               
+            </documentation>
+         </annotation>
+      </attribute>
+      <attribute name="postalCode" type="ff:TextNameType" use="optional" > 
+         <annotation>
+            <documentation>
+               The ZIP or other postal code for the location or organisation. 
+            </documentation>
+         </annotation>
+      </attribute>
+   </complexType>
+   <element name="PostalAddress" type="ff:PostalAddressType" /> 
+
+   <complexType name="TelephoneContactType">
+      <annotation>
+         <documentation>
+            Telephone numbers at which the organisation or individual may be contacted.  From 
+            ISO19115-2003 
+         </documentation>
+      </annotation>
+      <attribute name="facimile" type="ff:TextPhoneType" use="optional" > 
+         <annotation>
+            <documentation>
+               The telephone number of a facsimile machine for the responsible organisation or individual. 
+               
+            </documentation>
+         </annotation>
+      </attribute>
+      <attribute name="voice" type="ff:TextPhoneType" use="optional" > 
+         <annotation>
+            <documentation>
+               The telephone number by which individuals can speak to the responsible organisation 
+               or individual. 
+            </documentation>
+         </annotation>
+      </attribute>
+   </complexType>
+   <element name="TelephoneContact" type="ff:TelephoneContactType" /> 
+
+   <simpleType name="TextAddressType">
+      <annotation>
+         <documentation>
+            Basis for e-mail and street addresses. 
+         </documentation>
+      </annotation>
+      <restriction base="xs:string"/>
+   </simpleType>
+
+   <simpleType name="TextCityType">
+      <annotation>
+         <documentation>
+            Address city. 
+         </documentation>
+      </annotation>
+      <restriction base="xs:string"/>
+   </simpleType>
+
+   <simpleType name="TextCountryCodeType">
+      <annotation>
+         <documentation>
+            Used in PostalAddress. 
+         </documentation>
+      </annotation>
+      <restriction base="xs:string">
+         <pattern value="[A-Z]{2}"/>
+      </restriction>
+   </simpleType>
+
+   <simpleType name="TextCountryNameType">
+      <annotation>
+         <documentation>
+            The country of the physical address for the location or organisation.  Full name, 
+            not ISO 3166 abbreviations. 
+         </documentation>
+      </annotation>
+      <restriction base="xs:string"/>
+   </simpleType>
+
+   <simpleType name="TextNameType">
+      <annotation>
+         <documentation>
+            Used for contact's title, name, and postal code. 
+         </documentation>
+      </annotation>
+      <restriction base="xs:string"/>
+   </simpleType>
+
+   <simpleType name="TextPhoneType">
+      <annotation>
+         <documentation>
+            Used for phone and facsimile numbers. 
+         </documentation>
+      </annotation>
+      <restriction base="xs:string"/>
+   </simpleType>
+</schema>

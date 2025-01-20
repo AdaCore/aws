@@ -1,0 +1,590 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<schema
+   attributeFormDefault="unqualified"
+   elementFormDefault="unqualified"
+   targetNamespace="http://www.fixm.aero/flight/3.0"
+   version="3.00"
+   xmlns="http://www.w3.org/2001/XMLSchema"
+   xmlns:fb="http://www.fixm.aero/base/3.0"
+   xmlns:ff="http://www.fixm.aero/foundation/3.0"
+   xmlns:fx="http://www.fixm.aero/flight/3.0"
+   xmlns:xs="http://www.w3.org/2001/XMLSchema">
+   
+   <annotation>
+      <documentation>
+         Copyright (c) 2014 Airservices Australia, EUROCONTROL, JCAB, NATS Limited, NavCanada, 
+         SESAR Joint Undertaking &amp; US FAA 
+         =========================================== 
+         All rights reserved. 
+          
+         Redistribution and use in source and binary forms, with or without modification, 
+         are permitted 
+         provided that the following conditions are met: 
+         * Redistributions of source code must retain the above copyright notice, this list 
+         of conditions and 
+         the disclaimer. 
+         * Redistributions in binary form must reproduce the above copyright notice, this 
+         list of conditions 
+         and the disclaimer in the documentation and/or other materials provided with the 
+         distribution. 
+         * Neither the names of Airservices Australia, EUROCONTROL, JCAB, NATS Limited, NavCanada, 
+         
+         SESAR Joint Undertaking &amp; US FAA nor the names of their contributors may be used 
+         to endorse or 
+         promote products derived from this specification without specific prior written permission. 
+         
+          
+         DISCLAIMER 
+          
+         THIS SPECIFICATION IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" 
+         
+         AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED 
+         
+         WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE 
+         DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR 
+         ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES 
+         (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS 
+         
+         OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY 
+         THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING 
+         NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN 
+         
+         IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE. 
+          
+          
+         Editorial note: this license is an instance of the BSD license template as provided 
+         by the Open 
+         Source Initiative: 
+         http://www.opensource.org/licenses/bsd-license.php 
+          
+         The authoritative reference for FIXM is www.FIXM.aero. 
+          
+         Details on Airservices Australia: http://www.airservicesaustralia.com/ 
+         Details on EUROCONTROL: http://www.eurocontrol.int/ 
+         Details on JCAB: http://www.mlit.go.jp/en/koku/index.html 
+         Details on NATS Limited: http://www.nats.co.uk/ 
+         Details on NavCanada: http://www.navcanada.ca/ 
+         Details on the SESAR JU and its members: http://www.sesarju.eu/players/members 
+         Details on the US FAA: http://www.faa.gov/ 
+         Details on the US FAAs NextGen program: http://www.faa.gov/NextGen 
+      </documentation>
+   </annotation>
+   <include schemaLocation="./DangerousGoods.xsd"/>
+   <include schemaLocation="./RadioactiveMaterials.xsd"/>
+   <import namespace="http://www.fixm.aero/base/3.0" schemaLocation="./../../base/Base.xsd"/>
+   <import namespace="http://www.fixm.aero/foundation/3.0" schemaLocation="./../../foundation/Foundation.xsd"/>
+   <annotation>
+      <documentation>
+         The FlightObject.Cargo.Packaging schema contains information about the packaging 
+         of dangerous goods. 
+      </documentation>
+   </annotation>
+
+   <complexType name="AllPackedInOneType">
+      <annotation>
+         <documentation>
+            .All Packed In One: A statement identifying the dangerous goods listed are all contained 
+            within the same outer packaging. 
+         </documentation>
+      </annotation>
+      <attribute name="numberOfPackages" type="fb:CountType" use="optional" > 
+         <annotation>
+            <documentation>
+               The number of packages in the same outer packaging. 
+            </documentation>
+         </annotation>
+      </attribute>
+      <attribute name="qValue" use="optional" > 
+         <annotation>
+            <documentation>
+               .Q Value: The amount of energy released in a reaction. 
+            </documentation>
+         </annotation>
+         <simpleType>
+            <restriction base="fb:DecimalIndexType">
+               <minInclusive value="0.0"/>
+               <maxInclusive value="1.0"/>
+            </restriction>
+         </simpleType>
+      </attribute>
+   </complexType>
+   <element name="AllPackedInOne" type="fx:AllPackedInOneType" /> 
+
+   <simpleType name="CompatibilityGroupType">
+      <annotation>
+         <documentation>
+            .Compatibility Group: When shipping dangerous goods, the reference to the group which 
+            identifies the kind of substances and articles deemed to be compatible. 
+         </documentation>
+      </annotation>
+      <restriction base="fb:FreeTextType">
+         <pattern value="[A-H|K-L|N|S]"/>
+      </restriction>
+   </simpleType>
+
+   <complexType name="DangerousGoodsDimensionsType">
+      <annotation>
+         <documentation>
+            Weight and volume (not height, width, and depth): 
+         </documentation>
+      </annotation>
+      <sequence>
+         <element name="grossWeight" type="ff:WeightType" minOccurs="0" maxOccurs="1" > 
+            <annotation>
+               <documentation>
+                  .Dangerous Goods Gross Weight: The total gross weight of dangerous goods transported 
+                  for each unique UN number. 
+               </documentation>
+            </annotation>
+         </element>
+         <element name="netWeight" type="ff:WeightType" minOccurs="0" maxOccurs="1" > 
+            <annotation>
+               <documentation>
+                  .Dangerous Goods Net Weight: The total net weight of dangerous goods transported 
+                  for each unique UN number. 
+               </documentation>
+            </annotation>
+         </element>
+         <element name="volume" type="ff:VolumeType" minOccurs="0" maxOccurs="1" > 
+            <annotation>
+               <documentation>
+                  .Dangerous Goods Volume: The total displacement of dangerous goods transported for 
+                  each unique UN number. 
+               </documentation>
+            </annotation>
+         </element>
+      </sequence>
+   </complexType>
+   <element name="DangerousGoodsDimensions" type="fx:DangerousGoodsDimensionsType" /> 
+
+   <complexType name="DangerousGoodsPackageType">
+      <annotation>
+         <documentation>
+            .Dangerous Goods List of Package Detail: The part of the IATA Shipper's Declaration 
+            For Dangerous Goods that contains the Package Details for the shipment. 
+            .Shipper's Declaration For Dangerous Goods Packaging Detail: The part of the IATA 
+            Shipper's Declaration For Dangerous Goods that contains the packaging details for 
+            this shipment. 
+            .Shipper's Declaration For Dangerous Goods Line Item Details: The part of the IATA 
+            Shipper's Declaration For Dangerous Goods contains the line items details for this 
+            shipment. 
+            .Dangerous Goods List of Line Item Detail: The part of the IATA Shipper's Declaration 
+            For Dangerous Goods that contains the Line Item information for the shipment. 
+            .Dangerous Goods List of Overpack Detail: The part of the IATA Shipper's Declaration 
+            For Dangerous Goods that contains the Overpack Detail for the shipment. 
+         </documentation>
+      </annotation>
+      <sequence>
+         <element name="allPackedInOne" type="fx:AllPackedInOneType" minOccurs="0" maxOccurs="1" > 
+            <annotation>
+               <documentation>
+                  .All Packed In One: A statement identifying the dangerous goods listed are all contained 
+                  within the same outer packaging. 
+               </documentation>
+            </annotation>
+         </element>
+         <element name="hazardClass" type="fx:HazardClassType" minOccurs="0" maxOccurs="1" > 
+            <annotation>
+               <documentation>
+                  .Hazard Class and Division: A number assigned to a dangerous good that represents 
+                  a classification (Class) according to the most dominant hazard it represents, potentially 
+                  followed by a number representing a subdivision (Division) within the Class. 
+               </documentation>
+            </annotation>
+         </element>
+         <element name="packageDimensions" type="ff:DimensionsType" minOccurs="0" maxOccurs="1" > 
+            <annotation>
+               <documentation>
+                  .Package Width: The depth component of the package's volumetric dimensions. 
+                  .Package Length: The lateral component of the package's volumetric dimensions. 
+                  .Package Height: The vertical component of the package's volumetric dimensions. 
+               </documentation>
+            </annotation>
+         </element>
+         <element name="radioactiveMaterials" type="fx:RadioactiveMaterialType" minOccurs="0" maxOccurs="1" > 
+            <annotation>
+               <documentation>
+                  .Radioactive Materials: The XML grouping element for goods that contain radioactive 
+                  materials. 
+               </documentation>
+            </annotation>
+         </element>
+         <element name="shipmentDimensions" type="fx:DangerousGoodsDimensionsType" minOccurs="0" maxOccurs="1" > 
+            <annotation>
+               <documentation>
+                  Weight and volume (not height, width, and depth): 
+               </documentation>
+            </annotation>
+         </element>
+         <element name="subsidiaryHazardClass" type="fx:HazardClassType" minOccurs="0" maxOccurs="2" > 
+            <annotation>
+               <documentation>
+                  .Subsidiary Hazard Class and Division: An identifier of any subsidiary hazard class(es)/division(s) 
+                  in addition to the primary hazard class and division. 
+               </documentation>
+            </annotation>
+         </element>
+         <element name="temperatures" type="fx:TemperaturesType" minOccurs="0" maxOccurs="1" > 
+            <annotation>
+               <documentation>
+                  Control Temperature: 
+                   
+                  Emergency Temperature: 
+                   
+                  Flashpoint Temperature: 
+                  The lowest temperature at which it can vaporize to form an ignitable mixture in air. 
+                  
+               </documentation>
+            </annotation>
+         </element>
+      </sequence>
+      <attribute name="compatibilityGroup" type="fx:CompatibilityGroupType" use="optional" > 
+         <annotation>
+            <documentation>
+               .Compatibility Group: When shipping dangerous goods, the reference to the group which 
+               identifies the kind of substances and articles deemed to be compatible. 
+            </documentation>
+         </annotation>
+      </attribute>
+      <attribute name="dangerousGoodsLimitation" type="fx:AircraftDangerousGoodsLimitationType" use="optional" > 
+         <annotation>
+            <documentation>
+               .Aircraft Dangerous Goods Limitation: Describes whether the shipment is packed to 
+               comply with the limitations prescribed for passenger and cargo aircraft or the limitations 
+               for cargo aircraft only. 
+            </documentation>
+         </annotation>
+      </attribute>
+      <attribute name="dangerousGoodsQuantity" type="fb:CountType" use="optional" > 
+         <annotation>
+            <documentation>
+               .Dangerous Goods Quantity: The total number of dangerous good packages of the same 
+               type and content. 
+            </documentation>
+         </annotation>
+      </attribute>
+      <attribute name="marinePollutantIndicator" type="fx:MarinePollutantIndicatorType" use="optional" > 
+         <annotation>
+            <documentation>
+               .Marine Pollutant Indicator: An indicator if the transported dangerous goods have 
+               marine pollutant content. 
+            </documentation>
+         </annotation>
+      </attribute>
+      <attribute name="overpackIndicator" type="fx:OverpackIndicatorType" use="optional" > 
+         <annotation>
+            <documentation>
+               .Overpack Indicator: An indicator that individual packages are assembled into a single 
+               unit for handling. 
+            </documentation>
+         </annotation>
+      </attribute>
+      <attribute name="packingGroup" type="fx:PackingGroupType" use="optional" > 
+         <annotation>
+            <documentation>
+               .Packing Group: A code that indicates the relative degree of danger presented by 
+               various articles and substances within a Class or Division. 
+            </documentation>
+         </annotation>
+      </attribute>
+      <attribute name="packingInstructionNumber" use="optional" > 
+         <annotation>
+            <documentation>
+               .Packing Instruction Number: A number that corresponds to packing instructions required 
+               by U.S. and international regulations. 
+            </documentation>
+         </annotation>
+         <simpleType>
+            <restriction base="fb:FreeTextType">
+               <pattern value="Y?[0-9]{3}"/>
+            </restriction>
+         </simpleType>
+      </attribute>
+      <attribute name="productName" type="fb:FreeTextType" use="optional" > 
+         <annotation>
+            <documentation>
+               .Product Name: The commonly used trade name associated with a dangerous good. 
+            </documentation>
+         </annotation>
+      </attribute>
+      <attribute name="properShippingName" type="fb:FreeTextType" use="optional" > 
+         <annotation>
+            <documentation>
+               .Proper Shipping Name: The name used to describe a particular article or substance 
+               in all shipping documents and notifications and, where appropriate, on packaging, 
+               as shown in the UN Model Regulations Dangerous Goods List. 
+            </documentation>
+         </annotation>
+      </attribute>
+      <attribute name="reportableQuantity" type="fb:CountType" use="optional" > 
+         <annotation>
+            <documentation>
+               .Reportable Quantity: The minimum amount of hazardous substance released into the 
+               environment before the Environmental Protection Agency (EPA) requires notification 
+               of the release to the National Response Centre. 
+            </documentation>
+         </annotation>
+      </attribute>
+      <attribute name="shipmentType" type="fx:ShipmentTypeType" use="optional" > 
+         <annotation>
+            <documentation>
+               .Shipment Type: An indicator used for dangerous cargo of whether the package is radioactive 
+               or not. 
+            </documentation>
+         </annotation>
+      </attribute>
+      <attribute name="supplementaryInformation" type="fb:FreeTextType" use="optional" > 
+         <annotation>
+            <documentation>
+               .Supplementary Information: Additional information that may be added to the proper 
+               shipping name to more fully describe the goods or to identify a particular condition. 
+               
+            </documentation>
+         </annotation>
+      </attribute>
+      <attribute name="technicalName" type="fb:FreeTextType" use="optional" > 
+         <annotation>
+            <documentation>
+               .Technical Name: The additional chemical name(s) required for some proper shipping 
+               names for dangerous goods. 
+            </documentation>
+         </annotation>
+      </attribute>
+      <attribute name="typeOfPackaging" type="fb:FreeTextType" use="optional" > 
+         <annotation>
+            <documentation>
+               .Dangerous Goods Type of Packaging: The material or container in which the dangerous 
+               good is packaged. 
+            </documentation>
+         </annotation>
+      </attribute>
+      <attribute name="unNumber" use="optional" > 
+         <annotation>
+            <documentation>
+               .United Nations Number: A four-digit identification number assigned by the United 
+               Nations Committee of Experts on the Transport of Dangerous Goods to identify a substance 
+               or a particular group of substances considered dangerous goods. 
+            </documentation>
+         </annotation>
+         <simpleType>
+            <restriction base="fb:FreeTextType">
+               <pattern value="(UN|ID|NA)?\d{4}"/>
+            </restriction>
+         </simpleType>
+      </attribute>
+   </complexType>
+   <element name="DangerousGoodsPackage" type="fx:DangerousGoodsPackageType" /> 
+
+   <complexType name="DangerousGoodsPackageGroupType">
+      <annotation>
+         <documentation>
+            A collection of at least one DangerousGoodsPackage. 
+            .Shipper's Declaration For Dangerous Goods Packaging Detail: The part of the IATA 
+            Shipper's Declaration For Dangerous Goods that contains the packaging details for 
+            this shipment. 
+            .Dangerous Goods Package Details: The part of the IATA Shipper's Declaration For 
+            Dangerous Goods that contains the Package Details for the shipment. 
+         </documentation>
+      </annotation>
+      <sequence>
+         <element name="dangerousGoodsPackage" type="fx:DangerousGoodsPackageType" minOccurs="0" maxOccurs="unbounded" > 
+            <annotation>
+               <documentation>
+                  A collection of at least one DangerousGoodsPackage. 
+               </documentation>
+            </annotation>
+         </element>
+         <element name="shipmentDimensions" type="fx:DangerousGoodsDimensionsType" minOccurs="0" maxOccurs="1" > 
+            <annotation>
+               <documentation>
+                  Weight and volume (not height, width, and depth): 
+               </documentation>
+            </annotation>
+         </element>
+      </sequence>
+      <attribute name="shipmentUseIndicator" type="fx:ShipmentUseType" use="optional" > 
+         <annotation>
+            <documentation>
+               .Exclusive Use Shipment Indicator: An indicator of sole use, by a single shipper, 
+               of an aircraft or of a large freight container, of which all initial, intermediate 
+               and final loading and unloading is carried out in accordance with the directions 
+               of the shipper or consignee. 
+            </documentation>
+         </annotation>
+      </attribute>
+   </complexType>
+   <element name="DangerousGoodsPackageGroup" type="fx:DangerousGoodsPackageGroupType" /> 
+
+   <complexType name="HazardClassType">
+      <annotation>
+         <documentation>
+            .Hazard Class and Division: A number assigned to a dangerous good that represents 
+            a classification (Class) according to the most dominant hazard it represents, potentially 
+            followed by a number representing a subdivision (Division) within the Class. 
+            .Subsidiary Hazard Class and Division: An identifier of any subsidiary hazard class(es)/division(s) 
+            in addition to the primary hazard class and division. 
+         </documentation>
+      </annotation>
+      <simpleContent>
+         <extension base="fx:RestrictedHazardClassType">
+            <attribute name="hazardDivision" use="optional" > 
+               <annotation>
+                  <documentation>
+                     A number representing a subdivision (Division) within the Class. 
+                  </documentation>
+               </annotation>
+               <simpleType>
+                  <restriction base="fb:CountType">
+                     <minInclusive value="0"/>
+                     <maxInclusive value="99"/>
+                  </restriction>
+               </simpleType>
+            </attribute>
+         </extension>
+      </simpleContent>
+   </complexType>
+
+   <simpleType name="RestrictedHazardClassType">
+      <annotation>
+         <documentation>
+            Helper type for restrictions on HazardClassType 
+         </documentation>
+      </annotation>
+      <restriction base="fb:CountType">
+         <minInclusive value="1"/>
+         <maxInclusive value="9"/>
+      </restriction>
+   </simpleType>
+
+   <simpleType name="MarinePollutantIndicatorType">
+      <annotation>
+         <documentation>
+            .Marine Pollutant Indicator: An indicator if the transported dangerous goods have 
+            marine pollutant content. 
+         </documentation>
+      </annotation>
+      <restriction base="xs:string">
+         <enumeration value="MARINE_POLLUTANT">
+            <annotation>
+               <documentation>
+                  Indicates the transported dangerous goods have marine pollutant content. 
+               </documentation>
+            </annotation>
+         </enumeration>
+      </restriction>
+   </simpleType>
+
+   <simpleType name="OverpackIndicatorType">
+      <annotation>
+         <documentation>
+            .Overpack Indicator: An indicator that individual packages are assembled into a single 
+            unit for handling. 
+         </documentation>
+      </annotation>
+      <restriction base="xs:string">
+         <enumeration value="OVERPACK_USED">
+            <annotation>
+               <documentation>
+                  Indicates that individual packages are assembled into a single unit for handling. 
+                  
+               </documentation>
+            </annotation>
+         </enumeration>
+      </restriction>
+   </simpleType>
+
+   <simpleType name="PackingGroupType">
+      <annotation>
+         <documentation>
+            .Packing Group: A code that indicates the relative degree of danger presented by 
+            various articles and substances within a Class or Division. 
+         </documentation>
+      </annotation>
+      <restriction base="xs:string">
+         <enumeration value="I">
+            <annotation>
+               <documentation>
+                  Represents high danger. 
+               </documentation>
+            </annotation>
+         </enumeration>
+         <enumeration value="II">
+            <annotation>
+               <documentation>
+                  Represents medium danger. 
+               </documentation>
+            </annotation>
+         </enumeration>
+         <enumeration value="III">
+            <annotation>
+               <documentation>
+                  Represents low danger. 
+               </documentation>
+            </annotation>
+         </enumeration>
+      </restriction>
+   </simpleType>
+
+   <simpleType name="ShipmentUseType">
+      <annotation>
+         <documentation>
+            .Exclusive Use Shipment Indicator: An indicator of sole use, by a single shipper, 
+            of an aircraft or of a large freight container, of which all initial, intermediate 
+            and final loading and unloading is carried out in accordance with the directions 
+            of the shipper or consignee. 
+         </documentation>
+      </annotation>
+      <restriction base="xs:string">
+         <enumeration value="EXCLUSIVE">
+            <annotation>
+               <documentation>
+                  Indicates of sole use, by a single shipper, of an aircraft or of a large freight 
+                  container, of which all initial, intermediate and final loading and unloading is 
+                  carried out in accordance with the directions of the shipper or consignee. 
+               </documentation>
+            </annotation>
+         </enumeration>
+      </restriction>
+   </simpleType>
+
+   <complexType name="TemperaturesType">
+      <annotation>
+         <documentation>
+            Control Temperature: 
+             
+            Emergency Temperature: 
+             
+            Flashpoint Temperature: 
+            The lowest temperature at which it can vaporize to form an ignitable mixture in air. 
+            
+         </documentation>
+      </annotation>
+      <sequence>
+         <element name="controlTemperature" type="ff:TemperatureType" minOccurs="0" maxOccurs="1" > 
+            <annotation>
+               <documentation>
+                  .Control Temperature: The maximum temperature at which the substance can be safely 
+                  transported. 
+               </documentation>
+            </annotation>
+         </element>
+         <element name="emergencyTemperature" type="ff:TemperatureType" minOccurs="0" maxOccurs="1" > 
+            <annotation>
+               <documentation>
+                  .Emergency Temperature: The temperature at which emergency procedures shall be implemented 
+                  in the event of loss of temperature control. 
+               </documentation>
+            </annotation>
+         </element>
+         <element name="flashpointTemperature" type="ff:TemperatureType" minOccurs="0" maxOccurs="1" > 
+            <annotation>
+               <documentation>
+                  The lowest temperature at which it can vaporize to form an ignitable mixture in air. 
+                  
+               </documentation>
+            </annotation>
+         </element>
+      </sequence>
+   </complexType>
+   <element name="Temperatures" type="fx:TemperaturesType" /> 
+</schema>
