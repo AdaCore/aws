@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2004-2017, AdaCore                     --
+--                     Copyright (C) 2004-2024, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -28,8 +28,6 @@
 ------------------------------------------------------------------------------
 
 --  Wait implementation on top of windows select call
-
-pragma Ada_2012;
 
 with AWS.Net.Poll_Events.G_Poll;
 
@@ -63,7 +61,7 @@ is
 
    procedure FD_SET (FD : OS_Lib.FD_Type; Set : in out FD_Set_Type) is
    begin
-      Set.Count := Set.Count + 1;
+      Set.Count := @ + 1;
       Set.Set (Integer (Set.Count)) := FD;
    end FD_SET;
 

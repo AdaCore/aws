@@ -201,7 +201,7 @@ procedure WSDL2AWS.Main is
                end if;
 
             when 'v' =>
-               Verbose := Verbose + 1;
+               Verbose := @ + 1;
                WSDL2AWS.WSDL.Parser.Verbose (Verbose);
 
             when 'w' =>
@@ -340,7 +340,6 @@ begin
    --  Checks parameters
 
    if Proxy = Null_Unbounded_String then
-
       if Pu /= Null_Unbounded_String or else Pp /= Null_Unbounded_String then
          Raise_Exception
            (Constraint_Error'Identity,

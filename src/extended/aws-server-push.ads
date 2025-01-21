@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2000-2017, AdaCore                     --
+--                     Copyright (C) 2000-2024, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -26,6 +26,8 @@
 --  however invalidate any other reasons why the executable file  might be  --
 --  covered by the  GNU Public License.                                     --
 ------------------------------------------------------------------------------
+
+pragma Ada_2022;
 
 --  Package to support Server Push feature. This is only supported by Netscape
 --  browsers. It will not work with Microsoft Internet Explorer.
@@ -99,7 +101,7 @@ package AWS.Server.Push is
 
    subtype Group_Set is Containers.Tables.VString_Array;
 
-   Empty_Group : constant Group_Set := (1 .. 0 => Null_Unbounded_String);
+   Empty_Group : constant Group_Set := [1 .. 0 => Null_Unbounded_String];
 
    procedure Register
      (Server            : in out Object;

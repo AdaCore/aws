@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2007-2015, AdaCore                     --
+--                     Copyright (C) 2007-2024, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -26,8 +26,6 @@
 --  however invalidate any other reasons why the executable file  might be  --
 --  covered by the  GNU Public License.                                     --
 ------------------------------------------------------------------------------
-
-pragma Ada_2012;
 
 with Ada.Containers.Indefinite_Hashed_Maps;
 with Ada.Containers.Vectors;
@@ -55,7 +53,7 @@ package body AWS.Services.Web_Block.Registry is
    overriding procedure Value
      (Lazy_Tag     : not null access Lazy_Handler;
       Var_Name     : String;
-      Translations : in out          Templates.Translate_Set);
+      Translations : in out Templates.Translate_Set);
    --  Handle lazy tags
 
    type Web_Object_Data_Callback (With_Params : Boolean := False) is record
@@ -310,6 +308,7 @@ package body AWS.Services.Web_Block.Registry is
                                       (Key (Matched (J).First
                                             .. Matched (J).Last));
                               end loop;
+
                               return Params;
                            end;
                         end if;
@@ -319,6 +318,7 @@ package body AWS.Services.Web_Block.Registry is
                      --  Only a prefix is defined.
                      --  No need to search for other candidates
                      WO_Store.Find (K, Position);
+
                      return Empty_Callback_Parameters;
                   end if;
                end if;
@@ -462,6 +462,7 @@ package body AWS.Services.Web_Block.Registry is
             end if;
          end;
       end if;
+
       return Parsed_Page;
    end Parse;
 
@@ -600,7 +601,7 @@ package body AWS.Services.Web_Block.Registry is
    overriding procedure Value
      (Lazy_Tag     : not null access Lazy_Handler;
       Var_Name     : String;
-      Translations : in out          Templates.Translate_Set)
+      Translations : in out Templates.Translate_Set)
    is
       Position : Web_Object_Maps.Cursor;
    begin

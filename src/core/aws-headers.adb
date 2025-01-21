@@ -81,7 +81,7 @@ package body AWS.Headers is
    begin
       if Debug_Flag then
          for J in 1 .. Headers.Count loop
-            Ada.Text_IO.Put_Line ('>' & Headers.Get_Line (J));
+            Text_IO.Put_Line ('>' & Headers.Get_Line (J));
          end loop;
       end if;
    end Debug_Print;
@@ -170,7 +170,7 @@ package body AWS.Headers is
       L : Natural := 2; -- The ending CR+LF
    begin
       for J in 1 .. AWS.Headers.Count (Headers) loop
-         L := L
+         L := @
            + AWS.Headers.Get_Line
                (Headers => Headers,
                 N       => J)'Length + 2;

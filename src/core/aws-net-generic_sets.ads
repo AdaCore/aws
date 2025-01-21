@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2004-2016, AdaCore                     --
+--                     Copyright (C) 2004-2024, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -27,7 +27,7 @@
 --  covered by the  GNU Public License.                                     --
 ------------------------------------------------------------------------------
 
-pragma Ada_2012;
+pragma Ada_2022;
 
 --  Waiting on group of sockets for input/output availability
 
@@ -40,19 +40,19 @@ package AWS.Net.Generic_Sets is
    subtype Waiting_Mode is Wait_Event_Set;
 
    Input  : constant Wait_Event_Set :=
-              (Net.Input => True, Net.Output => False);
+              [Net.Input => True, Net.Output => False];
    --  Would wait for data available for read from socket
 
    Output : constant Wait_Event_Set :=
-              (Net.Input => False, Net.Output => True);
+              [Net.Input => False, Net.Output => True];
    --  Would wait output buffer availability for write
 
    Both   : constant Wait_Event_Set :=
-              (Net.Input => True, Net.Output => True);
+              [Net.Input => True, Net.Output => True];
    --  Would wait for both Input and Output
 
    None   : constant Wait_Event_Set :=
-              (Net.Input => False, Net.Output => False);
+              [Net.Input => False, Net.Output => False];
    --  Would wait only for error state in socket.
    --  Note that all waiting modes would be waiting for error state.
 

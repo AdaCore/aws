@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2000-2021, AdaCore                     --
+--                     Copyright (C) 2000-2024, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -112,7 +112,7 @@ package body AWS.Messages is
    S526_Message : aliased constant String := "Invalid SSL Certificate";
 
    Status_Messages : constant array (Status_Code) of access constant String :=
-                       (S100 => S100_Message'Access,
+                       [S100 => S100_Message'Access,
                         S101 => S101_Message'Access,
                         S102 => S102_Message'Access,
                         S200 => S200_Message'Access,
@@ -180,11 +180,11 @@ package body AWS.Messages is
                         S523 => S523_Message'Access,
                         S524 => S524_Message'Access,
                         S525 => S525_Message'Access,
-                        S526 => S526_Message'Access);
+                        S526 => S526_Message'Access];
 
    Month_Name : constant array (Calendar.Month_Number) of String (1 .. 3) :=
-                  ("Jan", "Feb", "Mar", "Apr", "May", "Jun",
-                   "Jul", "Aug", "Sep", "Oct", "Nov", "Dec");
+                  ["Jan", "Feb", "Mar", "Apr", "May", "Jun",
+                   "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
 
    HD : constant String := ": ";
    --  Header delimiter with space for well formatting
@@ -676,24 +676,24 @@ package body AWS.Messages is
       function Weekday (Date : Calendar.Time) return String is
 
          Day_Names : constant array (Integer range 0 .. 6) of String (1 .. 3)
-           := ("Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat");
+           := ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
 
-         C         : Integer;
-         Y         : Integer := Calendar.Year (Date);
-         M         : Integer := Calendar.Month (Date);
-         D         : constant Integer := Calendar.Day (Date);
+         D : constant Integer := Calendar.Day (Date);
+         Y : Integer := Calendar.Year (Date);
+         M : Integer := Calendar.Month (Date);
+         C : Integer;
 
       begin
          --  Calculate day of week by using Zeller's congruence
          if M < 3 then
-            Y := Y - 1;
-            M := M + 10;
+            Y := @ - 1;
+            M := @ + 10;
          else
-            M := M - 2;
+            M := @ - 2;
          end if;
 
          C := Y / 100;     --  first two digits of Year
-         Y := Y mod 100;   --  last two digits of Year
+         Y := @ mod 100;   --  last two digits of Year
 
          return Day_Names (((26 * M - 2) / 10
                             + D

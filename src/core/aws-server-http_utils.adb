@@ -27,8 +27,6 @@
 --  covered by the  GNU Public License.                                     --
 ------------------------------------------------------------------------------
 
-pragma Ada_2012;
-
 with Ada.Characters.Handling;
 with Ada.Directories;
 with Ada.Streams.Stream_IO;
@@ -490,7 +488,7 @@ package body AWS.Server.HTTP_Utils is
       procedure Get (ID : out Natural) is
       begin
          ID  := UID;
-         UID := UID + 1;
+         UID := @ + 1;
       end Get;
 
    end File_Upload_UID;
@@ -753,13 +751,13 @@ package body AWS.Server.HTTP_Utils is
            (Buffer : Streams.Stream_Element_Array; Trim : Boolean) with Inline;
          --  Write buffer to the file, handle the Device_Error exception
 
-         File    : Streams.Stream_IO.File_Type;
-         Buffer  : Streams.Stream_Element_Array (1 .. 4 * 1_024);
-         Index   : Streams.Stream_Element_Offset := Buffer'First;
+         File   : Streams.Stream_IO.File_Type;
+         Buffer : Streams.Stream_Element_Array (1 .. 4 * 1_024);
+         Index  : Streams.Stream_Element_Offset := Buffer'First;
 
-         Data    : Streams.Stream_Element_Array (1 .. 1);
-         Data2   : Streams.Stream_Element_Array (1 .. 2);
-         Error   : Error_State := No_Error;
+         Data   : Streams.Stream_Element_Array (1 .. 1);
+         Data2  : Streams.Stream_Element_Array (1 .. 2);
+         Error  : Error_State := No_Error;
 
          ---------------
          -- Check_EOF --
@@ -768,7 +766,7 @@ package body AWS.Server.HTTP_Utils is
          function Check_EOF return Boolean is
 
             Signature : constant Streams.Stream_Element_Array :=
-                          (1 => 13, 2 => 10)
+                          [1 => 13, 2 => 10]
                             & Translator.To_Stream_Element_Array
                                 (Start_Boundary);
 
@@ -808,7 +806,7 @@ package body AWS.Server.HTTP_Utils is
 
          begin -- Check_EOF
             Buffer (Index) := 13;
-            Index := Index + 1;
+            Index := @ + 1;
 
             loop
                Read (Data);
@@ -829,7 +827,7 @@ package body AWS.Server.HTTP_Utils is
                   end if;
                end if;
 
-               Index := Index + 1;
+               Index := @ + 1;
             end loop;
          end Check_EOF;
 
@@ -2003,7 +2001,7 @@ package body AWS.Server.HTTP_Utils is
             if Last >= Buffer'First then
                Data (Buffer (1 .. Last), Next_Size);
 
-               Length := Length + Last;
+               Length := @ + Last;
             end if;
 
             exit when Next_Size = 0;
@@ -2128,7 +2126,7 @@ package body AWS.Server.HTTP_Utils is
 
                Data (Buffer (1 .. Last), Next_Size);
 
-               Sent := Sent + Last;
+               Sent := @ + Last;
 
                HTTP_Server.Slots.Check_Data_Timeout (Line_Index);
             end loop;
@@ -2267,12 +2265,12 @@ package body AWS.Server.HTTP_Utils is
          --  Note that we do not use a buffered socket here. Opera on SSL
          --  sockets does not like chunk that are not sent in a whole.
 
-         Buffer : Streams.Stream_Element_Array (1 .. Chunk_Size);
+         Buffer     : Streams.Stream_Element_Array (1 .. Chunk_Size);
          --  Each chunk will have a maximum length of Buffer'Length
 
-         CRLF : constant Streams.Stream_Element_Array :=
-                  (1 => Character'Pos (ASCII.CR),
-                   2 => Character'Pos (ASCII.LF));
+         CRLF       : constant Streams.Stream_Element_Array :=
+                        [1 => Character'Pos (ASCII.CR),
+                         2 => Character'Pos (ASCII.LF)];
 
          Last_Chunk : constant Streams.Stream_Element_Array :=
                         Character'Pos ('0') & CRLF & CRLF;
@@ -2394,7 +2392,6 @@ package body AWS.Server.HTTP_Utils is
       if Close then
          Resources.Close (File);
       end if;
-
    exception
       when others =>
          if Close then

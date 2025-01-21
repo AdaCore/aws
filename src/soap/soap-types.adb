@@ -27,8 +27,6 @@
 --  covered by the  GNU Public License.                                     --
 ------------------------------------------------------------------------------
 
-pragma Ada_2012;
-
 with Ada.Calendar.Time_Zones;
 with Ada.Real_Time;
 with Ada.Strings.Fixed;
@@ -143,7 +141,7 @@ package body SOAP.Types is
 
    overriding procedure Adjust (O : in out Composite) is
    begin
-      O.Ref_Counter.all := O.Ref_Counter.all + 1;
+      O.Ref_Counter.all := @ + 1;
    end Adjust;
 
    ---------
@@ -433,7 +431,7 @@ package body SOAP.Types is
       O.Ref_Counter := null;
 
       if Ref_Counter /= null then
-         Ref_Counter.all := Ref_Counter.all - 1;
+         Ref_Counter.all := @ - 1;
 
          if Ref_Counter.all = 0 then
             Unchecked_Free (O.O);
@@ -1209,7 +1207,6 @@ package body SOAP.Types is
       function Image
         (Timezone : Calendar.Time_Zones.Time_Offset) return String
       is
-
          subtype Str2 is String (1 .. 2);
 
          function I2D (N : Natural) return Str2;
@@ -1381,11 +1378,12 @@ package body SOAP.Types is
                   if Img (Last) /= '0' then
                      exit;
                   end if;
-                  Last := Last - 1;
+
+                  Last := @ - 1;
                end loop;
 
                if Img (Last) = '.' then
-                  Last := Last - 1;
+                  Last := @ - 1;
                end if;
 
                return Img (First .. Last) & Key;
@@ -2100,7 +2098,7 @@ package body SOAP.Types is
       begin
          for K in O.O'Range loop
             if Types.Name (O.O (K).O.all) = Name then
-               C := C + 1;
+               C := @ + 1;
             end if;
          end loop;
          return C;
@@ -2112,7 +2110,7 @@ package body SOAP.Types is
    begin
       for K in O.O'Range loop
          if Types.Name (O.O (K).O.all) = Name then
-            I := I + 1;
+            I := @ + 1;
             Result (I) := O.O (K);
          end if;
       end loop;
@@ -2302,7 +2300,6 @@ package body SOAP.Types is
             then
                return XML_Any_Type;
             end if;
-
          end loop;
 
          --  We have the same type for all items

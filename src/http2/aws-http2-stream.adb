@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                      Copyright (C) 2021, AdaCore                         --
+--                     Copyright (C) 2021-2024, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -187,7 +187,7 @@ package body AWS.HTTP2.Stream is
                E := Frame.Continuation.Object (F).Get (I);
             end if;
 
-            I := I + 1;
+            I := @ + 1;
 
             if I > Length then
                Next_Frame;
@@ -285,7 +285,7 @@ package body AWS.HTTP2.Stream is
       begin
          if Connection.Flow_Control_Window_Valid (Self.Flow_Send_Window, Incr)
          then
-            Self.Flow_Send_Window := Self.Flow_Send_Window + Incr;
+            Self.Flow_Send_Window := @ + Incr;
          else
             Error := HTTP2.C_Flow_Control_Error;
          end if;
@@ -513,9 +513,8 @@ package body AWS.HTTP2.Stream is
                PL : constant Positive :=
                       HTTP2.Frame.Data.Object (Frame).Payload_Length;
             begin
-               Self.Bytes_Received := Self.Bytes_Received +
-                 Content_Length_Type (PL);
-               Self.Flow_Receive_Window := Self.Flow_Receive_Window - PL;
+               Self.Bytes_Received := @ + Content_Length_Type (PL);
+               Self.Flow_Receive_Window := @ - PL;
                Ctx.Settings.Update_Flow_Receive_Window (-PL);
 
                if Self.Flow_Receive_Window
@@ -671,10 +670,8 @@ package body AWS.HTTP2.Stream is
       --  Update stream's Flow Control Window
 
       if Frame.Kind = K_Data then
-         Self.Flow_Send_Window :=
-           Self.Flow_Send_Window - Natural (Frame.Length);
-         Self.Bytes_Sent :=
-           Self.Bytes_Sent + Stream_Element_Count (Frame.Length);
+         Self.Flow_Send_Window := @ - Natural (Frame.Length);
+         Self.Bytes_Sent := @ + Stream_Element_Count (Frame.Length);
       end if;
    end Send_Frame;
 
@@ -686,7 +683,7 @@ package body AWS.HTTP2.Stream is
      (Self      : in out Object;
       Increment : Integer) is
    begin
-      Self.Flow_Send_Window := Self.Flow_Send_Window + Increment;
+      Self.Flow_Send_Window := @ + Increment;
    end Update_Flow_Control_Window;
 
    ---------------------

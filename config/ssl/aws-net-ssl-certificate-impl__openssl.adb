@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2012-2014, AdaCore                     --
+--                     Copyright (C) 2012-2024, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -70,7 +70,7 @@ package body AWS.Net.SSL.Certificate.Impl is
 
    function Error_Str (Code : TSSL.Error_Code) return String is
       use type TSSL.Error_Code;
-      Buffer : aliased C.char_array := (0 .. 511 => C.nul);
+      Buffer : aliased C.char_array := [0 .. 511 => C.nul];
    begin
       if Code = 0 then
          return "Not an error";

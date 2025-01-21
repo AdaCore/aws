@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2000-2021, AdaCore                     --
+--                     Copyright (C) 2000-2024, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -26,8 +26,6 @@
 --  however invalidate any other reasons why the executable file  might be  --
 --  covered by the  GNU Public License.                                     --
 ------------------------------------------------------------------------------
-
-pragma Ada_2012;
 
 with Ada.Strings.Fixed;
 with Ada.Text_IO;
@@ -273,8 +271,7 @@ package body AWS.Client is
       Timeouts     : Timeouts_Values := No_Timeout;
       Headers      : Header_List     := Empty_Header_List;
       User_Agent   : String          := Default.User_Agent;
-      HTTP_Version : HTTP_Protocol   := HTTP_Default) return Response.Data
-   is
+      HTTP_Version : HTTP_Protocol   := HTTP_Default) return Response.Data is
    begin
       return Delete
         (URL, Translator.To_Stream_Element_Array (Data),
@@ -308,7 +305,6 @@ package body AWS.Client is
       Delete (Connection, Result, Data, Headers => Headers);
       Close (Connection);
       return Result;
-
    exception
       when others =>
          Close (Connection);
@@ -377,7 +373,7 @@ package body AWS.Client is
       else
          Result := Response.Empty;
 
-         Try_Count := Try_Count - 1;
+         Try_Count := @ - 1;
       end if;
 
       Disconnect (Connection);
@@ -561,7 +557,6 @@ package body AWS.Client is
       Close (Connection);
 
       return Result;
-
    exception
       when others =>
          Close (Connection);
@@ -667,6 +662,7 @@ package body AWS.Client is
             Headers     => Headers);
 
       Close (Connection);
+
       return Result;
    exception
       when others =>
@@ -730,7 +726,6 @@ package body AWS.Client is
                Headers      => Headers);
 
             Utils.Unchecked_Free (SEA);
-
          exception
             when others =>
                Utils.Unchecked_Free (SEA);
@@ -879,7 +874,7 @@ package body AWS.Client is
          begin
             Net.Buffered.Read (Sock, Data (Data'First .. Limit), Last);
 
-            Connection.Length := Connection.Length - (Last - Data'First + 1);
+            Connection.Length := @ - (Last - Data'First + 1);
          end Read_Limited;
 
          ---------------
@@ -1001,8 +996,8 @@ package body AWS.Client is
       Result     : in out Ada.Strings.Unbounded.Unbounded_String;
       Wait       : Boolean := True) is
    begin
-      Result :=  Ada.Strings.Unbounded.To_Unbounded_String
-                   (Read_Until (Connection, Delimiter, Wait));
+      Result := To_Unbounded_String
+                  (Read_Until (Connection, Delimiter, Wait));
    end Read_Until;
 
    ---------------------
@@ -1162,8 +1157,8 @@ package body AWS.Client is
                  Headers     => Headers);
 
       Close (Connection);
-      return Result;
 
+      return Result;
    exception
       when others =>
          Close (Connection);
@@ -1299,8 +1294,8 @@ package body AWS.Client is
          Headers => Headers, Progress => Progress);
 
       Close (Connection);
-      return Result;
 
+      return Result;
    exception
       when others =>
          Close (Connection);

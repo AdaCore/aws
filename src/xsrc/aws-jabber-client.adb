@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2008-2014, AdaCore                     --
+--                     Copyright (C) 2008-2024, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -125,7 +125,6 @@ package body AWS.Jabber.Client is
       Account.Stream := new Incoming_Stream (Account.Self);
 
       Account.Is_Running := True;
-
    exception
       when E : others =>
          Text_IO.Put_Line (Exceptions.Exception_Information (E));
@@ -223,7 +222,6 @@ package body AWS.Jabber.Client is
       Subject      : String := "";
       Message_Type : Client.Message_Type := M_Normal)
    is
-
       function Send_Type return String;
       --  Returns the message type
 
@@ -239,24 +237,25 @@ package body AWS.Jabber.Client is
 
       Serial : Serial_Number;
       Result : Ada.Strings.Unbounded.Unbounded_String;
+
    begin
       if Account.Is_Running then
          Account.Serial.Get (Serial);
 
          --  Send Message
 
-         Ada.Strings.Unbounded.Append
+         Append
             (Result, "<message type='" & Send_Type & "'"
                      & " id='msg" & Image (Serial)
                      & "' to='" & String (JID) & "'>");
 
          if Subject /= "" then
-            Ada.Strings.Unbounded.Append
+            Append
                (Result,
                 " <subject>" & Subject & "</subject>");
          end if;
 
-         Ada.Strings.Unbounded.Append
+         Append
             (Result,
              " <body>" & Content & "</body></message>");
 
@@ -413,16 +412,19 @@ package body AWS.Jabber.Client is
          end loop;
 
          K := Start + 1;
+
          while K <= XML'Last and then XML (K) /= ' ' loop
-            K := K + 1;
+            K := @ + 1;
          end loop;
-         K := K - 1;
+
+         K := @ - 1;
 
          --  Look for the end of the current tag
 
          Stop := Start;
+
          while Stop <= XML'Last and then XML (Stop) /= '>' loop
-            Stop := Stop + 1;
+            Stop := @ + 1;
          end loop;
 
          if Start > XML'Last or else Stop > XML'Last then

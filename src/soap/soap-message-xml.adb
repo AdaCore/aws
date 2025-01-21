@@ -27,8 +27,6 @@
 --  covered by the  GNU Public License.                                     --
 ------------------------------------------------------------------------------
 
-pragma Ada_2012;
-
 with Ada.Characters.Handling;
 with Ada.Exceptions;
 with Ada.Strings.Fixed;
@@ -292,7 +290,7 @@ package body SOAP.Message.XML is
    procedure Error (Node : DOM.Core.Node; Message : String) with No_Return;
    --  Raises SOAP_Error with the Message as exception message
 
-   Null_String : constant String := (1 => ASCII.NUL);
+   Null_String : constant String := [ASCII.NUL];
 
    function Get_Schema_Type
      (Type_Name : String;
@@ -317,7 +315,7 @@ package body SOAP.Message.XML is
    end record;
 
    Handlers : constant array (Type_State) of Type_Handler :=
-                (Void                =>
+                [Void                =>
                    (null, null, False),
                  T_Undefined         =>
                    (Types.XML_Undefined'Access, null, False),
@@ -383,7 +381,7 @@ package body SOAP.Message.XML is
                     Parse_Duration'Access, False),
                  T_Decimal           =>
                    (Types.XML_Decimal'Access,
-                    Parse_Decimal'Access, False));
+                    Parse_Decimal'Access, False)];
 
    type Object_Set_Access is access Types.Object_Set;
 
@@ -583,8 +581,8 @@ package body SOAP.Message.XML is
 
    function Image
      (O      : Object'Class;
-      Schema : WSDL.Schema.Definition :=
-                 WSDL.Schema.Empty) return Unbounded_String
+      Schema : WSDL.Schema.Definition := WSDL.Schema.Empty)
+      return Unbounded_String
    is
       Message_Body : Unbounded_String;
 
@@ -747,7 +745,6 @@ package body SOAP.Message.XML is
             S.NS.xsd, S.NS.xsi, S.NS.enc, S.NS.env, S.NS.User, S.NS.Index)
             with null record);
       end if;
-
    exception
       when E : others =>
          return Message.Response.Error.Build
@@ -790,7 +787,6 @@ package body SOAP.Message.XML is
             S.NS.xsd, S.NS.xsi, S.NS.enc, S.NS.env, S.NS.User, S.NS.Index)
             with null record);
       end if;
-
    exception
       when E : others =>
          return Message.Response.Error.Build
@@ -811,13 +807,11 @@ package body SOAP.Message.XML is
          S (I) := Element (XML, I);
       end loop;
 
-      declare
-         Result : constant Message.Response.Object'Class :=
-                    Load_Response (S.all, Envelope, Schema);
-      begin
+      return Result : constant Message.Response.Object'Class :=
+                        Load_Response (S.all, Envelope, Schema)
+      do
          Free (S);
-         return Result;
-      end;
+      end return;
    end Load_Response;
 
    --------------
@@ -842,7 +836,6 @@ package body SOAP.Message.XML is
       Parse_Document (Doc, S);
 
       Free (Doc);
-
    exception
       when others =>
          Doc := Get_Tree (Reader);
@@ -990,7 +983,7 @@ package body SOAP.Message.XML is
          S.A_State := A_Type;
 
          while Field /= null loop
-            K := K + 1;
+            K := @ + 1;
 
             Add_Object (OS, K, +Parse_Param (Field, LQ_Name, S), 256);
 
@@ -1003,6 +996,7 @@ package body SOAP.Message.XML is
 
          A := Types.A (OS (1 .. K), Name, Type_Name);
          Unchecked_Free (OS);
+
          return A;
       end;
    end Parse_Array;
@@ -1088,8 +1082,8 @@ package body SOAP.Message.XML is
             P : DOM.Core.Node := SOAP.XML.First_Child (N);
          begin
             while P /= null loop
-               S.Parameters := S.Parameters & Parse_Param (P, "", S);
-               P := SOAP.XML.Next_Sibling (P);
+               S.Parameters := @ & Parse_Param (P, "", S);
+               P := SOAP.XML.Next_Sibling (@);
             end loop;
          end;
       end if;
@@ -1393,7 +1387,7 @@ package body SOAP.Message.XML is
                   NS.env := SOAP.Name_Space.Create (Utils.No_NS (Name), Value);
 
                elsif NS.Index < NS.User'Last then
-                  NS.Index := NS.Index + 1;
+                  NS.Index := @ + 1;
                   NS.User (NS.Index) :=
                     SOAP.Name_Space.Create (Utils.No_NS (Name), Value);
                end if;
@@ -1532,6 +1526,7 @@ package body SOAP.Message.XML is
          if NS /= SOAP.Name_Space.No_Name_Space then
             Types.Set_Name_Space (L, NS);
          end if;
+
          return L;
       end With_NS;
 
@@ -1739,7 +1734,7 @@ package body SOAP.Message.XML is
          S.A_State := Void;
 
          while Field /= null loop
-            K := K + 1;
+            K := @ + 1;
             Add_Object (OS, K, +Parse_Param (Field, LQ_Name, S), 25);
             Field := Next_Sibling (Field);
          end loop;
@@ -1751,14 +1746,14 @@ package body SOAP.Message.XML is
          declare
             NS : constant SOAP.Name_Space.Object :=
                    Get_Namespace_Object (S.NS, Utils.NS (To_String (T_Name)));
-            R  : Types.SOAP_Record;
          begin
-            R := Types.R
-              (OS (1 .. K), Name,
-               Utils.No_NS (To_String (T_Name)), NS);
-
-            Unchecked_Free (OS);
-            return R;
+            return R : constant Types.SOAP_Record :=
+                         Types.R
+                           (OS (1 .. K), Name,
+                            Utils.No_NS (To_String (T_Name)), NS)
+            do
+               Unchecked_Free (OS);
+            end return;
          end;
       end if;
    end Parse_Record;
@@ -2003,6 +1998,7 @@ package body SOAP.Message.XML is
    begin
       for I in 0 .. Length (L) - 1 loop
          P := Item (L, I);
+
          if P.Node_Type = DOM.Core.Text_Node then
             Append (S, Node_Value (P));
          end if;

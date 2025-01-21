@@ -16,8 +16,6 @@
 --  to http://www.gnu.org/licenses for a complete copy of the license.      --
 ------------------------------------------------------------------------------
 
-pragma Ada_2012;
-
 with Ada.Command_Line;
 with Ada.Streams.Stream_IO;
 with Ada.Strings.Unbounded;

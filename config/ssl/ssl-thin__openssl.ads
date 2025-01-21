@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                            Secure Sockets Layer                          --
 --                                                                          --
---                     Copyright (C) 2000-2024, AdaCore                     --
+--                     Copyright (C) 2000-2025, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -27,7 +27,7 @@
 --  covered by the  GNU Public License.                                     --
 ------------------------------------------------------------------------------
 
-pragma Ada_2012;
+pragma Ada_2022;
 
 with Interfaces.C.Strings;
 with System;

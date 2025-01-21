@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2000-2015, AdaCore                     --
+--                     Copyright (C) 2000-2024, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -26,6 +26,8 @@
 --  however invalidate any other reasons why the executable file  might be  --
 --  covered by the  GNU Public License.                                     --
 ------------------------------------------------------------------------------
+
+pragma Ada_2022;
 
 with Ada.Strings.Unbounded;
 
@@ -77,7 +79,7 @@ private
 
    type NS_Set is array (1 .. Max_Name_Space) of SOAP.Name_Space.Object;
 
-   No_NS : constant NS_Set := (others => SOAP.Name_Space.No_Name_Space);
+   No_NS : constant NS_Set := [others => SOAP.Name_Space.No_Name_Space];
 
    type Object is tagged record
       Name_Space   : SOAP.Name_Space.Object;

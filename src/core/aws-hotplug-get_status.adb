@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2000-2013, AdaCore                     --
+--                     Copyright (C) 2000-2024, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -27,8 +27,6 @@
 --  covered by the  GNU Public License.                                     --
 ------------------------------------------------------------------------------
 
-pragma Ada_2012;
-
 function AWS.Hotplug.Get_Status
   (Filters : Filter_Set) return Templates_Parser.Translate_Set
 is
@@ -44,11 +42,11 @@ is
 begin
    for K in 1 .. Filter_Table.Length (Filters.Set) loop
       declare
-         Item : constant Filter_Data
-           := Filter_Table.Element (Filters.Set, Positive (K));
+         Item : constant Filter_Data :=
+                  Filter_Table.Element (Filters.Set, Positive (K));
       begin
-         Regexp := Regexp & Item.Regexp_Str;
-         URL    := URL    & Item.URL;
+         Regexp := @ & Item.Regexp_Str;
+         URL    := @ & Item.URL;
       end;
    end loop;
 

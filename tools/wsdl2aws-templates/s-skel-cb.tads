@@ -7,6 +7,7 @@
 --
 --  $ wsdl2aws @_OPTIONS_@
 
+pragma Ada_2022;
 pragma Warnings (Off);
 pragma Style_Checks (Off);
 

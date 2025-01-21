@@ -6,7 +6,7 @@
 --                                                                          --
 --                                 B o d y                                  --
 --                                                                          --
---          Copyright (C) 2008-2018, Free Software Foundation, Inc.         --
+--          Copyright (C) 2008-2024, Free Software Foundation, Inc.         --
 --                                                                          --
 -- GNAT is free software;  you can  redistribute it  and/or modify it under --
 -- terms of the  GNU General Public License as published  by the Free Soft- --
@@ -22,6 +22,8 @@
 -- Extensive contributions were provided by Ada Core Technologies Inc.      --
 --                                                                          --
 ------------------------------------------------------------------------------
+
+pragma Ada_2022;
 
 --  The base name of the template file is given by Argument (1). This program
 --  generates the spec for this specified unit (let's call it UNIT_NAME).
@@ -592,7 +594,7 @@ procedure XOSCons is
       if Count <= 0 then
          return "";
       else
-         return (1 .. Count => ' ');
+         return [1 .. Count => ' '];
       end if;
    end Spaces;
 

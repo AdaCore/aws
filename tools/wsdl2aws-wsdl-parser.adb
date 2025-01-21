@@ -27,8 +27,6 @@
 --  covered by the  GNU Public License.                                     --
 ------------------------------------------------------------------------------
 
-pragma Ada_2012;
-
 with Ada.Characters.Handling;
 with Ada.Containers.Indefinite_Vectors;
 with Ada.Directories;
@@ -58,7 +56,7 @@ package body WSDL2AWS.WSDL.Parser is
    type Look_Kind is (Complex_Type, Simple_Type, Element);
    type Look_Context is array (Look_Kind) of Boolean;
 
-   Look_All : constant Look_Context := (others => True);
+   Look_All : constant Look_Context := [others => True];
 
    package String_List is new Containers.Indefinite_Vectors (Positive, String);
 

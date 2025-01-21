@@ -27,7 +27,7 @@
 --  covered by the  GNU Public License.                                     --
 ------------------------------------------------------------------------------
 
-pragma Ada_2012;
+pragma Ada_2022;
 
 --  This package contains the default AWS configuration values. These values
 --  are used to initialize the configuration objects. Users should not modify

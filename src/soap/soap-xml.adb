@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2003-2017, AdaCore                     --
+--                     Copyright (C) 2003-2024, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -41,10 +41,8 @@ package body SOAP.XML is
 
    function First_Child (Parent : DOM.Core.Node) return DOM.Core.Node is
       use type DOM.Core.Node_Types;
-      N : DOM.Core.Node;
+      N : DOM.Core.Node := DOM.Core.Nodes.First_Child (Parent);
    begin
-      N := DOM.Core.Nodes.First_Child (Parent);
-
       while N /= null
         and then (N.Node_Type = DOM.Core.Text_Node
                   or else N.Node_Type = DOM.Core.Comment_Node)
@@ -65,11 +63,10 @@ package body SOAP.XML is
       Name : String;
       NS   : Boolean := True) return String
    is
-
-      A : DOM.Core.Node;
+      A : constant DOM.Core.Node :=
+            DOM.Core.Nodes.Get_Named_Item
+              (DOM.Core.Nodes.Attributes (N), Name);
    begin
-      A := DOM.Core.Nodes.Get_Named_Item (DOM.Core.Nodes.Attributes (N), Name);
-
       if A = null then
          return "";
 
@@ -103,13 +100,13 @@ package body SOAP.XML is
 
       function Body_Node (N : DOM.Core.Node) return DOM.Core.Node is
          L_N : DOM.Core.Node := N;
-
       begin
          while Characters.Handling.To_Lower
            (Utils.No_NS (DOM.Core.Nodes.Local_Name (L_N))) /= "body"
          loop
             L_N := DOM.Core.Nodes.Parent_Node (L_N);
          end loop;
+
          return L_N;
       end Body_Node;
 
@@ -117,17 +114,14 @@ package body SOAP.XML is
       Href : constant DOM.Core.Node :=
                DOM.Core.Nodes.Get_Named_Item (Atts, "href");
 
-      HN   : DOM.Core.Node;
-
    begin
       if Href = null then
          return N;
 
       else
-         HN := XML.First_Child (Body_Node (N));
-
          declare
             Id : constant String := DOM.Core.Nodes.Node_Value (Href);
+            HN : DOM.Core.Node := XML.First_Child (Body_Node (N));
             --  This is the Id we are looking for
          begin
             --  We have an href, look for the corresponding node

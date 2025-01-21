@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2000-2021, AdaCore                     --
+--                     Copyright (C) 2000-2024, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -27,7 +27,7 @@
 --  covered by the  GNU Public License.                                     --
 ------------------------------------------------------------------------------
 
-pragma Ada_2012;
+pragma Ada_2022;
 
 --  This package is used to keep the HTTP protocol status. Client can then
 --  request the status for various values like the requested URI, the
@@ -368,7 +368,7 @@ private
      access Resources.Streams.Memory.Stream_Type'Class;
 
    No_Session_Private : constant SHA256.Message_Digest :=
-                          (others => ASCII.NUL);
+                          [others => ASCII.NUL];
 
    type Data is record
       --  Connection info

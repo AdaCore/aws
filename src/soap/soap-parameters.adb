@@ -38,7 +38,7 @@ package body SOAP.Parameters is
    function "&" (P : List; O : Types.Object'Class) return List is
       NP : List := P;
    begin
-      NP.N := NP.N + 1;
+      NP.N := @ + 1;
       NP.V (NP.N) := Types."+" (O);
       return NP;
    end "&";

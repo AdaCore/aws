@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2004-2013, AdaCore                     --
+--                     Copyright (C) 2004-2024, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -84,7 +84,7 @@ package body AWS.Services.Split_Pages.Uniform.Alpha is
 
       Clear (Self.S_HREFS_V);
       Clear (Self.S_INDEXES_V);
-      Self.Lines := (others => 0);
+      Self.Lines := [others => 0];
 
       --  Build table
 
@@ -107,14 +107,11 @@ package body AWS.Services.Split_Pages.Uniform.Alpha is
             use Ada.Strings.Fixed;
             Name        : constant String :=
                             Trim (Item (Key_Vec, I), Strings.Left);
-            New_Initial : Character;
+            New_Initial : constant Character :=
+                            (if Name = ""
+                             then ' '
+                             else To_Upper (Name (Name'First)));
          begin
-            if Name = "" then
-               New_Initial := ' ';
-            else
-               New_Initial := To_Upper (Name (Name'First));
-            end if;
-
             if New_Initial /= Initial then
                Add_Entry (New_Initial, I);
                Initial := New_Initial;
@@ -161,8 +158,7 @@ package body AWS.Services.Split_Pages.Uniform.Alpha is
             end loop;
 
             Self.S_HREFS_V :=
-              Self.S_HREFS_V
-                & (URIs (R_Index) & '#'
+              @ & (URIs (R_Index) & '#'
                 & Utils.Image (Line - Ranges (R_Index).First + 1));
          end if;
       end Add_Ref;
@@ -178,7 +174,7 @@ package body AWS.Services.Split_Pages.Uniform.Alpha is
          Add_Ref (Self.Lines (2));
 
          for C in Character range 'A' .. 'Z' loop
-            Self.S_INDEXES_V := Self.S_INDEXES_V & C;
+            Self.S_INDEXES_V := @ & C;
             Add_Ref (Self.Lines (Alpha_Value (C)));
          end loop;
       end if;

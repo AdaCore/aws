@@ -1444,8 +1444,8 @@ package body Ada2WSDL.Parser is
                   if Params.Children_Count = 2 then
                      declare
                         P : constant array (1 .. 2) of Param_Assoc :=
-                              (Params.List_Child (1).As_Param_Assoc,
-                               Params.List_Child (2).As_Param_Assoc);
+                              [Params.List_Child (1).As_Param_Assoc,
+                               Params.List_Child (2).As_Param_Assoc];
                      begin
                         Generator.Register_Safe_Pointer
                           (Name        => Img (G_Pck.F_Name),
@@ -1466,8 +1466,8 @@ package body Ada2WSDL.Parser is
                   if Params.Children_Count = 2 then
                      declare
                         P : constant array (1 .. 2) of Param_Assoc :=
-                              (Params.List_Child (1).As_Param_Assoc,
-                               Params.List_Child (2).As_Param_Assoc);
+                              [Params.List_Child (1).As_Param_Assoc,
+                               Params.List_Child (2).As_Param_Assoc];
                         E : constant Expr := P (2).F_R_Expr;
                      begin
                         Generator.Start_Array

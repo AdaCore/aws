@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2000-2019, AdaCore                     --
+--                     Copyright (C) 2000-2024, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -70,7 +70,7 @@ package body AWS.Server.Hotplug is
    package Client_Table is new Ada.Containers.Indefinite_Hashed_Maps
      (String, Client_Data, Ada.Strings.Hash, "=");
 
-   Null_Nonce : constant Digest.Nonce := (others => ' ');
+   Null_Nonce : constant Digest.Nonce := [others => ' '];
 
    protected Client_Handler is
 
@@ -133,7 +133,7 @@ package body AWS.Server.Hotplug is
 
       while not Text_IO.End_Of_File (File) loop
          Text_IO.Get_Line (File, Buffer, Last);
-         N := N + 1;
+         N := @ + 1;
          String_Split.Create (Line, Buffer (1 .. Last), Separators => ":");
 
          if String_Split.Slice_Count (Line) /= 4 then
@@ -351,10 +351,9 @@ package body AWS.Server.Hotplug is
       ---------
 
       function Get (Client : String) return Client_Data is
-         Cursor : Client_Table.Cursor;
+         Cursor : constant Client_Table.Cursor :=
+                    Client_Table.Find (Clients, Client);
       begin
-         Cursor := Client_Table.Find (Clients, Client);
-
          if Client_Table.Has_Element (Cursor) then
             return Client_Table.Element (Cursor);
          else
@@ -370,10 +369,9 @@ package body AWS.Server.Hotplug is
         (Client : String;
          Nonce  : out Digest.Nonce)
       is
-         Cursor : Client_Table.Cursor;
+         Cursor : constant Client_Table.Cursor :=
+                    Client_Table.Find (Clients, Client);
       begin
-         Cursor := Client_Table.Find (Clients, Client);
-
          if Client_Table.Has_Element (Cursor) then
             declare
                CD : Client_Data := Client_Table.Element (Cursor);
