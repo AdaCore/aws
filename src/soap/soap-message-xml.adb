@@ -29,6 +29,7 @@
 
 with Ada.Characters.Handling;
 with Ada.Exceptions;
+with Ada.Numerics.Big_Numbers.Big_Integers;
 with Ada.Strings.Fixed;
 with Ada.Unchecked_Deallocation;
 
@@ -1336,7 +1337,9 @@ package body SOAP.Message.XML is
       Value : constant DOM.Core.Node := First_Child (N);
    begin
       return Types.BI
-        (Types.Big_Integer'Value (Node_Value (Value)), Name, Type_Name);
+        (Types.Big_Integer
+           (Numerics.Big_Numbers.Big_Integers.From_String
+                (Node_Value (Value))), Name, Type_Name);
    end Parse_Integer;
 
    ----------------

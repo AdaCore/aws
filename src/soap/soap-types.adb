@@ -520,7 +520,9 @@ package body SOAP.Types is
 
       elsif O'Tag = Types.Untyped.Untyped'Tag then
          begin
-            return Big_Integer'Value (V (XSD_String (O)));
+            return Types.Big_Integer
+              (Numerics.Big_Numbers.Big_Integers.From_String
+                 (V (XSD_String (O))));
          exception
             when others =>
                Get_Error ("Big_Integer", O);
