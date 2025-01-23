@@ -1,0 +1,60 @@
+<?xml version="1.0"?>
+<definitions name="data"
+             xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+            xmlns="mycompany:mydataservice"
+            xmlns:mds="mycompany:mydataservice"
+            xmlns:fixm="http://www.fixm.aero/fixm/3.0"
+            targetNamespace="mycompany:mydataservice"
+	    xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/">
+  <types>
+    <xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+                xmlns="mycompany:mydataservice"
+                xmlns:tx="mycompany:mydataservice"
+                xmlns:fixm="http://www.fixm.aero/fixm/3.0"
+                targetNamespace="mycompany:mydataservice"
+                version="3.2"
+                elementFormDefault="qualified">
+
+      <xsd:import namespace="http://www.fixm.aero/fixm/3.0"
+                  schemaLocation="./FIXM-3.0/core/Fixm.xsd"/>
+
+      <xsd:element name="myDataService" type="fb:ReportedTimeType">
+      </xsd:element>
+    </xsd:schema>
+  </types>
+
+  <message name="store">
+    <part name="body" element="mds:myDataService"/>
+  </message>
+
+  <message name="store_response">
+    <part name="body" element="mds:myDataService"/>
+  </message>
+
+  <portType name="data_port_type">
+    <operation name="store">
+      <input message="tns:store"/>
+      <output message="tns:store_response"/>
+    </operation>
+  </portType>
+
+  <binding name="data_binding" type="tns:data_port_type">
+    <soap:binding style="document"
+                  transport="http://schemas.xmlsoap.org/soap/http"/>
+    <operation name="store">
+      <soap:operation soapAction="store"/>
+      <input>
+        <soap:body use="literal"/>
+      </input>
+      <output>
+        <soap:body use="literal"/>
+      </output>
+    </operation>
+  </binding>
+
+  <service name="data_service">
+    <port name="data_port" binding="tns:data_binding">
+      <soap:address location="http://localhost:8080"/>
+    </port>
+  </service>
+</definitions>

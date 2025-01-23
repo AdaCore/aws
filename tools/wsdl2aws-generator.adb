@@ -34,7 +34,7 @@ with Ada.Containers.Indefinite_Ordered_Sets;
 with Ada.Directories;
 with Ada.Environment_Variables;
 with Ada.Strings.Fixed;
-with Ada.Strings.Maps.Constants;
+with Ada.Strings.Maps;
 with Ada.Text_IO;
 
 with AWS.Containers.Key_Value;
@@ -2101,8 +2101,7 @@ package body WSDL2AWS.Generator is
             function Get_Name (Name : String) return String is
                N : constant String := Format_Name (O, Name);
             begin
-               if Strings.Fixed.Count
-                 (Name, Strings.Maps.Constants.Decimal_Digit_Set) = Name'Length
+               if Name (Name'First) in '0' .. '9'
                  or else SOAP.Utils.Is_Ada_Reserved_Word (Name)
                  or else Name = "soap"
                  or else Name = "aws"

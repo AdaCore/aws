@@ -1,0 +1,292 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<schema
+   attributeFormDefault="unqualified"
+   elementFormDefault="unqualified"
+   targetNamespace="http://www.fixm.aero/flight/3.0"
+   version="3.00"
+   xmlns="http://www.w3.org/2001/XMLSchema"
+   xmlns:fb="http://www.fixm.aero/base/3.0"
+   xmlns:ff="http://www.fixm.aero/foundation/3.0"
+   xmlns:fx="http://www.fixm.aero/flight/3.0"
+   xmlns:xs="http://www.w3.org/2001/XMLSchema">
+   
+   <annotation>
+      <documentation>
+         Copyright (c) 2014 Airservices Australia, EUROCONTROL, JCAB, NATS Limited, NavCanada, 
+         SESAR Joint Undertaking &amp; US FAA 
+         =========================================== 
+         All rights reserved. 
+          
+         Redistribution and use in source and binary forms, with or without modification, 
+         are permitted 
+         provided that the following conditions are met: 
+         * Redistributions of source code must retain the above copyright notice, this list 
+         of conditions and 
+         the disclaimer. 
+         * Redistributions in binary form must reproduce the above copyright notice, this 
+         list of conditions 
+         and the disclaimer in the documentation and/or other materials provided with the 
+         distribution. 
+         * Neither the names of Airservices Australia, EUROCONTROL, JCAB, NATS Limited, NavCanada, 
+         
+         SESAR Joint Undertaking &amp; US FAA nor the names of their contributors may be used 
+         to endorse or 
+         promote products derived from this specification without specific prior written permission. 
+         
+          
+         DISCLAIMER 
+          
+         THIS SPECIFICATION IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" 
+         
+         AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED 
+         
+         WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE 
+         DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR 
+         ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES 
+         (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS 
+         
+         OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY 
+         THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING 
+         NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN 
+         
+         IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE. 
+          
+          
+         Editorial note: this license is an instance of the BSD license template as provided 
+         by the Open 
+         Source Initiative: 
+         http://www.opensource.org/licenses/bsd-license.php 
+          
+         The authoritative reference for FIXM is www.FIXM.aero. 
+          
+         Details on Airservices Australia: http://www.airservicesaustralia.com/ 
+         Details on EUROCONTROL: http://www.eurocontrol.int/ 
+         Details on JCAB: http://www.mlit.go.jp/en/koku/index.html 
+         Details on NATS Limited: http://www.nats.co.uk/ 
+         Details on NavCanada: http://www.navcanada.ca/ 
+         Details on the SESAR JU and its members: http://www.sesarju.eu/players/members 
+         Details on the US FAA: http://www.faa.gov/ 
+         Details on the US FAAs NextGen program: http://www.faa.gov/NextGen 
+      </documentation>
+   </annotation>
+   <import namespace="http://www.fixm.aero/base/3.0" schemaLocation="./../../base/Base.xsd"/>
+   <import namespace="http://www.fixm.aero/foundation/3.0" schemaLocation="./../../foundation/Foundation.xsd"/>
+   <annotation>
+      <documentation>
+         The Arrival package contains al information about the actual departure of the flight 
+         at an airport. 
+      </documentation>
+   </annotation>
+
+   <complexType name="DepartureActivityTimesType">
+      <annotation>
+         <documentation>
+            Groups various TimeSequences associated with departure activities. 
+         </documentation>
+      </annotation>
+      <sequence>
+         <element name="boardingTime" type="fb:TimeSequenceType" minOccurs="0" maxOccurs="1" > 
+            <annotation>
+               <documentation>
+                  .Boarding Start Time - Actual: Time passengers are entering the bridge or bus to 
+                  the aircraft. 
+               </documentation>
+            </annotation>
+         </element>
+         <element name="deIcingTime" type="fb:TimeSequenceType" minOccurs="0" maxOccurs="1" nillable="true" > 
+            <annotation>
+               <documentation>
+                  .De-icing End Time - Estimated: The time when de-icing operations on the aircraft 
+                  are expected to end. 
+                  .De-icing Start Time - Estimated: The time when de-icing operations on the aircraft 
+                  are expected to start. 
+                  .De-icing Ready Time - Estimated: The time when the aircraft is expected to be ready 
+                  for de-icing operations. 
+                  .De-icing Start Time - Actual: The time when de-icing operations on the aircraft 
+                  start. 
+                  .De-icing Ready Time - Actual:  The time when the aircraft is ready to be de-iced. 
+                  
+                  .De-icing End Time - Actual: The time when de-icing operations on the aircraft end. 
+                  
+               </documentation>
+            </annotation>
+         </element>
+         <element name="groundHandlingTime" type="fb:TimeSequenceType" minOccurs="0" maxOccurs="1" > 
+            <annotation>
+               <documentation>
+                  .Ground Handling End Time - Actual: The time when ground handling on the aircraft 
+                  ends. 
+                  .Ground Handling Start Time - Actual: The time when ground handling on the aircraft 
+                  starts. 
+               </documentation>
+            </annotation>
+         </element>
+         <element name="startupTime" type="fb:TimeSequenceType" minOccurs="0" maxOccurs="1" > 
+            <annotation>
+               <documentation>
+                  .Start Up Approval Time - Target: The time when the aircraft is expected to receive 
+                  start up/pushback approval. 
+                  .Start Up Approval Time - Actual: The time when the aircraft receives the start up 
+                  approval. 
+                  .Start Up Request Time - Actual: The time when the aircraft requests start up clearance. 
+                  
+               </documentation>
+            </annotation>
+         </element>
+      </sequence>
+   </complexType>
+   <element name="DepartureActivityTimes" type="fx:DepartureActivityTimesType" /> 
+
+   <complexType name="FlightDepartureType">
+      <annotation>
+         <documentation>
+            Groups information pertaining to the flight's departure. 
+         </documentation>
+      </annotation>
+      <complexContent>
+         <extension base="fb:FeatureType">
+            <sequence>
+               <element name="departureAerodrome" type="fb:AerodromeReferenceType" minOccurs="0" maxOccurs="1" > 
+                  <annotation>
+                     <documentation>
+                        .Departure Aerodrome: The ICAO designator of the aerodrome from which the flight 
+                        departs. 
+                     </documentation>
+                  </annotation>
+               </element>
+               <element name="departureFix" type="fb:SignificantPointType" minOccurs="0" maxOccurs="1" > 
+                  <annotation>
+                     <documentation>
+                        .Aerodrome Departure Fix: The point at which the responsibility for control of the 
+                        flight is transferred from the Terminal Air Traffic Control unit to the En Route 
+                        Air Traffic Control unit (Centre, ARTCC). 
+                     </documentation>
+                  </annotation>
+               </element>
+               <element name="departureFixTime" type="fb:MultiTimeType" minOccurs="0" maxOccurs="1" > 
+                  <annotation>
+                     <documentation>
+                        .Departure Fix Time - Estimated: The estimated time the flight is over the departure 
+                        fix. 
+                        .Departure Fix Time - Actual: The actual time the flight passed over the departure 
+                        fix. 
+                     </documentation>
+                  </annotation>
+               </element>
+               <element name="departureTimes" type="fx:DepartureActivityTimesType" minOccurs="0" maxOccurs="1" > 
+                  <annotation>
+                     <documentation>
+                        Optional TimeSequences associated with departure activities. 
+                     </documentation>
+                  </annotation>
+               </element>
+               <element name="offBlockReadyTime" type="fb:TargetMultiTimeType" minOccurs="0" maxOccurs="1" > 
+                  <annotation>
+                     <documentation>
+                        .Off-Block Ready Time - Actual: The time when the aircraft is ready for start-up/pushback 
+                        or taxi immediately after clearance delivery. 
+                        .Off-Block Ready Time - Target: The time an Aircraft Operator or Ground Handler estimates 
+                        an aircraft will be ready, all doors closed, boarding bridge removed, push back vehicle 
+                        available and ready to start up / push back immediately upon reception of clearance 
+                        from the tower. 
+                     </documentation>
+                  </annotation>
+               </element>
+               <element name="runwayPositionAndTime" type="fb:RunwayPositionAndTimeType" minOccurs="0" maxOccurs="1" > 
+                  <annotation>
+                     <documentation>
+                        .Runway Departure Time - Estimated: The most reliable estimated take off time. 
+                        .Departure Time - Estimated: The estimated off-block time for the flight at the Departure 
+                        Aerodrome, or, if the flight plan is filed in the air, the estimated time of departure 
+                        from the first point on the route. The time is given in UTC. 
+                        .Departure Runway: The expected, assigned, or actual runway for a departing flight. 
+                        
+                        .Departure Time - Actual: The actual time of departure from the aerodrome, or the 
+                        actual time of departure from the first point on the Route when the flight is an 
+                        'air file', i.e., the flight plan is filed once the aircraft is already airborne. 
+                        This time is given in UTC. 
+                        .Runway Departure Time - Target: The time when the aircraft is planned to take off 
+                        from the runway. 
+                        .Runway Departure Time - Actual: The actual time at which a flight takes off from 
+                        the runway. 
+                        .Runway Departure Time - Controlled: The time at which a flight is required to take 
+                        off from the runway as a result of a tactical slot allocation or a Traffic Management 
+                        Initiative. 
+                     </documentation>
+                  </annotation>
+               </element>
+               <element name="standPositionAndTime" type="fb:StandPositionAndTimeType" minOccurs="0" maxOccurs="1" > 
+                  <annotation>
+                     <documentation>
+                        .Off-Block Time - Actual: The time at which a flight departs from the stand. 
+                        .Off Block Time - Earliest: The earliest time an aircraft can push back or taxi from 
+                        the stand. 
+                        .Departure Terminal: The airport terminal from which the flight departs. 
+                        .Departure Stand: The stand from which an aircraft departs on commencement of the 
+                        flight. 
+                        .Off-Block Time - Initial: The date and time at which a flight was originally planning 
+                        to depart the stand. 
+                        .Off Block Time - Estimated: The estimated time at which a flight will depart from 
+                        the stand. 
+                        .Off-Block Time - Controlled: The time at which a flight is required to depart from 
+                        the stand as determined by a TMI. 
+                     </documentation>
+                  </annotation>
+               </element>
+               <element name="takeoffAlternateAerodrome" type="fb:AerodromeReferenceType" minOccurs="0" maxOccurs="unbounded" > 
+                  <annotation>
+                     <documentation>
+                        .Take Off Alternate Aerodrome: An alternate aerodrome at which an aircraft can land, 
+                        should it become necessary shortly after take off, and it is not possible to land 
+                        at the departure aerodrome. 
+                     </documentation>
+                  </annotation>
+               </element>
+               <element name="takeoffWeight" type="ff:WeightType" minOccurs="0" maxOccurs="1" > 
+                  <annotation>
+                     <documentation>
+                        .Takeoff Weight: The expected takeoff weight of the aircraft, expressed in thousands 
+                        of pounds or kilograms. 
+                     </documentation>
+                  </annotation>
+               </element>
+            </sequence>
+            <attribute name="departureFleetPrioritization" type="fb:FleetPriorityType" use="optional" > 
+               <annotation>
+                  <documentation>
+                     .Fleet Prioritization - Departure: The relative priority of a flight, within a flight 
+                     operator s fleet of aircraft, defined for a portion or the entire departure phase 
+                     of flight. 
+                  </documentation>
+               </annotation>
+            </attribute>
+            <attribute name="departureSlot" type="fb:SlotAssignmentType" use="optional" > 
+               <annotation>
+                  <documentation>
+                     .Departure Slot: A time slot at an airport that identifies a point in time when an 
+                     aircraft is constrained to depart from the airport. 
+                  </documentation>
+               </annotation>
+            </attribute>
+            <attribute name="earliestOffBlockTime" type="ff:TimeType" use="optional" > 
+               <annotation>
+                  <documentation>
+                     .Off Block Time - Earliest: The earliest time an aircraft can push back or taxi from 
+                     the stand. 
+                  </documentation>
+               </annotation>
+            </attribute>
+            <attribute name="standardInstrumentDeparture" type="fb:StandardInstrumentRouteDesignatorType" use="optional" > 
+               <annotation>
+                  <documentation>
+                     .Standard Instrument Departure Designator: This is the name of a published procedure 
+                     extending from the departure runway to the start of the en route part of the aircraft's 
+                     route. 
+                  </documentation>
+               </annotation>
+            </attribute>
+         </extension>
+      </complexContent>
+   </complexType>
+   <element name="FlightDeparture" type="fx:FlightDepartureType" substitutionGroup="fb:Feature" /> 
+</schema>

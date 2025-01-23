@@ -1,0 +1,179 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<schema
+   attributeFormDefault="unqualified"
+   elementFormDefault="unqualified"
+   targetNamespace="http://www.fixm.aero/flight/3.0"
+   version="3.00"
+   xmlns="http://www.w3.org/2001/XMLSchema"
+   xmlns:fb="http://www.fixm.aero/base/3.0"
+   xmlns:fx="http://www.fixm.aero/flight/3.0"
+   xmlns:xs="http://www.w3.org/2001/XMLSchema">
+   
+   <annotation>
+      <documentation>
+         Copyright (c) 2014 Airservices Australia, EUROCONTROL, JCAB, NATS Limited, NavCanada, 
+         SESAR Joint Undertaking &amp; US FAA 
+         =========================================== 
+         All rights reserved. 
+          
+         Redistribution and use in source and binary forms, with or without modification, 
+         are permitted 
+         provided that the following conditions are met: 
+         * Redistributions of source code must retain the above copyright notice, this list 
+         of conditions and 
+         the disclaimer. 
+         * Redistributions in binary form must reproduce the above copyright notice, this 
+         list of conditions 
+         and the disclaimer in the documentation and/or other materials provided with the 
+         distribution. 
+         * Neither the names of Airservices Australia, EUROCONTROL, JCAB, NATS Limited, NavCanada, 
+         
+         SESAR Joint Undertaking &amp; US FAA nor the names of their contributors may be used 
+         to endorse or 
+         promote products derived from this specification without specific prior written permission. 
+         
+          
+         DISCLAIMER 
+          
+         THIS SPECIFICATION IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" 
+         
+         AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED 
+         
+         WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE 
+         DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR 
+         ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES 
+         (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS 
+         
+         OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY 
+         THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING 
+         NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN 
+         
+         IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE. 
+          
+          
+         Editorial note: this license is an instance of the BSD license template as provided 
+         by the Open 
+         Source Initiative: 
+         http://www.opensource.org/licenses/bsd-license.php 
+          
+         The authoritative reference for FIXM is www.FIXM.aero. 
+          
+         Details on Airservices Australia: http://www.airservicesaustralia.com/ 
+         Details on EUROCONTROL: http://www.eurocontrol.int/ 
+         Details on JCAB: http://www.mlit.go.jp/en/koku/index.html 
+         Details on NATS Limited: http://www.nats.co.uk/ 
+         Details on NavCanada: http://www.navcanada.ca/ 
+         Details on the SESAR JU and its members: http://www.sesarju.eu/players/members 
+         Details on the US FAA: http://www.faa.gov/ 
+         Details on the US FAAs NextGen program: http://www.faa.gov/NextGen 
+      </documentation>
+   </annotation>
+   <import namespace="http://www.fixm.aero/base/3.0" schemaLocation="./../../base/Base.xsd"/>
+   <annotation>
+      <documentation>
+         Contains information about the aircraft's navigational capabilities equipment. 
+      </documentation>
+   </annotation>
+
+   <complexType name="NavigationCapabilitiesType">
+      <annotation>
+         <documentation>
+            .Navigation Capabilities: The serviceable navigation equipment available on board 
+            the aircraft at the time of flight and for which the flight crew is qualified. 
+         </documentation>
+      </annotation>
+      <sequence>
+         <element name="navigationCode" minOccurs="0" maxOccurs="1" > 
+            <annotation>
+               <documentation>
+                  Describes the aircraft navigation code. 
+               </documentation>
+            </annotation>
+            <simpleType>
+               <list itemType="fx:NavigationCodeType"/>
+            </simpleType>
+         </element>
+         <element name="performanceBasedCode" minOccurs="0" maxOccurs="1" > 
+            <annotation>
+               <documentation>
+                  .Performance-Based Navigation Capabilities: A coded category denoting which Required 
+                  Navigation Performance (RNP) and Area Navigation (RNAV) requirements can be met by 
+                  the aircraft while operating in the context of a particular airspace when supported 
+                  by the appropriate navigation infrastructure. 
+               </documentation>
+            </annotation>
+            <simpleType>
+               <list itemType="fx:PerformanceBasedCodeType"/>
+            </simpleType>
+         </element>
+      </sequence>
+      <attribute name="otherNavigationCapabilities" type="fb:FreeTextType" use="optional" > 
+         <annotation>
+            <documentation>
+               Additional navigation capabilities available on board the aircraft. 
+            </documentation>
+         </annotation>
+      </attribute>
+   </complexType>
+   <element name="NavigationCapabilities" type="fx:NavigationCapabilitiesType" /> 
+
+   <simpleType name="NavigationCodeType">
+      <annotation>
+         <documentation>
+            Describes the aircraft navigation code. 
+         </documentation>
+      </annotation>
+      <restriction base="xs:string">
+         <enumeration value="A"/>
+         <enumeration value="B"/>
+         <enumeration value="C"/>
+         <enumeration value="D"/>
+         <enumeration value="F"/>
+         <enumeration value="G"/>
+         <enumeration value="I"/>
+         <enumeration value="K"/>
+         <enumeration value="L"/>
+         <enumeration value="O"/>
+         <enumeration value="T"/>
+         <enumeration value="W"/>
+         <enumeration value="X"/>
+      </restriction>
+   </simpleType>
+
+   <simpleType name="PerformanceBasedCodeType">
+      <annotation>
+         <documentation>
+            .Performance-Based Navigation Capabilities: A coded category denoting which Required 
+            Navigation Performance (RNP) and Area Navigation (RNAV) requirements can be met by 
+            the aircraft while operating in the context of a particular airspace when supported 
+            by the appropriate navigation infrastructure. 
+         </documentation>
+      </annotation>
+      <restriction base="xs:string">
+         <enumeration value="A1"/>
+         <enumeration value="B1"/>
+         <enumeration value="B2"/>
+         <enumeration value="B3"/>
+         <enumeration value="B4"/>
+         <enumeration value="B5"/>
+         <enumeration value="B6"/>
+         <enumeration value="C1"/>
+         <enumeration value="C2"/>
+         <enumeration value="C3"/>
+         <enumeration value="C4"/>
+         <enumeration value="D1"/>
+         <enumeration value="D2"/>
+         <enumeration value="D3"/>
+         <enumeration value="D4"/>
+         <enumeration value="L1"/>
+         <enumeration value="O1"/>
+         <enumeration value="O2"/>
+         <enumeration value="O3"/>
+         <enumeration value="O4"/>
+         <enumeration value="S1"/>
+         <enumeration value="S2"/>
+         <enumeration value="T1"/>
+         <enumeration value="T2"/>
+      </restriction>
+   </simpleType>
+</schema>

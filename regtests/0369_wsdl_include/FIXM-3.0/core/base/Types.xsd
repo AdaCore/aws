@@ -1,0 +1,752 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<schema
+   attributeFormDefault="unqualified"
+   elementFormDefault="unqualified"
+   targetNamespace="http://www.fixm.aero/base/3.0"
+   version="3.00"
+   xmlns="http://www.w3.org/2001/XMLSchema"
+   xmlns:fb="http://www.fixm.aero/base/3.0"
+   xmlns:ff="http://www.fixm.aero/foundation/3.0"
+   xmlns:xs="http://www.w3.org/2001/XMLSchema">
+   
+   <annotation>
+      <documentation>
+         Copyright (c) 2014 Airservices Australia, EUROCONTROL, JCAB, NATS Limited, NavCanada, 
+         SESAR Joint Undertaking &amp; US FAA 
+         =========================================== 
+         All rights reserved. 
+          
+         Redistribution and use in source and binary forms, with or without modification, 
+         are permitted 
+         provided that the following conditions are met: 
+         * Redistributions of source code must retain the above copyright notice, this list 
+         of conditions and 
+         the disclaimer. 
+         * Redistributions in binary form must reproduce the above copyright notice, this 
+         list of conditions 
+         and the disclaimer in the documentation and/or other materials provided with the 
+         distribution. 
+         * Neither the names of Airservices Australia, EUROCONTROL, JCAB, NATS Limited, NavCanada, 
+         
+         SESAR Joint Undertaking &amp; US FAA nor the names of their contributors may be used 
+         to endorse or 
+         promote products derived from this specification without specific prior written permission. 
+         
+          
+         DISCLAIMER 
+          
+         THIS SPECIFICATION IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" 
+         
+         AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED 
+         
+         WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE 
+         DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR 
+         ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES 
+         (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS 
+         
+         OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY 
+         THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING 
+         NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN 
+         
+         IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE. 
+          
+          
+         Editorial note: this license is an instance of the BSD license template as provided 
+         by the Open 
+         Source Initiative: 
+         http://www.opensource.org/licenses/bsd-license.php 
+          
+         The authoritative reference for FIXM is www.FIXM.aero. 
+          
+         Details on Airservices Australia: http://www.airservicesaustralia.com/ 
+         Details on EUROCONTROL: http://www.eurocontrol.int/ 
+         Details on JCAB: http://www.mlit.go.jp/en/koku/index.html 
+         Details on NATS Limited: http://www.nats.co.uk/ 
+         Details on NavCanada: http://www.navcanada.ca/ 
+         Details on the SESAR JU and its members: http://www.sesarju.eu/players/members 
+         Details on the US FAA: http://www.faa.gov/ 
+         Details on the US FAAs NextGen program: http://www.faa.gov/NextGen 
+      </documentation>
+   </annotation>
+   <import namespace="http://www.fixm.aero/foundation/3.0" schemaLocation="./../foundation/Foundation.xsd"/>
+   <annotation>
+      <documentation>
+         The Base.Types schema provides representations for various elements not belonging 
+         in another schema. 
+      </documentation>
+   </annotation>
+
+   <simpleType name="AftnAddressType">
+      <annotation>
+         <documentation>
+            Standard AFTN address. 
+         </documentation>
+      </annotation>
+      <restriction base="xs:string"/>
+   </simpleType>
+
+   <complexType name="AirspeedChoiceType">
+      <annotation>
+         <documentation>
+            The airspeed choice indicates that airspeed can either be expressed as specific with 
+            a speed condition or a speed range between lower and upper bounds. 
+         </documentation>
+      </annotation>
+      <choice>
+         <element name="airspeed" type="fb:SpeedType" minOccurs="0" maxOccurs="1" > 
+            <annotation>
+               <documentation>
+                  The airspeed can be expressed as a specific speed with a condition. 
+               </documentation>
+            </annotation>
+         </element>
+         <element name="airspeedRange" type="fb:AirspeedRangeType" minOccurs="0" maxOccurs="unbounded" > 
+            <annotation>
+               <documentation>
+                  The airspeed that can be expressed as a range between a lower and upper bound. 
+               </documentation>
+            </annotation>
+         </element>
+      </choice>
+   </complexType>
+   <element name="AirspeedChoice" type="fb:AirspeedChoiceType" /> 
+
+   <complexType name="AirspeedRangeType">
+      <annotation>
+         <documentation>
+            The airspeed that can be expressed as a range between a lower and upper bound. 
+         </documentation>
+      </annotation>
+      <sequence>
+         <element name="lowerSpeed" type="ff:AirspeedInIasOrMachType" minOccurs="0" maxOccurs="1" > 
+            <annotation>
+               <documentation>
+                  Lower bound of the speed range. 
+               </documentation>
+            </annotation>
+         </element>
+         <element name="upperSpeed" type="ff:AirspeedInIasOrMachType" minOccurs="0" maxOccurs="1" > 
+            <annotation>
+               <documentation>
+                  Upper bound of the speed range 
+               </documentation>
+            </annotation>
+         </element>
+      </sequence>
+   </complexType>
+   <element name="AirspeedRange" type="fb:AirspeedRangeType" /> 
+
+   <simpleType name="AirTrafficTypeType">
+      <annotation>
+         <documentation>
+            The type of flight value associated with the point. It is associated with the first 
+            point on the route and any subsequent point where the type of flight value changes. 
+            
+         </documentation>
+      </annotation>
+      <restriction base="xs:string">
+         <enumeration value="OAT">
+            <annotation>
+               <documentation>
+                  Operational Air Traffic: Military and State operations not subject to civil ATC procedures 
+                  but are ICAO recognized operations. 
+               </documentation>
+            </annotation>
+         </enumeration>
+         <enumeration value="GAT">
+            <annotation>
+               <documentation>
+                  General Air Traffic: ICAO civil type operations. 
+               </documentation>
+            </annotation>
+         </enumeration>
+      </restriction>
+   </simpleType>
+
+   <complexType name="AltitudeChoiceType">
+      <annotation>
+         <documentation>
+            The altitude choice allows to either represent a specific altitude or an altitude 
+            range with a lower and upper bound 
+         </documentation>
+      </annotation>
+      <choice>
+         <element name="altitude" type="ff:AltitudeType" minOccurs="0" maxOccurs="1" > 
+            <annotation>
+               <documentation>
+                  Altitude expressed as a specific altitude. 
+               </documentation>
+            </annotation>
+         </element>
+         <element name="altitudeRange" type="fb:VerticalRangeType" minOccurs="0" maxOccurs="1" > 
+            <annotation>
+               <documentation>
+                  Altitude that can be expressed as a range between a lower and upper bound. 
+               </documentation>
+            </annotation>
+         </element>
+      </choice>
+   </complexType>
+   <element name="AltitudeChoice" type="fb:AltitudeChoiceType" /> 
+
+   <complexType name="BeaconCodeType">
+      <annotation>
+         <documentation>
+            .Beacon Code: The assigned four-character numeric code transmitted by the aircraft 
+            transponder in response to a secondary surveillance radar interrogation signal which 
+            is used to assist air traffic controllers to identify aircraft. 
+         </documentation>
+      </annotation>
+      <simpleContent>
+         <extension base="fb:RestrictedBeaconCodeType">
+            <attribute name="ssrMode" type="fb:SsrModeType" use="optional" > 
+               <annotation>
+                  <documentation>
+                     Optional Secondary Surveillance Radar (SSR) Mode. 
+                  </documentation>
+               </annotation>
+            </attribute>
+         </extension>
+      </simpleContent>
+   </complexType>
+
+   <simpleType name="RestrictedBeaconCodeType">
+      <annotation>
+         <documentation>
+            Helper type for restrictions on BeaconCodeType 
+         </documentation>
+      </annotation>
+      <restriction base="xs:string">
+         <pattern value="[0-7]{4}"/>
+      </restriction>
+   </simpleType>
+
+   <simpleType name="CarrierIdentifierType">
+      <annotation>
+         <documentation>
+            A 3 letter Identifier for carrier. 
+         </documentation>
+      </annotation>
+      <restriction base="xs:string">
+         <pattern value="[A-Z]{3}"/>
+      </restriction>
+   </simpleType>
+
+   <simpleType name="CountType">
+      <annotation>
+         <documentation>
+            Represents positive integer counts of objects. 
+         </documentation>
+      </annotation>
+      <restriction base="xs:int">
+         <minInclusive value="0"/>
+      </restriction>
+   </simpleType>
+
+   <simpleType name="DecimalIndexType">
+      <annotation>
+         <documentation>
+            Generic decimal fraction expressed to tenths, used as scaling or comparison factor. 
+            Instances should add high and low bounds as appropriate. 
+         </documentation>
+      </annotation>
+      <restriction base="xs:decimal">
+         <totalDigits value="4"/>
+         <fractionDigits value="1"/>
+      </restriction>
+   </simpleType>
+
+   <simpleType name="FleetPriorityType">
+      <annotation>
+         <documentation>
+            Used to assign relative priorities to things and events.  A lower number means a 
+            higher priority. 
+         </documentation>
+      </annotation>
+      <restriction base="xs:int">
+         <minInclusive value="1"/>
+         <maxInclusive value="10"/>
+      </restriction>
+   </simpleType>
+
+   <simpleType name="FlightIdentifierType">
+      <annotation>
+         <documentation>
+            The flight name - sometimes called ACID 
+         </documentation>
+      </annotation>
+      <restriction base="xs:string">
+         <pattern value="[A-Z0-9]{1,7}"/>
+      </restriction>
+   </simpleType>
+
+   <simpleType name="FlightRulesType">
+      <annotation>
+         <documentation>
+            The regulation, or combination of regulations, that governs all aspects of operations 
+            under which the pilot plans to fly. 
+         </documentation>
+      </annotation>
+      <restriction base="xs:string">
+         <enumeration value="IFR">
+            <annotation>
+               <documentation>
+                  Instrument Flight Rules 
+               </documentation>
+            </annotation>
+         </enumeration>
+         <enumeration value="VFR">
+            <annotation>
+               <documentation>
+                  Visual Flight Rules 
+               </documentation>
+            </annotation>
+         </enumeration>
+      </restriction>
+   </simpleType>
+
+   <simpleType name="FreeTextType">
+      <annotation>
+         <documentation>
+            Provides a standard representation for elements that may contain any text, 
+            such as comments and notes. 
+         </documentation>
+      </annotation>
+      <restriction base="xs:string">
+         <maxLength value="4096"/>
+         <minLength value="0"/>
+      </restriction>
+   </simpleType>
+
+   <simpleType name="FrequencyMeasureType">
+      <annotation>
+         <documentation>
+            Radio frequency unit of measure. Either kHz OR MHz. 
+         </documentation>
+      </annotation>
+      <restriction base="xs:string">
+         <enumeration value="MEGAHERTZ">
+            <annotation>
+               <documentation>
+                  Indicates this radio frequency is measured in MHz. 
+               </documentation>
+            </annotation>
+         </enumeration>
+         <enumeration value="KILOHERTZ">
+            <annotation>
+               <documentation>
+                  Indicates this radio frequency is measured in kHz. 
+               </documentation>
+            </annotation>
+         </enumeration>
+      </restriction>
+   </simpleType>
+
+   <complexType name="GloballyUniqueFlightIdentifierType">
+      <annotation>
+         <documentation>
+            A reference that uniquely identifies a specific flight and that is independent of 
+            any particular system. 
+         </documentation>
+      </annotation>
+      <simpleContent>
+         <extension base="fb:RestrictedGloballyUniqueFlightIdentifierType">
+            <attribute name="codeSpace" type="xs:string" fixed="urn:uuid" use="required" > 
+               <annotation>
+                  <documentation>
+                     Code Space of the GUFI 
+                  </documentation>
+               </annotation>
+            </attribute>
+         </extension>
+      </simpleContent>
+   </complexType>
+
+   <simpleType name="RestrictedGloballyUniqueFlightIdentifierType">
+      <annotation>
+         <documentation>
+            Helper type for restrictions on GloballyUniqueFlightIdentifierType 
+         </documentation>
+      </annotation>
+      <restriction base="xs:string">
+         <pattern value="[0-9|aA-fF]{8}-[0-9|aA-fF]{4}-4[0-9|aA-fF]{3}-[89aAbB]{1}[0-9|aA-fF]{3}-[0-9|aA-fF]{12}"/>
+      </restriction>
+   </simpleType>
+
+   <complexType name="GroundspeedChoiceType">
+      <annotation>
+         <documentation>
+            The groundspeed choice indicates that groundspeed can either be expressed as specific 
+            with a speed condition or a speed range between lower and upper bounds. 
+         </documentation>
+      </annotation>
+      <choice>
+         <element name="groundspeed" type="ff:GroundspeedType" minOccurs="0" maxOccurs="1" > 
+            <annotation>
+               <documentation>
+                  Groundspeed can be expressed as a specific speed. 
+               </documentation>
+            </annotation>
+         </element>
+         <element name="groundspeedRange" type="fb:GroundspeedRangeType" minOccurs="0" maxOccurs="1" > 
+            <annotation>
+               <documentation>
+                  The groundspeed that can be expressed as a range between a lower and upper bound. 
+                  
+               </documentation>
+            </annotation>
+         </element>
+      </choice>
+   </complexType>
+   <element name="GroundspeedChoice" type="fb:GroundspeedChoiceType" /> 
+
+   <complexType name="GroundspeedRangeType">
+      <annotation>
+         <documentation>
+            The groundspeed that can be expressed as a range between a lower and upper bound. 
+            
+         </documentation>
+      </annotation>
+      <sequence>
+         <element name="lowerSpeed" type="ff:GroundspeedType" minOccurs="0" maxOccurs="1" > 
+            <annotation>
+               <documentation>
+                  Lower bound of the groundspeed range. 
+               </documentation>
+            </annotation>
+         </element>
+         <element name="upperSpeed" type="ff:GroundspeedType" minOccurs="0" maxOccurs="1" > 
+            <annotation>
+               <documentation>
+                  Upper bound of the sroundspeed range. 
+               </documentation>
+            </annotation>
+         </element>
+      </sequence>
+   </complexType>
+   <element name="GroundspeedRange" type="fb:GroundspeedRangeType" /> 
+
+   <simpleType name="IcaoAircraftIdentifierType">
+      <annotation>
+         <documentation>
+            ICAO standard nomenclature of aircraft manufacturer and type. 
+         </documentation>
+      </annotation>
+      <restriction base="xs:string">
+         <pattern value="[A-Z0-9]{2,4}"/>
+      </restriction>
+   </simpleType>
+
+   <complexType name="LateralOfftrackType">
+      <annotation>
+         <documentation>
+            Represents a lateral offtrack which can either be an offset or weather deviation. 
+            
+         </documentation>
+      </annotation>
+      <sequence>
+         <element name="offtrackDistance" type="fb:OfftrackDistanceType" minOccurs="0" maxOccurs="2" > 
+            <annotation>
+               <documentation>
+                  Represents offtrack distances that are lateral relative to a location expressed by 
+                  a distance measurement and offset direction. 
+               </documentation>
+            </annotation>
+         </element>
+      </sequence>
+      <attribute name="offtrackReason" type="fb:OfftrackReasonType" use="optional" > 
+         <annotation>
+            <documentation>
+               Specifies the reason for Lateral Offtrack 
+            </documentation>
+         </annotation>
+      </attribute>
+   </complexType>
+   <element name="LateralOfftrack" type="fb:LateralOfftrackType" /> 
+
+   <complexType name="NameValueListType">
+      <annotation>
+         <documentation>
+            A basic list of name/value pairs. 
+             
+            The name/value list structure is intended for use in the RARE situations where otherwise 
+            unstructured data can be rendered into a semi-structure of tags and data. It is not 
+            appropriate for adding arbitrary data to arbitrary places in the schema. 
+         </documentation>
+      </annotation>
+      <sequence>
+         <element name="nameValue" type="fb:NameValuePairType" minOccurs="0" maxOccurs="10" > 
+            <annotation>
+               <documentation>
+                  A set of up to 10 name-value pairs. 
+               </documentation>
+            </annotation>
+         </element>
+      </sequence>
+   </complexType>
+   <element name="NameValueList" type="fb:NameValueListType" /> 
+
+   <complexType final="#all" name="NameValuePairType">
+      <annotation>
+         <documentation>
+            This is a general purpose data structure used when it is desired to map an identifying 
+            string (the "name") into a data string (the "value"). These name/value pairs are 
+            often part of a repeating element so that the whole element expresses a set of names 
+            mapped onto a set of values. 
+         </documentation>
+      </annotation>
+      <attribute name="name" use="optional" > 
+         <annotation>
+            <documentation>
+               The identifying portion of the pair, formatted as if for an enumeration. Consider 
+               using an actual enumeration for legal values. 
+            </documentation>
+         </annotation>
+         <simpleType>
+            <restriction base="fb:FreeTextType">
+               <pattern value="[A-Z0-9_]{1,20}"/>
+            </restriction>
+         </simpleType>
+      </attribute>
+      <attribute name="value" use="optional" > 
+         <annotation>
+            <documentation>
+               The data content portion of the pair. This is intended for a *short* unstructured 
+               string like a natural language comment, and should not be used as storage for codes, 
+               values, or other structured data. 
+            </documentation>
+         </annotation>
+         <simpleType>
+            <restriction base="fb:FreeTextType">
+               <maxLength value="100"/>
+               <minLength value="0"/>
+            </restriction>
+         </simpleType>
+      </attribute>
+   </complexType>
+   <element name="NameValuePair" type="fb:NameValuePairType" /> 
+
+   <simpleType name="OfftrackDirectionType">
+      <annotation>
+         <documentation>
+            Specifies the direction of the lateral offset offset. 
+         </documentation>
+      </annotation>
+      <restriction base="xs:string">
+         <enumeration value="LEFT"/>
+         <enumeration value="RIGHT"/>
+      </restriction>
+   </simpleType>
+
+   <complexType name="OfftrackDistanceType">
+      <annotation>
+         <documentation>
+            Represents an offtrack distance that is lateral relative to a location expressed 
+            by a distance measurement and offset direction. 
+         </documentation>
+      </annotation>
+      <sequence>
+         <element name="distance" type="ff:DistanceType" minOccurs="0" maxOccurs="1" > 
+            <annotation>
+               <documentation>
+                  Specifies the distance of the offtrack. 
+               </documentation>
+            </annotation>
+         </element>
+      </sequence>
+      <attribute name="direction" type="fb:OfftrackDirectionType" use="optional" > 
+         <annotation>
+            <documentation>
+               Specifies the direction of the offset 
+            </documentation>
+         </annotation>
+      </attribute>
+   </complexType>
+   <element name="OfftrackDistance" type="fb:OfftrackDistanceType" /> 
+
+   <simpleType name="OfftrackReasonType">
+      <annotation>
+         <documentation>
+            The reason for boundary crossing offset deviation. 
+         </documentation>
+      </annotation>
+      <restriction base="xs:string">
+         <enumeration value="OFFSET">
+            <annotation>
+               <documentation>
+                  Indicates that the reason for offtrack is offset. 
+               </documentation>
+            </annotation>
+         </enumeration>
+         <enumeration value="DEVIATION">
+            <annotation>
+               <documentation>
+                  Indicates that the reason for offtrack is DEVIATION. For example, a likely reason 
+                  for deviation is weather. 
+               </documentation>
+            </annotation>
+         </enumeration>
+      </restriction>
+   </simpleType>
+
+   <simpleType name="ParametersType">
+      <annotation>
+         <documentation>
+            The purpose of this class is to serve as a base class for parameter information for 
+            the flight such as the ATN Logon parameters, and FANS/1A parameters 
+         </documentation>
+      </annotation>
+      <restriction base="xs:string">
+         <maxLength value="200"/>
+         <minLength value="49"/>
+      </restriction>
+   </simpleType>
+
+   <complexType name="RadioFrequencyType">
+      <annotation>
+         <documentation>
+            RadioFrequency is the designation of a communication frequency in the HF, UHF, VHF, 
+            EHF bands 
+         </documentation>
+      </annotation>
+      <simpleContent>
+         <extension base="fb:RestrictedRadioFrequencyType">
+            <attribute name="uom" type="fb:FrequencyMeasureType" use="required" > 
+               <annotation>
+                  <documentation>
+                     Required unit of measure for RadioFrequency in KHz OR MHz. 
+                  </documentation>
+               </annotation>
+            </attribute>
+         </extension>
+      </simpleContent>
+   </complexType>
+
+   <simpleType name="RestrictedRadioFrequencyType">
+      <annotation>
+         <documentation>
+            Helper type for restrictions on RadioFrequencyType 
+         </documentation>
+      </annotation>
+      <restriction base="ff:UnitOfMeasureType">
+         <pattern value="[0-9]{3}\.[0-9]{2}"/>
+      </restriction>
+   </simpleType>
+
+   <complexType name="SpeedType">
+      <annotation>
+         <documentation>
+            The airspeed can be expressed as a specific speed with a condition. 
+         </documentation>
+      </annotation>
+      <simpleContent>
+         <extension base="ff:AirspeedInIasOrMachType">
+            <attribute name="speedCondition" type="fb:SpeedConditionType" use="optional" > 
+               <annotation>
+                  <documentation>
+                     The speed condition indicates whether the aircraft will be maintaining, exceeding, 
+                     or flying more slowly than the assigned boundary crossing speed. 
+                  </documentation>
+               </annotation>
+            </attribute>
+         </extension>
+      </simpleContent>
+   </complexType>
+
+   <simpleType name="SpeedConditionType">
+      <annotation>
+         <documentation>
+            The speed condition indicates whether the aircraft will be maintaining, exceeding, 
+            or flying more slowly than the assigned speed. 
+         </documentation>
+      </annotation>
+      <restriction base="xs:string">
+         <enumeration value="AT_OR_LESS">
+            <annotation>
+               <documentation>
+                  Indicates that the aircraft will be flying at or slower than the assigned boundary 
+                  crossing speed. 
+               </documentation>
+            </annotation>
+         </enumeration>
+         <enumeration value="AT_OR_GREATER">
+            <annotation>
+               <documentation>
+                  Indicates that the aircraft will be flying at or faster than the assigned boundary 
+                  crossing speed. 
+               </documentation>
+            </annotation>
+         </enumeration>
+         <enumeration value="AT">
+            <annotation>
+               <documentation>
+                  Indicates that the aircraft will be flying at  the assigned boundary crossing speed. 
+                  
+               </documentation>
+            </annotation>
+         </enumeration>
+      </restriction>
+   </simpleType>
+
+   <simpleType name="SsrModeType">
+      <annotation>
+         <documentation>
+            Represents the enumeration of Secondary Surveillance Radar (SSR) Modes: 
+            * A - Transponder-Mode A (4 digits-4,096 codes) 
+            * C - Transponder-Mode A (4 digits-4,096 codes) and Mode C 
+            * S - Transponder-Mode S, including both pressure-altitude and aircraft identification 
+            transmission 
+         </documentation>
+      </annotation>
+      <restriction base="xs:string">
+         <enumeration value="A">
+            <annotation>
+               <documentation>
+                  Indicates Secondary Surveillance Radar (SSR) is operating in Transponder-Mode A. 
+                  
+               </documentation>
+            </annotation>
+         </enumeration>
+         <enumeration value="C">
+            <annotation>
+               <documentation>
+                  Indicates Secondary Surveillance Radar (SSR) Transponder-Mode A and Mode C. 
+               </documentation>
+            </annotation>
+         </enumeration>
+         <enumeration value="S">
+            <annotation>
+               <documentation>
+                  Indicates Secondary Surveillance Radar (SSR) Transponder-Mode S. 
+               </documentation>
+            </annotation>
+         </enumeration>
+      </restriction>
+   </simpleType>
+
+   <complexType name="VerticalRangeType">
+      <annotation>
+         <documentation>
+            Represents a vertical range from a lower bound altitude to an upper bound altitude. 
+            
+         </documentation>
+      </annotation>
+      <sequence>
+         <element name="lowerBound" type="ff:AltitudeType" minOccurs="0" maxOccurs="1" > 
+            <annotation>
+               <documentation>
+                  Lower bound altitude of the vertical range. 
+               </documentation>
+            </annotation>
+         </element>
+         <element name="upperBound" type="ff:AltitudeType" minOccurs="0" maxOccurs="1" > 
+            <annotation>
+               <documentation>
+                  Upper bound altitude of the vertical range. 
+               </documentation>
+            </annotation>
+         </element>
+      </sequence>
+   </complexType>
+   <element name="VerticalRange" type="fb:VerticalRangeType" /> 
+</schema>

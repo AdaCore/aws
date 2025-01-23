@@ -1,0 +1,260 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<schema
+   attributeFormDefault="unqualified"
+   elementFormDefault="unqualified"
+   targetNamespace="http://www.fixm.aero/flight/3.0"
+   version="3.00"
+   xmlns="http://www.w3.org/2001/XMLSchema"
+   xmlns:fb="http://www.fixm.aero/base/3.0"
+   xmlns:ff="http://www.fixm.aero/foundation/3.0"
+   xmlns:fx="http://www.fixm.aero/flight/3.0"
+   xmlns:xs="http://www.w3.org/2001/XMLSchema">
+   
+   <annotation>
+      <documentation>
+         Copyright (c) 2014 Airservices Australia, EUROCONTROL, JCAB, NATS Limited, NavCanada, 
+         SESAR Joint Undertaking &amp; US FAA 
+         =========================================== 
+         All rights reserved. 
+          
+         Redistribution and use in source and binary forms, with or without modification, 
+         are permitted 
+         provided that the following conditions are met: 
+         * Redistributions of source code must retain the above copyright notice, this list 
+         of conditions and 
+         the disclaimer. 
+         * Redistributions in binary form must reproduce the above copyright notice, this 
+         list of conditions 
+         and the disclaimer in the documentation and/or other materials provided with the 
+         distribution. 
+         * Neither the names of Airservices Australia, EUROCONTROL, JCAB, NATS Limited, NavCanada, 
+         
+         SESAR Joint Undertaking &amp; US FAA nor the names of their contributors may be used 
+         to endorse or 
+         promote products derived from this specification without specific prior written permission. 
+         
+          
+         DISCLAIMER 
+          
+         THIS SPECIFICATION IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" 
+         
+         AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED 
+         
+         WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE 
+         DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR 
+         ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES 
+         (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS 
+         
+         OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY 
+         THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING 
+         NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN 
+         
+         IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE. 
+          
+          
+         Editorial note: this license is an instance of the BSD license template as provided 
+         by the Open 
+         Source Initiative: 
+         http://www.opensource.org/licenses/bsd-license.php 
+          
+         The authoritative reference for FIXM is www.FIXM.aero. 
+          
+         Details on Airservices Australia: http://www.airservicesaustralia.com/ 
+         Details on EUROCONTROL: http://www.eurocontrol.int/ 
+         Details on JCAB: http://www.mlit.go.jp/en/koku/index.html 
+         Details on NATS Limited: http://www.nats.co.uk/ 
+         Details on NavCanada: http://www.navcanada.ca/ 
+         Details on the SESAR JU and its members: http://www.sesarju.eu/players/members 
+         Details on the US FAA: http://www.faa.gov/ 
+         Details on the US FAAs NextGen program: http://www.faa.gov/NextGen 
+      </documentation>
+   </annotation>
+   <import namespace="http://www.fixm.aero/base/3.0" schemaLocation="./../../base/Base.xsd"/>
+   <import namespace="http://www.fixm.aero/foundation/3.0" schemaLocation="./../../foundation/Foundation.xsd"/>
+   <annotation>
+      <documentation>
+         The Position package contains information about the flight's current and planned 
+         reporting positions. 
+      </documentation>
+   </annotation>
+
+   <complexType name="ActualSpeedType">
+      <annotation>
+         <documentation>
+            .Speed - Actual: The actual speed of the aircraft, collected via various methods. 
+            
+         </documentation>
+      </annotation>
+      <sequence>
+         <element name="calculated" type="ff:GroundspeedType" minOccurs="0" maxOccurs="1" > 
+            <annotation>
+               <documentation>
+                  .Speed - Calculated: The estimated horizontal speed of the aircraft relative to a 
+                  fixed point on the ground. 
+               </documentation>
+            </annotation>
+         </element>
+         <element name="pilotReported" type="ff:TrueAirspeedOrMachType" minOccurs="0" maxOccurs="1" > 
+            <annotation>
+               <documentation>
+                  .Speed - Pilot Reported: The speed of the aircraft relative to the air mass in which 
+                  it is flying. This is the speed reported by the pilot. 
+               </documentation>
+            </annotation>
+         </element>
+         <element name="surveillance" type="ff:GroundspeedType" minOccurs="0" maxOccurs="1" > 
+            <annotation>
+               <documentation>
+                  .Speed - Surveillance: The measured horizontal speed of the aircraft relative to 
+                  a fixed point on the ground, for flights being tracked by surveillance or satellite. 
+                  
+               </documentation>
+            </annotation>
+         </element>
+      </sequence>
+   </complexType>
+   <element name="ActualSpeed" type="fx:ActualSpeedType" /> 
+
+   <complexType name="AircraftPositionType">
+      <annotation>
+         <documentation>
+            Contains the current position and associated data of the aircraft. 
+         </documentation>
+      </annotation>
+      <complexContent>
+         <extension base="fb:FeatureType">
+            <sequence>
+               <element name="actualSpeed" type="fx:ActualSpeedType" minOccurs="0" maxOccurs="1" > 
+                  <annotation>
+                     <documentation>
+                        Actual flight  speed supplied by various sources. 
+                     </documentation>
+                  </annotation>
+               </element>
+               <element name="altitude" type="ff:AltitudeType" minOccurs="0" maxOccurs="1" > 
+                  <annotation>
+                     <documentation>
+                        .Reported Altitude: The latest valid Mode C altitude received from an aircraft, or 
+                        the latest reported altitude received from a pilot. 
+                     </documentation>
+                  </annotation>
+               </element>
+               <element name="followingPosition" type="fx:PlannedReportingPositionType" minOccurs="0" maxOccurs="1" nillable="true" > 
+                  <annotation>
+                     <documentation>
+                        .Following Future Reporting Position: Estimated second future position of the aircraft 
+                        transmitted in a non-radar airspace position report. 
+                        .Following Future Reporting Position Altitude: Expected altitude at the estimated 
+                        second future position of the aircraft transmitted in a non-radar airspace position 
+                        report. 
+                     </documentation>
+                  </annotation>
+               </element>
+               <element name="nextPosition" type="fx:PlannedReportingPositionType" minOccurs="0" maxOccurs="1" nillable="true" > 
+                  <annotation>
+                     <documentation>
+                        For Oceanic flights, the next reporting position is required. 
+                        .Next Future Reporting Position Altitude: Expected altitude at the estimated next 
+                        future position of the aircraft transmitted in a non-radar airspace position report. 
+                        
+                        .Next Future Reporting Position: Estimated next future position of the aircraft transmitted 
+                        in a non-radar airspace position report. 
+                     </documentation>
+                  </annotation>
+               </element>
+               <element name="position" type="fb:SignificantPointType" minOccurs="0" maxOccurs="1" > 
+                  <annotation>
+                     <documentation>
+                        .Current Position: The actual location of an active flight as reported by surveillance, 
+                        for a flight tracked by radar, or from the position part of a pilot progress report, 
+                        for an oceanic flight or flight operating in non-radar airspace. 
+                     </documentation>
+                  </annotation>
+               </element>
+               <element name="track" type="fb:DirectionType" minOccurs="0" maxOccurs="1" > 
+                  <annotation>
+                     <documentation>
+                        .Current Track: The direction the aircraft is flying, over the ground, relative to 
+                        true north.  It is the heading of the aircraft as impacted by the wind. 
+                     </documentation>
+                  </annotation>
+               </element>
+            </sequence>
+            <attribute name="positionTime" type="ff:TimeType" use="optional" > 
+               <annotation>
+                  <documentation>
+                     .Current Position Time: The time associated with the Current Position of an active 
+                     flight, from the radar surveillance report or progress report. 
+                  </documentation>
+               </annotation>
+            </attribute>
+            <attribute name="reportSource" type="fx:PositionReportSourceType" use="optional" > 
+               <annotation>
+                  <documentation>
+                     .Current Position Report Source: The source of the current position report information. 
+                     
+                  </documentation>
+               </annotation>
+            </attribute>
+         </extension>
+      </complexContent>
+   </complexType>
+   <element name="AircraftPosition" type="fx:AircraftPositionType" substitutionGroup="fb:Feature" /> 
+
+   <complexType name="PlannedReportingPositionType">
+      <annotation>
+         <documentation>
+            .Aircraft Planned Reporting Position: Estimated future position, altitude and time 
+            of the aircraft transmitted in a non-radar airspace position report. 
+         </documentation>
+      </annotation>
+      <sequence>
+         <element name="position" type="fb:SignificantPointType" minOccurs="0" maxOccurs="1" > 
+            <annotation>
+               <documentation>
+                  Planned reporting position point. 
+               </documentation>
+            </annotation>
+         </element>
+         <element name="positionAltitude" type="ff:AltitudeType" minOccurs="0" maxOccurs="1" > 
+            <annotation>
+               <documentation>
+                  Altitude associated with the planned reporting position. 
+                  .Next Future Reporting Position Altitude: Expected altitude at the estimated next 
+                  future position of the aircraft transmitted in a non-radar airspace position report. 
+                  
+                  .Following Future Reporting Position Altitude: Expected altitude at the estimated 
+                  second future position of the aircraft transmitted in a non-radar airspace position 
+                  report. 
+               </documentation>
+            </annotation>
+         </element>
+      </sequence>
+      <attribute name="positionEstimatedTime" type="ff:TimeType" use="optional" > 
+         <annotation>
+            <documentation>
+               Estimated time associated with the planned reporting position. 
+               .Next Future Reporting Position Time - Estimated: Estimated time at the next future 
+               position of the aircraft transmitted in a non-radar airspace position report. 
+               .Following Future Reporting Position Time - Estimated: Estimated time at the second 
+               future position of the aircraft transmitted in a non-radar airspace position report. 
+               
+            </documentation>
+         </annotation>
+      </attribute>
+   </complexType>
+   <element name="PlannedReportingPosition" type="fx:PlannedReportingPositionType" /> 
+
+   <simpleType name="PositionReportSourceType">
+      <annotation>
+         <documentation>
+            .Current Position Report Source: The source of the current position report information. 
+            
+         </documentation>
+      </annotation>
+      <restriction base="xs:string">
+         <enumeration value="PROGRESS_REPORT"/>
+         <enumeration value="SURVEILLANCE"/>
+      </restriction>
+   </simpleType>
+</schema>

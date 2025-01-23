@@ -1,0 +1,666 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<schema
+   attributeFormDefault="unqualified"
+   elementFormDefault="unqualified"
+   targetNamespace="http://www.fixm.aero/foundation/3.0"
+   version="3.00"
+   xmlns="http://www.w3.org/2001/XMLSchema"
+   xmlns:ff="http://www.fixm.aero/foundation/3.0"
+   xmlns:xs="http://www.w3.org/2001/XMLSchema">
+   
+   <annotation>
+      <documentation>
+         Copyright (c) 2014 Airservices Australia, EUROCONTROL, JCAB, NATS Limited, NavCanada, 
+         SESAR Joint Undertaking &amp; US FAA 
+         =========================================== 
+         All rights reserved. 
+          
+         Redistribution and use in source and binary forms, with or without modification, 
+         are permitted 
+         provided that the following conditions are met: 
+         * Redistributions of source code must retain the above copyright notice, this list 
+         of conditions and 
+         the disclaimer. 
+         * Redistributions in binary form must reproduce the above copyright notice, this 
+         list of conditions 
+         and the disclaimer in the documentation and/or other materials provided with the 
+         distribution. 
+         * Neither the names of Airservices Australia, EUROCONTROL, JCAB, NATS Limited, NavCanada, 
+         
+         SESAR Joint Undertaking &amp; US FAA nor the names of their contributors may be used 
+         to endorse or 
+         promote products derived from this specification without specific prior written permission. 
+         
+          
+         DISCLAIMER 
+          
+         THIS SPECIFICATION IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" 
+         
+         AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED 
+         
+         WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE 
+         DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR 
+         ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES 
+         (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS 
+         
+         OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY 
+         THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING 
+         NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN 
+         
+         IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE. 
+          
+          
+         Editorial note: this license is an instance of the BSD license template as provided 
+         by the Open 
+         Source Initiative: 
+         http://www.opensource.org/licenses/bsd-license.php 
+          
+         The authoritative reference for FIXM is www.FIXM.aero. 
+          
+         Details on Airservices Australia: http://www.airservicesaustralia.com/ 
+         Details on EUROCONTROL: http://www.eurocontrol.int/ 
+         Details on JCAB: http://www.mlit.go.jp/en/koku/index.html 
+         Details on NATS Limited: http://www.nats.co.uk/ 
+         Details on NavCanada: http://www.navcanada.ca/ 
+         Details on the SESAR JU and its members: http://www.sesarju.eu/players/members 
+         Details on the US FAA: http://www.faa.gov/ 
+         Details on the US FAAs NextGen program: http://www.faa.gov/NextGen 
+      </documentation>
+   </annotation>
+   <annotation>
+      <documentation>
+         The types schema defines the representation of several physical quantities and 
+         measurements and utility types like counts and free text. Every quantity type 
+         carries a "uom" attribute that describes the units of measurements as an appropriate 
+         
+         enumeration. 
+      </documentation>
+   </annotation>
+
+   <complexType name="AirspeedInIasOrMachType">
+      <annotation>
+         <documentation>
+            The Airspeed type represents any airspeed measurement, in metric. imperial, or Mach 
+            units, as 
+            specified by the "uom" attribute. 
+         </documentation>
+      </annotation>
+      <simpleContent>
+         <extension base="ff:UnitOfMeasureType">
+            <attribute name="uom" type="ff:AirspeedMeasureType" use="required" > 
+               <annotation>
+                  <documentation>
+                     Attribute of IndicatedAirspeed indicating measurement, in metric. imperial, or Mach 
+                     units. 
+                  </documentation>
+               </annotation>
+            </attribute>
+         </extension>
+      </simpleContent>
+   </complexType>
+
+   <simpleType name="AirspeedMeasureType">
+      <annotation>
+         <documentation>
+            Provides units of measure for airspeeds. 
+         </documentation>
+      </annotation>
+      <restriction base="xs:string">
+         <enumeration value="KILOMETRES_PER_HOUR">
+            <annotation>
+               <documentation>
+                  Indicates airspeed measured in kilometers per hour. 
+               </documentation>
+            </annotation>
+         </enumeration>
+         <enumeration value="KNOTS">
+            <annotation>
+               <documentation>
+                  Indicates airspeed measured in knots. 
+               </documentation>
+            </annotation>
+         </enumeration>
+         <enumeration value="MACH">
+            <annotation>
+               <documentation>
+                  Indicates airspeed measured using Mach number. 
+               </documentation>
+            </annotation>
+         </enumeration>
+      </restriction>
+   </simpleType>
+
+   <complexType name="AngleType">
+      <annotation>
+         <documentation>
+            This is a placeholder for gml:AngleType. 
+         </documentation>
+      </annotation>
+      <simpleContent>
+         <extension base="ff:RestrictedAngleType">
+            <attribute name="uom" type="ff:AngleMeasureType" use="required" > 
+               <annotation>
+                  <documentation>
+                     Indicates angle units of measure. 
+                  </documentation>
+               </annotation>
+            </attribute>
+         </extension>
+      </simpleContent>
+   </complexType>
+
+   <simpleType name="RestrictedAngleType">
+      <annotation>
+         <documentation>
+            Helper type for restrictions on AngleType 
+         </documentation>
+      </annotation>
+      <restriction base="ff:UnitOfMeasureType">
+         <minInclusive value="0"/>
+         <maxInclusive value="360"/>
+      </restriction>
+   </simpleType>
+
+   <simpleType name="AngleMeasureType">
+      <annotation>
+         <documentation>
+            Units of measure for the Angle type. 
+         </documentation>
+      </annotation>
+      <restriction base="xs:string">
+         <enumeration value="DEGREES"/>
+      </restriction>
+   </simpleType>
+
+   <complexType name="DimensionsType">
+      <annotation>
+         <documentation>
+            Describes dimensions: weight, height, length. 
+         </documentation>
+      </annotation>
+      <sequence>
+         <element name="height" type="ff:LengthType" minOccurs="0" maxOccurs="1" > 
+            <annotation>
+               <documentation>
+                  Used, for example, to indicate a package's dimensions. 
+               </documentation>
+            </annotation>
+         </element>
+         <element name="length" type="ff:LengthType" minOccurs="0" maxOccurs="1" > 
+            <annotation>
+               <documentation>
+                  Used, for example, to indicate a package's dimensions. 
+               </documentation>
+            </annotation>
+         </element>
+         <element name="width" type="ff:LengthType" minOccurs="0" maxOccurs="1" > 
+            <annotation>
+               <documentation>
+                  Used, for example, to indicate a package's dimensions. 
+               </documentation>
+            </annotation>
+         </element>
+      </sequence>
+   </complexType>
+   <element name="Dimensions" type="ff:DimensionsType" /> 
+
+   <complexType name="DistanceType">
+      <annotation>
+         <documentation>
+            The Distance type represents any distance between two points in space, in metric 
+            or imperial measurements. 
+         </documentation>
+      </annotation>
+      <simpleContent>
+         <extension base="ff:UnitOfMeasureType">
+            <attribute name="uom" type="ff:DistanceMeasureType" use="required" > 
+               <annotation>
+                  <documentation>
+                     Required DistanceMeasure. 
+                  </documentation>
+               </annotation>
+            </attribute>
+         </extension>
+      </simpleContent>
+   </complexType>
+
+   <simpleType name="DistanceMeasureType">
+      <annotation>
+         <documentation>
+            Indicates the units of measures for a Distance. 
+         </documentation>
+      </annotation>
+      <restriction base="xs:string">
+         <enumeration value="NAUTICAL_MILES">
+            <annotation>
+               <documentation>
+                  Indicates distance is measured in nautical miles. 
+               </documentation>
+            </annotation>
+         </enumeration>
+         <enumeration value="MILES">
+            <annotation>
+               <documentation>
+                  Indicates distance is measured in miles. 
+               </documentation>
+            </annotation>
+         </enumeration>
+         <enumeration value="KILOMETERS">
+            <annotation>
+               <documentation>
+                  Indicates distance is measured in kilometers. 
+               </documentation>
+            </annotation>
+         </enumeration>
+      </restriction>
+   </simpleType>
+
+   <complexType name="GroundspeedType">
+      <annotation>
+         <documentation>
+            The Groundspeed type represents any ground speed measurement, in metric. or imperial, 
+            as 
+            specified by the "uom" attribute. 
+         </documentation>
+      </annotation>
+      <simpleContent>
+         <extension base="ff:UnitOfMeasureType">
+            <attribute name="uom" type="ff:GroundspeedMeasureType" use="required" > 
+               <annotation>
+                  <documentation>
+                     Attribute of Groundspeed indicating units of ground speed measurement. 
+                  </documentation>
+               </annotation>
+            </attribute>
+         </extension>
+      </simpleContent>
+   </complexType>
+
+   <simpleType name="GroundspeedMeasureType">
+      <annotation>
+         <documentation>
+            Qualifies the Groundspeed type with metric or imperial units of measure. 
+         </documentation>
+      </annotation>
+      <restriction base="xs:string">
+         <enumeration value="KILOMETRES_PER_HOUR">
+            <annotation>
+               <documentation>
+                  Indicates groundspeed is measured in kilometers per hour. 
+               </documentation>
+            </annotation>
+         </enumeration>
+         <enumeration value="KNOTS">
+            <annotation>
+               <documentation>
+                  Indicates groundspeed is measured in knots. 
+               </documentation>
+            </annotation>
+         </enumeration>
+      </restriction>
+   </simpleType>
+
+   <complexType name="LengthType">
+      <annotation>
+         <documentation>
+            The Length type represents any length measurement, in metric or imperial measurements. 
+            
+         </documentation>
+      </annotation>
+      <simpleContent>
+         <extension base="ff:UnitOfMeasureType">
+            <attribute name="uom" type="ff:LengthMeasureType" use="required" > 
+               <annotation>
+                  <documentation>
+                     Attribute of Length indicating units of measurement. 
+                  </documentation>
+               </annotation>
+            </attribute>
+         </extension>
+      </simpleContent>
+   </complexType>
+
+   <simpleType name="LengthMeasureType">
+      <annotation>
+         <documentation>
+            Provides units of measure for length (and height, width). 
+         </documentation>
+      </annotation>
+      <restriction base="xs:string">
+         <enumeration value="FEET">
+            <annotation>
+               <documentation>
+                  Indicates length is measured in feet. 
+               </documentation>
+            </annotation>
+         </enumeration>
+         <enumeration value="INCHES">
+            <annotation>
+               <documentation>
+                  Indicates length is measured in inches. 
+               </documentation>
+            </annotation>
+         </enumeration>
+         <enumeration value="METRES">
+            <annotation>
+               <documentation>
+                  Indicates length is measured in meters. 
+               </documentation>
+            </annotation>
+         </enumeration>
+         <enumeration value="CENTIMETRES">
+            <annotation>
+               <documentation>
+                  Indicates length is measured in centimeters. 
+               </documentation>
+            </annotation>
+         </enumeration>
+         <enumeration value="MILLIMETRES">
+            <annotation>
+               <documentation>
+                  Indicates length is measured in millimeters. 
+               </documentation>
+            </annotation>
+         </enumeration>
+      </restriction>
+   </simpleType>
+
+   <complexType name="PressureType">
+      <annotation>
+         <documentation>
+            Describes the atmospheric pressure. 
+         </documentation>
+      </annotation>
+      <simpleContent>
+         <extension base="ff:UnitOfMeasureType">
+            <attribute name="uom" type="ff:PressureMeasureType" use="required" > 
+               <annotation>
+                  <documentation>
+                     Indicates the pressure units of measure. 
+                  </documentation>
+               </annotation>
+            </attribute>
+         </extension>
+      </simpleContent>
+   </complexType>
+
+   <simpleType name="PressureMeasureType">
+      <annotation>
+         <documentation>
+            Units of measurement for the pressure value. 
+         </documentation>
+      </annotation>
+      <restriction base="xs:string">
+         <enumeration value="ATMOSPHERES">
+            <annotation>
+               <documentation>
+                  Atmosphere. 
+               </documentation>
+            </annotation>
+         </enumeration>
+         <enumeration value="BAR">
+            <annotation>
+               <documentation>
+                  Bar. 
+               </documentation>
+            </annotation>
+         </enumeration>
+         <enumeration value="HECTOPASCAL">
+            <annotation>
+               <documentation>
+                  Hectopascal. 
+               </documentation>
+            </annotation>
+         </enumeration>
+         <enumeration value="PASCAL">
+            <annotation>
+               <documentation>
+                  Pascal. 
+               </documentation>
+            </annotation>
+         </enumeration>
+         <enumeration value="POUNDS_PER_SQUARE_INCH">
+            <annotation>
+               <documentation>
+                  Pounds per square inch. 
+               </documentation>
+            </annotation>
+         </enumeration>
+         <enumeration value="TORR">
+            <annotation>
+               <documentation>
+                  Torr. 
+               </documentation>
+            </annotation>
+         </enumeration>
+         <enumeration value="MILLIBAR">
+            <annotation>
+               <documentation>
+                  Millibar. 
+               </documentation>
+            </annotation>
+         </enumeration>
+         <enumeration value="INCHES_OF_MERCURY">
+            <annotation>
+               <documentation>
+                  Inches of mercury 
+               </documentation>
+            </annotation>
+         </enumeration>
+      </restriction>
+   </simpleType>
+
+   <complexType name="TemperatureType">
+      <annotation>
+         <documentation>
+            Represents temperature on a specific scale 
+         </documentation>
+      </annotation>
+      <simpleContent>
+         <extension base="ff:UnitOfMeasureType">
+            <attribute name="uom" type="ff:TemperatureMeasureType" use="required" > 
+               <annotation>
+                  <documentation>
+                     Attribute of Temperature indicating measurement units. 
+                  </documentation>
+               </annotation>
+            </attribute>
+         </extension>
+      </simpleContent>
+   </complexType>
+
+   <simpleType name="TemperatureMeasureType">
+      <annotation>
+         <documentation>
+            Provides units of measure for Temperature. 
+         </documentation>
+      </annotation>
+      <restriction base="xs:string">
+         <enumeration value="FARENHEIT">
+            <annotation>
+               <documentation>
+                  Indicates temperature is measured in degrees Fahrenheit. 
+               </documentation>
+            </annotation>
+         </enumeration>
+         <enumeration value="CELSIUS">
+            <annotation>
+               <documentation>
+                  Indicates temperature is measured in degrees Celsius. 
+               </documentation>
+            </annotation>
+         </enumeration>
+         <enumeration value="KELVIN">
+            <annotation>
+               <documentation>
+                  Indicates temperature is measured in degrees Kelvin. 
+               </documentation>
+            </annotation>
+         </enumeration>
+      </restriction>
+   </simpleType>
+
+   <complexType name="TrueAirspeedOrMachType">
+      <annotation>
+         <documentation>
+            The Airspeed type represents any airspeed measurement, in metric. imperial, or Mach 
+            units, as 
+            specified by the "uom" attribute. 
+         </documentation>
+      </annotation>
+      <simpleContent>
+         <extension base="ff:UnitOfMeasureType">
+            <attribute name="uom" type="ff:AirspeedMeasureType" use="required" > 
+               <annotation>
+                  <documentation>
+                     Attribute of TrueAirspeed indicating measurement, in metric. imperial, or Mach units. 
+                     
+                  </documentation>
+               </annotation>
+            </attribute>
+         </extension>
+      </simpleContent>
+   </complexType>
+
+   <simpleType name="UnitOfMeasureType">
+      <annotation>
+         <documentation>
+            Abstract Supertype for all units of measure. Takes the place of gml:UnitOfMeasureType. 
+            
+         </documentation>
+      </annotation>
+      <restriction base="xs:double"/>
+   </simpleType>
+
+   <complexType name="VolumeType">
+      <annotation>
+         <documentation>
+            The Volume type represents any volume measurement, in metric or imperial measurements. 
+            
+         </documentation>
+      </annotation>
+      <simpleContent>
+         <extension base="ff:UnitOfMeasureType">
+            <attribute name="uom" type="ff:VolumeMeasureType" use="required" > 
+               <annotation>
+                  <documentation>
+                     Attribute of Volume indicating measurement units. 
+                  </documentation>
+               </annotation>
+            </attribute>
+         </extension>
+      </simpleContent>
+   </complexType>
+
+   <simpleType name="VolumeMeasureType">
+      <annotation>
+         <documentation>
+            Provides units of measure for Volume. 
+         </documentation>
+      </annotation>
+      <restriction base="xs:string">
+         <enumeration value="LITRES">
+            <annotation>
+               <documentation>
+                  Indicates volume is measured in liters. 
+               </documentation>
+            </annotation>
+         </enumeration>
+         <enumeration value="GALLONS">
+            <annotation>
+               <documentation>
+                  Indicates volume is measured in gallons. 
+               </documentation>
+            </annotation>
+         </enumeration>
+      </restriction>
+   </simpleType>
+
+   <complexType name="WeightType">
+      <annotation>
+         <documentation>
+            The Weight type represents any weight measurement, in metric or imperial measurements. 
+            
+         </documentation>
+      </annotation>
+      <simpleContent>
+         <extension base="ff:UnitOfMeasureType">
+            <attribute name="uom" type="ff:WeightMeasureType" use="required" > 
+               <annotation>
+                  <documentation>
+                     Attribute of Weight indicating measurement units. 
+                  </documentation>
+               </annotation>
+            </attribute>
+         </extension>
+      </simpleContent>
+   </complexType>
+
+   <simpleType name="WeightMeasureType">
+      <annotation>
+         <documentation>
+            Provides units of measure for Weight. 
+         </documentation>
+      </annotation>
+      <restriction base="xs:string">
+         <enumeration value="KILOGRAMS">
+            <annotation>
+               <documentation>
+                  Indicates weight is measured in kilograms. 
+               </documentation>
+            </annotation>
+         </enumeration>
+         <enumeration value="POUNDS">
+            <annotation>
+               <documentation>
+                  Indicates weight is measured in pounds. 
+               </documentation>
+            </annotation>
+         </enumeration>
+      </restriction>
+   </simpleType>
+
+   <complexType name="WindDirectionType">
+      <annotation>
+         <documentation>
+            Indicates the direction of the wind which is a specialization of the angle. 
+         </documentation>
+      </annotation>
+      <simpleContent>
+         <extension base="ff:AngleType"/>
+      </simpleContent>
+   </complexType>
+
+   <complexType name="WindspeedType">
+      <annotation>
+         <documentation>
+            Indicates the Speed of wind. 
+         </documentation>
+      </annotation>
+      <simpleContent>
+         <extension base="ff:UnitOfMeasureType">
+            <attribute name="uom" type="ff:WindSpeedMeasureType" use="required" > 
+               <annotation>
+                  <documentation>
+                     Indicates the windspeed units of measure. 
+                  </documentation>
+               </annotation>
+            </attribute>
+         </extension>
+      </simpleContent>
+   </complexType>
+
+   <simpleType name="WindSpeedMeasureType">
+      <annotation>
+         <documentation>
+            Indicates the units of measure for Wind Speed. 
+         </documentation>
+      </annotation>
+      <restriction base="xs:string">
+         <enumeration value="MILES_PER_HOUR"/>
+         <enumeration value="KILOMETRES_PER_HOUR"/>
+         <enumeration value="KNOTS"/>
+         <enumeration value="METERS_PER_SECOND"/>
+      </restriction>
+   </simpleType>
+</schema>

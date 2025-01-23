@@ -1,0 +1,400 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<schema
+   attributeFormDefault="unqualified"
+   elementFormDefault="unqualified"
+   targetNamespace="http://www.fixm.aero/flight/3.0"
+   version="3.00"
+   xmlns="http://www.w3.org/2001/XMLSchema"
+   xmlns:fb="http://www.fixm.aero/base/3.0"
+   xmlns:ff="http://www.fixm.aero/foundation/3.0"
+   xmlns:fx="http://www.fixm.aero/flight/3.0"
+   xmlns:xs="http://www.w3.org/2001/XMLSchema">
+   
+   <annotation>
+      <documentation>
+         Copyright (c) 2014 Airservices Australia, EUROCONTROL, JCAB, NATS Limited, NavCanada, 
+         SESAR Joint Undertaking &amp; US FAA 
+         =========================================== 
+         All rights reserved. 
+          
+         Redistribution and use in source and binary forms, with or without modification, 
+         are permitted 
+         provided that the following conditions are met: 
+         * Redistributions of source code must retain the above copyright notice, this list 
+         of conditions and 
+         the disclaimer. 
+         * Redistributions in binary form must reproduce the above copyright notice, this 
+         list of conditions 
+         and the disclaimer in the documentation and/or other materials provided with the 
+         distribution. 
+         * Neither the names of Airservices Australia, EUROCONTROL, JCAB, NATS Limited, NavCanada, 
+         
+         SESAR Joint Undertaking &amp; US FAA nor the names of their contributors may be used 
+         to endorse or 
+         promote products derived from this specification without specific prior written permission. 
+         
+          
+         DISCLAIMER 
+          
+         THIS SPECIFICATION IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" 
+         
+         AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED 
+         
+         WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE 
+         DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR 
+         ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES 
+         (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS 
+         
+         OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY 
+         THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING 
+         NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN 
+         
+         IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE. 
+          
+          
+         Editorial note: this license is an instance of the BSD license template as provided 
+         by the Open 
+         Source Initiative: 
+         http://www.opensource.org/licenses/bsd-license.php 
+          
+         The authoritative reference for FIXM is www.FIXM.aero. 
+          
+         Details on Airservices Australia: http://www.airservicesaustralia.com/ 
+         Details on EUROCONTROL: http://www.eurocontrol.int/ 
+         Details on JCAB: http://www.mlit.go.jp/en/koku/index.html 
+         Details on NATS Limited: http://www.nats.co.uk/ 
+         Details on NavCanada: http://www.navcanada.ca/ 
+         Details on the SESAR JU and its members: http://www.sesarju.eu/players/members 
+         Details on the US FAA: http://www.faa.gov/ 
+         Details on the US FAAs NextGen program: http://www.faa.gov/NextGen 
+      </documentation>
+   </annotation>
+   <include schemaLocation="./Route.xsd"/>
+   <import namespace="http://www.fixm.aero/base/3.0" schemaLocation="./../../base/Base.xsd"/>
+   <import namespace="http://www.fixm.aero/foundation/3.0" schemaLocation="./../../foundation/Foundation.xsd"/>
+   <annotation>
+      <documentation>
+         Trajectory package contains the 4D Trajectory information. 
+      </documentation>
+   </annotation>
+
+   <complexType name="MeteorologicalDataType">
+      <annotation>
+         <documentation>
+            .Meteorological Data: In a predicted trajectory, the instantaneous temperature and 
+            wind vector used at the 4D Point for creating the 4D trajectory. 
+         </documentation>
+      </annotation>
+      <sequence>
+         <element name="temperature" type="ff:TemperatureType" minOccurs="0" maxOccurs="1" > 
+            <annotation>
+               <documentation>
+                  Temperature at the trajectory point. 
+               </documentation>
+            </annotation>
+         </element>
+         <element name="windDirection" type="ff:WindDirectionType" minOccurs="0" maxOccurs="1" > 
+            <annotation>
+               <documentation>
+                  Wind vector at the trajectory point. 
+               </documentation>
+            </annotation>
+         </element>
+         <element name="windSpeed" type="ff:WindspeedType" minOccurs="0" maxOccurs="1" > 
+            <annotation>
+               <documentation>
+                  Wind speed at the trajectory point. 
+               </documentation>
+            </annotation>
+         </element>
+      </sequence>
+   </complexType>
+   <element name="MeteorologicalData" type="fx:MeteorologicalDataType" /> 
+
+   <complexType name="Point4DType">
+      <annotation>
+         <documentation>
+            .4D Point: Identifies the location, altitude and time of a trajectory point. 
+         </documentation>
+      </annotation>
+      <complexContent>
+         <extension base="ff:GeographicLocationType">
+            <sequence>
+               <element name="altitude" type="ff:AltitudeType" minOccurs="0" maxOccurs="1" > 
+                  <annotation>
+                     <documentation>
+                        Altitude of the 4D point. 
+                     </documentation>
+                  </annotation>
+               </element>
+               <element name="pointRange" type="fx:PointRangeType" minOccurs="0" maxOccurs="1" > 
+                  <annotation>
+                     <documentation>
+                        block altitude clearances 
+    offsets for deviations due to weather
+    assigned speed ranges
+                        .Point Range: Provides a vertical, lateral or temporal range to a 4D point when clearances 
+                        are provided in the form of:block altitude clearancesoffsets for deviations due to 
+                        weatherassigned speed ranges 
+                     </documentation>
+                  </annotation>
+               </element>
+            </sequence>
+            <attribute name="time" type="ff:TimeType" use="optional" > 
+               <annotation>
+                  <documentation>
+                     Time of the 4D point. 
+                  </documentation>
+               </annotation>
+            </attribute>
+         </extension>
+      </complexContent>
+   </complexType>
+   <element name="Point4D" type="fx:Point4DType" substitutionGroup="ff:GeographicLocation" /> 
+
+   <complexType name="PointRangeType">
+      <annotation>
+         <documentation>
+            Provides a vertical, lateral or temporal range to a 4D point when clearances are 
+            provided in the form of: 
+             
+    block altitude clearances
+    offsets for deviations due to weather
+    assigned speed ranges
+            .Point Range: Provides a vertical, lateral or temporal range to a 4D point when clearances 
+            are provided in the form of:block altitude clearancesoffsets for deviations due to 
+            weatherassigned speed ranges 
+         </documentation>
+      </annotation>
+      <sequence>
+         <element name="lateralRange" type="fb:LateralOfftrackType" minOccurs="0" maxOccurs="1" > 
+            <annotation>
+               <documentation>
+                  Lateral range representing  offsets for deviations due to weather 
+               </documentation>
+            </annotation>
+         </element>
+         <element name="temporalRange" type="fx:TemporalRangeType" minOccurs="0" maxOccurs="1" > 
+            <annotation>
+               <documentation>
+                  Temporal range resulting from assigned speed range. 
+               </documentation>
+            </annotation>
+         </element>
+         <element name="verticalRange" type="fb:VerticalRangeType" minOccurs="0" maxOccurs="1" > 
+            <annotation>
+               <documentation>
+                  Vertical Range representing block altitude clearances 
+               </documentation>
+            </annotation>
+         </element>
+      </sequence>
+   </complexType>
+   <element name="PointRange" type="fx:PointRangeType" /> 
+
+   <complexType name="TemporalRangeType">
+      <annotation>
+         <documentation>
+            Temporal range resulting from assigned speed range. 
+         </documentation>
+      </annotation>
+      <attribute name="earliest" type="ff:TimeType" use="optional" > 
+         <annotation>
+            <documentation>
+               lower bound of the temporal range. 
+            </documentation>
+         </annotation>
+      </attribute>
+      <attribute name="latest" type="ff:TimeType" use="optional" > 
+         <annotation>
+            <documentation>
+               Upper bound of the temporal range. 
+            </documentation>
+         </annotation>
+      </attribute>
+   </complexType>
+   <element name="TemporalRange" type="fx:TemporalRangeType" /> 
+
+   <complexType name="TrajectoryType">
+      <annotation>
+         <documentation>
+            For FIXM v3.0, this data type only covers the airborne segment.  However, future 
+            versions of FIXM will cover gate-to-gate operations. 
+         </documentation>
+      </annotation>
+      <sequence>
+         <element name="trajectoryPoint" type="fx:TrajectoryPointType" minOccurs="0" maxOccurs="unbounded" > 
+            <annotation>
+               <documentation>
+                  a 4D Trajectory consists of an ordered list of trajectory points. 
+                  .Trajectory Point: A container for information pertinent to a single point in a trajectory. 
+                  
+               </documentation>
+            </annotation>
+         </element>
+      </sequence>
+   </complexType>
+   <element name="Trajectory" type="fx:TrajectoryType" /> 
+
+   <complexType name="TrajectoryChangeType">
+      <annotation>
+         <documentation>
+            Groups information about features crossed associated with the trajectory point. 
+         </documentation>
+      </annotation>
+      <attribute name="constrainedAirspace" type="fb:ConstrainedAirspaceType" use="optional" > 
+         <annotation>
+            <documentation>
+               .Constrained Airspace Entered: For 4D Points of TCP Type   crossing point into constrained 
+               airspace  , the name or identifier of the Constrained Airspace being entered. 
+            </documentation>
+         </annotation>
+      </attribute>
+      <attribute name="specialActivityAirspace" type="fb:FreeTextType" use="optional" > 
+         <annotation>
+            <documentation>
+               .Special Activity Airspace Entered/Exited: For 4D Points of TCP Type   entry point 
+               into special activity airspace   or   exit point from special activity airspace  
+               , the name or identifier of the Special Activity Airspace being entered/exited. 
+            </documentation>
+         </annotation>
+      </attribute>
+   </complexType>
+   <element name="TrajectoryChange" type="fx:TrajectoryChangeType" /> 
+
+   <simpleType name="TrajectoryChangePointTypeType">
+      <annotation>
+         <documentation>
+            Trajectory Change Point - Type: Identifies the type(s) of trajectory change point 
+            being described by the associated 4D Point. 
+            .Trajectory Change Point - Type: Identifies the type(s) of trajectory change point 
+            being described by the associated 4D Point. 
+         </documentation>
+      </annotation>
+      <restriction base="xs:string">
+         <enumeration value="START_OF_CLIMB"/>
+         <enumeration value="TOP_OF_CLIMB"/>
+         <enumeration value="START_OF_DESCENT"/>
+         <enumeration value="END_OF_DESCENT"/>
+         <enumeration value="LEVEL_OFF"/>
+         <enumeration value="CROSSOVER_ALTITUDE"/>
+         <enumeration value="TRANSITION_ALTITUDE"/>
+         <enumeration value="SPEED_CHANGE"/>
+         <enumeration value="UNNAMED_FIX"/>
+         <enumeration value="RUNWAY"/>
+         <enumeration value="ENTRY_SPECIAL_ACTIVITY_AIRSPACE"/>
+         <enumeration value="EXIT_SPECIAL_ACTIVITY_AIRSPACE"/>
+         <enumeration value="CROSSING_CONSTRAINED_AIRSPACE"/>
+         <enumeration value="ENTER_HOLD"/>
+         <enumeration value="INITIAL_PREDICTION"/>
+         <enumeration value="EXIT_HOLD"/>
+      </restriction>
+   </simpleType>
+
+   <complexType name="TrajectoryPointType">
+      <annotation>
+         <documentation>
+            .Trajectory Point: A container for information pertinent to a single point in a trajectory. 
+            
+         </documentation>
+      </annotation>
+      <sequence>
+         <element name="altimeterSetting" type="ff:PressureType" minOccurs="0" maxOccurs="1" > 
+            <annotation>
+               <documentation>
+                  .Assumed Altimeter Setting: The barometric pressure reading used to adjust a pressure 
+                  altimeter for variations in existing atmospheric pressure or to the standard altimeter 
+                  setting (29.92). 
+               </documentation>
+            </annotation>
+         </element>
+         <element name="metData" type="fx:MeteorologicalDataType" minOccurs="0" maxOccurs="1" > 
+            <annotation>
+               <documentation>
+                  .Meteorological Data: In a predicted trajectory, the instantaneous temperature and 
+                  wind vector used at the 4D Point for creating the 4D trajectory. 
+               </documentation>
+            </annotation>
+         </element>
+         <element name="point" type="fx:Point4DType" minOccurs="0" maxOccurs="1" > 
+            <annotation>
+               <documentation>
+                  .4D Point: Identifies the location, altitude and time of a trajectory point. 
+               </documentation>
+            </annotation>
+         </element>
+         <element name="predictedAirspeed" type="fb:AirspeedChoiceType" minOccurs="0" maxOccurs="1" > 
+            <annotation>
+               <documentation>
+                  .Airspeed - Predicted: The airspeed (or range of speeds) of the flight at the 4D 
+                  Point expressed as either Indicated Airspeed or Mach. 
+               </documentation>
+            </annotation>
+         </element>
+         <element name="predictedGroundspeed" type="fb:GroundspeedChoiceType" minOccurs="0" maxOccurs="1" > 
+            <annotation>
+               <documentation>
+                  .Ground Speed - Predicted: Aircraft predicted ground speed (or range of speeds) at 
+                  this point. 
+               </documentation>
+            </annotation>
+         </element>
+         <element name="referencePoint" type="fx:ExpandedRoutePointType" minOccurs="0" maxOccurs="1" > 
+            <annotation>
+               <documentation>
+                  .Reference Point: For 4D Points associated with a waypoint on the expanded route, 
+                  the reference point provides the expanded route waypoint enabling the 4D Trajectory 
+                  to be linked with the route information. 
+               </documentation>
+            </annotation>
+         </element>
+         <element name="trajectoryChange" type="fx:TrajectoryChangeType" minOccurs="0" maxOccurs="unbounded" > 
+            <annotation>
+               <documentation>
+                  Indicates features that are crossed at the specified trajectory point. 
+               </documentation>
+            </annotation>
+         </element>
+         <element name="trajectoryChangeType" minOccurs="0" maxOccurs="1" > 
+            <annotation>
+               <documentation>
+                  Trajectory Change Point - Type: Identifies the type(s) of trajectory change point 
+                  being described by the associated 4D Point. 
+                  .Trajectory Change Point - Type: Identifies the type(s) of trajectory change point 
+                  being described by the associated 4D Point. 
+               </documentation>
+            </annotation>
+            <simpleType>
+               <list itemType="fx:TrajectoryChangePointTypeType"/>
+            </simpleType>
+         </element>
+      </sequence>
+   </complexType>
+   <element name="TrajectoryPoint" type="fx:TrajectoryPointType" /> 
+
+   <complexType name="TrajectoryRoutePairType">
+      <annotation>
+         <documentation>
+            Groups and associates a Route and 4D Trajectory. 
+         </documentation>
+      </annotation>
+      <sequence>
+         <element name="route" type="fx:RouteType" minOccurs="0" maxOccurs="1" > 
+            <annotation>
+               <documentation>
+                  Route associated with the Trajectory Route Pair. 
+                  .Route: The ICAO route string as depicted from the flight plan. 
+               </documentation>
+            </annotation>
+         </element>
+         <element name="trajectory" type="fx:TrajectoryType" minOccurs="0" maxOccurs="1" > 
+            <annotation>
+               <documentation>
+                  4D Trajectory associated with the Trajectory Route Pair. 
+               </documentation>
+            </annotation>
+         </element>
+      </sequence>
+   </complexType>
+   <element name="TrajectoryRoutePair" type="fx:TrajectoryRoutePairType" /> 
+</schema>

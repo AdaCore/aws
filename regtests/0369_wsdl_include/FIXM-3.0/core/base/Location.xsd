@@ -1,0 +1,203 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<schema
+   attributeFormDefault="unqualified"
+   elementFormDefault="unqualified"
+   targetNamespace="http://www.fixm.aero/base/3.0"
+   version="3.00"
+   xmlns="http://www.w3.org/2001/XMLSchema"
+   xmlns:fb="http://www.fixm.aero/base/3.0"
+   xmlns:ff="http://www.fixm.aero/foundation/3.0"
+   xmlns:xs="http://www.w3.org/2001/XMLSchema">
+   
+   <annotation>
+      <documentation>
+         Copyright (c) 2014 Airservices Australia, EUROCONTROL, JCAB, NATS Limited, NavCanada, 
+         SESAR Joint Undertaking &amp; US FAA 
+         =========================================== 
+         All rights reserved. 
+          
+         Redistribution and use in source and binary forms, with or without modification, 
+         are permitted 
+         provided that the following conditions are met: 
+         * Redistributions of source code must retain the above copyright notice, this list 
+         of conditions and 
+         the disclaimer. 
+         * Redistributions in binary form must reproduce the above copyright notice, this 
+         list of conditions 
+         and the disclaimer in the documentation and/or other materials provided with the 
+         distribution. 
+         * Neither the names of Airservices Australia, EUROCONTROL, JCAB, NATS Limited, NavCanada, 
+         
+         SESAR Joint Undertaking &amp; US FAA nor the names of their contributors may be used 
+         to endorse or 
+         promote products derived from this specification without specific prior written permission. 
+         
+          
+         DISCLAIMER 
+          
+         THIS SPECIFICATION IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" 
+         
+         AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED 
+         
+         WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE 
+         DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR 
+         ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES 
+         (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS 
+         
+         OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY 
+         THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING 
+         NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN 
+         
+         IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE. 
+          
+          
+         Editorial note: this license is an instance of the BSD license template as provided 
+         by the Open 
+         Source Initiative: 
+         http://www.opensource.org/licenses/bsd-license.php 
+          
+         The authoritative reference for FIXM is www.FIXM.aero. 
+          
+         Details on Airservices Australia: http://www.airservicesaustralia.com/ 
+         Details on EUROCONTROL: http://www.eurocontrol.int/ 
+         Details on JCAB: http://www.mlit.go.jp/en/koku/index.html 
+         Details on NATS Limited: http://www.nats.co.uk/ 
+         Details on NavCanada: http://www.navcanada.ca/ 
+         Details on the SESAR JU and its members: http://www.sesarju.eu/players/members 
+         Details on the US FAA: http://www.faa.gov/ 
+         Details on the US FAAs NextGen program: http://www.faa.gov/NextGen 
+      </documentation>
+   </annotation>
+   <import namespace="http://www.fixm.aero/foundation/3.0" schemaLocation="./../foundation/Foundation.xsd"/>
+   <annotation>
+      <documentation>
+         The Base.Location schema provides representations for a geographic location. 
+      </documentation>
+   </annotation>
+
+   <complexType name="DirectionType">
+      <annotation>
+         <documentation>
+            Represents a compass bearing as an angle in the range [0,360]. 
+         </documentation>
+      </annotation>
+      <simpleContent>
+         <extension base="ff:AngleType">
+            <attribute name="ref" type="fb:DirectionReferenceType" use="optional" > 
+               <annotation>
+                  <documentation>
+                     Optional reference to DirectionReference. 
+                  </documentation>
+               </annotation>
+            </attribute>
+         </extension>
+      </simpleContent>
+   </complexType>
+
+   <simpleType name="DirectionReferenceType">
+      <annotation>
+         <documentation>
+            Indicates direction relative to True North or Magnetic North 
+         </documentation>
+      </annotation>
+      <restriction base="xs:string">
+         <enumeration value="TRUE">
+            <annotation>
+               <documentation>
+                  This value indicates that the direction is relative to True North. 
+               </documentation>
+            </annotation>
+         </enumeration>
+         <enumeration value="MAGNETIC">
+            <annotation>
+               <documentation>
+                  This value indicates that the direction is relative to Magnetic North. 
+               </documentation>
+            </annotation>
+         </enumeration>
+      </restriction>
+   </simpleType>
+
+   <complexType name="FixPointType">
+      <annotation>
+         <documentation>
+            Significant point described by a fix. 
+         </documentation>
+      </annotation>
+      <complexContent>
+         <extension base="fb:SignificantPointType">
+            <attribute name="fix" type="ff:FixType" use="optional" > 
+               <annotation>
+                  <documentation>
+                     One of three possibilities, "fix" provides the lat/lon of this Significant Point. 
+                     
+                  </documentation>
+               </annotation>
+            </attribute>
+         </extension>
+      </complexContent>
+   </complexType>
+   <element name="FixPoint" type="fb:FixPointType" substitutionGroup="fb:SignificantPoint" /> 
+
+   <complexType name="LocationPointType">
+      <annotation>
+         <documentation>
+            Significant point described by a geographic location. 
+         </documentation>
+      </annotation>
+      <complexContent>
+         <extension base="fb:SignificantPointType">
+            <sequence>
+               <element name="location" type="ff:GeographicLocationType" minOccurs="0" maxOccurs="1" > 
+                  <annotation>
+                     <documentation>
+                        One of three possibilities, "location" provides the fix/waypoint of this Significant 
+                        Point. 
+                     </documentation>
+                  </annotation>
+               </element>
+            </sequence>
+         </extension>
+      </complexContent>
+   </complexType>
+   <element name="LocationPoint" type="fb:LocationPointType" substitutionGroup="fb:SignificantPoint" /> 
+
+   <complexType name="RelativePointType">
+      <annotation>
+         <documentation>
+            Significant point described by a relative (fix radial distance) location. 
+         </documentation>
+      </annotation>
+      <complexContent>
+         <extension base="fb:FixPointType">
+            <sequence>
+               <element name="distance" type="ff:DistanceType" minOccurs="0" maxOccurs="1" > 
+                  <annotation>
+                     <documentation>
+                        The distance from a known waypoint/fix. 
+                     </documentation>
+                  </annotation>
+               </element>
+               <element name="radial" type="fb:DirectionType" minOccurs="0" maxOccurs="1" > 
+                  <annotation>
+                     <documentation>
+                        The radius from a known fix/waypoint. 
+                     </documentation>
+                  </annotation>
+               </element>
+            </sequence>
+         </extension>
+      </complexContent>
+   </complexType>
+   <element name="RelativePoint" type="fb:RelativePointType" substitutionGroup="fb:SignificantPoint" /> 
+
+   <complexType abstract="true" name="SignificantPointType">
+      <annotation>
+         <documentation>
+            A location type restricted to lat/long location, fix (waypoint) location, or FRD 
+            (radial distance offset). 
+         </documentation>
+      </annotation>
+   </complexType>
+   <element name="SignificantPoint" type="fb:SignificantPointType" /> 
+</schema>

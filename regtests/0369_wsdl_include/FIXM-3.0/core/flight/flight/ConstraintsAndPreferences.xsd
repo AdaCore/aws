@@ -1,0 +1,312 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<schema
+   attributeFormDefault="unqualified"
+   elementFormDefault="unqualified"
+   targetNamespace="http://www.fixm.aero/flight/3.0"
+   version="3.00"
+   xmlns="http://www.w3.org/2001/XMLSchema"
+   xmlns:ff="http://www.fixm.aero/foundation/3.0"
+   xmlns:fx="http://www.fixm.aero/flight/3.0"
+   xmlns:xs="http://www.w3.org/2001/XMLSchema">
+   
+   <annotation>
+      <documentation>
+         Copyright (c) 2014 Airservices Australia, EUROCONTROL, JCAB, NATS Limited, NavCanada, 
+         SESAR Joint Undertaking &amp; US FAA 
+         =========================================== 
+         All rights reserved. 
+          
+         Redistribution and use in source and binary forms, with or without modification, 
+         are permitted 
+         provided that the following conditions are met: 
+         * Redistributions of source code must retain the above copyright notice, this list 
+         of conditions and 
+         the disclaimer. 
+         * Redistributions in binary form must reproduce the above copyright notice, this 
+         list of conditions 
+         and the disclaimer in the documentation and/or other materials provided with the 
+         distribution. 
+         * Neither the names of Airservices Australia, EUROCONTROL, JCAB, NATS Limited, NavCanada, 
+         
+         SESAR Joint Undertaking &amp; US FAA nor the names of their contributors may be used 
+         to endorse or 
+         promote products derived from this specification without specific prior written permission. 
+         
+          
+         DISCLAIMER 
+          
+         THIS SPECIFICATION IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" 
+         
+         AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED 
+         
+         WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE 
+         DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR 
+         ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES 
+         (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS 
+         
+         OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY 
+         THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING 
+         NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN 
+         
+         IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE. 
+          
+          
+         Editorial note: this license is an instance of the BSD license template as provided 
+         by the Open 
+         Source Initiative: 
+         http://www.opensource.org/licenses/bsd-license.php 
+          
+         The authoritative reference for FIXM is www.FIXM.aero. 
+          
+         Details on Airservices Australia: http://www.airservicesaustralia.com/ 
+         Details on EUROCONTROL: http://www.eurocontrol.int/ 
+         Details on JCAB: http://www.mlit.go.jp/en/koku/index.html 
+         Details on NATS Limited: http://www.nats.co.uk/ 
+         Details on NavCanada: http://www.navcanada.ca/ 
+         Details on the SESAR JU and its members: http://www.sesarju.eu/players/members 
+         Details on the US FAA: http://www.faa.gov/ 
+         Details on the US FAAs NextGen program: http://www.faa.gov/NextGen 
+      </documentation>
+   </annotation>
+   <import namespace="http://www.fixm.aero/foundation/3.0" schemaLocation="./../../foundation/Foundation.xsd"/>
+   <annotation>
+      <documentation>
+         Constraints package contains details about any constraints that are associated with 
+         the route points. 
+      </documentation>
+   </annotation>
+
+   <simpleType name="AltitudeQualifierType">
+      <annotation>
+         <documentation>
+            Specifies that the altitude specified in the ClimbToLevelConstraint is not a maximum 
+            altitude, and aircraft may climb to a higher level. 
+         </documentation>
+      </annotation>
+      <restriction base="xs:string">
+         <enumeration value="AT_OR_ABOVE_ALTITUDE">
+            <annotation>
+               <documentation>
+                  Specifies that the altitude specified in the ClimbToLevelConstraint is not a maximum 
+                  altitude, and aircraft may climb to a higher level 
+               </documentation>
+            </annotation>
+         </enumeration>
+      </restriction>
+   </simpleType>
+
+   <complexType name="ClimbToLevelConstraintType">
+      <annotation>
+         <documentation>
+            .Change Cruise Climb: The parameters of a cruise climb executed at the associated 
+            significant point. It contains the following parameters: 1. the speed to be maintained 
+            during cruise climb; 2. either the minimum and maximum levels defining the layer 
+            to be occupied during cruise climb, or the level above which cruise climb is planned. 
+            
+            .Route-Change Cruise Climb: The parameters of a cruise climb executed at the associated 
+            significant point. 
+         </documentation>
+      </annotation>
+      <complexContent>
+         <extension base="fx:RouteConstraintOrPreferenceType">
+            <sequence>
+               <element name="climbToLevel" type="ff:AltitudeType" minOccurs="0" maxOccurs="1" > 
+                  <annotation>
+                     <documentation>
+                        .Change Cruise Climb: The parameters of a cruise climb executed at the associated 
+                        significant point. It contains the following parameters: 1. the speed to be maintained 
+                        during cruise climb; 2. either the minimum and maximum levels defining the layer 
+                        to be occupied during cruise climb, or the level above which cruise climb is planned. 
+                        
+                     </documentation>
+                  </annotation>
+               </element>
+            </sequence>
+            <attribute name="altitudeQualification" type="fx:AltitudeQualifierType" use="optional" > 
+               <annotation>
+                  <documentation>
+                     Specifies that the altitude specified in the ClimbToLevelConstraint is not a maximum 
+                     altitude, and aircraft may climb to a higher level. 
+                  </documentation>
+               </annotation>
+            </attribute>
+         </extension>
+      </complexContent>
+   </complexType>
+   <element substitutionGroup="fx:RouteConstraintOrPreference" name="ClimbToLevelConstraint" type="fx:ClimbToLevelConstraintType" /> 
+
+   <simpleType name="ConstraintOrPreferenceCategoryType">
+      <annotation>
+         <documentation>
+            .Constraint Category: Specifies the category (implying a relative importance) of 
+            the constraint associated with a point in the route or expanded route. 
+         </documentation>
+      </annotation>
+      <restriction base="xs:string">
+         <enumeration value="EXECUTIVE_CONTROL"/>
+         <enumeration value="CONTROLLER_TACTICAL_PLANNING"/>
+         <enumeration value="NETWORK_STRATEGIC"/>
+         <enumeration value="OPERATOR_CONSTRAINT"/>
+         <enumeration value="FLIGHT_PLAN_EXPECTATION"/>
+      </restriction>
+   </simpleType>
+
+   <complexType name="LevelConstraintType">
+      <annotation>
+         <documentation>
+            .Route-Change Speed and Altitude: The planned speed and altitude the aircraft will 
+            change to either prior to, or after reaching, the associated Significant Point along 
+            its Route. 
+            .Change Speed and Altitude: The planned speed and altitude that the aircraft will 
+            change to upon reaching the associated Significant Point along its Route. 
+         </documentation>
+      </annotation>
+      <complexContent>
+         <extension base="fx:RouteConstraintOrPreferenceType">
+            <sequence>
+               <element name="level" type="ff:AltitudeType" minOccurs="0" maxOccurs="1" > 
+                  <annotation>
+                     <documentation>
+                        .Change Speed and Altitude: The planned speed and altitude that the aircraft will 
+                        change to upon reaching the associated Significant Point along its Route. 
+                     </documentation>
+                  </annotation>
+               </element>
+               <element name="timeConstraint" type="fx:TimeConstraintType" minOccurs="0" maxOccurs="1" > 
+                  <annotation>
+                     <documentation>
+                        Level constraint may have an associated time constraint. 
+                     </documentation>
+                  </annotation>
+               </element>
+            </sequence>
+            <attribute name="positionQualification" type="fx:PositionQualifierType" use="optional" > 
+               <annotation>
+                  <documentation>
+                     Qualifies the position associated with the level constraint. 
+                  </documentation>
+               </annotation>
+            </attribute>
+         </extension>
+      </complexContent>
+   </complexType>
+   <element substitutionGroup="fx:RouteConstraintOrPreference" name="LevelConstraint" type="fx:LevelConstraintType" /> 
+
+   <simpleType name="PositionQualifierType">
+      <annotation>
+         <documentation>
+            Qualifies the position associated with the constraint. 
+         </documentation>
+      </annotation>
+      <restriction base="xs:string">
+         <enumeration value="AT_OR_BEFORE_POINT"/>
+         <enumeration value="AT_POINT"/>
+         <enumeration value="AT_OR_AFTER_POINT"/>
+      </restriction>
+   </simpleType>
+
+   <complexType abstract="true" name="RouteConstraintOrPreferenceType">
+      <annotation>
+         <documentation>
+            A constraint that is applicable to a route. Can be any of the several defined constraints. 
+            
+         </documentation>
+      </annotation>
+      <attribute type="fx:ConstraintOrPreferenceCategoryType" name="constraintType" use="optional" > 
+         <annotation>
+            <documentation>
+               .Constraint Category: Specifies the category (implying a relative importance) of 
+               the constraint associated with a point in the route or expanded route. 
+            </documentation>
+         </annotation>
+      </attribute>
+   </complexType>
+   <element name="RouteConstraintOrPreference" type="fx:RouteConstraintOrPreferenceType" /> 
+
+   <complexType name="SpeedConstraintType">
+      <annotation>
+         <documentation>
+            .Route-Change Speed and Altitude: The planned speed and altitude the aircraft will 
+            change to either prior to, or after reaching, the associated Significant Point along 
+            its Route. 
+            .Change Speed and Altitude: The planned speed and altitude that the aircraft will 
+            change to upon reaching the associated Significant Point along its Route. 
+         </documentation>
+      </annotation>
+      <complexContent>
+         <extension base="fx:RouteConstraintOrPreferenceType">
+            <sequence>
+               <element name="speed" type="ff:TrueAirspeedOrMachType" minOccurs="0" maxOccurs="1" > 
+                  <annotation>
+                     <documentation>
+                        .Change Speed and Altitude: The planned speed and altitude that the aircraft will 
+                        change to upon reaching the associated Significant Point along its Route. 
+                     </documentation>
+                  </annotation>
+               </element>
+               <element name="timeConstraint" type="fx:TimeConstraintType" minOccurs="0" maxOccurs="1" > 
+                  <annotation>
+                     <documentation>
+                        A speed constraint may have an associated time constraint. 
+                     </documentation>
+                  </annotation>
+               </element>
+            </sequence>
+            <attribute name="positionQualification" type="fx:PositionQualifierType" use="optional" > 
+               <annotation>
+                  <documentation>
+                     Qualifies the position associated with the speed constraint. 
+                  </documentation>
+               </annotation>
+            </attribute>
+         </extension>
+      </complexContent>
+   </complexType>
+   <element substitutionGroup="fx:RouteConstraintOrPreference" name="SpeedConstraint" type="fx:SpeedConstraintType" /> 
+
+   <complexType name="TimeConstraintType">
+      <annotation>
+         <documentation>
+            Time Constraint associated with a route point or with other constraint. 
+            .Route-Change Speed and Altitude at Time: The planned speed and altitude the aircraft 
+            will change to relative to the associated time. 
+            .Route-Fix Time - Required: Contains the time at fix and the time at fix constraint 
+            condition, which together describe when the aircraft should arrive at a particular 
+            fix. 
+         </documentation>
+      </annotation>
+      <complexContent>
+         <extension base="fx:RouteConstraintOrPreferenceType">
+            <attribute name="requiredTime" type="ff:TimeType" use="optional" > 
+               <annotation>
+                  <documentation>
+                     Time associated with the time constraint. 
+                  </documentation>
+               </annotation>
+            </attribute>
+            <attribute name="timeQualification" type="fx:TimeQualifierType" use="optional" > 
+               <annotation>
+                  <documentation>
+                     Qualifies the time associated with the constraint. 
+                  </documentation>
+               </annotation>
+            </attribute>
+         </extension>
+      </complexContent>
+   </complexType>
+   <element substitutionGroup="fx:RouteConstraintOrPreference" name="TimeConstraint" type="fx:TimeConstraintType" /> 
+
+   <simpleType name="TimeQualifierType">
+      <annotation>
+         <documentation>
+            Qualifies the time associated with the constraint. 
+         </documentation>
+      </annotation>
+      <restriction base="xs:string">
+         <enumeration value="AT_OR_BEFORE_TIME"/>
+         <enumeration value="AT_TIME"/>
+         <enumeration value="AT_OR_AFTER_TIME"/>
+         <enumeration value="UNTIL_TIME"/>
+      </restriction>
+   </simpleType>
+</schema>
