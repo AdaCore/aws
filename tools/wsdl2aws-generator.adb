@@ -195,6 +195,9 @@ package body WSDL2AWS.Generator is
    function Is_String (N : WSDL.Parameters.P_Set) return Boolean;
    --  Returns True is N is a string
 
+   --  Simple name set used to keep record of all generated types
+   Name_Set : String_Store.Set;
+
    S_Gen    : SOAP.WSDL.Schema.Definition;
    --  Keep record of generated schema definitions to avoid dupliace
 
@@ -287,18 +290,6 @@ package body WSDL2AWS.Generator is
          Fault         : WSDL.Parameters.P_Set);
 
    end CB;
-
-   --  Simple name set used to keep record of all generated types
-
-   package Name_Set is
-
-      procedure Add (Name : String);
-      --  Add new name into the set
-
-      function Exists (Name : String) return Boolean;
-      --  Returns true if Name is in the set
-
-   end Name_Set;
 
    ---------------
    -- Ada_Style --
@@ -851,12 +842,6 @@ package body WSDL2AWS.Generator is
    begin
       O.Main := To_Unbounded_String (Name);
    end Main;
-
-   --------------
-   -- Name_Set --
-   --------------
-
-   package body Name_Set is separate;
 
    -------------------
    -- New_Procedure --
@@ -2770,8 +2755,8 @@ package body WSDL2AWS.Generator is
                            then
                               Generate (WSDL.Types.Find (Def.Parent));
 
-                              if not Name_Set.Exists (T_Name) then
-                                 Name_Set.Add (T_Name);
+                              if not Name_Set.Contains (T_Name) then
+                                 Name_Set.Include (T_Name);
 
                                  Generate_Derived (T_Name, Def, N);
                               end if;
@@ -2783,8 +2768,8 @@ package body WSDL2AWS.Generator is
                      end;
 
                   when WSDL.Types.K_Enumeration =>
-                     if not Name_Set.Exists (Q_Name) then
-                        Name_Set.Add (Q_Name);
+                     if not Name_Set.Contains (Q_Name) then
+                        Name_Set.Include (Q_Name);
 
                         Generate_Enumeration (Q_Name & "_Type", N);
                      end if;
@@ -2795,10 +2780,10 @@ package body WSDL2AWS.Generator is
                      declare
                         Regen : Boolean;
                      begin
-                        if not Name_Set.Exists (Q_Name)
+                        if not Name_Set.Contains (Q_Name)
                           or else Is_Inside_Record (T_Name)
                         then
-                           if Name_Set.Exists (Q_Name)
+                           if Name_Set.Contains (Q_Name)
                              and then Is_Inside_Record (T_Name)
                            then
                               --  We force the regeneration of the array
@@ -2807,7 +2792,7 @@ package body WSDL2AWS.Generator is
                               Regen := True;
                            else
                               Regen := False;
-                              Name_Set.Add (Q_Name);
+                              Name_Set.Include (Q_Name);
                            end if;
 
                            Generate_Array (Q_Name & "_Type", N, Regen);
@@ -2817,8 +2802,8 @@ package body WSDL2AWS.Generator is
                   when WSDL.Types.K_Record =>
                      Output_Types (N.P);
 
-                     if not Name_Set.Exists (Q_Name) then
-                        Name_Set.Add (Q_Name);
+                     if not Name_Set.Contains (Q_Name) then
+                        Name_Set.Include (Q_Name);
 
                         Generate_Record (Q_Name, "_Type", N);
                      end if;
