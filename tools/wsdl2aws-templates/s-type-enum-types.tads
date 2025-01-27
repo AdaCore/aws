@@ -3,24 +3,30 @@
 
    -- Enumeration @_TYPE_NAME_@
 
-   subtype @_TYPE_NAME_@ is @_UNIT_NAME_@.@_TYPE_NAME_@;
+   subtype @_NAME_SPACE_@_@_TYPE_NAME_@ is @_UNIT_NAME_@.@_TYPE_NAME_@;
+@@--  For first occurent of a type, generate a non qualified name
+@@--  this ensure upward compatibility with older versions.
+@@IF@@ @_IS_FIRST_OCCURRENCE(st):TYPE_NAME_@
+   subtype @_TYPE_NAME_@
+     is @_NAME_SPACE_@_@_TYPE_NAME_@;
+@@END_IF@@
 
-   function Image (E : @_TYPE_NAME_@)
+   function Image (E : @_NAME_SPACE_@_@_TYPE_NAME_@)
      return String
      renames @_UNIT_NAME_@.Image;
 
    function To_@_TYPE_NAME_@
      (O : SOAP.Types.Object'Class)
-      return @_TYPE_NAME_@
+      return @_NAME_SPACE_@_@_TYPE_NAME_@
       renames @_UNIT_NAME_@.To_@_TYPE_NAME_@;
 
    function To_@_TYPE_NAME_@
      (L : SOAP.Parameters.List)
-      return @_TYPE_NAME_@
+      return @_NAME_SPACE_@_@_TYPE_NAME_@
       renames @_UNIT_NAME_@.To_@_TYPE_NAME_@;
 
    function To_SOAP_Object
-     (R         : @_TYPE_NAME_@;
+     (R         : @_NAME_SPACE_@_@_TYPE_NAME_@;
       Name      : String := "item";
       Type_Name : String := @_UNIT_NAME_@.Q_Type_Name;
       NS        : SOAP.Name_Space.Object := @_REPLACE((.*)\.[^.]*$/\1):UNIT_NAME_@.Name_Space)

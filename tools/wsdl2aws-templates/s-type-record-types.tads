@@ -7,30 +7,36 @@
 @@END_IF@@
 
 @@IF@@ @_IS_EMPTY:TYPE_SPEC_@ or @_SIMPLE_WRAPPED_PARAMETER_@
-   subtype @_TYPE_NAME_@
+   subtype @_NAME_SPACE_@_@_TYPE_NAME_@
      is @_UNIT_NAME_@.@_TYPE_NAME_@;
 @@ELSE@@
-   subtype @_TYPE_NAME_@
+   subtype @_NAME_SPACE_@_@_TYPE_NAME_@
      is @_TYPE_SPEC_@.@_TYPE_REF_@;
+@@END_IF@@
+@@--  For first occurent of a type, generate a non qualified name
+@@--  this ensure upward compatibility with older versions.
+@@IF@@ @_IS_FIRST_OCCURRENCE(st):TYPE_NAME_@
+   subtype @_TYPE_NAME_@
+     is @_NAME_SPACE_@_@_TYPE_NAME_@;
 @@END_IF@@
 
    function To_@_TYPE_NAME_@
      (O : SOAP.Types.Object'Class)
-      return @_TYPE_NAME_@
+      return @_NAME_SPACE_@_@_TYPE_NAME_@
       renames @_UNIT_NAME_@.To_@_TYPE_NAME_@;
 
    function To_@_TYPE_NAME_@
      (P_List : SOAP.Parameters.List)
-      return @_TYPE_NAME_@
+      return @_NAME_SPACE_@_@_TYPE_NAME_@
       renames @_UNIT_NAME_@.To_@_TYPE_NAME_@;
 
    function To_@_TYPE_NAME_@_W
      (R : SOAP.Parameters.List)
-      return @_TYPE_NAME_@
+      return @_NAME_SPACE_@_@_TYPE_NAME_@
       renames @_UNIT_NAME_@.To_@_TYPE_NAME_@_W;
 
    function To_SOAP_Object
-     (R         : @_TYPE_NAME_@;
+     (R         : @_NAME_SPACE_@_@_TYPE_NAME_@;
       Name      : String := "item";
       Type_Name : String := @_UNIT_NAME_@.Q_Type_Name;
       NS        : SOAP.Name_Space.Object := @_NAME_SPACE_@_Name_Space)
@@ -38,7 +44,7 @@
       renames @_UNIT_NAME_@.To_SOAP_Object;
 
    function To_Parameter_List
-     (R : @_TYPE_NAME_@)
+     (R : @_NAME_SPACE_@_@_TYPE_NAME_@)
       return SOAP.Parameters.List
       renames @_UNIT_NAME_@.To_Parameter_List;
 

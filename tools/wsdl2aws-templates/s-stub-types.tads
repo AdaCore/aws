@@ -7,15 +7,15 @@
    function To_@_PROC_@_Result
      (O : SOAP.Types.Object_Set)
       return @_PROC_@_Result
-      renames To_@_QUALIFIED_NAME_@_Type;
+      renames To_@_NAME_SPACE_@_@_TYPE_NAME_@_Type;
 @@ELSE@@
    function To_@_PROC_@_Result
      (O : SOAP.Types.Object'Class)
       return @_PROC_@_Result
-      renames To_@_QUALIFIED_NAME_@_Type;
+      renames To_@_NAME_SPACE_@_@_TYPE_NAME_@_Type;
 
    function To_@_PROC_@_Result
      (L : SOAP.Parameters.List)
       return @_PROC_@_Result
-      renames To_@_QUALIFIED_NAME_@_Type;
+      renames To_@_NAME_SPACE_@_@_TYPE_NAME_@_Type;
 @@END_IF@@

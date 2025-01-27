@@ -44,7 +44,7 @@ To_@_IP_TYPE_NAME_@_Type (V (@_$1_@_@_IP_TYPE_NAME_@_Array))
 @@ELSIF@@ @_IP_KIND_@ = K_RECORD
 To_@_IP_TYPE_NAME_@_Type (@_$1_@_@_IP_TYPE_NAME_@_Record)
 @@ELSIF@@ @_IP_KIND_@ = K_ENUMERATION
-@_IP_TYPE_NAME_@_Type'Value (SOAP.Utils.Get (SOAP.Parameters.Argument (Params, "@_$1_@")))
+@_IP_NS_NAME_@_@_IP_TYPE_NAME_@_Type'Value (SOAP.Utils.Get (SOAP.Parameters.Argument (Params, "@_$1_@")))
 @@ELSIF@@ @_IP_KIND_@ = K_SIMPLE
 @@IF@@ @_IP_TYPE_KIND_@ = P_CHARACTER
 SOAP.Utils.Get (SOAP.Parameters.Argument (Params, "@_$1_@"))
@@ -64,7 +64,7 @@ To_@_IP_ADA_TYPE_@ (To_@_IP_BASE_TYPE_@_Type (@_QUALIFIED_ADA_TYPE(@_IP_ROOT_TYP
 @@-- ---------------------------------------------------------------------
 @@MACRO(GET_PARAMETERS_FROM_SOAP)@@
 @@IF@@ (@_IP_KIND_@ = K_ARRAY) or (@_IP_KIND_@ = K_RECORD)
-@_IP_DECL_NAME_@ : constant @_IP_TYPE_NAME_@_Type :=
+@_IP_DECL_NAME_@ : constant @_IP_Q_NAME_@_Type :=
 @@ELSIF@@ (@_IP_KIND_@ = K_SIMPLE) and (@_IP_TYPE_KIND_@ = P_STRING or @_IP_TYPE_KIND_@ = P_TOKEN or @_IP_TYPE_KIND_@ = P_NORMALIZED_STRING or @_IP_TYPE_KIND_@ = P_ANY_URI)
 @_IP_DECL_NAME_@ : constant String :=
 @@ELSE@@

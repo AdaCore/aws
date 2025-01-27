@@ -61,6 +61,7 @@ package @_UNIT_NAME_@ is
 @@--
    @@IF@@ @_SAFE_POINTER_@
    type @_TYPE_NAME_@ is array (Positive range <>) of @_ELEMENT_TYPE_@;
+   subtype @_NAME_SPACE_@_@_TYPE_NAME_@ is @_TYPE_NAME_@;
 @@INLINE(   --  )(\n   --  )()@@
       @_WRAP(70):DOCUMENTATION_@
 @@END_INLINE@@
@@ -72,6 +73,8 @@ package @_UNIT_NAME_@ is
 
    subtype @_TYPE_NAME_@_Safe_Access
      is @_TYPE_NAME_@_Safe_Pointer.Safe_Pointer;
+   subtype @_NAME_SPACE_@_@_TYPE_NAME_@_Safe_Access
+     is @_TYPE_NAME_@_Safe_Access;
 
    function "+"
      (O : @_TYPE_NAME_@)
@@ -99,6 +102,7 @@ package @_UNIT_NAME_@ is
      (Positive, @_ELEMENT_TYPE_@);
 
    subtype @_TYPE_NAME_@ is @_TYPE_NAME_@_Pck.Vector;
+   subtype @_NAME_SPACE_@_@_TYPE_NAME_@ is @_TYPE_NAME_@;
 
    function "+" (V : @_TYPE_NAME_@)
      return @_TYPE_NAME_@ is (V);
@@ -118,6 +122,7 @@ package @_UNIT_NAME_@ is
    @@IF@@ @_SAFE_POINTER_@
    subtype @_TYPE_NAME_@_Index is Positive range 1 .. @_LENGTH_@;
    type @_TYPE_NAME_@ is array (@_TYPE_NAME_@_Index) of @_ELEMENT_TYPE_@;
+   subtype @_NAME_SPACE_@_@_TYPE_NAME_@ is @_TYPE_NAME_@;
 
    function To_@_TYPE_NAME_@ is new SOAP.Utils.To_T_Array_C
      (@_ELEMENT_TYPE_@,
@@ -146,10 +151,13 @@ package @_UNIT_NAME_@ is
 
 @@IF@@ @_SAFE_POINTER_@
    subtype @_TYPE_NAME_@ is @_TYPE_SPEC_@.@_TYPE_REF_@;
+   subtype @_NAME_SPACE_@_@_TYPE_NAME_@ is @_TYPE_NAME_@;
 
    @@IF@@ @_INSIDE_RECORD_@
    subtype @_TYPE_NAME_@_Safe_Access
      is @_TYPE_SPEC_@.@_TYPE_REF_@_Safe_Pointer.Safe_Pointer;
+   subtype @_NAME_SPACE_@_@_TYPE_NAME_@_Safe_Access
+     is @_TYPE_NAME_@_Safe_Access;
 
    function "+"
      (O : @_TYPE_NAME_@)
@@ -187,10 +195,12 @@ package @_UNIT_NAME_@ is
       "@_QUALIFIED_ELEMENT_TYPE_@",
       @_SET_ROUTINE_@);
    @@END_IF@@
+
 @@ELSE@@ @-- SAFE_POINTER
    package @_TYPE_NAME_@_Pck
      renames @_TYPE_SPEC_@.@_TYPE_REF_@;
    subtype @_TYPE_NAME_@ is @_TYPE_NAME_@_Pck.Vector;
+   subtype @_NAME_SPACE_@_@_TYPE_NAME_@ is @_TYPE_NAME_@;
 
    function "+" (V: @_TYPE_NAME_@)
      return @_TYPE_NAME_@ is (V);
@@ -207,13 +217,24 @@ package @_UNIT_NAME_@ is
 @@END_IF@@
 @@END_IF@@
 
+   function To_@_NAME_SPACE_@_@_TYPE_NAME_@
+     (From : SOAP.Types.Object_Set)
+      return @_TYPE_NAME_@
+      renames To_@_TYPE_NAME_@;
+
    function To_@_TYPE_NAME_@ (O : SOAP.Types.Object'Class)
      return @_TYPE_NAME_@
      is (To_@_TYPE_NAME_@ (SOAP.Types.V (SOAP.Types.Composite (O))));
+   function To_@_NAME_SPACE_@_@_TYPE_NAME_@ (O : SOAP.Types.Object'Class)
+     return @_TYPE_NAME_@
+     renames To_@_TYPE_NAME_@;
 
    function To_@_TYPE_NAME_@ (L : SOAP.Parameters.List)
      return @_TYPE_NAME_@
      is (To_@_TYPE_NAME_@ (SOAP.Parameters.Argument (L, 1)));
+   function To_@_NAME_SPACE_@_@_TYPE_NAME_@ (L : SOAP.Parameters.List)
+     return @_TYPE_NAME_@
+     renames To_@_TYPE_NAME_@;
 
    function To_SOAP_Object
      (A         : @_TYPE_NAME_@;
