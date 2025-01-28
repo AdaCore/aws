@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2003-2022, AdaCore                     --
+--                     Copyright (C) 2003-2025, AdaCore                     --
 --                                                                          --
 --  This is free software;  you can redistribute it  and/or modify it       --
 --  under terms of the  GNU General Public License as published  by the     --
@@ -28,17 +28,19 @@ library project SSL is
    case Shared.Socket is
       when "std" =>
          for Languages use ("Ada", "Project file");
-         for Source_Dirs use (".", "../config/ssl");
          for Excluded_Source_Files use ("ssl-loader.ads");
 
       when "gnutls" =>
          for Languages use ("Ada", "Project file", "C");
-         for Source_Dirs use (".", "../config/ssl", "../config/ssl/gnutls");
+         for Source_Dirs use ("../config/ssl/gnutls");
 
       when others =>
          for Languages use ("Ada", "Project file", "C");
-         for Source_Dirs use (".", "../config/ssl", "../config/ssl/openssl");
+         for Source_Dirs use ("../config/ssl/openssl");
    end case;
+
+   for Source_Dirs use Project'Source_Dirs
+      & (".", "../config/ssl", Shared.Build_Target_Dir & "/setup/src");
 
    case Shared.SSL_Dynamic is
       when "false" =>

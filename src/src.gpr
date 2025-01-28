@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2003-2014, AdaCore                     --
+--                     Copyright (C) 2003-2025, AdaCore                     --
 --                                                                          --
 --  This is free software;  you can redistribute it  and/or modify it       --
 --  under terms of the  GNU General Public License as published  by the     --
@@ -30,8 +30,7 @@ library project Src is
 
    for Source_Dirs use
      ("core", "extended", "http2", "../templates_parser/src", "../config/src",
-      "../config/ssl",
-      Shared.Build_Target_Dir & "/setup/src", ".");
+      "../config/ssl", ".");
 
    --  XMLAda Installed, add xsrc and soap directories
 
