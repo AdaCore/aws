@@ -55,6 +55,7 @@ pragma Ada_2022;
 
 with Ada.Calendar;
 with Ada.Finalization;
+with Ada.Numerics.Big_Numbers.Big_Integers;
 with Ada.Strings.Unbounded;
 
 with SOAP.Name_Space;
@@ -389,8 +390,7 @@ package SOAP.Types is
    -- Integer --
    -------------
 
-   type Big_Integer is range -2**63 .. 2**63 - 1;
-   --  ??? should be replaced by a Big_Integer when migrating to Ada2022
+   type Big_Integer is new Numerics.Big_Numbers.Big_Integers.Big_Integer;
 
    XML_Integer : aliased constant String := "xsd:integer";
 

@@ -2018,17 +2018,13 @@ package body Ada2WSDL.Parser is
       function Build_Integer
         (Node : Base_Type_Decl) return Generator.Type_Data
       is
-         T_Name   : constant String := Characters.Handling.To_Lower (Name);
          Ilb, Iub : Internal_Integer;
       begin
          Get_Range (Node, Ilb, Iub);
 
          --  Special case for SOAP.Types
 
-         if T_Name = "soap.types.big_integer" then
-            return Build_Type ("big_integer");
-
-         elsif Base then
+         if Base then
             if Ilb = Internal_Integer (SOAP.Types.Byte'First)
               and then Iub = Internal_Integer (SOAP.Types.Byte'Last)
             then
@@ -2187,6 +2183,11 @@ package body Ada2WSDL.Parser is
             else
                return Build_Type ("unbounded_string");
             end if;
+
+         elsif T_Name in "big_integer"
+           | "ada.numerics.big_numbers.big_integers.big_integer"
+         then
+            return Build_Type ("big_integer");
 
          elsif T_Name in "time" | "calendar.time" | "ada.calendar.time"
            and then Is_Calendar (Node)
