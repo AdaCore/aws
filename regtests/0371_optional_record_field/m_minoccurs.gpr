@@ -1,0 +1,16 @@
+
+with "aws";
+
+project M_MinOccurs is
+
+   for languages use ("Ada");
+
+   for Main use ("m_minoccurs.adb");
+
+   for Object_Dir use "obj";
+
+   for Exec_Dir use ".";
+
+   for Source_Dirs use (".", "./generated");
+
+end M_MinOccurs;

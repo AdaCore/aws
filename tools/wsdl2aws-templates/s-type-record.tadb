@@ -134,7 +134,11 @@ package body @_UNIT_NAME_@ is
 @@IF@@ @_RF_KIND_@ = K_ARRAY and @_FIELD_ARRAY_LENGTH_@ > 1
       @_RF_DECL_NAME_@ : constant SOAP.Types.Object_Set := SOAP.Types.V (R, "@_RF_NAME_@");
 @@ELSE@@
+@@IF@@ @_RF_MIN_@ = 0
+      @_RF_DECL_NAME_@ : constant SOAP.Types.Object'Class := SOAP.Types.V (R, "@_RF_NAME_@", Optional => True);
+@@ELSE@@
       @_RF_DECL_NAME_@ : constant SOAP.Types.Object'Class := SOAP.Types.V (R, "@_RF_NAME_@");
+@@END_IF@@
 @@END_IF@@
 @@END_IF@@
 @@END_TABLE@@
@@ -162,7 +166,17 @@ package body @_UNIT_NAME_@ is
 @@TABLE@@
 @@IF@@ not @_RF_DECL_IN_CHOICE_@
       -- @_RF_DECL_NAME_@
+@@IF@@ @_RF_MIN_@ = 0
+@@IF@@ @_RF_KIND_@ = K_ARRAY and @_FIELD_ARRAY_LENGTH_@ > 1
+      if @_RF_DECL_NAME_@ /= Empty_Object_Set then
+@@ELSE@@
+      if @_RF_DECL_NAME_@ /= No_Object then
+@@END_IF@@
+         Result@_TYPE_NAME_@.@_REC_FIELD_FROM_SOAP(1 => " => ")_@;
+      end if;
+@@ELSE@@
       Result@_TYPE_NAME_@.@_REC_FIELD_FROM_SOAP(1 => " => ")_@;
+@@END_IF@@
 @@END_IF@@
 @@END_TABLE@@
 
