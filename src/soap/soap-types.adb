@@ -2074,7 +2074,10 @@ package body SOAP.Types is
       return O.O (N).O.all;
    end V;
 
-   function V (O : SOAP_Record; Name : String) return Object'Class is
+   function V
+     (O        : SOAP_Record;
+      Name     : String;
+      Optional : Boolean := False) return Object'Class is
    begin
       for K in O.O'Range loop
          if Types.Name (O.O (K).O.all) = Name then
@@ -2082,8 +2085,12 @@ package body SOAP.Types is
          end if;
       end loop;
 
-      raise Types.Data_Error
-        with "(V) Struct object " & Name & " not found";
+      if Optional then
+         return No_Object;
+      else
+         raise Types.Data_Error
+           with "(V) Struct object " & Name & " not found";
+      end if;
    end V;
 
    function V (O : SOAP_Record; Name : String) return Object_Set is
