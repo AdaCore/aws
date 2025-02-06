@@ -25,24 +25,43 @@ package @_UNIT_NAME_@ is
       @_E_NAME_@
 @@END_TABLE@@
 @@END_INLINE@@
+   subtype @_NAME_SPACE_@_@_TYPE_NAME_@ is @_TYPE_NAME_@;
 
    function To_@_TYPE_NAME_@
      (D : @_TYPE_NAME_@) return @_TYPE_NAME_@ is (D);
+   function To_@_NAME_SPACE_@_@_TYPE_NAME_@
+     (D : @_TYPE_NAME_@)
+      return @_TYPE_NAME_@
+      renames To_@_TYPE_NAME_@;
 
    function From_@_TYPE_NAME_@
      (D : @_TYPE_NAME_@) return @_TYPE_NAME_@ is (D);
+   function From_@_NAME_SPACE_@_@_TYPE_NAME_@
+     (D : @_TYPE_NAME_@)
+      return @_TYPE_NAME_@
+      renames From_@_TYPE_NAME_@;
 @@ELSE@@
 
    subtype @_TYPE_NAME_@ is
      @_TYPE_SPEC_@.@_TYPE_REF_@;
+   subtype @_NAME_SPACE_@_@_TYPE_NAME_@ is
+     @_TYPE_NAME_@;
 
    function To_@_TYPE_NAME_@
      (D : @_TYPE_NAME_@)
       return @_TYPE_NAME_@ is (D);
+   function To_@_NAME_SPACE_@_@_TYPE_NAME_@
+     (D : @_TYPE_NAME_@)
+      return @_TYPE_NAME_@
+      renames To_@_TYPE_NAME_@;
 
    function From_@_TYPE_NAME_@
      (D : @_TYPE_NAME_@)
       return @_TYPE_NAME_@ is (D);
+   function From_@_NAME_SPACE_@_@_TYPE_NAME_@
+     (D : @_TYPE_NAME_@)
+      return @_TYPE_NAME_@
+      renames From_@_TYPE_NAME_@;
 @@END_IF@@
 
    function Image (E : @_TYPE_NAME_@) return String;
@@ -63,11 +82,19 @@ package @_UNIT_NAME_@ is
      (O : SOAP.Types.Object'Class)
       return @_TYPE_NAME_@ is
         (From_String_Type (SOAP.Types.V (SOAP.Types.SOAP_Enumeration (O))));
+   function To_@_NAME_SPACE_@_@_TYPE_NAME_@
+     (O : SOAP.Types.Object'Class)
+      return @_TYPE_NAME_@
+      renames To_@_TYPE_NAME_@;
 
    function To_@_TYPE_NAME_@
      (L : SOAP.Parameters.List)
       return @_TYPE_NAME_@
       is (To_@_TYPE_NAME_@ (SOAP.Parameters.Argument (L, 1)));
+   function To_@_NAME_SPACE_@_@_TYPE_NAME_@
+     (L : SOAP.Parameters.List)
+      return @_TYPE_NAME_@
+      renames To_@_TYPE_NAME_@;
 
    function To_SOAP_Object
      (D         : @_TYPE_NAME_@;

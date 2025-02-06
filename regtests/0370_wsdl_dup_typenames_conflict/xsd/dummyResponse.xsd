@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" 
+           targetNamespace="mycompany:dummy/response"
+           xmlns="mycompany:dummy/response">
+
+    <xs:element name="DummyResponse" type="xs:boolean"></xs:element>
+
+</xs:schema>

@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" 
+           targetNamespace="mycompany:one"
+           xmlns:one="mycompany:one"
+           xmlns="mycompany:one">
+
+    <xs:element name="MainElementOne" type="one:MainElementOneType"/>
+
+    <xs:complexType name="MainElementOneType">
+        <xs:sequence>
+            <xs:element name="SecondaryElementOne" type="one:SecondaryElementOneType" />
+            <xs:element name="SecondaryElementTwo" type="one:SecondaryElementTwoType" />
+        </xs:sequence>
+    </xs:complexType>
+
+    <xs:complexType name="SecondaryElementOneType">
+        <xs:sequence>
+            <xs:element name="FieldThree" type="xs:string" />
+            <xs:element name="FieldFour" type="xs:string" />
+            <xs:element name="FieldSix" type="xs:string" />
+            <xs:element name="FieldSeven" type="xs:string" />
+            <xs:element name="FieldEight" type="xs:string" />
+            <xs:element name="FieldNine" type="xs:string" />
+            <xs:element name="FieldTen" type="xs:string" />
+        </xs:sequence>
+    </xs:complexType>
+
+    <xs:complexType name="SecondaryElementTwoType">
+        <xs:sequence>
+            <xs:element name="FieldThree" type="xs:string" />
+            <xs:element name="FieldFour" type="xs:string" />
+            <xs:element name="FieldSix" type="xs:string" />
+            <xs:element name="FieldSeven" type="xs:string" />
+            <xs:element name="FieldEight" type="xs:string" />
+            <xs:element name="FieldNine" type="xs:string" />
+            <xs:element name="FieldTen" type="xs:string" />
+        </xs:sequence>
+    </xs:complexType>
+
+</xs:schema>

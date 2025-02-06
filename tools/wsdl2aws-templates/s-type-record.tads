@@ -117,18 +117,32 @@ C@_CHOICE_FIELD_NUMBER_@
    subtype @_TYPE_NAME_@ is @_TYPE_SPEC_@.@_TYPE_REF_@;
 @@END_IF@@
 
+   subtype @_NAME_SPACE_@_@_TYPE_NAME_@ is @_TYPE_NAME_@;
+
    function To_@_TYPE_NAME_@
      (O : SOAP.Types.Object'Class)
       return @_TYPE_NAME_@;
+   function To_@_NAME_SPACE_@_@_TYPE_NAME_@
+     (O : SOAP.Types.Object'Class)
+      return @_TYPE_NAME_@
+      renames To_@_TYPE_NAME_@;
 
    function To_@_TYPE_NAME_@
      (P_List : SOAP.Parameters.List)
       return @_TYPE_NAME_@;
+   function To_@_NAME_SPACE_@_@_TYPE_NAME_@
+     (P_List : SOAP.Parameters.List)
+      return @_TYPE_NAME_@
+      renames To_@_TYPE_NAME_@;
 
    function To_@_TYPE_NAME_@_W
      (R : SOAP.Parameters.List)
       return @_TYPE_NAME_@
       is (To_@_TYPE_NAME_@ (SOAP.Parameters.Argument (R, 1)));
+   function To_@_NAME_SPACE_@_@_TYPE_NAME_@_W
+     (R : SOAP.Parameters.List)
+      return @_TYPE_NAME_@
+      renames To_@_TYPE_NAME_@_W;
 
    function To_SOAP_Object
      (R         : @_TYPE_NAME_@;

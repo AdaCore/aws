@@ -86,7 +86,9 @@ package body Stub is
       if Is_Simple_Wrapped_Parameter (O, Input) then
          Decl_Name := Decl_Name & Format_Name (O, To_String (Input.Name));
          Decl_Type := Decl_Type
-           & Format_Name (O, WSDL.Types.Name (Input.Typ) & "_Type");
+           & Format_Name
+           (O,
+            SOAP.Utils.To_Name (WSDL.Types.Name (Input.Typ, True)) & "_Type");
       end if;
 
       Add_TagV (O.Stub_B_Trans, "DECL_NAME", Decl_Name);
