@@ -470,8 +470,13 @@ package SOAP.Types is
    --  If Type_Name is omitted then the type name is the name of the record.
    --  Type_Name must be specified for item into an array for example.
 
-   function V (O : SOAP_Record; Name : String) return Object'Class;
-   --  Returns SOAP_Record field named Name
+   function V
+     (O        : SOAP_Record;
+      Name     : String;
+      Optional : Boolean := False) return Object'Class;
+   --  Returns SOAP_Record field named Name. If Optional is set to True the
+   --  field name can be ommited in the record (minOccurs = 0) in this case
+   --  the returned object may be No_Object.
 
    function V (O : SOAP_Record; Name : String) return Object_Set;
    --  Returns SOAP_Record fields named Name

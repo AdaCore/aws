@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema"
+           targetNamespace="http://mytestingschema"
+           xmlns:one="http://mytestingschema"
+           xmlns="http://mytestingschema">
+
+    <xs:element name="MainElementOne" type="one:MainElementOneType"/>
+
+    <xs:complexType name="MainElementOneType">
+        <xs:sequence>
+            <xs:element name="SecondaryElementOne" type="one:SecondaryElementOneType"/>
+            <xs:element name="SecondaryElementTwo" type="one:SecondaryElementTwoType"/>
+        </xs:sequence>
+    </xs:complexType>
+
+    <xs:complexType name="SecondaryElementOneType">
+        <xs:sequence>
+            <xs:element name="FieldOne" type="xs:string"/>
+            <xs:element name="FieldTwo" type="xs:string"/>
+            <xs:element name="FieldThree" type="xs:string" minOccurs="0" maxOccurs="1"/>
+            <xs:element name="FieldFour" type="xs:string"/>
+            <xs:element name="FieldFive" type="xs:dateTime"/>
+        </xs:sequence>
+    </xs:complexType>
+
+    <xs:complexType name="SecondaryElementTwoType">
+        <xs:sequence>
+            <xs:element name="FieldOne" type="xs:string"/>
+            <xs:element name="FieldTwo" type="xs:string"/>
+            <xs:element name="FieldThree" type="xs:string" minOccurs="0" maxOccurs="unbounded"/>
+            <xs:element name="FieldFour" type="xs:string"/>
+            <xs:element name="FieldFive" type="xs:dateTime"/>
+        </xs:sequence>
+    </xs:complexType>
+
+</xs:schema>

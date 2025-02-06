@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<wsdl:definitions xmlns="http://schemas.xmlsoap.org/wsdl/"
+             xmlns:xs="http://www.w3.org/2001/XMLSchema"
+             xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/"
+             xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/"
+
+             xmlns:one="http://mytestingschema"
+             xmlns:dummy="http://dummy.response"
+
+             xmlns:tns="http://dummy.wsdl"
+             targetNamespace="http://dummy.wsdl"
+
+             name="MyTestingService">
+
+    <wsdl:types>
+
+        <xs:schema targetNamespace="http://mytestingschema">
+            <xs:import namespace="http://mytestingschema"
+                       schemaLocation="xsd/myTestingSchema.xsd"/>
+        </xs:schema>
+
+        <xs:schema targetNamespace="http://dummy.response">
+            <xs:import namespace="http://dummy.response"
+                       schemaLocation="xsd/dummyResponse.xsd"/>
+        </xs:schema>
+
+    </wsdl:types>
+
+    <!-- In/out messages definitions -->
+    <wsdl:message name="SubmitElementOneRequest">
+        <wsdl:part name="parameters" element="one:MainElementOne"/>
+    </wsdl:message>
+
+    <wsdl:message name="DummyDataResponse">
+        <wsdl:part name="parameters" element="dummy:DummyResponse"/>
+    </wsdl:message>
+
+    <!-- Operations definitions -->
+    <wsdl:portType name="MyServicePortType">
+
+        <wsdl:operation name="SubmitElementOne">
+            <wsdl:input message="tns:SubmitElementOneRequest"/>
+            <wsdl:output message="tns:DummyDataResponse"/>
+        </wsdl:operation>
+
+    </wsdl:portType>
+
+    <!-- Binding SOAP -->
+    <wsdl:binding name="MyServiceBinding" type="tns:MyServicePortType">
+        <soap:binding transport="http://schemas.xmlsoap.org/soap/http" style="document"/>
+
+        <wsdl:operation name="SubmitElementOne">
+            <soap:operation soapAction="http://dummy.service/SubmitElementOne"/>
+            <wsdl:input>
+                <soap:body use="literal"/>
+            </wsdl:input>
+            <wsdl:output>
+                <soap:body use="literal"/>
+            </wsdl:output>
+        </wsdl:operation>
+
+    </wsdl:binding>
+
+    <!-- Port definition -->
+    <wsdl:service name="MyService">
+        <wsdl:port name="MyServicePort" binding="tns:MyServiceBinding">
+            <soap:address location="http://dummy.service/converter"/>
+        </wsdl:port>
+    </wsdl:service>
+
+</wsdl:definitions>

@@ -1,0 +1,28 @@
+=== with
+One:
+(FIELDONE => "One",
+ FIELDTWO => "Two",
+ FIELDTHREE => "Three",
+ FIELDFOUR => "Four",
+ FIELDFIVE => -3967371000000000000)
+Two:
+(FIELDONE => "One-2",
+ FIELDTWO => "Two-2",
+ FIELDTHREE =>
+ ["Three-2"],
+ FIELDFOUR => "Four-2",
+ FIELDFIVE => -3967370880000000000)
+=== without
+One:
+(FIELDONE => "One",
+ FIELDTWO => "Two",
+ FIELDTHREE => "",
+ FIELDFOUR => "Four",
+ FIELDFIVE => -3967371000000000000)
+Two:
+(FIELDONE => "One-2",
+ FIELDTWO => "Two-2",
+ FIELDTHREE =>
+ [],
+ FIELDFOUR => "Four-2",
+ FIELDFIVE => -3967370880000000000)
