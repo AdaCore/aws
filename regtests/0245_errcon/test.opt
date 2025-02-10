@@ -1,3 +1,4 @@
+ppc64-linux,linux-wrlinux-17 OUT test-ebusy64.out
 ppc-linux,linux-wrlinux-17 OUT test-ebusy.out
 vxworks6 OUT test-vxworks.out
 !vxworks6-6.6 REQUIRED
