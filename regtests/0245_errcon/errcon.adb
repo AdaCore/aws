@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2014-2016, AdaCore                     --
+--                     Copyright (C) 2014-2025, AdaCore                     --
 --                                                                          --
 --  This is free software;  you can redistribute it  and/or modify it       --
 --  under terms of the  GNU General Public License as published  by the     --
@@ -41,8 +41,11 @@ procedure ErrCon is
    Unreach_Err : constant String :=
                    '[' & Utils.Image (Natural (OS_Lib.ENETUNREACH)) & ']';
 
-   No_Ent_Err : constant String :=
+   No_Ent_Err  : constant String :=
                    '[' & Utils.Image (Natural (OS_Lib.ENOENT)) & ']';
+
+   No_Data_Err : constant String :=
+                   '[' & Utils.Image (Natural (OS_Lib.No_DATA)) & ']';
 
    procedure Print_Error (Message : String);
 
@@ -71,6 +74,11 @@ procedure ErrCon is
          Text_IO.Put_Line
            (Fixed.Replace_Slice
               (Text, Text'First, No_Ent_Err'Length, "[NO_NAME]"));
+
+      elsif Utils.Match (Text, No_Data_Err) then
+         Text_IO.Put_Line
+           (Fixed.Replace_Slice
+              (Text, Text'First, No_Ent_Err'Length, "[NO_DATA]"));
 
       else
          Text_IO.Put_Line (Text);
