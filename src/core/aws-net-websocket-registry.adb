@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2012-2024, AdaCore                     --
+--                     Copyright (C) 2012-2025, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -31,11 +31,6 @@ with Ada.Containers.Indefinite_Ordered_Maps;
 with Ada.Containers.Indefinite_Vectors;
 with Ada.Containers.Ordered_Maps;
 with Ada.Containers.Ordered_Sets;
-
-pragma Warnings (Off, "is an internal GNAT unit");
-with Ada.Strings.Unbounded.Aux;
-pragma Warnings (On, "is an internal GNAT unit");
-
 with Ada.Unchecked_Deallocation;
 with GNAT.Regpat;
 
@@ -51,6 +46,8 @@ package body AWS.Net.WebSocket.Registry is
    use GNAT;
    use GNAT.Regpat;
    use type Ada.Containers.Count_Type;
+
+   Max_Stack_Size : constant := 100 * 1_024;
 
    --  Container for URI based registered constructors
 
@@ -162,7 +159,7 @@ package body AWS.Net.WebSocket.Registry is
 
       procedure Send
         (To           : Recipient;
-         Message      : String;
+         Message      : Unbounded_String;
          Except_Peer  : String;
          Timeout      : Duration := Forever;
          Asynchronous : Boolean := False;
@@ -172,7 +169,7 @@ package body AWS.Net.WebSocket.Registry is
 
       procedure Send
         (Socket       : in out Object'Class;
-         Message      : String;
+         Message      : Unbounded_String;
          Is_Binary    : Boolean := False;
          Timeout      : Duration := Forever;
          Asynchronous : Boolean := False);
@@ -745,7 +742,7 @@ package body AWS.Net.WebSocket.Registry is
 
       procedure Send
         (To           : Recipient;
-         Message      : String;
+         Message      : Unbounded_String;
          Except_Peer  : String;
          Timeout      : Duration := Forever;
          Asynchronous : Boolean := False;
@@ -878,10 +875,12 @@ package body AWS.Net.WebSocket.Registry is
                   declare
                      WS         : constant Object_References.Reference_Type :=
                                     Socks (Sock_Index).Get;
-                     Chunk_Size : Stream_Element_Offset := WS.Output_Space;
+                     Chunk_Size : Stream_Element_Offset :=
+                                    Stream_Element_Offset'Min
+                                      (Max_Stack_Size, WS.Output_Space);
                   begin
                      if Chunk_Size = -1 then
-                        Chunk_Size := 100 * 1_024;
+                        Chunk_Size := Max_Stack_Size;
                      end if;
 
                      Pending := WS.Mem_Sock.Pending;
@@ -890,12 +889,9 @@ package body AWS.Net.WebSocket.Registry is
                        (Chunk_Size, Pending);
 
                      Read_Send : declare
-                        --  ??? Might blow up if Chunk_Size > 2Mb
                         Data : Stream_Element_Array (1 .. Chunk_Size);
                         Last : Stream_Element_Offset;
                      begin
-                        --  ??? Useless copy of the data in memory. Would be
-                        --  nice to remove this.
                         WS.Mem_Sock.Receive (Data, Last);
                         pragma Assert (Last = Data'Last);
 
@@ -993,7 +989,7 @@ package body AWS.Net.WebSocket.Registry is
 
       procedure Send
         (Socket       : in out Object'Class;
-         Message      : String;
+         Message      : Unbounded_String;
          Is_Binary    : Boolean := False;
          Timeout      : Duration := Forever;
          Asynchronous : Boolean := False) is
@@ -1194,11 +1190,13 @@ package body AWS.Net.WebSocket.Registry is
       ----------
 
       procedure Send (Message : Message_Data) is
-         Chunk_Size : Stream_Element_Offset := WS.Output_Space;
          Pending    : Stream_Element_Count;
+         Chunk_Size : Stream_Element_Offset :=
+                        Stream_Element_Offset'Min
+                          (Max_Stack_Size, WS.Output_Space);
       begin
          if Chunk_Size = -1 then
-            Chunk_Size := 100 * 1_024;
+            Chunk_Size := Max_Stack_Size;
          end if;
 
          loop
@@ -1308,12 +1306,8 @@ package body AWS.Net.WebSocket.Registry is
       Error        : access procedure (Socket : Object'Class;
                                        Action : out Action_Kind) := null)
    is
-      use Ada.Strings.Unbounded.Aux;
-      S  : Big_String_Access;
-      L  : Natural;
    begin
-      Get_String (Message, S, L);
-      DB.Send (To, S (1 .. L), Except_Peer, Timeout, Asynchronous,  Error);
+      DB.Send (To, Message, Except_Peer, Timeout, Asynchronous,  Error);
    exception
       when others =>
          --  Should never fails even if the WebSocket is closed by peer
@@ -1329,7 +1323,8 @@ package body AWS.Net.WebSocket.Registry is
       Error        : access procedure (Socket : Object'Class;
                                        Action : out Action_Kind) := null) is
    begin
-      DB.Send (To, Message, Except_Peer, Timeout, Asynchronous, Error);
+      Send (To, To_Unbounded_String (Message),
+            Except_Peer, Timeout, Asynchronous, Error);
    end Send;
 
    procedure Send
@@ -1339,14 +1334,14 @@ package body AWS.Net.WebSocket.Registry is
       Timeout      : Duration := Forever;
       Asynchronous : Boolean := False;
       Error        : access procedure (Socket : Object'Class;
-                                       Action : out Action_Kind) := null)
-   is
-      use Ada.Strings.Unbounded.Aux;
-      S  : Big_String_Access;
-      L  : Natural;
+                                       Action : out Action_Kind) := null) is
    begin
-      Get_String (Message, S, L);
-      Send (To, S (1 .. L), Request, Timeout, Asynchronous, Error);
+      DB.Send
+        (To, Message,
+         Except_Peer  => AWS.Status.Socket (Request).Peer_Addr,
+         Timeout      => Timeout,
+         Asynchronous => Asynchronous,
+         Error        => Error);
    end Send;
 
    procedure Send
@@ -1358,12 +1353,8 @@ package body AWS.Net.WebSocket.Registry is
       Error        : access procedure (Socket : Object'Class;
                                        Action : out Action_Kind) := null) is
    begin
-      Send
-        (To, Message,
-         Except_Peer  => AWS.Status.Socket (Request).Peer_Addr,
-         Timeout      => Timeout,
-         Asynchronous => Asynchronous,
-         Error        => Error);
+      Send (To, To_Unbounded_String (Message),
+            Request, Timeout, Asynchronous, Error);
    end Send;
 
    procedure Send
@@ -1373,7 +1364,8 @@ package body AWS.Net.WebSocket.Registry is
       Timeout      : Duration := Forever;
       Asynchronous : Boolean := False) is
    begin
-      DB.Send (Socket, Message, Is_Binary, Timeout, Asynchronous);
+      DB.Send (Socket, To_Unbounded_String (Message),
+               Is_Binary, Timeout, Asynchronous);
    end Send;
 
    procedure Send
@@ -1383,12 +1375,8 @@ package body AWS.Net.WebSocket.Registry is
       Timeout      : Duration := Forever;
       Asynchronous : Boolean := False)
    is
-      use Ada.Strings.Unbounded.Aux;
-      S  : Big_String_Access;
-      L  : Natural;
    begin
-      Get_String (Message, S, L);
-      DB.Send (Socket, S (1 .. L), Is_Binary, Timeout, Asynchronous);
+      DB.Send (Socket, Message, Is_Binary, Timeout, Asynchronous);
    end Send;
 
    procedure Send
@@ -1403,7 +1391,7 @@ package body AWS.Net.WebSocket.Registry is
          (Character'Size /= Stream_Element'Size,
           "A character size is not the size of a byte");
    begin
-      Send (Socket, A, Is_Binary, Timeout, Asynchronous);
+      Send (Socket, To_Unbounded_String (A), Is_Binary, Timeout, Asynchronous);
    end Send;
 
    --------------
