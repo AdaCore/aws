@@ -133,7 +133,7 @@ OpenLDAP library (optional) :
 Reporting bugs
 --------------
 
-You can report bugs to AdaCore: report@adacore.com
+You can report bugs to AdaCore: support@adacore.com
 
 
 Contributors
