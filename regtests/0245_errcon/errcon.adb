@@ -45,7 +45,7 @@ procedure ErrCon is
                    '[' & Utils.Image (Natural (OS_Lib.ENOENT)) & ']';
 
    No_Data_Err : constant String :=
-                   '[' & Utils.Image (Natural (OS_Lib.No_DATA)) & ']';
+                   '[' & Utils.Image (Natural (abs (OS_Lib.EAI_NODATA))) & ']';
 
    procedure Print_Error (Message : String);
 
