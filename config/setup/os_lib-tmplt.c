@@ -84,12 +84,16 @@ pragma Style_Checks ("M32766");
 
 /* Feature macro definitions */
 
+#define _GNU_SOURCE
+
 #include <stdlib.h>
 #include <string.h>
 #include <limits.h>
 #include <fcntl.h>
 #include <time.h>
 #include <errno.h>
+#include <sys/socket.h>
+#include <netdb.h>
 
 #if defined(__vxworks)
 
@@ -520,6 +524,11 @@ CND(AI_NUMERICHOST, "Node is a numeric IP address")
 # define EAI_SYSTEM -1
 #endif
 CND(EAI_SYSTEM, "Check errno for details")
+
+#ifndef EAI_NODATA
+# define EAI_NODATA -1
+#endif
+CND(EAI_NODATA, "No address associated with nodename")
 
 #ifndef NI_NUMERICHOST
 # define NI_NUMERICHOST -1
