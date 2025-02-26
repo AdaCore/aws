@@ -75,6 +75,8 @@ pragma Style_Checks ("M32766");
 # error Please define TARGET
 #endif
 
+#define _GNU_SOURCE
+
 #if defined (SOCKET_openssl)
 #include <openssl/x509.h>
 #include <openssl/ssl.h>
@@ -84,16 +86,12 @@ pragma Style_Checks ("M32766");
 
 /* Feature macro definitions */
 
-#define _GNU_SOURCE
-
 #include <stdlib.h>
 #include <string.h>
 #include <limits.h>
 #include <fcntl.h>
 #include <time.h>
 #include <errno.h>
-#include <sys/socket.h>
-#include <netdb.h>
 
 #if defined(__vxworks)
 
