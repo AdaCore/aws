@@ -72,9 +72,14 @@ pragma Style_Checks ("M32766");
 # error Please define TARGET
 #endif
 
-/* Feature macro definitions */
+#if defined (SOCKET_openssl)
+#include <openssl/x509.h>
+#include <openssl/ssl.h>
+#elif defined (SOCKET_gnutls)
+#include <gnutls/gnutls.h>
+#endif
 
-#define _GNU_SOURCE
+/* Feature macro definitions */
 
 #include <stdlib.h>
 #include <string.h>
@@ -82,8 +87,6 @@ pragma Style_Checks ("M32766");
 #include <fcntl.h>
 #include <time.h>
 #include <errno.h>
-#include <sys/socket.h>
-#include <netdb.h>
 
 #if defined(__vxworks)
 
