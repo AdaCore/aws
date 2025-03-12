@@ -415,7 +415,7 @@ private
    --  stage, Socket.On_Success will be called.
    --  In case of error, other callbacks will be used as appropriate.
 
-   overriding function Is_Secure (Socket : Object) return Boolean
-   is (Socket.Socket.Is_Secure);
+   overriding function Is_Secure (Socket : Object) return Boolean is
+     (Socket.Socket.Is_Secure);
 
 end AWS.Net.WebSocket;
