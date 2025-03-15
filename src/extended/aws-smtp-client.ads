@@ -39,7 +39,7 @@
 --
 --     Optionally, request Authentication
 --
---     Auth : aliased SMTP.Authentication.Credential :=
+--     Auth : aliased SMTP.Authentication.Plain.Credential :=
 --              SMTP.Authentication.Plain.Initialize ("id", "password");
 --
 --     Wanadoo : SMTP.Receiver :=
