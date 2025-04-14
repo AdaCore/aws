@@ -819,7 +819,8 @@ package body WSDL2AWS.Generator is
       return P /= null
         and then P.Mode = WSDL.Types.K_Record
         and then O.Style = SOAP.WSDL.Schema.Document
-        and then WSDL.Parameters.Length (P.P) >= 1;
+        and then WSDL.Parameters.Length (P.P) >= 1
+        and then not WSDL.Parameters.Has_Choice (P.all);
    end Is_Simple_Wrapped_Parameter;
 
    ---------------

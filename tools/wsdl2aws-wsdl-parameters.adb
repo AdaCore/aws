@@ -72,6 +72,27 @@ package body WSDL2AWS.WSDL.Parameters is
         (Def, Object, Type_Name, Is_SOAP_Type, Is_Uniq (P));
    end From_SOAP;
 
+   ----------------
+   -- Has_Choice --
+   ----------------
+
+   function Has_Choice (P : Parameter) return Boolean is
+      Result : Boolean := False;
+   begin
+      if P.Mode in Types.Compound_Type then
+         declare
+            E : P_Set := P.P;
+         begin
+            while E /= null loop
+               Result := Result or else E.In_Choice;
+               E := E.Next;
+            end loop;
+         end;
+      end if;
+
+      return Result;
+   end Has_Choice;
+
    -------------
    -- Is_Uniq --
    -------------
