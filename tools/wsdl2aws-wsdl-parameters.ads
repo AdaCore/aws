@@ -68,6 +68,9 @@ package WSDL2AWS.WSDL.Parameters is
      with Post => Is_Uniq'Result = (P.Min = 1 and then P.Max = 1);
    --  Returns True if Min and Max is set to one
 
+   function Has_Choice (P : Parameter) return Boolean;
+   --  Returns True if a compound type and one of the item is in a choice
+
    procedure Append (P : in out P_Set; Param : Parameter) with
      Post => Length (P) = Length (P)'Old + 1;
    --  Add Param at the end of P

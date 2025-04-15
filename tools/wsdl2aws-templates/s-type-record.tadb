@@ -102,7 +102,9 @@ package body @_UNIT_NAME_@ is
      (O : SOAP.Types.Object'Class)
       return @_TYPE_NAME_@
    is
+@@IF@@ @_FIELD_COUNT_@ > 0
       R : constant SOAP.Types.SOAP_Record := SOAP.Types.SOAP_Record (O);
+@@END_IF@@
 @@IF@@ @_HAS_CHOICE_@
 
       function C_Name return String is
