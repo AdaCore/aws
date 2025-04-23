@@ -6,6 +6,11 @@
 --  This file was generated on @_NOW_@
 --
 --  $ wsdl2aws @_OPTIONS_@
+
+pragma Ada_2022;
+pragma Warnings (Off);
+pragma Style_Checks (Off);
+
 @@IF@@ (@_LOWER:BASE_NAME_@ = "unbounded_string") or not @_IS_EMPTY:PREDICATE_KIND_@
 with Ada.Strings.Unbounded;
 @@END_IF@@
