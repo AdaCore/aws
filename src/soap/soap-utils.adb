@@ -958,8 +958,8 @@ package body SOAP.Utils is
    end To_Utf8;
 
    function To_Utf8 (Str : Unbounded_String) return Unbounded_String is
-      Chars : String (1 .. 6);
-      Idx : Integer;
+      Chars  : String (1 .. 6);
+      Idx    : Integer;
       Result : Unbounded_String;
    begin
       for I in 1 .. Length (Str) loop
@@ -968,6 +968,7 @@ package body SOAP.Utils is
             (Character'Pos (Element (Str, I)), Chars, Idx);
          Append (Result, Chars (1 .. Idx));
       end loop;
+
       return Result;
    end To_Utf8;
 

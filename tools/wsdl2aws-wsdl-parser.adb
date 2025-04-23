@@ -1724,8 +1724,7 @@ package body WSDL2AWS.WSDL.Parser is
 
          if Min <= 1 and then Max = 1 then
             declare
-               P : Parameters.Parameter :=
-                     Parse_Simple (O, D, Document);
+               P : Parameters.Parameter := Parse_Simple (O, D, Document);
             begin
                P.Min := Min;
                P.Max := Max;

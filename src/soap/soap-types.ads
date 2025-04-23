@@ -102,7 +102,7 @@ package SOAP.Types is
       Encoding : Encoding_Style := WSDL.Schema.Encoded;
       Schema   : WSDL.Schema.Definition := WSDL.Schema.Empty);
    --  Returns O value encoded for use by the Payload object or Response
-   --  object. The generated characters are appened to Result.
+   --  object. The generated characters are appended to Result.
 
    function XML_Image
      (O        : Object'Class;
