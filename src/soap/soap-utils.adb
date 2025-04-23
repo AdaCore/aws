@@ -922,11 +922,31 @@ package body SOAP.Utils is
    ----------------
 
    function To_T_Array (From : Types.Object_Set) return T_Array is
+      use type Ada.Tags.Tag;
       use SOAP.Types;
       Result : T_Array (From'Range);
    begin
       for K in From'Range loop
-         Result (K) := Get (-From (K));
+         declare
+            E : constant SOAP.Types.Object'Class := -From (K);
+         begin
+            --  A single element which is a SOAP_Set, this is the
+            --  vector to be converted.
+            if E'Tag = SOAP.Types.SOAP_Set'Tag
+              and then From'Length = 1
+            then
+               return To_T_Array (V (SOAP.Types.SOAP_Set (E)));
+
+            --  Likewise for a SOAP_Array
+            elsif E'Tag = SOAP.Types.SOAP_Array'Tag
+              and then From'Length = 1
+            then
+               return To_T_Array (V (SOAP.Types.SOAP_Array (E)));
+
+            else
+               Result (K) := Get (E);
+            end if;
+         end;
       end loop;
 
       return T_Array'(Result);
@@ -937,11 +957,31 @@ package body SOAP.Utils is
    ------------------
 
    function To_T_Array_C (From : Types.Object_Set) return T_Array is
+      use type Ada.Tags.Tag;
       use SOAP.Types;
       Result : T_Array;
    begin
       for K in Result'Range loop
-         Result (K) := Get (-From (Integer (K)));
+         declare
+            E : constant SOAP.Types.Object'Class := -From (Integer (K));
+         begin
+            --  A single element which is a SOAP_Set, this is the
+            --  vector to be converted.
+            if E'Tag = SOAP.Types.SOAP_Set'Tag
+              and then From'Length = 1
+            then
+               return To_T_Array_C (V (SOAP.Types.SOAP_Set (E)));
+
+            --  Likewise for a SOAP_Array
+            elsif E'Tag = SOAP.Types.SOAP_Array'Tag
+              and then From'Length = 1
+            then
+               return To_T_Array_C (V (SOAP.Types.SOAP_Array (E)));
+
+            else
+               Result (K) := Get (E);
+            end if;
+         end;
       end loop;
 
       return Result;
@@ -991,8 +1031,15 @@ package body SOAP.Utils is
               and then From'Length = 1
             then
                return To_Vector (V (SOAP.Types.SOAP_Set (E)));
+
+            --  Likewise for a SOAP_Array
+            elsif E'Tag = SOAP.Types.SOAP_Array'Tag
+              and then From'Length = 1
+            then
+               return To_Vector (V (SOAP.Types.SOAP_Array (E)));
+
             else
-               Result.Append (Get (-From (K)));
+               Result.Append (Get (E));
             end if;
          end;
       end loop;
