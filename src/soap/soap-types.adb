@@ -2438,10 +2438,15 @@ package body SOAP.Types is
       Append (Result, Utils.Tag (Tag_Name (O), Start => False));
    end XML_Image;
 
-   function XML_Image (O : Object'Class) return String is
+   function XML_Image
+     (O        : Object'Class;
+      Encoding : Encoding_Style := WSDL.Schema.Encoded;
+      Schema   : WSDL.Schema.Definition := WSDL.Schema.Empty)
+      return String
+   is
       Result : Unbounded_String;
    begin
-      XML_Image (O, Result);
+      XML_Image (O, Result, Encoding => Encoding, Schema => Schema);
       return To_String (Result);
    end XML_Image;
 
