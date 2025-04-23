@@ -9,7 +9,7 @@
 @@-----------------------------------------------------------------------
 @@MACRO(REC_FIELD_TO_SOAP)@@
 @@IF@@ (@_RF_KIND_@ = K_ARRAY)
-@@IF@@ @_RF_MAX_@ > 1
+@@IF@@ @_RF_MAX_@ > 1 and @_RF_IS_SET_@
 @_$1_@@_$2_@SOAP_Set'(SOAP.Types.Set (To_Object_Set
 @@IF@@ @_SAFE_POINTER_@
             (R.@_RF_DECL_NAME_@.item.all,

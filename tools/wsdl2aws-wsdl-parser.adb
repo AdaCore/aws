@@ -1698,6 +1698,8 @@ package body WSDL2AWS.WSDL.Parser is
             declare
                P : Parameters.Parameter := Parse_Record (O, D, Document);
             begin
+               --  If Min is 0 we have a set (optional element)
+               P.Is_Set := Min = 0;
                P.Min := Min;
                P.Max := Max;
                return P;
@@ -1726,6 +1728,8 @@ package body WSDL2AWS.WSDL.Parser is
             declare
                P : Parameters.Parameter := Parse_Simple (O, D, Document);
             begin
+               --  If Min is 0 we have a set (optional element)
+               P.Is_Set := Min = 0;
                P.Min := Min;
                P.Max := Max;
                return P;
@@ -2544,7 +2548,8 @@ package body WSDL2AWS.WSDL.Parser is
                   end;
 
                else
-                  P.Is_Set := False;
+                  --  if P.Min <= 1 and then P.Max = 1 then
+                  --  P.Is_Set := False;
                   Parameters.Append (P.P, Parse_Record (O, N, Document));
                end if;
             end;

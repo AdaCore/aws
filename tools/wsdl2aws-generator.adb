@@ -1279,14 +1279,18 @@ package body WSDL2AWS.Generator is
          procedure Generate_Array (Name : String; P : WSDL.Parameters.P_Set) is
             Def    : constant WSDL.Types.Definition := WSDL.Types.Find (P.Typ);
             E_Name : constant String := To_String (Def.E_Name);
-            Q_Name : constant String := Name & (if E_Name = ""
-                                                then ""
-                                                else '.' & E_Name);
+            Q_Name : constant String :=
+                       Name & (if E_Name = ""
+                               then ""
+                               else '.' & E_Name);
+            F_Name : constant String :=
+                       Name & (if P.Is_Set then "." & E_Name else "");
          begin
             if E_Name = "" then
                --  This is a set and not an array, inside we have a record
                Output_Schema_Definition
-                 (O, Name & "@is_a", (if P.Is_Set then "@set" else "@record"));
+                 (O, F_Name & "@is_a",
+                  (if P.Is_Set then "@set" else "@record"));
 
                if P.Is_Set and then P.P /= null then
                   Output_Schema_Definition
@@ -2309,6 +2313,7 @@ package body WSDL2AWS.Generator is
          R_Kind           : Templates.Tag;
          R_Min            : Templates.Tag;
          R_Max            : Templates.Tag;
+         R_Is_Set         : Templates.Tag;
          R_Compound_Size  : Templates.Tag;
          R_Type           : Templates.Tag;
          R_Base_Type      : Templates.Tag;
@@ -2345,6 +2350,7 @@ package body WSDL2AWS.Generator is
             Count := @ + 1;
             Field_Number  := @ & Count;
             Field_Comment := @ & N.Doc;
+            R_Is_Set      := @ & N.Is_Set;
 
             if N.In_Choice then
                Last_Choice := Count;
@@ -2391,6 +2397,7 @@ package body WSDL2AWS.Generator is
            & Templates.Assoc ("RF_KIND", R_Kind)
            & Templates.Assoc ("RF_MIN", R_Min)
            & Templates.Assoc ("RF_MAX", R_Max)
+           & Templates.Assoc ("RF_IS_SET", R_Is_Set)
            & Templates.Assoc ("RF_COMPOUND_SIZE", R_Compound_Size)
            & Templates.Assoc ("RF_TYPE", R_Type)
            & Templates.Assoc ("RF_BASE_TYPE", R_Base_Type)
