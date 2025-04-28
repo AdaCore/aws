@@ -7,9 +7,14 @@
 --
 --  $ wsdl2aws @_OPTIONS_@
 
+pragma Ada_2022;
+pragma Warnings (Off);
+pragma Style_Checks (Off);
+
 @@IF@@ not @_SAFE_POINTER_@
 with Ada.Containers.Vectors;
 @@END_IF@@
+
 with Ada.Strings.Unbounded;
 with SOAP.Parameters;
 with SOAP.Types;

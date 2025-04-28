@@ -162,7 +162,9 @@ package body WSDL2AWS.WSDL.Parameters is
                   if Is_Uniq (P.all) then
                      Text_IO.Put ('[' & Types.Image (Def) & "] ");
                   else
-                     Text_IO.Put ("[set] " & Min_Max);
+                     Text_IO.Put
+                       ("[" & (if P.Is_Set then "set" else "array")
+                        & "] " & Min_Max);
                   end if;
 
                   Text_IO.Put (To_String (P.Name) & " ; ");
