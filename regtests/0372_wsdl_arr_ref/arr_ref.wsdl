@@ -1,0 +1,85 @@
+<?xml version="1.0"?>
+<definitions name="esp"
+
+targetNamespace="http://example.com/esp.wsdl"
+          xmlns:tns="http://example.com/esp.wsdl"
+          xmlns:xsd="http://www.w3.org/2000/10/XMLSchema"
+          xmlns:xsd1="http://example.com/esp/schema"
+          xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/"
+          xmlns:soapenc="http://schemas.xmlsoap.org/soap/encoding/"
+          xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/"
+          xmlns="http://schemas.xmlsoap.org/wsdl/">
+
+  <types>
+    <schema targetNamespace="http://example.com/esp.wsdl"
+            xmlns="http://www.w3.org/2000/10/XMLSchema">
+
+      <element name="ESResp" type="ESResp"/>
+
+      <complexType name="ESResp">
+	<complexContent>
+	  <sequence>
+	    <element ref="EGSI" minOccurs="0" maxOccurs="unbounded"/>
+	  </sequence>
+	</complexContent>
+      </complexType>
+
+      <element name="EGSI" type="EGSI"/>
+      <complexType name="EGSI">
+	<sequence>
+	  <element ref="ESI" minOccurs="1" maxOccurs="unbounded"/>
+	</sequence>
+      </complexType>
+
+      <element name="ESI" type="ESI"/>
+      <complexType name="ESI">
+	<sequence>
+          <element name="v" type="xsd:int"/>
+	</sequence>
+      </complexType>
+
+      <element name="VoidType" type="VoidType"/>
+      <complexType name="VoidType">
+	<sequence/>
+      </complexType>
+    </schema>
+  </types>
+
+  <message name="ESRespInput">
+    <part name="input" type="ESResp"/>
+  </message>
+
+  <message name="VoidResponse">
+    <part name="VoidResponse" element="VoidType" />
+  </message>
+
+  <portType name="PortType">
+    <operation name="OESResp">
+      <input message="ESRespInput"/>
+      <output message="VoidResponse"/>
+    </operation>
+  </portType>
+
+  <binding name="SoapBinding" type="PortType">
+    <soap:binding style="document" transport="http://schemas.xmlsoap.org/soap/http"/>
+    <operation name="OESResp">
+      <soap:operation soapAction="http://localhost/esp"/>
+      <input>
+        <soap:body use="encoded" namespace="http://example.com/esp.wsdl"
+                   encodingStyle="http://schemas.xmlsoap.org/soap/encoding/"/>
+      </input>
+      <output>
+        <soap:body use="encoded" namespace="http://example.com/esp.wsdl"
+                   encodingStyle="http://schemas.xmlsoap.org/soap/encoding/"/>
+      </output>
+      </operation>>
+  </binding>
+
+  <service name="ESService">
+    <documentation>My first service</documentation>
+    <port name="PortType" binding="SoapBinding">
+      <soap:address location="http://localhost:9125/esp"/>
+    </port>
+  </service>
+
+</definitions>
