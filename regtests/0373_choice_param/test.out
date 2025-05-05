@@ -1,0 +1,24 @@
+
+Service WSDL_CHOICE
+   
+
+Procedure Try SOAPAction:Try
+   Input
+      [record:choice] Param1 ; Status
+         [enumeration] state ; State
+         [simple] percentComplete ; Float
+         [simple] statusMessage ; String
+   Output
+   > Try
+
+Param1: 
+(C => C1,
+ STATE => RUNNING)
+
+Param1: 
+(C => C2,
+ PERCENTCOMPLETE =>  1.27000E+01)
+
+Param1: 
+(C => C3,
+ STATUSMESSAGE => "whatever")
