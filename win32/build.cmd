@@ -39,15 +39,15 @@ rem ----------------------------------------------- SETUP SRC
 echo Setup...
 
 mkdir %BDIR%\setup\src
-copy config\setup\aws-os_lib-tmplt.c %BDIR%\setup\src
+copy config\setup\os_lib-tmplt.c %BDIR%\setup\src
 gprbuild -p -XPRJ_BUILD=Debug -XLIBRARY_TYPE=static -XPRJ_TARGET=Windows_NT -XTARGET=%TARGET% -XTGT_DIR=%BDIR% -Pconfig\setup xoscons
 if errorlevel 1 goto error
 cd %BDIR%\setup\src
-gcc -C -E -DTARGET=\"windows\" aws-os_lib-tmplt.c > aws-os_lib-tmplt.i
-gcc -S aws-os_lib-tmplt.i
-..\bin\xoscons aws-os_lib
+gcc -C -E -DTARGET=\"windows\" os_lib-tmplt.c > os_lib-tmplt.i
+gcc -S os_lib-tmplt.i
+..\bin\xoscons os_lib
 if errorlevel 1 goto error
-del aws-os_lib-tmplt*
+del os_lib-tmplt*
 cd ..
 mkdir tsrc
 cd tsrc
