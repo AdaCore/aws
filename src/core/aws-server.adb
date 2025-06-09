@@ -138,9 +138,14 @@ package body AWS.Server is
          then
             declare
                SSL_Socket : Net.SSL.Socket_Type;
+               Failure    : AWS.Status.Data;
             begin
                SSL_Socket := Net.SSL.Secure_Server
                  (New_Socket.all, Server.SSL_Config);
+               AWS.Status.Set.Socket (Failure,
+                                      SSL_Socket'Unrestricted_Access);
+               --  Mandatory to set the Socket here to get the Socket Peername
+               --  once it is valid
                Net.Free (New_Socket);
                SSL_Socket.Do_Handshake; -- Handshake need for HTTP/2 ALPN
                pragma Warnings (Off);
@@ -148,6 +153,9 @@ package body AWS.Server is
             exception
                when Net.Socket_Error =>
                   if New_Socket = null then
+                     AWS.Log.Write (Server.Error_Log,
+                                    Failure,
+                                    "SSL handshake timeout");
                      --  It mean error in SSL handshake, shutdown socket and
                      --  get another one in next iteration.
                      SSL_Socket.Shutdown;
@@ -1273,24 +1281,26 @@ package body AWS.Server is
             Net.SSL.Initialize
               (Web_Server.SSL_Config,
                Security_Mode,
-               Server_Certificate   =>
+               Server_Certificate    =>
                  CNF.Server_Certificate (Web_Server.Properties),
-               Server_Key           =>
+               Server_Key            =>
                  CNF.Server_Key (Web_Server.Properties),
-               Priorities           =>
+               Priorities            =>
                  CNF.Cipher_Priorities (Web_Server.Properties),
-               Ticket_Support       =>
+               Ticket_Support        =>
                  CNF.TLS_Ticket_Support (Web_Server.Properties),
-               Exchange_Certificate =>
+               Exchange_Certificate  =>
                  CNF.Exchange_Certificate (Web_Server.Properties),
-               Check_Certificate    =>
+               Check_Certificate     =>
                  CNF.Check_Certificate (Web_Server.Properties),
-               Trusted_CA_Filename  =>
+               Trusted_CA_Filename   =>
                  CNF.Trusted_CA (Web_Server.Properties),
-               CRL_Filename         =>
+               CRL_Filename          =>
                  CNF.CRL_File (Web_Server.Properties),
-               Session_Cache_Size   =>
-                 CNF.SSL_Session_Cache_Size (Web_Server.Properties));
+               Session_Cache_Size    =>
+                 CNF.SSL_Session_Cache_Size (Web_Server.Properties),
+               SSL_Handshake_Timeout =>
+                 CNF.SSL_Handshake_Timeout (Web_Server.Properties));
          end if;
 
          if CNF.HTTP2_Activated (Web_Server.Properties) then

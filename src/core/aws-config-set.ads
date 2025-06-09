@@ -370,6 +370,9 @@ package AWS.Config.Set is
 
    procedure SSL_Session_Cache_Size (O : in out Object; Value : Natural);
 
+   procedure SSL_Handshake_Timeout (O : in out Object; Value : Duration);
+   --  Set the SSL handshake timeout
+
    -------------------------
    -- Per Process Options --
    -------------------------

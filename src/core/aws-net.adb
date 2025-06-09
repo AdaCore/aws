@@ -204,6 +204,15 @@ package body AWS.Net is
       return Errno;
    end Get_Socket_Errno;
 
+   --------------------
+   -- Get_Timeout --
+   --------------------
+
+   function Get_Timeout (Socket : in out Socket_Type) return Duration is
+   begin
+      return Socket.Timeout;
+   end Get_Timeout;
+
    ---------------
    -- Host_Name --
    ---------------

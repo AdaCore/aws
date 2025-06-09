@@ -387,6 +387,9 @@ package AWS.Config is
    function SSL_Session_Cache_Size (O : Object) return Natural with Inline;
    --  Returns SSL session cashe size
 
+   function SSL_Handshake_Timeout (O : Object) return Duration with Inline;
+   --  Returns SSL handshake timeoutxs
+
    -------------------------
    -- Per Process options --
    -------------------------
@@ -512,6 +515,7 @@ private
       Trusted_CA,
       CRL_File,
       SSL_Session_Cache_Size,
+      SSL_Handshake_Timeout,
       Hotplug_Port,
       Max_Connection,
       Send_Buffer_Size,
@@ -819,6 +823,9 @@ private
 
                            CRL_File                        =>
                              (Str, +Default.CRL_File),
+
+                           SSL_Handshake_Timeout           =>
+                             (Dur, Default.SSL_Handshake_Timeout),
 
                            SSL_Session_Cache_Size          =>
                              (Nat, Default.SSL_Session_Cache_Size),

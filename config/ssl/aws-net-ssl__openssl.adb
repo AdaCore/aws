@@ -132,18 +132,19 @@ package body AWS.Net.SSL is
       --  Bind the SSL handle with the BIO pair
 
       procedure Initialize
-        (Security_Mode        : Method;
-         Server_Certificate   : String;
-         Server_Key           : String;
-         Client_Certificate   : String;
-         Priorities           : String;
-         Ticket_Support       : Boolean;
-         Exchange_Certificate : Boolean;
-         Check_Certificate    : Boolean;
-         Trusted_CA_Filename  : String;
-         CRL_Filename         : String;
-         Session_Cache_Size   : Natural;
-         ALPN                 : C.char_array);
+        (Security_Mode         : Method;
+         Server_Certificate    : String;
+         Server_Key            : String;
+         Client_Certificate    : String;
+         Priorities            : String;
+         Ticket_Support        : Boolean;
+         Exchange_Certificate  : Boolean;
+         Check_Certificate     : Boolean;
+         Trusted_CA_Filename   : String;
+         CRL_Filename          : String;
+         Session_Cache_Size    : Natural;
+         ALPN                  : C.char_array;
+         SSL_Handshake_Timeout : Duration);
 
       procedure Prepare
         (Security_Mode        : Method;
@@ -187,6 +188,8 @@ package body AWS.Net.SSL is
 
       function Get_Context return TSSL.SSL_CTX;
 
+      function Get_Handshake_Timeout return Duration;
+
       procedure New_SSL (Socket : in out Socket_Type);
 
    private
@@ -207,6 +210,7 @@ package body AWS.Net.SSL is
       Trusted_CA_Filename  : C.Strings.chars_ptr;
       Trusted_CA_Stack     : TSSL.STACK_OF_X509_NAME :=
                                TSSL.Null_STACK_OF_X509_NAME;
+      Handshake_Timeout    : Duration := AWS.Net.Forever;
    end TS_SSL;
 
    function Server_Name_Callback
@@ -588,6 +592,9 @@ package body AWS.Net.SSL is
       Res  : C.int;
       SRes : C.long;
    begin
+      Success := False;
+      Socket.Set_Timeout (Socket.Config.Get_Handshake_Timeout);
+
       loop
          Res := SSL_do_handshake (Socket.SSL);
 
@@ -875,18 +882,20 @@ package body AWS.Net.SSL is
          Config := new TS_SSL;
 
          Config.Initialize
-           (Security_Mode        => Common.Get_Client_Method (D.Security_Mode),
-            Server_Certificate   => "",
-            Server_Key           => "",
-            Client_Certificate   => -D.Client_Certificate,
-            Priorities           => -D.Priorities,
-            Ticket_Support       => D.Ticket_Support,
-            Exchange_Certificate => D.Exchange_Certificate,
-            Check_Certificate    => D.Check_Certificate,
-            Trusted_CA_Filename  => -D.Trusted_CA_Filename,
-            CRL_Filename         => -D.CRL_Filename,
-            Session_Cache_Size   => D.Session_Cache_Size,
-            ALPN                 => To_Char_Array (D.ALPN));
+           (Security_Mode         =>
+              Common.Get_Client_Method (D.Security_Mode),
+            Server_Certificate    => "",
+            Server_Key            => "",
+            Client_Certificate    => -D.Client_Certificate,
+            Priorities            => -D.Priorities,
+            Ticket_Support        => D.Ticket_Support,
+            Exchange_Certificate  => D.Exchange_Certificate,
+            Check_Certificate     => D.Check_Certificate,
+            Trusted_CA_Filename   => -D.Trusted_CA_Filename,
+            CRL_Filename          => -D.CRL_Filename,
+            Session_Cache_Size    => D.Session_Cache_Size,
+            ALPN                  => To_Char_Array (D.ALPN),
+            SSL_Handshake_Timeout => D.SSL_Handshake_Timeout);
       end if;
 
       return Config;
@@ -900,18 +909,20 @@ package body AWS.Net.SSL is
          Config := new TS_SSL;
 
          Config.Initialize
-           (Security_Mode        => Common.Get_Server_Method (D.Security_Mode),
-            Server_Certificate   => -D.Server_Certificate,
-            Server_Key           => -D.Server_Key,
-            Client_Certificate   => "",
-            Priorities           => -D.Priorities,
-            Ticket_Support       => D.Ticket_Support,
-            Exchange_Certificate => D.Exchange_Certificate,
-            Check_Certificate    => D.Check_Certificate,
-            Trusted_CA_Filename  => -D.Trusted_CA_Filename,
-            CRL_Filename         => -D.CRL_Filename,
-            Session_Cache_Size   => D.Session_Cache_Size,
-            ALPN                 => To_Char_Array (D.ALPN));
+           (Security_Mode         =>
+              Common.Get_Server_Method (D.Security_Mode),
+            Server_Certificate    => -D.Server_Certificate,
+            Server_Key            => -D.Server_Key,
+            Client_Certificate    => "",
+            Priorities            => -D.Priorities,
+            Ticket_Support        => D.Ticket_Support,
+            Exchange_Certificate  => D.Exchange_Certificate,
+            Check_Certificate     => D.Check_Certificate,
+            Trusted_CA_Filename   => -D.Trusted_CA_Filename,
+            CRL_Filename          => -D.CRL_Filename,
+            Session_Cache_Size    => D.Session_Cache_Size,
+            ALPN                  => To_Char_Array (D.ALPN),
+            SSL_Handshake_Timeout => D.SSL_Handshake_Timeout);
       end if;
 
       return Config;
@@ -952,7 +963,8 @@ package body AWS.Net.SSL is
       Trusted_CA_Filename  : String    := "";
       CRL_Filename         : String    := "";
       Session_Cache_Size   : Natural   := 16#4000#;
-      ALPN                 : SV.Vector := SV.Empty_Vector) is
+      ALPN                 : SV.Vector := SV.Empty_Vector;
+      SSL_Handshake_Timeout : Duration := AWS.Net.Forever) is
    begin
       if Config = null then
          Config := new TS_SSL;
@@ -963,7 +975,7 @@ package body AWS.Net.SSL is
          Priorities, Ticket_Support,
          Exchange_Certificate, Check_Certificate,
          Trusted_CA_Filename, CRL_Filename, Session_Cache_Size,
-         To_Char_Array (ALPN));
+         To_Char_Array (ALPN), SSL_Handshake_Timeout);
    end Initialize;
 
    -------------------------------
@@ -971,24 +983,26 @@ package body AWS.Net.SSL is
    -------------------------------
 
    procedure Initialize_Default_Config
-     (Security_Mode        : Method    := TLS;
-      Server_Certificate   : String    := Default.Server_Certificate;
-      Server_Key           : String    := Default.Server_Key;
-      Client_Certificate   : String    := Default.Client_Certificate;
-      Priorities           : String    := "";
-      Ticket_Support       : Boolean   := False;
-      Exchange_Certificate : Boolean   := False;
-      Check_Certificate    : Boolean   := True;
-      Trusted_CA_Filename  : String    := Default.Trusted_CA;
-      CRL_Filename         : String    := "";
-      Session_Cache_Size   : Natural   := 16#4000#;
-      ALPN                 : SV.Vector := SV.Empty_Vector) is
+     (Security_Mode         : Method    := TLS;
+      Server_Certificate    : String    := Default.Server_Certificate;
+      Server_Key            : String    := Default.Server_Key;
+      Client_Certificate    : String    := Default.Client_Certificate;
+      Priorities            : String    := "";
+      Ticket_Support        : Boolean   := False;
+      Exchange_Certificate  : Boolean   := False;
+      Check_Certificate     : Boolean   := True;
+      Trusted_CA_Filename   : String    := Default.Trusted_CA;
+      CRL_Filename          : String    := "";
+      Session_Cache_Size    : Natural   := 16#4000#;
+      ALPN                  : SV.Vector := SV.Empty_Vector;
+      SSL_Handshake_Timeout : Duration := AWS.Net.Forever) is
    begin
       Common.Initialize_Default_Config
         (Security_Mode, Server_Certificate, Server_Key,
          Client_Certificate, Priorities, Ticket_Support,
          Exchange_Certificate, Check_Certificate,
-         Trusted_CA_Filename, CRL_Filename, Session_Cache_Size, ALPN);
+         Trusted_CA_Filename, CRL_Filename, Session_Cache_Size, ALPN,
+         SSL_Handshake_Timeout);
    end Initialize_Default_Config;
 
    -----------------
@@ -2438,23 +2452,29 @@ package body AWS.Net.SSL is
          return Default_Context;
       end Get_Context;
 
+      function Get_Handshake_Timeout return Duration is
+      begin
+         return Handshake_Timeout;
+      end Get_Handshake_Timeout;
+
       ----------------
       -- Initialize --
       ----------------
 
       procedure Initialize
-        (Security_Mode        : Method;
-         Server_Certificate   : String;
-         Server_Key           : String;
-         Client_Certificate   : String;
-         Priorities           : String;
-         Ticket_Support       : Boolean;
-         Exchange_Certificate : Boolean;
-         Check_Certificate    : Boolean;
-         Trusted_CA_Filename  : String;
-         CRL_Filename         : String;
-         Session_Cache_Size   : Natural;
-         ALPN                 : C.char_array) is
+        (Security_Mode         : Method;
+         Server_Certificate    : String;
+         Server_Key            : String;
+         Client_Certificate    : String;
+         Priorities            : String;
+         Ticket_Support        : Boolean;
+         Exchange_Certificate  : Boolean;
+         Check_Certificate     : Boolean;
+         Trusted_CA_Filename   : String;
+         CRL_Filename          : String;
+         Session_Cache_Size    : Natural;
+         ALPN                  : C.char_array;
+         SSL_Handshake_Timeout : Duration) is
       begin
          Prepare
            (Security_Mode, Priorities, Ticket_Support, Exchange_Certificate,
@@ -2469,7 +2489,7 @@ package body AWS.Net.SSL is
             Initialize_Host_Certificate
               ("", Server_Certificate, Server_Key);
          end if;
-
+         Handshake_Timeout := SSL_Handshake_Timeout;
          if ALPN'Length > 0 then
             ALPN_Set (ALPN);
          end if;

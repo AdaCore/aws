@@ -851,6 +851,15 @@ package body AWS.Config is
    end Session_Private_Name;
 
    ----------------------------
+   -- SSL_Handshake_Timeout --
+   ----------------------------
+
+   function SSL_Handshake_Timeout (O : Object) return Duration is
+   begin
+      return O.P (SSL_Handshake_Timeout).Dur_Value;
+   end SSL_Handshake_Timeout;
+
+   ----------------------------
    -- SSL_Session_Cache_Size --
    ----------------------------
 
