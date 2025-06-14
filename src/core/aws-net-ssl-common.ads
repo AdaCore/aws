@@ -34,17 +34,18 @@ private package AWS.Net.SSL.Common is
    function Get_Server_Method (Mode : Method) return Method;
 
    procedure Initialize_Default_Config
-     (Security_Mode        : Method    := TLS;
-      Server_Certificate   : String    := Default.Server_Certificate;
-      Server_Key           : String    := Default.Server_Key;
-      Client_Certificate   : String    := Default.Client_Certificate;
-      Priorities           : String    := "";
-      Ticket_Support       : Boolean   := False;
-      Exchange_Certificate : Boolean   := False;
-      Check_Certificate    : Boolean   := True;
-      Trusted_CA_Filename  : String    := Default.Trusted_CA;
-      CRL_Filename         : String    := "";
-      Session_Cache_Size   : Natural   := 16#4000#;
-      ALPN                 : SV.Vector := SV.Empty_Vector);
+     (Security_Mode         : Method    := TLS;
+      Server_Certificate    : String    := Default.Server_Certificate;
+      Server_Key            : String    := Default.Server_Key;
+      Client_Certificate    : String    := Default.Client_Certificate;
+      Priorities            : String    := "";
+      Ticket_Support        : Boolean   := False;
+      Exchange_Certificate  : Boolean   := False;
+      Check_Certificate     : Boolean   := True;
+      Trusted_CA_Filename   : String    := Default.Trusted_CA;
+      CRL_Filename          : String    := "";
+      Session_Cache_Size    : Natural   := 16#4000#;
+      ALPN                  : SV.Vector := SV.Empty_Vector;
+      SSL_Handshake_Timeout : Duration  := AWS.Net.Forever);
 
 end AWS.Net.SSL.Common;

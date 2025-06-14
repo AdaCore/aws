@@ -56,32 +56,34 @@ package body AWS.Net.SSL.Common is
    -------------------------------
 
    procedure Initialize_Default_Config
-     (Security_Mode        : Method    := TLS;
-      Server_Certificate   : String    := Default.Server_Certificate;
-      Server_Key           : String    := Default.Server_Key;
-      Client_Certificate   : String    := Default.Client_Certificate;
-      Priorities           : String    := "";
-      Ticket_Support       : Boolean   := False;
-      Exchange_Certificate : Boolean   := False;
-      Check_Certificate    : Boolean   := True;
-      Trusted_CA_Filename  : String    := Default.Trusted_CA;
-      CRL_Filename         : String    := "";
-      Session_Cache_Size   : Natural   := 16#4000#;
-      ALPN                 : SV.Vector := SV.Empty_Vector) is
+     (Security_Mode         : Method    := TLS;
+      Server_Certificate    : String    := Default.Server_Certificate;
+      Server_Key            : String    := Default.Server_Key;
+      Client_Certificate    : String    := Default.Client_Certificate;
+      Priorities            : String    := "";
+      Ticket_Support        : Boolean   := False;
+      Exchange_Certificate  : Boolean   := False;
+      Check_Certificate     : Boolean   := True;
+      Trusted_CA_Filename   : String    := Default.Trusted_CA;
+      CRL_Filename          : String    := "";
+      Session_Cache_Size    : Natural   := 16#4000#;
+      ALPN                  : SV.Vector := SV.Empty_Vector;
+      SSL_Handshake_Timeout : Duration  := AWS.Net.Forever) is
    begin
       Default_Data :=
-        (Security_Mode        => Security_Mode,
-         Server_Certificate   => +Server_Certificate,
-         Server_Key           => +Server_Key,
-         Client_Certificate   => +Client_Certificate,
-         Priorities           => +Priorities,
-         Ticket_Support       => Ticket_Support,
-         Exchange_Certificate => Exchange_Certificate,
-         Check_Certificate    => Check_Certificate,
-         Trusted_CA_Filename  => +Trusted_CA_Filename,
-         CRL_Filename         => +CRL_Filename,
-         Session_Cache_Size   => Session_Cache_Size,
-         ALPN                 => ALPN);
+        (Security_Mode         => Security_Mode,
+         Server_Certificate    => +Server_Certificate,
+         Server_Key            => +Server_Key,
+         Client_Certificate    => +Client_Certificate,
+         Priorities            => +Priorities,
+         Ticket_Support        => Ticket_Support,
+         Exchange_Certificate  => Exchange_Certificate,
+         Check_Certificate     => Check_Certificate,
+         Trusted_CA_Filename   => +Trusted_CA_Filename,
+         CRL_Filename          => +CRL_Filename,
+         Session_Cache_Size    => Session_Cache_Size,
+         ALPN                  => ALPN,
+         SSL_Handshake_Timeout => SSL_Handshake_Timeout);
    end Initialize_Default_Config;
 
 end AWS.Net.SSL.Common;

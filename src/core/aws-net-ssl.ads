@@ -140,19 +140,20 @@ package AWS.Net.SSL is
    Null_Config : constant Config;
 
    procedure Initialize
-     (Config               : in out SSL.Config;
-      Security_Mode        : Method    := TLS;
-      Server_Certificate   : String    := "";
-      Server_Key           : String    := "";
-      Client_Certificate   : String    := "";
-      Priorities           : String    := "";
-      Ticket_Support       : Boolean   := False;
-      Exchange_Certificate : Boolean   := False;
-      Check_Certificate    : Boolean   := True;
-      Trusted_CA_Filename  : String    := "";
-      CRL_Filename         : String    := "";
-      Session_Cache_Size   : Natural   := 16#4000#;
-      ALPN                 : SV.Vector := SV.Empty_Vector);
+     (Config                : in out SSL.Config;
+      Security_Mode         : Method    := TLS;
+      Server_Certificate    : String    := "";
+      Server_Key            : String    := "";
+      Client_Certificate    : String    := "";
+      Priorities            : String    := "";
+      Ticket_Support        : Boolean   := False;
+      Exchange_Certificate  : Boolean   := False;
+      Check_Certificate     : Boolean   := True;
+      Trusted_CA_Filename   : String    := "";
+      CRL_Filename          : String    := "";
+      Session_Cache_Size    : Natural   := 16#4000#;
+      ALPN                  : SV.Vector := SV.Empty_Vector;
+      SSL_Handshake_Timeout : Duration  := AWS.Net.Forever);
    --  Initialize the SSL layer into Config. Certificate_Filename must point
    --  to a valid certificate. Security mode can be used to change the
    --  security method used by AWS. Key_Filename must be specified if the key
@@ -172,18 +173,19 @@ package AWS.Net.SSL is
    --  different certificates for different server host names.
 
    procedure Initialize_Default_Config
-     (Security_Mode        : Method    := TLS;
-      Server_Certificate   : String    := Default.Server_Certificate;
-      Server_Key           : String    := Default.Server_Key;
-      Client_Certificate   : String    := Default.Client_Certificate;
-      Priorities           : String    := "";
-      Ticket_Support       : Boolean   := False;
-      Exchange_Certificate : Boolean   := False;
-      Check_Certificate    : Boolean   := True;
-      Trusted_CA_Filename  : String    := Default.Trusted_CA;
-      CRL_Filename         : String    := "";
-      Session_Cache_Size   : Natural   := 16#4000#;
-      ALPN                 : SV.Vector := SV.Empty_Vector);
+     (Security_Mode         : Method    := TLS;
+      Server_Certificate    : String    := Default.Server_Certificate;
+      Server_Key            : String    := Default.Server_Key;
+      Client_Certificate    : String    := Default.Client_Certificate;
+      Priorities            : String    := "";
+      Ticket_Support        : Boolean   := False;
+      Exchange_Certificate  : Boolean   := False;
+      Check_Certificate     : Boolean   := True;
+      Trusted_CA_Filename   : String    := Default.Trusted_CA;
+      CRL_Filename          : String    := "";
+      Session_Cache_Size    : Natural   := 16#4000#;
+      ALPN                  : SV.Vector := SV.Empty_Vector;
+      SSL_Handshake_Timeout : Duration := AWS.Net.Forever);
    --  As above but for the default SSL configuration which will be used
    --  for any socket not setting explicitly an SSL config object. Not that
    --  this routine can only be called once. Subsequent calls are no-op. To
@@ -376,18 +378,19 @@ private
       renames To_String;
 
    type SSL_Data is record
-      Security_Mode        : Method;
-      Server_Certificate   : Unbounded_String;
-      Server_Key           : Unbounded_String;
-      Client_Certificate   : Unbounded_String;
-      Priorities           : Unbounded_String;
-      Ticket_Support       : Boolean;
-      Exchange_Certificate : Boolean;
-      Check_Certificate    : Boolean;
-      Trusted_CA_Filename  : Unbounded_String;
-      CRL_Filename         : Unbounded_String;
-      Session_Cache_Size   : Natural;
-      ALPN                 : SV.Vector;
+      Security_Mode         : Method;
+      Server_Certificate    : Unbounded_String;
+      Server_Key            : Unbounded_String;
+      Client_Certificate    : Unbounded_String;
+      Priorities            : Unbounded_String;
+      Ticket_Support        : Boolean;
+      Exchange_Certificate  : Boolean;
+      Check_Certificate     : Boolean;
+      Trusted_CA_Filename   : Unbounded_String;
+      CRL_Filename          : Unbounded_String;
+      Session_Cache_Size    : Natural;
+      ALPN                  : SV.Vector;
+      SSL_Handshake_Timeout : Duration;
    end record;
 
    package TSSL renames Standard.SSL.Thin;

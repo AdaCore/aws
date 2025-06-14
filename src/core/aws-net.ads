@@ -276,6 +276,8 @@ package AWS.Net is
    pragma Obsolescent ("Use Set_Timeout instead");
    --  Set the blocking mode for the socket
 
+   function Get_Timeout (Socket : in out Socket_Type) return Duration;
+
    procedure Set_Timeout (Socket : in out Socket_Type; Timeout : Duration)
      with Inline;
    --  Sets the timeout for the socket read/write operations

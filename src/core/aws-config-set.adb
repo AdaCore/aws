@@ -745,6 +745,15 @@ package body AWS.Config.Set is
       O.P (Session_Name).Str_Value := To_Unbounded_String (Value);
    end Session_Name;
 
+   ---------------------------
+   -- SSL_Handshake_Timeout --
+   ---------------------------
+
+   procedure SSL_Handshake_Timeout (O : in out Object; Value : Duration) is
+   begin
+      O.P (SSL_Handshake_Timeout).Dur_Value := Value;
+   end SSL_Handshake_Timeout;
+
    ----------------------------
    -- SSL_Session_Cache_Size --
    ----------------------------
