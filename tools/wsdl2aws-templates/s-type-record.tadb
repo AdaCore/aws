@@ -13,11 +13,7 @@
 @@ELSIF@@ @_RF_KIND_@ = K_ARRAY
 @@IF@@ @_RF_MAX_@ > 1 and @_RF_IS_SET_@
 @_$1_@@_$2_@SOAP_Set'(SOAP.Types.Set (To_Object_Set
-@@IF@@ @_SAFE_POINTER_@
-            (R.@_RF_DECL_NAME_@.item.all,
-@@ELSE@@
             (R.@_RF_DECL_NAME_@,
-@@END_IF@@
              SOAP.Name_Space.Create ("@_RF_NS_NAME_@", "@_RF_NS_VALUE_@")),
 @@IF@@ @_IS_EMPTY:RF_NS_NAME_@ or (@_RF_NS_VALUE_@ = "http://www.w3.org/2001/XMLSchema")
              "@_RF_NAME_@", "@_RF_TYPE_@")
@@ -28,11 +24,7 @@
         )@_$3_@
 @@ELSE@@
 @_$1_@@_$2_@To_SOAP_Object
-@@IF@@ @_SAFE_POINTER_@
-            (R.@_RF_DECL_NAME_@.item.all,
-@@ELSE@@
             (R.@_RF_DECL_NAME_@,
-@@END_IF@@
 @@IF@@ @_IS_EMPTY:RF_NS_NAME_@ or (@_RF_NS_VALUE_@ = "http://www.w3.org/2001/XMLSchema")
              "@_RF_NAME_@", "")@_$3_@
 @@ELSE@@

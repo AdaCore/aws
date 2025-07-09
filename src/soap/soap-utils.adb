@@ -36,7 +36,6 @@ with Ada.Characters.Handling;
 with Ada.Strings.Fixed;
 with Ada.Strings.Maps.Constants;
 with Ada.Tags;
-with Ada.Unchecked_Deallocation;
 
 with Unicode.CES.Basic_8bit;
 with Unicode.CES.Utf8;
@@ -552,69 +551,6 @@ package body SOAP.Utils is
          return Name (Name'First .. K - 1);
       end if;
    end NS;
-
-   -------------------
-   -- Safe_Pointers --
-   -------------------
-
-   package body Safe_Pointers is
-
-      procedure Unchecked_Free is
-        new Ada.Unchecked_Deallocation (T, T_Access);
-
-      procedure Unchecked_Free is
-        new Ada.Unchecked_Deallocation (Natural, Ref_Counter);
-
-      ------------
-      -- Adjust --
-      ------------
-
-      overriding procedure Adjust (SP : in out Safe_Pointer) is
-      begin
-         SP.Ref.all := @ + 1;
-      end Adjust;
-
-      --------------
-      -- Finalize --
-      --------------
-
-      overriding procedure Finalize (SP : in out Safe_Pointer) is
-         Ref : Ref_Counter := SP.Ref;
-      begin
-         --  Ensure call is idempotent
-
-         SP.Ref := null;
-
-         if Ref /= null then
-            Ref.all := @ - 1;
-
-            if Ref.all = 0 then
-               Unchecked_Free (SP.Item);
-               Unchecked_Free (Ref);
-            end if;
-         end if;
-      end Finalize;
-
-      ----------------
-      -- Initialize --
-      ----------------
-
-      overriding procedure Initialize (SP : in out Safe_Pointer) is
-      begin
-         SP.Ref := new Natural'(1);
-      end Initialize;
-
-      ----------------------
-      -- To_Safe_Pointer --
-      ----------------------
-
-      function To_Safe_Pointer (Item : T) return Safe_Pointer is
-      begin
-         return (Ada.Finalization.Controlled
-                 with new T'(Item), new Natural'(1));
-      end To_Safe_Pointer;
-
-   end Safe_Pointers;
 
    ------------------
    -- Set_Utf8_Map --

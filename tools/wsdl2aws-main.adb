@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2003-2022, AdaCore                     --
+--                     Copyright (C) 2003-2025, AdaCore                     --
 --                                                                          --
 --  This is free software;  you can redistribute it  and/or modify it       --
 --  under terms of the  GNU General Public License as published  by the     --
@@ -189,9 +189,6 @@ procedure WSDL2AWS.Main is
                   Generator.Specs_From
                     (Gen, GNAT.Command_Line.Parameter);
                   Spec := True;
-
-               elsif Command_Line.Full_Switch = "sp" then
-                  Generator.Gen_Safe_Pointer (Gen);
 
                elsif Command_Line.Full_Switch = "s" then
                   WSDL2AWS.WSDL.Parser.Continue_On_Error;

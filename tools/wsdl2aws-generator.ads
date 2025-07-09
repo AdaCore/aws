@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2003-2022, AdaCore                     --
+--                     Copyright (C) 2003-2025, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -165,9 +165,6 @@ package WSDL2AWS.Generator is
    procedure Disable_Time_Stamp (O : in out Object);
    --  De not generate time-stamp
 
-   procedure Gen_Safe_Pointer (O : in out Object);
-   --  Generate old and now deprecated Safe_Pointer for arrays inside record
-
 private
 
    use Ada.Strings.Unbounded;
@@ -181,7 +178,6 @@ private
       CVS_Tag      : Boolean := False;
       Force        : Boolean := False;
       Debug        : Boolean := False;
-      Sp           : Boolean := False;
       Stamp        : Boolean := True;
       Unit         : Unbounded_String;
       Spec         : Unbounded_String;

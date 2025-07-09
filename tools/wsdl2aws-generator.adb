@@ -511,15 +511,6 @@ package body WSDL2AWS.Generator is
       O.Gen_CB := True;
    end Gen_CB;
 
-   ----------------------
-   -- Gen_Safe_Pointer --
-   ----------------------
-
-   procedure Gen_Safe_Pointer (O : in out Object) is
-   begin
-      O.Sp := True;
-   end Gen_Safe_Pointer;
-
    --------------
    -- Generate --
    --------------
@@ -553,8 +544,7 @@ package body WSDL2AWS.Generator is
         & Templates.Assoc ("IS_RPC", O.Style = SOAP.WSDL.Schema.RPC)
         & Templates.Assoc ("DEBUG", O.Debug)
         & Templates.Assoc ("TRACE", O.Traces)
-        & Templates.Assoc ("SERVICE_NAME", O.Unit)
-        & Templates.Assoc ("SAFE_POINTER", O.Sp);
+        & Templates.Assoc ("SERVICE_NAME", O.Unit);
 
       if Types_Spec (O) /= "" then
          Add_TagV (Final_T, "USER_UNITS", Types_Spec (O, With_Clause => True));
@@ -3281,20 +3271,11 @@ package body WSDL2AWS.Generator is
             return SOAP.WSDL.To_Ada
               (SOAP.WSDL.To_Type (T_Name), Constrained => True);
 
-         when WSDL.Types.K_Derived =>
-            return Format_Name (O, Q_Name) & "_Type";
-
-         when WSDL.Types.K_Enumeration =>
-            return Format_Name (O, Q_Name) & "_Type";
-
-         when WSDL.Types.K_Array =>
-            if O.Sp then
-               return Format_Name (O, Q_Name) & "_Type_Safe_Access";
-            else
-               return Format_Name (O, Q_Name) & "_Type";
-            end if;
-
-         when WSDL.Types.K_Record =>
+         when WSDL.Types.K_Derived |
+              WSDL.Types.K_Enumeration |
+              WSDL.Types.K_Array |
+              WSDL.Types.K_Record
+            =>
             return Format_Name (O, Q_Name) & "_Type";
       end case;
    end Type_Name;

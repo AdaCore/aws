@@ -10,24 +10,6 @@
 
 @@-- TYPE SPEC ----------------------------------------------------------
 @@IF@@ @_IS_EMPTY:TYPE_SPEC_@
-@@--
-@@-- For safe pointers
-@@--
-   @@IF@@ @_SAFE_POINTER_@
-   subtype @_NAME_SPACE_@_@_TYPE_NAME_@
-     is @_UNIT_NAME_@.@_TYPE_NAME_@;
-
-@@IF@@ @_LENGTH_@ = 0
-   function "+"
-     (O : @_UNIT_NAME_@.@_TYPE_NAME_@)
-      return @_UNIT_NAME_@.@_TYPE_NAME_@_Safe_Access
-      renames @_UNIT_NAME_@."+";
-   --  Convert an array to a safe pointer
-@@END_IF@@
-   @@ELSE@@
-@@--
-@@-- For vectors
-@@--
    package @_NAME_SPACE_@_@_TYPE_NAME_@_Pck
      renames  @_UNIT_NAME_@.@_TYPE_NAME_@_Pck;
 
@@ -37,7 +19,6 @@
    function "+" (V : @_NAME_SPACE_@_@_TYPE_NAME_@)
      return @_NAME_SPACE_@_@_TYPE_NAME_@
      renames @_UNIT_NAME_@."+";
-   @@END_IF@@
 @@--
 @@ELSE@@ @@-- TYPE SPEC -------------------------------------------------
 @@--
@@ -46,28 +27,10 @@
      is positive range 1 .. @_LENGTH_@;
 @@END_IF@@
 
-@@IF@@ @_SAFE_POINTER_@
-   subtype @_NAME_SPACE_@_@_TYPE_NAME_@
-     is @_TYPE_SPEC_@.@_TYPE_REF_@;
-
-   @@IF@@ @_INSIDE_RECORD_@
-   --  Safe Array @_TYPE_NAME_@
-
-   subtype @_NAME_SPACE_@_@_TYPE_NAME_@_Safe_Access
-     is @_UNIT_NAME_@.@_TYPE_NAME_@_Safe_Access;
-
-   function "+"
-     (O : @_NAME_SPACE_@_@_TYPE_NAME_@)
-      return @_NAME_SPACE_@_@_TYPE_NAME_@_Safe_Access
-      renames @_UNIT_NAME_@."+";
-   --  Convert an array to a safe pointer
-   @@END_IF@@
-@@ELSE@@ @-- SAFE_POINTER
    package @_NAME_SPACE_@_@_TYPE_NAME_@_Pck
      renames @_UNIT_NAME_@.@_TYPE_NAME_@_Pck;
    subtype @_NAME_SPACE_@_@_TYPE_NAME_@
      is @_UNIT_NAME_@.@_TYPE_NAME_@;
-@@END_IF@@
 @@END_IF@@
 @@--  For first occurent of a type, generate a non qualified name
 @@--  this ensure upward compatibility with older versions.
@@ -75,8 +38,6 @@
    subtype @_TYPE_NAME_@
      is @_NAME_SPACE_@_@_TYPE_NAME_@;
 @@END_IF@@
-   function "+" (V: @_TYPE_NAME_@)
-     return @_TYPE_NAME_@ is (V);
 
    function To_@_TYPE_NAME_@
      (From : SOAP.Types.Object_Set)
@@ -102,7 +63,6 @@
       return SOAP.Types.SOAP_Array
       renames @_UNIT_NAME_@.To_SOAP_Object;
 
-@@IF@@ not @_SAFE_POINTER_@
    function To_Optional_SOAP_Object
      (A         : @_TYPE_NAME_@;
       Name      : String := "item";
@@ -115,4 +75,3 @@
      (O : SOAP.Types.Object'Class)
       return @_TYPE_NAME_@
       renames @_UNIT_NAME_@.From_Optional_SOAP_Object;
-@@END_IF@@

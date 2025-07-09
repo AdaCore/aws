@@ -96,15 +96,6 @@ package Ada2WSDL.Generator is
    function Type_Exists (NS, Name : String) return Boolean;
    --  Returns True if Name exists in the type list
 
-   ------------------
-   -- Safe Pointer --
-   ------------------
-
-   procedure Register_Safe_Pointer (Name, Type_Name, Access_Name : String);
-   --  Add a new AWS/SOAP runtime safe pointer definition. Name is the name of
-   --  the package instance, Type_Name and Access_Name the name of the type
-   --  and access to the type respectively.
-
    ------------
    -- Output --
    ------------

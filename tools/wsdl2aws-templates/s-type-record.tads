@@ -110,9 +110,6 @@ C@_CHOICE_FIELD_NUMBER_@
       @_WRAP(70):FIELD_COMMENT_@
 @@END_INLINE@@
 @@END_IF@@
-@@IF@@ (@_RF_KIND_@ = "K_ARRAY") and @_SAFE_POINTER_@
-      --  Access items with : result.Item (n)
-@@END_IF@@
 @@END_TABLE@@
    end record
 @@INLINE(     with Dynamic_Predicate => )(\n       and then )()@@

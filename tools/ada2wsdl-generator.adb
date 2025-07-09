@@ -51,8 +51,7 @@ package body Ada2WSDL.Generator is
       Next      : Parameter_Access;
    end record;
 
-   type Mode is (Routine, Safe_Pointer_Definition,
-                 Structure, Table, Simple_Type, Enumeration);
+   type Mode is (Routine, Structure, Table, Simple_Type, Enumeration);
 
    type Definition (Def_Mode : Mode := Routine) is record
       Name       : Unbounded_String;
@@ -73,9 +72,6 @@ package body Ada2WSDL.Generator is
 
          when Structure | Enumeration =>
             null;
-
-         when Safe_Pointer_Definition =>
-            Type_Name, Access_Name : Unbounded_String;
       end case;
    end record;
 
@@ -287,34 +283,6 @@ package body Ada2WSDL.Generator is
          end if;
       end if;
    end Register_Derived;
-
-   ---------------------------
-   -- Register_Safe_Pointer --
-   ---------------------------
-
-   procedure Register_Safe_Pointer (Name, Type_Name, Access_Name : String) is
-      use Exceptions;
-      D : Definition (Safe_Pointer_Definition);
-   begin
-      if Name /= Type_Name & "_Safe_Pointer" then
-         Raise_Exception
-           (Spec_Error'Identity,
-            "Package Safe_Pointers instantiation must be named "
-            & Type_Name & "_Safe_Pointer.");
-      end if;
-
-      D.Name        := +Name;
-      D.Type_Name   := +Type_Name;
-      D.Access_Name := +Access_Name;
-
-      API.Append (D);
-
-      if not Options.Quiet then
-         Text_IO.Put_Line
-           ("   - safe pointer    " & Name
-              & " (" & Type_Name & ", " & Access_Name & ")");
-      end if;
-   end Register_Safe_Pointer;
 
    -------------------
    -- Register_Type --
@@ -1092,9 +1060,6 @@ package body Ada2WSDL.Generator is
                         if Options.Document then
                            Generate_Element (A);
                         end if;
-
-                     when Safe_Pointer_Definition =>
-                        null;
                   end case;
                end if;
             end loop;
@@ -1149,9 +1114,6 @@ package body Ada2WSDL.Generator is
                      if not Schemas.Contains (-A.NS) then
                         Schemas.Append (-A.NS);
                      end if;
-
-                  when Safe_Pointer_Definition =>
-                     null;
                end case;
             end loop;
 

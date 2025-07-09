@@ -30,7 +30,6 @@
 pragma Ada_2022;
 
 with Ada.Containers.Vectors;
-with Ada.Finalization;
 with Ada.Strings.Unbounded;
 
 with Unicode;
@@ -492,34 +491,5 @@ package SOAP.Utils is
       NS        : Name_Space.Object := Name_Space.No_Name_Space)
       return SOAP.Types.SOAP_Enumeration
       renames SOAP.Types.E;
-
-   --  Smart pointers support used for array access in SOAP record. The memory
-   --  used by a safe pointer is released automatically when no more reference
-   --  to the object exists.
-
-   generic
-      type T (<>) is private;
-      type T_Access is access T;
-   package Safe_Pointers is
-
-      type Ref_Counter is private;
-
-      type Safe_Pointer is new Ada.Finalization.Controlled with record
-         Item : T_Access;
-         Ref  : Ref_Counter;
-      end record;
-
-      overriding procedure Initialize (SP : in out Safe_Pointer);
-      overriding procedure Adjust     (SP : in out Safe_Pointer);
-      overriding procedure Finalize   (SP : in out Safe_Pointer);
-
-      function To_Safe_Pointer (Item : T) return Safe_Pointer;
-      --  Returns a Safe_Pointer for object Item
-
-   private
-
-      type Ref_Counter is access Natural;
-
-   end Safe_Pointers;
 
 end SOAP.Utils;
