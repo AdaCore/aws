@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2003-2020, AdaCore                     --
+--                     Copyright (C) 2003-2025, AdaCore                     --
 --                                                                          --
 --  This is free software;  you can redistribute it  and/or modify it       --
 --  under terms of the  GNU General Public License as published  by the     --
@@ -17,29 +17,20 @@
 ------------------------------------------------------------------------------
 
 with Ada.Exceptions;
-with Ada.Strings.Unbounded;
 
-with Langkit_Support.Slocs;
-
-with Ada2WSDL.Options;
+with Langkit_Support.Text;
 
 package body Ada2WSDL is
 
    use Ada;
-   use Ada.Strings.Unbounded;
 
    --------------
    -- Location --
    --------------
 
    function Location (Node : LaL.Ada_Node'Class) return String is
-      Sloc : constant Langkit_Support.Slocs.Source_Location_Range :=
-               LaL.Sloc_Range (Node);
    begin
-      return To_String (Options.File_Name)
-        & ':'
-        & Langkit_Support.Slocs.Image
-           (Langkit_Support.Slocs.Start_Sloc (Sloc));
+      return Langkit_Support.Text.Image (Node.Full_Sloc_Image);
    end Location;
 
    ----------------------
@@ -51,7 +42,7 @@ package body Ada2WSDL is
       Message : String) is
    begin
       Exceptions.Raise_Exception
-        (Spec_Error'Identity, Location (Node) & ": " & Message);
+        (Spec_Error'Identity, Location (Node) & Message);
    end Raise_Spec_Error;
 
 end Ada2WSDL;

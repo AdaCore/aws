@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2003-2025, AdaCore                     --
+--                       Copyright (C) 2025, AdaCore                        --
 --                                                                          --
 --  This is free software;  you can redistribute it  and/or modify it       --
 --  under terms of the  GNU General Public License as published  by the     --
@@ -16,30 +16,10 @@
 --  to http://www.gnu.org/licenses for a complete copy of the license.      --
 ------------------------------------------------------------------------------
 
-with Libadalang.Analysis;
+package Pck is
 
-package Ada2WSDL is
+   type Table is array (Positive range <>) of Integer;
 
-   Version : constant String := "5.0";
+   procedure Call (T : Table);
 
-   Fatal_Error     : exception;
-   --  Raised when a non-recoverable error has been found
-
-   Parameter_Error : exception;
-   --  Raised if ada2wsdl received a wrong option/parameter
-
-   Spec_Error      : exception;
-   --  Raised if ada2wsdl has found a problem while parsing the Ada spec
-
-   package LaL renames Libadalang.Analysis;
-
-   function Location (Node : LaL.Ada_Node'Class) return String;
-   --  Returns E's location in the form <line>:<column>
-
-   procedure Raise_Spec_Error
-     (Node    : LaL.Ada_Node'Class;
-      Message : String) with No_Return;
-   --  Raises Spec_Error exception with the given message. Add a source
-   --  location information for entity E.
-
-end Ada2WSDL;
+end Pck;

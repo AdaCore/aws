@@ -462,6 +462,13 @@ package body Ada2WSDL.Parser is
       Type_Suffix  : Unbounded_String;
       Lower, Upper : Internal_Integer;
    begin
+      if not Options.Quiet then
+         Text_IO.Put_Line
+           (Location (T_Decl)
+            & "warning: array " & T_Name
+            & " not supported by wsdl2aws, use Containers.Vector");
+      end if;
+
       Get_Range (T_Decl, Lower, Upper);
       Array_Type_Suffix (Lower, Upper, Type_Suffix, Array_Len);
 
@@ -1792,6 +1799,13 @@ package body Ada2WSDL.Parser is
             return Build_Type ("SOAP_Base64");
 
          else
+            if not Options.Quiet then
+               Text_IO.Put_Line
+                 (Location (Node)
+                  & "warning: array " & T_Name
+                  & " not supported by wsdl2aws, use Containers.Vector");
+            end if;
+
             return Register_Deferred (Node);
          end if;
       end Build_Array;

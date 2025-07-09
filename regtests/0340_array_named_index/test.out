@@ -1,8 +1,11 @@
+demo.ads:24:4: warning: array T1 not supported by wsdl2aws, use Containers.Vector
    - enumeration     Boolean
         False
         True
    - array (5)       T1 of boolean (xsd:boolean)
+demo.ads:29:4: warning: array T2 not supported by wsdl2aws, use Containers.Vector
    - array (3)       T2 of Integer (xsd:int)
+demo.ads:34:4: warning: array T3 not supported by wsdl2aws, use Containers.Vector
    - array (13)      T3 of Float (xsd:float)
 
 WSDL document demo.wsdl is created for demo.ads.

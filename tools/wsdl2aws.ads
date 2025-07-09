@@ -31,6 +31,6 @@ pragma Ada_2022;
 
 package WSDL2AWS with Pure is
 
-   Version : constant String := "5.0.0";
+   Version : constant String := "6.0.0";
 
 end WSDL2AWS;

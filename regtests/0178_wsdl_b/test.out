@@ -1,6 +1,9 @@
 
+wsdl_b.ads:23:4: warning: array Toto not supported by wsdl2aws, use Containers.Vector
    - array (12)      Toto of Integer (xsd:int)
+wsdl_b.ads:25:4: warning: array Set_Of_Int not supported by wsdl2aws, use Containers.Vector
    - array (<>)      Set_Of_Int of Integer (xsd:int)
+wsdl_b.ads:25:4: warning: array set_of_int not supported by wsdl2aws, use Containers.Vector
    - derived         XYZ is new Set_Of_Int (n2:Set_Of_Int)
    - array (2)       ABC of Integer (xsd:int)
    - array (10)      Set_Of_Int_10 of Integer (xsd:int)
