@@ -36,11 +36,8 @@ package body SOAP.Parameters is
    ---------
 
    function "&" (P : List; O : Types.Object'Class) return List is
-      NP : List := P;
    begin
-      NP.N := @ + 1;
-      NP.V (NP.N) := Types."+" (O);
-      return NP;
+      return P & Types."+" (O);
    end "&";
 
    ---------
@@ -48,11 +45,8 @@ package body SOAP.Parameters is
    ---------
 
    function "+" (O : Types.Object'Class) return List is
-      P : List;
    begin
-      P.V (1) := Types."+" (O);
-      P.N := 1;
-      return P;
+      return [Types."+" (O)];
    end "+";
 
    --------------
@@ -65,13 +59,13 @@ package body SOAP.Parameters is
    is
       use type Types.Object_Safe_Pointer;
    begin
-      for K in 1 .. P.N loop
-         if Types.Name (-P.V (K)) = Name then
-            return -P.V (K);
+      for E of P loop
+         if Types.Name (-E) = Name then
+            return -E;
          end if;
       end loop;
 
-      raise Data_Error with "Argument named " & Name & " not found " & P.N'Img;
+      raise Data_Error with "Argument named " & Name & " not found";
    end Argument;
 
    --------------
@@ -84,7 +78,7 @@ package body SOAP.Parameters is
    is
       use type Types.Object_Safe_Pointer;
    begin
-      return -P.V (N);
+      return -P (N);
    end Argument;
 
    --------------------
@@ -93,7 +87,7 @@ package body SOAP.Parameters is
 
    function Argument_Count (P : List) return Natural is
    begin
-      return P.N;
+      return Natural (P.Length);
    end Argument_Count;
 
    -----------
@@ -102,7 +96,7 @@ package body SOAP.Parameters is
 
    procedure Check (P : List; N : Natural) is
    begin
-      if P.N /= N then
+      if Argument_Count (P) /= N then
          raise Data_Error with "(check) Too many arguments";
       end if;
    end Check;
@@ -240,8 +234,8 @@ package body SOAP.Parameters is
    function Exist (P : List; Name : String) return Boolean is
       use type Types.Object_Safe_Pointer;
    begin
-      for K in 1 .. P.N loop
-         if Types.Name (-P.V (K)) = Name then
+      for E of P loop
+         if Types.Name (-E) = Name then
             return True;
          end if;
       end loop;
@@ -368,7 +362,16 @@ package body SOAP.Parameters is
 
    function Get (P : List) return Types.Object_Set is
    begin
-      return P.V (1 .. P.N);
+      return [for E of P => E];
    end Get;
+
+   -------------
+   -- To_List --
+   -------------
+
+   function To_List (Set : Types.Object_Set) return List is
+   begin
+      return [for E of Set => E];
+   end To_List;
 
 end SOAP.Parameters;
