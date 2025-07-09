@@ -6,7 +6,17 @@
 --  This file was generated on @_NOW_@
 --
 --  $ wsdl2aws @_OPTIONS_@
-
+@@-----------------------------------------------------------------------
+@@MACRO(CHECK_OPTIONAL_PARAMETER)@@
+@@INLINE(with Pre => )(\n      and then )()@@
+@@TABLE'ALIGN_ON(" in ")'TERSE@@
+@@IF@@ @_PARAMETER_MIN_@ = 0 and @_PARAMETER_MAX_@ = 1
+      @_PARAMETER_NAME_@.Length in 0 .. 1
+@@END_IF@@
+@@END_TABLE@@
+@@END_INLINE@@
+@@END_MACRO@@
+@@-----------------------------------------------------------------------
 pragma Ada_2022;
 pragma Warnings (Off);
 pragma Style_Checks (Off);
@@ -33,7 +43,11 @@ package @_UNIT_NAME_@.Client is
 @@END_IF@@
 @@INLINE(     \()(;\n      )(\))@@
 @@TABLE'ALIGN_ON(":")'TERSE@@
+@@IF@@ @_PARAMETER_MIN_@ = 0 and @_PARAMETER_MAX_@ = 1
+      @_PARAMETER_NAME_@ : @_PARAMETER_TYPE_@ := []
+@@ELSE@@
       @_PARAMETER_NAME_@ : @_PARAMETER_TYPE_@
+@@END_IF@@
 @@END_TABLE@@
       Endpoint           : String := @_UNIT_NAME_@.URL
       Timeouts           : AWS.Client.Timeouts_Values := @_UNIT_NAME_@.Timeouts
@@ -43,10 +57,12 @@ package @_UNIT_NAME_@.Client is
 @@END_IF@@
 @@END_INLINE@@
 @@IF@@ @_HAS_OUTPUT_@
-      return @_PROC_RETURN_TYPE_@;
+      return @_PROC_RETURN_TYPE_@
+    @_CHECK_OPTIONAL_PARAMETER()_@
 @@ELSE@@
-      ;
+    @_CHECK_OPTIONAL_PARAMETER()_@
 @@END_IF@@
+   ;
 @@IF@@ @_HAS_OUTPUT_@
    function @_PROC_@
 @@ELSE@@
@@ -59,14 +75,20 @@ Pre_Call_Callback  : Pre_Call_CB  := Null_Pre_Call_Callback'Access
 Post_Call_Callback : Post_Call_CB := Null_Post_Call_Callback'Access
 @@END_IF@@
 @@TABLE'ALIGN_ON(":")'TERSE@@
+@@IF@@ @_PARAMETER_MIN_@ = 0 and @_PARAMETER_MAX_@ = 1
+      @_PARAMETER_NAME_@ : @_PARAMETER_TYPE_@ := []
+@@ELSE@@
       @_PARAMETER_NAME_@ : @_PARAMETER_TYPE_@
+@@END_IF@@
 @@END_TABLE@@
 @@END_INLINE@@
 @@IF@@ @_HAS_OUTPUT_@
-      return @_PROC_RETURN_TYPE_@;
+      return @_PROC_RETURN_TYPE_@
+    @_CHECK_OPTIONAL_PARAMETER()_@
 @@ELSE@@
-      ;
+    @_CHECK_OPTIONAL_PARAMETER()_@
 @@END_IF@@
+   ;
 @@INLINE(   --  )(\n   --  )()@@
    @_WRAP(70):DOCUMENTATION_@
 @@END_INLINE@@

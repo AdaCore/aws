@@ -170,8 +170,8 @@ procedure WSDL2AWS.Main is
                end if;
 
             when 'o' =>
-               Out_Filename
-                 := To_Unbounded_String (GNAT.Command_Line.Parameter);
+               Out_Filename :=
+                 To_Unbounded_String (GNAT.Command_Line.Parameter);
 
             when 'd' =>
                if Command_Line.Full_Switch = "doc" then

@@ -12,6 +12,6 @@ Procedure sayHello SOAPAction:sayHello
 
 
 =========== client
-+         SOAP.Types.XSD_String'(SOAP.Utils.To_SOAP_Object (firstName, "firstName", "xsd:string"))
-&          SOAP.Types.XSD_Any_URI'(SOAP.Utils.To_SOAP_Object (net, "net", "xsd:anyURI"))
-&          SOAP.Types.XSD_Token'(SOAP.Utils.To_SOAP_Object (id, "id", "xsd:token"));
+& SOAP.Types.XSD_String'(SOAP.Utils.To_SOAP_Object (firstName, "firstName", "xsd:string"));
+& SOAP.Types.XSD_Any_URI'(SOAP.Utils.To_SOAP_Object (net, "net", "xsd:anyURI"));
+& SOAP.Types.XSD_Token'(SOAP.Utils.To_SOAP_Object (id, "id", "xsd:token"));

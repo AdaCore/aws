@@ -63,6 +63,9 @@ To_@_IP_ADA_TYPE_@ (To_@_IP_BASE_TYPE_@_Type (@_QUALIFIED_ADA_TYPE(@_IP_ROOT_TYP
 @@END_MACRO@@
 @@-- ---------------------------------------------------------------------
 @@MACRO(GET_PARAMETERS_FROM_SOAP)@@
+@@IF@@ (@_IP_KIND_@ = K_ARRAY) and (@_IP_MIN_@ = 0) and (@_IP_MAX_@ = 1)
+@_IP_DECL_NAME_@ : @_IP_Q_NAME_@_Type
+@@ELSE@@
 @@IF@@ (@_IP_KIND_@ = K_ARRAY) or (@_IP_KIND_@ = K_RECORD)
 @_IP_DECL_NAME_@ : constant @_IP_Q_NAME_@_Type :=
 @@ELSIF@@ (@_IP_KIND_@ = K_SIMPLE) and (@_IP_TYPE_KIND_@ = P_STRING or @_IP_TYPE_KIND_@ = P_TOKEN or @_IP_TYPE_KIND_@ = P_NORMALIZED_STRING or @_IP_TYPE_KIND_@ = P_ANY_URI)
@@ -71,6 +74,7 @@ To_@_IP_ADA_TYPE_@ (To_@_IP_BASE_TYPE_@_Type (@_QUALIFIED_ADA_TYPE(@_IP_ROOT_TYP
 @_IP_DECL_NAME_@ : constant @_IP_ADA_TYPE_@ :=
 @@END_IF@@
            @_GET_PARAMETER_FROM_SOAP(@_IP_NAME_@)_@
+@@END_IF@@
 @@END_MACRO@@
 @@-- ---------------------------------------------------------------------
 @@--
@@ -162,7 +166,7 @@ package body @_UNIT_NAME_@.Server is
          --  Compound helpers
 @@END_IF@@
 @@TABLE'TERSE@@
-@@IF@@ @_IP_KIND_@ = K_ARRAY
+@@IF@@ @_IP_KIND_@ = K_ARRAY and @_IP_MIN_@ /= 0
          @_IP_NAME_@_@_IP_TYPE_NAME_@_Array : constant SOAP.Types.SOAP_Array :=
             SOAP.Parameters.Get (Params, "@_IP_NAME_@");
 @@ELSIF@@ (@_IP_KIND_@ = K_RECORD) and (@_IP_COMPOUND_SIZE_@ = 0)
@@ -192,6 +196,15 @@ package body @_UNIT_NAME_@.Server is
                     @_PROC_@_CB.@_PROC_@;
 @@END_IF@@
       begin
+@@TABLE'TERSE'ALIGN_ON(":")@@
+@@IF@@ @_IP_KIND_@ = K_ARRAY and @_IP_MIN_@ = 0 and @_IP_MAX_@ = 1
+         --  @_IP_NAME_@
+         if SOAP.Parameters.Exist (Params, "@_IP_NAME_@") then
+            @_IP_NAME_@ := From_Optional_SOAP_Object
+              (SOAP.Parameters.Argument (Params, "@_IP_NAME_@"));
+         end if;
+@@END_IF@@
+@@END_TABLE@@
 @@IF@@ @_SINGLE_OUT_PARAMETER_@
          @_M_OUT_PARAMS()_@
 @@ELSE@@
@@ -199,6 +212,15 @@ package body @_UNIT_NAME_@.Server is
 @@END_IF@@
 @@ELSE@@
       begin
+@@TABLE'TERSE'ALIGN_ON(":")@@
+@@IF@@ @_IP_KIND_@ = K_ARRAY and @_IP_MIN_@ = 0 and @_IP_MAX_@ = 1
+         --  @_IP_NAME_@
+         if SOAP.Parameters.Exist (Params, "@_IP_NAME_@") then
+            @_IP_NAME_@ := From_Optional_SOAP_Object
+              (SOAP.Parameters.Argument (Params, "@_IP_NAME_@"));
+         end if;
+@@END_IF@@
+@@END_TABLE@@
 @@IF@@ @_HAS_INPUT_@
          @_PROC_@ (@_CB_PARAMETER_NAME_@);
 @@ELSE@@

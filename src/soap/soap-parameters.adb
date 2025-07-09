@@ -365,6 +365,22 @@ package body SOAP.Parameters is
       return [for E of P => E];
    end Get;
 
+   function Get (P : List; Name : String) return Types.Object_Set is
+      use type SOAP.Types.Object_Safe_Pointer;
+
+      S : Types.Object_Set (1 .. Argument_Count (P));
+      K : Natural := 0;
+   begin
+      for E of P loop
+         if SOAP.Types.Name (-E) = Name then
+            K := @ + 1;
+            S (K) := E;
+         end if;
+      end loop;
+
+      return S (1 .. K);
+   end Get;
+
    -------------
    -- To_List --
    -------------

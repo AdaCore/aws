@@ -41,16 +41,16 @@
   <!-- The WSDL Bindings -->
 
   <wsdl:binding name="ScallWebServiceBinding" type="gc:ScallWebService">
-    <soap:binding style="rpc"
+    <soap:binding style="document"
                   transport="http://schemas.xmlsoap.org/soap/http" />
 
     <operation name="wsGetSrvRequest">
       <soap:operation soapAction="" />
       <wsdl:input>
-        <soap:body use="encoded" />
+        <soap:body use="literal" />
       </wsdl:input>
       <wsdl:output>
-        <soap:body use="encoded" />
+        <soap:body use="literal" />
       </wsdl:output>
     </operation>
   </wsdl:binding>

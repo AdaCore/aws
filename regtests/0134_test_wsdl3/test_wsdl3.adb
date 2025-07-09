@@ -86,7 +86,7 @@ procedure Test_WSDL3 is
       D : constant Duration := Time_Period.End_Time - Time_Period.Start_Time;
    begin
       Text_IO.Put_Line ("Symbol " & Ticker_Symbol);
-      return (+Types.Array_Of_Float_Type'(1.2, 2.3, 3.4), Float (D));
+      return ([1.2, 2.3, 3.4], Float (D));
    end Get_Last_Trade_Price;
 
    ----------------------
@@ -107,9 +107,9 @@ procedure Test_WSDL3 is
       FIO.Put (Result.Frequency, Aft => 2, Exp => 0);
       Text_IO.New_Line;
 
-      for K in Result.Result.Item'Range loop
+      for K in 1 .. Integer (Result.Result.Length) loop
          Text_IO.Put (Positive'Image (K) & " = ");
-         FIO.Put (Result.Result.Item (K), Aft => 2, Exp => 0);
+         FIO.Put (Result.Result (K), Aft => 2, Exp => 0);
          Text_IO.New_Line;
       end loop;
    end WSDL_Demo_Client;

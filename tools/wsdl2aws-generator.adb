@@ -968,6 +968,8 @@ package body WSDL2AWS.Generator is
 
          Parameter_Name   : Templates.Tag;
          Parameter_Type   : Templates.Tag;
+         Parameter_Min    : Templates.Tag;
+         Parameter_Max    : Templates.Tag;
          P_Decl           : Templates.Tag;
          P_Choice_Decl    : Templates.Tag;
          P_Name           : Templates.Tag;
@@ -1025,12 +1027,17 @@ package body WSDL2AWS.Generator is
                        & (Format_Name (O, Q_Name) & "_Type");
                end case;
 
+               Parameter_Min := @ & N.Min;
+               Parameter_Max := @ & N.Max;
+
                N := N.Next;
             end;
          end loop;
 
          Add_Proc_Tag ("PARAMETER_NAME", Parameter_Name);
          Add_Proc_Tag ("PARAMETER_TYPE", Parameter_Type);
+         Add_Proc_Tag ("PARAMETER_MIN", Parameter_Min);
+         Add_Proc_Tag ("PARAMETER_MAX", Parameter_Max);
 
          --  Parameters
 
@@ -1656,21 +1663,21 @@ package body WSDL2AWS.Generator is
          Pck_NS  : constant String :=
                      To_Unit_Name (Generate_Namespace (NS, False));
 
-         F_Name     : constant String :=
-                        Format_Name (O, SOAP.Utils.No_NS (Name));
+         F_Name  : constant String :=
+                     Format_Name (O, SOAP.Utils.No_NS (Name));
          E_Type  : constant WSDL.Types.Definition :=
                      WSDL.Types.Find
                        (if Def = WSDL.Types.No_Definition
                         then P.Typ
                         else Def.E_Type);
          Q_Name  : constant String :=
-                        WSDL.Types.Name (E_Type.Ref, True);
+                     WSDL.Types.Name (E_Type.Ref, True);
          E_Name  : constant String := WSDL.Types.Name (E_Type.Ref, False);
          T_Name  : constant String :=
-                        (if WSDL.Types.Is_Character (E_Type)
-                           or else SOAP.WSDL.Is_Standard (E_Name)
-                         then SOAP.Utils.No_NS (E_Name)
-                         else SOAP.Utils.To_Name (Q_Name));
+                     (if WSDL.Types.Is_Character (E_Type)
+                        or else SOAP.WSDL.Is_Standard (E_Name)
+                      then SOAP.Utils.No_NS (E_Name)
+                      else SOAP.Utils.To_Name (Q_Name));
 
          --  Array's element type name
 
@@ -1693,6 +1700,7 @@ package body WSDL2AWS.Generator is
            & Templates.Assoc ("QUALIFIED_NAME", Q_Name)
            & Templates.Assoc ("ELEMENT_TYPE", To_Ada_Type (T_Name))
            & Templates.Assoc ("ELEMENT_NAME", To_String (Def.E_Name))
+           & Templates.Assoc ("ELEMENT_KIND", Def.Mode'Image)
            & Templates.Assoc ("QUALIFIED_ELEMENT_TYPE", ET_Name)
            & Templates.Assoc
                ("SET_TYPE", Set_Type (WSDL.Types.Find (Def.E_Type)))

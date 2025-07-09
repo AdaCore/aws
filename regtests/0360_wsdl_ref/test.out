@@ -21,13 +21,13 @@ Procedure i87 SOAPAction:http://corp.iws/i87
          [derived] i528 ; i528
          [enumeration] i271 ; i271
          [record] i133 ; i133
-            [set] {0 .. 1} i510 ; i510
-            [set] {0 .. 1} i7 ; i550
-            [set] {0 .. 1} i337 ; i425
-            [set] {0 .. 1} i281 ; i425
-            [set] {0 .. 1} i491 ; i354
-            [set] {0 .. 1} i490 ; i425
-            [set] {0 .. 1} i101 ; i425
+            [set] {0 .. 1} i510 ; i510_Set [i510]
+            [set] {0 .. 1} i7 ; i550_Set [i550]
+            [set] {0 .. 1} i337 ; i425_Set [i425]
+            [set] {0 .. 1} i281 ; i425_Set [i425]
+            [set] {0 .. 1} i491 ; i354_Set [i354]
+            [set] {0 .. 1} i490 ; i425_Set [i425]
+            [set] {0 .. 1} i101 ; i425_Set [i425]
    Output
       [record] i451 ; i451
    > i87
@@ -43,14 +43,14 @@ Procedure i120 SOAPAction:http://corp.iws/i120
          [derived] i528 ; i528
          [enumeration] i271 ; i271
          [record] i133 ; i133
-            [set] {0 .. 1} i510 ; i510
-            [set] {0 .. 1} i7 ; i550
-            [set] {0 .. 1} i337 ; i425
-            [set] {0 .. 1} i281 ; i425
-            [set] {0 .. 1} i491 ; i354
-            [set] {0 .. 1} i490 ; i425
-            [set] {0 .. 1} i101 ; i425
-         [set] {0 .. 1} i88 ; i128
+            [set] {0 .. 1} i510 ; i510_Set [i510]
+            [set] {0 .. 1} i7 ; i550_Set [i550]
+            [set] {0 .. 1} i337 ; i425_Set [i425]
+            [set] {0 .. 1} i281 ; i425_Set [i425]
+            [set] {0 .. 1} i491 ; i354_Set [i354]
+            [set] {0 .. 1} i490 ; i425_Set [i425]
+            [set] {0 .. 1} i101 ; i425_Set [i425]
+         [set] {0 .. 1} i88 ; i128_Set [i128]
    Output
       [record] i451 ; i451
    > i120
@@ -81,14 +81,14 @@ Procedure i91 SOAPAction:http://corp.iws/i91
             [record] i134 ; i134
                [enumeration] i271 ; i271
                [record] i133 ; i133
-                  [set] {0 .. 1} i510 ; i510
-                  [set] {0 .. 1} i7 ; i550
-                  [set] {0 .. 1} i337 ; i425
-                  [set] {0 .. 1} i281 ; i425
-                  [set] {0 .. 1} i491 ; i354
-                  [set] {0 .. 1} i490 ; i425
-                  [set] {0 .. 1} i101 ; i425
-         [set] {0 .. 1} i338 ; i354
+                  [set] {0 .. 1} i510 ; i510_Set [i510]
+                  [set] {0 .. 1} i7 ; i550_Set [i550]
+                  [set] {0 .. 1} i337 ; i425_Set [i425]
+                  [set] {0 .. 1} i281 ; i425_Set [i425]
+                  [set] {0 .. 1} i491 ; i354_Set [i354]
+                  [set] {0 .. 1} i490 ; i425_Set [i425]
+                  [set] {0 .. 1} i101 ; i425_Set [i425]
+         [set] {0 .. 1} i338 ; i354_Set [i354]
    Output
       [record] i451 ; i451
    > i91

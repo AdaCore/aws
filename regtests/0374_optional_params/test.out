@@ -1,0 +1,79 @@
+
+Service WSDL_OPT
+
+
+Procedure Try SOAPAction:Try
+   Input
+      [simple] n2 ; Integer
+      [record] rec ; RecD
+         [set] {0 .. 1} f1 ; int_Set [int]
+         [simple] f2 ; Integer
+         [set] {0 .. 1} f3 ; int_Set [int]
+         [set] {0 .. 1} f4 ; RecA_Set [RecA]
+         [set] {0 .. 1} f5 ; NonNegativeInt_Set [NonNegativeInt]
+      [set] {0 .. 1} n ; int_Set [int]
+      [set] {0 .. 1} reca ; RecA_Set [RecA]
+      [set] {0 .. 1} nni ; NonNegativeInt_Set [NonNegativeInt]
+   Output
+   > Try
+
+=============== All optional unset
+
+N2:   20
+Rec:
+(F1 =>
+ [],
+ F2 =>  2,
+ F3 =>
+ [],
+ F4 =>
+ [],
+ F5 =>
+ [])
+N:
+[]
+Ra:
+[]
+Nni:
+[]
+=============== All optional set
+
+N2:   20
+Rec:
+(F1 =>
+ [ 1],
+ F2 =>  2,
+ F3 =>
+ [ 3],
+ F4 =>
+ [
+  (F =>  102)],
+ F5 =>
+ [ 9])
+N:
+[ 12]
+Ra:
+[
+ (F =>  102)]
+Nni:
+[ 9]
+=============== Mixed optional unset/set
+
+N2:   20
+Rec:
+(F1 =>
+ [ 1],
+ F2 =>  2,
+ F3 =>
+ [],
+ F4 =>
+ [
+  (F =>  102)],
+ F5 =>
+ [])
+N:
+[]
+Ra:
+[]
+Nni:
+[ 9]

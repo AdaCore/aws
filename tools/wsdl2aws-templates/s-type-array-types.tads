@@ -17,11 +17,13 @@
    subtype @_NAME_SPACE_@_@_TYPE_NAME_@
      is @_UNIT_NAME_@.@_TYPE_NAME_@;
 
+@@IF@@ @_LENGTH_@ = 0
    function "+"
      (O : @_UNIT_NAME_@.@_TYPE_NAME_@)
       return @_UNIT_NAME_@.@_TYPE_NAME_@_Safe_Access
       renames @_UNIT_NAME_@."+";
    --  Convert an array to a safe pointer
+@@END_IF@@
    @@ELSE@@
 @@--
 @@-- For vectors
@@ -100,3 +102,18 @@
       NS        : SOAP.Name_Space.Object := @_NAME_SPACE_@_Name_Space)
       return SOAP.Types.SOAP_Array
       renames @_UNIT_NAME_@.To_SOAP_Object;
+
+@@IF@@ not @_SAFE_POINTER_@
+   function To_Optional_SOAP_Object
+     (A         : @_TYPE_NAME_@;
+      Name      : String := "item";
+      Type_Name : String := @_UNIT_NAME_@.E_Type_Name;
+      NS        : SOAP.Name_Space.Object := @_NAME_SPACE_@_Name_Space)
+      return @_SET_TYPE_@
+      renames @_UNIT_NAME_@.To_Optional_SOAP_Object;
+
+   function From_Optional_SOAP_Object
+     (O : SOAP.Types.Object'Class)
+      return @_TYPE_NAME_@
+      renames @_UNIT_NAME_@.From_Optional_SOAP_Object;
+@@END_IF@@

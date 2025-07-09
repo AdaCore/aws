@@ -44,7 +44,8 @@
       renames @_UNIT_NAME_@.To_SOAP_Object;
 
    function To_Parameter_List
-     (R : @_NAME_SPACE_@_@_TYPE_NAME_@)
+     (R  : @_NAME_SPACE_@_@_TYPE_NAME_@;
+      NS : SOAP.Name_Space.Object := @_NAME_SPACE_@_Name_Space)
       return SOAP.Parameters.List
       renames @_UNIT_NAME_@.To_Parameter_List;
 

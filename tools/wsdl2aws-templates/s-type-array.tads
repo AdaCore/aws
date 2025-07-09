@@ -16,6 +16,7 @@ with Ada.Containers.Vectors;
 @@END_IF@@
 
 with Ada.Strings.Unbounded;
+with Ada.Tags;
 with SOAP.Parameters;
 with SOAP.Types;
 with SOAP.Utils;
@@ -45,6 +46,14 @@ package @_UNIT_NAME_@ is
    pragma Style_Checks (Off);
 
    use Ada.Strings.Unbounded;
+@@IF@@ not @_SAFE_POINTER_@
+   use type Ada.Containers.Count_Type;
+@@END_IF@@
+   use type Ada.Tags.Tag;
+@@IF@@ @_ELEMENT_KIND_@ /= K_SIMPLE
+   use type @_ELEMENT_TYPE_@;
+@@END_IF@@
+
 
    function "+"
      (Str : String)
@@ -56,6 +65,7 @@ package @_UNIT_NAME_@ is
       renames To_String;
 
    Q_Type_Name : constant String := "@_Q_TYPE_NAME_@";
+   E_Type_Name : constant String := "@_QUALIFIED_ELEMENT_TYPE_@";
 
 @@-- TYPE SPEC ----------------------------------------------------------
 @@IF@@ @_IS_EMPTY:TYPE_SPEC_@
@@ -97,7 +107,7 @@ package @_UNIT_NAME_@ is
       @_TYPE_NAME_@,
       @_SET_TYPE_@,
       "@_ELEMENT_NAME_@",
-      "@_QUALIFIED_ELEMENT_TYPE_@",
+      E_Type_Name,
       @_SET_ROUTINE_@);
    @@ELSE@@
 @@--
@@ -119,7 +129,7 @@ package @_UNIT_NAME_@ is
      (@_TYPE_NAME_@_Pck,
       @_SET_TYPE_@,
       "@_ELEMENT_NAME_@",
-      "@_QUALIFIED_ELEMENT_TYPE_@",
+      E_Type_Name,
       @_SET_ROUTINE_@);
    @@END_IF@@
 
@@ -138,9 +148,10 @@ package @_UNIT_NAME_@ is
    function To_Object_Set is new SOAP.Utils.To_Object_Set_C
      (@_ELEMENT_TYPE_@,
       @_TYPE_NAME_@_Index,
+      @_TYPE_NAME_@,
       @_SET_TYPE_@,
       "@_ELEMENT_NAME_@",
-      "@_QUALIFIED_ELEMENT_TYPE_@",
+      E_Type_Name,
       @_SET_ROUTINE_@);
    @@ELSE@@
    @@--
@@ -182,7 +193,7 @@ package @_UNIT_NAME_@ is
       @_TYPE_NAME_@,
       @_SET_TYPE_@,
       "@_ELEMENT_NAME_@",
-      "@_QUALIFIED_ELEMENT_TYPE_@",
+      E_Type_Name,
       @_SET_ROUTINE_@);
    @@ELSE@@
    function To_@_TYPE_NAME_@ is new SOAP.Utils.To_T_Array_C
@@ -197,7 +208,7 @@ package @_UNIT_NAME_@ is
       @_TYPE_NAME_@,
       @_SET_TYPE_@,
       "@_ELEMENT_NAME_@",
-      "@_QUALIFIED_ELEMENT_TYPE_@",
+      E_Type_Name,
       @_SET_ROUTINE_@);
    @@END_IF@@
 
@@ -217,7 +228,7 @@ package @_UNIT_NAME_@ is
      (@_TYPE_NAME_@_Pck,
       @_SET_TYPE_@,
       "@_ELEMENT_NAME_@",
-      "@_QUALIFIED_ELEMENT_TYPE_@",
+      E_Type_Name,
       @_SET_ROUTINE_@);
 @@END_IF@@
 @@END_IF@@
@@ -249,5 +260,27 @@ package @_UNIT_NAME_@ is
       return SOAP.Types.SOAP_Array
       is (SOAP.Types.SOAP_Array'
            (SOAP.Types.A (To_Object_Set (A, NS), Name, Type_Name, NS)));
+
+@@IF@@ not @_SAFE_POINTER_@
+   function To_Optional_SOAP_Object
+     (A         : @_TYPE_NAME_@;
+      Name      : String := "item";
+      Type_Name : String := E_Type_Name;
+      NS        : SOAP.Name_Space.Object := Name_Space)
+      return @_SET_TYPE_@
+      is (@_SET_ROUTINE_@ (A.First_Element, Name, Type_Name))
+    with Pre => A.Length = 1;
+   --  Use to get an optional argument passed as parameter or in a
+   --  record's field.
+
+   function From_Optional_SOAP_Object
+     (O : SOAP.Types.Object'Class)
+      return @_TYPE_NAME_@
+      is ([@_GET_ROUTINE_@ (O)])
+    with Pre  => O'Tag = @_SET_TYPE_@'Tag,
+         Post => From_Optional_SOAP_Object'Result.Length = 1;
+   --  Use to get an optional argument passed as parameter or in a
+   --  record's field.
+@@END_IF@@
 
 end @_UNIT_NAME_@;

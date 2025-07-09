@@ -161,6 +161,9 @@ package SOAP.Parameters is
    function Get (P : List) return Types.Object_Set;
    --  Retunrs the Object_Set corresponding to the List
 
+   function Get (P : List; Name : String) return Types.Object_Set;
+   --  Returns all element of P having the name Name
+
    function To_List (Set : Types.Object_Set) return List;
    --  Returns a list for the given object set
 

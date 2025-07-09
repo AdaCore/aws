@@ -10,10 +10,10 @@ Procedure Call SOAPAction:Call
    Output
    > Call
 =========== client
-+         SOAP.Types.XSD_Time_Instant'(SOAP.Utils.To_SOAP_Object (DT, "DT", "xsd:timeInstant"))
-&          SOAP.Types.XSD_Date'(SOAP.Utils.To_SOAP_Object (DA, "DA", "xsd:date"))
-&          SOAP.Types.XSD_Time'(SOAP.Utils.To_SOAP_Object (TI, "TI", "xsd:time"))
-&          SOAP.Types.XSD_Decimal'(SOAP.Utils.To_SOAP_Object (DE, "DE", "xsd:decimal"));
+& SOAP.Types.XSD_Time_Instant'(SOAP.Utils.To_SOAP_Object (DT, "DT", "xsd:timeInstant"));
+& SOAP.Types.XSD_Date'(SOAP.Utils.To_SOAP_Object (DA, "DA", "xsd:date"));
+& SOAP.Types.XSD_Time'(SOAP.Utils.To_SOAP_Object (TI, "TI", "xsd:time"));
+& SOAP.Types.XSD_Decimal'(SOAP.Utils.To_SOAP_Object (DE, "DE", "xsd:decimal"));
 =========== server
 DT : constant SOAP.Types.Local_Date_Time :=
 DA : constant SOAP.Types.Local_Date :=
