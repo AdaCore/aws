@@ -366,4 +366,9 @@ package body SOAP.Parameters is
       return Types.Get (Argument (P, Name));
    end Get;
 
+   function Get (P : List) return Types.Object_Set is
+   begin
+      return P.V (1 .. P.N);
+   end Get;
+
 end SOAP.Parameters;

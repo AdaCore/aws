@@ -161,6 +161,9 @@ package SOAP.Parameters is
    --  Types.Data_Error if this parameter does not exist or is not a SOAP
    --  Array.
 
+   function Get (P : List) return Types.Object_Set;
+   --  Retunrs the Object_Set corresponding to the List
+
    ------------------
    -- Constructors --
    ------------------
