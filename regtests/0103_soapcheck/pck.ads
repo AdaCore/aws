@@ -16,6 +16,8 @@
 --  to http://www.gnu.org/licenses for a complete copy of the license.      --
 ------------------------------------------------------------------------------
 
+with Ada.Containers.Vectors;
+
 with SOAP.Utils;
 
 package Pck is
@@ -34,10 +36,8 @@ package Pck is
 
    procedure Print (X : Integer; Name : String);
 
-   type Tab is array (1 .. 10) of Boolean;
-   type Tab_Access is access Tab;
-   package Tab_Safe_Pointer is
-      new SOAP.Utils.Safe_Pointers (Tab, Tab_Access);
+   package Tab_Pck is
+      new Ada.Containers.Vectors (Positive, Boolean);
 
    type R_Rec is record
       V : Natural;
@@ -45,7 +45,7 @@ package Pck is
       C : Color;
       F : Long_Float;
       G : Rec;
-      A : Tab_Safe_Pointer.Safe_Pointer;
+      A : Tab_Pck.Vector;
    end record;
 
    procedure Big (R : R_Rec);

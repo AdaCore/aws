@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2003-2012, AdaCore                     --
+--                     Copyright (C) 2003-2025, AdaCore                     --
 --                                                                          --
 --  This is free software;  you can redistribute it  and/or modify it       --
 --  under terms of the  GNU General Public License as published  by the     --
@@ -152,7 +152,8 @@ package body WSDL_6 is
    -- Echo_Set --
    --------------
 
-   function Echo_Set (Set : Set_Of_Int) return Set_Of_Int is
+   function Echo_Set
+     (Set : Set_Of_Int_Pkg.Vector) return Set_Of_Int_Pkg.Vector is
    begin
       return Set;
    end Echo_Set;
@@ -161,7 +162,8 @@ package body WSDL_6 is
    -- Echo_Set_Rec --
    ------------------
 
-   function Echo_Set_Rec (Set : Set_Of_Rec) return Set_Of_Rec is
+   function Echo_Set_Rec
+     (Set : Set_Of_Rec_Pkg.Vector) return Set_Of_Rec_Pkg.Vector is
    begin
       return Set;
    end Echo_Set_Rec;

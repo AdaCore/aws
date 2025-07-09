@@ -16,6 +16,8 @@
 --  to http://www.gnu.org/licenses for a complete copy of the license.      --
 ------------------------------------------------------------------------------
 
+pragma Ada_2022;
+
 with Ada.Text_IO;
 
 with AWS.Config.Set;
@@ -32,13 +34,15 @@ procedure LSO_Main is
    use Ada;
    use AWS;
 
+   Len  : constant := 5_000;
+
    WS   : Server.HTTP;
 
    H    : LSO_Server.Handler;
 
    Conf : Config.Object := Config.Get_Current;
 
-   A, B : LSO.Set_Of_Int (1 .. 5000);
+   A, B : LSO.Set_Of_Int_Pkg.Vector;
 
 begin
    H := SOAP.Dispatchers.Callback.Create
@@ -51,13 +55,11 @@ begin
 
    Server.Start (WS, H, Conf);
 
-   for K in A'Range loop
-      A (K) := K;
-   end loop;
+   A := [for K in 1 .. Len => K];
 
    B := LSO_Service.Client.Echo (A, Endpoint => Server.Status.Local_URL (WS));
 
-   for K in B'Range loop
+   for K in 1 .. Len loop
       if B (K) /= K then
          Text_IO.Put_Line ("wrong value!" & Positive'Image (K));
       end if;

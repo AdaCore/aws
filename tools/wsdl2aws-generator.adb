@@ -832,7 +832,8 @@ package body WSDL2AWS.Generator is
       use type WSDL.Types.Kind;
    begin
       return N.Mode = WSDL.Types.K_Simple
-        and then SOAP.WSDL.To_Type (WSDL.Types.Name (N.Typ)) = P_String;
+        and then SOAP.WSDL.To_Type (WSDL.Types.Name (N.Typ))
+          in P_String | P_Normalized_String;
    end Is_String;
 
    ----------

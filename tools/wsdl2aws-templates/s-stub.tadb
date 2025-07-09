@@ -85,7 +85,7 @@ Connection : AWS.Client.HTTP_Connection
 @@IF@@ not @_IS_EMPTY:DECL_FIELD_NAME_@
       --  Setup @_DECL_NAME_@ record's fields
 @@TABLE'TERSE@@
-@@IF@@ @_DECL_FIELD_KIND_@ = "ARRAY"
+@@IF@@ @_DECL_FIELD_KIND_@ = "STRING" or (@_DECL_FIELD_KIND_@ = "ARRAY" and @_SAFE_POINTER_@)
       @_DECL_PREFIX_NAME_@.@_DECL_FIELD_NAME_@ := +@_DECL_FIELD_NAME_@;
 @@ELSE@@
       @_DECL_PREFIX_NAME_@.@_DECL_FIELD_NAME_@ := @_DECL_FIELD_NAME_@;

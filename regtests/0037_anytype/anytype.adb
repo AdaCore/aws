@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2004-2020, AdaCore                     --
+--                     Copyright (C) 2004-2025, AdaCore                     --
 --                                                                          --
 --  This is free software;  you can redistribute it  and/or modify it       --
 --  under terms of the  GNU General Public License as published  by the     --
@@ -15,6 +15,8 @@
 --  distributed  with  this  software;   see  file COPYING3.  If not, go    --
 --  to http://www.gnu.org/licenses for a complete copy of the license.      --
 ------------------------------------------------------------------------------
+
+pragma Ada_2022;
 
 --  SOAP/WSDL test
 
@@ -48,8 +50,8 @@ procedure AnyType is
    CNF      : AWS.Config.Object;
 
    function Call
-     (Param1 : Types.Set_Of_int_Type;
-      Param2 : Types.Set_Of_x_Type) return Types.Call_Result;
+     (Param1 : Types.Set_Of_Int_Type;
+      Param2 : Types.Set_Of_X_Type) return Types.Call_Result;
 
    function Trim (Str : String) return String;
    --  Remove trailing 0, use to have output comparable to the Java one
@@ -68,14 +70,14 @@ procedure AnyType is
 
    procedure AnyType_Client is
       use Ada;
-      Param1 : Types.Set_Of_int_Type := (12, 9);
+      Param1 : Types.Set_Of_Int_Type := [12, 9];
       Param2 : Types.Set_Of_X_Type :=
-                 (Any (I (45)), Any (I (12)), Any (D (Long_Float'(8.209))));
+                 [Any (I (45)), Any (I (12)), Any (D (Long_Float'(8.209)))];
    begin
       declare
          Result : Types.Set_Of_x_Type := Client.Call (Param1, Param2);
       begin
-         for K in Result'Range loop
+         for K in 1 .. Integer (Result.Length) loop
             Text_IO.Put_Line
               (Utils.Image (K) & " - " & Trim (SOAP.Types.Image (Result (K))));
          end loop;
@@ -101,14 +103,14 @@ procedure AnyType is
    ----------
 
    function Call
-     (Param1 : Types.Set_Of_int_Type;
-      Param2 : Types.Set_Of_x_Type)
+     (Param1 : Types.Set_Of_Int_Type;
+      Param2 : Types.Set_Of_X_Type)
       return Types.Call_Result
    is
       R : Types.Call_Result := Param2;
-      L : Positive := Param1'First;
+      L : Positive := 1;
    begin
-      for K in R'Range loop
+      for K in 1 .. Integer (R.Length) loop
          if XML_Type (R (K)) = XML_Int then
             R (K) := Any (I (Get (R (K)) + Param1 (L)));
             L := L + 1;

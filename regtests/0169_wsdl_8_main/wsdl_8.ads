@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2004-2012, AdaCore                     --
+--                     Copyright (C) 2004-2025, AdaCore                     --
 --                                                                          --
 --  This is free software;  you can redistribute it  and/or modify it       --
 --  under terms of the  GNU General Public License as published  by the     --
@@ -16,6 +16,7 @@
 --  to http://www.gnu.org/licenses for a complete copy of the license.      --
 ------------------------------------------------------------------------------
 
+with Ada.Containers.Vectors;
 with Ada.Strings.Unbounded;
 
 package WSDL_8 is
@@ -27,10 +28,11 @@ package WSDL_8 is
       Content  : Unbounded_String;
    end record;
 
-   type Set_Of_Files is array (Positive range <>) of File_Data;
+   package Set_Of_Files is
+     new Ada.Containers.Vectors (Positive, File_Data);
 
    procedure Proc
      (Name  : String;
-      Files : Set_Of_Files);
+      Files : Set_Of_Files.Vector);
 
 end WSDL_8;

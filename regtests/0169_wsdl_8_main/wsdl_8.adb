@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2004-2012, AdaCore                     --
+--                     Copyright (C) 2004-2025, AdaCore                     --
 --                                                                          --
 --  This is free software;  you can redistribute it  and/or modify it       --
 --  under terms of the  GNU General Public License as published  by the     --
@@ -28,11 +28,11 @@ package body WSDL_8 is
 
    procedure Proc
      (Name  : String;
-      Files : Set_Of_Files) is
+      Files : Set_Of_Files.Vector) is
    begin
       Put_Line ("Name : " & Name);
 
-      for K in Files'Range loop
+      for K in 1 .. Integer (Files.Length) loop
          Put_Line ("K = " & Integer'Image (K));
          Put_Line ("   filename = " & To_String (Files (K).Filename));
          Put_Line ("   content  = " & To_String (Files (K).Content));

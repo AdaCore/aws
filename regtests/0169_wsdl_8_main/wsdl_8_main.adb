@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2004-2012, AdaCore                     --
+--                     Copyright (C) 2004-2025, AdaCore                     --
 --                                                                          --
 --  This is free software;  you can redistribute it  and/or modify it       --
 --  under terms of the  GNU General Public License as published  by the     --
@@ -41,7 +41,7 @@ procedure WSDL_8_Main is
 
    Conf : Config.Object := Config.Get_Current;
 
-   F    : WSDL_8.Set_Of_Files (1 .. 2);
+   F    : WSDL_8.Set_Of_Files.Vector;
 
 begin
    H := SOAP.Dispatchers.Callback.Create
@@ -52,10 +52,10 @@ begin
 
    Server.Start (WS, H, Conf);
 
-   F := (1 => (To_Unbounded_String ("first_file"),
+   F := [1 => (To_Unbounded_String ("first_file"),
                To_Unbounded_String ("this is the content of file 1")),
          2 => (To_Unbounded_String ("second_file"),
-               To_Unbounded_String ("this is the content of file 2")));
+               To_Unbounded_String ("this is the content of file 2"))];
 
    WSDL_8_Service.Client.Proc ("File_Test", F);
 

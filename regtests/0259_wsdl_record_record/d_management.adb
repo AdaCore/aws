@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                       Copyright (C) 2015, AdaCore                        --
+--                     Copyright (C) 2015-2025, AdaCore                     --
 --                                                                          --
 --  This is free software;  you can redistribute it  and/or modify it       --
 --  under terms of the  GNU General Public License as published  by the     --
@@ -16,15 +16,16 @@
 --  to http://www.gnu.org/licenses for a complete copy of the license.      --
 ------------------------------------------------------------------------------
 
+pragma Ada_2022;
+
 package body D_Management is
 
    function Update_Target_Changes
-      (A : String;
-       B : String) return Facility_Type is
-       Set : Field_Array (1..0);
+     (A : String;
+      B : String) return Facility_Type is
    begin
       return (Change => (mark => Add),
-              Fields => Field_Array_Safe_Pointer.To_Safe_Pointer(Set));
+              Fields => []);
    end Update_Target_Changes;
 
 end D_Management;

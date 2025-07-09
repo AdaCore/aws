@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2003-2012, AdaCore                     --
+--                     Copyright (C) 2003-2025, AdaCore                     --
 --                                                                          --
 --  This is free software;  you can redistribute it  and/or modify it       --
 --  under terms of the  GNU General Public License as published  by the     --
@@ -16,6 +16,7 @@
 --  to http://www.gnu.org/licenses for a complete copy of the license.      --
 ------------------------------------------------------------------------------
 
+with Ada.Containers.Vectors;
 with Ada.Strings.Unbounded;
 
 with SOAP.Utils;
@@ -37,14 +38,11 @@ package WSDL_3 is
       Field4 : Long_Float;
    end record;
 
-   type My_Set is array (Positive range <>) of Integer;
-   type My_Set_Access is access My_Set;
-
-   package My_Set_Safe_Pointer is
-      new SOAP.Utils.Safe_Pointers (My_Set, My_Set_Access);
+   package My_Set_Pkg is
+     new Ada.Containers.Vectors (Positive, Integer);
 
    type Rec3 is record
-      S : My_Set_Safe_Pointer.Safe_Pointer;
+      S : My_Set_Pkg.Vector;
    end record;
 
    function Image_Rec1 (Rec : Rec1) return String;

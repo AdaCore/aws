@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                       Copyright (C) 2017, AdaCore                        --
+--                    Copyright (C) 2017-2025, AdaCore                      --
 --                                                                          --
 --  This is free software;  you can redistribute it  and/or modify it       --
 --  under terms of the  GNU General Public License as published  by the     --
@@ -17,6 +17,8 @@
 ------------------------------------------------------------------------------
 
 with Ada.Strings.Unbounded;
+with Ada.Containers.Vectors;
+
 with SOAP.Utils;
 
 package API is
@@ -27,15 +29,12 @@ package API is
       Code, Variant : Unbounded_String;
    end record;
 
-   type Arr is array (Positive range <>) of R;
-   type Arr_Access is access Arr;
-
-   package Arr_Safe_Pointer is new SOAP.Utils.Safe_Pointers (Arr, Arr_Access);
+   package Arr_Pkg is new Ada.Containers.Vectors (Positive, R);
 
    type Part is record
       V  : Integer;
       C1 : Unbounded_String;
-      It : Arr_Safe_Pointer.Safe_Pointer;
+      It : Arr_Pkg.Vector;
       C2 : Unbounded_String;
    end record;
 

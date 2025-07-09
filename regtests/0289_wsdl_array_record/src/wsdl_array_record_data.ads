@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                       Copyright (C) 2017, AdaCore                        --
+--                     Copyright (C) 2017-2025, AdaCore                     --
 --                                                                          --
 --  This is free software;  you can redistribute it  and/or modify it       --
 --  under terms of the  GNU General Public License as published  by the     --
@@ -16,6 +16,7 @@
 --  to http://www.gnu.org/licenses for a complete copy of the license.      --
 ------------------------------------------------------------------------------
 
+with Ada.Containers.Vectors;
 with SOAP.Utils;
 
 package WSDL_Array_Record_Data is
@@ -23,19 +24,17 @@ package WSDL_Array_Record_Data is
    type T1L is array (Positive range <>) of Integer;
    type T1L_Access is access T1L;
 
-   package T1L_Safe_Pointer is new SOAP.Utils.Safe_Pointers (T1L, T1L_Access);
+   package T1L_Pkg is new Ada.Containers.Vectors (Positive, Integer);
 
    type T2 is record
       Id : Integer;
-      I2 : T1L_Safe_Pointer.Safe_Pointer;
+      I2 : T1L_Pkg.Vector;
    end record;
 
-   type T2L is array (Positive range <>) of T2;
-   type T2L_Access is access T2L;
-   package T2L_Safe_Pointer is new SOAP.Utils.Safe_Pointers (T2L, T2L_Access);
+   package T2L_Pkg is new Ada.Containers.Vectors (Positive, T2);
 
    type T3 is record
-      I3 : T2L_Safe_Pointer.Safe_Pointer;
+      I3 : T2L_Pkg.Vector;
    end record;
 
    procedure Notification (Item : T3);

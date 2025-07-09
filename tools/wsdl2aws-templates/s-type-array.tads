@@ -156,7 +156,25 @@ package @_UNIT_NAME_@ is
    @@ELSE@@
    @@--
    @@-- Constraint Vector not yet supported
-   --  Constrained Vector not yet supported (length @_LENGTH_@)
+   --  /// Constrained Vector not yet supported (length @_LENGTH_@)
+   package @_TYPE_NAME_@_Pck is new Ada.Containers.Vectors
+     (Positive, @_ELEMENT_TYPE_@);
+
+   subtype @_TYPE_NAME_@ is @_TYPE_NAME_@_Pck.Vector;
+   subtype @_NAME_SPACE_@_@_TYPE_NAME_@ is @_TYPE_NAME_@;
+
+   function "+" (V : @_TYPE_NAME_@)
+     return @_TYPE_NAME_@ is (V);
+
+   function To_@_TYPE_NAME_@ is new SOAP.Utils.To_Vector
+     (@_TYPE_NAME_@_Pck, @_GET_ROUTINE_@);
+
+   function To_Object_Set is new SOAP.Utils.To_Object_Set_V
+     (@_TYPE_NAME_@_Pck,
+      @_SET_TYPE_@,
+      "@_ELEMENT_NAME_@",
+      E_Type_Name,
+      @_SET_ROUTINE_@);
    @@END_IF@@
 @@END_IF@@
 @@--

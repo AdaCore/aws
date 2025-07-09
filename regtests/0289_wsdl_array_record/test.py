@@ -11,7 +11,7 @@ exec_cmd('ada2wsdl', ['-q', '-Pdefault', '-a', 'http://localhost:8787',
 
 os.chdir('../generated')
 
-exec_cmd('wsdl2aws', ['-q', '-sp', '-a', '-types', 'wsdl_array_record_data',
+exec_cmd('wsdl2aws', ['-q', '-a', '-types', 'wsdl_array_record_data',
                       '-cb', 'wsdl_array_record.wsdl'])
 
 os.chdir('..')

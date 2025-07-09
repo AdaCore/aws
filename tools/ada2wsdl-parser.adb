@@ -1539,14 +1539,11 @@ package body Ada2WSDL.Parser is
                      R_Name    : constant String :=
                                    Img (Node.F_Subp_Name);
                      P_Returns : constant Type_Expr := Node.P_Returns;
-                     B_Type    : constant Base_Type_Decl :=
-                                   P_Returns.P_Designated_Type_Decl;
+                     Def       : constant Generator.Type_Data :=
+                                   Type_Definition (P_Returns, Base => False);
                   begin
                      Generator.Return_Type
-                       (Name_Space (B_Type),
-                        To_String
-                          (Type_Definition (P_Returns, Base => False).Name),
-                        R_Name);
+                       (To_String (Def.NS), To_String (Def.Name), R_Name);
                   end;
                end if;
             end Analyze_Profile;
@@ -2224,6 +2221,18 @@ package body Ada2WSDL.Parser is
 
          elsif T_Name = "soap.types.token" then
             return Build_Type ("token");
+
+         elsif Decl.Kind = Ada_Subtype_Indication
+           and then Img (Node.As_Concrete_Type_Decl.F_Name, True) = "vector"
+         then
+            declare
+               S_Type : constant Libadalang.Analysis.Name :=
+                          Decl.As_Subtype_Indication.F_Name
+                            .As_Dotted_Name.F_Prefix;
+            begin
+               return Build_Type
+                 (Img (S_Type), Name_Space (S_Type.P_Referenced_Decl));
+            end;
 
          else
             Raise_Spec_Error

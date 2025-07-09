@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2017-2024, AdaCore                     --
+--                     Copyright (C) 2017-2025, AdaCore                     --
 --                                                                          --
 --  This is free software;  you can redistribute it  and/or modify it       --
 --  under terms of the  GNU General Public License as published  by the     --
@@ -15,6 +15,8 @@
 --  distributed  with  this  software;   see  file COPYING3.  If not, go    --
 --  to http://www.gnu.org/licenses for a complete copy of the license.      --
 ------------------------------------------------------------------------------
+
+pragma Ada_2022;
 
 with Ada.Text_IO;
 
@@ -64,19 +66,17 @@ begin
    AWS.Server.Start (WS, Disp, Conf);
 
    declare
-      O    : constant WCRT.List_Type := (WCRT.First, WCRT.Third);
-      List : constant WCRT.List_Type_Safe_Pointer.Safe_Pointer :=
-               WCRT.List_Type_Safe_Pointer.To_Safe_Pointer (O);
-      L : WCRT.Record_Type :=
-            (Value => 2,
-             C     => 'C',
-             L     => List);
+      List : constant WCRT.List_Type_Pkg.Vector := [WCRT.First, WCRT.Third];
+      L    : WCRT.Record_Type :=
+               (Value => 2,
+                C     => 'C',
+                L     => List);
    begin
       L := Test_1 (L, Endpoint => Server.Status.Local_URL (WS));
       Text_IO.Put_Line (Integer'Image (L.Value));
       Text_IO.Put_Line (String'(1 => L.C));
-      Text_IO.Put_Line (WCRT.Num'Image (L.L.Item (1)));
-      Text_IO.Put_Line (WCRT.Num'Image (L.L.Item (2)));
+      Text_IO.Put_Line (WCRT.Num'Image (L.L (1)));
+      Text_IO.Put_Line (WCRT.Num'Image (L.L (2)));
    end;
 
    AWS.Server.Shutdown (WS);

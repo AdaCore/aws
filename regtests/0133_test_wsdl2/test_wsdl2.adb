@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2003-2024, AdaCore                     --
+--                     Copyright (C) 2003-2025, AdaCore                     --
 --                                                                          --
 --  This is free software;  you can redistribute it  and/or modify it       --
 --  under terms of the  GNU General Public License as published  by the     --
@@ -86,7 +86,7 @@ procedure Test_WSDL2 is
       D : constant Duration := timePeriod.endTime - timePeriod.startTime;
    begin
       Text_IO.Put_Line ("Symbol " & tickerSymbol);
-      return (+Types.ArrayOfFloat_Type'(1.2, 2.3, 3.4), Float (D));
+      return ([1.2, 2.3, 3.4], Float (D));
    end GetLastTradePrice;
 
    ----------------------
@@ -107,9 +107,9 @@ procedure Test_WSDL2 is
       FIO.Put (Result.Frequency, Aft => 2, Exp => 0);
       Text_IO.New_Line;
 
-      for K in Result.Result.Item'Range loop
-         Text_IO.Put (Positive'Image (K) & " = ");
-         FIO.Put (Result.Result.Item (K), Aft => 2, Exp => 0);
+      for K in 1 .. Natural (Result.Result.Length) loop
+         Text_IO.Put (Natural'Image (K) & " = ");
+         FIO.Put (Result.Result (K), Aft => 2, Exp => 0);
          Text_IO.New_Line;
       end loop;
    end WSDL_Demo_Client;

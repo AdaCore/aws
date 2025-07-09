@@ -11,7 +11,7 @@ exec_cmd('ada2wsdl', ['-q', '-P', '../api.gpr', '-a', 'http://localhost:8787',
 
 os.chdir('../generated')
 
-exec_cmd('wsdl2aws', ['-q', '-sp', '-debug', '-a',
+exec_cmd('wsdl2aws', ['-q', '-debug', '-a',
                       '-types', 'rpc_array_record_types',
                       '-spec', 'rpc_array_record_data',
                       '-cb', 'rpc_array_record.wsdl'])

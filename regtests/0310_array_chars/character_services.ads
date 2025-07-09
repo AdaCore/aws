@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                      Copyright (C) 2017, AdaCore                         --
+--                     Copyright (C) 2017-2025, AdaCore                     --
 --                                                                          --
 --  This is free software;  you can redistribute it  and/or modify it       --
 --  under terms of the  GNU General Public License as published  by the     --
@@ -32,12 +32,12 @@ package Character_Services is
      (Value_Record : Array_Character_Record_Type);
 
    procedure Test_Array_Character_Parameter
-     (Value_Param : Array_Character_Type);
+     (Value_Param : Array_Character_Type_Pkg.Vector);
 
    procedure Test_Array_Record_Character_Record
      (Value_Record : Array_Record_Character_Record_Type);
 
    procedure Test_Array_Record_Character_Parameter
-     (Value_Param : Array_Record_Character_Type);
+     (Value_Param : Array_Record_Character_Type_Pkg.Vector);
 
 end Character_Services;

@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                       Copyright (C) 2018, AdaCore                        --
+--                     Copyright (C) 2018-2025, AdaCore                     --
 --                                                                          --
 --  This is free software;  you can redistribute it  and/or modify it       --
 --  under terms of the  GNU General Public License as published  by the     --
@@ -16,6 +16,7 @@
 --  to http://www.gnu.org/licenses for a complete copy of the license.      --
 ------------------------------------------------------------------------------
 
+with Ada.Containers.Vectors;
 with Ada.Strings.Unbounded;
 
 with SOAP.Utils;
@@ -30,13 +31,11 @@ package AWS_Test is
       A_Str : Unbounded_String;
    end record;
 
-   type Data_Rec_Array_Type is array (Positive range <>) of Data_Rec_Type;
-   type Data_Rec_Array_Type_Access is access  Data_Rec_Array_Type;
-
-   package Data_Rec_Array_Type_Safe_Pointer is new SOAP.Utils.Safe_Pointers
-     (Data_Rec_Array_Type, Data_Rec_Array_Type_Access);
+   package Data_Rec_Array_Type_Pkg is
+     new Ada.Containers.Vectors (Positive, Data_Rec_Type);
 
   function Get_Test_Name (Data : Data_Rec_Type) return String;
-  function Get_Test_Name2 (Data : Data_Rec_Array_Type) return String;
+  function Get_Test_Name2
+    (Data : Data_Rec_Array_Type_Pkg.Vector) return String;
 
 end AWS_Test;

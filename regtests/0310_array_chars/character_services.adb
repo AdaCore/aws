@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                      Copyright (C) 2017, AdaCore                         --
+--                     Copyright (C) 2017-2025, AdaCore                     --
 --                                                                          --
 --  This is free software;  you can redistribute it  and/or modify it       --
 --  under terms of the  GNU General Public License as published  by the     --
@@ -49,8 +49,8 @@ package body Character_Services is
    begin
       Text_IO.Put ("VRA:");
 
-      for K in Value_Record.Value.Item'Range loop
-         Text_IO.Put (' ' & Value_Record.Value.Item (K));
+      for E of Value_Record.Value loop
+         Text_IO.Put (' ' & E);
       end loop;
 
       Text_IO.New_Line;
@@ -61,12 +61,12 @@ package body Character_Services is
    ------------------------------------
 
    procedure Test_Array_Character_Parameter
-     (Value_Param : Array_Character_Type) is
+     (Value_Param : Array_Character_Type_Pkg.Vector) is
    begin
       Text_IO.Put ("VPA:");
 
-      for K in Value_Param'Range loop
-         Text_IO.Put (' ' & Value_Param (K));
+      for E of Value_Param loop
+         Text_IO.Put (' ' & E);
       end loop;
 
       Text_IO.New_Line;
@@ -81,8 +81,8 @@ package body Character_Services is
    begin
       Text_IO.Put ("VRar:");
 
-      for K in Value_Record.Value.Item'Range loop
-         Text_IO.Put (' ' & Value_Record.Value.Item (K).Value);
+      for E of Value_Record.Value loop
+         Text_IO.Put (' ' & E.Value);
       end loop;
 
       Text_IO.New_Line;
@@ -93,12 +93,12 @@ package body Character_Services is
    -------------------------------------------
 
    procedure Test_Array_Record_Character_Parameter
-     (Value_Param : Array_Record_Character_Type) is
+     (Value_Param : Array_Record_Character_Type_Pkg.Vector) is
    begin
       Text_IO.Put ("VPar:");
 
-      for K in Value_Param'Range loop
-         Text_Io.Put (' ' & Value_Param (K).Value);
+      for E of Value_Param loop
+         Text_Io.Put (' ' & E.Value);
       end loop;
 
       Text_IO.New_Line;

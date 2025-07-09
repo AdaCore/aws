@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                       Copyright (C) 2017, AdaCore                        --
+--                    Copyright (C) 2017-2025, AdaCore                      --
 --                                                                          --
 --  This is free software;  you can redistribute it  and/or modify it       --
 --  under terms of the  GNU General Public License as published  by the     --
@@ -28,8 +28,8 @@ package body API is
 
    procedure Call (P : Part) is
    begin
-      Put_Line (To_String (P.It.Item (1).Code));
-      Put_Line (To_String (P.It.Item (1).Variant));
+      Put_Line (To_String (P.It (1).Code));
+      Put_Line (To_String (P.It (1).Variant));
    end Call;
 
 end API;

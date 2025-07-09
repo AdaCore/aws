@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                       Copyright (C) 2015, AdaCore                        --
+--                     Copyright (C) 2015-2025, AdaCore                     --
 --                                                                          --
 --  This is free software;  you can redistribute it  and/or modify it       --
 --  under terms of the  GNU General Public License as published  by the     --
@@ -15,6 +15,8 @@
 --  distributed  with  this  software;   see  file COPYING3.  If not, go    --
 --  to http://www.gnu.org/licenses for a complete copy of the license.      --
 ------------------------------------------------------------------------------
+
+pragma Ada_2022;
 
 with Ada.Strings.Unbounded;
 with Ada.Text_IO;
@@ -51,7 +53,7 @@ procedure Occurs is
    H    : Occurs_CB.Handler;
    Conf : Config.Object := Config.Get_Current;
 
-   Af : constant ArrayOfFloat_Type := (1.2, 1.6, 8.0);
+   Af : constant ArrayOfFloat_Type :=  [1.2, 1.6, 8.0];
    T  : T_Track_Type;
 
 begin
@@ -66,8 +68,7 @@ begin
    AWS.Server.Start (WS, H, Conf);
 
    T.p_battleDimension := AIR;
-   T.p_tag             := string_Set_Type_Safe_Pointer.To_Safe_Pointer
-                            ((+"one", +"two"));
+   T.p_tag             := [+"one", +"two"];
 
    OccursServices.Client.DisplayTrack
      (T, Af, Endpoint => Server.Status.Local_URL (WS));

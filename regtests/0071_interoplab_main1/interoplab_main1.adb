@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2003-2024, AdaCore                     --
+--                     Copyright (C) 2003-2025, AdaCore                     --
 --                                                                          --
 --  This is free software;  you can redistribute it  and/or modify it       --
 --  under terms of the  GNU General Public License as published  by the     --
@@ -15,6 +15,8 @@
 --  distributed  with  this  software;   see  file COPYING3.  If not, go    --
 --  to http://www.gnu.org/licenses for a complete copy of the license.      --
 ------------------------------------------------------------------------------
+
+pragma Ada_2022;
 
 with Ada.Calendar;
 with Ada.Integer_Text_IO;
@@ -106,13 +108,13 @@ procedure Interoplab_Main1 is
    -----------------------
 
    procedure T_echoStringArray is
-      Arr : constant ArrayOfstring_Type := (+"first", +"second", +"third");
+      Arr : constant ArrayOfstring_Type := [+"first", +"second", +"third"];
 
       Res : constant ArrayOfstring_Type
         := TinteropLab.Client.echoStringArray (Arr);
    begin
       Text_IO.Put_Line ("Echo ArrayOfstring");
-      for K in Res'Range loop
+      for K in 1 .. Integer (Res.Length) loop
          Text_IO.Put_Line (Integer'Image (K) & " = " & To_String (Res (K)));
       end loop;
       Text_IO.New_Line;
@@ -226,13 +228,13 @@ procedure Interoplab_Main1 is
    ------------------------
 
    procedure T_echoIntegerArray is
-      Arr : constant ArrayOfint_Type := (34, 67, 98, 54, 78, 65, 1);
+      Arr : constant ArrayOfint_Type := [34, 67, 98, 54, 78, 65, 1];
 
       Res : constant ArrayOfint_Type
         := TinteropLab.Client.echoIntegerArray (Arr);
    begin
       Text_IO.Put_Line ("Echo ArrayOfint");
-      for K in Res'Range loop
+      for K in 1 .. Integer (Res.Length) loop
          Text_IO.Put (Integer'Image (K) & " = ");
          Integer_Text_IO.Put (Res (K));
          Text_IO.New_Line;
@@ -352,15 +354,15 @@ procedure Interoplab_Main1 is
    ----------------------
 
    procedure T_echoFloatArray is
-      Arr : constant ArrayOfFloat_Type
-        := (34.1, 67.2, 98.3, 54.4, 78.5, 65.6, 1.7);
+      Arr : constant ArrayOfFloat_Type :=
+              [34.1, 67.2, 98.3, 54.4, 78.5, 65.6, 1.7];
 
-      Res : constant ArrayOfFloat_Type
-        := TinteropLab.Client.echoFloatArray (Arr);
+      Res : constant ArrayOfFloat_Type :=
+              TinteropLab.Client.echoFloatArray (Arr);
    begin
       Text_IO.Put_Line ("Echo ArrayOfFloat");
 
-      for K in Res'Range loop
+      for K in 1 .. Integer (Res.Length) loop
          Text_IO.Put (Integer'Image (K) & " = ");
          FIO.Put (Res (K), Aft => 2, Exp => 0);
          Text_IO.New_Line;
@@ -387,15 +389,15 @@ procedure Interoplab_Main1 is
    -----------------------
 
    procedure T_echoStructArray is
-      A_Struct : constant ArrayOfSOAPStruct_Type
-        := ((1, 1.1, +"one"), (2, 2.2, +"two"), (3, 3.3, +"three"));
+      A_Struct : constant ArrayOfSOAPStruct_Type :=
+                   [(1, 1.1, +"one"), (2, 2.2, +"two"), (3, 3.3, +"three")];
 
-      Res : constant ArrayOfSOAPStruct_Type
-        := TinteropLab.Client.echoStructArray (A_Struct);
+      Res : constant ArrayOfSOAPStruct_Type :=
+              TinteropLab.Client.echoStructArray (A_Struct);
    begin
       Text_IO.Put_Line ("Echo ArrayOfStruct");
 
-      for K in Res'Range loop
+      for K in 1 .. Integer (Res.Length) loop
          Output (Res (K));
       end loop;
 
@@ -432,8 +434,9 @@ procedure Interoplab_Main1 is
    function CB (Request : Status.Data) return Response.Data is
       SOAPAction : constant String := Status.SOAPAction (Request);
       P_Str      : aliased constant String := AWS.Status.Payload (Request);
-      Payload    : constant SOAP.Message.Payload.Object
-        := SOAP.Message.XML.Load_Payload (P_Str, Schema => Tinteroplab.Schema);
+      Payload    : constant SOAP.Message.Payload.Object :=
+                     SOAP.Message.XML.Load_Payload
+                       (P_Str, Schema => Tinteroplab.Schema);
    begin
       if SOAPAction = "http://t_soapinterop.org/#echoString" then
          return echoString_CB (SOAPAction, Payload, Request);

@@ -5,7 +5,7 @@ import glob
 
 # Try with wsdl in current directory
 
-exec_cmd('wsdl2aws', ['-q', '-f', '-sp', 'gettst.wsdl'])
+exec_cmd('wsdl2aws', ['-q', '-f', 'gettst.wsdl'])
 build('dl2_server')
 run('dl2_server', output_file="out.tmp")
 
@@ -31,7 +31,7 @@ for filePath in files:
 os.mkdir('inside')
 os.chdir('inside')
 
-exec_cmd('wsdl2aws', ['-q', '-f', '-sp', '../gettst.wsdl',
+exec_cmd('wsdl2aws', ['-q', '-f', '../gettst.wsdl',
                       '-e', 'http://localhost:4231'])
 build('../dl2_server_i')
 run('dl2_server', output_file="out2.tmp")

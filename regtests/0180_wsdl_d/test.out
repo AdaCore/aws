@@ -1,9 +1,6 @@
 
-   - array (<>)      Name_Set of Integer (xsd:int)
-   - safe pointer    Name_Set_Safe_Pointer (Name_Set, Name_Set_Access)
-   - array (<>)      Name_Set1 of Integer (xsd:int)
-   - safe pointer    Name_Set1_Safe_Pointer (Name_Set1, Name_Set1_Access)
-   - array (<>)      Name_Set2 of Integer (xsd:int)
-   - safe pointer    Name_Set2_Safe_Pointer (Name_Set2, Name_Set2_Access)
+   - array (<>)      Name_Set_Pkg of Integer (xsd:int)
+   - array (<>)      Name_Set1_Pkg of Integer (xsd:int)
+   - array (<>)      Name_Set2_Pkg of Integer (xsd:int)
 
 WSDL document wsdl_d.wsdl is created for wsdl_d.ads.

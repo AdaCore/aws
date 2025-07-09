@@ -11,7 +11,7 @@ exec_cmd('ada2wsdl', ['-q', '-P', '../wsdl_array_rec_param.gpr',
 
 os.chdir('../generated')
 
-exec_cmd('wsdl2aws', ['-q', '-sp', '-types', 'aws_test',
+exec_cmd('wsdl2aws', ['-q', '-types', 'aws_test',
                       '-cb', 'aws_test.wsdl'])
 
 os.chdir('..')

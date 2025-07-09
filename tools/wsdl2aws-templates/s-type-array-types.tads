@@ -67,9 +67,6 @@
      renames @_UNIT_NAME_@.@_TYPE_NAME_@_Pck;
    subtype @_NAME_SPACE_@_@_TYPE_NAME_@
      is @_UNIT_NAME_@.@_TYPE_NAME_@;
-
-   function "+" (V: @_TYPE_NAME_@)
-     return @_TYPE_NAME_@ is (V);
 @@END_IF@@
 @@END_IF@@
 @@--  For first occurent of a type, generate a non qualified name
@@ -78,6 +75,8 @@
    subtype @_TYPE_NAME_@
      is @_NAME_SPACE_@_@_TYPE_NAME_@;
 @@END_IF@@
+   function "+" (V: @_TYPE_NAME_@)
+     return @_TYPE_NAME_@ is (V);
 
    function To_@_TYPE_NAME_@
      (From : SOAP.Types.Object_Set)

@@ -67,12 +67,12 @@ begin
       R : WART.Enumeration_Record_Type;
       E : WART.Enumeration_Type;
 
-      L : WART.Sub_Record_List_Type (1 .. 2) :=
-            (1 => (Value => WART.Third),
-             2 => (Value => WART.First));
+      L : WART.Sub_Record_List_Type_Pkg.Vector :=
+            [1 => (Value => WART.Third),
+             2 => (Value => WART.First)];
    begin
       R.Value := WART.First;
-      R.List  := WART.Sub_Record_List_Type_Safe_Pointer.To_Safe_Pointer (L);
+      R.List  := L;
       E := Test_1 (R, Endpoint => Server.Status.Local_URL (WS));
       Text_IO.Put_Line (WART.Enumeration_Type'Image (E));
    end;
@@ -83,8 +83,8 @@ begin
    begin
       R := Test_2 (E, Endpoint => Server.Status.Local_URL (WS));
       Text_IO.Put_Line (WART.Enumeration_Type'Image (R.Value));
-      Text_IO.Put_Line (WART.Enumeration_Type'Image (R.List.Item (1).Value));
-      Text_IO.Put_Line (WART.Enumeration_Type'Image (R.List.Item (2).Value));
+      Text_IO.Put_Line (WART.Enumeration_Type'Image (R.List (1).Value));
+      Text_IO.Put_Line (WART.Enumeration_Type'Image (R.List (2).Value));
    end;
 
    AWS.Server.Shutdown (WS);
