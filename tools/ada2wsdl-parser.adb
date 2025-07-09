@@ -24,6 +24,7 @@ with Ada.Strings.Maps;
 with Ada.Strings.Unbounded;
 with Ada.Text_IO;
 
+with Langkit_Support.Errors;
 with Langkit_Support.Text;
 with Libadalang.Analysis;
 with Libadalang.Common;
@@ -1585,6 +1586,10 @@ package body Ada2WSDL.Parser is
          end case;
 
          return Result;
+
+      exception
+         when Langkit_Support.Errors.Precondition_Failure =>
+            Raise_Spec_Error (Node, "syntax error");
       end Parser;
 
       Context  : constant Analysis_Context :=
