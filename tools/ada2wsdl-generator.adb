@@ -329,27 +329,29 @@ package body Ada2WSDL.Generator is
                   (+Name, Def.Name, +To_XSD (-Def.NS, -Def.Name), null);
       D     : Definition (Simple_Type);
    begin
-      --  We need to write a schema for this derived type
-      Schema_Needed := True;
+      if not Type_Exists (NS, Name) then
+         --  We need to write a schema for this derived type
+         Schema_Needed := True;
 
-      Insert_NS (NS);
+         Insert_NS (NS);
 
-      D.NS         := +NS;
-      D.Name       := +Name;
-      D.Parameters := New_P;
-      D.Min        := Def.Min;
-      D.Max        := Def.Max;
+         D.NS         := +NS;
+         D.Name       := +Name;
+         D.Parameters := New_P;
+         D.Min        := Def.Min;
+         D.Max        := Def.Max;
 
-      API.Append (D);
+         API.Append (D);
 
-      if not Options.Quiet then
-         Text_IO.Put
-           ("   - new type        " & Name & " is " & (-Def.Name));
+         if not Options.Quiet then
+            Text_IO.Put
+              ("   - new type        " & Name & " is " & (-Def.Name));
 
-         if Options.Verbose then
-            Text_IO.Put_Line (" (" & (-New_P.XSD_Name) & ')');
-         else
-            Text_IO.New_Line;
+            if Options.Verbose then
+               Text_IO.Put_Line (" (" & (-New_P.XSD_Name) & ')');
+            else
+               Text_IO.New_Line;
+            end if;
          end if;
       end if;
    end Register_Type;
@@ -387,37 +389,39 @@ package body Ada2WSDL.Generator is
                                +To_XSD (Component_NS, Component_Type), null);
       D     : Definition (Table);
    begin
-      --  We need to write a schema for this record
-      Schema_Needed := True;
+      if not Type_Exists (NS, Name) then
+         --  We need to write a schema for this record
+         Schema_Needed := True;
 
-      Insert_NS (NS);
+         Insert_NS (NS);
 
-      D.NS         := +NS;
-      D.Name       := +Name;
-      D.NS         := +NS;
-      D.Parameters := New_P;
-      D.Length     := Length;
+         D.NS         := +NS;
+         D.Name       := +Name;
+         D.NS         := +NS;
+         D.Parameters := New_P;
+         D.Length     := Length;
 
-      API.Append (D);
+         API.Append (D);
 
-      if not Options.Quiet then
-         Text_IO.Put ("   - array (");
+         if not Options.Quiet then
+            Text_IO.Put ("   - array (");
 
-         if Length = 0 then
-            --  An unconstrained array
-            Text_IO.Put ("<>");
-         else
-            Text_IO.Put (AWS.Utils.Image (Length));
-         end if;
+            if Length = 0 then
+               --  An unconstrained array
+               Text_IO.Put ("<>");
+            else
+               Text_IO.Put (AWS.Utils.Image (Length));
+            end if;
 
-         Text_IO.Put (")");
-         Text_IO.Set_Col (22);
-         Text_IO.Put (Name & " of " & Component_Type);
+            Text_IO.Put (")");
+            Text_IO.Set_Col (22);
+            Text_IO.Put (Name & " of " & Component_Type);
 
-         if Options.Verbose then
-            Text_IO.Put_Line (" (" & (-New_P.XSD_Name) & ')');
-         else
-            Text_IO.New_Line;
+            if Options.Verbose then
+               Text_IO.Put_Line (" (" & (-New_P.XSD_Name) & ')');
+            else
+               Text_IO.New_Line;
+            end if;
          end if;
       end if;
    end Start_Array;
@@ -429,19 +433,21 @@ package body Ada2WSDL.Generator is
    procedure Start_Enumeration (NS, Name : String) is
       D : Definition (Enumeration);
    begin
-      --  We need to write a schema for this derived type
-      Schema_Needed := True;
+      if not Type_Exists (NS, Name) then
+         --  We need to write a schema for this derived type
+         Schema_Needed := True;
 
-      Insert_NS (NS);
+         Insert_NS (NS);
 
-      D.NS         := +NS;
-      D.Name       := +Name;
-      D.Parameters := null;
+         D.NS         := +NS;
+         D.Name       := +Name;
+         D.Parameters := null;
 
-      API.Append (D);
+         API.Append (D);
 
-      if not Options.Quiet then
-         Text_IO.Put_Line ("   - enumeration     " & Name);
+         if not Options.Quiet then
+            Text_IO.Put_Line ("   - enumeration     " & Name);
+         end if;
       end if;
    end Start_Enumeration;
 
@@ -452,18 +458,20 @@ package body Ada2WSDL.Generator is
    procedure Start_Record (NS, Name : String) is
       D : Definition (Structure);
    begin
-      --  We need to write a schema for this record
-      Schema_Needed := True;
+      if not Type_Exists (NS, Name) then
+         --  We need to write a schema for this record
+         Schema_Needed := True;
 
-      Insert_NS (NS);
+         Insert_NS (NS);
 
-      D.NS   := +NS;
-      D.Name := +Name;
+         D.NS   := +NS;
+         D.Name := +Name;
 
-      API.Append (D);
+         API.Append (D);
 
-      if not Options.Quiet then
-         Text_IO.Put_Line ("   - record          " & Name);
+         if not Options.Quiet then
+            Text_IO.Put_Line ("   - record          " & Name);
+         end if;
       end if;
    end Start_Record;
 
