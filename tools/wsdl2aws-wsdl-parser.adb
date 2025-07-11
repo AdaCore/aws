@@ -732,7 +732,7 @@ package body WSDL2AWS.WSDL.Parser is
                      raise WSDL_Error with "Array type is not defined.";
                   end if;
 
-                  --  If maxOccurs is 1, this is not an array, just an optimnal
+                  --  If maxOccurs is 1, this is not an array, just an optional
                   --  item if minOccurs is 0 or an item if minOccurs is 1.
 
                   if (Max_Occurs /= "" and then Max_Occurs /= "1")
@@ -1828,7 +1828,7 @@ package body WSDL2AWS.WSDL.Parser is
                      Typ       => Types.Create (SOAP.Utils.No_NS (P_Type), NS),
                      Min       => Min,
                      Max       => Max,
-                     Is_Set    => Min = 0,
+                     Is_Set    => False,
                      In_Choice => False,
                      Next      => null);
                end;
