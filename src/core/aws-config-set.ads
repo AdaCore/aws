@@ -40,7 +40,7 @@ package AWS.Config.Set is
    ------------
 
    procedure Server_Name (O : in out Object; Value : String);
-   --  This is the name of the server as set by AWS.Server.Start
+   --  Set the name of the server
 
    procedure Protocol_Family (O : in out Object; Value : String);
    --  Set the server protocol family. Family_Inet for IPv4, Family_Inet6 for
@@ -50,20 +50,20 @@ package AWS.Config.Set is
    --  Set the mode when IPv6 server allows connect only IPv6 clients
 
    procedure Server_Host (O : in out Object; Value : String);
-   --  This is the server host as set by the HTTP object declaration
+   --  Set the server host as set by the HTTP object declaration
 
    procedure Server_Port (O : in out Object; Value : Natural);
-   --  This is the server port as set by the HTTP object declaration
+   --  Set the server port as set by the HTTP object declaration
 
    procedure HTTP2_Activated (O : in out Object; Value : Boolean);
    --  Set to True if the HTTP/2 protocol is to be activated
 
    procedure Hotplug_Port (O : in out Object; Value : Positive);
-   --  This is the hotplug communication port needed to register and
+   --  Set the hotplug communication port needed to register and
    --  un-register an hotplug module.
 
    procedure Session (O : in out Object; Value : Boolean);
-   --  Enable session handling is Value is True
+   --  Enable session handling if Value is True
 
    procedure Case_Sensitive_Parameters (O : in out Object; Value : Boolean);
    --  Parameters are handled with the case if Value is True
@@ -80,7 +80,7 @@ package AWS.Config.Set is
    --  be closed in child processes.
 
    procedure Session_Name (O : in out Object; Value : String);
-   --  Name of the cookie session
+   --  Set the name of the cookie session
 
    procedure Server_Priority (O : in out Object; Value : System.Any_Priority);
    --  Set the priority used by the HTTP and WebSockets servers
@@ -96,11 +96,11 @@ package AWS.Config.Set is
    ----------------
 
    procedure Max_Connection (O : in out Object; Value : Positive);
-   --  This is the max simultaneous connections as set by the HTTP object
+   --  Set the max simultaneous connections as set by the HTTP object
    --  declaration.
 
    procedure Send_Buffer_Size (O : in out Object; Value : Positive);
-   --  This is the socket buffer size used for sending data. Increasing this
+   --  Set the socket buffer size used for sending data. Increasing this
    --  value will give better performances on slow or long distances
    --  connections.
 
@@ -109,21 +109,21 @@ package AWS.Config.Set is
 
    procedure Free_Slots_Keep_Alive_Limit
      (O : in out Object; Value : Natural);
-   --  The minimum number of free slots where keep-alive connections are still
-   --  enabled. After this limit no more keep-alive connection will be
+   --  Set the minimum number of free slots where keep-alive connections are
+   --  still enabled. After this limit no more keep-alive connection will be
    --  accepted by the server. This parameter must be used for heavy-loaded
    --  servers to make sure the server will never run out of slots. This limit
    --  must be less than Max_Connection.
 
    procedure Keep_Alive_Force_Limit (O : in out Object; Value : Natural);
-   --  Define maximum number of keep alive sockets where server process it with
-   --  normal timeouts. If number of keep-alive sockets become more than
+   --  Define the maximum number of keep alive sockets where server process it
+   --  with normal timeouts. If number of keep-alive sockets become more than
    --  Keep_Alive_Force_Limit, server start to use shorter force timeouts.
    --  If this parameter not defined in configuration or defined as 0 value
    --  server use calculated value Max_Connection * 2.
 
    procedure Accept_Queue_Size (O : in out Object; Value : Positive);
-   --  This is the size of the queue for the incoming requests. Higher this
+   --  Set the size of the queue for the incoming requests. Higher this
    --  value will be and less "connection refused" will be reported to the
    --  client.
 
@@ -148,14 +148,13 @@ package AWS.Config.Set is
    ----------
 
    procedure WWW_Root (O : in out Object; Value : String);
-   --  This is the root directory name for the server. This variable is not
+   --  Set the root directory name for the server. This variable is not
    --  used internally by AWS. It is supposed to be used by the callback
    --  procedures who want to retrieve physical objects (images, Web
    --  pages...). The default value is the current working directory.
 
    procedure Upload_Directory (O : in out Object; Value : String);
-   --  This point to the directory where uploaded files will be stored. The
-   --  directory returned will end with a directory separator.
+   --  Set the point to the directory where uploaded files will be stored.
 
    procedure Upload_Size_Limit (O : in out Object; Value : Positive);
    --  Set the maximum size accepted for uploaded files
@@ -175,8 +174,7 @@ package AWS.Config.Set is
    --  Whether the default log should be activated
 
    procedure Log_File_Directory (O : in out Object; Value : String);
-   --  This point to the directory where log files will be written. The
-   --  directory returned will end with a directory separator.
+   --  Set the point to the directory where log files will be written.
 
    procedure Log_Filename_Prefix (O : in out Object; Value : String);
    --  This is the prefix to use for the log filename
@@ -238,12 +236,11 @@ package AWS.Config.Set is
    ------------
 
    procedure Admin_Password (O : in out Object; Value : String);
-   --  This is the password for the admin server page as set by
-   --  AWS.Server.Start. The password must be created with the aws_password
-   --  tool.
+   --  Set the password for the admin server page. The password must be
+   --  created with the aws_password tool.
 
    procedure Admin_URI (O : in out Object; Value : String);
-   --  This is the name of the admin server page as set by AWS.Server.Start
+   --  Set the name of the admin server page
 
    procedure Status_Page (O : in out Object; Value : String);
    --  Filename for the status template page
@@ -365,7 +362,7 @@ package AWS.Config.Set is
    --  server.
 
    procedure CRL_File (O : in out Object; Filename : String);
-   --  Returns the filename containing the Certificate Revocation List. This
+   --  Set the filename containing the Certificate Revocation List. This
    --  list is used by the server to check for revoked certificate.
 
    procedure SSL_Session_Cache_Size (O : in out Object; Value : Natural);
@@ -386,7 +383,7 @@ package AWS.Config.Set is
    --  session data is obsoleted and will be removed during next cleanup.
 
    procedure Session_Id_Length (Value : Positive);
-   --  Returns the length (number of characters) of the session id
+   --  Set the length (number of characters) of the session id
 
    procedure Session_Cleaner_Priority (Value : System.Any_Priority);
    --  Set the priority used by the session cleaner task
@@ -420,25 +417,25 @@ package AWS.Config.Set is
    --  WebSockets.
 
    procedure Max_WebSocket_Handler (Value : Positive);
-   --  This is the max simultaneous connections handling WebSocket's messages
+   --  Set the max simultaneous connections handling WebSocket's messages
 
    procedure MIME_Types (Value : String);
-   --  The name of the file containing the MIME types associations
+   --  Set the name of the file containing the MIME types associations
 
    procedure WebSocket_Message_Queue_Size (Value : Positive);
-   --  This is the size of the queue containing incoming messages
+   --  Set the size of the queue containing incoming messages
 
    procedure WebSocket_Send_Message_Queue_Size (Value : Positive);
-   --  This is the size of the queue containing messages to send
+   --  Set the size of the queue containing messages to send
 
    procedure WebSocket_Origin (Value : String);
-   --  This is regular expression to restrict WebSocket to a specific origin
+   --  Set the regular expression to restrict WebSocket to a specific origin
 
    procedure WebSocket_Priority (Value : System.Any_Priority);
    --  Set the priority used by the WebSocket service
 
    procedure WebSocket_Timeout (Value : Duration);
-   --  Returns the WebSocket activity timeout. After this number of seconds
+   --  Set the WebSocket activity timeout. After this number of seconds
    --  without any activity the WebSocket can be closed when needed.
 
    procedure Input_Line_Size_Limit (Value : Positive);
