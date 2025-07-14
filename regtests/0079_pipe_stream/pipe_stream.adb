@@ -24,7 +24,9 @@ with Ada.Text_IO.Text_Streams;
 
 with GNAT.OS_Lib;
 
+with AWS.Default;
 with AWS.Client;
+with AWS.Config.Set;
 with AWS.MIME;
 with AWS.Resources.Streams.Pipe;
 with AWS.Response;
@@ -41,7 +43,8 @@ procedure Pipe_Stream is
 
    package ASB renames Ada.Synchronous_Barriers;
 
-   WS : Server.HTTP;
+   WS      : Server.HTTP;
+   Conf    : AWS.Config.Object;
    Barrier : ASB.Synchronous_Barrier (8);
 
    Stdout : constant Text_IO.Text_Streams.Stream_Access :=
@@ -69,7 +72,10 @@ procedure Pipe_Stream is
       Strm := new Resources.Streams.Pipe.Stream_Type;
 
       Resources.Streams.Pipe.Open
-        (Resources.Streams.Pipe.Stream_Type (Strm.all), "./pipe_stream", Args,
+        (Pipe     => Resources.Streams.Pipe.Stream_Type (Strm.all),
+         Command  => "./pipe_stream",
+         Args     => Args,
+         Timeout  => 60_000,
          On_Error => On_Error'Unrestricted_Access);
 
       return Response.Stream (MIME.Application_Octet_Stream, Strm);
@@ -112,7 +118,10 @@ procedure Pipe_Stream is
          if I = 25600 then
             Append (Output, "OK" & ASCII.LF);
          else
-            Append (Output, "NOK on " & Utils.Image (I) & ASCII.LF);
+            Append
+              (Output, "NOK on " & Utils.Image (I) & ASCII.LF &
+                 M & ASCII.LF); --  Output the message body to have some
+                                --  information about the test fails
          end if;
       end;
    end Run_Test;
@@ -150,7 +159,7 @@ procedure Pipe_Stream is
    Output : Unbounded_String;
    Prev   : Unbounded_String;
 
-   TA : array (1 .. Barrier.Release_Threshold) of access Tester;
+   TA  : array (1 .. Barrier.Release_Threshold) of access Tester;
    Cnt : Natural := 0;
 
    ------------------
@@ -167,11 +176,19 @@ procedure Pipe_Stream is
 
 begin
    if Command_Line.Argument_Count = 0 then
+      Conf := Config.Get_Current;
+
+      AWS.Config.Set.Server_Name    (Conf, "pipe");
+      AWS.Config.Set.Server_Host    (Conf, "localhost");
+      AWS.Config.Set.Server_Port    (Conf, 0);
+      AWS.Config.Set.Max_Connection (Conf, 10);
+      AWS.Config.Set.Send_Timeout   (Conf, 60.0);
+      AWS.Config.Set.Cleaner_Server_Response_Timeout (Conf, 120.0);
+
       Server.Start
-        (WS, "pipe",
-         CB'Unrestricted_Access,
-         Host => "localhost",
-         Port => 0);
+        (Web_Server => WS,
+         Callback   => CB'Unrestricted_Access,
+         Config     => Conf);
 
       for T of TA loop
          T := new Tester;
