@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                      Copyright (C) 2015-2024, AdaCore                    --
+--                      Copyright (C) 2015-2025, AdaCore                    --
 --                                                                          --
 --  This is free software;  you can redistribute it  and/or modify it       --
 --  under terms of the  GNU General Public License as published  by the     --
@@ -15,6 +15,8 @@
 --  distributed  with  this  software;   see  file COPYING3.  If not, go    --
 --  to http://www.gnu.org/licenses for a complete copy of the license.      --
 ------------------------------------------------------------------------------
+
+pragma Ada_2022;
 
 with Ada.Strings.Unbounded;
 with Ada.Text_IO;
@@ -131,7 +133,7 @@ procedure Deriveconst_Main is
         ("Faultstring : " & SOAP.Parameters.Get (P, "faultstring"));
    end Error;
 
-   A  : constant ArrayOfName_Type := (1 => "00000000", 2 => "abcdefgh");
+   A  : constant ArrayOfName_Type := [1 => "00000000", 2 => "abcdefgh"];
    B1 : constant Big_Type := (1, 1, 1, 1.0, "abcdefgh", +A,
                               To_Address_Type (+"0987654"),
                               To_Code1_Type (+"A2"),

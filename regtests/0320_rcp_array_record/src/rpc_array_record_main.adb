@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2019-2024, AdaCore                     --
+--                     Copyright (C) 2019-2025, AdaCore                     --
 --                                                                          --
 --  This is free software;  you can redistribute it  and/or modify it       --
 --  under terms of the  GNU General Public License as published  by the     --
@@ -15,6 +15,8 @@
 --  distributed  with  this  software;   see  file COPYING3.  If not, go    --
 --  to http://www.gnu.org/licenses for a complete copy of the license.      --
 ------------------------------------------------------------------------------
+
+pragma Ada_2022;
 
 with Ada.Text_IO;
 
@@ -67,12 +69,12 @@ begin
       R : WART.Enumeration_Record_Type;
       E : WART.Enumeration_Type;
 
-      L : WART.Sub_Record_List_Type (1 .. 2) :=
-            (1 => (Value => WART.Third),
-             2 => (Value => WART.First));
+      L : WART.Sub_Record_List_Type_Pkg.Vector :=
+            [1 => (Value => WART.Third),
+             2 => (Value => WART.First)];
    begin
       R.Value := WART.First;
-      R.List  := WART.Sub_Record_List_Type_Safe_Pointer.To_Safe_Pointer (L);
+      R.List  := L;
       E := Test_1 (R, Endpoint => Server.Status.Local_URL (WS));
       Text_IO.Put_Line ("@ " & WART.Enumeration_Type'Image (E));
    end;
@@ -85,9 +87,9 @@ begin
       Text_IO.Put_Line
         ("@ " & WART.Enumeration_Type'Image (R.Value));
       Text_IO.Put_Line
-        ("@ " & WART.Enumeration_Type'Image (R.List.Item (1).Value));
+        ("@ " & WART.Enumeration_Type'Image (R.List (1).Value));
       Text_IO.Put_Line
-        ("@ " & WART.Enumeration_Type'Image (R.List.Item (2).Value));
+        ("@ " & WART.Enumeration_Type'Image (R.List (2).Value));
    end;
 
    AWS.Server.Shutdown (WS);

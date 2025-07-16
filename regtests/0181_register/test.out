@@ -5,18 +5,25 @@
         Description : string (xsd:string)
         Help : string (xsd:string)
         Demo : string (xsd:string)
+framework.ads:36:4: warning: array options_table not supported by wsdl2aws, use Containers.Vector
         Options : Options_Table (n1:Options_Table)
+framework.ads:38:4: warning: array files_table not supported by wsdl2aws, use Containers.Vector
         Type_In : Files_Table (n1:Files_Table)
+framework.ads:38:4: warning: array files_table not supported by wsdl2aws, use Containers.Vector
         Type_Out : Files_Table (n1:Files_Table)
+framework.ads:40:4: warning: array ranks_table not supported by wsdl2aws, use Containers.Vector
         Rank : Ranks_Table (n1:Ranks_Table)
    > procedure       Unregister
         Server_Name : string (xsd:string)
+framework.ads:36:4: warning: array Options_Table not supported by wsdl2aws, use Containers.Vector
    - record          Option_Data
         Short_Name : unbounded_string (xsd:string)
         Full_Name : unbounded_string (xsd:string)
         Description : unbounded_string (xsd:string)
    - array (<>)      Options_Table of Option_Data (n1:Option_Data)
+framework.ads:38:4: warning: array Files_Table not supported by wsdl2aws, use Containers.Vector
    - array (<>)      Files_Table of unbounded_string (xsd:string)
+framework.ads:40:4: warning: array Ranks_Table not supported by wsdl2aws, use Containers.Vector
    - record          Rank_Data
         R_Name : unbounded_string (xsd:string)
         Count : Integer (xsd:int)

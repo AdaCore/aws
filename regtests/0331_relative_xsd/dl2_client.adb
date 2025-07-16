@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                       Copyright (C) 2021, AdaCore                        --
+--                    Copyright (C) 2021-2025, AdaCore                      --
 --                                                                          --
 --  This is free software;  you can redistribute it  and/or modify it       --
 --  under terms of the  GNU General Public License as published  by the     --
@@ -15,6 +15,8 @@
 --  distributed  with  this  software;   see  file COPYING3.  If not, go    --
 --  to http://www.gnu.org/licenses for a complete copy of the license.      --
 ------------------------------------------------------------------------------
+
+pragma Ada_2022;
 
 with Ada.Calendar;
 with Ada.Strings.Unbounded;
@@ -38,9 +40,9 @@ procedure Dl2_Client (Client : AWS.Client.HTTP_Connection) is
    R : getQueueStatus_Result;
 
    Re : execute_Result;
-   N  : RecB_Set_Type (1 .. 2) :=
-          (((1.0, 1.1), 3.0, 4.0, 2, 0.9, 8, 0.6),
-           ((2.0, 2.1), 3.2, 4.2, 2, 0.91, 81, 0.61));
+   N  : RecB_Set_Type :=
+          [((1.0, 1.1), 3.0, 4.0, 2, 0.9, 8, 0.6),
+           ((2.0, 2.1), 3.2, 4.2, 2, 0.91, 81, 0.61)];
 begin
    R := getQueueStatus (Client, D);
    Put_Line ("numberQueued     =" & R.numberQueued'Img);

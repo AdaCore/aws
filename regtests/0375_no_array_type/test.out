@@ -1,0 +1,3 @@
+> procedure       Call
+pck.ads:21:4: warning: array table not supported by wsdl2aws, use Containers.Vector
+WSDL document pck.wsdl is created for pck.ads.

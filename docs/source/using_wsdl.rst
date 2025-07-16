@@ -282,9 +282,9 @@ document. In this section we describe the mapping between Ada and
      </xsd:restriction>
    </xsd:simpleType>
 
-  Or for a string::
+  .. highlight:: ada
 
-   .. highlight:: ada
+  Or for a string::
 
    type Code is String (1 .. 10);
 
@@ -402,58 +402,22 @@ document. In this section we describe the mapping between Ada and
 
 .. highlight:: ada
 
-*Arrays*
-  Mapped to an array schema definition. For example::
-
-   type Set_Of_Rec is array (Positive range <>) of Rec;
-
-  .. highlight:: xml
-
-  is defined as::
-
-   <xsd:complexType name="Set_Of_Rec">
-     <xsd:sequence>
-        <xsd:element name="x" type="n1:Rec"
-             minOccurs="0" maxOccurs="unbounded"/>
-     </xsd:sequence>
-   </xsd:complexType>
-
-  A SOAP encoded format can be generated with the -sea option::
-
-   <xsd:complexType name="Set_Of_Rec">
-     <xsd:complexContent>
-       <xsd:restriction base="soap-enc:Array">
-         <xsd:attribute ref="soap-enc:arrayType" wsdl:arrayType="tns:Rec[]"/>
-       </xsd:restriction>
-     </xsd:complexContent>
-   </xsd:complexType>
-
-.. highlight:: ada
-
-*Array inside a record*
+*Array*
   This part is a bit delicate. A record field must be constrained but a
   `SOAP` arrays is most of the time not constrained at all. To
-  support this `AWS` use an Ada.Containers.Vectors or a safe access array
-  component (legacy mode). Both support are described below.
-
-*Array inside a record (Ada.Containers.Vectors)*
-  Using an Ada.Containers.Vectors is the preferred way of supporting
-  array inside records.
+  support this `AWS` use an Ada.Containers.Vectors.
 
   For example, let's say that we have an array of integer that we want
-  to put inside a record::
+  to put inside a record. The first step is to create the
+  corresponding Ada.Containers::
 
-   type Set_Of_Int is array (Positive range <>) of Integer;
-
-  The first step is to create the corresponding Ada.Containers::
-
-   package Set_Of_Int_Type is
+   package Set_Of_Int is
      new Ada.Containers.Vectors (Positive, Integer);
 
   And then the vectors can be added into the record::
 
    type Complex_Rec is record
-      SI : Set_Of_Int_Type.Vectors;
+      SI : Set_Of_Int.Vector;
    end record;
 
   .. highlight:: xml
@@ -461,7 +425,7 @@ document. In this section we describe the mapping between Ada and
   These Ada definitions are fully recognized by :file:`ada2wsdl` and will
   generate standard array and record `WSDL` definitions as seen above::
 
-    <xsd:complexType name="Integer_List_Type">
+    <xsd:complexType name="Set_Of_Int">
        <xsd:sequence>
           <xsd:element name="x" type="xsd:int"
                        minOccurs="0" maxOccurs="unbounded"/>
@@ -470,105 +434,22 @@ document. In this section we describe the mapping between Ada and
 
     <xsd:complexType name="Complex_Rec">
        <xsd:all>
-          <xsd:element name="SI" type="tns:Integer_List_Type"/>
+          <xsd:element name="SI" type="tns:Set_Of_Int"/>
        </xsd:all>
     </xsd:complexType>
 
 .. highlight:: ada
 
-*Array inside a record (legacy)*
-  Using a safe pointer array component to support array inside records.
-  Such a type is built using a generic runtime support package named
-  `SOAP.Utils.Safe_Pointers`. This package implements a reference
-  counter for the array access and will automatically release the memory
-  when no more reference exist to a given object.
-
-  For example, let's say that we have an array of integer that we want
-  to put inside a record::
-
-   type Set_Of_Int is array (Positive range <>) of Integer;
-
-  The first step is to create the safe array access support::
-
-   type Set_Of_Int_Access is access Set_Of_Int;
-
-   package Set_Of_Int_Safe_Pointer is
-     new SOAP.Utils.Safe_Pointers (Set_Of_Int, Set_Of_Int_Access);
-
-  Note that the name `Set_Of_Int_Safe_Pointer` (*<type>_Safe_Pointer*)
-  is mandatory (and checked by :file:`ada2wsdl`) to achieve
-  interoperability with :file:`wsdl2aws`. :ref:`Working_with_WSDL_documents`.
-
-  From there the safe array access can be placed into the record::
-
-   type Complex_Rec is record
-      SI : Set_Of_Int_Safe_Pointer.Safe_Pointer;
-   end record;
-
-  To create a Safe_Pointer given a `Set_Of_Int` one must use
-  `Set_Of_Int_Safe_Pointer.To_Safe_Pointer` routine. Accessing
-  individual items is done with `SI.Item (K)`.
-
-  .. highlight:: xml
-
-  These Ada definitions are fully recognized by :file:`ada2wsdl` and will
-  generate standard array and record `WSDL` definitions as seen above::
-
-   <xsd:complexType name="Set_Of_Int">
-     <xsd:sequence>
-        <xsd:element name="x" type="xsd:int"
-             minOccurs="0" maxOccurs="unbounded"/>
-     </xsd:sequence>
-   </xsd:complexType>
-
-   <xsd:complexType name="Complex_Rec">
-     <xsd:all>
-       <xsd:element name="SI" type="tns:Set_Of_Int"/>
-     </xsd:all>
-   </xsd:complexType>
-
-.. highlight:: ada
-
 *Array as routine parameter*
-  When an array is passed as parameter to a
-  `SOAP` routine it is also required to create a corresponding
-  Ada.Containers.Vectors or a Safe_Pointer when using a
-  `Document/Literal` binding and using a user's type package (see
-  `-types` and '`-spec` `wsdl2aws` options).
-
-*Array as routine parameter (Ada.Containers.Vectors)*
-  This is needed for the `AWS` generated code to handle this routine.
-  Even if required in a very specific case it is never an error to
-  declare such a Ada.Containers.Vectors for an array.
+  When an array is passed as parameter to a SOAP routine it is also
+  required to create a corresponding Ada.Containers.Vectors.
 
   For example::
 
-   type Set_Of_Int is array (Positive range <>) of Integer;
-
-   procedure Call (Values : Set_Of_Int);
-
-  Then the following declaration is required::
-
-   package Set_Of_Int_Type is
+   package Set_Of_Int is
      new Ada.Containers.Vectors (Positive, Integer);
 
-*Array as routine parameter (legacy)*
-  This is needed for the `AWS` generated code to handle this routine.
-  Even if required in a very specific case it is never an error to
-  declare such a Safe_Pointer for an array.
-
-  For example::
-
-   type Set_Of_Int is array (Positive range <>) of Integer;
-
-   procedure Call (Values : Set_Of_Int);
-
-  Then the following declarations are required::
-
-   type Set_Of_Int_Access is access Set_Of_Int;
-
-   package Set_Of_Int_Safe_Pointer is
-     new SOAP.Utils.Safe_Pointers (Set_Of_Int, Set_Of_Int_Access);
+   procedure Call (Values : Set_Of_Int.Vector);
 
 .. _ada2wsdl:
 
@@ -904,10 +785,6 @@ a `WSDL` document on the Web by passing it's `URL`.
 
 *-pp password*
   User password for the proxy if proxy authentication required.
-
-*-sp*
-  Generate legacy Safe Pointers code for the support of array inside
-  records.
 
 *-timeouts [timeouts | connect_timeout,send_timeout,receive_timeout ]*
   Set the timeouts for the SOAP connection. The timeouts is either a

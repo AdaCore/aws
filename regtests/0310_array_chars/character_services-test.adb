@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                      Copyright (C) 2017, AdaCore                         --
+--                     Copyright (C) 2017-2025, AdaCore                     --
 --                                                                          --
 --  This is free software;  you can redistribute it  and/or modify it       --
 --  under terms of the  GNU General Public License as published  by the     --
@@ -27,8 +27,8 @@ package body Character_Services.Test is
 
    use Character_Types;
 
-   Test_Set : constant Array_Character_Type :=
-                ('a', 'A', '¤', 'å', 'Å', '0', '1');
+   Test_Set : constant Array_Character_Type_Pkg.Vector :=
+                ['a', 'A', '¤', 'å', 'Å', '0', '1'];
 
    -----------------
    -- Test_Record --
@@ -66,7 +66,7 @@ package body Character_Services.Test is
       use Character_Services_Service.Types;
       R : Array_Character_Record_Type;
    begin
-      R.Value := +(Test_Set);
+      R.Value := Test_Set;
       Character_Services_Service.Client.Test_Array_Character_Record
         (Value_Record => R,
          Endpoint     => AWS.Server.Status.Local_URL (H_Server));
@@ -89,14 +89,12 @@ package body Character_Services.Test is
 
    procedure Test_Array_Record_Record is
       use Character_Services_Service.Types;
-      R    : Array_Record_Character_Record_Type;
-      Item : Array_Record_Character_Type (Test_Set'Range);
+      R : Array_Record_Character_Record_Type;
    begin
-      for I in Test_Set'Range loop
-         Item (I).Value := Test_Set (I);
+      for E of Test_Set loop
+         R.Value.Append (Character_Record_Type'(Value => E));
       end loop;
 
-      R.Value := +(Item);
       Character_Services_Service.Client.Test_Array_Record_Character_Record
         (Value_Record => R,
          Endpoint     => AWS.Server.Status.Local_URL (H_Server));
@@ -107,10 +105,10 @@ package body Character_Services.Test is
    ---------------------------------
 
    procedure Test_Array_Record_Parameter is
-      Item : Array_Record_Character_Type (Test_Set'Range);
+      Item : Array_Record_Character_Type_Pkg.Vector;
    begin
-      for I in Test_Set'Range loop
-         Item (I).Value := Test_Set (I);
+      for E of Test_Set loop
+         Item.Append (Character_Record_Type'(Value => E));
       end loop;
 
       Character_Services_Service.Client.Test_Array_Record_Character_Parameter

@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                       Copyright (C) 2017, AdaCore                        --
+--                    Copyright (C) 2017-2025, AdaCore                      --
 --                                                                          --
 --  This is free software;  you can redistribute it  and/or modify it       --
 --  under terms of the  GNU General Public License as published  by the     --
@@ -16,12 +16,15 @@
 --  to http://www.gnu.org/licenses for a complete copy of the license.      --
 ------------------------------------------------------------------------------
 
+pragma Ada_2022;
+
 with Ada.Calendar;
 with Ada.Strings.Unbounded;
 with Ada.Text_IO;
 
 with AWS.Client;
 
+with API;
 with api_service.Client;
 with api_service.Types;
 
@@ -34,10 +37,10 @@ procedure NS_Rename_Arr_Rec_Client (Client : AWS.Client.HTTP_Connection) is
    use api_service.Types;
 
    R : R_Type := (To_Unbounded_String ("19"), To_Unbounded_String ("17"));
-   A : Arr_Type (1 .. 1) := (1 => R);
+   A : API.Arr_Pkg.Vector := [1 => R];
    P : Part_Type := (V  => 1,
                      C1 => To_Unbounded_String ("c1"),
-                     It => +A,
+                     It => A,
                      C2 => To_Unbounded_String ("c2"));
 
 begin

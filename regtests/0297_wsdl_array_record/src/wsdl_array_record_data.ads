@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                       Copyright (C) 2017, AdaCore                        --
+--                     Copyright (C) 2017-2025, AdaCore                     --
 --                                                                          --
 --  This is free software;  you can redistribute it  and/or modify it       --
 --  under terms of the  GNU General Public License as published  by the     --
@@ -16,6 +16,8 @@
 --  to http://www.gnu.org/licenses for a complete copy of the license.      --
 ------------------------------------------------------------------------------
 
+with Ada.Containers.Vectors;
+
 with WSDL_Array_Record_Types;
 
 package WSDL_Array_Record_Data is
@@ -26,7 +28,7 @@ package WSDL_Array_Record_Data is
 
    function Test_2 (Item : Enumeration_Type) return Enumeration_Record_Type;
 
-   package Sub_Record_List_Type_Safe_Pointer
-     renames WSDL_Array_Record_Types.Sub_Record_List_Type_Safe_Pointer;
+   package Sub_Record_List_Type_Pkg
+     renames WSDL_Array_Record_Types.Sub_Record_List_Type_Pkg;
 
 end WSDL_Array_Record_Data;

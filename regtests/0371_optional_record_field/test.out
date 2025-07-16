@@ -2,7 +2,8 @@
 One:
 (FIELDONE => "One",
  FIELDTWO => "Two",
- FIELDTHREE => "Three",
+ FIELDTHREE =>
+ ["Three"],
  FIELDFOUR => "Four",
  FIELDFIVE => -3967371000000000000)
 Two:
@@ -16,7 +17,8 @@ Two:
 One:
 (FIELDONE => "One",
  FIELDTWO => "Two",
- FIELDTHREE => "",
+ FIELDTHREE =>
+ [],
  FIELDFOUR => "Four",
  FIELDFIVE => -3967371000000000000)
 Two:

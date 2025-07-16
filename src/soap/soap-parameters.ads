@@ -33,20 +33,17 @@ with Ada.Strings.Unbounded;
 
 with SOAP.Types;
 
+private with Ada.Containers.Vectors;
+
 package SOAP.Parameters is
 
    use Ada.Strings.Unbounded;
 
    Data_Error : exception renames Types.Data_Error;
 
-   Max_Parameters : constant := 50;
-   --  This is the maximum number of parameters supported by this
-   --  implementation.
-
    type List is private;
 
-   function Argument_Count (P : List) return Natural with
-     Post => Argument_Count'Result <= Max_Parameters;
+   function Argument_Count (P : List) return Natural;
    --  Returns the number of parameters in P
 
    function Argument (P : List; Name : String) return Types.Object'Class;
@@ -161,6 +158,15 @@ package SOAP.Parameters is
    --  Types.Data_Error if this parameter does not exist or is not a SOAP
    --  Array.
 
+   function Get (P : List) return Types.Object_Set;
+   --  Retunrs the Object_Set corresponding to the List
+
+   function Get (P : List; Name : String) return Types.Object_Set;
+   --  Returns all element of P having the name Name
+
+   function To_List (Set : Types.Object_Set) return List;
+   --  Returns a list for the given object set
+
    ------------------
    -- Constructors --
    ------------------
@@ -207,9 +213,9 @@ package SOAP.Parameters is
 
 private
 
-   type List is record
-      V : Types.Object_Set (1 .. Max_Parameters);
-      N : Natural := 0;
-   end record;
+   package Set is new Ada.Containers.Vectors
+     (Positive, Types.Object_Safe_Pointer, Types."=");
+
+   type List is new Set.Vector with null record;
 
 end SOAP.Parameters;

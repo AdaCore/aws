@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2017-2024, AdaCore                     --
+--                     Copyright (C) 2017-2025, AdaCore                     --
 --                                                                          --
 --  This is free software;  you can redistribute it  and/or modify it       --
 --  under terms of the  GNU General Public License as published  by the     --
@@ -15,6 +15,8 @@
 --  distributed  with  this  software;   see  file COPYING3.  If not, go    --
 --  to http://www.gnu.org/licenses for a complete copy of the license.      --
 ------------------------------------------------------------------------------
+
+pragma Ada_2022;
 
 with Ada.Text_IO;
 
@@ -64,21 +66,24 @@ begin
    AWS.Server.Start (WS, Disp, Conf);
 
    declare
-      A : ARIT.Enum_List_Type := (ARIT.One, ARIT.Three, ARIT.Two);
-      L : ARIT.Array_Enum_Type := (Value => +A);
+      A : constant ARIT.Enum_List_Type_Pkg.Vector :=
+            [ARIT.One, ARIT.Three, ARIT.Two];
+      L : ARIT.Array_Enum_Type := (Value => A);
    begin
       Test_Array (L, Endpoint => Server.Status.Local_URL (WS));
    end;
 
    declare
-      A : ARIT.Enum_List_Type := (ARIT.One, ARIT.Three, ARIT.Two);
+      A : constant ARIT.Enum_List_Type_Pkg.Vector :=
+            [ARIT.One, ARIT.Three, ARIT.Two];
    begin
       Test_List (A, Endpoint => Server.Status.Local_URL (WS));
    end;
 
    declare
-      A : ARIT.Enum_List_Type := (ARIT.One, ARIT.Three, ARIT.Two);
-      L : ARIT.Array_Enum_Type := (Value => +A);
+      A : constant ARIT.Enum_List_Type_Pkg.Vector :=
+            [ARIT.One, ARIT.Three, ARIT.Two];
+      L : ARIT.Array_Enum_Type := (Value => A);
    begin
       Test_AL (L, A, Endpoint => Server.Status.Local_URL (WS));
    end;

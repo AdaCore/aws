@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2003-2012, AdaCore                     --
+--                     Copyright (C) 2003-2025, AdaCore                     --
 --                                                                          --
 --  This is free software;  you can redistribute it  and/or modify it       --
 --  under terms of the  GNU General Public License as published  by the     --
@@ -16,6 +16,7 @@
 --  to http://www.gnu.org/licenses for a complete copy of the license.      --
 ------------------------------------------------------------------------------
 
+with Ada.Containers.Vectors;
 with Ada.Strings.Unbounded;
 
 with SOAP.Types;
@@ -41,17 +42,14 @@ package WSDL_6 is
       NR : Rec;
    end record;
 
-   type Set_Of_Int is array (Positive range <>) of Integer;
+   package Set_Of_Rec_Pkg is
+     new Ada.Containers.Vectors (Positive, Rec);
 
-   type Set_Of_Rec is array (Positive range <>) of Rec;
-
-   type Set_Of_Int_Access is access Set_Of_Int;
-
-   package Set_Of_Int_Safe_Pointer is
-      new SOAP.Utils.Safe_Pointers (Set_Of_Int, Set_Of_Int_Access);
+   package Set_Of_Int_Pkg is
+     new Ada.Containers.Vectors (Positive, Integer);
 
    type Complex_Rec is record
-      SI : Set_Of_Int_Safe_Pointer.Safe_Pointer;
+      SI : Set_Of_Int_Pkg.Vector;
    end record;
 
    function Plus (Value : Natural) return Natural;
@@ -88,9 +86,11 @@ package WSDL_6 is
 
    function Echo_New_Rec (V : New_Rec) return New_Rec;
 
-   function Echo_Set (Set : Set_Of_Int) return Set_Of_Int;
+   function Echo_Set
+     (Set : Set_Of_Int_Pkg.Vector) return Set_Of_Int_Pkg.Vector;
 
-   function Echo_Set_Rec (Set : Set_Of_Rec) return Set_Of_Rec;
+   function Echo_Set_Rec
+     (Set : Set_Of_Rec_Pkg.Vector) return Set_Of_Rec_Pkg.Vector;
 
    function Echo_Complex_Rec (C_Rec : Complex_Rec) return Complex_Rec;
 

@@ -24,8 +24,10 @@ package Array_Rec_Enum_Data is
 
    procedure Test_Array (Value : Array_Enum_Type);
 
-   procedure Test_List (Value : Enum_List_Type);
+   procedure Test_List (Value : Enum_List_Type_Pkg.Vector);
 
-   procedure Test_AL (Par1 : Array_Enum_Type; Par2 : Enum_List_Type);
+   procedure Test_AL
+     (Par1 : Array_Enum_Type;
+      Par2 : Enum_List_Type_Pkg.Vector);
 
 end Array_Rec_Enum_Data;

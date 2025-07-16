@@ -14,8 +14,10 @@ r_hello_demo-server.ads
 --  response is a complexType with the response and a uniq token value.
 --  just for the documentation validation.
 www-s-com-wsdl-hs_wsdl-arrayoffloat_type_pkg.ads
---  A set of float
---  Convert an array to a safe pointer
+--  Use to get an optional argument passed as parameter or in a
+--  record's field.
+--  Use to get an optional argument passed as parameter or in a
+--  record's field.
 www-s-com-wsdl-hs_wsdl-helloresponse_type_pkg.ads
 --  A message/token pair
 --  The reponse string.

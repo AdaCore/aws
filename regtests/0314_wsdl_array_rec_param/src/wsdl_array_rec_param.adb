@@ -16,6 +16,8 @@
 --  to http://www.gnu.org/licenses for a complete copy of the license.      --
 ------------------------------------------------------------------------------
 
+pragma Ada_2022;
+
 with Ada.Text_IO;
 with Ada.Strings.Unbounded;
 
@@ -67,13 +69,13 @@ begin
 
    Put_Line ("==========");
    Put_Line (AWS_Test_Service.Client.Get_Test_Name2
-               ((1 => ((6, 6.1, To_Unbounded_String ("ARR1")))),
+               ([(6, 6.1, To_Unbounded_String ("ARR1"))],
                 Endpoint => Server.Status.Local_URL (WS)));
 
    Put_Line ("==========");
    Put_Line (AWS_Test_Service.Client.Get_Test_Name2
-               ((1 => ((6, 6.1, To_Unbounded_String ("ARR2"))),
-                 2 => ((7, 7.2, To_Unbounded_String ("ARR3")))),
+               ([(6, 6.1, To_Unbounded_String ("ARR2")),
+                 (7, 7.2, To_Unbounded_String ("ARR3"))],
                 Endpoint => Server.Status.Local_URL (WS)));
 
    AWS.Server.Shutdown (WS);

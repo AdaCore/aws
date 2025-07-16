@@ -27,7 +27,7 @@ endif
 
 build_wsdl:
 	echo Generate stub/skel from WSDL document
-	wsdl2aws -q -f -sp -doc -noskel interoplab_main.wsdl
+	wsdl2aws -q -f -doc -noskel interoplab_main.wsdl
 
 clean:
 	gprclean $(GPROPTS) interoplab.gpr

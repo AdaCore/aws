@@ -710,6 +710,7 @@ package body WSDL2AWS.WSDL.Parser is
 
             if L /= null
               and then Local_Name (L) = "element"
+              and then SOAP.XML.Next_Sibling (L) = null
             then
                --  Element must have minOccurs and maxOccurs attribute
                declare
@@ -731,14 +732,16 @@ package body WSDL2AWS.WSDL.Parser is
                      raise WSDL_Error with "Array type is not defined.";
                   end if;
 
-                  --  If maxOccurs is 1, this is not an array, just an optimnal
-                  --  item if minOccurs is 0 or an item is minOccurs is 1.
+                  --  If maxOccurs is 1, this is not an array, just an optional
+                  --  item if minOccurs is 0 or an item if minOccurs is 1.
 
-                  if Min_Occurs /= "" and then Max_Occurs /= ""
-                    and then Max_Occurs /= "1"
+                  if (Max_Occurs /= "" and then Max_Occurs /= "1")
+                    or else Min_Occurs = "0"
                   then
                      if Max_Occurs = "unbounded" then
                         O.Self.Array_Length := 0;
+                     elsif Max_Occurs = "" then
+                        O.Self.Array_Length := 1;
                      else
                         O.Self.Array_Length := Natural'Value (Max_Occurs);
                      end if;
@@ -985,23 +988,26 @@ package body WSDL2AWS.WSDL.Parser is
             L := SOAP.XML.First_Child (L);
             Skip_Annotation (L);
 
-            --  If we have a single element we must ensure that there is no
-            --  minOccurs or maxOccurs defined (or they are set to 1) otherwise
-            --  this is an array.
+            --  If we have a single element we must ensure that there is
+            --  no minOccurs or maxOccurs defined (or they are set to 0/1)
+            --  otherwise this is an array.
 
             if L /= null then
                declare
-                  Min : constant String :=
-                          SOAP.XML.Get_Attr_Value (L, "minOccurs");
-                  Max : constant String :=
-                          SOAP.XML.Get_Attr_Value (L, "maxOccurs");
+                  S_Min : constant String :=
+                            SOAP.XML.Get_Attr_Value (L, "minOccurs");
+                  S_Max : constant String :=
+                            SOAP.XML.Get_Attr_Value (L, "maxOccurs");
+                  Min   : Natural;
+                  Max   : Positive;
                begin
+                  Get_Min_Max (S_Min, S_Max, Min, Max);
+
                   if Local_Name (L) = "element"
                     and then
                       (SOAP.XML.Next_Sibling (L) /= null
                        or else Is_Extension
-                       or else (Min = "" and then Max = "")
-                       or else (Min = "1" and then Max = "1"))
+                       or else (Min <= 1 and then Max = 1))
                   then
                      return True;
                   end if;
@@ -1694,7 +1700,7 @@ package body WSDL2AWS.WSDL.Parser is
       begin
          O.Self.Current_Name := +P_Name;
 
-         if Min <= 1 and then Max = 1 then
+         if Min = 1 and then Max = 1 then
             declare
                P : Parameters.Parameter := Parse_Record (O, D, Document);
             begin
@@ -1724,7 +1730,7 @@ package body WSDL2AWS.WSDL.Parser is
       begin
          O.Self.Current_Name := +P_Name;
 
-         if Min <= 1 and then Max = 1 then
+         if Min = 1 and then Max = 1 then
             declare
                P : Parameters.Parameter := Parse_Simple (O, D, Document);
             begin
@@ -1810,7 +1816,7 @@ package body WSDL2AWS.WSDL.Parser is
              and then SOAP.WSDL.To_Type (P_Type) /= P_Character)
            or else Is_Character (D, P_Type, Document)
          then
-            if Min <= 1 and then Max = 1 then
+            if Min = 1 and then Max = 1 then
                declare
                   NS  : constant SOAP.Name_Space.Object :=
                           SOAP.WSDL.Name_Spaces.Get
@@ -2548,8 +2554,6 @@ package body WSDL2AWS.WSDL.Parser is
                   end;
 
                else
-                  --  if P.Min <= 1 and then P.Max = 1 then
-                  --  P.Is_Set := False;
                   Parameters.Append (P.P, Parse_Record (O, N, Document));
                end if;
             end;

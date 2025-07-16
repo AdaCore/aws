@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                       Copyright (C) 2017, AdaCore                        --
+--                     Copyright (C) 2017-2025, AdaCore                     --
 --                                                                          --
 --  This is free software;  you can redistribute it  and/or modify it       --
 --  under terms of the  GNU General Public License as published  by the     --
@@ -33,7 +33,7 @@ package body WSDL_Enum_Array_Data is
       R.C     := Character'Succ (Item.C);
       R.L     := Item.L;
 
-      R.L.Item (1) := Second;
+      R.L (1) := Second;
       return R;
    end Test_1;
 

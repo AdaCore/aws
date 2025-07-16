@@ -11,11 +11,10 @@ pragma Ada_2022;
 pragma Warnings (Off);
 pragma Style_Checks (Off);
 
-@@IF@@ not @_SAFE_POINTER_@
 with Ada.Containers.Vectors;
-@@END_IF@@
 
 with Ada.Strings.Unbounded;
+with Ada.Tags;
 with SOAP.Parameters;
 with SOAP.Types;
 with SOAP.Utils;
@@ -45,6 +44,12 @@ package @_UNIT_NAME_@ is
    pragma Style_Checks (Off);
 
    use Ada.Strings.Unbounded;
+   use type Ada.Containers.Count_Type;
+   use type Ada.Tags.Tag;
+@@IF@@ @_ELEMENT_KIND_@ /= K_SIMPLE
+   use type @_ELEMENT_TYPE_@;
+@@END_IF@@
+
 
    function "+"
      (Str : String)
@@ -56,50 +61,14 @@ package @_UNIT_NAME_@ is
       renames To_String;
 
    Q_Type_Name : constant String := "@_Q_TYPE_NAME_@";
+   E_Type_Name : constant String := "@_QUALIFIED_ELEMENT_TYPE_@";
 
 @@-- TYPE SPEC ----------------------------------------------------------
 @@IF@@ @_IS_EMPTY:TYPE_SPEC_@
-
 @@IF@@ @_LENGTH_@ = 0
 @@--
 @@-- For safe pointers
 @@--
-   @@IF@@ @_SAFE_POINTER_@
-   type @_TYPE_NAME_@ is array (Positive range <>) of @_ELEMENT_TYPE_@;
-   subtype @_NAME_SPACE_@_@_TYPE_NAME_@ is @_TYPE_NAME_@;
-@@INLINE(   --  )(\n   --  )()@@
-      @_WRAP(70):DOCUMENTATION_@
-@@END_INLINE@@
-
-   type @_TYPE_NAME_@_Access is access all @_TYPE_NAME_@;
-
-   package @_TYPE_NAME_@_Safe_Pointer is
-     new SOAP.Utils.Safe_Pointers (@_TYPE_NAME_@, @_TYPE_NAME_@_Access);
-
-   subtype @_TYPE_NAME_@_Safe_Access
-     is @_TYPE_NAME_@_Safe_Pointer.Safe_Pointer;
-   subtype @_NAME_SPACE_@_@_TYPE_NAME_@_Safe_Access
-     is @_TYPE_NAME_@_Safe_Access;
-
-   function "+"
-     (O : @_TYPE_NAME_@)
-      return @_TYPE_NAME_@_Safe_Access
-      renames @_TYPE_NAME_@_Safe_Pointer.To_Safe_Pointer;
-   --  Convert an array to a safe pointer
-
-   function To_@_TYPE_NAME_@ is new SOAP.Utils.To_T_Array
-     (@_ELEMENT_TYPE_@,
-      @_TYPE_NAME_@,
-      @_GET_ROUTINE_@);
-
-   function To_Object_Set is new SOAP.Utils.To_Object_Set
-     (@_ELEMENT_TYPE_@,
-      @_TYPE_NAME_@,
-      @_SET_TYPE_@,
-      "@_ELEMENT_NAME_@",
-      "@_QUALIFIED_ELEMENT_TYPE_@",
-      @_SET_ROUTINE_@);
-   @@ELSE@@
 @@--
 @@-- For vectors
 @@--
@@ -119,34 +88,28 @@ package @_UNIT_NAME_@ is
      (@_TYPE_NAME_@_Pck,
       @_SET_TYPE_@,
       "@_ELEMENT_NAME_@",
-      "@_QUALIFIED_ELEMENT_TYPE_@",
+      E_Type_Name,
       @_SET_ROUTINE_@);
-   @@END_IF@@
 
 @@ELSE@@
-   @@IF@@ @_SAFE_POINTER_@
-   subtype @_TYPE_NAME_@_Index is Positive range 1 .. @_LENGTH_@;
-   type @_TYPE_NAME_@ is array (@_TYPE_NAME_@_Index) of @_ELEMENT_TYPE_@;
+   package @_TYPE_NAME_@_Pck is new Ada.Containers.Vectors
+     (Positive, @_ELEMENT_TYPE_@);
+
+   subtype @_TYPE_NAME_@ is @_TYPE_NAME_@_Pck.Vector;
    subtype @_NAME_SPACE_@_@_TYPE_NAME_@ is @_TYPE_NAME_@;
 
-   function To_@_TYPE_NAME_@ is new SOAP.Utils.To_T_Array_C
-     (@_ELEMENT_TYPE_@,
-      @_TYPE_NAME_@_Index,
-      @_TYPE_NAME_@,
-      @_GET_ROUTINE_@);
+   function "+" (V : @_TYPE_NAME_@)
+     return @_TYPE_NAME_@ is (V);
 
-   function To_Object_Set is new SOAP.Utils.To_Object_Set_C
-     (@_ELEMENT_TYPE_@,
-      @_TYPE_NAME_@_Index,
+   function To_@_TYPE_NAME_@ is new SOAP.Utils.To_Vector
+     (@_TYPE_NAME_@_Pck, @_GET_ROUTINE_@);
+
+   function To_Object_Set is new SOAP.Utils.To_Object_Set_V
+     (@_TYPE_NAME_@_Pck,
       @_SET_TYPE_@,
       "@_ELEMENT_NAME_@",
-      "@_QUALIFIED_ELEMENT_TYPE_@",
+      E_Type_Name,
       @_SET_ROUTINE_@);
-   @@ELSE@@
-   @@--
-   @@-- Constraint Vector not yet supported
-   --  Constrained Vector not yet supported (length @_LENGTH_@)
-   @@END_IF@@
 @@END_IF@@
 @@--
 @@ELSE@@ @@-- TYPE SPEC -------------------------------------------------
@@ -154,54 +117,6 @@ package @_UNIT_NAME_@ is
    subtype @_TYPE_NAME_@_Index is positive range 1 .. @_LENGTH_@;
 @@END_IF@@
 
-@@IF@@ @_SAFE_POINTER_@
-   subtype @_TYPE_NAME_@ is @_TYPE_SPEC_@.@_TYPE_REF_@;
-   subtype @_NAME_SPACE_@_@_TYPE_NAME_@ is @_TYPE_NAME_@;
-
-   @@IF@@ @_INSIDE_RECORD_@
-   subtype @_TYPE_NAME_@_Safe_Access
-     is @_TYPE_SPEC_@.@_TYPE_REF_@_Safe_Pointer.Safe_Pointer;
-   subtype @_NAME_SPACE_@_@_TYPE_NAME_@_Safe_Access
-     is @_TYPE_NAME_@_Safe_Access;
-
-   function "+"
-     (O : @_TYPE_NAME_@)
-      return @_TYPE_NAME_@_Safe_Access
-      renames @_TYPE_SPEC_@.@_TYPE_REF_@_Safe_Pointer.To_Safe_Pointer;
-   --  Convert an array to a safe pointer
-   @@END_IF@@
-
-   @@IF@@ @_LENGTH_@ = 0
-   function To_@_TYPE_NAME_@ is new SOAP.Utils.To_T_Array
-     (@_ELEMENT_TYPE_@,
-      @_TYPE_NAME_@,
-      @_GET_ROUTINE_@);
-
-   function To_Object_Set is new SOAP.Utils.To_Object_Set
-     (@_ELEMENT_TYPE_@,
-      @_TYPE_NAME_@,
-      @_SET_TYPE_@,
-      "@_ELEMENT_NAME_@",
-      "@_QUALIFIED_ELEMENT_TYPE_@",
-      @_SET_ROUTINE_@);
-   @@ELSE@@
-   function To_@_TYPE_NAME_@ is new SOAP.Utils.To_T_Array_C
-     (@_ELEMENT_TYPE_@,
-      @_TYPE_NAME_@_Index,
-      @_TYPE_NAME_@,
-      @_GET_ROUTINE_@);
-
-   function To_Object_Set is new SOAP.Utils.To_Object_Set_C
-     (@_ELEMENT_TYPE_@,
-      @_TYPE_NAME_@_Index,
-      @_TYPE_NAME_@,
-      @_SET_TYPE_@,
-      "@_ELEMENT_NAME_@",
-      "@_QUALIFIED_ELEMENT_TYPE_@",
-      @_SET_ROUTINE_@);
-   @@END_IF@@
-
-@@ELSE@@ @-- SAFE_POINTER
    package @_TYPE_NAME_@_Pck
      renames @_TYPE_SPEC_@.@_TYPE_REF_@;
    subtype @_TYPE_NAME_@ is @_TYPE_NAME_@_Pck.Vector;
@@ -217,9 +132,8 @@ package @_UNIT_NAME_@ is
      (@_TYPE_NAME_@_Pck,
       @_SET_TYPE_@,
       "@_ELEMENT_NAME_@",
-      "@_QUALIFIED_ELEMENT_TYPE_@",
+      E_Type_Name,
       @_SET_ROUTINE_@);
-@@END_IF@@
 @@END_IF@@
 
    function To_@_NAME_SPACE_@_@_TYPE_NAME_@
@@ -249,5 +163,25 @@ package @_UNIT_NAME_@ is
       return SOAP.Types.SOAP_Array
       is (SOAP.Types.SOAP_Array'
            (SOAP.Types.A (To_Object_Set (A, NS), Name, Type_Name, NS)));
+
+   function To_Optional_SOAP_Object
+     (A         : @_TYPE_NAME_@;
+      Name      : String := "item";
+      Type_Name : String := E_Type_Name;
+      NS        : SOAP.Name_Space.Object := Name_Space)
+      return @_SET_TYPE_@
+      is (@_SET_ROUTINE_@ (A.First_Element, Name, Type_Name))
+    with Pre => A.Length = 1;
+   --  Use to get an optional argument passed as parameter or in a
+   --  record's field.
+
+   function From_Optional_SOAP_Object
+     (O : SOAP.Types.Object'Class)
+      return @_TYPE_NAME_@
+      is ([@_GET_ROUTINE_@ (O)])
+    with Pre  => O'Tag = @_SET_TYPE_@'Tag,
+         Post => From_Optional_SOAP_Object'Result.Length = 1;
+   --  Use to get an optional argument passed as parameter or in a
+   --  record's field.
 
 end @_UNIT_NAME_@;

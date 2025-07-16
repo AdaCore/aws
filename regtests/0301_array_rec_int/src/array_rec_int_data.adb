@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                       Copyright (C) 2017, AdaCore                        --
+--                    Copyright (C) 2017-2025, AdaCore                      --
 --                                                                          --
 --  This is free software;  you can redistribute it  and/or modify it       --
 --  under terms of the  GNU General Public License as published  by the     --
@@ -28,10 +28,10 @@ package body Array_Rec_Int_Data is
 
    procedure Test_Array (Value : Array_Integer_Type) is
    begin
-      for C in Value.Value.Item'Range loop
+      for C in 1 .. Integer (Value.Value.Length) loop
          Text_IO.Put_Line
            (Integer'Image (C) & " => "
-            & Integer'Image (Value.Value.Item (C)));
+            & Integer'Image (Value.Value (C)));
       end loop;
    end Test_Array;
 

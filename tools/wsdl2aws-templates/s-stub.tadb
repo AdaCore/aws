@@ -8,6 +8,8 @@
 --  $ wsdl2aws @_OPTIONS_@
 @@INCLUDE@@ s-common.macros
 @@--
+
+pragma Ada_2022;
 pragma Warnings (Off);
 pragma Style_Checks (Off);
 
@@ -35,6 +37,7 @@ with SOAP.Client.Callback;
 package body @_UNIT_NAME_@.Client is
 
    use Ada.Exceptions;
+
    use SOAP.Types;
    use SOAP.Parameters;
 @@IF@@ @_DEBUG_@
@@ -62,7 +65,11 @@ package body @_UNIT_NAME_@.Client is
 @@INLINE(     \()(;\n      )(\))@@
 Connection : AWS.Client.HTTP_Connection
 @@TABLE'ALIGN_ON(":")'TERSE@@
+@@IF@@ @_PARAMETER_MIN_@ = 0 and @_PARAMETER_MAX_@ = 1
+      @_PARAMETER_NAME_@ : @_PARAMETER_TYPE_@ := []
+@@ELSE@@
       @_PARAMETER_NAME_@ : @_PARAMETER_TYPE_@
+@@END_IF@@
 @@END_TABLE@@
 @@END_INLINE@@
 @@IF@@ @_HAS_OUTPUT_@
@@ -78,7 +85,7 @@ Connection : AWS.Client.HTTP_Connection
 @@IF@@ not @_IS_EMPTY:DECL_FIELD_NAME_@
       --  Setup @_DECL_NAME_@ record's fields
 @@TABLE'TERSE@@
-@@IF@@ @_DECL_FIELD_KIND_@ = "ARRAY"
+@@IF@@ @_DECL_FIELD_KIND_@ = "STRING"
       @_DECL_PREFIX_NAME_@.@_DECL_FIELD_NAME_@ := +@_DECL_FIELD_NAME_@;
 @@ELSE@@
       @_DECL_PREFIX_NAME_@.@_DECL_FIELD_NAME_@ := @_DECL_FIELD_NAME_@;
@@ -87,23 +94,30 @@ Connection : AWS.Client.HTTP_Connection
 @@END_IF@@
 @@IF@@ not @_IS_EMPTY:IP_DECL_NAME_@
       --  Set Parameters
-      P_Set :=
-@@INLINE(        +)(\n        & )(;)@@
 @@TABLE'TERSE@@
 @@IF@@ @_IP_KIND_@ = K_SIMPLE
-@@INLINE(         )(,)(\)\))@@
-         @_SET_TYPE(@_IP_TYPE_KIND_@)_@'(SOAP.Utils.To_SOAP_Object (@_IP_DECL_NAME_@, "@_IP_NAME_@", "@_IP_TYPE_@"
+      P_Set := P_Set
+@@INLINE(        )(,)(\)\);)@@
+        & @_SET_TYPE(@_IP_TYPE_KIND_@)_@'(SOAP.Utils.To_SOAP_Object (@_IP_DECL_NAME_@, "@_IP_NAME_@", "@_IP_TYPE_@"
 @@IF@@ not @_IS_EMPTY:IP_ELT_NS_NAME_@ and not (@_IP_NS_VALUE_@ = "http://www.w3.org/2001/XMLSchema")
          SOAP.Name_Space.Create ("@_IP_ELT_NS_NAME_@", "@_IP_NS_VALUE_@")
 @@END_IF@@
 @@END_INLINE@@
 @@ELSIF@@ @_IP_KIND_@ = K_DERIVED
-         From_@_IP_Q_NAME_@_To_SOAP_Object (@_IP_DECL_NAME_@, "@_IP_NAME_@")
+      P_Set := P_Set
+        & From_@_IP_Q_NAME_@_To_SOAP_Object (@_IP_DECL_NAME_@, "@_IP_NAME_@");
 @@ELSE@@
-         To_SOAP_Object (@_IP_DECL_NAME_@, "@_IP_NAME_@")
+@@IF@@ @_IP_KIND_@ = K_ARRAY AND @_IP_MIN_@ = "0" AND @_IP_MAX_@ = "1"
+      if not @_IP_DECL_NAME_@.Is_Empty then
+         P_Set := P_Set
+           & To_Optional_SOAP_Object (@_IP_DECL_NAME_@, "@_IP_NAME_@");
+      end if;
+@@ELSE@@
+      P_Set := P_Set
+        & To_SOAP_Object (@_IP_DECL_NAME_@, "@_IP_NAME_@");
+@@END_IF@@
 @@END_IF@@
 @@END_TABLE@@
-@@END_INLINE@@
 @@END_IF@@
 
       Payload := SOAP.Message.Payload.Build
@@ -137,7 +151,7 @@ Connection : AWS.Client.HTTP_Connection
 
 @@END_IF@@
 @@IF@@ @_TRACES_@
-      POst_Call_Callback (Connection, Payload, Response, Schema);
+      Post_Call_Callback (Connection, Payload, Response, Schema);
 @@END_IF@@
          if SOAP.Message.Response.Is_Error (Response) then
             raise SOAP.SOAP_Error with
@@ -195,7 +209,11 @@ Connection : AWS.Client.HTTP_Connection
 @@END_IF@@
 @@INLINE(     \()(;\n      )(\))@@
 @@TABLE'ALIGN_ON(":")'TERSE@@
+@@IF@@ @_PARAMETER_MIN_@ = 0 and @_PARAMETER_MAX_@ = 1
+      @_PARAMETER_NAME_@ : @_PARAMETER_TYPE_@ := []
+@@ELSE@@
       @_PARAMETER_NAME_@ : @_PARAMETER_TYPE_@
+@@END_IF@@
 @@END_TABLE@@
       Endpoint : String := @_UNIT_NAME_@.URL
       Timeouts : AWS.Client.Timeouts_Values := @_UNIT_NAME_@.Timeouts

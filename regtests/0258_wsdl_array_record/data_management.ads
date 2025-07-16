@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                    Copyright (C) 2014-2018, AdaCore                      --
+--                    Copyright (C) 2014-2025, AdaCore                      --
 --                                                                          --
 --  This is free software;  you can redistribute it  and/or modify it       --
 --  under terms of the  GNU General Public License as published  by the     --
@@ -16,8 +16,9 @@
 --  to http://www.gnu.org/licenses for a complete copy of the license.      --
 ------------------------------------------------------------------------------
 
+with Ada.Containers.Vectors;
 with Ada.Strings.Unbounded;
-with Soap.Utils;
+with SOAP.Utils;
 
 package Data_Management is
 
@@ -30,21 +31,19 @@ package Data_Management is
       New_Value : Ada.Strings.Unbounded.Unbounded_String;
    end record;
 
-   type Field_Array is array (Positive range <>) of Facility_Change;
-
-   type Field_Array_Access is access Field_Array;
-   package Field_Array_Safe_Pointer is new Soap.Utils.Safe_Pointers
-     (Field_Array, Field_Array_Access);
+   package Field_Array_Pkg is
+     new Ada.Containers.Vectors (Positive, Facility_Change);
 
    type Facility_Type is record
       Change : Facility_Mark_Type;
-      Fields : Field_Array_Safe_Pointer.Safe_Pointer;
+      Fields : Field_Array_Pkg.Vector;
    end record;
 
-   type Facilities_Type is array (Positive range <>) of Facility_Type;
+   package Facilities_Type_Pkg is
+     new Ada.Containers.Vectors (Positive, Facility_Type);
 
    function Update_Target_Changes
      (A          : String;
-      Facilities : Facilities_Type) return Boolean;
+      Facilities : Facilities_Type_Pkg.Vector) return Boolean;
 
 end Data_Management;

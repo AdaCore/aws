@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                       Copyright (C) 2018, AdaCore                        --
+--                     Copyright (C) 2018-2025, AdaCore                     --
 --                                                                          --
 --  This is free software;  you can redistribute it  and/or modify it       --
 --  under terms of the  GNU General Public License as published  by the     --
@@ -19,8 +19,8 @@
 package body Data is
 
    procedure Call
-     (A1 : Int_Array;
-      A2 : Rec_Array) is
+     (A1 : Int_Array_Pkg.Vector;
+      A2 : Rec_Array_Pkg.Vector) is
    begin
       null;
    end Call;

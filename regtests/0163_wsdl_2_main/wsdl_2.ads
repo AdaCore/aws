@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2003-2012, AdaCore                     --
+--                     Copyright (C) 2003-2025, AdaCore                     --
 --                                                                          --
 --  This is free software;  you can redistribute it  and/or modify it       --
 --  under terms of the  GNU General Public License as published  by the     --
@@ -16,18 +16,21 @@
 --  to http://www.gnu.org/licenses for a complete copy of the license.      --
 ------------------------------------------------------------------------------
 
+with Ada.Containers.Vectors;
+
 package WSDL_2 is
 
    type Complex is record
       X, Y : Long_Float;
    end record;
 
-   type Table is array (Positive range <>) of Integer;
+   package Table is
+     new Ada.Containers.Vectors (Positive, Integer);
 
    function Add (A, B : Complex) return Complex;
    --  Add 2 complex numbers
 
-   function Sum (T : Table) return Integer;
+   function Sum (T : Table.Vector) return Integer;
    --  Sum all items in T
 
 end WSDL_2;

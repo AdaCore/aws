@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<definitions name="WSDL_Opt"
+             targetNamespace="urn:aws:WSDL_Opt"
+             xmlns="http://schemas.xmlsoap.org/wsdl/"
+             xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/"
+             xmlns:xs="http://www.w3.org/2001/XMLSchema"
+             xmlns:tns="urn:aws:WSDL_Opt">
+
+   <types>
+      <schema>
+        <xs:complexType name="Status">
+          <xs:complexContent>
+            <xs:element name="n2" type="xs:int" minOccurs="1"
+                        maxOccurs="1" />
+            <xs:element name="rec" type="RecD" />
+            <xs:element name="n" type="xs:int" minOccurs="0"
+                        maxOccurs="1" />
+            <xs:element name="reca" type="RecA" minOccurs="0" />
+            <xs:element name="nni" type="NonNegativeInt" minOccurs="0" />
+          </xs:complexContent>
+        </xs:complexType>
+
+        <xs:complexType name="RecA">
+          <xs:complexContent>
+            <xs:element name="f" type="xs:int" />
+          </xs:complexContent>
+        </xs:complexType>
+
+         <xs:simpleType name="NonNegativeInt">
+            <xs:restriction base="xs:int">
+               <xs:minInclusive value="0" />
+            </xs:restriction>
+         </xs:simpleType>
+
+        <xs:complexType name="RecD">
+          <xs:complexContent>
+            <xs:element name="f1" type="xs:int" minOccurs="0" maxOccurs="1" />
+            <xs:element name="f2" type="xs:int" />
+            <xs:element name="f3" type="xs:int" minOccurs="0" />
+            <xs:element name="f4" type="RecA" minOccurs="0" />
+            <xs:element name="f5" type="NonNegativeInt" minOccurs="0" />
+          </xs:complexContent>
+        </xs:complexType>
+      </schema>
+   </types>
+
+   <message name="Try_Request">
+      <part name="Param1" type="Status"/>
+   </message>
+
+   <portType name="WSDL_Opt_portType">
+
+      <operation name="Try">
+         <input message="Try_Request"/>
+      </operation>
+
+   </portType>
+
+   <binding name="WSDL_Opt_Binding" type="WSDL_Opt_PortType">
+      <soap:binding style="rpc"
+         transport="http://schemas.xmlsoap.org/soap/http"/>
+
+      <operation name="Try">
+         <soap:operation soapAction="Try"/>
+         <input>
+            <soap:body
+               encodingStyle="http://schemas.xmlsoap.org/soap/encoding/"
+               namespace="urn:aws:WSDL_Opt"
+               use="encoded"/>
+         </input>
+         <output>
+            <soap:body
+               encodingStyle="http://schemas.xmlsoap.org/soap/encoding/"
+               namespace="urn:aws:WSDL_Opt"
+               use="encoded"/>
+         </output>
+      </operation>
+
+   </binding>
+
+   <service name="WSDL_OPT">
+      <port name="WSDL_Opt_Port" binding="WSDL_Opt_Binding">
+         <soap:address location="http://localhost:7707"/>
+      </port>
+   </service>
+</definitions>

@@ -32,7 +32,7 @@ package body WSDL_Array_Record_Data is
         ("Test 1: "
          & Enumeration_Type'Image (Item.Value)
          & ", "
-         & Enumeration_Type'Image (Item.List.Item (1).Value));
+         & Enumeration_Type'Image (Item.List (1).Value));
       return Item.Value;
    end Test_1;
 
@@ -41,12 +41,13 @@ package body WSDL_Array_Record_Data is
    ------------
 
    function Test_2 (Item : Enumeration_Type) return Enumeration_Record_Type is
-      L : Sub_Record_List_Type (1 .. 2) := (1 => (Value => Third),
-                                            2 => (Value => Item));
+      L : constant Sub_Record_List_Type_Pkg.Vector :=
+            [1 => (Value => Third),
+             2 => (Value => Item)];
    begin
       Text_IO.Put_Line ("Test 2: " & Enumeration_Type'Image (Item));
       return (Value => Item,
-              List  => Sub_Record_List_Type_Safe_Pointer.To_Safe_Pointer (L));
+              List  => L);
    end Test_2;
 
 end WSDL_Array_Record_Data;

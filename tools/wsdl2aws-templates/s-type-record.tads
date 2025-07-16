@@ -110,11 +110,16 @@ C@_CHOICE_FIELD_NUMBER_@
       @_WRAP(70):FIELD_COMMENT_@
 @@END_INLINE@@
 @@END_IF@@
-@@IF@@ (@_RF_KIND_@ = "K_ARRAY") and @_SAFE_POINTER_@
-      --  Access items with : result.Item (n)
+@@END_TABLE@@
+   end record
+@@INLINE(     with Dynamic_Predicate => )(\n       and then )()@@
+@@TABLE@@
+@@IF@@ @_RF_MIN_@ = 0 and @_RF_MAX_@ = 1
+@_RF_DECL_NAME_@.Length in 0 .. 1
 @@END_IF@@
 @@END_TABLE@@
-   end record;
+@@END_INLINE@@
+   ;
 @@END_IF@@
 @@END_IF@@
 @@ELSE@@ @@-- IS_EMPTY:TYPE_SPEC or SIMPLE_WRAPPED_PARAMETER
@@ -156,7 +161,8 @@ C@_CHOICE_FIELD_NUMBER_@
       return SOAP.Types.SOAP_Record;
 
    function To_Parameter_List
-     (R : @_TYPE_NAME_@)
+     (R  : @_TYPE_NAME_@;
+      NS : SOAP.Name_Space.Object := Name_Space)
       return SOAP.Parameters.List;
 
 end @_UNIT_NAME_@;

@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2003-2012, AdaCore                     --
+--                     Copyright (C) 2003-2025, AdaCore                     --
 --                                                                          --
 --  This is free software;  you can redistribute it  and/or modify it       --
 --  under terms of the  GNU General Public License as published  by the     --
@@ -59,10 +59,10 @@ package body WSDL_3 is
    begin
       Append (R, "(");
 
-      for K in Rec.S.Item'Range loop
-         Append (R, Utils.Image (Rec.S.Item (K)));
+      for K in 1 .. Integer (Rec.S.Length) loop
+         Append (R, Utils.Image (Rec.S (K)));
 
-         if K < Rec.S.Item'Last then
+         if K < Integer (Rec.S.Length) then
             Append (R, ", ");
          end if;
       end loop;

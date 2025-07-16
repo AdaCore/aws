@@ -1,6 +1,6 @@
 from test_support import *
 
-exec_cmd('wsdl2aws', ['-q', '-f', '-sp', '-doc', 'wsdl_doc.wsdl'])
+exec_cmd('wsdl2aws', ['-q', '-f', '-doc', 'wsdl_doc.wsdl'])
 build_and_run('wsdl_doc')
 
 def output_comment(file):

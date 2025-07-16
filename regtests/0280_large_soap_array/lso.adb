@@ -22,7 +22,7 @@ package body LSO is
    -- Echo --
    ----------
 
-   function Echo (Object : Set_Of_Int) return Set_Of_Int is
+   function Echo (Object : Set_Of_Int_Pkg.Vector) return Set_Of_Int_Pkg.Vector is
    begin
       return Object;
    end Echo;

@@ -40,26 +40,15 @@ to work properly. Of course we try to avoid this as much as possible
 but we really prefer to have a clean API instead of keeping awkward
 implementations.
 
-- The SSL initialization API has been reworked to have support for
-  certificate and host verification.
+- The support for SOAP safe-pointer has been removed.
 
-  By default AWS is now checking for certificate and host validity.
-  The parameter Certificate_Required has been renamed
-  Check_Certificate for clarity on the AWS.Net.SSL.Intialize call.
-
-  Setting Check_Certificate to False makes AWS behave as in previous
-  version (but this is not recommanded) for security reasons.
-
-- To support SMTP secure STARTTLS switching protocol the parameter to
-  SMTP.Initialize has been changed from Secure to Security and
-  instead of a boolean it takes a Secure_Connection enumeration which
-  can be No, TLS or STARTTLS.
-
-  If Secure was set to False, Security must be No.
-
-  If Secure was set to True, Security should probably be TLS except if
-  the STARTTLS swicthing protocol is to be used.
-
+  It was introduced back in 2002 when the Ada.Containers where not yet
+  in Ada (Ada.Containers were introduced in Ada 2005). The
+  Safe_Pointer at this time was a way to support unbounded arrays in
+  record. In 2022 the support for Ada.Containers.Vector was introduced
+  for supporting arrays in record and was made the default for
+  wsdl2aws. It is now the only support for arrays in record and it is
+  also used for optional routine parameters and optional record fields.
 
 Obsolescent features
 --------------------

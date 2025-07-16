@@ -109,9 +109,10 @@ package body Stub is
                  & Format_Name (O, To_String (N.Name));
                Decl_Field_Kind := Decl_Field_Kind
                  & (if Is_String (N)
-                    or else N.Mode = WSDL.Types.K_Array
+                    then "STRING"
+                    elsif N.Mode = WSDL.Types.K_Array
                     then "ARRAY"
-                    else  "OTHER");
+                    else "OTHER");
 
                N := N.Next;
             end loop;

@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                       Copyright (C) 2018, AdaCore                        --
+--                     Copyright (C) 2018-2025, AdaCore                     --
 --                                                                          --
 --  This is free software;  you can redistribute it  and/or modify it       --
 --  under terms of the  GNU General Public License as published  by the     --
@@ -39,12 +39,13 @@ package body AWS_Test is
    -- Get_Test_Name2 --
    --------------------
 
-   function Get_Test_Name2 (Data : Data_Rec_Array_Type) return String is
+   function Get_Test_Name2
+     (Data : Data_Rec_Array_Type_Pkg.Vector) return String is
    begin
-      for The_Item in Data'Range loop
-         Put_Line ("int: " & Integer'Image (Data(The_Item).A_Int));
-         Put_Line ("flt: " & Float'Image (Data(The_Item).A_Flt));
-         Put_Line ("str: " & To_String (Data(The_Item).A_Str));
+      for The_Item of Data loop
+         Put_Line ("int: " & Integer'Image (The_Item.A_Int));
+         Put_Line ("flt: " & Float'Image (The_Item.A_Flt));
+         Put_Line ("str: " & To_String (The_Item.A_Str));
       end loop;
 
       return "AWS_TEST2";

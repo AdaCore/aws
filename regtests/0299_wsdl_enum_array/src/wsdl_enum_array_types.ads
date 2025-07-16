@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                       Copyright (C) 2017, AdaCore                        --
+--                     Copyright (C) 2017-2025, AdaCore                     --
 --                                                                          --
 --  This is free software;  you can redistribute it  and/or modify it       --
 --  under terms of the  GNU General Public License as published  by the     --
@@ -16,22 +16,20 @@
 --  to http://www.gnu.org/licenses for a complete copy of the license.      --
 ------------------------------------------------------------------------------
 
+with Ada.Containers.Vectors;
 with SOAP.Utils;
 
 package WSDL_Enum_Array_Types is
 
    type Num is (First, Second, Third);
 
-   type List_Type is array (Positive range <>) of Num;
-   type List_Access is access List_Type;
-
-   package List_Type_Safe_Pointer is
-      new SOAP.Utils.Safe_Pointers (List_Type, List_Access);
+   package List_Type_Pkg is
+     new Ada.Containers.Vectors (Positive, Num);
 
    type Record_Type is record
       Value : Integer;
       C     : Character;
-      L     : List_Type_Safe_Pointer.Safe_Pointer;
+      L     : List_Type_Pkg.Vector;
    end record;
 
 end WSDL_Enum_Array_Types;

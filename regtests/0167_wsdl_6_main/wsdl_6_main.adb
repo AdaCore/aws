@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2003-2017, AdaCore                     --
+--                     Copyright (C) 2003-2025, AdaCore                     --
 --                                                                          --
 --  This is free software;  you can redistribute it  and/or modify it       --
 --  under terms of the  GNU General Public License as published  by the     --
@@ -220,11 +220,11 @@ procedure WSDL_6_Main is
       Res   : WSDL_6.Rec;
       N_Res : WSDL_6.New_Rec;
 
-      I_Arr : WSDL_6.Set_Of_Int (1 .. 7);
-      A_Res : WSDL_6.Set_Of_Int (1 .. 7);
+      I_Arr : WSDL_6.Set_Of_Int_Pkg.Vector;
+      A_Res : WSDL_6.Set_Of_Int_Pkg.Vector;
 
-      R_Arr : WSDL_6.Set_Of_Rec (1 .. 12);
-      R_Res : WSDL_6.Set_Of_Rec (1 .. 12);
+      R_Arr : WSDL_6.Set_Of_Rec_Pkg.Vector;
+      R_Res : WSDL_6.Set_Of_Rec_Pkg.Vector;
 
       C_Rec : WSDL_6.Complex_Rec;
       C_Res : WSDL_6.Complex_Rec;
@@ -261,47 +261,44 @@ procedure WSDL_6_Main is
 
       --  Array
 
-      for K in I_Arr'Range loop
-         I_Arr (K) := K - 1;
-      end loop;
+      I_Arr := [for K in 1 .. 7 => K - 1];
 
       A_Res := WSDL_6_Service.Client.Echo_Set (I_Arr);
 
       Put_Line ("array");
 
-      for K in A_Res'Range loop
-         Put (A_Res (K)); New_Line;
+      for E of A_Res loop
+         Put (E); New_Line;
       end loop;
 
       --  Array of Rec
 
-      for K in R_Arr'Range loop
-         R_Arr (K)
-           := (K - 1, Float (K - 1), Long_Float (K - 1),
-               Character'Val (K + Character'Pos ('a') - 1),
-               To_Unbounded_String ("This is number " & Integer'Image (K - 1)),
-               K mod 2 = 0);
+      for K in 1 .. 12 loop
+         R_Arr.Append
+           (Wsdl_6.Rec'(K - 1, Float (K - 1), Long_Float (K - 1),
+                        Character'Val (K + Character'Pos ('a') - 1),
+                        To_Unbounded_String ("This is number " & Integer'Image (K - 1)),
+                        K mod 2 = 0));
       end loop;
 
       R_Res := WSDL_6_Service.Client.Echo_Set_Rec (R_Arr);
 
       Put_Line ("array of rec");
 
-      for K in R_Res'Range loop
-         Put_Rec (R_Res (K));
+      for E of R_Res loop
+         Put_Rec (E);
       end loop;
 
       --  Record with array
 
       Put_Line ("array in record");
 
-      C_Rec.SI := WSDL_6.Set_Of_Int_Safe_Pointer.To_Safe_Pointer
-        (WSDL_6.Set_Of_Int'(1 | 4 | 8 => 6, 2 | 3 | 5 .. 7 | 9 .. 40 => 2));
+      C_Rec.SI := [1 | 4 | 8 => 6, 2 | 3 | 5 .. 7 | 9 .. 40 => 2];
 
       C_Res := WSDL_6_Service.Client.Echo_Complex_Rec (C_Rec);
 
-      for K in C_Res.SI.Item'Range loop
-         Put (C_Res.SI.Item (K)); New_Line;
+      for E of C_Res.SI loop
+         Put (E); New_Line;
       end loop;
    end Client;
 

@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2003-2012, AdaCore                     --
+--                     Copyright (C) 2003-2025, AdaCore                     --
 --                                                                          --
 --  This is free software;  you can redistribute it  and/or modify it       --
 --  under terms of the  GNU General Public License as published  by the     --
@@ -59,11 +59,11 @@ begin
 
    Text_IO.Put_Line
      ("S1 = "
-        & Integer'Image (WSDL_2_Service.Client.Sum ((12, 2, 3, 5, 1))));
+        & Integer'Image (WSDL_2_Service.Client.Sum ([12, 2, 3, 5, 1])));
 
    Text_IO.Put_Line
      ("S2 = "
-        & Integer'Image (WSDL_2_Service.Client.Sum ((2, 3, 5, -3, -2, -6))));
+        & Integer'Image (WSDL_2_Service.Client.Sum ([2, 3, 5, -3, -2, -6])));
 
    Server.Shutdown (WS);
 end WSDL_2_Main;

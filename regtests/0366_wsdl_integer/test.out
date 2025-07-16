@@ -8,8 +8,8 @@ Procedure Call SOAPAction:Call
    Output
    > Call
 =========== client
-+         SOAP.Types.XSD_Int'(SOAP.Utils.To_SOAP_Object (AI, "AI", "xsd:int"))
-&          SOAP.Types.XSD_Integer'(SOAP.Utils.To_SOAP_Object (BI, "BI", "xsd:integer"));
+& SOAP.Types.XSD_Int'(SOAP.Utils.To_SOAP_Object (AI, "AI", "xsd:int"));
+& SOAP.Types.XSD_Integer'(SOAP.Utils.To_SOAP_Object (BI, "BI", "xsd:integer"));
 =========== server
 AI : constant Integer :=
 BI : constant SOAP.Types.Big_Integer :=

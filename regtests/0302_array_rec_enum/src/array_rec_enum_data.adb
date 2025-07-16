@@ -26,7 +26,9 @@ package body Array_Rec_Enum_Data is
    -- Test_AL --
    -------------
 
-   procedure Test_AL (Par1 : Array_Enum_Type; Par2 : Enum_List_Type) is
+   procedure Test_AL
+     (Par1 : Array_Enum_Type;
+      Par2 : Enum_List_Type_Pkg.Vector) is
    begin
       null;
    end Test_AL;
@@ -37,10 +39,10 @@ package body Array_Rec_Enum_Data is
 
    procedure Test_Array (Value : Array_Enum_Type) is
    begin
-      for C in Value.Value.Item'Range loop
+      for C in 1 .. Integer (Value.Value.Length) loop
          Text_IO.Put_Line
            (Integer'Image (C) & " => "
-            & Enum'Image (Value.Value.Item (C)));
+            & Enum'Image (Value.Value (C)));
       end loop;
    end Test_Array;
 
@@ -48,7 +50,7 @@ package body Array_Rec_Enum_Data is
    -- Test_List --
    ---------------
 
-   procedure Test_List (Value : Enum_List_Type) is
+   procedure Test_List (Value : Enum_List_Type_Pkg.Vector) is
    begin
       null;
    end Test_List;

@@ -5,7 +5,7 @@ exec_cmd('ada2wsdl',
           '-o', 'character.wsdl', 'character_services.ads'])
 
 exec_cmd('wsdl2aws',
-         ['-q', '-f', '-sp', '-types', 'character_types', '-spec',
+         ['-q', '-f', '-types', 'character_types', '-spec',
           'character_services', '-cb', 'character.wsdl'])
 
 build_and_run('array_chars')

@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2003-2017, AdaCore                     --
+--                     Copyright (C) 2003-2025, AdaCore                     --
 --                                                                          --
 --  This is free software;  you can redistribute it  and/or modify it       --
 --  under terms of the  GNU General Public License as published  by the     --
@@ -15,6 +15,8 @@
 --  distributed  with  this  software;   see  file COPYING3.  If not, go    --
 --  to http://www.gnu.org/licenses for a complete copy of the license.      --
 ------------------------------------------------------------------------------
+
+pragma Ada_2022;
 
 with Ada.Strings.Unbounded;
 with Ada.Text_IO;
@@ -58,8 +60,7 @@ begin
 
    R1 := (-4, 2, 89);
    R2 := (R1, 'c', To_Unbounded_String ("toto"), 1.45);
-   R3 := (S => WSDL_3.My_Set_Safe_Pointer.To_Safe_Pointer
-            (WSDL_3.My_Set'(1, 7, 8, 10, 0, 0, 3)));
+   R3 := (S => [1, 7, 8, 10, 0, 0, 3]);
 
    Text_IO.Put_Line ("R1 = " & WSDL_3_Service.Client.Image_Rec1 (R1));
    Text_IO.Put_Line ("R2 = " & WSDL_3_Service.Client.Image_Rec2 (R2));

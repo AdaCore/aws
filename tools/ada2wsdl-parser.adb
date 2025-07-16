@@ -24,6 +24,7 @@ with Ada.Strings.Maps;
 with Ada.Strings.Unbounded;
 with Ada.Text_IO;
 
+with Langkit_Support.Errors;
 with Langkit_Support.Text;
 with Libadalang.Analysis;
 with Libadalang.Common;
@@ -81,17 +82,6 @@ package body Ada2WSDL.Parser is
 
    procedure Append_Deferred (Node : Ada_Node'Class);
    --  Append a new element into the list of deferred types
-
-   function Get_Safe_Pointer_Type
-     (Node : Base_Type_Decl) return Base_Type_Decl;
-   --  type My_Type is ...
-   --  package SP is new SOAP.Utils.Safe_Pointer (My_Type, My_Access);
-   --  O : SP.Safe_Pointer;
-   --
-   --  Parameter Node is the SP.Safe_Pointer type declaration.
-   --  We want to return the type My_Type.
-   --
-   --  This is very dependant on the Safe_Pointer implementation.
 
    function Get_Vector_Type
      (Node : Type_Decl) return Base_Type_Decl;
@@ -461,6 +451,13 @@ package body Ada2WSDL.Parser is
       Type_Suffix  : Unbounded_String;
       Lower, Upper : Internal_Integer;
    begin
+      if not Options.Quiet then
+         Text_IO.Put_Line
+           (Location (T_Decl)
+            & "warning: array " & T_Name
+            & " not supported by wsdl2aws, use Containers.Vector");
+      end if;
+
       Get_Range (T_Decl, Lower, Upper);
       Array_Type_Suffix (Lower, Upper, Type_Suffix, Array_Len);
 
@@ -596,10 +593,6 @@ package body Ada2WSDL.Parser is
          B_Def  : constant Type_Def := B_Type.As_Type_Decl.F_Type_Def;
          B_Name : constant String := Img (B_Type.F_Name);
       begin
-         if T_Name = "Safe_Pointer" then
-            return;
-         end if;
-
          if B_Def.Kind = Ada_Array_Type_Def then
             declare
                A_Def        : constant Array_Type_Def :=
@@ -855,17 +848,6 @@ package body Ada2WSDL.Parser is
             if T_Name = Null_Unbounded_String then
                T_Name := Type_Definition
                  (F_Decl.As_Type_Decl, Base => False).Name;
-            end if;
-
-            --  For safe_pointer and vector we want to get the declaration
-            --  of the element type to setup the proper name-space for this
-            --  component.
-            --
-            --  The Get_Safe_Pointer_Type & Get_Vector_Type walk through
-            --  the record defintion to retrieve the type of the instance.
-
-            if Img (F_Decl.F_Name, Lower_Case => True) = "safe_pointer" then
-               F_Decl := Get_Safe_Pointer_Type (F_Decl);
             end if;
 
             for C_Name of Node.F_Ids loop
@@ -1196,33 +1178,6 @@ package body Ada2WSDL.Parser is
       end if;
    end Get_Root_Type;
 
-   ---------------------------
-   -- Get_Safe_Pointer_Type --
-   ---------------------------
-
-   function Get_Safe_Pointer_Type
-     (Node : Base_Type_Decl) return Base_Type_Decl
-   is
-      F_Def  : constant Type_Def := Node.As_Type_Decl.F_Type_Def;
-      R_Def  : constant Base_Record_Def :=
-                 F_Def.As_Derived_Type_Def.F_Record_Extension;
-      --  The record extension
-      R_Comp : constant Component_List := R_Def.F_Components;
-      --  All components of the record
-      Comp_1 : constant Component_Decl :=
-                 R_Comp.F_Components.Child (1).As_Component_Decl;
-      --  First component is the access type to T
-      T_Comp : constant Subtype_Indication :=
-                 Comp_1.F_Component_Def.F_Type_Expr.As_Subtype_Indication;
-      --  Subtype of the access type
-      A_Type : constant Base_Type_Decl := T_Comp.P_Designated_Type_Decl;
-      --  This is the access type
-   begin
-      --  Get the type for this access type
-      return A_Type.As_Type_Decl.F_Type_Def.As_Type_Access_Def.
-        F_Subtype_Indication.P_Designated_Type_Decl;
-   end Get_Safe_Pointer_Type;
-
    ----------------------
    --  Get_Vector_Type --
    ----------------------
@@ -1437,25 +1392,7 @@ package body Ada2WSDL.Parser is
             G_Name : constant String :=
                        Img (G_Pck.F_Generic_Pkg_Name, Lower_Case => True);
          begin
-            if G_Name = "soap.utils.safe_pointers" then
-               declare
-                  Params : constant Assoc_List := G_Pck.F_Params;
-               begin
-                  if Params.Children_Count = 2 then
-                     declare
-                        P : constant array (1 .. 2) of Param_Assoc :=
-                              [Params.List_Child (1).As_Param_Assoc,
-                               Params.List_Child (2).As_Param_Assoc];
-                     begin
-                        Generator.Register_Safe_Pointer
-                          (Name        => Img (G_Pck.F_Name),
-                           Type_Name   => Img (P (1).F_R_Expr.As_Identifier),
-                           Access_Name => Img (P (2).F_R_Expr.As_Identifier));
-                     end;
-                  end if;
-               end;
-
-            elsif G_Name = "ada.containers.vectors" then
+            if G_Name = "ada.containers.vectors" then
                --  This is the instance of a standard vector container. The
                --  name of the package is the name of the array type in WSDL
                --  and the second parameter the array items' type.
@@ -1531,14 +1468,11 @@ package body Ada2WSDL.Parser is
                      R_Name    : constant String :=
                                    Img (Node.F_Subp_Name);
                      P_Returns : constant Type_Expr := Node.P_Returns;
-                     B_Type    : constant Base_Type_Decl :=
-                                   P_Returns.P_Designated_Type_Decl;
+                     Def       : constant Generator.Type_Data :=
+                                   Type_Definition (P_Returns, Base => False);
                   begin
                      Generator.Return_Type
-                       (Name_Space (B_Type),
-                        To_String
-                          (Type_Definition (P_Returns, Base => False).Name),
-                        R_Name);
+                       (To_String (Def.NS), To_String (Def.Name), R_Name);
                   end;
                end if;
             end Analyze_Profile;
@@ -1585,6 +1519,10 @@ package body Ada2WSDL.Parser is
          end case;
 
          return Result;
+
+      exception
+         when Langkit_Support.Errors.Precondition_Failure =>
+            Raise_Spec_Error (Node, "syntax error");
       end Parser;
 
       Context  : constant Analysis_Context :=
@@ -1787,6 +1725,13 @@ package body Ada2WSDL.Parser is
             return Build_Type ("SOAP_Base64");
 
          else
+            if not Options.Quiet then
+               Text_IO.Put_Line
+                 (Location (Node)
+                  & "warning: array " & T_Name
+                  & " not supported by wsdl2aws, use Containers.Vector");
+            end if;
+
             return Register_Deferred (Node);
          end if;
       end Build_Array;
@@ -1838,15 +1783,7 @@ package body Ada2WSDL.Parser is
       is
          T_Name : constant String := Characters.Handling.To_Lower (Name);
       begin
-         if T_Name = "safe_pointer" then
-            declare
-               I_Type : constant Base_Type_Decl :=
-                          Get_Safe_Pointer_Type (Node);
-            begin
-               return Register_Deferred (I_Type);
-            end;
-
-         elsif T_Name = "soap.types.local_date"
+         if T_Name = "soap.types.local_date"
            or else T_Name = "local_date"
          then
             return Build_Type ("date");
@@ -2205,6 +2142,18 @@ package body Ada2WSDL.Parser is
 
          elsif T_Name = "soap.types.token" then
             return Build_Type ("token");
+
+         elsif Decl.Kind = Ada_Subtype_Indication
+           and then Img (Node.As_Concrete_Type_Decl.F_Name, True) = "vector"
+         then
+            declare
+               S_Type : constant Libadalang.Analysis.Name :=
+                          Decl.As_Subtype_Indication.F_Name
+                            .As_Dotted_Name.F_Prefix;
+            begin
+               return Build_Type
+                 (Img (S_Type), Name_Space (S_Type.P_Referenced_Decl));
+            end;
 
          else
             Raise_Spec_Error

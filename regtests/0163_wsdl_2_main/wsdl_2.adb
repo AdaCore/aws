@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2003-2012, AdaCore                     --
+--                     Copyright (C) 2003-2025, AdaCore                     --
 --                                                                          --
 --  This is free software;  you can redistribute it  and/or modify it       --
 --  under terms of the  GNU General Public License as published  by the     --
@@ -35,11 +35,11 @@ package body WSDL_2 is
    -- Sum --
    ---------
 
-   function Sum (T : Table) return Integer is
+   function Sum (T : Table.Vector) return Integer is
       Result : Integer := 0;
    begin
-      for K in T'Range loop
-         Result := Result + T (K);
+      for E of T loop
+         Result := Result + E;
       end loop;
       return Result;
    end Sum;

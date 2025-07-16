@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                       Copyright (C) 2017, AdaCore                        --
+--                     Copyright (C) 2017-2025, AdaCore                     --
 --                                                                          --
 --  This is free software;  you can redistribute it  and/or modify it       --
 --  under terms of the  GNU General Public License as published  by the     --
@@ -16,19 +16,17 @@
 --  to http://www.gnu.org/licenses for a complete copy of the license.      --
 ------------------------------------------------------------------------------
 
+with Ada.Containers.Vectors;
+
 with SOAP.Utils;
 
 package Array_Rec_Int_Types is
 
-   type Integer_List_Type is array (Positive range <>) of Integer;
-
-   type Integer_List_Access is access Integer_List_Type;
-
-   package Integer_List_Type_Safe_Pointer is
-      new SOAP.Utils.Safe_Pointers (Integer_List_Type, Integer_List_Access);
+   package Integer_List_Type_Pkg is
+     new Ada.Containers.Vectors (Positive, Integer);
 
    type Array_Integer_Type is record
-      Value : Integer_List_Type_Safe_Pointer.Safe_Pointer;
+      Value : Integer_List_Type_Pkg.Vector;
    end record;
 
 end Array_Rec_Int_Types;

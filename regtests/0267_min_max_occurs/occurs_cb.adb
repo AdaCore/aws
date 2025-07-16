@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                       Copyright (C) 2015, AdaCore                        --
+--                    Copyright (C) 2015-2025, AdaCore                      --
 --                                                                          --
 --  This is free software;  you can redistribute it  and/or modify it       --
 --  under terms of the  GNU General Public License as published  by the     --
@@ -45,14 +45,14 @@ package body Occurs_CB is
       Text_IO.Put_Line
         ("*** p_battleDimension " & Image (pa_track.p_battleDimension));
 
-      for K in pa_track.p_tag.Item'Range loop
+      for E of pa_track.p_tag loop
          Text_IO.Put_Line
-           ("*** p_tag          " & To_String (pa_track.p_tag.Item (K)));
+           ("*** p_tag          " & To_String (E));
       end loop;
 
-      for K in values'Range loop
+      for E of values loop
          Text_IO.Put_Line
-           ("*** values        " & Float'Image (values (K)));
+           ("*** values        " & Float'Image (E));
       end loop;
    end displayTrack;
 

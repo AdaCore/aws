@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2003-2012, AdaCore                     --
+--                     Copyright (C) 2003-2025, AdaCore                     --
 --                                                                          --
 --  This is free software;  you can redistribute it  and/or modify it       --
 --  under terms of the  GNU General Public License as published  by the     --
@@ -15,6 +15,8 @@
 --  distributed  with  this  software;   see  file COPYING3.  If not, go    --
 --  to http://www.gnu.org/licenses for a complete copy of the license.      --
 ------------------------------------------------------------------------------
+
+pragma Ada_2022;
 
 --  Test from the Interoplab Web site.
 --  http://www.whitemesa.com/interop/proposal2.html
@@ -145,13 +147,13 @@ procedure interopLab_Main is
    ------------------------
 
    procedure T_echoIntegerArray is
-      Arr : constant ArrayOfint_Type := (34, 67, 98, 54, 78, 65, 1);
+      Arr : constant ArrayOfint_Type := [34, 67, 98, 54, 78, 65, 1];
 
-      Res : constant echoIntegerArray_Result
-        := interopLab.Client.echoIntegerArray (Arr);
+      Res : constant echoIntegerArray_Result :=
+              interopLab.Client.echoIntegerArray (Arr);
    begin
       Text_IO.Put_Line ("Echo ArrayOfint");
-      for K in Res'Range loop
+      for K in 1 .. Natural (Res.Length) loop
          Text_IO.Put (Natural'Image (K) & " = ");
          Integer_Text_IO.Put (Res (K));
          Text_IO.New_Line;
@@ -178,13 +180,13 @@ procedure interopLab_Main is
    -----------------------
 
    procedure T_echoStringArray is
-      Arr : constant ArrayOfstring_Type := (+"first", +"second", +"third");
+      Arr : constant ArrayOfstring_Type := [+"first", +"second", +"third"];
 
-      Res : constant echoStringArray_Result
-        := interopLab.Client.echoStringArray (Arr);
+      Res : constant echoStringArray_Result :=
+              interopLab.Client.echoStringArray (Arr);
    begin
       Text_IO.Put_Line ("Echo ArrayOfstring");
-      for K in Res'Range loop
+      for K in 1 .. Natural (Res.Length) loop
          Text_IO.Put_Line (Natural'Image (K) & " = " & To_String (Res (K)));
       end loop;
       Text_IO.New_Line;
@@ -213,15 +215,15 @@ procedure interopLab_Main is
    -----------------------
 
    procedure T_echoStructArray is
-      A_Struct : constant ArrayOfSOAPStruct_Type
-        := ((1, 1.1, +"one"), (2, 2.2, +"two"), (3, 3.3, +"three"));
+      A_Struct : constant ArrayOfSOAPStruct_Type :=
+                   [(1, 1.1, +"one"), (2, 2.2, +"two"), (3, 3.3, +"three")];
 
-      Res : constant echoStructArray_Result
-        := interopLab.Client.echoStructArray (A_Struct);
+      Res : constant echoStructArray_Result :=
+              interopLab.Client.echoStructArray (A_Struct);
    begin
       Text_IO.Put_Line ("Echo ArrayOfStruct");
 
-      for K in Res'Range loop
+      for K in 1 .. Natural (Res.Length) loop
          Output (Res (K));
       end loop;
 

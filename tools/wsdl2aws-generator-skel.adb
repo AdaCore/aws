@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2003-2022, AdaCore                     --
+--                     Copyright (C) 2003-2025, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -121,9 +121,6 @@ package body Skel is
                if Is_String (N) then
                   CB_Parameter_Name := CB_Parameter_Name
                     & ('-' & Name);
-               elsif N.Mode = WSDL.Types.K_Array and then O.Sp then
-                  CB_Parameter_Name := CB_Parameter_Name
-                    & (Name & ".Item.all");
                else
                   CB_Parameter_Name := CB_Parameter_Name
                     & Name;
