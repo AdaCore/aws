@@ -22,7 +22,7 @@ with "../shared";
 with "../include/include";
 with "../ssl/ssl";
 
-with "gnatcoll";
+with "gnatcoll_core";
 
 library project Src is
 
