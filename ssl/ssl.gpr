@@ -21,7 +21,7 @@ with "../shared";
 with "crypto_lib";
 with "ssl_lib";
 
-with "gnatcoll";
+with "gnatcoll_core";
 
 library project SSL is
 
