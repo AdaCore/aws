@@ -26,7 +26,7 @@ $ echo ABCC > demoCA/serial
 Create a Certificate Authority key
 ----------------------------------
 
-$ openssl genrsa -out private-ca.key 1024
+$ openssl genrsa -out private-ca.key 2048
 
 $ openssl req -new -key private-ca.key -out private-ca.csr
 
@@ -49,7 +49,7 @@ $ openssl x509 -req -days 365 -in private-ca.csr -signkey private-ca.key -out pr
 Create web server key signed with our CA
 ----------------------------------------
 
-$ openssl genrsa -out aws-server.key 1024
+$ openssl genrsa -out aws-server.key 2048
 
 $ openssl req -new -key aws-server.key -out aws-server.csr
 
@@ -72,7 +72,7 @@ $ openssl ca -in aws-server.csr -cert private-ca.crt -keyfile private-ca.key -ou
 Create web browser key signed with our CA
 -----------------------------------------
 
-$ openssl genrsa -des3 -out aws-client.key 1024
+$ openssl genrsa -des3 -out aws-client.key 2048
 
    Enter pass phrase for aws-client.key:letmein
 

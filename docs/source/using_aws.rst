@@ -2287,7 +2287,7 @@ Creating the Certificate Authority
 
 *Generate a RSA key*::
 
-   $ openssl genrsa -out private-ca.key 1024
+   $ openssl genrsa -out private-ca.key 2048
 
 *Generate the certificate signing request*::
 
@@ -2312,7 +2312,7 @@ Creating a CA signed server certificate
 
 *Generate a RSA key*::
 
-   $ openssl genrsa -out aws-server.key 1024
+   $ openssl genrsa -out aws-server.key 2048
 
 *Generate the certificate signing request*::
 
@@ -2340,7 +2340,7 @@ Creating a CA signed client certificate
 
 *Generate a RSA key*::
 
-   $ openssl genrsa -des3 -out aws-client.key 1024
+   $ openssl genrsa -des3 -out aws-client.key 2048
 
 *Generate the certificate signing request*::
 
