@@ -865,22 +865,9 @@ package body SOAP.Message.XML is
    function Parse_Any_URI
      (Name      : String;
       Type_Name : String;
-      N         : DOM.Core.Node) return Types.Object'Class
-   is
-      use type DOM.Core.Node_Types;
-
-      L : constant DOM.Core.Node_List := Child_Nodes (N);
-      S : Unbounded_String;
-      P : DOM.Core.Node;
+      N         : DOM.Core.Node) return Types.Object'Class is
    begin
-      for I in 0 .. Length (L) - 1 loop
-         P := Item (L, I);
-         if P.Node_Type = DOM.Core.Text_Node then
-            Append (S, Node_Value (P));
-         end if;
-      end loop;
-
-      return Types.AnyURI (To_String (S), Name, Type_Name);
+      return Types.AnyURI (SOAP.XML.Text_Node_Value (N), Name, Type_Name);
    end Parse_Any_URI;
 
    -----------------
@@ -1406,11 +1393,9 @@ package body SOAP.Message.XML is
    function Parse_Normalized_String
      (Name      : String;
       Type_Name : String;
-      N         : DOM.Core.Node) return Types.Object'Class
-   is
-      Value : constant DOM.Core.Node := First_Child (N);
+      N         : DOM.Core.Node) return Types.Object'Class is
    begin
-      return Types.NS (Node_Value (Value), Name, Type_Name);
+      return Types.NS (SOAP.XML.Text_Node_Value (N), Name, Type_Name);
    end Parse_Normalized_String;
 
    -----------------
@@ -1862,22 +1847,10 @@ package body SOAP.Message.XML is
    function Parse_String
      (Name      : String;
       Type_Name : String;
-      N         : DOM.Core.Node) return Types.Object'Class
-   is
-      use type DOM.Core.Node_Types;
-
-      L : constant DOM.Core.Node_List := Child_Nodes (N);
-      S : Unbounded_String;
-      P : DOM.Core.Node;
+      N         : DOM.Core.Node) return Types.Object'Class is
    begin
-      for I in 0 .. Length (L) - 1 loop
-         P := Item (L, I);
-         if P.Node_Type = DOM.Core.Text_Node then
-            Append (S, Node_Value (P));
-         end if;
-      end loop;
-
-      return Types.XSD_String'(Types.S (S, Name, Type_Name));
+      return Types.XSD_String'
+        (Types.S (SOAP.XML.Text_Node_Value (N), Name, Type_Name));
    end Parse_String;
 
    ----------------
@@ -1917,12 +1890,10 @@ package body SOAP.Message.XML is
    function Parse_Token
      (Name      : String;
       Type_Name : String;
-      N         : DOM.Core.Node) return Types.Object'Class
-   is
-      Value : constant DOM.Core.Node := First_Child (N);
+      N         : DOM.Core.Node) return Types.Object'Class is
    begin
       return Types.XSD_Token'
-        (Types.T (Node_Value (Value), Name, Type_Name));
+        (Types.T (SOAP.XML.Text_Node_Value (N), Name, Type_Name));
    end Parse_Token;
 
    -------------------------
@@ -1991,23 +1962,9 @@ package body SOAP.Message.XML is
 
    function Parse_Untyped
      (Name : String;
-      N    : DOM.Core.Node) return Types.Object'Class
-   is
-      use type DOM.Core.Node_Types;
-
-      L : constant DOM.Core.Node_List := Child_Nodes (N);
-      S : Unbounded_String;
-      P : DOM.Core.Node;
+      N    : DOM.Core.Node) return Types.Object'Class is
    begin
-      for I in 0 .. Length (L) - 1 loop
-         P := Item (L, I);
-
-         if P.Node_Type = DOM.Core.Text_Node then
-            Append (S, Node_Value (P));
-         end if;
-      end loop;
-
-      return Types.Untyped.S (S, Name);
+      return Types.Untyped.S (SOAP.XML.Text_Node_Value (N), Name);
    end Parse_Untyped;
 
    -------------------

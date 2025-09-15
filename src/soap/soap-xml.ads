@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2003-2024, AdaCore                     --
+--                     Copyright (C) 2003-2025, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -59,5 +59,9 @@ package SOAP.XML is
      Pre  => N /= null;
    --  Returns the next sibling, skip #text nodes. Return null if there is no
    --  more sibbling.
+
+   function Text_Node_Value (N : DOM.Core.Node) return String;
+   --  Returns the node value as a string. This ensure that a split string in
+   --  multiple text nodes is fully returned.
 
 end SOAP.XML;
