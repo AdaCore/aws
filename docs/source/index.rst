@@ -1,6 +1,16 @@
 AWS: The Ada Web Server
 =======================
 
+.. _End_of_Life_Notification:
+
+End of Life Notification
+~~~~~~~~~~~~~~~~~~~~~~~~~
+
+AWS is a deprecated product. It will be baselined with the GNAT Pro
+release 28. After this release, there will be no new versions of this
+product. Contact your sales representative or send a message to
+sales@adacore.com to get recommendations for replacements.
+
 .. toctree::
    :numbered:
    :maxdepth: 3
