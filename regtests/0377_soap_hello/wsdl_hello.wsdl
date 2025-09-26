@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<definitions name="HelloService"
+             targetNamespace="http://www.s.com/wsdl/hs.wsdl"
+             xmlns="http://schemas.xmlsoap.org/wsdl/"
+             xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/"
+             xmlns:tns="http://www.s.com/wsdl/hs.wsdl"
+             xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+             xmlns:ns1="urn:examples:helloservice">
+
+  <types>
+    <schema>
+      <xsd:complexType name="HelloResponse">
+        <xsd:annotation>
+          <xsd:documentation>
+            A message/token pair
+          </xsd:documentation>
+        </xsd:annotation>
+        <xsd:sequence>
+          <xsd:element name="rs1" type="xsd:string"/>
+          <xsd:element name="rs2" type="xsd:token"/>
+          <xsd:element name="rs3" type="xsd:normalizedString"/>
+        </xsd:sequence>
+      </xsd:complexType>
+    </schema>
+  </types>
+
+  <message name="SayHelloRequest">
+    <part name="S1" type="xsd:string"/>
+    <part name="S2" type="xsd:token"/>
+    <part name="S3" type="xsd:normalizedString"/>
+  </message>
+  <message name="SayHelloResponse">
+    <part name="greeting" type="HelloResponse"/>
+  </message>
+
+  <portType name="Hello_PortType">
+    <documentation>
+      This web service provides a simple Hello World.
+    </documentation>
+    <operation name="sayHello">
+      <documentation>
+        Called with a firstName, and returns a greeting message.
+    This is very simple SOAP callback. The input message is a simple string,
+        the response is a complexType with the response and a uniq token value.
+      </documentation>
+      <input message="tns:SayHelloRequest"/>
+      <output message="tns:SayHelloResponse"/>
+    </operation>
+    <operation name="call">
+      <documentation>
+        just for the documentation validation.
+      </documentation>
+      <input message="tns:CallRequest"/>
+      <output message="tns:CallResponse"/>
+    </operation>
+  </portType>
+
+  <binding name="Hello_Binding" type="tns:Hello_PortType">
+    <soap:binding style="rpc"
+                  transport="http://schemas.xmlsoap.org/soap/http"/>
+    <operation name="sayHello">
+      <soap:operation soapAction="sayHello"/>
+      <input>
+        <soap:body
+            encodingStyle="http://schemas.xmlsoap.org/soap/encoding/"
+            namespace="urn:examples:helloservice"
+            use="encoded"/>
+      </input>
+      <output>
+        <soap:body
+            encodingStyle="http://schemas.xmlsoap.org/soap/encoding/"
+            namespace="urn:examples:helloservice"
+            use="encoded"/>
+      </output>
+    </operation>
+  </binding>
+
+  <service name="R_Hello_Demo">
+    <documentation>
+      WSDL File for Hello AWS Demo.
+    </documentation>
+    <port binding="tns:Hello_Binding" name="Hello_Port">
+      <soap:address
+          location="http://localhost:9838/hello"/>
+    </port>
+  </service>
+</definitions>

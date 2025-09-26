@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2003-2024, AdaCore                     --
+--                     Copyright (C) 2003-2025, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -28,6 +28,7 @@
 ------------------------------------------------------------------------------
 
 with Ada.Characters.Handling;
+with Ada.Strings.Unbounded;
 
 with DOM.Core.Nodes;
 
@@ -152,5 +153,27 @@ package body SOAP.XML is
 
       return M;
    end Next_Sibling;
+
+   ---------------------
+   -- Text_Node_Value --
+   ---------------------
+
+   function Text_Node_Value (N : DOM.Core.Node) return String is
+      use Ada.Strings.Unbounded;
+      use type DOM.Core.Node_Types;
+
+      L : constant DOM.Core.Node_List := DOM.Core.Nodes.Child_Nodes (N);
+      S : Unbounded_String;
+      P : DOM.Core.Node;
+   begin
+      for I in 0 .. DOM.Core.Nodes.Length (L) - 1 loop
+         P := DOM.Core.Nodes.Item (L, I);
+         if P.Node_Type = DOM.Core.Text_Node then
+            Append (S, DOM.Core.Nodes.Node_Value (P));
+         end if;
+      end loop;
+
+      return To_String (S);
+   end Text_Node_Value;
 
 end SOAP.XML;
