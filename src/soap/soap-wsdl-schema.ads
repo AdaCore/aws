@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                    Copyright (C) 2015-2024, AdaCore                      --
+--                    Copyright (C) 2015-2025, AdaCore                      --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -98,6 +98,10 @@ package SOAP.WSDL.Schema is
 
    function Contains (Namespace : URL) return Boolean;
    --  Returns True if the Namespace is known (has been registered)
+
+   function Is_Element_Form_Qualified (Namespace : URL) return Boolean;
+   --  Returns True is the Namespace given by the URL should have qualified
+   --  element.
 
    procedure For_All
      (Namespace : URL;
