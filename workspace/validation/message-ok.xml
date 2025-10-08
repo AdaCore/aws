@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/"
+                  xmlns:b="http://exemple.com/B"
+                  xmlns:a="http://exemple.com/A"
+                  xmlns:c="http://exemple.com/C">
+  <Header/>
+  <Body>
+    <b:commande>
+      <a:client>Jean Dupont</a:client>
+      <value>12</value>
+      <code>12</code>
+    </b:commande>
+  </Body>
+</soapenv:Envelope>

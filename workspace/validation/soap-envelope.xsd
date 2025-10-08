@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema"
+           targetNamespace="http://schemas.xmlsoap.org/soap/envelope/"
+           xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/"
+           xmlns:b="http://exemple.com/B"
+           xmlns:a="http://exemple.com/A">
+
+  <!-- importer les schémas applicatifs -->
+  <xs:import namespace="http://exemple.com/B" schemaLocation="B.xsd"/>
+  <xs:import namespace="http://exemple.com/A" schemaLocation="A.xsd"/>
+
+  <!-- déclaration minimale de Envelope/Header/Body -->
+  <xs:element name="Envelope">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element name="Header" minOccurs="0">
+          <xs:complexType>
+            <xs:sequence>
+              <xs:any processContents="lax" minOccurs="0" maxOccurs="unbounded"/>
+            </xs:sequence>
+          </xs:complexType>
+        </xs:element>
+
+        <xs:element name="Body">
+          <xs:complexType>
+            <xs:sequence>
+              <!-- on attend exactement l'élément commande du namespace B -->
+<!--              <xs:element ref="b:commande"/> -->
+              <xs:element name="commande" type="b:commande"/>
+            </xs:sequence>
+          </xs:complexType>
+        </xs:element>
+
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+
+</xs:schema>
