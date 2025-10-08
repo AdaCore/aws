@@ -31,6 +31,8 @@ pragma Ada_2022;
 
 with AWS.Containers.Key_Value;
 
+with SOAP.Name_Space;
+
 package SOAP.WSDL.Schema is
 
    use type DOM.Core.Node;
@@ -63,6 +65,29 @@ package SOAP.WSDL.Schema is
    --     4. The root type for each types in the schema
    --        key:   <type_name>
    --        value: <xsd_type>
+
+   Default : AWS.Containers.Key_Value.Map :=
+               ["xsd"                              => SOAP.Name_Space.XSD_URL,
+                SOAP.Name_Space.XSD_URL            => "xsd",
+                SOAP.Name_Space.XSD_URL_Draft_2000 => "xsd",
+                SOAP.Name_Space.XSD_URL_Draft_1999 => "xsd",
+
+                "xsi"                              => SOAP.Name_Space.XSI_URL,
+                SOAP.Name_Space.XSI_URL            => "xsi",
+
+                "wsdl"                             => SOAP.Name_Space.WSDL_URL,
+                SOAP.Name_Space.WSDL_URL           => "wsdl",
+
+                "enc"                              =>
+                  SOAP.Name_Space.SOAPENC_URL,
+                SOAP.Name_Space.SOAPENC_URL        => "enc",
+
+                "env"                              =>
+                  SOAP.Name_Space.SOAPENV_URL,
+                SOAP.Name_Space.SOAPENV_URL        => "env"];
+   --  Simple default schema to be used for hand-coded SOAP calls. This is not
+   --  needed for generated API using wsdl2aws which is generating the proper
+   --  schema for the services.
 
    Empty : constant Definition;
 
