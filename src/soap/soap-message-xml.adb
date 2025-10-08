@@ -34,6 +34,7 @@ with Ada.Strings.Fixed;
 with Ada.Unchecked_Deallocation;
 
 with AWS.Client.XML.Input_Sources;
+with AWS.Containers.Key_Value;
 
 with DOM.Core.Nodes;
 with Input_Sources.Strings;
@@ -2032,16 +2033,13 @@ package body SOAP.Message.XML is
       Schema    : WSDL.Schema.Definition) return Type_State
    is
 
+      Local_Schema : constant WSDL.Schema.Definition :=
+            (if Schema.Is_Empty
+             then WSDL.Schema.Default
+             else Schema);
+
       N_xsd : constant String := SOAP.Name_Space.Name (NS.xsd);
       N_enc : constant String := SOAP.Name_Space.Name (NS.enc);
-      S_xsd : constant String :=
-                (if Schema.Contains (SOAP.Name_Space.XSD_URL)
-                 then Schema (SOAP.Name_Space.XSD_URL)
-                 else "");
-
-      ----------
-      -- Is_A --
-      ----------
 
       function Is_A
         (T1_Name, T2_Name : String;
@@ -2049,7 +2047,50 @@ package body SOAP.Message.XML is
       is (T1_Name = Utils.With_NS (NS, T2_Name)) with Inline;
       --  Returns True if T1_Name is equal to T2_Name based on namespace
 
-      T_Name : constant String := Get_Schema_Type (Type_Name, Schema, NS);
+      function Is_Schema
+        (T1_Name, T2_Name, Schema_URL : String) return Boolean;
+      --  Check that T1 and T2 are equal based on the schema pointed to by
+      --  Schema_URL.
+
+      function Is_xsd (T1_Name, T2_Name : String) return Boolean is
+        (Is_A (T1_Name, T2_Name, N_xsd)
+         or else Is_Schema (T1_Name, T2_Name, SOAP.Name_Space.XSD_URL)
+         or else Is_Schema
+                   (T1_Name, T2_Name, SOAP.Name_Space.XSD_URL_Draft_2000)
+         or else Is_Schema
+                   (T1_Name, T2_Name, SOAP.Name_Space.XSD_URL_Draft_1999));
+      --  Check default xsd schema (needed for RPC schema) and the actual
+      --  schema.
+
+      function Is_enc (T1_Name, T2_Name : String) return Boolean is
+        (Is_A (T1_Name, T2_Name, N_enc)
+         or else Is_Schema (T1_Name, T2_Name, SOAP.Name_Space.SOAPENC_URL));
+
+      ---------------
+      -- Is_Schema --
+      ---------------
+
+      function Is_Schema
+        (T1_Name, T2_Name, Schema_URL : String) return Boolean
+      is
+         use AWS.Containers;
+
+         R : Boolean := False;
+      begin
+         for D in Local_Schema.Iterate loop
+            if Local_Schema.Contains (Key_Value.Key (D))
+              and then Local_Schema (D) = Schema_URL
+            then
+               R := Is_A (T1_Name, T2_Name, Key_Value.Key (D));
+               exit when R;
+            end if;
+         end loop;
+
+         return R;
+      end Is_Schema;
+
+      T_Name : constant String :=
+                 Get_Schema_Type (Type_Name, Local_Schema, NS);
 
    begin
       if T_Name = "@enum" then
@@ -2060,11 +2101,8 @@ package body SOAP.Message.XML is
          if Handlers (K).Name /= null
            and then
              ((Handlers (K).Encoded
-               and then Is_A (T_Name, Handlers (K).Name.all, N_enc))
-              --   check name-space in the schema
-              or else Is_A (T_Name, Handlers (K).Name.all, S_xsd)
-              --   then check name-space in the parsed context
-              or else Is_A (T_Name, Handlers (K).Name.all, N_xsd))
+               and then Is_enc (T_Name, Handlers (K).Name.all))
+              or else Is_xsd (T_Name, Handlers (K).Name.all))
          then
             return K;
          end if;
