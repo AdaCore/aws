@@ -106,6 +106,7 @@ package body WSDL2AWS.Generator is
       N                : WSDL.Parameters.P_Set;
       P_Decl           : in out Templates.Tag;
       P_Choice_Decl    : in out Templates.Tag;
+      P_Is_Ref         : in out Templates.Tag;
       P_Name           : in out Templates.Tag;
       P_Kind           : in out Templates.Tag;
       P_Min            : in out Templates.Tag;
@@ -583,6 +584,7 @@ package body WSDL2AWS.Generator is
       N                : WSDL.Parameters.P_Set;
       P_Decl           : in out Templates.Tag;
       P_Choice_Decl    : in out Templates.Tag;
+      P_Is_Ref         : in out Templates.Tag;
       P_Name           : in out Templates.Tag;
       P_Kind           : in out Templates.Tag;
       P_Min            : in out Templates.Tag;
@@ -618,6 +620,7 @@ package body WSDL2AWS.Generator is
 
       P_Decl        := @ & A_Name;
       P_Choice_Decl := @ & Boolean'Image (N.In_Choice);
+      P_Is_Ref      := @ & Boolean'Image (N.Is_Ref);
       P_Name        := @ & To_String (N.Name);
       P_Kind        := @ & WSDL.Types.Kind'Image (N.Mode);
       P_Min         := @ & N.Min;
@@ -963,6 +966,7 @@ package body WSDL2AWS.Generator is
          Parameter_Max    : Templates.Tag;
          P_Decl           : Templates.Tag;
          P_Choice_Decl    : Templates.Tag;
+         P_Is_Ref         : Templates.Tag;
          P_Name           : Templates.Tag;
          P_Kind           : Templates.Tag;
          P_Min            : Templates.Tag;
@@ -1036,8 +1040,8 @@ package body WSDL2AWS.Generator is
 
          while N /= null loop
             Generate_Params
-              (O, N, P_Decl, P_Choice_Decl, P_Name, P_Kind, P_Min, P_Max,
-               P_Compound_Size, P_Type, P_Base_Type,
+              (O, N, P_Decl, P_Choice_Decl, P_Is_Ref, P_Name, P_Kind,
+               P_Min, P_Max, P_Compound_Size, P_Type, P_Base_Type,
                P_Root_Type, P_Root_Type_Kind,
                P_Type_Name, P_Type_Kind, P_Ada_Type, P_Q_Name,
                P_NS_Name, P_NS_Value, P_Elt_NS_Name, P_Elt_NS_Value);
@@ -1064,6 +1068,7 @@ package body WSDL2AWS.Generator is
          Add_TagV (O.Stub_B_Trans, "IP_ELT_NS_VALUE", P_Elt_NS_Value);
 
          Add_TagV (O.Skel_B_Trans, "IP_DECL_NAME", P_Decl);
+         Add_TagV (O.Skel_B_Trans, "IP_IS_REF", P_Is_Ref);
          Add_TagV (O.Skel_B_Trans, "IP_NAME", P_Name);
          Add_TagV (O.Skel_B_Trans, "IP_KIND", P_Kind);
          Add_TagV (O.Skel_B_Trans, "IP_MIN", P_Min);
@@ -1100,6 +1105,7 @@ package body WSDL2AWS.Generator is
 
          P_Decl           : Templates.Tag;
          P_Choice_Decl    : Templates.Tag;
+         P_Is_Ref         : Templates.Tag;
          P_Name           : Templates.Tag;
          P_Kind           : Templates.Tag;
          P_Min            : Templates.Tag;
@@ -1202,7 +1208,7 @@ package body WSDL2AWS.Generator is
            and then Output.Next = null
          then
             Generate_Params
-              (O, Output, P_Decl, P_Choice_Decl, P_Name, P_Kind,
+              (O, Output, P_Decl, P_Choice_Decl, P_Is_Ref, P_Name, P_Kind,
                P_Min, P_Max, P_Compound_Size,
                P_Type, P_Base_Type, P_Root_Type, P_Root_Type_Kind,
                P_Type_Name, P_Type_Kind, P_Ada_Type, P_Q_Name,
@@ -1229,6 +1235,7 @@ package body WSDL2AWS.Generator is
          Add_TagV (O.Skel_B_Trans, "OP_ELT_NS_VALUE", P_Elt_NS_Value);
 
          Add_TagV (O.Stub_B_Trans, "OP_DECL_NAME", P_Decl);
+         Add_TagV (O.Stub_B_Trans, "OP_IS_REF", P_Is_Ref);
          Add_TagV (O.Stub_B_Trans, "OP_NAME", P_Name);
          Add_TagV (O.Stub_B_Trans, "OP_KIND", P_Kind);
          Add_TagV (O.Stub_B_Trans, "OP_MIN", P_Min);
@@ -2303,6 +2310,7 @@ package body WSDL2AWS.Generator is
 
          R_Decl           : Templates.Tag;
          R_Choice_Decl    : Templates.Tag;
+         R_Is_Ref         : Templates.Tag;
          R_Name           : Templates.Tag;
          R_Kind           : Templates.Tag;
          R_Min            : Templates.Tag;
@@ -2335,8 +2343,8 @@ package body WSDL2AWS.Generator is
 
          while N /= null loop
             Generate_Params
-              (O, N, R_Decl, R_Choice_Decl, R_Name, R_Kind, R_Min, R_Max,
-               R_Compound_Size,
+              (O, N, R_Decl, R_Choice_Decl, R_Is_Ref, R_Name, R_Kind,
+               R_Min, R_Max, R_Compound_Size,
                R_Type, R_Base_Type, R_Root_Type, R_Root_Type_Kind,
                R_Type_Name, R_Type_Kind, R_Ada_Type, R_Q_Name,
                R_NS_Name, R_NS_Value, R_Elt_NS_Name, R_Elt_NS_Value);
@@ -2392,6 +2400,7 @@ package body WSDL2AWS.Generator is
            & Templates.Assoc ("RF_MIN", R_Min)
            & Templates.Assoc ("RF_MAX", R_Max)
            & Templates.Assoc ("RF_IS_SET", R_Is_Set)
+           & Templates.Assoc ("RF_IS_REF", R_Is_Ref)
            & Templates.Assoc ("RF_COMPOUND_SIZE", R_Compound_Size)
            & Templates.Assoc ("RF_TYPE", R_Type)
            & Templates.Assoc ("RF_BASE_TYPE", R_Base_Type)
