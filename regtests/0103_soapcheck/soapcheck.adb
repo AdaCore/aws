@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2008-2024, AdaCore                     --
+--                     Copyright (C) 2008-2025, AdaCore                     --
 --                                                                          --
 --  This is free software;  you can redistribute it  and/or modify it       --
 --  under terms of the  GNU General Public License as published  by the     --
@@ -168,7 +168,8 @@ begin
 
    Disp := SOAP.Dispatchers.Callback.Create
      (CB'Unrestricted_Access,
-      Pck_Service.CB.SOAP_CB'Access);
+      Pck_Service.CB.SOAP_CB'Access,
+      Pck_Service.Schema);
 
    AWS.Server.Start (WS, Disp, Conf);
 

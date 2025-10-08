@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2003-2012, AdaCore                     --
+--                     Copyright (C) 2003-2025, AdaCore                     --
 --                                                                          --
 --  This is free software;  you can redistribute it  and/or modify it       --
 --  under terms of the  GNU General Public License as published  by the     --
@@ -66,7 +66,7 @@ procedure Test_WSDL3 is
       SOAPAction : constant String := Status.SOAPAction (Request);
    begin
       if SOAPAction = "http://localhost/GetTradePrices" then
-         return SOAP_Wrapper (Request);
+         return SOAP_Wrapper (Request, Stock_Quote_Service.Schema);
       else
          return Response.Build (MIME.Text_HTML, "<p>Not a SOAP request");
       end if;

@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                       Copyright (C) 2024, AdaCore                        --
+--                     Copyright (C) 2024-2025, AdaCore                     --
 --                                                                          --
 --  This is free software;  you can redistribute it  and/or modify it       --
 --  under terms of the  GNU General Public License as published  by the     --
@@ -26,7 +26,7 @@ with SOAP.Dispatchers.Callback;
 with urn.naws.wsdl_choice.r1_type_pkg;
 with urn.naws.wsdl_choice.r2_type_pkg;
 
-with Wsdl_Choice_Server;
+with WSDL_Choice_Server;
 with WSDL_Choice.Client;
 with WSDL_Choice.Types;
 
@@ -52,7 +52,9 @@ procedure WSDL_Choice_Main is
 
 begin
    H := SOAP.Dispatchers.Callback.Create
-     (WSDL_Choice_Server.HTTP_CB'Access, WSDL_Choice_Server.SOAP_CB'Access);
+     (WSDL_Choice_Server.HTTP_CB'Access,
+      WSDL_Choice_Server.SOAP_CB'Access,
+      WSDL_Choice.Schema);
 
    Config.Set.Server_Host (Conf, "localhost");
    Config.Set.Server_Port (Conf, 0);

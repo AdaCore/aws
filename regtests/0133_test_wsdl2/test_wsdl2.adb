@@ -66,7 +66,7 @@ procedure Test_WSDL2 is
       SOAPAction : constant String := Status.SOAPAction (Request);
    begin
       if SOAPAction = "http://localhost/GetTradePrices" then
-         return SOAP_Wrapper (Request);
+         return SOAP_Wrapper (Request, StockQuoteService.Schema);
       else
          return Response.Build (MIME.Text_HTML, "<p>Not a SOAP request");
       end if;

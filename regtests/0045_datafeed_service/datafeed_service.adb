@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2004-2012, AdaCore                     --
+--                     Copyright (C) 2004-2025, AdaCore                     --
 --                                                                          --
 --  This is free software;  you can redistribute it  and/or modify it       --
 --  under terms of the  GNU General Public License as published  by the     --
@@ -63,7 +63,7 @@ procedure Datafeed_Service is
       SOAPAction : constant String := Status.SOAPAction (Request);
    begin
       if SOAPAction = "" then
-         return SOAP_Wrapper (Request);
+         return SOAP_Wrapper (Request, DatafeedService.Schema);
       else
          return Response.Build (MIME.Text_HTML, "<p>Not a valid SOAP request");
       end if;

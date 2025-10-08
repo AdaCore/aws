@@ -45,7 +45,7 @@ procedure WSDL_8_Main is
 
 begin
    H := SOAP.Dispatchers.Callback.Create
-     (null, WSDL_8_Service.CB.SOAP_CB'Access);
+     (null, WSDL_8_Service.CB.SOAP_CB'Access, WSDL_8_Service.Schema);
 
    Config.Set.Server_Host (Conf, "localhost");
    Config.Set.Server_Port (Conf, 7708);

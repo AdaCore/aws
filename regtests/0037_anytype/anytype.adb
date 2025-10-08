@@ -92,7 +92,7 @@ procedure AnyType is
       SOAPAction : constant String := Status.SOAPAction (Request);
    begin
       if SOAPAction = "Call" then
-         return SOAP_Wrapper (Request);
+         return SOAP_Wrapper (Request, AnyType_Service.Schema);
       else
          return Response.Build (MIME.Text_HTML, "<p>Not a SOAP request");
       end if;

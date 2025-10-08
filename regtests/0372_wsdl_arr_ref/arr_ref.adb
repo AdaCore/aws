@@ -64,7 +64,7 @@ procedure Arr_Ref is
       SOAPAction : constant String := Status.SOAPAction (Request);
    begin
       if SOAPAction = "http://localhost/esp" then
-         return SOAP_Wrapper (Request);
+         return SOAP_Wrapper (Request, ESService.Schema);
       else
          return Response.Build (MIME.Text_HTML, "<p>Not a SOAP request");
       end if;
