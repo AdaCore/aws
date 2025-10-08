@@ -72,6 +72,13 @@ pragma Style_Checks ("M32766");
 # error Please define TARGET
 #endif
 
+#if defined (SOCKET_openssl)
+#include <openssl/x509.h>
+#include <openssl/ssl.h>
+#elif defined (SOCKET_gnutls)
+#include <gnutls/gnutls.h>
+#endif
+
 /* Feature macro definitions */
 
 #include <stdlib.h>
@@ -510,6 +517,11 @@ CND(AI_NUMERICHOST, "Node is a numeric IP address")
 # define EAI_SYSTEM -1
 #endif
 CND(EAI_SYSTEM, "Check errno for details")
+
+#ifndef EAI_NODATA
+# define EAI_NODATA -1
+#endif
+CND(EAI_NODATA, "No address associated with nodename")
 
 #ifndef NI_NUMERICHOST
 # define NI_NUMERICHOST -1
