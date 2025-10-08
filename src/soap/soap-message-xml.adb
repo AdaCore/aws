@@ -1448,13 +1448,13 @@ package body SOAP.Message.XML is
       --------------
 
       function Is_Array return Boolean is
-         XSI_Type  : constant DOM.Core.Node :=
-                       Get_Named_Item
-                         (Atts, SOAP.Name_Space.Name (S.NS.xsi) & ":type");
-         SOAP_Enc  : constant DOM.Core.Node :=
-                       Get_Named_Item
-                         (Atts,
-                          SOAP.Name_Space.Name (S.NS.enc) & ":arrayType");
+         XSI_Type : constant DOM.Core.Node :=
+                      Get_Named_Item
+                        (Atts, SOAP.Name_Space.Name (S.NS.xsi) & ":type");
+         SOAP_Enc : constant DOM.Core.Node :=
+                      Get_Named_Item
+                        (Atts,
+                         SOAP.Name_Space.Name (S.NS.enc) & ":arrayType");
       begin
          return
           (S.Schema.Contains (Key) and then S.Schema.Element (Key) = "@array")
@@ -1636,9 +1636,7 @@ package body SOAP.Message.XML is
             begin
                if S_Type = T_Undefined then
                   --  Not a known basic type, let's try to parse a
-                  --  record object. This implemtation does not
-                  --  support schema so there is no way to check
-                  --  for the real type here.
+                  --  record object.
 
                   return Parse_Record (Name, Ref, Q_Name, S);
 

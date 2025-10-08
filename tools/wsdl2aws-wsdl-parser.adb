@@ -402,8 +402,7 @@ package body WSDL2AWS.WSDL.Parser is
      (N        : DOM.Core.Node;
       Document : SOAP.WSDL.Object) return DOM.Core.Node
    is
-      Ref : constant String :=
-              SOAP.XML.Get_Attr_Value (N, "ref", True);
+      Ref : constant String := SOAP.XML.Get_Attr_Value (N, "ref", True);
    begin
       if Ref = "" then
          --  No ref attribute, this element should have name/type attribute
@@ -577,7 +576,7 @@ package body WSDL2AWS.WSDL.Parser is
               (SOAP.WSDL.Name_Spaces.Get (Value), Value);
 
          else
-            NS_Num := NS_Num + 1;
+            NS_Num := @ + 1;
             declare
                Name : constant String := "n" & AWS.Utils.Image (NS_Num);
             begin
@@ -1704,8 +1703,7 @@ package body WSDL2AWS.WSDL.Parser is
             declare
                P : Parameters.Parameter := Parse_Record (O, D, Document);
             begin
-               --  If Min is 0 we have a set (optional element)
-               P.Is_Set := Min = 0;
+               P.Is_Set := False;
                P.Min := Min;
                P.Max := Max;
                return P;
@@ -1734,8 +1732,7 @@ package body WSDL2AWS.WSDL.Parser is
             declare
                P : Parameters.Parameter := Parse_Simple (O, D, Document);
             begin
-               --  If Min is 0 we have a set (optional element)
-               P.Is_Set := Min = 0;
+               P.Is_Set := False;
                P.Min := Min;
                P.Max := Max;
                return P;

@@ -1137,12 +1137,10 @@ package body WSDL2AWS.Generator is
                      SOAP.Utils.To_Name (WSDL.Types.Name (N.Typ, True))
                      & "_Type"));
             else
-               Proc_S_Return_Type := @
-                 & (Result_Type (O, Proc, N));
+               Proc_S_Return_Type := @ & Result_Type (O, Proc, N);
             end if;
          else
-            Proc_S_Return_Type := @
-              & "Not_A_Function";
+            Proc_S_Return_Type := @ & "Not_A_Function";
          end if;
 
          --  Only done once, ???? can probably be removed after clean-up
@@ -1164,12 +1162,10 @@ package body WSDL2AWS.Generator is
                      SOAP.Utils.To_Name (WSDL.Types.Name (N.Typ, True))
                        & "_Type"));
             else
-               Proc_B_Return_Type := @
-                 & (Result_Type (O, Proc, N));
+               Proc_B_Return_Type := @ & Result_Type (O, Proc, N);
             end if;
          else
-            Proc_B_Return_Type := @
-              & "Not_A_Function";
+            Proc_B_Return_Type := @ & "Not_A_Function";
          end if;
 
          Add_TagV
@@ -1644,7 +1640,6 @@ package body WSDL2AWS.Generator is
                return Format_Name (O, Name) & "_Type";
             end if;
          end To_Ada_Type;
-
 
          S_Name  : constant String := WSDL.Types.Name (P.Typ);
          --  Simple type
