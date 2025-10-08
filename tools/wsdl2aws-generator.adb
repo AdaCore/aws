@@ -699,7 +699,7 @@ package body WSDL2AWS.Generator is
 
       declare
          NS : constant SOAP.Name_Space.Object :=
-                WSDL.Types.NS (N.Typ);
+                WSDL.Types.NS ((if N.Is_Set then N.E_Typ else N.Typ));
       begin
          P_NS_Name  := @ & SOAP.Name_Space.Name (NS);
          P_NS_Value := @ & SOAP.Name_Space.Value (NS);
@@ -1284,19 +1284,29 @@ package body WSDL2AWS.Generator is
                        Name & (if E_Name = ""
                                then ""
                                else '.' & E_Name);
-            F_Name : constant String :=
-                       Name & (if P.Is_Set then "." & E_Name else "");
          begin
             if E_Name = "" then
                --  This is a set and not an array, inside we have a record
-               Output_Schema_Definition
-                 (O, F_Name & "@is_a",
-                  (if P.Is_Set then "@set" else "@record"));
 
-               if P.Is_Set and then P.P /= null then
+               if not P.Is_Set then
+                  Output_Schema_Definition (O, Name & "@is_a", "@record");
+
+               elsif P.P /= null then
                   Output_Schema_Definition
-                    (O, Name, WSDL.Types.Name (P.P.Typ, P.Is_Set));
+                    (O, Name, WSDL.Types.Name (P.E_Typ, P.Is_Set));
+                  Output_Schema_Definition
+                    (O, Name & "@is_a", WSDL.Types.Name (P.E_Typ, P.Is_Set));
+
+                  if WSDL.Types.Name (P.E_Typ, P.Is_Set) /=
+                    WSDL.Types.Name (P.P.Typ, P.Is_Set)
+                  then
+                     Output_Schema_Definition
+                       (O,
+                        WSDL.Types.Name (P.E_Typ, P.Is_Set),
+                        WSDL.Types.Name (P.P.Typ, P.Is_Set));
+                  end if;
                end if;
+
             else
                Output_Schema_Definition (O, Name & "@is_a", "@array");
             end if;
@@ -1334,7 +1344,7 @@ package body WSDL2AWS.Generator is
             Output_Schema_Definition
               (O, Name & "@is_a", WSDL.Types.Name (P.Typ, True));
             Output_Schema_Definition
-              (O, Name & "@is_a", WSDL.Types.Name (P.Typ, False));
+              (O, Name & "@is_ref", P.Is_Ref'Image);
          end Generate_Type;
 
          ----------------------
@@ -1467,7 +1477,9 @@ package body WSDL2AWS.Generator is
      (O          : in out Object;
       Key, Value : String) is
    begin
-      if not S_Gen.Contains (Key) then
+      if not S_Gen.Contains (Key)
+        and then Key /= Value
+      then
          S_Gen.Insert (Key, Value);
 
          Add_TagV (O.Type_B_Trans, "SCHEMA_DECLS_KEY", Key);
@@ -2218,9 +2230,18 @@ package body WSDL2AWS.Generator is
                  & Templates.Assoc ("UNIT_NAME", To_Unit_Name (N));
 
                if Leaf then
-                  T := T
-                    & Templates.Assoc ("NS_NAME", SOAP.Name_Space.Name (NS))
-                    & Templates.Assoc ("NS_VALUE", SOAP.Name_Space.Value (NS));
+                  declare
+                     Name  : constant String := SOAP.Name_Space.Name (NS);
+                     Value : constant String := SOAP.Name_Space.Value (NS);
+                  begin
+                     T := T
+                       & Templates.Assoc ("NS_NAME", Name)
+                       & Templates.Assoc ("NS_VALUE", Value)
+                       & Templates.Assoc
+                           ("NS_EQUALIFIED",
+                            SOAP.WSDL.Schema.Is_Element_Form_Qualified
+                              (Value));
+                  end;
                end if;
 
                Generate (O, To_Lower (N) & ".ads", Template_NS_Pkg_Ads, T);
@@ -3176,6 +3197,10 @@ package body WSDL2AWS.Generator is
          procedure Write_NS (Key, Value : String) is
          begin
             Output_Schema_Definition (O, Key, Value);
+            Output_Schema_Definition
+              (O,
+               Key & "@qualified",
+               SOAP.WSDL.Schema.Is_Element_Form_Qualified (Value)'Image);
          end Write_NS;
 
       begin

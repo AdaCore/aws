@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema"
+           targetNamespace="http://exemple.com/B"
+           xmlns:e="http://exemple.com/E"
+           xmlns:d="http://exemple.com/D"
+           xmlns:c="http://exemple.com/C"
+           xmlns:b="http://exemple.com/B"
+           xmlns:a="http://exemple.com/A"
+           elementFormDefault="qualified">
+
+  <!-- Import du schéma A pour pouvoir utiliser ses éléments -->
+  <xs:import namespace="http://exemple.com/A"
+             schemaLocation="a.xsd"/>
+  <xs:import namespace="http://exemple.com/C"
+             schemaLocation="c.xsd"/>
+  <xs:import namespace="http://exemple.com/D"
+             schemaLocation="d.xsd"/>
+  <xs:import namespace="http://exemple.com/E"
+             schemaLocation="e.xsd"/>
+
+  <xs:simpleType name="code">
+    <xs:restriction base="xs:int"/>
+  </xs:simpleType>
+
+  <xs:element name="rec" type="b:rec"/>
+
+  <xs:complexType name="rec">
+    <xs:sequence>
+      <xs:element ref="a:code"/>
+      <xs:element name="c1" type="b:code"/>
+      <xs:element name="c2" type="c:code"/>
+      <xs:element name="c3" type="xs:int"/>
+      <xs:element name="d1" type="d:data"/>
+      <xs:element name="e1" type="e:data"/>
+    </xs:sequence>
+  </xs:complexType>
+
+</xs:schema>

@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema"
+           targetNamespace="http://exemple.com/E"
+           xmlns:a="http://exemple.com/A"
+           xmlns:e="http://exemple.com/E"
+           elementFormDefault="qualified">
+
+  <xs:import namespace="http://exemple.com/A"
+             schemaLocation="a.xsd"/>
+
+  <xs:element name="data" type="e:data"/>
+
+  <xs:complexType name="data">
+    <xs:sequence>
+      <xs:element ref="a:code"/>
+      <xs:element name="c" type="xs:int"/>
+    </xs:sequence>
+  </xs:complexType>
+
+</xs:schema>

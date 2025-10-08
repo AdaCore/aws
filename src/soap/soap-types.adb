@@ -2286,8 +2286,7 @@ package body SOAP.Types is
                              SOAP.Name_Space.Name
                                (Name_Space (O.O (O.O'First).O.all));
                begin
-                  return Utils.With_NS
-                    ((if Prefix = "" then "awsns" else Prefix), Name);
+                  return Utils.With_NS (Prefix, Name);
                end;
             end;
          end if;

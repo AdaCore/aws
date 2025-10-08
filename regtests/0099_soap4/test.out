@@ -2,7 +2,7 @@
 <soapenv:Envelope soapenv:encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" xmlns:soapenc="http://schemas.xmlsoap.org/soap/encoding/" xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
 <soapenv:Body>
 <awsns:Arr_Rec xmlns:awsns="http://soapaws/">
-<arr soapenc:arrayType="awsns:rec[3]" xsi:type="soapenc:Array">
+<arr soapenc:arrayType="rec[3]" xsi:type="soapenc:Array">
    <rec xsi:type="rec">
       <name1 xsi:type="xsd:string">val1</name1>
       <name2 xsi:type="xsd:string">val2</name2>

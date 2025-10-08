@@ -6,7 +6,7 @@
 <my_record_out xsi:type="my_record_out">
    <name1 xsi:type="xsd:string">Wo1</name1>
    <name2 xsi:type="xsd:string">idle</name2>
-   <my_array soapenc:arrayType="awsns:my_record[1]" xsi:type="soapenc:Array">
+   <my_array soapenc:arrayType="my_record[1]" xsi:type="soapenc:Array">
       <my_record xsi:type="my_record">
          <name3 xsi:type="xsd:string">idle</name3>
          <name4 xsi:type="xsd:string">Wo1</name4>

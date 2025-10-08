@@ -9,7 +9,10 @@
 @@-----------------------------------------------------------------------
 @@MACRO(REC_FIELD_TO_SOAP)@@
 @@IF@@ @_RF_KIND_@ = K_ARRAY and @_RF_MIN_@ = 0 and @_RF_MAX_@ = 1
-@_$1_@To_Optional_SOAP_Object (R.@_RF_DECL_NAME_@, "@_RF_NAME_@")@_$3_@
+@_$1_@To_Optional_SOAP_Object
+            (R.@_RF_DECL_NAME_@, "@_RF_NAME_@",
+             NS => Get_NS (@_CAPITALIZE:RF_IS_REF_@,
+                           SOAP.Name_Space.Create ("@_RF_NS_NAME_@", "@_RF_NS_VALUE_@")))@_$3_@
 @@ELSIF@@ @_RF_KIND_@ = K_ARRAY
 @@IF@@ @_RF_MAX_@ > 1 and @_RF_IS_SET_@
 @_$1_@@_$2_@SOAP_Set'(SOAP.Types.Set (To_Object_Set
@@ -19,7 +22,8 @@
              "@_RF_NAME_@", "@_RF_TYPE_@")
 @@ELSE@@
              "@_RF_NAME_@", "@_RF_TYPE_@",
-             SOAP.Name_Space.Create ("@_RF_NS_NAME_@", "@_RF_NS_VALUE_@"))
+             Get_NS (@_CAPITALIZE:RF_IS_REF_@,
+                     SOAP.Name_Space.Create ("@_RF_NS_NAME_@", "@_RF_NS_VALUE_@")))
 @@END_IF@@
         )@_$3_@
 @@ELSE@@
@@ -29,11 +33,12 @@
              "@_RF_NAME_@", "")@_$3_@
 @@ELSE@@
              "@_RF_NAME_@", "",
-             SOAP.Name_Space.Create ("@_RF_NS_NAME_@", "@_RF_NS_VALUE_@"))@_$3_@
+             Get_NS (@_CAPITALIZE:RF_IS_REF_@,
+                     SOAP.Name_Space.Create ("@_RF_NS_NAME_@", "@_RF_NS_VALUE_@")))@_$3_@
 @@END_IF@@
 @@END_IF@@
 @@--
-@@ELSE@@
+@@ELSE@@ @@-- NOT ARRAY
 @@--
 @@IF@@ @_RF_KIND_@ = K_SIMPLE
 @_$1_@@_$2_@SOAP.Utils.To_SOAP_Object
@@ -44,10 +49,12 @@
 @@END_IF@@
             (R.@_RF_DECL_NAME_@,
 @@IF@@ @_IS_EMPTY:RF_NS_NAME_@ or (@_RF_NS_VALUE_@ = "http://www.w3.org/2001/XMLSchema")
-             "@_RF_NAME_@", "@_RF_TYPE_@", NS)@_$3_@
+             "@_RF_NAME_@", "@_RF_TYPE_@",
+             Get_NS (@_CAPITALIZE:RF_IS_REF_@, NS))@_$3_@
 @@ELSE@@
              "@_RF_NAME_@", "@_RF_TYPE_@",
-             SOAP.Name_Space.Create ("@_RF_NS_NAME_@", "@_RF_NS_VALUE_@"))@_$3_@
+             Get_NS (@_CAPITALIZE:RF_IS_REF_@,
+                     SOAP.Name_Space.Create ("@_RF_NS_NAME_@", "@_RF_NS_VALUE_@")))@_$3_@
 @@END_IF@@
 @@END_IF@@
 @@END_MACRO@@
@@ -256,6 +263,9 @@ package body @_UNIT_NAME_@ is
       return SOAP.Types.SOAP_Record
    is
 
+      function Get_NS (Is_Ref : Boolean; NS : SOAP.Name_Space.Object)
+        return SOAP.Name_Space.Object is (NS);
+
 @@IF@@ @_HAS_CHOICE_@ and @_FIELD_COUNT_@ > 0
       function C_Object return SOAP.Types.Object_Safe_Pointer is
       begin
@@ -344,6 +354,13 @@ package body @_UNIT_NAME_@ is
       return SOAP.Parameters.List
    is
       use type SOAP.Parameters.List;
+
+      function Get_NS
+        (Is_Ref : Boolean;
+         NS     : SOAP.Name_Space.Object) return SOAP.Name_Space.Object is
+        (if Is_Ref or Qualified_Element
+         then NS
+         else SOAP.Name_Space.No_Name_Space);
 
       Result@_TYPE_NAME_@ : SOAP.Parameters.List;
    begin
