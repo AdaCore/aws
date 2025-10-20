@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                      Copyright (C) 2003-2024, AdaCore                    --
+--                      Copyright (C) 2003-2025, AdaCore                    --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -557,6 +557,35 @@ package body AWS.LDAP.Client is
       end if;
    end Get_Error;
 
+   --------------------------
+   -- Get_Protocol_Version --
+   --------------------------
+
+   function Get_Protocol_Version (Dir : Directory) return Protocol_Version is
+      Version : IC.int;
+      Res     : IC.int;
+   begin
+      Check_Handle (Dir);
+
+      Res := Thin.ldap_get_option
+        (Dir, Thin.LDAP_OPT_PROTOCOL_VERSION, Version'Address);
+
+      if Res /= Thin.LDAP_SUCCESS then
+         Raise_Error (Res, "Get protocol version failed");
+      end if;
+
+      case Version is
+         when Thin.LDAP_VERSION1 =>
+            return Version_1;
+         when Thin.LDAP_VERSION2 =>
+            return Version_2;
+         when Thin.LDAP_VERSION3 =>
+            return Version_3;
+         when others =>
+            raise LDAP_Error with " Unknown protocol version:" & Version'Img;
+      end case;
+   end Get_Protocol_Version;
+
    ----------------
    -- Get_Values --
    ----------------
@@ -818,6 +847,36 @@ package body AWS.LDAP.Client is
          Free (C_Filter);
          raise;
    end Search;
+
+   --------------------------
+   -- Set_Protocol_Version --
+   --------------------------
+
+   procedure Set_Protocol_Version
+     (Dir     : Directory;
+      Version : Protocol_Version)
+   is
+      Opt : IC.int;
+      Res : IC.int;
+   begin
+      Check_Handle (Dir);
+
+      case Version is
+         when Version_1 =>
+            Opt := Thin.LDAP_VERSION1;
+         when Version_2 =>
+            Opt := Thin.LDAP_VERSION2;
+         when Version_3 =>
+            Opt := Thin.LDAP_VERSION3;
+      end case;
+
+      Res := Thin.ldap_set_option
+        (Dir, Thin.LDAP_OPT_PROTOCOL_VERSION, Opt'Address);
+
+      if Res /= Thin.LDAP_SUCCESS then
+         Raise_Error (Res, "Set protocol version failed");
+      end if;
+   end Set_Protocol_Version;
 
    --------
    -- sn --

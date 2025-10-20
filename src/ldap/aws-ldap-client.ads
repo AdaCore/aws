@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2003-2024, AdaCore                     --
+--                     Copyright (C) 2003-2025, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -171,6 +171,17 @@ package AWS.LDAP.Client is
       Port : Positive := Default_Port) return Directory;
    --  Must be called first, to initialize the LDAP communication with the
    --  server. Returns Null_Directory in case of error.
+
+   type Protocol_Version is (Version_1, Version_2, Version_3);
+
+   function Get_Protocol_Version (Dir : Directory) return Protocol_Version;
+   --  Returns the current protocol version that library uses
+
+   procedure Set_Protocol_Version
+     (Dir     : Directory;
+      Version : Protocol_Version);
+   --  Set protocol version. Should be done before Bind. Version_2 is default
+   --  for openLDAP library.
 
    procedure Bind
      (Dir      : Directory;

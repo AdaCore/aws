@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2002-2024, AdaCore                     --
+--                     Copyright (C) 2002-2025, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -749,6 +749,20 @@ package AWS.LDAP.Thin is
      with Import, Convention => C;
 
    procedure ber_free (BER : BerElement; fbuf : C.int)
+     with Import, Convention => C;
+
+   function ldap_get_option
+     (ld       : LDAP_Type;
+      option   : C.int;
+      outvalue : System.Address)
+      return C.int
+     with Import, Convention => C;
+
+   function ldap_set_option
+     (ld      : LDAP_Type;
+      option  : C.int;
+      invalue : System.Address)
+      return C.int
      with Import, Convention => C;
 
 private
