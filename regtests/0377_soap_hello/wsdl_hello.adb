@@ -80,7 +80,7 @@ procedure WSDL_Hello is
       SOAPAction : constant String := Status.SOAPAction (Request);
    begin
       if SOAPAction = "sayHello" then
-         return SOAP_Wrapper (Request);
+         return SOAP_Wrapper (Request, R_Hello_Demo.Schema);
       else
          return Response.Build (MIME.Text_HTML, "<p>Not a SOAP request");
       end if;

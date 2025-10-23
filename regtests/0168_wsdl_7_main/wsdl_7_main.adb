@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2004-2012, AdaCore                     --
+--                     Copyright (C) 2004-2025, AdaCore                     --
 --                                                                          --
 --  This is free software;  you can redistribute it  and/or modify it       --
 --  under terms of the  GNU General Public License as published  by the     --
@@ -42,7 +42,9 @@ procedure WSDL_7_Main is
 
 begin
    H := SOAP.Dispatchers.Callback.Create
-     (WSDL_7_Server.HTTP_CB'Access, WSDL_7_Service.CB.SOAP_CB'Access);
+     (WSDL_7_Server.HTTP_CB'Access,
+      WSDL_7_Service.CB.SOAP_CB'Access,
+      WSDL_7_Service.Schema);
 
    Config.Set.Server_Host (Conf, "localhost");
    Config.Set.Server_Port (Conf, 7707);

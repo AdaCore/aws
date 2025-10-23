@@ -60,7 +60,9 @@ begin
    Ada.Text_IO.Put_Line ("start");
 
    H := SOAP.Dispatchers.Callback.Create
-     (Occurs_CB.HTTP_CB'Access, Occurs_CB.SOAP_CB'Access);
+     (Occurs_CB.HTTP_CB'Access,
+      Occurs_CB.SOAP_CB'Access,
+      OccursServices.Schema);
 
    Config.Set.Server_Host (Conf, "localhost");
    Config.Set.Server_Port (Conf, 0);

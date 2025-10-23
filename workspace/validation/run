@@ -1,0 +1,7 @@
+#!/bin/bash
+
+echo "========== 1"
+xmllint --noout --schema soap-envelope.xsd message-ok.xml
+
+echo "========== 2"
+xmllint --noout --schema soap-envelope.xsd message-nok.xml

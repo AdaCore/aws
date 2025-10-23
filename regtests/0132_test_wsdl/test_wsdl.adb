@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2003-2024, AdaCore                     --
+--                     Copyright (C) 2003-2025, AdaCore                     --
 --                                                                          --
 --  This is free software;  you can redistribute it  and/or modify it       --
 --  under terms of the  GNU General Public License as published  by the     --
@@ -62,7 +62,7 @@ procedure Test_WSDL is
       SOAPAction : constant String := Status.SOAPAction (Request);
    begin
       if SOAPAction = "sayHello" then
-         return SOAP_Wrapper (Request);
+         return SOAP_Wrapper (Request, R_Hello_Demo.Schema);
       else
          return Response.Build (MIME.Text_HTML, "<p>Not a SOAP request");
       end if;
@@ -81,6 +81,7 @@ begin
    Config.Set.Server_Name (CNF, "WSDL Hello demo");
    Config.Set.Server_Host (CNF, "localhost");
    Config.Set.Server_Port (CNF, R_Hello_Demo.Server.Port);
+   Config.Set.Reuse_Address (CNF, True);
 
    Server.Start (H_Server, CB'Unrestricted_Access, CNF);
 

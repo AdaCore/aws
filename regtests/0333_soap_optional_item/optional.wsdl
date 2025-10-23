@@ -16,9 +16,9 @@
 	    <import namespace="http://schemas.xmlsoap.org/soap/encoding/"/>
 	    <complexType name="SOAPStruct">
 	      <all>
-		<element name="varInt" type="int"/>
-		<element name="varFloat" type="float"/>
-		<element name="varString" type="string"/>
+		<element name="varInt" type="xsd:int"/>
+		<element name="varFloat" type="xsd:float"/>
+		<element name="varString" type="xsd:string"/>
 	      </all>
 	    </complexType>
           </schema>

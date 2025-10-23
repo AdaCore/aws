@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<definitions name="CallService"
+             targetNamespace="http://www.s.com/wsdl/hs.wsdl"
+             xmlns="http://schemas.xmlsoap.org/wsdl/"
+             xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/"
+             xmlns:tns="http://www.s.com/wsdl/hs.wsdl"
+             xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+             xmlns:ns1="urn:examples:callservice">
+
+  <types>
+    <schema xmlns:a="http://example.com/A"
+            xmlns:c="http://example.com/C"
+            xmlns:b="http://example.com/B">
+
+      <import namespace="http://example.com/B"
+              schemaLocation="./b.xsd"/>
+
+      <complexType name="p">
+        <complexContent>
+          <sequence>
+            <element name="r" type="b:rec"/>
+          </sequence>
+        </complexContent>
+      </complexType>
+
+    </schema>
+  </types>
+
+  <message name="CallRequest">
+    <part name="S" element="b:rec"/>
+  </message>
+
+  <portType name="Call_PortType">
+    <operation name="Call">
+      <input message="tns:CallRequest"/>
+    </operation>
+  </portType>
+
+  <binding name="Call_Binding" type="tns:Call_PortType">
+    <soap:binding style="document"
+                  transport="http://schemas.xmlsoap.org/soap/http"/>
+    <operation name="Call">
+      <soap:operation soapAction="Call"/>
+      <input>
+        <soap:body
+            encodingStyle="http://schemas.xmlsoap.org/soap/encoding/"
+            namespace="urn:examples:callservice"
+            use="literal"/>
+      </input>
+      <output>
+        <soap:body
+            encodingStyle="http://schemas.xmlsoap.org/soap/encoding/"
+            namespace="urn:examples:callservice"
+            use="literal"/>
+      </output>
+    </operation>
+  </binding>
+
+  <service name="R_Call_Demo">
+    <port binding="tns:Call_Binding" name="Call_Port">
+      <soap:address
+          location="http://localhost:9839/call"/>
+    </port>
+  </service>
+</definitions>

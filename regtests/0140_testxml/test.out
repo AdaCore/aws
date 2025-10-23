@@ -4,7 +4,7 @@ Pimg : <?xml version='1.0' encoding='UTF-8'?>
 <awsns:Test xmlns:awsns="http://soapaws/">
 <Workorder xsi:type="Workorder">
    <Woid xsi:type="xsd:string">Wo1</Woid>
-   <Orderline soapenc:arrayType="awsns:Orderline[1]" xsi:type="soapenc:Array">
+   <Orderline soapenc:arrayType="Orderline[1]" xsi:type="soapenc:Array">
       <Orderline xsi:type="Orderline">
          <Woid xsi:type="xsd:string"></Woid>
          <Produced xsi:type="xsd:int">0</Produced>

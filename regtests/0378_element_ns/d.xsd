@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema"
+           targetNamespace="http://exemple.com/D"
+           xmlns:a="http://exemple.com/A"
+           xmlns:f="http://exemple.com/F"
+           xmlns:d="http://exemple.com/D">
+
+  <xs:import namespace="http://exemple.com/A"
+             schemaLocation="a.xsd"/>
+  <xs:import namespace="http://exemple.com/F"
+             schemaLocation="f.xsd"/>
+
+  <xs:element name="data" type="d:data"/>
+
+  <xs:complexType name="data">
+    <xs:sequence>
+      <xs:element ref="a:code"/>
+      <xs:element name="c" type="xs:int"/>
+      <xs:element name="eo" type="xs:int" minOccurs="0" maxOccurs="1"/>
+      <xs:element ref="f:num" minOccurs="0" maxOccurs="1" />
+    </xs:sequence>
+  </xs:complexType>
+
+</xs:schema>

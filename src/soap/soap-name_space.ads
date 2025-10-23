@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2004-2024, AdaCore                     --
+--                     Copyright (C) 2004-2025, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -37,23 +37,29 @@ package SOAP.Name_Space is
 
    Default_Prefix : constant String := "xmlns";
 
-   SOAP_URL    : constant String :=
-                   "http://schemas.xmlsoap.org/wsdl/soap/";
+   SOAP_URL          : constant String :=
+                         "http://schemas.xmlsoap.org/wsdl/soap/";
 
-   SOAPENC_URL : constant String :=
-                   "http://schemas.xmlsoap.org/soap/encoding/";
+   SOAPENC_URL       : constant String :=
+                         "http://schemas.xmlsoap.org/soap/encoding/";
 
-   SOAPENV_URL : constant String :=
-                   "http://schemas.xmlsoap.org/soap/envelope/";
+   SOAPENV_URL       : constant String :=
+                         "http://schemas.xmlsoap.org/soap/envelope/";
 
-   XSD_URL     : constant String :=
-                   "http://www.w3.org/2001/XMLSchema";
+   XSD_URL           : constant String :=
+                         "http://www.w3.org/2001/XMLSchema";
 
-   XSI_URL     : constant String :=
-                   "http://www.w3.org/2001/XMLSchema-instance";
+   XSD_URL_Draft_1999 : constant String :=
+                          "http://www.w3.org/1999/XMLSchema";
 
-   WSDL_URL    : constant String :=
-                   "http://schemas.xmlsoap.org/wsdl/";
+   XSD_URL_Draft_2000 : constant String :=
+                          "http://www.w3.org/2000/10/XMLSchema";
+
+   XSI_URL            : constant String :=
+                          "http://www.w3.org/2001/XMLSchema-instance";
+
+   WSDL_URL           : constant String :=
+                          "http://schemas.xmlsoap.org/wsdl/";
 
    XSD     : constant Object;
    XSI     : constant Object;

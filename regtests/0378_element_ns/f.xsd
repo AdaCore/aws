@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema"
+           targetNamespace="http://exemple.com/F"
+           xmlns:f="http://exemple.com/F">
+
+  <xs:element name="num" type="xs:int"/>
+
+</xs:schema>

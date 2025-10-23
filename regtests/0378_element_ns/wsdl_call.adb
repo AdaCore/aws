@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2021-2025, AdaCore                     --
+--                       Copyright (C) 2025, AdaCore                        --
 --                                                                          --
 --  This is free software;  you can redistribute it  and/or modify it       --
 --  under terms of the  GNU General Public License as published  by the     --
@@ -18,6 +18,8 @@
 
 --  SOAP/WSDL test
 
+pragma Ada_2022;
+
 with Ada.Strings.Unbounded;
 with Ada.Text_IO;
 
@@ -31,35 +33,50 @@ with AWS.Status;
 with SOAP.Types;
 with SOAP.Utils;
 
-with R_Hello_Demo.Client;
-with R_Hello_Demo.Server;
-with R_Hello_Demo.Types;
+with R_Call_Demo.Client;
+with R_Call_Demo.Server;
+with R_Call_Demo.Types;
 
-procedure WSDL_H2Hello is
+procedure WSDL_Call is
 
+   use Ada;
    use Ada.Strings.Unbounded;
    use AWS;
-   use R_Hello_Demo.Types;
+
+   use R_Call_Demo.Types;
 
    H_Server : Server.HTTP;
    CNF      : Config.Object;
 
    procedure WSDL_Demo_Client is
       use Ada;
-      R : Sayhello_Result;
+      R : R_Call_Demo.Types.B_Rec_Type;
    begin
-      R := R_Hello_Demo.Client.sayHello (Firstname => "AWS");
-      Text_IO.Put_Line
-        (To_String (R.Message) & SOAP.Types.Short'Image (R.Token));
+      -- R := (Code => 67,
+      --       C1   => 1,
+      --       C2   => 2,
+      --       C3   => 3,
+      --       D1   => (Code => 7, C => 67),
+      --       E1   => (Code => 8, C => 68));
+      R_Call_Demo.Client.Call (1, 2, 3, 4, (5, 6, [1], [2]), (7, 8));
+--      R_Call_Demo.Client.Call (R);
    end WSDL_Demo_Client;
 
-   function sayHello (Firstname : String) return Sayhello_Result;
+   procedure Call
+     (S : R_Call_Demo.Types.B_Rec_Type);
+   procedure Call
+     (Code : Integer;
+      C1   : R_Call_Demo.Types.B_Code_Type;
+      C2   : R_Call_Demo.Types.C_Code_Type;
+      C3   : Integer;
+      D1   : R_Call_Demo.Types.D_Data_Type;
+      E1   : R_Call_Demo.Types.E_Data_Type);
 
    -------------
    -- SOAP_CB --
    -------------
 
-   function SOAP_CB is new R_Hello_Demo.Server.sayHello_CB (sayHello);
+   function SOAP_CB is new R_Call_Demo.Server.Call_CB (Call);
 
    function SOAP_Wrapper is new SOAP.Utils.SOAP_Wrapper (SOAP_CB);
 
@@ -70,28 +87,44 @@ procedure WSDL_H2Hello is
    function CB (Request : Status.Data) return Response.Data is
       SOAPAction : constant String := Status.SOAPAction (Request);
    begin
-      if SOAPAction = "sayHello" then
-         return SOAP_Wrapper (Request, R_Hello_Demo.Schema);
+      if SOAPAction = "Call" then
+         return SOAP_Wrapper (Request, R_Call_Demo.Schema);
       else
          return Response.Build (MIME.Text_HTML, "<p>Not a SOAP request");
       end if;
    end CB;
 
-   --------------
-   -- sayHello --
-   --------------
+   ----------
+   -- Call --
+   ----------
 
-   function sayHello (Firstname : String) return Sayhello_Result is
+   procedure Call
+     (S : R_Call_Demo.Types.B_Rec_Type) is
    begin
-      return
-        (To_Unbounded_String
-          ("Hello " & Firstname & " and welcome in H2!"), 12);
-   end sayHello;
+      Text_IO.Put_Line ("S: " & S'Image);
+   end Call;
+
+   procedure Call
+     (Code : Integer;
+      C1   : R_Call_Demo.Types.B_Code_Type;
+      C2   : R_Call_Demo.Types.C_Code_Type;
+      C3   : Integer;
+      D1   : R_Call_Demo.Types.D_Data_Type;
+      E1   : R_Call_Demo.Types.E_Data_Type) is
+   begin
+      Text_IO.Put_Line ("Code: " & Code'Image);
+      Text_IO.Put_Line ("C1  : " & C1'Image);
+      Text_IO.Put_Line ("C2  : " & C2'Image);
+      Text_IO.Put_Line ("C3  : " & C3'Image);
+      Text_IO.Put_Line ("D1  : " & D1'Image);
+      Text_IO.Put_Line ("E1  : " & E1'Image);
+   end Call;
 
 begin
-   Config.Set.Server_Name (CNF, "WSDL Hello demo");
+   Config.Set.Server_Name (CNF, "WSDL Call demo");
    Config.Set.Server_Host (CNF, "localhost");
-   Config.Set.Server_Port (CNF, R_Hello_Demo.Server.Port);
+   Config.Set.Server_Port (CNF, R_Call_Demo.Server.Port);
+   Config.Set.Reuse_Address (CNF, True);
    Config.Set.HTTP2_Activated (CNF, True);
 
    Server.Start (H_Server, CB'Unrestricted_Access, CNF);
@@ -102,10 +135,10 @@ begin
       --  to connect.
 
       Server.Add_Listening
-        (H_Server, "localhost", R_Hello_Demo.Server.Port, Net.FAMILY_INET);
+        (H_Server, "localhost", R_Call_Demo.Server.Port, Net.FAMILY_INET);
    end if;
 
    WSDL_Demo_Client;
 
    Server.Shutdown (H_Server);
-end WSDL_H2Hello;
+end WSDL_Call;

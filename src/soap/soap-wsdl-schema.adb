@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                    Copyright (C) 2015-2017, AdaCore                      --
+--                    Copyright (C) 2015-2025, AdaCore                      --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -27,8 +27,11 @@
 --  covered by the  GNU Public License.                                     --
 ------------------------------------------------------------------------------
 
+with Ada.Characters.Handling;
 with Ada.Containers.Indefinite_Vectors;
 with Ada.Strings.Unbounded;
+
+with SOAP.XML;
 
 package body SOAP.WSDL.Schema is
 
@@ -120,6 +123,27 @@ package body SOAP.WSDL.Schema is
          return Encoded;
       end if;
    end Get_Encoding_Style;
+
+   -------------------------------
+   -- Is_Element_Form_Qualified --
+   -------------------------------
+
+   function Is_Element_Form_Qualified (Namespace : URL) return Boolean is
+   begin
+      for E of Store loop
+         if E.URL = Namespace then
+            declare
+               L : constant String :=
+                     SOAP.XML.Get_Attr_Value (E.Node, "elementFormDefault");
+            begin
+               return L /= ""
+                 and then Characters.Handling.To_Lower (L) = "qualified";
+            end;
+         end if;
+      end loop;
+
+      return False;
+   end Is_Element_Form_Qualified;
 
    --------------
    -- Register --

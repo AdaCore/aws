@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                        Copyright (C) 2015, AdaCore                       --
+--                     Copyright (C) 2015-2025, AdaCore                     --
 --                                                                          --
 --  This is free software;  you can redistribute it  and/or modify it       --
 --  under terms of the  GNU General Public License as published  by the     --
@@ -43,7 +43,9 @@ procedure SimpleDoc2 is
 
 begin
    H := SOAP.Dispatchers.Callback.Create
-     (SD2_Server_Cb.CB'Access, SD2_Server_Cb.S_CB'Access);
+     (SD2_Server_Cb.CB'Access,
+      SD2_Server_Cb.S_CB'Access,
+      Simpledocservice2.Schema);
 
    Config.Set.Server_Host (Conf, "localhost");
    Config.Set.Server_Port (Conf, 0);

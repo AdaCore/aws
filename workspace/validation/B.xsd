@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema"
+           targetNamespace="http://exemple.com/B"
+           xmlns:b="http://exemple.com/B"
+           xmlns:a="http://exemple.com/A"
+           xmlns:c="http://exemple.com/C">
+
+  <!-- Import du schéma A pour pouvoir utiliser ses éléments -->
+  <xs:import namespace="http://exemple.com/A"
+             schemaLocation="A.xsd"/>
+  <xs:import namespace="http://exemple.com/C"
+             schemaLocation="C.xsd"/>
+
+  <xs:element name="commande" type="b:commande"/>
+
+    <xs:complexType name="commande">
+      <xs:sequence>
+        <!-- Référence à l’élément client du namespace A -->
+        <xs:element ref="a:client"/>
+        <xs:element name="value" type="xs:int"/>
+        <xs:element name="code" type="c:go"/>
+      </xs:sequence>
+    </xs:complexType>
+
+</xs:schema>

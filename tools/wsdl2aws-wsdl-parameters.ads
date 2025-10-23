@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2003-2017, AdaCore                     --
+--                     Copyright (C) 2003-2025, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -51,6 +51,7 @@ package WSDL2AWS.WSDL.Parameters is
       Max       : Positive := 1; -- maxOccurs
       Is_Set    : Boolean := False;
       In_Choice : Boolean := False;
+      Is_Ref    : Boolean := False; -- True if the element comes from a ref
 
       case Mode is
          when Types.Compound_Type =>

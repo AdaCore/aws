@@ -19,8 +19,9 @@ package @_UNIT_NAME_@ is
 @@IF@@ @_IS_EMPTY:NS_NAME_@
    pragma Pure;
 @@ELSE@@
-   Name_Space : constant SOAP.Name_Space.Object :=
-                  SOAP.Name_Space.Create
-                    ("@_NS_NAME_@", "@_NS_VALUE_@");
+   Name_Space        : constant SOAP.Name_Space.Object :=
+                         SOAP.Name_Space.Create
+                           ("@_NS_NAME_@", "@_NS_VALUE_@");
+   Qualified_Element : constant Boolean := @_CAPITALIZE:NS_EQUALIFIED_@;
 @@END_IF@@
 end @_UNIT_NAME_@;

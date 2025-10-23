@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2000-2024, AdaCore                     --
+--                     Copyright (C) 2000-2025, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -196,15 +196,18 @@ package body SOAP.Message is
       --  Procedure's parameters
 
       declare
-         P : constant SOAP.Parameters.List := Parameters (M);
+         L : constant SOAP.Parameters.List := Parameters (M);
       begin
-         for K in 1 .. SOAP.Parameters.Argument_Count (P) loop
-            Add_Namespaces (SOAP.Parameters.Argument (P, K));
+         for K in 1 .. SOAP.Parameters.Argument_Count (L) loop
+            declare
+               P : constant Types.Object'Class :=
+                     SOAP.Parameters.Argument (L, K);
+            begin
+               Add_Namespaces (P);
 
-            Types.XML_Image
-              (SOAP.Parameters.Argument (P, K), Message_Body,
-               Encoding, Schema);
-            Append (Message_Body, New_Line);
+               Types.XML_Image (P, Message_Body, Encoding, Schema);
+               Append (Message_Body, New_Line);
+            end;
          end loop;
 
          --  User's Namespaces

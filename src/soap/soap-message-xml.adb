@@ -34,6 +34,7 @@ with Ada.Strings.Fixed;
 with Ada.Unchecked_Deallocation;
 
 with AWS.Client.XML.Input_Sources;
+with AWS.Containers.Key_Value;
 
 with DOM.Core.Nodes;
 with Input_Sources.Strings;
@@ -261,7 +262,7 @@ package body SOAP.Message.XML is
       N         : DOM.Core.Node) return Types.Object'Class;
 
    function Parse_Param
-     (N      : in out DOM.Core.Node;
+     (N      : DOM.Core.Node;
       Q_Name : String;
       S      : in out State) return Types.Object'Class;
 
@@ -272,12 +273,6 @@ package body SOAP.Message.XML is
       S      : in out State) return Types.Object'Class;
 
    function Parse_Record
-     (Name   : String;
-      N      : DOM.Core.Node;
-      Q_Name : String;
-      S      : in out State) return Types.Object'Class;
-
-   function Parse_Set
      (Name   : String;
       N      : DOM.Core.Node;
       Q_Name : String;
@@ -297,12 +292,17 @@ package body SOAP.Message.XML is
      (Type_Name : String;
       Schema    : WSDL.Schema.Definition;
       NS        : Namespaces;
-      Default   : String := Null_String) return String;
+      Default   : String := Null_String;
+      Final     : Boolean := False) return String;
    --  Returns the type definition as found in the schema. Check for a possible
    --  prefix change, that is n1:type_name can be named n2:type_name if n1 and
    --  n2 are in fact the same name-space (same URL). If there is no prefix
    --  or the definition is not found then the default value is returned if
    --  defined, otherwise Type_Name is returned as-is.
+   --
+   --  Furthermore, if Final is set to True, ensure that we recursivelly check
+   --  for a schema definition and returns the leaf of the derivation tree
+   --  which if found is one of the standard xsd SOAP types supported by AWS.
 
    type Parse_Type is access
      function (Name      : String;
@@ -472,13 +472,25 @@ package body SOAP.Message.XML is
      (Type_Name : String;
       Schema    : WSDL.Schema.Definition;
       NS        : Namespaces;
-      Default   : String := Null_String) return String is
+      Default   : String := Null_String;
+      Final     : Boolean := False) return String is
    begin
       if Schema.Contains (Type_Name) then
-         --  The type_name is found in the schema, returns the corresponding
-         --  type definition.
+         declare
+            V : constant String := Schema (Type_Name);
+         begin
+            --  The type_name is found in the schema, returns the corresponding
+            --  type definition.
 
-         return Schema (Type_Name);
+            if Final
+              and then V /= Type_Name
+              and then Schema.Contains (V)
+            then
+               return Get_Schema_Type (V, Schema, NS, Default, Final);
+            else
+               return V;
+            end if;
+         end;
       end if;
 
       declare
@@ -1403,7 +1415,7 @@ package body SOAP.Message.XML is
    -----------------
 
    function Parse_Param
-     (N      : in out DOM.Core.Node;
+     (N      : DOM.Core.Node;
       Q_Name : String;
       S      : in out State) return Types.Object'Class
    is
@@ -1416,9 +1428,6 @@ package body SOAP.Message.XML is
 
       function Is_Record return Boolean;
       --  Returns True if N is a record node
-
-      function Is_Set return Boolean;
-      --  Returns True if N is a set node
 
       function With_NS
         (O  : Types.Object'Class;
@@ -1448,13 +1457,13 @@ package body SOAP.Message.XML is
       --------------
 
       function Is_Array return Boolean is
-         XSI_Type  : constant DOM.Core.Node :=
-                       Get_Named_Item
-                         (Atts, SOAP.Name_Space.Name (S.NS.xsi) & ":type");
-         SOAP_Enc  : constant DOM.Core.Node :=
-                       Get_Named_Item
-                         (Atts,
-                          SOAP.Name_Space.Name (S.NS.enc) & ":arrayType");
+         XSI_Type : constant DOM.Core.Node :=
+                      Get_Named_Item
+                        (Atts, SOAP.Name_Space.Name (S.NS.xsi) & ":type");
+         SOAP_Enc : constant DOM.Core.Node :=
+                      Get_Named_Item
+                        (Atts,
+                         SOAP.Name_Space.Name (S.NS.enc) & ":arrayType");
       begin
          return
           (S.Schema.Contains (Key) and then S.Schema.Element (Key) = "@array")
@@ -1489,16 +1498,6 @@ package body SOAP.Message.XML is
          return S.Schema.Contains (Key)
            and then S.Schema.Element (Key) = "@record";
       end Is_Record;
-
-      ------------
-      -- Is_Set --
-      ------------
-
-      function Is_Set return Boolean is
-      begin
-         return S.Schema.Contains (Key)
-           and then S.Schema.Element (Key) = "@set";
-      end Is_Set;
 
       -------------
       -- With_NS --
@@ -1553,21 +1552,6 @@ package body SOAP.Message.XML is
 
       elsif Is_Array then
          return Parse_Array (Name, Ref, Q_Name, S);
-
-      elsif Is_Set then
-         S.Last_Node := null;
-
-         declare
-            Res : constant Types.Object'Class :=
-                    Parse_Set (Name, Ref, Q_Name, S);
-         begin
-            --  Skip sibling nodes and so we want N to be pointing to the
-            --  last set item.
-            N := S.Last_Node;
-            S.Last_Node := null;
-
-            return Res;
-         end;
 
       elsif Is_Record then
          return Parse_Record (Name, Ref, Q_Name, S);
@@ -1631,14 +1615,19 @@ package body SOAP.Message.XML is
 
          else
             declare
+               function To_Upper
+                 (S : String) return String
+                  renames Ada.Characters.Handling.To_Upper;
+
                S_xsd  : constant String     := To_String (xsd);
                S_Type : constant Type_State := To_Type (S_xsd, S.NS, S.Schema);
+
+               Key_Q  : constant String := Utils.NS (S_xsd) & "@qualified";
+               Key_R  : constant String := LQ_Name & "@is_ref";
             begin
                if S_Type = T_Undefined then
                   --  Not a known basic type, let's try to parse a
-                  --  record object. This implemtation does not
-                  --  support schema so there is no way to check
-                  --  for the real type here.
+                  --  record object.
 
                   return Parse_Record (Name, Ref, Q_Name, S);
 
@@ -1649,8 +1638,25 @@ package body SOAP.Message.XML is
                   if Is_Nil then
                      return Types.N (Name, S_xsd, NS);
                   else
+                     --  Check if the namespace is to be used. This is only
+                     --  done for element being reference or if the schema
+                     --  is set with elementFormDefault to Qualified. Check
+                     --  the corresponding keys in the schema.
+
+                     if (S.Schema.Contains (Key_R)
+                           and then
+                         To_Upper (S.Schema.Element (Key_R)) = "FALSE")
+                       and then
+                         (S.Schema.Contains (Key_Q)
+                            and then
+                          To_Upper (S.Schema.Element (Key_Q)) = "FALSE")
+                     then
+                        NS := SOAP.Name_Space.No_Name_Space;
+                     end if;
+
                      return With_NS
                        (Handlers (S_Type).Handler (Name, S_xsd, Ref), NS);
+
                   end if;
                end if;
             end;
@@ -1694,7 +1700,8 @@ package body SOAP.Message.XML is
          --  This should be done only for document style binding where the
          --  enclosing element is the type-name (aka element in schema).
 
-         T_Name := To_Unbounded_String (Name);
+         T_Name := To_Unbounded_String
+           (Get_Schema_Type (Name, S.Schema, S.NS, Name));
 
       elsif xsd = "" then
          T_Name := To_Unbounded_String
@@ -1745,86 +1752,6 @@ package body SOAP.Message.XML is
          end;
       end if;
    end Parse_Record;
-
-   ---------------
-   -- Parse_Set --
-   ---------------
-
-   function Parse_Set
-     (Name   : String;
-      N      : DOM.Core.Node;
-      Q_Name : String;
-      S      : in out State) return Types.Object'Class
-   is
-      use SOAP.Types;
-      use type DOM.Core.Node;
-      use type WSDL.Schema.Binding_Style;
-
-      LS      : constant State := S;
-      LQ_Name : constant String := (if Q_Name = ""
-                                    then Name
-                                    else Q_Name & '.' & Name);
-      Key     : constant String := LQ_Name & "@is_a";
-
-      Field   : DOM.Core.Node := SOAP.XML.Get_Ref (N);
-      xsd     : constant String :=
-                  SOAP.XML.Get_Attr_Value
-                    (Field, SOAP.Name_Space.Name (S.NS.xsi) & ":type");
-
-      --  The set fields temporary store
-      OS     : Object_Set_Access := new Object_Set (1 .. 50);
-      K      : Natural := 0;
-
-      T_Name : Unbounded_String; -- set's type name
-
-   begin
-      if S.Style = WSDL.Schema.Document then
-         --  This should be done only for document style binding where the
-         --  enclosing element is the type-name (aka element in schema).
-
-         T_Name := To_Unbounded_String (Name);
-
-      elsif xsd = "" then
-         T_Name := To_Unbounded_String
-           (Get_Schema_Type (Key, S.Schema, S.NS, xsd));
-
-      else
-         T_Name := To_Unbounded_String (xsd);
-      end if;
-
-      --  Set state for the enclosing elements
-
-      S.A_State := Void;
-
-      --  Parse all sibling having the same name as part of the set
-
-      while Field /= null
-        and then Name = Local_Name (Field)
-      loop
-         K := K + 1;
-         --  Make sure Last_Node is set before calling Parse_Param as it is
-         --  used to know that we are parsing a set.
-         S.Last_Node := Field;
-         Add_Object (OS, K, +Parse_Param (Field, LQ_Name, S), 25);
-         Field := Next_Sibling (Field);
-      end loop;
-
-      --  Restore state
-
-      S.A_State := LS.A_State;
-
-      declare
-         NS : constant SOAP.Name_Space.Object :=
-                Get_Namespace_Object (S.NS, Utils.NS (To_String (T_Name)));
-         S  : constant Types.SOAP_Set :=
-                Types.Set
-                  (OS (1 .. K), Name,
-                   Utils.No_NS (To_String (T_Name)), NS);
-      begin
-         Unchecked_Free (OS);
-         return S;
-      end;
-   end Parse_Set;
 
    -----------------
    -- Parse_Short --
@@ -2013,7 +1940,7 @@ package body SOAP.Message.XML is
 
       for K in 0 .. Length (NL) - 1 loop
          declare
-            Item_N : DOM.Core.Node := Item (NL, K);
+            Item_N : constant DOM.Core.Node := Item (NL, K);
          begin
             if Item_N.Node_Type /= DOM.Core.Text_Node then
                S.Parameters :=
@@ -2034,16 +1961,13 @@ package body SOAP.Message.XML is
       Schema    : WSDL.Schema.Definition) return Type_State
    is
 
+      Local_Schema : constant WSDL.Schema.Definition :=
+            (if Schema.Is_Empty
+             then WSDL.Schema.Default
+             else Schema);
+
       N_xsd : constant String := SOAP.Name_Space.Name (NS.xsd);
       N_enc : constant String := SOAP.Name_Space.Name (NS.enc);
-      S_xsd : constant String :=
-                (if Schema.Contains (SOAP.Name_Space.XSD_URL)
-                 then Schema (SOAP.Name_Space.XSD_URL)
-                 else "");
-
-      ----------
-      -- Is_A --
-      ----------
 
       function Is_A
         (T1_Name, T2_Name : String;
@@ -2051,7 +1975,50 @@ package body SOAP.Message.XML is
       is (T1_Name = Utils.With_NS (NS, T2_Name)) with Inline;
       --  Returns True if T1_Name is equal to T2_Name based on namespace
 
-      T_Name : constant String := Get_Schema_Type (Type_Name, Schema, NS);
+      function Is_Schema
+        (T1_Name, T2_Name, Schema_URL : String) return Boolean;
+      --  Check that T1 and T2 are equal based on the schema pointed to by
+      --  Schema_URL.
+
+      function Is_xsd (T1_Name, T2_Name : String) return Boolean is
+        (Is_A (T1_Name, T2_Name, N_xsd)
+         or else Is_Schema (T1_Name, T2_Name, SOAP.Name_Space.XSD_URL)
+         or else Is_Schema
+                   (T1_Name, T2_Name, SOAP.Name_Space.XSD_URL_Draft_2000)
+         or else Is_Schema
+                   (T1_Name, T2_Name, SOAP.Name_Space.XSD_URL_Draft_1999));
+      --  Check default xsd schema (needed for RPC schema) and the actual
+      --  schema.
+
+      function Is_enc (T1_Name, T2_Name : String) return Boolean is
+        (Is_A (T1_Name, T2_Name, N_enc)
+         or else Is_Schema (T1_Name, T2_Name, SOAP.Name_Space.SOAPENC_URL));
+
+      ---------------
+      -- Is_Schema --
+      ---------------
+
+      function Is_Schema
+        (T1_Name, T2_Name, Schema_URL : String) return Boolean
+      is
+         use AWS.Containers;
+
+         R : Boolean := False;
+      begin
+         for D in Local_Schema.Iterate loop
+            if Local_Schema.Contains (Key_Value.Key (D))
+              and then Local_Schema (D) = Schema_URL
+            then
+               R := Is_A (T1_Name, T2_Name, Key_Value.Key (D));
+               exit when R;
+            end if;
+         end loop;
+
+         return R;
+      end Is_Schema;
+
+      T_Name : constant String :=
+                 Get_Schema_Type (Type_Name, Local_Schema, NS, Final => True);
 
    begin
       if T_Name = "@enum" then
@@ -2062,11 +2029,8 @@ package body SOAP.Message.XML is
          if Handlers (K).Name /= null
            and then
              ((Handlers (K).Encoded
-               and then Is_A (T_Name, Handlers (K).Name.all, N_enc))
-              --   check name-space in the schema
-              or else Is_A (T_Name, Handlers (K).Name.all, S_xsd)
-              --   then check name-space in the parsed context
-              or else Is_A (T_Name, Handlers (K).Name.all, N_xsd))
+               and then Is_enc (T_Name, Handlers (K).Name.all))
+              or else Is_xsd (T_Name, Handlers (K).Name.all))
          then
             return K;
          end if;

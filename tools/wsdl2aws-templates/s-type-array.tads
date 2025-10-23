@@ -170,7 +170,7 @@ package @_UNIT_NAME_@ is
       Type_Name : String := E_Type_Name;
       NS        : SOAP.Name_Space.Object := Name_Space)
       return @_SET_TYPE_@
-      is (@_SET_ROUTINE_@ (A.First_Element, Name, Type_Name))
+      is (@_SET_ROUTINE_@ (A.First_Element, Name, Type_Name, NS))
     with Pre => A.Length = 1;
    --  Use to get an optional argument passed as parameter or in a
    --  record's field.
