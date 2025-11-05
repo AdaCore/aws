@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2000-2015, AdaCore                     --
+--                     Copyright (C) 2000-2025, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -37,9 +37,9 @@ package body SOAP.Message.Response.Error is
 
    Version_Mismatch_Faultcode : constant String := "VersionMismatch";
    Must_Understand_Faultcode  : constant String := "MustUnderstand";
-   Client_Faultcode           : constant String := "Client";
-   Server_Faultcode           : constant String := "Server";
    SOAPENV                    : constant String := NS.Name (NS.SOAPENV);
+   Client_Faultcode           : constant String := SOAPENV & ":Client";
+   Server_Faultcode           : constant String := SOAPENV & ":Server";
    Start_Fault_Env            : constant String := "<" & SOAPENV & ":Fault>";
    End_Fault_Env              : constant String := "</" & SOAPENV & ":Fault>";
 
