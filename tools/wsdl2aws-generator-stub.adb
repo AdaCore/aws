@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2003-2022, AdaCore                     --
+--                     Copyright (C) 2003-2025, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -46,7 +46,7 @@ package body Stub is
       Name : String)
    is
       LL_Name : constant String :=
-                  Characters.Handling.To_Lower (Format_Name (O, Name))
+                  Characters.Handling.To_Lower (Format_Name (O, Name, True))
                   & "-client";
    begin
       Generate (O, LL_Name & ".ads", Template_Stub_Ads, O.Stub_S_Trans);
@@ -190,7 +190,7 @@ package body Stub is
    is
       pragma Unreferenced (Root_Documentation);
 
-      U_Name : constant String := To_Unit_Name (Format_Name (O, Name));
+      U_Name : constant String := To_Unit_Name (Format_Name (O, Name, True));
       URL    : constant AWS.URL.Object :=
                  AWS.URL.Parse (Get_Endpoint (O, Location));
    begin

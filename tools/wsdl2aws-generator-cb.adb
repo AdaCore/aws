@@ -43,7 +43,10 @@ package body CB is
    is
       use type Templates.Translate_Set;
 
-      U_Name : constant String := To_Unit_Name (Format_Name (O, Name));
+      LL_Name : constant String :=
+                  Characters.Handling.To_Lower (Format_Name (O, Name, True))
+                  & "-cb";
+      U_Name : constant String := To_Unit_Name (Format_Name (O, Name, True));
    begin
       O.CB_S_Trans := O.CB_S_Trans
         & Templates.Assoc ("UNIT_NAME", U_Name);
@@ -52,12 +55,12 @@ package body CB is
 
       Generate
         (O,
-         Characters.Handling.To_Lower (Name) & "-cb.ads",
+         LL_Name & ".ads",
          Template_CB_Ads,
          O.CB_S_Trans);
       Generate
         (O,
-         Characters.Handling.To_Lower (Name) & "-cb.adb",
+         LL_Name & ".adb",
          Template_CB_Adb,
          O.CB_B_Trans);
    end End_Service;
@@ -104,7 +107,7 @@ package body CB is
    is
       pragma Unreferenced (Location, Root_Documentation, Documentation);
 
-      U_Name : constant String := To_Unit_Name (Format_Name (O, Name));
+      U_Name : constant String := To_Unit_Name (Format_Name (O, Name, True));
    begin
       Add_TagV
         (O.CB_B_Trans, "WITHED_UNITS", Types_Spec (O, With_Clause => True));
