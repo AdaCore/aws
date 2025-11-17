@@ -29,6 +29,7 @@ package @_UNIT_NAME_@ is
       @_E_NAME_@
 @@END_TABLE@@
 @@END_INLINE@@
+
    subtype @_NAME_SPACE_@_@_TYPE_NAME_@ is @_TYPE_NAME_@;
 
    function To_@_TYPE_NAME_@
@@ -69,6 +70,7 @@ package @_UNIT_NAME_@ is
 @@END_IF@@
 
    function Image (E : @_TYPE_NAME_@) return String;
+   function Value (S : String) return @_TYPE_NAME_@;
 
    function To_String_Type
      (D : @_TYPE_NAME_@)
@@ -76,11 +78,7 @@ package @_UNIT_NAME_@ is
 
    function From_String_Type
      (D : String)
-      return @_TYPE_NAME_@ is (@_TYPE_NAME_@'Value (D));
-
-   function Value (S : String)
-     return @_TYPE_NAME_@
-     renames From_String_Type;
+      return @_TYPE_NAME_@ is (Value (D));
 
    function To_@_TYPE_NAME_@
      (O : SOAP.Types.Object'Class)

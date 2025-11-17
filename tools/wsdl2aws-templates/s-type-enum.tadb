@@ -9,6 +9,10 @@
 
 package body @_UNIT_NAME_@ is
 
+   --
+   -- Image
+   --
+
    function Image (E : @_TYPE_NAME_@) return String is
    begin
       case E is
@@ -24,5 +28,25 @@ when
 @@END_TABLE@@
       end case;
    end Image;
+
+   --
+   -- Value
+   --
+
+   function Value (S : String) return @_TYPE_NAME_@ is
+   begin
+      @@TABLE@@
+      if S = "@_E_VALUE_@" then
+@@IF@@ @_IS_EMPTY:TYPE_SPEC_@
+         return @_E_NAME_@;
+@@ELSE@@
+         return @_TYPE_SPEC_@.@_E_NAME_@;
+@@END_IF@@
+      end if;
+      @@END_TABLE@@
+
+      raise Constraint_Error
+        with "@_TYPE_NAME_@: enum value " & S & " unknown.";
+   end Value;
 
 end @_UNIT_NAME_@;

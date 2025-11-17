@@ -146,7 +146,10 @@ package body WSDL2AWS.Generator is
    package String_Store is
      new Ada.Containers.Indefinite_Ordered_Sets (String);
 
-   function Format_Name (O : Object; Name : String) return String;
+   function Format_Name
+     (O        : Object;
+      Name     : String;
+      Filename : Boolean := False) return String;
    --  Returns Name formated with the Ada style if O.Ada_Style is true and
    --  Name unchanged otherwise.
 
@@ -416,11 +419,13 @@ package body WSDL2AWS.Generator is
 
       Generate
         (O,
-         Characters.Handling.To_Lower (Format_Name (O, Name)) & "-types.ads",
+         Characters.Handling.To_Lower
+           (Format_Name (O, Name, True)) & "-types.ads",
          Template_Types_Ads, O.Type_S_Trans);
       Generate
         (O,
-         Characters.Handling.To_Lower (Format_Name (O, Name)) & "-types.adb",
+         Characters.Handling.To_Lower
+           (Format_Name (O, Name, True)) & "-types.adb",
          Template_Types_Adb, O.Type_B_Trans);
 
       --  Stub
@@ -455,7 +460,11 @@ package body WSDL2AWS.Generator is
    -- Format_Name --
    -----------------
 
-   function Format_Name (O : Object; Name : String) return String is
+   function Format_Name
+     (O        : Object;
+      Name     : String;
+      Filename : Boolean := False) return String
+   is
 
       function Ada_Format (Name : String) return String;
       --  Returns Name with the Ada style
@@ -469,7 +478,15 @@ package body WSDL2AWS.Generator is
       begin
          if not O.Ada_Style then
             --  No need to reformat this name
-            return Name;
+            if Filename then
+               return Name;
+            else
+               --  We still need to change characters not expected for
+               --  identifier.
+               return Ada.Strings.Fixed.Translate
+                 (Name,
+                  Ada.Strings.Maps.To_Mapping ("-", "_"));
+            end if;
          end if;
 
          for K in Name'Range loop
@@ -3065,7 +3082,7 @@ package body WSDL2AWS.Generator is
       use type Client.Timeouts_Values;
       use type Templates.Translate_Set;
 
-      U_Name : constant String := To_Unit_Name (Format_Name (O, Name));
+      U_Name : constant String := To_Unit_Name (Format_Name (O, Name, True));
 
       procedure Generate_Main (Filename : String);
       --  Generate the main server's procedure. Either the file exists and is
@@ -3104,7 +3121,7 @@ package body WSDL2AWS.Generator is
       end Timeout_Image;
 
       LL_Name : constant String :=
-                  Characters.Handling.To_Lower (Format_Name (O, Name));
+                  Characters.Handling.To_Lower (Format_Name (O, Name, True));
 
    begin
       O.Type_S_Trans := O.Type_S_Trans

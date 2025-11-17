@@ -47,7 +47,7 @@ package body Skel is
       Name : String)
    is
       LL_Name : constant String :=
-                  Characters.Handling.To_Lower (Format_Name (O, Name))
+                  Characters.Handling.To_Lower (Format_Name (O, Name, True))
                   & "-server";
    begin
       Generate (O, LL_Name & ".ads", Template_Skel_Ads, O.Skel_S_Trans);
@@ -157,7 +157,7 @@ package body Skel is
    is
       pragma Unreferenced (Root_Documentation);
 
-      U_Name : constant String         := To_Unit_Name (Format_Name (O, Name));
+      U_Name : constant String := To_Unit_Name (Format_Name (O, Name, True));
       URL    : constant AWS.URL.Object :=
                  AWS.URL.Parse (Get_Endpoint (O, Location));
    begin
