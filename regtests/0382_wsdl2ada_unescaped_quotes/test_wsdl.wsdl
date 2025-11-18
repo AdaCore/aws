@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<definitions name="DeriveconstService"
+   targetNamespace="http://www.ecerami.com/wsdl/DeriveconstService.wsdl"
+   xmlns="http://schemas.xmlsoap.org/wsdl/"
+   xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/"
+   xmlns:xs="http://www.w3.org/2001/XMLSchema"
+   xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/"
+   xmlns:soapenc="http://schemas.xmlsoap.org/soap/encoding/"
+   xmlns:tns="http://www.ecerami.com/wsdl/DeriveconstService.wsdl"
+   xmlns:ns1="urn:examples:deriveconstservice">
+
+   <wsdl:types>
+      <xs:schema version="1.0" elementFormDefault="qualified">
+
+         <xs:simpleType name="Code1">
+            <xs:restriction base="xs:string">
+               <xs:pattern value="&quot;([A-Z]|[0-9]|[, !&quot;&amp;#$%'\(\)\*\+\-\./:;&lt;=&gt;@\[\\\]\^_\|\{\}&quot;&quot;])*&quot;"/>
+            </xs:restriction>
+         </xs:simpleType>
+
+      </xs:schema>
+   </wsdl:types>
+
+   <message name="CallRequest">
+      <part name="params" type="Code1"/>
+   </message>
+
+   <portType name="Deriveconst_PortType">
+      <operation name="call">
+         <input message="tns:CallRequest"/>
+      </operation>
+   </portType>
+
+   <binding name="Deriveconst_Binding" type="tns:Deriveconst_PortType">
+      <soap:binding style="rpc"
+         transport="http://schemas.xmlsoap.org/soap/http"/>
+      <operation name="call">
+         <soap:operation soapAction="call"/>
+         <input>
+            <soap:body
+               encodingStyle="http://schemas.xmlsoap.org/soap/encoding/"
+               namespace="urn:examples:deriveconstservice"
+               use="encoded"/>
+         </input>
+         <output>
+            <soap:body
+               encodingStyle="http://schemas.xmlsoap.org/soap/encoding/"
+               namespace="urn:examples:deriveconstservice"
+               use="encoded"/>
+         </output>
+      </operation>
+   </binding>
+
+   <service name="Deriveconst_Demo">
+      <documentation>WSDL File for Deriveconst Demo</documentation>
+      <port binding="tns:Deriveconst_Binding" name="Deriveconst_Port">
+         <soap:address location="http://localhost:9111/deriveconst"/>
+      </port>
+   </service>
+</definitions>

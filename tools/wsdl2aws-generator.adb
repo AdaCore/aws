@@ -1839,9 +1839,23 @@ package body WSDL2AWS.Generator is
                if Root_Type = SOAP.WSDL.P_String
                  and then Constraints.Pattern /= Null_Unbounded_String
                then
-                  Translations := Translations
-                    & Templates.Assoc ("CONSTRAINT_PATTERN",
-                                       To_String (Constraints.Pattern));
+                  declare
+                     Local : Unbounded_String;
+                  begin
+                     --  Replace `"` by `""` to have correct string for regexp
+                     --  creation
+                     for Char of To_String (Constraints.Pattern) loop
+                        Append
+                          (Local,
+                           (if Char = '"'
+                            then Char & Char
+                            else Char & ""));
+                     end loop;
+
+                     Translations := Translations
+                       & Templates.Assoc ("CONSTRAINT_PATTERN",
+                                          To_String (Local));
+                  end;
                end if;
 
                --  Generate constraints if any. We first get the root type to
