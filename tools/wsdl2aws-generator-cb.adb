@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2003-2024, AdaCore                     --
+--                     Copyright (C) 2003-2025, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -46,7 +46,7 @@ package body CB is
       LL_Name : constant String :=
                   Characters.Handling.To_Lower (Format_Name (O, Name, True))
                   & "-cb";
-      U_Name : constant String := To_Unit_Name (Format_Name (O, Name, True));
+      U_Name  : constant String := To_Unit_Name (Format_Name (O, Name, True));
    begin
       O.CB_S_Trans := O.CB_S_Trans
         & Templates.Assoc ("UNIT_NAME", U_Name);
