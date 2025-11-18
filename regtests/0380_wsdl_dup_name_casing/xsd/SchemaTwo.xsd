@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema"
+           targetNamespace="mycompany:two"
+           xmlns:two="mycompany:two"
+           xmlns="mycompany:two">
+
+    <xs:element name="MainElementTwo" type="two:MainElementTwoType"/>
+
+    <xs:complexType name="MainElementTwoType">
+        <xs:sequence>
+            <xs:element name="SecondaryElementOne" type="two:SecondaryElementONEType" />
+            <xs:element name="SecondaryElementTwo" type="two:SecondaryElementTWOType" />
+            <xs:element name="SecondaryElementThree" type="two:SecondaryElementThreeType" />
+        </xs:sequence>
+    </xs:complexType>
+
+    <xs:complexType name="SecondaryElementONEType">
+        <xs:sequence>
+            <xs:element name="FieldThree" type="xs:string" />
+            <xs:element name="FieldFour" type="xs:string" />
+            <xs:element name="FieldSix" type="xs:string" />
+            <xs:element name="FieldSeven" type="xs:string" />
+            <xs:element name="FieldEight" type="xs:string" />
+            <xs:element name="FieldNine" type="xs:string" />
+            <xs:element name="FieldTen" type="xs:string" />
+        </xs:sequence>
+    </xs:complexType>
+
+    <xs:complexType name="SecondaryElementTWOType">
+        <xs:sequence>
+            <xs:element name="FieldThree" type="xs:string" />
+            <xs:element name="FieldFour" type="xs:string" />
+            <xs:element name="FieldSix" type="xs:string" />
+            <xs:element name="FieldSeven" type="xs:string" />
+            <xs:element name="FieldEight" type="xs:string" />
+            <xs:element name="FieldNine" type="xs:string" />
+            <xs:element name="FieldTen" type="xs:string" />
+        </xs:sequence>
+    </xs:complexType>
+
+
+    <xs:complexType name="SecondaryElementThreeType">
+        <xs:sequence>
+            <xs:element name="FieldThree" type="xs:string" />
+            <xs:element name="FieldFour" type="xs:string" />
+            <xs:element name="FieldSix" type="xs:string" />
+            <xs:element name="FieldSeven" type="xs:string" />
+            <xs:element name="FieldEight" type="xs:string" />
+            <xs:element name="FieldNine" type="xs:string" />
+            <xs:element name="FieldTen" type="xs:string" />
+        </xs:sequence>
+    </xs:complexType>
+
+</xs:schema>
