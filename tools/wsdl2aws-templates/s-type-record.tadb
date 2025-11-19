@@ -188,9 +188,9 @@ package body @_UNIT_NAME_@ is
       -- @_RF_DECL_NAME_@
 @@IF@@ @_RF_KIND_@ = K_ARRAY and @_RF_MIN_@ = 0
 @@IF@@ @_FIELD_ARRAY_LENGTH_@ > 1
-      if @_RF_NAME_@ /= Empty_Object_Set then
+      if @_RF_DECL_NAME_@ /= Empty_Object_Set then
 @@ELSE@@
-      if @_RF_NAME_@ /= No_Object then
+      if @_RF_DECL_NAME_@ /= No_Object then
 @@END_IF@@
          Result@_TYPE_NAME_@.@_REC_FIELD_FROM_SOAP(1 => " => ")_@;
       end if;
@@ -368,7 +368,7 @@ package body @_UNIT_NAME_@ is
 @@IF@@ not @_RF_DECL_IN_CHOICE_@
       --  @_RF_NAME_@
 @@IF@@ @_RF_KIND_@ = K_ARRAY and @_RF_MIN_@ = 0
-      if not R.@_RF_NAME_@.Is_Empty then
+      if not R.@_RF_DECL_NAME_@.Is_Empty then
          Result@_TYPE_NAME_@ := Result@_TYPE_NAME_@
            @_REC_FIELD_TO_SOAP(1 => "& ", 2 => "", 3 => ";")_@
       end if;
