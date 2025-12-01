@@ -2381,6 +2381,7 @@ package body SOAP.Types is
 
       Indent : constant Natural := XML_Indent.Value;
       Prefix : constant String := SOAP.Name_Space.Name (O.NS);
+
    begin
       Append (Result, Spaces (Indent));
 

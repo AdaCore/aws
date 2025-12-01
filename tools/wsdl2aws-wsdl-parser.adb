@@ -1929,6 +1929,7 @@ package body WSDL2AWS.WSDL.Parser is
 
       A_Type    : constant String := SOAP.XML.Get_Attr_Value (Part, "type");
       A_Element : constant String := SOAP.XML.Get_Attr_Value (Part, "element");
+      A_Name    : constant String := SOAP.XML.Get_Attr_Value (Part, "name");
       N         : DOM.Core.Node;
       ET        : Unbounded_String;
    begin
@@ -1968,7 +1969,7 @@ package body WSDL2AWS.WSDL.Parser is
          end if;
       end if;
 
-      O.Current_Name := +SOAP.XML.Get_Attr_Value (Part, "name");
+      O.Current_Name := +A_Name;
 
       declare
          T : constant String := -ET;
@@ -2237,7 +2238,7 @@ package body WSDL2AWS.WSDL.Parser is
                end if;
             end;
 
-            --  Move insive extension node to eventually parse other element
+            --  Move inside extension node to eventually parse other element
             --  nodes.
 
             N := SOAP.XML.First_Child (N);
