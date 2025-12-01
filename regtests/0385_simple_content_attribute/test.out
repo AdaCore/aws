@@ -1,0 +1,73 @@
+P1:
+<n1:ex unit="cm">1.30000E+00</n1:ex>
+P2:
+<n1:ft>3.40000E+00</n1:ft>
+P3:
+<n1:data>
+   <f1>3.40000E+00</f1>
+   <f2 unit="cm">1.30000E+00</f2>
+</n1:data>
+[CLIENT/call] Payload : <?xml version='1.0' encoding='UTF-8'?>
+<soapenv:Envelope soapenv:encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" xmlns:soapenc="http://schemas.xmlsoap.org/soap/encoding/" xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+<soapenv:Body
+ xmlns:awsns="http://soapaws/"
+ xmlns:n1="http://simple.doc.net/sd">
+<n1:data>
+   <a>1.20000E+00</a>
+   <b>
+      <f1>3.40000E+00</f1>
+      <f2 unit="cm">1.30000E+00</f2>
+   </b>
+</n1:data>
+</soapenv:Body>
+</soapenv:Envelope>
+
+[SERVER/call_CB] Payload recv : <?xml version='1.0' encoding='UTF-8'?>
+<soapenv:Envelope soapenv:encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" xmlns:soapenc="http://schemas.xmlsoap.org/soap/encoding/" xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+<soapenv:Body
+ xmlns:awsns="http://soapaws/"
+ xmlns:n1="http://simple.doc.net/sd">
+<n1:data>
+   <a>1.20000E+00</a>
+   <b>
+      <f1>3.40000E+00</f1>
+      <f2 unit="cm">1.30000E+00</f2>
+   </b>
+</n1:data>
+</soapenv:Body>
+</soapenv:Envelope>
+
+[SERVER/call_CB] SOAPAction : http://me.here.net/call
+[SERVER/call_CB] Payload : <?xml version='1.0' encoding='UTF-8'?>
+<soapenv:Envelope soapenv:encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" xmlns:soapenc="http://schemas.xmlsoap.org/soap/encoding/" xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+<soapenv:Body
+ xmlns:n1="http://simple.doc.net/sd">
+<n1:data>
+   <a>1.20000E+00</a>
+   <b>
+      <n1:f1>3.40000E+00</n1:f1>
+      <n1:f2 unit="cm">1.30000E+00</n1:f2>
+   </b>
+</n1:data>
+</soapenv:Body>
+</soapenv:Envelope>
+
+a :  1.20000E+00
+rc:
+(F1 =>  3.40000E+00,
+ F2 =>
+ (ATTRIBUTE_VALUE =>  1.30000E+00,
+  UNIT => "cm"))
+[SERVER/call_CB] Response : <?xml version='1.0' encoding='UTF-8'?>
+<soapenv:Envelope soapenv:encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" xmlns:soapenc="http://schemas.xmlsoap.org/soap/encoding/" xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+<soapenv:Body
+>
+</soapenv:Body>
+</soapenv:Envelope>
+
+[CLIENT/call] Response : <?xml version='1.0' encoding='UTF-8'?>
+<soapenv:Envelope soapenv:encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" xmlns:soapenc="http://schemas.xmlsoap.org/soap/encoding/" xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+<soapenv:Body
+>
+</soapenv:Body>
+</soapenv:Envelope>

@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<wsdl:definitions name="AttSimCont"
+                  targetNamespace="http://simple.doc.net/sd"
+                  xmlns="http://schemas.xmlsoap.org/wsdl/"
+                  xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/"
+                  xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+                  xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/">
+  <types>
+    <schema>
+      <xsd:simpleType name="myflt">
+          <xsd:restriction base="xsd:float"/>
+      </xsd:simpleType>
+
+      <xsd:simpleType name="radius">
+          <xsd:restriction base="myflt"/>
+      </xsd:simpleType>
+
+      <xsd:complexType name="ExampleType">
+        <xsd:simpleContent>
+          <xsd:extension base="radius">
+            <xsd:attribute name="unit" type="xsd:string" />
+          </xsd:extension>
+        </xsd:simpleContent>
+      </xsd:complexType>
+
+      <xsd:complexType name="Rec">
+        <xsd:complexContent>
+          <sequence>
+            <xsd:element name="f1" type="radius" />
+            <xsd:element name="f2" type="ExampleType" />
+          </sequence>
+        </xsd:complexContent>
+      </xsd:complexType>
+
+      <xsd:element name="data" type="data"/>
+      <xsd:complexType name="data">
+        <sequence>
+          <xsd:element name="a" type="xsd:float" />
+          <xsd:element name="b" type="Rec" />
+        </sequence>
+      </xsd:complexType>
+    </schema>
+  </types>
+
+  <message name="myMethodRequest">
+    <part name="rc" element="data"/>
+  </message>
+
+  <message name="empty"/>
+
+  <portType name="PT">
+    <operation name="call">
+      <input message="myMethodRequest"/>
+      <output message="empty"/>
+    </operation>
+  </portType>
+
+<binding name="AttSimContBinding" type="AttSimCont">
+  <soap:binding style="document"
+                transport="http://schemas.xmlsoap.org/soap/http" />
+
+  <operation name="call">
+    <soap:operation soapAction="http://me.here.net/call" />
+    <wsdl:input>
+      <soap:body use="literal" />
+    </wsdl:input>
+    <wsdl:output>
+      <soap:body use="literal" />
+    </wsdl:output>
+  </operation>
+</binding>
+
+<wsdl:service name="AttSimContService">
+  <port name="AttSimContPort" binding="AttSimContBinding">
+    <soap:address location="http://localhost:9840" />
+  </port>
+</wsdl:service>
+
+</wsdl:definitions>

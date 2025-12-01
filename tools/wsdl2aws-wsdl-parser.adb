@@ -279,13 +279,14 @@ package body WSDL2AWS.WSDL.Parser is
          Parameters.Append
            (O.Params (O.Mode),
             (WSDL.Types.K_Simple, +Name, O.Elmt_Name, Null_Unbounded_String,
-             Typ       => Types.Create (SOAP.Utils.No_NS (Type_Name), NS),
-             Min       => 1,
-             Max       => 1,
-             Is_Set    => False,
-             In_Choice => False,
-             Is_Ref    => False,
-             Next      => null));
+             Typ          => Types.Create (SOAP.Utils.No_NS (Type_Name), NS),
+             Min          => 1,
+             Max          => 1,
+             Is_Set       => False,
+             In_Choice    => False,
+             Is_Ref       => False,
+             Is_Attribute => False,
+             Next         => null));
       end if;
    end Add_Parameter;
 
@@ -974,7 +975,7 @@ package body WSDL2AWS.WSDL.Parser is
             return True;
 
          else
-            if Local_Name (L) = "complexContent" then
+            if Local_Name (L) in "simpleContent" | "complexContent" then
                L := SOAP.XML.First_Child (L);
             end if;
 
@@ -993,7 +994,10 @@ package body WSDL2AWS.WSDL.Parser is
             return True;
          end if;
 
-         if Local_Name (L) in "all" | "sequence" | "choice" then
+         if Local_Name (L) = "attribute" then
+            return True;
+
+         elsif Local_Name (L) in "all" | "sequence" | "choice" then
             L := SOAP.XML.First_Child (L);
             Skip_Annotation (L);
 
@@ -2067,13 +2071,15 @@ package body WSDL2AWS.WSDL.Parser is
                   return
                     (Types.K_Simple, +P_Name,
                      O.Elmt_Name, Doc,
-                     Typ       => Types.Create (SOAP.Utils.No_NS (P_Type), NS),
-                     Min       => Min,
-                     Max       => Max,
-                     Is_Set    => False,
-                     In_Choice => False,
-                     Is_Ref    => Is_Ref,
-                     Next      => null);
+                     Typ          => Types.Create
+                                       (SOAP.Utils.No_NS (P_Type), NS),
+                     Min          => Min,
+                     Max          => Max,
+                     Is_Set       => False,
+                     In_Choice    => False,
+                     Is_Ref       => Is_Ref,
+                     Is_Attribute => False,
+                     Next         => null);
                end;
 
             else
@@ -2365,6 +2371,12 @@ package body WSDL2AWS.WSDL.Parser is
       --  Parse complexContent node (possibly recursivelly if an extension
       --  is defined.
 
+      procedure Parse_Simple_Content
+        (P : in out Parameters.Parameter;
+         N : in out DOM.Core.Node);
+      --  Parse simpleContent node (possibly recursivelly if an extension
+      --  is defined.
+
       function Get_Elements
         (Doc       : in out Unbounded_String;
          E         : DOM.Core.Node;
@@ -2384,10 +2396,10 @@ package body WSDL2AWS.WSDL.Parser is
       is
          N   : DOM.Core.Node := E;
          Set : Parameter_Set.Vector;
-
       begin
          while N /= null
-           and then Local_Name (N) not in "element" | "annotation" | "choice"
+           and then Local_Name (N)
+                      not in "attribute" | "element" | "annotation" | "choice"
          loop
             N := SOAP.XML.First_Child (N);
          end loop;
@@ -2411,12 +2423,14 @@ package body WSDL2AWS.WSDL.Parser is
                      SOAP.XML.First_Child (N),
                      In_Choice => True));
 
-            else
+            elsif Local_Name (N) in "attribute" | "element" then
+               --  Ignore other nodes like attributeGroup
                declare
                   P : Parameters.Parameter :=
                         Parse_Parameter (O, N, Document);
                begin
                   P.In_Choice := In_Choice;
+                  P.Is_Attribute := Local_Name (N) = "attribute";
                   Set.Append (P);
                end;
             end if;
@@ -2479,6 +2493,62 @@ package body WSDL2AWS.WSDL.Parser is
             N := SOAP.XML.First_Child (N);
          end if;
       end Parse_Complex_Content;
+
+      --------------------------
+      -- Parse_Simple_Content --
+      --------------------------
+
+      procedure Parse_Simple_Content
+        (P : in out Parameters.Parameter;
+         N : in out DOM.Core.Node) is
+      begin
+         N := SOAP.XML.First_Child (N);
+
+         if N /= null
+           and then  Local_Name (N) = "extension"
+         then
+            declare
+               Base : constant String :=
+                        SOAP.XML.Get_Attr_Value (N, "base", True);
+               NS   : constant SOAP.Name_Space.Object :=
+                        SOAP.WSDL.Name_Spaces.Get
+                          (SOAP.Utils.NS (Base), SOAP.Name_Space.XSD);
+            begin
+               --  Note that for a simpleContent (attribute) we use the first
+               --  record field for the attribute value and the name is hard
+               --  coded to be attribute_value.
+
+               if SOAP.WSDL.Is_Standard (Base) then
+                  Parameters.Append
+                    (P.P,
+                     (Types.K_Simple, +"attribute_value",
+                      +"attribute_value", Null_Unbounded_String,
+                      Typ          =>
+                        Types.Create (SOAP.Utils.No_NS (Base), NS),
+                      Min          => 1,
+                      Max          => 1,
+                      Is_Set       => False,
+                      In_Choice    => False,
+                      Is_Ref       => False,
+                      Is_Attribute => False,
+                      Next         => null));
+
+               else
+                  O.Current_Name := +"attribute_value";
+
+                  Parameters.Append
+                    (P.P,
+                     Parse_Base
+                       (O, N, Document,
+                        "attribute_value", Simple_Type => False));
+               end if;
+            end;
+
+            --  Move inside extension node to eventually parse attribute nodes
+
+            N := SOAP.XML.First_Child (N);
+         end if;
+      end Parse_Simple_Content;
 
       --  Parse complexContent node (possibly recursivelly if an extension
       --  is defined.
@@ -2555,23 +2625,61 @@ package body WSDL2AWS.WSDL.Parser is
                   N := SOAP.XML.Next_Sibling (N);
                end if;
 
+               --  Parse and handle the base type for complexContent and
+               --  simpleContent. The element or attributes will be handled
+               --  below.
+
                if Local_Name (N) = "complexContent" then
                   Parse_Complex_Content (P, N);
+
+               elsif Local_Name (N) = "simpleContent" then
+                  Parse_Simple_Content (P, N);
+                  P.Is_Simple_Content := True;
                end if;
             end if;
          end if;
 
+         --  Now handle element nodes for complexContent or attribute node for
+         --  simpleContent. And possibly also attributes node in a complexType
+         --  without simpleContent (meaning a XMP payload with just attributes
+         --  and no value on it's own).
+
          declare
-            P_Set : constant Parameter_Set.Vector :=
-                      Get_Elements (P.Doc, N, False);
+            P_Set   : constant Parameter_Set.Vector :=
+                        Get_Elements (P.Doc, N, False);
+            All_Att : constant Boolean :=
+                        not P_Set.Is_Empty
+                            and then (for all P of P_Set => P.Is_Attribute);
+            Som_Att : constant Boolean :=
+                        (for some P of P_Set => P.Is_Attribute);
          begin
             D.Has_Choice := (for some P of P_Set => P.In_Choice);
 
             Types.Register (D);
 
+            --  We have a WSDL attribute if all elements are attributes
+            --  and we have at least one attribute found.
+
+            if All_Att then
+               P.Is_Simple_Content := True;
+            end if;
+
             for Parameter of P_Set loop
+               --  Check semantic of simpleContent where only attributes
+               --  are allowed.
+
+               if P.Is_Simple_Content and then not Parameter.Is_Attribute then
+                  raise WSDL_Error
+                    with "Only attributes expected for simpleContent.";
+               end if;
+
                Parameters.Append (P.P, Parameter);
             end loop;
+
+            if not All_Att and then Som_Att then
+               raise WSDL_Error
+                 with "Cannot mix attribute and element in complexType.";
+            end if;
          end;
 
          O.Enclosing_Types.Exclude (T_Name);

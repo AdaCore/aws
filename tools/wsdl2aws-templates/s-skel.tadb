@@ -170,11 +170,19 @@ package body @_UNIT_NAME_@.Server is
          @_IP_NAME_@_@_IP_TYPE_NAME_@_Array : constant SOAP.Types.SOAP_Array :=
             SOAP.Parameters.Get (Params, "@_IP_NAME_@");
 @@ELSIF@@ (@_IP_KIND_@ = K_RECORD) and (@_IP_COMPOUND_SIZE_@ = 0)
+@@IF@@ @_IP_IS_ATTRIBUTE_@
+         @_IP_NAME_@_@_IP_TYPE_NAME_@_Record : constant SOAP.Types.SOAP_Attribute :=
+@@ELSE@@
          @_IP_NAME_@_@_IP_TYPE_NAME_@_Record : constant SOAP.Types.SOAP_Record :=
+@@END_IF@@
             SOAP.Types.R (SOAP.Types.Empty_Object_Set,
                           "@_IP_NAME_@");
 @@ELSIF@@ @_IP_KIND_@ = K_RECORD
+@@IF@@ @_IP_IS_ATTRIBUTE_@
+         @_IP_NAME_@_@_IP_TYPE_NAME_@_Record : constant SOAP.Types.SOAP_Attribute :=
+@@ELSE@@
          @_IP_NAME_@_@_IP_TYPE_NAME_@_Record : constant SOAP.Types.SOAP_Record :=
+@@END_IF@@
             SOAP.Parameters.Get (Params, "@_IP_NAME_@");
 @@END_IF@@
 @@END_TABLE@@
