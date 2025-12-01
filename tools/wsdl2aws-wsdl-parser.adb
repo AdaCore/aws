@@ -166,6 +166,14 @@ package body WSDL2AWS.WSDL.Parser is
    --  Returns array in node S. A set if used to handle parameters with a
    --  minOccurs or maxOccurs different to 1.
 
+   function Parse_Base
+     (O           : in out Object'Class;
+      N           : DOM.Core.Node;
+      Document    : SOAP.WSDL.Object;
+      Name        : String;
+      Simple_Type : Boolean) return Parameters.Parameter;
+   --  Parse a restriction/extension node with Base attribute
+
    function Parse_Simple
      (O        : in out Object'Class;
       R        : DOM.Core.Node;
@@ -1264,6 +1272,228 @@ package body WSDL2AWS.WSDL.Parser is
          return P;
       end;
    end Parse_Array;
+
+   ----------------
+   -- Parse_Base --
+   ----------------
+
+   function Parse_Base
+     (O           : in out Object'Class;
+      N           : DOM.Core.Node;
+      Document    : SOAP.WSDL.Object;
+      Name        : String;
+      Simple_Type : Boolean) return Parameters.Parameter
+   is
+      use all type SOAP.WSDL.Parameter_Type;
+
+      function Build_Derived
+        (Name, Base  : String;
+         Constraints : WSDL.Types.Constraints_Def;
+         N           : DOM.Core.Node) return Parameters.Parameter;
+      --  Returns the derived (from standard Ada type) type definition
+
+      function Build_Enumeration
+        (Name, Base : String;
+         E          : DOM.Core.Node) return Parameters.Parameter;
+      --  Returns the enumeration type definition
+
+      -------------------
+      -- Build_Derived --
+      -------------------
+
+      function Build_Derived
+        (Name, Base  : String;
+         Constraints : WSDL.Types.Constraints_Def;
+         N           : DOM.Core.Node) return Parameters.Parameter
+      is
+         BNS : constant String := SOAP.Utils.NS (Base);
+         P   : Parameters.Parameter (Types.K_Derived);
+         D   : Types.Definition (Types.K_Derived);
+      begin
+         P.Name        := O.Current_Name;
+         P.Elmt_Name   := O.Elmt_Name;
+         P.Typ         := Types.Create (Name, Get_Target_Name_Space (N));
+         D.Constraints := Constraints;
+
+         D.Ref    := Types.Create (Name, Types.NS (P.Typ));
+         D.Parent := Types.Create
+           (SOAP.Utils.No_NS (Base),
+            (if BNS = ""
+             then Types.NS (P.Typ)
+             else SOAP.Name_Space.Create
+                    (BNS, SOAP.WSDL.Name_Spaces.Get (BNS))));
+
+         Types.Register (D);
+
+         return P;
+      end Build_Derived;
+
+      -----------------------
+      -- Build_Enumeration --
+      -----------------------
+
+      function Build_Enumeration
+        (Name, Base : String;
+         E          : DOM.Core.Node) return Parameters.Parameter
+      is
+         pragma Unreferenced (Base);
+
+         use type Types.E_Node_Access;
+
+         P : Parameters.Parameter (Types.K_Enumeration);
+         D : Types.Definition (Types.K_Enumeration);
+         N : DOM.Core.Node := E;
+         R : Types.E_Node_Access;
+      begin
+         P.Name      := O.Current_Name;
+         P.Elmt_Name := O.Elmt_Name;
+         P.Typ       := Types.Create
+                          (Name,
+                           Get_Target_Name_Space
+                             (DOM.Core.Nodes.Parent_Node (E)));
+         D.Ref := Types.Create (Name, Types.NS (P.Typ));
+
+         while N /= null
+           and then Local_Name (E) = "enumeration"
+         loop
+            declare
+               Value    : constant String :=
+                            SOAP.XML.Get_Attr_Value (N, "value", False);
+               New_Node : constant Types.E_Node_Access :=
+                            new Types.E_Node'
+                              (To_Unbounded_String (Value), null);
+            begin
+               if R = null then
+                  D.E_Def := New_Node;
+               else
+                  R.Next := New_Node;
+               end if;
+
+               R := New_Node;
+            end;
+
+            N := SOAP.XML.Next_Sibling (N);
+         end loop;
+
+         Types.Register (D);
+
+         return P;
+      end Build_Enumeration;
+
+      E    : DOM.Core.Node;
+      C    : WSDL.Types.Constraints_Def;
+      Base : Unbounded_String;
+
+   begin
+      Trace ("(Parse_Base)", N);
+
+      pragma Assert (Local_Name (N) = (if Simple_Type
+                                       then "restriction"
+                                       else "extension"));
+
+      Base := +SOAP.XML.Get_Attr_Value (N, "base", True);
+
+      --  Check if this is an enumeration
+
+      E := SOAP.XML.First_Child (N);
+
+      if E /= null
+           and then Local_Name (E) = "enumeration"
+      then
+         return Build_Enumeration (Name, -Base, E);
+
+      else
+         --  Check restrictions for this type
+
+         declare
+            R : DOM.Core.Node := SOAP.XML.First_Child (N);
+         begin
+            while R /= null loop
+               declare
+                  Name  : constant String := Local_Name (R);
+                  Value : constant String :=
+                            SOAP.XML.Get_Attr_Value (R, "value", True);
+               begin
+                  if Name = "minInclusive" then
+                     if C.Min_Exclusive /= Null_Unbounded_String then
+                        raise WSDL_Error
+                          with "Cannot specify minInclusive and minExclusive.";
+                     end if;
+
+                     C.Min_Inclusive := +Value;
+
+                  elsif Name = "minExclusive" then
+                     if C.Min_Inclusive /= Null_Unbounded_String then
+                        raise WSDL_Error
+                          with "Cannot specify minInclusive and minExclusive.";
+                     end if;
+
+                     C.Min_Exclusive := +Value;
+
+                  elsif Name = "maxInclusive" then
+                     if C.Max_Exclusive /= Null_Unbounded_String then
+                        raise WSDL_Error
+                          with "Cannot specify maxInclusive and maxExclusive.";
+                     end if;
+
+                     C.Max_Inclusive := +Value;
+
+                  elsif Name = "maxExclusive" then
+                     if C.Max_Inclusive /= Null_Unbounded_String then
+                        raise WSDL_Error
+                          with "Cannot specify maxInclusive and maxExclusive.";
+                     end if;
+
+                     C.Max_Exclusive := +Value;
+
+                  elsif Name = "pattern" then
+                     C.Pattern := +Value;
+
+                  elsif Name = "length" then
+                     C.Length := Natural'Value (Value);
+
+                  elsif Name = "minLength" then
+                     C.Min_Length := Natural'Value (Value);
+
+                  elsif Name = "maxLength" then
+                     C.Max_Length := Natural'Value (Value);
+                  end if;
+               end;
+
+               R := SOAP.XML.Next_Sibling (R);
+            end loop;
+         end;
+
+         if not SOAP.WSDL.Is_Standard (-Base)
+           or else (To_Type (-Base) = P_Character
+                    and then not Is_Character (N, -Base, Document))
+         then
+            declare
+               B : constant DOM.Core.Node :=
+                     Look_For_Schema
+                       (DOM.Core.Nodes.Parent_Node (N), -Base, Document);
+            begin
+               if B = null then
+                  raise WSDL_Error
+                    with "Definition for " & (-Base) & " not found.";
+
+               else
+                  declare
+                     No_Param : constant Boolean := O.No_Param;
+                  begin
+                     --  We don't want any parameter to be generated for this
+                     --  element. Only recording the derived types is needed.
+                     O.No_Param := True;
+                     Parse_Element (O, B, Document);
+                     O.No_Param := No_Param;
+                  end;
+               end if;
+            end;
+         end if;
+
+         return Build_Derived (Name, -Base, C, N);
+      end if;
+   end Parse_Base;
 
    -------------------
    -- Parse_Binding --
@@ -2626,109 +2856,8 @@ package body WSDL2AWS.WSDL.Parser is
       R        : DOM.Core.Node;
       Document : SOAP.WSDL.Object) return Parameters.Parameter
    is
-      use all type SOAP.WSDL.Parameter_Type;
-
-      function Build_Derived
-        (Name, Base  : String;
-         Constraints : WSDL.Types.Constraints_Def;
-         N           : DOM.Core.Node) return Parameters.Parameter;
-      --  Returns the derived (from standard Ada type) type definition
-
-      function Build_Enumeration
-        (Name, Base : String;
-         E          : DOM.Core.Node) return Parameters.Parameter;
-      --  Returns the enumeration type definition
-
-      -------------------
-      -- Build_Derived --
-      -------------------
-
-      function Build_Derived
-        (Name, Base  : String;
-         Constraints : WSDL.Types.Constraints_Def;
-         N           : DOM.Core.Node) return Parameters.Parameter
-      is
-         BNS : constant String := SOAP.Utils.NS (Base);
-         P   : Parameters.Parameter (Types.K_Derived);
-         D   : Types.Definition (Types.K_Derived);
-      begin
-         P.Name        := O.Current_Name;
-         P.Elmt_Name   := O.Elmt_Name;
-         P.Typ         := Types.Create (Name, Get_Target_Name_Space (N));
-         D.Constraints := Constraints;
-
-         D.Ref    := Types.Create (Name, Types.NS (P.Typ));
-         D.Parent := Types.Create
-           (SOAP.Utils.No_NS (Base),
-            (if BNS = ""
-             then Types.NS (P.Typ)
-             else SOAP.Name_Space.Create
-                    (BNS, SOAP.WSDL.Name_Spaces.Get (BNS))));
-
-         Types.Register (D);
-
-         return P;
-      end Build_Derived;
-
-      -----------------------
-      -- Build_Enumeration --
-      -----------------------
-
-      function Build_Enumeration
-        (Name, Base : String;
-         E          : DOM.Core.Node) return Parameters.Parameter
-      is
-         pragma Unreferenced (Base);
-
-         use type Types.E_Node_Access;
-
-         P : Parameters.Parameter (Types.K_Enumeration);
-         D : Types.Definition (Types.K_Enumeration);
-         N : DOM.Core.Node := E;
-         R : Types.E_Node_Access;
-      begin
-         --  ??PO R not needed above
-
-         P.Name      := O.Current_Name;
-         P.Elmt_Name := O.Elmt_Name;
-         P.Typ       := Types.Create
-                          (Name,
-                           Get_Target_Name_Space
-                             (DOM.Core.Nodes.Parent_Node (E)));
-         D.Ref := Types.Create (Name, Types.NS (P.Typ));
-
-         while N /= null
-           and then Local_Name (E) = "enumeration"
-         loop
-            declare
-               Value    : constant String :=
-                            SOAP.XML.Get_Attr_Value (N, "value", False);
-               New_Node : constant Types.E_Node_Access :=
-                            new Types.E_Node'
-                              (To_Unbounded_String (Value), null);
-            begin
-               if R = null then
-                  D.E_Def := New_Node;
-               else
-                  R.Next := New_Node;
-               end if;
-
-               R := New_Node;
-            end;
-
-            N := SOAP.XML.Next_Sibling (N);
-         end loop;
-
-         Types.Register (D);
-
-         return P;
-      end Build_Enumeration;
-
-      N, E : DOM.Core.Node;
-      C    : WSDL.Types.Constraints_Def;
-
+      N    : DOM.Core.Node;
       Name : Unbounded_String;
-      Base : Unbounded_String;
 
    begin
       Trace ("(Parse_Simple)", R);
@@ -2745,110 +2874,7 @@ package body WSDL2AWS.WSDL.Parser is
 
       Skip_Annotation (N);
 
-      pragma Assert (Local_Name (N) = "restriction");
-
-      Base := +SOAP.XML.Get_Attr_Value (N, "base", True);
-
-      --  Check if this is an enumeration
-
-      E := SOAP.XML.First_Child (N);
-
-      if E /= null
-           and then Local_Name (E) = "enumeration"
-      then
-         return Build_Enumeration (-Name, -Base, E);
-
-      else
-         --  Check restrictions for this type
-
-         declare
-            R : DOM.Core.Node := SOAP.XML.First_Child (N);
-         begin
-            while R /= null loop
-               declare
-                  Name  : constant String := Local_Name (R);
-                  Value : constant String :=
-                            SOAP.XML.Get_Attr_Value (R, "value", True);
-               begin
-                  if Name = "minInclusive" then
-                     if C.Min_Exclusive /= Null_Unbounded_String then
-                        raise WSDL_Error
-                          with "Cannot specify minInclusive and minExclusive.";
-                     end if;
-
-                     C.Min_Inclusive := +Value;
-
-                  elsif Name = "minExclusive" then
-                     if C.Min_Inclusive /= Null_Unbounded_String then
-                        raise WSDL_Error
-                          with "Cannot specify minInclusive and minExclusive.";
-                     end if;
-
-                     C.Min_Exclusive := +Value;
-
-                  elsif Name = "maxInclusive" then
-                     if C.Max_Exclusive /= Null_Unbounded_String then
-                        raise WSDL_Error
-                          with "Cannot specify maxInclusive and maxExclusive.";
-                     end if;
-
-                     C.Max_Inclusive := +Value;
-
-                  elsif Name = "maxExclusive" then
-                     if C.Max_Inclusive /= Null_Unbounded_String then
-                        raise WSDL_Error
-                          with "Cannot specify maxInclusive and maxExclusive.";
-                     end if;
-
-                     C.Max_Exclusive := +Value;
-
-                  elsif Name = "pattern" then
-                     C.Pattern := +Value;
-
-                  elsif Name = "length" then
-                     C.Length := Natural'Value (Value);
-
-                  elsif Name = "minLength" then
-                     C.Min_Length := Natural'Value (Value);
-
-                  elsif Name = "maxLength" then
-                     C.Max_Length := Natural'Value (Value);
-                  end if;
-               end;
-
-               R := SOAP.XML.Next_Sibling (R);
-            end loop;
-         end;
-
-         if not SOAP.WSDL.Is_Standard (-Base)
-           or else (To_Type (-Base) = P_Character
-                    and then not Is_Character (N, -Base, Document))
-         then
-            declare
-               B : constant DOM.Core.Node :=
-                     Look_For_Schema
-                       (DOM.Core.Nodes.Parent_Node (N), -Base, Document);
-            begin
-               if B = null then
-                  raise WSDL_Error
-                    with "Definition for " & (-Base) & " not found.";
-
-               else
-                  declare
-                     No_Param : constant Boolean := O.No_Param;
-                  begin
-                     --  We don't want any parameter to be generated for this
-                     --  element. Only recording the derived types is needed.
-                     O.No_Param := True;
-                     Parse_Element (O, B, Document);
-                     O.No_Param := No_Param;
-                  end;
-               end if;
-            end;
-         end if;
-
-         return Build_Derived (-Name, -Base, C, N);
-      end if;
+      return Parse_Base (O, N, Document, -Name, Simple_Type => True);
    end Parse_Simple;
 
    --------------------------
