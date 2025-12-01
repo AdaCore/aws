@@ -890,6 +890,22 @@ package SOAP.Types is
    --  Returns O value as a SOAP Array. Raises Data_Error if O is not a SOAP
    --  Array.
 
+   ---------------
+   -- Attribute --
+   ---------------
+
+   type SOAP_Attribute is new SOAP_Record with private;
+
+   overriding function Get (O : Object'Class) return SOAP_Attribute;
+   --  Returns O value as a SOAP Struct. Raises Data_Error if O is not a SOAP
+   --  Struct.
+
+   overriding procedure XML_Image
+     (O        : SOAP_Attribute;
+      Result   : in out Unbounded_String;
+      Encoding : Encoding_Style := WSDL.Schema.Encoded;
+      Schema   : WSDL.Schema.Definition := WSDL.Schema.Empty);
+
    ----------------
    -- Name space --
    ----------------
@@ -1064,5 +1080,7 @@ private
    type SOAP_Set is new SOAP_Array with null record;
 
    type SOAP_Record is new Composite with null record;
+
+   type SOAP_Attribute is new SOAP_Record with null record;
 
 end SOAP.Types;

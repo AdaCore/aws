@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                    Copyright (C) 2000-2017, AdaCore                      --
+--                    Copyright (C) 2000-2025, AdaCore                      --
 --                                                                          --
 --  This is free software;  you can redistribute it  and/or modify it       --
 --  under terms of the  GNU General Public License as published  by the     --
@@ -28,6 +28,7 @@ with SOAP.Parameters;
 with SOAP.Client;
 with SOAP.Message.Payload;
 with SOAP.Message.Response;
+with SOAP.Name_Space;
 
 procedure SOAP_CVS is
 
@@ -38,6 +39,14 @@ procedure SOAP_CVS is
 
    Server     : constant String := "http://localhost:8080/validator1";
    SOAPAction : constant String := "/validator1";
+
+   function BR
+     (V         : SOAP.Types.Object_Set;
+      Name      : String;
+      Type_Name : String := "";
+      NS        : SOAP.Name_Space.Object := SOAP.Name_Space.No_Name_Space)
+      return SOAP.Types.SOAP_Record
+      renames SOAP.Types.R;
 
    ----------------------
    -- countTheEntities --
@@ -76,8 +85,8 @@ procedure SOAP_CVS is
    procedure easyStructTest is
 
       P_Set : Parameters.List :=
-        +R ((+I (12, "moe"), +I (45, "larry"), +I (10, "curly")),
-            "stooges");
+        +BR ((+I (12, "moe"), +I (45, "larry"), +I (10, "curly")),
+             "stooges");
 
       P     : Message.Payload.Object;
    begin
@@ -105,8 +114,8 @@ procedure SOAP_CVS is
    procedure echoStructTest is
 
       P_Set : Parameters.List :=
-        +R ((+I (12, "moe"), +I (45, "larry"), +I (10, "curly")),
-            "myStruct");
+        +BR ((+I (12, "moe"), +I (45, "larry"), +I (10, "curly")),
+             "myStruct");
 
       P     : Message.Payload.Object;
    begin
@@ -204,9 +213,9 @@ procedure SOAP_CVS is
         (+I (1, "moe"), +I (27, "larry"), +I (76, "curly"));
 
       P_Set : Parameters.List
-        := +R
-        ((+R ((1 => +R (S1, "test")), "year1999"),
-          +R ((1 => +R ((1 => +R (S2, "day01")), "month04")), "year2000")),
+        := +BR
+        ((+BR ((1 => +BR (S1, "test")), "year1999"),
+          +BR ((1 => +BR ((1 => +BR (S2, "day01")), "month04")), "year2000")),
          "myStruct");
 
       P     : Message.Payload.Object;

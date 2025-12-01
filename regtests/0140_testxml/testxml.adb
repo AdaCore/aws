@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2000-2014, AdaCore                     --
+--                     Copyright (C) 2000-2025, AdaCore                     --
 --                                                                          --
 --  This is free software;  you can redistribute it  and/or modify it       --
 --  under terms of the  GNU General Public License as published  by the     --
@@ -20,9 +20,10 @@
 
 with Ada.Text_IO;
 with SOAP.Message.Payload;
-with SOAP.Types; use SOAP.Types;
-with SOAP.Parameters; use SOAP.Parameters;
+with SOAP.Types;       use SOAP.Types;
+with SOAP.Parameters;  use SOAP.Parameters;
 with SOAP.Message.XML; use SOAP.Message.XML;
+with SOAP.Name_Space;  use SOAP.Name_Space;
 
 procedure TestXML is
 
@@ -31,15 +32,23 @@ procedure TestXML is
    Soap_Orderline : constant String := "Orderline";
    Soap_Produced  : constant String := "Produced";
 
+   function BR
+     (V         : Object_Set;
+      Name      : String;
+      Type_Name : String := "";
+      NS        : SOAP.Name_Space.Object := SOAP.Name_Space.No_Name_Space)
+      return SOAP.Types.SOAP_Record
+      renames SOAP.Types.R;
+
    Parm : List :=
-            +R ((+S ("Wo1", Soap_WoId),
-                 +A ((1 => +R ((+S ("", Soap_WoId),
-                                +I (0, Soap_Produced)
-                              ), Soap_Orderline)
-                     )
-                    , Soap_Orderline)
-                )
-               , Soap_Wo);
+            +BR ((+S ("Wo1", Soap_WoId),
+                  +A ((1 => +BR ((+S ("", Soap_WoId),
+                                  +I (0, Soap_Produced)
+                                ), Soap_Orderline)
+                      )
+                     , Soap_Orderline)
+                 )
+                , Soap_Wo);
 
    Payload : SOAP.Message.Payload.Object'Class :=
       SOAP.Message.Payload.Build ("Test", Parm);

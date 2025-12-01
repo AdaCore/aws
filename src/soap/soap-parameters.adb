@@ -355,6 +355,11 @@ package body SOAP.Parameters is
       return Types.Get (Argument (P, Name));
    end Get;
 
+   function Get (P : List; Name : String) return Types.SOAP_Attribute is
+   begin
+      return Types.Get (Argument (P, Name));
+   end Get;
+
    function Get (P : List; Name : String) return Types.SOAP_Array is
    begin
       return Types.Get (Argument (P, Name));
