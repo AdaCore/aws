@@ -8,7 +8,7 @@ Result =  81
 SOAP_Proc : multProc
 Result =  730
 This is not SOAP request.
-Fault Code = Client
+Fault Code = soapenv:Client
 Fault Message = SOAPAction 'Wrong' is not expected.
 SOAP_Proc : addProc
 Result =  5
