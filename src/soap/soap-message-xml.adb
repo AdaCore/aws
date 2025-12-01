@@ -272,6 +272,12 @@ package body SOAP.Message.XML is
       Q_Name : String;
       S      : in out State) return Types.Object'Class;
 
+   function Parse_Attribute
+     (Name   : String;
+      N      : DOM.Core.Node;
+      Q_Name : String;
+      S      : in out State) return Types.Object'Class;
+
    function Parse_Record
      (Name   : String;
       N      : DOM.Core.Node;
@@ -1001,6 +1007,80 @@ package body SOAP.Message.XML is
       end;
    end Parse_Array;
 
+   ---------------------
+   -- Parse_Attribute --
+   ---------------------
+
+   function Parse_Attribute
+     (Name   : String;
+      N      : DOM.Core.Node;
+      Q_Name : String;
+      S      : in out State) return Types.Object'Class
+   is
+      use SOAP.Types;
+      use type DOM.Core.Node;
+
+      LQ_Name : constant String := (if Q_Name = ""
+                                    then Name
+                                    else Q_Name & '.' & Name);
+      Key     : constant String := LQ_Name & "@@is_a";
+      Field   : constant DOM.Core.Node := SOAP.XML.Get_Ref (N);
+      xsd     : constant String :=
+                  SOAP.XML.Get_Attr_Value
+                    (Field, SOAP.Name_Space.Name (S.NS.xsi) & ":type");
+
+      --  The record fields temporary store
+      OS     : Object_Set_Access := new Object_Set (1 .. 50);
+      K      : Natural := 0;
+
+      T_Name : constant String :=
+                 (if xsd = ""
+                  then Get_Schema_Type (Key, S.Schema, S.NS, xsd)
+                  else xsd);
+      S_Type : Type_State;
+      NS     : constant SOAP.Name_Space.Object :=
+                 Get_Namespace_Object (S.NS, Utils.NS (T_Name));
+
+   begin
+      --  The attribute value itself (named attribute_value)
+
+      K := 1;
+      S_Type := To_Type (T_Name, S.NS, S.Schema);
+      Add_Object
+        (OS, K, +Handlers (S_Type).Handler ("attribute_value", T_Name, N), 25);
+
+      --  The element's attribute
+
+      declare
+         Atts : constant DOM.Core.Named_Node_Map :=
+                  DOM.Core.Nodes.Attributes (N);
+      begin
+         for I in 0 .. DOM.Core.Nodes.Length (Atts) - 1 loop
+            declare
+               F   : constant DOM.Core.Node := DOM.Core.Nodes.Item (Atts, I);
+               Fn  : constant String := Local_Name (F);
+               Key : constant String := LQ_Name & "." & Fn & "@is_a";
+               T_N : constant String :=
+                       Get_Schema_Type (Key, S.Schema, S.NS);
+            begin
+               S_Type := To_Type (T_N, S.NS, S.Schema);
+               K := @ + 1;
+               Add_Object
+                 (OS, K,
+                  +Handlers (S_Type).Handler (Fn, T_N, F), 25);
+            end;
+         end loop;
+      end;
+
+      return R : constant Types.SOAP_Attribute :=
+        Types.R
+          (OS (1 .. K), Name,
+           Utils.No_NS (T_Name), NS)
+      do
+         Unchecked_Free (OS);
+      end return;
+   end Parse_Attribute;
+
    ------------------
    -- Parse_Base64 --
    ------------------
@@ -1429,6 +1509,9 @@ package body SOAP.Message.XML is
       function Is_Record return Boolean;
       --  Returns True if N is a record node
 
+      function Is_Attribute return Boolean;
+      --  Returns True if N is an attribute (complexType/simpleContent)
+
       function With_NS
         (O  : Types.Object'Class;
          NS : SOAP.Name_Space.Object) return Types.Object'Class;
@@ -1475,6 +1558,16 @@ package body SOAP.Message.XML is
          --  or soapenc:arrayType="..."
            SOAP_Enc /= null;
       end Is_Array;
+
+      ------------------
+      -- Is_Attribute --
+      ------------------
+
+      function Is_Attribute return Boolean is
+      begin
+         return S.Schema.Contains (Key)
+           and then S.Schema.Element (Key) = "@attribute";
+      end Is_Attribute;
 
       ------------
       -- Is_Nil --
@@ -1549,6 +1642,9 @@ package body SOAP.Message.XML is
 
       if To_String (S.Wrapper_Name) = "Fault" then
          return Parse_String (Name, Types.XML_String, Ref);
+
+      elsif Is_Attribute then
+         return Parse_Attribute (Name, Ref, Q_Name, S);
 
       elsif Is_Array then
          return Parse_Array (Name, Ref, Q_Name, S);
@@ -1656,7 +1752,6 @@ package body SOAP.Message.XML is
 
                      return With_NS
                        (Handlers (S_Type).Handler (Name, S_xsd, Ref), NS);
-
                   end if;
                end if;
             end;
