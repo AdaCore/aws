@@ -1932,6 +1932,7 @@ package body WSDL2AWS.WSDL.Parser is
       A_Name    : constant String := SOAP.XML.Get_Attr_Value (Part, "name");
       N         : DOM.Core.Node;
       ET        : Unbounded_String;
+      L_Ctx     : Look_Context := Look_All;
    begin
       Trace ("(Parse_Part)", Part);
 
@@ -1948,6 +1949,9 @@ package body WSDL2AWS.WSDL.Parser is
             O.Elmt_Name := ET;
          end if;
 
+         --  For Document style binding, we look only for element in schema
+         --  as this is what is specified in part node.
+         L_Ctx := [Element => True, others => False];
       else
          --  for rpc style we use the type attribute
          if A_Type = "" then
@@ -1984,10 +1988,11 @@ package body WSDL2AWS.WSDL.Parser is
             raise WSDL_Error with "Type anyType is not supported.";
 
          else
-            N := Look_For_Schema (Part, T, Document);
+            N := Look_For_Schema (Part, T, Document, L_Ctx);
 
             if N = null then
-               raise WSDL_Error with "Definition for " & T & " not found.";
+               raise WSDL_Error
+                 with "Definition for element " & T & " not found.";
             end if;
 
             Parse_Element (O, N, Document);

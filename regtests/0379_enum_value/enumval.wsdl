@@ -7,6 +7,7 @@
                   xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/">
   <types>
     <schema>
+      <xsd:element name="ExampleType" type="ExampleType"/>
       <xsd:simpleType name="ExampleType">
         <xsd:restriction base="xs:string">
           <xsd:enumeration value="A-Example"/>
