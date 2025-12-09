@@ -64,4 +64,8 @@ package SOAP.XML is
    --  Returns the node value as a string. This ensure that a split string in
    --  multiple text nodes is fully returned.
 
+   function First_Child_If_Exists (N : DOM.Core.Node) return DOM.Core.Node
+     with Pre => N /= null;
+   --  Returns the first child if it exists and N otherwise
+
 end SOAP.XML;

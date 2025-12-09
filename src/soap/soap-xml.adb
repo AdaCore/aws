@@ -55,6 +55,16 @@ package body SOAP.XML is
       return N;
    end First_Child;
 
+   ---------------------------
+   -- First_Child_If_Exists --
+   ---------------------------
+
+   function First_Child_If_Exists (N : DOM.Core.Node) return DOM.Core.Node is
+      C : constant DOM.Core.Node := DOM.Core.Nodes.First_Child (N);
+   begin
+      return (if C = null then N else C);
+   end First_Child_If_Exists;
+
    --------------------
    -- Get_Attr_Value --
    --------------------
