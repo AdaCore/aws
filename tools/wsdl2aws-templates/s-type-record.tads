@@ -55,7 +55,7 @@ package @_UNIT_NAME_@ is
 
 @@IF@@ @_IS_ATTRIBUTE_@
    --  This record is an attribute, field attribute_value
-   --  if the value for the attribute element it self. The other
+   --  is the value for the attribute element itself. The other
    --  fields are the node's attributes.
 
 @@END_IF@@
