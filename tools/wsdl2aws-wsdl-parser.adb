@@ -53,7 +53,7 @@ package body WSDL2AWS.WSDL.Parser is
    NS_SOAP      : Unbounded_String;
    NS_Num       : Natural := 0;
 
-   type Look_Kind is (Complex_Type, Simple_Type, Element);
+   type Look_Kind is (Complex_Type, Simple_Type, Element, Attribute_Group);
    type Look_Context is array (Look_Kind) of Boolean;
 
    Look_All : constant Look_Context := [others => True];
@@ -1054,6 +1054,7 @@ package body WSDL2AWS.WSDL.Parser is
              & (if Context (Element) then "E" else "")
              & (if Context (Complex_Type) then "C" else  "")
              & (if Context (Simple_Type) then "S" else "")
+             & (if Context (Attribute_Group) then "G" else "")
              & ")",
              N);
 
@@ -1087,6 +1088,10 @@ package body WSDL2AWS.WSDL.Parser is
 
             if D = null and then Context (Simple_Type) then
                D := Get_Node (S, "simpleType", T_No_NS, URL);
+            end if;
+
+            if D = null and then Context (Attribute_Group) then
+               D := Get_Node (S, "attributeGroup", T_No_NS, URL);
             end if;
          end Look_Schema;
 
