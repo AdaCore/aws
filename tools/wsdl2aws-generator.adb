@@ -1320,19 +1320,23 @@ package body WSDL2AWS.Generator is
                if not P.Is_Set then
                   Output_Schema_Definition (O, Name & "@is_a", "@record");
 
-               elsif P.P /= null then
+               else
                   Output_Schema_Definition
                     (O, Name, WSDL.Types.Name (P.E_Typ, P.Is_Set));
                   Output_Schema_Definition
                     (O, Name & "@is_a", WSDL.Types.Name (P.E_Typ, P.Is_Set));
+                  Output_Schema_Definition
+                    (O, Name & "@is_ref", P.Is_Ref'Image);
 
-                  if WSDL.Types.Name (P.E_Typ, P.Is_Set) /=
-                    WSDL.Types.Name (P.P.Typ, P.Is_Set)
-                  then
-                     Output_Schema_Definition
-                       (O,
-                        WSDL.Types.Name (P.E_Typ, P.Is_Set),
-                        WSDL.Types.Name (P.P.Typ, P.Is_Set));
+                  if P.P /= null then
+                     if WSDL.Types.Name (P.E_Typ, P.Is_Set) /=
+                       WSDL.Types.Name (P.P.Typ, P.Is_Set)
+                     then
+                        Output_Schema_Definition
+                          (O,
+                           WSDL.Types.Name (P.E_Typ, P.Is_Set),
+                           WSDL.Types.Name (P.P.Typ, P.Is_Set));
+                     end if;
                   end if;
                end if;
 
@@ -1378,10 +1382,18 @@ package body WSDL2AWS.Generator is
          ---------------------
 
          procedure Generate_Type
-           (Name : String; P : WSDL.Parameters.P_Set) is
+           (Name : String; P : WSDL.Parameters.P_Set)
+         is
+            use all type WSDL.Types.Kind;
          begin
-            Output_Schema_Definition
-              (O, Name & "@is_a", WSDL.Types.Name (P.Typ, True));
+            if P.Mode = K_Array then
+               Output_Schema_Definition
+                 (O, Name & "@is_a", WSDL.Types.Name (P.E_Typ, True));
+            else
+               Output_Schema_Definition
+                 (O, Name & "@is_a", WSDL.Types.Name (P.Typ, True));
+            end if;
+
             Output_Schema_Definition
               (O, Name & "@is_ref", P.Is_Ref'Image);
          end Generate_Type;

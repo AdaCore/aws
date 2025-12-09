@@ -57,7 +57,8 @@
 <soapenv:Envelope soapenv:encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" xmlns:soapenc="http://schemas.xmlsoap.org/soap/encoding/" xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
 <soapenv:Body
  xmlns:b="http://exemple.com/B"
- xmlns:c="http://exemple.com/C">
+ xmlns:c="http://exemple.com/C"
+ xmlns:d="http://exemple.com/D">
 <b:rec>
    <code>1</code>
    <b:c1>2</b:c1>
@@ -67,7 +68,7 @@
       <code>5</code>
       <c>6</c>
       <eo>1</eo>
-      <num>2</num>
+      <d:num>2</d:num>
    </d1>
    <e1>
       <code>7</code>

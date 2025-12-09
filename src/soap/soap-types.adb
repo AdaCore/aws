@@ -2436,17 +2436,22 @@ package body SOAP.Types is
       Encoding : Encoding_Style := WSDL.Schema.Encoded;
       Schema   : WSDL.Schema.Definition := WSDL.Schema.Empty)
    is
-
-      Indent : constant Natural := XML_Indent.Value;
-
+      Indent    : constant Natural := XML_Indent.Value;
+      First     : Positive := O.O'First;
+      Has_Value : constant Boolean :=
+                    Name (O.O (O.O'First).O.all) = "attribute_value";
    begin
       Append (Result, Spaces (Indent));
 
       Append (Result, "<" & Tag_Name (O));
 
-      --  Serialize the attribute (skip first field as it is the value)
+      --  Serialize the attribute (skip first field if it is the value)
 
-      for K in O.O'First + 1 .. O.O'Last loop
+      if Has_Value then
+         First := @ + 1;
+      end if;
+
+      for K in First .. O.O'Last loop
          declare
             E : constant SOAP.Types.Object'Class := O.O (K).O.all;
          begin
@@ -2454,13 +2459,18 @@ package body SOAP.Types is
          end;
       end loop;
 
-      Append (Result, ">");
+      if Has_Value then
+         Append (Result, ">");
 
-      --  Serialize the value
+         --  Serialize the value
 
-      Append (Result, Image (O.O (O.O'First).O.all));
+         Append (Result, Image (O.O (O.O'First).O.all));
 
-      Append (Result, Utils.Tag (Tag_Name (O), Start => False));
+         Append (Result, Utils.Tag (Tag_Name (O), Start => False));
+
+      else
+         Append (Result, "/>");
+      end if;
    end XML_Image;
 
    overriding procedure XML_Image
