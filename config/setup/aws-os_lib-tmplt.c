@@ -72,6 +72,8 @@ pragma Style_Checks ("M32766");
 # error Please define TARGET
 #endif
 
+#define _GNU_SOURCE
+
 #if defined (SOCKET_openssl)
 #include <openssl/x509.h>
 #include <openssl/ssl.h>
