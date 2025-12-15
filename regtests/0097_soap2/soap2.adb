@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2002-2014, AdaCore                     --
+--                     Copyright (C) 2002-2025, AdaCore                     --
 --                                                                          --
 --  This is free software;  you can redistribute it  and/or modify it       --
 --  under terms of the  GNU General Public License as published  by the     --
@@ -24,29 +24,40 @@ with SOAP.Message.Payload;
 with SOAP.Message.XML;
 with SOAP.Parameters;  use SOAP.Parameters;
 with SOAP.Types;       use SOAP.Types;
+with SOAP.Name_Space;  use SOAP.Name_Space;
 
 procedure SOAP2 is
+
+   function BR
+     (V         : SOAP.Types.Object_Set;
+      Name      : String;
+      Type_Name : String := "";
+      NS        : SOAP.Name_Space.Object := SOAP.Name_Space.No_Name_Space)
+      return SOAP.Types.SOAP_Record
+      renames SOAP.Types.R;
 
    Payload : SOAP.Message.Payload.Object'Class :=
      SOAP.Message.Payload.Build
      ("Workorder",
-      +R ((+S ("Wo1", "name1"),
-           +S ("idle", "name2"),
-           +A ((1 => +R ((+S ("idle", "name3"),
-                          +S ("Wo1", "name4")),
-                         "my_record")),
-               "my_array")),
-          "my_record_out"));
+      +BR ((+S ("Wo1", "name1"),
+            +S ("idle", "name2"),
+            +A ((1 => +BR ((+S ("idle", "name3"),
+                            +S ("Wo1", "name4")),
+                           "my_record")),
+                "my_array")),
+           "my_record_out"));
 
-   Parms    : List := SOAP.Message.Parameters (Payload);
-   Obj      : Object'Class := Argument (Parms, "my_record_out");
+   Parms    : constant List := SOAP.Message.Parameters (Payload);
+   Obj      : constant SOAP.Types.Object'Class :=
+                Argument (Parms, "my_record_out");
    Img      : aliased String := SOAP.Message.XML.Image (Payload);
-   Payload2 : SOAP.Message.Payload.Object'Class
-     := SOAP.Message.XML.Load_Payload (Img);
+   Payload2 : constant SOAP.Message.Payload.Object'Class :=
+                SOAP.Message.XML.Load_Payload (Img);
 
-   Parms2   : List := SOAP.Message.Parameters (Payload2);
-   Obj2     : Object'Class := Argument (Parms2, "my_record_out");
-   Img2     : String := SOAP.Message.XML.Image (Payload2);
+   Parms2   : constant List := SOAP.Message.Parameters (Payload2);
+   Obj2     : constant SOAP.Types.Object'Class :=
+                Argument (Parms2, "my_record_out");
+   Img2     : constant String := SOAP.Message.XML.Image (Payload2);
 
 begin
    Put_Line (Img);

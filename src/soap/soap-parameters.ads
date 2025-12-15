@@ -153,6 +153,12 @@ package SOAP.Parameters is
    --  Types.Data_Error if this parameter does not exist or is not a SOAP
    --  Struct.
 
+   function Get
+     (P : List; Name : String) return Types.SOAP_Attribute with Inline;
+   --  Returns parameter named Name in P as a SOAP Attribute value. Raises
+   --  Types.Data_Error if this parameter does not exist or is not a SOAP
+   --  Attribute.
+
    function Get (P : List; Name : String) return Types.SOAP_Array with Inline;
    --  Returns parameter named Name in P as a SOAP Array value. Raises
    --  Types.Data_Error if this parameter does not exist or is not a SOAP

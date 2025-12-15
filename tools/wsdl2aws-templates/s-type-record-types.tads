@@ -40,7 +40,7 @@
       Name      : String := "item";
       Type_Name : String := @_UNIT_NAME_@.Q_Type_Name;
       NS        : SOAP.Name_Space.Object := @_NAME_SPACE_@_Name_Space)
-      return SOAP.Types.SOAP_Record
+      return SOAP.Types.@_SOAP_TYPES_NAME_@
       renames @_UNIT_NAME_@.To_SOAP_Object;
 
    function To_Parameter_List

@@ -53,6 +53,12 @@ package @_UNIT_NAME_@ is
 
    Q_Type_Name : constant String := "@_Q_TYPE_NAME_@";
 
+@@IF@@ @_IS_ATTRIBUTE_@
+   --  This record is an attribute, field attribute_value
+   --  is the value for the attribute element itself. The other
+   --  fields are the node's attributes.
+
+@@END_IF@@
 @@IF@@ @_EXIST:DOCUMENTATION_@
 @@INLINE(   --  )(\n   --  )()@@
       @_WRAP(70):DOCUMENTATION_@
@@ -158,7 +164,7 @@ C@_CHOICE_FIELD_NUMBER_@
       Name      : String := "item";
       Type_Name : String := Q_Type_Name;
       NS        : SOAP.Name_Space.Object := Name_Space)
-      return SOAP.Types.SOAP_Record;
+      return SOAP.Types.@_SOAP_TYPES_NAME_@;
 
    function To_Parameter_List
      (R  : @_TYPE_NAME_@;

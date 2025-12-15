@@ -1016,6 +1016,22 @@ package body SOAP.Types is
       end if;
    end Get;
 
+   overriding function Get (O : Object'Class) return SOAP_Attribute is
+      use type Ada.Tags.Tag;
+   begin
+      if O'Tag = Types.SOAP_Attribute'Tag then
+         return SOAP_Attribute (O);
+
+      elsif O'Tag = Types.XSD_Any_Type'Tag
+        and then XSD_Any_Type (O).O.O'Tag = Types.SOAP_Attribute'Tag
+      then
+         return SOAP_Attribute (XSD_Any_Type (O).O.O.all);
+
+      else
+         Get_Error ("SOAP attribute", O);
+      end if;
+   end Get;
+
    function Get (O : Object'Class) return SOAP_Array is
       use type Ada.Tags.Tag;
    begin
@@ -2260,7 +2276,7 @@ package body SOAP.Types is
 
          --  Array with record components
 
-         if T = SOAP_Record'Tag then
+         if T in SOAP_Record'Tag | SOAP_Attribute'Tag then
             --  This is a record, check if array is composed of only records
             --  having the same name.
 
@@ -2381,6 +2397,7 @@ package body SOAP.Types is
 
       Indent : constant Natural := XML_Indent.Value;
       Prefix : constant String := SOAP.Name_Space.Name (O.NS);
+
    begin
       Append (Result, Spaces (Indent));
 
@@ -2410,6 +2427,49 @@ package body SOAP.Types is
 
          Append (Result, Spaces (Indent));
          Append (Result, Utils.Tag (Tag_Name (O), Start => False));
+      end if;
+   end XML_Image;
+
+   overriding procedure XML_Image
+     (O        : SOAP_Attribute;
+      Result   : in out Unbounded_String;
+      Encoding : Encoding_Style := WSDL.Schema.Encoded;
+      Schema   : WSDL.Schema.Definition := WSDL.Schema.Empty)
+   is
+      Indent    : constant Natural := XML_Indent.Value;
+      First     : Positive := O.O'First;
+      Has_Value : constant Boolean :=
+                    Name (O.O (O.O'First).O.all) = "attribute_value";
+   begin
+      Append (Result, Spaces (Indent));
+
+      Append (Result, "<" & Tag_Name (O));
+
+      --  Serialize the attribute (skip first field if it is the value)
+
+      if Has_Value then
+         First := @ + 1;
+      end if;
+
+      for K in First .. O.O'Last loop
+         declare
+            E : constant SOAP.Types.Object'Class := O.O (K).O.all;
+         begin
+            Append (Result, " " & Name (E) & "=""" & Image (E) & """");
+         end;
+      end loop;
+
+      if Has_Value then
+         Append (Result, ">");
+
+         --  Serialize the value
+
+         Append (Result, Image (O.O (O.O'First).O.all));
+
+         Append (Result, Utils.Tag (Tag_Name (O), Start => False));
+
+      else
+         Append (Result, "/>");
       end if;
    end XML_Image;
 

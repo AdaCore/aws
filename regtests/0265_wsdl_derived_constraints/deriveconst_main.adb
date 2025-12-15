@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                      Copyright (C) 2015-2025, AdaCore                    --
+--                     Copyright (C) 2015-2025, AdaCore                     --
 --                                                                          --
 --  This is free software;  you can redistribute it  and/or modify it       --
 --  under terms of the  GNU General Public License as published  by the     --
@@ -82,22 +82,30 @@ procedure Deriveconst_Main is
       Seven : String;
       Eight : String)
    is
+      function BR
+        (V         : Object_Set;
+         Name      : String;
+         Type_Name : String := "";
+         NS        : SOAP.Name_Space.Object := SOAP.Name_Space.No_Name_Space)
+         return SOAP.Types.SOAP_Record
+         renames SOAP.Types.R;
+
       TNS   : SOAP.Name_Space.Object := SOAP.Name_Space.Create
                 ("tns", "http://www.ecerami.com/wsdl/DeriveconstService.wsdl");
       O_Set : Object_Set := (+S ("00000000", "item", "tns:Name"),
                              +S ((if Id = 3 then "x" else "abcdefgh"),
                                  "item", "tns:Name"));
       P_Set : Parameters.List :=
-                +R ((+I (Id, "id", "xs:int"),
-                     +I (One, "one", "tns:PercentCompleteInteger"),
-                     +I (Two, "two", "tns:NonNegativeInt"),
-                     +D (Three, "three", "tns:NonNegativeFloat"),
-                     +S (Four, "four", "tns:Name"),
-                     +A (O_Set, "five", "tns:ArrayOfName"),
-                     +S (Six, "six", "tns:Address"),
-                     +S (Seven, "seven", "tns:Code1"),
-                     +S (Eight, "eight", "tns:Code2")),
-                     "params", "tns:big", TNS);
+                +BR ((+I (Id, "id", "xs:int"),
+                      +I (One, "one", "tns:PercentCompleteInteger"),
+                      +I (Two, "two", "tns:NonNegativeInt"),
+                      +D (Three, "three", "tns:NonNegativeFloat"),
+                      +S (Four, "four", "tns:Name"),
+                      +A (O_Set, "five", "tns:ArrayOfName"),
+                      +S (Six, "six", "tns:Address"),
+                      +S (Seven, "seven", "tns:Code1"),
+                      +S (Eight, "eight", "tns:Code2")),
+                      "params", "tns:big", TNS);
       P     : Message.Payload.Object :=
                 Message.Payload.Build
                   ("call", P_Set,

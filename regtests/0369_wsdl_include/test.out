@@ -4,6 +4,16 @@ Service data_service
 Procedure store SOAPAction:store
    Input
       [record] myDataService ; ReportedTimeType
+         [set] {0 .. 1} time ; TimeType_Set [TimeType]
+         [derived] centre ; ProvenanceCentreType
+         [derived] source ; ProvenanceSourceType
+         [derived] system ; ProvenanceSystemType
+         [derived] timestamp ; TimeType
    Output
       [record] myDataService ; ReportedTimeType
+         [set] {0 .. 1} time ; TimeType_Set [TimeType]
+         [derived] centre ; ProvenanceCentreType
+         [derived] source ; ProvenanceSourceType
+         [derived] system ; ProvenanceSystemType
+         [derived] timestamp ; TimeType
    > store

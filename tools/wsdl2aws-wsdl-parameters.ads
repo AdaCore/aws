@@ -42,22 +42,24 @@ package WSDL2AWS.WSDL.Parameters is
    type P_Set is access Parameter;
 
    type Parameter (Mode : Types.Kind) is record
-      Name      : Unbounded_String;
-      Elmt_Name : Unbounded_String; -- element name in the WSDL
-      Doc       : Unbounded_String;
-      Typ       : Types.Object;
-      Next      : P_Set;
-      Min       : Natural := 1;  -- minOccurs
-      Max       : Positive := 1; -- maxOccurs
-      Is_Set    : Boolean := False;
-      In_Choice : Boolean := False;
-      Is_Ref    : Boolean := False; -- True if the element comes from a ref
+      Name         : Unbounded_String;
+      Elmt_Name    : Unbounded_String; -- element name in the WSDL
+      Doc          : Unbounded_String;
+      Typ          : Types.Object;
+      Next         : P_Set;
+      Min          : Natural := 1;  -- minOccurs
+      Max          : Positive := 1; -- maxOccurs
+      Is_Set       : Boolean := False;
+      In_Choice    : Boolean := False;
+      Is_Ref       : Boolean := False; -- True if the element comes from a ref
+      Is_Attribute : Boolean := False; -- True if simpleContent attribute
 
       case Mode is
          when Types.Compound_Type =>
-            Length : Natural;          -- Number of items (0 = unbounded)
-            P      : P_Set;
-            E_Typ  : Types.Object;
+            Length            : Natural;     -- Number of items (0 = unbounded)
+            P                 : P_Set;
+            E_Typ             : Types.Object;
+            Is_Simple_Content : Boolean := False;
             --  Element type needed for a set. If the set is empty we cannot
             --  compute the Element type using P above.
          when others =>

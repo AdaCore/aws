@@ -1,105 +1,71 @@
-[CLIENT/Call] Payload : <?xml version='1.0' encoding='UTF-8'?>
+P1:
+<n1:ex unit="cm">1.30000E+00</n1:ex>
+P2:
+<n1:ft>3.40000E+00</n1:ft>
+P3:
+<n1:data>
+   <f1>3.40000E+00</f1>
+   <f2 unit="cm">1.30000E+00</f2>
+</n1:data>
+[CLIENT/call] Payload : <?xml version='1.0' encoding='UTF-8'?>
 <soapenv:Envelope soapenv:encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" xmlns:soapenc="http://schemas.xmlsoap.org/soap/encoding/" xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
 <soapenv:Body
- xmlns:ns1="urn:examples:callservice"
- xmlns:b="http://exemple.com/B"
- xmlns:c="http://exemple.com/C"
- xmlns:d="http://exemple.com/D"
- xmlns:e="http://exemple.com/E">
-<b:rec>
-   <b:code>1</b:code>
-   <b:c1>2</b:c1>
-   <c:c2>3</c:c2>
-   <b:c3>4</b:c3>
-   <d:d1>
-      <d:code>5</d:code>
-      <c>6</c>
-      <eo>1</eo>
-      <d:num>2</d:num>
-   </d:d1>
-   <e:e1>
-      <e:code>7</e:code>
-      <e:c>8</e:c>
-   </e:e1>
-</b:rec>
+ xmlns:awsns="http://soapaws/"
+ xmlns:n1="http://simple.doc.net/sd">
+<n1:data>
+   <a>1.20000E+00</a>
+   <b>
+      <f1>3.40000E+00</f1>
+      <f2 unit="cm">1.30000E+00</f2>
+   </b>
+</n1:data>
 </soapenv:Body>
 </soapenv:Envelope>
 
-[SERVER/Call_CB] Payload recv : <?xml version='1.0' encoding='UTF-8'?>
+[SERVER/call_CB] Payload recv : <?xml version='1.0' encoding='UTF-8'?>
 <soapenv:Envelope soapenv:encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" xmlns:soapenc="http://schemas.xmlsoap.org/soap/encoding/" xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
 <soapenv:Body
- xmlns:ns1="urn:examples:callservice"
- xmlns:b="http://exemple.com/B"
- xmlns:c="http://exemple.com/C"
- xmlns:d="http://exemple.com/D"
- xmlns:e="http://exemple.com/E">
-<b:rec>
-   <b:code>1</b:code>
-   <b:c1>2</b:c1>
-   <c:c2>3</c:c2>
-   <b:c3>4</b:c3>
-   <d:d1>
-      <d:code>5</d:code>
-      <c>6</c>
-      <eo>1</eo>
-      <d:num>2</d:num>
-   </d:d1>
-   <e:e1>
-      <e:code>7</e:code>
-      <e:c>8</e:c>
-   </e:e1>
-</b:rec>
+ xmlns:awsns="http://soapaws/"
+ xmlns:n1="http://simple.doc.net/sd">
+<n1:data>
+   <a>1.20000E+00</a>
+   <b>
+      <f1>3.40000E+00</f1>
+      <f2 unit="cm">1.30000E+00</f2>
+   </b>
+</n1:data>
 </soapenv:Body>
 </soapenv:Envelope>
 
-[SERVER/Call_CB] SOAPAction : Call
-[SERVER/Call_CB] Payload : <?xml version='1.0' encoding='UTF-8'?>
+[SERVER/call_CB] SOAPAction : http://me.here.net/call
+[SERVER/call_CB] Payload : <?xml version='1.0' encoding='UTF-8'?>
 <soapenv:Envelope soapenv:encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" xmlns:soapenc="http://schemas.xmlsoap.org/soap/encoding/" xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
 <soapenv:Body
- xmlns:b="http://exemple.com/B"
- xmlns:c="http://exemple.com/C"
- xmlns:d="http://exemple.com/D">
-<b:rec>
-   <code>1</code>
-   <b:c1>2</b:c1>
-   <c:c2>3</c:c2>
-   <c3>4</c3>
-   <d1>
-      <code>5</code>
-      <c>6</c>
-      <eo>1</eo>
-      <d:num>2</d:num>
-   </d1>
-   <e1>
-      <code>7</code>
-      <c>8</c>
-   </e1>
-</b:rec>
+ xmlns:n1="http://simple.doc.net/sd">
+<n1:data>
+   <a>1.20000E+00</a>
+   <b>
+      <n1:f1>3.40000E+00</n1:f1>
+      <n1:f2 unit="cm">1.30000E+00</n1:f2>
+   </b>
+</n1:data>
 </soapenv:Body>
 </soapenv:Envelope>
 
-Code:  1
-C1  :  2
-C2  :  3
-C3  :  4
-D1  :
-(CODE =>  5,
- C =>  6,
- EO =>
- [ 1],
- NUM =>
- [ 2])
-E1  :
-(CODE =>  7,
- C =>  8)
-[SERVER/Call_CB] Response : <?xml version='1.0' encoding='UTF-8'?>
+a :  1.20000E+00
+rc:
+(F1 =>  3.40000E+00,
+ F2 =>
+ (ATTRIBUTE_VALUE =>  1.30000E+00,
+  UNIT => "cm"))
+[SERVER/call_CB] Response : <?xml version='1.0' encoding='UTF-8'?>
 <soapenv:Envelope soapenv:encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" xmlns:soapenc="http://schemas.xmlsoap.org/soap/encoding/" xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
 <soapenv:Body
 >
 </soapenv:Body>
 </soapenv:Envelope>
 
-[CLIENT/Call] Response : <?xml version='1.0' encoding='UTF-8'?>
+[CLIENT/call] Response : <?xml version='1.0' encoding='UTF-8'?>
 <soapenv:Envelope soapenv:encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" xmlns:soapenc="http://schemas.xmlsoap.org/soap/encoding/" xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
 <soapenv:Body
 >

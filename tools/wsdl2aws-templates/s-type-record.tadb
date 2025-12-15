@@ -108,8 +108,8 @@ package body @_UNIT_NAME_@ is
       return @_TYPE_NAME_@
    is
 @@IF@@ @_FIELD_COUNT_@ > 0
-      R : constant SOAP.Types.SOAP_Record :=
-            SOAP.Types.SOAP_Record (O);
+      R : constant SOAP.Types.@_SOAP_TYPES_NAME_@ :=
+            SOAP.Types.@_SOAP_TYPES_NAME_@ (O);
       L : constant SOAP.Parameters.List :=
             SOAP.Parameters.To_List (SOAP.Types.V (R));
 @@END_IF@@
@@ -260,7 +260,7 @@ package body @_UNIT_NAME_@ is
       Name      : String := "item";
       Type_Name : String := Q_Type_Name;
       NS        : SOAP.Name_Space.Object := Name_Space)
-      return SOAP.Types.SOAP_Record
+      return SOAP.Types.@_SOAP_TYPES_NAME_@
    is
 
       function Get_NS (Is_Ref : Boolean; NS : SOAP.Name_Space.Object)
@@ -286,7 +286,7 @@ package body @_UNIT_NAME_@ is
       end C_Object;
 @@END_IF@@
 
-      Result@_TYPE_NAME_@ : SOAP.Types.SOAP_Record;
+      Result@_TYPE_NAME_@ : SOAP.Types.@_SOAP_TYPES_NAME_@;
    begin
 @@IF@@ @_HAS_CHOICE_@ and @_FIELD_COUNT_@ > 0
       case R.C is

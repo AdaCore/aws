@@ -7,6 +7,7 @@
                   xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/">
   <types>
     <schema>
+      <xsd:element name="ExampleType" type="ExampleType"/>
       <xsd:complexType name="ExampleType">
         <xsd:all>
           <xsd:element name="type" type="xsd:int" minOccurs="0" maxOccurs="1"/>

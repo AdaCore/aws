@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2003-2014, AdaCore                     --
+--                     Copyright (C) 2003-2025, AdaCore                     --
 --                                                                          --
 --  This is free software;  you can redistribute it  and/or modify it       --
 --  under terms of the  GNU General Public License as published  by the     --
@@ -21,12 +21,21 @@ with Ada.Text_IO;
 with SOAP.Message.XML;
 with SOAP.Message.Payload;
 with SOAP.Message.Response.Error;
+with SOAP.Name_Space;
 with SOAP.Parameters;
 with SOAP.Types;
 
 package body SOAP_SVS_CB is
 
    use Ada;
+
+   function BR
+     (V         : SOAP.Types.Object_Set;
+      Name      : String;
+      Type_Name : String := "";
+      NS        : SOAP.Name_Space.Object := SOAP.Name_Space.No_Name_Space)
+      return SOAP.Types.SOAP_Record
+      renames SOAP.Types.R;
 
    function SOAP_CB (Request : AWS.Status.Data) return AWS.Response.Data;
    --  Callback used when SOAPAction is /validator1
@@ -215,7 +224,7 @@ package body SOAP_SVS_CB is
          OS (4) := +I (ctApostrophes, "ctApostrophes");
          OS (5) := +I (ctQuotes, "ctQuotes");
 
-         RP := +SOAP.Types.R (OS, "answer");
+         RP := +BR (OS, "answer");
       end;
 
       SOAP.Message.Set_Parameters (R, RP);
@@ -499,10 +508,10 @@ package body SOAP_SVS_CB is
          V3 : constant Integer := N * 1000;
 
       begin
-         RP := +SOAP.Types.R (Object_Set'(+I (V1, "times10"),
-                                          +I (V2, "times100"),
-                                          +I (V3, "times1000")),
-                              "answer");
+         RP := +BR (Object_Set'(+I (V1, "times10"),
+                                +I (V2, "times100"),
+                                +I (V3, "times1000")),
+                    "answer");
       end;
 
       SOAP.Message.Set_Parameters (R, RP);
@@ -541,7 +550,7 @@ package body SOAP_SVS_CB is
 
       R := SOAP.Message.Response.From (PL);
 
-      RP := +SOAP.Types.R
+      RP := +BR
         (Object_Set'(+S ("http://libre.adacore.com/", "toolkitDocsUrl"),
                      +S ("AWS/SOAP (Ada Web Server)", "toolkitName"),
                      +S (AWS.Version & '.' & SOAP.Version, "toolkitVersion"),

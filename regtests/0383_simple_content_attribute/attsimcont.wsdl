@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<wsdl:definitions name="GetCasService"
+<wsdl:definitions name="AttSimCont"
                   targetNamespace="http://simple.doc.net/sd"
                   xmlns="http://schemas.xmlsoap.org/wsdl/"
                   xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/"
@@ -8,14 +8,14 @@
   <types>
     <schema>
       <xsd:element name="ExampleType" type="ExampleType"/>
-      <xsd:simpleType name="ExampleType">
-        <xsd:restriction base="xs:string">
-          <xsd:enumeration value="A-Example"/>
-          <xsd:enumeration value="B-EXAMPLE"/>
-          <xsd:enumeration value="C-example"/>
-          <xsd:enumeration value="NEW"/>
-        </xsd:restriction>
-      </xsd:simpleType>
+
+      <xsd:complexType name="ExampleType">
+        <xsd:simpleContent>
+          <xsd:extension base="xsd:int">
+            <xsd:attribute name="unit" type="xsd:string" />
+          </xsd:extension>
+        </xsd:simpleContent>
+      </xsd:complexType>
     </schema>
   </types>
 
@@ -32,7 +32,7 @@
     </operation>
   </portType>
 
-<binding name="EnumValBinding" type="EnumVal">
+<binding name="AttSimContBinding" type="AttSimCont">
   <soap:binding style="document"
                 transport="http://schemas.xmlsoap.org/soap/http" />
 
@@ -47,9 +47,9 @@
   </operation>
 </binding>
 
-<wsdl:service name="EnumValService">
-  <port name="EnumValPort" binding="EnumValBinding">
-    <soap:address location="http://localhost:1234" />
+<wsdl:service name="AttSimContService">
+  <port name="AttSimContPort" binding="AttSimContBinding">
+    <soap:address location="http://localhost:9840" />
   </port>
 </wsdl:service>
 

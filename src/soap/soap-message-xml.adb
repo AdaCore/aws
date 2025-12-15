@@ -272,6 +272,12 @@ package body SOAP.Message.XML is
       Q_Name : String;
       S      : in out State) return Types.Object'Class;
 
+   function Parse_Attribute
+     (Name   : String;
+      N      : DOM.Core.Node;
+      Q_Name : String;
+      S      : in out State) return Types.Object'Class;
+
    function Parse_Record
      (Name   : String;
       N      : DOM.Core.Node;
@@ -1001,6 +1007,83 @@ package body SOAP.Message.XML is
       end;
    end Parse_Array;
 
+   ---------------------
+   -- Parse_Attribute --
+   ---------------------
+
+   function Parse_Attribute
+     (Name   : String;
+      N      : DOM.Core.Node;
+      Q_Name : String;
+      S      : in out State) return Types.Object'Class
+   is
+      use SOAP.Types;
+      use type DOM.Core.Node;
+
+      LQ_Name : constant String := (if Q_Name = ""
+                                    then Name
+                                    else Q_Name & '.' & Name);
+      Key     : constant String := LQ_Name & "@@is_a";
+      Field   : constant DOM.Core.Node := SOAP.XML.Get_Ref (N);
+      xsd     : constant String :=
+                  SOAP.XML.Get_Attr_Value
+                    (Field, SOAP.Name_Space.Name (S.NS.xsi) & ":type");
+
+      --  The record fields temporary store
+      OS     : Object_Set_Access := new Object_Set (1 .. 50);
+      K      : Natural := 0;
+
+      T_Name : constant String :=
+                 (if xsd = ""
+                  then Get_Schema_Type (Key, S.Schema, S.NS, xsd)
+                  else xsd);
+      S_Type : Type_State;
+      NS     : constant SOAP.Name_Space.Object :=
+                 Get_Namespace_Object (S.NS, Utils.NS (T_Name));
+
+   begin
+      --  The attribute value itself (named attribute_value)
+
+      if First_Child (N) /= null then
+         K := 1;
+         S_Type := To_Type (T_Name, S.NS, S.Schema);
+         Add_Object
+           (OS, K,
+            +Handlers (S_Type).Handler ("attribute_value", T_Name, N), 25);
+      end if;
+
+      --  The element's attribute
+
+      declare
+         Atts : constant DOM.Core.Named_Node_Map :=
+                  DOM.Core.Nodes.Attributes (N);
+      begin
+         for I in 0 .. DOM.Core.Nodes.Length (Atts) - 1 loop
+            declare
+               F   : constant DOM.Core.Node := DOM.Core.Nodes.Item (Atts, I);
+               Fn  : constant String := Local_Name (F);
+               Key : constant String := LQ_Name & "." & Fn & "@is_a";
+               T_N : constant String :=
+                       Get_Schema_Type (Key, S.Schema, S.NS);
+            begin
+               S_Type := To_Type (T_N, S.NS, S.Schema);
+               K := @ + 1;
+               Add_Object
+                 (OS, K,
+                  +Handlers (S_Type).Handler (Fn, T_N, F), 25);
+            end;
+         end loop;
+      end;
+
+      return R : constant Types.SOAP_Attribute :=
+        Types.R
+          (OS (1 .. K), Name,
+           Utils.No_NS (T_Name), NS)
+      do
+         Unchecked_Free (OS);
+      end return;
+   end Parse_Attribute;
+
    ------------------
    -- Parse_Base64 --
    ------------------
@@ -1015,7 +1098,7 @@ package body SOAP.Message.XML is
       Value : DOM.Core.Node;
    begin
       Normalize (N);
-      Value := First_Child (N);
+      Value := SOAP.XML.First_Child_If_Exists (N);
 
       if Value = null then
          --  No node found, this is an empty Base64 content
@@ -1098,7 +1181,7 @@ package body SOAP.Message.XML is
       Type_Name : String;
       N         : DOM.Core.Node) return Types.Object'Class
    is
-      Value : constant DOM.Core.Node := First_Child (N);
+      Value : constant DOM.Core.Node := SOAP.XML.First_Child_If_Exists (N);
       V     : constant String :=
                 Ada.Characters.Handling.To_Lower (Node_Value (Value));
    begin
@@ -1118,7 +1201,7 @@ package body SOAP.Message.XML is
       Type_Name : String;
       N         : DOM.Core.Node) return Types.Object'Class
    is
-      Value : constant DOM.Core.Node := First_Child (N);
+      Value : constant DOM.Core.Node := SOAP.XML.First_Child_If_Exists (N);
    begin
       return Types.B (Types.Byte'Value (Node_Value (Value)), Name, Type_Name);
    end Parse_Byte;
@@ -1132,7 +1215,7 @@ package body SOAP.Message.XML is
       Type_Name : String;
       N         : DOM.Core.Node) return Types.Object'Class
    is
-      Value : constant DOM.Core.Node := First_Child (N);
+      Value : constant DOM.Core.Node := SOAP.XML.First_Child_If_Exists (N);
       Date  : constant String        := Node_Value (Value);
    begin
       return Utils.Date (Date, Name, Type_Name);
@@ -1147,7 +1230,7 @@ package body SOAP.Message.XML is
       Type_Name : String;
       N         : DOM.Core.Node) return Types.Object'Class
    is
-      Value : constant DOM.Core.Node := First_Child (N);
+      Value : constant DOM.Core.Node := SOAP.XML.First_Child_If_Exists (N);
    begin
       return Types.D (Types.Decimal'Value (Node_Value (Value)),
                       Name, Type_Name);
@@ -1179,7 +1262,7 @@ package body SOAP.Message.XML is
    is
       pragma Suppress (Validity_Check);
 
-      Value : constant DOM.Core.Node := First_Child (N);
+      Value : constant DOM.Core.Node := SOAP.XML.First_Child_If_Exists (N);
       V     : constant String := Node_Value (Value);
       D     : Long_Float := 0.0;
    begin
@@ -1208,7 +1291,7 @@ package body SOAP.Message.XML is
       Type_Name : String;
       N         : DOM.Core.Node) return Types.Object'Class
    is
-      Value : constant DOM.Core.Node := First_Child (N);
+      Value : constant DOM.Core.Node := SOAP.XML.First_Child_If_Exists (N);
       D     : constant String        := Node_Value (Value);
    begin
       return Utils.Duration (D, Name, Type_Name);
@@ -1221,10 +1304,12 @@ package body SOAP.Message.XML is
    function Parse_Enumeration
      (Name      : String;
       N         : DOM.Core.Node;
-      Type_Name : String := "") return Types.Object'Class is
+      Type_Name : String := "") return Types.Object'Class
+   is
+      Value : constant DOM.Core.Node := SOAP.XML.First_Child_If_Exists (N);
    begin
       return Types.E
-        (Node_Value (First_Child (N)),
+        (Node_Value (Value),
          (if Type_Name = ""
           then Utils.No_NS (SOAP.XML.Get_Attr_Value (N, "type"))
           else Type_Name),
@@ -1277,7 +1362,7 @@ package body SOAP.Message.XML is
    is
       pragma Suppress (Validity_Check);
 
-      Value : constant DOM.Core.Node := First_Child (N);
+      Value : constant DOM.Core.Node := SOAP.XML.First_Child_If_Exists (N);
       V     : constant String := Node_Value (Value);
       F     : Float := 0.0;
    begin
@@ -1319,7 +1404,7 @@ package body SOAP.Message.XML is
       Type_Name : String;
       N         : DOM.Core.Node) return Types.Object'Class
    is
-      Value : constant DOM.Core.Node := First_Child (N);
+      Value : constant DOM.Core.Node := SOAP.XML.First_Child_If_Exists (N);
    begin
       return Types.I (Integer'Value (Node_Value (Value)), Name, Type_Name);
    end Parse_Int;
@@ -1333,7 +1418,7 @@ package body SOAP.Message.XML is
       Type_Name : String;
       N         : DOM.Core.Node) return Types.Object'Class
    is
-      Value : constant DOM.Core.Node := First_Child (N);
+      Value : constant DOM.Core.Node := SOAP.XML.First_Child_If_Exists (N);
    begin
       return Types.BI
         (Types.Big_Integer
@@ -1350,7 +1435,7 @@ package body SOAP.Message.XML is
       Type_Name : String;
       N         : DOM.Core.Node) return Types.Object'Class
    is
-      Value : constant DOM.Core.Node := First_Child (N);
+      Value : constant DOM.Core.Node := SOAP.XML.First_Child_If_Exists (N);
    begin
       return Types.L (Types.Long'Value (Node_Value (Value)), Name, Type_Name);
    end Parse_Long;
@@ -1429,6 +1514,9 @@ package body SOAP.Message.XML is
       function Is_Record return Boolean;
       --  Returns True if N is a record node
 
+      function Is_Attribute return Boolean;
+      --  Returns True if N is an attribute (complexType/simpleContent)
+
       function With_NS
         (O  : Types.Object'Class;
          NS : SOAP.Name_Space.Object) return Types.Object'Class;
@@ -1475,6 +1563,16 @@ package body SOAP.Message.XML is
          --  or soapenc:arrayType="..."
            SOAP_Enc /= null;
       end Is_Array;
+
+      ------------------
+      -- Is_Attribute --
+      ------------------
+
+      function Is_Attribute return Boolean is
+      begin
+         return S.Schema.Contains (Key)
+           and then S.Schema.Element (Key) = "@attribute";
+      end Is_Attribute;
 
       ------------
       -- Is_Nil --
@@ -1549,6 +1647,9 @@ package body SOAP.Message.XML is
 
       if To_String (S.Wrapper_Name) = "Fault" then
          return Parse_String (Name, Types.XML_String, Ref);
+
+      elsif Is_Attribute then
+         return Parse_Attribute (Name, Ref, Q_Name, S);
 
       elsif Is_Array then
          return Parse_Array (Name, Ref, Q_Name, S);
@@ -1656,7 +1757,6 @@ package body SOAP.Message.XML is
 
                      return With_NS
                        (Handlers (S_Type).Handler (Name, S_xsd, Ref), NS);
-
                   end if;
                end if;
             end;
@@ -1762,7 +1862,7 @@ package body SOAP.Message.XML is
       Type_Name : String;
       N         : DOM.Core.Node) return Types.Object'Class
    is
-      Value : constant DOM.Core.Node := First_Child (N);
+      Value : constant DOM.Core.Node := SOAP.XML.First_Child_If_Exists (N);
    begin
       return Types.S (Types.Short'Value (Node_Value (Value)), Name, Type_Name);
    end Parse_Short;
@@ -1789,7 +1889,7 @@ package body SOAP.Message.XML is
       Type_Name : String;
       N         : DOM.Core.Node) return Types.Object'Class
    is
-      Value : constant DOM.Core.Node := First_Child (N);
+      Value : constant DOM.Core.Node := SOAP.XML.First_Child_If_Exists (N);
       Time  : constant String        := Node_Value (Value);
    begin
       return Utils.Time (Time, Name, Type_Name);
@@ -1804,7 +1904,7 @@ package body SOAP.Message.XML is
       Type_Name : String;
       N         : DOM.Core.Node) return Types.Object'Class
    is
-      Value : constant DOM.Core.Node := First_Child (N);
+      Value : constant DOM.Core.Node := SOAP.XML.First_Child_If_Exists (N);
       TI    : constant String        := Node_Value (Value);
    begin
       return Utils.Time_Instant (TI, Name, Type_Name);
@@ -1832,7 +1932,7 @@ package body SOAP.Message.XML is
       Type_Name : String;
       N         : DOM.Core.Node) return Types.Object'Class
    is
-      Value : constant DOM.Core.Node := First_Child (N);
+      Value : constant DOM.Core.Node := SOAP.XML.First_Child_If_Exists (N);
    begin
       return Types.UB
         (Types.Unsigned_Byte'Value (Node_Value (Value)), Name, Type_Name);
@@ -1847,7 +1947,7 @@ package body SOAP.Message.XML is
       Type_Name : String;
       N         : DOM.Core.Node) return Types.Object'Class
    is
-      Value : constant DOM.Core.Node := First_Child (N);
+      Value : constant DOM.Core.Node := SOAP.XML.First_Child_If_Exists (N);
    begin
       return Types.UI
         (Types.Unsigned_Int'Value (Node_Value (Value)), Name, Type_Name);
@@ -1862,7 +1962,7 @@ package body SOAP.Message.XML is
       Type_Name : String;
       N         : DOM.Core.Node) return Types.Object'Class
    is
-      Value : constant DOM.Core.Node := First_Child (N);
+      Value : constant DOM.Core.Node := SOAP.XML.First_Child_If_Exists (N);
    begin
       return Types.UL
         (Types.Unsigned_Long'Value (Node_Value (Value)), Name, Type_Name);
@@ -1877,7 +1977,7 @@ package body SOAP.Message.XML is
       Type_Name : String;
       N         : DOM.Core.Node) return Types.Object'Class
    is
-      Value : constant DOM.Core.Node := First_Child (N);
+      Value : constant DOM.Core.Node := SOAP.XML.First_Child_If_Exists (N);
    begin
       return Types.US
         (Types.Unsigned_Short'Value (Node_Value (Value)), Name, Type_Name);

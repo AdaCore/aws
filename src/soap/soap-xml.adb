@@ -55,6 +55,16 @@ package body SOAP.XML is
       return N;
    end First_Child;
 
+   ---------------------------
+   -- First_Child_If_Exists --
+   ---------------------------
+
+   function First_Child_If_Exists (N : DOM.Core.Node) return DOM.Core.Node is
+      C : constant DOM.Core.Node := DOM.Core.Nodes.First_Child (N);
+   begin
+      return (if C = null then N else C);
+   end First_Child_If_Exists;
+
    --------------------
    -- Get_Attr_Value --
    --------------------
@@ -162,16 +172,22 @@ package body SOAP.XML is
       use Ada.Strings.Unbounded;
       use type DOM.Core.Node_Types;
 
-      L : constant DOM.Core.Node_List := DOM.Core.Nodes.Child_Nodes (N);
-      S : Unbounded_String;
-      P : DOM.Core.Node;
+      L   : constant DOM.Core.Node_List := DOM.Core.Nodes.Child_Nodes (N);
+      Len : constant Natural := DOM.Core.Nodes.Length (L);
+      S   : Unbounded_String;
+      P   : DOM.Core.Node;
    begin
-      for I in 0 .. DOM.Core.Nodes.Length (L) - 1 loop
-         P := DOM.Core.Nodes.Item (L, I);
-         if P.Node_Type = DOM.Core.Text_Node then
-            Append (S, DOM.Core.Nodes.Node_Value (P));
-         end if;
-      end loop;
+      if Len = 0 then
+         S := To_Unbounded_String (DOM.Core.Nodes.Node_Value (N));
+
+      else
+         for I in 0 .. Len - 1 loop
+            P := DOM.Core.Nodes.Item (L, I);
+            if P.Node_Type = DOM.Core.Text_Node then
+               Append (S, DOM.Core.Nodes.Node_Value (P));
+            end if;
+         end loop;
+      end if;
 
       return To_String (S);
    end Text_Node_Value;

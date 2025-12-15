@@ -109,6 +109,7 @@ package body WSDL2AWS.Generator is
       P_Is_Ref         : in out Templates.Tag;
       P_Name           : in out Templates.Tag;
       P_Kind           : in out Templates.Tag;
+      P_Is_Attribute   : in out Templates.Tag;
       P_Min            : in out Templates.Tag;
       P_Max            : in out Templates.Tag;
       P_Compound_Size  : in out Templates.Tag;
@@ -604,6 +605,7 @@ package body WSDL2AWS.Generator is
       P_Is_Ref         : in out Templates.Tag;
       P_Name           : in out Templates.Tag;
       P_Kind           : in out Templates.Tag;
+      P_Is_Attribute   : in out Templates.Tag;
       P_Min            : in out Templates.Tag;
       P_Max            : in out Templates.Tag;
       P_Compound_Size  : in out Templates.Tag;
@@ -635,17 +637,19 @@ package body WSDL2AWS.Generator is
         (O, N, Name, A_Name, Type_Name, Type_NS,
          Q_Type_Name, A_Type_Name, A_Q_Type_Name, Ada_Type_Name);
 
-      P_Decl        := @ & A_Name;
-      P_Choice_Decl := @ & Boolean'Image (N.In_Choice);
-      P_Is_Ref      := @ & Boolean'Image (N.Is_Ref);
-      P_Name        := @ & To_String (N.Name);
-      P_Kind        := @ & WSDL.Types.Kind'Image (N.Mode);
-      P_Min         := @ & N.Min;
-      P_Max         := @ & N.Max;
-      P_Type        := @ & Q_Type_Name;
-      P_Type_Name   := @ & A_Type_Name;
-      P_Q_Name      := @ & A_Q_Type_Name;
-      P_Ada_Type    := @ & Ada_Type_Name;
+      P_Decl         := @ & A_Name;
+      P_Choice_Decl  := @ & Boolean'Image (N.In_Choice);
+      P_Is_Ref       := @ & Boolean'Image (N.Is_Ref);
+      P_Name         := @ & To_String (N.Name);
+      P_Kind         := @ & WSDL.Types.Kind'Image (N.Mode);
+      P_Is_Attribute := @ & (N.Mode = WSDL.Types.K_Record
+                             and then N.Is_Simple_Content);
+      P_Min          := @ & N.Min;
+      P_Max          := @ & N.Max;
+      P_Type         := @ & Q_Type_Name;
+      P_Type_Name    := @ & A_Type_Name;
+      P_Q_Name       := @ & A_Q_Type_Name;
+      P_Ada_Type     := @ & Ada_Type_Name;
 
       if N.Mode = WSDL.Types.K_Simple then
          P_Type_Kind := @ & SOAP.WSDL.To_Type (WSDL.Types.Name (N.Typ))'Image;
@@ -830,7 +834,9 @@ package body WSDL2AWS.Generator is
         and then P.Mode = WSDL.Types.K_Record
         and then O.Style = SOAP.WSDL.Schema.Document
         and then WSDL.Parameters.Length (P.P) >= 1
-        and then not WSDL.Parameters.Has_Choice (P.all);
+        and then WSDL.Parameters.Length (P) = 1
+        and then not WSDL.Parameters.Has_Choice (P.all)
+        and then not P.Is_Simple_Content;
    end Is_Simple_Wrapped_Parameter;
 
    ---------------
@@ -986,6 +992,7 @@ package body WSDL2AWS.Generator is
          P_Is_Ref         : Templates.Tag;
          P_Name           : Templates.Tag;
          P_Kind           : Templates.Tag;
+         P_Is_Att         : Templates.Tag;
          P_Min            : Templates.Tag;
          P_Max            : Templates.Tag;
          P_Compound_Size  : Templates.Tag;
@@ -1058,7 +1065,7 @@ package body WSDL2AWS.Generator is
          while N /= null loop
             Generate_Params
               (O, N, P_Decl, P_Choice_Decl, P_Is_Ref, P_Name, P_Kind,
-               P_Min, P_Max, P_Compound_Size, P_Type, P_Base_Type,
+               P_Is_Att, P_Min, P_Max, P_Compound_Size, P_Type, P_Base_Type,
                P_Root_Type, P_Root_Type_Kind,
                P_Type_Name, P_Type_Kind, P_Ada_Type, P_Q_Name,
                P_NS_Name, P_NS_Value, P_Elt_NS_Name, P_Elt_NS_Value);
@@ -1068,6 +1075,7 @@ package body WSDL2AWS.Generator is
          Add_TagV (O.Stub_B_Trans, "IP_DECL_NAME", P_Decl);
          Add_TagV (O.Stub_B_Trans, "IP_NAME", P_Name);
          Add_TagV (O.Stub_B_Trans, "IP_KIND", P_Kind);
+         Add_TagV (O.Stub_B_Trans, "IP_IS_ATTRIBUTE", P_Is_Att);
          Add_TagV (O.Stub_B_Trans, "IP_MIN", P_Min);
          Add_TagV (O.Stub_B_Trans, "IP_MAX", P_Max);
          Add_TagV (O.Stub_B_Trans, "IP_COMPOUND_SIZE", P_Compound_Size);
@@ -1088,6 +1096,7 @@ package body WSDL2AWS.Generator is
          Add_TagV (O.Skel_B_Trans, "IP_IS_REF", P_Is_Ref);
          Add_TagV (O.Skel_B_Trans, "IP_NAME", P_Name);
          Add_TagV (O.Skel_B_Trans, "IP_KIND", P_Kind);
+         Add_TagV (O.Skel_B_Trans, "IP_IS_ATTRIBUTE", P_Is_Att);
          Add_TagV (O.Skel_B_Trans, "IP_MIN", P_Min);
          Add_TagV (O.Skel_B_Trans, "IP_MAX", P_Max);
          Add_TagV (O.Skel_B_Trans, "IP_COMPOUND_SIZE", P_Compound_Size);
@@ -1125,6 +1134,7 @@ package body WSDL2AWS.Generator is
          P_Is_Ref         : Templates.Tag;
          P_Name           : Templates.Tag;
          P_Kind           : Templates.Tag;
+         P_Is_Att         : Templates.Tag;
          P_Min            : Templates.Tag;
          P_Max            : Templates.Tag;
          P_Compound_Size  : Templates.Tag;
@@ -1226,7 +1236,7 @@ package body WSDL2AWS.Generator is
          then
             Generate_Params
               (O, Output, P_Decl, P_Choice_Decl, P_Is_Ref, P_Name, P_Kind,
-               P_Min, P_Max, P_Compound_Size,
+               P_Is_Att, P_Min, P_Max, P_Compound_Size,
                P_Type, P_Base_Type, P_Root_Type, P_Root_Type_Kind,
                P_Type_Name, P_Type_Kind, P_Ada_Type, P_Q_Name,
                P_NS_Name, P_NS_Value, P_Elt_NS_Name, P_Elt_NS_Value);
@@ -1235,6 +1245,7 @@ package body WSDL2AWS.Generator is
          Add_TagV (O.Skel_B_Trans, "OP_DECL_NAME", P_Decl);
          Add_TagV (O.Skel_B_Trans, "OP_NAME", P_Name);
          Add_TagV (O.Skel_B_Trans, "OP_KIND", P_Kind);
+         Add_TagV (O.Skel_B_Trans, "OP_IS_ATTRIBUTE", P_Is_Att);
          Add_TagV (O.Skel_B_Trans, "OP_MIN", P_Min);
          Add_TagV (O.Skel_B_Trans, "OP_MAX", P_Max);
          Add_TagV (O.Skel_B_Trans, "OP_COMPOUND_SIZE", P_Compound_Size);
@@ -1255,6 +1266,7 @@ package body WSDL2AWS.Generator is
          Add_TagV (O.Stub_B_Trans, "OP_IS_REF", P_Is_Ref);
          Add_TagV (O.Stub_B_Trans, "OP_NAME", P_Name);
          Add_TagV (O.Stub_B_Trans, "OP_KIND", P_Kind);
+         Add_TagV (O.Stub_B_Trans, "OP_IS_ATTRIBUTE", P_Is_Att);
          Add_TagV (O.Stub_B_Trans, "OP_MIN", P_Min);
          Add_TagV (O.Stub_B_Trans, "OP_MAX", P_Max);
          Add_TagV (O.Stub_B_Trans, "OP_COMPOUND_SIZE", P_Compound_Size);
@@ -1308,19 +1320,23 @@ package body WSDL2AWS.Generator is
                if not P.Is_Set then
                   Output_Schema_Definition (O, Name & "@is_a", "@record");
 
-               elsif P.P /= null then
+               else
                   Output_Schema_Definition
                     (O, Name, WSDL.Types.Name (P.E_Typ, P.Is_Set));
                   Output_Schema_Definition
                     (O, Name & "@is_a", WSDL.Types.Name (P.E_Typ, P.Is_Set));
+                  Output_Schema_Definition
+                    (O, Name & "@is_ref", P.Is_Ref'Image);
 
-                  if WSDL.Types.Name (P.E_Typ, P.Is_Set) /=
-                    WSDL.Types.Name (P.P.Typ, P.Is_Set)
-                  then
-                     Output_Schema_Definition
-                       (O,
-                        WSDL.Types.Name (P.E_Typ, P.Is_Set),
-                        WSDL.Types.Name (P.P.Typ, P.Is_Set));
+                  if P.P /= null then
+                     if WSDL.Types.Name (P.E_Typ, P.Is_Set) /=
+                       WSDL.Types.Name (P.P.Typ, P.Is_Set)
+                     then
+                        Output_Schema_Definition
+                          (O,
+                           WSDL.Types.Name (P.E_Typ, P.Is_Set),
+                           WSDL.Types.Name (P.P.Typ, P.Is_Set));
+                     end if;
                   end if;
                end if;
 
@@ -1343,7 +1359,17 @@ package body WSDL2AWS.Generator is
          is
             E : WSDL.Parameters.P_Set := P.P;
          begin
-            Output_Schema_Definition (O, Name & "@is_a", "@record");
+            Output_Schema_Definition
+              (O, Name & "@is_a",
+               (if P.Is_Simple_Content then "@attribute" else "@record"));
+
+            --  For an attribute we also want to record the actual type
+            --  for the value.
+
+            if P.Is_Simple_Content then
+               Output_Schema_Definition
+                 (O, Name & "@@is_a", WSDL.Types.Name (P.P.Typ, True));
+            end if;
 
             while E /= null loop
                Generate_Wrapper (Name & '.' & To_String (E.Name), E);
@@ -1356,10 +1382,18 @@ package body WSDL2AWS.Generator is
          ---------------------
 
          procedure Generate_Type
-           (Name : String; P : WSDL.Parameters.P_Set) is
+           (Name : String; P : WSDL.Parameters.P_Set)
+         is
+            use all type WSDL.Types.Kind;
          begin
-            Output_Schema_Definition
-              (O, Name & "@is_a", WSDL.Types.Name (P.Typ, True));
+            if P.Mode = K_Array then
+               Output_Schema_Definition
+                 (O, Name & "@is_a", WSDL.Types.Name (P.E_Typ, True));
+            else
+               Output_Schema_Definition
+                 (O, Name & "@is_a", WSDL.Types.Name (P.Typ, True));
+            end if;
+
             Output_Schema_Definition
               (O, Name & "@is_ref", P.Is_Ref'Image);
          end Generate_Type;
@@ -2365,6 +2399,7 @@ package body WSDL2AWS.Generator is
          R_Is_Ref         : Templates.Tag;
          R_Name           : Templates.Tag;
          R_Kind           : Templates.Tag;
+         R_Is_Att         : Templates.Tag;
          R_Min            : Templates.Tag;
          R_Max            : Templates.Tag;
          R_Is_Set         : Templates.Tag;
@@ -2396,7 +2431,7 @@ package body WSDL2AWS.Generator is
          while N /= null loop
             Generate_Params
               (O, N, R_Decl, R_Choice_Decl, R_Is_Ref, R_Name, R_Kind,
-               R_Min, R_Max, R_Compound_Size,
+               R_Is_Att, R_Min, R_Max, R_Compound_Size,
                R_Type, R_Base_Type, R_Root_Type, R_Root_Type_Kind,
                R_Type_Name, R_Type_Kind, R_Ada_Type, R_Q_Name,
                R_NS_Name, R_NS_Value, R_Elt_NS_Name, R_Elt_NS_Value);
@@ -2482,6 +2517,20 @@ package body WSDL2AWS.Generator is
             Translations := Translations
               & Templates.Assoc ("SIMPLE_WRAPPED_PARAMETER", False);
          end if;
+
+         --  Attribute / Record
+
+         Translations := Translations
+           & Templates.Assoc ("IS_ATTRIBUTE",
+                              P.Mode in WSDL.Types.Compound_Type
+                              and then P.Is_Simple_Content);
+         Translations := Translations
+           & Templates.Assoc
+               ("SOAP_TYPES_NAME",
+                (if P.Mode in WSDL.Types.Compound_Type
+                    and then P.Is_Simple_Content
+                then "SOAP_Attribute"
+                else "SOAP_Record"));
 
          if not NS_Generated.Contains (SOAP.Name_Space.Name (NS)) then
             Translations := Translations
