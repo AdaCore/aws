@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2000-2021, AdaCore                     --
+--                     Copyright (C) 2000-2025, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -108,6 +108,7 @@ package body AWS.Hotplug is
                         Data := Client.Post
                           (To_String (Item.URL) & Resource,
                            AWS.Status.Binary_Data (Status),
+                           Content_Type => AWS.Status.Content_Type (Status),
                            HTTP_Version => AWS.Status.HTTP_Version (Status));
                      end if;
                   end;

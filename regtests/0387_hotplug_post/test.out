@@ -1,0 +1,16 @@
+Main - AWS
+R:Ok, I'm the main server, you have asked for /AWS
+Here are the parameters: 1 Name = v1 Value = one
+ 2 Name = v2 Value = two
+
+Hotplug - AWS
+R:This request is using method POST
+Ok, I'm the Hotplug server, you have asked for /AWS
+Here are the parameters:
+ 1 Name = v1 Value = one
+ 2 Name = v2 Value = two
+
+
+R:Ok, I'm the main server, you have asked for /AWS
+Here are the parameters: 1 Name = v1 Value = one
+ 2 Name = v2 Value = two
