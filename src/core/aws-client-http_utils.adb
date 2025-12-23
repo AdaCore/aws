@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2005-2024, AdaCore                     --
+--                     Copyright (C) 2005-2025, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -1468,7 +1468,7 @@ package body AWS.Client.HTTP_Utils is
             Net.Buffered.Write (Sock, Buffer (1 .. Last));
 
             if Progress /= null then
-               Sent := Sent + Last;
+               Sent := @ + Last;
                Progress (File_Size, Sent);
             end if;
          end loop;
@@ -1650,7 +1650,7 @@ package body AWS.Client.HTTP_Utils is
                begin
                   Request.Append_Body (Data);
 
-                  Sent := Sent + Data'Length;
+                  Sent := @ + Data'Length;
 
                   if Progress /= null then
                      Progress (Total, Sent);
@@ -1715,7 +1715,7 @@ package body AWS.Client.HTTP_Utils is
    procedure Next_Stream_Id (Connection : in out HTTP_Connection) is
       use type AWS.HTTP2.Stream_Id;
    begin
-      Connection.H2_Stream_Id := Connection.H2_Stream_Id + 2;
+      Connection.H2_Stream_Id := @ + 2;
    end Next_Stream_Id;
 
    ----------------------------
@@ -2662,7 +2662,7 @@ package body AWS.Client.HTTP_Utils is
                      if URI_Last = 0 then
                         URI_Last := URI'Last;
                      else
-                        URI_Last := URI_Last - 1;
+                        URI_Last := @ - 1;
                      end if;
 
                      return URI (URI'First .. URI_Last);
@@ -2690,7 +2690,7 @@ package body AWS.Client.HTTP_Utils is
                      return "";
 
                   else
-                     Data.NC := Data.NC + 1;
+                     Data.NC := @ + 1;
 
                      declare
                         NC : constant String := Utils.Hex (Data.NC, 8);
