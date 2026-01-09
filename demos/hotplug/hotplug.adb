@@ -59,7 +59,8 @@ procedure Hotplug is
 
       Response := AWS.Client.Hotplug.Unregister
         ("hp_demo", Password,
-         "http://" & Command_Line.Argument (1) & ":2222", Filter);
+         "http://" & Command_Line.Argument (1) & ":2222", Filter,
+         Realm => "awsdemo");
 
       if AWS.Response.Status_Code (Response) /= AWS.Messages.S200 then
          Text_IO.Put_Line
@@ -91,7 +92,8 @@ begin
    Response := AWS.Client.Hotplug.Register
      ("hp_demo", Password,
       "http://" & Command_Line.Argument (1) & ":2222",
-      Filter, "http://" & AWS.Net.Host_Name & ":1235/");
+      Filter, "http://" & AWS.Net.Host_Name & ":1235/",
+      Realm => "awsdemo");
 
    if AWS.Response.Status_Code (Response) = AWS.Messages.S200 then
       Wait_Terminate;
