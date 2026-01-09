@@ -46,7 +46,8 @@ package body AWS.Client.Hotplug is
       Password : String;
       Server   : String;
       Regexp   : String;
-      URL      : String) return Response.Data
+      URL      : String;
+      Realm    : String := "aws") return Response.Data
    is
       use type Messages.Status_Code;
       Srv      : AWS.URL.Object;
@@ -73,7 +74,7 @@ package body AWS.Client.Hotplug is
       begin
          Digest := AWS.Digest.Create
            (Name, "hotplug",
-            GNAT.MD5.Digest (Name & ":aws:" & Password),
+            GNAT.MD5.Digest (Name & ':' & Realm & ':' & Password),
             Nonce, "hotplug", Regexp);
 
          return AWS.Communication.Client.Send_Message
@@ -94,7 +95,8 @@ package body AWS.Client.Hotplug is
      (Name     : String;
       Password : String;
       Server   : String;
-      Regexp   : String) return Response.Data
+      Regexp   : String;
+      Realm    : String := "aws") return Response.Data
    is
       use type Messages.Status_Code;
       Srv      : AWS.URL.Object;
@@ -121,7 +123,7 @@ package body AWS.Client.Hotplug is
       begin
          Digest := AWS.Digest.Create
            (Name, "hotplug",
-            GNAT.MD5.Digest (Name & ":aws:" & Password),
+            GNAT.MD5.Digest (Name & ':' & Realm & ':' & Password),
             Nonce, "hotplug", Regexp);
 
          return AWS.Communication.Client.Send_Message

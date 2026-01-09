@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2000-2012, AdaCore                     --
+--                     Copyright (C) 2000-2026, AdaCore                     --
 --                                                                          --
 --  This is free software;  you can redistribute it  and/or modify it       --
 --  under terms of the  GNU General Public License as published  by the     --
@@ -35,6 +35,11 @@
 --  will be triggered:
 --  http://<servername>:1234/AWS_hotplug_is_great
 --
+--  For creating the password for this demo, the realm is "awsdemo",
+--  so the security string in hotplug_module.ini has been generated
+--  with:
+--
+--  $ aws_password hp_demo pwd awsdemo
 
 with Ada.Text_IO;
 

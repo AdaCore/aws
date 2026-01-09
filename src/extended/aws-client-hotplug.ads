@@ -43,17 +43,21 @@ package AWS.Client.Hotplug is
       Password : String;
       Server   : String;
       Regexp   : String;
-      URL      : String) return Response.Data;
+      URL      : String;
+      Realm    : String := "aws") return Response.Data;
    --  Register hotplug module Name into Server with address URL to respond to
    --  requests matching Regexp. Server must be a valid URL, http://host:port.
-   --  If port is not specified the default HTTP port is used.
+   --  If port is not specified the default HTTP port is used. The realm is
+   --  a simple string that defines a protection space and is used together
+   --  with Name and Password to create the authentication key.
 
    function Unregister
      (Name     : String;
       Password : String;
       Server   : String;
-      Regexp   : String) return Response.Data;
+      Regexp   : String;
+      Realm    : String := "aws") return Response.Data;
    --  Unregister hotplug module Name responding to Regexp requests from
-   --  Server. See comment above about Password.
+   --  Server. See comment above about Password/Realm.
 
 end AWS.Client.Hotplug;
