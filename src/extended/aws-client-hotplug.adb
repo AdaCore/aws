@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2004-2012, AdaCore                     --
+--                     Copyright (C) 2004-2026, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -47,7 +47,7 @@ package body AWS.Client.Hotplug is
       Server   : String;
       Regexp   : String;
       URL      : String;
-      Realm    : String := "aws") return Response.Data
+      Realm    : String := Default.Realm) return Response.Data
    is
       use type Messages.Status_Code;
       Srv      : AWS.URL.Object;
@@ -96,7 +96,7 @@ package body AWS.Client.Hotplug is
       Password : String;
       Server   : String;
       Regexp   : String;
-      Realm    : String := "aws") return Response.Data
+      Realm    : String := Default.Realm) return Response.Data
    is
       use type Messages.Status_Code;
       Srv      : AWS.URL.Object;
