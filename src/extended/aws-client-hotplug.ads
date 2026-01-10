@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2004-2012, AdaCore                     --
+--                     Copyright (C) 2004-2026, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -27,6 +27,7 @@
 --  covered by the  GNU Public License.                                     --
 ------------------------------------------------------------------------------
 
+with AWS.Default;
 with AWS.Response;
 
 package AWS.Client.Hotplug is
@@ -44,7 +45,7 @@ package AWS.Client.Hotplug is
       Server   : String;
       Regexp   : String;
       URL      : String;
-      Realm    : String := "aws") return Response.Data;
+      Realm    : String := Default.Realm) return Response.Data;
    --  Register hotplug module Name into Server with address URL to respond to
    --  requests matching Regexp. Server must be a valid URL, http://host:port.
    --  If port is not specified the default HTTP port is used. The realm is
@@ -56,7 +57,7 @@ package AWS.Client.Hotplug is
       Password : String;
       Server   : String;
       Regexp   : String;
-      Realm    : String := "aws") return Response.Data;
+      Realm    : String := Default.Realm) return Response.Data;
    --  Unregister hotplug module Name responding to Regexp requests from
    --  Server. See comment above about Password/Realm.
 

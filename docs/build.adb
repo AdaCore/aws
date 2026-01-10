@@ -150,5 +150,6 @@ begin
    Add ("DISABLE_PROGRAM_INI", Default.Disable_Program_Ini);
    Add ("USER_AGENT", Default.User_Agent);
    Add ("SERVER_HEADER", Default.Server_Header);
+   Add ("HOTPLUG_REALM", Default.Realm);
    Text_IO.Put_Line ("""""""");
 end Build;

@@ -1755,7 +1755,7 @@ password depends on the hotplug module name. A tool named
 `aws_password` is provided with `AWS` to generate such
 password. Usage is simple::
 
- $ aws_password <hotplug_module_name> <password>
+ $ aws_password <hotplug_module_name> <password> <realm>
 
 .. highlight:: ada
 
@@ -1788,7 +1788,8 @@ Here is how to create an Hotplug module:
                   Password => "my_password",
                   Server   => "http://dieppe:2222",
                   Regexp   => ".*AWS.*",
-                  URL      => "http://omsk:1235/");
+                  URL      => "http://omsk:1235/",
+                  Realm    => "aws");
 
   The hotplug module `Hotplug_Module_Demo` must have been declared
   on the main server, the password and redirection must have been
@@ -1797,7 +1798,8 @@ Here is how to create an Hotplug module:
   This command register `Hotplug_Module_Demo` into the server running
   on the machine `dieppe` and ask it to redirect all `URL`
   containing `AWS` to the server running on machine `omsk` on
-  port `1235`.
+  port `1235`. Note tha `Realm` mush match the value passed to
+  `aws_password`, the default being "|HOTPLUG_REALM|".
 
 * When the Hotplug module is stopped, you must unregister it::
 
@@ -1805,7 +1807,8 @@ Here is how to create an Hotplug module:
                  (Name     => "Hotplug_Module_Demo",
                   Password => "my_password",
                   Server   => "http://dieppe:2222",
-                  Regexp   => ".*AWS.*");
+                  Regexp   => ".*AWS.*",
+                  Realm    => "aws");
 
   Here we ask to unregister `Hotplug_Module_Demo` from server
   `dieppe`. As for the registration process a proper password must

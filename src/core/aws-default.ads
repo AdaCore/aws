@@ -163,23 +163,26 @@ package AWS.Default with Pure is
 
    --  Security
 
-   Security                        : constant Boolean := False;
-   Security_Mode                   : constant String  := "TLS";
-   Config_Directory                : constant String  := ".config/ada-web-srv";
-   Disable_Program_Ini             : constant Boolean := False;
-   Cipher_Priorities               : constant String  := "";
-   TLS_Ticket_Support              : constant Boolean := False;
-   Server_Certificate              : constant String  := "aws-server.crt";
-   Server_Key                      : constant String  := "aws-server.key";
-   Client_Certificate              : constant String  := "cert.pem";
-   Exchange_Certificate            : constant Boolean := True;
-   Check_Certificate               : constant Boolean := True;
-   Trusted_CA                      : constant String  :=
+   Security                        : constant Boolean  := False;
+   Security_Mode                   : constant String   := "TLS";
+   Config_Directory                : constant String   :=
+                                       ".config/ada-web-srv";
+   Disable_Program_Ini             : constant Boolean  := False;
+   Cipher_Priorities               : constant String   := "";
+   TLS_Ticket_Support              : constant Boolean  := False;
+   Server_Certificate              : constant String   := "aws-server.crt";
+   Server_Key                      : constant String   := "aws-server.key";
+   Client_Certificate              : constant String   := "cert.pem";
+   Exchange_Certificate            : constant Boolean  := True;
+   Check_Certificate               : constant Boolean  := True;
+   Trusted_CA                      : constant String   :=
                                        "/etc/ssl/certs/ca-certificates.crt";
-   CRL_File                        : constant String  := "";
-   Check_URL_Validity              : constant Boolean := True;
-   SSL_Session_Cache_Size          : constant         := 16#4000#;
+   CRL_File                        : constant String   := "";
+   Check_URL_Validity              : constant Boolean  := True;
+   SSL_Session_Cache_Size          : constant          := 16#4000#;
    SSL_Handshake_Timeout           : constant Duration := 5.0;
+
+   Realm                           : constant String  := "aws";
 
    --  Priorities
 
