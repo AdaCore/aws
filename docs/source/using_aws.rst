@@ -1766,6 +1766,11 @@ Then, after starting the main server you must activate the Hotplug feature::
 :file:`hotplug_conf.ini` is the hotplug module registration file
 described above.
 
+The configuration file :file:`aws.ini` can be used for the main server
+and furthermore the file :file:`communication.ini` can be provided to
+setup specifically the internal communication server with the hotplug
+module if needed.
+
 .. _Hotplug_module_-_creation:
 
 Hotplug module - creation

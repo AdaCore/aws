@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                             Ada Web Server                               --
 --                                                                          --
---                    Copyright (C) 2000-2024, AdaCore                      --
+--                    Copyright (C) 2000-2026, AdaCore                      --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -29,6 +29,7 @@
 
 with Ada.Unchecked_Conversion;
 
+with AWS.Config.Ini;
 with AWS.Config.Set;
 with AWS.Messages;
 with AWS.Parameters;
@@ -136,8 +137,10 @@ package body AWS.Communication.Server is
    procedure Start
      (Port : Natural; Context : T_Access; Host : String := "")
    is
-      CB  : constant Internal_Callback := Receive'Access;
-      CNF : Config.Object;
+      C_Ini : constant String := "communication.ini";
+      CB    : constant Internal_Callback := Receive'Access;
+      CNF   : Config.Object := Config.Get_Current;
+      --  CNF is initialized with aws.ini and progname.ini (if present)
    begin
       Server.Context := Context;
 
@@ -145,6 +148,13 @@ package body AWS.Communication.Server is
       Config.Set.Server_Host    (CNF, Host);
       Config.Set.Server_Port    (CNF, Port);
       Config.Set.Max_Connection (CNF, 1);
+
+      --  And then read special communication.ini file for the
+      --  communication server.
+
+      if Utils.Is_Regular_File (C_Ini) then
+         AWS.Config.Ini.Read (CNF, C_Ini);
+      end if;
 
       AWS.Server.Start (Com_Server, To_Callback (CB), Config => CNF);
    end Start;
