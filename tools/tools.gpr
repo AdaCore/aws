@@ -42,7 +42,6 @@ project Tools is
                for Locally_Removed_Files use Project'Locally_Removed_Files &
                  ("wsdl2aws.ads", "wsdl2aws-generator.adb",
                   "wsdl2aws-generator.ads",  "wsdl2aws-generator-cb.adb",
-                  "wsdl2aws-generator-name_set.adb",
                   "wsdl2aws-generator-skel.adb", "wsdl2aws-generator-stub.adb",
                   "wsdl2aws-main.adb", "wsdl2aws-wsdl-parameters.adb",
                   "wsdl2aws-wsdl-parameters.ads", "wsdl2aws-wsdl-parser.adb",
