@@ -64,16 +64,6 @@ procedure ErrCon is
            (Fixed.Replace_Slice
               (Text, Text'First, Unreach_Err'Length, "[UNREACH]"));
 
-      elsif Utils.Match (Text, No_Ent_Err) then
-         Text_IO.Put_Line
-           (Fixed.Replace_Slice
-              (Text, Text'First, No_Ent_Err'Length, "[NO_NAME]"));
-
-      elsif Utils.Match (Text, No_Data_Err) then
-         Text_IO.Put_Line
-           (Fixed.Replace_Slice
-              (Text, Text'First, No_Data_Err'Length, "[NO_DATA]"));
-
       else
          Text_IO.Put_Line (Text);
       end if;
