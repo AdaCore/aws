@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2000-2024, AdaCore                     --
+--                     Copyright (C) 2000-2026, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -42,7 +42,6 @@ package body SOAP.Message.Reader is
    use DOM.Core.Elements;
    use DOM.Core.Nodes;
    use Sax.Attributes;
-   use Unicode;
    use Unicode.CES;
 
    ----------------

@@ -42,7 +42,6 @@ with AWS.Utils.Streams;
 package body AWS.Session is
 
    use Ada.Exceptions;
-   use Ada.Streams;
    use Ada.Strings.Unbounded;
 
    SID_Prefix     : constant String := "SID-";

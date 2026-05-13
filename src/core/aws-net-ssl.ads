@@ -118,19 +118,21 @@ package AWS.Net.SSL is
 
    type Method is
      (TLS,
-      --  This is the default and recommended method. It supports negotiation of
-      --  the highest TLS protocol version supported by both the client and the
-      --  server. Despite the name, this option can select both “SSL” and “TLS”
-      --  protocols.
+      --  This is the default and recommended method. It supports negotiation
+      --  of the highest TLS protocol version supported by both the client and
+      --  the server. Despite the name, this option can select both "SSL" and
+      --  "TLS" protocols.
 
       TLS_Server,
       --  Auto-negotiate the highest TLS protocol version that both the client
-      --  and server support, and configure the context server-side connections.
+      --  and server support, and configure the context server-side
+      --  connections.
 
       TLS_Client,
       --  Auto-negotiate the highest TLS protocol version that both the client
-      --  and server support, and configure the context client-side connections.
-      --  The protocol enables CERT_REQUIRED and check_hostname by default.
+      --  and server support, and configure the context client-side
+      --  connections. The protocol enables CERT_REQUIRED and check_hostname by
+      --  default.
 
       TLSv1,   TLSv1_Server,   TLSv1_Client,    -- TLS 1.0
       TLSv1_1, TLSv1_1_Server, TLSv1_1_Client,  -- TLS 1.1

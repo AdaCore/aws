@@ -36,8 +36,6 @@ with AWS.Utils;
 
 package body AWS.Config is
 
-   use Ada;
-
    Server_Config : Object;
    --  This variable will be updated with options found in 'aws.ini' and
    --  '<progname>.ini'.

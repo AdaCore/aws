@@ -399,12 +399,12 @@ package body AWS.Net.SSL is
          Size   : aliased C.unsigned := C.unsigned (Try_Size);
 
          RC : constant C.int :=
-           TSSL.gnutls_pcert_list_import_x509_raw
-             (Result (1)'Access,
-              Size'Access,
-              Cert.Datum'Unchecked_Access,
-              TSSL.GNUTLS_X509_FMT_PEM,
-              TSSL.GNUTLS_X509_CRT_LIST_IMPORT_FAIL_IF_EXCEED);
+                TSSL.gnutls_pcert_list_import_x509_raw
+                  (Result (1)'Access,
+                   Size'Access,
+                   Cert.Datum'Unchecked_Access,
+                   TSSL.GNUTLS_X509_FMT_PEM,
+                   TSSL.GNUTLS_X509_CRT_LIST_IMPORT_FAIL_IF_EXCEED);
       begin
          if RC = TSSL.GNUTLS_E_SHORT_MEMORY_BUFFER then
             return Load_PCert_List (Positive (Size));
