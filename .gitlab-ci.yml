@@ -26,4 +26,4 @@ test-cross:
   variables:
     # Cross testing is not stabilized; see eng/toolchain/aws#17.
     # For now we only _build_ AWS.
-    ANOD_TEST_ARGS: build aws --target=armhf-linux,,qemu
+    ANOD_TEST_ARGS: build aws --target=armhf-linux,yocto5.0,qemu
