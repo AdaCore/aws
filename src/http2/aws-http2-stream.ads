@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                      Copyright (C) 2021, AdaCore                         --
+--                    Copyright (C) 2021-2026, AdaCore                      --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -59,6 +59,7 @@ package AWS.HTTP2.Stream is
       Error_Window_Update, Error_Headers, Error_Content_Length);
 
    type Object is tagged private;
+   type Object_Access is access all Object'Class;
 
    Undefined : constant Object;
 

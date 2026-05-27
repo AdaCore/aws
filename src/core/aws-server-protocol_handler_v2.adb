@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2021-2024, AdaCore                     --
+--                     Copyright (C) 2021-2026, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -917,7 +917,7 @@ begin
                Frame     : constant HTTP2.Frame.Object'Class :=
                              Answers.First_Element;
                Stream_Id : constant HTTP2.Stream.Id := Frame.Stream_Id;
-               Stream    : access HTTP2.Stream.Object;
+               Stream    : HTTP2.Stream.Object_Access;
             begin
                if Stream_Id = 0 then
                   Frame.Send (Sock.all);
