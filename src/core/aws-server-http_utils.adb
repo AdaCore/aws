@@ -1523,11 +1523,13 @@ package body AWS.Server.HTTP_Utils is
       --  parameters also in this case. It is not clear if it is permitted or
       --  prohibited by reading RFC 2616. Other technologies do offer this
       --  feature so AWS do this as well.
+      --
+      --  We always store the decoded URI in the status record.
 
       Status.Set.Request
         (C_Stat,
          Method       => Command (Command'First .. I1 - 1),
-         URI          => Command (I1 + 1 .. Path_Last),
+         URI          => AWS.URL.Decode (Command (I1 + 1 .. Path_Last)),
          HTTP_Version => Command (I2 + 1 .. Command'Last));
 
       Status.Set.Query

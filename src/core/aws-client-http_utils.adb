@@ -1736,8 +1736,8 @@ package body AWS.Client.HTTP_Utils is
       --  Returns "Keep-Alive" is we have a persistent connection and "Close"
       --  otherwise.
 
-      function Encoded_URI return String is
-        (Strings.Fixed.Translate (URI, Strings.Maps.To_Mapping (" ", "+")));
+      function Encoded_URI (Str : String) return String is
+        (Strings.Fixed.Translate (Str, Strings.Maps.To_Mapping (" ", "+")));
       --  Returns URI encoded (' ' -> '+')
 
       -----------------
@@ -1794,13 +1794,15 @@ package body AWS.Client.HTTP_Utils is
                Set_Header
                  (Connection.F_Headers,
                   Messages.Path2_Token,
-                  AWS.URL.Pathname_And_Parameters (Connection.Host_URL));
+                  Encoded_URI
+                    (AWS.URL.Pathname_And_Parameters (Connection.Host_URL)));
             else
                Set_Header
                  (Connection.F_Headers,
                   Method,
-                  AWS.URL.Pathname_And_Parameters (Connection.Host_URL)
-                  & ' ' & AWS.HTTP_Version);
+                  Encoded_URI
+                    (AWS.URL.Pathname_And_Parameters (Connection.Host_URL))
+                     & ' ' & AWS.HTTP_Version);
             end if;
 
          else
@@ -1808,11 +1810,11 @@ package body AWS.Client.HTTP_Utils is
                Set_Header
                  (Connection.F_Headers,
                   Messages.Path2_Token,
-                  Encoded_URI);
+                  Encoded_URI (URI));
             else
                Set_Header
                  (Connection.F_Headers,
-                  Method, Encoded_URI & ' ' & AWS.HTTP_Version);
+                  Method, Encoded_URI (URI) & ' ' & AWS.HTTP_Version);
             end if;
          end if;
 
@@ -1825,12 +1827,13 @@ package body AWS.Client.HTTP_Utils is
                Set_Header
                  (Connection.F_Headers,
                   Messages.Path2_Token,
-                  AWS.URL.URL (Connection.Host_URL));
+                  Encoded_URI (AWS.URL.URL (Connection.Host_URL)));
             else
                Set_Header
                  (Connection.F_Headers,
                   Method,
-                  AWS.URL.URL (Connection.Host_URL) & ' ' & AWS.HTTP_Version);
+                  Encoded_URI (AWS.URL.URL (Connection.Host_URL))
+                               & ' ' & AWS.HTTP_Version);
             end if;
 
          else
@@ -1841,13 +1844,13 @@ package body AWS.Client.HTTP_Utils is
                  (Connection.F_Headers,
                   Messages.Path2_Token,
                   URL.Protocol_Name (Connection.Host_URL) & "://"
-                  & Host_Address & Encoded_URI);
+                  & Host_Address & Encoded_URI (URI));
             else
                Set_Header
                  (Connection.F_Headers,
                   Method,
                   URL.Protocol_Name (Connection.Host_URL) & "://"
-                  & Host_Address & Encoded_URI & ' ' & AWS.HTTP_Version);
+                  & Host_Address & Encoded_URI (URI) & ' ' & AWS.HTTP_Version);
             end if;
          end if;
       end if;
