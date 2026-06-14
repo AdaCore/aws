@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2000-2024, AdaCore                     --
+--                     Copyright (C) 2000-2026, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -240,9 +240,9 @@ package body AWS.Client is
    -- Debug_Exception --
    ---------------------
 
-   procedure Debug_Exception (E : Ada.Exceptions.Exception_Occurrence) is
+   procedure Debug_Exception (E : Exception_Occurrence) is
    begin
-      Debug_Message ("! ", Ada.Exceptions.Exception_Message (E));
+      Debug_Message ("! ", Exception_Message (E));
    end Debug_Exception;
 
    -------------------
@@ -350,8 +350,8 @@ package body AWS.Client is
       Try_Count  : in out Natural;
       Result     : out Response.Data;
       Context    : String;
-      E          : Ada.Exceptions.Exception_Occurrence;
-      Stamp      : Ada.Real_Time.Time)
+      E          : Exception_Occurrence;
+      Stamp      : Real_Time.Time)
    is
       use Real_Time;
       Message : constant String := Exception_Information (E);
@@ -993,7 +993,7 @@ package body AWS.Client is
    procedure Read_Until
      (Connection : in out HTTP_Connection;
       Delimiter  : String;
-      Result     : in out Ada.Strings.Unbounded.Unbounded_String;
+      Result     : in out Unbounded_String;
       Wait       : Boolean := True) is
    begin
       Result := To_Unbounded_String
