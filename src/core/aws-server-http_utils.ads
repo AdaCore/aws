@@ -69,10 +69,10 @@ package AWS.Server.HTTP_Utils is
    --  callback.
 
    procedure Get_Message_Data
-     (HTTP_Server  : AWS.Server.HTTP;
-      Line_Index   : Positive;
-      C_Stat       : in out AWS.Status.Data;
-      Expect_100   : Boolean);
+     (HTTP_Server : AWS.Server.HTTP;
+      Line_Index  : Positive;
+      C_Stat      : in out AWS.Status.Data;
+      Expect_100  : Boolean);
    --  If the client sent us some data read them.
    --  This procedure fill in the C_Stat status data.
 
