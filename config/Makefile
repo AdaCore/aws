@@ -57,7 +57,7 @@ ifeq ($(ISOOT), true)
 	GPROPTS += --relocate-build-tree=$(BLD_DIR) --root-dir=$(SRC_DIR)
 endif
 
-$(SDIR)/src:
+$(STP_DIR)/src:
 	$(MKDIR) $(STP_DIR)/src
 
 $(PRJ_DIR):
@@ -108,7 +108,7 @@ $(SDIR)/src/aws-os_lib.ads: $(SDIR)/src force
 	$(CP) $(SRC_DIR)/src/os_lib__vxworks.ads \
 		$(STP_DIR)/src/os_lib.ads
 else
-$(SDIR)/src/os_lib.ads: $(SDIR)/src $(XOSCONS)$(EXEEXT) force
+$(SDIR)/src/os_lib.ads: $(STP_DIR)/src $(XOSCONS)$(EXEEXT) force
 	echo Setup OS specific definitions
 	$(CP) $(SRC_DIR)/config/setup/os_lib-tmplt.c $(STP_DIR)/src
 ifeq ($(IS_CROSS), true)
