@@ -46,7 +46,7 @@ endif
 
 ifeq (${SSL_DYNAMIC}, true)
 NO_SSL_LINK = 1
-SSL_THIN=$(SDIR)/src/ssl-thin.ads
+SSL_THIN=$(STP_DIR)/src/ssl-thin.ads
 endif
 
 GPROPTS = 	-XPRJ_TARGET=$(PRJ_TARGET) -XTARGET=$(TARGET) \
@@ -63,10 +63,10 @@ $(STP_DIR)/src:
 $(PRJ_DIR):
 	$(MKDIR) $(PRJ_DIR)
 
-$(XOSCONS)$(EXEEXT): $(SDIR)/src $(SRC_DIR)/config/setup/xoscons.adb
+$(XOSCONS)$(EXEEXT): $(STP_DIR)/src $(SRC_DIR)/config/setup/xoscons.adb
 	-$(GPRBUILD) -p -XPRJ_BUILD=Debug $(GPROPTS) -Psetup xoscons
 
-$(SDIR)/dynamo$(EXEEXT): $(SDIR)/src $(SRC_DIR)/ssl/dynamo/dynamo.adb
+$(STP_DIR)/dynamo$(EXEEXT): $(STP_DIR)/src $(SRC_DIR)/ssl/dynamo/dynamo.adb
 	-$(GPRBUILD) -p $(GPROPTS) -Pssl/dynamo/dynamo.gpr -g -bargs -E
 
 setup_extlib: $(PRJ_DIR)
@@ -101,14 +101,14 @@ endif
 
 force: ;
 
-setup: $(SDIR)/src/os_lib.ads $(SSL_THIN) setup_extlib
+setup: $(STP_DIR)/src/os_lib.ads $(SSL_THIN) setup_extlib
 
 ifeq (${PRJ_TARGET}, vxworks)
-$(SDIR)/src/aws-os_lib.ads: $(SDIR)/src force
+$(STP_DIR)/src/aws-os_lib.ads: $(STP_DIR)/src force
 	$(CP) $(SRC_DIR)/src/os_lib__vxworks.ads \
 		$(STP_DIR)/src/os_lib.ads
 else
-$(SDIR)/src/os_lib.ads: $(STP_DIR)/src $(XOSCONS)$(EXEEXT) force
+$(STP_DIR)/src/os_lib.ads: $(STP_DIR)/src $(XOSCONS)$(EXEEXT) force
 	echo Setup OS specific definitions
 	$(CP) $(SRC_DIR)/config/setup/os_lib-tmplt.c $(STP_DIR)/src
 ifeq ($(IS_CROSS), true)
