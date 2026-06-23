@@ -3275,8 +3275,55 @@ package body WSDL2AWS.Generator is
          --------------
 
          procedure Write_NS (Key, Value : String) is
+
+            function Get_Value return String;
+            --  Get schema URL value with possible alias prefix to be used as a
+            --  key which needs to be unique.
+
+            ---------------
+            -- Get_Value --
+            ---------------
+
+            function Get_Value return String is
+            begin
+               if S_Gen.Contains (Value) then
+                  for K in Character range 'a' .. 'z' loop
+                     if not S_Gen.Contains ('@' & K & '@' & Value) then
+                        return '@' & K & '@' & Value;
+                     end if;
+                  end loop;
+
+                  --  All aliases already taken, return Key as-is, this should
+                  --  never happen in real case.
+                  return Value;
+               else
+                  return Value;
+               end if;
+            end Get_Value;
+
          begin
             Output_Schema_Definition (O, Key, Value);
+
+            --  If the Value is an URL (starting with http://) and it is
+            --  already a Key in the schema map and the value of this key is
+            --  different than the current Key we add an alias. That is for
+            --  example, we have:
+            --
+            --  http://www.w3.org/2001/XMLSchema -> xsd
+            --
+            --  And we add:
+            --
+            --  @a@http://www.w3.org/2001/XMLSchema -> xs
+            --  @b@http://www.w3.org/2001/XMLSchema -> xx
+
+            if Value'Length > 6
+              and then Value (Value'First .. Value'First + 6) = "http://"
+              and then S_Gen.Contains (Value)
+              and then S_Gen (Value) /= Key
+            then
+               Output_Schema_Definition (O, Get_Value, Key);
+            end if;
+
             Output_Schema_Definition
               (O,
                Key & "@qualified",

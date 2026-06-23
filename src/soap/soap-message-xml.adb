@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2000-2025, AdaCore                     --
+--                     Copyright (C) 2000-2026, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -2101,18 +2101,30 @@ package body SOAP.Message.XML is
       function Is_Schema
         (T1_Name, T2_Name, Schema_URL : String) return Boolean
       is
-         use AWS.Containers;
-
          R : Boolean := False;
       begin
-         for D in Local_Schema.Iterate loop
-            if Local_Schema.Contains (Key_Value.Key (D))
-              and then Local_Schema (D) = Schema_URL
-            then
-               R := Is_A (T1_Name, T2_Name, Key_Value.Key (D));
-               exit when R;
+         if Local_Schema.Contains (Schema_URL) then
+            R := Is_A (T1_Name, T2_Name, Local_Schema (Schema_URL));
+
+            --  If the Schema_URL exists and it was not found to be the correct
+            --  namespace, let's check aliases if any.
+            if not R then
+               Look_Alias : for K in Character range 'a' .. 'z' loop
+                  declare
+                     Key : constant String := '@' & K & '@' & Schema_URL;
+                  begin
+                     if Local_Schema.Contains (Key) then
+                        R := Is_A (T1_Name, T2_Name, Local_Schema (Key));
+                        exit Look_Alias when R;
+                     else
+                        --  Not need to continue, if this alias does not exists
+                        --  there is no later alias possible.
+                        exit Look_Alias;
+                     end if;
+                  end;
+               end loop Look_Alias;
             end if;
-         end loop;
+         end if;
 
          return R;
       end Is_Schema;

@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                    Copyright (C) 2015-2025, AdaCore                      --
+--                    Copyright (C) 2015-2026, AdaCore                      --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -51,20 +51,34 @@ package SOAP.WSDL.Schema is
    --  definition map record the following informations:
    --
    --     1. The binding style for the schema (Document/RPC)
+   --
    --        key:   @binding.style
    --        value: document/rpc
    --
    --     2. The encoding style for each procedure's input and output messages
+   --
    --        key:   @<object>.encoding
    --        value: encoded/literal
    --
    --     3. The SOAP operation for each signature
+   --
    --        key:   @<param1>[:<param2>]
    --        value: <SOAP procedure call name>
    --
    --     4. The root type for each types in the schema
+   --
    --        key:   <type_name>
    --        value: <xsd_type>
+   --
+   --     5. The schema used for the SOAP message (not the the schema URL can
+   --        have a prefix for uniqueness as the same URL can be referenced by
+   --        different prefixes):
+   --
+   --        key: <schema url> (with possibly an alias prefix @c@)
+   --        value: <schema prefix>
+   --
+   --        key: <schema prefix>
+   --        value: <schema url>
 
    Default : AWS.Containers.Key_Value.Map :=
                ["xsd"                              => SOAP.Name_Space.XSD_URL,
