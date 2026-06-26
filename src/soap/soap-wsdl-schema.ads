@@ -70,7 +70,7 @@ package SOAP.WSDL.Schema is
    --        key:   <type_name>
    --        value: <xsd_type>
    --
-   --     5. The schema used for the SOAP message (not the the schema URL can
+   --     5. The schema used for the SOAP message (note that the schema URL can
    --        have a prefix for uniqueness as the same URL can be referenced by
    --        different prefixes):
    --
