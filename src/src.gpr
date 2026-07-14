@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2003-2025, AdaCore                     --
+--                     Copyright (C) 2003-2026, AdaCore                     --
 --                                                                          --
 --  This is free software;  you can redistribute it  and/or modify it       --
 --  under terms of the  GNU General Public License as published  by the     --
@@ -60,6 +60,7 @@ library project Src is
    for Object_Dir use "../" & Shared'Object_Dir & "/src";
    for Library_Dir use "../" & Shared'Library_Dir & "/src";
    for Leading_Library_Options use Shared.Leading_Library_Options;
+   for Run_Path_Option use ();
 
    case Shared.Library_Type is
       when "relocatable" =>
