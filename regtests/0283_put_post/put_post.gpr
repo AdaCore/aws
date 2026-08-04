@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                      Copyright (C) 2016, AdaCore                         --
+--                    Copyright (C) 2016-2026, AdaCore                      --
 --                                                                          --
 --  This is free software;  you can redistribute it  and/or modify it       --
 --  under terms of the  GNU General Public License as published  by the     --
@@ -21,4 +21,4 @@ with "aws";
 project Put_Post is
    for Source_Dirs use (".", "../common");
    for Main use ("put_post.adb");
-end Put__Post;
+end Put_Post;
