@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                        Copyright (C) 2015, AdaCore                       --
+--                     Copyright (C) 2015-2026, AdaCore                     --
 --                                                                          --
 --  This is free software;  you can redistribute it  and/or modify it       --
 --  under terms of the  GNU General Public License as published  by the     --
@@ -23,7 +23,7 @@ with AWS.Server.Status;
 
 with WebSockR_CB;
 
-procedure WebSock is
+procedure WebSockR is
 
    use Ada;
    use AWS;
@@ -82,4 +82,4 @@ begin
    WebSockR_CB.Wait.Stop;
 
    Server.Shutdown (WS);
-end WebSock;
+end WebSockR;
