@@ -136,7 +136,7 @@ ${MODULES_CHECK}: force
 
 #  build awsres tool as needed by wsdl2aws
 
-build-awsres-tool-native:
+build-awsres-tool-native: build-lib-native
 	$(GPRBUILD) -p $(GPROPTS) $(GPR_STATIC) -XTO_BUILD=awsres.adb \
 		tools/tools.gpr
 
