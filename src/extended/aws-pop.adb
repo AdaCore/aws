@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2003-2024, AdaCore                     --
+--                     Copyright (C) 2003-2026, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -27,6 +27,7 @@
 --  covered by the  GNU Public License.                                     --
 ------------------------------------------------------------------------------
 
+with Ada.Directories;
 with Ada.Streams.Stream_IO;
 with Ada.Strings.Fixed;
 with Ada.Unchecked_Deallocation;
@@ -404,8 +405,15 @@ package body AWS.POP is
                                Messages.Content_Disposition_Token),
                             "filename");
          begin
+            --  Filename must be a simple name and not relative or absolute
+            --  path name. This is a security concern, as the filename is used
+            --  to write the attachment to disk. It is not prohibited to have a
+            --  filename with a path, but a recommanded practice is to only use
+            --  the simple name to avoid path traversal attacks.
+
             if Filename /= "" then
-               Attachment.Filename := To_Unbounded_String (Filename);
+               Attachment.Filename :=
+                 To_Unbounded_String (Directories.Simple_Name (Filename));
             end if;
          end;
 
