@@ -18,7 +18,8 @@ include:
 test-native:
   extends: ".test:linux"
   variables:
-    ANOD_TEST_ARGS: test aws -Qexternal
+    # Use compiler=gcc to avoid GNAT dependency.
+    ANOD_TEST_ARGS: test aws -Qstandalone -Qcompiler=gcc
 
 # Cross testing
 test-cross:
