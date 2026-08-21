@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2000-2016, AdaCore                     --
+--                     Copyright (C) 2000-2026, AdaCore                     --
 --                                                                          --
 --  This is free software;  you can redistribute it  and/or modify it       --
 --  under terms of the  GNU General Public License as published  by the     --
@@ -20,10 +20,12 @@ with Ada.Text_IO;
 with Ada.Strings.Fixed;
 
 with Ada.Exceptions;
-with AWS.Server;
+with AWS.Server.Status;
 with AWS.Client;
+with AWS.Config.Set;
 with AWS.Status;
 with AWS.MIME;
+with AWS.Net;
 with AWS.Response;
 with AWS.Parameters;
 with AWS.Messages;
@@ -102,19 +104,33 @@ procedure Upload is
    end Test_Upload1;
 
    HTTP : AWS.Server.HTTP;
+   CNF  : Config.Object;
 
 begin
    Put_Line ("Start main, wait for server to start...");
-   Server.Start
-     (HTTP, "upload",
-      CB'Unrestricted_Access,
-      Port             => 8080,
-      Upload_Directory => "./");
+
+   Config.Set.Server_Name (CNF, "upload");
+   Config.Set.Server_Host (CNF, "localhost");
+   Config.Set.Server_Port (CNF, 0);
+   Config.Set.Upload_Directory (CNF, "./");
+
+   Server.Start (HTTP, CB'Unrestricted_Access, CNF);
    Put_Line ("Server started");
    New_Line;
 
+   if Net.IPv6_Available and then AWS.Server.Status.Is_IPv6 (HTTP) then
+      --  Need to start second server on same port but on the different
+      --  Protocol_Family because we do not know which family would client try
+      --  to connect.
+
+      Server.Add_Listening
+        (HTTP, "localhost",
+         AWS.Server.Status.Port (HTTP),
+         Net.FAMILY_INET);
+   end if;
+
    declare
-      URL : constant String := "http://localhost:8080";
+      URL : constant String := AWS.Server.Status.Local_URL (HTTP);
       File : constant String := "upload.adb";
    begin
       Test_Upload0 (URL, File);
@@ -124,6 +140,6 @@ begin
    Server.Shutdown (HTTP);
 exception
    when E : others =>
-      Put_Line ("Main Error " & Exception_Information (E));
+      Put_Line ("Upload main error " & Exception_Information (E));
       Server.Shutdown (HTTP);
 end Upload;
