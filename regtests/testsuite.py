@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 #                              Ada Web Server
 #
 #                     Copyright (C) 2003-2024, AdaCore
