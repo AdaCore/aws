@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 """
 ./gen_system_tags.py /path/to/aws/makefile.setup /path/to/tags-file
 
