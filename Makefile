@@ -75,13 +75,26 @@ endif
 
 all: build
 
+ifeq ($(strip $(findstring mingw32, $(HOST))),mingw32)
+  ifeq ($(PYTHON),python3)
+    # use `python` on Windows because we don't have `python3` there
+    FINAL_PYTHON = python
+  else
+    # use overwrited python
+    FINAL_PYTHON = $(PYTHON)
+  endif
+else
+  # Fallback to whatever $(PYTHON) was originally set in makefile.conf
+  FINAL_PYTHON = $(PYTHON)
+endif
+
 ALL_OPTIONS	= $(MAKE_OPT) SOCKET="$(SOCKET)" XMLADA="$(XMLADA)" \
 	EXEEXT="$(EXEEXT)" LDAP="$(LDAP)" DEBUG="$(DEBUG)" \
 	RM="$(RM)" CP="$(CP)" MKDIR="$(MKDIR)" SED="$(SED)" GCC="$(GCC)" \
 	GPRBUILD="$(GPRBUILD)" VERBOSE_MAKE="$(VERBOSE_MAKE)" ZLIB="$(ZLIB)" \
 	prefix="$(prefix)" ENABLE_SHARED="$(ENABLE_SHARED)" \
 	SOEXT="$(SOEXT)" GNAT="$(GNAT)" SSL_DYNAMIC="$(SSL_DYNAMIC)" \
-	LIBRARY_TYPE="$(LIBRARY_TYPE)" PYTHON="$(PYTHON)" \
+	LIBRARY_TYPE="$(LIBRARY_TYPE)" PYTHON="$(FINAL_PYTHON)" \
 	TARGET="$(TARGET)" IS_CROSS=$(IS_CROSS) GPRINSTALL="$(GPRINSTALL)" \
 	SRC_DIR="$(SRC_DIR)" BLD_DIR="$(BLD_DIR)" PRJ_DIR=$(PRJ_DIR) \
 	TGT_DIR="$(TGT_DIR)" STP_DIR="$(STP_DIR)" KND_DIR="$(KND_DIR)" \
