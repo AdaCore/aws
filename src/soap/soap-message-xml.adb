@@ -104,6 +104,16 @@ package body SOAP.Message.XML is
    --  Load XML document, set State and ensure the document is freed when an
    --  exception occurs. The Input source is closed before returning.
 
+   function Load_Payload
+     (XML      : String_Access;
+      Envelope : Boolean := True;
+      Schema   : WSDL.Schema.Definition := WSDL.Schema.Empty)
+      return Message.Payload.Object;
+   --  Build a Payload object by parsing the XML payload string. If Envelope is
+   --  False, the message could consists only from body with arbitrary named
+   --  root tag without mandatory SOAP Envelope wrapper. This is the internal
+   --  version that uses a String_Access to avoid copying the string.
+
    procedure Parse_Namespaces
      (N  : DOM.Core.Node;
       NS : in out Namespaces);
@@ -680,7 +690,7 @@ package body SOAP.Message.XML is
    ------------------
 
    function Load_Payload
-     (XML      : aliased String;
+     (XML      : String_Access;
       Envelope : Boolean := True;
       Schema   : WSDL.Schema.Definition := WSDL.Schema.Empty)
       return Message.Payload.Object
@@ -689,7 +699,7 @@ package body SOAP.Message.XML is
       Source : String_Input;
       S      : State;
    begin
-      Open (XML'Unchecked_Access,
+      Open (Unicode.CES.Cst_Byte_Sequence_Access (XML),
             Unicode.CES.Utf8.Utf8_Encoding,
             Source);
 
@@ -705,6 +715,17 @@ package body SOAP.Message.XML is
    end Load_Payload;
 
    function Load_Payload
+     (XML      : aliased String;
+      Envelope : Boolean := True;
+      Schema   : WSDL.Schema.Definition := WSDL.Schema.Empty)
+      return Message.Payload.Object
+   is
+      Str : constant String_Access := XML'Unrestricted_Access;
+   begin
+      return Load_Payload (Str, Envelope, Schema);
+   end Load_Payload;
+
+   function Load_Payload
      (XML      : Unbounded_String;
       Envelope : Boolean := True;
       Schema   : WSDL.Schema.Definition := WSDL.Schema.Empty)
@@ -717,7 +738,7 @@ package body SOAP.Message.XML is
       end loop;
 
       return O : constant Message.Payload.Object :=
-                   Load_Payload (XML_Str.all, Envelope, Schema)
+                   Load_Payload (XML_Str, Envelope, Schema)
       do
          Free (XML_Str);
       end return;

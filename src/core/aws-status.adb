@@ -200,7 +200,7 @@ package body AWS.Status is
 
       else
          declare
-            Chunk_Size : constant := 10000;
+            Chunk_Size : constant := 8 * 1_024;
             Size       : constant Stream_Element_Offset :=
                            D.Binary_Data.Size;
             Chunk      : Stream_Element_Array (1 .. Chunk_Size);
