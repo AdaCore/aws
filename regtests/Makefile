@@ -28,15 +28,25 @@ export GPR_PROJECT_PATH
 
 build:
 
+define REPLACE_PYTHON
+	python -c "import sys; f=open('$(1)','r'); data=f.read(); f.close(); f=open('$(1)','w'); f.write(data.replace('python3', 'python')); f.close()"
+endef
+
+patch_python:
+ifeq ($(OS),Windows_NT)
+	$(call REPLACE_PYTHON,gen_system_tags.py)
+	$(call REPLACE_PYTHON,testsuite.py)
+endif
+
 $(TGT_DIR)/testsuite.tags: $(TGT_DIR)/makefile.setup $(GENERATOR)
 	$(PYTHON) $(GENERATOR) \
 		$(TGT_DIR)/makefile.setup \
 		$(TGT_DIR)/testsuite.tags 2>/dev/null || \
 		(echo "Can not generate system tags. The test are disabled")
 
-setup: $(TGT_DIR)/testsuite.tags
+setup: patch_python $(TGT_DIR)/testsuite.tags
 
-aws_regtests:
+aws_regtests: patch_python
 	test -f $(TGT_DIR)/testsuite.tags \
 		|| (echo 'Did you run make setup ?'; exit 1)
 	cd $(TGT_DIR) && \
