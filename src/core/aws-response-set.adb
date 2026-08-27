@@ -472,13 +472,23 @@ package body AWS.Response.Set is
       D.Content_Type := To_Unbounded_String
         (AWS.Headers.Get (D.Header, Messages.Content_Type_Token));
 
-      --  Set the Filename if any
+      --  Filename, if present, must be a simple name and not relative or
+      --  absolute path name. This is a security concern, as the filename is
+      --  used to write the attachment to disk. It is not prohibited to have a
+      --  filename with a path, but a recommanded practice is to only use the
+      --  simple name to avoid path traversal attacks.
 
       if AWS.Headers.Exist (D.Header, Messages.Content_Disposition_Token) then
-         D.Filename := To_Unbounded_String
-           (AWS.Headers.Values.Search
-             (AWS.Headers.Get
-               (D.Header, Messages.Content_Disposition_Token), "filename"));
+         declare
+            Filename : constant String :=
+              AWS.Headers.Values.Search
+                (AWS.Headers.Get
+                   (D.Header, Messages.Content_Disposition_Token),
+                 "filename");
+         begin
+            D.Filename :=
+              To_Unbounded_String (Directories.Simple_Name (Filename));
+         end;
       end if;
    end Parse_Header;
 

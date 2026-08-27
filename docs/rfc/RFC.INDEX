@@ -53,6 +53,9 @@ RFC-2817       Upgrading to TLS Within HTTP/1.1
 
 RFC-2818       HTTP Over TLS
 
+RFC-6266       Use of the Content-Disposition Header Field in the
+                   Hypertext Transfer Protocol (HTTP)
+
 RFC-6455       The WebSocket Protocol
 
 RFC-9110       HTTP Semantics

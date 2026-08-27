@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2004-2024, AdaCore                     --
+--                     Copyright (C) 2004-2026, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -109,9 +109,16 @@ package body AWS.Attachments is
          end if;
 
       else
+         --  Filename must be a simple name and not relative or absolute path
+         --  name. This is a security concern, as the filename is used to write
+         --  the attachment to disk. It is not prohibited to have a filename
+         --  with a path, but a recommanded practice is to only use the simple
+         --  name to avoid path traversal attacks.
+
          A.Headers.Add
            (Name  => AWS.Messages.Content_Disposition_Token,
-            Value => "attachment; filename=""" & Name & '"');
+            Value => "attachment; "
+                      & "filename=""" & Directories.Simple_Name (Name) & '"');
 
          if Data.Content_Type = Null_Unbounded_String then
             if not Has_Content_Type then
@@ -226,28 +233,33 @@ package body AWS.Attachments is
       Result : Unbounded_String;
    begin
       if AWS.Headers.Exist
-        (Attachment.Headers, Messages.Content_Disposition_Token)
+           (Attachment.Headers, Messages.Content_Disposition_Token)
       then
          Result :=
            +(AWS.Headers.Values.Search
-             (AWS.Headers.Get
-              (Attachment.Headers, Messages.Content_Disposition_Token),
-               "filename"));
+               (AWS.Headers.Get
+                  (Attachment.Headers, Messages.Content_Disposition_Token),
+                "filename"));
       end if;
 
       if Result = Null_Unbounded_String
         and then
-          AWS.Headers.Exist
-            (Attachment.Headers, Messages.Content_Type_Token)
+          AWS.Headers.Exist (Attachment.Headers, Messages.Content_Type_Token)
       then
          Result :=
            +(AWS.Headers.Values.Search
-              (AWS.Headers.Get
-                 (Attachment.Headers, Messages.Content_Type_Token),
-               "name"));
+               (AWS.Headers.Get
+                  (Attachment.Headers, Messages.Content_Type_Token),
+                "name"));
       end if;
 
-      return To_String (Result);
+      --  Filename must be a simple name and not relative or absolute
+      --  path name. This is a security concern, as the filename is used
+      --  to write the attachment to disk. It is not prohibited to have a
+      --  filename with a path, but a recommanded practice is to only use
+      --  the simple name to avoid path traversal attacks.
+
+      return Directories.Simple_Name (To_String (Result));
    end Filename;
 
    --------------------------
