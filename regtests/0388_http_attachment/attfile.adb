@@ -16,6 +16,7 @@
 --  to http://www.gnu.org/licenses for a complete copy of the license.      --
 ------------------------------------------------------------------------------
 
+with Ada.Directories;
 with Ada.Text_IO;
 
 with AWS.Attachments;
@@ -26,7 +27,16 @@ procedure AttFile is
    use AWS;
 
    L : Attachments.List;
+   F : Text_IO.File_Type;
 begin
+   --  Create a file in a subdirectory and add it to the attachment list
+   Directories.Create_Directory ("somedir");
+   Directories.Create_Directory ("somedir/deep");
+
+   Text_IO.Create (F, Text_IO.Out_File, "somedir/deep/file.txt");
+   Text_IO.Put_Line (F, "This is a test file");
+   Text_IO.Close (F);
+
    Attachments.Add (L, "somedir/deep/file.txt", Headers.Empty_List);
 
    Text_IO.Put_Line ("Filename : " & Attachments.Filename (L.Get (1)));
