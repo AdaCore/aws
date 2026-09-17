@@ -50,7 +50,7 @@ project GPS_Support is
 
    package Binder is
       for Default_Switches ("Ada")
-         use Shared.Builder'Default_Switches ("Ada") & ("-static");
+         use Shared.Binder'Default_Switches ("Ada") & ("-static");
    end Binder;
 
    -------------
