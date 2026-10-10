@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2000-2025, AdaCore                     --
+--                     Copyright (C) 2000-2026, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -373,17 +373,15 @@ package body SOAP.Parameters is
    function Get (P : List; Name : String) return Types.Object_Set is
       use type SOAP.Types.Object_Safe_Pointer;
 
-      S : Types.Object_Set (1 .. Argument_Count (P));
-      K : Natural := 0;
+      L : List;
    begin
       for E of P loop
          if SOAP.Types.Name (-E) = Name then
-            K := @ + 1;
-            S (K) := E;
+            L.Append (E);
          end if;
       end loop;
 
-      return S (1 .. K);
+      return Get (L);
    end Get;
 
    -------------
