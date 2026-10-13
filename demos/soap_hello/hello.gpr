@@ -19,8 +19,19 @@
 with "aws";
 
 project Hello is
+
+   --  wsdl2aws generates hello_server.adb, so the project cannot be loaded in
+   --  "run" mode until this main source file is generated.
+   type Mode_Type is ("gen", "run");
+   Mode : Mode_Type := external ("MODE", "gen");
+   Mains := ("hello_client.adb");
+   case Mode is
+      when "gen" => null;
+      when "run" => Mains := Mains & ("hello_server.adb");
+   end case;
+
    for Source_Dirs use (".");
-   for Main use ("hello_client.adb", "hello_server.adb");
+   for Main use Mains;
 
    package Builder is
       for Default_Switches ("Ada") use ("-gnat2022");

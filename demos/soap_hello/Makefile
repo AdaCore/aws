@@ -25,7 +25,7 @@ ifneq (${LAL},false)
 all:
 	ada2wsdl -f -a $(URL)  -o hello.wsdl -P hello.gpr hello.ads
 	wsdl2aws -f -spec hello -cb -main hello_server hello.wsdl
-	gprbuild $(GPROPTS) -m $(GPROPTS) hello.gpr
+	gprbuild $(GPROPTS) -m $(GPROPTS) hello.gpr -XMODE=run
 else
 all:
 endif
