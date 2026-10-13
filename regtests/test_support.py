@@ -81,7 +81,7 @@ GPRBUILD_OPTIONS = []
 
 def build(prj):
     """Compile a project with gprbuild"""
-    cmd = ["gprbuild", f"-XHost_OS={Env().host.os.name}"]
+    cmd = ["gprbuild", f"-XHost_OS={Env().host.os.name}", "-XMODE=run"]
     for O in os.environ.get('GPRBUILD_OPTIONS', "").split():
         cmd += [O]
     if Env().is_cross:

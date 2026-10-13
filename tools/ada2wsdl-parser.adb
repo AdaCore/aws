@@ -30,8 +30,8 @@ with Libadalang.Analysis;
 with Libadalang.Common;
 with Libadalang.Project_Provider;
 
-with GNATCOLL.Projects;
-with GNATCOLL.VFS;
+with GPR2.Options;
+with GPR2.Project.Tree;
 
 with AWS.Utils;
 with SOAP.Name_Space;
@@ -1298,22 +1298,23 @@ package body Ada2WSDL.Parser is
       ------------------
 
       function Load_Project return LaL.Unit_Provider_Reference is
-         package GPR renames GNATCOLL.Projects;
          package LAL_GPR renames Libadalang.Project_Provider;
 
-         use type GNATCOLL.VFS.Filesystem_String;
-
-         Project          : constant GPR.Project_Tree_Access :=
-                              new GPR.Project_Tree;
-         Project_Filename : constant String :=
-                              To_String (Options.Project_Filename);
-         Project_File     : constant GNATCOLL.VFS.Virtual_File :=
-                              GNATCOLL.VFS.Create (+Project_Filename);
-         Env              : GPR.Project_Environment_Access;
+         Opts : GPR2.Options.Object;
+         Tree : GPR2.Project.Tree.Object;
       begin
-         GPR.Initialize (Env);
-         Project.Load (Project_File, Env, Report_Missing_Dirs => False);
-         return LAL_GPR.Create_Project_Unit_Provider (Project, Env => Env);
+         Opts.Add_Switch
+           (GPR2.Options.P, To_String (Options.Project_Filename));
+         if not Tree.Load
+                  (Opts,
+                   With_Runtime         => True,
+                   Artifacts_Info_Level => GPR2.Sources_Units,
+                   Absent_Dir_Error     => GPR2.No_Error,
+                   Check_Drivers        => False)
+         then
+            raise Fatal_Error;
+         end if;
+         return LAL_GPR.Create_Project_Unit_Provider (Tree);
       end Load_Project;
 
       ------------

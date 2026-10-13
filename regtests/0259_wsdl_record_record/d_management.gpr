@@ -20,8 +20,18 @@ with "aws";
 
 project D_Management is
 
+   --  wsdl2aws generates server.adb, so the project cannot be loaded in
+   --  "run" mode until this main source file is generated.
+   type Mode_Type is ("gen", "run");
+   Mode : Mode_Type := external ("MODE", "gen");
+   Mains := ();
+   case Mode is
+      when "gen" => null;
+      when "run" => Mains := Mains & ("server.adb");
+   end case;
+
    for Source_Dirs use (".");
-   for Main use ("server.adb");
+   for Main use Mains;
 
    package Builder is
       for Default_Switches ("Ada") use ("-m");

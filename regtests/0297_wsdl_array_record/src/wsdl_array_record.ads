@@ -16,6 +16,6 @@
 --  to http://www.gnu.org/licenses for a complete copy of the license.      --
 ------------------------------------------------------------------------------
 
-package WSDL_Ret_Enum is
+package WSDL_Array_Record is
 
-end WSDL_Ret_Enum;
+end WSDL_Array_Record;
