@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2000-2025, AdaCore                     --
+--                     Copyright (C) 2000-2026, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -982,6 +982,43 @@ package body SOAP.Utils is
 
       return Result;
    end To_Vector;
+
+   -----------------
+   -- To_Vector_L --
+   -----------------
+
+   function To_Vector_L (From : SOAP.Parameters.List) return Vector.Vector is
+      use type Ada.Tags.Tag;
+      use SOAP.Parameters;
+      use SOAP.Types;
+      Length : constant Natural := Argument_Count (From);
+      Result : Vector.Vector;
+   begin
+      for K in 1 .. Length loop
+         declare
+            E : constant SOAP.Types.Object'Class := Argument (From, K);
+         begin
+            --  A single element which is a SOAP_Set, this is the
+            --  vector to be converted.
+            if E'Tag = SOAP.Types.SOAP_Set'Tag
+              and then Length = 1
+            then
+               return To_Vector_L (+SOAP.Types.SOAP_Set (E));
+
+            --  Likewise for a SOAP_Array
+            elsif E'Tag = SOAP.Types.SOAP_Array'Tag
+              and then Length = 1
+            then
+               return To_Vector_L (+SOAP.Types.SOAP_Array (E));
+
+            else
+               Result.Append (Get (E));
+            end if;
+         end;
+      end loop;
+
+      return Result;
+   end To_Vector_L;
 
    --------
    -- US --

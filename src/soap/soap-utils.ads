@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2000-2025, AdaCore                     --
+--                     Copyright (C) 2000-2026, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -39,6 +39,7 @@ with AWS.Status;
 
 with SOAP.Message.Payload;
 with SOAP.Name_Space;
+with SOAP.Parameters;
 with SOAP.Types;
 with SOAP.WSDL.Schema;
 
@@ -164,6 +165,13 @@ package SOAP.Utils is
       with function Get (O : Types.Object'Class) return Vector.Element_Type;
    function To_Vector (From : Types.Object_Set) return Vector.Vector;
    --  Convert a Types.Object_Set to an vector
+
+   generic
+      with package Vector is new Ada.Containers.Vectors
+        (Positive, others => <>);
+      with function Get (O : Types.Object'Class) return Vector.Element_Type;
+   function To_Vector_L (From : SOAP.Parameters.List) return Vector.Vector;
+   --  Convert a Parameters.List to a vector
 
    generic
       type T is private;
