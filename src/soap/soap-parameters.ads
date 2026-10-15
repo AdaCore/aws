@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2000-2025, AdaCore                     --
+--                     Copyright (C) 2000-2026, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -165,7 +165,7 @@ package SOAP.Parameters is
    --  Array.
 
    function Get (P : List) return Types.Object_Set;
-   --  Retunrs the Object_Set corresponding to the List
+   --  Returns the Object_Set corresponding to the List
 
    function Get (P : List; Name : String) return Types.Object_Set;
    --  Returns all element of P having the name Name

@@ -164,7 +164,7 @@ package SOAP.Utils is
         (Positive, others => <>);
       with function Get (O : Types.Object'Class) return Vector.Element_Type;
    function To_Vector (From : Types.Object_Set) return Vector.Vector;
-   --  Convert a Types.Object_Set to an vector
+   --  Convert a Types.Object_Set to a vector
 
    generic
       with package Vector is new Ada.Containers.Vectors
