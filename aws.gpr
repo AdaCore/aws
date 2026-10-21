@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2003-2014, AdaCore                     --
+--                     Copyright (C) 2003-2026, AdaCore                     --
 --                                                                          --
 --  This is free software;  you can redistribute it  and/or modify it       --
 --  under terms of the  GNU General Public License as published  by the     --
@@ -34,6 +34,7 @@ aggregate library project AWS is
    for Library_Name use "aws";
    for Library_Kind use Shared.Library_Type;
    for Library_Dir use Shared'Library_Dir & "/aws";
+   for Run_Path_Option use ();
 
    case Shared.Library_Type is
       when "static" | "static-pic" =>
