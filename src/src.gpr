@@ -26,7 +26,7 @@ with "gnatcoll_core";
 
 library project Src is
 
-   for Languages use ("Ada", "Project file", "Makefile");
+   for Languages use ("Ada", "Project file");
 
    for Source_Dirs use
      ("core", "extended", "http2", "../templates_parser/src", "../config/src",
@@ -126,9 +126,6 @@ library project Src is
    ------------
 
    package Naming is
-
-      for Implementation_Suffix ("Makefile") use ".txt";
-      for Implementation_Exceptions ("Makefile") use ("Makefile");
 
       -- Templates Parser
 
