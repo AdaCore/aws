@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2000-2025, AdaCore                     --
+--                     Copyright (C) 2000-2026, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -49,7 +49,6 @@ with Ada.Unchecked_Conversion;
 with Ada.Unchecked_Deallocation;
 with Interfaces.C.Strings;
 
-with System.Memory;
 with System.Storage_Elements;
 
 with AWS.Net.Log;
@@ -81,12 +80,6 @@ package body AWS.Net.SSL is
       --  OpenSSL implementation thread safe.
 
    end Locking;
-
-   function Lib_Realloc
-     (Ptr  : System.Address;
-      Size : System.Memory.size_t) return System.Address with Convention => C;
-   --  C library could use null pointer as input parameter for realloc, but
-   --  gnatmem does not care about it and logging Free of the null pointer.
 
    function BIO_Debug_Write
      (BIO  : TSSL.BIO_Access;
@@ -1005,21 +998,6 @@ package body AWS.Net.SSL is
          SSL_Handshake_Timeout);
    end Initialize_Default_Config;
 
-   -----------------
-   -- Lib_Realloc --
-   -----------------
-
-   function Lib_Realloc
-     (Ptr  : System.Address;
-      Size : System.Memory.size_t) return System.Address is
-   begin
-      if Ptr = System.Null_Address then
-         return System.Memory.Alloc (Size);
-      else
-         return System.Memory.Realloc (Ptr, Size);
-      end if;
-   end Lib_Realloc;
-
    ----------
    -- Load --
    ----------
@@ -1852,8 +1830,6 @@ package body AWS.Net.SSL is
       end if;
    end Socket_Write;
 
-   Keep_M, Keep_R, Keep_F : System.Address;
-
    -------------
    -- Locking --
    -------------
@@ -1992,12 +1968,6 @@ package body AWS.Net.SSL is
                DH_Params (J) := TSSL.Null_Pointer;
             end if;
          end loop;
-
-         if Keep_M /= System.Null_Address
-           and then TSSL.CRYPTO_set_mem_functions (Keep_M, Keep_R, Keep_F) = 0
-         then
-            Keep_M := System.Null_Address;
-         end if;
 
          Finalized := True;
       end Finalize;
@@ -3134,29 +3104,6 @@ package body AWS.Net.SSL is
 
 begin
    Initialize_Default_Config (TLS);
-
-   TSSL.CRYPTO_get_mem_functions (M => Keep_M, R => Keep_R, F => Keep_F);
-
-   --  Set the RTL memory allocation routines is necessary only to be able
-   --  gnatmem to detect memory leaks allocated inside of OpenSSL library.
-   --  If we do not use gnatmem memory allocation interceptor we don't need
-   --  this interception and all GNAT tasks termination interception too by the
-   --  way. See Locking.Initialize for OpenSSL 1.1.1 and newer comment.
-   --  Would be good to have flag in System.Memory which defines is the gnatmem
-   --  interceptors is in action.
-
-   if TSSL.CRYPTO_set_mem_functions
-        (M => System.Memory.Alloc'Address,
-         R => Lib_Realloc'Address,
-         F => System.Memory.Free'Address) = 0
-   then
-      --  In "OpenSSL FIPS Object Module" based on OpenSSL version 1.0.1e
-      --  we are unable to setup our own memory allocation routines. GNATMEM
-      --  would not be aware of memory allocations inside of OpenSSL in this
-      --  case, but AWS is able to run anyway.
-
-      Keep_M := System.Null_Address; -- To do not restore back
-   end if;
 
    Locking.Initialize;
 
