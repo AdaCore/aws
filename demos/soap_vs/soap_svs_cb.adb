@@ -23,14 +23,14 @@ with SOAP.Message.Payload;
 with SOAP.Message.Response.Error;
 with SOAP.Name_Space;
 with SOAP.Parameters;
-with SOAP.Types;
+with SOAP.Types.Set;
 
 package body SOAP_SVS_CB is
 
    use Ada;
 
    function BR
-     (V         : SOAP.Types.Object_Set'Class;
+     (V         : SOAP.Types.Set.Object;
       Name      : String;
       Type_Name : String := "";
       NS        : SOAP.Name_Space.Object := SOAP.Name_Space.No_Name_Space)
@@ -205,7 +205,7 @@ package body SOAP_SVS_CB is
          ctApostrophes        : Natural := 0;
          ctQuotes             : Natural := 0;
 
-         OS : Object_Set;
+         OS : Set.Object;
       begin
          for K in S'Range loop
             case S (K) is
@@ -218,7 +218,7 @@ package body SOAP_SVS_CB is
             end case;
          end loop;
 
-         OS := Object_Set'
+         OS := Set.Object'
                  [I (ctLeftAngleBrackets, "ctLeftAngleBrackets"),
                   I (ctRightAngleBrackets, "ctRightAngleBrackets"),
                   I (ctAmpersands, "ctAmpersands"),
@@ -366,7 +366,7 @@ package body SOAP_SVS_CB is
          V6 : constant Object'Class := Argument (P, "bin");
       begin
          RP := +SOAP.Types.A
-           (Object_Set'[V1, V2, V3, V4, V5, V6], "answer");
+           (Set.Object'[V1, V2, V3, V4, V5, V6], "answer");
       end;
 
       SOAP.Message.Set_Parameters (R, RP);
@@ -510,7 +510,7 @@ package body SOAP_SVS_CB is
          V3 : constant Integer := N * 1000;
 
       begin
-         RP := +BR (Object_Set'[I (V1, "times10"),
+         RP := +BR (Set.Object'[I (V1, "times10"),
                                 I (V2, "times100"),
                                 I (V3, "times1000")],
                     "answer");
@@ -553,7 +553,7 @@ package body SOAP_SVS_CB is
       R := SOAP.Message.Response.From (PL);
 
       RP := +BR
-        (Object_Set'[S ("http://libre.adacore.com/", "toolkitDocsUrl"),
+        (Set.Object'[S ("http://libre.adacore.com/", "toolkitDocsUrl"),
                      S ("AWS/SOAP (Ada Web Server)", "toolkitName"),
                      S (AWS.Version & '.' & SOAP.Version, "toolkitVersion"),
                      S ("Windows", "toolkitOperatingSystem")],

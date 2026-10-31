@@ -17,7 +17,7 @@ with Ada.Containers.Vectors;
 with Ada.Strings.Unbounded;
 with Ada.Tags;
 with SOAP.Parameters;
-with SOAP.Types;
+with SOAP.Types.Set;
 with SOAP.Utils;
 
 @@TABLE@@
@@ -138,7 +138,7 @@ package @_UNIT_NAME_@ is
 @@END_IF@@
 
    function To_@_NAME_SPACE_@_@_TYPE_NAME_@
-     (From : SOAP.Types.Object_Set)
+     (From : SOAP.Types.Set.Object)
       return @_TYPE_NAME_@
       renames To_@_TYPE_NAME_@;
 

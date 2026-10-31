@@ -46,6 +46,7 @@ with SOAP.Message.Payload;
 with SOAP.Name_Space;
 with SOAP.Parameters;
 with SOAP.Types;
+with SOAP.Types.Set;
 
 with Pck_Service.Client;
 with Pck_Service.Types;
@@ -81,7 +82,7 @@ procedure Soapcheck is
       Result : SOAP.Types.SOAP_Record;
    begin
       Result := SOAP.Types.R
-        (Object_Set'[
+        (Set.Object'[
           SOAP.Types.S (Integer'Image (R.V), "V"),
           SOAP.Types.S (Integer'Image (Integer (R.S)), "S"),
           SOAP.Types.E (Pck_Service.Types.Image (R.C), "Color", "C")],

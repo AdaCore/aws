@@ -24,12 +24,13 @@ with SOAP.Message.Payload;
 with SOAP.Message.XML;
 with SOAP.Parameters;  use SOAP.Parameters;
 with SOAP.Types;       use SOAP.Types;
+with SOAP.Types.Set;
 with SOAP.Name_Space;  use SOAP.Name_Space;
 
 procedure SOAP2 is
 
    function BR
-     (V         : Object_Set'Class;
+     (V         : SOAP.Types.Set.Object;
       Name      : String;
       Type_Name : String := "";
       NS        : SOAP.Name_Space.Object := SOAP.Name_Space.No_Name_Space)
@@ -40,14 +41,14 @@ procedure SOAP2 is
                SOAP.Message.Payload.Build
                  ("Workorder",
                   +BR
-                     (Object_Set'
+                     (SOAP.Types.Set.Object'
                         [S ("Wo1", "name1"),
                          S ("idle", "name2"),
                          A
-                           (Object_Set'
+                           (SOAP.Types.Set.Object'
                               [BR
-                                 (Object_Set'[S ("idle", "name3"),
-                                              S ("Wo1", "name4")],
+                                 (SOAP.Types.Set.Object'[S ("idle", "name3"),
+                                                         S ("Wo1", "name4")],
                                   "my_record")],
                             "my_array")],
                       "my_record_out"));

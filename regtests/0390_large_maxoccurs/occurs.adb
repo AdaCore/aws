@@ -18,6 +18,7 @@
 
 pragma Ada_2022;
 
+with Ada.Exceptions;
 with Ada.Strings.Unbounded;
 with Ada.Text_IO;
 
@@ -76,5 +77,10 @@ begin
    OccursServices.Client.DisplayTrack
      (T, Af, Endpoint => Server.Status.Local_URL (WS));
 
+   AWS.Server.Shutdown (WS);
+exception
+   when E : others =>
+      Ada.Text_IO.Put_Line
+        ("Exception: " & Ada.Exceptions.Exception_Message (E));
    AWS.Server.Shutdown (WS);
 end Occurs;

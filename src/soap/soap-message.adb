@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2000-2025, AdaCore                     --
+--                     Copyright (C) 2000-2026, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -27,7 +27,7 @@
 --  covered by the  GNU Public License.                                     --
 ------------------------------------------------------------------------------
 
-with SOAP.Types;
+with SOAP.Types.Set;
 
 package body SOAP.Message is
 
@@ -154,7 +154,7 @@ package body SOAP.Message is
 
          if O in Types.Composite'Class then
             declare
-               OS : constant Object_Set := V (Composite'Class (O));
+               OS : constant Types.Set.Object := V (Composite'Class (O));
             begin
                for E of OS loop
                   Add_Namespaces (E);

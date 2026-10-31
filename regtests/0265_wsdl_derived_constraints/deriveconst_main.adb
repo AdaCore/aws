@@ -29,7 +29,7 @@ with SOAP.Message.Payload;
 with SOAP.Message.Response.Error;
 with SOAP.Name_Space;
 with SOAP.Parameters;
-with SOAP.Types;
+with SOAP.Types.Set;
 
 with CB;
 with Deriveconst_Demo.Client;
@@ -83,7 +83,7 @@ procedure Deriveconst_Main is
       Eight : String)
    is
       function BR
-        (V         : Object_Set'Class;
+        (V         : Set.Object;
          Name      : String;
          Type_Name : String := "";
          NS        : SOAP.Name_Space.Object := SOAP.Name_Space.No_Name_Space)
@@ -92,11 +92,11 @@ procedure Deriveconst_Main is
 
       TNS   : SOAP.Name_Space.Object := SOAP.Name_Space.Create
                 ("tns", "http://www.ecerami.com/wsdl/DeriveconstService.wsdl");
-      O_Set : Object_Set := [S ("00000000", "item", "tns:Name"),
+      O_Set : Set.Object := [S ("00000000", "item", "tns:Name"),
                              S ((if Id = 3 then "x" else "abcdefgh"),
                                 "item", "tns:Name")];
       P_Set : Parameters.List :=
-                +BR (Object_Set'[I (Id, "id", "xs:int"),
+                +BR (Set.Object'[I (Id, "id", "xs:int"),
                       I (One, "one", "tns:PercentCompleteInteger"),
                       I (Two, "two", "tns:NonNegativeInt"),
                       D (Three, "three", "tns:NonNegativeFloat"),

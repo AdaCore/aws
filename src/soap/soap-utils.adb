@@ -802,11 +802,10 @@ package body SOAP.Utils is
 
    function To_Object_Set
      (From : T_Array;
-      NS   : Name_Space.Object) return Types.Object_Set
+      NS   : Name_Space.Object) return Types.Set.Object
    is
       use Ada.Containers;
-      use SOAP.Types;
-      Result : Types.Object_Set;
+      Result : Types.Set.Object;
    begin
       Result.Reserve_Capacity (Count_Type (From'Length));
 
@@ -824,11 +823,10 @@ package body SOAP.Utils is
 
    function To_Object_Set_C
      (From : T_Array;
-      NS   : Name_Space.Object) return Types.Object_Set
+      NS   : Name_Space.Object) return Types.Set.Object
    is
       use Ada.Containers;
-      use SOAP.Types;
-      Result : Types.Object_Set;
+      Result : Types.Set.Object;
    begin
       Result.Reserve_Capacity (Count_Type (From'Length));
 
@@ -846,10 +844,9 @@ package body SOAP.Utils is
 
    function To_Object_Set_V
      (From : Vector.Vector;
-      NS   : Name_Space.Object) return Types.Object_Set
+      NS   : Name_Space.Object) return Types.Set.Object
    is
-      use SOAP.Types;
-      Result : Types.Object_Set;
+      Result : Types.Set.Object;
    begin
       Result.Reserve_Capacity (From.Length);
 
@@ -865,7 +862,7 @@ package body SOAP.Utils is
    -- To_T_Array --
    ----------------
 
-   function To_T_Array (From : Types.Object_Set) return T_Array is
+   function To_T_Array (From : Types.Set.Object) return T_Array is
       use type Ada.Containers.Count_Type;
       use type Ada.Tags.Tag;
       use SOAP.Types;
@@ -901,7 +898,7 @@ package body SOAP.Utils is
    -- To_T_Array_C --
    ------------------
 
-   function To_T_Array_C (From : Types.Object_Set) return T_Array is
+   function To_T_Array_C (From : Types.Set.Object) return T_Array is
       use type Ada.Containers.Count_Type;
       use type Ada.Tags.Tag;
       use SOAP.Types;
@@ -956,7 +953,7 @@ package body SOAP.Utils is
    -- To_Vector --
    ---------------
 
-   function To_Vector (From : Types.Object_Set) return Vector.Vector is
+   function To_Vector (From : Types.Set.Object) return Vector.Vector is
       use type Ada.Containers.Count_Type;
       use type Ada.Tags.Tag;
       use SOAP.Types;

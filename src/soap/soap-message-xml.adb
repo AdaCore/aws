@@ -43,6 +43,7 @@ with Unicode.CES.Utf8;
 with SOAP.Message.Reader;
 with SOAP.Message.Response.Error;
 with SOAP.Name_Space;
+with SOAP.Types.Set;
 with SOAP.Types.Untyped;
 with SOAP.Utils;
 with SOAP.XML;
@@ -951,7 +952,7 @@ package body SOAP.Message.XML is
       end Get_Type_Name;
 
       LS    : constant State := S;
-      OS    : Object_Set;
+      OS    : Set.Object;
       A     : Types.SOAP_Array;
 
       Field : DOM.Core.Node;
@@ -1009,7 +1010,7 @@ package body SOAP.Message.XML is
                     (Field, SOAP.Name_Space.Name (S.NS.xsi) & ":type");
 
       --  The record fields temporary store
-      OS     : Object_Set;
+      OS     : Set.Object;
 
       T_Name : constant String :=
                  (if xsd = ""
@@ -1024,8 +1025,7 @@ package body SOAP.Message.XML is
 
       if First_Child (N) /= null then
          S_Type := To_Type (T_Name, S.NS, S.Schema);
-         OS.Append
-           (Handlers (S_Type).Handler ("attribute_value", T_Name, N));
+         OS.Append (Handlers (S_Type).Handler ("attribute_value", T_Name, N));
       end if;
 
       --  The element's attribute
@@ -1757,7 +1757,7 @@ package body SOAP.Message.XML is
                     (Field, SOAP.Name_Space.Name (S.NS.xsi) & ":type");
 
       --  The record fields temporary store
-      OS     : Object_Set;
+      OS     : Set.Object;
 
       T_Name : Unbounded_String; -- record's type name
       LS     : constant State := S;

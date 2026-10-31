@@ -28,6 +28,7 @@
 ------------------------------------------------------------------------------
 
 with Ada.Calendar.Time_Zones;
+with Ada.Containers;
 with Ada.Real_Time;
 with Ada.Strings.Fixed;
 with Ada.Strings.Maps;
@@ -38,6 +39,7 @@ with Ada.Unchecked_Deallocation;
 with AWS.Utils;
 with GNAT.Calendar.Time_IO;
 
+with SOAP.Types.Set;
 with SOAP.Types.Untyped;
 with SOAP.Utils;
 
@@ -46,7 +48,7 @@ package body SOAP.Types is
    use type SOAP.Name_Space.Object;
 
    procedure Unchecked_Free is new
-     Ada.Unchecked_Deallocation (Object_Set'Class, Object_Set_Access);
+     Ada.Unchecked_Deallocation (Set.Object'Class, Object_Set_Access);
 
    procedure Unchecked_Free is new
      Ada.Unchecked_Deallocation (Natural, Counter_Access);
@@ -119,7 +121,7 @@ package body SOAP.Types is
    -------
 
    function A
-     (V         : Object_Set'Class;
+     (V         : Set.Object;
       Name      : String;
       Type_Name : String := "";
       NS        : SOAP.Name_Space.Object := SOAP.Name_Space.No_Name_Space)
@@ -132,7 +134,7 @@ package body SOAP.Types is
            To_Unbounded_String (Type_Name),
            NS,
            new Natural'(1),
-           new Object_Set'(Object_Set (V)));
+           new Set.Object'(V));
    end A;
 
    ------------
@@ -190,16 +192,6 @@ package body SOAP.Types is
            NS,
            To_Unbounded_String (V));
    end AnyURI;
-
-   ------------
-   -- Append --
-   ------------
-
-   procedure Append
-     (Container : in out Object_Set; New_Item : Object'Class) is
-   begin
-      Container.V.Append (New_Item);
-   end Append;
 
    -------
    -- B --
@@ -277,31 +269,6 @@ package body SOAP.Types is
            V);
    end BI;
 
-   ------------------------
-   -- Constant_Reference --
-   ------------------------
-
-   function Constant_Reference
-     (Container : aliased Object_Set; Position : Cursor)
-      return Constant_Reference_Type is
-   begin
-      return
-        (Element =>
-           Container.V.Constant_Reference (Object_Set_Pck.Cursor (Position))
-             .Element,
-         R       =>
-           Container.V.Constant_Reference (Object_Set_Pck.Cursor (Position)));
-   end Constant_Reference;
-
-   function Constant_Reference
-     (Container : aliased Object_Set; Index : Positive)
-      return Constant_Reference_Type is
-   begin
-      return
-        (Element => Container.V.Constant_Reference (Index).Element,
-         R       => Container.V.Constant_Reference (Index));
-   end Constant_Reference;
-
    -------
    -- D --
    -------
@@ -375,15 +342,6 @@ package body SOAP.Types is
            NS,
            To_Unbounded_String (V));
    end E;
-
-   -----------
-   -- Empty --
-   -----------
-
-   function Empty (Capacity : Containers.Count_Type := 10) return Object_Set is
-   begin
-      return Object_Set'(V => Object_Set_Pck.Empty (Capacity));
-   end Empty;
 
    ------------
    -- Exists --
@@ -521,16 +479,6 @@ package body SOAP.Types is
          end if;
       end if;
    end Finalize;
-
-   -------------------
-   -- First_Element --
-   -------------------
-
-   function First_Element
-     (Container : Object_Set) return Object'Class is
-   begin
-      return Container.V.First_Element;
-   end First_Element;
 
    ---------
    -- Get --
@@ -1637,15 +1585,6 @@ package body SOAP.Types is
       O.Ref_Counter := new Natural'(1);
    end Initialize;
 
-   --------------
-   -- Is_Empty --
-   --------------
-
-   function Is_Empty (Container : Object_Set) return Boolean is
-   begin
-      return Container.V.Is_Empty;
-   end Is_Empty;
-
    function Is_Empty (O : Object) return Boolean is
       pragma Unreferenced (O);
    begin
@@ -1664,33 +1603,6 @@ package body SOAP.Types is
    begin
       return O.V.Is_Empty;
    end Is_Empty;
-
-   -------------
-   -- Iterate --
-   -------------
-
-   function Iterate
-     (Container : Object_Set)
-      return Object_Set_Iterator_Interfaces.Reversible_Iterator'Class is
-   begin
-      return
-        R_Iterator'
-          (Object_Set_Iterator_Interfaces.Reversible_Iterator
-           with I => Container.V.Iterate'Unrestricted_Access);
-   end Iterate;
-
-   function Iterate
-     (Container : Object_Set; Start : Cursor)
-      return Object_Set_Iterator_Interfaces.Reversible_Iterator'Class is
-   begin
-      return
-        R_Iterator'
-          (Object_Set_Iterator_Interfaces.Reversible_Iterator
-           with
-             I =>
-               Container.V.Iterate
-                 (Object_Set_Pck.Cursor (Start))'Unrestricted_Access);
-   end Iterate;
 
    -------
    -- L --
@@ -1711,15 +1623,6 @@ package body SOAP.Types is
            NS,
            V);
    end L;
-
-   ------------
-   -- Length --
-   ------------
-
-   function Length (Container : Object_Set) return Containers.Count_Type is
-   begin
-      return Container.V.Length;
-   end Length;
 
    -------
    -- N --
@@ -1753,15 +1656,6 @@ package body SOAP.Types is
    begin
       return O.NS;
    end Name_Space;
-
-   ----------------
-   -- New_Vector --
-   ----------------
-
-   function New_Vector (First, Last : Positive) return Object_Set is
-   begin
-      return Object_Set'(V => Object_Set_Pck.New_Vector (First, Last));
-   end New_Vector;
 
    --------
    -- NS --
@@ -1802,7 +1696,7 @@ package body SOAP.Types is
    -------
 
    function R
-     (V         : Object_Set'Class;
+     (V         : Set.Object;
       Name      : String;
       Type_Name : String := "";
       NS        : SOAP.Name_Space.Object := SOAP.Name_Space.No_Name_Space)
@@ -1815,31 +1709,8 @@ package body SOAP.Types is
            To_Unbounded_String (if Type_Name = "" then Name else Type_Name),
            NS,
            new Natural'(1),
-           new Object_Set'Class'(V));
+           new Set.Object'(V));
    end R;
-
-   ---------------
-   -- Reference --
-   ---------------
-
-   function Reference
-     (Container : aliased in out Object_Set; Position : Cursor)
-      return Reference_Type is
-   begin
-      return
-        (Element =>
-           Container.V.Reference (Object_Set_Pck.Cursor (Position)).Element,
-         R       => Container.V.Reference (Object_Set_Pck.Cursor (Position)));
-   end Reference;
-
-   function Reference
-     (Container : aliased in out Object_Set; Index : Positive)
-      return Reference_Type is
-   begin
-      return
-        (Element => Container.V.Reference (Index).Element,
-         R       => Container.V.Reference (Index));
-   end Reference;
 
    ------------
    -- Rename --
@@ -1857,35 +1728,6 @@ package body SOAP.Types is
 
       return Copy;
    end Rename;
-
-   ---------------------
-   -- Replace_Element --
-   ---------------------
-
-   procedure Replace_Element
-     (Container : in out Object_Set;
-      Index     : Positive;
-      New_Item  : Object'Class) is
-   begin
-      Container.V.Replace_Element (Index, New_Item);
-   end Replace_Element;
-
-   procedure Replace_Element
-     (Container : in out Object_Set;
-      Position  : Cursor;
-      New_Item  : Object'Class) is
-   begin
-      Container.V.Replace_Element (Object_Set_Pck.Cursor (Position), New_Item);
-   end Replace_Element;
-   ----------------------
-   -- Reserve_Capacity --
-   ----------------------
-
-   procedure Reserve_Capacity
-     (Container : in out Object_Set; Capacity : Containers.Count_Type) is
-   begin
-      Container.V.Reserve_Capacity (Capacity);
-   end Reserve_Capacity;
 
    -------
    -- S --
@@ -1945,14 +1787,14 @@ package body SOAP.Types is
    -- Set --
    ---------
 
-   function Set
-     (V         : Object_Set'Class;
+   function S
+     (V         : Set.Object;
       Name      : String;
       Type_Name : String := "";
       NS        : SOAP.Name_Space.Object := SOAP.Name_Space.No_Name_Space)
       return SOAP_Set
    is
-      O_Set : constant Object_Set_Access := new Object_Set'Class'(V);
+      O_Set : constant Object_Set_Access := new Set.Object'(V);
    begin
       --  All items must have the name of the set
 
@@ -1968,7 +1810,7 @@ package body SOAP.Types is
            NS,
            new Natural'(1),
            O_Set);
-   end Set;
+   end S;
 
    --------------------
    -- Set_Name_Space --
@@ -2327,9 +2169,9 @@ package body SOAP.Types is
       return To_String (O.V);
    end V;
 
-   function V (O : Composite'Class) return Object_Set is
+   function V (O : Composite) return Set.Object is
    begin
-      return Object_Set (O.O.all);
+      return Set.Object (O.O.all);
    end V;
 
    function V (O : SOAP_Array; N : Positive) return Object'Class is
@@ -2355,8 +2197,8 @@ package body SOAP.Types is
       end if;
    end V;
 
-   function V (O : SOAP_Record; Name : String) return Object_Set'Class is
-      Result : Object_Set;
+   function V (O : SOAP_Record; Name : String) return Set.Object is
+      Result : Set.Object;
    begin
       for E of O.O.all loop
          if Types.Name (E) = Name then

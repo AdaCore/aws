@@ -54,14 +54,14 @@ pragma Ada_2022;
 --     compiler will issue errors where changes are needed.
 
 with Ada.Calendar;
-with Ada.Containers.Indefinite_Vectors;
 with Ada.Finalization;
-with Ada.Iterator_Interfaces;
 with Ada.Numerics.Big_Numbers.Big_Integers;
 with Ada.Strings.Unbounded;
 
 with SOAP.Name_Space;
 with SOAP.WSDL.Schema;
+
+limited with SOAP.Types.Set;
 
 package SOAP.Types is
 
@@ -90,97 +90,6 @@ package SOAP.Types is
 
    function "-" (O : Object_Safe_Pointer) return Object'Class;
    --  Returns the object associated with the safe pointer
-
-   type Object_Set is tagged private
-   with
-     Constant_Indexing => Constant_Reference,
-     Variable_Indexing => Reference,
-     Default_Iterator  => Iterate,
-     Iterator_Element  => Object'Class,
-     Aggregate         =>
-       (Empty          => Empty,
-        Add_Unnamed    => Append,
-        New_Indexed    => New_Vector,
-        Assign_Indexed => Replace_Element);
-   --  A set of SOAP objects, providing indexed access and iteration
-   --  capabilities.
-
-   type Cursor is private;
-   No_Element : constant Cursor;
-
-   Empty_Object_Set : constant Object_Set;
-
-   procedure Reserve_Capacity
-     (Container : in out Object_Set; Capacity : Containers.Count_Type);
-
-   function Length (Container : Object_Set) return Containers.Count_Type;
-
-   function Empty (Capacity : Containers.Count_Type := 10) return Object_Set;
-
-   function Is_Empty (Container : Object_Set) return Boolean;
-
-   procedure Append
-     (Container : in out Object_Set; New_Item : Object'Class);
-
-   function New_Vector (First, Last : Positive) return Object_Set;
-
-   function Element
-     (Container : Object_Set; Index : Positive)
-      return Object'Class with Inline;
-
-   function Element
-     (Position : Cursor) return Object'Class with Inline;
-
-   function First_Element
-     (Container : Object_Set) return Object'Class with Inline;
-
-   procedure Replace_Element
-     (Container : in out Object_Set;
-      Index     : Positive;
-      New_Item  : Object'Class);
-   procedure Replace_Element
-     (Container : in out Object_Set;
-      Position  : Cursor;
-      New_Item  : Object'Class);
-
-   function Has_Element (Position : Cursor) return Boolean with Inline;
-
-   package Object_Set_Iterator_Interfaces is new
-     Iterator_Interfaces (Cursor, Has_Element);
-
-   function Iterate
-     (Container : Object_Set)
-      return Object_Set_Iterator_Interfaces.Reversible_Iterator'Class;
-
-   function Iterate
-     (Container : Object_Set; Start : Cursor)
-      return Object_Set_Iterator_Interfaces.Reversible_Iterator'Class;
-
-   type Constant_Reference_Type
-     (Element : not null access constant Object'Class)
-   is
-     limited private
-   with Implicit_Dereference => Element;
-
-   type Reference_Type (Element : not null access Object'Class) is
-     limited private
-   with Implicit_Dereference => Element;
-
-   function Constant_Reference
-     (Container : aliased Object_Set; Position : Cursor)
-      return Constant_Reference_Type;
-
-   function Reference
-     (Container : aliased in out Object_Set; Position : Cursor)
-      return Reference_Type;
-
-   function Constant_Reference
-     (Container : aliased Object_Set; Index : Positive)
-      return Constant_Reference_Type;
-
-   function Reference
-     (Container : aliased in out Object_Set; Index : Positive)
-      return Reference_Type;
 
    function Image (O : Object) return String;
    --  Returns O value image
@@ -219,7 +128,7 @@ package SOAP.Types is
    --  Composite types are using a by-reference semantic for efficiency
    --  reason. Not that these types are not thread safe.
 
-   function V (O : Composite'Class) return Object_Set;
+   function V (O : Composite) return Set.Object;
 
    overriding
    function Is_Empty (O : Composite) return Boolean;
@@ -295,7 +204,7 @@ package SOAP.Types is
       Schema   : WSDL.Schema.Definition := WSDL.Schema.Empty);
 
    function A
-     (V         : Object_Set'Class;
+     (V         : Set.Object;
       Name      : String;
       Type_Name : String := "";
       NS        : Name_Space.Object := Name_Space.No_Name_Space)
@@ -326,8 +235,8 @@ package SOAP.Types is
       Encoding : Encoding_Style := WSDL.Schema.Encoded;
       Schema   : WSDL.Schema.Definition := WSDL.Schema.Empty);
 
-   function Set
-     (V         : Object_Set'Class;
+   function S
+     (V         : Set.Object;
       Name      : String;
       Type_Name : String := "";
       NS        : SOAP.Name_Space.Object := SOAP.Name_Space.No_Name_Space)
@@ -570,7 +479,7 @@ package SOAP.Types is
       Schema   : WSDL.Schema.Definition := WSDL.Schema.Empty);
 
    function R
-     (V         : Object_Set'Class;
+     (V         : Set.Object;
       Name      : String;
       Type_Name : String := "";
       NS        : Name_Space.Object := Name_Space.No_Name_Space)
@@ -585,7 +494,7 @@ package SOAP.Types is
    --  field name can be ommited in the record (minOccurs = 0) in this case
    --  the returned object may be No_Object.
 
-   function V (O : SOAP_Record; Name : String) return Object_Set'Class;
+   function V (O : SOAP_Record; Name : String) return Types.Set.Object;
    --  Returns SOAP_Record fields named Name
 
    function Exists (O : SOAP_Record; Field_Name : String) return Boolean;
@@ -1064,83 +973,6 @@ private
    procedure Finalize (O : in out Object_Safe_Pointer)
    with Inline;
 
-   --  Object_Set
-
-   package Object_Set_Pck is new
-     Containers.Indefinite_Vectors (Positive, Object'Class);
-
-   type R_Iterator is limited
-     new Object_Set_Iterator_Interfaces.Reversible_Iterator
-   with record
-      I :
-        aliased access constant
-          Object_Set_Pck.Vector_Iterator_Interfaces.Reversible_Iterator'Class;
-   end record;
-
-   --  Cursor
-
-   type Cursor is new Object_Set_Pck.Cursor;
-   No_Element : constant Cursor := Cursor (Object_Set_Pck.No_Element);
-
-   overriding
-   function First (O : R_Iterator) return Cursor
-   is (Cursor (Object_Set_Pck.Vector_Iterator_Interfaces.First (O.I.all)));
-
-   overriding
-   function Next (O : R_Iterator; Position : Cursor) return Cursor
-   is (Cursor
-         (Object_Set_Pck.Vector_Iterator_Interfaces.Next
-            (O.I.all, Object_Set_Pck.Cursor (Position))));
-
-   overriding
-   function Last (O : R_Iterator) return Cursor
-   is (Cursor (Object_Set_Pck.Vector_Iterator_Interfaces.Last (O.I.all)));
-
-   overriding
-   function Previous (O : R_Iterator; Position : Cursor) return Cursor
-   is (Cursor
-         (Object_Set_Pck.Vector_Iterator_Interfaces.Previous
-            (O.I.all, Object_Set_Pck.Cursor (Position))));
-
-   type Object_Set is tagged record
-      V : Object_Set_Pck.Vector;
-   end record;
-
-   -------------
-   -- Element --
-   -------------
-
-   function Element
-     (Container : Object_Set; Index : Positive)
-      return Object'Class
-   is (Container.V.Element (Index));
-
-   overriding
-   function Element (Position : Cursor) return Object'Class
-   is (Object_Set_Pck.Element (Object_Set_Pck.Cursor (Position)));
-
-   -----------------
-   -- Has_Element --
-   -----------------
-
-   overriding
-   function Has_Element (Position : Cursor) return Boolean
-   is (Object_Set_Pck.Has_Element (Object_Set_Pck.Cursor (Position)));
-
-   --  References
-
-   type Constant_Reference_Type
-     (Element : not null access constant Object'Class)
-   is limited record
-      R : Object_Set_Pck.Constant_Reference_Type (Element);
-   end record;
-
-   type Reference_Type
-     (Element : not null access Object'Class)
-   is limited record
-      R : Object_Set_Pck.Reference_Type (Element);
-   end record;
-
    --  Scalar
 
    type Scalar is abstract new Object with null record;
@@ -1149,10 +981,7 @@ private
 
    --  Composite
 
-   type Object_Set_Access is access Object_Set'Class;
-
-   Empty_Object_Set : constant Object_Set :=
-                        (V => Object_Set_Pck.Empty_Vector);
+   type Object_Set_Access is access Set.Object'Class;
 
    type Composite is abstract new Object with record
       Ref_Counter : Counter_Access;

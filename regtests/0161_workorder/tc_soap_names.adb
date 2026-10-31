@@ -20,6 +20,8 @@ with Ada.Strings.Fixed;     use Ada.Strings.Fixed;
 with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
 with Ada.Tags;              use Ada.Tags;
 
+with SOAP.Types.Set;
+
 package body Tc_Soap_Names is
 
    CrLf : constant String := (1 => Ascii.Cr, 2 => Ascii.Lf);
@@ -33,7 +35,7 @@ package body Tc_Soap_Names is
    begin
       if Obj in SOAP_Array then
          declare
-            Arr : Object_Set := V (SOAP_Array (Obj));
+            Arr : Set.Object := V (SOAP_Array (Obj));
          begin
             Result := To_Unbounded_String (Ind & "ARRAY " & Name (Obj) & CrLf);
             for E of Arr loop
@@ -43,7 +45,7 @@ package body Tc_Soap_Names is
 
       elsif Obj in SOAP_Record then
          declare
-            Rec : Object_Set := V (SOAP_Record (Obj));
+            Rec : Set.Object := V (SOAP_Record (Obj));
          begin
             Result := To_Unbounded_String
               (Ind & "RECORD " & Name (Obj) & CrLf);

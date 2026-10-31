@@ -31,7 +31,7 @@ pragma Ada_2022;
 
 with Ada.Strings.Unbounded;
 
-with SOAP.Types;
+with SOAP.Types.Set;
 
 private with Ada.Containers.Indefinite_Vectors;
 
@@ -166,16 +166,16 @@ package SOAP.Parameters is
    --  Types.Data_Error if this parameter does not exist or is not a SOAP
    --  Array.
 
-   function Get (P : List) return Types.Object_Set;
-   --  Returns the Object_Set corresponding to the List
+   function Get (P : List) return Types.Set.Object;
+   --  Returns the Set.Object corresponding to the List
 
-   function Get (P : List; Name : String) return Types.Object_Set;
+   function Get (P : List; Name : String) return Types.Set.Object;
    --  Returns all element of P having the name Name
 
    function Get (P : List; Name : String) return List;
    --  Returns all element of P having the name Name
 
-   function To_List (Set : Types.Object_Set) return List;
+   function To_List (Set : Types.Set.Object) return List;
    --  Returns a list for the given object set
 
    ------------------

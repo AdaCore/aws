@@ -6,7 +6,7 @@
 
 @@IF@@ @_RESULT_IS_ARRAY_@
    function To_@_PROC_@_Result
-     (O : SOAP.Types.Object_Set)
+     (O : SOAP.Types.Set.Object)
       return @_PROC_@_Result
       renames To_@_NAME_SPACE_@_@_TYPE_NAME_@_Type;
 @@ELSE@@

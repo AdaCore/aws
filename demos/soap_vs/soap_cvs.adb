@@ -23,7 +23,7 @@
 with Ada.Text_IO;
 with Ada.Calendar;
 
-with SOAP.Types;
+with SOAP.Types.Set;
 with SOAP.Parameters;
 with SOAP.Client;
 with SOAP.Message.Payload;
@@ -41,7 +41,7 @@ procedure SOAP_CVS is
    SOAPAction : constant String := "/validator1";
 
    function BR
-     (V         : Object_Set'Class;
+     (V         : Set.Object;
       Name      : String;
       Type_Name : String := "";
       NS        : SOAP.Name_Space.Object := SOAP.Name_Space.No_Name_Space)
@@ -85,7 +85,7 @@ procedure SOAP_CVS is
    procedure easyStructTest is
 
       P_Set : Parameters.List :=
-        +BR (Object_Set'[I (12, "moe"), I (45, "larry"), I (10, "curly")],
+        +BR (Set.Object'[I (12, "moe"), I (45, "larry"), I (10, "curly")],
              "stooges");
 
       P     : Message.Payload.Object;
@@ -114,7 +114,7 @@ procedure SOAP_CVS is
    procedure echoStructTest is
 
       P_Set : Parameters.List :=
-        +BR (Object_Set'[I (12, "moe"), I (45, "larry"), I (10, "curly")],
+        +BR (Set.Object'[I (12, "moe"), I (45, "larry"), I (10, "curly")],
              "myStruct");
 
       P     : Message.Payload.Object;
@@ -174,7 +174,7 @@ procedure SOAP_CVS is
 
    procedure moderateSizeArrayCheck is
 
-      P_Set : Parameters.List := +A (Object_Set'[S ("str 1"),
+      P_Set : Parameters.List := +A (Set.Object'[S ("str 1"),
                                                  S ("str 2"),
                                                  S ("str 3"),
                                                  S ("str 4")],
@@ -206,16 +206,16 @@ procedure SOAP_CVS is
 
    procedure nestedStructTest is
 
-      S1 : constant Object_Set := [I (1, "un"), I (2, "deux")];
+      S1 : constant Set.Object := [I (1, "un"), I (2, "deux")];
 
-      S2 : constant Object_Set :=
+      S2 : constant Set.Object :=
              [I (1, "moe"), I (27, "larry"), I (76, "curly")];
 
       P_Set : Parameters.List :=
-        +BR (Object_Set'[BR (Object_Set'[BR (S1, "test")],
+        +BR (Set.Object'[BR (Set.Object'[BR (S1, "test")],
                               "year1999"),
-                         BR (Object_Set'[BR (Object_Set'[BR (S2, "day01")],
-                                               "month04")],
+                         BR (Set.Object'[BR (Set.Object'[BR (S2, "day01")],
+                                             "month04")],
                               "year2000")],
              "myStruct");
 

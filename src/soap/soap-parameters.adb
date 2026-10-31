@@ -364,12 +364,12 @@ package body SOAP.Parameters is
       return Types.Get (Argument (P, Name));
    end Get;
 
-   function Get (P : List) return Types.Object_Set is
+   function Get (P : List) return Types.Set.Object is
    begin
       return [for E of P => E];
    end Get;
 
-   function Get (P : List; Name : String) return Types.Object_Set is
+   function Get (P : List; Name : String) return Types.Set.Object is
    begin
       return Get (List'(Get (P, Name)));
    end Get;
@@ -390,7 +390,7 @@ package body SOAP.Parameters is
    -- To_List --
    -------------
 
-   function To_List (Set : Types.Object_Set) return List is
+   function To_List (Set : Types.Set.Object) return List is
    begin
       return [for E of Set => E];
    end To_List;
