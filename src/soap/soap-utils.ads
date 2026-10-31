@@ -170,7 +170,8 @@ package SOAP.Utils is
       type Index is range <>;
       type T_Array is array (Index) of T;
       with function Get (O : Types.Object'Class) return T;
-   function To_T_Array_C (From : Types.Object_Set) return T_Array;
+   function To_T_Array_C (From : Types.Object_Set) return T_Array
+     with Pre => Natural (From.Length) = T_Array'Length;
    --  As above but for constrained arrays
 
    generic

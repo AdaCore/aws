@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2002-2025, AdaCore                     --
+--                     Copyright (C) 2002-2026, AdaCore                     --
 --                                                                          --
 --  This is free software;  you can redistribute it  and/or modify it       --
 --  under terms of the  GNU General Public License as published  by the     --
@@ -29,7 +29,7 @@ with SOAP.Name_Space;  use SOAP.Name_Space;
 procedure SOAP2 is
 
    function BR
-     (V         : SOAP.Types.Object_Set;
+     (V         : Object_Set'Class;
       Name      : String;
       Type_Name : String := "";
       NS        : SOAP.Name_Space.Object := SOAP.Name_Space.No_Name_Space)
@@ -39,12 +39,12 @@ procedure SOAP2 is
    Payload : SOAP.Message.Payload.Object'Class :=
      SOAP.Message.Payload.Build
      ("Workorder",
-      +BR ((+S ("Wo1", "name1"),
+      +BR (Object_Set'[+S ("Wo1", "name1"),
             +S ("idle", "name2"),
-            +A ((1 => +BR ((+S ("idle", "name3"),
-                            +S ("Wo1", "name4")),
-                           "my_record")),
-                "my_array")),
+            +A (Object_Set'[ +BR (Object_Set'[+S ("idle", "name3"),
+                                              +S ("Wo1", "name4")],
+                           "my_record")],
+                "my_array")],
            "my_record_out"));
 
    Parms    : constant List := SOAP.Message.Parameters (Payload);

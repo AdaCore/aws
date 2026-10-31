@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2000-2025, AdaCore                     --
+--                     Copyright (C) 2000-2026, AdaCore                     --
 --                                                                          --
 --  This is free software;  you can redistribute it  and/or modify it       --
 --  under terms of the  GNU General Public License as published  by the     --
@@ -33,7 +33,7 @@ procedure TestXML is
    Soap_Produced  : constant String := "Produced";
 
    function BR
-     (V         : Object_Set;
+     (V         : Object_Set'Class;
       Name      : String;
       Type_Name : String := "";
       NS        : SOAP.Name_Space.Object := SOAP.Name_Space.No_Name_Space)
@@ -41,13 +41,13 @@ procedure TestXML is
       renames SOAP.Types.R;
 
    Parm : List :=
-            +BR ((+S ("Wo1", Soap_WoId),
-                  +A ((1 => +BR ((+S ("", Soap_WoId),
-                                  +I (0, Soap_Produced)
-                                ), Soap_Orderline)
-                      )
+            +BR (Object_Set'[+S ("Wo1", Soap_WoId),
+                  +A (Object_Set'[ +BR (Object_Set'[+S ("", Soap_WoId),
+                                                    +I (0, Soap_Produced)],
+                                 Soap_Orderline)
+                      ]
                      , Soap_Orderline)
-                 )
+                 ]
                 , Soap_Wo);
 
    Payload : SOAP.Message.Payload.Object'Class :=

@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2008-2012, AdaCore                     --
+--                     Copyright (C) 2008-2026, AdaCore                     --
 --                                                                          --
 --  This is free software;  you can redistribute it  and/or modify it       --
 --  under terms of the  GNU General Public License as published  by the     --
@@ -36,8 +36,8 @@ package body Tc_Soap_Names is
             Arr : Object_Set := V (SOAP_Array (Obj));
          begin
             Result := To_Unbounded_String (Ind & "ARRAY " & Name (Obj) & CrLf);
-            for I in Arr'Range loop
-               Result := Result & Soap_Image (-Arr (I), Indent + 3);
+            for E of Arr loop
+               Result := Result & Soap_Image (-E, Indent + 3);
             end loop;
          end;
 
@@ -47,8 +47,8 @@ package body Tc_Soap_Names is
          begin
             Result := To_Unbounded_String
               (Ind & "RECORD " & Name (Obj) & CrLf);
-            for I in Rec'Range loop
-               Result := Result & Soap_Image (-Rec (I), Indent + 3);
+            for E of Rec loop
+               Result := Result & Soap_Image (-E, Indent + 3);
             end loop;
          end;
 

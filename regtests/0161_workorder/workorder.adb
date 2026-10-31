@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2008-2025, AdaCore                     --
+--                     Copyright (C) 2008-2026, AdaCore                     --
 --                                                                          --
 --  This is free software;  you can redistribute it  and/or modify it       --
 --  under terms of the  GNU General Public License as published  by the     --
@@ -33,7 +33,7 @@ procedure Workorder is
    A_Time : constant Time := Time_Of (2002, 3, 24, 56600.5);
 
    function BR
-     (V         : Object_Set;
+     (V         : Object_Set'Class;
       Name      : String;
       Type_Name : String := "";
       NS        : SOAP.Name_Space.Object := SOAP.Name_Space.No_Name_Space)
@@ -43,12 +43,12 @@ procedure Workorder is
    Payload : SOAP.Message.Payload.Object'Class :=
      SOAP.Message.Payload.Build
      ("Workorder",
-      +(BR ((+S ("Wo1", Soap_WoId),
+      +(BR (Object_Set'[+S ("Wo1", Soap_WoId),
             +T (A_Time, Soap_Updated),
             +S ("idle", Soap_State),
             +S ("sot23", Soap_Package),
             +S ("bc847", Soap_Recipe),
-            +A ((+BR ((+S ("idle", Soap_State),
+            +A (Object_Set'[+BR (Object_Set'[+S ("idle", Soap_State),
                        +S ("Wo1", Soap_WoId),
                        +S ("123456781234", Soap_TwelveNc),
                        +I (2, Soap_Type),
@@ -59,8 +59,8 @@ procedure Workorder is
                        +S ("3kl", Soap_Marking),
                        +S ("1", Soap_Orient),
                        +I (0, Soap_Produced)
-                      ), "Orderline"),
-                 +BR ((+S ("idle", Soap_State),
+                      ], "Orderline"),
+                 +BR (Object_Set'[+S ("idle", Soap_State),
                        +S ("Wo1", Soap_WoId),
                        +S ("123456781235", Soap_TwelveNc),
                        +I (1, Soap_Type),
@@ -71,9 +71,9 @@ procedure Workorder is
                        +S ("3kl", Soap_Marking),
                        +S ("1", Soap_Orient),
                        +I (0, Soap_Produced)
-                      ),  Soap_Orderline)
-                ), Soap_Orderline)
-           ), Soap_Wo)
+                      ],  Soap_Orderline)
+                ], Soap_Orderline)
+           ], Soap_Wo)
      ));
 
    Parms    : List := SOAP.Message.Parameters (Payload);

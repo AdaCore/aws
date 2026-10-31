@@ -61,7 +61,7 @@
 @@-----------------------------------------------------------------------
 @@MACRO(REC_GET_FIELD_FROM_SOAP)@@
 @@IF@@ @_RF_KIND_@ = K_ARRAY and @_RF_MIN_@ = 0 and @_RF_MAX_@ = 1
-To_@_RF_TYPE_NAME_@_Type (Object_Set'(1 => +@_$1_@))
+To_@_RF_TYPE_NAME_@_Type (Object_Set'[+@_$1_@])
 @@ELSIF@@ @_RF_KIND_@ = K_ARRAY
 +To_@_RF_TYPE_NAME_@_Type (@_$1_@)
 @@ELSIF@@ (@_RF_KIND_@ = K_RECORD) or (@_RF_KIND_@ = K_ENUMERATION)
@@ -87,6 +87,8 @@ To_@_RF_ADA_TYPE_@ (@_$1_@)
 @_RF_DECL_NAME_@ := @_REC_GET_FIELD_FROM_SOAP(E_C_Object)_@
 @@END_MACRO@@
 @@-----------------------------------------------------------------------
+
+pragma Ada_2022;
 
 with Ada.Tags;
 
@@ -292,16 +294,16 @@ package body @_UNIT_NAME_@ is
       case R.C is
          when C0 =>
             Result@_TYPE_NAME_@ := SOAP.Types.R
-              ((
+              (SOAP.Types.Object_Set'[
 @@IF@@ @_INDEX_LAST_STANDARD_@ = 0
-                1 .. 0 => <>),
+                          ],
 @@ELSE@@
 @@TABLE@@
 @@IF@@ not @_RF_DECL_IN_CHOICE_@
                 --  @_RF_NAME_@
 @@INLINE(                )(\n          )()@@
 @@IF@@ @_FIELD_NUMBER_@ = @_INDEX_LAST_STANDARD_@
-        @_REC_FIELD_TO_SOAP(1 => @_FIELD_NUMBER_@, 2 => " => +")_@),
+        @_REC_FIELD_TO_SOAP(1 => @_FIELD_NUMBER_@, 2 => " => +")_@],
 @@ELSE@@
         @_REC_FIELD_TO_SOAP(1 => @_FIELD_NUMBER_@, 2 => " => +")_@,
 @@END_IF@@
@@ -313,7 +315,7 @@ package body @_UNIT_NAME_@ is
 
          when others =>
             Result@_TYPE_NAME_@ := SOAP.Types.R
-              ((
+              (SOAP.Types.Object_Set'[
 @@TABLE@@
 @@IF@@ not @_RF_DECL_IN_CHOICE_@
                 --  @_RF_NAME_@
@@ -326,7 +328,7 @@ package body @_UNIT_NAME_@ is
 @@END_INLINE@@
 @@END_IF@@
 @@END_TABLE@@
-                @_"+"(1):"-"(CHOICE_FIELD_COUNT):FIELD_COUNT_@ => C_Object),
+                @_"+"(1):"-"(CHOICE_FIELD_COUNT):FIELD_COUNT_@ => C_Object],
                Name, Q_Type_Name, NS => NS);
       end case;
 @@--

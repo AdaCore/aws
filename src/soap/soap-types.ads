@@ -54,8 +54,9 @@ pragma Ada_2022;
 --     compiler will issue errors where changes are needed.
 
 with Ada.Calendar;
-with Ada.Containers.Vectors;
+with Ada.Containers.Indefinite_Vectors;
 with Ada.Finalization;
+with Ada.Iterator_Interfaces;
 with Ada.Numerics.Big_Numbers.Big_Integers;
 with Ada.Strings.Unbounded;
 
@@ -80,9 +81,7 @@ package SOAP.Types is
 
    type Object_Access is access all Object'Class;
 
-   type Object_Safe_Pointer is new Ada.Finalization.Controlled with record
-      O : Object_Access;
-   end record;
+   type Object_Safe_Pointer is tagged private;
    --  A safe pointer to a SOAP object, such objects are controlled so the
    --  memory is freed automatically.
 
@@ -92,16 +91,96 @@ package SOAP.Types is
    function "-" (O : Object_Safe_Pointer) return Object'Class;
    --  Returns the object associated with the safe pointer
 
-   overriding procedure Adjust   (O : in out Object_Safe_Pointer) with Inline;
+   type Object_Set is tagged private
+   with
+     Constant_Indexing => Constant_Reference,
+     Variable_Indexing => Reference,
+     Default_Iterator  => Iterate,
+     Iterator_Element  => Object_Safe_Pointer,
+     Aggregate         =>
+       (Empty          => Empty,
+        Add_Unnamed    => Append,
+        New_Indexed    => New_Vector,
+        Assign_Indexed => Replace_Element);
+   --  A set of SOAP objects, providing indexed access and iteration
+   --  capabilities.
 
-   overriding procedure Finalize (O : in out Object_Safe_Pointer) with Inline;
-
-   package Object_Set_Pck is
-     new Containers.Vectors (Positive, Object_Safe_Pointer);
-
-   type Object_Set is new Object_Set_Pck.Vector with null record;
+   type Cursor is private;
+   No_Element : constant Cursor;
 
    Empty_Object_Set : constant Object_Set;
+
+   procedure Reserve_Capacity
+     (Container : in out Object_Set; Capacity : Containers.Count_Type);
+
+   function Length (Container : Object_Set) return Containers.Count_Type;
+
+   function Empty (Capacity : Containers.Count_Type := 10) return Object_Set;
+
+   function Is_Empty (Container : Object_Set) return Boolean;
+
+   procedure Append
+     (Container : in out Object_Set; New_Item : Object_Safe_Pointer'Class);
+
+   function New_Vector (First, Last : Positive) return Object_Set;
+
+   function Element
+     (Container : Object_Set; Index : Positive)
+      return Object_Safe_Pointer'Class with Inline;
+
+   function Element
+     (Position : Cursor) return Object_Safe_Pointer'Class with Inline;
+
+   function First_Element
+     (Container : Object_Set) return Object_Safe_Pointer'Class with Inline;
+
+   procedure Replace_Element
+     (Container : in out Object_Set;
+      Index     : Positive;
+      New_Item  : Object_Safe_Pointer'Class);
+   procedure Replace_Element
+     (Container : in out Object_Set;
+      Position  : Cursor;
+      New_Item  : Object_Safe_Pointer'Class);
+
+   function Has_Element (Position : Cursor) return Boolean with Inline;
+
+   package Object_Set_Iterator_Interfaces is new
+     Iterator_Interfaces (Cursor, Has_Element);
+
+   function Iterate
+     (Container : Object_Set)
+      return Object_Set_Iterator_Interfaces.Reversible_Iterator'Class;
+
+   function Iterate
+     (Container : Object_Set; Start : Cursor)
+      return Object_Set_Iterator_Interfaces.Reversible_Iterator'Class;
+
+   type Constant_Reference_Type
+     (Element : not null access constant Object_Safe_Pointer'Class)
+   is
+     limited private
+   with Implicit_Dereference => Element;
+
+   type Reference_Type (Element : not null access Object_Safe_Pointer'Class) is
+     limited private
+   with Implicit_Dereference => Element;
+
+   function Constant_Reference
+     (Container : aliased Object_Set; Position : Cursor)
+      return Constant_Reference_Type;
+
+   function Reference
+     (Container : aliased in out Object_Set; Position : Cursor)
+      return Reference_Type;
+
+   function Constant_Reference
+     (Container : aliased Object_Set; Index : Positive)
+      return Constant_Reference_Type;
+
+   function Reference
+     (Container : aliased in out Object_Set; Index : Positive)
+      return Reference_Type;
 
    function Image (O : Object) return String;
    --  Returns O value image
@@ -142,7 +221,8 @@ package SOAP.Types is
 
    function V (O : Composite'Class) return Object_Set;
 
-   overriding function Is_Empty (O : Composite) return Boolean;
+   overriding
+   function Is_Empty (O : Composite) return Boolean;
 
    --------------
    -- Any Type --
@@ -152,9 +232,12 @@ package SOAP.Types is
 
    type XSD_Any_Type is new Object with private;
 
-   overriding function  XML_Type  (O : XSD_Any_Type) return String;
-   overriding function  Image     (O : XSD_Any_Type) return String;
-   overriding procedure XML_Image
+   overriding
+   function XML_Type (O : XSD_Any_Type) return String;
+   overriding
+   function Image (O : XSD_Any_Type) return String;
+   overriding
+   procedure XML_Image
      (O        : XSD_Any_Type;
       Result   : in out Unbounded_String;
       Encoding : Encoding_Style := WSDL.Schema.Encoded;
@@ -179,7 +262,8 @@ package SOAP.Types is
 
    type XSD_Any_URI is new Object with private;
 
-   overriding function  Image (O : XSD_Any_URI) return String;
+   overriding
+   function Image (O : XSD_Any_URI) return String;
 
    function AnyURI
      (V         : String;
@@ -201,8 +285,10 @@ package SOAP.Types is
 
    type SOAP_Array is new Composite with private;
 
-   overriding function Image (O : SOAP_Array) return String;
-   overriding procedure XML_Image
+   overriding
+   function Image (O : SOAP_Array) return String;
+   overriding
+   procedure XML_Image
      (O        : SOAP_Array;
       Result   : in out Unbounded_String;
       Encoding : Encoding_Style := WSDL.Schema.Encoded;
@@ -231,8 +317,10 @@ package SOAP.Types is
    --  A set is like an array but to record multi-occurence of parameters. The
    --  SOAP message does not contain the enclosing SOAP array XML tag.
 
-   overriding function Image (O : SOAP_Set) return String;
-   overriding procedure XML_Image
+   overriding
+   function Image (O : SOAP_Set) return String;
+   overriding
+   procedure XML_Image
      (O        : SOAP_Set;
       Result   : in out Unbounded_String;
       Encoding : Encoding_Style := WSDL.Schema.Encoded;
@@ -256,7 +344,8 @@ package SOAP.Types is
 
    type SOAP_Base64 is new Scalar with private;
 
-   overriding function Image (O : SOAP_Base64) return String;
+   overriding
+   function Image (O : SOAP_Base64) return String;
 
    function B64
      (V         : String;
@@ -275,7 +364,8 @@ package SOAP.Types is
 
    type XSD_Boolean is new Scalar with private;
 
-   overriding function Image (O : XSD_Boolean) return String;
+   overriding
+   function Image (O : XSD_Boolean) return String;
 
    function B
      (V         : Boolean;
@@ -296,7 +386,8 @@ package SOAP.Types is
 
    type XSD_Byte is new Scalar with private;
 
-   overriding function Image (O : XSD_Byte) return String;
+   overriding
+   function Image (O : XSD_Byte) return String;
 
    function B
      (V         : Byte;
@@ -315,7 +406,8 @@ package SOAP.Types is
 
    type XSD_Double is new Scalar with private;
 
-   overriding function Image (O : XSD_Double) return String;
+   overriding
+   function Image (O : XSD_Double) return String;
 
    function D
      (V         : Long_Float;
@@ -334,7 +426,8 @@ package SOAP.Types is
 
    type XSD_Float is new Scalar with private;
 
-   overriding function Image (O : XSD_Float) return String;
+   overriding
+   function Image (O : XSD_Float) return String;
 
    function F
      (V         : Float;
@@ -352,21 +445,19 @@ package SOAP.Types is
    --  Ensure a supported value is selected depending on the platform
    --  being 32bit or 64bit.
 
-   Max_Digits : constant := (if Standard'Max_Integer_Size >= 128
-                             then 38
-                             else 18);
+   Max_Digits : constant :=
+     (if Standard'Max_Integer_Size >= 128 then 38 else 18);
 
-   D_Delta    : constant := (if Standard'Max_Integer_Size >= 128
-                             then 8
-                             else 4);
+   D_Delta : constant := (if Standard'Max_Integer_Size >= 128 then 8 else 4);
 
-   type Decimal is delta 10.0 ** (-D_Delta) digits Max_Digits;
+   type Decimal is delta 10.0**(-D_Delta) digits Max_Digits;
 
    XML_Decimal : aliased constant String := "xsd:decimal";
 
    type XSD_Decimal is new Scalar with private;
 
-   overriding function Image (O : XSD_Decimal) return String;
+   overriding
+   function Image (O : XSD_Decimal) return String;
 
    function D
      (V         : Decimal;
@@ -385,7 +476,8 @@ package SOAP.Types is
 
    type XSD_Int is new Scalar with private;
 
-   overriding function Image (O : XSD_Int) return String;
+   overriding
+   function Image (O : XSD_Int) return String;
 
    function I
      (V         : Integer;
@@ -406,7 +498,8 @@ package SOAP.Types is
 
    type XSD_Integer is new Scalar with private;
 
-   overriding function Image (O : XSD_Integer) return String;
+   overriding
+   function Image (O : XSD_Integer) return String;
 
    function BI
      (V         : Big_Integer;
@@ -427,7 +520,8 @@ package SOAP.Types is
 
    type XSD_Long is new Scalar with private;
 
-   overriding function Image (O : XSD_Long) return String;
+   overriding
+   function Image (O : XSD_Long) return String;
 
    function L
      (V         : Long;
@@ -444,7 +538,8 @@ package SOAP.Types is
 
    type XSD_Null is new Scalar with private;
 
-   overriding procedure XML_Image
+   overriding
+   procedure XML_Image
      (O        : XSD_Null;
       Result   : in out Unbounded_String;
       Encoding : Encoding_Style := WSDL.Schema.Encoded;
@@ -456,7 +551,8 @@ package SOAP.Types is
       NS        : SOAP.Name_Space.Object := SOAP.Name_Space.No_Name_Space)
       return XSD_Null;
 
-   overriding function Is_Empty (O : XSD_Null) return Boolean;
+   overriding
+   function Is_Empty (O : XSD_Null) return Boolean;
 
    ------------
    -- Record --
@@ -464,8 +560,10 @@ package SOAP.Types is
 
    type SOAP_Record is new Composite with private;
 
-   overriding function Image (O : SOAP_Record) return String;
-   overriding procedure XML_Image
+   overriding
+   function Image (O : SOAP_Record) return String;
+   overriding
+   procedure XML_Image
      (O        : SOAP_Record;
       Result   : in out Unbounded_String;
       Encoding : Encoding_Style := WSDL.Schema.Encoded;
@@ -481,9 +579,8 @@ package SOAP.Types is
    --  Type_Name must be specified for item into an array for example.
 
    function V
-     (O        : SOAP_Record;
-      Name     : String;
-      Optional : Boolean := False) return Object'Class;
+     (O : SOAP_Record; Name : String; Optional : Boolean := False)
+      return Object'Class;
    --  Returns SOAP_Record field named Name. If Optional is set to True the
    --  field name can be ommited in the record (minOccurs = 0) in this case
    --  the returned object may be No_Object.
@@ -504,7 +601,8 @@ package SOAP.Types is
 
    type XSD_Short is new Scalar with private;
 
-   overriding function Image (O : XSD_Short) return String;
+   overriding
+   function Image (O : XSD_Short) return String;
 
    function S
      (V         : Short;
@@ -523,7 +621,8 @@ package SOAP.Types is
 
    type XSD_String is new Scalar with private;
 
-   overriding function Image (O : XSD_String) return String;
+   overriding
+   function Image (O : XSD_String) return String;
 
    function S
      (V         : String;
@@ -553,7 +652,8 @@ package SOAP.Types is
 
    type XSD_Normalized_String is new Scalar with private;
 
-   overriding function Image (O : XSD_Normalized_String) return String;
+   overriding
+   function Image (O : XSD_Normalized_String) return String;
 
    function NS
      (V         : String;
@@ -583,7 +683,8 @@ package SOAP.Types is
 
    type XSD_Token is new Scalar with private;
 
-   overriding function Image (O : XSD_Token) return String;
+   overriding
+   function Image (O : XSD_Token) return String;
 
    function T
      (V         : String;
@@ -616,7 +717,8 @@ package SOAP.Types is
 
    type XSD_Time_Instant is new Scalar with private;
 
-   overriding function Image (O : XSD_Time_Instant) return String;
+   overriding
+   function Image (O : XSD_Time_Instant) return String;
 
    function T
      (V         : Local_Date_Time;
@@ -638,7 +740,8 @@ package SOAP.Types is
 
    type XSD_Date is new Scalar with private;
 
-   overriding function Image (O : XSD_Date) return String;
+   overriding
+   function Image (O : XSD_Date) return String;
 
    function TD
      (V         : Local_Date;
@@ -660,7 +763,8 @@ package SOAP.Types is
 
    type XSD_Time is new Scalar with private;
 
-   overriding function Image (O : XSD_Time) return String;
+   overriding
+   function Image (O : XSD_Time) return String;
 
    function TT
      (V         : Local_Time;
@@ -680,7 +784,8 @@ package SOAP.Types is
 
    type XSD_Duration is new Scalar with private;
 
-   overriding function Image (O : XSD_Duration) return String;
+   overriding
+   function Image (O : XSD_Duration) return String;
 
    function D
      (V         : Duration;
@@ -702,7 +807,8 @@ package SOAP.Types is
 
    type XSD_Unsigned_Long is new Scalar with private;
 
-   overriding function Image (O : XSD_Unsigned_Long) return String;
+   overriding
+   function Image (O : XSD_Unsigned_Long) return String;
 
    function UL
      (V         : Unsigned_Long;
@@ -723,7 +829,8 @@ package SOAP.Types is
 
    type XSD_Unsigned_Int is new Scalar with private;
 
-   overriding function Image (O : XSD_Unsigned_Int) return String;
+   overriding
+   function Image (O : XSD_Unsigned_Int) return String;
 
    function UI
      (V         : Unsigned_Int;
@@ -744,7 +851,8 @@ package SOAP.Types is
 
    type XSD_Unsigned_Short is new Scalar with private;
 
-   overriding function Image (O : XSD_Unsigned_Short) return String;
+   overriding
+   function Image (O : XSD_Unsigned_Short) return String;
 
    function US
      (V         : Unsigned_Short;
@@ -765,7 +873,8 @@ package SOAP.Types is
 
    type XSD_Unsigned_Byte is new Scalar with private;
 
-   overriding function Image (O : XSD_Unsigned_Byte) return String;
+   overriding
+   function Image (O : XSD_Unsigned_Byte) return String;
 
    function UB
      (V         : Unsigned_Byte;
@@ -782,8 +891,10 @@ package SOAP.Types is
 
    type SOAP_Enumeration is new Scalar with private;
 
-   overriding function Image      (O : SOAP_Enumeration) return String;
-   overriding procedure XML_Image
+   overriding
+   function Image (O : SOAP_Enumeration) return String;
+   overriding
+   procedure XML_Image
      (O        : SOAP_Enumeration;
       Result   : in out Unbounded_String;
       Encoding : Encoding_Style := WSDL.Schema.Encoded;
@@ -903,11 +1014,13 @@ package SOAP.Types is
 
    type SOAP_Attribute is new SOAP_Record with private;
 
-   overriding function Get (O : Object'Class) return SOAP_Attribute;
+   overriding
+   function Get (O : Object'Class) return SOAP_Attribute;
    --  Returns O value as a SOAP Struct. Raises Data_Error if O is not a SOAP
    --  Struct.
 
-   overriding procedure XML_Image
+   overriding
+   procedure XML_Image
      (O        : SOAP_Attribute;
       Result   : in out Unbounded_String;
       Encoding : Encoding_Style := WSDL.Schema.Encoded;
@@ -917,9 +1030,7 @@ package SOAP.Types is
    -- Name space --
    ----------------
 
-   procedure Set_Name_Space
-     (O  : in out Object'Class;
-      NS : Name_Space.Object);
+   procedure Set_Name_Space (O : in out Object'Class; NS : Name_Space.Object);
    --  Set the name space for object O
 
    function Name_Space (O : Object'Class) return Name_Space.Object;
@@ -941,6 +1052,95 @@ private
       NS        : SOAP.Name_Space.Object;
    end record;
 
+   type Object_Safe_Pointer is new Ada.Finalization.Controlled with record
+      O : Object_Access;
+   end record;
+
+   overriding
+   procedure Adjust (O : in out Object_Safe_Pointer)
+   with Inline;
+
+   overriding
+   procedure Finalize (O : in out Object_Safe_Pointer)
+   with Inline;
+
+   --  Object_Set
+
+   package Object_Set_Pck is new
+     Containers.Indefinite_Vectors (Positive, Object_Safe_Pointer'Class);
+
+   type R_Iterator is limited
+     new Object_Set_Iterator_Interfaces.Reversible_Iterator
+   with record
+      I :
+        aliased access constant
+          Object_Set_Pck.Vector_Iterator_Interfaces.Reversible_Iterator'Class;
+   end record;
+
+   --  Cursor
+
+   type Cursor is new Object_Set_Pck.Cursor;
+   No_Element : constant Cursor := Cursor (Object_Set_Pck.No_Element);
+
+   overriding
+   function First (O : R_Iterator) return Cursor
+   is (Cursor (Object_Set_Pck.Vector_Iterator_Interfaces.First (O.I.all)));
+
+   overriding
+   function Next (O : R_Iterator; Position : Cursor) return Cursor
+   is (Cursor
+         (Object_Set_Pck.Vector_Iterator_Interfaces.Next
+            (O.I.all, Object_Set_Pck.Cursor (Position))));
+
+   overriding
+   function Last (O : R_Iterator) return Cursor
+   is (Cursor (Object_Set_Pck.Vector_Iterator_Interfaces.Last (O.I.all)));
+
+   overriding
+   function Previous (O : R_Iterator; Position : Cursor) return Cursor
+   is (Cursor
+         (Object_Set_Pck.Vector_Iterator_Interfaces.Previous
+            (O.I.all, Object_Set_Pck.Cursor (Position))));
+
+   type Object_Set is tagged record
+      V : Object_Set_Pck.Vector;
+   end record;
+
+   -------------
+   -- Element --
+   -------------
+
+   function Element
+     (Container : Object_Set; Index : Positive)
+      return Object_Safe_Pointer'Class
+   is (Container.V.Element (Index));
+
+   overriding
+   function Element (Position : Cursor) return Object_Safe_Pointer'Class
+   is (Object_Set_Pck.Element (Object_Set_Pck.Cursor (Position)));
+
+   -----------------
+   -- Has_Element --
+   -----------------
+
+   overriding
+   function Has_Element (Position : Cursor) return Boolean
+   is (Object_Set_Pck.Has_Element (Object_Set_Pck.Cursor (Position)));
+
+   --  References
+
+   type Constant_Reference_Type
+     (Element : not null access constant Object_Safe_Pointer'Class)
+   is limited record
+      R : Object_Set_Pck.Constant_Reference_Type (Element);
+   end record;
+
+   type Reference_Type
+     (Element : not null access Object_Safe_Pointer'Class)
+   is limited record
+      R : Object_Set_Pck.Reference_Type (Element);
+   end record;
+
    --  Scalar
 
    type Scalar is abstract new Object with null record;
@@ -951,19 +1151,25 @@ private
 
    type Object_Set_Access is access Object_Set'Class;
 
-
-   Empty_Object_Set : constant Object_Set := [];
+   Empty_Object_Set : constant Object_Set :=
+                        (V => Object_Set_Pck.Empty_Vector);
 
    type Composite is abstract new Object with record
       Ref_Counter : Counter_Access;
       O           : Object_Set_Access;
    end record;
 
-   overriding procedure Initialize (O : in out Composite) with Inline;
+   overriding
+   procedure Initialize (O : in out Composite)
+   with Inline;
 
-   overriding procedure Adjust     (O : in out Composite) with Inline;
+   overriding
+   procedure Adjust (O : in out Composite)
+   with Inline;
 
-   overriding procedure Finalize   (O : in out Composite) with Inline;
+   overriding
+   procedure Finalize (O : in out Composite)
+   with Inline;
 
    --  AnyType
 
@@ -1068,8 +1274,7 @@ private
    end record;
 
    No_Object : constant Object'Class :=
-                 Object'Class
-                   (XSD_Null'(Scalar with null record));
+                 Object'Class (XSD_Null'(Scalar with null record));
 
    --  Composite SOAP types
 
