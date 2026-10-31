@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2015-2025, AdaCore                     --
+--                     Copyright (C) 2015-2026, AdaCore                     --
 --                                                                          --
 --  This is free software;  you can redistribute it  and/or modify it       --
 --  under terms of the  GNU General Public License as published  by the     --
@@ -29,8 +29,7 @@ with OccursServices.Client;
 with OccursServices.Server;
 with OccursServices.Types;
 
-with n81.n67.n51.n47.hecateewebservices.encodedtypes.
-  t_battle_dimension_type_pkg;
+with x.y.hecateewebservices.encodedtypes.t_battle_dimension_type_pkg;
 
 with www.w3.org.n2001.XMLSchema.string_Set_Type_Pkg;
 
@@ -41,8 +40,7 @@ procedure Occurs is
    use Ada.Strings.Unbounded;
    use AWS;
 
-   use n81.n67.n51.n47.hecateewebservices.encodedtypes.
-     t_battle_dimension_type_pkg;
+   use x.y.hecateewebservices.encodedtypes.t_battle_dimension_type_pkg;
    use OccursServices.Types;
    use www.w3.org.n2001.XMLSchema.string_Set_Type_Pkg;
 

@@ -2,15 +2,15 @@
 <definitions xmlns:http="http://schemas.xmlsoap.org/wsdl/http/"
              xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/"
              xmlns:s="http://www.w3.org/2001/XMLSchema"
-             xmlns:s0="http://81.67.51.47/HECATEEWebServices/encodedTypes"
+             xmlns:s0="http://x.y/HECATEEWebServices/encodedTypes"
              xmlns:soapenc="http://schemas.xmlsoap.org/soap/encoding/"
-             xmlns:tns="http://81.67.51.47/HECATEEWebServices/"
+             xmlns:tns="http://x.y/HECATEEWebServices/"
              xmlns:tm="http://microsoft.com/wsdl/mime/textMatching/"
              xmlns:mime="http://schemas.xmlsoap.org/wsdl/mime/"
-             targetNamespace="http://81.67.51.47/HECATEEWebServices/"
+             targetNamespace="http://x.y/HECATEEWebServices/"
              xmlns="http://schemas.xmlsoap.org/wsdl/">
   <types>
-    <s:schema targetNamespace="http://81.67.51.47/HECATEEWebServices/encodedTypes">
+    <s:schema targetNamespace="http://x.y/HECATEEWebServices/encodedTypes">
       <s:complexType name="T_Track">
         <s:sequence>
           <s:element minOccurs="1" maxOccurs="1" name="p_battleDimension" type="s0:T_Battle_Dimension" />
@@ -59,10 +59,10 @@
     <operation name="displayTrack">
       <soap:operation soapAction="displayTrack" style="rpc" />
       <input>
-        <soap:body use="encoded" namespace="http://81.67.51.47/HECATEEWebServices/" encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" />
+        <soap:body use="encoded" namespace="http://x.y/HECATEEWebServices/" encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" />
       </input>
       <output>
-        <soap:body use="encoded" namespace="http://81.67.51.47/HECATEEWebServices/" encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" />
+        <soap:body use="encoded" namespace="http://x.y/HECATEEWebServices/" encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" />
       </output>
     </operation>
   </binding>
@@ -71,7 +71,7 @@
     <documentation>A track display tool</documentation>
     <port name="OccursServicesSoap"
         binding="tns:OccursServicesSoap">
-      <soap:address location="http://81.67.51.47/HECATEEWebSErvices/HECATEEWebServices.asmx" />
+      <soap:address location="http://x.y/HECATEEWebSErvices/HECATEEWebServices.asmx" />
     </port>
   </service>
 </definitions>

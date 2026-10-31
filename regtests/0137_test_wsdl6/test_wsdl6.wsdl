@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
-<definitions xmlns:http="http://schemas.xmlsoap.org/wsdl/http/" xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" xmlns:s="http://www.w3.org/2001/XMLSchema" xmlns:s0="http://81.67.51.47/HECATEEWebServices/encodedTypes" xmlns:soapenc="http://schemas.xmlsoap.org/soap/encoding/" xmlns:tns="http://81.67.51.47/HECATEEWebServices/" xmlns:tm="http://microsoft.com/wsdl/mime/textMatching/" xmlns:mime="http://schemas.xmlsoap.org/wsdl/mime/" targetNamespace="http://81.67.51.47/HECATEEWebServices/" xmlns="http://schemas.xmlsoap.org/wsdl/">
+<definitions xmlns:http="http://schemas.xmlsoap.org/wsdl/http/" xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" xmlns:s="http://www.w3.org/2001/XMLSchema" xmlns:s0="http://x.y/HECATEEWebServices/encodedTypes" xmlns:soapenc="http://schemas.xmlsoap.org/soap/encoding/" xmlns:tns="http://x.y/HECATEEWebServices/" xmlns:tm="http://microsoft.com/wsdl/mime/textMatching/" xmlns:mime="http://schemas.xmlsoap.org/wsdl/mime/" targetNamespace="http://x.y/HECATEEWebServices/" xmlns="http://schemas.xmlsoap.org/wsdl/">
   <types>
-    <s:schema targetNamespace="http://81.67.51.47/HECATEEWebServices/encodedTypes">
+    <s:schema targetNamespace="http://x.y/HECATEEWebServices/encodedTypes">
       <s:import namespace="http://schemas.xmlsoap.org/soap/encoding/" />
       <s:import namespace="http://schemas.xmlsoap.org/wsdl/" />
 
@@ -71,12 +71,12 @@
   <binding name="HECATEEWebServicesClassSoap" type="tns:HECATEEWebServicesClassSoap">
     <soap:binding transport="http://schemas.xmlsoap.org/soap/http" style="rpc" />
     <operation name="displayTrack">
-      <soap:operation soapAction="http://81.67.51.47/HECATEEWebServices/displayTrack" style="rpc" />
+      <soap:operation soapAction="http://x.y/HECATEEWebServices/displayTrack" style="rpc" />
       <input>
-        <soap:body use="encoded" namespace="http://81.67.51.47/HECATEEWebServices/" encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" />
+        <soap:body use="encoded" namespace="http://x.y/HECATEEWebServices/" encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" />
       </input>
       <output>
-        <soap:body use="encoded" namespace="http://81.67.51.47/HECATEEWebServices/" encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" />
+        <soap:body use="encoded" namespace="http://x.y/HECATEEWebServices/" encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" />
       </output>
     </operation>
   </binding>
@@ -85,7 +85,7 @@
     <documentation>A track display tool</documentation>
     <port name="HECATEEWebServicesClassSoap"
 	binding="tns:HECATEEWebServicesClassSoap">
-      <soap:address location="http://81.67.51.47/HECATEEWebSErvices/HECATEEWebServices.asmx" />
+      <soap:address location="http://x.y/HECATEEWebSErvices/HECATEEWebServices.asmx" />
     </port>
   </service>
 </definitions>
