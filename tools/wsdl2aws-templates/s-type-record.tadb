@@ -63,7 +63,7 @@
 @@IF@@ @_RF_KIND_@ = K_ARRAY and @_RF_MIN_@ = 0 and @_RF_MAX_@ = 1
 To_@_RF_TYPE_NAME_@_Type (Object_Set'(1 => +@_$1_@))
 @@ELSIF@@ @_RF_KIND_@ = K_ARRAY
-+To_@_RF_TYPE_NAME_@_Type (@_$1_@)
++To_@_RF_TYPE_NAME_@_Type_L (@_$1_@)
 @@ELSIF@@ (@_RF_KIND_@ = K_RECORD) or (@_RF_KIND_@ = K_ENUMERATION)
 To_@_RF_TYPE_NAME_@_Type (@_$1_@)
 @@ELSIF@@ @_RF_KIND_@ = K_SIMPLE
@@ -154,13 +154,13 @@ package body @_UNIT_NAME_@ is
 @@TABLE'ALIGN_ON(":")@@
 @@IF@@ not @_RF_DECL_IN_CHOICE_@
 @@IF@@ @_RF_KIND_@ = K_ARRAY and @_RF_MIN_@ /= 0 and @_FIELD_ARRAY_LENGTH_@ > 1
-      @_RF_DECL_NAME_@ : constant SOAP.Types.Object_Set :=
+      @_RF_DECL_NAME_@ : constant SOAP.Parameters.List :=
         SOAP.Parameters.Get (P_List, "@_RF_NAME_@");
 @@ELSIF@@ @_RF_KIND_@ = K_ARRAY and @_RF_MIN_@ = 0 and @_FIELD_ARRAY_LENGTH_@ > 1
-      @_RF_DECL_NAME_@ : constant SOAP.Types.Object_Set :=
+      @_RF_DECL_NAME_@ : constant SOAP.Parameters.List :=
         (if SOAP.Parameters.Exist (P_List, "@_RF_NAME_@")
          then SOAP.Parameters.Get (P_List, "@_RF_NAME_@")
-         else Empty_Object_Set);
+         else Empty_List);
 @@ELSIF@@ @_RF_KIND_@ = K_ARRAY and @_RF_MIN_@ = 0
       @_RF_DECL_NAME_@ : constant SOAP.Types.Object'Class :=
         (if SOAP.Parameters.Exist (P_List, "@_RF_NAME_@")
