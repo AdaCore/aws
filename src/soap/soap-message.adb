@@ -156,8 +156,8 @@ package body SOAP.Message is
             declare
                OS : constant Object_Set := V (Composite'Class (O));
             begin
-               for K in OS'Range loop
-                  Add_Namespaces (-OS (K));
+               for E of OS loop
+                  Add_Namespaces (-E);
                end loop;
             end;
          end if;

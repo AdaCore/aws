@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2001-2025, AdaCore                     --
+--                     Copyright (C) 2001-2026, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -54,6 +54,7 @@ pragma Ada_2022;
 --     compiler will issue errors where changes are needed.
 
 with Ada.Calendar;
+with Ada.Containers.Vectors;
 with Ada.Finalization;
 with Ada.Numerics.Big_Numbers.Big_Integers;
 with Ada.Strings.Unbounded;
@@ -79,14 +80,26 @@ package SOAP.Types is
 
    type Object_Access is access all Object'Class;
 
-   type Object_Safe_Pointer is tagged private;
+   type Object_Safe_Pointer is new Ada.Finalization.Controlled with record
+      O : Object_Access;
+   end record;
    --  A safe pointer to a SOAP object, such objects are controlled so the
    --  memory is freed automatically.
 
-   type Object_Set is array (Positive range <>) of Object_Safe_Pointer;
-   --  A set of SOAP types. This is used to build arrays or records. We use
-   --  Positive for the index to have the item index map the SOAP array
-   --  element order.
+   function "+" (O : Object'Class) return Object_Safe_Pointer;
+   --  Allocate an object into the heap and return a safe pointer to it
+
+   function "-" (O : Object_Safe_Pointer) return Object'Class;
+   --  Returns the object associated with the safe pointer
+
+   overriding procedure Adjust   (O : in out Object_Safe_Pointer) with Inline;
+
+   overriding procedure Finalize (O : in out Object_Safe_Pointer) with Inline;
+
+   package Object_Set_Pck is
+     new Containers.Vectors (Positive, Object_Safe_Pointer);
+
+   type Object_Set is new Object_Set_Pck.Vector with null record;
 
    Empty_Object_Set : constant Object_Set;
 
@@ -120,12 +133,6 @@ package SOAP.Types is
    function Type_Name (O : Object'Class) return String;
    --  Returns the type name for object O
 
-   function "+" (O : Object'Class) return Object_Safe_Pointer;
-   --  Allocate an object into the heap and return a safe pointer to it
-
-   function "-" (O : Object_Safe_Pointer) return Object'Class;
-   --  Returns the object associated with the safe pointer
-
    type Scalar is abstract new Object with private;
    --  Scalar types are using a by-copy semantic
 
@@ -133,7 +140,7 @@ package SOAP.Types is
    --  Composite types are using a by-reference semantic for efficiency
    --  reason. Not that these types are not thread safe.
 
-   function V (O : Composite) return Object_Set;
+   function V (O : Composite'Class) return Object_Set;
 
    overriding function Is_Empty (O : Composite) return Boolean;
 
@@ -202,7 +209,7 @@ package SOAP.Types is
       Schema   : WSDL.Schema.Definition := WSDL.Schema.Empty);
 
    function A
-     (V         : Object_Set;
+     (V         : Object_Set'Class;
       Name      : String;
       Type_Name : String := "";
       NS        : Name_Space.Object := Name_Space.No_Name_Space)
@@ -232,7 +239,7 @@ package SOAP.Types is
       Schema   : WSDL.Schema.Definition := WSDL.Schema.Empty);
 
    function Set
-     (V         : Object_Set;
+     (V         : Object_Set'Class;
       Name      : String;
       Type_Name : String := "";
       NS        : SOAP.Name_Space.Object := SOAP.Name_Space.No_Name_Space)
@@ -465,7 +472,7 @@ package SOAP.Types is
       Schema   : WSDL.Schema.Definition := WSDL.Schema.Empty);
 
    function R
-     (V         : Object_Set;
+     (V         : Object_Set'Class;
       Name      : String;
       Type_Name : String := "";
       NS        : Name_Space.Object := Name_Space.No_Name_Space)
@@ -481,7 +488,7 @@ package SOAP.Types is
    --  field name can be ommited in the record (minOccurs = 0) in this case
    --  the returned object may be No_Object.
 
-   function V (O : SOAP_Record; Name : String) return Object_Set;
+   function V (O : SOAP_Record; Name : String) return Object_Set'Class;
    --  Returns SOAP_Record fields named Name
 
    function Exists (O : SOAP_Record; Field_Name : String) return Boolean;
@@ -934,16 +941,6 @@ private
       NS        : SOAP.Name_Space.Object;
    end record;
 
-   --  Object_Safe_Pointer
-
-   type Object_Safe_Pointer is new Ada.Finalization.Controlled with record
-      O : Object_Access;
-   end record;
-
-   overriding procedure Adjust   (O : in out Object_Safe_Pointer) with Inline;
-
-   overriding procedure Finalize (O : in out Object_Safe_Pointer) with Inline;
-
    --  Scalar
 
    type Scalar is abstract new Object with null record;
@@ -952,9 +949,10 @@ private
 
    --  Composite
 
-   Empty_Object_Set : constant Object_Set := Object_Set'(1 .. 0 => <>);
+   type Object_Set_Access is access Object_Set'Class;
 
-   type Object_Set_Access is access Object_Set;
+
+   Empty_Object_Set : constant Object_Set := [];
 
    type Composite is abstract new Object with record
       Ref_Counter : Counter_Access;

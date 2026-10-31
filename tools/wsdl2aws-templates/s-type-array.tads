@@ -83,8 +83,6 @@ package @_UNIT_NAME_@ is
 
    function To_@_TYPE_NAME_@ is new SOAP.Utils.To_Vector
      (@_TYPE_NAME_@_Pck, @_GET_ROUTINE_@);
-   function To_@_TYPE_NAME_@_L is new SOAP.Utils.To_Vector_L
-     (@_TYPE_NAME_@_Pck, @_GET_ROUTINE_@);
 
    function To_Object_Set is new SOAP.Utils.To_Object_Set_V
      (@_TYPE_NAME_@_Pck,

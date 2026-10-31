@@ -804,12 +804,15 @@ package body SOAP.Utils is
      (From : T_Array;
       NS   : Name_Space.Object) return Types.Object_Set
    is
+      use Ada.Containers;
       use SOAP.Types;
-      Result : Types.Object_Set (From'Range);
+      Result : Types.Object_Set;
    begin
+      Result.Reserve_Capacity (Count_Type (From'Length));
+
       for K in From'Range loop
-         Result (K) :=
-           +Get (From (K), Name => E_Name, Type_Name => Type_Name, NS => NS);
+         Result.Append
+           (+Get (From (K), Name => E_Name, Type_Name => Type_Name, NS => NS));
       end loop;
 
       return Result;
@@ -823,12 +826,15 @@ package body SOAP.Utils is
      (From : T_Array;
       NS   : Name_Space.Object) return Types.Object_Set
    is
+      use Ada.Containers;
       use SOAP.Types;
-      Result : Types.Object_Set (1 .. Integer (From'Last));
+      Result : Types.Object_Set;
    begin
+      Result.Reserve_Capacity (Count_Type (From'Length));
+
       for K in From'Range loop
-         Result (Integer (K)) :=
-           +Get (From (K), Name => E_Name, Type_Name => Type_Name, NS => NS);
+         Result.Append
+           (+Get (From (K), Name => E_Name, Type_Name => Type_Name, NS => NS));
       end loop;
 
       return Result;
@@ -843,11 +849,13 @@ package body SOAP.Utils is
       NS   : Name_Space.Object) return Types.Object_Set
    is
       use SOAP.Types;
-      Result : Types.Object_Set (1 .. Integer (From.Length));
+      Result : Types.Object_Set;
    begin
-      for K in Result'Range loop
-         Result (K) :=
-           +Get (From (K), Name => E_Name, Type_Name => Type_Name, NS => NS);
+      Result.Reserve_Capacity (From.Length);
+
+      for E of From loop
+         Result.Append
+           (+Get (E, Name => E_Name, Type_Name => Type_Name, NS => NS));
       end loop;
 
       return Result;
@@ -858,24 +866,25 @@ package body SOAP.Utils is
    ----------------
 
    function To_T_Array (From : Types.Object_Set) return T_Array is
+      use type Ada.Containers.Count_Type;
       use type Ada.Tags.Tag;
       use SOAP.Types;
-      Result : T_Array (From'Range);
+      Result : T_Array (1 .. Integer (From.Length));
    begin
-      for K in From'Range loop
+      for K in Result'Range loop
          declare
             E : constant SOAP.Types.Object'Class := -From (K);
          begin
             --  A single element which is a SOAP_Set, this is the
             --  vector to be converted.
             if E'Tag = SOAP.Types.SOAP_Set'Tag
-              and then From'Length = 1
+              and then From.Length = 1
             then
                return To_T_Array (V (SOAP.Types.SOAP_Set (E)));
 
             --  Likewise for a SOAP_Array
             elsif E'Tag = SOAP.Types.SOAP_Array'Tag
-              and then From'Length = 1
+              and then From.Length = 1
             then
                return To_T_Array (V (SOAP.Types.SOAP_Array (E)));
 
@@ -893,29 +902,32 @@ package body SOAP.Utils is
    ------------------
 
    function To_T_Array_C (From : Types.Object_Set) return T_Array is
+      use type Ada.Containers.Count_Type;
       use type Ada.Tags.Tag;
       use SOAP.Types;
       Result : T_Array;
+      K      : Index := Index'First;
    begin
-      for K in Result'Range loop
+      for El of From loop
          declare
-            E : constant SOAP.Types.Object'Class := -From (Integer (K));
+            E : constant SOAP.Types.Object'Class := -El;
          begin
             --  A single element which is a SOAP_Set, this is the
             --  vector to be converted.
             if E'Tag = SOAP.Types.SOAP_Set'Tag
-              and then From'Length = 1
+              and then From.Length = 1
             then
                return To_T_Array_C (V (SOAP.Types.SOAP_Set (E)));
 
             --  Likewise for a SOAP_Array
             elsif E'Tag = SOAP.Types.SOAP_Array'Tag
-              and then From'Length = 1
+              and then From.Length = 1
             then
                return To_T_Array_C (V (SOAP.Types.SOAP_Array (E)));
 
             else
                Result (K) := Get (E);
+               K := @ + 1;
             end if;
          end;
       end loop;
@@ -953,24 +965,27 @@ package body SOAP.Utils is
    ---------------
 
    function To_Vector (From : Types.Object_Set) return Vector.Vector is
+      use type Ada.Containers.Count_Type;
       use type Ada.Tags.Tag;
       use SOAP.Types;
       Result : Vector.Vector;
    begin
-      for K in From'Range loop
+      Result.Reserve_Capacity (From.Length);
+
+      for El of From loop
          declare
-            E : constant SOAP.Types.Object'Class := -From (K);
+            E : constant SOAP.Types.Object'Class := -El;
          begin
             --  A single element which is a SOAP_Set, this is the
             --  vector to be converted.
             if E'Tag = SOAP.Types.SOAP_Set'Tag
-              and then From'Length = 1
+              and then From.Length = 1
             then
                return To_Vector (V (SOAP.Types.SOAP_Set (E)));
 
             --  Likewise for a SOAP_Array
             elsif E'Tag = SOAP.Types.SOAP_Array'Tag
-              and then From'Length = 1
+              and then From.Length = 1
             then
                return To_Vector (V (SOAP.Types.SOAP_Array (E)));
 

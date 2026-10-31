@@ -1,0 +1,8 @@
+start
+*** p_battleDimension AIR
+*** Nb p_tag       500000
+*** First p_tag    2
+*** Last p_tag     500001
+*** values         1.20000E+00
+*** values         1.60000E+00
+*** values         8.00000E+00

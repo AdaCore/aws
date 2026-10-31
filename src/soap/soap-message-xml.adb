@@ -31,7 +31,6 @@ with Ada.Characters.Handling;
 with Ada.Exceptions;
 with Ada.Numerics.Big_Numbers.Big_Integers;
 with Ada.Strings.Fixed;
-with Ada.Unchecked_Deallocation;
 
 with AWS.Client.XML.Input_Sources;
 with AWS.Containers.Key_Value;
@@ -399,43 +398,6 @@ package body SOAP.Message.XML is
                  T_Decimal           =>
                    (Types.XML_Decimal'Access,
                     Parse_Decimal'Access, False)];
-
-   type Object_Set_Access is access Types.Object_Set;
-
-   procedure Unchecked_Free is
-     new Unchecked_Deallocation (Types.Object_Set, Object_Set_Access);
-
-   procedure Add_Object
-     (Set      : in out Object_Set_Access;
-      Position : Positive;
-      Object   : Types.Object_Safe_Pointer;
-      Growth   : Positive)
-   with Inline, Pre => Set /= null;
-   --  Adds Object into Set, reallocate Set if needed. The reallocated Set
-   --  array will have Growth more item's slot.
-
-   ----------------
-   -- Add_Object --
-   ----------------
-
-   procedure Add_Object
-     (Set      : in out Object_Set_Access;
-      Position : Positive;
-      Object   : Types.Object_Safe_Pointer;
-      Growth   : Positive)
-   is
-      Old : Object_Set_Access;
-   begin
-      if Position > Set'Last then
-         Old := Set;
-         Set := new Types.Object_Set
-                  (1 .. Positive'Max (Set'Length + Growth, Position));
-         Set (1 .. Old'Length) := Old.all;
-         Unchecked_Free (Old);
-      end if;
-
-      Set (Position) := Object;
-   end Add_Object;
 
    -----------
    -- Error --
@@ -989,8 +951,7 @@ package body SOAP.Message.XML is
       end Get_Type_Name;
 
       LS    : constant State := S;
-      OS    : Object_Set_Access := new Object_Set (1 .. 512);
-      K     : Natural := 0;
+      OS    : Object_Set;
       A     : Types.SOAP_Array;
 
       Field : DOM.Core.Node;
@@ -1010,9 +971,7 @@ package body SOAP.Message.XML is
          S.A_State := A_Type;
 
          while Field /= null loop
-            K := @ + 1;
-
-            Add_Object (OS, K, +Parse_Param (Field, LQ_Name, S), 256);
+            OS.Append (+Parse_Param (Field, LQ_Name, S));
 
             Field := Next_Sibling (Field);
          end loop;
@@ -1021,8 +980,7 @@ package body SOAP.Message.XML is
 
          S.A_State := LS.A_State;
 
-         A := Types.A (OS (1 .. K), Name, Type_Name);
-         Unchecked_Free (OS);
+         A := Types.A (OS, Name, Type_Name);
 
          return A;
       end;
@@ -1051,8 +1009,7 @@ package body SOAP.Message.XML is
                     (Field, SOAP.Name_Space.Name (S.NS.xsi) & ":type");
 
       --  The record fields temporary store
-      OS     : Object_Set_Access := new Object_Set (1 .. 50);
-      K      : Natural := 0;
+      OS     : Object_Set;
 
       T_Name : constant String :=
                  (if xsd = ""
@@ -1066,11 +1023,9 @@ package body SOAP.Message.XML is
       --  The attribute value itself (named attribute_value)
 
       if First_Child (N) /= null then
-         K := 1;
          S_Type := To_Type (T_Name, S.NS, S.Schema);
-         Add_Object
-           (OS, K,
-            +Handlers (S_Type).Handler ("attribute_value", T_Name, N), 25);
+         OS.Append
+           (+Handlers (S_Type).Handler ("attribute_value", T_Name, N));
       end if;
 
       --  The element's attribute
@@ -1088,21 +1043,13 @@ package body SOAP.Message.XML is
                        Get_Schema_Type (Key, S.Schema, S.NS);
             begin
                S_Type := To_Type (T_N, S.NS, S.Schema);
-               K := @ + 1;
-               Add_Object
-                 (OS, K,
-                  +Handlers (S_Type).Handler (Fn, T_N, F), 25);
+               OS.Append (+Handlers (S_Type).Handler (Fn, T_N, F));
             end;
          end loop;
       end;
 
-      return R : constant Types.SOAP_Attribute :=
-        Types.R
-          (OS (1 .. K), Name,
-           Utils.No_NS (T_Name), NS)
-      do
-         Unchecked_Free (OS);
-      end return;
+      return Types.SOAP_Attribute'
+        (Types.R (OS, Name, Utils.No_NS (T_Name), NS));
    end Parse_Attribute;
 
    ------------------
@@ -1810,8 +1757,7 @@ package body SOAP.Message.XML is
                     (Field, SOAP.Name_Space.Name (S.NS.xsi) & ":type");
 
       --  The record fields temporary store
-      OS     : Object_Set_Access := new Object_Set (1 .. 50);
-      K      : Natural := 0;
+      OS     : Object_Set;
 
       T_Name : Unbounded_String; -- record's type name
       LS     : constant State := S;
@@ -1850,8 +1796,7 @@ package body SOAP.Message.XML is
          S.A_State := Void;
 
          while Field /= null loop
-            K := @ + 1;
-            Add_Object (OS, K, +Parse_Param (Field, LQ_Name, S), 25);
+            OS.Append (+Parse_Param (Field, LQ_Name, S));
             Field := Next_Sibling (Field);
          end loop;
 
@@ -1863,13 +1808,10 @@ package body SOAP.Message.XML is
             NS : constant SOAP.Name_Space.Object :=
                    Get_Namespace_Object (S.NS, Utils.NS (To_String (T_Name)));
          begin
-            return R : constant Types.SOAP_Record :=
-                         Types.R
-                           (OS (1 .. K), Name,
-                            Utils.No_NS (To_String (T_Name)), NS)
-            do
-               Unchecked_Free (OS);
-            end return;
+            return Types.SOAP_Record'
+              (Types.R
+                 (OS, Name,
+                  Utils.No_NS (To_String (T_Name)), NS));
          end;
       end if;
    end Parse_Record;
