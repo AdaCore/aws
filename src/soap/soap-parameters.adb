@@ -35,9 +35,13 @@ package body SOAP.Parameters is
    -- "&" --
    ---------
 
+   overriding
    function "&" (P : List; O : Types.Object'Class) return List is
    begin
-      return P & Types."+" (O);
+      return L : List do
+         L.Append (P);
+         L.Append (O);
+      end return;
    end "&";
 
    ---------
@@ -46,7 +50,7 @@ package body SOAP.Parameters is
 
    function "+" (O : Types.Object'Class) return List is
    begin
-      return [Types."+" (O)];
+      return [O];
    end "+";
 
    --------------
@@ -55,13 +59,11 @@ package body SOAP.Parameters is
 
    function Argument
      (P    : List;
-      Name : String) return Types.Object'Class
-   is
-      use type Types.Object_Safe_Pointer;
+      Name : String) return Types.Object'Class is
    begin
       for E of P loop
-         if Types.Name (-E) = Name then
-            return -E;
+         if Types.Name (E) = Name then
+            return E;
          end if;
       end loop;
 
@@ -74,11 +76,9 @@ package body SOAP.Parameters is
 
    function Argument
      (P : List;
-      N : Positive) return Types.Object'Class
-   is
-      use type Types.Object_Safe_Pointer;
+      N : Positive) return Types.Object'Class is
    begin
-      return -P (N);
+      return P (N);
    end Argument;
 
    --------------------
@@ -232,10 +232,9 @@ package body SOAP.Parameters is
    -----------
 
    function Exist (P : List; Name : String) return Boolean is
-      use type Types.Object_Safe_Pointer;
    begin
       for E of P loop
-         if Types.Name (-E) = Name then
+         if Types.Name (E) = Name then
             return True;
          end if;
       end loop;
@@ -376,12 +375,10 @@ package body SOAP.Parameters is
    end Get;
 
    function Get (P : List; Name : String) return List is
-      use type SOAP.Types.Object_Safe_Pointer;
-
       L : List;
    begin
       for E of P loop
-         if SOAP.Types.Name (-E) = Name then
+         if SOAP.Types.Name (E) = Name then
             L.Append (E);
          end if;
       end loop;

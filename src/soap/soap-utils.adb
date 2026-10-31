@@ -812,7 +812,7 @@ package body SOAP.Utils is
 
       for K in From'Range loop
          Result.Append
-           (+Get (From (K), Name => E_Name, Type_Name => Type_Name, NS => NS));
+           (Get (From (K), Name => E_Name, Type_Name => Type_Name, NS => NS));
       end loop;
 
       return Result;
@@ -834,7 +834,7 @@ package body SOAP.Utils is
 
       for K in From'Range loop
          Result.Append
-           (+Get (From (K), Name => E_Name, Type_Name => Type_Name, NS => NS));
+           (Get (From (K), Name => E_Name, Type_Name => Type_Name, NS => NS));
       end loop;
 
       return Result;
@@ -855,7 +855,7 @@ package body SOAP.Utils is
 
       for E of From loop
          Result.Append
-           (+Get (E, Name => E_Name, Type_Name => Type_Name, NS => NS));
+           (Get (E, Name => E_Name, Type_Name => Type_Name, NS => NS));
       end loop;
 
       return Result;
@@ -873,7 +873,7 @@ package body SOAP.Utils is
    begin
       for K in Result'Range loop
          declare
-            E : constant SOAP.Types.Object'Class := -From (K);
+            E : constant SOAP.Types.Object'Class := From (K);
          begin
             --  A single element which is a SOAP_Set, this is the
             --  vector to be converted.
@@ -908,28 +908,20 @@ package body SOAP.Utils is
       Result : T_Array;
       K      : Index := Index'First;
    begin
-      for El of From loop
-         declare
-            E : constant SOAP.Types.Object'Class := -El;
-         begin
-            --  A single element which is a SOAP_Set, this is the
-            --  vector to be converted.
-            if E'Tag = SOAP.Types.SOAP_Set'Tag
-              and then From.Length = 1
-            then
-               return To_T_Array_C (V (SOAP.Types.SOAP_Set (E)));
+      for E of From loop
+         --  A single element which is a SOAP_Set, this is the
+         --  vector to be converted.
+         if E'Tag = SOAP.Types.SOAP_Set'Tag and then From.Length = 1 then
+            return To_T_Array_C (V (SOAP.Types.SOAP_Set (E)));
 
-            --  Likewise for a SOAP_Array
-            elsif E'Tag = SOAP.Types.SOAP_Array'Tag
-              and then From.Length = 1
-            then
-               return To_T_Array_C (V (SOAP.Types.SOAP_Array (E)));
+         --  Likewise for a SOAP_Array
+         elsif E'Tag = SOAP.Types.SOAP_Array'Tag and then From.Length = 1 then
+            return To_T_Array_C (V (SOAP.Types.SOAP_Array (E)));
 
-            else
-               Result (K) := Get (E);
-               K := @ + 1;
-            end if;
-         end;
+         else
+            Result (K) := Get (E);
+            K := @ + 1;
+         end if;
       end loop;
 
       return Result;
@@ -972,27 +964,19 @@ package body SOAP.Utils is
    begin
       Result.Reserve_Capacity (From.Length);
 
-      for El of From loop
-         declare
-            E : constant SOAP.Types.Object'Class := -El;
-         begin
-            --  A single element which is a SOAP_Set, this is the
-            --  vector to be converted.
-            if E'Tag = SOAP.Types.SOAP_Set'Tag
-              and then From.Length = 1
-            then
-               return To_Vector (V (SOAP.Types.SOAP_Set (E)));
+      for E of From loop
+         --  A single element which is a SOAP_Set, this is the
+         --  vector to be converted.
+         if E'Tag = SOAP.Types.SOAP_Set'Tag and then From.Length = 1 then
+            return To_Vector (V (SOAP.Types.SOAP_Set (E)));
 
-            --  Likewise for a SOAP_Array
-            elsif E'Tag = SOAP.Types.SOAP_Array'Tag
-              and then From.Length = 1
-            then
-               return To_Vector (V (SOAP.Types.SOAP_Array (E)));
+         --  Likewise for a SOAP_Array
+         elsif E'Tag = SOAP.Types.SOAP_Array'Tag and then From.Length = 1 then
+            return To_Vector (V (SOAP.Types.SOAP_Array (E)));
 
-            else
-               Result.Append (Get (E));
-            end if;
-         end;
+         else
+            Result.Append (Get (E));
+         end if;
       end loop;
 
       return Result;

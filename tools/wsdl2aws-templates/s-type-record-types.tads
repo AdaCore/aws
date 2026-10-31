@@ -1,4 +1,5 @@
 
+   --  Template file s-type-record-types.tads
    --  Record @_TYPE_NAME_@
 
 @@IF@@ not @_IS_EMPTY:NAME_SPACE_PACKAGE_@

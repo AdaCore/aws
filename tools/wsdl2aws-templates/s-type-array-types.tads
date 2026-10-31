@@ -1,6 +1,7 @@
 @@--  Spec chunk to support array types (chunk for types child package)
 @@--
 
+   --  Template file s-type-array-types.tads
    --  Array @_TYPE_NAME_@
 @@IF@@ not @_IS_EMPTY:NAME_SPACE_PACKAGE_@
 

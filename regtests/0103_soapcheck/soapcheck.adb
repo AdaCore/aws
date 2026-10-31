@@ -81,9 +81,10 @@ procedure Soapcheck is
       Result : SOAP.Types.SOAP_Record;
    begin
       Result := SOAP.Types.R
-        (Object_Set'[+SOAP.Types.S (Integer'Image (R.V), "V"),
-          +SOAP.Types.S (Integer'Image (Integer (R.S)), "S"),
-          +SOAP.Types.E (Pck_Service.Types.Image (R.C), "Color", "C")],
+        (Object_Set'[
+          SOAP.Types.S (Integer'Image (R.V), "V"),
+          SOAP.Types.S (Integer'Image (Integer (R.S)), "S"),
+          SOAP.Types.E (Pck_Service.Types.Image (R.C), "Color", "C")],
          Name, "Rec");
       SOAP.Types.Set_Name_Space
         (Result,

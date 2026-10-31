@@ -37,15 +37,20 @@ procedure SOAP2 is
       renames SOAP.Types.R;
 
    Payload : SOAP.Message.Payload.Object'Class :=
-     SOAP.Message.Payload.Build
-     ("Workorder",
-      +BR (Object_Set'[+S ("Wo1", "name1"),
-            +S ("idle", "name2"),
-            +A (Object_Set'[ +BR (Object_Set'[+S ("idle", "name3"),
-                                              +S ("Wo1", "name4")],
-                           "my_record")],
-                "my_array")],
-           "my_record_out"));
+               SOAP.Message.Payload.Build
+                 ("Workorder",
+                  +BR
+                     (Object_Set'
+                        [S ("Wo1", "name1"),
+                         S ("idle", "name2"),
+                         A
+                           (Object_Set'
+                              [BR
+                                 (Object_Set'[S ("idle", "name3"),
+                                              S ("Wo1", "name4")],
+                                  "my_record")],
+                            "my_array")],
+                      "my_record_out"));
 
    Parms    : constant List := SOAP.Message.Parameters (Payload);
    Obj      : constant SOAP.Types.Object'Class :=

@@ -85,7 +85,7 @@ procedure SOAP_CVS is
    procedure easyStructTest is
 
       P_Set : Parameters.List :=
-        +BR (Object_Set'[+I (12, "moe"), +I (45, "larry"), +I (10, "curly")],
+        +BR (Object_Set'[I (12, "moe"), I (45, "larry"), I (10, "curly")],
              "stooges");
 
       P     : Message.Payload.Object;
@@ -114,7 +114,7 @@ procedure SOAP_CVS is
    procedure echoStructTest is
 
       P_Set : Parameters.List :=
-        +BR (Object_Set'[+I (12, "moe"), +I (45, "larry"), +I (10, "curly")],
+        +BR (Object_Set'[I (12, "moe"), I (45, "larry"), I (10, "curly")],
              "myStruct");
 
       P     : Message.Payload.Object;
@@ -174,10 +174,10 @@ procedure SOAP_CVS is
 
    procedure moderateSizeArrayCheck is
 
-      P_Set : Parameters.List := +A (Object_Set'[+S ("str 1"),
-                                                 +S ("str 2"),
-                                                 +S ("str 3"),
-                                                 +S ("str 4")],
+      P_Set : Parameters.List := +A (Object_Set'[S ("str 1"),
+                                                 S ("str 2"),
+                                                 S ("str 3"),
+                                                 S ("str 4")],
                                      "myArray");
 
       P     : Message.Payload.Object;
@@ -206,15 +206,15 @@ procedure SOAP_CVS is
 
    procedure nestedStructTest is
 
-      S1 : constant Object_Set := [+I (1, "un"), +I (2, "deux")];
+      S1 : constant Object_Set := [I (1, "un"), I (2, "deux")];
 
       S2 : constant Object_Set :=
-             [+I (1, "moe"), +I (27, "larry"), +I (76, "curly")];
+             [I (1, "moe"), I (27, "larry"), I (76, "curly")];
 
       P_Set : Parameters.List :=
-        +BR (Object_Set'[+BR (Object_Set'[+BR (S1, "test")],
+        +BR (Object_Set'[BR (Object_Set'[BR (S1, "test")],
                               "year1999"),
-                         +BR (Object_Set'[+BR (Object_Set'[+BR (S2, "day01")],
+                         BR (Object_Set'[BR (Object_Set'[BR (S2, "day01")],
                                                "month04")],
                               "year2000")],
              "myStruct");

@@ -33,7 +33,7 @@ with Ada.Strings.Unbounded;
 
 with SOAP.Types;
 
-private with Ada.Containers.Vectors;
+private with Ada.Containers.Indefinite_Vectors;
 
 package SOAP.Parameters is
 
@@ -224,8 +224,8 @@ package SOAP.Parameters is
 
 private
 
-   package Set is new Ada.Containers.Vectors
-     (Positive, Types.Object_Safe_Pointer, Types."=");
+   package Set is new Ada.Containers.Indefinite_Vectors
+     (Positive, Types.Object'Class, Types."=");
 
    type List is new Set.Vector with null record;
 

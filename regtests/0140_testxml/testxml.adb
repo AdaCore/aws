@@ -41,9 +41,10 @@ procedure TestXML is
       renames SOAP.Types.R;
 
    Parm : List :=
-            +BR (Object_Set'[+S ("Wo1", Soap_WoId),
-                  +A (Object_Set'[ +BR (Object_Set'[+S ("", Soap_WoId),
-                                                    +I (0, Soap_Produced)],
+            +BR (Object_Set'[
+                  S ("Wo1", Soap_WoId),
+                  A (Object_Set'[ BR (Object_Set'[S ("", Soap_WoId),
+                                                  I (0, Soap_Produced)],
                                  Soap_Orderline)
                       ]
                      , Soap_Orderline)

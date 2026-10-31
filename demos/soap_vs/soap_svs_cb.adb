@@ -219,11 +219,11 @@ package body SOAP_SVS_CB is
          end loop;
 
          OS := Object_Set'
-           [+I (ctLeftAngleBrackets, "ctLeftAngleBrackets"),
-            +I (ctRightAngleBrackets, "ctRightAngleBrackets"),
-            +I (ctAmpersands, "ctAmpersands"),
-            +I (ctApostrophes, "ctApostrophes"),
-            +I (ctQuotes, "ctQuotes")];
+                 [I (ctLeftAngleBrackets, "ctLeftAngleBrackets"),
+                  I (ctRightAngleBrackets, "ctRightAngleBrackets"),
+                  I (ctAmpersands, "ctAmpersands"),
+                  I (ctApostrophes, "ctApostrophes"),
+                  I (ctQuotes, "ctQuotes")];
 
          RP := +BR (OS, "answer");
       end;
@@ -366,7 +366,7 @@ package body SOAP_SVS_CB is
          V6 : constant Object'Class := Argument (P, "bin");
       begin
          RP := +SOAP.Types.A
-           (Object_Set'[+V1, +V2, +V3, +V4, +V5, +V6], "answer");
+           (Object_Set'[V1, V2, V3, V4, V5, V6], "answer");
       end;
 
       SOAP.Message.Set_Parameters (R, RP);
@@ -510,9 +510,9 @@ package body SOAP_SVS_CB is
          V3 : constant Integer := N * 1000;
 
       begin
-         RP := +BR (Object_Set'[+I (V1, "times10"),
-                                +I (V2, "times100"),
-                                +I (V3, "times1000")],
+         RP := +BR (Object_Set'[I (V1, "times10"),
+                                I (V2, "times100"),
+                                I (V3, "times1000")],
                     "answer");
       end;
 
@@ -553,10 +553,10 @@ package body SOAP_SVS_CB is
       R := SOAP.Message.Response.From (PL);
 
       RP := +BR
-        (Object_Set'[+S ("http://libre.adacore.com/", "toolkitDocsUrl"),
-                     +S ("AWS/SOAP (Ada Web Server)", "toolkitName"),
-                     +S (AWS.Version & '.' & SOAP.Version, "toolkitVersion"),
-                     +S ("Windows", "toolkitOperatingSystem")],
+        (Object_Set'[S ("http://libre.adacore.com/", "toolkitDocsUrl"),
+                     S ("AWS/SOAP (Ada Web Server)", "toolkitName"),
+                     S (AWS.Version & '.' & SOAP.Version, "toolkitVersion"),
+                     S ("Windows", "toolkitOperatingSystem")],
          "answer");
 
       SOAP.Message.Set_Parameters (R, RP);

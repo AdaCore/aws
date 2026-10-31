@@ -4,6 +4,7 @@
 --
 --  AWS @_AWS_VERSION_@ - SOAP @_SOAP_VERSION_@
 --  This file was generated on @_NOW_@
+--  Template file s-type-record.tadb
 --
 --  $ wsdl2aws @_OPTIONS_@
 @@-----------------------------------------------------------------------
@@ -61,7 +62,7 @@
 @@-----------------------------------------------------------------------
 @@MACRO(REC_GET_FIELD_FROM_SOAP)@@
 @@IF@@ @_RF_KIND_@ = K_ARRAY and @_RF_MIN_@ = 0 and @_RF_MAX_@ = 1
-To_@_RF_TYPE_NAME_@_Type (Object_Set'[+@_$1_@])
+To_@_RF_TYPE_NAME_@_Type (Object_Set'[@_$1_@])
 @@ELSIF@@ @_RF_KIND_@ = K_ARRAY
 +To_@_RF_TYPE_NAME_@_Type (@_$1_@)
 @@ELSIF@@ (@_RF_KIND_@ = K_RECORD) or (@_RF_KIND_@ = K_ENUMERATION)
@@ -269,18 +270,16 @@ package body @_UNIT_NAME_@ is
         return SOAP.Name_Space.Object is (NS);
 
 @@IF@@ @_HAS_CHOICE_@ and @_FIELD_COUNT_@ > 0
-      function C_Object return SOAP.Types.Object_Safe_Pointer is
+      function C_Object return SOAP.Types.Object'Class is
       begin
          case R.C is
             when C0 =>
-               return O : SOAP.Types.Object_Safe_Pointer do
-                  null;
-               end return;
+               return SOAP.Types.No_Object;
 @@TABLE@@
 @@IF@@ @_RF_DECL_IN_CHOICE_@
             when C@_CHOICE_FIELD_NUMBER_@ =>
 @@INLINE(               )(\n     )()@@
-               return @_REC_FIELD_TO_SOAP(1 => "", 2 => "+", 3 => ";")_@
+               return @_REC_FIELD_TO_SOAP(1 => "", 2 => "", 3 => ";")_@
 @@END_INLINE@@
 @@END_IF@@
 @@END_TABLE@@
@@ -303,9 +302,9 @@ package body @_UNIT_NAME_@ is
                 --  @_RF_NAME_@
 @@INLINE(                )(\n          )()@@
 @@IF@@ @_FIELD_NUMBER_@ = @_INDEX_LAST_STANDARD_@
-        @_REC_FIELD_TO_SOAP(1 => @_FIELD_NUMBER_@, 2 => " => +")_@],
+        @_REC_FIELD_TO_SOAP(1 => @_FIELD_NUMBER_@, 2 => " => ")_@],
 @@ELSE@@
-        @_REC_FIELD_TO_SOAP(1 => @_FIELD_NUMBER_@, 2 => " => +")_@,
+        @_REC_FIELD_TO_SOAP(1 => @_FIELD_NUMBER_@, 2 => " => ")_@,
 @@END_IF@@
 @@END_INLINE@@
 @@END_IF@@
@@ -321,9 +320,9 @@ package body @_UNIT_NAME_@ is
                 --  @_RF_NAME_@
 @@INLINE(                )(\n          )()@@
 @@IF@@ @_FIELD_NUMBER_@ = @_INDEX_LAST_STANDARD_@
-         @_REC_FIELD_TO_SOAP(1 => @_FIELD_NUMBER_@, 2 => " => +")_@,
+         @_REC_FIELD_TO_SOAP(1 => @_FIELD_NUMBER_@, 2 => " => ")_@,
 @@ELSE@@
-         @_REC_FIELD_TO_SOAP(1 => @_FIELD_NUMBER_@, 2 => " => +")_@,
+         @_REC_FIELD_TO_SOAP(1 => @_FIELD_NUMBER_@, 2 => " => ")_@,
 @@END_IF@@
 @@END_INLINE@@
 @@END_IF@@

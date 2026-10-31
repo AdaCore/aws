@@ -971,7 +971,7 @@ package body SOAP.Message.XML is
          S.A_State := A_Type;
 
          while Field /= null loop
-            OS.Append (+Parse_Param (Field, LQ_Name, S));
+            OS.Append (Parse_Param (Field, LQ_Name, S));
 
             Field := Next_Sibling (Field);
          end loop;
@@ -1025,7 +1025,7 @@ package body SOAP.Message.XML is
       if First_Child (N) /= null then
          S_Type := To_Type (T_Name, S.NS, S.Schema);
          OS.Append
-           (+Handlers (S_Type).Handler ("attribute_value", T_Name, N));
+           (Handlers (S_Type).Handler ("attribute_value", T_Name, N));
       end if;
 
       --  The element's attribute
@@ -1043,7 +1043,7 @@ package body SOAP.Message.XML is
                        Get_Schema_Type (Key, S.Schema, S.NS);
             begin
                S_Type := To_Type (T_N, S.NS, S.Schema);
-               OS.Append (+Handlers (S_Type).Handler (Fn, T_N, F));
+               OS.Append (Handlers (S_Type).Handler (Fn, T_N, F));
             end;
          end loop;
       end;
@@ -1796,7 +1796,7 @@ package body SOAP.Message.XML is
          S.A_State := Void;
 
          while Field /= null loop
-            OS.Append (+Parse_Param (Field, LQ_Name, S));
+            OS.Append (Parse_Param (Field, LQ_Name, S));
             Field := Next_Sibling (Field);
          end loop;
 

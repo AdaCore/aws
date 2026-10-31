@@ -1,4 +1,5 @@
 
+   --  Template file s-stub-types.tads
    --  Returned type for @_PROC_@
 
    subtype @_PROC_@_Result is @_QUALIFIED_NAME_@_Type;

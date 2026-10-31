@@ -96,7 +96,7 @@ package SOAP.Types is
      Constant_Indexing => Constant_Reference,
      Variable_Indexing => Reference,
      Default_Iterator  => Iterate,
-     Iterator_Element  => Object_Safe_Pointer,
+     Iterator_Element  => Object'Class,
      Aggregate         =>
        (Empty          => Empty,
         Add_Unnamed    => Append,
@@ -120,28 +120,28 @@ package SOAP.Types is
    function Is_Empty (Container : Object_Set) return Boolean;
 
    procedure Append
-     (Container : in out Object_Set; New_Item : Object_Safe_Pointer'Class);
+     (Container : in out Object_Set; New_Item : Object'Class);
 
    function New_Vector (First, Last : Positive) return Object_Set;
 
    function Element
      (Container : Object_Set; Index : Positive)
-      return Object_Safe_Pointer'Class with Inline;
+      return Object'Class with Inline;
 
    function Element
-     (Position : Cursor) return Object_Safe_Pointer'Class with Inline;
+     (Position : Cursor) return Object'Class with Inline;
 
    function First_Element
-     (Container : Object_Set) return Object_Safe_Pointer'Class with Inline;
+     (Container : Object_Set) return Object'Class with Inline;
 
    procedure Replace_Element
      (Container : in out Object_Set;
       Index     : Positive;
-      New_Item  : Object_Safe_Pointer'Class);
+      New_Item  : Object'Class);
    procedure Replace_Element
      (Container : in out Object_Set;
       Position  : Cursor;
-      New_Item  : Object_Safe_Pointer'Class);
+      New_Item  : Object'Class);
 
    function Has_Element (Position : Cursor) return Boolean with Inline;
 
@@ -157,12 +157,12 @@ package SOAP.Types is
       return Object_Set_Iterator_Interfaces.Reversible_Iterator'Class;
 
    type Constant_Reference_Type
-     (Element : not null access constant Object_Safe_Pointer'Class)
+     (Element : not null access constant Object'Class)
    is
      limited private
    with Implicit_Dereference => Element;
 
-   type Reference_Type (Element : not null access Object_Safe_Pointer'Class) is
+   type Reference_Type (Element : not null access Object'Class) is
      limited private
    with Implicit_Dereference => Element;
 
@@ -1067,7 +1067,7 @@ private
    --  Object_Set
 
    package Object_Set_Pck is new
-     Containers.Indefinite_Vectors (Positive, Object_Safe_Pointer'Class);
+     Containers.Indefinite_Vectors (Positive, Object'Class);
 
    type R_Iterator is limited
      new Object_Set_Iterator_Interfaces.Reversible_Iterator
@@ -1112,11 +1112,11 @@ private
 
    function Element
      (Container : Object_Set; Index : Positive)
-      return Object_Safe_Pointer'Class
+      return Object'Class
    is (Container.V.Element (Index));
 
    overriding
-   function Element (Position : Cursor) return Object_Safe_Pointer'Class
+   function Element (Position : Cursor) return Object'Class
    is (Object_Set_Pck.Element (Object_Set_Pck.Cursor (Position)));
 
    -----------------
@@ -1130,13 +1130,13 @@ private
    --  References
 
    type Constant_Reference_Type
-     (Element : not null access constant Object_Safe_Pointer'Class)
+     (Element : not null access constant Object'Class)
    is limited record
       R : Object_Set_Pck.Constant_Reference_Type (Element);
    end record;
 
    type Reference_Type
-     (Element : not null access Object_Safe_Pointer'Class)
+     (Element : not null access Object'Class)
    is limited record
       R : Object_Set_Pck.Reference_Type (Element);
    end record;

@@ -196,7 +196,7 @@ package body SOAP.Types is
    ------------
 
    procedure Append
-     (Container : in out Object_Set; New_Item : Object_Safe_Pointer'Class) is
+     (Container : in out Object_Set; New_Item : Object'Class) is
    begin
       Container.V.Append (New_Item);
    end Append;
@@ -392,7 +392,7 @@ package body SOAP.Types is
    function Exists (O : SOAP_Record; Field_Name : String) return Boolean is
    begin
       for E of O.O.all loop
-         if Types.Name (E.O.all) = Field_Name then
+         if Types.Name (E) = Field_Name then
             return True;
          end if;
       end loop;
@@ -527,7 +527,7 @@ package body SOAP.Types is
    -------------------
 
    function First_Element
-     (Container : Object_Set) return Object_Safe_Pointer'Class is
+     (Container : Object_Set) return Object'Class is
    begin
       return Container.V.First_Element;
    end First_Element;
@@ -1558,7 +1558,7 @@ package body SOAP.Types is
 
    overriding
    function Image (O : SOAP_Array) return String is
-      Last   : constant Natural := Natural (O.V.Length);
+      Last   : constant Natural := Natural (O.O.Length);
       Result : Unbounded_String;
    begin
       Append (Result, '(');
@@ -1566,7 +1566,7 @@ package body SOAP.Types is
       for K in Integer range 1 .. Last loop
          Append (Result, Integer'Image (K));
          Append (Result, " => ");
-         Append (Result, Image (O.O (K).O.all));
+         Append (Result, Image (O.O (K)));
 
          if K /= Last then
             Append (Result, ", ");
@@ -1580,7 +1580,7 @@ package body SOAP.Types is
 
    overriding
    function Image (O : SOAP_Set) return String is
-      Last   : constant Natural := Natural (O.V.Length);
+      Last   : constant Natural := Natural (O.O.Length);
       Result : Unbounded_String;
    begin
       Append (Result, '(');
@@ -1588,7 +1588,7 @@ package body SOAP.Types is
       for K in Integer range 1 .. Last loop
          Append (Result, Integer'Image (K));
          Append (Result, " => ");
-         Append (Result, Image (O.O (K).O.all));
+         Append (Result, Image (O.O (K)));
 
          if K /= Last then
             Append (Result, ", ");
@@ -1602,15 +1602,15 @@ package body SOAP.Types is
 
    overriding
    function Image (O : SOAP_Record) return String is
-      Last   : constant Natural := Natural (O.V.Length);
+      Last   : constant Natural := Natural (O.O.Length);
       Result : Unbounded_String;
    begin
       Append (Result, '(');
 
       for K in Integer range 1 .. Last loop
-         Append (Result, Name (O.O (K).O.all));
+         Append (Result, Name (O.O (K)));
          Append (Result, " => ");
-         Append (Result, Image (O.O (K).O.all));
+         Append (Result, Image (O.O (K)));
 
          if K /= Last then
             Append (Result, ", ");
@@ -1865,7 +1865,7 @@ package body SOAP.Types is
    procedure Replace_Element
      (Container : in out Object_Set;
       Index     : Positive;
-      New_Item  : Object_Safe_Pointer'Class) is
+      New_Item  : Object'Class) is
    begin
       Container.V.Replace_Element (Index, New_Item);
    end Replace_Element;
@@ -1873,7 +1873,7 @@ package body SOAP.Types is
    procedure Replace_Element
      (Container : in out Object_Set;
       Position  : Cursor;
-      New_Item  : Object_Safe_Pointer'Class) is
+      New_Item  : Object'Class) is
    begin
       Container.V.Replace_Element (Object_Set_Pck.Cursor (Position), New_Item);
    end Replace_Element;
@@ -1957,7 +1957,7 @@ package body SOAP.Types is
       --  All items must have the name of the set
 
       for E of O_Set.all loop
-         E.O.Name := To_Unbounded_String (Name);
+         E.Name := To_Unbounded_String (Name);
       end loop;
 
       return
@@ -2334,7 +2334,7 @@ package body SOAP.Types is
 
    function V (O : SOAP_Array; N : Positive) return Object'Class is
    begin
-      return O.O (N).O.all;
+      return O.O (N);
    end V;
 
    function V
@@ -2342,8 +2342,8 @@ package body SOAP.Types is
       return Object'Class is
    begin
       for E of O.O.all loop
-         if Types.Name (E.O.all) = Name then
-            return E.O.all;
+         if Types.Name (E) = Name then
+            return E;
          end if;
       end loop;
 
@@ -2359,7 +2359,7 @@ package body SOAP.Types is
       Result : Object_Set;
    begin
       for E of O.O.all loop
-         if Types.Name (E.O.all) = Name then
+         if Types.Name (E) = Name then
             Result.Append (E);
          end if;
       end loop;
@@ -2500,7 +2500,7 @@ package body SOAP.Types is
             return XML_Undefined;
          end if;
 
-         T := O.V.First_Element.O'Tag;
+         T := O.V.First_Element'Tag;
 
          --  Array with record components
 
@@ -2510,13 +2510,13 @@ package body SOAP.Types is
 
             declare
                Name : constant String :=
-                        Types.XML_Type (O.V.First_Element.O.all);
+                        Types.XML_Type (O.V.First_Element);
             begin
                --  For all remaining elements
 
                for E of O.O.all loop
-                  if E.O'Tag /= SOAP_Record'Tag
-                    or else Name /= Types.XML_Type (E.O.all)
+                  if E'Tag /= SOAP_Record'Tag
+                    or else Name /= Types.XML_Type (E)
                   then
                      return XML_Undefined;
                   end if;
@@ -2528,7 +2528,7 @@ package body SOAP.Types is
                declare
                   Prefix : constant String :=
                     SOAP.Name_Space.Name
-                      (Name_Space (O.V.First_Element.O.all));
+                      (Name_Space (O.V.First_Element));
                begin
                   return Utils.With_NS (Prefix, Name);
                end;
@@ -2543,20 +2543,21 @@ package body SOAP.Types is
 
          --  All other cases
 
-         for K in Positive range 2 .. Positive (O.V.Length) loop
+         for K in Positive range 2 .. Positive (O.O.Length) loop
+            declare
+               E : constant Types.Object'Class := O.O (K);
+            begin
+               --  Not same type if type different or is a composite type
 
-            --  Not same type if type different or is a composite type
-
-            if T /= O.O (K).O'Tag
-              or else O.O (K).O.all in SOAP.Types.Composite'Class
-            then
-               return XML_Any_Type;
-            end if;
+               if T /= E'Tag or else E in SOAP.Types.Composite'Class then
+                  return XML_Any_Type;
+               end if;
+            end;
          end loop;
 
          --  We have the same type for all items
 
-         return XML_Type (O.V.First_Element.O.all);
+         return XML_Type (O.V.First_Element);
       end Array_Type;
 
       SOAP_Enc : constant String :=
@@ -2589,7 +2590,7 @@ package body SOAP.Types is
       XML_Indent.Set_Value (Indent + 1);
 
       for E of O.O.all loop
-         XML_Image (E.O.all, Result, Encoding, Schema);
+         XML_Image (E, Result, Encoding, Schema);
          Append (Result, New_Line);
       end loop;
 
@@ -2611,7 +2612,7 @@ package body SOAP.Types is
       --  Add all elements
 
       for E of O.O.all loop
-         XML_Image (E.O.all, Result, Encoding, Schema);
+         XML_Image (E, Result, Encoding, Schema);
          Append (Result, New_Line);
       end loop;
    end XML_Image;
@@ -2650,7 +2651,7 @@ package body SOAP.Types is
          XML_Indent.Set_Value (Indent + 1);
 
          for E of O.O.all loop
-            XML_Image (E.O.all, Result, Encoding, Schema);
+            XML_Image (E, Result, Encoding, Schema);
             Append (Result, New_Line);
          end loop;
 
@@ -2670,7 +2671,7 @@ package body SOAP.Types is
    is
       Indent    : constant Natural := XML_Indent.Value;
       Has_Value : constant Boolean :=
-        Name (O.V.First_Element.O.all) = "attribute_value";
+                    Name (O.V.First_Element) = "attribute_value";
       First     : Positive := 1;
    begin
       Append (Result, Spaces (Indent));
@@ -2685,7 +2686,7 @@ package body SOAP.Types is
 
       for K in First .. Positive (O.V.Length) loop
          declare
-            E : constant SOAP.Types.Object'Class := O.O (K).O.all;
+            E : constant SOAP.Types.Object'Class := O.O (K);
          begin
             Append (Result, " " & Name (E) & "=""" & Image (E) & """");
          end;
@@ -2696,7 +2697,7 @@ package body SOAP.Types is
 
          --  Serialize the value
 
-         Append (Result, Image (O.V.First_Element.O.all));
+         Append (Result, Image (O.V.First_Element));
 
          Append (Result, Utils.Tag (Tag_Name (O), Start => False));
 

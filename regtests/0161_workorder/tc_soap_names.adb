@@ -29,7 +29,7 @@ package body Tc_Soap_Names is
       Indent : Integer := 0) return String
    is
       Result : Unbounded_String;
-      Ind : String := Indent * ' ';
+      Ind    : String := Indent * ' ';
    begin
       if Obj in SOAP_Array then
          declare
@@ -37,7 +37,7 @@ package body Tc_Soap_Names is
          begin
             Result := To_Unbounded_String (Ind & "ARRAY " & Name (Obj) & CrLf);
             for E of Arr loop
-               Result := Result & Soap_Image (-E, Indent + 3);
+               Result := Result & Soap_Image (E, Indent + 3);
             end loop;
          end;
 
@@ -48,7 +48,7 @@ package body Tc_Soap_Names is
             Result := To_Unbounded_String
               (Ind & "RECORD " & Name (Obj) & CrLf);
             for E of Rec loop
-               Result := Result & Soap_Image (-E, Indent + 3);
+               Result := Result & Soap_Image (E, Indent + 3);
             end loop;
          end;
 
