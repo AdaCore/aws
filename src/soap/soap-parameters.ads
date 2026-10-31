@@ -43,6 +43,8 @@ package SOAP.Parameters is
 
    type List is private;
 
+   Empty_List : constant List;
+
    function Argument_Count (P : List) return Natural;
    --  Returns the number of parameters in P
 
@@ -170,6 +172,9 @@ package SOAP.Parameters is
    function Get (P : List; Name : String) return Types.Object_Set;
    --  Returns all element of P having the name Name
 
+   function Get (P : List; Name : String) return List;
+   --  Returns all element of P having the name Name
+
    function To_List (Set : Types.Object_Set) return List;
    --  Returns a list for the given object set
 
@@ -223,5 +228,7 @@ private
      (Positive, Types.Object_Safe_Pointer, Types."=");
 
    type List is new Set.Vector with null record;
+
+   Empty_List : constant List := [];
 
 end SOAP.Parameters;

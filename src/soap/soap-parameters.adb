@@ -371,6 +371,11 @@ package body SOAP.Parameters is
    end Get;
 
    function Get (P : List; Name : String) return Types.Object_Set is
+   begin
+      return Get (List'(Get (P, Name)));
+   end Get;
+
+   function Get (P : List; Name : String) return List is
       use type SOAP.Types.Object_Safe_Pointer;
 
       L : List;
@@ -381,7 +386,7 @@ package body SOAP.Parameters is
          end if;
       end loop;
 
-      return Get (L);
+      return L;
    end Get;
 
    -------------
