@@ -62,11 +62,11 @@ procedure SOAP_CVS is
       P := Message.Payload.Build ("countTheEntities", P_Set);
 
       declare
-         R : constant Message.Response.Object'Class
-           := SOAP.Client.Call (Server, P, SOAPAction);
+         R : constant Message.Response.Object'Class :=
+               SOAP.Client.Call (Server, P, SOAPAction);
 
-         P : constant Parameters.List
-           := SOAP.Message.Parameters (R);
+         P : constant Parameters.List :=
+               SOAP.Message.Parameters (R);
 
          Answer : constant SOAP_Record := SOAP.Parameters.Get (P, "answer");
       begin
@@ -93,11 +93,11 @@ procedure SOAP_CVS is
       P := Message.Payload.Build ("easyStructTest", P_Set);
 
       declare
-         R : constant Message.Response.Object'Class
-           := SOAP.Client.Call (Server, P, SOAPAction);
+         R : constant Message.Response.Object'Class :=
+               SOAP.Client.Call (Server, P, SOAPAction);
 
-         P : constant Parameters.List
-           := SOAP.Message.Parameters (R);
+         P : constant Parameters.List :=
+               SOAP.Message.Parameters (R);
 
          Answer : constant Integer := SOAP.Parameters.Get (P, "answer");
       begin
@@ -185,11 +185,11 @@ procedure SOAP_CVS is
       P := Message.Payload.Build ("moderateSizeArrayCheck", P_Set);
 
       declare
-         R : constant Message.Response.Object'Class
-           := SOAP.Client.Call (Server, P, SOAPAction);
+         R : constant Message.Response.Object'Class :=
+               SOAP.Client.Call (Server, P, SOAPAction);
 
-         P : constant Parameters.List
-           := SOAP.Message.Parameters (R);
+         P : constant Parameters.List :=
+               SOAP.Message.Parameters (R);
 
          Answer : constant String := SOAP.Parameters.Get (P, "answer");
 
@@ -223,11 +223,11 @@ procedure SOAP_CVS is
       P := Message.Payload.Build ("nestedStructTest", P_Set);
 
       declare
-         R : constant Message.Response.Object'Class
-           := SOAP.Client.Call (Server, P, SOAPAction);
+         R : constant Message.Response.Object'Class :=
+               SOAP.Client.Call (Server, P, SOAPAction);
 
-         P : constant Parameters.List
-           := SOAP.Message.Parameters (R);
+         P : constant Parameters.List :=
+               SOAP.Message.Parameters (R);
 
          Answer : constant Integer := SOAP.Parameters.Get (P, "answer");
 
@@ -249,11 +249,11 @@ procedure SOAP_CVS is
       P := Message.Payload.Build ("simpleStructReturnTest", P_Set);
 
       declare
-         R : constant Message.Response.Object'Class
-           := SOAP.Client.Call (Server, P, SOAPAction);
+         R : constant Message.Response.Object'Class :=
+               SOAP.Client.Call (Server, P, SOAPAction);
 
-         P : constant Parameters.List
-           := SOAP.Message.Parameters (R);
+         P : constant Parameters.List :=
+               SOAP.Message.Parameters (R);
 
          Answer : constant SOAP_Record := SOAP.Parameters.Get (P, "answer");
 
@@ -283,8 +283,8 @@ procedure SOAP_CVS is
       P := Message.Payload.Build ("whichToolkit", P_Set);
 
       declare
-         R : constant Message.Response.Object'Class
-           := SOAP.Client.Call (Server, P, SOAPAction);
+         R : constant Message.Response.Object'Class :=
+               SOAP.Client.Call (Server, P, SOAPAction);
 
          P : constant Parameters.List := SOAP.Message.Parameters (R);
 
