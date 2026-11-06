@@ -1,6 +1,7 @@
 @@--  Spec chunk to support array types (chunk for types child package)
 @@--
 
+   --  Template file s-type-array-types.tads
    --  Array @_TYPE_NAME_@
 @@IF@@ not @_IS_EMPTY:NAME_SPACE_PACKAGE_@
 
@@ -40,7 +41,7 @@
 @@END_IF@@
 
    function To_@_TYPE_NAME_@
-     (From : SOAP.Types.Object_Set)
+     (From : SOAP.Types.Set.Object)
       return @_NAME_SPACE_@_@_TYPE_NAME_@
       renames @_UNIT_NAME_@.To_@_TYPE_NAME_@;
 
@@ -52,7 +53,7 @@
    function To_Object_Set
      (From : @_NAME_SPACE_@_@_TYPE_NAME_@;
       NS   : SOAP.Name_Space.Object := SOAP.Name_Space.No_Name_Space)
-      return SOAP.Types.Object_Set
+      return SOAP.Types.Set.Object
       renames @_UNIT_NAME_@.To_Object_Set;
 
    function To_SOAP_Object

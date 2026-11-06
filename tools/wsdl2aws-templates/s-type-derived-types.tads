@@ -1,6 +1,7 @@
 @@--  Spec chunk to support derived types (chunk for types child package)
 @@--
 
+   --  Template file s-type-derived-types.tads
    --  Derived type @_TYPE_NAME_@
 
    subtype @_TYPE_NAME_@

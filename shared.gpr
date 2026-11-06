@@ -144,8 +144,6 @@ abstract project Shared is
 
    package Compiler is
 
-      for Driver ("Makefile") use "";
-
       case Build is
          when "Debug" =>
             for Default_Switches ("Ada") use Common_Options & Debug_Options;
@@ -211,14 +209,5 @@ abstract project Shared is
    --  influence the way -l options are handled afterwards.
    --  For library projects, use Leading_Library_Options instead.
    Leading_Library_Options := Ldflags;
-
-   ------------
-   -- Naming --
-   ------------
-
-   package Naming is
-      for Implementation_Suffix ("Makefile") use ".txt";
-      for Implementation_Exceptions ("Makefile") use ("Makefile");
-   end Naming;
 
 end Shared;

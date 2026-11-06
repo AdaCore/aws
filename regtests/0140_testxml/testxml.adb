@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2000-2025, AdaCore                     --
+--                     Copyright (C) 2000-2026, AdaCore                     --
 --                                                                          --
 --  This is free software;  you can redistribute it  and/or modify it       --
 --  under terms of the  GNU General Public License as published  by the     --
@@ -21,6 +21,7 @@
 with Ada.Text_IO;
 with SOAP.Message.Payload;
 with SOAP.Types;       use SOAP.Types;
+with SOAP.Types.Set;
 with SOAP.Parameters;  use SOAP.Parameters;
 with SOAP.Message.XML; use SOAP.Message.XML;
 with SOAP.Name_Space;  use SOAP.Name_Space;
@@ -33,7 +34,7 @@ procedure TestXML is
    Soap_Produced  : constant String := "Produced";
 
    function BR
-     (V         : Object_Set;
+     (V         : SOAP.Types.Set.Object;
       Name      : String;
       Type_Name : String := "";
       NS        : SOAP.Name_Space.Object := SOAP.Name_Space.No_Name_Space)
@@ -41,13 +42,15 @@ procedure TestXML is
       renames SOAP.Types.R;
 
    Parm : List :=
-            +BR ((+S ("Wo1", Soap_WoId),
-                  +A ((1 => +BR ((+S ("", Soap_WoId),
-                                  +I (0, Soap_Produced)
-                                ), Soap_Orderline)
-                      )
+            +BR (SOAP.Types.Set.Object'[
+                  S ("Wo1", Soap_WoId),
+                  A (SOAP.Types.Set.Object'[
+                        BR (SOAP.Types.Set.Object'[S ("", Soap_WoId),
+                                                   I (0, Soap_Produced)],
+                                 Soap_Orderline)
+                      ]
                      , Soap_Orderline)
-                 )
+                 ]
                 , Soap_Wo);
 
    Payload : SOAP.Message.Payload.Object'Class :=

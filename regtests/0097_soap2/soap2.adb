@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2002-2025, AdaCore                     --
+--                     Copyright (C) 2002-2026, AdaCore                     --
 --                                                                          --
 --  This is free software;  you can redistribute it  and/or modify it       --
 --  under terms of the  GNU General Public License as published  by the     --
@@ -24,12 +24,13 @@ with SOAP.Message.Payload;
 with SOAP.Message.XML;
 with SOAP.Parameters;  use SOAP.Parameters;
 with SOAP.Types;       use SOAP.Types;
+with SOAP.Types.Set;
 with SOAP.Name_Space;  use SOAP.Name_Space;
 
 procedure SOAP2 is
 
    function BR
-     (V         : SOAP.Types.Object_Set;
+     (V         : SOAP.Types.Set.Object;
       Name      : String;
       Type_Name : String := "";
       NS        : SOAP.Name_Space.Object := SOAP.Name_Space.No_Name_Space)
@@ -37,15 +38,20 @@ procedure SOAP2 is
       renames SOAP.Types.R;
 
    Payload : SOAP.Message.Payload.Object'Class :=
-     SOAP.Message.Payload.Build
-     ("Workorder",
-      +BR ((+S ("Wo1", "name1"),
-            +S ("idle", "name2"),
-            +A ((1 => +BR ((+S ("idle", "name3"),
-                            +S ("Wo1", "name4")),
-                           "my_record")),
-                "my_array")),
-           "my_record_out"));
+               SOAP.Message.Payload.Build
+                 ("Workorder",
+                  +BR
+                     (SOAP.Types.Set.Object'
+                        [S ("Wo1", "name1"),
+                         S ("idle", "name2"),
+                         A
+                           (SOAP.Types.Set.Object'
+                              [BR
+                                 (SOAP.Types.Set.Object'[S ("idle", "name3"),
+                                                         S ("Wo1", "name4")],
+                                  "my_record")],
+                            "my_array")],
+                      "my_record_out"));
 
    Parms    : constant List := SOAP.Message.Parameters (Payload);
    Obj      : constant SOAP.Types.Object'Class :=

@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2003-2025, AdaCore                     --
+--                     Copyright (C) 2003-2026, AdaCore                     --
 --                                                                          --
 --  This is free software;  you can redistribute it  and/or modify it       --
 --  under terms of the  GNU General Public License as published  by the     --
@@ -23,14 +23,14 @@ with SOAP.Message.Payload;
 with SOAP.Message.Response.Error;
 with SOAP.Name_Space;
 with SOAP.Parameters;
-with SOAP.Types;
+with SOAP.Types.Set;
 
 package body SOAP_SVS_CB is
 
    use Ada;
 
    function BR
-     (V         : SOAP.Types.Object_Set;
+     (V         : SOAP.Types.Set.Object;
       Name      : String;
       Type_Name : String := "";
       NS        : SOAP.Name_Space.Object := SOAP.Name_Space.No_Name_Space)
@@ -205,7 +205,7 @@ package body SOAP_SVS_CB is
          ctApostrophes        : Natural := 0;
          ctQuotes             : Natural := 0;
 
-         OS : Object_Set (1 .. 5);
+         OS : Set.Object;
       begin
          for K in S'Range loop
             case S (K) is
@@ -218,11 +218,12 @@ package body SOAP_SVS_CB is
             end case;
          end loop;
 
-         OS (1) := +I (ctLeftAngleBrackets, "ctLeftAngleBrackets");
-         OS (2) := +I (ctRightAngleBrackets, "ctRightAngleBrackets");
-         OS (3) := +I (ctAmpersands, "ctAmpersands");
-         OS (4) := +I (ctApostrophes, "ctApostrophes");
-         OS (5) := +I (ctQuotes, "ctQuotes");
+         OS := Set.Object'
+                 [I (ctLeftAngleBrackets, "ctLeftAngleBrackets"),
+                  I (ctRightAngleBrackets, "ctRightAngleBrackets"),
+                  I (ctAmpersands, "ctAmpersands"),
+                  I (ctApostrophes, "ctApostrophes"),
+                  I (ctQuotes, "ctQuotes")];
 
          RP := +BR (OS, "answer");
       end;
@@ -364,7 +365,8 @@ package body SOAP_SVS_CB is
          V5 : constant Object'Class := Argument (P, "dat");
          V6 : constant Object'Class := Argument (P, "bin");
       begin
-         RP := +SOAP.Types.A ((+V1, +V2, +V3, +V4, +V5, +V6), "answer");
+         RP := +SOAP.Types.A
+           (Set.Object'[V1, V2, V3, V4, V5, V6], "answer");
       end;
 
       SOAP.Message.Set_Parameters (R, RP);
@@ -508,9 +510,9 @@ package body SOAP_SVS_CB is
          V3 : constant Integer := N * 1000;
 
       begin
-         RP := +BR (Object_Set'(+I (V1, "times10"),
-                                +I (V2, "times100"),
-                                +I (V3, "times1000")),
+         RP := +BR (Set.Object'[I (V1, "times10"),
+                                I (V2, "times100"),
+                                I (V3, "times1000")],
                     "answer");
       end;
 
@@ -551,10 +553,10 @@ package body SOAP_SVS_CB is
       R := SOAP.Message.Response.From (PL);
 
       RP := +BR
-        (Object_Set'(+S ("http://libre.adacore.com/", "toolkitDocsUrl"),
-                     +S ("AWS/SOAP (Ada Web Server)", "toolkitName"),
-                     +S (AWS.Version & '.' & SOAP.Version, "toolkitVersion"),
-                     +S ("Windows", "toolkitOperatingSystem")),
+        (Set.Object'[S ("http://libre.adacore.com/", "toolkitDocsUrl"),
+                     S ("AWS/SOAP (Ada Web Server)", "toolkitName"),
+                     S (AWS.Version & '.' & SOAP.Version, "toolkitVersion"),
+                     S ("Windows", "toolkitOperatingSystem")],
          "answer");
 
       SOAP.Message.Set_Parameters (R, RP);

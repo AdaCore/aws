@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                    Copyright (C) 2000-2025, AdaCore                      --
+--                    Copyright (C) 2000-2026, AdaCore                      --
 --                                                                          --
 --  This is free software;  you can redistribute it  and/or modify it       --
 --  under terms of the  GNU General Public License as published  by the     --
@@ -23,7 +23,7 @@
 with Ada.Text_IO;
 with Ada.Calendar;
 
-with SOAP.Types;
+with SOAP.Types.Set;
 with SOAP.Parameters;
 with SOAP.Client;
 with SOAP.Message.Payload;
@@ -41,7 +41,7 @@ procedure SOAP_CVS is
    SOAPAction : constant String := "/validator1";
 
    function BR
-     (V         : SOAP.Types.Object_Set;
+     (V         : Set.Object;
       Name      : String;
       Type_Name : String := "";
       NS        : SOAP.Name_Space.Object := SOAP.Name_Space.No_Name_Space)
@@ -62,11 +62,11 @@ procedure SOAP_CVS is
       P := Message.Payload.Build ("countTheEntities", P_Set);
 
       declare
-         R : constant Message.Response.Object'Class
-           := SOAP.Client.Call (Server, P, SOAPAction);
+         R : constant Message.Response.Object'Class :=
+               SOAP.Client.Call (Server, P, SOAPAction);
 
-         P : constant Parameters.List
-           := SOAP.Message.Parameters (R);
+         P : constant Parameters.List :=
+               SOAP.Message.Parameters (R);
 
          Answer : constant SOAP_Record := SOAP.Parameters.Get (P, "answer");
       begin
@@ -85,7 +85,7 @@ procedure SOAP_CVS is
    procedure easyStructTest is
 
       P_Set : Parameters.List :=
-        +BR ((+I (12, "moe"), +I (45, "larry"), +I (10, "curly")),
+        +BR (Set.Object'[I (12, "moe"), I (45, "larry"), I (10, "curly")],
              "stooges");
 
       P     : Message.Payload.Object;
@@ -93,11 +93,11 @@ procedure SOAP_CVS is
       P := Message.Payload.Build ("easyStructTest", P_Set);
 
       declare
-         R : constant Message.Response.Object'Class
-           := SOAP.Client.Call (Server, P, SOAPAction);
+         R : constant Message.Response.Object'Class :=
+               SOAP.Client.Call (Server, P, SOAPAction);
 
-         P : constant Parameters.List
-           := SOAP.Message.Parameters (R);
+         P : constant Parameters.List :=
+               SOAP.Message.Parameters (R);
 
          Answer : constant Integer := SOAP.Parameters.Get (P, "answer");
       begin
@@ -114,7 +114,7 @@ procedure SOAP_CVS is
    procedure echoStructTest is
 
       P_Set : Parameters.List :=
-        +BR ((+I (12, "moe"), +I (45, "larry"), +I (10, "curly")),
+        +BR (Set.Object'[I (12, "moe"), I (45, "larry"), I (10, "curly")],
              "myStruct");
 
       P     : Message.Payload.Object;
@@ -174,22 +174,22 @@ procedure SOAP_CVS is
 
    procedure moderateSizeArrayCheck is
 
-      P_Set : Parameters.List := +A ((+S ("str 1"),
-                                     +S ("str 2"),
-                                     +S ("str 3"),
-                                     +S ("str 4")),
-                                    "myArray");
+      P_Set : Parameters.List := +A (Set.Object'[S ("str 1"),
+                                                 S ("str 2"),
+                                                 S ("str 3"),
+                                                 S ("str 4")],
+                                     "myArray");
 
       P     : Message.Payload.Object;
    begin
       P := Message.Payload.Build ("moderateSizeArrayCheck", P_Set);
 
       declare
-         R : constant Message.Response.Object'Class
-           := SOAP.Client.Call (Server, P, SOAPAction);
+         R : constant Message.Response.Object'Class :=
+               SOAP.Client.Call (Server, P, SOAPAction);
 
-         P : constant Parameters.List
-           := SOAP.Message.Parameters (R);
+         P : constant Parameters.List :=
+               SOAP.Message.Parameters (R);
 
          Answer : constant String := SOAP.Parameters.Get (P, "answer");
 
@@ -206,28 +206,29 @@ procedure SOAP_CVS is
 
    procedure nestedStructTest is
 
-      S1 : constant Object_Set :=
-        (+I (1, "un"), +I (2, "deux"));
+      S1 : constant Set.Object := [I (1, "un"), I (2, "deux")];
 
-      S2 : constant Object_Set :=
-        (+I (1, "moe"), +I (27, "larry"), +I (76, "curly"));
+      S2 : constant Set.Object :=
+             [I (1, "moe"), I (27, "larry"), I (76, "curly")];
 
-      P_Set : Parameters.List
-        := +BR
-        ((+BR ((1 => +BR (S1, "test")), "year1999"),
-          +BR ((1 => +BR ((1 => +BR (S2, "day01")), "month04")), "year2000")),
-         "myStruct");
+      P_Set : Parameters.List :=
+        +BR (Set.Object'[BR (Set.Object'[BR (S1, "test")],
+                              "year1999"),
+                         BR (Set.Object'[BR (Set.Object'[BR (S2, "day01")],
+                                             "month04")],
+                              "year2000")],
+             "myStruct");
 
       P     : Message.Payload.Object;
    begin
       P := Message.Payload.Build ("nestedStructTest", P_Set);
 
       declare
-         R : constant Message.Response.Object'Class
-           := SOAP.Client.Call (Server, P, SOAPAction);
+         R : constant Message.Response.Object'Class :=
+               SOAP.Client.Call (Server, P, SOAPAction);
 
-         P : constant Parameters.List
-           := SOAP.Message.Parameters (R);
+         P : constant Parameters.List :=
+               SOAP.Message.Parameters (R);
 
          Answer : constant Integer := SOAP.Parameters.Get (P, "answer");
 
@@ -249,11 +250,11 @@ procedure SOAP_CVS is
       P := Message.Payload.Build ("simpleStructReturnTest", P_Set);
 
       declare
-         R : constant Message.Response.Object'Class
-           := SOAP.Client.Call (Server, P, SOAPAction);
+         R : constant Message.Response.Object'Class :=
+               SOAP.Client.Call (Server, P, SOAPAction);
 
-         P : constant Parameters.List
-           := SOAP.Message.Parameters (R);
+         P : constant Parameters.List :=
+               SOAP.Message.Parameters (R);
 
          Answer : constant SOAP_Record := SOAP.Parameters.Get (P, "answer");
 
@@ -283,8 +284,8 @@ procedure SOAP_CVS is
       P := Message.Payload.Build ("whichToolkit", P_Set);
 
       declare
-         R : constant Message.Response.Object'Class
-           := SOAP.Client.Call (Server, P, SOAPAction);
+         R : constant Message.Response.Object'Class :=
+               SOAP.Client.Call (Server, P, SOAPAction);
 
          P : constant Parameters.List := SOAP.Message.Parameters (R);
 

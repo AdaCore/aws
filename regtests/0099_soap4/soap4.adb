@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2002-2012, AdaCore                     --
+--                     Copyright (C) 2002-2026, AdaCore                     --
 --                                                                          --
 --  This is free software;  you can redistribute it  and/or modify it       --
 --  under terms of the  GNU General Public License as published  by the     --
@@ -20,6 +20,7 @@ with Ada.Text_IO;      use Ada.Text_IO;
 with Ada.Calendar;     use Ada.Calendar;
 
 with SOAP.Types;       use SOAP.Types;
+with SOAP.Types.Set;
 with SOAP.Parameters;  use SOAP.Parameters;
 with SOAP.Message;
 with SOAP.Message.Payload;
@@ -28,19 +29,19 @@ with SOAP.Message.XML;
 procedure SOAP4 is
 
    Rec : SOAP_Record
-     := R ((+S ("val1", "name1"), +S ("val2", "name2")), "rec");
+     := R (Set.Object'[S ("val1", "name1"), S ("val2", "name2")], "rec");
 
    Rec2 : SOAP_Record
-     := R ((+S ("val1", "name1"), +S ("val2", "name2")), "rec2");
+     := R (Set.Object'[S ("val1", "name1"), S ("val2", "name2")], "rec2");
 
    Arr : SOAP_Array
-     := A ((+Rec, +Rec, +Rec), "arr");
+     := A (Set.Object'[Rec, Rec, Rec], "arr");
 
    Arr2 : SOAP_Array
-     := A ((+Rec, +Rec, +Rec2, +Rec), "arr2");
+     := A (Set.Object'[Rec, Rec, Rec2, Rec], "arr2");
 
    Arr3 : SOAP_Array
-     := A ((+Rec, +Rec, +S ("value", "rec"), +Rec), "arr3");
+     := A (Set.Object'[Rec, Rec, S ("value", "rec"), Rec], "arr3");
 
    Payload : SOAP.Message.Payload.Object'Class :=
      SOAP.Message.Payload.Build ("Arr_Rec", +Arr);

@@ -75,12 +75,6 @@ project Tools is
    package Compiler renames Shared.Compiler;
 
    ------------
-   -- Naming --
-   ------------
-
-   package Naming renames Shared.Naming;
-
-   ------------
    -- Binder --
    ------------
 

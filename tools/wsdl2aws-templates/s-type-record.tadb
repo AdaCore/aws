@@ -4,6 +4,7 @@
 --
 --  AWS @_AWS_VERSION_@ - SOAP @_SOAP_VERSION_@
 --  This file was generated on @_NOW_@
+--  Template file s-type-record.tadb
 --
 --  $ wsdl2aws @_OPTIONS_@
 @@-----------------------------------------------------------------------
@@ -15,7 +16,7 @@
                            SOAP.Name_Space.Create ("@_RF_NS_NAME_@", "@_RF_NS_VALUE_@")))@_$3_@
 @@ELSIF@@ @_RF_KIND_@ = K_ARRAY
 @@IF@@ @_RF_MAX_@ > 1 and @_RF_IS_SET_@
-@_$1_@@_$2_@SOAP_Set'(SOAP.Types.Set (To_Object_Set
+@_$1_@@_$2_@SOAP_Set'(SOAP.Types.S (To_Object_Set
             (R.@_RF_DECL_NAME_@,
              SOAP.Name_Space.Create ("@_RF_NS_NAME_@", "@_RF_NS_VALUE_@")),
 @@IF@@ @_IS_EMPTY:RF_NS_NAME_@ or (@_RF_NS_VALUE_@ = "http://www.w3.org/2001/XMLSchema")
@@ -61,7 +62,7 @@
 @@-----------------------------------------------------------------------
 @@MACRO(REC_GET_FIELD_FROM_SOAP)@@
 @@IF@@ @_RF_KIND_@ = K_ARRAY and @_RF_MIN_@ = 0 and @_RF_MAX_@ = 1
-To_@_RF_TYPE_NAME_@_Type (Object_Set'(1 => +@_$1_@))
+To_@_RF_TYPE_NAME_@_Type (Set.Object'[@_$1_@])
 @@ELSIF@@ @_RF_KIND_@ = K_ARRAY
 +To_@_RF_TYPE_NAME_@_Type (@_$1_@)
 @@ELSIF@@ (@_RF_KIND_@ = K_RECORD) or (@_RF_KIND_@ = K_ENUMERATION)
@@ -88,9 +89,12 @@ To_@_RF_ADA_TYPE_@ (@_$1_@)
 @@END_MACRO@@
 @@-----------------------------------------------------------------------
 
+pragma Ada_2022;
+
 with Ada.Tags;
 
 with SOAP.Parameters;
+with SOAP.Types.Set;
 
 with @_SERVICE_NAME_@.Types;
 
@@ -98,6 +102,7 @@ package body @_UNIT_NAME_@ is
 
    use Ada.Tags;
    use SOAP.Types;
+   use type SOAP.Types.Set.Object;
 
    --
    -- To_@_TYPE_NAME_@
@@ -154,13 +159,13 @@ package body @_UNIT_NAME_@ is
 @@TABLE'ALIGN_ON(":")@@
 @@IF@@ not @_RF_DECL_IN_CHOICE_@
 @@IF@@ @_RF_KIND_@ = K_ARRAY and @_RF_MIN_@ /= 0 and @_FIELD_ARRAY_LENGTH_@ > 1
-      @_RF_DECL_NAME_@ : constant SOAP.Types.Object_Set :=
+      @_RF_DECL_NAME_@ : constant SOAP.Types.Set.Object :=
         SOAP.Parameters.Get (P_List, "@_RF_NAME_@");
 @@ELSIF@@ @_RF_KIND_@ = K_ARRAY and @_RF_MIN_@ = 0 and @_FIELD_ARRAY_LENGTH_@ > 1
-      @_RF_DECL_NAME_@ : constant SOAP.Types.Object_Set :=
+      @_RF_DECL_NAME_@ : constant SOAP.Types.Set.Object :=
         (if SOAP.Parameters.Exist (P_List, "@_RF_NAME_@")
          then SOAP.Parameters.Get (P_List, "@_RF_NAME_@")
-         else Empty_Object_Set);
+         else Set.Empty_Object);
 @@ELSIF@@ @_RF_KIND_@ = K_ARRAY and @_RF_MIN_@ = 0
       @_RF_DECL_NAME_@ : constant SOAP.Types.Object'Class :=
         (if SOAP.Parameters.Exist (P_List, "@_RF_NAME_@")
@@ -188,7 +193,7 @@ package body @_UNIT_NAME_@ is
       -- @_RF_DECL_NAME_@
 @@IF@@ @_RF_KIND_@ = K_ARRAY and @_RF_MIN_@ = 0
 @@IF@@ @_FIELD_ARRAY_LENGTH_@ > 1
-      if @_RF_DECL_NAME_@ /= Empty_Object_Set then
+      if @_RF_DECL_NAME_@ /= Set.Empty_Object then
 @@ELSE@@
       if @_RF_DECL_NAME_@ /= No_Object then
 @@END_IF@@
@@ -267,18 +272,16 @@ package body @_UNIT_NAME_@ is
         return SOAP.Name_Space.Object is (NS);
 
 @@IF@@ @_HAS_CHOICE_@ and @_FIELD_COUNT_@ > 0
-      function C_Object return SOAP.Types.Object_Safe_Pointer is
+      function C_Object return SOAP.Types.Object'Class is
       begin
          case R.C is
             when C0 =>
-               return O : SOAP.Types.Object_Safe_Pointer do
-                  null;
-               end return;
+               return SOAP.Types.No_Object;
 @@TABLE@@
 @@IF@@ @_RF_DECL_IN_CHOICE_@
             when C@_CHOICE_FIELD_NUMBER_@ =>
 @@INLINE(               )(\n     )()@@
-               return @_REC_FIELD_TO_SOAP(1 => "", 2 => "+", 3 => ";")_@
+               return @_REC_FIELD_TO_SOAP(1 => "", 2 => "", 3 => ";")_@
 @@END_INLINE@@
 @@END_IF@@
 @@END_TABLE@@
@@ -292,18 +295,18 @@ package body @_UNIT_NAME_@ is
       case R.C is
          when C0 =>
             Result@_TYPE_NAME_@ := SOAP.Types.R
-              ((
+              (SOAP.Types.Set.Object'[
 @@IF@@ @_INDEX_LAST_STANDARD_@ = 0
-                1 .. 0 => <>),
+                          ],
 @@ELSE@@
 @@TABLE@@
 @@IF@@ not @_RF_DECL_IN_CHOICE_@
                 --  @_RF_NAME_@
 @@INLINE(                )(\n          )()@@
 @@IF@@ @_FIELD_NUMBER_@ = @_INDEX_LAST_STANDARD_@
-        @_REC_FIELD_TO_SOAP(1 => @_FIELD_NUMBER_@, 2 => " => +")_@),
+        @_REC_FIELD_TO_SOAP(1 => @_FIELD_NUMBER_@, 2 => " => ")_@],
 @@ELSE@@
-        @_REC_FIELD_TO_SOAP(1 => @_FIELD_NUMBER_@, 2 => " => +")_@,
+        @_REC_FIELD_TO_SOAP(1 => @_FIELD_NUMBER_@, 2 => " => ")_@,
 @@END_IF@@
 @@END_INLINE@@
 @@END_IF@@
@@ -313,20 +316,20 @@ package body @_UNIT_NAME_@ is
 
          when others =>
             Result@_TYPE_NAME_@ := SOAP.Types.R
-              ((
+              (SOAP.Types.Set.Object'[
 @@TABLE@@
 @@IF@@ not @_RF_DECL_IN_CHOICE_@
                 --  @_RF_NAME_@
 @@INLINE(                )(\n          )()@@
 @@IF@@ @_FIELD_NUMBER_@ = @_INDEX_LAST_STANDARD_@
-         @_REC_FIELD_TO_SOAP(1 => @_FIELD_NUMBER_@, 2 => " => +")_@,
+         @_REC_FIELD_TO_SOAP(1 => @_FIELD_NUMBER_@, 2 => " => ")_@,
 @@ELSE@@
-         @_REC_FIELD_TO_SOAP(1 => @_FIELD_NUMBER_@, 2 => " => +")_@,
+         @_REC_FIELD_TO_SOAP(1 => @_FIELD_NUMBER_@, 2 => " => ")_@,
 @@END_IF@@
 @@END_INLINE@@
 @@END_IF@@
 @@END_TABLE@@
-                @_"+"(1):"-"(CHOICE_FIELD_COUNT):FIELD_COUNT_@ => C_Object),
+                @_"+"(1):"-"(CHOICE_FIELD_COUNT):FIELD_COUNT_@ => C_Object],
                Name, Q_Type_Name, NS => NS);
       end case;
 @@--
@@ -334,7 +337,7 @@ package body @_UNIT_NAME_@ is
 @@--
       Result@_TYPE_NAME_@ := SOAP.Types.R
 @@IF@@ @_FIELD_COUNT_@ = 0
-        (SOAP.Types.Empty_Object_Set, Name, Q_Type_Name, NS => NS);
+        (SOAP.Types.Set.Empty_Object, Name, Q_Type_Name, NS => NS);
 @@ELSE@@
         (SOAP.Parameters.Get (To_Parameter_List (R)),
          Name, Q_Type_Name, NS => NS);

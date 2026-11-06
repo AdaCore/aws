@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2000-2025, AdaCore                     --
+--                     Copyright (C) 2000-2026, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -31,9 +31,9 @@ pragma Ada_2022;
 
 with Ada.Strings.Unbounded;
 
-with SOAP.Types;
+with SOAP.Types.Set;
 
-private with Ada.Containers.Vectors;
+private with Ada.Containers.Indefinite_Vectors;
 
 package SOAP.Parameters is
 
@@ -42,6 +42,8 @@ package SOAP.Parameters is
    Data_Error : exception renames Types.Data_Error;
 
    type List is private;
+
+   Empty_List : constant List;
 
    function Argument_Count (P : List) return Natural;
    --  Returns the number of parameters in P
@@ -164,13 +166,16 @@ package SOAP.Parameters is
    --  Types.Data_Error if this parameter does not exist or is not a SOAP
    --  Array.
 
-   function Get (P : List) return Types.Object_Set;
-   --  Retunrs the Object_Set corresponding to the List
+   function Get (P : List) return Types.Set.Object;
+   --  Returns the Set.Object corresponding to the List
 
-   function Get (P : List; Name : String) return Types.Object_Set;
+   function Get (P : List; Name : String) return Types.Set.Object;
    --  Returns all element of P having the name Name
 
-   function To_List (Set : Types.Object_Set) return List;
+   function Get (P : List; Name : String) return List;
+   --  Returns all element of P having the name Name
+
+   function To_List (Set : Types.Set.Object) return List;
    --  Returns a list for the given object set
 
    ------------------
@@ -219,9 +224,11 @@ package SOAP.Parameters is
 
 private
 
-   package Set is new Ada.Containers.Vectors
-     (Positive, Types.Object_Safe_Pointer, Types."=");
+   package Set is new Ada.Containers.Indefinite_Vectors
+     (Positive, Types.Object'Class, Types."=");
 
    type List is new Set.Vector with null record;
+
+   Empty_List : constant List := [];
 
 end SOAP.Parameters;

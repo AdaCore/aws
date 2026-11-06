@@ -2,7 +2,7 @@
 --                ZLib for Ada thick binding.                 --
 --                                                            --
 --         Copyright (C) 2002-2020, Dmitriy Anisimkov         --
---              Copyright (C) 2021-2024, AdaCore              --
+--              Copyright (C) 2021-2026, AdaCore              --
 --                                                            --
 --  Open source license information is in the zlib.ads file.  --
 ----------------------------------------------------------------
@@ -48,13 +48,13 @@ package body ZLib is
    subtype Footer_Array is Stream_Element_Array (1 .. 8);
 
    Simple_GZip_Header : constant Stream_Element_Array (1 .. 10) :=
-     (16#1f#, 16#8b#,                 --  Magic header
+     [16#1f#, 16#8b#,                 --  Magic header
       16#08#,                         --  Z_DEFLATED
       16#00#,                         --  Flags
       16#00#, 16#00#, 16#00#, 16#00#, --  Time
       16#00#,                         --  XFlags
       16#03#                          --  OS code
-     );
+     ];
    --  The simplest gzip header is not for informational, but just for
    --  gzip format compatibility.
    --  Note that some code below is using assumption
@@ -62,7 +62,7 @@ package body ZLib is
    --  Simple_GZip_Header'Last <= Footer_Array'Last.
 
    Return_Code : constant array (Thin.Int range <>) of Return_Code_Enum :=
-     (Thin.Z_OK            => OK,
+     [Thin.Z_OK            => OK,
       Thin.Z_STREAM_END    => STREAM_END,
       Thin.Z_NEED_DICT     => NEED_DICT,
       Thin.Z_ERRNO         => ERRNO,
@@ -70,16 +70,16 @@ package body ZLib is
       Thin.Z_DATA_ERROR    => DATA_ERROR,
       Thin.Z_MEM_ERROR     => MEM_ERROR,
       Thin.Z_BUF_ERROR     => BUF_ERROR,
-      Thin.Z_VERSION_ERROR => VERSION_ERROR);
+      Thin.Z_VERSION_ERROR => VERSION_ERROR];
 
    Flate : constant array (Boolean) of Flate_Type :=
-             (True  => (Step => Thin.Deflate'Access,
+             [True  => (Step => Thin.Deflate'Access,
                         Done => Thin.DeflateEnd'Access),
               False => (Step => Thin.Inflate'Access,
-                        Done => Thin.InflateEnd'Access));
+                        Done => Thin.InflateEnd'Access)];
 
    Flush_Finish : constant array (Boolean) of Flush_Mode :=
-                    (True => Finish, False => No_Flush);
+                    [True => Finish, False => No_Flush];
 
    procedure Raise_Error (Stream : in Z_Stream) with Inline;
 

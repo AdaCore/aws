@@ -39,7 +39,7 @@ with AWS.Status;
 
 with SOAP.Message.Payload;
 with SOAP.Name_Space;
-with SOAP.Types;
+with SOAP.Types.Set;
 with SOAP.WSDL.Schema;
 
 package SOAP.Utils is
@@ -155,22 +155,23 @@ package SOAP.Utils is
       type T is private;
       type T_Array is array (Positive range <>) of T;
       with function Get (O : Types.Object'Class) return T;
-   function To_T_Array (From : Types.Object_Set) return T_Array;
-   --  Convert a Types.Object_Set to an array of T
+   function To_T_Array (From : Types.Set.Object) return T_Array;
+   --  Convert a Types.Set.Object to an array of T
 
    generic
       with package Vector is new Ada.Containers.Vectors
         (Positive, others => <>);
       with function Get (O : Types.Object'Class) return Vector.Element_Type;
-   function To_Vector (From : Types.Object_Set) return Vector.Vector;
-   --  Convert a Types.Object_Set to an vector
+   function To_Vector (From : Types.Set.Object) return Vector.Vector;
+   --  Convert a Types.Set.Object to a vector
 
    generic
       type T is private;
       type Index is range <>;
       type T_Array is array (Index) of T;
       with function Get (O : Types.Object'Class) return T;
-   function To_T_Array_C (From : Types.Object_Set) return T_Array;
+   function To_T_Array_C (From : Types.Set.Object) return T_Array
+     with Pre => Natural (From.Length) = T_Array'Length;
    --  As above but for constrained arrays
 
    generic
@@ -187,8 +188,8 @@ package SOAP.Utils is
              return XSD_Type;
    function To_Object_Set
      (From : T_Array;
-      NS   : Name_Space.Object) return Types.Object_Set;
-   --  Convert an array of T to a Types.Object_Set
+      NS   : Name_Space.Object) return Types.Set.Object;
+   --  Convert an array of T to a Types.Set.Object
 
    generic
       type T is private;
@@ -205,7 +206,7 @@ package SOAP.Utils is
              return XSD_Type;
    function To_Object_Set_C
      (From : T_Array;
-      NS   : Name_Space.Object) return Types.Object_Set;
+      NS   : Name_Space.Object) return Types.Set.Object;
    --  As above but for constrained arrays
 
    generic
@@ -222,8 +223,8 @@ package SOAP.Utils is
              return XSD_Type;
    function To_Object_Set_V
      (From : Vector.Vector;
-      NS   : Name_Space.Object) return Types.Object_Set;
-   --  Convert a Vector to a Types.Object_Set
+      NS   : Name_Space.Object) return Types.Set.Object;
+   --  Convert a Vector to a Types.Set.Object
 
    function Get (Item : Types.Object'Class) return Unbounded_String;
    --  Returns an Unbounded_String for Item. Item must be a SOAP string object

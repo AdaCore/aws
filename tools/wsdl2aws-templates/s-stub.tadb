@@ -4,6 +4,7 @@
 --
 --  AWS @_AWS_VERSION_@ - SOAP @_SOAP_VERSION_@
 --  This file was generated on @_NOW_@
+--  Template file s-stub.tadb
 --
 --  $ wsdl2aws @_OPTIONS_@
 @@INCLUDE@@ s-common.macros

@@ -4,6 +4,7 @@
 --
 --  AWS @_AWS_VERSION_@ - SOAP @_SOAP_VERSION_@
 --  This file was generated on @_NOW_@
+--  Template file s-type-enum.tads
 --
 --  $ wsdl2aws @_OPTIONS_@
 

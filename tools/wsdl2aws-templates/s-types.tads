@@ -4,6 +4,7 @@
 --
 --  AWS @_AWS_VERSION_@ - SOAP @_SOAP_VERSION_@
 --  This file was generated on @_NOW_@
+--  Template file s-types.tads
 --
 --  $ wsdl2aws @_OPTIONS_@
 
@@ -20,9 +21,9 @@ pragma Elaborate_All (SOAP.Name_Space);
 with SOAP.Parameters;
 pragma Elaborate_All (SOAP);
 pragma Elaborate_All (SOAP.Parameters);
-with SOAP.Types;
+with SOAP.Types.Set;
 pragma Elaborate_All (SOAP);
-pragma Elaborate_All (SOAP.Types);
+pragma Elaborate_All (SOAP.Types.Set);
 with SOAP.Utils;
 pragma Elaborate_All (SOAP.Utils);
 

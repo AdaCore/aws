@@ -4,6 +4,7 @@
 --
 --  AWS @_AWS_VERSION_@ - SOAP @_SOAP_VERSION_@
 --  This file was generated on @_NOW_@
+--  Template file s-skel.tadb
 --
 --  $ wsdl2aws @_OPTIONS_@
 --
@@ -86,6 +87,7 @@ with Ada.Strings.Unbounded;
 with SOAP.Message.Response.Error;
 with SOAP.Name_Space;
 with SOAP.Parameters;
+with SOAP.Types.Set;
 with SOAP.Utils;
 
 @@IF@@ @_DEBUG_@
@@ -175,7 +177,7 @@ package body @_UNIT_NAME_@.Server is
 @@ELSE@@
          @_IP_NAME_@_@_IP_TYPE_NAME_@_Record : constant SOAP.Types.SOAP_Record :=
 @@END_IF@@
-            SOAP.Types.R (SOAP.Types.Empty_Object_Set,
+            SOAP.Types.R (SOAP.Types.Set.Empty_Object,
                           "@_IP_NAME_@");
 @@ELSIF@@ @_IP_KIND_@ = K_RECORD
 @@IF@@ @_IP_IS_ATTRIBUTE_@
