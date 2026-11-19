@@ -161,7 +161,7 @@ package body AWS.Config is
 
    function Client_Certificate (O : Object) return String is
    begin
-      return To_String (O.P (Server_Certificate).Str_Value);
+      return To_String (O.P (Client_Certificate).Str_Value);
    end Client_Certificate;
 
    -------------------
